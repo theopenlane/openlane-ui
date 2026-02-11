@@ -27,8 +27,9 @@ export const subscribersColumns: ColumnDef<Subscriber>[] = [
   },
   {
     accessorKey: 'createdAt',
-    header: 'Created at',
-    cell: ({ cell }) => <p>{formatDate(cell.row?.original?.createdAt)}</p>,
+    header: 'Created At',
+    size: 150,
+    cell: ({ cell }) => <span className="whitespace-nowrap">{formatDate(cell.getValue() as string)}</span>,
   },
   {
     accessorKey: 'actions',

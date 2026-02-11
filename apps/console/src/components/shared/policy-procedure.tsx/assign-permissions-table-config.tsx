@@ -42,6 +42,8 @@ export const useGroupSelectionColumns = (selectedGroupIds: string[], setSelected
         />
       )
     },
+    size: 50,
+    maxSize: 50,
   },
   {
     accessorKey: 'name',

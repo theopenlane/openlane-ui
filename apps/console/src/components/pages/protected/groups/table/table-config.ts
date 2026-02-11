@@ -22,7 +22,7 @@ export function useGroupsFilters(): FilterField[] | null {
       {
         key: 'hasMembersWith',
         label: 'Member',
-        type: 'dropdownSearch',
+        type: 'dropdownUserSearch',
         icon: FilterIcons.Owners,
         options: userOptions,
       },

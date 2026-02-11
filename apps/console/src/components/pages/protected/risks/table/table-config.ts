@@ -7,6 +7,7 @@ export const getRisksFilterFields = (
   programOptions: { value: string; label: string }[],
   riskKindOptions: { value: string; label: string }[],
   riskCategoryOptions: { value: string; label: string }[],
+  tagOptions: { value: string; label: string }[],
 ): FilterField[] => [
   {
     key: 'riskCategoryNameIn',
@@ -56,6 +57,13 @@ export const getRisksFilterFields = (
     type: 'multiselect',
     options: programOptions,
     icon: FilterIcons.ProgramName,
+  },
+  {
+    key: 'tagsHas',
+    label: 'Tags',
+    type: 'dropdownSearchSingleSelect',
+    icon: FilterIcons.Status,
+    options: tagOptions,
   },
 ]
 

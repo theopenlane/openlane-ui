@@ -49,6 +49,7 @@ export const getColumnsForImportControlsDialogFramework = ({ selectedItems, setS
         return <Checkbox checked={isChecked} onCheckedChange={(checked) => handleToggle(!!checked)} />
       },
       size: 50,
+      maxSize: 50,
     },
     {
       accessorKey: 'name',

@@ -137,13 +137,15 @@ const ProceduresTable: React.FC<ProceduresTableProps> = ({ controlId, subcontrol
             )}
           </div>
         ),
-        size: 80,
+        size: 150,
+        minSize: 150,
       },
       {
         accessorKey: 'approver',
         header: () => <span className="whitespace-nowrap">Approver</span>,
         cell: ({ row }) => <span className="truncate whitespace-nowrap">{row.original.approver?.displayName ?? '-'}</span>,
-        size: 160,
+        size: 200,
+        minSize: 200,
       },
       {
         accessorKey: 'updatedBy',
@@ -164,7 +166,7 @@ const ProceduresTable: React.FC<ProceduresTableProps> = ({ controlId, subcontrol
             </div>
           )
         },
-        size: 180,
+        size: 200,
       },
       {
         accessorKey: 'updatedAt',

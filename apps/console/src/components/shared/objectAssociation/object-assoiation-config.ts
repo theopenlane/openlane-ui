@@ -113,7 +113,6 @@ type ObjectQueryConfig = {
   queryDocument: RequestDocument
   inputName: string
   placeholder: string
-  objectName: string
 }
 
 export const OBJECT_QUERY_CONFIG: Record<ObjectTypeObjects, ObjectQueryConfig> = {
@@ -122,70 +121,60 @@ export const OBJECT_QUERY_CONFIG: Record<ObjectTypeObjects, ObjectQueryConfig> =
     inputName: 'controlIDs',
     placeholder: 'Search controls',
     queryDocument: GET_ALL_CONTROLS,
-    objectName: 'refCode',
   },
   [ObjectTypeObjects.SUB_CONTROL]: {
     responseObjectKey: 'subcontrols',
     inputName: 'subcontrolIDs',
     placeholder: 'Search subcontrols',
     queryDocument: GET_ALL_SUBCONTROLS,
-    objectName: 'refCode',
   },
   [ObjectTypeObjects.CONTROL_OBJECTIVE]: {
     responseObjectKey: 'controlObjectives',
     inputName: 'controlObjectiveIDs',
     placeholder: 'Search control objectives',
     queryDocument: GET_ALL_CONTROL_OBJECTIVES,
-    objectName: 'name',
   },
   [ObjectTypeObjects.PROGRAM]: {
     responseObjectKey: 'programs',
     inputName: 'programIDs',
     placeholder: 'Search programs',
     queryDocument: GET_ALL_PROGRAMS,
-    objectName: 'name',
   },
   [ObjectTypeObjects.TASK]: {
     responseObjectKey: 'tasks',
     inputName: 'taskIDs',
     placeholder: 'Search tasks',
     queryDocument: TASKS_WITH_FILTER,
-    objectName: 'title',
   },
   [ObjectTypeObjects.EVIDENCE]: {
     responseObjectKey: 'evidences',
     inputName: 'evidenceIDs',
     placeholder: 'Search evidence',
     queryDocument: GET_ALL_EVIDENCES,
-    objectName: 'name',
   },
   [ObjectTypeObjects.GROUP]: {
     responseObjectKey: 'groups',
     inputName: 'groupIDs',
     placeholder: 'Search groups',
     queryDocument: GET_ALL_GROUPS,
-    objectName: 'name',
   },
   [ObjectTypeObjects.INTERNAL_POLICY]: {
     responseObjectKey: 'internalPolicies',
     inputName: 'internalPolicyIDs',
     placeholder: 'Search internal policies',
     queryDocument: GET_ALL_INTERNAL_POLICIES,
-    objectName: 'name',
   },
   [ObjectTypeObjects.PROCEDURE]: {
     responseObjectKey: 'procedures',
     inputName: 'procedureIDs',
     placeholder: 'Search procedures',
     queryDocument: GET_ALL_PROCEDURES,
-    objectName: 'name',
   },
   [ObjectTypeObjects.RISK]: {
     responseObjectKey: 'risks',
     inputName: 'riskIDs',
     placeholder: 'Search risks',
     queryDocument: GET_ALL_RISKS,
-    objectName: 'name',
   },
 }
 
@@ -252,14 +241,14 @@ export function getPagination(objectKey: QueryResponseMapKey | undefined, data: 
 export type TableRow = {
   id?: string
   name?: string
-  description?: string
   inputName?: string
   refCode?: string
-  details?: string
 }
 
-export function extractTableRows(objectKey: QueryResponseMapKey | undefined, data: QueryResponse | undefined, objectName?: string, inputName?: string): TableRow[] {
-  if (!objectKey || !data || !objectName) return []
+export function extractTableRows(objectKey: QueryResponseMapKey | undefined, data: QueryResponse | undefined, inputName?: string): TableRow[] {
+  if (!objectKey || !data) return []
+
+  const selectedInputName = inputName || ''
 
   switch (objectKey) {
     case 'controls': {
@@ -267,10 +256,8 @@ export function extractTableRows(objectKey: QueryResponseMapKey | undefined, dat
       return items.map((item) => ({
         id: item?.node?.id || '',
         name: item?.node?.refCode,
-        description: item?.node?.description ?? '',
-        inputName: inputName || '',
+        inputName: selectedInputName,
         refCode: item?.node?.refCode ?? '',
-        details: '',
       }))
     }
     case 'subcontrols': {
@@ -278,10 +265,8 @@ export function extractTableRows(objectKey: QueryResponseMapKey | undefined, dat
       return items.map((item) => ({
         id: item?.node?.id || '',
         name: item?.node?.refCode,
-        description: item?.node?.description ?? '',
-        inputName: inputName || '',
+        inputName: selectedInputName,
         refCode: item?.node?.refCode ?? '',
-        details: '',
       }))
     }
 
@@ -290,10 +275,8 @@ export function extractTableRows(objectKey: QueryResponseMapKey | undefined, dat
       return items.map((item) => ({
         id: item?.node?.id || '',
         name: item?.node?.name ?? '',
-        description: item?.node?.desiredOutcome ?? '',
-        inputName: inputName || '',
+        inputName: selectedInputName,
         refCode: '',
-        details: item?.node?.category ?? '',
       }))
     }
 
@@ -302,10 +285,8 @@ export function extractTableRows(objectKey: QueryResponseMapKey | undefined, dat
       return items.map((item) => ({
         id: item?.node?.id || '',
         name: item?.node?.name ?? '',
-        description: item?.node?.description ?? '',
-        inputName: inputName || '',
+        inputName: selectedInputName,
         refCode: item?.node?.displayID ?? '',
-        details: '',
       }))
     }
 
@@ -314,10 +295,8 @@ export function extractTableRows(objectKey: QueryResponseMapKey | undefined, dat
       return items.map((item) => ({
         id: item?.node?.id || '',
         name: item?.node?.title ?? '',
-        description: item?.node?.details ?? '',
-        inputName: inputName || '',
+        inputName: selectedInputName,
         refCode: item?.node?.displayID ?? '',
-        details: '',
       }))
     }
 
@@ -326,10 +305,8 @@ export function extractTableRows(objectKey: QueryResponseMapKey | undefined, dat
       return items.map((item) => ({
         id: item?.node?.id || '',
         name: item?.node?.name ?? '',
-        description: item?.node?.description ?? '',
-        inputName: inputName || '',
+        inputName: selectedInputName,
         refCode: item?.node?.displayID ?? '',
-        details: '',
       }))
     }
 
@@ -338,10 +315,8 @@ export function extractTableRows(objectKey: QueryResponseMapKey | undefined, dat
       return items.map((item) => ({
         id: item?.node?.id || '',
         name: item?.node?.name ?? '',
-        description: item?.node?.description ?? '',
-        inputName: inputName || '',
+        inputName: selectedInputName,
         refCode: item?.node?.name ?? '',
-        details: '',
       }))
     }
 
@@ -350,10 +325,8 @@ export function extractTableRows(objectKey: QueryResponseMapKey | undefined, dat
       return items.map((item) => ({
         id: item?.node?.id || '',
         name: item?.node?.name ?? '',
-        description: item?.node?.summary ?? '',
-        inputName: inputName || '',
+        inputName: selectedInputName,
         refCode: item?.node?.name ?? '',
-        details: '',
       }))
     }
 
@@ -362,10 +335,8 @@ export function extractTableRows(objectKey: QueryResponseMapKey | undefined, dat
       return items.map((item) => ({
         id: item?.node?.id || '',
         name: item?.node?.name ?? '',
-        description: '',
-        inputName: inputName || '',
+        inputName: selectedInputName,
         refCode: '',
-        details: '',
       }))
     }
 
@@ -374,10 +345,8 @@ export function extractTableRows(objectKey: QueryResponseMapKey | undefined, dat
       return items.map((item) => ({
         id: item?.node?.id || '',
         name: item?.node?.name ?? '',
-        description: item?.node?.details ?? '',
-        inputName: inputName || '',
+        inputName: selectedInputName,
         refCode: item?.node?.displayID ?? '',
-        details: '',
       }))
     }
 

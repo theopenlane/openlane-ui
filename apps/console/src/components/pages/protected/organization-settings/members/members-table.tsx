@@ -128,11 +128,15 @@ export const MembersTable = () => {
           </div>
         )
       },
+      size: 250,
+      minSize: 250,
     },
     {
       accessorKey: 'createdAt',
       header: 'Joined',
       cell: ({ cell }) => formatDateSince(cell.getValue() as string),
+      size: 120,
+      minSize: 120,
     },
     {
       accessorKey: 'user.authProvider',
@@ -147,6 +151,8 @@ export const MembersTable = () => {
           </div>
         )
       },
+      size: 140,
+      minSize: 140,
     },
     {
       accessorKey: 'role',
@@ -161,14 +167,17 @@ export const MembersTable = () => {
           </div>
         )
       },
+      size: 120,
+      maxSize: 150,
     },
     {
-      accessorKey: 'id',
+      id: 'actions',
       header: 'Action',
       cell: ({ cell }) => {
-        return <MemberActions memberName={cell.row.original.user?.displayName} memberId={cell.getValue() as string} memberUserId={cell.row.original.user?.id} memberRole={cell.row.original.role} />
+        return <MemberActions memberName={cell.row.original.user?.displayName} memberId={cell.row.original.id} memberUserId={cell.row.original.user?.id} memberRole={cell.row.original.role} />
       },
-      size: 40,
+      size: 90,
+      maxSize: 90,
     },
   ]
 

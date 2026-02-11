@@ -54,6 +54,8 @@ export const InvitesColumns = () => {
           </div>
         )
       },
+      minSize: 300,
+      size: 300,
     },
     {
       accessorKey: 'role',
@@ -69,6 +71,8 @@ export const InvitesColumns = () => {
           </div>
         )
       },
+      minSize: 120,
+      size: 120,
     },
     {
       accessorKey: 'status',
@@ -82,25 +86,33 @@ export const InvitesColumns = () => {
           </div>
         )
       },
+      minSize: 150,
+      size: 150,
     },
     {
       accessorKey: 'createdAt',
       header: 'Sent',
       cell: ({ cell }) => formatDateSince(cell.getValue() as string),
+      minSize: 150,
+      size: 150,
     },
 
     {
       accessorKey: 'sendAttempts',
       header: () => <span className="whitespace-nowrap">Resend Attempts</span>,
       cell: ({ cell }) => `${cell.getValue() || 0}/5`,
+      minSize: 180,
+      size: 180,
     },
     {
-      accessorKey: 'id',
+      id: 'actions',
       header: 'Action',
       cell: ({ row }) => {
         const invite = row.original
         return <InviteActions inviteId={invite.id} recipient={invite.recipient} role={invite.role} />
       },
+      minSize: 90,
+      size: 90,
     },
   ]
 
@@ -147,6 +159,7 @@ export const groupTableForInvitesColumns = ({ allGroups, selectedGroups, setSele
         return <Checkbox checked={isChecked} onCheckedChange={(checked) => handleToggle(!!checked)} />
       },
       size: 50,
+      maxSize: 50,
     },
     {
       header: 'Name',

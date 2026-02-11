@@ -3,7 +3,7 @@
 import { ColumnDef, Row } from '@tanstack/react-table'
 import { Task, User } from '@repo/codegen/src/schema'
 import { Avatar } from '@/components/shared/avatar/avatar.tsx'
-import { formatDate } from '@/utils/date'
+import { formatDate, formatTimeSince } from '@/utils/date'
 import { TaskStatusIconMapper } from '@/components/shared/enum-mapper/task-enum'
 import { TaskStatusMapper } from '@/components/pages/protected/tasks/util/task.ts'
 import AssigneeCell from './assignee-cell'
@@ -60,11 +60,14 @@ export const getTaskColumns = ({ userMap, convertToReadOnly, selectedTasks, setS
         )
       },
       size: 50,
+      maxSize: 50,
     },
     {
       accessorKey: 'id',
       header: 'ID',
-      size: 120,
+      size: 270,
+      minSize: 270,
+      maxSize: 270,
       cell: ({ row }) => <div className="text-muted-foreground">{row.original.id}</div>,
     },
     {
@@ -145,52 +148,52 @@ export const getTaskColumns = ({ userMap, convertToReadOnly, selectedTasks, setS
         if (!tags?.length) {
           return '-'
         }
-        return <div className="flex gap-2">{row?.original?.tags?.map((tag, i) => <TagChip key={i} tag={tag} />)}</div>
+        return <div className="flex gap-2 flex-wrap">{row?.original?.tags?.map((tag, i) => <TagChip key={i} tag={tag} />)}</div>
       },
     },
     {
       accessorKey: 'createdBy',
-      header: 'Created By',
+      header: 'Created by',
+      size: 200,
       cell: ({ row }) => {
         const user = userMap[row.original.createdBy ?? '']
         return user ? (
-          <div className="flex items-center space-x-1">
-            <Avatar entity={user} className="w-[24px] h-[24px]" />
-            <p>{user.displayName}</p>
+          <div className="flex items-center gap-2">
+            <Avatar entity={user} />
+            {user.displayName || '-'}
           </div>
         ) : (
-          <span className="text-muted-foreground italic">Deleted user</span>
+          'Deleted user'
         )
       },
-      size: 160,
     },
     {
       accessorKey: 'createdAt',
       header: 'Created At',
-      cell: ({ cell }) => formatDate(cell.getValue() as string),
-      size: 130,
+      size: 150,
+      cell: ({ cell }) => <span className="whitespace-nowrap">{formatDate(cell.getValue() as string)}</span>,
     },
     {
       accessorKey: 'updatedBy',
       header: 'Updated By',
+      size: 200,
       cell: ({ row }) => {
         const user = userMap[row.original.updatedBy ?? '']
         return user ? (
-          <div className="flex items-center space-x-1">
-            <Avatar entity={user} className="w-[24px] h-[24px]" />
-            <p>{user.displayName}</p>
+          <div className="flex items-center gap-2">
+            <Avatar entity={user} />
+            {user.displayName || '-'}
           </div>
         ) : (
-          <span className="text-muted-foreground italic">Deleted user</span>
+          'Deleted user'
         )
       },
-      size: 160,
     },
     {
       accessorKey: 'updatedAt',
-      header: 'Updated At',
-      cell: ({ cell }) => formatDate(cell.getValue() as string),
-      size: 130,
+      header: 'Last Updated',
+      size: 100,
+      cell: ({ cell }) => <span className="whitespace-nowrap">{formatTimeSince(cell.getValue() as string)}</span>,
     },
   ]
 }

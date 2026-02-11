@@ -3,7 +3,7 @@ import { ControlControlStatus, ControlListFieldsFragment, ControlOrderField, Gro
 import { ColumnDef, Row } from '@tanstack/react-table'
 import SubcontrolCell from './subcontrol-cell'
 import { Avatar } from '@/components/shared/avatar/avatar'
-import { formatDate } from '@/utils/date'
+import { formatDate, formatTimeSince } from '@/utils/date'
 import { ControlIconMapper16, ControlStatusLabels, ControlStatusTooltips, ControlStatusFilterOptions, FilterIcons } from '@/components/shared/enum-mapper/control-enum'
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@repo/ui/tooltip'
 import StandardChip from '../../standards/shared/standard-chip'
@@ -24,6 +24,7 @@ export const getControlsFilterFields = (
   groups: { value: string; label: string }[],
   programOptions: { value: string; label: string }[],
   typeOptions: { value: string; label: string }[],
+  tagOptions: { value: string; label: string }[],
 ): FilterField[] => [
   { key: 'refCodeContainsFold', label: 'RefCode', type: 'text', icon: FilterIcons.RefCode },
   { key: 'categoryContainsFold', label: 'Category', type: 'text', icon: FilterIcons.Category },
@@ -92,6 +93,13 @@ export const getControlsFilterFields = (
       { value: false, label: 'No comments' },
     ],
   },
+  {
+    key: 'tagsHas',
+    label: 'Tags',
+    type: 'dropdownSearchSingleSelect',
+    icon: FilterIcons.Status,
+    options: tagOptions,
+  },
 ]
 
 export const CONTROLS_SORT_FIELDS = [
@@ -154,12 +162,15 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
           </div>
         )
       },
+      maxSize: 50,
       size: 50,
     },
     {
       accessorKey: 'id',
       header: 'ID',
-      size: 120,
+      size: 270,
+      minSize: 270,
+      maxSize: 270,
       cell: ({ row }) => <div className="text-muted-foreground">{row.original.id}</div>,
     },
     {
@@ -187,16 +198,13 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
           </div>
         )
       },
-      size: 400,
-      minSize: 300,
-      meta: {
-        className: 'w-[50%] min-w-[300px]',
-      },
+      size: 500,
     },
     {
       header: 'Status',
       accessorKey: 'status',
-      size: 160,
+      size: 170,
+      minSize: 170,
       cell: ({ row }) => {
         const value: ControlControlStatus = row.getValue('status')
         const label = ControlStatusLabels[value] ?? value
@@ -224,6 +232,7 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
     {
       header: 'Subcategory',
       accessorKey: 'subcategory',
+      size: 120,
       cell: ({ row }) => <div>{row.getValue('subcategory') || '-'}</div>,
     },
     {
@@ -288,6 +297,7 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
       meta: {
         exportPrefix: 'delegate.name',
       },
+      size: 120,
       cell: ({ row }) => {
         const delegate = row.original.delegate
         const controlId = row.original.id
@@ -295,52 +305,53 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
       },
     },
     {
-      header: 'Created By',
+      header: 'Created by',
       accessorKey: 'createdBy',
-      size: 160,
+      size: 200,
       cell: ({ row }) => {
         const user = userMap[row.original.createdBy ?? '']
         return user ? (
-          <div className="flex items-center space-x-1">
-            <Avatar entity={user} className="w-6 h-6" />
-            <p>{user.displayName}</p>
+          <div className="flex items-center gap-2">
+            <Avatar entity={user} />
+            {user.displayName || '-'}
           </div>
         ) : (
-          <span className="text-muted-foreground italic">Deleted user</span>
+          'Deleted user'
         )
       },
     },
     {
       header: 'Created At',
       accessorKey: 'createdAt',
-      size: 130,
-      cell: ({ cell }) => formatDate(cell.getValue() as string),
+      size: 150,
+      cell: ({ cell }) => <span className="whitespace-nowrap">{formatDate(cell.getValue() as string)}</span>,
     },
     {
       header: 'Updated By',
       accessorKey: 'updatedBy',
-      size: 160,
+      size: 200,
       cell: ({ row }) => {
         const user = userMap[row.original.updatedBy ?? '']
         return user ? (
-          <div className="flex items-center space-x-1">
-            <Avatar entity={user} className="w-6 h-6" />
-            <p>{user.displayName}</p>
+          <div className="flex items-center gap-2">
+            <Avatar entity={user} />
+            {user.displayName || '-'}
           </div>
         ) : (
-          <span className="text-muted-foreground italic">Deleted user</span>
+          'Deleted user'
         )
       },
     },
     {
-      header: 'Updated At',
+      header: 'Last Updated',
       accessorKey: 'updatedAt',
-      size: 130,
-      cell: ({ cell }) => formatDate(cell.getValue() as string),
+      size: 100,
+      cell: ({ cell }) => <span className="whitespace-nowrap">{formatTimeSince(cell.getValue() as string)}</span>,
     },
     {
       header: 'Desired Outcome',
       accessorKey: 'desiredOutcome',
+      size: 220,
       meta: {
         exportPrefix: 'controlObjectives.desiredOutcome',
       },
@@ -356,6 +367,7 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
     {
       header: 'Implementation Details',
       accessorKey: 'controlImplementationsDetails',
+      size: 220,
       meta: {
         exportPrefix: 'controlImplementations.details',
       },
@@ -371,12 +383,15 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
     {
       header: 'Associated Objects',
       accessorKey: 'associatedObjects',
-      cell: ({ row }) => <AssociatedObjectsCell control={row.original} />,
+      size: 180,
       minSize: 180,
+      cell: ({ row }) => <AssociatedObjectsCell control={row.original} />,
     },
     {
       header: 'Comments',
       accessorKey: 'comments',
+      size: 130,
+      minSize: 120,
       meta: {
         exportPrefix: 'comments.text',
       },
@@ -389,7 +404,6 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
           </Link>
         )
       },
-      minSize: 120,
     },
     {
       header: 'Linked Policies',
