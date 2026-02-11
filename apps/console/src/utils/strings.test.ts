@@ -1,4 +1,4 @@
-import { objectToSnakeCase } from './enumToLabel'
+import { objectToSnakeCase } from './strings'
 
 describe('objectToSnakeCase', () => {
   it('should convert camelCase to snake_case', () => {

@@ -21,14 +21,15 @@ import { getTrustCenterDocColumns } from './table/table-config'
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
 import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
 import { TableKeyEnum } from '@repo/ui/table-key'
-import { SearchKeyEnum, useStorageSearch } from '@/hooks/useStorageSearch'
+import { useStorageSearch } from '@/hooks/useStorageSearch'
 import { canCreate } from '@/lib/authz/utils'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 const ReportsAndCertificationsPage = () => {
-  const [searchTerm, setSearchTerm] = useStorageSearch(SearchKeyEnum.DOCUMENTS)
+  const [searchTerm, setSearchTerm] = useStorageSearch(ObjectTypes.TRUST_CENTER_DOC)
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableColumnVisibilityKeysEnum.DOCUMENTS, { createdAt: false, updatedAt: false }))
   const [pagination, setPagination] = useState<TPagination>(getInitialPagination(TableKeyEnum.TRUST_CENTER_REPORTS_AND_CERTS, DEFAULT_PAGINATION))
   const [filters, setFilters] = useState<TrustCenterDocWhereInput | null>(null)

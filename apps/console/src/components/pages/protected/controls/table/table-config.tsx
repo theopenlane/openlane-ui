@@ -208,7 +208,7 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
       minSize: 170,
       cell: ({ row }) => {
         const value: ControlControlStatus = row.getValue('status')
-        const label = getEnumLabel[value] ?? value
+        const label = getEnumLabel(value) ?? value
         return (
           <TooltipProvider>
             <Tooltip>

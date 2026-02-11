@@ -4,13 +4,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/selec
 import { DataTable } from '@repo/ui/data-table'
 import { useNotification } from '@/hooks/useNotification'
 import { Trash2 } from 'lucide-react'
-import { OBJECT_TYPE_CONFIG, objectTypeInputToEnumMap, ObjectTypes } from '@/constants/groups'
 import { useGroupsStore } from '@/hooks/useGroupsStore'
 import { useGetGroupPermissions, useUpdateGroup } from '@/lib/graphql-hooks/groups'
 import { useQueryClient } from '@tanstack/react-query'
 import { Permission } from '@repo/codegen/src/schema'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { TableKeyEnum } from '@repo/ui/table-key'
+import { OBJECT_TYPE_PERMISSIONS_CONFIG, TypesWithPermissions } from '@repo/codegen/src/type-names'
 
 const PERMISSION_LABELS: Record<Permission, string> = {
   [Permission.VIEWER]: 'View',
@@ -105,9 +105,8 @@ const GroupsPermissionsTable = () => {
       header: 'Role',
       accessorKey: 'role',
       cell: ({ row }) => {
-        const rawObjectType = row.original.objectType as ObjectTypes
-        const objectType = objectTypeInputToEnumMap[rawObjectType]
-        const roleOptions = objectType ? OBJECT_TYPE_CONFIG[objectType].roleOptions : []
+        const rawObjectType = row.original.objectType as TypesWithPermissions
+        const roleOptions = rawObjectType ? OBJECT_TYPE_PERMISSIONS_CONFIG[rawObjectType].roleOptions : []
 
         return (
           <Select defaultValue={PERMISSION_LABELS[row.original.role]} onValueChange={(value) => handleRoleChange(row.original.id, value, row.original.objectType)}>

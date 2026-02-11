@@ -1,7 +1,7 @@
 import { gql } from 'graphql-request'
 import { useQuery, useMutation } from '@tanstack/react-query'
 
-export const GET_TRUST_CENTER_ENTITIES = gql`
+export const GET_ALL_TRUST_CENTERS_ENTITIES = gql`
   query GetTrustCenterEntities($where: TrustCenterEntityWhereInput) {
     trustCenterEntities(where: $where) {
       edges {

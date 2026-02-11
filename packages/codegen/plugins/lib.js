@@ -11,9 +11,31 @@ export function toHumanLabel(input) {
   )
 }
 
-export function toEnumKey(name) {
+export function toUpperSnake(name) {
   return name
     .replace(/([a-z0-9])([A-Z])/g, '$1_$2') // camel/Pascal -> snake
     .replace(/[-\s]/g, '_')
     .toUpperCase()
+}
+
+export function getObjectNameFromBody(body) {
+  if (/\brefCode\b/.test(body)) return 'refCode'
+  if (/\bname\b/.test(body)) return 'name'
+  if (/\btitle\b/.test(body)) return 'title'
+  return 'name'
+}
+
+export function toKebab(name) {
+  return name.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase()
+}
+
+export function pluralizeTypeName(name) {
+  const lc = name.charAt(0).toLowerCase() + name.slice(1)
+  if (lc.endsWith('y')) return lc.slice(0, -1) + 'ies'
+  return lc + 's'
+}
+
+export function getQueryNameFor(typeName) {
+  const pluralLc = pluralizeTypeName(typeName)
+  return `GET_ALL_${toUpperSnake(pluralLc)}`
 }

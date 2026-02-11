@@ -34,15 +34,17 @@ import { whereGenerator } from '@/components/shared/table-filter/where-generator
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
 import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
 import { TableKeyEnum } from '@repo/ui/table-key'
-import { SearchKeyEnum, useStorageSearch } from '@/hooks/useStorageSearch'
+import { useStorageSearch } from '@/hooks/useStorageSearch'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { objectToSnakeCase } from '@/utils/strings'
 
 export const ProceduresTable = () => {
   const router = useRouter()
   const [pagination, setPagination] = useState<TPagination>(getInitialPagination(TableKeyEnum.PROCEDURE, DEFAULT_PAGINATION))
   const [filters, setFilters] = useState<ProcedureWhereInput | null>(null)
   const [memberIds, setMemberIds] = useState<(Maybe<string> | undefined)[] | null>(null)
-  const [searchTerm, setSearchTerm] = useStorageSearch(SearchKeyEnum.PROCEDURES)
+  const [searchTerm, setSearchTerm] = useStorageSearch(ObjectTypes.PROCEDURE)
   const { setCrumbs } = useContext(BreadcrumbContext)
   const { data: permission } = useOrganizationRoles()
   const { errorNotification } = useNotification()
@@ -141,7 +143,7 @@ export const ProceduresTable = () => {
 
   const { enumOptions } = useGetCustomTypeEnums({
     where: {
-      objectType: 'procedure',
+      objectType: objectToSnakeCase(ObjectTypes.PROCEDURE),
       field: 'kind',
     },
   })

@@ -16,6 +16,7 @@ import { controlIconsMap } from '@/components/shared/enum-mapper/control-enum'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
 import { CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { objectToSnakeCase } from '@/utils/strings'
 
 const ControlDetailsSheet = () => {
   const searchParams = useSearchParams()
@@ -35,7 +36,7 @@ const ControlDetailsSheet = () => {
 
   const { enumOptions } = useGetCustomTypeEnums({
     where: {
-      objectType: 'control',
+      objectType: objectToSnakeCase(ObjectTypes.CONTROL),
       field: 'kind',
     },
   })

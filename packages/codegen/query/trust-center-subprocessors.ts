@@ -1,6 +1,6 @@
 import { gql } from 'graphql-request'
 
-export const GET_TRUST_CENTER_SUBPROCESSORS = gql`
+export const GET_ALL_TRUST_CENTERS_SUBPROCESSORS = gql`
   query GetTrustCenterSubprocessors($where: TrustCenterSubprocessorWhereInput, $first: Int, $last: Int, $after: Cursor, $before: Cursor, $orderBy: [TrustCenterSubprocessorOrder!]) {
     trustCenterSubprocessors(where: $where, first: $first, last: $last, after: $after, before: $before, orderBy: $orderBy) {
       edges {
@@ -73,7 +73,7 @@ export const DELETE_TRUST_CENTER_SUBPROCESSOR = gql`
   }
 `
 
-export const GET_TRUST_CENTER_SUBPROCESSOR_BY_ID = gql`
+export const GET_ALL_TRUST_CENTERS_SUBPROCESSOR_BY_ID = gql`
   query GetTrustCenterSubprocessorByID($trustCenterSubprocessorId: ID!) {
     trustCenterSubprocessor(id: $trustCenterSubprocessorId) {
       id

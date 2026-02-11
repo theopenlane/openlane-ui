@@ -5,7 +5,7 @@ import EvidenceCreateForm from '@/components/pages/protected/evidence/evidence-c
 import { FilePlus } from 'lucide-react'
 import { dialogStyles } from '@/components/pages/protected/programs/dialog.styles'
 import { TFormEvidenceData } from '@/components/pages/protected/evidence/types/TFormEvidenceData.ts'
-import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config.ts'
+import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config.ts'
 import { CreateButton } from '@/components/shared/create-button/create-button'
 
 type TProps = {

@@ -6,7 +6,7 @@ import { ObjectTypes } from '@repo/codegen/src/type-names'
 interface useMapControlsParams {
   controlData?: (
     | {
-        __typename?: typeof ObjectTypes.CONTROL
+        __typename?: 'Control'
         id: string
         refCode: string
         category?: string | null
@@ -17,7 +17,7 @@ interface useMapControlsParams {
     | undefined
   )[]
   subcontrolData?: {
-    __typename?: typeof ObjectTypes.SUBCONTROL
+    __typename?: 'Subcontrol'
     id: string
     refCode: string
     category?: string | null

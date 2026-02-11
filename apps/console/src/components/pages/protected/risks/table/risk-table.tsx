@@ -24,13 +24,14 @@ import { whereGenerator } from '@/components/shared/table-filter/where-generator
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
 import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
 import { TableKeyEnum } from '@repo/ui/table-key'
-import { SearchKeyEnum, useStorageSearch } from '@/hooks/useStorageSearch'
+import { useStorageSearch } from '@/hooks/useStorageSearch'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 const RiskTable: React.FC = () => {
   const router = useRouter()
   const { convertToReadOnly } = usePlateEditor()
 
-  const [searchQuery, setSearchQuery] = useStorageSearch(SearchKeyEnum.RISKS)
+  const [searchQuery, setSearchQuery] = useStorageSearch(ObjectTypes.RISK)
   const [filters, setFilters] = useState<RiskWhereInput | null>(null)
   const [pagination, setPagination] = useState<TPagination>(getInitialPagination(TableKeyEnum.RISK, DEFAULT_PAGINATION))
   const [selectedRisks, setSelectedRisks] = useState<{ id: string }[]>([])

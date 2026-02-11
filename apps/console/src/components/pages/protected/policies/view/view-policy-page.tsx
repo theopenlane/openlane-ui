@@ -12,7 +12,7 @@ import PropertiesCard from '@/components/pages/protected/policies/view/cards/pro
 import { InternalPolicyDocumentStatus, InternalPolicyFrequency, UpdateInternalPolicyInput } from '@repo/codegen/src/schema.ts'
 import HistoricalCard from '@/components/pages/protected/policies/view/cards/historical-card.tsx'
 import TagsCard from '@/components/pages/protected/policies/view/cards/tags-card.tsx'
-import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap.ts'
+import { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap.ts'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification.tsx'
 import { usePolicy } from '@/components/pages/protected/policies/create/hooks/use-policy.tsx'

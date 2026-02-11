@@ -19,10 +19,11 @@ import { useNotification } from '@/hooks/useNotification'
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
 import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
 import { TableKeyEnum } from '@repo/ui/table-key'
-import { SearchKeyEnum, useStorageSearch } from '@/hooks/useStorageSearch'
+import { useStorageSearch } from '@/hooks/useStorageSearch'
 import { canEdit } from '@/lib/authz/utils'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 export const EvidenceTable = () => {
   const searchParams = useSearchParams()
@@ -30,7 +31,7 @@ export const EvidenceTable = () => {
   const [pagination, setPagination] = useState<TPagination>(getInitialPagination(TableKeyEnum.EVIDENCE, DEFAULT_PAGINATION))
   const [filters, setFilters] = useState<EvidenceWhereInput>({})
   const { setCrumbs } = useContext(BreadcrumbContext)
-  const [searchTerm, setSearchTerm] = useStorageSearch(SearchKeyEnum.EVIDENCE)
+  const [searchTerm, setSearchTerm] = useStorageSearch(ObjectTypes.EVIDENCE)
   const { replace } = useSmartRouter()
   const { errorNotification } = useNotification()
   const [selectedEvidence, setSelectedEvidence] = useState<{ id: string }[]>([])

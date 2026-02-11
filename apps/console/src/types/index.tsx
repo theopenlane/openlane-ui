@@ -1,6 +1,5 @@
 import { type LucideIcon } from 'lucide-react'
 import { PlanEnum } from '@/lib/subscription-plan/plan-enum.ts'
-import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 export interface NavItem {
   title: string
@@ -58,7 +57,7 @@ export type RoutePage = {
 }
 
 export type MapControl = {
-  __typename?: typeof ObjectTypes.CONTROL | typeof ObjectTypes.SUBCONTROL
+  __typename?: 'Control' | 'Subcontrol'
   id: string
   refCode: string
   category?: string | null

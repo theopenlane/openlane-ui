@@ -1,11 +1,11 @@
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
-  GET_TRUST_CENTER_SUBPROCESSORS,
+  GET_ALL_TRUST_CENTERS_SUBPROCESSORS,
   CREATE_TRUST_CENTER_SUBPROCESSOR,
   UPDATE_TRUST_CENTER_SUBPROCESSOR,
   DELETE_BULK_TRUST_CENTER_SUBPROCESSORS,
   DELETE_TRUST_CENTER_SUBPROCESSOR,
-  GET_TRUST_CENTER_SUBPROCESSOR_BY_ID,
+  GET_ALL_TRUST_CENTERS_SUBPROCESSOR_BY_ID,
 } from '@repo/codegen/query/trust-center-subprocessors'
 
 import {
@@ -39,7 +39,7 @@ export const useGetTrustCenterSubprocessors = ({ where, pagination, orderBy, ena
   const queryResult = useQuery<GetTrustCenterSubprocessorsQuery>({
     queryKey: ['trustCenterSubprocessors', where, orderBy, pagination?.page, pagination?.pageSize],
     queryFn: () =>
-      client.request<GetTrustCenterSubprocessorsQuery, GetTrustCenterSubprocessorsQueryVariables>(GET_TRUST_CENTER_SUBPROCESSORS, {
+      client.request<GetTrustCenterSubprocessorsQuery, GetTrustCenterSubprocessorsQueryVariables>(GET_ALL_TRUST_CENTERS_SUBPROCESSORS, {
         where,
         orderBy,
         ...pagination?.query,
@@ -124,7 +124,7 @@ export const useGetTrustCenterSubprocessorByID = ({ trustCenterSubprocessorId, e
   return useQuery<GetTrustCenterSubprocessorByIdQuery>({
     queryKey: ['trustCenterSubprocessor', trustCenterSubprocessorId],
     queryFn: () =>
-      client.request<GetTrustCenterSubprocessorByIdQuery, GetTrustCenterSubprocessorByIdQueryVariables>(GET_TRUST_CENTER_SUBPROCESSOR_BY_ID, {
+      client.request<GetTrustCenterSubprocessorByIdQuery, GetTrustCenterSubprocessorByIdQueryVariables>(GET_ALL_TRUST_CENTERS_SUBPROCESSOR_BY_ID, {
         trustCenterSubprocessorId,
       }),
     enabled: !!trustCenterSubprocessorId && enabled,

@@ -4,8 +4,8 @@ import {
   CREATE_TRUST_CENTER_NDA,
   DELETE_BULK_TRUST_CENTER_NDA_REQUEST,
   GET_NDA_REQUESTS_COUNT,
-  GET_TRUST_CENTER_NDA_FILES,
-  GET_TRUST_CENTER_NDA_REQUESTS,
+  GET_ALL_TRUST_CENTERS_NDA_FILES,
+  GET_ALL_TRUST_CENTERS_NDA_REQUESTS,
   UPDATE_TRUST_CENTER_NDA,
   UPDATE_TRUST_CENTER_NDA_REQUEST,
 } from '@repo/codegen/query/trust-center-NDA'
@@ -39,7 +39,7 @@ export const useGetTrustCenterNDAFiles = (enabled = true) => {
   const queryResult = useQuery<GetTrustCenterNdaFilesQuery>({
     queryKey: ['trustCenterNdaFiles'],
     queryFn: () =>
-      client.request<GetTrustCenterNdaFilesQuery>(GET_TRUST_CENTER_NDA_FILES, {
+      client.request<GetTrustCenterNdaFilesQuery>(GET_ALL_TRUST_CENTERS_NDA_FILES, {
         where: {},
       }),
     enabled,
@@ -149,7 +149,7 @@ export const useGetTrustCenterNdaRequests = ({ where, pagination, orderBy, enabl
 
   const queryResult = useQuery<GetTrustCenterNdaRequestsQuery>({
     queryKey: ['trustCenter', 'ndaRequests', where, orderBy, pagination?.page, pagination?.pageSize],
-    queryFn: () => client.request<GetTrustCenterNdaRequestsQuery, GetTrustCenterNdaRequestsQueryVariables>(GET_TRUST_CENTER_NDA_REQUESTS, variables),
+    queryFn: () => client.request<GetTrustCenterNdaRequestsQuery, GetTrustCenterNdaRequestsQueryVariables>(GET_ALL_TRUST_CENTERS_NDA_REQUESTS, variables),
     enabled,
   })
 

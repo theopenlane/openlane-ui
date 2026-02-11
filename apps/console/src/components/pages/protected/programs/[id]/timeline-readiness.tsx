@@ -15,7 +15,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
 import { ProgramProgramStatus } from '@repo/codegen/src/schema'
-import { ProgramStatusLabels, ProgramIconMapper } from '@/components/shared/enum-mapper/program-enum'
+import { ProgramIconMapper } from '@/components/shared/enum-mapper/program-enum'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification'
 import { ProgramStatusOptions } from '@/components/shared/enum-mapper/program-enum'
@@ -27,6 +27,7 @@ import { Label } from '@repo/ui/label'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 
 const formSchema = z
   .object({
@@ -179,7 +180,7 @@ const TimelineReadiness = () => {
                 <>
                   <Label className="w-32 flex shrink-0">Status:</Label>
                   {program?.status && ProgramIconMapper[program.status]}
-                  <span>{program?.status ? ProgramStatusLabels[program.status] : '-'}</span>
+                  <span>{program?.status ? getEnumLabel(program.status) : '-'}</span>
                 </>
               )}
             </div>

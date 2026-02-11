@@ -36,6 +36,18 @@ import {
   TrustCenterWatermarkConfig,
   Vulnerability,
 } from './schema'
+import { GET_ALL_ASSESSMENTS } from '@repo/codegen/query/assessment'
+import { GET_ALL_ASSETS } from '@repo/codegen/query/asset'
+import { GET_ALL_CONTROLS } from '@repo/codegen/query/control'
+import { GET_ALL_CONTROL_IMPLEMENTATIONS } from '@repo/codegen/query/control-implementation'
+import { GET_ALL_CONTROL_OBJECTIVES } from '@repo/codegen/query/control-objective'
+import { GET_ALL_MAPPED_CONTROLS } from '@repo/codegen/query/mapped-control'
+import { GET_ALL_NARRATIVES } from '@repo/codegen/query/narrative'
+import { GET_ALL_PROCEDURES } from '@repo/codegen/query/procedure'
+import { GET_ALL_TRUST_CENTERS } from '@repo/codegen/query/trust-center'
+import { GET_ALL_EVIDENCES } from '@repo/codegen/query/evidence'
+import { GET_ALL_GROUPS } from '@repo/codegen/query/group'
+import { GET_ALL_SUBCONTROLS } from '@repo/codegen/query/subcontrol'
 
 export enum ObjectTypes {
   API_TOKEN = 'ApiToken',
@@ -417,6 +429,329 @@ export type PermissionsAllQueriesData = {
   }
 }
 
+// Generated OBJECT_TYPE_PERMISSIONS_CONFIG
+export type ObjectPermissionConfig = {
+  roleOptions: string[]
+  responseObjectKey: keyof PermissionsAllQueriesData
+  queryDocument: string
+  objectName: string
+  searchAttribute: string
+  inputPlaceholder: string
+  excludeViewersInFilter?: boolean
+  extraTableColumns?: any[]
+}
+
+export const OBJECT_TYPE_PERMISSIONS_CONFIG: Record<TypesWithPermissions, ObjectPermissionConfig> = {
+  [TypesWithPermissions.ACTION_PLAN]: {
+    roleOptions: ['View', 'Edit', 'Blocked'],
+    responseObjectKey: 'actionPlans',
+    queryDocument: '',
+    objectName: 'name',
+    searchAttribute: 'nameContainsFold',
+    inputPlaceholder: 'name',
+    excludeViewersInFilter: false,
+    extraTableColumns: undefined,
+  },
+  [TypesWithPermissions.ASSESSMENT]: {
+    roleOptions: ['View', 'Edit', 'Blocked'],
+    responseObjectKey: 'assessments',
+    queryDocument: GET_ALL_ASSESSMENTS,
+    objectName: 'name',
+    searchAttribute: 'nameContainsFold',
+    inputPlaceholder: 'name',
+    excludeViewersInFilter: false,
+    extraTableColumns: undefined,
+  },
+  [TypesWithPermissions.ASSET]: {
+    roleOptions: ['View', 'Edit', 'Blocked'],
+    responseObjectKey: 'assets',
+    queryDocument: GET_ALL_ASSETS,
+    objectName: 'name',
+    searchAttribute: 'nameContainsFold',
+    inputPlaceholder: 'name',
+    excludeViewersInFilter: false,
+    extraTableColumns: undefined,
+  },
+  [TypesWithPermissions.CAMPAIGN]: {
+    roleOptions: ['View', 'Edit', 'Blocked'],
+    responseObjectKey: 'campaigns',
+    queryDocument: '',
+    objectName: 'name',
+    searchAttribute: 'nameContainsFold',
+    inputPlaceholder: 'name',
+    excludeViewersInFilter: false,
+    extraTableColumns: undefined,
+  },
+  [TypesWithPermissions.CONTROL]: {
+    roleOptions: ['Edit', 'Blocked'],
+    responseObjectKey: 'controls',
+    queryDocument: GET_ALL_CONTROLS,
+    objectName: 'refCode',
+    searchAttribute: 'refCodeContainsFold',
+    inputPlaceholder: 'ref code',
+    excludeViewersInFilter: true,
+    extraTableColumns: [
+      {
+        header: 'Reference Framework',
+        accessorKey: 'referenceFramework',
+        size: 200,
+        minSize: 200,
+        maxSize: 200,
+      },
+    ],
+  },
+  [TypesWithPermissions.CONTROL_IMPLEMENTATION]: {
+    roleOptions: ['View', 'Edit', 'Blocked'],
+    responseObjectKey: 'controlImplementations',
+    queryDocument: GET_ALL_CONTROL_IMPLEMENTATIONS,
+    objectName: 'name',
+    searchAttribute: 'nameContainsFold',
+    inputPlaceholder: 'name',
+    excludeViewersInFilter: false,
+    extraTableColumns: undefined,
+  },
+  [TypesWithPermissions.CONTROL_OBJECTIVE]: {
+    roleOptions: ['View', 'Edit', 'Blocked'],
+    responseObjectKey: 'controlObjectives',
+    queryDocument: GET_ALL_CONTROL_OBJECTIVES,
+    objectName: 'name',
+    searchAttribute: 'nameContainsFold',
+    inputPlaceholder: 'name',
+    excludeViewersInFilter: false,
+    extraTableColumns: undefined,
+  },
+  [TypesWithPermissions.EMAIL_BRANDING]: {
+    roleOptions: ['View', 'Edit', 'Blocked'],
+    responseObjectKey: 'emailBrandings',
+    queryDocument: '',
+    objectName: 'name',
+    searchAttribute: 'nameContainsFold',
+    inputPlaceholder: 'name',
+    excludeViewersInFilter: false,
+    extraTableColumns: undefined,
+  },
+  [TypesWithPermissions.ENTITY]: {
+    roleOptions: ['View', 'Edit', 'Blocked'],
+    responseObjectKey: 'entities',
+    queryDocument: '',
+    objectName: 'name',
+    searchAttribute: 'nameContainsFold',
+    inputPlaceholder: 'name',
+    excludeViewersInFilter: false,
+    extraTableColumns: undefined,
+  },
+  [TypesWithPermissions.FINDING]: {
+    roleOptions: ['View', 'Edit', 'Blocked'],
+    responseObjectKey: 'findings',
+    queryDocument: '',
+    objectName: 'name',
+    searchAttribute: 'nameContainsFold',
+    inputPlaceholder: 'name',
+    excludeViewersInFilter: false,
+    extraTableColumns: undefined,
+  },
+  [TypesWithPermissions.IDENTITY_HOLDER]: {
+    roleOptions: ['View', 'Edit', 'Blocked'],
+    responseObjectKey: 'identityHolders',
+    queryDocument: '',
+    objectName: 'name',
+    searchAttribute: 'nameContainsFold',
+    inputPlaceholder: 'name',
+    excludeViewersInFilter: false,
+    extraTableColumns: undefined,
+  },
+  [TypesWithPermissions.INTERNAL_POLICY]: {
+    roleOptions: ['Edit', 'Blocked'],
+    responseObjectKey: 'internalPolicies',
+    queryDocument: '',
+    objectName: 'name',
+    searchAttribute: 'nameContainsFold',
+    inputPlaceholder: 'name',
+    excludeViewersInFilter: true,
+    extraTableColumns: undefined,
+  },
+  [TypesWithPermissions.MAPPED_CONTROL]: {
+    roleOptions: ['Edit', 'Blocked'],
+    responseObjectKey: 'mappedControls',
+    queryDocument: GET_ALL_MAPPED_CONTROLS,
+    objectName: 'name',
+    searchAttribute: 'nameContainsFold',
+    inputPlaceholder: 'name',
+    excludeViewersInFilter: true,
+    extraTableColumns: undefined,
+  },
+  [TypesWithPermissions.NARRATIVE]: {
+    roleOptions: ['View', 'Edit', 'Blocked'],
+    responseObjectKey: 'narratives',
+    queryDocument: GET_ALL_NARRATIVES,
+    objectName: 'name',
+    searchAttribute: 'nameContainsFold',
+    inputPlaceholder: 'name',
+    excludeViewersInFilter: false,
+    extraTableColumns: undefined,
+  },
+  [TypesWithPermissions.PLATFORM]: {
+    roleOptions: ['View', 'Edit', 'Blocked'],
+    responseObjectKey: 'platforms',
+    queryDocument: '',
+    objectName: 'name',
+    searchAttribute: 'nameContainsFold',
+    inputPlaceholder: 'name',
+    excludeViewersInFilter: false,
+    extraTableColumns: undefined,
+  },
+  [TypesWithPermissions.PROCEDURE]: {
+    roleOptions: ['Edit', 'Blocked'],
+    responseObjectKey: 'procedures',
+    queryDocument: GET_ALL_PROCEDURES,
+    objectName: 'name',
+    searchAttribute: 'nameContainsFold',
+    inputPlaceholder: 'name',
+    excludeViewersInFilter: true,
+    extraTableColumns: undefined,
+  },
+  [TypesWithPermissions.PROGRAM]: {
+    roleOptions: ['View', 'Edit', 'Blocked'],
+    responseObjectKey: 'programs',
+    queryDocument: '',
+    objectName: 'name',
+    searchAttribute: 'nameContainsFold',
+    inputPlaceholder: 'name',
+    excludeViewersInFilter: false,
+    extraTableColumns: undefined,
+  },
+  [TypesWithPermissions.REMEDIATION]: {
+    roleOptions: ['View', 'Edit', 'Blocked'],
+    responseObjectKey: 'remediations',
+    queryDocument: '',
+    objectName: 'title',
+    searchAttribute: 'titleContainsFold',
+    inputPlaceholder: 'title',
+    excludeViewersInFilter: false,
+    extraTableColumns: undefined,
+  },
+  [TypesWithPermissions.REVIEW]: {
+    roleOptions: ['View', 'Edit', 'Blocked'],
+    responseObjectKey: 'reviews',
+    queryDocument: '',
+    objectName: 'title',
+    searchAttribute: 'titleContainsFold',
+    inputPlaceholder: 'title',
+    excludeViewersInFilter: false,
+    extraTableColumns: undefined,
+  },
+  [TypesWithPermissions.RISK]: {
+    roleOptions: ['View', 'Edit', 'Blocked'],
+    responseObjectKey: 'risks',
+    queryDocument: '',
+    objectName: 'name',
+    searchAttribute: 'nameContainsFold',
+    inputPlaceholder: 'name',
+    excludeViewersInFilter: false,
+    extraTableColumns: undefined,
+  },
+  [TypesWithPermissions.SCAN]: {
+    roleOptions: ['View', 'Edit', 'Blocked'],
+    responseObjectKey: 'scans',
+    queryDocument: '',
+    objectName: 'name',
+    searchAttribute: 'nameContainsFold',
+    inputPlaceholder: 'name',
+    excludeViewersInFilter: false,
+    extraTableColumns: undefined,
+  },
+  [TypesWithPermissions.TRUST_CENTER]: {
+    roleOptions: ['Edit', 'Blocked'],
+    responseObjectKey: 'trustCenters',
+    queryDocument: GET_ALL_TRUST_CENTERS,
+    objectName: 'name',
+    searchAttribute: 'nameContainsFold',
+    inputPlaceholder: 'name',
+    excludeViewersInFilter: true,
+    extraTableColumns: undefined,
+  },
+  [TypesWithPermissions.TRUST_CENTER_COMPLIANCE]: {
+    roleOptions: ['Edit', 'Blocked'],
+    responseObjectKey: 'trustCenterCompliances',
+    queryDocument: '',
+    objectName: 'name',
+    searchAttribute: 'nameContainsFold',
+    inputPlaceholder: 'name',
+    excludeViewersInFilter: true,
+    extraTableColumns: undefined,
+  },
+  [TypesWithPermissions.TRUST_CENTER_DOC]: {
+    roleOptions: ['Edit', 'Blocked'],
+    responseObjectKey: 'trustCenterDocs',
+    queryDocument: '',
+    objectName: 'title',
+    searchAttribute: 'titleContainsFold',
+    inputPlaceholder: 'title',
+    excludeViewersInFilter: true,
+    extraTableColumns: undefined,
+  },
+  [TypesWithPermissions.TRUST_CENTER_ENTITY]: {
+    roleOptions: ['Edit', 'Blocked'],
+    responseObjectKey: 'trustCenterEntities',
+    queryDocument: '',
+    objectName: 'name',
+    searchAttribute: 'nameContainsFold',
+    inputPlaceholder: 'name',
+    excludeViewersInFilter: true,
+    extraTableColumns: undefined,
+  },
+  [TypesWithPermissions.TRUST_CENTER_NDA_REQUEST]: {
+    roleOptions: ['Edit', 'Blocked'],
+    responseObjectKey: 'trustCenterNdaRequests',
+    queryDocument: '',
+    objectName: 'name',
+    searchAttribute: 'nameContainsFold',
+    inputPlaceholder: 'name',
+    excludeViewersInFilter: true,
+    extraTableColumns: undefined,
+  },
+  [TypesWithPermissions.TRUST_CENTER_SETTING]: {
+    roleOptions: ['Edit', 'Blocked'],
+    responseObjectKey: 'trustCenterSettings',
+    queryDocument: '',
+    objectName: 'name',
+    searchAttribute: 'nameContainsFold',
+    inputPlaceholder: 'name',
+    excludeViewersInFilter: true,
+    extraTableColumns: undefined,
+  },
+  [TypesWithPermissions.TRUST_CENTER_SUBPROCESSOR]: {
+    roleOptions: ['Edit', 'Blocked'],
+    responseObjectKey: 'trustCenterSubprocessors',
+    queryDocument: '',
+    objectName: 'name',
+    searchAttribute: 'nameContainsFold',
+    inputPlaceholder: 'name',
+    excludeViewersInFilter: true,
+    extraTableColumns: undefined,
+  },
+  [TypesWithPermissions.TRUST_CENTER_WATERMARK_CONFIG]: {
+    roleOptions: ['Edit', 'Blocked'],
+    responseObjectKey: 'trustCenterWatermarkConfigs',
+    queryDocument: '',
+    objectName: 'name',
+    searchAttribute: 'nameContainsFold',
+    inputPlaceholder: 'name',
+    excludeViewersInFilter: true,
+    extraTableColumns: undefined,
+  },
+  [TypesWithPermissions.VULNERABILITY]: {
+    roleOptions: ['View', 'Edit', 'Blocked'],
+    responseObjectKey: 'vulnerabilities',
+    queryDocument: '',
+    objectName: 'name',
+    searchAttribute: 'nameContainsFold',
+    inputPlaceholder: 'name',
+    excludeViewersInFilter: false,
+    extraTableColumns: undefined,
+  },
+}
+
 export enum TaskObjectTypes {
   ACTION_PLAN = 'Action Plan',
   CONTROL_IMPLEMENTATION = 'Control Implementation',
@@ -505,4 +840,128 @@ export type TaskAllQueriesData = {
     pageInfo?: PageInfo
     totalCount?: number
   }
+}
+// Generated TASK_OBJECT_TYPE_CONFIG
+export type TTaskObjectTypeConfig = {
+  responseObjectKey: string
+  queryDocument: string
+  inputName: string
+  placeholder: string
+  searchAttribute: string
+  objectName: string
+}
+
+export const TASK_OBJECT_TYPE_CONFIG: Record<TaskObjectTypes, TTaskObjectTypeConfig> = {
+  [TaskObjectTypes.ACTION_PLAN]: {
+    responseObjectKey: 'actionPlans',
+    inputName: 'actionPlanIDs',
+    placeholder: 'action plan',
+    queryDocument: '',
+    searchAttribute: 'nameContainsFold',
+    objectName: 'name',
+  },
+  [TaskObjectTypes.CONTROL_IMPLEMENTATION]: {
+    responseObjectKey: 'controlImplementations',
+    inputName: 'controlImplementationIDs',
+    placeholder: 'control implementation',
+    queryDocument: GET_ALL_CONTROL_IMPLEMENTATIONS,
+    searchAttribute: 'nameContainsFold',
+    objectName: 'name',
+  },
+  [TaskObjectTypes.CONTROL_OBJECTIVE]: {
+    responseObjectKey: 'controlObjectives',
+    inputName: 'controlObjectiveIDs',
+    placeholder: 'control objective',
+    queryDocument: GET_ALL_CONTROL_OBJECTIVES,
+    searchAttribute: 'nameContainsFold',
+    objectName: 'name',
+  },
+  [TaskObjectTypes.CONTROL]: {
+    responseObjectKey: 'controls',
+    inputName: 'controlIDs',
+    placeholder: 'control',
+    queryDocument: GET_ALL_CONTROLS,
+    searchAttribute: 'nameContainsFold',
+    objectName: 'name',
+  },
+  [TaskObjectTypes.EVIDENCE]: {
+    responseObjectKey: 'evidences',
+    inputName: 'evidenceIDs',
+    placeholder: 'evidence',
+    queryDocument: GET_ALL_EVIDENCES,
+    searchAttribute: 'nameContainsFold',
+    objectName: 'name',
+  },
+  [TaskObjectTypes.GROUP]: {
+    responseObjectKey: 'groups',
+    inputName: 'groupIDs',
+    placeholder: 'group',
+    queryDocument: GET_ALL_GROUPS,
+    searchAttribute: 'nameContainsFold',
+    objectName: 'name',
+  },
+  [TaskObjectTypes.IDENTITY_HOLDER]: {
+    responseObjectKey: 'identityHolders',
+    inputName: 'identityHolderIDs',
+    placeholder: 'identity holder',
+    queryDocument: '',
+    searchAttribute: 'nameContainsFold',
+    objectName: 'name',
+  },
+  [TaskObjectTypes.INTERNAL_POLICY]: {
+    responseObjectKey: 'internalPolicies',
+    inputName: 'internalPolicyIDs',
+    placeholder: 'internal policy',
+    queryDocument: '',
+    searchAttribute: 'nameContainsFold',
+    objectName: 'name',
+  },
+  [TaskObjectTypes.PLATFORM]: {
+    responseObjectKey: 'platforms',
+    inputName: 'platformIDs',
+    placeholder: 'platform',
+    queryDocument: '',
+    searchAttribute: 'nameContainsFold',
+    objectName: 'name',
+  },
+  [TaskObjectTypes.PROCEDURE]: {
+    responseObjectKey: 'procedures',
+    inputName: 'procedureIDs',
+    placeholder: 'procedure',
+    queryDocument: GET_ALL_PROCEDURES,
+    searchAttribute: 'nameContainsFold',
+    objectName: 'name',
+  },
+  [TaskObjectTypes.PROGRAM]: {
+    responseObjectKey: 'programs',
+    inputName: 'programIDs',
+    placeholder: 'program',
+    queryDocument: '',
+    searchAttribute: 'nameContainsFold',
+    objectName: 'name',
+  },
+  [TaskObjectTypes.RISK]: {
+    responseObjectKey: 'risks',
+    inputName: 'riskIDs',
+    placeholder: 'risk',
+    queryDocument: '',
+    searchAttribute: 'nameContainsFold',
+    objectName: 'name',
+  },
+  [TaskObjectTypes.SCAN]: {
+    responseObjectKey: 'scans',
+    inputName: 'scanIDs',
+    placeholder: 'scan',
+    queryDocument: '',
+    searchAttribute: 'nameContainsFold',
+    objectName: 'name',
+  },
+  [TaskObjectTypes.SUBCONTROL]: {
+    responseObjectKey: 'subcontrols',
+    inputName: 'subcontrolIDs',
+    placeholder: 'subcontrol',
+    queryDocument: GET_ALL_SUBCONTROLS,
+    searchAttribute: 'nameContainsFold',
+    objectName: 'name',
+  },
 }

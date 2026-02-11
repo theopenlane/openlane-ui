@@ -112,7 +112,7 @@ export const Status = ({
                 }}
               >
                 <SelectTrigger>
-                  <SelectValue>{field.value === 'NULL' ? '-' : getEnumLabel[field.value as ControlControlStatus]}</SelectValue>
+                  <SelectValue>{field.value === 'NULL' ? '-' : getEnumLabel(field.value as ControlControlStatus)}</SelectValue>
                 </SelectTrigger>
                 <SelectContent ref={popoverRef}>
                   {ControlStatusOptions.map((option) => (
@@ -128,7 +128,7 @@ export const Status = ({
           <HoverPencilWrapper onPencilClick={handleClick}>
             <div className="flex items-center space-x-2 cursor-pointer" onDoubleClick={handleClick}>
               {ControlIconMapper16[data?.status as ControlControlStatus]}
-              <p>{getEnumLabel[data?.status as ControlControlStatus] || '-'}</p>
+              <p>{getEnumLabel(data?.status as ControlControlStatus) || '-'}</p>
             </div>
           </HoverPencilWrapper>
         )}

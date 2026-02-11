@@ -4,7 +4,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
 import { ChevronDown } from 'lucide-react'
 import { getHrefForObjectType, NormalizedObject } from '@/utils/getHrefForObjectType'
-import ObjectAssociationChip from '@/components/shared/objectAssociation/object-association-chip.tsx'
+import ObjectAssociationChip from '@/components/shared/object-association/object-association-chip.tsx'
 import { Section } from '@/components/shared/object-association/types/object-association-types.ts'
 
 type AssociatedObjectsAccordionProps = {

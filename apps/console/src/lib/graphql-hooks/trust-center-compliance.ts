@@ -10,14 +10,19 @@ import {
 
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { useQuery, useMutation } from '@tanstack/react-query'
-import { CREATE_BULK_TRUST_CENTER_COMPLIANCE, DELETE_BULK_TRUST_CENTER_COMPLIANCE, GET_TRUST_CENTER_COMPLIANCES, UPDATE_TRUST_CENTER_COMPLIANCE } from '@repo/codegen/query/trust-center-compliances'
+import {
+  CREATE_BULK_TRUST_CENTER_COMPLIANCE,
+  DELETE_BULK_TRUST_CENTER_COMPLIANCE,
+  GET_ALL_TRUST_CENTERS_COMPLIANCES,
+  UPDATE_TRUST_CENTER_COMPLIANCE,
+} from '@repo/codegen/query/trust-center-compliances'
 
 export const useGetTrustCenterCompliances = () => {
   const { client } = useGraphQLClient()
 
   const queryResult = useQuery<GetTrustCenterCompliancesQuery>({
     queryKey: ['trustCenter', 'compliances'],
-    queryFn: async () => client.request<GetTrustCenterCompliancesQuery>(GET_TRUST_CENTER_COMPLIANCES),
+    queryFn: async () => client.request<GetTrustCenterCompliancesQuery>(GET_ALL_TRUST_CENTERS_COMPLIANCES),
   })
 
   const edges = queryResult.data?.trustCenterCompliances?.edges ?? []

@@ -2,7 +2,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { TAccessRole, TData } from '@/types/authz'
 import { useQuery } from '@tanstack/react-query'
 import { useEffect } from 'react'
-import { objectToSnakeCase } from '../../utils/enumToLabel'
+import { objectToSnakeCase } from '../../utils/strings'
 
 export const useAccountRoles = (objectType: string, id?: string | number | null, enabled: boolean = true) => {
   const { errorNotification } = useNotification()

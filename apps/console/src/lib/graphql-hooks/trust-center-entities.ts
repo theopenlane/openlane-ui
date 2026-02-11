@@ -1,6 +1,6 @@
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { GET_TRUST_CENTER_ENTITIES, CREATE_TRUST_CENTER_ENTITY, DELETE_TRUST_CENTER_ENTITY, UPDATE_TRUST_CENTER_ENTITY } from '@repo/codegen/query/trust-center-entities'
+import { GET_ALL_TRUST_CENTERS_ENTITIES, CREATE_TRUST_CENTER_ENTITY, DELETE_TRUST_CENTER_ENTITY, UPDATE_TRUST_CENTER_ENTITY } from '@repo/codegen/query/trust-center-entities'
 import {
   GetTrustCenterEntitiesQuery,
   GetTrustCenterEntitiesQueryVariables,
@@ -27,7 +27,7 @@ export const useGetTrustCenterEntities = ({ where, enabled = true }: UseGetTrust
 
   const queryResult = useQuery<GetTrustCenterEntitiesQuery, Error, GetTrustCenterEntitiesQuery>({
     queryKey: ['trustCenter', 'entities', where],
-    queryFn: () => client.request<GetTrustCenterEntitiesQuery, GetTrustCenterEntitiesQueryVariables>(GET_TRUST_CENTER_ENTITIES, { where }),
+    queryFn: () => client.request<GetTrustCenterEntitiesQuery, GetTrustCenterEntitiesQueryVariables>(GET_ALL_TRUST_CENTERS_ENTITIES, { where }),
     enabled,
   })
 

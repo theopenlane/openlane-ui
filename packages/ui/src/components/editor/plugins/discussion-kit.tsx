@@ -15,20 +15,14 @@ export interface TDiscussion {
   documentContent?: string
 }
 
-export type CommentEntityType =
-  | typeof ObjectTypes.CONTROL
-  | typeof ObjectTypes.SUBCONTROL
-  | typeof ObjectTypes.INTERNAL_POLICY
-  | typeof ObjectTypes.PROCEDURE
-  | typeof ObjectTypes.RISK
-  | typeof ObjectTypes.TASK
+export type CommentEntityType = typeof ObjectTypes.CONTROL | typeof ObjectTypes.SUBCONTROL | typeof ObjectTypes.INTERNAL_POLICY | typeof ObjectTypes.PROCEDURE | typeof ObjectTypes.RISK
 
 /**
  * discussionPlugin
  *
  * NOW DYNAMIC:
  * You must pass:
- * - entityType: "policy" | "risk" | "task" | "procedure"
+ * - entityType: "policy" | "risk" | "control" | "procedure" | "subcontrol"
  * - entityId: ID of that entity
  * - currentUserId: logged-in user
  * - users: map of users

@@ -8,7 +8,7 @@ import { whereGenerator } from '@/components/shared/table-filter/where-generator
 import { usePoliciesFilters } from '@/components/pages/protected/policies/table/table-config'
 import { SetObjectAssociationDialog } from '@/components/pages/protected/controls/set-object-association-modal'
 import { useDocumentationPolicies } from '@/lib/graphql-hooks/documentation'
-import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
+import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
 import { InternalPolicyDocumentStatus, InternalPolicyOrderField, OrderDirection } from '@repo/codegen/src/schema'
 import type { GetInternalPoliciesListQueryVariables, InternalPolicyWhereInput } from '@repo/codegen/src/schema'
 import type { WhereCondition } from '@/types'

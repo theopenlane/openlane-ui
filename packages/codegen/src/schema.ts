@@ -59714,6 +59714,13 @@ export type GetAssetAssociationsQuery = {
   }
 }
 
+export type UpdateBulkAssetMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+  input: UpdateAssetInput
+}>
+
+export type UpdateBulkAssetMutation = { __typename?: 'Mutation'; updateBulkAsset: { __typename?: 'AssetBulkUpdatePayload'; updatedIDs?: Array<string> | null } }
+
 export type ControlImplementationFieldsFragment = {
   __typename?: 'ControlImplementation'
   id: string
@@ -61660,11 +61667,11 @@ export type MappedSubcontrolsFragmentFragment = {
 
 export type MappedControlsFragmentFragment = { __typename: 'Control'; id: string; refCode: string; referenceFramework?: string | null; category?: string | null; subcategory?: string | null }
 
-export type GetMappedControlsQueryVariables = Exact<{
+export type GetAllMappedControlsQueryVariables = Exact<{
   where?: InputMaybe<MappedControlWhereInput>
 }>
 
-export type GetMappedControlsQuery = {
+export type GetAllMappedControlsQuery = {
   __typename?: 'Query'
   mappedControls: {
     __typename?: 'MappedControlConnection'

@@ -29,6 +29,8 @@ import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-butto
 import { controlIconsMap } from '@/components/shared/enum-mapper/control-enum'
 import { CustomTypeEnumOptionChip, CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
 import { Option } from '@repo/ui/multiple-selector'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { objectToSnakeCase } from '@/utils/strings'
 
 const fieldItemSchema = z.object({
   value: z.nativeEnum(SelectOptionBulkEditControls).optional(),
@@ -72,7 +74,7 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
 
   const { enumOptions } = useGetCustomTypeEnums({
     where: {
-      objectType: 'control',
+      objectType: objectToSnakeCase(ObjectTypes.CONTROL),
       field: 'kind',
     },
   })

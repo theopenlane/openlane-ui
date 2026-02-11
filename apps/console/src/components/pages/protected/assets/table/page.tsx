@@ -1,13 +1,12 @@
 'use client'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
-import AssetTableToolbar from '@/components/pages/protected/assets/table/asset-table-toolbar'
+import AssetTableToolbar from '@/components/pages/protected/assets/table/table-toolbar'
 import { ExportExportFormat, ExportExportType, OrderDirection, Asset, AssetOrderField, AssetsWithFilterQueryVariables, AssetWhereInput } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { ColumnDef, VisibilityState } from '@tanstack/react-table'
-import AssetsTable from '@/components/pages/protected/assets/table/assets-table.tsx'
+import AssetsTable from '@/components/pages/protected/assets/table/table.tsx'
 import { useDebounce } from '@uidotdev/usehooks'
-import { useSearchParams } from 'next/navigation'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 import { canEdit } from '@/lib/authz/utils.ts'
 import useFileExport from '@/components/shared/export/use-file-export.ts'
@@ -17,15 +16,15 @@ import { getInitialVisibility } from '@/components/shared/column-visibility-menu
 import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
 import { getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
 import { TableKeyEnum } from '@repo/ui/table-key'
-import { SearchKeyEnum, useStorageSearch } from '@/hooks/useStorageSearch'
+import { useStorageSearch } from '@/hooks/useStorageSearch'
 import { getAssetColumns } from './columns'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 const AssetPage: React.FC = () => {
-  const [searchQuery, setSearchQuery] = useStorageSearch(SearchKeyEnum.ASSETS)
+  const [searchQuery, setSearchQuery] = useStorageSearch(ObjectTypes.ASSET)
   const tableRef = useRef<{ exportData: () => Asset[] }>(null)
   const [filters, setFilters] = useState<AssetWhereInput | null>(null)
   const [pagination, setPagination] = useState<TPagination>(getInitialPagination(TableKeyEnum.ASSET, DEFAULT_PAGINATION))
-  const searchParams = useSearchParams()
   const { setCrumbs } = React.useContext(BreadcrumbContext)
   const { handleExport } = useFileExport()
   const defaultSorting = getInitialSortConditions(TableKeyEnum.ASSET, AssetOrderField, [
@@ -103,13 +102,6 @@ const AssetPage: React.FC = () => {
     ])
   }, [setCrumbs])
 
-  useEffect(() => {
-    const assetId = searchParams.get('id')
-    if (assetId) {
-      setSelectedAsset(assetId)
-    }
-  }, [searchParams])
-
   const orderByFilter = useMemo(() => {
     return orderBy || undefined
   }, [orderBy])
@@ -136,7 +128,8 @@ const AssetPage: React.FC = () => {
     }
 
     handleExport({
-      exportType: ExportExportType.CONTROL,
+      // tODO: replace with enum when available
+      exportType: 'Asset' as ExportExportType,
       filters: JSON.stringify(whereFilter),
       fields: mappedColumns.filter(isVisibleColumn).map((item) => (item.meta as { exportPrefix?: string })?.exportPrefix ?? item.accessorKey),
       format: ExportExportFormat.CSV,

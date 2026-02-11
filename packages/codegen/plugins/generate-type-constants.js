@@ -1,6 +1,8 @@
 const fs = require('fs')
 const path = require('path')
-const { toHumanLabel, toEnumKey } = require('./lib')
+const { toHumanLabel, toUpperSnake, getObjectNameFromBody, toKebab, getQueryNameFor } = require('./lib')
+const { generatePermissionsSection } = require('./permissions')
+const { generateTasksSection } = require('./tasks')
 
 const schemaPath = path.join(__dirname, '..', 'src', 'schema.ts')
 const outputPath = path.join(__dirname, '..', 'src', 'type-names.ts')
@@ -22,7 +24,7 @@ function pluralizeTypeName(name) {
   return lc + 's'
 }
 
-// Match only interfaces that extend Node
+// --- Extract node types ---
 const nodeTypeRegex = /export interface (\w+) extends Node\s*\{[\s\S]*?\n\}/g
 const matches = [...schemaContent.matchAll(nodeTypeRegex)]
 
@@ -33,97 +35,63 @@ const nodeTypes = matches.map((m) => ({
 
 const uniqueEntries = nodeTypes.map((nt) => ({ interfaceName: nt.name, typename: nt.name }))
 
-// Generate Types enum (ALL CAPS keys -> GraphQL type name values)
-const typesEnumLines = ['export enum ObjectTypes {', ...uniqueEntries.map(({ typename }) => `  ${toEnumKey(typename)} = '${typename}',`), '}']
+// --- Enums: ObjectTypes and ObjectNames ---
+const typesEnumLines = ['export enum ObjectTypes {', ...uniqueEntries.map(({ typename }) => `  ${toUpperSnake(typename)} = '${typename}',`), '}']
 
-// Generate Names enum (ALL CAPS keys -> human-readable labels)
-const namesEnumLines = ['export enum ObjectNames {', ...uniqueEntries.map(({ typename }) => `  ${toEnumKey(typename)} = '${toHumanLabel(typename)}',`), '}']
+const namesEnumLines = ['export enum ObjectNames {', ...uniqueEntries.map(({ typename }) => `  ${toUpperSnake(typename)} = '${toHumanLabel(typename)}',`), '}']
 
-// Find types with editors or viewers
-const typesWithPermissions = Array.from(
-  new Set(
-    nodeTypes.filter(({ body, name }) => !PERMISSIONS_EXCLUDE.includes(name) && (body.includes('editors: GroupConnection') || body.includes('viewers: GroupConnection'))).map(({ name }) => name),
-  ),
-)
-
-// Generate TypesWithPermissions enum (ALL CAPS keys -> GraphQL type name values)
-const permissionsEnumLines = ['export enum TypesWithPermissions {', ...typesWithPermissions.map((name) => `  ${toEnumKey(name)} = '${name}',`), '}']
-
-// Generate Permissions AllQueriesData shape entries
-const permissionsEntries = typesWithPermissions.map((name) => {
-  const key = pluralizeTypeName(name) // e.g., Control -> controls
-  return { key, typeName: name }
+// --- Generate Permissions Section ---
+const permissionsSection = generatePermissionsSection({
+  nodeTypes,
+  PERMISSIONS_EXCLUDE,
 })
 
-// Find Task node and extract all Connection edges (use field names)
-const taskNode = nodeTypes.find(({ name }) => name === 'Task')
-const taskObjectTypes = []
-const taskEntries = []
+// --- Generate Tasks Section ---
+const tasksSection = generateTasksSection({
+  nodeTypes,
+  TASK_EXCLUDE,
+})
 
-if (taskNode) {
-  const connectionRegex = /(\w+): (\w+)Connection/g
-  const connectionMatches = [...taskNode.body.matchAll(connectionRegex)]
-
-  const extracted = connectionMatches.map((m) => ({ field: m[1], typeName: m[2] })).filter(({ typeName }) => !TASK_EXCLUDE.includes(typeName))
-
-  const seen = new Set()
-  extracted.forEach((e) => {
-    const key = `${e.field}:${e.typeName}`
-    if (!seen.has(key)) {
-      seen.add(key)
-      taskEntries.push(e)
-      taskObjectTypes.push({
-        enumKey: toEnumKey(e.typeName),
-        typeName: e.typeName,
-        humanLabel: toHumanLabel(e.typeName),
-        field: e.field,
-      })
-    }
-  })
+// --- Collect all used types for schema import ---
+const usedTypes = new Set(['PageInfo'])
+if (permissionsSection.permissionsEntries) {
+  permissionsSection.permissionsEntries.forEach(({ typeName }) => usedTypes.add(typeName))
 }
+if (tasksSection.taskEntries) {
+  tasksSection.taskEntries.forEach(({ typeName }) => usedTypes.add(typeName))
+}
+const schemaImportLine = `import { ${Array.from(usedTypes).sort().join(', ')} } from './schema'`
 
-// Imports: collect PageInfo + all node types used in generated AllQueriesData
-const importTypes = new Set()
-importTypes.add('PageInfo')
-permissionsEntries.forEach((e) => importTypes.add(e.typeName))
-taskEntries.forEach((e) => importTypes.add(e.typeName))
+// --- Compose all query imports and deduplicate ---
+const allQueryImportLines = [...(permissionsSection.queryImportLines || []), ...(tasksSection.queryImportLines || [])]
+const uniqueQueryImportLines = Array.from(new Set(allQueryImportLines.filter(Boolean)))
 
-const importLine = `import { ${Array.from(importTypes).sort().join(', ')} } from './schema'`
-
-// Build permissions AllQueriesData block
-const permissionsBlock = [
-  'export type PermissionsAllQueriesData = {',
-  ...permissionsEntries.map(({ key, typeName }) => [`  ${key}?: {`, `    edges?: Array<{ node: ${typeName} }>`, `    pageInfo?: PageInfo`, `    totalCount?: number`, `  }`]).flat(),
-  '}',
-]
-
-// Build task AllQueriesData block using field names
-const taskBlock = [
-  'export type TaskAllQueriesData = {',
-  ...taskEntries.map(({ field, typeName }) => [`  ${field}?: {`, `    edges?: Array<{ node: ${typeName} }>`, `    pageInfo?: PageInfo`, `    totalCount?: number`, `  }`]).flat(),
-  '}',
-]
-
-// Generate TaskObjectTypes enum
-const taskEnumLines = ['export enum TaskObjectTypes {', ...taskObjectTypes.map(({ enumKey, humanLabel }) => `  ${enumKey} = '${humanLabel}',`), '}']
-
+// --- Compose output ---
 const header = `// This file is auto-generated. Do not edit manually.\n\n`
 const output =
   header +
-  importLine +
-  '\n\n' +
+  schemaImportLine +
+  '\n' +
+  (uniqueQueryImportLines.length ? uniqueQueryImportLines.join('\n') + '\n' : '') +
+  '\n' +
   typesEnumLines.join('\n') +
   '\n\n' +
   namesEnumLines.join('\n') +
   '\n\n' +
-  permissionsEnumLines.join('\n') +
+  permissionsSection.permissionsEnumLines.join('\n') +
   '\n\n' +
-  permissionsBlock.join('\n') +
+  permissionsSection.permissionsBlock.join('\n') +
+  `\n\n` +
+  permissionsSection.objectConfigLines.join('\n') +
   '\n\n' +
-  taskEnumLines.join('\n') +
+  tasksSection.taskEnumLines.join('\n') +
   '\n\n' +
-  taskBlock.join('\n') +
+  tasksSection.taskBlock.join('\n') +
+  '\n' +
+  tasksSection.taskObjectTypeConfigLines.join('\n') +
   '\n'
 
 fs.writeFileSync(outputPath, output)
-console.log(`Generated Types enum (${uniqueEntries.length}), Names enum (${uniqueEntries.length}), ${typesWithPermissions.length} permission types, and ${taskObjectTypes.length} task object types`)
+console.log(
+  `Generated Types enum (${uniqueEntries.length}), Names enum (${uniqueEntries.length}), ${permissionsSection.typesWithPermissions.length} permission types, and ${tasksSection.taskObjectTypes.length} task object types`,
+)
