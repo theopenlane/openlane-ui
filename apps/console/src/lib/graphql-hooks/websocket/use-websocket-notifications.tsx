@@ -1,9 +1,10 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useWebSocketClient } from '@/providers/websocket-provider'
 import { useSession } from 'next-auth/react'
 import { Notification as SchemaNotification } from '@repo/codegen/src/schema'
+import { useMarkNotificationsAsRead } from '@/lib/graphql-hooks/notifications'
 
 export type Notification = Pick<SchemaNotification, 'id' | 'title' | 'body' | 'topic' | 'data' | 'readAt' | 'objectType' | 'createdAt'>
 
@@ -28,16 +29,17 @@ const NOTIFICATION_SUBSCRIPTION = `
 
 export function useWebsocketNotifications() {
   const { status } = useSession()
-  const { client } = useWebSocketClient()
+  const { client: wsClient } = useWebSocketClient()
+  const { mutateAsync } = useMarkNotificationsAsRead()
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    if (!client || status !== 'authenticated') {
+    if (!wsClient || status !== 'authenticated') {
       return
     }
 
-    const unsubscribe = client.subscribe(
+    const unsubscribe = wsClient.subscribe(
       {
         query: NOTIFICATION_SUBSCRIPTION,
       },
@@ -68,11 +70,50 @@ export function useWebsocketNotifications() {
     return () => {
       unsubscribe()
     }
-  }, [client, status])
+  }, [wsClient, status])
+
+  const markAsRead = useCallback(
+    async (id: string) => {
+      const now = new Date().toISOString()
+
+      setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, readAt: now } : n)))
+
+      try {
+        await mutateAsync({ ids: [id] })
+      } catch (err) {
+        console.error('Failed to mark notification as read:', err)
+        setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, readAt: null } : n)))
+      }
+    },
+    [mutateAsync],
+  )
+
+  const markAllAsRead = useCallback(async () => {
+    const now = new Date().toISOString()
+    const unreadIds = notifications.filter((n) => !n.readAt).map((n) => n.id)
+
+    if (unreadIds.length === 0) return
+
+    setNotifications((prev) => prev.map((n) => (!n.readAt ? { ...n, readAt: now } : n)))
+
+    try {
+      await mutateAsync({ ids: unreadIds })
+    } catch (err) {
+      console.error('Failed to mark all notifications as read:', err)
+      setNotifications((prev) =>
+        prev.map((n) => {
+          const wasUnread = unreadIds.includes(n.id)
+          return wasUnread ? { ...n, readAt: null } : n
+        }),
+      )
+    }
+  }, [mutateAsync, notifications])
 
   return {
     notifications,
     setNotifications,
+    markAsRead,
+    markAllAsRead,
     isLoading: status === 'loading' || (isLoading && notifications.length === 0),
   }
 }

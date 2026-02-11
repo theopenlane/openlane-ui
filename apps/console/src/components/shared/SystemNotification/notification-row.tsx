@@ -7,11 +7,15 @@ import { Notification } from '@/lib/graphql-hooks/websocket/use-websocket-notifi
 
 interface NotificationRowProps {
   notification: Notification
+  onRead: (id: string) => void
 }
 
-export function NotificationRow({ notification }: NotificationRowProps) {
-  const isUnread = true
+export function NotificationRow({ notification, onRead }: NotificationRowProps) {
+  const isUnread = !notification.readAt
   const handleClick = () => {
+    if (isUnread) {
+      onRead(notification.id)
+    }
     if (notification.data?.url) {
       window.location.href = notification.data.url
     }
