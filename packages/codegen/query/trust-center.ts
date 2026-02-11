@@ -1,6 +1,6 @@
 import { gql } from 'graphql-request'
 
-export const GET_TRUST_CENTER = gql`
+export const GET_ALL_TRUST_CENTERS = gql`
   query GetTrustCenter {
     trustCenters {
       edges {
@@ -151,7 +151,7 @@ export const VALIDATE_CUSTOM_DOMAIN = gql`
   }
 `
 
-export const GET_TRUST_CENTER_DOCS = gql`
+export const GET_ALL_TRUST_CENTERS_DOCS = gql`
   query GetTrustCenterDocs($where: TrustCenterDocWhereInput, $first: Int, $orderBy: [TrustCenterDocOrder!], $after: Cursor, $before: Cursor, $last: Int) {
     trustCenters {
       edges {
@@ -214,7 +214,7 @@ export const CREATE_TRUST_CENTER_DOC = gql`
   }
 `
 
-export const GET_TRUST_CENTER_DOC_BY_ID = gql`
+export const GET_ALL_TRUST_CENTERS_DOC_BY_ID = gql`
   query GetTruestCenterDocByID($trustCenterDocId: ID!) {
     trustCenterDoc(id: $trustCenterDocId) {
       id
@@ -274,7 +274,7 @@ export const UPDATE_TRUST_CENTER_WATERMARK_CONFIG = gql`
   }
 `
 
-export const GET_TRUST_CENTER_POSTS = gql`
+export const GET_ALL_TRUST_CENTERS_POSTS = gql`
   query GetTrustCenterPosts($trustCenterId: ID!) {
     trustCenter(id: $trustCenterId) {
       posts {
@@ -311,7 +311,7 @@ export const UPDATE_TRUST_CENTER_POST = gql`
   }
 `
 
-export const GET_TRUST_CENTER_LAST_UPDATED = gql`
+export const GET_ALL_TRUST_CENTERS_LAST_UPDATED = gql`
   query TrustCenterLastUpdated($trustCenterId: ID!) {
     trustCenter(id: $trustCenterId) {
       customDomain {

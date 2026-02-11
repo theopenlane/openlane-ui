@@ -37,6 +37,7 @@ import { useSession } from 'next-auth/react'
 import { useGetCurrentUser } from '@/lib/graphql-hooks/user.ts'
 import TaskDetailsSheet from '@/components/pages/protected/tasks/create-task/sidebar/task-details-sheet'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 interface FormValues {
   refCode: string
@@ -80,7 +81,7 @@ const ControlDetailsPage: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [initialValues, setInitialValues] = useState<FormValues>(initialDataObj)
-  const { data: permission } = useAccountRoles(data?.__typename, id)
+  const { data: permission } = useAccountRoles(ObjectTypes.CONTROL, id)
   const { data: orgPermission } = useOrganizationRoles()
 
   const { successNotification, errorNotification } = useNotification()

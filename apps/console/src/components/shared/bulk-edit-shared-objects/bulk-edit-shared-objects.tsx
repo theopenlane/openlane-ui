@@ -37,12 +37,24 @@ export type BulkEditEvidenceDialogProps = {
   setSelectedEvidence: React.Dispatch<React.SetStateAction<{ id: string }[]>>
 }
 
+export type BulkEditAssetsDialogProps = {
+  selectedAssets: { id: string }[]
+  setSelectedAssets: React.Dispatch<React.SetStateAction<{ id: string }[]>>
+}
+
 export interface BulkEditDialogFormValues {
   fieldsArray: FieldItem[]
 }
 
 export interface SelectOptionSelectedObject {
-  selectOptionEnum: SelectOptionBulkEditControls | SelectOptionBulkEditPolicies | SelectOptionBulkEditProcedures | SelectOptionBulkEditRisks | SelectOptionBulkEditTasks | SelectOptionBulkEditEvidence
+  selectOptionEnum:
+    | SelectOptionBulkEditControls
+    | SelectOptionBulkEditPolicies
+    | SelectOptionBulkEditProcedures
+    | SelectOptionBulkEditRisks
+    | SelectOptionBulkEditTasks
+    | SelectOptionBulkEditEvidence
+    | SelectOptionBulkEditAssets
   name: string
   placeholder: string
   options?: Option[]
@@ -95,6 +107,10 @@ export enum SelectOptionBulkEditEvidence {
   Source = 'Source',
 }
 
+export enum SelectOptionBulkEditAssets {
+  Tags = 'Tags',
+}
+
 export enum InputType {
   Select = 'SELECT',
   Input = 'INPUT',
@@ -104,7 +120,15 @@ export enum InputType {
 }
 
 export interface FieldItem {
-  value: SelectOptionBulkEditControls | SelectOptionBulkEditPolicies | SelectOptionBulkEditProcedures | SelectOptionBulkEditRisks | SelectOptionBulkEditTasks | SelectOptionBulkEditEvidence | undefined
+  value:
+    | SelectOptionBulkEditControls
+    | SelectOptionBulkEditPolicies
+    | SelectOptionBulkEditProcedures
+    | SelectOptionBulkEditRisks
+    | SelectOptionBulkEditTasks
+    | SelectOptionBulkEditEvidence
+    | SelectOptionBulkEditAssets
+    | undefined
   selectedObject?: SelectOptionSelectedObject
   selectedValue?: string | undefined
   selectedDate?: Date | null
@@ -199,7 +223,7 @@ export const getAllSelectOptionsForBulkEditProcedures = (groups: Group[], typeOp
       options: ProcedureStatusOptions.map((g) => ({ label: g?.label || '', value: g?.value || '' })),
     },
     {
-      selectOptionEnum: SelectOptionBulkEditProcedures.ObjectTypes.PROCEDURE,
+      selectOptionEnum: SelectOptionBulkEditProcedures.ProcedureType,
       name: 'procedureKindName',
       inputType: InputType.Select,
       placeholder: 'Select a procedure type',
@@ -267,7 +291,7 @@ export const useGetAllSelectOptionsForBulkEditControls = (groups: Group[], typeO
       options: ControlStatusOptions.map((g) => ({ label: g?.label || '', value: g?.value || '' })),
     },
     {
-      selectOptionEnum: SelectOptionBulkEditControls.ObjectTypes.CONTROL,
+      selectOptionEnum: SelectOptionBulkEditControls.ControlType,
       name: 'controlKindName',
       placeholder: 'Select a control type',
       inputType: InputType.Select,
@@ -352,6 +376,16 @@ export const getAllSelectOptionsForBulkEditEvidence = (): SelectOptionSelectedOb
     },
     {
       selectOptionEnum: SelectOptionBulkEditEvidence.Tags,
+      name: 'tags',
+      inputType: InputType.Tag,
+      placeholder: 'Add a tag',
+    },
+  ]
+}
+export const getAllSelectOptionsForBulkEditAssets = (): SelectOptionSelectedObject[] => {
+  return [
+    {
+      selectOptionEnum: SelectOptionBulkEditAssets.Tags,
       name: 'tags',
       inputType: InputType.Tag,
       placeholder: 'Add a tag',

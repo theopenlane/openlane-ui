@@ -3,6 +3,7 @@ import { ProgramProgramStatus } from '@repo/codegen/src/schema.ts'
 import React from 'react'
 import Link from 'next/link'
 import { Button } from '@repo/ui/button'
+import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 
 export const ProgramIconMapper: Record<ProgramProgramStatus, React.ReactNode> = {
   [ProgramProgramStatus.ACTION_REQUIRED]: <FolderInput height={16} width={16} className="text-action-required" />,
@@ -13,18 +14,9 @@ export const ProgramIconMapper: Record<ProgramProgramStatus, React.ReactNode> = 
   [ProgramProgramStatus.ARCHIVED]: <FolderOutput height={16} width={16} className="text-archived" />,
 }
 
-export const ProgramStatusLabels: Record<ProgramProgramStatus, string> = {
-  [ProgramProgramStatus.ACTION_REQUIRED]: 'Action Required',
-  [ProgramProgramStatus.COMPLETED]: 'Completed',
-  [ProgramProgramStatus.IN_PROGRESS]: 'In Progress',
-  [ProgramProgramStatus.NOT_STARTED]: 'Not Started',
-  [ProgramProgramStatus.READY_FOR_AUDITOR]: 'Ready for Auditor',
-  [ProgramProgramStatus.ARCHIVED]: 'Archived',
-}
-
 // Status options for select dropdowns
 export const ProgramStatusOptions = Object.values(ProgramProgramStatus).map((status) => ({
-  label: ProgramStatusLabels[status],
+  label: getEnumLabel(status),
   value: status,
 }))
 

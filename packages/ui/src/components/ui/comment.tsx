@@ -61,19 +61,19 @@ export function Comment(props: {
   const entityType = usePluginOption(discussionPlugin, 'entityType') as CommentEntityType
 
   type EntityInputMap = {
-    Control: UpdateNoteInput
-    Subcontrol: UpdateNoteInput
-    Procedure: UpdateNoteInput
-    InternalPolicy: UpdateNoteInput
-    Risk: UpdateNoteInput
+    [ObjectTypes.CONTROL]: UpdateNoteInput
+    [ObjectTypes.SUBCONTROL]: UpdateNoteInput
+    [ObjectTypes.PROCEDURE]: UpdateNoteInput
+    [ObjectTypes.INTERNAL_POLICY]: UpdateNoteInput
+    [ObjectTypes.RISK]: UpdateNoteInput
   }
 
   type EntityIdKeyMap = {
-    Control: 'updateControlCommentId'
-    Subcontrol: 'updateSubcontrolCommentId'
-    Procedure: 'updateProcedureCommentId'
-    InternalPolicy: 'updateInternalPolicyCommentId'
-    Risk: 'updateRiskCommentId'
+    [ObjectTypes.CONTROL]: 'updateControlCommentId'
+    [ObjectTypes.SUBCONTROL]: 'updateSubcontrolCommentId'
+    [ObjectTypes.PROCEDURE]: 'updateProcedureCommentId'
+    [ObjectTypes.INTERNAL_POLICY]: 'updateInternalPolicyCommentId'
+    [ObjectTypes.RISK]: 'updateRiskCommentId'
   }
 
   type EntityType = keyof EntityInputMap
@@ -87,11 +87,11 @@ export function Comment(props: {
   ) => Promise<unknown>
 
   const entityUpdateMap: { [K in EntityType]: EntityUpdateFn<K> } = {
-    Control: updateControlComment,
-    Subcontrol: updateSubcontrolComment,
-    Procedure: updateProcedureComment,
-    InternalPolicy: updatePolicyComment,
-    Risk: updateRiskComment,
+    [ObjectTypes.CONTROL]: updateControlComment,
+    [ObjectTypes.SUBCONTROL]: updateSubcontrolComment,
+    [ObjectTypes.PROCEDURE]: updateProcedureComment,
+    [ObjectTypes.INTERNAL_POLICY]: updatePolicyComment,
+    [ObjectTypes.RISK]: updateRiskComment,
   }
 
   function getEntityUpdater<T extends EntityType>(type: T): EntityUpdateFn<T> {
@@ -123,11 +123,11 @@ export function Comment(props: {
     const text = NodeApi.string({ children: input.contentRich, type: KEYS.p })
 
     const commentIdKeyMap = {
-      Control: 'updateControlCommentId',
-      Subcontrol: 'updateSubcontrolCommentId',
-      Procedure: 'updateProcedureCommentId',
-      InternalPolicy: 'updateInternalPolicyCommentId',
-      Risk: 'updateRiskCommentId',
+      [ObjectTypes.CONTROL]: 'updateControlCommentId',
+      [ObjectTypes.SUBCONTROL]: 'updateSubcontrolCommentId',
+      [ObjectTypes.PROCEDURE]: 'updateProcedureCommentId',
+      [ObjectTypes.INTERNAL_POLICY]: 'updateInternalPolicyCommentId',
+      [ObjectTypes.RISK]: 'updateRiskCommentId',
     } as const
 
     const noteInput: UpdateNoteInput = {
@@ -578,7 +578,7 @@ export function CommentCreateForm({
         entityUpdateKey = CONTROL_DISCUSSION_QUERY_KEY
         entityDiscussionKey = 'controls'
         break
-      case RiskType:
+      case ObjectTypes.RISK:
         entityUpdateKey = RISK_DISCUSSION_QUERY_KEY
         entityDiscussionKey = 'risks'
         break

@@ -1,6 +1,6 @@
 import React from 'react'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
-import { GetMappedControlsQuery, MappedControlMappingSource, MappedControlMappingType, MappedControlsFragmentFragment, MappedSubcontrolsFragmentFragment } from '@repo/codegen/src/schema'
+import { GetAllMappedControlsQuery, MappedControlMappingSource, MappedControlMappingType, MappedControlsFragmentFragment, MappedSubcontrolsFragmentFragment } from '@repo/codegen/src/schema'
 import RelationCard from './mapped-relations-card'
 import { useGetControlsByRefCode } from '@/lib/graphql-hooks/controls'
 import { useGetSubcontrolsByRefCode } from '@/lib/graphql-hooks/subcontrol'
@@ -8,7 +8,7 @@ import { useGetSubcontrolsByRefCode } from '@/lib/graphql-hooks/subcontrol'
 type MappedRelationsSheetProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
-  queryData: GetMappedControlsQuery
+  queryData: GetAllMappedControlsQuery
 }
 
 const MappedRelationsSheet: React.FC<MappedRelationsSheetProps> = ({ open, onOpenChange, queryData }) => {

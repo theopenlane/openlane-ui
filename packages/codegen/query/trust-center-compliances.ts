@@ -1,6 +1,6 @@
 import { gql } from 'graphql-request'
 
-export const GET_TRUST_CENTER_COMPLIANCES = gql`
+export const GET_ALL_TRUST_CENTERS_COMPLIANCES = gql`
   query GetTrustCenterCompliances {
     trustCenterCompliances {
       edges {

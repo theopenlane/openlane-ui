@@ -6,11 +6,11 @@ import {
   CREATE_TRUST_CENTER_DOC,
   DELETE_CUSTOM_DOMAIN,
   DELETE_TRUST_CENTER_DOC,
-  GET_TRUST_CENTER,
-  GET_TRUST_CENTER_DOC_BY_ID,
-  GET_TRUST_CENTER_DOCS,
-  GET_TRUST_CENTER_LAST_UPDATED,
-  GET_TRUST_CENTER_POSTS,
+  GET_ALL_TRUST_CENTERS,
+  GET_ALL_TRUST_CENTERS_DOC_BY_ID,
+  GET_ALL_TRUST_CENTERS_DOCS,
+  GET_ALL_TRUST_CENTERS_LAST_UPDATED,
+  GET_ALL_TRUST_CENTERS_POSTS,
   UPDATE_TRUST_CENTER,
   UPDATE_TRUST_CENTER_DOC,
   UPDATE_TRUST_CENTER_POST,
@@ -58,7 +58,7 @@ export const useGetTrustCenter = () => {
 
   return useQuery({
     queryKey: ['trustCenter'],
-    queryFn: async () => client.request<GetTrustCenterQuery>(GET_TRUST_CENTER),
+    queryFn: async () => client.request<GetTrustCenterQuery>(GET_ALL_TRUST_CENTERS),
   })
 }
 
@@ -153,7 +153,7 @@ export const useGetTrustCenterDocs = ({ where, pagination, orderBy, enabled = tr
   const queryResult = useQuery<GetTrustCenterDocsQuery>({
     queryKey: ['trustCenter', 'docs', where, orderBy, pagination?.page, pagination?.pageSize],
     queryFn: () =>
-      client.request<GetTrustCenterDocsQuery, GetTrustCenterDocsQueryVariables>(GET_TRUST_CENTER_DOCS, {
+      client.request<GetTrustCenterDocsQuery, GetTrustCenterDocsQueryVariables>(GET_ALL_TRUST_CENTERS_DOCS, {
         where,
         orderBy,
         ...pagination?.query,
@@ -233,7 +233,7 @@ export const useGetTrustCenterDocById = ({ trustCenterDocId, enabled = true }: U
     queryKey: ['trustCenter', 'docs', trustCenterDocId],
 
     queryFn: async () =>
-      client.request<GetTruestCenterDocByIdQuery, GetTruestCenterDocByIdQueryVariables>(GET_TRUST_CENTER_DOC_BY_ID, {
+      client.request<GetTruestCenterDocByIdQuery, GetTruestCenterDocByIdQueryVariables>(GET_ALL_TRUST_CENTERS_DOC_BY_ID, {
         trustCenterDocId,
       }),
     enabled: !!trustCenterDocId && enabled,
@@ -322,7 +322,7 @@ export const useGetTrustCenterPosts = ({ trustCenterId, enabled = true }: UseGet
   return useQuery<GetTrustCenterPostsQuery>({
     queryKey: ['trustCenter', 'posts'],
     queryFn: () =>
-      client.request<GetTrustCenterPostsQuery, GetTrustCenterPostsQueryVariables>(GET_TRUST_CENTER_POSTS, {
+      client.request<GetTrustCenterPostsQuery, GetTrustCenterPostsQueryVariables>(GET_ALL_TRUST_CENTERS_POSTS, {
         trustCenterId,
       }),
     enabled: !!trustCenterId && enabled,
@@ -370,7 +370,7 @@ export const useGetTrustCenterLastUpdated = ({ trustCenterId, enabled }: UseGetT
   return useQuery<TrustCenterLastUpdatedQuery>({
     queryKey: ['trustCenterLastUpdated', trustCenterId],
     queryFn: () =>
-      client.request<TrustCenterLastUpdatedQuery, TrustCenterLastUpdatedQueryVariables>(GET_TRUST_CENTER_LAST_UPDATED, {
+      client.request<TrustCenterLastUpdatedQuery, TrustCenterLastUpdatedQueryVariables>(GET_ALL_TRUST_CENTERS_LAST_UPDATED, {
         trustCenterId,
       }),
     enabled: !!trustCenterId || !enabled,

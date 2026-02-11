@@ -3,7 +3,7 @@
 import React, { useCallback, useMemo, useState } from 'react'
 import { DataTable } from '@repo/ui/data-table'
 import { useDebounce } from '@uidotdev/usehooks'
-import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
+import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
 import { useParams } from 'next/navigation'
 import { TFormEvidenceData } from '@/components/pages/protected/evidence/types/TFormEvidenceData.ts'
 import { useSmartRouter } from '@/hooks/useSmartRouter'

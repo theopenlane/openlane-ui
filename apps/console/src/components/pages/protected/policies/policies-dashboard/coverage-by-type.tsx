@@ -12,6 +12,8 @@ import { Button } from '@repo/ui/button'
 import Link from 'next/link'
 import { CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { objectToSnakeCase } from '@/utils/strings'
 
 export default function CoverageByType({ onTypeClick }: { onTypeClick: () => void }) {
   const saved = loadFilters(TableFilterKeysEnum.POLICY) || {}
@@ -34,7 +36,7 @@ export default function CoverageByType({ onTypeClick }: { onTypeClick: () => voi
 
   const { enumOptions } = useGetCustomTypeEnums({
     where: {
-      objectType: 'internal_policy',
+      objectType: objectToSnakeCase(ObjectTypes.INTERNAL_POLICY),
       field: 'kind',
     },
   })

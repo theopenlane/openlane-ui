@@ -5,13 +5,13 @@ import {
   DeleteMappedControlMutation,
   DeleteMappedControlMutationVariables,
   GetMappedControlByIdQuery,
-  GetMappedControlsQuery,
-  GetMappedControlsQueryVariables,
+  GetAllMappedControlsQuery,
+  GetAllMappedControlsQueryVariables,
   UpdateMappedControlMutation,
   UpdateMappedControlMutationVariables,
 } from '@repo/codegen/src/schema'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { CREATE_MAPPED_CONTROL, DELETE_MAPPED_CONTROL, GET_MAPPED_CONTROL_BY_ID, GET_MAPPED_CONTROLS, UPDATE_MAPPED_CONTROL } from '@repo/codegen/query/mapped-control'
+import { CREATE_MAPPED_CONTROL, DELETE_MAPPED_CONTROL, GET_MAPPED_CONTROL_BY_ID, GET_ALL_MAPPED_CONTROLS, UPDATE_MAPPED_CONTROL } from '@repo/codegen/query/mapped-control'
 
 export const useCreateMappedControl = () => {
   const { client, queryClient } = useGraphQLClient()
@@ -24,12 +24,12 @@ export const useCreateMappedControl = () => {
   })
 }
 
-export const useGetMappedControls = ({ where, enabled = true }: { where: GetMappedControlsQueryVariables['where']; enabled?: boolean }) => {
+export const useGetMappedControls = ({ where, enabled = true }: { where: GetAllMappedControlsQueryVariables['where']; enabled?: boolean }) => {
   const { client } = useGraphQLClient()
 
-  return useQuery<GetMappedControlsQuery>({
+  return useQuery<GetAllMappedControlsQuery>({
     queryKey: ['mappedControls', where],
-    queryFn: () => client.request(GET_MAPPED_CONTROLS, { where }),
+    queryFn: () => client.request(GET_ALL_MAPPED_CONTROLS, { where }),
     enabled,
   })
 }

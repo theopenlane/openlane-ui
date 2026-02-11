@@ -23,6 +23,8 @@ import { DescriptionField } from './form-fields/description-field'
 import { LogoField } from './form-fields/logo-field'
 import { TUploadedFile } from '@/components/pages/protected/evidence/upload/types/TUploadedFile'
 import { useCreateCustomTypeEnum, useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { objectToSnakeCase } from '@/utils/strings'
 
 const schema = z.object({
   category: z.string().min(1, 'Category is required'),
@@ -53,7 +55,7 @@ export const EditTrustCenterSubprocessorSheet: React.FC = () => {
   const { mutateAsync: createEnum } = useCreateCustomTypeEnum()
   const { enumOptions } = useGetCustomTypeEnums({
     where: {
-      objectType: 'trust_center_subprocessor',
+      objectType: objectToSnakeCase(ObjectTypes.TRUST_CENTER_SUBPROCESSOR),
       field: 'kind',
     },
   })

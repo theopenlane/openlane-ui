@@ -5,6 +5,8 @@ import { FormControl, FormField, FormItem } from '@repo/ui/form'
 import { useFormContext, useWatch, useController } from 'react-hook-form'
 import { useMemo } from 'react'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { objectToSnakeCase } from '@/utils/strings'
 
 const StandardSelect = () => {
   const { control, setValue, trigger } = useFormContext()
@@ -25,7 +27,7 @@ const StandardSelect = () => {
 
   const { enumOptions } = useGetCustomTypeEnums({
     where: {
-      objectType: 'program',
+      objectType: objectToSnakeCase(ObjectTypes.PROGRAM),
       field: 'kind',
     },
   })

@@ -19,6 +19,7 @@ import { useGetSubcontrolsPaginated } from '@/lib/graphql-hooks/subcontrol'
 import { SubcontrolControlSource, type SubcontrolWhereInput } from '@repo/codegen/src/schema'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { objectToSnakeCase } from '@/utils/strings'
 
 const SubcontrolsTable: React.FC = () => {
   const { id } = useParams<{ id: string }>()
@@ -32,7 +33,7 @@ const SubcontrolsTable: React.FC = () => {
   const [filterFields, setFilterFields] = useState<FilterField[] | null>(null)
   const { enumOptions } = useGetCustomTypeEnums({
     where: {
-      objectType: 'control',
+      objectType: objectToSnakeCase(ObjectTypes.CONTROL),
       field: 'kind',
     },
   })

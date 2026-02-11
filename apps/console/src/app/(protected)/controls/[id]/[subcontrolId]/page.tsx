@@ -38,6 +38,7 @@ import ControlTabs from '@/components/pages/protected/controls/tabs/tabs.tsx'
 import QuickActions from '@/components/pages/protected/controls/quick-actions/quick-actions.tsx'
 import TaskDetailsSheet from '@/components/pages/protected/tasks/create-task/sidebar/task-details-sheet'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 interface FormValues {
   refCode: string
@@ -93,7 +94,7 @@ const ControlDetailsPage: React.FC = () => {
   const currentOrganization = getOrganizationByID(currentOrgId!)
   const plateEditorHelper = usePlateEditor()
 
-  const { data: permission } = useAccountRoles(data?.__typename)
+  const { data: permission } = useAccountRoles(ObjectTypes.SUBCONTROL, subcontrolId!)
   const { data: discussionData } = useGetSubcontrolDiscussionById(subcontrolId)
 
   const { data: associationsData } = useGetSubcontrolAssociationsById(subcontrolId)

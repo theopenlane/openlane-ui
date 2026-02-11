@@ -1,21 +1,15 @@
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { useCallback, useEffect, useState } from 'react'
 
-export enum SearchKeyEnum {
-  CONTROLS = 'controls',
-  TASKS = 'tasks',
-  POLICIES = 'policies',
-  PROCEDURES = 'procedures',
-  RISKS = 'risks',
-  EVIDENCE = 'evidence',
-  SUBPROCESSORS = 'subprocessors',
-  DOCUMENTS = 'documents',
+function searchKey(key: ObjectTypes): string {
+  return key.toLowerCase()
 }
 
 export const STORAGE_SEARCH_KEY_PREFIX = 'table-search:'
 
-export function getInitialSearchTerm(key: SearchKeyEnum, fallback = ''): string {
+export function getInitialSearchTerm(key: ObjectTypes, fallback = ''): string {
   if (typeof window !== 'undefined') {
-    const stored = localStorage.getItem(`${STORAGE_SEARCH_KEY_PREFIX}${key}`)
+    const stored = localStorage.getItem(`${STORAGE_SEARCH_KEY_PREFIX}${searchKey(key)}`)
     if (stored != null) {
       return stored
     }
@@ -28,7 +22,7 @@ type UseStorageSearchOptions = {
   persist?: boolean
 }
 
-export function useStorageSearch(key: SearchKeyEnum, options: UseStorageSearchOptions = {}): [string, (value: string) => void] {
+export function useStorageSearch(key: ObjectTypes, options: UseStorageSearchOptions = {}): [string, (value: string) => void] {
   const { fallback = '', persist = true } = options
 
   const [searchTerm, _setSearchTerm] = useState<string>(() => getInitialSearchTerm(key, fallback))
@@ -40,7 +34,7 @@ export function useStorageSearch(key: SearchKeyEnum, options: UseStorageSearchOp
       if (!persist) return
       if (typeof window === 'undefined') return
 
-      const storageKey = `${STORAGE_SEARCH_KEY_PREFIX}${key}`
+      const storageKey = `${STORAGE_SEARCH_KEY_PREFIX}${searchKey(key)}`
 
       if (!value) {
         localStorage.removeItem(storageKey)

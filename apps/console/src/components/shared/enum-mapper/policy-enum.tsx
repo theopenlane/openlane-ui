@@ -1,6 +1,7 @@
 import { Archive, CalendarClock, CircleDot, FileCheck2, FilePen, GitFork, Link, MessageCircle, ScanEye, Settings2, ShieldCheck, Stamp, Tag, UsersRound, type LucideIcon } from 'lucide-react'
 import { InternalPolicyDocumentStatus, ProcedureDocumentStatus } from '@repo/codegen/src/schema.ts'
 import { Badge } from '@repo/ui/badge'
+import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 
 export const DocumentIconMapper: Record<InternalPolicyDocumentStatus | ProcedureDocumentStatus, React.ReactNode> = {
   [InternalPolicyDocumentStatus.APPROVED]: <Stamp height={16} width={16} className="text-approved" />,
@@ -8,14 +9,6 @@ export const DocumentIconMapper: Record<InternalPolicyDocumentStatus | Procedure
   [InternalPolicyDocumentStatus.NEEDS_APPROVAL]: <ScanEye height={16} width={16} className="text-needs-approval" />,
   [InternalPolicyDocumentStatus.PUBLISHED]: <FileCheck2 height={16} width={16} className="text-published" />,
   [InternalPolicyDocumentStatus.ARCHIVED]: <Archive height={16} width={16} className="text-archived" />,
-}
-
-export const DocumentStatusMapper: Record<InternalPolicyDocumentStatus | ProcedureDocumentStatus, string> = {
-  [InternalPolicyDocumentStatus.APPROVED]: 'Approved',
-  [InternalPolicyDocumentStatus.DRAFT]: 'Draft',
-  [InternalPolicyDocumentStatus.NEEDS_APPROVAL]: 'Needs Approval',
-  [InternalPolicyDocumentStatus.PUBLISHED]: 'Published',
-  [InternalPolicyDocumentStatus.ARCHIVED]: 'Archived',
 }
 
 const DocumentStatusColorMapper: Record<InternalPolicyDocumentStatus | ProcedureDocumentStatus, string> = {
@@ -29,7 +22,7 @@ const DocumentStatusColorMapper: Record<InternalPolicyDocumentStatus | Procedure
 export function DocumentStatusBadge({ status }: { status: InternalPolicyDocumentStatus | ProcedureDocumentStatus }) {
   return (
     <Badge variant="outline" className={`flex items-center text-center gap-2 ${DocumentStatusColorMapper[status]}`}>
-      {DocumentStatusMapper[status]}
+      {getEnumLabel(status)}
     </Badge>
   )
 }

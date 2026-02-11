@@ -22,6 +22,8 @@ import { controlIconsMap } from '@/components/shared/enum-mapper/control-enum'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import type { ControlByIdNode } from '@/lib/graphql-hooks/controls'
 import type { SubcontrolByIdNode } from '@/lib/graphql-hooks/subcontrol'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { objectToSnakeCase } from '@/utils/strings'
 
 type ControlPropertiesCardProps = {
   isEditing: boolean
@@ -65,7 +67,7 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handle
 
   const { enumOptions } = useGetCustomTypeEnums({
     where: {
-      objectType: 'control',
+      objectType: objectToSnakeCase(ObjectTypes.CONTROL),
       field: 'kind',
     },
   })

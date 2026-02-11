@@ -4,6 +4,7 @@ export enum TableKeyEnum {
   EVIDENCE = 'evidence',
   POLICY = 'policy',
   PROGRAM = 'program',
+  ASSET = 'asset',
   PROGRAM_ASSIGN_USER = 'program-assign-user',
   PROGRAM_SETTINGS_GROUP = 'program-settings-group',
   PROGRAM_SETTINGS_IMPORT_CONTROLS = 'program-settings-import-controls',

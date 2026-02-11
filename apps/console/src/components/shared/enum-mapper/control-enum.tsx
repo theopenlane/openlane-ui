@@ -108,7 +108,7 @@ export const FilterIcons: Record<ControlsFilterIconName, LucideIcon> = {
 
 // Status options for select dropdowns
 export const ControlStatusOptions = Object.values(ControlControlStatus).map((status) => ({
-  label: getEnumLabel[status],
+  label: getEnumLabel(status),
   value: status,
 }))
 

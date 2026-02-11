@@ -39,7 +39,7 @@ import {
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
 import { TPagination } from '@repo/ui/pagination-types'
-import { invalidateTaskAssociations } from '@/components/shared/objectAssociation/object-assoiation-config'
+import { invalidateTaskAssociations } from '@/components/shared/object-association/object-association-config'
 
 type GetAllTasksArgs = {
   where?: TasksWithFilterQueryVariables['where']

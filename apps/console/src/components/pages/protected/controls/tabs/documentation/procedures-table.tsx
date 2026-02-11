@@ -8,7 +8,7 @@ import { whereGenerator } from '@/components/shared/table-filter/where-generator
 import { useProceduresFilters } from '@/components/pages/protected/procedures/table/table-config'
 import { SetObjectAssociationDialog } from '@/components/pages/protected/controls/set-object-association-modal'
 import { useDocumentationProcedures } from '@/lib/graphql-hooks/documentation'
-import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
+import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
 import { OrderDirection, ProcedureDocumentStatus, ProcedureOrderField } from '@repo/codegen/src/schema'
 import type { GetProceduresListQueryVariables, ProcedureWhereInput } from '@repo/codegen/src/schema'
 import type { WhereCondition } from '@/types'

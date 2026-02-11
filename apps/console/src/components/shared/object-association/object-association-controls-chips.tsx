@@ -294,7 +294,7 @@ const ObjectAssociationControlsChips = ({
                     __typename: typeName,
                   }}
                   canAdd
-                  onAdd={() => handleAdd(id, typeName === ItemType.Subcontrol, refCode, source, referenceFramework)}
+                  onAdd={() => handleAdd(id, typeName === 'Subcontrol', refCode, source, referenceFramework)}
                 />
               ))}
           </div>
@@ -307,8 +307,8 @@ const ObjectAssociationControlsChips = ({
         title={`Clone ${selectedControls[0]?.refCode}?`}
         description={
           <>
-            This {selectedControls[0]?.typeName === ItemType.Control ? ObjectTypes.CONTROL : ObjectTypes.SUBCONTROL} (<b>{selectedControls[0]?.refCode}</b>) is not in your organization, would you like
-            to add it now?
+            This {selectedControls[0]?.typeName === 'Control' ? ObjectTypes.CONTROL : ObjectTypes.SUBCONTROL} (<b>{selectedControls[0]?.refCode}</b>) is not in your organization, would you like to add
+            it now?
           </>
         }
         confirmationText="Add"

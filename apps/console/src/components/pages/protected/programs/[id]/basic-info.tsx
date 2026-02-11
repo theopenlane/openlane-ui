@@ -29,6 +29,7 @@ import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-butto
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
 import { CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { objectToSnakeCase } from '@/utils/strings'
 
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -51,7 +52,7 @@ const BasicInformation = () => {
 
   const { enumOptions } = useGetCustomTypeEnums({
     where: {
-      objectType: 'program',
+      objectType: objectToSnakeCase(ObjectTypes.PROGRAM),
       field: 'kind',
     },
   })

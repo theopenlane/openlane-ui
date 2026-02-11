@@ -4,6 +4,8 @@ import { useFormContext } from 'react-hook-form'
 import { getYear } from 'date-fns'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
 import { CustomTypeEnumOptionChip, CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { objectToSnakeCase } from '@/utils/strings'
 
 const currentYear = getYear(new Date())
 
@@ -11,7 +13,7 @@ const ProgramTypeSelect = () => {
   const { control, setValue, trigger } = useFormContext()
   const { enumOptions } = useGetCustomTypeEnums({
     where: {
-      objectType: 'program',
+      objectType: objectToSnakeCase(ObjectTypes.PROGRAM),
       field: 'kind',
     },
   })

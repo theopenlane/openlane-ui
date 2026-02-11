@@ -12,7 +12,7 @@ import { InternalPolicyWhereInput } from '@repo/codegen/src/schema'
 import { wherePoliciesDashboard } from '../dashboard-config'
 import SetObjectAssociationPoliciesDialog from '../../modal/set-object-association-modal'
 import { usePolicy } from '../../create/hooks/use-policy'
-import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap'
+import { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
 import Link from 'next/link'
 import { TableKeyEnum } from '@repo/ui/table-key'
 

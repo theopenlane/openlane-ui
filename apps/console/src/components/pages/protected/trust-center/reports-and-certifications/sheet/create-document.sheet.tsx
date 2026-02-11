@@ -33,6 +33,7 @@ import { StandardField } from './form-fields/standard-field'
 import { Callout } from '@/components/shared/callout/callout'
 import { useGetTrustCenterNDAFiles } from '@/lib/graphql-hooks/trust-center-NDA'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { objectToSnakeCase } from '@/utils/strings'
 
 const schema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -58,12 +59,12 @@ export const CreateDocumentSheet: React.FC = () => {
   const { mutateAsync: createEnum } = useCreateCustomTypeEnum()
   const { enumOptions } = useGetCustomTypeEnums({
     where: {
-      objectType: 'trust_center_doc',
+      objectType: objectToSnakeCase(ObjectTypes.TRUST_CENTER_DOC),
       field: 'kind',
     },
   })
 
-  const { data: permission } = useAccountRoles(ObjectTypes.TRUST_CENTER_DOCUMENT, documentId)
+  const { data: permission } = useAccountRoles(ObjectTypes.TRUST_CENTER_DOC, documentId)
 
   const isEditAllowed = canEdit(permission?.roles)
   const isDeleteAllowed = canDelete(permission?.roles)

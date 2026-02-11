@@ -9,7 +9,7 @@ import { Label } from '@repo/ui/label'
 import { DataTable, getInitialPagination } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/table-core'
 import { useGroupsStore } from '@/hooks/useGroupsStore'
-import { AllQueriesData, generateColumns, generateGroupsPermissionsWhere, OBJECT_TYPE_CONFIG, ObjectDataNode, ObjectTypes, TableDataItem } from '@/constants/groups'
+import { generateColumns, generateGroupsPermissionsWhere, TableDataItem } from '@/constants/groups'
 import { useUpdateGroup } from '@/lib/graphql-hooks/groups'
 import { useQuery } from '@tanstack/react-query'
 import { GET_ALL_RISKS } from '@repo/codegen/query/risks'
@@ -22,7 +22,7 @@ import { canEdit } from '@/lib/authz/utils'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { TableKeyEnum } from '@repo/ui/table-key'
-import { ObjectTypes, TypesWithPermissions } from '@repo/codegen/src/type-names'
+import { OBJECT_TYPE_PERMISSIONS_CONFIG, ObjectTypes, TypesWithPermissions, PermissionsAllQueriesData } from '@repo/codegen/src/type-names'
 
 const options = Object.values(TypesWithPermissions)
 
@@ -37,10 +37,10 @@ const AssignPermissionsDialog = () => {
   const { data: permission } = useAccountRoles(ObjectTypes.GROUP, selectedGroup)
   const { queryClient, client } = useGraphQLClient()
   const [isOpen, setIsOpen] = useState(false)
-  const [selectedPermissions, setSelectedPermissions] = useState<{ name: string; id: string; selectedObject: ObjectTypes }[]>([])
+  const [selectedPermissions, setSelectedPermissions] = useState<{ name: string; id: string; selectedObject: TypesWithPermissions }[]>([])
   const { successNotification, errorNotification } = useNotification()
   const [step, setStep] = useState(1)
-  const [selectedObject, setSelectedObject] = useState<ObjectTypes | null>(null)
+  const [selectedObject, setSelectedObject] = useState<TypesWithPermissions | null>(null)
   const [roles, setRoles] = useState<Record<string, string>>({})
   const [searchValue, setSearchValue] = useState('')
   const [debouncedSearchValue, setDebouncedSearchValue] = useState('')
@@ -48,18 +48,18 @@ const AssignPermissionsDialog = () => {
 
   const { mutateAsync: updateGroup } = useUpdateGroup()
 
-  const selectedConfig = selectedObject ? OBJECT_TYPE_CONFIG[selectedObject] : null
+  const selectedConfig = selectedObject ? OBJECT_TYPE_PERMISSIONS_CONFIG[selectedObject] : null
   const selectedQuery = selectedConfig?.queryDocument
 
   const objectName = selectedConfig?.objectName
-  const objectKey = selectedObject ? OBJECT_TYPE_CONFIG[selectedObject]?.responseObjectKey : null
+  const objectKey = selectedObject ? OBJECT_TYPE_PERMISSIONS_CONFIG[selectedObject]?.responseObjectKey : null
   const where = generateGroupsPermissionsWhere({
     debouncedSearchValue,
     selectedGroup,
     selectedObject,
   })
 
-  const { data, isLoading } = useQuery<AllQueriesData>({
+  const { data, isLoading } = useQuery<PermissionsAllQueriesData>({
     queryKey: [objectKey, 'group-permissions', where, pagination.page, pagination.pageSize],
     queryFn: () => client.request(selectedQuery || GET_ALL_RISKS, { ...where, ...pagination.query }),
     enabled: !!selectedQuery,
@@ -96,11 +96,11 @@ const AssignPermissionsDialog = () => {
 
     return (
       objectDataList?.map((item) => {
-        const node = item?.node as ObjectDataNode
+        const node = item?.node
 
         return {
           id: node?.id,
-          name: (node?.[objectName as keyof ObjectDataNode] as string) || '',
+          name: node?.__typename || '',
           checked: selectedPermissions.some((perm) => perm.id === node?.id),
           togglePermission,
           referenceFramework: (node as Partial<Control>)?.referenceFramework || '',
@@ -150,7 +150,7 @@ const AssignPermissionsDialog = () => {
       const prefix = obj?.selectedObject?.replace(/\s+/g, '')
 
       const id = obj.id
-      const role = roles[id] || OBJECT_TYPE_CONFIG[obj.selectedObject].roleOptions[0]
+      const role = roles[id] || OBJECT_TYPE_PERMISSIONS_CONFIG[obj.selectedObject].roleOptions[0]
       const suffix = role === 'View' ? 'ViewerIDs' : role === 'Edit' ? 'EditorIDs' : 'BlockedGroupIDs'
       const key = `add${prefix}${suffix}`
 
@@ -203,9 +203,9 @@ const AssignPermissionsDialog = () => {
         const selectValue = roles[columnData.id]
         return (
           <Select value={selectValue} onValueChange={(value) => handleRoleChange(columnData.id, value)}>
-            <SelectTrigger className="w-full">{selectValue || OBJECT_TYPE_CONFIG[columnData.selectedObject].roleOptions[0]}</SelectTrigger>
+            <SelectTrigger className="w-full">{selectValue || OBJECT_TYPE_PERMISSIONS_CONFIG[columnData.selectedObject].roleOptions[0]}</SelectTrigger>
             <SelectContent>
-              {OBJECT_TYPE_CONFIG[columnData.selectedObject].roleOptions.map((role) => (
+              {OBJECT_TYPE_PERMISSIONS_CONFIG[columnData.selectedObject].roleOptions.map((role) => (
                 <SelectItem key={role} value={role}>
                   {role}
                 </SelectItem>
@@ -263,7 +263,7 @@ const AssignPermissionsDialog = () => {
               <div className="flex gap-2 flex-col">
                 <Label>Select Object</Label>
                 <Select
-                  onValueChange={(val: ObjectTypes) => {
+                  onValueChange={(val: TypesWithPermissions) => {
                     setSelectedObject(val)
                     setSearchValue('')
                     setPagination(defaultPagination)

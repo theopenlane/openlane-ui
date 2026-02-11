@@ -1,6 +1,6 @@
 import { gql } from 'graphql-request'
 
-export const GET_TRUST_CENTER_NDA_FILES = gql`
+export const GET_ALL_TRUST_CENTERS_NDA_FILES = gql`
   query GetTrustCenterNDAFiles($where: TemplateWhereInput) {
     templates(where: $where) {
       edges {
@@ -51,7 +51,7 @@ export const GET_NDA_REQUESTS_COUNT = gql`
   }
 `
 
-export const GET_TRUST_CENTER_NDA_REQUESTS = gql`
+export const GET_ALL_TRUST_CENTERS_NDA_REQUESTS = gql`
   query GetTrustCenterNDARequests($after: Cursor, $first: Int, $before: Cursor, $last: Int, $orderBy: [TrustCenterNDARequestOrder!], $where: TrustCenterNDARequestWhereInput) {
     trustCenterNdaRequests(after: $after, first: $first, before: $before, last: $last, orderBy: $orderBy, where: $where) {
       totalCount
