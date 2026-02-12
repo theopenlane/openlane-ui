@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { TemplateWhereInput, TemplateDocumentType } from '@repo/codegen/src/schema'
+import { TemplateWhereInput, TemplateDocumentType, TemplateTemplateKind } from '@repo/codegen/src/schema'
 import { Select, SelectContent, SelectTrigger, SelectValue, SelectItem } from '@repo/ui/select'
 import { Form, FormControl, FormField, FormItem } from '@repo/ui/form'
 import { z, infer as zInfer } from 'zod'
@@ -55,6 +55,7 @@ export const TemplateList = () => {
 
   const whereFilter: TemplateWhereInput = {
     templateType: TemplateDocumentType.DOCUMENT,
+    kind: TemplateTemplateKind.QUESTIONNAIRE,
   }
 
   const { templates, isLoading, isError } = useTemplates({ where: whereFilter })

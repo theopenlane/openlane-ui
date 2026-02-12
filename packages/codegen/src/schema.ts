@@ -1437,6 +1437,8 @@ export interface AssessmentResponse extends Node {
   identityHolder?: Maybe<IdentityHolder>
   /** the identity holder record for the recipient */
   identityHolderID?: Maybe<Scalars['ID']['output']>
+  /** is this a draft response? can the user resume from where they left? */
+  isDraft: Scalars['Boolean']['output']
   /** whether this assessment response is for a test send */
   isTest: Scalars['Boolean']['output']
   /** the most recent email event timestamp for this assessment response */
@@ -1457,6 +1459,7 @@ export interface AssessmentResponse extends Node {
 /** AssessmentResponseAssessmentResponseStatus is enum for the field status */
 export enum AssessmentResponseAssessmentResponseStatus {
   COMPLETED = 'COMPLETED',
+  DRAFT = 'DRAFT',
   NOT_STARTED = 'NOT_STARTED',
   OVERDUE = 'OVERDUE',
   SENT = 'SENT',
@@ -1516,6 +1519,7 @@ export enum AssessmentResponseOrderField {
   email_delivered_at = 'email_delivered_at',
   email_open_count = 'email_open_count',
   email_opened_at = 'email_opened_at',
+  is_draft = 'is_draft',
   last_email_event_at = 'last_email_event_at',
   send_attempts = 'send_attempts',
   started_at = 'started_at',
@@ -1747,6 +1751,9 @@ export interface AssessmentResponseWhereInput {
   identityHolderIDNEQ?: InputMaybe<Scalars['ID']['input']>
   identityHolderIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   identityHolderIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** is_draft field predicates */
+  isDraft?: InputMaybe<Scalars['Boolean']['input']>
+  isDraftNEQ?: InputMaybe<Scalars['Boolean']['input']>
   /** is_test field predicates */
   isTest?: InputMaybe<Scalars['Boolean']['input']>
   isTestNEQ?: InputMaybe<Scalars['Boolean']['input']>
@@ -3400,6 +3407,7 @@ export interface CampaignTargetWorkflowTimelineArgs {
 /** CampaignTargetAssessmentResponseStatus is enum for the field status */
 export enum CampaignTargetAssessmentResponseStatus {
   COMPLETED = 'COMPLETED',
+  DRAFT = 'DRAFT',
   NOT_STARTED = 'NOT_STARTED',
   OVERDUE = 'OVERDUE',
   SENT = 'SENT',
@@ -17354,10 +17362,13 @@ export enum ExportExportStatus {
 
 /** ExportExportType is enum for the field export_type */
 export enum ExportExportType {
+  ASSET = 'ASSET',
   CONTROL = 'CONTROL',
   DIRECTORY_MEMBERSHIP = 'DIRECTORY_MEMBERSHIP',
+  ENTITY = 'ENTITY',
   EVIDENCE = 'EVIDENCE',
   FINDING = 'FINDING',
+  IDENTITY_HOLDER = 'IDENTITY_HOLDER',
   INTERNAL_POLICY = 'INTERNAL_POLICY',
   PROCEDURE = 'PROCEDURE',
   REMEDIATION = 'REMEDIATION',
