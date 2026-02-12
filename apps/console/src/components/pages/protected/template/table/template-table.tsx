@@ -5,7 +5,7 @@ import React, { useCallback, useContext, useEffect, useMemo, useState } from 're
 import { getTemplateColumns } from './columns'
 import TemplateTableToolbar from '@/components/pages/protected/template/table/template-table-toolbar.tsx'
 import { TEMPLATE_SORT_FIELDS } from '@/components/pages/protected/template/table/table-config.ts'
-import { OrderDirection, Template, TemplateOrderField, TemplateWhereInput, FilterTemplatesQueryVariables, TemplateDocumentType } from '@repo/codegen/src/schema.ts'
+import { OrderDirection, Template, TemplateOrderField, TemplateWhereInput, FilterTemplatesQueryVariables, TemplateTemplateKind } from '@repo/codegen/src/schema.ts'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useDebounce } from '@uidotdev/usehooks'
@@ -64,7 +64,7 @@ export const TemplatesTable = () => {
   const whereFilter = useMemo(() => {
     return {
       nameContainsFold: debouncedSearch,
-      templateType: TemplateDocumentType.DOCUMENT,
+      kindNotIn: [TemplateTemplateKind.TRUSTCENTER_NDA],
       ...filters,
     }
   }, [filters, debouncedSearch])

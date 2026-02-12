@@ -198,7 +198,13 @@ export default function CreateQuestionnaire(input: { templateId: string; existin
         </div>
         <div className="flex items-center gap-2">
           <Label htmlFor="response-due">Response Due</Label>
-          <Select value={String(responseDueDuration)} onValueChange={(value) => setResponseDueDuration(Number(value))}>
+          <Select
+            value={String(responseDueDuration)}
+            onValueChange={(value) => {
+              setResponseDueDuration(Number(value))
+              creator.setModified({ type: 'PROPERTY_CHANGED' })
+            }}
+          >
             <SelectTrigger id="response-due" className="w-[140px]">
               <SelectValue />
             </SelectTrigger>

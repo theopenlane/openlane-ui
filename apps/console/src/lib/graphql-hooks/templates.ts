@@ -126,11 +126,14 @@ export const useCreateBulkCSVTemplate = () => {
 export const useTemplateSelect = ({ where }: { where?: FilterTemplatesQueryVariables['where'] }) => {
   const { templates, ...rest } = useTemplates({ where })
 
-  const templateOptions =
-    templates?.map((template) => ({
-      label: template.name,
-      value: template.id,
-    })) ?? []
+  const templateOptions = useMemo(
+    () =>
+      templates?.map((template) => ({
+        label: template.name,
+        value: template.id,
+      })) ?? [],
+    [templates],
+  )
 
   return { templateOptions, ...rest }
 }

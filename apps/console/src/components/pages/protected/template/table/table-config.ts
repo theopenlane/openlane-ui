@@ -1,35 +1,17 @@
-import { Globe, Tag, Shield, ListFilter, CalendarPlus, History, type LucideIcon } from 'lucide-react'
+import { Globe, Tag, Shield, CalendarPlus, History, type LucideIcon } from 'lucide-react'
 import { FilterField } from '@/types'
-import { OrderDirection, TemplateOrderField, TemplateTemplateKind } from '@repo/codegen/src/schema.ts'
+import { OrderDirection, TemplateOrderField } from '@repo/codegen/src/schema.ts'
 
 const TemplateFilterIcons = {
   Environment: Globe,
-  Kind: ListFilter,
   Scope: Tag,
   SystemOwned: Shield,
   UpdatedAt: CalendarPlus,
   CreatedAt: History,
 } satisfies Record<string, LucideIcon>
 
-const KIND_LABEL_MAP: Record<TemplateTemplateKind, string> = {
-  [TemplateTemplateKind.QUESTIONNAIRE]: 'Questionnaire',
-  [TemplateTemplateKind.TRUSTCENTER_NDA]: 'Trust Center NDA',
-}
-
-const kindOptions = Object.values(TemplateTemplateKind).map((kind) => ({
-  value: kind,
-  label: KIND_LABEL_MAP[kind] ?? kind,
-}))
-
 export const TEMPLATE_FILTER_FIELDS: FilterField[] = [
   { key: 'environmentNameContainsFold', label: 'Environment', type: 'text', icon: TemplateFilterIcons.Environment },
-  {
-    key: 'kindIn',
-    label: 'Kind',
-    type: 'multiselect',
-    icon: TemplateFilterIcons.Kind,
-    options: kindOptions,
-  },
   { key: 'scopeNameContainsFold', label: 'Scope', type: 'text', icon: TemplateFilterIcons.Scope },
   {
     key: 'systemOwned',

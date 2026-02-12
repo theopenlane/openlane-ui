@@ -216,9 +216,14 @@ export const SendQuestionnaireDialog = ({ open, onOpenChange, assessmentId, asse
                     inputProps={{ value: currentInput, placeholder: 'Enter email addresses...' }}
                     onInputChange={(value: string) => setCurrentInput(value)}
                     onBlur={handleBlur}
-                    enableAutocomplete={autocompleteOptions.length > 0}
+                    enableAutocomplete={true}
                     autocompleteOptions={autocompleteOptions}
                     restrictTagsToAutocompleteOptions={false}
+                    styleClasses={{
+                      autoComplete: {
+                        popoverContent: autocompleteOptions.length === 0 ? 'opacity-0 pointer-events-none' : '',
+                      },
+                    }}
                   />
                 </FormControl>
                 {(errorMessage || invalidEmail) && <FormMessage>{errorMessage ?? invalidEmail}</FormMessage>}

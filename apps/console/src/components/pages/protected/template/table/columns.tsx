@@ -1,6 +1,7 @@
 import { ColumnDef } from '@tanstack/react-table'
 import { Template, User } from '@repo/codegen/src/schema'
 import { formatDate, formatTimeSince } from '@/utils/date'
+import { formatEnumLabel } from '@/utils/enumToLabel'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { Button } from '@repo/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
@@ -51,7 +52,10 @@ export const getTemplateColumns = (params?: Params) => {
       header: 'Kind',
       size: 150,
       minSize: 100,
-      cell: ({ cell }) => <div>{(cell.getValue() as string) || '-'}</div>,
+      cell: ({ cell }) => {
+        const value = cell.getValue() as string
+        return <div>{value ? formatEnumLabel(value) : '-'}</div>
+      },
     },
     {
       accessorKey: 'scopeName',
