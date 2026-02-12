@@ -19,7 +19,6 @@ export function NotificationRow({ notification, onRead }: NotificationRowProps) 
       await onRead(notification.id)
     }
     if (notification.data?.url) {
-      // window.location.href = notification.data.url
       router.push(notification.data.url)
     }
   }
