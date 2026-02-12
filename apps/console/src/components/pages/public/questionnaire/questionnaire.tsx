@@ -65,7 +65,6 @@ export const QuestionnairePage: React.FC<QuestionnairePageProps> = ({ token }) =
             data: surveyModel.data,
             isDraft: true,
           }
-          console.log('Saving draft - request payload:', draftPayload)
           await submitRef.current.mutateAsync(draftPayload)
         } catch (error) {
           console.error('Error saving draft:', error)
