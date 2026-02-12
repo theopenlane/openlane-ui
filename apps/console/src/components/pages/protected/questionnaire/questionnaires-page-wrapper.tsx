@@ -5,6 +5,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { PageHeading } from '@repo/ui/page-heading'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import { Card, CardContent } from '@repo/ui/cardpanel'
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@repo/ui/tooltip'
 import { FileWarning, NotebookPen, Check, Clock2, LayoutTemplate } from 'lucide-react'
 import { QuestionnairesTable } from '@/components/pages/protected/questionnaire/table/questionnaire-table'
 import { TemplatesTable } from '@/components/pages/protected/template/table/template-table'
@@ -18,17 +19,21 @@ const DEFAULT_TAB: QuestionnaireTabValue = 'questionnaires'
 const TAB_QUERY_PARAM = 'tab'
 const VALID_TABS: QuestionnaireTabValue[] = ['questionnaires', 'templates']
 
-const MINIMAL_PAGINATION = { page: 1, pageSize: 1, query: { first: 1 } }
+const TOOLTIP_PAGINATION = { page: 1, pageSize: 5, query: { first: 5 } }
 
 type SummaryCardProps = {
   icon: LucideIcon
   label: string
   count: number
   isLoading: boolean
+  tooltipNames: string[]
+  totalCount: number
 }
 
-const SummaryCard = ({ icon: Icon, label, count, isLoading }: SummaryCardProps) => {
-  return (
+const SummaryCard = ({ icon: Icon, label, count, isLoading, tooltipNames, totalCount }: SummaryCardProps) => {
+  const showTooltip = !isLoading && totalCount > 0
+
+  const cardContent = (
     <Card>
       <CardContent className="flex flex-col p-6">
         <div className="flex h-10 w-10 items-center justify-center rounded-lg border bg-homepage-card-item border-switch-bg-inactive">
@@ -39,41 +44,92 @@ const SummaryCard = ({ icon: Icon, label, count, isLoading }: SummaryCardProps) 
       </CardContent>
     </Card>
   )
+
+  if (!showTooltip) return cardContent
+
+  const remaining = totalCount - tooltipNames.length
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>{cardContent}</TooltipTrigger>
+      <TooltipContent className="max-w-xs">
+        <p className="font-semibold mb-1">{label} Assessments</p>
+        <ul className="text-sm space-y-0.5">
+          {tooltipNames.map((name) => (
+            <li key={name}>{name}</li>
+          ))}
+        </ul>
+        {remaining > 0 && <p className="text-xs text-muted-foreground mt-1">and {remaining} more</p>}
+      </TooltipContent>
+    </Tooltip>
+  )
 }
 
 const QuestionnaireSummaryCards = () => {
-  const { paginationMeta: totalMeta, isLoading: totalLoading } = useAssessments({
-    pagination: MINIMAL_PAGINATION,
+  const {
+    assessments: totalAssessments,
+    paginationMeta: totalMeta,
+    isLoading: totalLoading,
+  } = useAssessments({
+    pagination: TOOLTIP_PAGINATION,
   })
 
-  const { paginationMeta: completedMeta, isLoading: completedLoading } = useAssessments({
+  const {
+    assessments: completedAssessments,
+    paginationMeta: completedMeta,
+    isLoading: completedLoading,
+  } = useAssessments({
     where: {
       hasAssessmentResponsesWith: [{ status: AssessmentResponseAssessmentResponseStatus.COMPLETED }],
     },
-    pagination: MINIMAL_PAGINATION,
+    pagination: TOOLTIP_PAGINATION,
   })
 
-  const { paginationMeta: pendingMeta, isLoading: pendingLoading } = useAssessments({
+  const {
+    assessments: pendingAssessments,
+    paginationMeta: pendingMeta,
+    isLoading: pendingLoading,
+  } = useAssessments({
     where: {
       hasAssessmentResponsesWith: [{ statusIn: [AssessmentResponseAssessmentResponseStatus.NOT_STARTED, AssessmentResponseAssessmentResponseStatus.SENT] }],
     },
-    pagination: MINIMAL_PAGINATION,
+    pagination: TOOLTIP_PAGINATION,
   })
 
-  const { paginationMeta: overdueMeta, isLoading: overdueLoading } = useAssessments({
+  const {
+    assessments: overdueAssessments,
+    paginationMeta: overdueMeta,
+    isLoading: overdueLoading,
+  } = useAssessments({
     where: {
       hasAssessmentResponsesWith: [{ status: AssessmentResponseAssessmentResponseStatus.OVERDUE }],
     },
-    pagination: MINIMAL_PAGINATION,
+    pagination: TOOLTIP_PAGINATION,
   })
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-      <SummaryCard icon={NotebookPen} label="Total" count={totalMeta.totalCount} isLoading={totalLoading} />
-      <SummaryCard icon={Check} label="Completed" count={completedMeta.totalCount} isLoading={completedLoading} />
-      <SummaryCard icon={Clock2} label="Pending" count={pendingMeta.totalCount} isLoading={pendingLoading} />
-      <SummaryCard icon={FileWarning} label="Overdue" count={overdueMeta.totalCount} isLoading={overdueLoading} />
-    </div>
+    <TooltipProvider>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <SummaryCard icon={NotebookPen} label="Total" count={totalMeta.totalCount} isLoading={totalLoading} tooltipNames={totalAssessments.map((a) => a.name)} totalCount={totalMeta.totalCount} />
+        <SummaryCard
+          icon={Check}
+          label="Completed"
+          count={completedMeta.totalCount}
+          isLoading={completedLoading}
+          tooltipNames={completedAssessments.map((a) => a.name)}
+          totalCount={completedMeta.totalCount}
+        />
+        <SummaryCard icon={Clock2} label="Pending" count={pendingMeta.totalCount} isLoading={pendingLoading} tooltipNames={pendingAssessments.map((a) => a.name)} totalCount={pendingMeta.totalCount} />
+        <SummaryCard
+          icon={FileWarning}
+          label="Overdue"
+          count={overdueMeta.totalCount}
+          isLoading={overdueLoading}
+          tooltipNames={overdueAssessments.map((a) => a.name)}
+          totalCount={overdueMeta.totalCount}
+        />
+      </div>
+    </TooltipProvider>
   )
 }
 

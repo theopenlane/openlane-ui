@@ -1,15 +1,15 @@
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { TableFilter } from '@/components/shared/table-filter/table-filter.tsx'
 import { DownloadIcon, LoaderCircle, SearchIcon, Upload } from 'lucide-react'
 import { Input } from '@repo/ui/input'
 import { useDebounce } from '@uidotdev/usehooks'
-import { QUESTIONNAIRE_FILTER_FIELDS } from '@/components/pages/protected/questionnaire/table/table-config.ts'
+import { getQuestionnaireFilterFields } from '@/components/pages/protected/questionnaire/table/table-config.ts'
 import { includeQuestionnaireCreation } from '@repo/dally/auth'
 import { CreateDropdown } from '@/components/pages/protected/questionnaire/create.tsx'
 import Menu from '@/components/shared/menu/menu.tsx'
 import { VisibilityState } from '@tanstack/react-table'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
-import { TemplateWhereInput } from '@repo/codegen/src/schema'
+import { AssessmentWhereInput, TemplateTemplateKind } from '@repo/codegen/src/schema'
 import { BulkCSVCreateTemplatelDialog } from '../dialog/bulk-csv-create-template-dialog'
 import { canCreate } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
@@ -23,13 +23,15 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useNotification } from '@/hooks/useNotification'
 import { useDeleteBulkAssessment } from '@/lib/graphql-hooks/assessments'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { useGetTags } from '@/lib/graphql-hooks/tags'
+import { useTemplateSelect } from '@/lib/graphql-hooks/templates'
 
 type TQuestionnaireTableToolbarProps = {
   creating: boolean
   searching?: boolean
   searchTerm: string
   setSearchTerm: (searchTerm: string) => void
-  setFilters: (filters: TemplateWhereInput) => void
+  setFilters: (filters: AssessmentWhereInput) => void
   columnVisibility?: VisibilityState
   handleExport: () => void
   setColumnVisibility?: React.Dispatch<React.SetStateAction<VisibilityState>>
@@ -65,6 +67,13 @@ const QuestionnaireTableToolbar: React.FC<TQuestionnaireTableToolbarProps> = ({
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: bulkDeleteQuestionnaires } = useDeleteBulkAssessment()
+
+  const { tagOptions: rawTagOptions } = useGetTags()
+  const tagOptions = useMemo(() => rawTagOptions ?? [], [rawTagOptions])
+
+  const { templateOptions } = useTemplateSelect({ where: { kind: TemplateTemplateKind.QUESTIONNAIRE } })
+
+  const filterFields = useMemo(() => getQuestionnaireFilterFields(tagOptions, templateOptions), [tagOptions, templateOptions])
 
   const createDropdown = () => {
     if (includeQuestionnaireCreation == 'true' && canCreate(permission?.roles, AccessEnum.CanCreateTemplate)) {
@@ -171,7 +180,7 @@ const QuestionnaireTableToolbar: React.FC<TQuestionnaireTableToolbarProps> = ({
                   storageKey={TableColumnVisibilityKeysEnum.QUESTIONNAIRE}
                 />
               )}
-              <TableFilter filterFields={QUESTIONNAIRE_FILTER_FIELDS} onFilterChange={setFilters} pageKey={TableFilterKeysEnum.QUESTIONNAIRE} />
+              <TableFilter filterFields={filterFields} onFilterChange={setFilters} pageKey={TableFilterKeysEnum.QUESTIONNAIRE} />
               {createDropdown()}
             </>
           )}

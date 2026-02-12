@@ -50,6 +50,10 @@ export const GET_ALL_ASSESSMENTS = gql`
           name
           assessmentType
           templateID
+          template {
+            id
+            name
+          }
           jsonconfig
           responseDueDuration
           tags

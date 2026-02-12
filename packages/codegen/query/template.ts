@@ -51,6 +51,10 @@ export const GET_ALL_TEMPLATES = gql`
           updatedAt
           updatedBy
           createdBy
+          environmentName
+          kind
+          scopeName
+          systemOwned
         }
       }
       pageInfo {

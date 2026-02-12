@@ -2,9 +2,15 @@ import { ColumnDef } from '@tanstack/react-table'
 import { Template, User } from '@repo/codegen/src/schema'
 import { formatDate, formatTimeSince } from '@/utils/date'
 import { Avatar } from '@/components/shared/avatar/avatar'
+import { Button } from '@repo/ui/button'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
+import { MoreHorizontal, Pencil, FilePlus, Trash2 } from 'lucide-react'
 
 type Params = {
   userMap?: Record<string, User>
+  onEdit?: (template: Template) => void
+  onDelete?: (template: Template) => void
+  onCreateQuestionnaire?: (template: Template) => void
 }
 
 export const getTemplateColumns = (params?: Params) => {
@@ -25,6 +31,41 @@ export const getTemplateColumns = (params?: Params) => {
       cell: ({ cell }) => <div className="font-bold">{cell.getValue() as string}</div>,
       size: 200,
       minSize: 100,
+    },
+    {
+      accessorKey: 'description',
+      header: 'Description',
+      size: 250,
+      minSize: 100,
+      cell: ({ cell }) => <div className="truncate">{(cell.getValue() as string) || '-'}</div>,
+    },
+    {
+      accessorKey: 'environmentName',
+      header: 'Environment',
+      size: 150,
+      minSize: 100,
+      cell: ({ cell }) => <div>{(cell.getValue() as string) || '-'}</div>,
+    },
+    {
+      accessorKey: 'kind',
+      header: 'Kind',
+      size: 150,
+      minSize: 100,
+      cell: ({ cell }) => <div>{(cell.getValue() as string) || '-'}</div>,
+    },
+    {
+      accessorKey: 'scopeName',
+      header: 'Scope',
+      size: 150,
+      minSize: 100,
+      cell: ({ cell }) => <div>{(cell.getValue() as string) || '-'}</div>,
+    },
+    {
+      accessorKey: 'systemOwned',
+      header: 'System Owned',
+      size: 120,
+      minSize: 100,
+      cell: ({ cell }) => <div>{cell.getValue() ? 'Yes' : 'No'}</div>,
     },
     {
       accessorKey: 'createdBy',
@@ -71,6 +112,43 @@ export const getTemplateColumns = (params?: Params) => {
       header: 'Last Updated',
       size: 100,
       cell: ({ cell }) => <span className="whitespace-nowrap">{formatTimeSince(cell.getValue() as string)}</span>,
+    },
+    {
+      id: 'actions',
+      header: '',
+      cell: ({ row }) => {
+        const isSystemOwned = row.original.systemOwned === true
+        return (
+          <div onClick={(e) => e.stopPropagation()} className="flex justify-end">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="secondary">
+                  <MoreHorizontal className="h-4 w-4 text-brand" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="min-w-40">
+                {!isSystemOwned && (
+                  <DropdownMenuItem onClick={() => params?.onEdit?.(row.original)}>
+                    <Pencil className="h-4 w-4" />
+                    Edit
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuItem onClick={() => params?.onCreateQuestionnaire?.(row.original)}>
+                  <FilePlus className="h-4 w-4" />
+                  Create Questionnaire
+                </DropdownMenuItem>
+                {!isSystemOwned && (
+                  <DropdownMenuItem className="text-destructive focus:text-destructive focus:bg-destructive/10" onClick={() => params?.onDelete?.(row.original)}>
+                    <Trash2 className="h-4 w-4" />
+                    Delete
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        )
+      },
+      size: 40,
     },
   ]
 

@@ -17,6 +17,12 @@ export type DeliveryRow = {
   sendAttempts: number
   emailDeliveredAt?: string | null
   completedAt?: string | null
+  document?: { id: string; data: unknown } | null
+}
+
+type DeliveryColumnCallbacks = {
+  onResend: (row: DeliveryRow) => void
+  onViewResponse: (row: DeliveryRow) => void
 }
 
 const statusVariantMap: Record<AssessmentResponseAssessmentResponseStatus, 'green' | 'blue' | 'default' | 'destructive'> = {
@@ -26,7 +32,7 @@ const statusVariantMap: Record<AssessmentResponseAssessmentResponseStatus, 'gree
   [AssessmentResponseAssessmentResponseStatus.OVERDUE]: 'destructive',
 }
 
-export const getDeliveryColumns = (onResend: (row: DeliveryRow) => void): ColumnDef<DeliveryRow>[] => [
+export const getDeliveryColumns = ({ onResend, onViewResponse }: DeliveryColumnCallbacks): ColumnDef<DeliveryRow>[] => [
   {
     accessorKey: 'email',
     header: 'Recipient',
@@ -36,7 +42,7 @@ export const getDeliveryColumns = (onResend: (row: DeliveryRow) => void): Column
     header: 'Status',
     cell: ({ row }) => {
       const status = row.getValue('status') as AssessmentResponseAssessmentResponseStatus
-      const label = status.replace('_', ' ')
+      const label = status.replaceAll('_', ' ')
       return <Badge variant={statusVariantMap[status] || 'default'}>{label}</Badge>
     },
   },
@@ -63,6 +69,7 @@ export const getDeliveryColumns = (onResend: (row: DeliveryRow) => void): Column
     id: 'actions',
     header: '',
     cell: ({ row }) => {
+      const isCompleted = row.original.status === AssessmentResponseAssessmentResponseStatus.COMPLETED
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -71,7 +78,11 @@ export const getDeliveryColumns = (onResend: (row: DeliveryRow) => void): Column
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => onResend(row.original)}>Resend</DropdownMenuItem>
+            {isCompleted ? (
+              <DropdownMenuItem onClick={() => onViewResponse(row.original)}>See Response</DropdownMenuItem>
+            ) : (
+              <DropdownMenuItem onClick={() => onResend(row.original)}>Resend</DropdownMenuItem>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       )

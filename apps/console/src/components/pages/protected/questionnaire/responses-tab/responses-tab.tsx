@@ -6,6 +6,7 @@ import { Input } from '@repo/ui/input'
 import Pagination from '@repo/ui/pagination'
 import { Search } from 'lucide-react'
 import { extractQuestions } from './extract-questions'
+import { renderAnswer } from '../utils/render-answer'
 
 type ResponseNode = {
   id: string
@@ -19,14 +20,6 @@ type ResponsesTabProps = {
   jsonconfig: unknown
 }
 
-const renderAnswer = (value: unknown): string => {
-  if (value == null) return '-'
-  if (typeof value === 'boolean') return value ? 'Yes' : 'No'
-  if (Array.isArray(value)) return value.join(', ')
-  if (typeof value === 'object') return JSON.stringify(value)
-  return String(value)
-}
-
 export const ResponsesTab = ({ responses, jsonconfig }: ResponsesTabProps) => {
   const questions = useMemo(() => extractQuestions(jsonconfig), [jsonconfig])
   const [columnFilters, setColumnFilters] = useState<Record<string, string>>({})
@@ -38,9 +31,12 @@ export const ResponsesTab = ({ responses, jsonconfig }: ResponsesTabProps) => {
   const filteredResponses = useMemo(() => {
     return completedResponses.filter((response) => {
       const data = (response.document?.data || {}) as Record<string, unknown>
-      return Object.entries(columnFilters).every(([questionName, filterValue]) => {
+      return Object.entries(columnFilters).every(([key, filterValue]) => {
         if (!filterValue) return true
-        const answer = renderAnswer(data[questionName])
+        if (key === '__email') {
+          return (response.email || '').toLowerCase().includes(filterValue.toLowerCase())
+        }
+        const answer = renderAnswer(data[key])
         return answer.toLowerCase().includes(filterValue.toLowerCase())
       })
     })
@@ -69,6 +65,15 @@ export const ResponsesTab = ({ responses, jsonconfig }: ResponsesTabProps) => {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="min-w-[200px] align-top p-4">
+                <div className="space-y-3">
+                  <div className="relative">
+                    <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input placeholder="Search..." className="h-9 pl-9 text-sm bg-transparent" onChange={(e) => handleFilterChange('__email', e.target.value)} value={columnFilters['__email'] || ''} />
+                  </div>
+                  <div className="font-semibold text-sm leading-snug">Respondent</div>
+                </div>
+              </TableHead>
               {questions.map((q) => (
                 <TableHead key={q.name} className="min-w-[200px] align-top p-4">
                   <div className="space-y-3">
@@ -85,7 +90,7 @@ export const ResponsesTab = ({ responses, jsonconfig }: ResponsesTabProps) => {
           <TableBody>
             {paginatedResponses.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={questions.length} className="text-center text-muted-foreground py-8">
+                <TableCell colSpan={questions.length + 1} className="text-center text-muted-foreground py-8">
                   No responses yet
                 </TableCell>
               </TableRow>
@@ -94,6 +99,7 @@ export const ResponsesTab = ({ responses, jsonconfig }: ResponsesTabProps) => {
                 const data = (response.document?.data || {}) as Record<string, unknown>
                 return (
                   <TableRow key={response.id}>
+                    <TableCell>{response.email}</TableCell>
                     {questions.map((q) => (
                       <TableCell key={q.name}>{renderAnswer(data[q.name])}</TableCell>
                     ))}

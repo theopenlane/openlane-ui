@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 
@@ -55,13 +56,16 @@ export const useAssessments = ({ where, orderBy, pagination, enabled = true }: U
     enabled,
   })
 
-  const assessments = (queryResult.data?.assessments?.edges ?? []).map((edge) => edge?.node) as Assessment[]
+  const assessments = useMemo(() => (queryResult.data?.assessments?.edges ?? []).map((edge) => edge?.node) as Assessment[], [queryResult.data?.assessments?.edges])
 
-  const paginationMeta = {
-    totalCount: queryResult.data?.assessments?.totalCount ?? 0,
-    pageInfo: queryResult.data?.assessments?.pageInfo,
-    isLoading: queryResult.isFetching,
-  }
+  const paginationMeta = useMemo(
+    () => ({
+      totalCount: queryResult.data?.assessments?.totalCount ?? 0,
+      pageInfo: queryResult.data?.assessments?.pageInfo,
+      isLoading: queryResult.isFetching,
+    }),
+    [queryResult.data?.assessments?.totalCount, queryResult.data?.assessments?.pageInfo, queryResult.isFetching],
+  )
 
   return {
     ...queryResult,

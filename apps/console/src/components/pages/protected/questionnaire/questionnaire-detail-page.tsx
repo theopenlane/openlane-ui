@@ -23,14 +23,8 @@ import { ResponsesTab } from './responses-tab/responses-tab'
 import { extractQuestions } from './responses-tab/extract-questions'
 import type { DeliveryRow } from './delivery-tab/delivery-columns'
 import type { LucideIcon } from 'lucide-react'
-
-const renderAnswer = (value: unknown): string => {
-  if (value == null) return '-'
-  if (typeof value === 'boolean') return value ? 'Yes' : 'No'
-  if (Array.isArray(value)) return value.join(', ')
-  if (typeof value === 'object') return JSON.stringify(value)
-  return String(value)
-}
+import { SendQuestionnaireDialog } from './dialog/send-questionnaire-dialog'
+import { renderAnswer } from './utils/render-answer'
 
 type DetailTabValue = 'delivery' | 'responses'
 const DEFAULT_TAB: DetailTabValue = 'delivery'
@@ -123,6 +117,7 @@ const QuestionnaireDetailPage = () => {
   const { setCrumbs } = React.useContext(BreadcrumbContext)
   const { assessment, responses, totalRecipients, completedResponses, isLoading } = useGetAssessmentDetail(id)
   const [deliveryFilters, setDeliveryFilters] = useState<WhereCondition>({})
+  const [isSendDialogOpen, setIsSendDialogOpen] = useState(false)
 
   const tabParamValue = searchParams.get(TAB_QUERY_PARAM)
   const activeTab: DetailTabValue = tabParamValue && VALID_TABS.includes(tabParamValue as DetailTabValue) ? (tabParamValue as DetailTabValue) : DEFAULT_TAB
@@ -173,6 +168,7 @@ const QuestionnaireDetailPage = () => {
         sendAttempts: r!.sendAttempts,
         emailDeliveredAt: r!.emailDeliveredAt,
         completedAt: r!.completedAt,
+        document: r!.document,
       })),
     [responses],
   )
@@ -245,7 +241,15 @@ const QuestionnaireDetailPage = () => {
 
   return (
     <>
-      <PageHeading eyebrow="Questionnaires" heading={assessment.name} />
+      <PageHeading
+        eyebrow="Questionnaires"
+        heading={assessment.name}
+        actions={
+          <Button type="button" icon={<Send />} iconPosition="left" onClick={() => setIsSendDialogOpen(true)}>
+            Send
+          </Button>
+        }
+      />
 
       <div className="grid grid-cols-3 gap-4 mt-6">
         <StatCard icon={Users} label="Recipients" value={totalRecipients} isLoading={false} />
@@ -286,12 +290,14 @@ const QuestionnaireDetailPage = () => {
           )}
         </div>
         <TabsContent value="delivery" className="mt-6">
-          <DeliveryTab responses={filteredDeliveryRows} assessmentId={id} />
+          <DeliveryTab responses={filteredDeliveryRows} assessmentId={id} jsonconfig={assessment.jsonconfig} />
         </TabsContent>
         <TabsContent value="responses" className="mt-6">
           <ResponsesTab responses={responseRows} jsonconfig={assessment.jsonconfig} />
         </TabsContent>
       </Tabs>
+
+      <SendQuestionnaireDialog open={isSendDialogOpen} onOpenChange={setIsSendDialogOpen} assessmentId={id} assessmentName={assessment?.name} />
     </>
   )
 }

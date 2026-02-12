@@ -1,46 +1,18 @@
-import defaultTheme from 'tailwindcss/defaultTheme'
-
-type TailwindColorScale = Record<string, string>
-type TailwindColors = {
-  jade?: TailwindColorScale
-  saffron?: TailwindColorScale
-  background?: {
-    dark?: string
-    secondary?: string
-  }
-  border?: {
-    dark?: string
-  }
-  text?: {
-    light?: string
-  }
-  button?: {
-    muted?: string
-  }
-}
-
-export const fullConfig = {
-  theme: {
-    colors: defaultTheme.colors as TailwindColors,
-    fontSize: defaultTheme.fontSize,
-    spacing: defaultTheme.spacing,
-  },
-}
+import { ITheme } from 'survey-core'
 
 const colors = {
-  primary: fullConfig?.theme?.colors?.jade?.['400'],
-  secondary: fullConfig?.theme?.colors?.jade?.['500'],
-  yellow: fullConfig?.theme?.colors?.saffron?.['400'],
-
-  surface: fullConfig?.theme?.colors?.background?.['dark'],
-  background: fullConfig?.theme?.colors?.background?.['dark'],
-  backgroundDim: fullConfig?.theme?.colors?.background?.['secondary'],
-  borderColor: fullConfig?.theme?.colors?.border?.['dark'],
-  backgroundLight: fullConfig?.theme?.colors?.jade?.['700'],
-  textColor: fullConfig?.theme?.colors?.text?.['light'],
-  textColorDim: fullConfig?.theme?.colors?.text?.['light'],
-  inputPlaceholderColor: fullConfig?.theme?.colors?.text?.['light'],
-  iconColor: fullConfig?.theme?.colors?.button?.['muted'],
+  primary: '#60e8c9',
+  secondary: '#2dcdad',
+  yellow: '#ff842c',
+  surface: '#09151d',
+  background: '#09151d',
+  backgroundDim: '#162431',
+  borderColor: '#304757',
+  backgroundLight: '#233440',
+  textColor: '#ffffff',
+  textColorDim: '#9aa5b0',
+  inputPlaceholderColor: '#9aa5b0',
+  iconColor: '#4c5e69',
 }
 
 // https://github.com/surveyjs/survey-creator/blob/master/packages/survey-creator-core/src/themes/predefined-themes/default/dark.css
@@ -86,18 +58,108 @@ const SJS_THEME = {
   '--sjs-special-yellow-forecolor': 'rgba(48, 48, 48, 1)',
   '--sjs-general-backcolor-dim': 'rgba(36, 36, 36, 1)',
   '--sjs-primary-backcolor': colors.primary,
-  '--sjs-primary-backcolor-dark': 'rgba(0, 255, 0, 1)',
-  '--sjs-primary-backcolor-light': 'rgba(0, 255, 0, 0.07)',
-  '--sjs-primary-forecolor': 'rgba(32, 32, 32, 1)',
-  '--sjs-primary-forecolor-light': 'rgba(32, 32, 32, 0.25)',
+  '--sjs-primary-backcolor-dark': '#2dcdad',
+  '--sjs-primary-backcolor-light': 'rgba(96, 232, 201, 0.07)',
+  '--sjs-primary-forecolor': '#ffffff',
+  '--sjs-primary-forecolor-light': 'rgba(255, 255, 255, 0.25)',
   '--sjs-special-red': 'rgba(254, 76, 108, 1)',
   '--sjs-special-red-light': 'rgba(254, 76, 108, 0.1)',
   '--sjs-questionpanel-hovercolor': colors.backgroundDim,
+  '--sjs-questionpanel-backcolor': colors.backgroundLight,
+  '--sjs-question-background': colors.backgroundLight,
+  '--sjs-editor-background': colors.backgroundLight,
+  '--sjs-editorpanel-backcolor': colors.backgroundLight,
+  '--sjs-font-pagetitle-color': colors.textColor,
+  '--sjs-font-pagedescription-color': colors.textColorDim,
+  '--sjs-font-surveytitle-color': colors.textColor,
+  '--sjs-font-surveydescription-color': colors.textColorDim,
+  '--sjs-font-questiontitle-color': colors.textColor,
+  '--sjs-font-questiondescription-color': colors.textColorDim,
+  '--sjs-font-editorfont-color': colors.textColor,
+  '--sjs-font-editorfont-placeholdercolor': colors.inputPlaceholderColor,
+  '--sjs-secondary-background-800': '#005e4d',
+  '--sjs-secondary-background-700': '#00795f',
+  '--sjs-secondary-background-600': '#009975',
+  '--sjs-secondary-background-500': '#2dcdad',
+  '--sjs-secondary-background-400': '#60e8c9',
+  '--sjs-secondary-background-300': '#9af5dd',
+  '--sjs-secondary-background-200': '#c8ffef',
+  '--sjs-secondary-background-100': '#e0fff7',
+  '--sjs-secondary-background-10': '#e0fff7',
+  '--sjs-secondary-background-25': '#e0fff7',
+  '--sjs-secondary-background-50': '#e0fff7',
+  '--sjs-primary-foreground-25': '#ffffff',
+  '--sjs-primary-foreground-50': '#ffffff',
+  '--sjs-primary-foreground-100': '#ffffff',
+  '--sjs-primary-foreground-200': '#ffffff',
+  '--sjs-primary-foreground-300': '#ffffff',
+  '--sjs-primary-foreground-400': '#ffffff',
+  '--sjs-primary-foreground-500': '#ffffff',
+  '--sjs-primary-foreground-600': '#ffffff',
+  '--sjs-primary-foreground-700': '#ffffff',
+  '--sjs-primary-foreground-800': '#ffffff',
+  '--sjs-primary-foreground-900': '#ffffff',
+  '--sjs-primary-background-500': '#60e8c9',
+  '--sjs-layer-1-foreground-100 ': '#ffffff',
+  '--sjs-layer-1-foreground-200 ': '#ffffff',
+  '--sjs-layer-1-foreground-300 ': '#ffffff',
+  '--sjs-layer-1-foreground-400 ': '#ffffff',
+  '--sjs-layer-1-foreground-500 ': '#ffffff',
+  '--sjs-layer-1-foreground-600 ': '#ffffff',
+  '--sjs-layer-1-foreground-700 ': '#ffffff',
+  '--sjs-layer-1-foreground-800 ': '#ffffff',
+  '--sjs-font-surveytitle-family': 'var(--font-mincho)',
+  '--sjs-font-headertitle-family': 'var(--font-mincho)',
+  '--sjs-font-headertitle-weight': '400',
+  '--sjs-header-backcolor': '#09151d',
+  '--sjs-article-font-xx-large-textDecoration': 'none',
+  '--sjs-article-font-xx-large-fontWeight': '400',
+  '--sjs-article-font-xx-large-fontStyle': 'normal',
+  '--sjs-article-font-xx-large-fontStretch': 'normal',
+  '--sjs-article-font-xx-large-letterSpacing': '0',
+  '--sjs-article-font-xx-large-lineHeight': '64px',
+  '--sjs-article-font-xx-large-paragraphIndent': '0px',
+  '--sjs-article-font-xx-large-textCase': 'none',
+  '--sjs-article-font-x-large-textDecoration': 'none',
+  '--sjs-article-font-x-large-fontWeight': '400',
+  '--sjs-article-font-x-large-fontStyle': 'normal',
+  '--sjs-article-font-x-large-fontStretch': 'normal',
+  '--sjs-article-font-x-large-letterSpacing': '0',
+  '--sjs-article-font-x-large-lineHeight': '56px',
+  '--sjs-article-font-x-large-paragraphIndent': '0px',
+  '--sjs-article-font-x-large-textCase': 'none',
+  '--sjs-article-font-large-textDecoration': 'none',
+  '--sjs-article-font-large-fontWeight': '400',
+  '--sjs-article-font-large-fontStyle': 'normal',
+  '--sjs-article-font-large-fontStretch': 'normal',
+  '--sjs-article-font-large-letterSpacing': '0',
+  '--sjs-article-font-large-lineHeight': '40px',
+  '--sjs-article-font-large-paragraphIndent': '0px',
+  '--sjs-article-font-large-textCase': 'none',
+  '--sjs-article-font-medium-textDecoration': 'none',
+  '--sjs-article-font-medium-fontWeight': '400',
+  '--sjs-article-font-medium-fontStyle': 'normal',
+  '--sjs-article-font-medium-fontStretch': 'normal',
+  '--sjs-article-font-medium-letterSpacing': '0',
+  '--sjs-article-font-medium-lineHeight': '32px',
+  '--sjs-article-font-medium-paragraphIndent': '0px',
+  '--sjs-article-font-medium-textCase': 'none',
+  '--sjs-article-font-default-textDecoration': 'none',
+  '--sjs-article-font-default-fontWeight': '400',
+  '--sjs-article-font-default-fontStyle': 'normal',
+  '--sjs-article-font-default-fontStretch': 'normal',
+  '--sjs-article-font-default-letterSpacing': '0',
+  '--sjs-article-font-default-lineHeight': '28px',
+  '--sjs-article-font-default-paragraphIndent': '0px',
+  '--sjs-article-font-default-textCase': 'none',
+  // ' --sjs-layer-1-background-500': colors.background,
+  // '--lbr-question-panel-background-color': colors.background,
+  '--lbr-question-panel-background-color': colors.background,
 }
 
 // this theme is from the suveyjs creator colors
 // the default theme variables are here: https://github.com/surveyjs/survey-creator/blob/master/packages/survey-creator-core/src/themes/default.ts
-export const darkTheme = {
+export const darkTheme: ITheme = {
   backgroundImageFit: 'cover',
   backgroundImageAttachment: 'scroll',
   backgroundOpacity: 1,
@@ -987,6 +1049,6 @@ export const darkTheme = {
     // "--lbr-shadow-x-large-spread": "0px",
   },
   themeName: 'openlane',
-  colorPalette: 'light',
+  colorPalette: 'dark',
   isPanelless: true,
 }

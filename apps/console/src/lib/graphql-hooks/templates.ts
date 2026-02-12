@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 
@@ -42,13 +43,16 @@ export const useTemplates = ({ where, orderBy, pagination, enabled = true }: Use
     enabled,
   })
 
-  const templates = (queryResult.data?.templates?.edges ?? []).map((edge) => edge?.node) as Template[]
+  const templates = useMemo(() => (queryResult.data?.templates?.edges ?? []).map((edge) => edge?.node) as Template[], [queryResult.data?.templates?.edges])
 
-  const paginationMeta = {
-    totalCount: queryResult.data?.templates?.totalCount ?? 0,
-    pageInfo: queryResult.data?.templates?.pageInfo,
-    isLoading: queryResult.isFetching,
-  }
+  const paginationMeta = useMemo(
+    () => ({
+      totalCount: queryResult.data?.templates?.totalCount ?? 0,
+      pageInfo: queryResult.data?.templates?.pageInfo,
+      isLoading: queryResult.isFetching,
+    }),
+    [queryResult.data?.templates?.totalCount, queryResult.data?.templates?.pageInfo, queryResult.isFetching],
+  )
 
   return {
     ...queryResult,
@@ -117,4 +121,16 @@ export const useCreateBulkCSVTemplate = () => {
       queryClient.invalidateQueries({ queryKey: ['templates'] })
     },
   })
+}
+
+export const useTemplateSelect = ({ where }: { where?: FilterTemplatesQueryVariables['where'] }) => {
+  const { templates, ...rest } = useTemplates({ where })
+
+  const templateOptions =
+    templates?.map((template) => ({
+      label: template.name,
+      value: template.id,
+    })) ?? []
+
+  return { templateOptions, ...rest }
 }

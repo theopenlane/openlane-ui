@@ -357,6 +357,10 @@ export interface ApiTokenWhereInput {
   revokedReasonNEQ?: InputMaybe<Scalars['String']['input']>
   revokedReasonNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   revokedReasonNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for scopesHas to contain a specific value */
+  scopesHas?: InputMaybe<Scalars['String']['input']>
+  /** Filter for tagsHas to contain a specific value */
+  tagsHas?: InputMaybe<Scalars['String']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -843,6 +847,8 @@ export interface ActionPlanWhereInput {
   completedAtNEQ?: InputMaybe<Scalars['Time']['input']>
   completedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
   completedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for controlSuggestionsHas to contain a specific value */
+  controlSuggestionsHas?: InputMaybe<Scalars['String']['input']>
   /** created_at field predicates */
   createdAt?: InputMaybe<Scalars['Time']['input']>
   createdAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -918,6 +924,12 @@ export interface ActionPlanWhereInput {
   detailsNEQ?: InputMaybe<Scalars['String']['input']>
   detailsNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   detailsNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for dismissedControlSuggestionsHas to contain a specific value */
+  dismissedControlSuggestionsHas?: InputMaybe<Scalars['String']['input']>
+  /** Filter for dismissedImprovementSuggestionsHas to contain a specific value */
+  dismissedImprovementSuggestionsHas?: InputMaybe<Scalars['String']['input']>
+  /** Filter for dismissedTagSuggestionsHas to contain a specific value */
+  dismissedTagSuggestionsHas?: InputMaybe<Scalars['String']['input']>
   /** due_date field predicates */
   dueDate?: InputMaybe<Scalars['Time']['input']>
   dueDateGT?: InputMaybe<Scalars['Time']['input']>
@@ -1013,6 +1025,8 @@ export interface ActionPlanWhereInput {
   idLTE?: InputMaybe<Scalars['ID']['input']>
   idNEQ?: InputMaybe<Scalars['ID']['input']>
   idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** Filter for improvementSuggestionsHas to contain a specific value */
+  improvementSuggestionsHas?: InputMaybe<Scalars['String']['input']>
   /** internal_notes field predicates */
   internalNotes?: InputMaybe<Scalars['String']['input']>
   internalNotesContains?: InputMaybe<Scalars['String']['input']>
@@ -1149,6 +1163,10 @@ export interface ActionPlanWhereInput {
   systemOwnedIsNil?: InputMaybe<Scalars['Boolean']['input']>
   systemOwnedNEQ?: InputMaybe<Scalars['Boolean']['input']>
   systemOwnedNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for tagSuggestionsHas to contain a specific value */
+  tagSuggestionsHas?: InputMaybe<Scalars['String']['input']>
+  /** Filter for tagsHas to contain a specific value */
+  tagsHas?: InputMaybe<Scalars['String']['input']>
   /** title field predicates */
   title?: InputMaybe<Scalars['String']['input']>
   titleContains?: InputMaybe<Scalars['String']['input']>
@@ -1939,6 +1957,8 @@ export interface AssessmentWhereInput {
   responseDueDurationNEQ?: InputMaybe<Scalars['Int']['input']>
   responseDueDurationNotIn?: InputMaybe<Array<Scalars['Int']['input']>>
   responseDueDurationNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for tagsHas to contain a specific value */
+  tagsHas?: InputMaybe<Scalars['String']['input']>
   /** template_id field predicates */
   templateID?: InputMaybe<Scalars['ID']['input']>
   templateIDContains?: InputMaybe<Scalars['ID']['input']>
@@ -2406,6 +2426,8 @@ export interface AssetWhereInput {
   assetTypeIn?: InputMaybe<Array<AssetAssetType>>
   assetTypeNEQ?: InputMaybe<AssetAssetType>
   assetTypeNotIn?: InputMaybe<Array<AssetAssetType>>
+  /** Filter for categoriesHas to contain a specific value */
+  categoriesHas?: InputMaybe<Scalars['String']['input']>
   /** contains_pii field predicates */
   containsPii?: InputMaybe<Scalars['Boolean']['input']>
   containsPiiIsNil?: InputMaybe<Scalars['Boolean']['input']>
@@ -2934,6 +2956,8 @@ export interface AssetWhereInput {
   systemOwnedIsNil?: InputMaybe<Scalars['Boolean']['input']>
   systemOwnedNEQ?: InputMaybe<Scalars['Boolean']['input']>
   systemOwnedNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for tagsHas to contain a specific value */
+  tagsHas?: InputMaybe<Scalars['String']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -4131,6 +4155,8 @@ export interface CampaignWhereInput {
   statusIn?: InputMaybe<Array<CampaignCampaignStatus>>
   statusNEQ?: InputMaybe<CampaignCampaignStatus>
   statusNotIn?: InputMaybe<Array<CampaignCampaignStatus>>
+  /** Filter for tagsHas to contain a specific value */
+  tagsHas?: InputMaybe<Scalars['String']['input']>
   /** template_id field predicates */
   templateID?: InputMaybe<Scalars['ID']['input']>
   templateIDContains?: InputMaybe<Scalars['ID']['input']>
@@ -4560,6 +4586,8 @@ export interface ContactWhereInput {
   statusIn?: InputMaybe<Array<ContactUserStatus>>
   statusNEQ?: InputMaybe<ContactUserStatus>
   statusNotIn?: InputMaybe<Array<ContactUserStatus>>
+  /** Filter for tagsHas to contain a specific value */
+  tagsHas?: InputMaybe<Scalars['String']['input']>
   /** title field predicates */
   title?: InputMaybe<Scalars['String']['input']>
   titleContains?: InputMaybe<Scalars['String']['input']>
@@ -5411,6 +5439,8 @@ export interface ControlImplementationWhereInput {
   systemOwnedIsNil?: InputMaybe<Scalars['Boolean']['input']>
   systemOwnedNEQ?: InputMaybe<Scalars['Boolean']['input']>
   systemOwnedNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for tagsHas to contain a specific value */
+  tagsHas?: InputMaybe<Scalars['String']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -5976,6 +6006,8 @@ export interface ControlObjectiveWhereInput {
   systemOwnedIsNil?: InputMaybe<Scalars['Boolean']['input']>
   systemOwnedNEQ?: InputMaybe<Scalars['Boolean']['input']>
   systemOwnedNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for tagsHas to contain a specific value */
+  tagsHas?: InputMaybe<Scalars['String']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -6041,6 +6073,8 @@ export interface ControlUpdatePayload {
  * Input was generated by ent.
  */
 export interface ControlWhereInput {
+  /** Filter for aliasesHas to contain a specific value */
+  aliasesHas?: InputMaybe<Scalars['String']['input']>
   and?: InputMaybe<Array<ControlWhereInput>>
   /** auditor_reference_id field predicates */
   auditorReferenceID?: InputMaybe<Scalars['String']['input']>
@@ -6138,6 +6172,8 @@ export interface ControlWhereInput {
   controlOwnerIDNEQ?: InputMaybe<Scalars['ID']['input']>
   controlOwnerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   controlOwnerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for controlQuestionsHas to contain a specific value */
+  controlQuestionsHas?: InputMaybe<Scalars['String']['input']>
   /** created_at field predicates */
   createdAt?: InputMaybe<Scalars['Time']['input']>
   createdAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -6360,6 +6396,8 @@ export interface ControlWhereInput {
   internalNotesNEQ?: InputMaybe<Scalars['String']['input']>
   internalNotesNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   internalNotesNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for mappedCategoriesHas to contain a specific value */
+  mappedCategoriesHas?: InputMaybe<Scalars['String']['input']>
   not?: InputMaybe<ControlWhereInput>
   or?: InputMaybe<Array<ControlWhereInput>>
   /** owner_id field predicates */
@@ -6555,6 +6593,8 @@ export interface ControlWhereInput {
   systemOwnedIsNil?: InputMaybe<Scalars['Boolean']['input']>
   systemOwnedNEQ?: InputMaybe<Scalars['Boolean']['input']>
   systemOwnedNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for tagsHas to contain a specific value */
+  tagsHas?: InputMaybe<Scalars['String']['input']>
   /** title field predicates */
   title?: InputMaybe<Scalars['String']['input']>
   titleContains?: InputMaybe<Scalars['String']['input']>
@@ -10449,6 +10489,8 @@ export interface CustomDomainWhereInput {
   systemOwnedIsNil?: InputMaybe<Scalars['Boolean']['input']>
   systemOwnedNEQ?: InputMaybe<Scalars['Boolean']['input']>
   systemOwnedNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for tagsHas to contain a specific value */
+  tagsHas?: InputMaybe<Scalars['String']['input']>
   /** trust_center_id field predicates */
   trustCenterID?: InputMaybe<Scalars['String']['input']>
   trustCenterIDContains?: InputMaybe<Scalars['String']['input']>
@@ -11289,6 +11331,8 @@ export interface DnsVerificationWhereInput {
   ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
   ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for tagsHas to contain a specific value */
+  tagsHas?: InputMaybe<Scalars['String']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -11926,6 +11970,8 @@ export interface DirectoryAccountWhereInput {
   statusIn?: InputMaybe<Array<DirectoryAccountDirectoryAccountStatus>>
   statusNEQ?: InputMaybe<DirectoryAccountDirectoryAccountStatus>
   statusNotIn?: InputMaybe<Array<DirectoryAccountDirectoryAccountStatus>>
+  /** Filter for tagsHas to contain a specific value */
+  tagsHas?: InputMaybe<Scalars['String']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -12428,6 +12474,8 @@ export interface DirectoryGroupWhereInput {
   statusIn?: InputMaybe<Array<DirectoryGroupDirectoryGroupStatus>>
   statusNEQ?: InputMaybe<DirectoryGroupDirectoryGroupStatus>
   statusNotIn?: InputMaybe<Array<DirectoryGroupDirectoryGroupStatus>>
+  /** Filter for tagsHas to contain a specific value */
+  tagsHas?: InputMaybe<Scalars['String']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -13726,6 +13774,8 @@ export interface DocumentDataWhereInput {
   scopeNameNEQ?: InputMaybe<Scalars['String']['input']>
   scopeNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   scopeNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for tagsHas to contain a specific value */
+  tagsHas?: InputMaybe<Scalars['String']['input']>
   /** template_id field predicates */
   templateID?: InputMaybe<Scalars['ID']['input']>
   templateIDContains?: InputMaybe<Scalars['ID']['input']>
@@ -14189,6 +14239,8 @@ export interface EmailBrandingWhereInput {
   secondaryColorNEQ?: InputMaybe<Scalars['String']['input']>
   secondaryColorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   secondaryColorNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for tagsHas to contain a specific value */
+  tagsHas?: InputMaybe<Scalars['String']['input']>
   /** text_color field predicates */
   textColor?: InputMaybe<Scalars['String']['input']>
   textColorContains?: InputMaybe<Scalars['String']['input']>
@@ -15408,6 +15460,8 @@ export interface EntityTypeWhereInput {
   systemOwnedIsNil?: InputMaybe<Scalars['Boolean']['input']>
   systemOwnedNEQ?: InputMaybe<Scalars['Boolean']['input']>
   systemOwnedNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for tagsHas to contain a specific value */
+  tagsHas?: InputMaybe<Scalars['String']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -15563,6 +15617,8 @@ export interface EntityWhereInput {
   displayNameNEQ?: InputMaybe<Scalars['String']['input']>
   displayNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   displayNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for domainsHas to contain a specific value */
+  domainsHas?: InputMaybe<Scalars['String']['input']>
   /** entity_relationship_state_id field predicates */
   entityRelationshipStateID?: InputMaybe<Scalars['ID']['input']>
   entityRelationshipStateIDContains?: InputMaybe<Scalars['ID']['input']>
@@ -15888,6 +15944,10 @@ export interface EntityWhereInput {
   lastReviewedAtNEQ?: InputMaybe<Scalars['DateTime']['input']>
   lastReviewedAtNotIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
   lastReviewedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for linkedAssetIdsHas to contain a specific value */
+  linkedAssetIdsHas?: InputMaybe<Scalars['String']['input']>
+  /** Filter for linksHas to contain a specific value */
+  linksHas?: InputMaybe<Scalars['String']['input']>
   /** mfa_enforced field predicates */
   mfaEnforced?: InputMaybe<Scalars['Boolean']['input']>
   mfaEnforcedIsNil?: InputMaybe<Scalars['Boolean']['input']>
@@ -15943,6 +16003,8 @@ export interface EntityWhereInput {
   ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
   ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for providedServicesHas to contain a specific value */
+  providedServicesHas?: InputMaybe<Scalars['String']['input']>
   /** renewal_risk field predicates */
   renewalRisk?: InputMaybe<Scalars['String']['input']>
   renewalRiskContains?: InputMaybe<Scalars['String']['input']>
@@ -16158,6 +16220,8 @@ export interface EntityWhereInput {
   systemOwnedIsNil?: InputMaybe<Scalars['Boolean']['input']>
   systemOwnedNEQ?: InputMaybe<Scalars['Boolean']['input']>
   systemOwnedNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for tagsHas to contain a specific value */
+  tagsHas?: InputMaybe<Scalars['String']['input']>
   /** termination_notice_days field predicates */
   terminationNoticeDays?: InputMaybe<Scalars['Int']['input']>
   terminationNoticeDaysGT?: InputMaybe<Scalars['Int']['input']>
@@ -16555,6 +16619,8 @@ export interface EventWhereInput {
   idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   not?: InputMaybe<EventWhereInput>
   or?: InputMaybe<Array<EventWhereInput>>
+  /** Filter for tagsHas to contain a specific value */
+  tagsHas?: InputMaybe<Scalars['String']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -17127,6 +17193,8 @@ export interface EvidenceWhereInput {
   statusNEQ?: InputMaybe<EvidenceEvidenceStatus>
   statusNotIn?: InputMaybe<Array<EvidenceEvidenceStatus>>
   statusNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for tagsHas to contain a specific value */
+  tagsHas?: InputMaybe<Scalars['String']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -17380,6 +17448,8 @@ export interface ExportWhereInput {
   exportTypeIn?: InputMaybe<Array<ExportExportType>>
   exportTypeNEQ?: InputMaybe<ExportExportType>
   exportTypeNotIn?: InputMaybe<Array<ExportExportType>>
+  /** Filter for fieldsHas to contain a specific value */
+  fieldsHas?: InputMaybe<Scalars['String']['input']>
   /** filters field predicates */
   filters?: InputMaybe<Scalars['String']['input']>
   filtersContains?: InputMaybe<Scalars['String']['input']>
@@ -18077,6 +18147,8 @@ export interface FileWhereInput {
   systemOwnedIsNil?: InputMaybe<Scalars['Boolean']['input']>
   systemOwnedNEQ?: InputMaybe<Scalars['Boolean']['input']>
   systemOwnedNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for tagsHas to contain a specific value */
+  tagsHas?: InputMaybe<Scalars['String']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -18763,6 +18835,8 @@ export interface FindingWhereInput {
   blocksProductionIsNil?: InputMaybe<Scalars['Boolean']['input']>
   blocksProductionNEQ?: InputMaybe<Scalars['Boolean']['input']>
   blocksProductionNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for categoriesHas to contain a specific value */
+  categoriesHas?: InputMaybe<Scalars['String']['input']>
   /** category field predicates */
   category?: InputMaybe<Scalars['String']['input']>
   categoryContains?: InputMaybe<Scalars['String']['input']>
@@ -19169,6 +19243,8 @@ export interface FindingWhereInput {
   recommendedActionsNEQ?: InputMaybe<Scalars['String']['input']>
   recommendedActionsNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   recommendedActionsNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for referencesHas to contain a specific value */
+  referencesHas?: InputMaybe<Scalars['String']['input']>
   /** remediation_sla field predicates */
   remediationSLA?: InputMaybe<Scalars['Int']['input']>
   remediationSLAGT?: InputMaybe<Scalars['Int']['input']>
@@ -19325,6 +19401,8 @@ export interface FindingWhereInput {
   statusNEQ?: InputMaybe<Scalars['String']['input']>
   statusNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   statusNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for stepsToReproduceHas to contain a specific value */
+  stepsToReproduceHas?: InputMaybe<Scalars['String']['input']>
   /** system_internal_id field predicates */
   systemInternalID?: InputMaybe<Scalars['String']['input']>
   systemInternalIDContains?: InputMaybe<Scalars['String']['input']>
@@ -19346,6 +19424,10 @@ export interface FindingWhereInput {
   systemOwnedIsNil?: InputMaybe<Scalars['Boolean']['input']>
   systemOwnedNEQ?: InputMaybe<Scalars['Boolean']['input']>
   systemOwnedNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for tagsHas to contain a specific value */
+  tagsHas?: InputMaybe<Scalars['String']['input']>
+  /** Filter for targetsHas to contain a specific value */
+  targetsHas?: InputMaybe<Scalars['String']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -20821,6 +20903,8 @@ export interface GroupWhereInput {
   scimGroupMailingNEQ?: InputMaybe<Scalars['String']['input']>
   scimGroupMailingNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   scimGroupMailingNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for tagsHas to contain a specific value */
+  tagsHas?: InputMaybe<Scalars['String']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -21434,6 +21518,22 @@ export interface IdentityHolderBulkCreatePayload {
   identityHolders?: Maybe<Array<IdentityHolder>>
 }
 
+/** Return response for deleteBulkIdentityHolder mutation */
+export interface IdentityHolderBulkDeletePayload {
+  __typename?: 'IdentityHolderBulkDeletePayload'
+  /** Deleted identityHolder IDs */
+  deletedIDs: Array<Scalars['ID']['output']>
+}
+
+/** Return response for updateBulkIdentityHolder mutation */
+export interface IdentityHolderBulkUpdatePayload {
+  __typename?: 'IdentityHolderBulkUpdatePayload'
+  /** Updated identityHolders */
+  identityHolders?: Maybe<Array<IdentityHolder>>
+  /** IDs of the updated identityHolders */
+  updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
+}
+
 /** A connection to a list of items. */
 export interface IdentityHolderConnection {
   __typename?: 'IdentityHolderConnection'
@@ -21948,6 +22048,8 @@ export interface IdentityHolderWhereInput {
   statusIn?: InputMaybe<Array<IdentityHolderUserStatus>>
   statusNEQ?: InputMaybe<IdentityHolderUserStatus>
   statusNotIn?: InputMaybe<Array<IdentityHolderUserStatus>>
+  /** Filter for tagsHas to contain a specific value */
+  tagsHas?: InputMaybe<Scalars['String']['input']>
   /** team field predicates */
   team?: InputMaybe<Scalars['String']['input']>
   teamContains?: InputMaybe<Scalars['String']['input']>
@@ -22540,6 +22642,8 @@ export interface IntegrationWhereInput {
   systemOwnedIsNil?: InputMaybe<Scalars['Boolean']['input']>
   systemOwnedNEQ?: InputMaybe<Scalars['Boolean']['input']>
   systemOwnedNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for tagsHas to contain a specific value */
+  tagsHas?: InputMaybe<Scalars['String']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -22935,6 +23039,8 @@ export interface InternalPolicyWhereInput {
   approverIDNEQ?: InputMaybe<Scalars['ID']['input']>
   approverIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   approverIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for controlSuggestionsHas to contain a specific value */
+  controlSuggestionsHas?: InputMaybe<Scalars['String']['input']>
   /** created_at field predicates */
   createdAt?: InputMaybe<Scalars['Time']['input']>
   createdAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -22994,6 +23100,12 @@ export interface InternalPolicyWhereInput {
   detailsNEQ?: InputMaybe<Scalars['String']['input']>
   detailsNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   detailsNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for dismissedControlSuggestionsHas to contain a specific value */
+  dismissedControlSuggestionsHas?: InputMaybe<Scalars['String']['input']>
+  /** Filter for dismissedImprovementSuggestionsHas to contain a specific value */
+  dismissedImprovementSuggestionsHas?: InputMaybe<Scalars['String']['input']>
+  /** Filter for dismissedTagSuggestionsHas to contain a specific value */
+  dismissedTagSuggestionsHas?: InputMaybe<Scalars['String']['input']>
   /** display_id field predicates */
   displayID?: InputMaybe<Scalars['String']['input']>
   displayIDContains?: InputMaybe<Scalars['String']['input']>
@@ -23130,6 +23242,8 @@ export interface InternalPolicyWhereInput {
   idLTE?: InputMaybe<Scalars['ID']['input']>
   idNEQ?: InputMaybe<Scalars['ID']['input']>
   idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** Filter for improvementSuggestionsHas to contain a specific value */
+  improvementSuggestionsHas?: InputMaybe<Scalars['String']['input']>
   /** internal_notes field predicates */
   internalNotes?: InputMaybe<Scalars['String']['input']>
   internalNotesContains?: InputMaybe<Scalars['String']['input']>
@@ -23304,6 +23418,10 @@ export interface InternalPolicyWhereInput {
   systemOwnedIsNil?: InputMaybe<Scalars['Boolean']['input']>
   systemOwnedNEQ?: InputMaybe<Scalars['Boolean']['input']>
   systemOwnedNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for tagSuggestionsHas to contain a specific value */
+  tagSuggestionsHas?: InputMaybe<Scalars['String']['input']>
+  /** Filter for tagsHas to contain a specific value */
+  tagsHas?: InputMaybe<Scalars['String']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -24201,6 +24319,8 @@ export interface JobRunnerRegistrationTokenWhereInput {
   ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
   ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for tagsHas to contain a specific value */
+  tagsHas?: InputMaybe<Scalars['String']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -24461,6 +24581,8 @@ export interface JobRunnerTokenWhereInput {
   revokedReasonNEQ?: InputMaybe<Scalars['String']['input']>
   revokedReasonNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   revokedReasonNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for tagsHas to contain a specific value */
+  tagsHas?: InputMaybe<Scalars['String']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -24678,6 +24800,8 @@ export interface JobRunnerWhereInput {
   systemOwnedIsNil?: InputMaybe<Scalars['Boolean']['input']>
   systemOwnedNEQ?: InputMaybe<Scalars['Boolean']['input']>
   systemOwnedNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for tagsHas to contain a specific value */
+  tagsHas?: InputMaybe<Scalars['String']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -24993,6 +25117,8 @@ export interface JobTemplateWhereInput {
   systemOwnedIsNil?: InputMaybe<Scalars['Boolean']['input']>
   systemOwnedNEQ?: InputMaybe<Scalars['Boolean']['input']>
   systemOwnedNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for tagsHas to contain a specific value */
+  tagsHas?: InputMaybe<Scalars['String']['input']>
   /** title field predicates */
   title?: InputMaybe<Scalars['String']['input']>
   titleContains?: InputMaybe<Scalars['String']['input']>
@@ -25213,6 +25339,8 @@ export interface MappableDomainWhereInput {
   nameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   not?: InputMaybe<MappableDomainWhereInput>
   or?: InputMaybe<Array<MappableDomainWhereInput>>
+  /** Filter for tagsHas to contain a specific value */
+  tagsHas?: InputMaybe<Scalars['String']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -25599,6 +25727,8 @@ export interface MappedControlWhereInput {
   systemOwnedIsNil?: InputMaybe<Scalars['Boolean']['input']>
   systemOwnedNEQ?: InputMaybe<Scalars['Boolean']['input']>
   systemOwnedNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for tagsHas to contain a specific value */
+  tagsHas?: InputMaybe<Scalars['String']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -26144,6 +26274,8 @@ export interface Mutation {
   deleteBulkGroupSetting: GroupSettingBulkDeletePayload
   /** Delete multiple hushs */
   deleteBulkHush: HushBulkDeletePayload
+  /** Delete multiple identityHolders */
+  deleteBulkIdentityHolder: IdentityHolderBulkDeletePayload
   /** Delete multiple internalPolicys */
   deleteBulkInternalPolicy: InternalPolicyBulkDeletePayload
   /** Delete multiple invites */
@@ -26432,6 +26564,8 @@ export interface Mutation {
   updateBulkCSVGroupSetting: GroupSettingBulkUpdatePayload
   /** Update multiple existing hushs via file upload */
   updateBulkCSVHush: HushBulkUpdatePayload
+  /** Update multiple existing identityHolders via file upload */
+  updateBulkCSVIdentityHolder: IdentityHolderBulkUpdatePayload
   /** Update multiple existing internalPolicys via file upload */
   updateBulkCSVInternalPolicy: InternalPolicyBulkUpdatePayload
   /** Update multiple existing invites via file upload */
@@ -26514,6 +26648,8 @@ export interface Mutation {
   updateBulkGroupSetting: GroupSettingBulkUpdatePayload
   /** Update multiple existing hushs */
   updateBulkHush: HushBulkUpdatePayload
+  /** Update multiple existing identityHolders */
+  updateBulkIdentityHolder: IdentityHolderBulkUpdatePayload
   /** Update multiple existing internalPolicys */
   updateBulkInternalPolicy: InternalPolicyBulkUpdatePayload
   /** Update multiple existing invites */
@@ -27792,6 +27928,10 @@ export interface MutationDeleteBulkHushArgs {
   ids: Array<Scalars['ID']['input']>
 }
 
+export interface MutationDeleteBulkIdentityHolderArgs {
+  ids: Array<Scalars['ID']['input']>
+}
+
 export interface MutationDeleteBulkInternalPolicyArgs {
   ids: Array<Scalars['ID']['input']>
 }
@@ -28378,6 +28518,10 @@ export interface MutationUpdateBulkCsvHushArgs {
   input: Scalars['Upload']['input']
 }
 
+export interface MutationUpdateBulkCsvIdentityHolderArgs {
+  input: Scalars['Upload']['input']
+}
+
 export interface MutationUpdateBulkCsvInternalPolicyArgs {
   input: Scalars['Upload']['input']
 }
@@ -28557,6 +28701,11 @@ export interface MutationUpdateBulkGroupSettingArgs {
 export interface MutationUpdateBulkHushArgs {
   ids: Array<Scalars['ID']['input']>
   input: UpdateHushInput
+}
+
+export interface MutationUpdateBulkIdentityHolderArgs {
+  ids: Array<Scalars['ID']['input']>
+  input: UpdateIdentityHolderInput
 }
 
 export interface MutationUpdateBulkInternalPolicyArgs {
@@ -29497,6 +29646,8 @@ export interface NarrativeWhereInput {
   systemOwnedIsNil?: InputMaybe<Scalars['Boolean']['input']>
   systemOwnedNEQ?: InputMaybe<Scalars['Boolean']['input']>
   systemOwnedNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for tagsHas to contain a specific value */
+  tagsHas?: InputMaybe<Scalars['String']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -30329,6 +30480,8 @@ export interface NotificationPreferenceWhereInput {
   timezoneNEQ?: InputMaybe<Scalars['String']['input']>
   timezoneNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   timezoneNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for topicPatternsHas to contain a specific value */
+  topicPatternsHas?: InputMaybe<Scalars['String']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -30934,6 +31087,8 @@ export interface OnboardingWhereInput {
   companyNameLTE?: InputMaybe<Scalars['String']['input']>
   companyNameNEQ?: InputMaybe<Scalars['String']['input']>
   companyNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** Filter for domainsHas to contain a specific value */
+  domainsHas?: InputMaybe<Scalars['String']['input']>
   /** organization edge predicates */
   hasOrganization?: InputMaybe<Scalars['Boolean']['input']>
   hasOrganizationWith?: InputMaybe<Array<OrganizationWhereInput>>
@@ -31384,6 +31539,8 @@ export interface OrgSubscriptionWhereInput {
   stripeSubscriptionStatusNEQ?: InputMaybe<Scalars['String']['input']>
   stripeSubscriptionStatusNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   stripeSubscriptionStatusNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for tagsHas to contain a specific value */
+  tagsHas?: InputMaybe<Scalars['String']['input']>
   /** trial_expires_at field predicates */
   trialExpiresAt?: InputMaybe<Scalars['Time']['input']>
   trialExpiresAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -32643,6 +32800,8 @@ export interface OrganizationSettingWhereInput {
   allowMatchingDomainsAutojoinIsNil?: InputMaybe<Scalars['Boolean']['input']>
   allowMatchingDomainsAutojoinNEQ?: InputMaybe<Scalars['Boolean']['input']>
   allowMatchingDomainsAutojoinNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for allowedEmailDomainsHas to contain a specific value */
+  allowedEmailDomainsHas?: InputMaybe<Scalars['String']['input']>
   and?: InputMaybe<Array<OrganizationSettingWhereInput>>
   /** billing_contact field predicates */
   billingContact?: InputMaybe<Scalars['String']['input']>
@@ -32738,6 +32897,8 @@ export interface OrganizationSettingWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for domainsHas to contain a specific value */
+  domainsHas?: InputMaybe<Scalars['String']['input']>
   /** geo_location field predicates */
   geoLocation?: InputMaybe<OrganizationSettingRegion>
   geoLocationIn?: InputMaybe<Array<OrganizationSettingRegion>>
@@ -32926,6 +33087,8 @@ export interface OrganizationSettingWhereInput {
   samlSigninURLNEQ?: InputMaybe<Scalars['String']['input']>
   samlSigninURLNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   samlSigninURLNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for tagsHas to contain a specific value */
+  tagsHas?: InputMaybe<Scalars['String']['input']>
   /** tax_identifier field predicates */
   taxIdentifier?: InputMaybe<Scalars['String']['input']>
   taxIdentifierContains?: InputMaybe<Scalars['String']['input']>
@@ -33408,6 +33571,8 @@ export interface OrganizationWhereInput {
   personalOrgIsNil?: InputMaybe<Scalars['Boolean']['input']>
   personalOrgNEQ?: InputMaybe<Scalars['Boolean']['input']>
   personalOrgNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for tagsHas to contain a specific value */
+  tagsHas?: InputMaybe<Scalars['String']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -33717,6 +33882,10 @@ export interface PersonalAccessTokenWhereInput {
   revokedReasonNEQ?: InputMaybe<Scalars['String']['input']>
   revokedReasonNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   revokedReasonNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for scopesHas to contain a specific value */
+  scopesHas?: InputMaybe<Scalars['String']['input']>
+  /** Filter for tagsHas to contain a specific value */
+  tagsHas?: InputMaybe<Scalars['String']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -34953,6 +35122,8 @@ export interface PlatformWhereInput {
   statusIn?: InputMaybe<Array<PlatformPlatformStatus>>
   statusNEQ?: InputMaybe<PlatformPlatformStatus>
   statusNotIn?: InputMaybe<Array<PlatformPlatformStatus>>
+  /** Filter for tagsHas to contain a specific value */
+  tagsHas?: InputMaybe<Scalars['String']['input']>
   /** technical_owner field predicates */
   technicalOwner?: InputMaybe<Scalars['String']['input']>
   technicalOwnerContains?: InputMaybe<Scalars['String']['input']>
@@ -35381,6 +35552,8 @@ export interface ProcedureWhereInput {
   approverIDNEQ?: InputMaybe<Scalars['ID']['input']>
   approverIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   approverIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for controlSuggestionsHas to contain a specific value */
+  controlSuggestionsHas?: InputMaybe<Scalars['String']['input']>
   /** created_at field predicates */
   createdAt?: InputMaybe<Scalars['Time']['input']>
   createdAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -35440,6 +35613,12 @@ export interface ProcedureWhereInput {
   detailsNEQ?: InputMaybe<Scalars['String']['input']>
   detailsNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   detailsNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for dismissedControlSuggestionsHas to contain a specific value */
+  dismissedControlSuggestionsHas?: InputMaybe<Scalars['String']['input']>
+  /** Filter for dismissedImprovementSuggestionsHas to contain a specific value */
+  dismissedImprovementSuggestionsHas?: InputMaybe<Scalars['String']['input']>
+  /** Filter for dismissedTagSuggestionsHas to contain a specific value */
+  dismissedTagSuggestionsHas?: InputMaybe<Scalars['String']['input']>
   /** display_id field predicates */
   displayID?: InputMaybe<Scalars['String']['input']>
   displayIDContains?: InputMaybe<Scalars['String']['input']>
@@ -35570,6 +35749,8 @@ export interface ProcedureWhereInput {
   idLTE?: InputMaybe<Scalars['ID']['input']>
   idNEQ?: InputMaybe<Scalars['ID']['input']>
   idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** Filter for improvementSuggestionsHas to contain a specific value */
+  improvementSuggestionsHas?: InputMaybe<Scalars['String']['input']>
   /** internal_notes field predicates */
   internalNotes?: InputMaybe<Scalars['String']['input']>
   internalNotesContains?: InputMaybe<Scalars['String']['input']>
@@ -35744,6 +35925,10 @@ export interface ProcedureWhereInput {
   systemOwnedIsNil?: InputMaybe<Scalars['Boolean']['input']>
   systemOwnedNEQ?: InputMaybe<Scalars['Boolean']['input']>
   systemOwnedNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for tagSuggestionsHas to contain a specific value */
+  tagSuggestionsHas?: InputMaybe<Scalars['String']['input']>
+  /** Filter for tagsHas to contain a specific value */
+  tagsHas?: InputMaybe<Scalars['String']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -36600,6 +36785,8 @@ export interface ProgramWhereInput {
   statusIn?: InputMaybe<Array<ProgramProgramStatus>>
   statusNEQ?: InputMaybe<ProgramProgramStatus>
   statusNotIn?: InputMaybe<Array<ProgramProgramStatus>>
+  /** Filter for tagsHas to contain a specific value */
+  tagsHas?: InputMaybe<Scalars['String']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -39382,6 +39569,8 @@ export interface RemediationWhereInput {
   systemOwnedIsNil?: InputMaybe<Scalars['Boolean']['input']>
   systemOwnedNEQ?: InputMaybe<Scalars['Boolean']['input']>
   systemOwnedNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for tagsHas to contain a specific value */
+  tagsHas?: InputMaybe<Scalars['String']['input']>
   /** ticket_reference field predicates */
   ticketReference?: InputMaybe<Scalars['String']['input']>
   ticketReferenceContains?: InputMaybe<Scalars['String']['input']>
@@ -40213,6 +40402,8 @@ export interface ReviewWhereInput {
   systemOwnedIsNil?: InputMaybe<Scalars['Boolean']['input']>
   systemOwnedNEQ?: InputMaybe<Scalars['Boolean']['input']>
   systemOwnedNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for tagsHas to contain a specific value */
+  tagsHas?: InputMaybe<Scalars['String']['input']>
   /** title field predicates */
   title?: InputMaybe<Scalars['String']['input']>
   titleContains?: InputMaybe<Scalars['String']['input']>
@@ -40993,6 +41184,8 @@ export interface RiskWhereInput {
   statusNEQ?: InputMaybe<RiskRiskStatus>
   statusNotIn?: InputMaybe<Array<RiskRiskStatus>>
   statusNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for tagsHas to contain a specific value */
+  tagsHas?: InputMaybe<Scalars['String']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -41704,6 +41897,8 @@ export interface ScanWhereInput {
   statusIn?: InputMaybe<Array<ScanScanStatus>>
   statusNEQ?: InputMaybe<ScanScanStatus>
   statusNotIn?: InputMaybe<Array<ScanScanStatus>>
+  /** Filter for tagsHas to contain a specific value */
+  tagsHas?: InputMaybe<Scalars['String']['input']>
   /** target field predicates */
   target?: InputMaybe<Scalars['String']['input']>
   targetContains?: InputMaybe<Scalars['String']['input']>
@@ -41745,6 +41940,8 @@ export interface ScanWhereInput {
   updatedByNEQ?: InputMaybe<Scalars['String']['input']>
   updatedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for vulnerabilityIdsHas to contain a specific value */
+  vulnerabilityIdsHas?: InputMaybe<Scalars['String']['input']>
 }
 
 export interface ScheduledJob extends Node {
@@ -42567,6 +42764,8 @@ export interface StandardWhereInput {
   descriptionNEQ?: InputMaybe<Scalars['String']['input']>
   descriptionNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   descriptionNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for domainsHas to contain a specific value */
+  domainsHas?: InputMaybe<Scalars['String']['input']>
   /** framework field predicates */
   framework?: InputMaybe<Scalars['String']['input']>
   frameworkContains?: InputMaybe<Scalars['String']['input']>
@@ -42810,6 +43009,8 @@ export interface StandardWhereInput {
   systemOwnedIsNil?: InputMaybe<Scalars['Boolean']['input']>
   systemOwnedNEQ?: InputMaybe<Scalars['Boolean']['input']>
   systemOwnedNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for tagsHas to contain a specific value */
+  tagsHas?: InputMaybe<Scalars['String']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -43205,6 +43406,8 @@ export interface SubcontrolUpdatePayload {
  * Input was generated by ent.
  */
 export interface SubcontrolWhereInput {
+  /** Filter for aliasesHas to contain a specific value */
+  aliasesHas?: InputMaybe<Scalars['String']['input']>
   and?: InputMaybe<Array<SubcontrolWhereInput>>
   /** auditor_reference_id field predicates */
   auditorReferenceID?: InputMaybe<Scalars['String']['input']>
@@ -43284,6 +43487,8 @@ export interface SubcontrolWhereInput {
   controlOwnerIDNEQ?: InputMaybe<Scalars['ID']['input']>
   controlOwnerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   controlOwnerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for controlQuestionsHas to contain a specific value */
+  controlQuestionsHas?: InputMaybe<Scalars['String']['input']>
   /** created_at field predicates */
   createdAt?: InputMaybe<Scalars['Time']['input']>
   createdAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -43441,6 +43646,8 @@ export interface SubcontrolWhereInput {
   internalNotesNEQ?: InputMaybe<Scalars['String']['input']>
   internalNotesNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   internalNotesNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for mappedCategoriesHas to contain a specific value */
+  mappedCategoriesHas?: InputMaybe<Scalars['String']['input']>
   not?: InputMaybe<SubcontrolWhereInput>
   or?: InputMaybe<Array<SubcontrolWhereInput>>
   /** owner_id field predicates */
@@ -43620,6 +43827,8 @@ export interface SubcontrolWhereInput {
   systemOwnedIsNil?: InputMaybe<Scalars['Boolean']['input']>
   systemOwnedNEQ?: InputMaybe<Scalars['Boolean']['input']>
   systemOwnedNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for tagsHas to contain a specific value */
+  tagsHas?: InputMaybe<Scalars['String']['input']>
   /** title field predicates */
   title?: InputMaybe<Scalars['String']['input']>
   titleContains?: InputMaybe<Scalars['String']['input']>
@@ -43983,6 +44192,8 @@ export interface SubprocessorWhereInput {
   systemOwnedIsNil?: InputMaybe<Scalars['Boolean']['input']>
   systemOwnedNEQ?: InputMaybe<Scalars['Boolean']['input']>
   systemOwnedNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for tagsHas to contain a specific value */
+  tagsHas?: InputMaybe<Scalars['String']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -44226,6 +44437,8 @@ export interface SubscriberWhereInput {
   sendAttemptsLTE?: InputMaybe<Scalars['Int']['input']>
   sendAttemptsNEQ?: InputMaybe<Scalars['Int']['input']>
   sendAttemptsNotIn?: InputMaybe<Array<Scalars['Int']['input']>>
+  /** Filter for tagsHas to contain a specific value */
+  tagsHas?: InputMaybe<Scalars['String']['input']>
   /** unsubscribed field predicates */
   unsubscribed?: InputMaybe<Scalars['Boolean']['input']>
   unsubscribedNEQ?: InputMaybe<Scalars['Boolean']['input']>
@@ -44520,6 +44733,8 @@ export interface TagDefinitionUpdatePayload {
  * Input was generated by ent.
  */
 export interface TagDefinitionWhereInput {
+  /** Filter for aliasesHas to contain a specific value */
+  aliasesHas?: InputMaybe<Scalars['String']['input']>
   and?: InputMaybe<Array<TagDefinitionWhereInput>>
   /** color field predicates */
   color?: InputMaybe<Scalars['String']['input']>
@@ -45167,6 +45382,8 @@ export interface TaskWhereInput {
   environmentNameNEQ?: InputMaybe<Scalars['String']['input']>
   environmentNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   environmentNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for externalReferenceUrlHas to contain a specific value */
+  externalReferenceUrlHas?: InputMaybe<Scalars['String']['input']>
   /** action_plans edge predicates */
   hasActionPlans?: InputMaybe<Scalars['Boolean']['input']>
   hasActionPlansWith?: InputMaybe<Array<ActionPlanWhereInput>>
@@ -45340,6 +45557,8 @@ export interface TaskWhereInput {
   /** system_generated field predicates */
   systemGenerated?: InputMaybe<Scalars['Boolean']['input']>
   systemGeneratedNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for tagsHas to contain a specific value */
+  tagsHas?: InputMaybe<Scalars['String']['input']>
   /** task_kind_id field predicates */
   taskKindID?: InputMaybe<Scalars['ID']['input']>
   taskKindIDContains?: InputMaybe<Scalars['ID']['input']>
@@ -45830,6 +46049,8 @@ export interface TemplateWhereInput {
   systemOwnedIsNil?: InputMaybe<Scalars['Boolean']['input']>
   systemOwnedNEQ?: InputMaybe<Scalars['Boolean']['input']>
   systemOwnedNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for tagsHas to contain a specific value */
+  tagsHas?: InputMaybe<Scalars['String']['input']>
   /** template_type field predicates */
   templateType?: InputMaybe<TemplateDocumentType>
   templateTypeIn?: InputMaybe<Array<TemplateDocumentType>>
@@ -46198,6 +46419,8 @@ export interface TrustCenterComplianceWhereInput {
   standardIDLTE?: InputMaybe<Scalars['ID']['input']>
   standardIDNEQ?: InputMaybe<Scalars['ID']['input']>
   standardIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** Filter for tagsHas to contain a specific value */
+  tagsHas?: InputMaybe<Scalars['String']['input']>
   /** trust_center_id field predicates */
   trustCenterID?: InputMaybe<Scalars['ID']['input']>
   trustCenterIDContains?: InputMaybe<Scalars['ID']['input']>
@@ -46535,6 +46758,8 @@ export interface TrustCenterDocWhereInput {
   standardIDNEQ?: InputMaybe<Scalars['ID']['input']>
   standardIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   standardIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for tagsHas to contain a specific value */
+  tagsHas?: InputMaybe<Scalars['String']['input']>
   /** title field predicates */
   title?: InputMaybe<Scalars['String']['input']>
   titleContains?: InputMaybe<Scalars['String']['input']>
@@ -47300,6 +47525,8 @@ export interface TrustCenterNdaRequestWhereInput {
   statusNEQ?: InputMaybe<TrustCenterNdaRequestTrustCenterNdaRequestStatus>
   statusNotIn?: InputMaybe<Array<TrustCenterNdaRequestTrustCenterNdaRequestStatus>>
   statusNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for tagsHas to contain a specific value */
+  tagsHas?: InputMaybe<Scalars['String']['input']>
   /** trust_center_id field predicates */
   trustCenterID?: InputMaybe<Scalars['ID']['input']>
   trustCenterIDContains?: InputMaybe<Scalars['ID']['input']>
@@ -48063,6 +48290,8 @@ export interface TrustCenterSubprocessorUpdatePayload {
  */
 export interface TrustCenterSubprocessorWhereInput {
   and?: InputMaybe<Array<TrustCenterSubprocessorWhereInput>>
+  /** Filter for countriesHas to contain a specific value */
+  countriesHas?: InputMaybe<Scalars['String']['input']>
   /** created_at field predicates */
   createdAt?: InputMaybe<Scalars['Time']['input']>
   createdAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -48798,6 +49027,8 @@ export interface TrustCenterWhereInput {
   subprocessorURLNEQ?: InputMaybe<Scalars['String']['input']>
   subprocessorURLNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   subprocessorURLNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for tagsHas to contain a specific value */
+  tagsHas?: InputMaybe<Scalars['String']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -55123,6 +55354,8 @@ export interface UserSettingWhereInput {
   suspendedAtNEQ?: InputMaybe<Scalars['Time']['input']>
   suspendedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
   suspendedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for tagsHas to contain a specific value */
+  tagsHas?: InputMaybe<Scalars['String']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -55516,6 +55749,8 @@ export interface UserWhereInput {
   subNEQ?: InputMaybe<Scalars['String']['input']>
   subNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   subNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for tagsHas to contain a specific value */
+  tagsHas?: InputMaybe<Scalars['String']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -56214,6 +56449,8 @@ export interface VulnerabilityWhereInput {
   impactNEQ?: InputMaybe<Scalars['Float']['input']>
   impactNotIn?: InputMaybe<Array<Scalars['Float']['input']>>
   impactNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for impactsHas to contain a specific value */
+  impactsHas?: InputMaybe<Scalars['String']['input']>
   /** internal_notes field predicates */
   internalNotes?: InputMaybe<Scalars['String']['input']>
   internalNotesContains?: InputMaybe<Scalars['String']['input']>
@@ -56290,6 +56527,8 @@ export interface VulnerabilityWhereInput {
   publishedAtNEQ?: InputMaybe<Scalars['DateTime']['input']>
   publishedAtNotIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
   publishedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for referencesHas to contain a specific value */
+  referencesHas?: InputMaybe<Scalars['String']['input']>
   /** remediation_sla field predicates */
   remediationSLA?: InputMaybe<Scalars['Int']['input']>
   remediationSLAGT?: InputMaybe<Scalars['Int']['input']>
@@ -56440,6 +56679,8 @@ export interface VulnerabilityWhereInput {
   systemOwnedIsNil?: InputMaybe<Scalars['Boolean']['input']>
   systemOwnedNEQ?: InputMaybe<Scalars['Boolean']['input']>
   systemOwnedNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for tagsHas to contain a specific value */
+  tagsHas?: InputMaybe<Scalars['String']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -56598,6 +56839,8 @@ export interface WebauthnWhereInput {
   idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   not?: InputMaybe<WebauthnWhereInput>
   or?: InputMaybe<Array<WebauthnWhereInput>>
+  /** Filter for tagsHas to contain a specific value */
+  tagsHas?: InputMaybe<Scalars['String']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -56924,6 +57167,8 @@ export interface WorkflowAssignmentTargetWhereInput {
   resolverKeyNEQ?: InputMaybe<Scalars['String']['input']>
   resolverKeyNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   resolverKeyNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for tagsHas to contain a specific value */
+  tagsHas?: InputMaybe<Scalars['String']['input']>
   /** target_group_id field predicates */
   targetGroupID?: InputMaybe<Scalars['ID']['input']>
   targetGroupIDContains?: InputMaybe<Scalars['ID']['input']>
@@ -57225,6 +57470,8 @@ export interface WorkflowAssignmentWhereInput {
   statusIn?: InputMaybe<Array<WorkflowAssignmentWorkflowAssignmentStatus>>
   statusNEQ?: InputMaybe<WorkflowAssignmentWorkflowAssignmentStatus>
   statusNotIn?: InputMaybe<Array<WorkflowAssignmentWorkflowAssignmentStatus>>
+  /** Filter for tagsHas to contain a specific value */
+  tagsHas?: InputMaybe<Scalars['String']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -57634,6 +57881,10 @@ export interface WorkflowDefinitionWhereInput {
   systemOwnedIsNil?: InputMaybe<Scalars['Boolean']['input']>
   systemOwnedNEQ?: InputMaybe<Scalars['Boolean']['input']>
   systemOwnedNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for tagsHas to contain a specific value */
+  tagsHas?: InputMaybe<Scalars['String']['input']>
+  /** Filter for trackedFieldsHas to contain a specific value */
+  trackedFieldsHas?: InputMaybe<Scalars['String']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -57819,6 +58070,8 @@ export interface WorkflowEventWhereInput {
   ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
   ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for tagsHas to contain a specific value */
+  tagsHas?: InputMaybe<Scalars['String']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -58386,6 +58639,8 @@ export interface WorkflowInstanceWhereInput {
   subcontrolIDNEQ?: InputMaybe<Scalars['ID']['input']>
   subcontrolIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   subcontrolIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** Filter for tagsHas to contain a specific value */
+  tagsHas?: InputMaybe<Scalars['String']['input']>
   /** updated_at field predicates */
   updatedAt?: InputMaybe<Scalars['Time']['input']>
   updatedAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -59172,6 +59427,7 @@ export type FilterAssessmentsQuery = {
         updatedAt?: any | null
         createdBy?: string | null
         updatedBy?: string | null
+        template?: { __typename?: 'Template'; id: string; name: string } | null
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
@@ -59271,6 +59527,22 @@ export type DeleteBulkAssessmentMutationVariables = Exact<{
 }>
 
 export type DeleteBulkAssessmentMutation = { __typename?: 'Mutation'; deleteBulkAssessment: { __typename?: 'AssessmentBulkDeletePayload'; deletedIDs: Array<string> } }
+
+export type GetContactsQueryVariables = Exact<{
+  where?: InputMaybe<ContactWhereInput>
+  first?: InputMaybe<Scalars['Int']['input']>
+}>
+
+export type GetContactsQuery = {
+  __typename?: 'Query'
+  contacts: {
+    __typename?: 'ContactConnection'
+    edges?: Array<{
+      __typename?: 'ContactEdge'
+      node?: { __typename?: 'Contact'; id: string; fullName?: string | null; email?: string | null; company?: string | null; title?: string | null; status: ContactUserStatus } | null
+    } | null> | null
+  }
+}
 
 export type ControlImplementationFieldsFragment = {
   __typename?: 'ControlImplementation'
@@ -64149,6 +64421,10 @@ export type FilterTemplatesQuery = {
         updatedAt?: any | null
         updatedBy?: string | null
         createdBy?: string | null
+        environmentName?: string | null
+        kind?: TemplateTemplateKind | null
+        scopeName?: string | null
+        systemOwned?: boolean | null
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }

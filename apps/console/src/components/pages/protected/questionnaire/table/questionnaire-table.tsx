@@ -9,31 +9,21 @@ import { OrderDirection, Assessment, AssessmentOrderField, AssessmentWhereInput,
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useDebounce } from '@uidotdev/usehooks'
-import { useAssessments, useDeleteAssessment, useCreateAssessmentResponse } from '@/lib/graphql-hooks/assessments'
+import { useAssessments, useDeleteAssessment } from '@/lib/graphql-hooks/assessments'
 import { useRouter } from 'next/navigation'
 import { ColumnDef, VisibilityState } from '@tanstack/react-table'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { exportToCSV } from '@/utils/exportToCSV'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/members'
 import { useNotification } from '@/hooks/useNotification'
+import { whereGenerator } from '@/components/shared/table-filter/where-generator'
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
 import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { canEdit } from '@/lib/authz/utils.ts'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
-import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from '@repo/ui/alert-dialog'
-import { Button } from '@repo/ui/button'
-import { Form, FormField, FormItem, FormControl, FormMessage } from '@repo/ui/form'
-import { Input } from '@repo/ui/input'
-import { useForm, type SubmitHandler } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
-
-const sendFormSchema = z.object({
-  email: z.string().email({ message: 'Invalid email address' }),
-})
+import { SendQuestionnaireDialog } from '@/components/pages/protected/questionnaire/dialog/send-questionnaire-dialog'
 
 export const QuestionnairesTable = () => {
   const router = useRouter()
@@ -47,17 +37,11 @@ export const QuestionnairesTable = () => {
   const [sendTarget, setSendTarget] = useState<Assessment | null>(null)
 
   const { mutateAsync: deleteAssessment } = useDeleteAssessment()
-  const { mutateAsync: createAssessmentResponse } = useCreateAssessmentResponse()
-
-  const sendForm = useForm({
-    resolver: zodResolver(sendFormSchema),
-    defaultValues: { email: '' },
-  })
 
   const defaultSorting = getInitialSortConditions(TableKeyEnum.QUESTIONNAIRE, AssessmentOrderField, [
     {
-      field: AssessmentOrderField.name,
-      direction: OrderDirection.ASC,
+      field: AssessmentOrderField.updated_at,
+      direction: OrderDirection.DESC,
     },
   ])
   const [orderBy, setOrderBy] = useState<FilterAssessmentsQueryVariables['orderBy']>(defaultSorting)
@@ -68,6 +52,9 @@ export const QuestionnairesTable = () => {
     id: false,
     updatedBy: false,
     createdBy: false,
+    title: false,
+    tags: false,
+    templateName: false,
   }
 
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableColumnVisibilityKeysEnum.QUESTIONNAIRE, defaultVisibility))
@@ -76,10 +63,44 @@ export const QuestionnairesTable = () => {
   const debouncedSearch = useDebounce(searchTerm, 300)
 
   const whereFilter = useMemo(() => {
-    return {
+    const base: AssessmentWhereInput = {
       nameContainsFold: debouncedSearch,
-      ...filters,
     }
+
+    const generated = whereGenerator<AssessmentWhereInput>(filters, (key, value) => {
+      if (key.startsWith('dueDate')) {
+        return { hasAssessmentResponsesWith: [{ [key]: value }] } as AssessmentWhereInput
+      }
+
+      return { [key]: value } as AssessmentWhereInput
+    })
+
+    // Merge due-date bounds so the same response must satisfy the full range
+    const andConditions = generated.and as AssessmentWhereInput[] | undefined
+    if (andConditions?.length) {
+      const mergedResponseWhere: Record<string, unknown> = {}
+      const rest: AssessmentWhereInput[] = []
+
+      for (const cond of andConditions) {
+        if (cond.hasAssessmentResponsesWith?.length) {
+          for (const rw of cond.hasAssessmentResponsesWith) {
+            Object.assign(mergedResponseWhere, rw)
+          }
+        } else {
+          rest.push(cond)
+        }
+      }
+
+      if (Object.keys(mergedResponseWhere).length > 0) {
+        rest.push({
+          hasAssessmentResponsesWith: [mergedResponseWhere],
+        } as AssessmentWhereInput)
+      }
+
+      generated.and = rest.length > 0 ? rest : undefined
+    }
+
+    return { ...base, ...generated }
   }, [filters, debouncedSearch])
 
   const {
@@ -123,31 +144,9 @@ export const QuestionnairesTable = () => {
     [router],
   )
 
-  const handleSend = useCallback(
-    (assessment: Assessment) => {
-      setSendTarget(assessment)
-      sendForm.reset({ email: '' })
-    },
-    [sendForm],
-  )
-
-  const handleSendSubmit: SubmitHandler<{ email: string }> = async (data) => {
-    if (!sendTarget) return
-    try {
-      await createAssessmentResponse({
-        input: {
-          email: data.email,
-          assessmentID: sendTarget.id,
-        },
-      })
-      successNotification({ title: `Questionnaire sent to ${data.email}` })
-      sendForm.reset()
-      setSendTarget(null)
-    } catch (error) {
-      const errorMessage = parseErrorMessage(error)
-      errorNotification({ title: 'Error', description: errorMessage })
-    }
-  }
+  const handleSend = useCallback((assessment: Assessment) => {
+    setSendTarget(assessment)
+  }, [])
 
   const handleEdit = useCallback(
     (assessment: Assessment) => {
@@ -271,37 +270,7 @@ export const QuestionnairesTable = () => {
         />
       </div>
 
-      {/* Send Dialog */}
-      <AlertDialog open={!!sendTarget} onOpenChange={(open) => !open && setSendTarget(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Send Questionnaire</AlertDialogTitle>
-            <AlertDialogDescription>Enter the recipient&apos;s email to send &quot;{sendTarget?.name}&quot;.</AlertDialogDescription>
-          </AlertDialogHeader>
-          <Form {...sendForm}>
-            <FormField
-              control={sendForm.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Input type="email" placeholder="recipient@example.com" autoComplete="email" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </Form>
-          <AlertDialogFooter>
-            <AlertDialogCancel asChild>
-              <CancelButton />
-            </AlertDialogCancel>
-            <AlertDialogAction asChild>
-              <Button onClick={sendForm.handleSubmit(handleSendSubmit)}>Send</Button>
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <SendQuestionnaireDialog open={!!sendTarget} onOpenChange={(open) => !open && setSendTarget(null)} assessmentId={sendTarget?.id} assessmentName={sendTarget?.name} />
 
       {/* Delete Confirmation Dialog */}
       <ConfirmationDialog
