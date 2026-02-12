@@ -6,6 +6,8 @@ interface QuestionnaireResponse {
   success: boolean
   data: {
     jsonconfig: Record<string, unknown>
+    is_draft?: boolean
+    saved_data?: Record<string, unknown>
   }
   message?: string
 }
@@ -55,6 +57,7 @@ export const useQuestionnaire = ({ token, enabled = true }: UseQuestionnairePara
 interface SubmitQuestionnaireParams {
   token: string
   data: Record<string, unknown>
+  isDraft?: boolean
 }
 
 interface SubmitQuestionnaireResponse {
@@ -66,14 +69,14 @@ export const useSubmitQuestionnaire = () => {
   const { errorNotification, successNotification } = useNotification()
 
   return useMutation<SubmitQuestionnaireResponse, Error, SubmitQuestionnaireParams>({
-    mutationFn: async ({ token, data }) => {
+    mutationFn: async ({ token, data, isDraft }) => {
       const response = await fetch('/api/questionnaire', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ data }),
+        body: JSON.stringify({ data, isDraft }),
       })
 
       const result = await response.json()
@@ -84,16 +87,23 @@ export const useSubmitQuestionnaire = () => {
 
       return result as SubmitQuestionnaireResponse
     },
-    onSuccess: () => {
-      successNotification({
-        title: 'Questionnaire Submitted',
-        description: 'Your questionnaire has been submitted successfully.',
-      })
+    onSuccess: (_data, variables) => {
+      if (variables.isDraft) {
+        successNotification({
+          title: 'Draft Saved',
+          description: 'Your progress has been saved. You can resume later.',
+        })
+      } else {
+        successNotification({
+          title: 'Questionnaire Submitted',
+          description: 'Your questionnaire has been submitted successfully.',
+        })
+      }
     },
-    onError: (error) => {
+    onError: (error, variables) => {
       errorNotification({
-        title: 'Submission Failed',
-        description: error.message || 'An unexpected error occurred while submitting. Please try again.',
+        title: variables.isDraft ? 'Save Failed' : 'Submission Failed',
+        description: error.message || 'An unexpected error occurred. Please try again.',
       })
     },
   })

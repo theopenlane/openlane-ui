@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState, useMemo } from 'react'
+import React, { useEffect, useState, useMemo, useRef } from 'react'
 import { useNotification } from '@/hooks/useNotification'
 import { Survey } from 'survey-react-ui'
 import { Model } from 'survey-core'
@@ -40,15 +40,42 @@ export const QuestionnairePage: React.FC<QuestionnairePageProps> = ({ token }) =
   })
 
   const questionnaireData = questionnaireResponse?.data?.jsonconfig ?? null
+  const savedData = questionnaireResponse?.data?.saved_data ?? null
   const submitQuestionnaire = useSubmitQuestionnaire()
+
+  const submitRef = useRef(submitQuestionnaire)
+  submitRef.current = submitQuestionnaire
 
   const survey = useMemo(() => {
     if (!questionnaireData || !token) return null
     const surveyModel = new Model(questionnaireData)
 
+    if (savedData) {
+      surveyModel.data = savedData
+    }
+
+    surveyModel.addNavigationItem({
+      id: 'save-draft-btn',
+      title: 'Save as Draft',
+      visibleIndex: 49,
+      action: async () => {
+        try {
+          const draftPayload = {
+            token,
+            data: surveyModel.data,
+            isDraft: true,
+          }
+          console.log('Saving draft - request payload:', draftPayload)
+          await submitRef.current.mutateAsync(draftPayload)
+        } catch (error) {
+          console.error('Error saving draft:', error)
+        }
+      },
+    })
+
     surveyModel.onCompleting.add(async (sender, options) => {
       try {
-        await submitQuestionnaire.mutateAsync({
+        await submitRef.current.mutateAsync({
           token,
           data: sender.data,
         })
@@ -60,7 +87,7 @@ export const QuestionnairePage: React.FC<QuestionnairePageProps> = ({ token }) =
     })
 
     return surveyModel
-  }, [questionnaireData, token, submitQuestionnaire])
+  }, [questionnaireData, token, savedData])
 
   useEffect(() => {
     if (!token) return
