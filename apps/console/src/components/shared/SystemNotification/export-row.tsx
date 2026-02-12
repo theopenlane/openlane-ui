@@ -9,13 +9,20 @@ import { GetExportsQueryNode } from '@/lib/graphql-hooks/export'
 interface ExportRowProps {
   notification: Notification
   exportData: GetExportsQueryNode | undefined | null
+  onRead: (id: string) => void
 }
 
-export const ExportRow = ({ notification, exportData }: ExportRowProps) => {
-  const isUnread = true
+export const ExportRow = ({ notification, exportData, onRead }: ExportRowProps) => {
+  const isUnread = !notification.readAt
+
+  const handleClick = () => {
+    if (isUnread) {
+      onRead(notification.id)
+    }
+  }
 
   return (
-    <div className={cn('flex items-center gap-3 py-2 cursor-pointer transition-colors hover:bg-accent/50 px-1 rounded-md justify-center', isUnread && 'bg-accent/20')}>
+    <div onClick={handleClick} className={cn('flex items-center gap-3 py-2 cursor-pointer transition-colors hover:bg-accent/50 px-1 rounded-md justify-center', isUnread && 'bg-accent/20')}>
       <div className="relative">
         <NotificationIcon objectType={notification.objectType} />
       </div>

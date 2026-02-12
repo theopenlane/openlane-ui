@@ -4,16 +4,22 @@ import React from 'react'
 
 import { ShieldCheck, Fingerprint, AlertTriangle, FileCheck, NotebookPen, AlertCircleIcon, ListChecks, ScrollText } from 'lucide-react'
 import { Notification } from '@/lib/graphql-hooks/websocket/use-websocket-notifications'
+import { useRouter } from 'next/navigation'
 
 interface NotificationRowProps {
   notification: Notification
+  onRead: (id: string) => void
 }
 
-export function NotificationRow({ notification }: NotificationRowProps) {
-  const isUnread = true
-  const handleClick = () => {
+export function NotificationRow({ notification, onRead }: NotificationRowProps) {
+  const router = useRouter()
+  const isUnread = !notification.readAt
+  const handleClick = async () => {
+    if (isUnread) {
+      await onRead(notification.id)
+    }
     if (notification.data?.url) {
-      window.location.href = notification.data.url
+      router.push(notification.data.url)
     }
   }
 
