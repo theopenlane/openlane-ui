@@ -9,10 +9,10 @@ import { UpdateRiskInput } from '@repo/codegen/src/schema.ts'
 import { useNotification } from '@/hooks/useNotification.tsx'
 import { useRisk } from '@/components/pages/protected/risks/create/hooks/use-risk.tsx'
 import { useUpdateRisk } from '@/lib/graphql-hooks/risks.ts'
-import AddAssociationBtn from '@/components/shared/object-association/add-association-btn.tsx'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import AddAssociationPlusBtn from '@/components/shared/object-association/add-association-plus-btn.tsx'
 
 type TSetObjectAssociationDialogProps = {
   riskId?: string
@@ -140,7 +140,7 @@ const SetObjectAssociationRisksDialog = ({ riskId }: TSetObjectAssociationDialog
   return (
     <Dialog open={open} onOpenChange={handleDialogChange}>
       <DialogTrigger asChild>
-        <AddAssociationBtn />
+        <AddAssociationPlusBtn />
       </DialogTrigger>
       <DialogContent className="max-w-2xl p-6 space-y-4">
         <DialogHeader>
