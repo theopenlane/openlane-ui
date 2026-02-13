@@ -3,7 +3,6 @@
 import React, { useMemo, useRef, useState, useEffect } from 'react'
 import ReactDOM from 'react-dom'
 import ForceGraph, { ForceGraphMethods, NodeObject } from 'react-force-graph-2d'
-import { forceCollide, forceRadial } from 'd3-force'
 import usePlateEditor from '../plate/usePlateEditor'
 import { Info, PencilLine, SlidersHorizontal, X } from 'lucide-react'
 import { ObjectAssociationMap } from '@/components/shared/enum-mapper/object-association-enum.tsx'
@@ -19,6 +18,8 @@ interface IGraphNode {
   type: string
   isCenter?: boolean
   count?: number
+  fx?: number
+  fy?: number
 }
 
 type TGraphLink = { source: string; target: string }
@@ -211,15 +212,43 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
   useEffect(() => {
     if (!fgRef.current) return
     const fg = fgRef.current
-    fg.d3Force('link')?.distance(60)
-    fg.d3Force('collide', forceCollide(() => GROUP_NODE_RADIUS + FONT_SIZE + LABEL_PADDING).iterations(4))
-    const edgeCount = graphData.links.length
-    const maxPeripherals = 10
-    const baseR = Math.min(dimensions.width, dimensions.height) / 3
-    const scale = Math.min(edgeCount / maxPeripherals, 1)
-    const minR = GROUP_NODE_RADIUS * 4
-    const R = Math.max(minR, baseR * scale)
-    fg.d3Force('radial', forceRadial((d) => ((d as IGraphNode).isCenter ? 0 : R), 0, 0).strength(0.8))
+    const labelSpace = FONT_SIZE + LABEL_PADDING + 10
+    const maxR = Math.min(dimensions.width, dimensions.height) / 4 - labelSpace - GROUP_NODE_RADIUS
+    const R = Math.max(GROUP_NODE_RADIUS * 3, maxR)
+
+    const peripheralNodes = graphData.nodes.filter((n) => !n.isCenter)
+    graphData.nodes.forEach((n) => {
+      if (n.isCenter) {
+        n.fx = 0
+        n.fy = 0
+      }
+    })
+    peripheralNodes.forEach((node, i) => {
+      const angle = (2 * Math.PI * i) / peripheralNodes.length - Math.PI / 2 + Math.PI / 6
+      node.fx = R * Math.cos(angle)
+      node.fy = R * Math.sin(angle)
+    })
+
+    fg.d3Force('charge', null)
+    fg.d3Force('link')?.distance(R)
+
+    const hasPeripheralNodes = peripheralNodes.length > 0
+    const timer = setTimeout(() => {
+      if (hasPeripheralNodes) {
+        if (peripheralNodes.length < 2) {
+          // With only 1 node, zoomToFit over-zooms. Manually match the 2-node zoom level.
+          fg.centerAt(0, 0, 400)
+          const viewportMin = Math.min(dimensions.width, dimensions.height)
+          fg.zoom((viewportMin - 120) / (R * 2.5), 400)
+        } else {
+          fg.zoomToFit(400, 60)
+        }
+      } else {
+        fg.centerAt(0, 0, 400)
+        fg.zoom(Math.min(dimensions.width, dimensions.height) / (NODE_RADIUS * 16), 400)
+      }
+    }, 300)
+    return () => clearTimeout(timer)
   }, [centerNode.type, dimensions, graphData])
 
   const CustomTooltipContent = ({ node }: { node: TBaseAssociatedNode & { link: string } }) => {
@@ -400,28 +429,49 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
           const isCenter = graphNode.isCenter
 
           if (isCenter) {
+            const typeColor = colorMap[graphNode.type] || '#ccc'
+            const iconSize = 6
+            const pad = 3
+            const nodeH = 11
+            const cornerR = 22
+            const nodeW = iconSize + pad * 2
+            const nx = node.x! - nodeW / 2
+            const ny = node.y! - nodeH / 2
+
             ctx.beginPath()
+            ctx.roundRect(nx, ny, nodeW, nodeH, cornerR)
             ctx.fillStyle = resolvedTheme === 'dark' ? '#1f2937' : '#ffffff'
-            ctx.arc(node.x!, node.y!, NODE_RADIUS + 1, 0, 2 * Math.PI)
+            ctx.fill()
+
+            ctx.save()
+
+            ctx.beginPath()
+            ctx.roundRect(nx, ny, nodeW, nodeH, cornerR)
+            ctx.globalAlpha = 0.16
+            ctx.fillStyle = typeColor
             ctx.fill()
 
             ctx.beginPath()
-            ctx.fillStyle = colorMap[graphNode.type] || '#ccc'
-            ctx.arc(node.x!, node.y!, NODE_RADIUS, 0, 2 * Math.PI)
-            ctx.fill()
+            ctx.roundRect(nx, ny, nodeW, nodeH, cornerR)
+            ctx.globalAlpha = 0.24
+            ctx.strokeStyle = typeColor
+            ctx.lineWidth = 0.8
+            ctx.stroke()
 
-            const iconImg = iconImages[graphNode.type]
-            if (iconImg?.complete) {
-              ctx.drawImage(iconImg, node.x! - NODE_RADIUS / 2, node.y! - NODE_RADIUS / 2, NODE_RADIUS, NODE_RADIUS)
+            ctx.restore()
+
+            const coloredIcon = coloredIconImages[graphNode.type]
+            if (coloredIcon?.complete) {
+              ctx.drawImage(coloredIcon, node.x! - iconSize / 2, node.y! - iconSize / 2, iconSize, iconSize)
             }
           } else {
             const typeColor = colorMap[graphNode.type] || '#ccc'
-            const iconSize = 8
+            const iconSize = 6
             const countStr = String(graphNode.count || 0)
-            const countFontSize = 7
-            const pad = 4
-            const gap = 3
-            const nodeH = 14
+            const countFontSize = 6
+            const pad = 3
+            const gap = 2
+            const nodeH = 11
             const cornerR = 22
 
             ctx.font = `${countFontSize}px sans-serif`
@@ -474,19 +524,25 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
         nodePointerAreaPaint={(node, color, ctx) => {
           const graphNode = node as NodeObject<IGraphNode>
           if (graphNode.isCenter) {
+            const iconSize = 6
+            const pad = 3
+            const nodeW = iconSize + pad * 2
+            const nodeH = 11
+            const nx = node.x! - nodeW / 2
+            const ny = node.y! - nodeH / 2
             ctx.beginPath()
-            ctx.arc(node.x!, node.y!, NODE_RADIUS, 0, 2 * Math.PI)
+            ctx.roundRect(nx, ny, nodeW, nodeH, 22)
             ctx.fillStyle = color
             ctx.fill()
           } else {
-            const iconSize = 8
+            const iconSize = 6
             const countStr = String(graphNode.count || 0)
-            ctx.font = '7px sans-serif'
+            ctx.font = '6px sans-serif'
             const countTextWidth = ctx.measureText(countStr).width
-            const pad = 4
-            const gap = 3
+            const pad = 3
+            const gap = 2
             const nodeW = iconSize + gap + countTextWidth + pad * 2
-            const nodeH = 14
+            const nodeH = 11
             const nx = node.x! - nodeW / 2
             const ny = node.y! - nodeH / 2
             ctx.beginPath()

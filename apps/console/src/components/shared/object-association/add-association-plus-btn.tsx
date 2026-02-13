@@ -11,7 +11,7 @@ const AddAssociationPlusBtn = React.forwardRef<HTMLDivElement, React.ButtonHTMLA
       <Tooltip open={tooltipOpen} onOpenChange={setTooltipOpen}>
         <TooltipTrigger asChild>
           <div ref={ref} {...props}>
-            <Button variant="secondary" aria-label="Add Association objects">
+            <Button type="button" variant="secondary" aria-label="Add Association objects">
               <Plus size={14} />
             </Button>
           </div>

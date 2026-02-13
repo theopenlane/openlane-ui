@@ -9,8 +9,6 @@ import SetObjectAssociationPoliciesDialog from '@/components/pages/protected/pol
 import SetObjectAssociationProceduresDialog from '@/components/pages/protected/procedures/modal/set-object-association-modal.tsx'
 import SetObjectAssociationRisksDialog from '@/components/pages/protected/risks/modal/set-object-association-modal'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
-import { cn } from '@repo/ui/lib/utils'
-import AddAssociationPlusBtn from '@/components/shared/object-association/add-association-plus-btn.tsx'
 
 type TObjectAssociationSwitchProps = {
   controlId?: string
@@ -34,7 +32,7 @@ const ObjectAssociationSwitch: React.FC<TObjectAssociationSwitchProps> = ({ sect
     switch (centerNode.type) {
       case ObjectAssociationNodeEnum.CONTROL:
       case ObjectAssociationNodeEnum.SUBCONTROL:
-        return <SetObjectAssociationDialog trigger={<AddAssociationPlusBtn />} />
+        return <SetObjectAssociationDialog />
       case ObjectAssociationNodeEnum.POLICY:
         return <SetObjectAssociationPoliciesDialog policyId={centerNode?.node.id} />
       case ObjectAssociationNodeEnum.PROCEDURE:
@@ -60,10 +58,10 @@ const ObjectAssociationSwitch: React.FC<TObjectAssociationSwitchProps> = ({ sect
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <div onClick={() => setIsGraphView((prevState) => !prevState)} className="flex items-center p-1 bg-background border rounded-lg cursor-pointer overflow-hidden">
-                      <Button variant={!isGraphView ? 'transparent' : 'secondary'} size="sm" className="mr-1 h-6" style={{ boxShadow: 'none', outline: 'none', border: 'none' }}>
+                      <Button type="button" variant={!isGraphView ? 'transparent' : 'secondary'} size="sm" className="mr-1 h-6" style={{ boxShadow: 'none', outline: 'none', border: 'none' }}>
                         <Waypoints size={14} />
                       </Button>
-                      <Button variant={isGraphView ? 'transparent' : 'secondary'} size="sm" className="h-6" style={{ boxShadow: 'none', outline: 'none', border: 'none' }}>
+                      <Button type="button" variant={isGraphView ? 'transparent' : 'secondary'} size="sm" className="h-6" style={{ boxShadow: 'none', outline: 'none', border: 'none' }}>
                         <LayoutList size={14} />
                       </Button>
                     </div>
