@@ -16,7 +16,6 @@ const TagInput = forwardRef<HTMLInputElement, TagInputProps>(({ className, ...pr
       delimiterList={[' ', ',', 'Enter', 'Tab']}
       inputRef={ref}
       styleClasses={{
-        ...props.styleClasses,
         tag: {
           body: tag(),
           closeButton: tagClose(),
