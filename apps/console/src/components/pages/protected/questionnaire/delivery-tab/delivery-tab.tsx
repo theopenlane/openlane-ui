@@ -8,7 +8,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { getDeliveryColumns, type DeliveryRow } from './delivery-columns'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
-import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel } from '@repo/ui/alert-dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@repo/ui/dialog'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { extractQuestions } from '../responses-tab/extract-questions'
 import { renderAnswer } from '../utils/render-answer'
@@ -74,12 +74,12 @@ export const DeliveryTab = ({ responses, assessmentId, jsonconfig }: DeliveryTab
         tableKey={TableKeyEnum.QUESTIONNAIRE_DELIVERY}
       />
 
-      <AlertDialog open={!!selectedResponse} onOpenChange={(open) => !open && setSelectedResponse(null)}>
-        <AlertDialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-          <AlertDialogHeader>
-            <AlertDialogTitle>Response from {selectedResponse?.email}</AlertDialogTitle>
-            <AlertDialogDescription>Answers submitted by this recipient.</AlertDialogDescription>
-          </AlertDialogHeader>
+      <Dialog open={!!selectedResponse} onOpenChange={(open) => !open && setSelectedResponse(null)}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Response from {selectedResponse?.email}</DialogTitle>
+            <DialogDescription>Answers submitted by this recipient.</DialogDescription>
+          </DialogHeader>
           <div className="space-y-4 py-2">
             {responseData.length === 0 ? (
               <p className="text-sm text-muted-foreground">No answers found.</p>
@@ -92,13 +92,13 @@ export const DeliveryTab = ({ responses, assessmentId, jsonconfig }: DeliveryTab
               ))
             )}
           </div>
-          <AlertDialogFooter>
-            <AlertDialogCancel asChild>
-              <CancelButton />
-            </AlertDialogCancel>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+          <DialogFooter>
+            <DialogClose asChild>
+              <CancelButton title="Close" />
+            </DialogClose>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   )
 }

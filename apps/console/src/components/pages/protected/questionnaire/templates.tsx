@@ -9,7 +9,7 @@ import { z, infer as zInfer } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { pageStyles } from './page.styles'
-import { AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogAction, AlertDialogCancel } from '@repo/ui/alert-dialog'
+import { DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@repo/ui/dialog'
 import { Button } from '@repo/ui/button'
 import { useTemplates } from '@/lib/graphql-hooks/templates'
 import { useCreateAssessment } from '@/lib/graphql-hooks/assessments'
@@ -74,33 +74,33 @@ export const TemplateList = () => {
 
   if (isError) {
     return (
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Create Questionnaire From Template</AlertDialogTitle>
-          <AlertDialogDescription>Failed to load templates.</AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel asChild>
+      <DialogContent className="max-w-xl">
+        <DialogHeader>
+          <DialogTitle>Create Questionnaire From Template</DialogTitle>
+          <DialogDescription>Failed to load templates.</DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <DialogClose asChild>
             <CancelButton />
-          </AlertDialogCancel>
-        </AlertDialogFooter>
-      </AlertDialogContent>
+          </DialogClose>
+        </DialogFooter>
+      </DialogContent>
     )
   }
 
   if (isLoading) {
     return (
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Create Questionnaire From Template</AlertDialogTitle>
-          <AlertDialogDescription>Loading templates...</AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel asChild>
+      <DialogContent className="max-w-xl">
+        <DialogHeader>
+          <DialogTitle>Create Questionnaire From Template</DialogTitle>
+          <DialogDescription>Loading templates...</DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <DialogClose asChild>
             <CancelButton />
-          </AlertDialogCancel>
-        </AlertDialogFooter>
-      </AlertDialogContent>
+          </DialogClose>
+        </DialogFooter>
+      </DialogContent>
     )
   }
 
@@ -108,11 +108,11 @@ export const TemplateList = () => {
 
   return (
     <>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Create Questionnaire From Template</AlertDialogTitle>
-          <AlertDialogDescription>Choose a template to create a new questionnaire</AlertDialogDescription>
-        </AlertDialogHeader>
+      <DialogContent className="max-w-xl">
+        <DialogHeader>
+          <DialogTitle>Create Questionnaire From Template</DialogTitle>
+          <DialogDescription>Choose a template to create a new questionnaire</DialogDescription>
+        </DialogHeader>
 
         <div className={selectTemplate()}>
           <Form {...form}>
@@ -154,17 +154,17 @@ export const TemplateList = () => {
           </div>
         </div>
 
-        <AlertDialogFooter>
-          <AlertDialogCancel asChild>
+        <DialogFooter>
+          <DialogClose asChild>
             <CancelButton />
-          </AlertDialogCancel>
-          <AlertDialogAction asChild>
+          </DialogClose>
+          <DialogClose asChild>
             <Button variant="primary" onClick={handleSubmit((data) => handleFromTemplate(data.templateId))}>
               Create Questionnaire
             </Button>
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
+          </DialogClose>
+        </DialogFooter>
+      </DialogContent>
     </>
   )
 }

@@ -20,7 +20,7 @@ import { getInitialVisibility } from '@/components/shared/column-visibility-menu
 import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
-import { AlertDialog } from '@repo/ui/alert-dialog'
+import { Dialog } from '@repo/ui/dialog'
 import { TemplateList } from '@/components/pages/protected/questionnaire/templates'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
@@ -224,9 +224,9 @@ export const TemplatesTable = () => {
         }
       />
 
-      <AlertDialog open={isCreateQuesDialogOpen} onOpenChange={setIsCreateQuesDialogOpen}>
+      <Dialog open={isCreateQuesDialogOpen} onOpenChange={setIsCreateQuesDialogOpen}>
         <TemplateList />
-      </AlertDialog>
+      </Dialog>
     </>
   )
 }
