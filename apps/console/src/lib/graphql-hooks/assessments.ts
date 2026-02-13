@@ -8,6 +8,8 @@ import {
   GET_ALL_ASSESSMENTS,
   GET_ASSESSMENT,
   GET_ASSESSMENT_DETAIL,
+  GET_ASSESSMENT_RECIPIENTS_TOTAL_COUNT,
+  GET_ASSESSMENT_RESPONSES_TOTAL_COUNT,
   DELETE_ASSESSMENT,
   CREATE_ASSESSMENT_RESPONSE,
   DELETE_BULK_ASSESSMENT,
@@ -32,6 +34,8 @@ import {
   AssessmentResponseAssessmentResponseStatus,
   DeleteBulkAssessmentMutation,
   DeleteBulkAssessmentMutationVariables,
+  AssessmentResponseOrder,
+  AssessmentResponseWhereInput,
 } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 
@@ -85,26 +89,135 @@ export const useGetAssessment = (getAssessmentId?: string) => {
   })
 }
 
-export const useGetAssessmentDetail = (id?: string) => {
-  const { client } = useGraphQLClient()
+type UseGetAssessmentDetailArgs = {
+  id?: string
+  where?: AssessmentResponseWhereInput
+  orderBy?: AssessmentResponseOrder[]
+  pagination?: TPagination
+  enabled?: boolean
+}
 
-  const queryResult = useQuery<GetAssessmentDetailQuery, GetAssessmentDetailQueryVariables>({
-    queryKey: ['assessments', 'detail', id],
-    queryFn: () => client.request(GET_ASSESSMENT_DETAIL, { getAssessmentId: id! }),
-    enabled: !!id,
+type GetAssessmentDetailRequestVariables = GetAssessmentDetailQueryVariables & {
+  where?: AssessmentResponseWhereInput
+  orderBy?: AssessmentResponseOrder[]
+  first?: number
+  after?: string | null
+  last?: number
+  before?: string | null
+}
+
+export const useGetAssessmentDetail = (idOrArgs?: string | UseGetAssessmentDetailArgs) => {
+  const { client } = useGraphQLClient()
+  const {
+    id,
+    where,
+    orderBy,
+    pagination,
+    enabled = true,
+  } = typeof idOrArgs === 'string' ? { id: idOrArgs, where: undefined, orderBy: undefined, pagination: undefined, enabled: true } : idOrArgs ?? {}
+
+  const queryResult = useQuery<GetAssessmentDetailQuery>({
+    queryKey: ['assessments', 'detail', id, where, orderBy, pagination?.page, pagination?.pageSize],
+    queryFn: () =>
+      client.request<GetAssessmentDetailQuery, GetAssessmentDetailRequestVariables>(GET_ASSESSMENT_DETAIL, {
+        getAssessmentId: id!,
+        where,
+        orderBy,
+        ...pagination?.query,
+      }),
+    enabled: enabled && !!id,
   })
 
   const assessment = queryResult.data?.assessment
-  const responses = (assessment?.assessmentResponses?.edges ?? []).map((edge) => edge?.node).filter(Boolean)
+  const responses = useMemo(() => (assessment?.assessmentResponses?.edges ?? []).map((edge) => edge?.node).filter(Boolean), [assessment?.assessmentResponses?.edges])
   const totalRecipients = assessment?.assessmentResponses?.totalCount ?? 0
-  const completedResponses = responses.filter((r) => r?.status === AssessmentResponseAssessmentResponseStatus.COMPLETED).length
+  const hasMoreResponses = assessment?.assessmentResponses?.pageInfo?.hasNextPage ?? false
+  const completedResponses = useMemo(() => responses.filter((r) => r?.status === AssessmentResponseAssessmentResponseStatus.COMPLETED).length, [responses])
+  const paginationMeta = useMemo(
+    () => ({
+      totalCount: assessment?.assessmentResponses?.totalCount ?? 0,
+      pageInfo: assessment?.assessmentResponses?.pageInfo,
+      isLoading: queryResult.isFetching,
+    }),
+    [assessment?.assessmentResponses?.totalCount, assessment?.assessmentResponses?.pageInfo, queryResult.isFetching],
+  )
 
   return {
     ...queryResult,
     assessment,
     responses,
+    paginationMeta,
     totalRecipients,
+    hasMoreResponses,
     completedResponses,
+    isLoading: queryResult.isFetching,
+  }
+}
+
+type AssessmentRecipientsTotalCountQuery = {
+  assessment?: {
+    id: string
+    assessmentResponses: {
+      totalCount: number
+    }
+  } | null
+}
+
+type AssessmentRecipientsTotalCountQueryVariables = {
+  getAssessmentId: string
+}
+
+export const useAssessmentRecipientsTotalCount = (id?: string) => {
+  const { client } = useGraphQLClient()
+
+  const queryResult = useQuery<AssessmentRecipientsTotalCountQuery>({
+    queryKey: ['assessments', 'detail', 'recipients-total-count', id],
+    queryFn: () =>
+      client.request<AssessmentRecipientsTotalCountQuery, AssessmentRecipientsTotalCountQueryVariables>(GET_ASSESSMENT_RECIPIENTS_TOTAL_COUNT, {
+        getAssessmentId: id!,
+      }),
+    enabled: !!id,
+  })
+
+  return {
+    ...queryResult,
+    totalCount: queryResult.data?.assessment?.assessmentResponses?.totalCount ?? 0,
+    isLoading: queryResult.isFetching,
+  }
+}
+
+type AssessmentResponsesTotalCountQuery = {
+  assessment?: {
+    id: string
+    assessmentResponses: {
+      totalCount: number
+    }
+  } | null
+}
+
+type AssessmentResponsesTotalCountQueryVariables = {
+  getAssessmentId: string
+  where: AssessmentResponseWhereInput
+}
+
+export const useAssessmentResponsesTotalCount = (id?: string) => {
+  const { client } = useGraphQLClient()
+
+  const queryResult = useQuery<AssessmentResponsesTotalCountQuery>({
+    queryKey: ['assessments', 'detail', 'responses-total-count', id],
+    queryFn: () =>
+      client.request<AssessmentResponsesTotalCountQuery, AssessmentResponsesTotalCountQueryVariables>(GET_ASSESSMENT_RESPONSES_TOTAL_COUNT, {
+        getAssessmentId: id!,
+        where: {
+          status: AssessmentResponseAssessmentResponseStatus.COMPLETED,
+        },
+      }),
+    enabled: !!id,
+  })
+
+  return {
+    ...queryResult,
+    totalCount: queryResult.data?.assessment?.assessmentResponses?.totalCount ?? 0,
     isLoading: queryResult.isFetching,
   }
 }

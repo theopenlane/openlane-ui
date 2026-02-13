@@ -1,31 +1,71 @@
 'use client'
 
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { DataTable } from '@repo/ui/data-table'
 import { TableKeyEnum } from '@repo/ui/table-key'
-import { useCreateAssessmentResponse } from '@/lib/graphql-hooks/assessments'
+import { useCreateAssessmentResponse, useGetAssessmentDetail } from '@/lib/graphql-hooks/assessments'
 import { useNotification } from '@/hooks/useNotification'
 import { getDeliveryColumns, type DeliveryRow } from './delivery-columns'
-import { TPagination } from '@repo/ui/pagination-types'
-import { DEFAULT_PAGINATION } from '@/constants/pagination'
+import type { TPagination } from '@repo/ui/pagination-types'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@repo/ui/dialog'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { extractQuestions } from '../responses-tab/extract-questions'
 import { renderAnswer } from '../utils/render-answer'
+import { DEFAULT_PAGINATION } from '@/constants/pagination'
+import type { AssessmentResponseWhereInput } from '@repo/codegen/src/schema'
 
 type DeliveryTabProps = {
-  responses: DeliveryRow[]
   assessmentId: string
   jsonconfig: unknown
+  where?: AssessmentResponseWhereInput
+  onRowsChange?: (rows: DeliveryRow[]) => void
 }
 
-export const DeliveryTab = ({ responses, assessmentId, jsonconfig }: DeliveryTabProps) => {
+export const DeliveryTab = ({ assessmentId, jsonconfig, where, onRowsChange }: DeliveryTabProps) => {
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
   const { mutateAsync: createResponse } = useCreateAssessmentResponse()
   const { successNotification, errorNotification } = useNotification()
   const [selectedResponse, setSelectedResponse] = useState<DeliveryRow | null>(null)
+  const {
+    responses: deliveryResponses,
+    paginationMeta,
+    isLoading,
+  } = useGetAssessmentDetail({
+    id: assessmentId,
+    where,
+    pagination,
+  })
 
   const questions = useMemo(() => extractQuestions(jsonconfig), [jsonconfig])
+  const responses = useMemo(
+    () =>
+      (deliveryResponses ?? []).filter(Boolean).map((r) => ({
+        id: r!.id,
+        email: r!.email,
+        assignedAt: r!.assignedAt,
+        dueDate: r!.dueDate,
+        status: r!.status,
+        sendAttempts: r!.sendAttempts,
+        emailDeliveredAt: r!.emailDeliveredAt,
+        completedAt: r!.completedAt,
+        document: r!.document,
+      })),
+    [deliveryResponses],
+  )
+
+  useEffect(() => {
+    setPagination((previousPagination) => ({
+      ...previousPagination,
+      page: 1,
+      query: {
+        first: previousPagination.pageSize,
+      },
+    }))
+  }, [where])
+
+  useEffect(() => {
+    onRowsChange?.(responses)
+  }, [onRowsChange, responses])
 
   const handleResend = useCallback(
     async (row: DeliveryRow) => {
@@ -66,11 +106,8 @@ export const DeliveryTab = ({ responses, assessmentId, jsonconfig }: DeliveryTab
         data={responses}
         pagination={pagination}
         onPaginationChange={setPagination}
-        paginationMeta={{
-          totalCount: responses.length,
-          pageInfo: undefined,
-          isLoading: false,
-        }}
+        paginationMeta={paginationMeta}
+        loading={isLoading}
         tableKey={TableKeyEnum.QUESTIONNAIRE_DELIVERY}
       />
 

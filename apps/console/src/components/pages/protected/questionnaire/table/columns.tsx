@@ -18,6 +18,9 @@ type Params = {
   onPreview?: (assessment: Assessment) => void
   onViewDetails?: (assessment: Assessment) => void
   onDelete?: (assessment: Assessment) => void
+  canSend?: boolean
+  canEdit?: boolean
+  canDelete?: boolean
 }
 
 export const getQuestionnaireColumns = (params?: Params) => {
@@ -175,6 +178,15 @@ export const getQuestionnaireColumns = (params?: Params) => {
       id: 'actions',
       header: '',
       cell: ({ row }) => {
+        const canSend = !!params?.canSend
+        const canEditQuestionnaire = !!params?.canEdit
+        const canDeleteQuestionnaire = !!params?.canDelete
+        const hasAnyAction = canSend || canEditQuestionnaire || canDeleteQuestionnaire || !!params?.onPreview || !!params?.onViewDetails
+
+        if (!hasAnyAction) {
+          return null
+        }
+
         return (
           <div onClick={(e) => e.stopPropagation()} className="flex justify-end">
             <DropdownMenu>
@@ -185,25 +197,31 @@ export const getQuestionnaireColumns = (params?: Params) => {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="min-w-40">
                 <DropdownMenuItem onClick={() => params?.onViewDetails?.(row.original)}>
-                  <FileText className="h-4 w-4 " />
+                  <FileText className="h-4 w-4" />
                   View Details
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => params?.onSend?.(row.original)}>
-                  <Send className="h-4 w-4 " />
-                  Send
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => params?.onEdit?.(row.original)}>
-                  <Pencil className="h-4 w-4 " />
-                  Edit
-                </DropdownMenuItem>
+                {canSend && (
+                  <DropdownMenuItem onClick={() => params?.onSend?.(row.original)}>
+                    <Send className="h-4 w-4" />
+                    Send
+                  </DropdownMenuItem>
+                )}
+                {canEditQuestionnaire && (
+                  <DropdownMenuItem onClick={() => params?.onEdit?.(row.original)}>
+                    <Pencil className="h-4 w-4" />
+                    Edit
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuItem onClick={() => params?.onPreview?.(row.original)}>
-                  <Eye className="h-4 w-4 " />
+                  <Eye className="h-4 w-4" />
                   Preview
                 </DropdownMenuItem>
-                <DropdownMenuItem className="text-destructive focus:text-destructive focus:bg-destructive/10" onClick={() => params?.onDelete?.(row.original)}>
-                  <Trash2 className="h-4 w-4 " />
-                  Delete
-                </DropdownMenuItem>
+                {canDeleteQuestionnaire && (
+                  <DropdownMenuItem className="text-destructive focus:text-destructive focus:bg-destructive/10" onClick={() => params?.onDelete?.(row.original)}>
+                    <Trash2 className="h-4 w-4" />
+                    Delete
+                  </DropdownMenuItem>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

@@ -7,6 +7,7 @@ import { Button } from '@repo/ui/button'
 import { MoreHorizontal } from 'lucide-react'
 import { Badge } from '@repo/ui/badge'
 import { AssessmentResponseAssessmentResponseStatus } from '@repo/codegen/src/schema'
+import { formatEnumLabel } from '@/utils/enumToLabel'
 
 export type DeliveryRow = {
   id: string
@@ -42,8 +43,7 @@ export const getDeliveryColumns = ({ onResend, onViewResponse }: DeliveryColumnC
     header: 'Status',
     cell: ({ row }) => {
       const status = row.getValue('status') as AssessmentResponseAssessmentResponseStatus
-      const label = status.replaceAll('_', ' ')
-      return <Badge variant={statusVariantMap[status] || 'default'}>{label}</Badge>
+      return <Badge variant={statusVariantMap[status] || 'default'}>{formatEnumLabel(status)}</Badge>
     },
   },
   {

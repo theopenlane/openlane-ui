@@ -20,10 +20,11 @@ import { whereGenerator } from '@/components/shared/table-filter/where-generator
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
 import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
 import { TableKeyEnum } from '@repo/ui/table-key'
-import { canEdit } from '@/lib/authz/utils.ts'
+import { canDelete, canEdit } from '@/lib/authz/utils.ts'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { SendQuestionnaireDialog } from '@/components/pages/protected/questionnaire/dialog/send-questionnaire-dialog'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 
 export const QuestionnairesTable = () => {
   const router = useRouter()
@@ -37,6 +38,7 @@ export const QuestionnairesTable = () => {
   const [sendTarget, setSendTarget] = useState<Assessment | null>(null)
 
   const { mutateAsync: deleteAssessment } = useDeleteAssessment()
+  const { data: permission } = useOrganizationRoles()
 
   const defaultSorting = getInitialSortConditions(TableKeyEnum.QUESTIONNAIRE, AssessmentOrderField, [
     {
@@ -187,6 +189,9 @@ export const QuestionnairesTable = () => {
     onPreview: handlePreview,
     onViewDetails: handleViewDetails,
     onDelete: handleDelete,
+    canSend: canEdit(permission?.roles),
+    canEdit: canEdit(permission?.roles),
+    canDelete: canDelete(permission?.roles),
   })
 
   function isVisibleColumn<T>(col: ColumnDef<T>): col is ColumnDef<T> & { accessorKey: string; header: string } {

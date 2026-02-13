@@ -21,7 +21,6 @@ type SummaryResult = {
 type AISummaryCardProps = {
   jsonconfig: unknown
   responses: Array<{
-    email: string
     document?: { data: unknown } | null
   }>
 }
@@ -48,8 +47,7 @@ export const AISummaryCard = ({ jsonconfig, responses }: AISummaryCardProps) => 
     try {
       const questions = extractQuestions(jsonconfig)
       const responseData = completedResponses.map((r) => ({
-        email: r.email,
-        answers: r.document?.data,
+        answers: r.document?.data && typeof r.document.data === 'object' ? r.document.data : {},
       }))
 
       const res = await fetch('/api/questionnaire-summary', {

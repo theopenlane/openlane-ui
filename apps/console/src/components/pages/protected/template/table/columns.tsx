@@ -12,6 +12,9 @@ type Params = {
   onEdit?: (template: Template) => void
   onDelete?: (template: Template) => void
   onCreateQuestionnaire?: (template: Template) => void
+  canEdit?: boolean
+  canDelete?: boolean
+  canCreateQuestionnaire?: boolean
 }
 
 export const getTemplateColumns = (params?: Params) => {
@@ -122,6 +125,14 @@ export const getTemplateColumns = (params?: Params) => {
       header: '',
       cell: ({ row }) => {
         const isSystemOwned = row.original.systemOwned === true
+        const canEditTemplate = !!params?.canEdit && !isSystemOwned
+        const canDeleteTemplate = !!params?.canDelete && !isSystemOwned
+        const canCreateQuestionnaire = !!params?.canCreateQuestionnaire
+        const hasAnyAction = canEditTemplate || canDeleteTemplate || canCreateQuestionnaire
+
+        if (!hasAnyAction) {
+          return null
+        }
         return (
           <div onClick={(e) => e.stopPropagation()} className="flex justify-end">
             <DropdownMenu>
@@ -131,17 +142,19 @@ export const getTemplateColumns = (params?: Params) => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="min-w-40">
-                {!isSystemOwned && (
+                {canEditTemplate && (
                   <DropdownMenuItem onClick={() => params?.onEdit?.(row.original)}>
                     <Pencil className="h-4 w-4" />
                     Edit
                   </DropdownMenuItem>
                 )}
-                <DropdownMenuItem onClick={() => params?.onCreateQuestionnaire?.(row.original)}>
-                  <FilePlus className="h-4 w-4" />
-                  Create Questionnaire
-                </DropdownMenuItem>
-                {!isSystemOwned && (
+                {canCreateQuestionnaire && (
+                  <DropdownMenuItem onClick={() => params?.onCreateQuestionnaire?.(row.original)}>
+                    <FilePlus className="h-4 w-4" />
+                    Create Questionnaire
+                  </DropdownMenuItem>
+                )}
+                {canDeleteTemplate && (
                   <DropdownMenuItem className="text-destructive focus:text-destructive focus:bg-destructive/10" onClick={() => params?.onDelete?.(row.original)}>
                     <Trash2 className="h-4 w-4" />
                     Delete

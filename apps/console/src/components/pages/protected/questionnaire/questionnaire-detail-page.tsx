@@ -8,13 +8,14 @@ import { Card, CardContent } from '@repo/ui/cardpanel'
 import { Button } from '@repo/ui/button'
 import { Users, CheckCircle, Calendar, Send, FileText, Download } from 'lucide-react'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
-import { useGetAssessmentDetail } from '@/lib/graphql-hooks/assessments'
+import { useAssessmentRecipientsTotalCount, useAssessmentResponsesTotalCount, useGetAssessmentDetail } from '@/lib/graphql-hooks/assessments'
 import { formatDate } from '@/utils/date'
 import { exportToCSV } from '@/utils/exportToCSV'
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys'
 import { FilterIcons, QuestionnaireFilterIconName } from '@/components/shared/enum-mapper/questionnaire-enum'
 import { AssessmentResponseAssessmentResponseStatus } from '@repo/codegen/src/schema'
+import type { AssessmentResponseWhereInput } from '@repo/codegen/src/schema'
 import type { FilterField, WhereCondition } from '@/types'
 import Skeleton from '@/components/shared/skeleton/skeleton'
 import { AISummaryCard } from './ai-summary-card'
@@ -25,6 +26,7 @@ import type { DeliveryRow } from './delivery-tab/delivery-columns'
 import type { LucideIcon } from 'lucide-react'
 import { SendQuestionnaireDialog } from './dialog/send-questionnaire-dialog'
 import { renderAnswer } from './utils/render-answer'
+import { whereGenerator } from '@/components/shared/table-filter/where-generator'
 
 type DetailTabValue = 'delivery' | 'responses'
 const DEFAULT_TAB: DetailTabValue = 'delivery'
@@ -58,37 +60,18 @@ const deliveryFilterFields: FilterField[] = [
   },
 ]
 
-const applyDeliveryFilters = (rows: DeliveryRow[], where: WhereCondition): DeliveryRow[] => {
-  if (!where || !('and' in where)) return rows
-  const conditions = (where as { and: WhereCondition[] }).and
-  if (!conditions?.length) return rows
-
-  return rows.filter((row) => {
-    return conditions.every((condition) => {
-      const entries = Object.entries(condition as Record<string, unknown>)
-      if (!entries.length) return true
-
-      return entries.every(([key, value]) => {
-        if (key === 'status' && Array.isArray(value)) {
-          return value.includes(row.status)
-        }
-        if (key === 'assignedAtGTE' && typeof value === 'string') {
-          return row.assignedAt && new Date(row.assignedAt) >= new Date(value)
-        }
-        if (key === 'assignedAtLT' && typeof value === 'string') {
-          return row.assignedAt && new Date(row.assignedAt) < new Date(value)
-        }
-        if (key === 'dueDateGTE' && typeof value === 'string') {
-          return row.dueDate && new Date(row.dueDate) >= new Date(value)
-        }
-        if (key === 'dueDateLT' && typeof value === 'string') {
-          return row.dueDate && new Date(row.dueDate) < new Date(value)
-        }
-        return true
-      })
-    })
-  })
-}
+const areDeliveryRowsEqual = (a: DeliveryRow[], b: DeliveryRow[]) =>
+  a.length === b.length &&
+  a.every(
+    (row, index) =>
+      row.id === b[index]?.id &&
+      row.email === b[index]?.email &&
+      row.status === b[index]?.status &&
+      row.assignedAt === b[index]?.assignedAt &&
+      row.dueDate === b[index]?.dueDate &&
+      row.completedAt === b[index]?.completedAt &&
+      row.sendAttempts === b[index]?.sendAttempts,
+  )
 
 type StatCardProps = {
   icon: LucideIcon
@@ -115,9 +98,39 @@ const QuestionnaireDetailPage = () => {
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const { setCrumbs } = React.useContext(BreadcrumbContext)
-  const { assessment, responses, totalRecipients, completedResponses, isLoading } = useGetAssessmentDetail(id)
+  const { assessment, responses, isLoading } = useGetAssessmentDetail(id)
   const [deliveryFilters, setDeliveryFilters] = useState<WhereCondition>({})
+  const [deliveryRows, setDeliveryRows] = useState<DeliveryRow[]>([])
   const [isSendDialogOpen, setIsSendDialogOpen] = useState(false)
+
+  const deliveryWhereFilter = useMemo(
+    () =>
+      whereGenerator<AssessmentResponseWhereInput>(deliveryFilters as AssessmentResponseWhereInput, (key, value) => {
+        if (key === 'status') {
+          return Array.isArray(value)
+            ? ({
+                statusIn: value as AssessmentResponseAssessmentResponseStatus[],
+              } as AssessmentResponseWhereInput)
+            : ({
+                status: value as AssessmentResponseAssessmentResponseStatus,
+              } as AssessmentResponseWhereInput)
+        }
+
+        return { [key]: value } as AssessmentResponseWhereInput
+      }),
+    [deliveryFilters],
+  )
+
+  const { totalCount: totalRecipients, isLoading: isRecipientsCountLoading } = useAssessmentRecipientsTotalCount(id)
+  const { totalCount: completedResponses, isLoading: isResponsesCountLoading } = useAssessmentResponsesTotalCount(id)
+
+  const handleDeliveryFilterChange = useCallback((whereCondition: WhereCondition) => {
+    setDeliveryFilters(whereCondition)
+  }, [])
+
+  const handleDeliveryRowsChange = useCallback((rows: DeliveryRow[]) => {
+    setDeliveryRows((currentRows) => (areDeliveryRowsEqual(currentRows, rows) ? currentRows : rows))
+  }, [])
 
   const tabParamValue = searchParams.get(TAB_QUERY_PARAM)
   const activeTab: DetailTabValue = tabParamValue && VALID_TABS.includes(tabParamValue as DetailTabValue) ? (tabParamValue as DetailTabValue) : DEFAULT_TAB
@@ -157,22 +170,6 @@ const QuestionnaireDetailPage = () => {
     return '-'
   }, [responses])
 
-  const deliveryRows: DeliveryRow[] = useMemo(
-    () =>
-      (responses ?? []).filter(Boolean).map((r) => ({
-        id: r!.id,
-        email: r!.email,
-        assignedAt: r!.assignedAt,
-        dueDate: r!.dueDate,
-        status: r!.status,
-        sendAttempts: r!.sendAttempts,
-        emailDeliveredAt: r!.emailDeliveredAt,
-        completedAt: r!.completedAt,
-        document: r!.document,
-      })),
-    [responses],
-  )
-
   const responseRows = useMemo(
     () =>
       (responses ?? []).filter(Boolean).map((r) => ({
@@ -183,8 +180,6 @@ const QuestionnaireDetailPage = () => {
       })),
     [responses],
   )
-
-  const filteredDeliveryRows = useMemo(() => applyDeliveryFilters(deliveryRows, deliveryFilters), [deliveryRows, deliveryFilters])
 
   const handleExportDelivery = useCallback(() => {
     if (!deliveryRows.length) return
@@ -252,8 +247,8 @@ const QuestionnaireDetailPage = () => {
       />
 
       <div className="grid grid-cols-3 gap-4 mt-6">
-        <StatCard icon={Users} label="Recipients" value={totalRecipients} isLoading={false} />
-        <StatCard icon={CheckCircle} label="Responses" value={completedResponses} isLoading={false} />
+        <StatCard icon={Users} label="Recipients" value={totalRecipients} isLoading={isRecipientsCountLoading} />
+        <StatCard icon={CheckCircle} label="Responses" value={completedResponses} isLoading={isResponsesCountLoading} />
         <StatCard icon={Calendar} label="Due Date" value={dueDate} isLoading={false} />
       </div>
 
@@ -275,7 +270,7 @@ const QuestionnaireDetailPage = () => {
           </TabsList>
           {activeTab === 'delivery' && (
             <div className="flex items-center gap-2">
-              <TableFilter filterFields={deliveryFilterFields} onFilterChange={setDeliveryFilters} pageKey={TableFilterKeysEnum.QUESTIONNAIRE_DELIVERY} />
+              <TableFilter filterFields={deliveryFilterFields} onFilterChange={handleDeliveryFilterChange} pageKey={TableFilterKeysEnum.QUESTIONNAIRE_DELIVERY} />
               <Button variant="secondary" onClick={handleExportDelivery} disabled={!deliveryRows.length}>
                 <Download className="mr-2 h-4 w-4" />
                 Export
@@ -290,7 +285,7 @@ const QuestionnaireDetailPage = () => {
           )}
         </div>
         <TabsContent value="delivery" className="mt-6">
-          <DeliveryTab responses={filteredDeliveryRows} assessmentId={id} jsonconfig={assessment.jsonconfig} />
+          <DeliveryTab assessmentId={id} jsonconfig={assessment.jsonconfig} where={deliveryWhereFilter} onRowsChange={handleDeliveryRowsChange} />
         </TabsContent>
         <TabsContent value="responses" className="mt-6">
           <ResponsesTab responses={responseRows} jsonconfig={assessment.jsonconfig} />

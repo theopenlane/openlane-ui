@@ -23,6 +23,10 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { Dialog } from '@repo/ui/dialog'
 import { TemplateList } from '@/components/pages/protected/questionnaire/templates'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { canCreate, canDelete, canEdit } from '@/lib/authz/utils'
+import { AccessEnum } from '@/lib/authz/enums/access-enum'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { includeQuestionnaireCreation } from '@repo/dally/auth'
 
 export const TemplatesTable = () => {
   const router = useRouter()
@@ -32,9 +36,12 @@ export const TemplatesTable = () => {
   const { successNotification, errorNotification } = useNotification()
 
   const [deleteTarget, setDeleteTarget] = useState<Template | null>(null)
+  const [templateToCreateFrom, setTemplateToCreateFrom] = useState<Template | null>(null)
   const [isCreateQuesDialogOpen, setIsCreateQuesDialogOpen] = useState(false)
 
   const { mutateAsync: deleteTemplate } = useDeleteTemplate()
+  const { data: permission } = useOrganizationRoles()
+  const canCreateQuestionnaires = includeQuestionnaireCreation === 'true' && canCreate(permission?.roles, AccessEnum.CanCreateTemplate)
 
   const defaultSorting = getInitialSortConditions(TableKeyEnum.TEMPLATE, TemplateOrderField, [
     {
@@ -126,7 +133,8 @@ export const TemplatesTable = () => {
     }
   }
 
-  const handleCreateQuestionnaire = useCallback(() => {
+  const handleCreateQuestionnaire = useCallback((template: Template) => {
+    setTemplateToCreateFrom(template)
     setIsCreateQuesDialogOpen(true)
   }, [])
 
@@ -135,6 +143,9 @@ export const TemplatesTable = () => {
     onEdit: handleEdit,
     onDelete: handleDelete,
     onCreateQuestionnaire: handleCreateQuestionnaire,
+    canEdit: canEdit(permission?.roles),
+    canDelete: canDelete(permission?.roles),
+    canCreateQuestionnaire: canCreateQuestionnaires,
   })
 
   function isVisibleColumn<T>(col: ColumnDef<T>): col is ColumnDef<T> & { accessorKey: string; header: string } {
@@ -224,8 +235,22 @@ export const TemplatesTable = () => {
         }
       />
 
-      <Dialog open={isCreateQuesDialogOpen} onOpenChange={setIsCreateQuesDialogOpen}>
-        <TemplateList />
+      <Dialog
+        open={isCreateQuesDialogOpen}
+        onOpenChange={(open) => {
+          setIsCreateQuesDialogOpen(open)
+          if (!open) {
+            setTemplateToCreateFrom(null)
+          }
+        }}
+      >
+        <TemplateList
+          initialTemplateId={templateToCreateFrom?.id}
+          onCreateSuccess={() => {
+            setIsCreateQuesDialogOpen(false)
+            setTemplateToCreateFrom(null)
+          }}
+        />
       </Dialog>
     </>
   )

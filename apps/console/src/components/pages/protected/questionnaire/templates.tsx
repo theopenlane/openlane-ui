@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { TemplateWhereInput, TemplateDocumentType } from '@repo/codegen/src/schema'
@@ -17,7 +18,18 @@ import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
-export const TemplateList = () => {
+const formSchema = z.object({
+  templateId: z.string().min(1, 'Please select a template'),
+})
+
+type FormData = zInfer<typeof formSchema>
+
+type TemplateListProps = {
+  initialTemplateId?: string
+  onCreateSuccess?: () => void
+}
+
+export const TemplateList = ({ initialTemplateId, onCreateSuccess }: TemplateListProps) => {
   const router = useRouter()
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: createAssessment } = useCreateAssessment()
@@ -42,6 +54,7 @@ export const TemplateList = () => {
         successNotification({
           title: 'Questionnaire created successfully',
         })
+        onCreateSuccess?.()
         router.push(`/questionnaires/questionnaire-viewer?id=${assessmentId}`)
       }
     } catch (error) {
@@ -59,16 +72,16 @@ export const TemplateList = () => {
 
   const { templates, isLoading, isError } = useTemplates({ where: whereFilter })
 
-  const formSchema = z.object({
-    templateId: z.string(),
-  })
-
-  type FormData = zInfer<typeof formSchema>
-
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
-    defaultValues: {},
+    defaultValues: {
+      templateId: initialTemplateId ?? '',
+    },
   })
+
+  useEffect(() => {
+    form.reset({ templateId: initialTemplateId ?? '' })
+  }, [form, initialTemplateId])
 
   const { control, handleSubmit } = form
 
@@ -122,7 +135,7 @@ export const TemplateList = () => {
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <Select onValueChange={field.onChange} disabled={!hasTemplates}>
+                    <Select value={field.value} onValueChange={field.onChange} disabled={!hasTemplates}>
                       <SelectTrigger>
                         <SelectValue placeholder={hasTemplates ? 'Select template' : 'No templates available'} />
                       </SelectTrigger>
@@ -158,11 +171,9 @@ export const TemplateList = () => {
           <DialogClose asChild>
             <CancelButton />
           </DialogClose>
-          <DialogClose asChild>
-            <Button variant="primary" onClick={handleSubmit((data) => handleFromTemplate(data.templateId))}>
-              Create Questionnaire
-            </Button>
-          </DialogClose>
+          <Button variant="primary" onClick={handleSubmit((data) => handleFromTemplate(data.templateId))} disabled={!hasTemplates || form.formState.isSubmitting}>
+            {form.formState.isSubmitting ? 'Creating...' : 'Create Questionnaire'}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </>
