@@ -1,11 +1,16 @@
 'use client'
+import { useState, useEffect } from 'react'
 import LoginBackground from '@/assets/LoginBackground.tsx'
 import CustomerQuoteSection from '../customer-quote-section/customer-quote-section'
 import { useGetCustomerQuotes } from './auth-marketing-panel-config'
 
 const AuthMarketingPanel = ({ hideCopy }: { hideCopy?: boolean }) => {
   const customerQuotes = useGetCustomerQuotes()
-  const index = Math.floor(Math.random() * customerQuotes.length)
+  const [index, setIndex] = useState(0)
+
+  useEffect(() => {
+    setIndex(Math.floor(Math.random() * customerQuotes.length))
+  }, [customerQuotes.length])
   return (
     <div className="hidden lg:flex flex-col justify-center rounded-lg w-[560px] relative overflow-hidden">
       <div className="flex flex-col space-y-10 z-10 px-16">
