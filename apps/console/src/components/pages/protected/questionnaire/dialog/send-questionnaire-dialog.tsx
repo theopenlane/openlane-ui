@@ -1,15 +1,16 @@
 'use client'
 
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Tag } from 'emblor'
 import { useDebounce } from '@uidotdev/usehooks'
-import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel } from '@repo/ui/alert-dialog'
+import { X, Plus } from 'lucide-react'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@repo/ui/dialog'
 import { Button } from '@repo/ui/button'
+import { Input } from '@repo/ui/input'
+import { Badge } from '@repo/ui/badge'
 import { Form, FormField, FormItem, FormControl, FormMessage } from '@repo/ui/form'
-import { TagInput } from '@repo/ui/tag-input'
 import { useNotification } from '@/hooks/useNotification'
 import { useCreateAssessmentResponse } from '@/lib/graphql-hooks/assessments'
 import { useContacts } from '@/lib/graphql-hooks/contacts'
@@ -20,6 +21,7 @@ const formSchema = z.object({
 })
 
 type FormData = z.infer<typeof formSchema>
+type ContactSuggestion = { email: string; label: string }
 
 type SendQuestionnaireDialogProps = {
   open: boolean
@@ -28,110 +30,165 @@ type SendQuestionnaireDialogProps = {
   assessmentName?: string
 }
 
+const MIN_SEARCH_LENGTH = 3
+const INVALID_EMAIL_MESSAGE = 'Please enter a valid email address.'
+const DUPLICATE_EMAIL_MESSAGE = 'This email is already added.'
+
+const isValidEmail = (email: string) => /\S+@\S+\.\S+/.test(email)
+const normalizeEmail = (email: string) => email.trim()
+
 export const SendQuestionnaireDialog = ({ open, onOpenChange, assessmentId, assessmentName }: SendQuestionnaireDialogProps) => {
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: createAssessmentResponse } = useCreateAssessmentResponse()
 
-  const [tags, setTags] = useState<Tag[]>([])
-  const [activeTagIndex, setActiveTagIndex] = useState<number | null>(null)
-  const [currentInput, setCurrentInput] = useState('')
-  const [invalidEmail, setInvalidEmail] = useState<string | null>(null)
+  const [emails, setEmails] = useState<string[]>([])
+  const [inputValue, setInputValue] = useState('')
+  const [inputError, setInputError] = useState<string | null>(null)
   const [isSending, setIsSending] = useState(false)
+  const inputRef = useRef<HTMLInputElement>(null)
+  const [showSuggestions, setShowSuggestions] = useState(false)
 
-  const debouncedSearch = useDebounce(currentInput, 300)
+  const debouncedSearch = useDebounce(normalizeEmail(inputValue), 250)
 
   const { contacts } = useContacts({
     where: {
       or: [{ emailContainsFold: debouncedSearch }, { fullNameContainsFold: debouncedSearch }],
     },
-    enabled: open && debouncedSearch.length >= 2,
+    enabled: open && debouncedSearch.length >= MIN_SEARCH_LENGTH,
   })
+
+  const suggestions = useMemo<ContactSuggestion[]>(() => {
+    const addedEmails = new Set(emails.map((e) => e.toLowerCase()))
+    return (contacts ?? [])
+      .filter((c) => c.email && !addedEmails.has(c.email.toLowerCase()))
+      .map((c) => ({
+        email: c.email!,
+        label: c.fullName ? `${c.fullName} (${c.email})` : c.email!,
+      }))
+  }, [contacts, emails])
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: { emails: [] },
   })
 
-  const isValidEmail = (email: string) => /\S+@\S+\.\S+/.test(email)
-
-  const autocompleteOptions = useMemo(() => {
-    const addedEmails = new Set(tags.map((t) => t.text.toLowerCase()))
-    return (contacts ?? [])
-      .filter((c) => c.email && !addedEmails.has(c.email.toLowerCase()))
-      .map((c) => ({
-        id: c.email!,
-        text: c.fullName ? `${c.fullName} <${c.email}>` : c.email!,
-      }))
-  }, [contacts, tags])
-
-  const handleSetTags = useCallback(
-    (newTags: Tag[]) => {
-      const normalized = newTags.map((tag) => {
-        const emailMatch = tag.text.match(/<(.+?)>/)
-        const email = emailMatch ? emailMatch[1] : tag.text
-        return { id: email, text: email }
-      })
-      setTags(normalized)
-      form.setValue(
-        'emails',
-        normalized.map((t) => t.text),
-        { shouldValidate: normalized.length > 0 },
-      )
-      setCurrentInput('')
+  const syncEmails = useCallback(
+    (nextEmails: string[], shouldValidate = nextEmails.length > 0) => {
+      setEmails(nextEmails)
+      form.setValue('emails', nextEmails, { shouldValidate })
     },
     [form],
   )
 
-  const handleBlur = useCallback(() => {
-    const trimmed = currentInput.trim()
-    if (trimmed && isValidEmail(trimmed)) {
-      const existing = tags.find((tag) => tag.text.toLowerCase() === trimmed.toLowerCase())
-      if (!existing) {
-        const newTag = { id: trimmed, text: trimmed }
-        const updatedTags = [...tags, newTag]
-        setTags(updatedTags)
-        form.setValue(
-          'emails',
-          updatedTags.map((t) => t.text),
-          { shouldValidate: true },
-        )
+  const pendingInputEmail = useMemo(() => {
+    const trimmed = normalizeEmail(inputValue)
+    if (!trimmed || !isValidEmail(trimmed)) return null
+    if (emails.some((e) => e.toLowerCase() === trimmed.toLowerCase())) return null
+    return trimmed
+  }, [inputValue, emails])
+
+  const allEmailsToSend = useMemo(() => (pendingInputEmail ? [...emails, pendingInputEmail] : emails), [emails, pendingInputEmail])
+
+  const addEmail = useCallback(
+    (email: string): boolean => {
+      const normalized = normalizeEmail(email)
+      if (!normalized) return false
+
+      if (!isValidEmail(normalized)) {
+        setInputError(INVALID_EMAIL_MESSAGE)
+        return false
       }
-      setCurrentInput('')
+
+      if (emails.some((e) => e.toLowerCase() === normalized.toLowerCase())) {
+        setInputError(DUPLICATE_EMAIL_MESSAGE)
+        return false
+      }
+
+      setInputError(null)
+      syncEmails([...emails, normalized], true)
+      setInputValue('')
+      setShowSuggestions(false)
+      return true
+    },
+    [emails, syncEmails],
+  )
+
+  const selectContact = useCallback(
+    (email: string) => {
+      addEmail(email)
+      inputRef.current?.focus()
+    },
+    [addEmail],
+  )
+
+  const removeEmail = useCallback(
+    (emailToRemove: string) => {
+      const updated = emails.filter((e) => e !== emailToRemove)
+      syncEmails(updated, updated.length > 0)
+      inputRef.current?.focus()
+    },
+    [emails, syncEmails],
+  )
+
+  const handleAddMore = useCallback(() => {
+    if (normalizeEmail(inputValue)) {
+      addEmail(inputValue)
     }
-  }, [currentInput, tags, form])
+    inputRef.current?.focus()
+  }, [inputValue, addEmail])
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Enter') {
+        e.preventDefault()
+        if (normalizeEmail(inputValue)) {
+          addEmail(inputValue)
+        }
+      }
+    },
+    [inputValue, addEmail],
+  )
 
   const resetForm = useCallback(() => {
-    setTags([])
-    setActiveTagIndex(null)
-    setCurrentInput('')
-    setInvalidEmail(null)
+    setEmails([])
+    setInputValue('')
+    setInputError(null)
     setIsSending(false)
+    setShowSuggestions(false)
     form.reset({ emails: [] })
   }, [form])
 
   const handleOpenChange = useCallback(
     (nextOpen: boolean) => {
-      if (!nextOpen) {
-        resetForm()
-      }
+      if (!nextOpen) resetForm()
       onOpenChange(nextOpen)
     },
     [onOpenChange, resetForm],
   )
 
   const handleSend = async () => {
-    handleBlur()
+    const trimmed = normalizeEmail(inputValue)
 
-    const currentEmails = form.getValues('emails')
-    if (!currentEmails.length || !assessmentId) return
+    if (trimmed && !isValidEmail(trimmed)) {
+      setInputError(INVALID_EMAIL_MESSAGE)
+      return
+    }
 
+    if (!allEmailsToSend.length) {
+      form.setValue('emails', [], { shouldValidate: true })
+      return
+    }
+
+    if (!assessmentId) return
+
+    form.setValue('emails', allEmailsToSend, { shouldValidate: true })
     const isValid = await form.trigger('emails')
     if (!isValid) return
 
     setIsSending(true)
 
     const results = await Promise.allSettled(
-      currentEmails.map((email) =>
+      allEmailsToSend.map((email) =>
         createAssessmentResponse({
           input: {
             email,
@@ -146,9 +203,9 @@ export const SendQuestionnaireDialog = ({ open, onOpenChange, assessmentId, asse
 
     results.forEach((result, i) => {
       if (result.status === 'fulfilled') {
-        succeeded.push(currentEmails[i])
+        succeeded.push(allEmailsToSend[i])
       } else {
-        failed.push(currentEmails[i])
+        failed.push(allEmailsToSend[i])
       }
     })
 
@@ -159,9 +216,8 @@ export const SendQuestionnaireDialog = ({ open, onOpenChange, assessmentId, asse
     }
 
     if (failed.length > 0) {
-      const failedTags = failed.map((email) => ({ id: email, text: email }))
-      setTags(failedTags)
-      form.setValue('emails', failed, { shouldValidate: true })
+      syncEmails(failed, true)
+      setInputValue('')
       errorNotification({
         title: `Failed to send to ${failed.length} recipient${failed.length > 1 ? 's' : ''}`,
         description: failed.join(', '),
@@ -172,74 +228,103 @@ export const SendQuestionnaireDialog = ({ open, onOpenChange, assessmentId, asse
     }
   }
 
-  const emailCount = tags.length
+  const totalCount = allEmailsToSend.length
   const errorMessage = form.formState.errors.emails?.message ?? (Array.isArray(form.formState.errors.emails) && form.formState.errors.emails[0]?.message) ?? null
 
   return (
-    <AlertDialog open={open} onOpenChange={handleOpenChange}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Send Questionnaire</AlertDialogTitle>
-          <AlertDialogDescription>{assessmentName ? `Enter recipient emails to send "${assessmentName}".` : 'Enter recipient emails to send the questionnaire.'}</AlertDialogDescription>
-        </AlertDialogHeader>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogContent
+        className="w-full max-w-md overflow-visible"
+        onOpenAutoFocus={(event) => {
+          event.preventDefault()
+          requestAnimationFrame(() => inputRef.current?.focus())
+        }}
+      >
+        <DialogHeader>
+          <DialogTitle>Send Questionnaire</DialogTitle>
+          <DialogDescription>{assessmentName ? `Enter recipient emails to send "${assessmentName}".` : 'Enter recipient emails to send the questionnaire.'}</DialogDescription>
+        </DialogHeader>
         <Form {...form}>
           <FormField
             name="emails"
             control={form.control}
-            render={({ field }) => (
+            render={() => (
               <FormItem>
                 <FormControl>
-                  <TagInput
-                    {...field}
-                    tags={tags}
-                    validateTag={(tag: string) => {
-                      const emailMatch = tag.match(/<(.+?)>/)
-                      const email = emailMatch ? emailMatch[1] : tag
-
-                      const isValid = isValidEmail(email)
-                      const isDuplicate = tags.some((t) => t.text.toLowerCase() === email.toLowerCase())
-
-                      if (!isValid) {
-                        setInvalidEmail('Please enter a valid email address.')
-                        return false
-                      }
-                      if (isDuplicate) {
-                        setInvalidEmail('This email is already added.')
-                        return false
-                      }
-                      setInvalidEmail(null)
-                      return true
-                    }}
-                    setTags={handleSetTags}
-                    activeTagIndex={activeTagIndex}
-                    setActiveTagIndex={setActiveTagIndex}
-                    inputProps={{ value: currentInput, placeholder: 'Enter email addresses...' }}
-                    onInputChange={(value: string) => setCurrentInput(value)}
-                    onBlur={handleBlur}
-                    enableAutocomplete={true}
-                    autocompleteOptions={autocompleteOptions}
-                    restrictTagsToAutocompleteOptions={false}
-                    styleClasses={{
-                      autoComplete: {
-                        popoverContent: autocompleteOptions.length === 0 ? 'opacity-0 pointer-events-none' : '',
-                      },
-                    }}
-                  />
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <div className="relative flex-1">
+                        <Input
+                          ref={inputRef}
+                          type="email"
+                          placeholder="Enter email address..."
+                          value={inputValue}
+                          onChange={(e) => {
+                            setInputValue(e.target.value)
+                            setInputError(null)
+                            setShowSuggestions(true)
+                          }}
+                          onKeyDown={handleKeyDown}
+                          onFocus={() => setShowSuggestions(true)}
+                          onBlur={() => {
+                            setTimeout(() => setShowSuggestions(false), 150)
+                          }}
+                          maxWidth
+                          autoFocus
+                        />
+                        {showSuggestions && normalizeEmail(inputValue).length >= MIN_SEARCH_LENGTH && suggestions.length > 0 && (
+                          <div className="absolute z-50 mt-1 w-full rounded-md border bg-popover shadow-md">
+                            <ul className="max-h-[200px] overflow-y-auto p-1">
+                              {suggestions.map((s) => (
+                                <li key={s.email}>
+                                  <button
+                                    type="button"
+                                    className="w-full rounded-xs px-2 py-1.5 text-left text-sm hover:bg-muted transition-colors cursor-default"
+                                    onMouseDown={(e) => {
+                                      e.preventDefault()
+                                      selectContact(s.email)
+                                    }}
+                                  >
+                                    {s.label}
+                                  </button>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                      <Button type="button" icon={<Plus />} iconPosition="left" variant="secondary" onClick={handleAddMore} className="shrink-0">
+                        Add More
+                      </Button>
+                    </div>
+                    {emails.length > 0 && (
+                      <div className="flex flex-wrap gap-2">
+                        {emails.map((email) => (
+                          <Badge key={email} variant="select" className="flex items-center gap-1.5 py-1.5 px-2.5 text-sm">
+                            {email}
+                            <button type="button" onClick={() => removeEmail(email)} className="rounded-full outline-hidden hover:opacity-70 transition-opacity">
+                              <X className="h-3 w-3" />
+                            </button>
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </FormControl>
-                {(errorMessage || invalidEmail) && <FormMessage>{errorMessage ?? invalidEmail}</FormMessage>}
+                {(inputError || errorMessage) && <FormMessage>{inputError ?? errorMessage}</FormMessage>}
               </FormItem>
             )}
           />
         </Form>
-        <AlertDialogFooter>
-          <AlertDialogCancel asChild>
+        <DialogFooter>
+          <DialogClose asChild>
             <CancelButton />
-          </AlertDialogCancel>
-          <Button onClick={handleSend} disabled={isSending || emailCount === 0}>
-            {isSending ? 'Sending...' : emailCount > 1 ? `Send (${emailCount})` : 'Send'}
+          </DialogClose>
+          <Button onClick={handleSend} disabled={isSending || totalCount === 0}>
+            {isSending ? 'Sending...' : totalCount > 1 ? `Send (${totalCount})` : 'Send'}
           </Button>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   )
 }

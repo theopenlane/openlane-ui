@@ -73,12 +73,35 @@ export const TemplateList = () => {
   const { control, handleSubmit } = form
 
   if (isError) {
-    return <div>failed to load</div>
+    return (
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Create Questionnaire From Template</AlertDialogTitle>
+          <AlertDialogDescription>Failed to load templates.</AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel asChild>
+            <CancelButton />
+          </AlertDialogCancel>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    )
   }
 
-  // Wait for the session and template data
   if (isLoading) {
-    return <div>loading...</div>
+    return (
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Create Questionnaire From Template</AlertDialogTitle>
+          <AlertDialogDescription>Loading templates...</AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel asChild>
+            <CancelButton />
+          </AlertDialogCancel>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    )
   }
 
   const hasTemplates = templates && templates.length > 0
