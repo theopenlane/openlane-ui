@@ -68,7 +68,8 @@ export interface GenericDetailsSheetConfig<TFormData extends FieldValues, TData,
     isFormInitialized: boolean
     internalEditing: string | null
     setInternalEditing: InternalEditingType
-    handleUpdateField: (input: TUpdateInput) => Promise<void>
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    handleUpdateField: (input: any) => Promise<void>
     isEditAllowed: boolean
   }) => React.ReactNode
 }
