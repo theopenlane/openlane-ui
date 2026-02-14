@@ -1437,6 +1437,8 @@ export interface AssessmentResponse extends Node {
   identityHolder?: Maybe<IdentityHolder>
   /** the identity holder record for the recipient */
   identityHolderID?: Maybe<Scalars['ID']['output']>
+  /** is this a draft response? can the user resume from where they left? */
+  isDraft: Scalars['Boolean']['output']
   /** whether this assessment response is for a test send */
   isTest: Scalars['Boolean']['output']
   /** the most recent email event timestamp for this assessment response */
@@ -1457,6 +1459,7 @@ export interface AssessmentResponse extends Node {
 /** AssessmentResponseAssessmentResponseStatus is enum for the field status */
 export enum AssessmentResponseAssessmentResponseStatus {
   COMPLETED = 'COMPLETED',
+  DRAFT = 'DRAFT',
   NOT_STARTED = 'NOT_STARTED',
   OVERDUE = 'OVERDUE',
   SENT = 'SENT',
@@ -1516,6 +1519,7 @@ export enum AssessmentResponseOrderField {
   email_delivered_at = 'email_delivered_at',
   email_open_count = 'email_open_count',
   email_opened_at = 'email_opened_at',
+  is_draft = 'is_draft',
   last_email_event_at = 'last_email_event_at',
   send_attempts = 'send_attempts',
   started_at = 'started_at',
@@ -1747,6 +1751,9 @@ export interface AssessmentResponseWhereInput {
   identityHolderIDNEQ?: InputMaybe<Scalars['ID']['input']>
   identityHolderIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   identityHolderIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** is_draft field predicates */
+  isDraft?: InputMaybe<Scalars['Boolean']['input']>
+  isDraftNEQ?: InputMaybe<Scalars['Boolean']['input']>
   /** is_test field predicates */
   isTest?: InputMaybe<Scalars['Boolean']['input']>
   isTestNEQ?: InputMaybe<Scalars['Boolean']['input']>
@@ -3400,6 +3407,7 @@ export interface CampaignTargetWorkflowTimelineArgs {
 /** CampaignTargetAssessmentResponseStatus is enum for the field status */
 export enum CampaignTargetAssessmentResponseStatus {
   COMPLETED = 'COMPLETED',
+  DRAFT = 'DRAFT',
   NOT_STARTED = 'NOT_STARTED',
   OVERDUE = 'OVERDUE',
   SENT = 'SENT',
@@ -7690,7 +7698,7 @@ export interface CreateEntityInput {
   /** whether SSO is enforced for the entity */
   ssoEnforced?: InputMaybe<Scalars['Boolean']['input']>
   /** status of the entity */
-  status?: InputMaybe<Scalars['String']['input']>
+  status?: InputMaybe<EntityEntityStatus>
   /** status page URL for the entity */
   statusPageURL?: InputMaybe<Scalars['String']['input']>
   subprocessorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -14932,7 +14940,7 @@ export interface Entity extends Node {
   /** whether SSO is enforced for the entity */
   ssoEnforced?: Maybe<Scalars['Boolean']['output']>
   /** status of the entity */
-  status?: Maybe<Scalars['String']['output']>
+  status?: Maybe<EntityEntityStatus>
   /** status page URL for the entity */
   statusPageURL?: Maybe<Scalars['String']['output']>
   subprocessors: SubprocessorConnection
@@ -15179,6 +15187,19 @@ export interface EntityEdge {
   cursor: Scalars['Cursor']['output']
   /** The item at the end of the edge. */
   node?: Maybe<Entity>
+}
+
+/** EntityEntityStatus is enum for the field status */
+export enum EntityEntityStatus {
+  ACTIVE = 'ACTIVE',
+  APPROVED = 'APPROVED',
+  DRAFT = 'DRAFT',
+  OFFBOARDING = 'OFFBOARDING',
+  REJECTED = 'REJECTED',
+  RESTRICTED = 'RESTRICTED',
+  SUSPENDED = 'SUSPENDED',
+  TERMINATED = 'TERMINATED',
+  UNDER_REVIEW = 'UNDER_REVIEW',
 }
 
 /** EntityFrequency is enum for the field review_frequency */
@@ -16168,20 +16189,11 @@ export interface EntityWhereInput {
   ssoEnforcedNEQ?: InputMaybe<Scalars['Boolean']['input']>
   ssoEnforcedNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** status field predicates */
-  status?: InputMaybe<Scalars['String']['input']>
-  statusContains?: InputMaybe<Scalars['String']['input']>
-  statusContainsFold?: InputMaybe<Scalars['String']['input']>
-  statusEqualFold?: InputMaybe<Scalars['String']['input']>
-  statusGT?: InputMaybe<Scalars['String']['input']>
-  statusGTE?: InputMaybe<Scalars['String']['input']>
-  statusHasPrefix?: InputMaybe<Scalars['String']['input']>
-  statusHasSuffix?: InputMaybe<Scalars['String']['input']>
-  statusIn?: InputMaybe<Array<Scalars['String']['input']>>
+  status?: InputMaybe<EntityEntityStatus>
+  statusIn?: InputMaybe<Array<EntityEntityStatus>>
   statusIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  statusLT?: InputMaybe<Scalars['String']['input']>
-  statusLTE?: InputMaybe<Scalars['String']['input']>
-  statusNEQ?: InputMaybe<Scalars['String']['input']>
-  statusNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  statusNEQ?: InputMaybe<EntityEntityStatus>
+  statusNotIn?: InputMaybe<Array<EntityEntityStatus>>
   statusNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** status_page_url field predicates */
   statusPageURL?: InputMaybe<Scalars['String']['input']>
@@ -17354,10 +17366,13 @@ export enum ExportExportStatus {
 
 /** ExportExportType is enum for the field export_type */
 export enum ExportExportType {
+  ASSET = 'ASSET',
   CONTROL = 'CONTROL',
   DIRECTORY_MEMBERSHIP = 'DIRECTORY_MEMBERSHIP',
+  ENTITY = 'ENTITY',
   EVIDENCE = 'EVIDENCE',
   FINDING = 'FINDING',
+  IDENTITY_HOLDER = 'IDENTITY_HOLDER',
   INTERNAL_POLICY = 'INTERNAL_POLICY',
   PROCEDURE = 'PROCEDURE',
   REMEDIATION = 'REMEDIATION',
@@ -50680,7 +50695,7 @@ export interface UpdateEntityInput {
   /** whether SSO is enforced for the entity */
   ssoEnforced?: InputMaybe<Scalars['Boolean']['input']>
   /** status of the entity */
-  status?: InputMaybe<Scalars['String']['input']>
+  status?: InputMaybe<EntityEntityStatus>
   /** status page URL for the entity */
   statusPageURL?: InputMaybe<Scalars['String']['input']>
   /** an internal identifier for the mapping, this field is only available to system admins */
@@ -59480,6 +59495,12 @@ export type CreateAssessmentResponseMutation = {
 
 export type GetAssessmentDetailQueryVariables = Exact<{
   getAssessmentId: Scalars['ID']['input']
+  where?: InputMaybe<AssessmentResponseWhereInput>
+  orderBy?: InputMaybe<Array<AssessmentResponseOrder> | AssessmentResponseOrder>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
 }>
 
 export type GetAssessmentDetailQuery = {
@@ -59520,6 +59541,25 @@ export type GetAssessmentDetailQuery = {
       pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
     }
   }
+}
+
+export type GetAssessmentRecipientsTotalCountQueryVariables = Exact<{
+  getAssessmentId: Scalars['ID']['input']
+}>
+
+export type GetAssessmentRecipientsTotalCountQuery = {
+  __typename?: 'Query'
+  assessment: { __typename?: 'Assessment'; id: string; assessmentResponses: { __typename?: 'AssessmentResponseConnection'; totalCount: number } }
+}
+
+export type GetAssessmentResponsesTotalCountQueryVariables = Exact<{
+  getAssessmentId: Scalars['ID']['input']
+  where?: InputMaybe<AssessmentResponseWhereInput>
+}>
+
+export type GetAssessmentResponsesTotalCountQuery = {
+  __typename?: 'Query'
+  assessment: { __typename?: 'Assessment'; id: string; assessmentResponses: { __typename?: 'AssessmentResponseConnection'; totalCount: number } }
 }
 
 export type DeleteBulkAssessmentMutationVariables = Exact<{

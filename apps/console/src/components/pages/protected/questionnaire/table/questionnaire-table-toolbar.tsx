@@ -64,6 +64,7 @@ const QuestionnaireTableToolbar: React.FC<TQuestionnaireTableToolbarProps> = ({
 }) => {
   const isSearching = useDebounce(searching, 200)
   const { data: permission } = useOrganizationRoles()
+  const canEditQuestionnaires = canEdit(permission?.roles)
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: bulkDeleteQuestionnaires } = useDeleteBulkAssessment()
@@ -123,34 +124,34 @@ const QuestionnaireTableToolbar: React.FC<TQuestionnaireTableToolbarProps> = ({
         <div className="grow flex flex-row items-center gap-2 justify-end">
           {selectedQuestionnaires.length > 0 ? (
             <>
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => {
-                  setIsBulkDeleteDialogOpen(true)
-                }}
-              >
-                {`Bulk Delete (${selectedQuestionnaires.length})`}
-              </Button>
-              {canEdit(permission?.roles) && (
-                <>
-                  <ConfirmationDialog
-                    open={isBulkDeleteDialogOpen}
-                    onOpenChange={setIsBulkDeleteDialogOpen}
-                    onConfirm={handleBulkDelete}
-                    title={`Delete selected questionnaires?`}
-                    description={<>This action cannot be undone. This will permanently delete selected questionnaires.</>}
-                    confirmationText="Delete"
-                    confirmationTextVariant="destructive"
-                    showInput={false}
-                  />
-                  <CancelButton
-                    onClick={() => {
-                      handleClearSelectedQuestionnaires()
-                    }}
-                  ></CancelButton>
-                </>
+              {canEditQuestionnaires && (
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => {
+                    setIsBulkDeleteDialogOpen(true)
+                  }}
+                >
+                  {`Bulk Delete (${selectedQuestionnaires.length})`}
+                </Button>
               )}
+              {canEditQuestionnaires && (
+                <ConfirmationDialog
+                  open={isBulkDeleteDialogOpen}
+                  onOpenChange={setIsBulkDeleteDialogOpen}
+                  onConfirm={handleBulkDelete}
+                  title={`Delete selected questionnaires?`}
+                  description={<>This action cannot be undone. This will permanently delete selected questionnaires.</>}
+                  confirmationText="Delete"
+                  confirmationTextVariant="destructive"
+                  showInput={false}
+                />
+              )}
+              <CancelButton
+                onClick={() => {
+                  handleClearSelectedQuestionnaires()
+                }}
+              />
             </>
           ) : (
             <>

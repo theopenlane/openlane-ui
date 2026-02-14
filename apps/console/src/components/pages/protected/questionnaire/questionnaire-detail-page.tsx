@@ -15,19 +15,21 @@ import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys'
 import { FilterIcons, QuestionnaireFilterIconName } from '@/components/shared/enum-mapper/questionnaire-enum'
 import { AssessmentResponseAssessmentResponseStatus } from '@repo/codegen/src/schema'
-import type { AssessmentResponseWhereInput } from '@repo/codegen/src/schema'
+import type { AssessmentResponseWhereInput, GetAssessmentDetailQuery, GetAssessmentDetailQueryVariables } from '@repo/codegen/src/schema'
 import type { FilterField, WhereCondition } from '@/types'
 import Skeleton from '@/components/shared/skeleton/skeleton'
 import { AISummaryCard } from './ai-summary-card'
 import { DeliveryTab } from './delivery-tab/delivery-tab'
 import { ResponsesTab } from './responses-tab/responses-tab'
 import { extractQuestions } from './responses-tab/extract-questions'
-import type { DeliveryRow } from './delivery-tab/delivery-columns'
 import type { LucideIcon } from 'lucide-react'
 import { SendQuestionnaireDialog } from './dialog/send-questionnaire-dialog'
 import { renderAnswer } from './utils/render-answer'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
+import { useGraphQLClient } from '@/hooks/useGraphQLClient'
+import { GET_ASSESSMENT_DETAIL } from '@repo/codegen/query/assessment'
+import { useNotification } from '@/hooks/useNotification'
 
 type DetailTabValue = 'delivery' | 'responses'
 const DEFAULT_TAB: DetailTabValue = 'delivery'
@@ -56,19 +58,6 @@ const deliveryFilterFields: FilterField[] = [
   },
 ]
 
-const areDeliveryRowsEqual = (a: DeliveryRow[], b: DeliveryRow[]) =>
-  a.length === b.length &&
-  a.every(
-    (row, index) =>
-      row.id === b[index]?.id &&
-      row.email === b[index]?.email &&
-      row.status === b[index]?.status &&
-      row.assignedAt === b[index]?.assignedAt &&
-      row.dueDate === b[index]?.dueDate &&
-      row.completedAt === b[index]?.completedAt &&
-      row.sendAttempts === b[index]?.sendAttempts,
-  )
-
 type StatCardProps = {
   icon: LucideIcon
   label: string
@@ -94,9 +83,12 @@ const QuestionnaireDetailPage = () => {
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const { setCrumbs } = React.useContext(BreadcrumbContext)
-  const { assessment, responses, isLoading } = useGetAssessmentDetail(id)
+  const { client } = useGraphQLClient()
+  const { errorNotification } = useNotification()
+  const { assessment, responses, isLoading } = useGetAssessmentDetail({ id })
   const [deliveryFilters, setDeliveryFilters] = useState<WhereCondition>({})
-  const [deliveryRows, setDeliveryRows] = useState<DeliveryRow[]>([])
+  const [deliveryTotalCount, setDeliveryTotalCount] = useState(0)
+  const [isExportingDelivery, setIsExportingDelivery] = useState(false)
   const [isSendDialogOpen, setIsSendDialogOpen] = useState(false)
 
   const deliveryWhereFilter = useMemo(
@@ -124,8 +116,8 @@ const QuestionnaireDetailPage = () => {
     setDeliveryFilters(whereCondition)
   }, [])
 
-  const handleDeliveryRowsChange = useCallback((rows: DeliveryRow[]) => {
-    setDeliveryRows((currentRows) => (areDeliveryRowsEqual(currentRows, rows) ? currentRows : rows))
+  const handleDeliveryTotalCountChange = useCallback((count: number) => {
+    setDeliveryTotalCount(count)
   }, [])
 
   const tabParamValue = searchParams.get(TAB_QUERY_PARAM)
@@ -177,21 +169,82 @@ const QuestionnaireDetailPage = () => {
     [responses],
   )
 
-  const handleExportDelivery = useCallback(() => {
-    if (!deliveryRows.length) return
-    exportToCSV(
-      deliveryRows,
-      [
-        { label: 'Recipient', accessor: (r) => r.email },
-        { label: 'Status', accessor: (r) => r.status },
-        { label: 'Sent Date', accessor: (r) => r.assignedAt || '' },
-        { label: 'Due Date', accessor: (r) => r.dueDate || '' },
-        { label: 'Completed', accessor: (r) => r.completedAt || '' },
-        { label: 'Resent', accessor: (r) => r.sendAttempts },
-      ],
-      'questionnaire_delivery',
-    )
-  }, [deliveryRows])
+  const fetchAllDeliveryRows = useCallback(async () => {
+    const rows: Array<{
+      email: string
+      status: AssessmentResponseAssessmentResponseStatus
+      assignedAt: string
+      dueDate?: string | null
+      completedAt?: string | null
+      sendAttempts: number
+    }> = []
+    let after: string | null | undefined
+    const pageSize = 100
+    const visitedCursors = new Set<string>()
+
+    while (true) {
+      const response = await client.request<GetAssessmentDetailQuery, GetAssessmentDetailQueryVariables>(GET_ASSESSMENT_DETAIL, {
+        getAssessmentId: id,
+        where: deliveryWhereFilter,
+        first: pageSize,
+        after,
+      })
+
+      const connection = response.assessment?.assessmentResponses
+      const nodes = (connection?.edges ?? []).map((edge) => edge?.node).filter(Boolean)
+
+      rows.push(
+        ...nodes.map((node) => ({
+          email: node!.email,
+          status: node!.status,
+          assignedAt: node!.assignedAt,
+          dueDate: node!.dueDate,
+          completedAt: node!.completedAt,
+          sendAttempts: node!.sendAttempts,
+        })),
+      )
+
+      if (!connection?.pageInfo?.hasNextPage || !connection.pageInfo.endCursor) {
+        break
+      }
+
+      if (visitedCursors.has(connection.pageInfo.endCursor)) {
+        break
+      }
+      visitedCursors.add(connection.pageInfo.endCursor)
+      after = connection.pageInfo.endCursor
+    }
+
+    return rows
+  }, [client, id, deliveryWhereFilter])
+
+  const handleExportDelivery = useCallback(async () => {
+    if (!deliveryTotalCount) return
+    setIsExportingDelivery(true)
+    try {
+      const allRows = await fetchAllDeliveryRows()
+      if (!allRows.length) return
+      exportToCSV(
+        allRows,
+        [
+          { label: 'Recipient', accessor: (r) => r.email },
+          { label: 'Status', accessor: (r) => r.status },
+          { label: 'Sent Date', accessor: (r) => r.assignedAt || '' },
+          { label: 'Due Date', accessor: (r) => r.dueDate || '' },
+          { label: 'Completed', accessor: (r) => r.completedAt || '' },
+          { label: 'Resent', accessor: (r) => r.sendAttempts },
+        ],
+        'questionnaire_delivery',
+      )
+    } catch {
+      errorNotification({
+        title: 'Export failed',
+        description: 'Could not export delivery records.',
+      })
+    } finally {
+      setIsExportingDelivery(false)
+    }
+  }, [deliveryTotalCount, fetchAllDeliveryRows, errorNotification])
 
   const handleExportResponses = useCallback(() => {
     if (!responseRows.length) return
@@ -267,9 +320,9 @@ const QuestionnaireDetailPage = () => {
           {activeTab === 'delivery' && (
             <div className="flex items-center gap-2">
               <TableFilter filterFields={deliveryFilterFields} onFilterChange={handleDeliveryFilterChange} pageKey={TableFilterKeysEnum.QUESTIONNAIRE_DELIVERY} />
-              <Button variant="secondary" onClick={handleExportDelivery} disabled={!deliveryRows.length}>
+              <Button variant="secondary" onClick={handleExportDelivery} disabled={isExportingDelivery || !deliveryTotalCount}>
                 <Download className="mr-2 h-4 w-4" />
-                Export
+                {isExportingDelivery ? 'Exporting...' : 'Export'}
               </Button>
             </div>
           )}
@@ -281,7 +334,7 @@ const QuestionnaireDetailPage = () => {
           )}
         </div>
         <TabsContent value="delivery" className="mt-6">
-          <DeliveryTab assessmentId={id} jsonconfig={assessment.jsonconfig} where={deliveryWhereFilter} onRowsChange={handleDeliveryRowsChange} />
+          <DeliveryTab assessmentId={id} jsonconfig={assessment.jsonconfig} where={deliveryWhereFilter} onTotalCountChange={handleDeliveryTotalCountChange} />
         </TabsContent>
         <TabsContent value="responses" className="mt-6">
           <ResponsesTab responses={responseRows} jsonconfig={assessment.jsonconfig} />

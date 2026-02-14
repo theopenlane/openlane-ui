@@ -48,14 +48,25 @@ type UseAssessmentsArgs = {
 
 export const useAssessments = ({ where, orderBy, pagination, enabled = true }: UseAssessmentsArgs) => {
   const { client } = useGraphQLClient()
+  const resolvedPagination = useMemo<TPagination>(
+    () =>
+      pagination ?? {
+        page: 1,
+        pageSize: 5,
+        query: {
+          first: 5,
+        },
+      },
+    [pagination],
+  )
 
   const queryResult = useQuery<FilterAssessmentsQuery>({
-    queryKey: ['assessments', where, orderBy, pagination?.pageSize, pagination?.page],
+    queryKey: ['assessments', where, orderBy, resolvedPagination.pageSize, resolvedPagination.page],
     queryFn: () =>
       client.request(GET_ALL_ASSESSMENTS, {
         where,
         orderBy,
-        ...pagination?.query,
+        ...resolvedPagination.query,
       }),
     enabled,
   })
@@ -77,6 +88,31 @@ export const useAssessments = ({ where, orderBy, pagination, enabled = true }: U
     paginationMeta,
     isLoading: queryResult.isFetching,
   }
+}
+
+export const useAssessmentSelect = ({ where }: { where?: FilterAssessmentsQueryVariables['where'] }) => {
+  const selectPagination = useMemo<TPagination>(
+    () => ({
+      page: 1,
+      pageSize: 100,
+      query: {
+        first: 100,
+      },
+    }),
+    [],
+  )
+  const { assessments, ...rest } = useAssessments({ where, pagination: selectPagination })
+
+  const assessmentOptions = useMemo(
+    () =>
+      assessments?.map((assessment) => ({
+        label: assessment.name,
+        value: assessment.id,
+      })) ?? [],
+    [assessments],
+  )
+
+  return { assessmentOptions, ...rest }
 }
 
 export const useGetAssessment = (getAssessmentId?: string) => {
@@ -106,18 +142,11 @@ type GetAssessmentDetailRequestVariables = GetAssessmentDetailQueryVariables & {
   before?: string | null
 }
 
-export const useGetAssessmentDetail = (idOrArgs?: string | UseGetAssessmentDetailArgs) => {
+export const useGetAssessmentDetail = ({ id, where, orderBy, pagination, enabled = true }: UseGetAssessmentDetailArgs = {}) => {
   const { client } = useGraphQLClient()
-  const {
-    id,
-    where,
-    orderBy,
-    pagination,
-    enabled = true,
-  } = typeof idOrArgs === 'string' ? { id: idOrArgs, where: undefined, orderBy: undefined, pagination: undefined, enabled: true } : idOrArgs ?? {}
 
   const queryResult = useQuery<GetAssessmentDetailQuery>({
-    queryKey: ['assessments', 'detail', id, where, orderBy, pagination?.page, pagination?.pageSize],
+    queryKey: ['assessments', id, where, orderBy, pagination?.page, pagination?.pageSize],
     queryFn: () =>
       client.request<GetAssessmentDetailQuery, GetAssessmentDetailRequestVariables>(GET_ASSESSMENT_DETAIL, {
         getAssessmentId: id!,
@@ -171,7 +200,7 @@ export const useAssessmentRecipientsTotalCount = (id?: string) => {
   const { client } = useGraphQLClient()
 
   const queryResult = useQuery<AssessmentRecipientsTotalCountQuery>({
-    queryKey: ['assessments', 'detail', 'recipients-total-count', id],
+    queryKey: ['assessments', 'recipients-total-count', id],
     queryFn: () =>
       client.request<AssessmentRecipientsTotalCountQuery, AssessmentRecipientsTotalCountQueryVariables>(GET_ASSESSMENT_RECIPIENTS_TOTAL_COUNT, {
         getAssessmentId: id!,
@@ -204,7 +233,7 @@ export const useAssessmentResponsesTotalCount = (id?: string) => {
   const { client } = useGraphQLClient()
 
   const queryResult = useQuery<AssessmentResponsesTotalCountQuery>({
-    queryKey: ['assessments', 'detail', 'responses-total-count', id],
+    queryKey: ['assessments', 'responses-total-count', id],
     queryFn: () =>
       client.request<AssessmentResponsesTotalCountQuery, AssessmentResponsesTotalCountQueryVariables>(GET_ASSESSMENT_RESPONSES_TOTAL_COUNT, {
         getAssessmentId: id!,

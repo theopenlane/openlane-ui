@@ -169,22 +169,58 @@ export const QuestionnairesTable = () => {
     canDelete: canDelete(permission?.roles),
   })
 
-  function isVisibleColumn<T>(col: ColumnDef<T>): col is ColumnDef<T> & { accessorKey: string; header: string } {
-    return 'accessorKey' in col && typeof col.accessorKey === 'string' && typeof col.header === 'string' && columnVisibility[col.accessorKey] !== false
+  const getColumnExportKey = <T,>(col: ColumnDef<T>): string | null => {
+    if ('accessorKey' in col && typeof col.accessorKey === 'string') return col.accessorKey
+    if ('id' in col && typeof col.id === 'string') return col.id
+    return null
   }
+
+  const getExportValue = useCallback(
+    (assessment: Assessment, key: string): string | number => {
+      switch (key) {
+        case 'title': {
+          if (assessment.jsonconfig && typeof assessment.jsonconfig === 'object') {
+            const title = (assessment.jsonconfig as Record<string, unknown>).title
+            return typeof title === 'string' ? title : ''
+          }
+          return ''
+        }
+        case 'templateName':
+          return assessment.template?.name ?? ''
+        case 'tags':
+          return assessment.tags?.join(', ') ?? ''
+        case 'createdBy':
+          return userMap[assessment.createdBy ?? '']?.displayName ?? 'Deleted user'
+        case 'updatedBy':
+          return userMap[assessment.updatedBy ?? '']?.displayName ?? 'Deleted user'
+        default: {
+          const value = assessment[key as keyof Assessment]
+          if (typeof value === 'string' || typeof value === 'number') return value
+          if (typeof value === 'boolean') return value ? 'Yes' : 'No'
+          return ''
+        }
+      }
+    },
+    [userMap],
+  )
+
   const handleExport = () => {
     if (!assessments || assessments.length === 0) return
-    const exportableColumns = columns.filter(isVisibleColumn).map((col) => {
-      const key = col.accessorKey as keyof Assessment
-      const label = col.header
-      return {
-        label,
-        accessor: (assessment: Assessment) => {
-          const value = assessment[key]
-          return typeof value === 'string' || typeof value === 'number' ? value : ''
-        },
-      }
-    })
+    const exportableColumns = columns
+      .filter((col) => {
+        const key = getColumnExportKey(col)
+        return key !== null && key !== 'select' && key !== 'actions' && typeof col.header === 'string' && columnVisibility[key] !== false
+      })
+      .map((col) => {
+        const key = getColumnExportKey(col)!
+        const label = col.header as string
+        return {
+          label,
+          accessor: (assessment: Assessment) => getExportValue(assessment, key),
+        }
+      })
+
+    if (exportableColumns.length === 0) return
     exportToCSV(assessments, exportableColumns, 'questionnaires_list')
   }
 

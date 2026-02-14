@@ -124,7 +124,17 @@ export const useCreateBulkCSVTemplate = () => {
 }
 
 export const useTemplateSelect = ({ where }: { where?: FilterTemplatesQueryVariables['where'] }) => {
-  const { templates, ...rest } = useTemplates({ where })
+  const selectPagination = useMemo<TPagination>(
+    () => ({
+      page: 1,
+      pageSize: 100,
+      query: {
+        first: 100,
+      },
+    }),
+    [],
+  )
+  const { templates, ...rest } = useTemplates({ where, pagination: selectPagination })
 
   const templateOptions = useMemo(
     () =>

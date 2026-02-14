@@ -50,12 +50,6 @@ export const QuestionnairePage: React.FC<QuestionnairePageProps> = ({ token }) =
     if (!questionnaireData || !token) return null
     const surveyModel = new Model(questionnaireData)
 
-    if (resolvedTheme === 'dark') {
-      surveyModel.applyTheme(darkTheme as ITheme)
-    } else {
-      surveyModel.applyTheme(lightTheme)
-    }
-
     surveyModel.onCompleting.add(async (sender, options) => {
       try {
         await submitQuestionnaire.mutateAsync({
@@ -70,7 +64,16 @@ export const QuestionnairePage: React.FC<QuestionnairePageProps> = ({ token }) =
     })
 
     return surveyModel
-  }, [questionnaireData, token, submitQuestionnaire, resolvedTheme])
+  }, [questionnaireData, token, submitQuestionnaire])
+
+  useEffect(() => {
+    if (!survey) return
+    if (resolvedTheme === 'dark') {
+      survey.applyTheme(darkTheme as ITheme)
+    } else {
+      survey.applyTheme(lightTheme)
+    }
+  }, [survey, resolvedTheme])
 
   useEffect(() => {
     if (!token) return

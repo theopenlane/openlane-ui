@@ -176,6 +176,7 @@ Respond ONLY with valid JSON in this exact format:
 {
   "summary": "A 2-3 sentence summary of the findings",
   "key_themes": "A 1-2 sentence description of the main themes",
+  "overall_sentiment": "Positive|Neutral|Negative",
   "sentiment_breakdown": {
     "positive": <number 0-100>,
     "neutral": <number 0-100>,

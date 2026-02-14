@@ -29,8 +29,9 @@ type DeliveryColumnCallbacks = {
 const statusVariantMap: Record<AssessmentResponseAssessmentResponseStatus, 'green' | 'blue' | 'default' | 'destructive'> = {
   [AssessmentResponseAssessmentResponseStatus.COMPLETED]: 'green',
   [AssessmentResponseAssessmentResponseStatus.SENT]: 'blue',
-  [AssessmentResponseAssessmentResponseStatus.NOT_STARTED]: 'default',
   [AssessmentResponseAssessmentResponseStatus.OVERDUE]: 'destructive',
+  [AssessmentResponseAssessmentResponseStatus.NOT_STARTED]: 'default',
+  [AssessmentResponseAssessmentResponseStatus.DRAFT]: 'default',
 }
 
 export const getDeliveryColumns = ({ onResend, onViewResponse }: DeliveryColumnCallbacks): ColumnDef<DeliveryRow>[] => [
@@ -73,7 +74,7 @@ export const getDeliveryColumns = ({ onResend, onViewResponse }: DeliveryColumnC
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm" className="h-8 w-8 p-0">
+            <Button variant="outline" size="sm" className="h-8 w-8 p-0" aria-label="Open delivery actions">
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>

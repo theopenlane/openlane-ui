@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@repo/ui/table'
 import { Input } from '@repo/ui/input'
 import Pagination from '@repo/ui/pagination'
@@ -44,6 +44,12 @@ export const ResponsesTab = ({ responses, jsonconfig }: ResponsesTabProps) => {
 
   const totalPages = Math.max(1, Math.ceil(filteredResponses.length / pageSize))
   const paginatedResponses = filteredResponses.slice((page - 1) * pageSize, page * pageSize)
+
+  useEffect(() => {
+    if (page > totalPages) {
+      setPage(totalPages)
+    }
+  }, [page, totalPages])
 
   const handleFilterChange = (questionName: string, value: string) => {
     setColumnFilters((prev) => ({ ...prev, [questionName]: value }))

@@ -18,10 +18,10 @@ type DeliveryTabProps = {
   assessmentId: string
   jsonconfig: unknown
   where?: AssessmentResponseWhereInput
-  onRowsChange?: (rows: DeliveryRow[]) => void
+  onTotalCountChange?: (count: number) => void
 }
 
-export const DeliveryTab = ({ assessmentId, jsonconfig, where, onRowsChange }: DeliveryTabProps) => {
+export const DeliveryTab = ({ assessmentId, jsonconfig, where, onTotalCountChange }: DeliveryTabProps) => {
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
   const { mutateAsync: createResponse } = useCreateAssessmentResponse()
   const { successNotification, errorNotification } = useNotification()
@@ -64,8 +64,8 @@ export const DeliveryTab = ({ assessmentId, jsonconfig, where, onRowsChange }: D
   }, [where])
 
   useEffect(() => {
-    onRowsChange?.(responses)
-  }, [onRowsChange, responses])
+    onTotalCountChange?.(paginationMeta.totalCount ?? 0)
+  }, [onTotalCountChange, paginationMeta.totalCount])
 
   const handleResend = useCallback(
     async (row: DeliveryRow) => {
