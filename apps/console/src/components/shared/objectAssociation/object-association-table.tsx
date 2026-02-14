@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/react-table'
 import { Checkbox } from '@repo/ui/checkbox'
@@ -122,6 +122,13 @@ const ObjectAssociationTable = ({ data, onIDsChange, initialData, refCodeInitial
       },
     },
   ]
+
+  // Force new data reference when selection changes so the memoized DataTable body re-renders
+  const tableData = useMemo(() => {
+    void selectedIdsMap
+    return [...data]
+  }, [data, selectedIdsMap])
+
   return (
     <DataTable
       loading={isLoading}
@@ -129,7 +136,7 @@ const ObjectAssociationTable = ({ data, onIDsChange, initialData, refCodeInitial
       pagination={pagination}
       paginationMeta={paginationMeta}
       columns={columns}
-      data={data}
+      data={tableData}
       wrapperClass="max-h-96 overflow-auto"
       tableKey={TableKeyEnum.OBJECT_ASSOCIATION}
     />

@@ -10,7 +10,7 @@ import { ExportRow } from './export-row'
 import useClickOutside from '@/hooks/useClickOutside'
 
 export default function SystemNotificationTracker() {
-  const { notifications } = useWebsocketNotifications()
+  const { notifications, markAsRead, markAllAsRead } = useWebsocketNotifications()
   const [open, setOpen] = useState(false)
 
   const bellRef = useRef<HTMLDivElement>(null)
@@ -54,10 +54,12 @@ export default function SystemNotificationTracker() {
                     {counts.total > 0 && <span className="bg-primary/10 text-primary rounded-full px-2 py-0.5 text-xs font-bold">{counts.total}</span>}
                   </div>
 
-                  <button className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-primary transition-colors">
-                    <CheckCheck className="w-3.5 h-3.5" />
-                    Mark all as read
-                  </button>
+                  {counts.hasUnread && (
+                    <button onClick={markAllAsRead} className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-primary transition-colors">
+                      <CheckCheck className="w-3.5 h-3.5" />
+                      Mark all as read
+                    </button>
+                  )}
                 </div>
 
                 <div className="overflow-y-auto p-2 custom-scrollbar">
@@ -74,9 +76,9 @@ export default function SystemNotificationTracker() {
                       <>
                         {notifications.map((n) =>
                           exportIDs.includes(n.data?.export_id) ? (
-                            <ExportRow key={n.id} notification={n} exportData={exportData?.exports.edges?.find((e) => e?.node?.id === n.data?.export_id)?.node} />
+                            <ExportRow key={n.id} notification={n} exportData={exportData?.exports.edges?.find((e) => e?.node?.id === n.data?.export_id)?.node} onRead={markAsRead} />
                           ) : (
-                            <NotificationRow key={n.id} notification={n} />
+                            <NotificationRow key={n.id} notification={n} onRead={markAsRead} />
                           ),
                         )}
                       </>

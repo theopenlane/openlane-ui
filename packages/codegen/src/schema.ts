@@ -61715,6 +61715,12 @@ export type GetAllNarrativesQuery = {
   }
 }
 
+export type MarkNotificationsAsReadMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+}>
+
+export type MarkNotificationsAsReadMutation = { __typename?: 'Mutation'; markNotificationsAsRead: { __typename?: 'ActionNotificationsReadPayload'; readIDs: Array<string | null> } }
+
 export type CreateOnboardingMutationVariables = Exact<{
   input: CreateOnboardingInput
 }>
