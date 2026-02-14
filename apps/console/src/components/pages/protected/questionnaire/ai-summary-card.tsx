@@ -26,7 +26,7 @@ type AISummaryCardProps = {
 }
 
 const sentimentConfig: Record<string, { color: string; bgColor: string; Icon: React.ComponentType<{ className?: string }> }> = {
-  Positive: { color: 'text-[#09151d]', bgColor: 'bg-svg-secondary', Icon: Smile },
+  Positive: { color: 'text-[#09151d]', bgColor: 'bg-[#9AF5DC]', Icon: Smile },
   Neutral: { color: 'text-[#ff842c]', bgColor: 'bg-warning/16', Icon: Meh },
   Negative: { color: 'text-destructive', bgColor: 'bg-destructive/16', Icon: Frown },
 }

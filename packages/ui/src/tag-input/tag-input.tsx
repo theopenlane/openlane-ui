@@ -4,7 +4,7 @@ import { forwardRef } from 'react'
 import { TagInput as EmblorTagInput, type TagInputProps } from 'emblor'
 import { tagInputStyles } from './tag-input.styles'
 
-const TagInput = forwardRef<HTMLInputElement, TagInputProps>(({ className, ...props }, ref) => {
+const TagInput = forwardRef<HTMLDivElement, TagInputProps>(({ className, ...props }, ref) => {
   const { input, tag, tagClose, inlineTagsContainer } = tagInputStyles()
   return (
     <EmblorTagInput
@@ -19,7 +19,6 @@ const TagInput = forwardRef<HTMLInputElement, TagInputProps>(({ className, ...pr
         tag: {
           body: tag(),
           closeButton: tagClose(),
-          ...props.styleClasses?.tag,
         },
         input: input(),
         inlineTagsContainer: inlineTagsContainer(),

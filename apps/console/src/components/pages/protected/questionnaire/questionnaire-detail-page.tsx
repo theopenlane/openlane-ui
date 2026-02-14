@@ -27,6 +27,7 @@ import type { LucideIcon } from 'lucide-react'
 import { SendQuestionnaireDialog } from './dialog/send-questionnaire-dialog'
 import { renderAnswer } from './utils/render-answer'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
+import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 
 type DetailTabValue = 'delivery' | 'responses'
 const DEFAULT_TAB: DetailTabValue = 'delivery'
@@ -39,12 +40,7 @@ const deliveryFilterFields: FilterField[] = [
     label: 'Status',
     type: 'multiselect',
     icon: FilterIcons[QuestionnaireFilterIconName.Status],
-    options: [
-      { value: AssessmentResponseAssessmentResponseStatus.COMPLETED, label: 'Completed' },
-      { value: AssessmentResponseAssessmentResponseStatus.SENT, label: 'Sent' },
-      { value: AssessmentResponseAssessmentResponseStatus.NOT_STARTED, label: 'Not Started' },
-      { value: AssessmentResponseAssessmentResponseStatus.OVERDUE, label: 'Overdue' },
-    ],
+    options: enumToOptions(AssessmentResponseAssessmentResponseStatus),
   },
   {
     key: 'assignedAt',
