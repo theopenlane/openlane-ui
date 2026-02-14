@@ -1,4 +1,26 @@
-import { CircleDot, FolderPen, Key, UserRoundCheck, UserRoundPen, Shapes, CalendarClock, LucideIcon, CircleDollarSign, IdCard } from 'lucide-react'
+import {
+  CircleDot,
+  FolderPen,
+  Key,
+  UserRoundCheck,
+  UserRoundPen,
+  Shapes,
+  CalendarClock,
+  LucideIcon,
+  CircleDollarSign,
+  IdCard,
+  ScanEye,
+  Folder,
+  FolderTree,
+  GitBranch,
+  Building2,
+  CircleGauge,
+  Layers,
+  Globe2,
+  MapPin,
+  EarthLock,
+  MapPlus,
+} from 'lucide-react'
 
 export enum FilterIconName {
   DisplayID = 'DisplayID',
@@ -11,6 +33,17 @@ export enum FilterIconName {
   Date = 'Date',
   Cost = 'Cost',
   ID = 'ID',
+  Access = 'Access',
+  Category = 'Category',
+  Subcategory = 'Subcategory',
+  Source = 'Source',
+  Team = 'Team',
+  Tier = 'Tier',
+  Criticality = 'Criticality',
+  Environment = 'Environment',
+  Location = 'Location',
+  Region = 'Region',
+  Security = 'Security',
 }
 
 export const FilterIcons: Record<FilterIconName, LucideIcon> = {
@@ -24,4 +57,15 @@ export const FilterIcons: Record<FilterIconName, LucideIcon> = {
   [FilterIconName.Date]: CalendarClock,
   [FilterIconName.Cost]: CircleDollarSign,
   [FilterIconName.ID]: IdCard,
+  [FilterIconName.Access]: ScanEye,
+  [FilterIconName.Category]: Folder,
+  [FilterIconName.Subcategory]: FolderTree,
+  [FilterIconName.Source]: GitBranch,
+  [FilterIconName.Team]: Building2,
+  [FilterIconName.Tier]: Layers,
+  [FilterIconName.Criticality]: CircleGauge,
+  [FilterIconName.Environment]: Globe2,
+  [FilterIconName.Location]: MapPin,
+  [FilterIconName.Security]: EarthLock,
+  [FilterIconName.Region]: MapPlus,
 }

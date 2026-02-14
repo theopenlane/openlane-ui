@@ -65,25 +65,13 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <SelectField
-        name="accessModelName"
-        label="Access Model"
+        name="assetType"
+        label="Type"
         isEditing={isEditing}
         isEditAllowed={isEditAllowed}
         isCreate={isCreate}
         data={data}
-        options={accessModelOptions}
-        internalEditing={internalEditing}
-        setInternalEditing={setInternalEditing}
-      />
-
-      <SelectField
-        name="assetDataClassificationName"
-        label="Data Classification"
-        isEditing={isEditing}
-        isEditAllowed={isEditAllowed}
-        isCreate={isCreate}
-        data={data}
-        options={assetDataClassificationOptions}
+        options={assetTypeOptions}
         internalEditing={internalEditing}
         setInternalEditing={setInternalEditing}
         handleUpdate={handleUpdateField}
@@ -103,39 +91,13 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
       />
 
       <SelectField
-        name="assetType"
-        label="Type"
+        name="environmentName"
+        label="Environment"
         isEditing={isEditing}
         isEditAllowed={isEditAllowed}
         isCreate={isCreate}
         data={data}
-        options={assetTypeOptions}
-        internalEditing={internalEditing}
-        setInternalEditing={setInternalEditing}
-        handleUpdate={handleUpdateField}
-      />
-
-      <TextField
-        name="costCenter"
-        label="Cost Center"
-        isEditing={isEditing}
-        isEditAllowed={isEditAllowed}
-        isCreate={isCreate}
-        data={data}
-        placeholder="Enter cost center"
-        internalEditing={internalEditing}
-        setInternalEditing={setInternalEditing}
-        handleUpdate={handleUpdateField}
-      />
-
-      <TextField
-        name="cpe"
-        label="CPE"
-        isEditing={isEditing}
-        isEditAllowed={isEditAllowed}
-        isCreate={isCreate}
-        data={data}
-        placeholder="Enter CPE"
+        options={environmentOptions}
         internalEditing={internalEditing}
         setInternalEditing={setInternalEditing}
         handleUpdate={handleUpdateField}
@@ -155,40 +117,40 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
       />
 
       <SelectField
-        name="encryptionStatusName"
-        label="Encryption Status"
+        name="sourceType"
+        label="Source Type"
         isEditing={isEditing}
         isEditAllowed={isEditAllowed}
         isCreate={isCreate}
         data={data}
-        options={encryptionStatusOptions}
+        options={assetSourceTypeOptions}
+        internalEditing={internalEditing}
+        setInternalEditing={setInternalEditing}
+        useCustomDisplay={false}
+        handleUpdate={handleUpdateField}
+      />
+
+      <TextField
+        name="sourceIdentifier"
+        label="Source Identifier"
+        isEditing={isEditing}
+        isEditAllowed={isEditAllowed}
+        isCreate={isCreate}
+        data={data}
+        placeholder="Enter source identifier"
         internalEditing={internalEditing}
         setInternalEditing={setInternalEditing}
         handleUpdate={handleUpdateField}
       />
 
       <SelectField
-        name="environmentName"
-        label="Environment"
+        name="scopeName"
+        label="Scope"
         isEditing={isEditing}
         isEditAllowed={isEditAllowed}
         isCreate={isCreate}
         data={data}
-        options={environmentOptions}
-        internalEditing={internalEditing}
-        setInternalEditing={setInternalEditing}
-        handleUpdate={handleUpdateField}
-      />
-
-      <TextField
-        name="estimatedMonthlyCost"
-        label="Estimated Monthly Cost"
-        type="number"
-        isEditing={isEditing}
-        isEditAllowed={isEditAllowed}
-        isCreate={isCreate}
-        data={data}
-        placeholder="Enter estimated monthly cost"
+        options={scopeOptions}
         internalEditing={internalEditing}
         setInternalEditing={setInternalEditing}
         handleUpdate={handleUpdateField}
@@ -221,19 +183,6 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
       />
 
       <TextField
-        name="purchaseDate"
-        label="Purchase Date"
-        type="date"
-        isEditing={isEditing}
-        isEditAllowed={isEditAllowed}
-        isCreate={isCreate}
-        data={data}
-        internalEditing={internalEditing}
-        setInternalEditing={setInternalEditing}
-        handleUpdate={handleUpdateField}
-      />
-
-      <TextField
         name="region"
         label="Region"
         isEditing={isEditing}
@@ -247,13 +196,13 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
       />
 
       <SelectField
-        name="scopeName"
-        label="Scope"
+        name="assetDataClassificationName"
+        label="Data Classification"
         isEditing={isEditing}
         isEditAllowed={isEditAllowed}
         isCreate={isCreate}
         data={data}
-        options={scopeOptions}
+        options={assetDataClassificationOptions}
         internalEditing={internalEditing}
         setInternalEditing={setInternalEditing}
         handleUpdate={handleUpdateField}
@@ -272,30 +221,81 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
         handleUpdate={handleUpdateField}
       />
 
-      <TextField
-        name="sourceIdentifier"
-        label="Source Identifier"
+      <SelectField
+        name="encryptionStatusName"
+        label="Encryption Status"
         isEditing={isEditing}
         isEditAllowed={isEditAllowed}
         isCreate={isCreate}
         data={data}
-        placeholder="Enter source identifier"
+        options={encryptionStatusOptions}
         internalEditing={internalEditing}
         setInternalEditing={setInternalEditing}
         handleUpdate={handleUpdateField}
       />
 
       <SelectField
-        name="sourceType"
-        label="Source Type"
+        name="accessModelName"
+        label="Access Model"
         isEditing={isEditing}
         isEditAllowed={isEditAllowed}
         isCreate={isCreate}
         data={data}
-        options={assetSourceTypeOptions}
+        options={accessModelOptions}
         internalEditing={internalEditing}
         setInternalEditing={setInternalEditing}
-        useCustomDisplay={false}
+      />
+
+      <TextField
+        name="costCenter"
+        label="Cost Center"
+        isEditing={isEditing}
+        isEditAllowed={isEditAllowed}
+        isCreate={isCreate}
+        data={data}
+        placeholder="Enter cost center"
+        internalEditing={internalEditing}
+        setInternalEditing={setInternalEditing}
+        handleUpdate={handleUpdateField}
+      />
+
+      <TextField
+        name="cpe"
+        label="CPE (Common Platform Enumeration)"
+        isEditing={isEditing}
+        isEditAllowed={isEditAllowed}
+        isCreate={isCreate}
+        data={data}
+        placeholder="Enter CPE"
+        internalEditing={internalEditing}
+        setInternalEditing={setInternalEditing}
+        handleUpdate={handleUpdateField}
+      />
+
+      <TextField
+        name="estimatedMonthlyCost"
+        label="Estimated Monthly Cost"
+        type="number"
+        isEditing={isEditing}
+        isEditAllowed={isEditAllowed}
+        isCreate={isCreate}
+        data={data}
+        placeholder="Enter estimated monthly cost"
+        internalEditing={internalEditing}
+        setInternalEditing={setInternalEditing}
+        handleUpdate={handleUpdateField}
+      />
+
+      <TextField
+        name="purchaseDate"
+        label="Purchase Date"
+        type="date"
+        isEditing={isEditing}
+        isEditAllowed={isEditAllowed}
+        isCreate={isCreate}
+        data={data}
+        internalEditing={internalEditing}
+        setInternalEditing={setInternalEditing}
         handleUpdate={handleUpdateField}
       />
 
