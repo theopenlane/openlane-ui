@@ -77,31 +77,6 @@ export const QuestionnairesTable = () => {
       return { [key]: value } as AssessmentWhereInput
     })
 
-    // Merge due-date bounds so the same response must satisfy the full range
-    const andConditions = generated.and as AssessmentWhereInput[] | undefined
-    if (andConditions?.length) {
-      const mergedResponseWhere: Record<string, unknown> = {}
-      const rest: AssessmentWhereInput[] = []
-
-      for (const cond of andConditions) {
-        if (cond.hasAssessmentResponsesWith?.length) {
-          for (const rw of cond.hasAssessmentResponsesWith) {
-            Object.assign(mergedResponseWhere, rw)
-          }
-        } else {
-          rest.push(cond)
-        }
-      }
-
-      if (Object.keys(mergedResponseWhere).length > 0) {
-        rest.push({
-          hasAssessmentResponsesWith: [mergedResponseWhere],
-        } as AssessmentWhereInput)
-      }
-
-      generated.and = rest.length > 0 ? rest : undefined
-    }
-
     return { ...base, ...generated }
   }, [filters, debouncedSearch])
 

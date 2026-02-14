@@ -1,9 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { Button } from '@repo/ui/button'
-import { Sparkles, Loader2, Smile } from 'lucide-react'
+import { Sparkles, Loader2, Smile, Meh, Frown } from 'lucide-react'
 import { aiEnabled } from '@repo/dally/ai'
 import { extractQuestions } from './responses-tab/extract-questions'
 
@@ -25,10 +25,10 @@ type AISummaryCardProps = {
   }>
 }
 
-const sentimentConfig: Record<string, { color: string; bgColor: string }> = {
-  Positive: { color: 'text-[#09151d]', bgColor: 'bg-svg-secondary' },
-  Neutral: { color: 'text-[#09151d]', bgColor: 'bg-teal-400' },
-  Negative: { color: 'text-red-400', bgColor: 'bg-red-400' },
+const sentimentConfig: Record<string, { color: string; bgColor: string; Icon: React.ComponentType<{ className?: string }> }> = {
+  Positive: { color: 'text-[#09151d]', bgColor: 'bg-svg-secondary', Icon: Smile },
+  Neutral: { color: 'text-[#ff842c]', bgColor: 'bg-warning/16', Icon: Meh },
+  Negative: { color: 'text-destructive', bgColor: 'bg-destructive/16', Icon: Frown },
 }
 
 export const AISummaryCard = ({ jsonconfig, responses }: AISummaryCardProps) => {
@@ -103,9 +103,7 @@ export const AISummaryCard = ({ jsonconfig, responses }: AISummaryCardProps) => 
               <div className="flex items-center gap-3">
                 <span className="text-sm text-muted-foreground">Overall Sentiment:</span>
                 <div className="flex items-center gap-2">
-                  <div className={`flex h-8 w-8 items-center justify-center rounded-full ${sentiment?.bgColor}`}>
-                    <Smile className={`h-5 w-5 ${sentiment?.color}`} />
-                  </div>
+                  <div className={`flex h-8 w-8 items-center justify-center rounded-full ${sentiment?.bgColor}`}>{sentiment && <sentiment.Icon className={`h-5 w-5 ${sentiment.color}`} />}</div>
                   <span className="text-sm font-bold">{result.overall_sentiment}</span>
                 </div>
               </div>
