@@ -3,8 +3,8 @@
 import { DataTable, getInitialSortConditions } from '@repo/ui/data-table'
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { getTemplateColumns } from './columns'
-import TemplateTableToolbar from '@/components/pages/protected/template/table/template-table-toolbar.tsx'
-import { TEMPLATE_SORT_FIELDS } from '@/components/pages/protected/template/table/table-config.ts'
+import TemplateTableToolbar from '@/components/pages/protected/questionnaire/template/table/template-table-toolbar.tsx'
+import { TEMPLATE_SORT_FIELDS } from '@/components/pages/protected/questionnaire/template/table/table-config.ts'
 import { OrderDirection, Template, TemplateOrderField, TemplateWhereInput, FilterTemplatesQueryVariables, TemplateTemplateKind } from '@repo/codegen/src/schema.ts'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
@@ -112,7 +112,7 @@ export const TemplatesTable = () => {
 
   const handleEdit = useCallback(
     (template: Template) => {
-      router.push(`/templates/template-editor?id=${template.id}`)
+      router.push(`/questionnaires/templates/template-editor?id=${template.id}`)
     },
     [router],
   )
@@ -169,14 +169,14 @@ export const TemplatesTable = () => {
   }
 
   const handleRowClick = (row: Template) => {
-    router.push(`/templates/template-viewer?id=${row.id}`)
+    router.push(`/questionnaires/templates/template-viewer?id=${row.id}`)
   }
 
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
       { label: 'Questionnaires', href: '/questionnaires' },
-      { label: 'Templates', href: '/templates' },
+      { label: 'Templates', href: '/questionnaires/templates' },
     ])
   }, [setCrumbs])
 

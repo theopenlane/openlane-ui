@@ -8,7 +8,7 @@ import { canEdit } from '@/lib/authz/utils.ts'
 import ProtectedArea from '@/components/shared/protected-area/protected-area.tsx'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 
-const TemplateEditor = dynamic(() => import('@/components/pages/protected/template/template-editor'), {
+const TemplateEditor = dynamic(() => import('@/components/pages/protected/questionnaire/template/template-editor'), {
   ssr: false,
 })
 
