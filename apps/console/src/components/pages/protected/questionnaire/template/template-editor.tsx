@@ -10,13 +10,13 @@ import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import 'survey-core/survey-core.min.css'
 import 'survey-creator-core/survey-creator-core.min.css'
 
-import { lightTheme } from '../questionnaire/theme-light'
-import { darkTheme } from '../questionnaire/theme-dark'
+import { lightTheme } from '../theme-light'
+import { darkTheme } from '../theme-dark'
 import { useNotification } from '@/hooks/useNotification'
 import { Panel } from '@repo/ui/panel'
 import { useRouter } from 'next/navigation'
 
-import '../questionnaire/custom.css'
+import '../custom.css'
 import { surveyLicenseKey } from '@repo/dally/auth'
 import { useCreateTemplate, useGetTemplate, useUpdateTemplate } from '@/lib/graphql-hooks/templates'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -61,7 +61,7 @@ export default function CreateTemplate(input: { templateId: string; existingId: 
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
       { label: 'Questionnaires', href: '/questionnaires' },
-      { label: 'Templates', href: '/templates' },
+      { label: 'Templates', href: '/questionnaires/templates' },
       { label: 'Template Editor', href: '/template-editor' },
     ])
   }, [setCrumbs])
@@ -115,7 +115,7 @@ export default function CreateTemplate(input: { templateId: string; existingId: 
           title: 'Template updated successfully',
         })
 
-        router.push(`/templates`)
+        router.push(`/questionnaires/templates`)
       } catch (error) {
         const errorMessage = parseErrorMessage(error)
         errorNotification({
@@ -139,7 +139,7 @@ export default function CreateTemplate(input: { templateId: string; existingId: 
         title: 'Template created successfully',
       })
 
-      router.push(`/templates`)
+      router.push(`/questionnaires/templates`)
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
       errorNotification({

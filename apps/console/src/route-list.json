@@ -170,6 +170,18 @@
     "name": "Questionnaire Viewer"
   },
   {
+    "route": "/questionnaires/templates",
+    "name": "Templates"
+  },
+  {
+    "route": "/questionnaires/templates/template-editor",
+    "name": "Template Editor"
+  },
+  {
+    "route": "/questionnaires/templates/template-viewer",
+    "name": "Template Viewer"
+  },
+  {
     "route": "/reporting",
     "name": "Reporting",
     "hidden": true
@@ -197,16 +209,8 @@
     "name": "Tasks"
   },
   {
-    "route": "/templates",
-    "name": "Templates"
-  },
-  {
-    "route": "/templates/template-editor",
-    "name": "Template Editor"
-  },
-  {
-    "route": "/templates/template-viewer",
-    "name": "Template Viewer"
+    "route": "/trust-center/analytics",
+    "name": "Analytics"
   },
   {
     "route": "/trust-center/branding",
@@ -232,6 +236,14 @@
     "route": "/trust-center/frameworks",
     "name": "Frameworks",
     "hidden": true
+  },
+  {
+    "route": "/trust-center/NDAs",
+    "name": "NDAs"
+  },
+  {
+    "route": "/trust-center/overview",
+    "name": "Overview"
   },
   {
     "route": "/trust-center/reports-and-certifications",

@@ -59442,6 +59442,7 @@ export type FilterAssessmentsQuery = {
         updatedAt?: any | null
         createdBy?: string | null
         updatedBy?: string | null
+        template?: { __typename?: 'Template'; id: string; name: string } | null
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
@@ -59492,11 +59493,96 @@ export type CreateAssessmentResponseMutation = {
   }
 }
 
+export type GetAssessmentDetailQueryVariables = Exact<{
+  getAssessmentId: Scalars['ID']['input']
+  where?: InputMaybe<AssessmentResponseWhereInput>
+  orderBy?: InputMaybe<Array<AssessmentResponseOrder> | AssessmentResponseOrder>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type GetAssessmentDetailQuery = {
+  __typename?: 'Query'
+  assessment: {
+    __typename?: 'Assessment'
+    id: string
+    name: string
+    assessmentType: AssessmentAssessmentType
+    jsonconfig?: any | null
+    uischema?: any | null
+    templateID?: string | null
+    responseDueDuration?: number | null
+    tags?: Array<string> | null
+    createdAt?: any | null
+    updatedAt?: any | null
+    assessmentResponses: {
+      __typename?: 'AssessmentResponseConnection'
+      totalCount: number
+      edges?: Array<{
+        __typename?: 'AssessmentResponseEdge'
+        node?: {
+          __typename?: 'AssessmentResponse'
+          id: string
+          email: string
+          dueDate?: any | null
+          status: AssessmentResponseAssessmentResponseStatus
+          sendAttempts: number
+          assignedAt: any
+          startedAt: any
+          completedAt?: any | null
+          emailDeliveredAt?: any | null
+          isTest: boolean
+          createdAt?: any | null
+          document?: { __typename?: 'DocumentData'; id: string; data: any } | null
+        } | null
+      } | null> | null
+      pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
+    }
+  }
+}
+
+export type GetAssessmentRecipientsTotalCountQueryVariables = Exact<{
+  getAssessmentId: Scalars['ID']['input']
+}>
+
+export type GetAssessmentRecipientsTotalCountQuery = {
+  __typename?: 'Query'
+  assessment: { __typename?: 'Assessment'; id: string; assessmentResponses: { __typename?: 'AssessmentResponseConnection'; totalCount: number } }
+}
+
+export type GetAssessmentResponsesTotalCountQueryVariables = Exact<{
+  getAssessmentId: Scalars['ID']['input']
+  where?: InputMaybe<AssessmentResponseWhereInput>
+}>
+
+export type GetAssessmentResponsesTotalCountQuery = {
+  __typename?: 'Query'
+  assessment: { __typename?: 'Assessment'; id: string; assessmentResponses: { __typename?: 'AssessmentResponseConnection'; totalCount: number } }
+}
+
 export type DeleteBulkAssessmentMutationVariables = Exact<{
   ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
 }>
 
 export type DeleteBulkAssessmentMutation = { __typename?: 'Mutation'; deleteBulkAssessment: { __typename?: 'AssessmentBulkDeletePayload'; deletedIDs: Array<string> } }
+
+export type GetContactsQueryVariables = Exact<{
+  where?: InputMaybe<ContactWhereInput>
+  first?: InputMaybe<Scalars['Int']['input']>
+}>
+
+export type GetContactsQuery = {
+  __typename?: 'Query'
+  contacts: {
+    __typename?: 'ContactConnection'
+    edges?: Array<{
+      __typename?: 'ContactEdge'
+      node?: { __typename?: 'Contact'; id: string; fullName?: string | null; email?: string | null; company?: string | null; title?: string | null; status: ContactUserStatus } | null
+    } | null> | null
+  }
+}
 
 export type ControlImplementationFieldsFragment = {
   __typename?: 'ControlImplementation'
@@ -64396,6 +64482,10 @@ export type FilterTemplatesQuery = {
         updatedAt?: any | null
         updatedBy?: string | null
         createdBy?: string | null
+        environmentName?: string | null
+        kind?: TemplateTemplateKind | null
+        scopeName?: string | null
+        systemOwned?: boolean | null
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }

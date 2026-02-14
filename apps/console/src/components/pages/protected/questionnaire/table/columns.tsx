@@ -3,11 +3,24 @@ import { Assessment, User } from '@repo/codegen/src/schema'
 import { formatDate, formatTimeSince } from '@/utils/date'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { Checkbox } from '@repo/ui/checkbox'
+import { Button } from '@repo/ui/button'
+import { Badge } from '@repo/ui/badge'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
+import { MoreHorizontal, Send, Pencil, Eye, Trash2, FileText } from 'lucide-react'
+import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 
 type Params = {
   userMap?: Record<string, User>
   selectedQuestionnaires: { id: string }[]
   setSelectedQuestionnaires: React.Dispatch<React.SetStateAction<{ id: string }[]>>
+  onSend?: (assessment: Assessment) => void
+  onEdit?: (assessment: Assessment) => void
+  onPreview?: (assessment: Assessment) => void
+  onViewDetails?: (assessment: Assessment) => void
+  onDelete?: (assessment: Assessment) => void
+  canSend?: boolean
+  canEdit?: boolean
+  canDelete?: boolean
 }
 
 export const getQuestionnaireColumns = (params?: Params) => {
@@ -75,6 +88,47 @@ export const getQuestionnaireColumns = (params?: Params) => {
       minSize: 150,
     },
     {
+      accessorKey: 'title',
+      header: 'Title',
+      size: 200,
+      accessorFn: (row) => row.jsonconfig?.title ?? '-',
+      cell: ({ getValue }) => <span>{getValue() as string}</span>,
+    },
+    {
+      accessorKey: 'assessmentType',
+      header: 'Type',
+      size: 120,
+      cell: ({ cell }) => {
+        const value = cell.getValue() as string
+        return <Badge variant="outline">{value === 'INTERNAL' ? 'Internal' : 'External'}</Badge>
+      },
+    },
+    {
+      accessorKey: 'tags',
+      header: 'Tags',
+      size: 140,
+      cell: ({ row }) => {
+        const tags = row?.original?.tags
+        if (!tags?.length) {
+          return '-'
+        }
+        return (
+          <div className="flex gap-2 flex-wrap">
+            {tags.map((tag) => (
+              <TagChip key={tag} tag={tag} />
+            ))}
+          </div>
+        )
+      },
+    },
+    {
+      id: 'templateName',
+      header: 'Template Name',
+      size: 180,
+      accessorFn: (row) => row.template?.name ?? '-',
+      cell: ({ getValue }) => <span>{getValue() as string}</span>,
+    },
+    {
       accessorKey: 'createdBy',
       header: 'Created by',
       size: 200,
@@ -120,13 +174,71 @@ export const getQuestionnaireColumns = (params?: Params) => {
       size: 100,
       cell: ({ cell }) => <span className="whitespace-nowrap">{formatTimeSince(cell.getValue() as string)}</span>,
     },
+    {
+      id: 'actions',
+      header: '',
+      cell: ({ row }) => {
+        const canSend = !!params?.canSend
+        const canEditQuestionnaire = !!params?.canEdit
+        const canDeleteQuestionnaire = !!params?.canDelete
+        const hasAnyAction = canSend || canEditQuestionnaire || canDeleteQuestionnaire || !!params?.onPreview || !!params?.onViewDetails
+
+        if (!hasAnyAction) {
+          return null
+        }
+
+        return (
+          <div onClick={(e) => e.stopPropagation()} className="flex justify-end">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="secondary">
+                  <MoreHorizontal className="h-4 w-4 text-brand" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="min-w-40">
+                <DropdownMenuItem onClick={() => params?.onViewDetails?.(row.original)}>
+                  <FileText className="h-4 w-4" />
+                  View Details
+                </DropdownMenuItem>
+                {canSend && (
+                  <DropdownMenuItem onClick={() => params?.onSend?.(row.original)}>
+                    <Send className="h-4 w-4" />
+                    Send
+                  </DropdownMenuItem>
+                )}
+                {canEditQuestionnaire && (
+                  <DropdownMenuItem onClick={() => params?.onEdit?.(row.original)}>
+                    <Pencil className="h-4 w-4" />
+                    Edit
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuItem onClick={() => params?.onPreview?.(row.original)}>
+                  <Eye className="h-4 w-4" />
+                  Preview
+                </DropdownMenuItem>
+                {canDeleteQuestionnaire && (
+                  <DropdownMenuItem className="text-destructive focus:text-destructive focus:bg-destructive/10" onClick={() => params?.onDelete?.(row.original)}>
+                    <Trash2 className="h-4 w-4" />
+                    Delete
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        )
+      },
+      size: 40,
+    },
   ]
 
   const mappedColumns = columns
-    .filter((column): column is { accessorKey: string; header: string } => 'accessorKey' in column && typeof column.accessorKey === 'string' && 'header' in column && typeof column.header === 'string')
+    .filter((column): column is ColumnDef<Assessment> & { header: string } => {
+      if (typeof column.header !== 'string') return false
+      return ('accessorKey' in column && typeof column.accessorKey === 'string') || ('id' in column && typeof column.id === 'string' && column.id !== 'select' && column.id !== 'actions')
+    })
     .map((column) => ({
-      accessorKey: column.accessorKey,
-      header: column.header,
+      accessorKey: 'accessorKey' in column && typeof column.accessorKey === 'string' ? column.accessorKey : (column as { id: string }).id,
+      header: column.header as string,
     }))
 
   return { columns, mappedColumns }

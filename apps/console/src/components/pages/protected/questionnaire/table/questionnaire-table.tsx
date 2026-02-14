@@ -1,7 +1,7 @@
 'use client'
 
 import { DataTable, getInitialSortConditions } from '@repo/ui/data-table'
-import React, { useContext, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { getQuestionnaireColumns } from './columns'
 import QuestionnaireTableToolbar from '@/components/pages/protected/questionnaire/table/questionnaire-table-toolbar.tsx'
 import { QUESTIONNAIRE_SORT_FIELDS } from '@/components/pages/protected/questionnaire/table/table-config.ts'
@@ -9,30 +9,41 @@ import { OrderDirection, Assessment, AssessmentOrderField, AssessmentWhereInput,
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useDebounce } from '@uidotdev/usehooks'
-import { useAssessments } from '@/lib/graphql-hooks/assessments'
+import { useAssessments, useDeleteAssessment } from '@/lib/graphql-hooks/assessments'
 import { useRouter } from 'next/navigation'
 import { ColumnDef, VisibilityState } from '@tanstack/react-table'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { exportToCSV } from '@/utils/exportToCSV'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/members'
 import { useNotification } from '@/hooks/useNotification'
+import { whereGenerator } from '@/components/shared/table-filter/where-generator'
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
 import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
 import { TableKeyEnum } from '@repo/ui/table-key'
-import { canEdit } from '@/lib/authz/utils.ts'
+import { canDelete, canEdit } from '@/lib/authz/utils.ts'
+import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { SendQuestionnaireDialog } from '@/components/pages/protected/questionnaire/dialog/send-questionnaire-dialog'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 
 export const QuestionnairesTable = () => {
   const router = useRouter()
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
   const [filters, setFilters] = useState<AssessmentWhereInput | null>(null)
   const { setCrumbs } = useContext(BreadcrumbContext)
-  const { errorNotification } = useNotification()
+  const { successNotification, errorNotification } = useNotification()
   const [selectedQuestionnaires, setSelectedQuestionnaires] = useState<{ id: string }[]>([])
+
+  const [deleteTarget, setDeleteTarget] = useState<Assessment | null>(null)
+  const [sendTarget, setSendTarget] = useState<Assessment | null>(null)
+
+  const { mutateAsync: deleteAssessment } = useDeleteAssessment()
+  const { data: permission } = useOrganizationRoles()
 
   const defaultSorting = getInitialSortConditions(TableKeyEnum.QUESTIONNAIRE, AssessmentOrderField, [
     {
-      field: AssessmentOrderField.name,
-      direction: OrderDirection.ASC,
+      field: AssessmentOrderField.updated_at,
+      direction: OrderDirection.DESC,
     },
   ])
   const [orderBy, setOrderBy] = useState<FilterAssessmentsQueryVariables['orderBy']>(defaultSorting)
@@ -43,6 +54,9 @@ export const QuestionnairesTable = () => {
     id: false,
     updatedBy: false,
     createdBy: false,
+    title: false,
+    tags: false,
+    templateName: false,
   }
 
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableColumnVisibilityKeysEnum.QUESTIONNAIRE, defaultVisibility))
@@ -51,10 +65,19 @@ export const QuestionnairesTable = () => {
   const debouncedSearch = useDebounce(searchTerm, 300)
 
   const whereFilter = useMemo(() => {
-    return {
+    const base: AssessmentWhereInput = {
       nameContainsFold: debouncedSearch,
-      ...filters,
     }
+
+    const generated = whereGenerator<AssessmentWhereInput>(filters, (key, value) => {
+      if (key.startsWith('dueDate')) {
+        return { hasAssessmentResponsesWith: [{ [key]: value }] } as AssessmentWhereInput
+      }
+
+      return { [key]: value } as AssessmentWhereInput
+    })
+
+    return { ...base, ...generated }
   }, [filters, debouncedSearch])
 
   const {
@@ -91,29 +114,118 @@ export const QuestionnairesTable = () => {
     return map
   }, [users])
 
-  const { columns, mappedColumns } = getQuestionnaireColumns({ userMap, selectedQuestionnaires, setSelectedQuestionnaires })
+  const handleViewDetails = useCallback(
+    (assessment: Assessment) => {
+      router.push(`/questionnaires/${assessment.id}`)
+    },
+    [router],
+  )
 
-  function isVisibleColumn<T>(col: ColumnDef<T>): col is ColumnDef<T> & { accessorKey: string; header: string } {
-    return 'accessorKey' in col && typeof col.accessorKey === 'string' && typeof col.header === 'string' && columnVisibility[col.accessorKey] !== false
+  const handleSend = useCallback((assessment: Assessment) => {
+    setSendTarget(assessment)
+  }, [])
+
+  const handleEdit = useCallback(
+    (assessment: Assessment) => {
+      router.push(`/questionnaires/questionnaire-editor?id=${assessment.id}`)
+    },
+    [router],
+  )
+
+  const handlePreview = useCallback(
+    (assessment: Assessment) => {
+      router.push(`/questionnaires/questionnaire-viewer?id=${assessment.id}`)
+    },
+    [router],
+  )
+
+  const handleDelete = useCallback((assessment: Assessment) => {
+    setDeleteTarget(assessment)
+  }, [])
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return
+    try {
+      await deleteAssessment({ deleteAssessmentId: deleteTarget.id })
+      successNotification({ title: 'Questionnaire deleted successfully' })
+      setDeleteTarget(null)
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
+      errorNotification({ title: 'Error', description: errorMessage })
+    }
   }
+
+  const { columns, mappedColumns } = getQuestionnaireColumns({
+    userMap,
+    selectedQuestionnaires,
+    setSelectedQuestionnaires,
+    onSend: handleSend,
+    onEdit: handleEdit,
+    onPreview: handlePreview,
+    onViewDetails: handleViewDetails,
+    onDelete: handleDelete,
+    canSend: canEdit(permission?.roles),
+    canEdit: canEdit(permission?.roles),
+    canDelete: canDelete(permission?.roles),
+  })
+
+  const getColumnExportKey = <T,>(col: ColumnDef<T>): string | null => {
+    if ('accessorKey' in col && typeof col.accessorKey === 'string') return col.accessorKey
+    if ('id' in col && typeof col.id === 'string') return col.id
+    return null
+  }
+
+  const getExportValue = useCallback(
+    (assessment: Assessment, key: string): string | number => {
+      switch (key) {
+        case 'title': {
+          if (assessment.jsonconfig && typeof assessment.jsonconfig === 'object') {
+            const title = (assessment.jsonconfig as Record<string, unknown>).title
+            return typeof title === 'string' ? title : ''
+          }
+          return ''
+        }
+        case 'templateName':
+          return assessment.template?.name ?? ''
+        case 'tags':
+          return assessment.tags?.join(', ') ?? ''
+        case 'createdBy':
+          return userMap[assessment.createdBy ?? '']?.displayName ?? 'Deleted user'
+        case 'updatedBy':
+          return userMap[assessment.updatedBy ?? '']?.displayName ?? 'Deleted user'
+        default: {
+          const value = assessment[key as keyof Assessment]
+          if (typeof value === 'string' || typeof value === 'number') return value
+          if (typeof value === 'boolean') return value ? 'Yes' : 'No'
+          return ''
+        }
+      }
+    },
+    [userMap],
+  )
+
   const handleExport = () => {
     if (!assessments || assessments.length === 0) return
-    const exportableColumns = columns.filter(isVisibleColumn).map((col) => {
-      const key = col.accessorKey as keyof Assessment
-      const label = col.header
-      return {
-        label,
-        accessor: (assessment: Assessment) => {
-          const value = assessment[key]
-          return typeof value === 'string' || typeof value === 'number' ? value : ''
-        },
-      }
-    })
+    const exportableColumns = columns
+      .filter((col) => {
+        const key = getColumnExportKey(col)
+        return key !== null && key !== 'select' && key !== 'actions' && typeof col.header === 'string' && columnVisibility[key] !== false
+      })
+      .map((col) => {
+        const key = getColumnExportKey(col)!
+        const label = col.header as string
+        return {
+          label,
+          accessor: (assessment: Assessment) => getExportValue(assessment, key),
+        }
+      })
+
+    if (exportableColumns.length === 0) return
     exportToCSV(assessments, exportableColumns, 'questionnaires_list')
   }
 
   const handleRowClick = (row: Assessment) => {
-    router.push(`/questionnaires/questionnaire-viewer?id=${row.id}`)
+    router.push(`/questionnaires/${row.id}`)
   }
 
   useEffect(() => {
@@ -137,40 +249,57 @@ export const QuestionnairesTable = () => {
   }
 
   return (
-    <div>
-      <QuestionnaireTableToolbar
-        handleExport={handleExport}
-        creating={fetching}
-        searchTerm={searchTerm}
-        setSearchTerm={(inputVal) => {
-          setSearchTerm(inputVal)
-          setPagination(DEFAULT_PAGINATION)
-        }}
-        setFilters={setFilters}
-        mappedColumns={mappedColumns}
-        columnVisibility={columnVisibility}
-        setColumnVisibility={setColumnVisibility}
-        exportEnabled={assessments && assessments.length > 0}
-        selectedQuestionnaires={selectedQuestionnaires}
-        setSelectedQuestionnaires={setSelectedQuestionnaires}
-        canEdit={canEdit}
-        handleClearSelectedQuestionnaires={handleClearSelectedQuestionnaires}
+    <>
+      <div>
+        <QuestionnaireTableToolbar
+          handleExport={handleExport}
+          creating={fetching}
+          searchTerm={searchTerm}
+          setSearchTerm={(inputVal) => {
+            setSearchTerm(inputVal)
+            setPagination(DEFAULT_PAGINATION)
+          }}
+          setFilters={setFilters}
+          mappedColumns={mappedColumns}
+          columnVisibility={columnVisibility}
+          setColumnVisibility={setColumnVisibility}
+          exportEnabled={assessments && assessments.length > 0}
+          selectedQuestionnaires={selectedQuestionnaires}
+          setSelectedQuestionnaires={setSelectedQuestionnaires}
+          canEdit={canEdit}
+          handleClearSelectedQuestionnaires={handleClearSelectedQuestionnaires}
+        />
+        <DataTable
+          sortFields={QUESTIONNAIRE_SORT_FIELDS}
+          onSortChange={setOrderBy}
+          columns={columns}
+          data={assessments}
+          loading={fetching || fetchingUsers}
+          pagination={pagination}
+          onPaginationChange={setPagination}
+          paginationMeta={paginationMeta}
+          onRowClick={handleRowClick}
+          columnVisibility={columnVisibility}
+          setColumnVisibility={setColumnVisibility}
+          defaultSorting={defaultSorting}
+          tableKey={TableKeyEnum.QUESTIONNAIRE}
+        />
+      </div>
+
+      <SendQuestionnaireDialog open={!!sendTarget} onOpenChange={(open) => !open && setSendTarget(null)} assessmentId={sendTarget?.id} assessmentName={sendTarget?.name} />
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmationDialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => !open && setDeleteTarget(null)}
+        onConfirm={confirmDelete}
+        title="Delete Questionnaire"
+        description={
+          <>
+            This action cannot be undone. This will permanently remove <b>{deleteTarget?.name}</b> from the organization.
+          </>
+        }
       />
-      <DataTable
-        sortFields={QUESTIONNAIRE_SORT_FIELDS}
-        onSortChange={setOrderBy}
-        columns={columns}
-        data={assessments}
-        loading={fetching || fetchingUsers}
-        pagination={pagination}
-        onPaginationChange={setPagination}
-        paginationMeta={paginationMeta}
-        onRowClick={handleRowClick}
-        columnVisibility={columnVisibility}
-        setColumnVisibility={setColumnVisibility}
-        defaultSorting={defaultSorting}
-        tableKey={TableKeyEnum.QUESTIONNAIRE}
-      />
-    </div>
+    </>
   )
 }

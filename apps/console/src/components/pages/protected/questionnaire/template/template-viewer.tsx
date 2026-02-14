@@ -7,8 +7,8 @@ import 'survey-core/survey-core.min.css'
 
 import { useEffect, useContext } from 'react'
 import { useTheme } from 'next-themes'
-import { lightTheme } from '../questionnaire/theme-light'
-import { darkTheme } from '../questionnaire/theme-dark'
+import { lightTheme } from '../theme-light'
+import { darkTheme } from '../theme-dark'
 import { useGetTemplate } from '@/lib/graphql-hooks/templates'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 
@@ -24,7 +24,7 @@ export default function ViewTemplate(input: { existingId: string }) {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
       { label: 'Questionnaires', href: '/questionnaires' },
-      { label: 'Templates', href: '/templates' },
+      { label: 'Templates', href: '/questionnaires/templates' },
       { label: 'Template Viewer', href: '/template-viewer' },
     ])
   }, [setCrumbs])

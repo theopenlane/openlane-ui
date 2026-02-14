@@ -13,7 +13,7 @@ import { canEdit } from '@/lib/authz/utils'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 
-const ViewTemplate = dynamic(() => import('@/components/pages/protected/template/template-viewer'), {
+const ViewTemplate = dynamic(() => import('@/components/pages/protected/questionnaire/template/template-viewer'), {
   ssr: false,
 })
 
@@ -31,14 +31,14 @@ const TemplateViewerPage: React.FC = () => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 
   const handleEdit = () => {
-    router.push(`/templates/template-editor?id=${existingId}`)
+    router.push(`/questionnaires/templates/template-editor?id=${existingId}`)
   }
 
   const handleDelete = async () => {
     try {
       await deleteTemplate({ deleteTemplateId: existingId })
       successNotification({ title: 'Template deleted successfully' })
-      router.push('/templates')
+      router.push('/questionnaires/templates')
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
       errorNotification({

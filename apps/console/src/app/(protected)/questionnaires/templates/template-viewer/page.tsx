@@ -1,5 +1,5 @@
 import React from 'react'
-import TemplateViewerPage from '@/components/pages/protected/template/template-viewer-page'
+import TemplateViewerPage from '@/components/pages/protected/questionnaire/template/template-viewer-page'
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {

@@ -3,11 +3,14 @@
 import React, { useEffect, useState, useMemo, useRef } from 'react'
 import { useNotification } from '@/hooks/useNotification'
 import { Survey } from 'survey-react-ui'
-import { Model } from 'survey-core'
+import { ITheme, Model } from 'survey-core'
 import { useSession } from 'next-auth/react'
+import { useTheme } from 'next-themes'
 import 'survey-core/survey-core.min.css'
 import { jwtDecode } from 'jwt-decode'
 import { useQuestionnaire, useSubmitQuestionnaire } from '@/lib/query-hooks/questionnaire'
+import { lightTheme } from '@/components/pages/protected/questionnaire/theme-light'
+import { darkTheme } from '@/components/pages/protected/questionnaire/theme-dark'
 import { CircleCheckBig } from 'lucide-react'
 
 interface QuestionnairePageProps {
@@ -33,6 +36,7 @@ export const QuestionnairePage: React.FC<QuestionnairePageProps> = ({ token }) =
   const [isSubmitted, setIsSubmitted] = useState(false)
   const { errorNotification } = useNotification()
   const { data: sessionData } = useSession()
+  const { resolvedTheme } = useTheme()
 
   const { data: questionnaireResponse, isLoading: loading } = useQuestionnaire({
     token,
@@ -89,6 +93,15 @@ export const QuestionnairePage: React.FC<QuestionnairePageProps> = ({ token }) =
   }, [questionnaireData, token, savedData])
 
   useEffect(() => {
+    if (!survey) return
+    if (resolvedTheme === 'dark') {
+      survey.applyTheme(darkTheme as ITheme)
+    } else {
+      survey.applyTheme(lightTheme)
+    }
+  }, [survey, resolvedTheme])
+
+  useEffect(() => {
     if (!token) return
 
     const isAuthenticated = !!sessionData?.user
@@ -129,7 +142,7 @@ export const QuestionnairePage: React.FC<QuestionnairePageProps> = ({ token }) =
 
   if (emailMismatch) {
     return (
-      <div className="relative z-20 shadow-2xl bg-white rounded-lg flex flex-col justify-center mx-auto my-auto py-16 px-12 w-full max-w-lg">
+      <div className="relative z-20 shadow-2xl bg-white dark:bg-card rounded-lg flex flex-col justify-center mx-auto my-auto py-16 px-12 w-full max-w-lg">
         <div className="flex flex-col items-center space-y-4">
           <p className="text-sm text-destructive font-medium">Access Denied</p>
           <p className="text-sm text-muted-foreground text-center">
@@ -143,7 +156,7 @@ export const QuestionnairePage: React.FC<QuestionnairePageProps> = ({ token }) =
 
   if (loading) {
     return (
-      <div className="relative z-20 shadow-2xl bg-white rounded-lg flex flex-col justify-center mx-auto my-auto py-16 px-12 w-full max-w-lg">
+      <div className="relative z-20 shadow-2xl bg-white dark:bg-card rounded-lg flex flex-col justify-center mx-auto my-auto py-16 px-12 w-full max-w-lg">
         <div className="flex flex-col items-center space-y-4">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
           <p className="text-sm text-muted-foreground">Loading questionnaire...</p>
@@ -154,7 +167,7 @@ export const QuestionnairePage: React.FC<QuestionnairePageProps> = ({ token }) =
 
   if (!questionnaireData) {
     return (
-      <div className="relative z-20 shadow-2xl bg-white rounded-lg flex flex-col justify-center mx-auto my-auto py-16 px-12 w-full max-w-lg">
+      <div className="relative z-20 shadow-2xl bg-white dark:bg-card rounded-lg flex flex-col justify-center mx-auto my-auto py-16 px-12 w-full max-w-lg">
         <div className="flex flex-col items-center space-y-4">
           <p className="text-sm text-muted-foreground">Unable to load questionnaire. Please try again later.</p>
         </div>
@@ -164,7 +177,7 @@ export const QuestionnairePage: React.FC<QuestionnairePageProps> = ({ token }) =
 
   if (isSubmitted) {
     return (
-      <div className="relative z-20 shadow-2xl bg-white rounded-lg flex flex-col justify-center mx-auto my-auto py-16 px-12 w-full max-w-lg">
+      <div className="relative z-20 shadow-2xl bg-white dark:bg-card rounded-lg flex flex-col justify-center mx-auto my-auto py-16 px-12 w-full max-w-lg">
         <div className="flex flex-col items-center space-y-4">
           <CircleCheckBig size={37} className="text-brand" strokeWidth={1.5} />
           <p className="text-sm font-medium text-center">Questionnaire Submitted Successfully</p>
@@ -177,7 +190,7 @@ export const QuestionnairePage: React.FC<QuestionnairePageProps> = ({ token }) =
   if (!survey) return null
 
   return (
-    <div className="relative z-20 shadow-2xl bg-white rounded-lg flex flex-col justify-center mx-auto my-auto py-8 px-6 w-full max-w-4xl">
+    <div className="relative z-20 shadow-2xl bg-white dark:bg-card rounded-lg flex flex-col justify-center mx-auto my-auto py-8 px-6 w-full max-w-4xl">
       <Survey model={survey} />
     </div>
   )

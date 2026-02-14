@@ -121,7 +121,7 @@ const QuestionnaireViewerPage: React.FC = () => {
           title: 'Template created successfully',
         })
         setIsSaveAsTemplateDialogOpen(false)
-        router.push(`/templates/template-viewer?id=${templateId}`)
+        router.push(`/questionnaires/templates/template-viewer?id=${templateId}`)
       }
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
