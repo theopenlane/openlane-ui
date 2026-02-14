@@ -7698,7 +7698,7 @@ export interface CreateEntityInput {
   /** whether SSO is enforced for the entity */
   ssoEnforced?: InputMaybe<Scalars['Boolean']['input']>
   /** status of the entity */
-  status?: InputMaybe<Scalars['String']['input']>
+  status?: InputMaybe<EntityEntityStatus>
   /** status page URL for the entity */
   statusPageURL?: InputMaybe<Scalars['String']['input']>
   subprocessorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -14940,7 +14940,7 @@ export interface Entity extends Node {
   /** whether SSO is enforced for the entity */
   ssoEnforced?: Maybe<Scalars['Boolean']['output']>
   /** status of the entity */
-  status?: Maybe<Scalars['String']['output']>
+  status?: Maybe<EntityEntityStatus>
   /** status page URL for the entity */
   statusPageURL?: Maybe<Scalars['String']['output']>
   subprocessors: SubprocessorConnection
@@ -15187,6 +15187,19 @@ export interface EntityEdge {
   cursor: Scalars['Cursor']['output']
   /** The item at the end of the edge. */
   node?: Maybe<Entity>
+}
+
+/** EntityEntityStatus is enum for the field status */
+export enum EntityEntityStatus {
+  ACTIVE = 'ACTIVE',
+  APPROVED = 'APPROVED',
+  DRAFT = 'DRAFT',
+  OFFBOARDING = 'OFFBOARDING',
+  REJECTED = 'REJECTED',
+  RESTRICTED = 'RESTRICTED',
+  SUSPENDED = 'SUSPENDED',
+  TERMINATED = 'TERMINATED',
+  UNDER_REVIEW = 'UNDER_REVIEW',
 }
 
 /** EntityFrequency is enum for the field review_frequency */
@@ -16176,20 +16189,11 @@ export interface EntityWhereInput {
   ssoEnforcedNEQ?: InputMaybe<Scalars['Boolean']['input']>
   ssoEnforcedNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** status field predicates */
-  status?: InputMaybe<Scalars['String']['input']>
-  statusContains?: InputMaybe<Scalars['String']['input']>
-  statusContainsFold?: InputMaybe<Scalars['String']['input']>
-  statusEqualFold?: InputMaybe<Scalars['String']['input']>
-  statusGT?: InputMaybe<Scalars['String']['input']>
-  statusGTE?: InputMaybe<Scalars['String']['input']>
-  statusHasPrefix?: InputMaybe<Scalars['String']['input']>
-  statusHasSuffix?: InputMaybe<Scalars['String']['input']>
-  statusIn?: InputMaybe<Array<Scalars['String']['input']>>
+  status?: InputMaybe<EntityEntityStatus>
+  statusIn?: InputMaybe<Array<EntityEntityStatus>>
   statusIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  statusLT?: InputMaybe<Scalars['String']['input']>
-  statusLTE?: InputMaybe<Scalars['String']['input']>
-  statusNEQ?: InputMaybe<Scalars['String']['input']>
-  statusNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  statusNEQ?: InputMaybe<EntityEntityStatus>
+  statusNotIn?: InputMaybe<Array<EntityEntityStatus>>
   statusNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** status_page_url field predicates */
   statusPageURL?: InputMaybe<Scalars['String']['input']>
@@ -50691,7 +50695,7 @@ export interface UpdateEntityInput {
   /** whether SSO is enforced for the entity */
   ssoEnforced?: InputMaybe<Scalars['Boolean']['input']>
   /** status of the entity */
-  status?: InputMaybe<Scalars['String']['input']>
+  status?: InputMaybe<EntityEntityStatus>
   /** status page URL for the entity */
   statusPageURL?: InputMaybe<Scalars['String']['input']>
   /** an internal identifier for the mapping, this field is only available to system admins */
@@ -63039,23 +63043,32 @@ export type RiskFieldsFragment = {
   delegate?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
   procedures: {
     __typename?: 'ProcedureConnection'
+    totalCount: number
     edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string; displayID: string; summary?: string | null } | null } | null> | null
   }
-  controls: { __typename?: 'ControlConnection'; edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; displayID: string; refCode: string } | null } | null> | null }
+  controls: {
+    __typename?: 'ControlConnection'
+    totalCount: number
+    edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; displayID: string; refCode: string } | null } | null> | null
+  }
   subcontrols: {
     __typename?: 'SubcontrolConnection'
+    totalCount: number
     edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; displayID: string; refCode: string; controlId: string } | null } | null> | null
   }
   programs: {
     __typename?: 'ProgramConnection'
+    totalCount: number
     edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; displayID: string; name: string; description?: string | null } | null } | null> | null
   }
   tasks: {
     __typename?: 'TaskConnection'
+    totalCount: number
     edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; displayID: string; title: string; details?: string | null } | null } | null> | null
   }
   internalPolicies: {
     __typename?: 'InternalPolicyConnection'
+    totalCount: number
     edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; displayID: string; name: string } | null } | null> | null
   }
 }
@@ -63108,26 +63121,32 @@ export type GetRiskByIdQuery = {
     delegate?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
     procedures: {
       __typename?: 'ProcedureConnection'
+      totalCount: number
       edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string; displayID: string; summary?: string | null } | null } | null> | null
     }
     controls: {
       __typename?: 'ControlConnection'
+      totalCount: number
       edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; displayID: string; refCode: string } | null } | null> | null
     }
     subcontrols: {
       __typename?: 'SubcontrolConnection'
+      totalCount: number
       edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; displayID: string; refCode: string; controlId: string } | null } | null> | null
     }
     programs: {
       __typename?: 'ProgramConnection'
+      totalCount: number
       edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; displayID: string; name: string; description?: string | null } | null } | null> | null
     }
     tasks: {
       __typename?: 'TaskConnection'
+      totalCount: number
       edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; displayID: string; title: string; details?: string | null } | null } | null> | null
     }
     internalPolicies: {
       __typename?: 'InternalPolicyConnection'
+      totalCount: number
       edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; displayID: string; name: string } | null } | null> | null
     }
   }
