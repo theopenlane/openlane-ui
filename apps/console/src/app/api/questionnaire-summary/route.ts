@@ -1,5 +1,5 @@
 import { auth } from '@/lib/auth/auth'
-import { VertexAI } from '@google-cloud/vertexai'
+import { VertexAI, type Part, type TextPart } from '@google-cloud/vertexai'
 import { NextRequest, NextResponse } from 'next/server'
 import { aiEnabled, googleAPIKey, googleAIRegion, googleProjectID, geminiModelName } from '@repo/dally/ai'
 import { z } from 'zod'
@@ -132,6 +132,19 @@ const parseModelSummary = (rawText: string): SummaryResponse | null => {
   return null
 }
 
+const extractResponseText = (parts: Part[] | undefined): string => {
+  if (!parts || parts.length === 0) return ''
+
+  const responseParts = parts.filter((part): part is TextPart => 'text' in part && typeof part.text === 'string' && !(part as unknown as Record<string, unknown>).thought)
+
+  if (responseParts.length === 0) {
+    const textParts = parts.filter((part): part is TextPart => 'text' in part && typeof part.text === 'string')
+    return textParts.length > 0 ? textParts[textParts.length - 1].text : ''
+  }
+
+  return responseParts.map((part) => part.text).join('')
+}
+
 const buildPrompt = (questions: z.infer<typeof requestSchema>['questions'], responses: z.infer<typeof requestSchema>['responses']): string => {
   const promptPayload = {
     questions: questions.map((question) => ({
@@ -211,6 +224,7 @@ export async function POST(req: NextRequest) {
       generationConfig: {
         temperature: 0,
         maxOutputTokens: 1024,
+        responseMimeType: 'application/json',
       },
       systemInstruction: SYSTEM_PROMPT,
     })
@@ -225,10 +239,21 @@ export async function POST(req: NextRequest) {
     })
 
     const response = await result.response
-    const text = response.candidates?.[0]?.content?.parts?.[0]?.text ?? ''
+    const text = extractResponseText(response.candidates?.[0]?.content?.parts)
     const summary = parseModelSummary(text)
 
     if (!summary) {
+      console.warn(
+        'Questionnaire summary: failed to parse model output.',
+        'Raw text length:',
+        text.length,
+        'Raw text (first 500 chars):',
+        text.slice(0, 500),
+        'Finish reason:',
+        response.candidates?.[0]?.finishReason,
+        'Parts count:',
+        response.candidates?.[0]?.content?.parts?.length,
+      )
       return NextResponse.json({ error: 'Failed to parse summary output' }, { status: 502 })
     }
 
