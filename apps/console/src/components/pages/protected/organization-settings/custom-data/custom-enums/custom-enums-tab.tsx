@@ -16,15 +16,14 @@ import { CUSTOM_ENUMS_SORT_FIELDS, useGetCustomEnumColumns } from './custom-enum
 import { CreateEnumSheet } from './create-enum-sheet'
 import { ENUM_GROUP_MAP, ENUM_GROUPS, getEnumFilter } from './custom-enums-config'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
-import { useCustomTypeEnumsPaginated, useDeleteCustomTypeEnum } from '@/lib/graphql-hooks/custom-type-enums'
+import { useCustomTypeEnumsPaginated, useDeleteCustomTypeEnum } from '@/lib/graphql-hooks/custom-type-enum'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { TPagination } from '@repo/ui/pagination-types'
 import ColumnVisibilityMenu, { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { VisibilityState } from '@tanstack/react-table'
-import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys'
 import { CustomTypeEnumOrderField, GetCustomTypeEnumsPaginatedQueryVariables, OrderDirection, User } from '@repo/codegen/src/schema'
-import { useGetOrgUserList } from '@/lib/graphql-hooks/members'
+import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
 
 type SelectedEnum = { id: string; name: string }
 
@@ -40,7 +39,7 @@ const DEFAULT_ENUM_COLUMN_VISIBILITY: VisibilityState = {
 const CustomEnumsTab: FC = () => {
   const { push } = useSmartRouter()
   const { successNotification, errorNotification } = useNotification()
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableColumnVisibilityKeysEnum.CUSTOM_ENUMS, DEFAULT_ENUM_COLUMN_VISIBILITY))
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.CUSTOM_ENUMS, DEFAULT_ENUM_COLUMN_VISIBILITY))
   const defaultSorting = getInitialSortConditions(TableKeyEnum.CUSTOM_ENUMS, CustomTypeEnumOrderField, [
     {
       field: CustomTypeEnumOrderField.name,
@@ -163,7 +162,7 @@ const CustomEnumsTab: FC = () => {
           </div>
 
           <div className="flex items-center gap-3">
-            <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableColumnVisibilityKeysEnum.CUSTOM_ENUMS} />
+            <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.CUSTOM_ENUMS} />
 
             <Input
               icon={isLoading ? <LoaderCircle className="animate-spin" size={16} /> : <SearchIcon size={16} />}

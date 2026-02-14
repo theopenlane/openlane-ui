@@ -10,13 +10,12 @@ import Menu from '@/components/shared/menu/menu.tsx'
 import { VisibilityState } from '@tanstack/react-table'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { TemplateWhereInput } from '@repo/codegen/src/schema'
-import { BulkCSVCreateTemplatelDialog } from '@/components/pages/protected/questionnaire/dialog/bulk-csv-create-template-dialog'
+import { BulkCSVCreateTemplateDialog } from '@/components/pages/protected/questionnaire/dialog/bulk-csv-create-template-dialog'
 import { canCreate } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
-import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { Button } from '@repo/ui/button'
-import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 type TTemplateTableToolbarProps = {
   creating: boolean
@@ -72,7 +71,7 @@ const TemplateTableToolbar: React.FC<TTemplateTableToolbarProps> = ({
           <Menu
             content={
               <>
-                <BulkCSVCreateTemplatelDialog
+                <BulkCSVCreateTemplateDialog
                   trigger={
                     <Button size="sm" variant="transparent" className="px-1 flex items-center justify-start space-x-2">
                       <Upload size={16} strokeWidth={2} />
@@ -88,9 +87,9 @@ const TemplateTableToolbar: React.FC<TTemplateTableToolbarProps> = ({
             }
           />
           {mappedColumns && columnVisibility && setColumnVisibility && (
-            <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableColumnVisibilityKeysEnum.TEMPLATE} />
+            <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.TEMPLATE} />
           )}
-          <TableFilter filterFields={TEMPLATE_FILTER_FIELDS} onFilterChange={setFilters} pageKey={TableFilterKeysEnum.TEMPLATE} />
+          <TableFilter filterFields={TEMPLATE_FILTER_FIELDS} onFilterChange={setFilters} pageKey={TableKeyEnum.TEMPLATE} />
           {createButton()}
         </div>
       </div>

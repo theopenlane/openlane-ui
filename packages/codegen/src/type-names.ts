@@ -36,15 +36,34 @@ import {
   TrustCenterWatermarkConfig,
   Vulnerability,
 } from './schema'
+import { GET_ALL_ACTION_PLANS } from '@repo/codegen/query/action-plan'
 import { GET_ALL_ASSESSMENTS } from '@repo/codegen/query/assessment'
 import { GET_ALL_ASSETS } from '@repo/codegen/query/asset'
+import { GET_ALL_CAMPAIGNS } from '@repo/codegen/query/campaign'
 import { GET_ALL_CONTROLS } from '@repo/codegen/query/control'
 import { GET_ALL_CONTROL_IMPLEMENTATIONS } from '@repo/codegen/query/control-implementation'
 import { GET_ALL_CONTROL_OBJECTIVES } from '@repo/codegen/query/control-objective'
+import { GET_ALL_EMAIL_BRANDINGS } from '@repo/codegen/query/email-branding'
+import { GET_ALL_ENTITIES } from '@repo/codegen/query/entity'
+import { GET_ALL_FINDINGS } from '@repo/codegen/query/finding'
+import { GET_ALL_IDENTITY_HOLDERS } from '@repo/codegen/query/identity-holder'
+import { GET_ALL_INTERNAL_POLICIES } from '@repo/codegen/query/internal-policy'
 import { GET_ALL_MAPPED_CONTROLS } from '@repo/codegen/query/mapped-control'
 import { GET_ALL_NARRATIVES } from '@repo/codegen/query/narrative'
+import { GET_ALL_PLATFORMS } from '@repo/codegen/query/platform'
 import { GET_ALL_PROCEDURES } from '@repo/codegen/query/procedure'
+import { GET_ALL_PROGRAMS } from '@repo/codegen/query/program'
+import { GET_ALL_REMEDIATIONS } from '@repo/codegen/query/remediation'
+import { GET_ALL_REVIEWS } from '@repo/codegen/query/review'
+import { GET_ALL_RISKS } from '@repo/codegen/query/risk'
+import { GET_ALL_SCANS } from '@repo/codegen/query/scan'
 import { GET_ALL_TRUST_CENTERS } from '@repo/codegen/query/trust-center'
+import { GET_ALL_TRUST_CENTER_COMPLIANCES } from '@repo/codegen/query/trust-center-compliance'
+import { GET_ALL_TRUST_CENTER_DOCS } from '@repo/codegen/query/trust-center-doc'
+import { GET_ALL_TRUST_CENTER_ENTITIES } from '@repo/codegen/query/trust-center-entity'
+import { GET_ALL_TRUST_CENTER_NDA_REQUESTS } from '@repo/codegen/query/trust-center-nda-request'
+import { GET_ALL_TRUST_CENTER_SUBPROCESSORS } from '@repo/codegen/query/trust-center-subprocessor'
+import { GET_ALL_VULNERABILITIES } from '@repo/codegen/query/vulnerability'
 import { GET_ALL_EVIDENCES } from '@repo/codegen/query/evidence'
 import { GET_ALL_GROUPS } from '@repo/codegen/query/group'
 import { GET_ALL_SUBCONTROLS } from '@repo/codegen/query/subcontrol'
@@ -445,7 +464,7 @@ export const OBJECT_TYPE_PERMISSIONS_CONFIG: Record<TypesWithPermissions, Object
   [TypesWithPermissions.ACTION_PLAN]: {
     roleOptions: ['View', 'Edit', 'Blocked'],
     responseObjectKey: 'actionPlans',
-    queryDocument: '',
+    queryDocument: GET_ALL_ACTION_PLANS,
     objectName: 'name',
     searchAttribute: 'nameContainsFold',
     inputPlaceholder: 'name',
@@ -475,7 +494,7 @@ export const OBJECT_TYPE_PERMISSIONS_CONFIG: Record<TypesWithPermissions, Object
   [TypesWithPermissions.CAMPAIGN]: {
     roleOptions: ['View', 'Edit', 'Blocked'],
     responseObjectKey: 'campaigns',
-    queryDocument: '',
+    queryDocument: GET_ALL_CAMPAIGNS,
     objectName: 'name',
     searchAttribute: 'nameContainsFold',
     inputPlaceholder: 'name',
@@ -523,7 +542,7 @@ export const OBJECT_TYPE_PERMISSIONS_CONFIG: Record<TypesWithPermissions, Object
   [TypesWithPermissions.EMAIL_BRANDING]: {
     roleOptions: ['View', 'Edit', 'Blocked'],
     responseObjectKey: 'emailBrandings',
-    queryDocument: '',
+    queryDocument: GET_ALL_EMAIL_BRANDINGS,
     objectName: 'name',
     searchAttribute: 'nameContainsFold',
     inputPlaceholder: 'name',
@@ -533,7 +552,7 @@ export const OBJECT_TYPE_PERMISSIONS_CONFIG: Record<TypesWithPermissions, Object
   [TypesWithPermissions.ENTITY]: {
     roleOptions: ['View', 'Edit', 'Blocked'],
     responseObjectKey: 'entities',
-    queryDocument: '',
+    queryDocument: GET_ALL_ENTITIES,
     objectName: 'name',
     searchAttribute: 'nameContainsFold',
     inputPlaceholder: 'name',
@@ -543,7 +562,7 @@ export const OBJECT_TYPE_PERMISSIONS_CONFIG: Record<TypesWithPermissions, Object
   [TypesWithPermissions.FINDING]: {
     roleOptions: ['View', 'Edit', 'Blocked'],
     responseObjectKey: 'findings',
-    queryDocument: '',
+    queryDocument: GET_ALL_FINDINGS,
     objectName: 'name',
     searchAttribute: 'nameContainsFold',
     inputPlaceholder: 'name',
@@ -553,7 +572,7 @@ export const OBJECT_TYPE_PERMISSIONS_CONFIG: Record<TypesWithPermissions, Object
   [TypesWithPermissions.IDENTITY_HOLDER]: {
     roleOptions: ['View', 'Edit', 'Blocked'],
     responseObjectKey: 'identityHolders',
-    queryDocument: '',
+    queryDocument: GET_ALL_IDENTITY_HOLDERS,
     objectName: 'name',
     searchAttribute: 'nameContainsFold',
     inputPlaceholder: 'name',
@@ -563,7 +582,7 @@ export const OBJECT_TYPE_PERMISSIONS_CONFIG: Record<TypesWithPermissions, Object
   [TypesWithPermissions.INTERNAL_POLICY]: {
     roleOptions: ['Edit', 'Blocked'],
     responseObjectKey: 'internalPolicies',
-    queryDocument: '',
+    queryDocument: GET_ALL_INTERNAL_POLICIES,
     objectName: 'name',
     searchAttribute: 'nameContainsFold',
     inputPlaceholder: 'name',
@@ -593,7 +612,7 @@ export const OBJECT_TYPE_PERMISSIONS_CONFIG: Record<TypesWithPermissions, Object
   [TypesWithPermissions.PLATFORM]: {
     roleOptions: ['View', 'Edit', 'Blocked'],
     responseObjectKey: 'platforms',
-    queryDocument: '',
+    queryDocument: GET_ALL_PLATFORMS,
     objectName: 'name',
     searchAttribute: 'nameContainsFold',
     inputPlaceholder: 'name',
@@ -613,7 +632,7 @@ export const OBJECT_TYPE_PERMISSIONS_CONFIG: Record<TypesWithPermissions, Object
   [TypesWithPermissions.PROGRAM]: {
     roleOptions: ['View', 'Edit', 'Blocked'],
     responseObjectKey: 'programs',
-    queryDocument: '',
+    queryDocument: GET_ALL_PROGRAMS,
     objectName: 'name',
     searchAttribute: 'nameContainsFold',
     inputPlaceholder: 'name',
@@ -623,7 +642,7 @@ export const OBJECT_TYPE_PERMISSIONS_CONFIG: Record<TypesWithPermissions, Object
   [TypesWithPermissions.REMEDIATION]: {
     roleOptions: ['View', 'Edit', 'Blocked'],
     responseObjectKey: 'remediations',
-    queryDocument: '',
+    queryDocument: GET_ALL_REMEDIATIONS,
     objectName: 'title',
     searchAttribute: 'titleContainsFold',
     inputPlaceholder: 'title',
@@ -633,7 +652,7 @@ export const OBJECT_TYPE_PERMISSIONS_CONFIG: Record<TypesWithPermissions, Object
   [TypesWithPermissions.REVIEW]: {
     roleOptions: ['View', 'Edit', 'Blocked'],
     responseObjectKey: 'reviews',
-    queryDocument: '',
+    queryDocument: GET_ALL_REVIEWS,
     objectName: 'title',
     searchAttribute: 'titleContainsFold',
     inputPlaceholder: 'title',
@@ -643,7 +662,7 @@ export const OBJECT_TYPE_PERMISSIONS_CONFIG: Record<TypesWithPermissions, Object
   [TypesWithPermissions.RISK]: {
     roleOptions: ['View', 'Edit', 'Blocked'],
     responseObjectKey: 'risks',
-    queryDocument: '',
+    queryDocument: GET_ALL_RISKS,
     objectName: 'name',
     searchAttribute: 'nameContainsFold',
     inputPlaceholder: 'name',
@@ -653,7 +672,7 @@ export const OBJECT_TYPE_PERMISSIONS_CONFIG: Record<TypesWithPermissions, Object
   [TypesWithPermissions.SCAN]: {
     roleOptions: ['View', 'Edit', 'Blocked'],
     responseObjectKey: 'scans',
-    queryDocument: '',
+    queryDocument: GET_ALL_SCANS,
     objectName: 'name',
     searchAttribute: 'nameContainsFold',
     inputPlaceholder: 'name',
@@ -673,7 +692,7 @@ export const OBJECT_TYPE_PERMISSIONS_CONFIG: Record<TypesWithPermissions, Object
   [TypesWithPermissions.TRUST_CENTER_COMPLIANCE]: {
     roleOptions: ['Edit', 'Blocked'],
     responseObjectKey: 'trustCenterCompliances',
-    queryDocument: '',
+    queryDocument: GET_ALL_TRUST_CENTER_COMPLIANCES,
     objectName: 'name',
     searchAttribute: 'nameContainsFold',
     inputPlaceholder: 'name',
@@ -683,7 +702,7 @@ export const OBJECT_TYPE_PERMISSIONS_CONFIG: Record<TypesWithPermissions, Object
   [TypesWithPermissions.TRUST_CENTER_DOC]: {
     roleOptions: ['Edit', 'Blocked'],
     responseObjectKey: 'trustCenterDocs',
-    queryDocument: '',
+    queryDocument: GET_ALL_TRUST_CENTER_DOCS,
     objectName: 'title',
     searchAttribute: 'titleContainsFold',
     inputPlaceholder: 'title',
@@ -693,7 +712,7 @@ export const OBJECT_TYPE_PERMISSIONS_CONFIG: Record<TypesWithPermissions, Object
   [TypesWithPermissions.TRUST_CENTER_ENTITY]: {
     roleOptions: ['Edit', 'Blocked'],
     responseObjectKey: 'trustCenterEntities',
-    queryDocument: '',
+    queryDocument: GET_ALL_TRUST_CENTER_ENTITIES,
     objectName: 'name',
     searchAttribute: 'nameContainsFold',
     inputPlaceholder: 'name',
@@ -703,7 +722,7 @@ export const OBJECT_TYPE_PERMISSIONS_CONFIG: Record<TypesWithPermissions, Object
   [TypesWithPermissions.TRUST_CENTER_NDA_REQUEST]: {
     roleOptions: ['Edit', 'Blocked'],
     responseObjectKey: 'trustCenterNdaRequests',
-    queryDocument: '',
+    queryDocument: GET_ALL_TRUST_CENTER_NDA_REQUESTS,
     objectName: 'name',
     searchAttribute: 'nameContainsFold',
     inputPlaceholder: 'name',
@@ -723,7 +742,7 @@ export const OBJECT_TYPE_PERMISSIONS_CONFIG: Record<TypesWithPermissions, Object
   [TypesWithPermissions.TRUST_CENTER_SUBPROCESSOR]: {
     roleOptions: ['Edit', 'Blocked'],
     responseObjectKey: 'trustCenterSubprocessors',
-    queryDocument: '',
+    queryDocument: GET_ALL_TRUST_CENTER_SUBPROCESSORS,
     objectName: 'name',
     searchAttribute: 'nameContainsFold',
     inputPlaceholder: 'name',
@@ -743,7 +762,7 @@ export const OBJECT_TYPE_PERMISSIONS_CONFIG: Record<TypesWithPermissions, Object
   [TypesWithPermissions.VULNERABILITY]: {
     roleOptions: ['View', 'Edit', 'Blocked'],
     responseObjectKey: 'vulnerabilities',
-    queryDocument: '',
+    queryDocument: GET_ALL_VULNERABILITIES,
     objectName: 'name',
     searchAttribute: 'nameContainsFold',
     inputPlaceholder: 'name',
@@ -856,7 +875,7 @@ export const TASK_OBJECT_TYPE_CONFIG: Record<TaskObjectTypes, TTaskObjectTypeCon
     responseObjectKey: 'actionPlans',
     inputName: 'actionPlanIDs',
     placeholder: 'action plan',
-    queryDocument: '',
+    queryDocument: GET_ALL_ACTION_PLANS,
     searchAttribute: 'nameContainsFold',
     objectName: 'name',
   },
@@ -904,7 +923,7 @@ export const TASK_OBJECT_TYPE_CONFIG: Record<TaskObjectTypes, TTaskObjectTypeCon
     responseObjectKey: 'identityHolders',
     inputName: 'identityHolderIDs',
     placeholder: 'identity holder',
-    queryDocument: '',
+    queryDocument: GET_ALL_IDENTITY_HOLDERS,
     searchAttribute: 'nameContainsFold',
     objectName: 'name',
   },
@@ -912,7 +931,7 @@ export const TASK_OBJECT_TYPE_CONFIG: Record<TaskObjectTypes, TTaskObjectTypeCon
     responseObjectKey: 'internalPolicies',
     inputName: 'internalPolicyIDs',
     placeholder: 'internal policy',
-    queryDocument: '',
+    queryDocument: GET_ALL_INTERNAL_POLICIES,
     searchAttribute: 'nameContainsFold',
     objectName: 'name',
   },
@@ -920,7 +939,7 @@ export const TASK_OBJECT_TYPE_CONFIG: Record<TaskObjectTypes, TTaskObjectTypeCon
     responseObjectKey: 'platforms',
     inputName: 'platformIDs',
     placeholder: 'platform',
-    queryDocument: '',
+    queryDocument: GET_ALL_PLATFORMS,
     searchAttribute: 'nameContainsFold',
     objectName: 'name',
   },
@@ -936,7 +955,7 @@ export const TASK_OBJECT_TYPE_CONFIG: Record<TaskObjectTypes, TTaskObjectTypeCon
     responseObjectKey: 'programs',
     inputName: 'programIDs',
     placeholder: 'program',
-    queryDocument: '',
+    queryDocument: GET_ALL_PROGRAMS,
     searchAttribute: 'nameContainsFold',
     objectName: 'name',
   },
@@ -944,7 +963,7 @@ export const TASK_OBJECT_TYPE_CONFIG: Record<TaskObjectTypes, TTaskObjectTypeCon
     responseObjectKey: 'risks',
     inputName: 'riskIDs',
     placeholder: 'risk',
-    queryDocument: '',
+    queryDocument: GET_ALL_RISKS,
     searchAttribute: 'nameContainsFold',
     objectName: 'name',
   },
@@ -952,7 +971,7 @@ export const TASK_OBJECT_TYPE_CONFIG: Record<TaskObjectTypes, TTaskObjectTypeCon
     responseObjectKey: 'scans',
     inputName: 'scanIDs',
     placeholder: 'scan',
-    queryDocument: '',
+    queryDocument: GET_ALL_SCANS,
     searchAttribute: 'nameContainsFold',
     objectName: 'name',
   },

@@ -17,7 +17,7 @@ import {
 import { useNotification } from '@/hooks/useNotification'
 import { useGetMappedControlById, useUpdateMappedControl } from '@/lib/graphql-hooks/mapped-control'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
-import { useGetControlById } from '@/lib/graphql-hooks/controls'
+import { useGetControlById } from '@/lib/graphql-hooks/control'
 import { useGetSubcontrolById } from '@/lib/graphql-hooks/subcontrol'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { MappingIconMapper } from '@/components/shared/enum-mapper/map-control-enum'

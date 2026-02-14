@@ -4,22 +4,20 @@ import { DataTable, getInitialPagination } from '@repo/ui/data-table'
 import { Button } from '@repo/ui/button'
 import { AlertTriangle } from 'lucide-react'
 import { VisibilityState } from '@tanstack/table-core'
-import { useRisks } from '@/lib/graphql-hooks/risks'
+import { useRisks } from '@/lib/graphql-hooks/risk'
 import { useSearchParams } from 'next/navigation'
 import { RiskRiskStatus, RiskWhereInput } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import Link from 'next/link'
 import { useSession } from 'next-auth/react'
-import { useGetAllGroups } from '@/lib/graphql-hooks/groups'
+import { useGetAllGroups } from '@/lib/graphql-hooks/group'
 import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
-import { useGetOrgUserList } from '@/lib/graphql-hooks/members'
+import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
 import ColumnVisibilityMenu, { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { FormattedRisk, getRiskColumns } from './risks-table-config'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { saveFilters, TFilterState } from '@/components/shared/table-filter/filter-storage.ts'
-import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
-import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
 import { TableKeyEnum } from '@repo/ui/table-key'
 
 const Risks = () => {
@@ -44,7 +42,7 @@ const Risks = () => {
     updatedAt: false,
   }
 
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableColumnVisibilityKeysEnum.RISK_OVERVIEW, defaultVisibility))
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.OVERVIEW_RISK, defaultVisibility))
 
   const stakeholderGroupIds = useMemo(() => groups?.map((group) => group.id) ?? [], [groups])
 
@@ -117,7 +115,7 @@ const Risks = () => {
       hasProgramsWith: [programId],
     }
 
-    saveFilters(TableFilterKeysEnum.RISK, filters)
+    saveFilters(TableKeyEnum.RISK, filters)
   }
 
   const { columns, mappedColumns } = useMemo(() => getRiskColumns({ userMap }), [userMap])
@@ -133,12 +131,7 @@ const Risks = () => {
             </Button> */}
 
             {mappedColumns && columnVisibility && setColumnVisibility && (
-              <ColumnVisibilityMenu
-                mappedColumns={mappedColumns}
-                columnVisibility={columnVisibility}
-                setColumnVisibility={setColumnVisibility}
-                storageKey={TableColumnVisibilityKeysEnum.RISK_OVERVIEW}
-              />
+              <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.OVERVIEW_RISK} />
             )}
           </div>
 

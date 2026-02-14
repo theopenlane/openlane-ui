@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import { Button } from '@repo/ui/button'
 import { useParams, useRouter } from 'next/navigation'
-import { useDeleteProgram, useGetProgramBasicInfo, useUpdateProgram } from '@/lib/graphql-hooks/programs'
+import { useDeleteProgram, useGetProgramBasicInfo, useUpdateProgram } from '@/lib/graphql-hooks/program'
 import { useNotification } from '@/hooks/useNotification'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'

@@ -1,10 +1,10 @@
 import { SearchableSingleSelect } from '@/components/shared/searchableSingleSelect/searchable-single-select'
-import { useGetStandards } from '@/lib/graphql-hooks/standards'
+import { useGetStandards } from '@/lib/graphql-hooks/standard'
 import { Standard } from '@repo/codegen/src/schema'
 import { FormControl, FormField, FormItem } from '@repo/ui/form'
 import { useFormContext, useWatch, useController } from 'react-hook-form'
 import { useMemo } from 'react'
-import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { objectToSnakeCase } from '@/utils/strings'
 

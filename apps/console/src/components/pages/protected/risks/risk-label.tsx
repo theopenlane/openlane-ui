@@ -5,7 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { RiskIconMapper } from '@/components/shared/enum-mapper/risk-enum'
 import { useRef } from 'react'
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
-import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { EditRisksFormData } from './view/hooks/use-form-schema'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { cn } from '@repo/ui/lib/utils'

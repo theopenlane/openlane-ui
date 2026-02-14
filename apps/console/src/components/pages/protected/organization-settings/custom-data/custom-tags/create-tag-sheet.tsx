@@ -18,7 +18,7 @@ import { useSmartRouter } from '@/hooks/useSmartRouter'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
-import { useCreateTag, useUpdateTag, useDeleteTag, useGetTagDetails } from '@/lib/graphql-hooks/tags'
+import { useCreateTag, useUpdateTag, useDeleteTag, useGetTagDetails } from '@/lib/graphql-hooks/tag-definition'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { canEdit } from '@/lib/authz/utils'
@@ -68,7 +68,7 @@ export const CreateTagSheet = ({ resetPagination }: { resetPagination: () => voi
     if (tagData?.tagDefinition) {
       const t = tagData.tagDefinition
       setValue('name', t.name ?? '')
-      setValue('aliases', Array.isArray(t.aliases) ? t.aliases.join(', ') : (t.aliases ?? ''))
+      setValue('aliases', Array.isArray(t.aliases) ? t.aliases.join(', ') : t.aliases ?? '')
       setValue('description', t.description ?? '')
       setValue('color', t.color?.startsWith('#') ? t.color : `#${t.color || '6366f1'}`)
     }

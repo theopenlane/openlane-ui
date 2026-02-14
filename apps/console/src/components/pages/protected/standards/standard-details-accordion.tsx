@@ -8,13 +8,13 @@ import { useParams, useRouter } from 'next/navigation'
 import { useDebounce } from '@uidotdev/usehooks'
 import { ControlListStandardFieldsFragment, ControlWhereInput } from '@repo/codegen/src/schema'
 import { canEdit } from '@/lib/authz/utils.ts'
-import { TData } from '@/types/authz'
+import { TPermissionData } from '@/types/authz'
 import { DataTable } from '@repo/ui/data-table'
 import { getColumns } from './columns'
 import AddToOrganizationDialog from './add-to-organization-dialog'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
-import { useAllControlsGroupedWithListFields } from '@/lib/graphql-hooks/controls'
+import { useAllControlsGroupedWithListFields } from '@/lib/graphql-hooks/control'
 import { VisibilityState } from '@tanstack/react-table'
 import ControlDetailsSheet from './control-details-sheet'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
@@ -36,7 +36,7 @@ type TStandardDetailsAccordionProps = {
   setSelectedControls: React.Dispatch<React.SetStateAction<{ id: string; refCode: string }[]>>
   isDialogOpen: boolean
   setIsDialogOpen: React.Dispatch<React.SetStateAction<boolean>>
-  permission: TData | undefined
+  permission: TPermissionData | undefined
   isLoadingPermission: boolean
 }
 const StandardDetailsAccordion: React.FC<TStandardDetailsAccordionProps> = ({

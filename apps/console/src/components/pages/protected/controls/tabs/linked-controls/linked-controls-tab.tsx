@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react'
 import SubcontrolsTable from './subcontrols-table'
 import { useGetMappedControls } from '@/lib/graphql-hooks/mapped-control'
-import { useGetControlsByRefCode, type ControlsByRefcodeNode } from '@/lib/graphql-hooks/controls'
+import { useGetControlsByRefCode, type ControlsByRefcodeNode } from '@/lib/graphql-hooks/control'
 import { useGetSubcontrolsByRefCode, type SubcontrolsByRefcodeNode } from '@/lib/graphql-hooks/subcontrol'
 import { MappedControlMappingSource } from '@repo/codegen/src/schema'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'

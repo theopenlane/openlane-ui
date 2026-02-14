@@ -10,18 +10,17 @@ import Menu from '@/components/shared/menu/menu.tsx'
 import { VisibilityState } from '@tanstack/react-table'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { AssessmentWhereInput, TemplateTemplateKind } from '@repo/codegen/src/schema'
-import { BulkCSVCreateTemplatelDialog } from '../dialog/bulk-csv-create-template-dialog'
+import { BulkCSVCreateTemplateDialog } from '../dialog/bulk-csv-create-template-dialog'
 import { canCreate } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
-import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { Button } from '@repo/ui/button'
-import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
+import { TableKeyEnum } from '@repo/ui/table-key'
 import { TAccessRole } from '@/types/authz'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useNotification } from '@/hooks/useNotification'
-import { useDeleteBulkAssessment } from '@/lib/graphql-hooks/assessments'
+import { useDeleteBulkAssessment } from '@/lib/graphql-hooks/assessment'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { useGetTags } from '@/lib/graphql-hooks/tags'
 import { useTemplateSelect } from '@/lib/graphql-hooks/templates'
@@ -158,7 +157,7 @@ const QuestionnaireTableToolbar: React.FC<TQuestionnaireTableToolbarProps> = ({
               <Menu
                 content={
                   <>
-                    <BulkCSVCreateTemplatelDialog
+                    <BulkCSVCreateTemplateDialog
                       trigger={
                         <Button size="sm" variant="transparent" className="px-1 flex items-center justify-start space-x-2">
                           <Upload size={16} strokeWidth={2} />
@@ -174,19 +173,14 @@ const QuestionnaireTableToolbar: React.FC<TQuestionnaireTableToolbarProps> = ({
                 }
               />
               {mappedColumns && columnVisibility && setColumnVisibility && (
-                <ColumnVisibilityMenu
-                  mappedColumns={mappedColumns}
-                  columnVisibility={columnVisibility}
-                  setColumnVisibility={setColumnVisibility}
-                  storageKey={TableColumnVisibilityKeysEnum.QUESTIONNAIRE}
-                />
+                <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.QUESTIONNAIRE} />
               )}
-              <TableFilter filterFields={filterFields} onFilterChange={setFilters} pageKey={TableFilterKeysEnum.QUESTIONNAIRE} />
+              <TableFilter filterFields={filterFields} onFilterChange={setFilters} pageKey={TableKeyEnum.QUESTIONNAIRE} />
               {createDropdown()}
             </>
           )}
-        </div>
-      </div>
+        </div >
+      </div >
     </>
   )
 }

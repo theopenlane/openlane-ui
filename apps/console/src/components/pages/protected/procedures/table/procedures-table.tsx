@@ -20,10 +20,10 @@ import ProceduresTableToolbar from '@/components/pages/protected/procedures/tabl
 import { PROCEDURES_SORTABLE_FIELDS } from '@/components/pages/protected/procedures/table/table-config.ts'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
-import { useProcedures } from '@/lib/graphql-hooks/procedures'
+import { useProcedures } from '@/lib/graphql-hooks/procedure'
 import { useDebounce } from '@uidotdev/usehooks'
 import { ColumnDef, VisibilityState } from '@tanstack/react-table'
-import { useGetOrgUserList } from '@/lib/graphql-hooks/members.ts'
+import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
 import { useGetApiTokensByIds } from '@/lib/graphql-hooks/tokens.ts'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { canEdit } from '@/lib/authz/utils.ts'
@@ -32,10 +32,9 @@ import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { useNotification } from '@/hooks/useNotification'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
-import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { useStorageSearch } from '@/hooks/useStorageSearch'
-import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { objectToSnakeCase } from '@/utils/strings'
 
@@ -139,7 +138,7 @@ export const ProceduresTable = () => {
     linkedControls: false,
   }
 
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableColumnVisibilityKeysEnum.PROCEDURE, defaultVisibility))
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.PROCEDURE, defaultVisibility))
 
   const { enumOptions } = useGetCustomTypeEnums({
     where: {

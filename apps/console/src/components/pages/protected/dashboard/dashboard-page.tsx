@@ -1,7 +1,7 @@
 'use client'
 import React, { useState, useMemo, useEffect } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { useGetAllPrograms } from '@/lib/graphql-hooks/programs'
+import { useGetAllPrograms } from '@/lib/graphql-hooks/program'
 import { ProgramProgramStatus } from '@repo/codegen/src/schema'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 import Loading from '@/app/(protected)/dashboard/loading'

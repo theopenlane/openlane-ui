@@ -28,6 +28,8 @@ export const featureUtil = {
     FeatureEnum.REPORTING,
     FeatureEnum.RISKS,
     FeatureEnum.STANDARDS,
+    FeatureEnum.PERSONNEL,
+    FeatureEnum.VENDORS,
   ],
   trustCenterModule: () => [...featureUtil.baseModule(), FeatureEnum.TRUST_CENTER],
   entityManagementModule: () => [...featureUtil.baseModule()],

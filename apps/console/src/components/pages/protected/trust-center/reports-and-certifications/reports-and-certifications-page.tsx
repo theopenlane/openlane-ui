@@ -6,8 +6,8 @@ import { Loading } from '@/components/shared/loading/loading'
 import { VisibilityState } from '@tanstack/react-table'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
-import { useGetTrustCenterDocs } from '@/lib/graphql-hooks/trust-center'
-import { useGetTrustCenterNDAFiles } from '@/lib/graphql-hooks/trust-center-NDA'
+import { useGetTrustCenterDocs } from '@/lib/graphql-hooks/trust-center-doc'
+import { useGetTrustCenterNDAFiles } from '@/lib/graphql-hooks/trust-center-nda-request'
 import { CreateDocumentSheet } from './sheet/create-document.sheet'
 import { TrustCenterDocWatermarkStatus, TrustCenterDocWhereInput } from '@repo/codegen/src/schema'
 import { Panel, PanelHeader } from '@repo/ui/panel'
@@ -19,7 +19,6 @@ import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import DocumentsTableToolbar from './table/documents-table-toolbar'
 import { getTrustCenterDocColumns } from './table/table-config'
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
-import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { useStorageSearch } from '@/hooks/useStorageSearch'
 import { canCreate } from '@/lib/authz/utils'
@@ -30,7 +29,7 @@ import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 const ReportsAndCertificationsPage = () => {
   const [searchTerm, setSearchTerm] = useStorageSearch(ObjectTypes.TRUST_CENTER_DOC)
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableColumnVisibilityKeysEnum.DOCUMENTS, { createdAt: false, updatedAt: false }))
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.DOCUMENTS, { createdAt: false, updatedAt: false }))
   const [pagination, setPagination] = useState<TPagination>(getInitialPagination(TableKeyEnum.TRUST_CENTER_REPORTS_AND_CERTS, DEFAULT_PAGINATION))
   const [filters, setFilters] = useState<TrustCenterDocWhereInput | null>(null)
   const [selectedDocs, setSelectedDocs] = useState<{ id: string }[]>([])

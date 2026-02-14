@@ -1,7 +1,7 @@
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 import useEscapeKey from '@/hooks/useEscapeKey'
 import { ControlControlStatus, SubcontrolControlStatus, UpdateControlInput, UpdateSubcontrolInput } from '@repo/codegen/src/schema'
-import type { ControlByIdNode } from '@/lib/graphql-hooks/controls'
+import type { ControlByIdNode } from '@/lib/graphql-hooks/control'
 import type { SubcontrolByIdNode } from '@/lib/graphql-hooks/subcontrol'
 import { useRef, useState } from 'react'
 import { useFormContext, Controller } from 'react-hook-form'

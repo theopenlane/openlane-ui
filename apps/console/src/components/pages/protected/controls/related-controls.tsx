@@ -9,7 +9,7 @@ import MappedRelationsSheet from './mapped-relationships-sheet'
 import { RelatedControlChip } from './shared/related-control-chip'
 import Link from 'next/link'
 import StandardChip from '../standards/shared/standard-chip'
-import { useGetControlsByRefCode } from '@/lib/graphql-hooks/controls'
+import { useGetControlsByRefCode } from '@/lib/graphql-hooks/control'
 import { useGetSubcontrolsByRefCode } from '@/lib/graphql-hooks/subcontrol'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 

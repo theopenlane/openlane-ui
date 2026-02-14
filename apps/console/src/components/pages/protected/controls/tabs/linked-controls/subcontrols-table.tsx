@@ -17,7 +17,7 @@ import { whereGenerator } from '@/components/shared/table-filter/where-generator
 import { getSubcontrolsColumns, getSubcontrolsFilterFields, type SubcontrolRow } from './subcontrols-table-config'
 import { useGetSubcontrolsPaginated } from '@/lib/graphql-hooks/subcontrol'
 import { SubcontrolControlSource, type SubcontrolWhereInput } from '@repo/codegen/src/schema'
-import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { objectToSnakeCase } from '@/utils/strings'
 

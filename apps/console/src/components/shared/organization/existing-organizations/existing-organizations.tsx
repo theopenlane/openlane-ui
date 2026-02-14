@@ -13,7 +13,7 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useState } from 'react'
 import { useNotification } from '@/hooks/useNotification'
 import { useQueryClient } from '@tanstack/react-query'
-import { useRemoveUserFromOrg } from '@/lib/graphql-hooks/members'
+import { useRemoveUserFromOrg } from '@/lib/graphql-hooks/member'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 export const ExistingOrganizations = () => {

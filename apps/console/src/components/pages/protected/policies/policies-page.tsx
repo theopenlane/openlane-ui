@@ -9,15 +9,15 @@ import { canCreate } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import Link from 'next/link'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
-import { useGroupSelect } from '@/lib/graphql-hooks/groups'
+import { useGroupSelect } from '@/lib/graphql-hooks/group'
 import { Checkbox } from '@repo/ui/checkbox'
 import { isStringArray, loadFilters, saveFilters } from '@/components/shared/table-filter/filter-storage'
-import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys'
 import { PolicySuggestedActions } from './policies-suggested-actions'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import TabSwitcher from '@/components/shared/tab-switcher/tab-switcher.tsx'
 import { TabSwitcherStorageKeys } from '@/components/shared/tab-switcher/tab-switcher-storage-keys.ts'
-import { useInternalPoliciesCount } from '@/lib/graphql-hooks/policy.ts'
+import { useInternalPoliciesCount } from '@/lib/graphql-hooks/internal-policy'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 type TPoliciesPageProps = {
   active: 'dashboard' | 'table'
@@ -37,7 +37,7 @@ const PoliciesPage: React.FC<TPoliciesPageProps> = ({ active, setActive }) => {
   const [selectedGroups, setSelectedGroups] = useState<string[]>([])
 
   useEffect(() => {
-    const saved = loadFilters(TableFilterKeysEnum.POLICY)
+    const saved = loadFilters(TableKeyEnum.INTERNAL_POLICY)
     const validated = isStringArray(saved?.approverIDIn) ? saved?.approverIDIn : []
     setSelectedGroups(validated)
 
@@ -45,19 +45,19 @@ const PoliciesPage: React.FC<TPoliciesPageProps> = ({ active, setActive }) => {
       setSelectedGroups((e.detail?.approverIDIn as string[]) || [])
     }
 
-    window.addEventListener(`filters-updated:${TableFilterKeysEnum.POLICY}`, handleUpdate as EventListener)
+    window.addEventListener(`filters-updated:${TableKeyEnum.INTERNAL_POLICY}`, handleUpdate as EventListener)
 
     return () => {
-      window.removeEventListener(`filters-updated:${TableFilterKeysEnum.POLICY}`, handleUpdate as EventListener)
+      window.removeEventListener(`filters-updated:${TableKeyEnum.INTERNAL_POLICY}`, handleUpdate as EventListener)
     }
   }, [])
 
   const handleGroupToggle = (value: string) => {
-    const existingFilters = loadFilters(TableFilterKeysEnum.POLICY) || {}
+    const existingFilters = loadFilters(TableKeyEnum.INTERNAL_POLICY) || {}
     const validated = isStringArray(existingFilters?.approverIDIn) ? existingFilters?.approverIDIn : []
     const newGroups = validated.includes(value) ? validated.filter((v) => v !== value) : [...validated, value]
 
-    saveFilters(TableFilterKeysEnum.POLICY, {
+    saveFilters(TableKeyEnum.INTERNAL_POLICY, {
       ...existingFilters,
       approverIDIn: newGroups,
     })

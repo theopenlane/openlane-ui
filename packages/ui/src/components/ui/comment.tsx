@@ -19,12 +19,12 @@ import { BasicMarksKit } from '@repo/ui/components/editor/plugins/basic-marks-ki
 import { type TDiscussion, discussionPlugin, CommentEntityType } from '@repo/ui/components/editor/plugins/discussion-kit.tsx'
 
 import { Editor, EditorContainer } from './editor'
-import { POLICY_DISCUSSION_QUERY_KEY, useInsertPolicyComment, useUpdateInternalPolicy, useUpdatePolicyComment } from 'console/src/lib/graphql-hooks/policy.ts'
+import { POLICY_DISCUSSION_QUERY_KEY, useInsertPolicyComment, useUpdateInternalPolicy, useUpdatePolicyComment } from 'console/src/lib/graphql-hooks/internal-policy'
 import type { UpdateControlInput, UpdateInternalPolicyInput, UpdateNoteInput, UpdateProcedureInput, UpdateRiskInput, UpdateSubcontrolInput } from '@repo/codegen/src/schema.ts'
-import { PROCEDURE_DISCUSSION_QUERY_KEY, useInsertProcedureComment, useUpdateProcedure, useUpdateProcedureComment } from 'console/src/lib/graphql-hooks/procedures.ts'
-import { CONTROL_DISCUSSION_QUERY_KEY, useInsertControlPlateComment, useUpdateControl, useUpdateControlComment } from 'console/src/lib/graphql-hooks/controls.ts'
-import { SUBCONTROL_DISCUSSION_QUERY_KEY, useInsertSubcontrolPlateComment, useUpdateSubcontrol, useUpdateSubcontrolComment } from 'console/src/lib/graphql-hooks/subcontrol.ts'
-import { RISK_DISCUSSION_QUERY_KEY, useInsertRiskComment, useUpdateRisk, useUpdateRiskComment } from 'console/src/lib/graphql-hooks/risks.ts'
+import { PROCEDURE_DISCUSSION_QUERY_KEY, useInsertProcedureComment, useUpdateProcedure, useUpdateProcedureComment } from 'console/src/lib/graphql-hooks/procedure'
+import { CONTROL_DISCUSSION_QUERY_KEY, useInsertControlPlateComment, useUpdateControl, useUpdateControlComment } from 'console/src/lib/graphql-hooks/control'
+import { SUBCONTROL_DISCUSSION_QUERY_KEY, useInsertSubcontrolPlateComment, useUpdateSubcontrol, useUpdateSubcontrolComment } from 'console/src/lib/graphql-hooks/subcontrol'
+import { RISK_DISCUSSION_QUERY_KEY, useInsertRiskComment, useUpdateRisk, useUpdateRiskComment } from 'console/src/lib/graphql-hooks/risk'
 import { useQueryClient } from '@tanstack/react-query'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 

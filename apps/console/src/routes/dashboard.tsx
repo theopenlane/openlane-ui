@@ -33,11 +33,14 @@ import {
   ChartLine,
   Globe,
   Server,
+  LibraryBig,
+  Laptop,
+  IdCardLanyardIcon,
 } from 'lucide-react'
 import { NavHeading, type NavItem, type Separator } from '@/types'
 import { PlanEnum } from '@/lib/subscription-plan/plan-enum.ts'
 import { canEdit } from '@/lib/authz/utils'
-import { TData } from '@/types/authz'
+import { TPermissionData } from '@/types/authz'
 import type { Session } from 'next-auth'
 import { hasNoModules } from '@/lib/auth/utils/modules'
 
@@ -110,6 +113,30 @@ export const topNavigationItems = (session: Session | null): (NavItem | Separato
       ],
     },
     {
+      title: 'Registry',
+      plan: PlanEnum.COMPLIANCE_MODULE,
+      icon: LibraryBig,
+      href: '/registry',
+      hidden: session?.user?.isOnboarding || billingExpired,
+      children: [
+        {
+          title: 'Assets',
+          href: '/registry/assets',
+          icon: Laptop,
+        },
+        {
+          title: 'Vendors',
+          href: '/registry/vendors',
+          icon: Building2,
+        },
+        {
+          title: 'Personnel',
+          href: '/registry/personnel',
+          icon: IdCardLanyardIcon,
+        },
+      ],
+    },
+    {
       title: 'Trust center',
       plan: PlanEnum.TRUST_CENTER_MODULE,
       href: '/trust-center',
@@ -156,7 +183,7 @@ export const topNavigationItems = (session: Session | null): (NavItem | Separato
   ]
 }
 
-export const bottomNavigationItems = (session: Session | null, orgPermission?: TData): (NavItem | Separator | NavHeading)[] => {
+export const bottomNavigationItems = (session: Session | null, orgPermission?: TPermissionData): (NavItem | Separator | NavHeading)[] => {
   const billingExpired = hasNoModules(session)
   return [
     {

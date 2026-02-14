@@ -2,7 +2,7 @@
 import React, { useState } from 'react'
 import { useNotification } from '@/hooks/useNotification'
 
-import { useDeleteTask } from '@/lib/graphql-hooks/tasks'
+import { useDeleteTask } from '@/lib/graphql-hooks/task'
 import { Trash2 } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'

@@ -8,7 +8,7 @@ import { TObjectAssociationMap } from '@/components/shared/object-association/ty
 import { usePolicy } from '@/components/pages/protected/policies/create/hooks/use-policy.tsx'
 import { UpdateInternalPolicyInput } from '@repo/codegen/src/schema.ts'
 import { useQueryClient } from '@tanstack/react-query'
-import { useUpdateInternalPolicy } from '@/lib/graphql-hooks/policy.ts'
+import { useUpdateInternalPolicy } from '@/lib/graphql-hooks/internal-policy'
 import { useNotification } from '@/hooks/useNotification.tsx'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { SaveButton } from '@/components/shared/save-button/save-button'

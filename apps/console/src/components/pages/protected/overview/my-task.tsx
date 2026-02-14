@@ -6,7 +6,7 @@ import CalendarArrow from '@/assets/CalendarArrow'
 import SquareArrow from '@/assets/SquareArrow'
 import { useSession } from 'next-auth/react'
 import { addDays, formatDistanceToNowStrict, isAfter, isBefore, parseISO } from 'date-fns'
-import { useTasksWithFilter } from '@/lib/graphql-hooks/tasks'
+import { useTasksWithFilter } from '@/lib/graphql-hooks/task'
 import { Task, TaskTaskStatus } from '@repo/codegen/src/schema'
 import clsx from 'clsx'
 import { useSearchParams } from 'next/navigation'
@@ -14,7 +14,7 @@ import Link from 'next/link'
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@repo/ui/tooltip'
 import { Button } from '@repo/ui/button'
 import { saveFilters, TFilterState } from '@/components/shared/table-filter/filter-storage.ts'
-import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 const now = new Date()
 const dueSoonLimit = addDays(now, 7)
@@ -57,7 +57,7 @@ const MyTaskContent = ({ userId }: { userId: string }) => {
       showMyTasks: true,
     }
 
-    saveFilters(TableFilterKeysEnum.TASK, filters)
+    saveFilters(TableKeyEnum.TASK, filters)
   }
 
   return (

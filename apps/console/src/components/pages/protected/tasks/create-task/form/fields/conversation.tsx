@@ -9,13 +9,13 @@ import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import CommentList from '@/components/shared/comments/CommentList'
 import AddComment from '@/components/shared/comments/AddComment'
 import { TComments } from '@/components/shared/comments/types/TComments'
-import { useUpdateTask, useUpdateTaskComment } from '@/lib/graphql-hooks/tasks'
+import { useUpdateTask, useUpdateTaskComment } from '@/lib/graphql-hooks/task'
 import { TCommentData } from '@/components/shared/comments/types/TCommentData'
 import { useSearchParams } from 'next/navigation'
 import { TaskQuery } from '@repo/codegen/src/schema'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { useDeleteNote } from '@/lib/graphql-hooks/controls'
-import { useGetOrgMemberships } from '@/lib/graphql-hooks/members'
+import { useDeleteNote } from '@/lib/graphql-hooks/control'
+import { useGetOrgMemberships } from '@/lib/graphql-hooks/member'
 
 type ConversationProps = {
   isEditing: boolean

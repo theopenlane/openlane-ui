@@ -8,7 +8,7 @@ import { TObjectAssociationMap } from '@/components/shared/object-association/ty
 import { UpdateRiskInput } from '@repo/codegen/src/schema.ts'
 import { useNotification } from '@/hooks/useNotification.tsx'
 import { useRisk } from '@/components/pages/protected/risks/create/hooks/use-risk.tsx'
-import { useUpdateRisk } from '@/lib/graphql-hooks/risks.ts'
+import { useUpdateRisk } from '@/lib/graphql-hooks/risk'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'

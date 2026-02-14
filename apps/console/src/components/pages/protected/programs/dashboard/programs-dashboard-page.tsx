@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useContext, useEffect, useMemo, useState } from 'react'
-import { ProgramFromGetProgramDashboard as Program, useGetProgramDashboard } from '@/lib/graphql-hooks/programs'
+import { ProgramFromGetProgramDashboard as Program, useGetProgramDashboard } from '@/lib/graphql-hooks/program'
 import { Calendar, ChevronRight, SquarePlus, SearchIcon, UserRoundPlus, Undo, UserIcon } from 'lucide-react'
 import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import { Input } from '@repo/ui/input'
@@ -21,7 +21,7 @@ import { ProgramIconMapper, ProgramSettingsIconBtn } from '@/components/shared/e
 import { Separator } from '@repo/ui/separator'
 import Menu from '@/components/shared/menu/menu'
 import clsx from 'clsx'
-import { useUpdateProgram } from '@/lib/graphql-hooks/programs'
+import { useUpdateProgram } from '@/lib/graphql-hooks/program'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useQueryClient } from '@tanstack/react-query'

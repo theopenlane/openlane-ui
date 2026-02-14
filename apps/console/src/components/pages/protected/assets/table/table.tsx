@@ -5,12 +5,12 @@ import React, { forwardRef, useEffect, useImperativeHandle, useMemo } from 'reac
 import { OrderDirection, AssetOrder, AssetWhereInput } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 import { getAssetColumns } from '@/components/pages/protected/assets/table/columns.tsx'
-import { useAssetsWithFilter } from '@/lib/graphql-hooks/assets.ts'
-import { useGetOrgUserList } from '@/lib/graphql-hooks/members.ts'
+import { useAssetsWithFilter } from '@/lib/graphql-hooks/asset'
+import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
 import { VisibilityState } from '@tanstack/react-table'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import { TAccessRole, TData } from '@/types/authz'
+import { TAccessRole, TPermissionData } from '@/types/authz'
 import { useNotification } from '@/hooks/useNotification'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { ASSETS_SORT_FIELDS } from './table-config'
@@ -27,7 +27,7 @@ type TAssetsTableProps = {
   selectedAssets: { id: string }[]
   setSelectedAssets: React.Dispatch<React.SetStateAction<{ id: string }[]>>
   canEdit: (accessRole: TAccessRole[] | undefined) => boolean
-  permission: TData | undefined
+  permission: TPermissionData | undefined
   defaultSorting: { field: string; direction?: OrderDirection }[] | undefined
 }
 

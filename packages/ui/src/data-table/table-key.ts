@@ -24,9 +24,13 @@ export enum AdditionalTableKeyEnum {
   PROGRAM_SETTINGS_IMPORT_CONTROLS_PROGRAM = 'program-settings-import-controls-program',
   PROGRAM_SETTINGS_USERS = 'program-settings-users',
   STANDARD_DETAILS_ACCORDION = 'standard-details-accordion',
+  STANDARD_CATALOG = 'standard-catalog',
   QUESTIONNAIRE_OVERVIEW = 'questionnaire-overview',
   OVERVIEW_RISK = 'overview-risk',
   ORG_INVITE = 'org-invite',
+  MEMBER = 'member',
+  QUESTIONNAIRE = 'questionnaire',
+  DOCUMENTS = 'documents',
   GROUP_ASSIGN_PERMISSION = 'group-assign-permission',
   GROUP_SELECTED_PERMISSION = 'group-selected-permission',
   GROUP_INHERIT_PERMISSION = 'group-inherit-permission',
@@ -63,6 +67,7 @@ export enum AdditionalTableKeyEnum {
   CONTROL_DOC_RISKS = 'control-doc-risks',
   CONTROL_ACTIVITY_TASKS = 'control-activity-tasks',
   QUESTIONNAIRE_DELIVERY = 'questionnaire-delivery',
+  VENDOR = 'vendor',
 }
 
 export const TableKey = Object.freeze({
