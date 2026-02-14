@@ -39,7 +39,7 @@ export enum TasksFilterIconName {
   DueDate = 'DueDate',
 }
 
-export const FilterIcons: Record<TasksFilterIconName, LucideIcon> = {
+export const TaskFilterIcons: Record<TasksFilterIconName, LucideIcon> = {
   [TasksFilterIconName.DisplayID]: Key,
   [TasksFilterIconName.Title]: FolderPen,
   [TasksFilterIconName.Status]: CircleDot,

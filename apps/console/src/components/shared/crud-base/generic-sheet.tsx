@@ -257,8 +257,9 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
             }
           }}
           side="right"
-          className="flex flex-col"
-          minWidth={470}
+          className="flex flex-col "
+          minWidth="40vw"
+          initialWidth={'60vw'}
           header={
             renderHeader ? (
               renderHeader({

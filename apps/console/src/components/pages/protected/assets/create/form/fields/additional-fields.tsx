@@ -4,7 +4,7 @@ import { TextField } from '@/components/shared/crud-base/form-fields/text-field'
 import { SelectField } from '@/components/shared/crud-base/form-fields/select-field'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
-import { AssetAssetType, AssetSourceType } from '@repo/codegen/src/schema'
+import { AssetAssetType, AssetSourceType, UpdateAssetInput } from '@repo/codegen/src/schema'
 import { FieldValues } from 'react-hook-form'
 import { InternalEditingType } from '@/components/shared/crud-base/generic-sheet'
 
@@ -15,9 +15,10 @@ interface AdditionalFieldsProps {
   data?: FieldValues | undefined
   internalEditing: string | null
   setInternalEditing: InternalEditingType
+  handleUpdateField?: (input: UpdateAssetInput) => Promise<void>
 }
 
-export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, isEditAllowed, isCreate = false, data, internalEditing, setInternalEditing }) => {
+export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, isEditAllowed, isCreate = false, data, internalEditing, setInternalEditing, handleUpdateField }) => {
   // Fetch enum options for dropdowns
   const { enumOptions: accessModelOptions } = useGetCustomTypeEnums({
     where: { objectType: 'asset', field: 'accessModel' },
@@ -85,6 +86,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
         options={assetDataClassificationOptions}
         internalEditing={internalEditing}
         setInternalEditing={setInternalEditing}
+        handleUpdate={handleUpdateField}
       />
 
       <SelectField
@@ -97,6 +99,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
         options={assetSubtypeOptions}
         internalEditing={internalEditing}
         setInternalEditing={setInternalEditing}
+        handleUpdate={handleUpdateField}
       />
 
       <SelectField
@@ -109,6 +112,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
         options={assetTypeOptions}
         internalEditing={internalEditing}
         setInternalEditing={setInternalEditing}
+        handleUpdate={handleUpdateField}
       />
 
       <TextField
@@ -121,6 +125,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
         placeholder="Enter cost center"
         internalEditing={internalEditing}
         setInternalEditing={setInternalEditing}
+        handleUpdate={handleUpdateField}
       />
 
       <TextField
@@ -133,6 +138,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
         placeholder="Enter CPE"
         internalEditing={internalEditing}
         setInternalEditing={setInternalEditing}
+        handleUpdate={handleUpdateField}
       />
 
       <SelectField
@@ -145,6 +151,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
         options={criticalityOptions}
         internalEditing={internalEditing}
         setInternalEditing={setInternalEditing}
+        handleUpdate={handleUpdateField}
       />
 
       <SelectField
@@ -157,6 +164,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
         options={encryptionStatusOptions}
         internalEditing={internalEditing}
         setInternalEditing={setInternalEditing}
+        handleUpdate={handleUpdateField}
       />
 
       <SelectField
@@ -169,6 +177,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
         options={environmentOptions}
         internalEditing={internalEditing}
         setInternalEditing={setInternalEditing}
+        handleUpdate={handleUpdateField}
       />
 
       <TextField
@@ -182,6 +191,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
         placeholder="Enter estimated monthly cost"
         internalEditing={internalEditing}
         setInternalEditing={setInternalEditing}
+        handleUpdate={handleUpdateField}
       />
 
       <TextField
@@ -194,6 +204,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
         placeholder="Enter identifier"
         internalEditing={internalEditing}
         setInternalEditing={setInternalEditing}
+        handleUpdate={handleUpdateField}
       />
 
       <TextField
@@ -206,6 +217,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
         placeholder="Enter physical location"
         internalEditing={internalEditing}
         setInternalEditing={setInternalEditing}
+        handleUpdate={handleUpdateField}
       />
 
       <TextField
@@ -218,6 +230,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
         data={data}
         internalEditing={internalEditing}
         setInternalEditing={setInternalEditing}
+        handleUpdate={handleUpdateField}
       />
 
       <TextField
@@ -230,6 +243,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
         placeholder="Enter region"
         internalEditing={internalEditing}
         setInternalEditing={setInternalEditing}
+        handleUpdate={handleUpdateField}
       />
 
       <SelectField
@@ -242,6 +256,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
         options={scopeOptions}
         internalEditing={internalEditing}
         setInternalEditing={setInternalEditing}
+        handleUpdate={handleUpdateField}
       />
 
       <SelectField
@@ -254,6 +269,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
         options={securityTierOptions}
         internalEditing={internalEditing}
         setInternalEditing={setInternalEditing}
+        handleUpdate={handleUpdateField}
       />
 
       <TextField
@@ -266,6 +282,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
         placeholder="Enter source identifier"
         internalEditing={internalEditing}
         setInternalEditing={setInternalEditing}
+        handleUpdate={handleUpdateField}
       />
 
       <SelectField
@@ -279,12 +296,13 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
         internalEditing={internalEditing}
         setInternalEditing={setInternalEditing}
         useCustomDisplay={false}
+        handleUpdate={handleUpdateField}
       />
 
       <TextField
         name="website"
         label="Website"
-        type="url"
+        type="text"
         isEditing={isEditing}
         isEditAllowed={isEditAllowed}
         isCreate={isCreate}
@@ -292,6 +310,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
         placeholder="Enter website URL"
         internalEditing={internalEditing}
         setInternalEditing={setInternalEditing}
+        handleUpdate={handleUpdateField}
       />
     </div>
   )

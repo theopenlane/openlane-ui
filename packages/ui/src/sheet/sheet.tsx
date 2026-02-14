@@ -32,8 +32,8 @@ function SheetOverlay({ className, ...props }: React.ComponentProps<typeof Sheet
 }
 
 type TSheetContentProps = {
-  minWidth?: number
-  initialWidth?: number
+  minWidth?: number | string
+  initialWidth?: number | string
   resizable?: boolean
   header?: React.ReactNode
 }
@@ -55,7 +55,7 @@ function SheetContent({
   const localRef = React.useRef<HTMLDivElement>(null)
   React.useImperativeHandle(ref, () => localRef.current!)
 
-  const defaultWidth = `${initialWidth}px`
+  const defaultWidth = typeof initialWidth === 'number' ? `${initialWidth}px` : initialWidth
   const [width, setWidth] = React.useState<string | undefined>(defaultWidth)
   const isResizing = React.useRef(false)
 
@@ -68,7 +68,7 @@ function SheetContent({
 
       const x = e.clientX
       let newWidth = side === 'right' ? window.innerWidth - x : x
-      if (newWidth < minWidth) {
+      if (typeof minWidth === 'number' && newWidth < minWidth) {
         newWidth = minWidth
       }
       setWidth(`${newWidth}px`)
@@ -94,7 +94,7 @@ function SheetContent({
     <SheetPortal>
       <SheetOverlay />
       <SheetPrimitive.Content
-        style={{ width, minWidth }}
+        style={{ width, minWidth: typeof minWidth === 'number' ? `${minWidth}px` : minWidth }}
         data-slot="sheet-content"
         className={cn(
           'gap-4 p-[24px] pt-[12px] bg-secondary data-[state=open]:animate-in data-[state=closed]:animate-out fixed z-50 flex flex-col gap-4 shadow-lg transition ease-in-out data-[state=closed]:duration-300 data-[state=open]:duration-500',

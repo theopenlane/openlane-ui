@@ -17,13 +17,13 @@ type PropertiesProps = {
   data: AssetQuery['asset'] | undefined
   internalEditing: string | null
   setInternalEditing: (field: string | null) => void
-  handleUpdate?: (val: UpdateAssetInput) => void
+  handleUpdateField?: (val: UpdateAssetInput) => void
   isEditAllowed: boolean
 }
 
 const allProperties = ['tags']
 
-const Properties: React.FC<PropertiesProps> = ({ isEditing, data, internalEditing, setInternalEditing, handleUpdate, isEditAllowed }) => {
+const Properties: React.FC<PropertiesProps> = ({ isEditing, data, internalEditing, setInternalEditing, handleUpdateField, isEditAllowed }) => {
   const { control, formState, watch, setValue } = useFormContext<EditAssetFormData>()
 
   const { tagOptions } = useGetTags()
@@ -56,9 +56,9 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, data, internalEditin
     const next = tagValues.map((item) => item.value)
     const changed = current.length !== next.length || current.some((val) => !next.includes(val))
 
-    if (changed && handleUpdate) {
+    if (changed && handleUpdateField) {
       setValue('tags', next)
-      handleUpdate({ tags: next })
+      handleUpdateField({ tags: next })
     }
   }
 
@@ -116,6 +116,9 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, data, internalEditin
                   onChange={(selectedOptions) => {
                     const newTags = selectedOptions.map((opt) => opt.value)
                     field.onChange(newTags)
+                    if (handleUpdateField) {
+                      handleUpdateField({ tags: newTags })
+                    }
                   }}
                 />
                 {formState.errors.tags && <p className="text-red-500 text-sm">{formState.errors.tags.message}</p>}

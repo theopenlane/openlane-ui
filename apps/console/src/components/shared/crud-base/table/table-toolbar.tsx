@@ -16,10 +16,15 @@ import { useSmartRouter } from '@/hooks/useSmartRouter'
 import { GenericBulkCSVCreateDialog } from '@/components/shared/crud-base/dialog/bulk-csv-create-dialog'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { TableKeyValue } from '@repo/ui/table-key'
+import { TableFilter } from '../../table-filter/table-filter'
+import { FilterField } from '@/types'
 
 type GenericTableToolbarProps<T extends { id: string }> = {
   entityType: ObjectTypes
   handleExport: () => void
+  filterFields?: FilterField[] | undefined
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  onFilterChange?: (filters: any | null) => void
   columnVisibility?: VisibilityState
   setColumnVisibility?: React.Dispatch<React.SetStateAction<VisibilityState>>
   mappedColumns: {
@@ -29,7 +34,6 @@ type GenericTableToolbarProps<T extends { id: string }> = {
   searchTerm: string
   setSearchTerm: (searchTerm: string) => void
   searching?: boolean
-  exportEnabled: boolean
   canEdit: (accessRole: TAccessRole[] | undefined) => boolean
   permission: TPermissionData | undefined
   handleClearSelected: () => void
@@ -139,12 +143,11 @@ function GenericTableToolbar<T extends { id: string }>(props: GenericTableToolba
                     <Button
                       size="sm"
                       variant="transparent"
-                      className={`px-1 flex items-center justify-start space-x-2 cursor-pointer ${!props.exportEnabled ? 'opacity-50' : ''}`}
+                      className="px-1 flex items-center justify-start space-x-2 cursor-pointer"
                       onClick={() => {
                         props.handleExport()
                         close()
                       }}
-                      disabled={!props.exportEnabled}
                     >
                       <DownloadIcon size={16} strokeWidth={2} />
                       <span>Export</span>
@@ -152,9 +155,11 @@ function GenericTableToolbar<T extends { id: string }>(props: GenericTableToolba
                   </>
                 )}
               />
+
               {props.mappedColumns && props.columnVisibility && props.setColumnVisibility && (
                 <ColumnVisibilityMenu mappedColumns={props.mappedColumns} columnVisibility={props.columnVisibility} setColumnVisibility={props.setColumnVisibility} storageKey={props.storageKey} />
               )}
+              {props.filterFields && <TableFilter filterFields={props.filterFields} onFilterChange={props.onFilterChange} pageKey={props.storageKey} />}
               <Button icon={<PlusCircle />} iconPosition="left" onClick={openCreateSheet}>
                 Create
               </Button>

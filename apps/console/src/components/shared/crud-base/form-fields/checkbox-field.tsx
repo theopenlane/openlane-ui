@@ -20,7 +20,7 @@ interface CheckboxFieldProps {
 
 export const CheckboxField: React.FC<CheckboxFieldProps> = ({ name, label, isEditing, isEditAllowed, isCreate = false, internalEditing, setInternalEditing, className }) => {
   const { control } = useFormContext()
-  const isFieldEditing = isCreate || internalEditing
+  const isFieldEditing = internalEditing === name
   const isActive = isCreate || isEditing || isFieldEditing
 
   return (
@@ -39,7 +39,7 @@ export const CheckboxField: React.FC<CheckboxFieldProps> = ({ name, label, isEdi
               onBlur={() => {
                 field.onBlur()
                 if (!isCreate && !isEditing) {
-                  setInternalEditing(internalEditing)
+                  setInternalEditing(null)
                 }
               }}
             />
@@ -49,7 +49,7 @@ export const CheckboxField: React.FC<CheckboxFieldProps> = ({ name, label, isEdi
             className={cn('text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70', !isFieldEditing && 'cursor-default')}
             onClick={() => {
               if (isEditAllowed && !isActive) {
-                setInternalEditing(internalEditing)
+                setInternalEditing(name)
               }
             }}
           >

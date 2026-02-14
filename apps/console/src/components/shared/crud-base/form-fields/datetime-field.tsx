@@ -4,6 +4,7 @@ import { FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
 import { Input } from '@repo/ui/input'
 import { FieldValues, useFormContext } from 'react-hook-form'
 import { InternalEditingType } from '../generic-sheet'
+import { formatDateTime } from '@/utils/date'
 
 interface DateTimeFieldProps {
   name: string
@@ -16,35 +17,37 @@ interface DateTimeFieldProps {
   internalEditing: string | null
   setInternalEditing: InternalEditingType
   className?: string
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  handleUpdate?: (input: any) => Promise<void>
 }
 
-export const DateTimeField: React.FC<DateTimeFieldProps> = ({ name, label, isEditing, isEditAllowed, isCreate = false, data, placeholder, internalEditing, setInternalEditing, className }) => {
-  const { control } = useFormContext()
-  const isFieldEditing = isCreate || internalEditing
+export const DateTimeField: React.FC<DateTimeFieldProps> = ({
+  name,
+  label,
+  isEditing,
+  isEditAllowed,
+  isCreate = false,
+  data,
+  placeholder,
+  internalEditing,
+  setInternalEditing,
+  className,
+  handleUpdate,
+}) => {
+  const { control, getValues } = useFormContext()
   const value = data?.[name]
 
-  // Show input if creating, or if sheet is in edit mode, or if this specific field is being edited
+  const isFieldEditing = internalEditing === name
   const shouldShowInput = isCreate || isEditing || isFieldEditing
 
-  // Format datetime-local value from ISO string
-  const formatValue = (val: string) => {
-    if (!val) return ''
-    try {
-      const date = new Date(val)
-      return date.toISOString().slice(0, 16)
-    } catch {
-      return val
-    }
-  }
+  const handleBlur = async () => {
+    if (isEditing) return
 
-  const displayValue = (val: string) => {
-    if (!val) return <span className="text-muted-foreground italic">Not set</span>
-    try {
-      const date = new Date(val)
-      return date.toLocaleString()
-    } catch {
-      return val
+    const newValue = getValues(name)
+    if (handleUpdate) {
+      await Promise.resolve(handleUpdate({ [name]: newValue }))
     }
+    setInternalEditing(null)
   }
 
   return (
@@ -60,25 +63,20 @@ export const DateTimeField: React.FC<DateTimeFieldProps> = ({ name, label, isEdi
                 {...field}
                 type="datetime-local"
                 placeholder={placeholder}
-                value={field.value ? formatValue(field.value) : ''}
+                value={field.value ? formatDateTime(field.value) : ''}
                 onChange={(e) => field.onChange(e.target.value)}
-                onBlur={() => {
-                  field.onBlur()
-                  if (!isCreate && !isEditing) {
-                    setInternalEditing(internalEditing)
-                  }
-                }}
+                onBlur={handleBlur}
               />
             ) : (
               <div
                 className="text-sm py-2 rounded cursor-pointer hover:bg-accent"
                 onClick={() => {
                   if (isEditAllowed) {
-                    setInternalEditing(internalEditing)
+                    setInternalEditing(name)
                   }
                 }}
               >
-                {displayValue(value)}
+                {value ? formatDateTime(value) : <span className="text-muted-foreground italic">Not set</span>}
               </div>
             )}
           </FormControl>

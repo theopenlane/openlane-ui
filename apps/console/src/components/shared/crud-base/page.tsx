@@ -21,20 +21,22 @@ import { GenericDetailsSheet, GenericDetailsSheetConfig } from '@/components/sha
 import { GenericTableToolbar } from '@/components/shared/crud-base/table/table-toolbar'
 import { TableKeyValue } from '@repo/ui/table-key'
 import { TAccessRole, TPermissionData } from '@/types/authz'
+import { FilterField } from '@/types'
 
 interface GenericTablePageConfig<TEntity extends { id: string }, TFormData extends FieldValues, TData, TUpdateInput, TCreateInput, TWhereInput, TOrderByInput> {
   // Entity configuration
   objectType: ObjectTypes
   objectName: ObjectNames
-  entityLabelPlural?: string // e.g., "Assets"
 
   // Table configuration
   tableKey: TableKeyValue
   exportType?: ExportExportType
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   orderFieldEnum: any // e.g., AssetOrderField
   defaultSorting: TOrderByInput
   defaultVisibility: VisibilityState
+  filterFields?: FilterField[] | undefined
 
   // Breadcrumbs
   breadcrumbs: Array<{ label: string; href: string }>
@@ -61,7 +63,6 @@ interface GenericTablePageConfig<TEntity extends { id: string }, TFormData exten
     searchTerm: string
     setSearchTerm: (term: string) => void
     searching: boolean
-    exportEnabled: boolean
     canEdit: (roles: TAccessRole[]) => boolean
     permission: TPermissionData | undefined
     selectedItems: TEntity[]
@@ -88,6 +89,7 @@ export function GenericTablePage<TEntity extends { id: string }, TFormData exten
     orderFieldEnum,
     defaultSorting,
     defaultVisibility,
+    filterFields,
     breadcrumbs,
     form,
     getColumns,
@@ -115,7 +117,6 @@ export function GenericTablePage<TEntity extends { id: string }, TFormData exten
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [orderBy, setOrderBy] = useState<TOrderByInput>(getInitialSortConditions(tableKey, orderFieldEnum, defaultSorting as any) as TOrderByInput)
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(tableKey, defaultVisibility))
-  const [hasItems, setHasItems] = useState(false)
   const [selectedItems, setSelectedItems] = useState<TEntity[]>([])
 
   const { data: permission } = useOrganizationRoles()
@@ -135,16 +136,14 @@ export function GenericTablePage<TEntity extends { id: string }, TFormData exten
   const whereFilter = useMemo(() => {
     if (!filters) return null
 
-    const base = {
-      titleContainsFold: debouncedSearch,
-    }
+    const base = {}
 
     const result = whereGenerator<TWhereInput>(filters, (key, value) => {
       return { [key]: value } as TWhereInput
     })
 
     return { ...base, ...result } as TWhereInput
-  }, [filters, debouncedSearch])
+  }, [filters])
 
   const orderByFilter = useMemo(() => {
     return orderBy || undefined
@@ -183,8 +182,6 @@ export function GenericTablePage<TEntity extends { id: string }, TFormData exten
   const handleExportFile = async () => {
     if (!exportType) return
 
-    if (!hasItems) return
-
     handleExport({
       exportType,
       filters: JSON.stringify(whereFilter),
@@ -209,13 +206,13 @@ export function GenericTablePage<TEntity extends { id: string }, TFormData exten
         mappedColumns={mappedColumns}
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
+        filterFields={filterFields}
         searchTerm={searchQuery}
         setSearchTerm={(val) => {
           setSearchQuery(val)
           setPagination(DEFAULT_PAGINATION)
         }}
         searching={searching}
-        exportEnabled={hasItems}
         canEdit={canEdit}
         permission={permission}
         selectedItems={selectedItems}
@@ -235,7 +232,6 @@ export function GenericTablePage<TEntity extends { id: string }, TFormData exten
         onSortChange={setOrderBy}
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
-        onHasItemsChange={setHasItems}
         selectedItems={selectedItems}
         setSelectedItems={setSelectedItems}
         selectedAssets={selectedItems}

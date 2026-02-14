@@ -20,6 +20,8 @@ interface SelectFieldProps {
   data?: FieldValues | undefined
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   options: Array<{ value: string; label: string; [key: string]: any }>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  handleUpdate?: (input: any) => Promise<void>
   internalEditing: string | null
   setInternalEditing: InternalEditingType
   onCreateOption?: (value: string) => Promise<void>
@@ -34,17 +36,18 @@ export const SelectField: React.FC<SelectFieldProps> = ({
   isCreate = false,
   data,
   options,
+  handleUpdate,
   internalEditing,
   setInternalEditing,
   onCreateOption,
   useCustomDisplay = true,
 }) => {
   const { control } = useFormContext()
-  const isFieldEditing = internalEditing
   const rawValue = data?.[name]
   const [showCreateInput, setShowCreateInput] = useState(false)
   const [newValue, setNewValue] = useState('')
 
+  const isFieldEditing = internalEditing === name
   const shouldShowInput = isCreate || isEditing || isFieldEditing
 
   // Find the display label for the current value
@@ -67,7 +70,16 @@ export const SelectField: React.FC<SelectFieldProps> = ({
           <FormLabel>{label}</FormLabel>
           <FormControl>
             {shouldShowInput ? (
-              <Select value={field.value} onValueChange={field.onChange}>
+              <Select
+                value={field.value}
+                onValueChange={async (val) => {
+                  field.onChange(val)
+                  if (handleUpdate) {
+                    await Promise.resolve(handleUpdate({ [name]: val }))
+                  }
+                  setInternalEditing(null)
+                }}
+              >
                 <FormControl>
                   <SelectTrigger className="w-full">
                     <SelectValue>
@@ -121,7 +133,7 @@ export const SelectField: React.FC<SelectFieldProps> = ({
                 className="text-sm py-2 rounded cursor-pointer hover:bg-accent"
                 onClick={() => {
                   if (isEditAllowed) {
-                    setInternalEditing(internalEditing)
+                    setInternalEditing(name)
                   }
                 }}
               >

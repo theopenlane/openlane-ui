@@ -23,7 +23,8 @@ interface NumberFieldProps {
 export const NumberField: React.FC<NumberFieldProps> = ({ name, label, isEditing, isEditAllowed, isCreate = false, data, internalEditing, setInternalEditing, placeholder, min, max, step = 1 }) => {
   const { control } = useFormContext()
   const value = data?.[name]
-  const shouldShowInput = isCreate || isEditing || internalEditing
+  const isFieldEditing = internalEditing === name
+  const shouldShowInput = isCreate || isEditing || isFieldEditing
 
   return (
     <FormField
@@ -44,7 +45,7 @@ export const NumberField: React.FC<NumberFieldProps> = ({ name, label, isEditing
                 onBlur={() => {
                   field.onBlur()
                   if (!isCreate && !isEditing) {
-                    setInternalEditing(internalEditing)
+                    setInternalEditing(null)
                   }
                 }}
               />
@@ -53,7 +54,7 @@ export const NumberField: React.FC<NumberFieldProps> = ({ name, label, isEditing
                 className="text-sm py-2 rounded cursor-pointer hover:bg-accent"
                 onClick={() => {
                   if (isEditAllowed) {
-                    setInternalEditing(internalEditing)
+                    setInternalEditing(name)
                   }
                 }}
               >
