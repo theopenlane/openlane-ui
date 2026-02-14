@@ -32,6 +32,8 @@ import { ManagePermissionSheet } from '@/components/shared/policy-procedure.tsx/
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types.ts'
 import ObjectAssociationSwitch from '@/components/shared/object-association/object-association-switch.tsx'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { useAssociationRemoval } from '@/hooks/useAssociationRemoval'
+import { ASSOCIATION_REMOVAL_CONFIG } from '@/components/shared/objectAssociation/object-assoiation-config'
 import Loading from '@/app/(protected)/procedures/[id]/view/loading'
 import { Card } from '@repo/ui/cardpanel'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
@@ -200,7 +202,7 @@ const ViewProcedurePage: React.FC = () => {
     }
   }
 
-  const handleUpdateField = async (input: UpdateProcedureInput) => {
+  const handleUpdateField = async (input: UpdateProcedureInput, options?: { throwOnError?: boolean }) => {
     if (!procedure?.id) {
       return
     }
@@ -218,8 +220,24 @@ const ViewProcedurePage: React.FC = () => {
         title: 'Error',
         description: errorMessage,
       })
+
+      if (options?.throwOnError) {
+        throw error
+      }
     }
   }
+
+  const handleRemoveAssociation = useAssociationRemoval({
+    entityId: procedure?.id,
+    handleUpdateField: (input: UpdateProcedureInput) => handleUpdateField(input, { throwOnError: true }),
+    queryClient,
+    cacheTargets: [{ queryKey: ['procedures', procedureId, 'associations'], dataRootField: 'procedure' }],
+    invalidateQueryKeys: [['procedures']],
+    sectionKeyToRemoveField: ASSOCIATION_REMOVAL_CONFIG.procedure.sectionKeyToRemoveField,
+    sectionKeyToDataField: ASSOCIATION_REMOVAL_CONFIG.procedure.sectionKeyToDataField,
+    sectionKeyToInvalidateQueryKey: ASSOCIATION_REMOVAL_CONFIG.procedure.sectionKeyToInvalidateQueryKey,
+    onRemoved: () => setDataInitialized(false),
+  })
 
   if (isLoading) {
     return <Loading />
@@ -291,7 +309,7 @@ const ViewProcedurePage: React.FC = () => {
 
   const sidebarContent = (
     <>
-      {memoizedCenterNode && <ObjectAssociationSwitch sections={memoizedSections} centerNode={memoizedCenterNode} canEdit={editAllowed} />}
+      {memoizedCenterNode && <ObjectAssociationSwitch sections={memoizedSections} centerNode={memoizedCenterNode} canEdit={editAllowed} onRemoveAssociation={handleRemoveAssociation} />}
       <Card className="p-4">
         <h3 className="text-lg font-medium mb-2">Properties</h3>
         <AuthorityCard

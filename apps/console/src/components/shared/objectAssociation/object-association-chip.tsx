@@ -17,9 +17,11 @@ export interface ObjectChipProps {
     link: string
   }
   kind?: string
+  removable?: boolean
+  onRemove?: () => void
 }
 
-const ObjectAssociationChip: React.FC<ObjectChipProps> = ({ object, kind }) => {
+const ObjectAssociationChip: React.FC<ObjectChipProps> = ({ object, kind, removable, onRemove }) => {
   const [tooltipOpen, setTooltipOpen] = useState(false)
   const { convertToReadOnly } = usePlateEditor()
   const router = useRouter()
@@ -35,7 +37,7 @@ const ObjectAssociationChip: React.FC<ObjectChipProps> = ({ object, kind }) => {
     <TooltipProvider delayDuration={300}>
       <Tooltip open={tooltipOpen} onOpenChange={setTooltipOpen}>
         <TooltipTrigger className="bg-transparent" onClick={(e) => e.preventDefault()}>
-          <ObjectsChip name={displayText} objectType={objectKind}></ObjectsChip>
+          <ObjectsChip name={displayText} objectType={objectKind} removable={removable} onRemove={onRemove ? () => onRemove() : undefined} />
         </TooltipTrigger>
 
         <TooltipContent side="top" className="bg-secondary p-3 rounded-md shadow-lg text-xs min-w-[240px]">

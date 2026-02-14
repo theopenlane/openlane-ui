@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
 import { ChevronDown } from 'lucide-react'
 import { getHrefForObjectType, NormalizedObject } from '@/utils/getHrefForObjectType'
@@ -10,19 +10,23 @@ import { Section } from '@/components/shared/object-association/types/object-ass
 type AssociatedObjectsAccordionProps = {
   sections: Section
   toggleAll: boolean
+  removable?: boolean
+  onRemove?: (objectId: string, kind: string) => void
 }
 
-const AssociatedObjectsAccordion: React.FC<AssociatedObjectsAccordionProps> = ({ sections, toggleAll }) => {
+const AssociatedObjectsAccordion: React.FC<AssociatedObjectsAccordionProps> = ({ sections, toggleAll, removable, onRemove }) => {
   const sectionKeys = useMemo(() => Object.keys(sections), [sections])
-  const [expandedItems, setExpandedItems] = useState<string[]>([sectionKeys[0]])
+  const sectionKeysRef = useRef(sectionKeys)
+  sectionKeysRef.current = sectionKeys
+  const [expandedItems, setExpandedItems] = useState<string[]>(sectionKeys[0] ? [sectionKeys[0]] : [])
 
   useEffect(() => {
-    const allSections = sectionKeys
+    const allSections = sectionKeysRef.current
     setExpandedItems((prev) => {
       const hasAllExpanded = allSections.every((section) => prev.includes(section))
       return hasAllExpanded ? [] : allSections
     })
-  }, [sectionKeys, toggleAll])
+  }, [toggleAll])
 
   const extractNodes = <T extends { id: string }>(edges: Array<{ node?: T | null } | null> | null | undefined): T[] => {
     return (edges ?? []).map((edge) => edge?.node).filter((node): node is T => !!node)
@@ -61,6 +65,8 @@ const AssociatedObjectsAccordion: React.FC<AssociatedObjectsAccordionProps> = ({
                 summary: row?.summary,
                 link: getHrefForObjectType(kind, row as NormalizedObject),
               }}
+              removable={removable}
+              onRemove={onRemove ? () => onRemove(row.id, kind) : undefined}
             />
           )
         })

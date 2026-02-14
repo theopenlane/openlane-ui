@@ -29,6 +29,8 @@ import { ManagePermissionSheet } from '@/components/shared/policy-procedure.tsx/
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types.ts'
 import ObjectAssociationSwitch from '@/components/shared/object-association/object-association-switch.tsx'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { useAssociationRemoval } from '@/hooks/useAssociationRemoval'
+import { ASSOCIATION_REMOVAL_CONFIG } from '@/components/shared/objectAssociation/object-assoiation-config'
 import Loading from '@/app/(protected)/policies/[id]/view/loading'
 import { Card } from '@repo/ui/cardpanel'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
@@ -216,7 +218,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
     router.push(`/procedures/create?policyId=${policyId}`)
   }
 
-  const handleUpdateField = async (input: UpdateInternalPolicyInput) => {
+  const handleUpdateField = async (input: UpdateInternalPolicyInput, options?: { throwOnError?: boolean }) => {
     if (!policy?.id) {
       return
     }
@@ -234,8 +236,24 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
         title: 'Error',
         description: errorMessage,
       })
+
+      if (options?.throwOnError) {
+        throw error
+      }
     }
   }
+
+  const handleRemoveAssociation = useAssociationRemoval({
+    entityId: policy?.id,
+    handleUpdateField: (input: UpdateInternalPolicyInput) => handleUpdateField(input, { throwOnError: true }),
+    queryClient,
+    cacheTargets: [{ queryKey: ['internalPolicies', policyId, 'associations'], dataRootField: 'internalPolicy' }],
+    invalidateQueryKeys: [['internalPolicies']],
+    sectionKeyToRemoveField: ASSOCIATION_REMOVAL_CONFIG.policy.sectionKeyToRemoveField,
+    sectionKeyToDataField: ASSOCIATION_REMOVAL_CONFIG.policy.sectionKeyToDataField,
+    sectionKeyToInvalidateQueryKey: ASSOCIATION_REMOVAL_CONFIG.policy.sectionKeyToInvalidateQueryKey,
+    onRemoved: () => setDataInitialized(false),
+  })
 
   if (isLoading) {
     return <Loading />
@@ -333,7 +351,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
 
   const sidebarContent = (
     <>
-      {memoizedCenterNode && <ObjectAssociationSwitch sections={memoizedSections} centerNode={memoizedCenterNode} canEdit={editAllowed} />}
+      {memoizedCenterNode && <ObjectAssociationSwitch sections={memoizedSections} centerNode={memoizedCenterNode} canEdit={editAllowed} onRemoveAssociation={handleRemoveAssociation} />}
       <Card className="p-4">
         <h3 className="text-lg font-medium mb-2">Properties</h3>
 

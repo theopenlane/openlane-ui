@@ -1,8 +1,12 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useDeleteRisk, useGetRiskById, useGetRiskDiscussionById, useUpdateRisk } from '@/lib/graphql-hooks/risks.ts'
+import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { RiskRiskImpact, RiskRiskLikelihood, RiskRiskStatus, UpdateRiskInput } from '@repo/codegen/src/schema.ts'
 import useFormSchema, { EditRisksFormData } from '@/components/pages/protected/risks/view/hooks/use-form-schema.ts'
 import { useNotification } from '@/hooks/useNotification.tsx'
+import { useRisk } from '@/components/pages/protected/risks/create/hooks/use-risk.tsx'
+import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap.ts'
+import { ASSOCIATION_REMOVAL_CONFIG } from '@/components/shared/objectAssociation/object-assoiation-config'
 import { Form } from '@repo/ui/form'
 import { PencilIcon, Trash2 } from 'lucide-react'
 import Menu from '@/components/shared/menu/menu.tsx'
@@ -30,6 +34,7 @@ import { Card } from '@repo/ui/cardpanel'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { useAssociationRemoval } from '@/hooks/useAssociationRemoval'
 
 type TRisksPageProps = {
   riskId: string
@@ -37,6 +42,7 @@ type TRisksPageProps = {
 
 const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
   const { setCrumbs } = React.useContext(BreadcrumbContext)
+  const { queryClient } = useGraphQLClient()
   const { risk, isLoading } = useGetRiskById(riskId)
   const { mutateAsync: updateRisk, isPending } = useUpdateRisk()
   const { mutateAsync: deleteRisk } = useDeleteRisk()
@@ -53,7 +59,22 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
   const router = useRouter()
   const { currentOrgId, getOrganizationByID } = useOrganization()
   const currentOrganization = getOrganizationByID(currentOrgId!)
+  const riskState = useRisk()
+  const [dataInitialized, setDataInitialized] = useState(false)
   const { data: discussionData } = useGetRiskDiscussionById(riskId)
+
+  const handleRemoveAssociation = useAssociationRemoval({
+    entityId: risk?.id,
+    handleUpdateField: (input: UpdateRiskInput) => handleUpdateField(input, { throwOnError: true }),
+    queryClient,
+    cacheTargets: [{ queryKey: ['risks', riskId], dataRootField: 'risk' }],
+    invalidateQueryKeys: [['risks']],
+    sectionKeyToRemoveField: ASSOCIATION_REMOVAL_CONFIG.risk.sectionKeyToRemoveField,
+    sectionKeyToDataField: ASSOCIATION_REMOVAL_CONFIG.risk.sectionKeyToDataField,
+    sectionKeyToInvalidateQueryKey: ASSOCIATION_REMOVAL_CONFIG.risk.sectionKeyToInvalidateQueryKey,
+    onRemoved: () => setDataInitialized(false),
+  })
+
   const memoizedSections = useMemo(() => {
     if (!risk) return {}
     return {
@@ -102,6 +123,33 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
       })
     }
   }, [risk, form])
+
+  useEffect(() => {
+    if (risk && !dataInitialized) {
+      const riskAssociations: TObjectAssociationMap = {
+        controlIDs: risk.controls?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
+        procedureIDs: risk.procedures?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
+        subcontrolIDs: risk.subcontrols?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
+        programIDs: risk.programs?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
+        taskIDs: risk.tasks?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
+        internalPolicyIDs: risk.internalPolicies?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
+      }
+
+      const riskAssociationsRefCodes: TObjectAssociationMap = {
+        controlIDs: risk.controls?.edges?.map((item) => item?.node?.refCode).filter((id): id is string => !!id) || [],
+        procedureIDs: risk.procedures?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => !!id) || [],
+        subcontrolIDs: risk.subcontrols?.edges?.map((item) => item?.node?.refCode).filter((id): id is string => !!id) || [],
+        programIDs: risk.programs?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => !!id) || [],
+        taskIDs: risk.tasks?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => !!id) || [],
+        internalPolicyIDs: risk.internalPolicies?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => !!id) || [],
+      }
+
+      riskState.setInitialAssociations(riskAssociations)
+      riskState.setAssociations(riskAssociations)
+      riskState.setAssociationRefCodes(riskAssociationsRefCodes)
+      setDataInitialized(true)
+    }
+  }, [risk, riskState, dataInitialized])
 
   const handleCancel = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
@@ -175,7 +223,7 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
     }
   }
 
-  const handleUpdateField = async (input: UpdateRiskInput) => {
+  const handleUpdateField = async (input: UpdateRiskInput, options?: { throwOnError?: boolean }) => {
     if (!risk.id) return
     try {
       await updateRisk({ updateRiskId: risk.id, input })
@@ -189,6 +237,10 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
         title: 'Error',
         description: errorMessage,
       })
+
+      if (options?.throwOnError) {
+        throw error
+      }
     }
   }
 
@@ -202,7 +254,7 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
 
   const sidebarContent = (
     <>
-      {memoizedCenterNode && <ObjectAssociationSwitch sections={memoizedSections} centerNode={memoizedCenterNode} canEdit={canEdit(permission?.roles)} />}
+      {memoizedCenterNode && <ObjectAssociationSwitch sections={memoizedSections} centerNode={memoizedCenterNode} canEdit={canEdit(permission?.roles)} onRemoveAssociation={handleRemoveAssociation} />}
       <Card className="p-4 mt-2! flex flex-col gap-4">
         <AuthorityCard
           form={form}
