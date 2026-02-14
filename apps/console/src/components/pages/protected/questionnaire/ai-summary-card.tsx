@@ -78,7 +78,7 @@ export const AISummaryCard = ({ jsonconfig, responses }: AISummaryCardProps) => 
             <h3 className="text-sm font-bold">AI Summary & Sentiment</h3>
           </div>
           {!result && (
-            <Button variant="outline" size="sm" onClick={handleGenerate} disabled={loading || completedResponses.length === 0}>
+            <Button variant="secondary" onClick={handleGenerate} disabled={loading || completedResponses.length === 0}>
               {loading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
