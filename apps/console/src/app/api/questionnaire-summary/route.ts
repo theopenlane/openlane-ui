@@ -243,17 +243,6 @@ export async function POST(req: NextRequest) {
     const summary = parseModelSummary(text)
 
     if (!summary) {
-      console.warn(
-        'Questionnaire summary: failed to parse model output.',
-        'Raw text length:',
-        text.length,
-        'Raw text (first 500 chars):',
-        text.slice(0, 500),
-        'Finish reason:',
-        response.candidates?.[0]?.finishReason,
-        'Parts count:',
-        response.candidates?.[0]?.content?.parts?.length,
-      )
       return NextResponse.json({ error: 'Failed to parse summary output' }, { status: 502 })
     }
 
