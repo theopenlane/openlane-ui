@@ -29,6 +29,7 @@ const RISK_FIELDS = gql`
       logoURL
     }
     procedures {
+      totalCount
       edges {
         node {
           id
@@ -39,6 +40,7 @@ const RISK_FIELDS = gql`
       }
     }
     controls {
+      totalCount
       edges {
         node {
           id
@@ -48,6 +50,7 @@ const RISK_FIELDS = gql`
       }
     }
     subcontrols {
+      totalCount
       edges {
         node {
           id
@@ -58,6 +61,7 @@ const RISK_FIELDS = gql`
       }
     }
     programs {
+      totalCount
       edges {
         node {
           id
@@ -68,6 +72,7 @@ const RISK_FIELDS = gql`
       }
     }
     tasks {
+      totalCount
       edges {
         node {
           id
@@ -78,6 +83,7 @@ const RISK_FIELDS = gql`
       }
     }
     internalPolicies {
+      totalCount
       edges {
         node {
           id

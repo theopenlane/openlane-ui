@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useHasScrollbar } from '@/hooks/useHasScrollbar'
 import { useParams, useRouter } from 'next/navigation'
+import { useQueryClient } from '@tanstack/react-query'
 import { FormProvider, useForm } from 'react-hook-form'
 import { Value } from 'platejs'
 import { InfoIcon } from 'lucide-react'
@@ -28,7 +29,9 @@ import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { canEdit } from '@/lib/authz/utils'
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types.ts'
 import ObjectAssociationSwitch from '@/components/shared/object-association/object-association-switch.tsx'
+import { ASSOCIATION_REMOVAL_CONFIG } from '@/components/shared/objectAssociation/object-assoiation-config'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { useAssociationRemoval } from '@/hooks/useAssociationRemoval'
 import Loading from './loading.tsx'
 import { useAccountRoles } from '@/lib/query-hooks/permissions.ts'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
@@ -79,6 +82,7 @@ const ControlDetailsPage: React.FC = () => {
   const { subcontrolId, id } = useParams<{ subcontrolId: string; id: string }>()
   const router = useRouter()
 
+  const queryClient = useQueryClient()
   const [isEditing, setIsEditing] = useState(false)
   const [initialValues, setInitialValues] = useState<FormValues>(initialDataObj)
   const [showAskAIDialog, setShowAskAIDialog] = useState(false)
@@ -205,7 +209,7 @@ const ControlDetailsPage: React.FC = () => {
     setIsEditing(true)
   }
 
-  const handleUpdateField = async (input: UpdateSubcontrolInput) => {
+  const handleUpdateField = async (input: UpdateSubcontrolInput, options?: { throwOnError?: boolean }) => {
     try {
       await updateSubcontrol({ updateSubcontrolId: subcontrolId, input })
       successNotification({
@@ -218,8 +222,23 @@ const ControlDetailsPage: React.FC = () => {
         title: 'Error',
         description: errorMessage,
       })
+
+      if (options?.throwOnError) {
+        throw error
+      }
     }
   }
+
+  const handleRemoveAssociation = useAssociationRemoval({
+    entityId: subcontrolId,
+    handleUpdateField: (input: UpdateSubcontrolInput) => handleUpdateField(input, { throwOnError: true }),
+    queryClient,
+    cacheTargets: [{ queryKey: ['subcontrols'], dataRootField: 'subcontrol' }],
+    invalidateQueryKeys: [['subcontrols']],
+    sectionKeyToRemoveField: ASSOCIATION_REMOVAL_CONFIG.subcontrol.sectionKeyToRemoveField,
+    sectionKeyToDataField: ASSOCIATION_REMOVAL_CONFIG.subcontrol.sectionKeyToDataField,
+    sectionKeyToInvalidateQueryKey: ASSOCIATION_REMOVAL_CONFIG.subcontrol.sectionKeyToInvalidateQueryKey,
+  })
 
   useEffect(() => {
     setCrumbs([
@@ -331,7 +350,15 @@ const ControlDetailsPage: React.FC = () => {
 
   const sidebarContent = (
     <>
-      {memoizedCenterNode && <ObjectAssociationSwitch controlId={subcontrol.control?.id} sections={memoizedSections} centerNode={memoizedCenterNode} canEdit={canEdit(permission?.roles)} />}
+      {memoizedCenterNode && (
+        <ObjectAssociationSwitch
+          controlId={subcontrol.control?.id}
+          sections={memoizedSections}
+          centerNode={memoizedCenterNode}
+          canEdit={canEdit(permission?.roles)}
+          onRemoveAssociation={handleRemoveAssociation}
+        />
+      )}
 
       <PropertiesCard data={subcontrol} isEditing={isEditing} handleUpdate={handleUpdateField} canEdit={canEdit(permission?.roles)} />
     </>

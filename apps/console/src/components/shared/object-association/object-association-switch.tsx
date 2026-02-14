@@ -15,9 +15,10 @@ type TObjectAssociationSwitchProps = {
   sections: Section
   centerNode: TCenterNode
   canEdit: boolean
+  onRemoveAssociation?: (objectId: string, kind: string) => void
 }
 
-const ObjectAssociationSwitch: React.FC<TObjectAssociationSwitchProps> = ({ sections, centerNode, canEdit, controlId }) => {
+const ObjectAssociationSwitch: React.FC<TObjectAssociationSwitchProps> = ({ sections, centerNode, canEdit, controlId, onRemoveAssociation }) => {
   const [isGraphView, setIsGraphView] = useState<boolean>(true)
   const [toggleAll, setToggleAll] = useState<boolean>(false)
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false)
@@ -88,7 +89,7 @@ const ObjectAssociationSwitch: React.FC<TObjectAssociationSwitchProps> = ({ sect
       </div>
 
       {!isGraphView ? (
-        <AssociatedObjectsAccordion sections={sections} toggleAll={toggleAll} />
+        <AssociatedObjectsAccordion sections={sections} toggleAll={toggleAll} removable={canEdit && !!onRemoveAssociation} onRemove={onRemoveAssociation} />
       ) : (
         <ObjectAssociationGraph
           controlId={controlId}

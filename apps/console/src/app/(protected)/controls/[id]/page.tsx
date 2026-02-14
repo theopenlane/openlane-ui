@@ -4,6 +4,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { useHasScrollbar } from '@/hooks/useHasScrollbar'
 import { useParams, useRouter } from 'next/navigation'
 import { useGetControlAssociationsById, useGetControlById, useGetControlDiscussionById, useUpdateControl, useDeleteControl, ControlByIdNode } from '@/lib/graphql-hooks/controls'
+import { useQueryClient } from '@tanstack/react-query'
 import { FormProvider, useForm } from 'react-hook-form'
 import { Value } from 'platejs'
 import { InfoIcon } from 'lucide-react'
@@ -24,6 +25,8 @@ import SlideBarLayout from '@/components/shared/slide-bar/slide-bar.tsx'
 import { useOrganization } from '@/hooks/useOrganization'
 import ObjectAssociationSwitch from '@/components/shared/object-association/object-association-switch.tsx'
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types.ts'
+import { useAssociationRemoval } from '@/hooks/useAssociationRemoval'
+import { ASSOCIATION_REMOVAL_CONFIG } from '@/components/shared/objectAssociation/object-assoiation-config'
 import Loading from './loading.tsx'
 import { useAccountRoles, useOrganizationRoles } from '@/lib/query-hooks/permissions.ts'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
@@ -84,6 +87,7 @@ const ControlDetailsPage: React.FC = () => {
   const { data: permission } = useAccountRoles(ObjectEnum.CONTROL, id)
   const { data: orgPermission } = useOrganizationRoles()
 
+  const queryClient = useQueryClient()
   const { successNotification, errorNotification } = useNotification()
   const [showAskAIDialog, setShowAskAIDialog] = useState(false)
   const isSourceFramework = data?.control.source === ControlControlSource.FRAMEWORK
@@ -182,19 +186,34 @@ const ControlDetailsPage: React.FC = () => {
     setIsEditing(true)
   }
 
-  const handleUpdateField = async (input: UpdateControlInput) => {
+  const handleUpdateField = async (input: UpdateControlInput, options?: { throwOnError?: boolean }) => {
     try {
       await updateControl({ updateControlId: id, input })
       successNotification({
         title: 'Control updated',
         description: 'The control was successfully updated.',
       })
-    } catch {
+    } catch (error) {
       errorNotification({
         title: 'Failed to update control',
       })
+
+      if (options?.throwOnError) {
+        throw error
+      }
     }
   }
+
+  const handleRemoveAssociation = useAssociationRemoval({
+    entityId: id,
+    handleUpdateField: (input: UpdateControlInput) => handleUpdateField(input, { throwOnError: true }),
+    queryClient,
+    cacheTargets: [{ queryKey: ['controls'], dataRootField: 'control', exact: false }],
+    invalidateQueryKeys: [['controls']],
+    sectionKeyToRemoveField: ASSOCIATION_REMOVAL_CONFIG.control.sectionKeyToRemoveField,
+    sectionKeyToDataField: ASSOCIATION_REMOVAL_CONFIG.control.sectionKeyToDataField,
+    sectionKeyToInvalidateQueryKey: ASSOCIATION_REMOVAL_CONFIG.control.sectionKeyToInvalidateQueryKey,
+  })
 
   const handleDeleteControl = async () => {
     if (!id) return
@@ -326,7 +345,15 @@ const ControlDetailsPage: React.FC = () => {
 
   const sidebarContent = (
     <>
-      {memoizedCenterNode && <ObjectAssociationSwitch controlId={data?.control.id} sections={memoizedSections} centerNode={memoizedCenterNode} canEdit={canEdit(permission?.roles)} />}
+      {memoizedCenterNode && (
+        <ObjectAssociationSwitch
+          controlId={data?.control.id}
+          sections={memoizedSections}
+          centerNode={memoizedCenterNode}
+          canEdit={canEdit(permission?.roles)}
+          onRemoveAssociation={handleRemoveAssociation}
+        />
+      )}
 
       <PropertiesCard data={control} isEditing={isEditing} handleUpdate={handleUpdateField} canEdit={canEdit(permission?.roles)} />
     </>

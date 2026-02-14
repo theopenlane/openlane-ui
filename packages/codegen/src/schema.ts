@@ -63129,23 +63129,32 @@ export type RiskFieldsFragment = {
   delegate?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
   procedures: {
     __typename?: 'ProcedureConnection'
+    totalCount: number
     edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string; displayID: string; summary?: string | null } | null } | null> | null
   }
-  controls: { __typename?: 'ControlConnection'; edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; displayID: string; refCode: string } | null } | null> | null }
+  controls: {
+    __typename?: 'ControlConnection'
+    totalCount: number
+    edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; displayID: string; refCode: string } | null } | null> | null
+  }
   subcontrols: {
     __typename?: 'SubcontrolConnection'
+    totalCount: number
     edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; displayID: string; refCode: string; controlId: string } | null } | null> | null
   }
   programs: {
     __typename?: 'ProgramConnection'
+    totalCount: number
     edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; displayID: string; name: string; description?: string | null } | null } | null> | null
   }
   tasks: {
     __typename?: 'TaskConnection'
+    totalCount: number
     edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; displayID: string; title: string; details?: string | null } | null } | null> | null
   }
   internalPolicies: {
     __typename?: 'InternalPolicyConnection'
+    totalCount: number
     edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; displayID: string; name: string } | null } | null> | null
   }
 }
@@ -63198,26 +63207,32 @@ export type GetRiskByIdQuery = {
     delegate?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
     procedures: {
       __typename?: 'ProcedureConnection'
+      totalCount: number
       edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string; displayID: string; summary?: string | null } | null } | null> | null
     }
     controls: {
       __typename?: 'ControlConnection'
+      totalCount: number
       edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; displayID: string; refCode: string } | null } | null> | null
     }
     subcontrols: {
       __typename?: 'SubcontrolConnection'
+      totalCount: number
       edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; displayID: string; refCode: string; controlId: string } | null } | null> | null
     }
     programs: {
       __typename?: 'ProgramConnection'
+      totalCount: number
       edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; displayID: string; name: string; description?: string | null } | null } | null> | null
     }
     tasks: {
       __typename?: 'TaskConnection'
+      totalCount: number
       edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; displayID: string; title: string; details?: string | null } | null } | null> | null
     }
     internalPolicies: {
       __typename?: 'InternalPolicyConnection'
+      totalCount: number
       edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; displayID: string; name: string } | null } | null> | null
     }
   }
