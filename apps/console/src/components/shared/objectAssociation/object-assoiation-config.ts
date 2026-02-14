@@ -25,6 +25,7 @@ import {
   GetAllSubcontrolsQuery,
   TasksWithFilterQuery,
 } from '@repo/codegen/src/schema'
+import type { UpdateControlInput, UpdateInternalPolicyInput, UpdateProcedureInput, UpdateRiskInput, UpdateSubcontrolInput } from '@repo/codegen/src/schema'
 
 export type QueryResponse =
   | GetAllControlsQuery
@@ -418,3 +419,87 @@ export const generateWhere = (selectedObject: ObjectTypeObjects | null, searchVa
     or: orFilters,
   }
 }
+
+//REMOVE ASSOCIATION CHIP
+
+type TObjectAssociationInputName = (typeof OBJECT_QUERY_CONFIG)[keyof typeof OBJECT_QUERY_CONFIG]['inputName']
+type TRemoveFieldName<TInputName extends string> = `remove${Capitalize<TInputName>}`
+
+type TAssociationSectionDefinition = {
+  dataField: AllObjectQueriesDataKey
+  inputName: TObjectAssociationInputName
+}
+
+const ASSOCIATION_SECTION_CONFIG = {
+  controls: { dataField: 'controls', inputName: 'controlIDs' },
+  subcontrols: { dataField: 'subcontrols', inputName: 'subcontrolIDs' },
+  controlObjectives: { dataField: 'controlObjectives', inputName: 'controlObjectiveIDs' },
+  policies: { dataField: 'internalPolicies', inputName: 'internalPolicyIDs' },
+  procedures: { dataField: 'procedures', inputName: 'procedureIDs' },
+  programs: { dataField: 'programs', inputName: 'programIDs' },
+  tasks: { dataField: 'tasks', inputName: 'taskIDs' },
+  risks: { dataField: 'risks', inputName: 'riskIDs' },
+  evidences: { dataField: 'evidences', inputName: 'evidenceIDs' },
+  groups: { dataField: 'groups', inputName: 'groupIDs' },
+} as const satisfies Record<string, TAssociationSectionDefinition>
+
+export type AssociationSectionKey = keyof typeof ASSOCIATION_SECTION_CONFIG
+
+type TAssociationRemovalConfig<TInput extends object, TSectionKey extends AssociationSectionKey> = {
+  sectionKeyToDataField: Record<TSectionKey, (typeof ASSOCIATION_SECTION_CONFIG)[TSectionKey]['dataField']>
+  sectionKeyToRemoveField: Record<TSectionKey, Extract<TRemoveFieldName<(typeof ASSOCIATION_SECTION_CONFIG)[TSectionKey]['inputName']>, keyof TInput & string>>
+  sectionKeyToInvalidateQueryKey: Record<TSectionKey, readonly unknown[]>
+}
+
+const toRemoveFieldName = <TInputName extends TObjectAssociationInputName>(inputName: TInputName): TRemoveFieldName<TInputName> => {
+  return `remove${inputName.charAt(0).toUpperCase()}${inputName.slice(1)}` as TRemoveFieldName<TInputName>
+}
+
+const ASSOCIATION_SECTION_QUERY_KEY = {
+  controls: ['controls'],
+  subcontrols: ['subcontrols'],
+  controlObjectives: ['controlObjectives'],
+  policies: ['internalPolicies'],
+  procedures: ['procedures'],
+  programs: ['programs'],
+  tasks: ['tasks'],
+  risks: ['risks'],
+  evidences: ['evidences'],
+  groups: ['groups'],
+} as const satisfies Record<AssociationSectionKey, readonly [string]>
+
+const createAssociationRemovalConfig =
+  <TInput extends object>() =>
+  <TSectionKey extends AssociationSectionKey>(sections: readonly TSectionKey[]): TAssociationRemovalConfig<TInput, TSectionKey> => {
+    const sectionKeyToDataField = {} as TAssociationRemovalConfig<TInput, TSectionKey>['sectionKeyToDataField']
+    const sectionKeyToRemoveField = {} as TAssociationRemovalConfig<TInput, TSectionKey>['sectionKeyToRemoveField']
+    const sectionKeyToInvalidateQueryKey = {} as TAssociationRemovalConfig<TInput, TSectionKey>['sectionKeyToInvalidateQueryKey']
+
+    for (const sectionKey of sections) {
+      const sectionConfig = ASSOCIATION_SECTION_CONFIG[sectionKey]
+
+      sectionKeyToDataField[sectionKey] = sectionConfig.dataField
+      sectionKeyToRemoveField[sectionKey] = toRemoveFieldName(sectionConfig.inputName) as TAssociationRemovalConfig<TInput, TSectionKey>['sectionKeyToRemoveField'][TSectionKey]
+      sectionKeyToInvalidateQueryKey[sectionKey] = ASSOCIATION_SECTION_QUERY_KEY[sectionKey]
+    }
+
+    return {
+      sectionKeyToDataField,
+      sectionKeyToRemoveField,
+      sectionKeyToInvalidateQueryKey,
+    }
+  }
+
+const CONTROL_ASSOCIATION_SECTIONS = ['policies', 'procedures', 'tasks', 'programs', 'risks', 'subcontrols'] as const
+const SUBCONTROL_ASSOCIATION_SECTIONS = ['policies', 'procedures', 'tasks', 'risks'] as const
+const POLICY_ASSOCIATION_SECTIONS = ['procedures', 'controls', 'subcontrols', 'controlObjectives', 'tasks', 'programs'] as const
+const PROCEDURE_ASSOCIATION_SECTIONS = ['policies', 'controls', 'subcontrols', 'risks', 'tasks', 'programs'] as const
+const RISK_ASSOCIATION_SECTIONS = ['controls', 'procedures', 'subcontrols', 'programs', 'tasks', 'policies'] as const
+
+export const ASSOCIATION_REMOVAL_CONFIG = {
+  control: createAssociationRemovalConfig<UpdateControlInput>()(CONTROL_ASSOCIATION_SECTIONS),
+  subcontrol: createAssociationRemovalConfig<UpdateSubcontrolInput>()(SUBCONTROL_ASSOCIATION_SECTIONS),
+  policy: createAssociationRemovalConfig<UpdateInternalPolicyInput>()(POLICY_ASSOCIATION_SECTIONS),
+  procedure: createAssociationRemovalConfig<UpdateProcedureInput>()(PROCEDURE_ASSOCIATION_SECTIONS),
+  risk: createAssociationRemovalConfig<UpdateRiskInput>()(RISK_ASSOCIATION_SECTIONS),
+} as const
