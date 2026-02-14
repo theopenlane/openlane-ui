@@ -2,8 +2,8 @@
 
 import React from 'react'
 import { useParams } from 'next/navigation'
-import { useGetAllControlImplementations } from '@/lib/graphql-hooks/control-implementations'
-import { useGetAllControlObjectives } from '@/lib/graphql-hooks/control-objectives'
+import { useGetAllControlImplementations } from '@/lib/graphql-hooks/control-implementation'
+import { useGetAllControlObjectives } from '@/lib/graphql-hooks/control-objective'
 import { ControlImplementationFieldsFragment, ControlObjectiveFieldsFragment, ControlObjectiveObjectiveStatus } from '@repo/codegen/src/schema'
 import ControlImplementations from '@/components/pages/protected/controls/tabs/implementation/control-implementations'
 import ControlObjectives from '@/components/pages/protected/controls/tabs/implementation/control-objectives'

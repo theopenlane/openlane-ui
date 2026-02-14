@@ -10,7 +10,7 @@ import EvidenceCreateSheet from '@/components/pages/protected/evidence/evidence-
 import CreateControlImplementationSheet from '@/components/pages/protected/controls/tabs/implementation/control-implementation-components/create-control-implementation-sheet'
 import type { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap.ts'
 import QuickActionsBar, { type QuickActionItem } from '@/components/pages/protected/controls/quick-actions/quick-actions-bar'
-import { useGetControlAssociationsById } from '@/lib/graphql-hooks/controls'
+import { useGetControlAssociationsById } from '@/lib/graphql-hooks/control'
 import { useGetSubcontrolAssociationsById } from '@/lib/graphql-hooks/subcontrol'
 import { buildControlEvidenceData, buildEvidenceControlParam, buildSubcontrolEvidenceData } from '@/components/pages/protected/controls/evidence-data'
 import CreateControlObjectiveSheet from '../tabs/implementation/control-objectives-components/create-control-objective-sheet'

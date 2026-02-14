@@ -1,6 +1,6 @@
 import { Switch } from '@repo/ui/switch'
 import { useNotification } from '@/hooks/useNotification'
-import { useDeleteTrustCenterDoc, useUpdateTrustCenterDoc } from '@/lib/graphql-hooks/trust-center'
+import { useDeleteTrustCenterDoc, useUpdateTrustCenterDoc } from '@/lib/graphql-hooks/trust-center-doc'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'

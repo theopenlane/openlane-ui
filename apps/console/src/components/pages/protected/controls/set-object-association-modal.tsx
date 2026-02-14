@@ -1,6 +1,6 @@
 'use client'
 
-import { useGetControlAssociationsById, useUpdateControl } from '@/lib/graphql-hooks/controls'
+import { useGetControlAssociationsById, useUpdateControl } from '@/lib/graphql-hooks/control'
 import ObjectAssociation from '@/components/shared/object-association/object-association'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import React, { useMemo, useState } from 'react'

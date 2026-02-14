@@ -137,14 +137,6 @@ export const CREATE_CSV_BULK_ASSET = gql`
   }
 `
 
-// export const BULK_EDIT_ASSET = gql`
-//   mutation UpdateBulkAsset($ids: [ID!]!, $input: UpdateAssetInput!) {
-//     updateBulkAsset(ids: $ids, input: $input) {
-//       updatedIDs
-//     }
-//   }
-// `
-
 export const BULK_DELETE_ASSET = gql`
   mutation DeleteBulkAsset($ids: [ID!]!) {
     deleteBulkAsset(ids: $ids) {

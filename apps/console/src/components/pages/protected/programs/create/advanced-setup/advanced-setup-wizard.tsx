@@ -27,7 +27,7 @@ import {
 } from './advanced-setup-wizard-config'
 import { CreateProgramWithMembersInput, ProgramMembershipRole } from '@repo/codegen/src/schema'
 import { useNotification } from '@/hooks/useNotification'
-import { useCreateProgramWithMembers } from '@/lib/graphql-hooks/programs'
+import { useCreateProgramWithMembers } from '@/lib/graphql-hooks/program'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { addYears } from 'date-fns'
 import { AdvancedSetupFormSummary } from './advanced-setup-form-summary'

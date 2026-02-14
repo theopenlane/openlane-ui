@@ -9,7 +9,7 @@ import { useEffect, useContext } from 'react'
 import { useTheme } from 'next-themes'
 import { lightTheme } from '../questionnaire/theme-light'
 import { darkTheme } from '../questionnaire/theme-dark'
-import { useGetTemplate } from '@/lib/graphql-hooks/templates'
+import { useGetTemplate } from '@/lib/graphql-hooks/template'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 
 export default function ViewTemplate(input: { existingId: string }) {

@@ -4,7 +4,7 @@ import MapControlsFormFilters from './map-controls-form-filters'
 import MatchedControls from './matched-controls'
 import { AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
 import { ChevronDown, Expand } from 'lucide-react'
-import { useAllControlsGrouped } from '@/lib/graphql-hooks/controls'
+import { useAllControlsGrouped } from '@/lib/graphql-hooks/control'
 
 import ControlChip from './shared/control-chip'
 import { ControlWhereInput, SubcontrolWhereInput } from '@repo/codegen/src/schema'

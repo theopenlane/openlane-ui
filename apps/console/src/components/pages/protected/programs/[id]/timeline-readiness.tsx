@@ -1,7 +1,7 @@
 'use client'
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { useGetProgramBasicInfo, useUpdateProgram } from '@/lib/graphql-hooks/programs'
+import { useGetProgramBasicInfo, useUpdateProgram } from '@/lib/graphql-hooks/program'
 import { formatDate } from '@/utils/date'
 import { differenceInCalendarDays } from 'date-fns'
 import { Card } from '@repo/ui/cardpanel'

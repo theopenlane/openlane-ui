@@ -8,7 +8,7 @@ import FileUpload from '@/components/shared/file-upload/file-upload'
 import { useNotification } from '@/hooks/useNotification'
 import { exportCSV } from '@/lib/export'
 import { GRAPHQL_OBJECT_DOCS } from '@/constants/docs'
-import { useCreateBulkCSVTemplate } from '@/lib/graphql-hooks/templates'
+import { useCreateBulkCSVTemplate } from '@/lib/graphql-hooks/template'
 import { TUploadedFile } from '../../evidence/upload/types/TUploadedFile'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { Callout } from '@/components/shared/callout/callout'
@@ -24,7 +24,7 @@ type BulkCsvCreateTemplateDialogProps = {
   >
 }
 
-const BulkCSVCreateTemplatelDialog: React.FC<BulkCsvCreateTemplateDialogProps> = ({ trigger }) => {
+const BulkCSVCreateTemplateDialog: React.FC<BulkCsvCreateTemplateDialogProps> = ({ trigger }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const [uploadedFile, setUploadedFile] = useState<TUploadedFile | null>(null)
   const { successNotification, errorNotification } = useNotification()
@@ -112,4 +112,4 @@ const BulkCSVCreateTemplatelDialog: React.FC<BulkCsvCreateTemplateDialogProps> =
   )
 }
 
-export { BulkCSVCreateTemplatelDialog }
+export { BulkCSVCreateTemplateDialog }

@@ -151,119 +151,6 @@ export const VALIDATE_CUSTOM_DOMAIN = gql`
   }
 `
 
-export const GET_ALL_TRUST_CENTERS_DOCS = gql`
-  query GetTrustCenterDocs($where: TrustCenterDocWhereInput, $first: Int, $orderBy: [TrustCenterDocOrder!], $after: Cursor, $before: Cursor, $last: Int) {
-    trustCenters {
-      edges {
-        node {
-          id
-          trustCenterDocs(where: $where, first: $first, orderBy: $orderBy, after: $after, before: $before, last: $last) {
-            edges {
-              node {
-                id
-                title
-                trustCenterDocKindName
-                visibility
-                tags
-                createdAt
-                updatedAt
-                watermarkingEnabled
-                watermarkStatus
-                file {
-                  presignedURL
-                }
-                originalFile {
-                  presignedURL
-                }
-                standard {
-                  shortName
-                  id
-                }
-              }
-            }
-            pageInfo {
-              endCursor
-              hasNextPage
-              hasPreviousPage
-              startCursor
-            }
-            totalCount
-          }
-        }
-      }
-    }
-  }
-`
-
-export const UPDATE_TRUST_CENTER_DOC = gql`
-  mutation UpdateTrustCenterDoc($updateTrustCenterDocId: ID!, $input: UpdateTrustCenterDocInput!, $trustCenterDocFile: Upload) {
-    updateTrustCenterDoc(id: $updateTrustCenterDocId, input: $input, trustCenterDocFile: $trustCenterDocFile) {
-      trustCenterDoc {
-        id
-      }
-    }
-  }
-`
-export const CREATE_TRUST_CENTER_DOC = gql`
-  mutation CreateTrsutCenterDoc($input: CreateTrustCenterDocInput!, $trustCenterDocFile: Upload!) {
-    createTrustCenterDoc(input: $input, trustCenterDocFile: $trustCenterDocFile) {
-      trustCenterDoc {
-        id
-      }
-    }
-  }
-`
-
-export const GET_ALL_TRUST_CENTERS_DOC_BY_ID = gql`
-  query GetTruestCenterDocByID($trustCenterDocId: ID!) {
-    trustCenterDoc(id: $trustCenterDocId) {
-      id
-      title
-      trustCenterDocKindName
-      visibility
-      tags
-      file {
-        presignedURL
-        providedFileName
-        providedFileSize
-      }
-      originalFile {
-        presignedURL
-        providedFileSize
-        providedFileName
-      }
-      watermarkingEnabled
-      watermarkStatus
-      standardID
-    }
-  }
-`
-
-export const DELETE_TRUST_CENTER_DOC = gql`
-  mutation DeleteTrustCenterDoc($deleteTrustCenterDocId: ID!) {
-    deleteTrustCenterDoc(id: $deleteTrustCenterDocId) {
-      deletedID
-    }
-  }
-`
-
-export const BULK_DELETE_TRUST_CENTER_DOC = gql`
-  mutation BulkDeleteTrustCenterDoc($ids: [ID!]!) {
-    deleteBulkTrustCenterDoc(ids: $ids) {
-      deletedIDs
-    }
-  }
-`
-export const BULK_UPDATE_TRUST_CENTER_DOC = gql`
-  mutation BulkUpdateTrustCenterDoc($ids: [ID!]!, $input: UpdateTrustCenterDocInput!) {
-    updateBulkTrustCenterDoc(ids: $ids, input: $input) {
-      trustCenterDocs {
-        id
-      }
-    }
-  }
-`
-
 export const UPDATE_TRUST_CENTER_WATERMARK_CONFIG = gql`
   mutation UpdateTrustCenterWatermarkConfig($updateTrustCenterWatermarkConfigId: ID!, $input: UpdateTrustCenterWatermarkConfigInput!, $watermarkFile: Upload) {
     updateTrustCenterWatermarkConfig(id: $updateTrustCenterWatermarkConfigId, input: $input, watermarkFile: $watermarkFile) {
@@ -274,7 +161,7 @@ export const UPDATE_TRUST_CENTER_WATERMARK_CONFIG = gql`
   }
 `
 
-export const GET_ALL_TRUST_CENTERS_POSTS = gql`
+export const GET_ALL_TRUST_CENTER_POSTS = gql`
   query GetTrustCenterPosts($trustCenterId: ID!) {
     trustCenter(id: $trustCenterId) {
       posts {
@@ -311,7 +198,7 @@ export const UPDATE_TRUST_CENTER_POST = gql`
   }
 `
 
-export const GET_ALL_TRUST_CENTERS_LAST_UPDATED = gql`
+export const GET_ALL_TRUST_CENTER_LAST_UPDATED = gql`
   query TrustCenterLastUpdated($trustCenterId: ID!) {
     trustCenter(id: $trustCenterId) {
       customDomain {

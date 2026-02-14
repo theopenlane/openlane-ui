@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader } from '@rep
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { Logo } from '@repo/ui/logo'
 import { AVAILABLE_INTEGRATIONS, getIntegrationId, IntegrationNode } from './config'
-import { useDisconnectIntegration } from '@/lib/graphql-hooks/integrations'
+import { useDisconnectIntegration } from '@/lib/graphql-hooks/integration'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 

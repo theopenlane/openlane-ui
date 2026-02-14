@@ -1437,6 +1437,8 @@ export interface AssessmentResponse extends Node {
   identityHolder?: Maybe<IdentityHolder>
   /** the identity holder record for the recipient */
   identityHolderID?: Maybe<Scalars['ID']['output']>
+  /** is this a draft response? can the user resume from where they left? */
+  isDraft: Scalars['Boolean']['output']
   /** whether this assessment response is for a test send */
   isTest: Scalars['Boolean']['output']
   /** the most recent email event timestamp for this assessment response */
@@ -1457,6 +1459,7 @@ export interface AssessmentResponse extends Node {
 /** AssessmentResponseAssessmentResponseStatus is enum for the field status */
 export enum AssessmentResponseAssessmentResponseStatus {
   COMPLETED = 'COMPLETED',
+  DRAFT = 'DRAFT',
   NOT_STARTED = 'NOT_STARTED',
   OVERDUE = 'OVERDUE',
   SENT = 'SENT',
@@ -1516,6 +1519,7 @@ export enum AssessmentResponseOrderField {
   email_delivered_at = 'email_delivered_at',
   email_open_count = 'email_open_count',
   email_opened_at = 'email_opened_at',
+  is_draft = 'is_draft',
   last_email_event_at = 'last_email_event_at',
   send_attempts = 'send_attempts',
   started_at = 'started_at',
@@ -1747,6 +1751,9 @@ export interface AssessmentResponseWhereInput {
   identityHolderIDNEQ?: InputMaybe<Scalars['ID']['input']>
   identityHolderIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   identityHolderIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** is_draft field predicates */
+  isDraft?: InputMaybe<Scalars['Boolean']['input']>
+  isDraftNEQ?: InputMaybe<Scalars['Boolean']['input']>
   /** is_test field predicates */
   isTest?: InputMaybe<Scalars['Boolean']['input']>
   isTestNEQ?: InputMaybe<Scalars['Boolean']['input']>
@@ -3400,6 +3407,7 @@ export interface CampaignTargetWorkflowTimelineArgs {
 /** CampaignTargetAssessmentResponseStatus is enum for the field status */
 export enum CampaignTargetAssessmentResponseStatus {
   COMPLETED = 'COMPLETED',
+  DRAFT = 'DRAFT',
   NOT_STARTED = 'NOT_STARTED',
   OVERDUE = 'OVERDUE',
   SENT = 'SENT',
@@ -7690,7 +7698,7 @@ export interface CreateEntityInput {
   /** whether SSO is enforced for the entity */
   ssoEnforced?: InputMaybe<Scalars['Boolean']['input']>
   /** status of the entity */
-  status?: InputMaybe<Scalars['String']['input']>
+  status?: InputMaybe<EntityEntityStatus>
   /** status page URL for the entity */
   statusPageURL?: InputMaybe<Scalars['String']['input']>
   subprocessorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -14932,7 +14940,7 @@ export interface Entity extends Node {
   /** whether SSO is enforced for the entity */
   ssoEnforced?: Maybe<Scalars['Boolean']['output']>
   /** status of the entity */
-  status?: Maybe<Scalars['String']['output']>
+  status?: Maybe<EntityEntityStatus>
   /** status page URL for the entity */
   statusPageURL?: Maybe<Scalars['String']['output']>
   subprocessors: SubprocessorConnection
@@ -15179,6 +15187,19 @@ export interface EntityEdge {
   cursor: Scalars['Cursor']['output']
   /** The item at the end of the edge. */
   node?: Maybe<Entity>
+}
+
+/** EntityEntityStatus is enum for the field status */
+export enum EntityEntityStatus {
+  ACTIVE = 'ACTIVE',
+  APPROVED = 'APPROVED',
+  DRAFT = 'DRAFT',
+  OFFBOARDING = 'OFFBOARDING',
+  REJECTED = 'REJECTED',
+  RESTRICTED = 'RESTRICTED',
+  SUSPENDED = 'SUSPENDED',
+  TERMINATED = 'TERMINATED',
+  UNDER_REVIEW = 'UNDER_REVIEW',
 }
 
 /** EntityFrequency is enum for the field review_frequency */
@@ -16168,20 +16189,11 @@ export interface EntityWhereInput {
   ssoEnforcedNEQ?: InputMaybe<Scalars['Boolean']['input']>
   ssoEnforcedNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** status field predicates */
-  status?: InputMaybe<Scalars['String']['input']>
-  statusContains?: InputMaybe<Scalars['String']['input']>
-  statusContainsFold?: InputMaybe<Scalars['String']['input']>
-  statusEqualFold?: InputMaybe<Scalars['String']['input']>
-  statusGT?: InputMaybe<Scalars['String']['input']>
-  statusGTE?: InputMaybe<Scalars['String']['input']>
-  statusHasPrefix?: InputMaybe<Scalars['String']['input']>
-  statusHasSuffix?: InputMaybe<Scalars['String']['input']>
-  statusIn?: InputMaybe<Array<Scalars['String']['input']>>
+  status?: InputMaybe<EntityEntityStatus>
+  statusIn?: InputMaybe<Array<EntityEntityStatus>>
   statusIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  statusLT?: InputMaybe<Scalars['String']['input']>
-  statusLTE?: InputMaybe<Scalars['String']['input']>
-  statusNEQ?: InputMaybe<Scalars['String']['input']>
-  statusNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  statusNEQ?: InputMaybe<EntityEntityStatus>
+  statusNotIn?: InputMaybe<Array<EntityEntityStatus>>
   statusNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** status_page_url field predicates */
   statusPageURL?: InputMaybe<Scalars['String']['input']>
@@ -17354,10 +17366,13 @@ export enum ExportExportStatus {
 
 /** ExportExportType is enum for the field export_type */
 export enum ExportExportType {
+  ASSET = 'ASSET',
   CONTROL = 'CONTROL',
   DIRECTORY_MEMBERSHIP = 'DIRECTORY_MEMBERSHIP',
+  ENTITY = 'ENTITY',
   EVIDENCE = 'EVIDENCE',
   FINDING = 'FINDING',
+  IDENTITY_HOLDER = 'IDENTITY_HOLDER',
   INTERNAL_POLICY = 'INTERNAL_POLICY',
   PROCEDURE = 'PROCEDURE',
   REMEDIATION = 'REMEDIATION',
@@ -50680,7 +50695,7 @@ export interface UpdateEntityInput {
   /** whether SSO is enforced for the entity */
   ssoEnforced?: InputMaybe<Scalars['Boolean']['input']>
   /** status of the entity */
-  status?: InputMaybe<Scalars['String']['input']>
+  status?: InputMaybe<EntityEntityStatus>
   /** status page URL for the entity */
   statusPageURL?: InputMaybe<Scalars['String']['input']>
   /** an internal identifier for the mapping, this field is only available to system admins */
@@ -59350,6 +59365,244 @@ export enum WorkflowProposalWorkflowProposalState {
   SUPERSEDED = 'SUPERSEDED',
 }
 
+export type ActionPlansWithFilterQueryVariables = Exact<{
+  where?: InputMaybe<ActionPlanWhereInput>
+  orderBy?: InputMaybe<Array<ActionPlanOrder> | ActionPlanOrder>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type ActionPlansWithFilterQuery = {
+  __typename?: 'Query'
+  actionPlans: {
+    __typename?: 'ActionPlanConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'ActionPlanEdge'
+      node?: {
+        __typename?: 'ActionPlan'
+        actionPlanKindID?: string | null
+        actionPlanKindName?: string | null
+        approvalRequired?: boolean | null
+        approverID?: string | null
+        blocked: boolean
+        blockerReason?: string | null
+        completedAt?: any | null
+        createdAt?: any | null
+        createdBy?: string | null
+        delegateID?: string | null
+        description?: string | null
+        details?: string | null
+        dueDate?: any | null
+        fileID?: string | null
+        hasPendingWorkflow: boolean
+        hasWorkflowHistory: boolean
+        id: string
+        metadata?: any | null
+        name: string
+        rawPayload?: any | null
+        requiresApproval: boolean
+        reviewDue?: any | null
+        revision?: string | null
+        source?: string | null
+        summary?: string | null
+        systemOwned?: boolean | null
+        title: string
+        updatedAt?: any | null
+        updatedBy?: string | null
+        url?: string | null
+        workflowEligibleMarker?: boolean | null
+      } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
+  }
+}
+
+export type ActionPlanQueryVariables = Exact<{
+  actionPlanId: Scalars['ID']['input']
+}>
+
+export type ActionPlanQuery = {
+  __typename?: 'Query'
+  actionPlan: {
+    __typename?: 'ActionPlan'
+    actionPlanKindID?: string | null
+    actionPlanKindName?: string | null
+    approvalRequired?: boolean | null
+    approverID?: string | null
+    blocked: boolean
+    blockerReason?: string | null
+    completedAt?: any | null
+    createdAt?: any | null
+    createdBy?: string | null
+    delegateID?: string | null
+    description?: string | null
+    details?: string | null
+    dueDate?: any | null
+    fileID?: string | null
+    hasPendingWorkflow: boolean
+    hasWorkflowHistory: boolean
+    id: string
+    metadata?: any | null
+    name: string
+    rawPayload?: any | null
+    requiresApproval: boolean
+    reviewDue?: any | null
+    revision?: string | null
+    source?: string | null
+    summary?: string | null
+    systemOwned?: boolean | null
+    title: string
+    updatedAt?: any | null
+    updatedBy?: string | null
+    url?: string | null
+    workflowEligibleMarker?: boolean | null
+  }
+}
+
+export type CreateActionPlanMutationVariables = Exact<{
+  input: CreateActionPlanInput
+}>
+
+export type CreateActionPlanMutation = { __typename?: 'Mutation'; createActionPlan: { __typename?: 'ActionPlanCreatePayload'; actionPlan: { __typename?: 'ActionPlan'; id: string } } }
+
+export type UpdateActionPlanMutationVariables = Exact<{
+  updateActionPlanId: Scalars['ID']['input']
+  input: UpdateActionPlanInput
+}>
+
+export type UpdateActionPlanMutation = { __typename?: 'Mutation'; updateActionPlan: { __typename?: 'ActionPlanUpdatePayload'; actionPlan: { __typename?: 'ActionPlan'; id: string } } }
+
+export type DeleteActionPlanMutationVariables = Exact<{
+  deleteActionPlanId: Scalars['ID']['input']
+}>
+
+export type DeleteActionPlanMutation = { __typename?: 'Mutation'; deleteActionPlan: { __typename?: 'ActionPlanDeletePayload'; deletedID: string } }
+
+export type CreateBulkCsvActionPlanMutationVariables = Exact<{
+  input: Scalars['Upload']['input']
+}>
+
+export type CreateBulkCsvActionPlanMutation = {
+  __typename?: 'Mutation'
+  createBulkCSVActionPlan: { __typename?: 'ActionPlanBulkCreatePayload'; actionPlans?: Array<{ __typename?: 'ActionPlan'; id: string }> | null }
+}
+
+export type DeleteBulkActionPlanMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+}>
+
+export type DeleteBulkActionPlanMutation = { __typename?: 'Mutation'; deleteBulkActionPlan: { __typename?: 'ActionPlanBulkDeletePayload'; deletedIDs: Array<string> } }
+
+export type UpdateBulkActionPlanMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+  input: UpdateActionPlanInput
+}>
+
+export type UpdateBulkActionPlanMutation = { __typename?: 'Mutation'; updateBulkActionPlan: { __typename?: 'ActionPlanBulkUpdatePayload'; updatedIDs?: Array<string> | null } }
+
+export type AssessmentResponsesWithFilterQueryVariables = Exact<{
+  where?: InputMaybe<AssessmentResponseWhereInput>
+  orderBy?: InputMaybe<Array<AssessmentResponseOrder> | AssessmentResponseOrder>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type AssessmentResponsesWithFilterQuery = {
+  __typename?: 'Query'
+  assessmentResponses: {
+    __typename?: 'AssessmentResponseConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'AssessmentResponseEdge'
+      node?: {
+        __typename?: 'AssessmentResponse'
+        assessmentID: string
+        assignedAt: any
+        campaignID?: string | null
+        completedAt?: any | null
+        createdAt?: any | null
+        createdBy?: string | null
+        documentDataID?: string | null
+        dueDate?: any | null
+        email: string
+        emailClickCount?: number | null
+        emailClickedAt?: any | null
+        emailDeliveredAt?: any | null
+        emailMetadata?: any | null
+        emailOpenCount?: number | null
+        emailOpenedAt?: any | null
+        entityID?: string | null
+        id: string
+        identityHolderID?: string | null
+        isDraft: boolean
+        isTest: boolean
+        lastEmailEventAt?: any | null
+        sendAttempts: number
+        startedAt: any
+        updatedAt?: any | null
+        updatedBy?: string | null
+      } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
+  }
+}
+
+export type AssessmentResponseQueryVariables = Exact<{
+  assessmentResponseId: Scalars['ID']['input']
+}>
+
+export type AssessmentResponseQuery = {
+  __typename?: 'Query'
+  assessmentResponse: {
+    __typename?: 'AssessmentResponse'
+    assessmentID: string
+    assignedAt: any
+    campaignID?: string | null
+    completedAt?: any | null
+    createdAt?: any | null
+    createdBy?: string | null
+    documentDataID?: string | null
+    dueDate?: any | null
+    email: string
+    emailClickCount?: number | null
+    emailClickedAt?: any | null
+    emailDeliveredAt?: any | null
+    emailMetadata?: any | null
+    emailOpenCount?: number | null
+    emailOpenedAt?: any | null
+    entityID?: string | null
+    id: string
+    identityHolderID?: string | null
+    isDraft: boolean
+    isTest: boolean
+    lastEmailEventAt?: any | null
+    sendAttempts: number
+    startedAt: any
+    updatedAt?: any | null
+    updatedBy?: string | null
+  }
+}
+
+export type CreateAssessmentResponseMutationVariables = Exact<{
+  input: CreateAssessmentResponseInput
+}>
+
+export type CreateAssessmentResponseMutation = {
+  __typename?: 'Mutation'
+  createAssessmentResponse: { __typename?: 'AssessmentResponseCreatePayload'; assessmentResponse: { __typename?: 'AssessmentResponse'; id: string } }
+}
+
+export type DeleteAssessmentResponseMutationVariables = Exact<{
+  deleteAssessmentResponseId: Scalars['ID']['input']
+}>
+
+export type DeleteAssessmentResponseMutation = { __typename?: 'Mutation'; deleteAssessmentResponse: { __typename?: 'AssessmentResponseDeletePayload'; deletedID: string } }
+
 export type CreateAssessmentMutationVariables = Exact<{
   input: CreateAssessmentInput
 }>
@@ -59464,18 +59717,6 @@ export type DeleteAssessmentMutationVariables = Exact<{
 }>
 
 export type DeleteAssessmentMutation = { __typename?: 'Mutation'; deleteAssessment: { __typename?: 'AssessmentDeletePayload'; deletedID: string } }
-
-export type CreateAssessmentResponseMutationVariables = Exact<{
-  input: CreateAssessmentResponseInput
-}>
-
-export type CreateAssessmentResponseMutation = {
-  __typename?: 'Mutation'
-  createAssessmentResponse: {
-    __typename?: 'AssessmentResponseCreatePayload'
-    assessmentResponse: { __typename?: 'AssessmentResponse'; id: string; email: string; dueDate?: any | null; assessmentID: string; createdAt?: any | null; updatedAt?: any | null }
-  }
-}
 
 export type DeleteBulkAssessmentMutationVariables = Exact<{
   ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
@@ -59635,6 +59876,322 @@ export type UpdateBulkAssetMutationVariables = Exact<{
 }>
 
 export type UpdateBulkAssetMutation = { __typename?: 'Mutation'; updateBulkAsset: { __typename?: 'AssetBulkUpdatePayload'; updatedIDs?: Array<string> | null } }
+
+export type CampaignTargetsWithFilterQueryVariables = Exact<{
+  where?: InputMaybe<CampaignTargetWhereInput>
+  orderBy?: InputMaybe<Array<CampaignTargetOrder> | CampaignTargetOrder>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type CampaignTargetsWithFilterQuery = {
+  __typename?: 'Query'
+  campaignTargets: {
+    __typename?: 'CampaignTargetConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'CampaignTargetEdge'
+      node?: {
+        __typename?: 'CampaignTarget'
+        campaignID: string
+        completedAt?: string | null
+        contactID?: string | null
+        createdAt?: any | null
+        createdBy?: string | null
+        email: string
+        fullName?: string | null
+        groupID?: string | null
+        hasPendingWorkflow: boolean
+        hasWorkflowHistory: boolean
+        id: string
+        metadata?: any | null
+        sentAt?: string | null
+        updatedAt?: any | null
+        updatedBy?: string | null
+        userID?: string | null
+        workflowEligibleMarker?: boolean | null
+      } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
+  }
+}
+
+export type CampaignTargetQueryVariables = Exact<{
+  campaignTargetId: Scalars['ID']['input']
+}>
+
+export type CampaignTargetQuery = {
+  __typename?: 'Query'
+  campaignTarget: {
+    __typename?: 'CampaignTarget'
+    campaignID: string
+    completedAt?: string | null
+    contactID?: string | null
+    createdAt?: any | null
+    createdBy?: string | null
+    email: string
+    fullName?: string | null
+    groupID?: string | null
+    hasPendingWorkflow: boolean
+    hasWorkflowHistory: boolean
+    id: string
+    metadata?: any | null
+    sentAt?: string | null
+    updatedAt?: any | null
+    updatedBy?: string | null
+    userID?: string | null
+    workflowEligibleMarker?: boolean | null
+  }
+}
+
+export type CreateCampaignTargetMutationVariables = Exact<{
+  input: CreateCampaignTargetInput
+}>
+
+export type CreateCampaignTargetMutation = {
+  __typename?: 'Mutation'
+  createCampaignTarget: { __typename?: 'CampaignTargetCreatePayload'; campaignTarget: { __typename?: 'CampaignTarget'; id: string } }
+}
+
+export type UpdateCampaignTargetMutationVariables = Exact<{
+  updateCampaignTargetId: Scalars['ID']['input']
+  input: UpdateCampaignTargetInput
+}>
+
+export type UpdateCampaignTargetMutation = {
+  __typename?: 'Mutation'
+  updateCampaignTarget: { __typename?: 'CampaignTargetUpdatePayload'; campaignTarget: { __typename?: 'CampaignTarget'; id: string } }
+}
+
+export type DeleteCampaignTargetMutationVariables = Exact<{
+  deleteCampaignTargetId: Scalars['ID']['input']
+}>
+
+export type DeleteCampaignTargetMutation = { __typename?: 'Mutation'; deleteCampaignTarget: { __typename?: 'CampaignTargetDeletePayload'; deletedID: string } }
+
+export type CampaignsWithFilterQueryVariables = Exact<{
+  where?: InputMaybe<CampaignWhereInput>
+  orderBy?: InputMaybe<Array<CampaignOrder> | CampaignOrder>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type CampaignsWithFilterQuery = {
+  __typename?: 'Query'
+  campaigns: {
+    __typename?: 'CampaignConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'CampaignEdge'
+      node?: {
+        __typename?: 'Campaign'
+        assessmentID?: string | null
+        completedAt?: string | null
+        createdAt?: any | null
+        createdBy?: string | null
+        description?: string | null
+        displayID: string
+        dueDate?: string | null
+        emailBrandingID?: string | null
+        emailTemplateID?: string | null
+        entityID?: string | null
+        hasPendingWorkflow: boolean
+        hasWorkflowHistory: boolean
+        id: string
+        internalOwner?: string | null
+        internalOwnerGroupID?: string | null
+        internalOwnerUserID?: string | null
+        isActive: boolean
+        isRecurring: boolean
+        lastResentAt?: string | null
+        lastRunAt?: string | null
+        launchedAt?: string | null
+        metadata?: any | null
+        name: string
+        nextRunAt?: string | null
+        recipientCount?: number | null
+        recurrenceCron?: string | null
+        recurrenceEndAt?: string | null
+        recurrenceInterval?: number | null
+        recurrenceTimezone?: string | null
+        resendCount?: number | null
+        scheduledAt?: string | null
+        templateID?: string | null
+        updatedAt?: any | null
+        updatedBy?: string | null
+        workflowEligibleMarker?: boolean | null
+      } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
+  }
+}
+
+export type CampaignQueryVariables = Exact<{
+  campaignId: Scalars['ID']['input']
+}>
+
+export type CampaignQuery = {
+  __typename?: 'Query'
+  campaign: {
+    __typename?: 'Campaign'
+    assessmentID?: string | null
+    completedAt?: string | null
+    createdAt?: any | null
+    createdBy?: string | null
+    description?: string | null
+    displayID: string
+    dueDate?: string | null
+    emailBrandingID?: string | null
+    emailTemplateID?: string | null
+    entityID?: string | null
+    hasPendingWorkflow: boolean
+    hasWorkflowHistory: boolean
+    id: string
+    internalOwner?: string | null
+    internalOwnerGroupID?: string | null
+    internalOwnerUserID?: string | null
+    isActive: boolean
+    isRecurring: boolean
+    lastResentAt?: string | null
+    lastRunAt?: string | null
+    launchedAt?: string | null
+    metadata?: any | null
+    name: string
+    nextRunAt?: string | null
+    recipientCount?: number | null
+    recurrenceCron?: string | null
+    recurrenceEndAt?: string | null
+    recurrenceInterval?: number | null
+    recurrenceTimezone?: string | null
+    resendCount?: number | null
+    scheduledAt?: string | null
+    templateID?: string | null
+    updatedAt?: any | null
+    updatedBy?: string | null
+    workflowEligibleMarker?: boolean | null
+  }
+}
+
+export type CreateCampaignMutationVariables = Exact<{
+  input: CreateCampaignInput
+}>
+
+export type CreateCampaignMutation = { __typename?: 'Mutation'; createCampaign: { __typename?: 'CampaignCreatePayload'; campaign: { __typename?: 'Campaign'; id: string } } }
+
+export type UpdateCampaignMutationVariables = Exact<{
+  updateCampaignId: Scalars['ID']['input']
+  input: UpdateCampaignInput
+}>
+
+export type UpdateCampaignMutation = { __typename?: 'Mutation'; updateCampaign: { __typename?: 'CampaignUpdatePayload'; campaign: { __typename?: 'Campaign'; id: string } } }
+
+export type DeleteCampaignMutationVariables = Exact<{
+  deleteCampaignId: Scalars['ID']['input']
+}>
+
+export type DeleteCampaignMutation = { __typename?: 'Mutation'; deleteCampaign: { __typename?: 'CampaignDeletePayload'; deletedID: string } }
+
+export type ContactsWithFilterQueryVariables = Exact<{
+  where?: InputMaybe<ContactWhereInput>
+  orderBy?: InputMaybe<Array<ContactOrder> | ContactOrder>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type ContactsWithFilterQuery = {
+  __typename?: 'Query'
+  contacts: {
+    __typename?: 'ContactConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'ContactEdge'
+      node?: {
+        __typename?: 'Contact'
+        address?: string | null
+        company?: string | null
+        createdAt?: any | null
+        createdBy?: string | null
+        email?: string | null
+        fullName?: string | null
+        id: string
+        phoneNumber?: string | null
+        title?: string | null
+        updatedAt?: any | null
+        updatedBy?: string | null
+      } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
+  }
+}
+
+export type ContactQueryVariables = Exact<{
+  contactId: Scalars['ID']['input']
+}>
+
+export type ContactQuery = {
+  __typename?: 'Query'
+  contact: {
+    __typename?: 'Contact'
+    address?: string | null
+    company?: string | null
+    createdAt?: any | null
+    createdBy?: string | null
+    email?: string | null
+    fullName?: string | null
+    id: string
+    phoneNumber?: string | null
+    title?: string | null
+    updatedAt?: any | null
+    updatedBy?: string | null
+  }
+}
+
+export type CreateContactMutationVariables = Exact<{
+  input: CreateContactInput
+}>
+
+export type CreateContactMutation = { __typename?: 'Mutation'; createContact: { __typename?: 'ContactCreatePayload'; contact: { __typename?: 'Contact'; id: string } } }
+
+export type UpdateContactMutationVariables = Exact<{
+  updateContactId: Scalars['ID']['input']
+  input: UpdateContactInput
+}>
+
+export type UpdateContactMutation = { __typename?: 'Mutation'; updateContact: { __typename?: 'ContactUpdatePayload'; contact: { __typename?: 'Contact'; id: string } } }
+
+export type DeleteContactMutationVariables = Exact<{
+  deleteContactId: Scalars['ID']['input']
+}>
+
+export type DeleteContactMutation = { __typename?: 'Mutation'; deleteContact: { __typename?: 'ContactDeletePayload'; deletedID: string } }
+
+export type CreateBulkCsvContactMutationVariables = Exact<{
+  input: Scalars['Upload']['input']
+}>
+
+export type CreateBulkCsvContactMutation = {
+  __typename?: 'Mutation'
+  createBulkCSVContact: { __typename?: 'ContactBulkCreatePayload'; contacts?: Array<{ __typename?: 'Contact'; id: string }> | null }
+}
+
+export type DeleteBulkContactMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+}>
+
+export type DeleteBulkContactMutation = { __typename?: 'Mutation'; deleteBulkContact: { __typename?: 'ContactBulkDeletePayload'; deletedIDs: Array<string> } }
+
+export type UpdateBulkContactMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+  input: UpdateContactInput
+}>
+
+export type UpdateBulkContactMutation = { __typename?: 'Mutation'; updateBulkContact: { __typename?: 'ContactBulkUpdatePayload'; updatedIDs?: Array<string> | null } }
 
 export type ControlImplementationFieldsFragment = {
   __typename?: 'ControlImplementation'
@@ -60729,6 +61286,426 @@ export type DeleteCustomTypeEnumMutationVariables = Exact<{
 
 export type DeleteCustomTypeEnumMutation = { __typename?: 'Mutation'; deleteCustomTypeEnum: { __typename?: 'CustomTypeEnumDeletePayload'; deletedID: string } }
 
+export type DirectoryAccountsWithFilterQueryVariables = Exact<{
+  where?: InputMaybe<DirectoryAccountWhereInput>
+  orderBy?: InputMaybe<Array<DirectoryAccountOrder> | DirectoryAccountOrder>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type DirectoryAccountsWithFilterQuery = {
+  __typename?: 'Query'
+  directoryAccounts: {
+    __typename?: 'DirectoryAccountConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'DirectoryAccountEdge'
+      node?: {
+        __typename?: 'DirectoryAccount'
+        canonicalEmail?: string | null
+        createdAt?: any | null
+        createdBy?: string | null
+        department?: string | null
+        directorySyncRunID: string
+        displayID: string
+        displayName?: string | null
+        environmentID?: string | null
+        environmentName?: string | null
+        externalID: string
+        familyName?: string | null
+        givenName?: string | null
+        id: string
+        integrationID: string
+        jobTitle?: string | null
+        lastLoginAt?: any | null
+        lastSeenIP?: string | null
+        observedAt: any
+        organizationUnit?: string | null
+        profile?: any | null
+        profileHash: string
+        rawProfileFileID?: string | null
+        scopeID?: string | null
+        scopeName?: string | null
+        secondaryKey?: string | null
+        sourceVersion?: string | null
+        updatedAt?: any | null
+        updatedBy?: string | null
+      } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
+  }
+}
+
+export type DirectoryAccountQueryVariables = Exact<{
+  directoryAccountId: Scalars['ID']['input']
+}>
+
+export type DirectoryAccountQuery = {
+  __typename?: 'Query'
+  directoryAccount: {
+    __typename?: 'DirectoryAccount'
+    canonicalEmail?: string | null
+    createdAt?: any | null
+    createdBy?: string | null
+    department?: string | null
+    directorySyncRunID: string
+    displayID: string
+    displayName?: string | null
+    environmentID?: string | null
+    environmentName?: string | null
+    externalID: string
+    familyName?: string | null
+    givenName?: string | null
+    id: string
+    integrationID: string
+    jobTitle?: string | null
+    lastLoginAt?: any | null
+    lastSeenIP?: string | null
+    observedAt: any
+    organizationUnit?: string | null
+    profile?: any | null
+    profileHash: string
+    rawProfileFileID?: string | null
+    scopeID?: string | null
+    scopeName?: string | null
+    secondaryKey?: string | null
+    sourceVersion?: string | null
+    updatedAt?: any | null
+    updatedBy?: string | null
+  }
+}
+
+export type CreateDirectoryAccountMutationVariables = Exact<{
+  input: CreateDirectoryAccountInput
+}>
+
+export type CreateDirectoryAccountMutation = {
+  __typename?: 'Mutation'
+  createDirectoryAccount: { __typename?: 'DirectoryAccountCreatePayload'; directoryAccount: { __typename?: 'DirectoryAccount'; id: string } }
+}
+
+export type UpdateDirectoryAccountMutationVariables = Exact<{
+  updateDirectoryAccountId: Scalars['ID']['input']
+  input: UpdateDirectoryAccountInput
+}>
+
+export type UpdateDirectoryAccountMutation = {
+  __typename?: 'Mutation'
+  updateDirectoryAccount: { __typename?: 'DirectoryAccountUpdatePayload'; directoryAccount: { __typename?: 'DirectoryAccount'; id: string } }
+}
+
+export type DeleteDirectoryAccountMutationVariables = Exact<{
+  deleteDirectoryAccountId: Scalars['ID']['input']
+}>
+
+export type DeleteDirectoryAccountMutation = { __typename?: 'Mutation'; deleteDirectoryAccount: { __typename?: 'DirectoryAccountDeletePayload'; deletedID: string } }
+
+export type DirectoryGroupsWithFilterQueryVariables = Exact<{
+  where?: InputMaybe<DirectoryGroupWhereInput>
+  orderBy?: InputMaybe<Array<DirectoryGroupOrder> | DirectoryGroupOrder>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type DirectoryGroupsWithFilterQuery = {
+  __typename?: 'Query'
+  directoryGroups: {
+    __typename?: 'DirectoryGroupConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'DirectoryGroupEdge'
+      node?: {
+        __typename?: 'DirectoryGroup'
+        createdAt?: any | null
+        createdBy?: string | null
+        description?: string | null
+        directorySyncRunID: string
+        displayID: string
+        displayName?: string | null
+        email?: string | null
+        environmentID?: string | null
+        environmentName?: string | null
+        externalID: string
+        externalSharingAllowed?: boolean | null
+        id: string
+        integrationID: string
+        memberCount?: number | null
+        observedAt: any
+        profile?: any | null
+        profileHash: string
+        rawProfileFileID?: string | null
+        scopeID?: string | null
+        scopeName?: string | null
+        sourceVersion?: string | null
+        updatedAt?: any | null
+        updatedBy?: string | null
+      } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
+  }
+}
+
+export type DirectoryGroupQueryVariables = Exact<{
+  directoryGroupId: Scalars['ID']['input']
+}>
+
+export type DirectoryGroupQuery = {
+  __typename?: 'Query'
+  directoryGroup: {
+    __typename?: 'DirectoryGroup'
+    createdAt?: any | null
+    createdBy?: string | null
+    description?: string | null
+    directorySyncRunID: string
+    displayID: string
+    displayName?: string | null
+    email?: string | null
+    environmentID?: string | null
+    environmentName?: string | null
+    externalID: string
+    externalSharingAllowed?: boolean | null
+    id: string
+    integrationID: string
+    memberCount?: number | null
+    observedAt: any
+    profile?: any | null
+    profileHash: string
+    rawProfileFileID?: string | null
+    scopeID?: string | null
+    scopeName?: string | null
+    sourceVersion?: string | null
+    updatedAt?: any | null
+    updatedBy?: string | null
+  }
+}
+
+export type CreateDirectoryGroupMutationVariables = Exact<{
+  input: CreateDirectoryGroupInput
+}>
+
+export type CreateDirectoryGroupMutation = {
+  __typename?: 'Mutation'
+  createDirectoryGroup: { __typename?: 'DirectoryGroupCreatePayload'; directoryGroup: { __typename?: 'DirectoryGroup'; id: string } }
+}
+
+export type UpdateDirectoryGroupMutationVariables = Exact<{
+  updateDirectoryGroupId: Scalars['ID']['input']
+  input: UpdateDirectoryGroupInput
+}>
+
+export type UpdateDirectoryGroupMutation = {
+  __typename?: 'Mutation'
+  updateDirectoryGroup: { __typename?: 'DirectoryGroupUpdatePayload'; directoryGroup: { __typename?: 'DirectoryGroup'; id: string } }
+}
+
+export type DeleteDirectoryGroupMutationVariables = Exact<{
+  deleteDirectoryGroupId: Scalars['ID']['input']
+}>
+
+export type DeleteDirectoryGroupMutation = { __typename?: 'Mutation'; deleteDirectoryGroup: { __typename?: 'DirectoryGroupDeletePayload'; deletedID: string } }
+
+export type DirectoryMembershipsWithFilterQueryVariables = Exact<{
+  where?: InputMaybe<DirectoryMembershipWhereInput>
+  orderBy?: InputMaybe<Array<DirectoryMembershipOrder> | DirectoryMembershipOrder>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type DirectoryMembershipsWithFilterQuery = {
+  __typename?: 'Query'
+  directoryMemberships: {
+    __typename?: 'DirectoryMembershipConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'DirectoryMembershipEdge'
+      node?: {
+        __typename?: 'DirectoryMembership'
+        createdAt?: any | null
+        createdBy?: string | null
+        directoryAccountID: string
+        directoryGroupID: string
+        directorySyncRunID: string
+        displayID: string
+        environmentID?: string | null
+        environmentName?: string | null
+        firstSeenAt?: any | null
+        id: string
+        integrationID: string
+        lastConfirmedRunID?: string | null
+        lastSeenAt?: any | null
+        metadata?: any | null
+        observedAt: any
+        scopeID?: string | null
+        scopeName?: string | null
+        source?: string | null
+        updatedAt?: any | null
+        updatedBy?: string | null
+      } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
+  }
+}
+
+export type DirectoryMembershipQueryVariables = Exact<{
+  directoryMembershipId: Scalars['ID']['input']
+}>
+
+export type DirectoryMembershipQuery = {
+  __typename?: 'Query'
+  directoryMembership: {
+    __typename?: 'DirectoryMembership'
+    createdAt?: any | null
+    createdBy?: string | null
+    directoryAccountID: string
+    directoryGroupID: string
+    directorySyncRunID: string
+    displayID: string
+    environmentID?: string | null
+    environmentName?: string | null
+    firstSeenAt?: any | null
+    id: string
+    integrationID: string
+    lastConfirmedRunID?: string | null
+    lastSeenAt?: any | null
+    metadata?: any | null
+    observedAt: any
+    scopeID?: string | null
+    scopeName?: string | null
+    source?: string | null
+    updatedAt?: any | null
+    updatedBy?: string | null
+  }
+}
+
+export type CreateDirectoryMembershipMutationVariables = Exact<{
+  input: CreateDirectoryMembershipInput
+}>
+
+export type CreateDirectoryMembershipMutation = {
+  __typename?: 'Mutation'
+  createDirectoryMembership: { __typename?: 'DirectoryMembershipCreatePayload'; directoryMembership: { __typename?: 'DirectoryMembership'; id: string } }
+}
+
+export type UpdateDirectoryMembershipMutationVariables = Exact<{
+  updateDirectoryMembershipId: Scalars['ID']['input']
+  input: UpdateDirectoryMembershipInput
+}>
+
+export type UpdateDirectoryMembershipMutation = {
+  __typename?: 'Mutation'
+  updateDirectoryMembership: { __typename?: 'DirectoryMembershipUpdatePayload'; directoryMembership: { __typename?: 'DirectoryMembership'; id: string } }
+}
+
+export type DeleteDirectoryMembershipMutationVariables = Exact<{
+  deleteDirectoryMembershipId: Scalars['ID']['input']
+}>
+
+export type DeleteDirectoryMembershipMutation = { __typename?: 'Mutation'; deleteDirectoryMembership: { __typename?: 'DirectoryMembershipDeletePayload'; deletedID: string } }
+
+export type DirectorySyncRunsWithFilterQueryVariables = Exact<{
+  where?: InputMaybe<DirectorySyncRunWhereInput>
+  orderBy?: InputMaybe<Array<DirectorySyncRunOrder> | DirectorySyncRunOrder>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type DirectorySyncRunsWithFilterQuery = {
+  __typename?: 'Query'
+  directorySyncRuns: {
+    __typename?: 'DirectorySyncRunConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'DirectorySyncRunEdge'
+      node?: {
+        __typename?: 'DirectorySyncRun'
+        completedAt?: any | null
+        createdAt?: any | null
+        createdBy?: string | null
+        deltaCount: number
+        displayID: string
+        environmentID?: string | null
+        environmentName?: string | null
+        error?: string | null
+        fullCount: number
+        id: string
+        integrationID: string
+        rawManifestFileID?: string | null
+        scopeID?: string | null
+        scopeName?: string | null
+        sourceCursor?: string | null
+        startedAt: any
+        stats?: any | null
+        updatedAt?: any | null
+        updatedBy?: string | null
+      } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
+  }
+}
+
+export type DirectorySyncRunQueryVariables = Exact<{
+  directorySyncRunId: Scalars['ID']['input']
+}>
+
+export type DirectorySyncRunQuery = {
+  __typename?: 'Query'
+  directorySyncRun: {
+    __typename?: 'DirectorySyncRun'
+    completedAt?: any | null
+    createdAt?: any | null
+    createdBy?: string | null
+    deltaCount: number
+    displayID: string
+    environmentID?: string | null
+    environmentName?: string | null
+    error?: string | null
+    fullCount: number
+    id: string
+    integrationID: string
+    rawManifestFileID?: string | null
+    scopeID?: string | null
+    scopeName?: string | null
+    sourceCursor?: string | null
+    startedAt: any
+    stats?: any | null
+    updatedAt?: any | null
+    updatedBy?: string | null
+  }
+}
+
+export type CreateDirectorySyncRunMutationVariables = Exact<{
+  input: CreateDirectorySyncRunInput
+}>
+
+export type CreateDirectorySyncRunMutation = {
+  __typename?: 'Mutation'
+  createDirectorySyncRun: { __typename?: 'DirectorySyncRunCreatePayload'; directorySyncRun: { __typename?: 'DirectorySyncRun'; id: string } }
+}
+
+export type UpdateDirectorySyncRunMutationVariables = Exact<{
+  updateDirectorySyncRunId: Scalars['ID']['input']
+  input: UpdateDirectorySyncRunInput
+}>
+
+export type UpdateDirectorySyncRunMutation = {
+  __typename?: 'Mutation'
+  updateDirectorySyncRun: { __typename?: 'DirectorySyncRunUpdatePayload'; directorySyncRun: { __typename?: 'DirectorySyncRun'; id: string } }
+}
+
+export type DeleteDirectorySyncRunMutationVariables = Exact<{
+  deleteDirectorySyncRunId: Scalars['ID']['input']
+}>
+
+export type DeleteDirectorySyncRunMutation = { __typename?: 'Mutation'; deleteDirectorySyncRun: { __typename?: 'DirectorySyncRunDeletePayload'; deletedID: string } }
+
 export type CreateDiscussionMutationVariables = Exact<{
   input: CreateDiscussionInput
 }>
@@ -60894,6 +61871,497 @@ export type GetDocumentationRisksQuery = {
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
   }
 }
+
+export type EmailBrandingsWithFilterQueryVariables = Exact<{
+  where?: InputMaybe<EmailBrandingWhereInput>
+  orderBy?: InputMaybe<Array<EmailBrandingOrder> | EmailBrandingOrder>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type EmailBrandingsWithFilterQuery = {
+  __typename?: 'Query'
+  emailBrandings: {
+    __typename?: 'EmailBrandingConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'EmailBrandingEdge'
+      node?: {
+        __typename?: 'EmailBranding'
+        backgroundColor?: string | null
+        brandName?: string | null
+        buttonColor?: string | null
+        buttonTextColor?: string | null
+        createdAt?: any | null
+        createdBy?: string | null
+        id: string
+        isDefault?: boolean | null
+        linkColor?: string | null
+        logoRemoteURL?: string | null
+        name: string
+        primaryColor?: string | null
+        secondaryColor?: string | null
+        textColor?: string | null
+        updatedAt?: any | null
+        updatedBy?: string | null
+      } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
+  }
+}
+
+export type EmailBrandingQueryVariables = Exact<{
+  emailBrandingId: Scalars['ID']['input']
+}>
+
+export type EmailBrandingQuery = {
+  __typename?: 'Query'
+  emailBranding: {
+    __typename?: 'EmailBranding'
+    backgroundColor?: string | null
+    brandName?: string | null
+    buttonColor?: string | null
+    buttonTextColor?: string | null
+    createdAt?: any | null
+    createdBy?: string | null
+    id: string
+    isDefault?: boolean | null
+    linkColor?: string | null
+    logoRemoteURL?: string | null
+    name: string
+    primaryColor?: string | null
+    secondaryColor?: string | null
+    textColor?: string | null
+    updatedAt?: any | null
+    updatedBy?: string | null
+  }
+}
+
+export type CreateEmailBrandingMutationVariables = Exact<{
+  input: CreateEmailBrandingInput
+}>
+
+export type CreateEmailBrandingMutation = { __typename?: 'Mutation'; createEmailBranding: { __typename?: 'EmailBrandingCreatePayload'; emailBranding: { __typename?: 'EmailBranding'; id: string } } }
+
+export type UpdateEmailBrandingMutationVariables = Exact<{
+  updateEmailBrandingId: Scalars['ID']['input']
+  input: UpdateEmailBrandingInput
+}>
+
+export type UpdateEmailBrandingMutation = { __typename?: 'Mutation'; updateEmailBranding: { __typename?: 'EmailBrandingUpdatePayload'; emailBranding: { __typename?: 'EmailBranding'; id: string } } }
+
+export type DeleteEmailBrandingMutationVariables = Exact<{
+  deleteEmailBrandingId: Scalars['ID']['input']
+}>
+
+export type DeleteEmailBrandingMutation = { __typename?: 'Mutation'; deleteEmailBranding: { __typename?: 'EmailBrandingDeletePayload'; deletedID: string } }
+
+export type CreateBulkCsvEmailBrandingMutationVariables = Exact<{
+  input: Scalars['Upload']['input']
+}>
+
+export type CreateBulkCsvEmailBrandingMutation = {
+  __typename?: 'Mutation'
+  createBulkCSVEmailBranding: { __typename?: 'EmailBrandingBulkCreatePayload'; emailBrandings?: Array<{ __typename?: 'EmailBranding'; id: string }> | null }
+}
+
+export type DeleteBulkEmailBrandingMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+}>
+
+export type DeleteBulkEmailBrandingMutation = { __typename?: 'Mutation'; deleteBulkEmailBranding: { __typename?: 'EmailBrandingBulkDeletePayload'; deletedIDs: Array<string> } }
+
+export type UpdateBulkEmailBrandingMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+  input: UpdateEmailBrandingInput
+}>
+
+export type UpdateBulkEmailBrandingMutation = { __typename?: 'Mutation'; updateBulkEmailBranding: { __typename?: 'EmailBrandingBulkUpdatePayload'; updatedIDs?: Array<string> | null } }
+
+export type EmailTemplatesWithFilterQueryVariables = Exact<{
+  where?: InputMaybe<EmailTemplateWhereInput>
+  orderBy?: InputMaybe<Array<EmailTemplateOrder> | EmailTemplateOrder>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type EmailTemplatesWithFilterQuery = {
+  __typename?: 'Query'
+  emailTemplates: {
+    __typename?: 'EmailTemplateConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'EmailTemplateEdge'
+      node?: {
+        __typename?: 'EmailTemplate'
+        active: boolean
+        bodyTemplate?: string | null
+        createdAt?: any | null
+        createdBy?: string | null
+        description?: string | null
+        emailBrandingID?: string | null
+        id: string
+        integrationID?: string | null
+        jsonconfig?: any | null
+        key: string
+        locale: string
+        metadata?: any | null
+        name: string
+        preheaderTemplate?: string | null
+        subjectTemplate?: string | null
+        systemOwned?: boolean | null
+        textTemplate?: string | null
+        uischema?: any | null
+        updatedAt?: any | null
+        updatedBy?: string | null
+        version: number
+        workflowDefinitionID?: string | null
+        workflowInstanceID?: string | null
+      } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
+  }
+}
+
+export type EmailTemplateQueryVariables = Exact<{
+  emailTemplateId: Scalars['ID']['input']
+}>
+
+export type EmailTemplateQuery = {
+  __typename?: 'Query'
+  emailTemplate: {
+    __typename?: 'EmailTemplate'
+    active: boolean
+    bodyTemplate?: string | null
+    createdAt?: any | null
+    createdBy?: string | null
+    description?: string | null
+    emailBrandingID?: string | null
+    id: string
+    integrationID?: string | null
+    jsonconfig?: any | null
+    key: string
+    locale: string
+    metadata?: any | null
+    name: string
+    preheaderTemplate?: string | null
+    subjectTemplate?: string | null
+    systemOwned?: boolean | null
+    textTemplate?: string | null
+    uischema?: any | null
+    updatedAt?: any | null
+    updatedBy?: string | null
+    version: number
+    workflowDefinitionID?: string | null
+    workflowInstanceID?: string | null
+  }
+}
+
+export type CreateEmailTemplateMutationVariables = Exact<{
+  input: CreateEmailTemplateInput
+}>
+
+export type CreateEmailTemplateMutation = { __typename?: 'Mutation'; createEmailTemplate: { __typename?: 'EmailTemplateCreatePayload'; emailTemplate: { __typename?: 'EmailTemplate'; id: string } } }
+
+export type UpdateEmailTemplateMutationVariables = Exact<{
+  updateEmailTemplateId: Scalars['ID']['input']
+  input: UpdateEmailTemplateInput
+}>
+
+export type UpdateEmailTemplateMutation = { __typename?: 'Mutation'; updateEmailTemplate: { __typename?: 'EmailTemplateUpdatePayload'; emailTemplate: { __typename?: 'EmailTemplate'; id: string } } }
+
+export type DeleteEmailTemplateMutationVariables = Exact<{
+  deleteEmailTemplateId: Scalars['ID']['input']
+}>
+
+export type DeleteEmailTemplateMutation = { __typename?: 'Mutation'; deleteEmailTemplate: { __typename?: 'EmailTemplateDeletePayload'; deletedID: string } }
+
+export type CreateBulkCsvEmailTemplateMutationVariables = Exact<{
+  input: Scalars['Upload']['input']
+}>
+
+export type CreateBulkCsvEmailTemplateMutation = {
+  __typename?: 'Mutation'
+  createBulkCSVEmailTemplate: { __typename?: 'EmailTemplateBulkCreatePayload'; emailTemplates?: Array<{ __typename?: 'EmailTemplate'; id: string }> | null }
+}
+
+export type DeleteBulkEmailTemplateMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+}>
+
+export type DeleteBulkEmailTemplateMutation = { __typename?: 'Mutation'; deleteBulkEmailTemplate: { __typename?: 'EmailTemplateBulkDeletePayload'; deletedIDs: Array<string> } }
+
+export type UpdateBulkEmailTemplateMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+  input: UpdateEmailTemplateInput
+}>
+
+export type UpdateBulkEmailTemplateMutation = { __typename?: 'Mutation'; updateBulkEmailTemplate: { __typename?: 'EmailTemplateBulkUpdatePayload'; updatedIDs?: Array<string> | null } }
+
+export type EntityTypesWithFilterQueryVariables = Exact<{
+  where?: InputMaybe<EntityTypeWhereInput>
+  orderBy?: InputMaybe<Array<EntityTypeOrder> | EntityTypeOrder>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type EntityTypesWithFilterQuery = {
+  __typename?: 'Query'
+  entityTypes: {
+    __typename?: 'EntityTypeConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'EntityTypeEdge'
+      node?: {
+        __typename?: 'EntityType'
+        createdAt?: any | null
+        createdBy?: string | null
+        id: string
+        name: string
+        systemOwned?: boolean | null
+        updatedAt?: any | null
+        updatedBy?: string | null
+      } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
+  }
+}
+
+export type EntityTypeQueryVariables = Exact<{
+  entityTypeId: Scalars['ID']['input']
+}>
+
+export type EntityTypeQuery = {
+  __typename?: 'Query'
+  entityType: {
+    __typename?: 'EntityType'
+    createdAt?: any | null
+    createdBy?: string | null
+    id: string
+    name: string
+    systemOwned?: boolean | null
+    updatedAt?: any | null
+    updatedBy?: string | null
+  }
+}
+
+export type CreateEntityTypeMutationVariables = Exact<{
+  input: CreateEntityTypeInput
+}>
+
+export type CreateEntityTypeMutation = { __typename?: 'Mutation'; createEntityType: { __typename?: 'EntityTypeCreatePayload'; entityType: { __typename?: 'EntityType'; id: string } } }
+
+export type UpdateEntityTypeMutationVariables = Exact<{
+  updateEntityTypeId: Scalars['ID']['input']
+  input: UpdateEntityTypeInput
+}>
+
+export type UpdateEntityTypeMutation = { __typename?: 'Mutation'; updateEntityType: { __typename?: 'EntityTypeUpdatePayload'; entityType: { __typename?: 'EntityType'; id: string } } }
+
+export type DeleteEntityTypeMutationVariables = Exact<{
+  deleteEntityTypeId: Scalars['ID']['input']
+}>
+
+export type DeleteEntityTypeMutation = { __typename?: 'Mutation'; deleteEntityType: { __typename?: 'EntityTypeDeletePayload'; deletedID: string } }
+
+export type CreateBulkCsvEntityTypeMutationVariables = Exact<{
+  input: Scalars['Upload']['input']
+}>
+
+export type CreateBulkCsvEntityTypeMutation = {
+  __typename?: 'Mutation'
+  createBulkCSVEntityType: { __typename?: 'EntityTypeBulkCreatePayload'; entityTypes?: Array<{ __typename?: 'EntityType'; id: string }> | null }
+}
+
+export type DeleteBulkEntityTypeMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+}>
+
+export type DeleteBulkEntityTypeMutation = { __typename?: 'Mutation'; deleteBulkEntityType: { __typename?: 'EntityTypeBulkDeletePayload'; deletedIDs: Array<string> } }
+
+export type UpdateBulkEntityTypeMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+  input: UpdateEntityTypeInput
+}>
+
+export type UpdateBulkEntityTypeMutation = { __typename?: 'Mutation'; updateBulkEntityType: { __typename?: 'EntityTypeBulkUpdatePayload'; updatedIDs?: Array<string> | null } }
+
+export type EntitiesWithFilterQueryVariables = Exact<{
+  where?: InputMaybe<EntityWhereInput>
+  orderBy?: InputMaybe<Array<EntityOrder> | EntityOrder>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type EntitiesWithFilterQuery = {
+  __typename?: 'Query'
+  entities: {
+    __typename?: 'EntityConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'EntityEdge'
+      node?: {
+        __typename?: 'Entity'
+        annualSpend?: number | null
+        approvedForUse?: boolean | null
+        autoRenews?: boolean | null
+        billingModel?: string | null
+        contractEndDate?: string | null
+        contractRenewalAt?: string | null
+        contractStartDate?: string | null
+        createdAt?: any | null
+        createdBy?: string | null
+        description?: string | null
+        displayName?: string | null
+        entityRelationshipStateID?: string | null
+        entityRelationshipStateName?: string | null
+        entitySecurityQuestionnaireStatusID?: string | null
+        entitySecurityQuestionnaireStatusName?: string | null
+        entitySourceTypeID?: string | null
+        entitySourceTypeName?: string | null
+        entityTypeID?: string | null
+        environmentID?: string | null
+        environmentName?: string | null
+        hasSoc2?: boolean | null
+        id: string
+        internalOwner?: string | null
+        internalOwnerGroupID?: string | null
+        internalOwnerUserID?: string | null
+        lastReviewedAt?: string | null
+        mfaEnforced?: boolean | null
+        mfaSupported?: boolean | null
+        name?: string | null
+        nextReviewAt?: string | null
+        renewalRisk?: string | null
+        reviewedBy?: string | null
+        reviewedByGroupID?: string | null
+        reviewedByUserID?: string | null
+        riskRating?: string | null
+        riskScore?: number | null
+        scopeID?: string | null
+        scopeName?: string | null
+        soc2PeriodEnd?: string | null
+        spendCurrency?: string | null
+        ssoEnforced?: boolean | null
+        statusPageURL?: string | null
+        systemOwned?: boolean | null
+        terminationNoticeDays?: number | null
+        tags?: Array<string> | null
+        tier?: string | null
+        updatedAt?: any | null
+        updatedBy?: string | null
+        vendorMetadata?: any | null
+      } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
+  }
+}
+
+export type EntityQueryVariables = Exact<{
+  entityId: Scalars['ID']['input']
+}>
+
+export type EntityQuery = {
+  __typename?: 'Query'
+  entity: {
+    __typename?: 'Entity'
+    annualSpend?: number | null
+    approvedForUse?: boolean | null
+    autoRenews?: boolean | null
+    billingModel?: string | null
+    contractEndDate?: string | null
+    contractRenewalAt?: string | null
+    contractStartDate?: string | null
+    createdAt?: any | null
+    createdBy?: string | null
+    description?: string | null
+    displayName?: string | null
+    entityRelationshipStateID?: string | null
+    entityRelationshipStateName?: string | null
+    entitySecurityQuestionnaireStatusID?: string | null
+    entitySecurityQuestionnaireStatusName?: string | null
+    entitySourceTypeID?: string | null
+    entitySourceTypeName?: string | null
+    entityTypeID?: string | null
+    environmentID?: string | null
+    environmentName?: string | null
+    hasSoc2?: boolean | null
+    id: string
+    internalOwner?: string | null
+    internalOwnerGroupID?: string | null
+    internalOwnerUserID?: string | null
+    lastReviewedAt?: string | null
+    mfaEnforced?: boolean | null
+    mfaSupported?: boolean | null
+    name?: string | null
+    nextReviewAt?: string | null
+    renewalRisk?: string | null
+    reviewedBy?: string | null
+    reviewedByGroupID?: string | null
+    reviewedByUserID?: string | null
+    riskRating?: string | null
+    riskScore?: number | null
+    scopeID?: string | null
+    scopeName?: string | null
+    soc2PeriodEnd?: string | null
+    spendCurrency?: string | null
+    ssoEnforced?: boolean | null
+    statusPageURL?: string | null
+    systemOwned?: boolean | null
+    tags?: Array<string> | null
+    terminationNoticeDays?: number | null
+    tier?: string | null
+    updatedAt?: any | null
+    updatedBy?: string | null
+    vendorMetadata?: any | null
+  }
+}
+
+export type CreateEntityMutationVariables = Exact<{
+  input: CreateEntityInput
+}>
+
+export type CreateEntityMutation = { __typename?: 'Mutation'; createEntity: { __typename?: 'EntityCreatePayload'; entity: { __typename?: 'Entity'; id: string } } }
+
+export type UpdateEntityMutationVariables = Exact<{
+  updateEntityId: Scalars['ID']['input']
+  input: UpdateEntityInput
+}>
+
+export type UpdateEntityMutation = { __typename?: 'Mutation'; updateEntity: { __typename?: 'EntityUpdatePayload'; entity: { __typename?: 'Entity'; id: string } } }
+
+export type DeleteEntityMutationVariables = Exact<{
+  deleteEntityId: Scalars['ID']['input']
+}>
+
+export type DeleteEntityMutation = { __typename?: 'Mutation'; deleteEntity: { __typename?: 'EntityDeletePayload'; deletedID: string } }
+
+export type CreateBulkCsvEntityMutationVariables = Exact<{
+  input: Scalars['Upload']['input']
+}>
+
+export type CreateBulkCsvEntityMutation = { __typename?: 'Mutation'; createBulkCSVEntity: { __typename?: 'EntityBulkCreatePayload'; entities?: Array<{ __typename?: 'Entity'; id: string }> | null } }
+
+export type DeleteBulkEntityMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+}>
+
+export type DeleteBulkEntityMutation = { __typename?: 'Mutation'; deleteBulkEntity: { __typename?: 'EntityBulkDeletePayload'; deletedIDs: Array<string> } }
+
+export type UpdateBulkEntityMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+  input: UpdateEntityInput
+}>
+
+export type UpdateBulkEntityMutation = { __typename?: 'Mutation'; updateBulkEntity: { __typename?: 'EntityBulkUpdatePayload'; updatedIDs?: Array<string> | null } }
 
 export type CreateEvidenceMutationVariables = Exact<{
   input: CreateEvidenceInput
@@ -61352,6 +62820,337 @@ export type GetExportsQuery = {
   }
 }
 
+export type FindingControlsWithFilterQueryVariables = Exact<{
+  where?: InputMaybe<FindingControlWhereInput>
+  orderBy?: InputMaybe<Array<FindingControlOrder> | FindingControlOrder>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type FindingControlsWithFilterQuery = {
+  __typename?: 'Query'
+  findingControls: {
+    __typename?: 'FindingControlConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'FindingControlEdge'
+      node?: {
+        __typename?: 'FindingControl'
+        controlID: string
+        createdAt?: any | null
+        createdBy?: string | null
+        discoveredAt?: string | null
+        externalControlID?: string | null
+        externalStandard?: string | null
+        externalStandardVersion?: string | null
+        findingID: string
+        id: string
+        metadata?: any | null
+        source?: string | null
+        standardID?: string | null
+        updatedAt?: any | null
+        updatedBy?: string | null
+      } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
+  }
+}
+
+export type FindingControlQueryVariables = Exact<{
+  findingControlId: Scalars['ID']['input']
+}>
+
+export type FindingControlQuery = {
+  __typename?: 'Query'
+  findingControl: {
+    __typename?: 'FindingControl'
+    controlID: string
+    createdAt?: any | null
+    createdBy?: string | null
+    discoveredAt?: string | null
+    externalControlID?: string | null
+    externalStandard?: string | null
+    externalStandardVersion?: string | null
+    findingID: string
+    id: string
+    metadata?: any | null
+    source?: string | null
+    standardID?: string | null
+    updatedAt?: any | null
+    updatedBy?: string | null
+  }
+}
+
+export type CreateFindingControlMutationVariables = Exact<{
+  input: CreateFindingControlInput
+}>
+
+export type CreateFindingControlMutation = {
+  __typename?: 'Mutation'
+  createFindingControl: { __typename?: 'FindingControlCreatePayload'; findingControl: { __typename?: 'FindingControl'; id: string } }
+}
+
+export type UpdateFindingControlMutationVariables = Exact<{
+  updateFindingControlId: Scalars['ID']['input']
+  input: UpdateFindingControlInput
+}>
+
+export type UpdateFindingControlMutation = {
+  __typename?: 'Mutation'
+  updateFindingControl: { __typename?: 'FindingControlUpdatePayload'; findingControl: { __typename?: 'FindingControl'; id: string } }
+}
+
+export type DeleteFindingControlMutationVariables = Exact<{
+  deleteFindingControlId: Scalars['ID']['input']
+}>
+
+export type DeleteFindingControlMutation = { __typename?: 'Mutation'; deleteFindingControl: { __typename?: 'FindingControlDeletePayload'; deletedID: string } }
+
+export type CreateBulkCsvFindingControlMutationVariables = Exact<{
+  input: Scalars['Upload']['input']
+}>
+
+export type CreateBulkCsvFindingControlMutation = {
+  __typename?: 'Mutation'
+  createBulkCSVFindingControl: { __typename?: 'FindingControlBulkCreatePayload'; findingControls?: Array<{ __typename?: 'FindingControl'; id: string }> | null }
+}
+
+export type FindingsWithFilterQueryVariables = Exact<{
+  where?: InputMaybe<FindingWhereInput>
+  orderBy?: InputMaybe<Array<FindingOrder> | FindingOrder>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type FindingsWithFilterQuery = {
+  __typename?: 'Query'
+  findings: {
+    __typename?: 'FindingConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'FindingEdge'
+      node?: {
+        __typename?: 'Finding'
+        assessmentID?: string | null
+        blocksProduction?: boolean | null
+        category?: string | null
+        createdAt?: any | null
+        createdBy?: string | null
+        description?: string | null
+        displayID: string
+        displayName?: string | null
+        environmentID?: string | null
+        environmentName?: string | null
+        eventTime?: string | null
+        exploitability?: number | null
+        externalID?: string | null
+        externalOwnerID?: string | null
+        externalURI?: string | null
+        findingClass?: string | null
+        id: string
+        impact?: number | null
+        metadata?: any | null
+        numericSeverity?: number | null
+        open?: boolean | null
+        priority?: string | null
+        production?: boolean | null
+        public?: boolean | null
+        rawPayload?: any | null
+        recommendation?: string | null
+        recommendedActions?: string | null
+        remediationSLA?: number | null
+        reportedAt?: string | null
+        resourceName?: string | null
+        scopeID?: string | null
+        scopeName?: string | null
+        score?: number | null
+        severity?: string | null
+        source?: string | null
+        sourceUpdatedAt?: string | null
+        state?: string | null
+        status?: string | null
+        systemOwned?: boolean | null
+        targetDetails?: any | null
+        updatedAt?: any | null
+        updatedBy?: string | null
+        validated?: boolean | null
+        vector?: string | null
+      } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
+  }
+}
+
+export type FindingQueryVariables = Exact<{
+  findingId: Scalars['ID']['input']
+}>
+
+export type FindingQuery = {
+  __typename?: 'Query'
+  finding: {
+    __typename?: 'Finding'
+    assessmentID?: string | null
+    blocksProduction?: boolean | null
+    category?: string | null
+    createdAt?: any | null
+    createdBy?: string | null
+    description?: string | null
+    displayID: string
+    displayName?: string | null
+    environmentID?: string | null
+    environmentName?: string | null
+    eventTime?: string | null
+    exploitability?: number | null
+    externalID?: string | null
+    externalOwnerID?: string | null
+    externalURI?: string | null
+    findingClass?: string | null
+    id: string
+    impact?: number | null
+    metadata?: any | null
+    numericSeverity?: number | null
+    open?: boolean | null
+    priority?: string | null
+    production?: boolean | null
+    public?: boolean | null
+    rawPayload?: any | null
+    recommendation?: string | null
+    recommendedActions?: string | null
+    remediationSLA?: number | null
+    reportedAt?: string | null
+    resourceName?: string | null
+    scopeID?: string | null
+    scopeName?: string | null
+    score?: number | null
+    severity?: string | null
+    source?: string | null
+    sourceUpdatedAt?: string | null
+    state?: string | null
+    status?: string | null
+    systemOwned?: boolean | null
+    targetDetails?: any | null
+    updatedAt?: any | null
+    updatedBy?: string | null
+    validated?: boolean | null
+    vector?: string | null
+  }
+}
+
+export type CreateFindingMutationVariables = Exact<{
+  input: CreateFindingInput
+}>
+
+export type CreateFindingMutation = { __typename?: 'Mutation'; createFinding: { __typename?: 'FindingCreatePayload'; finding: { __typename?: 'Finding'; id: string } } }
+
+export type UpdateFindingMutationVariables = Exact<{
+  updateFindingId: Scalars['ID']['input']
+  input: UpdateFindingInput
+}>
+
+export type UpdateFindingMutation = { __typename?: 'Mutation'; updateFinding: { __typename?: 'FindingUpdatePayload'; finding: { __typename?: 'Finding'; id: string } } }
+
+export type DeleteFindingMutationVariables = Exact<{
+  deleteFindingId: Scalars['ID']['input']
+}>
+
+export type DeleteFindingMutation = { __typename?: 'Mutation'; deleteFinding: { __typename?: 'FindingDeletePayload'; deletedID: string } }
+
+export type GroupSettingsWithFilterQueryVariables = Exact<{
+  where?: InputMaybe<GroupSettingWhereInput>
+  orderBy?: InputMaybe<Array<GroupSettingOrder> | GroupSettingOrder>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type GroupSettingsWithFilterQuery = {
+  __typename?: 'Query'
+  groupSettings: {
+    __typename?: 'GroupSettingConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'GroupSettingEdge'
+      node?: {
+        __typename?: 'GroupSetting'
+        createdAt?: any | null
+        createdBy?: string | null
+        groupID?: string | null
+        id: string
+        syncToGithub?: boolean | null
+        syncToSlack?: boolean | null
+        updatedAt?: any | null
+        updatedBy?: string | null
+      } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
+  }
+}
+
+export type GroupSettingQueryVariables = Exact<{
+  groupSettingId: Scalars['ID']['input']
+}>
+
+export type GroupSettingQuery = {
+  __typename?: 'Query'
+  groupSetting: {
+    __typename?: 'GroupSetting'
+    createdAt?: any | null
+    createdBy?: string | null
+    groupID?: string | null
+    id: string
+    syncToGithub?: boolean | null
+    syncToSlack?: boolean | null
+    updatedAt?: any | null
+    updatedBy?: string | null
+  }
+}
+
+export type CreateGroupSettingMutationVariables = Exact<{
+  input: CreateGroupSettingInput
+}>
+
+export type CreateGroupSettingMutation = { __typename?: 'Mutation'; createGroupSetting: { __typename?: 'GroupSettingCreatePayload'; groupSetting: { __typename?: 'GroupSetting'; id: string } } }
+
+export type UpdateGroupSettingMutationVariables = Exact<{
+  updateGroupSettingId: Scalars['ID']['input']
+  input: UpdateGroupSettingInput
+}>
+
+export type UpdateGroupSettingMutation = { __typename?: 'Mutation'; updateGroupSetting: { __typename?: 'GroupSettingUpdatePayload'; groupSetting: { __typename?: 'GroupSetting'; id: string } } }
+
+export type DeleteGroupSettingMutationVariables = Exact<{
+  deleteGroupSettingId: Scalars['ID']['input']
+}>
+
+export type DeleteGroupSettingMutation = { __typename?: 'Mutation'; deleteGroupSetting: { __typename?: 'GroupSettingDeletePayload'; deletedID: string } }
+
+export type CreateBulkCsvGroupSettingMutationVariables = Exact<{
+  input: Scalars['Upload']['input']
+}>
+
+export type CreateBulkCsvGroupSettingMutation = {
+  __typename?: 'Mutation'
+  createBulkCSVGroupSetting: { __typename?: 'GroupSettingBulkCreatePayload'; groupSettings?: Array<{ __typename?: 'GroupSetting'; id: string }> | null }
+}
+
+export type DeleteBulkGroupSettingMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+}>
+
+export type DeleteBulkGroupSettingMutation = { __typename?: 'Mutation'; deleteBulkGroupSetting: { __typename?: 'GroupSettingBulkDeletePayload'; deletedIDs: Array<string> } }
+
+export type UpdateBulkGroupSettingMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+  input: UpdateGroupSettingInput
+}>
+
+export type UpdateBulkGroupSettingMutation = { __typename?: 'Mutation'; updateBulkGroupSetting: { __typename?: 'GroupSettingBulkUpdatePayload'; updatedIDs?: Array<string> | null } }
+
 export type GetAllGroupsQueryVariables = Exact<{
   where?: InputMaybe<GroupWhereInput>
   orderBy?: InputMaybe<Array<GroupOrder> | GroupOrder>
@@ -61546,6 +63345,154 @@ export type GetAllGroupsPaginatedQuery = {
   }
 }
 
+export type IdentityHoldersWithFilterQueryVariables = Exact<{
+  where?: InputMaybe<IdentityHolderWhereInput>
+  orderBy?: InputMaybe<Array<IdentityHolderOrder> | IdentityHolderOrder>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type IdentityHoldersWithFilterQuery = {
+  __typename?: 'Query'
+  identityHolders: {
+    __typename?: 'IdentityHolderConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'IdentityHolderEdge'
+      node?: {
+        __typename?: 'IdentityHolder'
+        alternateEmail?: string | null
+        createdAt?: any | null
+        createdBy?: string | null
+        department?: string | null
+        displayID: string
+        email: string
+        employerEntityID?: string | null
+        endDate?: string | null
+        environmentID?: string | null
+        environmentName?: string | null
+        externalReferenceID?: string | null
+        externalUserID?: string | null
+        fullName: string
+        hasPendingWorkflow: boolean
+        hasWorkflowHistory: boolean
+        id: string
+        internalOwner?: string | null
+        internalOwnerGroupID?: string | null
+        internalOwnerUserID?: string | null
+        isActive: boolean
+        isOpenlaneUser?: boolean | null
+        location?: string | null
+        metadata?: any | null
+        phoneNumber?: string | null
+        scopeID?: string | null
+        scopeName?: string | null
+        startDate?: string | null
+        team?: string | null
+        title?: string | null
+        updatedAt?: any | null
+        updatedBy?: string | null
+        userID?: string | null
+        workflowEligibleMarker?: boolean | null
+      } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
+  }
+}
+
+export type IdentityHolderQueryVariables = Exact<{
+  identityHolderId: Scalars['ID']['input']
+}>
+
+export type IdentityHolderQuery = {
+  __typename?: 'Query'
+  identityHolder: {
+    __typename?: 'IdentityHolder'
+    alternateEmail?: string | null
+    createdAt?: any | null
+    createdBy?: string | null
+    department?: string | null
+    displayID: string
+    email: string
+    employerEntityID?: string | null
+    endDate?: string | null
+    environmentID?: string | null
+    environmentName?: string | null
+    externalReferenceID?: string | null
+    externalUserID?: string | null
+    fullName: string
+    hasPendingWorkflow: boolean
+    hasWorkflowHistory: boolean
+    id: string
+    internalOwner?: string | null
+    internalOwnerGroupID?: string | null
+    internalOwnerUserID?: string | null
+    isActive: boolean
+    isOpenlaneUser?: boolean | null
+    location?: string | null
+    metadata?: any | null
+    phoneNumber?: string | null
+    scopeID?: string | null
+    scopeName?: string | null
+    startDate?: string | null
+    team?: string | null
+    title?: string | null
+    updatedAt?: any | null
+    updatedBy?: string | null
+    userID?: string | null
+    workflowEligibleMarker?: boolean | null
+  }
+}
+
+export type CreateIdentityHolderMutationVariables = Exact<{
+  input: CreateIdentityHolderInput
+}>
+
+export type CreateIdentityHolderMutation = {
+  __typename?: 'Mutation'
+  createIdentityHolder: { __typename?: 'IdentityHolderCreatePayload'; identityHolder: { __typename?: 'IdentityHolder'; id: string } }
+}
+
+export type UpdateIdentityHolderMutationVariables = Exact<{
+  updateIdentityHolderId: Scalars['ID']['input']
+  input: UpdateIdentityHolderInput
+}>
+
+export type UpdateIdentityHolderMutation = {
+  __typename?: 'Mutation'
+  updateIdentityHolder: { __typename?: 'IdentityHolderUpdatePayload'; identityHolder: { __typename?: 'IdentityHolder'; id: string } }
+}
+
+export type DeleteIdentityHolderMutationVariables = Exact<{
+  deleteIdentityHolderId: Scalars['ID']['input']
+}>
+
+export type DeleteIdentityHolderMutation = { __typename?: 'Mutation'; deleteIdentityHolder: { __typename?: 'IdentityHolderDeletePayload'; deletedID: string } }
+
+export type CreateBulkCsvIdentityHolderMutationVariables = Exact<{
+  input: Scalars['Upload']['input']
+}>
+
+export type CreateBulkCsvIdentityHolderMutation = {
+  __typename?: 'Mutation'
+  createBulkCSVIdentityHolder: { __typename?: 'IdentityHolderBulkCreatePayload'; identityHolders?: Array<{ __typename?: 'IdentityHolder'; id: string }> | null }
+}
+
+export type DeleteBulkIdentityHolderMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+}>
+
+export type DeleteBulkIdentityHolderMutation = { __typename?: 'Mutation'; deleteBulkIdentityHolder: { __typename?: 'IdentityHolderBulkDeletePayload'; deletedIDs: Array<string> } }
+
+export type UpdateBulkIdentityHolderMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+  input: UpdateIdentityHolderInput
+}>
+
+export type UpdateBulkIdentityHolderMutation = { __typename?: 'Mutation'; updateBulkIdentityHolder: { __typename?: 'IdentityHolderBulkUpdatePayload'; updatedIDs?: Array<string> | null } }
+
 export type GetIntegrationsQueryVariables = Exact<{
   where?: InputMaybe<IntegrationWhereInput>
 }>
@@ -61563,486 +63510,6 @@ export type DeleteIntegrationMutationVariables = Exact<{
 }>
 
 export type DeleteIntegrationMutation = { __typename?: 'Mutation'; deleteIntegration: { __typename?: 'IntegrationDeletePayload'; deletedID: string } }
-
-export type CreateMappedControlMutationVariables = Exact<{
-  input: CreateMappedControlInput
-}>
-
-export type CreateMappedControlMutation = { __typename?: 'Mutation'; createMappedControl: { __typename?: 'MappedControlCreatePayload'; mappedControl: { __typename?: 'MappedControl'; id: string } } }
-
-export type MappedSubcontrolsFragmentFragment = {
-  __typename: 'Subcontrol'
-  id: string
-  refCode: string
-  referenceFramework?: string | null
-  controlID: string
-  category?: string | null
-  subcategory?: string | null
-}
-
-export type MappedControlsFragmentFragment = { __typename: 'Control'; id: string; refCode: string; referenceFramework?: string | null; category?: string | null; subcategory?: string | null }
-
-export type GetAllMappedControlsQueryVariables = Exact<{
-  where?: InputMaybe<MappedControlWhereInput>
-}>
-
-export type GetAllMappedControlsQuery = {
-  __typename?: 'Query'
-  mappedControls: {
-    __typename?: 'MappedControlConnection'
-    edges?: Array<{
-      __typename?: 'MappedControlEdge'
-      node?: {
-        __typename?: 'MappedControl'
-        id: string
-        relation?: string | null
-        confidence?: number | null
-        mappingType: MappedControlMappingType
-        source?: MappedControlMappingSource | null
-        fromSubcontrols: {
-          __typename?: 'SubcontrolConnection'
-          edges?: Array<{
-            __typename?: 'SubcontrolEdge'
-            node?: { __typename: 'Subcontrol'; id: string; refCode: string; referenceFramework?: string | null; controlID: string; category?: string | null; subcategory?: string | null } | null
-          } | null> | null
-        }
-        toSubcontrols: {
-          __typename?: 'SubcontrolConnection'
-          edges?: Array<{
-            __typename?: 'SubcontrolEdge'
-            node?: { __typename: 'Subcontrol'; id: string; refCode: string; referenceFramework?: string | null; controlID: string; category?: string | null; subcategory?: string | null } | null
-          } | null> | null
-        }
-        fromControls: {
-          __typename?: 'ControlConnection'
-          edges?: Array<{
-            __typename?: 'ControlEdge'
-            node?: { __typename: 'Control'; id: string; refCode: string; referenceFramework?: string | null; category?: string | null; subcategory?: string | null } | null
-          } | null> | null
-        }
-        toControls: {
-          __typename?: 'ControlConnection'
-          edges?: Array<{
-            __typename?: 'ControlEdge'
-            node?: { __typename: 'Control'; id: string; refCode: string; referenceFramework?: string | null; category?: string | null; subcategory?: string | null } | null
-          } | null> | null
-        }
-      } | null
-    } | null> | null
-  }
-}
-
-export type GetMappedControlByIdQueryVariables = Exact<{
-  mappedControlId: Scalars['ID']['input']
-}>
-
-export type GetMappedControlByIdQuery = {
-  __typename?: 'Query'
-  mappedControl: {
-    __typename?: 'MappedControl'
-    id: string
-    relation?: string | null
-    confidence?: number | null
-    mappingType: MappedControlMappingType
-    source?: MappedControlMappingSource | null
-    fromSubcontrols: {
-      __typename?: 'SubcontrolConnection'
-      edges?: Array<{
-        __typename?: 'SubcontrolEdge'
-        node?: { __typename: 'Subcontrol'; id: string; refCode: string; referenceFramework?: string | null; control: { __typename?: 'Control'; id: string } } | null
-      } | null> | null
-    }
-    toSubcontrols: {
-      __typename?: 'SubcontrolConnection'
-      edges?: Array<{
-        __typename?: 'SubcontrolEdge'
-        node?: { __typename: 'Subcontrol'; id: string; refCode: string; referenceFramework?: string | null; control: { __typename?: 'Control'; id: string } } | null
-      } | null> | null
-    }
-    fromControls: {
-      __typename?: 'ControlConnection'
-      edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename: 'Control'; id: string; refCode: string; referenceFramework?: string | null } | null } | null> | null
-    }
-    toControls: {
-      __typename?: 'ControlConnection'
-      edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename: 'Control'; id: string; refCode: string; referenceFramework?: string | null } | null } | null> | null
-    }
-  }
-}
-
-export type UpdateMappedControlMutationVariables = Exact<{
-  updateMappedControlId: Scalars['ID']['input']
-  input: UpdateMappedControlInput
-}>
-
-export type UpdateMappedControlMutation = { __typename?: 'Mutation'; updateMappedControl: { __typename?: 'MappedControlUpdatePayload'; mappedControl: { __typename?: 'MappedControl'; id: string } } }
-
-export type DeleteMappedControlMutationVariables = Exact<{
-  deleteMappedControlId: Scalars['ID']['input']
-}>
-
-export type DeleteMappedControlMutation = { __typename?: 'Mutation'; deleteMappedControl: { __typename?: 'MappedControlDeletePayload'; deletedID: string } }
-
-export type UpdateUserRoleInOrgMutationVariables = Exact<{
-  updateOrgMemberId: Scalars['ID']['input']
-  input: UpdateOrgMembershipInput
-}>
-
-export type UpdateUserRoleInOrgMutation = {
-  __typename?: 'Mutation'
-  updateOrgMembership: { __typename?: 'OrgMembershipUpdatePayload'; orgMembership: { __typename?: 'OrgMembership'; id: string; role: OrgMembershipRole; userID: string; organizationID: string } }
-}
-
-export type RemoveUserFromOrgMutationVariables = Exact<{
-  deleteOrgMembershipId: Scalars['ID']['input']
-}>
-
-export type RemoveUserFromOrgMutation = { __typename?: 'Mutation'; deleteOrgMembership: { __typename?: 'OrgMembershipDeletePayload'; deletedID: string } }
-
-export type OrgMembershipsQueryVariables = Exact<{
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  where?: InputMaybe<OrgMembershipWhereInput>
-  orderBy?: InputMaybe<Array<OrgMembershipOrder> | OrgMembershipOrder>
-}>
-
-export type OrgMembershipsQuery = {
-  __typename?: 'Query'
-  orgMemberships: {
-    __typename?: 'OrgMembershipConnection'
-    totalCount: number
-    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
-    edges?: Array<{
-      __typename?: 'OrgMembershipEdge'
-      node?: {
-        __typename?: 'OrgMembership'
-        id: string
-        createdAt?: any | null
-        role: OrgMembershipRole
-        user: {
-          __typename?: 'User'
-          id: string
-          displayName: string
-          authProvider: UserAuthProvider
-          avatarRemoteURL?: string | null
-          email: string
-          role?: UserRole | null
-          createdAt?: any | null
-          avatarFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
-        }
-      } | null
-    } | null> | null
-  }
-}
-
-export type OrgMembershipsByIdsQueryVariables = Exact<{
-  where?: InputMaybe<OrgMembershipWhereInput>
-}>
-
-export type OrgMembershipsByIdsQuery = {
-  __typename?: 'Query'
-  orgMemberships: {
-    __typename?: 'OrgMembershipConnection'
-    edges?: Array<{
-      __typename?: 'OrgMembershipEdge'
-      node?: {
-        __typename?: 'OrgMembership'
-        user: { __typename?: 'User'; id: string; displayName: string; avatarRemoteURL?: string | null; avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null }
-      } | null
-    } | null> | null
-  }
-}
-
-export type GetAllNarrativesQueryVariables = Exact<{
-  where?: InputMaybe<NarrativeWhereInput>
-}>
-
-export type GetAllNarrativesQuery = {
-  __typename?: 'Query'
-  narratives: {
-    __typename?: 'NarrativeConnection'
-    edges?: Array<{ __typename?: 'NarrativeEdge'; node?: { __typename?: 'Narrative'; id: string; name: string; displayID: string } | null } | null> | null
-  }
-}
-
-export type CreateOnboardingMutationVariables = Exact<{
-  input: CreateOnboardingInput
-}>
-
-export type CreateOnboardingMutation = {
-  __typename?: 'Mutation'
-  createOnboarding: {
-    __typename?: 'OnboardingCreatePayload'
-    onboarding: {
-      __typename?: 'Onboarding'
-      companyDetails?: any | null
-      companyName: string
-      domains?: Array<string> | null
-      compliance?: any | null
-      id: string
-      organizationID?: string | null
-      userDetails?: any | null
-    }
-  }
-}
-
-export type GetAllOrganizationsQueryVariables = Exact<{ [key: string]: never }>
-
-export type GetAllOrganizationsQuery = {
-  __typename?: 'Query'
-  organizations: {
-    __typename?: 'OrganizationConnection'
-    edges?: Array<{
-      __typename?: 'OrganizationEdge'
-      node?: {
-        __typename?: 'Organization'
-        id: string
-        name: string
-        displayName: string
-        avatarRemoteURL?: string | null
-        personalOrg?: boolean | null
-        stripeCustomerID?: string | null
-        avatarFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
-        setting?: { __typename?: 'OrganizationSetting'; identityProviderLoginEnforced: boolean } | null
-      } | null
-    } | null> | null
-  }
-}
-
-export type GetOrganizationNameByIdQueryVariables = Exact<{
-  organizationId: Scalars['ID']['input']
-}>
-
-export type GetOrganizationNameByIdQuery = { __typename?: 'Query'; organization: { __typename?: 'Organization'; name: string; displayName: string } }
-
-export type GetSingleOrganizationMembersQueryVariables = Exact<{
-  organizationId: Scalars['ID']['input']
-  first?: InputMaybe<Scalars['Int']['input']>
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-}>
-
-export type GetSingleOrganizationMembersQuery = {
-  __typename?: 'Query'
-  organization: {
-    __typename?: 'Organization'
-    members: {
-      __typename?: 'OrgMembershipConnection'
-      totalCount: number
-      edges?: Array<{
-        __typename?: 'OrgMembershipEdge'
-        node?: {
-          __typename?: 'OrgMembership'
-          id: string
-          createdAt?: any | null
-          role: OrgMembershipRole
-          user: {
-            __typename?: 'User'
-            id: string
-            displayName: string
-            authProvider: UserAuthProvider
-            avatarRemoteURL?: string | null
-            email: string
-            role?: UserRole | null
-            createdAt?: any | null
-            avatarFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
-          }
-        } | null
-      } | null> | null
-      pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
-    }
-  }
-}
-
-export type GetAllOrganizationsWithMembersQueryVariables = Exact<{
-  membersWhere?: InputMaybe<OrgMembershipWhereInput>
-}>
-
-export type GetAllOrganizationsWithMembersQuery = {
-  __typename?: 'Query'
-  organizations: {
-    __typename?: 'OrganizationConnection'
-    edges?: Array<{
-      __typename?: 'OrganizationEdge'
-      node?: {
-        __typename?: 'Organization'
-        id: string
-        personalOrg?: boolean | null
-        displayName: string
-        name: string
-        avatarRemoteURL?: string | null
-        avatarFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
-        members: {
-          __typename?: 'OrgMembershipConnection'
-          edges?: Array<{
-            __typename?: 'OrgMembershipEdge'
-            node?: { __typename?: 'OrgMembership'; id: string; role: OrgMembershipRole; user: { __typename?: 'User'; id: string } } | null
-          } | null> | null
-        }
-      } | null
-    } | null> | null
-  }
-}
-
-export type GetInvitesQueryVariables = Exact<{
-  where?: InputMaybe<InviteWhereInput>
-  orderBy?: InputMaybe<Array<InviteOrder> | InviteOrder>
-  first?: InputMaybe<Scalars['Int']['input']>
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-}>
-
-export type GetInvitesQuery = {
-  __typename?: 'Query'
-  invites: {
-    __typename?: 'InviteConnection'
-    totalCount: number
-    edges?: Array<{
-      __typename?: 'InviteEdge'
-      node?: { __typename?: 'Invite'; id: string; recipient: string; status: InviteInviteStatus; createdAt?: any | null; expires?: any | null; role: InviteRole; sendAttempts: number } | null
-    } | null> | null
-    pageInfo: { __typename?: 'PageInfo'; startCursor?: any | null; endCursor?: any | null }
-  }
-}
-
-export type GetOrganizationBillingQueryVariables = Exact<{
-  organizationId: Scalars['ID']['input']
-}>
-
-export type GetOrganizationBillingQuery = {
-  __typename?: 'Query'
-  organization: {
-    __typename?: 'Organization'
-    personalOrg?: boolean | null
-    orgSubscriptions?: Array<{ __typename?: 'OrgSubscription'; active: boolean; expiresAt?: any | null; stripeSubscriptionStatus?: string | null; trialExpiresAt?: any | null }> | null
-  }
-}
-
-export type GetOrganizationBillingBannerQueryVariables = Exact<{
-  organizationId: Scalars['ID']['input']
-}>
-
-export type GetOrganizationBillingBannerQuery = {
-  __typename?: 'Query'
-  organization: {
-    __typename?: 'Organization'
-    personalOrg?: boolean | null
-    orgSubscriptions?: Array<{ __typename?: 'OrgSubscription'; trialExpiresAt?: any | null; expiresAt?: any | null; stripeSubscriptionStatus?: string | null }> | null
-  }
-}
-
-export type GetOrganizationSettingQueryVariables = Exact<{
-  organizationId: Scalars['ID']['input']
-}>
-
-export type GetOrganizationSettingQuery = {
-  __typename?: 'Query'
-  organization: {
-    __typename?: 'Organization'
-    setting?: {
-      __typename?: 'OrganizationSetting'
-      id: string
-      createdAt?: any | null
-      updatedAt?: any | null
-      createdBy?: string | null
-      updatedBy?: string | null
-      domains?: Array<string> | null
-      billingContact?: string | null
-      billingEmail?: string | null
-      billingPhone?: string | null
-      billingAddress?: any | null
-      taxIdentifier?: string | null
-      tags?: Array<string> | null
-      geoLocation?: OrganizationSettingRegion | null
-      billingNotificationsEnabled: boolean
-      allowedEmailDomains?: Array<string> | null
-      identityProvider?: OrganizationSettingSsoProvider | null
-      identityProviderClientID?: string | null
-      identityProviderClientSecret?: string | null
-      oidcDiscoveryEndpoint?: string | null
-      identityProviderLoginEnforced: boolean
-      identityProviderAuthTested: boolean
-      allowMatchingDomainsAutojoin?: boolean | null
-    } | null
-  }
-}
-
-export type GetBillingEmailQueryVariables = Exact<{
-  organizationId: Scalars['ID']['input']
-}>
-
-export type GetBillingEmailQuery = { __typename?: 'Query'; organization: { __typename?: 'Organization'; setting?: { __typename?: 'OrganizationSetting'; billingEmail?: string | null } | null } }
-
-export type CreateOrganizationMutationVariables = Exact<{
-  input: CreateOrganizationInput
-}>
-
-export type CreateOrganizationMutation = { __typename?: 'Mutation'; createOrganization: { __typename?: 'OrganizationCreatePayload'; organization: { __typename?: 'Organization'; id: string } } }
-
-export type UpdateOrganizationMutationVariables = Exact<{
-  updateOrganizationId: Scalars['ID']['input']
-  input: UpdateOrganizationInput
-  avatarFile?: InputMaybe<Scalars['Upload']['input']>
-}>
-
-export type UpdateOrganizationMutation = { __typename?: 'Mutation'; updateOrganization: { __typename?: 'OrganizationUpdatePayload'; organization: { __typename?: 'Organization'; id: string } } }
-
-export type CreateBulkInviteMutationVariables = Exact<{
-  input?: InputMaybe<Array<CreateInviteInput> | CreateInviteInput>
-}>
-
-export type CreateBulkInviteMutation = { __typename?: 'Mutation'; createBulkInvite: { __typename?: 'InviteBulkCreatePayload'; invites?: Array<{ __typename?: 'Invite'; id: string }> | null } }
-
-export type DeleteOrganizationInviteMutationVariables = Exact<{
-  deleteInviteId: Scalars['ID']['input']
-}>
-
-export type DeleteOrganizationInviteMutation = { __typename?: 'Mutation'; deleteInvite: { __typename?: 'InviteDeletePayload'; deletedID: string } }
-
-export type DeleteOrganizationMutationVariables = Exact<{
-  deleteOrganizationId: Scalars['ID']['input']
-}>
-
-export type DeleteOrganizationMutation = { __typename?: 'Mutation'; deleteOrganization: { __typename?: 'OrganizationDeletePayload'; deletedID: string } }
-
-export type UpdateOrganizationSettingMutationVariables = Exact<{
-  updateOrganizationSettingId: Scalars['ID']['input']
-  input: UpdateOrganizationSettingInput
-}>
-
-export type UpdateOrganizationSettingMutation = {
-  __typename?: 'Mutation'
-  updateOrganizationSetting: { __typename?: 'OrganizationSettingUpdatePayload'; organizationSetting: { __typename?: 'OrganizationSetting'; id: string } }
-}
-
-export type TransferOrganizationOwnershipMutationVariables = Exact<{
-  newOwnerEmail: Scalars['String']['input']
-}>
-
-export type TransferOrganizationOwnershipMutation = { __typename?: 'Mutation'; transferOrganizationOwnership: { __typename?: 'OrganizationTransferOwnershipPayload'; invitationSent: boolean } }
-
-export type GetPasskeysQueryVariables = Exact<{ [key: string]: never }>
-
-export type GetPasskeysQuery = {
-  __typename?: 'Query'
-  webauthns: {
-    __typename?: 'WebauthnConnection'
-    edges?: Array<{
-      __typename?: 'WebauthnEdge'
-      node?: { __typename?: 'Webauthn'; id: string; backupState: boolean; backupEligible: boolean; createdAt?: any | null; tags?: Array<string> | null; aaguid: any } | null
-    } | null> | null
-  }
-}
-
-export type DeletePasskeyMutationVariables = Exact<{
-  deleteWebauthnId: Scalars['ID']['input']
-}>
-
-export type DeletePasskeyMutation = { __typename?: 'Mutation'; deleteWebauthn: { __typename?: 'WebauthnDeletePayload'; deletedID: string } }
 
 export type CreateInternalPolicyMutationVariables = Exact<{
   input: CreateInternalPolicyInput
@@ -62464,6 +63931,1229 @@ export type UpdatePolicyCommentMutation = {
   __typename?: 'Mutation'
   updateInternalPolicyComment: { __typename?: 'InternalPolicyUpdatePayload'; internalPolicy: { __typename?: 'InternalPolicy'; id: string } }
 }
+
+export type JobResultsWithFilterQueryVariables = Exact<{
+  where?: InputMaybe<JobResultWhereInput>
+  orderBy?: InputMaybe<Array<JobResultOrder> | JobResultOrder>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type JobResultsWithFilterQuery = {
+  __typename?: 'Query'
+  jobResults: {
+    __typename?: 'JobResultConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'JobResultEdge'
+      node?: {
+        __typename?: 'JobResult'
+        createdAt?: any | null
+        createdBy?: string | null
+        exitCode: number
+        fileID: string
+        finishedAt: any
+        id: string
+        log?: string | null
+        scheduledJobID: string
+        startedAt: any
+        updatedAt?: any | null
+        updatedBy?: string | null
+      } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
+  }
+}
+
+export type JobResultQueryVariables = Exact<{
+  jobResultId: Scalars['ID']['input']
+}>
+
+export type JobResultQuery = {
+  __typename?: 'Query'
+  jobResult: {
+    __typename?: 'JobResult'
+    createdAt?: any | null
+    createdBy?: string | null
+    exitCode: number
+    fileID: string
+    finishedAt: any
+    id: string
+    log?: string | null
+    scheduledJobID: string
+    startedAt: any
+    updatedAt?: any | null
+    updatedBy?: string | null
+  }
+}
+
+export type CreateJobResultMutationVariables = Exact<{
+  input: CreateJobResultInput
+}>
+
+export type CreateJobResultMutation = { __typename?: 'Mutation'; createJobResult: { __typename?: 'JobResultCreatePayload'; jobResult: { __typename?: 'JobResult'; id: string } } }
+
+export type UpdateJobResultMutationVariables = Exact<{
+  updateJobResultId: Scalars['ID']['input']
+  input: UpdateJobResultInput
+}>
+
+export type UpdateJobResultMutation = { __typename?: 'Mutation'; updateJobResult: { __typename?: 'JobResultUpdatePayload'; jobResult: { __typename?: 'JobResult'; id: string } } }
+
+export type DeleteJobResultMutationVariables = Exact<{
+  deleteJobResultId: Scalars['ID']['input']
+}>
+
+export type DeleteJobResultMutation = { __typename?: 'Mutation'; deleteJobResult: { __typename?: 'JobResultDeletePayload'; deletedID: string } }
+
+export type JobRunnerRegistrationTokensWithFilterQueryVariables = Exact<{
+  where?: InputMaybe<JobRunnerRegistrationTokenWhereInput>
+  orderBy?: InputMaybe<Array<JobRunnerRegistrationTokenOrder> | JobRunnerRegistrationTokenOrder>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type JobRunnerRegistrationTokensWithFilterQuery = {
+  __typename?: 'Query'
+  jobRunnerRegistrationTokens: {
+    __typename?: 'JobRunnerRegistrationTokenConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'JobRunnerRegistrationTokenEdge'
+      node?: {
+        __typename?: 'JobRunnerRegistrationToken'
+        createdAt?: any | null
+        createdBy?: string | null
+        expiresAt: any
+        id: string
+        jobRunnerID?: string | null
+        lastUsedAt?: any | null
+        token: string
+        updatedAt?: any | null
+        updatedBy?: string | null
+      } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
+  }
+}
+
+export type JobRunnerRegistrationTokenQueryVariables = Exact<{
+  jobRunnerRegistrationTokenId: Scalars['ID']['input']
+}>
+
+export type JobRunnerRegistrationTokenQuery = {
+  __typename?: 'Query'
+  jobRunnerRegistrationToken: {
+    __typename?: 'JobRunnerRegistrationToken'
+    createdAt?: any | null
+    createdBy?: string | null
+    expiresAt: any
+    id: string
+    jobRunnerID?: string | null
+    lastUsedAt?: any | null
+    token: string
+    updatedAt?: any | null
+    updatedBy?: string | null
+  }
+}
+
+export type CreateJobRunnerRegistrationTokenMutationVariables = Exact<{
+  input: CreateJobRunnerRegistrationTokenInput
+}>
+
+export type CreateJobRunnerRegistrationTokenMutation = {
+  __typename?: 'Mutation'
+  createJobRunnerRegistrationToken: { __typename?: 'JobRunnerRegistrationTokenCreatePayload'; jobRunnerRegistrationToken: { __typename?: 'JobRunnerRegistrationToken'; id: string } }
+}
+
+export type DeleteJobRunnerRegistrationTokenMutationVariables = Exact<{
+  deleteJobRunnerRegistrationTokenId: Scalars['ID']['input']
+}>
+
+export type DeleteJobRunnerRegistrationTokenMutation = { __typename?: 'Mutation'; deleteJobRunnerRegistrationToken: { __typename?: 'JobRunnerRegistrationTokenDeletePayload'; deletedID: string } }
+
+export type JobRunnersWithFilterQueryVariables = Exact<{
+  where?: InputMaybe<JobRunnerWhereInput>
+  orderBy?: InputMaybe<Array<JobRunnerOrder> | JobRunnerOrder>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type JobRunnersWithFilterQuery = {
+  __typename?: 'Query'
+  jobRunners: {
+    __typename?: 'JobRunnerConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'JobRunnerEdge'
+      node?: {
+        __typename?: 'JobRunner'
+        createdAt?: any | null
+        createdBy?: string | null
+        displayID: string
+        id: string
+        ipAddress?: string | null
+        lastSeen?: any | null
+        name: string
+        os?: string | null
+        systemOwned?: boolean | null
+        updatedAt?: any | null
+        updatedBy?: string | null
+        version?: string | null
+      } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
+  }
+}
+
+export type JobRunnerQueryVariables = Exact<{
+  jobRunnerId: Scalars['ID']['input']
+}>
+
+export type JobRunnerQuery = {
+  __typename?: 'Query'
+  jobRunner: {
+    __typename?: 'JobRunner'
+    createdAt?: any | null
+    createdBy?: string | null
+    displayID: string
+    id: string
+    ipAddress?: string | null
+    lastSeen?: any | null
+    name: string
+    os?: string | null
+    systemOwned?: boolean | null
+    updatedAt?: any | null
+    updatedBy?: string | null
+    version?: string | null
+  }
+}
+
+export type CreateJobRunnerMutationVariables = Exact<{
+  input: CreateJobRunnerInput
+}>
+
+export type CreateJobRunnerMutation = { __typename?: 'Mutation'; createJobRunner: { __typename?: 'JobRunnerCreatePayload'; jobRunner: { __typename?: 'JobRunner'; id: string } } }
+
+export type UpdateJobRunnerMutationVariables = Exact<{
+  updateJobRunnerId: Scalars['ID']['input']
+  input: UpdateJobRunnerInput
+}>
+
+export type UpdateJobRunnerMutation = { __typename?: 'Mutation'; updateJobRunner: { __typename?: 'JobRunnerUpdatePayload'; jobRunner: { __typename?: 'JobRunner'; id: string } } }
+
+export type DeleteJobRunnerMutationVariables = Exact<{
+  deleteJobRunnerId: Scalars['ID']['input']
+}>
+
+export type DeleteJobRunnerMutation = { __typename?: 'Mutation'; deleteJobRunner: { __typename?: 'JobRunnerDeletePayload'; deletedID: string } }
+
+export type JobTemplatesWithFilterQueryVariables = Exact<{
+  where?: InputMaybe<JobTemplateWhereInput>
+  orderBy?: InputMaybe<Array<JobTemplateOrder> | JobTemplateOrder>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type JobTemplatesWithFilterQuery = {
+  __typename?: 'Query'
+  jobTemplates: {
+    __typename?: 'JobTemplateConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'JobTemplateEdge'
+      node?: {
+        __typename?: 'JobTemplate'
+        configuration?: any | null
+        createdAt?: any | null
+        createdBy?: string | null
+        cron?: string | null
+        description?: string | null
+        displayID: string
+        downloadURL: string
+        id: string
+        systemOwned?: boolean | null
+        title: string
+        updatedAt?: any | null
+        updatedBy?: string | null
+      } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
+  }
+}
+
+export type JobTemplateQueryVariables = Exact<{
+  jobTemplateId: Scalars['ID']['input']
+}>
+
+export type JobTemplateQuery = {
+  __typename?: 'Query'
+  jobTemplate: {
+    __typename?: 'JobTemplate'
+    configuration?: any | null
+    createdAt?: any | null
+    createdBy?: string | null
+    cron?: string | null
+    description?: string | null
+    displayID: string
+    downloadURL: string
+    id: string
+    systemOwned?: boolean | null
+    title: string
+    updatedAt?: any | null
+    updatedBy?: string | null
+  }
+}
+
+export type CreateJobTemplateMutationVariables = Exact<{
+  input: CreateJobTemplateInput
+}>
+
+export type CreateJobTemplateMutation = { __typename?: 'Mutation'; createJobTemplate: { __typename?: 'JobTemplateCreatePayload'; jobTemplate: { __typename?: 'JobTemplate'; id: string } } }
+
+export type UpdateJobTemplateMutationVariables = Exact<{
+  updateJobTemplateId: Scalars['ID']['input']
+  input: UpdateJobTemplateInput
+}>
+
+export type UpdateJobTemplateMutation = { __typename?: 'Mutation'; updateJobTemplate: { __typename?: 'JobTemplateUpdatePayload'; jobTemplate: { __typename?: 'JobTemplate'; id: string } } }
+
+export type DeleteJobTemplateMutationVariables = Exact<{
+  deleteJobTemplateId: Scalars['ID']['input']
+}>
+
+export type DeleteJobTemplateMutation = { __typename?: 'Mutation'; deleteJobTemplate: { __typename?: 'JobTemplateDeletePayload'; deletedID: string } }
+
+export type CreateBulkCsvJobTemplateMutationVariables = Exact<{
+  input: Scalars['Upload']['input']
+}>
+
+export type CreateBulkCsvJobTemplateMutation = {
+  __typename?: 'Mutation'
+  createBulkCSVJobTemplate: { __typename?: 'JobTemplateBulkCreatePayload'; jobTemplates?: Array<{ __typename?: 'JobTemplate'; id: string }> | null }
+}
+
+export type DeleteBulkJobTemplateMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+}>
+
+export type DeleteBulkJobTemplateMutation = { __typename?: 'Mutation'; deleteBulkJobTemplate: { __typename?: 'JobTemplateBulkDeletePayload'; deletedIDs: Array<string> } }
+
+export type UpdateBulkJobTemplateMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+  input: UpdateJobTemplateInput
+}>
+
+export type UpdateBulkJobTemplateMutation = { __typename?: 'Mutation'; updateBulkJobTemplate: { __typename?: 'JobTemplateBulkUpdatePayload'; updatedIDs?: Array<string> | null } }
+
+export type CreateMappedControlMutationVariables = Exact<{
+  input: CreateMappedControlInput
+}>
+
+export type CreateMappedControlMutation = { __typename?: 'Mutation'; createMappedControl: { __typename?: 'MappedControlCreatePayload'; mappedControl: { __typename?: 'MappedControl'; id: string } } }
+
+export type MappedSubcontrolsFragmentFragment = {
+  __typename: 'Subcontrol'
+  id: string
+  refCode: string
+  referenceFramework?: string | null
+  controlID: string
+  category?: string | null
+  subcategory?: string | null
+}
+
+export type MappedControlsFragmentFragment = { __typename: 'Control'; id: string; refCode: string; referenceFramework?: string | null; category?: string | null; subcategory?: string | null }
+
+export type GetAllMappedControlsQueryVariables = Exact<{
+  where?: InputMaybe<MappedControlWhereInput>
+}>
+
+export type GetAllMappedControlsQuery = {
+  __typename?: 'Query'
+  mappedControls: {
+    __typename?: 'MappedControlConnection'
+    edges?: Array<{
+      __typename?: 'MappedControlEdge'
+      node?: {
+        __typename?: 'MappedControl'
+        id: string
+        relation?: string | null
+        confidence?: number | null
+        mappingType: MappedControlMappingType
+        source?: MappedControlMappingSource | null
+        fromSubcontrols: {
+          __typename?: 'SubcontrolConnection'
+          edges?: Array<{
+            __typename?: 'SubcontrolEdge'
+            node?: { __typename: 'Subcontrol'; id: string; refCode: string; referenceFramework?: string | null; controlID: string; category?: string | null; subcategory?: string | null } | null
+          } | null> | null
+        }
+        toSubcontrols: {
+          __typename?: 'SubcontrolConnection'
+          edges?: Array<{
+            __typename?: 'SubcontrolEdge'
+            node?: { __typename: 'Subcontrol'; id: string; refCode: string; referenceFramework?: string | null; controlID: string; category?: string | null; subcategory?: string | null } | null
+          } | null> | null
+        }
+        fromControls: {
+          __typename?: 'ControlConnection'
+          edges?: Array<{
+            __typename?: 'ControlEdge'
+            node?: { __typename: 'Control'; id: string; refCode: string; referenceFramework?: string | null; category?: string | null; subcategory?: string | null } | null
+          } | null> | null
+        }
+        toControls: {
+          __typename?: 'ControlConnection'
+          edges?: Array<{
+            __typename?: 'ControlEdge'
+            node?: { __typename: 'Control'; id: string; refCode: string; referenceFramework?: string | null; category?: string | null; subcategory?: string | null } | null
+          } | null> | null
+        }
+      } | null
+    } | null> | null
+  }
+}
+
+export type GetMappedControlByIdQueryVariables = Exact<{
+  mappedControlId: Scalars['ID']['input']
+}>
+
+export type GetMappedControlByIdQuery = {
+  __typename?: 'Query'
+  mappedControl: {
+    __typename?: 'MappedControl'
+    id: string
+    relation?: string | null
+    confidence?: number | null
+    mappingType: MappedControlMappingType
+    source?: MappedControlMappingSource | null
+    fromSubcontrols: {
+      __typename?: 'SubcontrolConnection'
+      edges?: Array<{
+        __typename?: 'SubcontrolEdge'
+        node?: { __typename: 'Subcontrol'; id: string; refCode: string; referenceFramework?: string | null; control: { __typename?: 'Control'; id: string } } | null
+      } | null> | null
+    }
+    toSubcontrols: {
+      __typename?: 'SubcontrolConnection'
+      edges?: Array<{
+        __typename?: 'SubcontrolEdge'
+        node?: { __typename: 'Subcontrol'; id: string; refCode: string; referenceFramework?: string | null; control: { __typename?: 'Control'; id: string } } | null
+      } | null> | null
+    }
+    fromControls: {
+      __typename?: 'ControlConnection'
+      edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename: 'Control'; id: string; refCode: string; referenceFramework?: string | null } | null } | null> | null
+    }
+    toControls: {
+      __typename?: 'ControlConnection'
+      edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename: 'Control'; id: string; refCode: string; referenceFramework?: string | null } | null } | null> | null
+    }
+  }
+}
+
+export type UpdateMappedControlMutationVariables = Exact<{
+  updateMappedControlId: Scalars['ID']['input']
+  input: UpdateMappedControlInput
+}>
+
+export type UpdateMappedControlMutation = { __typename?: 'Mutation'; updateMappedControl: { __typename?: 'MappedControlUpdatePayload'; mappedControl: { __typename?: 'MappedControl'; id: string } } }
+
+export type DeleteMappedControlMutationVariables = Exact<{
+  deleteMappedControlId: Scalars['ID']['input']
+}>
+
+export type DeleteMappedControlMutation = { __typename?: 'Mutation'; deleteMappedControl: { __typename?: 'MappedControlDeletePayload'; deletedID: string } }
+
+export type UpdateUserRoleInOrgMutationVariables = Exact<{
+  updateOrgMemberId: Scalars['ID']['input']
+  input: UpdateOrgMembershipInput
+}>
+
+export type UpdateUserRoleInOrgMutation = {
+  __typename?: 'Mutation'
+  updateOrgMembership: { __typename?: 'OrgMembershipUpdatePayload'; orgMembership: { __typename?: 'OrgMembership'; id: string; role: OrgMembershipRole; userID: string; organizationID: string } }
+}
+
+export type RemoveUserFromOrgMutationVariables = Exact<{
+  deleteOrgMembershipId: Scalars['ID']['input']
+}>
+
+export type RemoveUserFromOrgMutation = { __typename?: 'Mutation'; deleteOrgMembership: { __typename?: 'OrgMembershipDeletePayload'; deletedID: string } }
+
+export type OrgMembershipsQueryVariables = Exact<{
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  where?: InputMaybe<OrgMembershipWhereInput>
+  orderBy?: InputMaybe<Array<OrgMembershipOrder> | OrgMembershipOrder>
+}>
+
+export type OrgMembershipsQuery = {
+  __typename?: 'Query'
+  orgMemberships: {
+    __typename?: 'OrgMembershipConnection'
+    totalCount: number
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
+    edges?: Array<{
+      __typename?: 'OrgMembershipEdge'
+      node?: {
+        __typename?: 'OrgMembership'
+        id: string
+        createdAt?: any | null
+        role: OrgMembershipRole
+        user: {
+          __typename?: 'User'
+          id: string
+          displayName: string
+          authProvider: UserAuthProvider
+          avatarRemoteURL?: string | null
+          email: string
+          role?: UserRole | null
+          createdAt?: any | null
+          avatarFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
+        }
+      } | null
+    } | null> | null
+  }
+}
+
+export type OrgMembershipsByIdsQueryVariables = Exact<{
+  where?: InputMaybe<OrgMembershipWhereInput>
+}>
+
+export type OrgMembershipsByIdsQuery = {
+  __typename?: 'Query'
+  orgMemberships: {
+    __typename?: 'OrgMembershipConnection'
+    edges?: Array<{
+      __typename?: 'OrgMembershipEdge'
+      node?: {
+        __typename?: 'OrgMembership'
+        user: { __typename?: 'User'; id: string; displayName: string; avatarRemoteURL?: string | null; avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null }
+      } | null
+    } | null> | null
+  }
+}
+
+export type GetAllNarrativesQueryVariables = Exact<{
+  where?: InputMaybe<NarrativeWhereInput>
+}>
+
+export type GetAllNarrativesQuery = {
+  __typename?: 'Query'
+  narratives: {
+    __typename?: 'NarrativeConnection'
+    edges?: Array<{ __typename?: 'NarrativeEdge'; node?: { __typename?: 'Narrative'; id: string; name: string; displayID: string } | null } | null> | null
+  }
+}
+
+export type NotificationPreferencesWithFilterQueryVariables = Exact<{
+  where?: InputMaybe<NotificationPreferenceWhereInput>
+  orderBy?: InputMaybe<Array<NotificationPreferenceOrder> | NotificationPreferenceOrder>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type NotificationPreferencesWithFilterQuery = {
+  __typename?: 'Query'
+  notificationPreferences: {
+    __typename?: 'NotificationPreferenceConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'NotificationPreferenceEdge'
+      node?: {
+        __typename?: 'NotificationPreference'
+        config?: any | null
+        createdAt?: any | null
+        createdBy?: string | null
+        destination?: string | null
+        enabled: boolean
+        id: string
+        isDefault: boolean
+        lastError?: string | null
+        lastUsedAt?: any | null
+        metadata?: any | null
+        muteUntil?: any | null
+        provider?: string | null
+        quietHoursEnd?: string | null
+        quietHoursStart?: string | null
+        templateID?: string | null
+        timezone?: string | null
+        topicOverrides?: any | null
+        updatedAt?: any | null
+        updatedBy?: string | null
+        userID: string
+        verifiedAt?: any | null
+      } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
+  }
+}
+
+export type NotificationPreferenceQueryVariables = Exact<{
+  notificationPreferenceId: Scalars['ID']['input']
+}>
+
+export type NotificationPreferenceQuery = {
+  __typename?: 'Query'
+  notificationPreference: {
+    __typename?: 'NotificationPreference'
+    config?: any | null
+    createdAt?: any | null
+    createdBy?: string | null
+    destination?: string | null
+    enabled: boolean
+    id: string
+    isDefault: boolean
+    lastError?: string | null
+    lastUsedAt?: any | null
+    metadata?: any | null
+    muteUntil?: any | null
+    provider?: string | null
+    quietHoursEnd?: string | null
+    quietHoursStart?: string | null
+    templateID?: string | null
+    timezone?: string | null
+    topicOverrides?: any | null
+    updatedAt?: any | null
+    updatedBy?: string | null
+    userID: string
+    verifiedAt?: any | null
+  }
+}
+
+export type CreateNotificationPreferenceMutationVariables = Exact<{
+  input: CreateNotificationPreferenceInput
+}>
+
+export type CreateNotificationPreferenceMutation = {
+  __typename?: 'Mutation'
+  createNotificationPreference: { __typename?: 'NotificationPreferenceCreatePayload'; notificationPreference: { __typename?: 'NotificationPreference'; id: string } }
+}
+
+export type UpdateNotificationPreferenceMutationVariables = Exact<{
+  updateNotificationPreferenceId: Scalars['ID']['input']
+  input: UpdateNotificationPreferenceInput
+}>
+
+export type UpdateNotificationPreferenceMutation = {
+  __typename?: 'Mutation'
+  updateNotificationPreference: { __typename?: 'NotificationPreferenceUpdatePayload'; notificationPreference: { __typename?: 'NotificationPreference'; id: string } }
+}
+
+export type DeleteNotificationPreferenceMutationVariables = Exact<{
+  deleteNotificationPreferenceId: Scalars['ID']['input']
+}>
+
+export type DeleteNotificationPreferenceMutation = { __typename?: 'Mutation'; deleteNotificationPreference: { __typename?: 'NotificationPreferenceDeletePayload'; deletedID: string } }
+
+export type CreateBulkCsvNotificationPreferenceMutationVariables = Exact<{
+  input: Scalars['Upload']['input']
+}>
+
+export type CreateBulkCsvNotificationPreferenceMutation = {
+  __typename?: 'Mutation'
+  createBulkCSVNotificationPreference: { __typename?: 'NotificationPreferenceBulkCreatePayload'; notificationPreferences?: Array<{ __typename?: 'NotificationPreference'; id: string }> | null }
+}
+
+export type DeleteBulkNotificationPreferenceMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+}>
+
+export type DeleteBulkNotificationPreferenceMutation = {
+  __typename?: 'Mutation'
+  deleteBulkNotificationPreference: { __typename?: 'NotificationPreferenceBulkDeletePayload'; deletedIDs: Array<string> }
+}
+
+export type UpdateBulkNotificationPreferenceMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+  input: UpdateNotificationPreferenceInput
+}>
+
+export type UpdateBulkNotificationPreferenceMutation = {
+  __typename?: 'Mutation'
+  updateBulkNotificationPreference: { __typename?: 'NotificationPreferenceBulkUpdatePayload'; updatedIDs?: Array<string> | null }
+}
+
+export type NotificationTemplatesWithFilterQueryVariables = Exact<{
+  where?: InputMaybe<NotificationTemplateWhereInput>
+  orderBy?: InputMaybe<Array<NotificationTemplateOrder> | NotificationTemplateOrder>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type NotificationTemplatesWithFilterQuery = {
+  __typename?: 'Query'
+  notificationTemplates: {
+    __typename?: 'NotificationTemplateConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'NotificationTemplateEdge'
+      node?: {
+        __typename?: 'NotificationTemplate'
+        active: boolean
+        blocks?: any | null
+        bodyTemplate?: string | null
+        createdAt?: any | null
+        createdBy?: string | null
+        description?: string | null
+        emailTemplateID?: string | null
+        id: string
+        integrationID?: string | null
+        jsonconfig?: any | null
+        key: string
+        locale: string
+        metadata?: any | null
+        name: string
+        subjectTemplate?: string | null
+        systemOwned?: boolean | null
+        titleTemplate?: string | null
+        topicPattern: string
+        uischema?: any | null
+        updatedAt?: any | null
+        updatedBy?: string | null
+        version: number
+        workflowDefinitionID?: string | null
+      } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
+  }
+}
+
+export type NotificationTemplateQueryVariables = Exact<{
+  notificationTemplateId: Scalars['ID']['input']
+}>
+
+export type NotificationTemplateQuery = {
+  __typename?: 'Query'
+  notificationTemplate: {
+    __typename?: 'NotificationTemplate'
+    active: boolean
+    blocks?: any | null
+    bodyTemplate?: string | null
+    createdAt?: any | null
+    createdBy?: string | null
+    description?: string | null
+    emailTemplateID?: string | null
+    id: string
+    integrationID?: string | null
+    jsonconfig?: any | null
+    key: string
+    locale: string
+    metadata?: any | null
+    name: string
+    subjectTemplate?: string | null
+    systemOwned?: boolean | null
+    titleTemplate?: string | null
+    topicPattern: string
+    uischema?: any | null
+    updatedAt?: any | null
+    updatedBy?: string | null
+    version: number
+    workflowDefinitionID?: string | null
+  }
+}
+
+export type CreateNotificationTemplateMutationVariables = Exact<{
+  input: CreateNotificationTemplateInput
+}>
+
+export type CreateNotificationTemplateMutation = {
+  __typename?: 'Mutation'
+  createNotificationTemplate: { __typename?: 'NotificationTemplateCreatePayload'; notificationTemplate: { __typename?: 'NotificationTemplate'; id: string } }
+}
+
+export type UpdateNotificationTemplateMutationVariables = Exact<{
+  updateNotificationTemplateId: Scalars['ID']['input']
+  input: UpdateNotificationTemplateInput
+}>
+
+export type UpdateNotificationTemplateMutation = {
+  __typename?: 'Mutation'
+  updateNotificationTemplate: { __typename?: 'NotificationTemplateUpdatePayload'; notificationTemplate: { __typename?: 'NotificationTemplate'; id: string } }
+}
+
+export type DeleteNotificationTemplateMutationVariables = Exact<{
+  deleteNotificationTemplateId: Scalars['ID']['input']
+}>
+
+export type DeleteNotificationTemplateMutation = { __typename?: 'Mutation'; deleteNotificationTemplate: { __typename?: 'NotificationTemplateDeletePayload'; deletedID: string } }
+
+export type CreateBulkCsvNotificationTemplateMutationVariables = Exact<{
+  input: Scalars['Upload']['input']
+}>
+
+export type CreateBulkCsvNotificationTemplateMutation = {
+  __typename?: 'Mutation'
+  createBulkCSVNotificationTemplate: { __typename?: 'NotificationTemplateBulkCreatePayload'; notificationTemplates?: Array<{ __typename?: 'NotificationTemplate'; id: string }> | null }
+}
+
+export type DeleteBulkNotificationTemplateMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+}>
+
+export type DeleteBulkNotificationTemplateMutation = { __typename?: 'Mutation'; deleteBulkNotificationTemplate: { __typename?: 'NotificationTemplateBulkDeletePayload'; deletedIDs: Array<string> } }
+
+export type UpdateBulkNotificationTemplateMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+  input: UpdateNotificationTemplateInput
+}>
+
+export type UpdateBulkNotificationTemplateMutation = {
+  __typename?: 'Mutation'
+  updateBulkNotificationTemplate: { __typename?: 'NotificationTemplateBulkUpdatePayload'; updatedIDs?: Array<string> | null }
+}
+
+export type CreateOnboardingMutationVariables = Exact<{
+  input: CreateOnboardingInput
+}>
+
+export type CreateOnboardingMutation = {
+  __typename?: 'Mutation'
+  createOnboarding: {
+    __typename?: 'OnboardingCreatePayload'
+    onboarding: {
+      __typename?: 'Onboarding'
+      companyDetails?: any | null
+      companyName: string
+      domains?: Array<string> | null
+      compliance?: any | null
+      id: string
+      organizationID?: string | null
+      userDetails?: any | null
+    }
+  }
+}
+
+export type GetAllOrganizationsQueryVariables = Exact<{ [key: string]: never }>
+
+export type GetAllOrganizationsQuery = {
+  __typename?: 'Query'
+  organizations: {
+    __typename?: 'OrganizationConnection'
+    edges?: Array<{
+      __typename?: 'OrganizationEdge'
+      node?: {
+        __typename?: 'Organization'
+        id: string
+        name: string
+        displayName: string
+        avatarRemoteURL?: string | null
+        personalOrg?: boolean | null
+        stripeCustomerID?: string | null
+        avatarFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
+        setting?: { __typename?: 'OrganizationSetting'; identityProviderLoginEnforced: boolean } | null
+      } | null
+    } | null> | null
+  }
+}
+
+export type GetOrganizationNameByIdQueryVariables = Exact<{
+  organizationId: Scalars['ID']['input']
+}>
+
+export type GetOrganizationNameByIdQuery = { __typename?: 'Query'; organization: { __typename?: 'Organization'; name: string; displayName: string } }
+
+export type GetSingleOrganizationMembersQueryVariables = Exact<{
+  organizationId: Scalars['ID']['input']
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type GetSingleOrganizationMembersQuery = {
+  __typename?: 'Query'
+  organization: {
+    __typename?: 'Organization'
+    members: {
+      __typename?: 'OrgMembershipConnection'
+      totalCount: number
+      edges?: Array<{
+        __typename?: 'OrgMembershipEdge'
+        node?: {
+          __typename?: 'OrgMembership'
+          id: string
+          createdAt?: any | null
+          role: OrgMembershipRole
+          user: {
+            __typename?: 'User'
+            id: string
+            displayName: string
+            authProvider: UserAuthProvider
+            avatarRemoteURL?: string | null
+            email: string
+            role?: UserRole | null
+            createdAt?: any | null
+            avatarFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
+          }
+        } | null
+      } | null> | null
+      pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
+    }
+  }
+}
+
+export type GetAllOrganizationsWithMembersQueryVariables = Exact<{
+  membersWhere?: InputMaybe<OrgMembershipWhereInput>
+}>
+
+export type GetAllOrganizationsWithMembersQuery = {
+  __typename?: 'Query'
+  organizations: {
+    __typename?: 'OrganizationConnection'
+    edges?: Array<{
+      __typename?: 'OrganizationEdge'
+      node?: {
+        __typename?: 'Organization'
+        id: string
+        personalOrg?: boolean | null
+        displayName: string
+        name: string
+        avatarRemoteURL?: string | null
+        avatarFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
+        members: {
+          __typename?: 'OrgMembershipConnection'
+          edges?: Array<{
+            __typename?: 'OrgMembershipEdge'
+            node?: { __typename?: 'OrgMembership'; id: string; role: OrgMembershipRole; user: { __typename?: 'User'; id: string } } | null
+          } | null> | null
+        }
+      } | null
+    } | null> | null
+  }
+}
+
+export type GetInvitesQueryVariables = Exact<{
+  where?: InputMaybe<InviteWhereInput>
+  orderBy?: InputMaybe<Array<InviteOrder> | InviteOrder>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type GetInvitesQuery = {
+  __typename?: 'Query'
+  invites: {
+    __typename?: 'InviteConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'InviteEdge'
+      node?: { __typename?: 'Invite'; id: string; recipient: string; status: InviteInviteStatus; createdAt?: any | null; expires?: any | null; role: InviteRole; sendAttempts: number } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; startCursor?: any | null; endCursor?: any | null }
+  }
+}
+
+export type GetOrganizationBillingQueryVariables = Exact<{
+  organizationId: Scalars['ID']['input']
+}>
+
+export type GetOrganizationBillingQuery = {
+  __typename?: 'Query'
+  organization: {
+    __typename?: 'Organization'
+    personalOrg?: boolean | null
+    orgSubscriptions?: Array<{ __typename?: 'OrgSubscription'; active: boolean; expiresAt?: any | null; stripeSubscriptionStatus?: string | null; trialExpiresAt?: any | null }> | null
+  }
+}
+
+export type GetOrganizationBillingBannerQueryVariables = Exact<{
+  organizationId: Scalars['ID']['input']
+}>
+
+export type GetOrganizationBillingBannerQuery = {
+  __typename?: 'Query'
+  organization: {
+    __typename?: 'Organization'
+    personalOrg?: boolean | null
+    orgSubscriptions?: Array<{ __typename?: 'OrgSubscription'; trialExpiresAt?: any | null; expiresAt?: any | null; stripeSubscriptionStatus?: string | null }> | null
+  }
+}
+
+export type GetOrganizationSettingQueryVariables = Exact<{
+  organizationId: Scalars['ID']['input']
+}>
+
+export type GetOrganizationSettingQuery = {
+  __typename?: 'Query'
+  organization: {
+    __typename?: 'Organization'
+    setting?: {
+      __typename?: 'OrganizationSetting'
+      id: string
+      createdAt?: any | null
+      updatedAt?: any | null
+      createdBy?: string | null
+      updatedBy?: string | null
+      domains?: Array<string> | null
+      billingContact?: string | null
+      billingEmail?: string | null
+      billingPhone?: string | null
+      billingAddress?: any | null
+      taxIdentifier?: string | null
+      tags?: Array<string> | null
+      geoLocation?: OrganizationSettingRegion | null
+      billingNotificationsEnabled: boolean
+      allowedEmailDomains?: Array<string> | null
+      identityProvider?: OrganizationSettingSsoProvider | null
+      identityProviderClientID?: string | null
+      identityProviderClientSecret?: string | null
+      oidcDiscoveryEndpoint?: string | null
+      identityProviderLoginEnforced: boolean
+      identityProviderAuthTested: boolean
+      allowMatchingDomainsAutojoin?: boolean | null
+    } | null
+  }
+}
+
+export type GetBillingEmailQueryVariables = Exact<{
+  organizationId: Scalars['ID']['input']
+}>
+
+export type GetBillingEmailQuery = { __typename?: 'Query'; organization: { __typename?: 'Organization'; setting?: { __typename?: 'OrganizationSetting'; billingEmail?: string | null } | null } }
+
+export type CreateOrganizationMutationVariables = Exact<{
+  input: CreateOrganizationInput
+}>
+
+export type CreateOrganizationMutation = { __typename?: 'Mutation'; createOrganization: { __typename?: 'OrganizationCreatePayload'; organization: { __typename?: 'Organization'; id: string } } }
+
+export type UpdateOrganizationMutationVariables = Exact<{
+  updateOrganizationId: Scalars['ID']['input']
+  input: UpdateOrganizationInput
+  avatarFile?: InputMaybe<Scalars['Upload']['input']>
+}>
+
+export type UpdateOrganizationMutation = { __typename?: 'Mutation'; updateOrganization: { __typename?: 'OrganizationUpdatePayload'; organization: { __typename?: 'Organization'; id: string } } }
+
+export type CreateBulkInviteMutationVariables = Exact<{
+  input?: InputMaybe<Array<CreateInviteInput> | CreateInviteInput>
+}>
+
+export type CreateBulkInviteMutation = { __typename?: 'Mutation'; createBulkInvite: { __typename?: 'InviteBulkCreatePayload'; invites?: Array<{ __typename?: 'Invite'; id: string }> | null } }
+
+export type DeleteOrganizationInviteMutationVariables = Exact<{
+  deleteInviteId: Scalars['ID']['input']
+}>
+
+export type DeleteOrganizationInviteMutation = { __typename?: 'Mutation'; deleteInvite: { __typename?: 'InviteDeletePayload'; deletedID: string } }
+
+export type DeleteOrganizationMutationVariables = Exact<{
+  deleteOrganizationId: Scalars['ID']['input']
+}>
+
+export type DeleteOrganizationMutation = { __typename?: 'Mutation'; deleteOrganization: { __typename?: 'OrganizationDeletePayload'; deletedID: string } }
+
+export type UpdateOrganizationSettingMutationVariables = Exact<{
+  updateOrganizationSettingId: Scalars['ID']['input']
+  input: UpdateOrganizationSettingInput
+}>
+
+export type UpdateOrganizationSettingMutation = {
+  __typename?: 'Mutation'
+  updateOrganizationSetting: { __typename?: 'OrganizationSettingUpdatePayload'; organizationSetting: { __typename?: 'OrganizationSetting'; id: string } }
+}
+
+export type TransferOrganizationOwnershipMutationVariables = Exact<{
+  newOwnerEmail: Scalars['String']['input']
+}>
+
+export type TransferOrganizationOwnershipMutation = { __typename?: 'Mutation'; transferOrganizationOwnership: { __typename?: 'OrganizationTransferOwnershipPayload'; invitationSent: boolean } }
+
+export type GetPasskeysQueryVariables = Exact<{ [key: string]: never }>
+
+export type GetPasskeysQuery = {
+  __typename?: 'Query'
+  webauthns: {
+    __typename?: 'WebauthnConnection'
+    edges?: Array<{
+      __typename?: 'WebauthnEdge'
+      node?: { __typename?: 'Webauthn'; id: string; backupState: boolean; backupEligible: boolean; createdAt?: any | null; tags?: Array<string> | null; aaguid: any } | null
+    } | null> | null
+  }
+}
+
+export type DeletePasskeyMutationVariables = Exact<{
+  deleteWebauthnId: Scalars['ID']['input']
+}>
+
+export type DeletePasskeyMutation = { __typename?: 'Mutation'; deleteWebauthn: { __typename?: 'WebauthnDeletePayload'; deletedID: string } }
+
+export type PlatformsWithFilterQueryVariables = Exact<{
+  where?: InputMaybe<PlatformWhereInput>
+  orderBy?: InputMaybe<Array<PlatformOrder> | PlatformOrder>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type PlatformsWithFilterQuery = {
+  __typename?: 'Query'
+  platforms: {
+    __typename?: 'PlatformConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'PlatformEdge'
+      node?: {
+        __typename?: 'Platform'
+        accessModelID?: string | null
+        accessModelName?: string | null
+        businessOwner?: string | null
+        businessOwnerGroupID?: string | null
+        businessOwnerUserID?: string | null
+        businessPurpose?: string | null
+        containsPii?: boolean | null
+        costCenter?: string | null
+        createdAt?: any | null
+        createdBy?: string | null
+        criticalityID?: string | null
+        criticalityName?: string | null
+        dataFlowSummary?: string | null
+        description?: string | null
+        displayID: string
+        encryptionStatusID?: string | null
+        encryptionStatusName?: string | null
+        environmentID?: string | null
+        environmentName?: string | null
+        estimatedMonthlyCost?: number | null
+        externalReferenceID?: string | null
+        hasPendingWorkflow: boolean
+        hasWorkflowHistory: boolean
+        id: string
+        internalOwner?: string | null
+        internalOwnerGroupID?: string | null
+        internalOwnerUserID?: string | null
+        metadata?: any | null
+        name: string
+        physicalLocation?: string | null
+        platformDataClassificationID?: string | null
+        platformDataClassificationName?: string | null
+        platformKindID?: string | null
+        platformKindName?: string | null
+        platformOwnerID?: string | null
+        purchaseDate?: string | null
+        region?: string | null
+        scopeID?: string | null
+        scopeName?: string | null
+        scopeStatement?: string | null
+        securityOwner?: string | null
+        securityOwnerGroupID?: string | null
+        securityOwnerUserID?: string | null
+        securityTierID?: string | null
+        securityTierName?: string | null
+        sourceIdentifier?: string | null
+        technicalOwner?: string | null
+        technicalOwnerGroupID?: string | null
+        technicalOwnerUserID?: string | null
+        trustBoundaryDescription?: string | null
+        updatedAt?: any | null
+        updatedBy?: string | null
+        workflowEligibleMarker?: boolean | null
+      } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
+  }
+}
+
+export type PlatformQueryVariables = Exact<{
+  platformId: Scalars['ID']['input']
+}>
+
+export type PlatformQuery = {
+  __typename?: 'Query'
+  platform: {
+    __typename?: 'Platform'
+    accessModelID?: string | null
+    accessModelName?: string | null
+    businessOwner?: string | null
+    businessOwnerGroupID?: string | null
+    businessOwnerUserID?: string | null
+    businessPurpose?: string | null
+    containsPii?: boolean | null
+    costCenter?: string | null
+    createdAt?: any | null
+    createdBy?: string | null
+    criticalityID?: string | null
+    criticalityName?: string | null
+    dataFlowSummary?: string | null
+    description?: string | null
+    displayID: string
+    encryptionStatusID?: string | null
+    encryptionStatusName?: string | null
+    environmentID?: string | null
+    environmentName?: string | null
+    estimatedMonthlyCost?: number | null
+    externalReferenceID?: string | null
+    hasPendingWorkflow: boolean
+    hasWorkflowHistory: boolean
+    id: string
+    internalOwner?: string | null
+    internalOwnerGroupID?: string | null
+    internalOwnerUserID?: string | null
+    metadata?: any | null
+    name: string
+    physicalLocation?: string | null
+    platformDataClassificationID?: string | null
+    platformDataClassificationName?: string | null
+    platformKindID?: string | null
+    platformKindName?: string | null
+    platformOwnerID?: string | null
+    purchaseDate?: string | null
+    region?: string | null
+    scopeID?: string | null
+    scopeName?: string | null
+    scopeStatement?: string | null
+    securityOwner?: string | null
+    securityOwnerGroupID?: string | null
+    securityOwnerUserID?: string | null
+    securityTierID?: string | null
+    securityTierName?: string | null
+    sourceIdentifier?: string | null
+    technicalOwner?: string | null
+    technicalOwnerGroupID?: string | null
+    technicalOwnerUserID?: string | null
+    trustBoundaryDescription?: string | null
+    updatedAt?: any | null
+    updatedBy?: string | null
+    workflowEligibleMarker?: boolean | null
+  }
+}
+
+export type CreatePlatformMutationVariables = Exact<{
+  input: CreatePlatformInput
+}>
+
+export type CreatePlatformMutation = { __typename?: 'Mutation'; createPlatform: { __typename?: 'PlatformCreatePayload'; platform: { __typename?: 'Platform'; id: string } } }
+
+export type UpdatePlatformMutationVariables = Exact<{
+  updatePlatformId: Scalars['ID']['input']
+  input: UpdatePlatformInput
+}>
+
+export type UpdatePlatformMutation = { __typename?: 'Mutation'; updatePlatform: { __typename?: 'PlatformUpdatePayload'; platform: { __typename?: 'Platform'; id: string } } }
+
+export type DeletePlatformMutationVariables = Exact<{
+  deletePlatformId: Scalars['ID']['input']
+}>
+
+export type DeletePlatformMutation = { __typename?: 'Mutation'; deletePlatform: { __typename?: 'PlatformDeletePayload'; deletedID: string } }
 
 export type CreateProcedureMutationVariables = Exact<{
   input: CreateProcedureInput
@@ -63155,6 +65845,230 @@ export type GetProgramDashboardQuery = {
   }
 }
 
+export type RemediationsWithFilterQueryVariables = Exact<{
+  where?: InputMaybe<RemediationWhereInput>
+  orderBy?: InputMaybe<Array<RemediationOrder> | RemediationOrder>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type RemediationsWithFilterQuery = {
+  __typename?: 'Query'
+  remediations: {
+    __typename?: 'RemediationConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'RemediationEdge'
+      node?: {
+        __typename?: 'Remediation'
+        completedAt?: string | null
+        createdAt?: any | null
+        createdBy?: string | null
+        displayID: string
+        dueAt?: string | null
+        environmentID?: string | null
+        environmentName?: string | null
+        error?: string | null
+        explanation?: string | null
+        externalID?: string | null
+        externalOwnerID?: string | null
+        externalURI?: string | null
+        id: string
+        instructions?: string | null
+        intent?: string | null
+        metadata?: any | null
+        ownerReference?: string | null
+        prGeneratedAt?: string | null
+        pullRequestURI?: string | null
+        repositoryURI?: string | null
+        scopeID?: string | null
+        scopeName?: string | null
+        source?: string | null
+        state?: string | null
+        summary?: string | null
+        systemOwned?: boolean | null
+        ticketReference?: string | null
+        title?: string | null
+        updatedAt?: any | null
+        updatedBy?: string | null
+      } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
+  }
+}
+
+export type RemediationQueryVariables = Exact<{
+  remediationId: Scalars['ID']['input']
+}>
+
+export type RemediationQuery = {
+  __typename?: 'Query'
+  remediation: {
+    __typename?: 'Remediation'
+    completedAt?: string | null
+    createdAt?: any | null
+    createdBy?: string | null
+    displayID: string
+    dueAt?: string | null
+    environmentID?: string | null
+    environmentName?: string | null
+    error?: string | null
+    explanation?: string | null
+    externalID?: string | null
+    externalOwnerID?: string | null
+    externalURI?: string | null
+    id: string
+    instructions?: string | null
+    intent?: string | null
+    metadata?: any | null
+    ownerReference?: string | null
+    prGeneratedAt?: string | null
+    pullRequestURI?: string | null
+    repositoryURI?: string | null
+    scopeID?: string | null
+    scopeName?: string | null
+    source?: string | null
+    state?: string | null
+    summary?: string | null
+    systemOwned?: boolean | null
+    ticketReference?: string | null
+    title?: string | null
+    updatedAt?: any | null
+    updatedBy?: string | null
+  }
+}
+
+export type CreateRemediationMutationVariables = Exact<{
+  input: CreateRemediationInput
+}>
+
+export type CreateRemediationMutation = { __typename?: 'Mutation'; createRemediation: { __typename?: 'RemediationCreatePayload'; remediation: { __typename?: 'Remediation'; id: string } } }
+
+export type UpdateRemediationMutationVariables = Exact<{
+  updateRemediationId: Scalars['ID']['input']
+  input: UpdateRemediationInput
+}>
+
+export type UpdateRemediationMutation = { __typename?: 'Mutation'; updateRemediation: { __typename?: 'RemediationUpdatePayload'; remediation: { __typename?: 'Remediation'; id: string } } }
+
+export type DeleteRemediationMutationVariables = Exact<{
+  deleteRemediationId: Scalars['ID']['input']
+}>
+
+export type DeleteRemediationMutation = { __typename?: 'Mutation'; deleteRemediation: { __typename?: 'RemediationDeletePayload'; deletedID: string } }
+
+export type ReviewsWithFilterQueryVariables = Exact<{
+  where?: InputMaybe<ReviewWhereInput>
+  orderBy?: InputMaybe<Array<ReviewOrder> | ReviewOrder>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type ReviewsWithFilterQuery = {
+  __typename?: 'Query'
+  reviews: {
+    __typename?: 'ReviewConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'ReviewEdge'
+      node?: {
+        __typename?: 'Review'
+        approved?: boolean | null
+        approvedAt?: string | null
+        category?: string | null
+        classification?: string | null
+        createdAt?: any | null
+        createdBy?: string | null
+        details?: string | null
+        environmentID?: string | null
+        environmentName?: string | null
+        externalID?: string | null
+        externalOwnerID?: string | null
+        externalURI?: string | null
+        id: string
+        metadata?: any | null
+        rawPayload?: any | null
+        reportedAt?: string | null
+        reporter?: string | null
+        reviewedAt?: string | null
+        reviewerID?: string | null
+        scopeID?: string | null
+        scopeName?: string | null
+        source?: string | null
+        state?: string | null
+        summary?: string | null
+        systemOwned?: boolean | null
+        title: string
+        updatedAt?: any | null
+        updatedBy?: string | null
+      } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
+  }
+}
+
+export type ReviewQueryVariables = Exact<{
+  reviewId: Scalars['ID']['input']
+}>
+
+export type ReviewQuery = {
+  __typename?: 'Query'
+  review: {
+    __typename?: 'Review'
+    approved?: boolean | null
+    approvedAt?: string | null
+    category?: string | null
+    classification?: string | null
+    createdAt?: any | null
+    createdBy?: string | null
+    details?: string | null
+    environmentID?: string | null
+    environmentName?: string | null
+    externalID?: string | null
+    externalOwnerID?: string | null
+    externalURI?: string | null
+    id: string
+    metadata?: any | null
+    rawPayload?: any | null
+    reportedAt?: string | null
+    reporter?: string | null
+    reviewedAt?: string | null
+    reviewerID?: string | null
+    scopeID?: string | null
+    scopeName?: string | null
+    source?: string | null
+    state?: string | null
+    summary?: string | null
+    systemOwned?: boolean | null
+    title: string
+    updatedAt?: any | null
+    updatedBy?: string | null
+  }
+}
+
+export type CreateReviewMutationVariables = Exact<{
+  input: CreateReviewInput
+}>
+
+export type CreateReviewMutation = { __typename?: 'Mutation'; createReview: { __typename?: 'ReviewCreatePayload'; review: { __typename?: 'Review'; id: string } } }
+
+export type UpdateReviewMutationVariables = Exact<{
+  updateReviewId: Scalars['ID']['input']
+  input: UpdateReviewInput
+}>
+
+export type UpdateReviewMutation = { __typename?: 'Mutation'; updateReview: { __typename?: 'ReviewUpdatePayload'; review: { __typename?: 'Review'; id: string } } }
+
+export type DeleteReviewMutationVariables = Exact<{
+  deleteReviewId: Scalars['ID']['input']
+}>
+
+export type DeleteReviewMutation = { __typename?: 'Mutation'; deleteReview: { __typename?: 'ReviewDeletePayload'; deletedID: string } }
+
 export type RiskFieldsFragment = {
   __typename?: 'Risk'
   id: string
@@ -63471,6 +66385,281 @@ export type UpdateRiskCommentMutationVariables = Exact<{
 }>
 
 export type UpdateRiskCommentMutation = { __typename?: 'Mutation'; updateRiskComment: { __typename?: 'RiskUpdatePayload'; risk: { __typename?: 'Risk'; id: string } } }
+
+export type ScansWithFilterQueryVariables = Exact<{
+  where?: InputMaybe<ScanWhereInput>
+  orderBy?: InputMaybe<Array<ScanOrder> | ScanOrder>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type ScansWithFilterQuery = {
+  __typename?: 'Query'
+  scans: {
+    __typename?: 'ScanConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'ScanEdge'
+      node?: {
+        __typename?: 'Scan'
+        assignedTo?: string | null
+        assignedToGroupID?: string | null
+        assignedToUserID?: string | null
+        createdAt?: any | null
+        createdBy?: string | null
+        environmentID?: string | null
+        environmentName?: string | null
+        generatedByPlatformID?: string | null
+        id: string
+        metadata?: any | null
+        nextScanRunAt?: string | null
+        performedBy?: string | null
+        performedByGroupID?: string | null
+        performedByUserID?: string | null
+        reviewedBy?: string | null
+        reviewedByGroupID?: string | null
+        reviewedByUserID?: string | null
+        scanDate?: string | null
+        scanSchedule?: string | null
+        scopeID?: string | null
+        scopeName?: string | null
+        target: string
+        updatedAt?: any | null
+        updatedBy?: string | null
+      } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
+  }
+}
+
+export type ScanQueryVariables = Exact<{
+  scanId: Scalars['ID']['input']
+}>
+
+export type ScanQuery = {
+  __typename?: 'Query'
+  scan: {
+    __typename?: 'Scan'
+    assignedTo?: string | null
+    assignedToGroupID?: string | null
+    assignedToUserID?: string | null
+    createdAt?: any | null
+    createdBy?: string | null
+    environmentID?: string | null
+    environmentName?: string | null
+    generatedByPlatformID?: string | null
+    id: string
+    metadata?: any | null
+    nextScanRunAt?: string | null
+    performedBy?: string | null
+    performedByGroupID?: string | null
+    performedByUserID?: string | null
+    reviewedBy?: string | null
+    reviewedByGroupID?: string | null
+    reviewedByUserID?: string | null
+    scanDate?: string | null
+    scanSchedule?: string | null
+    scopeID?: string | null
+    scopeName?: string | null
+    target: string
+    updatedAt?: any | null
+    updatedBy?: string | null
+  }
+}
+
+export type CreateScanMutationVariables = Exact<{
+  input: CreateScanInput
+}>
+
+export type CreateScanMutation = { __typename?: 'Mutation'; createScan: { __typename?: 'ScanCreatePayload'; scan: { __typename?: 'Scan'; id: string } } }
+
+export type UpdateScanMutationVariables = Exact<{
+  updateScanId: Scalars['ID']['input']
+  input: UpdateScanInput
+}>
+
+export type UpdateScanMutation = { __typename?: 'Mutation'; updateScan: { __typename?: 'ScanUpdatePayload'; scan: { __typename?: 'Scan'; id: string } } }
+
+export type DeleteScanMutationVariables = Exact<{
+  deleteScanId: Scalars['ID']['input']
+}>
+
+export type DeleteScanMutation = { __typename?: 'Mutation'; deleteScan: { __typename?: 'ScanDeletePayload'; deletedID: string } }
+
+export type CreateBulkCsvScanMutationVariables = Exact<{
+  input: Scalars['Upload']['input']
+}>
+
+export type CreateBulkCsvScanMutation = { __typename?: 'Mutation'; createBulkCSVScan: { __typename?: 'ScanBulkCreatePayload'; scans?: Array<{ __typename?: 'Scan'; id: string }> | null } }
+
+export type DeleteBulkScanMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+}>
+
+export type DeleteBulkScanMutation = { __typename?: 'Mutation'; deleteBulkScan: { __typename?: 'ScanBulkDeletePayload'; deletedIDs: Array<string> } }
+
+export type UpdateBulkScanMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+  input: UpdateScanInput
+}>
+
+export type UpdateBulkScanMutation = { __typename?: 'Mutation'; updateBulkScan: { __typename?: 'ScanBulkUpdatePayload'; updatedIDs?: Array<string> | null } }
+
+export type ScheduledJobRunsWithFilterQueryVariables = Exact<{
+  where?: InputMaybe<ScheduledJobRunWhereInput>
+  orderBy?: InputMaybe<Array<ScheduledJobRunOrder> | ScheduledJobRunOrder>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type ScheduledJobRunsWithFilterQuery = {
+  __typename?: 'Query'
+  scheduledJobRuns: {
+    __typename?: 'ScheduledJobRunConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'ScheduledJobRunEdge'
+      node?: {
+        __typename?: 'ScheduledJobRun'
+        createdAt?: any | null
+        createdBy?: string | null
+        expectedExecutionTime: any
+        id: string
+        jobRunnerID: string
+        scheduledJobID: string
+        script: string
+        updatedAt?: any | null
+        updatedBy?: string | null
+      } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
+  }
+}
+
+export type ScheduledJobRunQueryVariables = Exact<{
+  scheduledJobRunId: Scalars['ID']['input']
+}>
+
+export type ScheduledJobRunQuery = {
+  __typename?: 'Query'
+  scheduledJobRun: {
+    __typename?: 'ScheduledJobRun'
+    createdAt?: any | null
+    createdBy?: string | null
+    expectedExecutionTime: any
+    id: string
+    jobRunnerID: string
+    scheduledJobID: string
+    script: string
+    updatedAt?: any | null
+    updatedBy?: string | null
+  }
+}
+
+export type CreateScheduledJobRunMutationVariables = Exact<{
+  input: CreateScheduledJobRunInput
+}>
+
+export type CreateScheduledJobRunMutation = {
+  __typename?: 'Mutation'
+  createScheduledJobRun: { __typename?: 'ScheduledJobRunCreatePayload'; scheduledJobRun: { __typename?: 'ScheduledJobRun'; id: string } }
+}
+
+export type UpdateScheduledJobRunMutationVariables = Exact<{
+  updateScheduledJobRunId: Scalars['ID']['input']
+  input: UpdateScheduledJobRunInput
+}>
+
+export type UpdateScheduledJobRunMutation = {
+  __typename?: 'Mutation'
+  updateScheduledJobRun: { __typename?: 'ScheduledJobRunUpdatePayload'; scheduledJobRun: { __typename?: 'ScheduledJobRun'; id: string } }
+}
+
+export type DeleteScheduledJobRunMutationVariables = Exact<{
+  deleteScheduledJobRunId: Scalars['ID']['input']
+}>
+
+export type DeleteScheduledJobRunMutation = { __typename?: 'Mutation'; deleteScheduledJobRun: { __typename?: 'ScheduledJobRunDeletePayload'; deletedID: string } }
+
+export type ScheduledJobsWithFilterQueryVariables = Exact<{
+  where?: InputMaybe<ScheduledJobWhereInput>
+  orderBy?: InputMaybe<Array<ScheduledJobOrder> | ScheduledJobOrder>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type ScheduledJobsWithFilterQuery = {
+  __typename?: 'Query'
+  scheduledJobs: {
+    __typename?: 'ScheduledJobConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'ScheduledJobEdge'
+      node?: {
+        __typename?: 'ScheduledJob'
+        active: boolean
+        configuration?: any | null
+        createdAt?: any | null
+        createdBy?: string | null
+        cron?: string | null
+        displayID: string
+        id: string
+        jobID: string
+        jobRunnerID?: string | null
+        updatedAt?: any | null
+        updatedBy?: string | null
+      } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
+  }
+}
+
+export type ScheduledJobQueryVariables = Exact<{
+  scheduledJobId: Scalars['ID']['input']
+}>
+
+export type ScheduledJobQuery = {
+  __typename?: 'Query'
+  scheduledJob: {
+    __typename?: 'ScheduledJob'
+    active: boolean
+    configuration?: any | null
+    createdAt?: any | null
+    createdBy?: string | null
+    cron?: string | null
+    displayID: string
+    id: string
+    jobID: string
+    jobRunnerID?: string | null
+    updatedAt?: any | null
+    updatedBy?: string | null
+  }
+}
+
+export type CreateScheduledJobMutationVariables = Exact<{
+  input: CreateScheduledJobInput
+}>
+
+export type CreateScheduledJobMutation = { __typename?: 'Mutation'; createScheduledJob: { __typename?: 'ScheduledJobCreatePayload'; scheduledJob: { __typename?: 'ScheduledJob'; id: string } } }
+
+export type UpdateScheduledJobMutationVariables = Exact<{
+  updateScheduledJobId: Scalars['ID']['input']
+  input: UpdateScheduledJobInput
+}>
+
+export type UpdateScheduledJobMutation = { __typename?: 'Mutation'; updateScheduledJob: { __typename?: 'ScheduledJobUpdatePayload'; scheduledJob: { __typename?: 'ScheduledJob'; id: string } } }
+
+export type DeleteScheduledJobMutationVariables = Exact<{
+  deleteScheduledJobId: Scalars['ID']['input']
+}>
+
+export type DeleteScheduledJobMutation = { __typename?: 'Mutation'; deleteScheduledJob: { __typename?: 'ScheduledJobDeletePayload'; deletedID: string } }
 
 export type SearchQueryVariables = Exact<{
   query: Scalars['String']['input']
@@ -64727,6 +67916,200 @@ export type UpdatePersonalAccessTokenMutation = {
   updatePersonalAccessToken: { __typename?: 'PersonalAccessTokenUpdatePayload'; personalAccessToken: { __typename?: 'PersonalAccessToken'; id: string } }
 }
 
+export type GetTrustCenterCompliancesQueryVariables = Exact<{ [key: string]: never }>
+
+export type GetTrustCenterCompliancesQuery = {
+  __typename?: 'Query'
+  trustCenterCompliances: {
+    __typename?: 'TrustCenterComplianceConnection'
+    edges?: Array<{
+      __typename?: 'TrustCenterComplianceEdge'
+      node?: {
+        __typename?: 'TrustCenterCompliance'
+        id: string
+        standard: { __typename?: 'Standard'; id: string; shortName?: string | null; description?: string | null; tags?: Array<string> | null; systemOwned?: boolean | null }
+      } | null
+    } | null> | null
+  }
+}
+
+export type CreateBulkTrustCenterComplianceMutationVariables = Exact<{
+  input?: InputMaybe<Array<CreateTrustCenterComplianceInput> | CreateTrustCenterComplianceInput>
+}>
+
+export type CreateBulkTrustCenterComplianceMutation = {
+  __typename?: 'Mutation'
+  createBulkTrustCenterCompliance: { __typename?: 'TrustCenterComplianceBulkCreatePayload'; trustCenterCompliances?: Array<{ __typename?: 'TrustCenterCompliance'; id: string }> | null }
+}
+
+export type DeleteBulkTrustCenterComplianceMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+}>
+
+export type DeleteBulkTrustCenterComplianceMutation = { __typename?: 'Mutation'; deleteBulkTrustCenterCompliance: { __typename?: 'TrustCenterComplianceBulkDeletePayload'; deletedIDs: Array<string> } }
+
+export type UpdateTrustCenterComplianceMutationVariables = Exact<{
+  updateTrustCenterComplianceId: Scalars['ID']['input']
+  input: UpdateTrustCenterComplianceInput
+}>
+
+export type UpdateTrustCenterComplianceMutation = {
+  __typename?: 'Mutation'
+  updateTrustCenterCompliance: { __typename?: 'TrustCenterComplianceUpdatePayload'; trustCenterCompliance: { __typename?: 'TrustCenterCompliance'; id: string } }
+}
+
+export type GetTrustCenterDocsQueryVariables = Exact<{
+  where?: InputMaybe<TrustCenterDocWhereInput>
+  first?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<TrustCenterDocOrder> | TrustCenterDocOrder>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+}>
+
+export type GetTrustCenterDocsQuery = {
+  __typename?: 'Query'
+  trustCenters: {
+    __typename?: 'TrustCenterConnection'
+    edges?: Array<{
+      __typename?: 'TrustCenterEdge'
+      node?: {
+        __typename?: 'TrustCenter'
+        id: string
+        trustCenterDocs: {
+          __typename?: 'TrustCenterDocConnection'
+          totalCount: number
+          edges?: Array<{
+            __typename?: 'TrustCenterDocEdge'
+            node?: {
+              __typename?: 'TrustCenterDoc'
+              id: string
+              title: string
+              trustCenterDocKindName?: string | null
+              visibility?: TrustCenterDocTrustCenterDocumentVisibility | null
+              tags?: Array<string> | null
+              createdAt?: any | null
+              updatedAt?: any | null
+              watermarkingEnabled?: boolean | null
+              watermarkStatus?: TrustCenterDocWatermarkStatus | null
+              file?: { __typename?: 'File'; presignedURL?: string | null } | null
+              originalFile?: { __typename?: 'File'; presignedURL?: string | null } | null
+              standard?: { __typename?: 'Standard'; shortName?: string | null; id: string } | null
+            } | null
+          } | null> | null
+          pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
+        }
+      } | null
+    } | null> | null
+  }
+}
+
+export type UpdateTrustCenterDocMutationVariables = Exact<{
+  updateTrustCenterDocId: Scalars['ID']['input']
+  input: UpdateTrustCenterDocInput
+  trustCenterDocFile?: InputMaybe<Scalars['Upload']['input']>
+}>
+
+export type UpdateTrustCenterDocMutation = {
+  __typename?: 'Mutation'
+  updateTrustCenterDoc: { __typename?: 'TrustCenterDocUpdatePayload'; trustCenterDoc: { __typename?: 'TrustCenterDoc'; id: string } }
+}
+
+export type CreateTrustCenterDocMutationVariables = Exact<{
+  input: CreateTrustCenterDocInput
+  trustCenterDocFile: Scalars['Upload']['input']
+}>
+
+export type CreateTrustCenterDocMutation = {
+  __typename?: 'Mutation'
+  createTrustCenterDoc: { __typename?: 'TrustCenterDocCreatePayload'; trustCenterDoc: { __typename?: 'TrustCenterDoc'; id: string } }
+}
+
+export type GetTruestCenterDocByIdQueryVariables = Exact<{
+  trustCenterDocId: Scalars['ID']['input']
+}>
+
+export type GetTruestCenterDocByIdQuery = {
+  __typename?: 'Query'
+  trustCenterDoc: {
+    __typename?: 'TrustCenterDoc'
+    id: string
+    title: string
+    trustCenterDocKindName?: string | null
+    visibility?: TrustCenterDocTrustCenterDocumentVisibility | null
+    tags?: Array<string> | null
+    watermarkingEnabled?: boolean | null
+    watermarkStatus?: TrustCenterDocWatermarkStatus | null
+    standardID?: string | null
+    file?: { __typename?: 'File'; presignedURL?: string | null; providedFileName: string; providedFileSize?: number | null } | null
+    originalFile?: { __typename?: 'File'; presignedURL?: string | null; providedFileSize?: number | null; providedFileName: string } | null
+  }
+}
+
+export type DeleteTrustCenterDocMutationVariables = Exact<{
+  deleteTrustCenterDocId: Scalars['ID']['input']
+}>
+
+export type DeleteTrustCenterDocMutation = { __typename?: 'Mutation'; deleteTrustCenterDoc: { __typename?: 'TrustCenterDocDeletePayload'; deletedID: string } }
+
+export type BulkDeleteTrustCenterDocMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+}>
+
+export type BulkDeleteTrustCenterDocMutation = { __typename?: 'Mutation'; deleteBulkTrustCenterDoc: { __typename?: 'TrustCenterDocBulkDeletePayload'; deletedIDs: Array<string> } }
+
+export type BulkUpdateTrustCenterDocMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+  input: UpdateTrustCenterDocInput
+}>
+
+export type BulkUpdateTrustCenterDocMutation = {
+  __typename?: 'Mutation'
+  updateBulkTrustCenterDoc: { __typename?: 'TrustCenterDocBulkUpdatePayload'; trustCenterDocs?: Array<{ __typename?: 'TrustCenterDoc'; id: string }> | null }
+}
+
+export type GetTrustCenterEntitiesQueryVariables = Exact<{
+  where?: InputMaybe<TrustCenterEntityWhereInput>
+}>
+
+export type GetTrustCenterEntitiesQuery = {
+  __typename?: 'Query'
+  trustCenterEntities: {
+    __typename?: 'TrustCenterEntityConnection'
+    edges?: Array<{
+      __typename?: 'TrustCenterEntityEdge'
+      node?: { __typename?: 'TrustCenterEntity'; id: string; name: string; url?: string | null; logoFile?: { __typename?: 'File'; presignedURL?: string | null } | null } | null
+    } | null> | null
+  }
+}
+
+export type CreateTrustCenterEntityMutationVariables = Exact<{
+  input: CreateTrustCenterEntityInput
+  logoFile?: InputMaybe<Scalars['Upload']['input']>
+}>
+
+export type CreateTrustCenterEntityMutation = {
+  __typename?: 'Mutation'
+  createTrustCenterEntity: { __typename?: 'TrustCenterEntityCreatePayload'; trustCenterEntity: { __typename?: 'TrustCenterEntity'; id: string } }
+}
+
+export type DeleteTrustCenterEntityMutationVariables = Exact<{
+  deleteTrustCenterEntityId: Scalars['ID']['input']
+}>
+
+export type DeleteTrustCenterEntityMutation = { __typename?: 'Mutation'; deleteTrustCenterEntity: { __typename?: 'TrustCenterEntityDeletePayload'; deletedID: string } }
+
+export type UpdateTrustCenterEntityMutationVariables = Exact<{
+  updateTrustCenterEntityId: Scalars['ID']['input']
+  input: UpdateTrustCenterEntityInput
+  logoFile?: InputMaybe<Scalars['Upload']['input']>
+}>
+
+export type UpdateTrustCenterEntityMutation = {
+  __typename?: 'Mutation'
+  updateTrustCenterEntity: { __typename?: 'TrustCenterEntityUpdatePayload'; trustCenterEntity: { __typename?: 'TrustCenterEntity'; id: string } }
+}
+
 export type GetTrustCenterNdaFilesQueryVariables = Exact<{
   where?: InputMaybe<TemplateWhereInput>
 }>
@@ -64818,90 +68201,6 @@ export type DeleteBulkTrustCenterNdaRequestMutationVariables = Exact<{
 }>
 
 export type DeleteBulkTrustCenterNdaRequestMutation = { __typename?: 'Mutation'; deleteBulkTrustCenterNDARequest: { __typename?: 'TrustCenterNDARequestBulkDeletePayload'; deletedIDs: Array<string> } }
-
-export type GetTrustCenterCompliancesQueryVariables = Exact<{ [key: string]: never }>
-
-export type GetTrustCenterCompliancesQuery = {
-  __typename?: 'Query'
-  trustCenterCompliances: {
-    __typename?: 'TrustCenterComplianceConnection'
-    edges?: Array<{
-      __typename?: 'TrustCenterComplianceEdge'
-      node?: {
-        __typename?: 'TrustCenterCompliance'
-        id: string
-        standard: { __typename?: 'Standard'; id: string; shortName?: string | null; description?: string | null; tags?: Array<string> | null; systemOwned?: boolean | null }
-      } | null
-    } | null> | null
-  }
-}
-
-export type CreateBulkTrustCenterComplianceMutationVariables = Exact<{
-  input?: InputMaybe<Array<CreateTrustCenterComplianceInput> | CreateTrustCenterComplianceInput>
-}>
-
-export type CreateBulkTrustCenterComplianceMutation = {
-  __typename?: 'Mutation'
-  createBulkTrustCenterCompliance: { __typename?: 'TrustCenterComplianceBulkCreatePayload'; trustCenterCompliances?: Array<{ __typename?: 'TrustCenterCompliance'; id: string }> | null }
-}
-
-export type DeleteBulkTrustCenterComplianceMutationVariables = Exact<{
-  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
-}>
-
-export type DeleteBulkTrustCenterComplianceMutation = { __typename?: 'Mutation'; deleteBulkTrustCenterCompliance: { __typename?: 'TrustCenterComplianceBulkDeletePayload'; deletedIDs: Array<string> } }
-
-export type UpdateTrustCenterComplianceMutationVariables = Exact<{
-  updateTrustCenterComplianceId: Scalars['ID']['input']
-  input: UpdateTrustCenterComplianceInput
-}>
-
-export type UpdateTrustCenterComplianceMutation = {
-  __typename?: 'Mutation'
-  updateTrustCenterCompliance: { __typename?: 'TrustCenterComplianceUpdatePayload'; trustCenterCompliance: { __typename?: 'TrustCenterCompliance'; id: string } }
-}
-
-export type GetTrustCenterEntitiesQueryVariables = Exact<{
-  where?: InputMaybe<TrustCenterEntityWhereInput>
-}>
-
-export type GetTrustCenterEntitiesQuery = {
-  __typename?: 'Query'
-  trustCenterEntities: {
-    __typename?: 'TrustCenterEntityConnection'
-    edges?: Array<{
-      __typename?: 'TrustCenterEntityEdge'
-      node?: { __typename?: 'TrustCenterEntity'; id: string; name: string; url?: string | null; logoFile?: { __typename?: 'File'; presignedURL?: string | null } | null } | null
-    } | null> | null
-  }
-}
-
-export type CreateTrustCenterEntityMutationVariables = Exact<{
-  input: CreateTrustCenterEntityInput
-  logoFile?: InputMaybe<Scalars['Upload']['input']>
-}>
-
-export type CreateTrustCenterEntityMutation = {
-  __typename?: 'Mutation'
-  createTrustCenterEntity: { __typename?: 'TrustCenterEntityCreatePayload'; trustCenterEntity: { __typename?: 'TrustCenterEntity'; id: string } }
-}
-
-export type DeleteTrustCenterEntityMutationVariables = Exact<{
-  deleteTrustCenterEntityId: Scalars['ID']['input']
-}>
-
-export type DeleteTrustCenterEntityMutation = { __typename?: 'Mutation'; deleteTrustCenterEntity: { __typename?: 'TrustCenterEntityDeletePayload'; deletedID: string } }
-
-export type UpdateTrustCenterEntityMutationVariables = Exact<{
-  updateTrustCenterEntityId: Scalars['ID']['input']
-  input: UpdateTrustCenterEntityInput
-  logoFile?: InputMaybe<Scalars['Upload']['input']>
-}>
-
-export type UpdateTrustCenterEntityMutation = {
-  __typename?: 'Mutation'
-  updateTrustCenterEntity: { __typename?: 'TrustCenterEntityUpdatePayload'; trustCenterEntity: { __typename?: 'TrustCenterEntity'; id: string } }
-}
 
 export type GetTrustCenterSubprocessorsQueryVariables = Exact<{
   where?: InputMaybe<TrustCenterSubprocessorWhereInput>
@@ -65146,116 +68445,6 @@ export type ValidateCustomDomainMutation = {
   }
 }
 
-export type GetTrustCenterDocsQueryVariables = Exact<{
-  where?: InputMaybe<TrustCenterDocWhereInput>
-  first?: InputMaybe<Scalars['Int']['input']>
-  orderBy?: InputMaybe<Array<TrustCenterDocOrder> | TrustCenterDocOrder>
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-}>
-
-export type GetTrustCenterDocsQuery = {
-  __typename?: 'Query'
-  trustCenters: {
-    __typename?: 'TrustCenterConnection'
-    edges?: Array<{
-      __typename?: 'TrustCenterEdge'
-      node?: {
-        __typename?: 'TrustCenter'
-        id: string
-        trustCenterDocs: {
-          __typename?: 'TrustCenterDocConnection'
-          totalCount: number
-          edges?: Array<{
-            __typename?: 'TrustCenterDocEdge'
-            node?: {
-              __typename?: 'TrustCenterDoc'
-              id: string
-              title: string
-              trustCenterDocKindName?: string | null
-              visibility?: TrustCenterDocTrustCenterDocumentVisibility | null
-              tags?: Array<string> | null
-              createdAt?: any | null
-              updatedAt?: any | null
-              watermarkingEnabled?: boolean | null
-              watermarkStatus?: TrustCenterDocWatermarkStatus | null
-              file?: { __typename?: 'File'; presignedURL?: string | null } | null
-              originalFile?: { __typename?: 'File'; presignedURL?: string | null } | null
-              standard?: { __typename?: 'Standard'; shortName?: string | null; id: string } | null
-            } | null
-          } | null> | null
-          pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
-        }
-      } | null
-    } | null> | null
-  }
-}
-
-export type UpdateTrustCenterDocMutationVariables = Exact<{
-  updateTrustCenterDocId: Scalars['ID']['input']
-  input: UpdateTrustCenterDocInput
-  trustCenterDocFile?: InputMaybe<Scalars['Upload']['input']>
-}>
-
-export type UpdateTrustCenterDocMutation = {
-  __typename?: 'Mutation'
-  updateTrustCenterDoc: { __typename?: 'TrustCenterDocUpdatePayload'; trustCenterDoc: { __typename?: 'TrustCenterDoc'; id: string } }
-}
-
-export type CreateTrsutCenterDocMutationVariables = Exact<{
-  input: CreateTrustCenterDocInput
-  trustCenterDocFile: Scalars['Upload']['input']
-}>
-
-export type CreateTrsutCenterDocMutation = {
-  __typename?: 'Mutation'
-  createTrustCenterDoc: { __typename?: 'TrustCenterDocCreatePayload'; trustCenterDoc: { __typename?: 'TrustCenterDoc'; id: string } }
-}
-
-export type GetTruestCenterDocByIdQueryVariables = Exact<{
-  trustCenterDocId: Scalars['ID']['input']
-}>
-
-export type GetTruestCenterDocByIdQuery = {
-  __typename?: 'Query'
-  trustCenterDoc: {
-    __typename?: 'TrustCenterDoc'
-    id: string
-    title: string
-    trustCenterDocKindName?: string | null
-    visibility?: TrustCenterDocTrustCenterDocumentVisibility | null
-    tags?: Array<string> | null
-    watermarkingEnabled?: boolean | null
-    watermarkStatus?: TrustCenterDocWatermarkStatus | null
-    standardID?: string | null
-    file?: { __typename?: 'File'; presignedURL?: string | null; providedFileName: string; providedFileSize?: number | null } | null
-    originalFile?: { __typename?: 'File'; presignedURL?: string | null; providedFileSize?: number | null; providedFileName: string } | null
-  }
-}
-
-export type DeleteTrustCenterDocMutationVariables = Exact<{
-  deleteTrustCenterDocId: Scalars['ID']['input']
-}>
-
-export type DeleteTrustCenterDocMutation = { __typename?: 'Mutation'; deleteTrustCenterDoc: { __typename?: 'TrustCenterDocDeletePayload'; deletedID: string } }
-
-export type BulkDeleteTrustCenterDocMutationVariables = Exact<{
-  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
-}>
-
-export type BulkDeleteTrustCenterDocMutation = { __typename?: 'Mutation'; deleteBulkTrustCenterDoc: { __typename?: 'TrustCenterDocBulkDeletePayload'; deletedIDs: Array<string> } }
-
-export type BulkUpdateTrustCenterDocMutationVariables = Exact<{
-  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
-  input: UpdateTrustCenterDocInput
-}>
-
-export type BulkUpdateTrustCenterDocMutation = {
-  __typename?: 'Mutation'
-  updateBulkTrustCenterDoc: { __typename?: 'TrustCenterDocBulkUpdatePayload'; trustCenterDocs?: Array<{ __typename?: 'TrustCenterDoc'; id: string }> | null }
-}
-
 export type UpdateTrustCenterWatermarkConfigMutationVariables = Exact<{
   updateTrustCenterWatermarkConfigId: Scalars['ID']['input']
   input: UpdateTrustCenterWatermarkConfigInput
@@ -65377,3 +68566,590 @@ export type DeleteUserMutationVariables = Exact<{
 }>
 
 export type DeleteUserMutation = { __typename?: 'Mutation'; deleteUser: { __typename?: 'UserDeletePayload'; deletedID: string } }
+
+export type VulnerabilitiesWithFilterQueryVariables = Exact<{
+  where?: InputMaybe<VulnerabilityWhereInput>
+  orderBy?: InputMaybe<Array<VulnerabilityOrder> | VulnerabilityOrder>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type VulnerabilitiesWithFilterQuery = {
+  __typename?: 'Query'
+  vulnerabilities: {
+    __typename?: 'VulnerabilityConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'VulnerabilityEdge'
+      node?: {
+        __typename?: 'Vulnerability'
+        blocking?: boolean | null
+        category?: string | null
+        createdAt?: any | null
+        createdBy?: string | null
+        cveID?: string | null
+        description?: string | null
+        discoveredAt?: string | null
+        displayID: string
+        displayName?: string | null
+        environmentID?: string | null
+        environmentName?: string | null
+        exploitability?: number | null
+        externalID: string
+        externalOwnerID?: string | null
+        externalURI?: string | null
+        id: string
+        impact?: number | null
+        metadata?: any | null
+        open?: boolean | null
+        priority?: string | null
+        production?: boolean | null
+        public?: boolean | null
+        publishedAt?: string | null
+        rawPayload?: any | null
+        remediationSLA?: number | null
+        scopeID?: string | null
+        scopeName?: string | null
+        score?: number | null
+        severity?: string | null
+        source?: string | null
+        sourceUpdatedAt?: string | null
+        status?: string | null
+        summary?: string | null
+        systemOwned?: boolean | null
+        updatedAt?: any | null
+        updatedBy?: string | null
+        validated?: boolean | null
+        vector?: string | null
+      } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
+  }
+}
+
+export type VulnerabilityQueryVariables = Exact<{
+  vulnerabilityId: Scalars['ID']['input']
+}>
+
+export type VulnerabilityQuery = {
+  __typename?: 'Query'
+  vulnerability: {
+    __typename?: 'Vulnerability'
+    blocking?: boolean | null
+    category?: string | null
+    createdAt?: any | null
+    createdBy?: string | null
+    cveID?: string | null
+    description?: string | null
+    discoveredAt?: string | null
+    displayID: string
+    displayName?: string | null
+    environmentID?: string | null
+    environmentName?: string | null
+    exploitability?: number | null
+    externalID: string
+    externalOwnerID?: string | null
+    externalURI?: string | null
+    id: string
+    impact?: number | null
+    metadata?: any | null
+    open?: boolean | null
+    priority?: string | null
+    production?: boolean | null
+    public?: boolean | null
+    publishedAt?: string | null
+    rawPayload?: any | null
+    remediationSLA?: number | null
+    scopeID?: string | null
+    scopeName?: string | null
+    score?: number | null
+    severity?: string | null
+    source?: string | null
+    sourceUpdatedAt?: string | null
+    status?: string | null
+    summary?: string | null
+    systemOwned?: boolean | null
+    updatedAt?: any | null
+    updatedBy?: string | null
+    validated?: boolean | null
+    vector?: string | null
+  }
+}
+
+export type CreateVulnerabilityMutationVariables = Exact<{
+  input: CreateVulnerabilityInput
+}>
+
+export type CreateVulnerabilityMutation = { __typename?: 'Mutation'; createVulnerability: { __typename?: 'VulnerabilityCreatePayload'; vulnerability: { __typename?: 'Vulnerability'; id: string } } }
+
+export type UpdateVulnerabilityMutationVariables = Exact<{
+  updateVulnerabilityId: Scalars['ID']['input']
+  input: UpdateVulnerabilityInput
+}>
+
+export type UpdateVulnerabilityMutation = { __typename?: 'Mutation'; updateVulnerability: { __typename?: 'VulnerabilityUpdatePayload'; vulnerability: { __typename?: 'Vulnerability'; id: string } } }
+
+export type DeleteVulnerabilityMutationVariables = Exact<{
+  deleteVulnerabilityId: Scalars['ID']['input']
+}>
+
+export type DeleteVulnerabilityMutation = { __typename?: 'Mutation'; deleteVulnerability: { __typename?: 'VulnerabilityDeletePayload'; deletedID: string } }
+
+export type WorkflowAssignmentTargetsWithFilterQueryVariables = Exact<{
+  where?: InputMaybe<WorkflowAssignmentTargetWhereInput>
+  orderBy?: InputMaybe<Array<WorkflowAssignmentTargetOrder> | WorkflowAssignmentTargetOrder>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type WorkflowAssignmentTargetsWithFilterQuery = {
+  __typename?: 'Query'
+  workflowAssignmentTargets: {
+    __typename?: 'WorkflowAssignmentTargetConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'WorkflowAssignmentTargetEdge'
+      node?: {
+        __typename?: 'WorkflowAssignmentTarget'
+        createdAt?: any | null
+        createdBy?: string | null
+        displayID: string
+        id: string
+        resolverKey?: string | null
+        targetGroupID?: string | null
+        targetUserID?: string | null
+        updatedAt?: any | null
+        updatedBy?: string | null
+        workflowAssignmentID: string
+      } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
+  }
+}
+
+export type WorkflowAssignmentTargetQueryVariables = Exact<{
+  workflowAssignmentTargetId: Scalars['ID']['input']
+}>
+
+export type WorkflowAssignmentTargetQuery = {
+  __typename?: 'Query'
+  workflowAssignmentTarget: {
+    __typename?: 'WorkflowAssignmentTarget'
+    createdAt?: any | null
+    createdBy?: string | null
+    displayID: string
+    id: string
+    resolverKey?: string | null
+    targetGroupID?: string | null
+    targetUserID?: string | null
+    updatedAt?: any | null
+    updatedBy?: string | null
+    workflowAssignmentID: string
+  }
+}
+
+export type WorkflowAssignmentsWithFilterQueryVariables = Exact<{
+  where?: InputMaybe<WorkflowAssignmentWhereInput>
+  orderBy?: InputMaybe<Array<WorkflowAssignmentOrder> | WorkflowAssignmentOrder>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type WorkflowAssignmentsWithFilterQuery = {
+  __typename?: 'Query'
+  workflowAssignments: {
+    __typename?: 'WorkflowAssignmentConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'WorkflowAssignmentEdge'
+      node?: {
+        __typename?: 'WorkflowAssignment'
+        actorGroupID?: string | null
+        actorUserID?: string | null
+        approvalMetadata?: any | null
+        assignmentKey: string
+        createdAt?: any | null
+        createdBy?: string | null
+        decidedAt?: any | null
+        displayID: string
+        dueAt?: any | null
+        id: string
+        invalidationMetadata?: any | null
+        label?: string | null
+        metadata?: any | null
+        notes?: string | null
+        rejectionMetadata?: any | null
+        required: boolean
+        role: string
+        updatedAt?: any | null
+        updatedBy?: string | null
+        workflowInstanceID: string
+      } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
+  }
+}
+
+export type WorkflowAssignmentQueryVariables = Exact<{
+  workflowAssignmentId: Scalars['ID']['input']
+}>
+
+export type WorkflowAssignmentQuery = {
+  __typename?: 'Query'
+  workflowAssignment: {
+    __typename?: 'WorkflowAssignment'
+    actorGroupID?: string | null
+    actorUserID?: string | null
+    approvalMetadata?: any | null
+    assignmentKey: string
+    createdAt?: any | null
+    createdBy?: string | null
+    decidedAt?: any | null
+    displayID: string
+    dueAt?: any | null
+    id: string
+    invalidationMetadata?: any | null
+    label?: string | null
+    metadata?: any | null
+    notes?: string | null
+    rejectionMetadata?: any | null
+    required: boolean
+    role: string
+    updatedAt?: any | null
+    updatedBy?: string | null
+    workflowInstanceID: string
+  }
+}
+
+export type WorkflowDefinitionsWithFilterQueryVariables = Exact<{
+  where?: InputMaybe<WorkflowDefinitionWhereInput>
+  orderBy?: InputMaybe<Array<WorkflowDefinitionOrder> | WorkflowDefinitionOrder>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type WorkflowDefinitionsWithFilterQuery = {
+  __typename?: 'Query'
+  workflowDefinitions: {
+    __typename?: 'WorkflowDefinitionConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'WorkflowDefinitionEdge'
+      node?: {
+        __typename?: 'WorkflowDefinition'
+        active: boolean
+        cooldownSeconds: number
+        createdAt?: any | null
+        createdBy?: string | null
+        definitionJSON?: any | null
+        description?: string | null
+        displayID: string
+        draft: boolean
+        id: string
+        isDefault: boolean
+        name: string
+        publishedAt?: any | null
+        revision: number
+        schemaType: string
+        systemOwned?: boolean | null
+        updatedAt?: any | null
+        updatedBy?: string | null
+      } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
+  }
+}
+
+export type WorkflowDefinitionQueryVariables = Exact<{
+  workflowDefinitionId: Scalars['ID']['input']
+}>
+
+export type WorkflowDefinitionQuery = {
+  __typename?: 'Query'
+  workflowDefinition: {
+    __typename?: 'WorkflowDefinition'
+    active: boolean
+    cooldownSeconds: number
+    createdAt?: any | null
+    createdBy?: string | null
+    definitionJSON?: any | null
+    description?: string | null
+    displayID: string
+    draft: boolean
+    id: string
+    isDefault: boolean
+    name: string
+    publishedAt?: any | null
+    revision: number
+    schemaType: string
+    systemOwned?: boolean | null
+    updatedAt?: any | null
+    updatedBy?: string | null
+  }
+}
+
+export type CreateWorkflowDefinitionMutationVariables = Exact<{
+  input: CreateWorkflowDefinitionInput
+}>
+
+export type CreateWorkflowDefinitionMutation = {
+  __typename?: 'Mutation'
+  createWorkflowDefinition: { __typename?: 'WorkflowDefinitionCreatePayload'; workflowDefinition: { __typename?: 'WorkflowDefinition'; id: string } }
+}
+
+export type UpdateWorkflowDefinitionMutationVariables = Exact<{
+  updateWorkflowDefinitionId: Scalars['ID']['input']
+  input: UpdateWorkflowDefinitionInput
+}>
+
+export type UpdateWorkflowDefinitionMutation = {
+  __typename?: 'Mutation'
+  updateWorkflowDefinition: { __typename?: 'WorkflowDefinitionUpdatePayload'; workflowDefinition: { __typename?: 'WorkflowDefinition'; id: string } }
+}
+
+export type DeleteWorkflowDefinitionMutationVariables = Exact<{
+  deleteWorkflowDefinitionId: Scalars['ID']['input']
+}>
+
+export type DeleteWorkflowDefinitionMutation = { __typename?: 'Mutation'; deleteWorkflowDefinition: { __typename?: 'WorkflowDefinitionDeletePayload'; deletedID: string } }
+
+export type WorkflowEventsWithFilterQueryVariables = Exact<{
+  where?: InputMaybe<WorkflowEventWhereInput>
+  orderBy?: InputMaybe<Array<WorkflowEventOrder> | WorkflowEventOrder>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type WorkflowEventsWithFilterQuery = {
+  __typename?: 'Query'
+  workflowEvents: {
+    __typename?: 'WorkflowEventConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'WorkflowEventEdge'
+      node?: {
+        __typename?: 'WorkflowEvent'
+        createdAt?: any | null
+        createdBy?: string | null
+        displayID: string
+        id: string
+        payload?: any | null
+        updatedAt?: any | null
+        updatedBy?: string | null
+        workflowInstanceID: string
+      } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
+  }
+}
+
+export type WorkflowEventQueryVariables = Exact<{
+  workflowEventId: Scalars['ID']['input']
+}>
+
+export type WorkflowEventQuery = {
+  __typename?: 'Query'
+  workflowEvent: {
+    __typename?: 'WorkflowEvent'
+    createdAt?: any | null
+    createdBy?: string | null
+    displayID: string
+    id: string
+    payload?: any | null
+    updatedAt?: any | null
+    updatedBy?: string | null
+    workflowInstanceID: string
+  }
+}
+
+export type WorkflowInstancesWithFilterQueryVariables = Exact<{
+  where?: InputMaybe<WorkflowInstanceWhereInput>
+  orderBy?: InputMaybe<Array<WorkflowInstanceOrder> | WorkflowInstanceOrder>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type WorkflowInstancesWithFilterQuery = {
+  __typename?: 'Query'
+  workflowInstances: {
+    __typename?: 'WorkflowInstanceConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'WorkflowInstanceEdge'
+      node?: {
+        __typename?: 'WorkflowInstance'
+        actionPlanID?: string | null
+        campaignID?: string | null
+        campaignTargetID?: string | null
+        context?: any | null
+        controlID?: string | null
+        createdAt?: any | null
+        createdBy?: string | null
+        currentActionIndex: number
+        definitionSnapshot?: any | null
+        displayID: string
+        evidenceID?: string | null
+        id: string
+        identityHolderID?: string | null
+        internalPolicyID?: string | null
+        lastEvaluatedAt?: any | null
+        platformID?: string | null
+        procedureID?: string | null
+        subcontrolID?: string | null
+        updatedAt?: any | null
+        updatedBy?: string | null
+        workflowDefinitionID: string
+        workflowProposalID?: string | null
+      } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
+  }
+}
+
+export type WorkflowInstanceQueryVariables = Exact<{
+  workflowInstanceId: Scalars['ID']['input']
+}>
+
+export type WorkflowInstanceQuery = {
+  __typename?: 'Query'
+  workflowInstance: {
+    __typename?: 'WorkflowInstance'
+    actionPlanID?: string | null
+    campaignID?: string | null
+    campaignTargetID?: string | null
+    context?: any | null
+    controlID?: string | null
+    createdAt?: any | null
+    createdBy?: string | null
+    currentActionIndex: number
+    definitionSnapshot?: any | null
+    displayID: string
+    evidenceID?: string | null
+    id: string
+    identityHolderID?: string | null
+    internalPolicyID?: string | null
+    lastEvaluatedAt?: any | null
+    platformID?: string | null
+    procedureID?: string | null
+    subcontrolID?: string | null
+    updatedAt?: any | null
+    updatedBy?: string | null
+    workflowDefinitionID: string
+    workflowProposalID?: string | null
+  }
+}
+
+export type WorkflowObjectRefsWithFilterQueryVariables = Exact<{
+  where?: InputMaybe<WorkflowObjectRefWhereInput>
+  orderBy?: InputMaybe<Array<WorkflowObjectRefOrder> | WorkflowObjectRefOrder>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type WorkflowObjectRefsWithFilterQuery = {
+  __typename?: 'Query'
+  workflowObjectRefs: {
+    __typename?: 'WorkflowObjectRefConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'WorkflowObjectRefEdge'
+      node?: {
+        __typename?: 'WorkflowObjectRef'
+        actionPlanID?: string | null
+        campaignID?: string | null
+        campaignTargetID?: string | null
+        controlID?: string | null
+        createdAt?: any | null
+        createdBy?: string | null
+        directoryAccountID?: string | null
+        directoryGroupID?: string | null
+        directoryMembershipID?: string | null
+        displayID: string
+        evidenceID?: string | null
+        findingID?: string | null
+        id: string
+        identityHolderID?: string | null
+        internalPolicyID?: string | null
+        platformID?: string | null
+        procedureID?: string | null
+        subcontrolID?: string | null
+        taskID?: string | null
+        updatedAt?: any | null
+        updatedBy?: string | null
+        workflowInstanceID: string
+      } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
+  }
+}
+
+export type WorkflowObjectRefQueryVariables = Exact<{
+  workflowObjectRefId: Scalars['ID']['input']
+}>
+
+export type WorkflowObjectRefQuery = {
+  __typename?: 'Query'
+  workflowObjectRef: {
+    __typename?: 'WorkflowObjectRef'
+    actionPlanID?: string | null
+    campaignID?: string | null
+    campaignTargetID?: string | null
+    controlID?: string | null
+    createdAt?: any | null
+    createdBy?: string | null
+    directoryAccountID?: string | null
+    directoryGroupID?: string | null
+    directoryMembershipID?: string | null
+    displayID: string
+    evidenceID?: string | null
+    findingID?: string | null
+    id: string
+    identityHolderID?: string | null
+    internalPolicyID?: string | null
+    platformID?: string | null
+    procedureID?: string | null
+    subcontrolID?: string | null
+    taskID?: string | null
+    updatedAt?: any | null
+    updatedBy?: string | null
+    workflowInstanceID: string
+  }
+}
+
+export type WorkflowProposalQueryVariables = Exact<{
+  workflowProposalId: Scalars['ID']['input']
+}>
+
+export type WorkflowProposalQuery = {
+  __typename?: 'Query'
+  workflowProposal: {
+    __typename?: 'WorkflowProposal'
+    approvedHash?: string | null
+    changes?: any | null
+    createdAt?: any | null
+    createdBy?: string | null
+    domainKey: string
+    id: string
+    proposedHash?: string | null
+    revision: number
+    submittedAt?: any | null
+    submittedByUserID?: string | null
+    updatedAt?: any | null
+    updatedBy?: string | null
+    workflowObjectRefID: string
+  }
+}

@@ -8,7 +8,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/
 import ObjectsChip from '@/components/shared/objects-chip/objects-chip'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { useRouter } from 'next/navigation'
-import { useTaskAssociations } from '@/lib/graphql-hooks/tasks'
+import { useTaskAssociations } from '@/lib/graphql-hooks/task'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 type RelatedObjectsProps = {

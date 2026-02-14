@@ -6,11 +6,10 @@ import { useDebounce } from '@uidotdev/usehooks'
 import { VisibilityState } from '@tanstack/react-table'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { getEvidenceFilterableFields } from '@/components/pages/protected/evidence/table/table-config.ts'
-import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
-import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
+import { TableKeyEnum } from '@repo/ui/table-key'
 import Menu from '@/components/shared/menu/menu'
 import { BulkCSVCreateEvidenceDialog } from '../dialog/bulk-csv-create-evidence-dialog'
-import { TAccessRole, TData } from '@/types/authz'
+import { TAccessRole, TPermissionData } from '@/types/authz'
 import { useBulkDeleteEvidence } from '@/lib/graphql-hooks/evidence'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -19,7 +18,7 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { BulkEditEvidenceDialog } from '../bulk-edit/bulk-edit-evidence'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { useOrganization } from '@/hooks/useOrganization'
-import { useStandardsSelect } from '@/lib/graphql-hooks/standards'
+import { useStandardsSelect } from '@/lib/graphql-hooks/standard'
 
 type TEvidenceTableToolbarProps = {
   className?: string
@@ -36,7 +35,7 @@ type TEvidenceTableToolbarProps = {
   selectedEvidence: { id: string }[]
   setSelectedEvidence: React.Dispatch<React.SetStateAction<{ id: string }[]>>
   canEdit: (accessRole: TAccessRole[] | undefined) => boolean
-  permission: TData | undefined
+  permission: TPermissionData | undefined
 }
 
 const EvidenceTableToolbar: React.FC<TEvidenceTableToolbarProps> = ({
@@ -154,9 +153,9 @@ const EvidenceTableToolbar: React.FC<TEvidenceTableToolbarProps> = ({
                 }
               />
               {mappedColumns && columnVisibility && setColumnVisibility && (
-                <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableColumnVisibilityKeysEnum.EVIDENCE} />
+                <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.EVIDENCE} />
               )}
-              <TableFilter filterFields={filterFields} onFilterChange={setFilters} pageKey={TableFilterKeysEnum.EVIDENCE} />
+              <TableFilter filterFields={filterFields} onFilterChange={setFilters} pageKey={TableKeyEnum.EVIDENCE} />
             </>
           )}
         </div>

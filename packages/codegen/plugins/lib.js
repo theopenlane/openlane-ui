@@ -39,3 +39,15 @@ export function getQueryNameFor(typeName) {
   const pluralLc = pluralizeTypeName(typeName)
   return `GET_ALL_${toUpperSnake(pluralLc)}`
 }
+
+export function capitalize(str) {
+  if (!str) return ''
+  return str.charAt(0).toUpperCase() + str.slice(1)
+}
+
+export function toPascalCase(str) {
+  return str
+    .split(/[-_]/)
+    .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
+    .join('')
+}

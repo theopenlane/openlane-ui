@@ -1,4 +1,10 @@
-import { useDeleteInternalPolicy, useGetInternalPolicyAssociationsById, useGetInternalPolicyDetailsById, useGetPolicyDiscussionById, useUpdateInternalPolicy } from '@/lib/graphql-hooks/policy.ts'
+import {
+  useDeleteInternalPolicy,
+  useGetInternalPolicyAssociationsById,
+  useGetInternalPolicyDetailsById,
+  useGetPolicyDiscussionById,
+  useUpdateInternalPolicy,
+} from '@/lib/graphql-hooks/internal-policy'
 import React, { useEffect, useMemo, useState } from 'react'
 import useFormSchema, { EditPolicyMetadataFormData } from '@/components/pages/protected/policies/view/hooks/use-form-schema.ts'
 import { Form } from '@repo/ui/form'

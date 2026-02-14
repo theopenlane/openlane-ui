@@ -2,7 +2,7 @@
 import { useFormContext, Controller } from 'react-hook-form'
 import { Label } from '@repo/ui/label'
 import MultipleSelector from '@repo/ui/multiple-selector'
-import { useGetTags } from '@/lib/graphql-hooks/tags'
+import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { canEdit } from '@/lib/authz/utils'

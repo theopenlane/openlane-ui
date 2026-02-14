@@ -5,7 +5,7 @@ import { Input } from '@repo/ui/input'
 import { useDebounce } from '@uidotdev/usehooks'
 import { MEMBERS_FILTER_FIELDS } from '@/components/pages/protected/organization-settings/members/table/table-config.ts'
 import { ExtendedOrgMembershipWhereInput } from './members-table'
-import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 type TMembersTableToolbarProps = {
   className?: string
@@ -31,7 +31,7 @@ const MembersTableToolbar: React.FC<TMembersTableToolbarProps> = ({ searching, s
           />
         </div>
         <div className="grow flex flex-row items-center gap-2 justify-end">
-          <TableFilter filterFields={MEMBERS_FILTER_FIELDS} onFilterChange={setFilters} pageKey={TableFilterKeysEnum.MEMBER} />
+          <TableFilter filterFields={MEMBERS_FILTER_FIELDS} onFilterChange={setFilters} pageKey={TableKeyEnum.MEMBER} />
         </div>
       </div>
     </>

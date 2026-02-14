@@ -11,7 +11,7 @@ import { Sheet, SheetContent, SheetTitle, SheetTrigger, SheetHeader } from '@rep
 
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { useCreateSubprocessor } from '@/lib/graphql-hooks/subprocessors'
+import { useCreateSubprocessor } from '@/lib/graphql-hooks/subprocessor'
 
 import { NameField } from './form-fields/name-field'
 import { DescriptionField } from './form-fields/description-field'

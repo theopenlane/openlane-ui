@@ -6,7 +6,7 @@ import { Button } from '@repo/ui/button'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { useDeleteTrustCenterSubprocessor } from '@/lib/graphql-hooks/trust-center-subprocessors'
+import { useDeleteTrustCenterSubprocessor } from '@/lib/graphql-hooks/trust-center-subprocessor'
 
 interface Props {
   subprocessorId: string

@@ -3,7 +3,7 @@ import { EvidenceTable } from '@/components/pages/protected/evidence/table/evide
 import { EvidenceSummaryCard } from '@/components/pages/protected/evidence/chart/evidence-summary-card.tsx'
 import React, { useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useGetAllPrograms, useGetProgramBasicInfo } from '@/lib/graphql-hooks/programs.ts'
+import { useGetAllPrograms, useGetProgramBasicInfo } from '@/lib/graphql-hooks/program'
 import { OrderDirection, ProgramOrderField, ProgramProgramStatus } from '@repo/codegen/src/schema.ts'
 import { BreadcrumbContext, Crumb } from '@/providers/BreadcrumbContext.tsx'
 import { useOrganization } from '@/hooks/useOrganization.ts'

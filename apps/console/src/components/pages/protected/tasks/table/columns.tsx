@@ -9,7 +9,7 @@ import AssigneeCell from './assignee-cell'
 import { Checkbox } from '@repo/ui/checkbox'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 import { CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
-import { CustomTypeEnumOption } from '@/lib/graphql-hooks/custom-type-enums'
+import { CustomTypeEnumOption } from '@/lib/graphql-hooks/custom-type-enum'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 
 type ColumnOptions = {

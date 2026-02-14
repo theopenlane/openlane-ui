@@ -1,6 +1,6 @@
 'use client'
 import { useNotification } from '@/hooks/useNotification'
-import { useUserSelectEmail } from '@/lib/graphql-hooks/members'
+import { useUserSelectEmail } from '@/lib/graphql-hooks/member'
 import { useTransferOrganizationOwnership } from '@/lib/graphql-hooks/organization'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { Button } from '@repo/ui/button'

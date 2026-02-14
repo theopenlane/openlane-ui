@@ -2,7 +2,25 @@
 
 import * as React from 'react'
 import Link from 'next/link'
-import { Plus, Settings2, ListChecks, AlertTriangle, Users, type LucideIcon, Pencil, ShieldCheck, Fingerprint, ScrollText, NotebookPen, Award, Box, User } from 'lucide-react'
+import {
+  Plus,
+  Settings2,
+  ListChecks,
+  AlertTriangle,
+  Users,
+  type LucideIcon,
+  Pencil,
+  ShieldCheck,
+  Fingerprint,
+  ScrollText,
+  NotebookPen,
+  Award,
+  Box,
+  User,
+  LaptopIcon,
+  Building2Icon,
+  UsersRoundIcon,
+} from 'lucide-react'
 import ControlImplementationIcon from '@/assets/ControlImplementationIcon'
 import ControlObjectiveIcon from '@/assets/ControlObjectiveIcon'
 import MapControlIcon from '@/assets/MapControlIcon'
@@ -29,6 +47,9 @@ type CreateType =
   | 'entity'
   | 'group'
   | 'user'
+  | 'asset'
+  | 'vendor'
+  | 'personnel'
 
 type RegistryItem = {
   label: string
@@ -54,6 +75,9 @@ const CREATE_REGISTRY: Record<CreateType, RegistryItem> = {
   entity: { label: 'entity', icon: EntityIcon },
   group: { label: 'group', icon: Users },
   user: { label: 'user', icon: User },
+  asset: { label: 'asset', icon: LaptopIcon },
+  vendor: { label: 'vendor', icon: Building2Icon },
+  personnel: { label: 'personnel', icon: UsersRoundIcon },
 }
 
 export type CreateButtonProps = {

@@ -1,5 +1,5 @@
 import { FilterIcons } from '@/components/shared/enum-mapper/groups-enum'
-import { useUserSelect } from '@/lib/graphql-hooks/members'
+import { useUserSelect } from '@/lib/graphql-hooks/member'
 import { FilterField } from '@/types'
 import { GroupOrderField } from '@repo/codegen/src/schema.ts'
 import { useEffect, useState } from 'react'

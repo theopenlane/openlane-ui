@@ -22,7 +22,7 @@ import { Button } from '@repo/ui/button'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { KeyRound, Plus } from 'lucide-react'
 import { formatTimeSince } from '@/utils/date'
-import { useGetOrgUserList } from '@/lib/graphql-hooks/members'
+import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
 import { useGetApiTokensByIds } from '@/lib/graphql-hooks/tokens'
 import type { ApiToken, User } from '@repo/codegen/src/schema'
 

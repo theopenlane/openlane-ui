@@ -2,7 +2,7 @@
 
 import { Trash2 } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
-import { useDeleteSubscriber } from '@/lib/graphql-hooks/subscribes'
+import { useDeleteSubscriber } from '@/lib/graphql-hooks/subscriber'
 import { useState } from 'react'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'

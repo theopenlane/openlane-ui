@@ -1,9 +1,9 @@
 import { FilterField } from '@/types'
 import { useEffect, useState } from 'react'
-import { useProgramSelect } from '@/lib/graphql-hooks/programs'
-import { useGroupSelect } from '@/lib/graphql-hooks/groups'
+import { useProgramSelect } from '@/lib/graphql-hooks/program'
+import { useGroupSelect } from '@/lib/graphql-hooks/group'
 import { FilterIcons, ProcedureStatusFilterOptions } from '@/components/shared/enum-mapper/policy-enum'
-import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 
 export function useProceduresFilters(): FilterField[] | null {
   const { programOptions, isSuccess: isProgramSuccess } = useProgramSelect({})

@@ -11,10 +11,10 @@ import { TComments } from '@/components/shared/comments/types/TComments'
 import { TCommentData } from '@/components/shared/comments/types/TCommentData'
 import { useParams } from 'next/navigation'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { useDeleteNote, useGetControlComments, useUpdateControl, useUpdateControlComment } from '@/lib/graphql-hooks/controls'
+import { useDeleteNote, useGetControlComments, useUpdateControl, useUpdateControlComment } from '@/lib/graphql-hooks/control'
 import { useGetSubcontrolComments, useUpdateSubcontrol, useUpdateSubcontrolComment } from '@/lib/graphql-hooks/subcontrol'
 import { SheetTitle } from '@repo/ui/sheet'
-import { useGetOrgMemberships } from '@/lib/graphql-hooks/members'
+import { useGetOrgMemberships } from '@/lib/graphql-hooks/member'
 
 const ControlCommentsSheet = () => {
   const { id, subcontrolId } = useParams<{ id: string; subcontrolId?: string }>()

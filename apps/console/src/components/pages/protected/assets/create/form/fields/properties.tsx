@@ -4,24 +4,24 @@ import React, { useMemo, useRef } from 'react'
 import { useFormContext, Controller } from 'react-hook-form'
 import { Tag } from 'lucide-react'
 import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
-import { AssetQuery, UpdateTaskInput } from '@repo/codegen/src/schema'
+import { AssetQuery, UpdateAssetInput } from '@repo/codegen/src/schema'
 import { EditAssetFormData } from '../../../hooks/use-form-schema'
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 import useEscapeKey from '@/hooks/useEscapeKey'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
-import { useGetTags } from '@/lib/graphql-hooks/tags'
+import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 
 type PropertiesProps = {
   isEditing: boolean
   data: AssetQuery['asset'] | undefined
-  internalEditing: keyof EditAssetFormData | null
-  setInternalEditing: (field: keyof EditAssetFormData | null) => void
-  handleUpdate?: (val: UpdateTaskInput) => void
+  internalEditing: string | null
+  setInternalEditing: (field: string | null) => void
+  handleUpdate?: (val: UpdateAssetInput) => void
   isEditAllowed: boolean
 }
 
-const allProperties = ['assigneeID', 'due', 'status', 'taskKindName', 'tags']
+const allProperties = ['tags']
 
 const Properties: React.FC<PropertiesProps> = ({ isEditing, data, internalEditing, setInternalEditing, handleUpdate, isEditAllowed }) => {
   const { control, formState, watch, setValue } = useFormContext<EditAssetFormData>()
@@ -57,6 +57,7 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, data, internalEditin
     const changed = current.length !== next.length || current.some((val) => !next.includes(val))
 
     if (changed && handleUpdate) {
+      setValue('tags', next)
       handleUpdate({ tags: next })
     }
   }

@@ -2,8 +2,8 @@
 
 import React, { useContext, useEffect, useMemo, useState } from 'react'
 import { useOrganization } from '@/hooks/useOrganization'
-import { useStandardsSelect } from '@/lib/graphql-hooks/standards'
-import { useGetControlsGroupedByCategoryResolver } from '@/lib/graphql-hooks/controls'
+import { useStandardsSelect } from '@/lib/graphql-hooks/standard'
+import { useGetControlsGroupedByCategoryResolver } from '@/lib/graphql-hooks/control'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
 import { ControlControlStatus, ControlWhereInput } from '@repo/codegen/src/schema'
 import { Card } from '@repo/ui/cardpanel'
@@ -20,7 +20,6 @@ import { canCreate } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { ControlReportPageSkeleton } from './skeleton/control-report-page-skeleton'
 import { isStringArray, loadFilters, saveFilters, TFilterState } from '@/components/shared/table-filter/filter-storage.ts'
-import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import Menu from '@/components/shared/menu/menu'
 import { BulkCSVCloneControlDialog } from '../controls/bulk-csv-clone-control-dialog'
@@ -34,6 +33,7 @@ import { Checkbox } from '@repo/ui/checkbox'
 import TabSwitcher from '@/components/shared/tab-switcher/tab-switcher.tsx'
 import { TabSwitcherStorageKeys } from '@/components/shared/tab-switcher/tab-switcher-storage-keys.ts'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 type TControlReportPageProps = {
   active: 'dashboard' | 'table'
@@ -116,19 +116,19 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
       status: [status],
     }
 
-    saveFilters(TableFilterKeysEnum.CONTROL, filters)
+    saveFilters(TableKeyEnum.CONTROL, filters)
     setActive('table')
   }
 
   const toggleFilter = (value: string) => {
-    const saved = loadFilters(TableFilterKeysEnum.CONTROL) || {}
+    const saved = loadFilters(TableKeyEnum.CONTROL) || {}
     const current = (saved.standardIDIn as string[]) || []
 
     const updated = current.includes(value) ? current.filter((v) => v !== value) : [...current, value]
 
     setSelectedStandards(updated)
 
-    saveFilters(TableFilterKeysEnum.CONTROL, {
+    saveFilters(TableKeyEnum.CONTROL, {
       ...saved,
       standardIDIn: updated.length > 0 ? updated : undefined,
     })
@@ -142,7 +142,7 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
   }, [setCrumbs])
 
   useEffect(() => {
-    const saved = loadFilters(TableFilterKeysEnum.CONTROL)
+    const saved = loadFilters(TableKeyEnum.CONTROL)
     const validated = isStringArray(saved?.standardIDIn) ? saved?.standardIDIn : []
     setSelectedStandards(validated)
 
@@ -151,8 +151,8 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
       setSelectedStandards(updated)
     }
 
-    window.addEventListener(`filters-updated:${TableFilterKeysEnum.CONTROL}`, handleUpdate as EventListener)
-    return () => window.removeEventListener(`filters-updated:${TableFilterKeysEnum.CONTROL}`, handleUpdate as EventListener)
+    window.addEventListener(`filters-updated:${TableKeyEnum.CONTROL}`, handleUpdate as EventListener)
+    return () => window.removeEventListener(`filters-updated:${TableKeyEnum.CONTROL}`, handleUpdate as EventListener)
   }, [])
 
   if (isLoading || !data) {

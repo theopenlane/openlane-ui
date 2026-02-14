@@ -2,7 +2,7 @@ import React from 'react'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { GetAllMappedControlsQuery, MappedControlMappingSource, MappedControlMappingType, MappedControlsFragmentFragment, MappedSubcontrolsFragmentFragment } from '@repo/codegen/src/schema'
 import RelationCard from './mapped-relations-card'
-import { useGetControlsByRefCode } from '@/lib/graphql-hooks/controls'
+import { useGetControlsByRefCode } from '@/lib/graphql-hooks/control'
 import { useGetSubcontrolsByRefCode } from '@/lib/graphql-hooks/subcontrol'
 
 type MappedRelationsSheetProps = {

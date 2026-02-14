@@ -18,7 +18,7 @@ import { useRouter } from 'next/navigation'
 
 import './custom.css'
 import { surveyLicenseKey } from '@repo/dally/auth'
-import { useCreateAssessment, useGetAssessment, useUpdateAssessment } from '@/lib/graphql-hooks/assessments'
+import { useCreateAssessment, useGetAssessment, useUpdateAssessment } from '@/lib/graphql-hooks/assessment'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 const enLocale = editorLocalization.getLocale('en')

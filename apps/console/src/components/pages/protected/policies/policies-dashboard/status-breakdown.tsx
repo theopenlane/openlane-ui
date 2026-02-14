@@ -4,11 +4,11 @@ import React, { useMemo } from 'react'
 import { DonutChart } from '@repo/ui/donut-chart'
 import { FileCheck2, FilePen, ScanEye, Stamp } from 'lucide-react'
 import { wherePoliciesDashboard } from './dashboard-config'
-import { useInternalPoliciesDashboard } from '@/lib/graphql-hooks/policy'
+import { useInternalPoliciesDashboard } from '@/lib/graphql-hooks/internal-policy'
 import { InternalPolicyDocumentStatus } from '@repo/codegen/src/schema'
 import { isStringArray, loadFilters } from '@/components/shared/table-filter/filter-storage'
 import { saveFilters } from '@/components/shared/table-filter/filter-storage'
-import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys'
+import { TableKeyEnum } from '@repo/ui/table-key'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { Button } from '@repo/ui/button'
 import Link from 'next/link'
@@ -18,7 +18,7 @@ interface Props {
 }
 
 export default function StatusBreakdown({ onStatusClick }: Props) {
-  const saved = loadFilters(TableFilterKeysEnum.POLICY) || {}
+  const saved = loadFilters(TableKeyEnum.INTERNAL_POLICY) || {}
   const validated = isStringArray(saved?.approverIDIn) ? saved?.approverIDIn : []
   const { policies } = useInternalPoliciesDashboard({
     where: { ...wherePoliciesDashboard, approverIDIn: validated },
@@ -78,7 +78,7 @@ export default function StatusBreakdown({ onStatusClick }: Props) {
       status: [status],
     }
 
-    saveFilters(TableFilterKeysEnum.POLICY, newState)
+    saveFilters(TableKeyEnum.INTERNAL_POLICY, newState)
   }
 
   return (

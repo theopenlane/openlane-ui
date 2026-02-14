@@ -3,7 +3,7 @@
 import React, { useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import { PageHeading } from '@repo/ui/page-heading'
-import { useGetProgramBasicInfo } from '@/lib/graphql-hooks/programs'
+import { useGetProgramBasicInfo } from '@/lib/graphql-hooks/program'
 import StatsCards from '@/components/shared/stats-cards/stats-cards'
 import BasicInformation from '@/components/pages/protected/programs/[id]/basic-info'
 import ProgramAuditor from '@/components/pages/protected/programs/[id]/program-auditor'

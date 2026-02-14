@@ -18,7 +18,7 @@ import type { ApiToken, User } from '@repo/codegen/src/schema'
 import type { FilterField, WhereCondition } from '@/types'
 import type { TPagination } from '@repo/ui/pagination-types'
 import { getEvidenceColumns, getEvidenceFilterFields, type EvidenceRow } from './evidence-table-config'
-import { useGetOrgUserList } from '@/lib/graphql-hooks/members'
+import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
 import { useGetApiTokensByIds } from '@/lib/graphql-hooks/tokens'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 

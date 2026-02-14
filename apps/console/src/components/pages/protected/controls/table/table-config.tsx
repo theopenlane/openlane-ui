@@ -17,7 +17,7 @@ import { LinkedPoliciesCell } from './linked-policies-cell'
 import { LinkedProceduresCell } from './linked-procedures-cell'
 import AssociatedObjectsCell from './associated-objects-cell'
 import { CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
-import { CustomTypeEnumOption } from '@/lib/graphql-hooks/custom-type-enums'
+import { CustomTypeEnumOption } from '@/lib/graphql-hooks/custom-type-enum'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 
 export const getControlsFilterFields = (

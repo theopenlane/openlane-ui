@@ -2,10 +2,13 @@ import { GqlError } from '@/types'
 import { useToast } from '@repo/ui/use-toast'
 import React, { useCallback } from 'react'
 
+const defaultDuration = 5000
+
 type TSuccessProps = {
   title?: string
   description?: string | React.ReactNode
   variant?: 'default' | 'info' | 'info2' | 'warning' | 'error' | 'success'
+  duration?: number
 }
 
 export type TErrorProps = {
@@ -13,15 +16,17 @@ export type TErrorProps = {
   description?: string
   gqlError?: GqlError
   variant?: 'default' | 'info' | 'info2' | 'warning' | 'error' | 'success'
+  duration?: number
 }
 
 export function useNotification() {
   const { toast } = useToast()
 
   const handleShowNotification = useCallback(
-    (title?: string, description?: string | React.ReactNode, variant: 'default' | 'info' | 'info2' | 'warning' | 'error' | 'success' = 'default') => {
+    (title?: string, description?: string | React.ReactNode, variant: 'default' | 'info' | 'info2' | 'warning' | 'error' | 'success' = 'default', duration?: number) => {
       toast({
         variant,
+        duration,
         ...(title ? { title } : {}),
         ...(description ? { description } : {}),
       })
@@ -31,28 +36,28 @@ export function useNotification() {
 
   const handleSuccess = useCallback(
     (props: TSuccessProps) => {
-      handleShowNotification(props.title ?? undefined, props.description ?? undefined, 'success')
+      handleShowNotification(props.title ?? undefined, props.description ?? undefined, 'success', props.duration ?? defaultDuration)
     },
     [handleShowNotification],
   )
 
   const handleWarning = useCallback(
     (props: TSuccessProps) => {
-      handleShowNotification(props.title ?? undefined, props.description ?? undefined, 'warning')
+      handleShowNotification(props.title ?? undefined, props.description ?? undefined, 'warning', props.duration ?? defaultDuration)
     },
     [handleShowNotification],
   )
 
   const handleInfo = useCallback(
     (props: TSuccessProps) => {
-      handleShowNotification(props.title ?? undefined, props.description ?? undefined, 'info')
+      handleShowNotification(props.title ?? undefined, props.description ?? undefined, 'info', props.duration ?? defaultDuration)
     },
     [handleShowNotification],
   )
 
   const handleInfo2 = useCallback(
     (props: TSuccessProps) => {
-      handleShowNotification(props.title ?? undefined, props.description ?? undefined, 'info2')
+      handleShowNotification(props.title ?? undefined, props.description ?? undefined, 'info2', props.duration ?? defaultDuration)
     },
     [handleShowNotification],
   )

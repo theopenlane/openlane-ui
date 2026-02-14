@@ -9,7 +9,7 @@ import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
 import { Form, FormField, FormControl, FormMessage } from '@repo/ui/form'
 import { LoaderCircle, MailCheck } from 'lucide-react'
-import { UNSUBSCRIBE_MUTATION } from '@repo/codegen/query/subscribe'
+import { UNSUBSCRIBE_MUTATION } from '@repo/codegen/query/subscriber'
 import { Panel } from '@repo/ui/panel'
 import { secureFetch } from '@/lib/auth/utils/secure-fetch'
 

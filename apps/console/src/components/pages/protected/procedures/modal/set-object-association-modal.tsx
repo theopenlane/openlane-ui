@@ -7,7 +7,7 @@ import { ObjectTypeObjects } from '@/components/shared/object-association/object
 import { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
 import { useProcedure } from '@/components/pages/protected/procedures/create/hooks/use-procedure.tsx'
 import { UpdateProcedureInput } from '@repo/codegen/src/schema.ts'
-import { useUpdateProcedure } from '@/lib/graphql-hooks/procedures.ts'
+import { useUpdateProcedure } from '@/lib/graphql-hooks/procedure'
 import { useNotification } from '@/hooks/useNotification.tsx'
 import { useQueryClient } from '@tanstack/react-query'
 import AddAssociationBtn from '@/components/shared/object-association/add-association-btn.tsx'

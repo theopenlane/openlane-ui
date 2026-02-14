@@ -6,8 +6,8 @@ import { Value } from 'platejs'
 
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
-  description: z.custom<Value>().optional(),
-  tags: z.array(z.string()),
+  description: z.custom<Value | string>().optional(),
+  tags: z.array(z.string()).optional(),
 })
 
 export type CreateAssetFormatData = z.infer<typeof formSchema>
@@ -17,10 +17,7 @@ const useFormSchema = () => {
   return {
     form: useForm<CreateAssetFormatData>({
       resolver: zodResolver(formSchema),
-      defaultValues: {
-        name: '',
-        tags: [],
-      },
+      defaultValues: {},
     }),
   }
 }
