@@ -2,12 +2,11 @@
 
 import { TextField } from '@/components/shared/crud-base/form-fields/text-field'
 import { SelectField } from '@/components/shared/crud-base/form-fields/select-field'
-import { DateTimeField } from '@/components/shared/crud-base/form-fields/datetime-field'
 import { CheckboxField } from '@/components/shared/crud-base/form-fields/checkbox-field'
 import { NumberField } from '@/components/shared/crud-base/form-fields/number-field'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
-import { EntityFrequency, EntityQuery } from '@repo/codegen/src/schema'
+import { EntityFrequency, EntityQuery, UpdateEntityInput } from '@repo/codegen/src/schema'
 import { InternalEditingType } from '@/components/shared/crud-base/generic-sheet'
 
 interface AdditionalFieldsProps {
@@ -17,9 +16,10 @@ interface AdditionalFieldsProps {
   data?: EntityQuery['entity'] | undefined
   internalEditing: string | null
   setInternalEditing: InternalEditingType
+  handleUpdateField?: (input: UpdateEntityInput) => Promise<void>
 }
 
-export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, isEditAllowed, isCreate = false, data, internalEditing, setInternalEditing }) => {
+export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, isEditAllowed, isCreate = false, data, internalEditing, setInternalEditing, handleUpdateField }) => {
   const { enumOptions: entityRelationshipStateOptions } = useGetCustomTypeEnums({
     where: { objectType: 'entity', field: 'entityRelationshipState' },
   })
@@ -57,6 +57,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
         placeholder="Enter display name"
         internalEditing={internalEditing}
         setInternalEditing={setInternalEditing}
+        handleUpdate={handleUpdateField}
       />
 
       <TextField
@@ -69,6 +70,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
         placeholder="Enter description"
         internalEditing={internalEditing}
         setInternalEditing={setInternalEditing}
+        handleUpdate={handleUpdateField}
       />
 
       <TextField
@@ -81,6 +83,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
         placeholder="Enter status"
         internalEditing={internalEditing}
         setInternalEditing={setInternalEditing}
+        handleUpdate={handleUpdateField}
       />
 
       <SelectField
@@ -93,6 +96,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
         options={entityRelationshipStateOptions}
         internalEditing={internalEditing}
         setInternalEditing={setInternalEditing}
+        handleUpdate={handleUpdateField}
       />
 
       <SelectField
@@ -105,6 +109,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
         options={securityQuestionnaireStatusOptions}
         internalEditing={internalEditing}
         setInternalEditing={setInternalEditing}
+        handleUpdate={handleUpdateField}
       />
 
       <SelectField
@@ -117,6 +122,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
         options={sourceTypeOptions}
         internalEditing={internalEditing}
         setInternalEditing={setInternalEditing}
+        handleUpdate={handleUpdateField}
       />
 
       <SelectField
@@ -129,6 +135,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
         options={environmentOptions}
         internalEditing={internalEditing}
         setInternalEditing={setInternalEditing}
+        handleUpdate={handleUpdateField}
       />
 
       <SelectField
@@ -141,6 +148,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
         options={scopeOptions}
         internalEditing={internalEditing}
         setInternalEditing={setInternalEditing}
+        handleUpdate={handleUpdateField}
       />
 
       <TextField
@@ -153,6 +161,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
         placeholder="Enter internal owner"
         internalEditing={internalEditing}
         setInternalEditing={setInternalEditing}
+        handleUpdate={handleUpdateField}
       />
 
       <TextField
@@ -165,6 +174,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
         placeholder="Enter reviewer"
         internalEditing={internalEditing}
         setInternalEditing={setInternalEditing}
+        handleUpdate={handleUpdateField}
       />
 
       <SelectField
@@ -177,28 +187,33 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
         options={reviewFrequencyOptions}
         internalEditing={internalEditing}
         setInternalEditing={setInternalEditing}
+        handleUpdate={handleUpdateField}
       />
 
-      <DateTimeField
+      <TextField
         name="lastReviewedAt"
         label="Last Reviewed At"
+        type="date"
         isEditing={isEditing}
         isEditAllowed={isEditAllowed}
         isCreate={isCreate}
         data={data}
         internalEditing={internalEditing}
         setInternalEditing={setInternalEditing}
+        handleUpdate={handleUpdateField}
       />
 
-      <DateTimeField
+      <TextField
         name="nextReviewAt"
         label="Next Review At"
+        type="date"
         isEditing={isEditing}
         isEditAllowed={isEditAllowed}
         isCreate={isCreate}
         data={data}
         internalEditing={internalEditing}
         setInternalEditing={setInternalEditing}
+        handleUpdate={handleUpdateField}
       />
 
       <TextField
@@ -211,6 +226,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
         placeholder="Enter billing model"
         internalEditing={internalEditing}
         setInternalEditing={setInternalEditing}
+        handleUpdate={handleUpdateField}
       />
 
       <NumberField
@@ -223,6 +239,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
         placeholder="Enter annual spend"
         internalEditing={internalEditing}
         setInternalEditing={setInternalEditing}
+        // handleUpdate={handleUpdateField}
       />
 
       <TextField
@@ -235,39 +252,46 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
         placeholder="Enter currency (e.g., USD)"
         internalEditing={internalEditing}
         setInternalEditing={setInternalEditing}
+        handleUpdate={handleUpdateField}
       />
 
-      <DateTimeField
+      <TextField
         name="contractStartDate"
         label="Contract Start Date"
+        type="date"
         isEditing={isEditing}
         isEditAllowed={isEditAllowed}
         isCreate={isCreate}
         data={data}
         internalEditing={internalEditing}
         setInternalEditing={setInternalEditing}
+        handleUpdate={handleUpdateField}
       />
 
-      <DateTimeField
+      <TextField
         name="contractEndDate"
         label="Contract End Date"
+        type="date"
         isEditing={isEditing}
         isEditAllowed={isEditAllowed}
         isCreate={isCreate}
         data={data}
         internalEditing={internalEditing}
         setInternalEditing={setInternalEditing}
+        handleUpdate={handleUpdateField}
       />
 
-      <DateTimeField
+      <TextField
         name="contractRenewalAt"
         label="Contract Renewal At"
+        type="date"
         isEditing={isEditing}
         isEditAllowed={isEditAllowed}
         isCreate={isCreate}
         data={data}
         internalEditing={internalEditing}
         setInternalEditing={setInternalEditing}
+        handleUpdate={handleUpdateField}
       />
 
       <CheckboxField
@@ -279,6 +303,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
         data={data}
         internalEditing={internalEditing}
         setInternalEditing={setInternalEditing}
+        // handleUpdate={handleUpdateField}
       />
 
       <NumberField
@@ -291,6 +316,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
         placeholder="Enter number of days"
         internalEditing={internalEditing}
         setInternalEditing={setInternalEditing}
+        // handleUpdate={handleUpdateField}
       />
 
       <TextField
@@ -303,6 +329,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
         placeholder="Enter tier"
         internalEditing={internalEditing}
         setInternalEditing={setInternalEditing}
+        handleUpdate={handleUpdateField}
       />
 
       <TextField
@@ -315,6 +342,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
         placeholder="Enter risk rating"
         internalEditing={internalEditing}
         setInternalEditing={setInternalEditing}
+        handleUpdate={handleUpdateField}
       />
 
       <NumberField
@@ -327,6 +355,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
         placeholder="Enter risk score"
         internalEditing={internalEditing}
         setInternalEditing={setInternalEditing}
+        // handleUpdate={handleUpdateField}
       />
 
       <TextField
@@ -339,6 +368,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
         placeholder="Enter renewal risk"
         internalEditing={internalEditing}
         setInternalEditing={setInternalEditing}
+        handleUpdate={handleUpdateField}
       />
 
       <CheckboxField
@@ -350,6 +380,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
         data={data}
         internalEditing={internalEditing}
         setInternalEditing={setInternalEditing}
+        // handleUpdate={handleUpdateField}
       />
 
       <CheckboxField
@@ -361,6 +392,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
         data={data}
         internalEditing={internalEditing}
         setInternalEditing={setInternalEditing}
+        //  handleUpdate={handleUpdateField}
       />
 
       <CheckboxField
@@ -372,6 +404,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
         data={data}
         internalEditing={internalEditing}
         setInternalEditing={setInternalEditing}
+        // handleUpdate={handleUpdateField}
       />
 
       <CheckboxField
@@ -394,17 +427,20 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
         data={data}
         internalEditing={internalEditing}
         setInternalEditing={setInternalEditing}
+        // handleUpdate={handleUpdateField}
       />
 
-      <DateTimeField
+      <TextField
         name="soc2PeriodEnd"
         label="SOC 2 Period End"
+        type="date"
         isEditing={isEditing}
         isEditAllowed={isEditAllowed}
         isCreate={isCreate}
         data={data}
         internalEditing={internalEditing}
         setInternalEditing={setInternalEditing}
+        handleUpdate={handleUpdateField}
       />
 
       <TextField
@@ -417,6 +453,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
         placeholder="Enter status page URL"
         internalEditing={internalEditing}
         setInternalEditing={setInternalEditing}
+        handleUpdate={handleUpdateField}
       />
     </div>
   )

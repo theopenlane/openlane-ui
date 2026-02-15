@@ -20,6 +20,8 @@ import {
   MapPin,
   EarthLock,
   MapPlus,
+  Tag,
+  Blend,
 } from 'lucide-react'
 
 export enum FilterIconName {
@@ -44,6 +46,8 @@ export enum FilterIconName {
   Location = 'Location',
   Region = 'Region',
   Security = 'Security',
+  Tag = 'Tag',
+  Relationships = 'Relationships',
 }
 
 export const FilterIcons: Record<FilterIconName, LucideIcon> = {
@@ -68,4 +72,6 @@ export const FilterIcons: Record<FilterIconName, LucideIcon> = {
   [FilterIconName.Location]: MapPin,
   [FilterIconName.Security]: EarthLock,
   [FilterIconName.Region]: MapPlus,
+  [FilterIconName.Tag]: Tag,
+  [FilterIconName.Relationships]: Blend,
 }

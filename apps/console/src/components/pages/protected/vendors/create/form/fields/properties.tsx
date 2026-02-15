@@ -18,13 +18,13 @@ type PropertiesProps = {
   data: EntityQuery['entity'] | undefined
   internalEditing: string | null
   setInternalEditing: InternalEditingType
-  handleUpdate?: (val: UpdateEntityInput) => void
+  handleUpdateField?: (val: UpdateEntityInput) => void
   isEditAllowed: boolean
 }
 
 const allProperties = ['tags']
 
-const Properties: React.FC<PropertiesProps> = ({ isEditing, data, internalEditing, setInternalEditing, handleUpdate, isEditAllowed }) => {
+const Properties: React.FC<PropertiesProps> = ({ isEditing, data, internalEditing, setInternalEditing, handleUpdateField, isEditAllowed }) => {
   const { control, formState, watch, setValue } = useFormContext<EditVendorFormData>()
 
   const { tagOptions } = useGetTags()
@@ -57,9 +57,9 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, data, internalEditin
     const next = tagValues.map((item) => item.value)
     const changed = current.length !== next.length || current.some((val) => !next.includes(val))
 
-    if (changed && handleUpdate) {
+    if (changed && handleUpdateField) {
       setValue('tags', next)
-      handleUpdate({ tags: next })
+      handleUpdateField({ tags: next })
     }
   }
 

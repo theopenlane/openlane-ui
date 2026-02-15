@@ -24,7 +24,7 @@ export const getVendorColumns = ({ userMap, convertToReadOnly, selectedVendors, 
       id: 'select',
       header: ({ table }) => {
         const currentPageVendors = table.getRowModel().rows.map((row) => row.original)
-        const allSelected = currentPageVendors.every((vendor) => selectedVendors.some((sv) => sv.id === vendor.id))
+        const allSelected = currentPageVendors.every((vendor) => selectedVendors?.some((sv) => sv.id === vendor.id))
 
         return (
           <div onClick={(e) => e.stopPropagation()}>
@@ -43,7 +43,7 @@ export const getVendorColumns = ({ userMap, convertToReadOnly, selectedVendors, 
       },
       cell: ({ row }: { row: Row<Entity> }) => {
         const { id } = row.original
-        const isChecked = selectedVendors.some((v) => v.id === id)
+        const isChecked = selectedVendors?.some((v) => v.id === id)
 
         return (
           <div onClick={(e) => e.stopPropagation()}>

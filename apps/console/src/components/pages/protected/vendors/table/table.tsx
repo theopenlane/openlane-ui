@@ -52,7 +52,6 @@ const VendorsTable = forwardRef(
   ) => {
     const { replace } = useSmartRouter()
 
-    // Add vendor filter to whereFilter
     const vendorWhereFilter: EntityWhereInput = {
       ...whereFilter,
       hasEntityTypeWith: [{ name: 'vendor' }],

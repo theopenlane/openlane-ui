@@ -22,14 +22,30 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useCustomTypeEnum, useCreateCustomTypeEnum, useUpdateCustomTypeEnum, useDeleteCustomTypeEnum } from '@/lib/graphql-hooks/custom-type-enum'
 import { ENUM_GROUP_MAP } from './custom-enums-config'
 import { SaveButton } from '@/components/shared/save-button/save-button'
+import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 
 const schema = z.object({
   name: z.string().min(1, 'Name is required'),
   description: z.string().optional(),
   color: z.string().min(1, 'Color is required'),
-  objectType: z.string().min(1, 'Object type is required'),
+  objectType: z.string(),
   field: z.string().min(1, 'Field is required'),
 })
+
+const COLOR_PALETTE = [
+  '#6366f1', // Indigo
+  '#f59e42', // Orange
+  '#10b981', // Green
+  '#f43f5e', // Pink
+  '#3b82f6', // Blue
+  '#fbbf24', // Yellow
+  '#8b5cf6', // Violet
+  '#ef4444', // Red
+  '#14b8a6', // Teal
+  '#a3e635', // Lime
+]
+
+const getRandomColor = () => COLOR_PALETTE[Math.floor(Math.random() * COLOR_PALETTE.length)]
 
 type FormData = z.infer<typeof schema>
 
@@ -49,6 +65,7 @@ export const CreateEnumSheet = ({ resetPagination, filter }: { resetPagination: 
     const types = Object.values(ENUM_GROUP_MAP)
       .map((c) => c?.objectType)
       .filter((t): t is string => !!t)
+
     return Array.from(new Set(types))
   }, [])
 
@@ -62,7 +79,7 @@ export const CreateEnumSheet = ({ resetPagination, filter }: { resetPagination: 
     defaultValues: {
       name: '',
       description: '',
-      color: '#6366f1',
+      color: getRandomColor(),
       objectType: '',
       field: '',
     },
@@ -79,6 +96,21 @@ export const CreateEnumSheet = ({ resetPagination, filter }: { resetPagination: 
   const { field: fieldField } = useController({ name: 'field', control })
 
   const selectedObjectType = formMethods.watch('objectType')
+
+  const isGlobal = useMemo(() => {
+    const config = ENUM_GROUP_MAP[filter]
+    return config?.isGlobal || false
+  }, [filter])
+
+  const selectedEnumType = useMemo(() => {
+    const config = ENUM_GROUP_MAP[filter]
+    const enumType = config?.field
+    if (!enumType) {
+      return null
+    }
+
+    return getEnumLabel(enumType)
+  }, [filter])
 
   const fieldOptions = useMemo(() => {
     if (!selectedObjectType) return []
@@ -100,7 +132,7 @@ export const CreateEnumSheet = ({ resetPagination, filter }: { resetPagination: 
   const handleOpenChange = (val: boolean) => {
     if (!val) {
       replace({ id: null, create: null })
-      setTimeout(() => reset({ name: '', description: '', color: '#6366f1', objectType: '', field: '' }), 300)
+      setTimeout(() => reset({ name: '', description: '', color: getRandomColor(), objectType: '', field: '' }), 300)
     }
   }
 
@@ -148,7 +180,7 @@ export const CreateEnumSheet = ({ resetPagination, filter }: { resetPagination: 
       reset({
         name: name ?? '',
         description: description ?? '',
-        color: color ?? '#6366f1',
+        color: color ?? getRandomColor(),
         objectType: objectType ?? '',
         field: field ?? '',
       })
@@ -159,7 +191,7 @@ export const CreateEnumSheet = ({ resetPagination, filter }: { resetPagination: 
       reset({
         name: '',
         description: '',
-        color: '#6366f1',
+        color: getRandomColor(),
         objectType: activeConfig?.objectType || '',
         field: defaultField,
       })
@@ -184,7 +216,7 @@ export const CreateEnumSheet = ({ resetPagination, filter }: { resetPagination: 
             </div>
           </div>
           <div className="mt-4">
-            <SheetTitle>{isCreate ? 'Create Enum Value' : 'Update Enum Value'}</SheetTitle>
+            <SheetTitle>{isCreate ? `Create ${selectedEnumType || ''} Enum` : `Update ${selectedEnumType || ''} Enum`}</SheetTitle>
             <SheetDescription />
           </div>
         </SheetHeader>
@@ -199,57 +231,59 @@ export const CreateEnumSheet = ({ resetPagination, filter }: { resetPagination: 
               <form key={enumData?.customTypeEnum?.id || 'create'} className="p-6 space-y-6">
                 <div className="space-y-2">
                   <Label>Name</Label>
-                  <Input {...formMethods.register('name')} disabled={isPending || isEditMode} placeholder="e.g. Preventative" />
+                  <Input {...formMethods.register('name')} disabled={isPending || isEditMode} placeholder="" />
                   {errors.name && <p className="text-destructive text-xs font-medium">{errors.name.message}</p>}
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>Object Type</Label>
-                    <Select
-                      disabled={isPending || isEditMode}
-                      onValueChange={(val) => {
-                        if (val) typeField.onChange(val)
-                      }}
-                      value={typeField.value}
-                    >
-                      <SelectTrigger className={'capitalize '}>
-                        <SelectValue placeholder="Select type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {objectTypeOptions.map((opt) => (
-                          <SelectItem key={opt} value={opt} className="capitalize">
-                            {opt.split('_').join(' ')}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    {errors.objectType && <p className="text-destructive text-xs font-medium">{errors.objectType.message}</p>}
-                  </div>
+                {!isGlobal && (
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Object Type</Label>
+                      <Select
+                        disabled={isPending || isEditMode}
+                        onValueChange={(val) => {
+                          if (val) typeField.onChange(val)
+                        }}
+                        value={typeField.value}
+                      >
+                        <SelectTrigger className={'capitalize '}>
+                          <SelectValue placeholder="Select type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {objectTypeOptions.map((opt) => (
+                            <SelectItem key={opt} value={opt} className="capitalize">
+                              {opt.split('_').join(' ')}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {errors.objectType && <p className="text-destructive text-xs font-medium">{errors.objectType.message}</p>}
+                    </div>
 
-                  <div className="space-y-2">
-                    <Label>Field</Label>
-                    <Select
-                      disabled={isPending || isEditMode || !selectedObjectType}
-                      onValueChange={(val) => {
-                        if (val) fieldField.onChange(val)
-                      }}
-                      value={fieldField.value}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder={selectedObjectType ? 'Select field' : 'Select type first'} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {fieldOptions.map((opt) => (
-                          <SelectItem key={opt} value={opt}>
-                            {opt}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    {errors.field && <p className="text-destructive text-xs font-medium">{errors.field.message}</p>}
+                    <div className="space-y-2">
+                      <Label>Field</Label>
+                      <Select
+                        disabled={isPending || isEditMode || !selectedObjectType}
+                        onValueChange={(val) => {
+                          if (val) fieldField.onChange(val)
+                        }}
+                        value={fieldField.value}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder={selectedObjectType ? 'Select field' : 'Select type first'} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {fieldOptions.map((opt) => (
+                            <SelectItem key={opt} value={opt}>
+                              {opt}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {errors.field && <p className="text-destructive text-xs font-medium">{errors.field.message}</p>}
+                    </div>
                   </div>
-                </div>
+                )}
 
                 <div className="space-y-2">
                   <ColorInput label="Select Color" value={colorField.value} onChange={colorField.onChange} disabled={isPending} />

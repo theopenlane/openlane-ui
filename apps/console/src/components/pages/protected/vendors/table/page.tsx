@@ -1,6 +1,6 @@
 'use client'
 import React from 'react'
-import { EntityOrderField, ExportExportType, UpdateEntityInput } from '@repo/codegen/src/schema'
+import { CreateEntityInput, EntityOrderField, ExportExportType, UpdateEntityInput } from '@repo/codegen/src/schema'
 import { OrderDirection } from '@repo/codegen/src/schema'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { ObjectTypes, ObjectNames } from '@repo/codegen/src/type-names'
@@ -16,6 +16,7 @@ import { GenericTablePage } from '@/components/shared/crud-base/page'
 import { AdditionalFields } from '../create/form/fields/additional-fields'
 import VendorsTable from './table'
 import { getVendorColumns } from './columns'
+import { breadcrumbs, getFilterFields } from './table-config'
 
 const formId = 'editVendor'
 
@@ -36,7 +37,10 @@ const EntityPage: React.FC = () => {
     mutateAsync: async (params: { id: string; input: UpdateEntityInput }) => baseUpdateMutation.mutateAsync({ updateEntityId: params.id, input: params.input }),
   }
 
-  const createMutation = baseCreateMutation
+  const createMutation = {
+    isPending: baseCreateMutation.isPending,
+    mutateAsync: async (params: { input: CreateEntityInput; entityTypeName: string }) => baseCreateMutation.mutateAsync({ input: params.input, entityTypeName: 'vendor' }),
+  }
   const deleteMutation = baseBulkDeleteMutation
 
   return (
@@ -48,13 +52,10 @@ const EntityPage: React.FC = () => {
       orderFieldEnum={EntityOrderField}
       defaultSorting={[{ field: EntityOrderField.name, direction: OrderDirection.ASC }]}
       defaultVisibility={{}}
-      breadcrumbs={[
-        { label: 'Home', href: '/dashboard' },
-        { label: 'Registry', href: '/vendors' },
-        { label: 'Vendors', href: '/vendors' },
-      ]}
+      breadcrumbs={breadcrumbs}
       form={form}
       getColumns={getVendorColumns}
+      filterFields={getFilterFields()}
       TableComponent={VendorsTable}
       sheetConfig={{
         objectType: ObjectTypes.ENTITY,

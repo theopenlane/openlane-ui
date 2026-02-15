@@ -124,8 +124,8 @@ export const ENTITY = gql`
 `
 
 export const CREATE_ENTITY = gql`
-  mutation CreateEntity($input: CreateEntityInput!) {
-    createEntity(input: $input) {
+  mutation CreateEntity($input: CreateEntityInput!, $entityTypeName: String) {
+    createEntity(input: $input, entityTypeName: $entityTypeName) {
       entity {
         id
       }

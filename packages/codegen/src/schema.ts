@@ -27537,6 +27537,7 @@ export interface MutationCreateEmailTemplateArgs {
 }
 
 export interface MutationCreateEntityArgs {
+  entityTypeName?: InputMaybe<Scalars['String']['input']>
   input: CreateEntityInput
 }
 
@@ -62409,6 +62410,7 @@ export type EntityQuery = {
 
 export type CreateEntityMutationVariables = Exact<{
   input: CreateEntityInput
+  entityTypeName?: InputMaybe<Scalars['String']['input']>
 }>
 
 export type CreateEntityMutation = { __typename?: 'Mutation'; createEntity: { __typename?: 'EntityCreatePayload'; entity: { __typename?: 'Entity'; id: string } } }

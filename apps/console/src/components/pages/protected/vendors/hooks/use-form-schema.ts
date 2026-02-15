@@ -11,9 +11,6 @@ const formSchema = z.object({
   domains: z.array(z.string()).optional(),
   status: z.string().optional(),
   tags: z.array(z.string()).optional(),
-  contacts: z.array(z.string()).optional(),
-  entityTypeID: z.string().optional(),
-  note: z.custom<Value | string>().optional(),
 })
 
 export type CreateVendorFormData = z.infer<typeof formSchema>

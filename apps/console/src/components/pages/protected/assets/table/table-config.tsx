@@ -27,6 +27,7 @@ export const getFilterFields = (
   criticalityOptions: CustomEnumOption[] = [],
   encryptionStatusOptions: CustomEnumOption[] = [],
   environmentOptions: CustomEnumOption[] = [],
+  tagOptions: CustomEnumOption[] = [],
   // scopeOptions: CustomEnumOption[] = [],
   // securityTierOptions: CustomEnumOption[] = [],
 ): FilterField[] => [
@@ -113,6 +114,14 @@ export const getFilterFields = (
     label: 'Region',
     type: 'text',
     icon: FilterIcons.Region,
+  },
+  {
+    key: 'tagsHas',
+    label: 'Tags',
+    type: 'multiselect',
+    // type: 'dropdownSearchSingleSelect',
+    icon: FilterIcons.Status,
+    options: tagOptions,
   },
 ]
 
