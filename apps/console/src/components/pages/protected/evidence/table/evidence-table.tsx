@@ -54,7 +54,9 @@ export const EvidenceTable = () => {
         }
       }
 
-      return { [key]: value } as EvidenceWhereInput
+      const nextWhere: EvidenceWhereInput = {}
+      Object.assign(nextWhere, { [key]: value })
+      return nextWhere
     })
 
     return {

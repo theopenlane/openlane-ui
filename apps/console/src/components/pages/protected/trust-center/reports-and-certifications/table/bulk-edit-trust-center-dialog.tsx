@@ -30,7 +30,7 @@ const fieldItemSchema = z.object({
 })
 
 const bulkEditDocsSchema = z.object({
-  fieldsArray: z.array(fieldItemSchema).optional().default([]),
+  fieldsArray: z.array(fieldItemSchema),
 })
 
 type BulkEditDialogFormValues = z.infer<typeof bulkEditDocsSchema>
@@ -127,8 +127,10 @@ export const BulkEditTrustCenterDocsDialog: React.FC<Props> = ({ selectedDocs, s
                   <Select
                     value={watchedFields[index]?.value || undefined}
                     onValueChange={(value) => {
+                      const enumValue = Object.values(SelectOptionBulkEditTrustCenterDocs).find((opt) => opt === value)
+                      if (!enumValue) return
                       update(index, {
-                        value: value as SelectOptionBulkEditTrustCenterDocs,
+                        value: enumValue,
                         selectedValue: undefined,
                         visibilityEnum: undefined,
                       })
@@ -175,7 +177,13 @@ export const BulkEditTrustCenterDocsDialog: React.FC<Props> = ({ selectedDocs, s
                       control={control}
                       name={`fieldsArray.${index}.visibilityEnum`}
                       render={({ field }) => (
-                        <Select value={field.value || ''} onValueChange={(val) => field.onChange(val as TrustCenterDocTrustCenterDocumentVisibility)}>
+                        <Select
+                          value={field.value || ''}
+                          onValueChange={(val) => {
+                            const visibility = Object.values(TrustCenterDocTrustCenterDocumentVisibility).find((v) => v === val)
+                            if (visibility) field.onChange(visibility)
+                          }}
+                        >
                           <SelectTrigger className="w-60">
                             <SelectValue placeholder="Select visibility" />
                           </SelectTrigger>

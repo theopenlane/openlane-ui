@@ -37,12 +37,8 @@ export type BulkEditEvidenceDialogProps = {
   setSelectedEvidence: React.Dispatch<React.SetStateAction<{ id: string }[]>>
 }
 
-export interface BulkEditDialogFormValues {
-  fieldsArray: FieldItem[]
-}
-
-export interface SelectOptionSelectedObject {
-  selectOptionEnum: SelectOptionBulkEditControls | SelectOptionBulkEditPolicies | SelectOptionBulkEditProcedures | SelectOptionBulkEditRisks | SelectOptionBulkEditTasks | SelectOptionBulkEditEvidence
+export interface SelectOptionSelectedObject<T extends SelectOptionBulkEdit = SelectOptionBulkEdit> {
+  selectOptionEnum: T
   name: string
   placeholder: string
   options?: Option[]
@@ -95,19 +91,20 @@ export enum SelectOptionBulkEditEvidence {
   Source = 'Source',
 }
 
+export type SelectOptionBulkEdit =
+  | SelectOptionBulkEditControls
+  | SelectOptionBulkEditPolicies
+  | SelectOptionBulkEditProcedures
+  | SelectOptionBulkEditRisks
+  | SelectOptionBulkEditTasks
+  | SelectOptionBulkEditEvidence
+
 export enum InputType {
   Select = 'SELECT',
   Input = 'INPUT',
   Date = 'DATETIME',
   Tag = 'TAG',
   TypeAhead = 'TYPE_AHEAD',
-}
-
-export interface FieldItem {
-  value: SelectOptionBulkEditControls | SelectOptionBulkEditPolicies | SelectOptionBulkEditProcedures | SelectOptionBulkEditRisks | SelectOptionBulkEditTasks | SelectOptionBulkEditEvidence | undefined
-  selectedObject?: SelectOptionSelectedObject
-  selectedValue?: string | undefined
-  selectedDate?: Date | null
 }
 
 export const defaultObject = {
@@ -129,7 +126,7 @@ export const getMappedClearValue = (key: string): string => {
   return clearValueMap[key]
 }
 
-export const getAllSelectOptionsForBulkEditRisks = (groups: Group[], typeOptions: Option[], categoryOptions: Option[]): SelectOptionSelectedObject[] => {
+export const getAllSelectOptionsForBulkEditRisks = (groups: Group[], typeOptions: Option[], categoryOptions: Option[]): SelectOptionSelectedObject<SelectOptionBulkEditRisks>[] => {
   return [
     {
       selectOptionEnum: SelectOptionBulkEditRisks.RiskDelegate,
@@ -182,7 +179,7 @@ export const getAllSelectOptionsForBulkEditRisks = (groups: Group[], typeOptions
   ]
 }
 
-export const getAllSelectOptionsForBulkEditProcedures = (groups: Group[], typeOptions: Option[]): SelectOptionSelectedObject[] => {
+export const getAllSelectOptionsForBulkEditProcedures = (groups: Group[], typeOptions: Option[]): SelectOptionSelectedObject<SelectOptionBulkEditProcedures>[] => {
   return [
     {
       selectOptionEnum: SelectOptionBulkEditProcedures.ProcedureDelegate,
@@ -215,7 +212,7 @@ export const getAllSelectOptionsForBulkEditProcedures = (groups: Group[], typeOp
   ]
 }
 
-export const getAllSelectOptionsForBulkEditPolicies = (groups: Group[], typeOptions: Option[]): SelectOptionSelectedObject[] => {
+export const getAllSelectOptionsForBulkEditPolicies = (groups: Group[], typeOptions: Option[]): SelectOptionSelectedObject<SelectOptionBulkEditPolicies>[] => {
   return [
     {
       selectOptionEnum: SelectOptionBulkEditPolicies.PolicyDelegate,
@@ -248,7 +245,7 @@ export const getAllSelectOptionsForBulkEditPolicies = (groups: Group[], typeOpti
   ]
 }
 
-export const useGetAllSelectOptionsForBulkEditControls = (groups: Group[], typeOptions: Option[]): SelectOptionSelectedObject[] => {
+export const useGetAllSelectOptionsForBulkEditControls = (groups: Group[], typeOptions: Option[]): SelectOptionSelectedObject<SelectOptionBulkEditControls>[] => {
   const { programOptions } = useProgramSelect({})
 
   return [
@@ -303,7 +300,7 @@ export const getAllSelectOptionsForBulkEditTasks = (
       }[]
     | undefined,
   taskKindOptions: { value: string; label: string }[],
-): SelectOptionSelectedObject[] => {
+): SelectOptionSelectedObject<SelectOptionBulkEditTasks>[] => {
   return [
     {
       selectOptionEnum: SelectOptionBulkEditTasks.TaskAssignee,
@@ -335,7 +332,7 @@ export const getAllSelectOptionsForBulkEditTasks = (
   ]
 }
 
-export const getAllSelectOptionsForBulkEditEvidence = (): SelectOptionSelectedObject[] => {
+export const getAllSelectOptionsForBulkEditEvidence = (): SelectOptionSelectedObject<SelectOptionBulkEditEvidence>[] => {
   return [
     {
       selectOptionEnum: SelectOptionBulkEditEvidence.Status,

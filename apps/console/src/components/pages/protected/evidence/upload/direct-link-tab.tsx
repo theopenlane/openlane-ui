@@ -2,15 +2,14 @@
 import React, { useEffect, useState } from 'react'
 import { TabsContent } from '@repo/ui/tabs'
 import { FormItem } from '@repo/ui/form'
-import { UseFormReturn } from 'react-hook-form'
-import { CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema'
+import { CreateEvidenceFormMethods } from '@/components/pages/protected/evidence/hooks/use-form-schema'
 import { TUploadedFile } from './types/TUploadedFile'
 import DirectLinkTabSection from '@/components/shared/file-upload/direct-link-tab-section'
 
 type TProps = {
   directLink: (uploadedFile: TUploadedFile) => void
   evidenceFiles: TUploadedFile[]
-  form: UseFormReturn<CreateEvidenceFormData>
+  form: CreateEvidenceFormMethods
 }
 
 const DirectLinkTab: React.FC<TProps> = (props: TProps) => {

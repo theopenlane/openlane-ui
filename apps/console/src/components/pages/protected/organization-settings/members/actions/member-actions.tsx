@@ -20,6 +20,7 @@ import React, { useState } from 'react'
 import { Form, FormControl, FormField, FormItem } from '@repo/ui/form'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { useForm } from 'react-hook-form'
+import type { Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z, infer as zInfer } from 'zod'
 import { useSession } from 'next-auth/react'
@@ -105,7 +106,7 @@ export const MemberActions = ({ memberId, memberUserId, memberRole, memberName }
   type FormData = zInfer<typeof formSchema>
 
   const form = useForm<FormData>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(formSchema) as Resolver<FormData>,
     defaultValues: {
       role: OrgMembershipRole.MEMBER,
     },

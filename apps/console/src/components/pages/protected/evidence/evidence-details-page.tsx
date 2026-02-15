@@ -46,14 +46,16 @@ const EvidenceDetailsPage = () => {
     const crumbs: Crumb[] = [
       { label: 'Home', href: '/dashboard' },
       { label: 'Evidence', href: '/evidence' },
-      programId && basicInfoData
-        ? {
-            label: basicInfoData.program?.name || 'Program',
-            href: `/evidence?programId=${programId}`,
-            isLoading,
-          }
-        : undefined,
-    ].filter(Boolean) as Crumb[]
+      ...(programId && basicInfoData
+        ? [
+            {
+              label: basicInfoData.program?.name || 'Program',
+              href: `/evidence?programId=${programId}`,
+              isLoading,
+            },
+          ]
+        : []),
+    ]
 
     setCrumbs(crumbs)
   }, [setCrumbs, basicInfoData, isLoading, programId])

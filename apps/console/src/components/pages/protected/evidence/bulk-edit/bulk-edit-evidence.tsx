@@ -1,6 +1,5 @@
 'use client'
 import {
-  BulkEditDialogFormValues,
   BulkEditEvidenceDialogProps,
   defaultObject,
   getAllSelectOptionsForBulkEditEvidence,
@@ -33,6 +32,7 @@ const fieldItemSchema = z.object({
       selectOptionEnum: z.nativeEnum(SelectOptionBulkEditEvidence),
       name: z.string(),
       placeholder: z.string(),
+      inputType: z.nativeEnum(InputType),
       options: z
         .array(
           z.object({
@@ -44,7 +44,14 @@ const fieldItemSchema = z.object({
     })
     .optional(),
   selectedValue: z.union([z.string(), z.array(z.string())]).optional(),
+  selectedDate: z.date().nullable().optional(),
 })
+
+const bulkEditEvidenceSchema = z.object({
+  fieldsArray: z.array(fieldItemSchema),
+})
+
+type BulkEditEvidenceFormValues = z.infer<typeof bulkEditEvidenceSchema>
 
 export const BulkEditEvidenceDialog: React.FC<BulkEditEvidenceDialogProps> = ({ selectedEvidence, setSelectedEvidence }: BulkEditEvidenceDialogProps) => {
   const [open, setOpen] = useState(false)
@@ -53,10 +60,7 @@ export const BulkEditEvidenceDialog: React.FC<BulkEditEvidenceDialogProps> = ({ 
   const [tagValues, setTagValues] = useState<Option[]>([])
   const { tagOptions } = useGetTags()
 
-  const bulkEditEvidenceSchema = z.object({
-    fieldsArray: z.array(fieldItemSchema),
-  })
-  const form = useForm<BulkEditDialogFormValues>({
+  const form = useForm<BulkEditEvidenceFormValues>({
     resolver: zodResolver(bulkEditEvidenceSchema),
     defaultValues: defaultObject,
   })
@@ -75,7 +79,7 @@ export const BulkEditEvidenceDialog: React.FC<BulkEditEvidenceDialogProps> = ({ 
 
   const onSubmit = async () => {
     const ids = selectedEvidence.map((evidence) => evidence.id)
-    const input: Record<string, string | boolean> = {}
+    const input: Record<string, string | string[] | boolean> = {}
     if (watchedFields.length === 0) return
 
     if (ids.length === 0) return
@@ -135,10 +139,12 @@ export const BulkEditEvidenceDialog: React.FC<BulkEditEvidenceDialogProps> = ({ 
                       <Select
                         value={watchedFields[index].value || undefined}
                         onValueChange={(value) => {
-                          const selectedEnum = value as SelectOptionBulkEditEvidence
+                          const selectedOption = allOptionSelects.find((option) => option.selectOptionEnum === value)
+                          if (!selectedOption) return
+
                           update(index, {
-                            value: selectedEnum,
-                            selectedObject: allOptionSelects.find((item) => item.selectOptionEnum === selectedEnum),
+                            value: selectedOption.selectOptionEnum,
+                            selectedObject: selectedOption,
                             selectedValue: undefined,
                             selectedDate: undefined,
                           })
@@ -159,32 +165,26 @@ export const BulkEditEvidenceDialog: React.FC<BulkEditEvidenceDialogProps> = ({ 
                     {item.selectedObject &&
                       (item.selectedObject.inputType === InputType.Select ? (
                         <div className="flex flex-col items-center gap-2">
-                          <Controller
-                            name={item.selectedObject.name as keyof BulkEditDialogFormValues}
-                            control={control}
-                            render={() => (
-                              <Select
-                                value={item.selectedValue as string | undefined}
-                                onValueChange={(value) =>
-                                  update(index, {
-                                    ...item,
-                                    selectedValue: value,
-                                  })
-                                }
-                              >
-                                <SelectTrigger className="w-60">
-                                  <SelectValue placeholder={item.selectedObject?.placeholder} />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {item.selectedObject?.options?.map((option) => (
-                                    <SelectItem key={option.value} value={option.value}>
-                                      {option.label}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            )}
-                          />
+                          <Select
+                            value={typeof item.selectedValue === 'string' ? item.selectedValue : undefined}
+                            onValueChange={(value) =>
+                              update(index, {
+                                ...item,
+                                selectedValue: value,
+                              })
+                            }
+                          >
+                            <SelectTrigger className="w-60">
+                              <SelectValue placeholder={item.selectedObject?.placeholder} />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {item.selectedObject?.options?.map((option) => (
+                                <SelectItem key={option.value} value={option.value}>
+                                  {option.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         </div>
                       ) : item.selectedObject.inputType === InputType.Tag ? (
                         <div className="flex flex-col items-center gap-2">

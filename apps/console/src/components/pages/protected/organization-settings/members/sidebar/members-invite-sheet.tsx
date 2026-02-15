@@ -3,6 +3,7 @@ import { Button } from '@repo/ui/button'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { InfoIcon, PanelRightClose, SearchIcon } from 'lucide-react'
 import { Control, SubmitHandler, useForm } from 'react-hook-form'
+import type { Resolver } from 'react-hook-form'
 import { infer as zInfer, z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
@@ -113,7 +114,7 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
   }, [allGroups, pagination.page, pagination.pageSize])
 
   const form = useForm<FormData>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(formSchema) as Resolver<FormData>,
     defaultValues: {
       role: InviteRole.MEMBER,
     },

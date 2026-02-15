@@ -1,4 +1,4 @@
-import { GetSuggestedControlsOrSubcontrolsQuery, MappedControlWhereInput } from '@repo/codegen/src/schema'
+import { GetSuggestedControlsOrSubcontrolsQuery, MappedControlMappingSource, MappedControlWhereInput } from '@repo/codegen/src/schema'
 
 export type CustomEvidenceControl = { __typename?: string; id: string; referenceFramework?: string | null; refCode: string }
 type CustomEvidenceGroupedItems = {
@@ -19,9 +19,9 @@ type RelatedNode = {
   refCode: string
   referenceFramework: string | null
   controlId?: string
-  mappingType?: string
+  mappingType: MappedControlMappingSource | null
   relation?: string
-  source?: string
+  source: MappedControlMappingSource | null
 }
 
 export type RefFrameworkGroup = Record<string, CustomEvidenceGroupedItems[]>
@@ -42,7 +42,7 @@ export const groupItemsByReferenceFramework = (items: CustomEvidenceControl[] | 
     })
 
     return acc
-  }, {} as RefFrameworkGroup)
+  }, {})
 }
 
 export const buildOr = (groups: RefFrameworkGroup) =>
@@ -106,64 +106,64 @@ export const flattenAndFilterControls = (
     if (isFromControl || isFromSub) {
       oppositeNodes.push(
         ...(node.toControls?.edges
-          ?.map((e) =>
+          ?.map((e): RelatedNode | null =>
             e?.node
               ? {
                   type: 'Control',
                   id: e.node.id,
                   refCode: e.node.refCode,
-                  referenceFramework: e.node.referenceFramework,
-                  mappingType: node.source,
-                  source: node.source,
+                  referenceFramework: e.node.referenceFramework ?? null,
+                  mappingType: node.source ?? null,
+                  source: node.source ?? null,
                 }
               : null,
           )
-          .filter(Boolean) as RelatedNode[]),
+          .filter((item): item is RelatedNode => item !== null) ?? []),
         ...(node.toSubcontrols?.edges
-          ?.map((e) =>
+          ?.map((e): RelatedNode | null =>
             e?.node
               ? {
                   type: 'Subcontrol',
                   id: e.node.id,
                   refCode: e.node.refCode,
-                  referenceFramework: e.node.referenceFramework,
-                  mappingType: node.source,
-                  source: node.source,
+                  referenceFramework: e.node.referenceFramework ?? null,
+                  mappingType: node.source ?? null,
+                  source: node.source ?? null,
                 }
               : null,
           )
-          .filter(Boolean) as RelatedNode[]),
+          .filter((item): item is RelatedNode => item !== null) ?? []),
       )
     } else if (isToControl || isToSub) {
       oppositeNodes.push(
         ...(node.fromControls?.edges
-          ?.map((e) =>
+          ?.map((e): RelatedNode | null =>
             e?.node
               ? {
                   type: 'Control',
                   id: e.node.id,
                   refCode: e.node.refCode,
-                  referenceFramework: e.node.referenceFramework,
-                  mappingType: node.source,
-                  source: node.source,
+                  referenceFramework: e.node.referenceFramework ?? null,
+                  mappingType: node.source ?? null,
+                  source: node.source ?? null,
                 }
               : null,
           )
-          .filter(Boolean) as RelatedNode[]),
+          .filter((item): item is RelatedNode => item !== null) ?? []),
         ...(node.fromSubcontrols?.edges
-          ?.map((e) =>
+          ?.map((e): RelatedNode | null =>
             e?.node
               ? {
                   type: 'Subcontrol',
                   id: e.node.id,
                   refCode: e.node.refCode,
-                  referenceFramework: e.node.referenceFramework,
-                  mappingType: node.source,
-                  source: node.source,
+                  referenceFramework: e.node.referenceFramework ?? null,
+                  mappingType: node.source ?? null,
+                  source: node.source ?? null,
                 }
               : null,
           )
-          .filter(Boolean) as RelatedNode[]),
+          .filter((item): item is RelatedNode => item !== null) ?? []),
       )
     }
 

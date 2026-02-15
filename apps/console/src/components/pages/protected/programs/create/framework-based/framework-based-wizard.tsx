@@ -10,7 +10,7 @@ import { StepHeader } from '@/components/shared/step-header/step-header'
 import TeamSetupStep from '../shared/steps/team-setup-step'
 import StartTypeStep from '../shared/steps/start-type-step'
 import SelectFrameworkStep from '../shared/steps/select-framework-step'
-import { categoriesStepSchema, programInviteSchema, programTypeSchema, selectFrameworkSchema, validateFullAndNotify, WizardValues } from './framework-based-wizard-config'
+import { validateFullAndNotify, wizardSchema, WizardValues } from './framework-based-wizard-config'
 import { ProgramMembershipRole, CreateProgramWithMembersInput } from '@repo/codegen/src/schema'
 import { useNotification } from '@/hooks/useNotification'
 import { useCreateProgramWithMembers } from '@/lib/graphql-hooks/programs'
@@ -31,16 +31,16 @@ export default function FrameworkBasedWizard() {
   const [showExitConfirm, setShowExitConfirm] = useState(false)
 
   const { useStepper } = defineStepper(
-    { id: '0', label: 'Select Framework', schema: selectFrameworkSchema },
-    { id: '1', label: 'Select Categories', schema: categoriesStepSchema },
-    { id: '2', label: 'Team Setup', schema: programInviteSchema },
-    { id: '3', label: 'Program Type', schema: programTypeSchema },
+    { id: '0', label: 'Select Framework', schema: wizardSchema.pick({ framework: true, standardID: true, name: true }) },
+    { id: '1', label: 'Select Categories', schema: wizardSchema.pick({ categories: true }) },
+    { id: '2', label: 'Team Setup', schema: wizardSchema.pick({ programAdmins: true, programMembers: true, viewerIDs: true, editorIDs: true }) },
+    { id: '3', label: 'Program Type', schema: wizardSchema.pick({ programKindName: true }) },
   )
 
   const stepper = useStepper()
 
   const methods = useForm<WizardValues>({
-    resolver: zodResolver(stepper.current.schema),
+    resolver: zodResolver(wizardSchema),
     mode: 'onChange',
     defaultValues: {
       categories: ['Security'],
@@ -53,7 +53,15 @@ export default function FrameworkBasedWizard() {
   const handleNext = async (e?: React.FormEvent<HTMLFormElement>) => {
     e?.preventDefault()
     if (!stepper.isLast) {
-      const isValid = await methods.trigger()
+      let isValid = false
+      if (stepper.current.id === '0') {
+        isValid = await methods.trigger(['framework', 'standardID', 'name'])
+      } else if (stepper.current.id === '1') {
+        isValid = await methods.trigger('categories')
+      } else {
+        isValid = await methods.trigger(['programAdmins', 'programMembers', 'viewerIDs', 'editorIDs'])
+      }
+
       if (!isValid) return
 
       let nextStepIndex = stepper.all.findIndex((s) => s.id === stepper.current.id) + 1
