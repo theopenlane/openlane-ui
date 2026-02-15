@@ -14,7 +14,7 @@ export const formId = 'edit' + ObjectNames.ASSET
 
 export const breadcrumbs = [
   { label: 'Home', href: '/dashboard' },
-  { label: 'Registry', href: '/assets' },
+  { label: 'Registry', href: '/registry/assets' },
   { label: 'Assets', href: '/assets' },
 ]
 

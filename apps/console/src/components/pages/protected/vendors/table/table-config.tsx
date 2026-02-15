@@ -31,7 +31,7 @@ export const VENDORS_SORT_FIELDS = [{ key: 'name', label: 'Name' }]
 
 export const breadcrumbs = [
   { label: 'Home', href: '/dashboard' },
-  { label: 'Registry', href: '/vendors' },
+  { label: 'Registry', href: '/registry/vendors' },
   { label: 'Vendors', href: '/vendors' },
 ]
 
