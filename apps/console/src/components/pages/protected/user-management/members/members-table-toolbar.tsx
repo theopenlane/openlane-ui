@@ -3,7 +3,7 @@ import { TableFilter } from '@/components/shared/table-filter/table-filter.tsx'
 import { LoaderCircle, SearchIcon } from 'lucide-react'
 import { Input } from '@repo/ui/input'
 import { useDebounce } from '@uidotdev/usehooks'
-import { MEMBERS_FILTER_FIELDS } from '@/components/pages/protected/organization-settings/members/table/table-config.ts'
+import { MEMBERS_FILTER_FIELDS } from '@/components/pages/protected/user-management/members/table/table-config.ts'
 import { ExtendedOrgMembershipWhereInput } from './members-table'
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
 

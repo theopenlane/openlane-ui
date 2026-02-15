@@ -1,6 +1,6 @@
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import React from 'react'
-import { INVITES_FILTER_FIELDS } from '@/components/pages/protected/organization-settings/members/table/table-config.ts'
+import { INVITES_FILTER_FIELDS } from '@/components/pages/protected/user-management/members/table/table-config.ts'
 import { InviteWhereInput } from '@repo/codegen/src/schema'
 import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
 

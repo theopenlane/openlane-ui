@@ -32,7 +32,7 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { canEdit } from '@/lib/authz/utils.ts'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
-import { TransferOwnershipDialog } from '../../general-settings/transfer-ownership-dialog'
+import { TransferOwnershipDialog } from '@/components/pages/protected/organization-settings/general-settings/transfer-ownership-dialog'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 type MemberActionsProps = {
