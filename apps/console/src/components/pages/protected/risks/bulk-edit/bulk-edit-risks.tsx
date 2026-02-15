@@ -3,7 +3,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm, FormProvider, Controller, useFieldArray } from 'react-hook-form'
+import { useForm, FormProvider, Controller, useFieldArray, useWatch } from 'react-hook-form'
 import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogFooter, DialogTitle } from '@repo/ui/dialog'
 import { Button } from '@repo/ui/button'
 import { Pencil, PlusIcon as Plus, Trash2 } from 'lucide-react'
@@ -89,9 +89,9 @@ export const BulkEditRisksDialog: React.FC<BulkEditRisksDialogProps> = ({ select
     return getAllSelectOptionsForBulkEditRisks(groups?.filter((g): g is Group => Boolean(g)) ?? [], typeOptions, categoryOptions)
   }, [groups, typeOptions, categoryOptions, isCategoriesSuccess, isTypesSuccess])
 
-  const { control, handleSubmit, watch } = form
+  const { control, handleSubmit } = form
 
-  const watchedFields = watch('fieldsArray') || []
+  const watchedFields = useWatch({ control, name: 'fieldsArray' }) ?? []
   const hasFieldsToUpdate = watchedFields.some((field) => (field.selectedObject && field.selectedValue) || field.selectedObject?.inputType === InputType.Input)
 
   const { fields, append, update, replace, remove } = useFieldArray({
@@ -169,7 +169,7 @@ export const BulkEditRisksDialog: React.FC<BulkEditRisksDialogProps> = ({ select
                   <div key={item.id} className="flex justify-items items-start gap-2">
                     <div className="flex flex-col items-start gap-2">
                       <Select
-                        value={watchedFields[index].value || undefined}
+                        value={watchedFields[index]?.value || undefined}
                         onValueChange={(value) => {
                           const selectedOption = allOptionSelects.find((item) => item.selectOptionEnum === value)
                           if (!selectedOption) return

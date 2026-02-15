@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { TabsContent } from '@repo/ui/tabs'
 import { FormItem } from '@repo/ui/form'
 import { CreateEvidenceFormMethods } from '@/components/pages/protected/evidence/hooks/use-form-schema'
@@ -14,16 +14,7 @@ type TProps = {
 
 const DirectLinkTab: React.FC<TProps> = (props: TProps) => {
   const [evidenceDirectLink, setEvidenceDirectLink] = useState<string>('')
-  const [evidenceLinkAdded, setEvidenceLinkAdded] = useState<boolean>(false)
-
-  useEffect(() => {
-    const linkAdded = props.evidenceFiles?.some((item) => item.type === 'link')
-    if (linkAdded) {
-      setEvidenceLinkAdded(true)
-    } else {
-      setEvidenceLinkAdded(false)
-    }
-  }, [props.evidenceFiles?.length, props.evidenceFiles])
+  const evidenceLinkAdded = props.evidenceFiles?.some((item) => item.type === 'link') ?? false
 
   const handleAddLink = async () => {
     if (evidenceLinkAdded || evidenceDirectLink.trim() === '') {

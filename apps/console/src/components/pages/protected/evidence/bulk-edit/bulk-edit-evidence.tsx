@@ -10,7 +10,7 @@ import {
 import { useBulkEditEvidence } from '@/lib/graphql-hooks/evidence'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm, FormProvider, Controller, useFieldArray } from 'react-hook-form'
+import { useForm, FormProvider, Controller, useFieldArray, useWatch } from 'react-hook-form'
 import { useMemo, useState } from 'react'
 import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogFooter, DialogTitle } from '@repo/ui/dialog'
 import { Button } from '@repo/ui/button'
@@ -64,8 +64,8 @@ export const BulkEditEvidenceDialog: React.FC<BulkEditEvidenceDialogProps> = ({ 
     resolver: zodResolver(bulkEditEvidenceSchema),
     defaultValues: defaultObject,
   })
-  const { control, handleSubmit, watch } = form
-  const watchedFields = watch('fieldsArray') || []
+  const { control, handleSubmit } = form
+  const watchedFields = useWatch({ control, name: 'fieldsArray' }) ?? []
   const hasFieldsToUpdate = watchedFields.some((field) => (field.selectedObject && field.selectedValue) || field.selectedObject?.inputType === InputType.Input)
   const { fields, append, update, replace, remove } = useFieldArray({
     control,
@@ -137,7 +137,7 @@ export const BulkEditEvidenceDialog: React.FC<BulkEditEvidenceDialogProps> = ({ 
                   <div key={item.id} className="flex items-center gap-2 w-full">
                     <div className="flex flex-col items-start gap-2">
                       <Select
-                        value={watchedFields[index].value || undefined}
+                        value={watchedFields[index]?.value || undefined}
                         onValueChange={(value) => {
                           const selectedOption = allOptionSelects.find((option) => option.selectOptionEnum === value)
                           if (!selectedOption) return

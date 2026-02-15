@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm, FormProvider, Controller, useFieldArray } from 'react-hook-form'
+import { useForm, FormProvider, Controller, useFieldArray, useWatch } from 'react-hook-form'
 import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogFooter, DialogTitle } from '@repo/ui/dialog'
 import { Button } from '@repo/ui/button'
 import { Pencil, PlusIcon as Plus, Trash2 } from 'lucide-react'
@@ -56,14 +56,14 @@ export const BulkEditTrustCenterDocsDialog: React.FC<Props> = ({ selectedDocs, s
     defaultValues: { fieldsArray: [] },
   })
 
-  const { control, handleSubmit, watch } = form
+  const { control, handleSubmit } = form
   const { fields, append, remove, update, replace } = useFieldArray({
     control,
     name: 'fieldsArray',
     rules: { maxLength: 4 },
   })
 
-  const watchedFields = watch('fieldsArray') || []
+  const watchedFields = useWatch({ control, name: 'fieldsArray' }) ?? []
   const hasFieldsToUpdate = watchedFields.some(
     (field) => (field.value === SelectOptionBulkEditTrustCenterDocs.CATEGORY && field.selectedValue) || (field.value === SelectOptionBulkEditTrustCenterDocs.VISIBILITY && field.visibilityEnum),
   )

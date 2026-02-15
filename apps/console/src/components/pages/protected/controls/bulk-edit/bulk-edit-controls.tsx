@@ -3,7 +3,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm, FormProvider, useFieldArray, Path } from 'react-hook-form'
+import { useForm, FormProvider, useFieldArray, useWatch, Path } from 'react-hook-form'
 import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogFooter, DialogTitle } from '@repo/ui/dialog'
 import { Button } from '@repo/ui/button'
 import { Pencil, PlusIcon as Plus, Trash2 } from 'lucide-react'
@@ -81,8 +81,8 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
 
   const allOptionSelects = useGetAllSelectOptionsForBulkEditControls(groups?.filter((g): g is Group => Boolean(g)) ?? [], enumOptions)
 
-  const { control, handleSubmit, watch } = form
-  const watchedFields = watch('fieldsArray') || []
+  const { control, handleSubmit } = form
+  const watchedFields = useWatch({ control, name: 'fieldsArray' }) ?? []
 
   const { fields, append, update, replace, remove } = useFieldArray({
     control,
@@ -161,7 +161,7 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
                   <div key={item.id} className="flex justify-items items-start gap-2">
                     <div className="flex flex-col items-start gap-2">
                       <Select
-                        value={watchedFields[index].value || undefined}
+                        value={watchedFields[index]?.value || undefined}
                         onValueChange={(value) => {
                           const selectedOption = allOptionSelects.find((item) => item.selectOptionEnum === value)
                           if (!selectedOption) return
