@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { DataTable } from '@repo/ui/data-table'
 import { TableKeyEnum } from '@repo/ui/table-key'
-import { useCreateAssessmentResponse, useGetAssessmentDetail } from '@/lib/graphql-hooks/assessments'
+import { useCreateAssessmentResponse, useGetAssessmentDetail } from '@/lib/graphql-hooks/assessment'
 import { useNotification } from '@/hooks/useNotification'
 import { getDeliveryColumns, type DeliveryRow } from './delivery-columns'
 import type { TPagination } from '@repo/ui/pagination-types'

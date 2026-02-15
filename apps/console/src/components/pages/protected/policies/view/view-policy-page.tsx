@@ -35,7 +35,7 @@ import { ObjectAssociationNodeEnum } from '@/components/shared/object-associatio
 import ObjectAssociationSwitch from '@/components/shared/object-association/object-association-switch.tsx'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useAssociationRemoval } from '@/hooks/useAssociationRemoval'
-import { ASSOCIATION_REMOVAL_CONFIG } from '@/components/shared/objectAssociation/object-assoiation-config'
+import { ASSOCIATION_REMOVAL_CONFIG } from '@/components/shared/object-association/object-association-config'
 import Loading from '@/app/(protected)/policies/[id]/view/loading'
 import { Card } from '@repo/ui/cardpanel'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'

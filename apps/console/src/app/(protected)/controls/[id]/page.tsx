@@ -3,7 +3,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useHasScrollbar } from '@/hooks/useHasScrollbar'
 import { useParams, useRouter } from 'next/navigation'
-import { useGetControlAssociationsById, useGetControlById, useGetControlDiscussionById, useUpdateControl, useDeleteControl, ControlByIdNode } from '@/lib/graphql-hooks/controls'
+import { useGetControlAssociationsById, useGetControlById, useGetControlDiscussionById, useUpdateControl, useDeleteControl, ControlByIdNode } from '@/lib/graphql-hooks/control'
 import { useQueryClient } from '@tanstack/react-query'
 import { FormProvider, useForm } from 'react-hook-form'
 import { Value } from 'platejs'

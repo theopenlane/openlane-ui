@@ -19,7 +19,7 @@ import { BulkEditEvidenceDialog } from '../bulk-edit/bulk-edit-evidence'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { useOrganization } from '@/hooks/useOrganization'
 import { useStandardsSelect } from '@/lib/graphql-hooks/standard'
-import { useGetTags } from '@/lib/graphql-hooks/tags'
+import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 
 type TEvidenceTableToolbarProps = {
   className?: string

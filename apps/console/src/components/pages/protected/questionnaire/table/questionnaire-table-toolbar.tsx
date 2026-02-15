@@ -22,8 +22,8 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useNotification } from '@/hooks/useNotification'
 import { useDeleteBulkAssessment } from '@/lib/graphql-hooks/assessment'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
-import { useGetTags } from '@/lib/graphql-hooks/tags'
-import { useTemplateSelect } from '@/lib/graphql-hooks/templates'
+import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
+import { useTemplateSelect } from '@/lib/graphql-hooks/template'
 
 type TQuestionnaireTableToolbarProps = {
   creating: boolean
@@ -179,8 +179,8 @@ const QuestionnaireTableToolbar: React.FC<TQuestionnaireTableToolbarProps> = ({
               {createDropdown()}
             </>
           )}
-        </div >
-      </div >
+        </div>
+      </div>
     </>
   )
 }

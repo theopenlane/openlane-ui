@@ -29,7 +29,7 @@ import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { useOrganization } from '@/hooks/useOrganization'
 import { BulkCSVUpdateControlDialog } from '../bulk-csv-update-control-dialog'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
-import { useGetTags } from '@/lib/graphql-hooks/tags'
+import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import { TableKeyEnum } from '@repo/ui/table-key'
 
 type TProps = {

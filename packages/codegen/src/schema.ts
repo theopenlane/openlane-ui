@@ -59720,18 +59720,6 @@ export type DeleteAssessmentMutationVariables = Exact<{
 
 export type DeleteAssessmentMutation = { __typename?: 'Mutation'; deleteAssessment: { __typename?: 'AssessmentDeletePayload'; deletedID: string } }
 
-export type CreateAssessmentResponseMutationVariables = Exact<{
-  input: CreateAssessmentResponseInput
-}>
-
-export type CreateAssessmentResponseMutation = {
-  __typename?: 'Mutation'
-  createAssessmentResponse: {
-    __typename?: 'AssessmentResponseCreatePayload'
-    assessmentResponse: { __typename?: 'AssessmentResponse'; id: string; email: string; dueDate?: any | null; assessmentID: string; createdAt?: any | null; updatedAt?: any | null }
-  }
-}
-
 export type GetAssessmentDetailQueryVariables = Exact<{
   getAssessmentId: Scalars['ID']['input']
   where?: InputMaybe<AssessmentResponseWhereInput>
@@ -60177,6 +60165,22 @@ export type DeleteCampaignMutationVariables = Exact<{
 }>
 
 export type DeleteCampaignMutation = { __typename?: 'Mutation'; deleteCampaign: { __typename?: 'CampaignDeletePayload'; deletedID: string } }
+
+export type GetContactsQueryVariables = Exact<{
+  where?: InputMaybe<ContactWhereInput>
+  first?: InputMaybe<Scalars['Int']['input']>
+}>
+
+export type GetContactsQuery = {
+  __typename?: 'Query'
+  contacts: {
+    __typename?: 'ContactConnection'
+    edges?: Array<{
+      __typename?: 'ContactEdge'
+      node?: { __typename?: 'Contact'; id: string; fullName?: string | null; email?: string | null; company?: string | null; title?: string | null; status: ContactUserStatus } | null
+    } | null> | null
+  }
+}
 
 export type ContactsWithFilterQueryVariables = Exact<{
   where?: InputMaybe<ContactWhereInput>
@@ -64823,6 +64827,12 @@ export type UpdateBulkNotificationTemplateMutation = {
   __typename?: 'Mutation'
   updateBulkNotificationTemplate: { __typename?: 'NotificationTemplateBulkUpdatePayload'; updatedIDs?: Array<string> | null }
 }
+
+export type MarkNotificationsAsReadMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+}>
+
+export type MarkNotificationsAsReadMutation = { __typename?: 'Mutation'; markNotificationsAsRead: { __typename?: 'ActionNotificationsReadPayload'; readIDs: Array<string | null> } }
 
 export type CreateOnboardingMutationVariables = Exact<{
   input: CreateOnboardingInput

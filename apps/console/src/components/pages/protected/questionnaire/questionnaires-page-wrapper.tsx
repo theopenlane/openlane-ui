@@ -9,7 +9,7 @@ import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@repo/
 import { FileWarning, NotebookPen, Check, Clock2, LayoutTemplate } from 'lucide-react'
 import { QuestionnairesTable } from '@/components/pages/protected/questionnaire/table/questionnaire-table'
 import { TemplatesTable } from '@/components/pages/protected/questionnaire/template/table/template-table'
-import { useAssessments } from '@/lib/graphql-hooks/assessments'
+import { useAssessments } from '@/lib/graphql-hooks/assessment'
 import { AssessmentResponseAssessmentResponseStatus } from '@repo/codegen/src/schema'
 import Skeleton from '@/components/shared/skeleton/skeleton'
 import type { LucideIcon } from 'lucide-react'

@@ -22,7 +22,7 @@ import { useBulkDeleteRisks } from '@/lib/graphql-hooks/risk'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
-import { useGetTags } from '@/lib/graphql-hooks/tags'
+import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 
 type TProps = {
   onFilterChange: (filters: RiskWhereInput) => void

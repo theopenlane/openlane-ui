@@ -5,7 +5,7 @@ import { RiskRiskImpact, RiskRiskLikelihood, RiskRiskStatus, UpdateRiskInput } f
 import useFormSchema, { EditRisksFormData } from '@/components/pages/protected/risks/view/hooks/use-form-schema.ts'
 import { useNotification } from '@/hooks/useNotification.tsx'
 import { useRisk } from '@/components/pages/protected/risks/create/hooks/use-risk.tsx'
-import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap.ts'
+import { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap.ts'
 import { ASSOCIATION_REMOVAL_CONFIG } from '@/components/shared/object-association/object-association-config'
 import { Form } from '@repo/ui/form'
 import { PencilIcon, Trash2 } from 'lucide-react'
