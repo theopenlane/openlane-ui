@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react'
 import { Button } from '@repo/ui/button'
 import { Copy, PanelRightClose } from 'lucide-react'
 import { FormProvider, useForm } from 'react-hook-form'
+import type { Resolver } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@repo/ui/sheet'
@@ -59,7 +60,7 @@ export const EditTrustCenterSubprocessorSheet: React.FC = () => {
   })
 
   const formMethods = useForm<FormData>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(schema) as Resolver<FormData>,
     defaultValues: {
       category: '',
       countries: [],

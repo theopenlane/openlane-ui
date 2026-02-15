@@ -35,7 +35,7 @@ import { useControlEvidenceStore } from '@/components/pages/protected/controls/h
 import { useDeleteEvidence, useGetEvidenceById, useUpdateEvidence } from '@/lib/graphql-hooks/evidence.ts'
 import { formatDate } from '@/utils/date.ts'
 import { Avatar } from '@/components/shared/avatar/avatar.tsx'
-import { Control, EvidenceEvidenceStatus, Subcontrol, User } from '@repo/codegen/src/schema.ts'
+import { Control, EvidenceEvidenceStatus, Subcontrol } from '@repo/codegen/src/schema.ts'
 import useFormSchema, { EditEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema.ts'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { Controller } from 'react-hook-form'
@@ -78,7 +78,6 @@ import { useGetTags } from '@/lib/graphql-hooks/tags'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 import EvidenceCommentsCard from './evidence-comment-card'
 import PlateEditor from '@/components/shared/plate/plate-editor'
-import { Value } from 'platejs'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
@@ -88,6 +87,30 @@ type TEvidenceDetailsSheet = {
 }
 
 type EditableFields = 'name' | 'description' | 'collectionProcedure' | 'source' | 'url' | 'status' | 'creationDate' | 'renewalDate' | 'tags'
+
+const toDate = (value: unknown): Date | undefined => {
+  if (value instanceof Date) return value
+  if (typeof value === 'string' || typeof value === 'number') {
+    const date = new Date(value)
+    return Number.isNaN(date.getTime()) ? undefined : date
+  }
+  return undefined
+}
+
+const toEvidenceStatus = (value: string | null | undefined): EvidenceEvidenceStatus | undefined => {
+  switch (value) {
+    case EvidenceEvidenceStatus.AUDITOR_APPROVED:
+    case EvidenceEvidenceStatus.REJECTED:
+    case EvidenceEvidenceStatus.NEEDS_RENEWAL:
+    case EvidenceEvidenceStatus.READY_FOR_AUDITOR:
+    case EvidenceEvidenceStatus.MISSING_ARTIFACT:
+    case EvidenceEvidenceStatus.SUBMITTED:
+    case EvidenceEvidenceStatus.IN_REVIEW:
+      return value
+    default:
+      return undefined
+  }
+}
 
 const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) => {
   const { convertToHtml, convertToReadOnly } = usePlateEditor()
@@ -192,12 +215,11 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
   const initialAssociations = useMemo(
     () => ({
-      programIDs: (evidence?.programs?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-
-      controlObjectiveIDs: (evidence?.controlObjectives?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-      subcontrolIDs: (evidence?.subcontrols?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) ?? [],
-      controlIDs: (evidence?.controls?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) ?? [],
-      taskIDs: (evidence?.tasks?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) ?? [],
+      programIDs: evidence?.programs?.edges?.map((edge) => edge?.node?.id).filter((id): id is string => typeof id === 'string' && id.length > 0) ?? [],
+      controlObjectiveIDs: evidence?.controlObjectives?.edges?.map((edge) => edge?.node?.id).filter((id): id is string => typeof id === 'string' && id.length > 0) ?? [],
+      subcontrolIDs: evidence?.subcontrols?.edges?.map((edge) => edge?.node?.id).filter((id): id is string => typeof id === 'string' && id.length > 0) ?? [],
+      controlIDs: evidence?.controls?.edges?.map((edge) => edge?.node?.id).filter((id): id is string => typeof id === 'string' && id.length > 0) ?? [],
+      taskIDs: evidence?.tasks?.edges?.map((edge) => edge?.node?.id).filter((id): id is string => typeof id === 'string' && id.length > 0) ?? [],
     }),
     [evidence],
   )
@@ -218,7 +240,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
     return {
       controls,
       subcontrols,
-      programDisplayIDs: (evidence.programs?.edges?.map((e) => e?.node?.name).filter(Boolean) as string[]) ?? [],
+      programDisplayIDs: evidence.programs?.edges?.map((edge) => edge?.node?.name).filter((name): name is string => typeof name === 'string' && name.length > 0) ?? [],
       subcontrolRefCodes: subcontrols.map((s) => s.refCode),
       subcontrolReferenceFramework: Object.fromEntries(subcontrols.map((s) => [s.id, s.referenceFramework ?? ''])),
       controlRefCodes: controls.map((c) => c.refCode),
@@ -240,8 +262,8 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
       form.reset({
         name: evidence.name ?? '',
         description: evidence?.description ?? '',
-        renewalDate: evidence.renewalDate ? new Date(evidence.renewalDate as string) : undefined,
-        creationDate: evidence.creationDate ? new Date(evidence.creationDate as string) : undefined,
+        renewalDate: toDate(evidence.renewalDate),
+        creationDate: toDate(evidence.creationDate),
         status: evidence?.status ? Object.values(EvidenceEvidenceStatus).find((type) => type === evidence?.status) : undefined,
         tags: evidence?.tags ?? [],
         collectionProcedure: evidence?.collectionProcedure || '',
@@ -254,7 +276,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
           return {
             value: item,
             label: item,
-          } as Option
+          }
         })
         setTagValues(tags)
       }
@@ -315,9 +337,9 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
     router.replace(`${window.location.pathname}?${newSearchParams.toString()}`)
   }
 
-  const omit = <T extends object, K extends keyof T>(obj: T, keys: K[]): Omit<T, K> => Object.fromEntries(Object.entries(obj).filter(([k]) => !keys.includes(k as K))) as Omit<T, K>
-
   const onSubmit = async (formData: EditEvidenceFormData) => {
+    if (!config.id) return
+
     const controlIDs = form.getValues('controlIDs') || []
     const subcontrolIDs = form.getValues('subcontrolIDs') || []
     const programIDs = form.getValues('programIDs') || []
@@ -333,16 +355,13 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
     const associationInputs = getAssociationInput(initialAssociations, updatedAssociations)
 
-    const cleanFormData = omit(formData, ['programIDs', 'controlIDs', 'subcontrolIDs'])
+    const { programIDs: _programIDs, controlIDs: _controlIDs, subcontrolIDs: _subcontrolIDs, ...cleanFormData } = formData
 
     try {
-      let collectionProcedure
-      if (formData.collectionProcedure) {
-        collectionProcedure = await convertToHtml(formData.collectionProcedure as Value)
-      }
+      const collectionProcedure = formData.collectionProcedure && typeof formData.collectionProcedure !== 'string' ? await convertToHtml(formData.collectionProcedure) : formData.collectionProcedure
 
       await updateEvidence({
-        updateEvidenceId: config.id as string,
+        updateEvidenceId: config.id,
         input: {
           ...cleanFormData,
           ...associationInputs,
@@ -367,8 +386,10 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
   }
 
   const handleDelete = async () => {
+    if (!config.id) return
+
     try {
-      await deleteEvidence({ deleteEvidenceId: config.id as string })
+      await deleteEvidence({ deleteEvidenceId: config.id })
       successNotification({ title: `Evidence "${evidence?.name}" deleted successfully` })
       if (controlId) {
         queryClient.invalidateQueries({ queryKey: ['controls', controlId] })
@@ -422,7 +443,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     if (e.key === 'Enter') {
-      ;(e.target as HTMLInputElement).blur()
+      e.currentTarget.blur()
     }
   }
 
@@ -600,7 +621,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                           <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Write down the steps that were taken to collect the evidence.</p>} />
                         </div>
                         <FormControl>
-                          <PlateEditor initialValue={field.value as string} onChange={(val) => field.onChange(val)} />
+                          <PlateEditor initialValue={field.value ?? ''} onChange={(val) => field.onChange(val)} />
                         </FormControl>
                         {form.formState.errors.collectionProcedure && <p className="text-red-500 text-sm">{form.formState.errors.collectionProcedure.message}</p>}
                       </FormItem>
@@ -733,15 +754,15 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                                     <Select
                                       value={field.value ?? undefined}
                                       onValueChange={(value) => {
-                                        field.onChange(value)
+                                        field.onChange(toEvidenceStatus(value) ?? value)
                                         handleUpdateField()
                                       }}
                                     >
-                                      <SelectTrigger className="w-[250px]">{EvidenceStatusMapper[field.value as EvidenceEvidenceStatus] || 'Select'}</SelectTrigger>
+                                      <SelectTrigger className="w-[250px]">{(field.value && EvidenceStatusMapper[field.value]) || 'Select'}</SelectTrigger>
                                       <SelectContent ref={popoverRef}>
                                         {statusOptions.map((option) => (
                                           <SelectItem key={option.value} value={option.value}>
-                                            {EvidenceStatusMapper[option.value as EvidenceEvidenceStatus]}
+                                            {EvidenceStatusMapper[option.value]}
                                           </SelectItem>
                                         ))}
                                       </SelectContent>
@@ -758,8 +779,8 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                                 onPencilClick={() => editAllowed && handleDoubleClick('status')}
                               >
                                 <div className="flex justify-end items-center " onDoubleClick={() => editAllowed && handleDoubleClick('status')}>
-                                  {EvidenceIconMapper[evidence?.status as EvidenceEvidenceStatus]}
-                                  <p>{EvidenceStatusMapper[evidence?.status as EvidenceEvidenceStatus]}</p>
+                                  {evidence?.status ? EvidenceIconMapper[evidence.status] : null}
+                                  <p>{evidence?.status ? EvidenceStatusMapper[evidence.status] : ''}</p>
                                 </div>
                               </HoverPencilWrapper>
                             )}
@@ -921,7 +942,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                               </div>
                               <div className="text-sm cursor-not-allowed">
                                 <p className="text-sm justify-end flex items-center">
-                                  <Avatar entity={createdByUser as User} variant="small" />
+                                  <Avatar entity={createdByUser} variant="small" />
                                   <span>{createdByUser?.displayName}</span>
                                 </p>
                               </div>
@@ -944,7 +965,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                               </div>
                               <div className="text-sm cursor-not-allowed">
                                 <p className="text-sm justify-end flex items-center ">
-                                  <Avatar entity={updatedByUser as User} variant="small" />
+                                  <Avatar entity={updatedByUser} variant="small" />
                                   <span>{updatedByUser?.displayName}</span>
                                 </p>
                               </div>
@@ -1111,11 +1132,11 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
             form.reset({
               name: evidence?.name ?? '',
               description: evidence?.description ?? '',
-              renewalDate: evidence?.renewalDate ? new Date(evidence.renewalDate as string) : undefined,
-              creationDate: evidence?.creationDate ? new Date(evidence.creationDate as string) : undefined,
+              renewalDate: toDate(evidence?.renewalDate),
+              creationDate: toDate(evidence?.creationDate),
               status: evidence?.status ?? undefined,
               tags: evidence?.tags ?? [],
-              collectionProcedure: evidence?.collectionProcedure as string,
+              collectionProcedure: evidence?.collectionProcedure ?? '',
               source: evidence?.source ?? '',
               url: evidence?.url ?? '',
               controlIDs: initialAssociations.controlIDs ?? [],

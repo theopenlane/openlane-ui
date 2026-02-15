@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { Accordion } from '@radix-ui/react-accordion'
 
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
+import type { Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
   MappedControlMappingType,
@@ -63,7 +64,7 @@ const EditMapControlPage = () => {
   }
 
   const form = useForm<MapControlsFormData>({
-    resolver: zodResolver(mapControlsSchema),
+    resolver: zodResolver(mapControlsSchema) as Resolver<MapControlsFormData>,
     defaultValues: {
       mappingType: MappedControlMappingType.PARTIAL,
       source: MappedControlMappingSource.MANUAL,

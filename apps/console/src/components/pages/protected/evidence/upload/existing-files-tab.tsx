@@ -3,8 +3,7 @@ import { TabsContent } from '@repo/ui/tabs'
 import { ColumnDef } from '@tanstack/react-table'
 import { DataTable, getInitialPagination } from '@repo/ui/data-table'
 import { PlusCircle } from 'lucide-react'
-import { UseFormReturn } from 'react-hook-form'
-import { CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema'
+import { CreateEvidenceFormMethods } from '@/components/pages/protected/evidence/hooks/use-form-schema'
 import { useGetEvidenceFiles } from '@/lib/graphql-hooks/evidence'
 import { formatDateSince } from '@/utils/date'
 import { TUploadedFile } from './types/TUploadedFile'
@@ -15,7 +14,7 @@ import { TableKeyEnum } from '@repo/ui/table-key'
 
 type TProps = {
   evidenceFiles: TUploadedFile[]
-  form: UseFormReturn<CreateEvidenceFormData>
+  form: CreateEvidenceFormMethods
   existingFile: (uploadedFile: TUploadedFile) => void
 }
 
@@ -80,11 +79,11 @@ const ExistingFilesTab: React.FC<TProps> = (props: TProps) => {
     {
       accessorKey: 'createdAt',
       header: 'Created',
-      cell: ({ cell, row }) => {
+      cell: ({ row }) => {
         const column = row.original
         return (
           <div className="flex items-center justify-between w-full">
-            <span>{formatDateSince(cell.getValue() as string)}</span>
+            <span>{formatDateSince(column.createdAt)}</span>
             <PlusCircle className="w-5 h-5 text-primary cursor-pointer hover:scale-105 transition-transform" onClick={() => handleAdd(column)} />
           </div>
         )

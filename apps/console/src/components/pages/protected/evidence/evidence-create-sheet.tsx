@@ -38,7 +38,6 @@ import Link from 'next/link'
 import { useGetTags } from '@/lib/graphql-hooks/tags'
 import PlateEditor from '@/components/shared/plate/plate-editor'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import { Value } from 'platejs'
 
 type TEvidenceCreateSheetProps = {
   formData?: TFormEvidenceData
@@ -49,6 +48,8 @@ type TEvidenceCreateSheetProps = {
   onOpenChange: (open: boolean) => void
   controlParam?: CustomEvidenceControl[]
 }
+
+type EvidenceAssociationField = 'controlObjectiveIDs' | 'subcontrolIDs' | 'programIDs' | 'controlIDs' | 'taskIDs' | 'evidenceIDs' | 'groupIDs' | 'internalPolicyIDs' | 'procedureIDs' | 'riskIDs'
 
 const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
   formData,
@@ -83,35 +84,36 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
   const { convertToHtml } = usePlateEditor()
 
   const onSubmitHandler = async (data: CreateEvidenceFormData) => {
-    if (data.collectionProcedure) {
-      data.collectionProcedure = await convertToHtml(data.collectionProcedure as Value)
+    const collectionProcedure = data.collectionProcedure && typeof data.collectionProcedure !== 'string' ? await convertToHtml(data.collectionProcedure) : data.collectionProcedure
+
+    const input: CreateEvidenceInput = {
+      name: data.name,
+      description: data.description,
+      tags: data.tags,
+      creationDate: data.creationDate,
+      renewalDate: data.renewalDate,
+      collectionProcedure,
+      source: data.source,
+      fileIDs: data.fileIDs,
+      taskIDs: data.taskIDs,
+      ...evidenceObjectTypes,
+      controlIDs: data.controlIDs,
+      subcontrolIDs: data.subcontrolIDs,
+      programIDs: programId ? [programId] : data.programIDs ?? [],
+      ...(data.url ? { url: data.url } : {}),
     }
-    const formData = {
-      input: {
-        name: data.name,
-        description: data.description,
-        tags: data.tags,
-        creationDate: data.creationDate,
-        renewalDate: data.renewalDate,
-        collectionProcedure: data.collectionProcedure,
-        source: data.source,
-        fileIDs: data.fileIDs,
-        taskIDs: data.taskIDs,
-        ...evidenceObjectTypes,
-        controlIDs: data.controlIDs,
-        subcontrolIDs: data.subcontrolIDs,
-        programIDs: programId ? [programId] : (data.programIDs ?? []),
-        ...(data.url ? { url: data.url } : {}),
-      } as CreateEvidenceInput,
+
+    const payload = {
+      input,
       evidenceFiles: data.evidenceFiles?.map((item) => item.file) || [],
     }
 
     try {
-      const res = await createEvidence(formData)
+      const res = await createEvidence(payload)
       queryClient.invalidateQueries({
         predicate: (query) => {
           const key = query.queryKey[0]
-          return ['controls', 'programs', 'tasks', 'subcontrols', 'controlObjectives', 'evidences'].includes(key as string)
+          return typeof key === 'string' && ['controls', 'programs', 'tasks', 'subcontrols', 'controlObjectives', 'evidences'].includes(key)
         },
       })
 
@@ -155,6 +157,19 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
   }
   const handleInitialValue = useCallback(() => {
     if (formData) {
+      const associationFields: EvidenceAssociationField[] = [
+        'controlObjectiveIDs',
+        'subcontrolIDs',
+        'programIDs',
+        'controlIDs',
+        'taskIDs',
+        'evidenceIDs',
+        'groupIDs',
+        'internalPolicyIDs',
+        'procedureIDs',
+        'riskIDs',
+      ]
+
       if (controlParam && controlParam.length) {
         const newEvidenceControls: CustomEvidenceControl[] = []
         const newEvidenceSubcontrols: CustomEvidenceControl[] = []
@@ -172,8 +187,11 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
       }
 
       form.setValue('name', `Evidence for ${formData.displayID}`)
-      for (const [key, value] of Object.entries(formData.objectAssociations)) {
-        form.setValue(key as keyof CreateEvidenceFormData, value)
+      for (const key of associationFields) {
+        const value = formData.objectAssociations[key]
+        if (value) {
+          form.setValue(key, value)
+        }
       }
 
       if (formData?.tags) {
@@ -182,7 +200,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
           return {
             value: item,
             label: item,
-          } as Option
+          }
         })
         setTagValues(tags)
       }
@@ -358,7 +376,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
                             <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Write down the steps that were taken to collect the evidence.</p>} />
                           </div>
                           <FormControl>
-                            <PlateEditor initialValue={field.value as string} onChange={(val) => field.onChange(val)} />
+                            <PlateEditor initialValue={field.value ?? ''} onChange={(val) => field.onChange(val)} />
                           </FormControl>
                           {form.formState.errors.collectionProcedure && <p className="text-red-500 text-sm">{form.formState.errors.collectionProcedure.message}</p>}
                         </FormItem>

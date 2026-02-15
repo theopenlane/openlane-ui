@@ -9,8 +9,7 @@ import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import usePlateEditor from '../plate/usePlateEditor'
 import { useGetAllProgramsPaginated } from '@/lib/graphql-hooks/programs'
 import { getProgramsColumns } from './object-association-programs-columns'
-import { CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema'
-import { UseFormReturn } from 'react-hook-form'
+import { CreateEvidenceFormMethods } from '@/components/pages/protected/evidence/hooks/use-form-schema'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { SaveButton } from '../save-button/save-button'
 import { CancelButton } from '../cancel-button.tsx/cancel-button'
@@ -20,7 +19,7 @@ type TProgramSelectionDialogProps = {
   onClose: () => void
   initialRefCodes?: string[]
   onSave: (newIds: string[], refCodesMap: string[], description?: string[]) => void
-  form: UseFormReturn<CreateEvidenceFormData>
+  form: CreateEvidenceFormMethods
 }
 
 export const ProgramSelectionDialog: React.FC<TProgramSelectionDialogProps> = ({ open, onClose, initialRefCodes, onSave, form }: TProgramSelectionDialogProps) => {

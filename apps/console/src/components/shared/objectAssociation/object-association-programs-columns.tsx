@@ -1,8 +1,7 @@
 import { Program } from '@repo/codegen/src/schema'
 import { ColumnDef } from '@tanstack/react-table'
 import { Checkbox } from '@repo/ui/checkbox'
-import { CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema'
-import { UseFormReturn } from 'react-hook-form'
+import { CreateEvidenceFormMethods } from '@/components/pages/protected/evidence/hooks/use-form-schema'
 
 type TColumnOptions = {
   selectedRefCodeMap: string[]
@@ -10,7 +9,7 @@ type TColumnOptions = {
   setSelectedRefCodeMap: React.Dispatch<React.SetStateAction<string[]>>
   setFrameworks: React.Dispatch<React.SetStateAction<string[]>>
   convertToReadOnly: (data: string, padding?: number, style?: React.CSSProperties) => React.JSX.Element
-  form: UseFormReturn<CreateEvidenceFormData>
+  form: CreateEvidenceFormMethods
 }
 
 export const getProgramsColumns = ({ selectedRefCodeMap, frameworks, setSelectedRefCodeMap, setFrameworks, convertToReadOnly, form }: TColumnOptions): ColumnDef<Program>[] => {
@@ -77,7 +76,7 @@ export const getProgramsColumns = ({ selectedRefCodeMap, frameworks, setSelected
       header: 'Description',
       size: 0,
       enableResizing: false,
-      cell: ({ row }) => <div className="line-clamp-2 overflow-hidden">{convertToReadOnly(row.getValue('description') as string, 0)}</div>,
+      cell: ({ row }) => <div className="line-clamp-2 overflow-hidden">{convertToReadOnly(row.original.description ?? '', 0)}</div>,
     },
   ]
 }

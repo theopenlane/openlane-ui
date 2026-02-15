@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { FieldValues, UseFormReturn, Path } from 'react-hook-form'
+import { UseFormReturn } from 'react-hook-form'
 import { TErrorProps } from '@/hooks/useNotification'
 
 export const categoriesStepSchema = z.object({
@@ -138,19 +138,26 @@ export const fullSchema = categoriesStepSchema.merge(step1Schema).merge(step3Sch
 
 export type WizardValues = z.infer<typeof fullSchema>
 
-export async function validateStepAndNotify<T extends FieldValues>(methods: UseFormReturn<T>, stepId: string, notify: (props: TErrorProps) => void): Promise<boolean> {
-  const stepFieldMap: Record<string, Path<T>> = {
-    '0': 'programKindName' as Path<T>,
+export async function validateStepAndNotify(methods: UseFormReturn<WizardValues>, stepId: string, notify: (props: TErrorProps) => void): Promise<boolean> {
+  let isValid = false
+
+  if (stepId === '0') {
+    isValid = await methods.trigger('programKindName')
+  } else if (stepId === '1') {
+    isValid = await methods.trigger(['name', 'startDate', 'endDate', 'framework'])
+  } else if (stepId === '2') {
+    isValid = await methods.trigger('categories')
+  } else if (stepId === '3') {
+    isValid = await methods.trigger('auditPartnerEmail')
+  } else {
+    isValid = await methods.trigger()
   }
 
-  const field = stepFieldMap[stepId]
-
-  const isValid = field ? await methods.trigger(field) : await methods.trigger()
   if (isValid) return true
 
-  if (field) {
-    const { error } = methods.getFieldState(field)
-    if (error?.message) notify({ title: 'Error', description: error.message })
+  const firstError = Object.values(methods.formState.errors)[0]
+  if (firstError && 'message' in firstError && firstError.message) {
+    notify({ title: 'Error', description: String(firstError.message) })
   }
   return false
 }

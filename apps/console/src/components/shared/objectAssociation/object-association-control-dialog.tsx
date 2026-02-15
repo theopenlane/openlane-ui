@@ -13,8 +13,7 @@ import { ControlListFieldsFragment, ControlOrderField, GetAllControlsQueryVariab
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import usePlateEditor from '../plate/usePlateEditor'
 import { getControlsAndSubcontrolsColumns } from './object-association-controls-columns'
-import { CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema'
-import { UseFormReturn } from 'react-hook-form'
+import { CreateEvidenceFormMethods } from '@/components/pages/protected/evidence/hooks/use-form-schema'
 import { CustomEvidenceControl } from '@/components/pages/protected/evidence/evidence-sheet-config'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { SaveButton } from '../save-button/save-button'
@@ -25,6 +24,8 @@ export enum AccordionEnum {
   Subcontrol = 'Subcontrol',
 }
 
+const OBJECT_OPTIONS: AccordionEnum[] = [AccordionEnum.Control, AccordionEnum.Subcontrol]
+
 type TControlSelectionDialogProps = {
   open: boolean
   onClose: () => void
@@ -32,7 +33,7 @@ type TControlSelectionDialogProps = {
   setEvidenceControls: React.Dispatch<React.SetStateAction<CustomEvidenceControl[] | null>>
   evidenceSubcontrols: CustomEvidenceControl[] | null
   setEvidenceSubcontrols: React.Dispatch<React.SetStateAction<CustomEvidenceControl[] | null>>
-  form: UseFormReturn<CreateEvidenceFormData>
+  form: CreateEvidenceFormMethods
 }
 
 export const ControlSelectionDialog: React.FC<TControlSelectionDialogProps> = ({ open, onClose, form, evidenceControls, setEvidenceControls, evidenceSubcontrols, setEvidenceSubcontrols }) => {
@@ -129,7 +130,7 @@ export const ControlSelectionDialog: React.FC<TControlSelectionDialogProps> = ({
     pagination,
   })
 
-  const items: (ControlListFieldsFragment | Subcontrol)[] = selectedObject === AccordionEnum.Control ? (controls ?? []) : (subcontrols ?? [])
+  const items: (ControlListFieldsFragment | Subcontrol)[] = selectedObject === AccordionEnum.Control ? controls ?? [] : subcontrols ?? []
 
   const paginationMeta = selectedObject === AccordionEnum.Control ? controlsPagination : subcontrolsPagination
   const isLoading = selectedObject === AccordionEnum.Control ? controlsLoading : subcontrolsLoading
@@ -182,23 +183,23 @@ export const ControlSelectionDialog: React.FC<TControlSelectionDialogProps> = ({
           <Select
             value={selectedObject}
             onValueChange={(val: string) => {
-              setSelectedObject(val as AccordionEnum.Control | AccordionEnum.Subcontrol)
-              setPagination((prev) => ({
-                ...prev,
-                page: 1,
-                query: { first: prev.pageSize },
-              }))
+              if (val === AccordionEnum.Control || val === AccordionEnum.Subcontrol) {
+                setSelectedObject(val)
+                setPagination((prev) => ({
+                  ...prev,
+                  page: 1,
+                  query: { first: prev.pageSize },
+                }))
+              }
             }}
           >
             <SelectTrigger>{selectedObject}</SelectTrigger>
             <SelectContent>
-              {(['Control', 'Subcontrol'] as const)
-                .filter((option) => option !== selectedObject)
-                .map((option) => (
-                  <SelectItem key={option} value={option}>
-                    {option}
-                  </SelectItem>
-                ))}
+              {OBJECT_OPTIONS.filter((option) => option !== selectedObject).map((option) => (
+                <SelectItem key={option} value={option}>
+                  {option}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
 

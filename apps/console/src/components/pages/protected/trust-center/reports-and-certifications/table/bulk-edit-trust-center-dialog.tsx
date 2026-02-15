@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm, FormProvider, Controller, useFieldArray } from 'react-hook-form'
+import { useForm, FormProvider, Controller, useFieldArray, useWatch } from 'react-hook-form'
 import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogFooter, DialogTitle } from '@repo/ui/dialog'
 import { Button } from '@repo/ui/button'
 import { Pencil, PlusIcon as Plus, Trash2 } from 'lucide-react'
@@ -30,7 +30,7 @@ const fieldItemSchema = z.object({
 })
 
 const bulkEditDocsSchema = z.object({
-  fieldsArray: z.array(fieldItemSchema).optional().default([]),
+  fieldsArray: z.array(fieldItemSchema),
 })
 
 type BulkEditDialogFormValues = z.infer<typeof bulkEditDocsSchema>
@@ -56,14 +56,14 @@ export const BulkEditTrustCenterDocsDialog: React.FC<Props> = ({ selectedDocs, s
     defaultValues: { fieldsArray: [] },
   })
 
-  const { control, handleSubmit, watch } = form
+  const { control, handleSubmit } = form
   const { fields, append, remove, update, replace } = useFieldArray({
     control,
     name: 'fieldsArray',
     rules: { maxLength: 4 },
   })
 
-  const watchedFields = watch('fieldsArray') || []
+  const watchedFields = useWatch({ control, name: 'fieldsArray' }) ?? []
   const hasFieldsToUpdate = watchedFields.some(
     (field) => (field.value === SelectOptionBulkEditTrustCenterDocs.CATEGORY && field.selectedValue) || (field.value === SelectOptionBulkEditTrustCenterDocs.VISIBILITY && field.visibilityEnum),
   )
@@ -127,8 +127,10 @@ export const BulkEditTrustCenterDocsDialog: React.FC<Props> = ({ selectedDocs, s
                   <Select
                     value={watchedFields[index]?.value || undefined}
                     onValueChange={(value) => {
+                      const enumValue = Object.values(SelectOptionBulkEditTrustCenterDocs).find((opt) => opt === value)
+                      if (!enumValue) return
                       update(index, {
-                        value: value as SelectOptionBulkEditTrustCenterDocs,
+                        value: enumValue,
                         selectedValue: undefined,
                         visibilityEnum: undefined,
                       })
@@ -175,7 +177,13 @@ export const BulkEditTrustCenterDocsDialog: React.FC<Props> = ({ selectedDocs, s
                       control={control}
                       name={`fieldsArray.${index}.visibilityEnum`}
                       render={({ field }) => (
-                        <Select value={field.value || ''} onValueChange={(val) => field.onChange(val as TrustCenterDocTrustCenterDocumentVisibility)}>
+                        <Select
+                          value={field.value || ''}
+                          onValueChange={(val) => {
+                            const visibility = Object.values(TrustCenterDocTrustCenterDocumentVisibility).find((v) => v === val)
+                            if (visibility) field.onChange(visibility)
+                          }}
+                        >
                           <SelectTrigger className="w-60">
                             <SelectValue placeholder="Select visibility" />
                           </SelectTrigger>
