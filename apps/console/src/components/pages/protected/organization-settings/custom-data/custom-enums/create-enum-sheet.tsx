@@ -138,13 +138,19 @@ export const CreateEnumSheet = ({ resetPagination, filter }: { resetPagination: 
 
   const onSubmit = async (data: FormData) => {
     try {
+      // Remove objectType if it's 'global', there is not object type in this case
+      const payload = { ...data }
+      if (payload.objectType === 'global') {
+        payload.objectType = ''
+      }
+
       if (isEditMode && id) {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { name, objectType, field, ...input } = data
+        const { name, objectType, field, ...input } = payload
         await updateEnum({ id, input })
         successNotification({ title: 'Enum updated' })
       } else {
-        await createEnum(data)
+        await createEnum(payload)
         successNotification({ title: 'Enum created' })
       }
       handleOpenChange(false)

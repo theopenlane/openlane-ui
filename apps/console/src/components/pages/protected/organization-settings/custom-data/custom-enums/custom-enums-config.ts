@@ -170,7 +170,7 @@ export const getEnumFilter = (view: string, search: string): CustomTypeEnumWhere
 
   if (!config || view === 'All Enums') return filter
 
-  if (config.objectType) filter.objectType = config.objectType
+  if (config.objectType) filter.objectType = config.objectType === 'global' ? null : config.objectType
   if (config.field) filter.field = config.field
 
   return filter
