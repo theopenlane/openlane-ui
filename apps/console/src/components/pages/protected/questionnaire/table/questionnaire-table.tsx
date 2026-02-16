@@ -286,7 +286,13 @@ export const QuestionnairesTable = () => {
         />
       </div>
 
-      <SendQuestionnaireDialog open={!!sendTarget} onOpenChange={(open) => !open && setSendTarget(null)} assessmentId={sendTarget?.id} assessmentName={sendTarget?.name} />
+      <SendQuestionnaireDialog
+        open={!!sendTarget}
+        onOpenChange={(open) => !open && setSendTarget(null)}
+        assessmentId={sendTarget?.id}
+        assessmentName={sendTarget?.name}
+        responseDueDuration={sendTarget?.responseDueDuration}
+      />
 
       {/* Delete Confirmation Dialog */}
       <ConfirmationDialog
