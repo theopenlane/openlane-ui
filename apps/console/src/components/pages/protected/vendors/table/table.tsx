@@ -1,7 +1,7 @@
 'use client'
 
 import { DataTable } from '@repo/ui/data-table'
-import React, { forwardRef, useEffect, useImperativeHandle, useMemo } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import { OrderDirection, EntityOrder, EntityWhereInput, Entity } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 import { getVendorColumns } from './columns'
@@ -31,129 +31,120 @@ type TVendorsTableProps = {
   defaultSorting: { field: string; direction?: OrderDirection }[] | undefined
 }
 
-const VendorsTable = forwardRef(
-  (
-    {
-      onSortChange,
-      pagination,
-      onPaginationChange,
-      whereFilter,
-      orderByFilter,
-      columnVisibility,
-      setColumnVisibility,
-      onHasVendorsChange,
-      selectedVendors,
-      setSelectedVendors,
-      canEdit,
-      permission,
-      defaultSorting,
-    }: TVendorsTableProps,
-    ref,
-  ) => {
-    const { replace } = useSmartRouter()
+const VendorsTable = ({
+  onSortChange,
+  pagination,
+  onPaginationChange,
+  whereFilter,
+  orderByFilter,
+  columnVisibility,
+  setColumnVisibility,
+  onHasVendorsChange,
+  selectedVendors,
+  setSelectedVendors,
+  canEdit,
+  permission,
+  defaultSorting,
+}: TVendorsTableProps) => {
+  const { replace } = useSmartRouter()
 
-    const vendorWhereFilter: EntityWhereInput = {
-      ...whereFilter,
-      hasEntityTypeWith: [{ name: 'vendor' }],
+  const vendorWhereFilter: EntityWhereInput = {
+    ...whereFilter,
+    hasEntityTypeWith: [{ name: 'vendor' }],
+  }
+
+  const {
+    entitiesNodes: vendors,
+    isLoading: fetching,
+    data,
+    isFetching,
+    isError,
+  } = useEntitiesWithFilter({
+    where: vendorWhereFilter,
+    orderBy: orderByFilter,
+    pagination,
+    enabled: true,
+  })
+
+  const { convertToReadOnly } = usePlateEditor()
+  const { errorNotification } = useNotification()
+
+  const userIds = useMemo(() => {
+    if (!vendors) return []
+    const ids = new Set<string>()
+    vendors.forEach((entity) => {
+      if (entity.createdBy) ids.add(entity.createdBy)
+      if (entity.updatedBy) ids.add(entity.updatedBy)
+    })
+    return Array.from(ids)
+  }, [vendors])
+
+  const hasVendors = useMemo(() => {
+    return vendors && vendors.length > 0
+  }, [vendors])
+
+  useEffect(() => {
+    if (onHasVendorsChange) {
+      onHasVendorsChange(hasVendors)
     }
+  }, [hasVendors, onHasVendorsChange])
 
-    const {
-      entitiesNodes: vendors,
-      isLoading: fetching,
-      data,
-      isFetching,
-      isError,
-    } = useEntitiesWithFilter({
-      where: vendorWhereFilter,
-      orderBy: orderByFilter,
-      pagination,
-      enabled: true,
-    })
+  useEffect(() => {
+    if (permission?.roles) {
+      setColumnVisibility((prev) => ({
+        ...prev,
+        select: canEdit(permission.roles),
+      }))
+    }
+  }, [permission?.roles, setColumnVisibility, canEdit])
 
-    const { convertToReadOnly } = usePlateEditor()
-    const { errorNotification } = useNotification()
-
-    const userIds = useMemo(() => {
-      if (!vendors) return []
-      const ids = new Set<string>()
-      vendors.forEach((entity) => {
-        if (entity.createdBy) ids.add(entity.createdBy)
-        if (entity.updatedBy) ids.add(entity.updatedBy)
+  useEffect(() => {
+    if (isError) {
+      errorNotification({
+        title: 'Error',
+        description: 'Failed to load vendors',
       })
-      return Array.from(ids)
-    }, [vendors])
+    }
+  }, [isError, errorNotification])
 
-    const hasVendors = useMemo(() => {
-      return vendors && vendors.length > 0
-    }, [vendors])
+  const { users, isFetching: fetchingUsers } = useGetOrgUserList({
+    where: { hasUserWith: [{ idIn: userIds }] },
+  })
 
-    useEffect(() => {
-      if (onHasVendorsChange) {
-        onHasVendorsChange(hasVendors)
-      }
-    }, [hasVendors, onHasVendorsChange])
-
-    useEffect(() => {
-      if (permission?.roles) {
-        setColumnVisibility((prev) => ({
-          ...prev,
-          select: canEdit(permission.roles),
-        }))
-      }
-    }, [permission?.roles, setColumnVisibility, canEdit])
-
-    useEffect(() => {
-      if (isError) {
-        errorNotification({
-          title: 'Error',
-          description: 'Failed to load vendors',
-        })
-      }
-    }, [isError, errorNotification])
-
-    const { users, isFetching: fetchingUsers } = useGetOrgUserList({
-      where: { hasUserWith: [{ idIn: userIds }] },
+  const userMap = useMemo(() => {
+    const map: Record<string, (typeof users)[0]> = {}
+    users?.forEach((u) => {
+      map[u.id] = u
     })
+    return map
+  }, [users])
 
-    const userMap = useMemo(() => {
-      const map: Record<string, (typeof users)[0]> = {}
-      users?.forEach((u) => {
-        map[u.id] = u
-      })
-      return map
-    }, [users])
+  const columns = useMemo(() => getVendorColumns({ userMap, convertToReadOnly, selectedVendors, setSelectedVendors }), [userMap, convertToReadOnly, selectedVendors, setSelectedVendors])
 
-    useImperativeHandle(ref, () => ({
-      exportData: () => vendors,
-    }))
-
-    const columns = useMemo(() => getVendorColumns({ userMap, convertToReadOnly, selectedVendors, setSelectedVendors }), [userMap, convertToReadOnly, selectedVendors, setSelectedVendors])
-
-    return (
-      <DataTable<EntitiesNodeNonNull, Entity>
-        columns={columns}
-        sortFields={VENDORS_SORT_FIELDS}
-        onSortChange={onSortChange}
-        data={vendors}
-        loading={fetching || fetchingUsers}
-        defaultSorting={defaultSorting}
-        onRowClick={(entity) => {
-          replace({ id: entity.id })
-        }}
-        pagination={pagination}
-        onPaginationChange={onPaginationChange}
-        paginationMeta={{
-          totalCount: data?.entities.totalCount,
-          pageInfo: data?.entities?.pageInfo,
-          isLoading: isFetching,
-        }}
-        columnVisibility={columnVisibility}
-        setColumnVisibility={setColumnVisibility}
-        tableKey={TableKeyEnum.ENTITY}
-      />
-    )
-  },
-)
+  return (
+    <DataTable<EntitiesNodeNonNull, Entity>
+      columns={columns}
+      sortFields={VENDORS_SORT_FIELDS}
+      onSortChange={onSortChange}
+      data={vendors}
+      loading={fetching || fetchingUsers}
+      defaultSorting={defaultSorting}
+      onRowClick={(entity) => {
+        replace({ id: entity.id })
+      }}
+      pagination={pagination}
+      onPaginationChange={onPaginationChange}
+      paginationMeta={{
+        totalCount: data?.entities.totalCount,
+        pageInfo: data?.entities?.pageInfo,
+        isLoading: isFetching,
+      }}
+      columnVisibility={columnVisibility}
+      setColumnVisibility={setColumnVisibility}
+      tableKey={TableKeyEnum.ENTITY}
+    />
+  )
+}
 
 VendorsTable.displayName = 'VendorsTable'
 
