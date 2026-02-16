@@ -1,14 +1,6 @@
 const fs = require('fs')
 const path = require('path')
-const { toKebab, toUpperSnake, pluralizeTypeName } = require('./lib')
-
-// Converts kebab-case or snake_case to PascalCase
-function toPascalCase(str) {
-  return str
-    .split(/[-_]/)
-    .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
-    .join('')
-}
+const { toKebab, toUpperSnake, pluralizeTypeName, toPascalCase } = require('./lib')
 
 const queryDir = path.join(__dirname, '..', 'query')
 const outputDir = path.join(__dirname, '..', '..', '..', 'apps', 'console', 'src', 'lib', 'graphql-hooks')
