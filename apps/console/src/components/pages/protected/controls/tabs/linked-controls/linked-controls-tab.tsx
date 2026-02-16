@@ -18,25 +18,36 @@ export type LinkedControlsTabProps = {
   controlId?: string
   subcontrolId?: string
   refCode: string
+  sourceFramework?: string | null
 }
 
-const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcontrolId, refCode }) => {
+const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcontrolId, refCode, sourceFramework }) => {
   const isSubcontrolMode = !!subcontrolId
   const mappedControlWhere = useMemo(() => {
+    const withFilter = { refCode, referenceFramework: sourceFramework }
+    const suggestedWhere = {
+      and: [
+        { source: MappedControlMappingSource.SUGGESTED },
+        isSubcontrolMode
+          ? { or: [{ hasFromSubcontrolsWith: [withFilter] }, { hasToSubcontrolsWith: [withFilter] }] }
+          : { or: [{ hasFromControlsWith: [withFilter] }, { hasToControlsWith: [withFilter] }] },
+      ],
+    }
+
     if (isSubcontrolMode && subcontrolId) {
       return {
-        or: [{ hasFromSubcontrolsWith: [{ id: subcontrolId }] }, { hasToSubcontrolsWith: [{ id: subcontrolId }] }],
+        or: [suggestedWhere, { or: [{ hasFromSubcontrolsWith: [{ id: subcontrolId }] }, { hasToSubcontrolsWith: [{ id: subcontrolId }] }] }],
       }
     }
 
     if (controlId) {
       return {
-        or: [{ hasFromControlsWith: [{ id: controlId }] }, { hasToControlsWith: [{ id: controlId }] }],
+        or: [suggestedWhere, { or: [{ hasFromControlsWith: [{ id: controlId }] }, { hasToControlsWith: [{ id: controlId }] }] }],
       }
     }
 
     return undefined
-  }, [controlId, subcontrolId, isSubcontrolMode])
+  }, [controlId, subcontrolId, isSubcontrolMode, refCode, sourceFramework])
 
   const { data: mappedControlsData, isLoading: isMappedControlsLoading } = useGetMappedControls({ where: mappedControlWhere, enabled: Boolean(controlId || subcontrolId) })
 
