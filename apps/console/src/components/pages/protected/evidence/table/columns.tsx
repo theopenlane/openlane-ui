@@ -12,6 +12,7 @@ import { Badge } from '@repo/ui/badge'
 import { Checkbox } from '@repo/ui/checkbox'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { EvidenceIconMapper } from '@/components/shared/enum-mapper/evidence-enum'
 
 type TGetEvidenceColumnsProps = {
   userMap: Record<string, User>
@@ -132,7 +133,7 @@ export const useGetEvidenceColumns = ({ userMap, selectedEvidence, setSelectedEv
         const status = row.original.status!
         return (
           <div className="flex items-center space-x-2">
-            {getEnumLabel(status)}
+            {EvidenceIconMapper[status]}
             <p>{getEnumLabel(status)}</p>
           </div>
         )

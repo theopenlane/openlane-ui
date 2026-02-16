@@ -17,9 +17,9 @@ export const generateColumns = (selectedObject: TypesWithPermissions | null, ite
   const baseColumns: ColumnDef<TableDataItem>[] = [
     {
       id: 'checked',
-      size: 5,
-      minSize: 5,
-      maxSize: 5,
+      size: 10,
+      minSize: 10,
+      maxSize: 10,
       enableResizing: false,
       header: () => (
         <Checkbox
@@ -38,8 +38,8 @@ export const generateColumns = (selectedObject: TypesWithPermissions | null, ite
     {
       header: 'Name',
       accessorKey: 'name',
-      size: 200,
-      minSize: 200,
+      size: 120,
+      minSize: 60,
       maxSize: 200,
     },
   ]

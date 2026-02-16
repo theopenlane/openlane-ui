@@ -81,6 +81,7 @@ export const EvidenceTable = () => {
     createdAt: false,
     updatedAt: false,
     description: false,
+    isAutomated: false,
   }
 
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.EVIDENCE, defaultVisibility))

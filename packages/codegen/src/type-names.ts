@@ -513,9 +513,9 @@ export const OBJECT_TYPE_PERMISSIONS_CONFIG: Record<TypesWithPermissions, Object
       {
         header: 'Reference Framework',
         accessorKey: 'referenceFramework',
-        size: 200,
-        minSize: 200,
-        maxSize: 200,
+        size: 100,
+        minSize: 100,
+        maxSize: 100,
       },
     ],
   },

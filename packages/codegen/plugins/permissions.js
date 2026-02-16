@@ -83,9 +83,9 @@ function generatePermissionsSection({ nodeTypes, PERMISSIONS_EXCLUDE, schemaImpo
         {
           header: 'Reference Framework',
           accessorKey: 'referenceFramework',
-          size: 200,
-          minSize: 200,
-          maxSize: 200,
+          size: 100,
+          minSize: 100,
+          maxSize: 100,
         },
       ]`
     }

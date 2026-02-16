@@ -23,6 +23,7 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { OBJECT_TYPE_PERMISSIONS_CONFIG, ObjectTypes, TypesWithPermissions, PermissionsAllQueriesData } from '@repo/codegen/src/type-names'
+import { toHumanLabel } from '@/utils/strings'
 
 const options = Object.values(TypesWithPermissions)
 
@@ -100,7 +101,7 @@ const AssignPermissionsDialog = () => {
 
         return {
           id: node?.id,
-          name: node?.__typename || '',
+          name: (node?.[objectName as keyof typeof node] as string) || '',
           checked: selectedPermissions.some((perm) => perm.id === node?.id),
           togglePermission,
           referenceFramework: (node as Partial<Control>)?.referenceFramework || '',
@@ -270,11 +271,11 @@ const AssignPermissionsDialog = () => {
                     setDebouncedSearchValue('')
                   }}
                 >
-                  <SelectTrigger className="w-[180px]">{selectedObject || 'Select object'}</SelectTrigger>
+                  <SelectTrigger className="w-[180px]">{selectedObject ? toHumanLabel(selectedObject) : 'Select object'}</SelectTrigger>
                   <SelectContent>
                     {options.map((option) => (
                       <SelectItem key={option} value={option}>
-                        {option}
+                        {toHumanLabel(option)}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -283,7 +284,7 @@ const AssignPermissionsDialog = () => {
               {selectedObject && (
                 <div className="flex gap-2 flex-col">
                   <Label>Search</Label>
-                  <Input onChange={handleSearchChange} value={searchValue} placeholder={`Type ${selectedObject} name ...`} className="h-10 w-[200px]" />
+                  <Input onChange={handleSearchChange} value={searchValue} placeholder={`search...`} className="h-10 w-[200px]" />
                 </div>
               )}
             </div>

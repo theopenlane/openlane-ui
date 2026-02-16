@@ -28,8 +28,8 @@ export const getFilterFields = (
   encryptionStatusOptions: CustomEnumOption[] = [],
   environmentOptions: CustomEnumOption[] = [],
   tagOptions: CustomEnumOption[] = [],
-  // scopeOptions: CustomEnumOption[] = [],
-  // securityTierOptions: CustomEnumOption[] = [],
+  scopeOptions: CustomEnumOption[] = [],
+  securityTierOptions: CustomEnumOption[] = [],
 ): FilterField[] => [
   {
     key: 'assetType',
@@ -104,10 +104,24 @@ export const getFilterFields = (
     options: environmentOptions,
   },
   {
+    key: 'scopeNameIn',
+    label: 'Scope',
+    type: 'multiselect',
+    icon: FilterIcons.Scope,
+    options: scopeOptions,
+  },
+  {
     key: 'physicalLocationContains',
     label: 'Physical Location',
     type: 'text',
     icon: FilterIcons.Location,
+  },
+  {
+    key: 'securityTierNameIn',
+    label: 'Security Tier',
+    type: 'multiselect',
+    icon: FilterIcons.Tier,
+    options: securityTierOptions,
   },
   {
     key: 'regionNameContains',
@@ -118,14 +132,17 @@ export const getFilterFields = (
   {
     key: 'tagsHas',
     label: 'Tags',
-    type: 'multiselect',
-    // type: 'dropdownSearchSingleSelect',
+    type: 'dropdownSearchSingleSelect',
     icon: FilterIcons.Status,
     options: tagOptions,
   },
 ]
 
-export const ASSETS_SORT_FIELDS = [{ key: 'name', label: 'Name' }]
+export const ASSETS_SORT_FIELDS = [
+  { key: 'name', label: 'Name' },
+  { key: 'updatedAt', label: 'Last Updated' },
+  { key: 'createdAt', label: 'Created Date' },
+]
 
 export const visibilityFields = {
   id: false,
@@ -166,8 +183,7 @@ export const getFieldsToRender = (
   handleUpdateField?: (input: UpdateAssetInput) => Promise<void>,
   isFormInitialized?: boolean,
   id?: string,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-): React.ReactElement<any, any> => {
+): React.ReactNode => {
   return (
     <>
       <NameField

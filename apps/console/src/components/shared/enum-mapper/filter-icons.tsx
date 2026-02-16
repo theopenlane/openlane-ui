@@ -22,6 +22,7 @@ import {
   MapPlus,
   Tag,
   Blend,
+  Focus,
 } from 'lucide-react'
 
 export enum FilterIconName {
@@ -43,6 +44,7 @@ export enum FilterIconName {
   Tier = 'Tier',
   Criticality = 'Criticality',
   Environment = 'Environment',
+  Scope = 'Scope',
   Location = 'Location',
   Region = 'Region',
   Security = 'Security',
@@ -74,4 +76,5 @@ export const FilterIcons: Record<FilterIconName, LucideIcon> = {
   [FilterIconName.Region]: MapPlus,
   [FilterIconName.Tag]: Tag,
   [FilterIconName.Relationships]: Blend,
+  [FilterIconName.Scope]: Focus,
 }

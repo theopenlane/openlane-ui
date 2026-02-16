@@ -23,7 +23,7 @@ import EvidenceDetailsSheet from '@/components/pages/protected/evidence/evidence
 import { useNotification } from '@/hooks/useNotification'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar.tsx'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
-import { useGetControlById } from '@/lib/graphql-hooks/control.ts'
+import { useGetControlById } from '@/lib/graphql-hooks/control'
 import { useOrganization } from '@/hooks/useOrganization'
 import { canEdit } from '@/lib/authz/utils'
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types.ts'
