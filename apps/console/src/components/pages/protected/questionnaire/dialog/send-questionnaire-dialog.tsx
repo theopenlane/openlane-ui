@@ -15,6 +15,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { useCreateAssessmentResponse } from '@/lib/graphql-hooks/assessment'
 import { useContacts } from '@/lib/graphql-hooks/contact'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { computeDueDate } from '@/utils/date'
 
 const formSchema = z.object({
   emails: z.array(z.string().email()).min(1, 'At least one email is required'),
@@ -28,6 +29,7 @@ type SendQuestionnaireDialogProps = {
   onOpenChange: (open: boolean) => void
   assessmentId?: string
   assessmentName?: string
+  responseDueDuration?: number | null
 }
 
 const MIN_SEARCH_LENGTH = 3
@@ -37,7 +39,7 @@ const DUPLICATE_EMAIL_MESSAGE = 'This email is already added.'
 const isValidEmail = (email: string) => /\S+@\S+\.\S+/.test(email)
 const normalizeEmail = (email: string) => email.trim()
 
-export const SendQuestionnaireDialog = ({ open, onOpenChange, assessmentId, assessmentName }: SendQuestionnaireDialogProps) => {
+export const SendQuestionnaireDialog = ({ open, onOpenChange, assessmentId, assessmentName, responseDueDuration }: SendQuestionnaireDialogProps) => {
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: createAssessmentResponse } = useCreateAssessmentResponse()
 
@@ -187,12 +189,15 @@ export const SendQuestionnaireDialog = ({ open, onOpenChange, assessmentId, asse
 
     setIsSending(true)
 
+    const dueDate = computeDueDate(responseDueDuration)
+
     const results = await Promise.allSettled(
       allEmailsToSend.map((email) =>
         createAssessmentResponse({
           input: {
             email,
             assessmentID: assessmentId,
+            ...(dueDate && { dueDate }),
           },
         }),
       ),

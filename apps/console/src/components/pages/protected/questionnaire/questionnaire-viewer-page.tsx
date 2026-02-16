@@ -17,6 +17,7 @@ import { z } from 'zod'
 import { Input } from '@repo/ui/input'
 import { canEdit } from '@/lib/authz/utils'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { computeDueDate } from '@/utils/date'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { TemplateDocumentType } from '@repo/codegen/src/schema'
 import { SaveButton } from '@/components/shared/save-button/save-button'
@@ -63,10 +64,12 @@ const QuestionnaireViewerPage: React.FC = () => {
 
   const handleSend: SubmitHandler<{ email: string }> = async (data) => {
     try {
+      const dueDate = computeDueDate(questionnaire?.responseDueDuration)
       await createAssessmentResponse({
         input: {
           email: data.email,
           assessmentID: existingId,
+          ...(dueDate && { dueDate }),
         },
       })
       successNotification({ title: `Questionnaire sent to ${data.email}` })

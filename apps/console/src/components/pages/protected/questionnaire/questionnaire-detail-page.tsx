@@ -334,14 +334,20 @@ const QuestionnaireDetailPage = () => {
           )}
         </div>
         <TabsContent value="delivery" className="mt-6">
-          <DeliveryTab assessmentId={id} jsonconfig={assessment.jsonconfig} where={deliveryWhereFilter} onTotalCountChange={handleDeliveryTotalCountChange} />
+          <DeliveryTab
+            assessmentId={id}
+            jsonconfig={assessment.jsonconfig}
+            where={deliveryWhereFilter}
+            onTotalCountChange={handleDeliveryTotalCountChange}
+            responseDueDuration={assessment?.responseDueDuration}
+          />
         </TabsContent>
         <TabsContent value="responses" className="mt-6">
           <ResponsesTab responses={responseRows} jsonconfig={assessment.jsonconfig} />
         </TabsContent>
       </Tabs>
 
-      <SendQuestionnaireDialog open={isSendDialogOpen} onOpenChange={setIsSendDialogOpen} assessmentId={id} assessmentName={assessment?.name} />
+      <SendQuestionnaireDialog open={isSendDialogOpen} onOpenChange={setIsSendDialogOpen} assessmentId={id} assessmentName={assessment?.name} responseDueDuration={assessment?.responseDueDuration} />
     </>
   )
 }
