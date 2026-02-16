@@ -26,23 +26,18 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcon
   const mappedControlWhere = useMemo(() => {
     const withFilter = { refCode, referenceFramework: sourceFramework }
     const suggestedWhere = {
-      and: [
-        { source: MappedControlMappingSource.SUGGESTED },
-        isSubcontrolMode
-          ? { or: [{ hasFromSubcontrolsWith: [withFilter] }, { hasToSubcontrolsWith: [withFilter] }] }
-          : { or: [{ hasFromControlsWith: [withFilter] }, { hasToControlsWith: [withFilter] }] },
-      ],
+      and: [{ source: MappedControlMappingSource.SUGGESTED }, isSubcontrolMode ? { hasFromSubcontrolsWith: [withFilter] } : { hasFromControlsWith: [withFilter] }],
     }
 
     if (isSubcontrolMode && subcontrolId) {
       return {
-        or: [suggestedWhere, { or: [{ hasFromSubcontrolsWith: [{ id: subcontrolId }] }, { hasToSubcontrolsWith: [{ id: subcontrolId }] }] }],
+        or: [suggestedWhere, { hasFromSubcontrolsWith: [{ id: subcontrolId }] }],
       }
     }
 
     if (controlId) {
       return {
-        or: [suggestedWhere, { or: [{ hasFromControlsWith: [{ id: controlId }] }, { hasToControlsWith: [{ id: controlId }] }] }],
+        or: [suggestedWhere, { hasFromControlsWith: [{ id: controlId }] }],
       }
     }
 
