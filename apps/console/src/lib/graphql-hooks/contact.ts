@@ -32,6 +32,6 @@ export const useContacts = ({ where, enabled = true }: UseContactsArgs) => {
   return {
     ...queryResult,
     contacts,
-    isLoading: queryResult.isFetching,
+    isLoading: queryResult.isLoading,
   }
 }

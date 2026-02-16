@@ -158,7 +158,7 @@ export const useGetTrustCenterNdaRequests = ({ where, pagination, orderBy, enabl
   const paginationMeta = {
     totalCount: queryResult.data?.trustCenterNdaRequests?.totalCount ?? 0,
     pageInfo: queryResult.data?.trustCenterNdaRequests?.pageInfo ?? {},
-    isLoading: queryResult.isFetching,
+    isLoading: queryResult.isLoading,
   }
 
   return {

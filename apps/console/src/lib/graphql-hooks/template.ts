@@ -49,16 +49,16 @@ export const useTemplates = ({ where, orderBy, pagination, enabled = true }: Use
     () => ({
       totalCount: queryResult.data?.templates?.totalCount ?? 0,
       pageInfo: queryResult.data?.templates?.pageInfo,
-      isLoading: queryResult.isFetching,
+      isLoading: queryResult.isLoading,
     }),
-    [queryResult.data?.templates?.totalCount, queryResult.data?.templates?.pageInfo, queryResult.isFetching],
+    [queryResult.data?.templates?.totalCount, queryResult.data?.templates?.pageInfo, queryResult.isLoading],
   )
 
   return {
     ...queryResult,
     templates,
     paginationMeta,
-    isLoading: queryResult.isFetching,
+    isLoading: queryResult.isLoading,
   }
 }
 

@@ -154,6 +154,6 @@ export const useGetApiTokensByIds = ({ where }: UseGetApiTokensArgs) => {
   return {
     ...queryResult,
     tokens,
-    isLoading: queryResult.isFetching,
+    isLoading: queryResult.isLoading,
   }
 }

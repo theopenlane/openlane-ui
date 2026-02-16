@@ -107,7 +107,7 @@ export function useGetEvidenceFiles({ where, pagination }: TEvidenceFilesProps) 
   const paginationMeta = {
     totalCount: queryResult.data?.files?.totalCount ?? 0,
     pageInfo: queryResult.data?.files?.pageInfo,
-    isLoading: queryResult.isFetching,
+    isLoading: queryResult.isLoading,
   }
 
   return {
@@ -130,7 +130,7 @@ export const useGetAllEvidences = (where?: EvidenceWhereInput) => {
   const paginationMeta = {
     totalCount: queryResult.data?.evidences?.totalCount ?? 0,
     pageInfo: queryResult.data?.evidences?.pageInfo,
-    isLoading: queryResult.isFetching,
+    isLoading: queryResult.isLoading,
   }
 
   return {
@@ -260,7 +260,7 @@ export const useGetEvidenceList = ({ orderBy, pagination, where, enabled = true 
   const paginationMeta = {
     totalCount: queryResult.data?.evidences?.totalCount ?? 0,
     pageInfo: queryResult.data?.evidences?.pageInfo,
-    isLoading: queryResult.isFetching,
+    isLoading: queryResult.isLoading,
   }
   return {
     ...queryResult,
@@ -288,7 +288,7 @@ export const useGetEvidenceListLight = ({ orderBy, pagination, where, enabled = 
   const paginationMeta = {
     totalCount: queryResult.data?.evidences?.totalCount ?? 0,
     pageInfo: queryResult.data?.evidences?.pageInfo,
-    isLoading: queryResult.isFetching,
+    isLoading: queryResult.isLoading,
   }
   return {
     ...queryResult,

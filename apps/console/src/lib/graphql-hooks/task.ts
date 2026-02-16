@@ -95,7 +95,7 @@ export const useTasksWithFilterInfinite = ({ where, orderBy, pagination, enabled
   const paginationMeta = {
     totalCount: lastPage?.tasks?.totalCount ?? 0,
     pageInfo: lastPage?.tasks?.pageInfo,
-    isLoading: queryResult.isFetching,
+    isLoading: queryResult.isLoading,
   }
 
   return {

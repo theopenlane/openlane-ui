@@ -54,7 +54,7 @@ export const useGetTrustCenterDocs = ({ where, pagination, orderBy, enabled = tr
   const paginationMeta = {
     totalCount: queryResult.data?.trustCenters?.edges?.[0]?.node?.trustCenterDocs?.totalCount ?? 0,
     pageInfo: queryResult.data?.trustCenters?.edges?.[0]?.node?.trustCenterDocs?.pageInfo ?? {},
-    isLoading: queryResult.isFetching,
+    isLoading: queryResult.isLoading,
   }
 
   return {

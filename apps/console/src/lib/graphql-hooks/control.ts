@@ -119,7 +119,7 @@ export const useGetAllControls = ({ where, pagination, orderBy, enabled = true }
   const paginationMeta = {
     totalCount: queryResult.data?.controls?.totalCount ?? 0,
     pageInfo: queryResult.data?.controls?.pageInfo,
-    isLoading: queryResult.isFetching,
+    isLoading: queryResult.isLoading,
   }
 
   return {

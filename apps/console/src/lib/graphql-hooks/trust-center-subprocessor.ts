@@ -53,7 +53,7 @@ export const useGetTrustCenterSubprocessors = ({ where, pagination, orderBy, ena
   const paginationMeta = {
     totalCount: queryResult.data?.trustCenterSubprocessors?.totalCount ?? 0,
     pageInfo: queryResult.data?.trustCenterSubprocessors?.pageInfo ?? {},
-    isLoading: queryResult.isFetching,
+    isLoading: queryResult.isLoading,
   }
 
   return {

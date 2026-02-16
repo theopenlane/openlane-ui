@@ -152,11 +152,11 @@ export const use${capitalType} = (${lowerType}Id?: ${capitalType}QueryVariables[
   if (hasConst(bulkCreate)) {
     importNames.push(bulkCreate)
     typeImports.add(`CreateBulkCsv${capitalType}Mutation`)
-    typeImports.add(`CreateBulkCsvTaskMutationVariables`)
+    typeImports.add(`CreateBulkCsv${capitalType}MutationVariables`)
     hookBlocks.push(`
 export const useCreateBulkCSV${capitalType} = () => {
   const { queryClient } = useGraphQLClient()
-  return useMutation<CreateBulkCsv${capitalType}Mutation, unknown, CreateBulkCsvTaskMutationVariables>({
+  return useMutation<CreateBulkCsv${capitalType}Mutation, unknown, CreateBulkCsv${capitalType}MutationVariables>({
     mutationFn: async (variables) => fetchGraphQLWithUpload({ query: ${bulkCreate}, variables }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['${lowerPluralType}'] })

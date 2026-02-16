@@ -76,14 +76,14 @@ export const useTagsPaginated = ({ where, pagination, enabled = true }: UseTagsP
   const paginationMeta = {
     totalCount: queryResult.data?.tagDefinitions?.totalCount ?? 0,
     pageInfo: queryResult.data?.tagDefinitions?.pageInfo,
-    isLoading: queryResult.isFetching,
+    isLoading: queryResult.isLoading,
   }
 
   return {
     ...queryResult,
     tags,
     paginationMeta,
-    isLoading: queryResult.isFetching,
+    isLoading: queryResult.isLoading,
   }
 }
 

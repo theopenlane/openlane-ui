@@ -48,7 +48,7 @@ export const useGetSubprocessors = ({ where, pagination, enabled = true }: UseGe
   const paginationMeta = {
     totalCount: queryResult.data?.subprocessors?.totalCount ?? 0,
     pageInfo: queryResult.data?.subprocessors?.pageInfo ?? {},
-    isLoading: queryResult.isFetching,
+    isLoading: queryResult.isLoading,
   }
 
   return {

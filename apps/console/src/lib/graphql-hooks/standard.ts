@@ -188,7 +188,7 @@ export const useGetAllStandardsInfinite = ({ where = {}, pagination, enabled = t
   const paginationMeta = {
     totalCount: lastPage?.standards?.totalCount ?? 0,
     pageInfo: lastPage?.standards?.pageInfo,
-    isLoading: queryResult.isFetching,
+    isLoading: queryResult.isLoading,
   }
 
   return {

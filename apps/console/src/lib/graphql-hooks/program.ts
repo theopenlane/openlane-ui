@@ -83,7 +83,7 @@ export const useGetAllProgramsPaginated = ({ where, orderBy, pagination, enabled
   const paginationMeta = {
     totalCount: queryResult.data?.programs?.totalCount ?? 0,
     pageInfo: queryResult.data?.programs?.pageInfo,
-    isLoading: queryResult.isFetching,
+    isLoading: queryResult.isLoading,
   }
 
   return {
