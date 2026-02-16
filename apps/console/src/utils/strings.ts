@@ -19,6 +19,7 @@ export function toHumanLabel(input: string): string {
   )
 }
 
+// if you change this, update packages/codegen/plugins/lib.js:pluralizeTypeName also
 export function pluralizeTypeName(name: string): string {
   const lc = name.charAt(0).toLowerCase() + name.slice(1)
   if (/(?:s|x|z|ch|sh)$/.test(lc)) return lc + 'es'
