@@ -16,7 +16,7 @@ for (const file of queryFiles) {
   const hookFilePath = path.join(outputDir, toKebab(type) + '.ts')
 
   if (fs.existsSync(hookFilePath)) {
-    console.log(`⏭️  Skipped: ${hookFilePath} (already exists)`)
+    console.log(`Skipped: ${hookFilePath} (already exists)`)
     continue
   }
 
@@ -46,7 +46,6 @@ for (const file of queryFiles) {
   const hookBlocks = []
   const typeImports = new Set()
 
-  // GET_ALL
   if (hasConst(all)) {
     importNames.push(all)
     typeImports.add(`${capitalPluralType}WithFilterQuery`)
@@ -69,7 +68,6 @@ export const use${capitalPluralType}WithFilter = ({ where, orderBy, pagination, 
 `)
   }
 
-  // CREATE
   if (hasConst(create)) {
     importNames.push(create)
     typeImports.add(`Create${capitalType}Mutation`)
@@ -88,7 +86,6 @@ export const useCreate${capitalType} = () => {
 `)
   }
 
-  // UPDATE
   if (hasConst(update)) {
     importNames.push(update)
     typeImports.add(`Update${capitalType}Mutation`)
@@ -107,7 +104,6 @@ export const useUpdate${capitalType} = () => {
 `)
   }
 
-  // DELETE
   if (hasConst(del)) {
     importNames.push(del)
     typeImports.add(`Delete${capitalType}Mutation`)
@@ -126,7 +122,6 @@ export const useDelete${capitalType} = () => {
 `)
   }
 
-  // SINGLE GET
   if (hasConst(single)) {
     importNames.push(single)
     typeImports.add(`${capitalType}Query`)
@@ -146,7 +141,6 @@ export const use${capitalType} = (${lowerType}Id?: ${capitalType}QueryVariables[
 `)
   }
 
-  // BULK CREATE
   if (hasConst(bulkCreate)) {
     importNames.push(bulkCreate)
     typeImports.add(`CreateBulkCsv${capitalType}Mutation`)
@@ -164,7 +158,6 @@ export const useCreateBulkCSV${capitalType} = () => {
 `)
   }
 
-  // BULK EDIT
   if (hasConst(bulkEdit)) {
     importNames.push(bulkEdit)
     typeImports.add(`UpdateBulk${capitalType}Mutation`)
@@ -182,7 +175,6 @@ export const useBulkEdit${capitalType} = () => {
 `)
   }
 
-  // BULK DELETE
   if (hasConst(bulkDelete)) {
     importNames.push(bulkDelete)
     typeImports.add(`DeleteBulk${capitalType}Mutation`)
@@ -202,7 +194,7 @@ export const useBulkDelete${capitalType} = () => {
 
   // Only generate the file if at least one hook is present
   if (hookBlocks.length === 0) {
-    console.log(`⏭️  Skipped: ${hookFilePath} (no queries found)`)
+    console.log(`Skipped: ${hookFilePath} (no queries found)`)
     continue
   }
 
@@ -230,5 +222,5 @@ ${hookBlocks.join('\n')}
 `
 
   fs.writeFileSync(hookFilePath, content)
-  console.log(`✅ Created: ${hookFilePath}`)
+  console.log(`Created: ${hookFilePath}`)
 }

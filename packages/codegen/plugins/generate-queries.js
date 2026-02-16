@@ -138,7 +138,6 @@ function generateQueryFile(nodeType) {
 
   const queries = []
 
-  // GET ALL query
   queries.push(`export const GET_ALL_${upperPluralName} = gql\`
   query ${name}sWithFilter($where: ${name}WhereInput, $orderBy: [${name}Order!], $first: Int, $after: Cursor, $last: Int, $before: Cursor) {
     ${pluralName}(where: $where, orderBy: $orderBy, first: $first, after: $after, last: $last, before: $before) {
@@ -158,7 +157,6 @@ ${fieldsList}
   }
 \``)
 
-  // GET single query
   queries.push(`export const ${upperName} = gql\`
   query ${name}($${lowerName}Id: ID!) {
     ${lowerName}(id: $${lowerName}Id) {
@@ -167,7 +165,6 @@ ${fieldsGetList}
   }
 \``)
 
-  // CREATE mutation
   queries.push(`export const CREATE_${upperName} = gql\`
   mutation Create${name}($input: Create${name}Input!) {
     create${name}(input: $input) {
@@ -178,7 +175,6 @@ ${fieldsGetList}
   }
 \``)
 
-  // UPDATE mutation
   queries.push(`export const UPDATE_${upperName} = gql\`
   mutation Update${name}($update${name}Id: ID!, $input: Update${name}Input!) {
     update${name}(id: $update${name}Id, input: $input) {
@@ -189,7 +185,6 @@ ${fieldsGetList}
   }
 \``)
 
-  // DELETE mutation
   queries.push(`export const DELETE_${upperName} = gql\`
   mutation Delete${name}($delete${name}Id: ID!) {
     delete${name}(id: $delete${name}Id) {
@@ -198,7 +193,6 @@ ${fieldsGetList}
   }
 \``)
 
-  // BULK CREATE if exists
   if (schemaContent.includes(`${name}BulkCreatePayload`)) {
     queries.push(`export const CREATE_CSV_BULK_${upperName} = gql\`
   mutation CreateBulkCSV${name}($input: Upload!) {
@@ -211,7 +205,6 @@ ${fieldsGetList}
 \``)
   }
 
-  // BULK DELETE
   queries.push(`export const BULK_DELETE_${upperName} = gql\`
   mutation DeleteBulk${name}($ids: [ID!]!) {
     deleteBulk${name}(ids: $ids) {
@@ -220,7 +213,6 @@ ${fieldsGetList}
   }
 \``)
 
-  // GET ASSOCIATIONS
   if (edgeFields.length > 0) {
     const associations = edgeFields
       .map((edge) => {
@@ -246,7 +238,6 @@ ${associations}
 \``)
   }
 
-  // BULK EDIT
   queries.push(`export const BULK_EDIT_${upperName} = gql\`
   mutation UpdateBulk${name}($ids: [ID!]!, $input: Update${name}Input!) {
     updateBulk${name}(ids: $ids, input: $input) {
@@ -275,10 +266,10 @@ for (const nodeType of nodeTypes) {
     const content = generateQueryFile(nodeType)
     fs.writeFileSync(filePath, content)
     createdCount++
-    console.log(`✅ Created: ${fileName}`)
+    console.log(`Created: ${fileName}`)
   } else {
     skippedCount++
-    console.log(`⏭️  Skipped: ${fileName} (already exists)`)
+    console.log(`Skipped: ${fileName} (already exists)`)
   }
 }
 
@@ -286,4 +277,4 @@ for (const nodeType of nodeTypes) {
 const allMatches = [...schemaContent.matchAll(nodeTypeRegex)]
 excludedCount = allMatches.filter((m) => EXCLUDED_TYPES.includes(m[1])).length
 
-console.log(`\n📊 Summary: Created ${createdCount} files, skipped ${skippedCount} existing files, excluded ${excludedCount} types`)
+console.log(`\nSummary: Created ${createdCount} files, skipped ${skippedCount} existing files, excluded ${excludedCount} types`)
