@@ -87,7 +87,7 @@ const InheritPermissionDialog = () => {
   const groups =
     TableData?.groups?.edges?.map((edge) => ({
       id: edge?.node?.id,
-      name: edge?.node?.name,
+      name: edge?.node?.displayName || edge?.node?.name,
     })) || []
 
   const permissionsData =
@@ -116,7 +116,7 @@ const InheritPermissionDialog = () => {
           Inherit permission
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold">Inherit permission</DialogTitle>
         </DialogHeader>
@@ -166,7 +166,11 @@ const InheritPermissionDialog = () => {
                   </div>
                 </div>
 
-                <DataTable columns={columns} data={permissionsData} tableKey={TableKeyEnum.GROUP_INHERIT_PERMISSION} />
+                {permissionsData.length > 0 ? (
+                  <DataTable columns={columns} data={permissionsData} tableKey={TableKeyEnum.GROUP_INHERIT_PERMISSION} />
+                ) : (
+                  <p className="text-sm text-muted-foreground py-4 text-center">No permissions to inherit from this group.</p>
+                )}
               </>
             )}
           </div>
