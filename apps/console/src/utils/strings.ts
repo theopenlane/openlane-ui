@@ -21,6 +21,7 @@ export function toHumanLabel(input: string): string {
 
 export function pluralizeTypeName(name: string): string {
   const lc = name.charAt(0).toLowerCase() + name.slice(1)
-  if (lc.endsWith('y')) return lc.slice(0, -1) + 'ies'
+  if (/(?:s|x|z|ch|sh)$/.test(lc)) return lc + 'es'
+  if (/[bcdfghjklmnpqrstvwxyz]y$/.test(lc)) return lc.slice(0, -1) + 'ies'
   return lc + 's'
 }

@@ -18,12 +18,6 @@ const TASK_EXCLUDE = [
   // add task types to exclude here
 ]
 
-function pluralizeTypeName(name) {
-  const lc = name.charAt(0).toLowerCase() + name.slice(1)
-  if (lc.endsWith('y')) return lc.slice(0, -1) + 'ies'
-  return lc + 's'
-}
-
 // --- Extract node types ---
 const nodeTypeRegex = /export interface (\w+) extends Node\s*\{[\s\S]*?\n\}/g
 const matches = [...schemaContent.matchAll(nodeTypeRegex)]

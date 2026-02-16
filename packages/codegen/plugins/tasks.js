@@ -1,6 +1,6 @@
 const path = require('path')
 const fs = require('fs')
-const { toUpperSnake, toHumanLabel, getQueryNameFor, toKebab } = require('./lib')
+const { toUpperSnake, toHumanLabel, getQueryNameFor, toKebab, pluralizeTypeName } = require('./lib')
 
 function generateTasksSection({ nodeTypes, TASK_EXCLUDE }) {
   // Find Task node and extract all Connection edges (use field names)
@@ -65,8 +65,7 @@ function generateTasksSection({ nodeTypes, TASK_EXCLUDE }) {
     const queryDocRef = hasQuery ? queryName : `''`
     if (hasQuery) queryImports.set(queryName, `@repo/codegen/query/${kebab}`)
 
-    const responseObjectKey = typeName.charAt(0).toLowerCase() + typeName.slice(1)
-    const pluralKey = responseObjectKey.endsWith('y') ? responseObjectKey.slice(0, -1) + 'ies' : responseObjectKey + 's'
+    const pluralKey = pluralizeTypeName(typeName)
 
     const inputName = typeName.charAt(0).toLowerCase() + typeName.slice(1) + 'IDs'
     const placeholder = toHumanLabel(typeName).toLowerCase()
