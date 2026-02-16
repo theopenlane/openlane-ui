@@ -29,9 +29,11 @@ export function toKebab(name) {
   return name.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase()
 }
 
+// if you change this, update apps/console/src/utils/strings.ts:pluralizeTypeName also
 export function pluralizeTypeName(name) {
   const lc = name.charAt(0).toLowerCase() + name.slice(1)
-  if (lc.endsWith('y')) return lc.slice(0, -1) + 'ies'
+  if (/(?:s|x|z|ch|sh)$/.test(lc)) return lc + 'es'
+  if (/[bcdfghjklmnpqrstvwxyz]y$/.test(lc)) return lc.slice(0, -1) + 'ies'
   return lc + 's'
 }
 
