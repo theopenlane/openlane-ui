@@ -100,7 +100,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
         ...evidenceObjectTypes,
         controlIDs: data.controlIDs,
         subcontrolIDs: data.subcontrolIDs,
-        programIDs: programId ? [programId] : (data.programIDs ?? []),
+        programIDs: programId ? [programId] : data.programIDs ?? [],
         ...(data.url ? { url: data.url } : {}),
       } as CreateEvidenceInput,
       evidenceFiles: data.evidenceFiles?.map((item) => item.file) || [],
@@ -200,7 +200,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
 
   const { data: mappedControls } = useGetSuggestedControlsOrSubcontrols({
     where: where,
-    enabled: !!where,
+    enabled: !!where && open,
   })
 
   const { data: standards } = useGetStandards({})
