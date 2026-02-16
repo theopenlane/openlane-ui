@@ -3,7 +3,7 @@ const nextConfig = {
   reactStrictMode: true,
   transpilePackages: ['@repo/dally', '@repo/ui', '@repo/codegen', 'survey-core', 'survey-react-ui'],
   experimental: {
-    webpackMemoryOptimizations: true,
+    webpackMemoryOptimizations: false,
   },
   images: {
     remotePatterns: [

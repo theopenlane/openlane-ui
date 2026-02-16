@@ -8,11 +8,10 @@ import { Card, CardContent } from '@repo/ui/cardpanel'
 import { Button } from '@repo/ui/button'
 import { Users, CheckCircle, Calendar, Send, FileText, Download } from 'lucide-react'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
-import { useAssessmentRecipientsTotalCount, useAssessmentResponsesTotalCount, useGetAssessmentDetail } from '@/lib/graphql-hooks/assessments'
+import { useAssessmentRecipientsTotalCount, useAssessmentResponsesTotalCount, useGetAssessmentDetail } from '@/lib/graphql-hooks/assessment'
 import { formatDate } from '@/utils/date'
 import { exportToCSV } from '@/utils/exportToCSV'
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
-import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys'
 import { FilterIcons, QuestionnaireFilterIconName } from '@/components/shared/enum-mapper/questionnaire-enum'
 import { AssessmentResponseAssessmentResponseStatus } from '@repo/codegen/src/schema'
 import type { AssessmentResponseWhereInput, GetAssessmentDetailQuery, GetAssessmentDetailQueryVariables } from '@repo/codegen/src/schema'
@@ -30,6 +29,7 @@ import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { GET_ASSESSMENT_DETAIL } from '@repo/codegen/query/assessment'
 import { useNotification } from '@/hooks/useNotification'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 type DetailTabValue = 'delivery' | 'responses'
 const DEFAULT_TAB: DetailTabValue = 'delivery'
@@ -319,7 +319,7 @@ const QuestionnaireDetailPage = () => {
           </TabsList>
           {activeTab === 'delivery' && (
             <div className="flex items-center gap-2">
-              <TableFilter filterFields={deliveryFilterFields} onFilterChange={handleDeliveryFilterChange} pageKey={TableFilterKeysEnum.QUESTIONNAIRE_DELIVERY} />
+              <TableFilter filterFields={deliveryFilterFields} onFilterChange={handleDeliveryFilterChange} pageKey={TableKeyEnum.QUESTIONNAIRE_DELIVERY} />
               <Button variant="secondary" onClick={handleExportDelivery} disabled={isExportingDelivery || !deliveryTotalCount}>
                 <Download className="mr-2 h-4 w-4" />
                 {isExportingDelivery ? 'Exporting...' : 'Export'}

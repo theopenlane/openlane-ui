@@ -3,7 +3,7 @@ import { ColumnDef } from '@tanstack/table-core'
 import { DataTable } from '@repo/ui/data-table'
 import { Permission } from '@repo/codegen/src/schema'
 import { useGroupsStore } from '@/hooks/useGroupsStore'
-import { useGetGroupPermissions } from '@/lib/graphql-hooks/groups'
+import { useGetGroupPermissions } from '@/lib/graphql-hooks/group'
 import { TableKeyEnum } from '@repo/ui/table-key'
 
 interface GroupPermission {

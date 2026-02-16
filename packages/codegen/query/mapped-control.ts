@@ -33,8 +33,8 @@ export const MAPPED_CONTROLS_FRAGMENT = gql`
   }
 `
 
-export const GET_MAPPED_CONTROLS = gql`
-  query GetMappedControls($where: MappedControlWhereInput) {
+export const GET_ALL_MAPPED_CONTROLS = gql`
+  query GetAllMappedControls($where: MappedControlWhereInput) {
     mappedControls(where: $where) {
       edges {
         node {

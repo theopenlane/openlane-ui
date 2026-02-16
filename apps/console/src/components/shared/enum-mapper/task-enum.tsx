@@ -28,14 +28,6 @@ export const TaskStatusIconMapper: Record<TaskTaskStatus, React.ReactNode> = {
   [TaskTaskStatus.WONT_DO]: <CircleOff height={16} width={16} className="text-wont-do" />,
 }
 
-export const TaskStatusMapper: Record<TaskTaskStatus, string> = {
-  [TaskTaskStatus.COMPLETED]: 'Completed',
-  [TaskTaskStatus.IN_PROGRESS]: 'In progress',
-  [TaskTaskStatus.IN_REVIEW]: 'In review',
-  [TaskTaskStatus.OPEN]: 'Open',
-  [TaskTaskStatus.WONT_DO]: "Won't do",
-}
-
 export enum TasksFilterIconName {
   DisplayID = 'DisplayID',
   Title = 'Title',
@@ -47,7 +39,7 @@ export enum TasksFilterIconName {
   DueDate = 'DueDate',
 }
 
-export const FilterIcons: Record<TasksFilterIconName, LucideIcon> = {
+export const TaskFilterIcons: Record<TasksFilterIconName, LucideIcon> = {
   [TasksFilterIconName.DisplayID]: Key,
   [TasksFilterIconName.Title]: FolderPen,
   [TasksFilterIconName.Status]: CircleDot,

@@ -7,7 +7,7 @@ import { CircleCheck, CircleX } from 'lucide-react'
 import { SetAuditorDialog } from './set-auditor-dialog'
 import { Button } from '@repo/ui/button'
 import { Pencil } from 'lucide-react'
-import { useUpdateProgram } from '@/lib/graphql-hooks/programs'
+import { useUpdateProgram } from '@/lib/graphql-hooks/program'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQueryClient } from '@tanstack/react-query'
@@ -18,10 +18,10 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { ProgramProgramStatus } from '@repo/codegen/src/schema'
 import { useParams } from 'next/navigation'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
-import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { canEdit } from '@/lib/authz/utils'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 interface ProgramAuditorProps {
   firm?: string | null
@@ -45,7 +45,7 @@ type SetAuditorFormValues = z.infer<typeof setAuditorSchema>
 const ProgramAuditor = ({ firm, name, email, isReady, programStatus }: ProgramAuditorProps) => {
   const hasAuditor = !!(firm || name || email)
   const { id } = useParams<{ id: string | undefined }>()
-  const { data: permission } = useAccountRoles(ObjectEnum.PROGRAM, id)
+  const { data: permission } = useAccountRoles(ObjectTypes.PROGRAM, id)
   const isEditAllowed = canEdit(permission?.roles)
 
   const [isEditing, setIsEditing] = useState(false)

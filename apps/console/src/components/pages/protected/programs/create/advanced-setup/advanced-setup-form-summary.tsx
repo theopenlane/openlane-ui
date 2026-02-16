@@ -6,8 +6,10 @@ import { Avatar } from '@/components/shared/avatar/avatar'
 import { WizardValues } from './advanced-setup-wizard-config'
 import { formatDate } from '@/utils/date'
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@repo/ui/tooltip'
-import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { objectToSnakeCase } from '@/utils/strings'
 
 interface Props {
   summaryData: WizardValues
@@ -49,7 +51,7 @@ function AvatarListWithTooltip<T>({ items, getKey, getEntity, getName }: { items
 export const AdvancedSetupFormSummary: React.FC<Props> = ({ summaryData }) => {
   const { enumOptions } = useGetCustomTypeEnums({
     where: {
-      objectType: 'program',
+      objectType: objectToSnakeCase(ObjectTypes.PROGRAM),
       field: 'kind',
     },
   })

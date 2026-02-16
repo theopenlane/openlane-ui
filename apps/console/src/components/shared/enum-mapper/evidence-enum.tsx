@@ -12,16 +12,6 @@ export const EvidenceIconMapper: Record<EvidenceEvidenceStatus, React.ReactNode>
   [EvidenceEvidenceStatus.IN_REVIEW]: <FileSearch height={16} width={16} className="text-missing-artifact" />,
 }
 
-export const EvidenceStatusMapper: Record<EvidenceEvidenceStatus, string> = {
-  [EvidenceEvidenceStatus.AUDITOR_APPROVED]: 'Approved by Auditor',
-  [EvidenceEvidenceStatus.REJECTED]: 'Rejected',
-  [EvidenceEvidenceStatus.NEEDS_RENEWAL]: 'Needs renewal',
-  [EvidenceEvidenceStatus.READY_FOR_AUDITOR]: 'Ready for auditor',
-  [EvidenceEvidenceStatus.MISSING_ARTIFACT]: 'Missing artifact',
-  [EvidenceEvidenceStatus.SUBMITTED]: 'Submitted',
-  [EvidenceEvidenceStatus.IN_REVIEW]: 'In review',
-}
-
 export enum EvidenceFilterIconName {
   Name = 'Name',
   Description = 'Description',

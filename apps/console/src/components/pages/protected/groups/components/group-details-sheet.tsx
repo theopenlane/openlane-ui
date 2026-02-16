@@ -22,20 +22,20 @@ import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/selec
 import { Textarea } from '@repo/ui/textarea'
 import { Input } from '@repo/ui/input'
 import { useSession } from 'next-auth/react'
-import { useGetGroupDetails, useUpdateGroup } from '@/lib/graphql-hooks/groups'
+import { useGetGroupDetails, useUpdateGroup } from '@/lib/graphql-hooks/group'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification'
 import { useGroupsStore } from '@/hooks/useGroupsStore'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
-import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { canEdit } from '@/lib/authz/utils'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { PLATFORM_DOCS_URL } from '@/constants/docs'
-import { useGetTags } from '@/lib/graphql-hooks/tags'
+import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 const EditGroupSchema = z.object({
   groupName: z.string().min(1, 'Group name is required'),
@@ -55,7 +55,7 @@ const GroupDetailsSheet = () => {
   const queryClient = useQueryClient()
   const { successNotification, errorNotification } = useNotification()
   const { replace } = useSmartRouter()
-  const { data: permission } = useAccountRoles(ObjectEnum.GROUP, selectedGroup)
+  const { data: permission } = useAccountRoles(ObjectTypes.GROUP, selectedGroup)
   const { tagOptions } = useGetTags()
 
   const { data, isPending: fetching } = useGetGroupDetails(selectedGroup)
@@ -233,11 +233,7 @@ const GroupDetailsSheet = () => {
                     {isEditing ? (
                       <Controller name="tags" control={control} render={({ field }) => <MultipleSelector value={field.value} creatable options={tagOptions} onChange={field.onChange} />} />
                     ) : (
-                      <div className="flex flex-wrap gap-2">
-                        {tags?.map((tag: string, i: number) => (
-                          <TagChip key={i} tag={tag} />
-                        ))}
-                      </div>
+                      <div className="flex flex-wrap gap-2">{tags?.map((tag: string, i: number) => <TagChip key={i} tag={tag} />)}</div>
                     )}
                   </div>
                 </div>

@@ -1,11 +1,12 @@
 import React from 'react'
 import type { ColumnDef } from '@tanstack/react-table'
 import { formatDateSince } from '@/utils/date'
-import { EvidenceIconMapper, EvidenceStatusMapper, EvidenceStatusOptions, FilterIcons } from '@/components/shared/enum-mapper/evidence-enum'
+import { EvidenceIconMapper, EvidenceStatusOptions, FilterIcons } from '@/components/shared/enum-mapper/evidence-enum'
 import type { FilterField } from '@/types'
 import type { ApiToken, EvidenceEvidenceStatus, User } from '@repo/codegen/src/schema.ts'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { KeyRound } from 'lucide-react'
+import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 
 export type EvidenceRow = {
   id: string
@@ -43,7 +44,7 @@ export const getEvidenceColumns = (onOpenEvidence: (id: string) => void, userMap
       return (
         <div className="flex items-center space-x-2">
           {EvidenceIconMapper[status]}
-          <span>{EvidenceStatusMapper[status]}</span>
+          <span>{getEnumLabel(status)}</span>
         </div>
       )
     },

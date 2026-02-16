@@ -13,7 +13,7 @@ import { Card, CardContent } from '@repo/ui/cardpanel'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { useCreateTrustCenterEntity } from '@/lib/graphql-hooks/trust-center-entities'
+import { useCreateTrustCenterEntity } from '@/lib/graphql-hooks/trust-center-entity'
 import type { TUploadedFile } from '../../evidence/upload/types/TUploadedFile'
 import { normalizeUrl } from '@/utils/normalizeUrl'
 

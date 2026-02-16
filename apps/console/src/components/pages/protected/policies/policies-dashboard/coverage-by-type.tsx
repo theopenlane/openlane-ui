@@ -2,19 +2,21 @@
 
 import React, { useMemo } from 'react'
 import ProgressBar from './progress-bar'
-import { useInternalPoliciesDashboard } from '@/lib/graphql-hooks/policy'
+import { useInternalPoliciesDashboard } from '@/lib/graphql-hooks/internal-policy'
 import { wherePoliciesDashboard } from './dashboard-config'
 import { InternalPolicyDocumentStatus } from '@repo/codegen/src/schema'
 import { isStringArray, loadFilters, saveFilters } from '@/components/shared/table-filter/filter-storage'
-import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys'
+import { TableKeyEnum } from '@repo/ui/table-key'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { Button } from '@repo/ui/button'
 import Link from 'next/link'
 import { CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
-import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { objectToSnakeCase } from '@/utils/strings'
 
 export default function CoverageByType({ onTypeClick }: { onTypeClick: () => void }) {
-  const saved = loadFilters(TableFilterKeysEnum.POLICY) || {}
+  const saved = loadFilters(TableKeyEnum.INTERNAL_POLICY) || {}
   const validated = isStringArray(saved?.approverIDIn) ? saved?.approverIDIn : []
   const { policies } = useInternalPoliciesDashboard({
     where: {
@@ -29,12 +31,12 @@ export default function CoverageByType({ onTypeClick }: { onTypeClick: () => voi
       internalPolicyKindNameIn: type !== 'Unknown' ? [type] : undefined,
     }
 
-    saveFilters(TableFilterKeysEnum.POLICY, newState)
+    saveFilters(TableKeyEnum.INTERNAL_POLICY, newState)
   }
 
   const { enumOptions } = useGetCustomTypeEnums({
     where: {
-      objectType: 'internal_policy',
+      objectType: objectToSnakeCase(ObjectTypes.INTERNAL_POLICY),
       field: 'kind',
     },
   })

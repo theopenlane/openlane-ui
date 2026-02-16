@@ -1,15 +1,15 @@
 import { Card, CardContent, CardTitle } from '@repo/ui/cardpanel'
 import { TriangleAlert, Fingerprint, SlidersHorizontal, ListChecks } from 'lucide-react'
-import { useGetControlNotImplementedCount } from '@/lib/graphql-hooks/controls.ts'
+import { useGetControlNotImplementedCount } from '@/lib/graphql-hooks/control'
 import { useGetEvidenceMissingArtifactCount } from '@/lib/graphql-hooks/evidence.ts'
-import { useGetOverdueTasksCount } from '@/lib/graphql-hooks/tasks.ts'
-import { useGetRiskOpenAndIdentifiedCount } from '@/lib/graphql-hooks/risks.ts'
+import { useGetOverdueTasksCount } from '@/lib/graphql-hooks/task'
+import { useGetRiskOpenAndIdentifiedCount } from '@/lib/graphql-hooks/risk'
 import { saveFilters, saveQuickFilters, TFilterState } from '@/components/shared/table-filter/filter-storage.ts'
-import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
 import { ControlControlStatus, EvidenceEvidenceStatus, RiskRiskStatus } from '@repo/codegen/src/schema.ts'
 import { DateFormatStorage, TQuickFilter } from '@/components/shared/table-filter/table-filter-helper.ts'
 import { format, startOfDay } from 'date-fns'
 import { useRouter } from 'next/navigation'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 const DashboardComplianceOverview = () => {
   const router = useRouter()
@@ -24,7 +24,7 @@ const DashboardComplianceOverview = () => {
       statusIn: [ControlControlStatus.NOT_IMPLEMENTED],
     }
 
-    saveFilters(TableFilterKeysEnum.CONTROL, filters)
+    saveFilters(TableKeyEnum.CONTROL, filters)
     router.push('/controls')
   }
 
@@ -33,7 +33,7 @@ const DashboardComplianceOverview = () => {
       statusIn: [EvidenceEvidenceStatus.MISSING_ARTIFACT],
     }
 
-    saveFilters(TableFilterKeysEnum.EVIDENCE, filters)
+    saveFilters(TableKeyEnum.EVIDENCE, filters)
     router.push('/evidence')
   }
 
@@ -46,7 +46,7 @@ const DashboardComplianceOverview = () => {
       isActive: true,
     }
 
-    saveQuickFilters(TableFilterKeysEnum.TASK, filters)
+    saveQuickFilters(TableKeyEnum.TASK, filters)
     router.push('/tasks')
   }
 
@@ -55,7 +55,7 @@ const DashboardComplianceOverview = () => {
       statusIn: [RiskRiskStatus.OPEN, RiskRiskStatus.IDENTIFIED],
     }
 
-    saveFilters(TableFilterKeysEnum.RISK, filters)
+    saveFilters(TableKeyEnum.RISK, filters)
     router.push('/risks')
   }
 

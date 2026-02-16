@@ -1,28 +1,28 @@
 import { FilterField } from '@/types'
 import { TaskStatusWithoutCompletedAndOpen } from '@/components/pages/protected/tasks/util/task'
 import { TOrgMembers } from '../hooks/useTaskStore'
-import { FilterIcons } from '@/components/shared/enum-mapper/task-enum'
+import { TaskFilterIcons } from '@/components/shared/enum-mapper/task-enum'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 
 export const getTasksFilterFields = (orgMembers: TOrgMembers[], programOptions: { value: string; label: string }[], taskKindOptions: { value: string; label: string }[]): FilterField[] => [
-  { key: 'displayID', label: 'DisplayID', type: 'text', icon: FilterIcons.DisplayID },
-  { key: 'title', label: 'Title', type: 'text', icon: FilterIcons.Title },
+  { key: 'displayID', label: 'DisplayID', type: 'text', icon: TaskFilterIcons.DisplayID },
+  { key: 'title', label: 'Title', type: 'text', icon: TaskFilterIcons.Title },
 
   {
     key: 'taskKindNameIn',
     label: 'Type',
     type: 'multiselect',
-    icon: FilterIcons.Type,
+    icon: TaskFilterIcons.Type,
     options: taskKindOptions,
   },
 
-  { key: 'due', label: 'Due Date', type: 'dateRange', icon: FilterIcons.DueDate },
+  { key: 'due', label: 'Due Date', type: 'dateRange', icon: TaskFilterIcons.DueDate },
 
   {
     key: 'statusIn',
     label: 'Status',
     type: 'multiselect',
-    icon: FilterIcons.Status,
+    icon: TaskFilterIcons.Status,
     options: enumToOptions(TaskStatusWithoutCompletedAndOpen),
   },
 
@@ -31,7 +31,7 @@ export const getTasksFilterFields = (orgMembers: TOrgMembers[], programOptions: 
     label: 'Assigner',
     type: 'multiselect',
     options: orgMembers,
-    icon: FilterIcons.Assigner,
+    icon: TaskFilterIcons.Assigner,
   },
 
   {
@@ -39,7 +39,7 @@ export const getTasksFilterFields = (orgMembers: TOrgMembers[], programOptions: 
     label: 'Assignee',
     type: 'multiselect',
     options: orgMembers,
-    icon: FilterIcons.Assignee,
+    icon: TaskFilterIcons.Assignee,
   },
 
   {
@@ -47,7 +47,7 @@ export const getTasksFilterFields = (orgMembers: TOrgMembers[], programOptions: 
     label: 'Program Name',
     type: 'multiselect',
     options: programOptions,
-    icon: FilterIcons.ProgramName,
+    icon: TaskFilterIcons.ProgramName,
   },
 ]
 

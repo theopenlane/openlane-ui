@@ -4,16 +4,17 @@ import React, { useMemo, useState } from 'react'
 import { Button } from '@repo/ui/button'
 import { PlusSquare, Upload, CheckCircle2, Target, GitBranch } from 'lucide-react'
 import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/create-task-dialog.tsx'
-import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config.ts'
+import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config.ts'
 import Link from 'next/link'
 import EvidenceCreateSheet from '@/components/pages/protected/evidence/evidence-create-sheet'
 import CreateControlImplementationSheet from '@/components/pages/protected/controls/tabs/implementation/control-implementation-components/create-control-implementation-sheet'
-import type { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap.ts'
+import type { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap.ts'
 import QuickActionsBar, { type QuickActionItem } from '@/components/pages/protected/controls/quick-actions/quick-actions-bar'
-import { useGetControlAssociationsById } from '@/lib/graphql-hooks/controls'
+import { useGetControlAssociationsById } from '@/lib/graphql-hooks/control'
 import { useGetSubcontrolAssociationsById } from '@/lib/graphql-hooks/subcontrol'
 import { buildControlEvidenceData, buildEvidenceControlParam, buildSubcontrolEvidenceData } from '@/components/pages/protected/controls/evidence-data'
 import CreateControlObjectiveSheet from '../tabs/implementation/control-objectives-components/create-control-objective-sheet'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 type ControlLike = {
   id?: string | null
@@ -200,7 +201,7 @@ const ControlQuickActions: React.FC<QuickActionsProps> = (props) => {
         id: evidenceFormData.subcontrolID ?? subcontrolId ?? '',
         referenceFramework,
         refCode,
-        __typename: 'Subcontrol' as const,
+        __typename: ObjectTypes.SUBCONTROL,
       }
     }
 
@@ -210,7 +211,7 @@ const ControlQuickActions: React.FC<QuickActionsProps> = (props) => {
       id: evidenceControlParam?.id ?? evidenceFormData.controlID ?? controlId,
       referenceFramework: Object.values(referenceFramework)[0] ?? '',
       refCode: controlRefCodes[0] ?? '',
-      __typename: 'Control' as const,
+      __typename: ObjectTypes.CONTROL,
     }
   }, [evidenceFormData, isSubcontrol, controlId, subcontrolId, evidenceControlParam])
 

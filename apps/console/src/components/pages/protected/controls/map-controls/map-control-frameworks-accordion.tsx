@@ -3,7 +3,7 @@ import { Accordion, AccordionContent, AccordionItem } from '@radix-ui/react-acco
 import ControlChip from './shared/control-chip'
 import RelationsAccordionTrigger from '@/components/shared/relations-accordion-trigger.tsx/relations-accordion-trigger'
 import ContextMenu from '@/components/shared/context-menu/context-menu'
-import { useStandardsSelect } from '@/lib/graphql-hooks/standards'
+import { useStandardsSelect } from '@/lib/graphql-hooks/standard'
 import { useMapControls } from './shared/use-selectable-controls'
 import { MapControl } from '@/types'
 

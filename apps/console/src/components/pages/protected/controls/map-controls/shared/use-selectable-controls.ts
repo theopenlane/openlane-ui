@@ -1,6 +1,7 @@
 import { useMemo, useState, useEffect } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { MapControl } from '@/types'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 interface useMapControlsParams {
   controlData?: (
@@ -67,9 +68,9 @@ export function useMapControls({ controlData, subcontrolData, droppedControls, t
     const newSubcontrolIds = [...currentSubcontrolIds]
 
     selectedControls.forEach((c) => {
-      if (c.__typename === 'Control' && !newControlIds.includes(c.id)) {
+      if (c.__typename === ObjectTypes.CONTROL && !newControlIds.includes(c.id)) {
         newControlIds.push(c.id)
-      } else if (c.__typename === 'Subcontrol' && !newSubcontrolIds.includes(c.id)) {
+      } else if (c.__typename === ObjectTypes.SUBCONTROL && !newSubcontrolIds.includes(c.id)) {
         newSubcontrolIds.push(c.id)
       }
     })

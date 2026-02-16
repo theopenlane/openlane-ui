@@ -5,7 +5,7 @@ import { Card } from '@repo/ui/cardpanel'
 import { Stamp, CircleArrowRight } from 'lucide-react'
 import { Controller, UseFormReturn } from 'react-hook-form'
 import { Option } from '@repo/ui/multiple-selector'
-import { useGetAllGroups } from '@/lib/graphql-hooks/groups.ts'
+import { useGetAllGroups } from '@/lib/graphql-hooks/group'
 import { CreateRisksFormData } from '@/components/pages/protected/risks/view/hooks/use-form-schema.ts'
 import { SearchableSingleSelect } from '@/components/shared/searchableSingleSelect/searchable-single-select'
 

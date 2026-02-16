@@ -4,7 +4,6 @@ import React, { useState } from 'react'
 import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogFooter, DialogTitle } from '@repo/ui/dialog'
 import { Button } from '@repo/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import ImportControlsDialogFramework from './program-settings-import-controls-dialog-framework'
 import ImportControlsDialogProgram from './program-settings-import-controls-dialog-program'
 import { SelectedItem } from '../shared/program-settings-import-controls-shared-props'
@@ -12,16 +11,17 @@ import { useNotification } from '@/hooks/useNotification'
 import { useQueryClient } from '@tanstack/react-query'
 import { useParams, useRouter } from 'next/navigation'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { useCloneControls } from '@/lib/graphql-hooks/standards'
-import { useGetProgramBasicInfo } from '@/lib/graphql-hooks/programs'
+import { useCloneControls } from '@/lib/graphql-hooks/standard'
+import { useGetProgramBasicInfo } from '@/lib/graphql-hooks/program'
 import { ProgramProgramStatus } from '@repo/codegen/src/schema'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 const ImportControlsDialog: React.FC = () => {
   const [open, setOpen] = useState(false)
   const [selectedItems, setSelectedItems] = useState<SelectedItem[]>([])
   const [selectedProgramIds, setSelectedProgramIds] = useState<string[]>([])
   const [selectedFrameworkIds, setSelectedFrameworkIds] = useState<string[]>([])
-  const [selectedImportControlsFrom, setSelectedImportControlsFrom] = useState<ObjectEnum>(ObjectEnum.STANDARD)
+  const [selectedImportControlsFrom, setSelectedImportControlsFrom] = useState<ObjectTypes>(ObjectTypes.STANDARD)
   const { successNotification, errorNotification } = useNotification()
   const { id } = useParams<{ id: string }>()
 
@@ -62,7 +62,7 @@ const ImportControlsDialog: React.FC = () => {
     setSelectedItems([])
     setSelectedProgramIds([])
     setSelectedFrameworkIds([])
-    setSelectedImportControlsFrom(ObjectEnum.STANDARD)
+    setSelectedImportControlsFrom(ObjectTypes.STANDARD)
     setOpen(false)
   }
 
@@ -84,18 +84,18 @@ const ImportControlsDialog: React.FC = () => {
           <DialogTitle className="text-2xl font-semibold leading-8">Import Controls</DialogTitle>
         </DialogHeader>
         <p className="text-sm font-medium leading-5">Import controls from</p>
-        <Select value={selectedImportControlsFrom} onValueChange={(val) => setSelectedImportControlsFrom(val as ObjectEnum)}>
+        <Select value={selectedImportControlsFrom} onValueChange={(val) => setSelectedImportControlsFrom(val as ObjectTypes)}>
           <SelectTrigger>
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value={ObjectEnum.STANDARD}>Framework</SelectItem>
-            <SelectItem value={ObjectEnum.PROGRAM}>Program</SelectItem>
+            <SelectItem value={ObjectTypes.STANDARD}>Framework</SelectItem>
+            <SelectItem value={ObjectTypes.PROGRAM}>Program</SelectItem>
           </SelectContent>
         </Select>
         <p className="text-sm font-medium leading-5">Type</p>
         {basicInfoData?.program.status !== ProgramProgramStatus.ARCHIVED &&
-          (selectedImportControlsFrom === ObjectEnum.STANDARD ? (
+          (selectedImportControlsFrom === ObjectTypes.STANDARD ? (
             <ImportControlsDialogFramework
               setSelectedItems={setSelectedItems}
               selectedItems={selectedItems}

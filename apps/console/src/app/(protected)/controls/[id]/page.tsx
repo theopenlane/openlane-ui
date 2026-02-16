@@ -3,7 +3,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useHasScrollbar } from '@/hooks/useHasScrollbar'
 import { useParams, useRouter } from 'next/navigation'
-import { useGetControlAssociationsById, useGetControlById, useGetControlDiscussionById, useUpdateControl, useDeleteControl, ControlByIdNode } from '@/lib/graphql-hooks/controls'
+import { useGetControlAssociationsById, useGetControlById, useGetControlDiscussionById, useUpdateControl, useDeleteControl, ControlByIdNode } from '@/lib/graphql-hooks/control'
 import { useQueryClient } from '@tanstack/react-query'
 import { FormProvider, useForm } from 'react-hook-form'
 import { Value } from 'platejs'
@@ -14,7 +14,6 @@ import PropertiesCard from '@/components/pages/protected/controls/propereties-ca
 import { ControlControlSource, ControlControlStatus, UpdateControlInput } from '@repo/codegen/src/schema.ts'
 import { useNavigationGuard } from 'next-navigation-guard'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
-import { ObjectEnum } from '@/lib/authz/enums/object-enum.ts'
 import { canEdit } from '@/lib/authz/utils.ts'
 import EvidenceDetailsSheet from '@/components/pages/protected/evidence/evidence-details-sheet.tsx'
 import ControlHeaderActions from '@/components/pages/protected/controls/control-header-actions'
@@ -26,7 +25,7 @@ import { useOrganization } from '@/hooks/useOrganization'
 import ObjectAssociationSwitch from '@/components/shared/object-association/object-association-switch.tsx'
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types.ts'
 import { useAssociationRemoval } from '@/hooks/useAssociationRemoval'
-import { ASSOCIATION_REMOVAL_CONFIG } from '@/components/shared/objectAssociation/object-assoiation-config'
+import { ASSOCIATION_REMOVAL_CONFIG } from '@/components/shared/object-association/object-association-config'
 import Loading from './loading.tsx'
 import { useAccountRoles, useOrganizationRoles } from '@/lib/query-hooks/permissions.ts'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
@@ -39,8 +38,9 @@ import QuickActions from '@/components/pages/protected/controls/quick-actions/qu
 import AIChat from '@/components/shared/ai-suggetions/chat.tsx'
 import { useSession } from 'next-auth/react'
 import { useGetCurrentUser } from '@/lib/graphql-hooks/user.ts'
-import { formatEnumLabel } from '@/utils/enumToLabel.ts'
 import TaskDetailsSheet from '@/components/pages/protected/tasks/create-task/sidebar/task-details-sheet'
+import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 interface FormValues {
   refCode: string
@@ -84,7 +84,7 @@ const ControlDetailsPage: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [initialValues, setInitialValues] = useState<FormValues>(initialDataObj)
-  const { data: permission } = useAccountRoles(ObjectEnum.CONTROL, id)
+  const { data: permission } = useAccountRoles(ObjectTypes.CONTROL, id)
   const { data: orgPermission } = useOrganizationRoles()
 
   const queryClient = useQueryClient()
@@ -333,7 +333,7 @@ const ControlDetailsPage: React.FC = () => {
         </div>
         <div>
           <p className="text-sm text-muted-foreground mb-2">Source</p>
-          <Badge variant="document">{formatEnumLabel(control.source ?? 'custom')}</Badge>
+          <Badge variant="document">{getEnumLabel(control.source ?? 'custom')}</Badge>
         </div>
       </div>
 

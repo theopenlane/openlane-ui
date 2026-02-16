@@ -39,7 +39,6 @@ import { Control, EvidenceEvidenceStatus, Subcontrol, User } from '@repo/codegen
 import useFormSchema, { EditEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema.ts'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { Controller } from 'react-hook-form'
-import { EvidenceStatusMapper } from '@/components/pages/protected/evidence/util/evidence.ts'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { useQueryClient } from '@tanstack/react-query'
 import { Textarea } from '@repo/ui/textarea'
@@ -47,17 +46,16 @@ import { fileDownload } from '@/components/shared/lib/export.ts'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { EvidenceRenewDialog } from '@/components/pages/protected/evidence/evidence-renew-dialog'
 import { EvidenceIconMapper, EvidenceStatusOptions } from '@/components/shared/enum-mapper/evidence-enum'
-import { useGetOrgUserList } from '@/lib/graphql-hooks/members.ts'
+import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
 import { Panel, PanelHeader } from '@repo/ui/panel'
-import ObjectAssociation from '@/components/shared/objectAssociation/object-association.tsx'
-import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config.ts'
-import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap.ts'
+import ObjectAssociation from '@/components/shared/object-association/object-association.tsx'
+import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config.ts'
+import { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap.ts'
 import { getAssociationInput } from '@/components/shared/object-association/utils.ts'
 import { canEdit } from '@/lib/authz/utils'
 import useEscapeKey from '@/hooks/useEscapeKey'
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { EvidenceDetailsSheetSkeleton } from './skeleton/evidence-details-skeleton'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import NextLink from 'next/link'
@@ -65,16 +63,16 @@ import EvidenceFiles from './evidence-files'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { statCardStyles } from '@/components/shared/stats-cards/stats-cards-styles'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
-import { ProgramSelectionDialog } from '@/components/shared/objectAssociation/object-association-programs-dialog'
-import { ControlSelectionDialog } from '@/components/shared/objectAssociation/object-association-control-dialog'
-import ObjectAssociationProgramsChips from '@/components/shared/objectAssociation/object-association-programs-chips'
-import ObjectAssociationControlsChips from '@/components/shared/objectAssociation/object-association-controls-chips'
+import { ProgramSelectionDialog } from '@/components/shared/object-association/object-association-programs-dialog'
+import { ControlSelectionDialog } from '@/components/shared/object-association/object-association-control-dialog'
+import ObjectAssociationProgramsChips from '@/components/shared/object-association/object-association-programs-chips'
+import ObjectAssociationControlsChips from '@/components/shared/object-association/object-association-controls-chips'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
-import { useGetSuggestedControlsOrSubcontrols } from '@/lib/graphql-hooks/controls'
+import { useGetSuggestedControlsOrSubcontrols } from '@/lib/graphql-hooks/control'
 import { buildWhere, CustomEvidenceControl, flattenAndFilterControls } from './evidence-sheet-config'
-import { useGetStandards } from '@/lib/graphql-hooks/standards'
-import { useGetTags } from '@/lib/graphql-hooks/tags'
+import { useGetStandards } from '@/lib/graphql-hooks/standard'
+import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 import EvidenceCommentsCard from './evidence-comment-card'
 import PlateEditor from '@/components/shared/plate/plate-editor'
@@ -82,6 +80,8 @@ import { Value } from 'platejs'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 
 type TEvidenceDetailsSheet = {
   controlId?: string
@@ -115,7 +115,9 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
   const [associationProgramsRefMap, setAssociationProgramsRefMap] = useState<string[]>([])
   const [openProgramsDialog, setOpenProgramsDialog] = useState(false)
-  const [suggestedControlsMap, setSuggestedControlsMap] = useState<{ id: string; refCode: string; referenceFramework: string | null; source: string; typeName: 'Control' | 'Subcontrol' }[]>([])
+  const [suggestedControlsMap, setSuggestedControlsMap] = useState<
+    { id: string; refCode: string; referenceFramework: string | null; source: string; typeName: typeof ObjectTypes.CONTROL | typeof ObjectTypes.SUBCONTROL }[]
+  >([])
 
   const [evidenceControls, setEvidenceControls] = useState<CustomEvidenceControl[] | null>(null)
   const [evidenceSubcontrols, setEvidenceSubcontrols] = useState<CustomEvidenceControl[] | null>(null)
@@ -164,7 +166,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
   const [editField, setEditField] = useState<EditableFields | null>(null)
 
-  const { data: permission } = useAccountRoles(ObjectEnum.EVIDENCE, data?.evidence.id)
+  const { data: permission } = useAccountRoles(ObjectTypes.EVIDENCE, data?.evidence.id)
 
   const editAllowed = canEdit(permission?.roles)
 
@@ -737,11 +739,11 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                                         handleUpdateField()
                                       }}
                                     >
-                                      <SelectTrigger className="w-[250px]">{EvidenceStatusMapper[field.value as EvidenceEvidenceStatus] || 'Select'}</SelectTrigger>
+                                      <SelectTrigger className="w-[250px]">{getEnumLabel(field.value as EvidenceEvidenceStatus) || 'Select'}</SelectTrigger>
                                       <SelectContent ref={popoverRef}>
                                         {statusOptions.map((option) => (
                                           <SelectItem key={option.value} value={option.value}>
-                                            {EvidenceStatusMapper[option.value as EvidenceEvidenceStatus]}
+                                            {getEnumLabel(option.value as EvidenceEvidenceStatus)}
                                           </SelectItem>
                                         ))}
                                       </SelectContent>
@@ -759,7 +761,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                               >
                                 <div className="flex justify-end items-center " onDoubleClick={() => editAllowed && handleDoubleClick('status')}>
                                   {EvidenceIconMapper[evidence?.status as EvidenceEvidenceStatus]}
-                                  <p>{EvidenceStatusMapper[evidence?.status as EvidenceEvidenceStatus]}</p>
+                                  <p>{getEnumLabel(evidence?.status as EvidenceEvidenceStatus)}</p>
                                 </div>
                               </HoverPencilWrapper>
                             )}

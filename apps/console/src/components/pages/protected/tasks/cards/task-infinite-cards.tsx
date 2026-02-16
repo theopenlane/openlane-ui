@@ -3,7 +3,7 @@ import React, { forwardRef, useEffect, useImperativeHandle, useState } from 'rea
 import { TPagination } from '@repo/ui/pagination-types'
 import { CARD_DEFAULT_PAGINATION } from '@/constants/pagination.ts'
 import TaskCards from '@/components/pages/protected/tasks/cards/task-cards.tsx'
-import { useTasksWithFilterInfinite } from '@/lib/graphql-hooks/tasks.ts'
+import { useTasksWithFilterInfinite } from '@/lib/graphql-hooks/task'
 import { TaskOrder, TaskWhereInput } from '@repo/codegen/src/schema.ts'
 import { getInitialPagination } from '@repo/ui/data-table'
 import { TableKeyEnum } from '@repo/ui/table-key'

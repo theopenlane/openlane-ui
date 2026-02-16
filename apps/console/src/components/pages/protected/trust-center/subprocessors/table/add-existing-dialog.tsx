@@ -11,9 +11,11 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { SubprocessorSelectField } from '../sheet/form-fields/subprocessor-select-field'
 import { CountriesField } from '../sheet/form-fields/countries-field'
 import { CategoryField } from '../sheet/form-fields/category-field'
-import { useCreateTrustCenterSubprocessor } from '@/lib/graphql-hooks/trust-center-subprocessors'
+import { useCreateTrustCenterSubprocessor } from '@/lib/graphql-hooks/trust-center-subprocessor'
 import { CreateSubprocessorMutation } from '@repo/codegen/src/schema'
-import { useCreateCustomTypeEnum, useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
+import { useCreateCustomTypeEnum, useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { objectToSnakeCase } from '@/utils/strings'
 
 const schema = z.object({
   subprocessorID: z.string().min(1, 'Please select a subprocessor'),
@@ -46,7 +48,7 @@ export const AddExistingDialog = ({
   const { mutateAsync: createEnum } = useCreateCustomTypeEnum()
   const { enumOptions } = useGetCustomTypeEnums({
     where: {
-      objectType: 'trust_center_subprocessor',
+      objectType: objectToSnakeCase(ObjectTypes.TRUST_CENTER_SUBPROCESSOR),
       field: 'kind',
     },
   })

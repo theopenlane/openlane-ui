@@ -29,7 +29,7 @@ import { OrderDirection } from '@repo/codegen/src/schema.ts'
 import Pagination from '../pagination/pagination'
 import { TPagination, TPaginationMeta } from '../pagination/types'
 import { cn } from '../../lib/utils'
-import { TableKeyEnum } from '../data-table/table-key.ts'
+import { TableKeyValue } from '../data-table/table-key.ts'
 
 type CustomColumnDef<TData, TValue> = ColumnDef<TData, TValue> & {
   meta?: {
@@ -39,13 +39,13 @@ type CustomColumnDef<TData, TValue> = ColumnDef<TData, TValue> & {
 
 type TStickyOption = { stickyHeader: true; stickyDialogHeader?: false } | { stickyHeader?: false; stickyDialogHeader: true } | { stickyHeader?: false; stickyDialogHeader?: false }
 
-export function getInitialPagination<T extends TPagination>(key: TableKeyEnum, fallback: T): T {
+export function getInitialPagination<T extends TPagination>(key: TableKeyValue, fallback: T): T {
   if (typeof window !== 'undefined') {
     const stored = localStorage.getItem(`${STORAGE_PAGINATION_KEY_PREFIX}${key}`)
     if (stored) {
       try {
         return JSON.parse(stored)
-      } catch {}
+      } catch { }
     }
   }
   return fallback
@@ -69,7 +69,7 @@ interface BaseDataTableProps<TData, TValue> {
   columnVisibility?: VisibilityState
   setColumnVisibility?: React.Dispatch<React.SetStateAction<VisibilityState>>
   footer?: ReactElement | null
-  tableKey: TableKeyEnum | undefined
+  tableKey: TableKeyValue | undefined
   defaultSorting?: { field: string; direction?: OrderDirection }[] | undefined
 }
 
@@ -83,7 +83,7 @@ export type SortCondition<TField extends string> = {
 }
 
 export function getInitialSortConditions<TField extends string>(
-  tableKey: TableKeyEnum,
+  tableKey: TableKeyValue,
   validSortKeys: Record<string, TField> | TField[],
   defaultSortFields: SortCondition<TField>[],
 ): SortCondition<TField>[] {
@@ -98,7 +98,7 @@ export function getInitialSortConditions<TField extends string>(
         if (sanitized.length > 0) {
           return sanitized
         }
-      } catch {}
+      } catch { }
     }
   }
 

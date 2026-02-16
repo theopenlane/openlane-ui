@@ -9,7 +9,7 @@ import { MappedControlMappingType, MappedControlMappingSource } from '@repo/code
 import { useNotification } from '@/hooks/useNotification'
 import { useCreateMappedControl } from '@/lib/graphql-hooks/mapped-control'
 import { useParams, useRouter } from 'next/navigation'
-import { useGetControlById } from '@/lib/graphql-hooks/controls'
+import { useGetControlById } from '@/lib/graphql-hooks/control'
 import { useGetSubcontrolById } from '@/lib/graphql-hooks/subcontrol'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { MappingIconMapper } from '@/components/shared/enum-mapper/map-control-enum'

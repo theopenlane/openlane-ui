@@ -7,7 +7,7 @@ import { Check } from 'lucide-react'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
 import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
 import { cn } from '@repo/ui/lib/utils'
-import { useStandardsSelect } from '@/lib/graphql-hooks/standards'
+import { useStandardsSelect } from '@/lib/graphql-hooks/standard'
 
 interface Props {
   isEditing: boolean

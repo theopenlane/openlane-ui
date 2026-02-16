@@ -7,7 +7,6 @@ import { BookText, CalendarCheck2, Circle, CircleUser, Folder, Tag, UserRoundPen
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@repo/ui/select'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
 import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
-import { TaskStatusMapper } from '@/components/pages/protected/tasks/util/task'
 import { formatDate } from '@/utils/date'
 import { TaskQuery, TaskTaskStatus, UpdateTaskInput } from '@repo/codegen/src/schema'
 import { useTaskStore } from '../../../hooks/useTaskStore'
@@ -17,10 +16,11 @@ import RelatedObjects from './related-objects'
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 import useEscapeKey from '@/hooks/useEscapeKey'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
-import { useGetTags } from '@/lib/graphql-hooks/tags'
+import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
-import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { CustomTypeEnumOptionChip, CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
+import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 
 type PropertiesProps = {
   isEditing: boolean
@@ -226,11 +226,11 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
                     setInternalEditing(null)
                   }}
                 >
-                  <SelectTrigger className="w-full">{TaskStatusMapper[field.value as TaskTaskStatus]}</SelectTrigger>
+                  <SelectTrigger className="w-full">{getEnumLabel(field.value as TaskTaskStatus)}</SelectTrigger>
                   <SelectContent ref={popoverRef}>
                     {statusOptions.map((option) => (
                       <SelectItem key={option.value} value={option.value}>
-                        {TaskStatusMapper[option.value as TaskTaskStatus]}
+                        {getEnumLabel(option.value as TaskTaskStatus)}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -245,7 +245,7 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
             className={`${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} flex items-center space-x-2 pr-5`}
             onPencilClick={() => isEditAllowed && !isEditing && setInternalEditing('status')}
           >
-            <div onDoubleClick={() => isEditAllowed && !isEditing && setInternalEditing('status')}>{taskData?.status ? TaskStatusMapper[taskData.status] : 'No status'}</div>
+            <div onDoubleClick={() => isEditAllowed && !isEditing && setInternalEditing('status')}>{taskData?.status ? getEnumLabel(taskData.status) : 'No status'}</div>
           </HoverPencilWrapper>
         )}
       </div>

@@ -11,6 +11,7 @@ import { Section, TBaseAssociatedNode, TEdgeNode } from '@/components/shared/obj
 import { useTheme } from 'next-themes'
 import { useRouter } from 'next/navigation'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 interface IGraphNode {
   id: string
@@ -99,23 +100,29 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
   }, [isFullscreen])
 
   const getType = (type: string): string => {
+    // first check if its a enum type
+    const pluralType = type.endsWith('s') ? type : `${type}s`
+    if (Object.values(ObjectTypes).includes(pluralType as ObjectTypes)) {
+      return type
+    }
+
     switch (type) {
       case 'controls':
-        return 'Control'
+        return ObjectTypes.CONTROL
       case 'subcontrols':
-        return 'Subcontrol'
+        return ObjectTypes.SUBCONTROL
       case 'risks':
-        return 'Risk'
+        return ObjectTypes.RISK
       case 'policies':
-        return 'Internal Policy'
+        return ObjectTypes.INTERNAL_POLICY
       case 'procedures':
-        return 'Procedure'
+        return ObjectTypes.PROCEDURE
       case 'tasks':
-        return 'Task'
+        return ObjectTypes.TASK
       case 'programs':
-        return 'Program'
+        return ObjectTypes.PROGRAM
       case 'controlObjectives':
-        return 'Control Objective'
+        return ObjectTypes.CONTROL_OBJECTIVE
       default:
         return 'Unknown'
     }

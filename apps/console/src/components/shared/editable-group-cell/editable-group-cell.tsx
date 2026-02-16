@@ -10,7 +10,7 @@ import { Option } from '@repo/ui/multiple-selector'
 import { CircleUser } from 'lucide-react'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import useEditableFieldFormSchema, { EditableFieldFormData } from '@/components/pages/protected/tasks/hooks/use-editable-field-form-schema'
-import { useGetAllGroups } from '@/lib/graphql-hooks/groups'
+import { useGetAllGroups } from '@/lib/graphql-hooks/group'
 
 type EditableGroupCellProps = {
   label: string

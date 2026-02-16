@@ -3,10 +3,10 @@ import Link from 'next/link'
 import type { ColumnDef } from '@tanstack/react-table'
 import StandardChip from '@/components/pages/protected/standards/shared/standard-chip'
 import { FileBadge2, Folder, FolderTree, Layers, Link2, Tag } from 'lucide-react'
-import { formatEnumLabel } from '@/utils/enumToLabel'
 import { MappedControlMappingSource, MappedControlMappingType } from '@repo/codegen/src/schema'
 import type { FilterField } from '@/types'
 import type { MappedControlRow } from './mapped-controls-types'
+import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 
 type LinkMap = Map<string, string>
 
@@ -15,44 +15,44 @@ export const getMappedControlsBaseColumns = (
   subcontrolLinkMap: LinkMap,
   convertToReadOnly: (value: string, index: number) => React.ReactNode,
 ): ColumnDef<MappedControlRow>[] => [
-  {
-    accessorKey: 'refCode',
-    header: () => <span className="whitespace-nowrap">Ref Code</span>,
-    cell: ({ row }) => {
-      const href = row.original.nodeType === 'Subcontrol' ? subcontrolLinkMap.get(row.original.refCode) : controlLinkMap.get(row.original.refCode)
-      if (!href) return <span className="block truncate">{row.original.refCode}</span>
-      return (
-        <Link href={href} className="block truncate text-blue-500 hover:underline">
-          {row.original.refCode}
-        </Link>
-      )
+    {
+      accessorKey: 'refCode',
+      header: () => <span className="whitespace-nowrap">Ref Code</span>,
+      cell: ({ row }) => {
+        const href = row.original.nodeType === 'Subcontrol' ? subcontrolLinkMap.get(row.original.refCode) : controlLinkMap.get(row.original.refCode)
+        if (!href) return <span className="block truncate">{row.original.refCode}</span>
+        return (
+          <Link href={href} className="block truncate text-blue-500 hover:underline">
+            {row.original.refCode}
+          </Link>
+        )
+      },
+      size: 90,
+      minSize: 90,
     },
-    size: 90,
-    minSize: 90,
-  },
-  {
-    accessorKey: 'description',
-    header: () => <span className="whitespace-nowrap">Description</span>,
-    cell: ({ row }) => <div className="line-clamp-2 text-justify">{row.original.description ? convertToReadOnly(row.original.description, 0) : '-'}</div>,
-    size: 320,
-  },
-  {
-    accessorKey: 'status',
-    header: () => <span className="whitespace-nowrap">Status</span>,
-    cell: ({ row }) => <span className="block truncate">{row.original.status ? formatEnumLabel(row.original.status) : '-'}</span>,
-    size: 120,
-    minSize: 120,
-    maxSize: 120,
-  },
-  {
-    accessorKey: 'type',
-    header: () => <span className="whitespace-nowrap">Type</span>,
-    cell: ({ row }) => <span className="block truncate">{row.original.type ? formatEnumLabel(row.original.type) : '-'}</span>,
-    size: 120,
-    minSize: 120,
-    maxSize: 120,
-  },
-]
+    {
+      accessorKey: 'description',
+      header: () => <span className="whitespace-nowrap">Description</span>,
+      cell: ({ row }) => <div className="line-clamp-2 text-justify">{row.original.description ? convertToReadOnly(row.original.description, 0) : '-'}</div>,
+      size: 320,
+    },
+    {
+      accessorKey: 'status',
+      header: () => <span className="whitespace-nowrap">Status</span>,
+      cell: ({ row }) => <span className="block truncate">{row.original.status ? getEnumLabel(row.original.status) : '-'}</span>,
+      size: 120,
+      minSize: 120,
+      maxSize: 120,
+    },
+    {
+      accessorKey: 'type',
+      header: () => <span className="whitespace-nowrap">Type</span>,
+      cell: ({ row }) => <span className="block truncate">{row.original.type ? getEnumLabel(row.original.type) : '-'}</span>,
+      size: 120,
+      minSize: 120,
+      maxSize: 120,
+    },
+  ]
 
 export const getMappedControlsFrameworkColumns = (baseColumns: ColumnDef<MappedControlRow>[]): ColumnDef<MappedControlRow>[] => [
   ...baseColumns,
@@ -81,14 +81,14 @@ export const getMappedControlsFilterFields = (rows: MappedControlRow[], showFram
       label: 'Type',
       type: 'multiselect',
       icon: Tag,
-      options: typeOptions.map((value) => ({ value, label: formatEnumLabel(value) })),
+      options: typeOptions.map((value) => ({ value, label: getEnumLabel(value) })),
     },
     {
       key: 'sourceIn',
       label: 'Source',
       type: 'multiselect',
       icon: Layers,
-      options: sourceOptions.map((value) => ({ value, label: formatEnumLabel(value) })),
+      options: sourceOptions.map((value) => ({ value, label: getEnumLabel(value) })),
     },
     {
       key: 'categoryContainsFold',
@@ -107,14 +107,14 @@ export const getMappedControlsFilterFields = (rows: MappedControlRow[], showFram
       label: 'Mapping Type',
       type: 'multiselect',
       icon: Link2,
-      options: Object.values(MappedControlMappingType).map((value) => ({ value, label: formatEnumLabel(value) })),
+      options: Object.values(MappedControlMappingType).map((value) => ({ value, label: getEnumLabel(value) })),
     },
     {
       key: 'mappingSourceIn',
       label: 'Mapping Source',
       type: 'multiselect',
       icon: Layers,
-      options: Object.values(MappedControlMappingSource).map((value) => ({ value, label: formatEnumLabel(value) })),
+      options: Object.values(MappedControlMappingSource).map((value) => ({ value, label: getEnumLabel(value) })),
     },
   ]
 

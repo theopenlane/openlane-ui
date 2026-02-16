@@ -12,7 +12,7 @@ import { startRegistration } from '@simplewebauthn/browser'
 import { useQueryClient } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
-import { useDeletePasskey, useGetPasskeys } from '@/lib/graphql-hooks/passkeys'
+import { useDeletePasskey, useGetPasskeys } from '@/lib/graphql-hooks/passkey'
 import rawData from '@/lib/passkeys.json' assert { type: 'json' }
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 

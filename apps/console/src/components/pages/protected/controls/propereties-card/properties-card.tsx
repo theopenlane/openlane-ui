@@ -7,8 +7,8 @@ import { ControlControlSource, UpdateControlInput, UpdateSubcontrolInput } from 
 
 import { Group } from '@repo/codegen/src/schema'
 import { Option } from '@repo/ui/multiple-selector'
-import { useGetAllGroups } from '@/lib/graphql-hooks/groups'
-import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
+import { useGetAllGroups } from '@/lib/graphql-hooks/group'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { usePathname } from 'next/navigation'
 import { Property } from './fields/property'
 import { EditableSelect } from './fields/editable-select'
@@ -20,8 +20,10 @@ import { MappedCategories } from './fields/mapped-categories'
 import { Status } from './fields/status'
 import { controlIconsMap } from '@/components/shared/enum-mapper/control-enum'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
-import type { ControlByIdNode } from '@/lib/graphql-hooks/controls'
+import type { ControlByIdNode } from '@/lib/graphql-hooks/control'
 import type { SubcontrolByIdNode } from '@/lib/graphql-hooks/subcontrol'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { objectToSnakeCase } from '@/utils/strings'
 
 type ControlPropertiesCardProps = {
   isEditing: boolean
@@ -65,7 +67,7 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handle
 
   const { enumOptions } = useGetCustomTypeEnums({
     where: {
-      objectType: 'control',
+      objectType: objectToSnakeCase(ObjectTypes.CONTROL),
       field: 'kind',
     },
   })

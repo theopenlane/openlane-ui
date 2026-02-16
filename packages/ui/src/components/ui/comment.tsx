@@ -19,13 +19,14 @@ import { BasicMarksKit } from '@repo/ui/components/editor/plugins/basic-marks-ki
 import { type TDiscussion, discussionPlugin, CommentEntityType } from '@repo/ui/components/editor/plugins/discussion-kit.tsx'
 
 import { Editor, EditorContainer } from './editor'
-import { POLICY_DISCUSSION_QUERY_KEY, useInsertPolicyComment, useUpdateInternalPolicy, useUpdatePolicyComment } from 'console/src/lib/graphql-hooks/policy.ts'
+import { POLICY_DISCUSSION_QUERY_KEY, useInsertPolicyComment, useUpdateInternalPolicy, useUpdatePolicyComment } from 'console/src/lib/graphql-hooks/internal-policy'
 import type { UpdateControlInput, UpdateInternalPolicyInput, UpdateNoteInput, UpdateProcedureInput, UpdateRiskInput, UpdateSubcontrolInput } from '@repo/codegen/src/schema.ts'
-import { PROCEDURE_DISCUSSION_QUERY_KEY, useInsertProcedureComment, useUpdateProcedure, useUpdateProcedureComment } from 'console/src/lib/graphql-hooks/procedures.ts'
-import { CONTROL_DISCUSSION_QUERY_KEY, useInsertControlPlateComment, useUpdateControl, useUpdateControlComment } from 'console/src/lib/graphql-hooks/controls.ts'
-import { SUBCONTROL_DISCUSSION_QUERY_KEY, useInsertSubcontrolPlateComment, useUpdateSubcontrol, useUpdateSubcontrolComment } from 'console/src/lib/graphql-hooks/subcontrol.ts'
-import { RISK_DISCUSSION_QUERY_KEY, useInsertRiskComment, useUpdateRisk, useUpdateRiskComment } from 'console/src/lib/graphql-hooks/risks.ts'
+import { PROCEDURE_DISCUSSION_QUERY_KEY, useInsertProcedureComment, useUpdateProcedure, useUpdateProcedureComment } from 'console/src/lib/graphql-hooks/procedure'
+import { CONTROL_DISCUSSION_QUERY_KEY, useInsertControlPlateComment, useUpdateControl, useUpdateControlComment } from 'console/src/lib/graphql-hooks/control'
+import { SUBCONTROL_DISCUSSION_QUERY_KEY, useInsertSubcontrolPlateComment, useUpdateSubcontrol, useUpdateSubcontrolComment } from 'console/src/lib/graphql-hooks/subcontrol'
+import { RISK_DISCUSSION_QUERY_KEY, useInsertRiskComment, useUpdateRisk, useUpdateRiskComment } from 'console/src/lib/graphql-hooks/risk'
 import { useQueryClient } from '@tanstack/react-query'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 export interface TComment {
   id: string
@@ -60,19 +61,19 @@ export function Comment(props: {
   const entityType = usePluginOption(discussionPlugin, 'entityType') as CommentEntityType
 
   type EntityInputMap = {
-    Control: UpdateNoteInput
-    Subcontrol: UpdateNoteInput
-    Procedure: UpdateNoteInput
-    InternalPolicy: UpdateNoteInput
-    Risk: UpdateNoteInput
+    [ObjectTypes.CONTROL]: UpdateNoteInput
+    [ObjectTypes.SUBCONTROL]: UpdateNoteInput
+    [ObjectTypes.PROCEDURE]: UpdateNoteInput
+    [ObjectTypes.INTERNAL_POLICY]: UpdateNoteInput
+    [ObjectTypes.RISK]: UpdateNoteInput
   }
 
   type EntityIdKeyMap = {
-    Control: 'updateControlCommentId'
-    Subcontrol: 'updateSubcontrolCommentId'
-    Procedure: 'updateProcedureCommentId'
-    InternalPolicy: 'updateInternalPolicyCommentId'
-    Risk: 'updateRiskCommentId'
+    [ObjectTypes.CONTROL]: 'updateControlCommentId'
+    [ObjectTypes.SUBCONTROL]: 'updateSubcontrolCommentId'
+    [ObjectTypes.PROCEDURE]: 'updateProcedureCommentId'
+    [ObjectTypes.INTERNAL_POLICY]: 'updateInternalPolicyCommentId'
+    [ObjectTypes.RISK]: 'updateRiskCommentId'
   }
 
   type EntityType = keyof EntityInputMap
@@ -86,11 +87,11 @@ export function Comment(props: {
   ) => Promise<unknown>
 
   const entityUpdateMap: { [K in EntityType]: EntityUpdateFn<K> } = {
-    Control: updateControlComment,
-    Subcontrol: updateSubcontrolComment,
-    Procedure: updateProcedureComment,
-    InternalPolicy: updatePolicyComment,
-    Risk: updateRiskComment,
+    [ObjectTypes.CONTROL]: updateControlComment,
+    [ObjectTypes.SUBCONTROL]: updateSubcontrolComment,
+    [ObjectTypes.PROCEDURE]: updateProcedureComment,
+    [ObjectTypes.INTERNAL_POLICY]: updatePolicyComment,
+    [ObjectTypes.RISK]: updateRiskComment,
   }
 
   function getEntityUpdater<T extends EntityType>(type: T): EntityUpdateFn<T> {
@@ -122,11 +123,11 @@ export function Comment(props: {
     const text = NodeApi.string({ children: input.contentRich, type: KEYS.p })
 
     const commentIdKeyMap = {
-      Control: 'updateControlCommentId',
-      Subcontrol: 'updateSubcontrolCommentId',
-      Procedure: 'updateProcedureCommentId',
-      InternalPolicy: 'updateInternalPolicyCommentId',
-      Risk: 'updateRiskCommentId',
+      [ObjectTypes.CONTROL]: 'updateControlCommentId',
+      [ObjectTypes.SUBCONTROL]: 'updateSubcontrolCommentId',
+      [ObjectTypes.PROCEDURE]: 'updateProcedureCommentId',
+      [ObjectTypes.INTERNAL_POLICY]: 'updateInternalPolicyCommentId',
+      [ObjectTypes.RISK]: 'updateRiskCommentId',
     } as const
 
     const noteInput: UpdateNoteInput = {
@@ -558,7 +559,7 @@ export function CommentCreateForm({
       Risk: 'updateRiskId',
     }
 
-    const input = entityType === 'Control' || entityType === 'Subcontrol' ? { descriptionJSON: editor.children } : { detailsJSON: editor.children }
+    const input = entityType === ObjectTypes.CONTROL || entityType === ObjectTypes.SUBCONTROL ? { descriptionJSON: editor.children } : { detailsJSON: editor.children }
 
     await entityDescriptionUpdate({
       [entityIdKeyMap[entityType]]: entityId,
@@ -573,23 +574,23 @@ export function CommentCreateForm({
     let entityDiscussionKey
 
     switch (entityType) {
-      case 'Control':
+      case ObjectTypes.CONTROL:
         entityUpdateKey = CONTROL_DISCUSSION_QUERY_KEY
         entityDiscussionKey = 'controls'
         break
-      case 'Risk':
+      case ObjectTypes.RISK:
         entityUpdateKey = RISK_DISCUSSION_QUERY_KEY
         entityDiscussionKey = 'risks'
         break
-      case 'InternalPolicy':
+      case ObjectTypes.INTERNAL_POLICY:
         entityUpdateKey = POLICY_DISCUSSION_QUERY_KEY
         entityDiscussionKey = 'internalPolicies'
         break
-      case 'Subcontrol':
+      case ObjectTypes.SUBCONTROL:
         entityUpdateKey = SUBCONTROL_DISCUSSION_QUERY_KEY
         entityDiscussionKey = 'subcontrols'
         break
-      case 'Procedure':
+      case ObjectTypes.PROCEDURE:
         entityUpdateKey = PROCEDURE_DISCUSSION_QUERY_KEY
         entityDiscussionKey = 'procedures'
         break

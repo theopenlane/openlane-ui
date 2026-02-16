@@ -12,8 +12,8 @@ import { RadioGroup, RadioGroupItem } from '@repo/ui/radio-group'
 import { ColumnDef } from '@tanstack/react-table'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { useOrganization } from '@/hooks/useOrganization'
-import { useStandardsSelect } from '@/lib/graphql-hooks/standards'
-import { useGetAllControls } from '@/lib/graphql-hooks/controls'
+import { useStandardsSelect } from '@/lib/graphql-hooks/standard'
+import { useGetAllControls } from '@/lib/graphql-hooks/control'
 import { useGetAllSubcontrols } from '@/lib/graphql-hooks/subcontrol'
 import { Control, ControlWhereInput, Subcontrol, SubcontrolWhereInput } from '@repo/codegen/src/schema'
 import { useDebounce } from '@uidotdev/usehooks'
@@ -22,6 +22,7 @@ import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 interface MapControlDialogProps {
   onSave: (arg: { controls: Control[]; subcontrols: Subcontrol[] }) => void
@@ -112,7 +113,7 @@ const MapControlDialog: React.FC<MapControlDialogProps> = ({ onSave, mappedContr
   )
 
   const toggleRow = useCallback((row: Control | Subcontrol) => {
-    const isControl = row.__typename === 'Control'
+    const isControl = row.__typename === ObjectTypes.CONTROL
     const id = row.id
 
     setMapping((prev) => {
@@ -148,7 +149,7 @@ const MapControlDialog: React.FC<MapControlDialogProps> = ({ onSave, mappedContr
 
         tableData.forEach((row) => {
           if (!isSelected(row.id)) {
-            if (row.__typename === 'Control') {
+            if (row.__typename === ObjectTypes.CONTROL) {
               newControls.push(row as Control)
             } else {
               newSubcontrols.push(row as Subcontrol)
