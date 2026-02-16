@@ -5,9 +5,9 @@ import { Lightbulb } from 'lucide-react'
 import MultipleSelector from '@repo/ui/multiple-selector'
 import { z } from 'zod'
 import { step5Schema } from '../advanced-setup-wizard-config'
-import { useRiskSelect } from '@/lib/graphql-hooks/risks'
-import { usePolicySelect } from '@/lib/graphql-hooks/policy'
-import { useProcedureSelect } from '@/lib/graphql-hooks/procedures'
+import { useRiskSelect } from '@/lib/graphql-hooks/risk'
+import { usePolicySelect } from '@/lib/graphql-hooks/internal-policy'
+import { useProcedureSelect } from '@/lib/graphql-hooks/procedure'
 
 type FormType = z.infer<typeof step5Schema>
 
@@ -33,7 +33,9 @@ const AdvancedSetupStep5 = () => {
           <Lightbulb className="text-tip-text" size={18} />
           <span className="text-sm text-tip-text">Tips</span>
         </div>
-        <p className="text-sm text-tip-text">If you already have policies, procedures, or risk registers in place, add them here to build on your existing work. You can always edit or expand them later.</p>
+        <p className="text-sm text-tip-text">
+          If you already have policies, procedures, or risk registers in place, add them here to build on your existing work. You can always edit or expand them later.
+        </p>
       </div>
 
       {/* Form */}

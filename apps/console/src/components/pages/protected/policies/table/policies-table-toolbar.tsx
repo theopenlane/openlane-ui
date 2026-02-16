@@ -12,15 +12,14 @@ import { VisibilityState } from '@tanstack/react-table'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { BulkEditPoliciesDialog } from '../bulk-edit/bulk-edit-policies'
 import { Button } from '@repo/ui/button'
-import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
 import CreatePolicyUploadDialog from '../create/form/create-policy-upload-dialog'
-import { TAccessRole, TData } from '@/types/authz'
+import { TAccessRole, TPermissionData } from '@/types/authz'
 import Link from 'next/link'
 import { useNotification } from '@/hooks/useNotification'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { useBulkDeletePolicy } from '@/lib/graphql-hooks/policy'
-import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
+import { useBulkDeletePolicy } from '@/lib/graphql-hooks/internal-policy'
+import { TableKeyEnum } from '@repo/ui/table-key'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 type TPoliciesTableToolbarProps = {
@@ -41,7 +40,7 @@ type TPoliciesTableToolbarProps = {
   selectedPolicies: { id: string }[]
   setSelectedPolicies: React.Dispatch<React.SetStateAction<{ id: string }[]>>
   canEdit: (accessRole: TAccessRole[] | undefined) => boolean
-  permission: TData | undefined
+  permission: TPermissionData | undefined
 }
 
 const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
@@ -177,9 +176,9 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
               />
 
               {mappedColumns && columnVisibility && setColumnVisibility && (
-                <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableColumnVisibilityKeysEnum.POLICY} />
+                <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.INTERNAL_POLICY} />
               )}
-              {filterFields && <TableFilter filterFields={filterFields} onFilterChange={setFilters} pageKey={TableFilterKeysEnum.POLICY} />}
+              {filterFields && <TableFilter filterFields={filterFields} onFilterChange={setFilters} pageKey={TableKeyEnum.INTERNAL_POLICY} />}
               {canCreate(permission?.roles, AccessEnum.CanCreateInternalPolicy) && (
                 <Link href="/policies/create">
                   <Button variant="primary" className="h-8 px-2! pl-3!" icon={<SquarePlus />} iconPosition="left">

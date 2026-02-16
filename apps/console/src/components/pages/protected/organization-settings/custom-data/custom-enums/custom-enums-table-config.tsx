@@ -14,7 +14,7 @@ import ColorCell from '../shared/color-cell'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { formatDate, formatDateSince } from '@/utils/date'
 import { CustomTypeEnumOrderField, User } from '@repo/codegen/src/schema'
-import { CustomTypeEnumNodeNonNull, useUpdateCustomTypeEnum } from '@/lib/graphql-hooks/custom-type-enums'
+import { CustomTypeEnumNodeNonNull, useUpdateCustomTypeEnum } from '@/lib/graphql-hooks/custom-type-enum'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 
 type SelectedEnum = { id: string; name: string }

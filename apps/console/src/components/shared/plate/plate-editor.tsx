@@ -8,7 +8,7 @@ import { EditorKitVariant, TPlateEditorVariants } from '@repo/ui/components/edit
 import { Editor, EditorContainer, TPlateEditorStyleVariant } from '@repo/ui/components/ui/editor.tsx'
 import { createPlateEditor, Plate, PlatePlugin, usePlateEditor } from 'platejs/react'
 import { detectFormat } from './usePlateEditor'
-import { discussionPlugin, TDiscussion } from '@repo/ui/components/editor/plugins/discussion-kit.tsx'
+import { CommentEntityType, discussionPlugin, TDiscussion } from '@repo/ui/components/editor/plugins/discussion-kit.tsx'
 import {
   ControlDiscussionFieldsFragment,
   GetUserProfileQuery,
@@ -117,7 +117,7 @@ const PlateEditor = forwardRef<PlateEditorRef, TPlateEditorProps>(
 
       if (!editor || !entity || !userData?.user) return
 
-      editor.setOption(discussionPlugin, 'entityType', entity.__typename)
+      editor.setOption(discussionPlugin, 'entityType', entity.__typename as CommentEntityType)
       editor.setOption(discussionPlugin, 'entityId', entity.id)
       editor.setOption(discussionPlugin, 'currentUserId', userData.user.id)
 

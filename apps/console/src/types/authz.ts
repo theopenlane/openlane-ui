@@ -27,7 +27,7 @@ export type TAccessRole =
   | 'can_create_mapped_control'
   | 'can_create_trust_center_doc'
 
-export type TData = {
+export type TPermissionData = {
   success?: boolean
   organization_id?: string
   roles: TAccessRole[]

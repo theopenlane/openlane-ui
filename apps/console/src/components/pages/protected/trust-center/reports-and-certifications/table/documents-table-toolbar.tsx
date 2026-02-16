@@ -8,13 +8,13 @@ import { VisibilityState } from '@tanstack/react-table'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
-import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys'
 import { TrustCenterDocWhereInput } from '@repo/codegen/src/schema'
 import { trustCenterDocsFilterFields } from './table-config'
-import { useBulkDeleteTrustCenterDocs, useGetTrustCenter } from '@/lib/graphql-hooks/trust-center'
+import { useGetTrustCenter } from '@/lib/graphql-hooks/trust-center'
+import { useBulkDeleteTrustCenterDocs } from '@/lib/graphql-hooks/trust-center-doc'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { BulkEditTrustCenterDocsDialog } from './bulk-edit-trust-center-dialog'
-import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
+import { TableKeyEnum } from '@repo/ui/table-key'
 import ApplyWatermarkSheet from './apply-watermark-sheet'
 
 type TProps = {
@@ -102,10 +102,10 @@ const DocumentsTableToolbar: React.FC<TProps> = ({ searching, searchTerm, setSea
         {selectedDocs.length === 0 ? (
           <div className="flex items-center gap-2 flex-wrap justify-end">
             {mappedColumns && columnVisibility && setColumnVisibility && (
-              <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableColumnVisibilityKeysEnum.DOCUMENTS} />
+              <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.DOCUMENTS} />
             )}
             {watermarkConfig && <ApplyWatermarkSheet watermarkConfig={watermarkConfig} />}
-            <TableFilter filterFields={trustCenterDocsFilterFields} onFilterChange={handleFilterChange} pageKey={TableFilterKeysEnum.TRUST_CENTER_DOCS} />
+            <TableFilter filterFields={trustCenterDocsFilterFields} onFilterChange={handleFilterChange} pageKey={TableKeyEnum.TRUST_CENTER_DOC} />
             <Button variant="primary" icon={<PlusCircle size={16} strokeWidth={2} />} iconPosition="left" onClick={handleCreateClick}>
               New Document
             </Button>

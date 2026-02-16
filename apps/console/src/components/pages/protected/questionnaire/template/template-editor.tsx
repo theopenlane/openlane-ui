@@ -18,7 +18,7 @@ import { useRouter } from 'next/navigation'
 
 import '../custom.css'
 import { surveyLicenseKey } from '@repo/dally/auth'
-import { useCreateTemplate, useGetTemplate, useUpdateTemplate } from '@/lib/graphql-hooks/templates'
+import { useCreateTemplate, useGetTemplate, useUpdateTemplate } from '@/lib/graphql-hooks/template'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { TemplateDocumentType } from '@repo/codegen/src/schema'
 

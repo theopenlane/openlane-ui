@@ -12,7 +12,7 @@ import ApproverCell from './approver-cell'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 import { LinkedControlsCell } from './linked-controls-cell'
 import { LinkedProceduresCell } from './linked-procedures-cell'
-import { CustomTypeEnumOption } from '@/lib/graphql-hooks/custom-type-enums'
+import { CustomTypeEnumOption } from '@/lib/graphql-hooks/custom-type-enum'
 import { CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
 
 type TPoliciesColumnsProps = {

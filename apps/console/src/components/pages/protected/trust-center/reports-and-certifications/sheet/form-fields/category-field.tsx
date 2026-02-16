@@ -2,7 +2,7 @@
 import React, { useMemo, useState } from 'react'
 import { Controller, useFormContext } from 'react-hook-form'
 import { Label } from '@repo/ui/label'
-import { CustomTypeEnumOption, useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
+import { CustomTypeEnumOption, useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { Check, ChevronsUpDown, Plus } from 'lucide-react'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
 import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'

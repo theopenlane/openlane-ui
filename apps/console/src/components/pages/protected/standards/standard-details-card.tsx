@@ -1,7 +1,7 @@
 'use client'
 import React from 'react'
 import { useParams } from 'next/navigation'
-import { useGetStandardDetails } from '@/lib/graphql-hooks/standards'
+import { useGetStandardDetails } from '@/lib/graphql-hooks/standard'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { ExternalLink, TextCursorInput, Hammer, BookKey, FileStack, Link, Tag } from 'lucide-react'
 import { Table, TableBody, TableCell, TableRow } from '@repo/ui/table'
@@ -71,11 +71,7 @@ const StandardDetailsCard = () => {
                   Tags
                 </TableCell>
                 <TableCell className={valueCell()}>
-                  <div className={tagsWrapper()}>
-                    {standard.tags?.map((tag: string, i) => (
-                      <TagChip tag={tag} key={i} />
-                    ))}
-                  </div>
+                  <div className={tagsWrapper()}>{standard.tags?.map((tag: string, i) => <TagChip tag={tag} key={i} />)}</div>
                 </TableCell>
               </TableRow>
             </TableBody>
