@@ -1,20 +1,20 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
-  Finding,
-  FindingQuery,
-  FindingQueryVariables,
   FindingsWithFilterQuery,
   FindingsWithFilterQueryVariables,
   CreateFindingMutation,
   CreateFindingMutationVariables,
-  DeleteFindingMutation,
-  DeleteFindingMutationVariables,
   UpdateFindingMutation,
   UpdateFindingMutationVariables,
+  DeleteFindingMutation,
+  DeleteFindingMutationVariables,
+  FindingQuery,
+  FindingQueryVariables,
 } from '@repo/codegen/src/schema'
+
 import { TPagination } from '@repo/ui/pagination-types'
-import { FINDING, GET_ALL_FINDINGS, CREATE_FINDING, DELETE_FINDING, UPDATE_FINDING } from '@repo/codegen/query/finding'
+import { GET_ALL_FINDINGS, CREATE_FINDING, UPDATE_FINDING, DELETE_FINDING, FINDING } from '@repo/codegen/query/finding'
 
 type GetAllFindingsArgs = {
   where?: FindingsWithFilterQueryVariables['where']
@@ -23,31 +23,31 @@ type GetAllFindingsArgs = {
   enabled?: boolean
 }
 
+export type FindingsNode = NonNullable<NonNullable<NonNullable<FindingsWithFilterQuery['findings']>['edges']>[number]>['node']
+
+export type FindingsNodeNonNull = NonNullable<FindingsNode>
+
 export const useFindingsWithFilter = ({ where, orderBy, pagination, enabled = true }: GetAllFindingsArgs) => {
   const { client } = useGraphQLClient()
-
   const queryResult = useQuery<FindingsWithFilterQuery, unknown>({
     queryKey: ['findings', where, orderBy, pagination?.page, pagination?.pageSize],
     queryFn: async (): Promise<FindingsWithFilterQuery> => {
-      const result = await client.request(GET_ALL_FINDINGS, { where, orderBy, ...pagination?.query })
-      return result as FindingsWithFilterQuery
+      const result = await client.request<FindingsWithFilterQuery>(GET_ALL_FINDINGS, { where, orderBy, ...pagination?.query })
+      return result
     },
     enabled,
   })
 
-  const Findings = (queryResult.data?.findings?.edges?.map((edge) => {
-    return {
-      ...edge?.node,
-    }
-  }) ?? []) as Finding[]
+  const edges = queryResult.data?.findings?.edges ?? []
 
-  return { ...queryResult, Findings }
+  const findingsNodes: FindingsNodeNonNull[] = edges.filter((edge) => edge != null).map((edge) => edge?.node as FindingsNodeNonNull)
+
+  return { ...queryResult, findingsNodes }
 }
 
 export const useCreateFinding = () => {
   const { client } = useGraphQLClient()
   const queryClient = useQueryClient()
-
   return useMutation<CreateFindingMutation, unknown, CreateFindingMutationVariables>({
     mutationFn: async (variables) => client.request(CREATE_FINDING, variables),
     onSuccess: () => {
@@ -59,7 +59,6 @@ export const useCreateFinding = () => {
 export const useUpdateFinding = () => {
   const { client } = useGraphQLClient()
   const queryClient = useQueryClient()
-
   return useMutation<UpdateFindingMutation, unknown, UpdateFindingMutationVariables>({
     mutationFn: async (variables) => client.request(UPDATE_FINDING, variables),
     onSuccess: () => {
@@ -71,7 +70,6 @@ export const useUpdateFinding = () => {
 export const useDeleteFinding = () => {
   const { client } = useGraphQLClient()
   const queryClient = useQueryClient()
-
   return useMutation<DeleteFindingMutation, unknown, DeleteFindingMutationVariables>({
     mutationFn: async (variables) => client.request(DELETE_FINDING, variables),
     onSuccess: () => {
@@ -82,7 +80,6 @@ export const useDeleteFinding = () => {
 
 export const useFinding = (findingId?: FindingQueryVariables['findingId']) => {
   const { client } = useGraphQLClient()
-
   return useQuery<FindingQuery, unknown>({
     queryKey: ['findings', findingId],
     queryFn: async (): Promise<FindingQuery> => {

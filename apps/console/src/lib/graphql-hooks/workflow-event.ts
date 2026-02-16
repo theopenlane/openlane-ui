@@ -1,8 +1,9 @@
 import { useQuery } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
-import { WorkflowEvent, WorkflowEventQuery, WorkflowEventQueryVariables, WorkflowEventsWithFilterQuery, WorkflowEventsWithFilterQueryVariables } from '@repo/codegen/src/schema'
+import { WorkflowEventsWithFilterQuery, WorkflowEventsWithFilterQueryVariables, WorkflowEventQuery, WorkflowEventQueryVariables } from '@repo/codegen/src/schema'
+
 import { TPagination } from '@repo/ui/pagination-types'
-import { WORKFLOW_EVENT, GET_ALL_WORKFLOW_EVENTS } from '@repo/codegen/query/workflow-event'
+import { GET_ALL_WORKFLOW_EVENTS, WORKFLOW_EVENT } from '@repo/codegen/query/workflow-event'
 
 type GetAllWorkflowEventsArgs = {
   where?: WorkflowEventsWithFilterQueryVariables['where']
@@ -11,30 +12,30 @@ type GetAllWorkflowEventsArgs = {
   enabled?: boolean
 }
 
+export type WorkflowEventsNode = NonNullable<NonNullable<NonNullable<WorkflowEventsWithFilterQuery['workflowEvents']>['edges']>[number]>['node']
+
+export type WorkflowEventsNodeNonNull = NonNullable<WorkflowEventsNode>
+
 export const useWorkflowEventsWithFilter = ({ where, orderBy, pagination, enabled = true }: GetAllWorkflowEventsArgs) => {
   const { client } = useGraphQLClient()
-
   const queryResult = useQuery<WorkflowEventsWithFilterQuery, unknown>({
     queryKey: ['workflowEvents', where, orderBy, pagination?.page, pagination?.pageSize],
     queryFn: async (): Promise<WorkflowEventsWithFilterQuery> => {
-      const result = await client.request(GET_ALL_WORKFLOW_EVENTS, { where, orderBy, ...pagination?.query })
-      return result as WorkflowEventsWithFilterQuery
+      const result = await client.request<WorkflowEventsWithFilterQuery>(GET_ALL_WORKFLOW_EVENTS, { where, orderBy, ...pagination?.query })
+      return result
     },
     enabled,
   })
 
-  const WorkflowEvents = (queryResult.data?.workflowEvents?.edges?.map((edge) => {
-    return {
-      ...edge?.node,
-    }
-  }) ?? []) as WorkflowEvent[]
+  const edges = queryResult.data?.workflowEvents?.edges ?? []
 
-  return { ...queryResult, WorkflowEvents }
+  const workflowEventsNodes: WorkflowEventsNodeNonNull[] = edges.filter((edge) => edge != null).map((edge) => edge?.node as WorkflowEventsNodeNonNull)
+
+  return { ...queryResult, workflowEventsNodes }
 }
 
 export const useWorkflowEvent = (workflowEventId?: WorkflowEventQueryVariables['workflowEventId']) => {
   const { client } = useGraphQLClient()
-
   return useQuery<WorkflowEventQuery, unknown>({
     queryKey: ['workflowEvents', workflowEventId],
     queryFn: async (): Promise<WorkflowEventQuery> => {

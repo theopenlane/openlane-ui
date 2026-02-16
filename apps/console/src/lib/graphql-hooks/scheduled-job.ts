@@ -1,20 +1,20 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
-  ScheduledJob,
-  ScheduledJobQuery,
-  ScheduledJobQueryVariables,
   ScheduledJobsWithFilterQuery,
   ScheduledJobsWithFilterQueryVariables,
   CreateScheduledJobMutation,
   CreateScheduledJobMutationVariables,
-  DeleteScheduledJobMutation,
-  DeleteScheduledJobMutationVariables,
   UpdateScheduledJobMutation,
   UpdateScheduledJobMutationVariables,
+  DeleteScheduledJobMutation,
+  DeleteScheduledJobMutationVariables,
+  ScheduledJobQuery,
+  ScheduledJobQueryVariables,
 } from '@repo/codegen/src/schema'
+
 import { TPagination } from '@repo/ui/pagination-types'
-import { SCHEDULED_JOB, GET_ALL_SCHEDULED_JOBS, CREATE_SCHEDULED_JOB, DELETE_SCHEDULED_JOB, UPDATE_SCHEDULED_JOB } from '@repo/codegen/query/scheduled-job'
+import { GET_ALL_SCHEDULED_JOBS, CREATE_SCHEDULED_JOB, UPDATE_SCHEDULED_JOB, DELETE_SCHEDULED_JOB, SCHEDULED_JOB } from '@repo/codegen/query/scheduled-job'
 
 type GetAllScheduledJobsArgs = {
   where?: ScheduledJobsWithFilterQueryVariables['where']
@@ -23,31 +23,31 @@ type GetAllScheduledJobsArgs = {
   enabled?: boolean
 }
 
+export type ScheduledJobsNode = NonNullable<NonNullable<NonNullable<ScheduledJobsWithFilterQuery['scheduledJobs']>['edges']>[number]>['node']
+
+export type ScheduledJobsNodeNonNull = NonNullable<ScheduledJobsNode>
+
 export const useScheduledJobsWithFilter = ({ where, orderBy, pagination, enabled = true }: GetAllScheduledJobsArgs) => {
   const { client } = useGraphQLClient()
-
   const queryResult = useQuery<ScheduledJobsWithFilterQuery, unknown>({
     queryKey: ['scheduledJobs', where, orderBy, pagination?.page, pagination?.pageSize],
     queryFn: async (): Promise<ScheduledJobsWithFilterQuery> => {
-      const result = await client.request(GET_ALL_SCHEDULED_JOBS, { where, orderBy, ...pagination?.query })
-      return result as ScheduledJobsWithFilterQuery
+      const result = await client.request<ScheduledJobsWithFilterQuery>(GET_ALL_SCHEDULED_JOBS, { where, orderBy, ...pagination?.query })
+      return result
     },
     enabled,
   })
 
-  const ScheduledJobs = (queryResult.data?.scheduledJobs?.edges?.map((edge) => {
-    return {
-      ...edge?.node,
-    }
-  }) ?? []) as ScheduledJob[]
+  const edges = queryResult.data?.scheduledJobs?.edges ?? []
 
-  return { ...queryResult, ScheduledJobs }
+  const scheduledJobsNodes: ScheduledJobsNodeNonNull[] = edges.filter((edge) => edge != null).map((edge) => edge?.node as ScheduledJobsNodeNonNull)
+
+  return { ...queryResult, scheduledJobsNodes }
 }
 
 export const useCreateScheduledJob = () => {
   const { client } = useGraphQLClient()
   const queryClient = useQueryClient()
-
   return useMutation<CreateScheduledJobMutation, unknown, CreateScheduledJobMutationVariables>({
     mutationFn: async (variables) => client.request(CREATE_SCHEDULED_JOB, variables),
     onSuccess: () => {
@@ -59,7 +59,6 @@ export const useCreateScheduledJob = () => {
 export const useUpdateScheduledJob = () => {
   const { client } = useGraphQLClient()
   const queryClient = useQueryClient()
-
   return useMutation<UpdateScheduledJobMutation, unknown, UpdateScheduledJobMutationVariables>({
     mutationFn: async (variables) => client.request(UPDATE_SCHEDULED_JOB, variables),
     onSuccess: () => {
@@ -71,7 +70,6 @@ export const useUpdateScheduledJob = () => {
 export const useDeleteScheduledJob = () => {
   const { client } = useGraphQLClient()
   const queryClient = useQueryClient()
-
   return useMutation<DeleteScheduledJobMutation, unknown, DeleteScheduledJobMutationVariables>({
     mutationFn: async (variables) => client.request(DELETE_SCHEDULED_JOB, variables),
     onSuccess: () => {
@@ -82,7 +80,6 @@ export const useDeleteScheduledJob = () => {
 
 export const useScheduledJob = (scheduledJobId?: ScheduledJobQueryVariables['scheduledJobId']) => {
   const { client } = useGraphQLClient()
-
   return useQuery<ScheduledJobQuery, unknown>({
     queryKey: ['scheduledJobs', scheduledJobId],
     queryFn: async (): Promise<ScheduledJobQuery> => {

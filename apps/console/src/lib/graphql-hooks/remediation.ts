@@ -1,20 +1,20 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
-  Remediation,
-  RemediationQuery,
-  RemediationQueryVariables,
   RemediationsWithFilterQuery,
   RemediationsWithFilterQueryVariables,
   CreateRemediationMutation,
   CreateRemediationMutationVariables,
-  DeleteRemediationMutation,
-  DeleteRemediationMutationVariables,
   UpdateRemediationMutation,
   UpdateRemediationMutationVariables,
+  DeleteRemediationMutation,
+  DeleteRemediationMutationVariables,
+  RemediationQuery,
+  RemediationQueryVariables,
 } from '@repo/codegen/src/schema'
+
 import { TPagination } from '@repo/ui/pagination-types'
-import { REMEDIATION, GET_ALL_REMEDIATIONS, CREATE_REMEDIATION, DELETE_REMEDIATION, UPDATE_REMEDIATION } from '@repo/codegen/query/remediation'
+import { GET_ALL_REMEDIATIONS, CREATE_REMEDIATION, UPDATE_REMEDIATION, DELETE_REMEDIATION, REMEDIATION } from '@repo/codegen/query/remediation'
 
 type GetAllRemediationsArgs = {
   where?: RemediationsWithFilterQueryVariables['where']
@@ -23,31 +23,31 @@ type GetAllRemediationsArgs = {
   enabled?: boolean
 }
 
+export type RemediationsNode = NonNullable<NonNullable<NonNullable<RemediationsWithFilterQuery['remediations']>['edges']>[number]>['node']
+
+export type RemediationsNodeNonNull = NonNullable<RemediationsNode>
+
 export const useRemediationsWithFilter = ({ where, orderBy, pagination, enabled = true }: GetAllRemediationsArgs) => {
   const { client } = useGraphQLClient()
-
   const queryResult = useQuery<RemediationsWithFilterQuery, unknown>({
     queryKey: ['remediations', where, orderBy, pagination?.page, pagination?.pageSize],
     queryFn: async (): Promise<RemediationsWithFilterQuery> => {
-      const result = await client.request(GET_ALL_REMEDIATIONS, { where, orderBy, ...pagination?.query })
-      return result as RemediationsWithFilterQuery
+      const result = await client.request<RemediationsWithFilterQuery>(GET_ALL_REMEDIATIONS, { where, orderBy, ...pagination?.query })
+      return result
     },
     enabled,
   })
 
-  const Remediations = (queryResult.data?.remediations?.edges?.map((edge) => {
-    return {
-      ...edge?.node,
-    }
-  }) ?? []) as Remediation[]
+  const edges = queryResult.data?.remediations?.edges ?? []
 
-  return { ...queryResult, Remediations }
+  const remediationsNodes: RemediationsNodeNonNull[] = edges.filter((edge) => edge != null).map((edge) => edge?.node as RemediationsNodeNonNull)
+
+  return { ...queryResult, remediationsNodes }
 }
 
 export const useCreateRemediation = () => {
   const { client } = useGraphQLClient()
   const queryClient = useQueryClient()
-
   return useMutation<CreateRemediationMutation, unknown, CreateRemediationMutationVariables>({
     mutationFn: async (variables) => client.request(CREATE_REMEDIATION, variables),
     onSuccess: () => {
@@ -59,7 +59,6 @@ export const useCreateRemediation = () => {
 export const useUpdateRemediation = () => {
   const { client } = useGraphQLClient()
   const queryClient = useQueryClient()
-
   return useMutation<UpdateRemediationMutation, unknown, UpdateRemediationMutationVariables>({
     mutationFn: async (variables) => client.request(UPDATE_REMEDIATION, variables),
     onSuccess: () => {
@@ -71,7 +70,6 @@ export const useUpdateRemediation = () => {
 export const useDeleteRemediation = () => {
   const { client } = useGraphQLClient()
   const queryClient = useQueryClient()
-
   return useMutation<DeleteRemediationMutation, unknown, DeleteRemediationMutationVariables>({
     mutationFn: async (variables) => client.request(DELETE_REMEDIATION, variables),
     onSuccess: () => {
@@ -82,7 +80,6 @@ export const useDeleteRemediation = () => {
 
 export const useRemediation = (remediationId?: RemediationQueryVariables['remediationId']) => {
   const { client } = useGraphQLClient()
-
   return useQuery<RemediationQuery, unknown>({
     queryKey: ['remediations', remediationId],
     queryFn: async (): Promise<RemediationQuery> => {

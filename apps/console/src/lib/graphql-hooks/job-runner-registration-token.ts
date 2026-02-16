@@ -3,7 +3,6 @@ import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
   JobRunnerRegistrationTokensWithFilterQuery,
   JobRunnerRegistrationTokensWithFilterQueryVariables,
-  JobRunnerRegistrationToken,
   CreateJobRunnerRegistrationTokenMutation,
   CreateJobRunnerRegistrationTokenMutationVariables,
   DeleteJobRunnerRegistrationTokenMutation,
@@ -11,6 +10,7 @@ import {
   JobRunnerRegistrationTokenQuery,
   JobRunnerRegistrationTokenQueryVariables,
 } from '@repo/codegen/src/schema'
+
 import { TPagination } from '@repo/ui/pagination-types'
 import {
   GET_ALL_JOB_RUNNER_REGISTRATION_TOKENS,
@@ -26,18 +26,26 @@ type GetAllJobRunnerRegistrationTokensArgs = {
   enabled?: boolean
 }
 
+export type JobRunnerRegistrationTokensNode = NonNullable<NonNullable<NonNullable<JobRunnerRegistrationTokensWithFilterQuery['jobRunnerRegistrationTokens']>['edges']>[number]>['node']
+
+export type JobRunnerRegistrationTokensNodeNonNull = NonNullable<JobRunnerRegistrationTokensNode>
+
 export const useJobRunnerRegistrationTokensWithFilter = ({ where, orderBy, pagination, enabled = true }: GetAllJobRunnerRegistrationTokensArgs) => {
   const { client } = useGraphQLClient()
   const queryResult = useQuery<JobRunnerRegistrationTokensWithFilterQuery, unknown>({
     queryKey: ['jobRunnerRegistrationTokens', where, orderBy, pagination?.page, pagination?.pageSize],
     queryFn: async (): Promise<JobRunnerRegistrationTokensWithFilterQuery> => {
-      const result = await client.request(GET_ALL_JOB_RUNNER_REGISTRATION_TOKENS, { where, orderBy, ...pagination?.query })
-      return result as JobRunnerRegistrationTokensWithFilterQuery
+      const result = await client.request<JobRunnerRegistrationTokensWithFilterQuery>(GET_ALL_JOB_RUNNER_REGISTRATION_TOKENS, { where, orderBy, ...pagination?.query })
+      return result
     },
     enabled,
   })
-  const JobRunnerRegistrationTokens = (queryResult.data?.jobRunnerRegistrationTokens?.edges?.map((edge) => ({ ...edge?.node })) ?? []) as JobRunnerRegistrationToken[]
-  return { ...queryResult, JobRunnerRegistrationTokens }
+
+  const edges = queryResult.data?.jobRunnerRegistrationTokens?.edges ?? []
+
+  const jobRunnerRegistrationTokensNodes: JobRunnerRegistrationTokensNodeNonNull[] = edges.filter((edge) => edge != null).map((edge) => edge?.node as JobRunnerRegistrationTokensNodeNonNull)
+
+  return { ...queryResult, jobRunnerRegistrationTokensNodes }
 }
 
 export const useCreateJobRunnerRegistrationToken = () => {

@@ -1,8 +1,9 @@
 import { useQuery } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
-import { WorkflowObjectRef, WorkflowObjectRefQuery, WorkflowObjectRefQueryVariables, WorkflowObjectRefsWithFilterQuery, WorkflowObjectRefsWithFilterQueryVariables } from '@repo/codegen/src/schema'
+import { WorkflowObjectRefsWithFilterQuery, WorkflowObjectRefsWithFilterQueryVariables, WorkflowObjectRefQuery, WorkflowObjectRefQueryVariables } from '@repo/codegen/src/schema'
+
 import { TPagination } from '@repo/ui/pagination-types'
-import { WORKFLOW_OBJECT_REF, GET_ALL_WORKFLOW_OBJECT_REFS } from '@repo/codegen/query/workflow-object-ref'
+import { GET_ALL_WORKFLOW_OBJECT_REFS, WORKFLOW_OBJECT_REF } from '@repo/codegen/query/workflow-object-ref'
 
 type GetAllWorkflowObjectRefsArgs = {
   where?: WorkflowObjectRefsWithFilterQueryVariables['where']
@@ -11,30 +12,30 @@ type GetAllWorkflowObjectRefsArgs = {
   enabled?: boolean
 }
 
+export type WorkflowObjectRefsNode = NonNullable<NonNullable<NonNullable<WorkflowObjectRefsWithFilterQuery['workflowObjectRefs']>['edges']>[number]>['node']
+
+export type WorkflowObjectRefsNodeNonNull = NonNullable<WorkflowObjectRefsNode>
+
 export const useWorkflowObjectRefsWithFilter = ({ where, orderBy, pagination, enabled = true }: GetAllWorkflowObjectRefsArgs) => {
   const { client } = useGraphQLClient()
-
   const queryResult = useQuery<WorkflowObjectRefsWithFilterQuery, unknown>({
     queryKey: ['workflowObjectRefs', where, orderBy, pagination?.page, pagination?.pageSize],
     queryFn: async (): Promise<WorkflowObjectRefsWithFilterQuery> => {
-      const result = await client.request(GET_ALL_WORKFLOW_OBJECT_REFS, { where, orderBy, ...pagination?.query })
-      return result as WorkflowObjectRefsWithFilterQuery
+      const result = await client.request<WorkflowObjectRefsWithFilterQuery>(GET_ALL_WORKFLOW_OBJECT_REFS, { where, orderBy, ...pagination?.query })
+      return result
     },
     enabled,
   })
 
-  const WorkflowObjectRefs = (queryResult.data?.workflowObjectRefs?.edges?.map((edge) => {
-    return {
-      ...edge?.node,
-    }
-  }) ?? []) as WorkflowObjectRef[]
+  const edges = queryResult.data?.workflowObjectRefs?.edges ?? []
 
-  return { ...queryResult, WorkflowObjectRefs }
+  const workflowObjectRefsNodes: WorkflowObjectRefsNodeNonNull[] = edges.filter((edge) => edge != null).map((edge) => edge?.node as WorkflowObjectRefsNodeNonNull)
+
+  return { ...queryResult, workflowObjectRefsNodes }
 }
 
 export const useWorkflowObjectRef = (workflowObjectRefId?: WorkflowObjectRefQueryVariables['workflowObjectRefId']) => {
   const { client } = useGraphQLClient()
-
   return useQuery<WorkflowObjectRefQuery, unknown>({
     queryKey: ['workflowObjectRefs', workflowObjectRefId],
     queryFn: async (): Promise<WorkflowObjectRefQuery> => {

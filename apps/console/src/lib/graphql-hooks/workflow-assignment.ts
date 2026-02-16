@@ -1,14 +1,9 @@
 import { useQuery } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
-import {
-  WorkflowAssignment,
-  WorkflowAssignmentQuery,
-  WorkflowAssignmentQueryVariables,
-  WorkflowAssignmentsWithFilterQuery,
-  WorkflowAssignmentsWithFilterQueryVariables,
-} from '@repo/codegen/src/schema'
+import { WorkflowAssignmentsWithFilterQuery, WorkflowAssignmentsWithFilterQueryVariables, WorkflowAssignmentQuery, WorkflowAssignmentQueryVariables } from '@repo/codegen/src/schema'
+
 import { TPagination } from '@repo/ui/pagination-types'
-import { WORKFLOW_ASSIGNMENT, GET_ALL_WORKFLOW_ASSIGNMENTS } from '@repo/codegen/query/workflow-assignment'
+import { GET_ALL_WORKFLOW_ASSIGNMENTS, WORKFLOW_ASSIGNMENT } from '@repo/codegen/query/workflow-assignment'
 
 type GetAllWorkflowAssignmentsArgs = {
   where?: WorkflowAssignmentsWithFilterQueryVariables['where']
@@ -17,30 +12,30 @@ type GetAllWorkflowAssignmentsArgs = {
   enabled?: boolean
 }
 
+export type WorkflowAssignmentsNode = NonNullable<NonNullable<NonNullable<WorkflowAssignmentsWithFilterQuery['workflowAssignments']>['edges']>[number]>['node']
+
+export type WorkflowAssignmentsNodeNonNull = NonNullable<WorkflowAssignmentsNode>
+
 export const useWorkflowAssignmentsWithFilter = ({ where, orderBy, pagination, enabled = true }: GetAllWorkflowAssignmentsArgs) => {
   const { client } = useGraphQLClient()
-
   const queryResult = useQuery<WorkflowAssignmentsWithFilterQuery, unknown>({
     queryKey: ['workflowAssignments', where, orderBy, pagination?.page, pagination?.pageSize],
     queryFn: async (): Promise<WorkflowAssignmentsWithFilterQuery> => {
-      const result = await client.request(GET_ALL_WORKFLOW_ASSIGNMENTS, { where, orderBy, ...pagination?.query })
-      return result as WorkflowAssignmentsWithFilterQuery
+      const result = await client.request<WorkflowAssignmentsWithFilterQuery>(GET_ALL_WORKFLOW_ASSIGNMENTS, { where, orderBy, ...pagination?.query })
+      return result
     },
     enabled,
   })
 
-  const WorkflowAssignments = (queryResult.data?.workflowAssignments?.edges?.map((edge) => {
-    return {
-      ...edge?.node,
-    }
-  }) ?? []) as WorkflowAssignment[]
+  const edges = queryResult.data?.workflowAssignments?.edges ?? []
 
-  return { ...queryResult, WorkflowAssignments }
+  const workflowAssignmentsNodes: WorkflowAssignmentsNodeNonNull[] = edges.filter((edge) => edge != null).map((edge) => edge?.node as WorkflowAssignmentsNodeNonNull)
+
+  return { ...queryResult, workflowAssignmentsNodes }
 }
 
 export const useWorkflowAssignment = (workflowAssignmentId?: WorkflowAssignmentQueryVariables['workflowAssignmentId']) => {
   const { client } = useGraphQLClient()
-
   return useQuery<WorkflowAssignmentQuery, unknown>({
     queryKey: ['workflowAssignments', workflowAssignmentId],
     queryFn: async (): Promise<WorkflowAssignmentQuery> => {

@@ -1,27 +1,26 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
-  Asset,
-  AssetQuery,
-  AssetQueryVariables,
   AssetsWithFilterQuery,
   AssetsWithFilterQueryVariables,
   CreateAssetMutation,
   CreateAssetMutationVariables,
-  CreateBulkCsvAssetMutation,
-  CreateBulkCsvTaskMutationVariables,
-  DeleteAssetMutation,
-  DeleteAssetMutationVariables,
-  DeleteBulkAssetMutation,
-  DeleteBulkAssetMutationVariables,
   UpdateAssetMutation,
   UpdateAssetMutationVariables,
+  DeleteAssetMutation,
+  DeleteAssetMutationVariables,
+  AssetQuery,
+  AssetQueryVariables,
+  CreateBulkCsvAssetMutation,
+  CreateBulkCsvTaskMutationVariables,
   UpdateBulkAssetMutation,
   UpdateBulkAssetMutationVariables,
+  DeleteBulkAssetMutation,
+  DeleteBulkAssetMutationVariables,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
 import { TPagination } from '@repo/ui/pagination-types'
-import { ASSET, GET_ALL_ASSETS, BULK_DELETE_ASSET, CREATE_ASSET, CREATE_CSV_BULK_ASSET, DELETE_ASSET, UPDATE_ASSET, BULK_EDIT_ASSET } from '@repo/codegen/query/asset'
+import { GET_ALL_ASSETS, CREATE_ASSET, UPDATE_ASSET, DELETE_ASSET, ASSET, CREATE_CSV_BULK_ASSET, BULK_EDIT_ASSET, BULK_DELETE_ASSET } from '@repo/codegen/query/asset'
 
 type GetAllAssetsArgs = {
   where?: AssetsWithFilterQueryVariables['where']
@@ -30,31 +29,31 @@ type GetAllAssetsArgs = {
   enabled?: boolean
 }
 
+export type AssetsNode = NonNullable<NonNullable<NonNullable<AssetsWithFilterQuery['assets']>['edges']>[number]>['node']
+
+export type AssetsNodeNonNull = NonNullable<AssetsNode>
+
 export const useAssetsWithFilter = ({ where, orderBy, pagination, enabled = true }: GetAllAssetsArgs) => {
   const { client } = useGraphQLClient()
-
   const queryResult = useQuery<AssetsWithFilterQuery, unknown>({
     queryKey: ['assets', where, orderBy, pagination?.page, pagination?.pageSize],
     queryFn: async (): Promise<AssetsWithFilterQuery> => {
-      const result = await client.request(GET_ALL_ASSETS, { where, orderBy, ...pagination?.query })
-      return result as AssetsWithFilterQuery
+      const result = await client.request<AssetsWithFilterQuery>(GET_ALL_ASSETS, { where, orderBy, ...pagination?.query })
+      return result
     },
     enabled,
   })
 
-  const Assets = (queryResult.data?.assets?.edges?.map((edge) => {
-    return {
-      ...edge?.node,
-    }
-  }) ?? []) as Asset[]
+  const edges = queryResult.data?.assets?.edges ?? []
 
-  return { ...queryResult, Assets }
+  const assetsNodes: AssetsNodeNonNull[] = edges.filter((edge) => edge != null).map((edge) => edge?.node as AssetsNodeNonNull)
+
+  return { ...queryResult, assetsNodes }
 }
 
 export const useCreateAsset = () => {
   const { client } = useGraphQLClient()
   const queryClient = useQueryClient()
-
   return useMutation<CreateAssetMutation, unknown, CreateAssetMutationVariables>({
     mutationFn: async (variables) => client.request(CREATE_ASSET, variables),
     onSuccess: () => {
@@ -66,7 +65,6 @@ export const useCreateAsset = () => {
 export const useUpdateAsset = () => {
   const { client } = useGraphQLClient()
   const queryClient = useQueryClient()
-
   return useMutation<UpdateAssetMutation, unknown, UpdateAssetMutationVariables>({
     mutationFn: async (variables) => client.request(UPDATE_ASSET, variables),
     onSuccess: () => {
@@ -78,7 +76,6 @@ export const useUpdateAsset = () => {
 export const useDeleteAsset = () => {
   const { client } = useGraphQLClient()
   const queryClient = useQueryClient()
-
   return useMutation<DeleteAssetMutation, unknown, DeleteAssetMutationVariables>({
     mutationFn: async (variables) => client.request(DELETE_ASSET, variables),
     onSuccess: () => {
@@ -89,7 +86,6 @@ export const useDeleteAsset = () => {
 
 export const useAsset = (assetId?: AssetQueryVariables['assetId']) => {
   const { client } = useGraphQLClient()
-
   return useQuery<AssetQuery, unknown>({
     queryKey: ['assets', assetId],
     queryFn: async (): Promise<AssetQuery> => {
@@ -102,7 +98,6 @@ export const useAsset = (assetId?: AssetQueryVariables['assetId']) => {
 
 export const useCreateBulkCSVAsset = () => {
   const { queryClient } = useGraphQLClient()
-
   return useMutation<CreateBulkCsvAssetMutation, unknown, CreateBulkCsvTaskMutationVariables>({
     mutationFn: async (variables) => fetchGraphQLWithUpload({ query: CREATE_CSV_BULK_ASSET, variables }),
     onSuccess: () => {
@@ -123,7 +118,6 @@ export const useBulkEditAsset = () => {
 
 export const useBulkDeleteAsset = () => {
   const { client, queryClient } = useGraphQLClient()
-
   return useMutation<DeleteBulkAssetMutation, unknown, DeleteBulkAssetMutationVariables>({
     mutationFn: async (variables) => client.request(BULK_DELETE_ASSET, variables),
     onSuccess: () => {

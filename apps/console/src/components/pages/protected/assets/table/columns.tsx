@@ -1,9 +1,10 @@
 import { ColumnDef, Row } from '@tanstack/react-table'
-import { Asset, User } from '@repo/codegen/src/schema'
+import { User } from '@repo/codegen/src/schema'
 import { Avatar } from '@/components/shared/avatar/avatar.tsx'
 import { formatDate } from '@/utils/date'
 import { Checkbox } from '@repo/ui/checkbox'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
+import { AssetsNodeNonNull } from '@/lib/graphql-hooks/asset'
 
 type ColumnOptions = {
   userMap: Record<string, User>
@@ -12,7 +13,7 @@ type ColumnOptions = {
   setSelectedAssets: React.Dispatch<React.SetStateAction<{ id: string }[]>>
 }
 
-export const getAssetColumns = ({ userMap, convertToReadOnly, selectedAssets, setSelectedAssets }: ColumnOptions): ColumnDef<Asset>[] => {
+export const getAssetColumns = ({ userMap, convertToReadOnly, selectedAssets, setSelectedAssets }: ColumnOptions): ColumnDef<AssetsNodeNonNull>[] => {
   const toggleSelection = (asset: { id: string }) => {
     setSelectedAssets((prev) => {
       const exists = prev.some((c) => c.id === asset.id)
@@ -41,7 +42,7 @@ export const getAssetColumns = ({ userMap, convertToReadOnly, selectedAssets, se
           </div>
         )
       },
-      cell: ({ row }: { row: Row<Asset> }) => {
+      cell: ({ row }: { row: Row<AssetsNodeNonNull> }) => {
         const { id } = row.original
         const isChecked = selectedAssets.some((c) => c.id === id)
 

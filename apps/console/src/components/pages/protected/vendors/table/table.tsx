@@ -2,10 +2,10 @@
 
 import { DataTable } from '@repo/ui/data-table'
 import React, { forwardRef, useEffect, useImperativeHandle, useMemo } from 'react'
-import { OrderDirection, EntityOrder, EntityWhereInput } from '@repo/codegen/src/schema'
+import { OrderDirection, EntityOrder, EntityWhereInput, Entity } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 import { getVendorColumns } from './columns'
-import { useEntitiesWithFilter } from '@/lib/graphql-hooks/entity'
+import { EntitiesNodeNonNull, useEntitiesWithFilter } from '@/lib/graphql-hooks/entity'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
 import { VisibilityState } from '@tanstack/react-table'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
@@ -58,7 +58,7 @@ const VendorsTable = forwardRef(
     }
 
     const {
-      Entities: vendors,
+      entitiesNodes: vendors,
       isLoading: fetching,
       data,
       isFetching,
@@ -130,7 +130,7 @@ const VendorsTable = forwardRef(
     const columns = useMemo(() => getVendorColumns({ userMap, convertToReadOnly, selectedVendors, setSelectedVendors }), [userMap, convertToReadOnly, selectedVendors, setSelectedVendors])
 
     return (
-      <DataTable
+      <DataTable<EntitiesNodeNonNull, Entity>
         columns={columns}
         sortFields={VENDORS_SORT_FIELDS}
         onSortChange={onSortChange}

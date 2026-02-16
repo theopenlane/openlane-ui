@@ -1,8 +1,9 @@
 import { ColumnDef, Row } from '@tanstack/react-table'
-import { Entity, User } from '@repo/codegen/src/schema'
+import { User } from '@repo/codegen/src/schema'
 import { Avatar } from '@/components/shared/avatar/avatar.tsx'
 import { formatDate } from '@/utils/date'
 import { Checkbox } from '@repo/ui/checkbox'
+import { EntitiesNodeNonNull } from '@/lib/graphql-hooks/entity'
 
 type ColumnOptions = {
   userMap: Record<string, User>
@@ -11,7 +12,7 @@ type ColumnOptions = {
   setSelectedVendors: React.Dispatch<React.SetStateAction<{ id: string }[]>>
 }
 
-export const getVendorColumns = ({ userMap, convertToReadOnly, selectedVendors, setSelectedVendors }: ColumnOptions): ColumnDef<Entity>[] => {
+export const getVendorColumns = ({ userMap, convertToReadOnly, selectedVendors, setSelectedVendors }: ColumnOptions): ColumnDef<EntitiesNodeNonNull>[] => {
   const toggleSelection = (vendor: { id: string }) => {
     setSelectedVendors((prev) => {
       const exists = prev.some((v) => v.id === vendor.id)
@@ -41,7 +42,7 @@ export const getVendorColumns = ({ userMap, convertToReadOnly, selectedVendors, 
           </div>
         )
       },
-      cell: ({ row }: { row: Row<Entity> }) => {
+      cell: ({ row }: { row: Row<EntitiesNodeNonNull> }) => {
         const { id } = row.original
         const isChecked = selectedVendors?.some((v) => v.id === id)
 

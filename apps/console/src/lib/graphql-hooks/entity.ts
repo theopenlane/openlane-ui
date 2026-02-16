@@ -1,27 +1,26 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
-  Entity,
-  EntityQuery,
-  EntityQueryVariables,
   EntitiesWithFilterQuery,
   EntitiesWithFilterQueryVariables,
   CreateEntityMutation,
   CreateEntityMutationVariables,
-  CreateBulkCsvEntityMutation,
-  CreateBulkCsvTaskMutationVariables,
-  DeleteEntityMutation,
-  DeleteEntityMutationVariables,
-  DeleteBulkEntityMutation,
-  DeleteBulkEntityMutationVariables,
   UpdateEntityMutation,
   UpdateEntityMutationVariables,
+  DeleteEntityMutation,
+  DeleteEntityMutationVariables,
+  EntityQuery,
+  EntityQueryVariables,
+  CreateBulkCsvEntityMutation,
+  CreateBulkCsvTaskMutationVariables,
   UpdateBulkEntityMutation,
   UpdateBulkEntityMutationVariables,
+  DeleteBulkEntityMutation,
+  DeleteBulkEntityMutationVariables,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
 import { TPagination } from '@repo/ui/pagination-types'
-import { ENTITY, GET_ALL_ENTITIES, BULK_DELETE_ENTITY, CREATE_ENTITY, CREATE_CSV_BULK_ENTITY, DELETE_ENTITY, UPDATE_ENTITY, BULK_EDIT_ENTITY } from '@repo/codegen/query/entity'
+import { GET_ALL_ENTITIES, CREATE_ENTITY, UPDATE_ENTITY, DELETE_ENTITY, ENTITY, CREATE_CSV_BULK_ENTITY, BULK_EDIT_ENTITY, BULK_DELETE_ENTITY } from '@repo/codegen/query/entity'
 
 type GetAllEntitiesArgs = {
   where?: EntitiesWithFilterQueryVariables['where']
@@ -30,31 +29,31 @@ type GetAllEntitiesArgs = {
   enabled?: boolean
 }
 
+export type EntitiesNode = NonNullable<NonNullable<NonNullable<EntitiesWithFilterQuery['entities']>['edges']>[number]>['node']
+
+export type EntitiesNodeNonNull = NonNullable<EntitiesNode>
+
 export const useEntitiesWithFilter = ({ where, orderBy, pagination, enabled = true }: GetAllEntitiesArgs) => {
   const { client } = useGraphQLClient()
-
   const queryResult = useQuery<EntitiesWithFilterQuery, unknown>({
     queryKey: ['entities', where, orderBy, pagination?.page, pagination?.pageSize],
     queryFn: async (): Promise<EntitiesWithFilterQuery> => {
-      const result = await client.request(GET_ALL_ENTITIES, { where, orderBy, ...pagination?.query })
-      return result as EntitiesWithFilterQuery
+      const result = await client.request<EntitiesWithFilterQuery>(GET_ALL_ENTITIES, { where, orderBy, ...pagination?.query })
+      return result
     },
     enabled,
   })
 
-  const Entities = (queryResult.data?.entities?.edges?.map((edge) => {
-    return {
-      ...edge?.node,
-    }
-  }) ?? []) as Entity[]
+  const edges = queryResult.data?.entities?.edges ?? []
 
-  return { ...queryResult, Entities }
+  const entitiesNodes: EntitiesNodeNonNull[] = edges.filter((edge) => edge != null).map((edge) => edge?.node as EntitiesNodeNonNull)
+
+  return { ...queryResult, entitiesNodes }
 }
 
 export const useCreateEntity = () => {
   const { client } = useGraphQLClient()
   const queryClient = useQueryClient()
-
   return useMutation<CreateEntityMutation, unknown, CreateEntityMutationVariables>({
     mutationFn: async (variables) => client.request(CREATE_ENTITY, variables),
     onSuccess: () => {
@@ -66,7 +65,6 @@ export const useCreateEntity = () => {
 export const useUpdateEntity = () => {
   const { client } = useGraphQLClient()
   const queryClient = useQueryClient()
-
   return useMutation<UpdateEntityMutation, unknown, UpdateEntityMutationVariables>({
     mutationFn: async (variables) => client.request(UPDATE_ENTITY, variables),
     onSuccess: () => {
@@ -78,7 +76,6 @@ export const useUpdateEntity = () => {
 export const useDeleteEntity = () => {
   const { client } = useGraphQLClient()
   const queryClient = useQueryClient()
-
   return useMutation<DeleteEntityMutation, unknown, DeleteEntityMutationVariables>({
     mutationFn: async (variables) => client.request(DELETE_ENTITY, variables),
     onSuccess: () => {
@@ -89,7 +86,6 @@ export const useDeleteEntity = () => {
 
 export const useEntity = (entityId?: EntityQueryVariables['entityId']) => {
   const { client } = useGraphQLClient()
-
   return useQuery<EntityQuery, unknown>({
     queryKey: ['entities', entityId],
     queryFn: async (): Promise<EntityQuery> => {
@@ -102,7 +98,6 @@ export const useEntity = (entityId?: EntityQueryVariables['entityId']) => {
 
 export const useCreateBulkCSVEntity = () => {
   const { queryClient } = useGraphQLClient()
-
   return useMutation<CreateBulkCsvEntityMutation, unknown, CreateBulkCsvTaskMutationVariables>({
     mutationFn: async (variables) => fetchGraphQLWithUpload({ query: CREATE_CSV_BULK_ENTITY, variables }),
     onSuccess: () => {
@@ -123,7 +118,6 @@ export const useBulkEditEntity = () => {
 
 export const useBulkDeleteEntity = () => {
   const { client, queryClient } = useGraphQLClient()
-
   return useMutation<DeleteBulkEntityMutation, unknown, DeleteBulkEntityMutationVariables>({
     mutationFn: async (variables) => client.request(BULK_DELETE_ENTITY, variables),
     onSuccess: () => {

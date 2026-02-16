@@ -1,20 +1,20 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
-  CampaignTarget,
-  CampaignTargetQuery,
-  CampaignTargetQueryVariables,
   CampaignTargetsWithFilterQuery,
   CampaignTargetsWithFilterQueryVariables,
   CreateCampaignTargetMutation,
   CreateCampaignTargetMutationVariables,
-  DeleteCampaignTargetMutation,
-  DeleteCampaignTargetMutationVariables,
   UpdateCampaignTargetMutation,
   UpdateCampaignTargetMutationVariables,
+  DeleteCampaignTargetMutation,
+  DeleteCampaignTargetMutationVariables,
+  CampaignTargetQuery,
+  CampaignTargetQueryVariables,
 } from '@repo/codegen/src/schema'
+
 import { TPagination } from '@repo/ui/pagination-types'
-import { CAMPAIGN_TARGET, GET_ALL_CAMPAIGN_TARGETS, CREATE_CAMPAIGN_TARGET, DELETE_CAMPAIGN_TARGET, UPDATE_CAMPAIGN_TARGET } from '@repo/codegen/query/campaign-target'
+import { GET_ALL_CAMPAIGN_TARGETS, CREATE_CAMPAIGN_TARGET, UPDATE_CAMPAIGN_TARGET, DELETE_CAMPAIGN_TARGET, CAMPAIGN_TARGET } from '@repo/codegen/query/campaign-target'
 
 type GetAllCampaignTargetsArgs = {
   where?: CampaignTargetsWithFilterQueryVariables['where']
@@ -23,31 +23,31 @@ type GetAllCampaignTargetsArgs = {
   enabled?: boolean
 }
 
+export type CampaignTargetsNode = NonNullable<NonNullable<NonNullable<CampaignTargetsWithFilterQuery['campaignTargets']>['edges']>[number]>['node']
+
+export type CampaignTargetsNodeNonNull = NonNullable<CampaignTargetsNode>
+
 export const useCampaignTargetsWithFilter = ({ where, orderBy, pagination, enabled = true }: GetAllCampaignTargetsArgs) => {
   const { client } = useGraphQLClient()
-
   const queryResult = useQuery<CampaignTargetsWithFilterQuery, unknown>({
     queryKey: ['campaignTargets', where, orderBy, pagination?.page, pagination?.pageSize],
     queryFn: async (): Promise<CampaignTargetsWithFilterQuery> => {
-      const result = await client.request(GET_ALL_CAMPAIGN_TARGETS, { where, orderBy, ...pagination?.query })
+      const result = await client.request<CampaignTargetsWithFilterQuery>(GET_ALL_CAMPAIGN_TARGETS, { where, orderBy, ...pagination?.query })
       return result as CampaignTargetsWithFilterQuery
     },
     enabled,
   })
 
-  const CampaignTargets = (queryResult.data?.campaignTargets?.edges?.map((edge) => {
-    return {
-      ...edge?.node,
-    }
-  }) ?? []) as CampaignTarget[]
+  const edges = queryResult.data?.campaignTargets?.edges ?? []
 
-  return { ...queryResult, CampaignTargets }
+  const CampaignTargetsNodes: CampaignTargetsNodeNonNull[] = edges.filter((edge) => edge != null).map((edge) => edge?.node as CampaignTargetsNodeNonNull)
+
+  return { ...queryResult, CampaignTargetsNodes }
 }
 
 export const useCreateCampaignTarget = () => {
   const { client } = useGraphQLClient()
   const queryClient = useQueryClient()
-
   return useMutation<CreateCampaignTargetMutation, unknown, CreateCampaignTargetMutationVariables>({
     mutationFn: async (variables) => client.request(CREATE_CAMPAIGN_TARGET, variables),
     onSuccess: () => {
@@ -59,7 +59,6 @@ export const useCreateCampaignTarget = () => {
 export const useUpdateCampaignTarget = () => {
   const { client } = useGraphQLClient()
   const queryClient = useQueryClient()
-
   return useMutation<UpdateCampaignTargetMutation, unknown, UpdateCampaignTargetMutationVariables>({
     mutationFn: async (variables) => client.request(UPDATE_CAMPAIGN_TARGET, variables),
     onSuccess: () => {
@@ -71,7 +70,6 @@ export const useUpdateCampaignTarget = () => {
 export const useDeleteCampaignTarget = () => {
   const { client } = useGraphQLClient()
   const queryClient = useQueryClient()
-
   return useMutation<DeleteCampaignTargetMutation, unknown, DeleteCampaignTargetMutationVariables>({
     mutationFn: async (variables) => client.request(DELETE_CAMPAIGN_TARGET, variables),
     onSuccess: () => {
@@ -82,7 +80,6 @@ export const useDeleteCampaignTarget = () => {
 
 export const useCampaignTarget = (campaignTargetId?: CampaignTargetQueryVariables['campaignTargetId']) => {
   const { client } = useGraphQLClient()
-
   return useQuery<CampaignTargetQuery, unknown>({
     queryKey: ['campaignTargets', campaignTargetId],
     queryFn: async (): Promise<CampaignTargetQuery> => {

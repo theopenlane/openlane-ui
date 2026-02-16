@@ -2,10 +2,10 @@
 
 import { DataTable } from '@repo/ui/data-table'
 import React, { forwardRef, useEffect, useImperativeHandle, useMemo } from 'react'
-import { OrderDirection, AssetOrder, AssetWhereInput } from '@repo/codegen/src/schema'
+import { OrderDirection, AssetOrder, AssetWhereInput, Asset } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 import { getAssetColumns } from '@/components/pages/protected/assets/table/columns.tsx'
-import { useAssetsWithFilter } from '@/lib/graphql-hooks/asset'
+import { AssetsNodeNonNull, useAssetsWithFilter } from '@/lib/graphql-hooks/asset'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
 import { VisibilityState } from '@tanstack/react-table'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
@@ -52,7 +52,7 @@ const AssetsTable = forwardRef(
   ) => {
     const { replace } = useSmartRouter()
     const {
-      Assets: assets,
+      assetsNodes: assets,
       isLoading: fetching,
       data,
       isFetching,
@@ -123,7 +123,7 @@ const AssetsTable = forwardRef(
     const columns = useMemo(() => getAssetColumns({ userMap, convertToReadOnly, selectedAssets, setSelectedAssets }), [userMap, convertToReadOnly, selectedAssets, setSelectedAssets])
 
     return (
-      <DataTable
+      <DataTable<AssetsNodeNonNull, Asset>
         columns={columns}
         sortFields={ASSETS_SORT_FIELDS}
         onSortChange={onSortChange}

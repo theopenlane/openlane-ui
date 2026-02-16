@@ -50,20 +50,28 @@ for (const file of queryFiles) {
     importNames.push(all)
     typeImports.add(`${capitalPluralType}WithFilterQuery`)
     typeImports.add(`${capitalPluralType}WithFilterQueryVariables`)
-    typeImports.add(`${capitalType}`)
+    // Only add the type if it's referenced in the code block
     hookBlocks.push(`
+export type ${capitalPluralType}Node = NonNullable<NonNullable<NonNullable<${capitalPluralType}WithFilterQuery['${lowerPluralType}']>['edges']>[number]>['node']
+
+export type ${capitalPluralType}NodeNonNull = NonNullable<${capitalPluralType}Node>
+
 export const use${capitalPluralType}WithFilter = ({ where, orderBy, pagination, enabled = true }: GetAll${capitalPluralType}Args) => {
   const { client } = useGraphQLClient()
   const queryResult = useQuery<${capitalPluralType}WithFilterQuery, unknown>({
     queryKey: ['${lowerPluralType}', where, orderBy, pagination?.page, pagination?.pageSize],
     queryFn: async (): Promise<${capitalPluralType}WithFilterQuery> => {
-      const result = await client.request(${all}, { where, orderBy, ...pagination?.query })
-      return result as ${capitalPluralType}WithFilterQuery
+      const result = await client.request<${capitalPluralType}WithFilterQuery>(GET_ALL_${upperPlural}, { where, orderBy, ...pagination?.query })
+      return result
     },
     enabled,
   })
-  const ${capitalPluralType} = (queryResult.data?.${lowerPluralType}?.edges?.map((edge) => ({ ...edge?.node })) ?? []) as ${capitalType}[]
-  return { ...queryResult, ${capitalPluralType} }
+
+  const edges = queryResult.data?.${lowerPluralType}?.edges ?? []
+
+  const ${lowerPluralType}Nodes: ${capitalPluralType}NodeNonNull[] = edges.filter((edge) => edge != null).map((edge) => edge?.node as ${capitalPluralType}NodeNonNull)
+
+  return { ...queryResult, ${lowerPluralType}Nodes }
 }
 `)
   }
@@ -198,27 +206,47 @@ export const useBulkDelete${capitalType} = () => {
     continue
   }
 
-  // Compose the import statement for only the present queries
-  const importLine = `import { ${importNames.join(', ')} } from '@repo/codegen/query/${toKebab(type)}'`
+  const getAllArgsType = `
+    type GetAll${capitalPluralType}Args = {
+      where?: ${capitalPluralType}WithFilterQueryVariables['where']
+      orderBy?: ${capitalPluralType}WithFilterQueryVariables['orderBy']
+      pagination?: TPagination
+      enabled?: boolean
+    }
+    `
+  // Compose the generated code as a single string for searching
+  const hooksCode = hookBlocks.join('\n')
+  const fullOutput = getAllArgsType + '\n' + hooksCode
+  const usedTypeImports = Array.from(typeImports).filter((typeName) => fullOutput.includes(typeName))
+
+  // Only import fetchGraphQLWithUpload if used
+  const needsFetchGraphQLWithUpload = hooksCode.includes('fetchGraphQLWithUpload')
+
+  // Only import useQuery/useMutation/useQueryClient if used
+  const needsUseQuery = hooksCode.includes('useQuery<')
+  const needsUseMutation = hooksCode.includes('useMutation<')
+  const needsUseQueryClient = hooksCode.includes('useQueryClient(')
+
+  const reactQueryImports = [needsUseQuery ? 'useQuery' : null, needsUseMutation ? 'useMutation' : null, needsUseQueryClient ? 'useQueryClient' : null].filter(Boolean)
+
+  const reactQueryImportLine = reactQueryImports.length ? `import { ${reactQueryImports.join(', ')} } from '@tanstack/react-query'` : ''
 
   // Compose the rest of the imports (schema/types, etc.) as before, but only for used types
-  const typeImportLine = `import { ${Array.from(typeImports).join(', ')} } from '@repo/codegen/src/schema'`
+  const typeImportLine = usedTypeImports.length ? `import { ${usedTypeImports.join(', ')} } from '@repo/codegen/src/schema'` : ''
 
-  const content = `import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+  const fetchGraphQLWithUploadImport = needsFetchGraphQLWithUpload ? `import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'` : ''
+
+  const importLine = `import { ${importNames.join(', ')} } from '@repo/codegen/query/${toKebab(type)}'`
+
+  const content = `${reactQueryImportLine}
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 ${typeImportLine}
-import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
+${fetchGraphQLWithUploadImport}
 import { TPagination } from '@repo/ui/pagination-types'
 ${importLine}
 
-type GetAll${capitalPluralType}Args = {
-  where?: ${capitalPluralType}WithFilterQueryVariables['where']
-  orderBy?: ${capitalPluralType}WithFilterQueryVariables['orderBy']
-  pagination?: TPagination
-  enabled?: boolean
-}
-
-${hookBlocks.join('\n')}
+${getAllArgsType}
+${hooksCode}
 `
 
   fs.writeFileSync(hookFilePath, content)
