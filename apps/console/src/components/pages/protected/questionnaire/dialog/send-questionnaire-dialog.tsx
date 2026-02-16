@@ -12,8 +12,8 @@ import { Input } from '@repo/ui/input'
 import { Badge } from '@repo/ui/badge'
 import { Form, FormField, FormItem, FormControl, FormMessage } from '@repo/ui/form'
 import { useNotification } from '@/hooks/useNotification'
-import { useCreateAssessmentResponse } from '@/lib/graphql-hooks/assessments'
-import { useContacts } from '@/lib/graphql-hooks/contacts'
+import { useCreateAssessmentResponse } from '@/lib/graphql-hooks/assessment'
+import { useContacts } from '@/lib/graphql-hooks/contact'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 const formSchema = z.object({

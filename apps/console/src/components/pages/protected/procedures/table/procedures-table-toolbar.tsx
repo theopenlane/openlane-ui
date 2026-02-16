@@ -4,7 +4,7 @@ import { DownloadIcon, Import, LoaderCircle, SearchIcon, SquarePlus } from 'luci
 import { Input } from '@repo/ui/input'
 import { useDebounce } from '@uidotdev/usehooks'
 import BulkCSVCreateProcedureDialog from '@/components/pages/protected/procedures/create/form/bulk-csv-create-procedure-dialog'
-import { TAccessRole, TData } from '@/types/authz'
+import { TAccessRole, TPermissionData } from '@/types/authz'
 import { canCreate } from '@/lib/authz/utils.ts'
 import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
 import Menu from '@/components/shared/menu/menu.tsx'
@@ -14,13 +14,12 @@ import { ProcedureWhereInput } from '@repo/codegen/src/schema'
 import { BulkEditProceduresDialog } from '../bulk-edit/bulk-edit-procedures'
 import { Button } from '@repo/ui/button'
 import CreateProcedureUploadDialog from '../create/form/create-procedure-upload-dialog'
-import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
 import { useProceduresFilters } from '@/components/pages/protected/procedures/table/table-config.ts'
 import { useNotification } from '@/hooks/useNotification'
-import { useBulkDeleteProcedures } from '@/lib/graphql-hooks/procedures'
+import { useBulkDeleteProcedures } from '@/lib/graphql-hooks/procedure'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
-import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
+import { TableKeyEnum } from '@repo/ui/table-key'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 type TProceduresTableToolbarProps = {
@@ -42,7 +41,7 @@ type TProceduresTableToolbarProps = {
   selectedProcedures: { id: string }[]
   setSelectedProcedures: React.Dispatch<React.SetStateAction<{ id: string }[]>>
   canEdit: (accessRole: TAccessRole[] | undefined) => boolean
-  permission: TData | undefined
+  permission: TPermissionData | undefined
 }
 
 const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({
@@ -180,14 +179,9 @@ const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({
                 )}
               />
               {mappedColumns && columnVisibility && setColumnVisibility && (
-                <ColumnVisibilityMenu
-                  mappedColumns={mappedColumns}
-                  columnVisibility={columnVisibility}
-                  setColumnVisibility={setColumnVisibility}
-                  storageKey={TableColumnVisibilityKeysEnum.PROCEDURE}
-                />
+                <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.PROCEDURE} />
               )}
-              {filters && <TableFilter filterFields={filters} onFilterChange={setFilters} pageKey={TableFilterKeysEnum.PROCEDURE} />}
+              {filters && <TableFilter filterFields={filters} onFilterChange={setFilters} pageKey={TableKeyEnum.PROCEDURE} />}
               {canCreate(permission?.roles, AccessEnum.CanCreateProcedure) && (
                 <Button variant="primary" onClick={handleCreateNew} className="h-8 px-2! pl-3!" icon={<SquarePlus />} iconPosition="left">
                   Create

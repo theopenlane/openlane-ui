@@ -6,7 +6,7 @@ import { Button } from '@repo/ui/button'
 import { CheckCheck, SearchIcon, ShieldOff } from 'lucide-react'
 import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
-import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys'
+import { TableKeyEnum } from '@repo/ui/table-key'
 import { WhereCondition } from '@/types'
 import { ndaRequestsFilterFields } from './table-config'
 
@@ -57,7 +57,7 @@ const NdaRequestsTableToolbar: React.FC<Props> = ({
       </div>
       <div className="flex items-center gap-2">
         <Input icon={<SearchIcon size={16} />} placeholder="Search..." value={searchTerm} onChange={(e) => setSearchTerm(e.currentTarget.value)} variant="searchTable" className="w-60" />
-        <TableFilter filterFields={ndaRequestsFilterFields} onFilterChange={onFilterChange} pageKey={TableFilterKeysEnum.TRUST_CENTER_NDA_REQUESTS} />
+        <TableFilter filterFields={ndaRequestsFilterFields} onFilterChange={onFilterChange} pageKey={TableKeyEnum.TRUST_CENTER_NDA_REQUESTS} />
         {showApproveAll && (
           <Button icon={<CheckCheck size={16} />} iconPosition="left" onClick={onApproveAllRequest ?? onApproveAll} loading={approveAllLoading} disabled={approveAllDisabled || approveAllLoading}>
             Approve All

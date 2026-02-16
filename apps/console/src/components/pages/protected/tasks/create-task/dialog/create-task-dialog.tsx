@@ -6,8 +6,8 @@ import CreateTaskForm from '@/components/pages/protected/tasks/create-task/form/
 import type { CreateTaskFormData } from '@/components/pages/protected/tasks/hooks/use-form-schema'
 import React, { useState } from 'react'
 import { Button } from '@repo/ui/button'
-import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap'
-import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
+import { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
+import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
 
 interface Props {
   defaultSelectedObject?: ObjectTypeObjects

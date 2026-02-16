@@ -9,15 +9,15 @@ import { ChevronDown, ChevronUp, Copy } from 'lucide-react'
 import { DataTable } from '@repo/ui/data-table'
 import { Input } from '@repo/ui/input'
 import { useGroupsStore } from '@/hooks/useGroupsStore'
-import { useGetAllGroups, useGetGroupDetails, useGetGroupPermissions, useUpdateGroup } from '@/lib/graphql-hooks/groups'
+import { useGetAllGroups, useGetGroupDetails, useGetGroupPermissions, useUpdateGroup } from '@/lib/graphql-hooks/group'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification'
-import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { canEdit } from '@/lib/authz/utils'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { Permission } from '@repo/codegen/src/schema'
 import { TableKeyEnum } from '@repo/ui/table-key'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 const PERMISSION_LABELS: Record<Permission, string> = {
   [Permission.VIEWER]: 'View',
@@ -39,7 +39,7 @@ const InheritPermissionDialog = () => {
   const [isExpanded, setIsExpanded] = useState(false)
   const { errorNotification, successNotification } = useNotification()
   const { selectedGroup } = useGroupsStore()
-  const { data: permission } = useAccountRoles(ObjectEnum.GROUP, selectedGroup)
+  const { data: permission } = useAccountRoles(ObjectTypes.GROUP, selectedGroup)
   const queryClient = useQueryClient()
 
   const { data } = useGetGroupDetails(selectedGroup)

@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { DataTable, getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
-import { useGetAllSubscribers } from '@/lib/graphql-hooks/subscribes'
+import { useGetAllSubscribers } from '@/lib/graphql-hooks/subscriber'
 import { exportableSubscriberColumns, subscribersColumns } from '@/components/pages/protected/organization-settings/subscribers/table/columns.tsx'
 import SubscribersTableToolbar from '@/components/pages/protected/organization-settings/subscribers/table/subscribers-table-toolbar.tsx'
 import { GetAllSubscribersQueryVariables, OrderDirection, SubscriberOrderField, SubscriberWhereInput } from '@repo/codegen/src/schema.ts'
@@ -18,9 +18,9 @@ export const SubscribersTable = () => {
   const [filters, setFilters] = useState<SubscriberWhereInput | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const debouncedSearch = useDebounce(searchTerm, 300)
-  const [pagination, setPagination] = useState<TPagination>(getInitialPagination(TableKeyEnum.SUBSCRIBE, DEFAULT_PAGINATION))
+  const [pagination, setPagination] = useState<TPagination>(getInitialPagination(TableKeyEnum.SUBSCRIBER, DEFAULT_PAGINATION))
   const { errorNotification } = useNotification()
-  const defaultSorting = getInitialSortConditions(TableKeyEnum.SUBSCRIBE, SubscriberOrderField, [
+  const defaultSorting = getInitialSortConditions(TableKeyEnum.SUBSCRIBER, SubscriberOrderField, [
     {
       field: SubscriberOrderField.created_at,
       direction: OrderDirection.DESC,
@@ -76,7 +76,7 @@ export const SubscribersTable = () => {
         pagination={pagination}
         onPaginationChange={(pagination: TPagination) => setPagination(pagination)}
         paginationMeta={paginationMeta}
-        tableKey={TableKeyEnum.SUBSCRIBE}
+        tableKey={TableKeyEnum.SUBSCRIBER}
       />
     </div>
   )

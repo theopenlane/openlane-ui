@@ -8,7 +8,7 @@ import FileUpload from '@/components/shared/file-upload/file-upload'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { TUploadedFile } from '@/components/pages/protected/evidence/upload/types/TUploadedFile'
-import { useUpdateTrustCenterDoc } from '@/lib/graphql-hooks/trust-center'
+import { useUpdateTrustCenterDoc } from '@/lib/graphql-hooks/trust-center-doc'
 import { useQueryClient } from '@tanstack/react-query'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 

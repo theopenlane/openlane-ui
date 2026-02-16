@@ -4,7 +4,7 @@ import MapControlsFormFilters from './map-controls-form-filters'
 import MatchedControls from './matched-controls'
 import { AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
 import { ChevronDown, Expand } from 'lucide-react'
-import { useAllControlsGrouped } from '@/lib/graphql-hooks/controls'
+import { useAllControlsGrouped } from '@/lib/graphql-hooks/control'
 
 import ControlChip from './shared/control-chip'
 import { ControlWhereInput, SubcontrolWhereInput } from '@repo/codegen/src/schema'
@@ -12,6 +12,7 @@ import { useAllSubcontrolsGrouped } from '@/lib/graphql-hooks/subcontrol'
 import { useFormContext } from 'react-hook-form'
 import { MapControlsFormData } from './use-form-schema'
 import { MapControl } from '@/types'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 interface Props {
   title: 'From' | 'To'
@@ -60,12 +61,12 @@ const MapControlsCard: React.FC<Props> = ({ title, setExpandedCard, expandedCard
 
       setDroppedControls((prev) => [...prev, ...newControls])
       const newControlIds = newControls
-        .filter((item) => item.__typename === 'Control')
+        .filter((item) => item.__typename === ObjectTypes.CONTROL)
         .map((item) => item.id)
         .filter((id) => !controlIds.includes(id))
 
       const newSubcontrolIds = newControls
-        .filter((item) => item.__typename === 'Subcontrol')
+        .filter((item) => item.__typename === ObjectTypes.SUBCONTROL)
         .map((item) => item.id)
         .filter((id) => !subcontrolIds.includes(id))
 
@@ -87,13 +88,13 @@ const MapControlsCard: React.FC<Props> = ({ title, setExpandedCard, expandedCard
     const subcontrolField = isFrom ? 'fromSubcontrolIDs' : 'toSubcontrolIDs'
     setDroppedControls((prev) => prev.filter((c) => c.id !== control.id))
 
-    if (control.__typename === 'Control') {
+    if (control.__typename === ObjectTypes.CONTROL) {
       const ids = getValues(controlField) || []
       setValue(
         controlField,
         ids.filter((i: string) => i !== control.id),
       )
-    } else if (control.__typename === 'Subcontrol') {
+    } else if (control.__typename === ObjectTypes.SUBCONTROL) {
       const ids = getValues(subcontrolField) || []
       setValue(
         subcontrolField,

@@ -9,16 +9,15 @@ import { OrderDirection, Assessment, AssessmentOrderField, AssessmentWhereInput,
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useDebounce } from '@uidotdev/usehooks'
-import { useAssessments, useDeleteAssessment } from '@/lib/graphql-hooks/assessments'
+import { useAssessments, useDeleteAssessment } from '@/lib/graphql-hooks/assessment'
 import { useRouter } from 'next/navigation'
 import { ColumnDef, VisibilityState } from '@tanstack/react-table'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { exportToCSV } from '@/utils/exportToCSV'
-import { useGetOrgUserList } from '@/lib/graphql-hooks/members'
+import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
 import { useNotification } from '@/hooks/useNotification'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
-import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { canDelete, canEdit } from '@/lib/authz/utils.ts'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
@@ -59,7 +58,7 @@ export const QuestionnairesTable = () => {
     templateName: false,
   }
 
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableColumnVisibilityKeysEnum.QUESTIONNAIRE, defaultVisibility))
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.QUESTIONNAIRE, defaultVisibility))
 
   const [searchTerm, setSearchTerm] = useState('')
   const debouncedSearch = useDebounce(searchTerm, 300)

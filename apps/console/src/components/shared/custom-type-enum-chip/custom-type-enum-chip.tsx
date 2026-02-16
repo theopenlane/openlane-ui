@@ -1,4 +1,4 @@
-import { CustomTypeEnumOption } from '@/lib/graphql-hooks/custom-type-enums'
+import { CustomTypeEnumOption } from '@/lib/graphql-hooks/custom-type-enum'
 import { Badge } from '@repo/ui/badge'
 import React from 'react'
 

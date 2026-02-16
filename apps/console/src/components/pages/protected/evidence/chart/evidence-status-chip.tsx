@@ -8,8 +8,8 @@ import { ChartColorsSequence } from '@/components/shared/enum-mapper/evidence-en
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import { EvidenceWhereInput } from '@repo/codegen/src/schema'
 import { saveFilters, TFilterState } from '@/components/shared/table-filter/filter-storage.ts'
-import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
 import Link from 'next/link'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 type TEvidenceStatusChipProps = {
   data: TChardData
@@ -73,7 +73,7 @@ const EvidenceTooltipContent: React.FC<TEvidenceTooltipContentProps> = ({ progra
       status: [evidenceData.status],
     }
 
-    saveFilters(TableFilterKeysEnum.EVIDENCE, filters)
+    saveFilters(TableKeyEnum.EVIDENCE, filters)
   }
 
   return (

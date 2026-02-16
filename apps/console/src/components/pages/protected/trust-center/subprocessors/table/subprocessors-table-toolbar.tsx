@@ -7,13 +7,12 @@ import { ChevronDown, DownloadIcon, LoaderCircle, SearchIcon, Trash2 } from 'luc
 import { VisibilityState } from '@tanstack/react-table'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
-import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys'
 import { CreateSubprocessorMutation, SubprocessorWhereInput } from '@repo/codegen/src/schema'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
-import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys'
+import { TableKeyEnum } from '@repo/ui/table-key'
 import { subprocessorsFilterFields } from './table-config'
-import { useBulkDeleteTrustCenterSubprocessors } from '@/lib/graphql-hooks/trust-center-subprocessors'
-import { useGetSubprocessors } from '@/lib/graphql-hooks/subprocessors'
+import { useBulkDeleteTrustCenterSubprocessors } from '@/lib/graphql-hooks/trust-center-subprocessor'
+import { useGetSubprocessors } from '@/lib/graphql-hooks/subprocessor'
 import { CreateSubprocessorSheet } from '../sheet/create-subprocessor-sheet'
 import { AddExistingDialog } from './add-existing-dialog'
 import Menu from '@/components/shared/menu/menu'
@@ -130,15 +129,10 @@ const SubprocessorsTableToolbar: React.FC<TProps> = ({
               )}
             />
             {mappedColumns && columnVisibility && setColumnVisibility && (
-              <ColumnVisibilityMenu
-                mappedColumns={mappedColumns}
-                columnVisibility={columnVisibility}
-                setColumnVisibility={setColumnVisibility}
-                storageKey={TableColumnVisibilityKeysEnum.SUBPROCESSORS}
-              />
+              <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.TRUST_CENTER_SUBPROCESSORS} />
             )}
 
-            <TableFilter filterFields={subprocessorsFilterFields} onFilterChange={handleFilterChange} pageKey={TableFilterKeysEnum.SUBPROCESSORS} />
+            <TableFilter filterFields={subprocessorsFilterFields} onFilterChange={handleFilterChange} pageKey={TableKeyEnum.TRUST_CENTER_SUBPROCESSORS} />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="primary" className="h-8" icon={<ChevronDown size={16} />}>

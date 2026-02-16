@@ -4,26 +4,25 @@ import { DownloadIcon, LoaderCircle, SearchIcon, SquarePlus, Upload } from 'luci
 import { Input } from '@repo/ui/input'
 import { getRisksFilterFields } from './table-config'
 import { FilterField } from '@/types'
-import { useProgramSelect } from '@/lib/graphql-hooks/programs'
+import { useProgramSelect } from '@/lib/graphql-hooks/program'
 import Menu from '@/components/shared/menu/menu.tsx'
 import BulkCSVCreateRiskDialog from '@/components/pages/protected/risks/bulk-csv-create-risk-dialog.tsx'
 import { VisibilityState } from '@tanstack/react-table'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { canCreate } from '@/lib/authz/utils.ts'
 import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
-import { TAccessRole, TData } from '@/types/authz'
+import { TAccessRole, TPermissionData } from '@/types/authz'
 import { RiskWhereInput } from '@repo/codegen/src/schema'
 import { BulkEditRisksDialog } from '../bulk-edit/bulk-edit-risks'
 import { Button } from '@repo/ui/button'
-import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { useBulkDeleteRisks } from '@/lib/graphql-hooks/risks'
-import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
-import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
+import { useBulkDeleteRisks } from '@/lib/graphql-hooks/risk'
+import { TableKeyEnum } from '@repo/ui/table-key'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
-import { useGetTags } from '@/lib/graphql-hooks/tags'
+import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 
 type TProps = {
   onFilterChange: (filters: RiskWhereInput) => void
@@ -43,7 +42,7 @@ type TProps = {
   selectedRisks: { id: string }[]
   setSelectedRisks: React.Dispatch<React.SetStateAction<{ id: string }[]>>
   canEdit: (accessRole: TAccessRole[] | undefined) => boolean
-  permission: TData | undefined
+  permission: TPermissionData | undefined
 }
 
 const RisksTableToolbar: React.FC<TProps> = ({
@@ -192,9 +191,9 @@ const RisksTableToolbar: React.FC<TProps> = ({
               )}
             />
             {mappedColumns && columnVisibility && setColumnVisibility && (
-              <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableColumnVisibilityKeysEnum.RISK} />
+              <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.RISK} />
             )}
-            {filterFields && <TableFilter filterFields={filterFields} onFilterChange={onFilterChange} pageKey={TableFilterKeysEnum.RISK} />}
+            {filterFields && <TableFilter filterFields={filterFields} onFilterChange={onFilterChange} pageKey={TableKeyEnum.RISK} />}
             {canCreate(permission?.roles, AccessEnum.CanCreateRisk) && (
               <Button variant="primary" onClick={handleCreateNew} className="h-8 px-2! pl-3!" icon={<SquarePlus />} iconPosition="left">
                 Create

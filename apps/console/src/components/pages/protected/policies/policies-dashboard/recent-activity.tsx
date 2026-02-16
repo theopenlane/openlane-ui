@@ -1,13 +1,13 @@
 'use client'
 
 import React, { useMemo } from 'react'
-import { useInternalPoliciesDashboard } from '@/lib/graphql-hooks/policy'
+import { useInternalPoliciesDashboard } from '@/lib/graphql-hooks/internal-policy'
 import { wherePoliciesDashboard } from './dashboard-config'
 import { formatDate } from '@/utils/date'
 import { cn } from '@repo/ui/lib/utils'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { User } from '@repo/codegen/src/schema'
-import { useGetOrgUserList } from '@/lib/graphql-hooks/members'
+import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
 import Link from 'next/link'
 
 const RecentActivity = () => {
