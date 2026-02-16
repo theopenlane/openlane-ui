@@ -144,7 +144,12 @@ const ControlDetailsTabs: React.FC<TabsProps> = (props) => {
       </TabsContent>
 
       <TabsContent value="linked-controls" className="space-y-6">
-        <LinkedControlsTab controlId={isSubcontrol ? undefined : control?.id} subcontrolId={isSubcontrol ? subcontrol?.id : undefined} refCode={refCode} />
+        <LinkedControlsTab
+          controlId={isSubcontrol ? undefined : control?.id}
+          subcontrolId={isSubcontrol ? subcontrol?.id : undefined}
+          refCode={refCode}
+          sourceFramework={isSubcontrol ? subcontrol?.referenceFramework : control?.referenceFramework}
+        />
       </TabsContent>
 
       {hasGuidanceData && (
