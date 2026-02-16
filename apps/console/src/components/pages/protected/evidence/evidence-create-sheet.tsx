@@ -16,9 +16,9 @@ import { useNotification } from '@/hooks/useNotification'
 import { Option } from '@repo/ui/multiple-selector'
 import { useCreateEvidence } from '@/lib/graphql-hooks/evidence'
 import { TFormEvidenceData } from '@/components/pages/protected/evidence/types/TFormEvidenceData.ts'
-import ObjectAssociation from '@/components/shared/objectAssociation/object-association'
-import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
-import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap'
+import ObjectAssociation from '@/components/shared/object-association/object-association'
+import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
+import { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
 import { Panel } from '@repo/ui/panel'
 import { useQueryClient } from '@tanstack/react-query'
 import { TUploadedFile } from './upload/types/TUploadedFile'
@@ -27,18 +27,19 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { Sheet, SheetContent, SheetHeader } from '@repo/ui/sheet'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
-import { ProgramSelectionDialog } from '@/components/shared/objectAssociation/object-association-programs-dialog'
-import { ControlSelectionDialog } from '@/components/shared/objectAssociation/object-association-control-dialog'
-import ObjectAssociationProgramsChips from '@/components/shared/objectAssociation/object-association-programs-chips'
-import ObjectAssociationControlsChips from '@/components/shared/objectAssociation/object-association-controls-chips'
+import { ProgramSelectionDialog } from '@/components/shared/object-association/object-association-programs-dialog'
+import { ControlSelectionDialog } from '@/components/shared/object-association/object-association-control-dialog'
+import ObjectAssociationProgramsChips from '@/components/shared/object-association/object-association-programs-chips'
+import ObjectAssociationControlsChips from '@/components/shared/object-association/object-association-controls-chips'
 import { buildWhere, CustomEvidenceControl, flattenAndFilterControls } from './evidence-sheet-config'
-import { useGetSuggestedControlsOrSubcontrols } from '@/lib/graphql-hooks/controls'
-import { useGetStandards } from '@/lib/graphql-hooks/standards'
+import { useGetSuggestedControlsOrSubcontrols } from '@/lib/graphql-hooks/control'
+import { useGetStandards } from '@/lib/graphql-hooks/standard'
 import Link from 'next/link'
-import { useGetTags } from '@/lib/graphql-hooks/tags'
+import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import PlateEditor from '@/components/shared/plate/plate-editor'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { Value } from 'platejs'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 type TEvidenceCreateSheetProps = {
   formData?: TFormEvidenceData
@@ -71,7 +72,9 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
   const [openControlsDialog, setOpenControlsDialog] = useState(false)
   const router = useRouter()
   const [associationProgramsRefMap, setAssociationProgramsRefMap] = useState<string[]>([])
-  const [suggestedControlsMap, setSuggestedControlsMap] = useState<{ id: string; refCode: string; referenceFramework: string | null; source: string; typeName: 'Control' | 'Subcontrol' }[]>([])
+  const [suggestedControlsMap, setSuggestedControlsMap] = useState<
+    { id: string; refCode: string; referenceFramework: string | null; source: string; typeName: typeof ObjectTypes.CONTROL | typeof ObjectTypes.SUBCONTROL }[]
+  >([])
 
   const [evidenceControls, setEvidenceControls] = useState<CustomEvidenceControl[] | null>(null)
   const [evidenceSubcontrols, setEvidenceSubcontrols] = useState<CustomEvidenceControl[] | null>(null)
@@ -100,7 +103,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
         ...evidenceObjectTypes,
         controlIDs: data.controlIDs,
         subcontrolIDs: data.subcontrolIDs,
-        programIDs: programId ? [programId] : (data.programIDs ?? []),
+        programIDs: programId ? [programId] : data.programIDs ?? [],
         ...(data.url ? { url: data.url } : {}),
       } as CreateEvidenceInput,
       evidenceFiles: data.evidenceFiles?.map((item) => item.file) || [],
@@ -160,7 +163,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
         const newEvidenceSubcontrols: CustomEvidenceControl[] = []
 
         controlParam.forEach((control) => {
-          if (control.__typename === 'Control') {
+          if (control.__typename === ObjectTypes.CONTROL) {
             newEvidenceControls.push(control)
           } else {
             newEvidenceSubcontrols.push(control)

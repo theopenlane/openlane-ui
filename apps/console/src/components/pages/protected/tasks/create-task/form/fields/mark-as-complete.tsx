@@ -1,5 +1,5 @@
 import { useNotification } from '@/hooks/useNotification'
-import { useUpdateTask } from '@/lib/graphql-hooks/tasks'
+import { useUpdateTask } from '@/lib/graphql-hooks/task'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 import { TaskQuery, TaskTaskStatus } from '@repo/codegen/src/schema'

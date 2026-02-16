@@ -7,7 +7,7 @@ import { Button } from '@repo/ui/button'
 import { DataTable, getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/table-core'
 import { Avatar } from '@/components/shared/avatar/avatar'
-import { useTasksWithFilter } from '@/lib/graphql-hooks/tasks'
+import { useTasksWithFilter } from '@/lib/graphql-hooks/task.ts'
 import { OrderDirection, TaskOrderField, TasksWithFilterQueryVariables, TaskTaskStatus, TaskWhereInput, User } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
@@ -15,12 +15,11 @@ import { TASK_SORT_FIELDS } from '../../../tasks/table/table-config.ts'
 import { useParams } from 'next/navigation'
 import Frame from '@/assets/Frame'
 import { TaskStatusIconMapper } from '@/components/shared/enum-mapper/task-enum'
-import { TaskStatusMapper } from '@/components/pages/protected/tasks/util/task.ts'
 import { saveFilters, TFilterState } from '@/components/shared/table-filter/filter-storage.ts'
-import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
 import { TableKeyEnum } from '@repo/ui/table-key'
-import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums.ts'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum.ts'
 import { CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip.tsx'
+import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 
 type FormattedTask = {
   id: string
@@ -77,7 +76,7 @@ const ProgramTasksTable = () => {
           return (
             <span className="flex items-center gap-2 capitalize">
               {icon}
-              {TaskStatusMapper[status]}
+              {getEnumLabel(status)}
             </span>
           )
         },
@@ -143,7 +142,7 @@ const ProgramTasksTable = () => {
       hasProgramsWith: [id],
     }
 
-    saveFilters(TableFilterKeysEnum.TASK, filters)
+    saveFilters(TableKeyEnum.TASK, filters)
   }
 
   return (

@@ -3,8 +3,10 @@ config:
   useTypeImports: true
   exposeDocument: true # For each generate query hook adds document field with a corresponding GraphQL query. Useful for queryClient.fetchQuery
   exposeQueryKeys: true # For each generate query hook adds getKey(variables: QueryVariables) function. Useful for cache updates. If addInfiniteQuery is true, it will also add a getKey function to each infinite query
+  addInfiniteQuery: true
   exposeMutationKeys: true # For each generate mutation hook adds getKey() function. Useful for call outside of functional component
   exposeFetcher: true # For each generate query hook adds fetcher field with a corresponding GraphQL query using the fetcher. It is useful for queryClient.fetchQuery and queryClient.prefetchQuery
+  optimizeDocumentNode: true
   maybeValue: T | null
   declarationKind: interface
   preResolveTypes: true
@@ -22,8 +24,7 @@ config:
     Upload: any
   schema: yup
 overwrite: true
-schema: https://raw.githubusercontent.com/theopenlane/core/main/internal/graphapi/clientschema/schema.graphql
-# schema: ../../../core/internal/graphapi/clientschema/schema.graphql
+schema: https://raw.githubusercontent.com/theopenlane/core/bug-entity-type-for-entity/internal/graphapi/clientschema/schema.graphql
 documents: './query/**/*.ts'
 generates:
   ./src/introspectionschema.json:
@@ -47,3 +48,8 @@ generates:
       #      - typescript-validation-schema # A plugin for GraphQL Codegen to generate form validation schema (such as yup, zod) based on your GraphQL schema for use in a client application
       - add:
           content: '/* eslint-disable */'
+hooks:
+  afterAllFileWrite:
+    - node ./plugins/generate-type-constants.js
+    - node ./plugins/generate-queries.js
+    - node ./plugins/generate-hooks.js

@@ -8,29 +8,29 @@ import { DEFAULT_PAGINATION } from '@/constants/pagination.ts'
 import { ExportExportFormat, ExportExportType, GetAllRisksQueryVariables, OrderDirection, RiskOrderField, RiskTableFieldsFragment, RiskWhereInput } from '@repo/codegen/src/schema.ts'
 import { ColumnDef, VisibilityState } from '@tanstack/react-table'
 import { useDebounce } from '@uidotdev/usehooks'
-import { useRisks } from '@/lib/graphql-hooks/risks.ts'
+import { useRisks } from '@/lib/graphql-hooks/risk'
 import { PageHeading } from '@repo/ui/page-heading'
 import RisksTableToolbar from '@/components/pages/protected/risks/table/risks-table-toolbar.tsx'
 import { DataTable, getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
 import { RISKS_SORT_FIELDS } from '@/components/pages/protected/risks/table/table-config.ts'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import { useGetOrgUserList } from '@/lib/graphql-hooks/members'
+import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
 import { canEdit } from '@/lib/authz/utils.ts'
 import useFileExport from '@/components/shared/export/use-file-export.ts'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { useNotification } from '@/hooks/useNotification'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
-import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
 import { TableKeyEnum } from '@repo/ui/table-key'
-import { SearchKeyEnum, useStorageSearch } from '@/hooks/useStorageSearch'
+import { useStorageSearch } from '@/hooks/useStorageSearch'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 const RiskTable: React.FC = () => {
   const router = useRouter()
   const { convertToReadOnly } = usePlateEditor()
 
-  const [searchQuery, setSearchQuery] = useStorageSearch(SearchKeyEnum.RISKS)
+  const [searchQuery, setSearchQuery] = useStorageSearch(ObjectTypes.RISK)
   const [filters, setFilters] = useState<RiskWhereInput | null>(null)
   const [pagination, setPagination] = useState<TPagination>(getInitialPagination(TableKeyEnum.RISK, DEFAULT_PAGINATION))
   const [selectedRisks, setSelectedRisks] = useState<{ id: string }[]>([])
@@ -60,7 +60,7 @@ const RiskTable: React.FC = () => {
     delegate: false,
   }
 
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableColumnVisibilityKeysEnum.RISK, defaultVisibility))
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.RISK, defaultVisibility))
 
   const debouncedSearch = useDebounce(searchQuery, 300)
   const searching = searchQuery !== debouncedSearch

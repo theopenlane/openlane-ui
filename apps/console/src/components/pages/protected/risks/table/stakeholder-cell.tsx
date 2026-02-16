@@ -4,7 +4,7 @@ import { Group } from '@repo/codegen/src/schema'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { EditableFieldFormData } from '@/components/pages/protected/tasks/hooks/use-editable-field-form-schema'
 import EditableGroupCell from '@/components/shared/editable-group-cell/editable-group-cell'
-import { useUpdateRisk } from '@/lib/graphql-hooks/risks'
+import { useUpdateRisk } from '@/lib/graphql-hooks/risk'
 
 type TStakeholderCellProps = {
   stakeholder?: Group | null

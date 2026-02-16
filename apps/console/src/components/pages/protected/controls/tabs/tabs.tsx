@@ -12,7 +12,7 @@ import DocumentationTab from '@/components/pages/protected/controls/tabs/documen
 import ActivityTab from '@/components/pages/protected/controls/tabs/activity/activity-tab'
 import ScrollableTabsList from '@/components/pages/protected/controls/tabs/scrollable-tabs-list'
 import ControlTabsList from '@/components/pages/protected/controls/tabs/control-tabs-list'
-import { useGetControlAssociationsById, type ControlByIdNode } from '@/lib/graphql-hooks/controls'
+import { useGetControlAssociationsById, type ControlByIdNode } from '@/lib/graphql-hooks/control'
 import { useGetSubcontrolAssociationsById, type SubcontrolByIdNode } from '@/lib/graphql-hooks/subcontrol'
 import { buildControlEvidenceData, buildSubcontrolEvidenceData } from '@/components/pages/protected/controls/evidence-data'
 

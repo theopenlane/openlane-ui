@@ -1,6 +1,6 @@
 import { Loading } from '@/components/shared/loading/loading'
 import CreateProcedureForm from './create/form/create-procedure-form.tsx'
-import { useGetProcedureDetailsById } from '@/lib/graphql-hooks/procedures.ts'
+import { useGetProcedureDetailsById } from '@/lib/graphql-hooks/procedure.ts'
 
 type TEditProcedurePage = {
   procedureId: string

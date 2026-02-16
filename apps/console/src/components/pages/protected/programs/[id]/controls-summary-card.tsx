@@ -1,4 +1,4 @@
-import { useGetControlCountsByStatus } from '@/lib/graphql-hooks/controls'
+import { useGetControlCountsByStatus } from '@/lib/graphql-hooks/control'
 import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
 import { Card, CardContent } from '@repo/ui/cardpanel'
@@ -6,8 +6,8 @@ import { DonutChart } from '@repo/ui/donut-chart'
 import { Settings2 } from 'lucide-react'
 import Link from 'next/link'
 import { saveFilters, TFilterState } from '@/components/shared/table-filter/filter-storage.ts'
-import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys'
 import { useParams } from 'next/navigation'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 const chartColors = ['#4ADE80', '#EAB308', '#EF4444', '#107565', '#017BFE']
 
@@ -44,7 +44,7 @@ export function ControlsSummaryCard() {
       hasProgramsWith: [id],
     }
 
-    saveFilters(TableFilterKeysEnum.CONTROL, filters)
+    saveFilters(TableKeyEnum.CONTROL, filters)
   }
 
   return (

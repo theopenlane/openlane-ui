@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react'
 import SubcontrolsTable from './subcontrols-table'
 import { useGetMappedControls } from '@/lib/graphql-hooks/mapped-control'
-import { useGetControlsByRefCode, type ControlsByRefcodeNode } from '@/lib/graphql-hooks/controls'
+import { useGetControlsByRefCode, type ControlsByRefcodeNode } from '@/lib/graphql-hooks/control'
 import { useGetSubcontrolsByRefCode, type SubcontrolsByRefcodeNode } from '@/lib/graphql-hooks/subcontrol'
 import { MappedControlMappingSource } from '@repo/codegen/src/schema'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
@@ -13,6 +13,7 @@ import { useGetSubcontrolsPaginated } from '@/lib/graphql-hooks/subcontrol'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { TableSkeleton } from '@/components/shared/skeleton/table-skeleton'
 import EmptyTabState from '@/components/pages/protected/controls/tabs/shared/empty-tab-state'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 export type LinkedControlsTabProps = {
   controlId?: string
@@ -77,7 +78,7 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcon
           mappingType: node.mappingType,
           relation: node.relation,
           source: mappingSource,
-          nodeType: 'Control',
+          nodeType: ObjectTypes.CONTROL,
         })
       })
 
@@ -94,7 +95,7 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcon
           mappingType: node.mappingType,
           relation: node.relation,
           source: mappingSource,
-          nodeType: 'Subcontrol',
+          nodeType: ObjectTypes.SUBCONTROL,
         })
       })
     })
@@ -109,7 +110,7 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcon
       Array.from(
         new Set(
           mappedControls
-            .filter((row) => row.nodeType === 'Control')
+            .filter((row) => row.nodeType === ObjectTypes.CONTROL)
             .map((row) => row.refCode)
             .filter(Boolean),
         ),
@@ -121,7 +122,7 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcon
       Array.from(
         new Set(
           mappedControls
-            .filter((row) => row.nodeType === 'Subcontrol')
+            .filter((row) => row.nodeType === ObjectTypes.SUBCONTROL)
             .map((row) => row.refCode)
             .filter(Boolean),
         ),

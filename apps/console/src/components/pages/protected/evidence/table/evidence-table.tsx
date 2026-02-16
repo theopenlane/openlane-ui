@@ -13,16 +13,16 @@ import { useGetEvidenceList } from '@/lib/graphql-hooks/evidence.ts'
 import { useGetEvidenceColumns } from '@/components/pages/protected/evidence/table/columns.tsx'
 import { EVIDENCE_SORTABLE_FIELDS } from '@/components/pages/protected/evidence/table/table-config.ts'
 import EvidenceTableToolbar from '@/components/pages/protected/evidence/table/evidence-table-toolbar.tsx'
-import { useGetOrgUserList } from '@/lib/graphql-hooks/members.ts'
+import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import { useNotification } from '@/hooks/useNotification'
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
-import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
 import { TableKeyEnum } from '@repo/ui/table-key'
-import { SearchKeyEnum, useStorageSearch } from '@/hooks/useStorageSearch'
+import { useStorageSearch } from '@/hooks/useStorageSearch'
 import { canEdit } from '@/lib/authz/utils'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 export const EvidenceTable = () => {
   const searchParams = useSearchParams()
@@ -30,7 +30,7 @@ export const EvidenceTable = () => {
   const [pagination, setPagination] = useState<TPagination>(getInitialPagination(TableKeyEnum.EVIDENCE, DEFAULT_PAGINATION))
   const [filters, setFilters] = useState<EvidenceWhereInput>({})
   const { setCrumbs } = useContext(BreadcrumbContext)
-  const [searchTerm, setSearchTerm] = useStorageSearch(SearchKeyEnum.EVIDENCE)
+  const [searchTerm, setSearchTerm] = useStorageSearch(ObjectTypes.EVIDENCE)
   const { replace } = useSmartRouter()
   const { errorNotification } = useNotification()
   const [selectedEvidence, setSelectedEvidence] = useState<{ id: string }[]>([])
@@ -81,9 +81,10 @@ export const EvidenceTable = () => {
     createdAt: false,
     updatedAt: false,
     description: false,
+    isAutomated: false,
   }
 
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableColumnVisibilityKeysEnum.EVIDENCE, defaultVisibility))
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.EVIDENCE, defaultVisibility))
 
   const userIds = useMemo(() => {
     if (!evidences) return []

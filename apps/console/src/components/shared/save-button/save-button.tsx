@@ -3,6 +3,7 @@ import { SaveIcon } from 'lucide-react'
 type SaveButtonProps = {
   onClick?: React.MouseEventHandler<HTMLButtonElement>
   title?: string
+  savingTitle?: string
   type?: 'button' | 'submit' | 'reset'
   disabled?: boolean
   isSaving?: boolean
@@ -30,10 +31,20 @@ type SaveButtonProps = {
     | 'back'
 }
 
-export const SaveButton = ({ onClick, title = 'Save Changes', type = 'submit', disabled, isSaving = false, form, className, variant = 'primary' }: SaveButtonProps) => {
+export const SaveButton = ({
+  onClick,
+  title = 'Save Changes',
+  savingTitle = 'Saving Changes...',
+  type = 'submit',
+  disabled,
+  isSaving = false,
+  form,
+  className,
+  variant = 'primary',
+}: SaveButtonProps) => {
   return (
     <Button disabled={disabled} form={form} onClick={onClick} variant={variant} type={type} iconPosition="left" className={`h-8 px-2 ${className}`} icon={<SaveIcon />}>
-      {isSaving ? 'Saving Changes...' : title}
+      {isSaving ? savingTitle : title}
     </Button>
   )
 }

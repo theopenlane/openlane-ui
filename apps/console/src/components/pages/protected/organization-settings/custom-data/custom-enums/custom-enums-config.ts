@@ -1,9 +1,33 @@
 import { CustomTypeEnumWhereInput } from '@repo/codegen/src/schema'
-import { Drill, LucideIcon, Eye, CopyCheck, SlidersHorizontal, TriangleAlert, FolderOpen, Compass, ScrollText, FileText, Server } from 'lucide-react'
+import {
+  Drill,
+  LucideIcon,
+  Eye,
+  CopyCheck,
+  SlidersHorizontal,
+  TriangleAlert,
+  FolderOpen,
+  Compass,
+  ScrollText,
+  FileText,
+  Server,
+  FolderTree,
+  Folder,
+  Globe2,
+  Focus,
+  ScanEye,
+  EarthLock,
+  Layers,
+  CircleGauge,
+  Blend,
+  CircleDot,
+  GitBranch,
+} from 'lucide-react'
 
 export type EnumGroupConfig = {
   label: string
   objectType?: string
+  isGlobal?: boolean
   field?: string
   icon: LucideIcon
 }
@@ -12,6 +36,20 @@ export const ENUM_GROUP_MAP: Record<string, EnumGroupConfig> = {
   'All Enums': {
     label: 'All Enums',
     icon: Eye,
+  },
+  Environments: {
+    label: 'Environments',
+    field: 'environment',
+    objectType: 'global',
+    isGlobal: true,
+    icon: Globe2,
+  },
+  Scopes: {
+    label: 'Scopes',
+    field: 'scope',
+    objectType: 'global',
+    isGlobal: true,
+    icon: Focus,
   },
   'Task Kinds': {
     label: 'Task Kinds',
@@ -66,6 +104,61 @@ export const ENUM_GROUP_MAP: Record<string, EnumGroupConfig> = {
     objectType: 'trust_center_subprocessor',
     field: 'kind',
     icon: Server,
+  },
+  'Asset Subtypes': {
+    label: 'Asset Subtypes',
+    objectType: 'asset',
+    field: 'subtype',
+    icon: FolderTree,
+  },
+  'Data Classifications': {
+    label: 'Data Classifications',
+    objectType: 'asset',
+    field: 'dataClassification',
+    icon: Folder,
+  },
+
+  'Access Models': {
+    label: 'Access Models',
+    objectType: 'asset',
+    field: 'accessModel',
+    icon: ScanEye,
+  },
+  'Encryption Statuses': {
+    label: 'Encryption Statuses',
+    objectType: 'asset',
+    field: 'encryptionStatus',
+    icon: EarthLock,
+  },
+  'Security Tiers': {
+    label: 'Security Tiers',
+    objectType: 'asset',
+    field: 'securityTier',
+    icon: Layers,
+  },
+  'Criticality Levels': {
+    label: 'Criticality Levels',
+    objectType: 'asset',
+    field: 'criticality',
+    icon: CircleGauge,
+  },
+  'Relationship States': {
+    label: 'Relationship States',
+    objectType: 'entity',
+    field: 'relationshipState',
+    icon: Blend,
+  },
+  'Security Questionnaire Statuses': {
+    label: 'Security Questionnaire Statuses',
+    objectType: 'entity',
+    field: 'securityQuestionnaireStatus',
+    icon: CircleDot,
+  },
+  'Source Types': {
+    label: 'Source Types',
+    objectType: 'entity',
+    field: 'sourceType',
+    icon: GitBranch,
   },
 }
 

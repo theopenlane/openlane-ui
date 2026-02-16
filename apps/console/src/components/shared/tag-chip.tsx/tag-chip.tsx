@@ -1,4 +1,4 @@
-import { useGetTags } from '@/lib/graphql-hooks/tags'
+import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import { Badge } from '@repo/ui/badge'
 import React from 'react'
 

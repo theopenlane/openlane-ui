@@ -1,6 +1,6 @@
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { EditTaskFormData } from '../hooks/use-form-schema'
-import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap'
+import { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
 import { capitalizeFirstLetter } from '@/lib/auth/utils/strings'
 import { Value } from 'platejs'
 import { GetTaskAssociationsQuery, TaskQuery } from '@repo/codegen/src/schema'

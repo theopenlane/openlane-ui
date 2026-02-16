@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation'
 import { SUPPORT_URL } from '@/constants'
 import Link from 'next/link'
 import { saveFilters, TFilterState } from '@/components/shared/table-filter/filter-storage.ts'
-import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 const ProtectedArea: React.FC = () => {
   const router = useRouter()
@@ -18,7 +18,7 @@ const ProtectedArea: React.FC = () => {
       role: [OrgMembershipRole.OWNER],
     }
 
-    saveFilters(TableFilterKeysEnum.MEMBER, filters)
+    saveFilters(TableKeyEnum.MEMBER, filters)
   }
 
   return (
