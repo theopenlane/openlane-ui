@@ -12,6 +12,16 @@
     "strictNullChecks": true,
     "jsx": "preserve"
   },
-  "include": ["next-env.d.ts", "next-auth.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "postcss.config.mjs", "../../packages/config-typescript/typings.d.ts"],
+  "include": [
+    "next-env.d.ts",
+    "next-auth.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    "postcss.config.mjs",
+    "../../packages/config-typescript/typings.d.ts",
+    "src/components/pages/protected/assets/create/sidebar/details-sheet.tsx.backup",
+    "src/components/pages/protected/assets/create/sidebar/details-sheet.tsx.bakcup"
+  ],
   "exclude": ["node_modules", "dist", "build", "coverage", ".next", ".turbo"]
 }

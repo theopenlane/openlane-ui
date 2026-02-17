@@ -1,6 +1,6 @@
 'use client'
 
-import { useContext, useEffect, useRef, useState } from 'react'
+import { useCallback, useContext, useEffect, useReducer, useRef, useState } from 'react'
 import { SurveyCreatorComponent, SurveyCreator } from 'survey-creator-react'
 import { ITheme, slk } from 'survey-core'
 import { editorLocalization } from 'survey-creator-core'
@@ -18,12 +18,13 @@ import { useRouter } from 'next/navigation'
 
 import './custom.css'
 import { surveyLicenseKey } from '@repo/dally/auth'
-import { useCreateAssessment, useGetAssessment, useUpdateAssessment } from '@/lib/graphql-hooks/assessments'
+import { useCreateAssessment, useGetAssessment, useUpdateAssessment } from '@/lib/graphql-hooks/assessment'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { AssessmentAssessmentType } from '@repo/codegen/src/schema'
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@repo/ui/select'
 import { Label } from '@repo/ui/label'
 import { Badge } from '@repo/ui/badge'
+import { CalendarPopover } from '@repo/ui/calendar-popover'
 
 const enLocale = editorLocalization.getLocale('en')
 
@@ -33,9 +34,15 @@ const DURATION_OPTIONS = [
   { value: 2592000, label: '30 days' },
   { value: 5184000, label: '60 days' },
   { value: 7776000, label: '90 days' },
+  { value: -1, label: 'Custom' },
 ]
 
+const PRESET_VALUES = new Set([604800, 1209600, 2592000, 5184000, 7776000])
+
 const customThemeName = 'Openlane'
+
+if (lightTheme.themeName) enLocale.theme.names[lightTheme.themeName] = customThemeName
+if (darkTheme.themeName) enLocale.theme.names[darkTheme.themeName] = customThemeName
 
 const creatorOptions = {
   showLogicTab: true,
@@ -43,7 +50,69 @@ const creatorOptions = {
   showThemeTab: true,
 }
 
-// Register the SurveyJS license key
+function createSurveyCreator() {
+  const creator = new SurveyCreator(creatorOptions)
+  creator.toolbox.forceCompact = false
+
+  const themeTabPlugin = creator.themeEditor
+  themeTabPlugin.addTheme(lightTheme, true)
+  themeTabPlugin.addTheme(darkTheme as ITheme, true)
+
+  return creator
+}
+
+type TQuestionnaireEditorState = {
+  assessmentType: AssessmentAssessmentType
+  responseDueDuration: number
+  isCustomDuration: boolean
+  customDueDate: Date | null
+}
+
+type TQuestionnaireEditorAction =
+  | { type: 'set-assessment-type'; value: AssessmentAssessmentType }
+  | { type: 'set-response-due-duration'; value: number }
+  | { type: 'set-is-custom-duration'; value: boolean }
+  | { type: 'set-custom-due-date'; value: Date | null }
+  | {
+      type: 'hydrate-from-assessment'
+      assessmentType?: AssessmentAssessmentType | null
+      responseDueDuration?: number | null
+    }
+
+const initialQuestionnaireEditorState: TQuestionnaireEditorState = {
+  assessmentType: AssessmentAssessmentType.EXTERNAL,
+  responseDueDuration: 604800,
+  isCustomDuration: false,
+  customDueDate: null,
+}
+
+function questionnaireEditorReducer(state: TQuestionnaireEditorState, action: TQuestionnaireEditorAction): TQuestionnaireEditorState {
+  switch (action.type) {
+    case 'set-assessment-type':
+      return { ...state, assessmentType: action.value }
+    case 'set-response-due-duration':
+      return { ...state, responseDueDuration: action.value }
+    case 'set-is-custom-duration':
+      return { ...state, isCustomDuration: action.value }
+    case 'set-custom-due-date':
+      return { ...state, customDueDate: action.value }
+    case 'hydrate-from-assessment': {
+      const nextAssessmentType = action.assessmentType ?? state.assessmentType
+      const nextDuration = action.responseDueDuration ?? state.responseDueDuration
+      const nextIsCustomDuration = !PRESET_VALUES.has(nextDuration)
+
+      return {
+        assessmentType: nextAssessmentType,
+        responseDueDuration: nextDuration,
+        isCustomDuration: nextIsCustomDuration,
+        customDueDate: nextIsCustomDuration ? new Date(Date.now() + nextDuration * 1000) : null,
+      }
+    }
+    default:
+      return state
+  }
+}
+
 slk(surveyLicenseKey as string)
 
 export default function CreateQuestionnaire(input: { templateId: string; existingId: string }) {
@@ -51,25 +120,14 @@ export default function CreateQuestionnaire(input: { templateId: string; existin
   const router = useRouter()
   const { successNotification, errorNotification } = useNotification()
 
-  const [assessmentType, setAssessmentType] = useState<AssessmentAssessmentType>(AssessmentAssessmentType.EXTERNAL)
-  const [responseDueDuration, setResponseDueDuration] = useState<number>(604800)
+  const [questionnaireEditorState, dispatchQuestionnaireEditorState] = useReducer(questionnaireEditorReducer, initialQuestionnaireEditorState)
+  const { assessmentType, responseDueDuration, isCustomDuration, customDueDate } = questionnaireEditorState
+  const [creator] = useState(() => createSurveyCreator())
+  const creatorRef = useRef<SurveyCreator | null>(null)
 
-  const creatorRef = useRef<SurveyCreator>(new SurveyCreator(creatorOptions))
-
-  if (!creatorRef.current) {
-    creatorRef.current = new SurveyCreator(creatorOptions)
-    creatorRef.current.toolbox.forceCompact = false
-
-    const themeTabPlugin = creatorRef.current.themeEditor
-    if (lightTheme.themeName) enLocale.theme.names[lightTheme.themeName] = customThemeName
-    if (darkTheme.themeName) enLocale.theme.names[darkTheme.themeName] = customThemeName
-    themeTabPlugin.addTheme(lightTheme, true)
-    themeTabPlugin.addTheme(darkTheme as ITheme, true)
-  }
-
-  const creator = creatorRef.current
-  const themeTabPlugin = creator.themeEditor
-  creator.toolbox.forceCompact = false
+  useEffect(() => {
+    creatorRef.current = creator
+  }, [creator])
 
   useEffect(() => {
     setCrumbs([
@@ -79,61 +137,76 @@ export default function CreateQuestionnaire(input: { templateId: string; existin
     ])
   }, [setCrumbs])
 
-  function addCustomTheme(theme: ITheme, userFriendlyThemeName: string) {
-    // Add a localized user-friendly theme name
-    if (theme.themeName) {
-      enLocale.theme.names[theme.themeName] = userFriendlyThemeName
-    }
-    // Add the theme to the theme list as the default theme
-    themeTabPlugin.addTheme(theme, true)
-  }
-
-  // Register a custom theme with Dark and Light variations
-  addCustomTheme(lightTheme, customThemeName)
-  addCustomTheme(darkTheme as ITheme, customThemeName)
-
   const themeContext = useTheme()
   const theme = themeContext.resolvedTheme as 'light' | 'dark' | 'white' | undefined
 
-  if (theme === 'dark') {
-    creator.applyCreatorTheme(darkTheme as ITheme)
-  } else {
-    creator.applyCreatorTheme(lightTheme)
-  }
+  useEffect(() => {
+    const creatorInstance = creatorRef.current
+    if (!creatorInstance) return
+
+    creatorInstance.applyCreatorTheme(theme === 'dark' ? (darkTheme as ITheme) : lightTheme)
+  }, [theme])
 
   const { data: assessmentResult } = useGetAssessment(input.existingId)
 
   useEffect(() => {
-    if (assessmentResult?.assessment) {
-      if (assessmentResult.assessment.jsonconfig) {
-        creator.JSON = assessmentResult.assessment.jsonconfig
-      }
-      if (assessmentResult.assessment.assessmentType) {
-        setAssessmentType(assessmentResult.assessment.assessmentType)
-      }
-      if (assessmentResult.assessment.responseDueDuration) {
-        setResponseDueDuration(assessmentResult.assessment.responseDueDuration)
-      }
+    const creatorInstance = creatorRef.current
+    if (!creatorInstance || !assessmentResult?.assessment) return
+
+    if (assessmentResult.assessment.jsonconfig) {
+      creatorInstance.JSON = assessmentResult.assessment.jsonconfig
     }
-  }, [assessmentResult, creator])
+
+    dispatchQuestionnaireEditorState({
+      type: 'hydrate-from-assessment',
+      assessmentType: assessmentResult.assessment.assessmentType,
+      responseDueDuration: assessmentResult.assessment.responseDueDuration,
+    })
+  }, [assessmentResult])
 
   const { mutateAsync: createAssessmentData } = useCreateAssessment()
   const { mutateAsync: updateAssessmentData } = useUpdateAssessment()
 
-  const saveAssessment = async (data: { title?: string; description?: string }) => {
-    if (input.existingId) {
+  const saveAssessment = useCallback(
+    async (data: { title?: string; description?: string }) => {
+      if (input.existingId) {
+        try {
+          await updateAssessmentData({
+            updateAssessmentId: input.existingId,
+            input: {
+              name: data.title || 'Untitled Questionnaire',
+              jsonconfig: data,
+              responseDueDuration,
+            },
+          })
+
+          successNotification({
+            title: 'Assessment updated successfully',
+          })
+
+          router.push(`/questionnaires`)
+        } catch (error) {
+          const errorMessage = parseErrorMessage(error)
+          errorNotification({
+            title: 'Error',
+            description: errorMessage,
+          })
+        }
+        return
+      }
+
       try {
-        await updateAssessmentData({
-          updateAssessmentId: input.existingId,
+        await createAssessmentData({
           input: {
             name: data.title || 'Untitled Questionnaire',
             jsonconfig: data,
+            assessmentType,
             responseDueDuration,
           },
         })
 
         successNotification({
-          title: 'Assessment updated successfully',
+          title: 'Assessment created successfully',
         })
 
         router.push(`/questionnaires`)
@@ -144,36 +217,18 @@ export default function CreateQuestionnaire(input: { templateId: string; existin
           description: errorMessage,
         })
       }
-      return
+    },
+    [assessmentType, createAssessmentData, errorNotification, input.existingId, responseDueDuration, router, successNotification, updateAssessmentData],
+  )
+
+  useEffect(() => {
+    const creatorInstance = creatorRef.current
+    if (!creatorInstance) return
+
+    creatorInstance.saveSurveyFunc = () => {
+      void saveAssessment(creatorInstance.JSON)
     }
-
-    try {
-      await createAssessmentData({
-        input: {
-          name: data.title || 'Untitled Questionnaire',
-          jsonconfig: data,
-          assessmentType,
-          responseDueDuration,
-        },
-      })
-
-      successNotification({
-        title: 'Assessment created successfully',
-      })
-
-      router.push(`/questionnaires`)
-    } catch (error) {
-      const errorMessage = parseErrorMessage(error)
-      errorNotification({
-        title: 'Error',
-        description: errorMessage,
-      })
-    }
-  }
-
-  creator.saveSurveyFunc = () => {
-    saveAssessment(creator.JSON)
-  }
+  }, [saveAssessment])
 
   const isEditing = !!input.existingId
 
@@ -185,7 +240,15 @@ export default function CreateQuestionnaire(input: { templateId: string; existin
           {isEditing ? (
             <Badge variant="outline">{assessmentType === AssessmentAssessmentType.INTERNAL ? 'Internal' : 'External'}</Badge>
           ) : (
-            <Select value={assessmentType} onValueChange={(value) => setAssessmentType(value as AssessmentAssessmentType)}>
+            <Select
+              value={assessmentType}
+              onValueChange={(value) =>
+                dispatchQuestionnaireEditorState({
+                  type: 'set-assessment-type',
+                  value: value as AssessmentAssessmentType,
+                })
+              }
+            >
               <SelectTrigger id="assessment-type" className="w-[140px]">
                 <SelectValue />
               </SelectTrigger>
@@ -199,10 +262,17 @@ export default function CreateQuestionnaire(input: { templateId: string; existin
         <div className="flex items-center gap-2">
           <Label htmlFor="response-due">Response Due</Label>
           <Select
-            value={String(responseDueDuration)}
+            value={isCustomDuration ? '-1' : String(responseDueDuration)}
             onValueChange={(value) => {
-              setResponseDueDuration(Number(value))
-              creator.setModified({ type: 'PROPERTY_CHANGED' })
+              const num = Number(value)
+              if (num === -1) {
+                dispatchQuestionnaireEditorState({ type: 'set-is-custom-duration', value: true })
+              } else {
+                dispatchQuestionnaireEditorState({ type: 'set-is-custom-duration', value: false })
+                dispatchQuestionnaireEditorState({ type: 'set-custom-due-date', value: null })
+                dispatchQuestionnaireEditorState({ type: 'set-response-due-duration', value: num })
+                creatorRef.current?.setModified({ type: 'PROPERTY_CHANGED' })
+              }
             }}
           >
             <SelectTrigger id="response-due" className="w-[140px]">
@@ -216,6 +286,21 @@ export default function CreateQuestionnaire(input: { templateId: string; existin
               ))}
             </SelectContent>
           </Select>
+          {isCustomDuration && (
+            <CalendarPopover
+              defaultValue={customDueDate}
+              disabledFrom={new Date()}
+              buttonClassName="w-[200px] flex justify-between items-center"
+              onChange={(date) => {
+                if (date) {
+                  dispatchQuestionnaireEditorState({ type: 'set-custom-due-date', value: date })
+                  const durationSeconds = Math.max(86400, Math.round((date.getTime() - Date.now()) / 1000))
+                  dispatchQuestionnaireEditorState({ type: 'set-response-due-duration', value: durationSeconds })
+                  creatorRef.current?.setModified({ type: 'PROPERTY_CHANGED' })
+                }
+              }}
+            />
+          )}
         </div>
       </div>
       <div className="flex-1 min-h-0">

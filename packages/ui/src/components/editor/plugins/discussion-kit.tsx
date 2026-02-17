@@ -3,6 +3,7 @@
 import type { TComment } from '@repo/ui/components/ui/comment.tsx'
 import { createPlatePlugin } from 'platejs/react'
 import { BlockDiscussion } from '@repo/ui/components/ui/block-discussion.tsx'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 export interface TDiscussion {
   id: string
@@ -14,14 +15,14 @@ export interface TDiscussion {
   documentContent?: string
 }
 
-export type CommentEntityType = 'Control' | 'InternalPolicy' | 'Procedure' | 'Risk' | 'Subcontrol'
+export type CommentEntityType = typeof ObjectTypes.CONTROL | typeof ObjectTypes.SUBCONTROL | typeof ObjectTypes.INTERNAL_POLICY | typeof ObjectTypes.PROCEDURE | typeof ObjectTypes.RISK
 
 /**
  * discussionPlugin
  *
  * NOW DYNAMIC:
  * You must pass:
- * - entityType: "policy" | "risk" | "task" | "procedure"
+ * - entityType: "policy" | "risk" | "control" | "procedure" | "subcontrol"
  * - entityId: ID of that entity
  * - currentUserId: logged-in user
  * - users: map of users

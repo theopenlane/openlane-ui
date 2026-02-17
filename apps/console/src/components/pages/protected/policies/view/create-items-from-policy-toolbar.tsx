@@ -5,7 +5,7 @@ import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
 import Menu from '@/components/shared/menu/menu.tsx'
 import { CreateBtn } from '@/components/shared/enum-mapper/common-enum'
 import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/create-task-dialog'
-import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap'
+import { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 
 type TCreateItemsFromPolityProps = {

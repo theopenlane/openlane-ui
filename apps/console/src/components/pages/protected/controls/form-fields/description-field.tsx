@@ -14,9 +14,10 @@ interface DescriptionFieldProps {
   initialValue: string | Value
   isEditAllowed?: boolean
   discussionData?: ControlDiscussionFieldsFragment | SubcontrolDiscussionFieldsFragment
+  systemCreated: boolean
 }
 
-const DescriptionField: React.FC<DescriptionFieldProps> = ({ isEditing, initialValue, isEditAllowed, discussionData }) => {
+const DescriptionField: React.FC<DescriptionFieldProps> = ({ isEditing, initialValue, isEditAllowed, discussionData, systemCreated }) => {
   const { subcontrolId } = useParams<{ subcontrolId: string | undefined; id: string }>()
   const { control } = useFormContext()
   const { data: sessionData } = useSession()
@@ -52,16 +53,20 @@ const DescriptionField: React.FC<DescriptionFieldProps> = ({ isEditing, initialV
     <div className="w-full">
       {label}
       <div className={'min-h-5'}>
-        <PlateEditor
-          toolbarClassName="-mt-20"
-          placeholder="No description set"
-          key={JSON.stringify(initialValue)}
-          userData={userData}
-          initialValue={initialValue}
-          entity={discussionData}
-          readonly={true}
-          variant="readonly"
-        />
+        {systemCreated ? (
+          <div className="rich-text" dangerouslySetInnerHTML={{ __html: initialValue as string }} />
+        ) : (
+          <PlateEditor
+            toolbarClassName="-mt-20"
+            placeholder="No description set"
+            key={JSON.stringify(initialValue)}
+            userData={userData}
+            initialValue={initialValue}
+            entity={discussionData}
+            readonly={true}
+            variant="readonly"
+          />
+        )}
       </div>
     </div>
   )

@@ -6,7 +6,7 @@ import { Card } from '@repo/ui/cardpanel'
 import { Button } from '@repo/ui/button'
 import { CopyIcon, PlusCircle } from 'lucide-react'
 import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/create-task-dialog'
-import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
+import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
 import { useNotification } from '@/hooks/useNotification'
 import ActivityAccordionTrigger from '../activity/activity-accordion-trigger'
 

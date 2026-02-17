@@ -3,7 +3,7 @@
 import React from 'react'
 import { Users, Eye, Clock, PenTool } from 'lucide-react'
 import { Card, CardContent } from '@repo/ui/cardpanel'
-import { useGetNDAStats } from '@/lib/graphql-hooks/trust-center-NDA'
+import { useGetNDAStats } from '@/lib/graphql-hooks/trust-center-nda-request'
 import { useAnalytics } from '@/lib/query-hooks/analytics'
 
 interface AnalyticsCardsProps {

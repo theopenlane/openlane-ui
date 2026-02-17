@@ -4,7 +4,7 @@ import { InternalPolicyStatusOptions, ProcedureStatusOptions } from '@/component
 import { ControlStatusOptions } from '@/components/shared/enum-mapper/control-enum'
 import { RiskLikelihoodOptions, RiskStatusOptions } from '../enum-mapper/risk-enum'
 import { TaskStatusOptions } from '../enum-mapper/task-enum'
-import { useProgramSelect } from '@/lib/graphql-hooks/programs'
+import { useProgramSelect } from '@/lib/graphql-hooks/program'
 import { EvidenceStatusOptions } from '../enum-mapper/evidence-enum'
 
 export type BulkEditRisksDialogProps = {
@@ -37,12 +37,24 @@ export type BulkEditEvidenceDialogProps = {
   setSelectedEvidence: React.Dispatch<React.SetStateAction<{ id: string }[]>>
 }
 
+export type BulkEditAssetsDialogProps = {
+  selectedAssets: { id: string }[]
+  setSelectedAssets: React.Dispatch<React.SetStateAction<{ id: string }[]>>
+}
+
 export interface BulkEditDialogFormValues {
   fieldsArray: FieldItem[]
 }
 
 export interface SelectOptionSelectedObject {
-  selectOptionEnum: SelectOptionBulkEditControls | SelectOptionBulkEditPolicies | SelectOptionBulkEditProcedures | SelectOptionBulkEditRisks | SelectOptionBulkEditTasks | SelectOptionBulkEditEvidence
+  selectOptionEnum:
+    | SelectOptionBulkEditControls
+    | SelectOptionBulkEditPolicies
+    | SelectOptionBulkEditProcedures
+    | SelectOptionBulkEditRisks
+    | SelectOptionBulkEditTasks
+    | SelectOptionBulkEditEvidence
+    | SelectOptionBulkEditAssets
   name: string
   placeholder: string
   options?: Option[]
@@ -95,6 +107,10 @@ export enum SelectOptionBulkEditEvidence {
   Source = 'Source',
 }
 
+export enum SelectOptionBulkEditAssets {
+  Tags = 'Tags',
+}
+
 export enum InputType {
   Select = 'SELECT',
   Input = 'INPUT',
@@ -104,7 +120,15 @@ export enum InputType {
 }
 
 export interface FieldItem {
-  value: SelectOptionBulkEditControls | SelectOptionBulkEditPolicies | SelectOptionBulkEditProcedures | SelectOptionBulkEditRisks | SelectOptionBulkEditTasks | SelectOptionBulkEditEvidence | undefined
+  value:
+    | SelectOptionBulkEditControls
+    | SelectOptionBulkEditPolicies
+    | SelectOptionBulkEditProcedures
+    | SelectOptionBulkEditRisks
+    | SelectOptionBulkEditTasks
+    | SelectOptionBulkEditEvidence
+    | SelectOptionBulkEditAssets
+    | undefined
   selectedObject?: SelectOptionSelectedObject
   selectedValue?: string | undefined
   selectedDate?: Date | null
@@ -115,7 +139,7 @@ export const defaultObject = {
 }
 
 const clearValueMap: Record<string, string> = {
-  procedureType: 'clearProcedureType',
+  procedureType: 'clearObjectTypes.PROCEDURE',
   policyType: 'clearPolicyType',
   riskType: 'clearRiskType',
   score: 'clearScore',
@@ -352,6 +376,16 @@ export const getAllSelectOptionsForBulkEditEvidence = (): SelectOptionSelectedOb
     },
     {
       selectOptionEnum: SelectOptionBulkEditEvidence.Tags,
+      name: 'tags',
+      inputType: InputType.Tag,
+      placeholder: 'Add a tag',
+    },
+  ]
+}
+export const getAllSelectOptionsForBulkEditAssets = (): SelectOptionSelectedObject[] => {
+  return [
+    {
+      selectOptionEnum: SelectOptionBulkEditAssets.Tags,
       name: 'tags',
       inputType: InputType.Tag,
       placeholder: 'Add a tag',

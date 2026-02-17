@@ -3,11 +3,11 @@ import { Button } from '@repo/ui/button'
 import { Columns3 } from 'lucide-react'
 import { Checkbox } from '@repo/ui/checkbox'
 import { VisibilityState } from '@tanstack/react-table'
-import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
+import { TableKeyValue } from '@repo/ui/table-key'
 
 const STORAGE_FILTER_PREFIX = 'column-visibility'
 
-export const getInitialVisibility = (storageKey: string, defaults: VisibilityState): VisibilityState => {
+export const getInitialVisibility = (storageKey: TableKeyValue, defaults: VisibilityState): VisibilityState => {
   if (typeof window === 'undefined') {
     return defaults
   }
@@ -20,7 +20,7 @@ export const getInitialVisibility = (storageKey: string, defaults: VisibilitySta
   }
 }
 
-const saveVisibility = (storageKey: string, state: VisibilityState) => {
+const saveVisibility = (storageKey: TableKeyValue, state: VisibilityState) => {
   if (typeof window === 'undefined') {
     return
   }
@@ -34,7 +34,7 @@ type TColumnVisibilityMenuProps = {
     accessorKey: string
     header: string
   }[]
-  storageKey: TableColumnVisibilityKeysEnum
+  storageKey: TableKeyValue
 }
 
 const ColumnVisibilityMenu: React.FC<TColumnVisibilityMenuProps> = ({ mappedColumns, columnVisibility, setColumnVisibility, storageKey }: TColumnVisibilityMenuProps) => {

@@ -2,7 +2,7 @@
 
 import { useSearchParams, useRouter } from 'next/navigation'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
-import { useGetControlById } from '@/lib/graphql-hooks/controls'
+import { useGetControlById } from '@/lib/graphql-hooks/control'
 import { LinkIcon, PanelRightClose } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
 import { Button } from '@repo/ui/button'
@@ -13,8 +13,10 @@ import { RelatedControlChip } from '../controls/shared/related-control-chip'
 import AccordionInfo from './control-details-accordion-info'
 import { MappedControlMappingSource, MappedControlWhereInput } from '@repo/codegen/src/schema'
 import { controlIconsMap } from '@/components/shared/enum-mapper/control-enum'
-import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { objectToSnakeCase } from '@/utils/strings'
 
 const ControlDetailsSheet = () => {
   const searchParams = useSearchParams()
@@ -34,7 +36,7 @@ const ControlDetailsSheet = () => {
 
   const { enumOptions } = useGetCustomTypeEnums({
     where: {
-      objectType: 'control',
+      objectType: objectToSnakeCase(ObjectTypes.CONTROL),
       field: 'kind',
     },
   })
@@ -84,7 +86,7 @@ const ControlDetailsSheet = () => {
           ?.map((e) =>
             e?.node
               ? {
-                  type: 'Control',
+                  type: ObjectTypes.CONTROL,
                   id: e.node.id,
                   refCode: e.node.refCode,
                   referenceFramework: e.node.referenceFramework,
@@ -99,7 +101,7 @@ const ControlDetailsSheet = () => {
           ?.map((e) =>
             e?.node
               ? {
-                  type: 'Subcontrol',
+                  type: ObjectTypes.SUBCONTROL,
                   id: e.node.id,
                   refCode: e.node.refCode,
                   referenceFramework: e.node.referenceFramework,
@@ -118,7 +120,7 @@ const ControlDetailsSheet = () => {
           ?.map((e) =>
             e?.node
               ? {
-                  type: 'Control',
+                  type: ObjectTypes.CONTROL,
                   id: e.node.id,
                   refCode: e.node.refCode,
                   referenceFramework: e.node.referenceFramework,
@@ -133,7 +135,7 @@ const ControlDetailsSheet = () => {
           ?.map((e) =>
             e?.node
               ? {
-                  type: 'Subcontrol',
+                  type: ObjectTypes.SUBCONTROL,
                   id: e.node.id,
                   refCode: e.node.refCode,
                   referenceFramework: e.node.referenceFramework,
