@@ -21,10 +21,9 @@ import { Input } from '@repo/ui/input'
 import { ClientError } from 'graphql-request'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useNotification } from '@/hooks/useNotification'
-import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
-import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { BulkEditTagField } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-tag-field'
 
 const fieldItemSchema = z.object({
   value: z.nativeEnum(SelectOptionBulkEditEvidence).optional(),
@@ -50,9 +49,6 @@ export const BulkEditEvidenceDialog: React.FC<BulkEditEvidenceDialogProps> = ({ 
   const [open, setOpen] = useState(false)
   const { mutateAsync: bulkEditEvidence } = useBulkEditEvidence()
   const { errorNotification, successNotification } = useNotification()
-  const [tagValues, setTagValues] = useState<Option[]>([])
-  const { tagOptions } = useGetTags()
-
   const bulkEditEvidenceSchema = z.object({
     fieldsArray: z.array(fieldItemSchema),
   })
@@ -187,33 +183,7 @@ export const BulkEditEvidenceDialog: React.FC<BulkEditEvidenceDialogProps> = ({ 
                           />
                         </div>
                       ) : item.selectedObject.inputType === InputType.Tag ? (
-                        <div className="flex flex-col items-center gap-2">
-                          <Controller
-                            control={form.control}
-                            name={`fieldsArray.${index}.selectedValue`}
-                            render={({ field }) => {
-                              return (
-                                <MultipleSelector
-                                  options={tagOptions}
-                                  placeholder={item.selectedObject?.placeholder ?? 'Add tag...'}
-                                  creatable
-                                  value={tagValues}
-                                  onChange={(selectedOptions) => {
-                                    const values = selectedOptions.map((option) => option.value)
-                                    field.onChange(values)
-                                    setTagValues(
-                                      selectedOptions.map((item) => ({
-                                        value: item.value,
-                                        label: item.label,
-                                      })),
-                                    )
-                                  }}
-                                  className="max-w-[300px]"
-                                />
-                              )
-                            }}
-                          />
-                        </div>
+                        <BulkEditTagField control={form.control} index={index} placeholder={item.selectedObject?.placeholder} />
                       ) : (
                         <div className="flex flex-col items-center gap-2">
                           <Controller

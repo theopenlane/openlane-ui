@@ -30,6 +30,7 @@ import { controlIconsMap } from '@/components/shared/enum-mapper/control-enum'
 import { CustomTypeEnumOptionChip, CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
 import { Option } from '@repo/ui/multiple-selector'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { BulkEditTagField } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-tag-field'
 import { objectToSnakeCase } from '@/utils/strings'
 
 const fieldItemSchema = z.object({
@@ -50,7 +51,7 @@ const fieldItemSchema = z.object({
         .optional(),
     })
     .optional(),
-  selectedValue: z.string().optional(),
+  selectedValue: z.union([z.string(), z.array(z.string())]).optional(),
 })
 const bulkEditControlsSchema = z.object({
   fieldsArray: z.array(fieldItemSchema).optional().default([]),
@@ -233,6 +234,7 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
                         </div>
                       )
                     })()}
+                    {item.selectedObject && item.selectedObject.inputType === InputType.Tag && <BulkEditTagField control={form.control} index={index} placeholder={item.selectedObject?.placeholder} />}
                     <Button icon={<Trash2 />} iconPosition="center" variant="secondary" onClick={() => remove(index)} />
                   </div>
                 )
