@@ -16,6 +16,7 @@ import {
   UPDATE_SUBCONTROL,
   UPDATE_SUBCONTROL_COMMENT,
   INSERT_SUBCONTROL_PLATE_COMMENT,
+  GET_EXISTING_SUBCONTROLS_FOR_ORGANIZATION,
 } from '@repo/codegen/query/subcontrol'
 import {
   CreateSubcontrolMutation,
@@ -41,6 +42,7 @@ import {
   UpdateSubcontrolMutationVariables,
   InsertSubcontrolPlateCommentMutation,
   InsertSubcontrolPlateCommentMutationVariables,
+  GetExistingSubcontrolsForOrganizationQuery,
 } from '@repo/codegen/src/schema'
 import { useEffect, useMemo } from 'react'
 import { TPagination } from '@repo/ui/pagination-types'
@@ -323,5 +325,21 @@ export const useInsertSubcontrolPlateComment = () => {
     mutationFn: async (variables) => {
       return client.request(INSERT_SUBCONTROL_PLATE_COMMENT, variables)
     },
+  })
+}
+
+export const useGetExistingOrgSubcontrols = ({ refCodeIn, enabled = true }: { refCodeIn: string[]; enabled?: boolean }) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<GetExistingSubcontrolsForOrganizationQuery>({
+    queryKey: ['subcontrols', 'existingOrg', refCodeIn],
+    queryFn: () =>
+      client.request(GET_EXISTING_SUBCONTROLS_FOR_ORGANIZATION, {
+        where: {
+          refCodeIn,
+          systemOwned: false,
+        },
+      }),
+    enabled: enabled && refCodeIn.length > 0,
   })
 }

@@ -17,6 +17,7 @@ import { GET_EXISTING_CONTROLS_FOR_ORGANIZATION } from '@repo/codegen/query/cont
 import { GET_EXISTING_SUBCONTROLS_FOR_ORGANIZATION } from '@repo/codegen/query/subcontrol'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import Skeleton from '@/components/shared/skeleton/skeleton'
 
 type TObjectAssociationControlsChipsProps = {
   form?: UseFormReturn<CreateEvidenceFormData>
@@ -26,6 +27,7 @@ type TObjectAssociationControlsChipsProps = {
   evidenceSubcontrols: CustomEvidenceControl[] | null
   setEvidenceSubcontrols?: React.Dispatch<React.SetStateAction<CustomEvidenceControl[] | null>>
   isEditing?: boolean
+  isLoadingSuggestions?: boolean
 }
 
 enum ItemType {
@@ -41,6 +43,7 @@ const ObjectAssociationControlsChips = ({
   evidenceSubcontrols,
   setEvidenceSubcontrols,
   isEditing = true,
+  isLoadingSuggestions = false,
 }: TObjectAssociationControlsChipsProps) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [selectedControls, setSelectedControls] = useState<{ id: string; refCode: string; referenceFramework?: string; typeName: ItemType }[]>([])
@@ -266,7 +269,24 @@ const ObjectAssociationControlsChips = ({
           </div>
         )}
       </div>
-      {suggestedControlsMap && suggestedControlsMap.length > 0 && (
+      {isLoadingSuggestions && (
+        <>
+          <div className="w-full my-2 border-t border border-logo-bg " />
+          <div className="flex gap-2 items-center">
+            <div className="text-base font-medium py-2">Suggested</div>
+            <SystemTooltip
+              icon={<InfoIcon size={14} />}
+              content={<p>Suggested controls are identified based on mapped relationships where shared evidence could demonstrate compliance across multiple controls</p>}
+            />
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Skeleton className="rounded-full" width={120} height={28} />
+            <Skeleton className="rounded-full" width={140} height={28} />
+            <Skeleton className="rounded-full" width={100} height={28} />
+          </div>
+        </>
+      )}
+      {!isLoadingSuggestions && suggestedControlsMap && suggestedControlsMap.length > 0 && (
         <>
           <div className="w-full my-2 border-t border border-logo-bg " />
           <div className="flex gap-2 items-center">

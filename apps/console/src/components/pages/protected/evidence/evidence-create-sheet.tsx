@@ -1,6 +1,6 @@
 'use client'
 import { Grid, GridCell, GridRow } from '@repo/ui/grid'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { ChevronDown, InfoIcon, Plus, X } from 'lucide-react'
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
 import useFormSchema, { CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema'
@@ -31,9 +31,8 @@ import { ProgramSelectionDialog } from '@/components/shared/object-association/o
 import { ControlSelectionDialog } from '@/components/shared/object-association/object-association-control-dialog'
 import ObjectAssociationProgramsChips from '@/components/shared/object-association/object-association-programs-chips'
 import ObjectAssociationControlsChips from '@/components/shared/object-association/object-association-controls-chips'
-import { buildWhere, CustomEvidenceControl, flattenAndFilterControls } from './evidence-sheet-config'
-import { useGetSuggestedControlsOrSubcontrols } from '@/lib/graphql-hooks/control'
-import { useGetStandards } from '@/lib/graphql-hooks/standard'
+import { CustomEvidenceControl } from './evidence-sheet-config'
+import { useEvidenceSuggestedControls } from './hooks/use-evidence-suggested-controls'
 import Link from 'next/link'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import PlateEditor from '@/components/shared/plate/plate-editor'
@@ -72,9 +71,6 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
   const [openControlsDialog, setOpenControlsDialog] = useState(false)
   const router = useRouter()
   const [associationProgramsRefMap, setAssociationProgramsRefMap] = useState<string[]>([])
-  const [suggestedControlsMap, setSuggestedControlsMap] = useState<
-    { id: string; refCode: string; referenceFramework: string | null; source: string; typeName: typeof ObjectTypes.CONTROL | typeof ObjectTypes.SUBCONTROL }[]
-  >([])
 
   const [evidenceControls, setEvidenceControls] = useState<CustomEvidenceControl[] | null>(null)
   const [evidenceSubcontrols, setEvidenceSubcontrols] = useState<CustomEvidenceControl[] | null>(null)
@@ -199,43 +195,11 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
     }
   }, [form, formData, controlParam])
 
-  const where = useMemo(() => buildWhere(evidenceControls, evidenceSubcontrols), [evidenceControls, evidenceSubcontrols])
-
-  const { data: mappedControls } = useGetSuggestedControlsOrSubcontrols({
-    where: where,
-    enabled: !!where && open,
+  const { suggestedControlsMap, isLoading: isSuggestionsLoading } = useEvidenceSuggestedControls({
+    evidenceControls,
+    evidenceSubcontrols,
+    enabled: open,
   })
-
-  const { data: standards } = useGetStandards({})
-
-  const standardNames = useMemo(() => new Set(standards?.standards?.edges?.flatMap((s) => (s?.node ? [s.node.shortName] : [])) ?? []), [standards])
-
-  const suggestedItems = useMemo(() => {
-    if (!mappedControls) return []
-
-    return flattenAndFilterControls(mappedControls, evidenceControls, evidenceSubcontrols)
-      .map((item) => ({
-        id: item.id,
-        refCode: item.refCode,
-        referenceFramework: item.referenceFramework ?? null,
-        source: item.source ?? '',
-        typeName: item.type,
-      }))
-      .filter((item) => item.referenceFramework && standardNames.has(item.referenceFramework))
-  }, [mappedControls, evidenceControls, evidenceSubcontrols, standardNames])
-
-  useEffect(() => {
-    if (!where) {
-      setSuggestedControlsMap([])
-      return
-    }
-
-    if (!suggestedItems.length) return
-
-    const uniqueItems = Array.from(new Map(suggestedItems.map((item) => [item.id, item])).values())
-
-    setSuggestedControlsMap(uniqueItems)
-  }, [where, suggestedItems])
 
   useEffect(() => {
     handleInitialValue()
@@ -505,6 +469,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
                                 <ObjectAssociationControlsChips
                                   form={form}
                                   suggestedControlsMap={suggestedControlsMap}
+                                  isLoadingSuggestions={isSuggestionsLoading}
                                   evidenceControls={evidenceControls}
                                   setEvidenceControls={setEvidenceControls}
                                   evidenceSubcontrols={evidenceSubcontrols}
