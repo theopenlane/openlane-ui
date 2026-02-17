@@ -105,6 +105,7 @@ const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSucces
     }
   }
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (formData) {
       const associationFields: EvidenceAssociationField[] = [
@@ -140,6 +141,7 @@ const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSucces
       }
     }
   }, [form, formData])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   useEffect(() => {
     setCrumbs([

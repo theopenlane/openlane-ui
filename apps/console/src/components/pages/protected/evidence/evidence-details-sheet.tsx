@@ -164,6 +164,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
   const standardNames = useMemo(() => new Set(standards?.standards?.edges?.flatMap((s) => (s?.node ? [s.node.shortName] : [])) ?? []), [standards])
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (!where || !mappedControls || !standardNames.size) {
       setSuggestedControlsMap([])
@@ -184,6 +185,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
     setSuggestedControlsMap(uniqueItems)
   }, [where, mappedControls, evidenceControls, evidenceSubcontrols, standardNames])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const { data, isLoading: fetching } = useGetEvidenceById(config.id)
 
@@ -250,6 +252,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
     }
   }, [evidence])
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (initialAssociationsControlsAndPrograms.controls) {
       setEvidenceControls(initialAssociationsControlsAndPrograms.controls)
@@ -284,7 +287,9 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
       }
     }
   }, [evidence, form])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const handleInitialValue = useCallback(() => {
     if (initialAssociations && initialAssociationsControlsAndPrograms) {
       form.setValue('controlIDs', initialAssociations.controlIDs ? initialAssociations.controlIDs : [])
@@ -295,9 +300,11 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
     }
   }, [form, initialAssociations, initialAssociationsControlsAndPrograms])
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     handleInitialValue()
   }, [handleInitialValue])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const programIDs = form.watch('programIDs')
 
@@ -357,6 +364,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
     const associationInputs = getAssociationInput(initialAssociations, updatedAssociations)
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars -- destructured to exclude from cleanFormData
     const { programIDs: _programIDs, controlIDs: _controlIDs, subcontrolIDs: _subcontrolIDs, ...cleanFormData } = formData
 
     try {
@@ -472,6 +480,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
     },
   )
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (isEditPreset) {
       setIsEditing(true)
@@ -483,6 +492,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
       }, 500)
     }
   }, [isEditPreset, setIsEditPreset, setIsEditing])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const handleTags = () => {
     if (evidence?.tags?.length === 0) {

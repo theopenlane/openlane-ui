@@ -36,11 +36,13 @@ export const ProgramSelectionDialog: React.FC<TProgramSelectionDialogProps> = ({
     }),
   )
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (open) {
       setSelectedRefCodeMap(initialRefCodes ? [...initialRefCodes] : [])
     }
   }, [open, initialRefCodes])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const where: ProgramWhereInput = useMemo(() => {
     return {

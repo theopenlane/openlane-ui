@@ -80,9 +80,11 @@ export const CreateSubprocessorSheet = ({ onCreateSuccess, trigger, open: contro
   const { handleSubmit, reset, formState, watch } = formMethods
   const { isSubmitting } = formState
 
+  /* eslint-disable react-hooks/incompatible-library */
   const currentUploadMode = watch('uploadMode')
   const currentFile = watch('logoFile')
   const currentUrl = watch('logoUrl')
+  /* eslint-enable react-hooks/incompatible-library */
 
   const isSubmitDisabled = currentUploadMode === 'file' ? !currentFile : !currentUrl
 

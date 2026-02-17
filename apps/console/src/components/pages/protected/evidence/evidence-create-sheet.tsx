@@ -158,6 +158,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
       })
     }
   }
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const handleInitialValue = useCallback(() => {
     if (formData) {
       const associationFields: EvidenceAssociationField[] = [
@@ -242,6 +243,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
       .filter((item) => item.referenceFramework && standardNames.has(item.referenceFramework))
   }, [mappedControls, evidenceControls, evidenceSubcontrols, standardNames])
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (!where) {
       setSuggestedControlsMap([])
@@ -258,6 +260,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
   useEffect(() => {
     handleInitialValue()
   }, [handleInitialValue])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const handleOnOpenChange = (nextOpen: boolean) => {
     if (!nextOpen) {
