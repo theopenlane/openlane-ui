@@ -6,14 +6,13 @@ import { EvidenceEvidenceStatus } from '@repo/codegen/src/schema.ts'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Value } from 'platejs'
 
-const formSchema = z.object({
+const commonFields = {
   name: z.string().min(2, {
     message: 'Name must be at least 2 characters',
   }),
   description: z.string().optional(),
   tags: z.array(z.string()).optional(),
   creationDate: z.date().default(new Date()),
-  renewalDate: z.date().min(new Date(), { message: 'Renewal date must be in the future' }).optional().nullable(),
   evidenceFiles: z.array(z.any()).optional(),
   url: z.preprocess((val) => (val === '' ? undefined : val), z.string().url().optional()),
   collectionProcedure: z.custom<Value | string>().nullable().optional(),
@@ -35,15 +34,26 @@ const formSchema = z.object({
     })
     .optional()
     .nullable(),
+}
+
+const createFormSchema = z.object({
+  ...commonFields,
+  renewalDate: z.date().min(new Date(), { message: 'Renewal date must be in the future' }).optional().nullable(),
 })
 
-export type CreateEvidenceFormData = z.infer<typeof formSchema>
-export type EditEvidenceFormData = z.infer<typeof formSchema>
+const editFormSchema = z.object({
+  ...commonFields,
+  renewalDate: z.date().optional().nullable(),
+})
 
-const useFormSchema = () => {
+export type CreateEvidenceFormData = z.infer<typeof createFormSchema>
+export type EditEvidenceFormData = z.infer<typeof editFormSchema>
+
+const useFormSchema = (isEditScreen?: boolean) => {
+  const schema = isEditScreen ? editFormSchema : createFormSchema
   return {
     form: useForm<CreateEvidenceFormData>({
-      resolver: zodResolver(formSchema),
+      resolver: zodResolver(schema),
       defaultValues: {
         name: '',
         description: '',
@@ -51,7 +61,7 @@ const useFormSchema = () => {
         evidenceFiles: [],
         source: '',
         fileIDs: [],
-        renewalDate: addDays(new Date(), 365),
+        ...(isEditScreen ? {} : { renewalDate: addDays(new Date(), 365) }),
       },
     }),
   }
