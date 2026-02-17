@@ -595,16 +595,17 @@ export const useInsertControlPlateComment = () => {
   })
 }
 
-export const useGetExistingOrgControls = ({ refCodeIn, enabled = true }: { refCodeIn: string[]; enabled?: boolean }) => {
+export const useGetExistingOrgControls = ({ refCodeIn, referenceFrameworkIn, enabled = true }: { refCodeIn: string[]; referenceFrameworkIn?: string[]; enabled?: boolean }) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetExistingControlsForOrganizationQuery>({
-    queryKey: ['controls', 'existingOrg', refCodeIn],
+    queryKey: ['controls', 'existingOrg', refCodeIn, referenceFrameworkIn],
     queryFn: () =>
       client.request(GET_EXISTING_CONTROLS_FOR_ORGANIZATION, {
         where: {
           refCodeIn,
           systemOwned: false,
+          ...(referenceFrameworkIn?.length && { referenceFrameworkIn }),
         },
       }),
     enabled: enabled && refCodeIn.length > 0,
