@@ -187,7 +187,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
   const evidenceName = evidence?.name
   const statusOptions = EvidenceStatusOptions
 
-  const { form } = useFormSchema()
+  const { form } = useFormSchema(true)
 
   const triggerRef = useRef<HTMLDivElement>(null)
   const popoverRef = useRef<HTMLDivElement>(null)
@@ -335,7 +335,12 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
     const associationInputs = getAssociationInput(initialAssociations, updatedAssociations)
 
-    const cleanFormData = omit(formData, ['programIDs', 'controlIDs', 'subcontrolIDs'])
+    const keysToOmit: (keyof EditEvidenceFormData)[] = ['programIDs', 'controlIDs', 'subcontrolIDs']
+    if (!form.formState.dirtyFields.renewalDate) {
+      keysToOmit.push('renewalDate')
+    }
+
+    const cleanFormData = omit(formData, keysToOmit)
 
     try {
       let collectionProcedure
