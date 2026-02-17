@@ -4,7 +4,8 @@ import type { DateRange } from 'react-day-picker'
 import { isValid } from 'date-fns'
 import { TQuickFilter } from '@/components/shared/table-filter/table-filter-helper.ts'
 
-export type TFilterValue = string | string[] | number | boolean | Date | DateRange | { from?: Date; to?: Date } | undefined
+export type TNumberRange = { min: number; max: number }
+export type TFilterValue = string | string[] | number | boolean | Date | DateRange | { from?: Date; to?: Date } | TNumberRange | undefined
 export type TFilterState = Record<string, TFilterValue>
 export type TQuickFilterState = { key: string; condition: TFilterState } | Record<string, boolean>
 
@@ -161,6 +162,14 @@ const validateValues = (values: TFilterState, filterFields: FilterField[]): TFil
         }
         break
 
+      case 'sliderRange': {
+        const range = value as TNumberRange
+        if (range && typeof range.min === 'number' && typeof range.max === 'number') {
+          result[key] = range
+        }
+        break
+      }
+
       case 'date': {
         const date = value instanceof Date ? value : new Date(value as string)
         if (isValid(date)) {
@@ -214,4 +223,9 @@ export const isNumber = (value: unknown): value is number => {
 }
 export const isString = (value: unknown): value is string => {
   return typeof value === 'string'
+}
+export const isNumberRange = (value: unknown): value is TNumberRange => {
+  if (typeof value !== 'object' || value === null) return false
+  const range = value as { min?: unknown; max?: unknown }
+  return typeof range.min === 'number' && typeof range.max === 'number'
 }

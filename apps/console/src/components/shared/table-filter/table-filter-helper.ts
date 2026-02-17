@@ -129,6 +129,12 @@ const getFiltersWhereCondition = (filterState: TFilterState, filterFields: Filte
       case 'sliderNumber':
         andConditions.push({ [field.key]: val as number })
         break
+      case 'sliderRange': {
+        const rangeVal = val as { min: number; max: number }
+        if (typeof rangeVal?.min === 'number') andConditions.push({ [`${key}GTE`]: rangeVal.min })
+        if (typeof rangeVal?.max === 'number') andConditions.push({ [`${key}LTE`]: rangeVal.max })
+        break
+      }
       case 'dropdownUserSearch':
         if (val) {
           andConditions.push({

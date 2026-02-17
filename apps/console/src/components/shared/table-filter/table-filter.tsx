@@ -14,6 +14,7 @@ import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filt
 import { Separator as Hr } from '@repo/ui/separator'
 import { saveFilters, loadFilters, clearFilters, TFilterState, TFilterValue, saveQuickFilters, loadQuickFilter, clearQuickFilters } from '@/components/shared/table-filter/filter-storage.ts'
 import Slider from '../slider/slider'
+import { Slider as RadixSlider } from '@repo/ui/slider'
 import { Checkbox } from '@repo/ui/checkbox'
 import { getActiveFilterCount, getQuickFiltersWhereCondition, getWhereCondition, TQuickFilter } from '@/components/shared/table-filter/table-filter-helper.ts'
 import { DropdownSearchField } from '../filter-components/dropdown-search-field'
@@ -268,6 +269,31 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
                 <span>{field.max ?? 100}</span>
               </div>
               <Slider value={currentValue} onChange={(v: number) => handleChange(field.key, v)} />
+            </div>
+          )
+        }
+        case 'sliderRange': {
+          const rangeMin = field.min ?? 0
+          const rangeMax = field.max ?? 100
+          const rangeVal = val as { min: number; max: number } | undefined
+          const currentMin = rangeVal?.min ?? rangeMin
+          const currentMax = rangeVal?.max ?? rangeMax
+          return (
+            <div className="flex flex-col gap-2">
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>{rangeMin}</span>
+                <span>
+                  {currentMin} – {currentMax}
+                </span>
+                <span>{rangeMax}</span>
+              </div>
+              <RadixSlider
+                min={rangeMin}
+                max={rangeMax}
+                step={1}
+                value={[currentMin, currentMax]}
+                onValueChange={(values: number[]) => handleChange(field.key, { min: values[0], max: values[1] })}
+              />
             </div>
           )
         }

@@ -41,7 +41,7 @@ export const getRisksFilterFields = (
     options: riskKindOptions,
   },
 
-  { key: 'score', label: 'Score', type: 'sliderNumber', icon: FilterIcons.Score },
+  { key: 'score', label: 'Score', type: 'sliderRange', icon: FilterIcons.Score, min: 0, max: 100 },
 
   {
     key: 'statusIn',
