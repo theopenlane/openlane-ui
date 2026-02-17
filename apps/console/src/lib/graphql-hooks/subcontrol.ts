@@ -75,7 +75,7 @@ export const useGetAllSubcontrols = ({ where, pagination, enabled = true }: UseG
   const paginationMeta = {
     totalCount: queryResult.data?.subcontrols?.totalCount ?? 0,
     pageInfo: queryResult.data?.subcontrols?.pageInfo,
-    isLoading: queryResult.isFetching,
+    isLoading: queryResult.isLoading,
   }
 
   return {
@@ -110,7 +110,7 @@ export const useGetSubcontrolsPaginated = ({ where, pagination, enabled = true }
   const paginationMeta = {
     totalCount: queryResult.data?.subcontrols?.totalCount ?? 0,
     pageInfo: queryResult.data?.subcontrols?.pageInfo,
-    isLoading: queryResult.isFetching,
+    isLoading: queryResult.isLoading,
   }
 
   return {

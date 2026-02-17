@@ -4,19 +4,19 @@ import { useGroupsStore } from '@/hooks/useGroupsStore'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import { Button } from '@repo/ui/button'
 import { Trash2, AlertTriangle, ChevronUpIcon, ChevronDownIcon } from 'lucide-react'
-import { useDeleteGroup, useGetGroupDetails } from '@/lib/graphql-hooks/groups'
+import { useDeleteGroup, useGetGroupDetails } from '@/lib/graphql-hooks/group'
 import { useQueryClient } from '@tanstack/react-query'
 import GroupsDeletePermissionsTable from '../groups-delete-permissions-table'
 import { useNotification } from '@/hooks/useNotification'
 import { canEdit } from '@/lib/authz/utils'
-import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 const DeleteGroupDialog = () => {
   const { selectedGroup, setSelectedGroup } = useGroupsStore()
-  const { data: permission } = useAccountRoles(ObjectEnum.GROUP, selectedGroup)
+  const { data: permission } = useAccountRoles(ObjectTypes.GROUP, selectedGroup)
   const [isOpen, setIsOpen] = useState(false)
   const { successNotification, errorNotification } = useNotification()
   const [expanded, setExpanded] = useState(false)

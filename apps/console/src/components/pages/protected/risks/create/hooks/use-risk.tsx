@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap.ts'
+import { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap.ts'
 
 type TRiskState = {
   associations: TObjectAssociationMap

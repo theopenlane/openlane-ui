@@ -2,7 +2,7 @@
 
 import { PageHeading } from '@repo/ui/page-heading'
 import { useParams } from 'next/navigation'
-import { useGetStandardDetails } from '@/lib/graphql-hooks/standards'
+import { useGetStandardDetails } from '@/lib/graphql-hooks/standard'
 import StandardDetailsCard from '@/components/pages/protected/standards/standard-details-card'
 import StandardDetailsAccordion from '@/components/pages/protected/standards/standard-details-accordion'
 import { useEffect, useContext, useState } from 'react'

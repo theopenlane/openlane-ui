@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useContext, useEffect, useMemo, useState } from 'react'
-import { ProgramFromGetProgramDashboard as Program, useGetProgramDashboard } from '@/lib/graphql-hooks/programs'
+import { ProgramFromGetProgramDashboard as Program, useGetProgramDashboard } from '@/lib/graphql-hooks/program'
 import { Calendar, ChevronRight, SquarePlus, SearchIcon, UserRoundPlus, Undo, UserIcon } from 'lucide-react'
 import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import { Input } from '@repo/ui/input'
@@ -20,9 +20,8 @@ import { StandardsIconMapper } from '@/components/shared/standards-icon-mapper/s
 import { ProgramIconMapper, ProgramSettingsIconBtn } from '@/components/shared/enum-mapper/program-enum'
 import { Separator } from '@repo/ui/separator'
 import Menu from '@/components/shared/menu/menu'
-import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import clsx from 'clsx'
-import { useUpdateProgram } from '@/lib/graphql-hooks/programs'
+import { useUpdateProgram } from '@/lib/graphql-hooks/program'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useQueryClient } from '@tanstack/react-query'
@@ -32,6 +31,7 @@ import { Callout } from '@/components/shared/callout/callout'
 import ProgramsCreate from '../create/programs-page'
 import { COMPLIANCE_MANAGEMENT_DOCS_URL } from '@/constants/docs'
 import { ProgramSettingsAssignUserDialog } from '../[id]/settings/users/program-settings-assign-user-dialog'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 const ProgramsDashboardPage = () => {
   const [search, setSearch] = useState('')
@@ -48,7 +48,7 @@ const ProgramsDashboardPage = () => {
   const hasData = !!data?.programs?.edges && data.programs.edges.length > 0
 
   const { data: permission } = useAccountRolesMany({
-    objectType: ObjectEnum.PROGRAM,
+    objectType: ObjectTypes.PROGRAM,
     ids: programIds,
     enabled: hasData,
   })

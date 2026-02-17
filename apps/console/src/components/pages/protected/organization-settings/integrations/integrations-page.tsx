@@ -2,7 +2,7 @@
 import { PageHeading } from '@repo/ui/page-heading'
 import React, { useContext, useEffect, useState } from 'react'
 import IntegrationsToolbar from './integrations-toolbar'
-import { useGetIntegrations } from '@/lib/graphql-hooks/integrations'
+import { useGetIntegrations } from '@/lib/graphql-hooks/integration'
 import { IntegrationsGrid } from './integrations-grid'
 import { IntegrationTab } from './config'
 import { useNotification } from '@/hooks/useNotification'

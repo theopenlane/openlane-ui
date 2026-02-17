@@ -1,18 +1,17 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { useDeleteRisk, useGetRiskById, useGetRiskDiscussionById, useUpdateRisk } from '@/lib/graphql-hooks/risks.ts'
+import { useDeleteRisk, useGetRiskById, useGetRiskDiscussionById, useUpdateRisk } from '@/lib/graphql-hooks/risk'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { RiskRiskImpact, RiskRiskLikelihood, RiskRiskStatus, UpdateRiskInput } from '@repo/codegen/src/schema.ts'
 import useFormSchema, { EditRisksFormData } from '@/components/pages/protected/risks/view/hooks/use-form-schema.ts'
 import { useNotification } from '@/hooks/useNotification.tsx'
 import { useRisk } from '@/components/pages/protected/risks/create/hooks/use-risk.tsx'
-import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap.ts'
-import { ASSOCIATION_REMOVAL_CONFIG } from '@/components/shared/objectAssociation/object-assoiation-config'
+import { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap.ts'
+import { ASSOCIATION_REMOVAL_CONFIG } from '@/components/shared/object-association/object-association-config'
 import { Form } from '@repo/ui/form'
 import { PencilIcon, Trash2 } from 'lucide-react'
 import Menu from '@/components/shared/menu/menu.tsx'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { canDelete, canEdit } from '@/lib/authz/utils.ts'
-import { ObjectEnum } from '@/lib/authz/enums/object-enum.ts'
 import { useRouter } from 'next/navigation'
 import TitleField from './fields/title-field'
 import DetailsField from './fields/details-field'
@@ -35,6 +34,7 @@ import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { useAssociationRemoval } from '@/hooks/useAssociationRemoval'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 type TRisksPageProps = {
   riskId: string
@@ -52,7 +52,7 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
   const { form } = useFormSchema()
   const [isEditing, setIsEditing] = useState(false)
   const [editingField, setEditingField] = useState<string | null>(null)
-  const { data: permission } = useAccountRoles(ObjectEnum.RISK, riskId)
+  const { data: permission } = useAccountRoles(ObjectTypes.RISK, riskId)
   const deleteAllowed = canDelete(permission?.roles)
   const editAllowed = canEdit(permission?.roles)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)

@@ -9,15 +9,15 @@ import { ChevronDown, ChevronUp, Copy } from 'lucide-react'
 import { DataTable } from '@repo/ui/data-table'
 import { Input } from '@repo/ui/input'
 import { useGroupsStore } from '@/hooks/useGroupsStore'
-import { useGetAllGroups, useGetGroupDetails, useGetGroupPermissions, useUpdateGroup } from '@/lib/graphql-hooks/groups'
+import { useGetAllGroups, useGetGroupDetails, useGetGroupPermissions, useUpdateGroup } from '@/lib/graphql-hooks/group'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification'
-import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { canEdit } from '@/lib/authz/utils'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { Permission } from '@repo/codegen/src/schema'
 import { TableKeyEnum } from '@repo/ui/table-key'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 const PERMISSION_LABELS: Record<Permission, string> = {
   [Permission.VIEWER]: 'View',
@@ -39,7 +39,7 @@ const InheritPermissionDialog = () => {
   const [isExpanded, setIsExpanded] = useState(false)
   const { errorNotification, successNotification } = useNotification()
   const { selectedGroup } = useGroupsStore()
-  const { data: permission } = useAccountRoles(ObjectEnum.GROUP, selectedGroup)
+  const { data: permission } = useAccountRoles(ObjectTypes.GROUP, selectedGroup)
   const queryClient = useQueryClient()
 
   const { data } = useGetGroupDetails(selectedGroup)
@@ -87,7 +87,7 @@ const InheritPermissionDialog = () => {
   const groups =
     TableData?.groups?.edges?.map((edge) => ({
       id: edge?.node?.id,
-      name: edge?.node?.name,
+      name: edge?.node?.displayName || edge?.node?.name,
     })) || []
 
   const permissionsData =
@@ -116,7 +116,7 @@ const InheritPermissionDialog = () => {
           Inherit permission
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold">Inherit permission</DialogTitle>
         </DialogHeader>
@@ -166,7 +166,11 @@ const InheritPermissionDialog = () => {
                   </div>
                 </div>
 
-                <DataTable columns={columns} data={permissionsData} tableKey={TableKeyEnum.GROUP_INHERIT_PERMISSION} />
+                {permissionsData.length > 0 ? (
+                  <DataTable columns={columns} data={permissionsData} tableKey={TableKeyEnum.GROUP_INHERIT_PERMISSION} />
+                ) : (
+                  <p className="text-sm text-muted-foreground py-4 text-center">No permissions to inherit from this group.</p>
+                )}
               </>
             )}
           </div>

@@ -3,7 +3,7 @@ import { QueryClient } from '@tanstack/react-query'
 import { User } from '@repo/codegen/src/schema'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { EditableFieldFormData } from '@/components/pages/protected/tasks/hooks/use-editable-field-form-schema'
-import { useUpdateTask } from '@/lib/graphql-hooks/tasks'
+import { useUpdateTask } from '@/lib/graphql-hooks/task'
 import EditableUserCell from '@/components/shared/editable-user-cell/editable-user-cell'
 
 type TAssigneeCellProps = {

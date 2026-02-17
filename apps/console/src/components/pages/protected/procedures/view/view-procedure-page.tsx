@@ -1,6 +1,6 @@
 'use client'
 
-import { useGetProcedureAssociationsById, useGetProcedureDiscussionById, useUpdateProcedure } from '@/lib/graphql-hooks/procedures.ts'
+import { useGetProcedureAssociationsById, useGetProcedureDiscussionById, useUpdateProcedure } from '@/lib/graphql-hooks/procedure'
 import React, { useEffect, useMemo, useState } from 'react'
 import useFormSchema, { EditProcedureMetadataFormData } from '@/components/pages/protected/procedures/view/hooks/use-form-schema.ts'
 import { Form } from '@repo/ui/form'
@@ -12,18 +12,17 @@ import AuthorityCard from '@/components/pages/protected/procedures/view/cards/au
 import PropertiesCard from '@/components/pages/protected/procedures/view/cards/properties-card.tsx'
 import HistoricalCard from '@/components/pages/protected/procedures/view/cards/historical-card.tsx'
 import TagsCard from '@/components/pages/protected/procedures/view/cards/tags-card.tsx'
-import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap.ts'
+import { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap.ts'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification.tsx'
-import { useGetProcedureDetailsById } from '@/lib/graphql-hooks/procedures.ts'
+import { useGetProcedureDetailsById } from '@/lib/graphql-hooks/procedure'
 import { ProcedureDocumentStatus, ProcedureFrequency, UpdateProcedureInput } from '@repo/codegen/src/schema.ts'
 import { useProcedure } from '@/components/pages/protected/procedures/create/hooks/use-procedure.tsx'
 import { Trash2 } from 'lucide-react'
 import { useParams, useRouter } from 'next/navigation'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
-import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { canDelete, canEdit } from '@/lib/authz/utils'
-import { useDeleteProcedure } from '@/lib/graphql-hooks/procedures'
+import { useDeleteProcedure } from '@/lib/graphql-hooks/procedure'
 import Menu from '@/components/shared/menu/menu.tsx'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar.tsx'
@@ -33,7 +32,7 @@ import { ObjectAssociationNodeEnum } from '@/components/shared/object-associatio
 import ObjectAssociationSwitch from '@/components/shared/object-association/object-association-switch.tsx'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useAssociationRemoval } from '@/hooks/useAssociationRemoval'
-import { ASSOCIATION_REMOVAL_CONFIG } from '@/components/shared/objectAssociation/object-assoiation-config'
+import { ASSOCIATION_REMOVAL_CONFIG } from '@/components/shared/object-association/object-association-config'
 import Loading from '@/app/(protected)/procedures/[id]/view/loading'
 import { Card } from '@repo/ui/cardpanel'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
@@ -41,6 +40,7 @@ import { Value } from 'platejs'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 const ViewProcedurePage: React.FC = () => {
   const { id } = useParams()
@@ -57,7 +57,7 @@ const ViewProcedurePage: React.FC = () => {
   const queryClient = useQueryClient()
   const { successNotification, errorNotification } = useNotification()
   const router = useRouter()
-  const { data: permission } = useAccountRoles(ObjectEnum.PROCEDURE, procedureId)
+  const { data: permission } = useAccountRoles(ObjectTypes.PROCEDURE, procedureId)
   const deleteAllowed = canDelete(permission?.roles)
   const editAllowed = canEdit(permission?.roles)
   const { mutateAsync: deleteProcedure } = useDeleteProcedure()

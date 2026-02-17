@@ -1,12 +1,12 @@
 'use client'
 
-import { useGetControlAssociationsById, useUpdateControl } from '@/lib/graphql-hooks/controls'
-import ObjectAssociation from '@/components/shared/objectAssociation/object-association'
+import { useGetControlAssociationsById, useUpdateControl } from '@/lib/graphql-hooks/control'
+import ObjectAssociation from '@/components/shared/object-association/object-association'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import React, { useMemo, useState } from 'react'
 import { useParams } from 'next/navigation'
-import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
-import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap'
+import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
+import { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
 import { useNotification } from '@/hooks/useNotification'
 import { useGetSubcontrolAssociationsById } from '@/lib/graphql-hooks/subcontrol'
 import { useUpdateSubcontrol } from '@/lib/graphql-hooks/subcontrol'
@@ -15,6 +15,7 @@ import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { useQueryClient } from '@tanstack/react-query'
 import AddAssociationPlusBtn from '@/components/shared/object-association/add-association-plus-btn.tsx'
+import { ObjectNames } from '@repo/codegen/src/type-names'
 
 type SetObjectAssociationDialogProps = {
   trigger?: React.ReactNode
@@ -146,7 +147,7 @@ export function SetObjectAssociationDialog({ trigger, defaultSelectedObject, all
         queryClient.invalidateQueries({ queryKey: ['procedures'] })
       }
 
-      successNotification({ title: `${isControl ? 'Control' : 'Subcontrol'} updated` })
+      successNotification({ title: `${isControl ? ObjectNames.CONTROL : ObjectNames.SUBCONTROL} updated` })
       setOpen(false)
     } catch (error) {
       const errorMessage = parseErrorMessage(error)

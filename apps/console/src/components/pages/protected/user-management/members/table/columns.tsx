@@ -4,7 +4,7 @@ import { ColumnDef } from '@tanstack/react-table'
 import { AllGroupsPaginatedFieldsFragment, InviteInviteStatus, InviteRole } from '@repo/codegen/src/schema.ts'
 import { InviteActions } from '../actions/invite-actions'
 import { formatDateSince } from '@/utils/date'
-import { InvitationIconMapper, InvitationStatusMapper } from '@/components/shared/enum-mapper/invitation-enum'
+import { InvitationIconMapper } from '@/components/shared/enum-mapper/invitation-enum'
 import { UserRoleIconMapper } from '@/components/shared/enum-mapper/user-role-enum'
 import { GlobeIcon, LockIcon, StarsIcon, Copy } from 'lucide-react'
 import React from 'react'
@@ -12,6 +12,7 @@ import { Checkbox } from '@repo/ui/checkbox'
 import { pageStyles } from '../page.styles'
 import { useCopyToClipboard } from '@uidotdev/usehooks'
 import { useNotification } from '@/hooks/useNotification'
+import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 
 export type InviteNode = {
   __typename?: 'Invite' | undefined
@@ -82,7 +83,7 @@ export const InvitesColumns = () => {
         return (
           <div className="flex gap-2 items-center">
             {InvitationIconMapper[status]}
-            {InvitationStatusMapper[status]}
+            {getEnumLabel(status)}
           </div>
         )
       },

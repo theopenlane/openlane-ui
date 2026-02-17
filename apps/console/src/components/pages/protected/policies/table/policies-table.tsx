@@ -18,8 +18,8 @@ import { INTERNAL_POLICIES_SORT_FIELDS } from '@/components/pages/protected/poli
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useDebounce } from '@uidotdev/usehooks'
-import { useInternalPolicies } from '@/lib/graphql-hooks/policy'
-import { useGetOrgUserList } from '@/lib/graphql-hooks/members.ts'
+import { useInternalPolicies } from '@/lib/graphql-hooks/internal-policy'
+import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
 import { getPoliciesColumns } from '@/components/pages/protected/policies/table/columns.tsx'
 import { useGetApiTokensByIds } from '@/lib/graphql-hooks/tokens.ts'
 import { ColumnDef, VisibilityState } from '@tanstack/react-table'
@@ -30,20 +30,21 @@ import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { useNotification } from '@/hooks/useNotification'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
-import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
 import { TableKeyEnum } from '@repo/ui/table-key'
-import { SearchKeyEnum, useStorageSearch } from '@/hooks/useStorageSearch'
-import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
+import { useStorageSearch } from '@/hooks/useStorageSearch'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { objectToSnakeCase } from '@/utils/strings'
 
 export const PoliciesTable = () => {
   const router = useRouter()
-  const [pagination, setPagination] = useState<TPagination>(getInitialPagination(TableKeyEnum.POLICY, DEFAULT_PAGINATION))
+  const [pagination, setPagination] = useState<TPagination>(getInitialPagination(TableKeyEnum.INTERNAL_POLICY, DEFAULT_PAGINATION))
   const [filters, setFilters] = useState<InternalPolicyWhereInput | null>(null)
-  const [searchTerm, setSearchTerm] = useStorageSearch(SearchKeyEnum.POLICIES)
+  const [searchTerm, setSearchTerm] = useStorageSearch(ObjectTypes.INTERNAL_POLICY)
   const { setCrumbs } = useContext(BreadcrumbContext)
   const { data: permission } = useOrganizationRoles()
   const { handleExport } = useFileExport()
-  const defaultSorting = getInitialSortConditions(TableKeyEnum.POLICY, InternalPolicyOrderField, [
+  const defaultSorting = getInitialSortConditions(TableKeyEnum.INTERNAL_POLICY, InternalPolicyOrderField, [
     {
       field: InternalPolicyOrderField.name,
       direction: OrderDirection.ASC,
@@ -54,7 +55,7 @@ export const PoliciesTable = () => {
 
   const { enumOptions } = useGetCustomTypeEnums({
     where: {
-      objectType: 'internal_policy',
+      objectType: objectToSnakeCase(ObjectTypes.INTERNAL_POLICY),
       field: 'kind',
     },
   })
@@ -153,7 +154,7 @@ export const PoliciesTable = () => {
     linkedControls: false,
   }
 
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableColumnVisibilityKeysEnum.POLICY, defaultVisibility))
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.INTERNAL_POLICY, defaultVisibility))
 
   const { columns, mappedColumns } = useMemo(() => getPoliciesColumns({ users, tokens, selectedPolicies, setSelectedPolicies, enumOptions }), [users, tokens, selectedPolicies, enumOptions])
 
@@ -242,7 +243,7 @@ export const PoliciesTable = () => {
         paginationMeta={paginationMeta}
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
-        tableKey={TableKeyEnum.POLICY}
+        tableKey={TableKeyEnum.INTERNAL_POLICY}
       />
     </>
   )

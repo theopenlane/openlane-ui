@@ -1,13 +1,14 @@
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 import useEscapeKey from '@/hooks/useEscapeKey'
 import { ControlControlStatus, SubcontrolControlStatus, UpdateControlInput, UpdateSubcontrolInput } from '@repo/codegen/src/schema'
-import type { ControlByIdNode } from '@/lib/graphql-hooks/controls'
+import type { ControlByIdNode } from '@/lib/graphql-hooks/control'
 import type { SubcontrolByIdNode } from '@/lib/graphql-hooks/subcontrol'
 import { useRef, useState } from 'react'
 import { useFormContext, Controller } from 'react-hook-form'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { ControlIconMapper16, controlIconsMap, ControlStatusLabels, ControlStatusOptions } from '@/components/shared/enum-mapper/control-enum'
+import { ControlIconMapper16, controlIconsMap, ControlStatusOptions } from '@/components/shared/enum-mapper/control-enum'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
+import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 
 export const Status = ({
   isEditing,
@@ -111,7 +112,7 @@ export const Status = ({
                 }}
               >
                 <SelectTrigger>
-                  <SelectValue>{field.value === 'NULL' ? '-' : ControlStatusLabels[field.value as ControlControlStatus]}</SelectValue>
+                  <SelectValue>{field.value === 'NULL' ? '-' : getEnumLabel(field.value as ControlControlStatus)}</SelectValue>
                 </SelectTrigger>
                 <SelectContent ref={popoverRef}>
                   {ControlStatusOptions.map((option) => (
@@ -127,7 +128,7 @@ export const Status = ({
           <HoverPencilWrapper onPencilClick={handleClick}>
             <div className="flex items-center space-x-2 cursor-pointer" onDoubleClick={handleClick}>
               {ControlIconMapper16[data?.status as ControlControlStatus]}
-              <p>{ControlStatusLabels[data?.status as ControlControlStatus] || '-'}</p>
+              <p>{getEnumLabel(data?.status as ControlControlStatus) || '-'}</p>
             </div>
           </HoverPencilWrapper>
         )}
