@@ -7,7 +7,7 @@ import { FormField, FormItem, FormControl, FormLabel } from '@repo/ui/form'
 import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
 import { cn } from '@repo/ui/lib/utils'
-import { useGetSubprocessors } from '@/lib/graphql-hooks/subprocessors'
+import { useGetSubprocessors } from '@/lib/graphql-hooks/subprocessor'
 import { useDebounce } from '@uidotdev/usehooks'
 import { CreateSubprocessorMutation } from '@repo/codegen/src/schema'
 

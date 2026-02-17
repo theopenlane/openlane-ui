@@ -1,5 +1,5 @@
 import useEscapeKey from '@/hooks/useEscapeKey'
-import type { ControlByIdNode } from '@/lib/graphql-hooks/controls'
+import type { ControlByIdNode } from '@/lib/graphql-hooks/control'
 import type { SubcontrolByIdNode } from '@/lib/graphql-hooks/subcontrol'
 import React, { useState } from 'react'
 import MappedCategoriesDialog from '../../mapped-categories-dialog'

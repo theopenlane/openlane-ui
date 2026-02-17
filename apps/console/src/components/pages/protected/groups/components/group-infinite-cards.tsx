@@ -1,7 +1,7 @@
 import GroupsCard from '@/components/pages/protected/groups/components/groups-cards.tsx'
 import InfiniteScroll from '@repo/ui/infinite-scroll'
 import React, { useEffect, useState } from 'react'
-import { useGetAllGroupsInfinite } from '@/lib/graphql-hooks/groups.ts'
+import { useGetAllGroupsInfinite } from '@/lib/graphql-hooks/group'
 import { TPagination } from '@repo/ui/pagination-types'
 import { GroupOrder, GroupWhereInput } from '@repo/codegen/src/schema.ts'
 import { CARD_DEFAULT_PAGINATION } from '@/constants/pagination.ts'

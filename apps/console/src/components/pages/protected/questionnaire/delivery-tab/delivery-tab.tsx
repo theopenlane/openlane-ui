@@ -1,9 +1,9 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useReducer, useState } from 'react'
 import { DataTable } from '@repo/ui/data-table'
 import { TableKeyEnum } from '@repo/ui/table-key'
-import { useCreateAssessmentResponse, useGetAssessmentDetail } from '@/lib/graphql-hooks/assessments'
+import { useCreateAssessmentResponse, useGetAssessmentDetail } from '@/lib/graphql-hooks/assessment'
 import { useNotification } from '@/hooks/useNotification'
 import { getDeliveryColumns, type DeliveryRow } from './delivery-columns'
 import type { TPagination } from '@repo/ui/pagination-types'
@@ -13,16 +13,37 @@ import { extractQuestions } from '../responses-tab/extract-questions'
 import { renderAnswer } from '../utils/render-answer'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import type { AssessmentResponseWhereInput } from '@repo/codegen/src/schema'
+import { computeDueDate } from '@/utils/date'
 
 type DeliveryTabProps = {
   assessmentId: string
   jsonconfig: unknown
   where?: AssessmentResponseWhereInput
   onTotalCountChange?: (count: number) => void
+  responseDueDuration?: number | null
 }
 
-export const DeliveryTab = ({ assessmentId, jsonconfig, where, onTotalCountChange }: DeliveryTabProps) => {
-  const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
+type PaginationAction = { type: 'set'; value: TPagination } | { type: 'reset-for-filter-change' }
+
+const paginationReducer = (state: TPagination, action: PaginationAction): TPagination => {
+  switch (action.type) {
+    case 'set':
+      return action.value
+    case 'reset-for-filter-change':
+      return {
+        ...state,
+        page: 1,
+        query: {
+          first: state.pageSize,
+        },
+      }
+    default:
+      return state
+  }
+}
+
+export const DeliveryTab = ({ assessmentId, jsonconfig, where, onTotalCountChange, responseDueDuration }: DeliveryTabProps) => {
+  const [pagination, dispatchPagination] = useReducer(paginationReducer, DEFAULT_PAGINATION)
   const { mutateAsync: createResponse } = useCreateAssessmentResponse()
   const { successNotification, errorNotification } = useNotification()
   const [selectedResponse, setSelectedResponse] = useState<DeliveryRow | null>(null)
@@ -54,13 +75,7 @@ export const DeliveryTab = ({ assessmentId, jsonconfig, where, onTotalCountChang
   )
 
   useEffect(() => {
-    setPagination((previousPagination) => ({
-      ...previousPagination,
-      page: 1,
-      query: {
-        first: previousPagination.pageSize,
-      },
-    }))
+    dispatchPagination({ type: 'reset-for-filter-change' })
   }, [where])
 
   useEffect(() => {
@@ -70,10 +85,12 @@ export const DeliveryTab = ({ assessmentId, jsonconfig, where, onTotalCountChang
   const handleResend = useCallback(
     async (row: DeliveryRow) => {
       try {
+        const dueDate = computeDueDate(responseDueDuration)
         await createResponse({
           input: {
             assessmentID: assessmentId,
             email: row.email,
+            ...(dueDate && { dueDate }),
           },
         })
         successNotification({ title: 'Questionnaire resent', description: `Resent to ${row.email}` })
@@ -81,11 +98,15 @@ export const DeliveryTab = ({ assessmentId, jsonconfig, where, onTotalCountChang
         errorNotification({ title: 'Failed to resend', description: 'Could not resend the questionnaire' })
       }
     },
-    [assessmentId, createResponse, successNotification, errorNotification],
+    [assessmentId, responseDueDuration, createResponse, successNotification, errorNotification],
   )
 
   const handleViewResponse = useCallback((row: DeliveryRow) => {
     setSelectedResponse(row)
+  }, [])
+
+  const handlePaginationChange = useCallback((nextPagination: TPagination) => {
+    dispatchPagination({ type: 'set', value: nextPagination })
   }, [])
 
   const columns = useMemo(() => getDeliveryColumns({ onResend: handleResend, onViewResponse: handleViewResponse }), [handleResend, handleViewResponse])
@@ -105,7 +126,7 @@ export const DeliveryTab = ({ assessmentId, jsonconfig, where, onTotalCountChang
         columns={columns}
         data={responses}
         pagination={pagination}
-        onPaginationChange={setPagination}
+        onPaginationChange={handlePaginationChange}
         paginationMeta={paginationMeta}
         loading={isLoading}
         tableKey={TableKeyEnum.QUESTIONNAIRE_DELIVERY}

@@ -9,7 +9,7 @@ import { useEffect, useContext } from 'react'
 import { useTheme } from 'next-themes'
 import { lightTheme } from './theme-light'
 import { darkTheme } from './theme-dark'
-import { useGetAssessment } from '@/lib/graphql-hooks/assessments'
+import { useGetAssessment } from '@/lib/graphql-hooks/assessment'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 
 export default function ViewQuestionnaire(input: { existingId: string }) {

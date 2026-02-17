@@ -4,13 +4,12 @@ import { DataTable } from '@repo/ui/data-table'
 import { Button } from '@repo/ui/button'
 import { FileQuestion } from 'lucide-react'
 import { Template } from '@repo/codegen/src/schema'
-import { useTemplates } from '@/lib/graphql-hooks/templates'
+import { useTemplates } from '@/lib/graphql-hooks/template'
 import Link from 'next/link'
 import ColumnVisibilityMenu, { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { VisibilityState } from '@tanstack/table-core'
 import { getQuestionnaireColumns } from './questionnaire-table-config'
-import { useGetOrgUserList } from '@/lib/graphql-hooks/members'
-import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
+import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
 import { TableKeyEnum } from '@repo/ui/table-key'
 
 const Questionnaire = () => {
@@ -24,7 +23,7 @@ const Questionnaire = () => {
     updatedAt: false,
   }
 
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableColumnVisibilityKeysEnum.QUESTIONNAIRE_OVERVIEW, defaultVisibility))
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.QUESTIONNAIRE_OVERVIEW, defaultVisibility))
 
   const userIds = useMemo(() => {
     if (!templates) return []
@@ -68,12 +67,7 @@ const Questionnaire = () => {
       <div className="flex justify-between items-center pr-6">
         <CardTitle className="text-lg font-semibold">Questionnaire</CardTitle>
         {mappedColumns && (
-          <ColumnVisibilityMenu
-            mappedColumns={mappedColumns}
-            columnVisibility={columnVisibility}
-            setColumnVisibility={setColumnVisibility}
-            storageKey={TableColumnVisibilityKeysEnum.QUESTIONNAIRE_OVERVIEW}
-          />
+          <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.QUESTIONNAIRE_OVERVIEW} />
         )}
       </div>
       {hasData ? (

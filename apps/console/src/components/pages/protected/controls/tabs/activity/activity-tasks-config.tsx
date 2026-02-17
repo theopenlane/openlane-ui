@@ -4,11 +4,12 @@ import type { Task } from '@repo/codegen/src/schema'
 import { TaskTaskStatus } from '@repo/codegen/src/schema'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
-import { FilterIcons, TaskStatusIconMapper, TaskStatusMapper } from '@/components/shared/enum-mapper/task-enum'
+import { TaskFilterIcons, TaskStatusIconMapper } from '@/components/shared/enum-mapper/task-enum'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import { formatDate } from '@/utils/date'
 import type { FilterField } from '@/types'
 import type { TOrgMembers } from '@/components/pages/protected/tasks/hooks/useTaskStore'
+import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 
 export type ActivityTaskRow = Pick<Task, 'id' | 'title' | 'taskKindName' | 'status' | 'assignee' | 'due'>
 
@@ -20,34 +21,34 @@ export const getActivityTaskFilterFields = (taskKindOptions: TaskKindOption[] = 
     label: 'Type',
     type: 'multiselect',
     options: taskKindOptions,
-    icon: FilterIcons.Type,
+    icon: TaskFilterIcons.Type,
   },
   {
     key: 'due',
     label: 'Due Date',
     type: 'dateRange',
-    icon: FilterIcons.DueDate,
+    icon: TaskFilterIcons.DueDate,
   },
   {
     key: 'statusIn',
     label: 'Status',
     type: 'multiselect',
     options: enumToOptions(TaskTaskStatus),
-    icon: FilterIcons.Status,
+    icon: TaskFilterIcons.Status,
   },
   {
     key: 'assignerIDIn',
     label: 'Assigner',
     type: 'multiselect',
     options: orgMembers,
-    icon: FilterIcons.Assigner,
+    icon: TaskFilterIcons.Assigner,
   },
   {
     key: 'assigneeIDIn',
     label: 'Assignee',
     type: 'multiselect',
     options: orgMembers,
-    icon: FilterIcons.Assignee,
+    icon: TaskFilterIcons.Assignee,
   },
 ]
 
@@ -75,7 +76,7 @@ export const getActivityTaskColumns = (taskKindOptions: TaskKindOption[] = [], o
       return (
         <div className="flex items-center space-x-2">
           {TaskStatusIconMapper[status]}
-          <p>{TaskStatusMapper[status]}</p>
+          <p>{getEnumLabel(status)}</p>
         </div>
       )
     },

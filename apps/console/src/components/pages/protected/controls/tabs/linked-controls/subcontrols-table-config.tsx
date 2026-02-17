@@ -2,7 +2,7 @@ import React from 'react'
 import Link from 'next/link'
 import type { ColumnDef } from '@tanstack/react-table'
 import { Folder, FolderTree, Layers, Tag } from 'lucide-react'
-import { formatEnumLabel } from '@/utils/enumToLabel'
+import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import type { FilterField } from '@/types'
 
 export type SubcontrolRow = {
@@ -37,7 +37,7 @@ export const getSubcontrolsColumns = (controlId: string, convertToReadOnly: (val
   {
     accessorKey: 'status',
     header: () => <span className="whitespace-nowrap">Status</span>,
-    cell: ({ row }) => <span className="block truncate">{row.original.status ? formatEnumLabel(row.original.status) : '-'}</span>,
+    cell: ({ row }) => <span className="block truncate">{row.original.status ? getEnumLabel(row.original.status) : '-'}</span>,
     size: 120,
     minSize: 120,
     maxSize: 120,
@@ -45,7 +45,7 @@ export const getSubcontrolsColumns = (controlId: string, convertToReadOnly: (val
   {
     accessorKey: 'type',
     header: () => <span className="whitespace-nowrap">Type</span>,
-    cell: ({ row }) => <span className="block truncate">{row.original.type ? formatEnumLabel(row.original.type) : '-'}</span>,
+    cell: ({ row }) => <span className="block truncate">{row.original.type ? getEnumLabel(row.original.type) : '-'}</span>,
     size: 120,
     minSize: 120,
     maxSize: 120,
@@ -58,14 +58,14 @@ export const getSubcontrolsFilterFields = (typeOptions: string[], sourceOptions:
     label: 'Type',
     type: 'multiselect',
     icon: Tag,
-    options: typeOptions.map((value) => ({ value, label: formatEnumLabel(value) })),
+    options: typeOptions.map((value) => ({ value, label: getEnumLabel(value) })),
   },
   {
     key: 'sourceIn',
     label: 'Source',
     type: 'multiselect',
     icon: Layers,
-    options: sourceOptions.map((value) => ({ value, label: formatEnumLabel(value) })),
+    options: sourceOptions.map((value) => ({ value, label: getEnumLabel(value) })),
   },
   {
     key: 'categoryContainsFold',

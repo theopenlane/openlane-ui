@@ -15,10 +15,10 @@ import { programInviteSchema, step1Schema, step3Schema, validateFullAndNotify, W
 import { useNotification } from '@/hooks/useNotification'
 import { CreateProgramWithMembersInput, ProgramMembershipRole } from '@repo/codegen/src/schema'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { useCreateProgramWithMembers } from '@/lib/graphql-hooks/programs'
+import { useCreateProgramWithMembers } from '@/lib/graphql-hooks/program'
 import { addYears, getYear } from 'date-fns'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
-import { useStandardsSelect } from '@/lib/graphql-hooks/standards'
+import { useStandardsSelect } from '@/lib/graphql-hooks/standard'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 
 const today = new Date()

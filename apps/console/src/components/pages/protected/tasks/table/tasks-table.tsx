@@ -6,15 +6,15 @@ import { OrderDirection, TaskOrder, TaskWhereInput } from '@repo/codegen/src/sch
 import { TPagination } from '@repo/ui/pagination-types'
 import { getTaskColumns } from '@/components/pages/protected/tasks/table/columns.tsx'
 import { TASK_SORT_FIELDS } from '@/components/pages/protected/tasks/table/table-config.ts'
-import { useTasksWithFilter } from '@/lib/graphql-hooks/tasks.ts'
-import { useGetOrgUserList } from '@/lib/graphql-hooks/members.ts'
+import { useTasksWithFilter } from '@/lib/graphql-hooks/task'
+import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
 import { VisibilityState } from '@tanstack/react-table'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import { TAccessRole, TData } from '@/types/authz'
+import { TAccessRole, TPermissionData } from '@/types/authz'
 import { useNotification } from '@/hooks/useNotification'
 import { TableKeyEnum } from '@repo/ui/table-key'
-import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 
 type TTasksTableProps = {
   onSortChange?: (sortCondition: TaskOrder[] | TaskOrder | undefined) => void
@@ -28,7 +28,7 @@ type TTasksTableProps = {
   selectedTasks: { id: string }[]
   setSelectedTasks: React.Dispatch<React.SetStateAction<{ id: string }[]>>
   canEdit: (accessRole: TAccessRole[] | undefined) => boolean
-  permission: TData | undefined
+  permission: TPermissionData | undefined
   defaultSorting: { field: string; direction?: OrderDirection }[] | undefined
 }
 

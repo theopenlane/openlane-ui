@@ -6,7 +6,7 @@ import { FilterField } from '@/types'
 import { useTaskStore } from '@/components/pages/protected/tasks/hooks/useTaskStore'
 import { DownloadIcon, LoaderCircle, SearchIcon, Upload } from 'lucide-react'
 import { BulkCSVCreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/bulk-csv-create-task-dialog'
-import { useProgramSelect } from '@/lib/graphql-hooks/programs'
+import { useProgramSelect } from '@/lib/graphql-hooks/program'
 import Menu from '@/components/shared/menu/menu'
 import { VisibilityState } from '@tanstack/react-table'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
@@ -15,17 +15,16 @@ import { TaskTaskStatus, TaskWhereInput } from '@repo/codegen/src/schema'
 import TableCardView from '@/components/shared/table-card-view/table-card-view'
 import { Button } from '@repo/ui/button'
 import { BulkEditTasksDialog } from '../bulk-edit/bulk-edit-tasks'
-import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
-import { TAccessRole, TData } from '@/types/authz'
+import { TAccessRole, TPermissionData } from '@/types/authz'
 import { useSession } from 'next-auth/react'
 import { endOfWeek, format, startOfDay, startOfWeek } from 'date-fns'
 import { DateFormatStorage, TQuickFilter } from '@/components/shared/table-filter/table-filter-helper.ts'
 import { useNotification } from '@/hooks/useNotification'
-import { useBulkDeleteTask } from '@/lib/graphql-hooks/tasks'
+import { useBulkDeleteTask } from '@/lib/graphql-hooks/task'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
-import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
-import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
+import { TableKeyEnum } from '@repo/ui/table-key'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 type TTaskTableToolbarProps = {
@@ -43,7 +42,7 @@ type TTaskTableToolbarProps = {
   searching?: boolean
   exportEnabled: boolean
   canEdit: (accessRole: TAccessRole[] | undefined) => boolean
-  permission: TData | undefined
+  permission: TPermissionData | undefined
   handleClearSelectedTasks: () => void
   selectedTasks: { id: string }[]
   setSelectedTasks: React.Dispatch<React.SetStateAction<{ id: string }[]>>
@@ -228,14 +227,9 @@ const TaskTableToolbar: React.FC<TTaskTableToolbarProps> = (props: TTaskTableToo
                 }
               />
               {props.mappedColumns && props.columnVisibility && props.setColumnVisibility && (
-                <ColumnVisibilityMenu
-                  mappedColumns={props.mappedColumns}
-                  columnVisibility={props.columnVisibility}
-                  setColumnVisibility={props.setColumnVisibility}
-                  storageKey={TableColumnVisibilityKeysEnum.TASK}
-                />
+                <ColumnVisibilityMenu mappedColumns={props.mappedColumns} columnVisibility={props.columnVisibility} setColumnVisibility={props.setColumnVisibility} storageKey={TableKeyEnum.TASK} />
               )}
-              {filterFields && <TableFilter filterFields={filterFields} onFilterChange={props.onFilterChange} pageKey={TableFilterKeysEnum.TASK} quickFilters={quickFilters} />}
+              {filterFields && <TableFilter filterFields={filterFields} onFilterChange={props.onFilterChange} pageKey={TableKeyEnum.TASK} quickFilters={quickFilters} />}
               <CreateTaskDialog />
             </>
           )}

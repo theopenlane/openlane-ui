@@ -1,5 +1,5 @@
 import { useGetEvidenceComments } from '@/lib/graphql-hooks/evidence'
-import { useGetOrgMemberships } from '@/lib/graphql-hooks/members'
+import { useGetOrgMemberships } from '@/lib/graphql-hooks/member'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useMemo, useState } from 'react'
 import EvidenceCommentSheet from './evidence-comments-sheet'
