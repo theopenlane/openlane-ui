@@ -113,6 +113,19 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handle
     { enabled: editingField === 'tags' },
   )
 
+  const prevIsEditingRef = React.useRef(isEditing)
+  useEffect(() => {
+    if (prevIsEditingRef.current && !isEditing) {
+      const current = data?.tags ?? []
+      const next = selectedTags.map((t) => t.value)
+      const changed = current.length !== next.length || current.some((val) => !next.includes(val))
+      if (changed) {
+        handleUpdateAdapter({ tags: next } as UpdateControlInput)
+      }
+    }
+    prevIsEditingRef.current = isEditing
+  }, [isEditing, data?.tags, handleUpdateAdapter, selectedTags])
+
   const options: Option[] = groups.map((g) => ({
     label: g?.displayName || g?.name || '',
     value: g?.id || '',
@@ -246,9 +259,6 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handle
                   value={selectedTags}
                   onChange={(opts) => {
                     setSelectedTags(opts)
-                    if (isEditing) {
-                      handleUpdateAdapter({ tags: opts.map((o) => o.value) } as UpdateControlInput)
-                    }
                   }}
                 />
               ) : (
