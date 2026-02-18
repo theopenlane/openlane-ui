@@ -31,7 +31,7 @@ import { ProgramSelectionDialog } from '@/components/shared/object-association/o
 import { ControlSelectionDialog } from '@/components/shared/object-association/object-association-control-dialog'
 import ObjectAssociationProgramsChips from '@/components/shared/object-association/object-association-programs-chips'
 import ObjectAssociationControlsChips from '@/components/shared/object-association/object-association-controls-chips'
-import { buildWhere, CustomEvidenceControl, flattenAndFilterControls } from './evidence-sheet-config'
+import { buildWhere, CustomEvidenceControl, EVIDENCE_ASSOCIATION_FIELDS, flattenAndFilterControls } from './evidence-sheet-config'
 import { useGetSuggestedControlsOrSubcontrols } from '@/lib/graphql-hooks/control'
 import { useGetStandards } from '@/lib/graphql-hooks/standard'
 import Link from 'next/link'
@@ -49,8 +49,6 @@ type TEvidenceCreateSheetProps = {
   onOpenChange: (open: boolean) => void
   controlParam?: CustomEvidenceControl[]
 }
-
-type EvidenceAssociationField = 'controlObjectiveIDs' | 'subcontrolIDs' | 'programIDs' | 'controlIDs' | 'taskIDs' | 'evidenceIDs' | 'groupIDs' | 'internalPolicyIDs' | 'procedureIDs' | 'riskIDs'
 
 const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
   formData,
@@ -161,19 +159,6 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
   // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const handleInitialValue = useCallback(() => {
     if (formData) {
-      const associationFields: EvidenceAssociationField[] = [
-        'controlObjectiveIDs',
-        'subcontrolIDs',
-        'programIDs',
-        'controlIDs',
-        'taskIDs',
-        'evidenceIDs',
-        'groupIDs',
-        'internalPolicyIDs',
-        'procedureIDs',
-        'riskIDs',
-      ]
-
       if (controlParam && controlParam.length) {
         const newEvidenceControls: CustomEvidenceControl[] = []
         const newEvidenceSubcontrols: CustomEvidenceControl[] = []
@@ -191,7 +176,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
       }
 
       form.setValue('name', `Evidence for ${formData.displayID}`)
-      for (const key of associationFields) {
+      for (const key of EVIDENCE_ASSOCIATION_FIELDS) {
         const value = formData.objectAssociations[key]
         if (value) {
           form.setValue(key, value)

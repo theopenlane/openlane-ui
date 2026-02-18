@@ -30,14 +30,14 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import PlateEditor from '@/components/shared/plate/plate-editor'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
+import { EVIDENCE_ASSOCIATION_FIELDS } from './evidence-sheet-config'
+
 type TProps = {
   formData?: TFormEvidenceData
   onEvidenceCreateSuccess?: () => void
   excludeObjectTypes?: ObjectTypeObjects[]
   defaultSelectedObject?: ObjectTypeObjects
 }
-
-type EvidenceAssociationField = 'controlObjectiveIDs' | 'subcontrolIDs' | 'programIDs' | 'controlIDs' | 'taskIDs' | 'evidenceIDs' | 'groupIDs' | 'internalPolicyIDs' | 'procedureIDs' | 'riskIDs'
 
 const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSuccess, excludeObjectTypes, defaultSelectedObject }: TProps) => {
   const { form } = useFormSchema()
@@ -108,21 +108,8 @@ const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSucces
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (formData) {
-      const associationFields: EvidenceAssociationField[] = [
-        'controlObjectiveIDs',
-        'subcontrolIDs',
-        'programIDs',
-        'controlIDs',
-        'taskIDs',
-        'evidenceIDs',
-        'groupIDs',
-        'internalPolicyIDs',
-        'procedureIDs',
-        'riskIDs',
-      ]
-
       form.setValue('name', `Evidence for ${formData.displayID}`)
-      for (const key of associationFields) {
+      for (const key of EVIDENCE_ASSOCIATION_FIELDS) {
         const value = formData.objectAssociations[key]
         if (value) {
           form.setValue(key, value)

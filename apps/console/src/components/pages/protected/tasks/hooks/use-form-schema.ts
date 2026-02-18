@@ -31,7 +31,7 @@ const useFormSchema = (defaultValues?: Partial<CreateTaskFormData>) => {
     form: useForm<CreateTaskFormData>({
       resolver: zodResolver(formSchema),
       defaultValues: {
-        taskKindName: 'Evidence',
+        taskKindName: 'Uncategorized',
         title: '',
         tags: [],
         status: TaskTaskStatus.OPEN,

@@ -1,6 +1,21 @@
 import { GetSuggestedControlsOrSubcontrolsQuery, MappedControlMappingSource, MappedControlWhereInput } from '@repo/codegen/src/schema'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 
+export const EVIDENCE_ASSOCIATION_FIELDS = [
+  'controlObjectiveIDs',
+  'subcontrolIDs',
+  'programIDs',
+  'controlIDs',
+  'taskIDs',
+  'evidenceIDs',
+  'groupIDs',
+  'internalPolicyIDs',
+  'procedureIDs',
+  'riskIDs',
+] as const
+
+export type EvidenceAssociationField = (typeof EVIDENCE_ASSOCIATION_FIELDS)[number]
+
 export type CustomEvidenceControl = { __typename?: string; id: string; referenceFramework?: string | null; refCode: string }
 type CustomEvidenceGroupedItems = {
   refCode: string

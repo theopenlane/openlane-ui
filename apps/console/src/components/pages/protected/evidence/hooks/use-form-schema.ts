@@ -13,7 +13,11 @@ const formSchema = z.object({
   }),
   description: z.string().optional(),
   tags: z.array(z.string()).optional(),
-  creationDate: z.date().default(() => new Date()),
+  creationDate: z
+    .date()
+    .default(() => new Date())
+    .optional()
+    .nullable(),
   renewalDate: z.date().min(new Date(), { message: 'Renewal date must be in the future' }).optional().nullable(),
   evidenceFiles: z.array(z.custom<TUploadedFile>()).optional(),
   url: z

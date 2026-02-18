@@ -88,30 +88,6 @@ type TEvidenceDetailsSheet = {
 
 type EditableFields = 'name' | 'description' | 'collectionProcedure' | 'source' | 'url' | 'status' | 'creationDate' | 'renewalDate' | 'tags'
 
-const toDate = (value: unknown): Date | undefined => {
-  if (value instanceof Date) return value
-  if (typeof value === 'string' || typeof value === 'number') {
-    const date = new Date(value)
-    return Number.isNaN(date.getTime()) ? undefined : date
-  }
-  return undefined
-}
-
-const toEvidenceStatus = (value: string | null | undefined): EvidenceEvidenceStatus | undefined => {
-  switch (value) {
-    case EvidenceEvidenceStatus.AUDITOR_APPROVED:
-    case EvidenceEvidenceStatus.REJECTED:
-    case EvidenceEvidenceStatus.NEEDS_RENEWAL:
-    case EvidenceEvidenceStatus.READY_FOR_AUDITOR:
-    case EvidenceEvidenceStatus.MISSING_ARTIFACT:
-    case EvidenceEvidenceStatus.SUBMITTED:
-    case EvidenceEvidenceStatus.IN_REVIEW:
-      return value
-    default:
-      return undefined
-  }
-}
-
 const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) => {
   const { convertToHtml, convertToReadOnly } = usePlateEditor()
   const objectAssociationRef = React.useRef<HTMLDivElement | null>(null)
@@ -267,8 +243,8 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
       form.reset({
         name: evidence.name ?? '',
         description: evidence?.description ?? '',
-        renewalDate: toDate(evidence.renewalDate),
-        creationDate: toDate(evidence.creationDate),
+        renewalDate: evidence.renewalDate,
+        creationDate: evidence.creationDate,
         status: evidence?.status ? Object.values(EvidenceEvidenceStatus).find((type) => type === evidence?.status) : undefined,
         tags: evidence?.tags ?? [],
         collectionProcedure: evidence?.collectionProcedure || '',
@@ -766,7 +742,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                                     <Select
                                       value={field.value ?? undefined}
                                       onValueChange={(value) => {
-                                        field.onChange(toEvidenceStatus(value) ?? value)
+                                        field.onChange(value as EvidenceEvidenceStatus)
                                         handleUpdateField()
                                       }}
                                     >
@@ -1144,8 +1120,8 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
             form.reset({
               name: evidence?.name ?? '',
               description: evidence?.description ?? '',
-              renewalDate: toDate(evidence?.renewalDate),
-              creationDate: toDate(evidence?.creationDate),
+              renewalDate: evidence?.renewalDate,
+              creationDate: evidence?.creationDate,
               status: evidence?.status ?? undefined,
               tags: evidence?.tags ?? [],
               collectionProcedure: evidence?.collectionProcedure ?? '',
