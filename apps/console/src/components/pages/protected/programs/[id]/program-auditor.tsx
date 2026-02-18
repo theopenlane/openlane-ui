@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useForm, Controller, FormProvider } from 'react-hook-form'
+import type { Resolver } from 'react-hook-form'
 import { Card } from '@repo/ui/cardpanel'
 import { CircleCheck, CircleX } from 'lucide-react'
 import { SetAuditorDialog } from './set-auditor-dialog'
@@ -60,7 +61,7 @@ const ProgramAuditor = ({ firm, name, email, isReady, programStatus }: ProgramAu
   }
 
   const form = useForm<SetAuditorFormValues>({
-    resolver: zodResolver(setAuditorSchema),
+    resolver: zodResolver(setAuditorSchema) as Resolver<SetAuditorFormValues>,
     defaultValues: {
       auditorName: name ?? '',
       auditorEmail: email ?? '',
@@ -71,6 +72,7 @@ const ProgramAuditor = ({ firm, name, email, isReady, programStatus }: ProgramAu
     },
   })
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (name || email || firm) {
       form.reset({
@@ -88,6 +90,7 @@ const ProgramAuditor = ({ firm, name, email, isReady, programStatus }: ProgramAu
       setIsEligibleForAuditorSet(false)
     }
   }, [name, email, firm, id, form])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const { handleSubmit, control } = form
 

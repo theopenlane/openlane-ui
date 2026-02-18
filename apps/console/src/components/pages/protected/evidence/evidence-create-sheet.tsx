@@ -31,13 +31,12 @@ import { ProgramSelectionDialog } from '@/components/shared/object-association/o
 import { ControlSelectionDialog } from '@/components/shared/object-association/object-association-control-dialog'
 import ObjectAssociationProgramsChips from '@/components/shared/object-association/object-association-programs-chips'
 import ObjectAssociationControlsChips from '@/components/shared/object-association/object-association-controls-chips'
-import { CustomEvidenceControl } from './evidence-sheet-config'
+import { CustomEvidenceControl, EVIDENCE_ASSOCIATION_FIELDS } from './evidence-sheet-config'
 import { useEvidenceSuggestedControls } from './hooks/use-evidence-suggested-controls'
 import Link from 'next/link'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import PlateEditor from '@/components/shared/plate/plate-editor'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import { Value } from 'platejs'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 type TEvidenceCreateSheetProps = {
@@ -82,35 +81,36 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
   const { convertToHtml } = usePlateEditor()
 
   const onSubmitHandler = async (data: CreateEvidenceFormData) => {
-    if (data.collectionProcedure) {
-      data.collectionProcedure = await convertToHtml(data.collectionProcedure as Value)
+    const collectionProcedure = data.collectionProcedure && typeof data.collectionProcedure !== 'string' ? await convertToHtml(data.collectionProcedure) : data.collectionProcedure
+
+    const input: CreateEvidenceInput = {
+      name: data.name,
+      description: data.description,
+      tags: data.tags,
+      creationDate: data.creationDate,
+      renewalDate: data.renewalDate,
+      collectionProcedure,
+      source: data.source,
+      fileIDs: data.fileIDs,
+      taskIDs: data.taskIDs,
+      ...evidenceObjectTypes,
+      controlIDs: data.controlIDs,
+      subcontrolIDs: data.subcontrolIDs,
+      programIDs: programId ? [programId] : data.programIDs ?? [],
+      ...(data.url ? { url: data.url } : {}),
     }
-    const formData = {
-      input: {
-        name: data.name,
-        description: data.description,
-        tags: data.tags,
-        creationDate: data.creationDate,
-        renewalDate: data.renewalDate,
-        collectionProcedure: data.collectionProcedure,
-        source: data.source,
-        fileIDs: data.fileIDs,
-        taskIDs: data.taskIDs,
-        ...evidenceObjectTypes,
-        controlIDs: data.controlIDs,
-        subcontrolIDs: data.subcontrolIDs,
-        programIDs: programId ? [programId] : data.programIDs ?? [],
-        ...(data.url ? { url: data.url } : {}),
-      } as CreateEvidenceInput,
+
+    const payload = {
+      input,
       evidenceFiles: data.evidenceFiles?.map((item) => item.file) || [],
     }
 
     try {
-      const res = await createEvidence(formData)
+      const res = await createEvidence(payload)
       queryClient.invalidateQueries({
         predicate: (query) => {
           const key = query.queryKey[0]
-          return ['controls', 'programs', 'tasks', 'subcontrols', 'controlObjectives', 'evidences'].includes(key as string)
+          return typeof key === 'string' && ['controls', 'programs', 'tasks', 'subcontrols', 'controlObjectives', 'evidences'].includes(key)
         },
       })
 
@@ -152,6 +152,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
       })
     }
   }
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const handleInitialValue = useCallback(() => {
     if (formData) {
       if (controlParam && controlParam.length) {
@@ -171,8 +172,11 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
       }
 
       form.setValue('name', `Evidence for ${formData.displayID}`)
-      for (const [key, value] of Object.entries(formData.objectAssociations)) {
-        form.setValue(key as keyof CreateEvidenceFormData, value)
+      for (const key of EVIDENCE_ASSOCIATION_FIELDS) {
+        const value = formData.objectAssociations[key]
+        if (value) {
+          form.setValue(key, value)
+        }
       }
 
       if (formData?.tags) {
@@ -181,7 +185,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
           return {
             value: item,
             label: item,
-          } as Option
+          }
         })
         setTagValues(tags)
       }
@@ -201,6 +205,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
     enabled: open,
   })
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     handleInitialValue()
   }, [handleInitialValue])
@@ -325,7 +330,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
                             <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Write down the steps that were taken to collect the evidence.</p>} />
                           </div>
                           <FormControl>
-                            <PlateEditor initialValue={field.value as string} onChange={(val) => field.onChange(val)} />
+                            <PlateEditor initialValue={field.value ?? ''} onChange={(val) => field.onChange(val)} />
                           </FormControl>
                           {form.formState.errors.collectionProcedure && <p className="text-red-500 text-sm">{form.formState.errors.collectionProcedure.message}</p>}
                         </FormItem>

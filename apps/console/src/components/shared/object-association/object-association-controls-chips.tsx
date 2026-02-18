@@ -2,8 +2,7 @@
 
 import React, { useState } from 'react'
 import ControlChip from '@/components/pages/protected/controls/map-controls/shared/control-chip'
-import { CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema'
-import { UseFormReturn } from 'react-hook-form'
+import { CreateEvidenceFormMethods } from '@/components/pages/protected/evidence/hooks/use-form-schema'
 import { InfoIcon, TriangleAlert } from 'lucide-react'
 import { CustomEvidenceControl } from '@/components/pages/protected/evidence/evidence-sheet-config'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
@@ -20,7 +19,7 @@ import { ObjectTypes } from '@repo/codegen/src/type-names'
 import Skeleton from '@/components/shared/skeleton/skeleton'
 
 type TObjectAssociationControlsChipsProps = {
-  form?: UseFormReturn<CreateEvidenceFormData>
+  form?: CreateEvidenceFormMethods
   suggestedControlsMap?: { id: string; refCode: string; referenceFramework: string | null; source: string; typeName: typeof ObjectTypes.CONTROL | typeof ObjectTypes.SUBCONTROL }[]
   evidenceControls: CustomEvidenceControl[] | null
   setEvidenceControls?: React.Dispatch<React.SetStateAction<CustomEvidenceControl[] | null>>
