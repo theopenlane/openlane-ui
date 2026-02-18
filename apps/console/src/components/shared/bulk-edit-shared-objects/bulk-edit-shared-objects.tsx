@@ -68,6 +68,7 @@ export enum SelectOptionBulkEditControls {
   Program = 'Program',
   Category = 'Category',
   SubCategory = 'Subcategory',
+  Tags = 'Tags',
 }
 
 export enum SelectOptionBulkEditPolicies {
@@ -75,6 +76,7 @@ export enum SelectOptionBulkEditPolicies {
   PolicyType = 'Policy type',
   PolicyApprover = 'Approver',
   PolicyDelegate = 'Delegate',
+  Tags = 'Tags',
 }
 
 export enum SelectOptionBulkEditProcedures {
@@ -82,6 +84,7 @@ export enum SelectOptionBulkEditProcedures {
   ProcedureType = 'Procedure type',
   ProcedureApprover = 'Approver',
   ProcedureDelegate = 'Delegate',
+  Tags = 'Tags',
 }
 
 export enum SelectOptionBulkEditRisks {
@@ -92,6 +95,7 @@ export enum SelectOptionBulkEditRisks {
   RiskCategory = 'Category',
   RiskScore = 'Score',
   RiskLikelihood = 'Likelihood',
+  Tags = 'Tags',
 }
 
 export enum SelectOptionBulkEditTasks {
@@ -99,6 +103,7 @@ export enum SelectOptionBulkEditTasks {
   TaskAssignee = 'Assignee',
   DueDate = 'Due date',
   TaskCategory = 'Type',
+  Tags = 'Tags',
 }
 
 export enum SelectOptionBulkEditEvidence {
@@ -203,6 +208,12 @@ export const getAllSelectOptionsForBulkEditRisks = (groups: Group[], typeOptions
       inputType: InputType.Input,
       placeholder: 'Select score',
     },
+    {
+      selectOptionEnum: SelectOptionBulkEditRisks.Tags,
+      name: 'appendTags',
+      inputType: InputType.Tag,
+      placeholder: 'Add a tag',
+    },
   ]
 }
 
@@ -236,6 +247,12 @@ export const getAllSelectOptionsForBulkEditProcedures = (groups: Group[], typeOp
       placeholder: 'Select approver',
       options: groups.map((g) => ({ label: g?.displayName || g?.name || '', value: g?.id || '' })),
     },
+    {
+      selectOptionEnum: SelectOptionBulkEditProcedures.Tags,
+      name: 'appendTags',
+      inputType: InputType.Tag,
+      placeholder: 'Add a tag',
+    },
   ]
 }
 
@@ -268,6 +285,12 @@ export const getAllSelectOptionsForBulkEditPolicies = (groups: Group[], typeOpti
       inputType: InputType.Select,
       placeholder: 'Select approver',
       options: groups.map((g) => ({ label: g?.displayName || g?.name || '', value: g?.id || '' })),
+    },
+    {
+      selectOptionEnum: SelectOptionBulkEditPolicies.Tags,
+      name: 'appendTags',
+      inputType: InputType.Tag,
+      placeholder: 'Add a tag',
     },
   ]
 }
@@ -316,6 +339,12 @@ export const useGetAllSelectOptionsForBulkEditControls = (groups: Group[], typeO
       inputType: InputType.TypeAhead,
       placeholder: 'Input subcategory',
     },
+    {
+      selectOptionEnum: SelectOptionBulkEditControls.Tags,
+      name: 'appendTags',
+      inputType: InputType.Tag,
+      placeholder: 'Add a tag',
+    },
   ]
 }
 
@@ -356,6 +385,12 @@ export const getAllSelectOptionsForBulkEditTasks = (
       placeholder: 'Select category',
       options: taskKindOptions,
     },
+    {
+      selectOptionEnum: SelectOptionBulkEditTasks.Tags,
+      name: 'appendTags',
+      inputType: InputType.Tag,
+      placeholder: 'Add a tag',
+    },
   ]
 }
 
@@ -376,7 +411,7 @@ export const getAllSelectOptionsForBulkEditEvidence = (): SelectOptionSelectedOb
     },
     {
       selectOptionEnum: SelectOptionBulkEditEvidence.Tags,
-      name: 'tags',
+      name: 'appendTags',
       inputType: InputType.Tag,
       placeholder: 'Add a tag',
     },
@@ -386,7 +421,7 @@ export const getAllSelectOptionsForBulkEditAssets = (): SelectOptionSelectedObje
   return [
     {
       selectOptionEnum: SelectOptionBulkEditAssets.Tags,
-      name: 'tags',
+      name: 'appendTags',
       inputType: InputType.Tag,
       placeholder: 'Add a tag',
     },
