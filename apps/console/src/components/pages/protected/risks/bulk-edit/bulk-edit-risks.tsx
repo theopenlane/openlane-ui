@@ -220,7 +220,7 @@ export const BulkEditRisksDialog: React.FC<BulkEditRisksDialogProps> = ({ select
                           </Select>
                         </div>
                       ) : item.selectedObject.inputType === InputType.Tag ? (
-                        <BulkEditTagField control={form.control} index={index} placeholder={item.selectedObject?.placeholder} />
+                        <BulkEditTagField control={form.control} name={`fieldsArray.${index}.selectedValue`} placeholder={item.selectedObject?.placeholder} />
                       ) : (
                         <div className="flex flex-col items-center gap-2">
                           <Controller

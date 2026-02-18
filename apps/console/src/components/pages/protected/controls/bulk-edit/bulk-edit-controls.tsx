@@ -232,7 +232,9 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
                         </div>
                       )
                     })()}
-                    {item.selectedObject && item.selectedObject.inputType === InputType.Tag && <BulkEditTagField control={form.control} index={index} placeholder={item.selectedObject?.placeholder} />}
+                    {item.selectedObject && item.selectedObject.inputType === InputType.Tag && (
+                      <BulkEditTagField control={form.control} name={`fieldsArray.${index}.selectedValue`} placeholder={item.selectedObject?.placeholder} />
+                    )}
                     <Button icon={<Trash2 />} iconPosition="center" variant="secondary" onClick={() => remove(index)} />
                   </div>
                 )
