@@ -119,7 +119,7 @@ const TagsCard: React.FC<TTagsCardProps> = ({ form, policy, isEditing, editAllow
           ) : (
             <HoverPencilWrapper
               showPencil={editAllowed}
-              className={`flex gap-2 flex-wrap ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+              className={`flex gap-2 flex-wrap w-full ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
               onPencilClick={() => {
                 if (!isEditing && editAllowed) {
                   setInternalEditing(true)
