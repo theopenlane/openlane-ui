@@ -3,6 +3,7 @@ import { Button } from '@repo/ui/button'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { InfoIcon, PanelRightClose, SearchIcon } from 'lucide-react'
 import { Control, SubmitHandler, useForm } from 'react-hook-form'
+import type { Resolver } from 'react-hook-form'
 import { infer as zInfer, z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
@@ -19,7 +20,7 @@ import { useCreateBulkInvite } from '@/lib/graphql-hooks/organization'
 import { useNotification } from '@/hooks/useNotification'
 import { useQueryClient } from '@tanstack/react-query'
 import { Tag } from 'emblor'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { TagInput } from '@repo/ui/tag-input'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@repo/ui/form'
@@ -68,9 +69,10 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
   const [pagination, setPagination] = useState<TPagination>(getInitialPagination(TableKeyEnum.MEMBERS_INVITE_SHEET, DEFAULT_PAGINATION))
   const [selectedGroups, setSelectedGroups] = useState<AllGroupsPaginatedFieldsFragment[]>([])
   const { data: permission, isLoading: isLoadingPermission } = useOrganizationRoles()
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
-    check: true,
-  })
+  const columnVisibility = useMemo<VisibilityState>(() => {
+    if (isLoadingPermission) return { check: true }
+    return { check: canEdit(permission?.roles) }
+  }, [isLoadingPermission, permission])
 
   const canInviteAdmins = canCreate(permission?.roles, AccessEnum.CanInviteAdmins)
 
@@ -94,17 +96,6 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
     return { and: whereFilters }
   }, [debouncedSearchQuery])
 
-  useEffect(() => {
-    if (!isLoadingPermission) {
-      const canEditPermission = canEdit(permission?.roles)
-
-      setColumnVisibility((prev) => ({
-        ...prev,
-        check: canEditPermission,
-      }))
-    }
-  }, [isLoadingPermission, permission])
-
   const { allGroups, isLoading } = useAllGroupsGrouped({ where: where as GroupWhereInput, enabled: isMemberSheetOpen, orderBy: orderByFilter })
 
   const pagedData = useMemo(() => {
@@ -113,7 +104,7 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
   }, [allGroups, pagination.page, pagination.pageSize])
 
   const form = useForm<FormData>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(formSchema) as Resolver<FormData>,
     defaultValues: {
       role: InviteRole.MEMBER,
     },

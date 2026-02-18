@@ -29,6 +29,7 @@ import {
   INSERT_CONTROL_PLATE_COMMENT,
   GET_CONTROL_DISCUSSION_BY_ID,
   UPDATE_CSV_BULK_CONTROL,
+  GET_EXISTING_CONTROLS_FOR_ORGANIZATION,
 } from '@repo/codegen/query/control'
 
 import {
@@ -83,6 +84,7 @@ import {
   InsertControlPlateCommentMutation,
   InsertControlPlateCommentMutationVariables,
   GetControlDiscussionByIdQuery,
+  GetExistingControlsForOrganizationQuery,
 } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql.ts'
@@ -590,5 +592,22 @@ export const useInsertControlPlateComment = () => {
     mutationFn: async (variables) => {
       return client.request(INSERT_CONTROL_PLATE_COMMENT, variables)
     },
+  })
+}
+
+export const useGetExistingOrgControls = ({ refCodeIn, referenceFrameworkIn, enabled = true }: { refCodeIn: string[]; referenceFrameworkIn?: string[]; enabled?: boolean }) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<GetExistingControlsForOrganizationQuery>({
+    queryKey: ['controls', 'existingOrg', refCodeIn, referenceFrameworkIn],
+    queryFn: () =>
+      client.request(GET_EXISTING_CONTROLS_FOR_ORGANIZATION, {
+        where: {
+          refCodeIn,
+          systemOwned: false,
+          ...(referenceFrameworkIn?.length && { referenceFrameworkIn }),
+        },
+      }),
+    enabled: enabled && refCodeIn.length > 0,
   })
 }

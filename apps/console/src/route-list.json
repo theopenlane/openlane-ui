@@ -1,25 +1,5 @@
 [
   {
-    "route": "/assets",
-    "name": "Assets",
-    "hidden": true
-  },
-  {
-    "route": "/assets/domains",
-    "name": "Domains",
-    "hidden": true
-  },
-  {
-    "route": "/assets/ip-addresses",
-    "name": "Ip Addresses",
-    "hidden": true
-  },
-  {
-    "route": "/assets/servers",
-    "name": "Servers",
-    "hidden": true
-  },
-  {
     "route": "/controls",
     "name": "Controls",
     "keywords": ["requirements"]
@@ -46,11 +26,6 @@
     "route": "/developers/personal-access-tokens",
     "name": "Developers",
     "keywords": ["pat", "personal access tokens", "api", "auth"]
-  },
-  {
-    "route": "/entities",
-    "name": "Entities",
-    "hidden": true
   },
   {
     "route": "/evidence",
@@ -87,10 +62,6 @@
   {
     "route": "/organization-settings/custom-data",
     "name": "Custom Data"
-  },
-  {
-    "route": "/organization-settings/developers",
-    "name": "Developers"
   },
   {
     "route": "/organization-settings/general-settings",
@@ -182,16 +153,6 @@
     "name": "Template Viewer"
   },
   {
-    "route": "/reporting",
-    "name": "Reporting",
-    "hidden": true
-  },
-  {
-    "route": "/reporting/compliance",
-    "name": "Compliance Reporting",
-    "hidden": true
-  },
-  {
     "route": "/risks",
     "name": "Risks"
   },
@@ -272,15 +233,6 @@
   {
     "route": "/user-settings",
     "name": "User Settings"
-  },
-  {
-    "route": "/user-settings/alerts-preferences",
-    "name": "Alerts Preferences",
-    "hidden": true
-  },
-  {
-    "route": "/user-settings/developers",
-    "name": "Developers"
   },
   {
     "route": "/user-settings/profile",

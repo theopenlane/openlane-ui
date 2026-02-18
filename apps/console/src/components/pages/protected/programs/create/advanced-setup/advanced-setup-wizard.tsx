@@ -59,10 +59,9 @@ export default function AdvancedSetupWizard() {
   const stepper = useStepper()
 
   const form = useForm<WizardValues>({
-    resolver: zodResolver(stepper.current.schema),
+    resolver: zodResolver(fullSchema),
     mode: 'onChange',
     defaultValues: {
-      programKindName: undefined,
       name: '',
       description: '',
       startDate: today,
