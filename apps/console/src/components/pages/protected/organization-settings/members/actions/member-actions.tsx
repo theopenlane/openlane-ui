@@ -130,16 +130,18 @@ export const MemberActions = ({ memberId, memberUserId, memberRole, memberName }
           <MoreVertical className={actionIcon()} />
         </div>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="min-w-[200px]">
+      <DropdownMenuContent>
         {memberRole === OrgMembershipRole.OWNER && memberUserId === userData?.user.id ? (
           <DropdownMenuGroup>
-            <TransferOwnershipDialog
-              trigger={
-                <div className="flex items-center gap-2 px-2 py-1.5 cursor-pointer text-sm hover:bg-muted">
-                  <UsersRound width={ICON_SIZE} /> Transfer Ownership
-                </div>
-              }
-            />
+            <DropdownMenuItem>
+              <TransferOwnershipDialog
+                trigger={
+                  <div className="flex gap-2 items-center">
+                    <UsersRound width={ICON_SIZE} /> Transfer Ownership
+                  </div>
+                }
+              />
+            </DropdownMenuItem>
           </DropdownMenuGroup>
         ) : (
           <>
