@@ -27,6 +27,7 @@ import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { CustomTypeEnumOptionChip, CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
+import { BulkEditTagField } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-tag-field'
 
 const fieldItemSchema = z.object({
   value: z.nativeEnum(SelectOptionBulkEditRisks).optional(),
@@ -46,7 +47,7 @@ const fieldItemSchema = z.object({
         .optional(),
     })
     .optional(),
-  selectedValue: z.string().optional(),
+  selectedValue: z.union([z.string(), z.array(z.string())]).optional(),
   selectedDate: z.date().nullable().optional(),
 })
 
@@ -111,7 +112,7 @@ export const BulkEditRisksDialog: React.FC<BulkEditRisksDialogProps> = ({ select
 
   const onSubmit = async () => {
     const ids = selectedRisks.map((risk) => risk.id)
-    const input: Record<string, string | boolean> = {}
+    const input: Record<string, string | string[] | boolean> = {}
     if (watchedFields.length === 0) return
 
     if (ids.length === 0) return
@@ -192,7 +193,7 @@ export const BulkEditRisksDialog: React.FC<BulkEditRisksDialogProps> = ({ select
                       (item.selectedObject.inputType === InputType.Select ? (
                         <div className="flex flex-col items-center gap-2">
                           <Select
-                            value={item.selectedValue}
+                            value={typeof item.selectedValue === 'string' ? item.selectedValue : undefined}
                             onValueChange={(value) =>
                               update(index, {
                                 ...item,
@@ -202,7 +203,11 @@ export const BulkEditRisksDialog: React.FC<BulkEditRisksDialogProps> = ({ select
                           >
                             <SelectTrigger className="w-60">
                               <SelectValue>
-                                <CustomTypeEnumValue value={item.selectedValue} options={item.selectedObject?.options || []} placeholder={item.selectedObject?.placeholder ?? ''} />
+                                <CustomTypeEnumValue
+                                  value={typeof item.selectedValue === 'string' ? item.selectedValue : undefined}
+                                  options={item.selectedObject?.options || []}
+                                  placeholder={item.selectedObject?.placeholder ?? ''}
+                                />
                               </SelectValue>
                             </SelectTrigger>
                             <SelectContent>
@@ -214,6 +219,8 @@ export const BulkEditRisksDialog: React.FC<BulkEditRisksDialogProps> = ({ select
                             </SelectContent>
                           </Select>
                         </div>
+                      ) : item.selectedObject.inputType === InputType.Tag ? (
+                        <BulkEditTagField control={form.control} index={index} placeholder={item.selectedObject?.placeholder} />
                       ) : (
                         <div className="flex flex-col items-center gap-2">
                           <Controller

@@ -116,10 +116,10 @@ export const SetAuditorDialog = () => {
         <div className="flex flex-col gap-4 mt-4">
           {errorMessages.length > 0 && <MessageBox className="p-4 ml-1" message={errorMessages.join(', ')} variant="error" />}
           <div className="flex flex-col gap-2">
-            <div>
+            <div className="flex items-center">
               <Label htmlFor="auditFirm">Firm</Label>
               <SystemTooltip
-                icon={<InfoIcon size={14} className="mx-1 mt-1" />}
+                icon={<InfoIcon size={14} className="mx-1" />}
                 content={
                   <p>
                     Enter the name of the firm responsible for conducting your audit or certification. This helps ensure accurate record-keeping, allows you to manage audit partners, and provides
@@ -132,20 +132,17 @@ export const SetAuditorDialog = () => {
           </div>
 
           <div className="flex flex-col gap-2">
-            <div>
+            <div className="flex items-center">
               <Label htmlFor="auditorName">Name</Label>
-              <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Enter the name of your primary contact at the audit firm (e.g. Amy Shields).</p>} />
+              <SystemTooltip icon={<InfoIcon size={14} className="mx-1" />} content={<p>Enter the name of your primary contact at the audit firm (e.g. Amy Shields).</p>} />
             </div>
             <Input id="auditorName" {...form.register('auditorName')} placeholder="Amy Shields" />
           </div>
 
           <div className="flex flex-col gap-2">
-            <div>
+            <div className="flex items-center">
               <Label htmlFor="auditorEmail">Email</Label>
-              <SystemTooltip
-                icon={<InfoIcon size={14} className="mx-1 mt-1" />}
-                content={<p>Enter the email address of your primary contact at the audit firm (e.g. amy.shields@securesphere.io).</p>}
-              />
+              <SystemTooltip icon={<InfoIcon size={14} className="mx-1" />} content={<p>Enter the email address of your primary contact at the audit firm (e.g. amy.shields@securesphere.io).</p>} />
             </div>
             <Input id="auditorEmail" {...form.register('auditorEmail')} placeholder="amy.shields@securesphere.io" />
           </div>

@@ -32,6 +32,7 @@ import ProgramsCreate from '../create/programs-page'
 import { COMPLIANCE_MANAGEMENT_DOCS_URL } from '@/constants/docs'
 import { ProgramSettingsAssignUserDialog } from '../[id]/settings/users/program-settings-assign-user-dialog'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { ProgramsDashboardSkeleton } from '../skeleton/programs-dashboard-skeleton'
 
 const ProgramsDashboardPage = () => {
   const [search, setSearch] = useState('')
@@ -42,7 +43,7 @@ const ProgramsDashboardPage = () => {
 
   const where: ProgramWhereInput = filterStatus === 'ACTIVE' ? { statusNEQ: ProgramProgramStatus.ARCHIVED } : { status: ProgramProgramStatus.ARCHIVED }
 
-  const { data, isSuccess } = useGetProgramDashboard({ where })
+  const { data, isSuccess, isLoading } = useGetProgramDashboard({ where })
 
   const programIds = (data?.programs.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? []
   const hasData = !!data?.programs?.edges && data.programs.edges.length > 0
@@ -93,6 +94,10 @@ const ProgramsDashboardPage = () => {
   useEffect(() => {
     setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Compliance' }, { label: 'Programs', href: '/programs' }])
   }, [setCrumbs])
+
+  if (isLoading) {
+    return <ProgramsDashboardSkeleton />
+  }
 
   if (!data?.programs.edges?.length && isSuccess && !search && filterStatus === 'ACTIVE') {
     return (

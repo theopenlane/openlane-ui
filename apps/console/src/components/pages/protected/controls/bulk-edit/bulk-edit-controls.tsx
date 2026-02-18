@@ -28,6 +28,7 @@ import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-butto
 import { controlIconsMap } from '@/components/shared/enum-mapper/control-enum'
 import { CustomTypeEnumOptionChip, CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { BulkEditTagField } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-tag-field'
 import { objectToSnakeCase } from '@/utils/strings'
 
 const fieldItemSchema = z.object({
@@ -48,7 +49,7 @@ const fieldItemSchema = z.object({
         .optional(),
     })
     .optional(),
-  selectedValue: z.string().optional(),
+  selectedValue: z.union([z.string(), z.array(z.string())]).optional(),
   selectedDate: z.date().nullable().optional(),
 })
 
@@ -103,7 +104,7 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
 
   const onSubmit = async () => {
     const ids = selectedControls.map((control) => control.id)
-    const input: Record<string, string> = {}
+    const input: Record<string, string | string[]> = {}
     if (watchedFields.length === 0) return
     if (ids.length === 0) return
 
@@ -185,7 +186,7 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
                     {item.selectedObject && item.selectedObject.inputType === InputType.Select && (
                       <div className="flex flex-col items-center gap-2">
                         <Select
-                          value={item.selectedValue}
+                          value={typeof item.selectedValue === 'string' ? item.selectedValue : undefined}
                           onValueChange={(value) =>
                             update(index, {
                               ...item,
@@ -195,7 +196,11 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
                         >
                           <SelectTrigger className="w-60">
                             <SelectValue placeholder={item.selectedObject?.placeholder}>
-                              <CustomTypeEnumValue value={item.selectedValue} options={item.selectedObject?.options || []} placeholder={item.selectedObject?.placeholder} />
+                              <CustomTypeEnumValue
+                                value={typeof item.selectedValue === 'string' ? item.selectedValue : undefined}
+                                options={item.selectedObject?.options || []}
+                                placeholder={item.selectedObject?.placeholder}
+                              />
                             </SelectValue>
                           </SelectTrigger>
                           <SelectContent>
@@ -227,6 +232,7 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
                         </div>
                       )
                     })()}
+                    {item.selectedObject && item.selectedObject.inputType === InputType.Tag && <BulkEditTagField control={form.control} index={index} placeholder={item.selectedObject?.placeholder} />}
                     <Button icon={<Trash2 />} iconPosition="center" variant="secondary" onClick={() => remove(index)} />
                   </div>
                 )

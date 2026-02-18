@@ -1,12 +1,12 @@
 'use client'
 
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { Card } from '@repo/ui/cardpanel'
-import { CircleUser, CircleArrowRight } from 'lucide-react'
+import { CircleUser, CircleArrowRight, Tag } from 'lucide-react'
 import { ControlControlSource, UpdateControlInput, UpdateSubcontrolInput } from '@repo/codegen/src/schema'
 
 import { Group } from '@repo/codegen/src/schema'
-import { Option } from '@repo/ui/multiple-selector'
+import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
 import { useGetAllGroups } from '@/lib/graphql-hooks/group'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { usePathname } from 'next/navigation'
@@ -20,6 +20,13 @@ import { MappedCategories } from './fields/mapped-categories'
 import { Status } from './fields/status'
 import { controlIconsMap } from '@/components/shared/enum-mapper/control-enum'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
+import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { canEdit as canEditCheck } from '@/lib/authz/utils'
+import useClickOutside from '@/hooks/useClickOutside'
+import useEscapeKey from '@/hooks/useEscapeKey'
+import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
+import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 import type { ControlByIdNode } from '@/lib/graphql-hooks/control'
 import type { SubcontrolByIdNode } from '@/lib/graphql-hooks/subcontrol'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
@@ -71,6 +78,53 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handle
       field: 'kind',
     },
   })
+
+  const { tagOptions } = useGetTags()
+  const { data: orgPermission } = useOrganizationRoles()
+  const canCreateTags = canEditCheck(orgPermission?.roles)
+
+  const [selectedTags, setSelectedTags] = useState<Option[]>([])
+
+  const dataTagsKey = (data?.tags ?? []).join(',')
+  useEffect(() => {
+    if (editingField !== 'tags') {
+      const tags = dataTagsKey ? dataTagsKey.split(',') : []
+      setSelectedTags(tags.map((t) => ({ value: t, label: t })))
+    }
+  }, [dataTagsKey, editingField])
+
+  const tagsRef = useClickOutside(() => {
+    if (editingField !== 'tags' || isEditing) return
+    const current = data?.tags ?? []
+    const next = selectedTags.map((t) => t.value)
+    const changed = current.length !== next.length || current.some((val) => !next.includes(val))
+
+    if (changed) {
+      handleUpdateAdapter({ tags: next } as UpdateControlInput)
+    }
+    setEditingField(null)
+  })
+
+  useEscapeKey(
+    () => {
+      setEditingField(null)
+      setSelectedTags((data?.tags ?? []).map((t) => ({ value: t, label: t })))
+    },
+    { enabled: editingField === 'tags' },
+  )
+
+  const prevIsEditingRef = React.useRef(isEditing)
+  useEffect(() => {
+    if (prevIsEditingRef.current && !isEditing) {
+      const current = data?.tags ?? []
+      const next = selectedTags.map((t) => t.value)
+      const changed = current.length !== next.length || current.some((val) => !next.includes(val))
+      if (changed) {
+        handleUpdateAdapter({ tags: next } as UpdateControlInput)
+      }
+    }
+    prevIsEditingRef.current = isEditing
+  }, [isEditing, data?.tags, handleUpdateAdapter, selectedTags])
 
   const options: Option[] = groups.map((g) => ({
     label: g?.displayName || g?.name || '',
@@ -182,6 +236,65 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handle
             fieldId="auditorReferenceID"
           />
         ) : null}
+
+        <div className={`flex justify-between items-start ${isEditing || editingField === 'tags' ? 'flex-col items-start' : ''}`}>
+          <div className="min-w-40">
+            <div className="grid grid-cols-[1fr_auto] items-center gap-2">
+              <div className="flex gap-2 items-center">
+                <Tag size={16} className="text-brand" />
+                <span className="text-sm">Tags</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid w-full items-center gap-2" ref={tagsRef}>
+            <div className="flex gap-2 items-center flex-wrap">
+              {isEditing || editingField === 'tags' ? (
+                <MultipleSelector
+                  options={tagOptions}
+                  hideClearAllButton
+                  className="w-full"
+                  placeholder="Add tag..."
+                  creatable={canCreateTags}
+                  value={selectedTags}
+                  onChange={(opts) => {
+                    setSelectedTags(opts)
+                  }}
+                />
+              ) : (
+                <HoverPencilWrapper
+                  showPencil={canEdit}
+                  className={`w-full flex gap-2 flex-wrap ${canEdit ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+                  onPencilClick={() => {
+                    if (!isEditing && canEdit) {
+                      setSelectedTags((data?.tags ?? []).map((t) => ({ value: t, label: t })))
+                      setEditingField('tags')
+                    }
+                  }}
+                >
+                  <div
+                    onDoubleClick={() => {
+                      if (!isEditing && canEdit) {
+                        setSelectedTags((data?.tags ?? []).map((t) => ({ value: t, label: t })))
+                        setEditingField('tags')
+                      }
+                    }}
+                  >
+                    {data?.tags?.length ? (
+                      <div className="flex gap-2 flex-wrap">
+                        {data.tags.map((tag) => (
+                          <TagChip key={tag} tag={tag} />
+                        ))}
+                      </div>
+                    ) : (
+                      <span className="text-muted-foreground text-sm italic">No tags</span>
+                    )}
+                  </div>
+                </HoverPencilWrapper>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
     </Card>
   )

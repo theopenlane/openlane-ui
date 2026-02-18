@@ -69,9 +69,8 @@ import ObjectAssociationProgramsChips from '@/components/shared/object-associati
 import ObjectAssociationControlsChips from '@/components/shared/object-association/object-association-controls-chips'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
-import { useGetSuggestedControlsOrSubcontrols } from '@/lib/graphql-hooks/control'
-import { buildWhere, CustomEvidenceControl, flattenAndFilterControls } from './evidence-sheet-config'
-import { useGetStandards } from '@/lib/graphql-hooks/standard'
+import { CustomEvidenceControl } from './evidence-sheet-config'
+import { useEvidenceSuggestedControls } from './hooks/use-evidence-suggested-controls'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 import EvidenceCommentsCard from './evidence-comment-card'
@@ -114,9 +113,6 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
   const [associationProgramsRefMap, setAssociationProgramsRefMap] = useState<string[]>([])
   const [openProgramsDialog, setOpenProgramsDialog] = useState(false)
-  const [suggestedControlsMap, setSuggestedControlsMap] = useState<
-    { id: string; refCode: string; referenceFramework: string | null; source: string; typeName: typeof ObjectTypes.CONTROL | typeof ObjectTypes.SUBCONTROL }[]
-  >([])
 
   const [evidenceControls, setEvidenceControls] = useState<CustomEvidenceControl[] | null>(null)
   const [evidenceSubcontrols, setEvidenceSubcontrols] = useState<CustomEvidenceControl[] | null>(null)
@@ -129,39 +125,11 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
     return { id, link: `${window.location.origin}${window.location.pathname}?id=${id}` }
   }, [controlEvidenceIdParam, id])
 
-  const where = useMemo(() => buildWhere(evidenceControls, evidenceSubcontrols), [evidenceControls, evidenceSubcontrols])
-
-  const { data: mappedControls } = useGetSuggestedControlsOrSubcontrols({
-    where: where,
-    enabled: !!where,
+  const { suggestedControlsMap, isLoading: isSuggestionsLoading } = useEvidenceSuggestedControls({
+    evidenceControls,
+    evidenceSubcontrols,
+    enabled: isEditing,
   })
-
-  const { data: standards } = useGetStandards({})
-
-  const standardNames = useMemo(() => new Set(standards?.standards?.edges?.flatMap((s) => (s?.node ? [s.node.shortName] : [])) ?? []), [standards])
-
-  /* eslint-disable react-hooks/set-state-in-effect */
-  useEffect(() => {
-    if (!where || !mappedControls || !standardNames.size) {
-      setSuggestedControlsMap([])
-      return
-    }
-
-    const items = flattenAndFilterControls(mappedControls, evidenceControls, evidenceSubcontrols)
-      .map((item) => ({
-        id: item.id,
-        refCode: item.refCode,
-        referenceFramework: item.referenceFramework ?? null,
-        source: item.source ?? '',
-        typeName: item.type,
-      }))
-      .filter((item) => item.referenceFramework && standardNames.has(item.referenceFramework))
-
-    const uniqueItems = Array.from(new Map(items.map((item) => [item.id, item])).values())
-
-    setSuggestedControlsMap(uniqueItems)
-  }, [where, mappedControls, evidenceControls, evidenceSubcontrols, standardNames])
-  /* eslint-enable react-hooks/set-state-in-effect */
 
   const { data, isLoading: fetching } = useGetEvidenceById(config.id)
 
@@ -188,7 +156,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
   const evidenceName = evidence?.name
   const statusOptions = EvidenceStatusOptions
 
-  const { form } = useFormSchema()
+  const { form } = useFormSchema(true)
 
   const triggerRef = useRef<HTMLDivElement>(null)
   const popoverRef = useRef<HTMLDivElement>(null)
@@ -341,7 +309,8 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
     const associationInputs = getAssociationInput(initialAssociations, updatedAssociations)
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars -- destructured to exclude from cleanFormData
-    const { programIDs: _programIDs, controlIDs: _controlIDs, subcontrolIDs: _subcontrolIDs, ...cleanFormData } = formData
+    const { programIDs: _programIDs, controlIDs: _controlIDs, subcontrolIDs: _subcontrolIDs, ...restFormData } = formData
+    const cleanFormData = form.formState.dirtyFields.renewalDate ? restFormData : Object.fromEntries(Object.entries(restFormData).filter(([key]) => key !== 'renewalDate'))
 
     try {
       const collectionProcedure = formData.collectionProcedure && typeof formData.collectionProcedure !== 'string' ? await convertToHtml(formData.collectionProcedure) : formData.collectionProcedure
@@ -1020,6 +989,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                             <ObjectAssociationControlsChips
                               form={form}
                               suggestedControlsMap={suggestedControlsMap}
+                              isLoadingSuggestions={isSuggestionsLoading}
                               evidenceControls={evidenceControls}
                               setEvidenceControls={setEvidenceControls}
                               evidenceSubcontrols={evidenceSubcontrols}

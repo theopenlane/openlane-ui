@@ -7,7 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Value } from 'platejs'
 import type { TUploadedFile } from '../upload/types/TUploadedFile'
 
-const formSchema = z.object({
+const commonFields = {
   name: z.string().min(2, {
     message: 'Name must be at least 2 characters',
   }),
@@ -18,7 +18,6 @@ const formSchema = z.object({
     .default(() => new Date())
     .optional()
     .nullable(),
-  renewalDate: z.date().min(new Date(), { message: 'Renewal date must be in the future' }).optional().nullable(),
   evidenceFiles: z.array(z.custom<TUploadedFile>()).optional(),
   url: z
     .union([z.string().url(), z.literal('')])
@@ -43,30 +42,39 @@ const formSchema = z.object({
     })
     .optional()
     .nullable(),
+}
+
+const createFormSchema = z.object({
+  ...commonFields,
+  renewalDate: z.date().min(new Date(), { message: 'Renewal date must be in the future' }).optional().nullable(),
 })
 
-export type CreateEvidenceFormInput = z.input<typeof formSchema>
-export type CreateEvidenceFormData = z.output<typeof formSchema>
-export type EditEvidenceFormData = CreateEvidenceFormData
+const editFormSchema = z.object({
+  ...commonFields,
+  renewalDate: z.date().optional().nullable(),
+})
+
+export type CreateEvidenceFormInput = z.input<typeof createFormSchema>
+export type CreateEvidenceFormData = z.output<typeof createFormSchema>
+export type EditEvidenceFormData = z.infer<typeof editFormSchema>
 export type CreateEvidenceFormMethods = UseFormReturn<CreateEvidenceFormInput, undefined, CreateEvidenceFormData>
 
-const useFormSchema = () => {
-  const form = useForm<CreateEvidenceFormInput, undefined, CreateEvidenceFormData>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: '',
-      description: '',
-      creationDate: new Date(),
-      tags: [],
-      evidenceFiles: [],
-      source: '',
-      fileIDs: [],
-      renewalDate: addDays(new Date(), 365),
-    },
-  })
-
+const useFormSchema = (isEditScreen?: boolean) => {
+  const schema = isEditScreen ? editFormSchema : createFormSchema
   return {
-    form,
+    form: useForm<CreateEvidenceFormInput, undefined, CreateEvidenceFormData>({
+      resolver: zodResolver(schema),
+      defaultValues: {
+        name: '',
+        description: '',
+        creationDate: new Date(),
+        tags: [],
+        evidenceFiles: [],
+        source: '',
+        fileIDs: [],
+        ...(isEditScreen ? {} : { renewalDate: addDays(new Date(), 365) }),
+      },
+    }),
   }
 }
 
