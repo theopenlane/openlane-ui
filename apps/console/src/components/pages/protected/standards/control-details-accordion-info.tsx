@@ -23,7 +23,7 @@ export interface ExampleEvidence {
 
 interface AccordionInfoProps {
   implementationGuidance: { referenceId: string; guidance: string[] }[] | null | undefined
-  testingProcedures: string[] | null | undefined
+  testingProcedures: { referenceId: string; procedures: string[] }[] | null | undefined
   exampleEvidence: ExampleEvidence[] | null | undefined
   controlQuestions: string[] | null | undefined
   assessmentMethods: AssessmentMethod[] | string | string[] | null | undefined
@@ -57,16 +57,19 @@ const AccordionInfo: React.FC<AccordionInfoProps> = ({ implementationGuidance, t
         {
           label: 'Testing procedures',
           hasData: !!testingProcedures?.length,
-          render: () =>
-            testingProcedures?.length ? (
-              <ul className="rich-text text-sm text-muted-foreground">
-                {testingProcedures.map((p, i) => (
-                  <li key={i} dangerouslySetInnerHTML={{ __html: p }} />
-                ))}
-              </ul>
-            ) : (
-              <p className="text-sm text-muted-foreground">No testing procedures provided.</p>
-            ),
+          render: () => (
+            <div className="space-y-4">
+              {testingProcedures!.map(({ referenceId, procedures }, idx) => (
+                <div key={`${referenceId}-${idx}`} className="rich-text text-sm text-muted-foreground">
+                  <ul>
+                    {procedures.map((p, i) => (
+                      <li key={i} dangerouslySetInnerHTML={{ __html: p.trim() }} />
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          ),
         },
         {
           label: 'Evidence Requests',
@@ -158,7 +161,7 @@ const AccordionInfo: React.FC<AccordionInfoProps> = ({ implementationGuidance, t
               <div className="flex items-center gap-2">
                 <span className="text-base font-medium">{item.label}</span>
               </div>
-              <ChevronDown size={22} className="text-brand transform rotate-[-90deg] transition-transform group-data-[state=open]:rotate-0" />
+              <ChevronDown size={22} className="text-brand transform -rotate-90 transition-transform group-data-[state=open]:rotate-0" />
             </button>
           </AccordionTrigger>
           <AccordionContent className="pt-2">{item.render()}</AccordionContent>
