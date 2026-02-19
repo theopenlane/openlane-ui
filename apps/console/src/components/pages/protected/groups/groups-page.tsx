@@ -94,6 +94,8 @@ const GroupsPage = () => {
   }, [])
 
   const whereFilter = useMemo(() => {
+    const searchClause: GroupWhereInput[] = debouncedSearchQuery ? [{ or: [{ nameContainsFold: debouncedSearchQuery }, { displayNameContainsFold: debouncedSearchQuery }] }] : []
+
     const mapCustomKey = (key: string, value: unknown): GroupWhereInput => {
       if (key === 'visibilityIn') {
         return {
@@ -127,20 +129,20 @@ const GroupsPage = () => {
                 },
               ],
             },
+            ...searchClause,
           ],
-          nameContainsFold: debouncedSearchQuery,
         } as GroupWhereInput
       } else {
         return {
-          nameContainsFold: debouncedSearchQuery,
+          ...(searchClause.length > 0 ? { and: searchClause } : {}),
         } as GroupWhereInput
       }
     }
 
     const conditions: GroupWhereInput = {
       ...baseWhere,
-      nameContainsFold: debouncedSearchQuery,
       ...(hasIsManagedFilter ? {} : { isManaged: false }),
+      ...(searchClause.length > 0 ? { and: [...(baseWhere.and || []), ...searchClause] } : {}),
     }
 
     return conditions

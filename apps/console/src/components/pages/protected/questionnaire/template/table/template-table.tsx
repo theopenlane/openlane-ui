@@ -67,12 +67,17 @@ export const TemplatesTable = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const debouncedSearch = useDebounce(searchTerm, 300)
 
-  const whereFilter = useMemo(() => {
-    return {
-      nameContainsFold: debouncedSearch,
+  const whereFilter: TemplateWhereInput = useMemo(() => {
+    const base: TemplateWhereInput = {
       kindNotIn: [TemplateTemplateKind.TRUSTCENTER_NDA],
       ...filters,
     }
+
+    if (debouncedSearch) {
+      base.and = [...(base.and || []), { or: [{ nameContainsFold: debouncedSearch }, { descriptionContainsFold: debouncedSearch }] }]
+    }
+
+    return base
   }, [filters, debouncedSearch])
 
   const {

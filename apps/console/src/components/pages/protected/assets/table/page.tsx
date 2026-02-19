@@ -47,6 +47,7 @@ const AssetPage: React.FC = () => {
       defaultSorting={[{ field: AssetOrderField.name, direction: OrderDirection.ASC }]}
       defaultVisibility={visibilityFields}
       filterFields={getFilterFields()}
+      searchFields={['nameContainsFold', 'descriptionContainsFold']}
       breadcrumbs={breadcrumbs}
       form={form}
       getColumns={getAssetColumns}

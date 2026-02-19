@@ -52,6 +52,7 @@ const EntityPage: React.FC = () => {
       orderFieldEnum={EntityOrderField}
       defaultSorting={[{ field: EntityOrderField.name, direction: OrderDirection.ASC }]}
       defaultVisibility={{}}
+      searchFields={['displayNameContainsFold', 'descriptionContainsFold']}
       breadcrumbs={breadcrumbs}
       form={form}
       getColumns={getVendorColumns}
