@@ -58,4 +58,6 @@ export const TASK_SORT_FIELDS = [
     label: 'Due Date',
   },
   { key: 'STATUS', label: 'Status' },
+  { key: 'created_at', label: 'Created At' },
+  { key: 'updated_at', label: 'Updated At' },
 ]

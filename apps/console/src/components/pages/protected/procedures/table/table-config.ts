@@ -123,5 +123,6 @@ export const PROCEDURES_SORTABLE_FIELDS = [
   },
   { key: 'review_due', label: 'Review Due Date' },
   { key: 'revision', label: 'Revision' },
+  { key: 'created_at', label: 'Created At' },
   { key: 'updated_at', label: 'Last Updated' },
 ]
