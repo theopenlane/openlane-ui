@@ -185,11 +185,15 @@ export const QuestionnairePage: React.FC<QuestionnairePageProps> = ({ token }) =
     const handleResendLink = async () => {
       if (!decoded?.assessment_id || !decoded?.email) return
 
-      await resendLink.mutateAsync({
-        assessmentId: decoded.assessment_id,
-        email: decoded.email,
-      })
-      setLinkResent(true)
+      try {
+        await resendLink.mutateAsync({
+          assessmentId: decoded.assessment_id,
+          email: decoded.email,
+        })
+        setLinkResent(true)
+      } catch {
+        // error notification already handled by the hook from the mutation
+      }
     }
 
     return (
