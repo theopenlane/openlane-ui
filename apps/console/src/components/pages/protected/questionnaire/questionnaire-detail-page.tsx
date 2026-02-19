@@ -6,7 +6,7 @@ import { PageHeading } from '@repo/ui/page-heading'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { Button } from '@repo/ui/button'
-import { Users, CheckCircle, Calendar, Send, FileText, Download } from 'lucide-react'
+import { Users, CheckCircle, Calendar, Send, FileText, Download, Eye, Pencil, Trash2 } from 'lucide-react'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useAssessmentRecipientsTotalCount, useAssessmentResponsesTotalCount, useGetAssessmentDetail } from '@/lib/graphql-hooks/assessment'
 import { formatDate } from '@/utils/date'
@@ -30,6 +30,12 @@ import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { GET_ASSESSMENT_DETAIL } from '@repo/codegen/query/assessment'
 import { useNotification } from '@/hooks/useNotification'
 import { TableKeyEnum } from '@repo/ui/table-key'
+import { useDeleteAssessment } from '@/lib/graphql-hooks/assessment'
+import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { canDelete, canEdit } from '@/lib/authz/utils'
+import Menu from '@/components/shared/menu/menu'
 
 type DetailTabValue = 'delivery' | 'responses'
 const DEFAULT_TAB: DetailTabValue = 'delivery'
@@ -84,12 +90,15 @@ const QuestionnaireDetailPage = () => {
   const searchParams = useSearchParams()
   const { setCrumbs } = React.useContext(BreadcrumbContext)
   const { client } = useGraphQLClient()
-  const { errorNotification } = useNotification()
+  const { errorNotification, successNotification } = useNotification()
   const { assessment, responses, isLoading } = useGetAssessmentDetail({ id })
   const [deliveryFilters, setDeliveryFilters] = useState<WhereCondition>({})
   const [deliveryTotalCount, setDeliveryTotalCount] = useState(0)
   const [isExportingDelivery, setIsExportingDelivery] = useState(false)
   const [isSendDialogOpen, setIsSendDialogOpen] = useState(false)
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const { mutateAsync: deleteAssessment } = useDeleteAssessment()
+  const { data: permission } = useOrganizationRoles()
 
   const deliveryWhereFilter = useMemo(
     () =>
@@ -289,9 +298,33 @@ const QuestionnaireDetailPage = () => {
         eyebrow="Questionnaires"
         heading={assessment.name}
         actions={
-          <Button type="button" icon={<Send />} iconPosition="left" onClick={() => setIsSendDialogOpen(true)}>
-            Send
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button type="button" icon={<Send />} iconPosition="left" onClick={() => setIsSendDialogOpen(true)}>
+              Send
+            </Button>
+            <Menu
+              content={
+                <>
+                  <Button size="sm" variant="transparent" className="flex justify-start space-x-2" onClick={() => router.push(`/questionnaires/questionnaire-viewer?id=${id}`)}>
+                    <Eye size={16} strokeWidth={2} />
+                    <span>Preview</span>
+                  </Button>
+                  {canEdit(permission?.roles) && (
+                    <Button size="sm" variant="transparent" className="flex justify-start space-x-2" onClick={() => router.push(`/questionnaires/questionnaire-editor?id=${id}`)}>
+                      <Pencil size={16} strokeWidth={2} />
+                      <span>Edit</span>
+                    </Button>
+                  )}
+                  {canDelete(permission?.roles) && (
+                    <Button size="sm" variant="transparent" className="flex justify-start space-x-2" onClick={() => setIsDeleteDialogOpen(true)}>
+                      <Trash2 size={16} strokeWidth={2} />
+                      <span>Delete</span>
+                    </Button>
+                  )}
+                </>
+              }
+            />
+          </div>
         }
       />
 
@@ -348,6 +381,27 @@ const QuestionnaireDetailPage = () => {
       </Tabs>
 
       <SendQuestionnaireDialog open={isSendDialogOpen} onOpenChange={setIsSendDialogOpen} assessmentId={id} assessmentName={assessment?.name} responseDueDuration={assessment?.responseDueDuration} />
+
+      <ConfirmationDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+        onConfirm={async () => {
+          try {
+            await deleteAssessment({ deleteAssessmentId: id })
+            successNotification({ title: 'Questionnaire deleted successfully' })
+            router.push('/questionnaires')
+          } catch (error) {
+            const errorMessage = parseErrorMessage(error)
+            errorNotification({ title: 'Error', description: errorMessage })
+          }
+        }}
+        title="Delete Questionnaire"
+        description={
+          <>
+            This action cannot be undone. This will permanently remove <b>{assessment.name}</b> from the organization.
+          </>
+        }
+      />
     </>
   )
 }
