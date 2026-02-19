@@ -41,7 +41,7 @@ const AccordionInfo: React.FC<AccordionInfoProps> = ({ implementationGuidance, t
             implementationGuidance?.length ? (
               <div className="space-y-4">
                 {implementationGuidance.map(({ referenceId, guidance }) => (
-                  <div key={referenceId} className="rich-text text-sm text-muted-foreground">
+                  <div key={referenceId} className="rich-text text-sm text-muted-foreground pb-2">
                     <ul>
                       {guidance.map((g, i) => (
                         <li key={i} dangerouslySetInnerHTML={{ __html: g.trim() }} />
