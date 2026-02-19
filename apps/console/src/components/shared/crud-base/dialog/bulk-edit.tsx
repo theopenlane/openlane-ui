@@ -106,9 +106,9 @@ export function GenericBulkEditDialog<T extends { id: string }>({ selectedItems,
     const ids = selectedItems.map((item) => item.id)
     const input: Record<string, string | Date | boolean | null> = {}
 
-    if (watchedFields.length === 0 || ids.length === 0) return
+    if (fields.length === 0 || ids.length === 0) return
 
-    watchedFields.forEach((field) => {
+    fields.forEach((field) => {
       const key = field.selectedConfig?.name
 
       if (key && field?.selectedValue && field?.fieldKey) {
@@ -158,7 +158,7 @@ export function GenericBulkEditDialog<T extends { id: string }>({ selectedItems,
                 <div key={item.id} className="flex items-center gap-2 w-full">
                   <div className="flex flex-col items-start gap-2">
                     <Select
-                      value={watchedFields[index]?.fieldKey || undefined}
+                      value={fields[index]?.fieldKey || undefined}
                       onValueChange={(value) => {
                         const selectedConfig = fieldConfigs.find((config) => config.key === value)
                         update(index, {
@@ -174,7 +174,7 @@ export function GenericBulkEditDialog<T extends { id: string }>({ selectedItems,
                       </SelectTrigger>
                       <SelectContent>
                         {fieldConfigs.map((config) => (
-                          <SelectItem key={config.key} value={config.key} disabled={fields.some((f, i) => watchedFields[i]?.fieldKey === config.key && i !== index)}>
+                          <SelectItem key={config.key} value={config.key} disabled={fields.some((f, i) => fields[i]?.fieldKey === config.key && i !== index)}>
                             {config.label}
                           </SelectItem>
                         ))}
@@ -189,10 +189,10 @@ export function GenericBulkEditDialog<T extends { id: string }>({ selectedItems,
                           control={control}
                           render={() => (
                             <Select
-                              value={watchedFields[index]?.selectedValue as string | undefined}
+                              value={fields[index]?.selectedValue as string | undefined}
                               onValueChange={(value) =>
                                 update(index, {
-                                  ...watchedFields[index],
+                                  ...fields[index],
                                   selectedValue: value,
                                 })
                               }
