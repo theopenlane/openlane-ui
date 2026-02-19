@@ -11,24 +11,22 @@ import { useState } from 'react'
 import { Plus } from 'lucide-react'
 import { InternalEditingType } from '../generic-sheet'
 
-interface SelectFieldProps {
+interface SelectFieldProps<TUpdateInput> {
   name: string
   label: string
   isEditing: boolean
   isEditAllowed: boolean
   isCreate?: boolean
   data?: FieldValues | undefined
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  options: Array<{ value: string; label: string; [key: string]: any }>
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  handleUpdate?: (input: any) => Promise<void>
+  options: Array<{ label: string; value: string }>
+  handleUpdate?: (input: TUpdateInput) => Promise<void>
   internalEditing: string | null
   setInternalEditing: InternalEditingType
   onCreateOption?: (value: string) => Promise<void>
   useCustomDisplay?: boolean
 }
 
-export const SelectField: React.FC<SelectFieldProps> = ({
+export const SelectField = <TUpdateInput,>({
   name,
   label,
   isEditing,
@@ -41,7 +39,7 @@ export const SelectField: React.FC<SelectFieldProps> = ({
   setInternalEditing,
   onCreateOption,
   useCustomDisplay = true,
-}) => {
+}: SelectFieldProps<TUpdateInput>) => {
   const { control } = useFormContext()
   const rawValue = data?.[name]
   const [showCreateInput, setShowCreateInput] = useState(false)
@@ -75,7 +73,7 @@ export const SelectField: React.FC<SelectFieldProps> = ({
                 onValueChange={async (val) => {
                   field.onChange(val)
                   if (handleUpdate) {
-                    await Promise.resolve(handleUpdate({ [name]: val }))
+                    await Promise.resolve(handleUpdate({ [name]: val } as unknown as TUpdateInput))
                   }
                   setInternalEditing(null)
                 }}

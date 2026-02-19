@@ -43,8 +43,7 @@ interface GenericBulkEditDialogProps<T extends { id: string }> {
   setSelectedItems: React.Dispatch<React.SetStateAction<T[]>>
   fieldConfigs: BulkEditFieldConfig[]
   bulkEditMutation: {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    mutateAsync: (params: { ids: string[]; input: Record<string, any> }) => Promise<any>
+    mutateAsync: <TUpdateInput>(params: { ids: string[]; input: TUpdateInput }) => Promise<void>
   }
   entityLabel: ObjectNames
 }
@@ -80,18 +79,17 @@ export function GenericBulkEditDialog<T extends { id: string }>({ selectedItems,
     },
   })
 
-  const { control, handleSubmit, watch } = form
-
-  const watchedFields = watch('fieldsArray') || []
-  const hasFieldsToUpdate = watchedFields.some(
-    (field) => (field.selectedConfig && field.selectedValue) || field.selectedConfig?.inputType === InputType.Input || field.selectedConfig?.inputType === InputType.Date,
-  )
+  const { control, handleSubmit } = form
 
   const { fields, append, update, replace, remove } = useFieldArray({
     control,
     name: 'fieldsArray',
     rules: { maxLength: fieldConfigs.length },
   })
+
+  const hasFieldsToUpdate = fields.some(
+    (field) => (field.selectedConfig && field.selectedValue) || field.selectedConfig?.inputType === InputType.Input || field.selectedConfig?.inputType === InputType.Date,
+  )
 
   useEffect(() => {
     if (open) {

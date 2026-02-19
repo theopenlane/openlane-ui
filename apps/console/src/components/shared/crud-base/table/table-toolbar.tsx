@@ -18,13 +18,13 @@ import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { TableKeyValue } from '@repo/ui/table-key'
 import { TableFilter } from '../../table-filter/table-filter'
 import { FilterField } from '@/types'
+import type { WhereCondition } from '@/types'
 
-type GenericTableToolbarProps<T extends { id: string }> = {
+type GenericTableToolbarProps<T extends { id: string }, TWhereInput> = {
   entityType: ObjectTypes
   handleExport: () => void
   filterFields?: FilterField[] | undefined
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onFilterChange?: (filters: any | null) => void
+  onFilterChange?: (filters: TWhereInput | null) => void
   columnVisibility?: VisibilityState
   setColumnVisibility?: React.Dispatch<React.SetStateAction<VisibilityState>>
   mappedColumns: {
@@ -45,7 +45,7 @@ type GenericTableToolbarProps<T extends { id: string }> = {
   renderBulkEdit?: (props: { selectedItems: T[]; setSelectedItems: React.Dispatch<React.SetStateAction<T[]>> }) => React.ReactNode
 }
 
-function GenericTableToolbar<T extends { id: string }>(props: GenericTableToolbarProps<T>) {
+function GenericTableToolbar<T extends { id: string }, TWhereInput>(props: GenericTableToolbarProps<T, TWhereInput>) {
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)
 
   const { successNotification, errorNotification } = useNotification()
@@ -159,7 +159,7 @@ function GenericTableToolbar<T extends { id: string }>(props: GenericTableToolba
               {props.mappedColumns && props.columnVisibility && props.setColumnVisibility && (
                 <ColumnVisibilityMenu mappedColumns={props.mappedColumns} columnVisibility={props.columnVisibility} setColumnVisibility={props.setColumnVisibility} storageKey={props.storageKey} />
               )}
-              {props.filterFields && <TableFilter filterFields={props.filterFields} onFilterChange={props.onFilterChange} pageKey={props.storageKey} />}
+              {props.filterFields && <TableFilter filterFields={props.filterFields} onFilterChange={props.onFilterChange as (whereCondition: WhereCondition) => void} pageKey={props.storageKey} />}
               {props.canEdit(props.permission?.roles) && (
                 <Button icon={<PlusCircle />} iconPosition="left" onClick={openCreateSheet}>
                   Create

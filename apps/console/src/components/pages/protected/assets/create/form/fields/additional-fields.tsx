@@ -7,6 +7,8 @@ import { FieldValues } from 'react-hook-form'
 import { InternalEditingType } from '@/components/shared/crud-base/generic-sheet'
 import { EnumOptions } from '../../../table/types'
 
+import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@repo/ui/cardpanel'
+
 interface AdditionalFieldsProps {
   isEditing: boolean
   isEditAllowed: boolean
@@ -30,44 +32,116 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <SelectField name="assetType" label="Type" options={enumOptions.assetTypeOptions} {...sharedFieldProps} />
+    <div className="space-y-6">
+      {/* General Information */}
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-md p-0">General Information</CardTitle>
+          <CardDescription className="p-0">Display name, identifier, and website for the asset.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-2">
+            <TextField name="displayName" label="Display Name" {...sharedFieldProps} />
+            <TextField name="identifier" label="Identifier" {...sharedFieldProps} />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            <TextField name="website" label="Website" type="text" {...sharedFieldProps} />
+          </div>
+        </CardContent>
+      </Card>
 
-      <SelectField name="assetSubtypeName" label="Subtype" options={enumOptions.assetSubtypeOptions} {...sharedFieldProps} />
+      {/* Type & Subtype */}
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-md p-0">Type & Subtype</CardTitle>
+          <CardDescription className="p-0">Asset type and subtype information.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            <SelectField name="assetType" label="Type" options={enumOptions.assetTypeOptions} {...sharedFieldProps} />
+            <SelectField name="assetSubtypeName" label="Subtype" options={enumOptions.assetSubtypeOptions} {...sharedFieldProps} />
+          </div>
+        </CardContent>
+      </Card>
 
-      <SelectField name="environmentName" label="Environment" options={enumOptions.environmentOptions} {...sharedFieldProps} />
+      {/* Classification & Security */}
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-md p-0">Classification & Security</CardTitle>
+          <CardDescription className="p-0">How the asset is classified and secured.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-2">
+            <SelectField name="assetDataClassificationName" label="Data Classification" options={enumOptions.assetDataClassificationOptions} {...sharedFieldProps} />
+            <SelectField name="securityTierName" label="Security Tier" options={enumOptions.securityTierOptions} {...sharedFieldProps} />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            <SelectField name="encryptionStatusName" label="Encryption Status" options={enumOptions.encryptionStatusOptions} {...sharedFieldProps} />
+            <SelectField name="criticalityName" label="Criticality" options={enumOptions.criticalityOptions} {...sharedFieldProps} />
+          </div>
+        </CardContent>
+      </Card>
 
-      <SelectField name="criticalityName" label="Criticality" options={enumOptions.criticalityOptions} {...sharedFieldProps} />
+      {/* Source */}
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-md p-0">Source</CardTitle>
+          <CardDescription className="p-0">Origin details for the asset.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-2">
+            <SelectField name="sourceType" label="Source Type" options={enumOptions.assetSourceTypeOptions} {...sharedFieldProps} />
+            <TextField name="sourceIdentifier" label="Source Identifier" {...sharedFieldProps} />
+          </div>
+        </CardContent>
+      </Card>
 
-      <SelectField name="sourceType" label="Source Type" options={enumOptions.assetSourceTypeOptions} {...sharedFieldProps} />
+      {/* Audit Scope */}
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-md p-0">Audit Scope</CardTitle>
+          <CardDescription className="p-0">Where and how the asset is used for audit purposes.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-2">
+            <SelectField name="environmentName" label="Environment" options={enumOptions.environmentOptions} {...sharedFieldProps} />
+            <SelectField name="scopeName" label="Scope" options={enumOptions.scopeOptions} {...sharedFieldProps} />
+          </div>
+        </CardContent>
+      </Card>
 
-      <TextField name="sourceIdentifier" label="Source Identifier" {...sharedFieldProps} />
+      {/* Location */}
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-md p-0">Location</CardTitle>
+          <CardDescription className="p-0">Where the asset is physically or regionally located.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-2">
+            <TextField name="physicalLocation" label="Physical Location" {...sharedFieldProps} />
+            <TextField name="region" label="Region" {...sharedFieldProps} />
+          </div>
+        </CardContent>
+      </Card>
 
-      <SelectField name="scopeName" label="Scope" options={enumOptions.scopeOptions} {...sharedFieldProps} />
-
-      <TextField name="identifier" label="Identifier" {...sharedFieldProps} />
-
-      <TextField name="physicalLocation" label="Physical Location" {...sharedFieldProps} />
-
-      <TextField name="region" label="Region" {...sharedFieldProps} />
-
-      <SelectField name="assetDataClassificationName" label="Data Classification" options={enumOptions.assetDataClassificationOptions} {...sharedFieldProps} />
-
-      <SelectField name="securityTierName" label="Security Tier" options={enumOptions.securityTierOptions} {...sharedFieldProps} />
-
-      <SelectField name="encryptionStatusName" label="Encryption Status" options={enumOptions.encryptionStatusOptions} {...sharedFieldProps} />
-
-      <SelectField name="accessModelName" label="Access Model" options={enumOptions.accessModelOptions} {...sharedFieldProps} />
-
-      <TextField name="costCenter" label="Cost Center" {...sharedFieldProps} />
-
-      <TextField name="cpe" label="CPE (Common Platform Enumeration)" {...sharedFieldProps} />
-
-      <TextField name="estimatedMonthlyCost" label="Estimated Monthly Cost" type="number" {...sharedFieldProps} />
-
-      <TextField name="purchaseDate" label="Purchase Date" type="date" {...sharedFieldProps} />
-
-      <TextField name="website" label="Website" type="text" {...sharedFieldProps} />
+      {/* Access & Cost */}
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-md p-0">Access & Cost</CardTitle>
+          <CardDescription className="p-0">Access model and financial details.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-2">
+            <SelectField name="accessModelName" label="Access Model" options={enumOptions.accessModelOptions} {...sharedFieldProps} />
+            <TextField name="costCenter" label="Cost Center" {...sharedFieldProps} />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            <TextField name="estimatedMonthlyCost" label="Estimated Monthly Cost" type="currency" {...sharedFieldProps} />
+            <TextField name="cpe" label="CPE (Common Platform Enumeration)" {...sharedFieldProps} />
+            <TextField name="purchaseDate" label="Purchase Date" type="date" {...sharedFieldProps} />
+          </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }

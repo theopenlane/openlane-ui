@@ -163,15 +163,29 @@ export const visibilityFields = {
 
 export const getFieldsToRender = (props: AssetFieldProps, enumOptions: EnumOptions) => {
   return (
-    <>
-      <NameField
-        isEditing={props.isEditing}
-        isEditAllowed={props.isEditAllowed}
-        initialValue={props.isCreate ? '' : props.data?.name ?? ''}
-        internalEditing={props.internalEditing}
-        setInternalEditing={props.setInternalEditing}
-        handleUpdateField={props.handleUpdateField}
-      />
+    <div className="mr-6">
+      <div className="flex flex-row items-center mb-6">
+        <div className="min-w-[300px]">
+          <NameField
+            isEditing={props.isEditing}
+            isEditAllowed={props.isEditAllowed}
+            initialValue={props.isCreate ? '' : props.data?.name ?? ''}
+            internalEditing={props.internalEditing}
+            setInternalEditing={props.setInternalEditing}
+            handleUpdateField={props.handleUpdateField}
+          />
+        </div>
+        <div className="ml-20 mt-6">
+          <Properties
+            isEditing={props.isEditing}
+            isEditAllowed={props.isEditAllowed}
+            data={props.data as AssetQuery['asset'] | undefined}
+            internalEditing={props.internalEditing}
+            setInternalEditing={props.setInternalEditing}
+            handleUpdateField={props.handleUpdateField}
+          />
+        </div>
+      </div>
       <DescriptionField
         key={props.isCreate ? 'create-description' : `${props.data?.id}-description`}
         isEditing={props.isEditing}
@@ -188,14 +202,6 @@ export const getFieldsToRender = (props: AssetFieldProps, enumOptions: EnumOptio
         handleUpdateField={props.handleUpdateField}
         enumOptions={enumOptions}
       />
-      <Properties
-        isEditing={props.isEditing}
-        isEditAllowed={props.isEditAllowed}
-        data={props.data as AssetQuery['asset'] | undefined}
-        internalEditing={props.internalEditing}
-        setInternalEditing={props.setInternalEditing}
-        handleUpdateField={props.handleUpdateField}
-      />
-    </>
+    </div>
   )
 }

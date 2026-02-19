@@ -1,6 +1,6 @@
 'use client'
 import { z } from 'zod'
-import { useForm } from 'react-hook-form'
+import { useForm, Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Value } from 'platejs'
 import { AssetAssetType, AssetSourceType } from '@repo/codegen/src/schema'
@@ -39,7 +39,7 @@ export type EditAssetFormData = z.infer<typeof formSchema>
 const useFormSchema = () => {
   return {
     form: useForm<CreateAssetFormData>({
-      resolver: zodResolver(formSchema),
+      resolver: zodResolver(formSchema) as Resolver<CreateAssetFormData>,
       defaultValues: {},
     }),
   }

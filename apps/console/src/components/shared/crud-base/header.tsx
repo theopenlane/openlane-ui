@@ -53,7 +53,7 @@ export const GenericSheetHeader = ({ close, isEditing, isCreate, setIsEditing, i
     <SheetHeader>
       <div className="flex items-center justify-between">
         {!isCreate ? <PanelRightClose aria-label="Close detail sheet" size={16} className="cursor-pointer" onClick={close} /> : <div className="h-6" />}
-        <div className="flex justify-end gap-2">
+        <div className="flex justify-end gap-2 mr-6">
           {!isCreate && (
             <Button icon={<LinkIcon />} iconPosition="left" variant="secondary" onClick={handleCopyLink}>
               Copy link

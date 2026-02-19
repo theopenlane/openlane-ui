@@ -1,19 +1,12 @@
 import { ColumnDef, Row } from '@tanstack/react-table'
-import { User } from '@repo/codegen/src/schema'
 import { Avatar } from '@/components/shared/avatar/avatar.tsx'
 import { formatDate } from '@/utils/date'
 import { Checkbox } from '@repo/ui/checkbox'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 import { AssetsNodeNonNull } from '@/lib/graphql-hooks/asset'
+import { ColumnOptions } from '@/components/shared/crud-base/page'
 
-type ColumnOptions = {
-  userMap: Record<string, User>
-  convertToReadOnly?: (data: string, padding?: number, style?: React.CSSProperties) => React.JSX.Element
-  selectedItems: AssetsNodeNonNull[]
-  setSelectedItems: React.Dispatch<React.SetStateAction<AssetsNodeNonNull[]>>
-}
-
-export const getColumns = ({ userMap, convertToReadOnly, selectedItems, setSelectedItems }: ColumnOptions): ColumnDef<AssetsNodeNonNull>[] => {
+export const getColumns = ({ userMap, convertToReadOnly, selectedItems, setSelectedItems }: ColumnOptions<AssetsNodeNonNull>): ColumnDef<AssetsNodeNonNull>[] => {
   const toggleSelection = (asset: AssetsNodeNonNull) => {
     setSelectedItems((prev) => {
       const exists = prev.some((c) => c.id === asset.id)

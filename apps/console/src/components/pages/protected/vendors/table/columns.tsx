@@ -1,18 +1,11 @@
 import { ColumnDef, Row } from '@tanstack/react-table'
-import { User } from '@repo/codegen/src/schema'
 import { Avatar } from '@/components/shared/avatar/avatar.tsx'
 import { formatDate } from '@/utils/date'
 import { Checkbox } from '@repo/ui/checkbox'
 import { EntitiesNodeNonNull } from '@/lib/graphql-hooks/entity'
+import { ColumnOptions } from '@/components/shared/crud-base/page'
 
-type ColumnOptions = {
-  userMap: Record<string, User>
-  convertToReadOnly?: (data: string, padding?: number, style?: React.CSSProperties) => React.JSX.Element
-  selectedItems: EntitiesNodeNonNull[]
-  setSelectedItems: React.Dispatch<React.SetStateAction<EntitiesNodeNonNull[]>>
-}
-
-export const getColumns = ({ userMap, convertToReadOnly, selectedItems, setSelectedItems }: ColumnOptions): ColumnDef<EntitiesNodeNonNull>[] => {
+export const getColumns = ({ userMap, convertToReadOnly, selectedItems, setSelectedItems }: ColumnOptions<EntitiesNodeNonNull>): ColumnDef<EntitiesNodeNonNull>[] => {
   const toggleSelection = (vendor: { id: string }) => {
     setSelectedItems((prev) => {
       const exists = prev.some((c) => c.id === vendor.id)

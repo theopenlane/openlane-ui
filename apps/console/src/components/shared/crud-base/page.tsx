@@ -22,9 +22,17 @@ import { GenericTableToolbar } from '@/components/shared/crud-base/table/table-t
 import { TableKeyValue } from '@repo/ui/table-key'
 import { TAccessRole, TPermissionData } from '@/types/authz'
 import { FilterField } from '@/types'
+import { User } from '@repo/codegen/src/schema'
 
 type TOrderByInput = { field: string; direction?: OrderDirection }[] | undefined
 type TOrderFieldEnum<TField> = Record<string, TField> | TField[]
+
+export type ColumnOptions<TEntity> = {
+  userMap: Record<string, User>
+  convertToReadOnly?: (data: string, padding?: number, style?: React.CSSProperties) => React.JSX.Element
+  selectedItems: TEntity[]
+  setSelectedItems: React.Dispatch<React.SetStateAction<TEntity[]>>
+}
 
 export interface TTableProps<TEntity extends { id: string }, TWhereInput> {
   ref?: React.Ref<HTMLDivElement>
@@ -65,8 +73,7 @@ export interface GenericTablePageConfig<TEntity extends { id: string }, TFormDat
   form: UseFormReturn<TFormData>
 
   // Columns
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  getColumns: (params: any) => ColumnDef<TEntity>[]
+  getColumns: (params: ColumnOptions<TEntity>) => ColumnDef<TEntity>[]
 
   // Table Component
   TableComponent: React.ComponentType<TTableProps<TEntity, TWhereInput>>
@@ -180,8 +187,8 @@ export function GenericTablePage<
 
   const mappedColumns = getColumns({
     userMap: emptyUserMap,
-    selectedAssets: selectedItems,
-    setSelectedAssets: setSelectedItems,
+    selectedItems,
+    setSelectedItems,
   })
     .filter(
       (
@@ -235,7 +242,7 @@ export function GenericTablePage<
     <>
       <ToolbarToUse
         entityType={objectType}
-        onFilterChange={setFilters}
+        onFilterChange={(filters) => setFilters(filters as TWhereInput)}
         handleClearSelected={handleClearSelected}
         handleExport={handleExportFile}
         mappedColumns={mappedColumns}
