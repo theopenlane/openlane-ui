@@ -160,9 +160,11 @@ function GenericTableToolbar<T extends { id: string }>(props: GenericTableToolba
                 <ColumnVisibilityMenu mappedColumns={props.mappedColumns} columnVisibility={props.columnVisibility} setColumnVisibility={props.setColumnVisibility} storageKey={props.storageKey} />
               )}
               {props.filterFields && <TableFilter filterFields={props.filterFields} onFilterChange={props.onFilterChange} pageKey={props.storageKey} />}
-              <Button icon={<PlusCircle />} iconPosition="left" onClick={openCreateSheet}>
-                Create
-              </Button>
+              {props.canEdit(props.permission?.roles) && (
+                <Button icon={<PlusCircle />} iconPosition="left" onClick={openCreateSheet}>
+                  Create
+                </Button>
+              )}
             </>
           )}
         </div>

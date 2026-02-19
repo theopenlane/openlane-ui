@@ -8,15 +8,15 @@ import { EntitiesNodeNonNull } from '@/lib/graphql-hooks/entity'
 type ColumnOptions = {
   userMap: Record<string, User>
   convertToReadOnly?: (data: string, padding?: number, style?: React.CSSProperties) => React.JSX.Element
-  selectedVendors: { id: string }[]
-  setSelectedVendors: React.Dispatch<React.SetStateAction<{ id: string }[]>>
+  selectedItems: EntitiesNodeNonNull[]
+  setSelectedItems: React.Dispatch<React.SetStateAction<EntitiesNodeNonNull[]>>
 }
 
-export const getVendorColumns = ({ userMap, convertToReadOnly, selectedVendors, setSelectedVendors }: ColumnOptions): ColumnDef<EntitiesNodeNonNull>[] => {
+export const getColumns = ({ userMap, convertToReadOnly, selectedItems, setSelectedItems }: ColumnOptions): ColumnDef<EntitiesNodeNonNull>[] => {
   const toggleSelection = (vendor: { id: string }) => {
-    setSelectedVendors((prev) => {
-      const exists = prev.some((v) => v.id === vendor.id)
-      return exists ? prev.filter((v) => v.id !== vendor.id) : [...prev, vendor]
+    setSelectedItems((prev) => {
+      const exists = prev.some((c) => c.id === vendor.id)
+      return exists ? prev.filter((c) => c.id !== vendor.id) : [...prev, vendor]
     })
   }
 
@@ -25,7 +25,7 @@ export const getVendorColumns = ({ userMap, convertToReadOnly, selectedVendors, 
       id: 'select',
       header: ({ table }) => {
         const currentPageVendors = table.getRowModel().rows.map((row) => row.original)
-        const allSelected = currentPageVendors.every((vendor) => selectedVendors?.some((sv) => sv.id === vendor.id))
+        const allSelected = currentPageVendors.every((vendor) => selectedItems?.some((sv) => sv.id === vendor.id))
 
         return (
           <div onClick={(e) => e.stopPropagation()}>
@@ -33,10 +33,10 @@ export const getVendorColumns = ({ userMap, convertToReadOnly, selectedVendors, 
               checked={allSelected}
               onCheckedChange={(checked: boolean) => {
                 const newSelections = checked
-                  ? [...selectedVendors.filter((sv) => !currentPageVendors.some((v) => v.id === sv.id)), ...currentPageVendors.map((v) => ({ id: v.id }))]
-                  : selectedVendors.filter((sv) => !currentPageVendors.some((v) => v.id === sv.id))
+                  ? [...selectedItems.filter((sv) => !currentPageVendors.some((v) => v.id === sv.id)), ...currentPageVendors.map((v) => ({ id: v.id }))]
+                  : selectedItems.filter((sv) => !currentPageVendors.some((v) => v.id === sv.id))
 
-                setSelectedVendors(newSelections)
+                setSelectedItems(newSelections)
               }}
             />
           </div>
@@ -44,7 +44,7 @@ export const getVendorColumns = ({ userMap, convertToReadOnly, selectedVendors, 
       },
       cell: ({ row }: { row: Row<EntitiesNodeNonNull> }) => {
         const { id } = row.original
-        const isChecked = selectedVendors?.some((v) => v.id === id)
+        const isChecked = selectedItems?.some((v) => v.id === id)
 
         return (
           <div onClick={(e) => e.stopPropagation()}>

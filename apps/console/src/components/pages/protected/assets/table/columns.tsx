@@ -9,13 +9,13 @@ import { AssetsNodeNonNull } from '@/lib/graphql-hooks/asset'
 type ColumnOptions = {
   userMap: Record<string, User>
   convertToReadOnly?: (data: string, padding?: number, style?: React.CSSProperties) => React.JSX.Element
-  selectedAssets: { id: string }[]
-  setSelectedAssets: React.Dispatch<React.SetStateAction<{ id: string }[]>>
+  selectedItems: AssetsNodeNonNull[]
+  setSelectedItems: React.Dispatch<React.SetStateAction<AssetsNodeNonNull[]>>
 }
 
-export const getAssetColumns = ({ userMap, convertToReadOnly, selectedAssets, setSelectedAssets }: ColumnOptions): ColumnDef<AssetsNodeNonNull>[] => {
-  const toggleSelection = (asset: { id: string }) => {
-    setSelectedAssets((prev) => {
+export const getColumns = ({ userMap, convertToReadOnly, selectedItems, setSelectedItems }: ColumnOptions): ColumnDef<AssetsNodeNonNull>[] => {
+  const toggleSelection = (asset: AssetsNodeNonNull) => {
+    setSelectedItems((prev) => {
       const exists = prev.some((c) => c.id === asset.id)
       return exists ? prev.filter((c) => c.id !== asset.id) : [...prev, asset]
     })
@@ -25,7 +25,7 @@ export const getAssetColumns = ({ userMap, convertToReadOnly, selectedAssets, se
       id: 'select',
       header: ({ table }) => {
         const currentPageAssets = table.getRowModel().rows.map((row) => row.original)
-        const allSelected = currentPageAssets.every((asset) => selectedAssets.some((sc) => sc.id === asset.id))
+        const allSelected = currentPageAssets.every((asset) => selectedItems.some((sc) => sc.id === asset.id))
 
         return (
           <div onClick={(e) => e.stopPropagation()}>
@@ -33,10 +33,10 @@ export const getAssetColumns = ({ userMap, convertToReadOnly, selectedAssets, se
               checked={allSelected}
               onCheckedChange={(checked: boolean) => {
                 const newSelections = checked
-                  ? [...selectedAssets.filter((sc) => !currentPageAssets.some((c) => c.id === sc.id)), ...currentPageAssets.map((c) => ({ id: c.id }))]
-                  : selectedAssets.filter((sc) => !currentPageAssets.some((c) => c.id === sc.id))
+                  ? [...selectedItems.filter((sc) => !currentPageAssets.some((c) => c.id === sc.id)), ...currentPageAssets]
+                  : selectedItems.filter((sc) => !currentPageAssets.some((c) => c.id === sc.id))
 
-                setSelectedAssets(newSelections)
+                setSelectedItems(newSelections)
               }}
             />
           </div>
@@ -44,11 +44,11 @@ export const getAssetColumns = ({ userMap, convertToReadOnly, selectedAssets, se
       },
       cell: ({ row }: { row: Row<AssetsNodeNonNull> }) => {
         const { id } = row.original
-        const isChecked = selectedAssets.some((c) => c.id === id)
+        const isChecked = selectedItems.some((c) => c.id === id)
 
         return (
           <div onClick={(e) => e.stopPropagation()}>
-            <Checkbox checked={isChecked} onCheckedChange={() => toggleSelection({ id })} />
+            <Checkbox checked={isChecked} onCheckedChange={() => toggleSelection(row.original)} />
           </div>
         )
       },
