@@ -7,12 +7,12 @@ import { Badge } from '@repo/ui/badge'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader } from '@repo/ui/cardpanel'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { Logo } from '@repo/ui/logo'
-import { AVAILABLE_INTEGRATIONS, getIntegrationId, IntegrationNode } from './config'
+import { getInstalledIntegrationConfig, IntegrationNode, IntegrationProvider } from './config'
 import { useDisconnectIntegration } from '@/lib/graphql-hooks/integration'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 
-const InstalledIntegrationCard = ({ integration }: { integration: IntegrationNode }) => {
+const InstalledIntegrationCard = ({ integration, providers }: { integration: IntegrationNode; providers: IntegrationProvider[] }) => {
   const disconnectMutation = useDisconnectIntegration()
   const [confirmOpen, setConfirmOpen] = useState(false)
 
@@ -21,8 +21,7 @@ const InstalledIntegrationCard = ({ integration }: { integration: IntegrationNod
     setConfirmOpen(false)
   }
 
-  const integrationId = getIntegrationId(integration.name)
-  const integrationConfig = AVAILABLE_INTEGRATIONS.find((ai) => ai.id === integrationId)
+  const integrationConfig = getInstalledIntegrationConfig(integration.name, providers)
 
   return (
     <>

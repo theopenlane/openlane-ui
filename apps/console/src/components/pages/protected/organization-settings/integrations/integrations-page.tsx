@@ -1,6 +1,6 @@
 'use client'
 import { PageHeading } from '@repo/ui/page-heading'
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect, useRef, useState } from 'react'
 import IntegrationsToolbar from './integrations-toolbar'
 import { useGetIntegrations } from '@/lib/graphql-hooks/integration'
 import { IntegrationsGrid } from './integrations-grid'
@@ -12,37 +12,39 @@ import ProtectedArea from '@/components/shared/protected-area/protected-area'
 import { Loading } from '@/components/shared/loading/loading'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { useIntegrationProviders } from '@/lib/query-hooks/integrations'
 
 const IntegrationsPage = () => {
-  const [activeTab, setActiveTab] = useState<IntegrationTab>('Available')
+  const searchParams = useSearchParams()
+  const [activeTab, setActiveTab] = useState<IntegrationTab>(() => (searchParams.get('status') === 'success' ? 'Installed' : 'Available'))
   const { data, isLoading: integrationsLoading } = useGetIntegrations({ where: {} })
+  const { data: providersData, isLoading: providersLoading } = useIntegrationProviders()
   const { setCrumbs } = useContext(BreadcrumbContext)
 
   const { data: orgPermission, isLoading } = useOrganizationRoles()
   const editAllowed = canEdit(orgPermission?.roles)
 
   const { successNotification, errorNotification } = useNotification()
-  const searchParams = useSearchParams()
   const router = useRouter()
 
-  const [handled, setHandled] = useState(false)
+  const handledRef = useRef(false)
 
   useEffect(() => {
     const provider = searchParams.get('provider')
     const status = searchParams.get('status')
     const message = searchParams.get('message')
-    if (handled || !provider || !status) return
+    if (handledRef.current || !provider || !status) return
+
+    handledRef.current = true
 
     if (status === 'success') {
       successNotification({ title: 'Integration Connected', description: message ?? `Successfully connected ${provider}` })
-      setActiveTab('Installed')
     } else {
       errorNotification({ title: 'Integration Failed', description: message ?? `Failed to connect ${provider}` })
     }
 
     router.replace('/organization-settings/integrations')
-    setHandled(true)
-  }, [successNotification, errorNotification, router, handled, searchParams])
+  }, [successNotification, errorNotification, router, searchParams])
 
   useEffect(() => {
     setCrumbs([
@@ -52,7 +54,7 @@ const IntegrationsPage = () => {
     ])
   }, [setCrumbs])
 
-  if (isLoading && integrationsLoading) {
+  if (isLoading && integrationsLoading && providersLoading) {
     return <Loading />
   }
   return (
@@ -63,7 +65,7 @@ const IntegrationsPage = () => {
       ) : (
         <>
           <IntegrationsToolbar activeTab={activeTab} setActiveTab={setActiveTab} installedCount={data?.integrations.edges?.length} />
-          <IntegrationsGrid integrations={data?.integrations} activeTab={activeTab} />
+          <IntegrationsGrid integrations={data?.integrations} activeTab={activeTab} providers={providersData?.providers ?? []} />
         </>
       )}
     </div>
