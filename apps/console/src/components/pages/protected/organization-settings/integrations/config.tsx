@@ -25,12 +25,16 @@ export type AvailableIntegrationNode = {
 export type IntegrationProvider = {
   name: string
   displayName: string
-  description: string
+  category: string
   authType: string
   active: boolean
-  scopes: string[]
-  tags: string[]
+  logoUrl?: string
   docsUrl: string
+  oauth?: {
+    scopes?: string[]
+    [key: string]: unknown
+  }
+  labels?: Record<string, string>
 }
 
 export type IntegrationProvidersResponse = {
@@ -48,16 +52,17 @@ function getProviderIcon(name: string): React.JSX.Element {
 
 export function toAvailableIntegration(provider: IntegrationProvider): AvailableIntegrationNode {
   const id = provider.name.toLowerCase()
+  const tags: string[] = [provider.category, ...Object.values(provider.labels ?? {})].filter(Boolean)
   return {
     id,
     name: provider.displayName,
-    tags: provider.tags ?? [],
-    description: provider.description,
+    tags,
+    description: '',
     Icon: getProviderIcon(id),
     docsUrl: provider.docsUrl || `${PLATFORM_DOCS_URL}/integrations/${id}`,
     connectRequestBody: JSON.stringify({
       provider: provider.name,
-      scopes: provider.scopes,
+      scopes: provider.oauth?.scopes ?? [],
     }),
   }
 }

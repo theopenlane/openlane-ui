@@ -20,7 +20,7 @@ export function IntegrationsGrid({ integrations, activeTab, providers }: Integra
   const installedNames = integrations?.edges?.map((edge) => edge?.node?.name?.toLowerCase()).filter((n): n is string => !!n) ?? []
 
   const availableIntegrations = providers
-    .filter((p) => p.authType === 'oauth' && p.active)
+    .filter((p) => p.active)
     .map(toAvailableIntegration)
     .filter((ai) => !installedNames.some((installed) => installed.includes(ai.name.toLowerCase())))
 
