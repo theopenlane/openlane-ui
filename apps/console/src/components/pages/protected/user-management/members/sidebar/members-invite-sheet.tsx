@@ -255,7 +255,8 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
                                 setInvalidEmail(null)
                                 return true
                               }}
-                              setTags={(newTags: Tag[]) => {
+                              setTags={(newTags) => {
+                                if (typeof newTags === 'function') return
                                 const emailTags = newTags.map((tag) => tag.text)
                                 setEmails(newTags)
                                 setValue('emails', emailTags)

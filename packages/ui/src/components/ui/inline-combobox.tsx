@@ -158,7 +158,7 @@ const InlineCombobox = ({ children, element, filter = defaultFilter, hideWhenNoV
   )
 }
 
-const InlineComboboxInput = React.forwardRef<HTMLInputElement, React.HTMLAttributes<HTMLInputElement>>(({ className, ...props }, propRef) => {
+const InlineComboboxInput = ({ className, ref: propRef, ...props }: React.HTMLAttributes<HTMLInputElement> & { ref?: React.Ref<HTMLInputElement> }) => {
   const { inputProps, inputRef: contextRef, showTrigger, trigger } = React.useContext(InlineComboboxContext)
 
   const store = useComboboxContext()!
@@ -186,9 +186,7 @@ const InlineComboboxInput = React.forwardRef<HTMLInputElement, React.HTMLAttribu
       </span>
     </>
   )
-})
-
-InlineComboboxInput.displayName = 'InlineComboboxInput'
+}
 
 const InlineComboboxContent: typeof ComboboxPopover = ({ className, ...props }) => {
   // Portal prevents CSS from leaking into popover

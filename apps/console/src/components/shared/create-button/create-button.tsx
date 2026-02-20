@@ -9,6 +9,7 @@ import {
   AlertTriangle,
   Users,
   type LucideIcon,
+  type LucideProps,
   Pencil,
   ShieldCheck,
   Fingerprint,
@@ -51,9 +52,11 @@ type CreateType =
   | 'vendor'
   | 'personnel'
 
+type SvgIcon = React.FC<LucideProps & { ref?: React.Ref<SVGSVGElement> }>
+
 type RegistryItem = {
   label: string
-  icon: LucideIcon
+  icon: LucideIcon | SvgIcon
 }
 
 const CREATE_REGISTRY: Record<CreateType, RegistryItem> = {
@@ -85,8 +88,8 @@ export type CreateButtonProps = {
   href?: string
   onClick?: React.MouseEventHandler<HTMLButtonElement>
   ariaLabel?: string
-  leftIcon?: LucideIcon
-  rightIcon?: LucideIcon
+  leftIcon?: LucideIcon | SvgIcon
+  rightIcon?: LucideIcon | SvgIcon
   leftIconSize?: number
   className?: string
   disabled?: boolean
