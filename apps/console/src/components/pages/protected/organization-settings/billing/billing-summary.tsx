@@ -187,7 +187,6 @@ const BillingSummary = ({ stripeCustomerId, activePriceIds, nextPhaseStart }: Pr
             {currentInterval && (
               <div className="flex flex-col">
                 <p className="text-base">
-                  {/* <span className="text-sm font-medium">Interval:</span> {currentInterval.charAt(0).toUpperCase() + currentInterval.slice(1)}{' '} */}
                   <span className="font-medium text-base w-28 inline-block mr-2">Upcoming cost</span> {formattedFutureCost} / {currentInterval}
                 </p>
                 {hasDiscount && (
