@@ -96,6 +96,39 @@
     "name": "Procedures"
   },
   {
+    "route": "/workflows",
+    "name": "Workflows",
+    "keywords": ["automation", "approvals", "workflow definitions"]
+  },
+  {
+    "route": "/workflows/templates",
+    "name": "Workflow Templates",
+    "keywords": ["automation", "templates", "workflow presets"]
+  },
+  {
+    "route": "/workflows/inbox",
+    "name": "Workflow Inbox",
+    "keywords": ["approvals", "inbox", "workflow assignments"]
+  },
+  {
+    "route": "/workflows/instances",
+    "name": "Workflow Instances",
+    "keywords": ["automation", "instances", "workflow runs"]
+  },
+  {
+    "route": "/workflows/wizard",
+    "name": "Workflow Wizard",
+    "keywords": ["automation", "wizard", "workflow builder"]
+  },
+  {
+    "route": "/workflows/editor",
+    "name": "Workflow Editor"
+  },
+  {
+    "route": "/workflows/definitions",
+    "name": "Workflow Definition"
+  },
+  {
     "route": "/procedures/create",
     "name": "Create Procedure"
   },

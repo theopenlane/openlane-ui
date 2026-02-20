@@ -80,6 +80,7 @@ import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { ObjectWorkflowPanel } from '@/components/workflows/object-workflow-panel'
 
 type TEvidenceDetailsSheet = {
   controlId?: string
@@ -519,6 +520,11 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
           <>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="pr-4">
+                {config.id && (
+                  <div className="mb-4">
+                    <ObjectWorkflowPanel objectId={config.id} objectType="Evidence" objectLabel={evidence?.name} />
+                  </div>
+                )}
                 {isEditing || editField === 'name' ? (
                   <FormField
                     control={form.control}
