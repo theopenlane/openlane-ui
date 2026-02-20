@@ -45,6 +45,10 @@ import {
   CircleHelp,
   ClipboardPenLine,
   IdCard,
+  Sparkles,
+  Inbox,
+  Activity,
+  NotebookPen,
 } from 'lucide-react'
 import { type NavHeading, type NavItem, type Separator } from '@/types'
 import { PlanEnum } from '@/lib/subscription-plan/plan-enum.ts'
@@ -135,7 +139,7 @@ export const topNavigationItems = (session: Session | null): (NavItem | Separato
       ],
     },
     {
-      title: 'Trust center',
+      title: 'Trust Center',
       plan: PlanEnum.TRUST_CENTER_MODULE,
       href: '/trust-center',
       icon: Handshake,
@@ -244,6 +248,36 @@ export const topNavigationItems = (session: Session | null): (NavItem | Separato
           title: 'Assessments',
           href: '/automation/assessments',
           icon: ClipboardPenLine,
+          plan: PlanEnum.COMPLIANCE_MODULE,
+        },
+        {
+          title: 'Workflow Definitions',
+          href: '/workflows',
+          icon: NotebookPen,
+          plan: PlanEnum.COMPLIANCE_MODULE,
+        },
+        {
+          title: 'Workflow Inbox',
+          href: '/workflows/inbox',
+          icon: Inbox,
+          plan: PlanEnum.COMPLIANCE_MODULE,
+        },
+        {
+          title: 'Workflow Instances',
+          href: '/workflows/instances',
+          icon: Activity,
+          plan: PlanEnum.COMPLIANCE_MODULE,
+        },
+        {
+          title: 'Workflow Templates',
+          href: '/workflows/templates',
+          icon: Workflow,
+          plan: PlanEnum.COMPLIANCE_MODULE,
+        },
+        {
+          title: 'Workflow Wizard',
+          href: '/workflows/wizard',
+          icon: Sparkles,
           plan: PlanEnum.COMPLIANCE_MODULE,
         },
       ],

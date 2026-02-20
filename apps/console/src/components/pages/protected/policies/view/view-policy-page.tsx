@@ -45,6 +45,7 @@ import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import LinkedProcedures from './fields/linked-procedures'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { ObjectWorkflowPanel } from '@/components/workflows/object-workflow-panel'
 
 type TViewPolicyPage = {
   policyId: string

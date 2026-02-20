@@ -50,6 +50,9 @@ import QuickActions from '@/components/pages/protected/controls/quick-actions/qu
 import TaskDetailsSheet from '@/components/pages/protected/tasks/create-task/sidebar/task-details-sheet'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { SaveButton } from '@/components/shared/save-button/save-button.tsx'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button.tsx'
+import { ObjectWorkflowPanel } from '@/components/workflows/object-workflow-panel'
 
 interface FormValues {
   refCode: string
