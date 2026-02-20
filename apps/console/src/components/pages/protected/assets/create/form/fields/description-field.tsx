@@ -60,9 +60,13 @@ const DescriptionField: React.FC<DescriptionFieldProps> = ({ isEditing, isCreate
         <label htmlFor="description" className="block text-lg my-1 font-semibold">
           Description
         </label>
-        <div className={'min-h-5'}>
-          <PlateEditor toolbarClassName="-mt-20" placeholder="No description set" key={JSON.stringify(initialValue)} initialValue={initialValue} readonly={true} variant="readonly" />
-        </div>
+        {initialValue ? (
+          <div className="min-h-5 pb-4">
+            <PlateEditor toolbarClassName="-mt-20" placeholder="No description set" key={JSON.stringify(initialValue)} initialValue={initialValue} readonly={true} variant="readonly" />
+          </div>
+        ) : (
+          <p className="text-muted-foreground italic pb-4">No description set</p>
+        )}
       </div>
     )
   )

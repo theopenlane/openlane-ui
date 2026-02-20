@@ -12,7 +12,7 @@ import {
   NotificationPreferenceQuery,
   NotificationPreferenceQueryVariables,
   CreateBulkCsvNotificationPreferenceMutation,
-  CreateBulkCsvTaskMutationVariables,
+  CreateBulkCsvNotificationPreferenceMutationVariables,
   UpdateBulkNotificationPreferenceMutation,
   UpdateBulkNotificationPreferenceMutationVariables,
   DeleteBulkNotificationPreferenceMutation,
@@ -107,7 +107,7 @@ export const useNotificationPreference = (notificationPreferenceId?: Notificatio
 
 export const useCreateBulkCSVNotificationPreference = () => {
   const { queryClient } = useGraphQLClient()
-  return useMutation<CreateBulkCsvNotificationPreferenceMutation, unknown, CreateBulkCsvTaskMutationVariables>({
+  return useMutation<CreateBulkCsvNotificationPreferenceMutation, unknown, CreateBulkCsvNotificationPreferenceMutationVariables>({
     mutationFn: async (variables) => fetchGraphQLWithUpload({ query: CREATE_CSV_BULK_NOTIFICATION_PREFERENCE, variables }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notificationPreferences'] })

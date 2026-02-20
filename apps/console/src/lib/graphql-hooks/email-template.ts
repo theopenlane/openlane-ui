@@ -12,7 +12,7 @@ import {
   EmailTemplateQuery,
   EmailTemplateQueryVariables,
   CreateBulkCsvEmailTemplateMutation,
-  CreateBulkCsvTaskMutationVariables,
+  CreateBulkCsvEmailTemplateMutationVariables,
   UpdateBulkEmailTemplateMutation,
   UpdateBulkEmailTemplateMutationVariables,
   DeleteBulkEmailTemplateMutation,
@@ -107,7 +107,7 @@ export const useEmailTemplate = (emailTemplateId?: EmailTemplateQueryVariables['
 
 export const useCreateBulkCSVEmailTemplate = () => {
   const { queryClient } = useGraphQLClient()
-  return useMutation<CreateBulkCsvEmailTemplateMutation, unknown, CreateBulkCsvTaskMutationVariables>({
+  return useMutation<CreateBulkCsvEmailTemplateMutation, unknown, CreateBulkCsvEmailTemplateMutationVariables>({
     mutationFn: async (variables) => fetchGraphQLWithUpload({ query: CREATE_CSV_BULK_EMAIL_TEMPLATE, variables }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['emailTemplates'] })

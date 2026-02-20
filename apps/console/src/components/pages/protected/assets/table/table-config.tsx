@@ -134,7 +134,7 @@ export const visibilityFields = {
   description: false,
   accessModelName: false,
   assetDataClassificationName: false,
-  assetSubtypeName: true,
+  assetSubtypeName: false,
   assetType: true,
   costCenter: false,
   cpe: false,

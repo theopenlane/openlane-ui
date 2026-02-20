@@ -23,7 +23,7 @@ const NameField: React.FC<NameFieldProps> = ({ isEditing, isEditAllowed = true, 
     <div className={className}>
       <div className="flex items-center mb-1">
         <span className="font-medium">Name</span>
-        <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Provide a descriptive name of the vendor</p>} />
+        <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Provide a unique descriptive name of the vendor</p>} />
       </div>
       <TextField
         name="name"

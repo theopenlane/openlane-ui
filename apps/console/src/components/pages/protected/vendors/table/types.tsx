@@ -24,7 +24,7 @@ export const orderFieldEnum = EntityOrderField
 export const defaultSorting = [{ field: EntityOrderField.name, direction: OrderDirection.ASC }]
 
 type EntityEnumKeys =
-  | 'entityRelationshipStateOptions'
+  | 'relationshipStateOptions'
   | 'securityQuestionnaireStatusOptions'
   | 'environmentOptions'
   | 'scopeOptions'

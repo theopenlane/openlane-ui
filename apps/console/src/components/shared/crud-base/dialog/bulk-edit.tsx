@@ -201,7 +201,6 @@ export function GenericBulkEditDialog<T extends { id: string }, TUpdateInput>({
                       </Select>
                     </div>
                     {selectOptions ? (
-                      // Render select
                       <Controller
                         control={control}
                         name={`fieldsArray.${index}.selectedValue`}
@@ -233,6 +232,23 @@ export function GenericBulkEditDialog<T extends { id: string }, TUpdateInput>({
                               if (date) field.onChange(new Date(date))
                             }}
                           />
+                        )}
+                      />
+                    ) : innerZodType instanceof z.ZodBoolean ? (
+                      // Render boolean select
+                      <Controller
+                        control={control}
+                        name={`fieldsArray.${index}.selectedValue`}
+                        render={({ field }) => (
+                          <Select value={field.value === undefined ? undefined : String(field.value)} onValueChange={(val) => field.onChange(val === 'true')}>
+                            <SelectTrigger className="w-32">
+                              <SelectValue placeholder="Select value..." />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="true">True</SelectItem>
+                              <SelectItem value="false">False</SelectItem>
+                            </SelectContent>
+                          </Select>
                         )}
                       />
                     ) : (
