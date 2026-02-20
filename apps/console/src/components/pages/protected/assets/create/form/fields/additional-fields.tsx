@@ -37,7 +37,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-md p-0">General Information</CardTitle>
-          <CardDescription className="p-0">Display name, identifier, and website for the asset.</CardDescription>
+          <CardDescription className="p-0">Display name, identifier, and website for the asset</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -53,13 +53,14 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
       {/* Type & Subtype */}
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-md p-0">Type & Subtype</CardTitle>
-          <CardDescription className="p-0">Asset type and subtype information.</CardDescription>
+          <CardTitle className="text-md p-0">Type</CardTitle>
+          <CardDescription className="p-0">Asset type and subtype information</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             <SelectField name="assetType" label="Type" options={enumOptions.assetTypeOptions} {...sharedFieldProps} />
             <SelectField name="assetSubtypeName" label="Subtype" options={enumOptions.assetSubtypeOptions} {...sharedFieldProps} />
+            <SelectField name="criticalityName" label="Criticality" options={enumOptions.criticalityOptions} {...sharedFieldProps} />
           </div>
         </CardContent>
       </Card>
@@ -67,8 +68,8 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
       {/* Classification & Security */}
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-md p-0">Classification & Security</CardTitle>
-          <CardDescription className="p-0">How the asset is classified and secured.</CardDescription>
+          <CardTitle className="text-md p-0">Security</CardTitle>
+          <CardDescription className="p-0">How the asset is classified and secured</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -77,7 +78,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             <SelectField name="encryptionStatusName" label="Encryption Status" options={enumOptions.encryptionStatusOptions} {...sharedFieldProps} />
-            <SelectField name="criticalityName" label="Criticality" options={enumOptions.criticalityOptions} {...sharedFieldProps} />
+            <SelectField name="accessModelName" label="Access Model" options={enumOptions.accessModelOptions} {...sharedFieldProps} />
           </div>
         </CardContent>
       </Card>
@@ -86,7 +87,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-md p-0">Source</CardTitle>
-          <CardDescription className="p-0">Origin details for the asset.</CardDescription>
+          <CardDescription className="p-0">Origin details for the asset</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -100,7 +101,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-md p-0">Audit Scope</CardTitle>
-          <CardDescription className="p-0">Where and how the asset is used for audit purposes.</CardDescription>
+          <CardDescription className="p-0">Where and how the asset is used for audit purposes</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -114,7 +115,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-md p-0">Location</CardTitle>
-          <CardDescription className="p-0">Where the asset is physically or regionally located.</CardDescription>
+          <CardDescription className="p-0">Where the asset is physically or regionally located</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -127,18 +128,15 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
       {/* Access & Cost */}
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-md p-0">Access & Cost</CardTitle>
-          <CardDescription className="p-0">Access model and financial details.</CardDescription>
+          <CardTitle className="text-md p-0">Cost</CardTitle>
+          <CardDescription className="p-0">Financial details of the asset</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-2">
-            <SelectField name="accessModelName" label="Access Model" options={enumOptions.accessModelOptions} {...sharedFieldProps} />
-            <TextField name="costCenter" label="Cost Center" {...sharedFieldProps} />
-          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             <TextField name="estimatedMonthlyCost" label="Estimated Monthly Cost" type="currency" {...sharedFieldProps} />
             <TextField name="cpe" label="CPE (Common Platform Enumeration)" {...sharedFieldProps} />
             <TextField name="purchaseDate" label="Purchase Date" type="date" {...sharedFieldProps} />
+            <TextField name="costCenter" label="Cost Center" {...sharedFieldProps} />
           </div>
         </CardContent>
       </Card>

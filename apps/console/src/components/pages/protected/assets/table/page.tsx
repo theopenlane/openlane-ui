@@ -1,10 +1,10 @@
 'use client'
 
 import React from 'react'
-import useFormSchema from '../hooks/use-form-schema'
+import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 
-import { AssetsNodeNonNull, useAsset, useUpdateAsset, useCreateAsset, useBulkDeleteAsset, useCreateBulkCSVAsset } from '@/lib/graphql-hooks/asset'
+import { AssetsNodeNonNull, useAsset, useUpdateAsset, useCreateAsset, useBulkDeleteAsset, useCreateBulkCSVAsset, useBulkEditAsset } from '@/lib/graphql-hooks/asset'
 import { useSearchParams } from 'next/navigation'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
 import { breadcrumbs, getFieldsToRender, getFilterFields, visibilityFields } from './table-config'
@@ -34,6 +34,7 @@ const AssetPage: React.FC = () => {
   const baseCreateMutation = useCreateAsset()
   const baseBulkDeleteMutation = useBulkDeleteAsset()
   const baseBulkCreateMutation = useCreateBulkCSVAsset()
+  const baseBulkEditMutation = useBulkEditAsset()
 
   const updateMutation = {
     isPending: baseUpdateMutation.isPending,
@@ -51,6 +52,7 @@ const AssetPage: React.FC = () => {
     },
   }
   const bulkCreateMutation = baseBulkCreateMutation
+  const bulkEditMutation = baseBulkEditMutation
 
   const { enumOptions: accessModelOptions } = useGetCustomTypeEnums({
     where: { objectType: 'asset', field: 'accessModel' },
@@ -142,6 +144,11 @@ const AssetPage: React.FC = () => {
     onBulkCreate: async (file: File) => {
       await bulkCreateMutation.mutateAsync({ input: file })
     },
+    onBulkEdit: async (ids: string[], input: UpdateAssetInput) => {
+      await bulkEditMutation.mutateAsync({ ids, input })
+    },
+    bulkEditFormSchema: bulkEditFieldSchema,
+    enumOpts,
   }
 
   return <GenericTablePage {...tableConfig} />

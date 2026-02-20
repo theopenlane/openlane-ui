@@ -1,4 +1,4 @@
-import { GenericTablePageConfig } from '@/components/shared/crud-base/page'
+import { GenericTablePageConfig, EnumOptionsGeneric } from '@/components/shared/crud-base/page'
 import { GenericDetailsSheetConfig, RenderFieldsProps } from '@/components/shared/crud-base/generic-sheet'
 
 import { EntityOrderField, EntityWhereInput, CreateEntityInput, CreateEntityMutation, UpdateEntityInput, UpdateEntityMutation, ExportExportType, OrderDirection } from '@repo/codegen/src/schema'
@@ -23,18 +23,17 @@ export const exportType = ExportExportType.ENTITY
 export const orderFieldEnum = EntityOrderField
 export const defaultSorting = [{ field: EntityOrderField.name, direction: OrderDirection.ASC }]
 
-type CustomEnumOption = { label: string; value: string }
+type EntityEnumKeys =
+  | 'entityRelationshipStateOptions'
+  | 'securityQuestionnaireStatusOptions'
+  | 'environmentOptions'
+  | 'scopeOptions'
+  | 'tagOptions'
+  | 'reviewFrequencyOptions'
+  | 'entityStatusOptions'
+  | 'sourceTypeOptions'
 
-export type EnumOptions = {
-  entityRelationshipStateOptions: CustomEnumOption[]
-  securityQuestionnaireStatusOptions: CustomEnumOption[]
-  environmentOptions: CustomEnumOption[]
-  scopeOptions: CustomEnumOption[]
-  tagOptions: CustomEnumOption[]
-  reviewFrequencyOptions: CustomEnumOption[]
-  entityStatusOptions: CustomEnumOption[]
-  sourceTypeOptions: CustomEnumOption[]
-}
+export type EnumOptions = EnumOptionsGeneric<EntityEnumKeys>
 
 export type EntityTablePageConfig = GenericTablePageConfig<TData, TFormData, TUpdateInput, TUpdateData, TCreateInput, TCreateData, TWhereInput, TOrderField>
 

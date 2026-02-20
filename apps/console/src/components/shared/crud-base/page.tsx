@@ -2,6 +2,7 @@
 
 import React, { useEffect, useMemo, useState, useCallback } from 'react'
 import { ExportExportFormat, ExportExportType, OrderDirection } from '@repo/codegen/src/schema'
+import { ZodObject, ZodRawShape } from 'zod'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { ColumnDef, VisibilityState } from '@tanstack/react-table'
@@ -26,6 +27,9 @@ import { User } from '@repo/codegen/src/schema'
 
 type TOrderByInput = { field: string; direction?: OrderDirection }[] | undefined
 type TOrderFieldEnum<TField> = Record<string, TField> | TField[]
+
+export type CustomEnumOption = { label: string; value: string }
+export type EnumOptionsGeneric<T extends string = string> = Record<T, CustomEnumOption[]>
 
 export type ColumnOptions<TEntity> = {
   userMap: Record<string, User>
@@ -93,6 +97,8 @@ export interface GenericTablePageConfig<TEntity extends { id: string }, TFormDat
     permission: TPermissionData | undefined
     selectedItems: TEntity[]
     setSelectedItems: React.Dispatch<React.SetStateAction<TEntity[]>>
+    bulkEditFormSchema?: ZodObject<ZodRawShape>
+    enumOpts?: EnumOptionsGeneric
   }>
 
   // Sheet configuration
@@ -101,8 +107,9 @@ export interface GenericTablePageConfig<TEntity extends { id: string }, TFormDat
   // Bulk operations
   onBulkDelete: (ids: string[]) => Promise<void>
   onBulkCreate?: (file: File) => Promise<void>
-
-  renderBulkEdit?: (props: { selectedItems: TEntity[]; setSelectedItems: React.Dispatch<React.SetStateAction<TEntity[]>> }) => React.ReactNode
+  onBulkEdit?: (ids: string[], data: TUpdateInput) => Promise<void>
+  bulkEditFormSchema?: ZodObject<ZodRawShape>
+  enumOpts?: EnumOptionsGeneric
 }
 
 export function GenericTablePage<
@@ -131,7 +138,7 @@ export function GenericTablePage<
     sheetConfig,
     onBulkDelete,
     onBulkCreate,
-    renderBulkEdit,
+    onBulkEdit,
   } = config
 
   const router = useRouter()
@@ -242,7 +249,14 @@ export function GenericTablePage<
     <>
       <ToolbarToUse
         entityType={objectType}
-        onFilterChange={(filters) => setFilters(filters as TWhereInput)}
+        onFilterChange={(filters) => {
+          setFilters((prev) => {
+            if (JSON.stringify(prev) !== JSON.stringify(filters)) {
+              return filters as TWhereInput
+            }
+            return prev
+          })
+        }}
         handleClearSelected={handleClearSelected}
         handleExport={handleExportFile}
         mappedColumns={mappedColumns}
@@ -261,8 +275,10 @@ export function GenericTablePage<
         setSelectedItems={setSelectedItems}
         onBulkDelete={onBulkDelete}
         onBulkCreate={onBulkCreate}
+        onBulkEdit={onBulkEdit as unknown as (ids: string[], data: TUpdateInput) => Promise<void>}
+        bulkEditFormSchema={config.bulkEditFormSchema}
+        enumOpts={config.enumOpts}
         storageKey={tableKey}
-        renderBulkEdit={renderBulkEdit}
       />
 
       <TableComponent

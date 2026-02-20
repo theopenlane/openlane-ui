@@ -33,13 +33,31 @@ const formSchema = z.object({
   website: z.string().url('Please enter a valid URL').optional().or(z.literal('')),
 })
 
-export type CreateAssetFormData = z.infer<typeof formSchema>
-export type EditAssetFormData = z.infer<typeof formSchema>
+export const bulkEditFieldSchema = z.object({
+  accessModelName: z.string().optional(),
+  assetDataClassificationName: z.string().optional(),
+  assetSubtypeName: z.string().optional(),
+  assetType: z.nativeEnum(AssetAssetType).optional(),
+  costCenter: z.string().optional(),
+  cpe: z.string().optional(),
+  criticalityName: z.string().optional(),
+  encryptionStatusName: z.string().optional(),
+  environmentName: z.string().optional(),
+  identifier: z.string().optional(),
+  physicalLocation: z.string().optional(),
+  region: z.string().optional(),
+  scopeName: z.string().optional().nullable(),
+  securityTierName: z.string().optional(),
+  sourceIdentifier: z.string().optional(),
+  sourceType: z.nativeEnum(AssetSourceType).optional(),
+})
+
+export type AssetFormData = z.infer<typeof formSchema>
 
 const useFormSchema = () => {
   return {
-    form: useForm<CreateAssetFormData>({
-      resolver: zodResolver(formSchema) as Resolver<CreateAssetFormData>,
+    form: useForm<AssetFormData>({
+      resolver: zodResolver(formSchema) as Resolver<AssetFormData>,
       defaultValues: {},
     }),
   }

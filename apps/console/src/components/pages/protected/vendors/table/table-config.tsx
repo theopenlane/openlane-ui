@@ -1,12 +1,13 @@
 import { FilterField } from '@/types'
 import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
 import { ObjectNames } from '@repo/codegen/src/type-names'
-import { EntityQuery } from '@repo/codegen/src/schema'
+import { EntityQuery, EntityOrderField } from '@repo/codegen/src/schema'
 import NameField from '../create/form/fields/name-field'
 import DescriptionField from '../create/form/fields/description-field'
 import { AdditionalFields } from '../create/form/fields/additional-fields'
 import Properties from '../create/form/fields/properties'
 import { EntityFieldProps, EnumOptions } from './types'
+import { enumToSortFields } from '@/components/shared/crud-base/utils'
 
 export const formId = 'edit' + ObjectNames.ENTITY
 
@@ -39,11 +40,7 @@ export const getFilterFields = (enumOptions: EnumOptions): FilterField[] => [
   },
 ]
 
-export const VENDORS_SORT_FIELDS = [
-  { key: 'name', label: 'Name' },
-  { key: 'updatedAt', label: 'Last Updated' },
-  { key: 'createdAt', label: 'Created Date' },
-]
+export const VENDORS_SORT_FIELDS = enumToSortFields(EntityOrderField)
 
 export const visibilityFields = {
   id: false,
