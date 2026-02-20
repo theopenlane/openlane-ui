@@ -49,7 +49,7 @@ const meta: Meta<typeof Button> = {
     loading: { control: 'boolean' },
     full: { control: 'boolean' },
   },
-  render: ({ children, ...args }: { children: React.ReactNode }) => <Button {...args}>{children}</Button>,
+  render: ({ children, ...args }) => <Button {...args}>{children}</Button>,
 } satisfies Meta<typeof Button>
 
 export default meta

@@ -2,7 +2,7 @@
 
 import { BotIcon, ChevronDownIcon } from 'lucide-react'
 
-import { type FC, forwardRef } from 'react'
+import { type FC, type Ref } from 'react'
 import { AssistantModalPrimitive } from '@assistant-ui/react'
 
 import { Thread, ThreadProps } from '@/components/assistant-ui/thread'
@@ -31,9 +31,9 @@ export const AssistantModal: FC<AssistantModalProps> = ({ welcome }) => {
   )
 }
 
-type AssistantModalButtonProps = { 'data-state'?: 'open' | 'closed' }
+type AssistantModalButtonProps = { 'data-state'?: 'open' | 'closed'; ref?: Ref<HTMLButtonElement> }
 
-const AssistantModalButton = forwardRef<HTMLButtonElement, AssistantModalButtonProps>(({ 'data-state': state, ...rest }, ref) => {
+const AssistantModalButton = ({ 'data-state': state, ref, ...rest }: AssistantModalButtonProps) => {
   const tooltip = state === 'open' ? 'Close Assistant' : 'Open Assistant'
 
   return (
@@ -57,6 +57,4 @@ const AssistantModalButton = forwardRef<HTMLButtonElement, AssistantModalButtonP
       <span className="aui-sr-only sr-only">{tooltip}</span>
     </TooltipIconButton>
   )
-})
-
-AssistantModalButton.displayName = 'AssistantModalButton'
+}
