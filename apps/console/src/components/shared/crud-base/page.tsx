@@ -1,7 +1,8 @@
 'use client'
 
-import React, { useEffect, useMemo, useRef, useState } from 'react'
-import { ExportExportFormat, ExportExportType } from '@repo/codegen/src/schema'
+import React, { useEffect, useMemo, useState, useCallback } from 'react'
+import { ExportExportFormat, ExportExportType, OrderDirection } from '@repo/codegen/src/schema'
+import { ZodObject, ZodRawShape } from 'zod'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { ColumnDef, VisibilityState } from '@tanstack/react-table'
@@ -12,7 +13,7 @@ import useFileExport from '@/components/shared/export/use-file-export.ts'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
-import { getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
+import { getInitialSortConditions, getInitialPagination, SortCondition } from '@repo/ui/data-table'
 import { useStorageSearch } from '@/hooks/useStorageSearch'
 import { ObjectNames, ObjectTypes } from '@repo/codegen/src/type-names'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -22,8 +23,39 @@ import { GenericTableToolbar } from '@/components/shared/crud-base/table/table-t
 import { TableKeyValue } from '@repo/ui/table-key'
 import { TAccessRole, TPermissionData } from '@/types/authz'
 import { FilterField } from '@/types'
+import { User } from '@repo/codegen/src/schema'
 
-interface GenericTablePageConfig<TEntity extends { id: string }, TFormData extends FieldValues, TData, TUpdateInput, TCreateInput, TWhereInput, TOrderByInput> {
+type TOrderByInput = { field: string; direction?: OrderDirection }[] | undefined
+type TOrderFieldEnum<TField> = Record<string, TField> | TField[]
+
+export type CustomEnumOption = { label: string; value: string }
+export type EnumOptionsGeneric<T extends string = string> = Record<T, CustomEnumOption[]>
+
+export type ColumnOptions<TEntity> = {
+  userMap: Record<string, User>
+  convertToReadOnly?: (data: string, padding?: number, style?: React.CSSProperties) => React.JSX.Element
+  selectedItems: TEntity[]
+  setSelectedItems: React.Dispatch<React.SetStateAction<TEntity[]>>
+}
+
+export interface TTableProps<TEntity extends { id: string }, TWhereInput> {
+  ref?: React.Ref<HTMLDivElement>
+  onSortChange?: (sortCondition: TOrderByInput) => void
+  pagination: TPagination
+  onPaginationChange: (pagination: TPagination) => void
+  whereFilter: TWhereInput | null
+  orderByFilter: TOrderByInput | undefined
+  columnVisibility?: VisibilityState
+  setColumnVisibility: React.Dispatch<React.SetStateAction<VisibilityState>>
+  onHasChange?: (hasItems: boolean) => void
+  selectedItems: TEntity[]
+  setSelectedItems: React.Dispatch<React.SetStateAction<TEntity[]>>
+  canEdit: (accessRole: TAccessRole[] | undefined) => boolean
+  permission: TPermissionData | undefined
+  defaultSorting: SortCondition<string>[]
+}
+
+export interface GenericTablePageConfig<TEntity extends { id: string }, TFormData extends FieldValues, TUpdateInput, TUpdateData, TCreateInput, TCreateData, TWhereInput, TOrderField extends string> {
   // Entity configuration
   objectType: ObjectTypes
   objectName: ObjectNames
@@ -32,9 +64,9 @@ interface GenericTablePageConfig<TEntity extends { id: string }, TFormData exten
   tableKey: TableKeyValue
   exportType?: ExportExportType
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  orderFieldEnum: any // e.g., AssetOrderField
-  defaultSorting: TOrderByInput
+  orderFieldEnum: TOrderFieldEnum<TOrderField>
+  defaultSorting: SortCondition<TOrderField>[]
+
   defaultVisibility: VisibilityState
   filterFields?: FilterField[] | undefined
 
@@ -45,12 +77,10 @@ interface GenericTablePageConfig<TEntity extends { id: string }, TFormData exten
   form: UseFormReturn<TFormData>
 
   // Columns
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  getColumns: (params: any) => ColumnDef<TEntity>[]
+  getColumns: (params: ColumnOptions<TEntity>) => ColumnDef<TEntity>[]
 
   // Table Component
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  TableComponent: React.ComponentType<any>
+  TableComponent: React.ComponentType<TTableProps<TEntity, TWhereInput>>
 
   // Toolbar Component
   ToolbarComponent?: React.ComponentType<{
@@ -67,21 +97,31 @@ interface GenericTablePageConfig<TEntity extends { id: string }, TFormData exten
     permission: TPermissionData | undefined
     selectedItems: TEntity[]
     setSelectedItems: React.Dispatch<React.SetStateAction<TEntity[]>>
+    bulkEditFormSchema?: ZodObject<ZodRawShape>
+    enumOpts?: EnumOptionsGeneric
   }>
 
   // Sheet configuration
-  sheetConfig: Omit<GenericDetailsSheetConfig<TFormData, TData, TUpdateInput, TCreateInput>, 'form' | 'onClose'>
+  sheetConfig: Omit<GenericDetailsSheetConfig<TFormData, TEntity, TUpdateInput, TUpdateData, TCreateInput, TCreateData>, 'form' | 'onClose'>
 
   // Bulk operations
   onBulkDelete: (ids: string[]) => Promise<void>
   onBulkCreate?: (file: File) => Promise<void>
-
-  renderBulkEdit?: (props: { selectedItems: TEntity[]; setSelectedItems: React.Dispatch<React.SetStateAction<TEntity[]>> }) => React.ReactNode
+  onBulkEdit?: (ids: string[], data: TUpdateInput) => Promise<void>
+  bulkEditFormSchema?: ZodObject<ZodRawShape>
+  enumOpts?: EnumOptionsGeneric
 }
 
-export function GenericTablePage<TEntity extends { id: string }, TFormData extends FieldValues, TData, TUpdateInput, TCreateInput, TWhereInput extends object, TOrderByInput>(
-  config: GenericTablePageConfig<TEntity, TFormData, TData, TUpdateInput, TCreateInput, TWhereInput, TOrderByInput>,
-) {
+export function GenericTablePage<
+  TEntity extends { id: string },
+  TFormData extends FieldValues,
+  TUpdateInput,
+  TUpdateData,
+  TCreateInput,
+  TCreateData,
+  TWhereInput extends object,
+  TOrderField extends string,
+>(config: GenericTablePageConfig<TEntity, TFormData, TUpdateInput, TUpdateData, TCreateInput, TCreateData, TWhereInput, TOrderField>) {
   const {
     objectType,
     tableKey,
@@ -98,7 +138,7 @@ export function GenericTablePage<TEntity extends { id: string }, TFormData exten
     sheetConfig,
     onBulkDelete,
     onBulkCreate,
-    renderBulkEdit,
+    onBulkEdit,
   } = config
 
   const router = useRouter()
@@ -110,12 +150,9 @@ export function GenericTablePage<TEntity extends { id: string }, TFormData exten
   const { setCrumbs } = React.useContext(BreadcrumbContext)
   const { handleExport } = useFileExport()
 
-  const tableRef = useRef<{ exportData: () => TEntity[] }>(null)
-
   const [filters, setFilters] = useState<TWhereInput | null>(null)
   const [pagination, setPagination] = useState<TPagination>(getInitialPagination(tableKey, DEFAULT_PAGINATION))
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [orderBy, setOrderBy] = useState<TOrderByInput>(getInitialSortConditions(tableKey, orderFieldEnum, defaultSorting as any) as TOrderByInput)
+  const [orderBy, setOrderBy] = useState<SortCondition<TOrderField>[]>(getInitialSortConditions(tableKey, orderFieldEnum, defaultSorting))
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(tableKey, defaultVisibility))
   const [selectedItems, setSelectedItems] = useState<TEntity[]>([])
 
@@ -157,8 +194,8 @@ export function GenericTablePage<TEntity extends { id: string }, TFormData exten
 
   const mappedColumns = getColumns({
     userMap: emptyUserMap,
-    selectedAssets: selectedItems,
-    setSelectedAssets: setSelectedItems,
+    selectedItems,
+    setSelectedItems,
   })
     .filter(
       (
@@ -194,13 +231,32 @@ export function GenericTablePage<TEntity extends { id: string }, TFormData exten
     setSelectedItems([])
   }
 
+  const handleSortChange = useCallback(
+    (sortCondition: TOrderByInput) => {
+      setOrderBy(
+        (sortCondition ?? []).map((sc) => ({
+          field: sc.field as TOrderField,
+          direction: sc.direction ?? OrderDirection.ASC,
+        })),
+      )
+    },
+    [setOrderBy],
+  )
+
   const ToolbarToUse = ToolbarComponent || GenericTableToolbar
 
   return (
     <>
       <ToolbarToUse
         entityType={objectType}
-        onFilterChange={setFilters}
+        onFilterChange={(filters) => {
+          setFilters((prev) => {
+            if (JSON.stringify(prev) !== JSON.stringify(filters)) {
+              return filters as TWhereInput
+            }
+            return prev
+          })
+        }}
         handleClearSelected={handleClearSelected}
         handleExport={handleExportFile}
         mappedColumns={mappedColumns}
@@ -219,29 +275,30 @@ export function GenericTablePage<TEntity extends { id: string }, TFormData exten
         setSelectedItems={setSelectedItems}
         onBulkDelete={onBulkDelete}
         onBulkCreate={onBulkCreate}
+        onBulkEdit={onBulkEdit as unknown as (ids: string[], data: TUpdateInput) => Promise<void>}
+        bulkEditFormSchema={config.bulkEditFormSchema}
+        enumOpts={config.enumOpts}
         storageKey={tableKey}
-        renderBulkEdit={renderBulkEdit}
       />
 
       <TableComponent
-        ref={tableRef}
         orderByFilter={orderByFilter}
         pagination={pagination}
         onPaginationChange={setPagination}
         whereFilter={whereFilter}
-        onSortChange={setOrderBy}
+        onSortChange={handleSortChange}
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
         selectedItems={selectedItems}
         setSelectedItems={setSelectedItems}
-        selectedAssets={selectedItems}
-        setSelectedAssets={setSelectedItems}
         canEdit={canEdit}
         defaultSorting={defaultSorting}
         permission={permission}
       />
 
-      {(id || isCreate) && <GenericDetailsSheet<TFormData, TData, TUpdateInput, TCreateInput> key={id || 'create'} onClose={handleCloseSheet} form={form} {...sheetConfig} />}
+      {(id || isCreate) && (
+        <GenericDetailsSheet<TFormData, TEntity, TUpdateInput, TUpdateData, TCreateInput, TCreateData> key={id || 'create'} onClose={handleCloseSheet} form={form} {...sheetConfig} />
+      )}
     </>
   )
 }

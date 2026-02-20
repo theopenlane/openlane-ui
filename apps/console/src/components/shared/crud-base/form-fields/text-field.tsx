@@ -4,9 +4,9 @@ import { FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
 import { Input } from '@repo/ui/input'
 import { FieldValues, useFormContext } from 'react-hook-form'
 import { InternalEditingType } from '../generic-sheet'
-import { formatDate } from '@/utils/date'
+import { formatDate, formatCurrency } from '@/utils/date'
 
-interface TextFieldProps {
+interface TextFieldProps<TUpdateInput> {
   name: string
   label: string
   isEditing: boolean
@@ -15,16 +15,16 @@ interface TextFieldProps {
   data?: FieldValues | undefined
   placeholder?: string
   type?: string
+  prefix?: string
   internalEditing: string | null
   setInternalEditing: InternalEditingType
   initialValue?: string
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  handleUpdate?: (input: any) => Promise<void>
+  handleUpdate?: (input: TUpdateInput) => Promise<void>
   className?: string
   error?: string
 }
 
-export const TextField: React.FC<TextFieldProps> = ({
+export const TextField = <TUpdateInput,>({
   name,
   label,
   isEditing,
@@ -33,13 +33,14 @@ export const TextField: React.FC<TextFieldProps> = ({
   data,
   placeholder,
   type = 'text',
+  prefix,
   internalEditing,
   setInternalEditing,
   initialValue,
   handleUpdate,
   className,
   error,
-}) => {
+}: TextFieldProps<TUpdateInput>) => {
   const { control, getValues, formState } = useFormContext()
 
   const isFieldEditing = isCreate || isEditing || internalEditing === name
@@ -58,7 +59,7 @@ export const TextField: React.FC<TextFieldProps> = ({
     }
 
     if (handleUpdate) {
-      await Promise.resolve(handleUpdate({ [name]: newValue }))
+      await Promise.resolve(handleUpdate({ [name]: newValue } as unknown as TUpdateInput))
     }
 
     setInternalEditing(null)
@@ -76,6 +77,10 @@ export const TextField: React.FC<TextFieldProps> = ({
     }
   }
 
+  if (type === 'currency') {
+    prefix = '$'
+  }
+
   return (
     <FormField
       control={control}
@@ -85,10 +90,20 @@ export const TextField: React.FC<TextFieldProps> = ({
           <FormLabel>{label}</FormLabel>
           <FormControl>
             {isFieldEditing ? (
-              <Input {...field} type={type} placeholder={placeholder} onBlur={handleBlur} onKeyDown={handleKeyDown} autoFocus={internalEditing === name} />
+              <Input {...field} type={type} prefix={prefix} placeholder={placeholder} onBlur={handleBlur} onKeyDown={handleKeyDown} autoFocus={internalEditing === name} />
             ) : (
               <div className="text-sm py-2 rounded cursor-pointer hover:bg-accent" onClick={handleClick}>
-                {type === 'date' ? value ? formatDate(value) : <span className="text-muted-foreground italic">Not set</span> : value || <span className="text-muted-foreground italic">Not set</span>}
+                {type === 'date' ? (
+                  value ? (
+                    formatDate(value)
+                  ) : (
+                    <span className="text-muted-foreground italic">Not set</span>
+                  )
+                ) : type === 'currency' ? (
+                  formatCurrency(value)
+                ) : (
+                  value || <span className="text-muted-foreground italic">Not set</span>
+                )}
               </div>
             )}
           </FormControl>

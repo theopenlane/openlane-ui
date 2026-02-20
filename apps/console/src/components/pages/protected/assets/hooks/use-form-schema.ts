@@ -1,8 +1,9 @@
 'use client'
 import { z } from 'zod'
-import { useForm } from 'react-hook-form'
+import { useForm, Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Value } from 'platejs'
+import { AssetAssetType, AssetSourceType } from '@repo/codegen/src/schema'
 
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -11,31 +12,52 @@ const formSchema = z.object({
   accessModelName: z.string().optional(),
   assetDataClassificationName: z.string().optional(),
   assetSubtypeName: z.string().optional(),
-  assetType: z.string().optional(),
+  assetType: z.nativeEnum(AssetAssetType).optional(),
   costCenter: z.string().optional(),
   cpe: z.string().optional(),
   criticalityName: z.string().optional(),
   encryptionStatusName: z.string().optional(),
   environmentName: z.string().optional(),
-  estimatedMonthlyCost: z.union([z.string(), z.number()]).optional(),
+  estimatedMonthlyCost: z.preprocess((val) => {
+    if (val === '' || val === undefined || val === null) return undefined
+    return Number(val)
+  }, z.number().optional()),
   identifier: z.string().optional(),
   physicalLocation: z.string().optional(),
   purchaseDate: z.string().optional(),
   region: z.string().optional(),
-  scopeName: z.string().optional(),
+  scopeName: z.string().optional().nullable(),
   securityTierName: z.string().optional(),
   sourceIdentifier: z.string().optional(),
-  sourceType: z.string().optional(),
+  sourceType: z.nativeEnum(AssetSourceType).optional(),
   website: z.string().url('Please enter a valid URL').optional().or(z.literal('')),
 })
 
-export type CreateAssetFormatData = z.infer<typeof formSchema>
-export type EditAssetFormData = z.infer<typeof formSchema>
+export const bulkEditFieldSchema = z.object({
+  accessModelName: z.string().optional(),
+  assetDataClassificationName: z.string().optional(),
+  assetSubtypeName: z.string().optional(),
+  assetType: z.nativeEnum(AssetAssetType).optional(),
+  costCenter: z.string().optional(),
+  cpe: z.string().optional(),
+  criticalityName: z.string().optional(),
+  encryptionStatusName: z.string().optional(),
+  environmentName: z.string().optional(),
+  identifier: z.string().optional(),
+  physicalLocation: z.string().optional(),
+  region: z.string().optional(),
+  scopeName: z.string().optional().nullable(),
+  securityTierName: z.string().optional(),
+  sourceIdentifier: z.string().optional(),
+  sourceType: z.nativeEnum(AssetSourceType).optional(),
+})
+
+export type AssetFormData = z.infer<typeof formSchema>
 
 const useFormSchema = () => {
   return {
-    form: useForm<CreateAssetFormatData>({
-      resolver: zodResolver(formSchema),
+    form: useForm<AssetFormData>({
+      resolver: zodResolver(formSchema) as Resolver<AssetFormData>,
       defaultValues: {},
     }),
   }
