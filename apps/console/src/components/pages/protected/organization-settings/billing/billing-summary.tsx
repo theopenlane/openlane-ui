@@ -192,7 +192,7 @@ const BillingSummary = ({ stripeCustomerId, activePriceIds, nextPhaseStart }: Pr
                 </p>
                 {hasDiscount && (
                   <p className="text-sm text-text-informational">
-                    <span className="font-medium w-28 inline-block mr-2">Discount</span>-{formattedDiscount}
+                    <span className="font-medium w-28 inline-block mr-2">Discount applied</span>-{formattedDiscount}
                   </p>
                 )}
               </div>
