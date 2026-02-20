@@ -9,14 +9,14 @@ export function objectToSnakeCase(object: string | undefined): string {
 export function toHumanLabel(input: string): string {
   if (!input) return ''
 
-  return (
-    input
-      // Split acronym followed by normal word: APIToken → API Token
-      .replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2')
-      // Split lower-to-upper: DomainDelete → Domain Delete
-      .replace(/([a-z])([A-Z])/g, '$1 $2')
-      .trim()
-  )
+  const label = input
+    // Split acronym followed by normal word: APIToken → API Token
+    .replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2')
+    // Split lower-to-upper: DomainDelete → Domain Delete
+    .replace(/([a-z])([A-Z])/g, '$1 $2')
+    .trim()
+
+  return label.charAt(0).toUpperCase() + label.slice(1)
 }
 
 // if you change this, update packages/codegen/plugins/lib.js:pluralizeTypeName also

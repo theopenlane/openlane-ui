@@ -5,7 +5,7 @@ import { useFormContext, Controller } from 'react-hook-form'
 import { Tag } from 'lucide-react'
 import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
 import { AssetQuery, UpdateAssetInput } from '@repo/codegen/src/schema'
-import { EditAssetFormData } from '../../../hooks/use-form-schema'
+import { AssetFormData } from '../../../hooks/use-form-schema'
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 import useEscapeKey from '@/hooks/useEscapeKey'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
@@ -24,7 +24,7 @@ type PropertiesProps = {
 const allProperties = ['tags']
 
 const Properties: React.FC<PropertiesProps> = ({ isEditing, data, internalEditing, setInternalEditing, handleUpdateField, isEditAllowed }) => {
-  const { control, formState, watch, setValue } = useFormContext<EditAssetFormData>()
+  const { control, formState, watch, setValue } = useFormContext<AssetFormData>()
 
   const { tagOptions } = useGetTags()
 

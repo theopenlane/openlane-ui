@@ -1,8 +1,9 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { z } from 'zod'
+import { z, ZodObject, ZodRawShape } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useWatch } from 'react-hook-form'
 import { useForm, FormProvider, Controller, useFieldArray } from 'react-hook-form'
 import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogFooter, DialogTitle } from '@repo/ui/dialog'
 import { Button } from '@repo/ui/button'
@@ -15,38 +16,26 @@ import { Input } from '@repo/ui/input'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
-import { ObjectNames } from '@repo/codegen/src/type-names'
-
-export enum InputType {
-  Select = 'select',
-  Input = 'input',
-  Date = 'date',
-}
+import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { EnumOptionsGeneric } from '../page'
+import { toHumanLabel } from '@/utils/strings'
 
 export interface BulkEditFieldOption {
   label: string
   value: string
 }
 
-export interface BulkEditFieldConfig {
-  key: string
-  label: string
-  name: string
-  placeholder: string
-  inputType: InputType
-  options?: BulkEditFieldOption[]
-  clearValueKey?: string
-}
-
-interface GenericBulkEditDialogProps<T extends { id: string }> {
+interface GenericBulkEditDialogProps<T extends { id: string }, TUpdateInput> {
   selectedItems: T[]
   setSelectedItems: React.Dispatch<React.SetStateAction<T[]>>
-  fieldConfigs: BulkEditFieldConfig[]
+  schema: ZodObject<ZodRawShape>
   bulkEditMutation: {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    mutateAsync: (params: { ids: string[]; input: Record<string, any> }) => Promise<any>
+    mutateAsync: (params: { ids: string[]; input: TUpdateInput }) => Promise<void>
   }
-  entityLabel: ObjectNames
+  entityType?: ObjectTypes
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
+  enumOpts?: EnumOptionsGeneric
 }
 
 const fieldItemSchema = z.object({
@@ -63,14 +52,24 @@ const bulkEditSchema = z.object({
 interface BulkEditFormValues {
   fieldsArray: Array<{
     fieldKey?: string
-    selectedConfig?: BulkEditFieldConfig
     selectedValue?: string
     selectedDate?: Date | null
   }>
 }
 
-export function GenericBulkEditDialog<T extends { id: string }>({ selectedItems, setSelectedItems, fieldConfigs, bulkEditMutation, entityLabel }: GenericBulkEditDialogProps<T>) {
-  const [open, setOpen] = useState(false)
+const getEnumKey = (fieldKey: string) => `${fieldKey.replace(/Name$/, '')}Options`
+
+export function GenericBulkEditDialog<T extends { id: string }, TUpdateInput>({
+  selectedItems,
+  setSelectedItems,
+  schema,
+  bulkEditMutation,
+  entityType,
+  open: openProp,
+  onOpenChange,
+  enumOpts,
+}: GenericBulkEditDialogProps<T, TUpdateInput>) {
+  const [open, setOpen] = useState(openProp ?? false)
   const { errorNotification, successNotification } = useNotification()
 
   const form = useForm<BulkEditFormValues>({
@@ -80,17 +79,20 @@ export function GenericBulkEditDialog<T extends { id: string }>({ selectedItems,
     },
   })
 
-  const { control, handleSubmit, watch } = form
+  const fieldShape = schema.shape
+  const fieldKeys = Object.keys(fieldShape)
 
-  const watchedFields = watch('fieldsArray') || []
+  const { control, handleSubmit } = form
+
+  const watchedFields = useWatch({ control, name: 'fieldsArray' }) || []
   const hasFieldsToUpdate = watchedFields.some(
-    (field) => (field.selectedConfig && field.selectedValue) || field.selectedConfig?.inputType === InputType.Input || field.selectedConfig?.inputType === InputType.Date,
+    (field) => field.fieldKey && ((field.selectedValue !== undefined && field.selectedValue !== '') || (field.selectedDate !== undefined && field.selectedDate !== null)),
   )
 
   const { fields, append, update, replace, remove } = useFieldArray({
     control,
     name: 'fieldsArray',
-    rules: { maxLength: fieldConfigs.length },
+    rules: { maxLength: fieldKeys.length },
   })
 
   useEffect(() => {
@@ -106,28 +108,24 @@ export function GenericBulkEditDialog<T extends { id: string }>({ selectedItems,
 
   const onSubmit = async () => {
     const ids = selectedItems.map((item) => item.id)
-    const input: Record<string, string | Date | boolean | null> = {}
+    const input: TUpdateInput = {} as TUpdateInput
 
     if (watchedFields.length === 0 || ids.length === 0) return
 
     watchedFields.forEach((field) => {
-      const key = field.selectedConfig?.name
-
-      if (key && field?.selectedValue && field?.fieldKey) {
-        input[key] = field.selectedValue
+      const key = field.fieldKey
+      if (key && field.selectedValue) {
+        input[key as keyof TUpdateInput] = field.selectedValue as TUpdateInput[keyof TUpdateInput]
       }
-      if (key && field?.selectedDate && field?.fieldKey) {
-        input[key] = field.selectedDate
-      }
-      if (field.selectedConfig?.inputType === InputType.Date && !field?.selectedDate && field.selectedConfig?.clearValueKey) {
-        input[field.selectedConfig.clearValueKey] = true
+      if (key && field.selectedDate) {
+        input[key as keyof TUpdateInput] = field.selectedDate as TUpdateInput[keyof TUpdateInput]
       }
     })
 
     try {
       await bulkEditMutation.mutateAsync({ ids, input })
       successNotification({
-        title: `Successfully bulk updated selected ${entityLabel.toLowerCase()}.`,
+        title: `Successfully bulk updated selected ${toHumanLabel(entityType as string)?.toLowerCase()}.`,
       })
       setSelectedItems([])
       setOpen(false)
@@ -137,13 +135,19 @@ export function GenericBulkEditDialog<T extends { id: string }>({ selectedItems,
         errorMessage = parseErrorMessage(error.response.errors)
       }
       errorNotification({
-        title: errorMessage ?? `Failed to bulk edit ${entityLabel.toLowerCase()}. Please try again.`,
+        title: errorMessage ?? `Failed to bulk edit ${toHumanLabel(entityType as string)?.toLowerCase()}. Please try again.`,
       })
     }
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={(nextOpen) => {
+        setOpen(nextOpen)
+        if (onOpenChange) onOpenChange(nextOpen)
+      }}
+    >
       <FormProvider {...form}>
         <DialogTrigger asChild>
           <Button disabled={selectedItems.length === 0} icon={<Pencil />} iconPosition="left" variant="secondary">
@@ -153,97 +157,97 @@ export function GenericBulkEditDialog<T extends { id: string }>({ selectedItems,
         <form onSubmit={handleSubmit(onSubmit)}>
           <DialogContent onOpenAutoFocus={(e) => e.preventDefault()} className="max-w-[580px]">
             <DialogHeader>
-              <DialogTitle>Bulk edit {entityLabel.toLowerCase()}</DialogTitle>
+              <DialogTitle>Bulk edit {toHumanLabel(entityType as string)?.toLowerCase()}</DialogTitle>
             </DialogHeader>
             <div className="flex flex-col gap-4 mt-4">
-              {fields.map((item, index) => (
-                <div key={item.id} className="flex items-center gap-2 w-full">
-                  <div className="flex flex-col items-start gap-2">
-                    <Select
-                      value={watchedFields[index]?.fieldKey || undefined}
-                      onValueChange={(value) => {
-                        const selectedConfig = fieldConfigs.find((config) => config.key === value)
-                        update(index, {
-                          fieldKey: value,
-                          selectedConfig,
-                          selectedValue: undefined,
-                          selectedDate: undefined,
-                        })
-                      }}
-                    >
-                      <SelectTrigger className="w-48">
-                        <SelectValue placeholder="Select field..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {fieldConfigs.map((config) => (
-                          <SelectItem key={config.key} value={config.key} disabled={fields.some((f, i) => watchedFields[i]?.fieldKey === config.key && i !== index)}>
-                            {config.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  {item.selectedConfig &&
-                    (item.selectedConfig.inputType === InputType.Select ? (
-                      <div className="flex flex-col items-center gap-2">
-                        <Controller
-                          name={`fieldsArray.${index}.selectedValue`}
-                          control={control}
-                          render={() => (
-                            <Select
-                              value={watchedFields[index]?.selectedValue as string | undefined}
-                              onValueChange={(value) =>
-                                update(index, {
-                                  ...watchedFields[index],
-                                  selectedValue: value,
-                                })
-                              }
-                            >
-                              <SelectTrigger className="w-60">
-                                <SelectValue placeholder={item.selectedConfig?.placeholder} />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {item.selectedConfig?.options?.map((option) => (
-                                  <SelectItem key={option.value} value={option.value}>
-                                    {option.label}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          )}
-                        />
-                      </div>
-                    ) : item.selectedConfig.inputType === InputType.Date ? (
-                      <div className="flex flex-col gap-2 w-full">
-                        <Controller
-                          control={control}
-                          name={`fieldsArray.${index}.selectedDate`}
-                          render={({ field: dateField }) => (
-                            <div className="w-full">
-                              <CalendarPopover
-                                required={false}
-                                field={dateField}
-                                onChange={(date) => {
-                                  if (date) dateField.onChange(new Date(date))
-                                }}
-                              />
-                            </div>
-                          )}
-                        />
-                      </div>
+              {fields.map((item, index) => {
+                const fieldKey = watchedFields[index]?.fieldKey
+                const zodType = fieldKey ? fieldShape[fieldKey] : undefined
+
+                const enumKey = fieldKey ? getEnumKey(fieldKey) : undefined
+                const selectOptions = enumOpts && enumKey ? enumOpts[enumKey] : undefined
+
+                const getInnerZodType = (zodType: z.ZodTypeAny): z.ZodTypeAny => {
+                  if (zodType instanceof z.ZodOptional || zodType instanceof z.ZodNullable) {
+                    return getInnerZodType(zodType._def.innerType)
+                  }
+                  return zodType
+                }
+                const innerZodType = zodType ? getInnerZodType(zodType) : undefined
+
+                return (
+                  <div key={item.id} className="flex items-center gap-2 w-full">
+                    <div className="flex flex-col items-start gap-2">
+                      <Select
+                        value={fieldKey || undefined}
+                        onValueChange={(value) => {
+                          update(index, {
+                            fieldKey: value,
+                            selectedValue: undefined,
+                            selectedDate: undefined,
+                          })
+                        }}
+                      >
+                        <SelectTrigger className="w-48">
+                          <SelectValue placeholder="Select field..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {fieldKeys.map((key) => (
+                            <SelectItem key={key} value={key} disabled={fields.some((f, i) => watchedFields[i]?.fieldKey === key && i !== index)}>
+                              {toHumanLabel(key)}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    {selectOptions ? (
+                      // Render select
+                      <Controller
+                        control={control}
+                        name={`fieldsArray.${index}.selectedValue`}
+                        render={({ field }) => (
+                          <Select value={field.value} onValueChange={field.onChange}>
+                            <SelectTrigger className="w-60">
+                              <SelectValue placeholder={selectOptions[0]?.label} />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {selectOptions.map((option) => (
+                                <SelectItem key={String(option.value)} value={String(option.value)}>
+                                  {String(option.label)}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        )}
+                      />
+                    ) : innerZodType instanceof z.ZodDate ? (
+                      // Render date picker
+                      <Controller
+                        control={control}
+                        name={`fieldsArray.${index}.selectedDate`}
+                        render={({ field }) => (
+                          <CalendarPopover
+                            required={false}
+                            field={field}
+                            onChange={(date) => {
+                              if (date) field.onChange(new Date(date))
+                            }}
+                          />
+                        )}
+                      />
                     ) : (
-                      <div className="flex flex-col items-center gap-2">
-                        <Controller
-                          control={form.control}
-                          name={`fieldsArray.${index}.selectedValue`}
-                          render={({ field }) => <Input {...field} variant="medium" placeholder={item.selectedConfig?.placeholder} className="w-full" />}
-                        />
-                      </div>
-                    ))}
-                  <Button icon={<Trash2 />} iconPosition="center" variant="secondary" onClick={() => remove(index)}></Button>
-                </div>
-              ))}
-              {fields.length < fieldConfigs.length && (
+                      // Fallback to text input
+                      <Controller
+                        control={control}
+                        name={`fieldsArray.${index}.selectedValue`}
+                        render={({ field }) => <Input {...field} variant="medium" placeholder={toHumanLabel(fieldKey || '')} className="w-full" />}
+                      />
+                    )}
+                    <Button icon={<Trash2 />} iconPosition="center" variant="secondary" onClick={() => remove(index)}></Button>
+                  </div>
+                )
+              })}
+              {fields.length < fieldKeys.length && (
                 <Button
                   icon={<Plus />}
                   onClick={() =>

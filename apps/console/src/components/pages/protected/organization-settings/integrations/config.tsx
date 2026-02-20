@@ -1,5 +1,6 @@
 import Github from '@/assets/Github'
 import Slack from '@/assets/Slack'
+import { Plug } from 'lucide-react'
 import { PLATFORM_DOCS_URL } from '@/constants/docs'
 import { GetIntegrationsQuery } from '@repo/codegen/src/schema'
 
@@ -12,7 +13,7 @@ type IntegrationEdge = NonNullable<IntegrationEdges[number]>
 export type IntegrationNode = NonNullable<IntegrationEdge['node']>
 
 export type AvailableIntegrationNode = {
-  id: 'github' | 'slack'
+  id: string
   name: string
   tags: string[]
   description: string
@@ -21,38 +22,58 @@ export type AvailableIntegrationNode = {
   connectRequestBody: string
 }
 
-export const AVAILABLE_INTEGRATIONS: AvailableIntegrationNode[] = [
-  {
-    id: 'github',
-    name: 'GitHub',
-    tags: ['git', 'repository', 'gh', 'repo', 'svn', 'code'],
-    description:
-      'Link your GitHub repositories to automatically collect infrastructure-as-code data, identify compliance signals, and create issues when scans or tests uncover problems. Keep your workflows connected and your risks actionable.',
-    Icon: <Github size={27} />,
-    docsUrl: `${PLATFORM_DOCS_URL}/integrations/github`,
-    connectRequestBody: JSON.stringify({
-      provider: 'github',
-      scopes: ['read:user', 'user:email', 'repo'],
-    }),
-  },
-  {
-    id: 'slack',
-    name: 'Slack',
-    tags: ['chat', 'communication'],
-    description:
-      'Connect Slack to receive real-time updates where your team already works. Get reminders for upcoming tasks, alerts when automated jobs fail, and notifications when new risks are detected—so nothing slips through the cracks.',
-    Icon: <Slack />,
-    docsUrl: `${PLATFORM_DOCS_URL}/integrations/slack`,
-    connectRequestBody: JSON.stringify({
-      provider: 'github',
-      scopes: ['channels:read', 'chat:write', 'users:read'],
-    }),
-  },
-]
+export type IntegrationProvider = {
+  name: string
+  displayName: string
+  category: string
+  authType: string
+  active: boolean
+  logoUrl?: string
+  docsUrl: string
+  oauth?: {
+    scopes?: string[]
+    [key: string]: unknown
+  }
+  labels?: Record<string, string>
+}
 
-export const getIntegrationId = (name: string) => {
+export type IntegrationProvidersResponse = {
+  providers: IntegrationProvider[]
+}
+
+const PROVIDER_ICON_MAP: Record<string, React.JSX.Element> = {
+  github: <Github size={27} />,
+  slack: <Slack />,
+}
+
+function getProviderIcon(name: string): React.JSX.Element {
+  return PROVIDER_ICON_MAP[name.toLowerCase()] ?? <Plug size={27} />
+}
+
+export function toAvailableIntegration(provider: IntegrationProvider): AvailableIntegrationNode {
+  const id = provider.name.toLowerCase()
+  const tags: string[] = [provider.category, ...Object.values(provider.labels ?? {})].filter(Boolean)
+  return {
+    id,
+    name: provider.displayName,
+    tags,
+    description: '',
+    Icon: getProviderIcon(id),
+    docsUrl: provider.docsUrl || `${PLATFORM_DOCS_URL}/integrations/${id}`,
+    connectRequestBody: JSON.stringify({
+      provider: provider.name,
+      scopes: provider.oauth?.scopes ?? [],
+    }),
+  }
+}
+
+export function getInstalledIntegrationConfig(name: string, providers: IntegrationProvider[]): { Icon: React.JSX.Element; docsUrl: string } | undefined {
   const lower = name.toLowerCase()
-  if (lower.includes('github')) return 'github'
-  if (lower.includes('slack')) return 'slack'
-  return undefined
+  const provider = providers.find((p) => lower.includes(p.name.toLowerCase()))
+  if (!provider) return undefined
+  const id = provider.name.toLowerCase()
+  return {
+    Icon: getProviderIcon(id),
+    docsUrl: provider.docsUrl || `${PLATFORM_DOCS_URL}/integrations/${id}`,
+  }
 }

@@ -2,36 +2,18 @@
 
 import { DataTable } from '@repo/ui/data-table'
 import React, { useEffect, useMemo } from 'react'
-import { OrderDirection, EntityOrder, EntityWhereInput, Entity } from '@repo/codegen/src/schema'
-import { TPagination } from '@repo/ui/pagination-types'
-import { getVendorColumns } from './columns'
+import { EntityWhereInput, Entity, EntityOrderField } from '@repo/codegen/src/schema'
 import { EntitiesNodeNonNull, useEntitiesWithFilter } from '@/lib/graphql-hooks/entity'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
-import { VisibilityState } from '@tanstack/react-table'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import { TAccessRole, TPermissionData } from '@/types/authz'
 import { useNotification } from '@/hooks/useNotification'
-import { TableKeyEnum } from '@repo/ui/table-key'
 import { VENDORS_SORT_FIELDS } from './table-config'
+import { getColumns } from './columns'
+import { TTableProps } from '@/components/shared/crud-base/page'
+import { objectName, tableKey } from './types'
 
-type TVendorsTableProps = {
-  onSortChange?: (sortCondition: EntityOrder[] | EntityOrder | undefined) => void
-  pagination: TPagination
-  onPaginationChange: (pagination: TPagination) => void
-  whereFilter: EntityWhereInput | null
-  orderByFilter: EntityOrder[] | EntityOrder | undefined
-  columnVisibility?: VisibilityState
-  setColumnVisibility: React.Dispatch<React.SetStateAction<VisibilityState>>
-  onHasVendorsChange?: (hasVendors: boolean) => void
-  selectedVendors: { id: string }[]
-  setSelectedVendors: React.Dispatch<React.SetStateAction<{ id: string }[]>>
-  canEdit: (accessRole: TAccessRole[] | undefined) => boolean
-  permission: TPermissionData | undefined
-  defaultSorting: { field: string; direction?: OrderDirection }[] | undefined
-}
-
-const VendorsTable = ({
+const TableComponent = ({
   onSortChange,
   pagination,
   onPaginationChange,
@@ -39,13 +21,13 @@ const VendorsTable = ({
   orderByFilter,
   columnVisibility,
   setColumnVisibility,
-  onHasVendorsChange,
-  selectedVendors,
-  setSelectedVendors,
+  onHasChange,
+  selectedItems,
+  setSelectedItems,
   canEdit,
   permission,
   defaultSorting,
-}: TVendorsTableProps) => {
+}: TTableProps<EntitiesNodeNonNull, EntityWhereInput>) => {
   const { replace } = useSmartRouter()
 
   const vendorWhereFilter: EntityWhereInput = {
@@ -53,41 +35,48 @@ const VendorsTable = ({
     hasEntityTypeWith: [{ name: 'vendor' }],
   }
 
+  const orderBy = useMemo(() => {
+    if (!orderByFilter) return undefined
+    return orderByFilter.map(({ field, direction }) => ({
+      field: field as EntityOrderField,
+      direction,
+    }))
+  }, [orderByFilter])
+
   const {
-    entitiesNodes: vendors,
+    entitiesNodes: items,
     isLoading: fetching,
     data,
     isFetching,
     isError,
   } = useEntitiesWithFilter({
     where: vendorWhereFilter,
-    orderBy: orderByFilter,
+    orderBy: orderBy,
     pagination,
     enabled: true,
   })
 
   const { convertToReadOnly } = usePlateEditor()
   const { errorNotification } = useNotification()
-
   const userIds = useMemo(() => {
-    if (!vendors) return []
+    if (!items) return []
     const ids = new Set<string>()
-    vendors.forEach((entity) => {
-      if (entity.createdBy) ids.add(entity.createdBy)
-      if (entity.updatedBy) ids.add(entity.updatedBy)
+    items.forEach((item) => {
+      if (item.createdBy) ids.add(item.createdBy)
+      if (item.updatedBy) ids.add(item.updatedBy)
     })
     return Array.from(ids)
-  }, [vendors])
+  }, [items])
 
-  const hasVendors = useMemo(() => {
-    return vendors && vendors.length > 0
-  }, [vendors])
+  const hastItems = useMemo(() => {
+    return items && items.length > 0
+  }, [items])
 
   useEffect(() => {
-    if (onHasVendorsChange) {
-      onHasVendorsChange(hasVendors)
+    if (onHasChange) {
+      onHasChange(hastItems)
     }
-  }, [hasVendors, onHasVendorsChange])
+  }, [hastItems, onHasChange])
 
   useEffect(() => {
     if (permission?.roles) {
@@ -102,7 +91,7 @@ const VendorsTable = ({
     if (isError) {
       errorNotification({
         title: 'Error',
-        description: 'Failed to load vendors',
+        description: `Failed to load ${objectName.toLowerCase()}`,
       })
     }
   }, [isError, errorNotification])
@@ -119,18 +108,18 @@ const VendorsTable = ({
     return map
   }, [users])
 
-  const columns = useMemo(() => getVendorColumns({ userMap, convertToReadOnly, selectedVendors, setSelectedVendors }), [userMap, convertToReadOnly, selectedVendors, setSelectedVendors])
+  const columns = useMemo(() => getColumns({ userMap, convertToReadOnly, selectedItems, setSelectedItems }), [userMap, convertToReadOnly, selectedItems, setSelectedItems])
 
   return (
     <DataTable<EntitiesNodeNonNull, Entity>
       columns={columns}
       sortFields={VENDORS_SORT_FIELDS}
       onSortChange={onSortChange}
-      data={vendors}
+      data={items}
       loading={fetching || fetchingUsers}
       defaultSorting={defaultSorting}
-      onRowClick={(entity) => {
-        replace({ id: entity.id })
+      onRowClick={(item) => {
+        replace({ id: item.id })
       }}
       pagination={pagination}
       onPaginationChange={onPaginationChange}
@@ -141,11 +130,10 @@ const VendorsTable = ({
       }}
       columnVisibility={columnVisibility}
       setColumnVisibility={setColumnVisibility}
-      tableKey={TableKeyEnum.ENTITY}
+      tableKey={tableKey}
     />
   )
 }
 
-VendorsTable.displayName = 'VendorsTable'
-
-export default VendorsTable
+TableComponent.displayName = 'VendorsTable'
+export default TableComponent

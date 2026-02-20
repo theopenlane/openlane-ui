@@ -1,21 +1,15 @@
 import { ColumnDef, Row } from '@tanstack/react-table'
-import { User } from '@repo/codegen/src/schema'
 import { Avatar } from '@/components/shared/avatar/avatar.tsx'
 import { formatDate } from '@/utils/date'
 import { Checkbox } from '@repo/ui/checkbox'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 import { AssetsNodeNonNull } from '@/lib/graphql-hooks/asset'
+import { ColumnOptions } from '@/components/shared/crud-base/page'
+import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 
-type ColumnOptions = {
-  userMap: Record<string, User>
-  convertToReadOnly?: (data: string, padding?: number, style?: React.CSSProperties) => React.JSX.Element
-  selectedAssets: { id: string }[]
-  setSelectedAssets: React.Dispatch<React.SetStateAction<{ id: string }[]>>
-}
-
-export const getAssetColumns = ({ userMap, convertToReadOnly, selectedAssets, setSelectedAssets }: ColumnOptions): ColumnDef<AssetsNodeNonNull>[] => {
-  const toggleSelection = (asset: { id: string }) => {
-    setSelectedAssets((prev) => {
+export const getColumns = ({ userMap, convertToReadOnly, selectedItems, setSelectedItems }: ColumnOptions<AssetsNodeNonNull>): ColumnDef<AssetsNodeNonNull>[] => {
+  const toggleSelection = (asset: AssetsNodeNonNull) => {
+    setSelectedItems((prev) => {
       const exists = prev.some((c) => c.id === asset.id)
       return exists ? prev.filter((c) => c.id !== asset.id) : [...prev, asset]
     })
@@ -25,7 +19,7 @@ export const getAssetColumns = ({ userMap, convertToReadOnly, selectedAssets, se
       id: 'select',
       header: ({ table }) => {
         const currentPageAssets = table.getRowModel().rows.map((row) => row.original)
-        const allSelected = currentPageAssets.every((asset) => selectedAssets.some((sc) => sc.id === asset.id))
+        const allSelected = currentPageAssets.every((asset) => selectedItems.some((sc) => sc.id === asset.id))
 
         return (
           <div onClick={(e) => e.stopPropagation()}>
@@ -33,10 +27,10 @@ export const getAssetColumns = ({ userMap, convertToReadOnly, selectedAssets, se
               checked={allSelected}
               onCheckedChange={(checked: boolean) => {
                 const newSelections = checked
-                  ? [...selectedAssets.filter((sc) => !currentPageAssets.some((c) => c.id === sc.id)), ...currentPageAssets.map((c) => ({ id: c.id }))]
-                  : selectedAssets.filter((sc) => !currentPageAssets.some((c) => c.id === sc.id))
+                  ? [...selectedItems.filter((sc) => !currentPageAssets.some((c) => c.id === sc.id)), ...currentPageAssets]
+                  : selectedItems.filter((sc) => !currentPageAssets.some((c) => c.id === sc.id))
 
-                setSelectedAssets(newSelections)
+                setSelectedItems(newSelections)
               }}
             />
           </div>
@@ -44,11 +38,11 @@ export const getAssetColumns = ({ userMap, convertToReadOnly, selectedAssets, se
       },
       cell: ({ row }: { row: Row<AssetsNodeNonNull> }) => {
         const { id } = row.original
-        const isChecked = selectedAssets.some((c) => c.id === id)
+        const isChecked = selectedItems.some((c) => c.id === id)
 
         return (
           <div onClick={(e) => e.stopPropagation()}>
-            <Checkbox checked={isChecked} onCheckedChange={() => toggleSelection({ id })} />
+            <Checkbox checked={isChecked} onCheckedChange={() => toggleSelection(row.original)} />
           </div>
         )
       },
@@ -59,7 +53,15 @@ export const getAssetColumns = ({ userMap, convertToReadOnly, selectedAssets, se
     { accessorKey: 'accessModelName', header: 'Access Model', size: 140 },
     { accessorKey: 'assetDataClassificationName', header: 'Data Classification', size: 140 },
     { accessorKey: 'assetSubtypeName', header: 'Subtype', size: 120 },
-    { accessorKey: 'assetType', header: 'Type', size: 120 },
+    {
+      accessorKey: 'assetType',
+      header: 'Type',
+      size: 120,
+      cell: ({ cell }) => {
+        const value = cell.getValue() as string
+        return <div>{value ? getEnumLabel(value) : '-'}</div>
+      },
+    },
     { accessorKey: 'costCenter', header: 'Cost Center', size: 120 },
     { accessorKey: 'cpe', header: 'CPE', size: 120 },
     { accessorKey: 'createdAt', header: 'Created At', size: 130, cell: ({ cell }) => formatDate(cell.getValue() as string) },
@@ -99,7 +101,15 @@ export const getAssetColumns = ({ userMap, convertToReadOnly, selectedAssets, se
     { accessorKey: 'scopeName', header: 'Scope', size: 120 },
     { accessorKey: 'securityTierName', header: 'Security Tier', size: 120 },
     { accessorKey: 'sourceIdentifier', header: 'Source Identifier', size: 120 },
-    { accessorKey: 'sourceType', header: 'Source Type', size: 120 },
+    {
+      accessorKey: 'sourceType',
+      header: 'Source Type',
+      size: 120,
+      cell: ({ cell }) => {
+        const value = cell.getValue() as string
+        return <div>{value ? getEnumLabel(value) : '-'}</div>
+      },
+    },
     {
       accessorKey: 'tags',
       header: 'Tags',

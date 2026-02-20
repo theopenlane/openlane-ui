@@ -5,7 +5,7 @@ import { useFormContext } from 'react-hook-form'
 import { FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { InfoIcon } from 'lucide-react'
-import { EditAssetFormData } from '../../../hooks/use-form-schema'
+import { AssetFormData } from '../../../hooks/use-form-schema'
 import PlateEditor from '@/components/shared/plate/plate-editor'
 import { Value } from 'platejs'
 
@@ -17,7 +17,7 @@ type DescriptionFieldProps = {
 }
 
 const DescriptionField: React.FC<DescriptionFieldProps> = ({ isEditing, isCreate, initialValue, isFormInitialized }) => {
-  const { control, formState } = useFormContext<EditAssetFormData>()
+  const { control, formState } = useFormContext<AssetFormData>()
   const hasInitialized = useRef(false)
 
   console.log('Rendering DescriptionField with initialValue:', initialValue)
