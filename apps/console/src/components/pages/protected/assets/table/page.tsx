@@ -133,6 +133,7 @@ const AssetPage: React.FC = () => {
     defaultSorting,
     defaultVisibility: visibilityFields,
     filterFields: getFilterFields(enumOpts),
+    searchFields: ['nameContainsFold', 'descriptionContainsFold'],
     breadcrumbs,
     form,
     getColumns,

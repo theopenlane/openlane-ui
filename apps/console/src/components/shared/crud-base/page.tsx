@@ -69,6 +69,7 @@ export interface GenericTablePageConfig<TEntity extends { id: string }, TFormDat
 
   defaultVisibility: VisibilityState
   filterFields?: FilterField[] | undefined
+  searchFields?: string[]
 
   // Breadcrumbs
   breadcrumbs: Array<{ label: string; href: string }>
@@ -130,6 +131,7 @@ export function GenericTablePage<
     defaultSorting,
     defaultVisibility,
     filterFields,
+    searchFields,
     breadcrumbs,
     form,
     getColumns,
@@ -173,14 +175,19 @@ export function GenericTablePage<
   const whereFilter = useMemo(() => {
     if (!filters) return null
 
-    const base = {}
-
     const result = whereGenerator<TWhereInput>(filters, (key, value) => {
       return { [key]: value } as TWhereInput
     })
 
-    return { ...base, ...result } as TWhereInput
-  }, [filters])
+    const merged = { ...result } as Record<string, unknown>
+
+    if (debouncedSearch && searchFields && searchFields.length > 0) {
+      const orClause = searchFields.map((field) => ({ [field]: debouncedSearch }))
+      merged.and = [...((merged.and as unknown[]) || []), { or: orClause }]
+    }
+
+    return merged as TWhereInput
+  }, [filters, debouncedSearch, searchFields])
 
   const orderByFilter = useMemo(() => {
     return orderBy || undefined

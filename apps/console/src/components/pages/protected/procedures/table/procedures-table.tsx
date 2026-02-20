@@ -59,10 +59,6 @@ export const ProceduresTable = () => {
   const debouncedSearch = useDebounce(searchTerm, 300)
 
   const where = useMemo(() => {
-    const base: ProcedureWhereInput = {
-      nameContainsFold: debouncedSearch,
-    }
-
     const result = whereGenerator<ProcedureWhereInput>(filters, (key, value) => {
       if (key === 'hasControlsWith') {
         return { hasControlsWith: [{ refCodeContainsFold: value as string }] } as ProcedureWhereInput
@@ -90,7 +86,13 @@ export const ProceduresTable = () => {
       result.statusNotIn = [ProcedureDocumentStatus.ARCHIVED]
     }
 
-    return { ...base, ...result }
+    const merged = { ...result }
+
+    if (debouncedSearch) {
+      merged.and = [...(merged.and || []), { or: [{ nameContainsFold: debouncedSearch }, { detailsContainsFold: debouncedSearch }] }]
+    }
+
+    return merged
   }, [filters, debouncedSearch])
 
   const userListWhere: OrgMembershipWhereInput = useMemo(() => {
