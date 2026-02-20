@@ -59,7 +59,7 @@ const QuestionnaireViewerPage: React.FC = () => {
   })
 
   const handleEdit = () => {
-    router.push(`/questionnaires/questionnaire-editor?id=${existingId}`)
+    router.push(`/automation/assessments/questionnaire-editor?id=${existingId}`)
   }
 
   const handleSend: SubmitHandler<{ email: string }> = async (data) => {
@@ -88,7 +88,7 @@ const QuestionnaireViewerPage: React.FC = () => {
     try {
       await deleteAssessment({ deleteAssessmentId: existingId })
       successNotification({ title: 'Questionnaire deleted successfully' })
-      router.push('/questionnaires')
+      router.push('/automation/assessments')
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
       errorNotification({
@@ -124,7 +124,7 @@ const QuestionnaireViewerPage: React.FC = () => {
           title: 'Template created successfully',
         })
         setIsSaveAsTemplateDialogOpen(false)
-        router.push(`/questionnaires/templates/template-viewer?id=${templateId}`)
+        router.push(`/automation/assessments/templates/template-viewer?id=${templateId}`)
       }
     } catch (error) {
       const errorMessage = parseErrorMessage(error)

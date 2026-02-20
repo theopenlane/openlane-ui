@@ -1,5 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  async redirects() {
+    return [
+      { source: '/tasks', destination: '/automation/tasks', permanent: true },
+      { source: '/questionnaires', destination: '/automation/assessments', permanent: true },
+      { source: '/questionnaires/:path*', destination: '/automation/assessments/:path*', permanent: true },
+    ]
+  },
   reactStrictMode: true,
   transpilePackages: ['@repo/dally', '@repo/ui', '@repo/codegen', 'survey-core', 'survey-react-ui'],
   experimental: {

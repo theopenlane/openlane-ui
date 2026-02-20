@@ -104,7 +104,7 @@ const TasksPage: React.FC = () => {
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
-      { label: 'Tasks', href: '/tasks' },
+      { label: 'Tasks', href: '/automation/tasks' },
     ])
   }, [setCrumbs])
 

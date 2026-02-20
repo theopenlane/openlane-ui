@@ -19,7 +19,7 @@ export const getQuestionnaireColumns = ({ userMap }: GetQuestionnaireColumnsArgs
         const name = row.getValue('name')
 
         return (
-          <Link href={`/questionnaires/questionnaire-viewer?id=${id}`} className="text-blue-600 hover:underline">
+          <Link href={`/automation/assessments/questionnaire-viewer?id=${id}`} className="text-blue-600 hover:underline">
             {name as string}
           </Link>
         )

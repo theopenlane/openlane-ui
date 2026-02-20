@@ -36,6 +36,8 @@ import {
   LibraryBig,
   Laptop,
   IdCardLanyardIcon,
+  Route,
+  ClipboardPenLine,
 } from 'lucide-react'
 import { NavHeading, type NavItem, type Separator } from '@/types'
 import { PlanEnum } from '@/lib/subscription-plan/plan-enum.ts'
@@ -54,12 +56,6 @@ export const topNavigationItems = (session: Session | null): (NavItem | Separato
       title: 'Home',
       href: '/dashboard',
       icon: House,
-      hidden: session?.user?.isOnboarding || billingExpired,
-    },
-    {
-      title: 'Tasks',
-      href: '/tasks',
-      icon: ListChecks,
       hidden: session?.user?.isOnboarding || billingExpired,
     },
     {
@@ -99,11 +95,6 @@ export const topNavigationItems = (session: Session | null): (NavItem | Separato
           title: 'Standards Catalog',
           href: '/standards',
           icon: FileBadge2,
-        },
-        {
-          title: 'Questionnaires',
-          href: '/questionnaires',
-          icon: NotebookPen,
         },
         {
           title: 'Risks',
@@ -182,6 +173,33 @@ export const topNavigationItems = (session: Session | null): (NavItem | Separato
         { title: 'Updates', href: '/trust-center/updates', icon: Megaphone },
         { title: 'Customer Logos', href: '/trust-center/customer-logos', icon: Component },
         { title: 'Analytics', href: '/trust-center/analytics', icon: ChartLine },
+      ],
+    },
+    {
+      title: 'Automation',
+      href: '/automation',
+      icon: Route,
+      isChildren: true,
+      hidden: session?.user?.isOnboarding || billingExpired,
+      children: [
+        {
+          title: 'Tasks',
+          href: '/automation/tasks',
+          icon: ListChecks,
+        },
+        {
+          title: 'Assessments',
+          href: '/automation/assessments',
+          icon: ClipboardPenLine,
+          plan: PlanEnum.COMPLIANCE_MODULE,
+        },
+        {
+          title: 'Exposure',
+          href: '/automation/exposure',
+          icon: AlertTriangle,
+          hidden: true,
+          plan: PlanEnum.COMPLIANCE_MODULE,
+        },
       ],
     },
   ]

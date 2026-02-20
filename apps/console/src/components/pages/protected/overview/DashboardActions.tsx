@@ -11,7 +11,7 @@ const DashboardActions = () => {
   }
 
   const handleViewMyTasks = () => {
-    router.push('/tasks?showMyTasks=true')
+    router.push('/automation/tasks?showMyTasks=true')
   }
 
   const handleCreateRisk = () => {

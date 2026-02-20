@@ -26,7 +26,7 @@ import { canCreate } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { hasNoModules } from '@/lib/auth/utils/modules'
 
-export type PanelKey = 'compliance' | 'trust center' | null
+export type PanelKey = 'compliance' | 'trust center' | 'automation' | null
 
 export const PRIMARY_WIDTH = 50
 export const PRIMARY_EXPANDED_WIDTH = 248

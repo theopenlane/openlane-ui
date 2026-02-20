@@ -14,7 +14,7 @@ export const CreateDropdown = () => {
   const [isTemplateDialogOpen, setTemplateDialogOpen] = useState(false)
 
   const handleCreateNew = () => {
-    router.push('/questionnaires/questionnaire-editor')
+    router.push('/automation/assessments/questionnaire-editor')
   }
 
   return (

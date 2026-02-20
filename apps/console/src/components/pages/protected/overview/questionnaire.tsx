@@ -77,7 +77,7 @@ const Questionnaire = () => {
           <div className="flex flex-col items-center justify-center text-center py-16">
             <FileQuestion width={45} height={45} strokeWidth={1} className="text-border mb-4" />
             <h2 className="text-lg font-semibold">No questionnaires</h2>
-            <Link href={'/questionnaires'}>
+            <Link href={'/automation/assessments'}>
               <Button variant="secondary" className="mt-4">
                 Take me there
               </Button>

@@ -47,7 +47,7 @@ const DashboardComplianceOverview = () => {
     }
 
     saveQuickFilters(TableKeyEnum.TASK, filters)
-    router.push('/tasks')
+    router.push('/automation/tasks')
   }
 
   const handleOpenRiskDashboard = () => {
