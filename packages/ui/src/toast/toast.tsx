@@ -9,17 +9,17 @@ const { viewport, action, close, title: titleSlot, description: descriptionSlot,
 
 const ToastProvider = ToastPrimitives.Provider
 
-const ToastViewport = React.forwardRef<React.ElementRef<typeof ToastPrimitives.Viewport>, React.ComponentPropsWithoutRef<typeof ToastPrimitives.Viewport>>(({ className, ...props }, ref) => (
+const ToastViewport = ({ className, ref, ...props }: React.ComponentPropsWithoutRef<typeof ToastPrimitives.Viewport> & { ref?: React.Ref<React.ElementRef<typeof ToastPrimitives.Viewport>> }) => (
   <ToastPrimitives.Viewport ref={ref} className={cn(viewport(), className)} {...props} />
-))
-ToastViewport.displayName = ToastPrimitives.Viewport.displayName
+)
 
 interface TToastProps extends React.ComponentPropsWithoutRef<typeof ToastPrimitives.Root>, ToastVariants {
   title?: string
   description?: React.ReactNode | string
+  ref?: React.Ref<React.ElementRef<typeof ToastPrimitives.Root>>
 }
 
-const Toast = React.forwardRef<React.ElementRef<typeof ToastPrimitives.Root>, TToastProps>(({ className, variant = 'default', title, description, ...props }, ref) => {
+const Toast = ({ className, variant = 'default', title, description, ref, ...props }: TToastProps) => {
   const toastClass = toastStyles().toast({ variant }) // call the toast slot function
 
   const renderIcon = () => {
@@ -69,31 +69,29 @@ const Toast = React.forwardRef<React.ElementRef<typeof ToastPrimitives.Root>, TT
       <ToastClose />
     </ToastPrimitives.Root>
   )
-})
+}
 
-Toast.displayName = ToastPrimitives.Root.displayName
-
-const ToastAction = React.forwardRef<React.ElementRef<typeof ToastPrimitives.Action>, React.ComponentPropsWithoutRef<typeof ToastPrimitives.Action>>(({ className, ...props }, ref) => (
+const ToastAction = ({ className, ref, ...props }: React.ComponentPropsWithoutRef<typeof ToastPrimitives.Action> & { ref?: React.Ref<React.ElementRef<typeof ToastPrimitives.Action>> }) => (
   <ToastPrimitives.Action ref={ref} className={cn(action(), className)} {...props} />
-))
-ToastAction.displayName = ToastPrimitives.Action.displayName
+)
 
-const ToastClose = React.forwardRef<React.ElementRef<typeof ToastPrimitives.Close>, React.ComponentPropsWithoutRef<typeof ToastPrimitives.Close>>(({ className, ...props }, ref) => (
+const ToastClose = ({ className, ref, ...props }: React.ComponentPropsWithoutRef<typeof ToastPrimitives.Close> & { ref?: React.Ref<React.ElementRef<typeof ToastPrimitives.Close>> }) => (
   <ToastPrimitives.Close ref={ref} className={cn(close(), className)} {...props}>
     <X className={cn(closeIcon())} />
   </ToastPrimitives.Close>
-))
-ToastClose.displayName = ToastPrimitives.Close.displayName
+)
 
-const ToastTitle = React.forwardRef<React.ElementRef<typeof ToastPrimitives.Title>, React.ComponentPropsWithoutRef<typeof ToastPrimitives.Title>>(({ className, ...props }, ref) => (
+const ToastTitle = ({ className, ref, ...props }: React.ComponentPropsWithoutRef<typeof ToastPrimitives.Title> & { ref?: React.Ref<React.ElementRef<typeof ToastPrimitives.Title>> }) => (
   <ToastPrimitives.Title ref={ref} className={cn(titleSlot(), className)} {...props} />
-))
-ToastTitle.displayName = ToastPrimitives.Title.displayName
+)
 
-const ToastDescription = React.forwardRef<React.ElementRef<typeof ToastPrimitives.Description>, React.ComponentPropsWithoutRef<typeof ToastPrimitives.Description>>(({ className, ...props }, ref) => (
+const ToastDescription = ({
+  className,
+  ref,
+  ...props
+}: React.ComponentPropsWithoutRef<typeof ToastPrimitives.Description> & { ref?: React.Ref<React.ElementRef<typeof ToastPrimitives.Description>> }) => (
   <ToastPrimitives.Description ref={ref} className={cn(descriptionSlot(), className)} {...props} />
-))
-ToastDescription.displayName = ToastPrimitives.Description.displayName
+)
 
 type ToastProps = React.ComponentPropsWithoutRef<typeof Toast>
 

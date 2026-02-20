@@ -1,6 +1,7 @@
 // Tremor ProgressCircle [v0.0.3]
 
 import React from 'react'
+import type { Ref } from 'react'
 import { tv, VariantProps } from 'tailwind-variants'
 
 import { cn } from '@repo/ui/lib/utils'
@@ -52,58 +53,65 @@ interface ProgressCircleProps extends Omit<React.SVGProps<SVGSVGElement>, 'value
   children?: React.ReactNode
 }
 
-const ProgressCircle = React.forwardRef<SVGSVGElement, ProgressCircleProps>(
-  ({ value = 0, max = 100, radius = 32, strokeWidth = 6, showAnimation = true, variant, className, children, ...props }: ProgressCircleProps, forwardedRef) => {
-    const safeValue = Math.min(max, Math.max(value, 0))
-    const normalizedRadius = radius - strokeWidth / 2
-    const circumference = normalizedRadius * 2 * Math.PI
-    const offset = circumference - (safeValue / max) * circumference
+const ProgressCircle = ({
+  value = 0,
+  max = 100,
+  radius = 32,
+  strokeWidth = 6,
+  showAnimation = true,
+  variant,
+  className,
+  children,
+  ref,
+  ...props
+}: ProgressCircleProps & { ref?: Ref<SVGSVGElement> }) => {
+  const safeValue = Math.min(max, Math.max(value, 0))
+  const normalizedRadius = radius - strokeWidth / 2
+  const circumference = normalizedRadius * 2 * Math.PI
+  const offset = circumference - (safeValue / max) * circumference
 
-    const { background, circle } = progressCircleVariants({ variant })
-    return (
-      <div
-        className={cn('relative')}
-        role="progressbar"
-        aria-label="Progress circle"
-        aria-valuenow={value}
-        aria-valuemin={0}
-        aria-valuemax={max}
-        data-max={max}
-        data-value={safeValue ?? null}
-        tremor-id="tremor-raw"
-      >
-        <svg ref={forwardedRef} width={radius * 2} height={radius * 2} viewBox={`0 0 ${radius * 2} ${radius * 2}`} className={cn('-rotate-90 transform', className)} {...props}>
+  const { background, circle } = progressCircleVariants({ variant })
+  return (
+    <div
+      className={cn('relative')}
+      role="progressbar"
+      aria-label="Progress circle"
+      aria-valuenow={value}
+      aria-valuemin={0}
+      aria-valuemax={max}
+      data-max={max}
+      data-value={safeValue ?? null}
+      tremor-id="tremor-raw"
+    >
+      <svg ref={ref} width={radius * 2} height={radius * 2} viewBox={`0 0 ${radius * 2} ${radius * 2}`} className={cn('-rotate-90 transform', className)} {...props}>
+        <circle
+          r={normalizedRadius}
+          cx={radius}
+          cy={radius}
+          strokeWidth={strokeWidth}
+          fill="transparent"
+          stroke=""
+          strokeLinecap="round"
+          className={cn('transition-colors ease-linear', background())}
+        />
+        {safeValue >= 0 ? (
           <circle
             r={normalizedRadius}
             cx={radius}
             cy={radius}
             strokeWidth={strokeWidth}
+            strokeDasharray={`${circumference} ${circumference}`}
+            strokeDashoffset={offset}
             fill="transparent"
             stroke=""
             strokeLinecap="round"
-            className={cn('transition-colors ease-linear', background())}
+            className={cn('transition-colors ease-linear', circle(), showAnimation && 'transform-gpu transition-all duration-300 ease-in-out')}
           />
-          {safeValue >= 0 ? (
-            <circle
-              r={normalizedRadius}
-              cx={radius}
-              cy={radius}
-              strokeWidth={strokeWidth}
-              strokeDasharray={`${circumference} ${circumference}`}
-              strokeDashoffset={offset}
-              fill="transparent"
-              stroke=""
-              strokeLinecap="round"
-              className={cn('transition-colors ease-linear', circle(), showAnimation && 'transform-gpu transition-all duration-300 ease-in-out')}
-            />
-          ) : null}
-        </svg>
-        <div className={cn('absolute inset-0 flex items-center justify-center')}>{children}</div>
-      </div>
-    )
-  },
-)
-
-ProgressCircle.displayName = 'ProgressCircle'
+        ) : null}
+      </svg>
+      <div className={cn('absolute inset-0 flex items-center justify-center')}>{children}</div>
+    </div>
+  )
+}
 
 export { ProgressCircle, type ProgressCircleProps }

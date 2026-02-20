@@ -1,10 +1,9 @@
 'use client'
 
-import { forwardRef } from 'react'
 import { TagInput as EmblorTagInput, type TagInputProps } from 'emblor'
 import { tagInputStyles } from './tag-input.styles'
 
-const TagInput = forwardRef<HTMLDivElement, TagInputProps>(({ className, ...props }, ref) => {
+const TagInput = ({ className, ref, ...props }: TagInputProps & { ref?: React.Ref<HTMLDivElement> }) => {
   const { input, tag, tagClose, inlineTagsContainer } = tagInputStyles()
   return (
     <EmblorTagInput
@@ -25,8 +24,6 @@ const TagInput = forwardRef<HTMLDivElement, TagInputProps>(({ className, ...prop
       }}
     />
   )
-})
-
-TagInput.displayName = 'TagInput'
+}
 
 export { TagInput }
