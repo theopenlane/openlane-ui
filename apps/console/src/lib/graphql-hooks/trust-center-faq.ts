@@ -1,8 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
-  TrustCenterFAQsWithFilterQuery,
-  TrustCenterFAQsWithFilterQueryVariables,
+  TrustCenterFaQsWithFilterQuery,
   CreateTrustCenterFAQMutation,
   CreateTrustCenterFAQMutationVariables,
   UpdateTrustCenterFAQMutation,
@@ -32,8 +31,8 @@ import {
 } from '@repo/codegen/query/trust-center-faq'
 
 type GetAllTrustCenterFAQsArgs = {
-  where?: TrustCenterFAQsWithFilterQueryVariables['where']
-  orderBy?: TrustCenterFAQsWithFilterQueryVariables['orderBy']
+  where?: TrustCenterFaQsWithFilterQuery['where']
+  orderBy?: TrustCenterFaQsWithFilterQuery['orderBy']
   pagination?: TPagination
   enabled?: boolean
 }
