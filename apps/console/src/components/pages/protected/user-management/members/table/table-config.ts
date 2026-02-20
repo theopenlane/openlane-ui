@@ -61,4 +61,8 @@ export const INVITES_SORT_FIELDS = [
   { key: 'updated_at', label: 'Updated At' },
 ]
 
-export const MEMBERS_SORT_FIELDS = [{ key: 'ROLE', label: 'Role' }]
+export const MEMBERS_SORT_FIELDS = [
+  { key: 'ROLE', label: 'Role' },
+  { key: 'created_at', label: 'Created At' },
+  { key: 'updated_at', label: 'Updated At' },
+]

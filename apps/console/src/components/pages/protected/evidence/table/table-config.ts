@@ -43,4 +43,6 @@ export const EVIDENCE_SORTABLE_FIELDS = [
       direction: OrderDirection.ASC,
     },
   },
+  { key: 'created_at', label: 'Created At' },
+  { key: 'updated_at', label: 'Updated At' },
 ]

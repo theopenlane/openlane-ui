@@ -138,5 +138,6 @@ export const INTERNAL_POLICIES_SORT_FIELDS = [
   { key: 'name', label: 'Name' },
   { key: 'review_due', label: 'Review Due Date' },
   { key: 'revision', label: 'Revision' },
+  { key: 'created_at', label: 'Created At' },
   { key: 'updated_at', label: 'Last Updated' },
 ]
