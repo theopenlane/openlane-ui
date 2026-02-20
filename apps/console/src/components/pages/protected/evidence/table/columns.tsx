@@ -91,8 +91,8 @@ export const useGetEvidenceColumns = ({ userMap, selectedEvidence, setSelectedEv
     {
       accessorKey: 'description',
       header: 'Description',
-      cell: ({ cell }) => {
-        return <div className="font-bold">{cell.getValue() as string}</div>
+      cell: ({ row }) => {
+        return <div className="font-bold">{row.original.description || '-'}</div>
       },
       minSize: 100,
       size: 400,
@@ -130,7 +130,9 @@ export const useGetEvidenceColumns = ({ userMap, selectedEvidence, setSelectedEv
       accessorKey: 'status',
       header: 'Status',
       cell: ({ row }) => {
-        const status = row.original.status!
+        const status = row.original.status
+        if (!status) return '-'
+
         return (
           <div className="flex items-center space-x-2">
             {EvidenceIconMapper[status]}
@@ -151,8 +153,8 @@ export const useGetEvidenceColumns = ({ userMap, selectedEvidence, setSelectedEv
     {
       accessorKey: 'collectionProcedure',
       header: 'Collection Procedure',
-      cell: ({ cell }) => {
-        return <div className="font-bold">{cell.getValue() ? convertToReadOnly(cell.getValue() as string) : '-'}</div>
+      cell: ({ row }) => {
+        return <div className="font-bold">{row.original.collectionProcedure ? convertToReadOnly(row.original.collectionProcedure) : '-'}</div>
       },
       minSize: 100,
       size: 400,
@@ -160,8 +162,8 @@ export const useGetEvidenceColumns = ({ userMap, selectedEvidence, setSelectedEv
     {
       accessorKey: 'source',
       header: 'Source',
-      cell: ({ cell }) => {
-        return <div className="font-bold">{(cell.getValue() as string) || '-'}</div>
+      cell: ({ row }) => {
+        return <div className="font-bold">{row.original.source || '-'}</div>
       },
       minSize: 100,
       size: 180,
@@ -226,7 +228,7 @@ export const useGetEvidenceColumns = ({ userMap, selectedEvidence, setSelectedEv
       accessorKey: 'createdAt',
       header: 'Created At',
       size: 150,
-      cell: ({ cell }) => <span className="whitespace-nowrap">{formatDate(cell.getValue() as string)}</span>,
+      cell: ({ row }) => <span className="whitespace-nowrap">{formatDate(row.original.createdAt)}</span>,
     },
     {
       accessorKey: 'updatedBy',
@@ -248,7 +250,7 @@ export const useGetEvidenceColumns = ({ userMap, selectedEvidence, setSelectedEv
       accessorKey: 'updatedAt',
       header: 'Last Updated',
       size: 100,
-      cell: ({ cell }) => <span className="whitespace-nowrap">{formatTimeSince(cell.getValue() as string)}</span>,
+      cell: ({ row }) => <span className="whitespace-nowrap">{formatTimeSince(row.original.updatedAt)}</span>,
     },
   ]
 

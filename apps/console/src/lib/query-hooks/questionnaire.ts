@@ -54,6 +54,52 @@ export const useQuestionnaire = ({ token, enabled = true }: UseQuestionnairePara
   return resp
 }
 
+interface ResendQuestionnaireLinkParams {
+  assessmentId: string
+  email: string
+}
+
+interface ResendQuestionnaireLinkResponse {
+  success: boolean
+  message?: string
+}
+
+export const useResendQuestionnaireLink = () => {
+  const { errorNotification, successNotification } = useNotification()
+
+  return useMutation<ResendQuestionnaireLinkResponse, Error, ResendQuestionnaireLinkParams>({
+    mutationFn: async ({ assessmentId, email }) => {
+      const response = await fetch('/api/questionnaire/resend', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ assessment_id: assessmentId, email }),
+      })
+
+      const result = await response.json()
+
+      if (!response.ok || !result.success) {
+        throw new Error(result.message || 'Could not resend questionnaire link. Please try again.')
+      }
+
+      return result as ResendQuestionnaireLinkResponse
+    },
+    onSuccess: () => {
+      successNotification({
+        title: 'Link Sent',
+        description: 'A new authentication link has been sent to your email.',
+      })
+    },
+    onError: (error) => {
+      errorNotification({
+        title: 'Failed to Resend Link',
+        description: error.message || 'An unexpected error occurred. Please try again.',
+      })
+    },
+  })
+}
+
 interface SubmitQuestionnaireParams {
   token: string
   data: Record<string, unknown>

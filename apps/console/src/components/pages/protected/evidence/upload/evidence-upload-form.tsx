@@ -3,8 +3,7 @@ import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import React, { useEffect, useState } from 'react'
 import UploadTab from '@/components/pages/protected/evidence/upload/upload-tab'
 import DirectLinkTab from '@/components/pages/protected/evidence/upload/direct-link-tab'
-import { UseFormReturn } from 'react-hook-form'
-import { CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema'
+import { CreateEvidenceFormMethods } from '@/components/pages/protected/evidence/hooks/use-form-schema'
 import ExistingFilesTab from '@/components/pages/protected/evidence/upload/existing-files-tab'
 import { TUploadedFile } from './types/TUploadedFile'
 import UploadedFileDetailsCard from '@/components/shared/file-upload/uploaded-file-details-card'
@@ -13,7 +12,7 @@ type TProps = {
   evidenceFiles: (uploadedFiles: TUploadedFile[]) => void
   resetEvidenceFiles: boolean
   setResetEvidenceFiles: () => void
-  form: UseFormReturn<CreateEvidenceFormData>
+  form: CreateEvidenceFormMethods
 }
 
 const EvidenceUploadForm: React.FC<TProps> = (props: TProps) => {

@@ -58,8 +58,8 @@ const ControlDetailsTabs: React.FC<TabsProps> = (props) => {
       | null
       | undefined
     if (!raw) return null
-    if (Array.isArray(raw)) return raw.flatMap((p) => p?.procedures ?? [])
-    return raw.procedures ?? []
+    if (Array.isArray(raw)) return raw
+    return [raw]
   }, [isSubcontrol, subcontrol?.testingProcedures, control?.testingProcedures])
 
   const references = (isSubcontrol ? subcontrol?.references : control?.references) as { name: string; url?: string }[] | null | undefined

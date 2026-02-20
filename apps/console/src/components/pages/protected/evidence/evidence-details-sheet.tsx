@@ -35,7 +35,7 @@ import { useControlEvidenceStore } from '@/components/pages/protected/controls/h
 import { useDeleteEvidence, useGetEvidenceById, useUpdateEvidence } from '@/lib/graphql-hooks/evidence.ts'
 import { formatDate } from '@/utils/date.ts'
 import { Avatar } from '@/components/shared/avatar/avatar.tsx'
-import { Control, EvidenceEvidenceStatus, Subcontrol, User } from '@repo/codegen/src/schema.ts'
+import { Control, EvidenceEvidenceStatus, Subcontrol } from '@repo/codegen/src/schema.ts'
 import useFormSchema, { EditEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema.ts'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { Controller } from 'react-hook-form'
@@ -75,7 +75,6 @@ import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 import EvidenceCommentsCard from './evidence-comment-card'
 import PlateEditor from '@/components/shared/plate/plate-editor'
-import { Value } from 'platejs'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
@@ -164,12 +163,11 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
   const initialAssociations = useMemo(
     () => ({
-      programIDs: (evidence?.programs?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-
-      controlObjectiveIDs: (evidence?.controlObjectives?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-      subcontrolIDs: (evidence?.subcontrols?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) ?? [],
-      controlIDs: (evidence?.controls?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) ?? [],
-      taskIDs: (evidence?.tasks?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) ?? [],
+      programIDs: evidence?.programs?.edges?.map((edge) => edge?.node?.id).filter((id): id is string => typeof id === 'string' && id.length > 0) ?? [],
+      controlObjectiveIDs: evidence?.controlObjectives?.edges?.map((edge) => edge?.node?.id).filter((id): id is string => typeof id === 'string' && id.length > 0) ?? [],
+      subcontrolIDs: evidence?.subcontrols?.edges?.map((edge) => edge?.node?.id).filter((id): id is string => typeof id === 'string' && id.length > 0) ?? [],
+      controlIDs: evidence?.controls?.edges?.map((edge) => edge?.node?.id).filter((id): id is string => typeof id === 'string' && id.length > 0) ?? [],
+      taskIDs: evidence?.tasks?.edges?.map((edge) => edge?.node?.id).filter((id): id is string => typeof id === 'string' && id.length > 0) ?? [],
     }),
     [evidence],
   )
@@ -190,7 +188,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
     return {
       controls,
       subcontrols,
-      programDisplayIDs: (evidence.programs?.edges?.map((e) => e?.node?.name).filter(Boolean) as string[]) ?? [],
+      programDisplayIDs: evidence.programs?.edges?.map((edge) => edge?.node?.name).filter((name): name is string => typeof name === 'string' && name.length > 0) ?? [],
       subcontrolRefCodes: subcontrols.map((s) => s.refCode),
       subcontrolReferenceFramework: Object.fromEntries(subcontrols.map((s) => [s.id, s.referenceFramework ?? ''])),
       controlRefCodes: controls.map((c) => c.refCode),
@@ -198,6 +196,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
     }
   }, [evidence])
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (initialAssociationsControlsAndPrograms.controls) {
       setEvidenceControls(initialAssociationsControlsAndPrograms.controls)
@@ -212,8 +211,8 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
       form.reset({
         name: evidence.name ?? '',
         description: evidence?.description ?? '',
-        renewalDate: evidence.renewalDate ? new Date(evidence.renewalDate as string) : undefined,
-        creationDate: evidence.creationDate ? new Date(evidence.creationDate as string) : undefined,
+        renewalDate: evidence.renewalDate,
+        creationDate: evidence.creationDate,
         status: evidence?.status ? Object.values(EvidenceEvidenceStatus).find((type) => type === evidence?.status) : undefined,
         tags: evidence?.tags ?? [],
         collectionProcedure: evidence?.collectionProcedure || '',
@@ -226,13 +225,15 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
           return {
             value: item,
             label: item,
-          } as Option
+          }
         })
         setTagValues(tags)
       }
     }
   }, [evidence, form])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const handleInitialValue = useCallback(() => {
     if (initialAssociations && initialAssociationsControlsAndPrograms) {
       form.setValue('controlIDs', initialAssociations.controlIDs ? initialAssociations.controlIDs : [])
@@ -243,9 +244,11 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
     }
   }, [form, initialAssociations, initialAssociationsControlsAndPrograms])
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     handleInitialValue()
   }, [handleInitialValue])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const programIDs = form.watch('programIDs')
 
@@ -287,9 +290,9 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
     router.replace(`${window.location.pathname}?${newSearchParams.toString()}`)
   }
 
-  const omit = <T extends object, K extends keyof T>(obj: T, keys: K[]): Omit<T, K> => Object.fromEntries(Object.entries(obj).filter(([k]) => !keys.includes(k as K))) as Omit<T, K>
-
   const onSubmit = async (formData: EditEvidenceFormData) => {
+    if (!config.id) return
+
     const controlIDs = form.getValues('controlIDs') || []
     const subcontrolIDs = form.getValues('subcontrolIDs') || []
     const programIDs = form.getValues('programIDs') || []
@@ -305,21 +308,15 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
     const associationInputs = getAssociationInput(initialAssociations, updatedAssociations)
 
-    const keysToOmit: (keyof EditEvidenceFormData)[] = ['programIDs', 'controlIDs', 'subcontrolIDs']
-    if (!form.formState.dirtyFields.renewalDate) {
-      keysToOmit.push('renewalDate')
-    }
-
-    const cleanFormData = omit(formData, keysToOmit)
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars -- destructured to exclude from cleanFormData
+    const { programIDs: _programIDs, controlIDs: _controlIDs, subcontrolIDs: _subcontrolIDs, ...restFormData } = formData
+    const cleanFormData = form.formState.dirtyFields.renewalDate ? restFormData : Object.fromEntries(Object.entries(restFormData).filter(([key]) => key !== 'renewalDate'))
 
     try {
-      let collectionProcedure
-      if (formData.collectionProcedure) {
-        collectionProcedure = await convertToHtml(formData.collectionProcedure as Value)
-      }
+      const collectionProcedure = formData.collectionProcedure && typeof formData.collectionProcedure !== 'string' ? await convertToHtml(formData.collectionProcedure) : formData.collectionProcedure
 
       await updateEvidence({
-        updateEvidenceId: config.id as string,
+        updateEvidenceId: config.id,
         input: {
           ...cleanFormData,
           ...associationInputs,
@@ -344,8 +341,10 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
   }
 
   const handleDelete = async () => {
+    if (!config.id) return
+
     try {
-      await deleteEvidence({ deleteEvidenceId: config.id as string })
+      await deleteEvidence({ deleteEvidenceId: config.id })
       successNotification({ title: `Evidence "${evidence?.name}" deleted successfully` })
       if (controlId) {
         queryClient.invalidateQueries({ queryKey: ['controls', controlId] })
@@ -399,7 +398,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     if (e.key === 'Enter') {
-      ;(e.target as HTMLInputElement).blur()
+      e.currentTarget.blur()
     }
   }
 
@@ -426,6 +425,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
     },
   )
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (isEditPreset) {
       setIsEditing(true)
@@ -437,6 +437,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
       }, 500)
     }
   }, [isEditPreset, setIsEditPreset, setIsEditing])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const handleTags = () => {
     if (evidence?.tags?.length === 0) {
@@ -577,7 +578,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                           <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Write down the steps that were taken to collect the evidence.</p>} />
                         </div>
                         <FormControl>
-                          <PlateEditor initialValue={field.value as string} onChange={(val) => field.onChange(val)} />
+                          <PlateEditor initialValue={field.value ?? ''} onChange={(val) => field.onChange(val)} />
                         </FormControl>
                         {form.formState.errors.collectionProcedure && <p className="text-red-500 text-sm">{form.formState.errors.collectionProcedure.message}</p>}
                       </FormItem>
@@ -710,7 +711,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                                     <Select
                                       value={field.value ?? undefined}
                                       onValueChange={(value) => {
-                                        field.onChange(value)
+                                        field.onChange(value as EvidenceEvidenceStatus)
                                         handleUpdateField()
                                       }}
                                     >
@@ -898,7 +899,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                               </div>
                               <div className="text-sm cursor-not-allowed">
                                 <p className="text-sm justify-end flex items-center">
-                                  <Avatar entity={createdByUser as User} variant="small" />
+                                  <Avatar entity={createdByUser} variant="small" />
                                   <span>{createdByUser?.displayName}</span>
                                 </p>
                               </div>
@@ -921,7 +922,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                               </div>
                               <div className="text-sm cursor-not-allowed">
                                 <p className="text-sm justify-end flex items-center ">
-                                  <Avatar entity={updatedByUser as User} variant="small" />
+                                  <Avatar entity={updatedByUser} variant="small" />
                                   <span>{updatedByUser?.displayName}</span>
                                 </p>
                               </div>
@@ -1089,11 +1090,11 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
             form.reset({
               name: evidence?.name ?? '',
               description: evidence?.description ?? '',
-              renewalDate: evidence?.renewalDate ? new Date(evidence.renewalDate as string) : undefined,
-              creationDate: evidence?.creationDate ? new Date(evidence.creationDate as string) : undefined,
+              renewalDate: evidence?.renewalDate,
+              creationDate: evidence?.creationDate,
               status: evidence?.status ?? undefined,
               tags: evidence?.tags ?? [],
-              collectionProcedure: evidence?.collectionProcedure as string,
+              collectionProcedure: evidence?.collectionProcedure ?? '',
               source: evidence?.source ?? '',
               url: evidence?.url ?? '',
               controlIDs: initialAssociations.controlIDs ?? [],
