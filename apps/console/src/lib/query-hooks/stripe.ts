@@ -1,4 +1,4 @@
-import { InvoicesResponse, OpenlaneProductsResponse, SubscriptionSchedulesResponse } from '@/types/stripe'
+import { InvoicesResponse, OpenlaneProductsResponse, SubscriptionSchedulesResponse, UpcomingInvoiceResponse } from '@/types/stripe'
 import { openlaneAPIUrl } from '@repo/dally/auth'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
@@ -12,6 +12,35 @@ export function useSchedulesQuery(customerId?: string | null) {
       return res.json()
     },
     enabled: !!customerId,
+  })
+}
+
+type UseUpcomingInvoiceQueryParams = {
+  customerId?: string | null
+  scheduleId?: string | null
+  subscriptionId?: string | null
+}
+
+export function useUpcomingInvoiceQuery({ customerId, scheduleId, subscriptionId }: UseUpcomingInvoiceQueryParams) {
+  return useQuery<UpcomingInvoiceResponse | null>({
+    queryKey: ['stripe-upcoming-invoice', customerId, scheduleId, subscriptionId],
+    queryFn: async () => {
+      if (!customerId || (!scheduleId && !subscriptionId)) return null
+      const params = new URLSearchParams({ customerId })
+      if (scheduleId) {
+        params.set('scheduleId', scheduleId)
+      } else if (subscriptionId) {
+        params.set('subscriptionId', subscriptionId)
+      }
+
+      const res = await fetch(`/api/stripe/upcoming-invoice?${params.toString()}`)
+      if (!res.ok) {
+        const error = await res.json().catch(() => ({}))
+        throw new Error(error.error || 'Failed to fetch upcoming invoice')
+      }
+      return res.json() as Promise<UpcomingInvoiceResponse | null>
+    },
+    enabled: !!customerId && (!!scheduleId || !!subscriptionId),
   })
 }
 

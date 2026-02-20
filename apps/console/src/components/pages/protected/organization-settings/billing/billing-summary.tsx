@@ -1,6 +1,6 @@
 import { useOrganization } from '@/hooks/useOrganization'
 import { useGetOrganizationBilling } from '@/lib/graphql-hooks/organization'
-import { useOpenlaneProductsQuery, useSchedulesQuery, useSwitchIntervalMutation } from '@/lib/query-hooks/stripe'
+import { useOpenlaneProductsQuery, useSchedulesQuery, useSwitchIntervalMutation, useUpcomingInvoiceQuery } from '@/lib/query-hooks/stripe'
 import { OrgSubscription } from '@repo/codegen/src/schema'
 import React, { useCallback, useMemo, useState } from 'react'
 import { formatDistanceToNowStrict, parseISO, isBefore } from 'date-fns'
@@ -20,6 +20,13 @@ const BillingSummary = ({ stripeCustomerId, activePriceIds, nextPhaseStart }: Pr
   const { currentOrgId } = useOrganization()
   const { data } = useGetOrganizationBilling(currentOrgId)
   const { data: schedules = [] } = useSchedulesQuery(stripeCustomerId)
+  const scheduleId = schedules[0]?.id
+  const subscriptionId = schedules[0]?.subscription?.id
+  const { data: upcomingInvoice } = useUpcomingInvoiceQuery({
+    customerId: stripeCustomerId,
+    scheduleId,
+    subscriptionId,
+  })
   const subscription = data?.organization.orgSubscriptions?.[0] ?? ({} as OrgSubscription)
   const { expiresAt, active, stripeSubscriptionStatus, trialExpiresAt } = subscription
   const { mutateAsync: switchInterval, isPending: updating } = useSwitchIntervalMutation()
@@ -91,7 +98,41 @@ const BillingSummary = ({ stripeCustomerId, activePriceIds, nextPhaseStart }: Pr
 
   const nextPhase = schedules?.[0]?.phases?.[1] ?? null
 
-  const futureCost = calcPhaseCost(nextPhase)
+  const fallbackFutureCost = calcPhaseCost(nextPhase)
+  const currency = upcomingInvoice?.currency?.toUpperCase() || 'USD'
+
+  const futureCost = useMemo(() => {
+    if (upcomingInvoice) {
+      const totalCents = upcomingInvoice.total_excluding_tax ?? upcomingInvoice.total
+      return totalCents / 100
+    }
+
+    return fallbackFutureCost
+  }, [upcomingInvoice, fallbackFutureCost])
+
+  const formatCurrency = useCallback(
+    (amount: number) => {
+      try {
+        return new Intl.NumberFormat('en-US', {
+          style: 'currency',
+          currency,
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        }).format(amount)
+      } catch {
+        return `$${amount.toFixed(2)}`
+      }
+    },
+    [currency],
+  )
+
+  const discountAmount = useMemo(() => {
+    return (upcomingInvoice?.total_discount ?? 0) / 100
+  }, [upcomingInvoice])
+
+  const formattedFutureCost = useMemo(() => formatCurrency(futureCost), [futureCost, formatCurrency])
+  const formattedDiscount = useMemo(() => formatCurrency(discountAmount), [discountAmount, formatCurrency])
+  const hasDiscount = discountAmount > 0
 
   const badge = useMemo(() => {
     if (stripeSubscriptionStatus === 'trialing') return { variant: 'gold', text: 'Trial' } as const
@@ -143,11 +184,18 @@ const BillingSummary = ({ stripeCustomerId, activePriceIds, nextPhaseStart }: Pr
         <div className="flex gap-2.5 items-center justify-between p-4 pt-5 border-b">
           <div className="flex gap-2">
             {/* Interval + Cost */}
-            {currentInterval && !!futureCost && (
-              <p className="text-base">
-                {/* <span className="text-sm font-medium">Interval:</span> {currentInterval.charAt(0).toUpperCase() + currentInterval.slice(1)}{' '} */}
-                <span className="font-medium text-base w-28 inline-block mr-2">Upcoming cost</span> ${futureCost} / {currentInterval}
-              </p>
+            {currentInterval && (
+              <div className="flex flex-col">
+                <p className="text-base">
+                  {/* <span className="text-sm font-medium">Interval:</span> {currentInterval.charAt(0).toUpperCase() + currentInterval.slice(1)}{' '} */}
+                  <span className="font-medium text-base w-28 inline-block mr-2">Upcoming cost</span> {formattedFutureCost} / {currentInterval}
+                </p>
+                {hasDiscount && (
+                  <p className="text-sm text-text-informational">
+                    <span className="font-medium w-28 inline-block mr-2">Discount</span>-{formattedDiscount}
+                  </p>
+                )}
+              </div>
             )}
             {/* Expiration */}
             <Badge variant={badge.variant}>{badge.text}</Badge>
