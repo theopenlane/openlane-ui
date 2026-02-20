@@ -5,6 +5,7 @@ import { Checkbox } from '@repo/ui/checkbox'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 import { AssetsNodeNonNull } from '@/lib/graphql-hooks/asset'
 import { ColumnOptions } from '@/components/shared/crud-base/page'
+import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 
 export const getColumns = ({ userMap, convertToReadOnly, selectedItems, setSelectedItems }: ColumnOptions<AssetsNodeNonNull>): ColumnDef<AssetsNodeNonNull>[] => {
   const toggleSelection = (asset: AssetsNodeNonNull) => {
@@ -52,7 +53,15 @@ export const getColumns = ({ userMap, convertToReadOnly, selectedItems, setSelec
     { accessorKey: 'accessModelName', header: 'Access Model', size: 140 },
     { accessorKey: 'assetDataClassificationName', header: 'Data Classification', size: 140 },
     { accessorKey: 'assetSubtypeName', header: 'Subtype', size: 120 },
-    { accessorKey: 'assetType', header: 'Type', size: 120 },
+    {
+      accessorKey: 'assetType',
+      header: 'Type',
+      size: 120,
+      cell: ({ cell }) => {
+        const value = cell.getValue() as string
+        return <div>{value ? getEnumLabel(value) : '-'}</div>
+      },
+    },
     { accessorKey: 'costCenter', header: 'Cost Center', size: 120 },
     { accessorKey: 'cpe', header: 'CPE', size: 120 },
     { accessorKey: 'createdAt', header: 'Created At', size: 130, cell: ({ cell }) => formatDate(cell.getValue() as string) },
@@ -92,7 +101,15 @@ export const getColumns = ({ userMap, convertToReadOnly, selectedItems, setSelec
     { accessorKey: 'scopeName', header: 'Scope', size: 120 },
     { accessorKey: 'securityTierName', header: 'Security Tier', size: 120 },
     { accessorKey: 'sourceIdentifier', header: 'Source Identifier', size: 120 },
-    { accessorKey: 'sourceType', header: 'Source Type', size: 120 },
+    {
+      accessorKey: 'sourceType',
+      header: 'Source Type',
+      size: 120,
+      cell: ({ cell }) => {
+        const value = cell.getValue() as string
+        return <div>{value ? getEnumLabel(value) : '-'}</div>
+      },
+    },
     {
       accessorKey: 'tags',
       header: 'Tags',
