@@ -125,7 +125,7 @@ export function GenericBulkEditDialog<T extends { id: string }, TUpdateInput>({
     try {
       await bulkEditMutation.mutateAsync({ ids, input })
       successNotification({
-        title: `Successfully bulk updated selected ${toHumanLabel(entityType)?.toLowerCase()}.`,
+        title: `Successfully bulk updated selected ${toHumanLabel(entityType as string)?.toLowerCase()}.`,
       })
       setSelectedItems([])
       setOpen(false)
@@ -135,7 +135,7 @@ export function GenericBulkEditDialog<T extends { id: string }, TUpdateInput>({
         errorMessage = parseErrorMessage(error.response.errors)
       }
       errorNotification({
-        title: errorMessage ?? `Failed to bulk edit ${toHumanLabel(entityType)?.toLowerCase()}. Please try again.`,
+        title: errorMessage ?? `Failed to bulk edit ${toHumanLabel(entityType as string)?.toLowerCase()}. Please try again.`,
       })
     }
   }
@@ -157,7 +157,7 @@ export function GenericBulkEditDialog<T extends { id: string }, TUpdateInput>({
         <form onSubmit={handleSubmit(onSubmit)}>
           <DialogContent onOpenAutoFocus={(e) => e.preventDefault()} className="max-w-[580px]">
             <DialogHeader>
-              <DialogTitle>Bulk edit {toHumanLabel(entityType)?.toLowerCase()}</DialogTitle>
+              <DialogTitle>Bulk edit {toHumanLabel(entityType as string)?.toLowerCase()}</DialogTitle>
             </DialogHeader>
             <div className="flex flex-col gap-4 mt-4">
               {fields.map((item, index) => {
