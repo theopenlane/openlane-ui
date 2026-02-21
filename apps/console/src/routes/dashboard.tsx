@@ -128,7 +128,6 @@ export const topNavigationItems = (session: Session | null): (NavItem | Separato
           title: 'Vendors',
           href: '/registry/vendors',
           icon: Building2,
-          hidden: true,
         },
         {
           title: 'Personnel',
