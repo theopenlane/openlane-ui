@@ -38,7 +38,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-md p-0">General Information</CardTitle>
-          <CardDescription className="p-0">Basic details in the vendor including the display name and relevant links</CardDescription>
+          <CardDescription className="p-0">Basic details of the vendor including the display name and relevant links</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="mb-2 grid grid-cols-1 md:grid-cols-2 gap-2">
