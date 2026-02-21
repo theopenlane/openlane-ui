@@ -153,8 +153,8 @@ const buildEstimatedUpcomingFromSchedule = async ({ customerId, scheduleId, subs
   const targetPhase = pickTargetPhase(schedule)
   if (!targetPhase) return null
 
-  const subtotal = await computeSubtotalCents(targetPhase)
-  let coupons = await resolveCouponsFromPhaseDiscounts(targetPhase.discounts)
+  const [subtotal, phaseCoupons] = await Promise.all([computeSubtotalCents(targetPhase), resolveCouponsFromPhaseDiscounts(targetPhase.discounts)])
+  let coupons = phaseCoupons
 
   if (coupons.length === 0) {
     const scheduleSubscriptionId = typeof schedule.subscription === 'string' ? schedule.subscription : schedule.subscription?.id
@@ -182,27 +182,20 @@ export async function GET(req: Request) {
   const session = await auth()
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
+  const { searchParams } = new URL(req.url)
+  const customerId = searchParams.get('customerId')
+  const scheduleId = searchParams.get('scheduleId')
+  const subscriptionId = searchParams.get('subscriptionId')
+
+  if (!customerId) {
+    return NextResponse.json({ error: 'Missing customerId' }, { status: 400 })
+  }
+
+  if (!scheduleId && !subscriptionId) {
+    return NextResponse.json({ error: 'Missing scheduleId or subscriptionId' }, { status: 400 })
+  }
+
   try {
-    const { searchParams } = new URL(req.url)
-    const customerId = searchParams.get('customerId')
-    const scheduleId = searchParams.get('scheduleId')
-    const subscriptionId = searchParams.get('subscriptionId')
-    console.log('[stripe-upcoming-invoice] request received', {
-      customerId,
-      scheduleId,
-      subscriptionId,
-    })
-
-    if (!customerId) {
-      console.warn('[stripe-upcoming-invoice] missing customerId')
-      return NextResponse.json({ error: 'Missing customerId' }, { status: 400 })
-    }
-
-    if (!scheduleId && !subscriptionId) {
-      console.warn('[stripe-upcoming-invoice] missing both scheduleId and subscriptionId', { customerId })
-      return NextResponse.json({ error: 'Missing scheduleId or subscriptionId' }, { status: 400 })
-    }
-
     const previewParams: Stripe.InvoiceCreatePreviewParams = {
       customer: customerId,
     }
@@ -212,21 +205,9 @@ export async function GET(req: Request) {
     } else if (subscriptionId) {
       previewParams.subscription = subscriptionId
     }
-    console.log('[stripe-upcoming-invoice] createPreview params', previewParams)
-
     const upcomingInvoice = await stripe.invoices.createPreview(previewParams)
 
     const totalDiscount = (upcomingInvoice.total_discount_amounts ?? []).reduce((sum, discountAmount) => sum + discountAmount.amount, 0)
-    console.log('[stripe-upcoming-invoice] preview response', {
-      invoiceId: upcomingInvoice.id,
-      currency: upcomingInvoice.currency,
-      subtotal: upcomingInvoice.subtotal,
-      total: upcomingInvoice.total,
-      total_excluding_tax: upcomingInvoice.total_excluding_tax,
-      total_discount: totalDiscount,
-      discount_rows: upcomingInvoice.total_discount_amounts?.length ?? 0,
-      lines_count: upcomingInvoice.lines?.data?.length ?? 0,
-    })
 
     return NextResponse.json({
       currency: upcomingInvoice.currency,
@@ -243,22 +224,14 @@ export async function GET(req: Request) {
       })
 
       try {
-        const { searchParams } = new URL(req.url)
-        const customerId = searchParams.get('customerId')
-        const scheduleId = searchParams.get('scheduleId')
-        const subscriptionId = searchParams.get('subscriptionId')
+        const fallback = await buildEstimatedUpcomingFromSchedule({
+          customerId,
+          scheduleId,
+          subscriptionId,
+        })
 
-        if (customerId) {
-          const fallback = await buildEstimatedUpcomingFromSchedule({
-            customerId,
-            scheduleId,
-            subscriptionId,
-          })
-
-          if (fallback) {
-            console.log('[stripe-upcoming-invoice] fallback estimate response', fallback)
-            return NextResponse.json(fallback)
-          }
+        if (fallback) {
+          return NextResponse.json(fallback)
         }
       } catch (fallbackErr: unknown) {
         console.error('❌ Stripe upcoming invoice fallback error:', fallbackErr)
