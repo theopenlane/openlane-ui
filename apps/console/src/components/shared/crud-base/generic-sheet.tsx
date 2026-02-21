@@ -114,7 +114,7 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
       if (isCreate) {
         reset({} as TFormData, { keepDefaultValues: false })
       } else if (data) {
-        const normalizedData = normalizeData ? normalizeData(data) : Object.fromEntries(Object.entries(data ?? {}).map(([key, value]) => [key, value === null ? '' : value]))
+        const normalizedData = normalizeData ? normalizeData(data) : Object.fromEntries(Object.entries(data ?? {}).map(([key, value]) => [key, value === null ? undefined : value]))
         reset(normalizedData as TFormData, { keepDefaultValues: false, keepDirty: false })
       }
 
@@ -300,15 +300,15 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
               <form onSubmit={form.handleSubmit(onSubmit)} id={formId} className="space-y-6 mt-4">
                 {renderFields
                   ? renderFields({
-                    isEditing,
-                    isCreate,
-                    data,
-                    isFormInitialized,
-                    internalEditing,
-                    setInternalEditing,
-                    handleUpdateField,
-                    isEditAllowed,
-                  })
+                      isEditing,
+                      isCreate,
+                      data,
+                      isFormInitialized,
+                      internalEditing,
+                      setInternalEditing,
+                      handleUpdateField,
+                      isEditAllowed,
+                    })
                   : null}
               </form>
             </Form>

@@ -57,6 +57,7 @@ export const NumberField: React.FC<NumberFieldProps> = ({
             {shouldShowInput ? (
               <Input
                 {...field}
+                value={field.value ?? ''}
                 type={'number'}
                 placeholder={placeholder}
                 min={min}
