@@ -68760,8 +68760,6 @@ export type TrustCenterFaQsWithFilterQuery = {
         id: string
         noteID: string
         referenceLink?: string | null
-        trustCenterFaqKindID?: string | null
-        trustCenterFaqKindName?: string | null
         trustCenterID?: string | null
         updatedAt?: any | null
         updatedBy?: string | null
@@ -68785,8 +68783,6 @@ export type TrustCenterFaqQuery = {
     id: string
     noteID: string
     referenceLink?: string | null
-    trustCenterFaqKindID?: string | null
-    trustCenterFaqKindName?: string | null
     trustCenterID?: string | null
     updatedAt?: any | null
     updatedBy?: string | null
