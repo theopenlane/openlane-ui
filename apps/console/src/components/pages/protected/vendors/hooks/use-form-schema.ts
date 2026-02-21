@@ -37,7 +37,11 @@ const formSchema = z.object({
   soc2PeriodEnd: z.string().optional(),
   spendCurrency: z.string().optional(),
   ssoEnforced: z.boolean().optional(),
-  statusPageURL: z.string().optional(),
+  statusPageURL: z
+    .string()
+    .optional()
+    .refine((value) => isValidExternalHttpUrl(value), { message: 'Enter a valid http(s) URL' }),
+  reviewFrequency: z.nativeEnum(EntityFrequency).optional(),
   terminationNoticeDays: z.number().optional(),
   tier: z.string().optional(),
 })
@@ -61,7 +65,6 @@ export const bulkEditFieldSchema = z.object({
   scopeName: z.string().optional(),
   soc2PeriodEnd: z.string().optional(),
   spendCurrency: z.string().optional(),
-  statusPageURL: z.string().optional(),
   tier: z.string().optional(),
 })
 

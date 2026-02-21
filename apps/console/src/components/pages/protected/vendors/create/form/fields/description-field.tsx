@@ -20,8 +20,6 @@ const DescriptionField: React.FC<DescriptionFieldProps> = ({ isEditing, isCreate
   const { control, formState } = useFormContext<EditVendorFormData>()
   const hasInitialized = useRef(false)
 
-  console.log('Rendering DescriptionField with initialValue:', initialValue)
-
   return isEditing || isCreate ? (
     <FormField
       control={control}

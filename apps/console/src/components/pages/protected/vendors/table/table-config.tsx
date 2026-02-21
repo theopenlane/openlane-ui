@@ -53,14 +53,14 @@ export const getFilterFields = (enumOptions: EnumOptions): FilterField[] => [
     options: enumOptions.sourceTypeOptions,
   },
   {
-    key: 'entityRelationshipStateName',
+    key: 'entityRelationshipStateNameIn',
     label: 'Relationship State',
     type: 'multiselect',
     icon: FilterIcons.Relationships,
     options: enumOptions.relationshipStateOptions,
   },
   {
-    key: 'entitySecurityQuestionnaireStatusName',
+    key: 'entitySecurityQuestionnaireStatusNameIn',
     label: 'Security Questionnaire Status',
     type: 'multiselect',
     icon: FilterIcons.Security,

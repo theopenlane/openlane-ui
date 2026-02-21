@@ -114,13 +114,13 @@ export const TextField = <TUpdateInput,>({
                 ) : type === 'link' ? (
                   value ? (
                     <a
-                      href={value.startsWith('http') ? value : `https://${value}`}
+                      href={normalizeURL(value)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1 hover:bg-accent bg-muted rounded-md px-2 py-1"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      {value.startsWith('http') ? value : `https://${value}`}
+                      {normalizeURL(value)}
                       <ExternalLink className="w-4 h-4 ml-1" />
                     </a>
                   ) : (

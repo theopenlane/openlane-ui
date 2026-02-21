@@ -44,7 +44,7 @@ const VendorPage: React.FC = () => {
 
   const createMutation = {
     isPending: baseCreateMutation.isPending,
-    mutateAsync: async (input: UpdateEntityInput) => {
+    mutateAsync: async (input: CreateEntityInput) => {
       const result = await baseCreateMutation.mutateAsync({ input, entityTypeName: 'vendor' })
       return result
     },
