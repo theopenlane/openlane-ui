@@ -6,10 +6,10 @@ import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { useSearchParams } from 'next/navigation'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
 
-import useFormSchema from '../hooks/use-form-schema'
-import { EntityEntityStatus, EntityFrequency, UpdateEntityInput } from '@repo/codegen/src/schema'
-import { useUpdateEntity, useCreateEntity, useBulkDeleteEntity, useCreateBulkCSVEntity, EntitiesNodeNonNull } from '@/lib/graphql-hooks/entity'
+import { EntityEntityStatus, EntityFrequency, UpdateEntityInput, CreateEntityInput } from '@repo/codegen/src/schema'
+import { useUpdateEntity, useCreateEntity, useBulkDeleteEntity, useCreateBulkCSVEntity, useBulkEditEntity, EntitiesNodeNonNull } from '@/lib/graphql-hooks/entity'
 import { useEntity } from '@/lib/graphql-hooks/entity'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
 import { breadcrumbs, getFieldsToRender, getFilterFields, visibilityFields } from './table-config'
@@ -35,13 +35,20 @@ const VendorPage: React.FC = () => {
   const baseCreateMutation = useCreateEntity()
   const baseBulkDeleteMutation = useBulkDeleteEntity()
   const baseBulkCreateMutation = useCreateBulkCSVEntity()
+  const baseBulkEditMutation = useBulkEditEntity()
 
   const updateMutation = {
     isPending: baseUpdateMutation.isPending,
     mutateAsync: async (params: { id: string; input: UpdateEntityInput }) => baseUpdateMutation.mutateAsync({ updateEntityId: params.id, input: params.input }),
   }
 
-  const createMutation = baseCreateMutation
+  const createMutation = {
+    isPending: baseCreateMutation.isPending,
+    mutateAsync: async (input: CreateEntityInput) => {
+      const result = await baseCreateMutation.mutateAsync({ input, entityTypeName: 'vendor' })
+      return result
+    },
+  }
 
   const deleteMutation = {
     isPending: baseBulkDeleteMutation.isPending,
@@ -51,11 +58,16 @@ const VendorPage: React.FC = () => {
       return result.deleteBulkEntity.deletedIDs
     },
   }
-  const bulkCreateMutation = baseBulkCreateMutation
 
-  const { enumOptions: entityRelationshipStateOptions } = useGetCustomTypeEnums({
-    where: { objectType: 'entity', field: 'entityRelationshipState' },
-  })
+  const bulkCreateMutation = {
+    isPending: baseBulkCreateMutation.isPending,
+    mutateAsync: async (params: { input: File }) => {
+      const result = await baseBulkCreateMutation.mutateAsync({ input: params.input, entityTypeName: 'vendor' })
+      return result
+    },
+  }
+
+  const bulkEditMutation = baseBulkEditMutation
 
   const { enumOptions: securityQuestionnaireStatusOptions } = useGetCustomTypeEnums({
     where: { objectType: 'entity', field: 'entitySecurityQuestionnaireStatus' },
@@ -63,6 +75,10 @@ const VendorPage: React.FC = () => {
 
   const { enumOptions: sourceTypeOptions } = useGetCustomTypeEnums({
     where: { objectType: 'entity', field: 'entitySourceType' },
+  })
+
+  const { enumOptions: relationshipStateOptions } = useGetCustomTypeEnums({
+    where: { objectType: 'entity', field: 'relationshipState' },
   })
 
   const { enumOptions: environmentOptions } = useGetCustomTypeEnums({
@@ -86,7 +102,7 @@ const VendorPage: React.FC = () => {
   const { tagOptions } = useGetTags()
 
   const enumOpts = {
-    entityRelationshipStateOptions,
+    relationshipStateOptions,
     securityQuestionnaireStatusOptions,
     sourceTypeOptions,
     environmentOptions,
@@ -129,6 +145,11 @@ const VendorPage: React.FC = () => {
     onBulkCreate: async (file: File) => {
       await bulkCreateMutation.mutateAsync({ input: file })
     },
+    onBulkEdit: async (ids: string[], input: UpdateEntityInput) => {
+      await bulkEditMutation.mutateAsync({ ids, input })
+    },
+    bulkEditFormSchema: bulkEditFieldSchema,
+    enumOpts,
   }
 
   return <GenericTablePage {...tableConfig} />

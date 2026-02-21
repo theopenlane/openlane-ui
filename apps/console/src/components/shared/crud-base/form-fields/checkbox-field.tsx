@@ -5,6 +5,8 @@ import { Checkbox } from '@repo/ui/checkbox'
 import { cn } from '@repo/ui/lib/utils'
 import { FieldValues, useFormContext } from 'react-hook-form'
 import { InternalEditingType } from '../generic-sheet'
+import { SystemTooltip } from '@repo/ui/system-tooltip'
+import { InfoIcon } from 'lucide-react'
 
 interface CheckboxFieldProps {
   name: string
@@ -16,9 +18,10 @@ interface CheckboxFieldProps {
   internalEditing: string | null
   setInternalEditing: InternalEditingType
   className?: string
+  tooltipContent?: string
 }
 
-export const CheckboxField: React.FC<CheckboxFieldProps> = ({ name, label, isEditing, isEditAllowed, isCreate = false, internalEditing, setInternalEditing, className }) => {
+export const CheckboxField: React.FC<CheckboxFieldProps> = ({ name, label, isEditing, isEditAllowed, isCreate = false, internalEditing, setInternalEditing, className, tooltipContent }) => {
   const { control } = useFormContext()
   const isFieldEditing = internalEditing === name
   const isActive = isCreate || isEditing || isFieldEditing
@@ -28,13 +31,14 @@ export const CheckboxField: React.FC<CheckboxFieldProps> = ({ name, label, isEdi
       control={control}
       name={name}
       render={({ field }) => (
-        <FormItem className={cn('flex items-center space-x-2', className)}>
+        <FormItem className={cn('flex items-center space-x-2 space-y-0', className)}>
           <FormControl>
             <Checkbox
               id={name}
               name={name}
               checked={!!field.value}
               disabled={!isActive}
+              className="items-center"
               onCheckedChange={(checked) => field.onChange(checked)}
               onBlur={() => {
                 field.onBlur()
@@ -46,14 +50,17 @@ export const CheckboxField: React.FC<CheckboxFieldProps> = ({ name, label, isEdi
           </FormControl>
           <FormLabel
             htmlFor={name}
-            className={cn('text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70', !isFieldEditing && 'cursor-default')}
+            className={cn('text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex items-center', !isFieldEditing && 'cursor-default')}
             onClick={() => {
               if (isEditAllowed && !isActive) {
                 setInternalEditing(name)
               }
             }}
           >
-            {label}
+            <span className="flex items-center gap-1">
+              {label}
+              {tooltipContent && <SystemTooltip icon={<InfoIcon size={14} className="mx-1" />} content={tooltipContent} />}
+            </span>
           </FormLabel>
         </FormItem>
       )}

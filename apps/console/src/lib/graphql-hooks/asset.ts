@@ -12,7 +12,7 @@ import {
   AssetQuery,
   AssetQueryVariables,
   CreateBulkCsvAssetMutation,
-  CreateBulkCsvTaskMutationVariables,
+  CreateBulkCsvAssetMutationVariables,
   UpdateBulkAssetMutation,
   UpdateBulkAssetMutationVariables,
   DeleteBulkAssetMutation,
@@ -98,7 +98,7 @@ export const useAsset = (assetId?: AssetQueryVariables['assetId']) => {
 
 export const useCreateBulkCSVAsset = () => {
   const { queryClient } = useGraphQLClient()
-  return useMutation<CreateBulkCsvAssetMutation, unknown, CreateBulkCsvTaskMutationVariables>({
+  return useMutation<CreateBulkCsvAssetMutation, unknown, CreateBulkCsvAssetMutationVariables>({
     mutationFn: async (variables) => fetchGraphQLWithUpload({ query: CREATE_CSV_BULK_ASSET, variables }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['assets'] })

@@ -48,7 +48,7 @@ export interface GenericDetailsSheetConfig<TFormData extends FieldValues, TData,
   form: UseFormReturn<TFormData>
 
   createMutation: {
-    mutateAsync: (params: { input: TCreateInput }) => Promise<TCreateData>
+    mutateAsync: (input: TCreateInput) => Promise<TCreateData>
     isPending: boolean
   }
 
@@ -166,7 +166,7 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
       const payload = await buildPayload(formData)
 
       if (isCreate) {
-        await createMutation.mutateAsync({ input: payload as TCreateInput })
+        await createMutation.mutateAsync(payload as TCreateInput)
 
         queryClient.invalidateQueries({ queryKey })
         successNotification({
@@ -300,15 +300,15 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
               <form onSubmit={form.handleSubmit(onSubmit)} id={formId} className="space-y-6 mt-4">
                 {renderFields
                   ? renderFields({
-                      isEditing,
-                      isCreate,
-                      data,
-                      isFormInitialized,
-                      internalEditing,
-                      setInternalEditing,
-                      handleUpdateField,
-                      isEditAllowed,
-                    })
+                    isEditing,
+                    isCreate,
+                    data,
+                    isFormInitialized,
+                    internalEditing,
+                    setInternalEditing,
+                    handleUpdateField,
+                    isEditAllowed,
+                  })
                   : null}
               </form>
             </Form>

@@ -12,7 +12,7 @@ import {
   JobTemplateQuery,
   JobTemplateQueryVariables,
   CreateBulkCsvJobTemplateMutation,
-  CreateBulkCsvTaskMutationVariables,
+  CreateBulkCsvJobTemplateMutationVariables,
   UpdateBulkJobTemplateMutation,
   UpdateBulkJobTemplateMutationVariables,
   DeleteBulkJobTemplateMutation,
@@ -107,7 +107,7 @@ export const useJobTemplate = (jobTemplateId?: JobTemplateQueryVariables['jobTem
 
 export const useCreateBulkCSVJobTemplate = () => {
   const { queryClient } = useGraphQLClient()
-  return useMutation<CreateBulkCsvJobTemplateMutation, unknown, CreateBulkCsvTaskMutationVariables>({
+  return useMutation<CreateBulkCsvJobTemplateMutation, unknown, CreateBulkCsvJobTemplateMutationVariables>({
     mutationFn: async (variables) => fetchGraphQLWithUpload({ query: CREATE_CSV_BULK_JOB_TEMPLATE, variables }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['jobTemplates'] })

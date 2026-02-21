@@ -32,8 +32,8 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, data, internalEditin
   const tags = watch('tags')
   const tagValues = useMemo(() => {
     return (tags ?? [])
-      .filter((item): item is string => typeof item === 'string')
-      .map((item) => ({
+      .filter((item: string): item is string => typeof item === 'string')
+      .map((item: string) => ({
         value: item,
         label: item,
       }))
@@ -54,7 +54,7 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, data, internalEditin
 
   const blurTags = () => {
     const current = data?.tags || []
-    const next = tagValues.map((item) => item.value)
+    const next = tagValues.map((item: { value: string; label: string }) => item.value)
     const changed = current.length !== next.length || current.some((val) => !next.includes(val))
 
     if (changed && handleUpdateField) {
@@ -83,7 +83,7 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, data, internalEditin
         return
       }
       if (internalEditing === 'tags') {
-        const options: Option[] = (data?.tags ?? []).filter((item): item is string => typeof item === 'string').map((item) => ({ value: item, label: item }))
+        const options: Option[] = (data?.tags ?? []).filter((item: string): item is string => typeof item === 'string').map((item: string) => ({ value: item, label: item }))
         setValue(
           'tags',
           options.map((opt) => opt.value),

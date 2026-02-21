@@ -9,7 +9,7 @@ import {
   CreateGroupSettingMutation,
   CreateGroupSettingMutationVariables,
   CreateBulkCsvGroupSettingMutation,
-  CreateBulkCsvTaskMutationVariables,
+  CreateBulkCsvGroupSettingMutationVariables,
   DeleteGroupSettingMutation,
   DeleteGroupSettingMutationVariables,
   DeleteBulkGroupSettingMutation,
@@ -112,7 +112,7 @@ export const useGroupSetting = (groupSettingId?: GroupSettingQueryVariables['gro
 export const useCreateBulkCSVGroupSetting = () => {
   const { queryClient } = useGraphQLClient()
 
-  return useMutation<CreateBulkCsvGroupSettingMutation, unknown, CreateBulkCsvTaskMutationVariables>({
+  return useMutation<CreateBulkCsvGroupSettingMutation, unknown, CreateBulkCsvGroupSettingMutationVariables>({
     mutationFn: async (variables) => fetchGraphQLWithUpload({ query: CREATE_CSV_BULK_GROUP_SETTING, variables }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['groupSettings'] })

@@ -12,7 +12,7 @@ import {
   NotificationTemplateQuery,
   NotificationTemplateQueryVariables,
   CreateBulkCsvNotificationTemplateMutation,
-  CreateBulkCsvTaskMutationVariables,
+  CreateBulkCsvNotificationTemplateMutationVariables,
   UpdateBulkNotificationTemplateMutation,
   UpdateBulkNotificationTemplateMutationVariables,
   DeleteBulkNotificationTemplateMutation,
@@ -107,7 +107,7 @@ export const useNotificationTemplate = (notificationTemplateId?: NotificationTem
 
 export const useCreateBulkCSVNotificationTemplate = () => {
   const { queryClient } = useGraphQLClient()
-  return useMutation<CreateBulkCsvNotificationTemplateMutation, unknown, CreateBulkCsvTaskMutationVariables>({
+  return useMutation<CreateBulkCsvNotificationTemplateMutation, unknown, CreateBulkCsvNotificationTemplateMutationVariables>({
     mutationFn: async (variables) => fetchGraphQLWithUpload({ query: CREATE_CSV_BULK_NOTIFICATION_TEMPLATE, variables }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notificationTemplates'] })

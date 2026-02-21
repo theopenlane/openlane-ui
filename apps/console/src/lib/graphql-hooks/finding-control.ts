@@ -12,7 +12,7 @@ import {
   FindingControlQuery,
   FindingControlQueryVariables,
   CreateBulkCsvFindingControlMutation,
-  CreateBulkCsvTaskMutationVariables,
+  CreateBulkCsvFindingControlMutationVariables,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
 import { TPagination } from '@repo/ui/pagination-types'
@@ -94,7 +94,7 @@ export const useFindingControl = (findingControlId?: FindingControlQueryVariable
 
 export const useCreateBulkCSVFindingControl = () => {
   const { queryClient } = useGraphQLClient()
-  return useMutation<CreateBulkCsvFindingControlMutation, unknown, CreateBulkCsvTaskMutationVariables>({
+  return useMutation<CreateBulkCsvFindingControlMutation, unknown, CreateBulkCsvFindingControlMutationVariables>({
     mutationFn: async (variables) => fetchGraphQLWithUpload({ query: CREATE_CSV_BULK_FINDING_CONTROL, variables }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['findingControls'] })

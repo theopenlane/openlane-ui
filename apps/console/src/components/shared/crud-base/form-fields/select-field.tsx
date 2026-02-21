@@ -4,11 +4,11 @@ import { FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { FieldValues, useFormContext } from 'react-hook-form'
 import { CustomTypeEnumOptionChip, CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
-
+import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
 import { useState } from 'react'
-import { Plus } from 'lucide-react'
+import { Plus, InfoIcon } from 'lucide-react'
 import { InternalEditingType } from '../generic-sheet'
 
 interface SelectFieldProps<TUpdateInput> {
@@ -24,6 +24,7 @@ interface SelectFieldProps<TUpdateInput> {
   setInternalEditing: InternalEditingType
   onCreateOption?: (value: string) => Promise<void>
   useCustomDisplay?: boolean
+  tooltipContent?: string
 }
 
 export const SelectField = <TUpdateInput,>({
@@ -39,6 +40,7 @@ export const SelectField = <TUpdateInput,>({
   setInternalEditing,
   onCreateOption,
   useCustomDisplay = true,
+  tooltipContent,
 }: SelectFieldProps<TUpdateInput>) => {
   const { control } = useFormContext()
   const rawValue = data?.[name]
@@ -65,7 +67,10 @@ export const SelectField = <TUpdateInput,>({
       name={name}
       render={({ field }) => (
         <FormItem>
-          <FormLabel>{label}</FormLabel>
+          <div className="flex items-center gap-1">
+            <FormLabel>{label}</FormLabel>
+            {tooltipContent && <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={tooltipContent} />}
+          </div>
           <FormControl>
             {shouldShowInput ? (
               <Select
@@ -128,7 +133,7 @@ export const SelectField = <TUpdateInput,>({
               </Select>
             ) : (
               <div
-                className="text-sm py-2 rounded cursor-pointer hover:bg-accent"
+                className="text-sm py-2 rounded-md cursor-pointer hover:bg-accent px-1 w-full"
                 onClick={() => {
                   if (isEditAllowed) {
                     setInternalEditing(name)

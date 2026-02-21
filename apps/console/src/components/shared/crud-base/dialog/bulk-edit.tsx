@@ -41,7 +41,7 @@ interface GenericBulkEditDialogProps<T extends { id: string }, TUpdateInput> {
 const fieldItemSchema = z.object({
   fieldKey: z.string().optional(),
   selectedConfig: z.any().optional(),
-  selectedValue: z.string().optional(),
+  selectedValue: z.union([z.string(), z.boolean()]).optional(),
   selectedDate: z.date().nullable().optional(),
 })
 
@@ -52,7 +52,7 @@ const bulkEditSchema = z.object({
 interface BulkEditFormValues {
   fieldsArray: Array<{
     fieldKey?: string
-    selectedValue?: string
+    selectedValue?: string | boolean
     selectedDate?: Date | null
   }>
 }
@@ -201,12 +201,11 @@ export function GenericBulkEditDialog<T extends { id: string }, TUpdateInput>({
                       </Select>
                     </div>
                     {selectOptions ? (
-                      // Render select
                       <Controller
                         control={control}
                         name={`fieldsArray.${index}.selectedValue`}
                         render={({ field }) => (
-                          <Select value={field.value} onValueChange={field.onChange}>
+                          <Select value={field.value === undefined ? undefined : String(field.value)} onValueChange={field.onChange}>
                             <SelectTrigger className="w-60">
                               <SelectValue placeholder={selectOptions[0]?.label} />
                             </SelectTrigger>
@@ -235,12 +234,31 @@ export function GenericBulkEditDialog<T extends { id: string }, TUpdateInput>({
                           />
                         )}
                       />
+                    ) : innerZodType instanceof z.ZodBoolean ? (
+                      // Render boolean select
+                      <Controller
+                        control={control}
+                        name={`fieldsArray.${index}.selectedValue`}
+                        render={({ field }) => (
+                          <Select value={field.value === undefined ? undefined : String(field.value)} onValueChange={(val) => field.onChange(val === 'true')}>
+                            <SelectTrigger className="w-32">
+                              <SelectValue placeholder="Select value..." />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="true">True</SelectItem>
+                              <SelectItem value="false">False</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        )}
+                      />
                     ) : (
                       // Fallback to text input
                       <Controller
                         control={control}
                         name={`fieldsArray.${index}.selectedValue`}
-                        render={({ field }) => <Input {...field} variant="medium" placeholder={toHumanLabel(fieldKey || '')} className="w-full" />}
+                        render={({ field }) => (
+                          <Input {...field} variant="medium" placeholder={toHumanLabel(fieldKey || '')} className="w-full" value={field.value === undefined ? '' : String(field.value)} />
+                        )}
                       />
                     )}
                     <Button icon={<Trash2 />} iconPosition="center" variant="secondary" onClick={() => remove(index)}></Button>

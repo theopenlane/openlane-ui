@@ -1,6 +1,42 @@
 // This file is auto-generated. Do not edit manually.
 
-import { ActionPlan, Assessment, Asset, Campaign, Control, ControlImplementation, ControlObjective, EmailBranding, Entity, Evidence, Finding, Group, IdentityHolder, InternalPolicy, MappedControl, Narrative, PageInfo, Platform, Procedure, Program, Remediation, Review, Risk, Scan, Subcontrol, TrustCenter, TrustCenterCompliance, TrustCenterDoc, TrustCenterEntity, TrustCenterNdaRequest, TrustCenterSetting, TrustCenterSubprocessor, TrustCenterWatermarkConfig, Vulnerability } from './schema'
+import {
+  ActionPlan,
+  Assessment,
+  Asset,
+  Campaign,
+  Control,
+  ControlImplementation,
+  ControlObjective,
+  EmailBranding,
+  Entity,
+  Evidence,
+  Finding,
+  Group,
+  IdentityHolder,
+  InternalPolicy,
+  MappedControl,
+  Narrative,
+  PageInfo,
+  Platform,
+  Procedure,
+  Program,
+  Remediation,
+  Review,
+  Risk,
+  Scan,
+  Subcontrol,
+  TrustCenter,
+  TrustCenterCompliance,
+  TrustCenterDoc,
+  TrustCenterEntity,
+  TrustCenterFaq,
+  TrustCenterNdaRequest,
+  TrustCenterSetting,
+  TrustCenterSubprocessor,
+  TrustCenterWatermarkConfig,
+  Vulnerability,
+} from './schema'
 import { GET_ALL_ACTION_PLANS } from '@repo/codegen/query/action-plan'
 import { GET_ALL_ASSESSMENTS } from '@repo/codegen/query/assessment'
 import { GET_ALL_ASSETS } from '@repo/codegen/query/asset'
@@ -26,6 +62,7 @@ import { GET_ALL_TRUST_CENTERS } from '@repo/codegen/query/trust-center'
 import { GET_ALL_TRUST_CENTER_COMPLIANCES } from '@repo/codegen/query/trust-center-compliance'
 import { GET_ALL_TRUST_CENTER_DOCS } from '@repo/codegen/query/trust-center-doc'
 import { GET_ALL_TRUST_CENTER_ENTITIES } from '@repo/codegen/query/trust-center-entity'
+import { GET_ALL_TRUST_CENTER_FAQS } from '@repo/codegen/query/trust-center-faq'
 import { GET_ALL_TRUST_CENTER_NDA_REQUESTS } from '@repo/codegen/query/trust-center-nda-request'
 import { GET_ALL_TRUST_CENTER_SUBPROCESSORS } from '@repo/codegen/query/trust-center-subprocessor'
 import { GET_ALL_VULNERABILITIES } from '@repo/codegen/query/vulnerability'
@@ -113,6 +150,7 @@ export enum ObjectTypes {
   TRUST_CENTER_COMPLIANCE = 'TrustCenterCompliance',
   TRUST_CENTER_DOC = 'TrustCenterDoc',
   TRUST_CENTER_ENTITY = 'TrustCenterEntity',
+  TRUST_CENTER_FAQ = 'TrustCenterFaq',
   TRUST_CENTER_NDA_REQUEST = 'TrustCenterNdaRequest',
   TRUST_CENTER_SETTING = 'TrustCenterSetting',
   TRUST_CENTER_SUBPROCESSOR = 'TrustCenterSubprocessor',
@@ -210,6 +248,7 @@ export enum ObjectNames {
   TRUST_CENTER_COMPLIANCE = 'Trust Center Compliance',
   TRUST_CENTER_DOC = 'Trust Center Doc',
   TRUST_CENTER_ENTITY = 'Trust Center Entity',
+  TRUST_CENTER_FAQ = 'Trust Center Faq',
   TRUST_CENTER_NDA_REQUEST = 'Trust Center Nda Request',
   TRUST_CENTER_SETTING = 'Trust Center Setting',
   TRUST_CENTER_SUBPROCESSOR = 'Trust Center Subprocessor',
@@ -253,6 +292,7 @@ export enum TypesWithPermissions {
   TRUST_CENTER_COMPLIANCE = 'TrustCenterCompliance',
   TRUST_CENTER_DOC = 'TrustCenterDoc',
   TRUST_CENTER_ENTITY = 'TrustCenterEntity',
+  TRUST_CENTER_FAQ = 'TrustCenterFaq',
   TRUST_CENTER_NDA_REQUEST = 'TrustCenterNdaRequest',
   TRUST_CENTER_SETTING = 'TrustCenterSetting',
   TRUST_CENTER_SUBPROCESSOR = 'TrustCenterSubprocessor',
@@ -386,6 +426,11 @@ export type PermissionsAllQueriesData = {
     pageInfo?: PageInfo
     totalCount?: number
   }
+  trustCenterFaqs?: {
+    edges?: Array<{ node: TrustCenterFaq }>
+    pageInfo?: PageInfo
+    totalCount?: number
+  }
   trustCenterNdaRequests?: {
     edges?: Array<{ node: TrustCenterNdaRequest }>
     pageInfo?: PageInfo
@@ -475,14 +520,14 @@ export const OBJECT_TYPE_PERMISSIONS_CONFIG: Record<TypesWithPermissions, Object
     inputPlaceholder: 'ref code',
     excludeViewersInFilter: true,
     extraTableColumns: [
-        {
-          header: 'Reference Framework',
-          accessorKey: 'referenceFramework',
-          size: 100,
-          minSize: 100,
-          maxSize: 100,
-        },
-      ],
+      {
+        header: 'Reference Framework',
+        accessorKey: 'referenceFramework',
+        size: 100,
+        minSize: 100,
+        maxSize: 100,
+      },
+    ],
   },
   [TypesWithPermissions.CONTROL_IMPLEMENTATION]: {
     roleOptions: ['View', 'Edit', 'Blocked'],
@@ -684,6 +729,16 @@ export const OBJECT_TYPE_PERMISSIONS_CONFIG: Record<TypesWithPermissions, Object
     excludeViewersInFilter: true,
     extraTableColumns: undefined,
   },
+  [TypesWithPermissions.TRUST_CENTER_FAQ]: {
+    roleOptions: ['Edit', 'Blocked'],
+    responseObjectKey: 'trustCenterFaqs',
+    queryDocument: GET_ALL_TRUST_CENTER_FAQS,
+    objectName: 'name',
+    searchAttribute: 'nameContainsFold',
+    inputPlaceholder: 'name',
+    excludeViewersInFilter: true,
+    extraTableColumns: undefined,
+  },
   [TypesWithPermissions.TRUST_CENTER_NDA_REQUEST]: {
     roleOptions: ['Edit', 'Blocked'],
     responseObjectKey: 'trustCenterNdaRequests',
@@ -735,7 +790,6 @@ export const OBJECT_TYPE_PERMISSIONS_CONFIG: Record<TypesWithPermissions, Object
     extraTableColumns: undefined,
   },
 }
-
 
 export enum TaskObjectTypes {
   ACTION_PLAN = 'Action Plan',
@@ -950,4 +1004,3 @@ export const TASK_OBJECT_TYPE_CONFIG: Record<TaskObjectTypes, TTaskObjectTypeCon
     objectName: 'name',
   },
 }
-

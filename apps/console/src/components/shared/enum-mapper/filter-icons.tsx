@@ -23,6 +23,9 @@ import {
   Tag,
   Blend,
   Focus,
+  ShieldPlus,
+  ShieldCheck,
+  KeyRound,
 } from 'lucide-react'
 
 export enum FilterIconName {
@@ -50,6 +53,9 @@ export enum FilterIconName {
   Security = 'Security',
   Tag = 'Tag',
   Relationships = 'Relationships',
+  SecurityFeatureSupported = 'SecurityFeatureSupported',
+  SecurityFeatureEnforced = 'SecurityFeatureEnforced',
+  SSO = 'SSO',
 }
 
 export const FilterIcons: Record<FilterIconName, LucideIcon> = {
@@ -77,4 +83,7 @@ export const FilterIcons: Record<FilterIconName, LucideIcon> = {
   [FilterIconName.Tag]: Tag,
   [FilterIconName.Relationships]: Blend,
   [FilterIconName.Scope]: Focus,
+  [FilterIconName.SecurityFeatureSupported]: ShieldPlus,
+  [FilterIconName.SecurityFeatureEnforced]: ShieldCheck,
+  [FilterIconName.SSO]: KeyRound,
 }

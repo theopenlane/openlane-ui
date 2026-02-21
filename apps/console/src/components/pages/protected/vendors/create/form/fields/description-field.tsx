@@ -20,8 +20,6 @@ const DescriptionField: React.FC<DescriptionFieldProps> = ({ isEditing, isCreate
   const { control, formState } = useFormContext<EditVendorFormData>()
   const hasInitialized = useRef(false)
 
-  console.log('Rendering DescriptionField with initialValue:', initialValue)
-
   return isEditing || isCreate ? (
     <FormField
       control={control}
@@ -55,16 +53,19 @@ const DescriptionField: React.FC<DescriptionFieldProps> = ({ isEditing, isCreate
       )}
     />
   ) : (
-    initialValue && (
-      <div className="w-full">
-        <label htmlFor="description" className="block text-lg my-1 font-semibold">
-          Description
-        </label>
-        <div className={'min-h-5'}>
+    <div className="w-full">
+      <div className="flex items-center mb-1">
+        <span className="font-medium">Description</span>
+        <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Provide a detailed description of the vendor and what it is used for</p>} />
+      </div>
+      {initialValue ? (
+        <div className="min-h-5 pb-4">
           <PlateEditor toolbarClassName="-mt-20" placeholder="No description set" key={JSON.stringify(initialValue)} initialValue={initialValue} readonly={true} variant="readonly" />
         </div>
-      </div>
-    )
+      ) : (
+        <p className="text-muted-foreground italic pb-4">No description set</p>
+      )}
+    </div>
   )
 }
 

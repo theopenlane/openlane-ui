@@ -13,7 +13,7 @@ import { getColumns } from './columns'
 import TableComponent from './table'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { buildPayload } from '../create/utils'
-import { AssetAssetType, AssetSourceType, UpdateAssetInput } from '@repo/codegen/src/schema'
+import { AssetAssetType, AssetSourceType, CreateAssetInput, UpdateAssetInput } from '@repo/codegen/src/schema'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 
@@ -41,7 +41,13 @@ const AssetPage: React.FC = () => {
     mutateAsync: async (params: { id: string; input: UpdateAssetInput }) => baseUpdateMutation.mutateAsync({ updateAssetId: params.id, input: params.input }),
   }
 
-  const createMutation = baseCreateMutation
+  const createMutation = {
+    isPending: baseCreateMutation.isPending,
+    mutateAsync: async (input: CreateAssetInput) => {
+      const result = await baseCreateMutation.mutateAsync({ input })
+      return result
+    },
+  }
 
   const deleteMutation = {
     isPending: baseBulkDeleteMutation.isPending,
@@ -51,7 +57,15 @@ const AssetPage: React.FC = () => {
       return result.deleteBulkAsset.deletedIDs
     },
   }
-  const bulkCreateMutation = baseBulkCreateMutation
+
+  const bulkCreateMutation = {
+    isPending: baseBulkCreateMutation.isPending,
+    mutateAsync: async (params: { input: File }) => {
+      const result = await baseBulkCreateMutation.mutateAsync({ input: params.input })
+      return result
+    },
+  }
+
   const bulkEditMutation = baseBulkEditMutation
 
   const { enumOptions: accessModelOptions } = useGetCustomTypeEnums({
