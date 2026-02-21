@@ -41,7 +41,7 @@ interface GenericBulkEditDialogProps<T extends { id: string }, TUpdateInput> {
 const fieldItemSchema = z.object({
   fieldKey: z.string().optional(),
   selectedConfig: z.any().optional(),
-  selectedValue: z.string().optional(),
+  selectedValue: z.union([z.string(), z.boolean()]).optional(),
   selectedDate: z.date().nullable().optional(),
 })
 
