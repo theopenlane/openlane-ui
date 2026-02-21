@@ -52,7 +52,7 @@ const bulkEditSchema = z.object({
 interface BulkEditFormValues {
   fieldsArray: Array<{
     fieldKey?: string
-    selectedValue?: string
+    selectedValue?: string | boolean
     selectedDate?: Date | null
   }>
 }
