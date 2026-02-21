@@ -46,7 +46,7 @@ export const getFilterFields = (enumOptions: EnumOptions): FilterField[] => [
     options: enumOptions.environmentOptions,
   },
   {
-    key: 'entitySourceTypeName',
+    key: 'entitySourceTypeNameIn',
     label: 'Source Type',
     type: 'multiselect',
     icon: FilterIcons.Source,
