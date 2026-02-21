@@ -47,3 +47,26 @@ export const getHrefForObjectType = (kind: string, row?: NormalizedObject): stri
       return ''
   }
 }
+
+export const getHrefForSearchEntityType = (entityType: string, entityId: string, opts?: { subcontrolParentId?: string | null }): string => {
+  switch (entityType) {
+    case 'Control':
+      return getHrefForObjectType('controls', { id: entityId })
+    case 'Subcontrol':
+      return opts?.subcontrolParentId ? getHrefForObjectType('subcontrols', { id: entityId, controlId: opts.subcontrolParentId }) : ''
+    case 'InternalPolicy':
+      return getHrefForObjectType('policies', { id: entityId })
+    case 'Procedure':
+      return getHrefForObjectType('procedures', { id: entityId })
+    case 'Risk':
+      return getHrefForObjectType('risks', { id: entityId })
+    case 'Task':
+      return getHrefForObjectType('tasks', { id: entityId })
+    case 'Program':
+      return getHrefForObjectType('programs', { id: entityId })
+    case 'Group':
+      return getHrefForObjectType('groups', { id: entityId })
+    default:
+      return ''
+  }
+}

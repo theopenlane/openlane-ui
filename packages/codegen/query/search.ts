@@ -3,147 +3,125 @@ import { gql } from 'graphql-request'
 export const SEARCH = gql`
   query Search($query: String!) {
     search(query: $query) {
-      programs {
-        edges {
-          node {
-            __typename
-            id
-            name
-          }
+      searchContext {
+        entityID
+        entityType
+        matchedFields
+        snippets {
+          field
+          text
         }
-        pageInfo {
-          endCursor
-          startCursor
-        }
-        totalCount
       }
+    }
+  }
+`
 
-      organizations {
-        edges {
-          node {
-            __typename
-            id
-            name
-            displayName
-            avatarRemoteURL
-          }
+export const SEARCH_CONTEXT_LABELS = gql`
+  query SearchContextLabels(
+    $controlsWhere: ControlWhereInput
+    $controlsFirst: Int
+    $includeControls: Boolean!
+    $subcontrolsWhere: SubcontrolWhereInput
+    $subcontrolsFirst: Int
+    $includeSubcontrols: Boolean!
+    $internalPoliciesWhere: InternalPolicyWhereInput
+    $internalPoliciesFirst: Int
+    $includeInternalPolicies: Boolean!
+    $proceduresWhere: ProcedureWhereInput
+    $proceduresFirst: Int
+    $includeProcedures: Boolean!
+    $programsWhere: ProgramWhereInput
+    $programsFirst: Int
+    $includePrograms: Boolean!
+    $tasksWhere: TaskWhereInput
+    $tasksFirst: Int
+    $includeTasks: Boolean!
+    $risksWhere: RiskWhereInput
+    $risksFirst: Int
+    $includeRisks: Boolean!
+    $groupsWhere: GroupWhereInput
+    $groupsFirst: Int
+    $includeGroups: Boolean!
+    $organizationsWhere: OrganizationWhereInput
+    $organizationsFirst: Int
+    $includeOrganizations: Boolean!
+  ) {
+    controls(where: $controlsWhere, first: $controlsFirst) @include(if: $includeControls) {
+      edges {
+        node {
+          id
+          refCode
+          ownerID
         }
-        pageInfo {
-          endCursor
-          startCursor
-        }
-        totalCount
       }
-
-      controls {
-        edges {
-          node {
-            __typename
+    }
+    subcontrols(where: $subcontrolsWhere, first: $subcontrolsFirst) @include(if: $includeSubcontrols) {
+      edges {
+        node {
+          id
+          refCode
+          control {
             id
-            refCode
-            ownerID
-            standardID
           }
         }
-        pageInfo {
-          endCursor
-          startCursor
-        }
-        totalCount
       }
-
-      subcontrols {
-        edges {
-          node {
-            __typename
-            id
-            refCode
-            ownerID
-            control {
-              id
-            }
-          }
+    }
+    internalPolicies(where: $internalPoliciesWhere, first: $internalPoliciesFirst) @include(if: $includeInternalPolicies) {
+      edges {
+        node {
+          id
+          name
         }
-        pageInfo {
-          endCursor
-          startCursor
-        }
-        totalCount
       }
-
-      risks {
-        edges {
-          node {
-            __typename
-            id
-            name
-          }
+    }
+    procedures(where: $proceduresWhere, first: $proceduresFirst) @include(if: $includeProcedures) {
+      edges {
+        node {
+          id
+          name
         }
-        pageInfo {
-          endCursor
-          startCursor
-        }
-        totalCount
       }
-
-      groups {
-        edges {
-          node {
-            __typename
-            id
-            name
-          }
+    }
+    programs(where: $programsWhere, first: $programsFirst) @include(if: $includePrograms) {
+      edges {
+        node {
+          id
+          name
         }
-        pageInfo {
-          endCursor
-          startCursor
-        }
-        totalCount
       }
-
-      tasks {
-        edges {
-          node {
-            __typename
-            id
-            title
-          }
+    }
+    tasks(where: $tasksWhere, first: $tasksFirst) @include(if: $includeTasks) {
+      edges {
+        node {
+          id
+          title
         }
-        pageInfo {
-          endCursor
-          startCursor
-        }
-        totalCount
       }
-
-      internalPolicies {
-        edges {
-          node {
-            __typename
-            id
-            name
-          }
+    }
+    risks(where: $risksWhere, first: $risksFirst) @include(if: $includeRisks) {
+      edges {
+        node {
+          id
+          name
         }
-        pageInfo {
-          endCursor
-          startCursor
-        }
-        totalCount
       }
-
-      procedures {
-        edges {
-          node {
-            __typename
-            id
-            name
-          }
+    }
+    groups(where: $groupsWhere, first: $groupsFirst) @include(if: $includeGroups) {
+      edges {
+        node {
+          id
+          displayName
+          name
         }
-        pageInfo {
-          endCursor
-          startCursor
+      }
+    }
+    organizations(where: $organizationsWhere, first: $organizationsFirst) @include(if: $includeOrganizations) {
+      edges {
+        node {
+          id
+          displayName
+          name
         }
-        totalCount
       }
     }
   }
