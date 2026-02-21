@@ -1,0 +1,44 @@
+import { auth } from '@/lib/auth/auth'
+import { secureFetch } from '@/lib/auth/utils/secure-fetch'
+import { openlaneAPIUrl } from '@repo/dally/auth'
+import { NextRequest, NextResponse } from 'next/server'
+
+export async function GET(request: NextRequest) {
+  const session = await auth()
+  const token = session?.user?.accessToken
+
+  if (!token) {
+    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
+  }
+
+  const provider = request.nextUrl.searchParams.get('provider')?.trim()
+  if (!provider) {
+    return NextResponse.json({ error: 'Provider is required' }, { status: 400 })
+  }
+
+  const res = await secureFetch(`${openlaneAPIUrl}/v1/integrations/${encodeURIComponent(provider)}/operations/run`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      payload: {
+        operation: 'health.default',
+        config: {},
+        force: true,
+      },
+    }),
+  })
+
+  const raw = await res.text()
+  if (!res.ok) {
+    return NextResponse.json({ error: raw || `Health check failed for ${provider}` }, { status: res.status })
+  }
+
+  try {
+    const payload = JSON.parse(raw) as { status?: string; summary?: string; details?: Record<string, unknown> }
+    return NextResponse.json(payload)
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON response while checking integration health' }, { status: 500 })
+  }
+}

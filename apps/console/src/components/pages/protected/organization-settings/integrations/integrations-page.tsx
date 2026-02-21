@@ -1,10 +1,10 @@
 'use client'
 import { PageHeading } from '@repo/ui/page-heading'
-import React, { useContext, useEffect, useRef, useState } from 'react'
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react'
 import IntegrationsToolbar from './integrations-toolbar'
 import { useGetIntegrations } from '@/lib/graphql-hooks/integration'
 import { IntegrationsGrid } from './integrations-grid'
-import { IntegrationTab } from './config'
+import { installedIntegrationDisplayName, IntegrationTab } from './config'
 import { useNotification } from '@/hooks/useNotification'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { canEdit } from '@/lib/authz/utils'
@@ -16,7 +16,8 @@ import { useIntegrationProviders } from '@/lib/query-hooks/integrations'
 
 const IntegrationsPage = () => {
   const searchParams = useSearchParams()
-  const [activeTab, setActiveTab] = useState<IntegrationTab>(() => (searchParams.get('status') === 'success' ? 'Installed' : 'Available'))
+  const [activeTab, setActiveTab] = useState<IntegrationTab>(() => (searchParams.get('status') === 'success' ? 'Installed' : 'All'))
+  const [searchQuery, setSearchQuery] = useState('')
   const { data, isLoading: integrationsLoading } = useGetIntegrations({ where: {} })
   const { data: providersData, isLoading: providersLoading } = useIntegrationProviders()
   const { setCrumbs } = useContext(BreadcrumbContext)
@@ -54,6 +55,58 @@ const IntegrationsPage = () => {
     ])
   }, [setCrumbs])
 
+  const installedIntegrations = useMemo(() => (data?.integrations?.edges ?? []).flatMap((edge) => (edge?.node ? [edge.node] : [])), [data?.integrations?.edges])
+
+  const installedProviderNames = useMemo(
+    () => installedIntegrations.map((integration) => (integration.kind || integration.name).toLowerCase()),
+    [installedIntegrations],
+  )
+
+  const visibleProviders = useMemo(() => (providersData?.providers ?? []).filter((provider) => provider.visible !== false), [providersData?.providers])
+
+  const availableProviders = useMemo(
+    () =>
+      visibleProviders.filter(
+        (provider) => !installedProviderNames.includes(provider.name.toLowerCase()),
+      ),
+    [visibleProviders, installedProviderNames],
+  )
+
+  const allCount = availableProviders.filter((provider) => provider.active).length
+  const comingSoonCount = availableProviders.filter((provider) => !provider.active).length
+  const installedCount = installedIntegrations.length
+
+  const typeaheadOptions = useMemo(() => {
+    const values = new Map<string, string>()
+
+    const addValue = (raw: string) => {
+      const value = raw.trim()
+      if (!value) {
+        return
+      }
+
+      const key = value.toLowerCase()
+      if (!values.has(key)) {
+        values.set(key, value)
+      }
+    }
+
+    for (const provider of availableProviders) {
+      addValue(provider.displayName)
+      addValue(provider.name)
+    }
+
+    for (const integration of installedIntegrations) {
+      addValue(installedIntegrationDisplayName(integration, providersData?.providers ?? []))
+      addValue(integration.name)
+      if (integration.kind) {
+        addValue(integration.kind)
+      }
+    }
+
+    return [...values.values()].sort((a, b) => a.localeCompare(b))
+  }, [availableProviders, installedIntegrations, providersData?.providers])
+
   if (isLoading && integrationsLoading && providersLoading) {
     return <Loading />
   }
@@ -64,8 +117,17 @@ const IntegrationsPage = () => {
         <ProtectedArea />
       ) : (
         <>
-          <IntegrationsToolbar activeTab={activeTab} setActiveTab={setActiveTab} installedCount={data?.integrations.edges?.length} />
-          <IntegrationsGrid integrations={data?.integrations} activeTab={activeTab} providers={providersData?.providers ?? []} />
+          <IntegrationsToolbar
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+            allCount={allCount}
+            comingSoonCount={comingSoonCount}
+            installedCount={installedCount}
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            typeaheadOptions={typeaheadOptions}
+          />
+          <IntegrationsGrid integrations={data?.integrations} activeTab={activeTab} providers={providersData?.providers ?? []} searchQuery={searchQuery} />
         </>
       )}
     </div>
