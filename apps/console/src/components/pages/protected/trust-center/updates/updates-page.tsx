@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
@@ -18,6 +18,7 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { Input } from '@repo/ui/input'
+import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 
 const formSchema = z.object({
   title: z.string().min(1, 'Title is required').max(280),
@@ -27,6 +28,7 @@ const formSchema = z.object({
 type UpdateFormValues = z.infer<typeof formSchema>
 
 export default function UpdatesSection() {
+  const { setCrumbs } = useContext(BreadcrumbContext)
   const [editingPostId, setEditingPostId] = useState<string | null>(null)
   const [postToDelete, setPostToDelete] = useState<string | null>(null) // New state for deletion
 
@@ -107,6 +109,10 @@ export default function UpdatesSection() {
     setEditingPostId(null)
     editForm.reset()
   }
+
+  useEffect(() => {
+    setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Trust Center' }, { label: 'Updates', href: '/trust-center/updates' }])
+  }, [setCrumbs])
 
   return (
     <div className="w-full max-w-7xl mx-auto p-6 space-y-6 min-h-screen text-foreground">
