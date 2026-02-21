@@ -61,10 +61,6 @@ export const PoliciesTable = () => {
   })
 
   const where = useMemo(() => {
-    const base: InternalPolicyWhereInput = {
-      nameContainsFold: debouncedSearch,
-    }
-
     const result = whereGenerator<InternalPolicyWhereInput>(filters, (key, value) => {
       if (key === 'hasControlsWith') {
         return { hasControlsWith: [{ refCodeContainsFold: value as string }] }
@@ -92,7 +88,13 @@ export const PoliciesTable = () => {
       result.statusNotIn = [InternalPolicyDocumentStatus.ARCHIVED]
     }
 
-    return { ...base, ...result }
+    const merged = { ...result }
+
+    if (debouncedSearch) {
+      merged.and = [...(merged.and || []), { or: [{ nameContainsFold: debouncedSearch }, { detailsContainsFold: debouncedSearch }] }]
+    }
+
+    return merged
   }, [filters, debouncedSearch])
 
   const orderByFilter = useMemo(() => {

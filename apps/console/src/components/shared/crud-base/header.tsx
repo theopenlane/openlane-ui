@@ -10,6 +10,7 @@ import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { GenericDeleteDialog } from './dialog/delete-dialog'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { toHumanLabel } from '@/utils/strings'
 
 interface GenericSheetHeaderProps {
   close: () => void
@@ -52,8 +53,8 @@ export const GenericSheetHeader = ({ close, isEditing, isCreate, setIsEditing, i
   return (
     <SheetHeader>
       <div className="flex items-center justify-between">
-        {!isCreate ? <PanelRightClose aria-label="Close detail sheet" size={16} className="cursor-pointer" onClick={close} /> : <div className="h-6" />}
-        <div className="flex justify-end gap-2">
+        {!isCreate ? <PanelRightClose aria-label="Close detail sheet" size={16} className="cursor-pointer" onClick={close} /> : <div className="h-6 text-lg">Create {toHumanLabel(entityType)}</div>}
+        <div className="flex justify-end gap-2 mr-6">
           {!isCreate && (
             <Button icon={<LinkIcon />} iconPosition="left" variant="secondary" onClick={handleCopyLink}>
               Copy link

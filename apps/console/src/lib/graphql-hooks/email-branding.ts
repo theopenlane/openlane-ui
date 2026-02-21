@@ -12,7 +12,7 @@ import {
   EmailBrandingQuery,
   EmailBrandingQueryVariables,
   CreateBulkCsvEmailBrandingMutation,
-  CreateBulkCsvTaskMutationVariables,
+  CreateBulkCsvEmailBrandingMutationVariables,
   UpdateBulkEmailBrandingMutation,
   UpdateBulkEmailBrandingMutationVariables,
   DeleteBulkEmailBrandingMutation,
@@ -107,7 +107,7 @@ export const useEmailBranding = (emailBrandingId?: EmailBrandingQueryVariables['
 
 export const useCreateBulkCSVEmailBranding = () => {
   const { queryClient } = useGraphQLClient()
-  return useMutation<CreateBulkCsvEmailBrandingMutation, unknown, CreateBulkCsvTaskMutationVariables>({
+  return useMutation<CreateBulkCsvEmailBrandingMutation, unknown, CreateBulkCsvEmailBrandingMutationVariables>({
     mutationFn: async (variables) => fetchGraphQLWithUpload({ query: CREATE_CSV_BULK_EMAIL_BRANDING, variables }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['emailBrandings'] })

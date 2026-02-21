@@ -14,74 +14,78 @@ import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { canEdit } from '@/lib/authz/utils'
 import { GenericSheetHeader } from './header'
 import { GenericDetailsSheetSkeleton } from './skeleton/details-sheet-skeleton'
+import { pluralizeTypeName } from '@/utils/strings'
 
 export interface InternalEditingType {
   (field: string | null): void
 }
 
-export interface GenericDetailsSheetConfig<TFormData extends FieldValues, TData, TUpdateInput, TCreateInput> {
+export interface RenderFieldsProps<TData, TUpdateInput> {
+  isEditing: boolean
+  isCreate: boolean
+  data?: TData
+  isFormInitialized: boolean
+  internalEditing: string | null
+  setInternalEditing: InternalEditingType
+  handleUpdateField: (input: TUpdateInput) => Promise<void>
+  isEditAllowed: boolean
+}
+
+export interface RenderHeaderProps {
+  close: () => void
+  isEditing: boolean
+  isPending: boolean
+  isCreate: boolean
+  setIsEditing: (value: boolean) => void
+  name?: string | null
+  isEditAllowed: boolean
+  handleCancelEdit: () => void
+  formId: string
+}
+
+export interface GenericDetailsSheetConfig<TFormData extends FieldValues, TData, TUpdateInput, TUpdateData, TCreateInput, TCreateData> {
   objectType: ObjectTypes
   form: UseFormReturn<TFormData>
-  onClose: () => void
+
+  createMutation: {
+    mutateAsync: (input: TCreateInput) => Promise<TCreateData>
+    isPending: boolean
+  }
 
   updateMutation: {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    mutateAsync: (params: any) => Promise<any>
+    mutateAsync: (params: { id: string; input: TUpdateInput }) => Promise<TUpdateData>
     isPending: boolean
   }
-  createMutation: {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    mutateAsync: (params: any) => Promise<any>
-    isPending: boolean
-  }
+
   deleteMutation?: {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    mutateAsync: (params: any) => Promise<any>
+    mutateAsync: (params: { ids: string[] }) => Promise<string[]>
     isPending: boolean
   }
+
+  onClose?: () => void
 
   data?: TData
   isFetching: boolean
-
   formId?: string
 
   buildPayload: (data: TFormData) => Promise<TUpdateInput | TCreateInput>
   normalizeData?: (data: TData) => Partial<TFormData>
   getName?: (data: TData) => string | null | undefined
 
-  renderHeader?: (props: {
-    close: () => void
-    isEditing: boolean
-    isPending: boolean
-    isCreate: boolean
-    setIsEditing: (value: boolean) => void
-    name?: string | null
-    isEditAllowed: boolean
-    handleCancelEdit: () => void
-    formId: string
-  }) => React.ReactNode
-
-  renderFields: (props: {
-    isEditing: boolean
-    isCreate: boolean
-    data?: TData
-    isFormInitialized: boolean
-    internalEditing: string | null
-    setInternalEditing: InternalEditingType
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    handleUpdateField: (input: any) => Promise<void>
-    isEditAllowed: boolean
-  }) => React.ReactNode
+  renderFields?: (props: RenderFieldsProps<TData, TUpdateInput>) => React.ReactNode
+  renderHeader?: (props: RenderHeaderProps) => React.ReactNode
 }
 
-export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdateInput, TCreateInput>(config: GenericDetailsSheetConfig<TFormData, TData, TUpdateInput, TCreateInput>) {
+export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdateInput, TUpdateData, TCreateInput, TCreateData>(
+  config: GenericDetailsSheetConfig<TFormData, TData, TUpdateInput, TUpdateData, TCreateInput, TCreateData>,
+) {
   const [isEditing, setIsEditing] = useState(false)
   const [internalEditing, setInternalEditing] = useState<string | null>(null)
   const [showCancelDialog, setShowCancelDialog] = useState(false)
   const [isFormInitialized, setIsFormInitialized] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
 
-  const { form, onClose, updateMutation, createMutation, deleteMutation, objectType, data, isFetching, buildPayload, normalizeData, getName, formId = 'editForm', renderHeader, renderFields } = config
+  const { form, updateMutation, createMutation, deleteMutation, objectType, data, isFetching, buildPayload, normalizeData, getName, formId = 'editForm', renderHeader, renderFields, onClose } = config
   const { reset } = form
   const queryClient = useQueryClient()
   const { successNotification, errorNotification } = useNotification()
@@ -99,7 +103,7 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
   const updateSuccessTitle = `${objectTypeName} Updated`
   const updateSuccessDescription = `The ${objectTypeName.toLowerCase()} has been successfully updated.`
 
-  const queryKey = [objectType.toLowerCase() + 's']
+  const queryKey = [pluralizeTypeName(objectType.toLowerCase())]
 
   useEffect(() => {
     if (id || isCreate) {
@@ -131,7 +135,7 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
       return
     }
 
-    onClose()
+    onClose?.()
   }
 
   const handleConfirmClose = () => {
@@ -139,7 +143,7 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
     setIsOpen(false)
     setShowCancelDialog(false)
 
-    onClose()
+    onClose?.()
   }
 
   const handleCancelEdit = () => {
@@ -150,7 +154,7 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
     }
 
     if (isCreate) {
-      onClose()
+      onClose?.()
     } else {
       setIsEditing(false)
       reset()
@@ -162,7 +166,7 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
       const payload = await buildPayload(formData)
 
       if (isCreate) {
-        await createMutation.mutateAsync({ input: payload as TCreateInput })
+        await createMutation.mutateAsync(payload as TCreateInput)
 
         queryClient.invalidateQueries({ queryKey })
         successNotification({
@@ -170,7 +174,7 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
           description: createSuccessDescription,
         })
 
-        onClose()
+        onClose?.()
       } else if (id) {
         await updateMutation.mutateAsync({ id, input: payload as TUpdateInput })
 
@@ -197,7 +201,7 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
     }
 
     try {
-      await deleteMutation.mutateAsync({ id })
+      await deleteMutation.mutateAsync({ ids: [id] })
 
       queryClient.invalidateQueries({ queryKey })
       successNotification({
@@ -205,7 +209,7 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
         description: `The ${objectTypeName.toLowerCase()} has been successfully deleted.`,
       })
 
-      onClose()
+      onClose?.()
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
       errorNotification({
@@ -221,7 +225,6 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
     }
     try {
       await updateMutation.mutateAsync({ id, input })
-
       successNotification({
         title: updateSuccessTitle,
         description: updateSuccessDescription,
@@ -295,16 +298,18 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
           ) : (
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} id={formId} className="space-y-6 mt-4">
-                {renderFields({
-                  isEditing,
-                  isCreate,
-                  data,
-                  isFormInitialized,
-                  internalEditing,
-                  setInternalEditing,
-                  handleUpdateField,
-                  isEditAllowed,
-                })}
+                {renderFields
+                  ? renderFields({
+                    isEditing,
+                    isCreate,
+                    data,
+                    isFormInitialized,
+                    internalEditing,
+                    setInternalEditing,
+                    handleUpdateField,
+                    isEditAllowed,
+                  })
+                  : null}
               </form>
             </Form>
           )}

@@ -66,20 +66,21 @@ const RiskTable: React.FC = () => {
   const searching = searchQuery !== debouncedSearch
 
   const where = useMemo(() => {
-    const base: RiskWhereInput = {
-      nameContainsFold: debouncedSearch,
+    const result = whereGenerator<RiskWhereInput>(filters, (key, value) => {
+      if (key === 'hasProgramsWith') {
+        return { hasProgramsWith: [{ idIn: value }] } as RiskWhereInput
+      }
+
+      return { [key]: value } as RiskWhereInput
+    })
+
+    const merged = { ...result }
+
+    if (debouncedSearch) {
+      merged.and = [...(merged.and || []), { or: [{ nameContainsFold: debouncedSearch }, { detailsContainsFold: debouncedSearch }] }]
     }
 
-    return {
-      ...base,
-      ...whereGenerator(filters, (key, value) => {
-        if (key === 'hasProgramsWith') {
-          return { hasProgramsWith: [{ idIn: value }] } as RiskWhereInput
-        }
-
-        return { [key]: value } as RiskWhereInput
-      }),
-    }
+    return merged
   }, [filters, debouncedSearch])
 
   const orderByFilter = useMemo(() => {

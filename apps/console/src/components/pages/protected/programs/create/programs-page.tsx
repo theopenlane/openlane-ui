@@ -50,7 +50,6 @@ const customOptions = [
   },
 ]
 
-// Add this interface
 interface ProgramsCreateProps {
   disableHeader?: boolean
   noPrograms?: boolean

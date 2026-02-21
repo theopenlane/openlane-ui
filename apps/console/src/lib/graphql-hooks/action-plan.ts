@@ -12,7 +12,7 @@ import {
   ActionPlanQuery,
   ActionPlanQueryVariables,
   CreateBulkCsvActionPlanMutation,
-  CreateBulkCsvTaskMutationVariables,
+  CreateBulkCsvActionPlanMutationVariables,
   UpdateBulkActionPlanMutation,
   UpdateBulkActionPlanMutationVariables,
   DeleteBulkActionPlanMutation,
@@ -107,7 +107,7 @@ export const useActionPlan = (actionPlanId?: ActionPlanQueryVariables['actionPla
 
 export const useCreateBulkCSVActionPlan = () => {
   const { queryClient } = useGraphQLClient()
-  return useMutation<CreateBulkCsvActionPlanMutation, unknown, CreateBulkCsvTaskMutationVariables>({
+  return useMutation<CreateBulkCsvActionPlanMutation, unknown, CreateBulkCsvActionPlanMutationVariables>({
     mutationFn: async (variables) => fetchGraphQLWithUpload({ query: CREATE_CSV_BULK_ACTION_PLAN, variables }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['actionPlans'] })

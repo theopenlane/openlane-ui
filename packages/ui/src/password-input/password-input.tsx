@@ -1,12 +1,12 @@
 'use client'
 
-import { forwardRef, useState } from 'react'
+import { useState } from 'react'
 import { EyeIcon, EyeOffIcon } from 'lucide-react'
 import { Input, InputProps } from '../input/input'
 import { cn } from '../../lib/utils'
 import { passwordInputStyles } from './password-input.styles'
 
-const PasswordInput = forwardRef<HTMLInputElement, InputProps>(({ className, ...props }, ref) => {
+const PasswordInput = ({ className, ref, ...props }: InputProps & { ref?: React.Ref<HTMLInputElement> }) => {
   const [showPassword, setShowPassword] = useState(false)
   const { eye } = passwordInputStyles()
 
@@ -35,7 +35,6 @@ const PasswordInput = forwardRef<HTMLInputElement, InputProps>(({ className, ...
 				`}</style>
     </div>
   )
-})
-PasswordInput.displayName = 'PasswordInput'
+}
 
 export { PasswordInput }
