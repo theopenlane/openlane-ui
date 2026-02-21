@@ -8,6 +8,7 @@ import { formatDate, formatCurrency } from '@/utils/date'
 import { ExternalLink } from 'lucide-react'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { InfoIcon } from 'lucide-react'
+import { normalizeUrl } from '@/utils/normalizeUrl'
 
 interface TextFieldProps<TUpdateInput> {
   name: string
@@ -114,13 +115,13 @@ export const TextField = <TUpdateInput,>({
                 ) : type === 'link' ? (
                   value ? (
                     <a
-                      href={normalizeURL(value)}
+                      href={normalizeUrl(value)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1 hover:bg-accent bg-muted rounded-md px-2 py-1"
                       onClick={(e) => e.stopPropagation()}
                     >
-                      {normalizeURL(value)}
+                      {normalizeUrl(value)}
                       <ExternalLink className="w-4 h-4 ml-1" />
                     </a>
                   ) : (

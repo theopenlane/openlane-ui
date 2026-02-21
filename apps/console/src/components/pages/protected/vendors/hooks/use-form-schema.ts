@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Value } from 'platejs'
-import { EntityEntityStatus } from '@repo/codegen/src/schema'
+import { EntityEntityStatus, EntityFrequency } from '@repo/codegen/src/schema'
 
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -37,10 +37,7 @@ const formSchema = z.object({
   soc2PeriodEnd: z.string().optional(),
   spendCurrency: z.string().optional(),
   ssoEnforced: z.boolean().optional(),
-  statusPageURL: z
-    .string()
-    .optional()
-    .refine((value) => isValidExternalHttpUrl(value), { message: 'Enter a valid http(s) URL' }),
+  statusPageURL: z.string().optional(),
   reviewFrequency: z.nativeEnum(EntityFrequency).optional(),
   terminationNoticeDays: z.number().optional(),
   tier: z.string().optional(),

@@ -205,7 +205,7 @@ export function GenericBulkEditDialog<T extends { id: string }, TUpdateInput>({
                         control={control}
                         name={`fieldsArray.${index}.selectedValue`}
                         render={({ field }) => (
-                          <Select value={field.value} onValueChange={field.onChange}>
+                          <Select value={field.value === undefined ? undefined : String(field.value)} onValueChange={field.onChange}>
                             <SelectTrigger className="w-60">
                               <SelectValue placeholder={selectOptions[0]?.label} />
                             </SelectTrigger>
@@ -256,7 +256,9 @@ export function GenericBulkEditDialog<T extends { id: string }, TUpdateInput>({
                       <Controller
                         control={control}
                         name={`fieldsArray.${index}.selectedValue`}
-                        render={({ field }) => <Input {...field} variant="medium" placeholder={toHumanLabel(fieldKey || '')} className="w-full" />}
+                        render={({ field }) => (
+                          <Input {...field} variant="medium" placeholder={toHumanLabel(fieldKey || '')} className="w-full" value={field.value === undefined ? '' : String(field.value)} />
+                        )}
                       />
                     )}
                     <Button icon={<Trash2 />} iconPosition="center" variant="secondary" onClick={() => remove(index)}></Button>
