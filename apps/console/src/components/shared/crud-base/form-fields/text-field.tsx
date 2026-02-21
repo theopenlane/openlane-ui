@@ -101,7 +101,7 @@ export const TextField = <TUpdateInput,>({
           </div>
           <FormControl>
             {isFieldEditing ? (
-              <Input {...field} type={type} prefix={prefix} placeholder={placeholder} onBlur={handleBlur} onKeyDown={handleKeyDown} autoFocus={internalEditing === name} />
+              <Input {...field} value={field.value ?? ''} type={type} prefix={prefix} placeholder={placeholder} onBlur={handleBlur} onKeyDown={handleKeyDown} autoFocus={internalEditing === name} />
             ) : (
               <div className={`text-sm py-2 rounded-md cursor-pointer px-1 w-full` + (type !== 'link' ? ' hover:bg-accent' : '')} onClick={handleClick}>
                 {type === 'date' ? (
