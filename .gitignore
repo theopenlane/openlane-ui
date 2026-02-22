@@ -39,6 +39,9 @@ yarn-error.log*
 # turbo
 .turbo
 
+# typescript
+*.tsbuildinfo
+
 # ui
 dist/
 

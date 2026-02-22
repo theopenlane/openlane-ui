@@ -1,109 +1,60 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import type { Preview } from '@storybook/react-vite'
+import { addons, useEffect } from 'storybook/preview-api'
+import { withThemeByClassName } from '@storybook/addon-themes'
 import './style.css'
-import { themes } from 'storybook/theming'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
-const Background = (Story, context) => {
-  const [theme, setTheme] = useState('light')
+const queryClient = new QueryClient({
+  defaultOptions: { queries: { retry: false, enabled: false } },
+})
 
-  useEffect(() => {
-    if (context.args.theme) {
-      setTheme(context.args.theme)
-    }
-  }, [context.args.theme])
+const QueryClientDecorator = (Story: React.ComponentType) => (
+  <QueryClientProvider client={queryClient}>
+    <Story />
+  </QueryClientProvider>
+)
 
-  return (
-    <div data-theme={theme}>
-      <Story />
-    </div>
-  )
-}
-
-export const parameters = {
-  darkMode: {
-    current: 'light',
-    stylePreview: true,
-    // Override the default dark theme
-    dark: {
-      ...themes.dark,
-
-      colorPrimary: '#2CCBAB',
-      colorSecondary: '#75D2BF',
-
-      // UI
-      appBg: '#162431',
-      appContentBg: '#162431',
-      appPreviewBg: '#162431',
-      appBorderColor: '#303E4A',
-      appBorderRadius: 4,
-
-      // Text colors
-      textColor: '#bdd9e1',
-      textInverseColor: '#505F6F',
-
-      // Toolbar default and active colors
-      barTextColor: '#aabec5',
-      barSelectedColor: '#354755',
-      barHoverColor: '#354755',
-      barBg: '#1C2630',
-
-      // Form colors
-      inputBg: '#1C2630',
-      inputBorder: '#162431',
-      inputTextColor: '#aabec5',
-      inputBorderRadius: 2,
-    },
-    // Override the default light theme
-    light: {
-      ...themes.light,
-
-      colorPrimary: '#2CCBAB',
-      colorSecondary: '#75D2BF',
-
-      // UI
-      appBg: '#e9f1f5',
-      appContentBg: '#e9f1f5',
-      appPreviewBg: '#162431',
-      appBorderColor: '#d2e2e9',
-      appBorderRadius: 4,
-
-      // Text colors
-      textColor: '#505F6F',
-      textInverseColor: '#1c2630',
-
-      // Toolbar default and active colors
-      barTextColor: '#303E4A',
-      barSelectedColor: '#e9f1f5',
-      barHoverColor: '#e9f1f5',
-      barBg: '#ffffff',
-
-      // Form colors
-      inputBg: '#ffffff',
-      inputBorder: '#d2e2e9',
-      inputTextColor: '#505F6F',
-      inputBorderRadius: 2,
-    },
-  },
-}
+// Module-level listener covers docs mode where story decorators don't affect the outer page.
+addons.getChannel().on('globalsUpdated', ({ userGlobals }: { userGlobals: Record<string, string> }) => {
+  const isDark = userGlobals?.['theme'] === 'dark'
+  const bg = isDark ? '#09151d' : '#eff4f5'
+  document.documentElement.classList.toggle('dark', isDark)
+  document.documentElement.style.backgroundColor = bg
+  if (document.body) {
+    document.body.classList.toggle('dark', isDark)
+    document.body.style.backgroundColor = bg
+  }
+})
 
 const preview: Preview = {
-  parameters: {
-    actions: { argTypesRegex: '^on[A-Z].*' },
-    tags: ['autodocs'],
-    backgrounds: {
-      disable: true,
-    },
-    darkMode: parameters.darkMode,
-    decorators: [Background],
-    docs: {
-      theme: parameters.darkMode.current === 'dark' ? themes.dark : themes.light,
-      themes: {
-        dark: parameters.darkMode.dark,
-        light: parameters.darkMode.light,
-      },
-    },
-  },
+  decorators: [
+    QueryClientDecorator,
+    (Story, context) => {
+      const isDark = context.globals['theme'] === 'dark'
 
+      // useEffect from storybook/preview-api re-runs when globals change in story mode.
+      useEffect(() => {
+        const bg = isDark ? '#09151d' : '#eff4f5'
+        document.documentElement.style.backgroundColor = bg
+        document.documentElement.classList.toggle('dark', isDark)
+        if (document.body) {
+          document.body.style.backgroundColor = bg
+          document.body.classList.toggle('dark', isDark)
+        }
+      }, [isDark])
+
+      return <Story />
+    },
+    withThemeByClassName({
+      themes: { light: '', dark: 'dark' },
+      defaultTheme: 'light',
+    }),
+  ],
+  parameters: {
+    tags: ['autodocs'],
+    backgrounds: { disable: true },
+  },
   tags: ['autodocs'],
 }
 

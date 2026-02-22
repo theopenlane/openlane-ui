@@ -3,7 +3,7 @@ import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '.
 import { EllipsisIcon } from 'lucide-react'
 
 const meta: Meta<typeof Table> = {
-  title: 'UI/Table',
+  title: 'Data/Table',
   component: Table,
   parameters: {
     docs: {

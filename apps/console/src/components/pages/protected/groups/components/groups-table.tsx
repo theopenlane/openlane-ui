@@ -2,7 +2,7 @@
 
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/table-core'
-import React, { useEffect, useMemo } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Group, GroupOrder, GroupWhereInput } from '@repo/codegen/src/schema'
 import { GROUP_SORT_FIELDS } from '@/components/pages/protected/groups/table/table-config.ts'
 import { TPagination } from '@repo/ui/pagination-types'
@@ -25,6 +25,7 @@ type TGroupsTableProps = {
 }
 
 const GroupsTable = ({ onSortChange, pagination, onPaginationChange, whereFilter, orderByFilter, columnVisibility, setColumnVisibility }: TGroupsTableProps) => {
+  const [selectedItems, setSelectedItems] = useState<{ id: string }[]>([])
   const { groups, isError, paginationMeta } = useGetAllGroups({
     where: whereFilter,
     orderBy: orderByFilter,
@@ -56,7 +57,7 @@ const GroupsTable = ({ onSortChange, pagination, onPaginationChange, whereFilter
     return map
   }, [users])
 
-  const { columns } = useMemo(() => getGroupTableColumns({ userMap }), [userMap])
+  const { columns } = useMemo(() => getGroupTableColumns({ userMap, selectedItems, setSelectedItems }), [userMap, selectedItems])
 
   const handleRowClick = (group: Group) => {
     replace({ id: group.id })

@@ -6,7 +6,7 @@ import { cn } from '@repo/ui/lib/utils'
 import { LineChartExample } from './chart-example'
 
 const meta: Meta<typeof LineChart> = {
-  title: 'UI/LineChart',
+  title: 'Data/LineChart',
   component: LineChart,
   parameters: {
     docs: {
@@ -20,7 +20,7 @@ const meta: Meta<typeof LineChart> = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-export const Default: Story = {
+export const Default = {
   render: () => (
     <div className="p-8 rounded-lg">
       <LineChartExample />

@@ -1,10 +1,10 @@
-import type { Meta, StoryObj } from '@storybook/react-vite'
+import type { Meta } from '@storybook/react-vite'
 import { DataTable } from './data-table'
 import { columns, mockData } from './mocks/data-table.mock'
 import { TableKeyEnum } from '../data-table/table-key.ts'
 
-const meta: Meta<typeof DataTable> = {
-  title: 'UI/DataTable',
+const meta = {
+  title: 'Data/DataTable',
   component: DataTable,
   parameters: {
     docs: {
@@ -13,12 +13,11 @@ const meta: Meta<typeof DataTable> = {
       },
     },
   },
-} satisfies Meta<typeof DataTable>
+} satisfies Meta
 
 export default meta
-type Story = StoryObj<typeof meta>
 
-export const Default: Story = {
+export const Default = {
   render: () => (
     <div className="p-8 rounded-lg">
       <DataTable columns={columns} data={mockData} tableKey={TableKeyEnum.TABLE_STORIES} />

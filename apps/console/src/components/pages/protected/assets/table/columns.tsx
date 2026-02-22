@@ -1,53 +1,17 @@
-import { ColumnDef, Row } from '@tanstack/react-table'
-import { Avatar } from '@/components/shared/avatar/avatar.tsx'
+import { ColumnDef } from '@tanstack/react-table'
 import { formatDate } from '@/utils/date'
-import { Checkbox } from '@repo/ui/checkbox'
-import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 import { AssetsNodeNonNull } from '@/lib/graphql-hooks/asset'
 import { ColumnOptions } from '@/components/shared/crud-base/page'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { UserCell } from '@/components/shared/crud-base/columns/user-cell'
+import { TagsCell } from '@/components/shared/crud-base/columns/tags-cell'
+import { BooleanCell } from '@/components/shared/crud-base/columns/boolean-cell'
+import { createSelectColumn } from '@/components/shared/crud-base/columns/select-column'
+import { User } from '@repo/codegen/src/schema'
 
-export const getColumns = ({ userMap, convertToReadOnly, selectedItems, setSelectedItems }: ColumnOptions<AssetsNodeNonNull>): ColumnDef<AssetsNodeNonNull>[] => {
-  const toggleSelection = (asset: AssetsNodeNonNull) => {
-    setSelectedItems((prev) => {
-      const exists = prev.some((c) => c.id === asset.id)
-      return exists ? prev.filter((c) => c.id !== asset.id) : [...prev, asset]
-    })
-  }
+export const getColumns = ({ userMap, convertToReadOnly, selectedItems, setSelectedItems }: ColumnOptions): ColumnDef<AssetsNodeNonNull>[] => {
   return [
-    {
-      id: 'select',
-      header: ({ table }) => {
-        const currentPageAssets = table.getRowModel().rows.map((row) => row.original)
-        const allSelected = currentPageAssets.every((asset) => selectedItems.some((sc) => sc.id === asset.id))
-
-        return (
-          <div onClick={(e) => e.stopPropagation()}>
-            <Checkbox
-              checked={allSelected}
-              onCheckedChange={(checked: boolean) => {
-                const newSelections = checked
-                  ? [...selectedItems.filter((sc) => !currentPageAssets.some((c) => c.id === sc.id)), ...currentPageAssets]
-                  : selectedItems.filter((sc) => !currentPageAssets.some((c) => c.id === sc.id))
-
-                setSelectedItems(newSelections)
-              }}
-            />
-          </div>
-        )
-      },
-      cell: ({ row }: { row: Row<AssetsNodeNonNull> }) => {
-        const { id } = row.original
-        const isChecked = selectedItems.some((c) => c.id === id)
-
-        return (
-          <div onClick={(e) => e.stopPropagation()}>
-            <Checkbox checked={isChecked} onCheckedChange={() => toggleSelection(row.original)} />
-          </div>
-        )
-      },
-      size: 50,
-    },
+    createSelectColumn<AssetsNodeNonNull>(selectedItems, setSelectedItems),
     { accessorKey: 'id', header: 'ID', size: 120, cell: ({ row }) => <div className="text-muted-foreground">{row.original.id}</div> },
     { accessorKey: 'name', header: 'Name', size: 100, cell: ({ cell }) => cell.getValue() || '' },
     { accessorKey: 'accessModelName', header: 'Access Model', size: 140 },
@@ -69,17 +33,7 @@ export const getColumns = ({ userMap, convertToReadOnly, selectedItems, setSelec
       accessorKey: 'createdBy',
       header: 'Created By',
       size: 160,
-      cell: ({ row }) => {
-        const user = userMap[row.original.createdBy ?? '']
-        return user ? (
-          <div className="flex items-center space-x-1">
-            <Avatar entity={user} className="w-[24px] h-[24px]" />
-            <p>{user.displayName}</p>
-          </div>
-        ) : (
-          <span className="text-muted-foreground italic">Deleted user</span>
-        )
-      },
+      cell: ({ row }) => <UserCell user={userMap[row.original.createdBy ?? ''] as User | undefined} />,
     },
     { accessorKey: 'criticalityName', header: 'Criticality', size: 120 },
     {
@@ -89,8 +43,12 @@ export const getColumns = ({ userMap, convertToReadOnly, selectedItems, setSelec
       minSize: 150,
       cell: ({ cell }) => convertToReadOnly?.(cell.getValue() as string) || '',
     },
-    { accessorKey: 'containsPii', header: 'Contains PII', size: 100, cell: ({ cell }) => (cell.getValue() ? 'Yes' : 'No') },
-
+    {
+      accessorKey: 'containsPii',
+      header: 'Contains PII',
+      size: 100,
+      cell: ({ cell }) => <BooleanCell value={cell.getValue() as boolean | null | undefined} />,
+    },
     { accessorKey: 'encryptionStatusName', header: 'Encryption Status', size: 140 },
     { accessorKey: 'environmentName', header: 'Environment', size: 120 },
     { accessorKey: 'estimatedMonthlyCost', header: 'Est. Monthly Cost', size: 120 },
@@ -114,36 +72,14 @@ export const getColumns = ({ userMap, convertToReadOnly, selectedItems, setSelec
       accessorKey: 'tags',
       header: 'Tags',
       size: 140,
-      cell: ({ row }) => {
-        const tags = row?.original?.tags
-        if (!tags?.length) {
-          return '-'
-        }
-        return (
-          <div className="flex gap-2">
-            {row?.original?.tags?.map((tag, i) => (
-              <TagChip key={i} tag={tag} />
-            ))}
-          </div>
-        )
-      },
+      cell: ({ row }) => <TagsCell tags={row.original.tags} wrap={false} />,
     },
     { accessorKey: 'updatedAt', header: 'Updated At', size: 130, cell: ({ cell }) => formatDate(cell.getValue() as string) },
     {
       accessorKey: 'updatedBy',
       header: 'Updated By',
       size: 160,
-      cell: ({ row }) => {
-        const user = userMap[row.original.updatedBy ?? '']
-        return user ? (
-          <div className="flex items-center space-x-1">
-            <Avatar entity={user} className="w-[24px] h-[24px]" />
-            <p>{user.displayName}</p>
-          </div>
-        ) : (
-          <span className="text-muted-foreground italic">Deleted user</span>
-        )
-      },
+      cell: ({ row }) => <UserCell user={userMap[row.original.updatedBy ?? ''] as User | undefined} />,
     },
     { accessorKey: 'website', header: 'Website', size: 120 },
   ]

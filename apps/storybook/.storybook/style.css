@@ -1,15 +1,53 @@
 @import 'tailwindcss';
+@variant dark (&:where(.dark, .dark *));
 @import '@repo/ui/styles.css';
 @source "../../../packages/ui/src/**/*.{js,ts,jsx,tsx}";
+@source "../../../apps/console/src/**/*.{js,ts,jsx,tsx}";
 
-.sb-main-padded {
-  background: var(--color-panel-bg);
+html.dark {
+  color-scheme: dark;
 }
 
-@theme {
-  --color-panel-bg: #ffffff;
+html,
+body,
+.sb-main-padded,
+.sb-main-fullscreen,
+.sb-main-centered {
+  background-color: var(--background);
 }
 
-.dark {
-  --color-panel-bg: #162431;
+/* Override Storybook's hardcoded white docs page backgrounds in dark mode */
+html.dark .sbdocs-wrapper,
+html.dark .sb-preparing-story,
+html.dark .sb-preparing-docs,
+html.dark .sb-previewBlock {
+  background-color: var(--background) !important;
+  color: var(--foreground) !important;
+}
+
+/* Storybook docs text nodes use hardcoded dark colors via emotion CSS — reset them */
+html.dark .sbdocs-wrapper p,
+html.dark .sbdocs-wrapper h1,
+html.dark .sbdocs-wrapper h2,
+html.dark .sbdocs-wrapper h3,
+html.dark .sbdocs-wrapper h4,
+html.dark .sbdocs-wrapper li,
+html.dark .sbdocs-wrapper td,
+html.dark .sbdocs-wrapper th {
+  color: var(--foreground) !important;
+}
+
+html.dark .sbdocs-wrapper code,
+html.dark .sbdocs-wrapper pre {
+  background-color: var(--secondary) !important;
+  color: var(--foreground) !important;
+}
+
+html.dark .sbdocs-wrapper a {
+  color: var(--primary) !important;
+}
+
+/* Story canvas border inside docs */
+html.dark .sb-previewBlock > div:first-child {
+  border-color: var(--border) !important;
 }

@@ -1,3 +1,4 @@
+// This file has been automatically migrated to valid ESM format by Storybook.
 import { createRequire } from 'node:module'
 import { dirname, join } from 'node:path'
 import type { StorybookConfig } from '@storybook/react-vite'
@@ -8,8 +9,12 @@ const config: StorybookConfig = {
   stories: [
     '../src/**/*.mdx',
     {
-      directory: '../../../packages/ui/src/**',
-      files: '*.stories.*',
+      directory: '../../../packages/ui/src',
+      files: '**/*.stories.*',
+    },
+    {
+      directory: '../../../apps/console/src/components/shared',
+      files: '**/*.stories.*',
     },
   ],
   staticDirs: ['../public'],
@@ -18,7 +23,6 @@ const config: StorybookConfig = {
     getAbsolutePath('@storybook/addon-a11y'),
     getAbsolutePath('@storybook/addon-themes'),
     getAbsolutePath('@storybook/preset-scss'),
-    getAbsolutePath('@vueless/storybook-dark-mode'),
     getAbsolutePath('@storybook/addon-docs'),
   ],
   framework: {
@@ -35,6 +39,6 @@ const config: StorybookConfig = {
 }
 export default config
 
-function getAbsolutePath(value: string): any {
+function getAbsolutePath(value: string): string {
   return dirname(require.resolve(join(value, 'package.json')))
 }

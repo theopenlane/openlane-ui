@@ -1,19 +1,21 @@
-import { ColumnDef, Row } from '@tanstack/react-table'
+import { ColumnDef } from '@tanstack/react-table'
 import React from 'react'
 import { ApiToken, Group, Procedure, User } from '@repo/codegen/src/schema.ts'
-import { formatDate, formatTimeSince } from '@/utils/date'
 import { KeyRound } from 'lucide-react'
 import { Avatar } from '@/components/shared/avatar/avatar.tsx'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { DocumentStatusBadge, DocumentStatusTooltips } from '@/components/shared/enum-mapper/policy-enum'
-import { Checkbox } from '@repo/ui/checkbox'
 import ApproverCell from './approver-cell'
 import DelegateCell from './delegate-cell'
-import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 import { LinkedControlsCell } from './linked-controls-cell'
 import { LinkedPoliciesCell } from './linked-plolicies-cell'
 import { CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
 import { CustomTypeEnumOption } from '@/lib/graphql-hooks/custom-type-enum'
+import { TagsCell } from '@/components/shared/crud-base/columns/tags-cell'
+import { BooleanCell } from '@/components/shared/crud-base/columns/boolean-cell'
+import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
+import { createSelectColumn } from '@/components/shared/crud-base/columns/select-column'
+import { formatDate } from '@/utils/date'
 
 type TProceduresColumnsProps = {
   users?: User[]
@@ -24,47 +26,8 @@ type TProceduresColumnsProps = {
 }
 
 export const getProceduresColumns = ({ users, tokens, selectedProcedures, setSelectedProcedures, enumOptions }: TProceduresColumnsProps) => {
-  const toggleSelection = (procedure: { id: string }) => {
-    setSelectedProcedures((prev) => {
-      const exists = prev.some((c) => c.id === procedure.id)
-      return exists ? prev.filter((c) => c.id !== procedure.id) : [...prev, procedure]
-    })
-  }
   const columns: ColumnDef<Procedure>[] = [
-    {
-      id: 'select',
-      header: ({ table }) => {
-        const currentPageProcedures = table.getRowModel().rows.map((row) => row.original)
-        const allSelected = currentPageProcedures.every((procedure) => selectedProcedures.some((sc) => sc.id === procedure.id))
-
-        return (
-          <div onClick={(e) => e.stopPropagation()}>
-            <Checkbox
-              checked={allSelected}
-              onCheckedChange={(checked: boolean) => {
-                const newSelections = checked
-                  ? [...selectedProcedures.filter((sc) => !currentPageProcedures.some((c) => c.id === sc.id)), ...currentPageProcedures.map((c) => ({ id: c.id }))]
-                  : selectedProcedures.filter((sc) => !currentPageProcedures.some((c) => c.id === sc.id))
-
-                setSelectedProcedures(newSelections)
-              }}
-            />
-          </div>
-        )
-      },
-      cell: ({ row }: { row: Row<Procedure> }) => {
-        const { id } = row.original
-        const isChecked = selectedProcedures.some((c) => c.id === id)
-
-        return (
-          <div onClick={(e) => e.stopPropagation()}>
-            <Checkbox checked={isChecked} onCheckedChange={() => toggleSelection({ id })} />
-          </div>
-        )
-      },
-      size: 50,
-      maxSize: 50,
-    },
+    createSelectColumn<Procedure>(selectedProcedures, setSelectedProcedures),
     {
       accessorKey: 'id',
       header: 'ID',
@@ -104,7 +67,6 @@ export const getProceduresColumns = ({ users, tokens, selectedProcedures, setSel
       minSize: 200,
       size: 400,
       header: 'Summary',
-
       cell: ({ cell }) => {
         const summary = cell.getValue() as string
         return <div className="line-clamp-4">{summary === '' ? 'N/A' : summary}</div>
@@ -115,7 +77,7 @@ export const getProceduresColumns = ({ users, tokens, selectedProcedures, setSel
       header: 'Approval Required',
       size: 40,
       minSize: 40,
-      cell: ({ cell }) => (cell.getValue() ? 'Yes' : 'No'),
+      cell: ({ cell }) => <BooleanCell value={cell.getValue() as boolean | null | undefined} />,
     },
     {
       accessorKey: 'approver',
@@ -177,19 +139,7 @@ export const getProceduresColumns = ({ users, tokens, selectedProcedures, setSel
       accessorKey: 'tags',
       header: 'Tags',
       size: 140,
-      cell: ({ row }) => {
-        const tags = row?.original?.tags
-        if (!tags?.length) {
-          return '-'
-        }
-        return (
-          <div className="flex gap-2 flex-wrap">
-            {row?.original?.tags?.map((tag, i) => (
-              <TagChip key={i} tag={tag} />
-            ))}
-          </div>
-        )
-      },
+      cell: ({ row }) => <TagsCell tags={row.original.tags} />,
     },
     {
       accessorKey: 'linkedControls',
@@ -209,7 +159,6 @@ export const getProceduresColumns = ({ users, tokens, selectedProcedures, setSel
       size: 220,
       cell: ({ row }) => <LinkedPoliciesCell row={row} />,
     },
-
     {
       accessorKey: 'createdBy',
       header: 'Created by',
@@ -235,7 +184,7 @@ export const getProceduresColumns = ({ users, tokens, selectedProcedures, setSel
       accessorKey: 'createdAt',
       header: 'Created At',
       size: 150,
-      cell: ({ cell }) => <span className="whitespace-nowrap">{formatDate(cell.getValue() as string)}</span>,
+      cell: ({ cell }) => <DateCell value={cell.getValue() as string} />,
     },
     {
       accessorKey: 'updatedBy',
@@ -262,7 +211,7 @@ export const getProceduresColumns = ({ users, tokens, selectedProcedures, setSel
       accessorKey: 'updatedAt',
       header: 'Last Updated',
       size: 150,
-      cell: ({ cell }) => <span className="whitespace-nowrap">{formatTimeSince(cell.getValue() as string)}</span>,
+      cell: ({ cell }) => <DateCell value={cell.getValue() as string} variant="timesince" />,
     },
   ]
 
