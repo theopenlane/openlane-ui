@@ -17,6 +17,14 @@ type IntegrationsGridProps = {
   searchQuery: string
 }
 
+const EmptyState = ({ message }: { message: string }) => (
+  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 mt-5">
+    <div className="text-center py-16 border rounded-lg max-w-screen-sm">
+      <p className="text-muted-foreground">{message}</p>
+    </div>
+  </div>
+)
+
 export function IntegrationsGrid({ integrations, activeTab, providers, searchQuery }: IntegrationsGridProps) {
   const normalizedQuery = searchQuery.trim().toLowerCase()
 
@@ -67,34 +75,15 @@ export function IntegrationsGrid({ integrations, activeTab, providers, searchQue
   })
 
   if (activeTab === 'Installed' && filteredInstalledIntegrations.length === 0) {
-    const message = normalizedQuery ? 'No installed integrations match your search.' : 'No integrations installed.'
-    return (
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 mt-5">
-        <div className="text-center py-16 border rounded-lg max-w-screen-sm">
-          <p className="text-muted-foreground">{message}</p>
-        </div>
-      </div>
-    )
+    return <EmptyState message={normalizedQuery ? 'No installed integrations match your search.' : 'No integrations installed.'} />
   }
 
   if (activeTab !== 'Installed' && filteredAvailableIntegrations.length === 0 && normalizedQuery) {
-    return (
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 mt-5">
-        <div className="text-center py-16 border rounded-lg max-w-screen-sm">
-          <p className="text-muted-foreground">No integrations match your search.</p>
-        </div>
-      </div>
-    )
+    return <EmptyState message="No integrations match your search." />
   }
 
   if (activeTab === 'Coming Soon' && filteredAvailableIntegrations.length === 0) {
-    return (
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 mt-5">
-        <div className="text-center py-16 border rounded-lg max-w-screen-sm">
-          <p className="text-muted-foreground">No coming soon integrations.</p>
-        </div>
-      </div>
-    )
+    return <EmptyState message="No coming soon integrations." />
   }
 
   return (

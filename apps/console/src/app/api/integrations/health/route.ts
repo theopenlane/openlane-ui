@@ -3,12 +3,14 @@ import { secureFetch } from '@/lib/auth/utils/secure-fetch'
 import { openlaneAPIUrl } from '@repo/dally/auth'
 import { NextRequest, NextResponse } from 'next/server'
 
+// GET is exposed to the client for simple polling. The upstream health check
+// is an operations/run POST endpoint, so this handler bridges the two.
 export async function GET(request: NextRequest) {
   const session = await auth()
   const token = session?.user?.accessToken
 
   if (!token) {
-    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   const provider = request.nextUrl.searchParams.get('provider')?.trim()

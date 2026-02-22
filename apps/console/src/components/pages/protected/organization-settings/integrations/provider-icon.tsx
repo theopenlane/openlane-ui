@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+import Image from 'next/image'
 import { getProviderIcon } from './config'
 
 type ProviderIconProps = {
@@ -14,8 +15,7 @@ const ProviderIcon = ({ providerName, className }: ProviderIconProps) => {
     return null
   }
 
-  // eslint-disable-next-line @next/next/no-img-element
-  return <img src={iconSrc} alt={`${providerName} icon`} className={className} />
+  return <Image src={iconSrc} alt={`${providerName} icon`} width={24} height={24} className={className} />
 }
 
 export default ProviderIcon

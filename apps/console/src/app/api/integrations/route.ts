@@ -1,7 +1,6 @@
 import { auth } from '@/lib/auth/auth'
 import { secureFetch } from '@/lib/auth/utils/secure-fetch'
-import { isDevelopment } from '@repo/dally/auth'
-import { openlaneAPIUrl } from '@repo/dally/auth'
+import { isDevelopment, openlaneAPIUrl } from '@repo/dally/auth'
 import { NextRequest, NextResponse } from 'next/server'
 
 type AuthType = 'oauth2' | 'oidc' | 'github_app' | string
@@ -20,7 +19,7 @@ export async function POST(req: NextRequest) {
   const token = session?.user?.accessToken
 
   if (!token) {
-    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   const body = (await req.json().catch(() => ({}))) as StartBody

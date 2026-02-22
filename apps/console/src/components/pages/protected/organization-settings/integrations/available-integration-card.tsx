@@ -7,7 +7,7 @@ import { Badge } from '@repo/ui/badge'
 import { Card, CardContent, CardFooter, CardHeader } from '@repo/ui/cardpanel'
 import { Logo } from '@repo/ui/logo'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
-import { AvailableIntegrationNode, IntegrationProvider } from './config'
+import { AvailableIntegrationNode, IntegrationProvider, parseIntegrationErrorMessage } from './config'
 import { useNotification } from '@/hooks/useNotification'
 import ProviderIcon from './provider-icon'
 import IntegrationConfigurationDialog from './integration-configuration-dialog'
@@ -30,41 +30,12 @@ const AvailableIntegrationCard = ({ integration }: AvailableIntegrationCardProps
   const connectMode = resolveProviderConnectMode(provider)
   const connectLabel = isComingSoon ? 'Coming Soon' : connectMode === 'config' ? 'Configure' : 'Connect'
 
-  const startAuthFlow = async (targetProvider: IntegrationProvider) => {
-    if (!targetProvider.authStartPath) {
-      throw new Error(`Missing auth start path for ${targetProvider.displayName}`)
-    }
-
-    const res = await fetch('/api/integrations', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        provider: targetProvider.name,
-        authType: targetProvider.authType,
-        scopes: targetProvider.oauth?.scopes ?? [],
-        startPath: targetProvider.authStartPath,
-        callbackPath: targetProvider.authCallbackPath,
-      }),
-    })
-
-    if (!res.ok) {
-      throw new Error(await parseErrorMessage(res))
-    }
-
-    const json = (await res.json()) as { authUrl?: string; installUrl?: string; url?: string }
-    const redirectTo = json.authUrl ?? json.installUrl ?? json.url
-    if (!redirectTo) {
-      throw new Error(`Missing auth redirect URL for ${targetProvider.displayName}`)
-    }
-    window.location.assign(redirectTo)
-  }
-
-  const handleConnect = async (integration: AvailableIntegrationNode) => {
+  const handleConnect = async (target: AvailableIntegrationNode) => {
     if (isComingSoon) {
       return
     }
 
-    const targetProvider = integration.provider
+    const targetProvider = target.provider
     const mode = resolveProviderConnectMode(targetProvider)
 
     if (mode === 'config') {
@@ -75,17 +46,42 @@ const AvailableIntegrationCard = ({ integration }: AvailableIntegrationCardProps
     setIsConnecting(true)
     try {
       if (mode === 'auth') {
-        await startAuthFlow(targetProvider)
+        if (!targetProvider.authStartPath) {
+          throw new Error(`Missing auth start path for ${targetProvider.displayName}`)
+        }
+
+        const res = await fetch('/api/integrations', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            provider: targetProvider.name,
+            authType: targetProvider.authType,
+            scopes: targetProvider.oauth?.scopes ?? [],
+            startPath: targetProvider.authStartPath,
+            callbackPath: targetProvider.authCallbackPath,
+          }),
+        })
+
+        if (!res.ok) {
+          throw new Error(await parseIntegrationErrorMessage(res))
+        }
+
+        const json = (await res.json()) as { authUrl?: string; installUrl?: string; url?: string }
+        const redirectTo = json.authUrl ?? json.installUrl ?? json.url
+        if (!redirectTo) {
+          throw new Error(`Missing auth redirect URL for ${targetProvider.displayName}`)
+        }
+        window.location.assign(redirectTo)
         return
       }
 
       errorNotification({
-        title: `Failed to connect ${integration.name}`,
+        title: `Failed to connect ${target.name}`,
         description: 'Provider authentication flow is not configured.',
       })
     } catch (error) {
       errorNotification({
-        title: `Failed to connect ${integration.name}`,
+        title: `Failed to connect ${target.name}`,
         description: error instanceof Error ? error.message : undefined,
       })
     } finally {
@@ -173,14 +169,4 @@ function resolveProviderConnectMode(provider: IntegrationProvider): ConnectMode 
   if (provider.authStartPath) return 'auth'
   if (provider.credentialsSchema) return 'config'
   return 'unsupported'
-}
-
-async function parseErrorMessage(response: Response): Promise<string> {
-  try {
-    const payload = (await response.json()) as { error?: string; details?: string; message?: string }
-    return payload.error || payload.details || payload.message || `Request failed (${response.status})`
-  } catch {
-    const text = await response.text().catch(() => '')
-    return text || `Request failed (${response.status})`
-  }
 }

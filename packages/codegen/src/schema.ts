@@ -64080,7 +64080,19 @@ export type GetIntegrationsQuery = {
   __typename?: 'Query'
   integrations: {
     __typename?: 'IntegrationConnection'
-    edges?: Array<{ __typename?: 'IntegrationEdge'; node?: { __typename?: 'Integration'; id: string; name: string; tags?: Array<string> | null; description?: string | null } | null } | null> | null
+    edges?: Array<{
+      __typename?: 'IntegrationEdge'
+      node?: {
+        __typename?: 'Integration'
+        id: string
+        name: string
+        kind?: string | null
+        tags?: Array<string> | null
+        description?: string | null
+        createdAt?: any | null
+        createdBy?: string | null
+      } | null
+    } | null> | null
   }
 }
 

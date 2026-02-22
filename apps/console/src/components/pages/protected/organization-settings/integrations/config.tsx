@@ -44,18 +44,7 @@ export type IntegrationSchemaNode = {
   else?: IntegrationSchemaNode
 }
 
-export type IntegrationCredentialsSchema = {
-  type?: string
-  required?: string[]
-  properties?: Record<string, IntegrationSchemaProperty>
-  additionalProperties?: boolean
-  allOf?: IntegrationSchemaNode[]
-  anyOf?: IntegrationSchemaNode[]
-  oneOf?: IntegrationSchemaNode[]
-  if?: IntegrationSchemaNode
-  then?: IntegrationSchemaNode
-  else?: IntegrationSchemaNode
-}
+export type IntegrationCredentialsSchema = IntegrationSchemaNode
 
 export type IntegrationOperationMetadata = {
   name: string
@@ -165,4 +154,16 @@ export function installedIntegrationDisplayName(integration: Pick<IntegrationNod
 
 export function providerSupportsHealth(provider?: IntegrationProvider): boolean {
   return Boolean(provider?.operations?.some((op) => op.name === 'health.default'))
+}
+
+export const HEALTH_CHECK_STALE_TIME_MS = 2 * 60 * 1000
+
+export async function parseIntegrationErrorMessage(response: Response): Promise<string> {
+  try {
+    const payload = (await response.json()) as { error?: string; details?: string; message?: string }
+    return payload.error || payload.details || payload.message || `Request failed (${response.status})`
+  } catch {
+    const text = await response.text().catch(() => '')
+    return text || `Request failed (${response.status})`
+  }
 }

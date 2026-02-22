@@ -8,7 +8,7 @@ import { Card, CardContent, CardFooter, CardHeader } from '@repo/ui/cardpanel'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { Logo } from '@repo/ui/logo'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
-import { getInstalledIntegrationConfig, installedIntegrationDisplayName, IntegrationNode, IntegrationProvider, providerSupportsHealth } from './config'
+import { getInstalledIntegrationConfig, HEALTH_CHECK_STALE_TIME_MS, installedIntegrationDisplayName, IntegrationNode, IntegrationProvider, parseIntegrationErrorMessage, providerSupportsHealth } from './config'
 import { useDisconnectIntegration } from '@/lib/graphql-hooks/integration'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import ProviderIcon from './provider-icon'
@@ -53,12 +53,12 @@ const InstalledIntegrationCard = ({ integration, providers }: InstalledIntegrati
 
       const res = await fetch(`/api/integrations/health?provider=${encodeURIComponent(provider.name)}`)
       if (!res.ok) {
-        throw new Error(await parseErrorMessage(res))
+        throw new Error(await parseIntegrationErrorMessage(res))
       }
       return (await res.json()) as HealthResponse
     },
     enabled: Boolean(provider?.name && supportsHealth),
-    staleTime: 2 * 60 * 1000,
+    staleTime: HEALTH_CHECK_STALE_TIME_MS,
     retry: false,
     refetchOnWindowFocus: false,
   })
@@ -204,14 +204,4 @@ function getHealthStatus(
   }
 
   return { label: 'Needs Attention', summary: data?.summary || 'Health check did not report a successful state.', variant: 'destructive' }
-}
-
-async function parseErrorMessage(response: Response): Promise<string> {
-  try {
-    const payload = (await response.json()) as { error?: string; details?: string; message?: string }
-    return payload.error || payload.details || payload.message || `Request failed (${response.status})`
-  } catch {
-    const text = await response.text().catch(() => '')
-    return text || `Request failed (${response.status})`
-  }
 }

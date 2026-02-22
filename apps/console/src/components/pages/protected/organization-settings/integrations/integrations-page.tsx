@@ -4,7 +4,7 @@ import React, { useContext, useEffect, useMemo, useRef, useState } from 'react'
 import IntegrationsToolbar from './integrations-toolbar'
 import { useGetIntegrations } from '@/lib/graphql-hooks/integration'
 import { IntegrationsGrid } from './integrations-grid'
-import { installedIntegrationDisplayName, IntegrationTab } from './config'
+import { IntegrationTab } from './config'
 import { useNotification } from '@/hooks/useNotification'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { canEdit } from '@/lib/authz/utils'
@@ -72,40 +72,13 @@ const IntegrationsPage = () => {
     [visibleProviders, installedProviderNames],
   )
 
-  const allCount = availableProviders.filter((provider) => provider.active).length
-  const comingSoonCount = availableProviders.filter((provider) => !provider.active).length
+  const { allCount, comingSoonCount } = useMemo(() => {
+    const active = availableProviders.filter((provider) => provider.active).length
+    const upcoming = availableProviders.filter((provider) => !provider.active).length
+    return { allCount: active, comingSoonCount: upcoming }
+  }, [availableProviders])
+
   const installedCount = installedIntegrations.length
-
-  const typeaheadOptions = useMemo(() => {
-    const values = new Map<string, string>()
-
-    const addValue = (raw: string) => {
-      const value = raw.trim()
-      if (!value) {
-        return
-      }
-
-      const key = value.toLowerCase()
-      if (!values.has(key)) {
-        values.set(key, value)
-      }
-    }
-
-    for (const provider of availableProviders) {
-      addValue(provider.displayName)
-      addValue(provider.name)
-    }
-
-    for (const integration of installedIntegrations) {
-      addValue(installedIntegrationDisplayName(integration, providersData?.providers ?? []))
-      addValue(integration.name)
-      if (integration.kind) {
-        addValue(integration.kind)
-      }
-    }
-
-    return [...values.values()].sort((a, b) => a.localeCompare(b))
-  }, [availableProviders, installedIntegrations, providersData?.providers])
 
   if (isLoading && integrationsLoading && providersLoading) {
     return <Loading />
@@ -125,7 +98,6 @@ const IntegrationsPage = () => {
             installedCount={installedCount}
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
-            typeaheadOptions={typeaheadOptions}
           />
           <IntegrationsGrid integrations={data?.integrations} activeTab={activeTab} providers={providersData?.providers ?? []} searchQuery={searchQuery} />
         </>

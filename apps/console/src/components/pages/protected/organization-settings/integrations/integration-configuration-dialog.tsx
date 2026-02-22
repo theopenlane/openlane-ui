@@ -1,14 +1,19 @@
 'use client'
 
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo } from 'react'
+import { FormProvider, useForm, useFormContext, Controller } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
 import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
 import { Label } from '@repo/ui/label'
 import { Textarea } from '@repo/ui/textarea'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
+import { Switch } from '@repo/ui/switch'
 import { useNotification } from '@/hooks/useNotification'
 import { useQueryClient } from '@tanstack/react-query'
-import { IntegrationCredentialsSchema, IntegrationProvider, IntegrationSchemaNode, IntegrationSchemaProperty } from './config'
+import { IntegrationCredentialsSchema, IntegrationProvider, IntegrationSchemaNode, IntegrationSchemaProperty, parseIntegrationErrorMessage } from './config'
 
 type Props = {
   open: boolean
@@ -21,30 +26,32 @@ type FormValues = Record<string, unknown>
 const IntegrationConfigurationDialog = ({ open, onOpenChange, provider }: Props) => {
   const { successNotification, errorNotification } = useNotification()
   const queryClient = useQueryClient()
-  const [values, setValues] = useState<FormValues>({})
-  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const schema = provider?.credentialsSchema
-
-  const fields = useMemo(() => {
-    const properties = schema?.properties ?? {}
-    return Object.entries(properties)
-  }, [schema])
+  const fields = useMemo(() => Object.entries(schema?.properties ?? {}), [schema])
   const requiredDisplayFields = useMemo(() => collectDisplayRequiredFields(schema), [schema])
+  const zodSchema = useMemo(() => buildZodSchema(schema), [schema])
+
+  const formMethods = useForm<FormValues>({
+    resolver: zodResolver(zodSchema),
+    defaultValues: schema ? initialValuesFromSchema(schema) : {},
+  })
+
+  const {
+    handleSubmit,
+    reset,
+    formState: { isSubmitting },
+  } = formMethods
 
   useEffect(() => {
     if (!open || !schema) return
-    setValues(initialValuesFromSchema(schema))
-  }, [open, schema])
+    reset(initialValuesFromSchema(schema))
+  }, [open, schema, reset])
 
-  const updateValue = (key: string, value: unknown) => {
-    setValues((prev) => ({ ...prev, [key]: value }))
-  }
-
-  const handleSubmit = async () => {
+  const onSubmit = async (formValues: FormValues) => {
     if (!provider || !schema) return
 
-    const { payload, missingRequired } = normalizePayload(schema, values)
+    const { payload, missingRequired } = normalizePayload(schema, formValues)
     if (missingRequired.length > 0) {
       errorNotification({
         title: `Missing required fields for ${provider.displayName}`,
@@ -53,7 +60,6 @@ const IntegrationConfigurationDialog = ({ open, onOpenChange, provider }: Props)
       return
     }
 
-    setIsSubmitting(true)
     try {
       const res = await fetch('/api/integrations/config', {
         method: 'POST',
@@ -65,7 +71,7 @@ const IntegrationConfigurationDialog = ({ open, onOpenChange, provider }: Props)
       })
 
       if (!res.ok) {
-        const err = await parseErrorMessage(res)
+        const err = await parseIntegrationErrorMessage(res)
         throw new Error(err)
       }
 
@@ -81,8 +87,6 @@ const IntegrationConfigurationDialog = ({ open, onOpenChange, provider }: Props)
         title: `Failed to configure ${provider.displayName}`,
         description: error instanceof Error ? error.message : 'Unexpected error while configuring integration.',
       })
-    } finally {
-      setIsSubmitting(false)
     }
   }
 
@@ -94,28 +98,25 @@ const IntegrationConfigurationDialog = ({ open, onOpenChange, provider }: Props)
           <SheetDescription>Provide credentials and settings required to connect this provider.</SheetDescription>
         </SheetHeader>
 
-        <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4">
-          {fields.length === 0 && <p className="text-sm text-muted-foreground">This provider does not require credential input.</p>}
-          {fields.map(([key, property]) => (
-            <SchemaField
-              key={key}
-              fieldKey={key}
-              property={property}
-              required={requiredDisplayFields.has(key)}
-              value={values[key]}
-              onChange={(value) => updateValue(key, value)}
-            />
-          ))}
-        </div>
+        <FormProvider {...formMethods}>
+          <form onSubmit={handleSubmit(onSubmit)} className="flex flex-1 flex-col overflow-hidden">
+            <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4">
+              {fields.length === 0 && <p className="text-sm text-muted-foreground">This provider does not require credential input.</p>}
+              {fields.map(([key, property]) => (
+                <SchemaField key={key} fieldKey={key} property={property} required={requiredDisplayFields.has(key)} />
+              ))}
+            </div>
 
-        <SheetFooter className="border-t px-6 py-4 sm:flex-row sm:justify-end">
-          <Button variant="secondary" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
-            Cancel
-          </Button>
-          <Button onClick={handleSubmit} disabled={isSubmitting || !provider}>
-            {isSubmitting ? 'Saving...' : 'Save Configuration'}
-          </Button>
-        </SheetFooter>
+            <SheetFooter className="border-t px-6 py-4 sm:flex-row sm:justify-end">
+              <Button type="button" variant="secondary" onClick={() => onOpenChange(false)} disabled={isSubmitting}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isSubmitting || !provider}>
+                {isSubmitting ? 'Saving...' : 'Save Configuration'}
+              </Button>
+            </SheetFooter>
+          </form>
+        </FormProvider>
       </SheetContent>
     </Sheet>
   )
@@ -125,11 +126,14 @@ type SchemaFieldProps = {
   fieldKey: string
   property: IntegrationSchemaProperty
   required: boolean
-  value: unknown
-  onChange: (value: unknown) => void
 }
 
-const SchemaField = ({ fieldKey, property, required, value, onChange }: SchemaFieldProps) => {
+const SchemaField = ({ fieldKey, property, required }: SchemaFieldProps) => {
+  const {
+    register,
+    control,
+    formState: { errors },
+  } = useFormContext()
   const label = property.title?.trim() || toTitleCase(fieldKey)
   const inputId = `integration-config-${fieldKey}`
 
@@ -137,16 +141,24 @@ const SchemaField = ({ fieldKey, property, required, value, onChange }: SchemaFi
   const isBoolean = property.type === 'boolean'
   const isArray = property.type === 'array'
 
+  const errorMessage = errors[fieldKey]?.message as string | undefined
+
   return (
     <div className="space-y-2">
       {isBoolean ? (
-        <label htmlFor={inputId} className="flex items-center gap-2 text-sm font-medium">
-          <input id={inputId} type="checkbox" checked={Boolean(value)} onChange={(e) => onChange(e.target.checked)} />
-          <span>
-            {label}
-            {required && <span className="text-red-500 ml-1">*</span>}
-          </span>
-        </label>
+        <Controller
+          name={fieldKey}
+          control={control}
+          render={({ field }) => (
+            <div className="flex items-center justify-between">
+              <Label htmlFor={inputId}>
+                {label}
+                {required && <span className="text-red-500 ml-1">*</span>}
+              </Label>
+              <Switch id={inputId} checked={Boolean(field.value)} onCheckedChange={field.onChange} />
+            </div>
+          )}
+        />
       ) : (
         <Label htmlFor={inputId}>
           {label}
@@ -155,25 +167,32 @@ const SchemaField = ({ fieldKey, property, required, value, onChange }: SchemaFi
       )}
 
       {isEnum && !isBoolean && (
-        <select id={inputId} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm" value={valueToString(value)} onChange={(e) => onChange(e.target.value)}>
-          <option value="">Select value</option>
-          {property.enum?.map((option) => (
-            <option key={String(option)} value={String(option)}>
-              {String(option)}
-            </option>
-          ))}
-        </select>
+        <Controller
+          name={fieldKey}
+          control={control}
+          render={({ field }) => (
+            <Select value={valueToString(field.value)} onValueChange={field.onChange}>
+              <SelectTrigger id={inputId}>
+                <SelectValue placeholder="Select value" />
+              </SelectTrigger>
+              <SelectContent>
+                {property.enum?.map((option) => (
+                  <SelectItem key={String(option)} value={String(option)}>
+                    {String(option)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+        />
       )}
 
-      {!isEnum && !isBoolean && isArray && (
-        <Textarea id={inputId} value={typeof value === 'string' ? value : ''} onChange={(e) => onChange(e.target.value)} placeholder="Enter one value per line" rows={4} />
-      )}
+      {!isEnum && !isBoolean && isArray && <Textarea id={inputId} {...register(fieldKey)} placeholder="Enter one value per line" rows={4} />}
 
       {!isEnum && !isBoolean && !isArray && (
         <Input
           id={inputId}
-          value={valueToString(value)}
-          onChange={(e) => onChange(e.target.value)}
+          {...register(fieldKey)}
           type={inferInputType(property)}
           placeholder={property.example || property.examples?.[0] || ''}
           min={property.minimum}
@@ -185,9 +204,33 @@ const SchemaField = ({ fieldKey, property, required, value, onChange }: SchemaFi
         />
       )}
 
+      {errorMessage && <p className="text-destructive text-xs font-medium">{errorMessage}</p>}
       {property.description && <p className="text-xs text-muted-foreground">{property.description}</p>}
     </div>
   )
+}
+
+function buildZodSchema(credentialsSchema?: IntegrationCredentialsSchema): z.ZodObject<Record<string, z.ZodTypeAny>> {
+  if (!credentialsSchema?.properties) return z.object({})
+
+  const requiredFields = collectDisplayRequiredFields(credentialsSchema)
+  const shape: Record<string, z.ZodTypeAny> = {}
+
+  for (const [key, property] of Object.entries(credentialsSchema.properties)) {
+    if (property.type === 'boolean') {
+      shape[key] = z.boolean()
+      continue
+    }
+
+    const label = property.title?.trim() || toTitleCase(key)
+    if (requiredFields.has(key)) {
+      shape[key] = z.string().min(1, `${label} is required`)
+    } else {
+      shape[key] = z.string()
+    }
+  }
+
+  return z.object(shape)
 }
 
 function initialValuesFromSchema(schema: IntegrationCredentialsSchema): FormValues {
@@ -330,16 +373,6 @@ function toTitleCase(value: string): string {
 function valueToString(value: unknown): string {
   if (value === null || value === undefined) return ''
   return String(value)
-}
-
-async function parseErrorMessage(response: Response): Promise<string> {
-  try {
-    const payload = (await response.json()) as { error?: string; details?: string; message?: string }
-    return payload.error || payload.details || payload.message || `Request failed (${response.status})`
-  } catch {
-    const text = await response.text().catch(() => '')
-    return text || `Request failed (${response.status})`
-  }
 }
 
 export default IntegrationConfigurationDialog

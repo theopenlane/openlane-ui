@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
   const token = session?.user?.accessToken
 
   if (!token) {
-    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   const body = (await request.json().catch(() => ({}))) as ConfigRequestBody
