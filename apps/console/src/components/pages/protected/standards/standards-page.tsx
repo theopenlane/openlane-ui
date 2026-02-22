@@ -95,7 +95,11 @@ const StandardsPage = () => {
               </div>
               <StandardsIconMapper key={standard?.node?.id} shortName={standard?.node?.shortName ?? ''} />
             </div>
-            <div className="border-t pt-3 mb-3 flex flex-wrap gap-2">{standard?.node?.tags?.map((tag, i) => <TagChip tag={tag} key={i} />)}</div>
+            <div className="border-t pt-3 mb-3 flex flex-wrap gap-2">
+              {standard?.node?.tags?.map((tag, i) => (
+                <TagChip tag={tag} key={i} />
+              ))}
+            </div>
             <p className="text-sm mb-4 line-clamp-4 overflow-hidden text-ellipsis flex-1">{standard?.node?.description}</p>
             <Link href={`standards/${standard?.node?.id}`} className="mt-auto">
               <Button variant="primary" className="py-2 px-4">

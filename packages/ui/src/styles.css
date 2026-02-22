@@ -501,16 +501,16 @@
   --color-standard-fed: #f97316;
 
   /* Objects */
-  --color-procedures: #67E8F9;
-  --color-tasks: #6EE7B7;
-  --color-programs: #4ADE80;
-  --color-risks: #5EEAD4;
-  --color-controls: #C084FC;
-  --color-subcontrols: #FB7185;
+  --color-procedures: #67e8f9;
+  --color-tasks: #6ee7b7;
+  --color-programs: #4ade80;
+  --color-risks: #5eead4;
+  --color-controls: #c084fc;
+  --color-subcontrols: #fb7185;
   --color-control-objectives: #ffda42;
-  --color-policies: #A78BFA;
+  --color-policies: #a78bfa;
   --color-groups: #fbbf24;
-  --color-evidence: #93C5FD;
+  --color-evidence: #93c5fd;
 
   /* Avatar */
   --color-avatar: #e5a000;

@@ -1,10 +1,10 @@
 'use client'
 import { PageHeading } from '@repo/ui/page-heading'
-import React, { useContext, useEffect, useRef, useState } from 'react'
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react'
 import IntegrationsToolbar from './integrations-toolbar'
 import { useGetIntegrations } from '@/lib/graphql-hooks/integration'
 import { IntegrationsGrid } from './integrations-grid'
-import { IntegrationTab } from './config'
+import { IntegrationTab, toAvailableIntegration } from './config'
 import { useNotification } from '@/hooks/useNotification'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { canEdit } from '@/lib/authz/utils'
@@ -16,7 +16,8 @@ import { useIntegrationProviders } from '@/lib/query-hooks/integrations'
 
 const IntegrationsPage = () => {
   const searchParams = useSearchParams()
-  const [activeTab, setActiveTab] = useState<IntegrationTab>(() => (searchParams.get('status') === 'success' ? 'Installed' : 'Available'))
+  const [activeTab, setActiveTab] = useState<IntegrationTab>(() => (searchParams.get('status') === 'success' ? 'Installed' : 'All'))
+  const [searchQuery, setSearchQuery] = useState('')
   const { data, isLoading: integrationsLoading } = useGetIntegrations({ where: {} })
   const { data: providersData, isLoading: providersLoading } = useIntegrationProviders()
   const { setCrumbs } = useContext(BreadcrumbContext)
@@ -54,7 +55,37 @@ const IntegrationsPage = () => {
     ])
   }, [setCrumbs])
 
-  if (isLoading && integrationsLoading && providersLoading) {
+  const providers = useMemo(() => providersData?.providers ?? [], [providersData?.providers])
+
+  const installedIntegrations = useMemo(
+    () => (data?.integrations?.edges ?? []).flatMap((edge) => (edge?.node ? [edge.node] : [])).sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })),
+    [data?.integrations?.edges],
+  )
+
+  const installedProviderNames = useMemo(
+    () => new Set(installedIntegrations.map((integration) => (integration.kind || integration.name).toLowerCase()).filter((name) => name.length > 0)),
+    [installedIntegrations],
+  )
+
+  const availableIntegrations = useMemo(
+    () =>
+      providers
+        .filter((p) => p.visible !== false)
+        .map(toAvailableIntegration)
+        .filter((ai) => !installedProviderNames.has(ai.provider.name.toLowerCase()))
+        .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })),
+    [providers, installedProviderNames],
+  )
+
+  const { allCount, comingSoonCount } = useMemo(() => {
+    const active = availableIntegrations.filter((ai) => ai.provider.active).length
+    const upcoming = availableIntegrations.filter((ai) => !ai.provider.active).length
+    return { allCount: active, comingSoonCount: upcoming }
+  }, [availableIntegrations])
+
+  const installedCount = installedIntegrations.length
+
+  if (isLoading || integrationsLoading || providersLoading) {
     return <Loading />
   }
   return (
@@ -64,8 +95,16 @@ const IntegrationsPage = () => {
         <ProtectedArea />
       ) : (
         <>
-          <IntegrationsToolbar activeTab={activeTab} setActiveTab={setActiveTab} installedCount={data?.integrations.edges?.length} />
-          <IntegrationsGrid integrations={data?.integrations} activeTab={activeTab} providers={providersData?.providers ?? []} />
+          <IntegrationsToolbar
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+            allCount={allCount}
+            comingSoonCount={comingSoonCount}
+            installedCount={installedCount}
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+          />
+          <IntegrationsGrid installedIntegrations={installedIntegrations} availableIntegrations={availableIntegrations} activeTab={activeTab} providers={providers} searchQuery={searchQuery} />
         </>
       )}
     </div>

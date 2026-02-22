@@ -71,7 +71,11 @@ const StandardDetailsCard = () => {
                   Tags
                 </TableCell>
                 <TableCell className={valueCell()}>
-                  <div className={tagsWrapper()}>{standard.tags?.map((tag: string, i) => <TagChip tag={tag} key={i} />)}</div>
+                  <div className={tagsWrapper()}>
+                    {standard.tags?.map((tag: string, i) => (
+                      <TagChip tag={tag} key={i} />
+                    ))}
+                  </div>
                 </TableCell>
               </TableRow>
             </TableBody>

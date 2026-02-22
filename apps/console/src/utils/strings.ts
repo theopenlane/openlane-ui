@@ -10,13 +10,17 @@ export function toHumanLabel(input: string): string {
   if (!input) return ''
 
   const label = input
+    // Replace underscores and dashes with spaces: api_key → api key
+    .replace(/[_-]+/g, ' ')
     // Split acronym followed by normal word: APIToken → API Token
     .replace(/([A-Z]+)([A-Z][a-z])/g, '$1 $2')
     // Split lower-to-upper: DomainDelete → Domain Delete
     .replace(/([a-z])([A-Z])/g, '$1 $2')
+    // Collapse multiple spaces
+    .replace(/\s+/g, ' ')
     .trim()
 
-  return label.charAt(0).toUpperCase() + label.slice(1)
+  return label.replace(/\b\w/g, (char) => char.toUpperCase())
 }
 
 // if you change this, update packages/codegen/plugins/lib.js:pluralizeTypeName also

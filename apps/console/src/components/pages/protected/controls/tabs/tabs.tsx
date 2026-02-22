@@ -170,7 +170,7 @@ const ControlDetailsTabs: React.FC<TabsProps> = (props) => {
       )}
 
       <TabsContent value="documentation" className="space-y-6">
-        <DocumentationTab controlId={isSubcontrol ? subcontrol?.control?.id ?? '' : control?.id ?? ''} subcontrolIds={subcontrolIds} />
+        <DocumentationTab controlId={isSubcontrol ? (subcontrol?.control?.id ?? '') : (control?.id ?? '')} subcontrolIds={subcontrolIds} />
       </TabsContent>
 
       <TabsContent value="activity" className="space-y-6">

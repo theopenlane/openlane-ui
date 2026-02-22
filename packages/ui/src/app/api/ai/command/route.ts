@@ -105,7 +105,7 @@ function smoothStream<TOOLS extends ToolSet>({
           controller.enqueue({ textDelta: match, type: 'text-delta' })
           buffer = buffer.slice(match.length)
 
-          const _delayInMs = typeof delayInMs === 'number' ? delayInMs : delayInMs?.(buffer) ?? 10
+          const _delayInMs = typeof delayInMs === 'number' ? delayInMs : (delayInMs?.(buffer) ?? 10)
 
           await delay(_delayInMs)
         }

@@ -149,7 +149,7 @@ export const getFieldsToRender = (props: EntityFieldProps, enumOptions: EnumOpti
           <NameField
             isEditing={props.isEditing}
             isEditAllowed={props.isEditAllowed}
-            initialValue={props.isCreate ? '' : props.data?.name ?? ''}
+            initialValue={props.isCreate ? '' : (props.data?.name ?? '')}
             internalEditing={props.internalEditing}
             setInternalEditing={props.setInternalEditing}
             handleUpdateField={props.handleUpdateField}
@@ -170,7 +170,7 @@ export const getFieldsToRender = (props: EntityFieldProps, enumOptions: EnumOpti
         key={props.isCreate ? 'create-description' : `${props.data?.id}-description`}
         isEditing={props.isEditing}
         isCreate={props.isCreate}
-        initialValue={props.isCreate ? '' : props.data?.description ?? ''}
+        initialValue={props.isCreate ? '' : (props.data?.description ?? '')}
         isFormInitialized={props.isFormInitialized}
       />
       <AdditionalFields

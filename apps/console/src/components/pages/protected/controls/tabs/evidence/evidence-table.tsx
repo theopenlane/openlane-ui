@@ -121,10 +121,10 @@ const EvidenceTable = ({ control, subcontrolIds }: Props) => {
   const controlParam: CustomEvidenceControl = {
     id: control.controlID || (control.subcontrolID as string),
     referenceFramework: control.subcontrolReferenceFramework
-      ? Object.values(control.subcontrolReferenceFramework)[0] ?? ''
+      ? (Object.values(control.subcontrolReferenceFramework)[0] ?? '')
       : control.referenceFramework
-      ? Object.values(control.referenceFramework)[0] ?? ''
-      : '',
+        ? (Object.values(control.referenceFramework)[0] ?? '')
+        : '',
 
     refCode: control.controlRefCodes?.[0] ?? '',
     __typename: isSubcontrol ? ObjectTypes.SUBCONTROL : ObjectTypes.CONTROL,

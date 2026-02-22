@@ -44,7 +44,7 @@ export async function POST(req: Request) {
               price: typeof item.price === 'string' ? item.price : item.price.id,
               quantity: item.quantity,
               discounts: (item.discounts ?? []).map((d) => ({
-                coupon: typeof d.coupon === 'string' ? d.coupon : d.coupon?.id ?? undefined,
+                coupon: typeof d.coupon === 'string' ? d.coupon : (d.coupon?.id ?? undefined),
               })),
             }) as Stripe.SubscriptionScheduleUpdateParams.Phase.AddInvoiceItem,
         ),
