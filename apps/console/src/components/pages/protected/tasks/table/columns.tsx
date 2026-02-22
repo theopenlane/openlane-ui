@@ -148,13 +148,7 @@ export const getTaskColumns = ({ userMap, convertToReadOnly, selectedTasks, setS
         if (!tags?.length) {
           return '-'
         }
-        return (
-          <div className="flex gap-2 flex-wrap">
-            {row?.original?.tags?.map((tag, i) => (
-              <TagChip key={i} tag={tag} />
-            ))}
-          </div>
-        )
+        return <div className="flex gap-2 flex-wrap">{row?.original?.tags?.map((tag, i) => <TagChip key={i} tag={tag} />)}</div>
       },
     },
     {
