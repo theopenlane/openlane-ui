@@ -186,7 +186,7 @@ const removeEscapeSelection = (editor: SlateEditor, text: string) => {
 
   // If the selection is on a void element, inserting the placeholder will fail, and the string must be replaced manually.
   if (!newText.includes(SELECTION_END)) {
-    const [_, end] = RangeApi.edges(editor.selection!)
+    const [, end] = RangeApi.edges(editor.selection!)
 
     const node = editor.api.block({ at: end.path })
 

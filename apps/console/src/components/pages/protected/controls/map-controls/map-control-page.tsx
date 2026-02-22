@@ -104,7 +104,6 @@ const MapControlPage = () => {
     ])
   }, [isLoading, setCrumbs, subcontrolData?.subcontrol?.refCode, id, subcontrolId])
 
-  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (controlData) {
       setControlsCrumbs()
@@ -117,7 +116,6 @@ const MapControlPage = () => {
       setPresetControls([subcontrolData.subcontrol])
     }
   }, [setCrumbs, controlData, subcontrolData, form, isLoading, isLoadingSubcontrol, setControlsCrumbs, setSubControlsCrumbs])
-  /* eslint-enable react-hooks/set-state-in-effect */
 
   return (
     <>

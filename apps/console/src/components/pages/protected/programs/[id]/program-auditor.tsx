@@ -72,7 +72,6 @@ const ProgramAuditor = ({ firm, name, email, isReady, programStatus }: ProgramAu
     },
   })
 
-  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (name || email || firm) {
       form.reset({
@@ -90,7 +89,6 @@ const ProgramAuditor = ({ firm, name, email, isReady, programStatus }: ProgramAu
       setIsEligibleForAuditorSet(false)
     }
   }, [name, email, firm, id, form])
-  /* eslint-enable react-hooks/set-state-in-effect */
 
   const { handleSubmit, control } = form
 

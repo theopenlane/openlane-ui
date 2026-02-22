@@ -196,7 +196,6 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
     }
   }, [evidence])
 
-  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (initialAssociationsControlsAndPrograms.controls) {
       setEvidenceControls(initialAssociationsControlsAndPrograms.controls)
@@ -231,9 +230,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
       }
     }
   }, [evidence, form])
-  /* eslint-enable react-hooks/set-state-in-effect */
 
-  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const handleInitialValue = useCallback(() => {
     if (initialAssociations && initialAssociationsControlsAndPrograms) {
       form.setValue('controlIDs', initialAssociations.controlIDs ? initialAssociations.controlIDs : [])
@@ -244,11 +241,9 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
     }
   }, [form, initialAssociations, initialAssociationsControlsAndPrograms])
 
-  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     handleInitialValue()
   }, [handleInitialValue])
-  /* eslint-enable react-hooks/set-state-in-effect */
 
   const programIDs = form.watch('programIDs')
 
@@ -425,7 +420,6 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
     },
   )
 
-  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (isEditPreset) {
       setIsEditing(true)
@@ -437,7 +431,6 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
       }, 500)
     }
   }, [isEditPreset, setIsEditPreset, setIsEditing])
-  /* eslint-enable react-hooks/set-state-in-effect */
 
   const handleTags = () => {
     if (evidence?.tags?.length === 0) {
