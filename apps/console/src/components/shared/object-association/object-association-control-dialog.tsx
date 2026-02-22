@@ -130,7 +130,7 @@ export const ControlSelectionDialog: React.FC<TControlSelectionDialogProps> = ({
     pagination,
   })
 
-  const items: (ControlListFieldsFragment | Subcontrol)[] = selectedObject === AccordionEnum.Control ? controls ?? [] : subcontrols ?? []
+  const items: (ControlListFieldsFragment | Subcontrol)[] = selectedObject === AccordionEnum.Control ? (controls ?? []) : (subcontrols ?? [])
 
   const paginationMeta = selectedObject === AccordionEnum.Control ? controlsPagination : subcontrolsPagination
   const isLoading = selectedObject === AccordionEnum.Control ? controlsLoading : subcontrolsLoading

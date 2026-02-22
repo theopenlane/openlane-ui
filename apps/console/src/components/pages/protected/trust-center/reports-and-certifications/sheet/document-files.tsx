@@ -62,15 +62,15 @@ export const DocumentFiles: React.FC<TDocumentFiles> = ({ documentId, editAllowe
         },
       ]
     : documentData?.trustCenterDoc?.originalFile
-    ? [
-        {
-          id: documentData.trustCenterDoc.id,
-          providedFileName: documentData.trustCenterDoc.originalFile.providedFileName,
-          providedFileSize: documentData.trustCenterDoc.originalFile.providedFileSize,
-          presignedURL: documentData.trustCenterDoc.originalFile.presignedURL ?? '',
-        },
-      ]
-    : []
+      ? [
+          {
+            id: documentData.trustCenterDoc.id,
+            providedFileName: documentData.trustCenterDoc.originalFile.providedFileName,
+            providedFileSize: documentData.trustCenterDoc.originalFile.providedFileSize,
+            presignedURL: documentData.trustCenterDoc.originalFile.presignedURL ?? '',
+          },
+        ]
+      : []
 
   const columns = useGetFilesColumns({
     onDelete: (file) => {

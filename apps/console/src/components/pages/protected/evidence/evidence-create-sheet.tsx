@@ -96,7 +96,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
       ...evidenceObjectTypes,
       controlIDs: data.controlIDs,
       subcontrolIDs: data.subcontrolIDs,
-      programIDs: programId ? [programId] : data.programIDs ?? [],
+      programIDs: programId ? [programId] : (data.programIDs ?? []),
       ...(data.url ? { url: data.url } : {}),
     }
 

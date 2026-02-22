@@ -58,10 +58,7 @@ const IntegrationsPage = () => {
   const providers = useMemo(() => providersData?.providers ?? [], [providersData?.providers])
 
   const installedIntegrations = useMemo(
-    () =>
-      (data?.integrations?.edges ?? [])
-        .flatMap((edge) => (edge?.node ? [edge.node] : []))
-        .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })),
+    () => (data?.integrations?.edges ?? []).flatMap((edge) => (edge?.node ? [edge.node] : [])).sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })),
     [data?.integrations?.edges],
   )
 
@@ -107,13 +104,7 @@ const IntegrationsPage = () => {
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
           />
-          <IntegrationsGrid
-            installedIntegrations={installedIntegrations}
-            availableIntegrations={availableIntegrations}
-            activeTab={activeTab}
-            providers={providers}
-            searchQuery={searchQuery}
-          />
+          <IntegrationsGrid installedIntegrations={installedIntegrations} availableIntegrations={availableIntegrations} activeTab={activeTab} providers={providers} searchQuery={searchQuery} />
         </>
       )}
     </div>

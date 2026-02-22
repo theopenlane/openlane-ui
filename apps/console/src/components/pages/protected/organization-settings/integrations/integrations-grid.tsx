@@ -75,10 +75,8 @@ export function IntegrationsGrid({ installedIntegrations, availableIntegrations,
 
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 mt-5">
-      {activeTab !== 'Installed' &&
-        filteredAvailableIntegrations.map((integration) => <AvailableIntegrationCard key={integration.id} integration={integration} />)}
-      {activeTab === 'Installed' &&
-        filteredInstalledIntegrations.map((integration) => <InstalledIntegrationCard key={integration.id} integration={integration} providers={providers} />)}
+      {activeTab !== 'Installed' && filteredAvailableIntegrations.map((integration) => <AvailableIntegrationCard key={integration.id} integration={integration} />)}
+      {activeTab === 'Installed' && filteredInstalledIntegrations.map((integration) => <InstalledIntegrationCard key={integration.id} integration={integration} providers={providers} />)}
       {activeTab === 'All' && (
         <Card className="flex min-h-[300px] items-center justify-center p-8">
           <div className="flex max-w-[280px] flex-col items-center justify-center gap-6 text-center">
@@ -104,7 +102,7 @@ function matchesAvailableSearch(integration: AvailableIntegrationNode, query: st
 }
 
 function matchesInstalledSearch(integration: IntegrationNode, provider: IntegrationProvider | undefined, query: string): boolean {
-  const tags = provider?.tags?.length ? provider.tags : integration.tags ?? []
+  const tags = provider?.tags?.length ? provider.tags : (integration.tags ?? [])
   const description = provider?.description || integration.description || ''
   const haystack = [integration.name, provider?.name ?? '', provider?.displayName ?? '', description, ...tags].join(' ').toLowerCase()
   return haystack.includes(query)

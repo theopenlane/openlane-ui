@@ -64,15 +64,15 @@ const RelatedControls = ({ canCreate, refCode, sourceFramework, title = 'Related
         ],
       }
     : id
-    ? {
-        or: [
-          suggestedControlWhere,
-          {
-            or: [{ hasFromControlsWith: [{ id }] }, { hasToControlsWith: [{ id }] }],
-          },
-        ],
-      }
-    : undefined
+      ? {
+          or: [
+            suggestedControlWhere,
+            {
+              or: [{ hasFromControlsWith: [{ id }] }, { hasToControlsWith: [{ id }] }],
+            },
+          ],
+        }
+      : undefined
 
   const { data } = useGetMappedControls({ where, enabled: !!where })
 

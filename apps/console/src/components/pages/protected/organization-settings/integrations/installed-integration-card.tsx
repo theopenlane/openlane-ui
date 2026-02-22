@@ -6,7 +6,15 @@ import { Button } from '@repo/ui/button'
 import { Badge } from '@repo/ui/badge'
 import { Card, CardContent, CardFooter, CardHeader } from '@repo/ui/cardpanel'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
-import { getInstalledIntegrationConfig, HEALTH_CHECK_STALE_TIME_MS, installedIntegrationDisplayName, IntegrationNode, IntegrationProvider, parseIntegrationErrorMessage, providerSupportsHealth } from './config'
+import {
+  getInstalledIntegrationConfig,
+  HEALTH_CHECK_STALE_TIME_MS,
+  installedIntegrationDisplayName,
+  IntegrationNode,
+  IntegrationProvider,
+  parseIntegrationErrorMessage,
+  providerSupportsHealth,
+} from './config'
 import { useDisconnectIntegration } from '@/lib/graphql-hooks/integration'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useQuery } from '@tanstack/react-query'

@@ -189,13 +189,13 @@ const BrandPage: React.FC = () => {
         ...(setting.logoFile?.id
           ? { logoFileID: setting.logoFile.id, clearLogoRemoteURL: true }
           : setting.logoRemoteURL
-          ? { logoRemoteURL: setting.logoRemoteURL, clearLogoFile: true }
-          : { clearLogoFile: true, clearLogoRemoteURL: true }),
+            ? { logoRemoteURL: setting.logoRemoteURL, clearLogoFile: true }
+            : { clearLogoFile: true, clearLogoRemoteURL: true }),
         ...(setting.faviconFile?.id
           ? { faviconFileID: setting.faviconFile.id, clearFaviconRemoteURL: true }
           : setting.faviconRemoteURL
-          ? { faviconRemoteURL: setting.faviconRemoteURL, clearFaviconFile: true }
-          : { clearFaviconFile: true, clearFaviconRemoteURL: true }),
+            ? { faviconRemoteURL: setting.faviconRemoteURL, clearFaviconFile: true }
+            : { clearFaviconFile: true, clearFaviconRemoteURL: true }),
         ...(setting.companyName ? { companyName: setting.companyName } : { clearCompanyName: true }),
         ...(setting.companyDescription ? { companyDescription: setting.companyDescription } : { clearCompanyDescription: true }),
         ...(setting.companyDomain ? { companyDomain: setting.companyDomain } : { clearCompanyDomain: true }),
