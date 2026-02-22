@@ -2,13 +2,14 @@
 import React, { useEffect, useMemo } from 'react'
 
 import { useOrganization } from '@/hooks/useOrganization'
-import { useOpenlaneProductsQuery, usePaymentMethodsQuery, useSchedulesQuery, useUpdateScheduleMutation } from '@/lib/query-hooks/stripe'
+import { useOpenlaneProductsQuery, usePaymentMethodsQuery, useSchedulesQuery, useUpdateScheduleMutation, useUpcomingInvoiceQuery } from '@/lib/query-hooks/stripe'
 import { ProductCard } from './product-card'
 import { useNotification } from '@/hooks/useNotification'
 import { useSearchParams } from 'next/navigation'
 import BillingSummary from './billing-summary'
 import BillingSettings from './billing-settings'
 import SideNavigation from './side-navigation'
+import BillingPageSkeleton, { ProductCardSkeleton } from './skeleton/billing-page-skeleton'
 
 const PricingPlan = () => {
   const { currentOrgId, getOrganizationByID } = useOrganization()
@@ -19,10 +20,20 @@ const PricingPlan = () => {
   const stripeCustomerId = currentOrganization?.node?.stripeCustomerID
 
   const { data: openlaneProducts, isLoading: productsLoading } = useOpenlaneProductsQuery()
-  const { data: schedules = [] } = useSchedulesQuery(stripeCustomerId)
+  const { data: schedules = [], isLoading: schedulesLoading } = useSchedulesQuery(stripeCustomerId)
   const { mutateAsync: updateSchedule, isPending: updating } = useUpdateScheduleMutation()
 
+  const scheduleId = schedules[0]?.id
+  const subscriptionId = schedules[0]?.subscription?.id
+  const { isLoading: invoiceLoading } = useUpcomingInvoiceQuery({
+    customerId: stripeCustomerId,
+    scheduleId,
+    subscriptionId,
+  })
+
   const { data: paymentData } = usePaymentMethodsQuery(stripeCustomerId)
+
+  const pageLoading = productsLoading || schedulesLoading || invoiceLoading
 
   const activePriceIds = useMemo(() => {
     if (!schedules?.length) return new Set<string>()
@@ -134,6 +145,10 @@ const PricingPlan = () => {
     }
   }, [paymentUpdate, successNotification])
 
+  if (pageLoading) {
+    return <BillingPageSkeleton />
+  }
+
   return (
     <div className="flex relative">
       <SideNavigation />
@@ -148,7 +163,10 @@ const PricingPlan = () => {
                 Modules
               </h3>
               {productsLoading ? (
-                <p>Loading modules…</p>
+                <div className="flex flex-col mt-4 w-full">
+                  <ProductCardSkeleton />
+                  <ProductCardSkeleton />
+                </div>
               ) : (
                 <div className="flex flex-col mt-4 w-full">
                   {modulesWithoutBase.map((p) => (
@@ -173,7 +191,9 @@ const PricingPlan = () => {
                 Add-ons
               </h3>
               {productsLoading ? (
-                <p>Loading add-ons…</p>
+                <div className="flex flex-col mt-4 w-full">
+                  <ProductCardSkeleton />
+                </div>
               ) : (
                 <div className="flex flex-col mt-4 w-full">
                   {addons.map((p) => (

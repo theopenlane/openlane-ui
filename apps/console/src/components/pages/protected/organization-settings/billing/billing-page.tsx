@@ -3,7 +3,7 @@ import React, { Suspense, useContext, useEffect } from 'react'
 import { PageHeading } from '@repo/ui/page-heading'
 import PricingPlan from '@/components/pages/protected/organization-settings/billing/pricing-plan'
 import { useOrganization } from '@/hooks/useOrganization'
-import { LoaderCircle } from 'lucide-react'
+import BillingPageSkeleton from '@/components/pages/protected/organization-settings/billing/skeleton/billing-page-skeleton'
 import { useGetOrganizationBilling } from '@/lib/graphql-hooks/organization'
 import { canEdit } from '@/lib/authz/utils.ts'
 import ProtectedArea from '@/components/shared/protected-area/protected-area.tsx'
@@ -43,11 +43,7 @@ const OrganizationContent = () => {
   const { data, isLoading } = useGetOrganizationBilling(currentOrgId)
 
   if (isLoading) {
-    return (
-      <div className="w-100 flex justify-center">
-        <LoaderCircle className="animate-spin" size={20} />
-      </div>
-    )
+    return <BillingPageSkeleton />
   }
 
   return (
