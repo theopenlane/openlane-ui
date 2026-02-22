@@ -14,6 +14,7 @@ import { Switch } from '@repo/ui/switch'
 import { useNotification } from '@/hooks/useNotification'
 import { useQueryClient } from '@tanstack/react-query'
 import { IntegrationCredentialsSchema, IntegrationProvider, IntegrationSchemaNode, IntegrationSchemaProperty, parseIntegrationErrorMessage } from './config'
+import { toHumanLabel } from '@/utils/strings'
 
 type Props = {
   open: boolean
@@ -134,7 +135,7 @@ const SchemaField = ({ fieldKey, property, required }: SchemaFieldProps) => {
     control,
     formState: { errors },
   } = useFormContext()
-  const label = property.title?.trim() || toTitleCase(fieldKey)
+  const label = property.title?.trim() || toHumanLabel(fieldKey)
   const inputId = `integration-config-${fieldKey}`
 
   const isEnum = Array.isArray(property.enum) && property.enum.length > 0
@@ -171,7 +172,7 @@ const SchemaField = ({ fieldKey, property, required }: SchemaFieldProps) => {
           name={fieldKey}
           control={control}
           render={({ field }) => (
-            <Select value={valueToString(field.value)} onValueChange={field.onChange}>
+            <Select value={String(field.value ?? '')} onValueChange={field.onChange}>
               <SelectTrigger id={inputId}>
                 <SelectValue placeholder="Select value" />
               </SelectTrigger>
@@ -222,7 +223,7 @@ function buildZodSchema(credentialsSchema?: IntegrationCredentialsSchema): z.Zod
       continue
     }
 
-    const label = property.title?.trim() || toTitleCase(key)
+    const label = property.title?.trim() || toHumanLabel(key)
     if (requiredFields.has(key)) {
       shape[key] = z.string().min(1, `${label} is required`)
     } else {
@@ -360,19 +361,6 @@ function inferInputType(property: IntegrationSchemaProperty): React.HTMLInputTyp
   if (property.format === 'email') return 'email'
   if (property.format === 'uri' || property.format === 'url') return 'url'
   return 'text'
-}
-
-function toTitleCase(value: string): string {
-  return value
-    .replace(/[_-]+/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim()
-    .replace(/\b\w/g, (char) => char.toUpperCase())
-}
-
-function valueToString(value: unknown): string {
-  if (value === null || value === undefined) return ''
-  return String(value)
 }
 
 export default IntegrationConfigurationDialog

@@ -1,20 +1,19 @@
 'use client'
 
 import React, { useState } from 'react'
-import { MoreHorizontal, ArrowLeftRight, SquareArrowOutUpRight } from 'lucide-react'
+import { MoreHorizontal } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { Badge } from '@repo/ui/badge'
 import { Card, CardContent, CardFooter, CardHeader } from '@repo/ui/cardpanel'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
-import { Logo } from '@repo/ui/logo'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { getInstalledIntegrationConfig, HEALTH_CHECK_STALE_TIME_MS, installedIntegrationDisplayName, IntegrationNode, IntegrationProvider, parseIntegrationErrorMessage, providerSupportsHealth } from './config'
 import { useDisconnectIntegration } from '@/lib/graphql-hooks/integration'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
-import ProviderIcon from './provider-icon'
 import { useQuery } from '@tanstack/react-query'
-import IntegrationTagPill from './integration-tag-pill'
 import { formatDate } from '@/utils/date'
+import IntegrationTagList from './integration-tag-list'
+import IntegrationCardIcons from './integration-card-icons'
+import DocsLinkTooltip from './docs-link-tooltip'
 
 type HealthResponse = {
   status?: string
@@ -41,8 +40,6 @@ const InstalledIntegrationCard = ({ integration, providers }: InstalledIntegrati
   const supportsHealth = providerSupportsHealth(provider)
   const tags = provider?.tags?.length ? provider.tags : integration.tags
   const description = provider?.description || integration.description || 'Connect to keep your workflows connected and risks actionable.'
-  const visibleTags = tags?.slice(0, 3) ?? []
-  const hiddenTagCount = Math.max((tags?.length ?? 0) - visibleTags.length, 0)
 
   const healthQuery = useQuery<HealthResponse>({
     queryKey: ['integrationHealth', provider?.name],
@@ -69,40 +66,11 @@ const InstalledIntegrationCard = ({ integration, providers }: InstalledIntegrati
     <>
       <Card className="relative flex h-full min-h-[300px] flex-col overflow-visible transition-all duration-300 hover:scale-[1.03] hover:shadow-xl hover:-translate-y-1">
         <CardHeader className="relative flex-row items-start gap-3 space-y-0 pb-3">
-          {integrationConfig?.docsUrl ? (
-            <TooltipProvider delayDuration={100}>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <a
-                    href={integrationConfig.docsUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    aria-label={`Open ${displayName} documentation`}
-                    className="absolute right-0 top-0"
-                  >
-                    <span className="inline-flex h-6 w-6 items-center justify-center text-muted-foreground transition-colors hover:text-foreground">
-                      <SquareArrowOutUpRight size={12} />
-                    </span>
-                  </a>
-                </TooltipTrigger>
-                <TooltipContent side="top" align="end" sideOffset={8}>
-                  Open documentation
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          ) : null}
+          {integrationConfig?.docsUrl ? <DocsLinkTooltip href={integrationConfig.docsUrl} label={displayName} /> : null}
 
           <div className="w-full">
             <div className="flex gap-4">
-              <div className="flex items-center gap-1 self-start">
-                <div className="w-[34px] h-[34px] border rounded-full flex items-center justify-center">
-                  <Logo asIcon width={16} />
-                </div>
-                <ArrowLeftRight size={8} />
-                <div className="w-[42px] h-[42px] border rounded-full flex items-center justify-center">
-                  <ProviderIcon providerName={provider?.name ?? integration.kind ?? integration.name} className="h-6 w-6 object-contain" />
-                </div>
-              </div>
+              <IntegrationCardIcons providerName={provider?.name ?? integration.kind ?? integration.name} />
 
               <div className="flex min-w-0 flex-1 flex-col justify-center self-center">
                 <span className="truncate">{displayName}</span>
@@ -116,16 +84,7 @@ const InstalledIntegrationCard = ({ integration, providers }: InstalledIntegrati
             </div>
 
             <div className="mt-3 border-t pt-3 mb-1">
-              <div className="flex items-center gap-1 overflow-hidden">
-                {visibleTags.map((tag, index) => (
-                  <IntegrationTagPill key={`${tag}-${index}`} tag={tag} />
-                ))}
-                {hiddenTagCount > 0 ? (
-                  <Badge variant="outline" className="h-5 rounded-sm border-transparent bg-muted/35 px-2 text-[10px] font-medium text-muted-foreground">
-                    +{hiddenTagCount} more
-                  </Badge>
-                ) : null}
-              </div>
+              <IntegrationTagList tags={tags ?? []} />
             </div>
           </div>
         </CardHeader>

@@ -100,16 +100,15 @@ const PROVIDER_ICON_MAP: Record<string, string> = {
   aws: '/icons/brand/integrations/aws.svg',
   aws_audit_manager: '/icons/brand/integrations/aws.svg',
   aws_security_hub: '/icons/brand/integrations/aws.svg',
-  azure_entra_id: '/icons/brand/integrations/azure_entra_id.png',
-  azure_security_center: '/icons/brand/integrations/azure_security_center.png',
+  azure_entra_id: '/icons/brand/integrations/azure.png',
+  azure_security_center: '/icons/brand/integrations/azure.png',
   buildkite: '/icons/brand/integrations/buildkite.png',
   cloudflare: '/icons/brand/integrations/cloudflare.png',
-  gcp_scc: '/icons/brand/integrations/gcp_scc.png',
+  gcp_scc: '/icons/brand/integrations/google.png',
   github: '/icons/brand/integrations/github.png',
-  github_app: '/icons/brand/integrations/github_app.png',
-  google_workspace: '/icons/brand/integrations/google_workspace.png',
+  github_app: '/icons/brand/integrations/github.png',
+  google_workspace: '/icons/brand/integrations/google.png',
   microsoft_teams: '/icons/brand/integrations/microsoft_teams.png',
-  oidc_generic: '/icons/brand/integrations/oidc_generic.png',
   okta: '/icons/brand/integrations/okta.png',
   slack: '/icons/brand/integrations/slack.png',
   vercel: '/icons/brand/integrations/vercel.png',
@@ -159,11 +158,11 @@ export function providerSupportsHealth(provider?: IntegrationProvider): boolean 
 export const HEALTH_CHECK_STALE_TIME_MS = 2 * 60 * 1000
 
 export async function parseIntegrationErrorMessage(response: Response): Promise<string> {
+  const raw = await response.text().catch(() => '')
   try {
-    const payload = (await response.json()) as { error?: string; details?: string; message?: string }
+    const payload = JSON.parse(raw) as { error?: string; details?: string; message?: string }
     return payload.error || payload.details || payload.message || `Request failed (${response.status})`
   } catch {
-    const text = await response.text().catch(() => '')
-    return text || `Request failed (${response.status})`
+    return raw || `Request failed (${response.status})`
   }
 }

@@ -15,58 +15,63 @@ type StartBody = {
 }
 
 export async function POST(req: NextRequest) {
-  const session = await auth()
-  const token = session?.user?.accessToken
+  try {
+    const session = await auth()
+    const token = session?.user?.accessToken
 
-  if (!token) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    if (!token) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const body = (await req.json().catch(() => ({}))) as StartBody
+
+    const provider = body.provider?.trim()
+    const authType = body.authType
+    const scopes = body.scopes ?? []
+    const startPath = body.startPath?.trim()
+    const callbackPath = body.callbackPath?.trim()
+
+    if (!startPath) {
+      return NextResponse.json({ error: 'Missing provider auth start path' }, { status: 400 })
+    }
+
+    const redirectUri = resolveRedirectURI(callbackPath, body.redirectUri)
+    const startPayload = buildStartPayload({
+      provider,
+      authType,
+      scopes,
+      redirectUri,
+    })
+
+    const res = await secureFetch(`${openlaneAPIUrl}${startPath}`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(startPayload),
+    })
+
+    // get cookies so they can be set for the call-back
+    const cookieHeader = res.headers.get('set-cookie')
+    const flowCookies = getIntegrationFlowCookies(cookieHeader)
+
+    let response: NextResponse
+
+    if (!res.ok) {
+      const msg = await res.text()
+      response = NextResponse.json({ error: msg || 'Failed to initialize integration auth flow' }, { status: res.status })
+    } else {
+      const json = await res.json()
+      response = NextResponse.json(json)
+    }
+
+    setIntegrationFlowCookies(flowCookies, response)
+
+    return response
+  } catch (error) {
+    console.error('Error starting integration auth flow:', error)
+    return NextResponse.json({ error: 'An error occurred while starting integration auth flow' }, { status: 500 })
   }
-
-  const body = (await req.json().catch(() => ({}))) as StartBody
-
-  const provider = body.provider?.trim()
-  const authType = body.authType
-  const scopes = body.scopes ?? []
-  const startPath = body.startPath?.trim()
-  const callbackPath = body.callbackPath?.trim()
-
-  if (!startPath || !isValidIntegrationAPIPath(startPath)) {
-    return NextResponse.json({ error: 'Missing or invalid provider auth start path' }, { status: 400 })
-  }
-
-  const redirectUri = resolveRedirectURI(callbackPath, body.redirectUri)
-  const startPayload = buildStartPayload({
-    provider,
-    authType,
-    scopes,
-    redirectUri,
-  })
-
-  const res = await secureFetch(`${openlaneAPIUrl}${startPath}`, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify(startPayload),
-  })
-
-  // get cookies so they can be set for the call-back
-  const cookieHeader = res.headers.get('set-cookie')
-  const flowCookies = await getIntegrationFlowCookies(cookieHeader)
-
-  let response: NextResponse
-
-  if (!res.ok) {
-    const msg = await res.text()
-    response = NextResponse.json({ error: msg || 'Failed to initialize integration auth flow' }, { status: res.status })
-  } else {
-    const json = await res.json()
-    response = NextResponse.json(json)
-  }
-
-  await setIntegrationFlowCookies(flowCookies, response)
-
-  return response
 }
 
 type StartPayloadParams = {
@@ -96,18 +101,14 @@ function resolveRedirectURI(callbackPath?: string, explicitRedirectURI?: string)
     return explicitRedirectURI.trim()
   }
 
-  if (callbackPath && isValidIntegrationAPIPath(callbackPath)) {
+  if (callbackPath) {
     return `${openlaneAPIUrl}${callbackPath}`
   }
 
   return undefined
 }
 
-function isValidIntegrationAPIPath(path: string): boolean {
-  return path.startsWith('/v1/')
-}
-
-export const getIntegrationFlowCookies = async (cookies: string | null): Promise<Map<string, string>[] | undefined> => {
+function getIntegrationFlowCookies(cookies: string | null): Map<string, string>[] | undefined {
   if (!cookies) return undefined
 
   const cookieArray = cookies.split(', ')
@@ -123,7 +124,8 @@ export const getIntegrationFlowCookies = async (cookies: string | null): Promise
 
   return flowCookies.length > 0 ? flowCookies : undefined
 }
-export const setIntegrationFlowCookies = async (cookies: Map<string, string>[] | undefined = [], response: NextResponse<unknown>) => {
+
+function setIntegrationFlowCookies(cookies: Map<string, string>[] | undefined = [], response: NextResponse<unknown>) {
   if (!cookies) {
     return
   }
@@ -136,10 +138,12 @@ export const setIntegrationFlowCookies = async (cookies: Map<string, string>[] |
     sameSite = 'None'
   }
 
+  const securePart = secure ? '; Secure' : ''
+
   // Set the cookie using the raw Set-Cookie header to avoid encoding
   for (const cookie of cookies) {
     for (const [key, value] of cookie.entries()) {
-      response.headers.append('Set-Cookie', `${key}=${value}; Path=/; SameSite=${sameSite}; Secure=${secure}`)
+      response.headers.append('Set-Cookie', `${key}=${value}; Path=/; SameSite=${sameSite}${securePart}`)
     }
   }
 }

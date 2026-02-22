@@ -4,14 +4,14 @@ import React from 'react'
 import { Button } from '@repo/ui/button'
 import { Card } from '@repo/ui/cardpanel'
 
-import { GetIntegrationsQuery } from '@repo/codegen/src/schema'
-import { getInstalledIntegrationConfig, IntegrationNode, IntegrationProvider, IntegrationTab, toAvailableIntegration } from './config'
+import { AvailableIntegrationNode, getInstalledIntegrationConfig, IntegrationNode, IntegrationProvider, IntegrationTab } from './config'
 import AvailableIntegrationCard from './available-integration-card'
 import InstalledIntegrationCard from './installed-integration-card'
 import { INFO_EMAIL } from '@/constants'
 
 type IntegrationsGridProps = {
-  integrations?: GetIntegrationsQuery['integrations']
+  installedIntegrations: IntegrationNode[]
+  availableIntegrations: AvailableIntegrationNode[]
   activeTab: IntegrationTab
   providers: IntegrationProvider[]
   searchQuery: string
@@ -25,21 +25,8 @@ const EmptyState = ({ message }: { message: string }) => (
   </div>
 )
 
-export function IntegrationsGrid({ integrations, activeTab, providers, searchQuery }: IntegrationsGridProps) {
+export function IntegrationsGrid({ installedIntegrations, availableIntegrations, activeTab, providers, searchQuery }: IntegrationsGridProps) {
   const normalizedQuery = searchQuery.trim().toLowerCase()
-
-  const installedIntegrations = (integrations?.edges ?? [])
-    .flatMap((edge) => (edge?.node ? [edge.node] : []))
-    .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }))
-  const installedProviderNames = installedIntegrations
-    .map((integration) => (integration.kind || integration.name).toLowerCase())
-    .filter((name) => name.length > 0)
-
-  const availableIntegrations = providers
-    .filter((p) => p.visible !== false)
-    .map(toAvailableIntegration)
-    .filter((ai) => !installedProviderNames.includes(ai.provider.name.toLowerCase()))
-    .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }))
 
   const filteredAvailableIntegrations = availableIntegrations.filter((integration) => {
     if (activeTab === 'All' && !integration.provider.active) {
@@ -111,10 +98,7 @@ export function IntegrationsGrid({ integrations, activeTab, providers, searchQue
   )
 }
 
-function matchesAvailableSearch(
-  integration: ReturnType<typeof toAvailableIntegration>,
-  query: string,
-): boolean {
+function matchesAvailableSearch(integration: AvailableIntegrationNode, query: string): boolean {
   const haystack = [integration.name, integration.description, integration.provider.name, integration.provider.displayName, ...(integration.tags ?? [])].join(' ').toLowerCase()
   return haystack.includes(query)
 }

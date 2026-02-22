@@ -4,7 +4,7 @@ import React, { useContext, useEffect, useMemo, useRef, useState } from 'react'
 import IntegrationsToolbar from './integrations-toolbar'
 import { useGetIntegrations } from '@/lib/graphql-hooks/integration'
 import { IntegrationsGrid } from './integrations-grid'
-import { IntegrationTab } from './config'
+import { IntegrationTab, toAvailableIntegration } from './config'
 import { useNotification } from '@/hooks/useNotification'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { canEdit } from '@/lib/authz/utils'
@@ -55,32 +55,40 @@ const IntegrationsPage = () => {
     ])
   }, [setCrumbs])
 
-  const installedIntegrations = useMemo(() => (data?.integrations?.edges ?? []).flatMap((edge) => (edge?.node ? [edge.node] : [])), [data?.integrations?.edges])
+  const providers = useMemo(() => providersData?.providers ?? [], [providersData?.providers])
+
+  const installedIntegrations = useMemo(
+    () =>
+      (data?.integrations?.edges ?? [])
+        .flatMap((edge) => (edge?.node ? [edge.node] : []))
+        .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })),
+    [data?.integrations?.edges],
+  )
 
   const installedProviderNames = useMemo(
-    () => installedIntegrations.map((integration) => (integration.kind || integration.name).toLowerCase()),
+    () => new Set(installedIntegrations.map((integration) => (integration.kind || integration.name).toLowerCase()).filter((name) => name.length > 0)),
     [installedIntegrations],
   )
 
-  const visibleProviders = useMemo(() => (providersData?.providers ?? []).filter((provider) => provider.visible !== false), [providersData?.providers])
-
-  const availableProviders = useMemo(
+  const availableIntegrations = useMemo(
     () =>
-      visibleProviders.filter(
-        (provider) => !installedProviderNames.includes(provider.name.toLowerCase()),
-      ),
-    [visibleProviders, installedProviderNames],
+      providers
+        .filter((p) => p.visible !== false)
+        .map(toAvailableIntegration)
+        .filter((ai) => !installedProviderNames.has(ai.provider.name.toLowerCase()))
+        .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })),
+    [providers, installedProviderNames],
   )
 
   const { allCount, comingSoonCount } = useMemo(() => {
-    const active = availableProviders.filter((provider) => provider.active).length
-    const upcoming = availableProviders.filter((provider) => !provider.active).length
+    const active = availableIntegrations.filter((ai) => ai.provider.active).length
+    const upcoming = availableIntegrations.filter((ai) => !ai.provider.active).length
     return { allCount: active, comingSoonCount: upcoming }
-  }, [availableProviders])
+  }, [availableIntegrations])
 
   const installedCount = installedIntegrations.length
 
-  if (isLoading && integrationsLoading && providersLoading) {
+  if (isLoading || integrationsLoading || providersLoading) {
     return <Loading />
   }
   return (
@@ -99,7 +107,13 @@ const IntegrationsPage = () => {
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
           />
-          <IntegrationsGrid integrations={data?.integrations} activeTab={activeTab} providers={providersData?.providers ?? []} searchQuery={searchQuery} />
+          <IntegrationsGrid
+            installedIntegrations={installedIntegrations}
+            availableIntegrations={availableIntegrations}
+            activeTab={activeTab}
+            providers={providers}
+            searchQuery={searchQuery}
+          />
         </>
       )}
     </div>
