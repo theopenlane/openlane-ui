@@ -12,7 +12,7 @@ import {
   EntityQuery,
   EntityQueryVariables,
   CreateBulkCsvEntityMutation,
-  CreateBulkCsvTaskMutationVariables,
+  CreateBulkCsvEntityMutationVariables,
   UpdateBulkEntityMutation,
   UpdateBulkEntityMutationVariables,
   DeleteBulkEntityMutation,
@@ -98,7 +98,7 @@ export const useEntity = (entityId?: EntityQueryVariables['entityId']) => {
 
 export const useCreateBulkCSVEntity = () => {
   const { queryClient } = useGraphQLClient()
-  return useMutation<CreateBulkCsvEntityMutation, unknown, CreateBulkCsvTaskMutationVariables>({
+  return useMutation<CreateBulkCsvEntityMutation, unknown, CreateBulkCsvEntityMutationVariables>({
     mutationFn: async (variables) => fetchGraphQLWithUpload({ query: CREATE_CSV_BULK_ENTITY, variables }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['entities'] })

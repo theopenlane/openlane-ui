@@ -233,6 +233,7 @@ const ControlDetailsSheet = () => {
           <div>
             <AccordionInfo
               implementationGuidance={data?.control.implementationGuidance}
+              testingProcedures={data?.control.testingProcedures}
               exampleEvidence={data?.control.exampleEvidence}
               controlQuestions={data?.control.controlQuestions}
               assessmentMethods={data?.control.assessmentMethods}

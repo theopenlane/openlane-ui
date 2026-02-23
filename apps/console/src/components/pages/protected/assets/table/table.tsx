@@ -2,36 +2,18 @@
 
 import { DataTable } from '@repo/ui/data-table'
 import React, { useEffect, useMemo } from 'react'
-import { OrderDirection, AssetOrder, AssetWhereInput, Asset } from '@repo/codegen/src/schema'
-import { TPagination } from '@repo/ui/pagination-types'
-import { getAssetColumns } from '@/components/pages/protected/assets/table/columns.tsx'
+import { AssetWhereInput, Asset, AssetOrderField } from '@repo/codegen/src/schema'
+import { getColumns } from '@/components/pages/protected/assets/table/columns.tsx'
 import { AssetsNodeNonNull, useAssetsWithFilter } from '@/lib/graphql-hooks/asset'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
-import { VisibilityState } from '@tanstack/react-table'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import { TAccessRole, TPermissionData } from '@/types/authz'
 import { useNotification } from '@/hooks/useNotification'
-import { TableKeyEnum } from '@repo/ui/table-key'
 import { ASSETS_SORT_FIELDS } from './table-config'
+import { TTableProps } from '@/components/shared/crud-base/page'
+import { objectName, tableKey } from './types'
 
-type TAssetsTableProps = {
-  onSortChange?: (sortCondition: AssetOrder[] | AssetOrder | undefined) => void
-  pagination: TPagination
-  onPaginationChange: (pagination: TPagination) => void
-  whereFilter: AssetWhereInput | null
-  orderByFilter: AssetOrder[] | AssetOrder | undefined
-  columnVisibility?: VisibilityState
-  setColumnVisibility: React.Dispatch<React.SetStateAction<VisibilityState>>
-  onHasAssetsChange?: (hasAssets: boolean) => void
-  selectedAssets: { id: string }[]
-  setSelectedAssets: React.Dispatch<React.SetStateAction<{ id: string }[]>>
-  canEdit: (accessRole: TAccessRole[] | undefined) => boolean
-  permission: TPermissionData | undefined
-  defaultSorting: { field: string; direction?: OrderDirection }[] | undefined
-}
-
-const AssetsTable = ({
+const TableComponent = ({
   onSortChange,
   pagination,
   onPaginationChange,
@@ -39,23 +21,32 @@ const AssetsTable = ({
   orderByFilter,
   columnVisibility,
   setColumnVisibility,
-  onHasAssetsChange,
-  selectedAssets,
-  setSelectedAssets,
+  onHasChange,
+  selectedItems,
+  setSelectedItems,
   canEdit,
   permission,
   defaultSorting,
-}: TAssetsTableProps) => {
+}: TTableProps<AssetsNodeNonNull, AssetWhereInput>) => {
   const { replace } = useSmartRouter()
+
+  const orderBy = useMemo(() => {
+    if (!orderByFilter) return undefined
+    return orderByFilter.map(({ field, direction }) => ({
+      field: field as AssetOrderField,
+      direction,
+    }))
+  }, [orderByFilter])
+
   const {
-    assetsNodes: assets,
+    assetsNodes: items,
     isLoading: fetching,
     data,
     isFetching,
     isError,
   } = useAssetsWithFilter({
     where: whereFilter,
-    orderBy: orderByFilter,
+    orderBy: orderBy,
     pagination,
     enabled: true,
   })
@@ -63,24 +54,24 @@ const AssetsTable = ({
   const { convertToReadOnly } = usePlateEditor()
   const { errorNotification } = useNotification()
   const userIds = useMemo(() => {
-    if (!assets) return []
+    if (!items) return []
     const ids = new Set<string>()
-    assets.forEach((asset) => {
-      if (asset.createdBy) ids.add(asset.createdBy)
-      if (asset.updatedBy) ids.add(asset.updatedBy)
+    items.forEach((item) => {
+      if (item.createdBy) ids.add(item.createdBy)
+      if (item.updatedBy) ids.add(item.updatedBy)
     })
     return Array.from(ids)
-  }, [assets])
+  }, [items])
 
-  const hasAssets = useMemo(() => {
-    return assets && assets.length > 0
-  }, [assets])
+  const hastItems = useMemo(() => {
+    return items && items.length > 0
+  }, [items])
 
   useEffect(() => {
-    if (onHasAssetsChange) {
-      onHasAssetsChange(hasAssets)
+    if (onHasChange) {
+      onHasChange(hastItems)
     }
-  }, [hasAssets, onHasAssetsChange])
+  }, [hastItems, onHasChange])
 
   useEffect(() => {
     if (permission?.roles) {
@@ -95,7 +86,7 @@ const AssetsTable = ({
     if (isError) {
       errorNotification({
         title: 'Error',
-        description: 'Failed to load assets',
+        description: `Failed to load ${objectName.toLowerCase()}`,
       })
     }
   }, [isError, errorNotification])
@@ -112,18 +103,18 @@ const AssetsTable = ({
     return map
   }, [users])
 
-  const columns = useMemo(() => getAssetColumns({ userMap, convertToReadOnly, selectedAssets, setSelectedAssets }), [userMap, convertToReadOnly, selectedAssets, setSelectedAssets])
+  const columns = useMemo(() => getColumns({ userMap, convertToReadOnly, selectedItems, setSelectedItems }), [userMap, convertToReadOnly, selectedItems, setSelectedItems])
 
   return (
     <DataTable<AssetsNodeNonNull, Asset>
       columns={columns}
       sortFields={ASSETS_SORT_FIELDS}
       onSortChange={onSortChange}
-      data={assets}
+      data={items}
       loading={fetching || fetchingUsers}
       defaultSorting={defaultSorting}
-      onRowClick={(asset) => {
-        replace({ id: asset.id })
+      onRowClick={(item) => {
+        replace({ id: item.id })
       }}
       pagination={pagination}
       onPaginationChange={onPaginationChange}
@@ -134,10 +125,10 @@ const AssetsTable = ({
       }}
       columnVisibility={columnVisibility}
       setColumnVisibility={setColumnVisibility}
-      tableKey={TableKeyEnum.ASSET}
+      tableKey={tableKey}
     />
   )
 }
 
-AssetsTable.displayName = 'AssetsTable'
-export default AssetsTable
+TableComponent.displayName = 'AssetsTable'
+export default TableComponent

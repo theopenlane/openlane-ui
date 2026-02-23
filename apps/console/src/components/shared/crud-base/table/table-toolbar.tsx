@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
+import { ZodObject, ZodRawShape } from 'zod'
 import { DownloadIcon, LoaderCircle, PlusCircle, SearchIcon } from 'lucide-react'
 import Menu from '@/components/shared/menu/menu'
 import { VisibilityState } from '@tanstack/react-table'
@@ -18,13 +19,15 @@ import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { TableKeyValue } from '@repo/ui/table-key'
 import { TableFilter } from '../../table-filter/table-filter'
 import { FilterField } from '@/types'
+import type { WhereCondition } from '@/types'
+import { GenericBulkEditDialog } from '../dialog/bulk-edit'
+import { EnumOptionsGeneric } from '../page'
 
-type GenericTableToolbarProps<T extends { id: string }> = {
+type GenericTableToolbarProps<T extends { id: string }, TWhereInput, TUpdateInput> = {
   entityType: ObjectTypes
   handleExport: () => void
   filterFields?: FilterField[] | undefined
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onFilterChange?: (filters: any | null) => void
+  onFilterChange?: (filters: TWhereInput | null) => void
   columnVisibility?: VisibilityState
   setColumnVisibility?: React.Dispatch<React.SetStateAction<VisibilityState>>
   mappedColumns: {
@@ -39,14 +42,17 @@ type GenericTableToolbarProps<T extends { id: string }> = {
   handleClearSelected: () => void
   selectedItems: T[]
   setSelectedItems: React.Dispatch<React.SetStateAction<T[]>>
-  onBulkDelete: (ids: string[]) => Promise<void>
+  onBulkDelete?: (ids: string[]) => Promise<void>
   onBulkCreate?: (file: File) => Promise<void>
+  onBulkEdit?: (ids: string[], data: TUpdateInput) => Promise<void>
+  bulkEditFormSchema?: ZodObject<ZodRawShape>
   storageKey: TableKeyValue
-  renderBulkEdit?: (props: { selectedItems: T[]; setSelectedItems: React.Dispatch<React.SetStateAction<T[]>> }) => React.ReactNode
+  enumOpts?: EnumOptionsGeneric
 }
 
-function GenericTableToolbar<T extends { id: string }>(props: GenericTableToolbarProps<T>) {
+function GenericTableToolbar<T extends { id: string }, TWhereInput, TUpdateInput>(props: GenericTableToolbarProps<T, TWhereInput, TUpdateInput>) {
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)
+  const [isBulkEditDialogOpen, setIsBulkEditDialogOpen] = useState(false)
 
   const { successNotification, errorNotification } = useNotification()
   const { replace } = useSmartRouter()
@@ -68,7 +74,7 @@ function GenericTableToolbar<T extends { id: string }>(props: GenericTableToolba
     }
 
     try {
-      await props.onBulkDelete(props.selectedItems.map((item) => item.id))
+      await props.onBulkDelete!(props.selectedItems.map((item) => item.id))
       successNotification({
         title: `Selected ${entityLabelPlural.toLowerCase()} have been successfully deleted.`,
       })
@@ -99,21 +105,36 @@ function GenericTableToolbar<T extends { id: string }>(props: GenericTableToolba
         <div className="grow flex flex-row items-center gap-2 justify-end">
           {props.selectedItems.length > 0 ? (
             <>
-              {props.canEdit(props.permission?.roles) &&
-                props.renderBulkEdit?.({
-                  selectedItems: props.selectedItems,
-                  setSelectedItems: props.setSelectedItems,
-                })}
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => {
-                  setIsBulkDeleteDialogOpen(true)
-                }}
-              >
-                {props.selectedItems && props.selectedItems.length > 0 ? `Bulk Delete (${props.selectedItems.length})` : 'Bulk Delete'}
-              </Button>
-              {props.canEdit(props.permission?.roles) && (
+              {props.canEdit(props.permission?.roles) && props.onBulkEdit && props.bulkEditFormSchema && (
+                <>
+                  <GenericBulkEditDialog<T, TUpdateInput>
+                    open={isBulkEditDialogOpen}
+                    onOpenChange={setIsBulkEditDialogOpen}
+                    selectedItems={props.selectedItems}
+                    setSelectedItems={props.setSelectedItems}
+                    schema={props.bulkEditFormSchema as ZodObject<ZodRawShape>}
+                    bulkEditMutation={{
+                      mutateAsync: ({ ids, input }) => props.onBulkEdit!(ids, input as TUpdateInput),
+                    }}
+                    enumOpts={props.enumOpts}
+                    entityType={props.entityType}
+                  />
+                </>
+              )}
+              {props.canEdit(props.permission?.roles) && props.onBulkDelete && (
+                <>
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={() => {
+                      setIsBulkDeleteDialogOpen(true)
+                    }}
+                  >
+                    {props.selectedItems && props.selectedItems.length > 0 ? `Bulk Delete (${props.selectedItems.length})` : 'Bulk Delete'}
+                  </Button>
+                </>
+              )}
+              {props.canEdit(props.permission?.roles) && props.onBulkDelete && (
                 <>
                   <ConfirmationDialog
                     open={isBulkDeleteDialogOpen}
@@ -159,10 +180,12 @@ function GenericTableToolbar<T extends { id: string }>(props: GenericTableToolba
               {props.mappedColumns && props.columnVisibility && props.setColumnVisibility && (
                 <ColumnVisibilityMenu mappedColumns={props.mappedColumns} columnVisibility={props.columnVisibility} setColumnVisibility={props.setColumnVisibility} storageKey={props.storageKey} />
               )}
-              {props.filterFields && <TableFilter filterFields={props.filterFields} onFilterChange={props.onFilterChange} pageKey={props.storageKey} />}
-              <Button icon={<PlusCircle />} iconPosition="left" onClick={openCreateSheet}>
-                Create
-              </Button>
+              {props.filterFields && <TableFilter filterFields={props.filterFields} onFilterChange={props.onFilterChange as (whereCondition: WhereCondition) => void} pageKey={props.storageKey} />}
+              {props.canEdit(props.permission?.roles) && (
+                <Button icon={<PlusCircle />} iconPosition="left" onClick={openCreateSheet}>
+                  Create
+                </Button>
+              )}
             </>
           )}
         </div>

@@ -6,11 +6,10 @@ import { switchStyles } from './switch.styles'
 import { cn } from '../../lib/utils'
 
 const { base, thumb } = switchStyles()
-const Switch = React.forwardRef<React.ElementRef<typeof SwitchPrimitives.Root>, React.ComponentPropsWithoutRef<typeof SwitchPrimitives.Root>>(({ className, ...props }, ref) => (
+const Switch = ({ className, ref, ...props }: React.ComponentPropsWithoutRef<typeof SwitchPrimitives.Root> & { ref?: React.Ref<React.ComponentRef<typeof SwitchPrimitives.Root>> }) => (
   <SwitchPrimitives.Root className={cn(base(), className)} {...props} ref={ref}>
     <SwitchPrimitives.Thumb className={thumb()} />
   </SwitchPrimitives.Root>
-))
-Switch.displayName = SwitchPrimitives.Root.displayName
+)
 
 export { Switch }

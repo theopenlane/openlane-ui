@@ -108,20 +108,17 @@ export const topNavigationItems = (session: Session | null): (NavItem | Separato
       plan: PlanEnum.COMPLIANCE_MODULE,
       icon: LibraryBig,
       href: '/registry',
-      hidden: true,
-      // hidden: session?.user?.isOnboarding || billingExpired,
+      hidden: session?.user?.isOnboarding || billingExpired,
       children: [
         {
           title: 'Assets',
           href: '/registry/assets',
           icon: Laptop,
-          hidden: true,
         },
         {
           title: 'Vendors',
           href: '/registry/vendors',
           icon: Building2,
-          hidden: true,
         },
         {
           title: 'Personnel',

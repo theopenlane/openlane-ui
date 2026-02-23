@@ -10,14 +10,12 @@ type TCheckboxProps = React.ComponentPropsWithoutRef<typeof CheckboxPrimitive.Ro
   stroke?: number
 }
 
-const Checkbox = React.forwardRef<React.ElementRef<typeof CheckboxPrimitive.Root>, TCheckboxProps>(({ className, stroke = 2, ...props }, ref) => (
+const Checkbox = ({ className, stroke = 2, ref, ...props }: TCheckboxProps & { ref?: React.Ref<React.ComponentRef<typeof CheckboxPrimitive.Root>> }) => (
   <CheckboxPrimitive.Root ref={ref} className={cn(root(), className)} {...props}>
     <CheckboxPrimitive.Indicator className={cn(indicator(), className)}>
       <Check className={cn(checkIcon(), className)} strokeWidth={stroke} />
     </CheckboxPrimitive.Indicator>
   </CheckboxPrimitive.Root>
-))
-
-Checkbox.displayName = CheckboxPrimitive.Root.displayName
+)
 
 export { Checkbox }

@@ -5,15 +5,13 @@ const textareaStyles = cn(
   'flex min-h-[80px] w-full rounded-md border border-border-light dark:border-border-dark bg-input px-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-hidden  disabled:cursor-not-allowed disabled:opacity-50 md:text-sm',
 )
 
-const Textarea = React.forwardRef<HTMLTextAreaElement, React.ComponentProps<'textarea'>>(({ className, ...props }, ref) => {
+const Textarea = ({ className, ref, ...props }: React.ComponentProps<'textarea'> & { ref?: React.Ref<HTMLTextAreaElement> }) => {
   return <textarea className={cn(textareaStyles, className)} ref={ref} {...props} />
-})
-
-Textarea.displayName = 'Textarea'
+}
 
 type EditableTextareaProps = React.ComponentProps<'textarea'>
 
-const EditableTextarea = React.forwardRef<HTMLTextAreaElement, EditableTextareaProps>(({ className, ...props }, ref) => {
+const EditableTextarea = ({ className, ref, ...props }: EditableTextareaProps & { ref?: React.Ref<HTMLTextAreaElement> }) => {
   const textareaRef = React.useRef<HTMLTextAreaElement>(null)
   const [editing, setEditing] = React.useState<boolean>(false)
 
@@ -32,8 +30,6 @@ const EditableTextarea = React.forwardRef<HTMLTextAreaElement, EditableTextareaP
       {props.value || props.placeholder}
     </p>
   )
-})
-
-EditableTextarea.displayName = 'EditableTextarea'
+}
 
 export { Textarea, EditableTextarea }

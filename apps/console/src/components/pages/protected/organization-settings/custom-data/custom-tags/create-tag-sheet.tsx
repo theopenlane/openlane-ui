@@ -68,7 +68,7 @@ export const CreateTagSheet = ({ resetPagination }: { resetPagination: () => voi
     if (tagData?.tagDefinition) {
       const t = tagData.tagDefinition
       setValue('name', t.name ?? '')
-      setValue('aliases', Array.isArray(t.aliases) ? t.aliases.join(', ') : t.aliases ?? '')
+      setValue('aliases', Array.isArray(t.aliases) ? t.aliases.join(', ') : (t.aliases ?? ''))
       setValue('description', t.description ?? '')
       setValue('color', t.color?.startsWith('#') ? t.color : `#${t.color || '6366f1'}`)
     }

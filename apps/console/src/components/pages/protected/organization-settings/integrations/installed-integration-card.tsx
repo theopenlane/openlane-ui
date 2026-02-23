@@ -1,18 +1,39 @@
 'use client'
 
 import React, { useState } from 'react'
-import { MoreHorizontal, ArrowLeftRight } from 'lucide-react'
+import { MoreHorizontal } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { Badge } from '@repo/ui/badge'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader } from '@repo/ui/cardpanel'
+import { Card, CardContent, CardFooter, CardHeader } from '@repo/ui/cardpanel'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
-import { Logo } from '@repo/ui/logo'
-import { AVAILABLE_INTEGRATIONS, getIntegrationId, IntegrationNode } from './config'
+import {
+  getInstalledIntegrationConfig,
+  HEALTH_CHECK_STALE_TIME_MS,
+  installedIntegrationDisplayName,
+  IntegrationNode,
+  IntegrationProvider,
+  parseIntegrationErrorMessage,
+  providerSupportsHealth,
+} from './config'
 import { useDisconnectIntegration } from '@/lib/graphql-hooks/integration'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
-import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
+import { useQuery } from '@tanstack/react-query'
+import { formatDate } from '@/utils/date'
+import IntegrationTagList from './integration-tag-list'
+import IntegrationCardIcons from './integration-card-icons'
+import DocsLinkTooltip from './docs-link-tooltip'
 
-const InstalledIntegrationCard = ({ integration }: { integration: IntegrationNode }) => {
+type HealthResponse = {
+  status?: string
+  summary?: string
+}
+
+type InstalledIntegrationCardProps = {
+  integration: IntegrationNode
+  providers: IntegrationProvider[]
+}
+
+const InstalledIntegrationCard = ({ integration, providers }: InstalledIntegrationCardProps) => {
   const disconnectMutation = useDisconnectIntegration()
   const [confirmOpen, setConfirmOpen] = useState(false)
 
@@ -21,44 +42,76 @@ const InstalledIntegrationCard = ({ integration }: { integration: IntegrationNod
     setConfirmOpen(false)
   }
 
-  const integrationId = getIntegrationId(integration.name)
-  const integrationConfig = AVAILABLE_INTEGRATIONS.find((ai) => ai.id === integrationId)
+  const integrationConfig = getInstalledIntegrationConfig(integration, providers)
+  const provider = integrationConfig?.provider
+  const displayName = installedIntegrationDisplayName(integration, providers)
+  const supportsHealth = providerSupportsHealth(provider)
+  const tags = provider?.tags?.length ? provider.tags : integration.tags
+  const description = provider?.description || integration.description || 'Connect to keep your workflows connected and risks actionable.'
+
+  const healthQuery = useQuery<HealthResponse>({
+    queryKey: ['integrationHealth', provider?.name],
+    queryFn: async () => {
+      if (!provider) {
+        return {}
+      }
+
+      const res = await fetch(`/api/integrations/health?provider=${encodeURIComponent(provider.name)}`)
+      if (!res.ok) {
+        throw new Error(await parseIntegrationErrorMessage(res))
+      }
+      return (await res.json()) as HealthResponse
+    },
+    enabled: Boolean(provider?.name && supportsHealth),
+    staleTime: HEALTH_CHECK_STALE_TIME_MS,
+    retry: false,
+    refetchOnWindowFocus: false,
+  })
+
+  const healthStatus = getHealthStatus(supportsHealth, healthQuery.isPending, healthQuery.isError, healthQuery.data)
 
   return (
     <>
-      <Card className="h-full justify-between flex flex-col min-h-[300px]">
-        <div>
-          <CardHeader className="flex-row items-start gap-3 space-y-0">
+      <Card className="relative flex h-full min-h-[300px] flex-col overflow-visible transition-all duration-300 hover:scale-[1.03] hover:shadow-xl hover:-translate-y-1">
+        <CardHeader className="relative flex-row items-start gap-3 space-y-0 pb-3">
+          {integrationConfig?.docsUrl ? <DocsLinkTooltip href={integrationConfig.docsUrl} label={displayName} /> : null}
+
+          <div className="w-full">
             <div className="flex gap-4">
-              <div className="flex items-center gap-1 self-start">
-                <div className="w-[34px] h-[34px] border rounded-full flex items-center justify-center ">
-                  <Logo asIcon width={16} />
-                </div>
-                <ArrowLeftRight size={8} />
-                <div className="w-[42px] h-[42px] border rounded-full flex items-center justify-center">{integrationConfig?.Icon}</div>
-              </div>
-              <div className="flex flex-col">
-                <span>{integration.name}</span>
-                <div className="mt-2 flex flex-wrap gap-1.5">
-                  {integration.tags?.length ? (
-                    <>
-                      {integration.tags.slice(0, 6).map((t, i) => (
-                        <TagChip key={i} tag={t} />
-                      ))}
-                      {integration.tags.length > 6 && <Badge variant="outline">+{integration.tags.length - 6}</Badge>}
-                    </>
-                  ) : null}
-                </div>
+              <IntegrationCardIcons providerName={provider?.name ?? integration.kind ?? integration.name} />
+
+              <div className="flex min-w-0 flex-1 flex-col justify-center self-center">
+                <span className="truncate">{displayName}</span>
               </div>
             </div>
-          </CardHeader>
 
-          <CardContent className="pt-0">
-            <CardDescription className="line-clamp-5">{integration.description || 'Connect to keep your workflows connected and risks actionable.'}</CardDescription>
-          </CardContent>
-        </div>
+            <div className="mt-2 flex min-h-[22px]">
+              <Badge variant={healthStatus.variant} title={healthStatus.summary}>
+                {healthStatus.label}
+              </Badge>
+            </div>
 
-        <CardFooter className="justify-between gap-2.5 flex-1 items-end">
+            <div className="mt-3 border-t pt-3 mb-1">
+              <IntegrationTagList tags={tags ?? []} />
+            </div>
+          </div>
+        </CardHeader>
+
+        <CardContent className="flex min-h-[112px] flex-1 items-center pt-4 pb-2">
+          <div className="w-full">
+            <p className="line-clamp-3 text-sm text-muted-foreground">{description}</p>
+            {(integration.createdBy || integration.createdAt) && (
+              <p className="mt-2 text-xs text-muted-foreground line-clamp-1">
+                Configured
+                {integration.createdBy ? ` by ${integration.createdBy}` : ''}
+                {integration.createdAt ? ` on ${formatDate(integration.createdAt)}` : ''}
+              </p>
+            )}
+            {healthStatus.summary ? <p className="text-xs text-muted-foreground mt-2 line-clamp-1">{healthStatus.summary}</p> : null}
+          </div>
+        </CardContent>
+
+        <CardFooter className="mt-auto gap-2 pt-0">
           <Button className="w-full" disabled>
             Installed
           </Button>
@@ -69,9 +122,6 @@ const InstalledIntegrationCard = ({ integration }: { integration: IntegrationNod
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <a href={integrationConfig?.docsUrl} target="_blank" rel="noreferrer">
-                <DropdownMenuItem>Read docs</DropdownMenuItem>
-              </a>
               <DropdownMenuItem onClick={() => setConfirmOpen(true)}>Disconnect</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -82,8 +132,8 @@ const InstalledIntegrationCard = ({ integration }: { integration: IntegrationNod
         open={confirmOpen}
         onOpenChange={setConfirmOpen}
         onConfirm={handleDisconnect}
-        title={`Disconnect ${integration.name}?`}
-        description={`This will disconnect ${integration.name}. You can reconnect it later if needed.`}
+        title={`Disconnect ${displayName}?`}
+        description={`This will disconnect ${displayName}. You can reconnect it later if needed.`}
         confirmationText="Disconnect"
         confirmationTextVariant="destructive"
       />
@@ -92,3 +142,33 @@ const InstalledIntegrationCard = ({ integration }: { integration: IntegrationNod
 }
 
 export default InstalledIntegrationCard
+
+function getHealthStatus(
+  supportsHealth: boolean,
+  isLoading: boolean,
+  isError: boolean,
+  data?: HealthResponse,
+): {
+  label: string
+  summary?: string
+  variant: 'default' | 'secondary' | 'destructive' | 'outline'
+} {
+  if (!supportsHealth) {
+    return { label: 'No Health Check', variant: 'outline' }
+  }
+
+  if (isLoading) {
+    return { label: 'Checking Health', variant: 'secondary' }
+  }
+
+  if (isError) {
+    return { label: 'Needs Attention', summary: 'Health check failed.', variant: 'destructive' }
+  }
+
+  const status = (data?.status ?? '').toLowerCase()
+  if (status === 'ok') {
+    return { label: 'Healthy', summary: data?.summary, variant: 'default' }
+  }
+
+  return { label: 'Needs Attention', summary: data?.summary || 'Health check did not report a successful state.', variant: 'destructive' }
+}

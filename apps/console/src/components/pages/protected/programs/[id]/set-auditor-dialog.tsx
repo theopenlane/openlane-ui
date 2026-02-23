@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
+import type { Resolver } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogFooter, DialogTitle } from '@repo/ui/dialog'
@@ -40,7 +41,7 @@ export const SetAuditorDialog = () => {
   const { mutateAsync: update } = useUpdateProgram()
 
   const form = useForm<SetAuditorFormValues>({
-    resolver: zodResolver(setAuditorSchema),
+    resolver: zodResolver(setAuditorSchema) as Resolver<SetAuditorFormValues>,
     defaultValues: {
       auditorName: '',
       auditFirm: '',

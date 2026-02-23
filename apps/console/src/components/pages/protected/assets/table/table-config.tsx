@@ -2,13 +2,14 @@ import { FilterField } from '@/types'
 import { ObjectNames } from '@repo/codegen/src/type-names'
 import React from 'react'
 import NameField from '../create/form/fields/name-field'
-import { AssetAssetType, AssetQuery, AssetSourceType, UpdateAssetInput } from '@repo/codegen/src/schema'
+import { AssetAssetType, AssetQuery, AssetSourceType, AssetOrderField } from '@repo/codegen/src/schema'
 import DescriptionField from '../create/form/fields/description-field'
 import { AdditionalFields } from '../create/form/fields/additional-fields'
 import Properties from '../create/form/fields/properties'
-import { FieldValues } from 'react-hook-form'
 import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
+import { AssetFieldProps, EnumOptions } from './types'
+import { enumToSortFields } from '@/components/shared/crud-base/utils'
 
 export const formId = 'edit' + ObjectNames.ASSET
 
@@ -18,21 +19,9 @@ export const breadcrumbs = [
   { label: 'Assets', href: '/assets' },
 ]
 
-type CustomEnumOption = { label: string; value: string }
-
-export const getFilterFields = (
-  accessModelOptions: CustomEnumOption[] = [],
-  assetDataClassificationOptions: CustomEnumOption[] = [],
-  assetSubtypeOptions: CustomEnumOption[] = [],
-  criticalityOptions: CustomEnumOption[] = [],
-  encryptionStatusOptions: CustomEnumOption[] = [],
-  environmentOptions: CustomEnumOption[] = [],
-  tagOptions: CustomEnumOption[] = [],
-  scopeOptions: CustomEnumOption[] = [],
-  securityTierOptions: CustomEnumOption[] = [],
-): FilterField[] => [
+export const getFilterFields = (enumOptions: EnumOptions): FilterField[] => [
   {
-    key: 'assetType',
+    key: 'assetTypeIn',
     label: 'Asset Type',
     type: 'multiselect',
     icon: FilterIcons.Type,
@@ -42,11 +31,11 @@ export const getFilterFields = (
     key: 'subtypeNameIn',
     label: 'Subtype',
     type: 'multiselect',
-    options: assetSubtypeOptions,
+    options: enumOptions.assetSubtypeOptions,
     icon: FilterIcons.Subcategory,
   },
   {
-    key: 'sourceType',
+    key: 'sourceTypeIn',
     label: 'Source Type',
     type: 'multiselect',
     icon: FilterIcons.Source,
@@ -66,14 +55,14 @@ export const getFilterFields = (
     key: 'accessModelNameIn',
     label: 'Access Model',
     type: 'multiselect',
-    options: accessModelOptions,
+    options: enumOptions.accessModelOptions,
     icon: FilterIcons.Access,
   },
   {
     key: 'dataClassificationNameIn',
     label: 'Data Classification',
     type: 'multiselect',
-    options: assetDataClassificationOptions,
+    options: enumOptions.assetDataClassificationOptions,
     icon: FilterIcons.Category,
   },
   {
@@ -87,28 +76,28 @@ export const getFilterFields = (
     label: 'Criticality',
     type: 'multiselect',
     icon: FilterIcons.Criticality,
-    options: criticalityOptions,
+    options: enumOptions.criticalityOptions,
   },
   {
     key: 'encryptionStatusNameIn',
     label: 'Encryption Status',
     type: 'multiselect',
     icon: FilterIcons.Security,
-    options: encryptionStatusOptions,
+    options: enumOptions.encryptionStatusOptions,
   },
   {
     key: 'environmentNameIn',
     label: 'Environment',
     type: 'multiselect',
     icon: FilterIcons.Environment,
-    options: environmentOptions,
+    options: enumOptions.environmentOptions,
   },
   {
     key: 'scopeNameIn',
     label: 'Scope',
     type: 'multiselect',
     icon: FilterIcons.Scope,
-    options: scopeOptions,
+    options: enumOptions.scopeOptions,
   },
   {
     key: 'physicalLocationContains',
@@ -121,7 +110,7 @@ export const getFilterFields = (
     label: 'Security Tier',
     type: 'multiselect',
     icon: FilterIcons.Tier,
-    options: securityTierOptions,
+    options: enumOptions.securityTierOptions,
   },
   {
     key: 'regionNameContains',
@@ -134,29 +123,24 @@ export const getFilterFields = (
     label: 'Tags',
     type: 'dropdownSearchSingleSelect',
     icon: FilterIcons.Status,
-    options: tagOptions,
+    options: enumOptions.tagOptions,
   },
 ]
 
-export const ASSETS_SORT_FIELDS = [
-  { key: 'name', label: 'Name' },
-  { key: 'updatedAt', label: 'Last Updated' },
-  { key: 'createdAt', label: 'Created Date' },
-]
-
+export const ASSETS_SORT_FIELDS = enumToSortFields(AssetOrderField)
 export const visibilityFields = {
   id: false,
   name: true,
-  description: true,
-  accessModelName: true,
-  assetDataClassificationName: true,
-  assetSubtypeName: true,
+  description: false,
+  accessModelName: false,
+  assetDataClassificationName: false,
+  assetSubtypeName: false,
   assetType: true,
   costCenter: false,
   cpe: false,
-  criticalityName: true,
+  criticalityName: false,
   containsPii: true,
-  encryptionStatusName: true,
+  encryptionStatusName: false,
   environmentName: true,
   estimatedMonthlyCost: false,
   identifier: false,
@@ -164,59 +148,56 @@ export const visibilityFields = {
   purchaseDate: false,
   region: false,
   scopeName: true,
-  securityTierName: true,
-  sourceIdentifier: true,
-  sourceType: true,
-  tags: true,
+  securityTierName: false,
+  sourceIdentifier: false,
+  sourceType: false,
+  tags: false,
   updatedAt: true,
-  updatedBy: true,
+  updatedBy: false,
   website: false,
 }
 
-export const getFieldsToRender = (
-  isEditing: boolean,
-  isEditAllowed: boolean,
-  isCreate: boolean,
-  data: FieldValues | AssetQuery['asset'] | undefined,
-  internalEditing: string | null,
-  setInternalEditing: (field: string | null) => void,
-  handleUpdateField?: (input: UpdateAssetInput) => Promise<void>,
-  isFormInitialized?: boolean,
-  id?: string,
-): React.ReactNode => {
+export const getFieldsToRender = (props: AssetFieldProps, enumOptions: EnumOptions) => {
   return (
-    <>
-      <NameField
-        isEditing={isEditing}
-        isEditAllowed={isEditAllowed}
-        initialValue={isCreate ? '' : data?.name ?? ''}
-        internalEditing={internalEditing}
-        setInternalEditing={setInternalEditing}
-        handleUpdateField={handleUpdateField}
-      />
+    <div className="mr-6">
+      <div className="flex flex-row items-center mb-6">
+        <div className="min-w-[300px]">
+          <NameField
+            isEditing={props.isEditing}
+            isEditAllowed={props.isEditAllowed}
+            initialValue={props.isCreate ? '' : (props.data?.name ?? '')}
+            internalEditing={props.internalEditing}
+            setInternalEditing={props.setInternalEditing}
+            handleUpdateField={props.handleUpdateField}
+          />
+        </div>
+        <div className="ml-20 mt-6">
+          <Properties
+            isEditing={props.isEditing}
+            isEditAllowed={props.isEditAllowed}
+            data={props.data as AssetQuery['asset'] | undefined}
+            internalEditing={props.internalEditing}
+            setInternalEditing={props.setInternalEditing}
+            handleUpdateField={props.handleUpdateField}
+          />
+        </div>
+      </div>
       <DescriptionField
-        key={isCreate ? 'create-description' : `${id}-description`}
-        isEditing={isEditing}
-        isCreate={isCreate}
-        initialValue={isCreate ? '' : data?.description ?? ''}
-        isFormInitialized={isFormInitialized}
+        key={props.isCreate ? 'create-description' : `${props.data?.id}-description`}
+        isEditing={props.isEditing}
+        isCreate={props.isCreate}
+        initialValue={props.isCreate ? '' : (props.data?.description ?? '')}
+        isFormInitialized={props.isFormInitialized}
       />
       <AdditionalFields
-        isEditing={isEditing}
-        isEditAllowed={isEditAllowed}
-        data={data}
-        internalEditing={internalEditing}
-        setInternalEditing={setInternalEditing}
-        handleUpdateField={handleUpdateField}
+        isEditing={props.isEditing}
+        isEditAllowed={props.isEditAllowed}
+        data={props.data}
+        internalEditing={props.internalEditing}
+        setInternalEditing={props.setInternalEditing}
+        handleUpdateField={props.handleUpdateField}
+        enumOptions={enumOptions}
       />
-      <Properties
-        isEditing={isEditing}
-        isEditAllowed={isEditAllowed}
-        data={data as AssetQuery['asset'] | undefined}
-        internalEditing={internalEditing}
-        setInternalEditing={setInternalEditing}
-        handleUpdateField={handleUpdateField}
-      />
-    </>
+    </div>
   )
 }

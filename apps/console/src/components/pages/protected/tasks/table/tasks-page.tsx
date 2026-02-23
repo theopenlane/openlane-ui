@@ -79,10 +79,6 @@ const TasksPage: React.FC = () => {
 
     let statusInSet = false
 
-    let base = {
-      titleContainsFold: debouncedSearch,
-    }
-
     const result = whereGenerator<TaskWhereInput>(filters, (key, value) => {
       if (key === 'hasProgramsWith') {
         return { hasProgramsWith: [{ idIn: value }] } as TaskWhereInput
@@ -93,12 +89,16 @@ const TasksPage: React.FC = () => {
       return { [key]: value } as TaskWhereInput
     })
 
-    base = {
-      ...base,
+    const merged: TaskWhereInput = {
+      ...result,
       ...(!statusInSet && { statusIn: statusesWithoutCompleteAndWontDo }),
     }
 
-    return { ...base, ...result }
+    if (debouncedSearch) {
+      merged.and = [...(merged.and || []), { or: [{ titleContainsFold: debouncedSearch }, { detailsContainsFold: debouncedSearch }] }]
+    }
+
+    return merged
   }, [filters, debouncedSearch, statusesWithoutCompleteAndWontDo])
 
   useEffect(() => {

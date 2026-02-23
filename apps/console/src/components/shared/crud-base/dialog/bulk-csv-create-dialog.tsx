@@ -38,8 +38,8 @@ const GenericBulkCSVCreateDialog: React.FC<GenericBulkCsvCreateDialogProps> = ({
     try {
       await onBulkCreate(uploadedFile.file)
       successNotification({
-        title: `${entityLabelPlural} Created`,
-        description: `${entityLabelPlural} have been successfully created`,
+        title: `${toHumanLabel(entityLabelPlural)} Created`,
+        description: `The ${toHumanLabel(entityLabelPlural)} have been successfully created`,
       })
       setIsOpen(false)
     } catch (error) {

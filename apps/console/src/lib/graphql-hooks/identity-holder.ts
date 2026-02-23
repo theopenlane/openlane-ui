@@ -12,7 +12,7 @@ import {
   IdentityHolderQuery,
   IdentityHolderQueryVariables,
   CreateBulkCsvIdentityHolderMutation,
-  CreateBulkCsvTaskMutationVariables,
+  CreateBulkCsvIdentityHolderMutationVariables,
   UpdateBulkIdentityHolderMutation,
   UpdateBulkIdentityHolderMutationVariables,
   DeleteBulkIdentityHolderMutation,
@@ -107,7 +107,7 @@ export const useIdentityHolder = (identityHolderId?: IdentityHolderQueryVariable
 
 export const useCreateBulkCSVIdentityHolder = () => {
   const { queryClient } = useGraphQLClient()
-  return useMutation<CreateBulkCsvIdentityHolderMutation, unknown, CreateBulkCsvTaskMutationVariables>({
+  return useMutation<CreateBulkCsvIdentityHolderMutation, unknown, CreateBulkCsvIdentityHolderMutationVariables>({
     mutationFn: async (variables) => fetchGraphQLWithUpload({ query: CREATE_CSV_BULK_IDENTITY_HOLDER, variables }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['identityHolders'] })

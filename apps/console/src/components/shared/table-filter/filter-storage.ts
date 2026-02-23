@@ -104,6 +104,7 @@ export function loadFilters(pageKey: TableKeyValue, filterFields?: FilterField[]
 
     const validKeys = filterFields.map((f) => f.key)
     const filtered = Object.fromEntries(Object.entries(parsed).filter(([key]) => validKeys.includes(key))) as TFilterState
+
     return validateValues(filtered, filterFields)
   } catch {
     console.warn(`Invalid filters found in storage for ${pageKey}`)
@@ -150,6 +151,7 @@ const validateValues = (values: TFilterState, filterFields: FilterField[]): TFil
       }
 
       case 'boolean':
+      case 'radio':
         if (typeof value === 'boolean') {
           result[key] = value
         }

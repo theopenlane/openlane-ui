@@ -23,13 +23,14 @@ export interface ExampleEvidence {
 
 interface AccordionInfoProps {
   implementationGuidance: { referenceId: string; guidance: string[] }[] | null | undefined
+  testingProcedures: { referenceId: string; procedures: string[] }[] | null | undefined
   exampleEvidence: ExampleEvidence[] | null | undefined
   controlQuestions: string[] | null | undefined
   assessmentMethods: AssessmentMethod[] | string | string[] | null | undefined
   assessmentObjectives: AssessmentObjective[] | string | string[] | null | undefined
 }
 
-const AccordionInfo: React.FC<AccordionInfoProps> = ({ implementationGuidance, exampleEvidence, controlQuestions, assessmentMethods, assessmentObjectives }) => {
+const AccordionInfo: React.FC<AccordionInfoProps> = ({ implementationGuidance, testingProcedures, exampleEvidence, controlQuestions, assessmentMethods, assessmentObjectives }) => {
   const infoItems = React.useMemo(
     () =>
       [
@@ -40,7 +41,7 @@ const AccordionInfo: React.FC<AccordionInfoProps> = ({ implementationGuidance, e
             implementationGuidance?.length ? (
               <div className="space-y-4">
                 {implementationGuidance.map(({ referenceId, guidance }) => (
-                  <div key={referenceId} className="rich-text text-sm text-muted-foreground">
+                  <div key={referenceId} className="rich-text text-sm text-muted-foreground pb-2">
                     <ul>
                       {guidance.map((g, i) => (
                         <li key={i} dangerouslySetInnerHTML={{ __html: g.trim() }} />
@@ -52,6 +53,23 @@ const AccordionInfo: React.FC<AccordionInfoProps> = ({ implementationGuidance, e
             ) : (
               <p className="text-sm text-muted-foreground">No implementation guidance provided.</p>
             ),
+        },
+        {
+          label: 'Testing procedures',
+          hasData: !!testingProcedures?.length,
+          render: () => (
+            <div className="space-y-4">
+              {testingProcedures!.map(({ referenceId, procedures }, idx) => (
+                <div key={`${referenceId}-${idx}`} className="rich-text text-sm text-muted-foreground">
+                  <ul>
+                    {procedures.map((p, i) => (
+                      <li key={i} dangerouslySetInnerHTML={{ __html: p.trim() }} />
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          ),
         },
         {
           label: 'Evidence Requests',
@@ -129,7 +147,7 @@ const AccordionInfo: React.FC<AccordionInfoProps> = ({ implementationGuidance, e
             ),
         },
       ].filter((item) => item.hasData),
-    [implementationGuidance, exampleEvidence, controlQuestions, assessmentMethods, assessmentObjectives],
+    [implementationGuidance, testingProcedures, exampleEvidence, controlQuestions, assessmentMethods, assessmentObjectives],
   )
 
   if (infoItems.length === 0) return null
@@ -143,7 +161,7 @@ const AccordionInfo: React.FC<AccordionInfoProps> = ({ implementationGuidance, e
               <div className="flex items-center gap-2">
                 <span className="text-base font-medium">{item.label}</span>
               </div>
-              <ChevronDown size={22} className="text-brand transform transition-transform group-data-[state=open]:rotate-0" />
+              <ChevronDown size={22} className="text-brand transform -rotate-90 transition-transform group-data-[state=open]:rotate-0" />
             </button>
           </AccordionTrigger>
           <AccordionContent className="pt-2">{item.render()}</AccordionContent>

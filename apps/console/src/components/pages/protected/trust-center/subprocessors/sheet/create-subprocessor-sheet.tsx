@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
+import type { Resolver } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { PanelRightClose } from 'lucide-react'
@@ -65,7 +66,7 @@ export const CreateSubprocessorSheet = ({ onCreateSuccess, trigger, open: contro
   const { mutateAsync: createSubprocessor } = useCreateSubprocessor()
 
   const formMethods = useForm<FormData>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(schema) as Resolver<FormData>,
     defaultValues: {
       name: '',
       description: '',
@@ -79,9 +80,11 @@ export const CreateSubprocessorSheet = ({ onCreateSuccess, trigger, open: contro
   const { handleSubmit, reset, formState, watch } = formMethods
   const { isSubmitting } = formState
 
+  /* eslint-disable react-hooks/incompatible-library */
   const currentUploadMode = watch('uploadMode')
   const currentFile = watch('logoFile')
   const currentUrl = watch('logoUrl')
+  /* eslint-enable react-hooks/incompatible-library */
 
   const isSubmitDisabled = currentUploadMode === 'file' ? !currentFile : !currentUrl
 

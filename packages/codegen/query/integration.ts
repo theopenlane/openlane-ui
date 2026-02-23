@@ -7,8 +7,11 @@ export const GET_INTEGRATIONS = gql`
         node {
           id
           name
+          kind
           tags
           description
+          createdAt
+          createdBy
         }
       }
     }

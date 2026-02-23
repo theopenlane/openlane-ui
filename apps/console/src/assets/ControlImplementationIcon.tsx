@@ -1,7 +1,7 @@
-import * as React from 'react'
+import type { Ref } from 'react'
 import type { LucideProps } from 'lucide-react'
 
-const ControlImplementationIcon = React.forwardRef<SVGSVGElement, LucideProps>(({ className, size = 18, strokeWidth = 2, ...props }, ref) => (
+const ControlImplementationIcon = ({ className, size = 18, strokeWidth = 2, ref, ...props }: LucideProps & { ref?: Ref<SVGSVGElement> }) => (
   <svg ref={ref} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 18 18" fill="currentColor" stroke="none" className={className} strokeWidth={strokeWidth} {...props}>
     <path d="M12.2434 9.1499C12.2434 7.63489 11.0153 6.40674 9.50026 6.40674C7.98527 6.40678 6.75714 7.63491 6.7571 9.1499C6.7571 10.6649 7.98525 11.893 9.50026 11.8931C11.0153 11.8931 12.2434 10.665 12.2434 9.1499ZM13.2434 9.1499C13.2434 11.2172 11.5676 12.8931 9.50026 12.8931C7.43296 12.893 5.7571 11.2172 5.7571 9.1499C5.75714 7.08263 7.43299 5.40678 9.50026 5.40674C11.5676 5.40674 13.2434 7.0826 13.2434 9.1499Z" />
     <path d="M10.6651 4.94678C10.7773 4.69448 11.073 4.58073 11.3253 4.69287C11.5775 4.80506 11.6913 5.10075 11.5792 5.35303L11.1466 6.32568C11.0344 6.57803 10.7388 6.69174 10.4864 6.57959C10.2342 6.4674 10.1204 6.17174 10.2325 5.91943L10.6651 4.94678Z" />
@@ -17,7 +17,6 @@ const ControlImplementationIcon = React.forwardRef<SVGSVGElement, LucideProps>((
     <path d="M5.02873 15.5519C4.82032 15.5519 4.65137 15.3829 4.65137 15.1745C4.65137 14.9661 4.82032 14.7972 5.02873 14.7972L10.1231 14.7972C10.3315 14.7972 10.5004 14.9661 10.5004 15.1745C10.5004 15.3829 10.3315 15.5519 10.1231 15.5519L5.02873 15.5519Z" />
     <path d="M1 15.1748C1.00015 16.0448 1.70615 16.75 2.57617 16.75C3.44606 16.7498 4.15122 16.0447 4.15137 15.1748C4.15137 14.3048 3.44615 13.5988 2.57617 13.5986C1.70606 13.5986 1 14.3047 1 15.1748ZM0 15.1748C1.2435e-07 13.7524 1.15378 12.5986 2.57617 12.5986C3.99844 12.5988 5.15137 13.7525 5.15137 15.1748C5.15122 16.597 3.99835 17.7498 2.57617 17.75C1.15387 17.75 0.000149138 16.5971 0 15.1748Z" />
   </svg>
-))
+)
 
-ControlImplementationIcon.displayName = 'ControlImplementationIcon'
 export default ControlImplementationIcon

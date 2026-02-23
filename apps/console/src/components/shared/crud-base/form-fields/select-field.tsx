@@ -4,31 +4,30 @@ import { FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { FieldValues, useFormContext } from 'react-hook-form'
 import { CustomTypeEnumOptionChip, CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
-
+import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
 import { useState } from 'react'
-import { Plus } from 'lucide-react'
+import { Plus, InfoIcon } from 'lucide-react'
 import { InternalEditingType } from '../generic-sheet'
 
-interface SelectFieldProps {
+interface SelectFieldProps<TUpdateInput> {
   name: string
   label: string
   isEditing: boolean
   isEditAllowed: boolean
   isCreate?: boolean
   data?: FieldValues | undefined
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  options: Array<{ value: string; label: string; [key: string]: any }>
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  handleUpdate?: (input: any) => Promise<void>
+  options: Array<{ label: string; value: string }>
+  handleUpdate?: (input: TUpdateInput) => Promise<void>
   internalEditing: string | null
   setInternalEditing: InternalEditingType
   onCreateOption?: (value: string) => Promise<void>
   useCustomDisplay?: boolean
+  tooltipContent?: string
 }
 
-export const SelectField: React.FC<SelectFieldProps> = ({
+export const SelectField = <TUpdateInput,>({
   name,
   label,
   isEditing,
@@ -41,7 +40,8 @@ export const SelectField: React.FC<SelectFieldProps> = ({
   setInternalEditing,
   onCreateOption,
   useCustomDisplay = true,
-}) => {
+  tooltipContent,
+}: SelectFieldProps<TUpdateInput>) => {
   const { control } = useFormContext()
   const rawValue = data?.[name]
   const [showCreateInput, setShowCreateInput] = useState(false)
@@ -67,7 +67,10 @@ export const SelectField: React.FC<SelectFieldProps> = ({
       name={name}
       render={({ field }) => (
         <FormItem>
-          <FormLabel>{label}</FormLabel>
+          <div className="flex items-center gap-1">
+            <FormLabel>{label}</FormLabel>
+            {tooltipContent && <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={tooltipContent} />}
+          </div>
           <FormControl>
             {shouldShowInput ? (
               <Select
@@ -75,7 +78,7 @@ export const SelectField: React.FC<SelectFieldProps> = ({
                 onValueChange={async (val) => {
                   field.onChange(val)
                   if (handleUpdate) {
-                    await Promise.resolve(handleUpdate({ [name]: val }))
+                    await Promise.resolve(handleUpdate({ [name]: val } as unknown as TUpdateInput))
                   }
                   setInternalEditing(null)
                 }}
@@ -130,7 +133,7 @@ export const SelectField: React.FC<SelectFieldProps> = ({
               </Select>
             ) : (
               <div
-                className="text-sm py-2 rounded cursor-pointer hover:bg-accent"
+                className="text-sm py-2 rounded-md cursor-pointer hover:bg-accent px-1 w-full"
                 onClick={() => {
                   if (isEditAllowed) {
                     setInternalEditing(name)

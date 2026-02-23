@@ -107,3 +107,9 @@ const computeDueDate = (responseDueDuration?: number | null): string | undefined
 }
 
 export { computeDueDate }
+
+const formatCurrency = (cost?: number | null): string | undefined => {
+  return cost ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(cost) : 'Not set'
+}
+
+export { formatCurrency }

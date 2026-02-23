@@ -7,6 +7,7 @@ import { Button } from '@repo/ui/button'
 import { Invoice } from '@/types/stripe'
 import { Card } from '@repo/ui/cardpanel'
 import { DownloadIcon } from 'lucide-react'
+import { InvoiceRowSkeleton } from './skeleton/billing-page-skeleton'
 
 const Invoices = ({ stripeCustomerId }: { stripeCustomerId: string | null | undefined }) => {
   const { data: invoicesData, isLoading, error } = useInvoicesQuery(stripeCustomerId)
@@ -40,7 +41,13 @@ const Invoices = ({ stripeCustomerId }: { stripeCustomerId: string | null | unde
       </div>
       {/* Invoices */}
       <Card>
-        {isLoading && <p className="p-4 text-sm ">Loading invoices…</p>}
+        {isLoading && (
+          <>
+            <InvoiceRowSkeleton />
+            <InvoiceRowSkeleton />
+            <InvoiceRowSkeleton />
+          </>
+        )}
 
         {error && <p className="p-4 text-sm text-destructive">Failed to load invoices</p>}
 

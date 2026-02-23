@@ -54,13 +54,19 @@ export const EvidenceTable = () => {
         }
       }
 
-      return { [key]: value } as EvidenceWhereInput
+      const nextWhere: EvidenceWhereInput = {}
+      Object.assign(nextWhere, { [key]: value })
+      return nextWhere
     })
 
     return {
       ...result,
       ...(programId ? { hasProgramsWith: [{ id: programId }] } : {}),
-      ...(debouncedSearch ? { nameContainsFold: debouncedSearch } : {}),
+      ...(debouncedSearch
+        ? {
+            and: [...(result.and || []), { or: [{ nameContainsFold: debouncedSearch }, { descriptionContainsFold: debouncedSearch }] }],
+          }
+        : {}),
     }
   }, [filters, programId, debouncedSearch])
 

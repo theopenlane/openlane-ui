@@ -1,8 +1,7 @@
 import { ColumnDef } from '@tanstack/react-table'
 import { ControlListFieldsFragment, Subcontrol } from '@repo/codegen/src/schema'
 import { Checkbox } from '@repo/ui/checkbox'
-import { CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema'
-import { UseFormReturn } from 'react-hook-form'
+import { CreateEvidenceFormMethods } from '@/components/pages/protected/evidence/hooks/use-form-schema'
 import { AccordionEnum } from './object-association-control-dialog'
 import { CustomEvidenceControl } from '@/components/pages/protected/evidence/evidence-sheet-config'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
@@ -10,7 +9,7 @@ import { ObjectTypes } from '@repo/codegen/src/type-names'
 type TColumnOptions = {
   selectedObject: AccordionEnum.Control | AccordionEnum.Subcontrol
   convertToReadOnly: (data: string, padding?: number, style?: React.CSSProperties) => React.JSX.Element
-  form: UseFormReturn<CreateEvidenceFormData>
+  form: CreateEvidenceFormMethods
   evidenceControls: CustomEvidenceControl[] | null
   setEvidenceControls: React.Dispatch<React.SetStateAction<CustomEvidenceControl[] | null>>
   evidenceSubcontrols: CustomEvidenceControl[] | null
@@ -124,7 +123,7 @@ export const getControlsAndSubcontrolsColumns = ({
       header: 'Description',
       size: 0,
       enableResizing: false,
-      cell: ({ row }) => <div className="line-clamp-2 overflow-hidden">{convertToReadOnly(row.getValue('description') as string, 0)}</div>,
+      cell: ({ row }) => <div className="line-clamp-2 overflow-hidden">{convertToReadOnly(row.original.description ?? '', 0)}</div>,
     },
   ]
 }

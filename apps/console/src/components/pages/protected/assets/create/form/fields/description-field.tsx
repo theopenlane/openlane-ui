@@ -5,7 +5,7 @@ import { useFormContext } from 'react-hook-form'
 import { FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { InfoIcon } from 'lucide-react'
-import { EditAssetFormData } from '../../../hooks/use-form-schema'
+import { AssetFormData } from '../../../hooks/use-form-schema'
 import PlateEditor from '@/components/shared/plate/plate-editor'
 import { Value } from 'platejs'
 
@@ -17,10 +17,8 @@ type DescriptionFieldProps = {
 }
 
 const DescriptionField: React.FC<DescriptionFieldProps> = ({ isEditing, isCreate, initialValue, isFormInitialized }) => {
-  const { control, formState } = useFormContext<EditAssetFormData>()
+  const { control, formState } = useFormContext<AssetFormData>()
   const hasInitialized = useRef(false)
-
-  console.log('Rendering DescriptionField with initialValue:', initialValue)
 
   return isEditing || isCreate ? (
     <FormField
@@ -60,9 +58,13 @@ const DescriptionField: React.FC<DescriptionFieldProps> = ({ isEditing, isCreate
         <label htmlFor="description" className="block text-lg my-1 font-semibold">
           Description
         </label>
-        <div className={'min-h-5'}>
-          <PlateEditor toolbarClassName="-mt-20" placeholder="No description set" key={JSON.stringify(initialValue)} initialValue={initialValue} readonly={true} variant="readonly" />
-        </div>
+        {initialValue ? (
+          <div className="min-h-5 pb-4">
+            <PlateEditor toolbarClassName="-mt-20" placeholder="No description set" key={JSON.stringify(initialValue)} initialValue={initialValue} readonly={true} variant="readonly" />
+          </div>
+        ) : (
+          <p className="text-muted-foreground italic pb-4">No description set</p>
+        )}
       </div>
     )
   )

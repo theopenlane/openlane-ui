@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { Accordion } from '@radix-ui/react-accordion'
 
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
+import type { Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { MappedControlMappingType, MappedControlMappingSource } from '@repo/codegen/src/schema'
 import { useNotification } from '@/hooks/useNotification'
@@ -48,7 +49,7 @@ const MapControlPage = () => {
   }
 
   const form = useForm<MapControlsFormData>({
-    resolver: zodResolver(mapControlsSchema),
+    resolver: zodResolver(mapControlsSchema) as Resolver<MapControlsFormData>,
     defaultValues: {
       mappingType: MappedControlMappingType.PARTIAL,
       source: MappedControlMappingSource.MANUAL,
@@ -103,6 +104,7 @@ const MapControlPage = () => {
     ])
   }, [isLoading, setCrumbs, subcontrolData?.subcontrol?.refCode, id, subcontrolId])
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (controlData) {
       setControlsCrumbs()
@@ -115,6 +117,7 @@ const MapControlPage = () => {
       setPresetControls([subcontrolData.subcontrol])
     }
   }, [setCrumbs, controlData, subcontrolData, form, isLoading, isLoadingSubcontrol, setControlsCrumbs, setSubControlsCrumbs])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   return (
     <>

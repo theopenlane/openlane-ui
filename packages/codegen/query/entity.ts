@@ -17,6 +17,7 @@ export const GET_ALL_ENTITIES = gql`
           createdBy
           description
           displayName
+          domains
           entityRelationshipStateID
           entityRelationshipStateName
           entitySecurityQuestionnaireStatusID
@@ -40,6 +41,7 @@ export const GET_ALL_ENTITIES = gql`
           reviewedBy
           reviewedByGroupID
           reviewedByUserID
+          reviewFrequency
           riskRating
           riskScore
           scopeID
@@ -47,6 +49,7 @@ export const GET_ALL_ENTITIES = gql`
           soc2PeriodEnd
           spendCurrency
           ssoEnforced
+          status
           statusPageURL
           systemOwned
           terminationNoticeDays
@@ -81,6 +84,7 @@ export const ENTITY = gql`
       createdBy
       description
       displayName
+      domains
       entityRelationshipStateID
       entityRelationshipStateName
       entitySecurityQuestionnaireStatusID
@@ -104,6 +108,7 @@ export const ENTITY = gql`
       reviewedBy
       reviewedByGroupID
       reviewedByUserID
+      reviewFrequency
       riskRating
       riskScore
       scopeID
@@ -111,6 +116,7 @@ export const ENTITY = gql`
       soc2PeriodEnd
       spendCurrency
       ssoEnforced
+      status
       statusPageURL
       systemOwned
       tags
@@ -152,8 +158,8 @@ export const DELETE_ENTITY = gql`
 `
 
 export const CREATE_CSV_BULK_ENTITY = gql`
-  mutation CreateBulkCSVEntity($input: Upload!) {
-    createBulkCSVEntity(input: $input) {
+  mutation CreateBulkCSVEntity($input: Upload!, $entityTypeName: String) {
+    createBulkCSVEntity(input: $input, entityTypeName: $entityTypeName) {
       entities {
         id
       }

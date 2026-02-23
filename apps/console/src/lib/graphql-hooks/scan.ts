@@ -12,7 +12,7 @@ import {
   ScanQuery,
   ScanQueryVariables,
   CreateBulkCsvScanMutation,
-  CreateBulkCsvTaskMutationVariables,
+  CreateBulkCsvScanMutationVariables,
   UpdateBulkScanMutation,
   UpdateBulkScanMutationVariables,
   DeleteBulkScanMutation,
@@ -98,7 +98,7 @@ export const useScan = (scanId?: ScanQueryVariables['scanId']) => {
 
 export const useCreateBulkCSVScan = () => {
   const { queryClient } = useGraphQLClient()
-  return useMutation<CreateBulkCsvScanMutation, unknown, CreateBulkCsvTaskMutationVariables>({
+  return useMutation<CreateBulkCsvScanMutation, unknown, CreateBulkCsvScanMutationVariables>({
     mutationFn: async (variables) => fetchGraphQLWithUpload({ query: CREATE_CSV_BULK_SCAN, variables }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['scans'] })

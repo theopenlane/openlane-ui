@@ -7,7 +7,7 @@ import { useUserSelect } from '@/lib/graphql-hooks/member'
 import { useGroupSelect } from '@/lib/graphql-hooks/group'
 import { WizardValues } from '../advanced-setup-wizard-config'
 import { useSession } from 'next-auth/react'
-import MembersInviteSheet from '@/components/pages/protected/organization-settings/members/sidebar/members-invite-sheet'
+import MembersInviteSheet from '@/components/pages/protected/user-management/members/sidebar/members-invite-sheet'
 
 type AdvancedSetupStep4Props = {
   isMemberSheetOpen: boolean

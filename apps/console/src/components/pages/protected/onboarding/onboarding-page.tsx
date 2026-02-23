@@ -18,12 +18,17 @@ import { switchOrganization, handleSSORedirect } from '@/lib/user'
 import { useCreateOnboarding } from '@/lib/graphql-hooks/onboarding'
 import { useQueryClient } from '@tanstack/react-query'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { z } from 'zod'
 
 const { useStepper, steps } = defineStepper(
   { id: '0', label: `Company Info`, schema: step1Schema },
   { id: '1', label: `User Info`, schema: step2Schema },
   { id: '2', label: `Compliance Info`, schema: step3Schema },
 )
+
+const onboardingSchema = step1Schema.merge(step2Schema).merge(step3Schema)
+type OnboardingFormInput = z.input<typeof onboardingSchema>
+type OnboardingFormData = z.output<typeof onboardingSchema>
 
 export default function MultiStepForm() {
   const queryClient = useQueryClient()
@@ -34,17 +39,16 @@ export default function MultiStepForm() {
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const { successNotification, errorNotification } = useNotification()
 
-  const formDataRef = useRef<Partial<CreateOnboardingInput>>({
+  const formDataRef = useRef<OnboardingFormInput>({
     companyName: '',
     domains: [],
     companyDetails: {},
     userDetails: {},
     compliance: {},
-    organizationID: undefined,
   })
 
-  const methods = useForm<CreateOnboardingInput>({
-    resolver: zodResolver(stepper.current.schema),
+  const methods = useForm<OnboardingFormInput, undefined, OnboardingFormData>({
+    resolver: zodResolver(onboardingSchema),
     defaultValues: formDataRef.current,
     mode: 'onChange',
   })
@@ -117,7 +121,16 @@ export default function MultiStepForm() {
   }
 
   const handleNext = async () => {
-    const isValid = await methods.trigger()
+    let isValid = false
+
+    if (stepper.current.id === '0') {
+      isValid = await methods.trigger(['companyName', 'domains'])
+    } else if (stepper.current.id === '1') {
+      isValid = await methods.trigger(['userDetails.role', 'userDetails.department'])
+    } else {
+      isValid = await methods.trigger(['compliance.existing_policies_procedures', 'compliance.completed_risk_assessment', 'compliance.completed_gap_analysis', 'compliance.existing_controls'])
+    }
+
     if (!isValid) return
 
     formDataRef.current = { ...formDataRef.current, ...methods.getValues() }

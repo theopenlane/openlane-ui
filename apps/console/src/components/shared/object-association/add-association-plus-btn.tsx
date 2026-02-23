@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { Button } from '@repo/ui/button'
 
-const AddAssociationPlusBtn = React.forwardRef<HTMLDivElement, React.ButtonHTMLAttributes<HTMLDivElement>>((props, ref) => {
+const AddAssociationPlusBtn = ({ ref, ...props }: React.ButtonHTMLAttributes<HTMLDivElement> & { ref?: React.Ref<HTMLDivElement> }) => {
   const [tooltipOpen, setTooltipOpen] = useState(false)
 
   return (
@@ -20,7 +20,6 @@ const AddAssociationPlusBtn = React.forwardRef<HTMLDivElement, React.ButtonHTMLA
       </Tooltip>
     </TooltipProvider>
   )
-})
+}
 
-AddAssociationPlusBtn.displayName = 'AddAssociationPlusBtn'
 export default AddAssociationPlusBtn

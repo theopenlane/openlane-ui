@@ -3,7 +3,7 @@ import { TableFilter } from '@/components/shared/table-filter/table-filter.tsx'
 import { DownloadIcon, LoaderCircle, SearchIcon, Upload } from 'lucide-react'
 import { Input } from '@repo/ui/input'
 import { useDebounce } from '@uidotdev/usehooks'
-import { TEMPLATE_FILTER_FIELDS } from '@/components/pages/protected/questionnaire/template/table/table-config.ts'
+import { useTemplateFilters } from '@/components/pages/protected/questionnaire/template/table/table-config.ts'
 import { includeQuestionnaireCreation } from '@repo/dally/auth'
 import { CreateTemplateButton } from '@/components/pages/protected/questionnaire/template/create.tsx'
 import Menu from '@/components/shared/menu/menu.tsx'
@@ -47,6 +47,7 @@ const TemplateTableToolbar: React.FC<TTemplateTableToolbarProps> = ({
 }) => {
   const isSearching = useDebounce(searching, 200)
   const { data: permission } = useOrganizationRoles()
+  const filterFields = useTemplateFilters()
 
   const createButton = () => {
     if (includeQuestionnaireCreation == 'true' && canCreate(permission?.roles, AccessEnum.CanCreateTemplate)) {
@@ -89,7 +90,7 @@ const TemplateTableToolbar: React.FC<TTemplateTableToolbarProps> = ({
           {mappedColumns && columnVisibility && setColumnVisibility && (
             <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.TEMPLATE} />
           )}
-          <TableFilter filterFields={TEMPLATE_FILTER_FIELDS} onFilterChange={setFilters} pageKey={TableKeyEnum.TEMPLATE} />
+          {filterFields && <TableFilter filterFields={filterFields} onFilterChange={setFilters} pageKey={TableKeyEnum.TEMPLATE} />}
           {createButton()}
         </div>
       </div>

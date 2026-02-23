@@ -124,8 +124,8 @@ type HasScrollProps = {
   right: boolean
 }
 
-const Legend = React.forwardRef<HTMLOListElement, LegendProps>((props, ref) => {
-  const { categories, colors = AvailableChartColors, className, onClickLegendItem, activeLegend, enableLegendSlider = false, ...other } = props
+const Legend = (props: LegendProps & { ref?: React.Ref<HTMLOListElement> }) => {
+  const { categories, colors = AvailableChartColors, className, onClickLegendItem, activeLegend, enableLegendSlider = false, ref, ...other } = props
   const scrollableRef = React.useRef<HTMLInputElement>(null)
   const scrollButtonsRef = React.useRef<HTMLDivElement>(null)
   const [hasScroll, setHasScroll] = React.useState<HasScrollProps | null>(null)
@@ -252,9 +252,7 @@ const Legend = React.forwardRef<HTMLOListElement, LegendProps>((props, ref) => {
       ) : null}
     </ol>
   )
-})
-
-Legend.displayName = 'Legend'
+}
 
 const ChartLegend = (
   { payload }: any,
@@ -419,7 +417,7 @@ interface LineChartProps extends React.HTMLAttributes<HTMLDivElement> {
   customTooltip?: React.ComponentType<TooltipProps>
 }
 
-const LineChart = React.forwardRef<HTMLDivElement, LineChartProps>((props, ref) => {
+const LineChart = (props: LineChartProps & { ref?: React.Ref<HTMLDivElement> }) => {
   const {
     data = [],
     categories = [],
@@ -448,6 +446,7 @@ const LineChart = React.forwardRef<HTMLDivElement, LineChartProps>((props, ref) 
     legendPosition = 'right',
     tooltipCallback,
     customTooltip,
+    ref,
     ...other
   } = props
   const CustomTooltip = customTooltip
@@ -707,8 +706,6 @@ const LineChart = React.forwardRef<HTMLDivElement, LineChartProps>((props, ref) 
       </ResponsiveContainer>
     </div>
   )
-})
-
-LineChart.displayName = 'LineChart'
+}
 
 export { LineChart, type LineChartEventProps, type TooltipProps }

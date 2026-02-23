@@ -30,6 +30,7 @@ import {
   TrustCenterCompliance,
   TrustCenterDoc,
   TrustCenterEntity,
+  TrustCenterFaq,
   TrustCenterNdaRequest,
   TrustCenterSetting,
   TrustCenterSubprocessor,
@@ -61,6 +62,7 @@ import { GET_ALL_TRUST_CENTERS } from '@repo/codegen/query/trust-center'
 import { GET_ALL_TRUST_CENTER_COMPLIANCES } from '@repo/codegen/query/trust-center-compliance'
 import { GET_ALL_TRUST_CENTER_DOCS } from '@repo/codegen/query/trust-center-doc'
 import { GET_ALL_TRUST_CENTER_ENTITIES } from '@repo/codegen/query/trust-center-entity'
+import { GET_ALL_TRUST_CENTER_FAQS } from '@repo/codegen/query/trust-center-faq'
 import { GET_ALL_TRUST_CENTER_NDA_REQUESTS } from '@repo/codegen/query/trust-center-nda-request'
 import { GET_ALL_TRUST_CENTER_SUBPROCESSORS } from '@repo/codegen/query/trust-center-subprocessor'
 import { GET_ALL_VULNERABILITIES } from '@repo/codegen/query/vulnerability'
@@ -148,6 +150,7 @@ export enum ObjectTypes {
   TRUST_CENTER_COMPLIANCE = 'TrustCenterCompliance',
   TRUST_CENTER_DOC = 'TrustCenterDoc',
   TRUST_CENTER_ENTITY = 'TrustCenterEntity',
+  TRUST_CENTER_FAQ = 'TrustCenterFaq',
   TRUST_CENTER_NDA_REQUEST = 'TrustCenterNdaRequest',
   TRUST_CENTER_SETTING = 'TrustCenterSetting',
   TRUST_CENTER_SUBPROCESSOR = 'TrustCenterSubprocessor',
@@ -245,6 +248,7 @@ export enum ObjectNames {
   TRUST_CENTER_COMPLIANCE = 'Trust Center Compliance',
   TRUST_CENTER_DOC = 'Trust Center Doc',
   TRUST_CENTER_ENTITY = 'Trust Center Entity',
+  TRUST_CENTER_FAQ = 'Trust Center Faq',
   TRUST_CENTER_NDA_REQUEST = 'Trust Center Nda Request',
   TRUST_CENTER_SETTING = 'Trust Center Setting',
   TRUST_CENTER_SUBPROCESSOR = 'Trust Center Subprocessor',
@@ -288,6 +292,7 @@ export enum TypesWithPermissions {
   TRUST_CENTER_COMPLIANCE = 'TrustCenterCompliance',
   TRUST_CENTER_DOC = 'TrustCenterDoc',
   TRUST_CENTER_ENTITY = 'TrustCenterEntity',
+  TRUST_CENTER_FAQ = 'TrustCenterFaq',
   TRUST_CENTER_NDA_REQUEST = 'TrustCenterNdaRequest',
   TRUST_CENTER_SETTING = 'TrustCenterSetting',
   TRUST_CENTER_SUBPROCESSOR = 'TrustCenterSubprocessor',
@@ -418,6 +423,11 @@ export type PermissionsAllQueriesData = {
   }
   trustCenterEntities?: {
     edges?: Array<{ node: TrustCenterEntity }>
+    pageInfo?: PageInfo
+    totalCount?: number
+  }
+  trustCenterFaqs?: {
+    edges?: Array<{ node: TrustCenterFaq }>
     pageInfo?: PageInfo
     totalCount?: number
   }
@@ -713,6 +723,16 @@ export const OBJECT_TYPE_PERMISSIONS_CONFIG: Record<TypesWithPermissions, Object
     roleOptions: ['Edit', 'Blocked'],
     responseObjectKey: 'trustCenterEntities',
     queryDocument: GET_ALL_TRUST_CENTER_ENTITIES,
+    objectName: 'name',
+    searchAttribute: 'nameContainsFold',
+    inputPlaceholder: 'name',
+    excludeViewersInFilter: true,
+    extraTableColumns: undefined,
+  },
+  [TypesWithPermissions.TRUST_CENTER_FAQ]: {
+    roleOptions: ['Edit', 'Blocked'],
+    responseObjectKey: 'trustCenterFaqs',
+    queryDocument: GET_ALL_TRUST_CENTER_FAQS,
     objectName: 'name',
     searchAttribute: 'nameContainsFold',
     inputPlaceholder: 'name',
