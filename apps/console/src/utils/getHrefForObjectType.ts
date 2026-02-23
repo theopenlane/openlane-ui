@@ -48,9 +48,20 @@ export const getHrefForObjectType = (kind: string, row?: NormalizedObject): stri
   }
 }
 
-export const getHrefForSearchEntityType = (entityType: string, entityId: string, opts?: { subcontrolParentId?: string | null }): string => {
+export const getHrefForSearchEntityType = (
+  entityType: string,
+  entityId: string,
+  opts?: {
+    subcontrolParentId?: string | null
+    controlOwnerID?: string | null
+    controlStandardID?: string | null
+  },
+): string => {
   switch (entityType) {
     case 'Control':
+      if (!opts?.controlOwnerID && opts?.controlStandardID) {
+        return getHrefForObjectType('standard controls', { id: entityId, standardID: opts.controlStandardID })
+      }
       return getHrefForObjectType('controls', { id: entityId })
     case 'Subcontrol':
       return opts?.subcontrolParentId ? getHrefForObjectType('subcontrols', { id: entityId, controlId: opts.subcontrolParentId }) : ''

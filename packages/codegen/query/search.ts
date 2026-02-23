@@ -18,6 +18,7 @@ export const SEARCH = gql`
             id
             refCode
             ownerID
+            standardID
           }
         }
       }

@@ -18,6 +18,7 @@ export type SearchContextResult = {
   primaryLabel: string
   subcontrolParentId?: string
   controlOwnerID?: string | null
+  controlStandardID?: string | null
 }
 
 export type SearchContextGroup = {
@@ -29,6 +30,7 @@ type SearchContextLabelData = {
   primaryLabel: string
   subcontrolParentId?: string
   controlOwnerID?: string | null
+  controlStandardID?: string | null
 }
 
 type SearchContextLabelLookup = Map<string, SearchContextLabelData>
@@ -42,9 +44,15 @@ export const buildSearchContextLabelLookup = (search?: SearchQuery['search']): S
     const node = edge?.node
     if (!node?.id) continue
 
+    const controlStandardID =
+      typeof node === 'object' && node !== null && 'standardID' in node
+        ? ((node as { standardID?: string | null }).standardID ?? null)
+        : null
+
     lookup.set(getLabelLookupKey('Control', node.id), {
       primaryLabel: node.refCode ?? node.id,
       controlOwnerID: node.ownerID ?? null,
+      controlStandardID,
     })
   }
 
@@ -160,6 +168,7 @@ export const enrichSearchContextResults = (results: SearchContextResult[], label
       primaryLabel: labelData?.primaryLabel ?? result.entityID,
       subcontrolParentId: labelData?.subcontrolParentId,
       controlOwnerID: labelData?.controlOwnerID,
+      controlStandardID: labelData?.controlStandardID,
     }
   })
 }

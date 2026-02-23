@@ -306,7 +306,11 @@ const SearchContextResultItem = ({ result, query, close, handleOrganizationSwitc
 
   const isOrganization = result.entityType === ObjectTypes.ORGANIZATION
   const matchedFieldLabel = result.matchedFields.length > 0 ? result.matchedFields.join(', ') : 'None'
-  const href = getHrefForSearchEntityType(result.entityType, result.entityID, { subcontrolParentId: result.subcontrolParentId })
+  const href = getHrefForSearchEntityType(result.entityType, result.entityID, {
+    subcontrolParentId: result.subcontrolParentId,
+    controlOwnerID: result.controlOwnerID,
+    controlStandardID: result.controlStandardID,
+  })
 
   const Icon = searchTypeIcons[result.entityType] ?? searchTypeIcons.Pages
 
