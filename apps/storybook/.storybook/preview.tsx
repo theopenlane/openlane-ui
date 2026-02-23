@@ -4,6 +4,11 @@ import { addons, useEffect } from 'storybook/preview-api'
 import { withThemeByClassName } from '@storybook/addon-themes'
 import './style.css'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import openlaneLight from './openlane'
+import openlaneDark from './openlane-dark'
+
+const DARK_BG = '#09151d'
+const LIGHT_BG = '#eff4f5'
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: false, enabled: false } },
@@ -15,16 +20,19 @@ const QueryClientDecorator = (Story: React.ComponentType) => (
   </QueryClientProvider>
 )
 
-// Module-level listener covers docs mode where story decorators don't affect the outer page.
-addons.getChannel().on('globalsUpdated', ({ userGlobals }: { userGlobals: Record<string, string> }) => {
-  const isDark = userGlobals?.['theme'] === 'dark'
-  const bg = isDark ? '#09151d' : '#eff4f5'
+function applyTheme(isDark: boolean) {
+  const bg = isDark ? DARK_BG : LIGHT_BG
   document.documentElement.classList.toggle('dark', isDark)
   document.documentElement.style.backgroundColor = bg
   if (document.body) {
     document.body.classList.toggle('dark', isDark)
     document.body.style.backgroundColor = bg
   }
+}
+
+// Module-level listener covers docs mode where story decorators don't run against the outer page.
+addons.getChannel().on('globalsUpdated', ({ userGlobals }: { userGlobals: Record<string, string> }) => {
+  applyTheme(userGlobals?.['theme'] === 'dark')
 })
 
 const preview: Preview = {
@@ -33,15 +41,16 @@ const preview: Preview = {
     (Story, context) => {
       const isDark = context.globals['theme'] === 'dark'
 
-      // useEffect from storybook/preview-api re-runs when globals change in story mode.
+      // Switch the Storybook docs chrome theme (controls tables, code blocks, text) to
+      // match the selected theme. Mutating context.parameters here is intentional — it
+      // is the established pattern for making parameters.docs.theme dynamic.
+      context.parameters.docs = {
+        ...context.parameters.docs,
+        theme: isDark ? openlaneDark : openlaneLight,
+      }
+
       useEffect(() => {
-        const bg = isDark ? '#09151d' : '#eff4f5'
-        document.documentElement.style.backgroundColor = bg
-        document.documentElement.classList.toggle('dark', isDark)
-        if (document.body) {
-          document.body.style.backgroundColor = bg
-          document.body.classList.toggle('dark', isDark)
-        }
+        applyTheme(isDark)
       }, [isDark])
 
       return <Story />

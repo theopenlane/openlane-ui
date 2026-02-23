@@ -21,7 +21,7 @@ const meta: Meta<typeof Table> = {
     ]
 
     return (
-      <div className="p-4 bg-white rounded-lg">
+      <div className="p-4 bg-background rounded-lg">
         <Table>
           <TableHeader>
             <TableRow>
