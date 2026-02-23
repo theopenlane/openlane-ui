@@ -276,9 +276,9 @@ const renderSearchResults = ({ contextGroups, handleOrganizationSwitch, setQuery
               <div className="px-2 py-1">
                 <p className="text-xs font-medium uppercase text-text-informational">{getEntityTypeLabel(group.entityType)}</p>
               </div>
-              {group.results.map((result, index) => (
+              {group.results.map((result) => (
                 <SearchContextResultItem
-                  key={`${group.entityType}-${result.entityID}-${index}`}
+                  key={`${group.entityType}-${result.entityID}`}
                   result={result}
                   query={query}
                   close={close}

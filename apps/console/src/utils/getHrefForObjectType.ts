@@ -66,6 +66,14 @@ export const getHrefForSearchEntityType = (entityType: string, entityId: string,
       return getHrefForObjectType('programs', { id: entityId })
     case 'Group':
       return getHrefForObjectType('groups', { id: entityId })
+    case 'Standard':
+      return `/standards/${entityId}`
+    case 'Template':
+      return `/questionnaires/templates/template-viewer?id=${entityId}`
+    case 'Evidence':
+      return getHrefForObjectType('evidences', { id: entityId })
+    case 'Subprocessor':
+      return `/trust-center/subprocessors`
     default:
       return ''
   }

@@ -1,7 +1,7 @@
 import type { RoutePage } from '@/types'
 import type { SearchContextGroup } from '@/lib/graphql-hooks/search'
 import { toHumanLabel } from '@/utils/strings'
-import { CircleGaugeIcon, UsersRoundIcon, ShieldCheck, AlertTriangle, Fingerprint, ListChecks, Settings2, ScrollText, Workflow, NotebookPen, FileBadge2 } from 'lucide-react'
+import { CircleGaugeIcon, UsersRoundIcon, ShieldCheck, AlertTriangle, Fingerprint, ListChecks, Settings2, ScrollText, Workflow, NotebookPen, FileBadge2, Building2 } from 'lucide-react'
 
 export const searchTypeIcons: Record<string, React.ElementType> = {
   Pages: CircleGaugeIcon,
@@ -14,6 +14,9 @@ export const searchTypeIcons: Record<string, React.ElementType> = {
   Procedure: Workflow,
   Questionnaires: NotebookPen,
   Standards: FileBadge2,
+  Standard: FileBadge2,
+  Template: NotebookPen,
+  Subprocessor: Building2,
   Group: UsersRoundIcon,
   Subcontrol: Settings2,
   ControlObjectives: Settings2,
