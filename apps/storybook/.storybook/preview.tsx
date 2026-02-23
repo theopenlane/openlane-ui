@@ -30,13 +30,23 @@ function applyTheme(isDark: boolean) {
   }
 }
 
-// Module-level listener covers docs mode where story decorators don't run against the outer page.
-addons.getChannel().on('globalsUpdated', ({ userGlobals }: { userGlobals: Record<string, string> }) => {
-  applyTheme(userGlobals?.['theme'] === 'dark')
-})
+const GlobalsThemeDecorator = (Story: React.ComponentType) => {
+  useEffect(() => {
+    const channel = addons.getChannel()
+    const handleGlobalsUpdated = ({ userGlobals }: { userGlobals: Record<string, string> }) => {
+      applyTheme(userGlobals?.['theme'] === 'dark')
+    }
+
+    channel.on('globalsUpdated', handleGlobalsUpdated)
+    return () => channel.off('globalsUpdated', handleGlobalsUpdated)
+  }, [])
+
+  return <Story />
+}
 
 const preview: Preview = {
   decorators: [
+    GlobalsThemeDecorator,
     QueryClientDecorator,
     (Story, context) => {
       const isDark = context.globals['theme'] === 'dark'
