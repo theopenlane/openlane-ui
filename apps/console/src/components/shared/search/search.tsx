@@ -230,7 +230,7 @@ const renderRouteResults = (routes: { name: string; route: string }[], query: st
         return (
           <Link key={route.route} href={route.route} onClick={close}>
             <div className="border-b py-1">
-              <CommandItem className="cursor-pointer py-2 rounded-md">
+              <CommandItem value={route.route} className="cursor-pointer py-2 rounded-md">
                 <div className="flex">
                   <div className={leftFlex()}>
                     {Icon && <Icon className={icon()} />}
@@ -313,6 +313,7 @@ const SearchContextResultItem = ({ result, query, close, handleOrganizationSwitc
   const content = (
     <div className="border-b py-1">
       <CommandItem
+        value={`${result.entityType}-${result.entityID}`}
         className="cursor-pointer py-2 rounded-md"
         onSelect={
           isOrganization && handleOrganizationSwitch && setQuery
