@@ -119,13 +119,7 @@ export const getColumns = ({ userMap, convertToReadOnly, selectedItems, setSelec
         if (!tags?.length) {
           return '-'
         }
-        return (
-          <div className="flex gap-2">
-            {row?.original?.tags?.map((tag, i) => (
-              <TagChip key={i} tag={tag} />
-            ))}
-          </div>
-        )
+        return <div className="flex gap-2">{row?.original?.tags?.map((tag, i) => <TagChip key={i} tag={tag} />)}</div>
       },
     },
     { accessorKey: 'updatedAt', header: 'Updated At', size: 130, cell: ({ cell }) => formatDate(cell.getValue() as string) },
