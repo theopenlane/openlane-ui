@@ -39,14 +39,25 @@ const highlightQueryMatch = (text: string, query: string) => {
 }
 
 const primaryLabelSnippetFields: Partial<Record<string, string[]>> = {
+  Program: ['name'],
+  Risk: ['name'],
   Procedure: ['name'],
   Template: ['name'],
   Group: ['name', 'displayName'],
+  Organization: ['name', 'displayName'],
   Evidence: ['name'],
   Task: ['title'],
 }
 
 const normalizeSnippetField = (field: string) => field.replace(/[\s_-]+/g, '').toLowerCase()
+
+const getVisibleMatchedFields = (result: SearchContextResult) => {
+  if (result.entityType !== 'Group' && result.entityType !== 'Organization') {
+    return result.matchedFields
+  }
+
+  return result.matchedFields.filter((field) => normalizeSnippetField(field) === 'displayname')
+}
 
 const getVisibleSnippets = (result: SearchContextResult) => {
   const primaryFields = primaryLabelSnippetFields[result.entityType]
@@ -328,7 +339,8 @@ const SearchContextResultItem = ({ result, sectionType, query, close, handleOrga
   const { icon, leftFlex } = searchStyles()
 
   const isOrganization = result.entityType === ObjectTypes.ORGANIZATION
-  const matchedFieldLabel = result.matchedFields.length > 0 ? result.matchedFields.join(', ') : 'None'
+  const visibleMatchedFields = getVisibleMatchedFields(result)
+  const matchedFieldLabel = visibleMatchedFields.length > 0 ? visibleMatchedFields.join(', ') : 'None'
   const visibleSnippets = getVisibleSnippets(result)
   const href = getHrefForSearchEntityType(result.entityType, result.entityID, {
     subcontrolParentId: result.subcontrolParentId,

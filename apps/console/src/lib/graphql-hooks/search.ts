@@ -37,6 +37,8 @@ type SearchContextLabelLookup = Map<string, SearchContextLabelData>
 
 const getLabelLookupKey = (entityType: string, entityID: string) => `${entityType}:${entityID}`
 
+const normalizeSearchField = (field: string) => field.replace(/[\s_-]+/g, '').toLowerCase()
+
 const getSearchResultGroupType = (result: SearchContextResult): string => {
   if (result.entityType === 'Control') {
     if (!result.controlOwnerID && result.controlStandardID) {
@@ -225,6 +227,16 @@ export const useSearch = (query: string) => {
       }
       if (item.entityType === 'Subprocessor') {
         return []
+      }
+
+      if (item.entityType === 'Group' || item.entityType === 'Organization') {
+        const hasDisplayNameMatch =
+          (item.matchedFields ?? []).some((field) => normalizeSearchField(field) === 'displayname') ||
+          (item.snippets ?? []).some((snippet) => (snippet?.field ? normalizeSearchField(snippet.field) === 'displayname' : false))
+
+        if (!hasDisplayNameMatch) {
+          return []
+        }
       }
 
       return [
