@@ -42,9 +42,9 @@ const normalizeSearchField = (field: string) => field.replace(/[\s_-]+/g, '').to
 const getSearchResultGroupType = (result: SearchContextResult): string => {
   if (result.entityType === 'Control') {
     if (!result.controlOwnerID && result.controlStandardID) {
-      return 'Standard Controls'
+      return 'Standard Control'
     }
-    return 'Controls'
+    return 'Control'
   }
 
   return result.entityType
