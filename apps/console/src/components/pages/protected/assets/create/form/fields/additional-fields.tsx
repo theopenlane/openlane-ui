@@ -1,5 +1,6 @@
 'use client'
 
+import { CheckboxField } from '@/components/shared/crud-base/form-fields/checkbox-field'
 import { TextField } from '@/components/shared/crud-base/form-fields/text-field'
 import { SelectField } from '@/components/shared/crud-base/form-fields/select-field'
 import { UpdateAssetInput } from '@repo/codegen/src/schema'
@@ -108,6 +109,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
             <SelectField name="environmentName" label="Environment" options={enumOptions.environmentOptions} {...sharedFieldProps} />
             <SelectField name="scopeName" label="Scope" options={enumOptions.scopeOptions} {...sharedFieldProps} />
           </div>
+          <CheckboxField name="containsPii" label="Contains PII" {...sharedFieldProps} />
         </CardContent>
       </Card>
 

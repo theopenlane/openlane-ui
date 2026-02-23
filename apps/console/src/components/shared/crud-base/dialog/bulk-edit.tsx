@@ -114,7 +114,7 @@ export function GenericBulkEditDialog<T extends { id: string }, TUpdateInput>({
 
     watchedFields.forEach((field) => {
       const key = field.fieldKey
-      if (key && field.selectedValue) {
+      if (key && field.selectedValue !== undefined && field.selectedValue !== '') {
         input[key as keyof TUpdateInput] = field.selectedValue as TUpdateInput[keyof TUpdateInput]
       }
       if (key && field.selectedDate) {

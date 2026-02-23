@@ -17,6 +17,7 @@ const formSchema = z.object({
   cpe: z.string().optional(),
   criticalityName: z.string().optional(),
   encryptionStatusName: z.string().optional(),
+  containsPii: z.boolean().optional(),
   environmentName: z.string().optional(),
   estimatedMonthlyCost: z.preprocess((val) => {
     if (val === '' || val === undefined || val === null) return undefined
@@ -38,6 +39,7 @@ export const bulkEditFieldSchema = z.object({
   assetDataClassificationName: z.string().optional(),
   assetSubtypeName: z.string().optional(),
   assetType: z.nativeEnum(AssetAssetType).optional(),
+  containsPii: z.boolean().optional(),
   costCenter: z.string().optional(),
   cpe: z.string().optional(),
   criticalityName: z.string().optional(),

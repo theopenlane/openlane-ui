@@ -49,11 +49,11 @@ export const CheckboxField: React.FC<CheckboxFieldProps> = ({ name, label, isEdi
             />
           </FormControl>
           <FormLabel
-            htmlFor={name}
-            className={cn('text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex items-center', !isFieldEditing && 'cursor-default')}
-            onClick={() => {
-              if (isEditAllowed && !isActive) {
-                setInternalEditing(name)
+            htmlFor={isActive ? name : undefined}
+            className={cn('text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex items-center', !isActive && 'cursor-not-allowed opacity-70')}
+            onClick={(e) => {
+              if (!isActive) {
+                e.preventDefault()
               }
             }}
           >
