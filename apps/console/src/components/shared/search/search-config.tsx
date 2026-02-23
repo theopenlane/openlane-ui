@@ -9,6 +9,8 @@ export const searchTypeIcons: Record<string, React.ElementType> = {
   Program: ShieldCheck,
   Risk: AlertTriangle,
   Control: Settings2,
+  Controls: Settings2,
+  'Standard Controls': Settings2,
   Evidence: Fingerprint,
   InternalPolicy: ScrollText,
   Procedure: Workflow,

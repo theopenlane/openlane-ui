@@ -37,6 +37,17 @@ type SearchContextLabelLookup = Map<string, SearchContextLabelData>
 
 const getLabelLookupKey = (entityType: string, entityID: string) => `${entityType}:${entityID}`
 
+const getSearchResultGroupType = (result: SearchContextResult): string => {
+  if (result.entityType === 'Control') {
+    if (!result.controlOwnerID && result.controlStandardID) {
+      return 'Standard Controls'
+    }
+    return 'Controls'
+  }
+
+  return result.entityType
+}
+
 export const buildSearchContextLabelLookup = (search?: SearchQuery['search']): SearchContextLabelLookup => {
   const lookup = new Map<string, SearchContextLabelData>()
 
@@ -212,6 +223,9 @@ export const useSearch = (query: string) => {
       if (!item?.entityID || !item?.entityType) {
         return []
       }
+      if (item.entityType === 'Subprocessor') {
+        return []
+      }
 
       return [
         {
@@ -246,11 +260,12 @@ export const useSearch = (query: string) => {
     const groupedResults = new Map<string, SearchContextResult[]>()
 
     for (const result of contextResults) {
-      const existing = groupedResults.get(result.entityType)
+      const groupType = getSearchResultGroupType(result)
+      const existing = groupedResults.get(groupType)
       if (existing) {
         existing.push(result)
       } else {
-        groupedResults.set(result.entityType, [result])
+        groupedResults.set(groupType, [result])
       }
     }
 

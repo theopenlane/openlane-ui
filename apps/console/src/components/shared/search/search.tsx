@@ -38,6 +38,27 @@ const highlightQueryMatch = (text: string, query: string) => {
   })
 }
 
+const primaryLabelSnippetFields: Partial<Record<string, string[]>> = {
+  Procedure: ['name'],
+  Template: ['name'],
+  Group: ['name', 'displayName'],
+  Evidence: ['name'],
+  Task: ['title'],
+}
+
+const normalizeSnippetField = (field: string) => field.replace(/[\s_-]+/g, '').toLowerCase()
+
+const getVisibleSnippets = (result: SearchContextResult) => {
+  const primaryFields = primaryLabelSnippetFields[result.entityType]
+  if (!primaryFields?.length) {
+    return result.snippets
+  }
+
+  const normalizedPrimaryFields = new Set(primaryFields.map((field) => normalizeSnippetField(field)))
+
+  return result.snippets.filter((snippet) => !normalizedPrimaryFields.has(normalizeSnippetField(snippet.field)))
+}
+
 export const GlobalSearch = () => {
   const queryClient = useQueryClient()
   const [open, setOpen] = useState(false)
@@ -280,6 +301,7 @@ const renderSearchResults = ({ contextGroups, handleOrganizationSwitch, setQuery
                 <SearchContextResultItem
                   key={`${group.entityType}-${result.entityID}`}
                   result={result}
+                  sectionType={group.entityType}
                   query={query}
                   close={close}
                   handleOrganizationSwitch={handleOrganizationSwitch}
@@ -295,24 +317,26 @@ const renderSearchResults = ({ contextGroups, handleOrganizationSwitch, setQuery
 
 interface SearchContextResultItemProps {
   result: SearchContextResult
+  sectionType: string
   query: string
   close: () => void
   handleOrganizationSwitch?: (orgId?: string) => Promise<void>
   setQuery?: React.Dispatch<React.SetStateAction<string>>
 }
 
-const SearchContextResultItem = ({ result, query, close, handleOrganizationSwitch, setQuery }: SearchContextResultItemProps) => {
+const SearchContextResultItem = ({ result, sectionType, query, close, handleOrganizationSwitch, setQuery }: SearchContextResultItemProps) => {
   const { icon, leftFlex } = searchStyles()
 
   const isOrganization = result.entityType === ObjectTypes.ORGANIZATION
   const matchedFieldLabel = result.matchedFields.length > 0 ? result.matchedFields.join(', ') : 'None'
+  const visibleSnippets = getVisibleSnippets(result)
   const href = getHrefForSearchEntityType(result.entityType, result.entityID, {
     subcontrolParentId: result.subcontrolParentId,
     controlOwnerID: result.controlOwnerID,
     controlStandardID: result.controlStandardID,
   })
 
-  const Icon = searchTypeIcons[result.entityType] ?? searchTypeIcons.Pages
+  const Icon = searchTypeIcons[sectionType] ?? searchTypeIcons[result.entityType] ?? searchTypeIcons.Pages
 
   const content = (
     <div className="border-b py-1">
@@ -331,22 +355,22 @@ const SearchContextResultItem = ({ result, query, close, handleOrganizationSwitc
         <div className="flex w-full">
           <div className={leftFlex()}>
             {Icon && <Icon className={icon()} />}
-            <p className="font-medium text-text-informational">{getEntityTypeLabel(result.entityType)}</p>
+            <p className="font-medium text-text-informational">{getEntityTypeLabel(sectionType)}</p>
           </div>
           <div className="flex-1 min-w-0 space-y-1">
             <p className="text-sm font-medium text-input-text break-words">{result.primaryLabel || result.entityID}</p>
             <p className="text-xs text-text-informational">Matched fields: {matchedFieldLabel}</p>
-            {result.snippets.length > 0 ? (
+            {visibleSnippets.length > 0 ? (
               <div className="space-y-1">
-                {result.snippets.map((snippet, index) => (
+                {visibleSnippets.map((snippet, index) => (
                   <p key={`${snippet.field}-${index}`} className="text-sm text-input-text break-words">
                     <span className="text-text-informational">{snippet.field}:</span> {highlightQueryMatch(snippet.text, query)}
                   </p>
                 ))}
               </div>
-            ) : (
+            ) : result.snippets.length === 0 ? (
               <p className="text-sm text-input-text">{result.entityID}</p>
-            )}
+            ) : null}
           </div>
         </div>
       </CommandItem>
