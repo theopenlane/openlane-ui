@@ -3,12 +3,12 @@ import { Card, CardContent } from '@repo/ui/cardpanel'
 import { ArrowDownRight, ArrowUpRight, Hourglass, Minus } from 'lucide-react'
 import { statCardStyles } from './stats-cards-styles'
 import { useParams, usePathname, useSearchParams } from 'next/navigation'
-import { useGlobalEvidenceStats, useProgramEvidenceStats } from '@/lib/graphql-hooks/programs'
+import { useGlobalEvidenceStats, useProgramEvidenceStats } from '@/lib/graphql-hooks/program'
 import { useSubmittedEvidenceTrend, useAcceptedEvidenceTrend, useRejectedEvidenceTrend } from '@/lib/graphql-hooks/evidence'
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@repo/ui/tooltip'
 import Link from 'next/link'
 import { saveFilters, TFilterState } from '@/components/shared/table-filter/filter-storage.ts'
-import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
+import { TableKeyEnum } from '@repo/ui/table-key'
 import { EvidenceEvidenceStatus } from '@repo/codegen/src/schema.ts'
 
 type TFilter = {
@@ -60,7 +60,7 @@ const StatCard: React.FC<{ stat: Stat; hasData: boolean; tooltip?: React.ReactNo
       [filter.field]: [filter.value],
     }
 
-    saveFilters(TableFilterKeysEnum.EVIDENCE, filters)
+    saveFilters(TableKeyEnum.EVIDENCE, filters)
   }
 
   return (

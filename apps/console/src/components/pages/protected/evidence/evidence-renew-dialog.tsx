@@ -16,7 +16,6 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useCreateEvidence, useGetRenewEvidenceById } from '@/lib/graphql-hooks/evidence'
 import { TUploadedFile } from './upload/types/TUploadedFile'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { Value } from 'platejs'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
@@ -41,23 +40,20 @@ const EvidenceRenewDialog: React.FC<TEvidenceRenewDialog> = ({ evidenceId, contr
         name: evidence.name,
         description: evidence.description ?? '',
         tags: evidence.tags ?? [],
-        collectionProcedure: evidence.collectionProcedure as string,
+        collectionProcedure: evidence.collectionProcedure ?? '',
         source: evidence.source ?? '',
         ...(evidence.url ? { url: evidence.url } : {}),
-        controlObjectiveIDs: evidence?.controlObjectives?.edges?.map((item) => item?.node?.id) || [],
-        controlIDs: evidence?.controls?.edges?.map((item) => item?.node?.id) || [],
-        programIDs: evidence?.programs?.edges?.map((item) => item?.node?.id) || [],
-        subcontrolIDs: evidence?.subcontrols?.edges?.map((item) => item?.node?.id) || [],
-        taskIDs: evidence?.tasks?.edges?.map((item) => item?.node?.id) || [],
+        controlObjectiveIDs: evidence?.controlObjectives?.edges?.map((item) => item?.node?.id).filter((id): id is string => Boolean(id)) || [],
+        controlIDs: evidence?.controls?.edges?.map((item) => item?.node?.id).filter((id): id is string => Boolean(id)) || [],
+        programIDs: evidence?.programs?.edges?.map((item) => item?.node?.id).filter((id): id is string => Boolean(id)) || [],
+        subcontrolIDs: evidence?.subcontrols?.edges?.map((item) => item?.node?.id).filter((id): id is string => Boolean(id)) || [],
+        taskIDs: evidence?.tasks?.edges?.map((item) => item?.node?.id).filter((id): id is string => Boolean(id)) || [],
       })
     }
   }, [evidence, form])
 
   const onSubmitHandler = async (data: CreateEvidenceFormData) => {
-    let collectionProcedure
-    if (data.collectionProcedure) {
-      collectionProcedure = await convertToHtml(data.collectionProcedure as Value)
-    }
+    const collectionProcedure = data.collectionProcedure && typeof data.collectionProcedure !== 'string' ? await convertToHtml(data.collectionProcedure) : data.collectionProcedure
 
     try {
       await createEvidence({

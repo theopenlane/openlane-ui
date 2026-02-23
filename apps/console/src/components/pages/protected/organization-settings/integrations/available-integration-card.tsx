@@ -1,96 +1,138 @@
 'use client'
 
-import React from 'react'
-import { MoreHorizontal, ArrowLeftRight } from 'lucide-react'
+import React, { useState } from 'react'
 import { Button } from '@repo/ui/button'
 import { Badge } from '@repo/ui/badge'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader } from '@repo/ui/cardpanel'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
-import { Logo } from '@repo/ui/logo'
-import { AvailableIntegrationNode } from './config'
+import { Card, CardContent, CardFooter, CardHeader } from '@repo/ui/cardpanel'
+import { AvailableIntegrationNode, IntegrationProvider, parseIntegrationErrorMessage } from './config'
 import { useNotification } from '@/hooks/useNotification'
-import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
+import IntegrationConfigurationDialog from './integration-configuration-dialog'
+import IntegrationTagList from './integration-tag-list'
+import IntegrationCardIcons from './integration-card-icons'
+import DocsLinkTooltip from './docs-link-tooltip'
 
-const AvailableIntegrationCard = ({ integration }: { integration: AvailableIntegrationNode }) => {
+type AvailableIntegrationCardProps = {
+  integration: AvailableIntegrationNode
+}
+
+const AvailableIntegrationCard = ({ integration }: AvailableIntegrationCardProps) => {
   const { errorNotification } = useNotification()
+  const [isConfigDialogOpen, setConfigDialogOpen] = useState(false)
+  const [isConnecting, setIsConnecting] = useState(false)
 
-  const handleConnect = async (integration: AvailableIntegrationNode) => {
+  const provider = integration.provider
+  const isComingSoon = !provider.active
+
+  const connectMode = resolveProviderConnectMode(provider)
+  const connectLabel = isComingSoon ? 'Coming Soon' : connectMode === 'config' ? 'Configure' : 'Connect'
+
+  const handleConnect = async (target: AvailableIntegrationNode) => {
+    if (isComingSoon) {
+      return
+    }
+
+    const targetProvider = target.provider
+    const mode = resolveProviderConnectMode(targetProvider)
+
+    if (mode === 'config') {
+      setConfigDialogOpen(true)
+      return
+    }
+
+    setIsConnecting(true)
     try {
-      const res = await fetch('/api/integrations', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: integration.connectRequestBody,
-      })
+      if (mode === 'auth') {
+        if (!targetProvider.authStartPath) {
+          throw new Error(`Missing auth start path for ${targetProvider.displayName}`)
+        }
 
-      if (!res.ok) {
-        await res.json()
-        errorNotification({
-          title: `Failed to connect ${integration.name}`,
+        const res = await fetch('/api/integrations', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            provider: targetProvider.name,
+            authType: targetProvider.authType,
+            scopes: targetProvider.oauth?.scopes ?? [],
+            startPath: targetProvider.authStartPath,
+            callbackPath: targetProvider.authCallbackPath,
+          }),
         })
-      }
-      const { authUrl, url } = await res.json()
-      const redirectTo = authUrl ?? url
 
-      if (!redirectTo) console.error('Missing authUrl in response')
-      window.location.assign(redirectTo)
-    } catch {
+        if (!res.ok) {
+          throw new Error(await parseIntegrationErrorMessage(res))
+        }
+
+        const json = (await res.json()) as { authUrl?: string; installUrl?: string; url?: string }
+        const redirectTo = json.authUrl ?? json.installUrl ?? json.url
+        if (!redirectTo) {
+          throw new Error(`Missing auth redirect URL for ${targetProvider.displayName}`)
+        }
+        window.location.assign(redirectTo)
+        return
+      }
+
       errorNotification({
-        title: `Failed to connect ${integration.name}`,
+        title: `Failed to connect ${target.name}`,
+        description: 'Provider authentication flow is not configured.',
       })
+    } catch (error) {
+      errorNotification({
+        title: `Failed to connect ${target.name}`,
+        description: error instanceof Error ? error.message : undefined,
+      })
+    } finally {
+      setIsConnecting(false)
     }
   }
+
   return (
-    <Card className="h-full justify-between flex flex-col min-h-[300px]">
-      <div>
-        <CardHeader className="flex-row items-start gap-3 space-y-0">
-          <div className="flex gap-4">
-            <div className="flex items-center gap-1 self-start">
-              <div className="w-[34px] h-[34px] border rounded-full flex items-center justify-center">
-                <Logo asIcon width={16} />
+    <>
+      <Card className="relative flex h-full min-h-[300px] flex-col overflow-visible transition-all duration-300 hover:scale-[1.03] hover:shadow-xl hover:-translate-y-1">
+        <CardHeader className="relative flex-row items-start gap-3 space-y-0 pb-3">
+          {isComingSoon ? (
+            <Badge variant="outline" className="absolute left-0 top-0 h-6 px-2 text-[10px] uppercase tracking-[0.05em] text-muted-foreground">
+              Coming Soon
+            </Badge>
+          ) : null}
+          <DocsLinkTooltip href={integration.docsUrl} label={integration.name} />
+
+          <div className="w-full">
+            <div className="flex gap-4">
+              <IntegrationCardIcons providerName={provider.name} />
+
+              <div className="flex min-w-0 flex-1 flex-col justify-center self-center">
+                <span className="truncate">{integration.name}</span>
               </div>
-              <ArrowLeftRight size={8} />
-              <div className="w-[42px] h-[42px] border rounded-full flex items-center justify-center">{integration.Icon}</div>
             </div>
-            <div className="flex flex-col">
-              <span className="truncate">{integration.name}</span>
-              <div className="mt-2 flex flex-wrap gap-1.5">
-                {integration.tags?.length ? (
-                  <>
-                    {integration.tags.slice(0, 6).map((t, i) => (
-                      <TagChip key={i} tag={t} />
-                    ))}
-                    {integration.tags.length > 6 && <Badge variant="secondary">+{integration.tags.length - 6}</Badge>}
-                  </>
-                ) : null}
-              </div>
+
+            <div className="mt-3 border-t pt-3 mb-1">
+              <IntegrationTagList tags={integration.tags} />
             </div>
           </div>
         </CardHeader>
 
-        <CardContent className="pt-0">
-          <CardDescription className="line-clamp-5">{integration.description || 'Connect to keep your workflows connected and risks actionable.'}</CardDescription>
+        <CardContent className="flex min-h-[112px] flex-1 items-center pt-4 pb-2">
+          <p className="line-clamp-3 text-sm text-muted-foreground">{integration.description || 'Connect to keep your workflows connected and risks actionable.'}</p>
         </CardContent>
-      </div>
 
-      <CardFooter className="justify-between gap-2.5 flex-1 items-end">
-        <Button className="w-full text-brand" variant="secondary" onClick={() => handleConnect(integration)}>
-          Connect
-        </Button>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button className="-mr-2" variant="secondary">
-              <MoreHorizontal className="h-4 w-4 text-brand" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <a href={integration.docsUrl} target="_blank" rel="noreferrer">
-              <DropdownMenuItem>Read docs</DropdownMenuItem>
-            </a>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </CardFooter>
-    </Card>
+        <CardFooter className="mt-auto pt-0">
+          <Button className="w-full text-brand" variant="secondary" onClick={() => handleConnect(integration)} disabled={isConnecting || isComingSoon}>
+            {isConnecting ? 'Initializing...' : connectLabel}
+          </Button>
+        </CardFooter>
+      </Card>
+
+      <IntegrationConfigurationDialog open={isConfigDialogOpen} onOpenChange={setConfigDialogOpen} provider={provider} />
+    </>
   )
 }
 
 export default AvailableIntegrationCard
+
+type ConnectMode = 'auth' | 'config' | 'unsupported'
+
+function resolveProviderConnectMode(provider: IntegrationProvider): ConnectMode {
+  if (provider.authStartPath) return 'auth'
+  if (provider.credentialsSchema) return 'config'
+  return 'unsupported'
+}

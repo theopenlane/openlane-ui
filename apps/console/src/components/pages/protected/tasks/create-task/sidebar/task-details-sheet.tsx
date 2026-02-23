@@ -7,15 +7,14 @@ import { TaskTaskStatus, UpdateTaskInput } from '@repo/codegen/src/schema'
 import { useNotification } from '@/hooks/useNotification'
 import useFormSchema, { EditTaskFormData } from '@/components/pages/protected/tasks/hooks/use-form-schema'
 import { Form } from '@repo/ui/form'
-import { useTask, useTaskAssociations, useUpdateTask } from '@/lib/graphql-hooks/tasks'
+import { useTask, useTaskAssociations, useUpdateTask } from '@/lib/graphql-hooks/task'
 import { useQueryClient } from '@tanstack/react-query'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
-import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config.ts'
-import ObjectAssociation from '@/components/shared/objectAssociation/object-association'
+import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config.ts'
+import ObjectAssociation from '@/components/shared/object-association/object-association'
 import { Panel, PanelHeader } from '@repo/ui/panel'
-import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap'
-import { ObjectEnum } from '@/lib/authz/enums/object-enum'
+import { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
 import { canEdit } from '@/lib/authz/utils'
 import TitleField from '../form/fields/title-field'
 import DetailsField from '../form/fields/details-field'
@@ -30,6 +29,7 @@ import EvidenceCreateSheet from '../../../evidence/evidence-create-sheet'
 import { CreateButton } from '@/components/shared/create-button/create-button'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { CustomEvidenceControl } from '../../../evidence/evidence-sheet-config'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 type TaskDetailsSheetProps = {
   queryParamKey?: string
@@ -48,7 +48,7 @@ const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id
 
   const searchParams = useSearchParams()
   const id = searchParams.get(queryParamKey)
-  const { data: permission } = useAccountRoles(ObjectEnum.TASK, id)
+  const { data: permission } = useAccountRoles(ObjectTypes.TASK, id)
   const isEditAllowed = canEdit(permission?.roles)
   const { data, isLoading: fetching } = useTask(id as string)
   const taskData = data?.task
@@ -98,7 +98,7 @@ const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id
         id: control.id,
         referenceFramework: control.referenceFramework,
         refCode: control.refCode ?? '',
-        __typename: isSubcontrol ? 'Subcontrol' : 'Control',
+        __typename: isSubcontrol ? ObjectTypes.SUBCONTROL : ObjectTypes.CONTROL,
       }
     })
 

@@ -287,6 +287,14 @@ export interface Price {
 
 export type SubscriptionSchedulesResponse = SubscriptionSchedule[]
 
+export interface UpcomingInvoiceResponse {
+  currency: string
+  subtotal: number
+  total: number
+  total_excluding_tax: number | null
+  total_discount: number
+}
+
 //BILLING
 
 export type StripeCardChecks = {

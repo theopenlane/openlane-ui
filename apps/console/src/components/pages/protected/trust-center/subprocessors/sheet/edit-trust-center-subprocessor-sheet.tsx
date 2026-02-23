@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react'
 import { Button } from '@repo/ui/button'
 import { Copy, PanelRightClose } from 'lucide-react'
 import { FormProvider, useForm } from 'react-hook-form'
+import type { Resolver } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@repo/ui/sheet'
@@ -11,8 +12,8 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
-import { useGetTrustCenterSubprocessorByID, useUpdateTrustCenterSubprocessor } from '@/lib/graphql-hooks/trust-center-subprocessors'
-import { useUpdateSubprocessor } from '@/lib/graphql-hooks/subprocessors'
+import { useGetTrustCenterSubprocessorByID, useUpdateTrustCenterSubprocessor } from '@/lib/graphql-hooks/trust-center-subprocessor'
+import { useUpdateSubprocessor } from '@/lib/graphql-hooks/subprocessor'
 import { UpdateSubprocessorInput } from '@repo/codegen/src/schema'
 
 import { CategoryField } from './form-fields/category-field'
@@ -22,7 +23,9 @@ import { NameField } from './form-fields/name-field'
 import { DescriptionField } from './form-fields/description-field'
 import { LogoField } from './form-fields/logo-field'
 import { TUploadedFile } from '@/components/pages/protected/evidence/upload/types/TUploadedFile'
-import { useCreateCustomTypeEnum, useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
+import { useCreateCustomTypeEnum, useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { objectToSnakeCase } from '@/utils/strings'
 
 const schema = z.object({
   category: z.string().min(1, 'Category is required'),
@@ -53,13 +56,13 @@ export const EditTrustCenterSubprocessorSheet: React.FC = () => {
   const { mutateAsync: createEnum } = useCreateCustomTypeEnum()
   const { enumOptions } = useGetCustomTypeEnums({
     where: {
-      objectType: 'trust_center_subprocessor',
+      objectType: objectToSnakeCase(ObjectTypes.TRUST_CENTER_SUBPROCESSOR),
       field: 'kind',
     },
   })
 
   const formMethods = useForm<FormData>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(schema) as Resolver<FormData>,
     defaultValues: {
       category: '',
       countries: [],
@@ -89,9 +92,11 @@ export const EditTrustCenterSubprocessorSheet: React.FC = () => {
     router.push(params.toString() ? `?${params.toString()}` : '?')
   }
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     setOpen(!!trustCenterSubprocessorId)
   }, [trustCenterSubprocessorId])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   useEffect(() => {
     if (!data) return

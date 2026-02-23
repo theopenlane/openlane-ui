@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useCreateRisk } from '@/lib/graphql-hooks/risks.ts'
+import { useCreateRisk } from '@/lib/graphql-hooks/risk'
 import useFormSchema, { CreateRisksFormData } from '@/components/pages/protected/risks/view/hooks/use-form-schema.ts'
 import { useNotification } from '@/hooks/useNotification.tsx'
 import { Form } from '@repo/ui/form'

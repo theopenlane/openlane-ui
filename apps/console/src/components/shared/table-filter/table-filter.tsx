@@ -10,7 +10,7 @@ import { cn } from '@repo/ui/lib/utils'
 import { Calendar } from '@repo/ui/calendar'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
-import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
+import { TableKeyValue } from '@repo/ui/table-key'
 import { Separator as Hr } from '@repo/ui/separator'
 import { saveFilters, loadFilters, clearFilters, TFilterState, TFilterValue, saveQuickFilters, loadQuickFilter, clearQuickFilters } from '@/components/shared/table-filter/filter-storage.ts'
 import Slider from '../slider/slider'
@@ -22,7 +22,7 @@ import { DropdownSearchMultiselect } from '../filter-components/dropdown-search-
 
 type TTableFilterProps = {
   filterFields: FilterField[]
-  pageKey?: TableFilterKeysEnum
+  pageKey?: TableKeyValue
   onFilterChange?: (whereCondition: WhereCondition) => void
   quickFilters?: TQuickFilter[]
 }
@@ -287,13 +287,7 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
                 </span>
                 <span>{rangeMax}</span>
               </div>
-              <RadixSlider
-                min={rangeMin}
-                max={rangeMax}
-                step={1}
-                value={[currentMin, currentMax]}
-                onValueChange={(values: number[]) => handleChange(field.key, { min: values[0], max: values[1] })}
-              />
+              <RadixSlider min={rangeMin} max={rangeMax} step={1} value={[currentMin, currentMax]} onValueChange={(values: number[]) => handleChange(field.key, { min: values[0], max: values[1] })} />
             </div>
           )
         }

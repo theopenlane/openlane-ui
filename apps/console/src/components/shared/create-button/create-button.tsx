@@ -2,7 +2,26 @@
 
 import * as React from 'react'
 import Link from 'next/link'
-import { Plus, Settings2, ListChecks, AlertTriangle, Users, type LucideIcon, Pencil, ShieldCheck, Fingerprint, ScrollText, NotebookPen, Award, Box, User } from 'lucide-react'
+import {
+  Plus,
+  Settings2,
+  ListChecks,
+  AlertTriangle,
+  Users,
+  type LucideIcon,
+  type LucideProps,
+  Pencil,
+  ShieldCheck,
+  Fingerprint,
+  ScrollText,
+  NotebookPen,
+  Award,
+  Box,
+  User,
+  LaptopIcon,
+  Building2Icon,
+  UsersRoundIcon,
+} from 'lucide-react'
 import ControlImplementationIcon from '@/assets/ControlImplementationIcon'
 import ControlObjectiveIcon from '@/assets/ControlObjectiveIcon'
 import MapControlIcon from '@/assets/MapControlIcon'
@@ -29,10 +48,15 @@ type CreateType =
   | 'entity'
   | 'group'
   | 'user'
+  | 'asset'
+  | 'vendor'
+  | 'personnel'
+
+type SvgIcon = React.FC<LucideProps & { ref?: React.Ref<SVGSVGElement> }>
 
 type RegistryItem = {
   label: string
-  icon: LucideIcon
+  icon: LucideIcon | SvgIcon
 }
 
 const CREATE_REGISTRY: Record<CreateType, RegistryItem> = {
@@ -54,6 +78,9 @@ const CREATE_REGISTRY: Record<CreateType, RegistryItem> = {
   entity: { label: 'entity', icon: EntityIcon },
   group: { label: 'group', icon: Users },
   user: { label: 'user', icon: User },
+  asset: { label: 'asset', icon: LaptopIcon },
+  vendor: { label: 'vendor', icon: Building2Icon },
+  personnel: { label: 'personnel', icon: UsersRoundIcon },
 }
 
 export type CreateButtonProps = {
@@ -61,8 +88,8 @@ export type CreateButtonProps = {
   href?: string
   onClick?: React.MouseEventHandler<HTMLButtonElement>
   ariaLabel?: string
-  leftIcon?: LucideIcon
-  rightIcon?: LucideIcon
+  leftIcon?: LucideIcon | SvgIcon
+  rightIcon?: LucideIcon | SvgIcon
   leftIconSize?: number
   className?: string
   disabled?: boolean

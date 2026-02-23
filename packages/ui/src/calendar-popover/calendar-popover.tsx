@@ -12,6 +12,7 @@ export type CalendarPopoverProps<T extends FieldValues> = {
   field?: ControllerRenderProps<T, Path<T>>
   defaultToday?: boolean
   defaultAddDays?: number
+  defaultValue?: Date | null
   required?: boolean
   buttonClassName?: string
   disabledFrom?: Date
@@ -19,10 +20,10 @@ export type CalendarPopoverProps<T extends FieldValues> = {
   onChange?: (val: Date | null) => void
 }
 
-const CalendarPopover = <T extends FieldValues>({ field, defaultToday, required, defaultAddDays, buttonClassName, disabledFrom, disableFuture, onChange }: CalendarPopoverProps<T>) => {
+const CalendarPopover = <T extends FieldValues>({ field, defaultToday, required, defaultAddDays, defaultValue, buttonClassName, disabledFrom, disableFuture, onChange }: CalendarPopoverProps<T>) => {
   const todayDate = defaultToday ? new Date() : undefined
   const defaultAddDaysDate = defaultAddDays ? addDays(new Date(), defaultAddDays) : undefined
-  const defaultDate = defaultAddDaysDate ?? todayDate ?? null
+  const defaultDate = defaultValue ?? defaultAddDaysDate ?? todayDate ?? null
   const [isCalendarOpen, setIsCalendarOpen] = useState(false)
   const [value, setValue] = useState<Date | null>(defaultDate)
   const { calendarInput, calendarPopover: calendarPopoverStyle } = calendarPopoverStyles()

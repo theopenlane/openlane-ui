@@ -215,17 +215,12 @@ export const getSubprocessorsColumns = ({ selectedRows, setSelectedRows, userMap
   return { columns, mappedColumns }
 }
 
-export const subprocessorsFilterFields: FilterField[] = [
+export const getSubprocessorsFilterFields = (enumOptions: { value: string; label: string }[]): FilterField[] => [
   {
-    key: 'trustCenterSubprocessorKindNameContainsFold',
+    key: 'trustCenterSubprocessorKindNameIn',
     label: 'Category',
-    type: 'text',
+    type: 'multiselect',
+    options: enumOptions,
     icon: SubprocessorsFilterIcons.Category,
   },
-  // {
-  //   key: 'country',
-  //   label: 'Country',
-  //   type: 'text',
-  //   icon: SubprocessorsFilterIcons.Country,
-  // },
 ]

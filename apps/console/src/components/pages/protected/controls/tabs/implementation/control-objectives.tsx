@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { useDeleteControlObjective, useUpdateControlObjective } from '@/lib/graphql-hooks/control-objectives'
+import { useDeleteControlObjective, useUpdateControlObjective } from '@/lib/graphql-hooks/control-objective'
 import { ControlObjectiveFieldsFragment, ControlObjectiveObjectiveStatus } from '@repo/codegen/src/schema'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'

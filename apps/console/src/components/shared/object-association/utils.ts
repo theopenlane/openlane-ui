@@ -1,4 +1,4 @@
-import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap.ts'
+import { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap.ts'
 
 const buildMutationKey = (prefix: string, key: string) => `${prefix}${key.charAt(0).toUpperCase()}${key.slice(1)}`
 

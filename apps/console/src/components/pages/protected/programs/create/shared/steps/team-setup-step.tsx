@@ -6,10 +6,10 @@ import { Card } from '@repo/ui/cardpanel'
 import { FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
 import MultipleSelector from '@repo/ui/multiple-selector'
 import { useFormContext } from 'react-hook-form'
-import { useUserSelect } from '@/lib/graphql-hooks/members'
-import { useGroupSelect } from '@/lib/graphql-hooks/groups'
+import { useUserSelect } from '@/lib/graphql-hooks/member'
+import { useGroupSelect } from '@/lib/graphql-hooks/group'
 import { useSession } from 'next-auth/react'
-import MembersInviteSheet from '@/components/pages/protected/organization-settings/members/sidebar/members-invite-sheet'
+import MembersInviteSheet from '@/components/pages/protected/user-management/members/sidebar/members-invite-sheet'
 
 export default function TeamSetupStep() {
   const [showInviteForm, setShowInviteForm] = useState(false)

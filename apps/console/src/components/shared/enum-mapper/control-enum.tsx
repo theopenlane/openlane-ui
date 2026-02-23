@@ -27,6 +27,7 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 import { ControlControlSource, ControlControlStatus, ControlImplementationDocumentStatus } from '@repo/codegen/src/schema.ts'
+import { getEnumLabel } from './common-enum'
 
 export const ControlIconMapper16: Record<ControlControlStatus, React.ReactNode> = {
   [ControlControlStatus.APPROVED]: <Stamp height={16} width={16} className="text-approved" />,
@@ -64,16 +65,6 @@ export const ControlStatusOrder: ControlControlStatus[] = [
   ControlControlStatus.APPROVED,
   ControlControlStatus.ARCHIVED,
 ]
-
-export const ControlStatusLabels: Record<ControlControlStatus, string> = {
-  [ControlControlStatus.NOT_IMPLEMENTED]: 'Not Implemented',
-  [ControlControlStatus.PREPARING]: 'Preparing',
-  [ControlControlStatus.NEEDS_APPROVAL]: 'Needs Approval',
-  [ControlControlStatus.CHANGES_REQUESTED]: 'Changes Requested',
-  [ControlControlStatus.APPROVED]: 'Approved',
-  [ControlControlStatus.ARCHIVED]: 'Archived',
-  [ControlControlStatus.NOT_APPLICABLE]: 'Not applicable',
-}
 
 // Tooltip explanations for control statuses
 export const ControlStatusTooltips: Record<ControlControlStatus, string> = {
@@ -117,7 +108,7 @@ export const FilterIcons: Record<ControlsFilterIconName, LucideIcon> = {
 
 // Status options for select dropdowns
 export const ControlStatusOptions = Object.values(ControlControlStatus).map((status) => ({
-  label: ControlStatusLabels[status],
+  label: getEnumLabel(status),
   value: status,
 }))
 

@@ -19,7 +19,7 @@ interface InputRowProps extends InputRowVariants {
   children: ReactNode
 }
 
-const Input = React.forwardRef<HTMLInputElement, InputProps>(({ className, type, icon, prefix, suffix, variant, onIconClick, maxWidth, iconPosition = 'right', ...props }, ref) => {
+const Input = ({ className, type, icon, prefix, suffix, variant, onIconClick, maxWidth, iconPosition = 'right', ref, ...props }: InputProps & { ref?: React.Ref<HTMLInputElement> }) => {
   const { input, inputWrapper, iconWrapper, prefixWrapper } = inputStyles({
     variant,
   })
@@ -65,8 +65,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(({ className, type,
       {suffix && <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-sm bg-background-secondary border rounded-md px-1.5 py-0.5 font-medium">{suffix}</div>}
     </div>
   )
-})
-Input.displayName = 'Input'
+}
 
 const InputRow: React.FC<InputRowProps> = ({ children, className }) => {
   const styles = inputRowStyles()

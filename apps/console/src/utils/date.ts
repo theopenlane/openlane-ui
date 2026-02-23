@@ -100,3 +100,16 @@ const formatDateSince = (date: string | null | undefined): string => {
 }
 
 export { formatDateSince }
+
+const computeDueDate = (responseDueDuration?: number | null): string | undefined => {
+  if (!responseDueDuration || responseDueDuration <= 0) return undefined
+  return new Date(Date.now() + responseDueDuration * 1000).toISOString()
+}
+
+export { computeDueDate }
+
+const formatCurrency = (cost?: number | null): string | undefined => {
+  return cost ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(cost) : 'Not set'
+}
+
+export { formatCurrency }

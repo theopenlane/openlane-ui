@@ -5,19 +5,13 @@ import { sliderStyles } from './slider.styles'
 
 const { root, track, range, thumb } = sliderStyles()
 
-const Slider = React.forwardRef<React.ElementRef<typeof SliderPrimitive.Root>, React.ComponentPropsWithoutRef<typeof SliderPrimitive.Root>>(({ className, value, defaultValue, ...props }, ref) => {
-  const thumbCount = value?.length ?? defaultValue?.length ?? 1
-  return (
-    <SliderPrimitive.Root ref={ref} className={cn(root(), className)} value={value} defaultValue={defaultValue} {...props}>
-      <SliderPrimitive.Track className={track()}>
-        <SliderPrimitive.Range className={range()} />
-      </SliderPrimitive.Track>
-      {Array.from({ length: thumbCount }, (_, i) => (
-        <SliderPrimitive.Thumb key={i} className={thumb()} />
-      ))}
-    </SliderPrimitive.Root>
-  )
-})
-Slider.displayName = SliderPrimitive.Root.displayName
+const Slider = ({ className, ref, ...props }: React.ComponentPropsWithoutRef<typeof SliderPrimitive.Root> & { ref?: React.Ref<React.ComponentRef<typeof SliderPrimitive.Root>> }) => (
+  <SliderPrimitive.Root ref={ref} className={cn(root(), className)} {...props}>
+    <SliderPrimitive.Track className={cn(track(), className)}>
+      <SliderPrimitive.Range className={cn(range(), className)} />
+    </SliderPrimitive.Track>
+    <SliderPrimitive.Thumb className={cn(thumb(), className)} />
+  </SliderPrimitive.Root>
+)
 
 export { Slider }

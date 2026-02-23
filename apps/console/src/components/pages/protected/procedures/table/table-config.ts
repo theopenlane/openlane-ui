@@ -1,10 +1,10 @@
 import { FilterField } from '@/types'
 import { useEffect, useMemo, useState } from 'react'
-import { useProgramSelect } from '@/lib/graphql-hooks/programs'
-import { useGroupSelect } from '@/lib/graphql-hooks/groups'
+import { useProgramSelect } from '@/lib/graphql-hooks/program'
+import { useGroupSelect } from '@/lib/graphql-hooks/group'
 import { FilterIcons, ProcedureStatusFilterOptions } from '@/components/shared/enum-mapper/policy-enum'
-import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
-import { useGetTags } from '@/lib/graphql-hooks/tags'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
+import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 
 export function useProceduresFilters(): FilterField[] | null {
   const { programOptions, isSuccess: isProgramSuccess } = useProgramSelect({})
@@ -123,5 +123,6 @@ export const PROCEDURES_SORTABLE_FIELDS = [
   },
   { key: 'review_due', label: 'Review Due Date' },
   { key: 'revision', label: 'Revision' },
+  { key: 'created_at', label: 'Created At' },
   { key: 'updated_at', label: 'Last Updated' },
 ]

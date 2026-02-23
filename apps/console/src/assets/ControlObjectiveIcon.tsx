@@ -1,7 +1,7 @@
-import * as React from 'react'
+import type { Ref } from 'react'
 import type { LucideProps } from 'lucide-react'
 
-const ControlObjectiveIcon = React.forwardRef<SVGSVGElement, LucideProps>(({ className, size = 18, strokeWidth = 2, ...props }, ref) => (
+const ControlObjectiveIcon = ({ className, size = 18, strokeWidth = 2, ref, ...props }: LucideProps & { ref?: Ref<SVGSVGElement> }) => (
   <svg ref={ref} xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 18 18" fill="currentColor" stroke="none" className={className} strokeWidth={strokeWidth} {...props}>
     <path d="M9.52632 6.13127C9.52632 6.40741 9.30246 6.63127 9.02632 6.63127C8.75017 6.63127 8.52632 6.40741 8.52632 6.13127V4.28947C8.52632 4.01333 8.75017 3.78947 9.02632 3.78947C9.30246 3.78947 9.52632 4.01333 9.52632 4.28947V6.13127Z" />
     <path d="M10.3689 2.36816C10.3687 1.61252 9.75542 1 8.99974 1C8.24419 1.00014 7.63172 1.61261 7.63158 2.36816C7.63158 3.12384 8.2441 3.73717 8.99974 3.7373V4.7373L8.75756 4.72461C7.5634 4.60319 6.63158 3.59436 6.63158 2.36816C6.63172 1.06033 7.6919 0.000138882 8.99974 0C10.3077 0 11.3687 1.06024 11.3689 2.36816L11.3562 2.61035C11.235 3.80475 10.2261 4.7373 8.99974 4.7373V3.7373C9.7555 3.7373 10.3689 3.12392 10.3689 2.36816Z" />
@@ -13,7 +13,6 @@ const ControlObjectiveIcon = React.forwardRef<SVGSVGElement, LucideProps>(({ cla
     <path d="M15.6318 10.3689C16.3875 10.3687 17 9.75542 17 8.99974C16.9999 8.24419 16.3874 7.63172 15.6318 7.63158C14.8762 7.63158 14.2628 8.2441 14.2627 8.99974H13.2627L13.2754 8.75756C13.3968 7.5634 14.4056 6.63158 15.6318 6.63158C16.9397 6.63172 17.9999 7.6919 18 8.99974C18 10.3077 16.9398 11.3687 15.6318 11.3689L15.3896 11.3562C14.1953 11.235 13.2627 10.2261 13.2627 8.99974H14.2627C14.2627 9.7555 14.8761 10.3689 15.6318 10.3689Z" />
     <path d="M13 9C13 6.79086 11.2091 5 9 5C6.79086 5 5 6.79086 5 9C5 11.2091 6.79086 13 9 13V14C6.23858 14 4 11.7614 4 9C4 6.23858 6.23858 4 9 4C11.7614 4 14 6.23858 14 9C14 11.7614 11.7614 14 9 14V13C11.2091 13 13 11.2091 13 9Z" />
   </svg>
-))
+)
 
-ControlObjectiveIcon.displayName = 'ControlObjectiveIcon'
 export default ControlObjectiveIcon

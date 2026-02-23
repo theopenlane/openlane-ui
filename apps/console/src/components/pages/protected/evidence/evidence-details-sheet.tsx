@@ -35,11 +35,10 @@ import { useControlEvidenceStore } from '@/components/pages/protected/controls/h
 import { useDeleteEvidence, useGetEvidenceById, useUpdateEvidence } from '@/lib/graphql-hooks/evidence.ts'
 import { formatDate } from '@/utils/date.ts'
 import { Avatar } from '@/components/shared/avatar/avatar.tsx'
-import { Control, EvidenceEvidenceStatus, Subcontrol, User } from '@repo/codegen/src/schema.ts'
+import { Control, EvidenceEvidenceStatus, Subcontrol } from '@repo/codegen/src/schema.ts'
 import useFormSchema, { EditEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema.ts'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { Controller } from 'react-hook-form'
-import { EvidenceStatusMapper } from '@/components/pages/protected/evidence/util/evidence.ts'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { useQueryClient } from '@tanstack/react-query'
 import { Textarea } from '@repo/ui/textarea'
@@ -47,17 +46,16 @@ import { fileDownload } from '@/components/shared/lib/export.ts'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { EvidenceRenewDialog } from '@/components/pages/protected/evidence/evidence-renew-dialog'
 import { EvidenceIconMapper, EvidenceStatusOptions } from '@/components/shared/enum-mapper/evidence-enum'
-import { useGetOrgUserList } from '@/lib/graphql-hooks/members.ts'
+import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
 import { Panel, PanelHeader } from '@repo/ui/panel'
-import ObjectAssociation from '@/components/shared/objectAssociation/object-association.tsx'
-import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config.ts'
-import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap.ts'
+import ObjectAssociation from '@/components/shared/object-association/object-association.tsx'
+import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config.ts'
+import { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap.ts'
 import { getAssociationInput } from '@/components/shared/object-association/utils.ts'
 import { canEdit } from '@/lib/authz/utils'
 import useEscapeKey from '@/hooks/useEscapeKey'
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { EvidenceDetailsSheetSkeleton } from './skeleton/evidence-details-skeleton'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import NextLink from 'next/link'
@@ -65,23 +63,23 @@ import EvidenceFiles from './evidence-files'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { statCardStyles } from '@/components/shared/stats-cards/stats-cards-styles'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
-import { ProgramSelectionDialog } from '@/components/shared/objectAssociation/object-association-programs-dialog'
-import { ControlSelectionDialog } from '@/components/shared/objectAssociation/object-association-control-dialog'
-import ObjectAssociationProgramsChips from '@/components/shared/objectAssociation/object-association-programs-chips'
-import ObjectAssociationControlsChips from '@/components/shared/objectAssociation/object-association-controls-chips'
+import { ProgramSelectionDialog } from '@/components/shared/object-association/object-association-programs-dialog'
+import { ControlSelectionDialog } from '@/components/shared/object-association/object-association-control-dialog'
+import ObjectAssociationProgramsChips from '@/components/shared/object-association/object-association-programs-chips'
+import ObjectAssociationControlsChips from '@/components/shared/object-association/object-association-controls-chips'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
-import { useGetSuggestedControlsOrSubcontrols } from '@/lib/graphql-hooks/controls'
-import { buildWhere, CustomEvidenceControl, flattenAndFilterControls } from './evidence-sheet-config'
-import { useGetStandards } from '@/lib/graphql-hooks/standards'
-import { useGetTags } from '@/lib/graphql-hooks/tags'
+import { CustomEvidenceControl } from './evidence-sheet-config'
+import { useEvidenceSuggestedControls } from './hooks/use-evidence-suggested-controls'
+import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 import EvidenceCommentsCard from './evidence-comment-card'
 import PlateEditor from '@/components/shared/plate/plate-editor'
-import { Value } from 'platejs'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 
 type TEvidenceDetailsSheet = {
   controlId?: string
@@ -115,7 +113,6 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
   const [associationProgramsRefMap, setAssociationProgramsRefMap] = useState<string[]>([])
   const [openProgramsDialog, setOpenProgramsDialog] = useState(false)
-  const [suggestedControlsMap, setSuggestedControlsMap] = useState<{ id: string; refCode: string; referenceFramework: string | null; source: string; typeName: 'Control' | 'Subcontrol' }[]>([])
 
   const [evidenceControls, setEvidenceControls] = useState<CustomEvidenceControl[] | null>(null)
   const [evidenceSubcontrols, setEvidenceSubcontrols] = useState<CustomEvidenceControl[] | null>(null)
@@ -128,43 +125,17 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
     return { id, link: `${window.location.origin}${window.location.pathname}?id=${id}` }
   }, [controlEvidenceIdParam, id])
 
-  const where = useMemo(() => buildWhere(evidenceControls, evidenceSubcontrols), [evidenceControls, evidenceSubcontrols])
-
-  const { data: mappedControls } = useGetSuggestedControlsOrSubcontrols({
-    where: where,
-    enabled: !!where,
+  const { suggestedControlsMap, isLoading: isSuggestionsLoading } = useEvidenceSuggestedControls({
+    evidenceControls,
+    evidenceSubcontrols,
+    enabled: isEditing,
   })
-
-  const { data: standards } = useGetStandards({})
-
-  const standardNames = useMemo(() => new Set(standards?.standards?.edges?.flatMap((s) => (s?.node ? [s.node.shortName] : [])) ?? []), [standards])
-
-  useEffect(() => {
-    if (!where || !mappedControls || !standardNames.size) {
-      setSuggestedControlsMap([])
-      return
-    }
-
-    const items = flattenAndFilterControls(mappedControls, evidenceControls, evidenceSubcontrols)
-      .map((item) => ({
-        id: item.id,
-        refCode: item.refCode,
-        referenceFramework: item.referenceFramework ?? null,
-        source: item.source ?? '',
-        typeName: item.type,
-      }))
-      .filter((item) => item.referenceFramework && standardNames.has(item.referenceFramework))
-
-    const uniqueItems = Array.from(new Map(items.map((item) => [item.id, item])).values())
-
-    setSuggestedControlsMap(uniqueItems)
-  }, [where, mappedControls, evidenceControls, evidenceSubcontrols, standardNames])
 
   const { data, isLoading: fetching } = useGetEvidenceById(config.id)
 
   const [editField, setEditField] = useState<EditableFields | null>(null)
 
-  const { data: permission } = useAccountRoles(ObjectEnum.EVIDENCE, data?.evidence.id)
+  const { data: permission } = useAccountRoles(ObjectTypes.EVIDENCE, data?.evidence.id)
 
   const editAllowed = canEdit(permission?.roles)
 
@@ -185,19 +156,18 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
   const evidenceName = evidence?.name
   const statusOptions = EvidenceStatusOptions
 
-  const { form } = useFormSchema()
+  const { form } = useFormSchema(true)
 
   const triggerRef = useRef<HTMLDivElement>(null)
   const popoverRef = useRef<HTMLDivElement>(null)
 
   const initialAssociations = useMemo(
     () => ({
-      programIDs: (evidence?.programs?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-
-      controlObjectiveIDs: (evidence?.controlObjectives?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-      subcontrolIDs: (evidence?.subcontrols?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) ?? [],
-      controlIDs: (evidence?.controls?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) ?? [],
-      taskIDs: (evidence?.tasks?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) ?? [],
+      programIDs: evidence?.programs?.edges?.map((edge) => edge?.node?.id).filter((id): id is string => typeof id === 'string' && id.length > 0) ?? [],
+      controlObjectiveIDs: evidence?.controlObjectives?.edges?.map((edge) => edge?.node?.id).filter((id): id is string => typeof id === 'string' && id.length > 0) ?? [],
+      subcontrolIDs: evidence?.subcontrols?.edges?.map((edge) => edge?.node?.id).filter((id): id is string => typeof id === 'string' && id.length > 0) ?? [],
+      controlIDs: evidence?.controls?.edges?.map((edge) => edge?.node?.id).filter((id): id is string => typeof id === 'string' && id.length > 0) ?? [],
+      taskIDs: evidence?.tasks?.edges?.map((edge) => edge?.node?.id).filter((id): id is string => typeof id === 'string' && id.length > 0) ?? [],
     }),
     [evidence],
   )
@@ -218,7 +188,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
     return {
       controls,
       subcontrols,
-      programDisplayIDs: (evidence.programs?.edges?.map((e) => e?.node?.name).filter(Boolean) as string[]) ?? [],
+      programDisplayIDs: evidence.programs?.edges?.map((edge) => edge?.node?.name).filter((name): name is string => typeof name === 'string' && name.length > 0) ?? [],
       subcontrolRefCodes: subcontrols.map((s) => s.refCode),
       subcontrolReferenceFramework: Object.fromEntries(subcontrols.map((s) => [s.id, s.referenceFramework ?? ''])),
       controlRefCodes: controls.map((c) => c.refCode),
@@ -226,6 +196,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
     }
   }, [evidence])
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (initialAssociationsControlsAndPrograms.controls) {
       setEvidenceControls(initialAssociationsControlsAndPrograms.controls)
@@ -240,8 +211,8 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
       form.reset({
         name: evidence.name ?? '',
         description: evidence?.description ?? '',
-        renewalDate: evidence.renewalDate ? new Date(evidence.renewalDate as string) : undefined,
-        creationDate: evidence.creationDate ? new Date(evidence.creationDate as string) : undefined,
+        renewalDate: evidence.renewalDate,
+        creationDate: evidence.creationDate,
         status: evidence?.status ? Object.values(EvidenceEvidenceStatus).find((type) => type === evidence?.status) : undefined,
         tags: evidence?.tags ?? [],
         collectionProcedure: evidence?.collectionProcedure || '',
@@ -254,13 +225,15 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
           return {
             value: item,
             label: item,
-          } as Option
+          }
         })
         setTagValues(tags)
       }
     }
   }, [evidence, form])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const handleInitialValue = useCallback(() => {
     if (initialAssociations && initialAssociationsControlsAndPrograms) {
       form.setValue('controlIDs', initialAssociations.controlIDs ? initialAssociations.controlIDs : [])
@@ -271,9 +244,11 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
     }
   }, [form, initialAssociations, initialAssociationsControlsAndPrograms])
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     handleInitialValue()
   }, [handleInitialValue])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const programIDs = form.watch('programIDs')
 
@@ -315,9 +290,9 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
     router.replace(`${window.location.pathname}?${newSearchParams.toString()}`)
   }
 
-  const omit = <T extends object, K extends keyof T>(obj: T, keys: K[]): Omit<T, K> => Object.fromEntries(Object.entries(obj).filter(([k]) => !keys.includes(k as K))) as Omit<T, K>
-
   const onSubmit = async (formData: EditEvidenceFormData) => {
+    if (!config.id) return
+
     const controlIDs = form.getValues('controlIDs') || []
     const subcontrolIDs = form.getValues('subcontrolIDs') || []
     const programIDs = form.getValues('programIDs') || []
@@ -333,16 +308,15 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
     const associationInputs = getAssociationInput(initialAssociations, updatedAssociations)
 
-    const cleanFormData = omit(formData, ['programIDs', 'controlIDs', 'subcontrolIDs'])
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars -- destructured to exclude from cleanFormData
+    const { programIDs: _programIDs, controlIDs: _controlIDs, subcontrolIDs: _subcontrolIDs, ...restFormData } = formData
+    const cleanFormData = form.formState.dirtyFields.renewalDate ? restFormData : Object.fromEntries(Object.entries(restFormData).filter(([key]) => key !== 'renewalDate'))
 
     try {
-      let collectionProcedure
-      if (formData.collectionProcedure) {
-        collectionProcedure = await convertToHtml(formData.collectionProcedure as Value)
-      }
+      const collectionProcedure = formData.collectionProcedure && typeof formData.collectionProcedure !== 'string' ? await convertToHtml(formData.collectionProcedure) : formData.collectionProcedure
 
       await updateEvidence({
-        updateEvidenceId: config.id as string,
+        updateEvidenceId: config.id,
         input: {
           ...cleanFormData,
           ...associationInputs,
@@ -367,8 +341,10 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
   }
 
   const handleDelete = async () => {
+    if (!config.id) return
+
     try {
-      await deleteEvidence({ deleteEvidenceId: config.id as string })
+      await deleteEvidence({ deleteEvidenceId: config.id })
       successNotification({ title: `Evidence "${evidence?.name}" deleted successfully` })
       if (controlId) {
         queryClient.invalidateQueries({ queryKey: ['controls', controlId] })
@@ -399,8 +375,8 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
       Array.isArray(oldValue) && Array.isArray(newValue)
         ? oldValue.length === newValue.length && oldValue.every((v, i) => v === newValue[i])
         : oldValue instanceof Date && newValue instanceof Date
-        ? oldValue.getTime() === newValue.getTime()
-        : oldValue === newValue
+          ? oldValue.getTime() === newValue.getTime()
+          : oldValue === newValue
 
     if (isSame) {
       setEditField(null)
@@ -422,7 +398,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     if (e.key === 'Enter') {
-      ;(e.target as HTMLInputElement).blur()
+      e.currentTarget.blur()
     }
   }
 
@@ -449,6 +425,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
     },
   )
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (isEditPreset) {
       setIsEditing(true)
@@ -460,6 +437,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
       }, 500)
     }
   }, [isEditPreset, setIsEditPreset, setIsEditing])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const handleTags = () => {
     if (evidence?.tags?.length === 0) {
@@ -600,7 +578,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                           <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Write down the steps that were taken to collect the evidence.</p>} />
                         </div>
                         <FormControl>
-                          <PlateEditor initialValue={field.value as string} onChange={(val) => field.onChange(val)} />
+                          <PlateEditor initialValue={field.value ?? ''} onChange={(val) => field.onChange(val)} />
                         </FormControl>
                         {form.formState.errors.collectionProcedure && <p className="text-red-500 text-sm">{form.formState.errors.collectionProcedure.message}</p>}
                       </FormItem>
@@ -733,15 +711,15 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                                     <Select
                                       value={field.value ?? undefined}
                                       onValueChange={(value) => {
-                                        field.onChange(value)
+                                        field.onChange(value as EvidenceEvidenceStatus)
                                         handleUpdateField()
                                       }}
                                     >
-                                      <SelectTrigger className="w-[250px]">{EvidenceStatusMapper[field.value as EvidenceEvidenceStatus] || 'Select'}</SelectTrigger>
+                                      <SelectTrigger className="w-[250px]">{getEnumLabel(field.value as EvidenceEvidenceStatus) || 'Select'}</SelectTrigger>
                                       <SelectContent ref={popoverRef}>
                                         {statusOptions.map((option) => (
                                           <SelectItem key={option.value} value={option.value}>
-                                            {EvidenceStatusMapper[option.value as EvidenceEvidenceStatus]}
+                                            {getEnumLabel(option.value as EvidenceEvidenceStatus)}
                                           </SelectItem>
                                         ))}
                                       </SelectContent>
@@ -759,7 +737,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                               >
                                 <div className="flex justify-end items-center " onDoubleClick={() => editAllowed && handleDoubleClick('status')}>
                                   {EvidenceIconMapper[evidence?.status as EvidenceEvidenceStatus]}
-                                  <p>{EvidenceStatusMapper[evidence?.status as EvidenceEvidenceStatus]}</p>
+                                  <p>{getEnumLabel(evidence?.status as EvidenceEvidenceStatus)}</p>
                                 </div>
                               </HoverPencilWrapper>
                             )}
@@ -921,7 +899,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                               </div>
                               <div className="text-sm cursor-not-allowed">
                                 <p className="text-sm justify-end flex items-center">
-                                  <Avatar entity={createdByUser as User} variant="small" />
+                                  <Avatar entity={createdByUser} variant="small" />
                                   <span>{createdByUser?.displayName}</span>
                                 </p>
                               </div>
@@ -944,7 +922,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                               </div>
                               <div className="text-sm cursor-not-allowed">
                                 <p className="text-sm justify-end flex items-center ">
-                                  <Avatar entity={updatedByUser as User} variant="small" />
+                                  <Avatar entity={updatedByUser} variant="small" />
                                   <span>{updatedByUser?.displayName}</span>
                                 </p>
                               </div>
@@ -1011,6 +989,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                             <ObjectAssociationControlsChips
                               form={form}
                               suggestedControlsMap={suggestedControlsMap}
+                              isLoadingSuggestions={isSuggestionsLoading}
                               evidenceControls={evidenceControls}
                               setEvidenceControls={setEvidenceControls}
                               evidenceSubcontrols={evidenceSubcontrols}
@@ -1111,11 +1090,11 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
             form.reset({
               name: evidence?.name ?? '',
               description: evidence?.description ?? '',
-              renewalDate: evidence?.renewalDate ? new Date(evidence.renewalDate as string) : undefined,
-              creationDate: evidence?.creationDate ? new Date(evidence.creationDate as string) : undefined,
+              renewalDate: evidence?.renewalDate,
+              creationDate: evidence?.creationDate,
               status: evidence?.status ?? undefined,
               tags: evidence?.tags ?? [],
-              collectionProcedure: evidence?.collectionProcedure as string,
+              collectionProcedure: evidence?.collectionProcedure ?? '',
               source: evidence?.source ?? '',
               url: evidence?.url ?? '',
               controlIDs: initialAssociations.controlIDs ?? [],

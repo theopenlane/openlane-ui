@@ -1,7 +1,7 @@
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 import useEscapeKey from '@/hooks/useEscapeKey'
-import { useGetControlCategories, useGetControlSubcategories } from '@/lib/graphql-hooks/controls'
+import { useGetControlCategories, useGetControlSubcategories } from '@/lib/graphql-hooks/control'
 import { Popover, PopoverContent, PopoverTrigger } from '@radix-ui/react-popover'
 import { UpdateControlInput, UpdateSubcontrolInput } from '@repo/codegen/src/schema'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
@@ -50,7 +50,7 @@ export const EditableSelectFromQuery = ({
   const [open, setOpen] = useState(false)
 
   const rawOptions = useMemo(() => {
-    return isCategory ? categoriesData?.controlCategories ?? [] : subcategoriesData?.controlSubcategories ?? []
+    return isCategory ? (categoriesData?.controlCategories ?? []) : (subcategoriesData?.controlSubcategories ?? [])
   }, [isCategory, categoriesData, subcategoriesData])
   const initialOptions = useMemo(() => rawOptions.map((val) => ({ value: val, label: val })), [rawOptions])
   const triggerRef = useRef<HTMLDivElement>(null)

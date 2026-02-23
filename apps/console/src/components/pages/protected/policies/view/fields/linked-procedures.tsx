@@ -34,7 +34,7 @@ const ProcedureItem = memo(({ node }: { node: NonNullable<ProcedureNode> }) => {
         <AlignLeft size={16} />
         <span>Description</span>
       </div>
-      <div className="min-h-5">{convertToReadOnly(node.detailsJSON ? node.detailsJSON : node.details ?? '')}</div>
+      <div className="min-h-5">{convertToReadOnly(node.detailsJSON ? node.detailsJSON : (node.details ?? ''))}</div>
 
       <hr className="border-border mt-4" />
     </div>

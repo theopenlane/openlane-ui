@@ -114,7 +114,7 @@ export class MarkdownJoiner {
   }
 
   private isFalsePositive(char: string): boolean {
-    // when link is not complete, even if ths buffer is more than 30 characters, it is not a false positive
+    // when link is not complete, even if the buffer is more than 30 characters, it is not a false positive
     if (this.buffer.startsWith('[') && this.buffer.includes('http')) {
       return false
     }

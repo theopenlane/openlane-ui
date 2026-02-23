@@ -2,7 +2,7 @@
 
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
 import { Controller, useFormContext } from 'react-hook-form'
-import { CustomTypeEnumOption, useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
+import { CustomTypeEnumOption, useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { useMemo, useState } from 'react'
 import { CustomTypeEnumOptionChip, CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
 import { Label } from '@repo/ui/label'

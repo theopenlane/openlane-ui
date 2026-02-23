@@ -26,9 +26,7 @@ const AdvancedSetupStep3 = () => {
           <Lightbulb className="text-tip-text" size={18} />
           <span className="text-sm text-tip-text">Tips</span>
         </div>
-        <p className="text-sm text-tip-text">
-          Identify your audit partner for reference and reporting purposes. You can invite them or share access later when you’re ready.
-        </p>
+        <p className="text-sm text-tip-text">Identify your audit partner for reference and reporting purposes. You can invite them or share access later when you’re ready.</p>
       </div>
 
       {/* Form */}

@@ -4,4 +4,6 @@ export const EVIDENCE_FILES_SORT_FIELDS = [
     key: 'name',
     label: 'File Name',
   },
+  { key: 'created_at', label: 'Created At' },
+  { key: 'updated_at', label: 'Updated At' },
 ]

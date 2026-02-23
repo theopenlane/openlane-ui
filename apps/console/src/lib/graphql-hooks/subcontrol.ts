@@ -16,6 +16,7 @@ import {
   UPDATE_SUBCONTROL,
   UPDATE_SUBCONTROL_COMMENT,
   INSERT_SUBCONTROL_PLATE_COMMENT,
+  GET_EXISTING_SUBCONTROLS_FOR_ORGANIZATION,
 } from '@repo/codegen/query/subcontrol'
 import {
   CreateSubcontrolMutation,
@@ -41,6 +42,7 @@ import {
   UpdateSubcontrolMutationVariables,
   InsertSubcontrolPlateCommentMutation,
   InsertSubcontrolPlateCommentMutationVariables,
+  GetExistingSubcontrolsForOrganizationQuery,
 } from '@repo/codegen/src/schema'
 import { useEffect, useMemo } from 'react'
 import { TPagination } from '@repo/ui/pagination-types'
@@ -75,7 +77,7 @@ export const useGetAllSubcontrols = ({ where, pagination, enabled = true }: UseG
   const paginationMeta = {
     totalCount: queryResult.data?.subcontrols?.totalCount ?? 0,
     pageInfo: queryResult.data?.subcontrols?.pageInfo,
-    isLoading: queryResult.isFetching,
+    isLoading: queryResult.isLoading,
   }
 
   return {
@@ -110,7 +112,7 @@ export const useGetSubcontrolsPaginated = ({ where, pagination, enabled = true }
   const paginationMeta = {
     totalCount: queryResult.data?.subcontrols?.totalCount ?? 0,
     pageInfo: queryResult.data?.subcontrols?.pageInfo,
-    isLoading: queryResult.isFetching,
+    isLoading: queryResult.isLoading,
   }
 
   return {
@@ -323,5 +325,22 @@ export const useInsertSubcontrolPlateComment = () => {
     mutationFn: async (variables) => {
       return client.request(INSERT_SUBCONTROL_PLATE_COMMENT, variables)
     },
+  })
+}
+
+export const useGetExistingOrgSubcontrols = ({ refCodeIn, referenceFrameworkIn, enabled = true }: { refCodeIn: string[]; referenceFrameworkIn?: string[]; enabled?: boolean }) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<GetExistingSubcontrolsForOrganizationQuery>({
+    queryKey: ['subcontrols', 'existingOrg', refCodeIn, referenceFrameworkIn],
+    queryFn: () =>
+      client.request(GET_EXISTING_SUBCONTROLS_FOR_ORGANIZATION, {
+        where: {
+          refCodeIn,
+          systemOwned: false,
+          ...(referenceFrameworkIn?.length && { referenceFrameworkIn }),
+        },
+      }),
+    enabled: enabled && refCodeIn.length > 0,
   })
 }

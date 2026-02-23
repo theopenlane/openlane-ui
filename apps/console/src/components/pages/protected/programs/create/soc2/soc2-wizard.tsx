@@ -11,14 +11,14 @@ import { StepHeader } from '@/components/shared/step-header/step-header'
 import SelectCategoryStep from '../shared/steps/select-category-step'
 import TeamSetupStep from '../shared/steps/team-setup-step'
 import StartTypeStep from '../shared/steps/start-type-step'
-import { programInviteSchema, step1Schema, step3Schema, validateFullAndNotify, WizardValues } from './sco2-wizard-config'
+import { fullSchema, validateFullAndNotify, WizardValues } from './sco2-wizard-config'
 import { useNotification } from '@/hooks/useNotification'
 import { CreateProgramWithMembersInput, ProgramMembershipRole } from '@repo/codegen/src/schema'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { useCreateProgramWithMembers } from '@/lib/graphql-hooks/programs'
+import { useCreateProgramWithMembers } from '@/lib/graphql-hooks/program'
 import { addYears, getYear } from 'date-fns'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
-import { useStandardsSelect } from '@/lib/graphql-hooks/standards'
+import { useStandardsSelect } from '@/lib/graphql-hooks/standard'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 
 const today = new Date()
@@ -36,18 +36,17 @@ export default function Soc2Wizard() {
   const standardID = data?.standards?.edges?.[0]?.node?.id
 
   const { useStepper } = defineStepper(
-    { id: '0', label: 'Pick Categories', schema: step1Schema },
-    { id: '1', label: 'Team Setup', schema: programInviteSchema },
-    { id: '2', label: 'Access Control', schema: step3Schema },
+    { id: '0', label: 'Pick Categories', schema: fullSchema.pick({ categories: true, standardID: true }) },
+    { id: '1', label: 'Team Setup', schema: fullSchema.pick({ programAdmins: true, programMembers: true, viewerIDs: true, editorIDs: true }) },
+    { id: '2', label: 'Access Control', schema: fullSchema.pick({ programKindName: true }) },
   )
   const stepper = useStepper()
 
   const methods = useForm<WizardValues>({
-    resolver: zodResolver(stepper.current.schema),
+    resolver: zodResolver(fullSchema),
     mode: 'onChange',
     defaultValues: {
       categories: ['Security'],
-      programKindName: undefined,
     },
   })
 
@@ -100,6 +99,14 @@ export default function Soc2Wizard() {
   const handleNext = async (e?: React.FormEvent<HTMLFormElement>) => {
     e?.preventDefault()
     if (!stepper.isLast) {
+      let isValid = false
+      if (stepper.current.id === '0') {
+        isValid = await methods.trigger(['categories', 'standardID'])
+      } else {
+        isValid = await methods.trigger(['programAdmins', 'programMembers', 'viewerIDs', 'editorIDs'])
+      }
+
+      if (!isValid) return
       stepper.next()
     } else {
       const validAll = await validateFullAndNotify(methods, errorNotification)

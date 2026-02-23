@@ -6,7 +6,7 @@ import { Card } from '@repo/ui/cardpanel'
 import { Button } from '@repo/ui/button'
 import { CopyIcon, PlusCircle } from 'lucide-react'
 import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/create-task-dialog'
-import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
+import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
 import { useNotification } from '@/hooks/useNotification'
 import ActivityAccordionTrigger from '../activity/activity-accordion-trigger'
 
@@ -37,7 +37,7 @@ interface GuidanceTabProps {
   controlQuestions?: string[] | null
   assessmentMethods?: AssessmentMethod[] | null
   assessmentObjectives?: AssessmentObjective[] | null
-  testingProcedures?: string[] | null
+  testingProcedures?: { referenceId: string; procedures: string[] }[] | null
   references?: ReferenceItem[] | null
   refCode?: string
   controlId?: string
@@ -158,34 +158,42 @@ const GuidanceTab: React.FC<GuidanceTabProps> = ({
       key: 'testing-procedures',
       label: 'Testing procedures',
       hasData: !!testingProcedures?.length,
-      render: () => (
-        <div className="space-y-4">
-          {testingProcedures!.map((item, index) => {
-            const title = refCode ? `Control ${refCode} Test - ${index + 1}` : `Control Test - ${index + 1}`
-            const initialData = isSubcontrol ? (subcontrolId ? { subcontrolIDs: [subcontrolId] } : undefined) : controlId ? { controlIDs: [controlId] } : undefined
-            const defaultSelectedObject = isSubcontrol ? ObjectTypeObjects.SUB_CONTROL : ObjectTypeObjects.CONTROL
+      render: () => {
+        const initialData = isSubcontrol ? (subcontrolId ? { subcontrolIDs: [subcontrolId] } : undefined) : controlId ? { controlIDs: [controlId] } : undefined
+        const defaultSelectedObject = isSubcontrol ? ObjectTypeObjects.SUB_CONTROL : ObjectTypeObjects.CONTROL
 
-            return (
-              <Card key={`testing-${index}`} className="p-4">
-                <div className="flex items-center justify-between gap-3">
-                  <div className="text-sm text-muted-foreground">{item}</div>
-                  <CreateTaskDialog
-                    defaultSelectedObject={defaultSelectedObject}
-                    initialData={initialData}
-                    initialValues={{ title, details: item }}
-                    hideObjectAssociation
-                    trigger={
-                      <Button type="button" variant="secondary" className="h-8 px-3" icon={<PlusCircle size={14} />} iconPosition="left">
-                        Create Task
-                      </Button>
-                    }
-                  />
-                </div>
-              </Card>
-            )
-          })}
-        </div>
-      ),
+        return (
+          <div className="space-y-4">
+            {testingProcedures!.map(({ referenceId, procedures }, groupIndex) => {
+              const title = refCode ? `Control ${refCode} Test - ${groupIndex + 1}` : `Control Test - ${groupIndex + 1}`
+              const details = procedures.join('\n')
+
+              return (
+                <Card key={`${referenceId}-${groupIndex}`} className="p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <ul className="text-sm text-muted-foreground list-inside space-y-1">
+                      {procedures.map((p, i) => (
+                        <li key={i}>{p.trim()}</li>
+                      ))}
+                    </ul>
+                    <CreateTaskDialog
+                      defaultSelectedObject={defaultSelectedObject}
+                      initialData={initialData}
+                      initialValues={{ title, details }}
+                      hideObjectAssociation
+                      trigger={
+                        <Button type="button" variant="secondary" className="h-8 px-3 shrink-0" icon={<PlusCircle size={14} />} iconPosition="left">
+                          Create Task
+                        </Button>
+                      }
+                    />
+                  </div>
+                </Card>
+              )
+            })}
+          </div>
+        )
+      },
     },
     {
       key: 'references',

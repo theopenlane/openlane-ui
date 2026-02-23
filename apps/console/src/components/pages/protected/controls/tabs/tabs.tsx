@@ -12,7 +12,7 @@ import DocumentationTab from '@/components/pages/protected/controls/tabs/documen
 import ActivityTab from '@/components/pages/protected/controls/tabs/activity/activity-tab'
 import ScrollableTabsList from '@/components/pages/protected/controls/tabs/scrollable-tabs-list'
 import ControlTabsList from '@/components/pages/protected/controls/tabs/control-tabs-list'
-import { useGetControlAssociationsById, type ControlByIdNode } from '@/lib/graphql-hooks/controls'
+import { useGetControlAssociationsById, type ControlByIdNode } from '@/lib/graphql-hooks/control'
 import { useGetSubcontrolAssociationsById, type SubcontrolByIdNode } from '@/lib/graphql-hooks/subcontrol'
 import { buildControlEvidenceData, buildSubcontrolEvidenceData } from '@/components/pages/protected/controls/evidence-data'
 
@@ -58,8 +58,8 @@ const ControlDetailsTabs: React.FC<TabsProps> = (props) => {
       | null
       | undefined
     if (!raw) return null
-    if (Array.isArray(raw)) return raw.flatMap((p) => p?.procedures ?? [])
-    return raw.procedures ?? []
+    if (Array.isArray(raw)) return raw
+    return [raw]
   }, [isSubcontrol, subcontrol?.testingProcedures, control?.testingProcedures])
 
   const references = (isSubcontrol ? subcontrol?.references : control?.references) as { name: string; url?: string }[] | null | undefined
@@ -144,7 +144,12 @@ const ControlDetailsTabs: React.FC<TabsProps> = (props) => {
       </TabsContent>
 
       <TabsContent value="linked-controls" className="space-y-6">
-        <LinkedControlsTab controlId={isSubcontrol ? undefined : control?.id} subcontrolId={isSubcontrol ? subcontrol?.id : undefined} refCode={refCode} />
+        <LinkedControlsTab
+          controlId={isSubcontrol ? undefined : control?.id}
+          subcontrolId={isSubcontrol ? subcontrol?.id : undefined}
+          refCode={refCode}
+          sourceFramework={isSubcontrol ? subcontrol?.referenceFramework : control?.referenceFramework}
+        />
       </TabsContent>
 
       {hasGuidanceData && (
@@ -165,7 +170,7 @@ const ControlDetailsTabs: React.FC<TabsProps> = (props) => {
       )}
 
       <TabsContent value="documentation" className="space-y-6">
-        <DocumentationTab controlId={isSubcontrol ? subcontrol?.control?.id ?? '' : control?.id ?? ''} subcontrolIds={subcontrolIds} />
+        <DocumentationTab controlId={isSubcontrol ? (subcontrol?.control?.id ?? '') : (control?.id ?? '')} subcontrolIds={subcontrolIds} />
       </TabsContent>
 
       <TabsContent value="activity" className="space-y-6">

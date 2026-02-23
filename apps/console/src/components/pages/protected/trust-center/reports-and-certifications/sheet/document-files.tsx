@@ -7,7 +7,7 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
-import { useGetTrustCenterDocById, useUpdateTrustCenterDoc } from '@/lib/graphql-hooks/trust-center'
+import { useGetTrustCenterDocById, useUpdateTrustCenterDoc } from '@/lib/graphql-hooks/trust-center-doc'
 import { TDocumentFile, useGetFilesColumns } from './document-files-table-config'
 import { DocumentUploadDialog } from './document-upload-dialog'
 import { TableKeyEnum } from '@repo/ui/table-key'
@@ -62,15 +62,15 @@ export const DocumentFiles: React.FC<TDocumentFiles> = ({ documentId, editAllowe
         },
       ]
     : documentData?.trustCenterDoc?.originalFile
-    ? [
-        {
-          id: documentData.trustCenterDoc.id,
-          providedFileName: documentData.trustCenterDoc.originalFile.providedFileName,
-          providedFileSize: documentData.trustCenterDoc.originalFile.providedFileSize,
-          presignedURL: documentData.trustCenterDoc.originalFile.presignedURL ?? '',
-        },
-      ]
-    : []
+      ? [
+          {
+            id: documentData.trustCenterDoc.id,
+            providedFileName: documentData.trustCenterDoc.originalFile.providedFileName,
+            providedFileSize: documentData.trustCenterDoc.originalFile.providedFileSize,
+            presignedURL: documentData.trustCenterDoc.originalFile.presignedURL ?? '',
+          },
+        ]
+      : []
 
   const columns = useGetFilesColumns({
     onDelete: (file) => {

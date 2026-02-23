@@ -1,19 +1,20 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Input } from '@repo/ui/input'
 import { Button } from '@repo/ui/button'
 import { ChevronDown, DownloadIcon, LoaderCircle, SearchIcon, Trash2 } from 'lucide-react'
 import { VisibilityState } from '@tanstack/react-table'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
-import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys'
 import { CreateSubprocessorMutation, SubprocessorWhereInput } from '@repo/codegen/src/schema'
+import { FilterField } from '@/types'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
-import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys'
-import { subprocessorsFilterFields } from './table-config'
-import { useBulkDeleteTrustCenterSubprocessors } from '@/lib/graphql-hooks/trust-center-subprocessors'
-import { useGetSubprocessors } from '@/lib/graphql-hooks/subprocessors'
+import { TableKeyEnum } from '@repo/ui/table-key'
+import { getSubprocessorsFilterFields } from './table-config'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
+import { useBulkDeleteTrustCenterSubprocessors } from '@/lib/graphql-hooks/trust-center-subprocessor'
+import { useGetSubprocessors } from '@/lib/graphql-hooks/subprocessor'
 import { CreateSubprocessorSheet } from '../sheet/create-subprocessor-sheet'
 import { AddExistingDialog } from './add-existing-dialog'
 import Menu from '@/components/shared/menu/menu'
@@ -51,6 +52,22 @@ const SubprocessorsTableToolbar: React.FC<TProps> = ({
   const [addExistingOpen, setAddExistingOpen] = useState(false)
 
   const { mutate: deleteRows, isPending: isDeleting } = useBulkDeleteTrustCenterSubprocessors()
+  const [filterFields, setFilterFields] = useState<FilterField[] | undefined>(undefined)
+  const { enumOptions, isSuccess: isTypesSuccess } = useGetCustomTypeEnums({
+    where: {
+      objectType: 'trust_center_subprocessor',
+      field: 'kind',
+    },
+  })
+
+  useEffect(() => {
+    if (filterFields || !isTypesSuccess) {
+      return
+    }
+    const fields = getSubprocessorsFilterFields(enumOptions)
+    setFilterFields(fields)
+  }, [filterFields, enumOptions, isTypesSuccess])
+
   const [createdSubprocessor, setCreatedSubprocessor] = useState<null | CreateSubprocessorMutation['createSubprocessor']['subprocessor']>(null)
   const { subprocessors } = useGetSubprocessors({
     where: { or: [{ hasTrustCenterSubprocessors: false }] },
@@ -130,15 +147,10 @@ const SubprocessorsTableToolbar: React.FC<TProps> = ({
               )}
             />
             {mappedColumns && columnVisibility && setColumnVisibility && (
-              <ColumnVisibilityMenu
-                mappedColumns={mappedColumns}
-                columnVisibility={columnVisibility}
-                setColumnVisibility={setColumnVisibility}
-                storageKey={TableColumnVisibilityKeysEnum.SUBPROCESSORS}
-              />
+              <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.TRUST_CENTER_SUBPROCESSORS} />
             )}
 
-            <TableFilter filterFields={subprocessorsFilterFields} onFilterChange={handleFilterChange} pageKey={TableFilterKeysEnum.SUBPROCESSORS} />
+            {filterFields && <TableFilter filterFields={filterFields} onFilterChange={handleFilterChange} pageKey={TableKeyEnum.TRUST_CENTER_SUBPROCESSORS} />}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="primary" className="h-8" icon={<ChevronDown size={16} />}>

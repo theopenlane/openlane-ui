@@ -17,9 +17,9 @@ import { useNotification } from '@/hooks/useNotification'
 import { Option } from '@repo/ui/multiple-selector'
 import { useCreateEvidence } from '@/lib/graphql-hooks/evidence'
 import { TFormEvidenceData } from '@/components/pages/protected/evidence/types/TFormEvidenceData.ts'
-import ObjectAssociation from '@/components/shared/objectAssociation/object-association'
-import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
-import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap'
+import ObjectAssociation from '@/components/shared/object-association/object-association'
+import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
+import { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
 import { Panel, PanelHeader } from '@repo/ui/panel'
 import { useQueryClient } from '@tanstack/react-query'
 import HeadsUpDisplay from '@/components/shared/heads-up/heads-up'
@@ -27,10 +27,11 @@ import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { TUploadedFile } from './upload/types/TUploadedFile'
 import { useSearchParams } from 'next/navigation'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { useGetTags } from '@/lib/graphql-hooks/tags'
+import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import PlateEditor from '@/components/shared/plate/plate-editor'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import { Value } from 'platejs'
+import { EVIDENCE_ASSOCIATION_FIELDS } from './evidence-sheet-config'
+
 type TProps = {
   formData?: TFormEvidenceData
   onEvidenceCreateSuccess?: () => void
@@ -54,32 +55,32 @@ const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSucces
   const { convertToHtml } = usePlateEditor()
 
   const onSubmitHandler = async (data: CreateEvidenceFormData) => {
-    if (data.collectionProcedure) {
-      data.collectionProcedure = await convertToHtml(data.collectionProcedure as Value)
+    const collectionProcedure = data.collectionProcedure && typeof data.collectionProcedure !== 'string' ? await convertToHtml(data.collectionProcedure) : data.collectionProcedure
+
+    const input: CreateEvidenceInput = {
+      name: data.name,
+      description: data.description,
+      tags: data.tags,
+      creationDate: data.creationDate,
+      renewalDate: data.renewalDate,
+      collectionProcedure,
+      source: data.source,
+      fileIDs: data.fileIDs,
+      controlIDs: data.controlIDs,
+      taskIDs: data.taskIDs,
+      subcontrolIDs: data.subcontrolIDs,
+      ...(programId ? { programIDs: [programId] } : {}),
+      ...(data.url ? { url: data.url } : {}),
+      ...evidenceObjectTypes,
     }
 
-    const formData = {
-      input: {
-        name: data.name,
-        description: data.description,
-        tags: data.tags,
-        creationDate: data.creationDate,
-        renewalDate: data.renewalDate,
-        collectionProcedure: data.collectionProcedure,
-        source: data.source,
-        fileIDs: data.fileIDs,
-        controlIDs: data.controlIDs,
-        taskIDs: data.taskIDs,
-        subcontrolIDs: data.subcontrolIDs,
-        ...(programId ? { programIDs: [programId] } : {}),
-        ...(data.url ? { url: data.url } : {}),
-        ...evidenceObjectTypes,
-      } as CreateEvidenceInput,
+    const payload = {
+      input,
       evidenceFiles: data.evidenceFiles?.map((item) => item.file) || [],
     }
 
     try {
-      const res = await createEvidence(formData)
+      const res = await createEvidence(payload)
       successNotification({
         title: 'Evidence Created',
         description: `Evidence has been successfully created`,
@@ -87,7 +88,7 @@ const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSucces
       queryClient.invalidateQueries({
         predicate: (query) => {
           const key = query.queryKey[0]
-          return ['controls', 'programs', 'tasks', 'subcontrols', 'controlObjectives'].includes(key as string)
+          return typeof key === 'string' && ['controls', 'programs', 'tasks', 'subcontrols', 'controlObjectives'].includes(key)
         },
       })
 
@@ -104,11 +105,15 @@ const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSucces
     }
   }
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (formData) {
       form.setValue('name', `Evidence for ${formData.displayID}`)
-      for (const [key, value] of Object.entries(formData.objectAssociations)) {
-        form.setValue(key as keyof CreateEvidenceFormData, value)
+      for (const key of EVIDENCE_ASSOCIATION_FIELDS) {
+        const value = formData.objectAssociations[key]
+        if (value) {
+          form.setValue(key, value)
+        }
       }
 
       if (formData?.tags) {
@@ -117,12 +122,13 @@ const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSucces
           return {
             value: item,
             label: item,
-          } as Option
+          }
         })
         setTagValues(tags)
       }
     }
   }, [form, formData])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   useEffect(() => {
     setCrumbs([
@@ -209,7 +215,7 @@ const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSucces
                             <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Write down the steps that were taken to collect the evidence.</p>} />
                           </div>
                           <FormControl>
-                            <PlateEditor initialValue={field.value as string} onChange={(val) => field.onChange(val)} />
+                            <PlateEditor initialValue={field.value ?? ''} onChange={(val) => field.onChange(val)} />
                           </FormControl>
                           {form.formState.errors.collectionProcedure && <p className="text-red-500 text-sm">{form.formState.errors.collectionProcedure.message}</p>}
                         </FormItem>

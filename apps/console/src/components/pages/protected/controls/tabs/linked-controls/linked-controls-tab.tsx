@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react'
 import SubcontrolsTable from './subcontrols-table'
 import { useGetMappedControls } from '@/lib/graphql-hooks/mapped-control'
-import { useGetControlsByRefCode, type ControlsByRefcodeNode } from '@/lib/graphql-hooks/controls'
+import { useGetControlsByRefCode, type ControlsByRefcodeNode } from '@/lib/graphql-hooks/control'
 import { useGetSubcontrolsByRefCode, type SubcontrolsByRefcodeNode } from '@/lib/graphql-hooks/subcontrol'
 import { MappedControlMappingSource } from '@repo/codegen/src/schema'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
@@ -13,30 +13,37 @@ import { useGetSubcontrolsPaginated } from '@/lib/graphql-hooks/subcontrol'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { TableSkeleton } from '@/components/shared/skeleton/table-skeleton'
 import EmptyTabState from '@/components/pages/protected/controls/tabs/shared/empty-tab-state'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 export type LinkedControlsTabProps = {
   controlId?: string
   subcontrolId?: string
   refCode: string
+  sourceFramework?: string | null
 }
 
-const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcontrolId, refCode }) => {
+const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcontrolId, refCode, sourceFramework }) => {
   const isSubcontrolMode = !!subcontrolId
   const mappedControlWhere = useMemo(() => {
+    const withFilter = { refCode, referenceFramework: sourceFramework }
+    const suggestedWhere = {
+      and: [{ source: MappedControlMappingSource.SUGGESTED }, isSubcontrolMode ? { hasFromSubcontrolsWith: [withFilter] } : { hasFromControlsWith: [withFilter] }],
+    }
+
     if (isSubcontrolMode && subcontrolId) {
       return {
-        or: [{ hasFromSubcontrolsWith: [{ id: subcontrolId }] }, { hasToSubcontrolsWith: [{ id: subcontrolId }] }],
+        or: [suggestedWhere, { hasFromSubcontrolsWith: [{ id: subcontrolId }] }],
       }
     }
 
     if (controlId) {
       return {
-        or: [{ hasFromControlsWith: [{ id: controlId }] }, { hasToControlsWith: [{ id: controlId }] }],
+        or: [suggestedWhere, { hasFromControlsWith: [{ id: controlId }] }],
       }
     }
 
     return undefined
-  }, [controlId, subcontrolId, isSubcontrolMode])
+  }, [controlId, subcontrolId, isSubcontrolMode, refCode, sourceFramework])
 
   const { data: mappedControlsData, isLoading: isMappedControlsLoading } = useGetMappedControls({ where: mappedControlWhere, enabled: Boolean(controlId || subcontrolId) })
 
@@ -77,7 +84,7 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcon
           mappingType: node.mappingType,
           relation: node.relation,
           source: mappingSource,
-          nodeType: 'Control',
+          nodeType: ObjectTypes.CONTROL,
         })
       })
 
@@ -94,7 +101,7 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcon
           mappingType: node.mappingType,
           relation: node.relation,
           source: mappingSource,
-          nodeType: 'Subcontrol',
+          nodeType: ObjectTypes.SUBCONTROL,
         })
       })
     })
@@ -109,7 +116,7 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcon
       Array.from(
         new Set(
           mappedControls
-            .filter((row) => row.nodeType === 'Control')
+            .filter((row) => row.nodeType === ObjectTypes.CONTROL)
             .map((row) => row.refCode)
             .filter(Boolean),
         ),
@@ -121,7 +128,7 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcon
       Array.from(
         new Set(
           mappedControls
-            .filter((row) => row.nodeType === 'Subcontrol')
+            .filter((row) => row.nodeType === ObjectTypes.SUBCONTROL)
             .map((row) => row.refCode)
             .filter(Boolean),
         ),

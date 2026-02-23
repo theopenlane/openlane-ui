@@ -80,4 +80,6 @@ export const RISKS_SORT_FIELDS = [
     key: RiskOrderField.STATUS,
     label: 'Status',
   },
+  { key: 'created_at', label: 'Created At' },
+  { key: 'updated_at', label: 'Updated At' },
 ]

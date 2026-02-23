@@ -5,8 +5,8 @@ import { PageHeading } from '@repo/ui/page-heading'
 import dynamic from 'next/dynamic'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { Edit, Send, Trash2 } from 'lucide-react'
-import { useDeleteAssessment, useCreateAssessmentResponse, useGetAssessment } from '@/lib/graphql-hooks/assessments'
-import { useCreateTemplate } from '@/lib/graphql-hooks/templates'
+import { useDeleteAssessment, useCreateAssessmentResponse, useGetAssessment } from '@/lib/graphql-hooks/assessment'
+import { useCreateTemplate } from '@/lib/graphql-hooks/template'
 import { useNotification } from '@/hooks/useNotification'
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from '@repo/ui/alert-dialog'
 import { Button } from '@repo/ui/button'
@@ -17,6 +17,7 @@ import { z } from 'zod'
 import { Input } from '@repo/ui/input'
 import { canEdit } from '@/lib/authz/utils'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { computeDueDate } from '@/utils/date'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { TemplateDocumentType } from '@repo/codegen/src/schema'
 import { SaveButton } from '@/components/shared/save-button/save-button'
@@ -63,10 +64,12 @@ const QuestionnaireViewerPage: React.FC = () => {
 
   const handleSend: SubmitHandler<{ email: string }> = async (data) => {
     try {
+      const dueDate = computeDueDate(questionnaire?.responseDueDuration)
       await createAssessmentResponse({
         input: {
           email: data.email,
           assessmentID: existingId,
+          ...(dueDate && { dueDate }),
         },
       })
       successNotification({ title: `Questionnaire sent to ${data.email}` })
