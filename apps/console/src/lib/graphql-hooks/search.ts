@@ -4,8 +4,8 @@ import { useMemo } from 'react'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import routeList from '@/route-list.json'
 import type { RoutePage } from '@/types'
-import { SEARCH, SEARCH_CONTEXT_LABELS } from '@repo/codegen/query/search'
-import type { SearchContextLabelsQuery, SearchContextLabelsQueryVariables, SearchQuery } from '@repo/codegen/src/schema'
+import { SEARCH } from '@repo/codegen/query/search'
+import type { SearchQuery } from '@repo/codegen/src/schema'
 
 export type SearchContextResult = {
   entityID: string
@@ -25,107 +25,20 @@ export type SearchContextGroup = {
   results: SearchContextResult[]
 }
 
-const SEARCH_ENTITY_TYPE_ORDER = ['Control', 'Subcontrol', 'InternalPolicy', 'Procedure', 'Program', 'Task', 'Risk', 'Group', 'Organization']
-
-const LABEL_SUPPORTED_ENTITY_TYPES = ['Control', 'Subcontrol', 'InternalPolicy', 'Procedure', 'Program', 'Task', 'Risk', 'Group', 'Organization'] as const
-
-type SupportedSearchEntityType = (typeof LABEL_SUPPORTED_ENTITY_TYPES)[number]
-
-type SearchContextIdsByType = Record<SupportedSearchEntityType, string[]>
-
 type SearchContextLabelData = {
   primaryLabel: string
   subcontrolParentId?: string
   controlOwnerID?: string | null
 }
 
-export type SearchContextLabelLookup = Map<string, SearchContextLabelData>
-
-const getEntityTypeSortWeight = (entityType: string) => {
-  const knownIndex = SEARCH_ENTITY_TYPE_ORDER.indexOf(entityType)
-  return knownIndex === -1 ? Number.MAX_SAFE_INTEGER : knownIndex
-}
-
-const createEmptyIdsByType = (): SearchContextIdsByType => ({
-  Control: [],
-  Subcontrol: [],
-  InternalPolicy: [],
-  Procedure: [],
-  Program: [],
-  Task: [],
-  Risk: [],
-  Group: [],
-  Organization: [],
-})
-
-const uniqueSorted = (values: string[]) => Array.from(new Set(values)).sort((left, right) => left.localeCompare(right))
-
-const isSupportedSearchEntityType = (entityType: string): entityType is SupportedSearchEntityType => {
-  return (LABEL_SUPPORTED_ENTITY_TYPES as readonly string[]).includes(entityType)
-}
+type SearchContextLabelLookup = Map<string, SearchContextLabelData>
 
 const getLabelLookupKey = (entityType: string, entityID: string) => `${entityType}:${entityID}`
 
-export const collectSearchContextIdsByType = (results: SearchContextResult[]): SearchContextIdsByType => {
-  const idsByType = createEmptyIdsByType()
-
-  for (const result of results) {
-    if (!isSupportedSearchEntityType(result.entityType)) {
-      continue
-    }
-
-    idsByType[result.entityType].push(result.entityID)
-  }
-
-  for (const entityType of LABEL_SUPPORTED_ENTITY_TYPES) {
-    idsByType[entityType] = uniqueSorted(idsByType[entityType])
-  }
-
-  return idsByType
-}
-
-const buildLabelsQueryVariables = (idsByType: SearchContextIdsByType): SearchContextLabelsQueryVariables => ({
-  controlsWhere: idsByType.Control.length > 0 ? { idIn: idsByType.Control } : undefined,
-  controlsFirst: idsByType.Control.length > 0 ? idsByType.Control.length : undefined,
-  includeControls: idsByType.Control.length > 0,
-
-  subcontrolsWhere: idsByType.Subcontrol.length > 0 ? { idIn: idsByType.Subcontrol } : undefined,
-  subcontrolsFirst: idsByType.Subcontrol.length > 0 ? idsByType.Subcontrol.length : undefined,
-  includeSubcontrols: idsByType.Subcontrol.length > 0,
-
-  internalPoliciesWhere: idsByType.InternalPolicy.length > 0 ? { idIn: idsByType.InternalPolicy } : undefined,
-  internalPoliciesFirst: idsByType.InternalPolicy.length > 0 ? idsByType.InternalPolicy.length : undefined,
-  includeInternalPolicies: idsByType.InternalPolicy.length > 0,
-
-  proceduresWhere: idsByType.Procedure.length > 0 ? { idIn: idsByType.Procedure } : undefined,
-  proceduresFirst: idsByType.Procedure.length > 0 ? idsByType.Procedure.length : undefined,
-  includeProcedures: idsByType.Procedure.length > 0,
-
-  programsWhere: idsByType.Program.length > 0 ? { idIn: idsByType.Program } : undefined,
-  programsFirst: idsByType.Program.length > 0 ? idsByType.Program.length : undefined,
-  includePrograms: idsByType.Program.length > 0,
-
-  tasksWhere: idsByType.Task.length > 0 ? { idIn: idsByType.Task } : undefined,
-  tasksFirst: idsByType.Task.length > 0 ? idsByType.Task.length : undefined,
-  includeTasks: idsByType.Task.length > 0,
-
-  risksWhere: idsByType.Risk.length > 0 ? { idIn: idsByType.Risk } : undefined,
-  risksFirst: idsByType.Risk.length > 0 ? idsByType.Risk.length : undefined,
-  includeRisks: idsByType.Risk.length > 0,
-
-  groupsWhere: idsByType.Group.length > 0 ? { idIn: idsByType.Group } : undefined,
-  groupsFirst: idsByType.Group.length > 0 ? idsByType.Group.length : undefined,
-  includeGroups: idsByType.Group.length > 0,
-
-  organizationsWhere: idsByType.Organization.length > 0 ? { idIn: idsByType.Organization } : undefined,
-  organizationsFirst: idsByType.Organization.length > 0 ? idsByType.Organization.length : undefined,
-  includeOrganizations: idsByType.Organization.length > 0,
-})
-
-export const buildSearchContextLabelLookup = (data?: SearchContextLabelsQuery): SearchContextLabelLookup => {
+export const buildSearchContextLabelLookup = (search?: SearchQuery['search']): SearchContextLabelLookup => {
   const lookup = new Map<string, SearchContextLabelData>()
 
-  for (const edge of data?.controls?.edges ?? []) {
+  for (const edge of search?.controls?.edges ?? []) {
     const node = edge?.node
     if (!node?.id) continue
 
@@ -135,7 +48,7 @@ export const buildSearchContextLabelLookup = (data?: SearchContextLabelsQuery): 
     })
   }
 
-  for (const edge of data?.subcontrols?.edges ?? []) {
+  for (const edge of search?.subcontrols?.edges ?? []) {
     const node = edge?.node
     if (!node?.id) continue
 
@@ -145,7 +58,7 @@ export const buildSearchContextLabelLookup = (data?: SearchContextLabelsQuery): 
     })
   }
 
-  for (const edge of data?.internalPolicies?.edges ?? []) {
+  for (const edge of search?.internalPolicies?.edges ?? []) {
     const node = edge?.node
     if (!node?.id) continue
 
@@ -154,7 +67,7 @@ export const buildSearchContextLabelLookup = (data?: SearchContextLabelsQuery): 
     })
   }
 
-  for (const edge of data?.procedures?.edges ?? []) {
+  for (const edge of search?.procedures?.edges ?? []) {
     const node = edge?.node
     if (!node?.id) continue
 
@@ -163,7 +76,7 @@ export const buildSearchContextLabelLookup = (data?: SearchContextLabelsQuery): 
     })
   }
 
-  for (const edge of data?.programs?.edges ?? []) {
+  for (const edge of search?.programs?.edges ?? []) {
     const node = edge?.node
     if (!node?.id) continue
 
@@ -172,7 +85,7 @@ export const buildSearchContextLabelLookup = (data?: SearchContextLabelsQuery): 
     })
   }
 
-  for (const edge of data?.tasks?.edges ?? []) {
+  for (const edge of search?.tasks?.edges ?? []) {
     const node = edge?.node
     if (!node?.id) continue
 
@@ -181,7 +94,7 @@ export const buildSearchContextLabelLookup = (data?: SearchContextLabelsQuery): 
     })
   }
 
-  for (const edge of data?.risks?.edges ?? []) {
+  for (const edge of search?.risks?.edges ?? []) {
     const node = edge?.node
     if (!node?.id) continue
 
@@ -190,7 +103,7 @@ export const buildSearchContextLabelLookup = (data?: SearchContextLabelsQuery): 
     })
   }
 
-  for (const edge of data?.groups?.edges ?? []) {
+  for (const edge of search?.groups?.edges ?? []) {
     const node = edge?.node
     if (!node?.id) continue
 
@@ -199,7 +112,7 @@ export const buildSearchContextLabelLookup = (data?: SearchContextLabelsQuery): 
     })
   }
 
-  for (const edge of data?.organizations?.edges ?? []) {
+  for (const edge of search?.organizations?.edges ?? []) {
     const node = edge?.node
     if (!node?.id) continue
 
@@ -254,8 +167,10 @@ export const useSearch = (query: string) => {
     return []
   }, [query])
 
+  const searchData = queryData.data?.search
+
   const baseContextResults = useMemo<SearchContextResult[]>(() => {
-    const rawResults = queryData.data?.search?.searchContext ?? []
+    const rawResults = searchData?.searchContext ?? []
 
     return rawResults.flatMap((item) => {
       if (!item?.entityID || !item?.entityType) {
@@ -283,51 +198,28 @@ export const useSearch = (query: string) => {
         },
       ]
     })
-  }, [queryData.data?.search?.searchContext])
+  }, [searchData?.searchContext])
 
-  const idsByType = useMemo(() => collectSearchContextIdsByType(baseContextResults), [baseContextResults])
-
-  const shouldFetchLabels = query.length > 2 && baseContextResults.length > 0
-
-  const labelsQueryData = useQuery<SearchContextLabelsQuery>({
-    queryKey: ['search', 'labels', idsByType],
-    queryFn: async () => {
-      const variables = buildLabelsQueryVariables(idsByType)
-      return client.request<SearchContextLabelsQuery, SearchContextLabelsQueryVariables>(SEARCH_CONTEXT_LABELS, variables)
-    },
-    enabled: shouldFetchLabels,
-  })
-
-  const labelLookup = useMemo(() => buildSearchContextLabelLookup(labelsQueryData.data), [labelsQueryData.data])
+  const labelLookup = useMemo(() => buildSearchContextLabelLookup(searchData), [searchData])
 
   const contextResults = useMemo(() => enrichSearchContextResults(baseContextResults, labelLookup), [baseContextResults, labelLookup])
 
   const contextGroups = useMemo<SearchContextGroup[]>(() => {
     if (!contextResults.length) return []
 
-    const groupedResults = contextResults.reduce<Map<string, SearchContextResult[]>>((groups, result) => {
-      const existing = groups.get(result.entityType)
+    // Map preserves insertion order, so groups appear in the order the backend returns them via searchContext
+    const groupedResults = new Map<string, SearchContextResult[]>()
+
+    for (const result of contextResults) {
+      const existing = groupedResults.get(result.entityType)
       if (existing) {
         existing.push(result)
       } else {
-        groups.set(result.entityType, [result])
+        groupedResults.set(result.entityType, [result])
       }
+    }
 
-      return groups
-    }, new Map())
-
-    return Array.from(groupedResults.entries())
-      .sort(([leftType], [rightType]) => {
-        const leftWeight = getEntityTypeSortWeight(leftType)
-        const rightWeight = getEntityTypeSortWeight(rightType)
-
-        if (leftWeight !== rightWeight) {
-          return leftWeight - rightWeight
-        }
-
-        return leftType.localeCompare(rightType)
-      })
-      .map(([entityType, results]) => ({ entityType, results }))
+    return Array.from(groupedResults, ([entityType, results]) => ({ entityType, results }))
   }, [contextResults])
 
   const pages = queryData.isFetched ? rawPages : []
@@ -335,8 +227,6 @@ export const useSearch = (query: string) => {
 
   return {
     ...queryData,
-    isFetching: queryData.isFetching || labelsQueryData.isFetching,
-    isLoading: queryData.isLoading || labelsQueryData.isLoading,
     pages: shouldExposeResults ? pages : [],
     contextResults: shouldExposeResults ? contextResults : [],
     contextGroups: shouldExposeResults ? contextGroups : [],

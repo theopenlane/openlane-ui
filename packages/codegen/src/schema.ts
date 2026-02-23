@@ -67342,62 +67342,28 @@ export type SearchQuery = {
       matchedFields: Array<string>
       snippets?: Array<{ __typename?: 'SearchSnippet'; field: string; text: string }> | null
     }> | null
+    controls?: {
+      __typename?: 'ControlConnection'
+      edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string; ownerID?: string | null } | null } | null> | null
+    } | null
+    subcontrols?: {
+      __typename?: 'SubcontrolConnection'
+      edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string; control: { __typename?: 'Control'; id: string } } | null } | null> | null
+    } | null
+    internalPolicies?: {
+      __typename?: 'InternalPolicyConnection'
+      edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string } | null } | null> | null
+    } | null
+    procedures?: { __typename?: 'ProcedureConnection'; edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string } | null } | null> | null } | null
+    programs?: { __typename?: 'ProgramConnection'; edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; name: string } | null } | null> | null } | null
+    tasks?: { __typename?: 'TaskConnection'; edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; title: string } | null } | null> | null } | null
+    risks?: { __typename?: 'RiskConnection'; edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string } | null } | null> | null } | null
+    groups?: { __typename?: 'GroupConnection'; edges?: Array<{ __typename?: 'GroupEdge'; node?: { __typename?: 'Group'; id: string; displayName: string; name: string } | null } | null> | null } | null
+    organizations?: {
+      __typename?: 'OrganizationConnection'
+      edges?: Array<{ __typename?: 'OrganizationEdge'; node?: { __typename?: 'Organization'; id: string; displayName: string; name: string } | null } | null> | null
+    } | null
   } | null
-}
-
-export type SearchContextLabelsQueryVariables = Exact<{
-  controlsWhere?: InputMaybe<ControlWhereInput>
-  controlsFirst?: InputMaybe<Scalars['Int']['input']>
-  includeControls: Scalars['Boolean']['input']
-  subcontrolsWhere?: InputMaybe<SubcontrolWhereInput>
-  subcontrolsFirst?: InputMaybe<Scalars['Int']['input']>
-  includeSubcontrols: Scalars['Boolean']['input']
-  internalPoliciesWhere?: InputMaybe<InternalPolicyWhereInput>
-  internalPoliciesFirst?: InputMaybe<Scalars['Int']['input']>
-  includeInternalPolicies: Scalars['Boolean']['input']
-  proceduresWhere?: InputMaybe<ProcedureWhereInput>
-  proceduresFirst?: InputMaybe<Scalars['Int']['input']>
-  includeProcedures: Scalars['Boolean']['input']
-  programsWhere?: InputMaybe<ProgramWhereInput>
-  programsFirst?: InputMaybe<Scalars['Int']['input']>
-  includePrograms: Scalars['Boolean']['input']
-  tasksWhere?: InputMaybe<TaskWhereInput>
-  tasksFirst?: InputMaybe<Scalars['Int']['input']>
-  includeTasks: Scalars['Boolean']['input']
-  risksWhere?: InputMaybe<RiskWhereInput>
-  risksFirst?: InputMaybe<Scalars['Int']['input']>
-  includeRisks: Scalars['Boolean']['input']
-  groupsWhere?: InputMaybe<GroupWhereInput>
-  groupsFirst?: InputMaybe<Scalars['Int']['input']>
-  includeGroups: Scalars['Boolean']['input']
-  organizationsWhere?: InputMaybe<OrganizationWhereInput>
-  organizationsFirst?: InputMaybe<Scalars['Int']['input']>
-  includeOrganizations: Scalars['Boolean']['input']
-}>
-
-export type SearchContextLabelsQuery = {
-  __typename?: 'Query'
-  controls?: {
-    __typename?: 'ControlConnection'
-    edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string; ownerID?: string | null } | null } | null> | null
-  }
-  subcontrols?: {
-    __typename?: 'SubcontrolConnection'
-    edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string; control: { __typename?: 'Control'; id: string } } | null } | null> | null
-  }
-  internalPolicies?: {
-    __typename?: 'InternalPolicyConnection'
-    edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string } | null } | null> | null
-  }
-  procedures?: { __typename?: 'ProcedureConnection'; edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string } | null } | null> | null }
-  programs?: { __typename?: 'ProgramConnection'; edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; name: string } | null } | null> | null }
-  tasks?: { __typename?: 'TaskConnection'; edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; title: string } | null } | null> | null }
-  risks?: { __typename?: 'RiskConnection'; edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string } | null } | null> | null }
-  groups?: { __typename?: 'GroupConnection'; edges?: Array<{ __typename?: 'GroupEdge'; node?: { __typename?: 'Group'; id: string; displayName: string; name: string } | null } | null> | null }
-  organizations?: {
-    __typename?: 'OrganizationConnection'
-    edges?: Array<{ __typename?: 'OrganizationEdge'; node?: { __typename?: 'Organization'; id: string; displayName: string; name: string } | null } | null> | null
-  }
 }
 
 export type GetAllStandardsQueryVariables = Exact<{
