@@ -121,6 +121,42 @@ export const buildSearchContextLabelLookup = (search?: SearchQuery['search']): S
     })
   }
 
+  for (const edge of search?.standards?.edges ?? []) {
+    const node = edge?.node
+    if (!node?.id) continue
+
+    lookup.set(getLabelLookupKey('Standard', node.id), {
+      primaryLabel: node.shortName ?? node.name ?? node.id,
+    })
+  }
+
+  for (const edge of search?.templates?.edges ?? []) {
+    const node = edge?.node
+    if (!node?.id) continue
+
+    lookup.set(getLabelLookupKey('Template', node.id), {
+      primaryLabel: node.name ?? node.id,
+    })
+  }
+
+  for (const edge of search?.evidences?.edges ?? []) {
+    const node = edge?.node
+    if (!node?.id) continue
+
+    lookup.set(getLabelLookupKey('Evidence', node.id), {
+      primaryLabel: node.name ?? node.id,
+    })
+  }
+
+  for (const edge of search?.subprocessors?.edges ?? []) {
+    const node = edge?.node
+    if (!node?.id) continue
+
+    lookup.set(getLabelLookupKey('Subprocessor', node.id), {
+      primaryLabel: node.name ?? node.id,
+    })
+  }
+
   return lookup
 }
 
@@ -207,7 +243,6 @@ export const useSearch = (query: string) => {
   const contextGroups = useMemo<SearchContextGroup[]>(() => {
     if (!contextResults.length) return []
 
-    // Map preserves insertion order, so groups appear in the order the backend returns them via searchContext
     const groupedResults = new Map<string, SearchContextResult[]>()
 
     for (const result of contextResults) {

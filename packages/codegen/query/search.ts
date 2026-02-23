@@ -90,6 +90,39 @@ export const SEARCH = gql`
           }
         }
       }
+      standards {
+        edges {
+          node {
+            id
+            name
+            shortName
+          }
+        }
+      }
+      templates {
+        edges {
+          node {
+            id
+            name
+          }
+        }
+      }
+      evidences {
+        edges {
+          node {
+            id
+            name
+          }
+        }
+      }
+      subprocessors {
+        edges {
+          node {
+            id
+            name
+          }
+        }
+      }
     }
   }
 `

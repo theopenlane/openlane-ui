@@ -67363,6 +67363,16 @@ export type SearchQuery = {
       __typename?: 'OrganizationConnection'
       edges?: Array<{ __typename?: 'OrganizationEdge'; node?: { __typename?: 'Organization'; id: string; displayName: string; name: string } | null } | null> | null
     } | null
+    standards?: {
+      __typename?: 'StandardConnection'
+      edges?: Array<{ __typename?: 'StandardEdge'; node?: { __typename?: 'Standard'; id: string; name: string; shortName?: string | null } | null } | null> | null
+    } | null
+    templates?: { __typename?: 'TemplateConnection'; edges?: Array<{ __typename?: 'TemplateEdge'; node?: { __typename?: 'Template'; id: string; name: string } | null } | null> | null } | null
+    evidences?: { __typename?: 'EvidenceConnection'; edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; id: string; name: string } | null } | null> | null } | null
+    subprocessors?: {
+      __typename?: 'SubprocessorConnection'
+      edges?: Array<{ __typename?: 'SubprocessorEdge'; node?: { __typename?: 'Subprocessor'; id: string; name: string } | null } | null> | null
+    } | null
   } | null
 }
 
