@@ -14,7 +14,6 @@ import { TableKeyValue } from '@repo/ui/table-key'
 import { Separator as Hr } from '@repo/ui/separator'
 import { saveFilters, loadFilters, clearFilters, TFilterState, TFilterValue, saveQuickFilters, loadQuickFilter, clearQuickFilters } from '@/components/shared/table-filter/filter-storage.ts'
 import Slider from '../slider/slider'
-import { Slider as RadixSlider } from '@repo/ui/slider'
 import { Checkbox } from '@repo/ui/checkbox'
 import { getActiveFilterCount, getQuickFiltersWhereCondition, getWhereCondition, TQuickFilter } from '@/components/shared/table-filter/table-filter-helper.ts'
 import { DropdownSearchField } from '../filter-components/dropdown-search-field'
@@ -287,7 +286,7 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
                 </span>
                 <span>{rangeMax}</span>
               </div>
-              <RadixSlider min={rangeMin} max={rangeMax} step={1} value={[currentMin, currentMax]} onValueChange={(values: number[]) => handleChange(field.key, { min: values[0], max: values[1] })} />
+              <Slider range min={rangeMin} max={rangeMax} value={[currentMin, currentMax]} onChange={(values: [number, number]) => handleChange(field.key, { min: values[0], max: values[1] })} />
             </div>
           )
         }
