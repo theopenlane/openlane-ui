@@ -72,8 +72,6 @@ export const getHrefForSearchEntityType = (entityType: string, entityId: string,
       return `/questionnaires/templates/template-viewer?id=${entityId}`
     case 'Evidence':
       return getHrefForObjectType('evidences', { id: entityId })
-    case 'Subprocessor':
-      return `/trust-center/subprocessors`
     default:
       return ''
   }

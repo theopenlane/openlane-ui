@@ -148,15 +148,6 @@ export const buildSearchContextLabelLookup = (search?: SearchQuery['search']): S
     })
   }
 
-  for (const edge of search?.subprocessors?.edges ?? []) {
-    const node = edge?.node
-    if (!node?.id) continue
-
-    lookup.set(getLabelLookupKey('Subprocessor', node.id), {
-      primaryLabel: node.name ?? node.id,
-    })
-  }
-
   return lookup
 }
 

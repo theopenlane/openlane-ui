@@ -115,14 +115,6 @@ export const SEARCH = gql`
           }
         }
       }
-      subprocessors {
-        edges {
-          node {
-            id
-            name
-          }
-        }
-      }
     }
   }
 `

@@ -67369,10 +67369,6 @@ export type SearchQuery = {
     } | null
     templates?: { __typename?: 'TemplateConnection'; edges?: Array<{ __typename?: 'TemplateEdge'; node?: { __typename?: 'Template'; id: string; name: string } | null } | null> | null } | null
     evidences?: { __typename?: 'EvidenceConnection'; edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; id: string; name: string } | null } | null> | null } | null
-    subprocessors?: {
-      __typename?: 'SubprocessorConnection'
-      edges?: Array<{ __typename?: 'SubprocessorEdge'; node?: { __typename?: 'Subprocessor'; id: string; name: string } | null } | null> | null
-    } | null
   } | null
 }
 
