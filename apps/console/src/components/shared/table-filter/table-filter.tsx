@@ -271,6 +271,25 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
             </div>
           )
         }
+        case 'sliderRange': {
+          const rangeMin = field.min ?? 0
+          const rangeMax = field.max ?? 100
+          const rangeVal = val as { min: number; max: number } | undefined
+          const currentMin = rangeVal?.min ?? rangeMin
+          const currentMax = rangeVal?.max ?? rangeMax
+          return (
+            <div className="flex flex-col gap-2">
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>{rangeMin}</span>
+                <span>
+                  {currentMin} – {currentMax}
+                </span>
+                <span>{rangeMax}</span>
+              </div>
+              <Slider range min={rangeMin} max={rangeMax} value={[currentMin, currentMax]} onChange={(values: [number, number]) => handleChange(field.key, { min: values[0], max: values[1] })} />
+            </div>
+          )
+        }
         case 'multiselect': {
           const selected = Array.isArray(val) ? (val as string[]) : []
           const handleToggle = (value: string) => handleChange(field.key, selected.includes(value) ? selected.filter((v) => v !== value) : [...selected, value])
