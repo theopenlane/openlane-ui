@@ -96,6 +96,16 @@ export const getFilterFields = (enumOptions: EnumOptions): FilterField[] => [
       { value: false, label: 'SSO Not Enforced' },
     ],
   },
+  {
+    key: 'hasSoc2',
+    label: 'Has SOC 2',
+    type: 'radio',
+    icon: FilterIcons.Security,
+    radioOptions: [
+      { value: true, label: 'Has SOC 2' },
+      { value: false, label: 'No SOC 2' },
+    ],
+  },
 ]
 
 export const VENDORS_SORT_FIELDS = enumToSortFields(EntityOrderField)
