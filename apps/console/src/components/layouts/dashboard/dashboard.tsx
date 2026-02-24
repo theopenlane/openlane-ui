@@ -53,7 +53,8 @@ export function DashboardLayout({ children, error }: DashboardLayoutProps) {
   const primaryWidth = primaryExpanded ? PRIMARY_EXPANDED_WIDTH : PRIMARY_WIDTH
   const secondaryWidth = openPanel ? (secondaryExpanded ? SECONDARY_EXPANDED_WIDTH : SECONDARY_COLLAPSED_WIDTH) : 0
 
-  const contentMarginLeft = primaryWidth + secondaryWidth + 4
+  const isOnboarding = sessionData?.user?.isOnboarding
+  const contentMarginLeft = isOnboarding ? 8 : primaryWidth + secondaryWidth + 4
 
   const currentActivePanel = [...navItems, ...footerNavItems]
     .filter(isNavItem)

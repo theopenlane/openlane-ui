@@ -148,6 +148,7 @@ export default function Step1() {
         >
           Add Domain
         </Button>
+        {domainInput.trim() && <p className="text-amber-500 text-sm">You have an unadded domain. Click &quot;Add Domain&quot; to add it.</p>}
         {errors.domains && <p className="text-red-500 text-sm">{errors.domains.message as string}</p>}
       </div>
 
