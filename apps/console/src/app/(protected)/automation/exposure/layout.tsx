@@ -4,7 +4,7 @@ import { FeatureGate } from '@/lib/subscription-plan/feature-gate'
 
 export default function ExposureLayout({ children }: { children: React.ReactNode }) {
   return (
-    <FeatureGate feature={FeatureEnum.CONTROLS} module={PlanEnum.COMPLIANCE_MODULE}>
+    <FeatureGate feature={FeatureEnum.EXPOSURE} module={PlanEnum.COMPLIANCE_MODULE}>
       {children}
     </FeatureGate>
   )
