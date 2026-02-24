@@ -22,6 +22,7 @@ export const GET_ALL_IDENTITY_HOLDERS = gql`
           hasPendingWorkflow
           hasWorkflowHistory
           id
+          identityHolderType
           internalOwner
           internalOwnerGroupID
           internalOwnerUserID
@@ -33,6 +34,8 @@ export const GET_ALL_IDENTITY_HOLDERS = gql`
           scopeID
           scopeName
           startDate
+          status
+          tags
           team
           title
           updatedAt
@@ -70,6 +73,7 @@ export const IDENTITY_HOLDER = gql`
       hasPendingWorkflow
       hasWorkflowHistory
       id
+      identityHolderType
       internalOwner
       internalOwnerGroupID
       internalOwnerUserID
@@ -81,6 +85,8 @@ export const IDENTITY_HOLDER = gql`
       scopeID
       scopeName
       startDate
+      status
+      tags
       team
       title
       updatedAt
