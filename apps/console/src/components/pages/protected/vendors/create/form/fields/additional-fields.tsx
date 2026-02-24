@@ -4,6 +4,7 @@ import { TextField } from '@/components/shared/crud-base/form-fields/text-field'
 import { SelectField } from '@/components/shared/crud-base/form-fields/select-field'
 import { CheckboxField } from '@/components/shared/crud-base/form-fields/checkbox-field'
 import { NumberField } from '@/components/shared/crud-base/form-fields/number-field'
+import { ResponsibilityField } from '@/components/shared/crud-base/form-fields/responsibility-field'
 import { EntityQuery, UpdateEntityInput } from '@repo/codegen/src/schema'
 import { InternalEditingType } from '@/components/shared/crud-base/generic-sheet'
 import { EnumOptions } from '../../../table/types'
@@ -114,7 +115,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
         </CardHeader>
         <CardContent>
           <div className="mb-2 grid grid-cols-1 md:grid-cols-2 gap-2">
-            <TextField name="internalOwner" label="Internal Owner" tooltipContent="The internal owner responsible for the vendor" {...sharedFieldProps} />
+            <ResponsibilityField name="internalOwner" fieldBaseName="internalOwner" label="Internal Owner" tooltipContent="The internal owner responsible for the vendor" {...sharedFieldProps} />
             <SelectField
               name="reviewFrequency"
               label="Review Frequency"
@@ -122,7 +123,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
               tooltipContent="How often the vendor is reviewed e.g. Monthly, Quarterly, Annually"
               {...sharedFieldProps}
             />
-            <TextField name="reviewedBy" label="Reviewed By" tooltipContent="The person or group who reviewed the vendor" {...sharedFieldProps} />
+            <ResponsibilityField name="reviewedBy" fieldBaseName="reviewedBy" label="Reviewed By" tooltipContent="The person or group who reviewed the vendor" {...sharedFieldProps} />
             <TextField name="lastReviewedAt" label="Last Reviewed At" type="date" tooltipContent="The date when the vendor was last reviewed" {...sharedFieldProps} />
             <TextField name="nextReviewAt" label="Next Review Due" type="date" tooltipContent="The date when the vendor is next scheduled for review" {...sharedFieldProps} />
           </div>

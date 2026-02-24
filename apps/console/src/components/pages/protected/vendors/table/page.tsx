@@ -1,14 +1,15 @@
 'use client'
 
 import React from 'react'
-import { buildPayload } from '../create/utils'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
+import { Value } from 'platejs'
 import { useSearchParams } from 'next/navigation'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
 
-import { EntityEntityStatus, EntityFrequency, UpdateEntityInput, CreateEntityInput } from '@repo/codegen/src/schema'
+import { EntityEntityStatus, EntityFrequency, EntityQuery, UpdateEntityInput, CreateEntityInput } from '@repo/codegen/src/schema'
+import { normalizeEntityData, buildResponsibilityPayload } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 import { useUpdateEntity, useCreateEntity, useBulkDeleteEntity, useCreateBulkCSVEntity, useBulkEditEntity, EntitiesNodeNonNull } from '@/lib/graphql-hooks/entity'
 import { useEntity } from '@/lib/graphql-hooks/entity'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
@@ -17,6 +18,12 @@ import { EntitySheetConfig, EntityTablePageConfig, objectType, objectName, table
 import { getColumns } from './columns'
 import TableComponent from './table'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
+
+const normalizeData = (data: EntityQuery['entity']) =>
+  normalizeEntityData(data, {
+    internalOwner: { user: data?.internalOwnerUser, group: data?.internalOwnerGroup, stringValue: data?.internalOwner },
+    reviewedBy: { user: data?.reviewedByUser, group: data?.reviewedByGroup, stringValue: data?.reviewedBy },
+  })
 
 const VendorPage: React.FC = () => {
   const { form } = useFormSchema()
@@ -119,7 +126,17 @@ const VendorPage: React.FC = () => {
     isFetching: isLoading,
     updateMutation,
     createMutation,
-    buildPayload: (data) => buildPayload(data, plateEditorHelper),
+    buildPayload: async (data) => {
+      const { internalOwner, reviewedBy, ...rest } = data
+      const description = rest.description ? await plateEditorHelper.convertToHtml(rest.description as Value) : undefined
+      return {
+        ...rest,
+        description,
+        ...buildResponsibilityPayload('internalOwner', internalOwner),
+        ...buildResponsibilityPayload('reviewedBy', reviewedBy),
+      }
+    },
+    normalizeData,
     getName,
     renderFields: (props: EntityFieldProps) => getFieldsToRender(props, enumOpts),
   }

@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Value } from 'platejs'
 import { EntityEntityStatus, EntityFrequency } from '@repo/codegen/src/schema'
+import { responsibilityFieldSchema } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -24,13 +25,13 @@ const formSchema = z.object({
   entitySourceTypeName: z.string().optional(),
   environmentName: z.string().optional(),
   hasSoc2: z.boolean().optional(),
-  internalOwner: z.string().optional(),
+  internalOwner: responsibilityFieldSchema,
   lastReviewedAt: z.string().optional(),
   mfaEnforced: z.boolean().optional(),
   mfaSupported: z.boolean().optional(),
   nextReviewAt: z.string().optional(),
   renewalRisk: z.string().optional(),
-  reviewedBy: z.string().optional(),
+  reviewedBy: responsibilityFieldSchema,
   riskRating: z.string().optional(),
   riskScore: z.number().optional(),
   scopeName: z.string().optional().nullable(),

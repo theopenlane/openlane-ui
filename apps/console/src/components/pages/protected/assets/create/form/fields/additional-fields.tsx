@@ -3,6 +3,7 @@
 import { CheckboxField } from '@/components/shared/crud-base/form-fields/checkbox-field'
 import { TextField } from '@/components/shared/crud-base/form-fields/text-field'
 import { SelectField } from '@/components/shared/crud-base/form-fields/select-field'
+import { ResponsibilityField } from '@/components/shared/crud-base/form-fields/responsibility-field'
 import { UpdateAssetInput } from '@repo/codegen/src/schema'
 import { FieldValues } from 'react-hook-form'
 import { InternalEditingType } from '@/components/shared/crud-base/generic-sheet'
@@ -110,6 +111,25 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
             <SelectField name="scopeName" label="Scope" options={enumOptions.scopeOptions} {...sharedFieldProps} />
           </div>
           <CheckboxField name="containsPii" label="Contains PII" {...sharedFieldProps} />
+        </CardContent>
+      </Card>
+
+      {/* Ownership */}
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-md p-0">Ownership</CardTitle>
+          <CardDescription className="p-0">Who is responsible for this asset</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            <ResponsibilityField
+              name="internalOwner"
+              fieldBaseName="internalOwner"
+              label="Internal Owner"
+              tooltipContent="The internal owner responsible for managing this asset"
+              {...sharedFieldProps}
+            />
+          </div>
         </CardContent>
       </Card>
 

@@ -62829,8 +62829,6 @@ export type EntitiesWithFilterQuery = {
         hasSoc2?: boolean | null
         id: string
         internalOwner?: string | null
-        internalOwnerGroupID?: string | null
-        internalOwnerUserID?: string | null
         lastReviewedAt?: string | null
         mfaEnforced?: boolean | null
         mfaSupported?: boolean | null
@@ -62838,8 +62836,6 @@ export type EntitiesWithFilterQuery = {
         nextReviewAt?: string | null
         renewalRisk?: string | null
         reviewedBy?: string | null
-        reviewedByGroupID?: string | null
-        reviewedByUserID?: string | null
         reviewFrequency?: EntityFrequency | null
         riskRating?: string | null
         riskScore?: number | null
@@ -62857,6 +62853,10 @@ export type EntitiesWithFilterQuery = {
         updatedAt?: any | null
         updatedBy?: string | null
         vendorMetadata?: any | null
+        internalOwnerGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
+        internalOwnerUser?: { __typename?: 'User'; id: string; displayName: string } | null
+        reviewedByGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
+        reviewedByUser?: { __typename?: 'User'; id: string; displayName: string } | null
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
@@ -62895,8 +62895,6 @@ export type EntityQuery = {
     hasSoc2?: boolean | null
     id: string
     internalOwner?: string | null
-    internalOwnerGroupID?: string | null
-    internalOwnerUserID?: string | null
     lastReviewedAt?: string | null
     mfaEnforced?: boolean | null
     mfaSupported?: boolean | null
@@ -62904,8 +62902,6 @@ export type EntityQuery = {
     nextReviewAt?: string | null
     renewalRisk?: string | null
     reviewedBy?: string | null
-    reviewedByGroupID?: string | null
-    reviewedByUserID?: string | null
     reviewFrequency?: EntityFrequency | null
     riskRating?: string | null
     riskScore?: number | null
@@ -62923,6 +62919,10 @@ export type EntityQuery = {
     updatedAt?: any | null
     updatedBy?: string | null
     vendorMetadata?: any | null
+    internalOwnerGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
+    internalOwnerUser?: { __typename?: 'User'; id: string; displayName: string } | null
+    reviewedByGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
+    reviewedByUser?: { __typename?: 'User'; id: string; displayName: string } | null
   }
 }
 
@@ -63984,8 +63984,6 @@ export type IdentityHoldersWithFilterQuery = {
         id: string
         identityHolderType: IdentityHolderIdentityHolderType
         internalOwner?: string | null
-        internalOwnerGroupID?: string | null
-        internalOwnerUserID?: string | null
         isActive: boolean
         isOpenlaneUser?: boolean | null
         location?: string | null
@@ -64002,6 +64000,8 @@ export type IdentityHoldersWithFilterQuery = {
         updatedBy?: string | null
         userID?: string | null
         workflowEligibleMarker?: boolean | null
+        internalOwnerGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
+        internalOwnerUser?: { __typename?: 'User'; id: string; displayName: string } | null
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
@@ -64034,8 +64034,6 @@ export type IdentityHolderQuery = {
     id: string
     identityHolderType: IdentityHolderIdentityHolderType
     internalOwner?: string | null
-    internalOwnerGroupID?: string | null
-    internalOwnerUserID?: string | null
     isActive: boolean
     isOpenlaneUser?: boolean | null
     location?: string | null
@@ -64052,6 +64050,8 @@ export type IdentityHolderQuery = {
     updatedBy?: string | null
     userID?: string | null
     workflowEligibleMarker?: boolean | null
+    internalOwnerGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
+    internalOwnerUser?: { __typename?: 'User'; id: string; displayName: string } | null
   }
 }
 
