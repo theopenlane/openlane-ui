@@ -17,4 +17,12 @@ export default meta
 
 type Story = StoryObj<typeof meta>
 
-export const Default: Story = {}
+export const Default: Story = {
+  decorators: [
+    (Story) => (
+      <div className="h-16 w-full">
+        <Story />
+      </div>
+    ),
+  ],
+}
