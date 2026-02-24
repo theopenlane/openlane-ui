@@ -6,7 +6,7 @@ import { IdentityHoldersNodeNonNull } from '@/lib/graphql-hooks/identity-holder'
 import { ColumnOptions } from '@/components/shared/crud-base/page'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 
-export const getColumns = ({ userMap, selectedItems, setSelectedItems }: ColumnOptions<IdentityHoldersNodeNonNull>): ColumnDef<IdentityHoldersNodeNonNull>[] => {
+export const getColumns = ({ userMap, selectedItems, setSelectedItems }: ColumnOptions): ColumnDef<IdentityHoldersNodeNonNull>[] => {
   const toggleSelection = (item: IdentityHoldersNodeNonNull) => {
     setSelectedItems((prev) => {
       const exists = prev.some((c) => c.id === item.id)
