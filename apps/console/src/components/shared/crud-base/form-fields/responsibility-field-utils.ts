@@ -6,6 +6,10 @@ export const responsibilityFieldSchema = z
     value: z.string(),
     displayName: z.string().optional(),
   })
+  .refine((data) => data.type !== 'string' || z.string().email().safeParse(data.value).success, {
+    message: 'Must be a valid email address',
+    path: ['value'],
+  })
   .optional()
   .nullable()
 
@@ -63,7 +67,7 @@ export function normalizeResponsibilityField(input: ResponsibilityFieldInput): R
   return null
 }
 
-export function normalizeEntityData<T extends Record<string, unknown>>(
+export function normalizeEntityData<T extends object>(
   data: T | null | undefined,
   responsibilityFields: Record<string, ResponsibilityFieldInput>,
 ) {

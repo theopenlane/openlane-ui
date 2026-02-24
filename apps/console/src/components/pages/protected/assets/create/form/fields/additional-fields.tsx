@@ -127,7 +127,12 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
               fieldBaseName="internalOwner"
               label="Internal Owner"
               tooltipContent="The internal owner responsible for managing this asset"
-              {...sharedFieldProps}
+              isEditing={isEditing}
+              isEditAllowed={isEditAllowed}
+              isCreate={isCreate}
+              internalEditing={internalEditing}
+              setInternalEditing={setInternalEditing}
+              handleUpdate={handleUpdateField ? (input) => handleUpdateField(input as UpdateAssetInput) : undefined}
             />
           </div>
         </CardContent>

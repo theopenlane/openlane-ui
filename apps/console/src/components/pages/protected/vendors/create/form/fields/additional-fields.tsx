@@ -115,7 +115,18 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
         </CardHeader>
         <CardContent>
           <div className="mb-2 grid grid-cols-1 md:grid-cols-2 gap-2">
-            <ResponsibilityField name="internalOwner" fieldBaseName="internalOwner" label="Internal Owner" tooltipContent="The internal owner responsible for the vendor" {...sharedFieldProps} />
+            <ResponsibilityField
+              name="internalOwner"
+              fieldBaseName="internalOwner"
+              label="Internal Owner"
+              tooltipContent="The internal owner responsible for the vendor"
+              isEditing={isEditing}
+              isEditAllowed={isEditAllowed}
+              isCreate={isCreate}
+              internalEditing={internalEditing}
+              setInternalEditing={setInternalEditing}
+              handleUpdate={handleUpdateField ? (input) => handleUpdateField(input as UpdateEntityInput) : undefined}
+            />
             <SelectField
               name="reviewFrequency"
               label="Review Frequency"
@@ -123,7 +134,18 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
               tooltipContent="How often the vendor is reviewed e.g. Monthly, Quarterly, Annually"
               {...sharedFieldProps}
             />
-            <ResponsibilityField name="reviewedBy" fieldBaseName="reviewedBy" label="Reviewed By" tooltipContent="The person or group who reviewed the vendor" {...sharedFieldProps} />
+            <ResponsibilityField
+              name="reviewedBy"
+              fieldBaseName="reviewedBy"
+              label="Reviewed By"
+              tooltipContent="The person or group who reviewed the vendor"
+              isEditing={isEditing}
+              isEditAllowed={isEditAllowed}
+              isCreate={isCreate}
+              internalEditing={internalEditing}
+              setInternalEditing={setInternalEditing}
+              handleUpdate={handleUpdateField ? (input) => handleUpdateField(input as UpdateEntityInput) : undefined}
+            />
             <TextField name="lastReviewedAt" label="Last Reviewed At" type="date" tooltipContent="The date when the vendor was last reviewed" {...sharedFieldProps} />
             <TextField name="nextReviewAt" label="Next Review Due" type="date" tooltipContent="The date when the vendor is next scheduled for review" {...sharedFieldProps} />
           </div>

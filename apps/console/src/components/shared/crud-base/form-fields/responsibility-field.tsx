@@ -12,9 +12,10 @@ import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 import useEscapeKey from '@/hooks/useEscapeKey'
 import { useUserSelect } from '@/lib/graphql-hooks/member'
 import { useGroupSelect } from '@/lib/graphql-hooks/group'
+import { useNotification } from '@/hooks/useNotification'
 import { ResponsibilitySelection, buildResponsibilityInlineUpdate } from './responsibility-field-utils'
 
-interface ResponsibilityFieldProps<TUpdateInput> {
+interface ResponsibilityFieldProps {
   name: string
   label: string
   fieldBaseName: string
@@ -23,11 +24,11 @@ interface ResponsibilityFieldProps<TUpdateInput> {
   isCreate?: boolean
   internalEditing: string | null
   setInternalEditing: InternalEditingType
-  handleUpdate?: (input: TUpdateInput) => Promise<void>
+  handleUpdate?: (input: Record<string, string | boolean | undefined>) => Promise<void>
   tooltipContent?: string
 }
 
-export const ResponsibilityField = <TUpdateInput,>({
+export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
   name,
   label,
   fieldBaseName,
@@ -38,7 +39,7 @@ export const ResponsibilityField = <TUpdateInput,>({
   setInternalEditing,
   handleUpdate,
   tooltipContent,
-}: ResponsibilityFieldProps<TUpdateInput>) => {
+}) => {
   const { control } = useFormContext()
   const [open, setOpen] = useState(false)
   const [searchText, setSearchText] = useState('')
@@ -47,6 +48,7 @@ export const ResponsibilityField = <TUpdateInput,>({
 
   const { userOptions } = useUserSelect({})
   const { groupOptions } = useGroupSelect()
+  const { errorNotification } = useNotification()
 
   const isFieldEditing = isCreate || isEditing || internalEditing === name
 
@@ -79,13 +81,18 @@ export const ResponsibilityField = <TUpdateInput,>({
   }
 
   const handleSelect = async (selection: ResponsibilitySelection, field: { onChange: (value: ResponsibilitySelection) => void }) => {
+    if (selection?.type === 'string' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(selection.value)) {
+      errorNotification({ title: 'Invalid email', description: 'Custom values must be a valid email address' })
+      return
+    }
+
     field.onChange(selection)
     setOpen(false)
     setSearchText('')
 
     if (!isEditing && !isCreate && handleUpdate) {
       const payload = buildResponsibilityInlineUpdate(fieldBaseName, selection)
-      await Promise.resolve(handleUpdate(payload as unknown as TUpdateInput))
+      await Promise.resolve(handleUpdate(payload))
     }
 
     if (!isEditing) {
@@ -184,7 +191,7 @@ export const ResponsibilityField = <TUpdateInput,>({
                             <CommandGroup heading="Custom">
                               <CommandItem value={`custom-${searchText}`} onSelect={() => handleSelect({ type: 'string', value: searchText.trim(), displayName: searchText.trim() }, field)}>
                                 <Type className="mr-2 h-4 w-4" />
-                                <span>Use &quot;{searchText.trim()}&quot; as custom value</span>
+                                <span>Use &quot;{searchText.trim()}&quot; as custom email</span>
                               </CommandItem>
                             </CommandGroup>
                           )}
