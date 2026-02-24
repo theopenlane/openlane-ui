@@ -2050,6 +2050,8 @@ export interface Asset extends Node {
   /** the criticality of the asset */
   criticalityName?: Maybe<Scalars['String']['output']>
   description?: Maybe<Scalars['String']['output']>
+  /** the display name of the asset */
+  displayName?: Maybe<Scalars['String']['output']>
   editors: GroupConnection
   encryptionStatus?: Maybe<CustomTypeEnum>
   /** the encryption_status of the asset */
@@ -2301,6 +2303,7 @@ export enum AssetOrderField {
   contains_pii = 'contains_pii',
   cost_center = 'cost_center',
   created_at = 'created_at',
+  display_name = 'display_name',
   estimated_monthly_cost = 'estimated_monthly_cost',
   internal_owner = 'internal_owner',
   name = 'name',
@@ -2531,6 +2534,22 @@ export interface AssetWhereInput {
   descriptionNEQ?: InputMaybe<Scalars['String']['input']>
   descriptionNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   descriptionNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** display_name field predicates */
+  displayName?: InputMaybe<Scalars['String']['input']>
+  displayNameContains?: InputMaybe<Scalars['String']['input']>
+  displayNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  displayNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  displayNameGT?: InputMaybe<Scalars['String']['input']>
+  displayNameGTE?: InputMaybe<Scalars['String']['input']>
+  displayNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  displayNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  displayNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  displayNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  displayNameLT?: InputMaybe<Scalars['String']['input']>
+  displayNameLTE?: InputMaybe<Scalars['String']['input']>
+  displayNameNEQ?: InputMaybe<Scalars['String']['input']>
+  displayNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  displayNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** encryption_status_id field predicates */
   encryptionStatusID?: InputMaybe<Scalars['ID']['input']>
   encryptionStatusIDContains?: InputMaybe<Scalars['ID']['input']>
@@ -6879,6 +6898,8 @@ export interface CreateAssetInput {
   /** the criticality of the asset */
   criticalityName?: InputMaybe<Scalars['String']['input']>
   description?: InputMaybe<Scalars['String']['input']>
+  /** the display name of the asset */
+  displayName?: InputMaybe<Scalars['String']['input']>
   editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   encryptionStatusID?: InputMaybe<Scalars['ID']['input']>
   /** the encryption_status of the asset */
@@ -8632,9 +8653,9 @@ export interface CreateNotificationPreferenceInput {
   status?: InputMaybe<NotificationPreferenceNotificationChannelStatus>
   /** timezone for quiet hours and digests */
   timezone?: InputMaybe<Scalars['String']['input']>
-  /** optional per-topic overrides (e.g. template_id, cadence, priority) keyed by soiree topic name */
+  /** optional per-topic overrides (e.g. template_id, cadence, priority) keyed by topic name */
   topicOverrides?: InputMaybe<Scalars['Map']['input']>
-  /** soiree topic names or wildcard patterns this preference applies to; empty means all */
+  /** topic names or wildcard patterns this preference applies to; empty means all */
   topicPatterns?: InputMaybe<Array<Scalars['String']['input']>>
   userID: Scalars['ID']['input']
   /** when the channel config was verified */
@@ -8680,7 +8701,7 @@ export interface CreateNotificationTemplateInput {
   systemInternalID?: InputMaybe<Scalars['String']['input']>
   /** title template for external channel messages */
   titleTemplate?: InputMaybe<Scalars['String']['input']>
-  /** soiree topic name or wildcard pattern this template targets */
+  /** topic name or wildcard pattern this template targets */
   topicPattern: Scalars['String']['input']
   /** uischema for a template builder */
   uischema?: InputMaybe<Scalars['Map']['input']>
@@ -30254,9 +30275,9 @@ export interface NotificationPreference extends Node {
   templateID?: Maybe<Scalars['ID']['output']>
   /** timezone for quiet hours and digests */
   timezone?: Maybe<Scalars['String']['output']>
-  /** optional per-topic overrides (e.g. template_id, cadence, priority) keyed by soiree topic name */
+  /** optional per-topic overrides (e.g. template_id, cadence, priority) keyed by topic name */
   topicOverrides?: Maybe<Scalars['Map']['output']>
-  /** soiree topic names or wildcard patterns this preference applies to; empty means all */
+  /** topic names or wildcard patterns this preference applies to; empty means all */
   topicPatterns?: Maybe<Array<Scalars['String']['output']>>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
@@ -30718,7 +30739,7 @@ export interface NotificationTemplate extends Node {
   systemOwned?: Maybe<Scalars['Boolean']['output']>
   /** title template for external channel messages */
   titleTemplate?: Maybe<Scalars['String']['output']>
-  /** soiree topic name or wildcard pattern this template targets */
+  /** topic name or wildcard pattern this template targets */
   topicPattern: Scalars['String']['output']
   /** uischema for a template builder */
   uischema?: Maybe<Scalars['Map']['output']>
@@ -49811,6 +49832,7 @@ export interface UpdateAssetInput {
   clearCriticality?: InputMaybe<Scalars['Boolean']['input']>
   clearCriticalityName?: InputMaybe<Scalars['Boolean']['input']>
   clearDescription?: InputMaybe<Scalars['Boolean']['input']>
+  clearDisplayName?: InputMaybe<Scalars['Boolean']['input']>
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearEncryptionStatus?: InputMaybe<Scalars['Boolean']['input']>
   clearEncryptionStatusName?: InputMaybe<Scalars['Boolean']['input']>
@@ -49850,6 +49872,8 @@ export interface UpdateAssetInput {
   /** the criticality of the asset */
   criticalityName?: InputMaybe<Scalars['String']['input']>
   description?: InputMaybe<Scalars['String']['input']>
+  /** the display name of the asset */
+  displayName?: InputMaybe<Scalars['String']['input']>
   encryptionStatusID?: InputMaybe<Scalars['ID']['input']>
   /** the encryption_status of the asset */
   encryptionStatusName?: InputMaybe<Scalars['String']['input']>
@@ -52585,9 +52609,9 @@ export interface UpdateNotificationPreferenceInput {
   status?: InputMaybe<NotificationPreferenceNotificationChannelStatus>
   /** timezone for quiet hours and digests */
   timezone?: InputMaybe<Scalars['String']['input']>
-  /** optional per-topic overrides (e.g. template_id, cadence, priority) keyed by soiree topic name */
+  /** optional per-topic overrides (e.g. template_id, cadence, priority) keyed by topic name */
   topicOverrides?: InputMaybe<Scalars['Map']['input']>
-  /** soiree topic names or wildcard patterns this preference applies to; empty means all */
+  /** topic names or wildcard patterns this preference applies to; empty means all */
   topicPatterns?: InputMaybe<Array<Scalars['String']['input']>>
   /** when the channel config was verified */
   verifiedAt?: InputMaybe<Scalars['Time']['input']>
@@ -52646,7 +52670,7 @@ export interface UpdateNotificationTemplateInput {
   systemInternalID?: InputMaybe<Scalars['String']['input']>
   /** title template for external channel messages */
   titleTemplate?: InputMaybe<Scalars['String']['input']>
-  /** soiree topic name or wildcard pattern this template targets */
+  /** topic name or wildcard pattern this template targets */
   topicPattern?: InputMaybe<Scalars['String']['input']>
   /** uischema for a template builder */
   uischema?: InputMaybe<Scalars['Map']['input']>
@@ -63958,6 +63982,7 @@ export type IdentityHoldersWithFilterQuery = {
         hasPendingWorkflow: boolean
         hasWorkflowHistory: boolean
         id: string
+        identityHolderType: IdentityHolderIdentityHolderType
         internalOwner?: string | null
         internalOwnerGroupID?: string | null
         internalOwnerUserID?: string | null
@@ -63969,6 +63994,8 @@ export type IdentityHoldersWithFilterQuery = {
         scopeID?: string | null
         scopeName?: string | null
         startDate?: string | null
+        status: IdentityHolderUserStatus
+        tags?: Array<string> | null
         team?: string | null
         title?: string | null
         updatedAt?: any | null
@@ -64005,6 +64032,7 @@ export type IdentityHolderQuery = {
     hasPendingWorkflow: boolean
     hasWorkflowHistory: boolean
     id: string
+    identityHolderType: IdentityHolderIdentityHolderType
     internalOwner?: string | null
     internalOwnerGroupID?: string | null
     internalOwnerUserID?: string | null
@@ -64016,6 +64044,8 @@ export type IdentityHolderQuery = {
     scopeID?: string | null
     scopeName?: string | null
     startDate?: string | null
+    status: IdentityHolderUserStatus
+    tags?: Array<string> | null
     team?: string | null
     title?: string | null
     updatedAt?: any | null

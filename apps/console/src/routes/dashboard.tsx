@@ -133,7 +133,6 @@ export const topNavigationItems = (session: Session | null): (NavItem | Separato
           title: 'Personnel',
           href: '/registry/personnel',
           icon: IdCardLanyardIcon,
-          hidden: true,
         },
       ],
     },
