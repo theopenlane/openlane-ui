@@ -155,7 +155,7 @@ export default function MultiStepForm() {
   return (
     <div className="flex justify-center flex-col items-center max-w-[545px] m-auto">
       <div className="self-start w-full">
-        <h1 className="text-2xl py-3 font-medium text-left">Welcome to Openlane 🙇‍♀️</h1>
+        <h1 className="text-2xl py-3 font-medium text-left">Welcome to Openlane</h1>
         <p className="text-sm font-normal pb-5 text-left">We are glad to have you! Let&apos;s get started with a few questions.</p>
       </div>
       {isLoading && isLastStep && (
@@ -182,7 +182,7 @@ export default function MultiStepForm() {
               <div className="relative bg-progressbar h-1 w-full">
                 <div className={`absolute bg-brand h-1`} style={{ width: `${((currentIndex + 1) / steps.length) * 100}%` }}></div>
               </div>
-              <div className="p-7 bg-secondary">
+              <div className="p-7 bg-secondary rounded-b-lg">
                 {stepper.switch({
                   0: () => <Step1 />,
                   1: () => <Step2 />,
