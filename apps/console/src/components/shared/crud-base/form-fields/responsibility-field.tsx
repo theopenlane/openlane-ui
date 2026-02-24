@@ -14,6 +14,7 @@ import { useUserSelect } from '@/lib/graphql-hooks/member'
 import { useGroupSelect } from '@/lib/graphql-hooks/group'
 import { useNotification } from '@/hooks/useNotification'
 import { ResponsibilitySelection, buildResponsibilityInlineUpdate } from './responsibility-field-utils'
+import { isValidEmail } from '@/lib/validators'
 
 interface ResponsibilityFieldProps {
   name: string
@@ -81,7 +82,7 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
   }
 
   const handleSelect = async (selection: ResponsibilitySelection, field: { onChange: (value: ResponsibilitySelection) => void }) => {
-    if (selection?.type === 'string' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(selection.value)) {
+    if (selection?.type === 'string' && !isValidEmail(selection.value)) {
       errorNotification({ title: 'Invalid email', description: 'Custom values must be a valid email address' })
       return
     }

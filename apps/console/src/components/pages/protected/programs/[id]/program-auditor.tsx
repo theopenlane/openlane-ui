@@ -13,6 +13,7 @@ import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification'
+import { isValidEmail } from '@/lib/validators'
 import { Input } from '@repo/ui/input'
 import SetReadyForAuditorDialog from './set-ready-for-auditor-dialog'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -93,10 +94,6 @@ const ProgramAuditor = ({ firm, name, email, isReady, programStatus }: ProgramAu
   /* eslint-enable react-hooks/set-state-in-effect */
 
   const { handleSubmit, control } = form
-
-  const isValidEmail = (email: string) => {
-    return /\S+@\S+\.\S+/.test(email)
-  }
 
   const onSubmit = async (values: SetAuditorFormValues) => {
     if (values.auditorEmail && values.auditorEmail !== '' && !isValidEmail(values.auditorEmail)) {

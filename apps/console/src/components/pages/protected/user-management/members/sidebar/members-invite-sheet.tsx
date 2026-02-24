@@ -18,6 +18,7 @@ import {
 } from '@repo/codegen/src/schema'
 import { useCreateBulkInvite } from '@/lib/graphql-hooks/organization'
 import { useNotification } from '@/hooks/useNotification'
+import { isValidEmail } from '@/lib/validators'
 import { useQueryClient } from '@tanstack/react-query'
 import { Tag } from 'emblor'
 import { useMemo, useState } from 'react'
@@ -155,10 +156,6 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
         description: errorMessage,
       })
     }
-  }
-
-  const isValidEmail = (email: string) => {
-    return /\S+@\S+\.\S+/.test(email)
   }
 
   const handleBlur = () => {
