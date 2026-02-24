@@ -106,7 +106,7 @@ export interface GenericTablePageConfig<TEntity extends { id: string }, TFormDat
   sheetConfig: Omit<GenericDetailsSheetConfig<TFormData, TEntity, TUpdateInput, TUpdateData, TCreateInput, TCreateData>, 'form' | 'onClose'>
 
   // Bulk operations
-  onBulkDelete: (ids: string[]) => Promise<void>
+  onBulkDelete?: (ids: string[]) => Promise<void>
   onBulkCreate?: (file: File) => Promise<void>
   onBulkEdit?: (ids: string[], data: TUpdateInput) => Promise<void>
   bulkEditFormSchema?: ZodObject<ZodRawShape>

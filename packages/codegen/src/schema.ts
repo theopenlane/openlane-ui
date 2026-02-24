@@ -69367,6 +69367,9 @@ export type VulnerabilitiesWithFilterQuery = {
         status?: string | null
         summary?: string | null
         systemOwned?: boolean | null
+        tags?: Array<string> | null
+        impacts?: Array<string> | null
+        references?: Array<string> | null
         updatedAt?: any | null
         updatedBy?: string | null
         validated?: boolean | null
@@ -69419,6 +69422,9 @@ export type VulnerabilityQuery = {
     status?: string | null
     summary?: string | null
     systemOwned?: boolean | null
+    tags?: Array<string> | null
+    impacts?: Array<string> | null
+    references?: Array<string> | null
     updatedAt?: any | null
     updatedBy?: string | null
     validated?: boolean | null
