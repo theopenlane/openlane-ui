@@ -39,6 +39,7 @@ const EvidenceCommentSheet = () => {
     },
     enabled: userIds.length > 0,
   })
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (commentSource && userData?.orgMemberships?.edges?.length) {
       const mapped: TCommentData[] =
@@ -66,6 +67,7 @@ const EvidenceCommentSheet = () => {
       setComments(sorted)
     }
   }, [commentSortIsAsc, commentSource, userData])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const handleEditComment = useCallback(
     async (commentId: string, newValue: string) => {

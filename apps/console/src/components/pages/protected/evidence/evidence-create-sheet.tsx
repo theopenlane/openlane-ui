@@ -152,6 +152,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
       })
     }
   }
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const handleInitialValue = useCallback(() => {
     if (formData) {
       if (controlParam && controlParam.length) {
@@ -204,6 +205,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
     enabled: open,
   })
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     handleInitialValue()
   }, [handleInitialValue])
