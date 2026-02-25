@@ -1,43 +1,74 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
-import { switchOrganization, handleSSORedirect } from '@/lib/user'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
-import { searchStyles } from './search.styles'
-import { Command, CommandEmpty, CommandItem, CommandList } from '@repo/ui/command'
-import { Input } from '@repo/ui/input'
-import { Clock8, LoaderCircle, Search, SearchIcon } from 'lucide-react'
-import { useDebounce } from '@uidotdev/usehooks'
-import { useSearch } from '@/lib/graphql-hooks/search'
-import { Organization, SearchQuery } from '@repo/codegen/src/schema'
-import { Avatar } from '../avatar/avatar'
-import { getHrefForObjectType } from '@/utils/getHrefForObjectType'
-import { Dialog, DialogContent, DialogTrigger } from '@repo/ui/dialog'
-import { generateSelectOptions, getSearchResultCount, searchTypeIcons } from './search-config'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { RoutePage } from '@/types'
-import { useSearchHistory } from './useSearchHistory'
 import { useQueryClient } from '@tanstack/react-query'
+import { useDebounce } from '@uidotdev/usehooks'
+import { Clock8, LoaderCircle, Search, SearchIcon } from 'lucide-react'
+
 import { Button } from '@repo/ui/button'
+import { Command, CommandEmpty, CommandItem, CommandList } from '@repo/ui/command'
+import { Dialog, DialogContent, DialogTrigger } from '@repo/ui/dialog'
+import { Input } from '@repo/ui/input'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 
-type ProgramNode = NonNullable<NonNullable<NonNullable<NonNullable<SearchQuery['search']>['programs']>['edges']>[number]>['node']
+import { switchOrganization, handleSSORedirect } from '@/lib/user'
+import { useSearch, type SearchContextGroup, type SearchContextResult } from '@/lib/graphql-hooks/search'
+import { searchStyles } from './search.styles'
+import { generateSelectOptions, getEntityTypeLabel, getSearchResultCount, searchTypeIcons } from './search-config'
+import { RoutePage } from '@/types'
+import { useSearchHistory } from './useSearchHistory'
+import { getHrefForSearchEntityType } from '@/utils/getHrefForObjectType'
+import { splitTextByQuery } from './search-utils'
 
-type GroupNode = NonNullable<NonNullable<NonNullable<NonNullable<SearchQuery['search']>['groups']>['edges']>[number]>['node']
+const highlightQueryMatch = (text: string, query: string) => {
+  const parts = splitTextByQuery(text, query)
 
-type TaskNode = NonNullable<NonNullable<NonNullable<NonNullable<SearchQuery['search']>['tasks']>['edges']>[number]>['node']
+  return parts.map((part, index) => {
+    if (part.isMatch) {
+      return (
+        <strong key={`${part.text}-${index}`} className="font-semibold text-input-text">
+          {part.text}
+        </strong>
+      )
+    }
 
-type ControlNode = NonNullable<NonNullable<NonNullable<NonNullable<SearchQuery['search']>['controls']>['edges']>[number]>['node']
+    return <React.Fragment key={`${part.text}-${index}`}>{part.text}</React.Fragment>
+  })
+}
 
-type SubcontrolNode = NonNullable<NonNullable<NonNullable<NonNullable<SearchQuery['search']>['subcontrols']>['edges']>[number]>['node']
+const primaryLabelSnippetFields: Partial<Record<string, string[]>> = {
+  Program: ['name'],
+  Risk: ['name'],
+  Procedure: ['name'],
+  Template: ['name'],
+  Group: ['name', 'displayName'],
+  Organization: ['name', 'displayName'],
+  Evidence: ['name'],
+  Task: ['title'],
+}
 
-type RiskNode = NonNullable<NonNullable<NonNullable<NonNullable<SearchQuery['search']>['risks']>['edges']>[number]>['node']
+const normalizeSnippetField = (field: string) => field.replace(/[\s_-]+/g, '').toLowerCase()
 
-type OrganizationNode = NonNullable<NonNullable<NonNullable<NonNullable<SearchQuery['search']>['organizations']>['edges']>[number]>['node']
+const getVisibleMatchedFields = (result: SearchContextResult) => {
+  if (result.entityType !== 'Group' && result.entityType !== 'Organization') {
+    return result.matchedFields
+  }
 
-type PolicyNode = NonNullable<NonNullable<NonNullable<NonNullable<SearchQuery['search']>['internalPolicies']>['edges']>[number]>['node']
+  return result.matchedFields.filter((field) => normalizeSnippetField(field) === 'displayname')
+}
 
-type ProcedureNode = NonNullable<NonNullable<NonNullable<NonNullable<SearchQuery['search']>['procedures']>['edges']>[number]>['node']
+const getVisibleSnippets = (result: SearchContextResult) => {
+  const primaryFields = primaryLabelSnippetFields[result.entityType]
+  if (!primaryFields?.length) {
+    return result.snippets
+  }
+
+  const normalizedPrimaryFields = new Set(primaryFields.map((field) => normalizeSnippetField(field)))
+
+  return result.snippets.filter((snippet) => !normalizedPrimaryFields.has(normalizeSnippetField(snippet.field)))
+}
 
 export const GlobalSearch = () => {
   const queryClient = useQueryClient()
@@ -54,36 +85,23 @@ export const GlobalSearch = () => {
 
   const debouncedQuery = useDebounce(query, 300)
 
-  const { data, isFetching, pages } = useSearch(debouncedQuery)
-
-  const previousOptionsRef = useRef<{ label: string; value: string }[]>([])
+  const { isFetching, pages, contextGroups } = useSearch(debouncedQuery)
 
   const close = () => setOpen(false)
 
   const selectOptionsWithCounts = useMemo(() => {
     if (query.length < 3) {
-      const options = generateSelectOptions(undefined, [])
-      previousOptionsRef.current = options
-      return options
-    }
-    if (data?.search && !isFetching) {
-      const options = generateSelectOptions(data, pages)
-      previousOptionsRef.current = options
-      return options
+      return generateSelectOptions([], [])
     }
 
-    if (!previousOptionsRef.current.length) {
-      const options = generateSelectOptions(data, pages)
-      previousOptionsRef.current = options
-      return options
-    }
+    return generateSelectOptions(contextGroups, pages)
+  }, [contextGroups, pages, query])
 
-    return previousOptionsRef.current
-  }, [data, pages, isFetching, query])
+  const selectedTypeValue = selectOptionsWithCounts.some((option) => option.value === selectedType) ? selectedType : 'All'
 
   const selectedCount = useMemo(() => {
-    return getSearchResultCount(selectedType, data, pages)
-  }, [selectedType, data, pages])
+    return getSearchResultCount(selectedTypeValue, contextGroups, pages)
+  }, [selectedTypeValue, contextGroups, pages])
 
   // when the organization is selected, switch the organization and redirect to the dashboard
   const handleOrganizationSwitch = async (orgId?: string) => {
@@ -120,7 +138,7 @@ export const GlobalSearch = () => {
     const down = (e: KeyboardEvent) => {
       if (e.key === '/' && (e.metaKey || e.ctrlKey)) {
         e.preventDefault()
-        setOpen((open) => !open)
+        setOpen((isOpen) => !isOpen)
         inputRef.current?.focus()
       }
     }
@@ -128,13 +146,13 @@ export const GlobalSearch = () => {
     return () => document.removeEventListener('keydown', down)
   }, [])
 
-  // open the popover when the data is fetched
+  // add search term to history when there are results
   useEffect(() => {
-    const hasData = (data && data.search && Object.values(data.search).some((val) => val !== null)) || pages.length
+    const hasData = contextGroups.some((group) => group.results.length > 0) || pages.length > 0
     if (debouncedQuery.length > 2 && hasData) {
       addTerm(debouncedQuery)
     }
-  }, [data, isFetching, debouncedQuery, addTerm, pages.length])
+  }, [contextGroups, debouncedQuery, addTerm, pages.length])
 
   /**
    * Pass all keydown events from the input to the `CommandInput` to provide navigation using up/down arrow keys etc.
@@ -150,10 +168,10 @@ export const GlobalSearch = () => {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger className={`p-1 rounded-md h-8 w-8 items-center justify-center flex`} asChild>
+      <DialogTrigger className="p-1 rounded-md h-8 w-8 items-center justify-center flex" asChild>
         <Button
           variant="secondary"
-          className={`p-1 rounded-md h-8 w-8 items-center justify-center flex`}
+          className="p-1 rounded-md h-8 w-8 items-center justify-center flex"
           onClick={() => {
             setOpen(true)
           }}
@@ -175,7 +193,7 @@ export const GlobalSearch = () => {
           />
         </div>
         <div className="flex px-4">
-          <Select value={selectedType} onValueChange={setSelectedType}>
+          <Select value={selectedTypeValue} onValueChange={setSelectedType}>
             <SelectTrigger className="w-[176px] shrink-0">
               <SelectValue placeholder="Select type" />
             </SelectTrigger>
@@ -189,7 +207,6 @@ export const GlobalSearch = () => {
           </Select>
           <div className="border-r mx-3" />
           <Clock8 size={16} className="self-center shrink-0" />
-          {/* history dropdown/list */}
           <div className="overflow-hidden w-80">
             {searchHistory.length > 0 && (
               <div className="p-2 flex w-full gap-1 ">
@@ -208,18 +225,16 @@ export const GlobalSearch = () => {
             )}
           </div>
         </div>
-        {/* Replace this with your custom search results UI */}
         <Command className="bg-panel">
-          {/* Optional: hidden element to capture key events */}
           <div className="hidden" />
           {selectedCount === 0
             ? renderNoResults()
             : renderSearchResults({
-                data,
+                contextGroups,
                 handleOrganizationSwitch,
                 setQuery,
                 query,
-                selectedType,
+                selectedType: selectedTypeValue,
                 pages,
                 close,
               })}
@@ -229,7 +244,6 @@ export const GlobalSearch = () => {
   )
 }
 
-// renderNoResults is a generic function to render no results found message if there are no search results
 const renderNoResults = () => {
   return (
     <CommandList>
@@ -240,38 +254,21 @@ const renderNoResults = () => {
 
 const renderRouteResults = (routes: { name: string; route: string }[], query: string, close: () => void) => {
   const { icon, leftFlex } = searchStyles()
+  const Icon = searchTypeIcons.Pages
 
-  const highlightMatch = (text: string, query: string) => {
-    if (!query) return text
-
-    const regex = new RegExp(`(${query})`, 'ig')
-    const parts = text.split(regex)
-
-    return parts.map((part, i) =>
-      regex.test(part) ? (
-        <span key={i} className="text-input-text">
-          {part}
-        </span>
-      ) : (
-        part
-      ),
-    )
-  }
   return (
     <>
       {routes.map((route) => {
-        const Icon = searchTypeIcons['Pages']
-
         return (
           <Link key={route.route} href={route.route} onClick={close}>
             <div className="border-b py-1">
-              <CommandItem className="cursor-pointer py-2 rounded-md">
+              <CommandItem value={route.route} className="cursor-pointer py-2 rounded-md">
                 <div className="flex">
                   <div className={leftFlex()}>
                     {Icon && <Icon className={icon()} />}
                     <p className="font-medium text-text-informational">Page</p>
                   </div>
-                  <span className="text-text-informational"> {highlightMatch(route.route, query)}</span>
+                  <span className="text-text-informational"> {highlightQueryMatch(route.route, query)}</span>
                 </div>
               </CommandItem>
             </div>
@@ -283,7 +280,7 @@ const renderRouteResults = (routes: { name: string; route: string }[], query: st
 }
 
 interface SearchProps {
-  data: SearchQuery | undefined
+  contextGroups: SearchContextGroup[]
   handleOrganizationSwitch?: (orgId?: string) => Promise<void>
   setQuery?: React.Dispatch<React.SetStateAction<string>>
   query: string
@@ -292,221 +289,113 @@ interface SearchProps {
   close: () => void
 }
 
-const renderSearchResults = ({ data, handleOrganizationSwitch, setQuery, query, selectedType, pages, close }: SearchProps) => {
-  if (!data?.search) return null
-
-  const { search } = data
-
+const renderSearchResults = ({ contextGroups, handleOrganizationSwitch, setQuery, query, selectedType, pages, close }: SearchProps) => {
   const shouldRenderSection = (type: string) => {
     return selectedType === 'All' || selectedType === type
   }
 
   return (
     <div className="flex flex-col">
-      {/* Type selector */}
-      <div className="px-2 py-1 border-b"></div>
+      <div className="px-2 py-1 border-b" />
 
       <CommandList key="search-results" className="max-h-[600px] overflow-auto px-2">
-        {/* Pages */}
         {shouldRenderSection('Pages') && !!pages.length && renderRouteResults(pages, query, close)}
-        {/* /* Organizations */}
-        {shouldRenderSection('Organizations') &&
-          !!search?.organizations?.edges?.length &&
-          renderOrgResults({
-            close,
-            searchType: 'Organizations',
-            nodes: (search.organizations.edges ?? []).map((edge): OrganizationNode => edge?.node),
-            handleOrganizationSwitch,
-            setQuery,
-          })}
-        {/* /* Programs */}
-        {shouldRenderSection('Programs') &&
-          !!search.programs?.edges?.length &&
-          renderResults({
-            close,
-            searchType: 'Programs',
-            nodes: (search.programs.edges ?? []).map((edge) => edge?.node),
-          })}
-        {shouldRenderSection('Policies') &&
-          !!search?.internalPolicies?.edges?.length &&
-          renderResults({
-            close,
-            searchType: 'Policies',
-            nodes: (search?.internalPolicies.edges ?? []).map((edge) => edge?.node),
-          })}
-        {shouldRenderSection('Procedures') &&
-          !!search?.procedures?.edges?.length &&
-          renderResults({
-            close,
-            searchType: 'Procedures',
-            nodes: (search?.procedures.edges ?? []).map((edge) => edge?.node),
-          })}
-        {/* /* Groups */}
-        {shouldRenderSection('Groups') &&
-          !!search.groups?.edges?.length &&
-          renderResults({
-            close,
-            searchType: 'Groups',
-            nodes: (search.groups.edges ?? []).map((edge) => edge?.node),
-          })}
-        {/* /* Tasks */}
-        {shouldRenderSection('Tasks') &&
-          !!search.tasks?.edges?.length &&
-          renderResults({
-            close,
-            searchType: 'Tasks',
-            nodes: (search.tasks.edges ?? []).map((edge) => edge?.node),
-          })}
 
-        {/* /* Controls */}
-        {shouldRenderSection('Controls') &&
-          !!search.controls?.edges?.length &&
-          renderResults({
-            close,
-            searchType: 'Controls',
-            nodes: (search.controls.edges ?? []).map((edge) => edge?.node),
-          })}
-        {/* /* Subcontrols */}
-        {shouldRenderSection('Subcontrols') &&
-          !!search.subcontrols?.edges?.length &&
-          renderResults({
-            close,
-            searchType: 'Subcontrols',
-            nodes: (search.subcontrols.edges ?? []).map((edge) => edge?.node),
-          })}
-        {/* /* Risks */}
-        {shouldRenderSection('Risks') &&
-          !!search.risks?.edges?.length &&
-          renderResults({
-            close,
-            searchType: 'Risks',
-            nodes: (search.risks.edges ?? []).map((edge) => edge?.node),
-          })}
+        {contextGroups
+          .filter((group) => shouldRenderSection(group.entityType) && group.results.length > 0)
+          .map((group) => (
+            <div key={group.entityType}>
+              <div className="px-2 py-1">
+                <p className="text-xs font-medium uppercase text-text-informational">{getEntityTypeLabel(group.entityType)}</p>
+              </div>
+              {group.results.map((result) => (
+                <SearchContextResultItem
+                  key={`${group.entityType}-${result.entityID}`}
+                  result={result}
+                  sectionType={group.entityType}
+                  query={query}
+                  close={close}
+                  handleOrganizationSwitch={handleOrganizationSwitch}
+                  setQuery={setQuery}
+                />
+              ))}
+            </div>
+          ))}
       </CommandList>
     </div>
   )
 }
 
-type ResponseNodes = ProgramNode[] | GroupNode[] | TaskNode[] | ControlNode[] | SubcontrolNode[] | RiskNode[] | PolicyNode[] | ProcedureNode[]
-
-interface SearchNodeProps {
-  searchType: string
-  nodes: ResponseNodes
+interface SearchContextResultItemProps {
+  result: SearchContextResult
+  sectionType: string
+  query: string
+  close: () => void
   handleOrganizationSwitch?: (orgId?: string) => Promise<void>
   setQuery?: React.Dispatch<React.SetStateAction<string>>
-  close: () => void
 }
 
-const renderResults = ({ searchType, nodes, close }: SearchNodeProps) => {
+const SearchContextResultItem = ({ result, sectionType, query, close, handleOrganizationSwitch, setQuery }: SearchContextResultItemProps) => {
   const { icon, leftFlex } = searchStyles()
 
-  const groupKey = `${searchType.toLowerCase()}`
-  const Icon = searchTypeIcons[searchType]
+  const isOrganization = result.entityType === ObjectTypes.ORGANIZATION
+  const visibleMatchedFields = getVisibleMatchedFields(result)
+  const matchedFieldLabel = visibleMatchedFields.length > 0 ? visibleMatchedFields.join(', ') : 'None'
+  const visibleSnippets = getVisibleSnippets(result)
+  const href = getHrefForSearchEntityType(result.entityType, result.entityID, {
+    subcontrolParentId: result.subcontrolParentId,
+    controlOwnerID: result.controlOwnerID,
+    controlStandardID: result.controlStandardID,
+  })
 
-  const renderName = (searchNode: ResponseNodes[number]): string => {
-    switch (searchNode?.__typename) {
-      case ObjectTypes.CONTROL:
-      case ObjectTypes.SUBCONTROL:
-        return searchNode.refCode
-      case ObjectTypes.PROGRAM:
-      case ObjectTypes.GROUP:
-      case ObjectTypes.RISK:
-      case ObjectTypes.INTERNAL_POLICY:
-      case ObjectTypes.PROCEDURE:
-        return searchNode.name
-      case ObjectTypes.TASK:
-        return searchNode.title
-      default:
-        return 'Unnamed'
-    }
-  }
+  const Icon = searchTypeIcons[sectionType] ?? searchTypeIcons[result.entityType] ?? searchTypeIcons.Pages
 
-  const generateObjectTypeLabel = (searchNode: ResponseNodes[number]): string => {
-    switch (searchNode?.__typename) {
-      case ObjectTypes.CONTROL: {
-        return searchNode.ownerID ? 'Controls' : 'Standard Controls'
-      }
-      default:
-        return searchType
-    }
-  }
-
-  return (
-    <>
-      {nodes?.map((searchNode, i: number) => {
-        const label = generateObjectTypeLabel(searchNode)
-        const nodeType = label.toLowerCase()
-        let href
-        if (searchNode) {
-          href = getHrefForObjectType(nodeType, searchNode)
-        }
-        const content = (
-          <div className="border-b py-1">
-            <CommandItem className="cursor-pointer py-2 rounded-md">
-              <div className="flex">
-                <div className={leftFlex()}>
-                  {Icon && <Icon className={icon()} />}
-                  <p className="font-medium text-text-informational">{label}</p>
-                </div>
-                <p className="text-input-text">{renderName(searchNode)}</p>
-              </div>
-            </CommandItem>
-          </div>
-        )
-
-        return href ? (
-          <Link key={groupKey + i} href={href} onClick={close}>
-            {content}
-          </Link>
-        ) : (
-          <div key={groupKey + i}>{content}</div>
-        )
-      })}
-    </>
-  )
-}
-
-interface SearchOrgNodeProps {
-  searchType: string
-  nodes: OrganizationNode[]
-  handleOrganizationSwitch?: (orgId?: string) => Promise<void>
-  setQuery?: React.Dispatch<React.SetStateAction<string>>
-  close: () => void
-}
-
-const renderOrgResults = ({ searchType, nodes, handleOrganizationSwitch, setQuery }: SearchOrgNodeProps) => {
-  const { avatarRow, icon, leftFlex } = searchStyles()
-
-  if (!handleOrganizationSwitch || !setQuery) return
-
-  const Icon = searchTypeIcons[searchType]
-
-  return (
-    <>
-      {nodes.map((searchNode: OrganizationNode) => {
-        return (
-          <div key={searchNode?.id} className="border-b py-1">
-            <CommandItem
-              className="cursor-pointer py-2 rounded-md bg-panel"
-              onSelect={() => {
+  const content = (
+    <div className="border-b py-1">
+      <CommandItem
+        value={`${result.entityType}-${result.entityID}`}
+        className="cursor-pointer py-2 rounded-md"
+        onSelect={
+          isOrganization && handleOrganizationSwitch && setQuery
+            ? () => {
                 setQuery('')
-                handleOrganizationSwitch(searchNode?.id)
-              }}
-            >
-              <div className="flex">
-                <div className={leftFlex()}>
-                  {Icon && <Icon className={icon()} />}
-                  <p className="font-medium">{searchType}</p>
-                </div>
-                <div className={avatarRow()}>
-                  <Avatar entity={searchNode as Organization} />
-                  <p className="text-input-text">{searchNode?.displayName}</p>
-                </div>
-              </div>
-            </CommandItem>
+                handleOrganizationSwitch(result.entityID)
+              }
+            : undefined
+        }
+      >
+        <div className="flex w-full">
+          <div className={leftFlex()}>
+            {Icon && <Icon className={icon()} />}
+            <p className="font-medium text-text-informational">{getEntityTypeLabel(sectionType)}</p>
           </div>
-        )
-      })}
-    </>
+          <div className="flex-1 min-w-0 space-y-1">
+            <p className="text-sm font-medium text-input-text break-words">{result.primaryLabel || result.entityID}</p>
+            <p className="text-xs text-text-informational">Matched fields: {matchedFieldLabel}</p>
+            {visibleSnippets.length > 0 ? (
+              <div className="space-y-1">
+                {visibleSnippets.map((snippet, index) => (
+                  <p key={`${snippet.field}-${index}`} className="text-sm text-input-text break-words">
+                    <span className="text-text-informational">{snippet.field}:</span> {highlightQueryMatch(snippet.text, query)}
+                  </p>
+                ))}
+              </div>
+            ) : result.snippets.length === 0 ? (
+              <p className="text-sm text-input-text">{result.entityID}</p>
+            ) : null}
+          </div>
+        </div>
+      </CommandItem>
+    </div>
   )
+
+  if (href) {
+    return (
+      <Link href={href} onClick={close}>
+        {content}
+      </Link>
+    )
+  }
+
+  return content
 }

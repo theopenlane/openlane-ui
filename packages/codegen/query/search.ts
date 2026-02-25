@@ -3,147 +3,118 @@ import { gql } from 'graphql-request'
 export const SEARCH = gql`
   query Search($query: String!) {
     search(query: $query) {
-      programs {
-        edges {
-          node {
-            __typename
-            id
-            name
-          }
+      searchContext {
+        entityID
+        entityType
+        matchedFields
+        snippets {
+          field
+          text
         }
-        pageInfo {
-          endCursor
-          startCursor
-        }
-        totalCount
       }
-
-      organizations {
-        edges {
-          node {
-            __typename
-            id
-            name
-            displayName
-            avatarRemoteURL
-          }
-        }
-        pageInfo {
-          endCursor
-          startCursor
-        }
-        totalCount
-      }
-
       controls {
         edges {
           node {
-            __typename
             id
             refCode
             ownerID
             standardID
           }
         }
-        pageInfo {
-          endCursor
-          startCursor
-        }
-        totalCount
       }
-
       subcontrols {
         edges {
           node {
-            __typename
             id
             refCode
-            ownerID
             control {
               id
             }
           }
         }
-        pageInfo {
-          endCursor
-          startCursor
-        }
-        totalCount
       }
-
-      risks {
+      internalPolicies {
         edges {
           node {
-            __typename
             id
             name
           }
         }
-        pageInfo {
-          endCursor
-          startCursor
-        }
-        totalCount
       }
-
-      groups {
+      procedures {
         edges {
           node {
-            __typename
             id
             name
           }
         }
-        pageInfo {
-          endCursor
-          startCursor
-        }
-        totalCount
       }
-
+      programs {
+        edges {
+          node {
+            id
+            name
+          }
+        }
+      }
       tasks {
         edges {
           node {
-            __typename
             id
             title
           }
         }
-        pageInfo {
-          endCursor
-          startCursor
-        }
-        totalCount
       }
-
-      internalPolicies {
+      risks {
         edges {
           node {
-            __typename
             id
             name
           }
         }
-        pageInfo {
-          endCursor
-          startCursor
-        }
-        totalCount
       }
-
-      procedures {
+      groups {
         edges {
           node {
-            __typename
+            id
+            displayName
+            name
+          }
+        }
+      }
+      organizations {
+        edges {
+          node {
+            id
+            displayName
+            name
+          }
+        }
+      }
+      standards {
+        edges {
+          node {
+            id
+            name
+            shortName
+          }
+        }
+      }
+      templates {
+        edges {
+          node {
             id
             name
           }
         }
-        pageInfo {
-          endCursor
-          startCursor
+      }
+      evidences {
+        edges {
+          node {
+            id
+            name
+          }
         }
-        totalCount
       }
     }
   }
