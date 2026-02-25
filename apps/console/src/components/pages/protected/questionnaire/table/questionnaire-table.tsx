@@ -115,7 +115,7 @@ export const QuestionnairesTable = () => {
 
   const handleViewDetails = useCallback(
     (assessment: Assessment) => {
-      router.push(`/questionnaires/${assessment.id}`)
+      router.push(`/automation/assessments/${assessment.id}`)
     },
     [router],
   )
@@ -126,14 +126,14 @@ export const QuestionnairesTable = () => {
 
   const handleEdit = useCallback(
     (assessment: Assessment) => {
-      router.push(`/questionnaires/questionnaire-editor?id=${assessment.id}`)
+      router.push(`/automation/assessments/questionnaire-editor?id=${assessment.id}`)
     },
     [router],
   )
 
   const handlePreview = useCallback(
     (assessment: Assessment) => {
-      router.push(`/questionnaires/questionnaire-viewer?id=${assessment.id}`)
+      router.push(`/automation/assessments/questionnaire-viewer?id=${assessment.id}`)
     },
     [router],
   )
@@ -224,13 +224,13 @@ export const QuestionnairesTable = () => {
   }
 
   const handleRowClick = (row: Assessment) => {
-    router.push(`/questionnaires/${row.id}`)
+    router.push(`/automation/assessments/${row.id}`)
   }
 
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
-      { label: 'Questionnaires', href: '/questionnaires' },
+      { label: 'Questionnaires', href: '/automation/assessments' },
     ])
   }, [setCrumbs])
 

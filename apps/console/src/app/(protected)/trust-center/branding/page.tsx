@@ -2,7 +2,7 @@ import BrandingPage from '@/components/pages/protected/trust-center/branding/bra
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Branding',
+  title: 'Branding | Trust Center',
 }
 
 const Page: React.FC = () => {

@@ -3,7 +3,7 @@
 import React, { useEffect, useMemo } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { PanelLeftOpen, PanelLeftClose, BookText, MessageSquareText, Plus, Lock } from 'lucide-react'
+import { PanelLeftOpen, PanelLeftClose, BookText, MessageSquareText, Plus, Lock, Ellipsis } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { Separator as Hr } from '@repo/ui/separator'
 import { Logo } from '@repo/ui/logo'
@@ -26,7 +26,7 @@ import { canCreate } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { hasNoModules } from '@/lib/auth/utils/modules'
 
-export type PanelKey = 'compliance' | 'trust center' | null
+export type PanelKey = 'compliance' | 'trust center' | 'automation' | 'registry' | null
 
 export const PRIMARY_WIDTH = 50
 export const PRIMARY_EXPANDED_WIDTH = 248
@@ -207,63 +207,57 @@ export default function SideNav({
     )
   }
 
+  const footerLinks = [
+    {
+      href: DOCS_URL,
+      label: 'Documentation',
+      icon: BookText,
+      external: true,
+    },
+    {
+      href: SUPPORT_URL,
+      label: 'Feedback',
+      icon: MessageSquareText,
+      external: false,
+    },
+    {
+      href: CONTRIBUTE_URL,
+      label: 'Github',
+      icon: Github,
+      external: true,
+    },
+  ]
+
   const renderFooterLinks = () => {
-    const links = [
-      {
-        href: DOCS_URL,
-        label: 'Documentation',
-        icon: BookText,
-        external: true,
-      },
-      {
-        href: SUPPORT_URL,
-        label: 'Feedback',
-        icon: MessageSquareText,
-        external: false,
-      },
-      {
-        href: CONTRIBUTE_URL,
-        label: 'Github',
-        icon: Github,
-        external: true,
-      },
-    ]
-
-    if (primaryExpanded) {
-      return (
-        <>
-          {links.map(({ href, label, icon: Icon, external }, i) => (
-            <Link
-              key={i}
-              href={href}
-              target={external ? '_blank' : undefined}
-              rel={external ? 'noopener noreferrer' : undefined}
-              className="btn-card p-1 flex items-center gap-2 w-full justify-start mx-2 text-muted-foreground hover:text-foreground"
-            >
-              <Icon size={16} />
-              <span className="text-sm font-normal leading-5">{label}</span>
-            </Link>
-          ))}
-        </>
-      )
-    }
-
-    return (
+    const menuContent = (
       <>
-        {links.map(({ href, label, icon: Icon, external }, i) => (
-          <TooltipProvider delayDuration={100} key={i}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Link href={href} target={external ? '_blank' : undefined} rel={external ? 'noopener noreferrer' : undefined} className="btn-card p-1">
-                  <Icon size={20} className="text-muted-foreground" />
-                </Link>
-              </TooltipTrigger>
-              <TooltipContent side="right">{label}</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+        {footerLinks.map(({ href, label, icon: Icon, external }, i) => (
+          <Link
+            key={i}
+            href={href}
+            target={external ? '_blank' : undefined}
+            rel={external ? 'noopener noreferrer' : undefined}
+            className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
+          >
+            <Icon size={16} />
+            <span className="text-sm font-normal leading-5">{label}</span>
+          </Link>
         ))}
       </>
     )
+
+    const trigger = primaryExpanded ? (
+      <Button variant="sidebar" className="flex px-2 justify-start gap-1 h-8 w-full mx-2">
+        <Ellipsis className="w-4 h-4" />
+        <span className="text-sm font-normal leading-5">More</span>
+      </Button>
+    ) : (
+      <button className="btn-card p-1 text-muted-foreground hover:text-foreground bg-transparent">
+        <Ellipsis size={20} />
+      </button>
+    )
+
+    return <Menu trigger={trigger} content={menuContent} side="right" align="start" />
   }
 
   return (

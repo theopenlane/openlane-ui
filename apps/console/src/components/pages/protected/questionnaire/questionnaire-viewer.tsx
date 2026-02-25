@@ -24,7 +24,7 @@ export default function ViewQuestionnaire(input: { existingId: string }) {
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
-      { label: 'Questionnaires', href: '/questionnaires' },
+      { label: 'Questionnaires', href: '/automation/assessments' },
       { label: 'Questionnaire Viewer', href: '/questionnaire-viewer' },
     ])
   }, [setCrumbs])

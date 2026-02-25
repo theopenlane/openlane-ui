@@ -132,7 +132,7 @@ export default function CreateQuestionnaire(input: { templateId: string; existin
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
-      { label: 'Questionnaires', href: '/questionnaires' },
+      { label: 'Questionnaires', href: '/automation/assessments' },
       { label: 'Questionnaire Editor', href: '/questionnaire-editor' },
     ])
   }, [setCrumbs])
@@ -184,7 +184,7 @@ export default function CreateQuestionnaire(input: { templateId: string; existin
             title: 'Assessment updated successfully',
           })
 
-          router.push(`/questionnaires`)
+          router.push(`/automation/assessments`)
         } catch (error) {
           const errorMessage = parseErrorMessage(error)
           errorNotification({
@@ -209,7 +209,7 @@ export default function CreateQuestionnaire(input: { templateId: string; existin
           title: 'Assessment created successfully',
         })
 
-        router.push(`/questionnaires`)
+        router.push(`/automation/assessments`)
       } catch (error) {
         const errorMessage = parseErrorMessage(error)
         errorNotification({

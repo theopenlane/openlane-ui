@@ -1,17 +1,16 @@
 import React from 'react'
-import { Metadata } from 'next'
 import { PageHeading } from '@repo/ui/page-heading'
-import AssetPage from '@/components/pages/protected/assets/table/page'
+import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Assets',
+  title: 'Exposure',
 }
 
 const Page: React.FC = () => {
   return (
     <>
-      <PageHeading heading="Assets" />
-      <AssetPage />
+      <PageHeading heading="Exposure" />
+      <div className="flex items-center justify-center py-20 text-muted-foreground">Coming soon</div>
     </>
   )
 }

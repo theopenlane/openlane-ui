@@ -31,14 +31,14 @@ const TemplateViewerPage: React.FC = () => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 
   const handleEdit = () => {
-    router.push(`/questionnaires/templates/template-editor?id=${existingId}`)
+    router.push(`/automation/assessments/templates/template-editor?id=${existingId}`)
   }
 
   const handleDelete = async () => {
     try {
       await deleteTemplate({ deleteTemplateId: existingId })
       successNotification({ title: 'Template deleted successfully' })
-      router.push('/questionnaires/templates')
+      router.push('/automation/assessments/templates')
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
       errorNotification({

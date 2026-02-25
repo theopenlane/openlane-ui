@@ -2,7 +2,7 @@ import ReportsAndCertificationsPage from '@/components/pages/protected/trust-cen
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Documents',
+  title: 'Documents | Trust Center',
 }
 
 const Page: React.FC = () => {

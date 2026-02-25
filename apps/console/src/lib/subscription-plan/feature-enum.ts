@@ -21,4 +21,5 @@ export enum FeatureEnum {
   TRUST_CENTER = 'TRUST_CENTER',
   VENDORS = 'VENDORS',
   PERSONNEL = 'PERSONNEL',
+  EXPOSURE = 'EXPOSURE',
 }
