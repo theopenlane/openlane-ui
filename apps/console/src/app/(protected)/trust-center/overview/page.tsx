@@ -2,7 +2,7 @@ import OverviewPage from '@/components/pages/protected/trust-center/overview/ove
 import { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Overview',
+  title: 'Overview | Trust Center',
 }
 
 const Page: React.FC = () => {

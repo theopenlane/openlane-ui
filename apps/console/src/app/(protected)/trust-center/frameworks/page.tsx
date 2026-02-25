@@ -3,7 +3,7 @@ import { Metadata } from 'next'
 import FrameworksPage from '@/components/pages/protected/trust-center/frameworks/frameworks-page'
 
 export const metadata: Metadata = {
-  title: 'Frameworks | Trust center',
+  title: 'Frameworks | Trust Center',
 }
 
 const Page: React.FC = () => {
