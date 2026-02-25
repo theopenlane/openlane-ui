@@ -130,7 +130,8 @@ export const getFilterFields = (enumOptions: EnumOptions): FilterField[] => [
 export const ASSETS_SORT_FIELDS = enumToSortFields(AssetOrderField)
 export const visibilityFields = {
   id: false,
-  name: true,
+  name: false,
+  displayName: true,
   description: false,
   accessModelName: false,
   assetDataClassificationName: false,

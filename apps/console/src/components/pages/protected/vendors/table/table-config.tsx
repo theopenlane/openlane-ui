@@ -112,8 +112,8 @@ export const VENDORS_SORT_FIELDS = enumToSortFields(EntityOrderField)
 
 export const visibilityFields = {
   id: false,
-  name: true,
-  displayName: false,
+  name: false,
+  displayName: true,
   description: true,
   domains: false,
   status: true,

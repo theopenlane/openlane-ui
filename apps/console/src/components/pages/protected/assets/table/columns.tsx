@@ -50,6 +50,7 @@ export const getColumns = ({ userMap, convertToReadOnly, selectedItems, setSelec
     },
     { accessorKey: 'id', header: 'ID', size: 120, cell: ({ row }) => <div className="text-muted-foreground">{row.original.id}</div> },
     { accessorKey: 'name', header: 'Name', size: 100, cell: ({ cell }) => cell.getValue() || '' },
+    { accessorKey: 'displayName', header: 'Display Name', size: 120, cell: ({ cell }) => cell.getValue() || '' },
     { accessorKey: 'accessModelName', header: 'Access Model', size: 140 },
     { accessorKey: 'assetDataClassificationName', header: 'Data Classification', size: 140 },
     { accessorKey: 'assetSubtypeName', header: 'Subtype', size: 120 },
