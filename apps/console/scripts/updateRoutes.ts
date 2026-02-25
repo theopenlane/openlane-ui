@@ -71,13 +71,27 @@ const uniqueRoutes = discoveredRoutes.filter((value, index, self) => index === s
 
 uniqueRoutes.sort((a, b) => a.route.localeCompare(b.route))
 
-const addedCount = uniqueRoutes.filter((d) => !existingRoutes.some((e) => e.route === d.route)).length
+const added = uniqueRoutes.filter((d) => !existingRoutes.some((e) => e.route === d.route))
 
-const removedCount = existingRoutes.filter((e) => !uniqueRoutes.some((d) => d.route === e.route)).length
+const removed = existingRoutes.filter((e) => !uniqueRoutes.some((d) => d.route === e.route))
 
 fs.writeFileSync(routeListPath, JSON.stringify(uniqueRoutes, null, 2))
 
 console.log(`✅ Route list synced.`)
-console.log(`   Added: ${addedCount}`)
-console.log(`   Removed: ${removedCount}`)
+if (added.length > 0) {
+  console.log(`   Added (${added.length}):`)
+  for (const r of added) {
+    console.log(`     + ${r.route}`)
+  }
+} else {
+  console.log(`   Added: 0`)
+}
+if (removed.length > 0) {
+  console.log(`   Removed (${removed.length}):`)
+  for (const r of removed) {
+    console.log(`     - ${r.route}`)
+  }
+} else {
+  console.log(`   Removed: 0`)
+}
 console.log(`   Total: ${uniqueRoutes.length}`)
