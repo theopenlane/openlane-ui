@@ -1,53 +1,16 @@
-import { ColumnDef, Row } from '@tanstack/react-table'
-import { Avatar } from '@/components/shared/avatar/avatar.tsx'
-import { formatDate } from '@/utils/date'
-import { Checkbox } from '@repo/ui/checkbox'
+import { ColumnDef } from '@tanstack/react-table'
 import { IdentityHoldersNodeNonNull } from '@/lib/graphql-hooks/identity-holder'
 import { ColumnOptions } from '@/components/shared/crud-base/page'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { UserCell } from '@/components/shared/crud-base/columns/user-cell'
+import { BooleanCell } from '@/components/shared/crud-base/columns/boolean-cell'
+import { TagsCell } from '@/components/shared/crud-base/columns/tags-cell'
+import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
+import { createSelectColumn } from '@/components/shared/crud-base/columns/select-column'
 
 export const getColumns = ({ userMap, selectedItems, setSelectedItems }: ColumnOptions): ColumnDef<IdentityHoldersNodeNonNull>[] => {
-  const toggleSelection = (item: IdentityHoldersNodeNonNull) => {
-    setSelectedItems((prev) => {
-      const exists = prev.some((c) => c.id === item.id)
-      return exists ? prev.filter((c) => c.id !== item.id) : [...prev, item]
-    })
-  }
-
   return [
-    {
-      id: 'select',
-      header: ({ table }) => {
-        const currentPageItems = table.getRowModel().rows.map((row) => row.original)
-        const allSelected = currentPageItems.every((item) => selectedItems?.some((si) => si.id === item.id))
-
-        return (
-          <div onClick={(e) => e.stopPropagation()}>
-            <Checkbox
-              checked={allSelected}
-              onCheckedChange={(checked: boolean) => {
-                const newSelections = checked
-                  ? [...selectedItems.filter((si) => !currentPageItems.some((i) => i.id === si.id)), ...currentPageItems]
-                  : selectedItems.filter((si) => !currentPageItems.some((i) => i.id === si.id))
-
-                setSelectedItems(newSelections)
-              }}
-            />
-          </div>
-        )
-      },
-      cell: ({ row }: { row: Row<IdentityHoldersNodeNonNull> }) => {
-        const { id } = row.original
-        const isChecked = selectedItems?.some((v) => v.id === id)
-
-        return (
-          <div onClick={(e) => e.stopPropagation()}>
-            <Checkbox checked={isChecked} onCheckedChange={() => toggleSelection(row.original)} />
-          </div>
-        )
-      },
-      size: 50,
-    },
+    createSelectColumn<IdentityHoldersNodeNonNull>(selectedItems, setSelectedItems),
     { accessorKey: 'id', header: 'ID', size: 120, cell: ({ row }) => <div className="text-muted-foreground">{row.original.id}</div> },
     { accessorKey: 'displayID', header: 'Display ID', size: 120 },
     { accessorKey: 'fullName', header: 'Full Name', size: 150, cell: ({ cell }) => cell.getValue() || '' },
@@ -76,49 +39,29 @@ export const getColumns = ({ userMap, selectedItems, setSelectedItems }: ColumnO
         return <div>{value ? getEnumLabel(value) : '-'}</div>
       },
     },
-    { accessorKey: 'isActive', header: 'Active', size: 100, cell: ({ cell }) => (cell.getValue() ? 'Yes' : 'No') },
-    { accessorKey: 'isOpenlaneUser', header: 'Openlane User', size: 120, cell: ({ cell }) => (cell.getValue() ? 'Yes' : 'No') },
-    { accessorKey: 'startDate', header: 'Start Date', size: 130, cell: ({ cell }) => formatDate(cell.getValue() as string) },
-    { accessorKey: 'endDate', header: 'End Date', size: 130, cell: ({ cell }) => formatDate(cell.getValue() as string) },
+    { accessorKey: 'isActive', header: 'Active', size: 100, cell: ({ cell }) => <BooleanCell value={cell.getValue() as boolean | null | undefined} /> },
+    { accessorKey: 'isOpenlaneUser', header: 'Openlane User', size: 120, cell: ({ cell }) => <BooleanCell value={cell.getValue() as boolean | null | undefined} /> },
+    { accessorKey: 'startDate', header: 'Start Date', size: 130, cell: ({ cell }) => <DateCell value={cell.getValue() as string} /> },
+    { accessorKey: 'endDate', header: 'End Date', size: 130, cell: ({ cell }) => <DateCell value={cell.getValue() as string} /> },
     { accessorKey: 'externalUserID', header: 'External User ID', size: 150 },
     { accessorKey: 'externalReferenceID', header: 'External Reference ID', size: 170 },
     { accessorKey: 'environmentName', header: 'Environment', size: 120 },
     { accessorKey: 'scopeName', header: 'Scope', size: 120 },
     { accessorKey: 'internalOwner', header: 'Internal Owner', size: 150 },
-    { accessorKey: 'tags', header: 'Tags', size: 180, cell: ({ cell }) => (cell.getValue() as string[])?.join(', ') || '' },
-    { accessorKey: 'createdAt', header: 'Created At', size: 130, cell: ({ cell }) => formatDate(cell.getValue() as string) },
+    { accessorKey: 'tags', header: 'Tags', size: 180, cell: ({ row }) => <TagsCell tags={row.original.tags} /> },
+    { accessorKey: 'createdAt', header: 'Created At', size: 130, cell: ({ cell }) => <DateCell value={cell.getValue() as string} /> },
     {
       accessorKey: 'createdBy',
       header: 'Created By',
       size: 160,
-      cell: ({ row }) => {
-        const user = userMap[row.original.createdBy ?? '']
-        return user ? (
-          <div className="flex items-center space-x-1">
-            <Avatar entity={user} className="w-[24px] h-[24px]" />
-            <p>{user.displayName}</p>
-          </div>
-        ) : (
-          <span className="text-muted-foreground italic">Deleted user</span>
-        )
-      },
+      cell: ({ row }) => <UserCell user={userMap[row.original.createdBy ?? '']} className="h-6 w-6" />,
     },
-    { accessorKey: 'updatedAt', header: 'Updated At', size: 130, cell: ({ cell }) => formatDate(cell.getValue() as string) },
+    { accessorKey: 'updatedAt', header: 'Updated At', size: 130, cell: ({ cell }) => <DateCell value={cell.getValue() as string} /> },
     {
       accessorKey: 'updatedBy',
       header: 'Updated By',
       size: 160,
-      cell: ({ row }) => {
-        const user = userMap[row.original.updatedBy ?? '']
-        return user ? (
-          <div className="flex items-center space-x-1">
-            <Avatar entity={user} className="w-[24px] h-[24px]" />
-            <p>{user.displayName}</p>
-          </div>
-        ) : (
-          <span className="text-muted-foreground italic">Deleted user</span>
-        )
-      },
+      cell: ({ row }) => <UserCell user={userMap[row.original.updatedBy ?? '']} className="h-6 w-6" />,
     },
   ]
 }

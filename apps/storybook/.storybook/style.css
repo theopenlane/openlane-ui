@@ -1,5 +1,5 @@
 @import '@repo/ui/styles.css';
-@source "../../../apps/console/src/**/*.{js,ts,jsx,tsx}";
+@source "../../../apps/console/src/components/shared/**/*.{js,ts,jsx,tsx}";
 
 html.dark {
   color-scheme: dark;

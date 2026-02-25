@@ -42,7 +42,7 @@ export const Removable: Story = {
   },
 }
 
-export const AllTypes = {
+export const AllTypes: Story = {
   render: () => (
     <div className="flex flex-wrap gap-2">
       {(['controls', 'programs', 'tasks', 'procedures', 'risks', 'subcontrols', 'controlObjectives', 'policies', 'groups', 'evidences'] as const).map((type) => (

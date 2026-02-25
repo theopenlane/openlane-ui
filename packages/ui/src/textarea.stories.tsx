@@ -49,12 +49,12 @@ export const Tall: Story = {
   },
 }
 
-export const EditableEmpty = {
+export const EditableEmpty: Story = {
   name: 'EditableTextarea (empty)',
   render: () => <EditableTextarea placeholder="Click to edit..." />,
 }
 
-export const EditableWithValue = {
+export const EditableWithValue: Story = {
   name: 'EditableTextarea (with value)',
   render: () => <EditableTextarea value="Click this text to edit it." onChange={() => {}} />,
 }

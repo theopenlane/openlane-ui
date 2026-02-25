@@ -2,8 +2,6 @@ import { ColumnDef, Row } from '@tanstack/react-table'
 import { Checkbox } from '@repo/ui/checkbox'
 import React from 'react'
 
-// createSelectColumn returns a ColumnDef for a checkbox select column.
-// Generic over T which must have an id string field.
 export function createSelectColumn<T extends { id: string }>(selectedItems: { id: string }[], setSelectedItems: React.Dispatch<React.SetStateAction<{ id: string }[]>>): ColumnDef<T> {
   return {
     id: 'select',

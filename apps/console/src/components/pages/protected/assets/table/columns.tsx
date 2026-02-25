@@ -7,7 +7,6 @@ import { UserCell } from '@/components/shared/crud-base/columns/user-cell'
 import { TagsCell } from '@/components/shared/crud-base/columns/tags-cell'
 import { BooleanCell } from '@/components/shared/crud-base/columns/boolean-cell'
 import { createSelectColumn } from '@/components/shared/crud-base/columns/select-column'
-import { User } from '@repo/codegen/src/schema'
 
 export const getColumns = ({ userMap, convertToReadOnly, selectedItems, setSelectedItems }: ColumnOptions): ColumnDef<AssetsNodeNonNull>[] => {
   return [
@@ -34,7 +33,7 @@ export const getColumns = ({ userMap, convertToReadOnly, selectedItems, setSelec
       accessorKey: 'createdBy',
       header: 'Created By',
       size: 160,
-      cell: ({ row }) => <UserCell user={userMap[row.original.createdBy ?? ''] as User | undefined} />,
+      cell: ({ row }) => <UserCell user={userMap[row.original.createdBy ?? '']} className="h-6 w-6" />,
     },
     { accessorKey: 'criticalityName', header: 'Criticality', size: 120 },
     {
@@ -80,7 +79,7 @@ export const getColumns = ({ userMap, convertToReadOnly, selectedItems, setSelec
       accessorKey: 'updatedBy',
       header: 'Updated By',
       size: 160,
-      cell: ({ row }) => <UserCell user={userMap[row.original.updatedBy ?? ''] as User | undefined} />,
+      cell: ({ row }) => <UserCell user={userMap[row.original.updatedBy ?? '']} className="h-6 w-6" />,
     },
     { accessorKey: 'website', header: 'Website', size: 120 },
   ]

@@ -25,7 +25,7 @@ export default meta
 
 type Story = StoryObj<typeof meta>
 
-export const Default = {
+export const Default: Story = {
   render: () => (
     <Alert>
       <Terminal className="h-4 w-4" />
@@ -35,7 +35,7 @@ export const Default = {
   ),
 }
 
-export const Destructive = {
+export const Destructive: Story = {
   render: () => (
     <Alert variant="destructive">
       <AlertCircle className="h-4 w-4" />
@@ -45,7 +45,7 @@ export const Destructive = {
   ),
 }
 
-export const TitleOnly = {
+export const TitleOnly: Story = {
   render: () => (
     <Alert>
       <AlertTitle>Something happened</AlertTitle>
@@ -53,7 +53,7 @@ export const TitleOnly = {
   ),
 }
 
-export const DescriptionOnly = {
+export const DescriptionOnly: Story = {
   render: () => (
     <Alert>
       <AlertDescription>Changes have been saved automatically.</AlertDescription>

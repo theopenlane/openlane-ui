@@ -6,18 +6,13 @@ import AvatarList from '@/components/shared/avatar-list/avatar-list'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 import { UserCell } from '@/components/shared/crud-base/columns/user-cell'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
-import { createSelectColumn } from '@/components/shared/crud-base/columns/select-column'
-import React from 'react'
 
 type Params = {
   userMap?: Record<string, User>
-  selectedItems?: { id: string }[]
-  setSelectedItems?: React.Dispatch<React.SetStateAction<{ id: string }[]>>
 }
 
-export const getGroupTableColumns = ({ userMap, selectedItems = [], setSelectedItems = () => {} }: Params) => {
+export const getGroupTableColumns = ({ userMap }: Params) => {
   const columns: ColumnDef<Group>[] = [
-    createSelectColumn<Group>(selectedItems, setSelectedItems),
     {
       accessorKey: 'id',
       header: 'ID',

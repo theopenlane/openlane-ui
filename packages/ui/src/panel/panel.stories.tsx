@@ -36,7 +36,7 @@ export default meta
 
 type Story = StoryObj<typeof meta>
 
-export const Default = {
+export const Default: Story = {
   render: () => (
     <Panel>
       <PanelHeader heading="Panel heading" subheading="Optional subheading providing more context." />
@@ -45,7 +45,7 @@ export const Default = {
   ),
 }
 
-export const HeaderNoBorder = {
+export const HeaderNoBorder: Story = {
   render: () => (
     <Panel>
       <PanelHeader heading="No border header" noBorder />
@@ -54,7 +54,7 @@ export const HeaderNoBorder = {
   ),
 }
 
-export const Destructive = {
+export const Destructive: Story = {
   render: () => (
     <Panel destructive>
       <p className="text-sm font-medium">This action cannot be undone.</p>
@@ -63,7 +63,7 @@ export const Destructive = {
   ),
 }
 
-export const ContentOnly = {
+export const ContentOnly: Story = {
   render: () => (
     <Panel gap={4}>
       <p className="text-sm">First item</p>

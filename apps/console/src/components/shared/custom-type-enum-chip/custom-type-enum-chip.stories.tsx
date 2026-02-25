@@ -38,7 +38,7 @@ export const NoColor: Story = {
   },
 }
 
-export const AllOptions = {
+export const AllOptions: Story = {
   render: () => (
     <div className="flex flex-wrap gap-2">
       {mockOptions.map((option) => (
@@ -48,12 +48,12 @@ export const AllOptions = {
   ),
 }
 
-export const ValueResolved = {
+export const ValueResolved: Story = {
   name: 'CustomTypeEnumValue (resolved)',
   render: () => <CustomTypeEnumValue value="high" options={mockOptions} />,
 }
 
-export const ValueMissing = {
+export const ValueMissing: Story = {
   name: 'CustomTypeEnumValue (unresolved)',
   render: () => <CustomTypeEnumValue value="unknown" options={mockOptions} placeholder="Not set" />,
 }

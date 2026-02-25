@@ -1,6 +1,6 @@
 import React from 'react'
 import type { Preview } from '@storybook/react-vite'
-import { addons, useEffect } from 'storybook/preview-api'
+import { useEffect } from 'storybook/preview-api'
 import { withThemeByClassName } from '@storybook/addon-themes'
 import './style.css'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
@@ -10,15 +10,31 @@ import openlaneDark from './openlane-dark'
 const DARK_BG = '#09151d'
 const LIGHT_BG = '#eff4f5'
 
-const queryClient = new QueryClient({
-  defaultOptions: { queries: { retry: false, enabled: false } },
-})
+const QueryClientDecorator = (Story: React.ComponentType, context: { id: string }) => {
+  const queryClient = React.useMemo(
+    () =>
+      new QueryClient({
+        defaultOptions: { queries: { retry: false } },
+      }),
+    [],
+  )
 
-const QueryClientDecorator = (Story: React.ComponentType) => (
-  <QueryClientProvider client={queryClient}>
-    <Story />
-  </QueryClientProvider>
-)
+  useEffect(() => {
+    queryClient.clear()
+  }, [context.id, queryClient])
+
+  useEffect(() => {
+    return () => {
+      queryClient.clear()
+    }
+  }, [queryClient])
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <Story />
+    </QueryClientProvider>
+  )
+}
 
 function applyTheme(isDark: boolean) {
   const bg = isDark ? DARK_BG : LIGHT_BG
@@ -30,23 +46,8 @@ function applyTheme(isDark: boolean) {
   }
 }
 
-const GlobalsThemeDecorator = (Story: React.ComponentType) => {
-  useEffect(() => {
-    const channel = addons.getChannel()
-    const handleGlobalsUpdated = ({ userGlobals }: { userGlobals: Record<string, string> }) => {
-      applyTheme(userGlobals?.['theme'] === 'dark')
-    }
-
-    channel.on('globalsUpdated', handleGlobalsUpdated)
-    return () => channel.off('globalsUpdated', handleGlobalsUpdated)
-  }, [])
-
-  return <Story />
-}
-
 const preview: Preview = {
   decorators: [
-    GlobalsThemeDecorator,
     QueryClientDecorator,
     (Story, context) => {
       const isDark = context.globals['theme'] === 'dark'

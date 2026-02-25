@@ -1,8 +1,5 @@
-'use client'
-
-import { Meta, StoryObj } from '@storybook/react-vite'
-import { LineChart, TooltipProps } from './chart'
-import { cn } from '@repo/ui/lib/utils'
+import type { Meta, StoryObj } from '@storybook/react-vite'
+import { LineChart } from './chart'
 import { LineChartExample } from './chart-example'
 
 const meta: Meta<typeof LineChart> = {
@@ -18,9 +15,10 @@ const meta: Meta<typeof LineChart> = {
 } satisfies Meta<typeof LineChart>
 
 export default meta
+
 type Story = StoryObj<typeof meta>
 
-export const Default = {
+export const Default: Story = {
   render: () => (
     <div className="p-8 rounded-lg">
       <LineChartExample />

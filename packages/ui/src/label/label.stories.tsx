@@ -27,7 +27,7 @@ export const Default: Story = {
   },
 }
 
-export const WithInput = {
+export const WithInput: Story = {
   render: () => (
     <div className="flex flex-col gap-2 w-64">
       <Label htmlFor="email">Email address</Label>
@@ -36,7 +36,7 @@ export const WithInput = {
   ),
 }
 
-export const RequiredField = {
+export const RequiredField: Story = {
   render: () => (
     <div className="flex flex-col gap-2 w-64">
       <Label htmlFor="name">

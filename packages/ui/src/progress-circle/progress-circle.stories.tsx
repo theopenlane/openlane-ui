@@ -48,7 +48,7 @@ export const Default: Story = {
   args: { value: 65, variant: 'default' },
 }
 
-export const WithLabel = {
+export const WithLabel: Story = {
   render: () => (
     <ProgressCircle value={72} variant="default">
       <span className="text-sm font-medium">72%</span>
@@ -84,7 +84,7 @@ export const Large: Story = {
   args: { value: 60, radius: 56, strokeWidth: 8, variant: 'default' },
 }
 
-export const Variants = {
+export const Variants: Story = {
   render: () => (
     <div className="flex gap-6 items-center flex-wrap">
       {(['default', 'neutral', 'blue', 'warning', 'error', 'success'] as const).map((variant) => (

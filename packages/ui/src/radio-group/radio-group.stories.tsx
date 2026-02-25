@@ -21,7 +21,7 @@ export default meta
 
 type Story = StoryObj<typeof meta>
 
-export const Default = {
+export const Default: Story = {
   render: () => (
     <RadioGroup defaultValue="option-one">
       <div className="flex items-center space-x-2">
@@ -40,7 +40,7 @@ export const Default = {
   ),
 }
 
-export const Disabled = {
+export const Disabled: Story = {
   render: () => (
     <RadioGroup defaultValue="option-one" disabled>
       <div className="flex items-center space-x-2">
@@ -55,7 +55,7 @@ export const Disabled = {
   ),
 }
 
-export const Horizontal = {
+export const Horizontal: Story = {
   render: () => (
     <RadioGroup defaultValue="monthly" className="flex flex-row gap-6">
       <div className="flex items-center space-x-2">

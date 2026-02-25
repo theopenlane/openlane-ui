@@ -31,7 +31,7 @@ export const Inactive: Story = {
   args: { active: false },
 }
 
-export const StepSequence = {
+export const StepSequence: Story = {
   render: () => (
     <div className="flex items-center gap-2">
       <StepIndicator active={true} />

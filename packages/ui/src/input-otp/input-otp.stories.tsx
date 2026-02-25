@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import { InputOTP, InputOTPGroup, InputOTPSlot, InputOTPSeparator } from './input-otp'
 
-const meta: Meta<typeof InputOTP> = {
+const meta = {
   title: 'Forms/InputOTP',
   component: InputOTP,
   parameters: {
@@ -15,9 +15,9 @@ const meta: Meta<typeof InputOTP> = {
 
 export default meta
 
-type Story = StoryObj<typeof meta>
+type Story = StoryObj<typeof InputOTP>
 
-export const SixDigit = {
+export const SixDigit: Story = {
   render: () => (
     <InputOTP maxLength={6}>
       <InputOTPGroup>
@@ -32,7 +32,7 @@ export const SixDigit = {
   ),
 }
 
-export const WithSeparator = {
+export const WithSeparator: Story = {
   render: () => (
     <InputOTP maxLength={6}>
       <InputOTPGroup>
@@ -50,7 +50,7 @@ export const WithSeparator = {
   ),
 }
 
-export const FourDigit = {
+export const FourDigit: Story = {
   render: () => (
     <InputOTP maxLength={4}>
       <InputOTPGroup>
@@ -63,7 +63,7 @@ export const FourDigit = {
   ),
 }
 
-export const Disabled = {
+export const Disabled: Story = {
   render: () => (
     <InputOTP maxLength={6} disabled>
       <InputOTPGroup>
