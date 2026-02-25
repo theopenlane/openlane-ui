@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 import { Slider } from './slider'
 
 const meta: Meta<typeof Slider> = {
-  title: 'UI/Slider',
+  title: 'Forms/Slider',
   component: Slider,
   parameters: {
     docs: {

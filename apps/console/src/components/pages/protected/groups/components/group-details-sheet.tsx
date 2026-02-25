@@ -233,7 +233,11 @@ const GroupDetailsSheet = () => {
                     {isEditing ? (
                       <Controller name="tags" control={control} render={({ field }) => <MultipleSelector value={field.value} creatable options={tagOptions} onChange={field.onChange} />} />
                     ) : (
-                      <div className="flex flex-wrap gap-2">{tags?.map((tag: string, i: number) => <TagChip key={i} tag={tag} />)}</div>
+                      <div className="flex flex-wrap gap-2">
+                        {tags?.map((tag: string, i: number) => (
+                          <TagChip key={i} tag={tag} />
+                        ))}
+                      </div>
                     )}
                   </div>
                 </div>

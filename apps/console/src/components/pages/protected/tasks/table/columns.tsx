@@ -1,16 +1,16 @@
-// columns.tsx
-
-import { ColumnDef, Row } from '@tanstack/react-table'
+import { ColumnDef } from '@tanstack/react-table'
 import { Task, User } from '@repo/codegen/src/schema'
 import { Avatar } from '@/components/shared/avatar/avatar.tsx'
-import { formatDate, formatTimeSince } from '@/utils/date'
+import { formatDate } from '@/utils/date'
 import { TaskStatusIconMapper } from '@/components/shared/enum-mapper/task-enum'
 import AssigneeCell from './assignee-cell'
-import { Checkbox } from '@repo/ui/checkbox'
-import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 import { CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
 import { CustomTypeEnumOption } from '@/lib/graphql-hooks/custom-type-enum'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { UserCell } from '@/components/shared/crud-base/columns/user-cell'
+import { TagsCell } from '@/components/shared/crud-base/columns/tags-cell'
+import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
+import { createSelectColumn } from '@/components/shared/crud-base/columns/select-column'
 
 type ColumnOptions = {
   userMap: Record<string, User>
@@ -21,47 +21,8 @@ type ColumnOptions = {
 }
 
 export const getTaskColumns = ({ userMap, convertToReadOnly, selectedTasks, setSelectedTasks, taskKindOptions }: ColumnOptions): ColumnDef<Task>[] => {
-  const toggleSelection = (task: { id: string }) => {
-    setSelectedTasks((prev) => {
-      const exists = prev.some((c) => c.id === task.id)
-      return exists ? prev.filter((c) => c.id !== task.id) : [...prev, task]
-    })
-  }
   return [
-    {
-      id: 'select',
-      header: ({ table }) => {
-        const currentPageTasks = table.getRowModel().rows.map((row) => row.original)
-        const allSelected = currentPageTasks.every((task) => selectedTasks.some((sc) => sc.id === task.id))
-
-        return (
-          <div onClick={(e) => e.stopPropagation()}>
-            <Checkbox
-              checked={allSelected}
-              onCheckedChange={(checked: boolean) => {
-                const newSelections = checked
-                  ? [...selectedTasks.filter((sc) => !currentPageTasks.some((c) => c.id === sc.id)), ...currentPageTasks.map((c) => ({ id: c.id }))]
-                  : selectedTasks.filter((sc) => !currentPageTasks.some((c) => c.id === sc.id))
-
-                setSelectedTasks(newSelections)
-              }}
-            />
-          </div>
-        )
-      },
-      cell: ({ row }: { row: Row<Task> }) => {
-        const { id } = row.original
-        const isChecked = selectedTasks.some((c) => c.id === id)
-
-        return (
-          <div onClick={(e) => e.stopPropagation()}>
-            <Checkbox checked={isChecked} onCheckedChange={() => toggleSelection({ id })} />
-          </div>
-        )
-      },
-      size: 50,
-      maxSize: 50,
-    },
+    createSelectColumn<Task>(selectedTasks, setSelectedTasks),
     {
       accessorKey: 'id',
       header: 'ID',
@@ -143,57 +104,31 @@ export const getTaskColumns = ({ userMap, convertToReadOnly, selectedTasks, setS
       accessorKey: 'tags',
       header: 'Tags',
       size: 140,
-      cell: ({ row }) => {
-        const tags = row?.original?.tags
-        if (!tags?.length) {
-          return '-'
-        }
-        return <div className="flex gap-2 flex-wrap">{row?.original?.tags?.map((tag, i) => <TagChip key={i} tag={tag} />)}</div>
-      },
+      cell: ({ row }) => <TagsCell tags={row.original.tags} />,
     },
     {
       accessorKey: 'createdBy',
       header: 'Created by',
       size: 200,
-      cell: ({ row }) => {
-        const user = userMap[row.original.createdBy ?? '']
-        return user ? (
-          <div className="flex items-center gap-2">
-            <Avatar entity={user} />
-            {user.displayName || '-'}
-          </div>
-        ) : (
-          'Deleted user'
-        )
-      },
+      cell: ({ row }) => <UserCell user={userMap[row.original.createdBy ?? '']} />,
     },
     {
       accessorKey: 'createdAt',
       header: 'Created At',
       size: 150,
-      cell: ({ cell }) => <span className="whitespace-nowrap">{formatDate(cell.getValue() as string)}</span>,
+      cell: ({ cell }) => <DateCell value={cell.getValue() as string} />,
     },
     {
       accessorKey: 'updatedBy',
       header: 'Updated By',
       size: 200,
-      cell: ({ row }) => {
-        const user = userMap[row.original.updatedBy ?? '']
-        return user ? (
-          <div className="flex items-center gap-2">
-            <Avatar entity={user} />
-            {user.displayName || '-'}
-          </div>
-        ) : (
-          'Deleted user'
-        )
-      },
+      cell: ({ row }) => <UserCell user={userMap[row.original.updatedBy ?? '']} />,
     },
     {
       accessorKey: 'updatedAt',
       header: 'Last Updated',
       size: 100,
-      cell: ({ cell }) => <span className="whitespace-nowrap">{formatTimeSince(cell.getValue() as string)}</span>,
+      cell: ({ cell }) => <DateCell value={cell.getValue() as string} variant="timesince" />,
     },
   ]
 }

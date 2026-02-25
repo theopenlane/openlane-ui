@@ -72,11 +72,11 @@ const ControlDetailsTabs: React.FC<TabsProps> = (props) => {
     () =>
       Boolean(
         implementationGuidance?.length ||
-          controlQuestions?.some((question) => question.trim().length > 0) ||
-          assessmentMethods?.length ||
-          assessmentObjectives?.length ||
-          testingProcedures?.length ||
-          references?.some((reference) => reference.name.trim().length > 0),
+        controlQuestions?.some((question) => question.trim().length > 0) ||
+        assessmentMethods?.length ||
+        assessmentObjectives?.length ||
+        testingProcedures?.length ||
+        references?.some((reference) => reference.name.trim().length > 0),
       ),
     [implementationGuidance, controlQuestions, assessmentMethods, assessmentObjectives, testingProcedures, references],
   )

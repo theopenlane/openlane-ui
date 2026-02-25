@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 import { Slash } from 'lucide-react'
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbSeparator } from './breadcrumb'
 const meta: Meta = {
-  title: 'UI/Breadcrumb',
+  title: 'Navigation/Breadcrumb',
   component: Breadcrumb,
   parameters: {
     docs: {

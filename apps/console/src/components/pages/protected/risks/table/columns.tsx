@@ -1,10 +1,10 @@
-import { ColumnDef, Row } from '@tanstack/react-table'
+import { ColumnDef } from '@tanstack/react-table'
 import { Group, RiskRiskStatus, RiskTableFieldsFragment, User } from '@repo/codegen/src/schema.ts'
 import React from 'react'
 import RiskLabel from '@/components/pages/protected/risks/risk-label.tsx'
-import { Avatar } from '@/components/shared/avatar/avatar.tsx'
-import { formatDate, formatTimeSince } from '@/utils/date'
-import { Checkbox } from '@repo/ui/checkbox'
+import { UserCell } from '@/components/shared/crud-base/columns/user-cell'
+import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
+import { createSelectColumn } from '@/components/shared/crud-base/columns/select-column'
 import DelegateCell from './delegate-cell'
 import StakeholderCell from './stakeholder-cell'
 
@@ -16,47 +16,8 @@ type Params = {
 }
 
 export const getRiskColumns = ({ userMap, convertToReadOnly, selectedRisks, setSelectedRisks }: Params) => {
-  const toggleSelection = (risk: { id: string }) => {
-    setSelectedRisks((prev) => {
-      const exists = prev.some((c) => c.id === risk.id)
-      return exists ? prev.filter((c) => c.id !== risk.id) : [...prev, risk]
-    })
-  }
   const columns: ColumnDef<RiskTableFieldsFragment>[] = [
-    {
-      id: 'select',
-      header: ({ table }) => {
-        const currentPageRisks = table.getRowModel().rows.map((row) => row.original)
-        const allSelected = currentPageRisks.every((risk) => selectedRisks.some((sc) => sc.id === risk.id))
-
-        return (
-          <div onClick={(e) => e.stopPropagation()}>
-            <Checkbox
-              checked={allSelected}
-              onCheckedChange={(checked: boolean) => {
-                const newSelections = checked
-                  ? [...selectedRisks.filter((sc) => !currentPageRisks.some((c) => c.id === sc.id)), ...currentPageRisks.map((c) => ({ id: c.id }))]
-                  : selectedRisks.filter((sc) => !currentPageRisks.some((c) => c.id === sc.id))
-
-                setSelectedRisks(newSelections)
-              }}
-            />
-          </div>
-        )
-      },
-      cell: ({ row }: { row: Row<RiskTableFieldsFragment> }) => {
-        const { id } = row.original
-        const isChecked = selectedRisks.some((c) => c.id === id)
-
-        return (
-          <div onClick={(e) => e.stopPropagation()}>
-            <Checkbox checked={isChecked} onCheckedChange={() => toggleSelection({ id })} />
-          </div>
-        )
-      },
-      size: 50,
-      maxSize: 50,
-    },
+    createSelectColumn<RiskTableFieldsFragment>(selectedRisks, setSelectedRisks),
     {
       accessorKey: 'id',
       header: 'ID',
@@ -174,45 +135,25 @@ export const getRiskColumns = ({ userMap, convertToReadOnly, selectedRisks, setS
       accessorKey: 'createdBy',
       header: 'Created by',
       size: 200,
-      cell: ({ row }) => {
-        const user = userMap[row.original.createdBy ?? '']
-        return user ? (
-          <div className="flex items-center gap-2">
-            <Avatar entity={user as User} />
-            {user.displayName || '-'}
-          </div>
-        ) : (
-          'Deleted user'
-        )
-      },
+      cell: ({ row }) => <UserCell user={userMap[row.original.createdBy ?? ''] as User | undefined} />,
     },
     {
       accessorKey: 'createdAt',
       header: 'Created At',
       size: 150,
-      cell: ({ cell }) => <span className="whitespace-nowrap">{formatDate(cell.getValue() as string)}</span>,
+      cell: ({ cell }) => <DateCell value={cell.getValue() as string} />,
     },
     {
       accessorKey: 'updatedBy',
       header: 'Updated By',
       size: 200,
-      cell: ({ row }) => {
-        const user = userMap[row.original.updatedBy ?? '']
-        return user ? (
-          <div className="flex items-center gap-2">
-            <Avatar entity={user as User} />
-            {user.displayName || '-'}
-          </div>
-        ) : (
-          'Deleted user'
-        )
-      },
+      cell: ({ row }) => <UserCell user={userMap[row.original.updatedBy ?? ''] as User | undefined} />,
     },
     {
       accessorKey: 'updatedAt',
       header: 'Last Updated',
       size: 100,
-      cell: ({ cell }) => <span className="whitespace-nowrap">{formatTimeSince(cell.getValue() as string)}</span>,
+      cell: ({ cell }) => <DateCell value={cell.getValue() as string} variant="timesince" />,
     },
   ]
 
