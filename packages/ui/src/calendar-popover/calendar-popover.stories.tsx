@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 import { CalendarPopover, CalendarPopoverProps } from './calendar-popover'
 
 const meta: Meta<CalendarPopoverProps<any>> = {
-  title: 'UI/CalendarPopover',
+  title: 'Forms/CalendarPopover',
   component: CalendarPopover,
   parameters: {
     docs: {

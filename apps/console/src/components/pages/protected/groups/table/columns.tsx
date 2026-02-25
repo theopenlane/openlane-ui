@@ -3,9 +3,9 @@ import { ColumnDef } from '@tanstack/react-table'
 import { GlobeIcon, LockIcon, StarsIcon } from 'lucide-react'
 import { Group, User } from '@repo/codegen/src/schema'
 import AvatarList from '@/components/shared/avatar-list/avatar-list'
-import { Avatar } from '@/components/shared/avatar/avatar'
-import { formatDate, formatTimeSince } from '@/utils/date'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
+import { UserCell } from '@/components/shared/crud-base/columns/user-cell'
+import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 
 type Params = {
   userMap?: Record<string, User>
@@ -96,45 +96,25 @@ export const getGroupTableColumns = ({ userMap }: Params) => {
       accessorKey: 'createdBy',
       header: 'Created by',
       size: 200,
-      cell: ({ row }) => {
-        const user = userMap?.[row.original.createdBy ?? '']
-        return user ? (
-          <div className="flex items-center gap-2">
-            <Avatar entity={user} />
-            {user.displayName || '-'}
-          </div>
-        ) : (
-          'Deleted user'
-        )
-      },
+      cell: ({ row }) => <UserCell user={userMap?.[row.original.createdBy ?? '']} />,
     },
     {
       accessorKey: 'createdAt',
       header: 'Created At',
       size: 150,
-      cell: ({ cell }) => <span className="whitespace-nowrap">{formatDate(cell.getValue() as string)}</span>,
+      cell: ({ cell }) => <DateCell value={cell.getValue() as string} />,
     },
     {
       accessorKey: 'updatedBy',
       header: 'Updated By',
       size: 200,
-      cell: ({ row }) => {
-        const user = userMap?.[row.original.updatedBy ?? '']
-        return user ? (
-          <div className="flex items-center gap-2">
-            <Avatar entity={user} />
-            {user.displayName || '-'}
-          </div>
-        ) : (
-          'Deleted user'
-        )
-      },
+      cell: ({ row }) => <UserCell user={userMap?.[row.original.updatedBy ?? '']} />,
     },
     {
       accessorKey: 'updatedAt',
       header: 'Last Updated',
       size: 100,
-      cell: ({ cell }) => <span className="whitespace-nowrap">{formatTimeSince(cell.getValue() as string)}</span>,
+      cell: ({ cell }) => <DateCell value={cell.getValue() as string} variant="timesince" />,
     },
   ]
 

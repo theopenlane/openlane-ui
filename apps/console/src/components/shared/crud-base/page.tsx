@@ -31,14 +31,14 @@ type TOrderFieldEnum<TField> = Record<string, TField> | TField[]
 export type CustomEnumOption = { label: string; value: string }
 export type EnumOptionsGeneric<T extends string = string> = Record<T, CustomEnumOption[]>
 
-export type ColumnOptions<TEntity> = {
+export type ColumnOptions = {
   userMap: Record<string, User>
   convertToReadOnly?: (data: string, padding?: number, style?: React.CSSProperties) => React.JSX.Element
-  selectedItems: TEntity[]
-  setSelectedItems: React.Dispatch<React.SetStateAction<TEntity[]>>
+  selectedItems: { id: string }[]
+  setSelectedItems: React.Dispatch<React.SetStateAction<{ id: string }[]>>
 }
 
-export interface TTableProps<TEntity extends { id: string }, TWhereInput> {
+export interface TTableProps<TWhereInput> {
   ref?: React.Ref<HTMLDivElement>
   onSortChange?: (sortCondition: TOrderByInput) => void
   pagination: TPagination
@@ -48,8 +48,8 @@ export interface TTableProps<TEntity extends { id: string }, TWhereInput> {
   columnVisibility?: VisibilityState
   setColumnVisibility: React.Dispatch<React.SetStateAction<VisibilityState>>
   onHasChange?: (hasItems: boolean) => void
-  selectedItems: TEntity[]
-  setSelectedItems: React.Dispatch<React.SetStateAction<TEntity[]>>
+  selectedItems: { id: string }[]
+  setSelectedItems: React.Dispatch<React.SetStateAction<{ id: string }[]>>
   canEdit: (accessRole: TAccessRole[] | undefined) => boolean
   permission: TPermissionData | undefined
   defaultSorting: SortCondition<string>[]
@@ -78,10 +78,10 @@ export interface GenericTablePageConfig<TEntity extends { id: string }, TFormDat
   form: UseFormReturn<TFormData>
 
   // Columns
-  getColumns: (params: ColumnOptions<TEntity>) => ColumnDef<TEntity>[]
+  getColumns: (params: ColumnOptions) => ColumnDef<TEntity>[]
 
   // Table Component
-  TableComponent: React.ComponentType<TTableProps<TEntity, TWhereInput>>
+  TableComponent: React.ComponentType<TTableProps<TWhereInput>>
 
   // Toolbar Component
   ToolbarComponent?: React.ComponentType<{
@@ -96,8 +96,8 @@ export interface GenericTablePageConfig<TEntity extends { id: string }, TFormDat
     searching: boolean
     canEdit: (roles: TAccessRole[]) => boolean
     permission: TPermissionData | undefined
-    selectedItems: TEntity[]
-    setSelectedItems: React.Dispatch<React.SetStateAction<TEntity[]>>
+    selectedItems: { id: string }[]
+    setSelectedItems: React.Dispatch<React.SetStateAction<{ id: string }[]>>
     bulkEditFormSchema?: ZodObject<ZodRawShape>
     enumOpts?: EnumOptionsGeneric
   }>
@@ -156,7 +156,7 @@ export function GenericTablePage<
   const [pagination, setPagination] = useState<TPagination>(getInitialPagination(tableKey, DEFAULT_PAGINATION))
   const [orderBy, setOrderBy] = useState<SortCondition<TOrderField>[]>(getInitialSortConditions(tableKey, orderFieldEnum, defaultSorting))
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(tableKey, defaultVisibility))
-  const [selectedItems, setSelectedItems] = useState<TEntity[]>([])
+  const [selectedItems, setSelectedItems] = useState<{ id: string }[]>([])
 
   const { data: permission } = useOrganizationRoles()
 

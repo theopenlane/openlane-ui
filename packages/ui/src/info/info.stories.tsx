@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 import { Info } from './info'
 
 const meta: Meta<typeof Info> = {
-  title: 'UI/Info',
+  title: 'Display/Info',
   component: Info,
   parameters: {
     docs: {

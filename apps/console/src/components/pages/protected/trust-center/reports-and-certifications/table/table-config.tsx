@@ -1,6 +1,5 @@
 'use client'
-import { ColumnDef, Row } from '@tanstack/react-table'
-import { formatDate, formatTimeSince } from '@/utils/date'
+import { ColumnDef } from '@tanstack/react-table'
 import { OrderDirection, TrustCenterDocOrderField, TrustCenterDocTrustCenterDocumentVisibility, TrustCenterDocWatermarkStatus } from '@repo/codegen/src/schema'
 
 type GqlFile = {
@@ -28,46 +27,8 @@ type Params = {
 }
 
 export const getTrustCenterDocColumns = ({ selectedDocs, setSelectedDocs, hasNdaTemplate }: Params) => {
-  const toggleSelection = (doc: { id: string }) => {
-    setSelectedDocs((prev) => {
-      const exists = prev.some((d) => d.id === doc.id)
-      return exists ? prev.filter((d) => d.id !== doc.id) : [...prev, doc]
-    })
-  }
-
   const columns: ColumnDef<TTrustCenterDoc>[] = [
-    {
-      id: 'select',
-      header: ({ table }) => {
-        const currentPageDocs = table.getRowModel().rows.map((row) => row.original)
-        const allSelected = currentPageDocs.every((doc) => selectedDocs.some((sd) => sd.id === doc.id))
-
-        return (
-          <div onClick={(e) => e.stopPropagation()}>
-            <Checkbox
-              checked={allSelected}
-              onCheckedChange={(checked: boolean) => {
-                const newSelections = checked
-                  ? [...selectedDocs.filter((sd) => !currentPageDocs.some((d) => d.id === sd.id)), ...currentPageDocs.map((d) => ({ id: d.id }))]
-                  : selectedDocs.filter((sd) => !currentPageDocs.some((d) => d.id === sd.id))
-                setSelectedDocs(newSelections)
-              }}
-            />
-          </div>
-        )
-      },
-      cell: ({ row }: { row: Row<TTrustCenterDoc> }) => {
-        const { id } = row.original
-        const isChecked = selectedDocs.some((d) => d.id === id)
-        return (
-          <div onClick={(e) => e.stopPropagation()}>
-            <Checkbox checked={isChecked} onCheckedChange={() => toggleSelection({ id })} />
-          </div>
-        )
-      },
-      size: 50,
-      maxSize: 50,
-    },
+    createSelectColumn<TTrustCenterDoc>(selectedDocs, setSelectedDocs),
     {
       accessorKey: 'title',
       header: 'Title',
@@ -119,13 +80,7 @@ export const getTrustCenterDocColumns = ({ selectedDocs, setSelectedDocs, hasNda
       accessorKey: 'tags',
       header: 'Tags',
       size: 140,
-      cell: ({ row }) => {
-        const tags = row?.original?.tags
-        if (!tags?.length) {
-          return '-'
-        }
-        return <div className="flex gap-2 flex-wrap">{row?.original?.tags?.map((tag, i) => <TagChip key={i} tag={tag} />)}</div>
-      },
+      cell: ({ row }) => <TagsCell tags={row.original.tags} />,
     },
     {
       accessorKey: 'standard',
@@ -138,13 +93,13 @@ export const getTrustCenterDocColumns = ({ selectedDocs, setSelectedDocs, hasNda
       accessorKey: 'createdAt',
       header: 'Created At',
       size: 150,
-      cell: ({ cell }) => <span className="whitespace-nowrap">{formatDate(cell.getValue() as string)}</span>,
+      cell: ({ cell }) => <DateCell value={cell.getValue() as string} />,
     },
     {
       accessorKey: 'updatedAt',
       header: 'Last Updated',
       size: 100,
-      cell: ({ cell }) => <span className="whitespace-nowrap">{formatTimeSince(cell.getValue() as string)}</span>,
+      cell: ({ cell }) => <DateCell value={cell.getValue() as string} variant="timesince" />,
     },
     {
       id: 'actions',
@@ -184,10 +139,11 @@ export const TRUST_CENTER_DOCS_SORT_FIELDS = [
 import { AlertTriangle, Eye, FileQuestion, Folder } from 'lucide-react'
 import Link from 'next/link'
 import { FilterField } from '@/types'
-import { Checkbox } from '@repo/ui/checkbox'
 import { Badge } from '@repo/ui/badge'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
-import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
+import { createSelectColumn } from '@/components/shared/crud-base/columns/select-column'
+import { TagsCell } from '@/components/shared/crud-base/columns/tags-cell'
+import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import DocumentActions from '../../actions/documents-actions'
 import DocumentsWatermarkStatusChip from '../../documents-watermark-status-chip.'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'

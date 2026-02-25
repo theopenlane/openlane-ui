@@ -75,7 +75,7 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
 
   useEffect(() => {
     onGroupSelect?.(selectedGroup)
-  }, [selectedGroup])
+  }, [selectedGroup, onGroupSelect])
 
   useEffect(() => {
     if (clearGroupRef) {
@@ -325,18 +325,6 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
     return { x: left, y: top }
   }
 
-  const iconImages = useMemo(() => {
-    const icons: Record<string, HTMLImageElement> = {}
-    Object.entries(ObjectAssociationMap).forEach(([key, { svg }]) => {
-      if (svg) {
-        const img = new Image()
-        img.src = `data:image/svg+xml;charset=utf8,${encodeURIComponent(svg)}`
-        icons[key] = img
-      }
-    })
-    return icons
-  }, [])
-
   const coloredIconImages = useMemo(() => {
     const icons: Record<string, HTMLImageElement> = {}
     Object.entries(ObjectAssociationMap).forEach(([key, { svg }]) => {
@@ -360,6 +348,7 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
     return (
       <div className="flex flex-col h-full overflow-auto">
         <div className="flex items-center gap-2 mb-4">
+          {/* eslint-disable-next-line @next/next/no-img-element -- data URI; next/image does not optimize data URIs */}
           {coloredIconSrc && <img src={coloredIconSrc} alt="" className="w-5 h-5" />}
           <span className="text-sm font-normal">{group.label}</span>
           <span

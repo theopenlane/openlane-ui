@@ -100,7 +100,13 @@ function PdfNode({ node }: { node: any }) {
       )
 
     case 'bulleted-list':
-      return <View style={styles.block}>{node.children?.map((li: any, idx: number) => <PdfNode key={idx} node={li} />)}</View>
+      return (
+        <View style={styles.block}>
+          {node.children?.map((li: any, idx: number) => (
+            <PdfNode key={idx} node={li} />
+          ))}
+        </View>
+      )
 
     case 'list-item':
       return (

@@ -17,7 +17,7 @@ import { Switch } from '../switch/switch'
 import { Button } from '../button/button'
 
 const meta: Meta<typeof DropdownMenu> = {
-  title: 'UI/DropdownMenu',
+  title: 'Overlays/DropdownMenu',
   component: DropdownMenu,
   parameters: {
     docs: {

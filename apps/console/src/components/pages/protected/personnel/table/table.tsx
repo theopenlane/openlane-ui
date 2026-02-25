@@ -26,7 +26,7 @@ const TableComponent = ({
   canEdit,
   permission,
   defaultSorting,
-}: TTableProps<IdentityHoldersNodeNonNull, IdentityHolderWhereInput>) => {
+}: TTableProps<IdentityHolderWhereInput>) => {
   const { replace } = useSmartRouter()
 
   const orderBy = useMemo(() => {

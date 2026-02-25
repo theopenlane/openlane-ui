@@ -27,7 +27,7 @@ const TableComponent = ({
   canEdit,
   permission,
   defaultSorting,
-}: TTableProps<EntitiesNodeNonNull, EntityWhereInput>) => {
+}: TTableProps<EntityWhereInput>) => {
   const { replace } = useSmartRouter()
 
   const vendorWhereFilter: EntityWhereInput = {

@@ -27,7 +27,7 @@ const TableComponent = ({
   canEdit,
   permission,
   defaultSorting,
-}: TTableProps<AssetsNodeNonNull, AssetWhereInput>) => {
+}: TTableProps<AssetWhereInput>) => {
   const { replace } = useSmartRouter()
 
   const orderBy = useMemo(() => {

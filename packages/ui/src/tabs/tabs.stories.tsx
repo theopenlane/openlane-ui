@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './tabs'
 
 const meta: Meta<typeof Tabs> = {
-  title: 'UI/Tabs',
+  title: 'Navigation/Tabs',
   component: Tabs,
   parameters: {
     docs: {
@@ -34,7 +34,9 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const Default: Story = {
-  parameters: {
-    backgrounds: { default: 'white' },
+  globals: {
+    backgrounds: {
+      value: 'white',
+    },
   },
 }

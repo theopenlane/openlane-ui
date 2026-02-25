@@ -1,1 +1,101 @@
-<style></style>
+<script>
+  (function () {
+    function applyTheme(isDark) {
+      document.documentElement.classList.toggle('dark', isDark);
+    }
+
+    // Apply from URL on initial load (persisted globals)
+    var urlGlobals = new URLSearchParams(location.search).get('globals') || '';
+    applyTheme(urlGlobals.indexOf('theme:dark') !== -1);
+
+    // Poll until the Storybook channel is ready, then subscribe
+    function waitForChannel() {
+      var ch = window.__STORYBOOK_ADDONS_CHANNEL__;
+      if (!ch) { setTimeout(waitForChannel, 100); return; }
+      // 'globalsUpdated' fires in the manager when the preview confirms the new globals
+      ch.on('globalsUpdated', function (data) {
+        var theme = (data.userGlobals || data.globals || {})['theme'];
+        applyTheme(theme === 'dark');
+      });
+    }
+    waitForChannel();
+  })();
+</script>
+
+<style>
+  /* Manager frame dark mode — mirrors console app dark palette */
+  html.dark body {
+    background-color: #09151d !important;
+    color: #ffffff !important;
+  }
+
+  /* Left sidebar panel */
+  html.dark .container.sidebar-container {
+    background-color: #162431 !important;
+    border-color: #394b58 !important;
+    color: #c4cfd7 !important;
+  }
+
+  /* Sidebar header (brand/logo area) */
+  html.dark .sidebar-header,
+  html.dark .sidebar-header * {
+    color: #ffffff !important;
+  }
+
+  /* Search field */
+  html.dark .search-field {
+    background-color: #0d1f2d !important;
+    border-color: #394b58 !important;
+    color: #ffffff !important;
+  }
+  html.dark .search-field input,
+  html.dark .search-field input::placeholder {
+    color: #9aa5b0 !important;
+  }
+
+  /* Section labels (DESIGN SYSTEM, OVERLAYS, etc.) */
+  html.dark .sidebar-subheading,
+  html.dark .sidebar-subheading * {
+    color: #9aa5b0 !important;
+  }
+
+  /* Sidebar nav items */
+  html.dark .sidebar-item {
+    color: #c4cfd7 !important;
+  }
+  html.dark .sidebar-item:hover {
+    background-color: rgba(255, 255, 255, 0.06) !important;
+    color: #ffffff !important;
+  }
+
+  /* Top toolbar bar */
+  html.dark .sb-bar {
+    background-color: #09151d !important;
+    border-bottom: 1px solid #394b58 !important;
+    color: #c4cfd7 !important;
+  }
+  html.dark .sb-bar button,
+  html.dark .sb-bar a,
+  html.dark .sb-bar span {
+    color: #c4cfd7 !important;
+  }
+  html.dark .sb-bar button:hover {
+    color: #ffffff !important;
+  }
+
+  /* Addons panel (Controls/Actions/Interactions/Accessibility tabs) */
+  html.dark #storybook-panel-root > div {
+    background-color: #09151d !important;
+    color: #ffffff !important;
+  }
+
+  /* Controls table inside the addons panel */
+  html.dark .docblock-argstable,
+  html.dark .docblock-argstable tr,
+  html.dark .docblock-argstable td,
+  html.dark .docblock-argstable th {
+    background-color: #09151d !important;
+    color: #c4cfd7 !important;
+    border-color: #394b58 !important;
+  }
+</style>
