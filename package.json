@@ -21,7 +21,7 @@
     "@typescript-eslint/eslint-plugin": "^8.55.0",
     "@typescript-eslint/parser": "^8.55.0",
     "@vercel/style-guide": "^6.0.0",
-    "dotenv-cli": "^8.0.0",
+    "dotenv-cli": "^11.0.0",
     "eslint": "9.39.3",
     "eslint-config-turbo": "^2.8.9",
     "eslint-plugin-import": "^2.32.0",
@@ -46,7 +46,7 @@
   ],
   "resolutions": {
     "react": "19.2.4",
-    "gaxios": "^6.7.0",
+    "gaxios": "^7.0.0",
     "node-fetch": "^3.3.2"
   },
   "peerDependencies": {
