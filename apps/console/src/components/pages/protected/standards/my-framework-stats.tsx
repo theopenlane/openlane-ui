@@ -1,7 +1,7 @@
-import { useGetStandardControlStats } from '@/lib/graphql-hooks/standards'
 import React from 'react'
 import MyFrameworksStatsChart from './my-framework-stats-chart'
 import { Fingerprint, Settings2 } from 'lucide-react'
+import { useGetStandardControlStats } from '@/lib/graphql-hooks/standard'
 
 type TMyFrameworksStatsProps = {
   standardId: string

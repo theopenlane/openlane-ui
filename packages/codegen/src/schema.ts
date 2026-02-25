@@ -7354,11 +7354,18 @@ export interface CreateDnsVerificationInput {
 export interface CreateDirectoryAccountInput {
   /** type of principal represented in the directory */
   accountType?: InputMaybe<DirectoryAccountDirectoryAccountType>
+  avatarFileID?: InputMaybe<Scalars['ID']['input']>
+  /** URL of the avatar supplied by the directory provider */
+  avatarRemoteURL?: InputMaybe<Scalars['String']['input']>
+  /** time the directory account avatar was last updated */
+  avatarUpdatedAt?: InputMaybe<Scalars['Time']['input']>
   /** lower-cased primary email address, if present */
   canonicalEmail?: InputMaybe<Scalars['String']['input']>
   /** department captured at sync time */
   department?: InputMaybe<Scalars['String']['input']>
-  directorySyncRunID: Scalars['ID']['input']
+  /** directory source label set by the integration (e.g. google_workspace, github, slack) */
+  directoryName?: InputMaybe<Scalars['String']['input']>
+  directorySyncRunID?: InputMaybe<Scalars['ID']['input']>
   /** provider supplied display name */
   displayName?: InputMaybe<Scalars['String']['input']>
   environmentID?: InputMaybe<Scalars['ID']['input']>
@@ -7368,10 +7375,12 @@ export interface CreateDirectoryAccountInput {
   externalID: Scalars['String']['input']
   /** last name reported by the provider */
   familyName?: InputMaybe<Scalars['String']['input']>
+  findingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** first name reported by the provider */
   givenName?: InputMaybe<Scalars['String']['input']>
   groupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  integrationID: Scalars['ID']['input']
+  identityHolderID?: InputMaybe<Scalars['ID']['input']>
+  integrationID?: InputMaybe<Scalars['ID']['input']>
   /** title captured at sync time */
   jobTitle?: InputMaybe<Scalars['String']['input']>
   /** timestamp of the most recent login reported by the provider */
@@ -7385,6 +7394,7 @@ export interface CreateDirectoryAccountInput {
   /** organizational unit or OU path the account lives under */
   organizationUnit?: InputMaybe<Scalars['String']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
+  platformID?: InputMaybe<Scalars['ID']['input']>
   /** flattened attribute bag used for filtering/diffing */
   profile?: InputMaybe<Scalars['Map']['input']>
   /** hash of the normalized profile payload for change detection */
@@ -7430,6 +7440,7 @@ export interface CreateDirectoryGroupInput {
   /** time when this snapshot was recorded */
   observedAt?: InputMaybe<Scalars['Time']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
+  platformID?: InputMaybe<Scalars['ID']['input']>
   /** flattened attribute bag used for filtering/diffing */
   profile?: InputMaybe<Scalars['Map']['input']>
   /** hash of the normalized payload for diffing */
@@ -7470,6 +7481,7 @@ export interface CreateDirectoryMembershipInput {
   /** time when this record was created */
   observedAt?: InputMaybe<Scalars['Time']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
+  platformID?: InputMaybe<Scalars['ID']['input']>
   /** membership role reported by the provider */
   role?: InputMaybe<DirectoryMembershipDirectoryMembershipRole>
   scopeID?: InputMaybe<Scalars['ID']['input']>
@@ -7500,6 +7512,7 @@ export interface CreateDirectorySyncRunInput {
   fullCount?: InputMaybe<Scalars['Int']['input']>
   integrationID: Scalars['ID']['input']
   ownerID?: InputMaybe<Scalars['ID']['input']>
+  platformID?: InputMaybe<Scalars['ID']['input']>
   /** object storage file identifier for the manifest captured during the run */
   rawManifestFileID?: InputMaybe<Scalars['String']['input']>
   scopeID?: InputMaybe<Scalars['ID']['input']>
@@ -7975,6 +7988,7 @@ export interface CreateFindingInput {
   controlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** long form description of the finding */
   description?: InputMaybe<Scalars['String']['input']>
+  directoryAccountIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** display name for the finding when provided by the source */
   displayName?: InputMaybe<Scalars['String']['input']>
   editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -7995,6 +8009,7 @@ export interface CreateFindingInput {
   fileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** classification provided by the source, e.g. MISCONFIGURATION */
   findingClass?: InputMaybe<Scalars['String']['input']>
+  identityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** impact score or rating for the finding */
   impact?: InputMaybe<Scalars['Float']['input']>
   integrationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -8224,6 +8239,7 @@ export interface CreateIdentityHolderInput {
   campaignIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the department or function of the identity holder */
   department?: InputMaybe<Scalars['String']['input']>
+  directoryAccountIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the email address of the identity holder */
   email: Scalars['String']['input']
@@ -8238,6 +8254,7 @@ export interface CreateIdentityHolderInput {
   externalReferenceID?: InputMaybe<Scalars['String']['input']>
   /** external user identifier for the identity holder */
   externalUserID?: InputMaybe<Scalars['String']['input']>
+  findingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the full name of the identity holder */
   fullName: Scalars['String']['input']
   /** the classification of identity holders, such as employee or contractor */
@@ -8793,6 +8810,7 @@ export interface CreateOrganizationInput {
   findingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   groupCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   groupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  identityHolderCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   identityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   impersonationEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   integrationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -8965,6 +8983,9 @@ export interface CreatePlatformInput {
   dataFlowSummary?: InputMaybe<Scalars['String']['input']>
   /** the description of the platform boundary */
   description?: InputMaybe<Scalars['String']['input']>
+  directoryAccountIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  directoryGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  directorySyncRunIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   encryptionStatusID?: InputMaybe<Scalars['ID']['input']>
   /** the encryption_status of the platform */
@@ -8981,6 +9002,7 @@ export interface CreatePlatformInput {
   fileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   generatedScanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   identityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  integrationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the internal owner for the platform when no user or group is linked */
   internalOwner?: InputMaybe<Scalars['String']['input']>
   internalOwnerGroupID?: InputMaybe<Scalars['ID']['input']>
@@ -11440,16 +11462,26 @@ export interface DirectoryAccount extends Node {
   __typename?: 'DirectoryAccount'
   /** type of principal represented in the directory */
   accountType?: Maybe<DirectoryAccountDirectoryAccountType>
+  /** local avatar file for the directory account */
+  avatarFile?: Maybe<File>
+  /** local avatar file identifier, takes precedence over avatar_remote_url */
+  avatarLocalFileID?: Maybe<Scalars['ID']['output']>
+  /** URL of the avatar supplied by the directory provider */
+  avatarRemoteURL?: Maybe<Scalars['String']['output']>
+  /** time the directory account avatar was last updated */
+  avatarUpdatedAt?: Maybe<Scalars['Time']['output']>
   /** lower-cased primary email address, if present */
   canonicalEmail?: Maybe<Scalars['String']['output']>
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
   /** department captured at sync time */
   department?: Maybe<Scalars['String']['output']>
+  /** directory source label set by the integration (e.g. google_workspace, github, slack) */
+  directoryName?: Maybe<Scalars['String']['output']>
   /** sync run that produced this snapshot */
-  directorySyncRun: DirectorySyncRun
-  /** sync run that produced this snapshot */
-  directorySyncRunID: Scalars['ID']['output']
+  directorySyncRun?: Maybe<DirectorySyncRun>
+  /** optional sync run that produced this snapshot */
+  directorySyncRunID?: Maybe<Scalars['ID']['output']>
   /** a shortened prefixed id field to use as a human readable identifier */
   displayID: Scalars['String']['output']
   /** provider supplied display name */
@@ -11463,14 +11495,19 @@ export interface DirectoryAccount extends Node {
   externalID: Scalars['String']['output']
   /** last name reported by the provider */
   familyName?: Maybe<Scalars['String']['output']>
+  findings: FindingConnection
   /** first name reported by the provider */
   givenName?: Maybe<Scalars['String']['output']>
   groups: DirectoryGroupConnection
   id: Scalars['ID']['output']
+  /** identity holder linked to this directory account */
+  identityHolder?: Maybe<IdentityHolder>
+  /** deduplicated identity holder linked to this directory account */
+  identityHolderID?: Maybe<Scalars['ID']['output']>
   /** integration that owns this directory account */
-  integration: Integration
-  /** integration that owns this directory account */
-  integrationID: Scalars['ID']['output']
+  integration?: Maybe<Integration>
+  /** optional integration that owns this directory account when sourced by an integration */
+  integrationID?: Maybe<Scalars['ID']['output']>
   /** title captured at sync time */
   jobTitle?: Maybe<Scalars['String']['output']>
   /** timestamp of the most recent login reported by the provider */
@@ -11487,6 +11524,10 @@ export interface DirectoryAccount extends Node {
   owner?: Maybe<Organization>
   /** the organization id that owns the object */
   ownerID?: Maybe<Scalars['ID']['output']>
+  /** platform associated with this directory account */
+  platform?: Maybe<Platform>
+  /** optional platform associated with this directory account */
+  platformID?: Maybe<Scalars['ID']['output']>
   /** flattened attribute bag used for filtering/diffing */
   profile?: Maybe<Scalars['Map']['output']>
   /** hash of the normalized profile payload for change detection */
@@ -11509,6 +11550,15 @@ export interface DirectoryAccount extends Node {
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
   workflowObjectRefs: WorkflowObjectRefConnection
+}
+
+export interface DirectoryAccountFindingsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<FindingOrder>>
+  where?: InputMaybe<FindingWhereInput>
 }
 
 export interface DirectoryAccountGroupsArgs {
@@ -11615,6 +11665,7 @@ export interface DirectoryAccountOrder {
 export enum DirectoryAccountOrderField {
   canonical_email = 'canonical_email',
   created_at = 'created_at',
+  directory_name = 'directory_name',
   display_name = 'display_name',
   external_id = 'external_id',
   updated_at = 'updated_at',
@@ -11640,6 +11691,49 @@ export interface DirectoryAccountWhereInput {
   accountTypeNotIn?: InputMaybe<Array<DirectoryAccountDirectoryAccountType>>
   accountTypeNotNil?: InputMaybe<Scalars['Boolean']['input']>
   and?: InputMaybe<Array<DirectoryAccountWhereInput>>
+  /** avatar_local_file_id field predicates */
+  avatarLocalFileID?: InputMaybe<Scalars['ID']['input']>
+  avatarLocalFileIDContains?: InputMaybe<Scalars['ID']['input']>
+  avatarLocalFileIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  avatarLocalFileIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  avatarLocalFileIDGT?: InputMaybe<Scalars['ID']['input']>
+  avatarLocalFileIDGTE?: InputMaybe<Scalars['ID']['input']>
+  avatarLocalFileIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  avatarLocalFileIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  avatarLocalFileIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  avatarLocalFileIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  avatarLocalFileIDLT?: InputMaybe<Scalars['ID']['input']>
+  avatarLocalFileIDLTE?: InputMaybe<Scalars['ID']['input']>
+  avatarLocalFileIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  avatarLocalFileIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  avatarLocalFileIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** avatar_remote_url field predicates */
+  avatarRemoteURL?: InputMaybe<Scalars['String']['input']>
+  avatarRemoteURLContains?: InputMaybe<Scalars['String']['input']>
+  avatarRemoteURLContainsFold?: InputMaybe<Scalars['String']['input']>
+  avatarRemoteURLEqualFold?: InputMaybe<Scalars['String']['input']>
+  avatarRemoteURLGT?: InputMaybe<Scalars['String']['input']>
+  avatarRemoteURLGTE?: InputMaybe<Scalars['String']['input']>
+  avatarRemoteURLHasPrefix?: InputMaybe<Scalars['String']['input']>
+  avatarRemoteURLHasSuffix?: InputMaybe<Scalars['String']['input']>
+  avatarRemoteURLIn?: InputMaybe<Array<Scalars['String']['input']>>
+  avatarRemoteURLIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  avatarRemoteURLLT?: InputMaybe<Scalars['String']['input']>
+  avatarRemoteURLLTE?: InputMaybe<Scalars['String']['input']>
+  avatarRemoteURLNEQ?: InputMaybe<Scalars['String']['input']>
+  avatarRemoteURLNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  avatarRemoteURLNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** avatar_updated_at field predicates */
+  avatarUpdatedAt?: InputMaybe<Scalars['Time']['input']>
+  avatarUpdatedAtGT?: InputMaybe<Scalars['Time']['input']>
+  avatarUpdatedAtGTE?: InputMaybe<Scalars['Time']['input']>
+  avatarUpdatedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  avatarUpdatedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  avatarUpdatedAtLT?: InputMaybe<Scalars['Time']['input']>
+  avatarUpdatedAtLTE?: InputMaybe<Scalars['Time']['input']>
+  avatarUpdatedAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  avatarUpdatedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  avatarUpdatedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** canonical_email field predicates */
   canonicalEmail?: InputMaybe<Scalars['String']['input']>
   canonicalEmailContains?: InputMaybe<Scalars['String']['input']>
@@ -11699,6 +11793,22 @@ export interface DirectoryAccountWhereInput {
   departmentNEQ?: InputMaybe<Scalars['String']['input']>
   departmentNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   departmentNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** directory_name field predicates */
+  directoryName?: InputMaybe<Scalars['String']['input']>
+  directoryNameContains?: InputMaybe<Scalars['String']['input']>
+  directoryNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  directoryNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  directoryNameGT?: InputMaybe<Scalars['String']['input']>
+  directoryNameGTE?: InputMaybe<Scalars['String']['input']>
+  directoryNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  directoryNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  directoryNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  directoryNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  directoryNameLT?: InputMaybe<Scalars['String']['input']>
+  directoryNameLTE?: InputMaybe<Scalars['String']['input']>
+  directoryNameNEQ?: InputMaybe<Scalars['String']['input']>
+  directoryNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  directoryNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** directory_sync_run_id field predicates */
   directorySyncRunID?: InputMaybe<Scalars['ID']['input']>
   directorySyncRunIDContains?: InputMaybe<Scalars['ID']['input']>
@@ -11709,10 +11819,12 @@ export interface DirectoryAccountWhereInput {
   directorySyncRunIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
   directorySyncRunIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
   directorySyncRunIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  directorySyncRunIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
   directorySyncRunIDLT?: InputMaybe<Scalars['ID']['input']>
   directorySyncRunIDLTE?: InputMaybe<Scalars['ID']['input']>
   directorySyncRunIDNEQ?: InputMaybe<Scalars['ID']['input']>
   directorySyncRunIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  directorySyncRunIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** display_id field predicates */
   displayID?: InputMaybe<Scalars['String']['input']>
   displayIDContains?: InputMaybe<Scalars['String']['input']>
@@ -11821,15 +11933,24 @@ export interface DirectoryAccountWhereInput {
   givenNameNEQ?: InputMaybe<Scalars['String']['input']>
   givenNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   givenNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** avatar_file edge predicates */
+  hasAvatarFile?: InputMaybe<Scalars['Boolean']['input']>
+  hasAvatarFileWith?: InputMaybe<Array<FileWhereInput>>
   /** directory_sync_run edge predicates */
   hasDirectorySyncRun?: InputMaybe<Scalars['Boolean']['input']>
   hasDirectorySyncRunWith?: InputMaybe<Array<DirectorySyncRunWhereInput>>
   /** environment edge predicates */
   hasEnvironment?: InputMaybe<Scalars['Boolean']['input']>
   hasEnvironmentWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
+  /** findings edge predicates */
+  hasFindings?: InputMaybe<Scalars['Boolean']['input']>
+  hasFindingsWith?: InputMaybe<Array<FindingWhereInput>>
   /** groups edge predicates */
   hasGroups?: InputMaybe<Scalars['Boolean']['input']>
   hasGroupsWith?: InputMaybe<Array<DirectoryGroupWhereInput>>
+  /** identity_holder edge predicates */
+  hasIdentityHolder?: InputMaybe<Scalars['Boolean']['input']>
+  hasIdentityHolderWith?: InputMaybe<Array<IdentityHolderWhereInput>>
   /** integration edge predicates */
   hasIntegration?: InputMaybe<Scalars['Boolean']['input']>
   hasIntegrationWith?: InputMaybe<Array<IntegrationWhereInput>>
@@ -11839,6 +11960,9 @@ export interface DirectoryAccountWhereInput {
   /** owner edge predicates */
   hasOwner?: InputMaybe<Scalars['Boolean']['input']>
   hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
+  /** platform edge predicates */
+  hasPlatform?: InputMaybe<Scalars['Boolean']['input']>
+  hasPlatformWith?: InputMaybe<Array<PlatformWhereInput>>
   /** scope edge predicates */
   hasScope?: InputMaybe<Scalars['Boolean']['input']>
   hasScopeWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
@@ -11856,6 +11980,22 @@ export interface DirectoryAccountWhereInput {
   idLTE?: InputMaybe<Scalars['ID']['input']>
   idNEQ?: InputMaybe<Scalars['ID']['input']>
   idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** identity_holder_id field predicates */
+  identityHolderID?: InputMaybe<Scalars['ID']['input']>
+  identityHolderIDContains?: InputMaybe<Scalars['ID']['input']>
+  identityHolderIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  identityHolderIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  identityHolderIDGT?: InputMaybe<Scalars['ID']['input']>
+  identityHolderIDGTE?: InputMaybe<Scalars['ID']['input']>
+  identityHolderIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  identityHolderIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  identityHolderIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  identityHolderIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  identityHolderIDLT?: InputMaybe<Scalars['ID']['input']>
+  identityHolderIDLTE?: InputMaybe<Scalars['ID']['input']>
+  identityHolderIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  identityHolderIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  identityHolderIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** integration_id field predicates */
   integrationID?: InputMaybe<Scalars['ID']['input']>
   integrationIDContains?: InputMaybe<Scalars['ID']['input']>
@@ -11866,10 +12006,12 @@ export interface DirectoryAccountWhereInput {
   integrationIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
   integrationIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
   integrationIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  integrationIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
   integrationIDLT?: InputMaybe<Scalars['ID']['input']>
   integrationIDLTE?: InputMaybe<Scalars['ID']['input']>
   integrationIDNEQ?: InputMaybe<Scalars['ID']['input']>
   integrationIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  integrationIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** job_title field predicates */
   jobTitle?: InputMaybe<Scalars['String']['input']>
   jobTitleContains?: InputMaybe<Scalars['String']['input']>
@@ -11961,6 +12103,22 @@ export interface DirectoryAccountWhereInput {
   ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
   ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** platform_id field predicates */
+  platformID?: InputMaybe<Scalars['ID']['input']>
+  platformIDContains?: InputMaybe<Scalars['ID']['input']>
+  platformIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  platformIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  platformIDGT?: InputMaybe<Scalars['ID']['input']>
+  platformIDGTE?: InputMaybe<Scalars['ID']['input']>
+  platformIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  platformIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  platformIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  platformIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  platformIDLT?: InputMaybe<Scalars['ID']['input']>
+  platformIDLTE?: InputMaybe<Scalars['ID']['input']>
+  platformIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  platformIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  platformIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** profile_hash field predicates */
   profileHash?: InputMaybe<Scalars['String']['input']>
   profileHashContains?: InputMaybe<Scalars['String']['input']>
@@ -12116,6 +12274,10 @@ export interface DirectoryGroup extends Node {
   owner?: Maybe<Organization>
   /** the organization id that owns the object */
   ownerID?: Maybe<Scalars['ID']['output']>
+  /** platform associated with this directory group */
+  platform?: Maybe<Platform>
+  /** optional platform associated with this directory group */
+  platformID?: Maybe<Scalars['ID']['output']>
   /** flattened attribute bag used for filtering/diffing */
   profile?: Maybe<Scalars['Map']['output']>
   /** hash of the normalized payload for diffing */
@@ -12412,6 +12574,9 @@ export interface DirectoryGroupWhereInput {
   /** owner edge predicates */
   hasOwner?: InputMaybe<Scalars['Boolean']['input']>
   hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
+  /** platform edge predicates */
+  hasPlatform?: InputMaybe<Scalars['Boolean']['input']>
+  hasPlatformWith?: InputMaybe<Array<PlatformWhereInput>>
   /** scope edge predicates */
   hasScope?: InputMaybe<Scalars['Boolean']['input']>
   hasScopeWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
@@ -12481,6 +12646,22 @@ export interface DirectoryGroupWhereInput {
   ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
   ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** platform_id field predicates */
+  platformID?: InputMaybe<Scalars['ID']['input']>
+  platformIDContains?: InputMaybe<Scalars['ID']['input']>
+  platformIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  platformIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  platformIDGT?: InputMaybe<Scalars['ID']['input']>
+  platformIDGTE?: InputMaybe<Scalars['ID']['input']>
+  platformIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  platformIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  platformIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  platformIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  platformIDLT?: InputMaybe<Scalars['ID']['input']>
+  platformIDLTE?: InputMaybe<Scalars['ID']['input']>
+  platformIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  platformIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  platformIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** profile_hash field predicates */
   profileHash?: InputMaybe<Scalars['String']['input']>
   profileHashContains?: InputMaybe<Scalars['String']['input']>
@@ -12619,6 +12800,10 @@ export interface DirectoryMembership extends Node {
   owner?: Maybe<Organization>
   /** the organization id that owns the object */
   ownerID?: Maybe<Scalars['ID']['output']>
+  /** platform associated with this directory membership */
+  platform?: Maybe<Platform>
+  /** optional platform associated with this directory membership */
+  platformID?: Maybe<Scalars['ID']['output']>
   /** membership role reported by the provider */
   role?: Maybe<DirectoryMembershipDirectoryMembershipRole>
   scope?: Maybe<CustomTypeEnum>
@@ -12941,6 +13126,10 @@ export interface DirectorySyncRun extends Node {
   owner?: Maybe<Organization>
   /** the organization id that owns the object */
   ownerID?: Maybe<Scalars['ID']['output']>
+  /** platform associated with this sync run */
+  platform?: Maybe<Platform>
+  /** optional platform associated with this sync run */
+  platformID?: Maybe<Scalars['ID']['output']>
   /** object storage file identifier for the manifest captured during the run */
   rawManifestFileID?: Maybe<Scalars['String']['output']>
   scope?: Maybe<CustomTypeEnum>
@@ -13200,6 +13389,9 @@ export interface DirectorySyncRunWhereInput {
   /** owner edge predicates */
   hasOwner?: InputMaybe<Scalars['Boolean']['input']>
   hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
+  /** platform edge predicates */
+  hasPlatform?: InputMaybe<Scalars['Boolean']['input']>
+  hasPlatformWith?: InputMaybe<Array<PlatformWhereInput>>
   /** scope edge predicates */
   hasScope?: InputMaybe<Scalars['Boolean']['input']>
   hasScopeWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
@@ -13246,6 +13438,22 @@ export interface DirectorySyncRunWhereInput {
   ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
   ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** platform_id field predicates */
+  platformID?: InputMaybe<Scalars['ID']['input']>
+  platformIDContains?: InputMaybe<Scalars['ID']['input']>
+  platformIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  platformIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  platformIDGT?: InputMaybe<Scalars['ID']['input']>
+  platformIDGTE?: InputMaybe<Scalars['ID']['input']>
+  platformIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  platformIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  platformIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  platformIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  platformIDLT?: InputMaybe<Scalars['ID']['input']>
+  platformIDLTE?: InputMaybe<Scalars['ID']['input']>
+  platformIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  platformIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  platformIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** raw_manifest_file_id field predicates */
   rawManifestFileID?: InputMaybe<Scalars['String']['input']>
   rawManifestFileIDContains?: InputMaybe<Scalars['String']['input']>
@@ -18296,6 +18504,7 @@ export interface Finding extends Node {
   createdBy?: Maybe<Scalars['String']['output']>
   /** long form description of the finding */
   description?: Maybe<Scalars['String']['output']>
+  directoryAccounts: DirectoryAccountConnection
   /** a shortened prefixed id field to use as a human readable identifier */
   displayID: Scalars['String']['output']
   /** display name for the finding when provided by the source */
@@ -18321,6 +18530,7 @@ export interface Finding extends Node {
   /** classification provided by the source, e.g. MISCONFIGURATION */
   findingClass?: Maybe<Scalars['String']['output']>
   id: Scalars['ID']['output']
+  identityHolders: IdentityHolderConnection
   /** impact score or rating for the finding */
   impact?: Maybe<Scalars['Float']['output']>
   integrations: IntegrationConnection
@@ -18456,6 +18666,15 @@ export interface FindingControlsArgs {
   where?: InputMaybe<ControlWhereInput>
 }
 
+export interface FindingDirectoryAccountsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<DirectoryAccountOrder>>
+  where?: InputMaybe<DirectoryAccountWhereInput>
+}
+
 export interface FindingEditorsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -18481,6 +18700,15 @@ export interface FindingFilesArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<FileOrder>>
   where?: InputMaybe<FileWhereInput>
+}
+
+export interface FindingIdentityHoldersArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<IdentityHolderOrder>>
+  where?: InputMaybe<IdentityHolderWhereInput>
 }
 
 export interface FindingIntegrationsArgs {
@@ -19144,6 +19372,9 @@ export interface FindingWhereInput {
   /** controls edge predicates */
   hasControls?: InputMaybe<Scalars['Boolean']['input']>
   hasControlsWith?: InputMaybe<Array<ControlWhereInput>>
+  /** directory_accounts edge predicates */
+  hasDirectoryAccounts?: InputMaybe<Scalars['Boolean']['input']>
+  hasDirectoryAccountsWith?: InputMaybe<Array<DirectoryAccountWhereInput>>
   /** editors edge predicates */
   hasEditors?: InputMaybe<Scalars['Boolean']['input']>
   hasEditorsWith?: InputMaybe<Array<GroupWhereInput>>
@@ -19156,6 +19387,9 @@ export interface FindingWhereInput {
   /** files edge predicates */
   hasFiles?: InputMaybe<Scalars['Boolean']['input']>
   hasFilesWith?: InputMaybe<Array<FileWhereInput>>
+  /** identity_holders edge predicates */
+  hasIdentityHolders?: InputMaybe<Scalars['Boolean']['input']>
+  hasIdentityHoldersWith?: InputMaybe<Array<IdentityHolderWhereInput>>
   /** integrations edge predicates */
   hasIntegrations?: InputMaybe<Scalars['Boolean']['input']>
   hasIntegrationsWith?: InputMaybe<Array<IntegrationWhereInput>>
@@ -21385,6 +21619,7 @@ export interface IdentityHolder extends Node {
   createdBy?: Maybe<Scalars['String']['output']>
   /** the department or function of the identity holder */
   department?: Maybe<Scalars['String']['output']>
+  directoryAccounts: DirectoryAccountConnection
   /** a shortened prefixed id field to use as a human readable identifier */
   displayID: Scalars['String']['output']
   editors: GroupConnection
@@ -21405,6 +21640,7 @@ export interface IdentityHolder extends Node {
   externalReferenceID?: Maybe<Scalars['String']['output']>
   /** external user identifier for the identity holder */
   externalUserID?: Maybe<Scalars['String']['output']>
+  findings: FindingConnection
   /** the full name of the identity holder */
   fullName: Scalars['String']['output']
   /** Indicates if this identityHolder has pending changes awaiting workflow approval */
@@ -21520,6 +21756,15 @@ export interface IdentityHolderCampaignsArgs {
   where?: InputMaybe<CampaignWhereInput>
 }
 
+export interface IdentityHolderDirectoryAccountsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<DirectoryAccountOrder>>
+  where?: InputMaybe<DirectoryAccountWhereInput>
+}
+
 export interface IdentityHolderEditorsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -21536,6 +21781,15 @@ export interface IdentityHolderEntitiesArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<EntityOrder>>
   where?: InputMaybe<EntityWhereInput>
+}
+
+export interface IdentityHolderFindingsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<FindingOrder>>
+  where?: InputMaybe<FindingWhereInput>
 }
 
 export interface IdentityHolderPlatformsArgs {
@@ -21918,6 +22172,9 @@ export interface IdentityHolderWhereInput {
   /** campaigns edge predicates */
   hasCampaigns?: InputMaybe<Scalars['Boolean']['input']>
   hasCampaignsWith?: InputMaybe<Array<CampaignWhereInput>>
+  /** directory_accounts edge predicates */
+  hasDirectoryAccounts?: InputMaybe<Scalars['Boolean']['input']>
+  hasDirectoryAccountsWith?: InputMaybe<Array<DirectoryAccountWhereInput>>
   /** editors edge predicates */
   hasEditors?: InputMaybe<Scalars['Boolean']['input']>
   hasEditorsWith?: InputMaybe<Array<GroupWhereInput>>
@@ -21930,6 +22187,9 @@ export interface IdentityHolderWhereInput {
   /** environment edge predicates */
   hasEnvironment?: InputMaybe<Scalars['Boolean']['input']>
   hasEnvironmentWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
+  /** findings edge predicates */
+  hasFindings?: InputMaybe<Scalars['Boolean']['input']>
+  hasFindingsWith?: InputMaybe<Array<FindingWhereInput>>
   /** internal_owner_group edge predicates */
   hasInternalOwnerGroup?: InputMaybe<Scalars['Boolean']['input']>
   hasInternalOwnerGroupWith?: InputMaybe<Array<GroupWhereInput>>
@@ -22250,6 +22510,10 @@ export interface Integration extends Node {
   owner?: Maybe<Organization>
   /** the organization id that owns the object */
   ownerID?: Maybe<Scalars['ID']['output']>
+  /** platform associated with this integration */
+  platform?: Maybe<Platform>
+  /** optional platform associated with this integration for downstream inventory linkage */
+  platformID?: Maybe<Scalars['ID']['output']>
   remediations: RemediationConnection
   reviews: ReviewConnection
   scope?: Maybe<CustomTypeEnum>
@@ -22562,6 +22826,9 @@ export interface IntegrationWhereInput {
   /** owner edge predicates */
   hasOwner?: InputMaybe<Scalars['Boolean']['input']>
   hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
+  /** platform edge predicates */
+  hasPlatform?: InputMaybe<Scalars['Boolean']['input']>
+  hasPlatformWith?: InputMaybe<Array<PlatformWhereInput>>
   /** remediations edge predicates */
   hasRemediations?: InputMaybe<Scalars['Boolean']['input']>
   hasRemediationsWith?: InputMaybe<Array<RemediationWhereInput>>
@@ -22671,6 +22938,22 @@ export interface IntegrationWhereInput {
   ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
   ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** platform_id field predicates */
+  platformID?: InputMaybe<Scalars['ID']['input']>
+  platformIDContains?: InputMaybe<Scalars['ID']['input']>
+  platformIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  platformIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  platformIDGT?: InputMaybe<Scalars['ID']['input']>
+  platformIDGTE?: InputMaybe<Scalars['ID']['input']>
+  platformIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  platformIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  platformIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  platformIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  platformIDLT?: InputMaybe<Scalars['ID']['input']>
+  platformIDLTE?: InputMaybe<Scalars['ID']['input']>
+  platformIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  platformIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  platformIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** scope_id field predicates */
   scopeID?: InputMaybe<Scalars['ID']['input']>
   scopeIDContains?: InputMaybe<Scalars['ID']['input']>
@@ -31794,6 +32077,7 @@ export interface Organization extends Node {
   groupCreators: GroupConnection
   groups: GroupConnection
   id: Scalars['ID']['output']
+  identityHolderCreators: GroupConnection
   identityHolders: IdentityHolderConnection
   integrations: IntegrationConnection
   internalPolicies: InternalPolicyConnection
@@ -32208,6 +32492,15 @@ export interface OrganizationGroupCreatorsArgs {
 }
 
 export interface OrganizationGroupsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
+export interface OrganizationIdentityHolderCreatorsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
   first?: InputMaybe<Scalars['Int']['input']>
@@ -33516,6 +33809,9 @@ export interface OrganizationWhereInput {
   /** groups edge predicates */
   hasGroups?: InputMaybe<Scalars['Boolean']['input']>
   hasGroupsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** identity_holder_creators edge predicates */
+  hasIdentityHolderCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasIdentityHolderCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
   /** identity_holders edge predicates */
   hasIdentityHolders?: InputMaybe<Scalars['Boolean']['input']>
   hasIdentityHoldersWith?: InputMaybe<Array<IdentityHolderWhereInput>>
@@ -34110,6 +34406,10 @@ export interface Platform extends Node {
   dataFlowSummary?: Maybe<Scalars['String']['output']>
   /** the description of the platform boundary */
   description?: Maybe<Scalars['String']['output']>
+  directoryAccounts: DirectoryAccountConnection
+  directoryGroups: DirectoryGroupConnection
+  directoryMemberships: DirectoryMembershipConnection
+  directorySyncRuns: DirectorySyncRunConnection
   /** a shortened prefixed id field to use as a human readable identifier */
   displayID: Scalars['String']['output']
   editors: GroupConnection
@@ -34137,6 +34437,7 @@ export interface Platform extends Node {
   hasWorkflowHistory: Scalars['Boolean']['output']
   id: Scalars['ID']['output']
   identityHolders: IdentityHolderConnection
+  integrations: IntegrationConnection
   /** the internal owner for the platform when no user or group is linked */
   internalOwner?: Maybe<Scalars['String']['output']>
   internalOwnerGroup?: Maybe<Group>
@@ -34271,6 +34572,42 @@ export interface PlatformControlsArgs {
   where?: InputMaybe<ControlWhereInput>
 }
 
+export interface PlatformDirectoryAccountsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<DirectoryAccountOrder>>
+  where?: InputMaybe<DirectoryAccountWhereInput>
+}
+
+export interface PlatformDirectoryGroupsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<DirectoryGroupOrder>>
+  where?: InputMaybe<DirectoryGroupWhereInput>
+}
+
+export interface PlatformDirectoryMembershipsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<DirectoryMembershipOrder>>
+  where?: InputMaybe<DirectoryMembershipWhereInput>
+}
+
+export interface PlatformDirectorySyncRunsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<DirectorySyncRunOrder>>
+  where?: InputMaybe<DirectorySyncRunWhereInput>
+}
+
 export interface PlatformEditorsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -34323,6 +34660,15 @@ export interface PlatformIdentityHoldersArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<IdentityHolderOrder>>
   where?: InputMaybe<IdentityHolderWhereInput>
+}
+
+export interface PlatformIntegrationsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<IntegrationOrder>>
+  where?: InputMaybe<IntegrationWhereInput>
 }
 
 export interface PlatformOutOfScopeAssetsArgs {
@@ -34839,6 +35185,18 @@ export interface PlatformWhereInput {
   /** criticality edge predicates */
   hasCriticality?: InputMaybe<Scalars['Boolean']['input']>
   hasCriticalityWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
+  /** directory_accounts edge predicates */
+  hasDirectoryAccounts?: InputMaybe<Scalars['Boolean']['input']>
+  hasDirectoryAccountsWith?: InputMaybe<Array<DirectoryAccountWhereInput>>
+  /** directory_groups edge predicates */
+  hasDirectoryGroups?: InputMaybe<Scalars['Boolean']['input']>
+  hasDirectoryGroupsWith?: InputMaybe<Array<DirectoryGroupWhereInput>>
+  /** directory_memberships edge predicates */
+  hasDirectoryMemberships?: InputMaybe<Scalars['Boolean']['input']>
+  hasDirectoryMembershipsWith?: InputMaybe<Array<DirectoryMembershipWhereInput>>
+  /** directory_sync_runs edge predicates */
+  hasDirectorySyncRuns?: InputMaybe<Scalars['Boolean']['input']>
+  hasDirectorySyncRunsWith?: InputMaybe<Array<DirectorySyncRunWhereInput>>
   /** editors edge predicates */
   hasEditors?: InputMaybe<Scalars['Boolean']['input']>
   hasEditorsWith?: InputMaybe<Array<GroupWhereInput>>
@@ -34863,6 +35221,9 @@ export interface PlatformWhereInput {
   /** identity_holders edge predicates */
   hasIdentityHolders?: InputMaybe<Scalars['Boolean']['input']>
   hasIdentityHoldersWith?: InputMaybe<Array<IdentityHolderWhereInput>>
+  /** integrations edge predicates */
+  hasIntegrations?: InputMaybe<Scalars['Boolean']['input']>
+  hasIntegrationsWith?: InputMaybe<Array<IntegrationWhereInput>>
   /** internal_owner_group edge predicates */
   hasInternalOwnerGroup?: InputMaybe<Scalars['Boolean']['input']>
   hasInternalOwnerGroupWith?: InputMaybe<Array<GroupWhereInput>>
@@ -50574,20 +50935,32 @@ export interface UpdateDnsVerificationInput {
 export interface UpdateDirectoryAccountInput {
   /** type of principal represented in the directory */
   accountType?: InputMaybe<DirectoryAccountDirectoryAccountType>
+  addFindingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addWorkflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
+  avatarFileID?: InputMaybe<Scalars['ID']['input']>
+  /** URL of the avatar supplied by the directory provider */
+  avatarRemoteURL?: InputMaybe<Scalars['String']['input']>
+  /** time the directory account avatar was last updated */
+  avatarUpdatedAt?: InputMaybe<Scalars['Time']['input']>
   /** lower-cased primary email address, if present */
   canonicalEmail?: InputMaybe<Scalars['String']['input']>
   clearAccountType?: InputMaybe<Scalars['Boolean']['input']>
+  clearAvatarFile?: InputMaybe<Scalars['Boolean']['input']>
+  clearAvatarRemoteURL?: InputMaybe<Scalars['Boolean']['input']>
+  clearAvatarUpdatedAt?: InputMaybe<Scalars['Boolean']['input']>
   clearCanonicalEmail?: InputMaybe<Scalars['Boolean']['input']>
   clearDepartment?: InputMaybe<Scalars['Boolean']['input']>
+  clearDirectoryName?: InputMaybe<Scalars['Boolean']['input']>
   clearDisplayName?: InputMaybe<Scalars['Boolean']['input']>
   clearEnvironment?: InputMaybe<Scalars['Boolean']['input']>
   clearEnvironmentName?: InputMaybe<Scalars['Boolean']['input']>
   clearFamilyName?: InputMaybe<Scalars['Boolean']['input']>
+  clearFindings?: InputMaybe<Scalars['Boolean']['input']>
   clearGivenName?: InputMaybe<Scalars['Boolean']['input']>
   clearGroups?: InputMaybe<Scalars['Boolean']['input']>
+  clearIdentityHolder?: InputMaybe<Scalars['Boolean']['input']>
   clearJobTitle?: InputMaybe<Scalars['Boolean']['input']>
   clearLastLoginAt?: InputMaybe<Scalars['Boolean']['input']>
   clearLastSeenIP?: InputMaybe<Scalars['Boolean']['input']>
@@ -50602,6 +50975,8 @@ export interface UpdateDirectoryAccountInput {
   clearWorkflowObjectRefs?: InputMaybe<Scalars['Boolean']['input']>
   /** department captured at sync time */
   department?: InputMaybe<Scalars['String']['input']>
+  /** directory source label set by the integration (e.g. google_workspace, github, slack) */
+  directoryName?: InputMaybe<Scalars['String']['input']>
   /** provider supplied display name */
   displayName?: InputMaybe<Scalars['String']['input']>
   environmentID?: InputMaybe<Scalars['ID']['input']>
@@ -50611,6 +50986,7 @@ export interface UpdateDirectoryAccountInput {
   familyName?: InputMaybe<Scalars['String']['input']>
   /** first name reported by the provider */
   givenName?: InputMaybe<Scalars['String']['input']>
+  identityHolderID?: InputMaybe<Scalars['ID']['input']>
   /** title captured at sync time */
   jobTitle?: InputMaybe<Scalars['String']['input']>
   /** timestamp of the most recent login reported by the provider */
@@ -50626,6 +51002,7 @@ export interface UpdateDirectoryAccountInput {
   profile?: InputMaybe<Scalars['Map']['input']>
   /** hash of the normalized profile payload for change detection */
   profileHash?: InputMaybe<Scalars['String']['input']>
+  removeFindingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeWorkflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   scopeID?: InputMaybe<Scalars['ID']['input']>
@@ -51522,9 +51899,11 @@ export interface UpdateFindingInput {
   addBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addCommentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addDirectoryAccountIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addIdentityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addIntegrationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addRemediationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -51559,6 +51938,7 @@ export interface UpdateFindingInput {
   clearComments?: InputMaybe<Scalars['Boolean']['input']>
   clearControls?: InputMaybe<Scalars['Boolean']['input']>
   clearDescription?: InputMaybe<Scalars['Boolean']['input']>
+  clearDirectoryAccounts?: InputMaybe<Scalars['Boolean']['input']>
   clearDisplayName?: InputMaybe<Scalars['Boolean']['input']>
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearEntities?: InputMaybe<Scalars['Boolean']['input']>
@@ -51571,6 +51951,7 @@ export interface UpdateFindingInput {
   clearExternalURI?: InputMaybe<Scalars['Boolean']['input']>
   clearFiles?: InputMaybe<Scalars['Boolean']['input']>
   clearFindingClass?: InputMaybe<Scalars['Boolean']['input']>
+  clearIdentityHolders?: InputMaybe<Scalars['Boolean']['input']>
   clearImpact?: InputMaybe<Scalars['Boolean']['input']>
   clearIntegrations?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalNotes?: InputMaybe<Scalars['Boolean']['input']>
@@ -51662,9 +52043,11 @@ export interface UpdateFindingInput {
   removeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeCommentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeDirectoryAccountIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeIdentityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeIntegrationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeRemediationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -51972,8 +52355,10 @@ export interface UpdateIdentityHolderInput {
   addAssetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addCampaignIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addDirectoryAccountIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addFindingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addPlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTemplateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -51990,6 +52375,7 @@ export interface UpdateIdentityHolderInput {
   clearBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearCampaigns?: InputMaybe<Scalars['Boolean']['input']>
   clearDepartment?: InputMaybe<Scalars['Boolean']['input']>
+  clearDirectoryAccounts?: InputMaybe<Scalars['Boolean']['input']>
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearEmployer?: InputMaybe<Scalars['Boolean']['input']>
   clearEndDate?: InputMaybe<Scalars['Boolean']['input']>
@@ -51998,6 +52384,7 @@ export interface UpdateIdentityHolderInput {
   clearEnvironmentName?: InputMaybe<Scalars['Boolean']['input']>
   clearExternalReferenceID?: InputMaybe<Scalars['Boolean']['input']>
   clearExternalUserID?: InputMaybe<Scalars['Boolean']['input']>
+  clearFindings?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalOwner?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalOwnerGroup?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalOwnerUser?: InputMaybe<Scalars['Boolean']['input']>
@@ -52056,8 +52443,10 @@ export interface UpdateIdentityHolderInput {
   removeAssetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeCampaignIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeDirectoryAccountIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeFindingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removePlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTemplateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -52732,6 +53121,7 @@ export interface UpdateOrganizationInput {
   addFindingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addGroupCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addIdentityHolderCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addIdentityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addImpersonationEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addIntegrationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -52836,6 +53226,7 @@ export interface UpdateOrganizationInput {
   clearFindings?: InputMaybe<Scalars['Boolean']['input']>
   clearGroupCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearGroups?: InputMaybe<Scalars['Boolean']['input']>
+  clearIdentityHolderCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearIdentityHolders?: InputMaybe<Scalars['Boolean']['input']>
   clearImpersonationEvents?: InputMaybe<Scalars['Boolean']['input']>
   clearIntegrations?: InputMaybe<Scalars['Boolean']['input']>
@@ -52937,6 +53328,7 @@ export interface UpdateOrganizationInput {
   removeFindingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeGroupCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeIdentityHolderCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeIdentityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeImpersonationEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeIntegrationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -53128,12 +53520,16 @@ export interface UpdatePlatformInput {
   addAssetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addDirectoryAccountIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addDirectoryGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addDirectorySyncRunIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEvidenceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addGeneratedScanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addIdentityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addIntegrationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addOutOfScopeAssetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addOutOfScopeVendorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addRiskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -53167,6 +53563,9 @@ export interface UpdatePlatformInput {
   clearCriticalityName?: InputMaybe<Scalars['Boolean']['input']>
   clearDataFlowSummary?: InputMaybe<Scalars['Boolean']['input']>
   clearDescription?: InputMaybe<Scalars['Boolean']['input']>
+  clearDirectoryAccounts?: InputMaybe<Scalars['Boolean']['input']>
+  clearDirectoryGroups?: InputMaybe<Scalars['Boolean']['input']>
+  clearDirectorySyncRuns?: InputMaybe<Scalars['Boolean']['input']>
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearEncryptionStatus?: InputMaybe<Scalars['Boolean']['input']>
   clearEncryptionStatusName?: InputMaybe<Scalars['Boolean']['input']>
@@ -53179,6 +53578,7 @@ export interface UpdatePlatformInput {
   clearFiles?: InputMaybe<Scalars['Boolean']['input']>
   clearGeneratedScans?: InputMaybe<Scalars['Boolean']['input']>
   clearIdentityHolders?: InputMaybe<Scalars['Boolean']['input']>
+  clearIntegrations?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalOwner?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalOwnerGroup?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalOwnerUser?: InputMaybe<Scalars['Boolean']['input']>
@@ -53262,12 +53662,16 @@ export interface UpdatePlatformInput {
   removeAssetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeDirectoryAccountIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeDirectoryGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeDirectorySyncRunIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEvidenceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeGeneratedScanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeIdentityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeIntegrationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeOutOfScopeAssetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeOutOfScopeVendorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeRiskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -61905,7 +62309,7 @@ export type DirectoryAccountsWithFilterQuery = {
         createdAt?: any | null
         createdBy?: string | null
         department?: string | null
-        directorySyncRunID: string
+        directorySyncRunID?: string | null
         displayID: string
         displayName?: string | null
         environmentID?: string | null
@@ -61914,7 +62318,7 @@ export type DirectoryAccountsWithFilterQuery = {
         familyName?: string | null
         givenName?: string | null
         id: string
-        integrationID: string
+        integrationID?: string | null
         jobTitle?: string | null
         lastLoginAt?: any | null
         lastSeenIP?: string | null
@@ -61947,7 +62351,7 @@ export type DirectoryAccountQuery = {
     createdAt?: any | null
     createdBy?: string | null
     department?: string | null
-    directorySyncRunID: string
+    directorySyncRunID?: string | null
     displayID: string
     displayName?: string | null
     environmentID?: string | null
@@ -61956,7 +62360,7 @@ export type DirectoryAccountQuery = {
     familyName?: string | null
     givenName?: string | null
     id: string
-    integrationID: string
+    integrationID?: string | null
     jobTitle?: string | null
     lastLoginAt?: any | null
     lastSeenIP?: string | null
@@ -67344,7 +67748,7 @@ export type SearchQuery = {
     }> | null
     controls?: {
       __typename?: 'ControlConnection'
-      edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string; ownerID?: string | null } | null } | null> | null
+      edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string; ownerID?: string | null; standardID?: string | null } | null } | null> | null
     } | null
     subcontrols?: {
       __typename?: 'SubcontrolConnection'
@@ -67495,6 +67899,22 @@ export type DeleteStandardMutationVariables = Exact<{
 }>
 
 export type DeleteStandardMutation = { __typename?: 'Mutation'; deleteStandard: { __typename?: 'StandardDeletePayload'; deletedID: string } }
+
+export type GetStandardControlStatsQueryVariables = Exact<{
+  standardId: Scalars['ID']['input']
+  isStandardSystemOwned: Scalars['Boolean']['input']
+}>
+
+export type GetStandardControlStatsQuery = {
+  __typename?: 'Query'
+  standard: {
+    __typename?: 'Standard'
+    totalControlsSystemOwned?: { __typename?: 'ControlConnection'; totalCount: number }
+    totalControlsNonSystemOwned?: { __typename?: 'ControlConnection'; totalCount: number }
+    coveredControls: { __typename?: 'ControlConnection'; totalCount: number }
+    automatedControls: { __typename?: 'ControlConnection'; totalCount: number }
+  }
+}
 
 export type GetAllSubcontrolsQueryVariables = Exact<{
   where?: InputMaybe<SubcontrolWhereInput>

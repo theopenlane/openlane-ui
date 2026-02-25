@@ -7,6 +7,7 @@ import {
   DELETE_STANDARD,
   GET_ALL_STANDARDS,
   GET_ALL_STANDARDS_SELECT,
+  GET_STANDARD_CONTROL_STATS,
   GET_STANDARD_DETAILS,
   GET_STANDARDS_PAGINATED,
   UPDATE_STANDARD,
@@ -28,6 +29,7 @@ import {
   GetStandardsPaginatedQuery,
   GetStandardsPaginatedQueryVariables,
   StandardWhereInput,
+  GetStandardControlStatsQuery,
 } from '@repo/codegen/src/schema'
 import { useMemo } from 'react'
 import { TPagination } from '@repo/ui/pagination-types'
@@ -196,4 +198,14 @@ export const useGetAllStandardsInfinite = ({ where = {}, pagination, enabled = t
     standards,
     paginationMeta,
   }
+}
+
+export const useGetStandardControlStats = (standardId: string | null, isStandardSystemOwned: boolean) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<GetStandardControlStatsQuery, unknown>({
+    queryKey: ['standards', 'stats', standardId],
+    queryFn: async () => client.request(GET_STANDARD_CONTROL_STATS, { standardId, isStandardSystemOwned }),
+    enabled: !!standardId,
+  })
 }

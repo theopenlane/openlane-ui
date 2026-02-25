@@ -10,7 +10,7 @@ import React, { useContext, useEffect } from 'react'
 import MyFrameworksStats from './my-framework-stats'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { saveFilters, TFilterState } from '@/components/shared/table-filter/filter-storage'
-import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 type MyFrameworksProps = {
   standardsData?: GetAllStandardsQuery['standards']['edges']
@@ -41,7 +41,7 @@ const MyFrameworks: React.FC<MyFrameworksProps> = ({ standardsData }: MyFramewor
       standardIDIn: [id],
     }
 
-    saveFilters(TableFilterKeysEnum.CONTROL, filters)
+    saveFilters(TableKeyEnum.CONTROL, filters)
     router.push('/controls')
   }
 

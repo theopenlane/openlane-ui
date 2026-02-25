@@ -3,9 +3,9 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import StandardsPage from './standards-page'
 import { StandardsSwitcherEnum } from './shared/standard-switcher-config'
 import MyFrameworks from './my-frameworks'
-import { useGetStandards } from '@/lib/graphql-hooks/standards'
 import { useOrganization } from '@/hooks/useOrganization'
 import { useEffect } from 'react'
+import { useGetStandards } from '@/lib/graphql-hooks/standard'
 
 const StandardsSwitcher: React.FC = () => {
   const searchParams = useSearchParams()
