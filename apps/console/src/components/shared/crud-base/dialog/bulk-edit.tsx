@@ -72,6 +72,11 @@ export function GenericBulkEditDialog<T extends { id: string }, TUpdateInput>({
   const [open, setOpen] = useState(openProp ?? false)
   const { errorNotification, successNotification } = useNotification()
 
+  const handleOpenChange = (nextOpen: boolean) => {
+    setOpen(nextOpen)
+    onOpenChange?.(nextOpen)
+  }
+
   const form = useForm<BulkEditFormValues>({
     resolver: zodResolver(bulkEditSchema),
     defaultValues: {
@@ -128,7 +133,7 @@ export function GenericBulkEditDialog<T extends { id: string }, TUpdateInput>({
         title: `Successfully bulk updated selected ${toHumanLabel(entityType as string)?.toLowerCase()}.`,
       })
       setSelectedItems([])
-      setOpen(false)
+      handleOpenChange(false)
     } catch (error: unknown) {
       let errorMessage: string | undefined
       if (error instanceof ClientError) {
@@ -141,13 +146,7 @@ export function GenericBulkEditDialog<T extends { id: string }, TUpdateInput>({
   }
 
   return (
-    <Dialog
-      open={open}
-      onOpenChange={(nextOpen) => {
-        setOpen(nextOpen)
-        if (onOpenChange) onOpenChange(nextOpen)
-      }}
-    >
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <FormProvider {...form}>
         <DialogTrigger asChild>
           <Button disabled={selectedItems.length === 0} icon={<Pencil />} iconPosition="left" variant="secondary">
@@ -286,7 +285,7 @@ export function GenericBulkEditDialog<T extends { id: string }, TUpdateInput>({
               <SaveButton disabled={!hasFieldsToUpdate} onClick={form.handleSubmit(onSubmit)} />
               <CancelButton
                 onClick={() => {
-                  setOpen(false)
+                  handleOpenChange(false)
                   replace([])
                 }}
               ></CancelButton>
