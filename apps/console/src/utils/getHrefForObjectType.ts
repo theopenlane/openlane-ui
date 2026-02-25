@@ -15,38 +15,38 @@ export type NormalizedObject = {
   }
 }
 
+const SIMPLE_ROUTES: Record<string, (id: string) => string> = {
+  policies: (id) => `/policies/${id}/view`,
+  procedures: (id) => `/procedures/${id}/view`,
+  controls: (id) => `/controls/${id}`,
+  risks: (id) => `/risks/${id}`,
+  tasks: (id) => `/automation/tasks?id=${id}`,
+  programs: (id) => `/programs/${id}`,
+  groups: (id) => `/groups?id=${id}`,
+  evidences: (id) => `/evidence?id=${id}`,
+}
+
 export const getHrefForObjectType = (kind: string, row?: NormalizedObject): string => {
   if (!row) return ''
+
+  const simpleRoute = SIMPLE_ROUTES[kind]
+  if (simpleRoute) return simpleRoute(row.id)
 
   const controlId = row.control?.id ?? row.controlId
 
   switch (kind) {
-    case 'policies':
-      return `/policies/${row.id}/view`
-    case 'procedures':
-      return `/procedures/${row.id}/view`
     case 'standard controls':
-      return `/standards/${row?.standardID}?controlId=${row.id}`
-    case 'controls':
-      return `/controls/${row.id}`
+      return `/standards/${row.standardID}?controlId=${row.id}`
     case 'subcontrols':
       return `/controls/${controlId}/${row.id}`
-    case 'risks':
-      return `/risks/${row.id}`
-    case 'tasks':
-      return `/automation/tasks?id=${row.id}`
-    case 'programs':
-      return `/programs/${row.id}`
-    case 'groups':
-      return `/groups?id=${row.id}`
-    case 'evidences':
-      return `/evidence?id=${row.id}`
     case 'controlObjectives':
       return `/controls/${controlId}/control-objectives`
     default:
       return ''
   }
 }
+
+const pluralizeTypeName = (entityType: string): string => entityType.charAt(0).toLowerCase() + entityType.slice(1) + 's'
 
 export const getHrefForSearchEntityType = (
   entityType: string,
@@ -67,23 +67,11 @@ export const getHrefForSearchEntityType = (
       return opts?.subcontrolParentId ? getHrefForObjectType('subcontrols', { id: entityId, controlId: opts.subcontrolParentId }) : ''
     case 'InternalPolicy':
       return getHrefForObjectType('policies', { id: entityId })
-    case 'Procedure':
-      return getHrefForObjectType('procedures', { id: entityId })
-    case 'Risk':
-      return getHrefForObjectType('risks', { id: entityId })
-    case 'Task':
-      return getHrefForObjectType('tasks', { id: entityId })
-    case 'Program':
-      return getHrefForObjectType('programs', { id: entityId })
-    case 'Group':
-      return getHrefForObjectType('groups', { id: entityId })
     case 'Standard':
       return `/standards/${entityId}`
     case 'Template':
       return `/questionnaires/templates/template-viewer?id=${entityId}`
-    case 'Evidence':
-      return getHrefForObjectType('evidences', { id: entityId })
     default:
-      return ''
+      return getHrefForObjectType(pluralizeTypeName(entityType), { id: entityId })
   }
 }
