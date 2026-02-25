@@ -16,6 +16,7 @@ import { Label } from '@repo/ui/label'
 import { Info, InfoIcon } from 'lucide-react'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { useNotification } from '@/hooks/useNotification'
+import { isValidEmail } from '@/lib/validators'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { SUPPORT_EMAIL } from '@/constants'
 import { SaveButton } from '@/components/shared/save-button/save-button'
@@ -51,10 +52,6 @@ export const SetAuditorDialog = () => {
       auditorReady: false,
     },
   })
-
-  const isValidEmail = (email: string) => {
-    return /\S+@\S+\.\S+/.test(email)
-  }
 
   const onSubmit = async (values: SetAuditorFormValues) => {
     if (!id) return

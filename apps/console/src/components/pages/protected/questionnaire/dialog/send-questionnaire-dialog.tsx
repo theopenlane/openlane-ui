@@ -16,6 +16,7 @@ import { useCreateAssessmentResponse } from '@/lib/graphql-hooks/assessment'
 import { useContacts } from '@/lib/graphql-hooks/contact'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { computeDueDate } from '@/utils/date'
+import { isValidEmail } from '@/lib/validators'
 
 const formSchema = z.object({
   emails: z.array(z.string().email()).min(1, 'At least one email is required'),
@@ -36,7 +37,6 @@ const MIN_SEARCH_LENGTH = 3
 const INVALID_EMAIL_MESSAGE = 'Please enter a valid email address.'
 const DUPLICATE_EMAIL_MESSAGE = 'This email is already added.'
 
-const isValidEmail = (email: string) => /\S+@\S+\.\S+/.test(email)
 const normalizeEmail = (email: string) => email.trim()
 
 export const SendQuestionnaireDialog = ({ open, onOpenChange, assessmentId, assessmentName, responseDueDuration }: SendQuestionnaireDialogProps) => {

@@ -12,16 +12,23 @@ import { AssetSheetConfig, AssetTablePageConfig, AssetFieldProps, objectType, ob
 import { getColumns } from './columns'
 import TableComponent from './table'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import { buildPayload } from '../create/utils'
-import { AssetAssetType, AssetSourceType, CreateAssetInput, UpdateAssetInput } from '@repo/codegen/src/schema'
+import { Value } from 'platejs'
+import { AssetAssetType, AssetSourceType, AssetQuery, CreateAssetInput, UpdateAssetInput } from '@repo/codegen/src/schema'
+import { normalizeEntityData, buildResponsibilityPayload } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
+
+const normalizeData = (data: AssetQuery['asset']) =>
+  normalizeEntityData(data, {
+    internalOwner: { user: data?.internalOwnerUser, group: data?.internalOwnerGroup, stringValue: data?.internalOwner },
+  })
 
 const AssetPage: React.FC = () => {
   const { form } = useFormSchema()
 
   const searchParams = useSearchParams()
   const id = searchParams.get('id')
+  const isCreate = searchParams.get('create') === 'true'
   const { data, isLoading } = useAsset(id || undefined)
 
   const plateEditorHelper = usePlateEditor()
@@ -133,7 +140,16 @@ const AssetPage: React.FC = () => {
     isFetching: isLoading,
     updateMutation,
     createMutation,
-    buildPayload: (data) => buildPayload(data, plateEditorHelper),
+    buildPayload: async (data) => {
+      const { internalOwner, ...rest } = data
+      const description = rest.description ? await plateEditorHelper.convertToHtml(rest.description as Value) : undefined
+      return {
+        ...rest,
+        description,
+        ...buildResponsibilityPayload('internalOwner', internalOwner, { mode: isCreate ? 'create' : 'update' }),
+      }
+    },
+    normalizeData,
     getName,
     renderFields: (props: AssetFieldProps) => getFieldsToRender(props, enumOpts),
   }

@@ -24,8 +24,14 @@ export const GET_ALL_IDENTITY_HOLDERS = gql`
           id
           identityHolderType
           internalOwner
-          internalOwnerGroupID
-          internalOwnerUserID
+          internalOwnerGroup {
+            id
+            displayName
+          }
+          internalOwnerUser {
+            id
+            displayName
+          }
           isActive
           isOpenlaneUser
           location
@@ -75,8 +81,14 @@ export const IDENTITY_HOLDER = gql`
       id
       identityHolderType
       internalOwner
-      internalOwnerGroupID
-      internalOwnerUserID
+      internalOwnerGroup {
+        id
+        displayName
+      }
+      internalOwnerUser {
+        id
+        displayName
+      }
       isActive
       isOpenlaneUser
       location

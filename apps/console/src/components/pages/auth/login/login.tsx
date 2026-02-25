@@ -18,6 +18,7 @@ import { setSessionCookie } from '@/lib/auth/utils/set-session-cookie'
 import Link from 'next/link'
 import { recaptchaSiteKey } from '@repo/dally/auth'
 import { useNotification } from '@/hooks/useNotification'
+import { isValidEmail } from '@/lib/validators'
 import { OPENLANE_WEBSITE_URL } from '@/constants'
 import { cn } from '@repo/ui/lib/utils'
 
@@ -47,10 +48,6 @@ export const LoginPage = () => {
   const showLoginError = !signInLoading && signInError
 
   const debounceTimeout = useRef<NodeJS.Timeout | null>(null)
-
-  const isValidEmail = (email: string): boolean => {
-    return /\S+@\S+\.\S+/.test(email)
-  }
 
   const shouldShowPasswordField = useCallback((): boolean => {
     if (!webfingerResponse) {

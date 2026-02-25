@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { IdentityHolderUserStatus, IdentityHolderIdentityHolderType } from '@repo/codegen/src/schema'
+import { responsibilityFieldSchema } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 
 const formSchema = z.object({
   fullName: z.string().min(1, 'Full name is required'),
@@ -23,7 +24,7 @@ const formSchema = z.object({
   externalReferenceID: z.string().optional(),
   environmentName: z.string().optional(),
   scopeName: z.string().optional().nullable(),
-  internalOwner: z.string().optional(),
+  internalOwner: responsibilityFieldSchema,
   tags: z.array(z.string()).optional(),
 })
 

@@ -9,6 +9,7 @@ import { Input } from '@repo/ui/input'
 import { UsersRound } from 'lucide-react'
 import { cn } from '@repo/ui/lib/utils'
 import React, { useMemo, useState } from 'react'
+import { isValidEmail } from '@/lib/validators'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 type TransferOwnershipDialogProps = {
@@ -27,9 +28,6 @@ export const TransferOwnershipDialog: React.FC<TransferOwnershipDialogProps> = (
     return userOptions.filter((user) => user.label.toLowerCase().includes(email.toLowerCase())) ?? []
   }, [userOptions, email])
 
-  const isValidEmail = (email: string) => {
-    return /\S+@\S+\.\S+/.test(email)
-  }
   const handleEmailInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value
     setEmail(val)

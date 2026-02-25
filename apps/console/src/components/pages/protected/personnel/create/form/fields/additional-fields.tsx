@@ -3,6 +3,7 @@
 import { TextField } from '@/components/shared/crud-base/form-fields/text-field'
 import { SelectField } from '@/components/shared/crud-base/form-fields/select-field'
 import { CheckboxField } from '@/components/shared/crud-base/form-fields/checkbox-field'
+import { ResponsibilityField } from '@/components/shared/crud-base/form-fields/responsibility-field'
 import { IdentityHolderQuery, UpdateIdentityHolderInput } from '@repo/codegen/src/schema'
 import { InternalEditingType } from '@/components/shared/crud-base/generic-sheet'
 import { EnumOptions } from '../../../table/types'
@@ -133,7 +134,18 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
         </CardHeader>
         <CardContent>
           <div className="mb-2 grid grid-cols-1 md:grid-cols-2 gap-2">
-            <TextField name="internalOwner" label="Internal Owner" tooltipContent="The internal owner responsible for this personnel record" {...sharedFieldProps} />
+            <ResponsibilityField
+              name="internalOwner"
+              fieldBaseName="internalOwner"
+              label="Internal Owner"
+              tooltipContent="The internal owner responsible for this personnel record"
+              isEditing={isEditing}
+              isEditAllowed={isEditAllowed}
+              isCreate={isCreate}
+              internalEditing={internalEditing}
+              setInternalEditing={setInternalEditing}
+              handleUpdate={handleUpdateField ? (input) => handleUpdateField(input as UpdateIdentityHolderInput) : undefined}
+            />
           </div>
         </CardContent>
       </Card>

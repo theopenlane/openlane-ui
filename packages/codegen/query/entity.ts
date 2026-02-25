@@ -30,8 +30,14 @@ export const GET_ALL_ENTITIES = gql`
           hasSoc2
           id
           internalOwner
-          internalOwnerGroupID
-          internalOwnerUserID
+          internalOwnerGroup {
+            id
+            displayName
+          }
+          internalOwnerUser {
+            id
+            displayName
+          }
           lastReviewedAt
           mfaEnforced
           mfaSupported
@@ -39,8 +45,14 @@ export const GET_ALL_ENTITIES = gql`
           nextReviewAt
           renewalRisk
           reviewedBy
-          reviewedByGroupID
-          reviewedByUserID
+          reviewedByGroup {
+            id
+            displayName
+          }
+          reviewedByUser {
+            id
+            displayName
+          }
           reviewFrequency
           riskRating
           riskScore
@@ -97,8 +109,14 @@ export const ENTITY = gql`
       hasSoc2
       id
       internalOwner
-      internalOwnerGroupID
-      internalOwnerUserID
+      internalOwnerGroup {
+        id
+        displayName
+      }
+      internalOwnerUser {
+        id
+        displayName
+      }
       lastReviewedAt
       mfaEnforced
       mfaSupported
@@ -106,8 +124,14 @@ export const ENTITY = gql`
       nextReviewAt
       renewalRisk
       reviewedBy
-      reviewedByGroupID
-      reviewedByUserID
+      reviewedByGroup {
+        id
+        displayName
+      }
+      reviewedByUser {
+        id
+        displayName
+      }
       reviewFrequency
       riskRating
       riskScore

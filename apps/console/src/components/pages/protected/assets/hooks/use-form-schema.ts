@@ -4,6 +4,7 @@ import { useForm, Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Value } from 'platejs'
 import { AssetAssetType, AssetSourceType } from '@repo/codegen/src/schema'
+import { responsibilityFieldSchema } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -25,6 +26,7 @@ const formSchema = z.object({
     return Number(val)
   }, z.number().optional()),
   identifier: z.string().optional(),
+  internalOwner: responsibilityFieldSchema,
   physicalLocation: z.string().optional(),
   purchaseDate: z.string().optional(),
   region: z.string().optional(),
