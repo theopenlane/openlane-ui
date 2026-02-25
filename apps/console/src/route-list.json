@@ -1,137 +1,10 @@
 [
   {
-    "route": "/controls",
-    "name": "Controls",
-    "keywords": ["requirements"]
-  },
-  {
-    "route": "/controls/create-control",
-    "name": "Create Control"
-  },
-  {
-    "route": "/controls/create-subcontrol",
-    "name": "Create Subcontrol"
-  },
-  {
-    "route": "/dashboard",
-    "name": "Dashboard",
-    "keywords": ["home"]
-  },
-  {
-    "route": "/developers/api-tokens",
-    "name": "Developers",
-    "keywords": ["api", "api keys", "auth", "token"]
-  },
-  {
-    "route": "/developers/personal-access-tokens",
-    "name": "Developers",
-    "keywords": ["pat", "personal access tokens", "api", "auth"]
-  },
-  {
-    "route": "/evidence",
-    "name": "Evidence",
-    "keywords": ["audit", "files"]
-  },
-  {
-    "route": "/evidence/create",
-    "name": "Create"
-  },
-  {
-    "route": "/onboarding",
-    "name": "Onboarding",
-    "hidden": true
-  },
-  {
-    "route": "/organization",
-    "name": "Organization"
-  },
-  {
-    "route": "/organization-settings",
-    "name": "Organization Settings"
-  },
-  {
-    "route": "/organization-settings/authentication",
-    "name": "Authentication",
-    "keywords": ["auth"]
-  },
-  {
-    "route": "/organization-settings/billing",
-    "name": "Billing",
-    "keywords": ["subscription", "plan", "payment method"]
-  },
-  {
-    "route": "/organization-settings/custom-data",
-    "name": "Custom Data"
-  },
-  {
-    "route": "/organization-settings/general-settings",
-    "name": "General Settings"
-  },
-  {
-    "route": "/organization-settings/integrations",
-    "name": "Integrations",
-    "hidden": true
-  },
-  {
-    "route": "/organization-settings/logs",
-    "name": "Logs",
-    "keywords": ["audit logs", "activity", "history"]
-  },
-  {
-    "route": "/organization-settings/subscribers",
-    "name": "Subscribers",
-    "hidden": true
-  },
-  {
-    "route": "/policies",
-    "name": "Policies",
-    "keywords": ["internal policies", "documents"]
-  },
-  {
-    "route": "/policies/create",
-    "name": "Create Policy"
-  },
-  {
-    "route": "/procedures",
-    "name": "Procedures"
-  },
-  {
-    "route": "/procedures/create",
-    "name": "Create Procedure"
-  },
-  {
-    "route": "/programs",
-    "name": "Programs",
-    "keywords": ["audits", "assessments"]
-  },
-  {
-    "route": "/programs/create",
-    "name": "Create Program"
-  },
-  {
-    "route": "/programs/create/advanced-setup",
-    "name": "Advanced Program Setup"
-  },
-  {
-    "route": "/programs/create/framework-based",
-    "name": "Create Framework Based Program"
-  },
-  {
-    "route": "/programs/create/generic-program",
-    "name": "Generic Program Setup"
-  },
-  {
-    "route": "/programs/create/risk-assessment",
-    "name": "Create Risk Assessment Program"
-  },
-  {
-    "route": "/programs/create/soc2",
-    "name": "Create SOC2 Program"
-  },
-  {
     "route": "/automation/assessments",
     "name": "Assessments",
-    "keywords": ["questionnaires"]
+    "keywords": [
+      "questionnaires"
+    ]
   },
   {
     "route": "/automation/assessments/questionnaire-editor",
@@ -159,14 +32,182 @@
     "hidden": true
   },
   {
-    "route": "/reporting",
-    "name": "Reporting",
+    "route": "/automation/tasks",
+    "name": "Tasks"
+  },
+  {
+    "route": "/controls",
+    "name": "Controls",
+    "keywords": [
+      "requirements"
+    ]
+  },
+  {
+    "route": "/controls/create-control",
+    "name": "Create Control"
+  },
+  {
+    "route": "/controls/create-subcontrol",
+    "name": "Create Subcontrol"
+  },
+  {
+    "route": "/dashboard",
+    "name": "Dashboard",
+    "keywords": [
+      "home"
+    ]
+  },
+  {
+    "route": "/developers/api-tokens",
+    "name": "Developers",
+    "keywords": [
+      "api",
+      "api keys",
+      "auth",
+      "token"
+    ]
+  },
+  {
+    "route": "/developers/personal-access-tokens",
+    "name": "Developers",
+    "keywords": [
+      "pat",
+      "personal access tokens",
+      "api",
+      "auth"
+    ]
+  },
+  {
+    "route": "/evidence",
+    "name": "Evidence",
+    "keywords": [
+      "audit",
+      "files"
+    ]
+  },
+  {
+    "route": "/evidence/create",
+    "name": "Create"
+  },
+  {
+    "route": "/onboarding",
+    "name": "Onboarding",
     "hidden": true
   },
   {
-    "route": "/reporting/compliance",
-    "name": "Compliance Reporting",
+    "route": "/organization",
+    "name": "Organization"
+  },
+  {
+    "route": "/organization-settings",
+    "name": "Organization Settings"
+  },
+  {
+    "route": "/organization-settings/authentication",
+    "name": "Authentication",
+    "keywords": [
+      "auth"
+    ]
+  },
+  {
+    "route": "/organization-settings/billing",
+    "name": "Billing",
+    "keywords": [
+      "subscription",
+      "plan",
+      "payment method"
+    ]
+  },
+  {
+    "route": "/organization-settings/custom-data",
+    "name": "Custom Data"
+  },
+  {
+    "route": "/organization-settings/general-settings",
+    "name": "General Settings"
+  },
+  {
+    "route": "/organization-settings/integrations",
+    "name": "Integrations",
     "hidden": true
+  },
+  {
+    "route": "/organization-settings/logs",
+    "name": "Logs",
+    "keywords": [
+      "audit logs",
+      "activity",
+      "history"
+    ]
+  },
+  {
+    "route": "/organization-settings/subscribers",
+    "name": "Subscribers",
+    "hidden": true
+  },
+  {
+    "route": "/policies",
+    "name": "Policies",
+    "keywords": [
+      "internal policies",
+      "documents"
+    ]
+  },
+  {
+    "route": "/policies/create",
+    "name": "Create Policy"
+  },
+  {
+    "route": "/procedures",
+    "name": "Procedures"
+  },
+  {
+    "route": "/procedures/create",
+    "name": "Create Procedure"
+  },
+  {
+    "route": "/programs",
+    "name": "Programs",
+    "keywords": [
+      "audits",
+      "assessments"
+    ]
+  },
+  {
+    "route": "/programs/create",
+    "name": "Create Program"
+  },
+  {
+    "route": "/programs/create/advanced-setup",
+    "name": "Advanced Program Setup"
+  },
+  {
+    "route": "/programs/create/framework-based",
+    "name": "Create Framework Based Program"
+  },
+  {
+    "route": "/programs/create/generic-program",
+    "name": "Generic Program Setup"
+  },
+  {
+    "route": "/programs/create/risk-assessment",
+    "name": "Create Risk Assessment Program"
+  },
+  {
+    "route": "/programs/create/soc2",
+    "name": "Create SOC2 Program"
+  },
+  {
+    "route": "/registry/assets",
+    "name": "Assets"
+  },
+  {
+    "route": "/registry/personnel",
+    "name": "Personnel"
+  },
+  {
+    "route": "/registry/vendors",
+    "name": "Vendors"
   },
   {
     "route": "/risks",
@@ -179,11 +220,11 @@
   {
     "route": "/standards",
     "name": "Standards",
-    "keywords": ["frameworks", "regulations", "compliance"]
-  },
-  {
-    "route": "/automation/tasks",
-    "name": "Tasks"
+    "keywords": [
+      "frameworks",
+      "regulations",
+      "compliance"
+    ]
   },
   {
     "route": "/trust-center/analytics",
@@ -244,7 +285,11 @@
   {
     "route": "/user-management/members",
     "name": "Members",
-    "keywords": ["roles", "invites", "invitations"]
+    "keywords": [
+      "roles",
+      "invites",
+      "invitations"
+    ]
   },
   {
     "route": "/user-settings",
@@ -253,6 +298,15 @@
   {
     "route": "/user-settings/profile",
     "name": "Profile",
-    "keywords": ["account", "default organization", "preferences", "passkey", "2fa", "mfa", "two-factor authentication", "avatar"]
+    "keywords": [
+      "account",
+      "default organization",
+      "preferences",
+      "passkey",
+      "2fa",
+      "mfa",
+      "two-factor authentication",
+      "avatar"
+    ]
   }
 ]
