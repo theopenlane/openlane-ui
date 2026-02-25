@@ -6,7 +6,8 @@ import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
 
-import { IdentityHolderUserStatus, IdentityHolderIdentityHolderType, UpdateIdentityHolderInput, CreateIdentityHolderInput } from '@repo/codegen/src/schema'
+import { IdentityHolderUserStatus, IdentityHolderIdentityHolderType, IdentityHolderQuery, UpdateIdentityHolderInput, CreateIdentityHolderInput } from '@repo/codegen/src/schema'
+import { normalizeEntityData, buildResponsibilityPayload } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 import {
   useUpdateIdentityHolder,
   useCreateIdentityHolder,
@@ -22,6 +23,11 @@ import { PersonnelSheetConfig, PersonnelTablePageConfig, objectType, objectName,
 import { getColumns } from './columns'
 import TableComponent from './table'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
+
+const normalizeData = (data: IdentityHolderQuery['identityHolder']) =>
+  normalizeEntityData(data, {
+    internalOwner: { user: data?.internalOwnerUser, group: data?.internalOwnerGroup, stringValue: data?.internalOwner },
+  })
 
 const PersonnelPage: React.FC = () => {
   const { form } = useFormSchema()
@@ -107,7 +113,14 @@ const PersonnelPage: React.FC = () => {
     isFetching: isLoading,
     updateMutation,
     createMutation,
-    buildPayload: async (data) => data as UpdateIdentityHolderInput,
+    buildPayload: async (data) => {
+      const { internalOwner, ...rest } = data
+      return {
+        ...rest,
+        ...buildResponsibilityPayload('internalOwner', internalOwner),
+      }
+    },
+    normalizeData,
     getName,
     renderFields: (props: PersonnelFieldProps) => getFieldsToRender(props, enumOpts),
   }
