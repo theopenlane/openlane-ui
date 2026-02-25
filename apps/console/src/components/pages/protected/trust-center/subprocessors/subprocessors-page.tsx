@@ -15,14 +15,18 @@ import { TableKeyEnum } from '@repo/ui/table-key'
 import { useStorageSearch } from '@/hooks/useStorageSearch'
 import useFileExport from '@/components/shared/export/use-file-export'
 import { EditTrustCenterSubprocessorSheet } from './sheet/edit-trust-center-subprocessor-sheet'
+import { EmbedSubprocessorSheet } from './sheet/embed-subprocessor-sheet'
 import { useGetTrustCenter, useUpdateTrustCenter } from '@/lib/graphql-hooks/trust-center'
 import { useNotification } from '@/hooks/useNotification'
 import { Input } from '@repo/ui/input'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { Button } from '@repo/ui/button'
+import { Code } from 'lucide-react'
 
 const SubprocessorsPage = () => {
+  const [embedSheetOpen, setEmbedSheetOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useStorageSearch(ObjectTypes.SUBPROCESSOR)
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
     id: false,
@@ -41,8 +45,10 @@ const SubprocessorsPage = () => {
 
   const { successNotification, errorNotification } = useNotification()
   const { data: trustCenterData } = useGetTrustCenter()
-  const trustCenterID = trustCenterData?.trustCenters?.edges?.[0]?.node?.id ?? ''
-  const savedSubprocessorURL = trustCenterData?.trustCenters?.edges?.[0]?.node?.subprocessorURL ?? ''
+  const trustCenterNode = trustCenterData?.trustCenters?.edges?.[0]?.node
+  const trustCenterID = trustCenterNode?.id ?? ''
+  const slug = trustCenterNode?.slug ?? ''
+  const savedSubprocessorURL = trustCenterNode?.subprocessorURL ?? ''
   const [subprocessorURL, setSubprocessorURL] = useState(savedSubprocessorURL)
 
   const { mutateAsync: updateTrustCenter, isPending: isSavingURL } = useUpdateTrustCenter()
@@ -146,15 +152,20 @@ const SubprocessorsPage = () => {
   return (
     <>
       <EditTrustCenterSubprocessorSheet />
+      <EmbedSubprocessorSheet open={embedSheetOpen} onOpenChangeAction={setEmbedSheetOpen} slug={slug} />
       <div className="p-4">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-semibold">Subprocessors</h2>
+          <Button variant="outline" icon={<Code size={16} />} iconPosition="left" onClick={() => setEmbedSheetOpen(true)}>
+            Embed
+          </Button>
         </div>
 
-        <div className="flex flex-col justity-center mb-4 gap-3">
+        <div className="flex flex-col justify-center mb-4 gap-3">
           <p className="text-sm font-medium">Fallback subprocessor list URL (optional)</p>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 max-w-md">
             <Input
+              maxWidth
               type="url"
               placeholder="https://example.com/subprocessors"
               value={subprocessorURL}
