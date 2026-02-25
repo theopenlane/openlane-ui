@@ -54,7 +54,7 @@ export default function FaqsPage() {
 
   const { form: editForm } = useFormSchema()
 
-  const handleCreateSubmit = async (values: FaqFormValues) => {
+  const handleCreateSubmit = async (values: FaqFormValues): Promise<boolean> => {
     const highestOrder = Math.max(0, ...orderedFaqs.map((f) => f.displayOrder ?? 0))
     try {
       await createFaq({
@@ -67,8 +67,10 @@ export default function FaqsPage() {
         },
       })
       successNotification({ title: 'FAQ published', description: 'Your FAQ has been successfully posted.' })
+      return true
     } catch (error) {
       errorNotification({ title: 'Error', description: parseErrorMessage(error) })
+      return false
     }
   }
 
@@ -131,7 +133,7 @@ export default function FaqsPage() {
     )
     setDragOrderIds(reorderedIds)
 
-    const reordered = reorderedIds.map((id) => orderedFaqs.find((f) => f.id === id)!)
+    const reordered = reorderedIds.map((id) => orderedFaqs.find((f) => f.id === id)).filter((f): f is TrustCenterFaqsNodeNonNull => f != null)
 
     const orderMap = new Map(reordered.map((faq, index) => [faq.id, index + 1]))
 
@@ -161,6 +163,7 @@ export default function FaqsPage() {
         await reorderFaqs(updates)
       } catch (error) {
         errorNotification({ title: 'Error', description: parseErrorMessage(error) })
+        queryClient.invalidateQueries({ queryKey: ['trustCenterFaqs'] })
       }
     }
   }

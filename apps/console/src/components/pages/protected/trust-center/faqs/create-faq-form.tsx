@@ -10,15 +10,15 @@ import type { FaqFormValues } from './hooks/use-form-schema'
 interface CreateFaqFormProps {
   disabled: boolean
   isCreating: boolean
-  onSubmit: (values: FaqFormValues) => Promise<void>
+  onSubmit: (values: FaqFormValues) => Promise<boolean>
 }
 
 export function CreateFaqForm({ disabled, isCreating, onSubmit }: CreateFaqFormProps) {
   const { form } = useFormSchema()
 
   const handleSubmit = async (values: FaqFormValues) => {
-    await onSubmit(values)
-    form.reset()
+    const success = await onSubmit(values)
+    if (success) form.reset()
   }
 
   return (
