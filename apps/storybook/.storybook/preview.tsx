@@ -1,109 +1,80 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import type { Preview } from '@storybook/react-vite'
+import { useEffect } from 'storybook/preview-api'
+import { withThemeByClassName } from '@storybook/addon-themes'
 import './style.css'
-import { themes } from 'storybook/theming'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import openlaneLight from './openlane'
+import openlaneDark from './openlane-dark'
 
-const Background = (Story, context) => {
-  const [theme, setTheme] = useState('light')
+const DARK_BG = '#09151d'
+const LIGHT_BG = '#eff4f5'
+
+const QueryClientDecorator = (Story: React.ComponentType, context: { id: string }) => {
+  const queryClient = React.useMemo(
+    () =>
+      new QueryClient({
+        defaultOptions: { queries: { retry: false } },
+      }),
+    [],
+  )
 
   useEffect(() => {
-    if (context.args.theme) {
-      setTheme(context.args.theme)
+    queryClient.clear()
+  }, [context.id, queryClient])
+
+  useEffect(() => {
+    return () => {
+      queryClient.clear()
     }
-  }, [context.args.theme])
+  }, [queryClient])
 
   return (
-    <div data-theme={theme}>
+    <QueryClientProvider client={queryClient}>
       <Story />
-    </div>
+    </QueryClientProvider>
   )
 }
 
-export const parameters = {
-  darkMode: {
-    current: 'light',
-    stylePreview: true,
-    // Override the default dark theme
-    dark: {
-      ...themes.dark,
-
-      colorPrimary: '#2CCBAB',
-      colorSecondary: '#75D2BF',
-
-      // UI
-      appBg: '#162431',
-      appContentBg: '#162431',
-      appPreviewBg: '#162431',
-      appBorderColor: '#303E4A',
-      appBorderRadius: 4,
-
-      // Text colors
-      textColor: '#bdd9e1',
-      textInverseColor: '#505F6F',
-
-      // Toolbar default and active colors
-      barTextColor: '#aabec5',
-      barSelectedColor: '#354755',
-      barHoverColor: '#354755',
-      barBg: '#1C2630',
-
-      // Form colors
-      inputBg: '#1C2630',
-      inputBorder: '#162431',
-      inputTextColor: '#aabec5',
-      inputBorderRadius: 2,
-    },
-    // Override the default light theme
-    light: {
-      ...themes.light,
-
-      colorPrimary: '#2CCBAB',
-      colorSecondary: '#75D2BF',
-
-      // UI
-      appBg: '#e9f1f5',
-      appContentBg: '#e9f1f5',
-      appPreviewBg: '#162431',
-      appBorderColor: '#d2e2e9',
-      appBorderRadius: 4,
-
-      // Text colors
-      textColor: '#505F6F',
-      textInverseColor: '#1c2630',
-
-      // Toolbar default and active colors
-      barTextColor: '#303E4A',
-      barSelectedColor: '#e9f1f5',
-      barHoverColor: '#e9f1f5',
-      barBg: '#ffffff',
-
-      // Form colors
-      inputBg: '#ffffff',
-      inputBorder: '#d2e2e9',
-      inputTextColor: '#505F6F',
-      inputBorderRadius: 2,
-    },
-  },
+function applyTheme(isDark: boolean) {
+  const bg = isDark ? DARK_BG : LIGHT_BG
+  document.documentElement.classList.toggle('dark', isDark)
+  document.documentElement.style.backgroundColor = bg
+  if (document.body) {
+    document.body.classList.toggle('dark', isDark)
+    document.body.style.backgroundColor = bg
+  }
 }
 
 const preview: Preview = {
-  parameters: {
-    actions: { argTypesRegex: '^on[A-Z].*' },
-    tags: ['autodocs'],
-    backgrounds: {
-      disable: true,
-    },
-    darkMode: parameters.darkMode,
-    decorators: [Background],
-    docs: {
-      theme: parameters.darkMode.current === 'dark' ? themes.dark : themes.light,
-      themes: {
-        dark: parameters.darkMode.dark,
-        light: parameters.darkMode.light,
-      },
-    },
-  },
+  decorators: [
+    QueryClientDecorator,
+    (Story, context) => {
+      const isDark = context.globals['theme'] === 'dark'
 
+      // Switch the Storybook docs chrome theme (controls tables, code blocks, text) to
+      // match the selected theme. Mutating context.parameters here is intentional — it
+      // is the established pattern for making parameters.docs.theme dynamic.
+      context.parameters.docs = {
+        ...context.parameters.docs,
+        theme: isDark ? openlaneDark : openlaneLight,
+      }
+
+      useEffect(() => {
+        applyTheme(isDark)
+      }, [isDark])
+
+      return <Story />
+    },
+    withThemeByClassName({
+      themes: { light: '', dark: 'dark' },
+      defaultTheme: 'light',
+    }),
+  ],
+  parameters: {
+    tags: ['autodocs'],
+    backgrounds: { disable: true },
+  },
   tags: ['autodocs'],
 }
 

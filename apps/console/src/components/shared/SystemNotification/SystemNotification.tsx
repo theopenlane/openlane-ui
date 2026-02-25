@@ -1,5 +1,5 @@
 'use client'
-import React, { useMemo, useRef, useState } from 'react'
+import React, { useMemo, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { Bell, CheckCheck } from 'lucide-react'
 import { useWebsocketNotifications } from '@/lib/graphql-hooks/websocket/use-websocket-notifications'
@@ -9,9 +9,13 @@ import { useGetAllExports } from '@/lib/graphql-hooks/export'
 import { ExportRow } from './export-row'
 import useClickOutside from '@/hooks/useClickOutside'
 
-export default function SystemNotificationTracker() {
+interface SystemNotificationTrackerProps {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+}
+
+export default function SystemNotificationTracker({ open, onOpenChange }: SystemNotificationTrackerProps) {
   const { notifications, markAsRead, markAllAsRead } = useWebsocketNotifications()
-  const [open, setOpen] = useState(false)
 
   const bellRef = useRef<HTMLDivElement>(null)
 
@@ -19,7 +23,7 @@ export default function SystemNotificationTracker() {
     if (bellRef.current && bellRef.current.contains(event.target as Node)) {
       return
     }
-    setOpen(false)
+    onOpenChange(false)
   })
 
   const counts = useMemo(() => {
@@ -42,7 +46,7 @@ export default function SystemNotificationTracker() {
   return (
     <div className="mx-auto max-w-3xl">
       <div className="relative" ref={bellRef}>
-        <BellButton count={counts.total} onClick={() => setOpen((v) => !v)} isOpen={open} />
+        <BellButton count={counts.total} onClick={() => onOpenChange(!open)} isOpen={open} />
 
         {open &&
           createPortal(

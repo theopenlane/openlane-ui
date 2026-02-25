@@ -4,7 +4,7 @@ import { columns, mockData } from './mocks/data-table.mock'
 import { TableKeyEnum } from '../data-table/table-key.ts'
 
 const meta: Meta<typeof DataTable> = {
-  title: 'UI/DataTable',
+  title: 'Data/DataTable',
   component: DataTable,
   parameters: {
     docs: {
@@ -16,6 +16,7 @@ const meta: Meta<typeof DataTable> = {
 } satisfies Meta<typeof DataTable>
 
 export default meta
+
 type Story = StoryObj<typeof meta>
 
 export const Default: Story = {

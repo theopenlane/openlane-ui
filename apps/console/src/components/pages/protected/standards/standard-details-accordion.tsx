@@ -1,5 +1,5 @@
 'use client'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
 import { Button } from '@repo/ui/button'
 import { ChevronDown, ChevronRight, ChevronsDownUp, List, SearchIcon } from 'lucide-react'
@@ -51,7 +51,7 @@ const StandardDetailsAccordion: React.FC<TStandardDetailsAccordionProps> = ({
   const params = useParams()
   const id = typeof params?.id === 'string' ? params.id : ''
 
-  const [hasInitialized, setHasInitialized] = useState(false)
+  const hasInitializedRef = useRef(false)
   const [paginations, setPaginations] = useState<Record<string, TPagination>>({})
 
   const [openSections, setOpenSections] = useState<string[]>([])
@@ -140,14 +140,14 @@ const StandardDetailsAccordion: React.FC<TStandardDetailsAccordionProps> = ({
   }, [groupedControls])
 
   useEffect(() => {
-    if (hasInitialized) return
+    if (hasInitializedRef.current) return
 
     const firstCategory = Object.keys(groupedControls)[0]
     if (firstCategory) {
       setOpenSections([firstCategory])
-      setHasInitialized(true)
+      hasInitializedRef.current = true
     }
-  }, [groupedControls, hasInitialized])
+  }, [groupedControls])
 
   const getPaginatedControls = (category: string, controls: ControlListStandardFieldsFragment[]) => {
     const pagination = paginations[category] || DEFAULT_PAGINATION

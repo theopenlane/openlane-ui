@@ -2,7 +2,7 @@ import { Calendar, CalendarProps } from './calendar'
 import type { Meta, StoryObj } from '@storybook/react-vite'
 
 const meta: Meta<CalendarProps> = {
-  title: 'UI/Calendar',
+  title: 'Forms/Calendar',
   component: Calendar,
   parameters: {
     docs: {

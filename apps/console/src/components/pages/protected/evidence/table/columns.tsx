@@ -1,18 +1,19 @@
-import { ColumnDef, Row } from '@tanstack/react-table'
+import { ColumnDef } from '@tanstack/react-table'
 import { Evidence, User } from '@repo/codegen/src/schema.ts'
 import Link from 'next/link'
 import React from 'react'
 import { Check, LinkIcon, Minus } from 'lucide-react'
 import ControlChip from '@/components/pages/protected/controls/map-controls/shared/control-chip.tsx'
-import { formatDate, formatTimeSince } from '@/utils/date.ts'
-import { Avatar } from '@/components/shared/avatar/avatar.tsx'
-import EvidenceFileChip from '@/components/pages/protected/evidence/table/evidence-file-chip.tsx'
-import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 import { Badge } from '@repo/ui/badge'
-import { Checkbox } from '@repo/ui/checkbox'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { EvidenceIconMapper } from '@/components/shared/enum-mapper/evidence-enum'
+import EvidenceFileChip from '@/components/pages/protected/evidence/table/evidence-file-chip.tsx'
+import { UserCell } from '@/components/shared/crud-base/columns/user-cell'
+import { TagsCell } from '@/components/shared/crud-base/columns/tags-cell'
+import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
+import { createSelectColumn } from '@/components/shared/crud-base/columns/select-column'
+import { formatDate } from '@/utils/date.ts'
 
 type TGetEvidenceColumnsProps = {
   userMap: Record<string, User>
@@ -22,47 +23,8 @@ type TGetEvidenceColumnsProps = {
 
 export const useGetEvidenceColumns = ({ userMap, selectedEvidence, setSelectedEvidence }: TGetEvidenceColumnsProps) => {
   const { convertToReadOnly } = usePlateEditor()
-  const toggleSelection = (evidence: { id: string }) => {
-    setSelectedEvidence((prev) => {
-      const exists = prev.some((c) => c.id === evidence.id)
-      return exists ? prev.filter((c) => c.id !== evidence.id) : [...prev, evidence]
-    })
-  }
   const columns: ColumnDef<Evidence>[] = [
-    {
-      id: 'select',
-      header: ({ table }) => {
-        const currentPageEvidence = table.getRowModel().rows.map((row) => row.original)
-        const allSelected = currentPageEvidence.every((evidence) => selectedEvidence.some((sc) => sc.id === evidence.id))
-
-        return (
-          <div onClick={(e) => e.stopPropagation()}>
-            <Checkbox
-              checked={allSelected}
-              onCheckedChange={(checked: boolean) => {
-                const newSelections = checked
-                  ? [...selectedEvidence.filter((sc) => !currentPageEvidence.some((c) => c.id === sc.id)), ...currentPageEvidence.map((c) => ({ id: c.id }))]
-                  : selectedEvidence.filter((sc) => !currentPageEvidence.some((c) => c.id === sc.id))
-
-                setSelectedEvidence(newSelections)
-              }}
-            />
-          </div>
-        )
-      },
-      cell: ({ row }: { row: Row<Evidence> }) => {
-        const { id } = row.original
-        const isChecked = selectedEvidence.some((c) => c.id === id)
-
-        return (
-          <div onClick={(e) => e.stopPropagation()}>
-            <Checkbox checked={isChecked} onCheckedChange={() => toggleSelection({ id })} />
-          </div>
-        )
-      },
-      size: 50,
-      maxSize: 50,
-    },
+    createSelectColumn<Evidence>(selectedEvidence, setSelectedEvidence),
     {
       accessorKey: 'id',
       header: 'ID',
@@ -186,13 +148,7 @@ export const useGetEvidenceColumns = ({ userMap, selectedEvidence, setSelectedEv
       accessorKey: 'tags',
       header: 'Tags',
       size: 140,
-      cell: ({ row }) => {
-        const tags = row?.original?.tags
-        if (!tags?.length) {
-          return '-'
-        }
-        return <div className="flex gap-2 flex-wrap">{row?.original?.tags?.map((tag, i) => <TagChip key={i} tag={tag} />)}</div>
-      },
+      cell: ({ row }) => <TagsCell tags={row.original.tags} />,
     },
     {
       header: 'Comments',
@@ -212,45 +168,25 @@ export const useGetEvidenceColumns = ({ userMap, selectedEvidence, setSelectedEv
       accessorKey: 'createdBy',
       header: 'Created by',
       size: 200,
-      cell: ({ row }) => {
-        const user = userMap?.[row.original.createdBy ?? '']
-        return user ? (
-          <div className="flex items-center gap-2">
-            <Avatar entity={user} />
-            {user.displayName || '-'}
-          </div>
-        ) : (
-          'Deleted user'
-        )
-      },
+      cell: ({ row }) => <UserCell user={userMap[row.original.createdBy ?? '']} />,
     },
     {
       accessorKey: 'createdAt',
       header: 'Created At',
       size: 150,
-      cell: ({ row }) => <span className="whitespace-nowrap">{formatDate(row.original.createdAt)}</span>,
+      cell: ({ row }) => <DateCell value={row.original.createdAt} />,
     },
     {
       accessorKey: 'updatedBy',
       header: 'Updated By',
       size: 200,
-      cell: ({ row }) => {
-        const user = userMap?.[row.original.updatedBy ?? '']
-        return user ? (
-          <div className="flex items-center gap-2">
-            <Avatar entity={user} />
-            {user.displayName || '-'}
-          </div>
-        ) : (
-          'Deleted user'
-        )
-      },
+      cell: ({ row }) => <UserCell user={userMap[row.original.updatedBy ?? '']} />,
     },
     {
       accessorKey: 'updatedAt',
       header: 'Last Updated',
       size: 100,
-      cell: ({ row }) => <span className="whitespace-nowrap">{formatTimeSince(row.original.updatedAt)}</span>,
+      cell: ({ row }) => <DateCell value={row.original.updatedAt} variant="timesince" />,
     },
   ]
 

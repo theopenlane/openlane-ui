@@ -16,7 +16,7 @@ const OPTIONS: Option[] = [
 ]
 
 const meta: Meta<typeof MultipleSelector> = {
-  title: 'UI/Multiple Selector',
+  title: 'Forms/MultipleSelector',
   component: MultipleSelector,
   parameters: {
     docs: {
@@ -42,6 +42,4 @@ const meta: Meta<typeof MultipleSelector> = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-export const Default: Story = {
-  parameters: {},
-}
+export const Default: Story = {}

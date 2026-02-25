@@ -1,15 +1,99 @@
-@import 'tailwindcss';
 @import '@repo/ui/styles.css';
-@source "../../../packages/ui/src/**/*.{js,ts,jsx,tsx}";
+@source "../../../apps/console/src/components/shared/**/*.{js,ts,jsx,tsx}";
 
-.sb-main-padded {
-  background: var(--color-panel-bg);
+html.dark {
+  color-scheme: dark;
 }
 
-@theme {
-  --color-panel-bg: #ffffff;
+/* Base layout backgrounds */
+html,
+body,
+.sb-main-padded,
+.sb-main-fullscreen,
+.sb-main-centered {
+  background-color: var(--background);
 }
 
-.dark {
-  --color-panel-bg: #162431;
+/* === Dark mode: broad override for all Storybook chrome ===
+   Storybook injects emotion CSS with hardcoded light-theme colors on every element
+   (p, strong, h1-h6, code, table cells, form controls, etc.). Rather than chasing
+   each element type individually, we override at the container level with a descendant
+   wildcard and then re-allow the few intentional exceptions below.
+
+   Story preview canvases (.docs-story, .sbdocs-preview) are excluded because our
+   Tailwind component classes control those — forcing !important there would break
+   intentional component colors (e.g. teal primary button, red destructive alert). */
+
+/* Container backgrounds and base color */
+html.dark .sb-preparing-docs,
+html.dark .sb-wrapper,
+html.dark .sbdocs-wrapper,
+html.dark .sbdocs-content,
+html.dark [class*='sbdocs'],
+html.dark .docblock-typeset,
+html.dark .docblock-argstable,
+html.dark .sb-argstableBlock {
+  background-color: var(--background) !important;
+  color: var(--foreground) !important;
+}
+
+/* Story preview toolbar (sibling div above .docs-story inside .sbdocs-preview) */
+html.dark .sbdocs-preview > div:not(.docs-story),
+html.dark .docs-story > div {
+  background-color: var(--background) !important;
+}
+
+/* Broad descendant override — all Storybook chrome, excluding story preview canvases */
+html.dark .sb-wrapper *:not(.docs-story):not(.docs-story *):not(.sbdocs-preview):not(.sbdocs-preview *),
+html.dark .sbdocs-content *:not(.docs-story):not(.docs-story *):not(.sbdocs-preview):not(.sbdocs-preview *) {
+  color: var(--foreground) !important;
+}
+
+/* === Re-allow intentional colors and backgrounds === */
+
+/* Links */
+html.dark .sb-wrapper a,
+html.dark .sb-wrapper a *,
+html.dark .sbdocs-content a,
+html.dark .sbdocs-content a * {
+  color: var(--primary) !important;
+}
+
+/* Inline code: dark muted background instead of near-white */
+html.dark .sb-wrapper code,
+html.dark .sbdocs-content code,
+html.dark [class*='sbdocs'] code {
+  background-color: var(--muted) !important;
+  border-color: var(--border) !important;
+}
+
+/* ArgsTable borders and cell backgrounds */
+html.dark .docblock-argstable tr,
+html.dark .docblock-argstable td,
+html.dark .docblock-argstable th,
+html.dark .sb-argstableBlock tr,
+html.dark .sb-argstableBlock td,
+html.dark .sb-argstableBlock th {
+  background-color: var(--background) !important;
+  border-color: var(--border) !important;
+}
+
+/* Form controls inside ArgsTable (textarea, select, input for prop values) */
+html.dark .docblock-argstable input,
+html.dark .docblock-argstable textarea,
+html.dark .docblock-argstable select,
+html.dark .docblock-argstable button,
+html.dark .sb-argstableBlock input,
+html.dark .sb-argstableBlock textarea,
+html.dark .sb-argstableBlock select,
+html.dark .sb-argstableBlock button {
+  background-color: var(--card) !important;
+  border-color: var(--border) !important;
+}
+
+/* "Show code" / "Hide code" toggle */
+html.dark .docblock-code-toggle {
+  background-color: var(--card) !important;
+  border-color: var(--border) !important;
+  color: var(--foreground) !important;
 }

@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 import { PageHeading } from './page-heading'
 
 const meta: Meta<typeof PageHeading> = {
-  title: 'UI/Page Heading',
+  title: 'Navigation/PageHeading',
   component: PageHeading,
   parameters: {
     docs: {

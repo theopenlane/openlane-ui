@@ -10,7 +10,7 @@ const variants = Object.keys(buttonStyles.variants.variant) as ButtonVariants[]
 const sizes = Object.keys(buttonStyles.variants.size) as ButtonSizes[]
 
 const meta: Meta<typeof Button> = {
-  title: 'UI/Button',
+  title: 'Actions/Button',
   component: Button,
   parameters: {
     docs: {
