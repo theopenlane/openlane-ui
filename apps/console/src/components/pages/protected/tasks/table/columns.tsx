@@ -1,67 +1,34 @@
-// columns.tsx
-
-import { ColumnDef, Row } from '@tanstack/react-table'
+import { ColumnDef } from '@tanstack/react-table'
 import { Task, User } from '@repo/codegen/src/schema'
 import { Avatar } from '@/components/shared/avatar/avatar.tsx'
 import { formatDate } from '@/utils/date'
 import { TaskStatusIconMapper } from '@/components/shared/enum-mapper/task-enum'
-import { TaskStatusMapper } from '@/components/pages/protected/tasks/util/task.ts'
 import AssigneeCell from './assignee-cell'
-import { Checkbox } from '@repo/ui/checkbox'
-import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
+import { CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
+import { CustomTypeEnumOption } from '@/lib/graphql-hooks/custom-type-enum'
+import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { UserCell } from '@/components/shared/crud-base/columns/user-cell'
+import { TagsCell } from '@/components/shared/crud-base/columns/tags-cell'
+import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
+import { createSelectColumn } from '@/components/shared/crud-base/columns/select-column'
 
 type ColumnOptions = {
   userMap: Record<string, User>
   convertToReadOnly?: (data: string, padding?: number, style?: React.CSSProperties) => React.JSX.Element
   selectedTasks: { id: string }[]
   setSelectedTasks: React.Dispatch<React.SetStateAction<{ id: string }[]>>
+  taskKindOptions: CustomTypeEnumOption[]
 }
 
-export const getTaskColumns = ({ userMap, convertToReadOnly, selectedTasks, setSelectedTasks }: ColumnOptions): ColumnDef<Task>[] => {
-  const toggleSelection = (task: { id: string }) => {
-    setSelectedTasks((prev) => {
-      const exists = prev.some((c) => c.id === task.id)
-      return exists ? prev.filter((c) => c.id !== task.id) : [...prev, task]
-    })
-  }
+export const getTaskColumns = ({ userMap, convertToReadOnly, selectedTasks, setSelectedTasks, taskKindOptions }: ColumnOptions): ColumnDef<Task>[] => {
   return [
-    {
-      id: 'select',
-      header: ({ table }) => {
-        const currentPageTasks = table.getRowModel().rows.map((row) => row.original)
-        const allSelected = currentPageTasks.every((task) => selectedTasks.some((sc) => sc.id === task.id))
-
-        return (
-          <div onClick={(e) => e.stopPropagation()}>
-            <Checkbox
-              checked={allSelected}
-              onCheckedChange={(checked: boolean) => {
-                const newSelections = checked
-                  ? [...selectedTasks.filter((sc) => !currentPageTasks.some((c) => c.id === sc.id)), ...currentPageTasks.map((c) => ({ id: c.id }))]
-                  : selectedTasks.filter((sc) => !currentPageTasks.some((c) => c.id === sc.id))
-
-                setSelectedTasks(newSelections)
-              }}
-            />
-          </div>
-        )
-      },
-      cell: ({ row }: { row: Row<Task> }) => {
-        const { id } = row.original
-        const isChecked = selectedTasks.some((c) => c.id === id)
-
-        return (
-          <div onClick={(e) => e.stopPropagation()}>
-            <Checkbox checked={isChecked} onCheckedChange={() => toggleSelection({ id })} />
-          </div>
-        )
-      },
-      size: 50,
-    },
+    createSelectColumn<Task>(selectedTasks, setSelectedTasks),
     {
       accessorKey: 'id',
       header: 'ID',
-      size: 120,
+      size: 270,
+      minSize: 270,
+      maxSize: 270,
       cell: ({ row }) => <div className="text-muted-foreground">{row.original.id}</div>,
     },
     {
@@ -74,6 +41,7 @@ export const getTaskColumns = ({ userMap, convertToReadOnly, selectedTasks, setS
       accessorKey: 'taskKindName',
       header: 'Type',
       size: 140,
+      cell: ({ cell }) => <CustomTypeEnumValue value={(cell.getValue() as string) ?? ''} options={taskKindOptions} placeholder="-" />,
     },
     {
       accessorKey: 'status',
@@ -83,7 +51,7 @@ export const getTaskColumns = ({ userMap, convertToReadOnly, selectedTasks, setS
         return (
           <div className="flex items-center space-x-2">
             {TaskStatusIconMapper[status]}
-            <p>{TaskStatusMapper[status]}</p>
+            <p>{getEnumLabel(status)}</p>
           </div>
         )
       },
@@ -136,57 +104,31 @@ export const getTaskColumns = ({ userMap, convertToReadOnly, selectedTasks, setS
       accessorKey: 'tags',
       header: 'Tags',
       size: 140,
-      cell: ({ row }) => {
-        const tags = row?.original?.tags
-        if (!tags?.length) {
-          return '-'
-        }
-        return <div className="flex gap-2">{row?.original?.tags?.map((tag, i) => <TagChip key={i} tag={tag} />)}</div>
-      },
+      cell: ({ row }) => <TagsCell tags={row.original.tags} />,
     },
     {
       accessorKey: 'createdBy',
-      header: 'Created By',
-      cell: ({ row }) => {
-        const user = userMap[row.original.createdBy ?? '']
-        return user ? (
-          <div className="flex items-center space-x-1">
-            <Avatar entity={user} className="w-[24px] h-[24px]" />
-            <p>{user.displayName}</p>
-          </div>
-        ) : (
-          <span className="text-muted-foreground italic">Deleted user</span>
-        )
-      },
-      size: 160,
+      header: 'Created by',
+      size: 200,
+      cell: ({ row }) => <UserCell user={userMap[row.original.createdBy ?? '']} />,
     },
     {
       accessorKey: 'createdAt',
       header: 'Created At',
-      cell: ({ cell }) => formatDate(cell.getValue() as string),
-      size: 130,
+      size: 150,
+      cell: ({ cell }) => <DateCell value={cell.getValue() as string} />,
     },
     {
       accessorKey: 'updatedBy',
       header: 'Updated By',
-      cell: ({ row }) => {
-        const user = userMap[row.original.updatedBy ?? '']
-        return user ? (
-          <div className="flex items-center space-x-1">
-            <Avatar entity={user} className="w-[24px] h-[24px]" />
-            <p>{user.displayName}</p>
-          </div>
-        ) : (
-          <span className="text-muted-foreground italic">Deleted user</span>
-        )
-      },
-      size: 160,
+      size: 200,
+      cell: ({ row }) => <UserCell user={userMap[row.original.updatedBy ?? '']} />,
     },
     {
       accessorKey: 'updatedAt',
-      header: 'Updated At',
-      cell: ({ cell }) => formatDate(cell.getValue() as string),
-      size: 130,
+      header: 'Last Updated',
+      size: 100,
+      cell: ({ cell }) => <DateCell value={cell.getValue() as string} variant="timesince" />,
     },
   ]
 }

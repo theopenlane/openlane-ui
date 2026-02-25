@@ -3,7 +3,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { FilePlus, LayoutTemplate, SquarePlus } from 'lucide-react'
 import { TemplateList } from './templates'
 import React, { useState } from 'react'
-import { AlertDialog } from '@repo/ui/alert-dialog'
+import { Dialog } from '@repo/ui/dialog'
 import { Button } from '@repo/ui/button'
 
 const ICON_SIZE = 12
@@ -14,7 +14,7 @@ export const CreateDropdown = () => {
   const [isTemplateDialogOpen, setTemplateDialogOpen] = useState(false)
 
   const handleCreateNew = () => {
-    router.push('/questionnaires/questionnaire-editor')
+    router.push('/automation/assessments/questionnaire-editor')
   }
 
   return (
@@ -41,9 +41,9 @@ export const CreateDropdown = () => {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <AlertDialog open={isTemplateDialogOpen} onOpenChange={setTemplateDialogOpen}>
+      <Dialog open={isTemplateDialogOpen} onOpenChange={setTemplateDialogOpen}>
         <TemplateList />
-      </AlertDialog>
+      </Dialog>
     </div>
   )
 }

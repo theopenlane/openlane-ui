@@ -4,7 +4,7 @@ import { ConfirmationDialog } from './confirmation-dialog'
 import { Button } from '@repo/ui/button'
 
 const meta: Meta<typeof ConfirmationDialog> = {
-  title: 'Feedback/ConfirmationDialog',
+  title: 'Overlays/ConfirmationDialog',
   component: ConfirmationDialog,
   parameters: {
     docs: {

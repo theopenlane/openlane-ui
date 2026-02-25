@@ -7,15 +7,14 @@ import { TaskTaskStatus, UpdateTaskInput } from '@repo/codegen/src/schema'
 import { useNotification } from '@/hooks/useNotification'
 import useFormSchema, { EditTaskFormData } from '@/components/pages/protected/tasks/hooks/use-form-schema'
 import { Form } from '@repo/ui/form'
-import { useTask, useUpdateTask } from '@/lib/graphql-hooks/tasks'
+import { useTask, useTaskAssociations, useUpdateTask } from '@/lib/graphql-hooks/task'
 import { useQueryClient } from '@tanstack/react-query'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
-import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config.ts'
-import ObjectAssociation from '@/components/shared/objectAssociation/object-association'
+import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config.ts'
+import ObjectAssociation from '@/components/shared/object-association/object-association'
 import { Panel, PanelHeader } from '@repo/ui/panel'
-import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap'
-import { ObjectEnum } from '@/lib/authz/enums/object-enum'
+import { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
 import { canEdit } from '@/lib/authz/utils'
 import TitleField from '../form/fields/title-field'
 import DetailsField from '../form/fields/details-field'
@@ -30,8 +29,13 @@ import EvidenceCreateSheet from '../../../evidence/evidence-create-sheet'
 import { CreateButton } from '@/components/shared/create-button/create-button'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { CustomEvidenceControl } from '../../../evidence/evidence-sheet-config'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
-const TaskDetailsSheet = () => {
+type TaskDetailsSheetProps = {
+  queryParamKey?: string
+}
+
+const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id' }) => {
   const [isEditing, setIsEditing] = useState(false)
   const [internalEditing, setInternalEditing] = useState<keyof EditTaskFormData | null>(null)
   const queryClient = useQueryClient()
@@ -43,27 +47,30 @@ const TaskDetailsSheet = () => {
   const { mutateAsync: updateTask, isPending } = useUpdateTask()
 
   const searchParams = useSearchParams()
-  const id = searchParams.get('id')
-  const { data: permission } = useAccountRoles(ObjectEnum.TASK, id)
+  const id = searchParams.get(queryParamKey)
+  const { data: permission } = useAccountRoles(ObjectTypes.TASK, id)
   const isEditAllowed = canEdit(permission?.roles)
   const { data, isLoading: fetching } = useTask(id as string)
   const taskData = data?.task
   const { form } = useFormSchema()
-  const evidenceFormData = useMemo(() => generateEvidenceFormData(taskData), [taskData])
   const [isSheetOpen, setIsSheetOpen] = useState(false)
+
+  const { data: associationsData } = useTaskAssociations()
+  const evidenceFormData = useMemo(() => generateEvidenceFormData(taskData, associationsData), [taskData, associationsData])
 
   const initialAssociations = useMemo(
     () => ({
-      programIDs: (taskData?.programs?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-      procedureIDs: (taskData?.procedures?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-      internalPolicyIDs: (taskData?.internalPolicies?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-      controlObjectiveIDs: (taskData?.controlObjectives?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-      groupIDs: (taskData?.groups?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) ?? [],
-      subcontrolIDs: (taskData?.subcontrols?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) ?? [],
-      controlIDs: (taskData?.controls?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) ?? [],
-      riskIDs: (taskData?.risks?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) ?? [],
+      programIDs: (associationsData?.task?.programs?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+      procedureIDs: (associationsData?.task?.procedures?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+      internalPolicyIDs: (associationsData?.task?.internalPolicies?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+      controlObjectiveIDs: (associationsData?.task?.controlObjectives?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+      groupIDs: (associationsData?.task?.groups?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) ?? [],
+      subcontrolIDs: (associationsData?.task?.subcontrols?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) ?? [],
+      controlIDs: (associationsData?.task?.controls?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) ?? [],
+      riskIDs: (associationsData?.task?.risks?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) ?? [],
+      taskIDs: (taskData?.tasks?.map((item) => item?.id).filter(Boolean) as string[]) ?? [],
     }),
-    [taskData],
+    [associationsData?.task, taskData],
   )
 
   useEffect(() => {
@@ -81,17 +88,17 @@ const TaskDetailsSheet = () => {
   }, [taskData, form])
 
   const controlParams: CustomEvidenceControl[] = [
-    ...(taskData?.controls?.edges?.map((edge) => edge?.node).filter(Boolean) ?? []),
-    ...(taskData?.subcontrols?.edges?.map((edge) => edge?.node).filter(Boolean) ?? []),
+    ...(associationsData?.task?.controls?.edges?.map((edge) => edge?.node).filter(Boolean) ?? []),
+    ...(associationsData?.task?.subcontrols?.edges?.map((edge) => edge?.node).filter(Boolean) ?? []),
   ]
     .filter((control): control is NonNullable<typeof control> => control != null)
     .map((control) => {
-      const isSubcontrol = taskData?.subcontrols?.edges?.some((e) => e?.node?.id === control.id)
+      const isSubcontrol = associationsData?.task?.subcontrols?.edges?.some((e) => e?.node?.id === control.id)
       return {
         id: control.id,
         referenceFramework: control.referenceFramework,
         refCode: control.refCode ?? '',
-        __typename: isSubcontrol ? 'Subcontrol' : 'Control',
+        __typename: isSubcontrol ? ObjectTypes.SUBCONTROL : ObjectTypes.CONTROL,
       }
     })
 
@@ -103,11 +110,11 @@ const TaskDetailsSheet = () => {
     handleCloseParams()
   }
 
-  const isCreateButtonVisible = !!((taskData?.controls.edges?.length ?? 0) > 0 || (taskData?.subcontrols.edges?.length ?? 0) > 0 || taskData?.taskKindName === 'Evidence')
+  const isCreateButtonVisible = !!((associationsData?.task?.controls.edges?.length ?? 0) > 0 || (associationsData?.task?.subcontrols.edges?.length ?? 0) > 0 || taskData?.taskKindName === 'Evidence')
 
   const handleCloseParams = () => {
     const newSearchParams = new URLSearchParams(searchParams.toString())
-    newSearchParams.delete('id')
+    newSearchParams.delete(queryParamKey)
     router.replace(`${window.location.pathname}?${newSearchParams.toString()}`)
     setIsEditing(false)
   }
@@ -234,7 +241,7 @@ const TaskDetailsSheet = () => {
                     <ObjectAssociation
                       initialData={initialAssociations}
                       onIdChange={(updatedMap) => setAssociations(updatedMap)}
-                      excludeObjectTypes={[ObjectTypeObjects.EVIDENCE, ObjectTypeObjects.TASK, ObjectTypeObjects.GROUP]}
+                      excludeObjectTypes={[ObjectTypeObjects.EVIDENCE, ObjectTypeObjects.GROUP]}
                     />
                   </Panel>
                 )}

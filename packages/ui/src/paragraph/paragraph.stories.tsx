@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 import { Paragraph } from './pargraph'
 
 const meta: Meta<typeof Paragraph> = {
-  title: 'UI/Paragraph',
+  title: 'Display/Paragraph',
   component: Paragraph,
   parameters: {
     docs: {

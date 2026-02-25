@@ -1,9 +1,9 @@
 'use client'
 
-import React, { useEffect } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { PanelLeftOpen, PanelLeftClose, BookText, MessageSquareText, Plus } from 'lucide-react'
+import { PanelLeftOpen, PanelLeftClose, BookText, MessageSquareText, Plus, Lock, Ellipsis } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { Separator as Hr } from '@repo/ui/separator'
 import { Logo } from '@repo/ui/logo'
@@ -24,8 +24,9 @@ import { DOCS_URL } from '@/constants/docs'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { canCreate } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
+import { hasNoModules } from '@/lib/auth/utils/modules'
 
-export type PanelKey = 'compliance' | 'trust center' | null
+export type PanelKey = 'compliance' | 'trust center' | 'automation' | 'registry' | null
 
 export const PRIMARY_WIDTH = 50
 export const PRIMARY_EXPANDED_WIDTH = 248
@@ -58,17 +59,24 @@ export default function SideNav({
   const { data: session } = useSession()
   const pathname = usePathname()
   const router = useRouter()
+  const featureEnabled = process.env.NEXT_PUBLIC_ENABLE_PLAN
+  const modules = useMemo(() => session?.user?.modules ?? [], [session?.user?.modules])
 
   const sidebarItems = [...navItems, ...footerNavItems]
   const { data: orgPermission } = useOrganizationRoles()
   const isCreateProgramAllowed = canCreate(orgPermission?.roles, AccessEnum.CanCreateProgram)
+  const billingExpired = hasNoModules(session)
 
   useEffect(() => {
     if (!openPanel) {
-      const firstItem = navItems.filter((item): item is NavItem => 'title' in item).find((item) => item.children && item.children.length > 0)
+      const firstItem = navItems
+        .filter((item): item is NavItem => 'title' in item)
+        .filter((item) => !(featureEnabled === 'true' && item?.plan && !featureUtil.hasModule(modules, item.plan)))
+        .find((item) => item.children && item.children.length > 0)
+
       onToggleAction(firstItem?.title?.toLowerCase() as PanelKey)
     }
-  }, [navItems, onToggleAction, openPanel])
+  }, [featureEnabled, modules, navItems, onToggleAction, openPanel])
 
   const handleNavigate = (href: string) => {
     router.push(href)
@@ -111,8 +119,6 @@ export default function SideNav({
   }
 
   const displayMenu = (navItems: (NavItem | Separator | NavHeading)[]) => {
-    const featureEnabled = process.env.NEXT_PUBLIC_ENABLE_PLAN
-    const modules = session?.user?.modules ?? []
     const activeNav = findActiveNavItem(navItems, pathname)
 
     return navItems.map((item, idx) => {
@@ -124,10 +130,6 @@ export default function SideNav({
         return <Hr className="mx-2" key={idx} />
       }
 
-      if (featureEnabled === 'true' && item?.plan && !featureUtil.hasModule(modules, item?.plan)) {
-        return <React.Fragment key={item?.plan}></React.Fragment>
-      }
-
       if ('icon' in item && item.icon) {
         const Icon = item.icon
         const isExpandable = !!item.children
@@ -136,11 +138,14 @@ export default function SideNav({
 
         const button = (
           <div key={idx} className="relative flex w-full items-center justify-center">
-            <div className="w-2.5 h-full flex absolute left-0">{isActive && <span className=" h-full w-0.5 bg-foreground dark:bg-primary absolute" />}</div>
+            <div className="w-2.5 h-full flex absolute left-0">{isActive && <span className="h-full w-0.5 bg-foreground dark:bg-primary absolute" />}</div>
+
+            {featureEnabled === 'true' && item?.plan && !featureUtil.hasModule(modules, item?.plan) && <Lock className="absolute bottom-6 right-[5px] w-3 h-3 z-90 text-gray-400" />}
+
             <Button
               variant="sidebar"
               onClick={() => (isExpandable ? handleTogglePanel(item) : handleNavigate(url))}
-              className={`flex px-2 justify-start gap-1 h-8 ${isActive ? 'is-active' : ''} ${primaryExpanded ? 'w-full mx-2' : 'w-8 justify-center'}`}
+              className={`relative flex px-2 justify-start gap-1 h-8 ${isActive ? 'is-active' : ''} ${primaryExpanded ? 'w-full mx-2' : 'w-8 justify-center'}`}
             >
               <Icon className={`${primaryExpanded ? 'w-4 h-4' : '!w-5 !h-5'}`} />
               {primaryExpanded && <span className="text-sm font-normal leading-5">{item.title}</span>}
@@ -174,6 +179,10 @@ export default function SideNav({
 
     const linkContent = (
       <Link
+        onClick={(e) => {
+          e.preventDefault()
+          router.push(child.href ?? '#')
+        }}
         href={child.href ?? '#'}
         className={`flex items-center gap-2 mb-2 h-8 rounded-md hover:bg-card text-muted-foreground transition-colors duration-500 ${isActive ? 'bg-card text-paragraph' : ''} ${
           secondaryExpanded ? 'px-2.5' : 'justify-center'
@@ -198,63 +207,57 @@ export default function SideNav({
     )
   }
 
+  const footerLinks = [
+    {
+      href: DOCS_URL,
+      label: 'Documentation',
+      icon: BookText,
+      external: true,
+    },
+    {
+      href: SUPPORT_URL,
+      label: 'Feedback',
+      icon: MessageSquareText,
+      external: false,
+    },
+    {
+      href: CONTRIBUTE_URL,
+      label: 'Github',
+      icon: Github,
+      external: true,
+    },
+  ]
+
   const renderFooterLinks = () => {
-    const links = [
-      {
-        href: DOCS_URL,
-        label: 'Documentation',
-        icon: BookText,
-        external: true,
-      },
-      {
-        href: SUPPORT_URL,
-        label: 'Feedback',
-        icon: MessageSquareText,
-        external: false,
-      },
-      {
-        href: CONTRIBUTE_URL,
-        label: 'Github',
-        icon: Github,
-        external: true,
-      },
-    ]
-
-    if (primaryExpanded) {
-      return (
-        <>
-          {links.map(({ href, label, icon: Icon, external }, i) => (
-            <Link
-              key={i}
-              href={href}
-              target={external ? '_blank' : undefined}
-              rel={external ? 'noopener noreferrer' : undefined}
-              className="btn-card p-1 flex items-center gap-2 w-full justify-start mx-2 text-muted-foreground hover:text-foreground"
-            >
-              <Icon size={16} />
-              <span className="text-sm font-normal leading-5">{label}</span>
-            </Link>
-          ))}
-        </>
-      )
-    }
-
-    return (
+    const menuContent = (
       <>
-        {links.map(({ href, label, icon: Icon, external }, i) => (
-          <TooltipProvider delayDuration={100} key={i}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Link href={href} target={external ? '_blank' : undefined} rel={external ? 'noopener noreferrer' : undefined} className="btn-card p-1">
-                  <Icon size={20} className="text-muted-foreground" />
-                </Link>
-              </TooltipTrigger>
-              <TooltipContent side="right">{label}</TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+        {footerLinks.map(({ href, label, icon: Icon, external }, i) => (
+          <Link
+            key={i}
+            href={href}
+            target={external ? '_blank' : undefined}
+            rel={external ? 'noopener noreferrer' : undefined}
+            className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
+          >
+            <Icon size={16} />
+            <span className="text-sm font-normal leading-5">{label}</span>
+          </Link>
         ))}
       </>
     )
+
+    const trigger = primaryExpanded ? (
+      <Button variant="sidebar" className="flex px-2 justify-start gap-1 h-8 w-full mx-2">
+        <Ellipsis className="w-4 h-4" />
+        <span className="text-sm font-normal leading-5">More</span>
+      </Button>
+    ) : (
+      <button className="btn-card p-1 text-muted-foreground hover:text-foreground bg-transparent">
+        <Ellipsis size={20} />
+      </button>
+    )
+
+    return <Menu trigger={trigger} content={menuContent} side="right" align="start" />
   }
 
   return (
@@ -287,7 +290,7 @@ export default function SideNav({
               {primaryExpanded ? <PanelLeftClose size={16} /> : <PanelLeftOpen size={16} />}
             </button>
           </div>
-          {isOrganizationSelected && !session?.user?.isOnboarding && (
+          {isOrganizationSelected && !session?.user?.isOnboarding && !billingExpired && (
             <>
               <Hr className="mx-2" />
               <div className={`flex w-full gap-2 px-2 ${!primaryExpanded ? 'flex-col' : ''}`}>

@@ -63,7 +63,7 @@ const TitleField = ({ isEditing, isEditAllowed = true, handleUpdate, initialValu
   ) : (
     <div className="flex gap-2 items-center">
       {referenceFramework && <StandardsIconMapper height={40} width={42} shortName={referenceFramework} />}
-      <HoverPencilWrapper showPencil={isEditAllowed}>
+      <HoverPencilWrapper showPencil={isEditAllowed} onPencilClick={handleClick}>
         <h1 onDoubleClick={handleClick} className={`text-3xl font-semibold pr-5 ${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
           {getValues('title')}
         </h1>

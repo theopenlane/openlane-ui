@@ -13,9 +13,10 @@ type Props = {
   mappingType?: MappedControlMappingType
   relation?: string | null
   source?: MappedControlMappingSource
+  hidePencil?: boolean
 }
 
-export const RelatedControlChip: React.FC<Props> = ({ refCode, href, mappingType, relation, source }) => {
+export const RelatedControlChip: React.FC<Props> = ({ refCode, href, mappingType, relation, source, hidePencil = false }) => {
   const tooltipDisabled = !relation && !mappingType
 
   const config = useMemo(() => {
@@ -33,7 +34,7 @@ export const RelatedControlChip: React.FC<Props> = ({ refCode, href, mappingType
       ${href ? 'cursor-pointer hover:text-brand' : ''}
     `}
     >
-      {config?.icon || null}
+      {hidePencil ? null : config?.icon || null}
       <span className="text-xs">{refCode}</span>
     </div>
   )

@@ -4,10 +4,9 @@ import React, { useMemo, useRef } from 'react'
 import { useFormContext, Controller } from 'react-hook-form'
 import { BookText, CalendarCheck2, Circle, CircleUser, Folder, Tag, UserRoundPen } from 'lucide-react'
 
-import { Select, SelectTrigger, SelectContent, SelectItem } from '@repo/ui/select'
+import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@repo/ui/select'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
 import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
-import { TaskStatusMapper } from '@/components/pages/protected/tasks/util/task'
 import { formatDate } from '@/utils/date'
 import { TaskQuery, TaskTaskStatus, UpdateTaskInput } from '@repo/codegen/src/schema'
 import { useTaskStore } from '../../../hooks/useTaskStore'
@@ -17,9 +16,11 @@ import RelatedObjects from './related-objects'
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 import useEscapeKey from '@/hooks/useEscapeKey'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
-import { useGetTags } from '@/lib/graphql-hooks/tags'
+import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
-import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
+import { CustomTypeEnumOptionChip, CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
+import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 
 type PropertiesProps = {
   isEditing: boolean
@@ -158,7 +159,11 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
             )}
           />
         ) : (
-          <HoverPencilWrapper showPencil={isEditAllowed} className={`${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} capitalize text-sm pr-5`}>
+          <HoverPencilWrapper
+            showPencil={isEditAllowed}
+            className={`${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} capitalize text-sm pr-5`}
+            onPencilClick={() => isEditAllowed && !isEditing && setInternalEditing('assigneeID')}
+          >
             <p onDoubleClick={() => isEditAllowed && !isEditing && setInternalEditing('assigneeID')}>{taskData?.assignee?.displayName || 'Unassigned'}</p>
           </HoverPencilWrapper>
         )}
@@ -192,7 +197,11 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
             )}
           />
         ) : (
-          <HoverPencilWrapper showPencil={isEditAllowed} className={`${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} text-sm pr-5`}>
+          <HoverPencilWrapper
+            showPencil={isEditAllowed}
+            className={`${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} text-sm pr-5`}
+            onPencilClick={() => isEditAllowed && !isEditing && setInternalEditing('due')}
+          >
             <p onDoubleClick={() => isEditAllowed && !isEditing && setInternalEditing('due')}>{formatDate(taskData?.due) || 'No due date'}</p>
           </HoverPencilWrapper>
         )}
@@ -217,11 +226,11 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
                     setInternalEditing(null)
                   }}
                 >
-                  <SelectTrigger className="w-full">{TaskStatusMapper[field.value as TaskTaskStatus]}</SelectTrigger>
+                  <SelectTrigger className="w-full">{getEnumLabel(field.value as TaskTaskStatus)}</SelectTrigger>
                   <SelectContent ref={popoverRef}>
                     {statusOptions.map((option) => (
                       <SelectItem key={option.value} value={option.value}>
-                        {TaskStatusMapper[option.value as TaskTaskStatus]}
+                        {getEnumLabel(option.value as TaskTaskStatus)}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -231,8 +240,12 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
             )}
           />
         ) : (
-          <HoverPencilWrapper showPencil={isEditAllowed} className={`${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} flex items-center space-x-2 pr-5`}>
-            <div onDoubleClick={() => isEditAllowed && !isEditing && setInternalEditing('status')}>{taskData?.status ? TaskStatusMapper[taskData.status] : 'No status'}</div>
+          <HoverPencilWrapper
+            showPencil={isEditAllowed}
+            className={`${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} flex items-center space-x-2 pr-5`}
+            onPencilClick={() => isEditAllowed && !isEditing && setInternalEditing('status')}
+          >
+            <div onDoubleClick={() => isEditAllowed && !isEditing && setInternalEditing('status')}>{taskData?.status ? getEnumLabel(taskData.status) : 'No status'}</div>
           </HoverPencilWrapper>
         )}
       </div>
@@ -256,22 +269,32 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
                     setInternalEditing(null)
                   }}
                 >
-                  <SelectTrigger className="w-full">{field.value || 'Select'}</SelectTrigger>
+                  <SelectTrigger className="w-full">
+                    <SelectValue>
+                      <CustomTypeEnumValue value={field.value} options={taskKindOptions} placeholder="Select" />
+                    </SelectValue>
+                  </SelectTrigger>
                   <SelectContent ref={popoverRef}>
                     {taskKindOptions.map((o) => (
                       <SelectItem key={o.value} value={o.value}>
-                        {o.value}
+                        <CustomTypeEnumOptionChip option={o} />
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-                {formState.errors.taskKindName && <p className="text-red-500 text-sm">{formState.errors.taskKindName.message}</p>}
+                {formState.errors.taskKindName && <p className="text-red-500 text-sm">{formState.errors.taskKindName.message as string}</p>}
               </div>
             )}
           />
         ) : (
-          <HoverPencilWrapper showPencil={isEditAllowed} className={`${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} text-sm pr-5`}>
-            <p onDoubleClick={() => isEditAllowed && !isEditing && setInternalEditing('taskKindName')}>{taskData?.taskKindName || 'No category'}</p>
+          <HoverPencilWrapper
+            showPencil={isEditAllowed}
+            className={`${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} text-sm pr-5`}
+            onPencilClick={() => isEditAllowed && !isEditing && setInternalEditing('taskKindName')}
+          >
+            <div onDoubleClick={() => isEditAllowed && !isEditing && setInternalEditing('taskKindName')}>
+              <CustomTypeEnumValue value={taskData?.taskKindName ?? ''} options={taskKindOptions} placeholder="No category" />
+            </div>
           </HoverPencilWrapper>
         )}
       </div>
@@ -304,7 +327,11 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
             )}
           />
         ) : (
-          <HoverPencilWrapper showPencil={isEditAllowed} className={`${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} pr-5`}>
+          <HoverPencilWrapper
+            showPencil={isEditAllowed}
+            className={`${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} pr-5`}
+            onPencilClick={() => isEditAllowed && !isEditing && setInternalEditing('tags')}
+          >
             <div onDoubleClick={() => isEditAllowed && !isEditing && setInternalEditing('tags')}>{renderTags()}</div>
           </HoverPencilWrapper>
         )}
@@ -313,7 +340,7 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
       {/* Related Objects */}
       {!isEditing && (
         <div className="flex items-center gap-4">
-          <BookText className="text-primary w-[16px] h-[16px] shrink-0" />
+          <BookText className="text-primary w-4 h-4 shrink-0" />
           <p className="text-sm w-[120px]">Related Objects</p>
           <RelatedObjects taskData={taskData} />
         </div>

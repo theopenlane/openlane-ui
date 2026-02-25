@@ -1,34 +1,36 @@
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { TableFilter } from '@/components/shared/table-filter/table-filter.tsx'
 import { DownloadIcon, LoaderCircle, SearchIcon, Upload } from 'lucide-react'
 import { Input } from '@repo/ui/input'
 import { useDebounce } from '@uidotdev/usehooks'
-import { QUESTIONNAIRE_FILTER_FIELDS } from '@/components/pages/protected/questionnaire/table/table-config.ts'
+import { getQuestionnaireFilterFields } from '@/components/pages/protected/questionnaire/table/table-config.ts'
 import { includeQuestionnaireCreation } from '@repo/dally/auth'
 import { CreateDropdown } from '@/components/pages/protected/questionnaire/create.tsx'
 import Menu from '@/components/shared/menu/menu.tsx'
 import { VisibilityState } from '@tanstack/react-table'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
-import { TemplateWhereInput } from '@repo/codegen/src/schema'
-import { BulkCSVCreateTemplatelDialog } from '../dialog/bulk-csv-create-template-dialog'
+import { AssessmentWhereInput, TemplateTemplateKind } from '@repo/codegen/src/schema'
+import { BulkCSVCreateTemplateDialog } from '../dialog/bulk-csv-create-template-dialog'
 import { canCreate } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
-import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { Button } from '@repo/ui/button'
-import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
+import { TableKeyEnum } from '@repo/ui/table-key'
 import { TAccessRole } from '@/types/authz'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useNotification } from '@/hooks/useNotification'
-import { useDeleteBulkAssessment } from '@/lib/graphql-hooks/assessments'
+import { useDeleteBulkAssessment } from '@/lib/graphql-hooks/assessment'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
+import { useTemplateSelect } from '@/lib/graphql-hooks/template'
 
 type TQuestionnaireTableToolbarProps = {
   creating: boolean
   searching?: boolean
   searchTerm: string
   setSearchTerm: (searchTerm: string) => void
-  setFilters: (filters: TemplateWhereInput) => void
+  setFilters: (filters: AssessmentWhereInput) => void
   columnVisibility?: VisibilityState
   handleExport: () => void
   setColumnVisibility?: React.Dispatch<React.SetStateAction<VisibilityState>>
@@ -61,9 +63,17 @@ const QuestionnaireTableToolbar: React.FC<TQuestionnaireTableToolbarProps> = ({
 }) => {
   const isSearching = useDebounce(searching, 200)
   const { data: permission } = useOrganizationRoles()
+  const canEditQuestionnaires = canEdit(permission?.roles)
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: bulkDeleteQuestionnaires } = useDeleteBulkAssessment()
+
+  const { tagOptions: rawTagOptions } = useGetTags()
+  const tagOptions = useMemo(() => rawTagOptions ?? [], [rawTagOptions])
+
+  const { templateOptions } = useTemplateSelect({ where: { kind: TemplateTemplateKind.QUESTIONNAIRE } })
+
+  const filterFields = useMemo(() => getQuestionnaireFilterFields(tagOptions, templateOptions), [tagOptions, templateOptions])
 
   const createDropdown = () => {
     if (includeQuestionnaireCreation == 'true' && canCreate(permission?.roles, AccessEnum.CanCreateTemplate)) {
@@ -113,45 +123,41 @@ const QuestionnaireTableToolbar: React.FC<TQuestionnaireTableToolbarProps> = ({
         <div className="grow flex flex-row items-center gap-2 justify-end">
           {selectedQuestionnaires.length > 0 ? (
             <>
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => {
-                  setIsBulkDeleteDialogOpen(true)
-                }}
-              >
-                {`Bulk Delete (${selectedQuestionnaires.length})`}
-              </Button>
-              {canEdit(permission?.roles) && (
-                <>
-                  <ConfirmationDialog
-                    open={isBulkDeleteDialogOpen}
-                    onOpenChange={setIsBulkDeleteDialogOpen}
-                    onConfirm={handleBulkDelete}
-                    title={`Delete selected questionnaires?`}
-                    description={<>This action cannot be undone. This will permanently delete selected questionnaires.</>}
-                    confirmationText="Delete"
-                    confirmationTextVariant="destructive"
-                    showInput={false}
-                  />
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    onClick={() => {
-                      handleClearSelectedQuestionnaires()
-                    }}
-                  >
-                    Cancel
-                  </Button>
-                </>
+              {canEditQuestionnaires && (
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => {
+                    setIsBulkDeleteDialogOpen(true)
+                  }}
+                >
+                  {`Bulk Delete (${selectedQuestionnaires.length})`}
+                </Button>
               )}
+              {canEditQuestionnaires && (
+                <ConfirmationDialog
+                  open={isBulkDeleteDialogOpen}
+                  onOpenChange={setIsBulkDeleteDialogOpen}
+                  onConfirm={handleBulkDelete}
+                  title={`Delete selected questionnaires?`}
+                  description={<>This action cannot be undone. This will permanently delete selected questionnaires.</>}
+                  confirmationText="Delete"
+                  confirmationTextVariant="destructive"
+                  showInput={false}
+                />
+              )}
+              <CancelButton
+                onClick={() => {
+                  handleClearSelectedQuestionnaires()
+                }}
+              />
             </>
           ) : (
             <>
               <Menu
                 content={
                   <>
-                    <BulkCSVCreateTemplatelDialog
+                    <BulkCSVCreateTemplateDialog
                       trigger={
                         <Button size="sm" variant="transparent" className="px-1 flex items-center justify-start space-x-2">
                           <Upload size={16} strokeWidth={2} />
@@ -167,14 +173,9 @@ const QuestionnaireTableToolbar: React.FC<TQuestionnaireTableToolbarProps> = ({
                 }
               />
               {mappedColumns && columnVisibility && setColumnVisibility && (
-                <ColumnVisibilityMenu
-                  mappedColumns={mappedColumns}
-                  columnVisibility={columnVisibility}
-                  setColumnVisibility={setColumnVisibility}
-                  storageKey={TableColumnVisibilityKeysEnum.QUESTIONNAIRE}
-                />
+                <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.QUESTIONNAIRE} />
               )}
-              <TableFilter filterFields={QUESTIONNAIRE_FILTER_FIELDS} onFilterChange={setFilters} pageKey={TableFilterKeysEnum.QUESTIONNAIRE} />
+              <TableFilter filterFields={filterFields} onFilterChange={setFilters} pageKey={TableKeyEnum.QUESTIONNAIRE} />
               {createDropdown()}
             </>
           )}

@@ -129,13 +129,35 @@ const getFiltersWhereCondition = (filterState: TFilterState, filterFields: Filte
       case 'sliderNumber':
         andConditions.push({ [field.key]: val as number })
         break
-      case 'dropdownSearch':
+      case 'sliderRange': {
+        const rangeVal = val as { min: number; max: number }
+        if (typeof rangeVal?.min === 'number') andConditions.push({ [`${key}GTE`]: rangeVal.min })
+        if (typeof rangeVal?.max === 'number') andConditions.push({ [`${key}LTE`]: rangeVal.max })
+        break
+      }
+      case 'dropdownUserSearch':
         if (val) {
           andConditions.push({
             [key]: [{ userID: val as string }],
           })
         }
         break
+
+      case 'radio':
+        andConditions.push({ [key]: val as boolean } as Condition)
+        break
+
+      case 'dropdownSearchMultiselect': {
+        const valuesArray = Array.isArray(val) ? val : []
+        if (valuesArray.length === 0) break
+        andConditions.push({ [key]: valuesArray } as Condition)
+        break
+      }
+      case 'dropdownSearchSingleSelect': {
+        if (!val) break
+        andConditions.push({ [key]: val } as Condition)
+        break
+      }
     }
   }
 

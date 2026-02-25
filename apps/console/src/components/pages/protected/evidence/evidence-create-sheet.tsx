@@ -1,6 +1,6 @@
 'use client'
 import { Grid, GridCell, GridRow } from '@repo/ui/grid'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { ChevronDown, InfoIcon, Plus, X } from 'lucide-react'
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
 import useFormSchema, { CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema'
@@ -16,9 +16,9 @@ import { useNotification } from '@/hooks/useNotification'
 import { Option } from '@repo/ui/multiple-selector'
 import { useCreateEvidence } from '@/lib/graphql-hooks/evidence'
 import { TFormEvidenceData } from '@/components/pages/protected/evidence/types/TFormEvidenceData.ts'
-import ObjectAssociation from '@/components/shared/objectAssociation/object-association'
-import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
-import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap'
+import ObjectAssociation from '@/components/shared/object-association/object-association'
+import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
+import { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
 import { Panel } from '@repo/ui/panel'
 import { useQueryClient } from '@tanstack/react-query'
 import { TUploadedFile } from './upload/types/TUploadedFile'
@@ -27,15 +27,17 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { Sheet, SheetContent, SheetHeader } from '@repo/ui/sheet'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
-import { ProgramSelectionDialog } from '@/components/shared/objectAssociation/object-association-programs-dialog'
-import { ControlSelectionDialog } from '@/components/shared/objectAssociation/object-association-control-dialog'
-import ObjectAssociationProgramsChips from '@/components/shared/objectAssociation/object-association-programs-chips'
-import ObjectAssociationControlsChips from '@/components/shared/objectAssociation/object-association-controls-chips'
-import { buildWhere, CustomEvidenceControl, flattenAndFilterControls } from './evidence-sheet-config'
-import { useGetSuggestedControlsOrSubcontrols } from '@/lib/graphql-hooks/controls'
-import { useGetStandards } from '@/lib/graphql-hooks/standards'
+import { ProgramSelectionDialog } from '@/components/shared/object-association/object-association-programs-dialog'
+import { ControlSelectionDialog } from '@/components/shared/object-association/object-association-control-dialog'
+import ObjectAssociationProgramsChips from '@/components/shared/object-association/object-association-programs-chips'
+import ObjectAssociationControlsChips from '@/components/shared/object-association/object-association-controls-chips'
+import { CustomEvidenceControl, EVIDENCE_ASSOCIATION_FIELDS } from './evidence-sheet-config'
+import { useEvidenceSuggestedControls } from './hooks/use-evidence-suggested-controls'
 import Link from 'next/link'
-import { useGetTags } from '@/lib/graphql-hooks/tags'
+import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
+import PlateEditor from '@/components/shared/plate/plate-editor'
+import usePlateEditor from '@/components/shared/plate/usePlateEditor'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 type TEvidenceCreateSheetProps = {
   formData?: TFormEvidenceData
@@ -68,7 +70,6 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
   const [openControlsDialog, setOpenControlsDialog] = useState(false)
   const router = useRouter()
   const [associationProgramsRefMap, setAssociationProgramsRefMap] = useState<string[]>([])
-  const [suggestedControlsMap, setSuggestedControlsMap] = useState<{ id: string; refCode: string; referenceFramework: string | null; source: string; typeName: 'Control' | 'Subcontrol' }[]>([])
 
   const [evidenceControls, setEvidenceControls] = useState<CustomEvidenceControl[] | null>(null)
   const [evidenceSubcontrols, setEvidenceSubcontrols] = useState<CustomEvidenceControl[] | null>(null)
@@ -77,33 +78,39 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
   const [isDiscardDialogOpen, setIsDiscardDialogOpen] = useState<boolean>(false)
   const { tagOptions } = useGetTags()
 
+  const { convertToHtml } = usePlateEditor()
+
   const onSubmitHandler = async (data: CreateEvidenceFormData) => {
-    const formData = {
-      input: {
-        name: data.name,
-        description: data.description,
-        tags: data.tags,
-        creationDate: data.creationDate,
-        renewalDate: data.renewalDate,
-        collectionProcedure: data.collectionProcedure,
-        source: data.source,
-        fileIDs: data.fileIDs,
-        taskIDs: data.taskIDs,
-        ...evidenceObjectTypes,
-        controlIDs: data.controlIDs,
-        subcontrolIDs: data.subcontrolIDs,
-        programIDs: programId ? [programId] : data.programIDs ?? [],
-        ...(data.url ? { url: data.url } : {}),
-      } as CreateEvidenceInput,
+    const collectionProcedure = data.collectionProcedure && typeof data.collectionProcedure !== 'string' ? await convertToHtml(data.collectionProcedure) : data.collectionProcedure
+
+    const input: CreateEvidenceInput = {
+      name: data.name,
+      description: data.description,
+      tags: data.tags,
+      creationDate: data.creationDate,
+      renewalDate: data.renewalDate,
+      collectionProcedure,
+      source: data.source,
+      fileIDs: data.fileIDs,
+      taskIDs: data.taskIDs,
+      ...evidenceObjectTypes,
+      controlIDs: data.controlIDs,
+      subcontrolIDs: data.subcontrolIDs,
+      programIDs: programId ? [programId] : (data.programIDs ?? []),
+      ...(data.url ? { url: data.url } : {}),
+    }
+
+    const payload = {
+      input,
       evidenceFiles: data.evidenceFiles?.map((item) => item.file) || [],
     }
 
     try {
-      const res = await createEvidence(formData)
+      const res = await createEvidence(payload)
       queryClient.invalidateQueries({
         predicate: (query) => {
           const key = query.queryKey[0]
-          return ['controls', 'programs', 'tasks', 'subcontrols', 'controlObjectives', 'evidences'].includes(key as string)
+          return typeof key === 'string' && ['controls', 'programs', 'tasks', 'subcontrols', 'controlObjectives', 'evidences'].includes(key)
         },
       })
 
@@ -145,6 +152,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
       })
     }
   }
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const handleInitialValue = useCallback(() => {
     if (formData) {
       if (controlParam && controlParam.length) {
@@ -152,7 +160,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
         const newEvidenceSubcontrols: CustomEvidenceControl[] = []
 
         controlParam.forEach((control) => {
-          if (control.__typename === 'Control') {
+          if (control.__typename === ObjectTypes.CONTROL) {
             newEvidenceControls.push(control)
           } else {
             newEvidenceSubcontrols.push(control)
@@ -164,8 +172,11 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
       }
 
       form.setValue('name', `Evidence for ${formData.displayID}`)
-      for (const [key, value] of Object.entries(formData.objectAssociations)) {
-        form.setValue(key as keyof CreateEvidenceFormData, value)
+      for (const key of EVIDENCE_ASSOCIATION_FIELDS) {
+        const value = formData.objectAssociations[key]
+        if (value) {
+          form.setValue(key, value)
+        }
       }
 
       if (formData?.tags) {
@@ -174,7 +185,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
           return {
             value: item,
             label: item,
-          } as Option
+          }
         })
         setTagValues(tags)
       }
@@ -188,44 +199,13 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
     }
   }, [form, formData, controlParam])
 
-  const where = useMemo(() => buildWhere(evidenceControls, evidenceSubcontrols), [evidenceControls, evidenceSubcontrols])
-
-  const { data: mappedControls } = useGetSuggestedControlsOrSubcontrols({
-    where: where,
-    enabled: !!where,
+  const { suggestedControlsMap, isLoading: isSuggestionsLoading } = useEvidenceSuggestedControls({
+    evidenceControls,
+    evidenceSubcontrols,
+    enabled: open,
   })
 
-  const { data: standards } = useGetStandards({})
-
-  const standardNames = useMemo(() => new Set(standards?.standards?.edges?.flatMap((s) => (s?.node ? [s.node.shortName] : [])) ?? []), [standards])
-
-  const suggestedItems = useMemo(() => {
-    if (!mappedControls) return []
-
-    return flattenAndFilterControls(mappedControls, evidenceControls, evidenceSubcontrols)
-      .map((item) => ({
-        id: item.id,
-        refCode: item.refCode,
-        referenceFramework: item.referenceFramework ?? null,
-        source: item.source ?? '',
-        typeName: item.type,
-      }))
-      .filter((item) => item.referenceFramework && standardNames.has(item.referenceFramework))
-  }, [mappedControls, evidenceControls, evidenceSubcontrols, standardNames])
-
-  useEffect(() => {
-    if (!where) {
-      setSuggestedControlsMap([])
-      return
-    }
-
-    if (!suggestedItems.length) return
-
-    const uniqueItems = Array.from(new Map(suggestedItems.map((item) => [item.id, item])).values())
-
-    setSuggestedControlsMap(uniqueItems)
-  }, [where, suggestedItems])
-
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     handleInitialValue()
   }, [handleInitialValue])
@@ -350,7 +330,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
                             <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Write down the steps that were taken to collect the evidence.</p>} />
                           </div>
                           <FormControl>
-                            <Textarea id="collectionProcedure" {...field} className="w-full" />
+                            <PlateEditor initialValue={field.value ?? ''} onChange={(val) => field.onChange(val)} />
                           </FormControl>
                           {form.formState.errors.collectionProcedure && <p className="text-red-500 text-sm">{form.formState.errors.collectionProcedure.message}</p>}
                         </FormItem>
@@ -494,6 +474,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
                                 <ObjectAssociationControlsChips
                                   form={form}
                                   suggestedControlsMap={suggestedControlsMap}
+                                  isLoadingSuggestions={isSuggestionsLoading}
                                   evidenceControls={evidenceControls}
                                   setEvidenceControls={setEvidenceControls}
                                   evidenceSubcontrols={evidenceSubcontrols}
@@ -573,7 +554,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
                             <div className="flex items-center justify-between w-full">
                               <AccordionTrigger asChild>
                                 <button className="group flex items-center gap-2 text-sm font-medium bg-unset">
-                                  <ChevronDown size={22} className="text-brand transform rotate-[-90deg] transition-transform group-data-[state=open]:rotate-0" />
+                                  <ChevronDown size={22} className="text-brand transform rotate-90 transition-transform group-data-[state=open]:rotate-0" />
                                   Associate more objects
                                 </button>
                               </AccordionTrigger>

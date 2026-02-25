@@ -3,7 +3,7 @@ import { Avatar, AvatarFallback, AvatarImage } from './avatar'
 import avatar from '../assets/kwaters.png'
 
 const meta: Meta = {
-  title: 'UI/Avatar',
+  title: 'Display/Avatar',
   component: Avatar,
   parameters: {
     docs: {

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { auth } from './lib/auth/auth'
+import { hasNoModules } from '@/lib/auth/utils/modules'
 
 export default auth(async (req) => {
   // Attach `next-url` header for client-side route metadata
@@ -39,6 +40,9 @@ export default auth(async (req) => {
   const isTfaEnabled = session?.user?.isTfaEnabled
   const isOnboarding = session?.user?.isOnboarding
 
+  const noModules = hasNoModules(session)
+  const noModulesAllowedPages = ['/organization-settings/billing', '/organization-settings/general-settings', '/user-settings/profile']
+
   if (!isLoggedIn) {
     return isPublicPage ? NextResponse.next() : NextResponse.redirect(new URL('/login', req.url))
   }
@@ -68,6 +72,11 @@ export default auth(async (req) => {
     }
 
     return NextResponse.redirect(new URL('/dashboard', req.url))
+  }
+
+  if (noModules && !isOnboarding) {
+    //users with no modules who are not in onboarding are restricted to specific settings pages
+    return noModulesAllowedPages.includes(path) ? NextResponse.next() : NextResponse.redirect(new URL('/organization-settings/billing', req.url))
   }
 
   if (isOnboarding) {

@@ -6,12 +6,13 @@ import React, { cloneElement, useState } from 'react'
 import { Button } from '@repo/ui/button'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { useNotification } from '@/hooks/useNotification'
-import { useCreateBulkCSVProcedure } from '@/lib/graphql-hooks/procedures.ts'
+import { useCreateBulkCSVProcedure } from '@/lib/graphql-hooks/procedure'
 import { GRAPHQL_OBJECT_DOCS } from '@/constants/docs'
 import { TUploadedFile } from '../../../evidence/upload/types/TUploadedFile'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { Callout } from '@/components/shared/callout/callout'
 import { exportCSV } from '@/lib/export'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 type TBulkCSVCreateProcedureDialogProps = {
   trigger?: React.ReactElement<
@@ -102,9 +103,7 @@ const BulkCSVCreateProcedureDialog: React.FC<TBulkCSVCreateProcedureDialogProps>
           <Button className="primary" onClick={handleFileUpload} loading={isSubmitting} disabled={isSubmitting}>
             {isSubmitting ? 'Uploading...' : 'Upload'}
           </Button>
-          <Button variant="back" onClick={() => setIsOpen(false)}>
-            Cancel
-          </Button>
+          <CancelButton onClick={() => setIsOpen(false)}></CancelButton>
         </div>
       </DialogContent>
     </Dialog>

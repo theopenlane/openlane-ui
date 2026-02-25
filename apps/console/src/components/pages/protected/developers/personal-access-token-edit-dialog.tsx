@@ -18,6 +18,8 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useUpdateApiToken, useUpdatePersonalAccessToken } from '@/lib/graphql-hooks/tokens'
 import { buildOrganizationsInput } from './utils'
 import { useGetOrganizationSetting } from '@/lib/graphql-hooks/organization'
+import { SaveButton } from '@/components/shared/save-button/save-button'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 type PersonalAccessTokenEditProps = {
   tokenId: string
@@ -177,7 +179,7 @@ const PersonalAccessTokenEdit: React.FC<PersonalAccessTokenEditProps> = ({ token
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="!bg-transparent !hover:bg-transparent !text-inherit flex items-center justify-center p-2">
+        <Button className="bg-transparent! !hover:bg-transparent text-inherit! flex items-center justify-center p-2">
           <PencilIcon className="w-4 h-4" />
         </Button>
       </DialogTrigger>
@@ -311,12 +313,8 @@ const PersonalAccessTokenEdit: React.FC<PersonalAccessTokenEditProps> = ({ token
               {isAuthorizingSSO ? 'Authorizing...' : 'Authorize token for sso'}
             </Button>
           )}
-          <Button onClick={handleCloseDialog} className="text-[hsl(var(--muted-foreground))]">
-            Cancel
-          </Button>
-          <Button type="submit" disabled={isSubmitting} form="edit-token-form" className="bg-primary">
-            {isSubmitting ? 'Saving' : 'Save Changes'}
-          </Button>
+          <CancelButton onClick={handleCloseDialog}></CancelButton>
+          <SaveButton disabled={isSubmitting} form="edit-token-form" isSaving={isSubmitting} />
         </DialogFooter>
       </DialogContent>
     </Dialog>

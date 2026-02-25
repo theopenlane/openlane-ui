@@ -3,9 +3,9 @@ import { ColumnDef } from '@tanstack/react-table'
 import { GlobeIcon, LockIcon, StarsIcon } from 'lucide-react'
 import { Group, User } from '@repo/codegen/src/schema'
 import AvatarList from '@/components/shared/avatar-list/avatar-list'
-import { Avatar } from '@/components/shared/avatar/avatar'
-import { formatDate } from '@/utils/date'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
+import { UserCell } from '@/components/shared/crud-base/columns/user-cell'
+import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 
 type Params = {
   userMap?: Record<string, User>
@@ -16,7 +16,9 @@ export const getGroupTableColumns = ({ userMap }: Params) => {
     {
       accessorKey: 'id',
       header: 'ID',
-      size: 120,
+      size: 270,
+      minSize: 270,
+      maxSize: 270,
       cell: ({ row }) => <div className="text-muted-foreground">{row.original.id}</div>,
     },
     {
@@ -92,47 +94,27 @@ export const getGroupTableColumns = ({ userMap }: Params) => {
     },
     {
       accessorKey: 'createdBy',
-      header: 'Created By',
-      cell: ({ row }) => {
-        const user = userMap?.[row.original.createdBy ?? '']
-        return user ? (
-          <div className="flex items-center gap-1">
-            <Avatar entity={user} className="w-[24px] h-[24px]" />
-            <p>{user.displayName}</p>
-          </div>
-        ) : (
-          <span className="text-muted-foreground italic">Deleted user</span>
-        )
-      },
-      size: 160,
+      header: 'Created by',
+      size: 200,
+      cell: ({ row }) => <UserCell user={userMap?.[row.original.createdBy ?? '']} />,
     },
     {
       accessorKey: 'createdAt',
       header: 'Created At',
-      cell: ({ cell }) => formatDate(cell.getValue() as string),
-      size: 130,
+      size: 150,
+      cell: ({ cell }) => <DateCell value={cell.getValue() as string} />,
     },
     {
       accessorKey: 'updatedBy',
       header: 'Updated By',
-      cell: ({ row }) => {
-        const user = userMap?.[row.original.updatedBy ?? '']
-        return user ? (
-          <div className="flex items-center gap-1">
-            <Avatar entity={user} className="w-[24px] h-[24px]" />
-            <p>{user.displayName}</p>
-          </div>
-        ) : (
-          <span className="text-muted-foreground italic">Deleted user</span>
-        )
-      },
-      size: 160,
+      size: 200,
+      cell: ({ row }) => <UserCell user={userMap?.[row.original.updatedBy ?? '']} />,
     },
     {
       accessorKey: 'updatedAt',
-      header: 'Updated At',
-      cell: ({ cell }) => formatDate(cell.getValue() as string),
-      size: 130,
+      header: 'Last Updated',
+      size: 100,
+      cell: ({ cell }) => <DateCell value={cell.getValue() as string} variant="timesince" />,
     },
   ]
 

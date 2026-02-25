@@ -1,18 +1,19 @@
 'use client'
 
-import ObjectAssociation from '@/components/shared/objectAssociation/object-association'
-import { Button } from '@repo/ui/button'
+import ObjectAssociation from '@/components/shared/object-association/object-association'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import React, { useCallback, useEffect, useState } from 'react'
-import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
-import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap'
+import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
+import { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
 import { usePolicy } from '@/components/pages/protected/policies/create/hooks/use-policy.tsx'
 import { UpdateInternalPolicyInput } from '@repo/codegen/src/schema.ts'
 import { useQueryClient } from '@tanstack/react-query'
-import { useUpdateInternalPolicy } from '@/lib/graphql-hooks/policy.ts'
+import { useUpdateInternalPolicy } from '@/lib/graphql-hooks/internal-policy'
 import { useNotification } from '@/hooks/useNotification.tsx'
-import AddAssociationBtn from '@/components/shared/object-association/add-association-btn.tsx'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { SaveButton } from '@/components/shared/save-button/save-button'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import AddAssociationPlusBtn from '@/components/shared/object-association/add-association-plus-btn.tsx'
 
 type TSetObjectAssociationDialogProps = {
   policyId?: string
@@ -42,6 +43,7 @@ const SetObjectAssociationPoliciesDialog = ({ policyId, fromTable = false, onClo
     : [ObjectTypeObjects.EVIDENCE, ObjectTypeObjects.GROUP, ObjectTypeObjects.RISK, ObjectTypeObjects.INTERNAL_POLICY]
 
   const handleSave = () => {
+    policyState.setInitialAssociations(associations.associations)
     policyState.setAssociations(associations.associations)
     policyState.setAssociationRefCodes(associations.refCodes)
     if (policyId) {
@@ -156,7 +158,7 @@ const SetObjectAssociationPoliciesDialog = ({ policyId, fromTable = false, onClo
     <Dialog open={open} onOpenChange={handleDialogChange}>
       {!fromTable && (
         <DialogTrigger asChild>
-          <AddAssociationBtn />
+          <AddAssociationPlusBtn />
         </DialogTrigger>
       )}
       <DialogContent className="max-w-2xl p-6 space-y-4">
@@ -171,12 +173,8 @@ const SetObjectAssociationPoliciesDialog = ({ policyId, fromTable = false, onClo
           defaultSelectedObject={fromTable ? ObjectTypeObjects.PROCEDURE : undefined}
         />
         <DialogFooter>
-          <Button onClick={handleSave} disabled={isSaving}>
-            Save
-          </Button>
-          <Button variant="secondary" disabled={isSaving} onClick={() => setOpen(false)}>
-            Cancel
-          </Button>
+          <SaveButton onClick={handleSave} isSaving={isSaving} />
+          <CancelButton disabled={isSaving} onClick={() => setOpen(false)}></CancelButton>
         </DialogFooter>
       </DialogContent>
     </Dialog>

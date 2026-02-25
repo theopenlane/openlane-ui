@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 import { Card, CardContent, CardDescription, CardTitle } from './card'
 
 const meta: Meta = {
-  title: 'UI/Card',
+  title: 'Layout/Card',
   component: Card,
   parameters: {
     docs: {

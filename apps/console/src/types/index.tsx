@@ -28,10 +28,23 @@ export interface FilterField {
   key: string
   label: string
   icon: LucideIcon
-  type: 'text' | 'select' | 'date' | 'boolean' | 'dateRange' | 'sliderNumber' | 'multiselect' | 'dropdownSearch'
+  type:
+    | 'text'
+    | 'select'
+    | 'date'
+    | 'boolean'
+    | 'dateRange'
+    | 'sliderNumber'
+    | 'sliderRange'
+    | 'multiselect'
+    | 'dropdownUserSearch'
+    | 'radio'
+    | 'dropdownSearchMultiselect'
+    | 'dropdownSearchSingleSelect'
   options?: { value: string; label: string }[] //for select and multiselect types
   min?: number // for sliderNumber type
   max?: number // for sliderNumber type
+  radioOptions?: { value: string | boolean | undefined; label: string }[] // Specific for tri-state/radio logic
 }
 
 export type ConditionValue =

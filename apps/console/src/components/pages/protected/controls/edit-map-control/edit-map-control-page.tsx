@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { Accordion } from '@radix-ui/react-accordion'
 
 import { FormProvider, useForm, useWatch } from 'react-hook-form'
+import type { Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
   MappedControlMappingType,
@@ -17,7 +18,7 @@ import {
 import { useNotification } from '@/hooks/useNotification'
 import { useGetMappedControlById, useUpdateMappedControl } from '@/lib/graphql-hooks/mapped-control'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
-import { useGetControlById } from '@/lib/graphql-hooks/controls'
+import { useGetControlById } from '@/lib/graphql-hooks/control'
 import { useGetSubcontrolById } from '@/lib/graphql-hooks/subcontrol'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { MappingIconMapper } from '@/components/shared/enum-mapper/map-control-enum'
@@ -63,7 +64,7 @@ const EditMapControlPage = () => {
   }
 
   const form = useForm<MapControlsFormData>({
-    resolver: zodResolver(mapControlsSchema),
+    resolver: zodResolver(mapControlsSchema) as Resolver<MapControlsFormData>,
     defaultValues: {
       mappingType: MappedControlMappingType.PARTIAL,
       source: MappedControlMappingSource.MANUAL,
@@ -172,6 +173,7 @@ const EditMapControlPage = () => {
     ])
   }, [isLoading, setCrumbs, subcontrolData?.subcontrol?.refCode, id, subcontrolId])
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (controlData) {
       setControlsCrumbs()
@@ -231,6 +233,7 @@ const EditMapControlPage = () => {
       setPresetControlsTo(presetTo)
     }
   }, [setCrumbs, controlData, subcontrolData, form, isLoading, isLoadingSubcontrol, setControlsCrumbs, setSubControlsCrumbs, mappedControlId, mappedControlData])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   return (
     <>

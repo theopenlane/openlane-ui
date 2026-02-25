@@ -10,7 +10,7 @@ const variants = Object.keys(buttonStyles.variants.variant) as ButtonVariants[]
 const sizes = Object.keys(buttonStyles.variants.size) as ButtonSizes[]
 
 const meta: Meta<typeof Button> = {
-  title: 'UI/Button',
+  title: 'Actions/Button',
   component: Button,
   parameters: {
     docs: {
@@ -49,7 +49,7 @@ const meta: Meta<typeof Button> = {
     loading: { control: 'boolean' },
     full: { control: 'boolean' },
   },
-  render: ({ children, ...args }: { children: React.ReactNode }) => <Button {...args}>{children}</Button>,
+  render: ({ children, ...args }) => <Button {...args}>{children}</Button>,
 } satisfies Meta<typeof Button>
 
 export default meta

@@ -3,7 +3,7 @@
 import React from 'react'
 import { useFormContext, Controller } from 'react-hook-form'
 import { Lightbulb } from 'lucide-react'
-import { useRiskSelect } from '@/lib/graphql-hooks/risks'
+import { useRiskSelect } from '@/lib/graphql-hooks/risk'
 import MultipleSelector from '@repo/ui/multiple-selector'
 
 const AssociateRisksStep = () => {

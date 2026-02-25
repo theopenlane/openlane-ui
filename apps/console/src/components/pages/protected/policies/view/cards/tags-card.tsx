@@ -11,8 +11,10 @@ import { CreatePolicyFormData } from '@/components/pages/protected/policies/crea
 import useClickOutside from '@/hooks/useClickOutside'
 import useEscapeKey from '@/hooks/useEscapeKey'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
-import { useGetTags } from '@/lib/graphql-hooks/tags'
+import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { canEdit } from '@/lib/authz/utils'
 
 type TTagsCardProps = {
   form: UseFormReturn<CreatePolicyFormData>
@@ -20,11 +22,24 @@ type TTagsCardProps = {
   isEditing: boolean
   editAllowed: boolean
   handleUpdate?: (val: UpdateInternalPolicyInput) => void
+  activeField?: string | null
+  setActiveField?: (field: string | null) => void
 }
 
-const TagsCard: React.FC<TTagsCardProps> = ({ form, policy, isEditing, editAllowed, handleUpdate }) => {
-  const [internalEditing, setInternalEditing] = useState(false)
+const TagsCard: React.FC<TTagsCardProps> = ({ form, policy, isEditing, editAllowed, handleUpdate, activeField, setActiveField }) => {
+  const [internalInternalEditing, setInternalInternalEditing] = useState(false)
+  const isControlled = activeField !== undefined && setActiveField !== undefined
+  const internalEditing = isControlled ? activeField === 'tags' : internalInternalEditing
+  const setInternalEditing = (value: boolean) => {
+    if (isControlled) {
+      setActiveField?.(value ? 'tags' : null)
+    } else {
+      setInternalInternalEditing(value)
+    }
+  }
   const { tagOptions } = useGetTags()
+  const { data: permission } = useOrganizationRoles()
+  const canCreateTags = canEdit(permission?.roles)
 
   const tags = form.watch('tags')
   const tagValues = useMemo(() => {
@@ -64,11 +79,11 @@ const TagsCard: React.FC<TTagsCardProps> = ({ form, policy, isEditing, editAllow
 
   return (
     <div className={`flex justify-between items-start ${isEditing || internalEditing ? 'flex-col items-start' : ''}`}>
-      <div className="min-w-[160px]">
+      <div className="min-w-40">
         <div className="grid grid-cols-[1fr_auto] items-center gap-2">
           <div className="flex gap-2 items-center">
             <Tag size={16} className="text-brand" />
-            <span>Tags</span>
+            <span className="text-sm">Tags</span>
           </div>
         </div>
       </div>
@@ -88,7 +103,7 @@ const TagsCard: React.FC<TTagsCardProps> = ({ form, policy, isEditing, editAllow
                         hideClearAllButton
                         className="w-full"
                         placeholder="Add tag..."
-                        creatable
+                        creatable={canCreateTags}
                         value={tagValues}
                         onChange={(selectedOptions) => {
                           const newTags = selectedOptions.map((opt) => opt.value)
@@ -102,7 +117,15 @@ const TagsCard: React.FC<TTagsCardProps> = ({ form, policy, isEditing, editAllow
               />
             </InputRow>
           ) : (
-            <HoverPencilWrapper showPencil={editAllowed} className={`flex gap-2 flex-wrap ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
+            <HoverPencilWrapper
+              showPencil={editAllowed}
+              className={`flex gap-2 flex-wrap w-full ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+              onPencilClick={() => {
+                if (!isEditing && editAllowed) {
+                  setInternalEditing(true)
+                }
+              }}
+            >
               <div
                 onDoubleClick={() => {
                   if (!isEditing && editAllowed) {

@@ -6,12 +6,13 @@ import React, { cloneElement, useState } from 'react'
 import { Button } from '@repo/ui/button'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { useNotification } from '@/hooks/useNotification'
-import { useCreateBulkCSVInternalPolicy } from '@/lib/graphql-hooks/policy.ts'
+import { useCreateBulkCSVInternalPolicy } from '@/lib/graphql-hooks/internal-policy'
 import { TUploadedFile } from '../../../evidence/upload/types/TUploadedFile'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { GRAPHQL_OBJECT_DOCS } from '@/constants/docs'
 import { Callout } from '@/components/shared/callout/callout'
 import { exportCSV } from '@/lib/export'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 type TBulkCSVCreatePolicyDialogProps = {
   trigger?: React.ReactElement<
@@ -68,7 +69,7 @@ const BulkCSVCreatePolicyDialog: React.FC<TBulkCSVCreatePolicyDialogProps> = ({ 
         </DialogTrigger>
       ) : (
         <DialogTrigger asChild>
-          <Button icon={<Import />} className="h-8 !px-2 bg-transparent" iconPosition="left" onClick={() => setIsOpen(true)} disabled={isSubmitting} loading={isSubmitting}>
+          <Button icon={<Import />} className="h-8 px-2! bg-transparent" iconPosition="left" onClick={() => setIsOpen(true)} disabled={isSubmitting} loading={isSubmitting}>
             Import existing document
           </Button>
         </DialogTrigger>
@@ -103,9 +104,7 @@ const BulkCSVCreatePolicyDialog: React.FC<TBulkCSVCreatePolicyDialogProps> = ({ 
           <Button className="primary" onClick={handleFileUpload} loading={isSubmitting} disabled={isSubmitting}>
             {isSubmitting ? 'Uploading...' : 'Upload'}
           </Button>
-          <Button variant="back" onClick={() => setIsOpen(false)}>
-            Cancel
-          </Button>
+          <CancelButton onClick={() => setIsOpen(false)}></CancelButton>
         </div>
       </DialogContent>
     </Dialog>

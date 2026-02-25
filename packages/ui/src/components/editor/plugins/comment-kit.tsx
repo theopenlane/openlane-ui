@@ -71,7 +71,9 @@ export const commentPlugin = toTPlatePlugin<CommentConfig>(BaseCommentPlugin, {
       },
     }) => ({
       setDraft: () => {
-        if (editor.api.isCollapsed()) {
+        if (!editor.selection) {
+          editor.tf.select([0, 0])
+        } else if (editor.api.isCollapsed()) {
           editor.tf.select(editor.api.block()![1])
         }
 

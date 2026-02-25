@@ -4,30 +4,33 @@ import { FilterField } from '@/types'
 import { CirclePlus, DownloadIcon, LoaderCircle, SearchIcon, Upload } from 'lucide-react'
 import { getControlsFilterFields } from './table-config'
 import { Input } from '@repo/ui/input'
-import { useProgramSelect } from '@/lib/graphql-hooks/programs'
+import { useProgramSelect } from '@/lib/graphql-hooks/program'
 import Menu from '@/components/shared/menu/menu.tsx'
 import { BulkCSVCreateControlDialog } from '@/components/pages/protected/controls/bulk-csv-create-control-dialog.tsx'
 import { CreateBtn } from '@/components/shared/enum-mapper/common-enum'
 import Link from 'next/link'
 import { VisibilityState } from '@tanstack/react-table'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
-import { useGroupSelect } from '@/lib/graphql-hooks/groups'
+import { useGroupSelect } from '@/lib/graphql-hooks/group'
 import { ControlWhereInput } from '@repo/codegen/src/schema'
-import { useStandardsSelect } from '@/lib/graphql-hooks/standards'
+import { useStandardsSelect } from '@/lib/graphql-hooks/standard'
 import { Button } from '@repo/ui/button'
 import { BulkEditControlsDialog } from '../bulk-edit/bulk-edit-controls'
 import { canCreate } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
-import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
 import { BulkCSVCloneControlDialog } from '../bulk-csv-clone-control-dialog'
-import { TAccessRole, TData } from '@/types/authz'
+import { TAccessRole, TPermissionData } from '@/types/authz'
 import { BulkCSVCreateMappedControlDialog } from '../bulk-csv-create-map-control-dialog'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { useBulkDeleteControls } from '@/lib/graphql-hooks/controls'
-import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
-import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
+import { useBulkDeleteControls } from '@/lib/graphql-hooks/control'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
+import { useOrganization } from '@/hooks/useOrganization'
+import { BulkCSVUpdateControlDialog } from '../bulk-csv-update-control-dialog'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 type TProps = {
   onFilterChange: (filters: ControlWhereInput) => void
@@ -47,7 +50,7 @@ type TProps = {
   selectedControls: { id: string; refCode: string }[]
   setSelectedControls: React.Dispatch<React.SetStateAction<{ id: string; refCode: string }[]>>
   canEdit: (accessRole: TAccessRole[] | undefined) => boolean
-  permission: TData | undefined
+  permission: TPermissionData | undefined
 }
 
 const ControlsTableToolbar: React.FC<TProps> = ({
@@ -71,7 +74,22 @@ const ControlsTableToolbar: React.FC<TProps> = ({
   const groups = useMemo(() => groupOptions || [], [groupOptions])
   const [filterFields, setFilterFields] = useState<FilterField[] | undefined>(undefined)
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)
-  const { standardOptions, isSuccess: isStandardSuccess } = useStandardsSelect({})
+  const { currentOrgId } = useOrganization()
+
+  const { standardOptions, isSuccess: isStandardSuccess } = useStandardsSelect({
+    where: {
+      hasControlsWith: [
+        {
+          hasOwnerWith: [
+            {
+              id: currentOrgId,
+            },
+          ],
+        },
+      ],
+    },
+  })
+
   const { successNotification, errorNotification } = useNotification()
   const createControlAllowed = canCreate(permission?.roles, AccessEnum.CanCreateControl)
   const createSubcontrolAllowed = canCreate(permission?.roles, AccessEnum.CanCreateSubcontrol)
@@ -82,14 +100,15 @@ const ControlsTableToolbar: React.FC<TProps> = ({
       field: 'kind',
     },
   })
-
+  const { tagOptions: rawTagOptions } = useGetTags()
+  const tagOptions = useMemo(() => rawTagOptions ?? [], [rawTagOptions])
   useEffect(() => {
     if (filterFields || !isProgramSuccess || !isGroupSuccess || !isStandardSuccess || !isTypesSuccess) {
       return
     }
-    const fields = getControlsFilterFields(standardOptions, groups, programOptions, enumOptions)
+    const fields = getControlsFilterFields(standardOptions, groups, programOptions, enumOptions, tagOptions)
     setFilterFields(fields)
-  }, [groups, programOptions, filterFields, isGroupSuccess, isProgramSuccess, standardOptions, isStandardSuccess, enumOptions, isTypesSuccess])
+  }, [groups, programOptions, filterFields, isGroupSuccess, isProgramSuccess, standardOptions, isStandardSuccess, enumOptions, isTypesSuccess, tagOptions])
 
   const handleBulkDelete = async () => {
     if (!selectedControls) {
@@ -155,15 +174,11 @@ const ControlsTableToolbar: React.FC<TProps> = ({
                     confirmationTextVariant="destructive"
                     showInput={false}
                   />
-                  <Button
-                    type="button"
-                    variant="secondary"
+                  <CancelButton
                     onClick={() => {
                       handleClearSelectedControls()
                     }}
-                  >
-                    Cancel
-                  </Button>
+                  ></CancelButton>
                 </>
               )}
             </>
@@ -197,6 +212,14 @@ const ControlsTableToolbar: React.FC<TProps> = ({
                         </Button>
                       }
                     />
+                    <BulkCSVUpdateControlDialog
+                      trigger={
+                        <Button size="sm" variant="transparent" className="flex items-center space-x-2 px-1">
+                          <Upload size={16} strokeWidth={2} />
+                          <span>Update Existing Controls</span>
+                        </Button>
+                      }
+                    />
                     <Button
                       size="sm"
                       variant="transparent"
@@ -213,9 +236,9 @@ const ControlsTableToolbar: React.FC<TProps> = ({
                 )}
               />
               {mappedColumns && columnVisibility && setColumnVisibility && (
-                <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableColumnVisibilityKeysEnum.CONTROL} />
+                <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.CONTROL} />
               )}
-              {filterFields && <TableFilter filterFields={filterFields} onFilterChange={onFilterChange} pageKey={TableFilterKeysEnum.CONTROL} />}
+              {filterFields && <TableFilter filterFields={filterFields} onFilterChange={onFilterChange} pageKey={TableKeyEnum.CONTROL} />}
               {(createControlAllowed || createSubcontrolAllowed) && (
                 <Menu
                   trigger={CreateBtn}

@@ -1,20 +1,20 @@
 'use client'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
 import { Button } from '@repo/ui/button'
 import { ChevronDown, ChevronRight, ChevronsDownUp, List, SearchIcon } from 'lucide-react'
 import { Input } from '@repo/ui/input'
 import { useParams, useRouter } from 'next/navigation'
 import { useDebounce } from '@uidotdev/usehooks'
-import { ControlListFieldsFragment, ControlListStandardFieldsFragment, ControlWhereInput } from '@repo/codegen/src/schema'
+import { ControlListStandardFieldsFragment, ControlWhereInput } from '@repo/codegen/src/schema'
 import { canEdit } from '@/lib/authz/utils.ts'
-import { TData } from '@/types/authz'
+import { TPermissionData } from '@/types/authz'
 import { DataTable } from '@repo/ui/data-table'
 import { getColumns } from './columns'
 import AddToOrganizationDialog from './add-to-organization-dialog'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
-import { useAllControlsGroupedWithListFields } from '@/lib/graphql-hooks/controls'
+import { useAllControlsGroupedWithListFields } from '@/lib/graphql-hooks/control'
 import { VisibilityState } from '@tanstack/react-table'
 import ControlDetailsSheet from './control-details-sheet'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
@@ -36,7 +36,7 @@ type TStandardDetailsAccordionProps = {
   setSelectedControls: React.Dispatch<React.SetStateAction<{ id: string; refCode: string }[]>>
   isDialogOpen: boolean
   setIsDialogOpen: React.Dispatch<React.SetStateAction<boolean>>
-  permission: TData | undefined
+  permission: TPermissionData | undefined
   isLoadingPermission: boolean
 }
 const StandardDetailsAccordion: React.FC<TStandardDetailsAccordionProps> = ({
@@ -51,7 +51,7 @@ const StandardDetailsAccordion: React.FC<TStandardDetailsAccordionProps> = ({
   const params = useParams()
   const id = typeof params?.id === 'string' ? params.id : ''
 
-  const [hasInitialized, setHasInitialized] = useState(false)
+  const hasInitializedRef = useRef(false)
   const [paginations, setPaginations] = useState<Record<string, TPagination>>({})
 
   const [openSections, setOpenSections] = useState<string[]>([])
@@ -140,14 +140,14 @@ const StandardDetailsAccordion: React.FC<TStandardDetailsAccordionProps> = ({
   }, [groupedControls])
 
   useEffect(() => {
-    if (hasInitialized) return
+    if (hasInitializedRef.current) return
 
     const firstCategory = Object.keys(groupedControls)[0]
     if (firstCategory) {
       setOpenSections([firstCategory])
-      setHasInitialized(true)
+      hasInitializedRef.current = true
     }
-  }, [groupedControls, hasInitialized])
+  }, [groupedControls])
 
   const getPaginatedControls = (category: string, controls: ControlListStandardFieldsFragment[]) => {
     const pagination = paginations[category] || DEFAULT_PAGINATION
@@ -164,7 +164,7 @@ const StandardDetailsAccordion: React.FC<TStandardDetailsAccordionProps> = ({
     }))
   }
 
-  const handleRowClick = (row: ControlListFieldsFragment) => {
+  const handleRowClick = (row: ControlListStandardFieldsFragment) => {
     push(`/standards/${id}?controlId=${row.id}`)
   }
 

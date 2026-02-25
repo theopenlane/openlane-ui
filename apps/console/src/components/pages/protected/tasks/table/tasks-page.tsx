@@ -20,13 +20,15 @@ import { Loading } from '@/components/shared/loading/loading'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
-import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
 import { getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
 import { TableKeyEnum } from '@repo/ui/table-key'
+import { useStorageSearch } from '@/hooks/useStorageSearch'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 const TasksPage: React.FC = () => {
   const { setSelectedTask, setOrgMembers } = useTaskStore()
-  const [searchQuery, setSearchQuery] = useState('')
+  const [searchQuery, setSearchQuery] = useStorageSearch(ObjectTypes.TASK)
   const tableRef = useRef<{ exportData: () => Task[] }>(null)
   const [activeTab, setActiveTab] = useState<'table' | 'card'>('table')
   const [showMyTasks, setShowMyTasks] = useState<boolean>(false)
@@ -58,21 +60,24 @@ const TasksPage: React.FC = () => {
     tags: false,
   }
 
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableColumnVisibilityKeysEnum.TASK, defaultVisibility))
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.TASK, defaultVisibility))
 
   const debouncedSearch = useDebounce(searchQuery, 300)
   const searching = searchQuery !== debouncedSearch
   const [hasTasks, setHasTasks] = useState(false)
   const [selectedTasks, setSelectedTasks] = useState<{ id: string }[]>([])
 
+  const { enumOptions: taskKindOptions } = useGetCustomTypeEnums({
+    where: {
+      objectType: 'task',
+      field: 'kind',
+    },
+  })
+
   const whereFilter = useMemo(() => {
     if (!filters) return null
 
     let statusInSet = false
-
-    let base = {
-      titleContainsFold: debouncedSearch,
-    }
 
     const result = whereGenerator<TaskWhereInput>(filters, (key, value) => {
       if (key === 'hasProgramsWith') {
@@ -84,18 +89,22 @@ const TasksPage: React.FC = () => {
       return { [key]: value } as TaskWhereInput
     })
 
-    base = {
-      ...base,
+    const merged: TaskWhereInput = {
+      ...result,
       ...(!statusInSet && { statusIn: statusesWithoutCompleteAndWontDo }),
     }
 
-    return { ...base, ...result }
+    if (debouncedSearch) {
+      merged.and = [...(merged.and || []), { or: [{ titleContainsFold: debouncedSearch }, { detailsContainsFold: debouncedSearch }] }]
+    }
+
+    return merged
   }, [filters, debouncedSearch, statusesWithoutCompleteAndWontDo])
 
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
-      { label: 'Tasks', href: '/tasks' },
+      { label: 'Tasks', href: '/automation/tasks' },
     ])
   }, [setCrumbs])
 
@@ -132,7 +141,7 @@ const TasksPage: React.FC = () => {
   }
 
   const emptyUserMap = {}
-  const mappedColumns: { accessorKey: string; header: string; meta: { exportPrefix?: string } }[] = getTaskColumns({ userMap: emptyUserMap, selectedTasks, setSelectedTasks })
+  const mappedColumns: { accessorKey: string; header: string; meta: { exportPrefix?: string } }[] = getTaskColumns({ userMap: emptyUserMap, selectedTasks, setSelectedTasks, taskKindOptions })
     .filter(
       (column): column is { accessorKey: string; header: string; meta: { exportPrefix?: string } } =>
         'accessorKey' in column && typeof column.accessorKey === 'string' && typeof column.header === 'string',

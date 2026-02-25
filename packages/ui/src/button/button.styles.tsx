@@ -60,20 +60,20 @@ export const buttonStyles = tv({
         [&.is-active]:text-text-paragraph
       `,
       transparent: `
-        bg-transparent 
-        border 
-        border-transparent 
-        hover:bg-btn-secondary 
-        hover:border-border 
+        bg-transparent
+        border
+        border-transparent
+        hover:bg-btn-secondary
+        hover:border-border
         disabled:cursor-not-allowed
         disabled:text-btn-secondary-text-disabled
       `,
       tag: `
-        border 
-        border-border 
-        rounded-lg 
-        text-muted-foreground 
-        hover:text-text-paragraph 
+        border
+        border-border
+        rounded-lg
+        text-muted-foreground
+        hover:text-text-paragraph
         hover:border-text-paragraph
         [&.is-active]:border-active-filter-border
         [&.is-active]:bg-active-filter-background

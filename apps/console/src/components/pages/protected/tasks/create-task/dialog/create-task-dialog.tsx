@@ -3,20 +3,23 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import { PlusCircle } from 'lucide-react'
 import CreateTaskForm from '@/components/pages/protected/tasks/create-task/form/create-task-form'
+import type { CreateTaskFormData } from '@/components/pages/protected/tasks/hooks/use-form-schema'
 import React, { useState } from 'react'
 import { Button } from '@repo/ui/button'
-import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap'
-import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
+import { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
+import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
 
 interface Props {
   defaultSelectedObject?: ObjectTypeObjects
   initialData?: TObjectAssociationMap
   objectAssociationsDisplayIDs?: string[]
+  initialValues?: Partial<CreateTaskFormData>
+  hideObjectAssociation?: boolean
   trigger?: React.ReactElement
   className?: string
 }
 
-const CreateTaskDialog = ({ defaultSelectedObject, initialData, objectAssociationsDisplayIDs, trigger, className }: Props) => {
+const CreateTaskDialog = ({ defaultSelectedObject, initialData, objectAssociationsDisplayIDs, initialValues, hideObjectAssociation, trigger, className }: Props) => {
   const [isOpen, setIsOpen] = useState<boolean>(false)
 
   const handleSuccess = () => {
@@ -31,20 +34,23 @@ const CreateTaskDialog = ({ defaultSelectedObject, initialData, objectAssociatio
         </DialogTrigger>
       ) : (
         <DialogTrigger asChild>
-          <Button className={className ?? 'h-8 !px-2'} icon={<PlusCircle />} iconPosition="left" onClick={() => setIsOpen(true)}>
+          <Button className={className ?? 'h-8 px-2!'} icon={<PlusCircle />} iconPosition="left" onClick={() => setIsOpen(true)}>
             Create
           </Button>
         </DialogTrigger>
       )}
-      <DialogContent>
+      <DialogContent className={hideObjectAssociation ? 'max-w-4xl' : ''}>
         <DialogHeader>
           <DialogTitle>Create a new Task</DialogTitle>
         </DialogHeader>
         <CreateTaskForm
           defaultSelectedObject={defaultSelectedObject}
-          excludeObjectTypes={[ObjectTypeObjects.TASK, ObjectTypeObjects.GROUP, ObjectTypeObjects.EVIDENCE]}
+          excludeObjectTypes={[ObjectTypeObjects.GROUP, ObjectTypeObjects.EVIDENCE]}
           initialData={initialData}
           objectAssociationsDisplayIDs={objectAssociationsDisplayIDs}
+          initialValues={initialValues}
+          hideObjectAssociation={hideObjectAssociation}
+          isOpen={isOpen}
           onSuccess={handleSuccess}
         />
       </DialogContent>

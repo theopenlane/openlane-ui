@@ -4,7 +4,7 @@ import { Group } from '@repo/codegen/src/schema'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { EditableFieldFormData } from '@/components/pages/protected/tasks/hooks/use-editable-field-form-schema'
 import EditableGroupCell from '@/components/shared/editable-group-cell/editable-group-cell'
-import { useUpdateRisk } from '@/lib/graphql-hooks/risks'
+import { useUpdateRisk } from '@/lib/graphql-hooks/risk'
 
 type TDelegateCellProps = {
   delegate?: Group | null
@@ -17,7 +17,7 @@ const DelegateCell: React.FC<TDelegateCellProps> = ({ delegate, riskId }) => {
   const handleSubmitData = async (data: EditableFieldFormData, helpers: { queryClient: QueryClient; notifySuccess: () => void; notifyError: (msg: string) => void }) => {
     try {
       await updateRisk({
-        id: riskId,
+        updateRiskId: riskId,
         input: {
           delegateID: data.id,
           clearDelegate: !data.id,

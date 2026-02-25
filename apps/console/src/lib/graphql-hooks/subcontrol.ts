@@ -9,11 +9,14 @@ import {
   GET_SUBCONTROL_BY_ID,
   GET_SUBCONTROL_BY_ID_MINIFIED,
   GET_SUBCONTROL_COMMENTS,
+  GET_SUBCONTROL_DISCUSSION_BY_ID,
   GET_SUBCONTROL_SELECT_OPTIONS,
   GET_SUBCONTROLS_BY_REFCODE,
   GET_SUBCONTROLS_PAGINATED,
   UPDATE_SUBCONTROL,
   UPDATE_SUBCONTROL_COMMENT,
+  INSERT_SUBCONTROL_PLATE_COMMENT,
+  GET_EXISTING_SUBCONTROLS_FOR_ORGANIZATION,
 } from '@repo/codegen/query/subcontrol'
 import {
   CreateSubcontrolMutation,
@@ -27,6 +30,7 @@ import {
   GetSubcontrolByIdMinifiedQuery,
   GetSubcontrolByIdMinifiedQueryVariables,
   GetSubcontrolByIdQuery,
+  GetSubcontrolDiscussionByIdQuery,
   GetSubcontrolsByRefCodeQuery,
   GetSubcontrolSelectOptionsQuery,
   GetSubcontrolSelectOptionsQueryVariables,
@@ -36,10 +40,17 @@ import {
   SubcontrolWhereInput,
   UpdateSubcontrolMutation,
   UpdateSubcontrolMutationVariables,
+  InsertSubcontrolPlateCommentMutation,
+  InsertSubcontrolPlateCommentMutationVariables,
+  GetExistingSubcontrolsForOrganizationQuery,
 } from '@repo/codegen/src/schema'
 import { useEffect, useMemo } from 'react'
 import { TPagination } from '@repo/ui/pagination-types'
 import { GetSubcontrolCommentsQuery, GetSubcontrolCommentsQueryVariables, UpdateSubcontrolCommentMutation, UpdateSubcontrolCommentMutationVariables } from '@repo/codegen/src/schema'
+
+export type SubcontrolByIdNode = GetSubcontrolByIdQuery['subcontrol']
+export type SubcontrolsByRefcodeEdge = NonNullable<NonNullable<NonNullable<GetSubcontrolsByRefCodeQuery['subcontrols']>['edges']>[number]>
+export type SubcontrolsByRefcodeNode = NonNullable<SubcontrolsByRefcodeEdge['node']>
 
 type UseGetAllSubcontrolsArgs = {
   where?: GetAllSubcontrolsQueryVariables['where']
@@ -61,17 +72,52 @@ export const useGetAllSubcontrols = ({ where, pagination, enabled = true }: UseG
   })
 
   const edges = queryResult.data?.subcontrols?.edges ?? []
-  const subcontrol = edges.map((edge) => edge?.node) as Subcontrol[]
+  const subcontrols = edges.map((edge) => edge?.node) as Subcontrol[]
 
   const paginationMeta = {
     totalCount: queryResult.data?.subcontrols?.totalCount ?? 0,
     pageInfo: queryResult.data?.subcontrols?.pageInfo,
-    isLoading: queryResult.isFetching,
+    isLoading: queryResult.isLoading,
   }
 
   return {
     ...queryResult,
-    subcontrol,
+    subcontrols,
+    paginationMeta,
+  }
+}
+
+type UseGetSubcontrolsPaginatedArgs = {
+  where?: SubcontrolWhereInput
+  pagination?: TPagination | null
+  enabled?: boolean
+}
+
+export const useGetSubcontrolsPaginated = ({ where, pagination, enabled = true }: UseGetSubcontrolsPaginatedArgs) => {
+  const { client } = useGraphQLClient()
+
+  const queryResult = useQuery<GetSubcontrolsPaginatedQuery, unknown>({
+    queryKey: ['subcontrols', 'paginated', where, pagination?.page, pagination?.pageSize],
+    queryFn: async () =>
+      client.request<GetSubcontrolsPaginatedQuery, GetSubcontrolsPaginatedQueryVariables>(GET_SUBCONTROLS_PAGINATED, {
+        where,
+        ...pagination?.query,
+      }),
+    enabled,
+  })
+
+  const edges = queryResult.data?.subcontrols?.edges ?? []
+  const subcontrols = edges.map((edge) => edge?.node) as Subcontrol[]
+
+  const paginationMeta = {
+    totalCount: queryResult.data?.subcontrols?.totalCount ?? 0,
+    pageInfo: queryResult.data?.subcontrols?.pageInfo,
+    isLoading: queryResult.isLoading,
+  }
+
+  return {
+    ...queryResult,
+    subcontrols,
     paginationMeta,
   }
 }
@@ -257,5 +303,44 @@ export const useUpdateSubcontrolComment = () => {
         queryKey: ['subcontrolComments', data.updateSubcontrolComment.subcontrol.id],
       })
     },
+  })
+}
+
+export const SUBCONTROL_DISCUSSION_QUERY_KEY = 'subcontrolsDiscussion'
+
+export const useGetSubcontrolDiscussionById = (subcontrolId?: string | null) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<GetSubcontrolDiscussionByIdQuery, unknown>({
+    queryKey: [SUBCONTROL_DISCUSSION_QUERY_KEY, subcontrolId],
+    queryFn: async () => client.request(GET_SUBCONTROL_DISCUSSION_BY_ID, { subcontrolId }),
+    enabled: !!subcontrolId,
+  })
+}
+
+export const useInsertSubcontrolPlateComment = () => {
+  const { client } = useGraphQLClient()
+
+  return useMutation<InsertSubcontrolPlateCommentMutation, unknown, InsertSubcontrolPlateCommentMutationVariables>({
+    mutationFn: async (variables) => {
+      return client.request(INSERT_SUBCONTROL_PLATE_COMMENT, variables)
+    },
+  })
+}
+
+export const useGetExistingOrgSubcontrols = ({ refCodeIn, referenceFrameworkIn, enabled = true }: { refCodeIn: string[]; referenceFrameworkIn?: string[]; enabled?: boolean }) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<GetExistingSubcontrolsForOrganizationQuery>({
+    queryKey: ['subcontrols', 'existingOrg', refCodeIn, referenceFrameworkIn],
+    queryFn: () =>
+      client.request(GET_EXISTING_SUBCONTROLS_FOR_ORGANIZATION, {
+        where: {
+          refCodeIn,
+          systemOwned: false,
+          ...(referenceFrameworkIn?.length && { referenceFrameworkIn }),
+        },
+      }),
+    enabled: enabled && refCodeIn.length > 0,
   })
 }

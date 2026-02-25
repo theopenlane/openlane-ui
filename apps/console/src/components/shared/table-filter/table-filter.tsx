@@ -10,17 +10,18 @@ import { cn } from '@repo/ui/lib/utils'
 import { Calendar } from '@repo/ui/calendar'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
-import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
+import { TableKeyValue } from '@repo/ui/table-key'
 import { Separator as Hr } from '@repo/ui/separator'
 import { saveFilters, loadFilters, clearFilters, TFilterState, TFilterValue, saveQuickFilters, loadQuickFilter, clearQuickFilters } from '@/components/shared/table-filter/filter-storage.ts'
 import Slider from '../slider/slider'
 import { Checkbox } from '@repo/ui/checkbox'
 import { getActiveFilterCount, getQuickFiltersWhereCondition, getWhereCondition, TQuickFilter } from '@/components/shared/table-filter/table-filter-helper.ts'
 import { DropdownSearchField } from '../filter-components/dropdown-search-field'
+import { DropdownSearchMultiselect } from '../filter-components/dropdown-search-multiselect-field'
 
 type TTableFilterProps = {
   filterFields: FilterField[]
-  pageKey: TableFilterKeysEnum
+  pageKey?: TableKeyValue
   onFilterChange?: (whereCondition: WhereCondition) => void
   quickFilters?: TQuickFilter[]
 }
@@ -32,6 +33,7 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
   const [open, setOpen] = useState(false)
   const [activeQuickFilters, setActiveQuickFilters] = useState<TQuickFilter[]>(quickFilters)
   const activeFilterCount = useMemo(() => getActiveFilterCount(values, activeQuickFilters), [values, activeQuickFilters])
+  const storageEnabled = Boolean(pageKey)
 
   const buildWhereCondition = useCallback((filterState: TFilterState, filterFields: FilterField[]): WhereCondition => {
     return getWhereCondition(filterState, filterFields)
@@ -42,6 +44,11 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
   }, [])
 
   useEffect(() => {
+    if (!storageEnabled || !pageKey) {
+      onFilterChange?.({})
+      return
+    }
+
     const savedQuickFilter = loadQuickFilter(pageKey, quickFilters)
     const saved = loadFilters(pageKey, filterFields)
 
@@ -65,9 +72,10 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
     } else {
       onFilterChange?.({})
     }
-  }, [pageKey, filterFields, quickFilters, onFilterChange, buildWhereCondition, buildQuickFilterWhereCondition])
+  }, [pageKey, filterFields, quickFilters, onFilterChange, buildWhereCondition, buildQuickFilterWhereCondition, storageEnabled])
 
   useEffect(() => {
+    if (!storageEnabled || !pageKey) return
     const listener = (e: CustomEvent) => {
       const updated = e.detail as TFilterState
       const validKeys = filterFields.map((f) => f.key)
@@ -82,28 +90,28 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
 
     window.addEventListener(`filters-updated:${pageKey}`, listener as EventListener)
     return () => window.removeEventListener(`filters-updated:${pageKey}`, listener as EventListener)
-  }, [pageKey, filterFields, onFilterChange, buildWhereCondition])
+  }, [pageKey, filterFields, onFilterChange, buildWhereCondition, storageEnabled])
 
   const getActiveQuickFilter = useCallback(() => activeQuickFilters.find((f) => f.isActive), [activeQuickFilters])
 
   const resetQuickFilters = useCallback(
     (clearStorage: boolean = true) => {
       setActiveQuickFilters((prev) => prev.map((qf) => ({ ...qf, isActive: false })))
-      if (clearStorage) {
+      if (clearStorage && storageEnabled && pageKey) {
         clearQuickFilters(pageKey)
       }
     },
-    [pageKey],
+    [pageKey, storageEnabled],
   )
 
   const resetRegularFilters = useCallback(
     (clearStorage: boolean = true) => {
       setValues({})
-      if (clearStorage) {
+      if (clearStorage && storageEnabled && pageKey) {
         clearFilters(pageKey)
       }
     },
-    [pageKey],
+    [pageKey, storageEnabled],
   )
 
   const resetFilters = useCallback(() => {
@@ -115,12 +123,14 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
 
   const handleQuickFilterSave = useCallback(
     (quickFilter: TQuickFilter) => {
-      saveQuickFilters(pageKey, quickFilter)
+      if (storageEnabled && pageKey) {
+        saveQuickFilters(pageKey, quickFilter)
+      }
       onFilterChange?.(buildQuickFilterWhereCondition(quickFilter))
       resetRegularFilters()
       setOpen(false)
     },
-    [buildQuickFilterWhereCondition, onFilterChange, pageKey, resetRegularFilters],
+    [buildQuickFilterWhereCondition, onFilterChange, pageKey, resetRegularFilters, storageEnabled],
   )
 
   const toggleQuickFilter = useCallback(
@@ -151,13 +161,14 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
     if (activeQuickFilter) {
       handleQuickFilterSave(activeQuickFilter)
     } else {
-      saveFilters(pageKey, values)
-
+      if (storageEnabled && pageKey) {
+        saveFilters(pageKey, values)
+      }
       onFilterChange?.(buildWhereCondition(values, filterFields))
       resetQuickFilters()
     }
     setOpen(false)
-  }, [getActiveQuickFilter, handleQuickFilterSave, pageKey, values, onFilterChange, buildWhereCondition, filterFields, resetQuickFilters])
+  }, [getActiveQuickFilter, handleQuickFilterSave, pageKey, values, onFilterChange, buildWhereCondition, filterFields, resetQuickFilters, storageEnabled])
 
   const activeFilterKeys = filterFields
     .map((field) => field.key)
@@ -224,10 +235,10 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
                   {range?.from && range?.to
                     ? `${format(range.from, 'PPP')} - ${format(range.to, 'PPP')}`
                     : range?.from
-                    ? `From: ${format(range.from, 'PPP')}`
-                    : range?.to
-                    ? `To: ${format(range.to, 'PPP')}`
-                    : 'Pick date range'}
+                      ? `From: ${format(range.from, 'PPP')}`
+                      : range?.to
+                        ? `To: ${format(range.to, 'PPP')}`
+                        : 'Pick date range'}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="p-4 space-y-4 w-auto">
@@ -260,6 +271,25 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
             </div>
           )
         }
+        case 'sliderRange': {
+          const rangeMin = field.min ?? 0
+          const rangeMax = field.max ?? 100
+          const rangeVal = val as { min: number; max: number } | undefined
+          const currentMin = rangeVal?.min ?? rangeMin
+          const currentMax = rangeVal?.max ?? rangeMax
+          return (
+            <div className="flex flex-col gap-2">
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>{rangeMin}</span>
+                <span>
+                  {currentMin} – {currentMax}
+                </span>
+                <span>{rangeMax}</span>
+              </div>
+              <Slider range min={rangeMin} max={rangeMax} value={[currentMin, currentMax]} onChange={(values: [number, number]) => handleChange(field.key, { min: values[0], max: values[1] })} />
+            </div>
+          )
+        }
         case 'multiselect': {
           const selected = Array.isArray(val) ? (val as string[]) : []
           const handleToggle = (value: string) => handleChange(field.key, selected.includes(value) ? selected.filter((v) => v !== value) : [...selected, value])
@@ -278,8 +308,30 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
             </ul>
           )
         }
-        case 'dropdownSearch':
+        case 'dropdownUserSearch':
           return <DropdownSearchField field={field} value={values[field.key] as string | undefined} onChange={(val) => handleChange(field.key, val)} />
+
+        case 'radio':
+          return (
+            <div className="flex flex-col gap-1">
+              {field.radioOptions?.map((opt) => (
+                <label key={String(opt.value)} className={cn('flex items-center gap-2 rounded-md cursor-pointer text-sm transition-colors')} onClick={() => handleChange(field.key, opt.value)}>
+                  <div className="relative flex h-4 w-4 items-center justify-center rounded-full border border-primary">{val === opt.value && <div className="h-2 w-2 rounded-full bg-primary" />}</div>
+                  {opt.label}
+                </label>
+              ))}
+            </div>
+          )
+
+        case 'dropdownSearchMultiselect': {
+          const selected = Array.isArray(values[field.key]) ? (values[field.key] as string[]) : []
+          return <DropdownSearchMultiselect field={field} value={selected} onChange={(val) => handleChange(field.key, val)} />
+        }
+
+        case 'dropdownSearchSingleSelect': {
+          return <DropdownSearchField field={field} value={values[field.key] as string | undefined} onChange={(val) => handleChange(field.key, val)} />
+        }
+
         default:
           return null
       }
@@ -324,7 +376,7 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
                       <field.icon size={16} className="text-muted-foreground shrink-0" />
                       <span className="text-sm">{field.label}</span>
                     </div>
-                    <ChevronDown size={14} className="ml-auto transform rotate-[-90deg] transition-transform group-data-[state=open]:rotate-0 text-muted-foreground" />
+                    <ChevronDown size={14} className="ml-auto transform -rotate-90 transition-transform group-data-[state=open]:rotate-0 text-muted-foreground" />
                   </button>
                 </AccordionTrigger>
                 <AccordionContent className="pt-2 ml-5">{renderField(field)}</AccordionContent>

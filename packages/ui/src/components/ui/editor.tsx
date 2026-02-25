@@ -25,6 +25,7 @@ const editorContainerVariants = cva(
           'rounded-md border-[1.5px] border-transparent bg-transparent',
           'has-aria-disabled:border-input has-aria-disabled:bg-muted',
         ),
+        readonly: 'bg-unset!',
         default: 'min-h-[300px] h-auto border',
         demo: 'h-[650px]',
         select: cn(
@@ -68,7 +69,8 @@ const editorVariants = cva(
         ai: 'w-full px-0 text-base md:text-sm',
         aiChat: 'max-h-[min(70vh,320px)] w-full max-w-[700px] overflow-y-auto px-3 py-2 text-base md:text-sm',
         comment: cn('rounded-none border-none bg-transparent text-sm'),
-        default: 'size-full px-5 pt-0 text-base',
+        default: 'size-full px-10 pt-0 text-base',
+        readonly: 'size-full pl-0 pr-10 pt-0 text-base',
         demo: 'size-full px-5 pt-0 text-base',
         fullWidth: 'size-full px-5 pt-0 text-base sm:px-24',
         none: '',
@@ -80,7 +82,7 @@ const editorVariants = cva(
 
 export type EditorProps = PlateContentProps & VariantProps<typeof editorVariants>
 
-export const Editor = React.forwardRef<HTMLDivElement, EditorProps>(({ className, disabled, focused, variant, ...props }, ref) => {
+export const Editor = ({ className, disabled, focused, variant, ref, ...props }: EditorProps & { ref?: React.Ref<HTMLDivElement> }) => {
   return (
     <PlateContent
       ref={ref}
@@ -97,9 +99,7 @@ export const Editor = React.forwardRef<HTMLDivElement, EditorProps>(({ className
       {...props}
     />
   )
-})
-
-Editor.displayName = 'Editor'
+}
 
 export function EditorView({ className, variant, ...props }: PlateViewProps & VariantProps<typeof editorVariants>) {
   return <PlateView {...props} className={cn(editorVariants({ variant }), className)} />

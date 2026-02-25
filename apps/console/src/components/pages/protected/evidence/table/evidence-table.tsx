@@ -3,56 +3,79 @@
 import { useSearchParams } from 'next/navigation'
 import { DataTable, getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
 import React, { useState, useMemo, useEffect, useContext } from 'react'
-import { Evidence, EvidenceOrderField, EvidenceWhereInput, GetEvidenceListQueryVariables, OrderDirection } from '@repo/codegen/src/schema'
+import { Evidence, EvidenceOrder, EvidenceOrderField, EvidenceWhereInput, OrderDirection } from '@repo/codegen/src/schema'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useDebounce } from '@uidotdev/usehooks'
 import { VisibilityState } from '@tanstack/react-table'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useGetEvidenceList } from '@/lib/graphql-hooks/evidence.ts'
-import { getEvidenceColumns } from '@/components/pages/protected/evidence/table/columns.tsx'
+import { useGetEvidenceColumns } from '@/components/pages/protected/evidence/table/columns.tsx'
 import { EVIDENCE_SORTABLE_FIELDS } from '@/components/pages/protected/evidence/table/table-config.ts'
 import EvidenceTableToolbar from '@/components/pages/protected/evidence/table/evidence-table-toolbar.tsx'
-import { useGetOrgUserList } from '@/lib/graphql-hooks/members.ts'
+import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import { useNotification } from '@/hooks/useNotification'
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
-import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
 import { TableKeyEnum } from '@repo/ui/table-key'
+import { useStorageSearch } from '@/hooks/useStorageSearch'
+import { canEdit } from '@/lib/authz/utils'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { whereGenerator } from '@/components/shared/table-filter/where-generator'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 export const EvidenceTable = () => {
   const searchParams = useSearchParams()
   const programId = searchParams.get('programId')
   const [pagination, setPagination] = useState<TPagination>(getInitialPagination(TableKeyEnum.EVIDENCE, DEFAULT_PAGINATION))
-  const [filters, setFilters] = useState<EvidenceWhereInput | null>(null)
+  const [filters, setFilters] = useState<EvidenceWhereInput>({})
   const { setCrumbs } = useContext(BreadcrumbContext)
-  const [searchTerm, setSearchTerm] = useState('')
+  const [searchTerm, setSearchTerm] = useStorageSearch(ObjectTypes.EVIDENCE)
   const { replace } = useSmartRouter()
   const { errorNotification } = useNotification()
+  const [selectedEvidence, setSelectedEvidence] = useState<{ id: string }[]>([])
+  const { data: permission } = useOrganizationRoles()
+
   const defaultSorting = getInitialSortConditions(TableKeyEnum.EVIDENCE, EvidenceOrderField, [
     {
       field: EvidenceOrderField.name,
       direction: OrderDirection.ASC,
     },
   ])
-  const [orderBy, setOrderBy] = useState<GetEvidenceListQueryVariables['orderBy']>(defaultSorting)
+  const [orderBy, setOrderBy] = useState<EvidenceOrder[] | undefined>(() => (Array.isArray(defaultSorting) ? defaultSorting : defaultSorting ? [defaultSorting] : undefined))
 
   const debouncedSearch = useDebounce(searchTerm, 300)
 
   const where = useMemo(() => {
-    const conditions: EvidenceWhereInput = {
-      ...filters,
+    const result = whereGenerator<EvidenceWhereInput>(filters, (key, value) => {
+      if (key === 'satisfiesFramework' && Array.isArray(value) && value.length > 0) {
+        return {
+          or: [{ hasControlsWith: [{ standardIDIn: value }] }, { hasSubcontrolsWith: [{ hasControlWith: [{ standardIDIn: value }] }] }],
+        }
+      }
+
+      const nextWhere: EvidenceWhereInput = {}
+      Object.assign(nextWhere, { [key]: value })
+      return nextWhere
+    })
+
+    return {
+      ...result,
       ...(programId ? { hasProgramsWith: [{ id: programId }] } : {}),
-      nameContainsFold: debouncedSearch,
+      ...(debouncedSearch
+        ? {
+            and: [...(result.and || []), { or: [{ nameContainsFold: debouncedSearch }, { descriptionContainsFold: debouncedSearch }] }],
+          }
+        : {}),
     }
-    return conditions
   }, [filters, programId, debouncedSearch])
 
-  const orderByFilter = useMemo(() => {
-    return orderBy || undefined
+  const orderByFilter = useMemo<EvidenceOrder | EvidenceOrder[] | undefined>(() => {
+    if (!orderBy || orderBy.length === 0) return undefined
+    return orderBy
   }, [orderBy])
 
-  const { evidences, isError, isLoading: fetching, paginationMeta } = useGetEvidenceList({ where, orderBy: orderByFilter, pagination, enabled: !!filters })
+  const { evidences, isError, isLoading: fetching, paginationMeta } = useGetEvidenceList({ where, orderBy: orderByFilter, pagination, enabled: true })
   const defaultVisibility: VisibilityState = {
     id: false,
     collectionProcedure: false,
@@ -64,9 +87,10 @@ export const EvidenceTable = () => {
     createdAt: false,
     updatedAt: false,
     description: false,
+    isAutomated: false,
   }
 
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableColumnVisibilityKeysEnum.EVIDENCE, defaultVisibility))
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.EVIDENCE, defaultVisibility))
 
   const userIds = useMemo(() => {
     if (!evidences) return []
@@ -91,7 +115,7 @@ export const EvidenceTable = () => {
     return map
   }, [users])
 
-  const { columns, mappedColumns } = useMemo(() => getEvidenceColumns({ userMap }), [userMap])
+  const { columns, mappedColumns } = useGetEvidenceColumns({ userMap, selectedEvidence, setSelectedEvidence })
 
   useEffect(() => {
     setCrumbs([
@@ -126,6 +150,10 @@ export const EvidenceTable = () => {
         mappedColumns={mappedColumns}
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}
+        selectedEvidence={selectedEvidence}
+        setSelectedEvidence={setSelectedEvidence}
+        canEdit={canEdit}
+        permission={permission}
       />
 
       <DataTable

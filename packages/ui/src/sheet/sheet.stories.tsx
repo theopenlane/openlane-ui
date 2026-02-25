@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 import { Sheet, SheetTrigger, SheetContent, SheetHeader, SheetFooter, SheetTitle, SheetDescription } from './sheet'
 
 const meta: Meta<typeof Sheet> = {
-  title: 'UI/Sheet',
+  title: 'Overlays/Sheet',
   component: Sheet,
   parameters: {
     docs: {

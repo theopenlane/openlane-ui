@@ -80,7 +80,7 @@ const EvidenceFiles: React.FC<TControlEvidenceFiles> = ({ evidenceID, editAllowe
   const getAction = () => {
     return [
       {
-        accessorKey: 'id',
+        id: 'actions',
         header: 'Action',
         cell: ({ row }: { row: Row<TFile> }) => {
           return (

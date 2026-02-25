@@ -1,71 +1,49 @@
-import { RoutePage } from '@/types'
-import { SearchQuery } from '@repo/codegen/src/schema'
+import type { RoutePage } from '@/types'
+import type { SearchContextGroup } from '@/lib/graphql-hooks/search'
+import { toHumanLabel } from '@/utils/strings'
 import { CircleGaugeIcon, UsersRoundIcon, ShieldCheck, AlertTriangle, Fingerprint, ListChecks, Settings2, ScrollText, Workflow, NotebookPen, FileBadge2 } from 'lucide-react'
 
 export const searchTypeIcons: Record<string, React.ElementType> = {
-  Home: CircleGaugeIcon,
-  Tasks: ListChecks,
-  Programs: ShieldCheck,
-  Risks: AlertTriangle,
-  Controls: Settings2,
+  Pages: CircleGaugeIcon,
+  Task: ListChecks,
+  Program: ShieldCheck,
+  Risk: AlertTriangle,
+  Control: Settings2,
+  'Standard Control': Settings2,
   Evidence: Fingerprint,
-  Policies: ScrollText,
-  Procedures: Workflow,
+  InternalPolicy: ScrollText,
+  Procedure: Workflow,
   Questionnaires: NotebookPen,
   Standards: FileBadge2,
-  Groups: UsersRoundIcon,
-  Subcontrols: Settings2,
+  Standard: FileBadge2,
+  Template: NotebookPen,
+  Group: UsersRoundIcon,
+  Subcontrol: Settings2,
   ControlObjectives: Settings2,
+  Organization: UsersRoundIcon,
 }
 
-export const generateSelectOptions = (data: SearchQuery | undefined, pages: RoutePage[] = []): { label: string; value: string }[] => {
-  const search = data?.search ?? {}
+export const getEntityTypeLabel = (entityType: string) => toHumanLabel(entityType)
 
-  const counts: Record<string, number> = {
-    Pages: pages.length,
-    Organizations: search.organizations?.totalCount ?? 0,
-    Programs: search.programs?.totalCount ?? 0,
-    Groups: search.groups?.totalCount ?? 0,
-    Tasks: search.tasks?.totalCount ?? 0,
-    Controls: search.controls?.totalCount ?? 0,
-    Subcontrols: search.subcontrols?.totalCount ?? 0,
-    Risks: search.risks?.totalCount ?? 0,
-    Policies: search.internalPolicies?.totalCount ?? 0,
-    Procedures: search.procedures?.totalCount ?? 0,
-  }
-
-  const allCount = Object.values(counts).reduce((sum, count) => sum + count, 0)
-
+export const generateSelectOptions = (contextGroups: SearchContextGroup[] = [], pages: RoutePage[] = []): { label: string; value: string }[] => {
+  const allCount = pages.length + contextGroups.reduce((sum, group) => sum + group.results.length, 0)
   return [
     { label: `All (${allCount})`, value: 'All' },
-    ...Object.entries(counts).map(([key, count]) => ({
-      label: `${key} (${count})`,
-      value: key,
+    { label: `Pages (${pages.length})`, value: 'Pages' },
+    ...contextGroups.map(({ entityType, results }) => ({
+      label: `${getEntityTypeLabel(entityType)} (${results.length})`,
+      value: entityType,
     })),
   ]
 }
 
-export const getSearchResultCount = (selectedType: string, data: SearchQuery | undefined, pages: RoutePage[] = []): number => {
+export const getSearchResultCount = (selectedType: string, contextGroups: SearchContextGroup[] = [], pages: RoutePage[] = []): number => {
   if (selectedType === 'Pages') return pages.length
-  if (!data?.search) return 0
-
-  const search = data.search
-
-  const typeToCountMap: Record<string, number> = {
-    Organizations: search.organizations?.totalCount ?? 0,
-    Programs: search.programs?.totalCount ?? 0,
-    Groups: search.groups?.totalCount ?? 0,
-    Tasks: search.tasks?.totalCount ?? 0,
-    Controls: search.controls?.totalCount ?? 0,
-    Subcontrols: search.subcontrols?.totalCount ?? 0,
-    Risks: search.risks?.totalCount ?? 0,
-    Policies: search.internalPolicies?.totalCount ?? 0,
-    Procedures: search.procedures?.totalCount ?? 0,
-  }
 
   if (selectedType === 'All') {
-    return pages.length + Object.values(typeToCountMap).reduce((sum, count) => sum + count, 0)
+    return pages.length + contextGroups.reduce((sum, group) => sum + group.results.length, 0)
   }
 
-  return typeToCountMap[selectedType] ?? 0
+  const matchingGroup = contextGroups.find((group) => group.entityType === selectedType)
+  return matchingGroup?.results.length ?? 0
 }

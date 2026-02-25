@@ -33,8 +33,8 @@ export function DashboardLayout({ children, error }: DashboardLayoutProps) {
   const activeOrg = allOrgs.filter((org) => org?.node?.id === currentOrgId).map((org) => org?.node)[0]
   const isOrganizationSelected = !activeOrg?.personalOrg
 
-  const navItems = !isOrganizationSelected ? [] : topNavigationItems()
-  const footerNavItems = !isOrganizationSelected ? personalNavigationItems() : bottomNavigationItems(orgPermission)
+  const navItems = !isOrganizationSelected ? [] : topNavigationItems(sessionData)
+  const footerNavItems = !isOrganizationSelected ? personalNavigationItems() : bottomNavigationItems(sessionData, orgPermission)
 
   const [openPanel, setOpenPanel] = useState<PanelKey>(null)
   const [primaryExpanded, setPrimaryExpanded] = useState(() => {
@@ -53,7 +53,8 @@ export function DashboardLayout({ children, error }: DashboardLayoutProps) {
   const primaryWidth = primaryExpanded ? PRIMARY_EXPANDED_WIDTH : PRIMARY_WIDTH
   const secondaryWidth = openPanel ? (secondaryExpanded ? SECONDARY_EXPANDED_WIDTH : SECONDARY_COLLAPSED_WIDTH) : 0
 
-  const contentMarginLeft = primaryWidth + secondaryWidth + 4
+  const isOnboarding = sessionData?.user?.isOnboarding
+  const contentMarginLeft = isOnboarding ? 8 : primaryWidth + secondaryWidth + 4
 
   const currentActivePanel = [...navItems, ...footerNavItems]
     .filter(isNavItem)
@@ -134,7 +135,9 @@ export function DashboardLayout({ children, error }: DashboardLayoutProps) {
         <Header />
 
         <div className={base()}>
-          <main className={main()}>{error ?? children}</main>
+          <main className={main()} data-scroll-container="main">
+            {error ?? children}
+          </main>
           <ChatBot />
           <CommandMenu items={navItems} />
         </div>

@@ -14,6 +14,7 @@ const formSchema = z.object({
   likelihood: z.nativeEnum(RiskRiskLikelihood).optional(),
   status: z.nativeEnum(RiskRiskStatus).optional(),
   details: z.custom<Value | string>().optional(),
+  detailsJSON: z.custom<Value>().optional(),
   businessCosts: z.custom<Value | string>().optional(),
   mitigation: z.custom<Value | string>().optional(),
   tags: z.array(z.string().optional()),

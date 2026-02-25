@@ -6,15 +6,17 @@ import { Button } from '@repo/ui/button'
 import { Checkbox } from '@repo/ui/checkbox'
 import { useFormContext } from 'react-hook-form'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { useGetStandards } from '@/lib/graphql-hooks/standards'
+import { useGetStandards } from '@/lib/graphql-hooks/standard'
 import { FolderIcon } from 'lucide-react'
 import { useParams } from 'next/navigation'
-import { useUpdateControl } from '@/lib/graphql-hooks/controls'
+import { useUpdateControl } from '@/lib/graphql-hooks/control'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { DataTable, getInitialPagination } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/react-table'
 import { TableKeyEnum } from '@repo/ui/table-key'
+import { SaveButton } from '@/components/shared/save-button/save-button'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 const MappedCategoriesDialog = ({ onClose }: { onClose: () => void }) => {
   const { id } = useParams<{ id: string }>()
@@ -124,7 +126,7 @@ const MappedCategoriesDialog = ({ onClose }: { onClose: () => void }) => {
           <div className="text-sm">Mapped categories</div>
         </div>
         <div className="text-sm">
-          <Button variant="primary" className="h-8 !px-2" onClick={handleOpen} type="button">
+          <Button variant="primary" className="h-8 px-2!" onClick={handleOpen} type="button">
             Set mappings
           </Button>
         </div>
@@ -194,16 +196,13 @@ const MappedCategoriesDialog = ({ onClose }: { onClose: () => void }) => {
 
           {/* Actions */}
           <div className="flex justify-end gap-2 mt-6">
-            <Button
-              variant="secondary"
+            <CancelButton
               onClick={() => {
                 setOpen(false)
                 onClose()
               }}
-            >
-              Cancel
-            </Button>
-            <Button onClick={handleSave}>{isPending ? 'Saving...' : `Save(${selected.length})`}</Button>
+            ></CancelButton>
+            <SaveButton onClick={handleSave} isSaving={isPending} />
           </div>
         </DialogContent>
       </Dialog>

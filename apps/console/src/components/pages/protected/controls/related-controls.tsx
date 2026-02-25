@@ -9,11 +9,12 @@ import MappedRelationsSheet from './mapped-relationships-sheet'
 import { RelatedControlChip } from './shared/related-control-chip'
 import Link from 'next/link'
 import StandardChip from '../standards/shared/standard-chip'
-import { useGetControlsByRefCode } from '@/lib/graphql-hooks/controls'
+import { useGetControlsByRefCode } from '@/lib/graphql-hooks/control'
 import { useGetSubcontrolsByRefCode } from '@/lib/graphql-hooks/subcontrol'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 export type RelatedNode = {
-  type: 'Control' | 'Subcontrol'
+  type: typeof ObjectTypes.CONTROL | typeof ObjectTypes.SUBCONTROL
   id: string
   refCode: string
   referenceFramework?: string | null
@@ -29,15 +30,17 @@ type Props = {
   canCreate: boolean
   refCode: string
   sourceFramework: string | null | undefined
+  title?: string
+  filterFramework?: 'all' | 'custom' | 'non-custom'
+  includeSubcontrols?: boolean
+  showActions?: boolean
 }
 
-const RelatedControls = ({ canCreate, refCode, sourceFramework }: Props) => {
+const RelatedControls = ({ canCreate, refCode, sourceFramework, title = 'Related Controls', filterFramework = 'all', includeSubcontrols = true, showActions = true }: Props) => {
   const { id, subcontrolId } = useParams<{ id: string; subcontrolId: string }>()
   const [sheetOpen, setSheetOpen] = useState(false)
   const path = usePathname()
 
-  // fetch suggested mapped controls, which are the ones created by the system based on control references
-  // we cannot use the control ID because this is unique to the control and not the refCode for the control within the organization
   const withFilter = { refCode: refCode, referenceFramework: sourceFramework }
   const suggestedControlWhere = {
     and: [
@@ -73,8 +76,6 @@ const RelatedControls = ({ canCreate, refCode, sourceFramework }: Props) => {
 
   const { data } = useGetMappedControls({ where, enabled: !!where })
 
-  const hasData = data?.mappedControls?.edges?.some((e) => e?.node?.source !== MappedControlMappingSource.SUGGESTED)
-
   const grouped: GroupedControls = {}
 
   data?.mappedControls?.edges?.forEach((edge) => {
@@ -94,7 +95,7 @@ const RelatedControls = ({ canCreate, refCode, sourceFramework }: Props) => {
           ?.map((e) =>
             e?.node
               ? {
-                  type: 'Control',
+                  type: ObjectTypes.CONTROL,
                   id: e.node.id,
                   refCode: e.node.refCode,
                   referenceFramework: e.node.referenceFramework,
@@ -109,7 +110,7 @@ const RelatedControls = ({ canCreate, refCode, sourceFramework }: Props) => {
           ?.map((e) =>
             e?.node
               ? {
-                  type: 'Subcontrol',
+                  type: ObjectTypes.SUBCONTROL,
                   id: e.node.id,
                   refCode: e.node.refCode,
                   referenceFramework: e.node.referenceFramework,
@@ -128,7 +129,7 @@ const RelatedControls = ({ canCreate, refCode, sourceFramework }: Props) => {
           ?.map((e) =>
             e?.node
               ? {
-                  type: 'Control',
+                  type: ObjectTypes.CONTROL,
                   id: e.node.id,
                   refCode: e.node.refCode,
                   referenceFramework: e.node.referenceFramework,
@@ -143,7 +144,7 @@ const RelatedControls = ({ canCreate, refCode, sourceFramework }: Props) => {
           ?.map((e) =>
             e?.node
               ? {
-                  type: 'Subcontrol',
+                  type: ObjectTypes.SUBCONTROL,
                   id: e.node.id,
                   refCode: e.node.refCode,
                   referenceFramework: e.node.referenceFramework,
@@ -167,12 +168,26 @@ const RelatedControls = ({ canCreate, refCode, sourceFramework }: Props) => {
     })
   })
 
-  const allControlRefCodes = Object.values(grouped)
-    .flatMap((nodes) => nodes.filter((n) => n.type === 'Control').map((n) => n.refCode))
+  const filteredGrouped: GroupedControls = Object.fromEntries(
+    Object.entries(grouped)
+      .filter(([framework]) => {
+        if (filterFramework === 'custom') return framework === 'CUSTOM'
+        if (filterFramework === 'non-custom') return framework !== 'CUSTOM'
+        return true
+      })
+      .map(([framework, nodes]) => {
+        const filteredNodes = includeSubcontrols ? nodes : nodes.filter((node) => node.type === ObjectTypes.CONTROL)
+        return [framework, filteredNodes]
+      })
+      .filter(([, nodes]) => nodes.length > 0),
+  ) as GroupedControls
+
+  const allControlRefCodes = Object.values(filteredGrouped)
+    .flatMap((nodes) => nodes.filter((n) => n.type === ObjectTypes.CONTROL).map((n) => n.refCode))
     .filter(Boolean)
 
-  const allSubcontrolRefCodes = Object.values(grouped)
-    .flatMap((nodes) => nodes.filter((n) => n.type === 'Subcontrol').map((n) => n.refCode))
+  const allSubcontrolRefCodes = Object.values(filteredGrouped)
+    .flatMap((nodes) => nodes.filter((n) => n.type === ObjectTypes.SUBCONTROL).map((n) => n.refCode))
     .filter(Boolean)
 
   const { data: refcodeData } = useGetControlsByRefCode({ refCodeIn: allControlRefCodes })
@@ -207,43 +222,51 @@ const RelatedControls = ({ canCreate, refCode, sourceFramework }: Props) => {
     return ''
   }
 
+  const hasFilteredData = Object.values(filteredGrouped).some((nodes) => nodes.some((node) => node.source !== MappedControlMappingSource.SUGGESTED))
+  const hasGroupedControls = Object.keys(filteredGrouped).length > 0
+
   if (!data) {
     return null
   }
   return (
     <Card className="p-4">
       <div className="flex justify-between items-center mb-5">
-        <p className="text-lg">Related Controls</p>
-        {hasData ? (
-          <Button type="button" className="h-8 p-2" variant="secondary" icon={<PanelRightOpen />} onClick={() => setSheetOpen(true)}>
-            View
-          </Button>
-        ) : (
-          <>
-            {canCreate && (
-              <Link href={`${path}/map-control`} className="text-sm font-medium text-primary underline underline-offset-4">
-                <Button type="button" className="h-8 p-2" variant="secondary">
-                  Create
-                </Button>
-              </Link>
-            )}
-          </>
-        )}
+        <p className="text-lg">{title}</p>
+        {showActions &&
+          (hasFilteredData ? (
+            <Button type="button" className="h-8 p-2" variant="secondary" icon={<PanelRightOpen />} onClick={() => setSheetOpen(true)}>
+              View
+            </Button>
+          ) : (
+            <>
+              {canCreate && (
+                <Link href={`${path}/map-control`} className="text-sm font-medium text-primary underline underline-offset-4">
+                  <Button type="button" className="h-8 p-2" variant="secondary">
+                    Create
+                  </Button>
+                </Link>
+              )}
+            </>
+          ))}
       </div>
 
-      {Object.entries(grouped).map(([framework, nodes], index, array) => (
-        <div key={framework} className={`mb-2 flex gap-5 items-center pb-2 ${index < array.length - 1 ? 'border-b' : ''}`}>
-          <StandardChip referenceFramework={framework ?? ''} />{' '}
-          <div className="flex gap-2.5 flex-wrap">
-            {nodes.map((node) => {
-              const href = node.type === 'Subcontrol' ? generateSubcontrolHref(node) : generateControlHref(node)
-              return <RelatedControlChip key={node.refCode} refCode={node.refCode} href={href} mappingType={node.mappingType} relation={node.relation} source={node.source} />
-            })}
+      {hasGroupedControls ? (
+        Object.entries(filteredGrouped).map(([framework, nodes], index, array) => (
+          <div key={framework} className={`mb-2 flex gap-5 items-center pb-2 ${index < array.length - 1 ? 'border-b' : ''}`}>
+            <StandardChip referenceFramework={framework ?? ''} />{' '}
+            <div className="flex gap-2.5 flex-wrap">
+              {nodes.map((node) => {
+                const href = node.type === ObjectTypes.SUBCONTROL ? generateSubcontrolHref(node) : generateControlHref(node)
+                return <RelatedControlChip key={node.refCode} refCode={node.refCode} href={href} mappingType={node.mappingType} relation={node.relation} source={node.source} />
+              })}
+            </div>
           </div>
-        </div>
-      ))}
+        ))
+      ) : (
+        <div className="text-sm italic text-muted-foreground">No related controls found.</div>
+      )}
 
-      {hasData && <MappedRelationsSheet open={sheetOpen} onOpenChange={setSheetOpen} queryData={data} />}
+      {showActions && hasFilteredData && <MappedRelationsSheet open={sheetOpen} onOpenChange={setSheetOpen} queryData={data} />}
     </Card>
   )
 }

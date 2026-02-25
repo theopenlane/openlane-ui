@@ -10,7 +10,7 @@ const formSchema = z.object({
     .string({
       errorMap: () => ({ message: 'Invalid category' }),
     })
-    .default('Evidence'),
+    .min(1, { message: 'Invalid category' }),
   title: z.string().min(2, {
     message: 'Title must be at least 2 characters',
   }),
@@ -18,23 +18,24 @@ const formSchema = z.object({
   assigneeID: z.string().optional().nullable(),
   due: z.any(),
   tags: z.array(z.string()).optional(),
-  status: z
-    .nativeEnum(TaskTaskStatus, {
-      errorMap: () => ({ message: 'Invalid status' }),
-    })
-    .default(TaskTaskStatus.OPEN),
+  status: z.nativeEnum(TaskTaskStatus, {
+    errorMap: () => ({ message: 'Invalid status' }),
+  }),
 })
 
 export type CreateTaskFormData = z.infer<typeof formSchema>
 export type EditTaskFormData = z.infer<typeof formSchema>
 
-const useFormSchema = () => {
+const useFormSchema = (defaultValues?: Partial<CreateTaskFormData>) => {
   return {
     form: useForm<CreateTaskFormData>({
       resolver: zodResolver(formSchema),
       defaultValues: {
+        taskKindName: 'Uncategorized',
         title: '',
         tags: [],
+        status: TaskTaskStatus.OPEN,
+        ...defaultValues,
       },
     }),
   }

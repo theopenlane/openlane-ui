@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useContext, useEffect, useMemo, useState } from 'react'
-import { useGetAllControls } from '@/lib/graphql-hooks/controls'
+import { useGetAllControls } from '@/lib/graphql-hooks/control'
 import { DataTable, getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/table-core'
 import {
@@ -23,7 +23,7 @@ import { CONTROLS_SORT_FIELDS, getControlColumns } from './table-config'
 import { useDebounce } from '@uidotdev/usehooks'
 import { VisibilityState } from '@tanstack/react-table'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
-import { useGetOrgUserList } from '@/lib/graphql-hooks/members'
+import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
 import { canEdit } from '@/lib/authz/utils.ts'
 import useFileExport from '@/components/shared/export/use-file-export.ts'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
@@ -32,8 +32,11 @@ import { whereGenerator } from '@/components/shared/table-filter/where-generator
 import TabSwitcher from '@/components/shared/tab-switcher/tab-switcher.tsx'
 import { TabSwitcherStorageKeys } from '@/components/shared/tab-switcher/tab-switcher-storage-keys.ts'
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
-import { TableColumnVisibilityKeysEnum } from '@/components/shared/table-column-visibility/table-column-visibility-keys.ts'
 import { TableKeyEnum } from '@repo/ui/table-key'
+import { useStorageSearch } from '@/hooks/useStorageSearch'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { objectToSnakeCase } from '@/utils/strings'
 
 type TControlsTableProps = {
   active: 'dashboard' | 'table'
@@ -43,7 +46,7 @@ type TControlsTableProps = {
 const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => {
   const { push } = useRouter()
   const { convertToReadOnly } = usePlateEditor()
-  const [filters, setFilters] = useState<ControlWhereInput | null>(null)
+  const [filters, setFilters] = useState<ControlWhereInput>({})
   const { setCrumbs } = useContext(BreadcrumbContext)
   const { data: permission } = useOrganizationRoles()
   const { handleExport } = useFileExport()
@@ -63,7 +66,6 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
     category: false,
     subcategory: false,
     source: false,
-    controlType: false,
     referenceFramework: false,
     delegate: false,
     createdBy: false,
@@ -72,14 +74,25 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
     updatedAt: false,
     controlImplementationsDetails: false,
     desiredOutcome: false,
+    linkedProcedures: false,
+    linkedPolicies: false,
+    associatedObjects: false,
+    comments: false,
   }
 
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableColumnVisibilityKeysEnum.CONTROL, defaultVisibility))
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.CONTROL, defaultVisibility))
 
-  const [searchTerm, setSearchTerm] = useState('')
+  const [searchTerm, setSearchTerm] = useStorageSearch(ObjectTypes.CONTROL)
   const [pagination, setPagination] = useState<TPagination>(getInitialPagination(TableKeyEnum.CONTROL, DEFAULT_PAGINATION))
   const debouncedSearch = useDebounce(searchTerm, 300)
   const [selectedControls, setSelectedControls] = useState<{ id: string; refCode: string }[]>([])
+
+  const { enumOptions } = useGetCustomTypeEnums({
+    where: {
+      objectType: objectToSnakeCase(ObjectTypes.CONTROL),
+      field: 'kind',
+    },
+  })
 
   const whereFilter = useMemo(() => {
     const base: ControlWhereInput = {}
@@ -153,7 +166,7 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
     where: whereWithSearch,
     orderBy,
     pagination,
-    enabled: !!filters,
+    enabled: true,
   })
 
   useEffect(() => {
@@ -187,10 +200,10 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
     return map
   }, [users])
 
-  const columns = useMemo(() => getControlColumns({ convertToReadOnly, userMap, selectedControls, setSelectedControls }), [convertToReadOnly, userMap, selectedControls])
+  const columns = useMemo(() => getControlColumns({ convertToReadOnly, userMap, selectedControls, setSelectedControls, enumOptions }), [convertToReadOnly, userMap, selectedControls, enumOptions])
 
   const mappedColumns: { accessorKey: string; header: string }[] = columns
-    .filter((column): column is { accessorKey: string; header: string } => 'accessorKey' in column && typeof column.accessorKey === 'string' && typeof column.header === 'string')
+    .filter((column): column is { accessorKey: string; header: string } => typeof column.header === 'string')
     .map((column) => ({
       accessorKey: column.accessorKey,
       header: column.header,

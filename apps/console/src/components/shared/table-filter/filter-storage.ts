@@ -1,25 +1,26 @@
-import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys'
+import { TableKeyValue } from '@repo/ui/table-key'
 import { FilterField } from '@/types'
 import type { DateRange } from 'react-day-picker'
 import { isValid } from 'date-fns'
 import { TQuickFilter } from '@/components/shared/table-filter/table-filter-helper.ts'
 
-export type TFilterValue = string | string[] | number | boolean | Date | DateRange | { from?: Date; to?: Date } | undefined
+export type TNumberRange = { min: number; max: number }
+export type TFilterValue = string | string[] | number | boolean | Date | DateRange | { from?: Date; to?: Date } | TNumberRange | undefined
 export type TFilterState = Record<string, TFilterValue>
 export type TQuickFilterState = { key: string; condition: TFilterState } | Record<string, boolean>
 
 const STORAGE_FILTER_PREFIX = 'filters:'
 const STORAGE_QUICK_FILTERS_PREFIX = 'quick-filters:'
 
-const storageFilterKey = (pageKey: TableFilterKeysEnum) => `${STORAGE_FILTER_PREFIX}${pageKey}`
-const storageQuickFilterKey = (pageKey: TableFilterKeysEnum) => `${STORAGE_QUICK_FILTERS_PREFIX}${pageKey}`
+const storageFilterKey = (pageKey: TableKeyValue) => `${STORAGE_FILTER_PREFIX}${pageKey}`
+const storageQuickFilterKey = (pageKey: TableKeyValue) => `${STORAGE_QUICK_FILTERS_PREFIX}${pageKey}`
 
-export function saveFilters(pageKey: TableFilterKeysEnum, state: TFilterState): void {
+export function saveFilters(pageKey: TableKeyValue, state: TFilterState): void {
   localStorage.setItem(storageFilterKey(pageKey), JSON.stringify(state))
   window.dispatchEvent(new CustomEvent(`filters-updated:${pageKey}`, { detail: state }))
 }
 
-export function saveQuickFilters(pageKey: TableFilterKeysEnum, activeFilter: TQuickFilter): void {
+export function saveQuickFilters(pageKey: TableKeyValue, activeFilter: TQuickFilter): void {
   clearQuickFilters(pageKey)
 
   let quickFilterState: TQuickFilterState
@@ -38,11 +39,11 @@ export function saveQuickFilters(pageKey: TableFilterKeysEnum, activeFilter: TQu
   localStorage.setItem(storageQuickFilterKey(pageKey), JSON.stringify(quickFilterState))
 }
 
-export function clearQuickFilters(pageKey: TableFilterKeysEnum): void {
+export function clearQuickFilters(pageKey: TableKeyValue): void {
   localStorage.removeItem(storageQuickFilterKey(pageKey))
 }
 
-export function loadQuickFilter(pageKey: TableFilterKeysEnum, quickFilters: TQuickFilter[] = []): TQuickFilter | null {
+export function loadQuickFilter(pageKey: TableKeyValue, quickFilters: TQuickFilter[] = []): TQuickFilter | null {
   const activeQuickFilter = quickFilters.find((item) => item.isActive)
   // This is the case when we have active quick filter as default value
   if (activeQuickFilter) {
@@ -84,7 +85,7 @@ export function loadQuickFilter(pageKey: TableFilterKeysEnum, quickFilters: TQui
   }
 }
 
-export function loadFilters(pageKey: TableFilterKeysEnum, filterFields?: FilterField[]): TFilterState | null {
+export function loadFilters(pageKey: TableKeyValue, filterFields?: FilterField[]): TFilterState | null {
   const saved = localStorage.getItem(storageFilterKey(pageKey))
   if (!saved) {
     return null
@@ -104,6 +105,7 @@ export function loadFilters(pageKey: TableFilterKeysEnum, filterFields?: FilterF
 
     const validKeys = filterFields.map((f) => f.key)
     const filtered = Object.fromEntries(Object.entries(parsed).filter(([key]) => validKeys.includes(key))) as TFilterState
+
     return validateValues(filtered, filterFields)
   } catch {
     console.warn(`Invalid filters found in storage for ${pageKey}`)
@@ -111,7 +113,7 @@ export function loadFilters(pageKey: TableFilterKeysEnum, filterFields?: FilterF
   }
 }
 
-export function clearFilters(pageKey: TableFilterKeysEnum): void {
+export function clearFilters(pageKey: TableKeyValue): void {
   localStorage.removeItem(storageFilterKey(pageKey))
 }
 const validateValues = (values: TFilterState, filterFields: FilterField[]): TFilterState => {
@@ -150,6 +152,7 @@ const validateValues = (values: TFilterState, filterFields: FilterField[]): TFil
       }
 
       case 'boolean':
+      case 'radio':
         if (typeof value === 'boolean') {
           result[key] = value
         }
@@ -160,6 +163,14 @@ const validateValues = (values: TFilterState, filterFields: FilterField[]): TFil
           result[key] = value
         }
         break
+
+      case 'sliderRange': {
+        const range = value as TNumberRange
+        if (range && typeof range.min === 'number' && typeof range.max === 'number') {
+          result[key] = range
+        }
+        break
+      }
 
       case 'date': {
         const date = value instanceof Date ? value : new Date(value as string)
@@ -214,4 +225,9 @@ export const isNumber = (value: unknown): value is number => {
 }
 export const isString = (value: unknown): value is string => {
   return typeof value === 'string'
+}
+export const isNumberRange = (value: unknown): value is TNumberRange => {
+  if (typeof value !== 'object' || value === null) return false
+  const range = value as { min?: unknown; max?: unknown }
+  return typeof range.min === 'number' && typeof range.max === 'number'
 }

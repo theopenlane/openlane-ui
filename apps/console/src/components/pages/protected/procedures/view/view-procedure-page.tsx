@@ -1,31 +1,28 @@
 'use client'
 
-import { useGetProcedureAssociationsById, useUpdateProcedure } from '@/lib/graphql-hooks/procedures.ts'
+import { useGetProcedureAssociationsById, useGetProcedureDiscussionById, useUpdateProcedure } from '@/lib/graphql-hooks/procedure'
 import React, { useEffect, useMemo, useState } from 'react'
-import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import useFormSchema, { EditProcedureMetadataFormData } from '@/components/pages/protected/procedures/view/hooks/use-form-schema.ts'
 import { Form } from '@repo/ui/form'
 import DetailsField from '@/components/pages/protected/procedures/view/fields/details-field.tsx'
 import TitleField from '@/components/pages/protected/procedures/view/fields/title-field.tsx'
 import { Button } from '@repo/ui/button'
-import { LockOpen, PencilIcon, SaveIcon, XIcon } from 'lucide-react'
+import { LockOpen, PencilIcon } from 'lucide-react'
 import AuthorityCard from '@/components/pages/protected/procedures/view/cards/authority-card.tsx'
 import PropertiesCard from '@/components/pages/protected/procedures/view/cards/properties-card.tsx'
 import HistoricalCard from '@/components/pages/protected/procedures/view/cards/historical-card.tsx'
 import TagsCard from '@/components/pages/protected/procedures/view/cards/tags-card.tsx'
-import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap.ts'
-import { Value } from 'platejs'
+import { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap.ts'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification.tsx'
-import { useGetProcedureDetailsById } from '@/lib/graphql-hooks/procedures.ts'
+import { useGetProcedureDetailsById } from '@/lib/graphql-hooks/procedure'
 import { ProcedureDocumentStatus, ProcedureFrequency, UpdateProcedureInput } from '@repo/codegen/src/schema.ts'
 import { useProcedure } from '@/components/pages/protected/procedures/create/hooks/use-procedure.tsx'
 import { Trash2 } from 'lucide-react'
 import { useParams, useRouter } from 'next/navigation'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
-import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { canDelete, canEdit } from '@/lib/authz/utils'
-import { useDeleteProcedure } from '@/lib/graphql-hooks/procedures'
+import { useDeleteProcedure } from '@/lib/graphql-hooks/procedure'
 import Menu from '@/components/shared/menu/menu.tsx'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar.tsx'
@@ -34,9 +31,16 @@ import { ManagePermissionSheet } from '@/components/shared/policy-procedure.tsx/
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types.ts'
 import ObjectAssociationSwitch from '@/components/shared/object-association/object-association-switch.tsx'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { useAssociationRemoval } from '@/hooks/useAssociationRemoval'
+import { ASSOCIATION_REMOVAL_CONFIG } from '@/components/shared/object-association/object-association-config'
 import Loading from '@/app/(protected)/procedures/[id]/view/loading'
 import { Card } from '@repo/ui/cardpanel'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
+import { Value } from 'platejs'
+import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
+import { SaveButton } from '@/components/shared/save-button/save-button'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 const ViewProcedurePage: React.FC = () => {
   const { id } = useParams()
@@ -44,16 +48,16 @@ const ViewProcedurePage: React.FC = () => {
   const [isDeleting, setIsDeleting] = useState<boolean>(false)
   const { setCrumbs } = React.useContext(BreadcrumbContext)
   const { data, isLoading } = useGetProcedureDetailsById(procedureId, !isDeleting)
-  const plateEditorHelper = usePlateEditor()
   const { mutateAsync: updateProcedure, isPending: isSaving } = useUpdateProcedure()
   const procedureState = useProcedure()
   const procedure = data?.procedure
   const { form } = useFormSchema()
   const [isEditing, setIsEditing] = useState(false)
+  const [editingField, setEditingField] = useState<string | null>(null)
   const queryClient = useQueryClient()
   const { successNotification, errorNotification } = useNotification()
   const router = useRouter()
-  const { data: permission } = useAccountRoles(ObjectEnum.PROCEDURE, procedureId)
+  const { data: permission } = useAccountRoles(ObjectTypes.PROCEDURE, procedureId)
   const deleteAllowed = canDelete(permission?.roles)
   const editAllowed = canEdit(permission?.roles)
   const { mutateAsync: deleteProcedure } = useDeleteProcedure()
@@ -62,6 +66,8 @@ const ViewProcedurePage: React.FC = () => {
   const currentOrganization = getOrganizationByID(currentOrgId!)
   const [dataInitialized, setDataInitialized] = useState(false)
   const [showPermissionsSheet, setShowPermissionsSheet] = useState(false)
+  const { data: discussionData } = useGetProcedureDiscussionById(procedureId)
+  const plateEditorHelper = usePlateEditor()
 
   const { data: assocData } = useGetProcedureAssociationsById(procedureId, !isDeleting)
 
@@ -162,12 +168,6 @@ const ViewProcedurePage: React.FC = () => {
       return
     }
     try {
-      let detailsField = data?.details
-
-      if (detailsField) {
-        detailsField = await plateEditorHelper.convertToHtml(detailsField as Value)
-      }
-
       const formData: {
         updateProcedureId: string
         input: UpdateProcedureInput
@@ -175,7 +175,8 @@ const ViewProcedurePage: React.FC = () => {
         updateProcedureId: procedure?.id,
         input: {
           ...data,
-          details: detailsField,
+          detailsJSON: data.detailsJSON,
+          details: await plateEditorHelper.convertToHtml(data.detailsJSON as Value),
           tags: data?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
           approverID: data.approverID || undefined,
           delegateID: data.delegateID || undefined,
@@ -191,6 +192,7 @@ const ViewProcedurePage: React.FC = () => {
 
       setIsEditing(false)
       queryClient.invalidateQueries({ queryKey: ['procedures'] })
+      queryClient.invalidateQueries({ queryKey: ['procedureDiscussion', procedureId] })
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
       errorNotification({
@@ -200,7 +202,7 @@ const ViewProcedurePage: React.FC = () => {
     }
   }
 
-  const handleUpdateField = async (input: UpdateProcedureInput) => {
+  const handleUpdateField = async (input: UpdateProcedureInput, options?: { throwOnError?: boolean }) => {
     if (!procedure?.id) {
       return
     }
@@ -218,8 +220,24 @@ const ViewProcedurePage: React.FC = () => {
         title: 'Error',
         description: errorMessage,
       })
+
+      if (options?.throwOnError) {
+        throw error
+      }
     }
   }
+
+  const handleRemoveAssociation = useAssociationRemoval({
+    entityId: procedure?.id,
+    handleUpdateField: (input: UpdateProcedureInput) => handleUpdateField(input, { throwOnError: true }),
+    queryClient,
+    cacheTargets: [{ queryKey: ['procedures', procedureId, 'associations'], dataRootField: 'procedure' }],
+    invalidateQueryKeys: [['procedures']],
+    sectionKeyToRemoveField: ASSOCIATION_REMOVAL_CONFIG.procedure.sectionKeyToRemoveField,
+    sectionKeyToDataField: ASSOCIATION_REMOVAL_CONFIG.procedure.sectionKeyToDataField,
+    sectionKeyToInvalidateQueryKey: ASSOCIATION_REMOVAL_CONFIG.procedure.sectionKeyToInvalidateQueryKey,
+    onRemoved: () => setDataInitialized(false),
+  })
 
   if (isLoading) {
     return <Loading />
@@ -233,12 +251,8 @@ const ViewProcedurePage: React.FC = () => {
     <div className="space-y-4">
       {isEditing ? (
         <div className="flex gap-2 justify-end">
-          <Button className="h-8 !px-2" onClick={handleCancel} icon={<XIcon />}>
-            Cancel
-          </Button>
-          <Button type="submit" iconPosition="left" className="h-8 !px-2" icon={<SaveIcon />} disabled={isSaving}>
-            {isSaving ? 'Saving' : 'Save'}
-          </Button>
+          <CancelButton onClick={handleCancel}></CancelButton>
+          <SaveButton disabled={isSaving} isSaving={isSaving} />
         </div>
       ) : (
         <div className="flex gap-2 justify-end">
@@ -289,19 +303,36 @@ const ViewProcedurePage: React.FC = () => {
   const mainContent = (
     <div className="p-2">
       <TitleField isEditing={isEditing} form={form} handleUpdate={handleUpdateField} initialData={procedure.name} editAllowed={editAllowed} />
-      <DetailsField isEditing={isEditing} form={form} procedure={procedure} />
+      <DetailsField isEditing={isEditing} form={form} procedure={procedure} discussionData={discussionData?.procedure} />
     </div>
   )
 
   const sidebarContent = (
     <>
-      {memoizedCenterNode && <ObjectAssociationSwitch sections={memoizedSections} centerNode={memoizedCenterNode} canEdit={editAllowed} />}
+      {memoizedCenterNode && <ObjectAssociationSwitch sections={memoizedSections} centerNode={memoizedCenterNode} canEdit={editAllowed} onRemoveAssociation={handleRemoveAssociation} />}
       <Card className="p-4">
         <h3 className="text-lg font-medium mb-2">Properties</h3>
-        <AuthorityCard form={form} approver={procedure.approver} delegate={procedure.delegate} isEditing={isEditing} editAllowed={editAllowed} handleUpdate={handleUpdateField} />
-        <PropertiesCard form={form} isEditing={isEditing} procedure={procedure} editAllowed={editAllowed} handleUpdate={handleUpdateField} />
+        <AuthorityCard
+          form={form}
+          approver={procedure.approver}
+          delegate={procedure.delegate}
+          isEditing={isEditing}
+          editAllowed={editAllowed}
+          handleUpdate={handleUpdateField}
+          activeField={editingField}
+          setActiveField={setEditingField}
+        />
+        <PropertiesCard
+          form={form}
+          isEditing={isEditing}
+          procedure={procedure}
+          editAllowed={editAllowed}
+          handleUpdate={handleUpdateField}
+          activeField={editingField}
+          setActiveField={setEditingField}
+        />
         <HistoricalCard procedure={procedure} />
-        <TagsCard form={form} procedure={procedure} isEditing={isEditing} handleUpdate={handleUpdateField} editAllowed={editAllowed} />
+        <TagsCard form={form} procedure={procedure} isEditing={isEditing} handleUpdate={handleUpdateField} editAllowed={editAllowed} activeField={editingField} setActiveField={setEditingField} />
       </Card>
     </>
   )

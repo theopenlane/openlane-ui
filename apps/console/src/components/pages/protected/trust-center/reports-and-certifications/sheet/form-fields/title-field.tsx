@@ -15,7 +15,7 @@ export const TitleField = ({ isEditing }: Props) => {
   } = useFormContext()
 
   return (
-    <div>
+    <div className="flex flex-col gap-2">
       <Label>Title</Label>
       {isEditing ? (
         <>

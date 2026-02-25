@@ -16,6 +16,8 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useCreateEvidence, useGetRenewEvidenceById } from '@/lib/graphql-hooks/evidence'
 import { TUploadedFile } from './upload/types/TUploadedFile'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import usePlateEditor from '@/components/shared/plate/usePlateEditor'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 type TEvidenceRenewDialog = {
   controlId?: string
@@ -30,6 +32,7 @@ const EvidenceRenewDialog: React.FC<TEvidenceRenewDialog> = ({ evidenceId, contr
   const { evidence } = useGetRenewEvidenceById(evidenceId, isOpen)
   const { mutateAsync: createEvidence, isPending: isSubmitting } = useCreateEvidence()
   const [evidenceFiles, setEvidenceFiles] = useState<TUploadedFile[]>([])
+  const { convertToHtml } = usePlateEditor()
 
   useEffect(() => {
     if (evidence) {
@@ -40,23 +43,23 @@ const EvidenceRenewDialog: React.FC<TEvidenceRenewDialog> = ({ evidenceId, contr
         collectionProcedure: evidence.collectionProcedure ?? '',
         source: evidence.source ?? '',
         ...(evidence.url ? { url: evidence.url } : {}),
-        controlObjectiveIDs: evidence?.controlObjectives?.edges?.map((item) => item?.node?.id) || [],
-        controlIDs: evidence?.controls?.edges?.map((item) => item?.node?.id) || [],
-        programIDs: evidence?.programs?.edges?.map((item) => item?.node?.id) || [],
-        subcontrolIDs: evidence?.subcontrols?.edges?.map((item) => item?.node?.id) || [],
-        taskIDs: evidence?.tasks?.edges?.map((item) => item?.node?.id) || [],
+        controlObjectiveIDs: evidence?.controlObjectives?.edges?.map((item) => item?.node?.id).filter((id): id is string => Boolean(id)) || [],
+        controlIDs: evidence?.controls?.edges?.map((item) => item?.node?.id).filter((id): id is string => Boolean(id)) || [],
+        programIDs: evidence?.programs?.edges?.map((item) => item?.node?.id).filter((id): id is string => Boolean(id)) || [],
+        subcontrolIDs: evidence?.subcontrols?.edges?.map((item) => item?.node?.id).filter((id): id is string => Boolean(id)) || [],
+        taskIDs: evidence?.tasks?.edges?.map((item) => item?.node?.id).filter((id): id is string => Boolean(id)) || [],
       })
     }
   }, [evidence, form])
 
   const onSubmitHandler = async (data: CreateEvidenceFormData) => {
-    const formData = {
-      input: data,
-      evidenceFiles: evidenceFiles?.map((item) => item.file) || [],
-    }
+    const collectionProcedure = data.collectionProcedure && typeof data.collectionProcedure !== 'string' ? await convertToHtml(data.collectionProcedure) : data.collectionProcedure
 
     try {
-      await createEvidence(formData)
+      await createEvidence({
+        input: { ...data, collectionProcedure },
+        evidenceFiles: evidenceFiles?.map((item) => item.file) || [],
+      })
       setIsOpen(false)
       if (controlId) {
         queryClient.invalidateQueries({ queryKey: ['controls', controlId] })
@@ -149,12 +152,14 @@ const EvidenceRenewDialog: React.FC<TEvidenceRenewDialog> = ({ evidenceId, contr
         <FileUpload acceptedFileTypes={acceptedFileTypes} onFileUpload={handleUploadedFile} acceptedFileTypesShort={acceptedFileTypesShort} maxFileSizeInMb={100} multipleFiles={true} />
         {evidenceFiles.map((file, index) => (
           <div key={index} className="border rounded-sm p-3 mt-4 flex items-center justify-between bg-secondary">
-            <div className="flex items-center">
+            <div className="flex items-center flex-1 min-w-0">
               <div className="mr-2">
                 <FileUp className="w-8 h-8" />
               </div>
-              <div>
-                <div className="font-semibold">{file.name}</div>
+              <div className="min-w-0">
+                <div className="font-semibold truncate max-w-[240px]" title={file.name}>
+                  {file.name}
+                </div>
                 <div className="text-sm">Size: {Math.round(file.size! / 1024)} KB</div>
               </div>
             </div>
@@ -165,9 +170,7 @@ const EvidenceRenewDialog: React.FC<TEvidenceRenewDialog> = ({ evidenceId, contr
           <Button onClick={form.handleSubmit(onSubmitHandler)} loading={isSubmitting} disabled={isSubmitting}>
             {isSubmitting ? 'Creating...' : 'Create'}
           </Button>
-          <Button onClick={() => setIsOpen(false)} variant="secondary" disabled={isSubmitting}>
-            Cancel
-          </Button>
+          <CancelButton disabled={isSubmitting} onClick={() => setIsOpen(false)}></CancelButton>
         </div>
       </DialogContent>
     </Dialog>

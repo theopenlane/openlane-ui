@@ -50,10 +50,17 @@ export const GET_ALL_ASSESSMENTS = gql`
           name
           assessmentType
           templateID
+          template {
+            id
+            name
+          }
+          jsonconfig
           responseDueDuration
           tags
           createdAt
           updatedAt
+          createdBy
+          updatedBy
         }
       }
       pageInfo {
@@ -97,16 +104,68 @@ export const DELETE_ASSESSMENT = gql`
   }
 `
 
-export const CREATE_ASSESSMENT_RESPONSE = gql`
-  mutation CreateAssessmentResponse($input: CreateAssessmentResponseInput!) {
-    createAssessmentResponse(input: $input) {
-      assessmentResponse {
-        id
-        email
-        dueDate
-        assessmentID
-        createdAt
-        updatedAt
+export const GET_ASSESSMENT_DETAIL = gql`
+  query GetAssessmentDetail($getAssessmentId: ID!, $where: AssessmentResponseWhereInput, $orderBy: [AssessmentResponseOrder!], $first: Int, $after: Cursor, $last: Int, $before: Cursor) {
+    assessment(id: $getAssessmentId) {
+      id
+      name
+      assessmentType
+      jsonconfig
+      uischema
+      templateID
+      responseDueDuration
+      tags
+      createdAt
+      updatedAt
+      assessmentResponses(where: $where, orderBy: $orderBy, first: $first, after: $after, last: $last, before: $before) {
+        totalCount
+        edges {
+          node {
+            id
+            email
+            dueDate
+            status
+            sendAttempts
+            assignedAt
+            startedAt
+            completedAt
+            emailDeliveredAt
+            isTest
+            createdAt
+            document {
+              id
+              data
+            }
+          }
+        }
+        pageInfo {
+          endCursor
+          startCursor
+          hasPreviousPage
+          hasNextPage
+        }
+      }
+    }
+  }
+`
+
+export const GET_ASSESSMENT_RECIPIENTS_TOTAL_COUNT = gql`
+  query GetAssessmentRecipientsTotalCount($getAssessmentId: ID!) {
+    assessment(id: $getAssessmentId) {
+      id
+      assessmentResponses(first: 1) {
+        totalCount
+      }
+    }
+  }
+`
+
+export const GET_ASSESSMENT_RESPONSES_TOTAL_COUNT = gql`
+  query GetAssessmentResponsesTotalCount($getAssessmentId: ID!, $where: AssessmentResponseWhereInput) {
+    assessment(id: $getAssessmentId) {
+      id
+      assessmentResponses(first: 1, where: $where) {
+        totalCount
       }
     }
   }

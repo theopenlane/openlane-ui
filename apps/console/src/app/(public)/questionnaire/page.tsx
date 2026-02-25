@@ -1,5 +1,5 @@
 import React, { Suspense } from 'react'
-import AuthMarketingPanel from '@/components/shared/AuthMarketingPanel.tsx/auth-marketing-panel'
+import AuthMarketingPanel from '@/components/shared/auth-marketing-panel/auth-marketing-panel'
 import { Metadata } from 'next'
 import { Logo } from '@repo/ui/logo'
 import { QuestionnairePage } from '@/components/pages/public/questionnaire/questionnaire'

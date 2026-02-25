@@ -3,11 +3,11 @@ import React from 'react'
 import { useFormContext, Controller } from 'react-hook-form'
 import { Lightbulb } from 'lucide-react'
 import MultipleSelector from '@repo/ui/multiple-selector'
-import { useUserSelect } from '@/lib/graphql-hooks/members'
-import { useGroupSelect } from '@/lib/graphql-hooks/groups'
+import { useUserSelect } from '@/lib/graphql-hooks/member'
+import { useGroupSelect } from '@/lib/graphql-hooks/group'
 import { WizardValues } from '../advanced-setup-wizard-config'
 import { useSession } from 'next-auth/react'
-import MembersInviteSheet from '@/components/pages/protected/organization/members/sidebar/members-invite-sheet'
+import MembersInviteSheet from '@/components/pages/protected/user-management/members/sidebar/members-invite-sheet'
 
 type AdvancedSetupStep4Props = {
   isMemberSheetOpen: boolean

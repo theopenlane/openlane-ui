@@ -12,19 +12,11 @@ export const secureFetch = async (url: string | URL | globalThis.Request, option
 
   let csrfToken = getCookie(csrfCookieName)
   if (!csrfToken) {
-    console.log('[secureFetch] No CSRF token found in cookies, fetching a new one...')
     csrfToken = await fetchCSRFToken()
   }
 
   headers[csrfHeader] = csrfToken
   const newHeaders = appendCookie(headers, csrfCookieName, csrfToken)
-
-  // 🧩 Diagnostic logging
-  console.log('[secureFetch] → Request', {
-    url: typeof url === 'string' ? url : url.toString(),
-    method: options.method || 'GET',
-    hasCSRFHeader: Boolean(csrfToken),
-  })
 
   try {
     const res = await fetch(url, {
@@ -34,11 +26,6 @@ export const secureFetch = async (url: string | URL | globalThis.Request, option
     })
 
     const contentType = res.headers.get('content-type')
-    console.log('[secureFetch] ← Response', {
-      status: res.status,
-      contentType,
-      ok: res.ok,
-    })
 
     // Catch the HTML response issue early
     if (contentType?.includes('text/html')) {
@@ -59,16 +46,9 @@ interface CSRFResponse {
 }
 
 export const fetchCSRFToken = async (): Promise<string> => {
-  console.log('[fetchCSRFToken] Fetching CSRF token from:', `${openlaneAPIUrl}/csrf`)
-
   try {
     const res = await fetch(`${openlaneAPIUrl}/csrf`, { credentials: 'include' })
     const contentType = res.headers.get('content-type')
-
-    console.log('[fetchCSRFToken] Response:', {
-      status: res.status,
-      contentType,
-    })
 
     if (contentType?.includes('text/html')) {
       const html = await res.text()
@@ -83,7 +63,6 @@ export const fetchCSRFToken = async (): Promise<string> => {
       throw new Error(`Failed to fetch CSRF token: ${res.status} ${res.statusText}`)
     }
 
-    console.log('[fetchCSRFToken] ✅ CSRF token fetched successfully')
     return data.csrf
   } catch (err) {
     console.error('[fetchCSRFToken] ⚠️ Error fetching CSRF token:', err)

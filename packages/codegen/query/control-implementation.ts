@@ -7,6 +7,7 @@ export const CONTROL_IMPLEMENTATION_FIELDS = gql`
     status
     implementationDate
     verified
+    verificationDate
     controls {
       edges {
         node {

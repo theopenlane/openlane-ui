@@ -5,13 +5,24 @@ import { UserMenu } from '@/components/shared/user-menu/user-menu'
 import { BreadcrumbNavigation } from '@/components/shared/breadcrumb-nav/breadcrumb'
 import { sidebarStyles } from '../sidebar/sidebar.styles'
 import { useSidebar } from '@/hooks/useSidebar'
-import React, { useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import SystemNotificationTracker from '@/components/shared/SystemNotification/SystemNotification.tsx'
+
+type ActivePanel = 'notifications' | 'user-menu' | null
 
 export default function Header() {
   const { isOpen } = useSidebar()
   const [status] = useState(false)
+  const [activePanel, setActivePanel] = useState<ActivePanel>(null)
+
+  const handleNotificationsOpenChange = useCallback((open: boolean) => {
+    setActivePanel(open ? 'notifications' : null)
+  }, [])
+
+  const handleUserMenuOpenChange = useCallback((open: boolean) => {
+    setActivePanel(open ? 'user-menu' : null)
+  }, [])
 
   const path = usePathname()
   const { header, nav, userNav } = headerStyles()
@@ -26,7 +37,7 @@ export default function Header() {
         <nav className={nav()}>
           <div className="flex justify-start items-center"></div>
           <div className={userNav()}>
-            <UserMenu />
+            <UserMenu open={activePanel === 'user-menu'} onOpenChange={handleUserMenuOpenChange} />
           </div>
         </nav>
       </div>
@@ -46,8 +57,8 @@ export default function Header() {
           </div>
 
           <div className={userNav()}>
-            <SystemNotificationTracker />
-            <UserMenu />
+            <SystemNotificationTracker open={activePanel === 'notifications'} onOpenChange={handleNotificationsOpenChange} />
+            <UserMenu open={activePanel === 'user-menu'} onOpenChange={handleUserMenuOpenChange} />
           </div>
         </nav>
       </div>

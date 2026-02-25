@@ -4,9 +4,9 @@ import { TCommentData } from '@/components/shared/comments/types/TCommentData'
 import { TComments } from '@/components/shared/comments/types/TComments'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { useNotification } from '@/hooks/useNotification'
-import { useDeleteNote } from '@/lib/graphql-hooks/controls'
+import { useDeleteNote } from '@/lib/graphql-hooks/control'
 import { useGetEvidenceComments, useUpdateEvidence, useUpdateEvidenceComment } from '@/lib/graphql-hooks/evidence'
-import { useGetOrgMemberships } from '@/lib/graphql-hooks/members'
+import { useGetOrgMemberships } from '@/lib/graphql-hooks/member'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { SheetTitle } from '@repo/ui/sheet'
 import { useQueryClient } from '@tanstack/react-query'
@@ -39,20 +39,27 @@ const EvidenceCommentSheet = () => {
     },
     enabled: userIds.length > 0,
   })
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (commentSource && userData?.orgMemberships?.edges?.length) {
-      const mapped =
-        commentSource?.edges?.map((item) => {
-          const user = userData.orgMemberships.edges?.find((u) => u?.node?.user.id === item?.node?.createdBy)?.node?.user
+      const mapped: TCommentData[] =
+        commentSource?.edges?.flatMap((item) => {
+          const commentNode = item?.node
+          if (!commentNode) return []
+
+          const user = userData.orgMemberships.edges?.find((u) => u?.node?.user.id === commentNode.createdBy)?.node?.user
           const avatarUrl = user?.avatarFile?.presignedURL || user?.avatarRemoteURL
-          return {
-            comment: item?.node?.text,
-            avatarUrl,
-            createdAt: item?.node?.createdAt,
-            userName: user?.displayName,
-            createdBy: item?.node?.createdBy,
-            id: item?.node?.id || '',
-          } as TCommentData
+
+          return [
+            {
+              comment: commentNode.text ?? '',
+              avatarUrl: avatarUrl ?? undefined,
+              createdAt: String(commentNode.createdAt ?? ''),
+              userName: user?.displayName ?? '',
+              createdBy: commentNode.createdBy ?? '',
+              id: commentNode.id,
+            },
+          ]
         }) ?? []
 
       const sorted = mapped.sort((a, b) => new Date(!commentSortIsAsc ? b.createdAt : a.createdAt).getTime() - new Date(!commentSortIsAsc ? a.createdAt : b.createdAt).getTime())
@@ -60,6 +67,7 @@ const EvidenceCommentSheet = () => {
       setComments(sorted)
     }
   }, [commentSortIsAsc, commentSource, userData])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const handleEditComment = useCallback(
     async (commentId: string, newValue: string) => {
@@ -77,12 +85,9 @@ const EvidenceCommentSheet = () => {
 
   const handleSendComment = useCallback(
     async (data: TComments) => {
-      console.log('sending... from page', evidenceId)
       if (!evidenceId) return
       try {
-        console.log('sending... from page')
         const comment = await plateEditorHelper.convertToHtml(data.comment)
-        console.log('comment... ', comment)
         await updateEvidence({
           updateEvidenceId: evidenceId,
           input: { addComment: { text: comment } },

@@ -6,9 +6,9 @@ import { Card } from '@repo/ui/cardpanel'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { Task } from '@repo/codegen/src/schema.ts'
 import { formatDate } from '@/utils/date'
-import { TaskStatusMapper } from '../util/task'
 import { TaskStatusIconMapper } from '@/components/shared/enum-mapper/task-enum'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
+import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 
 type TTaskCardsProps = {
   tasks: Task[]
@@ -41,7 +41,7 @@ const TaskCards: React.FC<TTaskCardsProps> = (props: TTaskCardsProps) => {
                 <div className="flex items-center space-x-2 p-1">
                   <ListChecks height={16} width={16} />
                   <p className="text-sm font-bold">
-                    {task.title} - {task.category}
+                    {task.title} - {task.taskKindName}
                   </p>
                 </div>
                 <div className="flex items-center space-x-2 p-1">
@@ -56,7 +56,7 @@ const TaskCards: React.FC<TTaskCardsProps> = (props: TTaskCardsProps) => {
                   <p className="pr-10 text-sm">{formatDate(task.due)}</p>
                   <div className="flex items-center space-x-1">
                     {TaskStatusIconMapper[task.status!]}
-                    <p>{TaskStatusMapper[task.status!]}</p>
+                    <p>{getEnumLabel(task.status!)}</p>
                   </div>
                 </div>
               </div>

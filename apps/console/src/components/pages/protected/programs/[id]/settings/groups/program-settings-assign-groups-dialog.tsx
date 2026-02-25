@@ -4,14 +4,14 @@ import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { Button } from '@repo/ui/button'
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
-import { useUpdateProgram } from '@/lib/graphql-hooks/programs'
+import { useUpdateProgram } from '@/lib/graphql-hooks/program'
 import { DataTable, getInitialPagination } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/react-table'
 import { Checkbox } from '@repo/ui/checkbox'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useQueryClient } from '@tanstack/react-query'
-import { useGetAllGroups } from '@/lib/graphql-hooks/groups'
+import { useGetAllGroups } from '@/lib/graphql-hooks/group'
 import { useNotification } from '@/hooks/useNotification'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { useDebounce } from '@uidotdev/usehooks'
@@ -19,6 +19,7 @@ import { Label } from '@repo/ui/label'
 import { Input } from '@repo/ui/input'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { TableKeyEnum } from '@repo/ui/table-key'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 type GroupRow = {
   id: string
@@ -203,7 +204,7 @@ export const ProgramSettingsAssignGroupDialog = () => {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTitle />
       <DialogTrigger asChild>
-        <Button className="h-8 !px-2">Assign</Button>
+        <Button className="h-8 px-2!">Assign</Button>
       </DialogTrigger>
 
       <DialogContent className="max-w-2xl p-6 rounded-xl">
@@ -233,7 +234,7 @@ export const ProgramSettingsAssignGroupDialog = () => {
               {isPending ? 'Assigning...' : 'Assign'}
             </Button>
             <DialogTrigger asChild>
-              <Button variant="back">Cancel</Button>
+              <CancelButton />
             </DialogTrigger>
           </div>
         </div>

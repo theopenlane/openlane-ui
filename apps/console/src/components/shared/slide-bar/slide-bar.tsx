@@ -9,13 +9,27 @@ type TSlideBarLayoutProps = {
   menu?: ReactNode
   slideOpen?: boolean
   minWidth?: number
+  collapsedContentClassName?: string
+  collapsedButtonClassName?: string
+  hasScrollbar?: boolean
 }
 
 const MAX_RATIO = 0.9
 const DEFAULT_WIDTH = 400
 const FLOATING_MARGIN = 24
+const SCROLLBAR_OFFSET = '3rem'
 
-const SlideBarLayout: React.FC<TSlideBarLayoutProps> = ({ sidebarTitle, sidebarContent, children, menu, slideOpen, minWidth = 400 }) => {
+const SlideBarLayout: React.FC<TSlideBarLayoutProps> = ({
+  sidebarTitle,
+  sidebarContent,
+  children,
+  menu,
+  slideOpen,
+  minWidth = 400,
+  collapsedContentClassName,
+  collapsedButtonClassName,
+  hasScrollbar,
+}) => {
   const [open, setOpen] = useState<boolean>(true)
   const [width, setWidth] = useState<number>(minWidth || DEFAULT_WIDTH)
   const resizing = useRef(false)
@@ -58,7 +72,10 @@ const SlideBarLayout: React.FC<TSlideBarLayoutProps> = ({ sidebarTitle, sidebarC
 
   return (
     <div className="relative flex">
-      <div className="transition-all duration-300 overflow-auto" style={{ width: open ? `calc(100% - ${width}px)` : '100%' }}>
+      <div
+        className={`transition-all duration-300 overflow-auto${!open && collapsedContentClassName ? ` ${collapsedContentClassName}` : ''}`}
+        style={{ width: open ? `calc(100% - ${width}px)` : '100%' }}
+      >
         {children}
       </div>
 
@@ -69,7 +86,8 @@ const SlideBarLayout: React.FC<TSlideBarLayoutProps> = ({ sidebarTitle, sidebarC
           descriptiveTooltipText={open ? 'Close slide bar' : 'Open slide bar'}
           variant="secondary"
           onClick={() => setOpen(!open)}
-          className="h-8 !px-2 !pl-0"
+          className={`h-8 !px-2 !pl-0${!open && hasScrollbar && collapsedButtonClassName ? ` ${collapsedButtonClassName}` : ''}`}
+          style={{ transform: !open && hasScrollbar && !collapsedButtonClassName ? `translateX(-${SCROLLBAR_OFFSET})` : 'translateX(0)' }}
           icon={open ? <PanelRightClose size={16} /> : <PanelRight size={16} />}
         />
       </div>

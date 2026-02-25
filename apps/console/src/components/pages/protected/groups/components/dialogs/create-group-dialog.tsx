@@ -13,11 +13,11 @@ import { PlusCircle } from 'lucide-react'
 import { GroupMembershipRole, GroupSettingVisibility } from '@repo/codegen/src/schema'
 import { useSession } from 'next-auth/react'
 import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
-import { useCreateGroupWithMembers } from '@/lib/graphql-hooks/groups'
+import { useCreateGroupWithMembers } from '@/lib/graphql-hooks/group'
 import { useGetSingleOrganizationMembers } from '@/lib/graphql-hooks/organization'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { useGetTags } from '@/lib/graphql-hooks/tags'
+import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 
 const CreateGroupSchema = z.object({
   groupName: z.string().min(1, 'Group name is required'),

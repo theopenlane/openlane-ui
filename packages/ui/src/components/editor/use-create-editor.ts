@@ -39,13 +39,14 @@ import { BasicFixedToolbarKit } from '@repo/ui/components/editor/plugins/basic-f
 import { BasicFloatingToolbarKit } from '@repo/ui/components/editor/plugins/basic-floating-toolbar-kit.tsx'
 import { MinimalisticFixedToolbarKit } from '@repo/ui/components/editor/plugins/minimalistic-fixed-toolbar-kit.tsx'
 import { MinimalisticFloatingToolbarKit } from '@repo/ui/components/editor/plugins/minimalistic-floating-toolbar-kit.tsx'
+import { createReadOnlyToolbarKit } from './plugins/read-only-toolbar-kit.tsx'
 
 export const EditorKit = [
   /*
-  Copilot and AI kit needs to be manually implemented
-  ...CopilotKit,
-  ...AIKit,*/
+  Copilot kit needs to be manually implemented
+  ...CopilotKit, */
   // Elements
+  ...AIKit,
   ...BasicBlocksKit,
   ...CodeBlockKit,
   ...TableKit,
@@ -91,13 +92,21 @@ export const BasicKit = [...EditorKit, ...BasicFixedToolbarKit, ...BasicFloating
 
 export const AdvancedKit = [...EditorKit, ...FixedToolbarKit, ...FloatingToolbarKit]
 
+export const ReadonlyKit = [...EditorKit]
+
 export type MyEditor = TPlateEditor<Value, (typeof EditorKit)[number]>
 
-export type TPlateEditorVariants = 'basic' | 'standard' | 'advanced' | 'minimal'
+export type TPlateEditorVariants = 'basic' | 'standard' | 'advanced' | 'minimal' | 'readonly'
+
+type EditorKitOptions = {
+  title?: string
+  toolbarClassName?: string
+}
 
 export const EditorKitVariant = {
-  minimal: MinimalisticKit,
-  basic: BasicKit,
-  standard: AdvancedKit,
-  advanced: AdvancedKit,
+  minimal: (_options?: EditorKitOptions) => MinimalisticKit,
+  basic: (_options?: EditorKitOptions) => BasicKit,
+  standard: (_options?: EditorKitOptions) => AdvancedKit,
+  advanced: (_options?: EditorKitOptions) => AdvancedKit,
+  readonly: (options?: EditorKitOptions) => [...EditorKit, ...createReadOnlyToolbarKit({ title: options?.title ?? 'Document', className: options?.toolbarClassName })],
 }

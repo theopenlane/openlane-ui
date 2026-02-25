@@ -5,7 +5,7 @@ import { PageHeading } from '@repo/ui/page-heading'
 import { Card } from '@repo/ui/cardpanel'
 import { Button } from '@repo/ui/button'
 import { CheckCircleIcon, SearchIcon, Settings2, SettingsIcon } from 'lucide-react'
-import { useGetStandards } from '@/lib/graphql-hooks/standards'
+import { useGetStandards } from '@/lib/graphql-hooks/standard'
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import { Input } from '@repo/ui/input'
 import { useDebounce } from '@uidotdev/usehooks'
@@ -16,9 +16,9 @@ import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { StandardWhereInput } from '@repo/codegen/src/schema'
 import { StandardsIconMapper } from '@/components/shared/standards-icon-mapper/standards-icon-mapper'
 import Loading from '@/app/(protected)/standards/loading'
-import { TableFilterKeysEnum } from '@/components/shared/table-filter/table-filter-keys.ts'
 import { getTasksFilterFields } from './table/table-config'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 const filterFields = getTasksFilterFields()
 const StandardsPage = () => {
@@ -66,7 +66,7 @@ const StandardsPage = () => {
             iconPosition="left"
             variant="searchTable"
           />
-          <TableFilter filterFields={filterFields} onFilterChange={setFilters} pageKey={TableFilterKeysEnum.STANDARD_CATALOG} />
+          <TableFilter filterFields={filterFields} onFilterChange={setFilters} pageKey={TableKeyEnum.STANDARD_CATALOG} />
         </div>
       </div>
 
@@ -95,7 +95,11 @@ const StandardsPage = () => {
               </div>
               <StandardsIconMapper key={standard?.node?.id} shortName={standard?.node?.shortName ?? ''} />
             </div>
-            <div className="border-t pt-3 mb-3 flex flex-wrap gap-2">{standard?.node?.tags?.map((tag, i) => <TagChip tag={tag} key={i} />)}</div>
+            <div className="border-t pt-3 mb-3 flex flex-wrap gap-2">
+              {standard?.node?.tags?.map((tag, i) => (
+                <TagChip tag={tag} key={i} />
+              ))}
+            </div>
             <p className="text-sm mb-4 line-clamp-4 overflow-hidden text-ellipsis flex-1">{standard?.node?.description}</p>
             <Link href={`standards/${standard?.node?.id}`} className="mt-auto">
               <Button variant="primary" className="py-2 px-4">

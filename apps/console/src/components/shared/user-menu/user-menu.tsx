@@ -11,16 +11,18 @@ import { User } from '@repo/codegen/src/schema'
 import { Computer, Keyboard, LogOut, Moon, PaintbrushVertical, Sun, TextSearch, UserCog } from 'lucide-react'
 import { useShortcutSuffix } from '@/components/shared/shortcut-suffix/shortcut-suffix.tsx'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+interface UserMenuProps {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+}
 
-export const UserMenu = () => {
+export const UserMenu = ({ open, onOpenChange }: UserMenuProps) => {
   const router = useRouter()
   const { setTheme, theme } = useTheme()
   const { data: sessionData } = useSession()
   const { trigger, email } = userMenuStyles()
   const userId = sessionData?.user.userId
   const { data } = useGetCurrentUser(userId)
-  const [open, setOpen] = useState(false)
   const { suffix } = useShortcutSuffix()
   const themeOptions = [
     { value: 'dark', icon: <Moon size={14} />, label: 'Dark' },
@@ -29,12 +31,12 @@ export const UserMenu = () => {
   ]
 
   const handleSettingsRedirect = () => {
-    setOpen(false)
+    onOpenChange(false)
     router.push('/user-settings/profile')
   }
 
   return (
-    <DropdownMenu open={open} onOpenChange={setOpen}>
+    <DropdownMenu open={open} onOpenChange={onOpenChange}>
       <DropdownMenuTrigger asChild>
         <div className={trigger()}>
           <Avatar entity={data?.user as User}></Avatar>

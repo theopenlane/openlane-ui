@@ -1,3 +1,4 @@
+import { auth } from '@/lib/auth/auth'
 import { stripe } from '@/lib/stripe'
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
@@ -13,6 +14,10 @@ interface RequestBody {
 }
 
 export async function POST(req: Request) {
+  // ensure we have a valid session
+  const session = await auth()
+  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
   try {
     const { scheduleId, swaps } = (await req.json()) as RequestBody
 
@@ -39,7 +44,7 @@ export async function POST(req: Request) {
               price: typeof item.price === 'string' ? item.price : item.price.id,
               quantity: item.quantity,
               discounts: (item.discounts ?? []).map((d) => ({
-                coupon: typeof d.coupon === 'string' ? d.coupon : d.coupon?.id ?? undefined,
+                coupon: typeof d.coupon === 'string' ? d.coupon : (d.coupon?.id ?? undefined),
               })),
             }) as Stripe.SubscriptionScheduleUpdateParams.Phase.AddInvoiceItem,
         ),

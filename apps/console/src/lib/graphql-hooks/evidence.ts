@@ -9,6 +9,7 @@ import {
   GET_EVIDENCE_FILES_BY_ID,
   GET_EVIDENCE_FILES_PAGINATED,
   GET_EVIDENCE_LIST,
+  GET_EVIDENCE_LIST_LIGHT,
   GET_FIRST_FIVE_EVIDENCES_BY_STATUS,
   GET_RENEW_EVIDENCE,
   UPDATE_EVIDENCE,
@@ -20,6 +21,9 @@ import {
   GET_EVIDENCE_ITEMS_MISSING_ARTIFACT_COUNT,
   GET_EVIDENCE_COMMENTS,
   UPDATE_EVIDENCE_COMMENT,
+  CREATE_CSV_BULK_EVIDENCE,
+  BULK_DELETE_EVIDENCE,
+  BULK_EDIT_EVIDENCE,
 } from '@repo/codegen/query/evidence'
 import {
   CreateEvidenceMutation,
@@ -38,6 +42,7 @@ import {
   GetRenewEvidenceQuery,
   GetRenewEvidenceQueryVariables,
   GetEvidenceListQuery,
+  GetEvidenceListLightQuery,
   EvidenceOrder,
   Evidence,
   GetEvidenceTrendDataQuery,
@@ -53,15 +58,30 @@ import {
   GetEvidenceCommentsQueryVariables,
   UpdateEvidenceCommentMutation,
   UpdateEvidenceCommentMutationVariables,
+  CreateBulkCsvEvidenceMutation,
+  CreateBulkCsvEvidenceMutationVariables,
+  DeleteBulkEvidenceMutation,
+  DeleteBulkEvidenceMutationVariables,
+  UpdateBulkEvidenceMutation,
+  UpdateBulkEvidenceMutationVariables,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '../fetchGraphql'
 import { TPagination } from '@repo/ui/pagination-types'
+
+type TInvalidateClient = { invalidateQueries: (args: { queryKey: unknown[] }) => void }
+
+const invalidateEvidenceQueries = (queryClient: TInvalidateClient) => {
+  queryClient.invalidateQueries({ queryKey: ['evidences'] })
+}
 
 export function useCreateEvidence() {
   const { queryClient } = useGraphQLClient()
   return useMutation<CreateEvidenceMutation, unknown, CreateEvidenceMutationVariables>({
     mutationFn: async (variables) => fetchGraphQLWithUpload({ query: CREATE_EVIDENCE, variables }),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['getEvidenceFiles'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['getEvidenceFiles'] })
+      invalidateEvidenceQueries(queryClient)
+    },
   })
 }
 
@@ -87,7 +107,7 @@ export function useGetEvidenceFiles({ where, pagination }: TEvidenceFilesProps) 
   const paginationMeta = {
     totalCount: queryResult.data?.files?.totalCount ?? 0,
     pageInfo: queryResult.data?.files?.pageInfo,
-    isLoading: queryResult.isFetching,
+    isLoading: queryResult.isLoading,
   }
 
   return {
@@ -110,7 +130,7 @@ export const useGetAllEvidences = (where?: EvidenceWhereInput) => {
   const paginationMeta = {
     totalCount: queryResult.data?.evidences?.totalCount ?? 0,
     pageInfo: queryResult.data?.evidences?.pageInfo,
-    isLoading: queryResult.isFetching,
+    isLoading: queryResult.isLoading,
   }
 
   return {
@@ -188,7 +208,7 @@ export const useUpdateEvidence = () => {
   return useMutation<UpdateEvidenceMutation, unknown, UpdateEvidenceMutationVariables>({
     mutationFn: async (variables) => client.request(UPDATE_EVIDENCE, variables),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['evidences'] })
+      invalidateEvidenceQueries(queryClient)
     },
   })
 }
@@ -209,7 +229,7 @@ export const useDeleteEvidence = () => {
   return useMutation<DeleteEvidenceMutation, unknown, DeleteEvidenceMutationVariables>({
     mutationFn: (variables) => client.request(DELETE_EVIDENCE, variables),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['evidences'] })
+      invalidateEvidenceQueries(queryClient)
     },
   })
 }
@@ -240,7 +260,35 @@ export const useGetEvidenceList = ({ orderBy, pagination, where, enabled = true 
   const paginationMeta = {
     totalCount: queryResult.data?.evidences?.totalCount ?? 0,
     pageInfo: queryResult.data?.evidences?.pageInfo,
-    isLoading: queryResult.isFetching,
+    isLoading: queryResult.isLoading,
+  }
+  return {
+    ...queryResult,
+    evidences,
+    paginationMeta,
+  }
+}
+
+export const useGetEvidenceListLight = ({ orderBy, pagination, where, enabled = true }: TGetEvidenceListProps) => {
+  const { client } = useGraphQLClient()
+
+  const queryResult = useQuery<GetEvidenceListLightQuery, unknown>({
+    queryKey: ['evidences', 'light', orderBy, pagination?.page, pagination?.pageSize, where],
+    queryFn: async () =>
+      client.request(GET_EVIDENCE_LIST_LIGHT, {
+        where,
+        orderBy,
+        ...pagination?.query,
+      }),
+    enabled,
+  })
+
+  const evidences = (queryResult.data?.evidences?.edges?.map((edge) => edge?.node) ?? []) as Evidence[]
+
+  const paginationMeta = {
+    totalCount: queryResult.data?.evidences?.totalCount ?? 0,
+    pageInfo: queryResult.data?.evidences?.pageInfo,
+    isLoading: queryResult.isLoading,
   }
   return {
     ...queryResult,
@@ -425,6 +473,39 @@ export const useUpdateEvidenceComment = () => {
     mutationFn: async (variables) => client.request(UPDATE_EVIDENCE_COMMENT, variables),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['evidenceComments'] })
+    },
+  })
+}
+
+export const useCreateBulkCSVEvidence = () => {
+  const { queryClient } = useGraphQLClient()
+
+  return useMutation<CreateBulkCsvEvidenceMutation, unknown, CreateBulkCsvEvidenceMutationVariables>({
+    mutationFn: async (variables) => fetchGraphQLWithUpload({ query: CREATE_CSV_BULK_EVIDENCE, variables }),
+    onSuccess: () => {
+      invalidateEvidenceQueries(queryClient)
+    },
+  })
+}
+
+export const useBulkDeleteEvidence = () => {
+  const { client, queryClient } = useGraphQLClient()
+
+  return useMutation<DeleteBulkEvidenceMutation, unknown, DeleteBulkEvidenceMutationVariables>({
+    mutationFn: async (variables) => client.request(BULK_DELETE_EVIDENCE, variables),
+    onSuccess: () => {
+      invalidateEvidenceQueries(queryClient)
+    },
+  })
+}
+
+export const useBulkEditEvidence = () => {
+  const { client, queryClient } = useGraphQLClient()
+
+  return useMutation<UpdateBulkEvidenceMutation, unknown, UpdateBulkEvidenceMutationVariables>({
+    mutationFn: async (variables) => client.request(BULK_EDIT_EVIDENCE, variables),
+    onSuccess: () => {
+      invalidateEvidenceQueries(queryClient)
     },
   })
 }

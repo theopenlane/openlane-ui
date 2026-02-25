@@ -1,13 +1,14 @@
 'use client'
 import React from 'react'
 import { useParams } from 'next/navigation'
-import { useGetStandardDetails } from '@/lib/graphql-hooks/standards'
+import { useGetStandardDetails } from '@/lib/graphql-hooks/standard'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { ExternalLink, TextCursorInput, Hammer, BookKey, FileStack, Link, Tag } from 'lucide-react'
 import { Table, TableBody, TableCell, TableRow } from '@repo/ui/table'
 import { standardDetailsStyles } from './standard-details-card-styles'
 import StandardChip from './shared/standard-chip'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
+import { formatDate } from '@/utils/date'
 
 const icons = {
   shortName: TextCursorInput,
@@ -35,6 +36,7 @@ const StandardDetailsCard = () => {
     { label: 'Framework', value: standard.framework, icon: icons.framework },
     { label: 'Version', value: standard.version, icon: icons.version },
     { label: 'Revision', value: standard.revision, icon: icons.revision },
+    { label: 'Last Updated', value: formatDate(standard.updatedAt), icon: icons.revision },
   ]
 
   return (
@@ -69,7 +71,11 @@ const StandardDetailsCard = () => {
                   Tags
                 </TableCell>
                 <TableCell className={valueCell()}>
-                  <div className={tagsWrapper()}>{standard.tags?.map((tag: string, i) => <TagChip tag={tag} key={i} />)}</div>
+                  <div className={tagsWrapper()}>
+                    {standard.tags?.map((tag: string, i) => (
+                      <TagChip tag={tag} key={i} />
+                    ))}
+                  </div>
                 </TableCell>
               </TableRow>
             </TableBody>

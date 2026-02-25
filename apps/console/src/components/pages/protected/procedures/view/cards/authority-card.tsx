@@ -6,7 +6,7 @@ import { Stamp, CircleArrowRight, HelpCircle } from 'lucide-react'
 import { Controller, UseFormReturn } from 'react-hook-form'
 import { Option } from '@repo/ui/multiple-selector'
 import { Avatar } from '@/components/shared/avatar/avatar'
-import { useGetAllGroups } from '@/lib/graphql-hooks/groups'
+import { useGetAllGroups } from '@/lib/graphql-hooks/group'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { EditProcedureMetadataFormData } from '../hooks/use-form-schema'
 import { SearchableSingleSelect } from '@/components/shared/searchableSingleSelect/searchable-single-select'
@@ -22,10 +22,15 @@ type TAuthorityCardProps = {
   handleUpdate?: (val: UpdateProcedureInput) => void
   inputClassName?: string
   isCreate?: boolean
+  activeField?: string | null
+  setActiveField?: (field: string | null) => void
 }
 
-const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, isCreate, approver, delegate, editAllowed, handleUpdate, inputClassName }) => {
-  const [editingField, setEditingField] = useState<'approver' | 'delegate' | null>(null)
+const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, isCreate, approver, delegate, editAllowed, handleUpdate, inputClassName, activeField, setActiveField }) => {
+  const [internalEditingField, setInternalEditingField] = useState<'approver' | 'delegate' | null>(null)
+  const isControlled = activeField !== undefined && setActiveField !== undefined
+  const editingField = isControlled ? activeField : internalEditingField
+  const setEditingField = isControlled ? setActiveField : setInternalEditingField
 
   const { data } = useGetAllGroups({ where: {}, enabled: isEditing || !!editingField })
   const groups = data?.groups?.edges?.map((edge) => edge?.node) || []
@@ -49,14 +54,14 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, isCreat
     const showEditable = editAllowed && (isEditing || editingField === editingKey)
 
     return (
-      <div className="flex items-center gap-1">
-        <div className={`flex gap-2 min-w-[160px] items-center ${inputClassName ?? ''} `}>
+      <div className="flex items-center gap-1 border-b border-border pb-3">
+        <div className={`flex gap-2 min-w-40 items-center ${inputClassName ?? ''} `}>
           {icon}
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
                 <div className="flex items-center gap-1">
-                  <span className="cursor-help">{label}</span>
+                  <span className="cursor-help text-sm">{label}</span>
                   <HelpCircle size={12} className="text-muted-foreground" />
                 </div>
               </TooltipTrigger>
@@ -92,7 +97,15 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, isCreat
         ) : (
           <TooltipProvider disableHoverableContent>
             <Tooltip>
-              <HoverPencilWrapper showPencil={editAllowed} className={`min-w-[160px] w-full bg-unset`}>
+              <HoverPencilWrapper
+                showPencil={editAllowed}
+                className={`min-w-40 w-full bg-unset`}
+                onPencilClick={() => {
+                  if (!isEditing && editAllowed) {
+                    setEditingField(editingKey)
+                  }
+                }}
+              >
                 <TooltipTrigger
                   type="button"
                   onDoubleClick={() => {
@@ -104,7 +117,7 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, isCreat
                 >
                   <div className="flex gap-2 items-center">
                     <Avatar entity={value as Group} variant="small" />
-                    <span className="truncate">{displayName}</span>
+                    <span className="truncate text-sm">{displayName}</span>
                   </div>
                 </TooltipTrigger>
                 <TooltipContent side="bottom">{displayName}</TooltipContent>

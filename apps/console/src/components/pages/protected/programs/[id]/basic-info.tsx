@@ -1,6 +1,6 @@
 'use client'
 
-import { useGetProgramBasicInfo, useUpdateProgram } from '@/lib/graphql-hooks/programs'
+import { useGetProgramBasicInfo, useUpdateProgram } from '@/lib/graphql-hooks/program'
 import { Card } from '@repo/ui/cardpanel'
 import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
@@ -16,15 +16,20 @@ import { Textarea } from '@repo/ui/textarea'
 import { Pencil } from 'lucide-react'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { ProgramProgramStatus } from '@repo/codegen/src/schema'
-import { useGetOrgMemberships, useUserSelect } from '@/lib/graphql-hooks/members'
+import { useGetOrgMemberships, useUserSelect } from '@/lib/graphql-hooks/member'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
-import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { canEdit } from '@/lib/authz/utils'
-import { useStandardsSelect } from '@/lib/graphql-hooks/standards'
+import { useStandardsSelect } from '@/lib/graphql-hooks/standard'
 import { Label } from '@repo/ui/label'
-import { useGetTags } from '@/lib/graphql-hooks/tags'
+import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
+import { SaveButton } from '@/components/shared/save-button/save-button'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
+import { CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { objectToSnakeCase } from '@/utils/strings'
 
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -45,7 +50,14 @@ const BasicInformation = () => {
   const programOwnerDisplayName = programOwner?.orgMemberships.edges?.[0]?.node?.user.displayName
   const program = data?.program
 
-  const { data: permission } = useAccountRoles(ObjectEnum.PROGRAM, id)
+  const { enumOptions } = useGetCustomTypeEnums({
+    where: {
+      objectType: objectToSnakeCase(ObjectTypes.PROGRAM),
+      field: 'kind',
+    },
+  })
+
+  const { data: permission } = useAccountRoles(ObjectTypes.PROGRAM, id)
   const isEditAllowed = canEdit(permission?.roles)
 
   const [isEditing, setIsEditing] = useState(false)
@@ -143,7 +155,7 @@ const BasicInformation = () => {
             {!isEditing && isEditAllowed && (
               <Button
                 disabled={program?.status === ProgramProgramStatus.ARCHIVED}
-                className="!h-8 !p-2"
+                className="h-8! p-2!"
                 variant="secondary"
                 type="button"
                 icon={<Pencil />}
@@ -155,12 +167,8 @@ const BasicInformation = () => {
             )}
             {isEditing && (
               <div className="flex gap-2">
-                <Button className="!h-8 !p-2" variant="secondary" type="submit" icon={<Pencil />} iconPosition="left" disabled={isPending}>
-                  Save
-                </Button>
-                <Button type="button" variant="back" className="!h-8 !p-2" onClick={handleCancel}>
-                  Cancel
-                </Button>
+                <SaveButton disabled={isPending} />
+                <CancelButton onClick={handleCancel}></CancelButton>
               </div>
             )}
           </div>
@@ -177,7 +185,7 @@ const BasicInformation = () => {
           {/* Type */}
           <div className="flex border-b pb-3 items-center">
             <Label className="block w-32 shrink-0">Type</Label>
-            <span>{program?.programKindName || '-'}</span>
+            <CustomTypeEnumValue value={program?.programKindName || ''} options={enumOptions ?? []} placeholder="-" />
           </div>
           {/* Framework */}
           <FrameworkField form={form} program={program} isEditing={isEditing} isEditAllowed={isEditAllowed} standardOptionsNormalized={standardOptionsNormalized} name="frameworkName" /> {/* Tags */}
@@ -222,7 +230,7 @@ const BasicInformation = () => {
                   isEditing ? (
                     <Textarea {...field} value={field.value ?? ''} placeholder="Add a description..." />
                   ) : (
-                    <p className={`${!program?.description && '!text-neutral-400'}`}>{program?.description || '—'}</p>
+                    <p className={`${!program?.description && 'text-neutral-400!'}`}>{program?.description || '—'}</p>
                   )
                 }
               />
@@ -248,7 +256,7 @@ const BasicInformation = () => {
                       </SelectContent>
                     </Select>
                   ) : (
-                    <p className={`${!programOwnerDisplayName && '!text-neutral-400'}`}>{programOwnerDisplayName || '—'}</p>
+                    <p className={`${!programOwnerDisplayName && 'text-neutral-400!'}`}>{programOwnerDisplayName || '—'}</p>
                   )
                 }
               />
@@ -325,7 +333,7 @@ export function FrameworkField<T extends FieldValues>({ form, program, isEditing
                 )}
               </div>
             ) : (
-              <p className={`${!program?.frameworkName && '!text-neutral-400'}`}>{program?.frameworkName || '—'}</p>
+              <p className={`${!program?.frameworkName && 'text-neutral-400!'}`}>{program?.frameworkName || '—'}</p>
             )
           }}
         />

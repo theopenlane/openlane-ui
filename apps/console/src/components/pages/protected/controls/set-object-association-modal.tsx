@@ -1,23 +1,33 @@
 'use client'
 
-import { useGetControlAssociationsById, useUpdateControl } from '@/lib/graphql-hooks/controls'
-import ObjectAssociation from '@/components/shared/objectAssociation/object-association'
-import { Button } from '@repo/ui/button'
+import { useGetControlAssociationsById, useUpdateControl } from '@/lib/graphql-hooks/control'
+import ObjectAssociation from '@/components/shared/object-association/object-association'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import React, { useMemo, useState } from 'react'
 import { useParams } from 'next/navigation'
-import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
-import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap'
+import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
+import { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
 import { useNotification } from '@/hooks/useNotification'
 import { useGetSubcontrolAssociationsById } from '@/lib/graphql-hooks/subcontrol'
 import { useUpdateSubcontrol } from '@/lib/graphql-hooks/subcontrol'
-import AddAssociationBtn from '@/components/shared/object-association/add-association-btn.tsx'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { SaveButton } from '@/components/shared/save-button/save-button'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { useQueryClient } from '@tanstack/react-query'
+import AddAssociationPlusBtn from '@/components/shared/object-association/add-association-plus-btn.tsx'
+import { ObjectNames } from '@repo/codegen/src/type-names'
 
-export function SetObjectAssociationDialog() {
+type SetObjectAssociationDialogProps = {
+  trigger?: React.ReactNode
+  defaultSelectedObject?: ObjectTypeObjects
+  allowedObjectTypes?: ObjectTypeObjects[]
+}
+
+export function SetObjectAssociationDialog({ trigger, defaultSelectedObject, allowedObjectTypes }: SetObjectAssociationDialogProps) {
   const { id, subcontrolId } = useParams<{ id: string; subcontrolId: string }>()
   const isControl = subcontrolId ? false : !!id
   const isSubcontrol = !!subcontrolId
+  const queryClient = useQueryClient()
 
   const { mutateAsync: updateControl } = useUpdateControl()
   const { mutateAsync: updateSubcontrol } = useUpdateSubcontrol()
@@ -26,6 +36,7 @@ export function SetObjectAssociationDialog() {
   const [isSaving, setIsSaving] = useState(false)
   const [open, setOpen] = useState(false)
   const [saveEnabled, setSaveEnabled] = useState(false)
+  const [objectAssociationKey, setObjectAssociationKey] = useState(0)
 
   const { errorNotification, successNotification } = useNotification()
   const { data: controlAssociationsData } = useGetControlAssociationsById(id)
@@ -119,7 +130,24 @@ export function SetObjectAssociationDialog() {
         })
       }
 
-      successNotification({ title: `${isControl ? 'Control' : 'Subcontrol'} updated` })
+      const policyAssociationsChanged = (added.internalPolicyIDs?.length ?? 0) > 0 || (removed.internalPolicyIDs?.length ?? 0) > 0
+      const procedureAssociationsChanged = (added.procedureIDs?.length ?? 0) > 0 || (removed.procedureIDs?.length ?? 0) > 0
+
+      if (subcontrolId) {
+        queryClient.invalidateQueries({ queryKey: ['subcontrols'] })
+      } else {
+        queryClient.invalidateQueries({ queryKey: ['controls'] })
+      }
+
+      if (policyAssociationsChanged) {
+        queryClient.invalidateQueries({ queryKey: ['internalPolicies'] })
+      }
+
+      if (procedureAssociationsChanged) {
+        queryClient.invalidateQueries({ queryKey: ['procedures'] })
+      }
+
+      successNotification({ title: `${isControl ? ObjectNames.CONTROL : ObjectNames.SUBCONTROL} updated` })
       setOpen(false)
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
@@ -133,6 +161,9 @@ export function SetObjectAssociationDialog() {
   }
 
   const handleDialogChange = (isOpen: boolean) => {
+    if (isOpen) {
+      setObjectAssociationKey((prev) => prev + 1)
+    }
     if (!isOpen) {
       setAssociations({})
     }
@@ -141,19 +172,20 @@ export function SetObjectAssociationDialog() {
 
   return (
     <Dialog open={open} onOpenChange={handleDialogChange}>
-      <DialogTrigger>
-        <AddAssociationBtn />
-      </DialogTrigger>
+      <DialogTrigger asChild>{trigger ?? <AddAssociationPlusBtn />}</DialogTrigger>
       <DialogContent className="max-w-2xl p-6 space-y-4">
         <DialogHeader>
           <DialogTitle>Associate Related Objects</DialogTitle>
         </DialogHeader>
 
         <ObjectAssociation
+          key={`${objectAssociationKey}-${defaultSelectedObject ?? 'none'}`}
           onIdChange={(updatedMap) => {
             setSaveEnabled(saveEnabled)
             setAssociations(updatedMap)
           }}
+          defaultSelectedObject={defaultSelectedObject}
+          allowedObjectTypes={allowedObjectTypes}
           initialData={initialData}
           excludeObjectTypes={[
             ObjectTypeObjects.EVIDENCE,
@@ -165,12 +197,8 @@ export function SetObjectAssociationDialog() {
           ]}
         />
         <DialogFooter>
-          <Button onClick={onSave} disabled={isSaving || saveEnabled}>
-            {isSaving ? 'Saving...' : 'Save'}
-          </Button>
-          <Button variant="secondary" onClick={() => setOpen(false)}>
-            Cancel
-          </Button>
+          <SaveButton onClick={onSave} isSaving={isSaving} />
+          <CancelButton onClick={() => setOpen(false)}></CancelButton>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { Checkbox } from '@repo/ui/checkbox'
-import { ControlListFieldsFragment } from '@repo/codegen/src/schema'
+import { ControlListStandardFieldsFragment } from '@repo/codegen/src/schema'
 import { ColumnDef } from '@tanstack/react-table'
 
 type ControlSelection = { id: string; refCode: string }
@@ -11,11 +11,11 @@ type GetColumnsProps = {
   selectedControls: ControlSelection[]
   toggleSelection: (control: ControlSelection) => void
   setSelectedControls: React.Dispatch<React.SetStateAction<ControlSelection[]>>
-  controls: ControlListFieldsFragment[]
+  controls: ControlListStandardFieldsFragment[]
   convertToReadOnly: (value: string, depth: number) => React.ReactNode
 }
 
-export const getColumns = ({ controls, setSelectedControls, toggleSelection, selectedControls, convertToReadOnly }: GetColumnsProps): ColumnDef<ControlListFieldsFragment>[] => {
+export const getColumns = ({ controls, setSelectedControls, toggleSelection, selectedControls, convertToReadOnly }: GetColumnsProps): ColumnDef<ControlListStandardFieldsFragment>[] => {
   return [
     {
       id: 'select',
@@ -49,30 +49,37 @@ export const getColumns = ({ controls, setSelectedControls, toggleSelection, sel
         )
       },
       size: 50,
+      maxSize: 50,
+      meta: {
+        className: 'max-w-[2%] w-[2%]',
+      },
+      enableResizing: false,
     },
     {
       accessorKey: 'refCode',
       header: 'Ref Code',
       cell: ({ row }) => <div className="font-bold">{row.getValue('refCode')}</div>,
+      size: 90,
+      minSize: 90,
+      meta: {
+        className: 'max-w-[5%] w-[5%]',
+      },
     },
     {
       accessorKey: 'description',
       header: 'Description',
       cell: ({ cell }) => convertToReadOnly?.(cell.getValue() as string, 0) || '',
-    },
-    {
-      accessorKey: 'subcategory',
-      header: 'Subdomain',
-    },
-    {
-      accessorKey: 'mappedCategories',
-      header: 'Mapped Categories',
-      cell: (info) => (info.getValue() as string[])?.join(', '),
+      meta: {
+        className: 'max-w-[50%] w-[50%]',
+      },
     },
     {
       accessorKey: 'subcontrols.totalCount',
       header: '# of Subcontrols',
       cell: (info) => info.row.original.subcontrols.totalCount,
+      meta: {
+        className: 'max-w-[5%] w-[5%]',
+      },
     },
   ]
 }

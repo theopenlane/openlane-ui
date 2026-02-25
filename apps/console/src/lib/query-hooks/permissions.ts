@@ -1,12 +1,16 @@
 import { useNotification } from '@/hooks/useNotification'
-import { TAccessRole, TData } from '@/types/authz'
+import { TAccessRole, TPermissionData } from '@/types/authz'
 import { useQuery } from '@tanstack/react-query'
 import { useEffect } from 'react'
+import { objectToSnakeCase } from '../../utils/strings'
 
 export const useAccountRoles = (objectType: string, id?: string | number | null, enabled: boolean = true) => {
   const { errorNotification } = useNotification()
 
-  const resp = useQuery<TData>({
+  // ensure objectType is in snake_case before sending to backend
+  objectType = objectToSnakeCase(objectType)
+
+  const resp = useQuery<TPermissionData>({
     queryKey: ['accountRoles', objectType, id],
     enabled: !!objectType && !!id && enabled,
     queryFn: async () => {
@@ -24,7 +28,7 @@ export const useAccountRoles = (objectType: string, id?: string | number | null,
         throw new Error(err.error ?? 'Failed to fetch roles')
       }
 
-      const data: TData = await res.json()
+      const data: TPermissionData = await res.json()
       return data
     },
   })
@@ -41,7 +45,7 @@ export const useAccountRoles = (objectType: string, id?: string | number | null,
 
 export const useOrganizationRoles = () => {
   const { errorNotification } = useNotification()
-  const resp = useQuery<TData>({
+  const resp = useQuery<TPermissionData>({
     queryKey: ['organizationRole'],
     queryFn: async () => {
       const res = await fetch('/api/permissions/organization-roles', {
@@ -53,7 +57,7 @@ export const useOrganizationRoles = () => {
         throw new Error(err.error ?? 'Failed to fetch organization roles')
       }
 
-      const data: TData = await res.json()
+      const data: TPermissionData = await res.json()
       return data
     },
   })

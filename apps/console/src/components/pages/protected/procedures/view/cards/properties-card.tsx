@@ -4,7 +4,7 @@ import React, { useRef, useState } from 'react'
 import { ProcedureByIdFragment, ProcedureDocumentStatus, UpdateProcedureInput } from '@repo/codegen/src/schema'
 import { Binoculars, Calendar, FileStack, ScrollText, HelpCircle } from 'lucide-react'
 import { Controller, UseFormReturn } from 'react-hook-form'
-import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { FormControl, FormField, FormItem } from '@repo/ui/form'
 import { formatDate } from '@/utils/date'
 import { DocumentIconMapper, ProcedureStatusOptions } from '@/components/shared/enum-mapper/policy-enum'
@@ -13,7 +13,10 @@ import { EditProcedureMetadataFormData } from '../hooks/use-form-schema'
 import useEscapeKey from '@/hooks/useEscapeKey'
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
-import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
+import { CustomTypeEnumOptionChip, CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { objectToSnakeCase } from '@/utils/strings'
 
 type TPropertiesCardProps = {
   form: UseFormReturn<EditProcedureMetadataFormData>
@@ -21,14 +24,19 @@ type TPropertiesCardProps = {
   isEditing: boolean
   editAllowed: boolean
   handleUpdate?: (val: UpdateProcedureInput) => void
+  activeField?: string | null
+  setActiveField?: (field: string | null) => void
 }
 
-const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEditing, editAllowed, handleUpdate }) => {
-  const [editingField, setEditingField] = useState<null | 'status' | 'procedureKindName' | 'reviewDue'>(null)
+const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEditing, editAllowed, handleUpdate, activeField, setActiveField }) => {
+  const [internalEditingField, setInternalEditingField] = useState<null | 'status' | 'procedureKindName' | 'reviewDue'>(null)
+  const isControlled = activeField !== undefined && setActiveField !== undefined
+  const editingField = isControlled ? activeField : internalEditingField
+  const setEditingField = isControlled ? setActiveField : setInternalEditingField
 
   const { enumOptions } = useGetCustomTypeEnums({
     where: {
-      objectType: 'procedure',
+      objectType: objectToSnakeCase(ObjectTypes.PROCEDURE),
       field: 'kind',
     },
   })
@@ -54,8 +62,8 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEdi
 
   useEscapeKey(() => {
     if (editingField) {
-      const value = procedure?.[editingField]
-      form.setValue(editingField, value || '')
+      const value = procedure?.[editingField as 'status' | 'procedureKindName' | 'reviewDue']
+      form.setValue(editingField as 'status' | 'procedureKindName' | 'reviewDue', value || '')
       setEditingField(null)
     }
   })
@@ -77,14 +85,14 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEdi
   return (
     <div className="flex flex-col gap-4 pb-4">
       {/* Status Required */}
-      <div className="flex items-center gap-1">
-        <div className="flex gap-2 min-w-[160px] items-center">
+      <div className="flex items-center gap-1 border-b border-border pb-3">
+        <div className="flex gap-2 min-w-40 items-center">
           <Binoculars size={16} className="text-brand" />
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
                 <div className="flex items-center gap-1">
-                  <span className="cursor-help">Status</span>
+                  <span className="cursor-help text-sm">Status</span>
                   <HelpCircle size={12} className="text-muted-foreground" />
                 </div>
               </TooltipTrigger>
@@ -95,7 +103,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEdi
           </TooltipProvider>
         </div>
 
-        <div ref={triggerRef} className="min-w-[160px]">
+        <div ref={triggerRef} className="min-w-40">
           {isEditing || editingField === 'status' ? (
             <Controller
               name="status"
@@ -124,7 +132,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEdi
             />
           ) : (
             <div
-              className={`flex items-center space-x-2 ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+              className={`flex items-center space-x-2 text-sm ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
               onClick={() => {
                 if (!isEditing && editAllowed) setEditingField('status')
               }}
@@ -137,14 +145,14 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEdi
       </div>
 
       {/* Version (read-only) */}
-      <div className="flex items-center gap-1">
-        <div className="flex gap-2 min-w-[160px] items-center">
+      <div className="flex items-center gap-1 border-b border-border pb-3">
+        <div className="flex gap-2 min-w-40 items-center">
           <FileStack size={16} className="text-brand" />
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
                 <div className="flex items-center gap-1">
-                  <span className="cursor-help">Version</span>
+                  <span className="cursor-help text-sm">Version</span>
                   <HelpCircle size={12} className="text-muted-foreground" />
                 </div>
               </TooltipTrigger>
@@ -154,22 +162,22 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEdi
             </Tooltip>
           </TooltipProvider>
         </div>
-        <div className="min-w-[160px] cursor-not-allowed">
+        <div className="min-w-40 cursor-not-allowed">
           <div className="flex gap-2">
-            <span>{procedure?.revision ?? '0.0.0'}</span>
+            <span className="text-sm">{procedure?.revision ?? '0.0.0'}</span>
           </div>
         </div>
       </div>
 
       {/* Procedure Type */}
-      <div className="flex items-center gap-1">
-        <div className="flex gap-2 min-w-[160px] items-center">
+      <div className="flex items-center gap-1 border-b border-border pb-3">
+        <div className="flex gap-2 min-w-40 items-center">
           <ScrollText size={16} className="text-brand" />
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
                 <div className="flex items-center gap-1">
-                  <span className="cursor-help">Procedure Type</span>
+                  <span className="cursor-help text-sm">Procedure Type</span>
                   <HelpCircle size={12} className="text-muted-foreground" />
                 </div>
               </TooltipTrigger>
@@ -180,7 +188,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEdi
           </TooltipProvider>
         </div>
 
-        <div className="min-w-[160px]">
+        <div className="min-w-40">
           {isEditing || editingField === 'procedureKindName' ? (
             <FormField
               control={form.control}
@@ -195,12 +203,16 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEdi
                         handleUpdateIfChanged('procedureKindName', value, procedure?.procedureKindName)
                       }}
                     >
-                      <SelectTrigger className="w-full">{enumOptions?.find((opt) => opt.value === field.value)?.label ?? 'Select type'}</SelectTrigger>
+                      <SelectTrigger className="w-full">
+                        <SelectValue>
+                          <CustomTypeEnumValue value={field.value} options={enumOptions ?? []} placeholder="Select type" />
+                        </SelectValue>
+                      </SelectTrigger>
 
                       <SelectContent ref={popoverRef}>
                         {enumOptions?.map((option) => (
                           <SelectItem key={option.value} value={option.value}>
-                            {option.label}
+                            <CustomTypeEnumOptionChip option={option} />
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -218,21 +230,23 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEdi
                 if (!isEditing && editAllowed) setEditingField('procedureKindName')
               }}
             >
-              <span className="w-full block min-h-6">{procedure?.procedureKindName}</span>
+              <div className="w-full block min-h-6 text-sm">
+                <CustomTypeEnumValue value={procedure?.procedureKindName ?? ''} options={enumOptions ?? []} placeholder="" />
+              </div>
             </div>
           )}
         </div>
       </div>
 
       {/* Review date */}
-      <div className="flex items-center gap-1">
-        <div className="flex gap-2 min-w-[160px] items-center">
+      <div className="flex items-center gap-1 border-b border-border pb-3">
+        <div className="flex gap-2 min-w-40 items-center">
           <Calendar size={16} className="text-brand" />
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
                 <div className="flex items-center gap-1">
-                  <span className="cursor-help">Review date</span>
+                  <span className="cursor-help text-sm">Review date</span>
                   <HelpCircle size={12} className="text-muted-foreground" />
                 </div>
               </TooltipTrigger>
@@ -243,7 +257,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEdi
           </TooltipProvider>
         </div>
 
-        <div ref={reviewTriggerRef} className="min-w-[160px]">
+        <div ref={reviewTriggerRef} className="min-w-40">
           {isEditing || editingField === 'reviewDue' ? (
             <Controller
               name="reviewDue"
@@ -274,7 +288,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEdi
                 if (!isEditing && editAllowed) setEditingField('reviewDue')
               }}
             >
-              <span className="block min-h-6">{formatDate(procedure?.reviewDue) || '\u00A0'}</span>
+              <span className="block min-h-6 text-sm">{formatDate(procedure?.reviewDue) || '\u00A0'}</span>
             </div>
           )}
         </div>

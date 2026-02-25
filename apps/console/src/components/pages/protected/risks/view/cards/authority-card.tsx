@@ -6,7 +6,7 @@ import { Stamp, CircleArrowRight } from 'lucide-react'
 import { Controller, UseFormReturn } from 'react-hook-form'
 import { Option } from '@repo/ui/multiple-selector'
 import { Avatar } from '@/components/shared/avatar/avatar'
-import { useGetAllGroups } from '@/lib/graphql-hooks/groups'
+import { useGetAllGroups } from '@/lib/graphql-hooks/group'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { EditRisksFormData } from '@/components/pages/protected/risks/view/hooks/use-form-schema'
 import { SearchableSingleSelect } from '@/components/shared/searchableSingleSelect/searchable-single-select'
@@ -21,11 +21,17 @@ type TAuthorityCardProps = {
   handleUpdate?: (val: UpdateRiskInput) => void
   inputClassName?: string
   risk?: RiskFieldsFragment
+  activeField?: string | null
+  setActiveField?: (field: string | null) => void
 }
 
-const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, stakeholder, delegate, isEditAllowed = true, handleUpdate, inputClassName, risk }) => {
-  const [editingField, setEditingField] = useState<'stakeholder' | 'delegate' | null>(null)
-  const { data } = useGetAllGroups({ where: {}, enabled: isEditing || !!editingField })
+const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, stakeholder, delegate, isEditAllowed = true, handleUpdate, inputClassName, risk, activeField, setActiveField }) => {
+  const [internalEditingField, setInternalEditingField] = useState<'stakeholder' | 'delegate' | null>(null)
+  const isControlled = activeField !== undefined && setActiveField !== undefined
+  const editingField = isControlled ? activeField : internalEditingField
+  const setEditingField = isControlled ? setActiveField : setInternalEditingField
+  const isGroupEditing = editingField === 'stakeholder' || editingField === 'delegate'
+  const { data } = useGetAllGroups({ where: {}, enabled: isEditing || isGroupEditing })
   const groups = data?.groups?.edges?.map((edge) => edge?.node) || []
 
   const options: Option[] = groups.map((g) => ({
@@ -60,10 +66,10 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, stakeho
     const showEditable = isEditAllowed && (isEditing || editingField === editingKey)
 
     return (
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center border-b border-border pb-3">
         <div className={`flex gap-2 w-[200px] items-center ${inputClassName ?? ''}`}>
           {icon}
-          <span>{label}</span>
+          <span className="text-sm">{label}</span>
         </div>
 
         {showEditable ? (
@@ -85,7 +91,13 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, stakeho
             )}
           />
         ) : (
-          <HoverPencilWrapper showPencil={isEditAllowed} className={`w-[200px] bg-unset ${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
+          <HoverPencilWrapper
+            showPencil={isEditAllowed}
+            className={`w-[200px] bg-unset ${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+            onPencilClick={() => {
+              if (!isEditing && isEditAllowed) setEditingField(editingKey)
+            }}
+          >
             <TooltipProvider disableHoverableContent>
               <Tooltip>
                 <TooltipTrigger
@@ -97,7 +109,7 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, stakeho
                 >
                   <div className="flex gap-2 items-center">
                     <Avatar entity={value as Group} variant="small" />
-                    <span className="truncate">{displayName}</span>
+                    <span className="truncate text-sm">{displayName}</span>
                   </div>
                 </TooltipTrigger>
                 <TooltipContent side="bottom">{displayName}</TooltipContent>

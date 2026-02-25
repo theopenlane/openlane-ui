@@ -1,5 +1,5 @@
-import React, { useState } from 'react'
-import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
+import React, { useEffect, useRef, useState } from 'react'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { InfoIcon } from 'lucide-react'
 import useFormSchema, { CreateTaskFormData } from '../../hooks/use-form-schema'
 import { Input, InputRow } from '@repo/ui/input'
@@ -11,22 +11,23 @@ import { CreateTaskInput } from '@repo/codegen/src/schema'
 import { useSession } from 'next-auth/react'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { useNotification } from '@/hooks/useNotification'
-import { useCreateTask } from '@/lib/graphql-hooks/tasks'
+import { useCreateTask } from '@/lib/graphql-hooks/task'
 import { useGetSingleOrganizationMembers } from '@/lib/graphql-hooks/organization'
 import PlateEditor from '@/components/shared/plate/plate-editor'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
 import { dialogStyles } from '@/components/pages/protected/programs/dialog.styles'
-import ObjectAssociation from '@/components/shared/objectAssociation/object-association'
+import ObjectAssociation from '@/components/shared/object-association/object-association'
 import { Panel, PanelHeader } from '@repo/ui/panel'
-import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap'
-import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
+import { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
+import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
 import HeadsUpDisplay from '@/components/shared/heads-up/heads-up'
 import { Value } from 'platejs'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import Link from 'next/link'
-import { useGetTags } from '@/lib/graphql-hooks/tags'
-import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
+import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
+import { CustomTypeEnumOptionChip, CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
 
 type TProps = {
   onSuccess: () => void
@@ -34,19 +35,23 @@ type TProps = {
   excludeObjectTypes?: ObjectTypeObjects[]
   initialData?: TObjectAssociationMap
   objectAssociationsDisplayIDs?: string[]
+  initialValues?: Partial<CreateTaskFormData>
+  hideObjectAssociation?: boolean
+  isOpen?: boolean
 }
 
 const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
   const plateEditorHelper = usePlateEditor()
   const { formInput } = dialogStyles()
   const [tagValues, setTagValues] = useState<Option[]>([])
-  const { form } = useFormSchema()
+  const { form } = useFormSchema(props.initialValues)
   const { data: session } = useSession()
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: createTask, isPending: isSubmitting } = useCreateTask()
   const { data: membersData } = useGetSingleOrganizationMembers({ organizationId: session?.user.activeOrganizationId })
-  const [associations, setAssociations] = useState<TObjectAssociationMap>({})
+  const [associations, setAssociations] = useState<TObjectAssociationMap>(props.initialData ?? {})
   const [associationResetTrigger, setAssociationResetTrigger] = useState(0)
+  const wasOpenRef = useRef(false)
   const { tagOptions } = useGetTags()
 
   const { enumOptions: taskKindOptions } = useGetCustomTypeEnums({
@@ -55,6 +60,31 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
       field: 'kind',
     },
   })
+
+  useEffect(() => {
+    if (!props.isOpen || !props.initialValues) return
+
+    const nextTags = props.initialValues.tags ?? []
+    form.reset({
+      title: '',
+      tags: [],
+      ...props.initialValues,
+    })
+    setTagValues(nextTags.map((tag) => ({ value: tag, label: tag })))
+
+    if (props.initialValues.details) {
+      form.setValue('details', props.initialValues.details)
+    }
+  }, [form, props.initialValues, props.isOpen])
+
+  useEffect(() => {
+    const isOpening = !wasOpenRef.current && Boolean(props.isOpen)
+    if (isOpening) {
+      setAssociations(props.initialData ?? {})
+      setAssociationResetTrigger((prev) => prev + 1)
+    }
+    wasOpenRef.current = Boolean(props.isOpen)
+  }, [props.initialData, props.isOpen])
 
   const membersOptions = membersData?.organization?.members?.edges?.map((member) => ({
     value: member?.node?.user?.id,
@@ -89,7 +119,7 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
         description: (
           <>
             Task has been successfully created.{' '}
-            <Link href={`/tasks?id=${res.createTask.task.id}`} className="text-blue-600 underline">
+            <Link href={`/automation/tasks?id=${res.createTask.task.id}`} className="text-blue-600 underline">
               View Task
             </Link>
           </>
@@ -117,7 +147,7 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
       <Grid>
         <GridRow columns={4}>
           <GridCell className="col-span-2">
-            <div className="grid grid-cols-2 gap-4">
+            <div className={props.hideObjectAssociation ? 'grid grid-cols-1 gap-4' : 'grid grid-cols-2 gap-4'}>
               <div className="col-span-1">
                 <Form {...form}>
                   <form onSubmit={form.handleSubmit(onSubmitHandler)} className="grid grid-cols-1 gap-4">
@@ -136,11 +166,17 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
                               />
                             </div>
                             <Select value={field.value} onValueChange={field.onChange}>
-                              <SelectTrigger className=" w-full">{field.value || 'Select'}</SelectTrigger>
+                              <FormControl>
+                                <SelectTrigger className="w-full">
+                                  <SelectValue>
+                                    <CustomTypeEnumValue value={field.value} options={taskKindOptions} placeholder="Select" />
+                                  </SelectValue>
+                                </SelectTrigger>
+                              </FormControl>
                               <SelectContent>
                                 {taskKindOptions.map((o) => (
                                   <SelectItem key={o.value} value={o.value}>
-                                    {o.value}
+                                    <CustomTypeEnumOptionChip option={o} />
                                   </SelectItem>
                                 ))}
                               </SelectContent>
@@ -185,7 +221,7 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
                                 content={<p>Outline the task requirements and specific instructions for the assignee to ensure successful completion.</p>}
                               />
                             </div>
-                            <PlateEditor onChange={handleDetailsChange} placeholder="Write your task details" />
+                            <PlateEditor onChange={handleDetailsChange} placeholder="Write your task details" initialValue={props.initialValues?.details} />
                             {form.formState.errors.details && <p className="text-red-500 text-sm">{form.formState.errors?.details?.message}</p>}
                           </FormItem>
                         )}
@@ -282,26 +318,28 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
                   </form>
                 </Form>
               </div>
-              <div className="col-span-1">
-                <Panel>
-                  <PanelHeader heading="Object association" noBorder />
-                  <p>Associating objects will allow users with access to the object to see the created task.</p>
-                  {props.objectAssociationsDisplayIDs && (
-                    <HeadsUpDisplay
-                      accordionLabel={'Show programs linked to this task'}
-                      descriptionText={'This requested task you are creating will be automatically linked to the associated task. We have pre-selected the object association below'}
-                      displayIDs={props.objectAssociationsDisplayIDs}
-                    ></HeadsUpDisplay>
-                  )}
-                  <ObjectAssociation
-                    key={associationResetTrigger}
-                    defaultSelectedObject={props.defaultSelectedObject}
-                    excludeObjectTypes={props.excludeObjectTypes}
-                    initialData={props.initialData}
-                    onIdChange={(updatedMap) => setAssociations(updatedMap)}
-                  />
-                </Panel>
-              </div>
+              {!props.hideObjectAssociation && (
+                <div className="col-span-1">
+                  <Panel>
+                    <PanelHeader heading="Object association" noBorder />
+                    <p>Associating objects will allow users with access to the object to see the created task.</p>
+                    {props.objectAssociationsDisplayIDs && (
+                      <HeadsUpDisplay
+                        accordionLabel={'Show programs linked to this task'}
+                        descriptionText={'This requested task you are creating will be automatically linked to the associated task. We have pre-selected the object association below'}
+                        displayIDs={props.objectAssociationsDisplayIDs}
+                      ></HeadsUpDisplay>
+                    )}
+                    <ObjectAssociation
+                      key={associationResetTrigger}
+                      defaultSelectedObject={props.defaultSelectedObject}
+                      excludeObjectTypes={props.excludeObjectTypes}
+                      initialData={props.initialData}
+                      onIdChange={(updatedMap) => setAssociations(updatedMap)}
+                    />
+                  </Panel>
+                </div>
+              )}
             </div>
           </GridCell>
         </GridRow>

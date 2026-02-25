@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState, useImperativeHandle, forwardRef } from 'react'
+import React, { useEffect, useState, useImperativeHandle, useCallback, type Ref } from 'react'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { Value, TElement, KEYS } from 'platejs'
@@ -8,15 +8,31 @@ import { EditorKitVariant, TPlateEditorVariants } from '@repo/ui/components/edit
 import { Editor, EditorContainer, TPlateEditorStyleVariant } from '@repo/ui/components/ui/editor.tsx'
 import { createPlateEditor, Plate, PlatePlugin, usePlateEditor } from 'platejs/react'
 import { detectFormat } from './usePlateEditor'
+import { CommentEntityType, discussionPlugin, TDiscussion } from '@repo/ui/components/editor/plugins/discussion-kit.tsx'
+import {
+  ControlDiscussionFieldsFragment,
+  GetUserProfileQuery,
+  PolicyDiscussionFieldsFragment,
+  ProcedureDiscussionFieldsFragment,
+  RiskDiscussionFieldsFragment,
+  SubcontrolDiscussionFieldsFragment,
+} from '@repo/codegen/src/schema.ts'
+import { TComment } from '@repo/ui/components/ui/comment.jsx'
 
 export type TPlateEditorProps = {
   onChange?: (data: Value) => void
-  initialValue?: string
+  initialValue?: string | Value
   variant?: TPlateEditorVariants
   styleVariant?: TPlateEditorStyleVariant
   clearData?: boolean
   onClear?: () => void
   placeholder?: string
+  entity?: PolicyDiscussionFieldsFragment | ProcedureDiscussionFieldsFragment | RiskDiscussionFieldsFragment | SubcontrolDiscussionFieldsFragment | ControlDiscussionFieldsFragment
+  userData?: GetUserProfileQuery
+  readonly?: boolean
+  isCreate?: boolean
+  toolbarClassName?: string
+  ref?: Ref<PlateEditorRef>
 }
 
 export interface PlateEditorRef {
@@ -24,26 +40,113 @@ export interface PlateEditorRef {
   editor: ReturnType<typeof createPlateEditor>
 }
 
-const PlateEditor = forwardRef<PlateEditorRef, TPlateEditorProps>(({ onChange, initialValue, variant = 'basic', styleVariant, clearData, onClear, placeholder }, ref) => {
+const PlateEditor = ({ onChange, initialValue, variant = 'basic', styleVariant, clearData, onClear, placeholder, entity, userData, readonly, isCreate, toolbarClassName, ref }: TPlateEditorProps) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const getFirstDefinedProperty = (obj: any, keys: string[], fallback: string): string => {
+    for (const key of keys) {
+      if (obj && obj[key] != null && obj[key] !== '') {
+        return obj[key]
+      }
+    }
+    return fallback
+  }
+
+  const getPlugins = useCallback(() => {
+    const title = getFirstDefinedProperty(entity, ['name', 'title', 'refCode', 'id'], 'Document')
+    return EditorKitVariant[variant]({ title, toolbarClassName }) as PlatePlugin[]
+  }, [variant, entity, toolbarClassName])
+
   const editor = usePlateEditor({
-    plugins: EditorKitVariant[variant] as unknown as PlatePlugin[],
+    plugins: getPlugins(),
   })
+
   const [plateEditor, setPlateEditor] = useState<ReturnType<typeof createPlateEditor> | null>(null)
   const [initialValueSet, setInitialValueSet] = useState(false)
+
+  function mapEntityDiscussions(
+    entity: PolicyDiscussionFieldsFragment | ProcedureDiscussionFieldsFragment | RiskDiscussionFieldsFragment | SubcontrolDiscussionFieldsFragment | ControlDiscussionFieldsFragment,
+  ): TDiscussion[] {
+    return (
+      entity.discussions?.edges
+        ?.map((edge) => {
+          const d = edge?.node
+          if (!d || !d.externalID) return null
+
+          const comments: TComment[] =
+            d.comments?.edges
+              ?.map((cEdge) => {
+                const c = cEdge?.node
+                if (!c) return null
+
+                return {
+                  id: c.id,
+                  contentRich: [
+                    {
+                      type: 'p',
+                      children: [{ text: c.text, comment: true, [`comment_${d.externalID}`]: true }],
+                      id: c.noteRef,
+                    },
+                  ],
+                  createdAt: new Date(c.createdAt ?? Date.now()),
+                  discussionId: d.id,
+                  isEdited: c.isEdited,
+                  userId: c.createdBy ?? 'unknown',
+                } as TComment
+              })
+              .filter((c): c is TComment => c !== null) ?? []
+
+          return {
+            id: d.externalID,
+            systemId: d.id,
+            createdAt: new Date(d.createdAt ?? Date.now()),
+            isResolved: false,
+            userId: comments[0]?.userId ?? 'unknown',
+            comments,
+          } as TDiscussion
+        })
+        .filter((d): d is TDiscussion => d !== null) ?? []
+    )
+  }
+
+  useEffect(() => {
+    if (isCreate) {
+      editor.setOption(discussionPlugin, 'isCreate', true)
+    } else {
+      editor.setOption(discussionPlugin, 'isCreate', false)
+    }
+
+    if (!editor || !entity || !userData?.user) return
+
+    editor.setOption(discussionPlugin, 'entityType', entity.__typename as CommentEntityType)
+    editor.setOption(discussionPlugin, 'entityId', entity.id)
+    editor.setOption(discussionPlugin, 'currentUserId', userData.user.id)
+
+    editor.setOption(discussionPlugin, 'users', {
+      [userData.user.id]: {
+        id: userData.user.id,
+        name: userData.user.displayName,
+        avatarUrl: userData.user.avatarRemoteURL ?? '',
+      },
+    })
+
+    editor.setOption(discussionPlugin, 'discussions', mapEntityDiscussions(entity))
+  }, [editor, entity, isCreate, userData])
 
   // Expose methods via ref
   useImperativeHandle(ref, () => ({
     insertContent: (text: string, clearBeforeInsert?: boolean) => {
       if (!editor) return
 
-      // Clear existing content if requested
-      if (clearBeforeInsert) {
-        editor.tf.reset()
-      }
-
       // @ts-expect-error fix bad typing from platejs
       // Deserialize markdown to Slate nodes
       const nodes = (editor.api.markdown?.deserialize?.(text) ?? []) as Value
+
+      // Clear existing content if requested and insert new content
+      if (clearBeforeInsert) {
+        editor.tf.reset()
+        editor.children = nodes
+        return
+      }
 
       // Insert at current selection
       editor.tf.insertNodes(nodes, {
@@ -56,10 +159,10 @@ const PlateEditor = forwardRef<PlateEditorRef, TPlateEditorProps>(({ onChange, i
 
   useEffect(() => {
     const instance = createPlateEditor({
-      plugins: EditorKitVariant[variant] as unknown as PlatePlugin[],
+      plugins: getPlugins(),
     })
     setPlateEditor(instance)
-  }, [variant])
+  }, [getPlugins])
 
   useEffect(() => {
     if (plateEditor && !initialValueSet) {
@@ -108,25 +211,24 @@ const PlateEditor = forwardRef<PlateEditorRef, TPlateEditorProps>(({ onChange, i
   return (
     <DndProvider backend={HTML5Backend}>
       <Plate
+        readOnly={readonly}
         editor={editor}
         onChange={(data) => {
           onChange?.(data.value)
         }}
       >
         <EditorContainer
-          variant={styleVariant}
+          variant={readonly ? 'readonly' : styleVariant}
           onClick={() => {
             // @ts-expect-error fix bad typing from platejs
             editor?.focus()
           }}
         >
-          <Editor placeholder={placeholder ?? 'Type a paragraph'} />
+          <Editor placeholder={placeholder ?? 'Type a paragraph'} variant={readonly ? 'readonly' : undefined} />
         </EditorContainer>
       </Plate>
     </DndProvider>
   )
-})
-
-PlateEditor.displayName = 'PlateEditor'
+}
 
 export default React.memo(PlateEditor)

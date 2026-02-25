@@ -1,20 +1,13 @@
+import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import { FilterIcons } from '@/components/shared/enum-mapper/risk-enum'
 import { FilterField } from '@/types'
 import { RiskOrderField, RiskRiskImpact, RiskRiskLikelihood, RiskRiskStatus } from '@repo/codegen/src/schema.ts'
-
-const enumToOptions = (e: Record<string, string>) =>
-  Object.values(e).map((value) => ({
-    label: value
-      .replace(/_/g, ' ')
-      .toLowerCase()
-      .replace(/\b\w/g, (l) => l.toUpperCase()),
-    value,
-  }))
 
 export const getRisksFilterFields = (
   programOptions: { value: string; label: string }[],
   riskKindOptions: { value: string; label: string }[],
   riskCategoryOptions: { value: string; label: string }[],
+  tagOptions: { value: string; label: string }[],
 ): FilterField[] => [
   {
     key: 'riskCategoryNameIn',
@@ -48,7 +41,7 @@ export const getRisksFilterFields = (
     options: riskKindOptions,
   },
 
-  { key: 'score', label: 'Score', type: 'sliderNumber', icon: FilterIcons.Score },
+  { key: 'score', label: 'Score', type: 'sliderRange', icon: FilterIcons.Score, min: 0, max: 100 },
 
   {
     key: 'statusIn',
@@ -65,6 +58,13 @@ export const getRisksFilterFields = (
     options: programOptions,
     icon: FilterIcons.ProgramName,
   },
+  {
+    key: 'tagsHas',
+    label: 'Tags',
+    type: 'dropdownSearchSingleSelect',
+    icon: FilterIcons.Status,
+    options: tagOptions,
+  },
 ]
 
 export const RISKS_SORT_FIELDS = [
@@ -80,8 +80,6 @@ export const RISKS_SORT_FIELDS = [
     key: RiskOrderField.STATUS,
     label: 'Status',
   },
-  {
-    key: RiskOrderField.category,
-    label: 'Category',
-  },
+  { key: 'created_at', label: 'Created At' },
+  { key: 'updated_at', label: 'Updated At' },
 ]

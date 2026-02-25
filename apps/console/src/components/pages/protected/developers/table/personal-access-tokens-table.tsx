@@ -208,11 +208,11 @@ export const PersonalAccessTokenTable = () => {
       },
     },
     {
-      accessorKey: 'id',
+      id: 'actions',
       header: '',
       cell: ({ cell }) => (
         <TokenAction
-          tokenId={cell.getValue() as string}
+          tokenId={cell.row.original.id}
           tokenName={cell.row.original.name}
           tokenSsoAuthorizations={cell.row.original.ssoAuthorizations}
           tokenDescription={cell.row.original.description}

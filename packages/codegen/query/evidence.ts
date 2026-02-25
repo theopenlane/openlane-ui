@@ -240,6 +240,7 @@ export const GET_EVIDENCE_LIST = gql`
       edges {
         node {
           id
+          displayID
           isAutomated
           name
           status
@@ -275,6 +276,34 @@ export const GET_EVIDENCE_LIST = gql`
               }
             }
           }
+          comments {
+            totalCount
+          }
+        }
+      }
+    }
+  }
+`
+
+export const GET_EVIDENCE_LIST_LIGHT = gql`
+  query GetEvidenceListLight($last: Int, $before: Cursor, $first: Int, $after: Cursor, $orderBy: [EvidenceOrder!], $where: EvidenceWhereInput) {
+    evidences(last: $last, before: $before, first: $first, after: $after, orderBy: $orderBy, where: $where) {
+      totalCount
+      pageInfo {
+        endCursor
+        startCursor
+        hasNextPage
+        hasPreviousPage
+      }
+      edges {
+        node {
+          id
+          displayID
+          name
+          status
+          source
+          updatedAt
+          updatedBy
         }
       }
     }
@@ -445,6 +474,32 @@ export const UPDATE_EVIDENCE_COMMENT = gql`
       evidence {
         id
       }
+    }
+  }
+`
+
+export const CREATE_CSV_BULK_EVIDENCE = gql`
+  mutation CreateBulkCSVEvidence($input: Upload!) {
+    createBulkCSVEvidence(input: $input) {
+      evidences {
+        id
+      }
+    }
+  }
+`
+
+export const BULK_DELETE_EVIDENCE = gql`
+  mutation DeleteBulkEvidence($ids: [ID!]!) {
+    deleteBulkEvidence(ids: $ids) {
+      deletedIDs
+    }
+  }
+`
+
+export const BULK_EDIT_EVIDENCE = gql`
+  mutation UpdateBulkEvidence($ids: [ID!]!, $input: UpdateEvidenceInput!) {
+    updateBulkEvidence(ids: $ids, input: $input) {
+      updatedIDs
     }
   }
 `

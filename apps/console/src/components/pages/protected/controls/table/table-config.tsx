@@ -3,21 +3,29 @@ import { ControlControlStatus, ControlListFieldsFragment, ControlOrderField, Gro
 import { ColumnDef, Row } from '@tanstack/react-table'
 import SubcontrolCell from './subcontrol-cell'
 import { Avatar } from '@/components/shared/avatar/avatar'
-import { formatDate } from '@/utils/date'
-import { ControlIconMapper16, ControlStatusLabels, ControlStatusTooltips, ControlStatusFilterOptions, FilterIcons } from '@/components/shared/enum-mapper/control-enum'
+import { formatDate, formatTimeSince } from '@/utils/date'
+import { ControlIconMapper16, ControlStatusTooltips, ControlStatusFilterOptions, FilterIcons } from '@/components/shared/enum-mapper/control-enum'
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@repo/ui/tooltip'
 import StandardChip from '../../standards/shared/standard-chip'
 import { Badge } from '@repo/ui/badge'
 import { Checkbox } from '@repo/ui/checkbox'
 import OwnerCell from './owner-cell'
 import DelegateCell from './delegate-cell'
-import { FileQuestion } from 'lucide-react'
+import { FileQuestion, LinkIcon } from 'lucide-react'
+import Link from 'next/link'
+import { LinkedPoliciesCell } from './linked-policies-cell'
+import { LinkedProceduresCell } from './linked-procedures-cell'
+import AssociatedObjectsCell from './associated-objects-cell'
+import { CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
+import { CustomTypeEnumOption } from '@/lib/graphql-hooks/custom-type-enum'
+import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 
 export const getControlsFilterFields = (
   standardOptions: { value: string; label: string }[],
   groups: { value: string; label: string }[],
   programOptions: { value: string; label: string }[],
   typeOptions: { value: string; label: string }[],
+  tagOptions: { value: string; label: string }[],
 ): FilterField[] => [
   { key: 'refCodeContainsFold', label: 'RefCode', type: 'text', icon: FilterIcons.RefCode },
   { key: 'categoryContainsFold', label: 'Category', type: 'text', icon: FilterIcons.Category },
@@ -44,7 +52,7 @@ export const getControlsFilterFields = (
   },
   {
     key: 'controlOwnerIDIn',
-    label: 'Owners',
+    label: 'Owner',
     type: 'multiselect',
     options: groups.map((group) => ({
       value: group.value,
@@ -69,8 +77,29 @@ export const getControlsFilterFields = (
   {
     key: 'hasInternalPolicies',
     label: 'Linked Policies',
-    type: 'boolean',
+    type: 'radio',
     icon: FilterIcons.LinkedPolicies,
+    radioOptions: [
+      { value: true, label: 'Has linked policies' },
+      { value: false, label: 'No linked policies' },
+    ],
+  },
+  {
+    key: 'hasComments',
+    label: 'Has Comments',
+    type: 'radio',
+    icon: FilterIcons.Comments,
+    radioOptions: [
+      { value: true, label: 'Has comments' },
+      { value: false, label: 'No comments' },
+    ],
+  },
+  {
+    key: 'tagsHas',
+    label: 'Tags',
+    type: 'dropdownSearchSingleSelect',
+    icon: FilterIcons.Status,
+    options: tagOptions,
   },
 ]
 
@@ -82,7 +111,8 @@ export const CONTROLS_SORT_FIELDS = [
   { key: 'CONTROL_TYPE', label: 'Control Type' },
   { key: 'category', label: 'Category' },
   { key: 'subcategory', label: 'Subcategory' },
-  { key: 'CONTROL_OWNER_name', label: 'Owners' },
+  { key: 'CONTROL_OWNER_name', label: 'Owner' },
+  { key: 'DELEGATE_name', label: 'Delegate' },
   { key: 'ref_code', label: 'Ref' },
 ]
 
@@ -91,9 +121,10 @@ type Params = {
   userMap: Record<string, User>
   selectedControls: { id: string; refCode: string }[]
   setSelectedControls: React.Dispatch<React.SetStateAction<{ id: string; refCode: string }[]>>
+  enumOptions: CustomTypeEnumOption[]
 }
 
-export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls, setSelectedControls }: Params): ColumnDef<ControlListFieldsFragment>[] => {
+export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls, setSelectedControls, enumOptions }: Params): ColumnDef<ControlListFieldsFragment>[] => {
   const toggleSelection = (control: { id: string; refCode: string }) => {
     setSelectedControls((prev) => {
       const exists = prev.some((c) => c.id === control.id)
@@ -132,12 +163,15 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
           </div>
         )
       },
+      maxSize: 50,
       size: 50,
     },
     {
       accessorKey: 'id',
       header: 'ID',
-      size: 120,
+      size: 270,
+      minSize: 270,
+      maxSize: 270,
       cell: ({ row }) => <div className="text-muted-foreground">{row.original.id}</div>,
     },
     {
@@ -165,19 +199,16 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
           </div>
         )
       },
-      size: 400, // Set a reasonable pixel width
-      minSize: 300,
-      meta: {
-        className: 'w-[50%] min-w-[300px]', // CSS class for responsive width
-      },
+      size: 500,
     },
     {
       header: 'Status',
       accessorKey: 'status',
-      size: 160,
+      size: 170,
+      minSize: 170,
       cell: ({ row }) => {
         const value: ControlControlStatus = row.getValue('status')
-        const label = ControlStatusLabels[value] ?? value
+        const label = getEnumLabel(value) ?? value
         return (
           <TooltipProvider>
             <Tooltip>
@@ -202,6 +233,7 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
     {
       header: 'Subcategory',
       accessorKey: 'subcategory',
+      size: 120,
       cell: ({ row }) => <div>{row.getValue('subcategory') || '-'}</div>,
     },
     {
@@ -239,7 +271,11 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
       header: 'Control Type',
       accessorKey: 'controlKindName',
       size: 120,
-      cell: ({ row }) => <div>{row.getValue('controlKindName') || '-'}</div>,
+      cell: ({ row }) => (
+        <div>
+          <CustomTypeEnumValue value={row.getValue('controlKindName') || ''} options={enumOptions} placeholder="-" />
+        </div>
+      ),
     },
     {
       header: 'Reference Framework',
@@ -258,7 +294,11 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
     },
     {
       header: 'Delegate',
-      accessorKey: 'delegate',
+      accessorKey: ControlOrderField.DELEGATE_name,
+      meta: {
+        exportPrefix: 'delegate.name',
+      },
+      size: 120,
       cell: ({ row }) => {
         const delegate = row.original.delegate
         const controlId = row.original.id
@@ -266,52 +306,53 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
       },
     },
     {
-      header: 'Created By',
+      header: 'Created by',
       accessorKey: 'createdBy',
-      size: 160,
+      size: 200,
       cell: ({ row }) => {
         const user = userMap[row.original.createdBy ?? '']
         return user ? (
-          <div className="flex items-center space-x-1">
-            <Avatar entity={user} className="w-[24px] h-[24px]" />
-            <p>{user.displayName}</p>
+          <div className="flex items-center gap-2">
+            <Avatar entity={user} />
+            {user.displayName || '-'}
           </div>
         ) : (
-          <span className="text-muted-foreground italic">Deleted user</span>
+          'Deleted user'
         )
       },
     },
     {
       header: 'Created At',
       accessorKey: 'createdAt',
-      size: 130,
-      cell: ({ cell }) => formatDate(cell.getValue() as string),
+      size: 150,
+      cell: ({ cell }) => <span className="whitespace-nowrap">{formatDate(cell.getValue() as string)}</span>,
     },
     {
       header: 'Updated By',
       accessorKey: 'updatedBy',
-      size: 160,
+      size: 200,
       cell: ({ row }) => {
         const user = userMap[row.original.updatedBy ?? '']
         return user ? (
-          <div className="flex items-center space-x-1">
-            <Avatar entity={user} className="w-[24px] h-[24px]" />
-            <p>{user.displayName}</p>
+          <div className="flex items-center gap-2">
+            <Avatar entity={user} />
+            {user.displayName || '-'}
           </div>
         ) : (
-          <span className="text-muted-foreground italic">Deleted user</span>
+          'Deleted user'
         )
       },
     },
     {
-      header: 'Updated At',
+      header: 'Last Updated',
       accessorKey: 'updatedAt',
-      size: 130,
-      cell: ({ cell }) => formatDate(cell.getValue() as string),
+      size: 100,
+      cell: ({ cell }) => <span className="whitespace-nowrap">{formatTimeSince(cell.getValue() as string)}</span>,
     },
     {
       header: 'Desired Outcome',
       accessorKey: 'desiredOutcome',
+      size: 220,
       meta: {
         exportPrefix: 'controlObjectives.desiredOutcome',
       },
@@ -327,6 +368,7 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
     {
       header: 'Implementation Details',
       accessorKey: 'controlImplementationsDetails',
+      size: 220,
       meta: {
         exportPrefix: 'controlImplementations.details',
       },
@@ -338,6 +380,49 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
           </div>
         )
       },
+    },
+    {
+      header: 'Associated Objects',
+      accessorKey: 'associatedObjects',
+      size: 180,
+      minSize: 180,
+      cell: ({ row }) => <AssociatedObjectsCell control={row.original} />,
+    },
+    {
+      header: 'Comments',
+      accessorKey: 'comments',
+      size: 130,
+      minSize: 120,
+      meta: {
+        exportPrefix: 'comments.text',
+      },
+      cell: ({ row }) => {
+        return (
+          <Link onClick={(e) => e.stopPropagation()} href={`/controls/${row.original.id}?showComments=true`} className="flex items-center gap-2">
+            <Badge>
+              {row.original.comments?.totalCount ?? 0} Comments <LinkIcon size={12} className="ml-1 inline-block" />
+            </Badge>
+          </Link>
+        )
+      },
+    },
+    {
+      header: 'Linked Policies',
+      accessorKey: 'linkedPolicies',
+      meta: {
+        exportPrefix: 'internalPolicies.name',
+      },
+      size: 220,
+      cell: LinkedPoliciesCell,
+    },
+    {
+      header: 'Linked Procedures',
+      accessorKey: 'linkedProcedures',
+      meta: {
+        exportPrefix: 'procedures.name',
+      },
+      size: 220,
+      cell: LinkedProceduresCell,
     },
   ]
 }

@@ -1,9 +1,10 @@
-import { useGroupSelect } from '@/lib/graphql-hooks/groups'
+import { useGroupSelect } from '@/lib/graphql-hooks/group'
 import { FilterField } from '@/types'
-import { useEffect, useState } from 'react'
-import { useProgramSelect } from '@/lib/graphql-hooks/programs'
+import { useEffect, useMemo, useState } from 'react'
+import { useProgramSelect } from '@/lib/graphql-hooks/program'
 import { FilterIcons, InternalPolicyStatusFilterOptions } from '@/components/shared/enum-mapper/policy-enum'
-import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
+import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 
 export function usePoliciesFilters(): FilterField[] | null {
   const { programOptions, isSuccess: isProgramSuccess } = useProgramSelect({})
@@ -15,6 +16,9 @@ export function usePoliciesFilters(): FilterField[] | null {
       field: 'kind',
     },
   })
+
+  const { tagOptions: rawTagOptions } = useGetTags()
+  const tagOptions = useMemo(() => rawTagOptions ?? [], [rawTagOptions])
 
   const [filters, setFilters] = useState<FilterField[] | null>(null)
 
@@ -76,19 +80,54 @@ export function usePoliciesFilters(): FilterField[] | null {
       {
         key: 'hasControls',
         label: 'Linked Controls',
-        type: 'boolean',
         icon: FilterIcons.LinkedControls,
+        type: 'radio',
+        radioOptions: [
+          { value: true, label: 'Has linked controls' },
+          { value: false, label: 'No linked controls' },
+        ],
       },
       {
         key: 'hasSubcontrols',
         label: 'Linked Subcontrols',
-        type: 'boolean',
+        type: 'radio',
+        radioOptions: [
+          { value: true, label: 'Has linked subcontrols' },
+          { value: false, label: 'No linked subcontrols' },
+        ],
         icon: FilterIcons.LinkedControls,
+      },
+      {
+        key: 'hasProcedures',
+        label: 'Linked Procedures',
+        type: 'radio',
+        radioOptions: [
+          { value: true, label: 'Has linked procedures' },
+          { value: false, label: 'No linked procedures' },
+        ],
+        icon: FilterIcons.LinkedControls,
+      },
+      {
+        key: 'hasComments',
+        label: 'Has Comments',
+        type: 'radio',
+        icon: FilterIcons.Comments,
+        radioOptions: [
+          { value: true, label: 'Has comments' },
+          { value: false, label: 'No comments' },
+        ],
+      },
+      {
+        key: 'tagsHas',
+        label: 'Tags',
+        type: 'dropdownSearchSingleSelect',
+        icon: FilterIcons.Status,
+        options: tagOptions,
       },
     ]
 
     setFilters(newFilters)
-  }, [isProgramSuccess, programOptions, isGroupSuccess, groupOptions, filters, isTypesSuccess, enumOptions])
+  }, [isProgramSuccess, programOptions, isGroupSuccess, groupOptions, filters, isTypesSuccess, enumOptions, tagOptions])
 
   return filters
 }
@@ -99,5 +138,6 @@ export const INTERNAL_POLICIES_SORT_FIELDS = [
   { key: 'name', label: 'Name' },
   { key: 'review_due', label: 'Review Due Date' },
   { key: 'revision', label: 'Revision' },
+  { key: 'created_at', label: 'Created At' },
   { key: 'updated_at', label: 'Last Updated' },
 ]

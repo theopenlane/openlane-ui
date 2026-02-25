@@ -6,6 +6,8 @@ interface QuestionnaireResponse {
   success: boolean
   data: {
     jsonconfig: Record<string, unknown>
+    is_draft?: boolean
+    saved_data?: Record<string, unknown>
   }
   message?: string
 }
@@ -52,9 +54,56 @@ export const useQuestionnaire = ({ token, enabled = true }: UseQuestionnairePara
   return resp
 }
 
+interface ResendQuestionnaireLinkParams {
+  assessmentId: string
+  email: string
+}
+
+interface ResendQuestionnaireLinkResponse {
+  success: boolean
+  message?: string
+}
+
+export const useResendQuestionnaireLink = () => {
+  const { errorNotification, successNotification } = useNotification()
+
+  return useMutation<ResendQuestionnaireLinkResponse, Error, ResendQuestionnaireLinkParams>({
+    mutationFn: async ({ assessmentId, email }) => {
+      const response = await fetch('/api/questionnaire/resend', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ assessment_id: assessmentId, email }),
+      })
+
+      const result = await response.json()
+
+      if (!response.ok || !result.success) {
+        throw new Error(result.message || 'Could not resend questionnaire link. Please try again.')
+      }
+
+      return result as ResendQuestionnaireLinkResponse
+    },
+    onSuccess: () => {
+      successNotification({
+        title: 'Link Sent',
+        description: 'A new authentication link has been sent to your email.',
+      })
+    },
+    onError: (error) => {
+      errorNotification({
+        title: 'Failed to Resend Link',
+        description: error.message || 'An unexpected error occurred. Please try again.',
+      })
+    },
+  })
+}
+
 interface SubmitQuestionnaireParams {
   token: string
   data: Record<string, unknown>
+  isDraft?: boolean
 }
 
 interface SubmitQuestionnaireResponse {
@@ -66,14 +115,14 @@ export const useSubmitQuestionnaire = () => {
   const { errorNotification, successNotification } = useNotification()
 
   return useMutation<SubmitQuestionnaireResponse, Error, SubmitQuestionnaireParams>({
-    mutationFn: async ({ token, data }) => {
+    mutationFn: async ({ token, data, isDraft }) => {
       const response = await fetch('/api/questionnaire', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ data }),
+        body: JSON.stringify({ data, isDraft }),
       })
 
       const result = await response.json()
@@ -84,16 +133,23 @@ export const useSubmitQuestionnaire = () => {
 
       return result as SubmitQuestionnaireResponse
     },
-    onSuccess: () => {
-      successNotification({
-        title: 'Questionnaire Submitted',
-        description: 'Your questionnaire has been submitted successfully.',
-      })
+    onSuccess: (_data, variables) => {
+      if (variables.isDraft) {
+        successNotification({
+          title: 'Draft Saved',
+          description: 'Your progress has been saved. You can resume later.',
+        })
+      } else {
+        successNotification({
+          title: 'Questionnaire Submitted',
+          description: 'Your questionnaire has been submitted successfully.',
+        })
+      }
     },
-    onError: (error) => {
+    onError: (error, variables) => {
       errorNotification({
-        title: 'Submission Failed',
-        description: error.message || 'An unexpected error occurred while submitting. Please try again.',
+        title: variables.isDraft ? 'Save Failed' : 'Submission Failed',
+        description: error.message || 'An unexpected error occurred. Please try again.',
       })
     },
   })

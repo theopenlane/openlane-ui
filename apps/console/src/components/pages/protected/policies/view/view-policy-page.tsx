@@ -1,24 +1,28 @@
-import { useDeleteInternalPolicy, useGetInternalPolicyAssociationsById, useGetInternalPolicyDetailsById, useUpdateInternalPolicy } from '@/lib/graphql-hooks/policy.ts'
+import {
+  useDeleteInternalPolicy,
+  useGetInternalPolicyAssociationsById,
+  useGetInternalPolicyDetailsById,
+  useGetPolicyDiscussionById,
+  useUpdateInternalPolicy,
+} from '@/lib/graphql-hooks/internal-policy'
 import React, { useEffect, useMemo, useState } from 'react'
-import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import useFormSchema, { EditPolicyMetadataFormData } from '@/components/pages/protected/policies/view/hooks/use-form-schema.ts'
 import { Form } from '@repo/ui/form'
 import DetailsField from '@/components/pages/protected/policies/view/fields/details-field.tsx'
 import TitleField from '@/components/pages/protected/policies/view/fields/title-field.tsx'
 import { Button } from '@repo/ui/button'
-import { LockOpen, PencilIcon, SaveIcon, Trash2, XIcon } from 'lucide-react'
+import { LockOpen, PencilIcon, Trash2 } from 'lucide-react'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import AuthorityCard from '@/components/pages/protected/policies/view/cards/authority-card.tsx'
 import PropertiesCard from '@/components/pages/protected/policies/view/cards/properties-card.tsx'
 import { InternalPolicyDocumentStatus, InternalPolicyFrequency, UpdateInternalPolicyInput } from '@repo/codegen/src/schema.ts'
 import HistoricalCard from '@/components/pages/protected/policies/view/cards/historical-card.tsx'
 import TagsCard from '@/components/pages/protected/policies/view/cards/tags-card.tsx'
-import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap.ts'
-import { Value } from 'platejs'
+import { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap.ts'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification.tsx'
 import { usePolicy } from '@/components/pages/protected/policies/create/hooks/use-policy.tsx'
 import { canDelete, canEdit } from '@/lib/authz/utils'
-import { ObjectEnum } from '@/lib/authz/enums/object-enum'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useRouter } from 'next/navigation'
 import Menu from '@/components/shared/menu/menu.tsx'
@@ -30,9 +34,17 @@ import { ManagePermissionSheet } from '@/components/shared/policy-procedure.tsx/
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types.ts'
 import ObjectAssociationSwitch from '@/components/shared/object-association/object-association-switch.tsx'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { useAssociationRemoval } from '@/hooks/useAssociationRemoval'
+import { ASSOCIATION_REMOVAL_CONFIG } from '@/components/shared/object-association/object-association-config'
 import Loading from '@/app/(protected)/policies/[id]/view/loading'
 import { Card } from '@repo/ui/cardpanel'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
+import { Value } from 'platejs'
+import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
+import { SaveButton } from '@/components/shared/save-button/save-button'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import LinkedProcedures from './fields/linked-procedures'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 type TViewPolicyPage = {
   policyId: string
@@ -41,15 +53,15 @@ type TViewPolicyPage = {
 const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
   const [isDeleting, setIsDeleting] = useState<boolean>(false)
   const { data, isLoading } = useGetInternalPolicyDetailsById(policyId, !isDeleting)
-  const plateEditorHelper = usePlateEditor()
   const { mutateAsync: updatePolicy, isPending: isSaving } = useUpdateInternalPolicy()
   const policyState = usePolicy()
   const policy = data?.internalPolicy
   const { form } = useFormSchema()
   const [isEditing, setIsEditing] = useState(false)
+  const [editingField, setEditingField] = useState<string | null>(null)
   const queryClient = useQueryClient()
   const { successNotification, errorNotification } = useNotification()
-  const { data: permission } = useAccountRoles(ObjectEnum.POLICY, policyId)
+  const { data: permission } = useAccountRoles(ObjectTypes.INTERNAL_POLICY, policyId)
   const deleteAllowed = canDelete(permission?.roles)
   const editAllowed = canEdit(permission?.roles)
   const { mutateAsync: deletePolicy } = useDeleteInternalPolicy()
@@ -61,6 +73,12 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
   const [dataInitialized, setDataInitialized] = useState(false)
   const [showPermissionsSheet, setShowPermissionsSheet] = useState(false)
   const { data: assocData } = useGetInternalPolicyAssociationsById(policyId, !isDeleting)
+  const { data: discussionData } = useGetPolicyDiscussionById(policyId)
+  const plateEditorHelper = usePlateEditor()
+  const [activeTab, setActiveTab] = useState<'policy' | 'procedures'>('policy')
+
+  const procedureCount = assocData?.internalPolicy?.procedures?.totalCount ?? 0
+  const procedures = assocData?.internalPolicy?.procedures?.edges ?? []
 
   const memoizedSections = useMemo(() => {
     if (!assocData) return {}
@@ -162,13 +180,8 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
     if (!policy?.id) {
       return
     }
+
     try {
-      let detailsField = data?.details
-
-      if (detailsField) {
-        detailsField = await plateEditorHelper.convertToHtml(detailsField as Value)
-      }
-
       const formData: {
         updateInternalPolicyId: string
         input: UpdateInternalPolicyInput
@@ -176,7 +189,8 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
         updateInternalPolicyId: policy?.id,
         input: {
           ...data,
-          details: detailsField,
+          detailsJSON: data.detailsJSON,
+          details: await plateEditorHelper.convertToHtml(data.detailsJSON as Value),
           tags: data?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
           approverID: data.approverID || undefined,
           delegateID: data.delegateID || undefined,
@@ -192,6 +206,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
 
       setIsEditing(false)
       queryClient.invalidateQueries({ queryKey: ['internalPolicies'] })
+      queryClient.invalidateQueries({ queryKey: ['policyDiscussion', policyId] })
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
       errorNotification({
@@ -209,7 +224,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
     router.push(`/procedures/create?policyId=${policyId}`)
   }
 
-  const handleUpdateField = async (input: UpdateInternalPolicyInput) => {
+  const handleUpdateField = async (input: UpdateInternalPolicyInput, options?: { throwOnError?: boolean }) => {
     if (!policy?.id) {
       return
     }
@@ -227,8 +242,24 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
         title: 'Error',
         description: errorMessage,
       })
+
+      if (options?.throwOnError) {
+        throw error
+      }
     }
   }
+
+  const handleRemoveAssociation = useAssociationRemoval({
+    entityId: policy?.id,
+    handleUpdateField: (input: UpdateInternalPolicyInput) => handleUpdateField(input, { throwOnError: true }),
+    queryClient,
+    cacheTargets: [{ queryKey: ['internalPolicies', policyId, 'associations'], dataRootField: 'internalPolicy' }],
+    invalidateQueryKeys: [['internalPolicies']],
+    sectionKeyToRemoveField: ASSOCIATION_REMOVAL_CONFIG.policy.sectionKeyToRemoveField,
+    sectionKeyToDataField: ASSOCIATION_REMOVAL_CONFIG.policy.sectionKeyToDataField,
+    sectionKeyToInvalidateQueryKey: ASSOCIATION_REMOVAL_CONFIG.policy.sectionKeyToInvalidateQueryKey,
+    onRemoved: () => setDataInitialized(false),
+  })
 
   if (isLoading) {
     return <Loading />
@@ -242,12 +273,8 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
     <div className="space-y-4">
       {isEditing ? (
         <div className="flex gap-2 justify-end">
-          <Button className="h-8 !px-2" onClick={handleCancel} icon={<XIcon />}>
-            Cancel
-          </Button>
-          <Button type="submit" iconPosition="left" className="h-8 !px-2" icon={<SaveIcon />} disabled={isSaving}>
-            {isSaving ? 'Saving' : 'Save'}
-          </Button>
+          <CancelButton onClick={handleCancel}></CancelButton>
+          <SaveButton disabled={isSaving} isSaving={isSaving} />
         </div>
       ) : (
         <div className="flex gap-2 justify-end">
@@ -304,20 +331,49 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
   const mainContent = (
     <div className="p-2">
       <TitleField isEditing={isEditing} form={form} handleUpdate={handleUpdateField} initialData={policy.name} editAllowed={editAllowed} />
-      <DetailsField isEditing={isEditing} form={form} policy={policy} />
+
+      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'policy' | 'procedures')} variant="underline">
+        <TabsList className="relative flex justify-start w-full">
+          <div className="absolute -bottom-0.5 left-1 right-0 h-px bg-border" />
+          <TabsTrigger className="relative max-w-26 text-start" value="policy">
+            Policy
+          </TabsTrigger>
+          <TabsTrigger value="procedures" className="relative max-w-28 flex text-start items-center gap-2">
+            Procedures
+            {procedureCount > 0 && <span className="inline-flex items-center justify-center min-w-5 h-5 text-xs rounded-full bg-card bg-rounded">{procedureCount}</span>}
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="policy">
+          <DetailsField isEditing={isEditing} form={form} policy={policy} discussionData={discussionData?.internalPolicy} />
+        </TabsContent>
+
+        <TabsContent value="procedures">
+          <LinkedProcedures procedures={procedures} />
+        </TabsContent>
+      </Tabs>
     </div>
   )
 
   const sidebarContent = (
     <>
-      {memoizedCenterNode && <ObjectAssociationSwitch sections={memoizedSections} centerNode={memoizedCenterNode} canEdit={editAllowed} />}
+      {memoizedCenterNode && <ObjectAssociationSwitch sections={memoizedSections} centerNode={memoizedCenterNode} canEdit={editAllowed} onRemoveAssociation={handleRemoveAssociation} />}
       <Card className="p-4">
         <h3 className="text-lg font-medium mb-2">Properties</h3>
 
-        <AuthorityCard form={form} approver={policy.approver} delegate={policy.delegate} isEditing={isEditing} editAllowed={editAllowed} handleUpdate={handleUpdateField} />
-        <PropertiesCard form={form} isEditing={isEditing} policy={policy} editAllowed={editAllowed} handleUpdate={handleUpdateField} />
+        <AuthorityCard
+          form={form}
+          approver={policy.approver}
+          delegate={policy.delegate}
+          isEditing={isEditing}
+          editAllowed={editAllowed}
+          handleUpdate={handleUpdateField}
+          activeField={editingField}
+          setActiveField={setEditingField}
+        />
+        <PropertiesCard form={form} isEditing={isEditing} policy={policy} editAllowed={editAllowed} handleUpdate={handleUpdateField} activeField={editingField} setActiveField={setEditingField} />
         <HistoricalCard policy={policy} />
-        <TagsCard form={form} policy={policy} isEditing={isEditing} handleUpdate={handleUpdateField} editAllowed={editAllowed} />
+        <TagsCard form={form} policy={policy} isEditing={isEditing} handleUpdate={handleUpdateField} editAllowed={editAllowed} activeField={editingField} setActiveField={setEditingField} />
       </Card>
     </>
   )

@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ data: body.data }),
+      body: JSON.stringify({ data: body.data, is_draft: body.isDraft ?? false }),
     })
 
     const data = await response.json()

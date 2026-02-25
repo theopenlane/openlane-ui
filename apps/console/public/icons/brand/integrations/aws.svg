@@ -1,0 +1,25 @@
+<svg width="128" height="128" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="AWS">
+  <defs>
+    <linearGradient id="awsBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFB347"/>
+      <stop offset="100%" stop-color="#FF8A00"/>
+    </linearGradient>
+  </defs>
+  <circle cx="64" cy="64" r="62" fill="url(#awsBg)"/>
+  <g fill="#FFFFFF">
+    <text
+      x="64"
+      y="64"
+      text-anchor="middle"
+      dominant-baseline="middle"
+      font-family="Helvetica, Arial, sans-serif"
+      font-size="34"
+      font-weight="700"
+      letter-spacing="0.5"
+    >
+      aws
+    </text>
+    <path d="M35 82C46 93 82 96 99 78" stroke="#FFFFFF" stroke-width="4.5" stroke-linecap="round" fill="none"/>
+    <path d="M94 79L101 77L99 84Z" fill="#FFFFFF"/>
+  </g>
+</svg>

@@ -3,7 +3,7 @@ import { Popover, PopoverContent, PopoverTrigger } from './popover'
 import { Button } from '../button/button'
 
 const meta: Meta<typeof Popover> = {
-  title: 'UI/Popover',
+  title: 'Overlays/Popover',
   component: Popover,
   parameters: {
     docs: {

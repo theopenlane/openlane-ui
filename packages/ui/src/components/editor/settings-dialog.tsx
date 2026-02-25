@@ -30,6 +30,8 @@ export const models: Model[] = [
   { label: 'gpt-3.5-turbo-instruct', value: 'gpt-3.5-turbo-instruct' },
 ]
 
+const defaultTemperature = 0.2
+
 export function SettingsDialog() {
   const editor = useEditorRef()
 
@@ -53,6 +55,7 @@ export function SettingsDialog() {
         ...chatOptions.body,
         apiKey: tempKeys.openai,
         model: tempModel.value,
+        temperature: defaultTemperature,
       },
     })
 

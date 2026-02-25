@@ -1,10 +1,10 @@
-import { ColumnDef, Row } from '@tanstack/react-table'
+import { ColumnDef } from '@tanstack/react-table'
 import { Group, RiskRiskStatus, RiskTableFieldsFragment, User } from '@repo/codegen/src/schema.ts'
 import React from 'react'
 import RiskLabel from '@/components/pages/protected/risks/risk-label.tsx'
-import { Avatar } from '@/components/shared/avatar/avatar.tsx'
-import { formatDate } from '@/utils/date'
-import { Checkbox } from '@repo/ui/checkbox'
+import { UserCell } from '@/components/shared/crud-base/columns/user-cell'
+import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
+import { createSelectColumn } from '@/components/shared/crud-base/columns/select-column'
 import DelegateCell from './delegate-cell'
 import StakeholderCell from './stakeholder-cell'
 
@@ -16,61 +16,19 @@ type Params = {
 }
 
 export const getRiskColumns = ({ userMap, convertToReadOnly, selectedRisks, setSelectedRisks }: Params) => {
-  const toggleSelection = (risk: { id: string }) => {
-    setSelectedRisks((prev) => {
-      const exists = prev.some((c) => c.id === risk.id)
-      return exists ? prev.filter((c) => c.id !== risk.id) : [...prev, risk]
-    })
-  }
   const columns: ColumnDef<RiskTableFieldsFragment>[] = [
-    {
-      id: 'select',
-      header: ({ table }) => {
-        const currentPageRisks = table.getRowModel().rows.map((row) => row.original)
-        const allSelected = currentPageRisks.every((risk) => selectedRisks.some((sc) => sc.id === risk.id))
-
-        return (
-          <div onClick={(e) => e.stopPropagation()}>
-            <Checkbox
-              checked={allSelected}
-              onCheckedChange={(checked: boolean) => {
-                const newSelections = checked
-                  ? [...selectedRisks.filter((sc) => !currentPageRisks.some((c) => c.id === sc.id)), ...currentPageRisks.map((c) => ({ id: c.id }))]
-                  : selectedRisks.filter((sc) => !currentPageRisks.some((c) => c.id === sc.id))
-
-                setSelectedRisks(newSelections)
-              }}
-            />
-          </div>
-        )
-      },
-      cell: ({ row }: { row: Row<RiskTableFieldsFragment> }) => {
-        const { id } = row.original
-        const isChecked = selectedRisks.some((c) => c.id === id)
-
-        return (
-          <div onClick={(e) => e.stopPropagation()}>
-            <Checkbox checked={isChecked} onCheckedChange={() => toggleSelection({ id })} />
-          </div>
-        )
-      },
-      size: 20,
-      minSize: 20,
-      maxSize: 20,
-    },
+    createSelectColumn<RiskTableFieldsFragment>(selectedRisks, setSelectedRisks),
     {
       accessorKey: 'id',
       header: 'ID',
-      size: 120,
+      size: 270,
       cell: ({ row }) => <div className="text-muted-foreground">{row.original.id}</div>,
     },
     {
       accessorKey: 'name',
       header: 'Name',
       cell: ({ cell }) => <div className="font-bold">{cell.getValue() as string}</div>,
-      size: 100,
-      minSize: 100,
-      maxSize: 200,
+      size: 200,
     },
     {
       accessorKey: 'status',
@@ -80,12 +38,30 @@ export const getRiskColumns = ({ userMap, convertToReadOnly, selectedRisks, setS
           <RiskLabel status={(cell.getValue() as RiskRiskStatus) || ''} isEditing={false} />
         </div>
       ),
-      size: 80,
-      maxSize: 80,
-      minSize: 80,
+      minSize: 120,
     },
-    { accessorKey: 'riskKindName', header: 'Type', size: 100 },
-    { accessorKey: 'riskCategoryName', header: 'Category', size: 100 },
+    {
+      accessorKey: 'riskKindName',
+      header: 'Type',
+      size: 100,
+      cell: ({ cell }) => (
+        <div className="flex items-center space-x-2">
+          <RiskLabel fieldName="riskKindName" riskKindName={(cell.getValue() as string) || ''} isEditing={false} />
+        </div>
+      ),
+      minSize: 150,
+    },
+    {
+      accessorKey: 'riskCategoryName',
+      header: 'Category',
+      cell: ({ cell }) => (
+        <div className="flex items-center space-x-2">
+          <RiskLabel fieldName="riskCategoryName" riskCategoryName={cell.getValue() as string} isEditing={false} />
+        </div>
+      ),
+      size: 150,
+      minSize: 150,
+    },
     {
       accessorKey: 'score',
       header: 'Score',
@@ -94,6 +70,7 @@ export const getRiskColumns = ({ userMap, convertToReadOnly, selectedRisks, setS
           <RiskLabel score={cell.getValue() as number} isEditing={false} />
         </div>
       ),
+      size: 90,
     },
     {
       accessorKey: 'stakeholder',
@@ -106,12 +83,13 @@ export const getRiskColumns = ({ userMap, convertToReadOnly, selectedRisks, setS
         const riskId = row.original.id
         return <StakeholderCell stakeholder={stakeholder as Group | null} riskId={riskId} />
       },
+      size: 120,
     },
     {
       accessorKey: 'businessCosts',
       header: 'Business Costs',
       cell: ({ cell }) => convertToReadOnly?.(cell.getValue() as string, 0) || '',
-      size: 180,
+      size: 200,
     },
     {
       accessorKey: 'delegate',
@@ -130,7 +108,7 @@ export const getRiskColumns = ({ userMap, convertToReadOnly, selectedRisks, setS
       accessorKey: 'details',
       header: 'Details',
       cell: ({ cell }) => convertToReadOnly?.(cell.getValue() as string, 0) || '',
-      size: 200,
+      size: 500,
     },
     {
       accessorKey: 'impact',
@@ -151,51 +129,31 @@ export const getRiskColumns = ({ userMap, convertToReadOnly, selectedRisks, setS
       accessorKey: 'mitigation',
       header: 'Mitigation',
       cell: ({ cell }) => convertToReadOnly?.(cell.getValue() as string, 0) || '',
-      size: 200,
+      size: 400,
     },
     {
       accessorKey: 'createdBy',
-      header: 'Created By',
-      cell: ({ row }) => {
-        const user = userMap[row.original.createdBy ?? '']
-        return user ? (
-          <div className="flex items-center space-x-1">
-            <Avatar entity={user as User} className="w-[24px] h-[24px]" />
-            <p>{user.displayName}</p>
-          </div>
-        ) : (
-          <span className="text-muted-foreground italic">Deleted user</span>
-        )
-      },
-      size: 160,
+      header: 'Created by',
+      size: 200,
+      cell: ({ row }) => <UserCell user={userMap[row.original.createdBy ?? ''] as User | undefined} />,
     },
     {
       accessorKey: 'createdAt',
       header: 'Created At',
-      cell: ({ cell }) => formatDate(cell.getValue() as string),
-      size: 130,
+      size: 150,
+      cell: ({ cell }) => <DateCell value={cell.getValue() as string} />,
     },
     {
       accessorKey: 'updatedBy',
       header: 'Updated By',
-      cell: ({ row }) => {
-        const user = userMap[row.original.updatedBy ?? '']
-        return user ? (
-          <div className="flex items-center space-x-1">
-            <Avatar entity={user as User} className="w-[24px] h-[24px]" />
-            <p>{user.displayName}</p>
-          </div>
-        ) : (
-          <span className="text-muted-foreground italic">Deleted user</span>
-        )
-      },
-      size: 160,
+      size: 200,
+      cell: ({ row }) => <UserCell user={userMap[row.original.updatedBy ?? ''] as User | undefined} />,
     },
     {
       accessorKey: 'updatedAt',
-      header: 'Updated At',
-      cell: ({ cell }) => formatDate(cell.getValue() as string),
-      size: 130,
+      header: 'Last Updated',
+      size: 100,
+      cell: ({ cell }) => <DateCell value={cell.getValue() as string} variant="timesince" />,
     },
   ]
 

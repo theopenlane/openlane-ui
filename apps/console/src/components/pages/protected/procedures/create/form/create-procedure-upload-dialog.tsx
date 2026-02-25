@@ -5,7 +5,7 @@ import { Import, Trash2 } from 'lucide-react'
 import React, { cloneElement, useState, useEffect } from 'react'
 import { Button } from '@repo/ui/button'
 import { useNotification } from '@/hooks/useNotification'
-import { useCreateProcedure, useCreateUploadProcedure } from '@/lib/graphql-hooks/procedures.ts'
+import { useCreateProcedure, useCreateUploadProcedure } from '@/lib/graphql-hooks/procedure'
 import { TUploadedFile } from '../../../evidence/upload/types/TUploadedFile'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
@@ -17,6 +17,7 @@ import DirectLinkCreatePolicyProcedureTab from '@/components/shared/policy-proce
 import { Callout } from '@/components/shared/callout/callout'
 import { COMPLIANCE_MANAGEMENT_DOCS_URL } from '@/constants/docs'
 import UploadedFileDetailsCard from '@/components/shared/file-upload/uploaded-file-details-card'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 type TCreateProcedureUploadDialogProps = {
   trigger?: React.ReactElement<
@@ -227,16 +228,16 @@ const CreateProcedureUploadDialog: React.FC<TCreateProcedureUploadDialogProps> =
             <Trash2 className="hover:cursor-pointer" onClick={() => handleDeleteLink(index)} />
           </div>
         ))}
-        {uploadedFiles.map((file, index) => (
-          <UploadedFileDetailsCard key={index} fileName={file.name} fileSize={file.size} index={index} handleDeleteFile={handleDeleteFile} />
-        ))}
+        <div className="grid grid-cols-4 gap-6 max-h-96 overflow-y-auto">
+          {uploadedFiles.map((file, index) => (
+            <UploadedFileDetailsCard key={index} fileName={file.name} fileSize={file.size} index={index} handleDeleteFile={handleDeleteFile} />
+          ))}
+        </div>
         <div className="flex flex-col gap-2">
           <Button className="primary" onClick={handleUpload} loading={isSubmitting} disabled={isSubmitting || !hasFileOrLink}>
             {isSubmitting || isCreating ? 'Uploading...' : 'Upload'}
           </Button>
-          <Button variant="back" onClick={() => setIsOpen(false)}>
-            Cancel
-          </Button>
+          <CancelButton onClick={() => setIsOpen(false)}></CancelButton>
         </div>
       </DialogContent>
     </Dialog>

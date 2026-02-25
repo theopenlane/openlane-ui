@@ -12,8 +12,9 @@ import { startRegistration } from '@simplewebauthn/browser'
 import { useQueryClient } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
-import { useDeletePasskey, useGetPasskeys } from '@/lib/graphql-hooks/passkeys'
+import { useDeletePasskey, useGetPasskeys } from '@/lib/graphql-hooks/passkey'
 import rawData from '@/lib/passkeys.json' assert { type: 'json' }
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 type PasskeyEntry = {
   name?: string
@@ -55,7 +56,12 @@ const PasskeySection = ({ userData }: { userData: GetUserProfileQuery | undefine
       setSessionCookie(options.session)
 
       const attestationResponse = await startRegistration({
-        useAutoRegister: true,
+        // useAutoRegister enables Chrome's conditional passkey creation.
+        // This requires stricter user-activation + privacy guarantees and
+        // frequently fails with NotAllowedError in settings / multi-step flows.
+        // This will cause failures if you change which passkey you want to use
+        // from the initial prompt to the system prompt.
+        useAutoRegister: false,
         optionsJSON: options.publicKey,
       })
 
@@ -194,7 +200,7 @@ const PasskeyItem = ({ passkey }: { passkey: Webauthn }) => {
           </DialogHeader>
           <div className="flex justify-end space-x-4 pt-4">
             <DialogClose asChild>
-              <Button variant="secondary">Cancel</Button>
+              <CancelButton />
             </DialogClose>
             <Button variant="destructive" onClick={removePasskeys}>
               Remove Passkey

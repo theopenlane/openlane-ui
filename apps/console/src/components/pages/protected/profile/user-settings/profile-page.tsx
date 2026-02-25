@@ -12,10 +12,11 @@ import { Button } from '@repo/ui/button'
 import { Panel, PanelHeader } from '@repo/ui/panel'
 import { Badge } from '@repo/ui/badge'
 import { useGetCurrentUser, useUpdateUserAvatar, useUpdateUserSetting } from '@/lib/graphql-hooks/user'
-import { useCreateTfaSetting, useGetUserTFASettings, useUpdateTfaSetting } from '@/lib/graphql-hooks/tfa'
+import { useCreateTfaSetting, useGetUserTFASettings, useUpdateTfaSetting } from '@/lib/graphql-hooks/tfa-setting'
 import PasskeySection from './passkeys-section'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import DeleteUserSection from '../delete-user-section'
 
 const ProfilePage = () => {
   const { data: sessionData } = useSession()
@@ -248,6 +249,7 @@ const ProfilePage = () => {
       )}
 
       <PasskeySection userData={userData} />
+      <DeleteUserSection userId={userId} />
     </>
   )
 }

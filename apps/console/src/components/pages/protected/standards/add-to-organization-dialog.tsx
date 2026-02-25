@@ -4,11 +4,12 @@ import React, { useMemo, useState } from 'react'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@repo/ui/dialog'
 import { Button } from '@repo/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { useCloneControls } from '@/lib/graphql-hooks/standards'
+import { useCloneControls } from '@/lib/graphql-hooks/standard'
 import { useNotification } from '@/hooks/useNotification'
 import { useQueryClient } from '@tanstack/react-query'
-import { useGetAllPrograms } from '@/lib/graphql-hooks/programs'
+import { useGetAllPrograms } from '@/lib/graphql-hooks/program'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 type SelectedControl = { id: string; refCode: string }
 
@@ -101,9 +102,7 @@ const AddToOrganizationDialog: React.FC<AddToOrganizationDialogProps> = ({ open,
           <Button onClick={handleAddToOrg} disabled={isPending} className="min-w-[100px]">
             {isPending ? 'Adding...' : 'Add'}
           </Button>
-          <Button type="button" variant="secondary" onClick={() => onOpenChange(false)} className="min-w-[100px]">
-            Cancel
-          </Button>
+          <CancelButton onClick={() => onOpenChange(false)}></CancelButton>
         </DialogFooter>
       </DialogContent>
     </Dialog>

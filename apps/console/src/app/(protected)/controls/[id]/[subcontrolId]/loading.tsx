@@ -1,8 +1,8 @@
-import { ObjectWithDetailsSkeleton } from '@/components/shared/skeleton/object-with-slideout-skeleton'
+import { ObjectWithTabbedDetailsSkeleton } from '@/components/shared/skeleton/object-with-slideout-tabbed-skeleton'
 import React from 'react'
 
 const Loader: React.FC = () => {
-  return <ObjectWithDetailsSkeleton />
+  return <ObjectWithTabbedDetailsSkeleton />
 }
 
 export default Loader

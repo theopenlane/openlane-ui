@@ -6,6 +6,10 @@ import { Avatar } from '@/components/shared/avatar/avatar'
 import { WizardValues } from './advanced-setup-wizard-config'
 import { formatDate } from '@/utils/date'
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@repo/ui/tooltip'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
+import { CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { objectToSnakeCase } from '@/utils/strings'
 
 interface Props {
   summaryData: WizardValues
@@ -45,6 +49,12 @@ function AvatarListWithTooltip<T>({ items, getKey, getEntity, getName }: { items
 }
 
 export const AdvancedSetupFormSummary: React.FC<Props> = ({ summaryData }) => {
+  const { enumOptions } = useGetCustomTypeEnums({
+    where: {
+      objectType: objectToSnakeCase(ObjectTypes.PROGRAM),
+      field: 'kind',
+    },
+  })
   const displaySelection = (items?: { label: string; value: string }[]) => {
     if (!items || items.length === 0) return <span className="text-sm text-inverted-muted-foreground">Empty</span>
     if (items.length === 1) return <span className="text-sm">{items[0].label}</span>
@@ -62,7 +72,7 @@ export const AdvancedSetupFormSummary: React.FC<Props> = ({ summaryData }) => {
             <span className="text-sm text-muted-foreground">
               Type <span className="text-destructive">*</span>
             </span>
-            <span className="text-sm text-inverted-muted-foreground">{summaryData.programKindName ?? 'Empty'}</span>
+            <CustomTypeEnumValue value={summaryData.programKindName ?? ''} options={enumOptions ?? []} placeholder="Empty" />
           </div>
           <div className="flex justify-between">
             <span className="text-sm text-muted-foreground">

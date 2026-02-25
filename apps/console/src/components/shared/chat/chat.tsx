@@ -1,37 +1,30 @@
-import { AssistantModal, useEdgeRuntime } from '@assistant-ui/react'
+import { AssistantRuntimeProvider } from '@assistant-ui/react'
 import { enableChat } from '@repo/dally/chat'
 import { examplePrompts } from './prompts'
+import { useChatRuntime, AssistantChatTransport } from '@assistant-ui/react-ai-sdk'
+import { AssistantModal } from '@/components/assistant-ui/assistant-modal'
 
-const nextEndpoint = '/api/chat'
+const nextEndpoint: string = '/api/chat'
 
 export default function ChatBot() {
-  // if the model is not set, return null
-
-  const runtime = useEdgeRuntime({
-    api: nextEndpoint,
+  const runtime = useChatRuntime({
+    transport: new AssistantChatTransport({
+      api: nextEndpoint,
+    }),
   })
 
-  if (enableChat == 'false') {
-    return
+  if (enableChat === 'false') {
+    return null
   }
 
-  const welcome = {
-    message: 'Here to help, how can I assist you today?',
-    suggestions: examplePrompts,
-  }
-
-  const message = {
-    allowReload: true,
-    allowCopy: true,
-    allowSpeak: true,
-    allowFeedbackPositive: true,
-    allowFeedbackNegative: true,
-  }
-
-  const avatar = {
-    src: '/icons/robot-svgrepo-com.svg',
-    fallback: 'Openlane Assistant',
-  }
-
-  return <AssistantModal runtime={runtime} welcome={welcome} assistantMessage={message} assistantAvatar={avatar} />
+  return (
+    <AssistantRuntimeProvider runtime={runtime}>
+      <AssistantModal
+        welcome={{
+          message: 'Here to help, how can I assist you today?',
+          suggestions: examplePrompts,
+        }}
+      />
+    </AssistantRuntimeProvider>
+  )
 }

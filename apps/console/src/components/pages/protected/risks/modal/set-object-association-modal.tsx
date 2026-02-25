@@ -1,17 +1,18 @@
 'use client'
 
-import ObjectAssociation from '@/components/shared/objectAssociation/object-association'
-import { Button } from '@repo/ui/button'
+import ObjectAssociation from '@/components/shared/object-association/object-association'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import React, { useCallback, useState } from 'react'
-import { ObjectTypeObjects } from '@/components/shared/objectAssociation/object-assoiation-config'
-import { TObjectAssociationMap } from '@/components/shared/objectAssociation/types/TObjectAssociationMap'
+import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
+import { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
 import { UpdateRiskInput } from '@repo/codegen/src/schema.ts'
 import { useNotification } from '@/hooks/useNotification.tsx'
 import { useRisk } from '@/components/pages/protected/risks/create/hooks/use-risk.tsx'
-import { useUpdateRisk } from '@/lib/graphql-hooks/risks.ts'
-import AddAssociationBtn from '@/components/shared/object-association/add-association-btn.tsx'
+import { useUpdateRisk } from '@/lib/graphql-hooks/risk'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { SaveButton } from '@/components/shared/save-button/save-button'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import AddAssociationPlusBtn from '@/components/shared/object-association/add-association-plus-btn.tsx'
 
 type TSetObjectAssociationDialogProps = {
   riskId?: string
@@ -100,10 +101,10 @@ const SetObjectAssociationRisksDialog = ({ riskId }: TSetObjectAssociationDialog
       }
 
       const formData: {
-        id: string
+        updateRiskId: string
         input: UpdateRiskInput
       } = {
-        id: riskId!,
+        updateRiskId: riskId!,
         input: {
           ...associationInputs,
         },
@@ -139,7 +140,7 @@ const SetObjectAssociationRisksDialog = ({ riskId }: TSetObjectAssociationDialog
   return (
     <Dialog open={open} onOpenChange={handleDialogChange}>
       <DialogTrigger asChild>
-        <AddAssociationBtn />
+        <AddAssociationPlusBtn />
       </DialogTrigger>
       <DialogContent className="max-w-2xl p-6 space-y-4">
         <DialogHeader>
@@ -153,12 +154,8 @@ const SetObjectAssociationRisksDialog = ({ riskId }: TSetObjectAssociationDialog
           excludeObjectTypes={[ObjectTypeObjects.EVIDENCE, ObjectTypeObjects.GROUP, ObjectTypeObjects.RISK, ObjectTypeObjects.CONTROL_OBJECTIVE]}
         />
         <DialogFooter>
-          <Button onClick={handleSave} disabled={isSaving}>
-            Save
-          </Button>
-          <Button variant="secondary" disabled={isSaving} onClick={() => setOpen(false)}>
-            Cancel
-          </Button>
+          <SaveButton onClick={handleSave} disabled={isSaving} />
+          <CancelButton disabled={isSaving} onClick={() => setOpen(false)}></CancelButton>
         </DialogFooter>
       </DialogContent>
     </Dialog>

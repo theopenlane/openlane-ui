@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite'
 import { Separator } from './separator'
 
 const meta: Meta<typeof Separator> = {
-  title: 'UI/Separator',
+  title: 'Layout/Separator',
   component: Separator,
   parameters: {
     docs: {
@@ -20,16 +20,20 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 export const LineOnly: Story = {
-  parameters: {
-    backgrounds: { default: 'white' },
+  globals: {
+    backgrounds: {
+      value: 'white',
+    },
   },
 }
 
 export const WithLabel: Story = {
-  parameters: {
-    backgrounds: { default: 'white' },
-  },
   args: {
     label: 'Label',
+  },
+  globals: {
+    backgrounds: {
+      value: 'white',
+    },
   },
 }

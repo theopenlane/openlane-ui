@@ -1,15 +1,17 @@
 import React, { useEffect, useMemo, useState } from 'react'
-import { useDeleteRisk, useGetRiskById, useUpdateRisk } from '@/lib/graphql-hooks/risks.ts'
+import { useDeleteRisk, useGetRiskById, useGetRiskDiscussionById, useUpdateRisk } from '@/lib/graphql-hooks/risk'
+import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { RiskRiskImpact, RiskRiskLikelihood, RiskRiskStatus, UpdateRiskInput } from '@repo/codegen/src/schema.ts'
 import useFormSchema, { EditRisksFormData } from '@/components/pages/protected/risks/view/hooks/use-form-schema.ts'
 import { useNotification } from '@/hooks/useNotification.tsx'
+import { useRisk } from '@/components/pages/protected/risks/create/hooks/use-risk.tsx'
+import { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap.ts'
+import { ASSOCIATION_REMOVAL_CONFIG } from '@/components/shared/object-association/object-association-config'
 import { Form } from '@repo/ui/form'
-import { Button } from '@repo/ui/button'
-import { PencilIcon, SaveIcon, Trash2, XIcon } from 'lucide-react'
+import { PencilIcon, Trash2 } from 'lucide-react'
 import Menu from '@/components/shared/menu/menu.tsx'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { canDelete, canEdit } from '@/lib/authz/utils.ts'
-import { ObjectEnum } from '@/lib/authz/enums/object-enum.ts'
 import { useRouter } from 'next/navigation'
 import TitleField from './fields/title-field'
 import DetailsField from './fields/details-field'
@@ -29,6 +31,10 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import Loading from '@/app/(protected)/risks/[id]/loading'
 import { Card } from '@repo/ui/cardpanel'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
+import { SaveButton } from '@/components/shared/save-button/save-button'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { useAssociationRemoval } from '@/hooks/useAssociationRemoval'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 type TRisksPageProps = {
   riskId: string
@@ -36,6 +42,7 @@ type TRisksPageProps = {
 
 const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
   const { setCrumbs } = React.useContext(BreadcrumbContext)
+  const { queryClient } = useGraphQLClient()
   const { risk, isLoading } = useGetRiskById(riskId)
   const { mutateAsync: updateRisk, isPending } = useUpdateRisk()
   const { mutateAsync: deleteRisk } = useDeleteRisk()
@@ -44,13 +51,30 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
   const { successNotification, errorNotification } = useNotification()
   const { form } = useFormSchema()
   const [isEditing, setIsEditing] = useState(false)
-  const { data: permission } = useAccountRoles(ObjectEnum.RISK, riskId)
+  const [editingField, setEditingField] = useState<string | null>(null)
+  const { data: permission } = useAccountRoles(ObjectTypes.RISK, riskId)
   const deleteAllowed = canDelete(permission?.roles)
   const editAllowed = canEdit(permission?.roles)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const router = useRouter()
   const { currentOrgId, getOrganizationByID } = useOrganization()
   const currentOrganization = getOrganizationByID(currentOrgId!)
+  const riskState = useRisk()
+  const [dataInitialized, setDataInitialized] = useState(false)
+  const { data: discussionData } = useGetRiskDiscussionById(riskId)
+
+  const handleRemoveAssociation = useAssociationRemoval({
+    entityId: risk?.id,
+    handleUpdateField: (input: UpdateRiskInput) => handleUpdateField(input, { throwOnError: true }),
+    queryClient,
+    cacheTargets: [{ queryKey: ['risks', riskId], dataRootField: 'risk' }],
+    invalidateQueryKeys: [['risks']],
+    sectionKeyToRemoveField: ASSOCIATION_REMOVAL_CONFIG.risk.sectionKeyToRemoveField,
+    sectionKeyToDataField: ASSOCIATION_REMOVAL_CONFIG.risk.sectionKeyToDataField,
+    sectionKeyToInvalidateQueryKey: ASSOCIATION_REMOVAL_CONFIG.risk.sectionKeyToInvalidateQueryKey,
+    onRemoved: () => setDataInitialized(false),
+  })
+
   const memoizedSections = useMemo(() => {
     if (!risk) return {}
     return {
@@ -90,6 +114,7 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
         likelihood: risk.likelihood ?? RiskRiskLikelihood.UNLIKELY,
         status: risk.status ?? RiskRiskStatus.OPEN,
         details: risk.details ?? '',
+        detailsJSON: risk.detailsJSON ?? undefined,
         mitigation: risk.mitigation ?? '',
         businessCosts: risk.businessCosts ?? '',
         tags: risk.tags || [],
@@ -98,6 +123,33 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
       })
     }
   }, [risk, form])
+
+  useEffect(() => {
+    if (risk && !dataInitialized) {
+      const riskAssociations: TObjectAssociationMap = {
+        controlIDs: risk.controls?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
+        procedureIDs: risk.procedures?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
+        subcontrolIDs: risk.subcontrols?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
+        programIDs: risk.programs?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
+        taskIDs: risk.tasks?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
+        internalPolicyIDs: risk.internalPolicies?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
+      }
+
+      const riskAssociationsRefCodes: TObjectAssociationMap = {
+        controlIDs: risk.controls?.edges?.map((item) => item?.node?.refCode).filter((id): id is string => !!id) || [],
+        procedureIDs: risk.procedures?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => !!id) || [],
+        subcontrolIDs: risk.subcontrols?.edges?.map((item) => item?.node?.refCode).filter((id): id is string => !!id) || [],
+        programIDs: risk.programs?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => !!id) || [],
+        taskIDs: risk.tasks?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => !!id) || [],
+        internalPolicyIDs: risk.internalPolicies?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => !!id) || [],
+      }
+
+      riskState.setInitialAssociations(riskAssociations)
+      riskState.setAssociations(riskAssociations)
+      riskState.setAssociationRefCodes(riskAssociationsRefCodes)
+      setDataInitialized(true)
+    }
+  }, [risk, riskState, dataInitialized])
 
   const handleCancel = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
@@ -129,11 +181,6 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
       return
     }
 
-    let detailsField = values?.details
-
-    if (detailsField) {
-      detailsField = await plateEditorHelper.convertToHtml(detailsField as Value)
-    }
     let businessCostsField = values?.businessCosts
 
     if (businessCostsField) {
@@ -148,10 +195,11 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
 
     try {
       await updateRisk({
-        id: risk.id,
+        updateRiskId: risk.id,
         input: {
           ...values,
-          details: detailsField,
+          detailsJSON: values.detailsJSON,
+          details: await plateEditorHelper.convertToHtml(values.detailsJSON as Value),
           businessCosts: businessCostsField,
           mitigation: mitigationField,
           tags: values?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
@@ -175,10 +223,10 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
     }
   }
 
-  const handleUpdateField = async (input: UpdateRiskInput) => {
+  const handleUpdateField = async (input: UpdateRiskInput, options?: { throwOnError?: boolean }) => {
     if (!risk.id) return
     try {
-      await updateRisk({ id: risk.id, input })
+      await updateRisk({ updateRiskId: risk.id, input })
       successNotification({
         title: 'Risk updated',
         description: 'The risk was successfully updated.',
@@ -189,6 +237,10 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
         title: 'Error',
         description: errorMessage,
       })
+
+      if (options?.throwOnError) {
+        throw error
+      }
     }
   }
 
@@ -202,11 +254,21 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
 
   const sidebarContent = (
     <>
-      {memoizedCenterNode && <ObjectAssociationSwitch sections={memoizedSections} centerNode={memoizedCenterNode} canEdit={canEdit(permission?.roles)} />}
-      <Card className="p-4 !mt-2 flex flex-col gap-4">
-        <AuthorityCard form={form} stakeholder={risk.stakeholder} delegate={risk.delegate} isEditing={isEditing} handleUpdate={handleUpdateField} isEditAllowed={editAllowed} risk={risk} />
-        <PropertiesCard form={form} isEditing={isEditing} risk={risk} handleUpdate={handleUpdateField} isEditAllowed={editAllowed} />
-        <TagsCard form={form} risk={risk} isEditing={isEditing} handleUpdate={handleUpdateField} isEditAllowed={editAllowed} />
+      {memoizedCenterNode && <ObjectAssociationSwitch sections={memoizedSections} centerNode={memoizedCenterNode} canEdit={canEdit(permission?.roles)} onRemoveAssociation={handleRemoveAssociation} />}
+      <Card className="p-4 mt-2! flex flex-col gap-4">
+        <AuthorityCard
+          form={form}
+          stakeholder={risk.stakeholder}
+          delegate={risk.delegate}
+          isEditing={isEditing}
+          handleUpdate={handleUpdateField}
+          isEditAllowed={editAllowed}
+          risk={risk}
+          activeField={editingField}
+          setActiveField={setEditingField}
+        />
+        <PropertiesCard form={form} isEditing={isEditing} risk={risk} handleUpdate={handleUpdateField} isEditAllowed={editAllowed} activeField={editingField} setActiveField={setEditingField} />
+        <TagsCard form={form} risk={risk} isEditing={isEditing} handleUpdate={handleUpdateField} isEditAllowed={editAllowed} activeField={editingField} setActiveField={setEditingField} />
       </Card>
     </>
   )
@@ -215,12 +277,8 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
     <div className="space-y-4">
       {isEditing ? (
         <div className="flex gap-2 justify-end">
-          <Button className="h-8 !px-2" onClick={handleCancel} icon={<XIcon />}>
-            Cancel
-          </Button>
-          <Button type="submit" iconPosition="left" className="h-8 !px-2" icon={<SaveIcon />} disabled={isPending}>
-            {isPending ? 'Saving' : 'Save'}
-          </Button>
+          <CancelButton onClick={handleCancel}></CancelButton>
+          <SaveButton disabled={isPending} isSaving={isPending} />
         </div>
       ) : (
         <div className="flex gap-2 justify-end">
@@ -267,7 +325,7 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
   const mainContent = (
     <div className="space-y-6 p-2">
       <TitleField isEditing={isEditing} form={form} handleUpdate={handleUpdateField} isEditAllowed={editAllowed} initialValue={risk.name} />
-      <DetailsField isEditing={isEditing} form={form} risk={risk} isEditAllowed={editAllowed} />
+      <DetailsField isEditing={isEditing} form={form} risk={risk} isEditAllowed={editAllowed} discussionData={discussionData?.risk} />
       <BusinessCostField isEditing={isEditing} form={form} risk={risk} isEditAllowed={editAllowed} />
       <MitigationField isEditing={isEditing} form={form} risk={risk} isEditAllowed={editAllowed} />
     </div>

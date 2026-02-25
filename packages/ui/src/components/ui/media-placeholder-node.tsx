@@ -62,7 +62,7 @@ export const PlaceholderElement = withHOC(PlaceholderProvider, function Placehol
   const { openFilePicker } = useFilePicker({
     accept: currentContent.accept,
     multiple: true,
-    onFilesSelected: ({ plainFiles: updatedFiles }) => {
+    onFilesSuccessfullySelected: ({ plainFiles: updatedFiles }: any) => {
       const firstFile = updatedFiles[0]
       const restFiles = updatedFiles.slice(1)
 
@@ -132,8 +132,10 @@ export const PlaceholderElement = withHOC(PlaceholderProvider, function Placehol
       {(!loading || !isImage) && (
         <div className={cn('flex cursor-pointer items-center rounded-xs bg-muted p-3 pr-9 select-none hover:bg-primary/10')} onClick={() => !loading && openFilePicker()} contentEditable={false}>
           <div className="relative mr-3 flex text-muted-foreground/80 [&_svg]:size-6">{currentContent.icon}</div>
-          <div className="text-sm whitespace-nowrap text-muted-foreground">
-            <div>{loading ? uploadingFile?.name : currentContent.content}</div>
+          <div className="text-sm text-muted-foreground flex-1 min-w-0">
+            <div className="truncate max-w-[240px]" title={loading ? uploadingFile?.name : undefined}>
+              {loading ? uploadingFile?.name : currentContent.content}
+            </div>
 
             {loading && !isImage && (
               <div className="mt-1 flex items-center gap-1.5">
@@ -201,5 +203,5 @@ function formatBytes(
 
   const i = Math.floor(Math.log(bytes) / Math.log(1024))
 
-  return `${(bytes / Math.pow(1024, i)).toFixed(decimals)} ${sizeType === 'accurate' ? accurateSizes[i] ?? 'Bytest' : sizes[i] ?? 'Bytes'}`
+  return `${(bytes / Math.pow(1024, i)).toFixed(decimals)} ${sizeType === 'accurate' ? (accurateSizes[i] ?? 'Bytest') : (sizes[i] ?? 'Bytes')}`
 }

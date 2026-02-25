@@ -1,8 +1,8 @@
 import React from 'react'
 import { Metadata } from 'next'
-import DomainSettingsPage from '@/components/pages/protected/trust-center/settings/domain-settings-page'
+import DomainSettingsPage from '@/components/pages/protected/trust-center/domain/domain-settings-page'
 export const metadata: Metadata = {
-  title: 'Domain | Trust center',
+  title: 'Domain | Trust Center',
 }
 
 const Page: React.FC = () => {

@@ -21,6 +21,7 @@ export const tableStyles = tv({
     variant: {
       default: {},
       data: {
+        table: 'table-fixed',
         tableHead: 'pt-1 pb-1 pr-4 text-base font-normal leading-6',
         // tableRow: 'odd:bg-muted even:bg-muted/50', // todo (sfunk): make this configurable between full page tables and small tables
         tableCell: 'px-4 py-3 align-middle [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]',

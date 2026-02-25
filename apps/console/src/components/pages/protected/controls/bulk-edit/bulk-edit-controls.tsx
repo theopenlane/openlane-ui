@@ -3,25 +3,33 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm, FormProvider, Controller, useFieldArray } from 'react-hook-form'
+import { useForm, FormProvider, useFieldArray, useWatch, Path } from 'react-hook-form'
 import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogFooter, DialogTitle } from '@repo/ui/dialog'
 import { Button } from '@repo/ui/button'
 import { Pencil, PlusIcon as Plus, Trash2 } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { useGetAllGroups } from '@/lib/graphql-hooks/groups'
+import { useGetAllGroups } from '@/lib/graphql-hooks/group'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useNotification } from '@/hooks/useNotification'
 import { ClientError } from 'graphql-request'
-import { useBulkEditControl } from '@/lib/graphql-hooks/controls'
+import { useBulkEditControl } from '@/lib/graphql-hooks/control'
 import {
-  BulkEditDialogFormValues,
   BulkEditControlsDialogProps,
   defaultObject,
   SelectOptionBulkEditControls,
   useGetAllSelectOptionsForBulkEditControls,
+  InputType,
 } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-shared-objects'
 import { Group } from '@repo/codegen/src/schema'
-import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enums'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
+import { EditableSelectFromQuery } from '../propereties-card/fields/editable-select-from-query'
+import { SaveButton } from '@/components/shared/save-button/save-button'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { controlIconsMap } from '@/components/shared/enum-mapper/control-enum'
+import { CustomTypeEnumOptionChip, CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { BulkEditTagField } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-tag-field'
+import { objectToSnakeCase } from '@/utils/strings'
 
 const fieldItemSchema = z.object({
   value: z.nativeEnum(SelectOptionBulkEditControls).optional(),
@@ -30,26 +38,32 @@ const fieldItemSchema = z.object({
       selectOptionEnum: z.nativeEnum(SelectOptionBulkEditControls),
       name: z.string(),
       placeholder: z.string(),
-      selectedValue: z.string().optional(),
-      options: z.array(
-        z.object({
-          label: z.string(),
-          value: z.string(),
-        }),
-      ),
+      inputType: z.nativeEnum(InputType),
+      options: z
+        .array(
+          z.object({
+            label: z.string(),
+            value: z.string(),
+          }),
+        )
+        .optional(),
     })
     .optional(),
+  selectedValue: z.union([z.string(), z.array(z.string())]).optional(),
+  selectedDate: z.date().nullable().optional(),
 })
 
 const bulkEditControlsSchema = z.object({
-  fieldsArray: z.array(fieldItemSchema).optional().default([]),
+  fieldsArray: z.array(fieldItemSchema),
 })
+
+type BulkEditControlsFormValues = z.infer<typeof bulkEditControlsSchema>
 
 export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ selectedControls, setSelectedControls }) => {
   const [open, setOpen] = useState(false)
   const { mutateAsync: bulkEditControl } = useBulkEditControl()
   const { errorNotification, successNotification } = useNotification()
-  const form = useForm<BulkEditDialogFormValues>({
+  const form = useForm<BulkEditControlsFormValues>({
     resolver: zodResolver(bulkEditControlsSchema),
     defaultValues: defaultObject,
   })
@@ -63,16 +77,15 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
 
   const { enumOptions } = useGetCustomTypeEnums({
     where: {
-      objectType: 'control',
+      objectType: objectToSnakeCase(ObjectTypes.CONTROL),
       field: 'kind',
     },
   })
 
-  const allOptionSelects = useGetAllSelectOptionsForBulkEditControls((groups?.filter(Boolean) as Group[]) || [], enumOptions)
+  const allOptionSelects = useGetAllSelectOptionsForBulkEditControls(groups?.filter((g): g is Group => Boolean(g)) ?? [], enumOptions)
 
-  const { control, handleSubmit, watch } = form
-  const watchedFields = watch('fieldsArray') || []
-  const hasFieldsToUpdate = watchedFields.some((field) => field.selectedObject && field.selectedValue)
+  const { control, handleSubmit } = form
+  const watchedFields = useWatch({ control, name: 'fieldsArray' }) ?? []
 
   const { fields, append, update, replace, remove } = useFieldArray({
     control,
@@ -91,14 +104,21 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
 
   const onSubmit = async () => {
     const ids = selectedControls.map((control) => control.id)
-    const input: Record<string, string> = {}
+    const input: Record<string, string | string[]> = {}
     if (watchedFields.length === 0) return
     if (ids.length === 0) return
 
     watchedFields.forEach((field) => {
       const key = field.selectedObject?.name
+      if (!key) return
       if (key && field?.selectedValue && field?.value) {
         input[key] = field.selectedValue
+        return
+      }
+      const value = form.getValues(key as Path<BulkEditControlsFormValues>)
+      if (typeof value === 'string' && value.trim() !== '') {
+        input[key] = value
+        return
       }
     })
 
@@ -144,10 +164,11 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
                   <div key={item.id} className="flex justify-items items-start gap-2">
                     <div className="flex flex-col items-start gap-2">
                       <Select
-                        value={watchedFields[index].value || undefined}
+                        value={watchedFields[index]?.value || undefined}
                         onValueChange={(value) => {
-                          const selectedEnum = value as SelectOptionBulkEditControls
-                          update(index, { value: selectedEnum, selectedObject: allOptionSelects.find((item) => item.selectOptionEnum === selectedEnum), selectedValue: undefined })
+                          const selectedOption = allOptionSelects.find((item) => item.selectOptionEnum === value)
+                          if (!selectedOption) return
+                          update(index, { value: selectedOption.selectOptionEnum, selectedObject: selectedOption, selectedValue: undefined })
                         }}
                       >
                         <SelectTrigger className="w-48">
@@ -162,42 +183,64 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
                         </SelectContent>
                       </Select>
                     </div>
-                    {item.selectedObject && (
+                    {item.selectedObject && item.selectedObject.inputType === InputType.Select && (
                       <div className="flex flex-col items-center gap-2">
-                        <Controller
-                          name={item.selectedObject.name as keyof BulkEditDialogFormValues}
-                          control={control}
-                          render={() => (
-                            <Select
-                              value={item.selectedValue as string | undefined}
-                              onValueChange={(value) =>
-                                update(index, {
-                                  ...item,
-                                  selectedValue: value,
-                                })
-                              }
-                            >
-                              <SelectTrigger className="w-60">
-                                <SelectValue placeholder={item.selectedObject?.placeholder} />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {item.selectedObject?.options?.map((option) => (
-                                  <SelectItem key={option.value} value={option.value}>
-                                    {option.label}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          )}
-                        />
+                        <Select
+                          value={typeof item.selectedValue === 'string' ? item.selectedValue : undefined}
+                          onValueChange={(value) =>
+                            update(index, {
+                              ...item,
+                              selectedValue: value,
+                            })
+                          }
+                        >
+                          <SelectTrigger className="w-60">
+                            <SelectValue placeholder={item.selectedObject?.placeholder}>
+                              <CustomTypeEnumValue
+                                value={typeof item.selectedValue === 'string' ? item.selectedValue : undefined}
+                                options={item.selectedObject?.options || []}
+                                placeholder={item.selectedObject?.placeholder}
+                              />
+                            </SelectValue>
+                          </SelectTrigger>
+                          <SelectContent>
+                            {(item.selectedObject?.options || []).map((option) => (
+                              <SelectItem key={option.value} value={option.value}>
+                                <CustomTypeEnumOptionChip option={option} />
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
+                    )}
+                    {(() => {
+                      const selectedObject = item.selectedObject
+                      if (!selectedObject || selectedObject.inputType !== InputType.TypeAhead) return null
+
+                      return (
+                        <div className="flex flex-col items-center gap-2">
+                          <EditableSelectFromQuery
+                            iconAndLabelVisible={false}
+                            label={selectedObject.selectOptionEnum}
+                            name={selectedObject.name}
+                            isEditAllowed
+                            isEditing
+                            hasGap={false}
+                            gridColWidth="240"
+                            icon={selectedObject.selectOptionEnum === SelectOptionBulkEditControls.Category ? controlIconsMap.Category : controlIconsMap.SubCategory}
+                          />
+                        </div>
+                      )
+                    })()}
+                    {item.selectedObject && item.selectedObject.inputType === InputType.Tag && (
+                      <BulkEditTagField control={form.control} name={`fieldsArray.${index}.selectedValue`} placeholder={item.selectedObject?.placeholder} />
                     )}
                     <Button icon={<Trash2 />} iconPosition="center" variant="secondary" onClick={() => remove(index)} />
                   </div>
                 )
               })}
 
-              {fields.length < 3 ? (
+              {fields.length < Object.keys(SelectOptionBulkEditControls).length ? (
                 <Button
                   icon={<Plus />}
                   onClick={() =>
@@ -215,18 +258,13 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
             </div>
 
             <DialogFooter className="mt-6 flex gap-2">
-              <Button disabled={!hasFieldsToUpdate} type="submit" onClick={form.handleSubmit(onSubmit)}>
-                Save
-              </Button>
-              <Button
-                variant="secondary"
+              <SaveButton onClick={form.handleSubmit(onSubmit)} />
+              <CancelButton
                 onClick={() => {
                   setOpen(false)
                   replace([])
                 }}
-              >
-                Cancel
-              </Button>
+              ></CancelButton>
             </DialogFooter>
           </DialogContent>
         </form>

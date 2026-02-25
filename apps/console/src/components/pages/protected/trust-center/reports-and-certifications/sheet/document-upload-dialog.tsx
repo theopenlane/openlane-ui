@@ -8,8 +8,9 @@ import FileUpload from '@/components/shared/file-upload/file-upload'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { TUploadedFile } from '@/components/pages/protected/evidence/upload/types/TUploadedFile'
-import { useUpdateTrustCenterDoc } from '@/lib/graphql-hooks/trust-center'
+import { useUpdateTrustCenterDoc } from '@/lib/graphql-hooks/trust-center-doc'
 import { useQueryClient } from '@tanstack/react-query'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 type TDocumentUploadDialog = {
   documentId: string
@@ -84,12 +85,14 @@ export const DocumentUploadDialog: React.FC<TDocumentUploadDialog> = ({ document
 
         {uploadedFiles.map((file, index) => (
           <div key={index} className="border rounded-sm p-3 mt-4 flex items-center justify-between bg-secondary">
-            <div className="flex items-center">
+            <div className="flex items-center flex-1 min-w-0">
               <div className="mr-2">
                 <FileUp className="w-8 h-8" />
               </div>
-              <div>
-                <div className="font-semibold">{file.name}</div>
+              <div className="min-w-0">
+                <div className="font-semibold truncate max-w-[240px]" title={file.name}>
+                  {file.name}
+                </div>
                 <div className="text-sm">Size: {Math.round(file.size! / 1024)} KB</div>
               </div>
             </div>
@@ -101,9 +104,7 @@ export const DocumentUploadDialog: React.FC<TDocumentUploadDialog> = ({ document
           <Button onClick={handleFileUpload} loading={isSubmitting} disabled={isSubmitting || uploadedFiles.length === 0}>
             {isSubmitting ? 'Uploading...' : 'Upload'}
           </Button>
-          <Button onClick={() => setIsOpen(false)} variant="secondary" disabled={isSubmitting}>
-            Cancel
-          </Button>
+          <CancelButton onClick={() => setIsOpen(false)} disabled={isSubmitting}></CancelButton>
         </div>
       </DialogContent>
     </Dialog>

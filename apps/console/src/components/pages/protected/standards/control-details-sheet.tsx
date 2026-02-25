@@ -2,8 +2,7 @@
 
 import { useSearchParams, useRouter } from 'next/navigation'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
-import { useGetControlById } from '@/lib/graphql-hooks/controls'
-import { controlIconsMap } from '../controls/properties-card'
+import { useGetControlById } from '@/lib/graphql-hooks/control'
 import { LinkIcon, PanelRightClose } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
 import { Button } from '@repo/ui/button'
@@ -13,6 +12,11 @@ import { GroupedControls, RelatedNode } from '../controls/related-controls'
 import { RelatedControlChip } from '../controls/shared/related-control-chip'
 import AccordionInfo from './control-details-accordion-info'
 import { MappedControlMappingSource, MappedControlWhereInput } from '@repo/codegen/src/schema'
+import { controlIconsMap } from '@/components/shared/enum-mapper/control-enum'
+import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
+import { CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { objectToSnakeCase } from '@/utils/strings'
 
 const ControlDetailsSheet = () => {
   const searchParams = useSearchParams()
@@ -29,6 +33,13 @@ const ControlDetailsSheet = () => {
   }
 
   const { data: mappedControlsData } = useGetMappedControls({ where, enabled: !!controlId })
+
+  const { enumOptions } = useGetCustomTypeEnums({
+    where: {
+      objectType: objectToSnakeCase(ObjectTypes.CONTROL),
+      field: 'kind',
+    },
+  })
 
   const handleOpenChange = (open: boolean) => {
     if (!open) {
@@ -75,7 +86,7 @@ const ControlDetailsSheet = () => {
           ?.map((e) =>
             e?.node
               ? {
-                  type: 'Control',
+                  type: ObjectTypes.CONTROL,
                   id: e.node.id,
                   refCode: e.node.refCode,
                   referenceFramework: e.node.referenceFramework,
@@ -90,7 +101,7 @@ const ControlDetailsSheet = () => {
           ?.map((e) =>
             e?.node
               ? {
-                  type: 'Subcontrol',
+                  type: ObjectTypes.SUBCONTROL,
                   id: e.node.id,
                   refCode: e.node.refCode,
                   referenceFramework: e.node.referenceFramework,
@@ -109,7 +120,7 @@ const ControlDetailsSheet = () => {
           ?.map((e) =>
             e?.node
               ? {
-                  type: 'Control',
+                  type: ObjectTypes.CONTROL,
                   id: e.node.id,
                   refCode: e.node.refCode,
                   referenceFramework: e.node.referenceFramework,
@@ -124,7 +135,7 @@ const ControlDetailsSheet = () => {
           ?.map((e) =>
             e?.node
               ? {
-                  type: 'Subcontrol',
+                  type: ObjectTypes.SUBCONTROL,
                   id: e.node.id,
                   refCode: e.node.refCode,
                   referenceFramework: e.node.referenceFramework,
@@ -169,7 +180,7 @@ const ControlDetailsSheet = () => {
         <div className="flex flex-col gap-8">
           {data?.control.description && (
             <div
-              className="mt-5 rich-text"
+              className="mt-5 rich-text pl-0!"
               dangerouslySetInnerHTML={{
                 __html: data.control.description,
               }}
@@ -182,7 +193,7 @@ const ControlDetailsSheet = () => {
             <Property label="Category" value={data?.control.category} />
             <Property label="Subcategory" value={data?.control.subcategory} />
             <Property label="Mapped categories" value={data?.control?.mappedCategories?.join(', ')} />
-            <Property label="Type" value={data?.control.controlKindName?.toLowerCase()} />
+            <Property label="Type" value={<CustomTypeEnumValue value={data?.control.controlKindName ?? ''} options={enumOptions} placeholder="-" />} />
           </div>
           <div className="flex flex-col gap-1.5">
             <p className="mb-1.5 text-xl">Subcontrols</p>
@@ -222,6 +233,7 @@ const ControlDetailsSheet = () => {
           <div>
             <AccordionInfo
               implementationGuidance={data?.control.implementationGuidance}
+              testingProcedures={data?.control.testingProcedures}
               exampleEvidence={data?.control.exampleEvidence}
               controlQuestions={data?.control.controlQuestions}
               assessmentMethods={data?.control.assessmentMethods}
@@ -236,7 +248,7 @@ const ControlDetailsSheet = () => {
 
 export default ControlDetailsSheet
 
-const Property = ({ label, value }: { label: string; value?: string | null }) => (
+const Property = ({ label, value }: { label: string; value?: React.ReactNode }) => (
   <div className="grid grid-cols-[170px_1fr] items-start gap-x-3">
     <div className="flex items-start gap-2">
       <div className="pt-0.5">{controlIconsMap[label]}</div>
