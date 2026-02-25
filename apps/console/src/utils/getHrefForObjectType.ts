@@ -1,3 +1,5 @@
+import { pluralizeTypeName } from './strings'
+
 export type NormalizedObject = {
   id: string
   refCode?: string
@@ -45,8 +47,6 @@ export const getHrefForObjectType = (kind: string, row?: NormalizedObject): stri
       return ''
   }
 }
-
-const pluralizeTypeName = (entityType: string): string => entityType.charAt(0).toLowerCase() + entityType.slice(1) + 's'
 
 export const getHrefForSearchEntityType = (
   entityType: string,
