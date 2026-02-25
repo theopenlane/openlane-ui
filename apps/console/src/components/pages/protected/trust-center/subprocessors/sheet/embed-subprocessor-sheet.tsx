@@ -5,31 +5,32 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import { Button } from '@repo/ui/button'
 import { Copy, PanelRightClose } from 'lucide-react'
-import { useSession } from 'next-auth/react'
 import { useNotification } from '@/hooks/useNotification'
 
 type EmbedSubprocessorSheetProps = {
   open: boolean
-  onOpenChange: (open: boolean) => void
+  onOpenChangeAction: (open: boolean) => void
+  slug: string
 }
 
-export const EmbedSubprocessorSheet: React.FC<EmbedSubprocessorSheetProps> = ({ open, onOpenChange }) => {
-  const { data: session } = useSession()
+const TRUST_CENTER_HOST = 'trust.theopenlane.net'
+
+export const EmbedSubprocessorSheet: React.FC<EmbedSubprocessorSheetProps> = ({ open, onOpenChangeAction, slug }) => {
   const { successNotification } = useNotification()
 
-  const orgId = session?.user?.activeOrganizationId ?? ''
+  const domain = `${TRUST_CENTER_HOST}/${slug}`
 
   const snippet = useMemo(
     () =>
-      `<div id="openlane-subprocessors"></div>
-<script src="https://trust.theopenlane.net/embed/subprocessors.js"
-  data-org="${orgId}"
-  data-theme="auto">
+      `<script src="https://${TRUST_CENTER_HOST}/embed/subprocessors.js"
+  data-domain="${domain}"
+  data-theme="auto"
+  defer>
 </script>`,
-    [orgId],
+    [domain],
   )
 
-  const embedPreviewUrl = `https://trust.theopenlane.net/embed/subprocessors?org=${orgId}&theme=auto`
+  const previewSrcDoc = useMemo(() => `<!DOCTYPE html><html><head><meta charset="utf-8"></head><body>${snippet}</body></html>`, [snippet])
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(snippet)
@@ -37,13 +38,13 @@ export const EmbedSubprocessorSheet: React.FC<EmbedSubprocessorSheetProps> = ({ 
   }
 
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
+    <Sheet open={open} onOpenChange={onOpenChangeAction}>
       <SheetContent side="right" className="w-[480px] sm:w-[520px] overflow-y-auto">
         <SheetTitle />
         <SheetDescription />
         <SheetHeader>
           <div className="flex justify-between">
-            <PanelRightClose aria-label="Close embed sheet" size={16} className="cursor-pointer" onClick={() => onOpenChange(false)} />
+            <PanelRightClose aria-label="Close embed sheet" size={16} className="cursor-pointer" onClick={() => onOpenChangeAction(false)} />
           </div>
         </SheetHeader>
 
@@ -71,14 +72,14 @@ export const EmbedSubprocessorSheet: React.FC<EmbedSubprocessorSheetProps> = ({ 
             </TabsContent>
 
             <TabsContent value="preview" className="mt-3">
-              <iframe src={embedPreviewUrl} title="Subprocessor embed preview" className="w-full h-[400px] rounded-md border" sandbox="allow-scripts allow-same-origin" />
+              <iframe srcDoc={previewSrcDoc} title="Subprocessor embed preview" className="w-full h-[400px] rounded-md border" sandbox="allow-scripts allow-same-origin" />
             </TabsContent>
           </Tabs>
 
           <div className="space-y-3 text-sm text-muted-foreground">
             <p>
-              <span className="font-medium text-foreground">Content Security Policy:</span> If you use a strict CSP, allow scripts from:{' '}
-              <code className="bg-secondary px-1.5 py-0.5 rounded text-xs">trust.theopenlane.net</code>
+              <span className="font-medium text-foreground">Content Security Policy:</span> If you use a strict CSP, allow scripts from:
+              <code className="bg-secondary px-1.5 py-0.5 rounded text-xs">{TRUST_CENTER_HOST}</code>
             </p>
             <p>
               <span className="font-medium text-foreground">Caching:</span> Updates may take up to 5 minutes to reflect due to caching.
