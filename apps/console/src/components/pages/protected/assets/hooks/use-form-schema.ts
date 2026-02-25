@@ -9,6 +9,7 @@ import { responsibilityFieldSchema } from '@/components/shared/crud-base/form-fi
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   description: z.custom<Value | string>().optional(),
+  displayName: z.string().optional(),
   tags: z.array(z.string()).optional(),
   accessModelName: z.string().optional(),
   assetDataClassificationName: z.string().optional(),

@@ -60337,6 +60337,7 @@ export type AssetsWithFilterQuery = {
         updatedBy?: string | null
         criticalityName?: string | null
         description?: string | null
+        displayName?: string | null
         encryptionStatusName?: string | null
         environmentName?: string | null
         estimatedMonthlyCost?: number | null
@@ -60382,6 +60383,7 @@ export type AssetQuery = {
     updatedBy?: string | null
     criticalityName?: string | null
     description?: string | null
+    displayName?: string | null
     encryptionStatusName?: string | null
     environmentName?: string | null
     estimatedMonthlyCost?: number | null

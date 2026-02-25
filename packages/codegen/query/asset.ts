@@ -30,6 +30,7 @@ export const GET_ALL_ASSETS = gql`
           updatedBy
           criticalityName
           description
+          displayName
           encryptionStatusName
           environmentName
           estimatedMonthlyCost
@@ -82,6 +83,7 @@ export const ASSET = gql`
       updatedBy
       criticalityName
       description
+      displayName
       encryptionStatusName
       environmentName
       estimatedMonthlyCost
