@@ -34,6 +34,7 @@ const PersonnelPage: React.FC = () => {
 
   const searchParams = useSearchParams()
   const id = searchParams.get('id')
+  const isCreate = searchParams.get('create') === 'true'
   const { data, isLoading } = useIdentityHolder(id || undefined)
 
   function getName(data: IdentityHoldersNodeNonNull) {
@@ -117,7 +118,7 @@ const PersonnelPage: React.FC = () => {
       const { internalOwner, ...rest } = data
       return {
         ...rest,
-        ...buildResponsibilityPayload('internalOwner', internalOwner),
+        ...buildResponsibilityPayload('internalOwner', internalOwner, { mode: isCreate ? 'create' : 'update' }),
       }
     },
     normalizeData,

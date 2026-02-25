@@ -30,6 +30,7 @@ const VendorPage: React.FC = () => {
 
   const searchParams = useSearchParams()
   const id = searchParams.get('id')
+  const isCreate = searchParams.get('create') === 'true'
   const { data, isLoading } = useEntity(id || undefined)
 
   const plateEditorHelper = usePlateEditor()
@@ -132,8 +133,8 @@ const VendorPage: React.FC = () => {
       return {
         ...rest,
         description,
-        ...buildResponsibilityPayload('internalOwner', internalOwner),
-        ...buildResponsibilityPayload('reviewedBy', reviewedBy),
+        ...buildResponsibilityPayload('internalOwner', internalOwner, { mode: isCreate ? 'create' : 'update' }),
+        ...buildResponsibilityPayload('reviewedBy', reviewedBy, { mode: isCreate ? 'create' : 'update' }),
       }
     },
     normalizeData,

@@ -28,6 +28,7 @@ const AssetPage: React.FC = () => {
 
   const searchParams = useSearchParams()
   const id = searchParams.get('id')
+  const isCreate = searchParams.get('create') === 'true'
   const { data, isLoading } = useAsset(id || undefined)
 
   const plateEditorHelper = usePlateEditor()
@@ -145,7 +146,7 @@ const AssetPage: React.FC = () => {
       return {
         ...rest,
         description,
-        ...buildResponsibilityPayload('internalOwner', internalOwner),
+        ...buildResponsibilityPayload('internalOwner', internalOwner, { mode: isCreate ? 'create' : 'update' }),
       }
     },
     normalizeData,

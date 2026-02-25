@@ -4,10 +4,10 @@ import { FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
 import { useFormContext } from 'react-hook-form'
 import { InternalEditingType } from '../generic-sheet'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
-import { InfoIcon, User, Users, Type, Check } from 'lucide-react'
+import { InfoIcon, User, Users, Type, Check, X } from 'lucide-react'
 import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
-import { useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 import useEscapeKey from '@/hooks/useEscapeKey'
 import { useUserSelect } from '@/lib/graphql-hooks/member'
@@ -93,7 +93,7 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
 
     if (!isEditing && !isCreate && handleUpdate) {
       const payload = buildResponsibilityInlineUpdate(fieldBaseName, selection)
-      await Promise.resolve(handleUpdate(payload))
+      await handleUpdate(payload)
     }
 
     if (!isEditing) {
@@ -114,9 +114,22 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
     }
   }
 
-  const filteredUsers = userOptions.filter((u) => u.label.toLowerCase().includes(searchText.toLowerCase()))
-  const filteredGroups = groupOptions.filter((g) => g.label.toLowerCase().includes(searchText.toLowerCase()))
-  const hasExactMatch = filteredUsers.some((u) => u.label.toLowerCase() === searchText.toLowerCase()) || filteredGroups.some((g) => g.label.toLowerCase() === searchText.toLowerCase())
+  const normalizedSearchText = searchText.toLowerCase()
+
+  const filteredUsers = useMemo(
+    () => userOptions.filter((u) => u.label.toLowerCase().includes(normalizedSearchText)),
+    [userOptions, normalizedSearchText],
+  )
+
+  const filteredGroups = useMemo(
+    () => groupOptions.filter((g) => g.label.toLowerCase().includes(normalizedSearchText)),
+    [groupOptions, normalizedSearchText],
+  )
+
+  const hasExactMatch = useMemo(
+    () => filteredUsers.some((u) => u.label.toLowerCase() === normalizedSearchText) || filteredGroups.some((g) => g.label.toLowerCase() === normalizedSearchText),
+    [filteredUsers, filteredGroups, normalizedSearchText],
+  )
 
   return (
     <FormField
@@ -158,6 +171,14 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
                         <CommandInput placeholder="Search users, groups, or type a name..." value={searchText} onValueChange={setSearchText} />
                         <CommandList>
                           <CommandEmpty>No results found.</CommandEmpty>
+                          {currentValue && (
+                            <CommandGroup heading="Actions">
+                              <CommandItem value="clear-selection" onSelect={() => handleSelect(null, field)}>
+                                <X className="mr-2 h-4 w-4" />
+                                <span>Clear selection</span>
+                              </CommandItem>
+                            </CommandGroup>
+                          )}
                           {filteredUsers.length > 0 && (
                             <CommandGroup heading="Users">
                               {filteredUsers.map((option) => (
