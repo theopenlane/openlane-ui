@@ -116,7 +116,7 @@ export const TemplatesTable = () => {
 
   const handleEdit = useCallback(
     (template: Template) => {
-      router.push(`/questionnaires/templates/template-editor?id=${template.id}`)
+      router.push(`/automation/assessments/templates/template-editor?id=${template.id}`)
     },
     [router],
   )
@@ -173,14 +173,14 @@ export const TemplatesTable = () => {
   }
 
   const handleRowClick = (row: Template) => {
-    router.push(`/questionnaires/templates/template-viewer?id=${row.id}`)
+    router.push(`/automation/assessments/templates/template-viewer?id=${row.id}`)
   }
 
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
-      { label: 'Questionnaires', href: '/questionnaires' },
-      { label: 'Templates', href: '/questionnaires/templates' },
+      { label: 'Questionnaires', href: '/automation/assessments' },
+      { label: 'Templates', href: '/automation/assessments/templates' },
     ])
   }, [setCrumbs])
 

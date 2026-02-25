@@ -54,7 +54,7 @@ const ProgramTasksTable = () => {
         cell: ({ row }) => {
           const task = row.original
           return (
-            <Link href={`/tasks?id=${task.id}`} className="text-blue-500 hover:underline">
+            <Link href={`/automation/tasks?id=${task.id}`} className="text-blue-500 hover:underline">
               {task.title}
             </Link>
           )
@@ -149,7 +149,7 @@ const ProgramTasksTable = () => {
     <div className="p-6 bg-card rounded-lg">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold">Outstanding tasks</h2>
-        <Link href={`/tasks`} onClick={handleClick}>
+        <Link href={`/automation/tasks`} onClick={handleClick}>
           <Button variant="secondary" icon={<Frame size={16} />} iconPosition="left">
             View Tasks
           </Button>

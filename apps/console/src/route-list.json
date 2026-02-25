@@ -129,28 +129,44 @@
     "name": "Create SOC2 Program"
   },
   {
-    "route": "/questionnaires",
-    "name": "Questionnaires"
+    "route": "/automation/assessments",
+    "name": "Assessments",
+    "keywords": ["questionnaires"]
   },
   {
-    "route": "/questionnaires/questionnaire-editor",
+    "route": "/automation/assessments/questionnaire-editor",
     "name": "Questionnaire Editor"
   },
   {
-    "route": "/questionnaires/questionnaire-viewer",
+    "route": "/automation/assessments/questionnaire-viewer",
     "name": "Questionnaire Viewer"
   },
   {
-    "route": "/questionnaires/templates",
+    "route": "/automation/assessments/templates",
     "name": "Templates"
   },
   {
-    "route": "/questionnaires/templates/template-editor",
+    "route": "/automation/assessments/templates/template-editor",
     "name": "Template Editor"
   },
   {
-    "route": "/questionnaires/templates/template-viewer",
+    "route": "/automation/assessments/templates/template-viewer",
     "name": "Template Viewer"
+  },
+  {
+    "route": "/automation/exposure",
+    "name": "Exposure",
+    "hidden": true
+  },
+  {
+    "route": "/reporting",
+    "name": "Reporting",
+    "hidden": true
+  },
+  {
+    "route": "/reporting/compliance",
+    "name": "Compliance Reporting",
+    "hidden": true
   },
   {
     "route": "/risks",
@@ -166,7 +182,7 @@
     "keywords": ["frameworks", "regulations", "compliance"]
   },
   {
-    "route": "/tasks",
+    "route": "/automation/tasks",
     "name": "Tasks"
   },
   {

@@ -119,7 +119,7 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
         description: (
           <>
             Task has been successfully created.{' '}
-            <Link href={`/tasks?id=${res.createTask.task.id}`} className="text-blue-600 underline">
+            <Link href={`/automation/tasks?id=${res.createTask.task.id}`} className="text-blue-600 underline">
               View Task
             </Link>
           </>

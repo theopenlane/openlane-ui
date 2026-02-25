@@ -5,6 +5,15 @@ const nextConfig = {
   experimental: {
     webpackMemoryOptimizations: false,
   },
+  async redirects() {
+    return [
+      {
+        source: '/tasks',
+        destination: '/automation/tasks',
+        permanent: true,
+      },
+    ]
+  },
   images: {
     remotePatterns: [
       // {
