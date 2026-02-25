@@ -33,7 +33,7 @@ export const getColumns = ({ userMap, convertToReadOnly, selectedItems, setSelec
       accessorKey: 'createdBy',
       header: 'Created By',
       size: 160,
-      cell: ({ row }) => <UserCell user={userMap[row.original.createdBy ?? '']} className="h-6 w-6" />,
+      cell: ({ row }) => <UserCell user={userMap[row.original.createdBy ?? '']} />,
     },
     { accessorKey: 'criticalityName', header: 'Criticality', size: 120 },
     {
@@ -79,7 +79,7 @@ export const getColumns = ({ userMap, convertToReadOnly, selectedItems, setSelec
       accessorKey: 'updatedBy',
       header: 'Updated By',
       size: 160,
-      cell: ({ row }) => <UserCell user={userMap[row.original.updatedBy ?? '']} className="h-6 w-6" />,
+      cell: ({ row }) => <UserCell user={userMap[row.original.updatedBy ?? '']} />,
     },
     { accessorKey: 'website', header: 'Website', size: 120 },
   ]

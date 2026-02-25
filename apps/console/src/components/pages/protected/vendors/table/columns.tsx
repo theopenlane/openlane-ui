@@ -109,14 +109,14 @@ export const getColumns = ({ userMap, convertToReadOnly, selectedItems, setSelec
       accessorKey: 'createdBy',
       header: 'Created By',
       size: 160,
-      cell: ({ row }) => <UserCell user={userMap[row.original.createdBy ?? '']} className="h-6 w-6" />,
+      cell: ({ row }) => <UserCell user={userMap[row.original.createdBy ?? '']} />,
     },
     { accessorKey: 'updatedAt', header: 'Updated At', size: 130, cell: ({ cell }) => formatDate(cell.getValue() as string) },
     {
       accessorKey: 'updatedBy',
       header: 'Updated By',
       size: 160,
-      cell: ({ row }) => <UserCell user={userMap[row.original.updatedBy ?? '']} className="h-6 w-6" />,
+      cell: ({ row }) => <UserCell user={userMap[row.original.updatedBy ?? '']} />,
     },
   ]
 }

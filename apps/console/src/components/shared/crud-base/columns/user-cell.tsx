@@ -6,7 +6,7 @@ type UserCellProps = {
   className?: string
 }
 
-export function UserCell({ user, className }: UserCellProps) {
+export function UserCell({ user, className = 'h-6 w-6' }: UserCellProps) {
   if (!user) {
     return <span className="text-muted-foreground italic">Deleted user</span>
   }
