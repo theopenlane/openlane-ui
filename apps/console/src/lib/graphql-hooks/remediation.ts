@@ -11,10 +11,12 @@ import {
   DeleteRemediationMutationVariables,
   RemediationQuery,
   RemediationQueryVariables,
+  CreateBulkCsvRemediationMutation,
+  CreateBulkCsvRemediationMutationVariables,
 } from '@repo/codegen/src/schema'
-
+import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
 import { TPagination } from '@repo/ui/pagination-types'
-import { GET_ALL_REMEDIATIONS, CREATE_REMEDIATION, UPDATE_REMEDIATION, DELETE_REMEDIATION, REMEDIATION } from '@repo/codegen/query/remediation'
+import { GET_ALL_REMEDIATIONS, CREATE_REMEDIATION, UPDATE_REMEDIATION, DELETE_REMEDIATION, REMEDIATION, CREATE_CSV_BULK_REMEDIATION } from '@repo/codegen/query/remediation'
 
 type GetAllRemediationsArgs = {
   where?: RemediationsWithFilterQueryVariables['where']
@@ -72,6 +74,16 @@ export const useDeleteRemediation = () => {
   const queryClient = useQueryClient()
   return useMutation<DeleteRemediationMutation, unknown, DeleteRemediationMutationVariables>({
     mutationFn: async (variables) => client.request(DELETE_REMEDIATION, variables),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['remediations'] })
+    },
+  })
+}
+
+export const useCreateBulkCSVRemediation = () => {
+  const { queryClient } = useGraphQLClient()
+  return useMutation<CreateBulkCsvRemediationMutation, unknown, CreateBulkCsvRemediationMutationVariables>({
+    mutationFn: async (variables) => fetchGraphQLWithUpload({ query: CREATE_CSV_BULK_REMEDIATION, variables }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['remediations'] })
     },

@@ -11,10 +11,12 @@ import {
   DeleteFindingMutationVariables,
   FindingQuery,
   FindingQueryVariables,
+  CreateBulkCsvFindingMutation,
+  CreateBulkCsvFindingMutationVariables,
 } from '@repo/codegen/src/schema'
-
+import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
 import { TPagination } from '@repo/ui/pagination-types'
-import { GET_ALL_FINDINGS, CREATE_FINDING, UPDATE_FINDING, DELETE_FINDING, FINDING } from '@repo/codegen/query/finding'
+import { GET_ALL_FINDINGS, CREATE_FINDING, UPDATE_FINDING, DELETE_FINDING, FINDING, CREATE_CSV_BULK_FINDING } from '@repo/codegen/query/finding'
 
 type GetAllFindingsArgs = {
   where?: FindingsWithFilterQueryVariables['where']
@@ -72,6 +74,16 @@ export const useDeleteFinding = () => {
   const queryClient = useQueryClient()
   return useMutation<DeleteFindingMutation, unknown, DeleteFindingMutationVariables>({
     mutationFn: async (variables) => client.request(DELETE_FINDING, variables),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['findings'] })
+    },
+  })
+}
+
+export const useCreateBulkCSVFinding = () => {
+  const { queryClient } = useGraphQLClient()
+  return useMutation<CreateBulkCsvFindingMutation, unknown, CreateBulkCsvFindingMutationVariables>({
+    mutationFn: async (variables) => fetchGraphQLWithUpload({ query: CREATE_CSV_BULK_FINDING, variables }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['findings'] })
     },

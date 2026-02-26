@@ -12,6 +12,7 @@ type StartBody = {
   callbackPath?: string
   scopes?: string[]
   redirectUri?: string
+  appSlug?: string
 }
 
 export async function POST(req: NextRequest) {
@@ -41,6 +42,7 @@ export async function POST(req: NextRequest) {
       authType,
       scopes,
       redirectUri,
+      appSlug: body.appSlug,
     })
 
     const res = await secureFetch(`${openlaneAPIUrl}${startPath}`, {
@@ -79,13 +81,25 @@ type StartPayloadParams = {
   authType?: AuthType
   scopes?: string[]
   redirectUri?: string
+  appSlug?: string
 }
 
-function buildStartPayload({ provider, authType, scopes = [], redirectUri }: StartPayloadParams): Record<string, unknown> {
+function buildStartPayload({ provider, authType, scopes = [], redirectUri, appSlug }: StartPayloadParams): Record<string, unknown> {
   if (authType === 'oauth2' || authType === 'oidc') {
     const payload: Record<string, unknown> = {
       provider,
       scopes,
+    }
+    if (redirectUri) {
+      payload.redirectUri = redirectUri
+    }
+    return payload
+  }
+
+  if (authType === 'github_app') {
+    const payload: Record<string, unknown> = {}
+    if (appSlug) {
+      payload.appSlug = appSlug
     }
     if (redirectUri) {
       payload.redirectUri = redirectUri
