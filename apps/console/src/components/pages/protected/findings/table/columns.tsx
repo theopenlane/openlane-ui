@@ -1,10 +1,10 @@
 import { ColumnDef } from '@tanstack/react-table'
-import { formatDate } from '@/utils/date'
 import { FindingsNodeNonNull } from '@/lib/graphql-hooks/finding'
 import { ColumnOptions } from '@/components/shared/crud-base/page'
 import { createSelectColumn } from '@/components/shared/crud-base/columns/select-column'
 import { UserCell } from '@/components/shared/crud-base/columns/user-cell'
 import { BooleanCell } from '@/components/shared/crud-base/columns/boolean-cell'
+import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 
 export const getColumns = ({ userMap, selectedItems, setSelectedItems }: ColumnOptions): ColumnDef<FindingsNodeNonNull>[] => {
   return [
@@ -34,17 +34,17 @@ export const getColumns = ({ userMap, selectedItems, setSelectedItems }: ColumnO
     { accessorKey: 'remediationSLA', header: 'Remediation SLA (days)', size: 160 },
     { accessorKey: 'environmentName', header: 'Environment', size: 120 },
     { accessorKey: 'scopeName', header: 'Scope', size: 120 },
-    { accessorKey: 'reportedAt', header: 'Reported At', size: 130, cell: ({ cell }) => formatDate(cell.getValue() as string) },
-    { accessorKey: 'eventTime', header: 'Event Time', size: 130, cell: ({ cell }) => formatDate(cell.getValue() as string) },
-    { accessorKey: 'sourceUpdatedAt', header: 'Source Updated At', size: 140, cell: ({ cell }) => formatDate(cell.getValue() as string) },
-    { accessorKey: 'createdAt', header: 'Created At', size: 130, cell: ({ cell }) => formatDate(cell.getValue() as string) },
+    { accessorKey: 'reportedAt', header: 'Reported At', size: 130, cell: ({ cell }) => <DateCell value={cell.getValue() as string} /> },
+    { accessorKey: 'eventTime', header: 'Event Time', size: 130, cell: ({ cell }) => <DateCell value={cell.getValue() as string} /> },
+    { accessorKey: 'sourceUpdatedAt', header: 'Source Updated At', size: 140, cell: ({ cell }) => <DateCell value={cell.getValue() as string} /> },
+    { accessorKey: 'createdAt', header: 'Created At', size: 130, cell: ({ cell }) => <DateCell value={cell.getValue() as string} /> },
     {
       accessorKey: 'createdBy',
       header: 'Created By',
       size: 160,
       cell: ({ row }) => <UserCell user={userMap[row.original.createdBy ?? '']} />,
     },
-    { accessorKey: 'updatedAt', header: 'Updated At', size: 130, cell: ({ cell }) => formatDate(cell.getValue() as string) },
+    { accessorKey: 'updatedAt', header: 'Updated At', size: 130, cell: ({ cell }) => <DateCell value={cell.getValue() as string} variant="timesince" /> },
     {
       accessorKey: 'updatedBy',
       header: 'Updated By',

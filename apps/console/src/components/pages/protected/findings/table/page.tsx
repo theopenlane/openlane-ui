@@ -2,7 +2,7 @@
 
 import React from 'react'
 import useFormSchema from '../hooks/use-form-schema'
-import { FindingsNodeNonNull, useFinding, useCreateFinding, useUpdateFinding, useDeleteFinding } from '@/lib/graphql-hooks/finding'
+import { FindingsNodeNonNull, useFinding, useCreateFinding, useUpdateFinding, useDeleteFinding, useCreateBulkCSVFinding } from '@/lib/graphql-hooks/finding'
 import { useSearchParams } from 'next/navigation'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
 import { breadcrumbs, getFieldsToRender, getFilterFields, visibilityFields } from './table-config'
@@ -27,6 +27,7 @@ const FindingPage: React.FC = () => {
   const baseUpdateMutation = useUpdateFinding()
   const baseCreateMutation = useCreateFinding()
   const baseDeleteMutation = useDeleteFinding()
+  const baseBulkCreateMutation = useCreateBulkCSVFinding()
 
   const updateMutation = {
     isPending: baseUpdateMutation.isPending,
@@ -37,6 +38,14 @@ const FindingPage: React.FC = () => {
     isPending: baseCreateMutation.isPending,
     mutateAsync: async (input: CreateFindingInput) => {
       const result = await baseCreateMutation.mutateAsync({ input })
+      return result
+    },
+  }
+
+  const bulkCreateMutation = {
+    isPending: baseBulkCreateMutation.isPending,
+    mutateAsync: async (params: { input: File }) => {
+      const result = await baseBulkCreateMutation.mutateAsync({ input: params.input })
       return result
     },
   }
@@ -83,6 +92,9 @@ const FindingPage: React.FC = () => {
     sheetConfig,
     onBulkDelete: async (ids: string[]) => {
       await Promise.all(ids.map((findingId) => baseDeleteMutation.mutateAsync({ deleteFindingId: findingId })))
+    },
+    onBulkCreate: async (file: File) => {
+      await bulkCreateMutation.mutateAsync({ input: file })
     },
     enumOpts,
   }

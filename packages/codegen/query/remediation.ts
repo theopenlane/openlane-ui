@@ -112,3 +112,13 @@ export const DELETE_REMEDIATION = gql`
     }
   }
 `
+
+export const CREATE_CSV_BULK_REMEDIATION = gql`
+  mutation CreateBulkCSVRemediation($input: Upload!) {
+    createBulkCSVRemediation(input: $input) {
+      remediations {
+        id
+      }
+    }
+  }
+`

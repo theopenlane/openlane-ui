@@ -2,7 +2,7 @@
 
 import React from 'react'
 import useFormSchema from '../hooks/use-form-schema'
-import { RemediationsNodeNonNull, useRemediation, useCreateRemediation, useUpdateRemediation, useDeleteRemediation } from '@/lib/graphql-hooks/remediation'
+import { RemediationsNodeNonNull, useRemediation, useCreateRemediation, useUpdateRemediation, useDeleteRemediation, useCreateBulkCSVRemediation } from '@/lib/graphql-hooks/remediation'
 import { useSearchParams } from 'next/navigation'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
 import { breadcrumbs, getFieldsToRender, getFilterFields, visibilityFields } from './table-config'
@@ -27,6 +27,7 @@ const RemediationPage: React.FC = () => {
   const baseUpdateMutation = useUpdateRemediation()
   const baseCreateMutation = useCreateRemediation()
   const baseDeleteMutation = useDeleteRemediation()
+  const baseBulkCreateMutation = useCreateBulkCSVRemediation()
 
   const updateMutation = {
     isPending: baseUpdateMutation.isPending,
@@ -37,6 +38,14 @@ const RemediationPage: React.FC = () => {
     isPending: baseCreateMutation.isPending,
     mutateAsync: async (input: CreateRemediationInput) => {
       const result = await baseCreateMutation.mutateAsync({ input })
+      return result
+    },
+  }
+
+  const bulkCreateMutation = {
+    isPending: baseBulkCreateMutation.isPending,
+    mutateAsync: async (params: { input: File }) => {
+      const result = await baseBulkCreateMutation.mutateAsync({ input: params.input })
       return result
     },
   }
@@ -83,6 +92,9 @@ const RemediationPage: React.FC = () => {
     sheetConfig,
     onBulkDelete: async (ids: string[]) => {
       await Promise.all(ids.map((remediationId) => baseDeleteMutation.mutateAsync({ deleteRemediationId: remediationId })))
+    },
+    onBulkCreate: async (file: File) => {
+      await bulkCreateMutation.mutateAsync({ input: file })
     },
     enumOpts,
   }
