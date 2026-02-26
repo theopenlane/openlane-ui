@@ -8,11 +8,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { formatDateSince } from '@/utils/date'
 import { useNotification } from '@/hooks/useNotification'
-import { useDeleteWorkflowDefinition, useWorkflowDefinitions } from '@/lib/graphql-hooks/workflows'
+import { useDeleteWorkflowDefinition, useWorkflowDefinitionsWithFilter } from '@/lib/graphql-hooks/workflows'
 
 const WorkflowsPage = () => {
   const router = useRouter()
-  const { definitions, isLoading } = useWorkflowDefinitions({})
+  const { definitions, isLoading } = useWorkflowDefinitionsWithFilter({})
   const deleteMutation = useDeleteWorkflowDefinition()
   const { successNotification, errorNotification } = useNotification()
   const [deleteId, setDeleteId] = useState<string | null>(null)

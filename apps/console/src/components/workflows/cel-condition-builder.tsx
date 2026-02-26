@@ -9,7 +9,7 @@ import { Card } from '@repo/ui/cardpanel'
 import { Plus, Trash2, Code, AlertCircle, CheckCircle } from 'lucide-react'
 import { WorkflowObjectTypeMetadata } from '@/lib/graphql-hooks/workflows'
 import { validateCELExpression } from '@/lib/workflow-validation'
-import { useUserSelect } from '@/lib/graphql-hooks/members'
+import { useUserSelect } from '@/lib/graphql-hooks/member'
 import { TRIGGER_OPERATION_OPTIONS } from '@/lib/workflow-templates'
 
 type Operator = {
@@ -194,10 +194,7 @@ export function CELConditionBuilder({ objectType, objectTypes, initialExpression
           <Card key={condition.id} className="p-3">
             {idx > 0 && (
               <div className="mb-2">
-                <Select
-                  value={conditions[idx - 1].logicalOperator}
-                  onValueChange={(val) => updateCondition(conditions[idx - 1].id, 'logicalOperator', val)}
-                >
+                <Select value={conditions[idx - 1].logicalOperator} onValueChange={(val) => updateCondition(conditions[idx - 1].id, 'logicalOperator', val)}>
                   <SelectTrigger className="w-20 h-7 text-xs">
                     <SelectValue />
                   </SelectTrigger>
@@ -304,15 +301,7 @@ export function CELConditionBuilder({ objectType, objectTypes, initialExpression
                   const fieldType = field?.type || 'string'
 
                   if (fieldType.includes('int') || fieldType.includes('float') || fieldType.includes('number')) {
-                    return (
-                      <Input
-                        className="h-8 text-xs"
-                        type="number"
-                        value={condition.value}
-                        onChange={(e) => updateCondition(condition.id, 'value', e.target.value)}
-                        placeholder="Enter number"
-                      />
-                    )
+                    return <Input className="h-8 text-xs" type="number" value={condition.value} onChange={(e) => updateCondition(condition.id, 'value', e.target.value)} placeholder="Enter number" />
                   }
 
                   if (fieldType.includes('bool')) {
@@ -341,14 +330,7 @@ export function CELConditionBuilder({ objectType, objectTypes, initialExpression
                     )
                   }
 
-                  return (
-                    <Input
-                      className="h-8 text-xs"
-                      value={condition.value}
-                      onChange={(e) => updateCondition(condition.id, 'value', e.target.value)}
-                      placeholder="Enter value"
-                    />
-                  )
+                  return <Input className="h-8 text-xs" value={condition.value} onChange={(e) => updateCondition(condition.id, 'value', e.target.value)} placeholder="Enter value" />
                 })()}
               </div>
 

@@ -74941,3 +74941,196 @@ export type WorkflowProposalQuery = {
     workflowObjectRefID: string
   }
 }
+
+export type WorkflowMetadataQueryVariables = Exact<{ [key: string]: never }>
+
+export type WorkflowMetadataQuery = {
+  __typename?: 'Query'
+  workflowMetadata: {
+    __typename?: 'WorkflowMetadata'
+    objectTypes: Array<{
+      __typename?: 'WorkflowObjectTypeMetadata'
+      type: string
+      label: string
+      description: string
+      resolverKeys: Array<string>
+      eligibleEdges: Array<string>
+      eligibleFields: Array<{ __typename?: 'WorkflowFieldMetadata'; name: string; label: string; type: string }>
+    }>
+  }
+}
+
+export type GetWorkflowInstancesQueryVariables = Exact<{
+  first?: InputMaybe<Scalars['Int']['input']>
+  where?: InputMaybe<WorkflowInstanceWhereInput>
+}>
+
+export type GetWorkflowInstancesQuery = {
+  __typename?: 'Query'
+  workflowInstances: {
+    __typename?: 'WorkflowInstanceConnection'
+    edges?: Array<{
+      __typename?: 'WorkflowInstanceEdge'
+      node?: {
+        __typename?: 'WorkflowInstance'
+        id: string
+        state: WorkflowInstanceWorkflowInstanceState
+        context?: any | null
+        definitionSnapshot?: any | null
+        createdAt?: any | null
+        updatedAt?: any | null
+        workflowProposalID?: string | null
+        workflowDefinition: { __typename?: 'WorkflowDefinition'; id: string; name: string; schemaType: string; workflowKind: WorkflowDefinitionWorkflowKind; definitionJSON?: any | null }
+        workflowAssignments: {
+          __typename?: 'WorkflowAssignmentConnection'
+          edges?: Array<{
+            __typename?: 'WorkflowAssignmentEdge'
+            node?: {
+              __typename?: 'WorkflowAssignment'
+              id: string
+              status: WorkflowAssignmentWorkflowAssignmentStatus
+              assignmentKey: string
+              label?: string | null
+              metadata?: any | null
+              createdAt?: any | null
+              decidedAt?: any | null
+              actorUserID?: string | null
+              actorGroupID?: string | null
+            } | null
+          } | null> | null
+        }
+      } | null
+    } | null> | null
+  }
+}
+
+export type GetWorkflowProposalsForObjectQueryVariables = Exact<{
+  objectType: Scalars['String']['input']
+  objectID: Scalars['ID']['input']
+  includeStates?: InputMaybe<Array<WorkflowProposalState> | WorkflowProposalState>
+}>
+
+export type GetWorkflowProposalsForObjectQuery = {
+  __typename?: 'Query'
+  workflowProposalsForObject: Array<{
+    __typename?: 'WorkflowProposal'
+    id: string
+    state: WorkflowProposalWorkflowProposalState
+    domainKey: string
+    revision: number
+    changes?: any | null
+    createdAt?: any | null
+    updatedAt?: any | null
+    submittedAt?: any | null
+  }>
+}
+
+export type GetWorkflowAssignmentsQueryVariables = Exact<{
+  organizationId: Scalars['ID']['input']
+  first?: InputMaybe<Scalars['Int']['input']>
+  where?: InputMaybe<WorkflowAssignmentWhereInput>
+  orderBy?: InputMaybe<Array<WorkflowAssignmentOrder> | WorkflowAssignmentOrder>
+}>
+
+export type GetWorkflowAssignmentsQuery = {
+  __typename?: 'Query'
+  organization: {
+    __typename?: 'Organization'
+    workflowAssignments: {
+      __typename?: 'WorkflowAssignmentConnection'
+      totalCount: number
+      edges?: Array<{
+        __typename?: 'WorkflowAssignmentEdge'
+        node?: {
+          __typename?: 'WorkflowAssignment'
+          id: string
+          assignmentKey: string
+          label?: string | null
+          status: WorkflowAssignmentWorkflowAssignmentStatus
+          role: string
+          approvalMetadata?: any | null
+          rejectionMetadata?: any | null
+          metadata?: any | null
+          createdAt?: any | null
+          decidedAt?: any | null
+          workflowInstance: {
+            __typename?: 'WorkflowInstance'
+            id: string
+            state: WorkflowInstanceWorkflowInstanceState
+            context?: any | null
+            controlID?: string | null
+            subcontrolID?: string | null
+            evidenceID?: string | null
+            internalPolicyID?: string | null
+            procedureID?: string | null
+            definitionSnapshot?: any | null
+            workflowDefinition: { __typename?: 'WorkflowDefinition'; id: string; name: string; schemaType: string; workflowKind: WorkflowDefinitionWorkflowKind; definitionJSON?: any | null }
+          }
+          workflowAssignmentTargets: {
+            __typename?: 'WorkflowAssignmentTargetConnection'
+            edges?: Array<{
+              __typename?: 'WorkflowAssignmentTargetEdge'
+              node?: {
+                __typename?: 'WorkflowAssignmentTarget'
+                id: string
+                targetType: WorkflowAssignmentTargetWorkflowTargetType
+                targetUserID?: string | null
+                targetGroupID?: string | null
+                resolverKey?: string | null
+              } | null
+            } | null> | null
+          }
+        } | null
+      } | null> | null
+    }
+  }
+}
+
+export type ApproveWorkflowAssignmentMutationVariables = Exact<{
+  id: Scalars['ID']['input']
+}>
+
+export type ApproveWorkflowAssignmentMutation = {
+  __typename?: 'Mutation'
+  approveWorkflowAssignment: {
+    __typename?: 'WorkflowAssignmentApprovePayload'
+    workflowAssignment: { __typename?: 'WorkflowAssignment'; id: string; status: WorkflowAssignmentWorkflowAssignmentStatus; decidedAt?: any | null }
+  }
+}
+
+export type RejectWorkflowAssignmentMutationVariables = Exact<{
+  id: Scalars['ID']['input']
+  reason?: InputMaybe<Scalars['String']['input']>
+}>
+
+export type RejectWorkflowAssignmentMutation = {
+  __typename?: 'Mutation'
+  rejectWorkflowAssignment: {
+    __typename?: 'WorkflowAssignmentRejectPayload'
+    workflowAssignment: { __typename?: 'WorkflowAssignment'; id: string; status: WorkflowAssignmentWorkflowAssignmentStatus; decidedAt?: any | null }
+  }
+}
+
+export type RequestChangesWorkflowAssignmentMutationVariables = Exact<{
+  id: Scalars['ID']['input']
+  reason?: InputMaybe<Scalars['String']['input']>
+  inputs?: InputMaybe<Scalars['Map']['input']>
+}>
+
+export type RequestChangesWorkflowAssignmentMutation = {
+  __typename?: 'Mutation'
+  requestChangesWorkflowAssignment: {
+    __typename?: 'WorkflowAssignmentRejectPayload'
+    workflowAssignment: { __typename?: 'WorkflowAssignment'; id: string; status: WorkflowAssignmentWorkflowAssignmentStatus; decidedAt?: any | null }
+  }
+}
+
+export type ReassignWorkflowAssignmentMutationVariables = Exact<{
+  id: Scalars['ID']['input']
+  targetUserID: Scalars['ID']['input']
+}>
+
+export type ReassignWorkflowAssignmentMutation = {
+  __typename?: 'Mutation'
+  reassignWorkflowAssignment: { __typename?: 'WorkflowAssignment'; id: string; status: WorkflowAssignmentWorkflowAssignmentStatus; assignmentKey: string }
+}

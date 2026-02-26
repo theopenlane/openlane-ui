@@ -12,8 +12,8 @@ import { Badge } from '@repo/ui/badge'
 import { Switch } from '@repo/ui/switch'
 import { TRIGGER_OPERATION_OPTIONS } from '@/lib/workflow-templates'
 import { WorkflowObjectTypeMetadata } from '@/lib/graphql-hooks/workflows'
-import { useUserSelect } from '@/lib/graphql-hooks/members'
-import { useGroupSelect } from '@/lib/graphql-hooks/groups'
+import { useUserSelect } from '@/lib/graphql-hooks/member'
+import { useGroupSelect } from '@/lib/graphql-hooks/group'
 import { CELConditionBuilder } from '@/components/workflows/cel-condition-builder'
 
 type NodeEditPanelProps = {
@@ -40,10 +40,7 @@ const normalizeTargets = (params: any): Target[] => {
   const users = Array.isArray(legacyAssignees.users) ? legacyAssignees.users : []
   const groups = Array.isArray(legacyAssignees.groups) ? legacyAssignees.groups : []
 
-  return [
-    ...users.map((id: string) => ({ type: 'USER' as const, id })),
-    ...groups.map((id: string) => ({ type: 'GROUP' as const, id })),
-  ]
+  return [...users.map((id: string) => ({ type: 'USER' as const, id })), ...groups.map((id: string) => ({ type: 'GROUP' as const, id }))]
 }
 
 export function NodeEditPanel({ node, objectTypes, onClose, onUpdate, onDelete }: NodeEditPanelProps) {
@@ -189,7 +186,7 @@ export function NodeEditPanel({ node, objectTypes, onClose, onUpdate, onDelete }
     setEdgeInput('')
   }
   const handleRemoveEdge = (edge: string) => {
-    setLocalData({ ...localData, edges: triggerEdges.filter((e) => e !== edge) })
+    setLocalData({ ...localData, edges: triggerEdges.filter((e: string) => e !== edge) })
   }
 
   return (
@@ -251,9 +248,7 @@ export function NodeEditPanel({ node, objectTypes, onClose, onUpdate, onDelete }
                               checked={localData.fields?.includes(field.name) || false}
                               onChange={(e) => {
                                 const currentFields = localData.fields || []
-                                const newFields = e.target.checked
-                                  ? [...currentFields, field.name]
-                                  : currentFields.filter((f: string) => f !== field.name)
+                                const newFields = e.target.checked ? [...currentFields, field.name] : currentFields.filter((f: string) => f !== field.name)
                                 setLocalData({ ...localData, fields: newFields })
                               }}
                               className="h-4 w-4 rounded border-gray-300"
@@ -291,11 +286,7 @@ export function NodeEditPanel({ node, objectTypes, onClose, onUpdate, onDelete }
                     </div>
                   ) : (
                     <div className="flex gap-2">
-                      <Input
-                        value={edgeInput}
-                        onChange={(e) => setEdgeInput(e.target.value)}
-                        placeholder="controls"
-                      />
+                      <Input value={edgeInput} onChange={(e) => setEdgeInput(e.target.value)} placeholder="controls" />
                       <Button type="button" variant="outline" onClick={handleAddEdge} disabled={!canAddEdge}>
                         Add
                       </Button>
@@ -303,7 +294,7 @@ export function NodeEditPanel({ node, objectTypes, onClose, onUpdate, onDelete }
                   )}
                   {triggerEdges.length > 0 && (
                     <div className="flex flex-wrap gap-1 mt-2">
-                      {triggerEdges.map((edge) => (
+                      {triggerEdges.map((edge: string) => (
                         <Badge key={edge} variant="secondary" className="gap-1">
                           {edge}
                           <X className="h-3 w-3 cursor-pointer" onClick={() => handleRemoveEdge(edge)} />
@@ -311,9 +302,7 @@ export function NodeEditPanel({ node, objectTypes, onClose, onUpdate, onDelete }
                       ))}
                     </div>
                   )}
-                  <p className="text-xs text-muted-foreground">
-                    Use edge names from the object schema (for example: controls, evidence).
-                  </p>
+                  <p className="text-xs text-muted-foreground">Use edge names from the object schema (for example: controls, evidence).</p>
                 </div>
 
                 <div className="space-y-2">
@@ -334,11 +323,7 @@ export function NodeEditPanel({ node, objectTypes, onClose, onUpdate, onDelete }
 
                 <div className="space-y-2">
                   <Label>Description</Label>
-                  <Input
-                    value={localData.description || ''}
-                    onChange={(e) => setLocalData({ ...localData, description: e.target.value })}
-                    placeholder="When to trigger"
-                  />
+                  <Input value={localData.description || ''} onChange={(e) => setLocalData({ ...localData, description: e.target.value })} placeholder="When to trigger" />
                 </div>
 
                 <div className="space-y-2">
@@ -360,11 +345,7 @@ export function NodeEditPanel({ node, objectTypes, onClose, onUpdate, onDelete }
 
                 <div className="space-y-2">
                   <Label>Description</Label>
-                  <Input
-                    value={localData.description || ''}
-                    onChange={(e) => setLocalData({ ...localData, description: e.target.value })}
-                    placeholder="Explain this condition"
-                  />
+                  <Input value={localData.description || ''} onChange={(e) => setLocalData({ ...localData, description: e.target.value })} placeholder="Explain this condition" />
                 </div>
               </>
             )}
@@ -395,11 +376,7 @@ export function NodeEditPanel({ node, objectTypes, onClose, onUpdate, onDelete }
 
                 <div className="space-y-2">
                   <Label>Description</Label>
-                  <Input
-                    value={localData.description || ''}
-                    onChange={(e) => setLocalData({ ...localData, description: e.target.value })}
-                    placeholder="What this action does"
-                  />
+                  <Input value={localData.description || ''} onChange={(e) => setLocalData({ ...localData, description: e.target.value })} placeholder="What this action does" />
                 </div>
 
                 {(localData.type === 'REQUEST_APPROVAL' || localData.type === 'REVIEW') && (
@@ -538,12 +515,7 @@ export function NodeEditPanel({ node, objectTypes, onClose, onUpdate, onDelete }
                 {localData.type !== 'REQUEST_APPROVAL' && localData.type !== 'REVIEW' && (
                   <div className="space-y-2">
                     <Label>Action Parameters (JSON)</Label>
-                    <Textarea
-                      value={paramsInput}
-                      onChange={(e) => handleParamsChange(e.target.value)}
-                      placeholder='{"key": "value"}'
-                      rows={6}
-                    />
+                    <Textarea value={paramsInput} onChange={(e) => handleParamsChange(e.target.value)} placeholder='{"key": "value"}' rows={6} />
                     {paramsError && <p className="text-xs text-destructive">{paramsError}</p>}
                   </div>
                 )}

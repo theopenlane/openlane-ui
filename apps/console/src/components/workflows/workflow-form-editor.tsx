@@ -13,8 +13,8 @@ import { Badge } from '@repo/ui/badge'
 import { Separator } from '@repo/ui/separator'
 import { TRIGGER_OPERATION_OPTIONS } from '@/lib/workflow-templates'
 import { WorkflowObjectTypeMetadata } from '@/lib/graphql-hooks/workflows'
-import { useUserSelect } from '@/lib/graphql-hooks/members'
-import { useGroupSelect } from '@/lib/graphql-hooks/groups'
+import { useUserSelect } from '@/lib/graphql-hooks/member'
+import { useGroupSelect } from '@/lib/graphql-hooks/group'
 import { CELConditionBuilder } from '@/components/workflows/cel-condition-builder'
 
 type WorkflowFormEditorProps = {
@@ -42,10 +42,7 @@ const normalizeTargets = (params: any): Target[] => {
   const users = Array.isArray(legacyAssignees.users) ? legacyAssignees.users : []
   const groups = Array.isArray(legacyAssignees.groups) ? legacyAssignees.groups : []
 
-  return [
-    ...users.map((id: string) => ({ type: 'USER' as const, id })),
-    ...groups.map((id: string) => ({ type: 'GROUP' as const, id })),
-  ]
+  return [...users.map((id: string) => ({ type: 'USER' as const, id })), ...groups.map((id: string) => ({ type: 'GROUP' as const, id }))]
 }
 
 const ACTION_TYPE_OPTIONS = [
@@ -231,7 +228,11 @@ export function WorkflowFormEditor({ triggers, conditions, actions, objectTypes,
 
   const removeEdgeFromTrigger = (index: number, edge: string) => {
     const currentEdges = Array.isArray(triggers[index]?.edges) ? triggers[index].edges : []
-    updateTrigger(index, 'edges', currentEdges.filter((e: string) => e !== edge))
+    updateTrigger(
+      index,
+      'edges',
+      currentEdges.filter((e: string) => e !== edge),
+    )
   }
 
   return (
@@ -256,156 +257,136 @@ export function WorkflowFormEditor({ triggers, conditions, actions, objectTypes,
 
             return (
               <Card key={`trigger-${index}`} className="border-dashed">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-sm">Trigger {index + 1}</CardTitle>
-                  {triggers.length > 1 && (
-                    <Button size="sm" variant="transparent" onClick={() => removeTrigger(index)}>
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  )}
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="grid gap-3 md:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label>Operation</Label>
-                    <Select value={trigger.operation} onValueChange={(val) => updateTrigger(index, 'operation', val)}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {TRIGGER_OPERATION_OPTIONS.map((opt) => (
-                          <SelectItem key={opt.value} value={opt.value}>
-                            {opt.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-sm">Trigger {index + 1}</CardTitle>
+                    {triggers.length > 1 && (
+                      <Button size="sm" variant="transparent" onClick={() => removeTrigger(index)}>
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
                   </div>
-
-                  <div className="space-y-2">
-                    <Label>Object type</Label>
-                    <Select value={trigger.objectType} onValueChange={(val) => updateTrigger(index, 'objectType', val)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select object type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {objectTypes.map((objType) => (
-                          <SelectItem key={objType.type} value={objType.type}>
-                            {objType.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Tracked fields (leave empty for all)</Label>
-                  {trigger.objectType && objectTypes.find((t) => t.type === trigger.objectType)?.eligibleFields.length ? (
-                    <div className="space-y-2 border rounded-md p-3">
-                      {objectTypes
-                        .find((t) => t.type === trigger.objectType)
-                        ?.eligibleFields.map((field) => (
-                          <div key={field.name} className="flex items-center space-x-2">
-                            <input
-                              type="checkbox"
-                              id={`trigger-${index}-field-${field.name}`}
-                              checked={trigger.fields?.includes(field.name) || false}
-                              onChange={(e) => {
-                                const currentFields = trigger.fields || []
-                                const newFields = e.target.checked
-                                  ? [...currentFields, field.name]
-                                  : currentFields.filter((f: string) => f !== field.name)
-                                updateTrigger(index, 'fields', newFields)
-                              }}
-                              className="h-4 w-4 rounded border-gray-300"
-                            />
-                            <label htmlFor={`trigger-${index}-field-${field.name}`} className="text-xs font-medium">
-                              {field.label}
-                            </label>
-                          </div>
-                        ))}
-                      <p className="text-xs text-muted-foreground mt-2">
-                        {trigger.fields?.length ? `${trigger.fields.length} field(s) selected` : 'No fields selected (tracks all fields)'}
-                      </p>
-                    </div>
-                  ) : (
-                    <p className="text-sm text-muted-foreground border rounded-md p-3">
-                      {trigger.objectType ? 'No workflow-eligible fields for this object type' : 'Select an object type to see available fields'}
-                    </p>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Tracked edges (optional)</Label>
-                  {hasEligibleEdges ? (
-                    <div className="flex gap-2">
-                      <Select value={edgeInputs[index] || ''} onValueChange={(val) => updateEdgeInput(index, val)}>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="grid gap-3 md:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label>Operation</Label>
+                      <Select value={trigger.operation} onValueChange={(val) => updateTrigger(index, 'operation', val)}>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select an edge" />
+                          <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          {eligibleEdges.map((edge) => (
-                            <SelectItem key={edge} value={edge}>
-                              {edge}
+                          {TRIGGER_OPERATION_OPTIONS.map((opt) => (
+                            <SelectItem key={opt.value} value={opt.value}>
+                              {opt.label}
                             </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => addEdgeToTrigger(index)}
-                        disabled={!edgeInputs[index]?.trim()}
-                      >
-                        Add
-                      </Button>
                     </div>
-                  ) : (
-                    <div className="flex gap-2">
-                      <Input
-                        value={edgeInputs[index] || ''}
-                        onChange={(e) => updateEdgeInput(index, e.target.value)}
-                        placeholder="controls"
-                      />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => addEdgeToTrigger(index)}
-                        disabled={!edgeInputs[index]?.trim()}
-                      >
-                        Add
-                      </Button>
-                    </div>
-                  )}
-                  {Array.isArray(trigger.edges) && trigger.edges.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mt-2">
-                      {trigger.edges.map((edge: string) => (
-                        <Badge key={edge} variant="secondary" className="gap-1">
-                          {edge}
-                          <X className="h-3 w-3 cursor-pointer" onClick={() => removeEdgeFromTrigger(index, edge)} />
-                        </Badge>
-                      ))}
-                    </div>
-                  )}
-                  <p className="text-xs text-muted-foreground">
-                    Edge names map to schema relations (for example: controls, evidence).
-                  </p>
-                </div>
 
-                <div className="space-y-2">
-                  <Label>Description</Label>
-                  <Input value={trigger.description} onChange={(e) => updateTrigger(index, 'description', e.target.value)} placeholder="When to trigger this workflow" />
-                </div>
+                    <div className="space-y-2">
+                      <Label>Object type</Label>
+                      <Select value={trigger.objectType} onValueChange={(val) => updateTrigger(index, 'objectType', val)}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select object type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {objectTypes.map((objType) => (
+                            <SelectItem key={objType.type} value={objType.type}>
+                              {objType.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
 
-                <div className="space-y-2">
-                  <Label>CEL expression (optional)</Label>
-                  <Textarea value={trigger.expression} onChange={(e) => updateTrigger(index, 'expression', e.target.value)} placeholder="true" rows={2} />
-                </div>
-              </CardContent>
-            </Card>
+                  <div className="space-y-2">
+                    <Label>Tracked fields (leave empty for all)</Label>
+                    {trigger.objectType && objectTypes.find((t) => t.type === trigger.objectType)?.eligibleFields.length ? (
+                      <div className="space-y-2 border rounded-md p-3">
+                        {objectTypes
+                          .find((t) => t.type === trigger.objectType)
+                          ?.eligibleFields.map((field) => (
+                            <div key={field.name} className="flex items-center space-x-2">
+                              <input
+                                type="checkbox"
+                                id={`trigger-${index}-field-${field.name}`}
+                                checked={trigger.fields?.includes(field.name) || false}
+                                onChange={(e) => {
+                                  const currentFields = trigger.fields || []
+                                  const newFields = e.target.checked ? [...currentFields, field.name] : currentFields.filter((f: string) => f !== field.name)
+                                  updateTrigger(index, 'fields', newFields)
+                                }}
+                                className="h-4 w-4 rounded border-gray-300"
+                              />
+                              <label htmlFor={`trigger-${index}-field-${field.name}`} className="text-xs font-medium">
+                                {field.label}
+                              </label>
+                            </div>
+                          ))}
+                        <p className="text-xs text-muted-foreground mt-2">{trigger.fields?.length ? `${trigger.fields.length} field(s) selected` : 'No fields selected (tracks all fields)'}</p>
+                      </div>
+                    ) : (
+                      <p className="text-sm text-muted-foreground border rounded-md p-3">
+                        {trigger.objectType ? 'No workflow-eligible fields for this object type' : 'Select an object type to see available fields'}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Tracked edges (optional)</Label>
+                    {hasEligibleEdges ? (
+                      <div className="flex gap-2">
+                        <Select value={edgeInputs[index] || ''} onValueChange={(val) => updateEdgeInput(index, val)}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select an edge" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {eligibleEdges.map((edge) => (
+                              <SelectItem key={edge} value={edge}>
+                                {edge}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <Button type="button" variant="outline" onClick={() => addEdgeToTrigger(index)} disabled={!edgeInputs[index]?.trim()}>
+                          Add
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="flex gap-2">
+                        <Input value={edgeInputs[index] || ''} onChange={(e) => updateEdgeInput(index, e.target.value)} placeholder="controls" />
+                        <Button type="button" variant="outline" onClick={() => addEdgeToTrigger(index)} disabled={!edgeInputs[index]?.trim()}>
+                          Add
+                        </Button>
+                      </div>
+                    )}
+                    {Array.isArray(trigger.edges) && trigger.edges.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mt-2">
+                        {trigger.edges.map((edge: string) => (
+                          <Badge key={edge} variant="secondary" className="gap-1">
+                            {edge}
+                            <X className="h-3 w-3 cursor-pointer" onClick={() => removeEdgeFromTrigger(index, edge)} />
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+                    <p className="text-xs text-muted-foreground">Edge names map to schema relations (for example: controls, evidence).</p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Description</Label>
+                    <Input value={trigger.description} onChange={(e) => updateTrigger(index, 'description', e.target.value)} placeholder="When to trigger this workflow" />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>CEL expression (optional)</Label>
+                    <Textarea value={trigger.expression} onChange={(e) => updateTrigger(index, 'expression', e.target.value)} placeholder="true" rows={2} />
+                  </div>
+                </CardContent>
+              </Card>
             )
           })}
         </CardContent>
@@ -480,8 +461,7 @@ export function WorkflowFormEditor({ triggers, conditions, actions, objectTypes,
             const selectedGroups = targets.filter((t) => t.type === 'GROUP' && t.id)
             const selectedResolvers = targets.filter((t) => t.type === 'RESOLVER' && t.resolver_key).map((t) => t.resolver_key as string)
             const paramsDraft = actionParamsDrafts[index]
-            const webhookPayloadText =
-              action.params?.payload && typeof action.params.payload === 'object' && !Array.isArray(action.params.payload) ? action.params.payload.text || '' : ''
+            const webhookPayloadText = action.params?.payload && typeof action.params.payload === 'object' && !Array.isArray(action.params.payload) ? action.params.payload.text || '' : ''
             return (
               <Card key={`action-${index}`} className="border-dashed">
                 <CardHeader>
@@ -556,9 +536,7 @@ export function WorkflowFormEditor({ triggers, conditions, actions, objectTypes,
                                       checked={action.params?.fields?.includes(field.name) || false}
                                       onChange={(e) => {
                                         const currentFields = action.params?.fields || []
-                                        const newFields = e.target.checked
-                                          ? [...currentFields, field.name]
-                                          : currentFields.filter((f: string) => f !== field.name)
+                                        const newFields = e.target.checked ? [...currentFields, field.name] : currentFields.filter((f: string) => f !== field.name)
                                         updateActionParam(index, 'fields', newFields)
                                       }}
                                       className="h-4 w-4 rounded border-gray-300"
@@ -570,29 +548,19 @@ export function WorkflowFormEditor({ triggers, conditions, actions, objectTypes,
                                 ))}
                               </div>
                             ) : (
-                              <p className="text-sm text-muted-foreground border rounded-md p-3">
-                                No workflow-eligible fields available for this object type.
-                              </p>
+                              <p className="text-sm text-muted-foreground border rounded-md p-3">No workflow-eligible fields available for this object type.</p>
                             )}
                           </div>
                         )}
 
                         <div className="flex items-center justify-between">
                           <Label>Required for completion</Label>
-                          <Switch
-                            checked={action.params?.required ?? true}
-                            onCheckedChange={(checked) => updateActionParam(index, 'required', checked)}
-                          />
+                          <Switch checked={action.params?.required ?? true} onCheckedChange={(checked) => updateActionParam(index, 'required', checked)} />
                         </div>
 
                         <div className="space-y-2">
                           <Label>{isReview ? 'Required reviews' : 'Required approvals'}</Label>
-                          <Input
-                            type="number"
-                            min="0"
-                            value={action.params?.required_count ?? 1}
-                            onChange={(e) => updateActionParam(index, 'required_count', parseInt(e.target.value, 10) || 0)}
-                          />
+                          <Input type="number" min="0" value={action.params?.required_count ?? 1} onChange={(e) => updateActionParam(index, 'required_count', parseInt(e.target.value, 10) || 0)} />
                           <p className="text-xs text-muted-foreground">Use 0 to require all targets.</p>
                         </div>
 
@@ -687,11 +655,7 @@ export function WorkflowFormEditor({ triggers, conditions, actions, objectTypes,
                     <div className="space-y-3">
                       <div className="space-y-2">
                         <Label>Webhook URL</Label>
-                        <Input
-                          value={action.params?.url || ''}
-                          onChange={(e) => updateActionParam(index, 'url', e.target.value)}
-                          placeholder="https://hooks.slack.com/..."
-                        />
+                        <Input value={action.params?.url || ''} onChange={(e) => updateActionParam(index, 'url', e.target.value)} placeholder="https://hooks.slack.com/..." />
                       </div>
 
                       <div className="grid gap-3 md:grid-cols-2">
@@ -713,12 +677,7 @@ export function WorkflowFormEditor({ triggers, conditions, actions, objectTypes,
 
                         <div className="space-y-2">
                           <Label>Timeout (ms)</Label>
-                          <Input
-                            type="number"
-                            min="0"
-                            value={action.params?.timeout_ms ?? 5000}
-                            onChange={(e) => updateActionParam(index, 'timeout_ms', Number(e.target.value) || 0)}
-                          />
+                          <Input type="number" min="0" value={action.params?.timeout_ms ?? 5000} onChange={(e) => updateActionParam(index, 'timeout_ms', Number(e.target.value) || 0)} />
                         </div>
                       </div>
 
@@ -730,7 +689,9 @@ export function WorkflowFormEditor({ triggers, conditions, actions, objectTypes,
                           placeholder="Control status approved. Control details are included in the payload."
                           rows={4}
                         />
-                        <p className="text-xs text-muted-foreground">Templates can reference workflow variables (e.g. {{object_id}}).</p>
+                        <p className="text-xs text-muted-foreground">
+                          Templates can reference workflow variables (e.g. <span>{'{{ object_id }}'}</span>).
+                        </p>
                       </div>
                     </div>
                   ) : (
