@@ -26,7 +26,7 @@ const TableComponent = ({
   canEdit,
   permission,
   defaultSorting,
-}: TTableProps<FindingsNodeNonNull, FindingWhereInput>) => {
+}: TTableProps<FindingWhereInput>) => {
   const { replace } = useSmartRouter()
 
   const orderBy = useMemo(() => {

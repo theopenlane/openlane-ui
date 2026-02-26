@@ -6,7 +6,7 @@ import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 import { VulnerabilitiesNodeNonNull } from '@/lib/graphql-hooks/vulnerability'
 import { ColumnOptions } from '@/components/shared/crud-base/page'
 
-export const getColumns = ({ userMap, convertToReadOnly, selectedItems, setSelectedItems }: ColumnOptions<VulnerabilitiesNodeNonNull>): ColumnDef<VulnerabilitiesNodeNonNull>[] => {
+export const getColumns = ({ userMap, convertToReadOnly, selectedItems, setSelectedItems }: ColumnOptions): ColumnDef<VulnerabilitiesNodeNonNull>[] => {
   const toggleSelection = (vulnerability: VulnerabilitiesNodeNonNull) => {
     setSelectedItems((prev) => {
       const exists = prev.some((c) => c.id === vulnerability.id)

@@ -5,7 +5,7 @@ import { Checkbox } from '@repo/ui/checkbox'
 import { ScansNodeNonNull } from '@/lib/graphql-hooks/scan'
 import { ColumnOptions } from '@/components/shared/crud-base/page'
 
-export const getColumns = ({ userMap, selectedItems, setSelectedItems }: ColumnOptions<ScansNodeNonNull>): ColumnDef<ScansNodeNonNull>[] => {
+export const getColumns = ({ userMap, selectedItems, setSelectedItems }: ColumnOptions): ColumnDef<ScansNodeNonNull>[] => {
   const toggleSelection = (scan: ScansNodeNonNull) => {
     setSelectedItems((prev) => {
       const exists = prev.some((c) => c.id === scan.id)

@@ -27,7 +27,7 @@ const TableComponent = ({
   canEdit,
   permission,
   defaultSorting,
-}: TTableProps<VulnerabilitiesNodeNonNull, VulnerabilityWhereInput>) => {
+}: TTableProps<VulnerabilityWhereInput>) => {
   const { replace } = useSmartRouter()
 
   const orderBy = useMemo(() => {

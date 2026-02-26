@@ -5,7 +5,7 @@ import { Checkbox } from '@repo/ui/checkbox'
 import { FindingsNodeNonNull } from '@/lib/graphql-hooks/finding'
 import { ColumnOptions } from '@/components/shared/crud-base/page'
 
-export const getColumns = ({ userMap, selectedItems, setSelectedItems }: ColumnOptions<FindingsNodeNonNull>): ColumnDef<FindingsNodeNonNull>[] => {
+export const getColumns = ({ userMap, selectedItems, setSelectedItems }: ColumnOptions): ColumnDef<FindingsNodeNonNull>[] => {
   const toggleSelection = (finding: FindingsNodeNonNull) => {
     setSelectedItems((prev) => {
       const exists = prev.some((c) => c.id === finding.id)

@@ -26,7 +26,7 @@ const TableComponent = ({
   canEdit,
   permission,
   defaultSorting,
-}: TTableProps<RemediationsNodeNonNull, RemediationWhereInput>) => {
+}: TTableProps<RemediationWhereInput>) => {
   const { replace } = useSmartRouter()
 
   const orderBy = useMemo(() => {

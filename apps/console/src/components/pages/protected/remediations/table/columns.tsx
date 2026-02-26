@@ -5,7 +5,7 @@ import { Checkbox } from '@repo/ui/checkbox'
 import { RemediationsNodeNonNull } from '@/lib/graphql-hooks/remediation'
 import { ColumnOptions } from '@/components/shared/crud-base/page'
 
-export const getColumns = ({ userMap, selectedItems, setSelectedItems }: ColumnOptions<RemediationsNodeNonNull>): ColumnDef<RemediationsNodeNonNull>[] => {
+export const getColumns = ({ userMap, selectedItems, setSelectedItems }: ColumnOptions): ColumnDef<RemediationsNodeNonNull>[] => {
   const toggleSelection = (remediation: RemediationsNodeNonNull) => {
     setSelectedItems((prev) => {
       const exists = prev.some((c) => c.id === remediation.id)
