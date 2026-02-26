@@ -14,13 +14,8 @@ import { CheckCircle, UserPlus, XCircle } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { useOrganization } from '@/hooks/useOrganization'
 import { useApproveAssignment, useReassignAssignment, useRejectAssignment, useRequestChangesAssignment, useWorkflowAssignments } from '@/lib/graphql-hooks/workflows'
-import { useUserSelect } from '@/lib/graphql-hooks/members'
-import {
-  WorkflowAssignment,
-  WorkflowAssignmentOrderField,
-  WorkflowAssignmentWhereInput,
-  WorkflowAssignmentWorkflowAssignmentStatus,
-} from '@repo/codegen/src/schema'
+import { useUserSelect } from '@/lib/graphql-hooks/member'
+import { OrderDirection, WorkflowAssignment, WorkflowAssignmentOrderField, WorkflowAssignmentWhereInput, WorkflowAssignmentWorkflowAssignmentStatus } from '@repo/codegen/src/schema'
 import { WorkflowStatusBadge } from '@/components/workflows/workflow-status-badge'
 import { useNotification } from '@/hooks/useNotification'
 import { getHrefForObjectType } from '@/utils/getHrefForObjectType'
@@ -54,7 +49,7 @@ const WorkflowInboxPage = () => {
   const { assignments, isLoading, refetch } = useWorkflowAssignments({
     organizationId: currentOrgId,
     where,
-    orderBy: [{ field: WorkflowAssignmentOrderField.created_at, direction: 'DESC' }],
+    orderBy: [{ field: WorkflowAssignmentOrderField.created_at, direction: OrderDirection.DESC }],
     enabled: Boolean(userId && currentOrgId),
     first: 100,
   })
@@ -74,8 +69,7 @@ const WorkflowInboxPage = () => {
       const role = (assignment.role || '').toUpperCase()
       const key = assignment.assignmentKey || ''
       const isChangeRequest = role === 'REQUESTER' || key.startsWith('change_request_')
-      const definitionDoc =
-        assignment.workflowInstance?.workflowDefinition?.definitionJSON ?? assignment.workflowInstance?.definitionSnapshot
+      const definitionDoc = assignment.workflowInstance?.workflowDefinition?.definitionJSON ?? assignment.workflowInstance?.definitionSnapshot
       const workflowKind = (assignment.workflowInstance?.workflowDefinition?.workflowKind || '').toUpperCase()
       const hasApprovalAction = definitionHasApprovalAction(definitionDoc)
       const hasApprovalTiming = definitionHasApprovalTiming(definitionDoc)
@@ -141,13 +135,7 @@ const WorkflowInboxPage = () => {
 
     const context = instance.context as { objectType?: string; objectId?: string } | undefined
     const objectType = context?.objectType || instance.workflowDefinition?.schemaType
-    const objectId =
-      context?.objectId ||
-      instance.controlID ||
-      instance.subcontrolID ||
-      instance.evidenceID ||
-      instance.internalPolicyID ||
-      instance.procedureID
+    const objectId = context?.objectId || instance.controlID || instance.subcontrolID || instance.evidenceID || instance.internalPolicyID || instance.procedureID
 
     if (!objectType || !objectId) return ''
 
@@ -259,26 +247,16 @@ const WorkflowInboxPage = () => {
     const isApprovalWorkflow = hasApprovalAction || hasApprovalTiming || (workflowKind === 'APPROVAL' && !hasReviewAction)
     const isReview = hasReviewAction || (!isApprovalWorkflow && (role === 'REVIEWER' || assignment.assignmentKey?.startsWith('review_')))
     const changeReason =
-      (assignment.rejectionMetadata as { rejectionReason?: string } | undefined)?.rejectionReason ||
-      (assignment.metadata as { change_request_reason?: string } | undefined)?.change_request_reason
+      (assignment.rejectionMetadata as { rejectionReason?: string } | undefined)?.rejectionReason || (assignment.metadata as { change_request_reason?: string } | undefined)?.change_request_reason
     const changeInputs =
       (assignment.metadata as { change_request_inputs?: unknown } | undefined)?.change_request_inputs ||
       (assignment.rejectionMetadata as { change_request_inputs?: unknown } | undefined)?.change_request_inputs
-    const changeInputsText =
-      changeInputs && typeof changeInputs === 'string'
-        ? changeInputs
-        : changeInputs
-        ? JSON.stringify(changeInputs, null, 2)
-        : ''
+    const changeInputsText = changeInputs && typeof changeInputs === 'string' ? changeInputs : changeInputs ? JSON.stringify(changeInputs, null, 2) : ''
     const assignmentHref = resolveAssignmentHref(assignment)
-    const targetUserIds =
-      assignment.workflowAssignmentTargets?.edges
-        ?.map((edge) => edge?.node?.targetUserID)
-        .filter(Boolean) as string[] | undefined
+    const targetUserIds = assignment.workflowAssignmentTargets?.edges?.map((edge) => edge?.node?.targetUserID).filter(Boolean) as string[] | undefined
     const availableUsers = userOptions.filter((user) => !targetUserIds?.includes(user.value))
     const proposedChanges = (assignment.workflowInstance?.context as { triggerProposedChanges?: Record<string, unknown> } | undefined)?.triggerProposedChanges
-    const proposedChangesText =
-      proposedChanges && Object.keys(proposedChanges).length > 0 ? JSON.stringify(proposedChanges, null, 2) : ''
+    const proposedChangesText = proposedChanges && Object.keys(proposedChanges).length > 0 ? JSON.stringify(proposedChanges, null, 2) : ''
 
     return (
       <Card key={assignment.id} className="border border-border/60">
@@ -289,16 +267,20 @@ const WorkflowInboxPage = () => {
               <CardDescription>
                 {definition?.name || 'Workflow'} • {definition?.schemaType || 'Schema'}
               </CardDescription>
-              {assignment.createdAt && (
-                <p className="text-xs text-muted-foreground">
-                  Requested {formatDistanceToNow(new Date(assignment.createdAt), { addSuffix: true })}
-                </p>
-              )}
+              {assignment.createdAt && <p className="text-xs text-muted-foreground">Requested {formatDistanceToNow(new Date(assignment.createdAt), { addSuffix: true })}</p>}
             </div>
             <div className="flex flex-col items-end gap-2">
               <WorkflowStatusBadge status={assignment.status || 'PENDING'} size="sm" />
-              {(hasApprovalAction || hasApprovalTiming) && isPostCommit && <Badge variant="outline" className="text-xs">Post-commit</Badge>}
-              {instanceState && <Badge variant="outline" className="text-xs">{instanceState}</Badge>}
+              {(hasApprovalAction || hasApprovalTiming) && isPostCommit && (
+                <Badge variant="outline" className="text-xs">
+                  Post-commit
+                </Badge>
+              )}
+              {instanceState && (
+                <Badge variant="outline" className="text-xs">
+                  {instanceState}
+                </Badge>
+              )}
             </div>
           </div>
         </CardHeader>
@@ -335,21 +317,11 @@ const WorkflowInboxPage = () => {
             <div className="space-y-3">
               <div className="space-y-2">
                 <Label>Change request</Label>
-                <Textarea
-                  value={changeRequestReason}
-                  onChange={(e) => setChangeRequestReason(e.target.value)}
-                  placeholder="Describe what needs to be updated"
-                  rows={3}
-                />
+                <Textarea value={changeRequestReason} onChange={(e) => setChangeRequestReason(e.target.value)} placeholder="Describe what needs to be updated" rows={3} />
               </div>
               <div className="space-y-2">
                 <Label>Inputs (JSON)</Label>
-                <Textarea
-                  value={changeRequestInputs}
-                  onChange={(e) => setChangeRequestInputs(e.target.value)}
-                  placeholder='{"field":"value"}'
-                  rows={3}
-                />
+                <Textarea value={changeRequestInputs} onChange={(e) => setChangeRequestInputs(e.target.value)} placeholder='{"field":"value"}' rows={3} />
               </div>
               <div className="flex gap-2">
                 <Button size="sm" onClick={() => handleRequestChanges(assignment.id)} disabled={requestChangesMutation.isPending}>
@@ -388,11 +360,7 @@ const WorkflowInboxPage = () => {
                 )}
               </div>
               <div className="flex gap-2">
-                <Button
-                  size="sm"
-                  onClick={() => handleReassign(assignment.id)}
-                  disabled={reassignMutation.isPending || !reassignUserId || availableUsers.length === 0}
-                >
+                <Button size="sm" onClick={() => handleReassign(assignment.id)} disabled={reassignMutation.isPending || !reassignUserId || availableUsers.length === 0}>
                   {reassignMutation.isPending ? 'Adding...' : 'Add'}
                 </Button>
                 <Button size="sm" variant="secondary" onClick={() => resetDecisionState()}>
@@ -404,12 +372,7 @@ const WorkflowInboxPage = () => {
             <div className="space-y-3">
               <div className="space-y-2">
                 <Label>Rejection reason</Label>
-                <Textarea
-                  value={rejectReason}
-                  onChange={(e) => setRejectReason(e.target.value)}
-                  placeholder="Optional reason for rejection"
-                  rows={3}
-                />
+                <Textarea value={rejectReason} onChange={(e) => setRejectReason(e.target.value)} placeholder="Optional reason for rejection" rows={3} />
               </div>
               <div className="flex gap-2">
                 <Button size="sm" variant="destructive" onClick={() => handleReject(assignment.id)} disabled={rejectMutation.isPending}>
@@ -497,9 +460,7 @@ const WorkflowInboxPage = () => {
           <CardContent className="py-6 text-center text-sm text-muted-foreground">Nothing pending right now.</CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 gap-4">
-          {items.map((assignment) => renderAssignmentCard(assignment, allowDecision))}
-        </div>
+        <div className="grid grid-cols-1 gap-4">{items.map((assignment) => renderAssignmentCard(assignment, allowDecision))}</div>
       )}
     </div>
   )
@@ -530,8 +491,7 @@ const WorkflowInboxPage = () => {
         <div className="space-y-8">
           {renderSection('Approvals', 'Decide on approvals that require a decision before work proceeds.', approvalAssignments)}
           {renderSection('Reviews', 'Provide review decisions for workflow requests.', reviewAssignments)}
-          {changeRequestAssignments.length > 0 &&
-            renderSection('Changes requested', 'Address requested changes and update the item before resubmitting.', changeRequestAssignments, false)}
+          {changeRequestAssignments.length > 0 && renderSection('Changes requested', 'Address requested changes and update the item before resubmitting.', changeRequestAssignments, false)}
         </div>
       )}
     </div>

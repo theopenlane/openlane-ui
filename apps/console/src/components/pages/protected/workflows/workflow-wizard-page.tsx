@@ -14,15 +14,18 @@ import { Switch } from '@repo/ui/switch'
 import { Badge } from '@repo/ui/badge'
 import { Separator } from '@repo/ui/separator'
 import { Checkbox } from '@repo/ui/checkbox'
-import type { Stepper, Step } from '@stepperize/react'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { useCreateWorkflowDefinition, useWorkflowDefinitions, useWorkflowMetadata } from '@/lib/graphql-hooks/workflows'
-import { useUserSelect } from '@/lib/graphql-hooks/members'
-import { useGroupSelect } from '@/lib/graphql-hooks/groups'
+import { useCreateWorkflowDefinition, useWorkflowDefinitionsWithFilter, WorkflowDefinitionsNodeNonNull } from '@/lib/graphql-hooks/workflow-definition'
+import { useWorkflowMetadata } from '@/lib/graphql-hooks/workflows'
+import { useUserSelect } from '@/lib/graphql-hooks/member'
+import { useGroupSelect } from '@/lib/graphql-hooks/group'
 import { getWorkflowTemplateById, TRIGGER_OPERATION_OPTIONS, WORKFLOW_TEMPLATES } from '@/lib/workflow-templates'
-import { CreateWorkflowDefinitionInput, WorkflowDefinitionWorkflowKind } from '@repo/codegen/src/schema'
-import { ArrowRight, Bell, CheckCircle, Layers, Plus, Sparkles, Webhook, Wrench, X, Zap } from 'lucide-react'
+import { CreateWorkflowDefinitionInput, WorkflowDefinition, WorkflowDefinitionWorkflowKind } from '@repo/codegen/src/schema'
+import { ArrowRight, Bell, CheckCircle, CircleCheckBig, Layers, Plus, Sparkles, Webhook, Wrench, X, Zap } from 'lucide-react'
+import { toHumanLabel } from '@/utils/strings'
+import { WizardActionType, ACTION_LABELS, WEBHOOK_METHOD_OPTIONS } from './types'
+import { WizardStepNav } from './wizard/nav'
 
 const { useStepper } = defineStepper(
   { id: 'flow', label: 'Flow' },
@@ -31,8 +34,6 @@ const { useStepper } = defineStepper(
   { id: 'review', label: 'Review' },
 )
 
-type WizardActionType = 'REQUEST_APPROVAL' | 'REVIEW' | 'NOTIFY' | 'WEBHOOK' | 'FIELD_UPDATE'
-
 type Target = {
   type: 'USER' | 'GROUP' | 'RESOLVER'
   id?: string
@@ -40,6 +41,12 @@ type Target = {
 }
 
 type WorkflowDocument = {
+  schemaType?: string
+  workflowKind?: WorkflowDefinitionWorkflowKind
+  name?: string
+  conditions?: any[]
+  actions?: any[]
+  description?: string
   approvalTiming?: ApprovalTiming
   approvalSubmissionMode?: ApprovalSubmissionMode
   triggers?: Array<Record<string, any>>
@@ -51,9 +58,9 @@ type GoalOption = {
   id: string
   label: string
   description: string
-  actionType: WizardActionType
+  actionType: keyof typeof WizardActionType
   workflowKind: WorkflowDefinitionWorkflowKind
-  icon: JSX.Element
+  icon: React.ReactElement
 }
 
 const GOAL_OPTIONS: GoalOption[] = [
@@ -61,53 +68,44 @@ const GOAL_OPTIONS: GoalOption[] = [
     id: 'approval',
     label: 'Request approval',
     description: 'Route changes to approvers before they go live.',
-    actionType: 'REQUEST_APPROVAL',
+    actionType: WizardActionType.REQUEST_APPROVAL,
     workflowKind: WorkflowDefinitionWorkflowKind.APPROVAL,
-    icon: <CheckCircle className="h-5 w-5 text-btn-primary" />,
+    icon: <CircleCheckBig className="text-btn-primary" size={20} />,
   },
   {
     id: 'review',
     label: 'Request review',
     description: 'Collect reviews after the change is applied.',
-    actionType: 'REVIEW',
+    actionType: WizardActionType.REVIEW,
     workflowKind: WorkflowDefinitionWorkflowKind.APPROVAL,
-    icon: <CheckCircle className="h-5 w-5 text-btn-primary" />,
+    icon: <CheckCircle className="text-btn-primary" size={20} />,
   },
   {
     id: 'notify',
     label: 'Send notification',
     description: 'Notify a person or group when something changes.',
-    actionType: 'NOTIFY',
+    actionType: WizardActionType.NOTIFY,
     workflowKind: WorkflowDefinitionWorkflowKind.NOTIFICATION,
-    icon: <Bell className="h-5 w-5 text-btn-primary" />,
+    icon: <Bell className="text-btn-primary" size={20} />,
   },
   {
     id: 'webhook',
     label: 'Send webhook',
     description: 'Post a payload to an external system.',
-    actionType: 'WEBHOOK',
+    actionType: WizardActionType.WEBHOOK,
     workflowKind: WorkflowDefinitionWorkflowKind.NOTIFICATION,
-    icon: <Webhook className="h-5 w-5 text-btn-primary" />,
+    icon: <Webhook className="text-btn-primary" size={20} />,
   },
   {
     id: 'field-update',
     label: 'Update a field',
     description: 'Automatically update a field value when triggered.',
-    actionType: 'FIELD_UPDATE',
+    actionType: WizardActionType.FIELD_UPDATE,
     workflowKind: WorkflowDefinitionWorkflowKind.LIFECYCLE,
-    icon: <Wrench className="h-5 w-5 text-btn-primary" />,
+    icon: <Wrench className="text-btn-primary" size={20} />,
   },
 ]
 
-const ACTION_LABELS: Record<WizardActionType, string> = {
-  REQUEST_APPROVAL: 'Approval',
-  REVIEW: 'Review',
-  NOTIFY: 'Notification',
-  WEBHOOK: 'Webhook',
-  FIELD_UPDATE: 'Field update',
-}
-
-const WEBHOOK_METHOD_OPTIONS = ['POST', 'PUT', 'PATCH', 'GET']
 
 const DEFAULT_VERSION = '1.0'
 const DEFAULT_APPROVAL_TIMING = 'PRE_COMMIT'
@@ -181,11 +179,11 @@ const WorkflowWizardPage = () => {
   const { successNotification, errorNotification } = useNotification()
   const createMutation = useCreateWorkflowDefinition()
   const { objectTypes, isLoading: isLoadingMetadata } = useWorkflowMetadata()
-  const { definitions } = useWorkflowDefinitions({ first: 200 })
+  const { data: definitions WorkflowDefinitionsNodeNonNull } = useWorkflowDefinitionsWithFilter({ enabled: !templateId })
   const { userOptions, isLoading: isLoadingUsers } = useUserSelect({})
   const { groupOptions, isLoading: isLoadingGroups } = useGroupSelect()
 
-  const [actionType, setActionType] = useState<WizardActionType | null>(null)
+  const [actionType, setActionType] = useState<keyof typeof WizardActionType | null>(null)
   const [workflowKind, setWorkflowKind] = useState<WorkflowDefinitionWorkflowKind>(WorkflowDefinitionWorkflowKind.APPROVAL)
   const [approvalTiming, setApprovalTiming] = useState<ApprovalTiming>(DEFAULT_APPROVAL_TIMING)
   const [schemaType, setSchemaType] = useState('')
@@ -291,64 +289,47 @@ const WorkflowWizardPage = () => {
     setDescription(document?.description ?? template.description ?? '')
 
     const actionTypeRaw = (action?.type as string) || ''
-    const actionTypeNormalized = actionTypeRaw === 'APPROVAL' ? 'REQUEST_APPROVAL' : actionTypeRaw
+    const actionTypeNormalized = actionTypeRaw === 'APPROVAL' ? WizardActionType.REQUEST_APPROVAL : actionTypeRaw
     let shouldJumpToConfigure = false
 
-    if (actionTypeNormalized === 'REQUEST_APPROVAL') {
-      setActionType('REQUEST_APPROVAL')
-      const rawTargets = Array.isArray(action?.params?.targets) ? action.params.targets : []
-      const sanitizedTargets = rawTargets.filter((target: Target) => {
-        if (target.type === 'RESOLVER') {
-          return !isPlaceholderValue(target.resolver_key)
+    setActionType(actionTypeNormalized as WizardActionType)
+
+    switch (actionTypeNormalized) {
+      case WizardActionType.REQUEST_APPROVAL, WizardActionType.REVIEW:
+        const rawTargets = Array.isArray(action?.params?.targets) ? action.params.targets : []
+        const sanitizedTargets = rawTargets.filter((target: Target) => {
+          if (target.type === 'RESOLVER') {
+            return !isPlaceholderValue(target.resolver_key)
+          }
+          return !isPlaceholderValue(target.id)
+        })
+        setTargets(sanitizedTargets)
+        setApprovalLabel(action?.params?.label ?? '')
+        setRequiredCount(action?.params?.required_count ?? 1)
+        shouldJumpToConfigure = sanitizedTargets.length === 0
+        break
+      case WizardActionType.NOTIFY:
+        setTargets(sanitizedTargets)
+        setNotificationTitle(action?.params?.title ?? '')
+        setNotificationBody(action?.params?.body ?? '')
+        setNotificationChannels(action?.params?.channels ?? ['IN_APP'])
+        shouldJumpToConfigure = sanitizedTargets.length === 0
+
+        break
+      case WizardActionType.WEBHOOK:
+        const urlValue = action?.params?.url ?? ''
+        setWebhookUrl(isPlaceholderValue(urlValue) ? '' : urlValue)
+        setWebhookMethod(action?.params?.method ?? 'POST')
+        setWebhookPayload(action?.params?.payload ? JSON.stringify(action.params.payload, null, 2) : '')
+        shouldJumpToConfigure = isPlaceholderValue(urlValue) || !urlValue
+        break
+      case WizardActionType.FIELD_UPDATE:
+        const updates = action?.params?.updates ?? {}
+        const [field, value] = Object.entries(updates)[0] ?? []
+        if (field) setFieldUpdateField(field)
+        if (value !== undefined) {
+          setFieldUpdateValue(typeof value === 'string' ? value : JSON.stringify(value))
         }
-        return !isPlaceholderValue(target.id)
-      })
-      setTargets(sanitizedTargets)
-      setApprovalLabel(action?.params?.label ?? '')
-      setRequiredCount(action?.params?.required_count ?? 1)
-      shouldJumpToConfigure = sanitizedTargets.length === 0
-    } else if (actionTypeNormalized === 'REVIEW') {
-      setActionType('REVIEW')
-      const rawTargets = Array.isArray(action?.params?.targets) ? action.params.targets : []
-      const sanitizedTargets = rawTargets.filter((target: Target) => {
-        if (target.type === 'RESOLVER') {
-          return !isPlaceholderValue(target.resolver_key)
-        }
-        return !isPlaceholderValue(target.id)
-      })
-      setTargets(sanitizedTargets)
-      setApprovalLabel(action?.params?.label ?? '')
-      setRequiredCount(action?.params?.required_count ?? 1)
-      shouldJumpToConfigure = sanitizedTargets.length === 0
-    } else if (actionTypeNormalized === 'NOTIFY') {
-      setActionType('NOTIFY')
-      const rawTargets = Array.isArray(action?.params?.targets) ? action.params.targets : []
-      const sanitizedTargets = rawTargets.filter((target: Target) => {
-        if (target.type === 'RESOLVER') {
-          return !isPlaceholderValue(target.resolver_key)
-        }
-        return !isPlaceholderValue(target.id)
-      })
-      setTargets(sanitizedTargets)
-      setNotificationTitle(action?.params?.title ?? '')
-      setNotificationBody(action?.params?.body ?? '')
-      setNotificationChannels(action?.params?.channels ?? ['IN_APP'])
-      shouldJumpToConfigure = sanitizedTargets.length === 0
-    } else if (actionTypeNormalized === 'WEBHOOK') {
-      setActionType('WEBHOOK')
-      const urlValue = action?.params?.url ?? ''
-      setWebhookUrl(isPlaceholderValue(urlValue) ? '' : urlValue)
-      setWebhookMethod(action?.params?.method ?? 'POST')
-      setWebhookPayload(action?.params?.payload ? JSON.stringify(action.params.payload, null, 2) : '')
-      shouldJumpToConfigure = isPlaceholderValue(urlValue) || !urlValue
-    } else if (actionTypeNormalized === 'FIELD_UPDATE') {
-      setActionType('FIELD_UPDATE')
-      const updates = action?.params?.updates ?? {}
-      const [field, value] = Object.entries(updates)[0] ?? []
-      if (field) setFieldUpdateField(field)
-      if (value !== undefined) {
-        setFieldUpdateValue(typeof value === 'string' ? value : JSON.stringify(value))
-      }
     }
 
     setTemplateLoaded(true)
@@ -399,11 +380,13 @@ const WorkflowWizardPage = () => {
       })
     }
 
-    definitions.forEach((definition) => {
-      if (!definition) return
-      const doc = parseDefinitionJSON(definition.definitionJSON)
-      addEdgesFromDoc(doc, definition.schemaType ?? undefined)
-    })
+    if (definitions?.workflowDefinitions?.edges) {
+      definitions.workflowDefinitions.edges.forEach((definition: WorkflowDefinitionsNodeNonNull) => {
+        if (!definition) return
+        const doc: WorkflowDocument = parseDefinitionJSON(definition.definitionJSON)
+        addEdgesFromDoc(doc, definition.schemaType ?? undefined)
+      })
+    }
 
     WORKFLOW_TEMPLATES.forEach((template) => {
       if (schemaType && template.schemaType !== schemaType) return
@@ -520,86 +503,72 @@ const WorkflowWizardPage = () => {
 
     const conditions = conditionExpressionFinal
       ? [
-          {
-            expression: conditionExpressionFinal,
-            description: 'Wizard condition',
-          },
-        ]
+        {
+          expression: conditionExpressionFinal,
+          description: 'Wizard condition',
+        },
+      ]
       : []
 
     let action: Record<string, any> = {}
 
-    if (actionType === 'REQUEST_APPROVAL') {
-      const params: Record<string, any> = {
-        targets,
-        required: true,
-        required_count: Math.max(1, requiredCount),
-      }
-      if (approvalLabel.trim()) params.label = approvalLabel.trim()
-      if (trackedFields.length > 0) params.fields = trackedFields
+    switch (actionType) {
 
-      action = {
-        key: 'approval',
-        type: 'REQUEST_APPROVAL',
-        description: approvalLabel.trim() || 'Approval request',
-        params,
-      }
-    }
-
-    if (actionType === 'REVIEW') {
-      const params: Record<string, any> = {
-        targets,
-        required: true,
-        required_count: Math.max(1, requiredCount),
-      }
-      if (approvalLabel.trim()) params.label = approvalLabel.trim()
-
-      action = {
-        key: 'review',
-        type: 'REVIEW',
-        description: approvalLabel.trim() || 'Review request',
-        params,
-      }
-    }
-
-    if (actionType === 'NOTIFY') {
-      action = {
-        key: 'notify',
-        type: 'NOTIFY',
-        description: notificationTitle.trim() || 'Notification',
-        params: {
+      case WizardActionType.REQUEST_APPROVAL, WizardActionType.REVIEW:
+        const params: Record<string, any> = {
           targets,
-          title: notificationTitle.trim() || 'Notification',
-          body: notificationBody.trim(),
-          channels: notificationChannels.length > 0 ? notificationChannels : ['IN_APP'],
-        },
-      }
-    }
+          required: true,
+          required_count: Math.max(1, requiredCount),
+        }
 
-    if (actionType === 'WEBHOOK') {
-      action = {
-        key: 'webhook',
-        type: 'WEBHOOK',
-        description: `Webhook ${webhookMethod}`,
-        params: {
-          url: webhookUrl.trim(),
-          method: webhookMethod,
-          headers: { 'Content-Type': 'application/json' },
-          payload: parsedWebhookPayload || {},
-          timeout_ms: 5000,
-        },
-      }
-    }
+        if (approvalLabel.trim()) params.label = approvalLabel.trim()
+        if (trackedFields.length > 0) params.fields = trackedFields
 
-    if (actionType === 'FIELD_UPDATE') {
-      action = {
-        key: 'field_update',
-        type: 'FIELD_UPDATE',
-        description: `Update ${fieldUpdateField}`,
-        params: {
-          updates: fieldUpdateField ? { [fieldUpdateField]: fieldUpdateValue } : {},
-        },
-      }
+        const key = actionType == WizardActionType.REVIEW ? 'review' : 'approval'
+        console.log('Building action with actionType', actionType, 'and params', params)
+        action = {
+          key: key,
+          type: actionType,
+          description: approvalLabel.trim(),
+          params,
+        }
+        break
+      case WizardActionType.NOTIFY:
+        action = {
+          key: 'notify',
+          type: actionType,
+          description: notificationTitle.trim(),
+          params: {
+            targets,
+            title: notificationTitle.trim(),
+            body: notificationBody.trim(),
+            channels: notificationChannels.length > 0 ? notificationChannels : ['IN_APP'],
+          },
+        }
+        break
+      case WizardActionType.WEBHOOK:
+        action = {
+          key: 'webhook',
+          type: actionType,
+          description: `Webhook ${webhookMethod}`,
+          params: {
+            url: webhookUrl.trim(),
+            method: webhookMethod,
+            headers: { 'Content-Type': 'application/json' },
+            payload: parsedWebhookPayload || {},
+            timeout_ms: 5000,
+          },
+        }
+        break
+      case WizardActionType.FIELD_UPDATE:
+        action = {
+          key: 'field_update',
+          type: actionType,
+          description: `Update ${fieldUpdateField}`,
+          params: {
+            updates: fieldUpdateField ? { [fieldUpdateField]: fieldUpdateValue } : {},
+          },
+        }
     }
 
     const finalName = name.trim() || suggestedName
@@ -609,7 +578,7 @@ const WorkflowWizardPage = () => {
       description: description.trim() || undefined,
       schemaType,
       workflowKind,
-      approvalTiming: actionType === 'REQUEST_APPROVAL' ? approvalTiming : undefined,
+      approvalTiming: actionType === WizardActionType.REQUEST_APPROVAL ? approvalTiming : undefined,
       approvalSubmissionMode:
         workflowKind === WorkflowDefinitionWorkflowKind.APPROVAL ? DEFAULT_APPROVAL_SUBMISSION_MODE : undefined,
       version: DEFAULT_VERSION,
@@ -669,14 +638,14 @@ const WorkflowWizardPage = () => {
     }
     if (stepId === 'configure') {
       if (!actionType) return 'Select an action in the Flow step before configuring.'
-      if (actionType === 'REQUEST_APPROVAL' && targets.length === 0) return 'Add at least one approver target.'
-      if (actionType === 'REVIEW' && targets.length === 0) return 'Add at least one review target.'
-      if (actionType === 'NOTIFY' && targets.length === 0) return 'Add at least one notification target.'
-      if (actionType === 'WEBHOOK') {
+      if (actionType === WizardActionType.REQUEST_APPROVAL && targets.length === 0) return 'Add at least one approver target.'
+      if (actionType === WizardActionType.REVIEW && targets.length === 0) return 'Add at least one review target.'
+      if (actionType === WizardActionType.NOTIFY && targets.length === 0) return 'Add at least one notification target.'
+      if (actionType === WizardActionType.WEBHOOK) {
         if (!webhookUrl.trim()) return 'Add a webhook URL.'
         if (webhookPayloadError) return webhookPayloadError
       }
-      if (actionType === 'FIELD_UPDATE' && !fieldUpdateField) return 'Select the field you want to update.'
+      if (actionType === WizardActionType.FIELD_UPDATE && !fieldUpdateField) return 'Select the field you want to update.'
     }
     if (stepId === 'review') {
       const finalName = name.trim() || suggestedName
@@ -758,37 +727,26 @@ const WorkflowWizardPage = () => {
   }
 
   return (
-    <div className="max-w-5xl mx-auto px-6 py-2">
-      <PageHeading
-        heading={
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-muted-foreground" />
-              <h1>Workflow Wizard</h1>
-            </div>
-            <p className="text-base text-muted-foreground">Build a workflow in a few guided steps. Pick the object, trigger, and action, then configure the details.</p>
-          </div>
-        }
-      />
-
-      <Separator className="" separatorClass="bg-card" />
-      <div className="mt-4 flex justify-center">
-        <WizardStepNav
-          stepper={stepper}
-          enabledMap={{
-            flow: true,
-            rules: Boolean(schemaType && operationPicked),
-            configure: Boolean(schemaType && operationPicked && actionType),
-            review: Boolean(schemaType && operationPicked && actionType),
-          }}
-        />
-      </div>
-
+    <div className="max-w-8xl mx-auto px-6 py-2">
+      <p className="text-muted-foreground">Build a workflow in a few guided steps. Pick the object, trigger, and action, then configure the details.</p>
       <div className="py-6">
         {stepper.switch({
           flow: () => (
             <Card>
               <CardContent>
+                <div className="space-y-6 flex justify-center w-full">
+                  <WizardStepNav
+                    stepper={stepper}
+                    enabledMap={{
+                      flow: true,
+                      rules: Boolean(schemaType && operationPicked),
+                      configure: Boolean(schemaType && operationPicked && actionType),
+                      review: Boolean(schemaType && operationPicked && actionType),
+                    }}
+                  />
+                </div>
+                <Separator className="mt-2 mb-4" />
+
                 {isLoadingMetadata ? (
                   <p className="text-sm text-muted-foreground">Loading workflow metadata...</p>
                 ) : (
@@ -800,7 +758,7 @@ const WorkflowWizardPage = () => {
                         </span>
                         <div>
                           <p className="text-sm font-medium">What object should this apply to?</p>
-                          <p className="text-xs text-muted-foreground">Pick the object type.</p>
+                          <p className="text-xs text-muted-foreground">Pick the object type the workflow will operate on</p>
                         </div>
                       </div>
                       <div className="hidden lg:flex items-center justify-center text-muted-foreground self-center">
@@ -849,7 +807,7 @@ const WorkflowWizardPage = () => {
                                 }}
                                 className={`w-full text-left rounded-md border px-3 py-2 transition ${selected ? 'border-primary bg-muted/20' : 'border-border hover:border-primary/60'}`}
                               >
-                                <p className="text-sm font-medium">{obj.label || obj.type}</p>
+                                <p className="text-sm font-medium">{toHumanLabel(obj.label) || toHumanLabel(obj.type)}</p>
                               </button>
                             )
                           })}
@@ -872,9 +830,8 @@ const WorkflowWizardPage = () => {
                                 setOperationPicked(true)
                               }}
                               disabled={!schemaType}
-                              className={`w-full text-left rounded-md border px-3 py-2 transition ${
-                                operationPicked && operation === opt.value ? 'border-primary bg-muted/20' : 'border-border hover:border-primary/60'
-                              } ${!schemaType ? 'cursor-not-allowed' : ''}`}
+                              className={`w-full text-left rounded-md border px-3 py-2 transition ${operationPicked && operation === opt.value ? 'border-primary bg-muted/20' : 'border-border hover:border-primary/60'
+                                } ${!schemaType ? 'cursor-not-allowed' : ''}`}
                             >
                               <p className="text-sm font-medium">{opt.label}</p>
                               <p className="text-xs text-muted-foreground">
@@ -896,18 +853,17 @@ const WorkflowWizardPage = () => {
                               <button
                                 key={option.id}
                                 type="button"
-                              onClick={() => {
-                                if (!schemaType || !operationPicked) return
-                                if (actionType === option.actionType) {
-                                  setActionType(null)
-                                  return
-                                }
-                                handleSelectGoal(option)
-                              }}
-                              disabled={!schemaType || !operationPicked}
-                                className={`w-full text-left rounded-md border px-3 py-2 transition ${
-                                  schemaType && operationPicked && selected ? 'border-primary bg-muted/20' : 'border-border hover:border-primary/60'
-                                } ${!schemaType || !operationPicked ? 'cursor-not-allowed' : ''}`}
+                                onClick={() => {
+                                  if (!schemaType || !operationPicked) return
+                                  if (actionType === option.actionType) {
+                                    setActionType(null)
+                                    return
+                                  }
+                                  handleSelectGoal(option)
+                                }}
+                                disabled={!schemaType || !operationPicked}
+                                className={`w-full text-left rounded-md border px-3 py-2 transition ${schemaType && operationPicked && selected ? 'border-primary bg-muted/20' : 'border-border hover:border-primary/60'
+                                  } ${!schemaType || !operationPicked ? 'cursor-not-allowed' : ''}`}
                               >
                                 <div className="flex items-center gap-2">
                                   <span className="flex h-7 w-7 items-center justify-center rounded-md border bg-secondary">{option.icon}</span>
@@ -938,7 +894,7 @@ const WorkflowWizardPage = () => {
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <FlowSummary
-                    objectLabel={objectLabel}
+                    objectLabel={toHumanLabel(objectLabel)}
                     operationLabel={operationLabel || '—'}
                     actionLabel={actionType ? ACTION_LABELS[actionType] : '—'}
                   />
@@ -958,7 +914,7 @@ const WorkflowWizardPage = () => {
                       </div>
                       {fieldScope === 'any' ? (
                         <div className="rounded-md border border-border/60 bg-muted/10 px-3 py-3 text-sm text-muted-foreground">
-                          Any update on {objectLabel} will trigger this workflow.
+                          Any update on {toHumanLabel(objectLabel)} will trigger this workflow.
                         </div>
                       ) : eligibleFields.length === 0 ? (
                         <div className="rounded-md border border-border/60 bg-muted/10 px-3 py-3 text-sm text-muted-foreground">
@@ -971,9 +927,8 @@ const WorkflowWizardPage = () => {
                             return (
                               <label
                                 key={field.name}
-                                className={`flex items-start gap-3 rounded-md border px-3 py-2 transition ${
-                                  checked ? 'border-primary bg-primary/5' : 'border-border/60 bg-background hover:border-primary/60'
-                                }`}
+                                className={`flex items-start gap-3 rounded-md border px-3 py-2 transition ${checked ? 'border-primary bg-primary/5' : 'border-border/60 bg-background hover:border-primary/60'
+                                  }`}
                               >
                                 <Checkbox checked={checked} onCheckedChange={(value) => toggleTrackedField(field.name, Boolean(value))} />
                                 <div>
@@ -1103,7 +1058,7 @@ const WorkflowWizardPage = () => {
               </CardHeader>
               <CardContent className="space-y-6">
                 <FlowSummary
-                  objectLabel={objectLabel}
+                  objectLabel={toHumanLabel(objectLabel)}
                   operationLabel={operationLabel || '—'}
                   actionLabel={selectedActionLabel || '—'}
                 />
@@ -1281,13 +1236,13 @@ const WorkflowWizardPage = () => {
             </Card>
           ),
           review: () => (
-            <div className="space-y-6">
+            <div className="space-y-2">
               <Card>
                 <CardHeader>
                   <CardTitle>Review & create</CardTitle>
                   <CardDescription>Give the workflow a name and confirm the details.</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-6">
+                <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-4">
                       <div className="space-y-2">
@@ -1333,7 +1288,7 @@ const WorkflowWizardPage = () => {
                         </div>
                         <div>
                           <p className="text-xs text-muted-foreground">Object</p>
-                          <p className="font-medium">{objectLabel || '—'}</p>
+                          <p className="font-medium">{toHumanLabel(objectLabel) || '—'}</p>
                         </div>
                         <div>
                           <p className="text-xs text-muted-foreground">Trigger</p>
@@ -1404,58 +1359,14 @@ type FlowSummaryProps = {
   actionLabel?: string
 }
 
-type WizardStepNavProps<T extends Step[]> = {
-  stepper: Stepper<T>
-  enabledMap: Record<string, boolean>
-}
 
-const WizardStepNav = <T extends Step[]>({ stepper, enabledMap }: WizardStepNavProps<T>) => {
-  const steps = stepper.all
-  const currentIndex = steps.findIndex((step) => step.id === stepper.current.id)
-
-  return (
-    <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground mb-4">
-      {steps.map((step, index) => {
-        const isCurrent = index === currentIndex
-        const isComplete = index < currentIndex
-        const isEnabled = enabledMap[step.id] ?? true
-        const canNavigate = isEnabled && index <= currentIndex
-
-        const dotClass = isCurrent
-          ? 'bg-primary ring-4 ring-primary/15'
-          : isComplete
-            ? 'bg-primary/80'
-            : isEnabled
-              ? 'bg-muted-foreground/40'
-              : 'bg-muted-foreground/20'
-
-        const textClass = isCurrent ? 'text-foreground font-medium' : isComplete ? 'text-primary' : isEnabled ? 'text-muted-foreground' : 'text-muted-foreground/50'
-
-        return (
-          <div key={step.id} className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => canNavigate && stepper.goTo(step.id)}
-              disabled={!canNavigate}
-              className={`flex items-center gap-2 transition ${textClass} ${canNavigate ? 'hover:text-foreground' : 'cursor-not-allowed'}`}
-            >
-              <span className={`h-2.5 w-2.5 rounded-full ${dotClass}`} />
-              <span>{step.label}</span>
-            </button>
-            {index < steps.length - 1 && <span className="text-muted-foreground/40">→</span>}
-          </div>
-        )
-      })}
-    </div>
-  )
-}
 
 const FlowSummary = ({ objectLabel, operationLabel, actionLabel }: FlowSummaryProps) => (
   <div className="rounded-lg border border-border/60 bg-muted/10 p-3">
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
       <div>
         <p className="text-xs text-muted-foreground">Object</p>
-        <p className="font-medium">{objectLabel || '—'}</p>
+        <p className="font-medium">{toHumanLabel(objectLabel || '—')}</p>
       </div>
       <div>
         <p className="text-xs text-muted-foreground">Trigger</p>

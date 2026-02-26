@@ -2,10 +2,6 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
   APPROVE_WORKFLOW_ASSIGNMENT,
-  CREATE_WORKFLOW_DEFINITION,
-  DELETE_WORKFLOW_DEFINITION,
-  GET_WORKFLOW_DEFINITION_BY_ID,
-  GET_WORKFLOW_DEFINITIONS,
   GET_WORKFLOW_INSTANCES,
   GET_WORKFLOW_METADATA,
   GET_WORKFLOW_ASSIGNMENTS,
@@ -13,20 +9,9 @@ import {
   REJECT_WORKFLOW_ASSIGNMENT,
   REQUEST_CHANGES_WORKFLOW_ASSIGNMENT,
   REASSIGN_WORKFLOW_ASSIGNMENT,
-  UPDATE_WORKFLOW_DEFINITION,
 } from '@repo/codegen/query/workflows'
-import {
-  CreateWorkflowDefinitionInput,
-  UpdateWorkflowDefinitionInput,
-  WorkflowDefinition,
-  WorkflowDefinitionOrder,
-  WorkflowDefinitionWhereInput,
-  WorkflowInstance,
-  WorkflowInstanceWhereInput,
-  WorkflowAssignment,
-  WorkflowAssignmentOrder,
-  WorkflowAssignmentWhereInput,
-} from '@repo/codegen/src/schema'
+import { WorkflowInstance, WorkflowInstanceWhereInput, WorkflowAssignment, WorkflowAssignmentOrder, WorkflowAssignmentWhereInput } from '@repo/codegen/src/schema'
+import { GET_ALL_WORKFLOW_DEFINITIONS } from '@repo/codegen/query/workflow-definition'
 
 type WorkflowFieldMetadata = {
   name: string
@@ -138,7 +123,7 @@ export const useWorkflowDefinitions = ({ where, orderBy, first = 50, enabled = t
   const queryResult = useQuery<WorkflowDefinitionsResponse>({
     queryKey: ['workflowDefinitions', where, orderBy, first],
     queryFn: () =>
-      client.request(GET_WORKFLOW_DEFINITIONS, {
+      client.request(GET_ALL_WORKFLOW_DEFINITIONS, {
         where,
         orderBy,
         first,
@@ -171,23 +156,11 @@ export const useWorkflowDefinition = (id?: string | null, enabled = true) => {
   }
 }
 
-export const useCreateWorkflowDefinition = () => {
-  const { client, queryClient } = useGraphQLClient()
-
-  return useMutation({
-    mutationFn: (input: CreateWorkflowDefinitionInput) => client.request(CREATE_WORKFLOW_DEFINITION, { input }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['workflowDefinitions'] })
-    },
-  })
-}
-
 export const useUpdateWorkflowDefinition = () => {
   const { client, queryClient } = useGraphQLClient()
 
   return useMutation({
-    mutationFn: ({ id, input }: { id: string; input: UpdateWorkflowDefinitionInput }) =>
-      client.request(UPDATE_WORKFLOW_DEFINITION, { updateWorkflowDefinitionId: id, input }),
+    mutationFn: ({ id, input }: { id: string; input: UpdateWorkflowDefinitionInput }) => client.request(UPDATE_WORKFLOW_DEFINITION, { updateWorkflowDefinitionId: id, input }),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['workflowDefinitions'] })
       queryClient.invalidateQueries({ queryKey: ['workflowDefinition', variables.id] })
@@ -241,12 +214,7 @@ type UseWorkflowProposalsForObjectArgs = {
   enabled?: boolean
 }
 
-export const useWorkflowProposalsForObject = ({
-  objectId,
-  objectType,
-  includeStates,
-  enabled = true,
-}: UseWorkflowProposalsForObjectArgs) => {
+export const useWorkflowProposalsForObject = ({ objectId, objectType, includeStates, enabled = true }: UseWorkflowProposalsForObjectArgs) => {
   const { client } = useGraphQLClient()
 
   const queryResult = useQuery<WorkflowProposalsResponse>({
@@ -341,8 +309,7 @@ export const useRequestChangesAssignment = () => {
   const { client } = useGraphQLClient()
 
   return useMutation({
-    mutationFn: ({ id, reason, inputs }: { id: string; reason?: string; inputs?: Record<string, unknown> }) =>
-      client.request(REQUEST_CHANGES_WORKFLOW_ASSIGNMENT, { id, reason, inputs }),
+    mutationFn: ({ id, reason, inputs }: { id: string; reason?: string; inputs?: Record<string, unknown> }) => client.request(REQUEST_CHANGES_WORKFLOW_ASSIGNMENT, { id, reason, inputs }),
   })
 }
 
@@ -350,7 +317,6 @@ export const useReassignAssignment = () => {
   const { client } = useGraphQLClient()
 
   return useMutation({
-    mutationFn: ({ id, targetUserID }: { id: string; targetUserID: string }) =>
-      client.request(REASSIGN_WORKFLOW_ASSIGNMENT, { id, targetUserID }),
+    mutationFn: ({ id, targetUserID }: { id: string; targetUserID: string }) => client.request(REASSIGN_WORKFLOW_ASSIGNMENT, { id, targetUserID }),
   })
 }
