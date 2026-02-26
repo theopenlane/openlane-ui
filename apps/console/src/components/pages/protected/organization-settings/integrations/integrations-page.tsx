@@ -13,9 +13,11 @@ import { Loading } from '@/components/shared/loading/loading'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { useIntegrationProviders } from '@/lib/query-hooks/integrations'
+import { useQueryClient } from '@tanstack/react-query'
 
 const IntegrationsPage = () => {
   const searchParams = useSearchParams()
+  const queryClient = useQueryClient()
   const [activeTab, setActiveTab] = useState<IntegrationTab>(() => (searchParams.get('status') === 'success' ? 'Installed' : 'All'))
   const [searchQuery, setSearchQuery] = useState('')
   const { data, isLoading: integrationsLoading } = useGetIntegrations({ where: {} })
@@ -38,6 +40,8 @@ const IntegrationsPage = () => {
 
     handledRef.current = true
 
+    queryClient.invalidateQueries({ queryKey: ['integrations'] })
+
     if (status === 'success') {
       successNotification({ title: 'Integration Connected', description: message ?? `Successfully connected ${provider}` })
     } else {
@@ -45,7 +49,17 @@ const IntegrationsPage = () => {
     }
 
     router.replace('/organization-settings/integrations')
-  }, [successNotification, errorNotification, router, searchParams])
+  }, [queryClient, successNotification, errorNotification, router, searchParams])
+
+  useEffect(() => {
+    const handlePageShow = (event: PageTransitionEvent) => {
+      if (event.persisted) {
+        queryClient.invalidateQueries({ queryKey: ['integrations'] })
+      }
+    }
+    window.addEventListener('pageshow', handlePageShow)
+    return () => window.removeEventListener('pageshow', handlePageShow)
+  }, [queryClient])
 
   useEffect(() => {
     setCrumbs([

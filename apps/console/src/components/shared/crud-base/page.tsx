@@ -88,6 +88,7 @@ export interface GenericTablePageConfig<TEntity extends { id: string }, TFormDat
     onFilterChange: (filters: TWhereInput | null) => void
     handleClearSelected: () => void
     handleExport: () => void
+    canExport?: boolean
     mappedColumns: Array<{ accessorKey: string; header: string; meta?: { exportPrefix?: string } }>
     columnVisibility: VisibilityState
     setColumnVisibility: React.Dispatch<React.SetStateAction<VisibilityState>>
@@ -266,6 +267,7 @@ export function GenericTablePage<
         }}
         handleClearSelected={handleClearSelected}
         handleExport={handleExportFile}
+        canExport={Boolean(exportType)}
         mappedColumns={mappedColumns}
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}

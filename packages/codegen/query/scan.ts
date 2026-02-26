@@ -25,8 +25,10 @@ export const GET_ALL_SCANS = gql`
           reviewedByUserID
           scanDate
           scanSchedule
+          scanType
           scopeID
           scopeName
+          status
           target
           updatedAt
           updatedBy
@@ -64,8 +66,10 @@ export const SCAN = gql`
       reviewedByUserID
       scanDate
       scanSchedule
+      scanType
       scopeID
       scopeName
+      status
       target
       updatedAt
       updatedBy

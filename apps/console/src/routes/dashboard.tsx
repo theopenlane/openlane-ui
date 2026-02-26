@@ -16,13 +16,11 @@ import {
   ListChecks,
   MailCheck,
   ScanLine,
-  NotebookPen,
   Radar,
   ScrollText,
   ServerCog,
   Settings2,
   SettingsIcon,
-  ShieldAlert,
   ShieldCheck,
   Tag,
   UserCog,
@@ -110,20 +108,6 @@ export const topNavigationItems = (session: Session | null): (NavItem | Separato
       ],
     },
     {
-      title: 'Exposure',
-      plan: PlanEnum.COMPLIANCE_MODULE,
-      icon: Radar,
-      href: '/exposure',
-      hidden: session?.user?.isOnboarding || billingExpired,
-      children: [
-        {
-          title: 'Vulnerabilities',
-          href: '/exposure/vulnerabilities',
-          icon: ShieldAlert,
-        },
-      ],
-    },
-    {
       title: 'Registry',
       plan: PlanEnum.COMPLIANCE_MODULE,
       icon: LibraryBig,
@@ -194,15 +178,10 @@ export const topNavigationItems = (session: Session | null): (NavItem | Separato
     {
       title: 'Exposure',
       href: '/exposure',
-      icon: AlertTriangle,
+      icon: Radar,
       plan: PlanEnum.COMPLIANCE_MODULE,
-      hidden: true,
+      hidden: session?.user?.isOnboarding || billingExpired,
       children: [
-        {
-          title: 'Risks',
-          href: '/exposure/risks',
-          icon: AlertTriangle,
-        },
         {
           title: 'Scans',
           href: '/exposure/scans',
