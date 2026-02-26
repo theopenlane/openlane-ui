@@ -1,49 +1,13 @@
-import { ColumnDef, Row } from '@tanstack/react-table'
-import { Avatar } from '@/components/shared/avatar/avatar.tsx'
+import { ColumnDef } from '@tanstack/react-table'
 import { formatDate } from '@/utils/date'
-import { Checkbox } from '@repo/ui/checkbox'
 import { RemediationsNodeNonNull } from '@/lib/graphql-hooks/remediation'
 import { ColumnOptions } from '@/components/shared/crud-base/page'
+import { createSelectColumn } from '@/components/shared/crud-base/columns/select-column'
+import { UserCell } from '@/components/shared/crud-base/columns/user-cell'
 
 export const getColumns = ({ userMap, selectedItems, setSelectedItems }: ColumnOptions): ColumnDef<RemediationsNodeNonNull>[] => {
-  const toggleSelection = (remediation: RemediationsNodeNonNull) => {
-    setSelectedItems((prev) => {
-      const exists = prev.some((c) => c.id === remediation.id)
-      return exists ? prev.filter((c) => c.id !== remediation.id) : [...prev, remediation]
-    })
-  }
-
   return [
-    {
-      id: 'select',
-      header: ({ table }) => {
-        const currentPageItems = table.getRowModel().rows.map((row) => row.original)
-        const allSelected = currentPageItems.every((item) => selectedItems.some((sc) => sc.id === item.id))
-        return (
-          <div onClick={(e) => e.stopPropagation()}>
-            <Checkbox
-              checked={allSelected}
-              onCheckedChange={(checked: boolean) => {
-                const newSelections = checked
-                  ? [...selectedItems.filter((sc) => !currentPageItems.some((c) => c.id === sc.id)), ...currentPageItems]
-                  : selectedItems.filter((sc) => !currentPageItems.some((c) => c.id === sc.id))
-                setSelectedItems(newSelections)
-              }}
-            />
-          </div>
-        )
-      },
-      cell: ({ row }: { row: Row<RemediationsNodeNonNull> }) => {
-        const { id } = row.original
-        const isChecked = selectedItems.some((c) => c.id === id)
-        return (
-          <div onClick={(e) => e.stopPropagation()}>
-            <Checkbox checked={isChecked} onCheckedChange={() => toggleSelection(row.original)} />
-          </div>
-        )
-      },
-      size: 50,
-    },
+    createSelectColumn<RemediationsNodeNonNull>(selectedItems, setSelectedItems),
     { accessorKey: 'id', header: 'ID', size: 120, cell: ({ row }) => <div className="text-muted-foreground">{row.original.id}</div> },
     { accessorKey: 'displayID', header: 'Display ID', size: 140, cell: ({ cell }) => cell.getValue() || '' },
     { accessorKey: 'title', header: 'Title', size: 200, cell: ({ cell }) => cell.getValue() || '' },
@@ -67,34 +31,14 @@ export const getColumns = ({ userMap, selectedItems, setSelectedItems }: ColumnO
       accessorKey: 'createdBy',
       header: 'Created By',
       size: 160,
-      cell: ({ row }) => {
-        const user = userMap[row.original.createdBy ?? '']
-        return user ? (
-          <div className="flex items-center space-x-1">
-            <Avatar entity={user} className="w-[24px] h-[24px]" />
-            <p>{user.displayName}</p>
-          </div>
-        ) : (
-          <span className="text-muted-foreground italic">Deleted user</span>
-        )
-      },
+      cell: ({ row }) => <UserCell user={userMap[row.original.createdBy ?? '']} />,
     },
     { accessorKey: 'updatedAt', header: 'Updated At', size: 130, cell: ({ cell }) => formatDate(cell.getValue() as string) },
     {
       accessorKey: 'updatedBy',
       header: 'Updated By',
       size: 160,
-      cell: ({ row }) => {
-        const user = userMap[row.original.updatedBy ?? '']
-        return user ? (
-          <div className="flex items-center space-x-1">
-            <Avatar entity={user} className="w-[24px] h-[24px]" />
-            <p>{user.displayName}</p>
-          </div>
-        ) : (
-          <span className="text-muted-foreground italic">Deleted user</span>
-        )
-      },
+      cell: ({ row }) => <UserCell user={userMap[row.original.updatedBy ?? '']} />,
     },
   ]
 }

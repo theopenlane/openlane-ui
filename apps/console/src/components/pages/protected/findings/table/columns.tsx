@@ -1,49 +1,14 @@
-import { ColumnDef, Row } from '@tanstack/react-table'
-import { Avatar } from '@/components/shared/avatar/avatar.tsx'
+import { ColumnDef } from '@tanstack/react-table'
 import { formatDate } from '@/utils/date'
-import { Checkbox } from '@repo/ui/checkbox'
 import { FindingsNodeNonNull } from '@/lib/graphql-hooks/finding'
 import { ColumnOptions } from '@/components/shared/crud-base/page'
+import { createSelectColumn } from '@/components/shared/crud-base/columns/select-column'
+import { UserCell } from '@/components/shared/crud-base/columns/user-cell'
+import { BooleanCell } from '@/components/shared/crud-base/columns/boolean-cell'
 
 export const getColumns = ({ userMap, selectedItems, setSelectedItems }: ColumnOptions): ColumnDef<FindingsNodeNonNull>[] => {
-  const toggleSelection = (finding: FindingsNodeNonNull) => {
-    setSelectedItems((prev) => {
-      const exists = prev.some((c) => c.id === finding.id)
-      return exists ? prev.filter((c) => c.id !== finding.id) : [...prev, finding]
-    })
-  }
-
   return [
-    {
-      id: 'select',
-      header: ({ table }) => {
-        const currentPageItems = table.getRowModel().rows.map((row) => row.original)
-        const allSelected = currentPageItems.every((item) => selectedItems.some((sc) => sc.id === item.id))
-        return (
-          <div onClick={(e) => e.stopPropagation()}>
-            <Checkbox
-              checked={allSelected}
-              onCheckedChange={(checked: boolean) => {
-                const newSelections = checked
-                  ? [...selectedItems.filter((sc) => !currentPageItems.some((c) => c.id === sc.id)), ...currentPageItems]
-                  : selectedItems.filter((sc) => !currentPageItems.some((c) => c.id === sc.id))
-                setSelectedItems(newSelections)
-              }}
-            />
-          </div>
-        )
-      },
-      cell: ({ row }: { row: Row<FindingsNodeNonNull> }) => {
-        const { id } = row.original
-        const isChecked = selectedItems.some((c) => c.id === id)
-        return (
-          <div onClick={(e) => e.stopPropagation()}>
-            <Checkbox checked={isChecked} onCheckedChange={() => toggleSelection(row.original)} />
-          </div>
-        )
-      },
-      size: 50,
-    },
+    createSelectColumn<FindingsNodeNonNull>(selectedItems, setSelectedItems),
     { accessorKey: 'id', header: 'ID', size: 120, cell: ({ row }) => <div className="text-muted-foreground">{row.original.id}</div> },
     { accessorKey: 'displayID', header: 'Display ID', size: 140, cell: ({ cell }) => cell.getValue() || '' },
     { accessorKey: 'displayName', header: 'Display Name', size: 180, cell: ({ cell }) => cell.getValue() || '' },
@@ -56,11 +21,11 @@ export const getColumns = ({ userMap, selectedItems, setSelectedItems }: ColumnO
     { accessorKey: 'exploitability', header: 'Exploitability', size: 120 },
     { accessorKey: 'impact', header: 'Impact', size: 90 },
     { accessorKey: 'vector', header: 'Vector', size: 160 },
-    { accessorKey: 'open', header: 'Open', size: 80, cell: ({ cell }) => (cell.getValue() ? 'Yes' : 'No') },
-    { accessorKey: 'production', header: 'Production', size: 100, cell: ({ cell }) => (cell.getValue() ? 'Yes' : 'No') },
-    { accessorKey: 'validated', header: 'Validated', size: 100, cell: ({ cell }) => (cell.getValue() ? 'Yes' : 'No') },
-    { accessorKey: 'public', header: 'Public', size: 80, cell: ({ cell }) => (cell.getValue() ? 'Yes' : 'No') },
-    { accessorKey: 'blocksProduction', header: 'Blocks Production', size: 130, cell: ({ cell }) => (cell.getValue() ? 'Yes' : 'No') },
+    { accessorKey: 'open', header: 'Open', size: 80, cell: ({ cell }) => <BooleanCell value={cell.getValue() as boolean | null | undefined} /> },
+    { accessorKey: 'production', header: 'Production', size: 100, cell: ({ cell }) => <BooleanCell value={cell.getValue() as boolean | null | undefined} /> },
+    { accessorKey: 'validated', header: 'Validated', size: 100, cell: ({ cell }) => <BooleanCell value={cell.getValue() as boolean | null | undefined} /> },
+    { accessorKey: 'public', header: 'Public', size: 80, cell: ({ cell }) => <BooleanCell value={cell.getValue() as boolean | null | undefined} /> },
+    { accessorKey: 'blocksProduction', header: 'Blocks Production', size: 130, cell: ({ cell }) => <BooleanCell value={cell.getValue() as boolean | null | undefined} /> },
     { accessorKey: 'externalID', header: 'External ID', size: 150 },
     { accessorKey: 'externalOwnerID', header: 'External Owner', size: 140 },
     { accessorKey: 'externalURI', header: 'External URI', size: 160 },
@@ -77,34 +42,14 @@ export const getColumns = ({ userMap, selectedItems, setSelectedItems }: ColumnO
       accessorKey: 'createdBy',
       header: 'Created By',
       size: 160,
-      cell: ({ row }) => {
-        const user = userMap[row.original.createdBy ?? '']
-        return user ? (
-          <div className="flex items-center space-x-1">
-            <Avatar entity={user} className="w-[24px] h-[24px]" />
-            <p>{user.displayName}</p>
-          </div>
-        ) : (
-          <span className="text-muted-foreground italic">Deleted user</span>
-        )
-      },
+      cell: ({ row }) => <UserCell user={userMap[row.original.createdBy ?? '']} />,
     },
     { accessorKey: 'updatedAt', header: 'Updated At', size: 130, cell: ({ cell }) => formatDate(cell.getValue() as string) },
     {
       accessorKey: 'updatedBy',
       header: 'Updated By',
       size: 160,
-      cell: ({ row }) => {
-        const user = userMap[row.original.updatedBy ?? '']
-        return user ? (
-          <div className="flex items-center space-x-1">
-            <Avatar entity={user} className="w-[24px] h-[24px]" />
-            <p>{user.displayName}</p>
-          </div>
-        ) : (
-          <span className="text-muted-foreground italic">Deleted user</span>
-        )
-      },
+      cell: ({ row }) => <UserCell user={userMap[row.original.updatedBy ?? '']} />,
     },
   ]
 }

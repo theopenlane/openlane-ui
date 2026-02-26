@@ -1,8 +1,8 @@
 'use client'
 
 import React from 'react'
-import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
-import { RemediationsNodeNonNull, useRemediation, useCreateRemediation, useUpdateRemediation } from '@/lib/graphql-hooks/remediation'
+import useFormSchema from '../hooks/use-form-schema'
+import { RemediationsNodeNonNull, useRemediation, useCreateRemediation, useUpdateRemediation, useDeleteRemediation } from '@/lib/graphql-hooks/remediation'
 import { useSearchParams } from 'next/navigation'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
 import { breadcrumbs, getFieldsToRender, getFilterFields, visibilityFields } from './table-config'
@@ -26,6 +26,7 @@ const RemediationPage: React.FC = () => {
 
   const baseUpdateMutation = useUpdateRemediation()
   const baseCreateMutation = useCreateRemediation()
+  const baseDeleteMutation = useDeleteRemediation()
 
   const updateMutation = {
     isPending: baseUpdateMutation.isPending,
@@ -80,7 +81,9 @@ const RemediationPage: React.FC = () => {
     getColumns,
     TableComponent,
     sheetConfig,
-    bulkEditFormSchema: bulkEditFieldSchema,
+    onBulkDelete: async (ids: string[]) => {
+      await Promise.all(ids.map((remediationId) => baseDeleteMutation.mutateAsync({ deleteRemediationId: remediationId })))
+    },
     enumOpts,
   }
 

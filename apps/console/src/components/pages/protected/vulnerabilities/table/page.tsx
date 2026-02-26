@@ -1,9 +1,9 @@
 'use client'
 
 import React from 'react'
-import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
+import useFormSchema from '../hooks/use-form-schema'
 
-import { VulnerabilitiesNodeNonNull, useVulnerability, useCreateVulnerability, useUpdateVulnerability } from '@/lib/graphql-hooks/vulnerability'
+import { VulnerabilitiesNodeNonNull, useVulnerability, useCreateVulnerability, useUpdateVulnerability, useDeleteVulnerability } from '@/lib/graphql-hooks/vulnerability'
 import { useSearchParams } from 'next/navigation'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
 import { breadcrumbs, getFieldsToRender, getFilterFields, visibilityFields } from './table-config'
@@ -31,6 +31,7 @@ const VulnerabilityPage: React.FC = () => {
 
   const baseUpdateMutation = useUpdateVulnerability()
   const baseCreateMutation = useCreateVulnerability()
+  const baseDeleteMutation = useDeleteVulnerability()
 
   const updateMutation = {
     isPending: baseUpdateMutation.isPending,
@@ -88,7 +89,9 @@ const VulnerabilityPage: React.FC = () => {
     getColumns,
     TableComponent,
     sheetConfig,
-    bulkEditFormSchema: bulkEditFieldSchema,
+    onBulkDelete: async (ids: string[]) => {
+      await Promise.all(ids.map((vulnerabilityId) => baseDeleteMutation.mutateAsync({ deleteVulnerabilityId: vulnerabilityId })))
+    },
     enumOpts,
   }
 

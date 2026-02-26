@@ -88,7 +88,6 @@ export interface GenericTablePageConfig<TEntity extends { id: string }, TFormDat
     onFilterChange: (filters: TWhereInput | null) => void
     handleClearSelected: () => void
     handleExport: () => void
-    canExport?: boolean
     mappedColumns: Array<{ accessorKey: string; header: string; meta?: { exportPrefix?: string } }>
     columnVisibility: VisibilityState
     setColumnVisibility: React.Dispatch<React.SetStateAction<VisibilityState>>
@@ -107,7 +106,7 @@ export interface GenericTablePageConfig<TEntity extends { id: string }, TFormDat
   sheetConfig: Omit<GenericDetailsSheetConfig<TFormData, TEntity, TUpdateInput, TUpdateData, TCreateInput, TCreateData>, 'form' | 'onClose'>
 
   // Bulk operations
-  onBulkDelete?: (ids: string[]) => Promise<void>
+  onBulkDelete: (ids: string[]) => Promise<void>
   onBulkCreate?: (file: File) => Promise<void>
   onBulkEdit?: (ids: string[], data: TUpdateInput) => Promise<void>
   bulkEditFormSchema?: ZodObject<ZodRawShape>
@@ -267,7 +266,6 @@ export function GenericTablePage<
         }}
         handleClearSelected={handleClearSelected}
         handleExport={handleExportFile}
-        canExport={Boolean(exportType)}
         mappedColumns={mappedColumns}
         columnVisibility={columnVisibility}
         setColumnVisibility={setColumnVisibility}

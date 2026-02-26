@@ -26,7 +26,6 @@ import { EnumOptionsGeneric } from '../page'
 type GenericTableToolbarProps<T extends { id: string }, TWhereInput, TUpdateInput> = {
   entityType: ObjectTypes
   handleExport: () => void
-  canExport?: boolean
   filterFields?: FilterField[] | undefined
   onFilterChange?: (filters: TWhereInput | null) => void
   columnVisibility?: VisibilityState
@@ -60,7 +59,6 @@ function GenericTableToolbar<T extends { id: string }, TWhereInput, TUpdateInput
 
   const entityLabel = props.entityType.charAt(0).toUpperCase() + props.entityType.slice(1).toLowerCase()
   const entityLabelPlural = `${entityLabel}s`
-  const showBulkActionsMenu = Boolean(props.onBulkCreate || props.canExport)
 
   const openCreateSheet = () => {
     replace({ create: 'true', id: null })
@@ -158,30 +156,26 @@ function GenericTableToolbar<T extends { id: string }, TWhereInput, TUpdateInput
             </>
           ) : (
             <>
-              {showBulkActionsMenu && (
-                <Menu
-                  closeOnSelect={true}
-                  content={(close) => (
-                    <>
-                      {props.onBulkCreate && <GenericBulkCSVCreateDialog entityType={props.entityType} onBulkCreate={props.onBulkCreate} />}
-                      {props.canExport && (
-                        <Button
-                          size="sm"
-                          variant="transparent"
-                          className="px-1 flex items-center justify-start space-x-2 cursor-pointer"
-                          onClick={() => {
-                            props.handleExport()
-                            close()
-                          }}
-                        >
-                          <DownloadIcon size={16} strokeWidth={2} />
-                          <span>Export</span>
-                        </Button>
-                      )}
-                    </>
-                  )}
-                />
-              )}
+              <Menu
+                closeOnSelect={true}
+                content={(close) => (
+                  <>
+                    {props.onBulkCreate && <GenericBulkCSVCreateDialog entityType={props.entityType} onBulkCreate={props.onBulkCreate} />}
+                    <Button
+                      size="sm"
+                      variant="transparent"
+                      className="px-1 flex items-center justify-start space-x-2 cursor-pointer"
+                      onClick={() => {
+                        props.handleExport()
+                        close()
+                      }}
+                    >
+                      <DownloadIcon size={16} strokeWidth={2} />
+                      <span>Export</span>
+                    </Button>
+                  </>
+                )}
+              />
 
               {props.mappedColumns && props.columnVisibility && props.setColumnVisibility && (
                 <ColumnVisibilityMenu mappedColumns={props.mappedColumns} columnVisibility={props.columnVisibility} setColumnVisibility={props.setColumnVisibility} storageKey={props.storageKey} />

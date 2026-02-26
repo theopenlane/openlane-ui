@@ -1,8 +1,8 @@
 'use client'
 
 import React from 'react'
-import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
-import { FindingsNodeNonNull, useFinding, useCreateFinding, useUpdateFinding } from '@/lib/graphql-hooks/finding'
+import useFormSchema from '../hooks/use-form-schema'
+import { FindingsNodeNonNull, useFinding, useCreateFinding, useUpdateFinding, useDeleteFinding } from '@/lib/graphql-hooks/finding'
 import { useSearchParams } from 'next/navigation'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
 import { breadcrumbs, getFieldsToRender, getFilterFields, visibilityFields } from './table-config'
@@ -26,6 +26,7 @@ const FindingPage: React.FC = () => {
 
   const baseUpdateMutation = useUpdateFinding()
   const baseCreateMutation = useCreateFinding()
+  const baseDeleteMutation = useDeleteFinding()
 
   const updateMutation = {
     isPending: baseUpdateMutation.isPending,
@@ -80,7 +81,9 @@ const FindingPage: React.FC = () => {
     getColumns,
     TableComponent,
     sheetConfig,
-    bulkEditFormSchema: bulkEditFieldSchema,
+    onBulkDelete: async (ids: string[]) => {
+      await Promise.all(ids.map((findingId) => baseDeleteMutation.mutateAsync({ deleteFindingId: findingId })))
+    },
     enumOpts,
   }
 
