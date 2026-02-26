@@ -305,12 +305,12 @@ const QuestionnaireDetailPage = () => {
             <Menu
               content={
                 <>
-                  <Button size="sm" variant="transparent" className="flex justify-start space-x-2" onClick={() => router.push(`/questionnaires/questionnaire-viewer?id=${id}`)}>
+                  <Button size="sm" variant="transparent" className="flex justify-start space-x-2" onClick={() => router.push(`/automation/assessments/questionnaire-viewer?id=${id}`)}>
                     <Eye size={16} strokeWidth={2} />
                     <span>Preview</span>
                   </Button>
                   {canEdit(permission?.roles) && (
-                    <Button size="sm" variant="transparent" className="flex justify-start space-x-2" onClick={() => router.push(`/questionnaires/questionnaire-editor?id=${id}`)}>
+                    <Button size="sm" variant="transparent" className="flex justify-start space-x-2" onClick={() => router.push(`/automation/assessments/questionnaire-editor?id=${id}`)}>
                       <Pencil size={16} strokeWidth={2} />
                       <span>Edit</span>
                     </Button>
