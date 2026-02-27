@@ -26,7 +26,7 @@ export function CreateFaqForm({ disabled, isCreating, onSubmit }: CreateFaqFormP
       <CardContent className="pt-6">
         <div className="mb-6">
           <h2 className="text-lg font-semibold">Add Frequently Asked Question</h2>
-          <p className="text-sm text-muted-foreground">Help your customers and save time by providing some frequently asked questions and answers</p>
+          <p className="text-sm text-muted-foreground">Proactively answer the security questions buyers ask most to speed up procurement and security reviews.</p>
         </div>
 
         <Form {...form}>
