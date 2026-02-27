@@ -8,6 +8,7 @@ import { AdditionalFields } from '../create/form/fields/additional-fields'
 import Properties from '../create/form/fields/properties'
 import { EntityFieldProps, EnumOptions } from './types'
 import { enumToSortFields } from '@/components/shared/crud-base/utils'
+import { EntityAssociationSection } from '../create/form/fields/association-section'
 
 export const formId = 'edit' + ObjectNames.ENTITY
 
@@ -192,6 +193,7 @@ export const getFieldsToRender = (props: EntityFieldProps, enumOptions: EnumOpti
         handleUpdateField={props.handleUpdateField}
         enumOptions={enumOptions}
       />
+      <EntityAssociationSection data={props.data} isEditing={props.isEditing} isCreate={props.isCreate} isEditAllowed={props.isEditAllowed} />
     </div>
   )
 }

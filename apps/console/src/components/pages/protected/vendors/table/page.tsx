@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { Value } from 'platejs'
 import { useSearchParams } from 'next/navigation'
@@ -10,7 +10,7 @@ import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
 
 import { EntityEntityStatus, EntityFrequency, EntityQuery, UpdateEntityInput, CreateEntityInput } from '@repo/codegen/src/schema'
 import { normalizeEntityData, buildResponsibilityPayload } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
-import { useUpdateEntity, useCreateEntity, useBulkDeleteEntity, useCreateBulkCSVEntity, useBulkEditEntity, EntitiesNodeNonNull } from '@/lib/graphql-hooks/entity'
+import { useUpdateEntity, useCreateEntity, useBulkDeleteEntity, useCreateBulkCSVEntity, useBulkEditEntity, EntitiesNodeNonNull, useGetEntityAssociations } from '@/lib/graphql-hooks/entity'
 import { useEntity } from '@/lib/graphql-hooks/entity'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
 import { breadcrumbs, getFieldsToRender, getFilterFields, visibilityFields } from './table-config'
@@ -18,6 +18,8 @@ import { EntitySheetConfig, EntityTablePageConfig, objectType, objectName, table
 import { getColumns } from './columns'
 import TableComponent from './table'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
+import { getAssociationInput } from '@/components/shared/object-association/utils'
+import { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
 
 const normalizeData = (data: EntityQuery['entity']) =>
   normalizeEntityData(data, {
@@ -32,6 +34,19 @@ const VendorPage: React.FC = () => {
   const id = searchParams.get('id')
   const isCreate = searchParams.get('create') === 'true'
   const { data, isLoading } = useEntity(id || undefined)
+  const { data: associationsData } = useGetEntityAssociations(id || undefined)
+  const initialAssociationsRef = useRef<TObjectAssociationMap>({})
+
+  useEffect(() => {
+    if (associationsData?.entity) {
+      initialAssociationsRef.current = {
+        assetIDs: (associationsData.entity.assets?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+        scanIDs: (associationsData.entity.scans?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+        campaignIDs: (associationsData.entity.campaigns?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+        identityHolderIDs: (associationsData.entity.identityHolders?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+      }
+    }
+  }, [associationsData])
 
   const plateEditorHelper = usePlateEditor()
 
@@ -128,11 +143,30 @@ const VendorPage: React.FC = () => {
     updateMutation,
     createMutation,
     buildPayload: async (data) => {
-      const { internalOwner, reviewedBy, ...rest } = data
+      const { assetIDs, scanIDs, campaignIDs, identityHolderIDs, internalOwner, reviewedBy, ...rest } = data
       const description = rest.description ? await plateEditorHelper.convertToHtml(rest.description as Value) : undefined
+
+      const associationFields: Record<string, string[] | undefined> = { assetIDs, scanIDs, campaignIDs, identityHolderIDs }
+      let associationPayload: Record<string, string[]> = {}
+
+      if (isCreate) {
+        Object.entries(associationFields).forEach(([key, ids]) => {
+          if (ids?.length) associationPayload[key] = ids
+        })
+      } else {
+        const currentAssociations: TObjectAssociationMap = {}
+        Object.entries(associationFields).forEach(([key, ids]) => {
+          if (ids) currentAssociations[key] = ids
+        })
+        if (Object.keys(currentAssociations).length > 0) {
+          associationPayload = getAssociationInput(initialAssociationsRef.current, currentAssociations)
+        }
+      }
+
       return {
         ...rest,
         description,
+        ...associationPayload,
         ...buildResponsibilityPayload('internalOwner', internalOwner, { mode: isCreate ? 'create' : 'update' }),
         ...buildResponsibilityPayload('reviewedBy', reviewedBy, { mode: isCreate ? 'create' : 'update' }),
       }

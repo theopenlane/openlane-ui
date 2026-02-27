@@ -57,10 +57,7 @@ export const buildSearchContextLabelLookup = (search?: SearchQuery['search']): S
     const node = edge?.node
     if (!node?.id) continue
 
-    const controlStandardID =
-      typeof node === 'object' && node !== null && 'standardID' in node
-        ? ((node as { standardID?: string | null }).standardID ?? null)
-        : null
+    const controlStandardID = typeof node === 'object' && node !== null && 'standardID' in node ? ((node as { standardID?: string | null }).standardID ?? null) : null
 
     lookup.set(getLabelLookupKey('Control', node.id), {
       primaryLabel: node.refCode ?? node.id,

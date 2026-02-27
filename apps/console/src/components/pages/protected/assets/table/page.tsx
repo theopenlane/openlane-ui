@@ -1,10 +1,10 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 
-import { AssetsNodeNonNull, useAsset, useUpdateAsset, useCreateAsset, useBulkDeleteAsset, useCreateBulkCSVAsset, useBulkEditAsset } from '@/lib/graphql-hooks/asset'
+import { AssetsNodeNonNull, useAsset, useUpdateAsset, useCreateAsset, useBulkDeleteAsset, useCreateBulkCSVAsset, useBulkEditAsset, useGetAssetAssociations } from '@/lib/graphql-hooks/asset'
 import { useSearchParams } from 'next/navigation'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
 import { breadcrumbs, getFieldsToRender, getFilterFields, visibilityFields } from './table-config'
@@ -17,6 +17,8 @@ import { AssetAssetType, AssetSourceType, AssetQuery, CreateAssetInput, UpdateAs
 import { normalizeEntityData, buildResponsibilityPayload } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
+import { getAssociationInput } from '@/components/shared/object-association/utils'
+import { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
 
 const normalizeData = (data: AssetQuery['asset']) =>
   normalizeEntityData(data, {
@@ -30,6 +32,19 @@ const AssetPage: React.FC = () => {
   const id = searchParams.get('id')
   const isCreate = searchParams.get('create') === 'true'
   const { data, isLoading } = useAsset(id || undefined)
+  const { data: associationsData } = useGetAssetAssociations(id || undefined)
+  const initialAssociationsRef = useRef<TObjectAssociationMap>({})
+
+  useEffect(() => {
+    if (associationsData?.asset) {
+      initialAssociationsRef.current = {
+        scanIDs: (associationsData.asset.scans?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+        entityIDs: (associationsData.asset.entities?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+        identityHolderIDs: (associationsData.asset.identityHolders?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+        controlIDs: (associationsData.asset.controls?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+      }
+    }
+  }, [associationsData])
 
   const plateEditorHelper = usePlateEditor()
 
@@ -141,11 +156,30 @@ const AssetPage: React.FC = () => {
     updateMutation,
     createMutation,
     buildPayload: async (data) => {
-      const { internalOwner, ...rest } = data
+      const { controlIDs, scanIDs, entityIDs, identityHolderIDs, internalOwner, ...rest } = data
       const description = rest.description ? await plateEditorHelper.convertToHtml(rest.description as Value) : undefined
+
+      const associationFields: Record<string, string[] | undefined> = { controlIDs, scanIDs, entityIDs, identityHolderIDs }
+      let associationPayload: Record<string, string[]> = {}
+
+      if (isCreate) {
+        Object.entries(associationFields).forEach(([key, ids]) => {
+          if (ids?.length) associationPayload[key] = ids
+        })
+      } else {
+        const currentAssociations: TObjectAssociationMap = {}
+        Object.entries(associationFields).forEach(([key, ids]) => {
+          if (ids) currentAssociations[key] = ids
+        })
+        if (Object.keys(currentAssociations).length > 0) {
+          associationPayload = getAssociationInput(initialAssociationsRef.current, currentAssociations)
+        }
+      }
+
       return {
         ...rest,
         description,
+        ...associationPayload,
         ...buildResponsibilityPayload('internalOwner', internalOwner, { mode: isCreate ? 'create' : 'update' }),
       }
     },

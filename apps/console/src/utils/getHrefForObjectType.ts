@@ -26,6 +26,11 @@ const SIMPLE_ROUTES: Record<string, (id: string) => string> = {
   programs: (id) => `/programs/${id}`,
   groups: (id) => `/groups?id=${id}`,
   evidences: (id) => `/evidence?id=${id}`,
+  assets: (id) => `/registry/assets?id=${id}`,
+  entities: (id) => `/registry/vendors?id=${id}`,
+  identityHolders: (id) => `/registry/personnel?id=${id}`,
+  scans: (id) => `/registry/scans?id=${id}`,
+  campaigns: (id) => `/automation/campaigns?id=${id}`,
 }
 
 export const getHrefForObjectType = (kind: string, row?: NormalizedObject): string => {

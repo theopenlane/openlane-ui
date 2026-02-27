@@ -18,6 +18,11 @@ const borderColors: Record<string, string> = {
   policies: 'border-policies',
   groups: 'border-groups',
   evidences: 'border-evidence',
+  scans: 'border-scans',
+  campaigns: 'border-campaigns',
+  assets: 'border-assets',
+  entities: 'border-entities',
+  identityHolders: 'border-identityHolders',
   default: 'border-transparent',
 }
 

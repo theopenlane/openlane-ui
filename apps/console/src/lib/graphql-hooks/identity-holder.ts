@@ -17,6 +17,7 @@ import {
   UpdateBulkIdentityHolderMutationVariables,
   DeleteBulkIdentityHolderMutation,
   DeleteBulkIdentityHolderMutationVariables,
+  GetIdentityHolderAssociationsQuery,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
 import { TPagination } from '@repo/ui/pagination-types'
@@ -29,6 +30,7 @@ import {
   CREATE_CSV_BULK_IDENTITY_HOLDER,
   BULK_EDIT_IDENTITY_HOLDER,
   BULK_DELETE_IDENTITY_HOLDER,
+  GET_IDENTITY_HOLDER_ASSOCIATIONS,
 } from '@repo/codegen/query/identity-holder'
 
 type GetAllIdentityHoldersArgs = {
@@ -132,5 +134,14 @@ export const useBulkDeleteIdentityHolder = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['identityHolders'] })
     },
+  })
+}
+
+export const useGetIdentityHolderAssociations = (identityHolderId?: string) => {
+  const { client } = useGraphQLClient()
+  return useQuery<GetIdentityHolderAssociationsQuery, unknown>({
+    queryKey: ['identityHolders', identityHolderId, 'associations'],
+    queryFn: async () => client.request<GetIdentityHolderAssociationsQuery>(GET_IDENTITY_HOLDER_ASSOCIATIONS, { identityHolderId: identityHolderId as string }),
+    enabled: !!identityHolderId,
   })
 }

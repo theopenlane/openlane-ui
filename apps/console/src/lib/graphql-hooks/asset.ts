@@ -17,10 +17,11 @@ import {
   UpdateBulkAssetMutationVariables,
   DeleteBulkAssetMutation,
   DeleteBulkAssetMutationVariables,
+  GetAssetAssociationsQuery,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
 import { TPagination } from '@repo/ui/pagination-types'
-import { GET_ALL_ASSETS, CREATE_ASSET, UPDATE_ASSET, DELETE_ASSET, ASSET, CREATE_CSV_BULK_ASSET, BULK_EDIT_ASSET, BULK_DELETE_ASSET } from '@repo/codegen/query/asset'
+import { GET_ALL_ASSETS, CREATE_ASSET, UPDATE_ASSET, DELETE_ASSET, ASSET, CREATE_CSV_BULK_ASSET, BULK_EDIT_ASSET, BULK_DELETE_ASSET, GET_ASSET_ASSOCIATIONS } from '@repo/codegen/query/asset'
 
 type GetAllAssetsArgs = {
   where?: AssetsWithFilterQueryVariables['where']
@@ -123,5 +124,14 @@ export const useBulkDeleteAsset = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['assets'] })
     },
+  })
+}
+
+export const useGetAssetAssociations = (assetId?: string) => {
+  const { client } = useGraphQLClient()
+  return useQuery<GetAssetAssociationsQuery, unknown>({
+    queryKey: ['assets', assetId, 'associations'],
+    queryFn: async () => client.request<GetAssetAssociationsQuery>(GET_ASSET_ASSOCIATIONS, { assetId: assetId as string }),
+    enabled: !!assetId,
   })
 }

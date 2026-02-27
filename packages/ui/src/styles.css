@@ -511,6 +511,11 @@
   --color-policies: #a78bfa;
   --color-groups: #fbbf24;
   --color-evidence: #93c5fd;
+  --color-scans: #f472b6;
+  --color-campaigns: #fb923c;
+  --color-assets: #38bdf8;
+  --color-entities: #a3e635;
+  --color-identityHolders: #e879f9;
 
   /* Avatar */
   --color-avatar: #e5a000;

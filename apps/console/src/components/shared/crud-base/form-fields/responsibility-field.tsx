@@ -116,15 +116,9 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
 
   const normalizedSearchText = searchText.toLowerCase()
 
-  const filteredUsers = useMemo(
-    () => userOptions.filter((u) => u.label.toLowerCase().includes(normalizedSearchText)),
-    [userOptions, normalizedSearchText],
-  )
+  const filteredUsers = useMemo(() => userOptions.filter((u) => u.label.toLowerCase().includes(normalizedSearchText)), [userOptions, normalizedSearchText])
 
-  const filteredGroups = useMemo(
-    () => groupOptions.filter((g) => g.label.toLowerCase().includes(normalizedSearchText)),
-    [groupOptions, normalizedSearchText],
-  )
+  const filteredGroups = useMemo(() => groupOptions.filter((g) => g.label.toLowerCase().includes(normalizedSearchText)), [groupOptions, normalizedSearchText])
 
   const hasExactMatch = useMemo(
     () => filteredUsers.some((u) => u.label.toLowerCase() === normalizedSearchText) || filteredGroups.some((g) => g.label.toLowerCase() === normalizedSearchText),

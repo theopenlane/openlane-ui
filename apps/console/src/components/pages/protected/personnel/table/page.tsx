@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
@@ -15,6 +15,7 @@ import {
   useCreateBulkCSVIdentityHolder,
   useBulkEditIdentityHolder,
   useIdentityHolder,
+  useGetIdentityHolderAssociations,
   IdentityHoldersNodeNonNull,
 } from '@/lib/graphql-hooks/identity-holder'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
@@ -23,6 +24,8 @@ import { PersonnelSheetConfig, PersonnelTablePageConfig, objectType, objectName,
 import { getColumns } from './columns'
 import TableComponent from './table'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
+import { getAssociationInput } from '@/components/shared/object-association/utils'
+import { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
 
 const normalizeData = (data: IdentityHolderQuery['identityHolder']) =>
   normalizeEntityData(data, {
@@ -36,6 +39,19 @@ const PersonnelPage: React.FC = () => {
   const id = searchParams.get('id')
   const isCreate = searchParams.get('create') === 'true'
   const { data, isLoading } = useIdentityHolder(id || undefined)
+  const { data: associationsData } = useGetIdentityHolderAssociations(id || undefined)
+  const initialAssociationsRef = useRef<TObjectAssociationMap>({})
+
+  useEffect(() => {
+    if (associationsData?.identityHolder) {
+      initialAssociationsRef.current = {
+        assetIDs: (associationsData.identityHolder.assets?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+        entityIDs: (associationsData.identityHolder.entities?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+        campaignIDs: (associationsData.identityHolder.campaigns?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+        taskIDs: (associationsData.identityHolder.tasks?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+      }
+    }
+  }, [associationsData])
 
   function getName(data: IdentityHoldersNodeNonNull) {
     return data?.fullName
@@ -115,9 +131,28 @@ const PersonnelPage: React.FC = () => {
     updateMutation,
     createMutation,
     buildPayload: async (data) => {
-      const { internalOwner, ...rest } = data
+      const { assetIDs, entityIDs, campaignIDs, taskIDs, internalOwner, ...rest } = data
+
+      const associationFields: Record<string, string[] | undefined> = { assetIDs, entityIDs, campaignIDs, taskIDs }
+      let associationPayload: Record<string, string[]> = {}
+
+      if (isCreate) {
+        Object.entries(associationFields).forEach(([key, ids]) => {
+          if (ids?.length) associationPayload[key] = ids
+        })
+      } else {
+        const currentAssociations: TObjectAssociationMap = {}
+        Object.entries(associationFields).forEach(([key, ids]) => {
+          if (ids) currentAssociations[key] = ids
+        })
+        if (Object.keys(currentAssociations).length > 0) {
+          associationPayload = getAssociationInput(initialAssociationsRef.current, currentAssociations)
+        }
+      }
+
       return {
         ...rest,
+        ...associationPayload,
         ...buildResponsibilityPayload('internalOwner', internalOwner, { mode: isCreate ? 'create' : 'update' }),
       }
     },
