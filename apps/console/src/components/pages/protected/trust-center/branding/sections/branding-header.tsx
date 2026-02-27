@@ -24,7 +24,7 @@ export const BrandingHeader = ({ cnameRecord, hasChanges, onPreview, onRevert, o
         </Button>
       )}
       <div className="flex items-center gap-10 flex-1">
-        <UrlInput disabled hasCopyButton placeholder={cnameRecord ? cnameRecord + '?fresh=1' : 'Preview URL not available yet'} value={url} className="h-8" />
+        <UrlInput disabled hasCopyButton placeholder={cnameRecord ?? 'Preview URL not available yet'} value={url ? url + '?fresh=1' : ''} className="h-8" />
         <Button className="ml-auto" variant="primary" icon={<BookUp size={16} />} onClick={onPublish}>
           Publish
         </Button>
