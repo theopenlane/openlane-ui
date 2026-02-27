@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { ArrowDownUp, ArrowUpDown } from 'lucide-react'
 import { useQueryClient } from '@tanstack/react-query'
@@ -10,6 +10,7 @@ import CommentList from '@/components/shared/comments/CommentList'
 import AddComment from '@/components/shared/comments/AddComment'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useGetOrgMemberships } from '@/lib/graphql-hooks/member'
+import Skeleton from '@/components/shared/skeleton/skeleton'
 import type { TComments } from '@/components/shared/comments/types/TComments'
 import type { TCommentData } from '@/components/shared/comments/types/TCommentData'
 
@@ -20,7 +21,6 @@ const ActivityCommentsSection = () => {
   const { data } = useGetControlComments(!isSubcontrol ? id : null)
   const { data: subcontrolData } = useGetSubcontrolComments(isSubcontrol ? subcontrolId : null)
   const [commentSortIsAsc, setCommentSortIsAsc] = useState(false)
-  const [comments, setComments] = useState<TCommentData[]>([])
 
   const queryClient = useQueryClient()
   const { errorNotification } = useNotification()
@@ -38,12 +38,19 @@ const ActivityCommentsSection = () => {
     return Array.from(new Set(edges.map((item) => item?.node?.createdBy).filter((itemId): itemId is string => typeof itemId === 'string')))
   }, [commentSource])
 
-  const { data: userData } = useGetOrgMemberships({
-    where: {
-      hasUserWith: userIds.map((userId) => ({ id: userId })),
-    },
+  const { data: userData, isLoading: isUsersLoading } = useGetOrgMemberships({
+    where: { hasUserWith: [{ idIn: userIds }] },
     enabled: userIds.length > 0,
   })
+
+  const userMap = useMemo(() => {
+    const map: Record<string, { id: string; displayName?: string | null; avatarFile?: { presignedURL?: string | null } | null; avatarRemoteURL?: string | null }> = {}
+    userData?.orgMemberships?.edges?.forEach((edge) => {
+      const user = edge?.node?.user
+      if (user) map[user.id] = user
+    })
+    return map
+  }, [userData])
 
   const invalidateComments = useCallback(() => {
     if (isSubcontrol) {
@@ -117,29 +124,24 @@ const ActivityCommentsSection = () => {
     setCommentSortIsAsc((prev) => !prev)
   }, [])
 
-  useEffect(() => {
-    if (commentSource && userData?.orgMemberships?.edges?.length) {
-      const mapped =
-        commentSource.comments?.edges?.map((item) => {
-          const user = userData.orgMemberships.edges?.find((u) => u?.node?.user.id === item?.node?.createdBy)?.node?.user
-          const avatarUrl = user?.avatarFile?.presignedURL || user?.avatarRemoteURL
-          return {
-            comment: item?.node?.text,
-            avatarUrl,
-            createdAt: item?.node?.createdAt,
-            userName: user?.displayName,
-            createdBy: item?.node?.createdBy,
-            id: item?.node?.id || '',
-          } as TCommentData
-        }) ?? []
+  const comments = useMemo(() => {
+    if (!commentSource?.comments?.edges?.length) return []
 
-      const sorted = mapped.sort((a, b) => new Date(!commentSortIsAsc ? b.createdAt : a.createdAt).getTime() - new Date(!commentSortIsAsc ? a.createdAt : b.createdAt).getTime())
+    const mapped = commentSource.comments.edges.map((item) => {
+      const user = item?.node?.createdBy ? userMap[item.node.createdBy] : undefined
+      const avatarUrl = user?.avatarFile?.presignedURL || user?.avatarRemoteURL
+      return {
+        comment: item?.node?.text,
+        avatarUrl,
+        createdAt: item?.node?.createdAt,
+        userName: user?.displayName || 'Deleted user',
+        createdBy: item?.node?.createdBy,
+        id: item?.node?.id || '',
+      } as TCommentData
+    })
 
-      setComments(sorted)
-    } else {
-      setComments([])
-    }
-  }, [commentSortIsAsc, commentSource, userData])
+    return mapped.sort((a, b) => new Date(!commentSortIsAsc ? b.createdAt : a.createdAt).getTime() - new Date(!commentSortIsAsc ? a.createdAt : b.createdAt).getTime())
+  }, [commentSortIsAsc, commentSource, userMap])
 
   return (
     <div className="space-y-4">
@@ -150,7 +152,28 @@ const ActivityCommentsSection = () => {
         </button>
       </div>
 
-      {comments.length === 0 ? <p className="text-sm text-muted-foreground">No comments yet</p> : <CommentList comments={comments} onEdit={handleEditComment} onRemove={handleRemoveComment} />}
+      {isUsersLoading && commentSource?.comments?.edges?.length ? (
+        <div className="space-y-4">
+          {commentSource.comments.edges.map((_, index) => (
+            <div key={index} className="w-full p-2 mb-2 rounded-lg">
+              <div className="flex items-start space-x-3">
+                <Skeleton className="h-10 w-10 rounded-full shrink-0" />
+                <div className="flex flex-col w-full gap-2">
+                  <div className="flex items-center gap-2">
+                    <Skeleton height={16} width={120} />
+                    <Skeleton height={14} width={80} />
+                  </div>
+                  <Skeleton height={16} width="80%" />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : comments.length === 0 ? (
+        <p className="text-sm text-muted-foreground">No comments yet</p>
+      ) : (
+        <CommentList comments={comments} onEdit={handleEditComment} onRemove={handleRemoveComment} />
+      )}
       <AddComment onSuccess={handleSendComment} />
     </div>
   )

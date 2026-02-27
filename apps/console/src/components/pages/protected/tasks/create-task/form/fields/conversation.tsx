@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useCallback, useEffect } from 'react'
+import React, { useState, useCallback, useMemo } from 'react'
 import { ArrowDownUp, ArrowUpDown } from 'lucide-react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification'
@@ -16,6 +16,7 @@ import { TaskQuery } from '@repo/codegen/src/schema'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useDeleteNote } from '@/lib/graphql-hooks/control'
 import { useGetOrgMemberships } from '@/lib/graphql-hooks/member'
+import Skeleton from '@/components/shared/skeleton/skeleton'
 
 type ConversationProps = {
   isEditing: boolean
@@ -26,7 +27,6 @@ const Conversation: React.FC<ConversationProps> = ({ isEditing, taskData }) => {
   const searchParams = useSearchParams()
   const id = searchParams.get('id')
   const [commentSortIsAsc, setCommentSortIsAsc] = useState(false)
-  const [comments, setComments] = useState<TCommentData[]>([])
 
   const queryClient = useQueryClient()
   const { errorNotification, successNotification } = useNotification()
@@ -41,9 +41,9 @@ const Conversation: React.FC<ConversationProps> = ({ isEditing, taskData }) => {
     return Array.from(new Set(edges.map((item) => item?.node?.createdBy).filter((id): id is string => typeof id === 'string')))
   }, [taskData])
 
-  const { data: userData } = useGetOrgMemberships({
+  const { data: userData, isLoading: isUsersLoading } = useGetOrgMemberships({
     where: {
-      hasUserWith: userIds.map((id) => ({ id })),
+      hasUserWith: [{ idIn: userIds }],
     },
     enabled: userIds.length > 0,
   })
@@ -98,31 +98,37 @@ const Conversation: React.FC<ConversationProps> = ({ isEditing, taskData }) => {
     }
   }
 
-  const handleCommentSort = () => {
-    const sorted = [...comments].sort((a, b) => new Date(commentSortIsAsc ? b.createdAt : a.createdAt).getTime() - new Date(commentSortIsAsc ? a.createdAt : b.createdAt).getTime())
+  const handleCommentSort = useCallback(() => {
     setCommentSortIsAsc((prev) => !prev)
-    setComments(sorted)
-  }
+  }, [])
 
-  useEffect(() => {
-    if (taskData && userData?.orgMemberships?.edges?.length) {
-      const commentsMapped = (taskData?.comments?.edges || []).map((item) => {
-        const user = userData.orgMemberships.edges?.find((u) => u?.node?.user.id === item?.node?.createdBy)?.node?.user
-        const avatarUrl = user?.avatarFile?.presignedURL || user?.avatarRemoteURL
-        return {
-          comment: item?.node?.text,
-          avatarUrl,
-          createdAt: item?.node?.createdAt,
-          userName: user?.displayName,
-          createdBy: item?.node?.createdBy,
-          id: item?.node?.id || '',
-        } as TCommentData
-      })
+  const userMap = useMemo(() => {
+    const map: Record<string, { id: string; displayName?: string | null; avatarFile?: { presignedURL?: string | null } | null; avatarRemoteURL?: string | null }> = {}
+    userData?.orgMemberships?.edges?.forEach((edge) => {
+      const user = edge?.node?.user
+      if (user) map[user.id] = user
+    })
+    return map
+  }, [userData])
 
-      const sortedComments = commentsMapped.sort((a, b) => new Date(!commentSortIsAsc ? b.createdAt : a.createdAt).getTime() - new Date(!commentSortIsAsc ? a.createdAt : b.createdAt).getTime())
-      setComments(sortedComments)
-    }
-  }, [commentSortIsAsc, taskData, userData])
+  const comments = useMemo(() => {
+    if (!taskData?.comments?.edges?.length) return []
+
+    const mapped = taskData.comments.edges.map((item) => {
+      const user = item?.node?.createdBy ? userMap[item.node.createdBy] : undefined
+      const avatarUrl = user?.avatarFile?.presignedURL || user?.avatarRemoteURL
+      return {
+        comment: item?.node?.text,
+        avatarUrl,
+        createdAt: item?.node?.createdAt,
+        userName: user?.displayName || 'Deleted user',
+        createdBy: item?.node?.createdBy,
+        id: item?.node?.id || '',
+      } as TCommentData
+    })
+
+    return mapped.sort((a, b) => new Date(!commentSortIsAsc ? b.createdAt : a.createdAt).getTime() - new Date(!commentSortIsAsc ? a.createdAt : b.createdAt).getTime())
+  }, [commentSortIsAsc, taskData, userMap])
 
   if (isEditing) return null
 
@@ -136,7 +142,26 @@ const Conversation: React.FC<ConversationProps> = ({ isEditing, taskData }) => {
         </div>
       </div>
 
-      <CommentList comments={comments} onEdit={handleEditComment} onRemove={handleDeleteComment} />
+      {isUsersLoading && taskData?.comments?.edges?.length ? (
+        <div className="space-y-4">
+          {taskData.comments.edges.map((_, index) => (
+            <div key={index} className="w-full p-2 mb-2 rounded-lg">
+              <div className="flex items-start space-x-3">
+                <Skeleton className="h-10 w-10 rounded-full shrink-0" />
+                <div className="flex flex-col w-full gap-2">
+                  <div className="flex items-center gap-2">
+                    <Skeleton height={16} width={120} />
+                    <Skeleton height={14} width={80} />
+                  </div>
+                  <Skeleton height={16} width="80%" />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <CommentList comments={comments} onEdit={handleEditComment} onRemove={handleDeleteComment} />
+      )}
       <AddComment onSuccess={handleSendComment} />
     </div>
   )

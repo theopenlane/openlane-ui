@@ -8,11 +8,12 @@ import { useDeleteNote } from '@/lib/graphql-hooks/control'
 import { useGetEvidenceComments, useUpdateEvidence, useUpdateEvidenceComment } from '@/lib/graphql-hooks/evidence'
 import { useGetOrgMemberships } from '@/lib/graphql-hooks/member'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import Skeleton from '@/components/shared/skeleton/skeleton'
 import { SheetTitle } from '@repo/ui/sheet'
 import { useQueryClient } from '@tanstack/react-query'
 import { ArrowDownUp, ArrowUpDown } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
 const EvidenceCommentSheet = () => {
   const searchParams = useSearchParams()
@@ -22,7 +23,6 @@ const EvidenceCommentSheet = () => {
   const { mutateAsync: updateEvidence } = useUpdateEvidence()
   const { errorNotification } = useNotification()
   const [commentSortIsAsc, setCommentSortIsAsc] = useState(false)
-  const [comments, setComments] = useState<TCommentData[]>([])
   const { mutateAsync: deleteNote } = useDeleteNote()
   const queryClient = useQueryClient()
   const plateEditorHelper = usePlateEditor()
@@ -33,41 +33,45 @@ const EvidenceCommentSheet = () => {
     return Array.from(new Set(edges.map((item) => item?.node?.createdBy).filter((id): id is string => typeof id === 'string')))
   }, [commentSource])
 
-  const { data: userData } = useGetOrgMemberships({
+  const { data: userData, isLoading: isUsersLoading } = useGetOrgMemberships({
     where: {
-      hasUserWith: userIds.map((id) => ({ id })),
+      hasUserWith: [{ idIn: userIds }],
     },
     enabled: userIds.length > 0,
   })
-  /* eslint-disable react-hooks/set-state-in-effect */
-  useEffect(() => {
-    if (commentSource && userData?.orgMemberships?.edges?.length) {
-      const mapped: TCommentData[] =
-        commentSource?.edges?.flatMap((item) => {
-          const commentNode = item?.node
-          if (!commentNode) return []
+  const userMap = useMemo(() => {
+    const map: Record<string, { id: string; displayName?: string | null; avatarFile?: { presignedURL?: string | null } | null; avatarRemoteURL?: string | null }> = {}
+    userData?.orgMemberships?.edges?.forEach((edge) => {
+      const user = edge?.node?.user
+      if (user) map[user.id] = user
+    })
+    return map
+  }, [userData])
 
-          const user = userData.orgMemberships.edges?.find((u) => u?.node?.user.id === commentNode.createdBy)?.node?.user
-          const avatarUrl = user?.avatarFile?.presignedURL || user?.avatarRemoteURL
+  const comments = useMemo(() => {
+    if (!commentSource?.edges?.length) return []
 
-          return [
-            {
-              comment: commentNode.text ?? '',
-              avatarUrl: avatarUrl ?? undefined,
-              createdAt: String(commentNode.createdAt ?? ''),
-              userName: user?.displayName ?? '',
-              createdBy: commentNode.createdBy ?? '',
-              id: commentNode.id,
-            },
-          ]
-        }) ?? []
+    const mapped: TCommentData[] = commentSource.edges.flatMap((item) => {
+      const commentNode = item?.node
+      if (!commentNode) return []
 
-      const sorted = mapped.sort((a, b) => new Date(!commentSortIsAsc ? b.createdAt : a.createdAt).getTime() - new Date(!commentSortIsAsc ? a.createdAt : b.createdAt).getTime())
+      const user = commentNode.createdBy ? userMap[commentNode.createdBy] : undefined
+      const avatarUrl = user?.avatarFile?.presignedURL || user?.avatarRemoteURL
 
-      setComments(sorted)
-    }
-  }, [commentSortIsAsc, commentSource, userData])
-  /* eslint-enable react-hooks/set-state-in-effect */
+      return [
+        {
+          comment: commentNode.text ?? '',
+          avatarUrl: avatarUrl ?? undefined,
+          createdAt: String(commentNode.createdAt ?? ''),
+          userName: user?.displayName || 'Deleted user',
+          createdBy: commentNode.createdBy ?? '',
+          id: commentNode.id,
+        },
+      ]
+    })
+
+    return mapped.sort((a, b) => new Date(!commentSortIsAsc ? b.createdAt : a.createdAt).getTime() - new Date(!commentSortIsAsc ? a.createdAt : b.createdAt).getTime())
+  }, [commentSortIsAsc, commentSource, userMap])
 
   const handleEditComment = useCallback(
     async (commentId: string, newValue: string) => {
@@ -114,12 +118,8 @@ const EvidenceCommentSheet = () => {
   )
 
   const handleCommentSort = useCallback(() => {
-    const sorted = [...comments].sort((a, b) =>
-      commentSortIsAsc ? new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime() : new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
-    )
     setCommentSortIsAsc((prev) => !prev)
-    setComments(sorted)
-  }, [commentSortIsAsc, comments])
+  }, [])
 
   return (
     <div className="p-4 w-full h-full overflow-y-auto">
@@ -131,7 +131,26 @@ const EvidenceCommentSheet = () => {
           <p className="text-sm">{!commentSortIsAsc ? 'Newest at top' : 'Newest at bottom'}</p>
         </div>
       </div>
-      <CommentList comments={comments} onEdit={handleEditComment} onRemove={handleRemoveComment} />
+      {isUsersLoading && commentSource?.edges?.length ? (
+        <div className="space-y-4">
+          {commentSource.edges.map((_, index) => (
+            <div key={index} className="w-full p-2 mb-2 rounded-lg">
+              <div className="flex items-start space-x-3">
+                <Skeleton className="h-10 w-10 rounded-full shrink-0" />
+                <div className="flex flex-col w-full gap-2">
+                  <div className="flex items-center gap-2">
+                    <Skeleton height={16} width={120} />
+                    <Skeleton height={14} width={80} />
+                  </div>
+                  <Skeleton height={16} width="80%" />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <CommentList comments={comments} onEdit={handleEditComment} onRemove={handleRemoveComment} />
+      )}
       <AddComment onSuccess={handleSendComment} />
     </div>
   )
