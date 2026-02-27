@@ -10,6 +10,10 @@ export const GET_ALL_TRUST_CENTER_FAQS = gql`
           createdBy
           displayOrder
           id
+          note {
+            title
+            text
+          }
           noteID
           referenceLink
           trustCenterID
@@ -67,6 +71,16 @@ export const DELETE_TRUST_CENTER_FAQ = gql`
   mutation DeleteTrustCenterFAQ($deleteTrustCenterFAQId: ID!) {
     deleteTrustCenterFAQ(id: $deleteTrustCenterFAQId) {
       deletedID
+    }
+  }
+`
+
+export const UPDATE_TRUST_CENTER_FAQ_COMMENT = gql`
+  mutation UpdateTrustCenterFAQComment($updateTrustCenterFAQCommentId: ID!, $input: UpdateNoteInput!) {
+    updateTrustCenterFAQComment(id: $updateTrustCenterFAQCommentId, input: $input) {
+      trustCenterFAQ {
+        id
+      }
     }
   }
 `

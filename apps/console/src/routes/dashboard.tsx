@@ -41,6 +41,7 @@ import {
   Laptop,
   IdCardLanyardIcon,
   Route,
+  CircleHelp,
   ClipboardPenLine,
 } from 'lucide-react'
 import { NavHeading, type NavItem, type Separator } from '@/types'
@@ -172,6 +173,7 @@ export const topNavigationItems = (session: Session | null): (NavItem | Separato
         { title: 'Subprocessors', href: '/trust-center/subprocessors', icon: Server },
         { title: 'Updates', href: '/trust-center/updates', icon: Megaphone },
         { title: 'Customer Logos', href: '/trust-center/customer-logos', icon: Component },
+        { title: 'FAQs', href: '/trust-center/faqs', icon: CircleHelp, hidden: true },
         { title: 'Analytics', href: '/trust-center/analytics', icon: ChartLine },
       ],
     },
