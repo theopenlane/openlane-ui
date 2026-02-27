@@ -5063,6 +5063,17 @@ export enum ControlCategoryOrderField {
   referenceFramework = 'referenceFramework',
 }
 
+/** ControlChange describes the diffs for a single control identified by refCode */
+export interface ControlChange {
+  __typename?: 'ControlChange'
+  /** Field-level diffs for this control */
+  diffs: Array<ControlFieldDiff>
+  /** The ref_code of the control */
+  refCode: Scalars['String']['output']
+  /** The title of the control at the new revision */
+  title: Scalars['String']['output']
+}
+
 /** A connection to a list of items. */
 export interface ControlConnection {
   __typename?: 'ControlConnection'
@@ -5107,6 +5118,29 @@ export interface ControlDeletePayload {
   deletedID: Scalars['ID']['output']
 }
 
+/** ControlDiffInput is used to compare all controls under a standard across two revisions */
+export interface ControlDiffInput {
+  /** target revision to compare to (e.g. "v2.0.0") */
+  newRevision: Scalars['String']['input']
+  /** base revision to compare from (e.g. "v1.0.0") */
+  oldRevision: Scalars['String']['input']
+  /** ID of the standard to compare controls for */
+  standardID: Scalars['ID']['input']
+}
+
+/** ControlDiffPayload contains the field-level diffs between two revisions of all controls under a standard */
+export interface ControlDiffPayload {
+  __typename?: 'ControlDiffPayload'
+  /** Per-control changes between the two revisions */
+  changes: Array<ControlChange>
+  /** The target revision */
+  newRevision: Scalars['String']['output']
+  /** The base revision */
+  oldRevision: Scalars['String']['output']
+  /** The standard ID being compared */
+  standardID: Scalars['ID']['output']
+}
+
 /** An edge in a connection. */
 export interface ControlEdge {
   __typename?: 'ControlEdge'
@@ -5114,6 +5148,19 @@ export interface ControlEdge {
   cursor: Scalars['Cursor']['output']
   /** The item at the end of the edge. */
   node?: Maybe<Control>
+}
+
+/** ControlFieldDiff describes a single field that differs between two control revisions */
+export interface ControlFieldDiff {
+  __typename?: 'ControlFieldDiff'
+  /** Unified diff text when applicable */
+  diff?: Maybe<Scalars['String']['output']>
+  /** Field name (snake_case) */
+  field: Scalars['String']['output']
+  /** Value in the new revision */
+  newValue?: Maybe<Scalars['Any']['output']>
+  /** Value in the old revision */
+  oldValue?: Maybe<Scalars['Any']['output']>
 }
 
 export interface ControlGroup {
@@ -30492,6 +30539,7 @@ export enum NotificationNotificationTopic {
   APPROVAL = 'APPROVAL',
   EXPORT = 'EXPORT',
   MENTION = 'MENTION',
+  STANDARD_UPDATE = 'STANDARD_UPDATE',
   TASK_ASSIGNMENT = 'TASK_ASSIGNMENT',
 }
 
@@ -37379,6 +37427,8 @@ export interface Query {
   controlCategories?: Maybe<Array<Scalars['String']['output']>>
   /** Existing categories or domains for controls used in the organization */
   controlCategoriesByFramework?: Maybe<Array<ControlCategoryEdge>>
+  /** Compare a system-owned control between two framework revisions to see which fields changed */
+  controlDiff: ControlDiffPayload
   /** Look up controlImplementation by ID */
   controlImplementation: ControlImplementation
   controlImplementations: ControlImplementationConnection
@@ -37887,6 +37937,10 @@ export interface QueryControlArgs {
 export interface QueryControlCategoriesByFrameworkArgs {
   orderBy?: InputMaybe<Array<ControlCategoryOrder>>
   where?: InputMaybe<ControlWhereInput>
+}
+
+export interface QueryControlDiffArgs {
+  input: ControlDiffInput
 }
 
 export interface QueryControlImplementationArgs {
@@ -64068,6 +64122,15 @@ export type DeleteFindingMutationVariables = Exact<{
 
 export type DeleteFindingMutation = { __typename?: 'Mutation'; deleteFinding: { __typename?: 'FindingDeletePayload'; deletedID: string } }
 
+export type CreateBulkCsvFindingMutationVariables = Exact<{
+  input: Scalars['Upload']['input']
+}>
+
+export type CreateBulkCsvFindingMutation = {
+  __typename?: 'Mutation'
+  createBulkCSVFinding: { __typename?: 'FindingBulkCreatePayload'; findings?: Array<{ __typename?: 'Finding'; id: string }> | null }
+}
+
 export type GroupSettingsWithFilterQueryVariables = Exact<{
   where?: InputMaybe<GroupSettingWhereInput>
   orderBy?: InputMaybe<Array<GroupSettingOrder> | GroupSettingOrder>
@@ -67014,6 +67077,15 @@ export type DeleteRemediationMutationVariables = Exact<{
 
 export type DeleteRemediationMutation = { __typename?: 'Mutation'; deleteRemediation: { __typename?: 'RemediationDeletePayload'; deletedID: string } }
 
+export type CreateBulkCsvRemediationMutationVariables = Exact<{
+  input: Scalars['Upload']['input']
+}>
+
+export type CreateBulkCsvRemediationMutation = {
+  __typename?: 'Mutation'
+  createBulkCSVRemediation: { __typename?: 'RemediationBulkCreatePayload'; remediations?: Array<{ __typename?: 'Remediation'; id: string }> | null }
+}
+
 export type ReviewsWithFilterQueryVariables = Exact<{
   where?: InputMaybe<ReviewWhereInput>
   orderBy?: InputMaybe<Array<ReviewOrder> | ReviewOrder>
@@ -67493,8 +67565,10 @@ export type ScansWithFilterQuery = {
         reviewedByUserID?: string | null
         scanDate?: string | null
         scanSchedule?: string | null
+        scanType: ScanScanType
         scopeID?: string | null
         scopeName?: string | null
+        status: ScanScanStatus
         target: string
         updatedAt?: any | null
         updatedBy?: string | null
@@ -67531,8 +67605,10 @@ export type ScanQuery = {
     reviewedByUserID?: string | null
     scanDate?: string | null
     scanSchedule?: string | null
+    scanType: ScanScanType
     scopeID?: string | null
     scopeName?: string | null
+    status: ScanScanStatus
     target: string
     updatedAt?: any | null
     updatedBy?: string | null
@@ -69782,6 +69858,9 @@ export type VulnerabilitiesWithFilterQuery = {
         status?: string | null
         summary?: string | null
         systemOwned?: boolean | null
+        tags?: Array<string> | null
+        impacts?: Array<string> | null
+        references?: Array<string> | null
         updatedAt?: any | null
         updatedBy?: string | null
         validated?: boolean | null
@@ -69834,6 +69913,9 @@ export type VulnerabilityQuery = {
     status?: string | null
     summary?: string | null
     systemOwned?: boolean | null
+    tags?: Array<string> | null
+    impacts?: Array<string> | null
+    references?: Array<string> | null
     updatedAt?: any | null
     updatedBy?: string | null
     validated?: boolean | null
@@ -69859,6 +69941,15 @@ export type DeleteVulnerabilityMutationVariables = Exact<{
 }>
 
 export type DeleteVulnerabilityMutation = { __typename?: 'Mutation'; deleteVulnerability: { __typename?: 'VulnerabilityDeletePayload'; deletedID: string } }
+
+export type CreateBulkCsvVulnerabilityMutationVariables = Exact<{
+  input: Scalars['Upload']['input']
+}>
+
+export type CreateBulkCsvVulnerabilityMutation = {
+  __typename?: 'Mutation'
+  createBulkCSVVulnerability: { __typename?: 'VulnerabilityBulkCreatePayload'; vulnerabilities?: Array<{ __typename?: 'Vulnerability'; id: string }> | null }
+}
 
 export type WorkflowAssignmentTargetsWithFilterQueryVariables = Exact<{
   where?: InputMaybe<WorkflowAssignmentTargetWhereInput>

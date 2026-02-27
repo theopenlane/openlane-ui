@@ -16,6 +16,7 @@ import {
   ListChecks,
   MailCheck,
   ScanLine,
+  Radar,
   ScrollText,
   ServerCog,
   Settings2,
@@ -179,15 +180,10 @@ export const topNavigationItems = (session: Session | null): (NavItem | Separato
     {
       title: 'Exposure',
       href: '/exposure',
-      icon: AlertTriangle,
+      icon: Radar,
       plan: PlanEnum.COMPLIANCE_MODULE,
-      hidden: true,
+      hidden: session?.user?.isOnboarding || billingExpired,
       children: [
-        {
-          title: 'Risks',
-          href: '/exposure/risks',
-          icon: AlertTriangle,
-        },
         {
           title: 'Scans',
           href: '/exposure/scans',

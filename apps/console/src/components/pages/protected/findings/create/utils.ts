@@ -1,0 +1,5 @@
+import { FindingFormData } from '../hooks/use-form-schema'
+
+export const buildPayload = async (data: FindingFormData) => {
+  return data
+}

@@ -88,6 +88,8 @@ export const getSubprocessorsColumns = ({ selectedRows, setSelectedRows, userMap
       meta: {
         exportPrefix: 'subprocessor.name',
       },
+      size: 200,
+      maxSize: 300,
       minSize: 80,
       cell: ({ row }) => {
         const logo = row.original.logo
@@ -128,6 +130,8 @@ export const getSubprocessorsColumns = ({ selectedRows, setSelectedRows, userMap
           </div>
         )
       },
+      size: 100,
+      maxSize: 160,
       minSize: 80,
     },
 
@@ -135,12 +139,15 @@ export const getSubprocessorsColumns = ({ selectedRows, setSelectedRows, userMap
       accessorKey: 'category',
       header: 'Category',
       cell: ({ row }) => row.original.category || '—',
-      minSize: 80,
+      size: 180,
+      maxSize: 200,
+      minSize: 180,
     },
 
     {
       accessorKey: 'createdAt',
       header: 'Created At',
+      maxSize: 200,
       size: 150,
       cell: ({ cell }) => <span className="whitespace-nowrap">{formatDate(cell.getValue() as string)}</span>,
     },
@@ -148,7 +155,8 @@ export const getSubprocessorsColumns = ({ selectedRows, setSelectedRows, userMap
     {
       header: 'Created by',
       accessorKey: 'createdBy',
-      size: 200,
+      maxSize: 200,
+      size: 150,
       cell: ({ row }) => {
         const user = userMap[row.original.createdBy ?? '']
 
@@ -200,8 +208,8 @@ export const getSubprocessorsColumns = ({ selectedRows, setSelectedRows, userMap
           <DeleteTrustCenterSubprocessorCell subprocessorId={row.original.id} subprocessorName={row.original.name} />
         </div>
       ),
-      maxSize: 30,
-      size: 30,
+      size: 100,
+      maxSize: 100,
     },
   ]
 

@@ -12,6 +12,7 @@ import SubprocessorsTableToolbar from './table/subprocessors-table-toolbar'
 import { getSubprocessorsColumns, SubprocessorTableItem } from './table/table-config'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
 import { TableKeyEnum } from '@repo/ui/table-key'
+import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { useStorageSearch } from '@/hooks/useStorageSearch'
 import useFileExport from '@/components/shared/export/use-file-export'
 import { EditTrustCenterSubprocessorSheet } from './sheet/edit-trust-center-subprocessor-sheet'
@@ -28,14 +29,16 @@ import { Code } from 'lucide-react'
 const SubprocessorsPage = () => {
   const [embedSheetOpen, setEmbedSheetOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useStorageSearch(ObjectTypes.SUBPROCESSOR)
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
-    id: false,
-    createdBy: false,
-    updatedAt: false,
-    updatedVy: false,
-    createdAt: false,
-    description: false,
-  })
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() =>
+    getInitialVisibility(TableKeyEnum.TRUST_CENTER_SUBPROCESSORS, {
+      id: false,
+      createdBy: false,
+      updatedAt: false,
+      updatedBy: false,
+      createdAt: false,
+      description: false,
+    }),
+  )
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
   const [filters, setFilters] = useState<TrustCenterSubprocessorWhereInput | null>(null)
   const [selectedRows, setSelectedRows] = useState<{ id: string }[]>([])
