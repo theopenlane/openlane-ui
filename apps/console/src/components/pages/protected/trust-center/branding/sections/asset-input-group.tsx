@@ -1,3 +1,6 @@
+'use client'
+
+import { useState } from 'react'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { Label } from '@repo/ui/label'
 import UrlInput from '../../shared/url-input'
@@ -5,6 +8,7 @@ import { Eye } from 'lucide-react'
 import { TUploadedFile } from '../../../evidence/upload/types/TUploadedFile'
 import { InputTypeEnum } from './branding-assets-section'
 import { Callout } from '@/components/shared/callout/callout'
+import { ImageCropDialog } from '@/components/shared/image-crop-dialog/image-crop-dialog'
 
 interface FileConfigs {
   types: string[]
@@ -12,6 +16,8 @@ interface FileConfigs {
   maxSize: number
   note?: string
 }
+
+const SKIP_CROP_TYPES = ['image/svg+xml', 'image/x-icon', 'image/vnd.microsoft.icon']
 
 interface AssetInputGroupProps {
   label: string
@@ -25,13 +31,52 @@ interface AssetInputGroupProps {
   normalizeUrl: (url?: string | null) => string | null
   fileConfigs: FileConfigs
   isImageValidSize?: boolean | null
+  enableCrop?: boolean
 }
 
-export const AssetInputGroup = ({ label, preview, link, setLink, onUpload, inputType, setInputType, isReadOnly, normalizeUrl, fileConfigs, isImageValidSize }: AssetInputGroupProps) => {
+export const AssetInputGroup = ({ label, preview, link, setLink, onUpload, inputType, setInputType, isReadOnly, normalizeUrl, fileConfigs, isImageValidSize, enableCrop }: AssetInputGroupProps) => {
+  const [cropDialogOpen, setCropDialogOpen] = useState(false)
+  const [imageToCrop, setImageToCrop] = useState<string | null>(null)
+  const [pendingUpload, setPendingUpload] = useState<TUploadedFile | null>(null)
+
   const options = [
     { label: 'Upload File', value: InputTypeEnum.FILE },
     { label: 'Enter URL', value: InputTypeEnum.URL },
   ]
+
+  const handleFileUpload = (uploadedFile: TUploadedFile) => {
+    if (!enableCrop || !uploadedFile.file || SKIP_CROP_TYPES.includes(uploadedFile.file.type)) {
+      onUpload(uploadedFile)
+      return
+    }
+
+    if (uploadedFile.url) {
+      setImageToCrop(uploadedFile.url)
+      setPendingUpload(uploadedFile)
+      setCropDialogOpen(true)
+    }
+  }
+
+  const handleCropComplete = (croppedFile: File) => {
+    const croppedUpload: TUploadedFile = {
+      name: croppedFile.name,
+      size: croppedFile.size,
+      url: URL.createObjectURL(croppedFile),
+      type: 'file',
+      file: croppedFile,
+    }
+    onUpload(croppedUpload)
+    setPendingUpload(null)
+    setImageToCrop(null)
+  }
+
+  const handleCropClose = () => {
+    setCropDialogOpen(false)
+    setPendingUpload(null)
+    setImageToCrop(null)
+  }
+
+  const outputFileName = pendingUpload?.file?.type === 'image/png' ? 'logo.png' : 'logo.jpg'
 
   return (
     <div className="flex flex-col">
@@ -63,7 +108,7 @@ export const AssetInputGroup = ({ label, preview, link, setLink, onUpload, input
                 <div className="w-full max-w-[417px]">
                   <FileUpload
                     acceptedFileTypes={fileConfigs.types}
-                    onFileUpload={onUpload}
+                    onFileUpload={handleFileUpload}
                     acceptedFileTypesShort={fileConfigs.shortTypes}
                     maxFileSizeInMb={fileConfigs.maxSize}
                     multipleFiles={false}
@@ -92,6 +137,18 @@ export const AssetInputGroup = ({ label, preview, link, setLink, onUpload, input
           </div>
         )}
       </div>
+
+      {enableCrop && imageToCrop && (
+        <ImageCropDialog
+          open={cropDialogOpen}
+          onClose={handleCropClose}
+          imageSrc={imageToCrop}
+          onCropComplete={handleCropComplete}
+          title={`Crop ${label}`}
+          description="Adjust the crop area to remove whitespace and click Save"
+          outputFileName={outputFileName}
+        />
+      )}
     </div>
   )
 }
