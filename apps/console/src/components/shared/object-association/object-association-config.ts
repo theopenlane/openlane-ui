@@ -649,6 +649,15 @@ const ASSOCIATION_SECTION_CONFIG = {
 
 export type AssociationSectionKey = keyof typeof ASSOCIATION_SECTION_CONFIG
 
+const SECTION_DISPLAY_NAMES_OVERRIDES: Partial<Record<AssociationSectionKey, string>> = {
+  entities: 'Vendors',
+  identityHolders: 'Personnel',
+}
+
+export const getSectionDisplayName = (key: string): string => {
+  return SECTION_DISPLAY_NAMES_OVERRIDES[key as AssociationSectionKey] ?? key.charAt(0).toUpperCase() + key.slice(1)
+}
+
 type TAssociationRemovalConfig<TInput extends object, TSectionKey extends AssociationSectionKey> = {
   sectionKeyToDataField: Record<TSectionKey, (typeof ASSOCIATION_SECTION_CONFIG)[TSectionKey]['dataField']>
   sectionKeyToRemoveField: Record<TSectionKey, Extract<TRemoveFieldName<(typeof ASSOCIATION_SECTION_CONFIG)[TSectionKey]['inputName']>, keyof TInput & string>>
