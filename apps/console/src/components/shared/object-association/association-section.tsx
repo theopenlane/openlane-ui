@@ -4,18 +4,43 @@ import React, { useEffect, useMemo } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useQueryClient } from '@tanstack/react-query'
 import AssociatedObjectsAccordion from '@/components/shared/object-association/associated-objects-accordion'
-import { Section } from '@/components/shared/object-association/types/object-association-types'
+import { Section, TBaseAssociatedNode } from '@/components/shared/object-association/types/object-association-types'
 import { ASSOCIATION_REMOVAL_CONFIG, ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
 import { useAssociationRemoval } from '@/hooks/useAssociationRemoval'
 import { Panel, PanelHeader } from '@repo/ui/panel'
 import ObjectAssociation from '@/components/shared/object-association/object-association'
 import { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
 
+export type AssociationNode = {
+  id?: string
+  name?: string | null
+  displayName?: string | null
+  displayID?: string
+  fullName?: string
+  target?: string
+  title?: string
+  refCode?: string
+  description?: string | null
+  summary?: string | null
+  details?: string | null
+  referenceFramework?: string | null
+  __typename?: string
+}
+
+export type AssociationConnection = {
+  edges?: Array<{ node?: AssociationNode | null } | null> | null
+  totalCount?: number
+}
+
+export type AssociationsRoot = Record<string, AssociationConnection | undefined>
+
+export type AssociationsData = Record<string, AssociationsRoot | undefined>
+
 type SectionMapping = {
   key: string
-  nameExtractor: (node: Record<string, unknown>) => string
-  displayIdExtractor: (node: Record<string, unknown>) => string
-  extraFields?: (node: Record<string, unknown>) => Record<string, unknown>
+  nameExtractor: (node: AssociationNode) => string
+  displayIdExtractor: (node: AssociationNode) => string
+  extraFields?: (node: AssociationNode) => Partial<TBaseAssociatedNode>
 }
 
 export type AssociationSectionConfig = {
@@ -33,7 +58,7 @@ type AssociationSectionProps = {
   isCreate: boolean
   isEditAllowed: boolean
   config: AssociationSectionConfig
-  associationsData: Record<string, unknown> | undefined
+  associationsData: AssociationsData | undefined
   onUpdateEntity: (input: Record<string, unknown>) => Promise<void>
   SetAssociationDialog: React.ComponentType<{ entityId: string }>
 }
@@ -45,12 +70,12 @@ export const AssociationSection = ({ data, isEditing, isCreate, isEditAllowed, c
 
   const initialData: TObjectAssociationMap = useMemo(() => {
     if (!associationsData) return {}
-    const root = associationsData[config.dataRootField] as Record<string, unknown> | undefined
+    const root = associationsData[config.dataRootField]
     if (!root) return {}
 
     const result: TObjectAssociationMap = {}
     for (const [inputName, edgesField] of Object.entries(config.initialDataKeys)) {
-      const connection = root[edgesField] as { edges?: Array<{ node?: { id?: string } | null }> | null } | undefined
+      const connection = root[edgesField]
       result[inputName] = (connection?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? []
     }
     return result
@@ -67,18 +92,18 @@ export const AssociationSection = ({ data, isEditing, isCreate, isEditAllowed, c
 
   const sections: Section = useMemo(() => {
     if (!associationsData) return {}
-    const root = associationsData[config.dataRootField] as Record<string, unknown> | undefined
+    const root = associationsData[config.dataRootField]
     if (!root) return {}
 
     const result: Section = {}
     for (const mapping of config.sectionMappings) {
-      const connection = root[mapping.key] as { edges?: Array<{ node?: Record<string, unknown> | null }> | null; totalCount?: number } | undefined
+      const connection = root[mapping.key]
       if (connection?.edges?.length) {
         result[mapping.key] = {
           edges: connection.edges.map((e) => ({
             node: e?.node
               ? {
-                  id: e.node.id as string,
+                  id: e.node.id ?? '',
                   name: mapping.nameExtractor(e.node),
                   displayID: mapping.displayIdExtractor(e.node),
                   ...mapping.extraFields?.(e.node),

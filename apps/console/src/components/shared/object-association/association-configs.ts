@@ -34,13 +34,13 @@ export const ASSET_ASSOCIATION_CONFIG: AssociationEntityConfig = buildAssociatio
   },
   associationKeys: ['controlIDs', 'scanIDs', 'entityIDs', 'identityHolderIDs'],
   sectionMappings: [
-    { key: 'scans', nameExtractor: (n) => (n.target as string) ?? '', displayIdExtractor: () => '' },
-    { key: 'entities', nameExtractor: (n) => (n.name as string) ?? '', displayIdExtractor: (n) => (n.displayName as string) ?? '' },
-    { key: 'identityHolders', nameExtractor: (n) => (n.fullName as string) ?? '', displayIdExtractor: (n) => (n.displayID as string) ?? '' },
+    { key: 'scans', nameExtractor: (n) => n.target ?? '', displayIdExtractor: () => '' },
+    { key: 'entities', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayName ?? '' },
+    { key: 'identityHolders', nameExtractor: (n) => n.fullName ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
     {
       key: 'controls',
-      nameExtractor: (n) => (n.refCode as string) ?? '',
-      displayIdExtractor: (n) => (n.displayID as string) ?? '',
+      nameExtractor: (n) => n.refCode ?? '',
+      displayIdExtractor: (n) => n.displayID ?? '',
       extraFields: (n) => ({ refCode: n.refCode, description: n.description }),
     },
   ],
@@ -64,10 +64,10 @@ export const ENTITY_ASSOCIATION_CONFIG: AssociationEntityConfig = buildAssociati
   },
   associationKeys: ['assetIDs', 'scanIDs', 'campaignIDs', 'identityHolderIDs'],
   sectionMappings: [
-    { key: 'assets', nameExtractor: (n) => (n.name as string) ?? '', displayIdExtractor: (n) => (n.displayName as string) ?? '' },
-    { key: 'scans', nameExtractor: (n) => (n.target as string) ?? '', displayIdExtractor: () => '' },
-    { key: 'campaigns', nameExtractor: (n) => (n.name as string) ?? '', displayIdExtractor: (n) => (n.displayID as string) ?? '' },
-    { key: 'identityHolders', nameExtractor: (n) => (n.fullName as string) ?? '', displayIdExtractor: (n) => (n.displayID as string) ?? '' },
+    { key: 'assets', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayName ?? '' },
+    { key: 'scans', nameExtractor: (n) => n.target ?? '', displayIdExtractor: () => '' },
+    { key: 'campaigns', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
+    { key: 'identityHolders', nameExtractor: (n) => n.fullName ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
   ],
   dialogExtra: {
     dataRootField: 'entity',
@@ -89,10 +89,10 @@ export const IDENTITY_HOLDER_ASSOCIATION_CONFIG: AssociationEntityConfig = build
   },
   associationKeys: ['assetIDs', 'entityIDs', 'campaignIDs', 'taskIDs'],
   sectionMappings: [
-    { key: 'assets', nameExtractor: (n) => (n.name as string) ?? '', displayIdExtractor: (n) => (n.displayName as string) ?? '' },
-    { key: 'entities', nameExtractor: (n) => (n.name as string) ?? '', displayIdExtractor: (n) => (n.displayName as string) ?? '' },
-    { key: 'campaigns', nameExtractor: (n) => (n.name as string) ?? '', displayIdExtractor: (n) => (n.displayID as string) ?? '' },
-    { key: 'tasks', nameExtractor: (n) => (n.title as string) ?? '', displayIdExtractor: (n) => (n.displayID as string) ?? '', extraFields: (n) => ({ title: n.title }) },
+    { key: 'assets', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayName ?? '' },
+    { key: 'entities', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayName ?? '' },
+    { key: 'campaigns', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
+    { key: 'tasks', nameExtractor: (n) => n.title ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ title: n.title }) },
   ],
   dialogExtra: {
     dataRootField: 'identityHolder',

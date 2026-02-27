@@ -3,7 +3,7 @@
 import React, { useCallback } from 'react'
 import { useGetAssetAssociations, useUpdateAsset } from '@/lib/graphql-hooks/asset'
 import { UpdateAssetInput } from '@repo/codegen/src/schema'
-import { AssociationSection } from '@/components/shared/object-association/association-section'
+import { AssociationSection, type AssociationsData } from '@/components/shared/object-association/association-section'
 import { ASSET_ASSOCIATION_CONFIG } from '@/components/shared/object-association/association-configs'
 import { SetAssociationDialog } from '@/components/shared/object-association/set-association-dialog'
 
@@ -25,7 +25,7 @@ const AssetSetAssociationDialog = ({ entityId }: { entityId: string }) => {
     [updateAsset, entityId],
   )
 
-  return <SetAssociationDialog config={ASSET_ASSOCIATION_CONFIG.dialogConfig} associationsData={associationsData as Record<string, unknown> | undefined} onUpdate={handleUpdate} />
+  return <SetAssociationDialog config={ASSET_ASSOCIATION_CONFIG.dialogConfig} associationsData={associationsData as AssociationsData | undefined} onUpdate={handleUpdate} />
 }
 
 export const AssetAssociationSection = (props: AssociationSectionProps) => {
@@ -45,7 +45,7 @@ export const AssetAssociationSection = (props: AssociationSectionProps) => {
     <AssociationSection
       {...props}
       config={ASSET_ASSOCIATION_CONFIG}
-      associationsData={associationsData as Record<string, unknown> | undefined}
+      associationsData={associationsData as AssociationsData | undefined}
       onUpdateEntity={handleUpdateEntity}
       SetAssociationDialog={AssetSetAssociationDialog}
     />

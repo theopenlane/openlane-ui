@@ -12,6 +12,7 @@ import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-butto
 import { useQueryClient } from '@tanstack/react-query'
 import AddAssociationPlusBtn from '@/components/shared/object-association/add-association-plus-btn.tsx'
 import { getAssociationInput } from '@/components/shared/object-association/utils'
+import type { AssociationsData } from '@/components/shared/object-association/association-section'
 
 export type SetAssociationDialogConfig = {
   dataRootField: string
@@ -23,7 +24,7 @@ export type SetAssociationDialogConfig = {
 
 type SetAssociationDialogProps = {
   config: SetAssociationDialogConfig
-  associationsData: Record<string, unknown> | undefined
+  associationsData: AssociationsData | undefined
   onUpdate: (input: Record<string, unknown>) => Promise<void>
 }
 
@@ -39,12 +40,12 @@ export function SetAssociationDialog({ config, associationsData, onUpdate }: Set
 
   const initialData: TObjectAssociationMap = useMemo(() => {
     if (!associationsData) return {}
-    const root = associationsData[config.dataRootField] as Record<string, unknown> | undefined
+    const root = associationsData[config.dataRootField]
     if (!root) return {}
 
     const result: TObjectAssociationMap = {}
     for (const [inputName, edgesField] of Object.entries(config.initialDataKeys)) {
-      const connection = root[edgesField] as { edges?: Array<{ node?: { id?: string } | null }> | null } | undefined
+      const connection = root[edgesField]
       result[inputName] = (connection?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? []
     }
     return result
