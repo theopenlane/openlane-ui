@@ -34,17 +34,23 @@ const AssetPage: React.FC = () => {
   const { data, isLoading } = useAsset(id || undefined)
   const { data: associationsData } = useGetAssetAssociations(id || undefined)
   const initialAssociationsRef = useRef<TObjectAssociationMap>({})
+  const hasSetInitialAssociations = useRef(false)
 
   useEffect(() => {
-    if (associationsData?.asset) {
+    if (associationsData?.asset && !hasSetInitialAssociations.current) {
       initialAssociationsRef.current = {
         scanIDs: (associationsData.asset.scans?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
         entityIDs: (associationsData.asset.entities?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
         identityHolderIDs: (associationsData.asset.identityHolders?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
         controlIDs: (associationsData.asset.controls?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
       }
+      hasSetInitialAssociations.current = true
     }
   }, [associationsData])
+
+  useEffect(() => {
+    hasSetInitialAssociations.current = false
+  }, [id])
 
   const plateEditorHelper = usePlateEditor()
 

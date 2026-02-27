@@ -63,6 +63,7 @@ export function SetAssetAssociationDialog({ assetId }: SetAssetAssociationDialog
   const handleDialogChange = (isOpen: boolean) => {
     if (isOpen) {
       setObjectAssociationKey((prev) => prev + 1)
+      setAssociations(initialData)
     }
     if (!isOpen) {
       setAssociations({})

@@ -193,6 +193,11 @@ export function SetObjectAssociationDialog({ trigger, defaultSelectedObject, all
             ObjectTypeObjects.CONTROL,
             ObjectTypeObjects.CONTROL_OBJECTIVE,
             ObjectTypeObjects.GROUP,
+            ObjectTypeObjects.SCAN,
+            ObjectTypeObjects.CAMPAIGN,
+            ObjectTypeObjects.ASSET,
+            ObjectTypeObjects.ENTITY,
+            ObjectTypeObjects.IDENTITY_HOLDER,
             ...(isSubcontrol ? [ObjectTypeObjects.PROGRAM] : []),
           ]}
         />

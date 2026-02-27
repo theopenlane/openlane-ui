@@ -1069,6 +1069,11 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                         ObjectTypeObjects.CONTROL,
                         ObjectTypeObjects.SUB_CONTROL,
                         ObjectTypeObjects.PROGRAM,
+                        ObjectTypeObjects.SCAN,
+                        ObjectTypeObjects.CAMPAIGN,
+                        ObjectTypeObjects.ASSET,
+                        ObjectTypeObjects.ENTITY,
+                        ObjectTypeObjects.IDENTITY_HOLDER,
                       ]}
                     />
                   </Panel>

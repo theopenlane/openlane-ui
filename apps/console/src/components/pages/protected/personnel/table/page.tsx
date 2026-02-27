@@ -41,17 +41,23 @@ const PersonnelPage: React.FC = () => {
   const { data, isLoading } = useIdentityHolder(id || undefined)
   const { data: associationsData } = useGetIdentityHolderAssociations(id || undefined)
   const initialAssociationsRef = useRef<TObjectAssociationMap>({})
+  const hasSetInitialAssociations = useRef(false)
 
   useEffect(() => {
-    if (associationsData?.identityHolder) {
+    if (associationsData?.identityHolder && !hasSetInitialAssociations.current) {
       initialAssociationsRef.current = {
         assetIDs: (associationsData.identityHolder.assets?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
         entityIDs: (associationsData.identityHolder.entities?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
         campaignIDs: (associationsData.identityHolder.campaigns?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
         taskIDs: (associationsData.identityHolder.tasks?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
       }
+      hasSetInitialAssociations.current = true
     }
   }, [associationsData])
+
+  useEffect(() => {
+    hasSetInitialAssociations.current = false
+  }, [id])
 
   function getName(data: IdentityHoldersNodeNonNull) {
     return data?.fullName

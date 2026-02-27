@@ -155,7 +155,17 @@ const SetObjectAssociationProceduresDialog = ({ procedureId }: TSetObjectAssocia
           onIdChange={handleIdChange}
           initialData={associationsState}
           refCodeInitialData={refCodeAssociationsState}
-          excludeObjectTypes={[ObjectTypeObjects.EVIDENCE, ObjectTypeObjects.GROUP, ObjectTypeObjects.CONTROL_OBJECTIVE, ObjectTypeObjects.PROCEDURE]}
+          excludeObjectTypes={[
+            ObjectTypeObjects.EVIDENCE,
+            ObjectTypeObjects.GROUP,
+            ObjectTypeObjects.CONTROL_OBJECTIVE,
+            ObjectTypeObjects.PROCEDURE,
+            ObjectTypeObjects.SCAN,
+            ObjectTypeObjects.CAMPAIGN,
+            ObjectTypeObjects.ASSET,
+            ObjectTypeObjects.ENTITY,
+            ObjectTypeObjects.IDENTITY_HOLDER,
+          ]}
         />
         <DialogFooter>
           <SaveButton onClick={handleSave} disabled={isSaving} />

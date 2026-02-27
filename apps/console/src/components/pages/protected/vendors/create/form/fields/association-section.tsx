@@ -39,12 +39,12 @@ export const EntityAssociationSection = ({ data, isEditing, isCreate, isEditAllo
   }, [associationsData])
 
   useEffect(() => {
-    if (Object.keys(initialData).length > 0) {
+    if (!isEditing && Object.keys(initialData).length > 0) {
       Object.entries(initialData).forEach(([key, ids]) => {
         form.setValue(key, ids, { shouldDirty: false })
       })
     }
-  }, [initialData, form])
+  }, [initialData, form, isEditing])
 
   const handleUpdateField = useCallback(
     async (input: UpdateEntityInput) => {

@@ -63,6 +63,7 @@ export function SetEntityAssociationDialog({ entityId }: SetEntityAssociationDia
   const handleDialogChange = (isOpen: boolean) => {
     if (isOpen) {
       setObjectAssociationKey((prev) => prev + 1)
+      setAssociations(initialData)
     }
     if (!isOpen) {
       setAssociations({})
