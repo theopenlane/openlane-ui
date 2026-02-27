@@ -1,6 +1,5 @@
 'use client'
 
-import { useGetEntityAssociations, useUpdateEntity } from '@/lib/graphql-hooks/entity'
 import ObjectAssociation from '@/components/shared/object-association/object-association'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import React, { useMemo, useState } from 'react'
@@ -14,13 +13,22 @@ import { useQueryClient } from '@tanstack/react-query'
 import AddAssociationPlusBtn from '@/components/shared/object-association/add-association-plus-btn.tsx'
 import { getAssociationInput } from '@/components/shared/object-association/utils'
 
-type SetEntityAssociationDialogProps = {
-  entityId: string
+export type SetAssociationDialogConfig = {
+  dataRootField: string
+  invalidateQueryKey: string
+  successMessage: string
+  allowedObjectTypes: ObjectTypeObjects[]
+  initialDataKeys: Record<string, string>
 }
 
-export function SetEntityAssociationDialog({ entityId }: SetEntityAssociationDialogProps) {
+type SetAssociationDialogProps = {
+  config: SetAssociationDialogConfig
+  associationsData: Record<string, unknown> | undefined
+  onUpdate: (input: Record<string, unknown>) => Promise<void>
+}
+
+export function SetAssociationDialog({ config, associationsData, onUpdate }: SetAssociationDialogProps) {
   const queryClient = useQueryClient()
-  const { mutateAsync: updateEntity } = useUpdateEntity()
 
   const [associations, setAssociations] = useState<TObjectAssociationMap>({})
   const [isSaving, setIsSaving] = useState(false)
@@ -28,30 +36,28 @@ export function SetEntityAssociationDialog({ entityId }: SetEntityAssociationDia
   const [objectAssociationKey, setObjectAssociationKey] = useState(0)
 
   const { errorNotification, successNotification } = useNotification()
-  const { data: associationsData } = useGetEntityAssociations(entityId)
 
   const initialData: TObjectAssociationMap = useMemo(() => {
-    if (!associationsData?.entity) return {}
-    return {
-      assetIDs: (associationsData.entity.assets?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-      scanIDs: (associationsData.entity.scans?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-      campaignIDs: (associationsData.entity.campaigns?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-      identityHolderIDs: (associationsData.entity.identityHolders?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+    if (!associationsData) return {}
+    const root = associationsData[config.dataRootField] as Record<string, unknown> | undefined
+    if (!root) return {}
+
+    const result: TObjectAssociationMap = {}
+    for (const [inputName, edgesField] of Object.entries(config.initialDataKeys)) {
+      const connection = root[edgesField] as { edges?: Array<{ node?: { id?: string } | null }> | null } | undefined
+      result[inputName] = (connection?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? []
     }
-  }, [associationsData])
+    return result
+  }, [associationsData, config.dataRootField, config.initialDataKeys])
 
   const onSave = async () => {
     setIsSaving(true)
     try {
       const associationInputs = getAssociationInput(initialData, associations)
+      await onUpdate(associationInputs)
 
-      await updateEntity({
-        updateEntityId: entityId,
-        input: associationInputs,
-      })
-
-      queryClient.invalidateQueries({ queryKey: ['entities'] })
-      successNotification({ title: 'Vendor updated' })
+      queryClient.invalidateQueries({ queryKey: [config.invalidateQueryKey] })
+      successNotification({ title: config.successMessage })
       setOpen(false)
     } catch (error) {
       errorNotification({ title: 'Error', description: parseErrorMessage(error) })
@@ -80,12 +86,7 @@ export function SetEntityAssociationDialog({ entityId }: SetEntityAssociationDia
         <DialogHeader>
           <DialogTitle>Associate Related Objects</DialogTitle>
         </DialogHeader>
-        <ObjectAssociation
-          key={objectAssociationKey}
-          onIdChange={(updatedMap) => setAssociations(updatedMap)}
-          initialData={initialData}
-          allowedObjectTypes={[ObjectTypeObjects.ASSET, ObjectTypeObjects.SCAN, ObjectTypeObjects.CAMPAIGN, ObjectTypeObjects.IDENTITY_HOLDER]}
-        />
+        <ObjectAssociation key={objectAssociationKey} onIdChange={(updatedMap) => setAssociations(updatedMap)} initialData={initialData} allowedObjectTypes={config.allowedObjectTypes} />
         <DialogFooter>
           <SaveButton onClick={onSave} isSaving={isSaving} />
           <CancelButton onClick={() => setOpen(false)} />

@@ -43,3 +43,32 @@ export const getAssociationInput = (initialData: Partial<Record<string, string[]
     ),
   }
 }
+
+export const buildAssociationPayload = (
+  associationKeys: string[],
+  formData: Record<string, string[] | undefined>,
+  isCreate: boolean,
+  initialAssociations: TObjectAssociationMap,
+): Record<string, string[]> => {
+  const associationFields: Record<string, string[] | undefined> = {}
+  for (const key of associationKeys) {
+    associationFields[key] = formData[key]
+  }
+
+  if (isCreate) {
+    const payload: Record<string, string[]> = {}
+    Object.entries(associationFields).forEach(([key, ids]) => {
+      if (ids?.length) payload[key] = ids
+    })
+    return payload
+  }
+
+  const currentAssociations: TObjectAssociationMap = {}
+  Object.entries(associationFields).forEach(([key, ids]) => {
+    if (ids) currentAssociations[key] = ids
+  })
+  if (Object.keys(currentAssociations).length > 0) {
+    return getAssociationInput(initialAssociations, currentAssociations)
+  }
+  return {}
+}

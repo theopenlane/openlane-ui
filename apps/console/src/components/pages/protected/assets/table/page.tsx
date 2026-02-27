@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useRef } from 'react'
+import React, { useCallback } from 'react'
 import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 
@@ -13,12 +13,13 @@ import { getColumns } from './columns'
 import TableComponent from './table'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { Value } from 'platejs'
-import { AssetAssetType, AssetSourceType, AssetQuery, CreateAssetInput, UpdateAssetInput } from '@repo/codegen/src/schema'
+import { AssetAssetType, AssetSourceType, AssetQuery, CreateAssetInput, UpdateAssetInput, GetAssetAssociationsQuery } from '@repo/codegen/src/schema'
 import { normalizeEntityData, buildResponsibilityPayload } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
-import { getAssociationInput } from '@/components/shared/object-association/utils'
-import { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
+import { buildAssociationPayload } from '@/components/shared/object-association/utils'
+import { useInitialAssociations } from '@/hooks/useInitialAssociations'
+import { ASSET_ASSOCIATION_CONFIG } from '@/components/shared/object-association/association-configs'
 
 const normalizeData = (data: AssetQuery['asset']) =>
   normalizeEntityData(data, {
@@ -33,24 +34,16 @@ const AssetPage: React.FC = () => {
   const isCreate = searchParams.get('create') === 'true'
   const { data, isLoading } = useAsset(id || undefined)
   const { data: associationsData } = useGetAssetAssociations(id || undefined)
-  const initialAssociationsRef = useRef<TObjectAssociationMap>({})
-  const hasSetInitialAssociations = useRef(false)
-
-  useEffect(() => {
-    if (associationsData?.asset && !hasSetInitialAssociations.current) {
-      initialAssociationsRef.current = {
-        scanIDs: (associationsData.asset.scans?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-        entityIDs: (associationsData.asset.entities?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-        identityHolderIDs: (associationsData.asset.identityHolders?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-        controlIDs: (associationsData.asset.controls?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-      }
-      hasSetInitialAssociations.current = true
+  const extractAssociations = useCallback((assocData: GetAssetAssociationsQuery) => {
+    const asset = assocData.asset
+    return {
+      scanIDs: (asset.scans?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+      entityIDs: (asset.entities?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+      identityHolderIDs: (asset.identityHolders?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+      controlIDs: (asset.controls?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
     }
-  }, [associationsData])
-
-  useEffect(() => {
-    hasSetInitialAssociations.current = false
-  }, [id])
+  }, [])
+  const initialAssociationsRef = useInitialAssociations(associationsData, extractAssociations, id)
 
   const plateEditorHelper = usePlateEditor()
 
@@ -164,23 +157,7 @@ const AssetPage: React.FC = () => {
     buildPayload: async (data) => {
       const { controlIDs, scanIDs, entityIDs, identityHolderIDs, internalOwner, ...rest } = data
       const description = rest.description ? await plateEditorHelper.convertToHtml(rest.description as Value) : undefined
-
-      const associationFields: Record<string, string[] | undefined> = { controlIDs, scanIDs, entityIDs, identityHolderIDs }
-      let associationPayload: Record<string, string[]> = {}
-
-      if (isCreate) {
-        Object.entries(associationFields).forEach(([key, ids]) => {
-          if (ids?.length) associationPayload[key] = ids
-        })
-      } else {
-        const currentAssociations: TObjectAssociationMap = {}
-        Object.entries(associationFields).forEach(([key, ids]) => {
-          if (ids) currentAssociations[key] = ids
-        })
-        if (Object.keys(currentAssociations).length > 0) {
-          associationPayload = getAssociationInput(initialAssociationsRef.current, currentAssociations)
-        }
-      }
+      const associationPayload = buildAssociationPayload(ASSET_ASSOCIATION_CONFIG.associationKeys, { controlIDs, scanIDs, entityIDs, identityHolderIDs }, isCreate, initialAssociationsRef.current)
 
       return {
         ...rest,

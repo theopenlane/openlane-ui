@@ -9,7 +9,6 @@ import { breadcrumbs, getFieldsToRender, getFilterFields, visibilityFields } fro
 import { ScanSheetConfig, ScanTablePageConfig, ScanFieldProps, objectType, objectName, tableKey, orderFieldEnum, defaultSorting } from './types'
 import { getColumns } from './columns'
 import TableComponent from './table'
-import { buildPayload } from '../create/utils'
 import { CreateScanInput, ScanScanStatus, ScanScanType, UpdateScanInput } from '@repo/codegen/src/schema'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
@@ -94,7 +93,7 @@ const ScanPage: React.FC = () => {
     isFetching: isLoading,
     updateMutation,
     createMutation,
-    buildPayload: (data) => buildPayload(data),
+    buildPayload: async (data) => data,
     getName,
     renderFields: (props: ScanFieldProps) => getFieldsToRender(props, enumOpts),
   }

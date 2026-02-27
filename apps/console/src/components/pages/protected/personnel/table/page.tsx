@@ -1,12 +1,19 @@
 'use client'
 
-import React, { useEffect, useRef } from 'react'
+import React, { useCallback } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
 
-import { IdentityHolderUserStatus, IdentityHolderIdentityHolderType, IdentityHolderQuery, UpdateIdentityHolderInput, CreateIdentityHolderInput } from '@repo/codegen/src/schema'
+import {
+  IdentityHolderUserStatus,
+  IdentityHolderIdentityHolderType,
+  IdentityHolderQuery,
+  UpdateIdentityHolderInput,
+  CreateIdentityHolderInput,
+  GetIdentityHolderAssociationsQuery,
+} from '@repo/codegen/src/schema'
 import { normalizeEntityData, buildResponsibilityPayload } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 import {
   useUpdateIdentityHolder,
@@ -24,8 +31,9 @@ import { PersonnelSheetConfig, PersonnelTablePageConfig, objectType, objectName,
 import { getColumns } from './columns'
 import TableComponent from './table'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
-import { getAssociationInput } from '@/components/shared/object-association/utils'
-import { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
+import { buildAssociationPayload } from '@/components/shared/object-association/utils'
+import { useInitialAssociations } from '@/hooks/useInitialAssociations'
+import { IDENTITY_HOLDER_ASSOCIATION_CONFIG } from '@/components/shared/object-association/association-configs'
 
 const normalizeData = (data: IdentityHolderQuery['identityHolder']) =>
   normalizeEntityData(data, {
@@ -40,24 +48,16 @@ const PersonnelPage: React.FC = () => {
   const isCreate = searchParams.get('create') === 'true'
   const { data, isLoading } = useIdentityHolder(id || undefined)
   const { data: associationsData } = useGetIdentityHolderAssociations(id || undefined)
-  const initialAssociationsRef = useRef<TObjectAssociationMap>({})
-  const hasSetInitialAssociations = useRef(false)
-
-  useEffect(() => {
-    if (associationsData?.identityHolder && !hasSetInitialAssociations.current) {
-      initialAssociationsRef.current = {
-        assetIDs: (associationsData.identityHolder.assets?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-        entityIDs: (associationsData.identityHolder.entities?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-        campaignIDs: (associationsData.identityHolder.campaigns?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-        taskIDs: (associationsData.identityHolder.tasks?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-      }
-      hasSetInitialAssociations.current = true
+  const extractAssociations = useCallback((assocData: GetIdentityHolderAssociationsQuery) => {
+    const identityHolder = assocData.identityHolder
+    return {
+      assetIDs: (identityHolder.assets?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+      entityIDs: (identityHolder.entities?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+      campaignIDs: (identityHolder.campaigns?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+      taskIDs: (identityHolder.tasks?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
     }
-  }, [associationsData])
-
-  useEffect(() => {
-    hasSetInitialAssociations.current = false
-  }, [id])
+  }, [])
+  const initialAssociationsRef = useInitialAssociations(associationsData, extractAssociations, id)
 
   function getName(data: IdentityHoldersNodeNonNull) {
     return data?.fullName
@@ -138,23 +138,7 @@ const PersonnelPage: React.FC = () => {
     createMutation,
     buildPayload: async (data) => {
       const { assetIDs, entityIDs, campaignIDs, taskIDs, internalOwner, ...rest } = data
-
-      const associationFields: Record<string, string[] | undefined> = { assetIDs, entityIDs, campaignIDs, taskIDs }
-      let associationPayload: Record<string, string[]> = {}
-
-      if (isCreate) {
-        Object.entries(associationFields).forEach(([key, ids]) => {
-          if (ids?.length) associationPayload[key] = ids
-        })
-      } else {
-        const currentAssociations: TObjectAssociationMap = {}
-        Object.entries(associationFields).forEach(([key, ids]) => {
-          if (ids) currentAssociations[key] = ids
-        })
-        if (Object.keys(currentAssociations).length > 0) {
-          associationPayload = getAssociationInput(initialAssociationsRef.current, currentAssociations)
-        }
-      }
+      const associationPayload = buildAssociationPayload(IDENTITY_HOLDER_ASSOCIATION_CONFIG.associationKeys, { assetIDs, entityIDs, campaignIDs, taskIDs }, isCreate, initialAssociationsRef.current)
 
       return {
         ...rest,
