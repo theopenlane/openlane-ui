@@ -110,6 +110,7 @@ export const BrandingAssetsSection = ({ isReadOnly, hasWarning }: BrandingAssets
               shortTypes: ['PNG', 'JPG', 'SVG'],
               maxSize: 5,
             }}
+            enableCrop
           />
 
           <div className="border-b my-2" />
