@@ -154,9 +154,7 @@ export default function FaqsPage() {
     })
     setDragOrderIds(null)
 
-    const updates = reordered
-      .map((faq, index) => ({ id: faq.id, displayOrder: index + 1 }))
-      .filter((item, index) => reordered[index].displayOrder !== item.displayOrder)
+    const updates = reordered.map((faq, index) => ({ id: faq.id, displayOrder: index + 1 })).filter((item, index) => reordered[index].displayOrder !== item.displayOrder)
 
     if (updates.length > 0) {
       try {
@@ -174,7 +172,10 @@ export default function FaqsPage() {
 
   return (
     <div className="w-full max-w-7xl mx-auto p-6 space-y-6 min-h-screen text-foreground">
-      <h1 className="text-2xl font-bold tracking-tight mb-8">Frequently Asked Questions</h1>
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight">Frequently Asked Questions</h1>
+        <p className="text-xs mb-8 text-muted-foreground">Drag and drop questions to control the display order in your Trust Center.</p>
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <CreateFaqForm disabled={!!editingFaqId} isCreating={isCreating} onSubmit={handleCreateSubmit} />

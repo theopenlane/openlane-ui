@@ -3,7 +3,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form
 import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
 import { Textarea } from '@repo/ui/textarea'
-import { Card, CardContent } from '@repo/ui/cardpanel'
+import { Card, CardContent, CardTitle } from '@repo/ui/cardpanel'
 import useFormSchema from './hooks/use-form-schema'
 import type { FaqFormValues } from './hooks/use-form-schema'
 
