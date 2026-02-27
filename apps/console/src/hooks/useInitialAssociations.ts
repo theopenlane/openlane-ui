@@ -16,6 +16,7 @@ export function useInitialAssociations<TData>(data: TData | undefined, extractFn
 
   useEffect(() => {
     hasSetInitialAssociations.current = false
+    initialAssociationsRef.current = {}
   }, [id])
 
   return initialAssociationsRef

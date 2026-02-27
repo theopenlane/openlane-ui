@@ -57,12 +57,13 @@ export const AssociationSection = ({ data, isEditing, isCreate, isEditAllowed, c
   }, [associationsData, config.dataRootField, config.initialDataKeys])
 
   useEffect(() => {
-    if (!isEditing && Object.keys(initialData).length > 0) {
+    if (isEditing || isCreate) return
+    if (Object.keys(initialData).length > 0) {
       Object.entries(initialData).forEach(([key, ids]) => {
         form.setValue(key, ids, { shouldDirty: false })
       })
     }
-  }, [initialData, form, isEditing])
+  }, [initialData, form, isEditing, isCreate])
 
   const sections: Section = useMemo(() => {
     if (!associationsData) return {}

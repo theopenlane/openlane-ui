@@ -590,6 +590,8 @@ export const generateWhere = (selectedObject: ObjectTypeObjects | null, searchVa
     [ObjectTypeObjects.EVIDENCE]: 'descriptionContainsFold',
     [ObjectTypeObjects.INTERNAL_POLICY]: 'detailsContainsFold',
     [ObjectTypeObjects.RISK]: 'detailsContainsFold',
+    [ObjectTypeObjects.SCAN]: 'descriptionContainsFold',
+    [ObjectTypeObjects.CAMPAIGN]: 'descriptionContainsFold',
     [ObjectTypeObjects.ASSET]: 'descriptionContainsFold',
     [ObjectTypeObjects.ENTITY]: 'descriptionContainsFold',
     [ObjectTypeObjects.IDENTITY_HOLDER]: 'emailContainsFold',

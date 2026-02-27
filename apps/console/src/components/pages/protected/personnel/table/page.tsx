@@ -138,7 +138,12 @@ const PersonnelPage: React.FC = () => {
     createMutation,
     buildPayload: async (data) => {
       const { assetIDs, entityIDs, campaignIDs, taskIDs, internalOwner, ...rest } = data
-      const associationPayload = buildAssociationPayload(IDENTITY_HOLDER_ASSOCIATION_CONFIG.associationKeys, { assetIDs, entityIDs, campaignIDs, taskIDs }, isCreate, initialAssociationsRef.current)
+      const associationPayload = buildAssociationPayload(
+        IDENTITY_HOLDER_ASSOCIATION_CONFIG.associationKeys,
+        { assetIDs, entityIDs, campaignIDs, taskIDs },
+        isCreate,
+        initialAssociationsRef.current,
+      )
 
       return {
         ...rest,

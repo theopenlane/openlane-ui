@@ -98,8 +98,8 @@ export const useSystemDetail = (systemDetailId?: SystemDetailQueryVariables['sys
   return useQuery<SystemDetailQuery, unknown>({
     queryKey: ['systemDetails', systemDetailId],
     queryFn: async (): Promise<SystemDetailQuery> => {
-      const result = await client.request(SYSTEM_DETAIL, { systemDetailId })
-      return result as SystemDetailQuery
+      const result = await client.request<SystemDetailQuery>(SYSTEM_DETAIL, { systemDetailId })
+      return result
     },
     enabled: !!systemDetailId,
   })

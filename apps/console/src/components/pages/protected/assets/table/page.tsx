@@ -157,7 +157,12 @@ const AssetPage: React.FC = () => {
     buildPayload: async (data) => {
       const { controlIDs, scanIDs, entityIDs, identityHolderIDs, internalOwner, ...rest } = data
       const description = rest.description ? await plateEditorHelper.convertToHtml(rest.description as Value) : undefined
-      const associationPayload = buildAssociationPayload(ASSET_ASSOCIATION_CONFIG.associationKeys, { controlIDs, scanIDs, entityIDs, identityHolderIDs }, isCreate, initialAssociationsRef.current)
+      const associationPayload = buildAssociationPayload(
+        ASSET_ASSOCIATION_CONFIG.associationKeys,
+        { controlIDs, scanIDs, entityIDs, identityHolderIDs },
+        isCreate,
+        initialAssociationsRef.current,
+      )
 
       return {
         ...rest,

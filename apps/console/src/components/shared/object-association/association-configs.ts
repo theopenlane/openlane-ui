@@ -7,7 +7,21 @@ type AssociationEntityConfig = AssociationSectionConfig & {
   associationKeys: string[]
 }
 
-export const ASSET_ASSOCIATION_CONFIG: AssociationEntityConfig = {
+function buildAssociationEntityConfig(
+  base: Omit<AssociationSectionConfig, 'dialogConfig'> & { associationKeys: string[]; dialogExtra: Pick<SetAssociationDialogConfig, 'dataRootField' | 'invalidateQueryKey' | 'successMessage'> },
+): AssociationEntityConfig {
+  const { dialogExtra, ...rest } = base
+  return {
+    ...rest,
+    dialogConfig: {
+      ...dialogExtra,
+      allowedObjectTypes: rest.allowedObjectTypes,
+      initialDataKeys: rest.initialDataKeys,
+    },
+  }
+}
+
+export const ASSET_ASSOCIATION_CONFIG: AssociationEntityConfig = buildAssociationEntityConfig({
   entityType: 'asset',
   dataRootField: 'asset',
   queryKeyPrefix: 'assets',
@@ -30,21 +44,14 @@ export const ASSET_ASSOCIATION_CONFIG: AssociationEntityConfig = {
       extraFields: (n) => ({ refCode: n.refCode, description: n.description }),
     },
   ],
-  dialogConfig: {
+  dialogExtra: {
     dataRootField: 'asset',
     invalidateQueryKey: 'assets',
     successMessage: 'Asset updated',
-    allowedObjectTypes: [ObjectTypeObjects.SCAN, ObjectTypeObjects.ENTITY, ObjectTypeObjects.IDENTITY_HOLDER, ObjectTypeObjects.CONTROL],
-    initialDataKeys: {
-      scanIDs: 'scans',
-      entityIDs: 'entities',
-      identityHolderIDs: 'identityHolders',
-      controlIDs: 'controls',
-    },
   },
-}
+})
 
-export const ENTITY_ASSOCIATION_CONFIG: AssociationEntityConfig = {
+export const ENTITY_ASSOCIATION_CONFIG: AssociationEntityConfig = buildAssociationEntityConfig({
   entityType: 'entity',
   dataRootField: 'entity',
   queryKeyPrefix: 'entities',
@@ -62,21 +69,14 @@ export const ENTITY_ASSOCIATION_CONFIG: AssociationEntityConfig = {
     { key: 'campaigns', nameExtractor: (n) => (n.name as string) ?? '', displayIdExtractor: (n) => (n.displayID as string) ?? '' },
     { key: 'identityHolders', nameExtractor: (n) => (n.fullName as string) ?? '', displayIdExtractor: (n) => (n.displayID as string) ?? '' },
   ],
-  dialogConfig: {
+  dialogExtra: {
     dataRootField: 'entity',
     invalidateQueryKey: 'entities',
     successMessage: 'Vendor updated',
-    allowedObjectTypes: [ObjectTypeObjects.ASSET, ObjectTypeObjects.SCAN, ObjectTypeObjects.CAMPAIGN, ObjectTypeObjects.IDENTITY_HOLDER],
-    initialDataKeys: {
-      assetIDs: 'assets',
-      scanIDs: 'scans',
-      campaignIDs: 'campaigns',
-      identityHolderIDs: 'identityHolders',
-    },
   },
-}
+})
 
-export const IDENTITY_HOLDER_ASSOCIATION_CONFIG: AssociationEntityConfig = {
+export const IDENTITY_HOLDER_ASSOCIATION_CONFIG: AssociationEntityConfig = buildAssociationEntityConfig({
   entityType: 'identityHolder',
   dataRootField: 'identityHolder',
   queryKeyPrefix: 'identityHolders',
@@ -94,16 +94,9 @@ export const IDENTITY_HOLDER_ASSOCIATION_CONFIG: AssociationEntityConfig = {
     { key: 'campaigns', nameExtractor: (n) => (n.name as string) ?? '', displayIdExtractor: (n) => (n.displayID as string) ?? '' },
     { key: 'tasks', nameExtractor: (n) => (n.title as string) ?? '', displayIdExtractor: (n) => (n.displayID as string) ?? '', extraFields: (n) => ({ title: n.title }) },
   ],
-  dialogConfig: {
+  dialogExtra: {
     dataRootField: 'identityHolder',
     invalidateQueryKey: 'identityHolders',
     successMessage: 'Personnel updated',
-    allowedObjectTypes: [ObjectTypeObjects.ASSET, ObjectTypeObjects.ENTITY, ObjectTypeObjects.CAMPAIGN, ObjectTypeObjects.TASK],
-    initialDataKeys: {
-      assetIDs: 'assets',
-      entityIDs: 'entities',
-      campaignIDs: 'campaigns',
-      taskIDs: 'tasks',
-    },
   },
-}
+})
