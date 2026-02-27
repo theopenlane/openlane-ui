@@ -1,13 +1,12 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { Button } from '@repo/ui/button'
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import { useUpdateProgram } from '@/lib/graphql-hooks/program'
 import { DataTable, getInitialPagination } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/react-table'
-import { Checkbox } from '@repo/ui/checkbox'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useQueryClient } from '@tanstack/react-query'
@@ -20,12 +19,12 @@ import { Input } from '@repo/ui/input'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { useSelectColumn } from '@/components/shared/crud-base/columns/select-column'
 
 type GroupRow = {
   id: string
   name: string
   description?: string
-  role: 'View' | 'Edit'
 }
 export const ProgramSettingsAssignGroupDialog = () => {
   const { id } = useParams<{ id: string | undefined }>()
@@ -33,8 +32,8 @@ export const ProgramSettingsAssignGroupDialog = () => {
   const queryClient = useQueryClient()
   const [open, setOpen] = useState(false)
   const [searchValue, setSearchValue] = useState('')
-  const [selectedGroups, setSelectedGroups] = useState<GroupRow[]>([])
-  const [rows, setRows] = useState<GroupRow[]>([])
+  const [selectedItems, setSelectedItems] = useState<{ id: string }[]>([])
+  const [roleMap, setRoleMap] = useState<Record<string, 'View' | 'Edit'>>({})
   const [pagination, setPagination] = useState<TPagination>(
     getInitialPagination(TableKeyEnum.GROUP_PROGRAM_SETTINGS, {
       ...DEFAULT_PAGINATION,
@@ -80,79 +79,58 @@ export const ProgramSettingsAssignGroupDialog = () => {
     enabled: !!id,
   })
 
-  const groups = useMemo(() => data?.groups?.edges?.map((edge) => edge?.node) || [], [data])
-  useEffect(() => {
-    if (!!groups && groups?.length) {
-      const groupRows: GroupRow[] =
-        (groups.map((group) => ({
-          id: group?.id,
-          name: group?.displayName || group?.name,
-          description: group?.description,
-          role: 'View',
-        })) as GroupRow[]) || []
-      setRows(groupRows)
-    } else {
-      setRows([])
-    }
-  }, [groups])
+  const rows = useMemo(() => {
+    const edges = data?.groups?.edges
+    if (!edges?.length) return []
+    return edges.map((edge) => ({
+      id: edge?.node?.id,
+      name: edge?.node?.displayName || edge?.node?.name,
+      description: edge?.node?.description,
+    })) as GroupRow[]
+  }, [data])
 
-  const groupColumns: ColumnDef<GroupRow>[] = [
-    {
-      id: 'select',
-      header: '',
-      cell: ({ row }) => (
-        <Checkbox
-          checked={selectedGroups.some((g) => g.id === row.original.id)}
-          onCheckedChange={(checked) => {
-            setSelectedGroups((prev) => {
-              if (checked) {
-                return [...prev, row.original]
-              } else {
-                return prev.filter((g) => g.id !== row.original.id)
-              }
-            })
-          }}
-        />
-      ),
-    },
-    {
-      accessorKey: 'name',
-      header: 'Group Name',
-    },
-    {
-      accessorKey: 'role',
-      header: 'Role',
-      cell: ({ row }) => {
-        const role = row.original.role
+  const selectColumn = useSelectColumn<GroupRow>(selectedItems, setSelectedItems)
 
-        return (
-          <Select
-            value={role}
-            onValueChange={(val) => {
-              const newRole = val as 'View' | 'Edit'
-              const groupId = row.original.id
-
-              setRows((prev) => prev.map((r) => (r.id === groupId ? { ...r, role: newRole } : r)))
-              setSelectedGroups((prev) => prev.map((g) => (g.id === groupId ? { ...g, role: newRole } : g)))
-            }}
-          >
-            <SelectTrigger className="w-[120px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="View">View</SelectItem>
-              <SelectItem value="Edit">Edit</SelectItem>
-            </SelectContent>
-          </Select>
-        )
+  const groupColumns: ColumnDef<GroupRow>[] = useMemo(
+    () => [
+      selectColumn,
+      {
+        accessorKey: 'name',
+        header: 'Group Name',
       },
-    },
-    {
-      accessorKey: 'description',
-      header: 'Description',
-      cell: ({ row }) => <div className="line-clamp-2 text-sm max-w-xs">{row.original.description}</div>,
-    },
-  ]
+      {
+        id: 'role',
+        header: 'Role',
+        cell: ({ row }) => {
+          const role = roleMap[row.original.id] ?? 'View'
+
+          return (
+            <Select
+              value={role}
+              onValueChange={(val) => {
+                const newRole = val as 'View' | 'Edit'
+                setRoleMap((prev) => ({ ...prev, [row.original.id]: newRole }))
+              }}
+            >
+              <SelectTrigger className="w-[120px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="View">View</SelectItem>
+                <SelectItem value="Edit">Edit</SelectItem>
+              </SelectContent>
+            </Select>
+          )
+        },
+      },
+      {
+        accessorKey: 'description',
+        header: 'Description',
+        cell: ({ row }) => <div className="line-clamp-2 text-sm max-w-xs">{row.original.description}</div>,
+      },
+    ],
+    [selectColumn, roleMap],
+  )
 
   const handleAssign = async () => {
     if (!id) {
@@ -163,9 +141,8 @@ export const ProgramSettingsAssignGroupDialog = () => {
       return
     }
 
-    const addEditorIDs = selectedGroups.filter((g) => g.role === 'Edit').map((g) => g.id)
-
-    const addViewerIDs = selectedGroups.filter((g) => g.role === 'View').map((g) => g.id)
+    const addEditorIDs = selectedItems.filter((item) => (roleMap[item.id] ?? 'View') === 'Edit').map((item) => item.id)
+    const addViewerIDs = selectedItems.filter((item) => (roleMap[item.id] ?? 'View') === 'View').map((item) => item.id)
 
     try {
       await updateProgram({
@@ -181,10 +158,11 @@ export const ProgramSettingsAssignGroupDialog = () => {
 
       successNotification({
         title: 'Groups Assigned',
-        description: `${selectedGroups.length} group(s) successfully assigned to the program.`,
+        description: `${selectedItems.length} group(s) successfully assigned to the program.`,
       })
 
-      setSelectedGroups([])
+      setSelectedItems([])
+      setRoleMap({})
       setOpen(false)
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
@@ -230,7 +208,7 @@ export const ProgramSettingsAssignGroupDialog = () => {
           />
 
           <div className="flex gap-2 mt-4 justify-end">
-            <Button onClick={handleAssign} disabled={selectedGroups.length === 0 || isPending}>
+            <Button onClick={handleAssign} disabled={selectedItems.length === 0 || isPending}>
               {isPending ? 'Assigning...' : 'Assign'}
             </Button>
             <DialogTrigger asChild>
