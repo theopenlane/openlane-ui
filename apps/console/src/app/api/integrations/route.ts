@@ -3,7 +3,7 @@ import { secureFetch } from '@/lib/auth/utils/secure-fetch'
 import { isDevelopment, openlaneAPIUrl } from '@repo/dally/auth'
 import { NextRequest, NextResponse } from 'next/server'
 
-type AuthType = 'oauth2' | 'oidc' | 'github_app' | string
+type AuthType = 'oauth2' | 'oidc' | 'githubapp' | string
 
 type StartBody = {
   provider?: string
@@ -60,8 +60,11 @@ export async function POST(req: NextRequest) {
     let response: NextResponse
 
     if (!res.ok) {
-      const msg = await res.text()
-      response = NextResponse.json({ error: msg || 'Failed to initialize integration auth flow' }, { status: res.status })
+      const json = await res.json().catch(async () => {
+        const text = await res.text().catch(() => '')
+        return { error: text || 'Failed to initialize integration auth flow' }
+      })
+      response = NextResponse.json(json, { status: res.status })
     } else {
       const json = await res.json()
       response = NextResponse.json(json)
@@ -96,7 +99,7 @@ function buildStartPayload({ provider, authType, scopes = [], redirectUri, appSl
     return payload
   }
 
-  if (authType === 'github_app') {
+  if (authType === 'githubapp') {
     const payload: Record<string, unknown> = {}
     if (appSlug) {
       payload.appSlug = appSlug
@@ -128,7 +131,7 @@ function getIntegrationFlowCookies(cookies: string | null): Map<string, string>[
   const cookieArray = cookies.split(', ')
   const flowCookies: Map<string, string>[] = []
   for (const cookie of cookieArray) {
-    if (cookie.startsWith(`oauth_`) || cookie.startsWith(`github_app_`)) {
+    if (cookie.startsWith(`oauth_`) || cookie.startsWith(`githubapp_`)) {
       const key = cookie.split('=')[0]
       const value = cookie.split(key + '=')[1]
 
