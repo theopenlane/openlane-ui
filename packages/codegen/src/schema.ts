@@ -69438,6 +69438,110 @@ export type CreateBulkCsvSubscriberMutation = {
   createBulkCSVSubscriber: { __typename?: 'SubscriberBulkCreatePayload'; subscribers?: Array<{ __typename?: 'Subscriber'; id: string }> | null }
 }
 
+export type SystemDetailsWithFilterQueryVariables = Exact<{
+  where?: InputMaybe<SystemDetailWhereInput>
+  orderBy?: InputMaybe<Array<SystemDetailOrder> | SystemDetailOrder>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type SystemDetailsWithFilterQuery = {
+  __typename?: 'Query'
+  systemDetails: {
+    __typename?: 'SystemDetailConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'SystemDetailEdge'
+      node?: {
+        __typename?: 'SystemDetail'
+        authorizationBoundary?: string | null
+        createdAt?: any | null
+        createdBy?: string | null
+        description?: string | null
+        displayID: string
+        id: string
+        lastReviewed?: string | null
+        oscalMetadataJSON?: any | null
+        platformID?: string | null
+        programID?: string | null
+        systemName: string
+        updatedAt?: any | null
+        updatedBy?: string | null
+        version?: string | null
+      } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
+  }
+}
+
+export type SystemDetailQueryVariables = Exact<{
+  systemDetailId: Scalars['ID']['input']
+}>
+
+export type SystemDetailQuery = {
+  __typename?: 'Query'
+  systemDetail: {
+    __typename?: 'SystemDetail'
+    authorizationBoundary?: string | null
+    createdAt?: any | null
+    createdBy?: string | null
+    description?: string | null
+    displayID: string
+    id: string
+    lastReviewed?: string | null
+    oscalMetadataJSON?: any | null
+    platformID?: string | null
+    programID?: string | null
+    systemName: string
+    updatedAt?: any | null
+    updatedBy?: string | null
+    version?: string | null
+  }
+}
+
+export type CreateSystemDetailMutationVariables = Exact<{
+  input: CreateSystemDetailInput
+}>
+
+export type CreateSystemDetailMutation = { __typename?: 'Mutation'; createSystemDetail: { __typename?: 'SystemDetailCreatePayload'; systemDetail: { __typename?: 'SystemDetail'; id: string } } }
+
+export type UpdateSystemDetailMutationVariables = Exact<{
+  updateSystemDetailId: Scalars['ID']['input']
+  input: UpdateSystemDetailInput
+}>
+
+export type UpdateSystemDetailMutation = { __typename?: 'Mutation'; updateSystemDetail: { __typename?: 'SystemDetailUpdatePayload'; systemDetail: { __typename?: 'SystemDetail'; id: string } } }
+
+export type DeleteSystemDetailMutationVariables = Exact<{
+  deleteSystemDetailId: Scalars['ID']['input']
+}>
+
+export type DeleteSystemDetailMutation = { __typename?: 'Mutation'; deleteSystemDetail: { __typename?: 'SystemDetailDeletePayload'; deletedID: string } }
+
+export type CreateBulkCsvSystemDetailMutationVariables = Exact<{
+  input: Scalars['Upload']['input']
+}>
+
+export type CreateBulkCsvSystemDetailMutation = {
+  __typename?: 'Mutation'
+  createBulkCSVSystemDetail: { __typename?: 'SystemDetailBulkCreatePayload'; systemDetails?: Array<{ __typename?: 'SystemDetail'; id: string }> | null }
+}
+
+export type DeleteBulkSystemDetailMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+}>
+
+export type DeleteBulkSystemDetailMutation = { __typename?: 'Mutation'; deleteBulkSystemDetail: { __typename?: 'SystemDetailBulkDeletePayload'; deletedIDs: Array<string> } }
+
+export type UpdateBulkSystemDetailMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+  input: UpdateSystemDetailInput
+}>
+
+export type UpdateBulkSystemDetailMutation = { __typename?: 'Mutation'; updateBulkSystemDetail: { __typename?: 'SystemDetailBulkUpdatePayload'; updatedIDs?: Array<string> | null } }
+
 export type GetTagsQueryVariables = Exact<{ [key: string]: never }>
 
 export type GetTagsQuery = {
