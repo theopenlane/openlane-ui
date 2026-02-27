@@ -142,6 +142,19 @@ function getIntegrationFlowCookies(cookies: string | null): Map<string, string>[
   return flowCookies.length > 0 ? flowCookies : undefined
 }
 
+function resolveParentDomain(apiUrl: string): string | undefined {
+  try {
+    const { hostname } = new URL(apiUrl)
+    const parts = hostname.split('.')
+    if (parts.length >= 2) {
+      return '.' + parts.slice(-2).join('.')
+    }
+  } catch {
+    // ignore invalid URLs
+  }
+  return undefined
+}
+
 function setIntegrationFlowCookies(cookies: Map<string, string>[] | undefined = [], response: NextResponse<unknown>) {
   if (!cookies) {
     return
@@ -149,18 +162,26 @@ function setIntegrationFlowCookies(cookies: Map<string, string>[] | undefined = 
 
   let sameSite = 'Lax'
   let secure = false
+  let domainPart = ''
 
   if (!isDevelopment) {
     secure = true
     sameSite = 'None'
+    const parentDomain = resolveParentDomain(openlaneAPIUrl)
+    if (parentDomain) {
+      domainPart = `; Domain=${parentDomain}`
+    }
   }
 
   const securePart = secure ? '; Secure' : ''
 
-  // Set the cookie using the raw Set-Cookie header to avoid encoding
+  // Set the cookie using the raw Set-Cookie header to avoid encoding.
+  // Domain is set to the parent domain so cookies are sent to all subdomains
+  // (e.g. api.theopenlane.io) when the OAuth/GitHub App provider redirects
+  // back to the backend callback URL.
   for (const cookie of cookies) {
     for (const [key, value] of cookie.entries()) {
-      response.headers.append('Set-Cookie', `${key}=${value}; Path=/; SameSite=${sameSite}${securePart}`)
+      response.headers.append('Set-Cookie', `${key}=${value}; Path=/; SameSite=${sameSite}${securePart}${domainPart}`)
     }
   }
 }
