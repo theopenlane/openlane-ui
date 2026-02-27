@@ -67873,6 +67873,7 @@ export type GetAllStandardsQuery = {
         standardType?: string | null
         updatedAt?: any | null
         tags?: Array<string> | null
+        systemOwned?: boolean | null
         description?: string | null
         domains?: Array<string> | null
         controls: { __typename?: 'ControlConnection'; totalCount: number }
@@ -67974,6 +67975,22 @@ export type DeleteStandardMutationVariables = Exact<{
 }>
 
 export type DeleteStandardMutation = { __typename?: 'Mutation'; deleteStandard: { __typename?: 'StandardDeletePayload'; deletedID: string } }
+
+export type GetStandardControlStatsQueryVariables = Exact<{
+  standardId: Scalars['ID']['input']
+  isStandardSystemOwned: Scalars['Boolean']['input']
+}>
+
+export type GetStandardControlStatsQuery = {
+  __typename?: 'Query'
+  standard: {
+    __typename?: 'Standard'
+    totalControlsSystemOwned?: { __typename?: 'ControlConnection'; totalCount: number }
+    totalControlsNonSystemOwned?: { __typename?: 'ControlConnection'; totalCount: number }
+    coveredControls: { __typename?: 'ControlConnection'; totalCount: number }
+    automatedControls: { __typename?: 'ControlConnection'; totalCount: number }
+  }
+}
 
 export type GetAllSubcontrolsQueryVariables = Exact<{
   where?: InputMaybe<SubcontrolWhereInput>
