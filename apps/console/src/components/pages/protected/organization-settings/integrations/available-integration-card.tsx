@@ -55,6 +55,7 @@ const AvailableIntegrationCard = ({ integration }: AvailableIntegrationCardProps
             scopes: targetProvider.oauth?.scopes ?? [],
             startPath: targetProvider.authStartPath,
             callbackPath: targetProvider.authCallbackPath,
+            appSlug: targetProvider.githubApp?.appSlug,
           }),
         })
 

@@ -1,5 +1,4 @@
 import { Metadata } from 'next'
-import { AuthLayout, type AuthLayoutProps } from '../../components/layouts/auth'
 
 export const metadata: Metadata = {
   title: {
@@ -8,6 +7,6 @@ export const metadata: Metadata = {
   },
 }
 
-export default function Layout({ children }: AuthLayoutProps): React.ReactNode {
-  return <AuthLayout>{children}</AuthLayout>
+export default function Layout({ children }: { children: React.ReactNode }): React.ReactNode {
+  return <div className="w-full min-h-screen bg-background">{children}</div>
 }

@@ -140,3 +140,13 @@ export const DELETE_FINDING = gql`
     }
   }
 `
+
+export const CREATE_CSV_BULK_FINDING = gql`
+  mutation CreateBulkCSVFinding($input: Upload!) {
+    createBulkCSVFinding(input: $input) {
+      findings {
+        id
+      }
+    }
+  }
+`

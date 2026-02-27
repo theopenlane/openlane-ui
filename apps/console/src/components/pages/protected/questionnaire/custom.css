@@ -1,3 +1,18 @@
-.svc-surface-header .sd-title {
-  font-family: var(--font-mincho) !important;
+.svc-creator,
+.svc-full-container {
+  height: 100% !important;
+  min-height: 0;
+}
+
+.dark .svc-creator ::-webkit-scrollbar-track {
+  background: #162431;
+}
+
+.dark .svc-creator ::-webkit-scrollbar-thumb {
+  background: #304757;
+  border-radius: 4px;
+}
+
+.dark .svc-creator ::-webkit-scrollbar-thumb:hover {
+  background: #3d5a6b;
 }

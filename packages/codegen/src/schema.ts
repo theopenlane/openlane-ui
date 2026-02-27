@@ -65049,6 +65049,15 @@ export type DeleteFindingMutationVariables = Exact<{
 
 export type DeleteFindingMutation = { __typename?: 'Mutation'; deleteFinding: { __typename?: 'FindingDeletePayload'; deletedID: string } }
 
+export type CreateBulkCsvFindingMutationVariables = Exact<{
+  input: Scalars['Upload']['input']
+}>
+
+export type CreateBulkCsvFindingMutation = {
+  __typename?: 'Mutation'
+  createBulkCSVFinding: { __typename?: 'FindingBulkCreatePayload'; findings?: Array<{ __typename?: 'Finding'; id: string }> | null }
+}
+
 export type GroupSettingsWithFilterQueryVariables = Exact<{
   where?: InputMaybe<GroupSettingWhereInput>
   orderBy?: InputMaybe<Array<GroupSettingOrder> | GroupSettingOrder>
@@ -68026,6 +68035,15 @@ export type DeleteRemediationMutationVariables = Exact<{
 
 export type DeleteRemediationMutation = { __typename?: 'Mutation'; deleteRemediation: { __typename?: 'RemediationDeletePayload'; deletedID: string } }
 
+export type CreateBulkCsvRemediationMutationVariables = Exact<{
+  input: Scalars['Upload']['input']
+}>
+
+export type CreateBulkCsvRemediationMutation = {
+  __typename?: 'Mutation'
+  createBulkCSVRemediation: { __typename?: 'RemediationBulkCreatePayload'; remediations?: Array<{ __typename?: 'Remediation'; id: string }> | null }
+}
+
 export type ReviewsWithFilterQueryVariables = Exact<{
   where?: InputMaybe<ReviewWhereInput>
   orderBy?: InputMaybe<Array<ReviewOrder> | ReviewOrder>
@@ -68505,8 +68523,10 @@ export type ScansWithFilterQuery = {
         reviewedByUserID?: string | null
         scanDate?: string | null
         scanSchedule?: string | null
+        scanType: ScanScanType
         scopeID?: string | null
         scopeName?: string | null
+        status: ScanScanStatus
         target: string
         updatedAt?: any | null
         updatedBy?: string | null
@@ -68543,8 +68563,10 @@ export type ScanQuery = {
     reviewedByUserID?: string | null
     scanDate?: string | null
     scanSchedule?: string | null
+    scanType: ScanScanType
     scopeID?: string | null
     scopeName?: string | null
+    status: ScanScanStatus
     target: string
     updatedAt?: any | null
     updatedBy?: string | null
@@ -70783,6 +70805,9 @@ export type VulnerabilitiesWithFilterQuery = {
         status?: string | null
         summary?: string | null
         systemOwned?: boolean | null
+        tags?: Array<string> | null
+        impacts?: Array<string> | null
+        references?: Array<string> | null
         updatedAt?: any | null
         updatedBy?: string | null
         validated?: boolean | null
@@ -70835,6 +70860,9 @@ export type VulnerabilityQuery = {
     status?: string | null
     summary?: string | null
     systemOwned?: boolean | null
+    tags?: Array<string> | null
+    impacts?: Array<string> | null
+    references?: Array<string> | null
     updatedAt?: any | null
     updatedBy?: string | null
     validated?: boolean | null
@@ -70860,6 +70888,15 @@ export type DeleteVulnerabilityMutationVariables = Exact<{
 }>
 
 export type DeleteVulnerabilityMutation = { __typename?: 'Mutation'; deleteVulnerability: { __typename?: 'VulnerabilityDeletePayload'; deletedID: string } }
+
+export type CreateBulkCsvVulnerabilityMutationVariables = Exact<{
+  input: Scalars['Upload']['input']
+}>
+
+export type CreateBulkCsvVulnerabilityMutation = {
+  __typename?: 'Mutation'
+  createBulkCSVVulnerability: { __typename?: 'VulnerabilityBulkCreatePayload'; vulnerabilities?: Array<{ __typename?: 'Vulnerability'; id: string }> | null }
+}
 
 export type WorkflowAssignmentTargetsWithFilterQueryVariables = Exact<{
   where?: InputMaybe<WorkflowAssignmentTargetWhereInput>
