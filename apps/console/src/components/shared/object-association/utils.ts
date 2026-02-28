@@ -1,70 +1,75 @@
-import { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap.ts'
+import { TAssociationMutationKey, TAssociationUpdateInput, TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap.ts'
 
-const buildMutationKey = (prefix: string, key: string) => `${prefix}${key.charAt(0).toUpperCase()}${key.slice(1)}`
+const buildMutationKey = <TPrefix extends 'add' | 'remove', TFieldKey extends string>(prefix: TPrefix, key: TFieldKey): TAssociationMutationKey<TPrefix, TFieldKey> => {
+  return `${prefix}${key.charAt(0).toUpperCase()}${key.slice(1)}` as TAssociationMutationKey<TPrefix, TFieldKey>
+}
 
-const getAssociationDiffs = (initial: TObjectAssociationMap, current: TObjectAssociationMap): { added: TObjectAssociationMap; removed: TObjectAssociationMap } => {
-  const added: TObjectAssociationMap = {}
-  const removed: TObjectAssociationMap = {}
+const getAssociationDiffs = <TFieldKey extends string>(
+  initial: TObjectAssociationMap<TFieldKey>,
+  current: TObjectAssociationMap<TFieldKey>,
+): { added: TObjectAssociationMap<TFieldKey>; removed: TObjectAssociationMap<TFieldKey> } => {
+  const added: TObjectAssociationMap<TFieldKey> = {}
+  const removed: TObjectAssociationMap<TFieldKey> = {}
 
   const allKeys = new Set([...Object.keys(initial), ...Object.keys(current)])
 
   for (const key of allKeys) {
-    const initialSet = new Set(initial[key] ?? [])
-    const currentSet = new Set(current[key] ?? [])
+    const typedKey = key as TFieldKey
+    const initialSet = new Set(initial[typedKey] ?? [])
+    const currentSet = new Set(current[typedKey] ?? [])
 
     const addedItems = [...currentSet].filter((id) => !initialSet.has(id))
     const removedItems = [...initialSet].filter((id) => !currentSet.has(id))
 
-    if (addedItems.length > 0) added[key] = addedItems
-    if (removedItems.length > 0) removed[key] = removedItems
+    if (addedItems.length > 0) added[typedKey] = addedItems
+    if (removedItems.length > 0) removed[typedKey] = removedItems
   }
 
   return { added, removed }
 }
 
-export const getAssociationInput = (initialData: Partial<Record<string, string[]>>, associations: Partial<Record<string, string[]>>) => {
+export const getAssociationInput = <TFieldKey extends string>(initialData: TObjectAssociationMap<TFieldKey>, associations: TObjectAssociationMap<TFieldKey>): TAssociationUpdateInput<TFieldKey> => {
   const { added, removed } = getAssociationDiffs(initialData, associations)
+  const payload: TAssociationUpdateInput<TFieldKey> = {}
 
-  return {
-    ...Object.entries(added).reduce(
-      (acc, [key, ids]) => {
-        if (ids && ids.length > 0) acc[buildMutationKey('add', key)] = ids
-        return acc
-      },
-      {} as Record<string, string[]>,
-    ),
-
-    ...Object.entries(removed).reduce(
-      (acc, [key, ids]) => {
-        if (ids && ids.length > 0) acc[buildMutationKey('remove', key)] = ids
-        return acc
-      },
-      {} as Record<string, string[]>,
-    ),
+  for (const [key, ids] of Object.entries(added) as [TFieldKey, string[]][]) {
+    if (ids.length > 0) {
+      payload[buildMutationKey('add', key)] = ids
+    }
   }
+
+  for (const [key, ids] of Object.entries(removed) as [TFieldKey, string[]][]) {
+    if (ids.length > 0) {
+      payload[buildMutationKey('remove', key)] = ids
+    }
+  }
+
+  return payload
 }
 
-export const buildAssociationPayload = (
-  associationKeys: string[],
-  formData: Record<string, string[] | undefined>,
+export const buildAssociationPayload = <TFieldKey extends string>(
+  associationKeys: readonly TFieldKey[],
+  formData: Partial<Record<TFieldKey, string[] | undefined>>,
   isCreate: boolean,
-  initialAssociations: TObjectAssociationMap,
-): Record<string, string[]> => {
-  const associationFields: Record<string, string[] | undefined> = {}
+  initialAssociations: TObjectAssociationMap<TFieldKey>,
+): TObjectAssociationMap<TFieldKey> | TAssociationUpdateInput<TFieldKey> => {
+  const associationFields: Partial<Record<TFieldKey, string[] | undefined>> = {}
   for (const key of associationKeys) {
     associationFields[key] = formData[key]
   }
 
   if (isCreate) {
-    const payload: Record<string, string[]> = {}
-    Object.entries(associationFields).forEach(([key, ids]) => {
+    const payload: TObjectAssociationMap<TFieldKey> = {}
+    const associationEntries = Object.entries(associationFields) as [TFieldKey, string[] | undefined][]
+    associationEntries.forEach(([key, ids]) => {
       if (ids?.length) payload[key] = ids
     })
     return payload
   }
 
-  const currentAssociations: TObjectAssociationMap = {}
-  Object.entries(associationFields).forEach(([key, ids]) => {
+  const currentAssociations: TObjectAssociationMap<TFieldKey> = {}
+  const associationEntries = Object.entries(associationFields) as [TFieldKey, string[] | undefined][]
+  associationEntries.forEach(([key, ids]) => {
     if (ids) currentAssociations[key] = ids
   })
   if (Object.keys(currentAssociations).length > 0) {
