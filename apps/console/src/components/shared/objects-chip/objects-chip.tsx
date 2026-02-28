@@ -7,30 +7,11 @@ type TObjectsChipProps = {
   onRemove?: (objectType: string) => void
 }
 
-const borderColors: Record<string, string> = {
-  controls: 'border-controls',
-  programs: 'border-programs',
-  tasks: 'border-tasks',
-  procedures: 'border-procedures',
-  risks: 'border-risks',
-  subcontrols: 'border-subcontrols',
-  controlObjectives: 'border-controlObjectives',
-  policies: 'border-policies',
-  groups: 'border-groups',
-  evidences: 'border-evidence',
-  scans: 'border-scans',
-  campaigns: 'border-campaigns',
-  assets: 'border-assets',
-  entities: 'border-entities',
-  identityHolders: 'border-identityHolders',
-  default: 'border-transparent',
-}
-
 const ObjectsChip = ({ name, objectType, removable, onRemove }: TObjectsChipProps) => {
-  const colorClass = borderColors[objectType] || borderColors.default
+  const borderClass = `border-${objectType}`
 
   return (
-    <div className={`inline-flex gap-1 bg-secondary items-center rounded-full px-2.5 py-0.5 border text-xs font-semibold transition-colors focus:outline-hidden h-fit shrink-0 ${colorClass}`}>
+    <div className={`inline-flex gap-1 bg-secondary items-center rounded-full px-2.5 py-0.5 border text-xs font-semibold transition-colors focus:outline-hidden h-fit shrink-0 ${borderClass}`}>
       {name}
       {removable && onRemove && (
         <XIcon

@@ -631,7 +631,7 @@ type TAssociationSectionDefinition = {
   inputName: TObjectAssociationInputName
 }
 
-const ASSOCIATION_SECTION_CONFIG = {
+export const ASSOCIATION_SECTION_CONFIG = {
   controls: { dataField: 'controls', inputName: 'controlIDs' },
   subcontrols: { dataField: 'subcontrols', inputName: 'subcontrolIDs' },
   controlObjectives: { dataField: 'controlObjectives', inputName: 'controlObjectiveIDs' },
