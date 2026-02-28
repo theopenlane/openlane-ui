@@ -40,7 +40,17 @@ const SetObjectAssociationPoliciesDialog = ({ policyId, fromTable = false, onClo
 
   const excludeObjectTypes = fromTable
     ? Object.values(ObjectTypeObjects).filter((type) => type !== ObjectTypeObjects.PROCEDURE)
-    : [ObjectTypeObjects.EVIDENCE, ObjectTypeObjects.GROUP, ObjectTypeObjects.RISK, ObjectTypeObjects.INTERNAL_POLICY]
+    : [
+        ObjectTypeObjects.EVIDENCE,
+        ObjectTypeObjects.GROUP,
+        ObjectTypeObjects.RISK,
+        ObjectTypeObjects.INTERNAL_POLICY,
+        ObjectTypeObjects.SCAN,
+        ObjectTypeObjects.CAMPAIGN,
+        ObjectTypeObjects.ASSET,
+        ObjectTypeObjects.ENTITY,
+        ObjectTypeObjects.IDENTITY_HOLDER,
+      ]
 
   const handleSave = () => {
     policyState.setInitialAssociations(associations.associations)

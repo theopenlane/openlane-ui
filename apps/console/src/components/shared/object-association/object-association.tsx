@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Label } from '@repo/ui/label'
 import { Input } from '@repo/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
@@ -21,8 +21,8 @@ const initialPagination = { ...DEFAULT_PAGINATION, pageSize: 5, query: { first: 
 
 type Props = {
   onIdChange: (updatedMap: TObjectAssociationMap, refCodes: Partial<Record<string, string[]>>) => void
-  excludeObjectTypes?: ObjectTypeObjects[]
-  allowedObjectTypes?: ObjectTypeObjects[]
+  excludeObjectTypes?: readonly ObjectTypeObjects[]
+  allowedObjectTypes?: readonly ObjectTypeObjects[]
   initialData?: TObjectAssociationMap
   refCodeInitialData?: TObjectAssociationMap
   defaultSelectedObject?: ObjectTypeObjects
@@ -59,12 +59,7 @@ const ObjectAssociation = ({ onIdChange, excludeObjectTypes, allowedObjectTypes,
     setSearchValue(value)
   }
 
-  const [tableData, setTableData] = useState<TableRow[]>([])
-
-  useEffect(() => {
-    const rows = extractTableRows(objectKey, data, inputName)
-    setTableData(rows)
-  }, [data, objectKey, inputName])
+  const tableData = useMemo<TableRow[]>(() => extractTableRows(objectKey, data, inputName), [data, objectKey, inputName])
 
   return (
     <div className="space-y-4">

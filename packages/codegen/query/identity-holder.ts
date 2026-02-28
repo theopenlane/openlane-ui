@@ -162,3 +162,50 @@ export const BULK_EDIT_IDENTITY_HOLDER = gql`
     }
   }
 `
+
+export const GET_IDENTITY_HOLDER_ASSOCIATIONS = gql`
+  query GetIdentityHolderAssociations($identityHolderId: ID!) {
+    identityHolder(id: $identityHolderId) {
+      assets {
+        edges {
+          node {
+            id
+            name
+            displayName
+          }
+        }
+        totalCount
+      }
+      entities {
+        edges {
+          node {
+            id
+            name
+            displayName
+          }
+        }
+        totalCount
+      }
+      campaigns {
+        edges {
+          node {
+            id
+            name
+            displayID
+          }
+        }
+        totalCount
+      }
+      tasks {
+        edges {
+          node {
+            id
+            title
+            displayID
+          }
+        }
+        totalCount
+      }
+    }
+  }
+`

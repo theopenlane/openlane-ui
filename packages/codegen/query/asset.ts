@@ -150,6 +150,35 @@ export const BULK_DELETE_ASSET = gql`
 export const GET_ASSET_ASSOCIATIONS = gql`
   query GetAssetAssociations($assetId: ID!) {
     asset(id: $assetId) {
+      scans {
+        edges {
+          node {
+            id
+            target
+          }
+        }
+        totalCount
+      }
+      entities {
+        edges {
+          node {
+            id
+            name
+            displayName
+          }
+        }
+        totalCount
+      }
+      identityHolders {
+        edges {
+          node {
+            id
+            fullName
+            displayID
+          }
+        }
+        totalCount
+      }
       controls {
         edges {
           node {
@@ -160,6 +189,7 @@ export const GET_ASSET_ASSOCIATIONS = gql`
             referenceFramework
           }
         }
+        totalCount
       }
     }
   }

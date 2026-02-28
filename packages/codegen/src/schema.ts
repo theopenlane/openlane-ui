@@ -47,6 +47,8 @@ export interface Scalars {
   EvidenceRequests: { input: any; output: any }
   /** The `ExampleEvidence` scalar type represents example evidence that can be used to satisfy the control */
   ExampleEvidence: { input: any; output: any }
+  /** ExportMetadata contains metadata for an export record */
+  ExportMetadata: { input: any; output: any }
   /** The `ImplementationGuidance` scalar type that represents steps to take to implement a control; they can come directly from the control source or pulled from external sources */
   ImplementationGuidance: { input: any; output: any }
   /** A valid JSON string. */
@@ -4718,14 +4720,20 @@ export interface Control extends Node {
   evidenceRequests?: Maybe<Array<Scalars['EvidenceRequests']['output']>>
   /** examples of evidence for the control */
   exampleEvidence?: Maybe<Array<Scalars['ExampleEvidence']['output']>>
+  /** stable external UUID for deterministic OSCAL export and round-tripping */
+  externalUUID?: Maybe<Scalars['String']['output']>
   findings: FindingConnection
   /** Indicates if this control has pending changes awaiting workflow approval */
   hasPendingWorkflow: Scalars['Boolean']['output']
   /** Indicates if this control has any workflow history (completed or failed instances) */
   hasWorkflowHistory: Scalars['Boolean']['output']
   id: Scalars['ID']['output']
+  /** narrative describing current implementation state for OSCAL export */
+  implementationDescription?: Maybe<Scalars['String']['output']>
   /** implementation guidance for the control */
   implementationGuidance?: Maybe<Array<Scalars['ImplementationGuidance']['output']>>
+  /** OSCAL-aligned implementation status of the control */
+  implementationStatus?: Maybe<ControlControlImplementationStatus>
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: Maybe<Scalars['String']['output']>
   internalPolicies: InternalPolicyConnection
@@ -5083,6 +5091,15 @@ export interface ControlConnection {
   pageInfo: PageInfo
   /** Identifies the total count of items in the connection. */
   totalCount: Scalars['Int']['output']
+}
+
+/** ControlControlImplementationStatus is enum for the field implementation_status */
+export enum ControlControlImplementationStatus {
+  IMPLEMENTED = 'IMPLEMENTED',
+  INHERITED = 'INHERITED',
+  NOT_APPLICABLE = 'NOT_APPLICABLE',
+  PARTIALLY_IMPLEMENTED = 'PARTIALLY_IMPLEMENTED',
+  PLANNED = 'PLANNED',
 }
 
 /** ControlControlSource is enum for the field source */
@@ -6363,6 +6380,22 @@ export interface ControlWhereInput {
   environmentNameNEQ?: InputMaybe<Scalars['String']['input']>
   environmentNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   environmentNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** external_uuid field predicates */
+  externalUUID?: InputMaybe<Scalars['String']['input']>
+  externalUUIDContains?: InputMaybe<Scalars['String']['input']>
+  externalUUIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  externalUUIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  externalUUIDGT?: InputMaybe<Scalars['String']['input']>
+  externalUUIDGTE?: InputMaybe<Scalars['String']['input']>
+  externalUUIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  externalUUIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  externalUUIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  externalUUIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  externalUUIDLT?: InputMaybe<Scalars['String']['input']>
+  externalUUIDLTE?: InputMaybe<Scalars['String']['input']>
+  externalUUIDNEQ?: InputMaybe<Scalars['String']['input']>
+  externalUUIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  externalUUIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** action_plans edge predicates */
   hasActionPlans?: InputMaybe<Scalars['Boolean']['input']>
   hasActionPlansWith?: InputMaybe<Array<ActionPlanWhereInput>>
@@ -6464,6 +6497,29 @@ export interface ControlWhereInput {
   idLTE?: InputMaybe<Scalars['ID']['input']>
   idNEQ?: InputMaybe<Scalars['ID']['input']>
   idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** implementation_description field predicates */
+  implementationDescription?: InputMaybe<Scalars['String']['input']>
+  implementationDescriptionContains?: InputMaybe<Scalars['String']['input']>
+  implementationDescriptionContainsFold?: InputMaybe<Scalars['String']['input']>
+  implementationDescriptionEqualFold?: InputMaybe<Scalars['String']['input']>
+  implementationDescriptionGT?: InputMaybe<Scalars['String']['input']>
+  implementationDescriptionGTE?: InputMaybe<Scalars['String']['input']>
+  implementationDescriptionHasPrefix?: InputMaybe<Scalars['String']['input']>
+  implementationDescriptionHasSuffix?: InputMaybe<Scalars['String']['input']>
+  implementationDescriptionIn?: InputMaybe<Array<Scalars['String']['input']>>
+  implementationDescriptionIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  implementationDescriptionLT?: InputMaybe<Scalars['String']['input']>
+  implementationDescriptionLTE?: InputMaybe<Scalars['String']['input']>
+  implementationDescriptionNEQ?: InputMaybe<Scalars['String']['input']>
+  implementationDescriptionNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  implementationDescriptionNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** implementation_status field predicates */
+  implementationStatus?: InputMaybe<ControlControlImplementationStatus>
+  implementationStatusIn?: InputMaybe<Array<ControlControlImplementationStatus>>
+  implementationStatusIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  implementationStatusNEQ?: InputMaybe<ControlControlImplementationStatus>
+  implementationStatusNotIn?: InputMaybe<Array<ControlControlImplementationStatus>>
+  implementationStatusNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** internal_notes field predicates */
   internalNotes?: InputMaybe<Scalars['String']['input']>
   internalNotesContains?: InputMaybe<Scalars['String']['input']>
@@ -7210,9 +7266,15 @@ export interface CreateControlInput {
   evidenceRequests?: InputMaybe<Array<Scalars['EvidenceRequests']['input']>>
   /** examples of evidence for the control */
   exampleEvidence?: InputMaybe<Array<Scalars['ExampleEvidence']['input']>>
+  /** stable external UUID for deterministic OSCAL export and round-tripping */
+  externalUUID?: InputMaybe<Scalars['String']['input']>
   findingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** narrative describing current implementation state for OSCAL export */
+  implementationDescription?: InputMaybe<Scalars['String']['input']>
   /** implementation guidance for the control */
   implementationGuidance?: InputMaybe<Array<Scalars['ImplementationGuidance']['input']>>
+  /** OSCAL-aligned implementation status of the control */
+  implementationStatus?: InputMaybe<ControlControlImplementationStatus>
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: InputMaybe<Scalars['String']['input']>
   internalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -7878,6 +7940,8 @@ export interface CreateEvidenceInput {
   environmentID?: InputMaybe<Scalars['ID']['input']>
   /** the environment of the evidence */
   environmentName?: InputMaybe<Scalars['String']['input']>
+  /** stable external UUID for deterministic OSCAL export and round-tripping */
+  externalUUID?: InputMaybe<Scalars['String']['input']>
   fileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** whether the evidence was automatically generated */
   isAutomated?: InputMaybe<Scalars['Boolean']['input']>
@@ -7913,6 +7977,8 @@ export interface CreateEvidenceInput {
  */
 export interface CreateExportInput {
   eventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** metadata for the export record */
+  exportMetadata?: InputMaybe<Scalars['ExportMetadata']['input']>
   /** the type of export, e.g., control, policy, etc. */
   exportType: ExportExportType
   /** the specific fields to include in the export (defaults to only the id if not provided) */
@@ -7922,6 +7988,8 @@ export interface CreateExportInput {
   filters?: InputMaybe<Scalars['String']['input']>
   /** the format of export, e.g., csv and others */
   format?: InputMaybe<ExportExportFormat>
+  /** the mode of export, e.g., flat or folder */
+  mode?: InputMaybe<ExportExportMode>
   ownerID?: InputMaybe<Scalars['ID']['input']>
 }
 
@@ -8183,6 +8251,12 @@ export interface CreateGroupInput {
   narrativeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   narrativeEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   narrativeViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** OSCAL contact UUID references associated with this group */
+  oscalContactUuids?: InputMaybe<Array<Scalars['String']['input']>>
+  /** OSCAL party UUID linked to this group for responsibility mapping */
+  oscalPartyUUID?: InputMaybe<Scalars['String']['input']>
+  /** OSCAL role identifier used for role-based responsibility mapping */
+  oscalRole?: InputMaybe<Scalars['String']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
   platformBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   platformEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -8375,6 +8449,8 @@ export interface CreateInternalPolicyInput {
   environmentID?: InputMaybe<Scalars['ID']['input']>
   /** the environment of the internal_policy */
   environmentName?: InputMaybe<Scalars['String']['input']>
+  /** stable external UUID for deterministic OSCAL export and round-tripping */
+  externalUUID?: InputMaybe<Scalars['String']['input']>
   fileID?: InputMaybe<Scalars['ID']['input']>
   /** suggested improvements for the policy */
   improvementSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
@@ -8904,6 +8980,7 @@ export interface CreateOrganizationInput {
   subprocessorCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   subprocessorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   subscriberIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  systemDetailIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   tagDefinitionIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
@@ -9046,6 +9123,8 @@ export interface CreatePlatformInput {
   evidenceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** external identifier for the platform from an upstream inventory */
   externalReferenceID?: InputMaybe<Scalars['String']['input']>
+  /** stable external UUID for deterministic OSCAL export and round-tripping */
+  externalUUID?: InputMaybe<Scalars['String']['input']>
   fileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   generatedScanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   identityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -9096,6 +9175,7 @@ export interface CreatePlatformInput {
   sourceType?: InputMaybe<PlatformSourceType>
   /** the lifecycle status of the platform */
   status?: InputMaybe<PlatformPlatformStatus>
+  systemDetailID?: InputMaybe<Scalars['ID']['input']>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   taskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -9208,6 +9288,8 @@ export interface CreateProgramInput {
   /** the end date of the period */
   endDate?: InputMaybe<Scalars['Time']['input']>
   evidenceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** stable external UUID for deterministic OSCAL export and round-tripping */
+  externalUUID?: InputMaybe<Scalars['String']['input']>
   fileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the short name of the compliance standard the program is based on, only used for framework type programs */
   frameworkName?: InputMaybe<Scalars['String']['input']>
@@ -9228,6 +9310,7 @@ export interface CreateProgramInput {
   /** the status of the program */
   status?: InputMaybe<ProgramProgramStatus>
   subcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  systemDetailID?: InputMaybe<Scalars['ID']['input']>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   taskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -9432,6 +9515,8 @@ export interface CreateRiskInput {
   environmentID?: InputMaybe<Scalars['ID']['input']>
   /** the environment of the risk */
   environmentName?: InputMaybe<Scalars['String']['input']>
+  /** stable external UUID for deterministic OSCAL export and round-tripping */
+  externalUUID?: InputMaybe<Scalars['String']['input']>
   /** impact of the risk -critical, high, medium, low */
   impact?: InputMaybe<RiskRiskImpact>
   internalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -9650,8 +9735,14 @@ export interface CreateSubcontrolInput {
   evidenceRequests?: InputMaybe<Array<Scalars['EvidenceRequests']['input']>>
   /** examples of evidence for the control */
   exampleEvidence?: InputMaybe<Array<Scalars['ExampleEvidence']['input']>>
+  /** stable external UUID for deterministic OSCAL export and round-tripping */
+  externalUUID?: InputMaybe<Scalars['String']['input']>
+  /** narrative describing current implementation state for OSCAL export */
+  implementationDescription?: InputMaybe<Scalars['String']['input']>
   /** implementation guidance for the control */
   implementationGuidance?: InputMaybe<Array<Scalars['ImplementationGuidance']['input']>>
+  /** OSCAL-aligned implementation status of the control */
+  implementationStatus?: InputMaybe<SubcontrolControlImplementationStatus>
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: InputMaybe<Scalars['String']['input']>
   internalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -9735,6 +9826,34 @@ export interface CreateSubscriberInput {
 }
 
 /**
+ * CreateSystemDetailInput is used for create SystemDetail object.
+ * Input was generated by ent.
+ */
+export interface CreateSystemDetailInput {
+  /** authorization boundary narrative for OSCAL export */
+  authorizationBoundary?: InputMaybe<Scalars['String']['input']>
+  /** system description used in OSCAL metadata */
+  description?: InputMaybe<Scalars['String']['input']>
+  /** timestamp when metadata was last reviewed */
+  lastReviewed?: InputMaybe<Scalars['DateTime']['input']>
+  /** optional escape hatch for additional OSCAL metadata fields */
+  oscalMetadataJSON?: InputMaybe<Scalars['Map']['input']>
+  ownerID?: InputMaybe<Scalars['ID']['input']>
+  platformID?: InputMaybe<Scalars['ID']['input']>
+  programID?: InputMaybe<Scalars['ID']['input']>
+  /** structured revision history for OSCAL metadata */
+  revisionHistory?: InputMaybe<Array<Scalars['Any']['input']>>
+  /** security sensitivity level of the system */
+  sensitivityLevel?: InputMaybe<SystemDetailSystemSensitivityLevel>
+  /** system name used in OSCAL metadata */
+  systemName: Scalars['String']['input']
+  /** tags associated with the object */
+  tags?: InputMaybe<Array<Scalars['String']['input']>>
+  /** system version used in OSCAL metadata */
+  version?: InputMaybe<Scalars['String']['input']>
+}
+
+/**
  * CreateTFASettingInput is used for create TFASetting object.
  * Input was generated by ent.
  */
@@ -9789,6 +9908,8 @@ export interface CreateTaskInput {
   evidenceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** an optional external reference URL for the task */
   externalReferenceURL?: InputMaybe<Array<Scalars['String']['input']>>
+  /** stable external UUID for deterministic OSCAL export and round-tripping */
+  externalUUID?: InputMaybe<Scalars['String']['input']>
   groupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   identityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   internalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -17006,6 +17127,8 @@ export interface Evidence extends Node {
   environmentID?: Maybe<Scalars['ID']['output']>
   /** the environment of the evidence */
   environmentName?: Maybe<Scalars['String']['output']>
+  /** stable external UUID for deterministic OSCAL export and round-tripping */
+  externalUUID?: Maybe<Scalars['String']['output']>
   files: FileConnection
   /** Indicates if this evidence has pending changes awaiting workflow approval */
   hasPendingWorkflow: Scalars['Boolean']['output']
@@ -17370,6 +17493,22 @@ export interface EvidenceWhereInput {
   environmentNameNEQ?: InputMaybe<Scalars['String']['input']>
   environmentNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   environmentNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** external_uuid field predicates */
+  externalUUID?: InputMaybe<Scalars['String']['input']>
+  externalUUIDContains?: InputMaybe<Scalars['String']['input']>
+  externalUUIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  externalUUIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  externalUUIDGT?: InputMaybe<Scalars['String']['input']>
+  externalUUIDGTE?: InputMaybe<Scalars['String']['input']>
+  externalUUIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  externalUUIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  externalUUIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  externalUUIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  externalUUIDLT?: InputMaybe<Scalars['String']['input']>
+  externalUUIDLTE?: InputMaybe<Scalars['String']['input']>
+  externalUUIDNEQ?: InputMaybe<Scalars['String']['input']>
+  externalUUIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  externalUUIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** comments edge predicates */
   hasComments?: InputMaybe<Scalars['Boolean']['input']>
   hasCommentsWith?: InputMaybe<Array<NoteWhereInput>>
@@ -17585,6 +17724,8 @@ export interface Export extends Node {
   /** if we try to export and it fails, the error message will be stored here */
   errorMessage?: Maybe<Scalars['String']['output']>
   events: EventConnection
+  /** metadata for the export record */
+  exportMetadata?: Maybe<Scalars['ExportMetadata']['output']>
   /** the type of export, e.g., control, policy, etc. */
   exportType: ExportExportType
   /** the specific fields to include in the export (defaults to only the id if not provided) */
@@ -17595,6 +17736,8 @@ export interface Export extends Node {
   /** the format of export, e.g., csv and others */
   format: ExportExportFormat
   id: Scalars['ID']['output']
+  /** the mode of export, e.g., flat or folder */
+  mode: ExportExportMode
   owner?: Maybe<Organization>
   /** the organization id that owns the object */
   ownerID?: Maybe<Scalars['ID']['output']>
@@ -17677,6 +17820,12 @@ export enum ExportExportFormat {
   CSV = 'CSV',
 }
 
+/** ExportExportMode is enum for the field mode */
+export enum ExportExportMode {
+  FLAT = 'FLAT',
+  FOLDER = 'FOLDER',
+}
+
 /** ExportExportStatus is enum for the field status */
 export enum ExportExportStatus {
   FAILED = 'FAILED',
@@ -17701,6 +17850,7 @@ export enum ExportExportType {
   RISK = 'RISK',
   SUBPROCESSOR = 'SUBPROCESSOR',
   SUBSCRIBER = 'SUBSCRIBER',
+  SYSTEM_DETAIL = 'SYSTEM_DETAIL',
   TASK = 'TASK',
   TRUST_CENTER_FAQ = 'TRUST_CENTER_FAQ',
   TRUST_CENTER_SUBPROCESSOR = 'TRUST_CENTER_SUBPROCESSOR',
@@ -17720,6 +17870,7 @@ export enum ExportOrderField {
   created_at = 'created_at',
   export_type = 'export_type',
   format = 'format',
+  mode = 'mode',
   status = 'status',
   updated_at = 'updated_at',
 }
@@ -17828,6 +17979,11 @@ export interface ExportWhereInput {
   idLTE?: InputMaybe<Scalars['ID']['input']>
   idNEQ?: InputMaybe<Scalars['ID']['input']>
   idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** mode field predicates */
+  mode?: InputMaybe<ExportExportMode>
+  modeIn?: InputMaybe<Array<ExportExportMode>>
+  modeNEQ?: InputMaybe<ExportExportMode>
+  modeNotIn?: InputMaybe<Array<ExportExportMode>>
   not?: InputMaybe<ExportWhereInput>
   or?: InputMaybe<Array<ExportWhereInput>>
   /** owner_id field predicates */
@@ -19890,6 +20046,12 @@ export interface Group extends Node {
   narrativeBlockedGroups: NarrativeConnection
   narrativeEditors: NarrativeConnection
   narrativeViewers: NarrativeConnection
+  /** OSCAL contact UUID references associated with this group */
+  oscalContactUuids?: Maybe<Array<Scalars['String']['output']>>
+  /** OSCAL party UUID linked to this group for responsibility mapping */
+  oscalPartyUUID?: Maybe<Scalars['String']['output']>
+  /** OSCAL role identifier used for role-based responsibility mapping */
+  oscalRole?: Maybe<Scalars['String']['output']>
   owner?: Maybe<Organization>
   /** the organization id that owns the object */
   ownerID?: Maybe<Scalars['ID']['output']>
@@ -21197,6 +21359,40 @@ export interface GroupWhereInput {
   nameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   not?: InputMaybe<GroupWhereInput>
   or?: InputMaybe<Array<GroupWhereInput>>
+  /** Filter for oscalContactUuidsHas to contain a specific value */
+  oscalContactUuidsHas?: InputMaybe<Scalars['String']['input']>
+  /** oscal_party_uuid field predicates */
+  oscalPartyUUID?: InputMaybe<Scalars['String']['input']>
+  oscalPartyUUIDContains?: InputMaybe<Scalars['String']['input']>
+  oscalPartyUUIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  oscalPartyUUIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  oscalPartyUUIDGT?: InputMaybe<Scalars['String']['input']>
+  oscalPartyUUIDGTE?: InputMaybe<Scalars['String']['input']>
+  oscalPartyUUIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  oscalPartyUUIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  oscalPartyUUIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  oscalPartyUUIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  oscalPartyUUIDLT?: InputMaybe<Scalars['String']['input']>
+  oscalPartyUUIDLTE?: InputMaybe<Scalars['String']['input']>
+  oscalPartyUUIDNEQ?: InputMaybe<Scalars['String']['input']>
+  oscalPartyUUIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  oscalPartyUUIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** oscal_role field predicates */
+  oscalRole?: InputMaybe<Scalars['String']['input']>
+  oscalRoleContains?: InputMaybe<Scalars['String']['input']>
+  oscalRoleContainsFold?: InputMaybe<Scalars['String']['input']>
+  oscalRoleEqualFold?: InputMaybe<Scalars['String']['input']>
+  oscalRoleGT?: InputMaybe<Scalars['String']['input']>
+  oscalRoleGTE?: InputMaybe<Scalars['String']['input']>
+  oscalRoleHasPrefix?: InputMaybe<Scalars['String']['input']>
+  oscalRoleHasSuffix?: InputMaybe<Scalars['String']['input']>
+  oscalRoleIn?: InputMaybe<Array<Scalars['String']['input']>>
+  oscalRoleIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  oscalRoleLT?: InputMaybe<Scalars['String']['input']>
+  oscalRoleLTE?: InputMaybe<Scalars['String']['input']>
+  oscalRoleNEQ?: InputMaybe<Scalars['String']['input']>
+  oscalRoleNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  oscalRoleNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** owner_id field predicates */
   ownerID?: InputMaybe<Scalars['ID']['input']>
   ownerIDContains?: InputMaybe<Scalars['ID']['input']>
@@ -23127,6 +23323,8 @@ export interface InternalPolicy extends Node {
   environmentID?: Maybe<Scalars['ID']['output']>
   /** the environment of the internal_policy */
   environmentName?: Maybe<Scalars['String']['output']>
+  /** stable external UUID for deterministic OSCAL export and round-tripping */
+  externalUUID?: Maybe<Scalars['String']['output']>
   file?: Maybe<File>
   /** This will contain the most recent file id if this policy was created from a file */
   fileID?: Maybe<Scalars['ID']['output']>
@@ -23564,6 +23762,22 @@ export interface InternalPolicyWhereInput {
   environmentNameNEQ?: InputMaybe<Scalars['String']['input']>
   environmentNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   environmentNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** external_uuid field predicates */
+  externalUUID?: InputMaybe<Scalars['String']['input']>
+  externalUUIDContains?: InputMaybe<Scalars['String']['input']>
+  externalUUIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  externalUUIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  externalUUIDGT?: InputMaybe<Scalars['String']['input']>
+  externalUUIDGTE?: InputMaybe<Scalars['String']['input']>
+  externalUUIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  externalUUIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  externalUUIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  externalUUIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  externalUUIDLT?: InputMaybe<Scalars['String']['input']>
+  externalUUIDLTE?: InputMaybe<Scalars['String']['input']>
+  externalUUIDNEQ?: InputMaybe<Scalars['String']['input']>
+  externalUUIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  externalUUIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** file_id field predicates */
   fileID?: InputMaybe<Scalars['ID']['input']>
   fileIDContains?: InputMaybe<Scalars['ID']['input']>
@@ -26308,6 +26522,8 @@ export interface Mutation {
   createBulkCSVSubprocessor: SubprocessorBulkCreatePayload
   /** Create new subscribers via CSV file */
   createBulkCSVSubscriber: SubscriberBulkCreatePayload
+  /** Create multiple new systemDetails via file upload */
+  createBulkCSVSystemDetail: SystemDetailBulkCreatePayload
   /** Create multiple new tagDefinitions via file upload */
   createBulkCSVTagDefinition: TagDefinitionBulkCreatePayload
   /** Create multiple new tasks via file upload */
@@ -26432,6 +26648,8 @@ export interface Mutation {
   createBulkSubprocessor: SubprocessorBulkCreatePayload
   /** Create new subscribers */
   createBulkSubscriber: SubscriberBulkCreatePayload
+  /** Create multiple new systemDetails */
+  createBulkSystemDetail: SystemDetailBulkCreatePayload
   /** Create multiple new tagDefinitions */
   createBulkTagDefinition: TagDefinitionBulkCreatePayload
   /** Create multiple new tasks */
@@ -26594,6 +26812,8 @@ export interface Mutation {
   createSubprocessor: SubprocessorCreatePayload
   /** Create a new subscriber */
   createSubscriber: SubscriberCreatePayload
+  /** Create a new systemDetail */
+  createSystemDetail: SystemDetailCreatePayload
   /** Create a new tfaSetting */
   createTFASetting: TfaSettingCreatePayload
   /** Create a new tagDefinition */
@@ -26730,6 +26950,8 @@ export interface Mutation {
   deleteBulkSubcontrol: SubcontrolBulkDeletePayload
   /** Delete multiple subprocessors */
   deleteBulkSubprocessor: SubprocessorBulkDeletePayload
+  /** Delete multiple systemDetails */
+  deleteBulkSystemDetail: SystemDetailBulkDeletePayload
   /** Delete multiple tasks */
   deleteBulkTask: TaskBulkDeletePayload
   /** Delete multiple templates */
@@ -26870,6 +27092,8 @@ export interface Mutation {
   deleteSubprocessor: SubprocessorDeletePayload
   /** Delete an existing subscriber by Email */
   deleteSubscriber: SubscriberDeletePayload
+  /** Delete an existing systemDetail */
+  deleteSystemDetail: SystemDetailDeletePayload
   /** Delete an existing tagDefinition */
   deleteTagDefinition: TagDefinitionDeletePayload
   /** Delete an existing task */
@@ -27024,6 +27248,8 @@ export interface Mutation {
   updateBulkCSVSubcontrol: SubcontrolBulkUpdatePayload
   /** Update multiple existing subprocessors via file upload */
   updateBulkCSVSubprocessor: SubprocessorBulkUpdatePayload
+  /** Update multiple existing systemDetails via file upload */
+  updateBulkCSVSystemDetail: SystemDetailBulkUpdatePayload
   /** Update multiple existing tasks via file upload */
   updateBulkCSVTask: TaskBulkUpdatePayload
   /** Update multiple existing templates via file upload */
@@ -27110,6 +27336,8 @@ export interface Mutation {
   updateBulkSubcontrol: SubcontrolBulkUpdatePayload
   /** Update multiple existing subprocessors */
   updateBulkSubprocessor: SubprocessorBulkUpdatePayload
+  /** Update multiple existing systemDetails */
+  updateBulkSystemDetail: SystemDetailBulkUpdatePayload
   /** Update multiple existing tasks */
   updateBulkTask: TaskBulkUpdatePayload
   /** Update multiple existing templates */
@@ -27252,6 +27480,8 @@ export interface Mutation {
   updateSubprocessor: SubprocessorUpdatePayload
   /** Update an existing subscriber */
   updateSubscriber: SubscriberUpdatePayload
+  /** Update an existing systemDetail */
+  updateSystemDetail: SystemDetailUpdatePayload
   /** Update an existing tfaSetting */
   updateTFASetting: TfaSettingUpdatePayload
   /** Update an existing tagDefinition */
@@ -27579,6 +27809,10 @@ export interface MutationCreateBulkCsvSubscriberArgs {
   input: Scalars['Upload']['input']
 }
 
+export interface MutationCreateBulkCsvSystemDetailArgs {
+  input: Scalars['Upload']['input']
+}
+
 export interface MutationCreateBulkCsvTagDefinitionArgs {
   input: Scalars['Upload']['input']
 }
@@ -27826,6 +28060,10 @@ export interface MutationCreateBulkSubprocessorArgs {
 
 export interface MutationCreateBulkSubscriberArgs {
   input?: InputMaybe<Array<CreateSubscriberInput>>
+}
+
+export interface MutationCreateBulkSystemDetailArgs {
+  input?: InputMaybe<Array<CreateSystemDetailInput>>
 }
 
 export interface MutationCreateBulkTagDefinitionArgs {
@@ -28165,6 +28403,10 @@ export interface MutationCreateSubscriberArgs {
   input: CreateSubscriberInput
 }
 
+export interface MutationCreateSystemDetailArgs {
+  input: CreateSystemDetailInput
+}
+
 export interface MutationCreateTfaSettingArgs {
   input: CreateTfaSettingInput
 }
@@ -28449,6 +28691,10 @@ export interface MutationDeleteBulkSubprocessorArgs {
   ids: Array<Scalars['ID']['input']>
 }
 
+export interface MutationDeleteBulkSystemDetailArgs {
+  ids: Array<Scalars['ID']['input']>
+}
+
 export interface MutationDeleteBulkTaskArgs {
   ids: Array<Scalars['ID']['input']>
 }
@@ -28728,6 +28974,10 @@ export interface MutationDeleteSubprocessorArgs {
 export interface MutationDeleteSubscriberArgs {
   email: Scalars['String']['input']
   ownerID?: InputMaybe<Scalars['ID']['input']>
+}
+
+export interface MutationDeleteSystemDetailArgs {
+  id: Scalars['ID']['input']
 }
 
 export interface MutationDeleteTagDefinitionArgs {
@@ -29047,6 +29297,10 @@ export interface MutationUpdateBulkCsvSubprocessorArgs {
   input: Scalars['Upload']['input']
 }
 
+export interface MutationUpdateBulkCsvSystemDetailArgs {
+  input: Scalars['Upload']['input']
+}
+
 export interface MutationUpdateBulkCsvTaskArgs {
   input: Scalars['Upload']['input']
 }
@@ -29253,6 +29507,11 @@ export interface MutationUpdateBulkSubcontrolArgs {
 export interface MutationUpdateBulkSubprocessorArgs {
   ids: Array<Scalars['ID']['input']>
   input: UpdateSubprocessorInput
+}
+
+export interface MutationUpdateBulkSystemDetailArgs {
+  ids: Array<Scalars['ID']['input']>
+  input: UpdateSystemDetailInput
 }
 
 export interface MutationUpdateBulkTaskArgs {
@@ -29623,6 +29882,11 @@ export interface MutationUpdateSubprocessorArgs {
 export interface MutationUpdateSubscriberArgs {
   email: Scalars['String']['input']
   input: UpdateSubscriberInput
+}
+
+export interface MutationUpdateSystemDetailArgs {
+  id: Scalars['ID']['input']
+  input: UpdateSystemDetailInput
 }
 
 export interface MutationUpdateTfaSettingArgs {
@@ -32174,6 +32438,7 @@ export interface Organization extends Node {
   subprocessorCreators: GroupConnection
   subprocessors: SubprocessorConnection
   subscribers: SubscriberConnection
+  systemDetails: SystemDetailConnection
   tagDefinitions: TagDefinitionConnection
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
@@ -32906,6 +33171,15 @@ export interface OrganizationSubscribersArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<SubscriberOrder>>
   where?: InputMaybe<SubscriberWhereInput>
+}
+
+export interface OrganizationSystemDetailsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<SystemDetailOrder>>
+  where?: InputMaybe<SystemDetailWhereInput>
 }
 
 export interface OrganizationTagDefinitionsArgs {
@@ -33986,6 +34260,9 @@ export interface OrganizationWhereInput {
   /** subscribers edge predicates */
   hasSubscribers?: InputMaybe<Scalars['Boolean']['input']>
   hasSubscribersWith?: InputMaybe<Array<SubscriberWhereInput>>
+  /** system_details edge predicates */
+  hasSystemDetails?: InputMaybe<Scalars['Boolean']['input']>
+  hasSystemDetailsWith?: InputMaybe<Array<SystemDetailWhereInput>>
   /** tag_definitions edge predicates */
   hasTagDefinitions?: InputMaybe<Scalars['Boolean']['input']>
   hasTagDefinitionsWith?: InputMaybe<Array<TagDefinitionWhereInput>>
@@ -34477,6 +34754,8 @@ export interface Platform extends Node {
   evidence: EvidenceConnection
   /** external identifier for the platform from an upstream inventory */
   externalReferenceID?: Maybe<Scalars['String']['output']>
+  /** stable external UUID for deterministic OSCAL export and round-tripping */
+  externalUUID?: Maybe<Scalars['String']['output']>
   files: FileConnection
   generatedScans: ScanConnection
   /** Indicates if this platform has pending changes awaiting workflow approval */
@@ -34552,6 +34831,7 @@ export interface Platform extends Node {
   sourceType: PlatformSourceType
   /** the lifecycle status of the platform */
   status: PlatformPlatformStatus
+  systemDetail?: Maybe<SystemDetail>
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
   tasks: TaskConnection
@@ -35206,6 +35486,22 @@ export interface PlatformWhereInput {
   externalReferenceIDNEQ?: InputMaybe<Scalars['String']['input']>
   externalReferenceIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   externalReferenceIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** external_uuid field predicates */
+  externalUUID?: InputMaybe<Scalars['String']['input']>
+  externalUUIDContains?: InputMaybe<Scalars['String']['input']>
+  externalUUIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  externalUUIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  externalUUIDGT?: InputMaybe<Scalars['String']['input']>
+  externalUUIDGTE?: InputMaybe<Scalars['String']['input']>
+  externalUUIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  externalUUIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  externalUUIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  externalUUIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  externalUUIDLT?: InputMaybe<Scalars['String']['input']>
+  externalUUIDLTE?: InputMaybe<Scalars['String']['input']>
+  externalUUIDNEQ?: InputMaybe<Scalars['String']['input']>
+  externalUUIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  externalUUIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** access_model edge predicates */
   hasAccessModel?: InputMaybe<Scalars['Boolean']['input']>
   hasAccessModelWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
@@ -35320,6 +35616,9 @@ export interface PlatformWhereInput {
   /** source_entities edge predicates */
   hasSourceEntities?: InputMaybe<Scalars['Boolean']['input']>
   hasSourceEntitiesWith?: InputMaybe<Array<EntityWhereInput>>
+  /** system_detail edge predicates */
+  hasSystemDetail?: InputMaybe<Scalars['Boolean']['input']>
+  hasSystemDetailWith?: InputMaybe<Array<SystemDetailWhereInput>>
   /** tasks edge predicates */
   hasTasks?: InputMaybe<Scalars['Boolean']['input']>
   hasTasksWith?: InputMaybe<Array<TaskWhereInput>>
@@ -36572,6 +36871,8 @@ export interface Program extends Node {
   /** the end date of the period */
   endDate?: Maybe<Scalars['Time']['output']>
   evidence: EvidenceConnection
+  /** stable external UUID for deterministic OSCAL export and round-tripping */
+  externalUUID?: Maybe<Scalars['String']['output']>
   files: FileConnection
   /** the short name of the compliance standard the program is based on, only used for framework type programs */
   frameworkName?: Maybe<Scalars['String']['output']>
@@ -36600,6 +36901,7 @@ export interface Program extends Node {
   /** the status of the program */
   status: ProgramProgramStatus
   subcontrols: SubcontrolConnection
+  systemDetail?: Maybe<SystemDetail>
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
   tasks: TaskConnection
@@ -37167,6 +37469,22 @@ export interface ProgramWhereInput {
   endDateNEQ?: InputMaybe<Scalars['Time']['input']>
   endDateNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
   endDateNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** external_uuid field predicates */
+  externalUUID?: InputMaybe<Scalars['String']['input']>
+  externalUUIDContains?: InputMaybe<Scalars['String']['input']>
+  externalUUIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  externalUUIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  externalUUIDGT?: InputMaybe<Scalars['String']['input']>
+  externalUUIDGTE?: InputMaybe<Scalars['String']['input']>
+  externalUUIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  externalUUIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  externalUUIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  externalUUIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  externalUUIDLT?: InputMaybe<Scalars['String']['input']>
+  externalUUIDLTE?: InputMaybe<Scalars['String']['input']>
+  externalUUIDNEQ?: InputMaybe<Scalars['String']['input']>
+  externalUUIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  externalUUIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** framework_name field predicates */
   frameworkName?: InputMaybe<Scalars['String']['input']>
   frameworkNameContains?: InputMaybe<Scalars['String']['input']>
@@ -37234,6 +37552,9 @@ export interface ProgramWhereInput {
   /** subcontrols edge predicates */
   hasSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
   hasSubcontrolsWith?: InputMaybe<Array<SubcontrolWhereInput>>
+  /** system_detail edge predicates */
+  hasSystemDetail?: InputMaybe<Scalars['Boolean']['input']>
+  hasSystemDetailWith?: InputMaybe<Array<SystemDetailWhereInput>>
   /** tasks edge predicates */
   hasTasks?: InputMaybe<Scalars['Boolean']['input']>
   hasTasksWith?: InputMaybe<Array<TaskWhereInput>>
@@ -37681,6 +38002,11 @@ export interface Query {
   /** Search across Subscriber objects */
   subscriberSearch?: Maybe<SubscriberConnection>
   subscribers: SubscriberConnection
+  /** Look up systemDetail by ID */
+  systemDetail: SystemDetail
+  /** Search across SystemDetail objects */
+  systemDetailSearch?: Maybe<SystemDetailConnection>
+  systemDetails: SystemDetailConnection
   /** Look up tagDefinition by ID */
   tagDefinition: TagDefinition
   /** Search across TagDefinition objects */
@@ -38989,6 +39315,27 @@ export interface QuerySubscribersArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<SubscriberOrder>>
   where?: InputMaybe<SubscriberWhereInput>
+}
+
+export interface QuerySystemDetailArgs {
+  id: Scalars['ID']['input']
+}
+
+export interface QuerySystemDetailSearchArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  query: Scalars['String']['input']
+}
+
+export interface QuerySystemDetailsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<SystemDetailOrder>>
+  where?: InputMaybe<SystemDetailWhereInput>
 }
 
 export interface QueryTagDefinitionArgs {
@@ -41065,6 +41412,8 @@ export interface Risk extends Node {
   environmentID?: Maybe<Scalars['ID']['output']>
   /** the environment of the risk */
   environmentName?: Maybe<Scalars['String']['output']>
+  /** stable external UUID for deterministic OSCAL export and round-tripping */
+  externalUUID?: Maybe<Scalars['String']['output']>
   id: Scalars['ID']['output']
   /** impact of the risk -critical, high, medium, low */
   impact?: Maybe<RiskRiskImpact>
@@ -41499,6 +41848,22 @@ export interface RiskWhereInput {
   environmentNameNEQ?: InputMaybe<Scalars['String']['input']>
   environmentNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   environmentNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** external_uuid field predicates */
+  externalUUID?: InputMaybe<Scalars['String']['input']>
+  externalUUIDContains?: InputMaybe<Scalars['String']['input']>
+  externalUUIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  externalUUIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  externalUUIDGT?: InputMaybe<Scalars['String']['input']>
+  externalUUIDGTE?: InputMaybe<Scalars['String']['input']>
+  externalUUIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  externalUUIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  externalUUIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  externalUUIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  externalUUIDLT?: InputMaybe<Scalars['String']['input']>
+  externalUUIDLTE?: InputMaybe<Scalars['String']['input']>
+  externalUUIDNEQ?: InputMaybe<Scalars['String']['input']>
+  externalUUIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  externalUUIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** action_plans edge predicates */
   hasActionPlans?: InputMaybe<Scalars['Boolean']['input']>
   hasActionPlansWith?: InputMaybe<Array<ActionPlanWhereInput>>
@@ -43109,6 +43474,7 @@ export interface SearchResults {
   subcontrols?: Maybe<SubcontrolConnection>
   subprocessors?: Maybe<SubprocessorConnection>
   subscribers?: Maybe<SubscriberConnection>
+  systemDetails?: Maybe<SystemDetailConnection>
   tagDefinitions?: Maybe<TagDefinitionConnection>
   tasks?: Maybe<TaskConnection>
   templates?: Maybe<TemplateConnection>
@@ -43690,13 +44056,19 @@ export interface Subcontrol extends Node {
   evidenceRequests?: Maybe<Array<Scalars['EvidenceRequests']['output']>>
   /** examples of evidence for the control */
   exampleEvidence?: Maybe<Array<Scalars['ExampleEvidence']['output']>>
+  /** stable external UUID for deterministic OSCAL export and round-tripping */
+  externalUUID?: Maybe<Scalars['String']['output']>
   /** Indicates if this subcontrol has pending changes awaiting workflow approval */
   hasPendingWorkflow: Scalars['Boolean']['output']
   /** Indicates if this subcontrol has any workflow history (completed or failed instances) */
   hasWorkflowHistory: Scalars['Boolean']['output']
   id: Scalars['ID']['output']
+  /** narrative describing current implementation state for OSCAL export */
+  implementationDescription?: Maybe<Scalars['String']['output']>
   /** implementation guidance for the control */
   implementationGuidance?: Maybe<Array<Scalars['ImplementationGuidance']['output']>>
+  /** OSCAL-aligned implementation status of the control */
+  implementationStatus?: Maybe<SubcontrolControlImplementationStatus>
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: Maybe<Scalars['String']['output']>
   internalPolicies: InternalPolicyConnection
@@ -43913,6 +44285,15 @@ export interface SubcontrolConnection {
   pageInfo: PageInfo
   /** Identifies the total count of items in the connection. */
   totalCount: Scalars['Int']['output']
+}
+
+/** SubcontrolControlImplementationStatus is enum for the field implementation_status */
+export enum SubcontrolControlImplementationStatus {
+  IMPLEMENTED = 'IMPLEMENTED',
+  INHERITED = 'INHERITED',
+  NOT_APPLICABLE = 'NOT_APPLICABLE',
+  PARTIALLY_IMPLEMENTED = 'PARTIALLY_IMPLEMENTED',
+  PLANNED = 'PLANNED',
 }
 
 /** SubcontrolControlSource is enum for the field source */
@@ -44149,6 +44530,22 @@ export interface SubcontrolWhereInput {
   displayIDLTE?: InputMaybe<Scalars['String']['input']>
   displayIDNEQ?: InputMaybe<Scalars['String']['input']>
   displayIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** external_uuid field predicates */
+  externalUUID?: InputMaybe<Scalars['String']['input']>
+  externalUUIDContains?: InputMaybe<Scalars['String']['input']>
+  externalUUIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  externalUUIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  externalUUIDGT?: InputMaybe<Scalars['String']['input']>
+  externalUUIDGTE?: InputMaybe<Scalars['String']['input']>
+  externalUUIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  externalUUIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  externalUUIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  externalUUIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  externalUUIDLT?: InputMaybe<Scalars['String']['input']>
+  externalUUIDLTE?: InputMaybe<Scalars['String']['input']>
+  externalUUIDNEQ?: InputMaybe<Scalars['String']['input']>
+  externalUUIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  externalUUIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** action_plans edge predicates */
   hasActionPlans?: InputMaybe<Scalars['Boolean']['input']>
   hasActionPlansWith?: InputMaybe<Array<ActionPlanWhereInput>>
@@ -44217,6 +44614,29 @@ export interface SubcontrolWhereInput {
   idLTE?: InputMaybe<Scalars['ID']['input']>
   idNEQ?: InputMaybe<Scalars['ID']['input']>
   idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** implementation_description field predicates */
+  implementationDescription?: InputMaybe<Scalars['String']['input']>
+  implementationDescriptionContains?: InputMaybe<Scalars['String']['input']>
+  implementationDescriptionContainsFold?: InputMaybe<Scalars['String']['input']>
+  implementationDescriptionEqualFold?: InputMaybe<Scalars['String']['input']>
+  implementationDescriptionGT?: InputMaybe<Scalars['String']['input']>
+  implementationDescriptionGTE?: InputMaybe<Scalars['String']['input']>
+  implementationDescriptionHasPrefix?: InputMaybe<Scalars['String']['input']>
+  implementationDescriptionHasSuffix?: InputMaybe<Scalars['String']['input']>
+  implementationDescriptionIn?: InputMaybe<Array<Scalars['String']['input']>>
+  implementationDescriptionIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  implementationDescriptionLT?: InputMaybe<Scalars['String']['input']>
+  implementationDescriptionLTE?: InputMaybe<Scalars['String']['input']>
+  implementationDescriptionNEQ?: InputMaybe<Scalars['String']['input']>
+  implementationDescriptionNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  implementationDescriptionNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** implementation_status field predicates */
+  implementationStatus?: InputMaybe<SubcontrolControlImplementationStatus>
+  implementationStatusIn?: InputMaybe<Array<SubcontrolControlImplementationStatus>>
+  implementationStatusIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  implementationStatusNEQ?: InputMaybe<SubcontrolControlImplementationStatus>
+  implementationStatusNotIn?: InputMaybe<Array<SubcontrolControlImplementationStatus>>
+  implementationStatusNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** internal_notes field predicates */
   internalNotes?: InputMaybe<Scalars['String']['input']>
   internalNotesContains?: InputMaybe<Scalars['String']['input']>
@@ -45070,6 +45490,361 @@ export interface Subscription {
   notificationCreated: Notification
 }
 
+export interface SystemDetail extends Node {
+  __typename?: 'SystemDetail'
+  /** authorization boundary narrative for OSCAL export */
+  authorizationBoundary?: Maybe<Scalars['String']['output']>
+  createdAt?: Maybe<Scalars['Time']['output']>
+  createdBy?: Maybe<Scalars['String']['output']>
+  /** system description used in OSCAL metadata */
+  description?: Maybe<Scalars['String']['output']>
+  /** a shortened prefixed id field to use as a human readable identifier */
+  displayID: Scalars['String']['output']
+  id: Scalars['ID']['output']
+  /** timestamp when metadata was last reviewed */
+  lastReviewed?: Maybe<Scalars['DateTime']['output']>
+  /** optional escape hatch for additional OSCAL metadata fields */
+  oscalMetadataJSON?: Maybe<Scalars['Map']['output']>
+  owner?: Maybe<Organization>
+  /** the ID of the organization owner of the object */
+  ownerID?: Maybe<Scalars['ID']['output']>
+  /** optional platform this detail belongs to */
+  platform?: Maybe<Platform>
+  /** optional platform anchor for this system detail */
+  platformID?: Maybe<Scalars['ID']['output']>
+  /** optional program this detail belongs to */
+  program?: Maybe<Program>
+  /** optional program anchor for this system detail */
+  programID?: Maybe<Scalars['ID']['output']>
+  /** structured revision history for OSCAL metadata */
+  revisionHistory?: Maybe<Array<Scalars['Any']['output']>>
+  /** security sensitivity level of the system */
+  sensitivityLevel?: Maybe<SystemDetailSystemSensitivityLevel>
+  /** system name used in OSCAL metadata */
+  systemName: Scalars['String']['output']
+  /** tags associated with the object */
+  tags?: Maybe<Array<Scalars['String']['output']>>
+  updatedAt?: Maybe<Scalars['Time']['output']>
+  updatedBy?: Maybe<Scalars['String']['output']>
+  /** system version used in OSCAL metadata */
+  version?: Maybe<Scalars['String']['output']>
+}
+
+/** Return response for createBulkSystemDetail mutation */
+export interface SystemDetailBulkCreatePayload {
+  __typename?: 'SystemDetailBulkCreatePayload'
+  /** Created systemDetails */
+  systemDetails?: Maybe<Array<SystemDetail>>
+}
+
+/** Return response for deleteBulkSystemDetail mutation */
+export interface SystemDetailBulkDeletePayload {
+  __typename?: 'SystemDetailBulkDeletePayload'
+  /** Deleted systemDetail IDs */
+  deletedIDs: Array<Scalars['ID']['output']>
+}
+
+/** Return response for updateBulkSystemDetail mutation */
+export interface SystemDetailBulkUpdatePayload {
+  __typename?: 'SystemDetailBulkUpdatePayload'
+  /** Updated systemDetails */
+  systemDetails?: Maybe<Array<SystemDetail>>
+  /** IDs of the updated systemDetails */
+  updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
+}
+
+/** A connection to a list of items. */
+export interface SystemDetailConnection {
+  __typename?: 'SystemDetailConnection'
+  /** A list of edges. */
+  edges?: Maybe<Array<Maybe<SystemDetailEdge>>>
+  /** Information to aid in pagination. */
+  pageInfo: PageInfo
+  /** Identifies the total count of items in the connection. */
+  totalCount: Scalars['Int']['output']
+}
+
+/** Return response for createSystemDetail mutation */
+export interface SystemDetailCreatePayload {
+  __typename?: 'SystemDetailCreatePayload'
+  /** Created systemDetail */
+  systemDetail: SystemDetail
+}
+
+/** Return response for deleteSystemDetail mutation */
+export interface SystemDetailDeletePayload {
+  __typename?: 'SystemDetailDeletePayload'
+  /** Deleted systemDetail ID */
+  deletedID: Scalars['ID']['output']
+}
+
+/** An edge in a connection. */
+export interface SystemDetailEdge {
+  __typename?: 'SystemDetailEdge'
+  /** A cursor for use in pagination. */
+  cursor: Scalars['Cursor']['output']
+  /** The item at the end of the edge. */
+  node?: Maybe<SystemDetail>
+}
+
+/** Ordering options for SystemDetail connections */
+export interface SystemDetailOrder {
+  /** The ordering direction. */
+  direction?: OrderDirection
+  /** The field by which to order SystemDetails. */
+  field: SystemDetailOrderField
+}
+
+/** Properties by which SystemDetail connections can be ordered. */
+export enum SystemDetailOrderField {
+  created_at = 'created_at',
+  system_name = 'system_name',
+  updated_at = 'updated_at',
+}
+
+/** SystemDetailSystemSensitivityLevel is enum for the field sensitivity_level */
+export enum SystemDetailSystemSensitivityLevel {
+  HIGH = 'HIGH',
+  LOW = 'LOW',
+  MODERATE = 'MODERATE',
+  UNKNOWN = 'UNKNOWN',
+}
+
+/** Return response for updateSystemDetail mutation */
+export interface SystemDetailUpdatePayload {
+  __typename?: 'SystemDetailUpdatePayload'
+  /** Updated systemDetail */
+  systemDetail: SystemDetail
+}
+
+/**
+ * SystemDetailWhereInput is used for filtering SystemDetail objects.
+ * Input was generated by ent.
+ */
+export interface SystemDetailWhereInput {
+  and?: InputMaybe<Array<SystemDetailWhereInput>>
+  /** authorization_boundary field predicates */
+  authorizationBoundary?: InputMaybe<Scalars['String']['input']>
+  authorizationBoundaryContains?: InputMaybe<Scalars['String']['input']>
+  authorizationBoundaryContainsFold?: InputMaybe<Scalars['String']['input']>
+  authorizationBoundaryEqualFold?: InputMaybe<Scalars['String']['input']>
+  authorizationBoundaryGT?: InputMaybe<Scalars['String']['input']>
+  authorizationBoundaryGTE?: InputMaybe<Scalars['String']['input']>
+  authorizationBoundaryHasPrefix?: InputMaybe<Scalars['String']['input']>
+  authorizationBoundaryHasSuffix?: InputMaybe<Scalars['String']['input']>
+  authorizationBoundaryIn?: InputMaybe<Array<Scalars['String']['input']>>
+  authorizationBoundaryIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  authorizationBoundaryLT?: InputMaybe<Scalars['String']['input']>
+  authorizationBoundaryLTE?: InputMaybe<Scalars['String']['input']>
+  authorizationBoundaryNEQ?: InputMaybe<Scalars['String']['input']>
+  authorizationBoundaryNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  authorizationBoundaryNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** created_at field predicates */
+  createdAt?: InputMaybe<Scalars['Time']['input']>
+  createdAtGT?: InputMaybe<Scalars['Time']['input']>
+  createdAtGTE?: InputMaybe<Scalars['Time']['input']>
+  createdAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  createdAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  createdAtLT?: InputMaybe<Scalars['Time']['input']>
+  createdAtLTE?: InputMaybe<Scalars['Time']['input']>
+  createdAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  createdAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  createdAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** created_by field predicates */
+  createdBy?: InputMaybe<Scalars['String']['input']>
+  createdByContains?: InputMaybe<Scalars['String']['input']>
+  createdByContainsFold?: InputMaybe<Scalars['String']['input']>
+  createdByEqualFold?: InputMaybe<Scalars['String']['input']>
+  createdByGT?: InputMaybe<Scalars['String']['input']>
+  createdByGTE?: InputMaybe<Scalars['String']['input']>
+  createdByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  createdByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  createdByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  createdByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  createdByLT?: InputMaybe<Scalars['String']['input']>
+  createdByLTE?: InputMaybe<Scalars['String']['input']>
+  createdByNEQ?: InputMaybe<Scalars['String']['input']>
+  createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** description field predicates */
+  description?: InputMaybe<Scalars['String']['input']>
+  descriptionContains?: InputMaybe<Scalars['String']['input']>
+  descriptionContainsFold?: InputMaybe<Scalars['String']['input']>
+  descriptionEqualFold?: InputMaybe<Scalars['String']['input']>
+  descriptionGT?: InputMaybe<Scalars['String']['input']>
+  descriptionGTE?: InputMaybe<Scalars['String']['input']>
+  descriptionHasPrefix?: InputMaybe<Scalars['String']['input']>
+  descriptionHasSuffix?: InputMaybe<Scalars['String']['input']>
+  descriptionIn?: InputMaybe<Array<Scalars['String']['input']>>
+  descriptionIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  descriptionLT?: InputMaybe<Scalars['String']['input']>
+  descriptionLTE?: InputMaybe<Scalars['String']['input']>
+  descriptionNEQ?: InputMaybe<Scalars['String']['input']>
+  descriptionNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  descriptionNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** display_id field predicates */
+  displayID?: InputMaybe<Scalars['String']['input']>
+  displayIDContains?: InputMaybe<Scalars['String']['input']>
+  displayIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  displayIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  displayIDGT?: InputMaybe<Scalars['String']['input']>
+  displayIDGTE?: InputMaybe<Scalars['String']['input']>
+  displayIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  displayIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  displayIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  displayIDLT?: InputMaybe<Scalars['String']['input']>
+  displayIDLTE?: InputMaybe<Scalars['String']['input']>
+  displayIDNEQ?: InputMaybe<Scalars['String']['input']>
+  displayIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** owner edge predicates */
+  hasOwner?: InputMaybe<Scalars['Boolean']['input']>
+  hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
+  /** platform edge predicates */
+  hasPlatform?: InputMaybe<Scalars['Boolean']['input']>
+  hasPlatformWith?: InputMaybe<Array<PlatformWhereInput>>
+  /** program edge predicates */
+  hasProgram?: InputMaybe<Scalars['Boolean']['input']>
+  hasProgramWith?: InputMaybe<Array<ProgramWhereInput>>
+  /** id field predicates */
+  id?: InputMaybe<Scalars['ID']['input']>
+  idContainsFold?: InputMaybe<Scalars['ID']['input']>
+  idEqualFold?: InputMaybe<Scalars['ID']['input']>
+  idGT?: InputMaybe<Scalars['ID']['input']>
+  idGTE?: InputMaybe<Scalars['ID']['input']>
+  idIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  idLT?: InputMaybe<Scalars['ID']['input']>
+  idLTE?: InputMaybe<Scalars['ID']['input']>
+  idNEQ?: InputMaybe<Scalars['ID']['input']>
+  idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** last_reviewed field predicates */
+  lastReviewed?: InputMaybe<Scalars['DateTime']['input']>
+  lastReviewedGT?: InputMaybe<Scalars['DateTime']['input']>
+  lastReviewedGTE?: InputMaybe<Scalars['DateTime']['input']>
+  lastReviewedIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  lastReviewedIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  lastReviewedLT?: InputMaybe<Scalars['DateTime']['input']>
+  lastReviewedLTE?: InputMaybe<Scalars['DateTime']['input']>
+  lastReviewedNEQ?: InputMaybe<Scalars['DateTime']['input']>
+  lastReviewedNotIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  lastReviewedNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  not?: InputMaybe<SystemDetailWhereInput>
+  or?: InputMaybe<Array<SystemDetailWhereInput>>
+  /** owner_id field predicates */
+  ownerID?: InputMaybe<Scalars['ID']['input']>
+  ownerIDContains?: InputMaybe<Scalars['ID']['input']>
+  ownerIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  ownerIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  ownerIDGT?: InputMaybe<Scalars['ID']['input']>
+  ownerIDGTE?: InputMaybe<Scalars['ID']['input']>
+  ownerIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  ownerIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  ownerIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  ownerIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  ownerIDLT?: InputMaybe<Scalars['ID']['input']>
+  ownerIDLTE?: InputMaybe<Scalars['ID']['input']>
+  ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** platform_id field predicates */
+  platformID?: InputMaybe<Scalars['ID']['input']>
+  platformIDContains?: InputMaybe<Scalars['ID']['input']>
+  platformIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  platformIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  platformIDGT?: InputMaybe<Scalars['ID']['input']>
+  platformIDGTE?: InputMaybe<Scalars['ID']['input']>
+  platformIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  platformIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  platformIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  platformIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  platformIDLT?: InputMaybe<Scalars['ID']['input']>
+  platformIDLTE?: InputMaybe<Scalars['ID']['input']>
+  platformIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  platformIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  platformIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** program_id field predicates */
+  programID?: InputMaybe<Scalars['ID']['input']>
+  programIDContains?: InputMaybe<Scalars['ID']['input']>
+  programIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  programIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  programIDGT?: InputMaybe<Scalars['ID']['input']>
+  programIDGTE?: InputMaybe<Scalars['ID']['input']>
+  programIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  programIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  programIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  programIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  programIDLT?: InputMaybe<Scalars['ID']['input']>
+  programIDLTE?: InputMaybe<Scalars['ID']['input']>
+  programIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  programIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  programIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** sensitivity_level field predicates */
+  sensitivityLevel?: InputMaybe<SystemDetailSystemSensitivityLevel>
+  sensitivityLevelIn?: InputMaybe<Array<SystemDetailSystemSensitivityLevel>>
+  sensitivityLevelIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  sensitivityLevelNEQ?: InputMaybe<SystemDetailSystemSensitivityLevel>
+  sensitivityLevelNotIn?: InputMaybe<Array<SystemDetailSystemSensitivityLevel>>
+  sensitivityLevelNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** system_name field predicates */
+  systemName?: InputMaybe<Scalars['String']['input']>
+  systemNameContains?: InputMaybe<Scalars['String']['input']>
+  systemNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  systemNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  systemNameGT?: InputMaybe<Scalars['String']['input']>
+  systemNameGTE?: InputMaybe<Scalars['String']['input']>
+  systemNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  systemNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  systemNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  systemNameLT?: InputMaybe<Scalars['String']['input']>
+  systemNameLTE?: InputMaybe<Scalars['String']['input']>
+  systemNameNEQ?: InputMaybe<Scalars['String']['input']>
+  systemNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** Filter for tagsHas to contain a specific value */
+  tagsHas?: InputMaybe<Scalars['String']['input']>
+  /** updated_at field predicates */
+  updatedAt?: InputMaybe<Scalars['Time']['input']>
+  updatedAtGT?: InputMaybe<Scalars['Time']['input']>
+  updatedAtGTE?: InputMaybe<Scalars['Time']['input']>
+  updatedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  updatedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedAtLT?: InputMaybe<Scalars['Time']['input']>
+  updatedAtLTE?: InputMaybe<Scalars['Time']['input']>
+  updatedAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  updatedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  updatedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** updated_by field predicates */
+  updatedBy?: InputMaybe<Scalars['String']['input']>
+  updatedByContains?: InputMaybe<Scalars['String']['input']>
+  updatedByContainsFold?: InputMaybe<Scalars['String']['input']>
+  updatedByEqualFold?: InputMaybe<Scalars['String']['input']>
+  updatedByGT?: InputMaybe<Scalars['String']['input']>
+  updatedByGTE?: InputMaybe<Scalars['String']['input']>
+  updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
+  updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
+  updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  updatedByLT?: InputMaybe<Scalars['String']['input']>
+  updatedByLTE?: InputMaybe<Scalars['String']['input']>
+  updatedByNEQ?: InputMaybe<Scalars['String']['input']>
+  updatedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** version field predicates */
+  version?: InputMaybe<Scalars['String']['input']>
+  versionContains?: InputMaybe<Scalars['String']['input']>
+  versionContainsFold?: InputMaybe<Scalars['String']['input']>
+  versionEqualFold?: InputMaybe<Scalars['String']['input']>
+  versionGT?: InputMaybe<Scalars['String']['input']>
+  versionGTE?: InputMaybe<Scalars['String']['input']>
+  versionHasPrefix?: InputMaybe<Scalars['String']['input']>
+  versionHasSuffix?: InputMaybe<Scalars['String']['input']>
+  versionIn?: InputMaybe<Array<Scalars['String']['input']>>
+  versionIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  versionLT?: InputMaybe<Scalars['String']['input']>
+  versionLTE?: InputMaybe<Scalars['String']['input']>
+  versionNEQ?: InputMaybe<Scalars['String']['input']>
+  versionNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  versionNotNil?: InputMaybe<Scalars['Boolean']['input']>
+}
+
 export interface TfaSetting extends Node {
   __typename?: 'TFASetting'
   createdAt?: Maybe<Scalars['Time']['output']>
@@ -45543,6 +46318,8 @@ export interface Task extends Node {
   evidence: EvidenceConnection
   /** an optional external reference URL for the task */
   externalReferenceURL?: Maybe<Array<Scalars['String']['output']>>
+  /** stable external UUID for deterministic OSCAL export and round-tripping */
+  externalUUID?: Maybe<Scalars['String']['output']>
   groups: GroupConnection
   id: Scalars['ID']['output']
   /** key to prevent duplicates for auto-generated task based on rules */
@@ -45971,6 +46748,22 @@ export interface TaskWhereInput {
   environmentNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** Filter for externalReferenceUrlHas to contain a specific value */
   externalReferenceUrlHas?: InputMaybe<Scalars['String']['input']>
+  /** external_uuid field predicates */
+  externalUUID?: InputMaybe<Scalars['String']['input']>
+  externalUUIDContains?: InputMaybe<Scalars['String']['input']>
+  externalUUIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  externalUUIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  externalUUIDGT?: InputMaybe<Scalars['String']['input']>
+  externalUUIDGTE?: InputMaybe<Scalars['String']['input']>
+  externalUUIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  externalUUIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  externalUUIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  externalUUIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  externalUUIDLT?: InputMaybe<Scalars['String']['input']>
+  externalUUIDLTE?: InputMaybe<Scalars['String']['input']>
+  externalUUIDNEQ?: InputMaybe<Scalars['String']['input']>
+  externalUUIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  externalUUIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** action_plans edge predicates */
   hasActionPlans?: InputMaybe<Scalars['Boolean']['input']>
   hasActionPlansWith?: InputMaybe<Array<ActionPlanWhereInput>>
@@ -50675,8 +51468,11 @@ export interface UpdateControlInput {
   clearEvidence?: InputMaybe<Scalars['Boolean']['input']>
   clearEvidenceRequests?: InputMaybe<Scalars['Boolean']['input']>
   clearExampleEvidence?: InputMaybe<Scalars['Boolean']['input']>
+  clearExternalUUID?: InputMaybe<Scalars['Boolean']['input']>
   clearFindings?: InputMaybe<Scalars['Boolean']['input']>
+  clearImplementationDescription?: InputMaybe<Scalars['Boolean']['input']>
   clearImplementationGuidance?: InputMaybe<Scalars['Boolean']['input']>
+  clearImplementationStatus?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalNotes?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalPolicies?: InputMaybe<Scalars['Boolean']['input']>
   clearMappedCategories?: InputMaybe<Scalars['Boolean']['input']>
@@ -50726,8 +51522,14 @@ export interface UpdateControlInput {
   evidenceRequests?: InputMaybe<Array<Scalars['EvidenceRequests']['input']>>
   /** examples of evidence for the control */
   exampleEvidence?: InputMaybe<Array<Scalars['ExampleEvidence']['input']>>
+  /** stable external UUID for deterministic OSCAL export and round-tripping */
+  externalUUID?: InputMaybe<Scalars['String']['input']>
+  /** narrative describing current implementation state for OSCAL export */
+  implementationDescription?: InputMaybe<Scalars['String']['input']>
   /** implementation guidance for the control */
   implementationGuidance?: InputMaybe<Array<Scalars['ImplementationGuidance']['input']>>
+  /** OSCAL-aligned implementation status of the control */
+  implementationStatus?: InputMaybe<ControlControlImplementationStatus>
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: InputMaybe<Scalars['String']['input']>
   /** mapped categories of the control to other standards */
@@ -51716,6 +52518,7 @@ export interface UpdateEvidenceInput {
   clearDescription?: InputMaybe<Scalars['Boolean']['input']>
   clearEnvironment?: InputMaybe<Scalars['Boolean']['input']>
   clearEnvironmentName?: InputMaybe<Scalars['Boolean']['input']>
+  clearExternalUUID?: InputMaybe<Scalars['Boolean']['input']>
   clearFiles?: InputMaybe<Scalars['Boolean']['input']>
   clearIsAutomated?: InputMaybe<Scalars['Boolean']['input']>
   clearPlatforms?: InputMaybe<Scalars['Boolean']['input']>
@@ -51742,6 +52545,8 @@ export interface UpdateEvidenceInput {
   environmentID?: InputMaybe<Scalars['ID']['input']>
   /** the environment of the evidence */
   environmentName?: InputMaybe<Scalars['String']['input']>
+  /** stable external UUID for deterministic OSCAL export and round-tripping */
+  externalUUID?: InputMaybe<Scalars['String']['input']>
   /** whether the evidence was automatically generated */
   isAutomated?: InputMaybe<Scalars['Boolean']['input']>
   /** the name of the evidence */
@@ -51783,10 +52588,13 @@ export interface UpdateExportInput {
   addFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   clearErrorMessage?: InputMaybe<Scalars['Boolean']['input']>
   clearEvents?: InputMaybe<Scalars['Boolean']['input']>
+  clearExportMetadata?: InputMaybe<Scalars['Boolean']['input']>
   clearFiles?: InputMaybe<Scalars['Boolean']['input']>
   clearOwner?: InputMaybe<Scalars['Boolean']['input']>
   /** if we try to export and it fails, the error message will be stored here */
   errorMessage?: InputMaybe<Scalars['String']['input']>
+  /** metadata for the export record */
+  exportMetadata?: InputMaybe<Scalars['ExportMetadata']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
   removeEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -52198,6 +53006,7 @@ export interface UpdateGroupInput {
   addScanEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addScanViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  appendOscalContactUuids?: InputMaybe<Array<Scalars['String']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   clearActionPlanBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearActionPlanEditors?: InputMaybe<Scalars['Boolean']['input']>
@@ -52230,6 +53039,9 @@ export interface UpdateGroupInput {
   clearNarrativeBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearNarrativeEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearNarrativeViewers?: InputMaybe<Scalars['Boolean']['input']>
+  clearOscalContactUuids?: InputMaybe<Scalars['Boolean']['input']>
+  clearOscalPartyUUID?: InputMaybe<Scalars['Boolean']['input']>
+  clearOscalRole?: InputMaybe<Scalars['Boolean']['input']>
   clearOwner?: InputMaybe<Scalars['Boolean']['input']>
   clearPlatformBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearPlatformEditors?: InputMaybe<Scalars['Boolean']['input']>
@@ -52265,6 +53077,12 @@ export interface UpdateGroupInput {
   logoURL?: InputMaybe<Scalars['String']['input']>
   /** the name of the group - must be unique within the organization */
   name?: InputMaybe<Scalars['String']['input']>
+  /** OSCAL contact UUID references associated with this group */
+  oscalContactUuids?: InputMaybe<Array<Scalars['String']['input']>>
+  /** OSCAL party UUID linked to this group for responsibility mapping */
+  oscalPartyUUID?: InputMaybe<Scalars['String']['input']>
+  /** OSCAL role identifier used for role-based responsibility mapping */
+  oscalRole?: InputMaybe<Scalars['String']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
   removeActionPlanBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeActionPlanEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -52575,6 +53393,7 @@ export interface UpdateInternalPolicyInput {
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearEnvironment?: InputMaybe<Scalars['Boolean']['input']>
   clearEnvironmentName?: InputMaybe<Scalars['Boolean']['input']>
+  clearExternalUUID?: InputMaybe<Scalars['Boolean']['input']>
   clearFile?: InputMaybe<Scalars['Boolean']['input']>
   clearImprovementSuggestions?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalNotes?: InputMaybe<Scalars['Boolean']['input']>
@@ -52617,6 +53436,8 @@ export interface UpdateInternalPolicyInput {
   environmentID?: InputMaybe<Scalars['ID']['input']>
   /** the environment of the internal_policy */
   environmentName?: InputMaybe<Scalars['String']['input']>
+  /** stable external UUID for deterministic OSCAL export and round-tripping */
+  externalUUID?: InputMaybe<Scalars['String']['input']>
   fileID?: InputMaybe<Scalars['ID']['input']>
   /** suggested improvements for the policy */
   improvementSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
@@ -53217,6 +54038,7 @@ export interface UpdateOrganizationInput {
   addSubprocessorCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addSubprocessorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addSubscriberIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addSystemDetailIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTagDefinitionIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTemplateCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -53322,6 +54144,7 @@ export interface UpdateOrganizationInput {
   clearSubprocessorCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearSubprocessors?: InputMaybe<Scalars['Boolean']['input']>
   clearSubscribers?: InputMaybe<Scalars['Boolean']['input']>
+  clearSystemDetails?: InputMaybe<Scalars['Boolean']['input']>
   clearTagDefinitions?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearTasks?: InputMaybe<Scalars['Boolean']['input']>
@@ -53424,6 +54247,7 @@ export interface UpdateOrganizationInput {
   removeSubprocessorCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeSubprocessorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeSubscriberIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeSystemDetailIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTagDefinitionIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTemplateCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -53629,6 +54453,7 @@ export interface UpdatePlatformInput {
   clearEstimatedMonthlyCost?: InputMaybe<Scalars['Boolean']['input']>
   clearEvidence?: InputMaybe<Scalars['Boolean']['input']>
   clearExternalReferenceID?: InputMaybe<Scalars['Boolean']['input']>
+  clearExternalUUID?: InputMaybe<Scalars['Boolean']['input']>
   clearFiles?: InputMaybe<Scalars['Boolean']['input']>
   clearGeneratedScans?: InputMaybe<Scalars['Boolean']['input']>
   clearIdentityHolders?: InputMaybe<Scalars['Boolean']['input']>
@@ -53660,6 +54485,7 @@ export interface UpdatePlatformInput {
   clearSourceAssets?: InputMaybe<Scalars['Boolean']['input']>
   clearSourceEntities?: InputMaybe<Scalars['Boolean']['input']>
   clearSourceIdentifier?: InputMaybe<Scalars['Boolean']['input']>
+  clearSystemDetail?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearTasks?: InputMaybe<Scalars['Boolean']['input']>
   clearTechnicalOwner?: InputMaybe<Scalars['Boolean']['input']>
@@ -53690,6 +54516,8 @@ export interface UpdatePlatformInput {
   estimatedMonthlyCost?: InputMaybe<Scalars['Float']['input']>
   /** external identifier for the platform from an upstream inventory */
   externalReferenceID?: InputMaybe<Scalars['String']['input']>
+  /** stable external UUID for deterministic OSCAL export and round-tripping */
+  externalUUID?: InputMaybe<Scalars['String']['input']>
   /** the internal owner for the platform when no user or group is linked */
   internalOwner?: InputMaybe<Scalars['String']['input']>
   internalOwnerGroupID?: InputMaybe<Scalars['ID']['input']>
@@ -53753,6 +54581,7 @@ export interface UpdatePlatformInput {
   sourceType?: InputMaybe<PlatformSourceType>
   /** the lifecycle status of the platform */
   status?: InputMaybe<PlatformPlatformStatus>
+  systemDetailID?: InputMaybe<Scalars['ID']['input']>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   /** technical owner for the platform when no user or group is linked */
@@ -53946,6 +54775,7 @@ export interface UpdateProgramInput {
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearEndDate?: InputMaybe<Scalars['Boolean']['input']>
   clearEvidence?: InputMaybe<Scalars['Boolean']['input']>
+  clearExternalUUID?: InputMaybe<Scalars['Boolean']['input']>
   clearFiles?: InputMaybe<Scalars['Boolean']['input']>
   clearFrameworkName?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalPolicies?: InputMaybe<Scalars['Boolean']['input']>
@@ -53959,6 +54789,7 @@ export interface UpdateProgramInput {
   clearRisks?: InputMaybe<Scalars['Boolean']['input']>
   clearStartDate?: InputMaybe<Scalars['Boolean']['input']>
   clearSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
+  clearSystemDetail?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearTasks?: InputMaybe<Scalars['Boolean']['input']>
   clearViewers?: InputMaybe<Scalars['Boolean']['input']>
@@ -53966,6 +54797,8 @@ export interface UpdateProgramInput {
   description?: InputMaybe<Scalars['String']['input']>
   /** the end date of the period */
   endDate?: InputMaybe<Scalars['Time']['input']>
+  /** stable external UUID for deterministic OSCAL export and round-tripping */
+  externalUUID?: InputMaybe<Scalars['String']['input']>
   /** the short name of the compliance standard the program is based on, only used for framework type programs */
   frameworkName?: InputMaybe<Scalars['String']['input']>
   /** the name of the program */
@@ -53995,6 +54828,7 @@ export interface UpdateProgramInput {
   startDate?: InputMaybe<Scalars['Time']['input']>
   /** the status of the program */
   status?: InputMaybe<ProgramProgramStatus>
+  systemDetailID?: InputMaybe<Scalars['ID']['input']>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
 }
@@ -54321,6 +55155,7 @@ export interface UpdateRiskInput {
   clearEntities?: InputMaybe<Scalars['Boolean']['input']>
   clearEnvironment?: InputMaybe<Scalars['Boolean']['input']>
   clearEnvironmentName?: InputMaybe<Scalars['Boolean']['input']>
+  clearExternalUUID?: InputMaybe<Scalars['Boolean']['input']>
   clearImpact?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalPolicies?: InputMaybe<Scalars['Boolean']['input']>
   clearLikelihood?: InputMaybe<Scalars['Boolean']['input']>
@@ -54353,6 +55188,8 @@ export interface UpdateRiskInput {
   environmentID?: InputMaybe<Scalars['ID']['input']>
   /** the environment of the risk */
   environmentName?: InputMaybe<Scalars['String']['input']>
+  /** stable external UUID for deterministic OSCAL export and round-tripping */
+  externalUUID?: InputMaybe<Scalars['String']['input']>
   /** impact of the risk -critical, high, medium, low */
   impact?: InputMaybe<RiskRiskImpact>
   /** likelihood of the risk occurring; unlikely, likely, highly likely */
@@ -54685,7 +55522,10 @@ export interface UpdateSubcontrolInput {
   clearEvidence?: InputMaybe<Scalars['Boolean']['input']>
   clearEvidenceRequests?: InputMaybe<Scalars['Boolean']['input']>
   clearExampleEvidence?: InputMaybe<Scalars['Boolean']['input']>
+  clearExternalUUID?: InputMaybe<Scalars['Boolean']['input']>
+  clearImplementationDescription?: InputMaybe<Scalars['Boolean']['input']>
   clearImplementationGuidance?: InputMaybe<Scalars['Boolean']['input']>
+  clearImplementationStatus?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalNotes?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalPolicies?: InputMaybe<Scalars['Boolean']['input']>
   clearMappedCategories?: InputMaybe<Scalars['Boolean']['input']>
@@ -54724,8 +55564,14 @@ export interface UpdateSubcontrolInput {
   evidenceRequests?: InputMaybe<Array<Scalars['EvidenceRequests']['input']>>
   /** examples of evidence for the control */
   exampleEvidence?: InputMaybe<Array<Scalars['ExampleEvidence']['input']>>
+  /** stable external UUID for deterministic OSCAL export and round-tripping */
+  externalUUID?: InputMaybe<Scalars['String']['input']>
+  /** narrative describing current implementation state for OSCAL export */
+  implementationDescription?: InputMaybe<Scalars['String']['input']>
   /** implementation guidance for the control */
   implementationGuidance?: InputMaybe<Array<Scalars['ImplementationGuidance']['input']>>
+  /** OSCAL-aligned implementation status of the control */
+  implementationStatus?: InputMaybe<SubcontrolControlImplementationStatus>
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: InputMaybe<Scalars['String']['input']>
   /** mapped categories of the control to other standards */
@@ -54831,6 +55677,45 @@ export interface UpdateSubscriberInput {
 }
 
 /**
+ * UpdateSystemDetailInput is used for update SystemDetail object.
+ * Input was generated by ent.
+ */
+export interface UpdateSystemDetailInput {
+  appendRevisionHistory?: InputMaybe<Array<Scalars['Any']['input']>>
+  appendTags?: InputMaybe<Array<Scalars['String']['input']>>
+  /** authorization boundary narrative for OSCAL export */
+  authorizationBoundary?: InputMaybe<Scalars['String']['input']>
+  clearAuthorizationBoundary?: InputMaybe<Scalars['Boolean']['input']>
+  clearDescription?: InputMaybe<Scalars['Boolean']['input']>
+  clearLastReviewed?: InputMaybe<Scalars['Boolean']['input']>
+  clearOscalMetadataJSON?: InputMaybe<Scalars['Boolean']['input']>
+  clearPlatform?: InputMaybe<Scalars['Boolean']['input']>
+  clearProgram?: InputMaybe<Scalars['Boolean']['input']>
+  clearRevisionHistory?: InputMaybe<Scalars['Boolean']['input']>
+  clearSensitivityLevel?: InputMaybe<Scalars['Boolean']['input']>
+  clearTags?: InputMaybe<Scalars['Boolean']['input']>
+  clearVersion?: InputMaybe<Scalars['Boolean']['input']>
+  /** system description used in OSCAL metadata */
+  description?: InputMaybe<Scalars['String']['input']>
+  /** timestamp when metadata was last reviewed */
+  lastReviewed?: InputMaybe<Scalars['DateTime']['input']>
+  /** optional escape hatch for additional OSCAL metadata fields */
+  oscalMetadataJSON?: InputMaybe<Scalars['Map']['input']>
+  platformID?: InputMaybe<Scalars['ID']['input']>
+  programID?: InputMaybe<Scalars['ID']['input']>
+  /** structured revision history for OSCAL metadata */
+  revisionHistory?: InputMaybe<Array<Scalars['Any']['input']>>
+  /** security sensitivity level of the system */
+  sensitivityLevel?: InputMaybe<SystemDetailSystemSensitivityLevel>
+  /** system name used in OSCAL metadata */
+  systemName?: InputMaybe<Scalars['String']['input']>
+  /** tags associated with the object */
+  tags?: InputMaybe<Array<Scalars['String']['input']>>
+  /** system version used in OSCAL metadata */
+  version?: InputMaybe<Scalars['String']['input']>
+}
+
+/**
  * UpdateTFASettingInput is used for update TFASetting object.
  * Input was generated by ent.
  */
@@ -54912,6 +55797,7 @@ export interface UpdateTaskInput {
   clearEnvironmentName?: InputMaybe<Scalars['Boolean']['input']>
   clearEvidence?: InputMaybe<Scalars['Boolean']['input']>
   clearExternalReferenceURL?: InputMaybe<Scalars['Boolean']['input']>
+  clearExternalUUID?: InputMaybe<Scalars['Boolean']['input']>
   clearGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearIdentityHolders?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalPolicies?: InputMaybe<Scalars['Boolean']['input']>
@@ -54943,6 +55829,8 @@ export interface UpdateTaskInput {
   environmentName?: InputMaybe<Scalars['String']['input']>
   /** an optional external reference URL for the task */
   externalReferenceURL?: InputMaybe<Array<Scalars['String']['input']>>
+  /** stable external UUID for deterministic OSCAL export and round-tripping */
+  externalUUID?: InputMaybe<Scalars['String']['input']>
   parentID?: InputMaybe<Scalars['ID']['input']>
   removeActionPlanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeCommentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -60899,8 +61787,20 @@ export type GetAssetAssociationsQuery = {
   __typename?: 'Query'
   asset: {
     __typename?: 'Asset'
+    scans: { __typename?: 'ScanConnection'; totalCount: number; edges?: Array<{ __typename?: 'ScanEdge'; node?: { __typename?: 'Scan'; id: string; target: string } | null } | null> | null }
+    entities: {
+      __typename?: 'EntityConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'EntityEdge'; node?: { __typename?: 'Entity'; id: string; name?: string | null; displayName?: string | null } | null } | null> | null
+    }
+    identityHolders: {
+      __typename?: 'IdentityHolderConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'IdentityHolderEdge'; node?: { __typename?: 'IdentityHolder'; id: string; fullName: string; displayID: string } | null } | null> | null
+    }
     controls: {
       __typename?: 'ControlConnection'
+      totalCount: number
       edges?: Array<{
         __typename?: 'ControlEdge'
         node?: { __typename?: 'Control'; id: string; refCode: string; description?: string | null; displayID: string; referenceFramework?: string | null } | null
@@ -63426,6 +64326,33 @@ export type UpdateBulkEntityMutationVariables = Exact<{
 
 export type UpdateBulkEntityMutation = { __typename?: 'Mutation'; updateBulkEntity: { __typename?: 'EntityBulkUpdatePayload'; updatedIDs?: Array<string> | null } }
 
+export type GetEntityAssociationsQueryVariables = Exact<{
+  entityId: Scalars['ID']['input']
+}>
+
+export type GetEntityAssociationsQuery = {
+  __typename?: 'Query'
+  entity: {
+    __typename?: 'Entity'
+    assets: {
+      __typename?: 'AssetConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'AssetEdge'; node?: { __typename?: 'Asset'; id: string; name: string; displayName?: string | null } | null } | null> | null
+    }
+    scans: { __typename?: 'ScanConnection'; totalCount: number; edges?: Array<{ __typename?: 'ScanEdge'; node?: { __typename?: 'Scan'; id: string; target: string } | null } | null> | null }
+    campaigns: {
+      __typename?: 'CampaignConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'CampaignEdge'; node?: { __typename?: 'Campaign'; id: string; name: string; displayID: string } | null } | null> | null
+    }
+    identityHolders: {
+      __typename?: 'IdentityHolderConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'IdentityHolderEdge'; node?: { __typename?: 'IdentityHolder'; id: string; fullName: string; displayID: string } | null } | null> | null
+    }
+  }
+}
+
 export type CreateEvidenceMutationVariables = Exact<{
   input: CreateEvidenceInput
   evidenceFiles?: InputMaybe<Array<Scalars['Upload']['input']> | Scalars['Upload']['input']>
@@ -64570,6 +65497,37 @@ export type UpdateBulkIdentityHolderMutationVariables = Exact<{
 }>
 
 export type UpdateBulkIdentityHolderMutation = { __typename?: 'Mutation'; updateBulkIdentityHolder: { __typename?: 'IdentityHolderBulkUpdatePayload'; updatedIDs?: Array<string> | null } }
+
+export type GetIdentityHolderAssociationsQueryVariables = Exact<{
+  identityHolderId: Scalars['ID']['input']
+}>
+
+export type GetIdentityHolderAssociationsQuery = {
+  __typename?: 'Query'
+  identityHolder: {
+    __typename?: 'IdentityHolder'
+    assets: {
+      __typename?: 'AssetConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'AssetEdge'; node?: { __typename?: 'Asset'; id: string; name: string; displayName?: string | null } | null } | null> | null
+    }
+    entities: {
+      __typename?: 'EntityConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'EntityEdge'; node?: { __typename?: 'Entity'; id: string; name?: string | null; displayName?: string | null } | null } | null> | null
+    }
+    campaigns: {
+      __typename?: 'CampaignConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'CampaignEdge'; node?: { __typename?: 'Campaign'; id: string; name: string; displayID: string } | null } | null> | null
+    }
+    tasks: {
+      __typename?: 'TaskConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; title: string; displayID: string } | null } | null> | null
+    }
+  }
+}
 
 export type GetIntegrationsQueryVariables = Exact<{
   where?: InputMaybe<IntegrationWhereInput>
@@ -68479,6 +69437,110 @@ export type CreateBulkCsvSubscriberMutation = {
   __typename?: 'Mutation'
   createBulkCSVSubscriber: { __typename?: 'SubscriberBulkCreatePayload'; subscribers?: Array<{ __typename?: 'Subscriber'; id: string }> | null }
 }
+
+export type SystemDetailsWithFilterQueryVariables = Exact<{
+  where?: InputMaybe<SystemDetailWhereInput>
+  orderBy?: InputMaybe<Array<SystemDetailOrder> | SystemDetailOrder>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type SystemDetailsWithFilterQuery = {
+  __typename?: 'Query'
+  systemDetails: {
+    __typename?: 'SystemDetailConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'SystemDetailEdge'
+      node?: {
+        __typename?: 'SystemDetail'
+        authorizationBoundary?: string | null
+        createdAt?: any | null
+        createdBy?: string | null
+        description?: string | null
+        displayID: string
+        id: string
+        lastReviewed?: string | null
+        oscalMetadataJSON?: any | null
+        platformID?: string | null
+        programID?: string | null
+        systemName: string
+        updatedAt?: any | null
+        updatedBy?: string | null
+        version?: string | null
+      } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
+  }
+}
+
+export type SystemDetailQueryVariables = Exact<{
+  systemDetailId: Scalars['ID']['input']
+}>
+
+export type SystemDetailQuery = {
+  __typename?: 'Query'
+  systemDetail: {
+    __typename?: 'SystemDetail'
+    authorizationBoundary?: string | null
+    createdAt?: any | null
+    createdBy?: string | null
+    description?: string | null
+    displayID: string
+    id: string
+    lastReviewed?: string | null
+    oscalMetadataJSON?: any | null
+    platformID?: string | null
+    programID?: string | null
+    systemName: string
+    updatedAt?: any | null
+    updatedBy?: string | null
+    version?: string | null
+  }
+}
+
+export type CreateSystemDetailMutationVariables = Exact<{
+  input: CreateSystemDetailInput
+}>
+
+export type CreateSystemDetailMutation = { __typename?: 'Mutation'; createSystemDetail: { __typename?: 'SystemDetailCreatePayload'; systemDetail: { __typename?: 'SystemDetail'; id: string } } }
+
+export type UpdateSystemDetailMutationVariables = Exact<{
+  updateSystemDetailId: Scalars['ID']['input']
+  input: UpdateSystemDetailInput
+}>
+
+export type UpdateSystemDetailMutation = { __typename?: 'Mutation'; updateSystemDetail: { __typename?: 'SystemDetailUpdatePayload'; systemDetail: { __typename?: 'SystemDetail'; id: string } } }
+
+export type DeleteSystemDetailMutationVariables = Exact<{
+  deleteSystemDetailId: Scalars['ID']['input']
+}>
+
+export type DeleteSystemDetailMutation = { __typename?: 'Mutation'; deleteSystemDetail: { __typename?: 'SystemDetailDeletePayload'; deletedID: string } }
+
+export type CreateBulkCsvSystemDetailMutationVariables = Exact<{
+  input: Scalars['Upload']['input']
+}>
+
+export type CreateBulkCsvSystemDetailMutation = {
+  __typename?: 'Mutation'
+  createBulkCSVSystemDetail: { __typename?: 'SystemDetailBulkCreatePayload'; systemDetails?: Array<{ __typename?: 'SystemDetail'; id: string }> | null }
+}
+
+export type DeleteBulkSystemDetailMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+}>
+
+export type DeleteBulkSystemDetailMutation = { __typename?: 'Mutation'; deleteBulkSystemDetail: { __typename?: 'SystemDetailBulkDeletePayload'; deletedIDs: Array<string> } }
+
+export type UpdateBulkSystemDetailMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+  input: UpdateSystemDetailInput
+}>
+
+export type UpdateBulkSystemDetailMutation = { __typename?: 'Mutation'; updateBulkSystemDetail: { __typename?: 'SystemDetailBulkUpdatePayload'; updatedIDs?: Array<string> | null } }
 
 export type GetTagsQueryVariables = Exact<{ [key: string]: never }>
 

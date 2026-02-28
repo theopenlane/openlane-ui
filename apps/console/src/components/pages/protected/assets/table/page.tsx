@@ -1,10 +1,10 @@
 'use client'
 
-import React from 'react'
+import React, { useCallback } from 'react'
 import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 
-import { AssetsNodeNonNull, useAsset, useUpdateAsset, useCreateAsset, useBulkDeleteAsset, useCreateBulkCSVAsset, useBulkEditAsset } from '@/lib/graphql-hooks/asset'
+import { AssetsNodeNonNull, useAsset, useUpdateAsset, useCreateAsset, useBulkDeleteAsset, useCreateBulkCSVAsset, useBulkEditAsset, useGetAssetAssociations } from '@/lib/graphql-hooks/asset'
 import { useSearchParams } from 'next/navigation'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
 import { breadcrumbs, getFieldsToRender, getFilterFields, visibilityFields } from './table-config'
@@ -13,10 +13,13 @@ import { getColumns } from './columns'
 import TableComponent from './table'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { Value } from 'platejs'
-import { AssetAssetType, AssetSourceType, AssetQuery, CreateAssetInput, UpdateAssetInput } from '@repo/codegen/src/schema'
+import { AssetAssetType, AssetSourceType, AssetQuery, CreateAssetInput, UpdateAssetInput, GetAssetAssociationsQuery } from '@repo/codegen/src/schema'
 import { normalizeEntityData, buildResponsibilityPayload } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
+import { buildAssociationPayload } from '@/components/shared/object-association/utils'
+import { useInitialAssociations } from '@/hooks/useInitialAssociations'
+import { ASSET_ASSOCIATION_CONFIG } from '@/components/shared/object-association/association-configs'
 
 const normalizeData = (data: AssetQuery['asset']) =>
   normalizeEntityData(data, {
@@ -30,6 +33,17 @@ const AssetPage: React.FC = () => {
   const id = searchParams.get('id')
   const isCreate = searchParams.get('create') === 'true'
   const { data, isLoading } = useAsset(id || undefined)
+  const { data: associationsData } = useGetAssetAssociations(id || undefined)
+  const extractAssociations = useCallback((assocData: GetAssetAssociationsQuery) => {
+    const asset = assocData.asset
+    return {
+      scanIDs: (asset.scans?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+      entityIDs: (asset.entities?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+      identityHolderIDs: (asset.identityHolders?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+      controlIDs: (asset.controls?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+    }
+  }, [])
+  const initialAssociationsRef = useInitialAssociations(associationsData, extractAssociations, id)
 
   const plateEditorHelper = usePlateEditor()
 
@@ -141,11 +155,19 @@ const AssetPage: React.FC = () => {
     updateMutation,
     createMutation,
     buildPayload: async (data) => {
-      const { internalOwner, ...rest } = data
+      const { controlIDs, scanIDs, entityIDs, identityHolderIDs, internalOwner, ...rest } = data
       const description = rest.description ? await plateEditorHelper.convertToHtml(rest.description as Value) : undefined
+      const associationPayload = buildAssociationPayload(
+        ASSET_ASSOCIATION_CONFIG.associationKeys,
+        { controlIDs, scanIDs, entityIDs, identityHolderIDs },
+        isCreate,
+        initialAssociationsRef.current,
+      )
+
       return {
         ...rest,
         description,
+        ...associationPayload,
         ...buildResponsibilityPayload('internalOwner', internalOwner, { mode: isCreate ? 'create' : 'update' }),
       }
     },

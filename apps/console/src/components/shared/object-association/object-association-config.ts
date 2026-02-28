@@ -1,19 +1,43 @@
+import { GET_ALL_ASSETS } from '@repo/codegen/query/asset'
+import { GET_ALL_CAMPAIGNS } from '@repo/codegen/query/campaign'
 import { GET_ALL_CONTROLS } from '@repo/codegen/query/control'
 import { GET_ALL_CONTROL_OBJECTIVES } from '@repo/codegen/query/control-objective'
+import { GET_ALL_ENTITIES } from '@repo/codegen/query/entity'
 import { GET_ALL_EVIDENCES } from '@repo/codegen/query/evidence'
 import { GET_ALL_GROUPS } from '@repo/codegen/query/group'
+import { GET_ALL_IDENTITY_HOLDERS } from '@repo/codegen/query/identity-holder'
 import { GET_ALL_INTERNAL_POLICIES } from '@repo/codegen/query/internal-policy'
 import { GET_ALL_PROCEDURES } from '@repo/codegen/query/procedure'
 import { GET_ALL_PROGRAMS } from '@repo/codegen/query/program'
 import { GET_ALL_RISKS } from '@repo/codegen/query/risk'
+import { GET_ALL_SCANS } from '@repo/codegen/query/scan'
 import { GET_ALL_SUBCONTROLS } from '@repo/codegen/query/subcontrol'
 import { TASKS_WITH_FILTER } from '@repo/codegen/query/task'
 
-import { Control, Subcontrol, ControlObjective, Program, TaskEdge, Evidence, Group, InternalPolicy, Procedure, PageInfo, ControlObjectiveObjectiveStatus } from '@repo/codegen/src/schema'
+import {
+  Asset,
+  Campaign,
+  Control,
+  Subcontrol,
+  ControlObjective,
+  Entity,
+  Program,
+  TaskEdge,
+  Evidence,
+  Group,
+  IdentityHolder,
+  InternalPolicy,
+  Procedure,
+  Scan,
+  PageInfo,
+  ControlObjectiveObjectiveStatus,
+} from '@repo/codegen/src/schema'
 import { useQueryClient } from '@tanstack/react-query'
 import { RequestDocument } from 'graphql-request'
 
 import {
+  AssetsWithFilterQuery,
+  CampaignsWithFilterQuery,
   GetAllControlObjectivesQuery,
   GetAllControlsQuery,
   GetAllEvidencesQuery,
@@ -23,9 +47,21 @@ import {
   GetAllProgramsQuery,
   GetAllRisksQuery,
   GetAllSubcontrolsQuery,
+  EntitiesWithFilterQuery,
+  IdentityHoldersWithFilterQuery,
+  ScansWithFilterQuery,
   TasksWithFilterQuery,
 } from '@repo/codegen/src/schema'
-import type { UpdateControlInput, UpdateInternalPolicyInput, UpdateProcedureInput, UpdateRiskInput, UpdateSubcontrolInput } from '@repo/codegen/src/schema'
+import type {
+  UpdateAssetInput,
+  UpdateControlInput,
+  UpdateEntityInput,
+  UpdateIdentityHolderInput,
+  UpdateInternalPolicyInput,
+  UpdateProcedureInput,
+  UpdateRiskInput,
+  UpdateSubcontrolInput,
+} from '@repo/codegen/src/schema'
 
 export type QueryResponse =
   | GetAllControlsQuery
@@ -38,8 +74,28 @@ export type QueryResponse =
   | GetAllInternalPoliciesQuery
   | GetAllProceduresWithDetailsQuery
   | GetAllRisksQuery
+  | ScansWithFilterQuery
+  | CampaignsWithFilterQuery
+  | AssetsWithFilterQuery
+  | EntitiesWithFilterQuery
+  | IdentityHoldersWithFilterQuery
 
-type QueryResponseMapKey = 'controls' | 'subcontrols' | 'controlObjectives' | 'programs' | 'tasks' | 'evidences' | 'groups' | 'internalPolicies' | 'procedures' | 'risks'
+type QueryResponseMapKey =
+  | 'controls'
+  | 'subcontrols'
+  | 'controlObjectives'
+  | 'programs'
+  | 'tasks'
+  | 'evidences'
+  | 'groups'
+  | 'internalPolicies'
+  | 'procedures'
+  | 'risks'
+  | 'scans'
+  | 'campaigns'
+  | 'assets'
+  | 'entities'
+  | 'identityHolders'
 
 export type AllObjectQueriesData = {
   controls?: {
@@ -92,6 +148,31 @@ export type AllObjectQueriesData = {
     pageInfo?: PageInfo
     totalCount?: number
   }
+  scans?: {
+    edges?: Array<{ node: Scan }>
+    pageInfo?: PageInfo
+    totalCount?: number
+  }
+  campaigns?: {
+    edges?: Array<{ node: Campaign }>
+    pageInfo?: PageInfo
+    totalCount?: number
+  }
+  assets?: {
+    edges?: Array<{ node: Asset }>
+    pageInfo?: PageInfo
+    totalCount?: number
+  }
+  entities?: {
+    edges?: Array<{ node: Entity }>
+    pageInfo?: PageInfo
+    totalCount?: number
+  }
+  identityHolders?: {
+    edges?: Array<{ node: IdentityHolder }>
+    pageInfo?: PageInfo
+    totalCount?: number
+  }
 }
 
 export type AllObjectQueriesDataKey = keyof AllObjectQueriesData
@@ -107,6 +188,11 @@ export enum ObjectTypeObjects {
   INTERNAL_POLICY = 'Internal Policy',
   PROCEDURE = 'Procedure',
   RISK = 'Risk',
+  SCAN = 'Scan',
+  CAMPAIGN = 'Campaign',
+  ASSET = 'Asset',
+  ENTITY = 'Vendor',
+  IDENTITY_HOLDER = 'Personnel',
 }
 
 type ObjectQueryConfig = {
@@ -177,6 +263,36 @@ export const OBJECT_QUERY_CONFIG: Record<ObjectTypeObjects, ObjectQueryConfig> =
     placeholder: 'Search risks',
     queryDocument: GET_ALL_RISKS,
   },
+  [ObjectTypeObjects.SCAN]: {
+    responseObjectKey: 'scans',
+    inputName: 'scanIDs',
+    placeholder: 'Search scans',
+    queryDocument: GET_ALL_SCANS,
+  },
+  [ObjectTypeObjects.CAMPAIGN]: {
+    responseObjectKey: 'campaigns',
+    inputName: 'campaignIDs',
+    placeholder: 'Search campaigns',
+    queryDocument: GET_ALL_CAMPAIGNS,
+  },
+  [ObjectTypeObjects.ASSET]: {
+    responseObjectKey: 'assets',
+    inputName: 'assetIDs',
+    placeholder: 'Search assets',
+    queryDocument: GET_ALL_ASSETS,
+  },
+  [ObjectTypeObjects.ENTITY]: {
+    responseObjectKey: 'entities',
+    inputName: 'entityIDs',
+    placeholder: 'Search vendors',
+    queryDocument: GET_ALL_ENTITIES,
+  },
+  [ObjectTypeObjects.IDENTITY_HOLDER]: {
+    responseObjectKey: 'identityHolders',
+    inputName: 'identityHolderIDs',
+    placeholder: 'Search personnel',
+    queryDocument: GET_ALL_IDENTITY_HOLDERS,
+  },
 }
 
 export const invalidateTaskAssociations = (payload: Record<string, unknown>, queryClient: ReturnType<typeof useQueryClient>) => {
@@ -233,6 +349,26 @@ export function getPagination(objectKey: QueryResponseMapKey | undefined, data: 
     case 'risks': {
       const typed = data as GetAllRisksQuery
       return { pageInfo: typed.risks.pageInfo, totalCount: typed.risks.totalCount }
+    }
+    case 'scans': {
+      const typed = data as ScansWithFilterQuery
+      return { pageInfo: typed.scans.pageInfo, totalCount: typed.scans.totalCount }
+    }
+    case 'campaigns': {
+      const typed = data as CampaignsWithFilterQuery
+      return { pageInfo: typed.campaigns.pageInfo, totalCount: typed.campaigns.totalCount }
+    }
+    case 'assets': {
+      const typed = data as AssetsWithFilterQuery
+      return { pageInfo: typed.assets.pageInfo, totalCount: typed.assets.totalCount }
+    }
+    case 'entities': {
+      const typed = data as EntitiesWithFilterQuery
+      return { pageInfo: typed.entities.pageInfo, totalCount: typed.entities.totalCount }
+    }
+    case 'identityHolders': {
+      const typed = data as IdentityHoldersWithFilterQuery
+      return { pageInfo: typed.identityHolders.pageInfo, totalCount: typed.identityHolders.totalCount }
     }
     default:
       return {}
@@ -351,6 +487,56 @@ export function extractTableRows(objectKey: QueryResponseMapKey | undefined, dat
       }))
     }
 
+    case 'scans': {
+      const items = (data as ScansWithFilterQuery).scans?.edges ?? []
+      return items.map((item) => ({
+        id: item?.node?.id || '',
+        name: item?.node?.target ?? '',
+        inputName: selectedInputName,
+        refCode: '',
+      }))
+    }
+
+    case 'campaigns': {
+      const items = (data as CampaignsWithFilterQuery).campaigns?.edges ?? []
+      return items.map((item) => ({
+        id: item?.node?.id || '',
+        name: item?.node?.name ?? '',
+        inputName: selectedInputName,
+        refCode: item?.node?.displayID ?? '',
+      }))
+    }
+
+    case 'assets': {
+      const items = (data as AssetsWithFilterQuery).assets?.edges ?? []
+      return items.map((item) => ({
+        id: item?.node?.id || '',
+        name: item?.node?.name ?? '',
+        inputName: selectedInputName,
+        refCode: item?.node?.displayName ?? '',
+      }))
+    }
+
+    case 'entities': {
+      const items = (data as EntitiesWithFilterQuery).entities?.edges ?? []
+      return items.map((item) => ({
+        id: item?.node?.id || '',
+        name: item?.node?.name ?? '',
+        inputName: selectedInputName,
+        refCode: item?.node?.displayName ?? '',
+      }))
+    }
+
+    case 'identityHolders': {
+      const items = (data as IdentityHoldersWithFilterQuery).identityHolders?.edges ?? []
+      return items.map((item) => ({
+        id: item?.node?.id || '',
+        name: item?.node?.fullName ?? '',
+        inputName: selectedInputName,
+        refCode: item?.node?.displayID ?? '',
+      }))
+    }
+
     default:
       return []
   }
@@ -370,6 +556,11 @@ export const generateWhere = (selectedObject: ObjectTypeObjects | null, searchVa
     [ObjectTypeObjects.INTERNAL_POLICY]: { systemOwned: false },
     [ObjectTypeObjects.PROCEDURE]: { systemOwned: false },
     [ObjectTypeObjects.RISK]: { ownerID: ownerID },
+    [ObjectTypeObjects.SCAN]: {},
+    [ObjectTypeObjects.CAMPAIGN]: { ownerID: ownerID },
+    [ObjectTypeObjects.ASSET]: { ownerID: ownerID },
+    [ObjectTypeObjects.ENTITY]: { systemOwned: false },
+    [ObjectTypeObjects.IDENTITY_HOLDER]: { ownerID: ownerID },
   }
 
   const searchAttributeMap: Partial<Record<ObjectTypeObjects, string>> = {
@@ -383,6 +574,11 @@ export const generateWhere = (selectedObject: ObjectTypeObjects | null, searchVa
     [ObjectTypeObjects.INTERNAL_POLICY]: 'nameContainsFold',
     [ObjectTypeObjects.PROCEDURE]: 'nameContainsFold',
     [ObjectTypeObjects.RISK]: 'nameContainsFold',
+    [ObjectTypeObjects.SCAN]: 'targetContainsFold',
+    [ObjectTypeObjects.CAMPAIGN]: 'nameContainsFold',
+    [ObjectTypeObjects.ASSET]: 'nameContainsFold',
+    [ObjectTypeObjects.ENTITY]: 'nameContainsFold',
+    [ObjectTypeObjects.IDENTITY_HOLDER]: 'fullNameContainsFold',
   }
 
   const secondarySearchMap: Partial<Record<ObjectTypeObjects, string>> = {
@@ -394,6 +590,11 @@ export const generateWhere = (selectedObject: ObjectTypeObjects | null, searchVa
     [ObjectTypeObjects.EVIDENCE]: 'descriptionContainsFold',
     [ObjectTypeObjects.INTERNAL_POLICY]: 'detailsContainsFold',
     [ObjectTypeObjects.RISK]: 'detailsContainsFold',
+    [ObjectTypeObjects.SCAN]: 'descriptionContainsFold',
+    [ObjectTypeObjects.CAMPAIGN]: 'descriptionContainsFold',
+    [ObjectTypeObjects.ASSET]: 'descriptionContainsFold',
+    [ObjectTypeObjects.ENTITY]: 'descriptionContainsFold',
+    [ObjectTypeObjects.IDENTITY_HOLDER]: 'emailContainsFold',
   }
 
   const defaultWhereMap: Partial<Record<ObjectTypeObjects, Record<string, unknown>>> = {
@@ -430,7 +631,7 @@ type TAssociationSectionDefinition = {
   inputName: TObjectAssociationInputName
 }
 
-const ASSOCIATION_SECTION_CONFIG = {
+export const ASSOCIATION_SECTION_CONFIG = {
   controls: { dataField: 'controls', inputName: 'controlIDs' },
   subcontrols: { dataField: 'subcontrols', inputName: 'subcontrolIDs' },
   controlObjectives: { dataField: 'controlObjectives', inputName: 'controlObjectiveIDs' },
@@ -441,9 +642,23 @@ const ASSOCIATION_SECTION_CONFIG = {
   risks: { dataField: 'risks', inputName: 'riskIDs' },
   evidences: { dataField: 'evidences', inputName: 'evidenceIDs' },
   groups: { dataField: 'groups', inputName: 'groupIDs' },
+  scans: { dataField: 'scans', inputName: 'scanIDs' },
+  campaigns: { dataField: 'campaigns', inputName: 'campaignIDs' },
+  assets: { dataField: 'assets', inputName: 'assetIDs' },
+  entities: { dataField: 'entities', inputName: 'entityIDs' },
+  identityHolders: { dataField: 'identityHolders', inputName: 'identityHolderIDs' },
 } as const satisfies Record<string, TAssociationSectionDefinition>
 
 export type AssociationSectionKey = keyof typeof ASSOCIATION_SECTION_CONFIG
+
+const SECTION_DISPLAY_NAMES_OVERRIDES: Partial<Record<AssociationSectionKey, string>> = {
+  entities: 'Vendors',
+  identityHolders: 'Personnel',
+}
+
+export const getSectionDisplayName = (key: string): string => {
+  return SECTION_DISPLAY_NAMES_OVERRIDES[key as AssociationSectionKey] ?? key.charAt(0).toUpperCase() + key.slice(1)
+}
 
 type TAssociationRemovalConfig<TInput extends object, TSectionKey extends AssociationSectionKey> = {
   sectionKeyToDataField: Record<TSectionKey, (typeof ASSOCIATION_SECTION_CONFIG)[TSectionKey]['dataField']>
@@ -466,6 +681,11 @@ const ASSOCIATION_SECTION_QUERY_KEY = {
   risks: ['risks'],
   evidences: ['evidences'],
   groups: ['groups'],
+  scans: ['scans'],
+  campaigns: ['campaigns'],
+  assets: ['assets'],
+  entities: ['entities'],
+  identityHolders: ['identityHolders'],
 } as const satisfies Record<AssociationSectionKey, readonly [string]>
 
 const createAssociationRemovalConfig =
@@ -495,6 +715,9 @@ const SUBCONTROL_ASSOCIATION_SECTIONS = ['policies', 'procedures', 'tasks', 'ris
 const POLICY_ASSOCIATION_SECTIONS = ['procedures', 'controls', 'subcontrols', 'controlObjectives', 'tasks', 'programs'] as const
 const PROCEDURE_ASSOCIATION_SECTIONS = ['policies', 'controls', 'subcontrols', 'risks', 'tasks', 'programs'] as const
 const RISK_ASSOCIATION_SECTIONS = ['controls', 'procedures', 'subcontrols', 'programs', 'tasks', 'policies'] as const
+const ASSET_ASSOCIATION_SECTIONS = ['scans', 'entities', 'identityHolders', 'controls'] as const
+const ENTITY_ASSOCIATION_SECTIONS = ['assets', 'scans', 'campaigns', 'identityHolders'] as const
+const IDENTITY_HOLDER_ASSOCIATION_SECTIONS = ['assets', 'entities', 'campaigns', 'tasks'] as const
 
 export const ASSOCIATION_REMOVAL_CONFIG = {
   control: createAssociationRemovalConfig<UpdateControlInput>()(CONTROL_ASSOCIATION_SECTIONS),
@@ -502,4 +725,7 @@ export const ASSOCIATION_REMOVAL_CONFIG = {
   policy: createAssociationRemovalConfig<UpdateInternalPolicyInput>()(POLICY_ASSOCIATION_SECTIONS),
   procedure: createAssociationRemovalConfig<UpdateProcedureInput>()(PROCEDURE_ASSOCIATION_SECTIONS),
   risk: createAssociationRemovalConfig<UpdateRiskInput>()(RISK_ASSOCIATION_SECTIONS),
+  asset: createAssociationRemovalConfig<UpdateAssetInput>()(ASSET_ASSOCIATION_SECTIONS),
+  entity: createAssociationRemovalConfig<UpdateEntityInput>()(ENTITY_ASSOCIATION_SECTIONS),
+  identityHolder: createAssociationRemovalConfig<UpdateIdentityHolderInput>()(IDENTITY_HOLDER_ASSOCIATION_SECTIONS),
 } as const

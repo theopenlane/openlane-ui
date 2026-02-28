@@ -17,10 +17,21 @@ import {
   UpdateBulkEntityMutationVariables,
   DeleteBulkEntityMutation,
   DeleteBulkEntityMutationVariables,
+  GetEntityAssociationsQuery,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
 import { TPagination } from '@repo/ui/pagination-types'
-import { GET_ALL_ENTITIES, CREATE_ENTITY, UPDATE_ENTITY, DELETE_ENTITY, ENTITY, CREATE_CSV_BULK_ENTITY, BULK_EDIT_ENTITY, BULK_DELETE_ENTITY } from '@repo/codegen/query/entity'
+import {
+  GET_ALL_ENTITIES,
+  CREATE_ENTITY,
+  UPDATE_ENTITY,
+  DELETE_ENTITY,
+  ENTITY,
+  CREATE_CSV_BULK_ENTITY,
+  BULK_EDIT_ENTITY,
+  BULK_DELETE_ENTITY,
+  GET_ENTITY_ASSOCIATIONS,
+} from '@repo/codegen/query/entity'
 
 type GetAllEntitiesArgs = {
   where?: EntitiesWithFilterQueryVariables['where']
@@ -123,5 +134,14 @@ export const useBulkDeleteEntity = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['entities'] })
     },
+  })
+}
+
+export const useGetEntityAssociations = (entityId?: string) => {
+  const { client } = useGraphQLClient()
+  return useQuery<GetEntityAssociationsQuery, unknown>({
+    queryKey: ['entities', entityId, 'associations'],
+    queryFn: async () => client.request<GetEntityAssociationsQuery>(GET_ENTITY_ASSOCIATIONS, { entityId: entityId as string }),
+    enabled: !!entityId,
   })
 }

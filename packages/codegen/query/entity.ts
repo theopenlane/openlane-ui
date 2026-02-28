@@ -206,3 +206,49 @@ export const BULK_EDIT_ENTITY = gql`
     }
   }
 `
+
+export const GET_ENTITY_ASSOCIATIONS = gql`
+  query GetEntityAssociations($entityId: ID!) {
+    entity(id: $entityId) {
+      assets {
+        edges {
+          node {
+            id
+            name
+            displayName
+          }
+        }
+        totalCount
+      }
+      scans {
+        edges {
+          node {
+            id
+            target
+          }
+        }
+        totalCount
+      }
+      campaigns {
+        edges {
+          node {
+            id
+            name
+            displayID
+          }
+        }
+        totalCount
+      }
+      identityHolders {
+        edges {
+          node {
+            id
+            fullName
+            displayID
+          }
+        }
+        totalCount
+      }
+    }
+  }
+`

@@ -1,12 +1,19 @@
 'use client'
 
-import React from 'react'
+import React, { useCallback } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
 
-import { IdentityHolderUserStatus, IdentityHolderIdentityHolderType, IdentityHolderQuery, UpdateIdentityHolderInput, CreateIdentityHolderInput } from '@repo/codegen/src/schema'
+import {
+  IdentityHolderUserStatus,
+  IdentityHolderIdentityHolderType,
+  IdentityHolderQuery,
+  UpdateIdentityHolderInput,
+  CreateIdentityHolderInput,
+  GetIdentityHolderAssociationsQuery,
+} from '@repo/codegen/src/schema'
 import { normalizeEntityData, buildResponsibilityPayload } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 import {
   useUpdateIdentityHolder,
@@ -15,6 +22,7 @@ import {
   useCreateBulkCSVIdentityHolder,
   useBulkEditIdentityHolder,
   useIdentityHolder,
+  useGetIdentityHolderAssociations,
   IdentityHoldersNodeNonNull,
 } from '@/lib/graphql-hooks/identity-holder'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
@@ -23,6 +31,9 @@ import { PersonnelSheetConfig, PersonnelTablePageConfig, objectType, objectName,
 import { getColumns } from './columns'
 import TableComponent from './table'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
+import { buildAssociationPayload } from '@/components/shared/object-association/utils'
+import { useInitialAssociations } from '@/hooks/useInitialAssociations'
+import { IDENTITY_HOLDER_ASSOCIATION_CONFIG } from '@/components/shared/object-association/association-configs'
 
 const normalizeData = (data: IdentityHolderQuery['identityHolder']) =>
   normalizeEntityData(data, {
@@ -36,6 +47,17 @@ const PersonnelPage: React.FC = () => {
   const id = searchParams.get('id')
   const isCreate = searchParams.get('create') === 'true'
   const { data, isLoading } = useIdentityHolder(id || undefined)
+  const { data: associationsData } = useGetIdentityHolderAssociations(id || undefined)
+  const extractAssociations = useCallback((assocData: GetIdentityHolderAssociationsQuery) => {
+    const identityHolder = assocData.identityHolder
+    return {
+      assetIDs: (identityHolder.assets?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+      entityIDs: (identityHolder.entities?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+      campaignIDs: (identityHolder.campaigns?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+      taskIDs: (identityHolder.tasks?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+    }
+  }, [])
+  const initialAssociationsRef = useInitialAssociations(associationsData, extractAssociations, id)
 
   function getName(data: IdentityHoldersNodeNonNull) {
     return data?.fullName
@@ -115,9 +137,17 @@ const PersonnelPage: React.FC = () => {
     updateMutation,
     createMutation,
     buildPayload: async (data) => {
-      const { internalOwner, ...rest } = data
+      const { assetIDs, entityIDs, campaignIDs, taskIDs, internalOwner, ...rest } = data
+      const associationPayload = buildAssociationPayload(
+        IDENTITY_HOLDER_ASSOCIATION_CONFIG.associationKeys,
+        { assetIDs, entityIDs, campaignIDs, taskIDs },
+        isCreate,
+        initialAssociationsRef.current,
+      )
+
       return {
         ...rest,
+        ...associationPayload,
         ...buildResponsibilityPayload('internalOwner', internalOwner, { mode: isCreate ? 'create' : 'update' }),
       }
     },

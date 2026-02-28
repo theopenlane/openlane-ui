@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useCallback } from 'react'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { Value } from 'platejs'
 import { useSearchParams } from 'next/navigation'
@@ -8,9 +8,9 @@ import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
 
-import { EntityEntityStatus, EntityFrequency, EntityQuery, UpdateEntityInput, CreateEntityInput } from '@repo/codegen/src/schema'
+import { EntityEntityStatus, EntityFrequency, EntityQuery, UpdateEntityInput, CreateEntityInput, GetEntityAssociationsQuery } from '@repo/codegen/src/schema'
 import { normalizeEntityData, buildResponsibilityPayload } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
-import { useUpdateEntity, useCreateEntity, useBulkDeleteEntity, useCreateBulkCSVEntity, useBulkEditEntity, EntitiesNodeNonNull } from '@/lib/graphql-hooks/entity'
+import { useUpdateEntity, useCreateEntity, useBulkDeleteEntity, useCreateBulkCSVEntity, useBulkEditEntity, EntitiesNodeNonNull, useGetEntityAssociations } from '@/lib/graphql-hooks/entity'
 import { useEntity } from '@/lib/graphql-hooks/entity'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
 import { breadcrumbs, getFieldsToRender, getFilterFields, visibilityFields } from './table-config'
@@ -18,6 +18,9 @@ import { EntitySheetConfig, EntityTablePageConfig, objectType, objectName, table
 import { getColumns } from './columns'
 import TableComponent from './table'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
+import { buildAssociationPayload } from '@/components/shared/object-association/utils'
+import { useInitialAssociations } from '@/hooks/useInitialAssociations'
+import { ENTITY_ASSOCIATION_CONFIG } from '@/components/shared/object-association/association-configs'
 
 const normalizeData = (data: EntityQuery['entity']) =>
   normalizeEntityData(data, {
@@ -32,6 +35,17 @@ const VendorPage: React.FC = () => {
   const id = searchParams.get('id')
   const isCreate = searchParams.get('create') === 'true'
   const { data, isLoading } = useEntity(id || undefined)
+  const { data: associationsData } = useGetEntityAssociations(id || undefined)
+  const extractAssociations = useCallback((assocData: GetEntityAssociationsQuery) => {
+    const entity = assocData.entity
+    return {
+      assetIDs: (entity.assets?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+      scanIDs: (entity.scans?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+      campaignIDs: (entity.campaigns?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+      identityHolderIDs: (entity.identityHolders?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+    }
+  }, [])
+  const initialAssociationsRef = useInitialAssociations(associationsData, extractAssociations, id)
 
   const plateEditorHelper = usePlateEditor()
 
@@ -128,11 +142,19 @@ const VendorPage: React.FC = () => {
     updateMutation,
     createMutation,
     buildPayload: async (data) => {
-      const { internalOwner, reviewedBy, ...rest } = data
+      const { assetIDs, scanIDs, campaignIDs, identityHolderIDs, internalOwner, reviewedBy, ...rest } = data
       const description = rest.description ? await plateEditorHelper.convertToHtml(rest.description as Value) : undefined
+      const associationPayload = buildAssociationPayload(
+        ENTITY_ASSOCIATION_CONFIG.associationKeys,
+        { assetIDs, scanIDs, campaignIDs, identityHolderIDs },
+        isCreate,
+        initialAssociationsRef.current,
+      )
+
       return {
         ...rest,
         description,
+        ...associationPayload,
         ...buildResponsibilityPayload('internalOwner', internalOwner, { mode: isCreate ? 'create' : 'update' }),
         ...buildResponsibilityPayload('reviewedBy', reviewedBy, { mode: isCreate ? 'create' : 'update' }),
       }

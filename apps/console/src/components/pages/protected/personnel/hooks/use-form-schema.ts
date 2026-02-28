@@ -26,6 +26,10 @@ const formSchema = z.object({
   scopeName: z.string().optional().nullable(),
   internalOwner: responsibilityFieldSchema,
   tags: z.array(z.string()).optional(),
+  assetIDs: z.array(z.string()).optional(),
+  entityIDs: z.array(z.string()).optional(),
+  campaignIDs: z.array(z.string()).optional(),
+  taskIDs: z.array(z.string()).optional(),
 })
 
 export const bulkEditFieldSchema = z.object({

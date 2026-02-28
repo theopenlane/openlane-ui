@@ -42,6 +42,10 @@ const formSchema = z.object({
   reviewFrequency: z.nativeEnum(EntityFrequency).optional(),
   terminationNoticeDays: z.number().optional(),
   tier: z.string().optional(),
+  assetIDs: z.array(z.string()).optional(),
+  scanIDs: z.array(z.string()).optional(),
+  campaignIDs: z.array(z.string()).optional(),
+  identityHolderIDs: z.array(z.string()).optional(),
 })
 
 export const bulkEditFieldSchema = z.object({

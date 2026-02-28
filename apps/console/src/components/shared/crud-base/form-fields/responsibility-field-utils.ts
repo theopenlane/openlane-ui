@@ -68,10 +68,7 @@ export function normalizeResponsibilityField(input: ResponsibilityFieldInput): R
   return null
 }
 
-export function normalizeEntityData<T extends object>(
-  data: T | null | undefined,
-  responsibilityFields: Record<string, ResponsibilityFieldInput>,
-) {
+export function normalizeEntityData<T extends object>(data: T | null | undefined, responsibilityFields: Record<string, ResponsibilityFieldInput>) {
   const raw = Object.fromEntries(Object.entries(data ?? {}).map(([key, value]) => [key, value === null ? undefined : value]))
   const normalized = Object.fromEntries(Object.entries(responsibilityFields).map(([name, input]) => [name, normalizeResponsibilityField(input)]))
   return { ...raw, ...normalized }

@@ -7,6 +7,7 @@ import { AdditionalFields } from '../create/form/fields/additional-fields'
 import Properties from '../create/form/fields/properties'
 import { PersonnelFieldProps, EnumOptions } from './types'
 import { enumToSortFields } from '@/components/shared/crud-base/utils'
+import { IdentityHolderAssociationSection } from '../create/form/fields/association-section'
 
 export const formId = 'edit' + ObjectNames.IDENTITY_HOLDER
 
@@ -132,6 +133,7 @@ export const getFieldsToRender = (props: PersonnelFieldProps, enumOptions: EnumO
         handleUpdateField={props.handleUpdateField}
         enumOptions={enumOptions}
       />
+      <IdentityHolderAssociationSection data={props.data} isEditing={props.isEditing} isCreate={props.isCreate} isEditAllowed={props.isEditAllowed} />
     </div>
   )
 }

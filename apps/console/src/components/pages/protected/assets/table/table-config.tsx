@@ -10,6 +10,7 @@ import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import { AssetFieldProps, EnumOptions } from './types'
 import { enumToSortFields } from '@/components/shared/crud-base/utils'
+import { AssetAssociationSection } from '../create/form/fields/association-section'
 
 export const formId = 'edit' + ObjectNames.ASSET
 
@@ -199,6 +200,7 @@ export const getFieldsToRender = (props: AssetFieldProps, enumOptions: EnumOptio
         handleUpdateField={props.handleUpdateField}
         enumOptions={enumOptions}
       />
+      <AssetAssociationSection data={props.data} isEditing={props.isEditing} isCreate={props.isCreate} isEditAllowed={props.isEditAllowed} />
     </div>
   )
 }

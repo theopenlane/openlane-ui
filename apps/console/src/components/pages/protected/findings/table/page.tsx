@@ -9,7 +9,6 @@ import { breadcrumbs, getFieldsToRender, getFilterFields, visibilityFields } fro
 import { FindingSheetConfig, FindingTablePageConfig, FindingFieldProps, objectType, objectName, tableKey, exportType, orderFieldEnum, defaultSorting } from './types'
 import { getColumns } from './columns'
 import TableComponent from './table'
-import { buildPayload } from '../create/utils'
 import { CreateFindingInput, UpdateFindingInput } from '@repo/codegen/src/schema'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 
@@ -70,7 +69,7 @@ const FindingPage: React.FC = () => {
     isFetching: isLoading,
     updateMutation,
     createMutation,
-    buildPayload: (data) => buildPayload(data),
+    buildPayload: async (data) => data,
     getName,
     renderFields: (props: FindingFieldProps) => getFieldsToRender(props, enumOpts),
   }

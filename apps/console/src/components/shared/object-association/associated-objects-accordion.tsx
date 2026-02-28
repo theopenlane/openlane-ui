@@ -6,6 +6,7 @@ import { ChevronDown } from 'lucide-react'
 import { getHrefForObjectType, NormalizedObject } from '@/utils/getHrefForObjectType'
 import ObjectAssociationChip from '@/components/shared/object-association/object-association-chip.tsx'
 import { Section } from '@/components/shared/object-association/types/object-association-types.ts'
+import { getSectionDisplayName } from '@/components/shared/object-association/object-association-config'
 
 type AssociatedObjectsAccordionProps = {
   sections: Section
@@ -86,7 +87,7 @@ const AssociatedObjectsAccordion: React.FC<AssociatedObjectsAccordionProps> = ({
 
           return (
             <AccordionItem key={key} value={key}>
-              <SectionTrigger label={key.charAt(0).toUpperCase() + key.slice(1)} count={connection.totalCount ?? 0} />
+              <SectionTrigger label={getSectionDisplayName(key)} count={connection.totalCount ?? 0} />
               <AccordionContent className="overflow-hidden data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up">
                 {renderTable(key, extractNodes(connection.edges))}
               </AccordionContent>

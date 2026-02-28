@@ -1,5 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
+import type { AssociationSectionKey } from '@/components/shared/object-association/object-association-config'
+import { ASSOCIATION_SECTION_CONFIG } from '@/components/shared/object-association/object-association-config'
 import ObjectsChip from './objects-chip'
+
+const objectChipObjectTypes = Object.keys(ASSOCIATION_SECTION_CONFIG) as AssociationSectionKey[]
 
 const meta: Meta<typeof ObjectsChip> = {
   title: 'Display/ObjectsChip',
@@ -15,7 +19,7 @@ const meta: Meta<typeof ObjectsChip> = {
     name: { control: 'text', description: 'Display label for the chip' },
     objectType: {
       control: 'select',
-      options: ['controls', 'programs', 'tasks', 'procedures', 'risks', 'subcontrols', 'controlObjectives', 'policies', 'groups', 'evidences'],
+      options: objectChipObjectTypes,
       description: 'Object type — determines border color',
     },
     removable: { control: 'boolean' },
@@ -45,7 +49,7 @@ export const Removable: Story = {
 export const AllTypes: Story = {
   render: () => (
     <div className="flex flex-wrap gap-2">
-      {(['controls', 'programs', 'tasks', 'procedures', 'risks', 'subcontrols', 'controlObjectives', 'policies', 'groups', 'evidences'] as const).map((type) => (
+      {objectChipObjectTypes.map((type) => (
         <ObjectsChip key={type} name={type} objectType={type} />
       ))}
     </div>
