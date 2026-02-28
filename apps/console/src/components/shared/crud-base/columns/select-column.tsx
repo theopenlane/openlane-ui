@@ -1,8 +1,9 @@
+import { useMemo } from 'react'
 import { ColumnDef, Row } from '@tanstack/react-table'
 import { Checkbox } from '@repo/ui/checkbox'
 import React from 'react'
 
-export function createSelectColumn<T extends { id: string }>(selectedItems: { id: string }[], setSelectedItems: React.Dispatch<React.SetStateAction<{ id: string }[]>>): ColumnDef<T> {
+function buildSelectColumn<T extends { id: string }>(selectedItems: { id: string }[], setSelectedItems: React.Dispatch<React.SetStateAction<{ id: string }[]>>): ColumnDef<T> {
   return {
     id: 'select',
     header: ({ table }) => {
@@ -44,4 +45,12 @@ export function createSelectColumn<T extends { id: string }>(selectedItems: { id
     size: 50,
     maxSize: 50,
   }
+}
+
+export function useSelectColumn<T extends { id: string }>(selectedItems: { id: string }[], setSelectedItems: React.Dispatch<React.SetStateAction<{ id: string }[]>>): ColumnDef<T> {
+  return useMemo(() => buildSelectColumn<T>(selectedItems, setSelectedItems), [selectedItems, setSelectedItems])
+}
+
+export function createSelectColumn<T extends { id: string }>(selectedItems: { id: string }[], setSelectedItems: React.Dispatch<React.SetStateAction<{ id: string }[]>>): ColumnDef<T> {
+  return buildSelectColumn<T>(selectedItems, setSelectedItems)
 }

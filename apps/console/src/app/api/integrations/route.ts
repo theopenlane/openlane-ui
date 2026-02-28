@@ -3,7 +3,7 @@ import { secureFetch } from '@/lib/auth/utils/secure-fetch'
 import { isDevelopment, openlaneAPIUrl } from '@repo/dally/auth'
 import { NextRequest, NextResponse } from 'next/server'
 
-type AuthType = 'oauth2' | 'oidc' | 'github_app' | string
+type AuthType = 'oauth2' | 'oidc' | 'githubapp' | string
 
 type StartBody = {
   provider?: string
@@ -60,8 +60,11 @@ export async function POST(req: NextRequest) {
     let response: NextResponse
 
     if (!res.ok) {
-      const msg = await res.text()
-      response = NextResponse.json({ error: msg || 'Failed to initialize integration auth flow' }, { status: res.status })
+      const json = await res.json().catch(async () => {
+        const text = await res.text().catch(() => '')
+        return { error: text || 'Failed to initialize integration auth flow' }
+      })
+      response = NextResponse.json(json, { status: res.status })
     } else {
       const json = await res.json()
       response = NextResponse.json(json)
@@ -96,7 +99,7 @@ function buildStartPayload({ provider, authType, scopes = [], redirectUri, appSl
     return payload
   }
 
-  if (authType === 'github_app') {
+  if (authType === 'githubapp') {
     const payload: Record<string, unknown> = {}
     if (appSlug) {
       payload.appSlug = appSlug
@@ -128,7 +131,7 @@ function getIntegrationFlowCookies(cookies: string | null): Map<string, string>[
   const cookieArray = cookies.split(', ')
   const flowCookies: Map<string, string>[] = []
   for (const cookie of cookieArray) {
-    if (cookie.startsWith(`oauth_`) || cookie.startsWith(`github_app_`)) {
+    if (cookie.startsWith(`oauth_`) || cookie.startsWith(`githubapp_`)) {
       const key = cookie.split('=')[0]
       const value = cookie.split(key + '=')[1]
 
@@ -139,6 +142,19 @@ function getIntegrationFlowCookies(cookies: string | null): Map<string, string>[
   return flowCookies.length > 0 ? flowCookies : undefined
 }
 
+function resolveParentDomain(apiUrl: string): string | undefined {
+  try {
+    const { hostname } = new URL(apiUrl)
+    const parts = hostname.split('.')
+    if (parts.length >= 2) {
+      return '.' + parts.slice(-2).join('.')
+    }
+  } catch {
+    // ignore invalid URLs
+  }
+  return undefined
+}
+
 function setIntegrationFlowCookies(cookies: Map<string, string>[] | undefined = [], response: NextResponse<unknown>) {
   if (!cookies) {
     return
@@ -146,18 +162,26 @@ function setIntegrationFlowCookies(cookies: Map<string, string>[] | undefined = 
 
   let sameSite = 'Lax'
   let secure = false
+  let domainPart = ''
 
   if (!isDevelopment) {
     secure = true
     sameSite = 'None'
+    const parentDomain = resolveParentDomain(openlaneAPIUrl)
+    if (parentDomain) {
+      domainPart = `; Domain=${parentDomain}`
+    }
   }
 
   const securePart = secure ? '; Secure' : ''
 
-  // Set the cookie using the raw Set-Cookie header to avoid encoding
+  // Set the cookie using the raw Set-Cookie header to avoid encoding.
+  // Domain is set to the parent domain so cookies are sent to all subdomains
+  // (e.g. api.theopenlane.io) when the OAuth/GitHub App provider redirects
+  // back to the backend callback URL.
   for (const cookie of cookies) {
     for (const [key, value] of cookie.entries()) {
-      response.headers.append('Set-Cookie', `${key}=${value}; Path=/; SameSite=${sameSite}${securePart}`)
+      response.headers.append('Set-Cookie', `${key}=${value}; Path=/; SameSite=${sameSite}${securePart}${domainPart}`)
     }
   }
 }

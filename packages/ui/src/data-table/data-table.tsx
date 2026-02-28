@@ -636,6 +636,7 @@ type DataRowProps<TData, TValue> = {
   row: Row<TData>
   onRowClick?: (rowData: TData) => void
   cssVarKey: (id: string) => string
+  columns: ColumnDef<TData, TValue>[]
 }
 
 const DataRow = memo(function DataRow<TData, TValue>({ row, onRowClick, cssVarKey }: DataRowProps<TData, TValue>) {
@@ -698,7 +699,7 @@ function DataTableBodyContent<TData>({ table, onRowClick, loading, noDataMarkup,
   return (
     <TableBody variant="data">
       {table.getRowModel().rows?.length ? (
-        table.getRowModel().rows.map((row) => <DataRow key={row.id} row={row} onRowClick={onRowClick} cssVarKey={cssVarKey} />)
+        table.getRowModel().rows.map((row) => <DataRow key={row.id} row={row} onRowClick={onRowClick} cssVarKey={cssVarKey} columns={table.options.columns} />)
       ) : (
         <NoData loading={loading} columns={table.getAllLeafColumns()} noDataMarkup={noDataMarkup} noResultsText={noResultsText} />
       )}

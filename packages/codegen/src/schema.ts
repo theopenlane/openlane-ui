@@ -70326,6 +70326,7 @@ export type TrustCenterFaQsWithFilterQuery = {
         trustCenterID?: string | null
         updatedAt?: any | null
         updatedBy?: string | null
+        note: { __typename?: 'Note'; title?: string | null; text: string }
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
@@ -70376,6 +70377,16 @@ export type DeleteTrustCenterFaqMutationVariables = Exact<{
 }>
 
 export type DeleteTrustCenterFaqMutation = { __typename?: 'Mutation'; deleteTrustCenterFAQ: { __typename?: 'TrustCenterFAQDeletePayload'; deletedID: string } }
+
+export type UpdateTrustCenterFaqCommentMutationVariables = Exact<{
+  updateTrustCenterFAQCommentId: Scalars['ID']['input']
+  input: UpdateNoteInput
+}>
+
+export type UpdateTrustCenterFaqCommentMutation = {
+  __typename?: 'Mutation'
+  updateTrustCenterFAQComment: { __typename?: 'TrustCenterFAQUpdatePayload'; trustCenterFAQ: { __typename?: 'TrustCenterFAQ'; id: string } }
+}
 
 export type CreateBulkCsvTrustCenterFaqMutationVariables = Exact<{
   input: Scalars['Upload']['input']

@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { gql } from 'graphql-request'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
   TrustCenterFaQsWithFilterQuery,
@@ -7,6 +8,8 @@ import {
   CreateTrustCenterFaqMutationVariables,
   UpdateTrustCenterFaqMutation,
   UpdateTrustCenterFaqMutationVariables,
+  UpdateTrustCenterFaqCommentMutation,
+  UpdateTrustCenterFaqCommentMutationVariables,
   DeleteTrustCenterFaqMutation,
   DeleteTrustCenterFaqMutationVariables,
   TrustCenterFaqQuery,
@@ -24,6 +27,7 @@ import {
   GET_ALL_TRUST_CENTER_FAQS,
   CREATE_TRUST_CENTER_FAQ,
   UPDATE_TRUST_CENTER_FAQ,
+  UPDATE_TRUST_CENTER_FAQ_COMMENT,
   DELETE_TRUST_CENTER_FAQ,
   TRUST_CENTER_FAQ,
   CREATE_CSV_BULK_TRUST_CENTER_FAQ,
@@ -82,6 +86,17 @@ export const useUpdateTrustCenterFaq = () => {
   })
 }
 
+export const useUpdateTrustCenterFaqComment = () => {
+  const { client } = useGraphQLClient()
+  const queryClient = useQueryClient()
+  return useMutation<UpdateTrustCenterFaqCommentMutation, unknown, UpdateTrustCenterFaqCommentMutationVariables>({
+    mutationFn: async (variables) => client.request(UPDATE_TRUST_CENTER_FAQ_COMMENT, variables),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['trustCenterFaqs'] })
+    },
+  })
+}
+
 export const useDeleteTrustCenterFaq = () => {
   const { client } = useGraphQLClient()
   const queryClient = useQueryClient()
@@ -129,6 +144,32 @@ export const useBulkDeleteTrustCenterFaq = () => {
   const { client, queryClient } = useGraphQLClient()
   return useMutation<DeleteBulkTrustCenterFaqMutation, unknown, DeleteBulkTrustCenterFaqMutationVariables>({
     mutationFn: async (variables) => client.request(BULK_DELETE_TRUST_CENTER_FAQ, variables),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['trustCenterFaqs'] })
+    },
+  })
+}
+
+type ReorderItem = { id: string; displayOrder: number }
+
+export const useReorderTrustCenterFaqs = () => {
+  const { client, queryClient } = useGraphQLClient()
+  return useMutation<Record<string, unknown>, unknown, ReorderItem[]>({
+    mutationFn: async (items) => {
+      if (items.length === 0) return {}
+
+      const variableDefs = items.map((_, i) => `$id${i}: ID!, $input${i}: UpdateTrustCenterFAQInput!`).join(', ')
+      const fields = items.map((_, i) => `update${i}: updateTrustCenterFAQ(id: $id${i}, input: $input${i}) { trustCenterFAQ { id } }`).join('\n  ')
+      const document = gql`mutation ReorderFAQs(${variableDefs}) { ${fields} }`
+
+      const variables: Record<string, unknown> = {}
+      for (let i = 0; i < items.length; i++) {
+        variables[`id${i}`] = items[i].id
+        variables[`input${i}`] = { displayOrder: items[i].displayOrder }
+      }
+
+      return client.request(document, variables)
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trustCenterFaqs'] })
     },

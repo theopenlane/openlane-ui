@@ -10,6 +10,7 @@ import { Button } from '@repo/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@repo/ui/avatar'
 import { useNotification } from '@/hooks/useNotification'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
+import Skeleton from '@/components/shared/skeleton/skeleton'
 import { formatDateTime } from '@/utils/date'
 
 const EvidenceCommentsCard = () => {
@@ -27,9 +28,9 @@ const EvidenceCommentsCard = () => {
 
   const userIds = useMemo(() => (hasData ? Array.from(new Set(commentsData.map((item) => item?.node?.createdBy).filter((id): id is string => typeof id === 'string'))) : []), [commentsData, hasData])
 
-  const { data: userData } = useGetOrgMemberships({
+  const { data: userData, isLoading: isUsersLoading } = useGetOrgMemberships({
     where: {
-      hasUserWith: userIds.map((id) => ({ id })),
+      hasUserWith: [{ idIn: userIds }],
     },
     enabled: userIds.length > 0,
   })
@@ -99,20 +100,35 @@ const EvidenceCommentsCard = () => {
       <p className="text-gray-500 mb-3">Latest Comment</p>
       {hasData && latestComment ? (
         <div className="flex items-start gap-3 mb-3">
-          <Avatar className="h-8 w-8 border border-border shrink-0" title={latestCommentUser?.displayName}>
-            {latestCommentUser?.avatarFile?.presignedURL || latestCommentUser?.avatarRemoteURL ? (
-              <AvatarImage src={(latestCommentUser.avatarFile?.presignedURL || latestCommentUser.avatarRemoteURL)!} alt={latestCommentUser?.displayName || 'User'} />
-            ) : (
-              <AvatarFallback>{latestCommentUser?.displayName?.slice(0, 2).toUpperCase() || '?'}</AvatarFallback>
-            )}
-          </Avatar>
-          <div className="flex flex-col min-w-0 flex-1">
-            <div className="flex items-baseline gap-2">
-              <p className="text-sm font-medium truncate">{latestCommentUser?.displayName || 'Unknown'}</p>
-              <p className="text-xs text-muted-foreground whitespace-nowrap">{formatDateTime(latestComment.createdAt)}</p>
-            </div>
-            <div className="text-sm text-muted-foreground line-clamp-2 overflow-hidden mt-0.5">{plateEditorHelper.convertToReadOnly(latestComment.text, 0, { padding: 0 })}</div>
-          </div>
+          {isUsersLoading ? (
+            <>
+              <Skeleton className="h-8 w-8 rounded-full shrink-0" />
+              <div className="flex flex-col min-w-0 flex-1 gap-2">
+                <div className="flex items-center gap-2">
+                  <Skeleton height={14} width={100} className="rounded" />
+                  <Skeleton height={12} width={80} className="rounded" />
+                </div>
+                <Skeleton height={14} width="80%" className="rounded" />
+              </div>
+            </>
+          ) : (
+            <>
+              <Avatar className="h-8 w-8 border border-border shrink-0" title={latestCommentUser?.displayName}>
+                {latestCommentUser?.avatarFile?.presignedURL || latestCommentUser?.avatarRemoteURL ? (
+                  <AvatarImage src={(latestCommentUser.avatarFile?.presignedURL || latestCommentUser.avatarRemoteURL)!} alt={latestCommentUser?.displayName || 'User'} />
+                ) : (
+                  <AvatarFallback>{latestCommentUser?.displayName?.slice(0, 2).toUpperCase() || '?'}</AvatarFallback>
+                )}
+              </Avatar>
+              <div className="flex flex-col min-w-0 flex-1">
+                <div className="flex items-baseline gap-2">
+                  <p className="text-sm font-medium truncate">{latestCommentUser?.displayName || 'Deleted user'}</p>
+                  <p className="text-xs text-muted-foreground whitespace-nowrap">{formatDateTime(latestComment.createdAt)}</p>
+                </div>
+                <div className="text-sm text-muted-foreground line-clamp-2 overflow-hidden mt-0.5">{plateEditorHelper.convertToReadOnly(latestComment.text, 0, { padding: 0 })}</div>
+              </div>
+            </>
+          )}
         </div>
       ) : (
         <p className="text-sm text-muted-foreground mb-3">No comments yet</p>

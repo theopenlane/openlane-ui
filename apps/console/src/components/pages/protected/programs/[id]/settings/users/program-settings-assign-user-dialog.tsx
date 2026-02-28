@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Button } from '@repo/ui/button'
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import { useGetOrgMemberships } from '@/lib/graphql-hooks/member'
@@ -8,7 +8,6 @@ import { useUpdateProgram } from '@/lib/graphql-hooks/program'
 import { DataTable, getInitialPagination } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/react-table'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { Checkbox } from '@repo/ui/checkbox'
 import { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { ProgramMembershipRole, User } from '@repo/codegen/src/schema'
@@ -20,19 +19,19 @@ import { useDebounce } from '@uidotdev/usehooks'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { useSelectColumn } from '@/components/shared/crud-base/columns/select-column'
 
 type UserRow = {
   id: string
   displayName: string
-  role: 'View' | 'Edit'
   user: User
 }
 const defaultPagination = { ...DEFAULT_PAGINATION, pageSize: 5, query: { first: 5 } }
 export const ProgramSettingsAssignUserDialog = ({ trigger, id }: { trigger?: React.ReactNode; id: string }) => {
   const queryClient = useQueryClient()
   const [open, setOpen] = useState(false)
-  const [selectedUsers, setSelectedUsers] = useState<UserRow[]>([])
-  const [rows, setRows] = useState<UserRow[]>([])
+  const [selectedItems, setSelectedItems] = useState<{ id: string }[]>([])
+  const [roleMap, setRoleMap] = useState<Record<string, 'View' | 'Edit'>>({})
   const [pagination, setPagination] = useState<TPagination>(getInitialPagination(TableKeyEnum.PROGRAM_ASSIGN_USER, defaultPagination))
 
   const [searchValue, setSearchValue] = useState('')
@@ -61,75 +60,62 @@ export const ProgramSettingsAssignUserDialog = ({ trigger, id }: { trigger?: Rea
 
   const { data, isLoading, isFetching } = useGetOrgMemberships({ where, pagination, enabled: !!id && open })
 
-  useEffect(() => {
-    if (data?.orgMemberships) {
-      const userRows: UserRow[] = data?.orgMemberships?.edges?.map((edge) => ({
-        id: edge?.node?.id,
-        displayName: edge?.node?.user?.displayName,
-        role: 'View',
-        user: edge?.node?.user,
-      })) as UserRow[]
-      setRows(userRows)
-    }
+  const rows = useMemo(() => {
+    if (!data?.orgMemberships?.edges) return []
+    return data.orgMemberships.edges.map((edge) => ({
+      id: edge?.node?.id,
+      displayName: edge?.node?.user?.displayName,
+      user: edge?.node?.user,
+    })) as UserRow[]
   }, [data])
 
-  const userColumns: ColumnDef<UserRow>[] = [
-    {
-      id: 'select',
-      header: '',
-      cell: ({ row }) => (
-        <Checkbox
-          checked={selectedUsers.some((u) => u.id === row.original.id)}
-          onCheckedChange={(checked) => {
-            setSelectedUsers((prev) => {
-              if (checked) {
-                return [...prev, row.original]
-              } else {
-                return prev.filter((u) => u.id !== row.original.id)
-              }
-            })
-          }}
-        />
-      ),
-    },
-    {
-      accessorKey: 'displayName',
-      header: 'Name',
-    },
-    {
-      accessorKey: 'role',
-      header: 'Role',
-      cell: ({ row }) => {
-        const role = row.original.role
+  const selectColumn = useSelectColumn<UserRow>(selectedItems, setSelectedItems)
 
-        return (
-          <Select
-            value={role}
-            onValueChange={(val) => {
-              const newRole = val as 'View' | 'Edit'
-              const userId = row.original.id
-              setRows((prev) => prev.map((r) => (r.id === userId ? { ...r, role: newRole } : r)))
-              setSelectedUsers((prev) => prev.map((u) => (u.id === userId ? { ...u, role: newRole } : u)))
-            }}
-          >
-            <SelectTrigger className="w-[120px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="View">View</SelectItem>
-              <SelectItem value="Edit">Edit</SelectItem>
-            </SelectContent>
-          </Select>
-        )
+  const userColumns: ColumnDef<UserRow>[] = useMemo(
+    () => [
+      selectColumn,
+      {
+        accessorKey: 'displayName',
+        header: 'Name',
       },
-    },
-  ]
+      {
+        id: 'role',
+        header: 'Role',
+        cell: ({ row }) => {
+          const role = roleMap[row.original.id] ?? 'View'
+
+          return (
+            <Select
+              value={role}
+              onValueChange={(val) => {
+                const newRole = val as 'View' | 'Edit'
+                setRoleMap((prev) => ({ ...prev, [row.original.id]: newRole }))
+              }}
+            >
+              <SelectTrigger className="w-[120px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="View">View</SelectItem>
+                <SelectItem value="Edit">Edit</SelectItem>
+              </SelectContent>
+            </Select>
+          )
+        },
+      },
+    ],
+    [selectColumn, roleMap],
+  )
 
   const handleAssign = async () => {
-    const addProgramMembers = selectedUsers.map((user) => ({
-      userID: user.user.id,
-      role: user.role === 'Edit' ? ProgramMembershipRole.ADMIN : ProgramMembershipRole.MEMBER,
-    }))
+    const addProgramMembers = selectedItems.map((item) => {
+      const userRow = rows.find((r) => r.id === item.id)
+      const role = roleMap[item.id] ?? 'View'
+      return {
+        userID: userRow!.user.id,
+        role: role === 'Edit' ? ProgramMembershipRole.ADMIN : ProgramMembershipRole.MEMBER,
+      }
+    })
 
     try {
       await updateProgram({
@@ -144,10 +130,11 @@ export const ProgramSettingsAssignUserDialog = ({ trigger, id }: { trigger?: Rea
 
       successNotification({
         title: 'Users Assigned',
-        description: `${selectedUsers.length} user(s) successfully assigned to the program.`,
+        description: `${selectedItems.length} user(s) successfully assigned to the program.`,
       })
 
-      setSelectedUsers([])
+      setSelectedItems([])
+      setRoleMap({})
       setOpen(false)
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
@@ -166,13 +153,7 @@ export const ProgramSettingsAssignUserDialog = ({ trigger, id }: { trigger?: Rea
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTitle />
-      <DialogTrigger asChild>
-        {trigger ?? (
-          <Button className="h-8 px-2!" variant="secondary">
-            Assign
-          </Button>
-        )}
-      </DialogTrigger>
+      <DialogTrigger asChild>{trigger ?? <Button className="h-8 px-2!">Assign</Button>}</DialogTrigger>
 
       <DialogContent className="max-w-2xl p-6 rounded-xl">
         <h2 className="text-2xl font-semibold mb-1">Assign User</h2>
@@ -201,7 +182,7 @@ export const ProgramSettingsAssignUserDialog = ({ trigger, id }: { trigger?: Rea
           />
 
           <div className="flex gap-2 mt-4 justify-end">
-            <Button onClick={handleAssign} disabled={selectedUsers.length === 0 || isPending}>
+            <Button onClick={handleAssign} disabled={selectedItems.length === 0 || isPending}>
               {isPending ? 'Assigning...' : 'Assign'}
             </Button>
             <DialogTrigger asChild>
