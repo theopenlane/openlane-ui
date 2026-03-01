@@ -204,7 +204,7 @@
     "clsx": "^2.1.1",
     "eslint": "^9.39.2",
     "postcss": "^8.5.6",
-    "tailwind-variants": "^0.3.1",
+    "tailwind-variants": "^3.0.0",
     "tailwindcss": "^4.1.13",
     "tsup": "latest",
     "typescript": "^5"
