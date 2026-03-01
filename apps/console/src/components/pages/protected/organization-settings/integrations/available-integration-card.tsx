@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 import { Button } from '@repo/ui/button'
 import { Badge } from '@repo/ui/badge'
 import { Card, CardContent, CardFooter, CardHeader } from '@repo/ui/cardpanel'
-import { AvailableIntegrationNode, IntegrationProvider, parseIntegrationErrorMessage } from './config'
+import { AvailableIntegrationNode, IntegrationOAuthMetadata, IntegrationProvider, parseIntegrationErrorMessage } from './config'
 import { useNotification } from '@/hooks/useNotification'
 import IntegrationConfigurationDialog from './integration-configuration-dialog'
 import IntegrationTagList from './integration-tag-list'
@@ -13,6 +13,13 @@ import DocsLinkTooltip from './docs-link-tooltip'
 
 type AvailableIntegrationCardProps = {
   integration: AvailableIntegrationNode
+}
+
+type StartIntegrationResponse = {
+  authUrl?: string
+  installUrl?: string
+  url?: string
+  state?: string
 }
 
 const AvailableIntegrationCard = ({ integration }: AvailableIntegrationCardProps) => {
@@ -63,11 +70,13 @@ const AvailableIntegrationCard = ({ integration }: AvailableIntegrationCardProps
           throw new Error(await parseIntegrationErrorMessage(res))
         }
 
-        const json = (await res.json()) as { authUrl?: string; installUrl?: string; url?: string }
-        const redirectTo = json.authUrl ?? json.installUrl ?? json.url
+        const json = (await res.json()) as StartIntegrationResponse
+        const redirectTo = resolveIntegrationRedirectURL(targetProvider, json)
+
         if (!redirectTo) {
           throw new Error(`Missing auth redirect URL for ${targetProvider.displayName}`)
         }
+
         window.location.assign(redirectTo)
         return
       }
@@ -136,4 +145,105 @@ function resolveProviderConnectMode(provider: IntegrationProvider): ConnectMode 
   if (provider.authStartPath) return 'auth'
   if (provider.credentialsSchema) return 'config'
   return 'unsupported'
+}
+
+function resolveIntegrationRedirectURL(provider: IntegrationProvider, response: StartIntegrationResponse): string | undefined {
+  if (provider.authType !== 'oauth2' && provider.authType !== 'oidc') {
+    return response.authUrl ?? response.installUrl ?? response.url
+  }
+
+  const state = resolveOAuthState(response)
+  if (!state) {
+    return undefined
+  }
+
+  const authorizeURL = buildProviderAuthorizeURL(provider.oauth, state)
+
+  return authorizeURL
+}
+
+function resolveOAuthState(response: StartIntegrationResponse): string | undefined {
+  if (response.state && response.state.length > 0) {
+    return response.state
+  }
+
+  return undefined
+}
+
+function buildProviderAuthorizeURL(oauth: IntegrationOAuthMetadata | undefined, state: string | undefined): string | undefined {
+  const authURL = nonEmptyString(oauth?.authUrl)
+  const clientID = nonEmptyString(oauth?.clientId)
+  const redirectURI = nonEmptyString(oauth?.redirectUri)
+
+  if (!authURL || !clientID || !redirectURI) {
+    return undefined
+  }
+
+  const authParams = toStringRecord(oauth?.authParams)
+  const params = new URLSearchParams({
+    client_id: clientID,
+    response_type: 'code',
+    redirect_uri: redirectURI,
+  })
+
+  if (state && state.length > 0) {
+    params.set('state', state)
+  }
+
+  const scopes = toStringArray(oauth?.scopes)
+  if (scopes.length > 0 && !authParams.scope) {
+    params.set('scope', scopes.join(resolveScopeSeparator(authURL)))
+  }
+
+  for (const [key, value] of Object.entries(authParams)) {
+    params.set(key, value)
+  }
+
+  return `${authURL}?${params.toString()}`
+}
+
+function resolveScopeSeparator(authURL: string): string {
+  if (authURL.includes('slack.com/oauth/v2/authorize')) {
+    return ','
+  }
+
+  return ' '
+}
+
+function nonEmptyString(value: unknown): string | undefined {
+  if (typeof value !== 'string') {
+    return undefined
+  }
+
+  return value.length > 0 ? value : undefined
+}
+
+function toStringArray(value: unknown): string[] {
+  if (!Array.isArray(value)) {
+    return []
+  }
+
+  return value.filter((item): item is string => typeof item === 'string' && item.length > 0)
+}
+
+function toStringRecord(value: unknown): Record<string, string> {
+  if (!value || typeof value !== 'object') {
+    return {}
+  }
+
+  const record: Record<string, string> = {}
+
+  for (const [key, entry] of Object.entries(value)) {
+    if (typeof key !== 'string' || key.length === 0) {
+      continue
+    }
+
+    if (typeof entry !== 'string' || entry.length === 0) {
+      continue
+    }
+
+    record[key] = entry
+  }
+
+  return record
 }
