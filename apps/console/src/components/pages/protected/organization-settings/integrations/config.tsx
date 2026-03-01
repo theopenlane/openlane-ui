@@ -60,6 +60,18 @@ export type IntegrationGitHubAppMetadata = {
   appSlug?: string
 }
 
+export type IntegrationOAuthMetadata = {
+  clientId?: string
+  authUrl?: string
+  tokenUrl?: string
+  redirectUri?: string
+  scopes?: string[]
+  usePkce?: boolean
+  authParams?: Record<string, string>
+  tokenParams?: Record<string, string>
+  [key: string]: unknown
+}
+
 export type AvailableIntegrationNode = {
   id: string
   name: string
@@ -82,10 +94,7 @@ export type IntegrationProvider = {
   active: boolean
   logoUrl?: string
   docsUrl: string
-  oauth?: {
-    scopes?: string[]
-    [key: string]: unknown
-  }
+  oauth?: IntegrationOAuthMetadata
   labels?: Record<string, string>
   credentialsSchema?: IntegrationCredentialsSchema
   operations?: IntegrationOperationMetadata[]
