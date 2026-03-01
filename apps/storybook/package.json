@@ -41,7 +41,7 @@
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.5.0",
     "eslint-plugin-storybook": "^10.2.10",
-    "globals": "^16.0.0",
+    "globals": "^17.0.0",
     "storybook": "10.2.10",
     "tailwindcss": "^4.1.13",
     "typescript": "5.9.3",
