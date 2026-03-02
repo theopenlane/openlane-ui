@@ -470,18 +470,19 @@ export default function CreateControlForm() {
                   })
                 }}
                 initialData={associations}
-                allowedObjectTypes={[
-                  ObjectTypeObjects.PROGRAM,
-                  ObjectTypeObjects.TASK,
-                  ObjectTypeObjects.INTERNAL_POLICY,
-                  ObjectTypeObjects.PROCEDURE,
-                  ObjectTypeObjects.RISK,
-                  ObjectTypeObjects.SCAN,
-                  ObjectTypeObjects.CAMPAIGN,
-                  ObjectTypeObjects.ASSET,
-                  ObjectTypeObjects.ENTITY,
-                  ObjectTypeObjects.IDENTITY_HOLDER,
-                ]}
+                allowedObjectTypes={
+                  isCreateSubcontrol
+                    ? [ObjectTypeObjects.TASK, ObjectTypeObjects.INTERNAL_POLICY, ObjectTypeObjects.PROCEDURE, ObjectTypeObjects.RISK]
+                    : [
+                        ObjectTypeObjects.PROGRAM,
+                        ObjectTypeObjects.TASK,
+                        ObjectTypeObjects.INTERNAL_POLICY,
+                        ObjectTypeObjects.PROCEDURE,
+                        ObjectTypeObjects.RISK,
+                        ObjectTypeObjects.SCAN,
+                        ObjectTypeObjects.ASSET,
+                      ]
+                }
               />
             </Card>
           </div>

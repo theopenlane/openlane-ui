@@ -224,15 +224,7 @@ const ControlQuickActions: React.FC<QuickActionsProps> = (props) => {
         onOpenChange={setIsEvidenceSheetOpen}
         formData={evidenceFormData}
         controlParam={[controlParam]}
-        allowedObjectTypes={[
-          ObjectTypeObjects.TASK,
-          ObjectTypeObjects.CONTROL_OBJECTIVE,
-          ObjectTypeObjects.SCAN,
-          ObjectTypeObjects.CAMPAIGN,
-          ObjectTypeObjects.ASSET,
-          ObjectTypeObjects.ENTITY,
-          ObjectTypeObjects.IDENTITY_HOLDER,
-        ]}
+        allowedObjectTypes={[ObjectTypeObjects.TASK, ObjectTypeObjects.CONTROL_OBJECTIVE, ObjectTypeObjects.SCAN]}
         defaultSelectedObject={ObjectTypeObjects.TASK}
       />
       <CreateControlImplementationSheet open={showCreateImplementationSheet} onOpenChange={setShowCreateImplementationSheet} />

@@ -84,6 +84,9 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
       subcontrols: risk.subcontrols,
       tasks: risk.tasks,
       programs: risk.programs,
+      assets: risk.assets,
+      entities: risk.entities,
+      scans: risk.scans,
     }
   }, [risk])
 
@@ -133,6 +136,9 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
         programIDs: risk.programs?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
         taskIDs: risk.tasks?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
         internalPolicyIDs: risk.internalPolicies?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
+        assetIDs: risk.assets?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
+        entityIDs: risk.entities?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
+        scanIDs: risk.scans?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
       }
 
       const riskAssociationsRefCodes: TObjectAssociationMap = {
@@ -142,6 +148,9 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
         programIDs: risk.programs?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => !!id) || [],
         taskIDs: risk.tasks?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => !!id) || [],
         internalPolicyIDs: risk.internalPolicies?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => !!id) || [],
+        assetIDs: risk.assets?.edges?.map((item) => item?.node?.displayName).filter((id): id is string => !!id) || [],
+        entityIDs: risk.entities?.edges?.map((item) => item?.node?.displayName).filter((id): id is string => !!id) || [],
+        scanIDs: risk.scans?.edges?.map((item) => item?.node?.target).filter((id): id is string => !!id) || [],
       }
 
       riskState.setInitialAssociations(riskAssociations)

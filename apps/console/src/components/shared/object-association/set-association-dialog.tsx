@@ -22,21 +22,17 @@ export type SetAssociationDialogConfig<TRootField extends string = string, TSect
   initialDataKeys: Record<TFieldKey, TSectionKey>
 }
 
-type SetAssociationDialogProps<
-  TRootField extends string,
-  TSectionKey extends string,
-  TFieldKey extends string,
-> = {
+type SetAssociationDialogProps<TRootField extends string, TSectionKey extends string, TFieldKey extends string> = {
   config: SetAssociationDialogConfig<TRootField, TSectionKey, TFieldKey>
   associationsData: AssociationsData<TRootField, TSectionKey> | undefined
   onUpdate: (input: TAssociationUpdateInput<TFieldKey>) => Promise<void>
 }
 
-export function SetAssociationDialog<
-  TRootField extends string,
-  TSectionKey extends string,
-  TFieldKey extends string,
->({ config, associationsData, onUpdate }: SetAssociationDialogProps<TRootField, TSectionKey, TFieldKey>) {
+export function SetAssociationDialog<TRootField extends string, TSectionKey extends string, TFieldKey extends string>({
+  config,
+  associationsData,
+  onUpdate,
+}: SetAssociationDialogProps<TRootField, TSectionKey, TFieldKey>) {
   const queryClient = useQueryClient()
 
   const [associations, setAssociations] = useState<TObjectAssociationMap<TFieldKey>>({})
@@ -54,10 +50,11 @@ export function SetAssociationDialog<
     const result: TObjectAssociationMap<TFieldKey> = {}
     for (const [inputName, edgesField] of Object.entries(config.initialDataKeys) as [TFieldKey, TSectionKey][]) {
       const connection = root[edgesField]
-      result[inputName] = connection?.edges?.flatMap((edge) => {
-        const id = edge?.node?.id
-        return id ? [id] : []
-      }) ?? []
+      result[inputName] =
+        connection?.edges?.flatMap((edge) => {
+          const id = edge?.node?.id
+          return id ? [id] : []
+        }) ?? []
     }
     return result
   }, [associationsData, config.dataRootField, config.initialDataKeys])

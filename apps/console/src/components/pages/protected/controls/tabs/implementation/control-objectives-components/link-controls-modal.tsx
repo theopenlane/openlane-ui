@@ -36,6 +36,12 @@ export function LinkControlsModal({ controlObjectiveData, 'aria-label': ariaLabe
     () => ({
       controlIDs: controlObjectiveData.controls?.edges?.flatMap((edge) => edge?.node?.id || []),
       subcontrolIDs: controlObjectiveData.subcontrols?.edges?.flatMap((edge) => edge?.node?.id || []),
+      programIDs: controlObjectiveData.programs?.edges?.flatMap((edge) => edge?.node?.id || []),
+      evidenceIDs: controlObjectiveData.evidence?.edges?.flatMap((edge) => edge?.node?.id || []),
+      internalPolicyIDs: controlObjectiveData.internalPolicies?.edges?.flatMap((edge) => edge?.node?.id || []),
+      procedureIDs: controlObjectiveData.procedures?.edges?.flatMap((edge) => edge?.node?.id || []),
+      riskIDs: controlObjectiveData.risks?.edges?.flatMap((edge) => edge?.node?.id || []),
+      taskIDs: controlObjectiveData.tasks?.edges?.flatMap((edge) => edge?.node?.id || []),
     }),
     [controlObjectiveData],
   )
@@ -121,7 +127,7 @@ export function LinkControlsModal({ controlObjectiveData, 'aria-label': ariaLabe
     <Dialog open={open} onOpenChange={handleDialogChange}>
       <DialogTrigger asChild>
         <Button disabled={controlObjectiveData.status === ControlObjectiveObjectiveStatus.ARCHIVED} className="h-8" aria-label={ariaLabel}>
-          Link Controls
+          Set Associations
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-2xl p-6 space-y-4">
@@ -137,13 +143,14 @@ export function LinkControlsModal({ controlObjectiveData, 'aria-label': ariaLabe
           }}
           initialData={initialData}
           allowedObjectTypes={[
+            ObjectTypeObjects.PROGRAM,
+            ObjectTypeObjects.EVIDENCE,
             ObjectTypeObjects.CONTROL,
             ObjectTypeObjects.SUB_CONTROL,
-            ObjectTypeObjects.SCAN,
-            ObjectTypeObjects.CAMPAIGN,
-            ObjectTypeObjects.ASSET,
-            ObjectTypeObjects.ENTITY,
-            ObjectTypeObjects.IDENTITY_HOLDER,
+            ObjectTypeObjects.INTERNAL_POLICY,
+            ObjectTypeObjects.PROCEDURE,
+            ObjectTypeObjects.RISK,
+            ObjectTypeObjects.TASK,
           ]}
         />
         <DialogFooter>

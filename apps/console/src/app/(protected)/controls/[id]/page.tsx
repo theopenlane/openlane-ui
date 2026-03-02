@@ -109,6 +109,8 @@ const ControlDetailsPage: React.FC = () => {
       programs: associationsData.control.programs,
       risks: associationsData.control.risks,
       subcontrols: data.control.subcontrols,
+      assets: associationsData.control.assets,
+      scans: associationsData.control.scans,
     }
   }, [associationsData?.control, data])
 

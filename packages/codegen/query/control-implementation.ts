@@ -39,8 +39,8 @@ export const CONTROL_IMPLEMENTATION_FIELDS = gql`
 export const GET_ALL_CONTROL_IMPLEMENTATIONS = gql`
   ${CONTROL_IMPLEMENTATION_FIELDS}
 
-  query GetAllControlImplementations($where: ControlImplementationWhereInput) {
-    controlImplementations(where: $where) {
+  query GetAllControlImplementations($where: ControlImplementationWhereInput, $first: Int, $after: Cursor, $last: Int, $before: Cursor) {
+    controlImplementations(where: $where, first: $first, after: $after, last: $last, before: $before) {
       edges {
         node {
           ...ControlImplementationFields

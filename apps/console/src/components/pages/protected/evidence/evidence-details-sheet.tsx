@@ -1060,10 +1060,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                     <ObjectAssociation
                       initialData={initialAssociations}
                       onIdChange={(updatedMap) => setAssociations(updatedMap)}
-                      allowedObjectTypes={[
-                        ObjectTypeObjects.TASK,
-                        ObjectTypeObjects.CONTROL_OBJECTIVE,
-                      ]}
+                      allowedObjectTypes={[ObjectTypeObjects.TASK, ObjectTypeObjects.CONTROL_OBJECTIVE]}
                     />
                   </Panel>
                 </div>

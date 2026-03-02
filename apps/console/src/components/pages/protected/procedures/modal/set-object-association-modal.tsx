@@ -155,14 +155,7 @@ const SetObjectAssociationProceduresDialog = ({ procedureId }: TSetObjectAssocia
           onIdChange={handleIdChange}
           initialData={associationsState}
           refCodeInitialData={refCodeAssociationsState}
-          allowedObjectTypes={[
-            ObjectTypeObjects.CONTROL,
-            ObjectTypeObjects.SUB_CONTROL,
-            ObjectTypeObjects.PROGRAM,
-            ObjectTypeObjects.TASK,
-            ObjectTypeObjects.INTERNAL_POLICY,
-            ObjectTypeObjects.RISK,
-          ]}
+          allowedObjectTypes={[ObjectTypeObjects.CONTROL, ObjectTypeObjects.SUB_CONTROL, ObjectTypeObjects.PROGRAM, ObjectTypeObjects.TASK, ObjectTypeObjects.INTERNAL_POLICY, ObjectTypeObjects.RISK]}
         />
         <DialogFooter>
           <SaveButton onClick={handleSave} disabled={isSaving} />

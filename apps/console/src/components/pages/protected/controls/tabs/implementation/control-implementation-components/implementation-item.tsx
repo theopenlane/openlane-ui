@@ -81,8 +81,8 @@ export const ImplementationItem: React.FC<Props> = ({ node, onEdit, onMarkVerifi
       <ControlImplementationCard
         obj={node}
         actions={
-          <Button type="button" className="h-8" onClick={() => setAssociationsOpen(true)} disabled={isMenuDisabled} aria-label="Set associations">
-            Set Associations
+          <Button type="button" className="h-8" onClick={() => setAssociationsOpen(true)} disabled={isMenuDisabled} aria-label="Link controls">
+            Link Controls
           </Button>
         }
       />

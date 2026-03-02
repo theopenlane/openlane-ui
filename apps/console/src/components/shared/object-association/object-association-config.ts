@@ -1,6 +1,7 @@
 import { GET_ALL_ASSETS } from '@repo/codegen/query/asset'
 import { GET_ALL_CAMPAIGNS } from '@repo/codegen/query/campaign'
 import { GET_ALL_CONTROLS } from '@repo/codegen/query/control'
+import { GET_ALL_CONTROL_IMPLEMENTATIONS } from '@repo/codegen/query/control-implementation'
 import { GET_ALL_CONTROL_OBJECTIVES } from '@repo/codegen/query/control-objective'
 import { GET_ALL_ENTITIES } from '@repo/codegen/query/entity'
 import { GET_ALL_EVIDENCES } from '@repo/codegen/query/evidence'
@@ -18,6 +19,7 @@ import {
   Asset,
   Campaign,
   Control,
+  ControlImplementation,
   Subcontrol,
   ControlObjective,
   Entity,
@@ -38,6 +40,7 @@ import { RequestDocument } from 'graphql-request'
 import {
   AssetsWithFilterQuery,
   CampaignsWithFilterQuery,
+  GetAllControlImplementationsQuery,
   GetAllControlObjectivesQuery,
   GetAllControlsQuery,
   GetAllEvidencesQuery,
@@ -65,6 +68,7 @@ import type {
 
 export type QueryResponse =
   | GetAllControlsQuery
+  | GetAllControlImplementationsQuery
   | GetAllSubcontrolsQuery
   | GetAllControlObjectivesQuery
   | GetAllProgramsQuery
@@ -82,6 +86,7 @@ export type QueryResponse =
 
 type QueryResponseMapKey =
   | 'controls'
+  | 'controlImplementations'
   | 'subcontrols'
   | 'controlObjectives'
   | 'programs'
@@ -100,6 +105,11 @@ type QueryResponseMapKey =
 export type AllObjectQueriesData = {
   controls?: {
     edges?: Array<{ node: Control }>
+    pageInfo?: PageInfo
+    totalCount?: number
+  }
+  controlImplementations?: {
+    edges?: Array<{ node: ControlImplementation }>
     pageInfo?: PageInfo
     totalCount?: number
   }
@@ -179,6 +189,7 @@ export type AllObjectQueriesDataKey = keyof AllObjectQueriesData
 
 export enum ObjectTypeObjects {
   CONTROL = 'Control',
+  CONTROL_IMPLEMENTATION = 'Control Implementation',
   SUB_CONTROL = 'Subcontrol',
   CONTROL_OBJECTIVE = 'Control Objective',
   PROGRAM = 'Program',
@@ -208,6 +219,12 @@ export const OBJECT_QUERY_CONFIG: Record<ObjectTypeObjects, ObjectQueryConfig> =
     inputName: 'controlIDs',
     placeholder: 'Search controls',
     queryDocument: GET_ALL_CONTROLS,
+  },
+  [ObjectTypeObjects.CONTROL_IMPLEMENTATION]: {
+    responseObjectKey: 'controlImplementations',
+    inputName: 'controlImplementationIDs',
+    placeholder: 'Search control implementations',
+    queryDocument: GET_ALL_CONTROL_IMPLEMENTATIONS,
   },
   [ObjectTypeObjects.SUB_CONTROL]: {
     responseObjectKey: 'subcontrols',
@@ -314,6 +331,10 @@ export function getPagination(objectKey: QueryResponseMapKey | undefined, data: 
       const typed = data as GetAllControlsQuery
       return { pageInfo: typed.controls.pageInfo, totalCount: typed.controls.totalCount }
     }
+    case 'controlImplementations': {
+      const typed = data as GetAllControlImplementationsQuery
+      return { pageInfo: typed.controlImplementations.pageInfo, totalCount: typed.controlImplementations.totalCount }
+    }
     case 'subcontrols': {
       const typed = data as GetAllSubcontrolsQuery
       return { pageInfo: typed.subcontrols.pageInfo, totalCount: typed.subcontrols.totalCount }
@@ -397,6 +418,16 @@ export function extractTableRows(objectKey: QueryResponseMapKey | undefined, dat
         refCode: item?.node?.refCode ?? '',
       }))
     }
+    case 'controlImplementations': {
+      const items = (data as GetAllControlImplementationsQuery).controlImplementations?.edges ?? []
+      return items.map((item) => ({
+        id: item?.node?.id || '',
+        name: item?.node?.controls?.edges?.[0]?.node?.refCode ?? item?.node?.details?.slice(0, 50) ?? '',
+        inputName: selectedInputName,
+        refCode: '',
+      }))
+    }
+
     case 'subcontrols': {
       const items = (data as GetAllSubcontrolsQuery).subcontrols?.edges ?? []
       return items.map((item) => ({
@@ -547,6 +578,7 @@ export const generateWhere = (selectedObject: ObjectTypeObjects | null, searchVa
 
   const mandatoryFilterMap: Partial<Record<ObjectTypeObjects, Record<string, unknown>>> = {
     [ObjectTypeObjects.CONTROL]: { systemOwned: false },
+    [ObjectTypeObjects.CONTROL_IMPLEMENTATION]: {},
     [ObjectTypeObjects.SUB_CONTROL]: { systemOwned: false },
     [ObjectTypeObjects.CONTROL_OBJECTIVE]: { ownerID: ownerID },
     [ObjectTypeObjects.PROGRAM]: { ownerID: ownerID },
@@ -565,6 +597,7 @@ export const generateWhere = (selectedObject: ObjectTypeObjects | null, searchVa
 
   const searchAttributeMap: Partial<Record<ObjectTypeObjects, string>> = {
     [ObjectTypeObjects.CONTROL]: 'refCodeContainsFold',
+    [ObjectTypeObjects.CONTROL_IMPLEMENTATION]: 'detailsContainsFold',
     [ObjectTypeObjects.SUB_CONTROL]: 'refCodeContainsFold',
     [ObjectTypeObjects.CONTROL_OBJECTIVE]: 'nameContainsFold',
     [ObjectTypeObjects.PROGRAM]: 'nameContainsFold',
@@ -583,6 +616,7 @@ export const generateWhere = (selectedObject: ObjectTypeObjects | null, searchVa
 
   const secondarySearchMap: Partial<Record<ObjectTypeObjects, string>> = {
     [ObjectTypeObjects.CONTROL]: 'descriptionContainsFold',
+    [ObjectTypeObjects.CONTROL_IMPLEMENTATION]: 'statusContainsFold',
     [ObjectTypeObjects.SUB_CONTROL]: 'descriptionContainsFold',
     [ObjectTypeObjects.CONTROL_OBJECTIVE]: 'desiredOutcomeContainsFold',
     [ObjectTypeObjects.PROGRAM]: 'descriptionContainsFold',
@@ -633,6 +667,7 @@ type TAssociationSectionDefinition = {
 
 export const ASSOCIATION_SECTION_CONFIG = {
   controls: { dataField: 'controls', inputName: 'controlIDs' },
+  controlImplementations: { dataField: 'controlImplementations', inputName: 'controlImplementationIDs' },
   subcontrols: { dataField: 'subcontrols', inputName: 'subcontrolIDs' },
   controlObjectives: { dataField: 'controlObjectives', inputName: 'controlObjectiveIDs' },
   policies: { dataField: 'internalPolicies', inputName: 'internalPolicyIDs' },
@@ -652,6 +687,7 @@ export const ASSOCIATION_SECTION_CONFIG = {
 export type AssociationSectionKey = keyof typeof ASSOCIATION_SECTION_CONFIG
 
 const SECTION_DISPLAY_NAMES_OVERRIDES: Partial<Record<AssociationSectionKey, string>> = {
+  controlImplementations: 'Control Implementations',
   entities: 'Vendors',
   identityHolders: 'Personnel',
 }
@@ -672,6 +708,7 @@ const toRemoveFieldName = <TInputName extends TObjectAssociationInputName>(input
 
 const ASSOCIATION_SECTION_QUERY_KEY = {
   controls: ['controls'],
+  controlImplementations: ['controlImplementations'],
   subcontrols: ['subcontrols'],
   controlObjectives: ['controlObjectives'],
   policies: ['internalPolicies'],
@@ -710,11 +747,11 @@ const createAssociationRemovalConfig =
     }
   }
 
-const CONTROL_ASSOCIATION_SECTIONS = ['policies', 'procedures', 'tasks', 'programs', 'risks', 'subcontrols'] as const
+const CONTROL_ASSOCIATION_SECTIONS = ['policies', 'procedures', 'tasks', 'programs', 'risks', 'subcontrols', 'assets', 'scans'] as const
 const SUBCONTROL_ASSOCIATION_SECTIONS = ['policies', 'procedures', 'tasks', 'risks'] as const
-const POLICY_ASSOCIATION_SECTIONS = ['procedures', 'controls', 'subcontrols', 'controlObjectives', 'tasks', 'programs'] as const
+const POLICY_ASSOCIATION_SECTIONS = ['procedures', 'controls', 'subcontrols', 'controlObjectives', 'tasks', 'programs', 'risks'] as const
 const PROCEDURE_ASSOCIATION_SECTIONS = ['policies', 'controls', 'subcontrols', 'risks', 'tasks', 'programs'] as const
-const RISK_ASSOCIATION_SECTIONS = ['controls', 'procedures', 'subcontrols', 'programs', 'tasks', 'policies'] as const
+const RISK_ASSOCIATION_SECTIONS = ['controls', 'procedures', 'subcontrols', 'programs', 'tasks', 'policies', 'assets', 'entities', 'scans'] as const
 const ASSET_ASSOCIATION_SECTIONS = ['scans', 'entities', 'identityHolders', 'controls'] as const
 const ENTITY_ASSOCIATION_SECTIONS = ['assets', 'scans', 'campaigns', 'identityHolders'] as const
 const IDENTITY_HOLDER_ASSOCIATION_SECTIONS = ['assets', 'entities', 'campaigns', 'tasks'] as const

@@ -158,6 +158,9 @@ const SetObjectAssociationRisksDialog = ({ riskId }: TSetObjectAssociationDialog
             ObjectTypeObjects.TASK,
             ObjectTypeObjects.INTERNAL_POLICY,
             ObjectTypeObjects.PROCEDURE,
+            ObjectTypeObjects.ASSET,
+            ObjectTypeObjects.ENTITY,
+            ObjectTypeObjects.SCAN,
           ]}
         />
         <DialogFooter>

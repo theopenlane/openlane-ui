@@ -50,6 +50,8 @@ export function SetObjectAssociationDialog({ trigger, defaultSelectedObject, all
         riskIDs: (controlAssociationsData.control.risks?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
         procedureIDs: (controlAssociationsData.control.procedures?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
         internalPolicyIDs: (controlAssociationsData.control.internalPolicies?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+        assetIDs: (controlAssociationsData.control.assets?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+        scanIDs: (controlAssociationsData.control.scans?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
       }
     }
 
@@ -185,13 +187,16 @@ export function SetObjectAssociationDialog({ trigger, defaultSelectedObject, all
             setAssociations(updatedMap)
           }}
           defaultSelectedObject={defaultSelectedObject}
-          allowedObjectTypes={allowedObjectTypes || [
-            ...(isSubcontrol ? [] : [ObjectTypeObjects.PROGRAM]),
-            ObjectTypeObjects.TASK,
-            ObjectTypeObjects.INTERNAL_POLICY,
-            ObjectTypeObjects.PROCEDURE,
-            ObjectTypeObjects.RISK,
-          ]}
+          allowedObjectTypes={
+            allowedObjectTypes || [
+              ...(isSubcontrol ? [] : [ObjectTypeObjects.PROGRAM]),
+              ObjectTypeObjects.TASK,
+              ObjectTypeObjects.INTERNAL_POLICY,
+              ObjectTypeObjects.PROCEDURE,
+              ObjectTypeObjects.RISK,
+              ...(isSubcontrol ? [] : [ObjectTypeObjects.ASSET, ObjectTypeObjects.SCAN]),
+            ]
+          }
           initialData={initialData}
         />
         <DialogFooter>

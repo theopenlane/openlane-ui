@@ -47,6 +47,7 @@ const SetObjectAssociationPoliciesDialog = ({ policyId, fromTable = false, onClo
         ObjectTypeObjects.TASK,
         ObjectTypeObjects.PROCEDURE,
         ObjectTypeObjects.CONTROL_OBJECTIVE,
+        ObjectTypeObjects.RISK,
       ]
 
   const handleSave = () => {

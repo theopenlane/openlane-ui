@@ -47,7 +47,16 @@ const AssociatedObjectsAccordion: React.FC<AssociatedObjectsAccordionProps> = ({
 
   const renderTable = (
     kind: string,
-    rows: { id: string; displayID: string; refCode?: string | null; name?: string | null; title?: string | null; details?: string | null; description?: string | null; summary?: string | null }[],
+    rows: {
+      id: string
+      displayID?: string | null
+      refCode?: string | null
+      name?: string | null
+      title?: string | null
+      details?: string | null
+      description?: string | null
+      summary?: string | null
+    }[],
   ) => (
     <div className="flex gap-2 flex-wrap">
       {rows.length > 0 ? (
