@@ -17,7 +17,7 @@ import { useCallback, useMemo, useState } from 'react'
 
 const EvidenceCommentSheet = () => {
   const searchParams = useSearchParams()
-  const evidenceId = searchParams.get('id')
+  const evidenceId = searchParams.get('id') || searchParams.get('controlEvidenceId')
   const { data } = useGetEvidenceComments(evidenceId)
   const { mutateAsync: updateEvidenceComment } = useUpdateEvidenceComment()
   const { mutateAsync: updateEvidence } = useUpdateEvidence()
