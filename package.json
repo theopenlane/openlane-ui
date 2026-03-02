@@ -22,7 +22,7 @@
     "@typescript-eslint/parser": "^8.55.0",
     "@vercel/style-guide": "^6.0.0",
     "dotenv-cli": "^11.0.0",
-    "eslint": "9.39.3",
+    "eslint": "10.0.2",
     "eslint-config-turbo": "^2.8.9",
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-jsx-a11y": "^6.10.2",
@@ -34,7 +34,7 @@
     "turbo": "^2.8.10"
   },
   "engines": {
-    "node": "22.22.x"
+    "node": "24.14.x"
   },
   "packageManager": "bun@1.2.16",
   "workspaces": [
