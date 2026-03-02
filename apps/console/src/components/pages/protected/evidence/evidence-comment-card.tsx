@@ -15,7 +15,7 @@ import { formatDateTime } from '@/utils/date'
 
 const EvidenceCommentsCard = () => {
   const searchParams = useSearchParams()
-  const evidenceId = searchParams.get('id')
+  const evidenceId = searchParams.get('id') || searchParams.get('controlEvidenceId')
   const { data } = useGetEvidenceComments(evidenceId)
   const [sheetOpen, setSheetOpen] = useState(false)
   const { successNotification, errorNotification } = useNotification()
