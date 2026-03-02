@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Button } from '@repo/ui/button'
 import { DataTable, getInitialPagination } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/table-core'
@@ -11,7 +11,6 @@ import { formatDate } from '@/utils/date'
 import { InternalPolicyWhereInput } from '@repo/codegen/src/schema'
 import { wherePoliciesDashboard } from '../dashboard-config'
 import SetObjectAssociationPoliciesDialog from '../../modal/set-object-association-modal'
-import { usePolicy } from '../../create/hooks/use-policy'
 import { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
 import Link from 'next/link'
 import { TableKeyEnum } from '@repo/ui/table-key'
@@ -31,9 +30,9 @@ export default function PoliciesWithoutProceduresTable() {
     }),
   )
   const [selectedPolicyId, setSelectedPolicyId] = useState<string | null>(null)
-
-  const setAssociations = usePolicy((state) => state.setAssociations)
-  const setAssociationRefCodes = usePolicy((state) => state.setAssociationRefCodes)
+  const [associations, setAssociations] = useState<TObjectAssociationMap>({})
+  const [initialAssociations, setInitialAssociations] = useState<TObjectAssociationMap>({})
+  const [associationRefCodes, setAssociationRefCodes] = useState<TObjectAssociationMap>({})
 
   const { data: policyData } = useGetInternalPolicyDetailsById(selectedPolicyId)
   const { data: assocData } = useGetInternalPolicyAssociationsById(selectedPolicyId)
@@ -110,10 +109,17 @@ export default function PoliciesWithoutProceduresTable() {
         taskIDs: (assocData?.internalPolicy.tasks?.edges?.map((item) => item?.node?.displayID).filter(Boolean) as string[]) || [],
       }
 
+      setInitialAssociations(policyAssociations)
       setAssociations(policyAssociations)
       setAssociationRefCodes(policyAssociationsRefCodes)
     }
-  }, [policy, setAssociations, setAssociationRefCodes, assocData])
+  }, [policy, assocData])
+
+  const handleAssociationsChange = useCallback((newAssociations: TObjectAssociationMap, newRefCodes: TObjectAssociationMap) => {
+    setAssociations(newAssociations)
+    setInitialAssociations(newAssociations)
+    setAssociationRefCodes(newRefCodes)
+  }, [])
 
   return (
     <div className="py-6 rounded-lg">
@@ -133,7 +139,18 @@ export default function PoliciesWithoutProceduresTable() {
         tableKey={TableKeyEnum.POLICY_WITHOUT_PROCEDURE}
       />
 
-      {selectedPolicyId && <SetObjectAssociationPoliciesDialog fromTable policyId={selectedPolicyId} key={selectedPolicyId} onClose={() => setSelectedPolicyId(null)} />}
+      {selectedPolicyId && (
+        <SetObjectAssociationPoliciesDialog
+          fromTable
+          policyId={selectedPolicyId}
+          key={selectedPolicyId}
+          onClose={() => setSelectedPolicyId(null)}
+          associations={associations}
+          initialAssociations={initialAssociations}
+          associationRefCodes={associationRefCodes}
+          onAssociationsChange={handleAssociationsChange}
+        />
+      )}
     </div>
   )
 }

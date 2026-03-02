@@ -21,7 +21,7 @@ interface CheckboxFieldProps {
   tooltipContent?: string
 }
 
-export const CheckboxField: React.FC<CheckboxFieldProps> = ({ name, label, isEditing, isEditAllowed, isCreate = false, internalEditing, setInternalEditing, className, tooltipContent }) => {
+export const CheckboxField: React.FC<CheckboxFieldProps> = ({ name, label, isEditing, isCreate = false, internalEditing, setInternalEditing, className, tooltipContent }) => {
   const { control } = useFormContext()
   const isFieldEditing = internalEditing === name
   const isActive = isCreate || isEditing || isFieldEditing

@@ -3,7 +3,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@repo/ui/dialog'
 import { Button } from '@repo/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 type Props = {
@@ -16,13 +16,15 @@ type Props = {
 
 export const EditGroupRoleDialog = ({ open, onOpenChange, groupName, currentRole, onSubmit }: Props) => {
   const [role, setRole] = useState<'Viewer' | 'Editor'>(currentRole)
-  useEffect(() => {
+  const [prevOpen, setPrevOpen] = useState(open)
+  const [prevCurrentRole, setPrevCurrentRole] = useState(currentRole)
+  if (open !== prevOpen || currentRole !== prevCurrentRole) {
+    setPrevOpen(open)
+    setPrevCurrentRole(currentRole)
     if (open) {
       setRole(currentRole)
     }
-
-    return () => {}
-  }, [open, currentRole])
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

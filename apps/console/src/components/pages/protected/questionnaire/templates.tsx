@@ -24,6 +24,10 @@ const formSchema = z.object({
 
 type FormData = zInfer<typeof formSchema>
 
+function generateSuffix() {
+  return `-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
+}
+
 type TemplateListProps = {
   initialTemplateId?: string
   onCreateSuccess?: () => void
@@ -40,7 +44,7 @@ export const TemplateList = ({ initialTemplateId, onCreateSuccess }: TemplateLis
     try {
       const selectedTemplate = templates?.find((template) => template?.id === templateId)
 
-      const suffix = `-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
+      const suffix = generateSuffix()
 
       const response = await createAssessment({
         input: {

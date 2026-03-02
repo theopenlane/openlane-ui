@@ -1,6 +1,6 @@
 'use client'
 
-import React, { Suspense, useMemo, useState, useEffect, useContext, useCallback } from 'react'
+import React, { Suspense, useState, useEffect, useContext, useCallback } from 'react'
 import { ProfileNameForm } from './profile-name-form'
 import { AvatarUpload } from '@/components/shared/avatar-upload/avatar-upload'
 import { useSession } from 'next-auth/react'
@@ -96,29 +96,26 @@ const ProfilePage = () => {
     setSecret(secret || null)
   }, [createTfaSetting, isVerified, tfaSettings, updateTfaSetting])
 
-  const handleTfaChange = useCallback(
-    async (checked: boolean) => {
-      try {
-        await updateUserSetting({
-          updateUserSettingId: userData?.user?.setting?.id ?? '',
-          input: {
-            isTfaEnabled: checked,
-          },
-        })
+  const handleTfaChange = async (checked: boolean) => {
+    try {
+      await updateUserSetting({
+        updateUserSettingId: userData?.user?.setting?.id ?? '',
+        input: {
+          isTfaEnabled: checked,
+        },
+      })
 
-        successNotification({
-          title: `Two-factor authentication ${checked ? 'enabled' : 'disabled'} successfully`,
-        })
-      } catch (error) {
-        const errorMessage = parseErrorMessage(error)
-        errorNotification({
-          title: 'Error',
-          description: errorMessage,
-        })
-      }
-    },
-    [errorNotification, successNotification, updateUserSetting, userData?.user?.setting?.id],
-  )
+      successNotification({
+        title: `Two-factor authentication ${checked ? 'enabled' : 'disabled'} successfully`,
+      })
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
+      errorNotification({
+        title: 'Error',
+        description: errorMessage,
+      })
+    }
+  }
 
   const removeTfa = useCallback(async () => {
     try {
@@ -148,7 +145,7 @@ const ProfilePage = () => {
     setRegeneratedCodes(resp?.updateTFASetting?.recoveryCodes || null)
   }, [updateTfaSetting])
 
-  const twoFAConfig = useMemo(() => {
+  const twoFAConfig = (() => {
     if (!tfaSettings || !isVerified) {
       return {
         badge: <Badge variant="secondary">Recommended</Badge>,
@@ -204,7 +201,7 @@ const ProfilePage = () => {
         </Button>,
       ],
     }
-  }, [tfaSettings, isVerified, userData?.user.setting.isTfaEnabled, handleConfigure, handleTfaChange, regenerateCodes, removeTfa])
+  })()
 
   return (
     <>

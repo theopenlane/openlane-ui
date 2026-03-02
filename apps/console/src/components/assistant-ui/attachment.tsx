@@ -1,6 +1,6 @@
 'use client'
 
-import { PropsWithChildren, useEffect, useState, type FC } from 'react'
+import { PropsWithChildren, useEffect, useRef, useState, type FC } from 'react'
 import { XIcon, PlusIcon, FileText } from 'lucide-react'
 import { AttachmentPrimitive, ComposerPrimitive, MessagePrimitive, useAuiState, useAui } from '@assistant-ui/react'
 import { useShallow } from 'zustand/shallow'
@@ -11,21 +11,27 @@ import { TooltipIconButton } from '@/components/assistant-ui/tooltip-icon-button
 import { cn } from '@repo/ui/lib/utils'
 
 const useFileSrc = (file: File | undefined) => {
+  const [prevFile, setPrevFile] = useState(file)
   const [src, setSrc] = useState<string | undefined>(undefined)
+  const srcRef = useRef(src)
+
+  if (file !== prevFile) {
+    setPrevFile(file)
+    if (src) {
+      URL.revokeObjectURL(src)
+    }
+    const newSrc = file ? URL.createObjectURL(file) : undefined
+    setSrc(newSrc)
+    srcRef.current = newSrc
+  }
 
   useEffect(() => {
-    if (!file) {
-      setSrc(undefined)
-      return
-    }
-
-    const objectUrl = URL.createObjectURL(file)
-    setSrc(objectUrl)
-
     return () => {
-      URL.revokeObjectURL(objectUrl)
+      if (srcRef.current) {
+        URL.revokeObjectURL(srcRef.current)
+      }
     }
-  }, [file])
+  }, [])
 
   return src
 }

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { Fragment, useEffect, useRef, useMemo, useState, useCallback } from 'react'
+import React, { Fragment, useEffect, useRef, useMemo, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@repo/ui/button'
 import {
@@ -196,15 +196,24 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
     }
   }, [evidence])
 
-  /* eslint-disable react-hooks/set-state-in-effect */
-  useEffect(() => {
+  const [prevAssocControlsAndPrograms, setPrevAssocControlsAndPrograms] = useState(initialAssociationsControlsAndPrograms)
+  if (initialAssociationsControlsAndPrograms !== prevAssocControlsAndPrograms) {
+    setPrevAssocControlsAndPrograms(initialAssociationsControlsAndPrograms)
     if (initialAssociationsControlsAndPrograms.controls) {
       setEvidenceControls(initialAssociationsControlsAndPrograms.controls)
     }
     if (initialAssociationsControlsAndPrograms.subcontrols) {
       setEvidenceSubcontrols(initialAssociationsControlsAndPrograms.subcontrols)
     }
-  }, [initialAssociationsControlsAndPrograms])
+  }
+
+  const [prevEvidence, setPrevEvidence] = useState(evidence)
+  if (evidence !== prevEvidence) {
+    setPrevEvidence(evidence)
+    if (evidence?.tags) {
+      setTagValues(evidence.tags.map((item) => ({ value: item, label: item })))
+    }
+  }
 
   useEffect(() => {
     if (evidence) {
@@ -219,36 +228,24 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
         source: evidence?.source ?? '',
         url: evidence?.url ?? '',
       })
-
-      if (evidence?.tags) {
-        const tags = evidence.tags.map((item) => {
-          return {
-            value: item,
-            label: item,
-          }
-        })
-        setTagValues(tags)
-      }
     }
   }, [evidence, form])
-  /* eslint-enable react-hooks/set-state-in-effect */
 
-  // eslint-disable-next-line react-hooks/preserve-manual-memoization
-  const handleInitialValue = useCallback(() => {
+  const [prevInitialAssociations, setPrevInitialAssociations] = useState(initialAssociations)
+  if (initialAssociations !== prevInitialAssociations) {
+    setPrevInitialAssociations(initialAssociations)
+    if (initialAssociationsControlsAndPrograms) {
+      setAssociationProgramsRefMap(initialAssociationsControlsAndPrograms.programDisplayIDs ? initialAssociationsControlsAndPrograms.programDisplayIDs : [])
+    }
+  }
+
+  useEffect(() => {
     if (initialAssociations && initialAssociationsControlsAndPrograms) {
       form.setValue('controlIDs', initialAssociations.controlIDs ? initialAssociations.controlIDs : [])
       form.setValue('programIDs', initialAssociations.programIDs ? initialAssociations.programIDs : [])
       form.setValue('subcontrolIDs', initialAssociations.subcontrolIDs ? initialAssociations.subcontrolIDs : [])
-
-      setAssociationProgramsRefMap(initialAssociationsControlsAndPrograms.programDisplayIDs ? initialAssociationsControlsAndPrograms.programDisplayIDs : [])
     }
   }, [form, initialAssociations, initialAssociationsControlsAndPrograms])
-
-  /* eslint-disable react-hooks/set-state-in-effect */
-  useEffect(() => {
-    handleInitialValue()
-  }, [handleInitialValue])
-  /* eslint-enable react-hooks/set-state-in-effect */
 
   const programIDs = form.watch('programIDs')
 
@@ -425,19 +422,22 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
     },
   )
 
-  /* eslint-disable react-hooks/set-state-in-effect */
+  const [scrollToAssociationCount, setScrollToAssociationCount] = useState(0)
+  if (isEditPreset) {
+    setIsEditing(true)
+    setIsEditPreset(false)
+    setScrollToAssociationCount((c) => c + 1)
+  }
+
   useEffect(() => {
-    if (isEditPreset) {
-      setIsEditing(true)
-      setIsEditPreset(false)
-      setTimeout(() => {
-        requestAnimationFrame(() => {
-          objectAssociationRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-        })
-      }, 500)
-    }
-  }, [isEditPreset, setIsEditPreset, setIsEditing])
-  /* eslint-enable react-hooks/set-state-in-effect */
+    if (scrollToAssociationCount === 0) return
+    const timeout = setTimeout(() => {
+      requestAnimationFrame(() => {
+        objectAssociationRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      })
+    }, 500)
+    return () => clearTimeout(timeout)
+  }, [scrollToAssociationCount])
 
   const handleTags = () => {
     if (evidence?.tags?.length === 0) {

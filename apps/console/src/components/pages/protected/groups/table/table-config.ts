@@ -2,7 +2,7 @@ import { FilterIcons } from '@/components/shared/enum-mapper/groups-enum'
 import { useUserSelect } from '@/lib/graphql-hooks/member'
 import { FilterField } from '@/types'
 import { GroupOrderField } from '@repo/codegen/src/schema.ts'
-import { useEffect, useState } from 'react'
+import { useMemo } from 'react'
 
 export const GROUP_SORT_FIELDS: { key: GroupOrderField; label: string }[] = [
   { key: GroupOrderField.created_at, label: 'Created At' },
@@ -12,13 +12,12 @@ export const GROUP_SORT_FIELDS: { key: GroupOrderField; label: string }[] = [
 ]
 
 export function useGroupsFilters(): FilterField[] | null {
-  const [filters, setFilters] = useState<FilterField[] | null>(null)
   const { userOptions } = useUserSelect({})
 
-  useEffect(() => {
-    if (!userOptions || userOptions.length === 0 || filters) return
+  const filters = useMemo(() => {
+    if (!userOptions || userOptions.length === 0) return null
 
-    const newFilters: FilterField[] = [
+    return [
       {
         key: 'hasMembersWith',
         label: 'Member',
@@ -27,10 +26,8 @@ export function useGroupsFilters(): FilterField[] | null {
         options: userOptions,
       },
       { key: 'isManaged', label: 'Include System Managed', type: 'boolean', icon: FilterIcons.SystemOwned },
-    ]
-
-    setFilters(newFilters)
-  }, [userOptions, filters])
+    ] as FilterField[]
+  }, [userOptions])
 
   return filters
 }

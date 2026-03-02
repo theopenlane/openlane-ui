@@ -1,11 +1,9 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useDeleteRisk, useGetRiskById, useGetRiskDiscussionById, useUpdateRisk } from '@/lib/graphql-hooks/risk'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { RiskRiskImpact, RiskRiskLikelihood, RiskRiskStatus, UpdateRiskInput } from '@repo/codegen/src/schema.ts'
 import useFormSchema, { EditRisksFormData } from '@/components/pages/protected/risks/view/hooks/use-form-schema.ts'
 import { useNotification } from '@/hooks/useNotification.tsx'
-import { useRisk } from '@/components/pages/protected/risks/create/hooks/use-risk.tsx'
-import { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap.ts'
 import { ASSOCIATION_REMOVAL_CONFIG } from '@/components/shared/object-association/object-association-config'
 import { Form } from '@repo/ui/form'
 import { PencilIcon, Trash2 } from 'lucide-react'
@@ -59,8 +57,10 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
   const router = useRouter()
   const { currentOrgId, getOrganizationByID } = useOrganization()
   const currentOrganization = getOrganizationByID(currentOrgId!)
-  const riskState = useRisk()
-  const [dataInitialized, setDataInitialized] = useState(false)
+  const dataInitializedRef = useRef(false)
+  const setDataInitialized = (value: boolean) => {
+    dataInitializedRef.current = value
+  }
   const { data: discussionData } = useGetRiskDiscussionById(riskId)
 
   const handleRemoveAssociation = useAssociationRemoval({
@@ -123,33 +123,6 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
       })
     }
   }, [risk, form])
-
-  useEffect(() => {
-    if (risk && !dataInitialized) {
-      const riskAssociations: TObjectAssociationMap = {
-        controlIDs: risk.controls?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
-        procedureIDs: risk.procedures?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
-        subcontrolIDs: risk.subcontrols?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
-        programIDs: risk.programs?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
-        taskIDs: risk.tasks?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
-        internalPolicyIDs: risk.internalPolicies?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
-      }
-
-      const riskAssociationsRefCodes: TObjectAssociationMap = {
-        controlIDs: risk.controls?.edges?.map((item) => item?.node?.refCode).filter((id): id is string => !!id) || [],
-        procedureIDs: risk.procedures?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => !!id) || [],
-        subcontrolIDs: risk.subcontrols?.edges?.map((item) => item?.node?.refCode).filter((id): id is string => !!id) || [],
-        programIDs: risk.programs?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => !!id) || [],
-        taskIDs: risk.tasks?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => !!id) || [],
-        internalPolicyIDs: risk.internalPolicies?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => !!id) || [],
-      }
-
-      riskState.setInitialAssociations(riskAssociations)
-      riskState.setAssociations(riskAssociations)
-      riskState.setAssociationRefCodes(riskAssociationsRefCodes)
-      setDataInitialized(true)
-    }
-  }, [risk, riskState, dataInitialized])
 
   const handleCancel = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()

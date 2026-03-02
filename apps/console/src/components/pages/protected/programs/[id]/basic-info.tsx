@@ -3,7 +3,7 @@
 import { useGetProgramBasicInfo, useUpdateProgram } from '@/lib/graphql-hooks/program'
 import { Card } from '@repo/ui/cardpanel'
 import { useParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useForm, Controller, FormProvider, Path, FieldValues, UseFormReturn } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -79,24 +79,24 @@ const BasicInformation = () => {
     },
   })
 
-  useEffect(() => {
-    if (program) {
-      form.reset({
-        name: program.name ?? '',
-        description: program.description ?? '',
-        tags: program.tags ?? [],
-        programOwnerId: program.programOwnerID ?? '',
-        frameworkName: program?.frameworkName ?? '',
-      })
+  const [prevProgram, setPrevProgram] = useState(program)
+  if (program && program !== prevProgram) {
+    setPrevProgram(program)
+    form.reset({
+      name: program.name ?? '',
+      description: program.description ?? '',
+      tags: program.tags ?? [],
+      programOwnerId: program.programOwnerID ?? '',
+      frameworkName: program?.frameworkName ?? '',
+    })
 
-      setTagValues(
-        (program.tags ?? []).map((tag) => ({
-          label: tag,
-          value: tag,
-        })),
-      )
-    }
-  }, [program, form])
+    setTagValues(
+      (program.tags ?? []).map((tag) => ({
+        label: tag,
+        value: tag,
+      })),
+    )
+  }
 
   const handleCancel = () => {
     if (program) {
@@ -284,9 +284,13 @@ export function FrameworkField<T extends FieldValues>({ form, program, isEditing
   const [showSuggestions, setShowSuggestions] = useState(false)
 
   const filteredSuggestions = standardOptionsNormalized.filter((opt) => opt.label.toLowerCase().includes(query.toLowerCase()))
-  useEffect(() => {
+  const [prevIsEditing, setPrevIsEditing] = useState(isEditing)
+  const [prevProgram, setPrevProgram] = useState(program)
+  if (isEditing !== prevIsEditing || program !== prevProgram) {
+    setPrevIsEditing(isEditing)
+    setPrevProgram(program)
     setQuery(program?.frameworkName || '')
-  }, [isEditing, program])
+  }
 
   return (
     <div className="flex border-b pb-3 items-center relative">

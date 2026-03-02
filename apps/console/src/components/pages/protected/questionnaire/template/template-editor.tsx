@@ -1,6 +1,6 @@
 'use client'
 
-import { useContext, useEffect, useRef } from 'react'
+import { useCallback, useContext, useEffect, useRef, useState } from 'react'
 import { SurveyCreatorComponent, SurveyCreator } from 'survey-creator-react'
 import { ITheme, slk } from 'survey-core'
 import { editorLocalization } from 'survey-creator-core'
@@ -26,6 +26,9 @@ const enLocale = editorLocalization.getLocale('en')
 
 const customThemeName = 'Openlane'
 
+if (lightTheme.themeName) enLocale.theme.names[lightTheme.themeName] = customThemeName
+if (darkTheme.themeName) enLocale.theme.names[darkTheme.themeName] = customThemeName
+
 const creatorOptions = {
   showLogicTab: true,
   isAutoSave: false,
@@ -35,27 +38,24 @@ const creatorOptions = {
 // Register the SurveyJS license key
 slk(surveyLicenseKey as string)
 
+function createCreator(): SurveyCreator {
+  const c = new SurveyCreator(creatorOptions)
+  c.toolbox.forceCompact = false
+
+  const themeTabPlugin = c.themeEditor
+  themeTabPlugin.addTheme(lightTheme, true)
+  themeTabPlugin.addTheme(darkTheme as ITheme, true)
+
+  return c
+}
+
 export default function CreateTemplate(input: { templateId: string; existingId: string }) {
   const { setCrumbs } = useContext(BreadcrumbContext)
   const router = useRouter()
   const { successNotification, errorNotification } = useNotification()
 
-  const creatorRef = useRef<SurveyCreator>(new SurveyCreator(creatorOptions))
-
-  if (!creatorRef.current) {
-    creatorRef.current = new SurveyCreator(creatorOptions)
-    creatorRef.current.toolbox.forceCompact = false
-
-    const themeTabPlugin = creatorRef.current.themeEditor
-    if (lightTheme.themeName) enLocale.theme.names[lightTheme.themeName] = customThemeName
-    if (darkTheme.themeName) enLocale.theme.names[darkTheme.themeName] = customThemeName
-    themeTabPlugin.addTheme(lightTheme, true)
-    themeTabPlugin.addTheme(darkTheme as ITheme, true)
-  }
-
-  const creator = creatorRef.current
-  const themeTabPlugin = creator.themeEditor
-  creator.toolbox.forceCompact = false
+  const [creator] = useState(createCreator)
+  const creatorRef = useRef(creator)
 
   useEffect(() => {
     setCrumbs([
@@ -66,44 +66,58 @@ export default function CreateTemplate(input: { templateId: string; existingId: 
     ])
   }, [setCrumbs])
 
-  function addCustomTheme(theme: ITheme, userFriendlyThemeName: string) {
-    // Add a localized user-friendly theme name
-    if (theme.themeName) {
-      enLocale.theme.names[theme.themeName] = userFriendlyThemeName
-    }
-    // Add the theme to the theme list as the default theme
-    themeTabPlugin.addTheme(theme, true)
-  }
-
-  // Register a custom theme with Dark and Light variations
-  addCustomTheme(lightTheme, customThemeName)
-  addCustomTheme(darkTheme as ITheme, customThemeName)
-
   const themeContext = useTheme()
   const theme = themeContext.resolvedTheme as 'light' | 'dark' | 'white' | undefined
 
-  if (theme === 'dark') {
-    creator.applyCreatorTheme(darkTheme as ITheme)
-  } else {
-    creator.applyCreatorTheme(lightTheme)
-  }
+  useEffect(() => {
+    if (theme === 'dark') {
+      creatorRef.current.applyCreatorTheme(darkTheme as ITheme)
+    } else {
+      creatorRef.current.applyCreatorTheme(lightTheme)
+    }
+  }, [theme])
 
   const { data: templateResult } = useGetTemplate(input.existingId)
 
   useEffect(() => {
     if (templateResult?.template?.jsonconfig) {
-      creator.JSON = templateResult.template.jsonconfig
+      creatorRef.current.JSON = templateResult.template.jsonconfig
     }
-  }, [templateResult, creator])
+  }, [templateResult])
 
   const { mutateAsync: createTemplateData } = useCreateTemplate()
   const { mutateAsync: updateTemplateData } = useUpdateTemplate()
 
-  const saveTemplate = async (data: { title?: string; description?: string }) => {
-    if (input.existingId) {
+  const saveTemplate = useCallback(
+    async (data: { title?: string; description?: string }) => {
+      if (input.existingId) {
+        try {
+          await updateTemplateData({
+            updateTemplateId: input.existingId,
+            input: {
+              name: data.title || 'Untitled Template',
+              jsonconfig: data,
+              templateType: TemplateDocumentType.DOCUMENT,
+            },
+          })
+
+          successNotification({
+            title: 'Template updated successfully',
+          })
+
+          router.push(`/automation/assessments/templates`)
+        } catch (error) {
+          const errorMessage = parseErrorMessage(error)
+          errorNotification({
+            title: 'Error',
+            description: errorMessage,
+          })
+        }
+        return
+      }
+
       try {
-        await updateTemplateData({
-          updateTemplateId: input.existingId,
+        await createTemplateData({
           input: {
             name: data.title || 'Untitled Template',
             jsonconfig: data,
@@ -112,7 +126,7 @@ export default function CreateTemplate(input: { templateId: string; existingId: 
         })
 
         successNotification({
-          title: 'Template updated successfully',
+          title: 'Template created successfully',
         })
 
         router.push(`/automation/assessments/templates`)
@@ -123,35 +137,15 @@ export default function CreateTemplate(input: { templateId: string; existingId: 
           description: errorMessage,
         })
       }
-      return
+    },
+    [input.existingId, updateTemplateData, createTemplateData, successNotification, errorNotification, router],
+  )
+
+  useEffect(() => {
+    creatorRef.current.saveSurveyFunc = () => {
+      saveTemplate(creatorRef.current.JSON)
     }
-
-    try {
-      await createTemplateData({
-        input: {
-          name: data.title || 'Untitled Template',
-          jsonconfig: data,
-          templateType: TemplateDocumentType.DOCUMENT,
-        },
-      })
-
-      successNotification({
-        title: 'Template created successfully',
-      })
-
-      router.push(`/automation/assessments/templates`)
-    } catch (error) {
-      const errorMessage = parseErrorMessage(error)
-      errorNotification({
-        title: 'Error',
-        description: errorMessage,
-      })
-    }
-  }
-
-  creator.saveSurveyFunc = () => {
-    saveTemplate(creator.JSON)
-  }
+  }, [saveTemplate])
 
   return (
     <Panel className="flex h-full bg-card border-oxford-blue-100 dark:border-oxford-blue-900 p-0">

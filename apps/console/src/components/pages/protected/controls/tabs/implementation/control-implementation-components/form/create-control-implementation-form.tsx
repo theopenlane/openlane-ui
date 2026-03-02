@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { Controller } from 'react-hook-form'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { Button } from '@repo/ui/button'
@@ -30,7 +30,7 @@ export const CreateControlImplementationForm = ({ onSuccess, defaultValues }: { 
   const { data: controlData, isLoading: isLoadingControl } = useGetControlById(isSubcontrol ? null : (id as string))
   const { data: subcontrolData, isLoading } = useGetSubcontrolById((subcontrolId as string) || null)
   const loading = isLoadingControl || isLoading
-  const [defaultValuesSet, setDefaultValuesSet] = useState(false)
+  const defaultValuesSetRef = useRef(false)
   const { convertToHtml } = usePlateEditor()
   const { form } = useFormSchema()
   const { handleSubmit, control, reset } = form
@@ -108,15 +108,15 @@ export const CreateControlImplementationForm = ({ onSuccess, defaultValues }: { 
   }
 
   useEffect(() => {
-    if (loading && defaultValuesSet) {
+    if (loading && defaultValuesSetRef.current) {
       return
     }
 
     const defaultValuesCreate = { implementationDate: new Date() }
 
     reset(isEditing ? defaultValues : defaultValuesCreate)
-    setDefaultValuesSet(true)
-  }, [defaultValues, reset, isEditing, controlData, subcontrolData, loading, defaultValuesSet])
+    defaultValuesSetRef.current = true
+  }, [defaultValues, reset, isEditing, controlData, subcontrolData, loading])
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">

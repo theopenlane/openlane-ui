@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { Input } from '@repo/ui/input'
 import { Button } from '@repo/ui/button'
 import { ChevronDown, DownloadIcon, LoaderCircle, SearchIcon, Trash2 } from 'lucide-react'
@@ -8,7 +8,6 @@ import { VisibilityState } from '@tanstack/react-table'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import { CreateSubprocessorMutation, SubprocessorWhereInput } from '@repo/codegen/src/schema'
-import { FilterField } from '@/types'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { getSubprocessorsFilterFields } from './table-config'
@@ -52,7 +51,6 @@ const SubprocessorsTableToolbar: React.FC<TProps> = ({
   const [addExistingOpen, setAddExistingOpen] = useState(false)
 
   const { mutate: deleteRows, isPending: isDeleting } = useBulkDeleteTrustCenterSubprocessors()
-  const [filterFields, setFilterFields] = useState<FilterField[] | undefined>(undefined)
   const { enumOptions, isSuccess: isTypesSuccess } = useGetCustomTypeEnums({
     where: {
       objectType: 'trust_center_subprocessor',
@@ -60,13 +58,10 @@ const SubprocessorsTableToolbar: React.FC<TProps> = ({
     },
   })
 
-  useEffect(() => {
-    if (filterFields || !isTypesSuccess) {
-      return
-    }
-    const fields = getSubprocessorsFilterFields(enumOptions)
-    setFilterFields(fields)
-  }, [filterFields, enumOptions, isTypesSuccess])
+  const filterFields = useMemo(() => {
+    if (!isTypesSuccess) return undefined
+    return getSubprocessorsFilterFields(enumOptions)
+  }, [enumOptions, isTypesSuccess])
 
   const [createdSubprocessor, setCreatedSubprocessor] = useState<null | CreateSubprocessorMutation['createSubprocessor']['subprocessor']>(null)
   const { subprocessors } = useGetSubprocessors({

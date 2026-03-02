@@ -11,15 +11,17 @@ import { normalizeUrl } from '@/utils/normalizeUrl'
 export const UploadField = ({ initialUrl }: { initialUrl?: string | null }) => {
   const { setValue } = useFormContext()
 
-  const [preview, setPreview] = useState<string | null>(null)
+  const [preview, setPreview] = useState<string | null>(initialUrl ? normalizeUrl(initialUrl) : null)
 
   const blobUrlRef = useRef<string | null>(null)
 
-  useEffect(() => {
+  const [prevInitialUrl, setPrevInitialUrl] = useState(initialUrl)
+  if (initialUrl !== prevInitialUrl) {
+    setPrevInitialUrl(initialUrl)
     if (initialUrl) {
       setPreview(normalizeUrl(initialUrl))
     }
-  }, [initialUrl])
+  }
 
   const handleUpload = (uploaded: TUploadedFile) => {
     if (!uploaded?.file) return

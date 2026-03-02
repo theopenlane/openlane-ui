@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useState } from 'react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { InfoIcon } from 'lucide-react'
 import useFormSchema, { CreateTaskFormData } from '../../hooks/use-form-schema'
@@ -51,7 +51,6 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
   const { data: membersData } = useGetSingleOrganizationMembers({ organizationId: session?.user.activeOrganizationId })
   const [associations, setAssociations] = useState<TObjectAssociationMap>(props.initialData ?? {})
   const [associationResetTrigger, setAssociationResetTrigger] = useState(0)
-  const wasOpenRef = useRef(false)
   const { tagOptions } = useGetTags()
 
   const { enumOptions: taskKindOptions } = useGetCustomTypeEnums({
@@ -61,30 +60,33 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
     },
   })
 
-  useEffect(() => {
-    if (!props.isOpen || !props.initialValues) return
+  const [prevInitialValues, setPrevInitialValues] = useState(props.initialValues)
+  const [prevIsOpen, setPrevIsOpen] = useState(props.isOpen)
+  if (props.isOpen !== prevIsOpen || props.initialValues !== prevInitialValues) {
+    const wasOpen = prevIsOpen
+    setPrevIsOpen(props.isOpen)
+    setPrevInitialValues(props.initialValues)
 
-    const nextTags = props.initialValues.tags ?? []
-    form.reset({
-      title: '',
-      tags: [],
-      ...props.initialValues,
-    })
-    setTagValues(nextTags.map((tag) => ({ value: tag, label: tag })))
+    if (props.isOpen && props.initialValues) {
+      const nextTags = props.initialValues.tags ?? []
+      form.reset({
+        title: '',
+        tags: [],
+        ...props.initialValues,
+      })
+      setTagValues(nextTags.map((tag) => ({ value: tag, label: tag })))
 
-    if (props.initialValues.details) {
-      form.setValue('details', props.initialValues.details)
+      if (props.initialValues.details) {
+        form.setValue('details', props.initialValues.details)
+      }
     }
-  }, [form, props.initialValues, props.isOpen])
 
-  useEffect(() => {
-    const isOpening = !wasOpenRef.current && Boolean(props.isOpen)
+    const isOpening = !wasOpen && Boolean(props.isOpen)
     if (isOpening) {
       setAssociations(props.initialData ?? {})
       setAssociationResetTrigger((prev) => prev + 1)
     }
-    wasOpenRef.current = Boolean(props.isOpen)
-  }, [props.initialData, props.isOpen])
+  }
 
   const membersOptions = membersData?.organization?.members?.edges?.map((member) => ({
     value: member?.node?.user?.id,

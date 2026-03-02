@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { organizationSelectorStyles } from './organization-selector.styles'
 import { Button } from '@repo/ui/button'
 import { BriefcaseBusiness, Check, ChevronsUpDown, SearchIcon } from 'lucide-react'
@@ -21,11 +21,7 @@ import { useParams, usePathname, useRouter } from 'next/navigation'
 export const OrganizationSelector = ({ expanded }: { expanded: boolean }) => {
   const { data: sessionData, update: updateSession } = useSession()
   const queryClient = useQueryClient()
-  const [orgData, setOrgData] = useState({
-    organizationSearch: '',
-    numberOfOrgs: 0,
-    currentOrgName: '',
-  })
+  const [organizationSearch, setOrganizationSearch] = useState('')
 
   const { currentOrgId } = useOrganization()
   const { data } = useGetAllOrganizationsWithMembers({ userID: sessionData?.user.userId })
@@ -34,21 +30,17 @@ export const OrganizationSelector = ({ expanded }: { expanded: boolean }) => {
   const { allOrganizationsLink, popoverContent, searchWrapper } = organizationSelectorStyles()
   const filteredOrgs = orgs
     .filter((org) => {
-      return org?.node?.name.toLowerCase().includes(orgData.organizationSearch.toLowerCase()) && org?.node?.id !== currentOrgId && !org?.node?.personalOrg
+      return org?.node?.name.toLowerCase().includes(organizationSearch.toLowerCase()) && org?.node?.id !== currentOrgId && !org?.node?.personalOrg
     })
     .slice(0, 4)
   const [isPopoverOpened, setIsPopoverOpened] = useState<boolean>(false)
-  const nonPersonalOrgs = orgs.filter((org) => !org?.node?.personalOrg)
-
-  useEffect(() => {
+  const [prevCurrentOrg, setPrevCurrentOrg] = useState(currentOrg)
+  if (currentOrg !== prevCurrentOrg) {
+    setPrevCurrentOrg(currentOrg)
     if (currentOrg) {
-      setOrgData({
-        organizationSearch: '',
-        numberOfOrgs: nonPersonalOrgs.length,
-        currentOrgName: currentOrg?.displayName ?? '',
-      })
+      setOrganizationSearch('')
     }
-  }, [currentOrg, nonPersonalOrgs.length])
+  }
 
   const pathname = usePathname()
   const router = useRouter()
@@ -126,22 +118,16 @@ export const OrganizationSelector = ({ expanded }: { expanded: boolean }) => {
           <PopoverContent align="start" className={popoverContent()}>
             <div className={searchWrapper()}>
               <Input
-                value={orgData.organizationSearch}
+                value={organizationSearch}
                 name="organization"
                 placeholder="Search for an organization"
-                onChange={(e) => {
-                  setOrgData({
-                    organizationSearch: e.currentTarget.value,
-                    numberOfOrgs: nonPersonalOrgs.length,
-                    currentOrgName: currentOrg?.displayName ?? '',
-                  })
-                }}
+                onChange={(e) => setOrganizationSearch(e.currentTarget.value)}
                 icon={<SearchIcon width={17} />}
                 iconPosition="left"
               />
             </div>
             <div className="border-t border-boder my-2.5"></div>
-            {currentOrg?.name.includes(orgData.organizationSearch) && (
+            {currentOrg?.name.includes(organizationSearch) && (
               <OrganizationItem
                 org={currentOrg as Organization}
                 isCurrent={true}

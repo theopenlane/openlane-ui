@@ -1,6 +1,6 @@
 import { useGroupSelect } from '@/lib/graphql-hooks/group'
 import { FilterField } from '@/types'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { useProgramSelect } from '@/lib/graphql-hooks/program'
 import { FilterIcons, InternalPolicyStatusFilterOptions } from '@/components/shared/enum-mapper/policy-enum'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
@@ -20,11 +20,9 @@ export function usePoliciesFilters(): FilterField[] | null {
   const { tagOptions: rawTagOptions } = useGetTags()
   const tagOptions = useMemo(() => rawTagOptions ?? [], [rawTagOptions])
 
-  const [filters, setFilters] = useState<FilterField[] | null>(null)
-
-  useEffect(() => {
-    if (!isProgramSuccess || !isGroupSuccess || !isTypesSuccess || filters) return
-    const newFilters: FilterField[] = [
+  const filters = useMemo<FilterField[] | null>(() => {
+    if (!isProgramSuccess || !isGroupSuccess || !isTypesSuccess) return null
+    return [
       {
         key: 'approverIDIn',
         label: 'Approver Group',
@@ -125,9 +123,7 @@ export function usePoliciesFilters(): FilterField[] | null {
         options: tagOptions,
       },
     ]
-
-    setFilters(newFilters)
-  }, [isProgramSuccess, programOptions, isGroupSuccess, groupOptions, filters, isTypesSuccess, enumOptions, tagOptions])
+  }, [isProgramSuccess, programOptions, isGroupSuccess, groupOptions, isTypesSuccess, enumOptions, tagOptions])
 
   return filters
 }

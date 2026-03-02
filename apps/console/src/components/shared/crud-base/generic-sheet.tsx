@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Sheet, SheetContent } from '@repo/ui/sheet'
 import { useNotification } from '@/hooks/useNotification'
@@ -105,7 +105,9 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
 
   const queryKey = [pluralizeTypeName(objectType.toLowerCase())]
 
-  useEffect(() => {
+  const [prevDeps, setPrevDeps] = useState({ data, isCreate, id })
+  if (data !== prevDeps.data || isCreate !== prevDeps.isCreate || id !== prevDeps.id) {
+    setPrevDeps({ data, isCreate, id })
     if (id || isCreate) {
       setIsOpen(true)
       setIsEditing(isCreate)
@@ -121,13 +123,11 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
       requestAnimationFrame(() => {
         setIsFormInitialized(true)
       })
-
-      return
+    } else {
+      setIsOpen(false)
+      setIsFormInitialized(false)
     }
-
-    setIsOpen(false)
-    setIsFormInitialized(false)
-  }, [data, isCreate, id, normalizeData, reset])
+  }
 
   const handleSheetClose = () => {
     if (isEditing && isFormInitialized && form.formState.isDirty) {

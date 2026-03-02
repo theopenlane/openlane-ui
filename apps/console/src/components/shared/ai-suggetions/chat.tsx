@@ -37,7 +37,23 @@ const CHAT_STORAGE_KEY_PREFIX = 'chat-history'
 
 const AIChat: React.FC<AIChatProps> = ({ open, onOpenChange, providedContext, contextKey, object }) => {
   const [aiPrompt, setAiPrompt] = useState('')
-  const [chatHistory, setChatHistory] = useState<ChatMessage[]>([])
+  const [chatHistory, setChatHistory] = useState<ChatMessage[]>(() => {
+    const storageKey = `${CHAT_STORAGE_KEY_PREFIX}-${contextKey}`
+    if (typeof window === 'undefined') return []
+    try {
+      const stored = localStorage.getItem(storageKey)
+      if (stored) {
+        const parsed = JSON.parse(stored)
+        return parsed.map((msg: ChatMessage) => ({
+          ...msg,
+          timestamp: new Date(msg.timestamp),
+        }))
+      }
+    } catch (error) {
+      console.error('Failed to load chat history from localStorage', error)
+    }
+    return []
+  })
   const [isCopied, setIsCopied] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
   const { suggestions, loading: suggestionsLoading, getAISuggestions } = useAISuggestions()
@@ -45,21 +61,27 @@ const AIChat: React.FC<AIChatProps> = ({ open, onOpenChange, providedContext, co
 
   const chatStorageKey = `${CHAT_STORAGE_KEY_PREFIX}-${contextKey}`
 
-  useEffect(() => {
+  const [prevChatStorageKey, setPrevChatStorageKey] = useState(chatStorageKey)
+  if (chatStorageKey !== prevChatStorageKey) {
+    setPrevChatStorageKey(chatStorageKey)
     try {
       const stored = localStorage.getItem(chatStorageKey)
       if (stored) {
         const parsed = JSON.parse(stored)
-        const history = parsed.map((msg: ChatMessage) => ({
-          ...msg,
-          timestamp: new Date(msg.timestamp),
-        }))
-        setChatHistory(history)
+        setChatHistory(
+          parsed.map((msg: ChatMessage) => ({
+            ...msg,
+            timestamp: new Date(msg.timestamp),
+          })),
+        )
+      } else {
+        setChatHistory([])
       }
     } catch (error) {
       console.error('Failed to load chat history from localStorage', error)
+      setChatHistory([])
     }
-  }, [chatStorageKey])
+  }
 
   useEffect(() => {
     if (chatHistory.length > 0) {
@@ -72,7 +94,11 @@ const AIChat: React.FC<AIChatProps> = ({ open, onOpenChange, providedContext, co
     }
   }, [chatHistory, chatStorageKey])
 
-  useEffect(() => {
+  const [prevSuggestions, setPrevSuggestions] = useState(suggestions)
+  const [prevSuggestionsLoading, setPrevSuggestionsLoading] = useState(suggestionsLoading)
+  if (suggestionsLoading !== prevSuggestionsLoading || suggestions !== prevSuggestions) {
+    setPrevSuggestionsLoading(suggestionsLoading)
+    setPrevSuggestions(suggestions)
     if (!suggestionsLoading && suggestions) {
       try {
         const response = JSON.parse(suggestions)
@@ -93,9 +119,8 @@ const AIChat: React.FC<AIChatProps> = ({ open, onOpenChange, providedContext, co
         ])
       }
     }
-  }, [suggestionsLoading, suggestions])
+  }
 
-  // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight

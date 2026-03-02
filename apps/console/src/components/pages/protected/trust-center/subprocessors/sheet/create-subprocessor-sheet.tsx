@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { FormProvider, useForm } from 'react-hook-form'
+import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import type { Resolver } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -77,14 +77,12 @@ export const CreateSubprocessorSheet = ({ onCreateSuccess, trigger, open: contro
     },
   })
 
-  const { handleSubmit, reset, formState, watch } = formMethods
+  const { handleSubmit, reset, formState } = formMethods
   const { isSubmitting } = formState
 
-  /* eslint-disable react-hooks/incompatible-library */
-  const currentUploadMode = watch('uploadMode')
-  const currentFile = watch('logoFile')
-  const currentUrl = watch('logoUrl')
-  /* eslint-enable react-hooks/incompatible-library */
+  const currentUploadMode = useWatch({ control: formMethods.control, name: 'uploadMode' })
+  const currentFile = useWatch({ control: formMethods.control, name: 'logoFile' })
+  const currentUrl = useWatch({ control: formMethods.control, name: 'logoUrl' })
 
   const isSubmitDisabled = currentUploadMode === 'file' ? !currentFile : !currentUrl
 

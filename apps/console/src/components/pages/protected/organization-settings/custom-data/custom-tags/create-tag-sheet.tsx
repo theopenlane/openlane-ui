@@ -44,7 +44,7 @@ export const CreateTagSheet = ({ resetPagination }: { resetPagination: () => voi
   const isEditMode = !!id
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
-  const [open, setOpen] = useState(false)
+  const open = !!id || isCreate
 
   const { data: tagData, isLoading: isLoadingDetails } = useGetTagDetails(id)
   const { mutateAsync: createTag, isPending: isCreating } = useCreateTag()
@@ -73,14 +73,6 @@ export const CreateTagSheet = ({ resetPagination }: { resetPagination: () => voi
       setValue('color', t.color?.startsWith('#') ? t.color : `#${t.color || '6366f1'}`)
     }
   }, [tagData, setValue])
-
-  useEffect(() => {
-    if (id || isCreate) {
-      setOpen(true)
-    } else {
-      setOpen(false)
-    }
-  }, [id, isCreate])
 
   const handleOpenChange = (val: boolean) => {
     if (!val) {

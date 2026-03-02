@@ -1,7 +1,7 @@
 import { useGetEvidenceComments } from '@/lib/graphql-hooks/evidence'
 import { useGetOrgMemberships } from '@/lib/graphql-hooks/member'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import EvidenceCommentSheet from './evidence-comments-sheet'
 import { Card } from '@repo/ui/cardpanel'
 import { Link, PanelRightClose, PanelRightOpen } from 'lucide-react'
@@ -75,15 +75,11 @@ const EvidenceCommentsCard = () => {
     }
   }
 
-  useEffect(() => {
-    const showComments = searchParams.get('showComments')
-    if (!sheetOpen && showComments === 'true') {
-      setSheetOpen(true)
-    }
-    if (sheetOpen && !showComments) {
-      setSheetOpen(false)
-    }
-  }, [searchParams, sheetOpen])
+  const showComments = searchParams.get('showComments')
+  const shouldBeOpen = showComments === 'true'
+  if (shouldBeOpen !== sheetOpen) {
+    setSheetOpen(shouldBeOpen)
+  }
 
   return (
     <Card className="p-4">

@@ -1,5 +1,5 @@
 'use client'
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
 import { Button } from '@repo/ui/button'
 import { ChevronDown, ChevronRight, ChevronsDownUp, List, SearchIcon } from 'lucide-react'
@@ -51,7 +51,7 @@ const StandardDetailsAccordion: React.FC<TStandardDetailsAccordionProps> = ({
   const params = useParams()
   const id = typeof params?.id === 'string' ? params.id : ''
 
-  const hasInitializedRef = useRef(false)
+  const [hasInitialized, setHasInitialized] = useState(false)
   const [paginations, setPaginations] = useState<Record<string, TPagination>>({})
 
   const [openSections, setOpenSections] = useState<string[]>([])
@@ -90,16 +90,19 @@ const StandardDetailsAccordion: React.FC<TStandardDetailsAccordionProps> = ({
     [setSelectedControls],
   )
 
-  useEffect(() => {
+  const [prevIsLoadingPermission, setPrevIsLoadingPermission] = useState(isLoadingPermission)
+  const [prevPermissionRoles, setPrevPermissionRoles] = useState(permission?.roles)
+  if (isLoadingPermission !== prevIsLoadingPermission || permission?.roles !== prevPermissionRoles) {
+    setPrevIsLoadingPermission(isLoadingPermission)
+    setPrevPermissionRoles(permission?.roles)
     if (!isLoadingPermission) {
       const canEditPermission = canEdit(permission?.roles)
-
       setColumnVisibility((prev) => ({
         ...prev,
         select: canEditPermission,
       }))
     }
-  }, [isLoadingPermission, permission])
+  }
 
   const columnsByCategory = useMemo(() => {
     return Object.fromEntries(
@@ -123,7 +126,9 @@ const StandardDetailsAccordion: React.FC<TStandardDetailsAccordionProps> = ({
     setOpenSections(hasAllOpen ? [] : allSectionKeys)
   }
 
-  useEffect(() => {
+  const [prevGroupedControlsForPagination, setPrevGroupedControlsForPagination] = useState(groupedControls)
+  if (groupedControls !== prevGroupedControlsForPagination) {
+    setPrevGroupedControlsForPagination(groupedControls)
     setPaginations((prev) => {
       const newPaginations = { ...prev }
       let hasChanged = false
@@ -137,17 +142,15 @@ const StandardDetailsAccordion: React.FC<TStandardDetailsAccordionProps> = ({
 
       return hasChanged ? newPaginations : prev
     })
-  }, [groupedControls])
+  }
 
-  useEffect(() => {
-    if (hasInitializedRef.current) return
-
+  if (!hasInitialized) {
     const firstCategory = Object.keys(groupedControls)[0]
     if (firstCategory) {
       setOpenSections([firstCategory])
-      hasInitializedRef.current = true
+      setHasInitialized(true)
     }
-  }, [groupedControls])
+  }
 
   const getPaginatedControls = (category: string, controls: ControlListStandardFieldsFragment[]) => {
     const pagination = paginations[category] || DEFAULT_PAGINATION

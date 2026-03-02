@@ -86,12 +86,14 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handle
   const [selectedTags, setSelectedTags] = useState<Option[]>([])
 
   const dataTagsKey = (data?.tags ?? []).join(',')
-  useEffect(() => {
+  const [prevDataTagsKey, setPrevDataTagsKey] = useState(dataTagsKey)
+  if (dataTagsKey !== prevDataTagsKey) {
+    setPrevDataTagsKey(dataTagsKey)
     if (editingField !== 'tags') {
       const tags = dataTagsKey ? dataTagsKey.split(',') : []
       setSelectedTags(tags.map((t) => ({ value: t, label: t })))
     }
-  }, [dataTagsKey, editingField])
+  }
 
   const tagsRef = useClickOutside(() => {
     if (editingField !== 'tags' || isEditing) return

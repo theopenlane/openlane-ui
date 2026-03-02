@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useMemo } from 'react'
 import { Card } from '@repo/ui/cardpanel'
 import { Tag } from 'lucide-react'
 import { UseFormReturn } from 'react-hook-form'
@@ -17,22 +17,11 @@ type TTagsCardProps = {
 }
 
 const TagsCard: React.FC<TTagsCardProps> = ({ form }) => {
-  const [tagValues, setTagValues] = useState<Option[]>([])
+  const formTags = form.watch('tags')
+  const tagValues = useMemo<Option[]>(() => (formTags ?? []).filter((item): item is string => typeof item === 'string').map((item) => ({ value: item, label: item })), [formTags])
   const { tagOptions } = useGetTags()
   const { data: permission } = useOrganizationRoles()
   const canCreateTags = canEdit(permission?.roles)
-
-  useEffect(() => {
-    if (form.getValues('tags')) {
-      const tags = form.getValues('tags').map((item) => {
-        return {
-          value: item,
-          label: item,
-        } as Option
-      })
-      setTagValues(tags)
-    }
-  }, [form])
 
   return (
     <Card className="p-4">
@@ -60,16 +49,7 @@ const TagsCard: React.FC<TTagsCardProps> = ({ form }) => {
                         creatable={canCreateTags}
                         value={tagValues}
                         onChange={(selectedOptions) => {
-                          const options = selectedOptions.map((option) => option.value)
-                          field.onChange(options)
-                          setTagValues(
-                            selectedOptions.map((item) => {
-                              return {
-                                value: item.value,
-                                label: item.label,
-                              }
-                            }),
-                          )
+                          field.onChange(selectedOptions.map((option) => option.value))
                         }}
                       />
                     </FormControl>

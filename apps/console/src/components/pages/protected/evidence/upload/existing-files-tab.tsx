@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { TabsContent } from '@repo/ui/tabs'
 import { ColumnDef } from '@tanstack/react-table'
 import { DataTable, getInitialPagination } from '@repo/ui/data-table'
@@ -30,22 +30,18 @@ const ExistingFilesTab: React.FC<TProps> = (props: TProps) => {
 
   const { data, isLoading, paginationMeta } = useGetEvidenceFiles({ pagination })
 
-  const [files, setFiles] = useState<TEvidenceFilesColumn[]>([])
-
-  useEffect(() => {
-    if (!isLoading) {
-      const tableData: TEvidenceFilesColumn[] =
-        data?.files?.edges?.map((edge) => ({
-          id: edge!.node!.id,
-          providedFileName: edge!.node!.providedFileName,
-          presignedURL: edge!.node!.presignedURL,
-          providedFileExtension: edge!.node!.providedFileExtension,
-          categoryType: edge!.node!.categoryType,
-          createdAt: edge!.node!.createdAt,
-        })) || []
-
-      setFiles(tableData)
-    }
+  const files = useMemo<TEvidenceFilesColumn[]>(() => {
+    if (isLoading) return []
+    return (
+      data?.files?.edges?.map((edge) => ({
+        id: edge!.node!.id,
+        providedFileName: edge!.node!.providedFileName,
+        presignedURL: edge!.node!.presignedURL,
+        providedFileExtension: edge!.node!.providedFileExtension,
+        categoryType: edge!.node!.categoryType,
+        createdAt: edge!.node!.createdAt,
+      })) || []
+    )
   }, [isLoading, data?.files?.edges])
 
   const handleAdd = (data: TEvidenceFilesColumn) => {

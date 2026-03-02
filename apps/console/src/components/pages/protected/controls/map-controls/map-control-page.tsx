@@ -1,5 +1,5 @@
 'use client'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { Accordion } from '@radix-ui/react-accordion'
 
@@ -24,7 +24,6 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 const MapControlPage = () => {
   const [expandedCard, setExpandedCard] = useState<'From' | 'To' | ''>('To')
-  const [presetControls, setPresetControls] = useState<MapControl[]>()
   const [droppedControlsFrom, setDroppedControlsFrom] = useState<MapControl[]>([])
   const [droppedControlsTo, setDroppedControlsTo] = useState<MapControl[]>([])
 
@@ -35,6 +34,11 @@ const MapControlPage = () => {
   const isSubControl = !!subcontrolId
   const { data: controlData, isLoading } = useGetControlById(isControl ? (id as string) : null)
   const { data: subcontrolData, isLoading: isLoadingSubcontrol } = useGetSubcontrolById(isSubControl ? (subcontrolId as string) : null)
+  const presetControls = useMemo<MapControl[] | undefined>(() => {
+    if (controlData) return [controlData.control]
+    if (subcontrolData) return [subcontrolData.subcontrol]
+    return undefined
+  }, [controlData, subcontrolData])
   const { setCrumbs } = React.useContext(BreadcrumbContext)
   const router = useRouter()
   const { currentOrgId, getOrganizationByID } = useOrganization()
@@ -104,20 +108,16 @@ const MapControlPage = () => {
     ])
   }, [isLoading, setCrumbs, subcontrolData?.subcontrol?.refCode, id, subcontrolId])
 
-  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (controlData) {
       setControlsCrumbs()
       form.setValue('fromControlIDs', [controlData.control.id])
-      setPresetControls([controlData.control])
     }
     if (subcontrolData) {
       setSubControlsCrumbs()
       form.setValue('fromSubcontrolIDs', [subcontrolData.subcontrol.id])
-      setPresetControls([subcontrolData.subcontrol])
     }
   }, [setCrumbs, controlData, subcontrolData, form, isLoading, isLoadingSubcontrol, setControlsCrumbs, setSubControlsCrumbs])
-  /* eslint-enable react-hooks/set-state-in-effect */
 
   return (
     <>

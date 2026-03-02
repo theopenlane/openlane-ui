@@ -72,9 +72,11 @@ const AllowedDomains = () => {
     await updateSetting({ allowMatchingDomainsAutojoin: checked }, 'Auto-join setting updated successfully.')
   }
 
-  useEffect(() => {
+  const [prevData, setPrevData] = useState(data)
+  if (data !== prevData) {
+    setPrevData(data)
     setAllowAutoJoin(!!data?.organization?.setting?.allowMatchingDomainsAutojoin)
-  }, [data])
+  }
 
   useEffect(() => {
     setCrumbs([

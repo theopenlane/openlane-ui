@@ -1,5 +1,5 @@
 import { FilterField } from '@/types'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { useProgramSelect } from '@/lib/graphql-hooks/program'
 import { useGroupSelect } from '@/lib/graphql-hooks/group'
 import { FilterIcons, ProcedureStatusFilterOptions } from '@/components/shared/enum-mapper/policy-enum'
@@ -9,8 +9,6 @@ import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 export function useProceduresFilters(): FilterField[] | null {
   const { programOptions, isSuccess: isProgramSuccess } = useProgramSelect({})
   const { groupOptions, isSuccess: isGroupSuccess } = useGroupSelect()
-  const [filters, setFilters] = useState<FilterField[] | null>(null)
-
   const { enumOptions, isSuccess: isTypesSuccess } = useGetCustomTypeEnums({
     where: {
       objectType: 'procedure',
@@ -21,9 +19,9 @@ export function useProceduresFilters(): FilterField[] | null {
   const { tagOptions: rawTagOptions } = useGetTags()
   const tagOptions = useMemo(() => rawTagOptions ?? [], [rawTagOptions])
 
-  useEffect(() => {
-    if (!isProgramSuccess || !isGroupSuccess || !isTypesSuccess || filters) return
-    const newFilters: FilterField[] = [
+  const filters = useMemo<FilterField[] | null>(() => {
+    if (!isProgramSuccess || !isGroupSuccess || !isTypesSuccess) return null
+    return [
       {
         key: 'approverIDIn',
         label: 'Approver Group',
@@ -108,9 +106,7 @@ export function useProceduresFilters(): FilterField[] | null {
         options: tagOptions,
       },
     ]
-
-    setFilters(newFilters)
-  }, [isProgramSuccess, programOptions, isGroupSuccess, groupOptions, filters, enumOptions, isTypesSuccess, tagOptions])
+  }, [isProgramSuccess, programOptions, isGroupSuccess, groupOptions, enumOptions, isTypesSuccess, tagOptions])
   return filters
 }
 

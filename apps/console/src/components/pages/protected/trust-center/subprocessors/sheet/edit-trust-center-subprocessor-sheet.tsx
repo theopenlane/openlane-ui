@@ -92,11 +92,11 @@ export const EditTrustCenterSubprocessorSheet: React.FC = () => {
     router.push(params.toString() ? `?${params.toString()}` : '?')
   }
 
-  /* eslint-disable react-hooks/set-state-in-effect */
-  useEffect(() => {
+  const [prevTrustCenterSubprocessorId, setPrevTrustCenterSubprocessorId] = useState(trustCenterSubprocessorId)
+  if (trustCenterSubprocessorId !== prevTrustCenterSubprocessorId) {
+    setPrevTrustCenterSubprocessorId(trustCenterSubprocessorId)
     setOpen(!!trustCenterSubprocessorId)
-  }, [trustCenterSubprocessorId])
-  /* eslint-enable react-hooks/set-state-in-effect */
+  }
 
   useEffect(() => {
     if (!data) return

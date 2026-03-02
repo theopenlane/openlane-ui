@@ -85,11 +85,11 @@ const ProgramsDashboardPage = () => {
 
   const allKeys = useMemo(() => Object.keys(filteredGroups), [filteredGroups])
 
-  useEffect(() => {
+  const [prevAllKeys, setPrevAllKeys] = useState(allKeys)
+  if (allKeys !== prevAllKeys) {
+    setPrevAllKeys(allKeys)
     if (allKeys.length > 0) setExpanded(allKeys)
-
-    return () => {}
-  }, [allKeys])
+  }
 
   useEffect(() => {
     setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Compliance' }, { label: 'Programs', href: '/programs' }])

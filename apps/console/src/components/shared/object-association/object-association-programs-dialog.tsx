@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@repo/ui/dialog'
 import { DataTable, getInitialPagination } from '@repo/ui/data-table'
 import { TPagination } from '@repo/ui/pagination-types'
@@ -36,13 +36,13 @@ export const ProgramSelectionDialog: React.FC<TProgramSelectionDialogProps> = ({
     }),
   )
 
-  /* eslint-disable react-hooks/set-state-in-effect */
-  useEffect(() => {
+  const [prevOpen, setPrevOpen] = useState(open)
+  if (open !== prevOpen) {
+    setPrevOpen(open)
     if (open) {
       setSelectedRefCodeMap(initialRefCodes ? [...initialRefCodes] : [])
     }
-  }, [open, initialRefCodes])
-  /* eslint-enable react-hooks/set-state-in-effect */
+  }
 
   const where: ProgramWhereInput = useMemo(() => {
     return {

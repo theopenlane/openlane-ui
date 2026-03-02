@@ -146,14 +146,16 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
     }
   }, [whereFilter, debouncedSearch])
 
-  useEffect(() => {
+  const [prevPermissionRoles, setPrevPermissionRoles] = useState(permission?.roles)
+  if (permission?.roles !== prevPermissionRoles) {
+    setPrevPermissionRoles(permission?.roles)
     if (permission?.roles) {
       setColumnVisibility((prev) => ({
         ...prev,
         select: canEdit(permission.roles),
       }))
     }
-  }, [permission?.roles])
+  }
 
   useEffect(() => {
     setCrumbs([

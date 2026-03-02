@@ -16,16 +16,18 @@ export const InviteAccepter = () => {
 
   const hasUpdatedRef = useRef(false)
   const [enabled, setEnabled] = useState(false)
+  const [prevStatus, setPrevStatus] = useState(status)
 
-  const { isLoading, verified } = useAcceptOrganizationInvite(token ?? null, enabled)
-
-  useEffect(() => {
+  if (status !== prevStatus) {
+    setPrevStatus(status)
     if (status === 'authenticated' && token) {
       setEnabled(true)
     } else if (status === 'unauthenticated') {
       push(`/login?token=${token}`)
     }
-  }, [status, token, push])
+  }
+
+  const { isLoading, verified } = useAcceptOrganizationInvite(token ?? null, enabled)
 
   useEffect(() => {
     if (hasUpdatedRef.current || !verified?.success || !session) return

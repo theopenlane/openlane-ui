@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@repo/ui/button'
 import { ArrowRightCircle, ShieldCheck } from 'lucide-react'
@@ -13,26 +13,28 @@ const SSOEnforcePage: React.FC = () => {
   const searchParams = useSearchParams()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [isValidating, setIsValidating] = useState(true)
+  const hasRedirected = useRef(false)
+
+  const directOAuth = getCookie('direct_oauth')
+  const needsRedirect = !directOAuth
 
   const email = searchParams?.get('email') || ''
   const organizationId = searchParams?.get('organization_id') || ''
   const hasError = !email || !organizationId || !!error
 
   useEffect(() => {
-    const directOAuth = getCookie('direct_oauth')
-    if (!directOAuth) {
+    if (needsRedirect && !hasRedirected.current) {
+      hasRedirected.current = true
       router.push('/login')
       return
     }
 
-    // delete the cookie
-    document.cookie = 'direct_oauth=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;'
+    if (!needsRedirect) {
+      document.cookie = 'direct_oauth=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;'
+    }
+  }, [needsRedirect, router])
 
-    setIsValidating(false)
-  }, [router])
-
-  if (isValidating) {
+  if (needsRedirect) {
     return (
       <div className="flex h-full w-full min-h-screen justify-center items-center">
         <Loading />

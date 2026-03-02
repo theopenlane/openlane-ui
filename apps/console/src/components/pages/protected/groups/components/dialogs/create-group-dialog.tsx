@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { z } from 'zod'
 import { useForm, Controller } from 'react-hook-form'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
@@ -68,17 +68,17 @@ const CreateGroupDialog = ({ trigger }: MyGroupsDialogProps) => {
     },
   })
 
-  useEffect(() => {
-    if (session?.user?.userId) {
-      const initialAdmin = [{ value: session.user.userId, label: 'You' }]
-      setAdminValues(initialAdmin)
-      setValue(
-        'admins',
-        initialAdmin.map((admin) => admin.value),
-        { shouldValidate: true },
-      )
-    }
-  }, [session, setValue])
+  const [prevSessionUserId, setPrevSessionUserId] = useState<string | undefined>(undefined)
+  if (session?.user?.userId && session.user.userId !== prevSessionUserId) {
+    setPrevSessionUserId(session.user.userId)
+    const initialAdmin = [{ value: session.user.userId, label: 'You' }]
+    setAdminValues(initialAdmin)
+    setValue(
+      'admins',
+      initialAdmin.map((admin) => admin.value),
+      { shouldValidate: true },
+    )
+  }
 
   const onSubmit = async (data: CreateGroupFormData) => {
     try {

@@ -12,12 +12,10 @@ import AuthorityCard from '@/components/pages/protected/procedures/view/cards/au
 import PropertiesCard from '@/components/pages/protected/procedures/view/cards/properties-card.tsx'
 import HistoricalCard from '@/components/pages/protected/procedures/view/cards/historical-card.tsx'
 import TagsCard from '@/components/pages/protected/procedures/view/cards/tags-card.tsx'
-import { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap.ts'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification.tsx'
 import { useGetProcedureDetailsById } from '@/lib/graphql-hooks/procedure'
 import { ProcedureDocumentStatus, ProcedureFrequency, UpdateProcedureInput } from '@repo/codegen/src/schema.ts'
-import { useProcedure } from '@/components/pages/protected/procedures/create/hooks/use-procedure.tsx'
 import { Trash2 } from 'lucide-react'
 import { useParams, useRouter } from 'next/navigation'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
@@ -49,7 +47,6 @@ const ViewProcedurePage: React.FC = () => {
   const { setCrumbs } = React.useContext(BreadcrumbContext)
   const { data, isLoading } = useGetProcedureDetailsById(procedureId, !isDeleting)
   const { mutateAsync: updateProcedure, isPending: isSaving } = useUpdateProcedure()
-  const procedureState = useProcedure()
   const procedure = data?.procedure
   const { form } = useFormSchema()
   const [isEditing, setIsEditing] = useState(false)
@@ -101,21 +98,7 @@ const ViewProcedurePage: React.FC = () => {
 
   useEffect(() => {
     if (procedure && assocData && !dataInitialized) {
-      const procedureAssociations: TObjectAssociationMap = {
-        controlIDs: assocData.procedure?.controls?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
-        riskIDs: assocData.procedure?.risks?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
-        programIDs: assocData.procedure?.programs?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
-        internalPolicyIDs: assocData.procedure?.internalPolicies?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
-        taskIDs: assocData.procedure?.tasks?.edges?.map((item) => item?.node?.id).filter((id): id is string => !!id) || [],
-      }
-
-      const procedureAssociationsRefCodes: TObjectAssociationMap = {
-        controlIDs: assocData.procedure?.controls?.edges?.map((item) => item?.node?.refCode).filter((id): id is string => !!id) || [],
-        riskIDs: assocData.procedure?.risks?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => !!id) || [],
-        programIDs: assocData.procedure?.programs?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => !!id) || [],
-        internalPolicyIDs: assocData.procedure?.internalPolicies?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => !!id) || [],
-        taskIDs: assocData.procedure?.tasks?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => !!id) || [],
-      }
+      setDataInitialized(true)
 
       form.reset({
         name: procedure.name,
@@ -129,13 +112,8 @@ const ViewProcedurePage: React.FC = () => {
         approverID: procedure.approver?.id,
         delegateID: procedure.delegate?.id,
       })
-
-      procedureState.setInitialAssociations(procedureAssociations)
-      procedureState.setAssociations(procedureAssociations)
-      procedureState.setAssociationRefCodes(procedureAssociationsRefCodes)
-      setDataInitialized(true)
     }
-  }, [procedure, form, procedureState, dataInitialized, assocData])
+  }, [procedure, form, dataInitialized, assocData])
 
   const handleCancel = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()

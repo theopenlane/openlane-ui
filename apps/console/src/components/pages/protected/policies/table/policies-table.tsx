@@ -157,6 +157,7 @@ export const PoliciesTable = () => {
   }
 
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.INTERNAL_POLICY, defaultVisibility))
+  const resolvedColumnVisibility: VisibilityState = permission?.roles ? { ...columnVisibility, select: canEdit(permission.roles) } : columnVisibility
 
   const { columns, mappedColumns } = useMemo(() => getPoliciesColumns({ users, tokens, selectedPolicies, setSelectedPolicies, enumOptions }), [users, tokens, selectedPolicies, enumOptions])
 
@@ -191,15 +192,6 @@ export const PoliciesTable = () => {
   }, [isError, errorNotification])
 
   useEffect(() => {
-    if (permission?.roles) {
-      setColumnVisibility((prev) => ({
-        ...prev,
-        select: canEdit(permission.roles),
-      }))
-    }
-  }, [permission?.roles])
-
-  useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
       { label: 'Policies', href: '/policies' },
@@ -222,7 +214,7 @@ export const PoliciesTable = () => {
         }}
         handleExport={handleExportFile}
         mappedColumns={mappedColumns}
-        columnVisibility={columnVisibility}
+        columnVisibility={resolvedColumnVisibility}
         setColumnVisibility={setColumnVisibility}
         exportEnabled={policies && policies.length > 0}
         handleClearSelectedPolicies={handleClearSelectedPolicies}
@@ -243,7 +235,7 @@ export const PoliciesTable = () => {
         pagination={pagination}
         onPaginationChange={(pagination: TPagination) => setPagination(pagination)}
         paginationMeta={paginationMeta}
-        columnVisibility={columnVisibility}
+        columnVisibility={resolvedColumnVisibility}
         setColumnVisibility={setColumnVisibility}
         tableKey={TableKeyEnum.INTERNAL_POLICY}
       />

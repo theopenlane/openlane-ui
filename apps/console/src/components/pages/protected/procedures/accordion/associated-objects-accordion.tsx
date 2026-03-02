@@ -4,11 +4,14 @@ import React, { Fragment, useState } from 'react'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
 import { ChevronDown } from 'lucide-react'
 import { Badge } from '@repo/ui/badge'
-import { useProcedure } from '@/components/pages/protected/procedures/create/hooks/use-procedure.tsx'
+import { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap.ts'
 
-const AssociatedObjectsAccordion: React.FC = () => {
+type AssociatedObjectsAccordionProps = {
+  associationRefCodes: TObjectAssociationMap
+}
+
+const AssociatedObjectsAccordion: React.FC<AssociatedObjectsAccordionProps> = ({ associationRefCodes }) => {
   const [expandedItems, setExpandedItems] = useState<string[]>(['controls'])
-  const associationRefCodes = useProcedure((state) => state.associationRefCodes)
 
   const SectionTrigger = ({ label, count }: { label: string; count: number }) => (
     <AccordionTrigger asChild>

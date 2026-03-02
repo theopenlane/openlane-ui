@@ -18,7 +18,9 @@ type AssociatedObjectsAccordionProps = {
 const AssociatedObjectsAccordion: React.FC<AssociatedObjectsAccordionProps> = ({ sections, toggleAll, removable, onRemove }) => {
   const sectionKeys = useMemo(() => Object.keys(sections), [sections])
   const sectionKeysRef = useRef(sectionKeys)
-  sectionKeysRef.current = sectionKeys
+  useEffect(() => {
+    sectionKeysRef.current = sectionKeys
+  }, [sectionKeys])
   const [expandedItems, setExpandedItems] = useState<string[]>(sectionKeys[0] ? [sectionKeys[0]] : [])
 
   useEffect(() => {

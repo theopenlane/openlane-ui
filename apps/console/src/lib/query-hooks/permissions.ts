@@ -8,17 +8,17 @@ export const useAccountRoles = (objectType: string, id?: string | number | null,
   const { errorNotification } = useNotification()
 
   // ensure objectType is in snake_case before sending to backend
-  objectType = objectToSnakeCase(objectType)
+  const snakeCaseType = objectToSnakeCase(objectType)
 
   const resp = useQuery<TPermissionData>({
-    queryKey: ['accountRoles', objectType, id],
-    enabled: !!objectType && !!id && enabled,
+    queryKey: ['accountRoles', snakeCaseType, id],
+    enabled: !!snakeCaseType && !!id && enabled,
     queryFn: async () => {
       const res = await fetch('/api/permissions/account-roles', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          object_type: objectType,
+          object_type: snakeCaseType,
           object_id: id,
         }),
       })

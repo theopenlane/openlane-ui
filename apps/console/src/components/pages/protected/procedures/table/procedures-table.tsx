@@ -7,7 +7,6 @@ import {
   ExportExportFormat,
   ExportExportType,
   GetProceduresListQueryVariables,
-  Maybe,
   OrderDirection,
   OrgMembershipWhereInput,
   Procedure,
@@ -42,7 +41,6 @@ export const ProceduresTable = () => {
   const router = useRouter()
   const [pagination, setPagination] = useState<TPagination>(getInitialPagination(TableKeyEnum.PROCEDURE, DEFAULT_PAGINATION))
   const [filters, setFilters] = useState<ProcedureWhereInput | null>(null)
-  const [memberIds, setMemberIds] = useState<(Maybe<string> | undefined)[] | null>(null)
   const [searchTerm, setSearchTerm] = useStorageSearch(ObjectTypes.PROCEDURE)
   const { setCrumbs } = useContext(BreadcrumbContext)
   const { data: permission } = useOrganizationRoles()
@@ -95,8 +93,18 @@ export const ProceduresTable = () => {
     return merged
   }, [filters, debouncedSearch])
 
+  const { procedures, isError, isLoading: fetching, paginationMeta } = useProcedures({ where, orderBy, pagination, enabled: !!filters })
+
+  const memberIds = useMemo(() => {
+    if (!procedures || procedures.length === 0) {
+      return []
+    }
+
+    return [...new Set(procedures.map((item) => item.updatedBy).filter(Boolean))]
+  }, [procedures])
+
   const userListWhere: OrgMembershipWhereInput = useMemo(() => {
-    if (!memberIds) {
+    if (memberIds.length === 0) {
       return {}
     }
 
@@ -108,7 +116,7 @@ export const ProceduresTable = () => {
   }, [memberIds])
 
   const tokensWhere = useMemo(() => {
-    if (!memberIds) {
+    if (memberIds.length === 0) {
       return {}
     }
 
@@ -118,8 +126,6 @@ export const ProceduresTable = () => {
 
     return conditions
   }, [memberIds])
-
-  const { procedures, isError, isLoading: fetching, paginationMeta } = useProcedures({ where, orderBy, pagination, enabled: !!filters })
   const { users } = useGetOrgUserList({ where: userListWhere })
   const { tokens } = useGetApiTokensByIds({ where: tokensWhere })
   const [selectedProcedures, setSelectedProcedures] = useState<{ id: string }[]>([])
@@ -141,6 +147,7 @@ export const ProceduresTable = () => {
   }
 
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.PROCEDURE, defaultVisibility))
+  const resolvedColumnVisibility: VisibilityState = permission?.roles ? { ...columnVisibility, select: canEdit(permission.roles) } : columnVisibility
 
   const { enumOptions } = useGetCustomTypeEnums({
     where: {
@@ -177,22 +184,6 @@ export const ProceduresTable = () => {
   }
 
   useEffect(() => {
-    if (permission?.roles) {
-      setColumnVisibility((prev) => ({
-        ...prev,
-        select: canEdit(permission.roles),
-      }))
-    }
-  }, [permission?.roles])
-
-  useEffect(() => {
-    if (procedures.length > 0 && !memberIds) {
-      const userIds = [...new Set(procedures.map((item) => item.updatedBy))]
-      setMemberIds(userIds)
-    }
-  }, [procedures, memberIds, filters])
-
-  useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
       { label: 'Procedures', href: '/procedures' },
@@ -226,7 +217,7 @@ export const ProceduresTable = () => {
         }}
         handleExport={handleExportFile}
         mappedColumns={mappedColumns}
-        columnVisibility={columnVisibility}
+        columnVisibility={resolvedColumnVisibility}
         setColumnVisibility={setColumnVisibility}
         exportEnabled={procedures && procedures.length > 0}
         handleClearSelectedProcedures={handleClearSelectedProcedures}
@@ -246,7 +237,7 @@ export const ProceduresTable = () => {
         pagination={pagination}
         onPaginationChange={(pagination: TPagination) => setPagination(pagination)}
         paginationMeta={paginationMeta}
-        columnVisibility={columnVisibility}
+        columnVisibility={resolvedColumnVisibility}
         setColumnVisibility={setColumnVisibility}
         defaultSorting={defaultSorting}
         tableKey={TableKeyEnum.PROCEDURE}

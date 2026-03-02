@@ -1,6 +1,6 @@
 'use client'
 import { Grid, GridCell, GridRow } from '@repo/ui/grid'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { ChevronDown, InfoIcon, Plus, X } from 'lucide-react'
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
 import useFormSchema, { CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema'
@@ -152,8 +152,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
       })
     }
   }
-  // eslint-disable-next-line react-hooks/preserve-manual-memoization
-  const handleInitialValue = useCallback(() => {
+  const handleInitialValue = () => {
     if (formData) {
       if (controlParam && controlParam.length) {
         const newEvidenceControls: CustomEvidenceControl[] = []
@@ -197,7 +196,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
         setAssociationProgramsRefMap(formData.programDisplayIDs ? formData.programDisplayIDs : [])
       }
     }
-  }, [form, formData, controlParam])
+  }
 
   const { suggestedControlsMap, isLoading: isSuggestionsLoading } = useEvidenceSuggestedControls({
     evidenceControls,
@@ -205,10 +204,13 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
     enabled: open,
   })
 
-  /* eslint-disable react-hooks/set-state-in-effect */
-  useEffect(() => {
+  const [prevFormData, setPrevFormData] = useState(formData)
+  const [prevControlParam, setPrevControlParam] = useState(controlParam)
+  if (formData !== prevFormData || controlParam !== prevControlParam) {
+    setPrevFormData(formData)
+    setPrevControlParam(controlParam)
     handleInitialValue()
-  }, [handleInitialValue])
+  }
 
   const handleOnOpenChange = (nextOpen: boolean) => {
     if (!nextOpen) {

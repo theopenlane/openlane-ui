@@ -34,13 +34,12 @@ const PoliciesPage: React.FC<TPoliciesPageProps> = ({ active, setActive }) => {
     query: { first: 1 },
   })
 
-  const [selectedGroups, setSelectedGroups] = useState<string[]>([])
+  const [selectedGroups, setSelectedGroups] = useState<string[]>(() => {
+    const saved = loadFilters(TableKeyEnum.INTERNAL_POLICY)
+    return isStringArray(saved?.approverIDIn) ? saved?.approverIDIn : []
+  })
 
   useEffect(() => {
-    const saved = loadFilters(TableKeyEnum.INTERNAL_POLICY)
-    const validated = isStringArray(saved?.approverIDIn) ? saved?.approverIDIn : []
-    setSelectedGroups(validated)
-
     const handleUpdate = (e: CustomEvent) => {
       setSelectedGroups((e.detail?.approverIDIn as string[]) || [])
     }

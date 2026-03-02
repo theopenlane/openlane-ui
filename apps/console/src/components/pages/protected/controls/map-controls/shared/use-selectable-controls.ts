@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from 'react'
+import { useMemo, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { MapControl } from '@/types'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
@@ -103,10 +103,12 @@ export function useMapControls({ controlData, subcontrolData, droppedControls, t
     return dragPreview
   }
 
-  useEffect(() => {
+  const [prevDroppedControls, setPrevDroppedControls] = useState(droppedControls)
+  if (droppedControls !== prevDroppedControls) {
+    setPrevDroppedControls(droppedControls)
     const droppedIds = new Set(droppedControls.map((c) => c.id))
     setSelectedIds((prev) => prev.filter((id) => !droppedIds.has(id)))
-  }, [droppedControls])
+  }
 
   return {
     availableControls,

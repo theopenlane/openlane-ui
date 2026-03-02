@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { useParams } from 'next/navigation'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
@@ -30,7 +30,6 @@ const SubcontrolsTable: React.FC = () => {
   const debouncedSearch = useDebounce(searchQuery, 300)
   const [filters, setFilters] = useState<WhereCondition>({})
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
-  const [filterFields, setFilterFields] = useState<FilterField[] | null>(null)
   const { enumOptions } = useGetCustomTypeEnums({
     where: {
       objectType: objectToSnakeCase(ObjectTypes.CONTROL),
@@ -79,25 +78,26 @@ const SubcontrolsTable: React.FC = () => {
   const typeOptions = useMemo(() => enumOptions.map((option) => option.value).sort(), [enumOptions])
   const sourceOptions = useMemo(() => Object.values(SubcontrolControlSource).sort(), [])
 
-  useEffect(() => {
-    const fields = getSubcontrolsFilterFields(typeOptions, sourceOptions)
-    setFilterFields((prev) => {
-      const isSame = prev && JSON.stringify(prev) === JSON.stringify(fields)
-      return isSame ? prev : fields
-    })
+  const filterFields = useMemo<FilterField[] | null>(() => {
+    if (typeOptions.length === 0 && sourceOptions.length === 0) return null
+    return getSubcontrolsFilterFields(typeOptions, sourceOptions)
   }, [sourceOptions, typeOptions])
 
   const handleFilterChange = useCallback((nextFilters: WhereCondition) => {
     setFilters(nextFilters)
   }, [])
 
-  useEffect(() => {
+  const [prevSearchQuery, setPrevSearchQuery] = useState(searchQuery)
+  const [prevFilters, setPrevFilters] = useState(filters)
+  if (searchQuery !== prevSearchQuery || filters !== prevFilters) {
+    setPrevSearchQuery(searchQuery)
+    setPrevFilters(filters)
     setPagination((prev) => ({
       ...prev,
       page: 1,
       query: { first: prev.pageSize },
     }))
-  }, [searchQuery, filters])
+  }
 
   const columns = useMemo(() => getSubcontrolsColumns(id, convertToReadOnly), [convertToReadOnly, id])
 

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { useParams, usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useDebounce } from '@uidotdev/usehooks'
 import { DataTable } from '@repo/ui/data-table'
@@ -42,8 +42,6 @@ const ActivityTasksSection: React.FC<ActivityTasksSectionProps> = ({ controlId, 
   const debouncedSearch = useDebounce(search, 300)
   const [filters, setFilters] = useState<WhereCondition>({})
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
-  const [orgMembers, setOrgMembers] = useState<TOrgMembers[]>([])
-  const [filterFields, setFilterFields] = useState<FilterField[] | null>(null)
 
   const { data: membersData } = useGetSingleOrganizationMembers({ organizationId: session?.user.activeOrganizationId })
   const { enumOptions: taskKindOptions, isSuccess: taskKindsReady } = useGetCustomTypeEnums({
@@ -53,8 +51,8 @@ const ActivityTasksSection: React.FC<ActivityTasksSectionProps> = ({ controlId, 
     },
   })
 
-  useEffect(() => {
-    const members =
+  const orgMembers = useMemo<TOrgMembers[]>(() => {
+    return (
       membersData?.organization?.members?.edges?.map(
         (member) =>
           ({
@@ -63,32 +61,26 @@ const ActivityTasksSection: React.FC<ActivityTasksSectionProps> = ({ controlId, 
             membershipId: member?.node?.user?.id,
           }) as TOrgMembers,
       ) ?? []
-    setOrgMembers(members)
+    )
   }, [membersData])
 
-  useEffect(() => {
-    if (!taskKindsReady) return
-    const fields = getActivityTaskFilterFields(taskKindOptions ?? [], orgMembers)
-    setFilterFields((prev) => {
-      const isSame = prev && JSON.stringify(prev) === JSON.stringify(fields)
-      return isSame ? prev : fields
-    })
+  const filterFields = useMemo<FilterField[] | null>(() => {
+    if (!taskKindsReady) return null
+    return getActivityTaskFilterFields(taskKindOptions ?? [], orgMembers)
   }, [orgMembers, taskKindOptions, taskKindsReady])
 
   const where = useMemo(() => {
     const defaultStatuses = Object.values(TaskTaskStatus).filter((status) => status !== TaskTaskStatus.COMPLETED)
-    let statusInSet = false
 
     const base: TaskWhereInput = {
       titleContainsFold: debouncedSearch,
     }
 
     const result = whereGenerator<TaskWhereInput>(filters as TaskWhereInput, (key, value) => {
-      if (key === 'statusIn') {
-        statusInSet = true
-      }
       return { [key]: value } as TaskWhereInput
     })
+
+    const statusInSet = result != null && 'statusIn' in result
 
     const withDefaults = {
       ...base,

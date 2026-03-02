@@ -256,7 +256,9 @@ export default function CreateControlForm() {
     setCrumbs(crumbs)
   }, [setCrumbs, controlData, isLoading, isCreateSubcontrol, id, isCloning])
 
-  useEffect(() => {
+  const [prevControlData, setPrevControlData] = useState(controlData)
+  if (controlData !== prevControlData) {
+    setPrevControlData(controlData)
     if (isCloning && controlData?.control && !dataInitialized) {
       form.reset({
         refCode: `CC-${controlData?.control.refCode}`,
@@ -269,10 +271,8 @@ export default function CreateControlForm() {
         delegateID: controlData?.control.delegate?.id ?? undefined,
         controlKindName: controlData?.control.controlKindName ?? undefined,
       })
-      return setDataInitialized(true)
-    }
-
-    if (controlData?.control && !dataInitialized) {
+      setDataInitialized(true)
+    } else if (controlData?.control && !dataInitialized) {
       const label = `${controlData.control.refCode} ${controlData.control?.referenceFramework ? `(${controlData.control?.referenceFramework.trim()})` : '(CUSTOM)'}`
       fillCategoryAndSubcategory(form, controlData.control)
       setSearch(label)
@@ -280,16 +280,20 @@ export default function CreateControlForm() {
       form.setValue('controlID', controlData?.control.id)
       setDataInitialized(true)
     }
-  }, [controlData, form, fillCategoryAndSubcategory, selectedParentControlLabel, dataInitialized, isCloning])
+  }
 
-  useEffect(() => {
+  const [prevMappedControlData, setPrevMappedControlData] = useState(mappedControlData)
+  const [prevMappedSubcontrolData, setPrevMappedSubcontrolData] = useState(mappedSubcontrolData)
+  if (mappedControlData !== prevMappedControlData || mappedSubcontrolData !== prevMappedSubcontrolData) {
+    setPrevMappedControlData(mappedControlData)
+    setPrevMappedSubcontrolData(mappedSubcontrolData)
     if (mappedControlData || mappedSubcontrolData) {
       setMappedControls((prev) => ({
         controls: mappedControlData?.control ? [...prev.controls, mappedControlData.control as Control] : prev.controls,
         subcontrols: mappedSubcontrolData?.subcontrol ? [...prev.subcontrols, mappedSubcontrolData.subcontrol as Subcontrol] : prev.subcontrols,
       }))
     }
-  }, [mappedControlData, mappedSubcontrolData])
+  }
 
   const onCancel = () => {
     setClearData(true)

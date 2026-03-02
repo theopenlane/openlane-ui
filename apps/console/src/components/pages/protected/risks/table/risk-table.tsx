@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useContext, useEffect, useMemo, useState } from 'react'
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { getRiskColumns } from '@/components/pages/protected/risks/table/columns.tsx'
 import { TPagination } from '@repo/ui/pagination-types'
@@ -118,14 +118,16 @@ const RiskTable: React.FC = () => {
 
   const { columns, mappedColumns } = useMemo(() => getRiskColumns({ userMap, convertToReadOnly, selectedRisks, setSelectedRisks }), [userMap, convertToReadOnly, selectedRisks])
 
-  useEffect(() => {
+  const prevPermissionRolesRef = useRef(permission?.roles)
+  if (permission?.roles !== prevPermissionRolesRef.current) {
+    prevPermissionRolesRef.current = permission?.roles
     if (permission?.roles) {
       setColumnVisibility((prev) => ({
         ...prev,
         select: canEdit(permission.roles),
       }))
     }
-  }, [permission?.roles])
+  }
 
   useEffect(() => {
     setCrumbs([

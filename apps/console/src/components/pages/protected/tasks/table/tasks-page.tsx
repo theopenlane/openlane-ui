@@ -77,17 +77,14 @@ const TasksPage: React.FC = () => {
   const whereFilter = useMemo(() => {
     if (!filters) return null
 
-    let statusInSet = false
-
     const result = whereGenerator<TaskWhereInput>(filters, (key, value) => {
       if (key === 'hasProgramsWith') {
         return { hasProgramsWith: [{ idIn: value }] } as TaskWhereInput
       }
-      if (key === 'statusIn') {
-        statusInSet = true
-      }
       return { [key]: value } as TaskWhereInput
     })
+
+    const statusInSet = result != null && 'statusIn' in result
 
     const merged: TaskWhereInput = {
       ...result,

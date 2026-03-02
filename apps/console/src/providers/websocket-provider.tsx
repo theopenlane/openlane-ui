@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useEffect, useState, ReactNode, useRef, useCallback } from 'react'
+import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from 'react'
 import { createClient, Client } from 'graphql-ws'
 import { useSession } from 'next-auth/react'
 import { websocketGQLUrl } from '@repo/dally/auth'
@@ -35,66 +35,51 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
   const [isConnected, setIsConnected] = useState(false)
   const [error, setError] = useState<unknown | null>(null)
   const [hasFatalError, setHasFatalError] = useState(false)
+  const [clientToken, setClientToken] = useState<string | null>(null)
 
-  const clientRef = useRef<Client | null>(null)
-  const lastTokenRef = useRef<string | null>(null)
+  const shouldSkip = status !== 'authenticated' || !token || !websocketGQLUrl || hasFatalError
 
-  const disposeClient = useCallback(() => {
-    if (clientRef.current) {
-      console.log('[WS] dispose client')
-      clientRef.current.dispose()
-    }
-    clientRef.current = null
+  // Render-time state adjustment: create/clear client when deps change
+  if (!shouldSkip && token && token !== clientToken) {
+    setClientToken(token)
+    setClient(
+      createClient({
+        url: websocketGQLUrl,
+        lazy: true,
+        retryAttempts: 5,
+        keepAlive: 20_000,
+        connectionParams: async () => ({
+          Authorization: `Bearer ${token}`,
+        }),
+      }),
+    )
+  } else if (shouldSkip && clientToken !== null) {
+    setClientToken(null)
     setClient(null)
     setIsConnected(false)
-  }, [])
+  }
 
   const resetConnection = useCallback(() => {
     console.log('[WS] manual reset')
     setHasFatalError(false)
     setError(null)
-    lastTokenRef.current = null
-    disposeClient()
-  }, [disposeClient])
+    setClient(null)
+    setIsConnected(false)
+    setClientToken(null)
+  }, [])
 
+  // Effect handles event subscriptions and cleanup only
   useEffect(() => {
-    if (status !== 'authenticated' || !token || !websocketGQLUrl || hasFatalError) {
-      console.log('[WS] skip init', {
-        status,
-        hasToken: Boolean(token),
-        hasFatalError,
-      })
-      disposeClient()
-      return
-    }
+    if (!client) return
 
-    if (lastTokenRef.current === token && clientRef.current) {
-      console.log('[WS] reuse existing client')
-      return
-    }
-
-    lastTokenRef.current = token
-
-    console.log('[WS] create client (lazy)')
-
-    const wsClient = createClient({
-      url: websocketGQLUrl,
-      lazy: true,
-      retryAttempts: 5,
-      keepAlive: 20_000,
-      connectionParams: async () => ({
-        Authorization: `Bearer ${token}`,
-      }),
-    })
-
-    const unsubConnected = wsClient.on('connected', () => {
+    const unsubConnected = client.on('connected', () => {
       console.log('[WS] socket connected')
       setIsConnected(true)
       setError(null)
       setHasFatalError(false)
     })
 
-    const unsubClosed = wsClient.on('closed', (event) => {
+    const unsubClosed = client.on('closed', (event) => {
       const reason = (event as CloseEvent)?.reason?.toLowerCase?.() ?? ''
       console.warn('[WS] socket closed', reason || 'no reason')
       setIsConnected(false)
@@ -106,22 +91,19 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
       }
     })
 
-    const unsubError = wsClient.on('error', (err) => {
+    const unsubError = client.on('error', (err) => {
       console.error('[WS] protocol error', err)
       setIsConnected(false)
     })
-
-    clientRef.current = wsClient
-    setClient(wsClient)
 
     return () => {
       console.log('[WS] cleanup')
       unsubConnected()
       unsubClosed()
       unsubError()
-      disposeClient()
+      client.dispose()
     }
-  }, [token, status, hasFatalError, disposeClient])
+  }, [client])
 
   return (
     <WebSocketContext.Provider

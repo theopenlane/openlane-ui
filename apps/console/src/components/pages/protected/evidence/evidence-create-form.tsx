@@ -105,7 +105,14 @@ const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSucces
     }
   }
 
-  /* eslint-disable react-hooks/set-state-in-effect */
+  const [prevFormData, setPrevFormData] = useState(formData)
+  if (formData !== prevFormData) {
+    setPrevFormData(formData)
+    if (formData?.tags) {
+      setTagValues(formData.tags.map((item) => ({ value: item, label: item })))
+    }
+  }
+
   useEffect(() => {
     if (formData) {
       form.setValue('name', `Evidence for ${formData.displayID}`)
@@ -118,17 +125,9 @@ const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSucces
 
       if (formData?.tags) {
         form.setValue('tags', formData.tags)
-        const tags = formData.tags.map((item) => {
-          return {
-            value: item,
-            label: item,
-          }
-        })
-        setTagValues(tags)
       }
     }
   }, [form, formData])
-  /* eslint-enable react-hooks/set-state-in-effect */
 
   useEffect(() => {
     setCrumbs([

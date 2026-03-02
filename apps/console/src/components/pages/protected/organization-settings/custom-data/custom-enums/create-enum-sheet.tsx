@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useState, useMemo } from 'react'
-import { FormProvider, useForm, useController } from 'react-hook-form'
+import { FormProvider, useForm, useController, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { PanelRightClose, Trash2, LoaderCircle } from 'lucide-react'
@@ -59,7 +59,7 @@ export const CreateEnumSheet = ({ resetPagination, filter }: { resetPagination: 
   const isEditMode = !!id
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
-  const [open, setOpen] = useState(false)
+  const open = !!id || isCreate
 
   const objectTypeOptions = useMemo(() => {
     const types = Object.values(ENUM_GROUP_MAP)
@@ -95,7 +95,7 @@ export const CreateEnumSheet = ({ resetPagination, filter }: { resetPagination: 
   const { field: typeField } = useController({ name: 'objectType', control })
   const { field: fieldField } = useController({ name: 'field', control })
 
-  const selectedObjectType = formMethods.watch('objectType')
+  const selectedObjectType = useWatch({ control, name: 'objectType' })
 
   const isGlobal = useMemo(() => {
     const config = ENUM_GROUP_MAP[filter]
@@ -175,11 +175,8 @@ export const CreateEnumSheet = ({ resetPagination, filter }: { resetPagination: 
 
   useEffect(() => {
     if (!id && !isCreate) {
-      setOpen(false)
       return
     }
-
-    setOpen(true)
 
     if (isEditMode && enumData?.customTypeEnum) {
       const { name, description, color, objectType, field } = enumData.customTypeEnum

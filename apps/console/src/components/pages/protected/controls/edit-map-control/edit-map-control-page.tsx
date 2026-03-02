@@ -1,5 +1,5 @@
 'use client'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { Accordion } from '@radix-ui/react-accordion'
 
@@ -40,8 +40,6 @@ const EditMapControlPage = () => {
   const { errorNotification, successNotification } = useNotification()
   const mappedControlId = searchParams.get('mappedControlId')
   const [expandedCard, setExpandedCard] = useState<'From' | 'To' | ''>('From')
-  const [presetControlsFrom, setPresetControlsFrom] = useState<MapControl[]>([])
-  const [presetControlsTo, setPresetControlsTo] = useState<MapControl[]>([])
   const [droppedControlsFrom, setDroppedControlsFrom] = useState<MapControl[]>([])
   const [droppedControlsTo, setDroppedControlsTo] = useState<MapControl[]>([])
   const { mutateAsync: update, data: updateData, isPending } = useUpdateMappedControl()
@@ -54,6 +52,31 @@ const EditMapControlPage = () => {
   const currentOrganization = getOrganizationByID(currentOrgId!)
 
   const { data: mappedControlData } = useGetMappedControlById({ mappedControlId: mappedControlId ?? '', enabled: !!mappedControlId && !updateData && !isPending })
+
+  const presetControlsFrom = useMemo<MapControl[]>(() => {
+    if (!mappedControlId || !mappedControlData?.mappedControl) return []
+    const mc = mappedControlData.mappedControl
+    const result: MapControl[] = []
+    mc.fromControls?.edges?.forEach((e) => {
+      if (e?.node) result.push(e.node)
+    })
+    mc.fromSubcontrols?.edges?.forEach((e) => {
+      if (e?.node) result.push(e.node)
+    })
+    return result
+  }, [mappedControlId, mappedControlData])
+  const presetControlsTo = useMemo<MapControl[]>(() => {
+    if (!mappedControlId || !mappedControlData?.mappedControl) return []
+    const mc = mappedControlData.mappedControl
+    const result: MapControl[] = []
+    mc.toControls?.edges?.forEach((e) => {
+      if (e?.node) result.push(e.node)
+    })
+    mc.toSubcontrols?.edges?.forEach((e) => {
+      if (e?.node) result.push(e.node)
+    })
+    return result
+  }, [mappedControlId, mappedControlData])
 
   const handleCardToggle = (title: 'From' | 'To') => {
     if (expandedCard === title) {
@@ -173,7 +196,6 @@ const EditMapControlPage = () => {
     ])
   }, [isLoading, setCrumbs, subcontrolData?.subcontrol?.refCode, id, subcontrolId])
 
-  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (controlData) {
       setControlsCrumbs()
@@ -201,39 +223,8 @@ const EditMapControlPage = () => {
         relation: mc.relation ?? '',
         source: mc.source ?? MappedControlMappingSource.MANUAL,
       })
-
-      const presetFrom: MapControl[] = []
-      const presetTo: MapControl[] = []
-
-      mc.fromControls?.edges?.forEach((e) => {
-        if (e?.node) {
-          presetFrom.push(e.node)
-        }
-      })
-
-      mc.fromSubcontrols?.edges?.forEach((e) => {
-        if (e?.node) {
-          presetFrom.push(e.node)
-        }
-      })
-
-      mc.toControls?.edges?.forEach((e) => {
-        if (e?.node) {
-          presetTo.push(e.node)
-        }
-      })
-
-      mc.toSubcontrols?.edges?.forEach((e) => {
-        if (e?.node) {
-          presetTo.push(e.node)
-        }
-      })
-
-      setPresetControlsFrom(presetFrom)
-      setPresetControlsTo(presetTo)
     }
   }, [setCrumbs, controlData, subcontrolData, form, isLoading, isLoadingSubcontrol, setControlsCrumbs, setSubControlsCrumbs, mappedControlId, mappedControlData])
-  /* eslint-enable react-hooks/set-state-in-effect */
 
   return (
     <>

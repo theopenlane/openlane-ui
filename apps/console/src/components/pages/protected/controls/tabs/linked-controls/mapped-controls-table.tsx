@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { DataTable } from '@repo/ui/data-table'
 import type { ColumnDef } from '@tanstack/react-table'
 import type { TPagination } from '@repo/ui/pagination-types'
@@ -80,13 +80,17 @@ const MappedControlsTable: React.FC<MappedControlsTableProps> = ({ title, rows, 
     })
   }, [rows, typeFilter, controlSourceFilter, categoryFilter, subcategoryFilter, mappingTypeFilter, mappingSourceFilter, frameworkFilter, showFrameworkFilter, normalizedSearch])
 
-  useEffect(() => {
+  const [prevSearchQuery, setPrevSearchQuery] = useState(searchQuery)
+  const [prevFilters, setPrevFilters] = useState(filters)
+  if (searchQuery !== prevSearchQuery || filters !== prevFilters) {
+    setPrevSearchQuery(searchQuery)
+    setPrevFilters(filters)
     setPagination((prev) => ({
       ...prev,
       page: 1,
       query: { first: prev.pageSize },
     }))
-  }, [searchQuery, filters])
+  }
 
   const pagedRows = useMemo(() => {
     const start = (pagination.page - 1) * pagination.pageSize

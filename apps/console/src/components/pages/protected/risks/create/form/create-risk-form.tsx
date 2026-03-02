@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { useCreateRisk } from '@/lib/graphql-hooks/risk'
 import useFormSchema, { CreateRisksFormData } from '@/components/pages/protected/risks/view/hooks/use-form-schema.ts'
 import { useNotification } from '@/hooks/useNotification.tsx'
@@ -7,7 +7,6 @@ import PropertiesCard from '@/components/pages/protected/risks/view/cards/proper
 import { Value } from 'platejs'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import BusinessCostField from '@/components/pages/protected/risks/view/fields/business-cost-field.tsx'
-import { useRisk } from '@/components/pages/protected/risks/create/hooks/use-risk.tsx'
 import TitleField from '../../view/fields/title-field'
 import DetailsField from '@/components/pages/protected/risks/view/fields/details-field.tsx'
 import AuthorityCard from '../cards/authority-card'
@@ -17,17 +16,32 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@repo/ui/button'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { Switch } from '@repo/ui/switch'
+import { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap.ts'
 
 const CreateRiskForm: React.FC = () => {
   const { mutateAsync: createRisk, isPending } = useCreateRisk()
   const router = useRouter()
   const plateEditorHelper = usePlateEditor()
-  const associationsState = useRisk((state) => state.associations)
+  const [associations, setAssociations] = useState<TObjectAssociationMap>({})
+  const [initialAssociations] = useState<TObjectAssociationMap>({})
+  const [associationRefCodes, setAssociationRefCodes] = useState<TObjectAssociationMap>({
+    controlIDs: [],
+    internalPolicyIDs: [],
+    procedureIDs: [],
+    programIDs: [],
+    subcontrolIDs: [],
+    taskIDs: [],
+  })
 
   const { successNotification, errorNotification } = useNotification()
   const { form } = useFormSchema()
   const [createMultiple, setCreateMultiple] = useState(false)
   const [clearData, setClearData] = useState<boolean>(false)
+
+  const handleAssociationsChange = useCallback((newAssociations: TObjectAssociationMap, newRefCodes: TObjectAssociationMap) => {
+    setAssociations(newAssociations)
+    setAssociationRefCodes(newRefCodes)
+  }, [])
 
   const onSubmitHandler = async (values: CreateRisksFormData) => {
     let businessCostsField = values?.businessCosts
@@ -47,7 +61,7 @@ const CreateRiskForm: React.FC = () => {
           tags: values?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
           stakeholderID: values.stakeholderID || undefined,
           delegateID: values.delegateID || undefined,
-          ...associationsState,
+          ...associations,
         },
       })
 
@@ -68,7 +82,7 @@ const CreateRiskForm: React.FC = () => {
           likelihood: values.likelihood,
           riskKindName: values.riskKindName,
           riskCategoryName: values.riskCategoryName,
-          ...associationsState,
+          ...associations,
         })
       } else {
         router.push(`/risks/${createdRisk.createRisk.risk.id}`)
@@ -103,7 +117,7 @@ const CreateRiskForm: React.FC = () => {
           <div className="space-y-4">
             <AuthorityCard form={form} />
             <PropertiesCard form={form} isEditing={true} isCreate={true} />
-            <AssociationCard />
+            <AssociationCard associations={associations} initialAssociations={initialAssociations} associationRefCodes={associationRefCodes} onAssociationsChange={handleAssociationsChange} />
             <TagsCard form={form} />
           </div>
         </form>

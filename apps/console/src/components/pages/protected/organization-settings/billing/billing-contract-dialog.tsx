@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useCallback, useMemo, useRef, useState } from 'react'
 import { Libraries, useLoadScript } from '@react-google-maps/api'
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import { Input } from '@repo/ui/input'
@@ -20,7 +20,6 @@ const BillingContactDialog = () => {
   const { data: setting } = useGetOrganizationSetting(currentOrgId)
   const { isPending, mutateAsync: updateOrg } = useUpdateOrganization()
   const { successNotification, errorNotification } = useNotification()
-  const wrapperRef = useClickOutside(() => setShowPredictions(false))
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
     libraries,
@@ -28,8 +27,10 @@ const BillingContactDialog = () => {
 
   const [fullName, setFullName] = useState('')
   const [predictions, setPredictions] = useState<google.maps.places.AutocompletePrediction[]>([])
-  const [placeService, setPlaceService] = useState<google.maps.places.AutocompleteService | null>(null)
+  const placeService = useMemo(() => (isLoaded ? new google.maps.places.AutocompleteService() : null), [isLoaded])
   const [showPredictions, setShowPredictions] = useState<boolean>(false)
+  const hidePredictions = useCallback(() => setShowPredictions(false), [])
+  const wrapperRef = useClickOutside(hidePredictions)
   const [address, setAddress] = useState({
     line1: '',
     line2: '',
@@ -40,12 +41,6 @@ const BillingContactDialog = () => {
   })
 
   const inputRef = useRef<HTMLInputElement | null>(null)
-
-  useEffect(() => {
-    if (isLoaded) {
-      setPlaceService(new google.maps.places.AutocompleteService())
-    }
-  }, [isLoaded])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
@@ -122,15 +117,12 @@ const BillingContactDialog = () => {
     }
   }
 
-  useEffect(() => {
-    if (!setting) {
-      return
-    }
+  const [prevSetting, setPrevSetting] = useState(setting)
+  if (setting && setting !== prevSetting) {
+    setPrevSetting(setting)
     setAddress(setting.organization.setting?.billingAddress)
-
     setFullName(setting.organization.setting?.billingContact || '')
-    return () => {}
-  }, [setting])
+  }
 
   return (
     <Dialog aria-describedby={undefined}>

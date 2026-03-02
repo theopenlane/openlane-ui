@@ -17,6 +17,16 @@ interface BrandingThemeSectionProps {
   hasWarning?: boolean
 }
 
+const ReadOnlyColor = ({ label, value }: { label: string; value?: string | null }) => (
+  <div className="flex flex-col gap-1.5 py-1">
+    <p className="text-xs font-medium text-muted-foreground uppercase">{label}</p>
+    <div className="flex items-center gap-2">
+      <div className="h-4 w-4 rounded-full border border-border" style={{ backgroundColor: value || 'transparent' }} />
+      <p className="text-sm font-mono">{value || 'N/A'}</p>
+    </div>
+  </div>
+)
+
 export const BrandingThemeSection = ({ isReadOnly, hasWarning, setting }: BrandingThemeSectionProps) => {
   const { watch, setValue } = useFormContext<BrandFormValues>()
 
@@ -32,16 +42,6 @@ export const BrandingThemeSection = ({ isReadOnly, hasWarning, setting }: Brandi
   const handleUpdate = (field: keyof BrandFormValues, value: string | TrustCenterSettingTrustCenterThemeMode) => {
     setValue(field, value as string, { shouldDirty: true })
   }
-
-  const ReadOnlyColor = ({ label, value }: { label: string; value?: string | null }) => (
-    <div className="flex flex-col gap-1.5 py-1">
-      <p className="text-xs font-medium text-muted-foreground uppercase">{label}</p>
-      <div className="flex items-center gap-2">
-        <div className="h-4 w-4 rounded-full border border-border" style={{ backgroundColor: value || 'transparent' }} />
-        <p className="text-sm font-mono">{value || 'N/A'}</p>
-      </div>
-    </div>
-  )
 
   const currentThemeMode = isReadOnly ? setting?.themeMode : themeMode
 

@@ -43,7 +43,10 @@ type TControlReportPageProps = {
 const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActive }) => {
   const { currentOrgId } = useOrganization()
   const { setCrumbs } = useContext(BreadcrumbContext)
-  const [selectedStandards, setSelectedStandards] = useState<string[]>([])
+  const [selectedStandards, setSelectedStandards] = useState<string[]>(() => {
+    const saved = loadFilters(TableKeyEnum.CONTROL)
+    return isStringArray(saved?.standardIDIn) ? saved.standardIDIn : []
+  })
   const [expandedItems, setExpandedItems] = useState<string[]>([])
 
   const { data: permission } = useOrganizationRoles()
@@ -142,10 +145,6 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
   }, [setCrumbs])
 
   useEffect(() => {
-    const saved = loadFilters(TableKeyEnum.CONTROL)
-    const validated = isStringArray(saved?.standardIDIn) ? saved?.standardIDIn : []
-    setSelectedStandards(validated)
-
     const handleUpdate = (e: CustomEvent) => {
       const updated = (e.detail?.standardIDIn as string[]) || []
       setSelectedStandards(updated)

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useCallback, useEffect, useState, useContext } from 'react'
+import React, { useEffect, useState, useContext } from 'react'
 import { useParams, useSearchParams } from 'next/navigation'
 import { useDeleteControlObjective, useGetAllControlObjectives, useUpdateControlObjective } from '@/lib/graphql-hooks/control-objective'
 import { ControlObjectiveFieldsFragment, ControlObjectiveObjectiveStatus } from '@repo/codegen/src/schema'
@@ -76,20 +76,20 @@ const ControlObjectivePage = () => {
     }
   }
 
-  const handleControlObjectivesUpdate = useCallback(() => {
-    if (!edges?.length) return
-
-    const currentIds = edges.map((e) => e.node.id)
-
-    if (!isInitialized) {
-      setExistingIds(currentIds)
-      expandFirstObjective(currentIds)
-      setIsInitialized(true)
-      return
+  const [prevEdges, setPrevEdges] = useState(edges)
+  if (edges !== prevEdges) {
+    setPrevEdges(edges)
+    if (edges?.length) {
+      const currentIds = edges.map((e) => e.node.id)
+      if (!isInitialized) {
+        setExistingIds(currentIds)
+        expandFirstObjective(currentIds)
+        setIsInitialized(true)
+      } else {
+        detectAndExpandNewObjectives(currentIds, existingIds)
+      }
     }
-
-    detectAndExpandNewObjectives(currentIds, existingIds)
-  }, [edges, existingIds, isInitialized])
+  }
 
   const handleUnarchinve = async (node: ControlObjectiveFieldsFragment) => {
     try {
@@ -123,10 +123,6 @@ const ControlObjectivePage = () => {
       })
     }
   }
-
-  useEffect(() => {
-    handleControlObjectivesUpdate()
-  }, [handleControlObjectivesUpdate])
 
   useEffect(() => {
     const shouldOpen = createAllowed && searchParams.get('create') === 'true'

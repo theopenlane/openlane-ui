@@ -1,6 +1,6 @@
 'use client'
 
-import React, { FC, useState, useMemo, useCallback, useEffect } from 'react'
+import React, { FC, useState, useMemo, useCallback } from 'react'
 import { useDebounce } from '@uidotdev/usehooks'
 import { SquarePlus, LoaderCircle, Search as SearchIcon, LayoutGrid } from 'lucide-react'
 
@@ -78,9 +78,13 @@ const CustomEnumsTab: FC = () => {
     }))
   }, [])
 
-  useEffect(() => {
+  const [prevDebouncedSearch, setPrevDebouncedSearch] = useState(debouncedSearch)
+  const [prevFilter, setPrevFilter] = useState(filter)
+  if (debouncedSearch !== prevDebouncedSearch || filter !== prevFilter) {
+    setPrevDebouncedSearch(debouncedSearch)
+    setPrevFilter(filter)
     resetPagination()
-  }, [debouncedSearch, filter, resetPagination])
+  }
 
   const handleDeleteConfirm = async () => {
     if (!enumToDelete) return

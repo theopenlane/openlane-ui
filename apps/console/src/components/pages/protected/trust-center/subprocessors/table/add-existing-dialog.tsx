@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { FormProvider, useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -117,13 +117,23 @@ export const AddExistingDialog = ({
     }
   }
 
-  useEffect(() => {
+  const [prevCreatedSubprocessor, setPrevCreatedSubprocessor] = useState(createdSubprocessor)
+  const subprocessorChangedRef = useRef(false)
+  if (createdSubprocessor !== prevCreatedSubprocessor) {
+    setPrevCreatedSubprocessor(createdSubprocessor)
     if (!isControlled) {
       setOpen(!!createdSubprocessor)
     }
-    onOpenChange?.(!!createdSubprocessor)
-    reset({ subprocessorID: createdSubprocessor?.id || '' })
-  }, [createdSubprocessor, isControlled, onOpenChange, reset])
+    subprocessorChangedRef.current = true
+  }
+
+  useEffect(() => {
+    if (subprocessorChangedRef.current) {
+      subprocessorChangedRef.current = false
+      onOpenChange?.(!!createdSubprocessor)
+      reset({ subprocessorID: createdSubprocessor?.id || '' })
+    }
+  })
 
   return (
     <Dialog open={resolvedOpen} onOpenChange={handleOpenChange}>

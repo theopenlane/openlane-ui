@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState, useImperativeHandle, useCallback, type Ref } from 'react'
+import React, { useEffect, useMemo, useRef, useImperativeHandle, useCallback, type Ref } from 'react'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { Value, TElement, KEYS } from 'platejs'
@@ -18,6 +18,10 @@ import {
   SubcontrolDiscussionFieldsFragment,
 } from '@repo/codegen/src/schema.ts'
 import { TComment } from '@repo/ui/components/ui/comment.jsx'
+
+function setEditorChildren(editor: ReturnType<typeof createPlateEditor>, nodes: Value) {
+  editor.children = nodes
+}
 
 export type TPlateEditorProps = {
   onChange?: (data: Value) => void
@@ -60,8 +64,7 @@ const PlateEditor = ({ onChange, initialValue, variant = 'basic', styleVariant, 
     plugins: getPlugins(),
   })
 
-  const [plateEditor, setPlateEditor] = useState<ReturnType<typeof createPlateEditor> | null>(null)
-  const [initialValueSet, setInitialValueSet] = useState(false)
+  const initialValueSetRef = useRef(false)
 
   function mapEntityDiscussions(
     entity: PolicyDiscussionFieldsFragment | ProcedureDiscussionFieldsFragment | RiskDiscussionFieldsFragment | SubcontrolDiscussionFieldsFragment | ControlDiscussionFieldsFragment,
@@ -144,7 +147,7 @@ const PlateEditor = ({ onChange, initialValue, variant = 'basic', styleVariant, 
       // Clear existing content if requested and insert new content
       if (clearBeforeInsert) {
         editor.tf.reset()
-        editor.children = nodes
+        setEditorChildren(editor, nodes)
         return
       }
 
@@ -157,22 +160,24 @@ const PlateEditor = ({ onChange, initialValue, variant = 'basic', styleVariant, 
     editor,
   }))
 
-  useEffect(() => {
-    const instance = createPlateEditor({
-      plugins: getPlugins(),
-    })
-    setPlateEditor(instance)
-  }, [getPlugins])
+  const plateEditor = useMemo(
+    () =>
+      createPlateEditor({
+        plugins: getPlugins(),
+      }),
+    [getPlugins],
+  )
 
   useEffect(() => {
-    if (plateEditor && !initialValueSet) {
-      setInitialValueSet(true)
+    if (plateEditor && !initialValueSetRef.current) {
+      initialValueSetRef.current = true
 
       const fmt = detectFormat(initialValue)
       let slateNodes
 
       switch (fmt) {
         case 'markdown':
+          // @ts-expect-error fix bad typing from platejs
           slateNodes = (plateEditor.api.markdown?.deserialize?.(initialValue || '') ?? []) as Value
           break
         default:
@@ -196,10 +201,10 @@ const PlateEditor = ({ onChange, initialValue, variant = 'basic', styleVariant, 
           { select: true, nextBlock: false, at: [0], removeEmpty: true },
         )
       } else {
-        editor.children = slateNodes
+        setEditorChildren(editor, slateNodes)
       }
     }
-  }, [editor, initialValue, plateEditor, initialValueSet])
+  }, [editor, initialValue, plateEditor])
 
   useEffect(() => {
     if (clearData) {

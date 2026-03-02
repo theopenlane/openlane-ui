@@ -2,7 +2,7 @@
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import { Import, Trash2 } from 'lucide-react'
-import React, { cloneElement, useState, useEffect } from 'react'
+import React, { cloneElement, useCallback, useState } from 'react'
 import { Button } from '@repo/ui/button'
 import { useNotification } from '@/hooks/useNotification'
 import { useCreateProcedure, useCreateUploadProcedure } from '@/lib/graphql-hooks/procedure'
@@ -139,16 +139,10 @@ const CreateProcedureUploadDialog: React.FC<TCreateProcedureUploadDialogProps> =
     setUploadedFiles((prev) => prev.filter((_, i) => i !== index))
   }
 
-  useEffect(() => {
-    if (!isOpen) {
-      clearState()
-    }
-  }, [isOpen])
-
-  const clearState = () => {
+  const clearState = useCallback(() => {
     setProcedureMdDocumentLink('')
     setProcedureMdDocumentLinks([])
-  }
+  }, [])
 
   const handleAddLink = (link: string) => {
     if (link.trim() === '') return
@@ -162,7 +156,13 @@ const CreateProcedureUploadDialog: React.FC<TCreateProcedureUploadDialogProps> =
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        setIsOpen(open)
+        if (!open) clearState()
+      }}
+    >
       {trigger ? (
         <DialogTrigger className="bg-transparent">
           {cloneElement(trigger, {

@@ -1,4 +1,4 @@
-import React, { useState, useRef, ReactNode, useEffect } from 'react'
+import React, { useState, useRef, ReactNode, useCallback } from 'react'
 import { PanelRight, PanelRightClose } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 
@@ -19,6 +19,10 @@ const DEFAULT_WIDTH = 400
 const FLOATING_MARGIN = 24
 const SCROLLBAR_OFFSET = '3rem'
 
+function setBodyUserSelect(value: string) {
+  document.body.style.userSelect = value
+}
+
 const SlideBarLayout: React.FC<TSlideBarLayoutProps> = ({
   sidebarTitle,
   sidebarContent,
@@ -34,41 +38,41 @@ const SlideBarLayout: React.FC<TSlideBarLayoutProps> = ({
   const [width, setWidth] = useState<number>(minWidth || DEFAULT_WIDTH)
   const resizing = useRef(false)
 
-  useEffect(() => {
+  const [prevSlideOpen, setPrevSlideOpen] = useState(slideOpen)
+  if (slideOpen !== prevSlideOpen) {
+    setPrevSlideOpen(slideOpen)
     if (slideOpen) {
       setOpen(true)
     }
-  }, [slideOpen])
-
-  const handleMouseMove = (e: MouseEvent) => {
-    if (!resizing.current) {
-      return
-    }
-
-    const newWidth = window.innerWidth - e.clientX
-    if (newWidth > minWidth && newWidth < window.innerWidth * MAX_RATIO) {
-      setWidth(newWidth)
-    }
   }
 
-  const handleMouseUp = () => {
-    if (!resizing.current) {
-      return
-    }
+  const startResize = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      e.preventDefault()
+      resizing.current = true
 
-    resizing.current = false
-    document.body.style.userSelect = ''
-    document.removeEventListener('mousemove', handleMouseMove)
-    document.removeEventListener('mouseup', handleMouseUp)
-  }
+      const handleMouseMove = (ev: MouseEvent) => {
+        if (!resizing.current) return
+        const newWidth = window.innerWidth - ev.clientX
+        if (newWidth > minWidth && newWidth < window.innerWidth * MAX_RATIO) {
+          setWidth(newWidth)
+        }
+      }
 
-  const startResize = (e: React.MouseEvent<HTMLDivElement>) => {
-    e.preventDefault()
-    resizing.current = true
-    document.body.style.userSelect = 'none'
-    document.addEventListener('mousemove', handleMouseMove)
-    document.addEventListener('mouseup', handleMouseUp)
-  }
+      const handleMouseUp = () => {
+        if (!resizing.current) return
+        resizing.current = false
+        setBodyUserSelect('')
+        document.removeEventListener('mousemove', handleMouseMove)
+        document.removeEventListener('mouseup', handleMouseUp)
+      }
+
+      setBodyUserSelect('none')
+      document.addEventListener('mousemove', handleMouseMove)
+      document.addEventListener('mouseup', handleMouseUp)
+    },
+    [minWidth],
+  )
 
   return (
     <div className="relative flex">

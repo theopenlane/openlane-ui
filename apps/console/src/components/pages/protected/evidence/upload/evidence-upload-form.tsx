@@ -23,12 +23,16 @@ const EvidenceUploadForm: React.FC<TProps> = (props: TProps) => {
     props.evidenceFiles(evidenceFiles)
   }, [evidenceFiles.length, evidenceFiles, props])
 
+  const { resetEvidenceFiles: shouldReset, setResetEvidenceFiles } = props
+  if (shouldReset) {
+    setEvidenceFiles([])
+  }
+
   useEffect(() => {
-    if (props.resetEvidenceFiles) {
-      setEvidenceFiles([])
-      props.setResetEvidenceFiles()
+    if (shouldReset) {
+      setResetEvidenceFiles()
     }
-  }, [props.resetEvidenceFiles, props])
+  }, [shouldReset, setResetEvidenceFiles])
 
   const handleDelete = (file: TUploadedFile) => {
     setEvidenceFiles((prev) => {

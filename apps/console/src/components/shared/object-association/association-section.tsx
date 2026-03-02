@@ -80,17 +80,13 @@ export type AssociationEntityConfig<
 type AssociationFieldKey<TConfig extends AssociationEntityConfig> = Extract<keyof TConfig['initialDataKeys'], string>
 type AssociationSectionKey<TConfig extends AssociationEntityConfig> = TConfig['sectionMappings'][number]['key']
 
-type AssociationSectionProps<
-  TConfig extends AssociationEntityConfig,
-> = BaseAssociationSectionProps & {
+type AssociationSectionProps<TConfig extends AssociationEntityConfig> = BaseAssociationSectionProps & {
   config: TConfig
   associationsData: AssociationsData<TConfig['dataRootField'], AssociationSectionKey<TConfig>> | undefined
   onUpdateEntity: (input: TAssociationUpdateInput<AssociationFieldKey<TConfig>>) => Promise<void>
 }
 
-export function AssociationSection<
-  TConfig extends AssociationEntityConfig,
->({ data, isEditing, isCreate, isEditAllowed, config, associationsData, onUpdateEntity }: AssociationSectionProps<TConfig>) {
+export function AssociationSection<TConfig extends AssociationEntityConfig>({ data, isEditing, isCreate, isEditAllowed, config, associationsData, onUpdateEntity }: AssociationSectionProps<TConfig>) {
   type TFieldKey = AssociationFieldKey<TConfig>
   type TSectionKey = AssociationSectionKey<TConfig>
   type TRootField = TConfig['dataRootField']
@@ -109,10 +105,11 @@ export function AssociationSection<
     const result: TObjectAssociationMap<TFieldKey> = {}
     for (const [inputName, edgesField] of Object.entries(config.initialDataKeys) as [TFieldKey, TSectionKey][]) {
       const connection = root[edgesField]
-      result[inputName] = connection?.edges?.flatMap((edge) => {
-        const id = edge?.node?.id
-        return id ? [id] : []
-      }) ?? []
+      result[inputName] =
+        connection?.edges?.flatMap((edge) => {
+          const id = edge?.node?.id
+          return id ? [id] : []
+        }) ?? []
     }
     return result
   }, [associationsData, config.dataRootField, config.initialDataKeys])

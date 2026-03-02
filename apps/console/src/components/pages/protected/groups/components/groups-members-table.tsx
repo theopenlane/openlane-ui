@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from '@repo/ui/avatar'
 import { DataTable } from '@repo/ui/data-table'
 import { ColumnDef } from '@tanstack/react-table'
@@ -33,38 +33,38 @@ const GroupsMembersTable = () => {
   const { data } = useGetGroupDetails(selectedGroup)
   const { members, isManaged } = data?.group || {}
   const [users, setUsers] = useState<Member[]>([])
+  const [prevMembers, setPrevMembers] = useState(members)
   const { mutateAsync: updateMembership } = useUpdateGroupMembership()
   const { mutateAsync: deleteMembership, isPending: isDeleting } = useDeleteGroupMembership()
   const { successNotification, errorNotification } = useNotification()
 
   const queryClient = useQueryClient()
 
-  useEffect(() => {
-    if (selectedGroup) {
-      const membersList =
-        members?.edges?.map((edge) => ({
-          user: edge?.node?.user as User,
-          role: edge?.node?.role,
-          membershipID: edge?.node?.id,
-        })) || []
+  if (selectedGroup && members !== prevMembers) {
+    setPrevMembers(members)
+    const membersList =
+      members?.edges?.map((edge) => ({
+        user: edge?.node?.user as User,
+        role: edge?.node?.role,
+        membershipID: edge?.node?.id,
+      })) || []
 
-      const sortedMembers = membersList
-        .map((member) => ({
-          id: member.membershipID || '',
-          name: member.user.displayName || 'Unknown Member',
-          role: member.role as GroupMembershipRole,
-          avatar: member.user.avatarFile?.presignedURL || member.user.avatarRemoteURL || '',
-          userId: member.user.id,
-        }))
-        .sort((a, b) => {
-          if (a.role === GroupMembershipRole.ADMIN && b.role !== GroupMembershipRole.ADMIN) return -1
-          if (a.role !== GroupMembershipRole.ADMIN && b.role === GroupMembershipRole.ADMIN) return 1
-          return 0
-        })
+    const sortedMembers = membersList
+      .map((member) => ({
+        id: member.membershipID || '',
+        name: member.user.displayName || 'Unknown Member',
+        role: member.role as GroupMembershipRole,
+        avatar: member.user.avatarFile?.presignedURL || member.user.avatarRemoteURL || '',
+        userId: member.user.id,
+      }))
+      .sort((a, b) => {
+        if (a.role === GroupMembershipRole.ADMIN && b.role !== GroupMembershipRole.ADMIN) return -1
+        if (a.role !== GroupMembershipRole.ADMIN && b.role === GroupMembershipRole.ADMIN) return 1
+        return 0
+      })
 
-      setUsers(sortedMembers)
-    }
-  }, [selectedGroup, members])
+    setUsers(sortedMembers)
+  }
 
   const handleRoleChange = async (id: string, newRole: GroupMembershipRole) => {
     setUsers((prev) => prev.map((user) => (user.id === id ? { ...user, role: newRole } : user)))

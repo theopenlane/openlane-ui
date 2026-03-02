@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import { Button } from '@repo/ui/button'
 import { Plus } from 'lucide-react'
@@ -25,7 +25,7 @@ const AddMembersDialog = () => {
   const queryClient = useQueryClient()
   const { data } = useGetGroupDetails(selectedGroup)
   const { members: membersGroupData, isManaged, id } = data?.group || {}
-  const [hasInitialized, setHasInitialized] = useState(false)
+  const initializedGroupRef = useRef<string | null>(null)
   const { data: permission } = useAccountRoles(ObjectTypes.GROUP, selectedGroup)
 
   const members = useMemo(
@@ -38,6 +38,25 @@ const AddMembersDialog = () => {
       }) || [],
     [membersGroupData?.edges],
   )
+
+  useEffect(() => {
+    if (!isOpen) {
+      initializedGroupRef.current = null
+      return
+    }
+
+    if (!selectedGroup || !membersGroupData || !id || id !== selectedGroup || initializedGroupRef.current === selectedGroup) {
+      return
+    }
+
+    setSelectedMembers(
+      members.map((member) => ({
+        value: member.user.id,
+        label: `${member.user.displayName}`,
+      })),
+    )
+    initializedGroupRef.current = selectedGroup
+  }, [id, isOpen, members, membersGroupData, selectedGroup])
 
   const { data: membersData } = useGetSingleOrganizationMembers({ organizationId: session?.user.activeOrganizationId })
   const { mutateAsync: updateGroup } = useUpdateGroup()
@@ -80,18 +99,6 @@ const AddMembersDialog = () => {
     successNotification({ title: 'Members updated successfully' })
     setIsOpen(false)
   }
-
-  useEffect(() => {
-    if (!hasInitialized && members.length > 0) {
-      const initialSelected = members.map((member) => ({
-        value: member.user.id,
-        label: `${member.user.displayName}`,
-      }))
-
-      setSelectedMembers(initialSelected)
-      setHasInitialized(true)
-    }
-  }, [members, hasInitialized])
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>

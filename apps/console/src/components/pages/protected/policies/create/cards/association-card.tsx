@@ -5,8 +5,16 @@ import { Card } from '@repo/ui/cardpanel'
 import { ArrowUpDown } from 'lucide-react'
 import SetObjectAssociationPoliciesDialog from '@/components/pages/protected/policies/modal/set-object-association-modal.tsx'
 import AssociatedObjectsAccordion from '@/components/pages/protected/policies/accordion/associated-objects-accordion.tsx'
+import { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap.ts'
 
-const AssociationCard: React.FC = () => {
+type AssociationCardProps = {
+  associations: TObjectAssociationMap
+  initialAssociations: TObjectAssociationMap
+  associationRefCodes: TObjectAssociationMap
+  onAssociationsChange: (newAssociations: TObjectAssociationMap, newRefCodes: TObjectAssociationMap) => void
+}
+
+const AssociationCard: React.FC<AssociationCardProps> = ({ associations, initialAssociations, associationRefCodes, onAssociationsChange }) => {
   return (
     <Card className="p-4">
       <div className="flex flex-col gap-4">
@@ -18,10 +26,15 @@ const AssociationCard: React.FC = () => {
           </div>
 
           <div className="flex gap-2">
-            <SetObjectAssociationPoliciesDialog />
+            <SetObjectAssociationPoliciesDialog
+              associations={associations}
+              initialAssociations={initialAssociations}
+              associationRefCodes={associationRefCodes}
+              onAssociationsChange={onAssociationsChange}
+            />
           </div>
         </div>
-        <AssociatedObjectsAccordion />
+        <AssociatedObjectsAccordion associationRefCodes={associationRefCodes} />
       </div>
     </Card>
   )

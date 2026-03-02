@@ -2,7 +2,7 @@
 
 import { useDebounce } from '@uidotdev/usehooks'
 import { SquarePlus, LoaderCircle, Search as SearchIcon } from 'lucide-react'
-import { FC, useEffect, useMemo, useState, useCallback } from 'react'
+import { FC, useMemo, useState, useCallback } from 'react'
 import { Input } from '@repo/ui/input'
 import { Button } from '@repo/ui/button'
 import { DataTable, getInitialPagination } from '@repo/ui/data-table'
@@ -88,10 +88,12 @@ const CustomTagsTab: FC = () => {
     }))
   }, [])
 
-  useEffect(() => {
+  const [prevDebouncedSearch, setPrevDebouncedSearch] = useState(debouncedSearch)
+  if (debouncedSearch !== prevDebouncedSearch) {
+    setPrevDebouncedSearch(debouncedSearch)
     setSelected({})
     resetPagination()
-  }, [debouncedSearch, resetPagination])
+  }
 
   const handleCreateOpen = () => push({ create: 'true' })
   const handleEditOpen = useCallback((id: string) => push({ id }), [push])

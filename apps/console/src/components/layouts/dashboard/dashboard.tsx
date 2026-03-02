@@ -98,7 +98,7 @@ export function DashboardLayout({ children, error }: DashboardLayoutProps) {
     const delay = differenceInMilliseconds(expirationDate, now)
     const id = setTimeout(() => setShowSessionExpiredModal(true), delay)
     return () => clearTimeout(id)
-  }, [sessionData])
+  }, [sessionData?.user?.refreshToken])
 
   const handleOpenPanel = (panel: PanelKey) => {
     setOpenPanel(panel)

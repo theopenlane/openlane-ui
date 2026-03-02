@@ -7,24 +7,30 @@ import { ObjectTypeObjects } from '@/components/shared/object-association/object
 import { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
 import { UpdateRiskInput } from '@repo/codegen/src/schema.ts'
 import { useNotification } from '@/hooks/useNotification.tsx'
-import { useRisk } from '@/components/pages/protected/risks/create/hooks/use-risk.tsx'
 import { useUpdateRisk } from '@/lib/graphql-hooks/risk'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import AddAssociationPlusBtn from '@/components/shared/object-association/add-association-plus-btn.tsx'
+import { getAssociationInput } from '@/components/shared/object-association/utils'
 
 type TSetObjectAssociationDialogProps = {
   riskId?: string
+  associations?: TObjectAssociationMap
+  initialAssociations?: TObjectAssociationMap
+  associationRefCodes?: TObjectAssociationMap
+  onAssociationsChange?: (newAssociations: TObjectAssociationMap, newRefCodes: TObjectAssociationMap) => void
 }
 
-const SetObjectAssociationRisksDialog = ({ riskId }: TSetObjectAssociationDialogProps) => {
-  const riskState = useRisk()
-  const associationsState = useRisk((state) => state.associations)
-  const initialAssociationsState = useRisk((state) => state.initialAssociations)
-  const refCodeAssociationsState = useRisk((state) => state.associationRefCodes)
+const SetObjectAssociationRisksDialog = ({
+  riskId,
+  associations: parentAssociations = {},
+  initialAssociations = {},
+  associationRefCodes = {},
+  onAssociationsChange,
+}: TSetObjectAssociationDialogProps) => {
   const { successNotification, errorNotification } = useNotification()
-  const [associations, setAssociations] = useState<{
+  const [localAssociations, setLocalAssociations] = useState<{
     associations: TObjectAssociationMap
     refCodes: TObjectAssociationMap
   }>({
@@ -35,70 +41,21 @@ const SetObjectAssociationRisksDialog = ({ riskId }: TSetObjectAssociationDialog
   const { mutateAsync: updateRisk, isPending: isSaving } = useUpdateRisk()
 
   const handleIdChange = useCallback((updatedMap: TObjectAssociationMap, refCodes: TObjectAssociationMap) => {
-    setAssociations({ associations: updatedMap, refCodes })
+    setLocalAssociations({ associations: updatedMap, refCodes })
   }, [])
 
   const handleSave = () => {
-    riskState.setAssociations(associations.associations)
-    riskState.setAssociationRefCodes(associations.refCodes)
+    onAssociationsChange?.(localAssociations.associations, localAssociations.refCodes)
     if (riskId) {
-      onSubmitHandler(associations.associations)
+      onSubmitHandler(localAssociations.associations)
     } else {
       setOpen(false)
     }
   }
 
-  function getAssociationDiffs(initial: TObjectAssociationMap, current: TObjectAssociationMap): { added: TObjectAssociationMap; removed: TObjectAssociationMap } {
-    const added: TObjectAssociationMap = {}
-    const removed: TObjectAssociationMap = {}
-
-    const allKeys = new Set([...Object.keys(initial), ...Object.keys(current)])
-
-    for (const key of allKeys) {
-      const initialSet = new Set(initial[key] ?? [])
-      const currentSet = new Set(current[key] ?? [])
-
-      const addedItems = [...currentSet].filter((id) => !initialSet.has(id))
-      const removedItems = [...initialSet].filter((id) => !currentSet.has(id))
-
-      if (addedItems.length > 0) {
-        added[key] = addedItems
-      }
-      if (removedItems.length > 0) {
-        removed[key] = removedItems
-      }
-    }
-
-    return { added, removed }
-  }
-
-  const onSubmitHandler = async (associations: TObjectAssociationMap) => {
+  const onSubmitHandler = async (newAssociations: TObjectAssociationMap) => {
     try {
-      const { added, removed } = getAssociationDiffs(initialAssociationsState, associations)
-
-      const buildMutationKey = (prefix: string, key: string) => `${prefix}${key.charAt(0).toUpperCase()}${key.slice(1)}`
-
-      const associationInputs = {
-        ...Object.entries(added).reduce(
-          (acc, [key, ids]) => {
-            if (ids && ids.length > 0) {
-              acc[buildMutationKey('add', key)] = ids
-            }
-            return acc
-          },
-          {} as Record<string, string[]>,
-        ),
-
-        ...Object.entries(removed).reduce(
-          (acc, [key, ids]) => {
-            if (ids && ids.length > 0) {
-              acc[buildMutationKey('remove', key)] = ids
-            }
-            return acc
-          },
-          {} as Record<string, string[]>,
-        ),
-      }
+      const associationInputs = getAssociationInput(initialAssociations, newAssociations)
 
       const formData: {
         updateRiskId: string
@@ -129,7 +86,7 @@ const SetObjectAssociationRisksDialog = ({ riskId }: TSetObjectAssociationDialog
 
   const handleDialogChange = (isOpen: boolean) => {
     if (!isOpen) {
-      setAssociations({
+      setLocalAssociations({
         associations: {},
         refCodes: {},
       })
@@ -149,8 +106,8 @@ const SetObjectAssociationRisksDialog = ({ riskId }: TSetObjectAssociationDialog
 
         <ObjectAssociation
           onIdChange={handleIdChange}
-          initialData={associationsState}
-          refCodeInitialData={refCodeAssociationsState}
+          initialData={parentAssociations}
+          refCodeInitialData={associationRefCodes}
           excludeObjectTypes={[
             ObjectTypeObjects.EVIDENCE,
             ObjectTypeObjects.GROUP,

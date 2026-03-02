@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useForm, Controller, FormProvider } from 'react-hook-form'
 import type { Resolver } from 'react-hook-form'
 import { Card } from '@repo/ui/cardpanel'
@@ -73,8 +73,9 @@ const ProgramAuditor = ({ firm, name, email, isReady, programStatus }: ProgramAu
     },
   })
 
-  /* eslint-disable react-hooks/set-state-in-effect */
-  useEffect(() => {
+  const [prevDeps, setPrevDeps] = useState({ name, email, firm, id })
+  if (name !== prevDeps.name || email !== prevDeps.email || firm !== prevDeps.firm || id !== prevDeps.id) {
+    setPrevDeps({ name, email, firm, id })
     if (name || email || firm) {
       form.reset({
         auditorName: name ?? '',
@@ -85,13 +86,11 @@ const ProgramAuditor = ({ firm, name, email, isReady, programStatus }: ProgramAu
         auditorReady: false,
       })
       setIsEligibleForAuditorSet(true)
-    }
-    setIsEditing(false)
-    return () => {
+    } else {
       setIsEligibleForAuditorSet(false)
     }
-  }, [name, email, firm, id, form])
-  /* eslint-enable react-hooks/set-state-in-effect */
+    setIsEditing(false)
+  }
 
   const { handleSubmit, control } = form
 

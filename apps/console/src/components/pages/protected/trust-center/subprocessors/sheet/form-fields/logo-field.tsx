@@ -27,16 +27,33 @@ export const LogoField = ({ onFileUpload, isEditing }: Props) => {
   const logoFile = watch('logoFile')
   const logoUrl = watch('logoUrl')
   const uploadMode = watch('uploadMode') || 'file'
+  const [blobUrl, setBlobUrl] = useState<string | null>(null)
 
-  useEffect(() => {
+  const [prevLogoFile, setPrevLogoFile] = useState(logoFile)
+  const [prevUploadMode, setPrevUploadMode] = useState(uploadMode)
+  if (logoFile !== prevLogoFile || uploadMode !== prevUploadMode) {
+    setPrevLogoFile(logoFile)
+    setPrevUploadMode(uploadMode)
+    if (blobUrl) {
+      URL.revokeObjectURL(blobUrl)
+      setBlobUrl(null)
+    }
     if (uploadMode === 'file' && logoFile instanceof File) {
       const objectUrl = URL.createObjectURL(logoFile)
+      setBlobUrl(objectUrl)
       setPreview(objectUrl)
-      return () => URL.revokeObjectURL(objectUrl)
     } else {
       setPreview(null)
     }
-  }, [logoFile, uploadMode])
+  }
+
+  useEffect(() => {
+    return () => {
+      if (blobUrl) {
+        URL.revokeObjectURL(blobUrl)
+      }
+    }
+  }, [blobUrl])
 
   const previewSrc = useMemo(() => {
     if (preview) return normalizeUrl(preview)

@@ -1,7 +1,7 @@
 'use client'
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
-import React, { cloneElement, useEffect, useState } from 'react'
+import React, { cloneElement, useCallback, useState } from 'react'
 import { Button } from '@repo/ui/button'
 import { useNotification } from '@/hooks/useNotification'
 import { useCreateInternalPolicy, useCreateUploadInternalPolicy } from '@/lib/graphql-hooks/internal-policy'
@@ -146,16 +146,10 @@ const CreatePolicyUploadDialog: React.FC<TCreatePolicyUploadDialogProps> = ({ tr
     setUploadedFiles((prev) => prev.filter((_, i) => i !== index))
   }
 
-  useEffect(() => {
-    if (!isOpen) {
-      clearState()
-    }
-  }, [isOpen])
-
-  const clearState = () => {
+  const clearState = useCallback(() => {
     setPolicyMdDocumentLink('')
     setPolicyMdDocumentLinks([])
-  }
+  }, [])
 
   const handleAddLink = (link: string) => {
     if (link.trim() === '') return
@@ -169,7 +163,13 @@ const CreatePolicyUploadDialog: React.FC<TCreatePolicyUploadDialogProps> = ({ tr
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        setIsOpen(open)
+        if (!open) clearState()
+      }}
+    >
       {trigger ? (
         <DialogTrigger asChild>
           {cloneElement(trigger, {

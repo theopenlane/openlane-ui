@@ -1,5 +1,5 @@
 'use client'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { PageHeading } from '@repo/ui/page-heading'
 import GroupsTable from '@/components/pages/protected/groups/components/groups-table'
 import { PlusCircle, SearchIcon } from 'lucide-react'
@@ -28,6 +28,15 @@ import { TFilterState } from '@/components/shared/table-filter/filter-storage'
 import { useGroupsFilters } from './table/table-config'
 import { getInitialPagination } from '@repo/ui/data-table'
 import { TableKeyEnum } from '@repo/ui/table-key'
+
+const containsIsManaged = (cond: GroupWhereInput): boolean => {
+  if (!cond || typeof cond !== 'object') return false
+  if ('isManaged' in cond) return true
+
+  if (cond.and?.some(containsIsManaged)) return true
+  if (cond.or?.some(containsIsManaged)) return true
+  return false
+}
 
 const GroupsPage = () => {
   const [activeTab, setActiveTab] = useState<'table' | 'card'>('table')
@@ -84,15 +93,6 @@ const GroupsPage = () => {
     ]
   }, [session?.user?.userId])
 
-  const containsIsManaged = useCallback((cond: GroupWhereInput): boolean => {
-    if (!cond || typeof cond !== 'object') return false
-    if ('isManaged' in cond) return true
-
-    if (cond.and?.some(containsIsManaged)) return true
-    if (cond.or?.some(containsIsManaged)) return true
-    return false
-  }, [])
-
   const whereFilter = useMemo(() => {
     const searchClause: GroupWhereInput[] = debouncedSearchQuery ? [{ or: [{ nameContainsFold: debouncedSearchQuery }, { displayNameContainsFold: debouncedSearchQuery }] }] : []
 
@@ -146,7 +146,7 @@ const GroupsPage = () => {
     }
 
     return conditions
-  }, [whereFilters, debouncedSearchQuery, containsIsManaged, session?.user?.userId])
+  }, [whereFilters, debouncedSearchQuery, session?.user?.userId])
 
   const orderByFilter = useMemo(() => {
     return orderBy || undefined

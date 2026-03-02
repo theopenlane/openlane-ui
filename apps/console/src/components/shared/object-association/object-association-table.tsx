@@ -20,14 +20,48 @@ type Props = {
   isLoading?: boolean
 }
 
+const EMPTY_ASSOCIATIONS = {} as TObjectAssociationMap
+
+const hasSameAssociationValues = (left: string[] = [], right: string[] = []) => {
+  if (left.length !== right.length) {
+    return false
+  }
+
+  const leftSet = new Set(left)
+
+  if (leftSet.size !== right.length) {
+    return false
+  }
+
+  return right.every((value) => leftSet.has(value))
+}
+
+const hasSameAssociationMap = (left: TObjectAssociationMap | undefined, right: TObjectAssociationMap | undefined) => {
+  const leftMap = left ?? EMPTY_ASSOCIATIONS
+  const rightMap = right ?? EMPTY_ASSOCIATIONS
+  const leftKeys = Object.keys(leftMap)
+  const rightKeys = Object.keys(rightMap)
+
+  if (leftKeys.length !== rightKeys.length) {
+    return false
+  }
+
+  return leftKeys.every((key) => Object.prototype.hasOwnProperty.call(rightMap, key) && hasSameAssociationValues(leftMap[key], rightMap[key]))
+}
+
 const ObjectAssociationTable = ({ data, onIDsChange, initialData, refCodeInitialData, onPaginationChange, pagination, paginationMeta, isLoading }: Props) => {
-  const [selectedIdsMap, setSelectedIdsMap] = useState<TObjectAssociationMap>({})
-  const [selectedRefCodeMap, setSelectedRefCodeMap] = useState<TObjectAssociationMap>({})
+  const [selectedIdsMap, setSelectedIdsMap] = useState<TObjectAssociationMap>(initialData ?? EMPTY_ASSOCIATIONS)
+  const [selectedRefCodeMap, setSelectedRefCodeMap] = useState<TObjectAssociationMap>(refCodeInitialData ?? EMPTY_ASSOCIATIONS)
 
   useEffect(() => {
-    if (initialData) setSelectedIdsMap(initialData)
-    if (refCodeInitialData) setSelectedRefCodeMap(refCodeInitialData)
-  }, [initialData, refCodeInitialData])
+    const nextSelectedIdsMap = initialData ?? EMPTY_ASSOCIATIONS
+    setSelectedIdsMap((previousSelectedIdsMap) => (hasSameAssociationMap(previousSelectedIdsMap, nextSelectedIdsMap) ? previousSelectedIdsMap : nextSelectedIdsMap))
+  }, [initialData])
+
+  useEffect(() => {
+    const nextSelectedRefCodeMap = refCodeInitialData ?? EMPTY_ASSOCIATIONS
+    setSelectedRefCodeMap((previousSelectedRefCodeMap) => (hasSameAssociationMap(previousSelectedRefCodeMap, nextSelectedRefCodeMap) ? previousSelectedRefCodeMap : nextSelectedRefCodeMap))
+  }, [refCodeInitialData])
 
   useEffect(() => {
     onIDsChange(selectedIdsMap, selectedRefCodeMap)
