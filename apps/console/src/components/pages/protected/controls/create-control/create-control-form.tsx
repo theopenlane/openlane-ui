@@ -470,7 +470,18 @@ export default function CreateControlForm() {
                   })
                 }}
                 initialData={associations}
-                excludeObjectTypes={[ObjectTypeObjects.EVIDENCE, ObjectTypeObjects.SUB_CONTROL, ObjectTypeObjects.CONTROL, ObjectTypeObjects.CONTROL_OBJECTIVE, ObjectTypeObjects.GROUP]}
+                allowedObjectTypes={[
+                  ObjectTypeObjects.PROGRAM,
+                  ObjectTypeObjects.TASK,
+                  ObjectTypeObjects.INTERNAL_POLICY,
+                  ObjectTypeObjects.PROCEDURE,
+                  ObjectTypeObjects.RISK,
+                  ObjectTypeObjects.SCAN,
+                  ObjectTypeObjects.CAMPAIGN,
+                  ObjectTypeObjects.ASSET,
+                  ObjectTypeObjects.ENTITY,
+                  ObjectTypeObjects.IDENTITY_HOLDER,
+                ]}
               />
             </Card>
           </div>

@@ -21,7 +21,22 @@ const EvidencePage: React.FC = () => {
     return <Loading />
   }
 
-  return <EvidenceCreateForm excludeObjectTypes={[ObjectTypeObjects.EVIDENCE, ObjectTypeObjects.GROUP, ObjectTypeObjects.INTERNAL_POLICY, ObjectTypeObjects.PROCEDURE, ObjectTypeObjects.RISK]} />
+  return (
+    <EvidenceCreateForm
+      allowedObjectTypes={[
+        ObjectTypeObjects.CONTROL,
+        ObjectTypeObjects.SUB_CONTROL,
+        ObjectTypeObjects.CONTROL_OBJECTIVE,
+        ObjectTypeObjects.PROGRAM,
+        ObjectTypeObjects.TASK,
+        ObjectTypeObjects.SCAN,
+        ObjectTypeObjects.CAMPAIGN,
+        ObjectTypeObjects.ASSET,
+        ObjectTypeObjects.ENTITY,
+        ObjectTypeObjects.IDENTITY_HOLDER,
+      ]}
+    />
+  )
 }
 
 export default EvidencePage

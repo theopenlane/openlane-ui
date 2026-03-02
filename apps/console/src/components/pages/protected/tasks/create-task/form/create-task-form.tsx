@@ -32,7 +32,7 @@ import { CustomTypeEnumOptionChip, CustomTypeEnumValue } from '@/components/shar
 type TProps = {
   onSuccess: () => void
   defaultSelectedObject?: ObjectTypeObjects
-  excludeObjectTypes?: ObjectTypeObjects[]
+  allowedObjectTypes?: ObjectTypeObjects[]
   initialData?: TObjectAssociationMap
   objectAssociationsDisplayIDs?: string[]
   initialValues?: Partial<CreateTaskFormData>
@@ -333,7 +333,7 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
                     <ObjectAssociation
                       key={associationResetTrigger}
                       defaultSelectedObject={props.defaultSelectedObject}
-                      excludeObjectTypes={props.excludeObjectTypes}
+                      allowedObjectTypes={props.allowedObjectTypes}
                       initialData={props.initialData}
                       onIdChange={(updatedMap) => setAssociations(updatedMap)}
                     />

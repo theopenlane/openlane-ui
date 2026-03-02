@@ -35,11 +35,11 @@ import { EVIDENCE_ASSOCIATION_FIELDS } from './evidence-sheet-config'
 type TProps = {
   formData?: TFormEvidenceData
   onEvidenceCreateSuccess?: () => void
-  excludeObjectTypes?: ObjectTypeObjects[]
+  allowedObjectTypes?: ObjectTypeObjects[]
   defaultSelectedObject?: ObjectTypeObjects
 }
 
-const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSuccess, excludeObjectTypes, defaultSelectedObject }: TProps) => {
+const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSuccess, allowedObjectTypes, defaultSelectedObject }: TProps) => {
   const { form } = useFormSchema()
   const { successNotification, errorNotification } = useNotification()
   const [tagValues, setTagValues] = useState<Option[]>([])
@@ -343,7 +343,7 @@ const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSucces
                 )}
                 <ObjectAssociation
                   onIdChange={handleEvidenceObjectIdsChange}
-                  excludeObjectTypes={excludeObjectTypes || []}
+                  allowedObjectTypes={allowedObjectTypes}
                   initialData={formData?.objectAssociations}
                   defaultSelectedObject={defaultSelectedObject}
                 />

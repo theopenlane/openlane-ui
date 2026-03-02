@@ -1060,20 +1060,9 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                     <ObjectAssociation
                       initialData={initialAssociations}
                       onIdChange={(updatedMap) => setAssociations(updatedMap)}
-                      excludeObjectTypes={[
-                        ObjectTypeObjects.EVIDENCE,
-                        ObjectTypeObjects.GROUP,
-                        ObjectTypeObjects.INTERNAL_POLICY,
-                        ObjectTypeObjects.PROCEDURE,
-                        ObjectTypeObjects.RISK,
-                        ObjectTypeObjects.CONTROL,
-                        ObjectTypeObjects.SUB_CONTROL,
-                        ObjectTypeObjects.PROGRAM,
-                        ObjectTypeObjects.SCAN,
-                        ObjectTypeObjects.CAMPAIGN,
-                        ObjectTypeObjects.ASSET,
-                        ObjectTypeObjects.ENTITY,
-                        ObjectTypeObjects.IDENTITY_HOLDER,
+                      allowedObjectTypes={[
+                        ObjectTypeObjects.TASK,
+                        ObjectTypeObjects.CONTROL_OBJECTIVE,
                       ]}
                     />
                   </Panel>

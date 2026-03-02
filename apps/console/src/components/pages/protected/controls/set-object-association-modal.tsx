@@ -185,21 +185,14 @@ export function SetObjectAssociationDialog({ trigger, defaultSelectedObject, all
             setAssociations(updatedMap)
           }}
           defaultSelectedObject={defaultSelectedObject}
-          allowedObjectTypes={allowedObjectTypes}
-          initialData={initialData}
-          excludeObjectTypes={[
-            ObjectTypeObjects.EVIDENCE,
-            ObjectTypeObjects.SUB_CONTROL,
-            ObjectTypeObjects.CONTROL,
-            ObjectTypeObjects.CONTROL_OBJECTIVE,
-            ObjectTypeObjects.GROUP,
-            ObjectTypeObjects.SCAN,
-            ObjectTypeObjects.CAMPAIGN,
-            ObjectTypeObjects.ASSET,
-            ObjectTypeObjects.ENTITY,
-            ObjectTypeObjects.IDENTITY_HOLDER,
-            ...(isSubcontrol ? [ObjectTypeObjects.PROGRAM] : []),
+          allowedObjectTypes={allowedObjectTypes || [
+            ...(isSubcontrol ? [] : [ObjectTypeObjects.PROGRAM]),
+            ObjectTypeObjects.TASK,
+            ObjectTypeObjects.INTERNAL_POLICY,
+            ObjectTypeObjects.PROCEDURE,
+            ObjectTypeObjects.RISK,
           ]}
+          initialData={initialData}
         />
         <DialogFooter>
           <SaveButton onClick={onSave} isSaving={isSaving} />

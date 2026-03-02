@@ -155,15 +155,14 @@ const EvidenceTable = ({ control, subcontrolIds }: Props) => {
             onOpenChange={setIsSheetOpen}
             formData={control}
             controlParam={[controlParam]}
-            excludeObjectTypes={[
-              ObjectTypeObjects.EVIDENCE,
-              ObjectTypeObjects.RISK,
-              ObjectTypeObjects.PROCEDURE,
-              ObjectTypeObjects.GROUP,
-              ObjectTypeObjects.INTERNAL_POLICY,
-              ObjectTypeObjects.CONTROL,
-              ObjectTypeObjects.SUB_CONTROL,
-              ObjectTypeObjects.PROGRAM,
+            allowedObjectTypes={[
+              ObjectTypeObjects.TASK,
+              ObjectTypeObjects.CONTROL_OBJECTIVE,
+              ObjectTypeObjects.SCAN,
+              ObjectTypeObjects.CAMPAIGN,
+              ObjectTypeObjects.ASSET,
+              ObjectTypeObjects.ENTITY,
+              ObjectTypeObjects.IDENTITY_HOLDER,
             ]}
             defaultSelectedObject={ObjectTypeObjects.TASK}
           />

@@ -208,15 +208,14 @@ const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id
                             onOpenChange={setIsSheetOpen}
                             formData={evidenceFormData}
                             controlParam={controlParams}
-                            excludeObjectTypes={[
-                              ObjectTypeObjects.EVIDENCE,
-                              ObjectTypeObjects.RISK,
-                              ObjectTypeObjects.PROCEDURE,
-                              ObjectTypeObjects.GROUP,
-                              ObjectTypeObjects.INTERNAL_POLICY,
-                              ObjectTypeObjects.CONTROL,
-                              ObjectTypeObjects.SUB_CONTROL,
-                              ObjectTypeObjects.PROGRAM,
+                            allowedObjectTypes={[
+                              ObjectTypeObjects.TASK,
+                              ObjectTypeObjects.CONTROL_OBJECTIVE,
+                              ObjectTypeObjects.SCAN,
+                              ObjectTypeObjects.CAMPAIGN,
+                              ObjectTypeObjects.ASSET,
+                              ObjectTypeObjects.ENTITY,
+                              ObjectTypeObjects.IDENTITY_HOLDER,
                             ]}
                             defaultSelectedObject={ObjectTypeObjects.TASK}
                           />
@@ -241,7 +240,21 @@ const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id
                     <ObjectAssociation
                       initialData={initialAssociations}
                       onIdChange={(updatedMap) => setAssociations(updatedMap)}
-                      excludeObjectTypes={[ObjectTypeObjects.EVIDENCE, ObjectTypeObjects.GROUP]}
+                      allowedObjectTypes={[
+                        ObjectTypeObjects.CONTROL,
+                        ObjectTypeObjects.SUB_CONTROL,
+                        ObjectTypeObjects.CONTROL_OBJECTIVE,
+                        ObjectTypeObjects.PROGRAM,
+                        ObjectTypeObjects.TASK,
+                        ObjectTypeObjects.INTERNAL_POLICY,
+                        ObjectTypeObjects.PROCEDURE,
+                        ObjectTypeObjects.RISK,
+                        ObjectTypeObjects.SCAN,
+                        ObjectTypeObjects.CAMPAIGN,
+                        ObjectTypeObjects.ASSET,
+                        ObjectTypeObjects.ENTITY,
+                        ObjectTypeObjects.IDENTITY_HOLDER,
+                      ]}
                     />
                   </Panel>
                 )}

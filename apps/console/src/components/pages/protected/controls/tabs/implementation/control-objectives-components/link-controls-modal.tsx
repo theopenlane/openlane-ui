@@ -136,15 +136,14 @@ export function LinkControlsModal({ controlObjectiveData, 'aria-label': ariaLabe
             setAssociations(updatedMap)
           }}
           initialData={initialData}
-          excludeObjectTypes={[
-            ObjectTypeObjects.PROGRAM,
-            ObjectTypeObjects.TASK,
-            ObjectTypeObjects.INTERNAL_POLICY,
-            ObjectTypeObjects.PROCEDURE,
-            ObjectTypeObjects.RISK,
-            ObjectTypeObjects.EVIDENCE,
-            ObjectTypeObjects.CONTROL_OBJECTIVE,
-            ObjectTypeObjects.GROUP,
+          allowedObjectTypes={[
+            ObjectTypeObjects.CONTROL,
+            ObjectTypeObjects.SUB_CONTROL,
+            ObjectTypeObjects.SCAN,
+            ObjectTypeObjects.CAMPAIGN,
+            ObjectTypeObjects.ASSET,
+            ObjectTypeObjects.ENTITY,
+            ObjectTypeObjects.IDENTITY_HOLDER,
           ]}
         />
         <DialogFooter>

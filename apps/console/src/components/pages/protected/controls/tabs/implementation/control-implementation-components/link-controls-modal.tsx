@@ -129,15 +129,14 @@ export function LinkControlsModal({ initialData, updateControlImplementationId, 
             setSaveEnabled(true)
           }}
           initialData={initialData}
-          excludeObjectTypes={[
-            ObjectTypeObjects.EVIDENCE,
-            ObjectTypeObjects.GROUP,
-            ObjectTypeObjects.CONTROL_OBJECTIVE,
-            ObjectTypeObjects.PROGRAM,
-            ObjectTypeObjects.INTERNAL_POLICY,
-            ObjectTypeObjects.PROCEDURE,
-            ObjectTypeObjects.RISK,
-            ObjectTypeObjects.TASK,
+          allowedObjectTypes={[
+            ObjectTypeObjects.CONTROL,
+            ObjectTypeObjects.SUB_CONTROL,
+            ObjectTypeObjects.SCAN,
+            ObjectTypeObjects.CAMPAIGN,
+            ObjectTypeObjects.ASSET,
+            ObjectTypeObjects.ENTITY,
+            ObjectTypeObjects.IDENTITY_HOLDER,
           ]}
         />
         <DialogFooter>

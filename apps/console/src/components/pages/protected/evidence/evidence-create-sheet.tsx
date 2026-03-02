@@ -42,7 +42,7 @@ import { ObjectTypes } from '@repo/codegen/src/type-names'
 type TEvidenceCreateSheetProps = {
   formData?: TFormEvidenceData
   onEvidenceCreateSuccess?: () => void
-  excludeObjectTypes?: ObjectTypeObjects[]
+  allowedObjectTypes?: ObjectTypeObjects[]
   defaultSelectedObject?: ObjectTypeObjects
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -52,7 +52,7 @@ type TEvidenceCreateSheetProps = {
 const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
   formData,
   onEvidenceCreateSuccess,
-  excludeObjectTypes,
+  allowedObjectTypes,
   defaultSelectedObject,
   open,
   onOpenChange,
@@ -563,7 +563,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
                             <AccordionContent className="mt-4 flex flex-col gap-4">
                               <ObjectAssociation
                                 onIdChange={handleEvidenceObjectIdsChange}
-                                excludeObjectTypes={excludeObjectTypes || []}
+                                allowedObjectTypes={allowedObjectTypes}
                                 initialData={formData?.objectAssociations}
                                 defaultSelectedObject={defaultSelectedObject}
                               />
