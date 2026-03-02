@@ -211,8 +211,8 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
       form.reset({
         name: evidence.name ?? '',
         description: evidence?.description ?? '',
-        renewalDate: evidence.renewalDate,
-        creationDate: evidence.creationDate,
+        renewalDate: evidence.renewalDate ? new Date(evidence.renewalDate) : null,
+        creationDate: evidence.creationDate ? new Date(evidence.creationDate) : null,
         status: evidence?.status ? Object.values(EvidenceEvidenceStatus).find((type) => type === evidence?.status) : undefined,
         tags: evidence?.tags ?? [],
         collectionProcedure: evidence?.collectionProcedure || '',
@@ -1095,8 +1095,8 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
             form.reset({
               name: evidence?.name ?? '',
               description: evidence?.description ?? '',
-              renewalDate: evidence?.renewalDate,
-              creationDate: evidence?.creationDate,
+              renewalDate: evidence?.renewalDate ? new Date(evidence.renewalDate) : null,
+              creationDate: evidence?.creationDate ? new Date(evidence.creationDate) : null,
               status: evidence?.status ?? undefined,
               tags: evidence?.tags ?? [],
               collectionProcedure: evidence?.collectionProcedure ?? '',
