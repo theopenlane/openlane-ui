@@ -1,2 +1,4 @@
 bunx lint-staged
+cd apps/console && npx tsc --noEmit
+cd -
 bun test

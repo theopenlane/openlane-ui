@@ -19,7 +19,7 @@
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,css,scss,json,yaml,yml,md,graphql,gql}": "prettier --write",
-    "apps/console/**/*.{js,jsx,ts,tsx}": "eslint --max-warnings=0 --fix"
+    "apps/console/**/*.{js,jsx,ts,tsx}": "eslint --no-warn-ignored --max-warnings=0 --fix"
   },
   "devDependencies": {
     "@eslint-react/eslint-plugin": "^2.13.0",
