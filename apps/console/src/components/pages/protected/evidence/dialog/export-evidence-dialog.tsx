@@ -9,7 +9,7 @@ import { Label } from '@repo/ui/label'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useCreateExport } from '@/lib/graphql-hooks/export'
-import { ExportExportFormat, ExportExportMode, ExportExportType } from '@repo/codegen/src/schema.ts'
+import { ExportExportMode, ExportExportType } from '@repo/codegen/src/schema.ts'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 type ExportEvidenceDialogProps = {
