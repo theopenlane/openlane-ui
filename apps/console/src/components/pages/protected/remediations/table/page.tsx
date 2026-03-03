@@ -1,8 +1,16 @@
 'use client'
 
 import React from 'react'
-import useFormSchema from '../hooks/use-form-schema'
-import { RemediationsNodeNonNull, useRemediation, useCreateRemediation, useUpdateRemediation, useDeleteRemediation, useCreateBulkCSVRemediation } from '@/lib/graphql-hooks/remediation'
+import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
+import {
+  RemediationsNodeNonNull,
+  useRemediation,
+  useCreateRemediation,
+  useUpdateRemediation,
+  useCreateBulkCSVRemediation,
+  useBulkEditRemediation,
+  useBulkDeleteRemediation,
+} from '@/lib/graphql-hooks/remediation'
 import { useSearchParams } from 'next/navigation'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
 import { breadcrumbs, getFieldsToRender, getFilterFields, visibilityFields } from './table-config'
@@ -25,8 +33,9 @@ const RemediationPage: React.FC = () => {
 
   const baseUpdateMutation = useUpdateRemediation()
   const baseCreateMutation = useCreateRemediation()
-  const baseDeleteMutation = useDeleteRemediation()
   const baseBulkCreateMutation = useCreateBulkCSVRemediation()
+  const baseBulkDeleteMutation = useBulkDeleteRemediation()
+  const baseBulkEditMutation = useBulkEditRemediation()
 
   const updateMutation = {
     isPending: baseUpdateMutation.isPending,
@@ -90,11 +99,15 @@ const RemediationPage: React.FC = () => {
     TableComponent,
     sheetConfig,
     onBulkDelete: async (ids: string[]) => {
-      await Promise.all(ids.map((remediationId) => baseDeleteMutation.mutateAsync({ deleteRemediationId: remediationId })))
+      await baseBulkDeleteMutation.mutateAsync({ ids })
     },
     onBulkCreate: async (file: File) => {
       await bulkCreateMutation.mutateAsync({ input: file })
     },
+    onBulkEdit: async (ids: string[], input: UpdateRemediationInput) => {
+      await baseBulkEditMutation.mutateAsync({ ids, input })
+    },
+    bulkEditFormSchema: bulkEditFieldSchema,
     enumOpts,
   }
 

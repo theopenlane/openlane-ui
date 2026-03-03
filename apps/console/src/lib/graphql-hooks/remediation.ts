@@ -13,10 +13,23 @@ import {
   RemediationQueryVariables,
   CreateBulkCsvRemediationMutation,
   CreateBulkCsvRemediationMutationVariables,
+  UpdateBulkRemediationMutation,
+  UpdateBulkRemediationMutationVariables,
+  DeleteBulkRemediationMutation,
+  DeleteBulkRemediationMutationVariables,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
 import { TPagination } from '@repo/ui/pagination-types'
-import { GET_ALL_REMEDIATIONS, CREATE_REMEDIATION, UPDATE_REMEDIATION, DELETE_REMEDIATION, REMEDIATION, CREATE_CSV_BULK_REMEDIATION } from '@repo/codegen/query/remediation'
+import {
+  GET_ALL_REMEDIATIONS,
+  CREATE_REMEDIATION,
+  UPDATE_REMEDIATION,
+  DELETE_REMEDIATION,
+  REMEDIATION,
+  CREATE_CSV_BULK_REMEDIATION,
+  BULK_EDIT_REMEDIATION,
+  BULK_DELETE_REMEDIATION,
+} from '@repo/codegen/query/remediation'
 
 type GetAllRemediationsArgs = {
   where?: RemediationsWithFilterQueryVariables['where']
@@ -84,6 +97,26 @@ export const useCreateBulkCSVRemediation = () => {
   const { queryClient } = useGraphQLClient()
   return useMutation<CreateBulkCsvRemediationMutation, unknown, CreateBulkCsvRemediationMutationVariables>({
     mutationFn: async (variables) => fetchGraphQLWithUpload({ query: CREATE_CSV_BULK_REMEDIATION, variables }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['remediations'] })
+    },
+  })
+}
+
+export const useBulkEditRemediation = () => {
+  const { client, queryClient } = useGraphQLClient()
+  return useMutation<UpdateBulkRemediationMutation, unknown, UpdateBulkRemediationMutationVariables>({
+    mutationFn: async (variables) => client.request(BULK_EDIT_REMEDIATION, variables),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['remediations'] })
+    },
+  })
+}
+
+export const useBulkDeleteRemediation = () => {
+  const { client, queryClient } = useGraphQLClient()
+  return useMutation<DeleteBulkRemediationMutation, unknown, DeleteBulkRemediationMutationVariables>({
+    mutationFn: async (variables) => client.request(BULK_DELETE_REMEDIATION, variables),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['remediations'] })
     },
