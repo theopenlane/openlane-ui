@@ -122,3 +122,19 @@ export const CREATE_CSV_BULK_REMEDIATION = gql`
     }
   }
 `
+
+export const BULK_DELETE_REMEDIATION = gql`
+  mutation DeleteBulkRemediation($ids: [ID!]!) {
+    deleteBulkRemediation(ids: $ids) {
+      deletedIDs
+    }
+  }
+`
+
+export const BULK_EDIT_REMEDIATION = gql`
+  mutation UpdateBulkRemediation($ids: [ID!]!, $input: UpdateRemediationInput!) {
+    updateBulkRemediation(ids: $ids, input: $input) {
+      updatedIDs
+    }
+  }
+`

@@ -150,3 +150,19 @@ export const CREATE_CSV_BULK_FINDING = gql`
     }
   }
 `
+
+export const BULK_DELETE_FINDING = gql`
+  mutation DeleteBulkFinding($ids: [ID!]!) {
+    deleteBulkFinding(ids: $ids) {
+      deletedIDs
+    }
+  }
+`
+
+export const BULK_EDIT_FINDING = gql`
+  mutation UpdateBulkFinding($ids: [ID!]!, $input: UpdateFindingInput!) {
+    updateBulkFinding(ids: $ids, input: $input) {
+      updatedIDs
+    }
+  }
+`

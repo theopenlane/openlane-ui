@@ -1,8 +1,8 @@
 'use client'
 
 import React from 'react'
-import useFormSchema from '../hooks/use-form-schema'
-import { FindingsNodeNonNull, useFinding, useCreateFinding, useUpdateFinding, useDeleteFinding, useCreateBulkCSVFinding } from '@/lib/graphql-hooks/finding'
+import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
+import { FindingsNodeNonNull, useFinding, useCreateFinding, useUpdateFinding, useCreateBulkCSVFinding, useBulkEditFinding, useBulkDeleteFinding } from '@/lib/graphql-hooks/finding'
 import { useSearchParams } from 'next/navigation'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
 import { breadcrumbs, getFieldsToRender, getFilterFields, visibilityFields } from './table-config'
@@ -25,8 +25,9 @@ const FindingPage: React.FC = () => {
 
   const baseUpdateMutation = useUpdateFinding()
   const baseCreateMutation = useCreateFinding()
-  const baseDeleteMutation = useDeleteFinding()
   const baseBulkCreateMutation = useCreateBulkCSVFinding()
+  const baseBulkDeleteMutation = useBulkDeleteFinding()
+  const baseBulkEditMutation = useBulkEditFinding()
 
   const updateMutation = {
     isPending: baseUpdateMutation.isPending,
@@ -90,11 +91,15 @@ const FindingPage: React.FC = () => {
     TableComponent,
     sheetConfig,
     onBulkDelete: async (ids: string[]) => {
-      await Promise.all(ids.map((findingId) => baseDeleteMutation.mutateAsync({ deleteFindingId: findingId })))
+      await baseBulkDeleteMutation.mutateAsync({ ids })
     },
     onBulkCreate: async (file: File) => {
       await bulkCreateMutation.mutateAsync({ input: file })
     },
+    onBulkEdit: async (ids: string[], input: UpdateFindingInput) => {
+      await baseBulkEditMutation.mutateAsync({ ids, input })
+    },
+    bulkEditFormSchema: bulkEditFieldSchema,
     enumOpts,
   }
 

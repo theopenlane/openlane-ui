@@ -1,9 +1,17 @@
 'use client'
 
 import React from 'react'
-import useFormSchema from '../hooks/use-form-schema'
+import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
 
-import { VulnerabilitiesNodeNonNull, useVulnerability, useCreateVulnerability, useUpdateVulnerability, useDeleteVulnerability, useCreateBulkCSVVulnerability } from '@/lib/graphql-hooks/vulnerability'
+import {
+  VulnerabilitiesNodeNonNull,
+  useVulnerability,
+  useCreateVulnerability,
+  useUpdateVulnerability,
+  useCreateBulkCSVVulnerability,
+  useBulkEditVulnerability,
+  useBulkDeleteVulnerability,
+} from '@/lib/graphql-hooks/vulnerability'
 import { useSearchParams } from 'next/navigation'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
 import { breadcrumbs, getFieldsToRender, getFilterFields, visibilityFields } from './table-config'
@@ -31,8 +39,9 @@ const VulnerabilityPage: React.FC = () => {
 
   const baseUpdateMutation = useUpdateVulnerability()
   const baseCreateMutation = useCreateVulnerability()
-  const baseDeleteMutation = useDeleteVulnerability()
   const baseBulkCreateMutation = useCreateBulkCSVVulnerability()
+  const baseBulkDeleteMutation = useBulkDeleteVulnerability()
+  const baseBulkEditMutation = useBulkEditVulnerability()
 
   const updateMutation = {
     isPending: baseUpdateMutation.isPending,
@@ -99,11 +108,15 @@ const VulnerabilityPage: React.FC = () => {
     TableComponent,
     sheetConfig,
     onBulkDelete: async (ids: string[]) => {
-      await Promise.all(ids.map((vulnerabilityId) => baseDeleteMutation.mutateAsync({ deleteVulnerabilityId: vulnerabilityId })))
+      await baseBulkDeleteMutation.mutateAsync({ ids })
     },
     onBulkCreate: async (file: File) => {
       await bulkCreateMutation.mutateAsync({ input: file })
     },
+    onBulkEdit: async (ids: string[], input: UpdateVulnerabilityInput) => {
+      await baseBulkEditMutation.mutateAsync({ ids, input })
+    },
+    bulkEditFormSchema: bulkEditFieldSchema,
     enumOpts,
   }
 
