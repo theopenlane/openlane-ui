@@ -144,12 +144,7 @@ const VendorPage: React.FC = () => {
     buildPayload: async (data) => {
       const { assetIDs, scanIDs, campaignIDs, identityHolderIDs, internalOwner, reviewedBy, ...rest } = data
       const description = rest.description ? await plateEditorHelper.convertToHtml(rest.description as Value) : undefined
-      const associationPayload = buildAssociationPayload(
-        ENTITY_ASSOCIATION_CONFIG.associationKeys,
-        { assetIDs, scanIDs, campaignIDs, identityHolderIDs },
-        isCreate,
-        initialAssociationsRef.current,
-      )
+      const associationPayload = buildAssociationPayload(ENTITY_ASSOCIATION_CONFIG.associationKeys, { assetIDs, scanIDs, campaignIDs, identityHolderIDs }, isCreate, initialAssociationsRef.current)
 
       return {
         ...rest,

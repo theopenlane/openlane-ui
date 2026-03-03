@@ -129,16 +129,7 @@ export function LinkControlsModal({ initialData, updateControlImplementationId, 
             setSaveEnabled(true)
           }}
           initialData={initialData}
-          excludeObjectTypes={[
-            ObjectTypeObjects.EVIDENCE,
-            ObjectTypeObjects.GROUP,
-            ObjectTypeObjects.CONTROL_OBJECTIVE,
-            ObjectTypeObjects.PROGRAM,
-            ObjectTypeObjects.INTERNAL_POLICY,
-            ObjectTypeObjects.PROCEDURE,
-            ObjectTypeObjects.RISK,
-            ObjectTypeObjects.TASK,
-          ]}
+          allowedObjectTypes={[ObjectTypeObjects.CONTROL, ObjectTypeObjects.SUB_CONTROL]}
         />
         <DialogFooter>
           <SaveButton disabled={!saveEnabled || isSaving} onClick={onSave} isSaving={isSaving} />

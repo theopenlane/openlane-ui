@@ -86,8 +86,20 @@
     ]
   },
   {
-    "route": "/evidence/create",
-    "name": "Create"
+    "route": "/exposure/findings",
+    "name": "Findings"
+  },
+  {
+    "route": "/exposure/remediations",
+    "name": "Remediations"
+  },
+  {
+    "route": "/exposure/scans",
+    "name": "Scans"
+  },
+  {
+    "route": "/exposure/vulnerabilities",
+    "name": "Vulnerabilities"
   },
   {
     "route": "/onboarding",
@@ -210,6 +222,10 @@
     "name": "Vendors"
   },
   {
+    "route": "/registry/vulnerabilities",
+    "name": "Vulnerabilities"
+  },
+  {
     "route": "/risks",
     "name": "Risks"
   },
@@ -249,6 +265,10 @@
     "route": "/trust-center/domain",
     "name": "Domain",
     "hidden": true
+  },
+  {
+    "route": "/trust-center/faqs",
+    "name": "Faqs"
   },
   {
     "route": "/trust-center/frameworks",

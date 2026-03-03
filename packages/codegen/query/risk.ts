@@ -92,6 +92,35 @@ const RISK_FIELDS = gql`
         }
       }
     }
+    assets {
+      totalCount
+      edges {
+        node {
+          id
+          name
+          displayName
+        }
+      }
+    }
+    entities {
+      totalCount
+      edges {
+        node {
+          id
+          name
+          displayName
+        }
+      }
+    }
+    scans {
+      totalCount
+      edges {
+        node {
+          id
+          target
+        }
+      }
+    }
   }
 `
 

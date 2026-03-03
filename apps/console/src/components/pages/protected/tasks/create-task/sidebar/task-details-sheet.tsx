@@ -208,16 +208,7 @@ const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id
                             onOpenChange={setIsSheetOpen}
                             formData={evidenceFormData}
                             controlParam={controlParams}
-                            excludeObjectTypes={[
-                              ObjectTypeObjects.EVIDENCE,
-                              ObjectTypeObjects.RISK,
-                              ObjectTypeObjects.PROCEDURE,
-                              ObjectTypeObjects.GROUP,
-                              ObjectTypeObjects.INTERNAL_POLICY,
-                              ObjectTypeObjects.CONTROL,
-                              ObjectTypeObjects.SUB_CONTROL,
-                              ObjectTypeObjects.PROGRAM,
-                            ]}
+                            allowedObjectTypes={[ObjectTypeObjects.CONTROL_IMPLEMENTATION, ObjectTypeObjects.CONTROL_OBJECTIVE, ObjectTypeObjects.SCAN, ObjectTypeObjects.TASK]}
                             defaultSelectedObject={ObjectTypeObjects.TASK}
                           />
                         </>
@@ -241,7 +232,18 @@ const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id
                     <ObjectAssociation
                       initialData={initialAssociations}
                       onIdChange={(updatedMap) => setAssociations(updatedMap)}
-                      excludeObjectTypes={[ObjectTypeObjects.EVIDENCE, ObjectTypeObjects.GROUP]}
+                      allowedObjectTypes={[
+                        ObjectTypeObjects.CONTROL,
+                        ObjectTypeObjects.CONTROL_OBJECTIVE,
+                        ObjectTypeObjects.IDENTITY_HOLDER,
+                        ObjectTypeObjects.INTERNAL_POLICY,
+                        ObjectTypeObjects.PROCEDURE,
+                        ObjectTypeObjects.PROGRAM,
+                        ObjectTypeObjects.RISK,
+                        ObjectTypeObjects.SCAN,
+                        ObjectTypeObjects.SUB_CONTROL,
+                        ObjectTypeObjects.TASK,
+                      ]}
                     />
                   </Panel>
                 )}

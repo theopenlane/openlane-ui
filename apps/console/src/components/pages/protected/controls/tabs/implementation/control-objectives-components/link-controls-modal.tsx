@@ -36,6 +36,12 @@ export function LinkControlsModal({ controlObjectiveData, 'aria-label': ariaLabe
     () => ({
       controlIDs: controlObjectiveData.controls?.edges?.flatMap((edge) => edge?.node?.id || []),
       subcontrolIDs: controlObjectiveData.subcontrols?.edges?.flatMap((edge) => edge?.node?.id || []),
+      programIDs: controlObjectiveData.programs?.edges?.flatMap((edge) => edge?.node?.id || []),
+      evidenceIDs: controlObjectiveData.evidence?.edges?.flatMap((edge) => edge?.node?.id || []),
+      internalPolicyIDs: controlObjectiveData.internalPolicies?.edges?.flatMap((edge) => edge?.node?.id || []),
+      procedureIDs: controlObjectiveData.procedures?.edges?.flatMap((edge) => edge?.node?.id || []),
+      riskIDs: controlObjectiveData.risks?.edges?.flatMap((edge) => edge?.node?.id || []),
+      taskIDs: controlObjectiveData.tasks?.edges?.flatMap((edge) => edge?.node?.id || []),
     }),
     [controlObjectiveData],
   )
@@ -121,7 +127,7 @@ export function LinkControlsModal({ controlObjectiveData, 'aria-label': ariaLabe
     <Dialog open={open} onOpenChange={handleDialogChange}>
       <DialogTrigger asChild>
         <Button disabled={controlObjectiveData.status === ControlObjectiveObjectiveStatus.ARCHIVED} className="h-8" aria-label={ariaLabel}>
-          Link Controls
+          Set Associations
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-2xl p-6 space-y-4">
@@ -136,15 +142,15 @@ export function LinkControlsModal({ controlObjectiveData, 'aria-label': ariaLabe
             setAssociations(updatedMap)
           }}
           initialData={initialData}
-          excludeObjectTypes={[
+          allowedObjectTypes={[
             ObjectTypeObjects.PROGRAM,
-            ObjectTypeObjects.TASK,
+            ObjectTypeObjects.EVIDENCE,
+            ObjectTypeObjects.CONTROL,
+            ObjectTypeObjects.SUB_CONTROL,
             ObjectTypeObjects.INTERNAL_POLICY,
             ObjectTypeObjects.PROCEDURE,
             ObjectTypeObjects.RISK,
-            ObjectTypeObjects.EVIDENCE,
-            ObjectTypeObjects.CONTROL_OBJECTIVE,
-            ObjectTypeObjects.GROUP,
+            ObjectTypeObjects.TASK,
           ]}
         />
         <DialogFooter>

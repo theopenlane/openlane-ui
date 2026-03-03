@@ -79,7 +79,7 @@ export const ObjectiveItem: React.FC<Props> = ({ node, onEdit, onUnarchive, onDe
           )}
         />
       </div>
-      <ControlObjectiveCard obj={node} actions={<LinkControlsModal controlObjectiveData={node} aria-label="Link controls" />} />
+      <ControlObjectiveCard obj={node} actions={<LinkControlsModal controlObjectiveData={node} aria-label="Set associations" />} />
     </div>
   )
 }

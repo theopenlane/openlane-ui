@@ -50,6 +50,13 @@ export function SetObjectAssociationDialog({ trigger, defaultSelectedObject, all
         riskIDs: (controlAssociationsData.control.risks?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
         procedureIDs: (controlAssociationsData.control.procedures?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
         internalPolicyIDs: (controlAssociationsData.control.internalPolicies?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+        assetIDs: (controlAssociationsData.control.assets?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+        scanIDs: (controlAssociationsData.control.scans?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+        entityIDs: (controlAssociationsData.control.entities?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+        identityHolderIDs: (controlAssociationsData.control.identityHolders?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+        campaignIDs: (controlAssociationsData.control.campaigns?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+        remediationIDs: (controlAssociationsData.control.remediations?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+        reviewIDs: (controlAssociationsData.control.reviews?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
       }
     }
 
@@ -185,21 +192,23 @@ export function SetObjectAssociationDialog({ trigger, defaultSelectedObject, all
             setAssociations(updatedMap)
           }}
           defaultSelectedObject={defaultSelectedObject}
-          allowedObjectTypes={allowedObjectTypes}
+          allowedObjectTypes={
+            allowedObjectTypes || [
+              ...(isSubcontrol ? [] : [ObjectTypeObjects.ASSET]),
+              ...(isSubcontrol ? [] : [ObjectTypeObjects.CAMPAIGN]),
+              ObjectTypeObjects.INTERNAL_POLICY,
+              ...(isSubcontrol ? [] : [ObjectTypeObjects.IDENTITY_HOLDER]),
+              ObjectTypeObjects.PROCEDURE,
+              ...(isSubcontrol ? [] : [ObjectTypeObjects.PROGRAM]),
+              ...(isSubcontrol ? [] : [ObjectTypeObjects.REMEDIATION]),
+              ...(isSubcontrol ? [] : [ObjectTypeObjects.REVIEW]),
+              ObjectTypeObjects.RISK,
+              ...(isSubcontrol ? [] : [ObjectTypeObjects.SCAN]),
+              ObjectTypeObjects.TASK,
+              ...(isSubcontrol ? [] : [ObjectTypeObjects.ENTITY]),
+            ]
+          }
           initialData={initialData}
-          excludeObjectTypes={[
-            ObjectTypeObjects.EVIDENCE,
-            ObjectTypeObjects.SUB_CONTROL,
-            ObjectTypeObjects.CONTROL,
-            ObjectTypeObjects.CONTROL_OBJECTIVE,
-            ObjectTypeObjects.GROUP,
-            ObjectTypeObjects.SCAN,
-            ObjectTypeObjects.CAMPAIGN,
-            ObjectTypeObjects.ASSET,
-            ObjectTypeObjects.ENTITY,
-            ObjectTypeObjects.IDENTITY_HOLDER,
-            ...(isSubcontrol ? [ObjectTypeObjects.PROGRAM] : []),
-          ]}
         />
         <DialogFooter>
           <SaveButton onClick={onSave} isSaving={isSaving} />

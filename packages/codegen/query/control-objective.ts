@@ -37,6 +37,60 @@ export const CONTROL_OBJECTIVE_FIELDS = gql`
         }
       }
     }
+    programs {
+      edges {
+        node {
+          id
+          name
+          displayID
+        }
+      }
+    }
+    evidence {
+      edges {
+        node {
+          id
+          name
+          displayID
+        }
+      }
+    }
+    internalPolicies {
+      edges {
+        node {
+          id
+          name
+          displayID
+        }
+      }
+    }
+    procedures {
+      edges {
+        node {
+          id
+          name
+          displayID
+        }
+      }
+    }
+    risks {
+      edges {
+        node {
+          id
+          name
+          displayID
+        }
+      }
+    }
+    tasks {
+      edges {
+        node {
+          id
+          title
+          displayID
+        }
+      }
+    }
   }
 `
 

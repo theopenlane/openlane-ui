@@ -231,6 +231,16 @@ export const GET_INTERNAL_POLICY_ASSOCIATIONS_BY_ID = gql`
         }
         totalCount
       }
+      risks {
+        edges {
+          node {
+            id
+            displayID
+            name
+          }
+        }
+        totalCount
+      }
     }
   }
 `

@@ -151,16 +151,16 @@ const SetObjectAssociationRisksDialog = ({ riskId }: TSetObjectAssociationDialog
           onIdChange={handleIdChange}
           initialData={associationsState}
           refCodeInitialData={refCodeAssociationsState}
-          excludeObjectTypes={[
-            ObjectTypeObjects.EVIDENCE,
-            ObjectTypeObjects.GROUP,
-            ObjectTypeObjects.RISK,
-            ObjectTypeObjects.CONTROL_OBJECTIVE,
-            ObjectTypeObjects.SCAN,
-            ObjectTypeObjects.CAMPAIGN,
+          allowedObjectTypes={[
             ObjectTypeObjects.ASSET,
+            ObjectTypeObjects.CONTROL,
             ObjectTypeObjects.ENTITY,
-            ObjectTypeObjects.IDENTITY_HOLDER,
+            ObjectTypeObjects.INTERNAL_POLICY,
+            ObjectTypeObjects.PROCEDURE,
+            ObjectTypeObjects.PROGRAM,
+            ObjectTypeObjects.SCAN,
+            ObjectTypeObjects.SUB_CONTROL,
+            ObjectTypeObjects.TASK,
           ]}
         />
         <DialogFooter>
