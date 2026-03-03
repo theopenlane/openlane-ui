@@ -472,15 +472,20 @@ export default function CreateControlForm() {
                 initialData={associations}
                 allowedObjectTypes={
                   isCreateSubcontrol
-                    ? [ObjectTypeObjects.TASK, ObjectTypeObjects.INTERNAL_POLICY, ObjectTypeObjects.PROCEDURE, ObjectTypeObjects.RISK]
+                    ? [ObjectTypeObjects.INTERNAL_POLICY, ObjectTypeObjects.PROCEDURE, ObjectTypeObjects.RISK, ObjectTypeObjects.TASK]
                     : [
-                        ObjectTypeObjects.PROGRAM,
-                        ObjectTypeObjects.TASK,
+                        ObjectTypeObjects.ASSET,
+                        ObjectTypeObjects.CAMPAIGN,
                         ObjectTypeObjects.INTERNAL_POLICY,
+                        ObjectTypeObjects.IDENTITY_HOLDER,
                         ObjectTypeObjects.PROCEDURE,
+                        ObjectTypeObjects.PROGRAM,
+                        ObjectTypeObjects.REMEDIATION,
+                        ObjectTypeObjects.REVIEW,
                         ObjectTypeObjects.RISK,
                         ObjectTypeObjects.SCAN,
-                        ObjectTypeObjects.ASSET,
+                        ObjectTypeObjects.TASK,
+                        ObjectTypeObjects.ENTITY,
                       ]
                 }
               />

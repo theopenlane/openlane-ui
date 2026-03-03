@@ -52,6 +52,11 @@ export function SetObjectAssociationDialog({ trigger, defaultSelectedObject, all
         internalPolicyIDs: (controlAssociationsData.control.internalPolicies?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
         assetIDs: (controlAssociationsData.control.assets?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
         scanIDs: (controlAssociationsData.control.scans?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+        entityIDs: (controlAssociationsData.control.entities?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+        identityHolderIDs: (controlAssociationsData.control.identityHolders?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+        campaignIDs: (controlAssociationsData.control.campaigns?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+        remediationIDs: (controlAssociationsData.control.remediations?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+        reviewIDs: (controlAssociationsData.control.reviews?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
       }
     }
 
@@ -189,12 +194,18 @@ export function SetObjectAssociationDialog({ trigger, defaultSelectedObject, all
           defaultSelectedObject={defaultSelectedObject}
           allowedObjectTypes={
             allowedObjectTypes || [
-              ...(isSubcontrol ? [] : [ObjectTypeObjects.PROGRAM]),
-              ObjectTypeObjects.TASK,
+              ...(isSubcontrol ? [] : [ObjectTypeObjects.ASSET]),
+              ...(isSubcontrol ? [] : [ObjectTypeObjects.CAMPAIGN]),
               ObjectTypeObjects.INTERNAL_POLICY,
+              ...(isSubcontrol ? [] : [ObjectTypeObjects.IDENTITY_HOLDER]),
               ObjectTypeObjects.PROCEDURE,
+              ...(isSubcontrol ? [] : [ObjectTypeObjects.PROGRAM]),
+              ...(isSubcontrol ? [] : [ObjectTypeObjects.REMEDIATION]),
+              ...(isSubcontrol ? [] : [ObjectTypeObjects.REVIEW]),
               ObjectTypeObjects.RISK,
-              ...(isSubcontrol ? [] : [ObjectTypeObjects.ASSET, ObjectTypeObjects.SCAN]),
+              ...(isSubcontrol ? [] : [ObjectTypeObjects.SCAN]),
+              ObjectTypeObjects.TASK,
+              ...(isSubcontrol ? [] : [ObjectTypeObjects.ENTITY]),
             ]
           }
           initialData={initialData}

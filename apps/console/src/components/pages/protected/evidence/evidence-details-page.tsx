@@ -153,7 +153,7 @@ const EvidenceDetailsPage = () => {
                         onEvidenceCreateSuccess={() => setIsSheetOpen(false)}
                         open={isSheetOpen}
                         onOpenChange={setIsSheetOpen}
-                        allowedObjectTypes={[ObjectTypeObjects.TASK, ObjectTypeObjects.SCAN, ObjectTypeObjects.CONTROL_OBJECTIVE, ObjectTypeObjects.CONTROL_IMPLEMENTATION]}
+                        allowedObjectTypes={[ObjectTypeObjects.CONTROL_IMPLEMENTATION, ObjectTypeObjects.CONTROL_OBJECTIVE, ObjectTypeObjects.SCAN, ObjectTypeObjects.TASK]}
                       />
                     </div>
                   )}

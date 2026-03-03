@@ -1,10 +1,10 @@
 import { TAssociationMutationKey, TAssociationUpdateInput, TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap.ts'
 
-const buildMutationKey = <TPrefix extends 'add' | 'remove', TFieldKey extends string>(prefix: TPrefix, key: TFieldKey): TAssociationMutationKey<TPrefix, TFieldKey> => {
+export const buildMutationKey = <TPrefix extends 'add' | 'remove', TFieldKey extends string>(prefix: TPrefix, key: TFieldKey): TAssociationMutationKey<TPrefix, TFieldKey> => {
   return `${prefix}${key.charAt(0).toUpperCase()}${key.slice(1)}` as TAssociationMutationKey<TPrefix, TFieldKey>
 }
 
-const getAssociationDiffs = <TFieldKey extends string>(
+export const getAssociationDiffs = <TFieldKey extends string>(
   initial: TObjectAssociationMap<TFieldKey>,
   current: TObjectAssociationMap<TFieldKey>,
 ): { added: TObjectAssociationMap<TFieldKey>; removed: TObjectAssociationMap<TFieldKey> } => {

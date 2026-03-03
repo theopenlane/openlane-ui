@@ -155,7 +155,7 @@ const EvidenceTable = ({ control, subcontrolIds }: Props) => {
             onOpenChange={setIsSheetOpen}
             formData={control}
             controlParam={[controlParam]}
-            allowedObjectTypes={[ObjectTypeObjects.TASK, ObjectTypeObjects.CONTROL_OBJECTIVE, ObjectTypeObjects.SCAN]}
+            allowedObjectTypes={[ObjectTypeObjects.CONTROL_IMPLEMENTATION, ObjectTypeObjects.CONTROL_OBJECTIVE, ObjectTypeObjects.SCAN, ObjectTypeObjects.TASK]}
             defaultSelectedObject={ObjectTypeObjects.TASK}
           />
         </div>

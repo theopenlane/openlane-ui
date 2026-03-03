@@ -208,15 +208,7 @@ const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id
                             onOpenChange={setIsSheetOpen}
                             formData={evidenceFormData}
                             controlParam={controlParams}
-                            allowedObjectTypes={[
-                              ObjectTypeObjects.TASK,
-                              ObjectTypeObjects.CONTROL_OBJECTIVE,
-                              ObjectTypeObjects.SCAN,
-                              ObjectTypeObjects.CAMPAIGN,
-                              ObjectTypeObjects.ASSET,
-                              ObjectTypeObjects.ENTITY,
-                              ObjectTypeObjects.IDENTITY_HOLDER,
-                            ]}
+                            allowedObjectTypes={[ObjectTypeObjects.CONTROL_IMPLEMENTATION, ObjectTypeObjects.CONTROL_OBJECTIVE, ObjectTypeObjects.SCAN, ObjectTypeObjects.TASK]}
                             defaultSelectedObject={ObjectTypeObjects.TASK}
                           />
                         </>
@@ -242,18 +234,15 @@ const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id
                       onIdChange={(updatedMap) => setAssociations(updatedMap)}
                       allowedObjectTypes={[
                         ObjectTypeObjects.CONTROL,
-                        ObjectTypeObjects.SUB_CONTROL,
                         ObjectTypeObjects.CONTROL_OBJECTIVE,
-                        ObjectTypeObjects.PROGRAM,
-                        ObjectTypeObjects.TASK,
+                        ObjectTypeObjects.IDENTITY_HOLDER,
                         ObjectTypeObjects.INTERNAL_POLICY,
                         ObjectTypeObjects.PROCEDURE,
+                        ObjectTypeObjects.PROGRAM,
                         ObjectTypeObjects.RISK,
                         ObjectTypeObjects.SCAN,
-                        ObjectTypeObjects.CAMPAIGN,
-                        ObjectTypeObjects.ASSET,
-                        ObjectTypeObjects.ENTITY,
-                        ObjectTypeObjects.IDENTITY_HOLDER,
+                        ObjectTypeObjects.SUB_CONTROL,
+                        ObjectTypeObjects.TASK,
                       ]}
                     />
                   </Panel>

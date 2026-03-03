@@ -152,15 +152,15 @@ const SetObjectAssociationRisksDialog = ({ riskId }: TSetObjectAssociationDialog
           initialData={associationsState}
           refCodeInitialData={refCodeAssociationsState}
           allowedObjectTypes={[
+            ObjectTypeObjects.ASSET,
             ObjectTypeObjects.CONTROL,
-            ObjectTypeObjects.SUB_CONTROL,
-            ObjectTypeObjects.PROGRAM,
-            ObjectTypeObjects.TASK,
+            ObjectTypeObjects.ENTITY,
             ObjectTypeObjects.INTERNAL_POLICY,
             ObjectTypeObjects.PROCEDURE,
-            ObjectTypeObjects.ASSET,
-            ObjectTypeObjects.ENTITY,
+            ObjectTypeObjects.PROGRAM,
             ObjectTypeObjects.SCAN,
+            ObjectTypeObjects.SUB_CONTROL,
+            ObjectTypeObjects.TASK,
           ]}
         />
         <DialogFooter>

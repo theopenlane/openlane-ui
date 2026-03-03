@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Object Associations Reference</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0d1117; color: #c9d1d9; padding: 24px; max-width: 1400px; margin: 0 auto; }
+    h1 { font-size: 22px; margin-bottom: 4px; color: #f0f6fc; }
+    h2.section-title { font-size: 17px; color: #f0f6fc; margin: 36px 0 6px; padding-bottom: 6px; border-bottom: 1px solid #30363d; }
+    h3.sub-title { font-size: 14px; color: #8b949e; margin: 4px 0 14px; font-weight: normal; }
+    .subtitle { color: #8b949e; margin-bottom: 24px; font-size: 14px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 8px; }
+    thead th { background: #161b22; color: #f0f6fc; text-align: left; padding: 10px 14px; border-bottom: 1px solid #30363d; position: sticky; top: 0; z-index: 1; }
+    tbody td { padding: 10px 14px; border-bottom: 1px solid #21262d; vertical-align: top; }
+    tbody tr:hover { background: #161b22; }
+    .file { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 11px; color: #79c0ff; word-break: break-all; }
+    .page { color: #d2a8ff; font-weight: 600; font-size: 14px; }
+    .route { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 11px; color: #7ee787; display: inline-block; background: #1b2a1b; padding: 2px 6px; border-radius: 4px; margin: 2px 0; }
+    .context { font-size: 11px; color: #d29922; margin-top: 3px; }
+    .used-in { font-size: 11px; color: #8b949e; margin-top: 3px; }
+    .chip { display: inline-block; padding: 2px 8px; margin: 2px; border-radius: 10px; font-size: 11px; font-weight: 500; white-space: nowrap; }
+    .chip-asset { background: #2a3520; color: #a5d6a7; }
+    .chip-campaign { background: #3a2a1a; color: #ffab91; }
+    .chip-control { background: #1f3a5f; color: #58a6ff; }
+    .chip-impl { background: #1a3050; color: #64b5f6; }
+    .chip-objective { background: #2a2040; color: #bc8cff; }
+    .chip-entity { background: #3b2f00; color: #ffd54f; }
+    .chip-evidence { background: #1a3020; color: #81c784; }
+    .chip-group { background: #2a2a1a; color: #fff59d; }
+    .chip-identity { background: #2d2040; color: #ce93d8; }
+    .chip-policy { background: #2d1f4e; color: #d2a8ff; }
+    .chip-procedure { background: #1b3a2a; color: #7ee787; }
+    .chip-program { background: #1f3a5f; color: #79c0ff; }
+    .chip-remediation { background: #2a1a1a; color: #ef9a9a; }
+    .chip-review { background: #1a2a3a; color: #90caf9; }
+    .chip-risk { background: #4a1e1e; color: #f97583; }
+    .chip-scan { background: #1a2a30; color: #80cbc4; }
+    .chip-subcontrol { background: #1a3040; color: #56d4dd; }
+    .chip-task { background: #3b2f00; color: #e3b341; }
+    .chip-missing { background: #3d1f1f; color: #f85149; border: 1px dashed #f85149; }
+    .chip-unused { background: #1a1a2e; color: #6e7681; border: 1px dashed #6e7681; }
+    .note { font-size: 11px; color: #8b949e; font-style: italic; margin-top: 4px; }
+    .legend { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px; }
+    .disc-table td:first-child { font-weight: 600; white-space: nowrap; }
+    .disc-available { color: #6e7681; font-size: 11px; }
+    .disc-used { font-size: 11px; }
+  </style>
+</head>
+<body>
+
+<h1>Object Associations Reference</h1>
+<p class="subtitle">Every component that creates/manages associations, sorted A-Z. Includes schema discrepancy analysis.</p>
+
+<div class="legend">
+  <span class="chip chip-asset">Asset</span>
+  <span class="chip chip-campaign">Campaign</span>
+  <span class="chip chip-control">Control</span>
+  <span class="chip chip-impl">Control Implementation</span>
+  <span class="chip chip-objective">Control Objective</span>
+  <span class="chip chip-entity">Vendor (Entity)</span>
+  <span class="chip chip-evidence">Evidence</span>
+  <span class="chip chip-group">Group</span>
+  <span class="chip chip-identity">Personnel (Identity Holder)</span>
+  <span class="chip chip-policy">Internal Policy</span>
+  <span class="chip chip-procedure">Procedure</span>
+  <span class="chip chip-program">Program</span>
+  <span class="chip chip-remediation">Remediation</span>
+  <span class="chip chip-review">Review</span>
+  <span class="chip chip-risk">Risk</span>
+  <span class="chip chip-scan">Scan</span>
+  <span class="chip chip-subcontrol">Subcontrol</span>
+  <span class="chip chip-task">Task</span>
+  &nbsp;&nbsp;
+  <span class="chip chip-missing">Missing (in schema, not in UI)</span>
+</div>
+
+<!-- ============================================================ -->
+<h2 class="section-title">1. All Association UIs by Entity</h2>
+<h3 class="sub-title">Every component that allows adding/removing associations. Allowed types sorted A-Z.</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th style="width:28%">File</th>
+      <th style="width:24%">Page / Route</th>
+      <th style="width:48%">Allowed Types (A-Z)</th>
+    </tr>
+  </thead>
+  <tbody>
+
+    <!-- ===== ASSET ===== -->
+    <tr>
+      <td>
+        <div class="page">Asset</div>
+        <div class="file">assets/create/form/fields/association-section.tsx</div>
+        <div class="used-in">Config: ASSET_ASSOCIATION_CONFIG (association-configs.ts)</div>
+      </td>
+      <td>
+        <div class="route">/registry/assets</div>
+        <div class="route">/registry/assets/[id]</div>
+        <div class="context">Create form + detail page association section</div>
+      </td>
+      <td>
+        <span class="chip chip-control">Control</span>
+        <span class="chip chip-identity">Personnel</span>
+        <span class="chip chip-scan">Scan</span>
+        <span class="chip chip-entity">Vendor</span>
+      </td>
+    </tr>
+
+    <!-- ===== CONTROL (create) ===== -->
+    <tr>
+      <td>
+        <div class="page">Control (Create)</div>
+        <div class="file">controls/create-control/create-control-form.tsx</div>
+        <div class="used-in">ObjectAssociation component inline</div>
+      </td>
+      <td>
+        <div class="route">/controls/create-control</div>
+        <div class="context">Create control form, association card</div>
+      </td>
+      <td>
+        <span class="chip chip-asset">Asset</span>
+        <span class="chip chip-campaign">Campaign</span>
+        <span class="chip chip-policy">Internal Policy</span>
+        <span class="chip chip-identity">Personnel</span>
+        <span class="chip chip-procedure">Procedure</span>
+        <span class="chip chip-program">Program</span>
+        <span class="chip chip-remediation">Remediation</span>
+        <span class="chip chip-review">Review</span>
+        <span class="chip chip-risk">Risk</span>
+        <span class="chip chip-scan">Scan</span>
+        <span class="chip chip-task">Task</span>
+        <span class="chip chip-entity">Vendor</span>
+      </td>
+    </tr>
+
+    <!-- ===== CONTROL (detail modal) ===== -->
+    <tr>
+      <td>
+        <div class="page">Control (Detail Modal)</div>
+        <div class="file">controls/set-object-association-modal.tsx</div>
+        <div class="used-in">Export: SetObjectAssociationDialog</div>
+        <div class="used-in">Used in: object-association-switch.tsx, policies-table.tsx, procedures-table.tsx</div>
+      </td>
+      <td>
+        <div class="route">/controls/[id]</div>
+        <div class="context">Detail page "+" button &amp; documentation tabs</div>
+      </td>
+      <td>
+        <span class="chip chip-asset">Asset</span>
+        <span class="chip chip-campaign">Campaign</span>
+        <span class="chip chip-policy">Internal Policy</span>
+        <span class="chip chip-identity">Personnel</span>
+        <span class="chip chip-procedure">Procedure</span>
+        <span class="chip chip-program">Program</span>
+        <span class="chip chip-remediation">Remediation</span>
+        <span class="chip chip-review">Review</span>
+        <span class="chip chip-risk">Risk</span>
+        <span class="chip chip-scan">Scan</span>
+        <span class="chip chip-task">Task</span>
+        <span class="chip chip-entity">Vendor</span>
+      </td>
+    </tr>
+
+    <!-- ===== CONTROL (quick actions - evidence) ===== -->
+    <tr>
+      <td>
+        <div class="page">Control (Quick Actions)</div>
+        <div class="file">controls/quick-actions/quick-actions.tsx</div>
+        <div class="used-in">EvidenceCreateSheet with limited types; CreateTaskDialog with hideObjectAssociation</div>
+      </td>
+      <td>
+        <div class="route">/controls/[id]</div>
+        <div class="route">/controls/[id]/[subcontrolId]</div>
+        <div class="context">Quick action bar: "Upload Evidence" and "Create Task" buttons</div>
+      </td>
+      <td>
+        <div class="note">Evidence sheet types:</div>
+        <span class="chip chip-impl">Control Implementation</span>
+        <span class="chip chip-objective">Control Objective</span>
+        <span class="chip chip-scan">Scan</span>
+        <span class="chip chip-task">Task</span>
+        <div class="note" style="margin-top:6px">Task dialog: associations hidden (control/subcontrol pre-filled via initialData)</div>
+      </td>
+    </tr>
+
+    <!-- ===== EVIDENCE (create sheet - standalone) ===== -->
+    <tr>
+      <td>
+        <div class="page">Evidence (Create Sheet)</div>
+        <div class="file">evidence/evidence-create-sheet.tsx</div>
+        <div class="used-in">Props: allowedObjectTypes, defaultSelectedObject, controlParam</div>
+      </td>
+      <td>
+        <div class="route">/evidence</div>
+        <div class="context">Evidence page "Create Evidence" button. Also rendered from control quick actions and task detail sheet.</div>
+        <div class="used-in">Used in: evidence-details-page.tsx, quick-actions.tsx, task-details-sheet.tsx</div>
+      </td>
+      <td>
+        <div class="note">Caller-controlled. Default when opened from /evidence page:</div>
+        <span class="chip chip-impl">Control Implementation</span>
+        <span class="chip chip-objective">Control Objective</span>
+        <span class="chip chip-scan">Scan</span>
+        <span class="chip chip-task">Task</span>
+        <div class="note" style="margin-top:4px">Also has dedicated Control + Program selection dialogs (always shown, separate from ObjectAssociation).</div>
+      </td>
+    </tr>
+
+    <!-- ===== EVIDENCE (detail sheet) ===== -->
+    <tr>
+      <td>
+        <div class="page">Evidence (Detail Sheet)</div>
+        <div class="file">evidence/evidence-details-sheet.tsx</div>
+        <div class="used-in">Right sidebar sheet on evidence page</div>
+      </td>
+      <td>
+        <div class="route">/evidence?id=[id]</div>
+        <div class="context">Click evidence row to open detail sheet. "Associate more objects" panel in edit mode.</div>
+      </td>
+      <td>
+        <span class="chip chip-impl">Control Implementation</span>
+        <span class="chip chip-objective">Control Objective</span>
+        <span class="chip chip-scan">Scan</span>
+        <span class="chip chip-task">Task</span>
+        <div class="note" style="margin-top:4px">Also has dedicated Control + Program chip selectors (always shown, separate from ObjectAssociation).</div>
+      </td>
+    </tr>
+
+    <!-- ===== PERSONNEL ===== -->
+    <tr>
+      <td>
+        <div class="page">Personnel (Identity Holder)</div>
+        <div class="file">personnel/create/form/fields/association-section.tsx</div>
+        <div class="used-in">Config: IDENTITY_HOLDER_ASSOCIATION_CONFIG (association-configs.ts)</div>
+      </td>
+      <td>
+        <div class="route">/registry/personnel</div>
+        <div class="route">/registry/personnel/[id]</div>
+        <div class="context">Create form + detail page association section</div>
+      </td>
+      <td>
+        <span class="chip chip-asset">Asset</span>
+        <span class="chip chip-campaign">Campaign</span>
+        <span class="chip chip-task">Task</span>
+        <span class="chip chip-entity">Vendor</span>
+      </td>
+    </tr>
+
+    <!-- ===== POLICY (modal) ===== -->
+    <tr>
+      <td>
+        <div class="page">Policy (Modal)</div>
+        <div class="file">policies/modal/set-object-association-modal.tsx</div>
+        <div class="used-in">Export: SetObjectAssociationPoliciesDialog</div>
+        <div class="used-in">Used in: association-card.tsx, object-association-switch.tsx, policies-without-procedures-table.tsx</div>
+      </td>
+      <td>
+        <div class="route">/policies/create</div>
+        <div class="route">/policies/[id]/edit</div>
+        <div class="route">/policies/[id]/view</div>
+        <div class="context">Association card on create/edit, graph "+" on view, "Link procedures" in dashboard table</div>
+      </td>
+      <td>
+        <span class="chip chip-control">Control</span>
+        <span class="chip chip-objective">Control Objective</span>
+        <span class="chip chip-procedure">Procedure</span>
+        <span class="chip chip-program">Program</span>
+        <span class="chip chip-risk">Risk</span>
+        <span class="chip chip-subcontrol">Subcontrol</span>
+        <span class="chip chip-task">Task</span>
+        <div class="note" style="margin-top:4px">When fromTable=true (policies-without-procedures table): only <span class="chip chip-procedure">Procedure</span></div>
+      </td>
+    </tr>
+
+    <!-- ===== PROCEDURE (modal) ===== -->
+    <tr>
+      <td>
+        <div class="page">Procedure (Modal)</div>
+        <div class="file">procedures/modal/set-object-association-modal.tsx</div>
+        <div class="used-in">Export: SetObjectAssociationProceduresDialog</div>
+        <div class="used-in">Used in: association-card.tsx, object-association-switch.tsx</div>
+      </td>
+      <td>
+        <div class="route">/procedures/create</div>
+        <div class="route">/procedures/[id]/edit</div>
+        <div class="route">/procedures/[id]/view</div>
+        <div class="context">Association card on create/edit, graph "+" on view</div>
+      </td>
+      <td>
+        <span class="chip chip-control">Control</span>
+        <span class="chip chip-policy">Internal Policy</span>
+        <span class="chip chip-program">Program</span>
+        <span class="chip chip-risk">Risk</span>
+        <span class="chip chip-subcontrol">Subcontrol</span>
+        <span class="chip chip-task">Task</span>
+      </td>
+    </tr>
+
+    <!-- ===== RISK (modal) ===== -->
+    <tr>
+      <td>
+        <div class="page">Risk (Modal)</div>
+        <div class="file">risks/modal/set-object-association-modal.tsx</div>
+        <div class="used-in">Export: SetObjectAssociationRisksDialog</div>
+        <div class="used-in">Used in: association-card.tsx, object-association-switch.tsx</div>
+      </td>
+      <td>
+        <div class="route">/risks/create</div>
+        <div class="route">/risks/[id]</div>
+        <div class="context">Association card on create, graph "+" on detail</div>
+      </td>
+      <td>
+        <span class="chip chip-asset">Asset</span>
+        <span class="chip chip-control">Control</span>
+        <span class="chip chip-entity">Entity (Vendor)</span>
+        <span class="chip chip-policy">Internal Policy</span>
+        <span class="chip chip-procedure">Procedure</span>
+        <span class="chip chip-program">Program</span>
+        <span class="chip chip-scan">Scan</span>
+        <span class="chip chip-subcontrol">Subcontrol</span>
+        <span class="chip chip-task">Task</span>
+      </td>
+    </tr>
+
+    <!-- ===== SUBCONTROL (create) ===== -->
+    <tr>
+      <td>
+        <div class="page">Subcontrol (Create)</div>
+        <div class="file">controls/create-control/create-control-form.tsx</div>
+        <div class="used-in">Same file as control create, isCreateSubcontrol=true</div>
+      </td>
+      <td>
+        <div class="route">/controls/create-subcontrol</div>
+        <div class="context">Create subcontrol form, association card</div>
+      </td>
+      <td>
+        <span class="chip chip-policy">Internal Policy</span>
+        <span class="chip chip-procedure">Procedure</span>
+        <span class="chip chip-risk">Risk</span>
+        <span class="chip chip-task">Task</span>
+      </td>
+    </tr>
+
+    <!-- ===== SUBCONTROL (detail modal) ===== -->
+    <tr>
+      <td>
+        <div class="page">Subcontrol (Detail Modal)</div>
+        <div class="file">controls/set-object-association-modal.tsx</div>
+        <div class="used-in">Same file as control, isSubcontrol=true</div>
+      </td>
+      <td>
+        <div class="route">/controls/[id]/[subcontrolId]</div>
+        <div class="context">Subcontrol detail page "+" button</div>
+      </td>
+      <td>
+        <span class="chip chip-policy">Internal Policy</span>
+        <span class="chip chip-procedure">Procedure</span>
+        <span class="chip chip-risk">Risk</span>
+        <span class="chip chip-task">Task</span>
+      </td>
+    </tr>
+
+    <!-- ===== TASK (create form) ===== -->
+    <tr>
+      <td>
+        <div class="page">Task (Create Dialog)</div>
+        <div class="file">tasks/create-task/form/create-task-form.tsx</div>
+        <div class="used-in">Props: allowedObjectTypes, defaultSelectedObject, initialData, hideObjectAssociation</div>
+      </td>
+      <td>
+        <div class="route">/automation/tasks</div>
+        <div class="context">Create task dialog. Caller can override types. Also rendered from control quick actions (with hideObjectAssociation=true).</div>
+      </td>
+      <td>
+        <div class="note">Caller-controlled via props. No hardcoded defaults (shows all types if not restricted).</div>
+      </td>
+    </tr>
+
+    <!-- ===== TASK (detail sheet) ===== -->
+    <tr>
+      <td>
+        <div class="page">Task (Detail Sheet)</div>
+        <div class="file">tasks/create-task/sidebar/task-details-sheet.tsx</div>
+        <div class="used-in">Right sidebar on task page</div>
+      </td>
+      <td>
+        <div class="route">/automation/tasks?id=[id]</div>
+        <div class="context">Click task row to open detail sheet. "Object association" panel in edit mode. Also has "Create Evidence" button.</div>
+      </td>
+      <td>
+        <div class="note">Main association panel (edit mode):</div>
+        <span class="chip chip-control">Control</span>
+        <span class="chip chip-objective">Control Objective</span>
+        <span class="chip chip-identity">Identity Holder</span>
+        <span class="chip chip-policy">Internal Policy</span>
+        <span class="chip chip-procedure">Procedure</span>
+        <span class="chip chip-program">Program</span>
+        <span class="chip chip-risk">Risk</span>
+        <span class="chip chip-scan">Scan</span>
+        <span class="chip chip-subcontrol">Subcontrol</span>
+        <span class="chip chip-task">Task</span>
+        <div class="note" style="margin-top:6px">Evidence sheet (from "Create Evidence" button):</div>
+        <span class="chip chip-impl">Control Implementation</span>
+        <span class="chip chip-objective">Control Objective</span>
+        <span class="chip chip-scan">Scan</span>
+        <span class="chip chip-task">Task</span>
+      </td>
+    </tr>
+
+    <!-- ===== VENDOR ===== -->
+    <tr>
+      <td>
+        <div class="page">Vendor (Entity)</div>
+        <div class="file">vendors/create/form/fields/association-section.tsx</div>
+        <div class="used-in">Config: ENTITY_ASSOCIATION_CONFIG (association-configs.ts)</div>
+      </td>
+      <td>
+        <div class="route">/registry/vendors</div>
+        <div class="route">/registry/vendors/[id]</div>
+        <div class="context">Create form + detail page association section</div>
+      </td>
+      <td>
+        <span class="chip chip-asset">Asset</span>
+        <span class="chip chip-campaign">Campaign</span>
+        <span class="chip chip-identity">Personnel</span>
+        <span class="chip chip-scan">Scan</span>
+      </td>
+    </tr>
+
+  </tbody>
+</table>
+
+<!-- ============================================================ -->
+<h2 class="section-title">2. ObjectAssociationSwitch: Sections Passed vs Available</h2>
+<h3 class="sub-title">Each detail page builds memoizedSections and passes them to ObjectAssociationSwitch. This table compares what's passed (rendered in the graph/list) vs what ASSOCIATION_REMOVAL_CONFIG supports. <span class="chip chip-missing">Red dashed = configured in removal config but NOT passed to switch</span></h3>
+
+<table>
+  <thead>
+    <tr>
+      <th style="width:14%">Page</th>
+      <th style="width:14%">File</th>
+      <th style="width:12%">Route</th>
+      <th style="width:30%">Sections Passed (rendered in graph/list)</th>
+      <th style="width:30%">ASSOCIATION_REMOVAL_CONFIG sections</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Control</strong></td>
+      <td class="file">app/(protected)/controls/[id]/page.tsx</td>
+      <td><span class="route">/controls/[id]</span></td>
+      <td>
+        <span class="chip chip-asset">Assets</span>
+        <span class="chip chip-campaign">Campaigns</span>
+        <span class="chip chip-identity">Personnel</span>
+        <span class="chip chip-policy">Policies</span>
+        <span class="chip chip-procedure">Procedures</span>
+        <span class="chip chip-program">Programs</span>
+        <span class="chip chip-remediation">Remediations</span>
+        <span class="chip chip-review">Reviews</span>
+        <span class="chip chip-risk">Risks</span>
+        <span class="chip chip-scan">Scans</span>
+        <span class="chip chip-subcontrol">Subcontrols</span>
+        <span class="chip chip-task">Tasks</span>
+        <span class="chip chip-entity">Vendors</span>
+        <div class="note" style="margin-top:4px; color:#7ee787">All 13 sections match removal config.</div>
+      </td>
+      <td>
+        <span class="chip chip-asset">Assets</span>
+        <span class="chip chip-campaign">Campaigns</span>
+        <span class="chip chip-identity">Personnel</span>
+        <span class="chip chip-policy">Policies</span>
+        <span class="chip chip-procedure">Procedures</span>
+        <span class="chip chip-program">Programs</span>
+        <span class="chip chip-remediation">Remediations</span>
+        <span class="chip chip-review">Reviews</span>
+        <span class="chip chip-risk">Risks</span>
+        <span class="chip chip-scan">Scans</span>
+        <span class="chip chip-subcontrol">Subcontrols</span>
+        <span class="chip chip-task">Tasks</span>
+        <span class="chip chip-entity">Vendors</span>
+      </td>
+    </tr>
+    <tr>
+      <td><strong>Subcontrol</strong></td>
+      <td class="file">app/(protected)/controls/[id]/[subcontrolId]/page.tsx</td>
+      <td><span class="route">/controls/[id]/[subcontrolId]</span></td>
+      <td>
+        <span class="chip chip-control">Controls</span>
+        <span class="chip chip-policy">Policies</span>
+        <span class="chip chip-procedure">Procedures</span>
+        <span class="chip chip-risk">Risks</span>
+        <span class="chip chip-task">Tasks</span>
+        <div class="note" style="margin-top:4px">5 sections. "controls" is the parent link (not in removal config).</div>
+      </td>
+      <td>
+        <span class="chip chip-policy">Policies</span>
+        <span class="chip chip-procedure">Procedures</span>
+        <span class="chip chip-risk">Risks</span>
+        <span class="chip chip-task">Tasks</span>
+      </td>
+    </tr>
+    <tr>
+      <td><strong>Policy</strong></td>
+      <td class="file">policies/view/view-policy-page.tsx</td>
+      <td><span class="route">/policies/[id]/view</span></td>
+      <td>
+        <span class="chip chip-objective">Control Objectives</span>
+        <span class="chip chip-control">Controls</span>
+        <span class="chip chip-procedure">Procedures</span>
+        <span class="chip chip-program">Programs</span>
+        <span class="chip chip-risk">Risks</span>
+        <span class="chip chip-subcontrol">Subcontrols</span>
+        <span class="chip chip-task">Tasks</span>
+        <div class="note" style="margin-top:4px; color:#7ee787">All 7 sections match removal config.</div>
+      </td>
+      <td>
+        <span class="chip chip-objective">Control Objectives</span>
+        <span class="chip chip-control">Controls</span>
+        <span class="chip chip-procedure">Procedures</span>
+        <span class="chip chip-program">Programs</span>
+        <span class="chip chip-risk">Risks</span>
+        <span class="chip chip-subcontrol">Subcontrols</span>
+        <span class="chip chip-task">Tasks</span>
+      </td>
+    </tr>
+    <tr>
+      <td><strong>Procedure</strong></td>
+      <td class="file">procedures/view/view-procedure-page.tsx</td>
+      <td><span class="route">/procedures/[id]/view</span></td>
+      <td>
+        <span class="chip chip-control">Controls</span>
+        <span class="chip chip-policy">Policies</span>
+        <span class="chip chip-program">Programs</span>
+        <span class="chip chip-risk">Risks</span>
+        <span class="chip chip-subcontrol">Subcontrols</span>
+        <span class="chip chip-task">Tasks</span>
+        <div class="note" style="margin-top:4px; color:#7ee787">All 6 sections match removal config.</div>
+      </td>
+      <td>
+        <span class="chip chip-control">Controls</span>
+        <span class="chip chip-policy">Policies</span>
+        <span class="chip chip-program">Programs</span>
+        <span class="chip chip-risk">Risks</span>
+        <span class="chip chip-subcontrol">Subcontrols</span>
+        <span class="chip chip-task">Tasks</span>
+      </td>
+    </tr>
+    <tr>
+      <td><strong>Risk</strong></td>
+      <td class="file">risks/view/view-risks-page.tsx</td>
+      <td><span class="route">/risks/[id]</span></td>
+      <td>
+        <span class="chip chip-asset">Assets</span>
+        <span class="chip chip-control">Controls</span>
+        <span class="chip chip-policy">Policies</span>
+        <span class="chip chip-procedure">Procedures</span>
+        <span class="chip chip-program">Programs</span>
+        <span class="chip chip-scan">Scans</span>
+        <span class="chip chip-subcontrol">Subcontrols</span>
+        <span class="chip chip-task">Tasks</span>
+        <span class="chip chip-entity">Vendors</span>
+        <div class="note" style="margin-top:4px; color:#7ee787">All 9 sections match removal config.</div>
+      </td>
+      <td>
+        <span class="chip chip-asset">Assets</span>
+        <span class="chip chip-control">Controls</span>
+        <span class="chip chip-policy">Policies</span>
+        <span class="chip chip-procedure">Procedures</span>
+        <span class="chip chip-program">Programs</span>
+        <span class="chip chip-scan">Scans</span>
+        <span class="chip chip-subcontrol">Subcontrols</span>
+        <span class="chip chip-task">Tasks</span>
+        <span class="chip chip-entity">Vendors</span>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- ============================================================ -->
+<h2 class="section-title">3. Association Removal Sections (detail page chip groups)</h2>
+<h3 class="sub-title">ASSOCIATION_REMOVAL_CONFIG in object-association-config.ts. These define removable chip sections on detail pages. Sorted A-Z.</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th style="width:18%">Entity</th>
+      <th style="width:82%">Sections (A-Z)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Asset</strong></td>
+      <td>
+        <span class="chip chip-control">Controls</span>
+        <span class="chip chip-identity">Personnel</span>
+        <span class="chip chip-scan">Scans</span>
+        <span class="chip chip-entity">Vendors</span>
+      </td>
+    </tr>
+    <tr>
+      <td><strong>Control</strong></td>
+      <td>
+        <span class="chip chip-asset">Assets</span>
+        <span class="chip chip-campaign">Campaigns</span>
+        <span class="chip chip-identity">Personnel</span>
+        <span class="chip chip-policy">Policies</span>
+        <span class="chip chip-procedure">Procedures</span>
+        <span class="chip chip-program">Programs</span>
+        <span class="chip chip-remediation">Remediations</span>
+        <span class="chip chip-review">Reviews</span>
+        <span class="chip chip-risk">Risks</span>
+        <span class="chip chip-scan">Scans</span>
+        <span class="chip chip-subcontrol">Subcontrols</span>
+        <span class="chip chip-task">Tasks</span>
+        <span class="chip chip-entity">Vendors</span>
+      </td>
+    </tr>
+    <tr>
+      <td><strong>Identity Holder (Personnel)</strong></td>
+      <td>
+        <span class="chip chip-asset">Assets</span>
+        <span class="chip chip-campaign">Campaigns</span>
+        <span class="chip chip-task">Tasks</span>
+        <span class="chip chip-entity">Vendors</span>
+      </td>
+    </tr>
+    <tr>
+      <td><strong>Policy</strong></td>
+      <td>
+        <span class="chip chip-objective">Control Objectives</span>
+        <span class="chip chip-control">Controls</span>
+        <span class="chip chip-procedure">Procedures</span>
+        <span class="chip chip-program">Programs</span>
+        <span class="chip chip-risk">Risks</span>
+        <span class="chip chip-subcontrol">Subcontrols</span>
+        <span class="chip chip-task">Tasks</span>
+      </td>
+    </tr>
+    <tr>
+      <td><strong>Procedure</strong></td>
+      <td>
+        <span class="chip chip-control">Controls</span>
+        <span class="chip chip-policy">Policies</span>
+        <span class="chip chip-program">Programs</span>
+        <span class="chip chip-risk">Risks</span>
+        <span class="chip chip-subcontrol">Subcontrols</span>
+        <span class="chip chip-task">Tasks</span>
+      </td>
+    </tr>
+    <tr>
+      <td><strong>Risk</strong></td>
+      <td>
+        <span class="chip chip-asset">Assets</span>
+        <span class="chip chip-control">Controls</span>
+        <span class="chip chip-policy">Policies</span>
+        <span class="chip chip-procedure">Procedures</span>
+        <span class="chip chip-program">Programs</span>
+        <span class="chip chip-scan">Scans</span>
+        <span class="chip chip-subcontrol">Subcontrols</span>
+        <span class="chip chip-task">Tasks</span>
+        <span class="chip chip-entity">Vendors</span>
+      </td>
+    </tr>
+    <tr>
+      <td><strong>Subcontrol</strong></td>
+      <td>
+        <span class="chip chip-policy">Policies</span>
+        <span class="chip chip-procedure">Procedures</span>
+        <span class="chip chip-risk">Risks</span>
+        <span class="chip chip-task">Tasks</span>
+      </td>
+    </tr>
+    <tr>
+      <td><strong>Vendor (Entity)</strong></td>
+      <td>
+        <span class="chip chip-asset">Assets</span>
+        <span class="chip chip-campaign">Campaigns</span>
+        <span class="chip chip-identity">Personnel</span>
+        <span class="chip chip-scan">Scans</span>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- ============================================================ -->
+<h2 class="section-title">4. Schema Discrepancies: Available vs Used</h2>
+<h3 class="sub-title">Comparing addXxxIDs in UpdateXxxInput (GraphQL schema) vs what the UI exposes. <span class="chip chip-missing">Red dashed = in schema but NOT in any UI</span>. System-only fields (comments, discussions, editors, viewers, blockedGroups, workflows, files, notes, scheduledJobs, narratives, platforms) are excluded.</h3>
+
+<table class="disc-table">
+  <thead>
+    <tr>
+      <th style="width:14%">Entity</th>
+      <th style="width:43%">Schema edges (addXxxIDs)</th>
+      <th style="width:43%">UI-exposed associations</th>
+    </tr>
+  </thead>
+  <tbody>
+
+    <!-- CONTROL -->
+    <tr>
+      <td><strong>Control</strong></td>
+      <td class="disc-available">
+        addActionPlanIDs, addAssetIDs, addCampaignIDs, addControlImplementationIDs, addControlObjectiveIDs,
+        addEntityIDs, addEvidenceIDs, addFindingIDs, addIdentityHolderIDs, addInternalPolicyIDs,
+        addProcedureIDs, addProgramIDs, addRemediationIDs, addReviewIDs, addRiskIDs, addScanIDs,
+        addSubcontrolIDs, addTaskIDs
+      </td>
+      <td>
+        <span class="chip chip-asset">Asset</span>
+        <span class="chip chip-campaign">Campaign</span>
+        <span class="chip chip-policy">Internal Policy</span>
+        <span class="chip chip-identity">Personnel</span>
+        <span class="chip chip-procedure">Procedure</span>
+        <span class="chip chip-program">Program</span>
+        <span class="chip chip-remediation">Remediation</span>
+        <span class="chip chip-review">Review</span>
+        <span class="chip chip-risk">Risk</span>
+        <span class="chip chip-scan">Scan</span>
+        <span class="chip chip-subcontrol">Subcontrol</span>
+        <span class="chip chip-task">Task</span>
+        <br><br>
+        <span class="chip chip-missing">ActionPlan</span>
+        <span class="chip chip-missing">ControlImplementation</span>
+        <span class="chip chip-missing">ControlObjective</span>
+        <span class="chip chip-missing">Evidence</span>
+        <span class="chip chip-missing">Finding</span>
+      </td>
+    </tr>
+
+    <!-- SUBCONTROL -->
+    <tr>
+      <td><strong>Subcontrol</strong></td>
+      <td class="disc-available">
+        addActionPlanIDs, addControlImplementationIDs, addControlObjectiveIDs,
+        addEvidenceIDs, addInternalPolicyIDs, addProcedureIDs, addRiskIDs, addTaskIDs
+      </td>
+      <td>
+        <span class="chip chip-policy">Internal Policy</span>
+        <span class="chip chip-procedure">Procedure</span>
+        <span class="chip chip-risk">Risk</span>
+        <span class="chip chip-task">Task</span>
+        <br><br>
+        <span class="chip chip-missing">ActionPlan</span>
+        <span class="chip chip-missing">ControlImplementation</span>
+        <span class="chip chip-missing">ControlObjective</span>
+        <span class="chip chip-missing">Evidence</span>
+      </td>
+    </tr>
+
+    <!-- POLICY -->
+    <tr>
+      <td><strong>Internal Policy</strong></td>
+      <td class="disc-available">
+        addControlIDs, addControlImplementationIDs, addControlObjectiveIDs,
+        addProcedureIDs, addProgramIDs, addRiskIDs, addSubcontrolIDs, addTaskIDs
+      </td>
+      <td>
+        <span class="chip chip-control">Control</span>
+        <span class="chip chip-objective">Control Objective</span>
+        <span class="chip chip-procedure">Procedure</span>
+        <span class="chip chip-program">Program</span>
+        <span class="chip chip-risk">Risk</span>
+        <span class="chip chip-subcontrol">Subcontrol</span>
+        <span class="chip chip-task">Task</span>
+        <br><br>
+        <span class="chip chip-missing">ControlImplementation</span>
+      </td>
+    </tr>
+
+    <!-- PROCEDURE -->
+    <tr>
+      <td><strong>Procedure</strong></td>
+      <td class="disc-available">
+        addControlIDs, addInternalPolicyIDs, addProgramIDs, addRiskIDs, addSubcontrolIDs, addTaskIDs
+      </td>
+      <td>
+        <span class="chip chip-control">Control</span>
+        <span class="chip chip-policy">Internal Policy</span>
+        <span class="chip chip-program">Program</span>
+        <span class="chip chip-risk">Risk</span>
+        <span class="chip chip-subcontrol">Subcontrol</span>
+        <span class="chip chip-task">Task</span>
+        <br><br>
+        <em style="color:#7ee787; font-size:11px">All edges used</em>
+      </td>
+    </tr>
+
+    <!-- RISK -->
+    <tr>
+      <td><strong>Risk</strong></td>
+      <td class="disc-available">
+        addActionPlanIDs, addAssetIDs, addControlIDs, addEntityIDs,
+        addInternalPolicyIDs, addProcedureIDs, addProgramIDs, addScanIDs, addSubcontrolIDs, addTaskIDs
+      </td>
+      <td>
+        <span class="chip chip-asset">Asset</span>
+        <span class="chip chip-control">Control</span>
+        <span class="chip chip-entity">Entity (Vendor)</span>
+        <span class="chip chip-policy">Internal Policy</span>
+        <span class="chip chip-procedure">Procedure</span>
+        <span class="chip chip-program">Program</span>
+        <span class="chip chip-scan">Scan</span>
+        <span class="chip chip-subcontrol">Subcontrol</span>
+        <span class="chip chip-task">Task</span>
+        <br><br>
+        <span class="chip chip-missing">ActionPlan</span>
+      </td>
+    </tr>
+
+    <!-- ASSET -->
+    <tr>
+      <td><strong>Asset</strong></td>
+      <td class="disc-available">
+        addConnectedAssetIDs, addConnectedFromIDs, addControlIDs, addEntityIDs,
+        addIdentityHolderIDs, addScanIDs
+      </td>
+      <td>
+        <span class="chip chip-control">Control</span>
+        <span class="chip chip-identity">Personnel</span>
+        <span class="chip chip-scan">Scan</span>
+        <span class="chip chip-entity">Vendor</span>
+        <br><br>
+        <span class="chip chip-missing">ConnectedAsset (self-link)</span>
+      </td>
+    </tr>
+
+    <!-- ENTITY -->
+    <tr>
+      <td><strong>Entity (Vendor)</strong></td>
+      <td class="disc-available">
+        addAssetIDs, addCampaignIDs, addContactIDs, addControlIDs, addEmployerIdentityHolderIDs,
+        addIdentityHolderIDs, addScanIDs, addSubprocessorIDs
+      </td>
+      <td>
+        <span class="chip chip-asset">Asset</span>
+        <span class="chip chip-campaign">Campaign</span>
+        <span class="chip chip-identity">Personnel</span>
+        <span class="chip chip-scan">Scan</span>
+        <br><br>
+        <span class="chip chip-missing">Contact</span>
+        <span class="chip chip-missing">Control</span>
+        <span class="chip chip-missing">EmployerIdentityHolder</span>
+        <span class="chip chip-missing">Subprocessor</span>
+      </td>
+    </tr>
+
+    <!-- IDENTITY HOLDER -->
+    <tr>
+      <td><strong>Identity Holder (Personnel)</strong></td>
+      <td class="disc-available">
+        addAssetIDs, addCampaignIDs, addControlIDs, addEntityIDs, addFindingIDs, addTaskIDs
+      </td>
+      <td>
+        <span class="chip chip-asset">Asset</span>
+        <span class="chip chip-campaign">Campaign</span>
+        <span class="chip chip-task">Task</span>
+        <span class="chip chip-entity">Vendor</span>
+        <br><br>
+        <span class="chip chip-missing">Control</span>
+        <span class="chip chip-missing">Finding</span>
+      </td>
+    </tr>
+
+    <!-- PROGRAM -->
+    <tr>
+      <td><strong>Program</strong></td>
+      <td class="disc-available">
+        addActionPlanIDs, addControlIDs, addControlObjectiveIDs, addEvidenceIDs,
+        addInternalPolicyIDs, addProcedureIDs, addRiskIDs, addSubcontrolIDs, addTaskIDs
+      </td>
+      <td>
+        <em style="color:#f97583; font-size:11px">No dedicated association modal. Programs are associated FROM other entities only.</em>
+        <br><br>
+        <span class="chip chip-missing">ActionPlan</span>
+        <span class="chip chip-missing">Control</span>
+        <span class="chip chip-missing">ControlObjective</span>
+        <span class="chip chip-missing">Evidence</span>
+        <span class="chip chip-missing">InternalPolicy</span>
+        <span class="chip chip-missing">Procedure</span>
+        <span class="chip chip-missing">Risk</span>
+        <span class="chip chip-missing">Subcontrol</span>
+        <span class="chip chip-missing">Task</span>
+      </td>
+    </tr>
+
+    <!-- TASK -->
+    <tr>
+      <td><strong>Task</strong></td>
+      <td class="disc-available">
+        addActionPlanIDs, addControlIDs, addControlImplementationIDs, addControlObjectiveIDs,
+        addEvidenceIDs, addGroupIDs, addIdentityHolderIDs, addInternalPolicyIDs,
+        addProcedureIDs, addProgramIDs, addRiskIDs, addScanIDs, addSubcontrolIDs, addTaskIDs
+      </td>
+      <td>
+        <span class="chip chip-control">Control</span>
+        <span class="chip chip-objective">Control Objective</span>
+        <span class="chip chip-identity">Identity Holder</span>
+        <span class="chip chip-policy">Internal Policy</span>
+        <span class="chip chip-procedure">Procedure</span>
+        <span class="chip chip-program">Program</span>
+        <span class="chip chip-risk">Risk</span>
+        <span class="chip chip-scan">Scan</span>
+        <span class="chip chip-subcontrol">Subcontrol</span>
+        <span class="chip chip-task">Task</span>
+        <br><br>
+        <span class="chip chip-missing">ActionPlan</span>
+        <span class="chip chip-missing">ControlImplementation</span>
+        <span class="chip chip-missing">Evidence</span>
+        <span class="chip chip-missing">Group</span>
+      </td>
+    </tr>
+
+    <!-- EVIDENCE -->
+    <tr>
+      <td><strong>Evidence</strong></td>
+      <td class="disc-available">
+        addControlIDs, addControlImplementationIDs, addControlObjectiveIDs,
+        addProgramIDs, addScanIDs, addSubcontrolIDs, addTaskIDs
+      </td>
+      <td>
+        <span class="chip chip-impl">Control Implementation</span>
+        <span class="chip chip-objective">Control Objective</span>
+        <span class="chip chip-scan">Scan</span>
+        <span class="chip chip-task">Task</span>
+        <div class="note">+ dedicated Control &amp; Program selectors (separate UI, not ObjectAssociation)</div>
+        <br>
+        <span class="chip chip-missing">Subcontrol</span>
+        <div class="note" style="margin-top:4px">Note: Subcontrol is in schema but not exposed in the ObjectAssociation dropdown. However, subcontrols ARE linked via the dedicated control selector.</div>
+      </td>
+    </tr>
+
+    <!-- CAMPAIGN -->
+    <tr>
+      <td><strong>Campaign</strong></td>
+      <td class="disc-available">
+        addControlIDs, addGroupIDs, addIdentityHolderIDs, addUserIDs
+      </td>
+      <td>
+        <em style="color:#f97583; font-size:11px">No dedicated association modal. Campaigns are associated FROM other entities only.</em>
+        <br><br>
+        <span class="chip chip-missing">Control</span>
+        <span class="chip chip-missing">Group</span>
+        <span class="chip chip-missing">IdentityHolder</span>
+      </td>
+    </tr>
+
+    <!-- REMEDIATION -->
+    <tr>
+      <td><strong>Remediation</strong></td>
+      <td class="disc-available">
+        addActionPlanIDs, addAssetIDs, addControlIDs, addEntityIDs, addFindingIDs,
+        addProgramIDs, addReviewIDs, addRiskIDs, addScanIDs, addSubcontrolIDs, addTaskIDs, addVulnerabilityIDs
+      </td>
+      <td>
+        <em style="color:#f97583; font-size:11px">No dedicated association modal. Remediations are associated FROM controls only.</em>
+        <br><br>
+        <span class="chip chip-missing">ActionPlan</span>
+        <span class="chip chip-missing">Asset</span>
+        <span class="chip chip-missing">Control</span>
+        <span class="chip chip-missing">Entity</span>
+        <span class="chip chip-missing">Finding</span>
+        <span class="chip chip-missing">Program</span>
+        <span class="chip chip-missing">Review</span>
+        <span class="chip chip-missing">Risk</span>
+        <span class="chip chip-missing">Scan</span>
+        <span class="chip chip-missing">Subcontrol</span>
+        <span class="chip chip-missing">Task</span>
+        <span class="chip chip-missing">Vulnerability</span>
+      </td>
+    </tr>
+
+    <!-- REVIEW -->
+    <tr>
+      <td><strong>Review</strong></td>
+      <td class="disc-available">
+        addActionPlanIDs, addAssetIDs, addControlIDs, addEntityIDs, addFindingIDs,
+        addProgramIDs, addRemediationIDs, addRiskIDs, addSubcontrolIDs, addTaskIDs, addVulnerabilityIDs
+      </td>
+      <td>
+        <em style="color:#f97583; font-size:11px">No dedicated association modal. Reviews are associated FROM controls only.</em>
+        <br><br>
+        <span class="chip chip-missing">ActionPlan</span>
+        <span class="chip chip-missing">Asset</span>
+        <span class="chip chip-missing">Control</span>
+        <span class="chip chip-missing">Entity</span>
+        <span class="chip chip-missing">Finding</span>
+        <span class="chip chip-missing">Program</span>
+        <span class="chip chip-missing">Remediation</span>
+        <span class="chip chip-missing">Risk</span>
+        <span class="chip chip-missing">Subcontrol</span>
+        <span class="chip chip-missing">Task</span>
+        <span class="chip chip-missing">Vulnerability</span>
+      </td>
+    </tr>
+
+  </tbody>
+</table>
+
+<!-- ============================================================ -->
+<h2 class="section-title">5. Key Findings</h2>
+
+<table>
+  <thead><tr><th style="width:5%">#</th><th style="width:15%">Type</th><th>Finding</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td style="color:#7ee787">Fixed</td><td><strong>Task detail sheet</strong> previously exposed Asset, Campaign, Entity which don't exist on UpdateTaskInput. Removed those 3 types. IdentityHolder kept (it exists in schema).</td></tr>
+    <tr><td>2</td><td style="color:#7ee787">Fixed</td><td><strong>Control create form</strong> now matches control detail modal: 12 types (added Campaign, Entity, Personnel, Remediation, Review).</td></tr>
+    <tr><td>3</td><td style="color:#7ee787">Fixed</td><td><strong>Control detail page</strong> now passes all 13 sections to ObjectAssociationSwitch, matching ASSOCIATION_REMOVAL_CONFIG.control. Added entities, identityHolders, campaigns, remediations, reviews to memoizedSections.</td></tr>
+    <tr><td>4</td><td style="color:#d29922">Missing UI</td><td><strong>Program</strong> has 9 association edges in the schema but no dedicated association modal anywhere. Users can only link programs FROM other entities.</td></tr>
+    <tr><td>5</td><td style="color:#d29922">Missing UI</td><td><strong>Campaign</strong> has addControlIDs, addGroupIDs, addIdentityHolderIDs in schema but no association modal.</td></tr>
+    <tr><td>6</td><td style="color:#d29922">Missing UI</td><td><strong>Remediation</strong> has 12 association edges (including Review, Finding, Vulnerability, Risk, etc.) but no association modal at all. Only associated FROM controls.</td></tr>
+    <tr><td>7</td><td style="color:#d29922">Missing UI</td><td><strong>Review</strong> has 11 association edges (including Remediation, Finding, Vulnerability, Risk, etc.) but no association modal at all. Only associated FROM controls.</td></tr>
+    <tr><td>8</td><td style="color:#79c0ff">Inconsistency</td><td><strong>Entity (Vendor)</strong> schema has addControlIDs but the UI does not expose Control as an association type. Controls can associate to entities but not vice versa.</td></tr>
+    <tr><td>9</td><td style="color:#79c0ff">Inconsistency</td><td><strong>Identity Holder</strong> schema has addControlIDs and addFindingIDs but the UI only exposes Asset, Campaign, Task, Vendor.</td></tr>
+    <tr><td>10</td><td style="color:#6e7681">Unused edge</td><td><strong>ActionPlan</strong> edges exist on Control, Subcontrol, Risk, Program, Remediation, Review, Task but are never exposed in any UI.</td></tr>
+    <tr><td>11</td><td style="color:#6e7681">Unused edge</td><td><strong>Finding</strong> edges exist on Control, IdentityHolder, Remediation, Review but are never exposed in any UI.</td></tr>
+    <tr><td>12</td><td style="color:#6e7681">Unused edge</td><td><strong>Vulnerability</strong> edges exist on Remediation and Review but are never exposed in any UI.</td></tr>
+    <tr><td>13</td><td style="color:#6e7681">Unused edge</td><td><strong>ControlImplementation</strong> edges exist on Control, Subcontrol, InternalPolicy, Task but only exposed in Evidence create/detail sheets.</td></tr>
+  </tbody>
+</table>
+
+</body>
+</html>
