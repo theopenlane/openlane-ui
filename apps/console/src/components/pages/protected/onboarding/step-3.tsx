@@ -56,6 +56,12 @@ export default function Step3() {
           <Label>Do you want a personalized walkthrough?</Label>
           <Switch checked={watch('demo_requested') ?? false} onCheckedChange={(value) => setValue('demo_requested', value)} />
         </div>
+        <h3 className="text-lg font-semibold">Want help getting started?</h3>
+        <p className="text-sm text-text-light">Our team can walk you through your workspace and help structure your program based on your frameworks and goals.</p>
+        <div className="flex items-center justify-between">
+          <Label>Schedule a personalized walkthrough</Label>
+          <Switch checked={watch('demo_requested') ?? false} onCheckedChange={(value) => setValue('demo_requested', value)} />
+        </div>
       </div>
     </div>
   )
