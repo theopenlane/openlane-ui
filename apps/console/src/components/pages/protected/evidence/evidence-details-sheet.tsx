@@ -298,6 +298,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
     const programIDs = form.getValues('programIDs') || []
 
     const updatedAssociations = {
+      ...initialAssociations,
       ...associations,
       controlIDs,
       subcontrolIDs,
