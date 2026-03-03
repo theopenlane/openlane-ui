@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react'
 import { TableFilter } from '@/components/shared/table-filter/table-filter.tsx'
-import { LoaderCircle, SearchIcon, Upload } from 'lucide-react'
+import { Download, LoaderCircle, SearchIcon, Upload } from 'lucide-react'
 import { Input } from '@repo/ui/input'
 import { useDebounce } from '@uidotdev/usehooks'
 import { VisibilityState } from '@tanstack/react-table'
@@ -9,6 +9,7 @@ import { getEvidenceFilterableFields } from '@/components/pages/protected/eviden
 import { TableKeyEnum } from '@repo/ui/table-key'
 import Menu from '@/components/shared/menu/menu'
 import { BulkCSVCreateEvidenceDialog } from '../dialog/bulk-csv-create-evidence-dialog'
+import { ExportEvidenceDialog } from '../dialog/export-evidence-dialog'
 import { TAccessRole, TPermissionData } from '@/types/authz'
 import { useBulkDeleteEvidence } from '@/lib/graphql-hooks/evidence'
 import { useNotification } from '@/hooks/useNotification'
@@ -151,6 +152,14 @@ const EvidenceTableToolbar: React.FC<TEvidenceTableToolbarProps> = ({
                         <div className="flex items-center space-x-2 px-1">
                           <Upload size={16} strokeWidth={2} />
                           <span>Bulk Upload</span>
+                        </div>
+                      }
+                    />
+                    <ExportEvidenceDialog
+                      trigger={
+                        <div className="flex items-center space-x-2 px-1">
+                          <Download size={16} strokeWidth={2} />
+                          <span>Export</span>
                         </div>
                       }
                     />
