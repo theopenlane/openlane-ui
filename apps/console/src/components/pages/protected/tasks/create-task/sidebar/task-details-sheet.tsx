@@ -55,7 +55,7 @@ const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id
   const { form } = useFormSchema()
   const [isSheetOpen, setIsSheetOpen] = useState(false)
 
-  const { data: associationsData } = useTaskAssociations()
+  const { data: associationsData } = useTaskAssociations(id as string)
   const evidenceFormData = useMemo(() => generateEvidenceFormData(taskData, associationsData), [taskData, associationsData])
 
   const initialAssociations = useMemo(
