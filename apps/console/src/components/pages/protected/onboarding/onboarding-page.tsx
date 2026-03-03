@@ -67,6 +67,7 @@ export default function MultiStepForm() {
         companyDetails: formDataRef.current.companyDetails || {},
         userDetails: formDataRef.current.userDetails || {},
         compliance: formDataRef.current.compliance || {},
+        demoRequested: formDataRef.current.demo_requested ?? false,
       }
 
       const response = await createOnboarding({

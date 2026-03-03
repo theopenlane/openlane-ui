@@ -8949,6 +8949,7 @@ export interface CreateOnboardingInput {
   companyName: Scalars['String']['input']
   /** details given about the compliance requirements during the onboarding process, such as coming with existing policies, controls, risk assessments, etc */
   compliance?: InputMaybe<Scalars['Map']['input']>
+  demoRequested?: InputMaybe<Scalars['Boolean']['input']>
   /** domains associated with the company */
   domains?: InputMaybe<Array<Scalars['String']['input']>>
   organizationID?: InputMaybe<Scalars['ID']['input']>
@@ -32010,6 +32011,7 @@ export interface Onboarding extends Node {
   companyName: Scalars['String']['output']
   /** details given about the compliance requirements during the onboarding process, such as coming with existing policies, controls, risk assessments, etc */
   compliance?: Maybe<Scalars['Map']['output']>
+  demoRequested?: Maybe<Scalars['Boolean']['output']>
   /** domains associated with the company */
   domains?: Maybe<Array<Scalars['String']['output']>>
   id: Scalars['ID']['output']
@@ -32046,6 +32048,11 @@ export interface OnboardingWhereInput {
   companyNameLTE?: InputMaybe<Scalars['String']['input']>
   companyNameNEQ?: InputMaybe<Scalars['String']['input']>
   companyNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** demo_requested field predicates */
+  demoRequested?: InputMaybe<Scalars['Boolean']['input']>
+  demoRequestedIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  demoRequestedNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  demoRequestedNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** Filter for domainsHas to contain a specific value */
   domainsHas?: InputMaybe<Scalars['String']['input']>
   /** organization edge predicates */

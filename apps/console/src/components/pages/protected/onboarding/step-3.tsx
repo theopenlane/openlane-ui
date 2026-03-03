@@ -12,6 +12,7 @@ export const step3Schema = z.object({
     completed_gap_analysis: z.boolean().default(false),
     existing_controls: z.boolean().default(false),
   }),
+  demo_requested: z.boolean().default(false),
 })
 
 type Step3Values = zInfer<typeof step3Schema>
@@ -24,6 +25,7 @@ export default function Step3() {
     setValue('compliance.completed_risk_assessment', watch('compliance.completed_risk_assessment') ?? false)
     setValue('compliance.completed_gap_analysis', watch('compliance.completed_gap_analysis') ?? false)
     setValue('compliance.existing_controls', watch('compliance.existing_controls') ?? false)
+    setValue('demo_requested', watch('demo_requested') ?? false)
   }, [setValue, watch])
 
   return (
@@ -45,6 +47,15 @@ export default function Step3() {
       <div className="flex items-center justify-between">
         <Label>Do you have existing policies and procedures you would like to import?</Label>
         <Switch checked={watch('compliance.existing_policies_procedures') ?? false} onCheckedChange={(value) => setValue('compliance.existing_policies_procedures', value)} />
+      </div>
+      <hr className="border-border" />
+      <div className="space-y-2">
+        <h3 className="text-lg font-semibold">Want help getting started?</h3>
+        <p className="text-sm text-text-light">Our team can walk you through your workspace and help structure your program based on your frameworks and goals.</p>
+        <div className="flex items-center justify-between">
+          <Label>Schedule a personalized walkthrough</Label>
+          <Switch checked={watch('demo_requested') ?? false} onCheckedChange={(value) => setValue('demo_requested', value)} />
+        </div>
       </div>
     </div>
   )
