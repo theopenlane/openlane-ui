@@ -1,9 +1,1 @@
-export const EVIDENCE_FILES_SORT_FIELDS = [
-  { key: 'size', label: 'Size' },
-  {
-    key: 'name',
-    label: 'File Name',
-  },
-  { key: 'created_at', label: 'Created At' },
-  { key: 'updated_at', label: 'Updated At' },
-]
+export { FILE_SORT_FIELDS as EVIDENCE_FILES_SORT_FIELDS } from '@/components/shared/file-table/table-config'

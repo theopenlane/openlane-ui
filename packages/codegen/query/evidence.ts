@@ -25,6 +25,7 @@ export const GET_EVIDENCE_FILES = gql`
         node {
           id
           providedFileName
+          providedFileSize
           presignedURL
           providedFileExtension
           categoryType

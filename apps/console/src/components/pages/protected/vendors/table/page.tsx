@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useCallback } from 'react'
+import React, { useCallback, useRef } from 'react'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { Value } from 'platejs'
 import { useSearchParams } from 'next/navigation'
@@ -10,7 +10,7 @@ import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
 
 import { EntityEntityStatus, EntityFrequency, EntityQuery, UpdateEntityInput, CreateEntityInput, GetEntityAssociationsQuery } from '@repo/codegen/src/schema'
 import { normalizeEntityData, buildResponsibilityPayload } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
-import { useUpdateEntity, useCreateEntity, useBulkDeleteEntity, useCreateBulkCSVEntity, useBulkEditEntity, EntitiesNodeNonNull, useGetEntityAssociations } from '@/lib/graphql-hooks/entity'
+import { useUpdateEntity, useBulkDeleteEntity, useCreateBulkCSVEntity, useBulkEditEntity, EntitiesNodeNonNull, useGetEntityAssociations, useCreateEntityWithFiles } from '@/lib/graphql-hooks/entity'
 import { useEntity } from '@/lib/graphql-hooks/entity'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
 import { breadcrumbs, getFieldsToRender, getFilterFields, visibilityFields } from './table-config'
@@ -47,6 +47,8 @@ const VendorPage: React.FC = () => {
   }, [])
   const initialAssociationsRef = useInitialAssociations(associationsData, extractAssociations, id)
 
+  const stagedFilesRef = useRef<File[]>([])
+  const existingFileIdsRef = useRef<string[]>([])
   const plateEditorHelper = usePlateEditor()
 
   function getName(data: EntitiesNodeNonNull) {
@@ -54,7 +56,7 @@ const VendorPage: React.FC = () => {
   }
 
   const baseUpdateMutation = useUpdateEntity()
-  const baseCreateMutation = useCreateEntity()
+  const baseCreateMutation = useCreateEntityWithFiles()
   const baseBulkDeleteMutation = useBulkDeleteEntity()
   const baseBulkCreateMutation = useCreateBulkCSVEntity()
   const baseBulkEditMutation = useBulkEditEntity()
@@ -67,7 +69,11 @@ const VendorPage: React.FC = () => {
   const createMutation = {
     isPending: baseCreateMutation.isPending,
     mutateAsync: async (input: CreateEntityInput) => {
-      const result = await baseCreateMutation.mutateAsync({ input, entityTypeName: 'vendor' })
+      const entityFiles = stagedFilesRef.current.length > 0 ? stagedFilesRef.current : undefined
+      const fileIDs = existingFileIdsRef.current.length > 0 ? existingFileIdsRef.current : undefined
+      const result = await baseCreateMutation.mutateAsync({ input: { ...input, fileIDs }, entityTypeName: 'vendor', entityFiles })
+      stagedFilesRef.current = []
+      existingFileIdsRef.current = []
       return result
     },
   }
@@ -161,7 +167,17 @@ const VendorPage: React.FC = () => {
     },
     normalizeData,
     getName,
-    renderFields: (props: EntityFieldProps) => getFieldsToRender(props, enumOpts),
+    renderFields: (props: EntityFieldProps) =>
+      getFieldsToRender(
+        props,
+        enumOpts,
+        (files: File[]) => {
+          stagedFilesRef.current = files
+        },
+        (fileIds: string[]) => {
+          existingFileIdsRef.current = fileIds
+        },
+      ),
   }
 
   const tableConfig: EntityTablePageConfig = {

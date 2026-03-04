@@ -18,6 +18,8 @@ import {
   DeleteBulkIdentityHolderMutation,
   DeleteBulkIdentityHolderMutationVariables,
   GetIdentityHolderAssociationsQuery,
+  FileOrder,
+  InputMaybe,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
 import { TPagination } from '@repo/ui/pagination-types'
@@ -31,6 +33,9 @@ import {
   BULK_EDIT_IDENTITY_HOLDER,
   BULK_DELETE_IDENTITY_HOLDER,
   GET_IDENTITY_HOLDER_ASSOCIATIONS,
+  GET_IDENTITY_HOLDER_FILES_PAGINATED,
+  UPDATE_IDENTITY_HOLDER_WITH_FILES,
+  CREATE_IDENTITY_HOLDER_WITH_FILES,
 } from '@repo/codegen/query/identity-holder'
 
 type GetAllIdentityHoldersArgs = {
@@ -143,5 +148,89 @@ export const useGetIdentityHolderAssociations = (identityHolderId?: string) => {
     queryKey: ['identityHolders', identityHolderId, 'associations'],
     queryFn: async () => client.request<GetIdentityHolderAssociationsQuery>(GET_IDENTITY_HOLDER_ASSOCIATIONS, { identityHolderId: identityHolderId as string }),
     enabled: !!identityHolderId,
+  })
+}
+
+// Identity holder files types - mirrors the generated types from GET_IDENTITY_HOLDER_FILES_PAGINATED query
+type GetIdentityHolderFilesPaginatedQuery = {
+  __typename?: 'Query'
+  identityHolder: {
+    __typename?: 'IdentityHolder'
+    files: {
+      __typename?: 'FileConnection'
+      totalCount: number
+      pageInfo: { __typename?: 'PageInfo'; endCursor?: string | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: string | null }
+      edges?: Array<{
+        __typename?: 'FileEdge'
+        node?: { __typename?: 'File'; providedFileName: string; providedFileSize?: number | null; providedFileExtension: string; id: string; uri?: string | null; presignedURL?: string | null } | null
+      } | null> | null
+    }
+  }
+}
+
+type UpdateIdentityHolderWithFilesMutationVariables = {
+  updateIdentityHolderId: string
+  input: UpdateIdentityHolderMutationVariables['input']
+  identityHolderFiles?: File[] | null
+}
+
+type IdentityHolderFilesPaginationArgs = {
+  identityHolderId?: string | null
+  orderBy?: InputMaybe<Array<FileOrder> | FileOrder>
+  pagination?: TPagination
+}
+
+export const useGetIdentityHolderFilesPaginated = ({ identityHolderId, orderBy, pagination }: IdentityHolderFilesPaginationArgs) => {
+  const { client } = useGraphQLClient()
+
+  const queryResult = useQuery<GetIdentityHolderFilesPaginatedQuery, unknown>({
+    queryKey: ['identityHolderFiles', identityHolderId, orderBy, pagination?.page, pagination?.pageSize],
+    queryFn: async () =>
+      client.request(GET_IDENTITY_HOLDER_FILES_PAGINATED, {
+        identityHolderId,
+        orderBy,
+        ...pagination?.query,
+      }),
+    enabled: !!identityHolderId,
+  })
+
+  const identityHolder = queryResult.data?.identityHolder
+  const files = identityHolder?.files?.edges?.map((edge) => edge?.node) ?? []
+  const pageInfo = identityHolder?.files?.pageInfo
+  const totalCount = identityHolder?.files?.totalCount
+
+  return {
+    ...queryResult,
+    files,
+    pageInfo,
+    totalCount,
+  }
+}
+
+export const useUploadIdentityHolderFiles = () => {
+  const { queryClient } = useGraphQLClient()
+
+  return useMutation<UpdateIdentityHolderMutation, unknown, UpdateIdentityHolderWithFilesMutationVariables>({
+    mutationFn: async (variables) => fetchGraphQLWithUpload({ query: UPDATE_IDENTITY_HOLDER_WITH_FILES, variables }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['identityHolderFiles'] })
+      queryClient.invalidateQueries({ queryKey: ['identityHolders'] })
+    },
+  })
+}
+
+type CreateIdentityHolderWithFilesMutationVariables = {
+  input: CreateIdentityHolderMutationVariables['input']
+  identityHolderFiles?: File[] | null
+}
+
+export const useCreateIdentityHolderWithFiles = () => {
+  const { queryClient } = useGraphQLClient()
+
+  return useMutation<CreateIdentityHolderMutation, unknown, CreateIdentityHolderWithFilesMutationVariables>({
+    mutationFn: async (variables) => fetchGraphQLWithUpload({ query: CREATE_IDENTITY_HOLDER_WITH_FILES, variables }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['identityHolders'] })
+    },
   })
 }
