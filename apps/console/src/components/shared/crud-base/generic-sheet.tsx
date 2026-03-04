@@ -164,6 +164,7 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
   const onSubmit = async (formData: TFormData) => {
     try {
       const payload = await buildPayload(formData)
+      console.log(payload)
 
       if (isCreate) {
         await createMutation.mutateAsync(payload as TCreateInput)

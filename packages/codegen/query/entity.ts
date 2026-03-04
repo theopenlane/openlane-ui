@@ -207,6 +207,52 @@ export const BULK_EDIT_ENTITY = gql`
   }
 `
 
+export const GET_ENTITY_FILES_PAGINATED = gql`
+  query GetEntityFilesPaginated($entityId: ID!, $after: Cursor, $first: Int, $before: Cursor, $last: Int, $orderBy: [FileOrder!]) {
+    entity(id: $entityId) {
+      files(after: $after, first: $first, before: $before, last: $last, orderBy: $orderBy) {
+        pageInfo {
+          endCursor
+          hasNextPage
+          hasPreviousPage
+          startCursor
+        }
+        totalCount
+        edges {
+          node {
+            providedFileName
+            providedFileSize
+            providedFileExtension
+            id
+            uri
+            presignedURL
+          }
+        }
+      }
+    }
+  }
+`
+
+export const UPDATE_ENTITY_WITH_FILES = gql`
+  mutation UpdateEntityWithFiles($updateEntityId: ID!, $input: UpdateEntityInput!, $entityFiles: [Upload!]) {
+    updateEntity(id: $updateEntityId, input: $input, entityFiles: $entityFiles) {
+      entity {
+        id
+      }
+    }
+  }
+`
+
+export const CREATE_ENTITY_WITH_FILES = gql`
+  mutation CreateEntityWithFiles($input: CreateEntityInput!, $entityTypeName: String, $entityFiles: [Upload!]) {
+    createEntity(input: $input, entityTypeName: $entityTypeName, entityFiles: $entityFiles) {
+      entity {
+        id
+      }
+    }
+  }
+`
+
 export const GET_ENTITY_ASSOCIATIONS = gql`
   query GetEntityAssociations($entityId: ID!) {
     entity(id: $entityId) {

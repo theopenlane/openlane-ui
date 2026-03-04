@@ -18,6 +18,11 @@ import {
   DeleteBulkEntityMutation,
   DeleteBulkEntityMutationVariables,
   GetEntityAssociationsQuery,
+  GetEntityFilesPaginatedQuery,
+  UpdateEntityWithFilesMutationVariables,
+  CreateEntityWithFilesMutationVariables,
+  FileOrder,
+  InputMaybe,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
 import { TPagination } from '@repo/ui/pagination-types'
@@ -31,6 +36,9 @@ import {
   BULK_EDIT_ENTITY,
   BULK_DELETE_ENTITY,
   GET_ENTITY_ASSOCIATIONS,
+  GET_ENTITY_FILES_PAGINATED,
+  UPDATE_ENTITY_WITH_FILES,
+  CREATE_ENTITY_WITH_FILES,
 } from '@repo/codegen/query/entity'
 
 type GetAllEntitiesArgs = {
@@ -143,5 +151,61 @@ export const useGetEntityAssociations = (entityId?: string) => {
     queryKey: ['entities', entityId, 'associations'],
     queryFn: async () => client.request<GetEntityAssociationsQuery>(GET_ENTITY_ASSOCIATIONS, { entityId: entityId as string }),
     enabled: !!entityId,
+  })
+}
+
+type EntityFilesPaginationArgs = {
+  entityId?: string | null
+  orderBy?: InputMaybe<Array<FileOrder> | FileOrder>
+  pagination?: TPagination
+}
+
+export const useGetEntityFilesPaginated = ({ entityId, orderBy, pagination }: EntityFilesPaginationArgs) => {
+  const { client } = useGraphQLClient()
+
+  const queryResult = useQuery<GetEntityFilesPaginatedQuery, unknown>({
+    queryKey: ['entityFiles', entityId, orderBy, pagination?.page, pagination?.pageSize],
+    queryFn: async () =>
+      client.request(GET_ENTITY_FILES_PAGINATED, {
+        entityId,
+        orderBy,
+        ...pagination?.query,
+      }),
+    enabled: !!entityId,
+  })
+
+  const entity = queryResult.data?.entity
+  const files = entity?.files?.edges?.map((edge) => edge?.node) ?? []
+  const pageInfo = entity?.files?.pageInfo
+  const totalCount = entity?.files?.totalCount
+
+  return {
+    ...queryResult,
+    files,
+    pageInfo,
+    totalCount,
+  }
+}
+
+export const useUploadEntityFiles = () => {
+  const { queryClient } = useGraphQLClient()
+
+  return useMutation<UpdateEntityMutation, unknown, UpdateEntityWithFilesMutationVariables>({
+    mutationFn: async (variables) => fetchGraphQLWithUpload({ query: UPDATE_ENTITY_WITH_FILES, variables }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['entityFiles'] })
+      queryClient.invalidateQueries({ queryKey: ['entities'] })
+    },
+  })
+}
+
+export const useCreateEntityWithFiles = () => {
+  const { queryClient } = useGraphQLClient()
+
+  return useMutation<CreateEntityMutation, unknown, CreateEntityWithFilesMutationVariables>({
+    mutationFn: async (variables) => fetchGraphQLWithUpload({ query: CREATE_ENTITY_WITH_FILES, variables }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['entities'] })
+    },
   })
 }

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useCallback } from 'react'
+import React, { useCallback, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
@@ -17,13 +17,13 @@ import {
 import { normalizeEntityData, buildResponsibilityPayload } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 import {
   useUpdateIdentityHolder,
-  useCreateIdentityHolder,
   useBulkDeleteIdentityHolder,
   useCreateBulkCSVIdentityHolder,
   useBulkEditIdentityHolder,
   useIdentityHolder,
   useGetIdentityHolderAssociations,
   IdentityHoldersNodeNonNull,
+  useCreateIdentityHolderWithFiles,
 } from '@/lib/graphql-hooks/identity-holder'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
 import { breadcrumbs, getFieldsToRender, getFilterFields, visibilityFields } from './table-config'
@@ -58,13 +58,15 @@ const PersonnelPage: React.FC = () => {
     }
   }, [])
   const initialAssociationsRef = useInitialAssociations(associationsData, extractAssociations, id)
+  const stagedFilesRef = useRef<File[]>([])
+  const existingFileIdsRef = useRef<string[]>([])
 
   function getName(data: IdentityHoldersNodeNonNull) {
     return data?.fullName
   }
 
   const baseUpdateMutation = useUpdateIdentityHolder()
-  const baseCreateMutation = useCreateIdentityHolder()
+  const baseCreateMutation = useCreateIdentityHolderWithFiles()
   const baseBulkDeleteMutation = useBulkDeleteIdentityHolder()
   const baseBulkCreateMutation = useCreateBulkCSVIdentityHolder()
   const baseBulkEditMutation = useBulkEditIdentityHolder()
@@ -77,7 +79,11 @@ const PersonnelPage: React.FC = () => {
   const createMutation = {
     isPending: baseCreateMutation.isPending,
     mutateAsync: async (input: CreateIdentityHolderInput) => {
-      const result = await baseCreateMutation.mutateAsync({ input })
+      const identityHolderFiles = stagedFilesRef.current.length > 0 ? stagedFilesRef.current : undefined
+      const fileIDs = existingFileIdsRef.current.length > 0 ? existingFileIdsRef.current : undefined
+      const result = await baseCreateMutation.mutateAsync({ input: { ...input, fileIDs }, identityHolderFiles })
+      stagedFilesRef.current = []
+      existingFileIdsRef.current = []
       return result
     },
   }
@@ -148,7 +154,17 @@ const PersonnelPage: React.FC = () => {
     },
     normalizeData,
     getName,
-    renderFields: (props: PersonnelFieldProps) => getFieldsToRender(props, enumOpts),
+    renderFields: (props: PersonnelFieldProps) =>
+      getFieldsToRender(
+        props,
+        enumOpts,
+        (files: File[]) => {
+          stagedFilesRef.current = files
+        },
+        (fileIds: string[]) => {
+          existingFileIdsRef.current = fileIds
+        },
+      ),
   }
 
   const tableConfig: PersonnelTablePageConfig = {

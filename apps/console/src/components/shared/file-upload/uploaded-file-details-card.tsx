@@ -22,7 +22,7 @@ const UploadedFileDetailsCard: React.FC<TUploadedFileDetailsCard> = ({ fileName,
           <div title={fileName} className="font-medium text-sm leading-5 truncate max-w-full">
             {fileName}
           </div>
-          <div className="text-xs font-normal leading-4 text-muted-foreground truncate">Size: {Math.round(fileSize! / 1024)} KB</div>
+          {fileSize != null && <div className="text-xs font-normal leading-4 text-muted-foreground truncate">Size: {Math.round(fileSize / 1024)} KB</div>}
         </div>
       </div>
     </Card>

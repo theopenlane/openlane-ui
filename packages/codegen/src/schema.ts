@@ -64664,6 +64664,47 @@ export type UpdateBulkEntityMutationVariables = Exact<{
 
 export type UpdateBulkEntityMutation = { __typename?: 'Mutation'; updateBulkEntity: { __typename?: 'EntityBulkUpdatePayload'; updatedIDs?: Array<string> | null } }
 
+export type GetEntityFilesPaginatedQueryVariables = Exact<{
+  entityId: Scalars['ID']['input']
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<FileOrder> | FileOrder>
+}>
+
+export type GetEntityFilesPaginatedQuery = {
+  __typename?: 'Query'
+  entity: {
+    __typename?: 'Entity'
+    files: {
+      __typename?: 'FileConnection'
+      totalCount: number
+      pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
+      edges?: Array<{
+        __typename?: 'FileEdge'
+        node?: { __typename?: 'File'; providedFileName: string; providedFileSize?: number | null; providedFileExtension: string; id: string; uri?: string | null; presignedURL?: string | null } | null
+      } | null> | null
+    }
+  }
+}
+
+export type UpdateEntityWithFilesMutationVariables = Exact<{
+  updateEntityId: Scalars['ID']['input']
+  input: UpdateEntityInput
+  entityFiles?: InputMaybe<Array<Scalars['Upload']['input']> | Scalars['Upload']['input']>
+}>
+
+export type UpdateEntityWithFilesMutation = { __typename?: 'Mutation'; updateEntity: { __typename?: 'EntityUpdatePayload'; entity: { __typename?: 'Entity'; id: string } } }
+
+export type CreateEntityWithFilesMutationVariables = Exact<{
+  input: CreateEntityInput
+  entityTypeName?: InputMaybe<Scalars['String']['input']>
+  entityFiles?: InputMaybe<Array<Scalars['Upload']['input']> | Scalars['Upload']['input']>
+}>
+
+export type CreateEntityWithFilesMutation = { __typename?: 'Mutation'; createEntity: { __typename?: 'EntityCreatePayload'; entity: { __typename?: 'Entity'; id: string } } }
+
 export type GetEntityAssociationsQueryVariables = Exact<{
   entityId: Scalars['ID']['input']
 }>
@@ -64714,7 +64755,16 @@ export type GetEvidenceFilesQuery = {
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
     edges?: Array<{
       __typename?: 'FileEdge'
-      node?: { __typename?: 'File'; id: string; providedFileName: string; presignedURL?: string | null; providedFileExtension: string; categoryType?: string | null; createdAt?: any | null } | null
+      node?: {
+        __typename?: 'File'
+        id: string
+        providedFileName: string
+        providedFileSize?: number | null
+        presignedURL?: string | null
+        providedFileExtension: string
+        categoryType?: string | null
+        createdAt?: any | null
+      } | null
     } | null> | null
   }
 }
@@ -65143,6 +65193,36 @@ export type GetExportsQuery = {
         exportType: ExportExportType
         errorMessage?: string | null
         files: { __typename?: 'FileConnection'; edges?: Array<{ __typename?: 'FileEdge'; node?: { __typename?: 'File'; presignedURL?: string | null } | null } | null> | null }
+      } | null
+    } | null> | null
+  }
+}
+
+export type GetFilesQueryVariables = Exact<{
+  where?: InputMaybe<FileWhereInput>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type GetFilesQuery = {
+  __typename?: 'Query'
+  files: {
+    __typename?: 'FileConnection'
+    totalCount: number
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
+    edges?: Array<{
+      __typename?: 'FileEdge'
+      node?: {
+        __typename?: 'File'
+        id: string
+        providedFileName: string
+        providedFileSize?: number | null
+        presignedURL?: string | null
+        providedFileExtension: string
+        categoryType?: string | null
+        createdAt?: any | null
       } | null
     } | null> | null
   }
@@ -65848,6 +65928,52 @@ export type UpdateBulkIdentityHolderMutationVariables = Exact<{
 }>
 
 export type UpdateBulkIdentityHolderMutation = { __typename?: 'Mutation'; updateBulkIdentityHolder: { __typename?: 'IdentityHolderBulkUpdatePayload'; updatedIDs?: Array<string> | null } }
+
+export type GetIdentityHolderFilesPaginatedQueryVariables = Exact<{
+  identityHolderId: Scalars['ID']['input']
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<FileOrder> | FileOrder>
+}>
+
+export type GetIdentityHolderFilesPaginatedQuery = {
+  __typename?: 'Query'
+  identityHolder: {
+    __typename?: 'IdentityHolder'
+    files: {
+      __typename?: 'FileConnection'
+      totalCount: number
+      pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
+      edges?: Array<{
+        __typename?: 'FileEdge'
+        node?: { __typename?: 'File'; providedFileName: string; providedFileSize?: number | null; providedFileExtension: string; id: string; uri?: string | null; presignedURL?: string | null } | null
+      } | null> | null
+    }
+  }
+}
+
+export type UpdateIdentityHolderWithFilesMutationVariables = Exact<{
+  updateIdentityHolderId: Scalars['ID']['input']
+  input: UpdateIdentityHolderInput
+  identityHolderFiles?: InputMaybe<Array<Scalars['Upload']['input']> | Scalars['Upload']['input']>
+}>
+
+export type UpdateIdentityHolderWithFilesMutation = {
+  __typename?: 'Mutation'
+  updateIdentityHolder: { __typename?: 'IdentityHolderUpdatePayload'; identityHolder: { __typename?: 'IdentityHolder'; id: string } }
+}
+
+export type CreateIdentityHolderWithFilesMutationVariables = Exact<{
+  input: CreateIdentityHolderInput
+  identityHolderFiles?: InputMaybe<Array<Scalars['Upload']['input']> | Scalars['Upload']['input']>
+}>
+
+export type CreateIdentityHolderWithFilesMutation = {
+  __typename?: 'Mutation'
+  createIdentityHolder: { __typename?: 'IdentityHolderCreatePayload'; identityHolder: { __typename?: 'IdentityHolder'; id: string } }
+}
 
 export type GetIdentityHolderAssociationsQueryVariables = Exact<{
   identityHolderId: Scalars['ID']['input']

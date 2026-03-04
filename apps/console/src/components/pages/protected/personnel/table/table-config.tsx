@@ -8,6 +8,7 @@ import Properties from '../create/form/fields/properties'
 import { PersonnelFieldProps, EnumOptions } from './types'
 import { enumToSortFields } from '@/components/shared/crud-base/utils'
 import { IdentityHolderAssociationSection } from '../create/form/fields/association-section'
+import { IdentityHolderDocumentsSection } from '../create/form/fields/documents-section'
 
 export const formId = 'edit' + ObjectNames.IDENTITY_HOLDER
 
@@ -99,7 +100,7 @@ export const visibilityFields = {
   updatedBy: false,
 }
 
-export const getFieldsToRender = (props: PersonnelFieldProps, enumOptions: EnumOptions) => {
+export const getFieldsToRender = (props: PersonnelFieldProps, enumOptions: EnumOptions, onStagedFilesChange?: (files: File[]) => void, onExistingFileIdsChange?: (fileIds: string[]) => void) => {
   return (
     <div className="mr-6">
       <div className="flex flex-row items-center mb-6">
@@ -133,6 +134,7 @@ export const getFieldsToRender = (props: PersonnelFieldProps, enumOptions: EnumO
         handleUpdateField={props.handleUpdateField}
         enumOptions={enumOptions}
       />
+      <IdentityHolderDocumentsSection identityHolderId={props.data?.id} isEditAllowed={props.isEditAllowed} isCreate={props.isCreate} onStagedFilesChange={onStagedFilesChange} onExistingFileIdsChange={onExistingFileIdsChange} />
       <IdentityHolderAssociationSection data={props.data} isEditing={props.isEditing} isCreate={props.isCreate} isEditAllowed={props.isEditAllowed} />
     </div>
   )

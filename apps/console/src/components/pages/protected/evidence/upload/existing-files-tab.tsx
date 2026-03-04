@@ -38,6 +38,7 @@ const ExistingFilesTab: React.FC<TProps> = (props: TProps) => {
         data?.files?.edges?.map((edge) => ({
           id: edge!.node!.id,
           providedFileName: edge!.node!.providedFileName,
+          providedFileSize: edge!.node!.providedFileSize,
           presignedURL: edge!.node!.presignedURL,
           providedFileExtension: edge!.node!.providedFileExtension,
           categoryType: edge!.node!.categoryType,
@@ -59,6 +60,7 @@ const ExistingFilesTab: React.FC<TProps> = (props: TProps) => {
 
     const newFile: TUploadedFile = {
       name: data.providedFileName,
+      size: data.providedFileSize ?? undefined,
       type: 'existingFile',
       id: data.id,
       category: data.categoryType,

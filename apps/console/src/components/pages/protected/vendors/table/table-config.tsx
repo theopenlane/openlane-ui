@@ -9,6 +9,7 @@ import Properties from '../create/form/fields/properties'
 import { EntityFieldProps, EnumOptions } from './types'
 import { enumToSortFields } from '@/components/shared/crud-base/utils'
 import { EntityAssociationSection } from '../create/form/fields/association-section'
+import { EntityDocumentsSection } from '../create/form/fields/documents-section'
 
 export const formId = 'edit' + ObjectNames.ENTITY
 
@@ -152,7 +153,7 @@ export const visibilityFields = {
   createdAt: false,
 }
 
-export const getFieldsToRender = (props: EntityFieldProps, enumOptions: EnumOptions) => {
+export const getFieldsToRender = (props: EntityFieldProps, enumOptions: EnumOptions, onStagedFilesChange?: (files: File[]) => void, onExistingFileIdsChange?: (fileIds: string[]) => void) => {
   return (
     <div className="mr-6">
       <div className="flex flex-row items-center mb-6">
@@ -192,6 +193,13 @@ export const getFieldsToRender = (props: EntityFieldProps, enumOptions: EnumOpti
         setInternalEditing={props.setInternalEditing}
         handleUpdateField={props.handleUpdateField}
         enumOptions={enumOptions}
+      />
+      <EntityDocumentsSection
+        entityId={props.data?.id}
+        isEditAllowed={props.isEditAllowed}
+        isCreate={props.isCreate}
+        onStagedFilesChange={onStagedFilesChange}
+        onExistingFileIdsChange={onExistingFileIdsChange}
       />
       <EntityAssociationSection data={props.data} isEditing={props.isEditing} isCreate={props.isCreate} isEditAllowed={props.isEditAllowed} />
     </div>

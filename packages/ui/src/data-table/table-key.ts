@@ -42,6 +42,7 @@ export enum AdditionalTableKeyEnum {
   CONTROLS_MAPPED_CATEGORIES = 'controls-mapped-categories',
   EVIDENCE_FILES = 'evidence-files',
   EVIDENCE_EXISTING_FILES = 'evidence-existing-files',
+  EXISTING_FILES = 'existing-files',
   POLICY_PROCEDURE_MANAGE_PERMISSION = 'policy-procedure-manage-permission',
   POLICY_PROCEDURE_ASSIGN_PERMISSION = 'policy-procedure-assign-permission',
   POLICY_WITHOUT_PROCEDURE = 'policy-without-procedure',
@@ -67,6 +68,8 @@ export enum AdditionalTableKeyEnum {
   CONTROL_DOC_RISKS = 'control-doc-risks',
   CONTROL_ACTIVITY_TASKS = 'control-activity-tasks',
   QUESTIONNAIRE_DELIVERY = 'questionnaire-delivery',
+  ENTITY_FILES = 'entity-files',
+  IDENTITY_HOLDER_FILES = 'identity-holder-files',
   VENDOR = 'vendor',
 }
 
