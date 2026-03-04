@@ -1,20 +1,20 @@
-import { GenericTablePageConfig, EnumOptionsGeneric } from '@/components/shared/crud-base/page'
-import { GenericDetailsSheetConfig, RenderFieldsProps } from '@/components/shared/crud-base/generic-sheet'
+import { type GenericTablePageConfig, type EnumOptionsGeneric } from '@/components/shared/crud-base/page'
+import { type GenericDetailsSheetConfig, type RenderFieldsProps } from '@/components/shared/crud-base/generic-sheet'
 
 import {
   VulnerabilityOrderField,
-  VulnerabilityWhereInput,
-  CreateVulnerabilityInput,
-  CreateVulnerabilityMutation,
-  UpdateVulnerabilityInput,
-  UpdateVulnerabilityMutation,
+  type VulnerabilityWhereInput,
+  type CreateVulnerabilityInput,
+  type CreateVulnerabilityMutation,
+  type UpdateVulnerabilityInput,
+  type UpdateVulnerabilityMutation,
   ExportExportType,
   OrderDirection,
 } from '@repo/codegen/src/schema'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { ObjectTypes, ObjectNames } from '@repo/codegen/src/type-names'
-import { VulnerabilitiesNodeNonNull } from '@/lib/graphql-hooks/vulnerability'
-import { VulnerabilityFormData } from '../hooks/use-form-schema'
+import { type VulnerabilitiesNodeNonNull } from '@/lib/graphql-hooks/vulnerability'
+import { type VulnerabilityFormData } from '../hooks/use-form-schema'
 
 type TFormData = VulnerabilityFormData
 type TData = VulnerabilitiesNodeNonNull

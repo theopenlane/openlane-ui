@@ -5,11 +5,11 @@ import React, { cloneElement, useCallback, useState } from 'react'
 import { Button } from '@repo/ui/button'
 import { useNotification } from '@/hooks/useNotification'
 import { useCreateInternalPolicy, useCreateUploadInternalPolicy } from '@/lib/graphql-hooks/internal-policy'
-import { TUploadedFile } from '../../../evidence/upload/types/TUploadedFile'
+import { type TUploadedFile } from '../../../evidence/upload/types/TUploadedFile'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useRouter } from 'next/navigation'
 import { PolicyProcedureTabEnum } from '@/components/shared/enum-mapper/policy-procedure-tab-enum'
-import { CreateInternalPolicyInput } from '@repo/codegen/src/schema'
+import { type CreateInternalPolicyInput } from '@repo/codegen/src/schema'
 import { Import, Trash2 } from 'lucide-react'
 import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import UploadTab from '../../../evidence/upload/upload-tab'
@@ -122,7 +122,7 @@ const CreatePolicyUploadDialog: React.FC<TCreatePolicyUploadDialogProps> = ({ tr
     } else {
       try {
         for (const uploadedFile of uploadedFiles) {
-          await createUploadPolicy({ internalPolicyFile: uploadedFile.file! })
+          await createUploadPolicy({ internalPolicyFile: uploadedFile.file ?? undefined })
         }
         successNotification({
           title: 'Policy Created',
@@ -172,10 +172,13 @@ const CreatePolicyUploadDialog: React.FC<TCreatePolicyUploadDialogProps> = ({ tr
     >
       {trigger ? (
         <DialogTrigger asChild>
-          {cloneElement(trigger, {
-            onClick: () => setIsOpen(true),
-            disabled: isSubmitting,
-          })}
+          {
+            // eslint-disable-next-line @eslint-react/no-clone-element
+            cloneElement(trigger, {
+              onClick: () => setIsOpen(true),
+              disabled: isSubmitting,
+            })
+          }
         </DialogTrigger>
       ) : (
         <DialogTrigger asChild>

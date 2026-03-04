@@ -3,12 +3,12 @@
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import SectionWarning from '../section-warning'
 import { Controller, useFormContext } from 'react-hook-form'
-import { BrandFormValues } from '../brand-schema'
-import { TrustCenterSetting } from '@/lib/graphql-hooks/trust-center'
+import { type BrandFormValues } from '../brand-schema'
+import { type TrustCenterSetting } from '@/lib/graphql-hooks/trust-center'
 import { RenderBrandField } from '../../shared/render-field'
 import PlateEditor from '@/components/shared/plate/plate-editor'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import { Value } from 'platejs'
+import { type Value } from 'platejs'
 
 interface BrandingTextSectionProps {
   isReadOnly: boolean

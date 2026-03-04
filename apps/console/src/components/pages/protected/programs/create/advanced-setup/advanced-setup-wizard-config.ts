@@ -1,6 +1,6 @@
 import { z } from 'zod'
-import { UseFormReturn } from 'react-hook-form'
-import { TErrorProps } from '@/hooks/useNotification'
+import { type UseFormReturn } from 'react-hook-form'
+import { type TErrorProps } from '@/hooks/useNotification'
 
 export const categoriesStepSchema = z.object({
   categories: z.array(z.string()),
@@ -139,7 +139,7 @@ export const fullSchema = categoriesStepSchema.merge(step1Schema).merge(step3Sch
 export type WizardValues = z.infer<typeof fullSchema>
 
 export async function validateStepAndNotify(methods: UseFormReturn<WizardValues>, stepId: string, notify: (props: TErrorProps) => void): Promise<boolean> {
-  let isValid = false
+  let isValid
 
   if (stepId === '0') {
     isValid = await methods.trigger('programKindName')

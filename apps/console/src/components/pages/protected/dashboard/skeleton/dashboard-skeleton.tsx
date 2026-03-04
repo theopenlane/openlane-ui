@@ -52,7 +52,7 @@ const DashboardSkeleton: React.FC = () => {
               <div className="space-y-3">
                 {Array.from({ length: 3 }).map((_, index) => {
                   return (
-                    <Link href="#" key={index} className="grid grid-cols-[130px_1fr] items-center gap-[20px] size-fit">
+                    <Link href="#" key={index} className="grid grid-cols-[130px_1fr] items-center gap-5 size-fit">
                       <div className="flex items-center gap-2">
                         <Skeleton width={30} height={10} />
                         <span className="text-sm font-medium">

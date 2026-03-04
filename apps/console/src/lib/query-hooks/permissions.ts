@@ -1,5 +1,5 @@
 import { useNotification } from '@/hooks/useNotification'
-import { TAccessRole, TPermissionData } from '@/types/authz'
+import { type TAccessRole, type TPermissionData } from '@/types/authz'
 import { useQuery } from '@tanstack/react-query'
 import { useEffect } from 'react'
 import { objectToSnakeCase } from '../../utils/strings'

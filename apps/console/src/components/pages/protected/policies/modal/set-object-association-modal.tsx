@@ -4,8 +4,8 @@ import ObjectAssociation from '@/components/shared/object-association/object-ass
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import React, { useCallback, useState } from 'react'
 import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
-import { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
-import { UpdateInternalPolicyInput } from '@repo/codegen/src/schema.ts'
+import { type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
+import { type UpdateInternalPolicyInput } from '@repo/codegen/src/schema.ts'
 import { useQueryClient } from '@tanstack/react-query'
 import { useUpdateInternalPolicy } from '@/lib/graphql-hooks/internal-policy'
 import { useNotification } from '@/hooks/useNotification.tsx'
@@ -51,18 +51,16 @@ const SetObjectAssociationPoliciesDialog = ({
   const [open, setOpen] = useState(!!policyId && !!fromTable)
   const { mutateAsync: updatePolicy, isPending: isSaving } = useUpdateInternalPolicy()
 
-  const excludeObjectTypes = fromTable
-    ? Object.values(ObjectTypeObjects).filter((type) => type !== ObjectTypeObjects.PROCEDURE)
+  const allowedObjectTypes = fromTable
+    ? [ObjectTypeObjects.PROCEDURE]
     : [
-        ObjectTypeObjects.EVIDENCE,
-        ObjectTypeObjects.GROUP,
+        ObjectTypeObjects.CONTROL,
+        ObjectTypeObjects.CONTROL_OBJECTIVE,
+        ObjectTypeObjects.PROCEDURE,
+        ObjectTypeObjects.PROGRAM,
         ObjectTypeObjects.RISK,
-        ObjectTypeObjects.INTERNAL_POLICY,
-        ObjectTypeObjects.SCAN,
-        ObjectTypeObjects.CAMPAIGN,
-        ObjectTypeObjects.ASSET,
-        ObjectTypeObjects.ENTITY,
-        ObjectTypeObjects.IDENTITY_HOLDER,
+        ObjectTypeObjects.SUB_CONTROL,
+        ObjectTypeObjects.TASK,
       ]
 
   const handleSave = () => {
@@ -82,7 +80,7 @@ const SetObjectAssociationPoliciesDialog = ({
         updateInternalPolicyId: string
         input: UpdateInternalPolicyInput
       } = {
-        updateInternalPolicyId: policyId!,
+        updateInternalPolicyId: policyId ?? '',
         input: {
           ...associationInputs,
         },
@@ -136,7 +134,7 @@ const SetObjectAssociationPoliciesDialog = ({
           onIdChange={handleIdChange}
           initialData={normalizedAssociations}
           refCodeInitialData={normalizedAssociationRefCodes}
-          excludeObjectTypes={excludeObjectTypes}
+          allowedObjectTypes={allowedObjectTypes}
           defaultSelectedObject={fromTable ? ObjectTypeObjects.PROCEDURE : undefined}
         />
         <DialogFooter>

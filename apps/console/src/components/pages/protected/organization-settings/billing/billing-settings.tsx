@@ -29,7 +29,7 @@ const BillingSettings: React.FC = () => {
 
   const [confirmCancelOpen, setConfirmCancelOpen] = useState(false)
 
-  const currentOrganization = getOrganizationByID(currentOrgId!)
+  const currentOrganization = getOrganizationByID(currentOrgId ?? '')
   const stripeCustomerId = currentOrganization?.node?.stripeCustomerID
   const { data: schedules = [], isLoading: schedulesLoading } = useSchedulesQuery(stripeCustomerId)
   const schedule = schedules?.[0]

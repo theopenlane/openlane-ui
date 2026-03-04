@@ -8,7 +8,7 @@ import { canDelete } from '@/lib/authz/utils.ts'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
-import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { type ObjectTypes } from '@repo/codegen/src/type-names'
 import { toHumanLabel } from '@/utils/strings'
 
 interface GenericDeleteDialogProps {

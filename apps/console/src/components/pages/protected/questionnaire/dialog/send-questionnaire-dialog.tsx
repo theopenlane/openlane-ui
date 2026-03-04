@@ -62,10 +62,10 @@ export const SendQuestionnaireDialog = ({ open, onOpenChange, assessmentId, asse
   const suggestions = useMemo<ContactSuggestion[]>(() => {
     const addedEmails = new Set(emails.map((e) => e.toLowerCase()))
     return (contacts ?? [])
-      .filter((c) => c.email && !addedEmails.has(c.email.toLowerCase()))
+      .filter((c): c is typeof c & { email: string } => !!c.email && !addedEmails.has(c.email.toLowerCase()))
       .map((c) => ({
-        email: c.email!,
-        label: c.fullName ? `${c.fullName} (${c.email})` : c.email!,
+        email: c.email,
+        label: c.fullName ? `${c.fullName} (${c.email})` : c.email,
       }))
   }, [contacts, emails])
 

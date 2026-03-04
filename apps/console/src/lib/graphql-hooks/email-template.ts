@@ -1,25 +1,25 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
-  EmailTemplatesWithFilterQuery,
-  EmailTemplatesWithFilterQueryVariables,
-  CreateEmailTemplateMutation,
-  CreateEmailTemplateMutationVariables,
-  UpdateEmailTemplateMutation,
-  UpdateEmailTemplateMutationVariables,
-  DeleteEmailTemplateMutation,
-  DeleteEmailTemplateMutationVariables,
-  EmailTemplateQuery,
-  EmailTemplateQueryVariables,
-  CreateBulkCsvEmailTemplateMutation,
-  CreateBulkCsvEmailTemplateMutationVariables,
-  UpdateBulkEmailTemplateMutation,
-  UpdateBulkEmailTemplateMutationVariables,
-  DeleteBulkEmailTemplateMutation,
-  DeleteBulkEmailTemplateMutationVariables,
+  type EmailTemplatesWithFilterQuery,
+  type EmailTemplatesWithFilterQueryVariables,
+  type CreateEmailTemplateMutation,
+  type CreateEmailTemplateMutationVariables,
+  type UpdateEmailTemplateMutation,
+  type UpdateEmailTemplateMutationVariables,
+  type DeleteEmailTemplateMutation,
+  type DeleteEmailTemplateMutationVariables,
+  type EmailTemplateQuery,
+  type EmailTemplateQueryVariables,
+  type CreateBulkCsvEmailTemplateMutation,
+  type CreateBulkCsvEmailTemplateMutationVariables,
+  type UpdateBulkEmailTemplateMutation,
+  type UpdateBulkEmailTemplateMutationVariables,
+  type DeleteBulkEmailTemplateMutation,
+  type DeleteBulkEmailTemplateMutationVariables,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 import {
   GET_ALL_EMAIL_TEMPLATES,
   CREATE_EMAIL_TEMPLATE,

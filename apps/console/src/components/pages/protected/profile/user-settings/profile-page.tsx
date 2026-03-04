@@ -1,6 +1,6 @@
 'use client'
 
-import React, { Suspense, useState, useEffect, useContext, useCallback } from 'react'
+import React, { Suspense, useState, useEffect, use, useCallback } from 'react'
 import { ProfileNameForm } from './profile-name-form'
 import { AvatarUpload } from '@/components/shared/avatar-upload/avatar-upload'
 import { useSession } from 'next-auth/react'
@@ -20,7 +20,7 @@ import DeleteUserSection from '../delete-user-section'
 
 const ProfilePage = () => {
   const { data: sessionData } = useSession()
-  const { setCrumbs } = useContext(BreadcrumbContext)
+  const { setCrumbs } = use(BreadcrumbContext)
   const { successNotification, errorNotification } = useNotification()
   const userId = sessionData?.user.userId
 

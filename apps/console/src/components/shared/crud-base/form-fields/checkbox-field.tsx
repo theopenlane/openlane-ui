@@ -3,8 +3,8 @@
 import { FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
 import { Checkbox } from '@repo/ui/checkbox'
 import { cn } from '@repo/ui/lib/utils'
-import { FieldValues, useFormContext } from 'react-hook-form'
-import { InternalEditingType } from '../generic-sheet'
+import { type FieldValues, useFormContext } from 'react-hook-form'
+import { type InternalEditingType } from '../generic-sheet'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { InfoIcon } from 'lucide-react'
 

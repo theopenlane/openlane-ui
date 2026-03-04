@@ -1,17 +1,17 @@
 'use client'
 
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { use, useEffect, useMemo, useState } from 'react'
 import { useHasScrollbar } from '@/hooks/useHasScrollbar'
 import { useParams, useRouter } from 'next/navigation'
-import { useGetControlAssociationsById, useGetControlById, useGetControlDiscussionById, useUpdateControl, useDeleteControl, ControlByIdNode } from '@/lib/graphql-hooks/control'
+import { useGetControlAssociationsById, useGetControlById, useGetControlDiscussionById, useUpdateControl, useDeleteControl, type ControlByIdNode } from '@/lib/graphql-hooks/control'
 import { useQueryClient } from '@tanstack/react-query'
 import { FormProvider, useForm } from 'react-hook-form'
-import { Value } from 'platejs'
+import { type Value } from 'platejs'
 import { InfoIcon } from 'lucide-react'
 import TitleField from '@/components/pages/protected/controls/form-fields/title-field.tsx'
 import DescriptionField from '@/components/pages/protected/controls/form-fields/description-field.tsx'
 import PropertiesCard from '@/components/pages/protected/controls/propereties-card/properties-card.tsx'
-import { ControlControlSource, ControlControlStatus, UpdateControlInput } from '@repo/codegen/src/schema.ts'
+import { ControlControlSource, ControlControlStatus, type UpdateControlInput } from '@repo/codegen/src/schema.ts'
 import { useNavigationGuard } from 'next-navigation-guard'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
 import { canEdit } from '@/lib/authz/utils.ts'
@@ -79,11 +79,29 @@ const ControlDetailsPage: React.FC = () => {
 
   const { id } = useParams<{ id: string }>()
   const router = useRouter()
-  const { setCrumbs } = React.useContext(BreadcrumbContext)
+  const { setCrumbs } = use(BreadcrumbContext)
   const { data, isLoading, isError } = useGetControlById(id)
   const [isEditing, setIsEditing] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
-  const [initialValues, setInitialValues] = useState<FormValues>(initialDataObj)
+  const initialValues = useMemo<FormValues>(() => {
+    if (!data?.control) return initialDataObj
+    return {
+      refCode: data.control.refCode || '',
+      description: data.control.description || '',
+      descriptionJSON: data.control?.descriptionJSON ? (data.control.descriptionJSON as Value) : undefined,
+      delegateID: data.control.delegate?.id || '',
+      controlOwnerID: data.control.controlOwner?.id || '',
+      category: data.control.category || '',
+      subcategory: data.control.subcategory || '',
+      status: data.control.status || ControlControlStatus.NOT_IMPLEMENTED,
+      mappedCategories: data.control.mappedCategories || [],
+      source: data.control.source || undefined,
+      referenceID: data.control.referenceID || undefined,
+      auditorReferenceID: data.control.auditorReferenceID || undefined,
+      title: data.control.title ? `${data.control.refCode} ${data.control.title}` : data.control.refCode,
+      controlKindName: data.control?.controlKindName || undefined,
+    }
+  }, [data?.control])
   const { data: permission } = useAccountRoles(ObjectTypes.CONTROL, id)
   const { data: orgPermission } = useOrganizationRoles()
 
@@ -96,7 +114,7 @@ const ControlDetailsPage: React.FC = () => {
   const plateEditorHelper = usePlateEditor()
   const { data: discussionData } = useGetControlDiscussionById(id)
   const { currentOrgId, getOrganizationByID } = useOrganization()
-  const currentOrganization = getOrganizationByID(currentOrgId!)
+  const currentOrganization = getOrganizationByID(currentOrgId ?? '')
   const { data: associationsData } = useGetControlAssociationsById(id)
   const hasScrollbar = useHasScrollbar([isEditing, data?.control, associationsData?.control])
 
@@ -109,6 +127,13 @@ const ControlDetailsPage: React.FC = () => {
       programs: associationsData.control.programs,
       risks: associationsData.control.risks,
       subcontrols: data.control.subcontrols,
+      assets: associationsData.control.assets,
+      scans: associationsData.control.scans,
+      entities: associationsData.control.entities,
+      identityHolders: associationsData.control.identityHolders,
+      campaigns: associationsData.control.campaigns,
+      remediations: associationsData.control.remediations,
+      reviews: associationsData.control.reviews,
     }
   }, [associationsData?.control, data])
 
@@ -158,7 +183,7 @@ const ControlDetailsPage: React.FC = () => {
       }
 
       await updateControl({
-        updateControlId: id!,
+        updateControlId: id,
         input,
       })
 
@@ -243,26 +268,9 @@ const ControlDetailsPage: React.FC = () => {
 
   useEffect(() => {
     if (data?.control) {
-      const newValues: FormValues = {
-        refCode: data.control.refCode || '',
-        description: data.control.description || '',
-        descriptionJSON: data.control?.descriptionJSON ? (data.control.descriptionJSON as Value) : undefined,
-        delegateID: data.control.delegate?.id || '',
-        controlOwnerID: data.control.controlOwner?.id || '',
-        category: data.control.category || '',
-        subcategory: data.control.subcategory || '',
-        status: data.control.status || ControlControlStatus.NOT_IMPLEMENTED,
-        mappedCategories: data.control.mappedCategories || [],
-        source: data.control.source || undefined,
-        referenceID: data.control.referenceID || undefined,
-        auditorReferenceID: data.control.auditorReferenceID || undefined,
-        title: data.control.title ? `${data.control.refCode} ${data.control.title}` : data.control.refCode,
-        controlKindName: data.control?.controlKindName || undefined,
-      }
-      form.reset(newValues)
-      setInitialValues(newValues)
+      form.reset(initialValues)
     }
-  }, [data?.control, form])
+  }, [data?.control, form, initialValues])
 
   if (isLoading) {
     return <Loading />

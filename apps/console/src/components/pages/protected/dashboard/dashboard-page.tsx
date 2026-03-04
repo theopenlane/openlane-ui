@@ -16,7 +16,7 @@ const DashboardPage: React.FC = () => {
   const { data: sessionData } = useSession()
   const userId = sessionData?.user?.userId
   const { data: userData } = useGetCurrentUser(userId)
-  const { setCrumbs } = React.useContext(BreadcrumbContext)
+  const { setCrumbs } = React.use(BreadcrumbContext)
 
   const { isLoading } = useGetAllPrograms({
     where: {

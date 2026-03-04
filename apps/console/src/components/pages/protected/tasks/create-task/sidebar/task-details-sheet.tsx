@@ -3,9 +3,9 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Sheet, SheetContent } from '@repo/ui/sheet'
-import { TaskTaskStatus, UpdateTaskInput } from '@repo/codegen/src/schema'
+import { TaskTaskStatus, type UpdateTaskInput } from '@repo/codegen/src/schema'
 import { useNotification } from '@/hooks/useNotification'
-import useFormSchema, { EditTaskFormData } from '@/components/pages/protected/tasks/hooks/use-form-schema'
+import useFormSchema, { type EditTaskFormData } from '@/components/pages/protected/tasks/hooks/use-form-schema'
 import { Form } from '@repo/ui/form'
 import { useTask, useTaskAssociations, useUpdateTask } from '@/lib/graphql-hooks/task'
 import { useQueryClient } from '@tanstack/react-query'
@@ -14,7 +14,7 @@ import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
 import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config.ts'
 import ObjectAssociation from '@/components/shared/object-association/object-association'
 import { Panel, PanelHeader } from '@repo/ui/panel'
-import { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
+import { type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
 import { canEdit } from '@/lib/authz/utils'
 import TitleField from '../form/fields/title-field'
 import DetailsField from '../form/fields/details-field'
@@ -28,7 +28,7 @@ import { TasksDetailsSheetSkeleton } from '../../skeleton/tasks-details-sheet-sk
 import EvidenceCreateSheet from '../../../evidence/evidence-create-sheet'
 import { CreateButton } from '@/components/shared/create-button/create-button'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
-import { CustomEvidenceControl } from '../../../evidence/evidence-sheet-config'
+import { type CustomEvidenceControl } from '../../../evidence/evidence-sheet-config'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 type TaskDetailsSheetProps = {
@@ -208,16 +208,7 @@ const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id
                             onOpenChange={setIsSheetOpen}
                             formData={evidenceFormData}
                             controlParam={controlParams}
-                            excludeObjectTypes={[
-                              ObjectTypeObjects.EVIDENCE,
-                              ObjectTypeObjects.RISK,
-                              ObjectTypeObjects.PROCEDURE,
-                              ObjectTypeObjects.GROUP,
-                              ObjectTypeObjects.INTERNAL_POLICY,
-                              ObjectTypeObjects.CONTROL,
-                              ObjectTypeObjects.SUB_CONTROL,
-                              ObjectTypeObjects.PROGRAM,
-                            ]}
+                            allowedObjectTypes={[ObjectTypeObjects.CONTROL_IMPLEMENTATION, ObjectTypeObjects.CONTROL_OBJECTIVE, ObjectTypeObjects.SCAN, ObjectTypeObjects.TASK]}
                             defaultSelectedObject={ObjectTypeObjects.TASK}
                           />
                         </>
@@ -241,7 +232,18 @@ const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id
                     <ObjectAssociation
                       initialData={initialAssociations}
                       onIdChange={(updatedMap) => setAssociations(updatedMap)}
-                      excludeObjectTypes={[ObjectTypeObjects.EVIDENCE, ObjectTypeObjects.GROUP]}
+                      allowedObjectTypes={[
+                        ObjectTypeObjects.CONTROL,
+                        ObjectTypeObjects.CONTROL_OBJECTIVE,
+                        ObjectTypeObjects.IDENTITY_HOLDER,
+                        ObjectTypeObjects.INTERNAL_POLICY,
+                        ObjectTypeObjects.PROCEDURE,
+                        ObjectTypeObjects.PROGRAM,
+                        ObjectTypeObjects.RISK,
+                        ObjectTypeObjects.SCAN,
+                        ObjectTypeObjects.SUB_CONTROL,
+                        ObjectTypeObjects.TASK,
+                      ]}
                     />
                   </Panel>
                 )}

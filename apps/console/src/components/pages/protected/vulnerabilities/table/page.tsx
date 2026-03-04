@@ -1,18 +1,26 @@
 'use client'
 
 import React from 'react'
-import useFormSchema from '../hooks/use-form-schema'
+import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
 
-import { VulnerabilitiesNodeNonNull, useVulnerability, useCreateVulnerability, useUpdateVulnerability, useDeleteVulnerability, useCreateBulkCSVVulnerability } from '@/lib/graphql-hooks/vulnerability'
+import {
+  type VulnerabilitiesNodeNonNull,
+  useVulnerability,
+  useCreateVulnerability,
+  useUpdateVulnerability,
+  useCreateBulkCSVVulnerability,
+  useBulkEditVulnerability,
+  useBulkDeleteVulnerability,
+} from '@/lib/graphql-hooks/vulnerability'
 import { useSearchParams } from 'next/navigation'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
 import { breadcrumbs, getFieldsToRender, getFilterFields, visibilityFields } from './table-config'
-import { VulnerabilitySheetConfig, VulnerabilityTablePageConfig, VulnerabilityFieldProps, objectType, objectName, tableKey, exportType, orderFieldEnum, defaultSorting } from './types'
+import { type VulnerabilitySheetConfig, type VulnerabilityTablePageConfig, type VulnerabilityFieldProps, objectType, objectName, tableKey, exportType, orderFieldEnum, defaultSorting } from './types'
 import { getColumns } from './columns'
 import TableComponent from './table'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { buildPayload } from '../create/utils'
-import { CreateVulnerabilityInput, UpdateVulnerabilityInput } from '@repo/codegen/src/schema'
+import { type CreateVulnerabilityInput, type UpdateVulnerabilityInput } from '@repo/codegen/src/schema'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 
@@ -31,8 +39,9 @@ const VulnerabilityPage: React.FC = () => {
 
   const baseUpdateMutation = useUpdateVulnerability()
   const baseCreateMutation = useCreateVulnerability()
-  const baseDeleteMutation = useDeleteVulnerability()
   const baseBulkCreateMutation = useCreateBulkCSVVulnerability()
+  const baseBulkDeleteMutation = useBulkDeleteVulnerability()
+  const baseBulkEditMutation = useBulkEditVulnerability()
 
   const updateMutation = {
     isPending: baseUpdateMutation.isPending,
@@ -99,11 +108,15 @@ const VulnerabilityPage: React.FC = () => {
     TableComponent,
     sheetConfig,
     onBulkDelete: async (ids: string[]) => {
-      await Promise.all(ids.map((vulnerabilityId) => baseDeleteMutation.mutateAsync({ deleteVulnerabilityId: vulnerabilityId })))
+      await baseBulkDeleteMutation.mutateAsync({ ids })
     },
     onBulkCreate: async (file: File) => {
       await bulkCreateMutation.mutateAsync({ input: file })
     },
+    onBulkEdit: async (ids: string[], input: UpdateVulnerabilityInput) => {
+      await baseBulkEditMutation.mutateAsync({ ids, input })
+    },
+    bulkEditFormSchema: bulkEditFieldSchema,
     enumOpts,
   }
 

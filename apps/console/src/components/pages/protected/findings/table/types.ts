@@ -1,11 +1,20 @@
-import { GenericTablePageConfig, EnumOptionsGeneric } from '@/components/shared/crud-base/page'
-import { GenericDetailsSheetConfig, RenderFieldsProps } from '@/components/shared/crud-base/generic-sheet'
+import { type GenericTablePageConfig, type EnumOptionsGeneric } from '@/components/shared/crud-base/page'
+import { type GenericDetailsSheetConfig, type RenderFieldsProps } from '@/components/shared/crud-base/generic-sheet'
 
-import { FindingOrderField, FindingWhereInput, CreateFindingInput, CreateFindingMutation, UpdateFindingInput, UpdateFindingMutation, ExportExportType, OrderDirection } from '@repo/codegen/src/schema'
+import {
+  FindingOrderField,
+  type FindingWhereInput,
+  type CreateFindingInput,
+  type CreateFindingMutation,
+  type UpdateFindingInput,
+  type UpdateFindingMutation,
+  ExportExportType,
+  OrderDirection,
+} from '@repo/codegen/src/schema'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { ObjectTypes, ObjectNames } from '@repo/codegen/src/type-names'
-import { FindingsNodeNonNull } from '@/lib/graphql-hooks/finding'
-import { FindingFormData } from '../hooks/use-form-schema'
+import { type FindingsNodeNonNull } from '@/lib/graphql-hooks/finding'
+import { type FindingFormData } from '../hooks/use-form-schema'
 
 type TFormData = FindingFormData
 type TData = FindingsNodeNonNull

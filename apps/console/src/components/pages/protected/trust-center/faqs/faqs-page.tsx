@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useContext, useEffect, useState } from 'react'
+import React, { use, useEffect, useState } from 'react'
 import useFormSchema from './hooks/use-form-schema'
 import { CircleHelp } from 'lucide-react'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
@@ -15,18 +15,18 @@ import {
   useUpdateTrustCenterFaqComment,
   useDeleteTrustCenterFaq,
   useReorderTrustCenterFaqs,
-  TrustCenterFaqsNodeNonNull,
+  type TrustCenterFaqsNodeNonNull,
 } from '@/lib/graphql-hooks/trust-center-faq'
 import { useQueryClient } from '@tanstack/react-query'
-import { TrustCenterFaQsWithFilterQuery } from '@repo/codegen/src/schema'
-import { DndContext, closestCenter, DragEndEvent } from '@dnd-kit/core'
+import { type TrustCenterFaQsWithFilterQuery } from '@repo/codegen/src/schema'
+import { DndContext, closestCenter, type DragEndEvent } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable'
 import type { FaqFormValues } from './hooks/use-form-schema'
 import { CreateFaqForm } from './create-faq-form'
 import { SortableFaqCard } from './sortable-faq-card'
 
 export default function FaqsPage() {
-  const { setCrumbs } = useContext(BreadcrumbContext)
+  const { setCrumbs } = use(BreadcrumbContext)
   const [editingFaqId, setEditingFaqId] = useState<string | null>(null)
   const [faqToDelete, setFaqToDelete] = useState<string | null>(null)
 

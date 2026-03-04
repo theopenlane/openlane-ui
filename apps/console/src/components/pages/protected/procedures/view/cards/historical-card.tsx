@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { ApiToken, ProcedureByIdFragment, User } from '@repo/codegen/src/schema'
+import { type ApiToken, type ProcedureByIdFragment, type User } from '@repo/codegen/src/schema'
 import { CalendarCheck2, CalendarClock, KeyRound, UserRoundCheck, UserRoundPen } from 'lucide-react'
 import { Avatar } from '@/components/shared/avatar/avatar.tsx'
 import { formatTimeSince } from '@/utils/date'

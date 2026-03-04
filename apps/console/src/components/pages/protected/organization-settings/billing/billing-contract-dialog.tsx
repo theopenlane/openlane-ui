@@ -1,6 +1,6 @@
 'use client'
 import React, { useCallback, useMemo, useRef, useState } from 'react'
-import { Libraries, useLoadScript } from '@react-google-maps/api'
+import { type Libraries, useLoadScript } from '@react-google-maps/api'
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import { Input } from '@repo/ui/input'
 import { Label } from '@repo/ui/label'
@@ -96,7 +96,7 @@ const BillingContactDialog = () => {
 
     try {
       await updateOrg({
-        updateOrganizationId: currentOrgId!,
+        updateOrganizationId: currentOrgId ?? '',
         input: {
           updateOrgSettings: {
             billingAddress: address,

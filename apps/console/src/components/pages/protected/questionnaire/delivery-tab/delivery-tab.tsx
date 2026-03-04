@@ -60,17 +60,19 @@ export const DeliveryTab = ({ assessmentId, jsonconfig, where, onTotalCountChang
   const questions = useMemo(() => extractQuestions(jsonconfig), [jsonconfig])
   const responses = useMemo(
     () =>
-      (deliveryResponses ?? []).filter(Boolean).map((r) => ({
-        id: r!.id,
-        email: r!.email,
-        assignedAt: r!.assignedAt,
-        dueDate: r!.dueDate,
-        status: r!.status,
-        sendAttempts: r!.sendAttempts,
-        emailDeliveredAt: r!.emailDeliveredAt,
-        completedAt: r!.completedAt,
-        document: r!.document,
-      })),
+      (deliveryResponses ?? [])
+        .filter((r): r is NonNullable<typeof r> => r != null)
+        .map((r) => ({
+          id: r.id,
+          email: r.email,
+          assignedAt: r.assignedAt,
+          dueDate: r.dueDate,
+          status: r.status,
+          sendAttempts: r.sendAttempts,
+          emailDeliveredAt: r.emailDeliveredAt,
+          completedAt: r.completedAt,
+          document: r.document,
+        })),
     [deliveryResponses],
   )
 

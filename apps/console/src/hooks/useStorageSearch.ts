@@ -1,4 +1,4 @@
-import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { type ObjectTypes } from '@repo/codegen/src/type-names'
 import { useCallback, useEffect, useState } from 'react'
 
 function searchKey(key: ObjectTypes): string {
@@ -10,7 +10,7 @@ export const STORAGE_SEARCH_KEY_PREFIX = 'table-search:'
 export function getInitialSearchTerm(key: ObjectTypes, fallback = ''): string {
   if (typeof window !== 'undefined') {
     const stored = localStorage.getItem(`${STORAGE_SEARCH_KEY_PREFIX}${searchKey(key)}`)
-    if (stored != null) {
+    if (stored !== null) {
       return stored
     }
   }
@@ -25,11 +25,11 @@ type UseStorageSearchOptions = {
 export function useStorageSearch(key: ObjectTypes, options: UseStorageSearchOptions = {}): [string, (value: string) => void] {
   const { fallback = '', persist = true } = options
 
-  const [searchTerm, _setSearchTerm] = useState<string>(() => getInitialSearchTerm(key, fallback))
+  const [rawSearchTerm, setRawSearchTerm] = useState<string>(() => getInitialSearchTerm(key, fallback))
 
   const setSearchTerm = useCallback(
     (value: string) => {
-      _setSearchTerm(value)
+      setRawSearchTerm(value)
 
       if (!persist) return
       if (typeof window === 'undefined') return
@@ -46,8 +46,8 @@ export function useStorageSearch(key: ObjectTypes, options: UseStorageSearchOpti
   )
 
   useEffect(() => {
-    _setSearchTerm(getInitialSearchTerm(key, fallback))
+    setRawSearchTerm(getInitialSearchTerm(key, fallback))
   }, [key, fallback])
 
-  return [searchTerm, setSearchTerm]
+  return [rawSearchTerm, setSearchTerm]
 }

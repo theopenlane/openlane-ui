@@ -18,9 +18,9 @@ export const credentialsProvider = Credentials({
       session?: string
     }
 
-    let accessToken = ''
-    let refreshToken = ''
-    let session = ''
+    let accessToken
+    let refreshToken
+    let session
 
     try {
       //handle session login for users that are logging in for the second time after verification

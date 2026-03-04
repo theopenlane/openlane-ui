@@ -1,6 +1,6 @@
 import { useGetEvidenceComments } from '@/lib/graphql-hooks/evidence'
 import { useGetOrgMemberships } from '@/lib/graphql-hooks/member'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useSearchParams } from 'next/navigation'
 import { useMemo, useState } from 'react'
 import EvidenceCommentSheet from './evidence-comments-sheet'
 import { Card } from '@repo/ui/cardpanel'
@@ -9,17 +9,18 @@ import { SheetContent, SheetHeader, Sheet } from '@repo/ui/sheet'
 import { Button } from '@repo/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@repo/ui/avatar'
 import { useNotification } from '@/hooks/useNotification'
+import { useSmartRouter } from '@/hooks/useSmartRouter'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import Skeleton from '@/components/shared/skeleton/skeleton'
 import { formatDateTime } from '@/utils/date'
 
 const EvidenceCommentsCard = () => {
   const searchParams = useSearchParams()
-  const evidenceId = searchParams.get('id')
+  const evidenceId = searchParams.get('id') || searchParams.get('controlEvidenceId')
   const { data } = useGetEvidenceComments(evidenceId)
   const [sheetOpen, setSheetOpen] = useState(false)
   const { successNotification, errorNotification } = useNotification()
-  const router = useRouter()
+  const smartRouter = useSmartRouter()
   const plateEditorHelper = usePlateEditor()
 
   const commentsData = data?.evidence.comments.edges
@@ -49,7 +50,9 @@ const EvidenceCommentsCard = () => {
 
   const handleCopyLink = () => {
     if (!evidenceId) return
-    const url = `${window.location.origin}${window.location.pathname}?id=${evidenceId}&showComments=true`
+    const params = new URLSearchParams(window.location.search)
+    params.set('showComments', 'true')
+    const url = `${window.location.origin}${window.location.pathname}?${params.toString()}`
     navigator.clipboard
       .writeText(url)
       .then(() => {
@@ -66,12 +69,12 @@ const EvidenceCommentsCard = () => {
 
   const handleOpenSheet = () => {
     if (!evidenceId) return
-    router.push(`/evidence?id=${evidenceId}&showComments=true`)
+    smartRouter.push({ showComments: 'true' })
   }
 
   const handleOpenChange = (value: boolean) => {
     if (!value) {
-      router.push(`/evidence?id=${evidenceId}`)
+      smartRouter.push({ showComments: null })
     }
   }
 
@@ -111,7 +114,7 @@ const EvidenceCommentsCard = () => {
             <>
               <Avatar className="h-8 w-8 border border-border shrink-0" title={latestCommentUser?.displayName}>
                 {latestCommentUser?.avatarFile?.presignedURL || latestCommentUser?.avatarRemoteURL ? (
-                  <AvatarImage src={(latestCommentUser.avatarFile?.presignedURL || latestCommentUser.avatarRemoteURL)!} alt={latestCommentUser?.displayName || 'User'} />
+                  <AvatarImage src={latestCommentUser.avatarFile?.presignedURL ?? latestCommentUser.avatarRemoteURL ?? ''} alt={latestCommentUser?.displayName || 'User'} />
                 ) : (
                   <AvatarFallback>{latestCommentUser?.displayName?.slice(0, 2).toUpperCase() || '?'}</AvatarFallback>
                 )}

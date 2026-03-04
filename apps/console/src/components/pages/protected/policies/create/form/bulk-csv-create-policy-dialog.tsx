@@ -7,7 +7,7 @@ import { Button } from '@repo/ui/button'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { useNotification } from '@/hooks/useNotification'
 import { useCreateBulkCSVInternalPolicy } from '@/lib/graphql-hooks/internal-policy'
-import { TUploadedFile } from '../../../evidence/upload/types/TUploadedFile'
+import { type TUploadedFile } from '../../../evidence/upload/types/TUploadedFile'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { GRAPHQL_OBJECT_DOCS } from '@/constants/docs'
 import { Callout } from '@/components/shared/callout/callout'
@@ -35,12 +35,12 @@ const BulkCSVCreatePolicyDialog: React.FC<TBulkCSVCreatePolicyDialogProps> = ({ 
   const { mutateAsync: createBulkInternalPolicy, isPending: isSubmitting } = useCreateBulkCSVInternalPolicy()
 
   const handleFileUpload = async () => {
-    if (!uploadedFile) {
+    if (!uploadedFile?.file) {
       return
     }
 
     try {
-      await createBulkInternalPolicy({ input: uploadedFile.file! })
+      await createBulkInternalPolicy({ input: uploadedFile.file })
       successNotification({
         title: 'Policies Created',
         description: `Policies has been successfully created`,
@@ -62,10 +62,13 @@ const BulkCSVCreatePolicyDialog: React.FC<TBulkCSVCreatePolicyDialogProps> = ({ 
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       {trigger ? (
         <DialogTrigger className="bg-transparent">
-          {cloneElement(trigger, {
-            onClick: () => setIsOpen(true),
-            disabled: isSubmitting,
-          })}
+          {
+            // eslint-disable-next-line @eslint-react/no-clone-element
+            cloneElement(trigger, {
+              onClick: () => setIsOpen(true),
+              disabled: isSubmitting,
+            })
+          }
         </DialogTrigger>
       ) : (
         <DialogTrigger asChild>

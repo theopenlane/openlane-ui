@@ -1,5 +1,5 @@
 import React from 'react'
-import { Metadata } from 'next'
+import { type Metadata } from 'next'
 import SubprocessorsPage from '@/components/pages/protected/trust-center/subprocessors/subprocessors-page'
 
 export const metadata: Metadata = {

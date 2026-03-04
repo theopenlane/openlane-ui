@@ -3,25 +3,25 @@ import { Grid, GridCell, GridRow } from '@repo/ui/grid'
 import React, { useCallback, useState } from 'react'
 import { ChevronDown, InfoIcon, Plus, X } from 'lucide-react'
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
-import useFormSchema, { CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema'
+import useFormSchema, { type CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema'
 import { Input, InputRow } from '@repo/ui/input'
 import { Textarea } from '@repo/ui/textarea'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import MultipleSelector from '@repo/ui/multiple-selector'
 import { Button } from '@repo/ui/button'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
-import { CreateEvidenceInput } from '@repo/codegen/src/schema'
+import { type CreateEvidenceInput } from '@repo/codegen/src/schema'
 import EvidenceUploadForm from '@/components/pages/protected/evidence/upload/evidence-upload-form'
 import { useNotification } from '@/hooks/useNotification'
-import { Option } from '@repo/ui/multiple-selector'
+import { type Option } from '@repo/ui/multiple-selector'
 import { useCreateEvidence } from '@/lib/graphql-hooks/evidence'
-import { TFormEvidenceData } from '@/components/pages/protected/evidence/types/TFormEvidenceData.ts'
+import { type TFormEvidenceData } from '@/components/pages/protected/evidence/types/TFormEvidenceData.ts'
 import ObjectAssociation from '@/components/shared/object-association/object-association'
 import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
-import { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
+import { type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
 import { Panel } from '@repo/ui/panel'
 import { useQueryClient } from '@tanstack/react-query'
-import { TUploadedFile } from './upload/types/TUploadedFile'
+import { type TUploadedFile } from './upload/types/TUploadedFile'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { Sheet, SheetContent, SheetHeader } from '@repo/ui/sheet'
@@ -31,7 +31,7 @@ import { ProgramSelectionDialog } from '@/components/shared/object-association/o
 import { ControlSelectionDialog } from '@/components/shared/object-association/object-association-control-dialog'
 import ObjectAssociationProgramsChips from '@/components/shared/object-association/object-association-programs-chips'
 import ObjectAssociationControlsChips from '@/components/shared/object-association/object-association-controls-chips'
-import { CustomEvidenceControl, EVIDENCE_ASSOCIATION_FIELDS } from './evidence-sheet-config'
+import { type CustomEvidenceControl, EVIDENCE_ASSOCIATION_FIELDS } from './evidence-sheet-config'
 import { useEvidenceSuggestedControls } from './hooks/use-evidence-suggested-controls'
 import Link from 'next/link'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
@@ -42,7 +42,7 @@ import { ObjectTypes } from '@repo/codegen/src/type-names'
 type TEvidenceCreateSheetProps = {
   formData?: TFormEvidenceData
   onEvidenceCreateSuccess?: () => void
-  excludeObjectTypes?: ObjectTypeObjects[]
+  allowedObjectTypes?: ObjectTypeObjects[]
   defaultSelectedObject?: ObjectTypeObjects
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -52,7 +52,7 @@ type TEvidenceCreateSheetProps = {
 const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
   formData,
   onEvidenceCreateSuccess,
-  excludeObjectTypes,
+  allowedObjectTypes,
   defaultSelectedObject,
   open,
   onOpenChange,
@@ -565,7 +565,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
                             <AccordionContent className="mt-4 flex flex-col gap-4">
                               <ObjectAssociation
                                 onIdChange={handleEvidenceObjectIdsChange}
-                                excludeObjectTypes={excludeObjectTypes || []}
+                                allowedObjectTypes={allowedObjectTypes}
                                 initialData={formData?.objectAssociations}
                                 defaultSelectedObject={defaultSelectedObject}
                               />

@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { DashboardLayout } from '@/components/layouts/dashboard/dashboard'
 import { auth } from '@/lib/auth/auth'
 import { sessionCookieName } from '@repo/dally/auth'
-import { getDashboardData, OrganizationsData } from '../api/getDashboardData/route'
+import { getDashboardData, type OrganizationsData } from '../api/getDashboardData/route'
 import { cookies } from 'next/headers'
 import { capitalizeFirstLetter } from '@/lib/auth/utils/strings'
 

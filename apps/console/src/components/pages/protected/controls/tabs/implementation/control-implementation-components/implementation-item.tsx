@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { CheckCircle2, MoreHorizontal, Pencil, Trash2 } from 'lucide-react'
-import { ControlImplementationFieldsFragment } from '@repo/codegen/src/schema'
+import { type ControlImplementationFieldsFragment } from '@repo/codegen/src/schema'
 import { ControlImplementationCard } from './control-implementation-card'
 import { canEdit } from '@/lib/authz/utils'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
@@ -81,8 +81,8 @@ export const ImplementationItem: React.FC<Props> = ({ node, onEdit, onMarkVerifi
       <ControlImplementationCard
         obj={node}
         actions={
-          <Button type="button" className="h-8" onClick={() => setAssociationsOpen(true)} disabled={isMenuDisabled} aria-label="Set associations">
-            Set Associations
+          <Button type="button" className="h-8" onClick={() => setAssociationsOpen(true)} disabled={isMenuDisabled} aria-label="Link controls">
+            Link Controls
           </Button>
         }
       />

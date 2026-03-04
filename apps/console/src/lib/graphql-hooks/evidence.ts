@@ -25,7 +25,8 @@ import {
   BULK_DELETE_EVIDENCE,
   BULK_EDIT_EVIDENCE,
 } from '@repo/codegen/query/evidence'
-import {
+import { EvidenceEvidenceStatus } from '@repo/codegen/src/schema'
+import type {
   CreateEvidenceMutation,
   CreateEvidenceMutationVariables,
   EvidenceWhereInput,
@@ -47,7 +48,6 @@ import {
   Evidence,
   GetEvidenceTrendDataQuery,
   GetProgramEvidenceTrendDataQuery,
-  EvidenceEvidenceStatus,
   GetEvidencesByStatusQuery,
   GetEvidenceFilesByIdQuery,
   GetEvidenceCountsByStatusAllProgramsQuery,
@@ -66,7 +66,7 @@ import {
   UpdateBulkEvidenceMutationVariables,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '../fetchGraphql'
-import { TPagination } from '@repo/ui/pagination-types'
+import type { TPagination } from '@repo/ui/pagination-types'
 
 type TInvalidateClient = { invalidateQueries: (args: { queryKey: unknown[] }) => void }
 
@@ -336,8 +336,8 @@ export const useEvidenceTrend = (programId?: string | null, status?: EvidenceEvi
         const currentWeekCount = data.currentWeek.totalCount
         const previousWeekCount = data.previousWeek.totalCount
         // Calculate trend percentage
-        let trend = 0
-        let trendType: 'up' | 'down' | 'flat' = 'flat'
+        let trend
+        let trendType: 'up' | 'down' | 'flat'
         if (previousWeekCount > 0) {
           trend = ((currentWeekCount - previousWeekCount) / previousWeekCount) * 100
           if (trend > 0) {
@@ -351,6 +351,7 @@ export const useEvidenceTrend = (programId?: string | null, status?: EvidenceEvi
           trend = 100
           trendType = 'up'
         } else {
+          trend = 0
           trendType = 'flat'
         }
         return {
@@ -365,8 +366,8 @@ export const useEvidenceTrend = (programId?: string | null, status?: EvidenceEvi
         const currentWeekCount = data.currentWeek.totalCount
         const previousWeekCount = data.previousWeek.totalCount
         // Calculate trend percentage
-        let trend = 0
-        let trendType: 'up' | 'down' | 'flat' = 'flat'
+        let trend
+        let trendType: 'up' | 'down' | 'flat'
         if (previousWeekCount > 0) {
           trend = ((currentWeekCount - previousWeekCount) / previousWeekCount) * 100
           if (trend > 0) {
@@ -380,6 +381,7 @@ export const useEvidenceTrend = (programId?: string | null, status?: EvidenceEvi
           trend = 100
           trendType = 'up'
         } else {
+          trend = 0
           trendType = 'flat'
         }
         return {
@@ -460,7 +462,7 @@ export const useGetEvidenceComments = (evidenceId?: string | null) => {
 
   return useQuery<GetEvidenceCommentsQuery, unknown>({
     queryKey: ['evidenceComments', evidenceId],
-    queryFn: async () => client.request<GetEvidenceCommentsQuery, GetEvidenceCommentsQueryVariables>(GET_EVIDENCE_COMMENTS, { evidenceId: evidenceId! }),
+    queryFn: async () => client.request<GetEvidenceCommentsQuery, GetEvidenceCommentsQueryVariables>(GET_EVIDENCE_COMMENTS, { evidenceId: evidenceId ?? '' }),
     enabled: !!evidenceId,
   })
 }

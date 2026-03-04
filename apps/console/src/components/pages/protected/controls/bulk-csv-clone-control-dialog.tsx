@@ -7,7 +7,7 @@ import { Button } from '@repo/ui/button'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { useNotification } from '@/hooks/useNotification'
 import { useCloneBulkCSVControl } from '@/lib/graphql-hooks/control'
-import { TUploadedFile } from '../evidence/upload/types/TUploadedFile'
+import { type TUploadedFile } from '../evidence/upload/types/TUploadedFile'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { COMPLIANCE_MANAGEMENT_DOCS_URL } from '@/constants/docs'
 import { Callout } from '@/components/shared/callout/callout'
@@ -35,7 +35,7 @@ const BulkCSVCloneControlDialog: React.FC<BulkCsvCreateControlDialogProps> = ({ 
     }
 
     try {
-      await cloneBulkControl({ input: uploadedFile.file! })
+      await cloneBulkControl({ input: uploadedFile.file })
       successNotification({
         title: 'Controls Created',
         description: `Controls have been successfully created`,
@@ -65,10 +65,13 @@ const BulkCSVCloneControlDialog: React.FC<BulkCsvCreateControlDialogProps> = ({ 
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       {trigger ? (
         <DialogTrigger asChild className="bg-transparent self-start">
-          {cloneElement(trigger, {
-            onClick: () => setIsOpen(true),
-            disabled: isSubmitting,
-          })}
+          {
+            // eslint-disable-next-line @eslint-react/no-clone-element
+            cloneElement(trigger, {
+              onClick: () => setIsOpen(true),
+              disabled: isSubmitting,
+            })
+          }
         </DialogTrigger>
       ) : (
         <DialogTrigger asChild>

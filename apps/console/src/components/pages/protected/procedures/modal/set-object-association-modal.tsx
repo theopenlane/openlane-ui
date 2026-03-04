@@ -4,8 +4,8 @@ import ObjectAssociation from '@/components/shared/object-association/object-ass
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import React, { useCallback, useState } from 'react'
 import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
-import { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
-import { UpdateProcedureInput } from '@repo/codegen/src/schema.ts'
+import { type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
+import { type UpdateProcedureInput } from '@repo/codegen/src/schema.ts'
 import { useUpdateProcedure } from '@/lib/graphql-hooks/procedure'
 import { useNotification } from '@/hooks/useNotification.tsx'
 import { useQueryClient } from '@tanstack/react-query'
@@ -25,13 +25,7 @@ type TSetObjectAssociationDialog = {
 
 const EMPTY_ASSOCIATIONS = {} as TObjectAssociationMap
 
-const SetObjectAssociationProceduresDialog = ({
-  procedureId,
-  associations: parentAssociations,
-  initialAssociations,
-  associationRefCodes,
-  onAssociationsChange,
-}: TSetObjectAssociationDialog) => {
+const SetObjectAssociationProceduresDialog = ({ procedureId, associations: parentAssociations, initialAssociations, associationRefCodes, onAssociationsChange }: TSetObjectAssociationDialog) => {
   const queryClient = useQueryClient()
   const { successNotification, errorNotification } = useNotification()
   const normalizedAssociations = parentAssociations ?? EMPTY_ASSOCIATIONS
@@ -64,7 +58,7 @@ const SetObjectAssociationProceduresDialog = ({
         updateProcedureId: string
         input: UpdateProcedureInput
       } = {
-        updateProcedureId: procedureId!,
+        updateProcedureId: procedureId ?? '',
         input: {
           ...associationInputs,
         },
@@ -78,7 +72,7 @@ const SetObjectAssociationProceduresDialog = ({
       })
 
       queryClient.invalidateQueries({ queryKey: ['procedures'] })
-      queryClient.invalidateQueries({ queryKey: ['procedure', procedureId!] })
+      queryClient.invalidateQueries({ queryKey: ['procedure', procedureId] })
       setOpen(false)
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
@@ -117,17 +111,7 @@ const SetObjectAssociationProceduresDialog = ({
           onIdChange={handleIdChange}
           initialData={normalizedAssociations}
           refCodeInitialData={normalizedAssociationRefCodes}
-          excludeObjectTypes={[
-            ObjectTypeObjects.EVIDENCE,
-            ObjectTypeObjects.GROUP,
-            ObjectTypeObjects.CONTROL_OBJECTIVE,
-            ObjectTypeObjects.PROCEDURE,
-            ObjectTypeObjects.SCAN,
-            ObjectTypeObjects.CAMPAIGN,
-            ObjectTypeObjects.ASSET,
-            ObjectTypeObjects.ENTITY,
-            ObjectTypeObjects.IDENTITY_HOLDER,
-          ]}
+          allowedObjectTypes={[ObjectTypeObjects.CONTROL, ObjectTypeObjects.INTERNAL_POLICY, ObjectTypeObjects.PROGRAM, ObjectTypeObjects.RISK, ObjectTypeObjects.SUB_CONTROL, ObjectTypeObjects.TASK]}
         />
         <DialogFooter>
           <SaveButton onClick={handleSave} disabled={isSaving} />

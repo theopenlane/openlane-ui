@@ -339,6 +339,74 @@ export const GET_CONTROL_ASSOCIATIONS_BY_ID = gql`
         }
         totalCount
       }
+      assets {
+        edges {
+          node {
+            id
+            name
+            displayName
+          }
+        }
+        totalCount
+      }
+      scans {
+        edges {
+          node {
+            id
+            target
+          }
+        }
+        totalCount
+      }
+      entities {
+        edges {
+          node {
+            id
+            name
+            displayName
+          }
+        }
+        totalCount
+      }
+      identityHolders {
+        edges {
+          node {
+            id
+            fullName
+            displayID
+          }
+        }
+        totalCount
+      }
+      campaigns {
+        edges {
+          node {
+            id
+            name
+            displayID
+          }
+        }
+        totalCount
+      }
+      remediations {
+        edges {
+          node {
+            id
+            title
+            displayID
+          }
+        }
+        totalCount
+      }
+      reviews {
+        edges {
+          node {
+            id
+            title
+          }
+        }
+        totalCount
+      }
     }
   }
 `

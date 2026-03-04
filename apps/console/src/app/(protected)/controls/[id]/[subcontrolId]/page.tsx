@@ -5,17 +5,24 @@ import { useHasScrollbar } from '@/hooks/useHasScrollbar'
 import { useParams, useRouter } from 'next/navigation'
 import { useQueryClient } from '@tanstack/react-query'
 import { FormProvider, useForm } from 'react-hook-form'
-import { Value } from 'platejs'
+import { type Value } from 'platejs'
 import { InfoIcon } from 'lucide-react'
 import { Badge } from '@repo/ui/badge'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import ControlHeaderActions from '@/components/pages/protected/controls/control-header-actions'
 import Link from 'next/link'
 import { useSession } from 'next-auth/react'
-import { SubcontrolControlSource, SubcontrolControlStatus, UpdateSubcontrolInput } from '@repo/codegen/src/schema.ts'
+import { SubcontrolControlSource, SubcontrolControlStatus, type UpdateSubcontrolInput } from '@repo/codegen/src/schema.ts'
 import { useNavigationGuard } from 'next-navigation-guard'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
-import { useGetSubcontrolAssociationsById, useGetSubcontrolById, useGetSubcontrolDiscussionById, useUpdateSubcontrol, useDeleteSubcontrol, SubcontrolByIdNode } from '@/lib/graphql-hooks/subcontrol.ts'
+import {
+  useGetSubcontrolAssociationsById,
+  useGetSubcontrolById,
+  useGetSubcontrolDiscussionById,
+  useUpdateSubcontrol,
+  useDeleteSubcontrol,
+  type SubcontrolByIdNode,
+} from '@/lib/graphql-hooks/subcontrol.ts'
 import TitleField from '@/components/pages/protected/controls/form-fields/title-field'
 import DescriptionField from '@/components/pages/protected/controls/form-fields/description-field'
 import PropertiesCard from '@/components/pages/protected/controls/propereties-card/properties-card.tsx'
@@ -78,7 +85,7 @@ const ControlDetailsPage: React.FC = () => {
   const userId = sessionData?.user?.userId
   const { data: userData } = useGetCurrentUser(userId)
 
-  const { setCrumbs } = React.useContext(BreadcrumbContext)
+  const { setCrumbs } = React.use(BreadcrumbContext)
   const { subcontrolId, id } = useParams<{ subcontrolId: string; id: string }>()
   const router = useRouter()
 
@@ -95,10 +102,10 @@ const ControlDetailsPage: React.FC = () => {
   const { data, isLoading, isError } = useGetSubcontrolById(subcontrolId)
   const { data: controlData, isLoading: isLoadingControl } = useGetControlById(id)
   const { currentOrgId, getOrganizationByID } = useOrganization()
-  const currentOrganization = getOrganizationByID(currentOrgId!)
+  const currentOrganization = getOrganizationByID(currentOrgId ?? '')
   const plateEditorHelper = usePlateEditor()
 
-  const { data: permission } = useAccountRoles(ObjectTypes.SUBCONTROL, subcontrolId!)
+  const { data: permission } = useAccountRoles(ObjectTypes.SUBCONTROL, subcontrolId)
   const { data: discussionData } = useGetSubcontrolDiscussionById(subcontrolId)
 
   const { data: associationsData } = useGetSubcontrolAssociationsById(subcontrolId)
@@ -163,7 +170,7 @@ const ControlDetailsPage: React.FC = () => {
       }
 
       await updateSubcontrol({
-        updateSubcontrolId: subcontrolId!,
+        updateSubcontrolId: subcontrolId,
         input,
       })
 

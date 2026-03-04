@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState, useContext } from 'react'
+import React, { useEffect, useState, use } from 'react'
 import { Input } from '@repo/ui/input'
 import { Button } from '@repo/ui/button'
 import { PlusIcon, Trash2 } from 'lucide-react'
@@ -12,7 +12,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { Switch } from '@repo/ui/switch'
-import { UpdateOrganizationSettingInput } from '@repo/codegen/src/schema'
+import { type UpdateOrganizationSettingInput } from '@repo/codegen/src/schema'
 
 const isValidDomain = (domain: string) => /^(?!:\/\/)([a-zA-Z0-9-_]+\.)+[a-zA-Z]{2,}$/.test(domain)
 
@@ -25,7 +25,7 @@ const AllowedDomains = () => {
   const [inputError, setInputError] = useState<string | null>(null)
   const [allowAutoJoin, setAllowAutoJoin] = useState(false)
   const queryClient = useQueryClient()
-  const { setCrumbs } = useContext(BreadcrumbContext)
+  const { setCrumbs } = use(BreadcrumbContext)
 
   const settingId = data?.organization?.setting?.id
   const domains = data?.organization?.setting?.allowedEmailDomains ?? []

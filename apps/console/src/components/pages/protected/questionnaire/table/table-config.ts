@@ -1,6 +1,6 @@
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import { FilterIcons } from '@/components/shared/enum-mapper/questionnaire-enum'
-import { FilterField } from '@/types'
+import { type FilterField } from '@/types'
 import { OrderDirection, AssessmentOrderField, AssessmentAssessmentType } from '@repo/codegen/src/schema.ts'
 
 type Option = { value: string; label: string }

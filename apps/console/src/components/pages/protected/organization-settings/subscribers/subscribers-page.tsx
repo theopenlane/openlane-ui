@@ -1,11 +1,11 @@
 'use client'
 
-import React, { useContext, useEffect } from 'react'
+import React, { use, useEffect } from 'react'
 import { SubscribersTable } from './table/subscribers-table'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 
 const SubscribersPage: React.FC = () => {
-  const { setCrumbs } = useContext(BreadcrumbContext)
+  const { setCrumbs } = use(BreadcrumbContext)
 
   useEffect(() => {
     setCrumbs([

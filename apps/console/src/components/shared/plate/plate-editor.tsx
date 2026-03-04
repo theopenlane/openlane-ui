@@ -3,21 +3,21 @@
 import React, { useEffect, useMemo, useRef, useImperativeHandle, useCallback, type Ref } from 'react'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
-import { Value, TElement, KEYS } from 'platejs'
-import { EditorKitVariant, TPlateEditorVariants } from '@repo/ui/components/editor/use-create-editor.ts'
-import { Editor, EditorContainer, TPlateEditorStyleVariant } from '@repo/ui/components/ui/editor.tsx'
-import { createPlateEditor, Plate, PlatePlugin, usePlateEditor } from 'platejs/react'
+import { type Value, type TElement, KEYS } from 'platejs'
+import { EditorKitVariant, type TPlateEditorVariants } from '@repo/ui/components/editor/use-create-editor.ts'
+import { Editor, EditorContainer, type TPlateEditorStyleVariant } from '@repo/ui/components/ui/editor.tsx'
+import { createPlateEditor, Plate, type PlatePlugin, usePlateEditor } from 'platejs/react'
 import { detectFormat } from './usePlateEditor'
-import { CommentEntityType, discussionPlugin, TDiscussion } from '@repo/ui/components/editor/plugins/discussion-kit.tsx'
+import { type CommentEntityType, discussionPlugin, type TDiscussion } from '@repo/ui/components/editor/plugins/discussion-kit.tsx'
 import {
-  ControlDiscussionFieldsFragment,
-  GetUserProfileQuery,
-  PolicyDiscussionFieldsFragment,
-  ProcedureDiscussionFieldsFragment,
-  RiskDiscussionFieldsFragment,
-  SubcontrolDiscussionFieldsFragment,
+  type ControlDiscussionFieldsFragment,
+  type GetUserProfileQuery,
+  type PolicyDiscussionFieldsFragment,
+  type ProcedureDiscussionFieldsFragment,
+  type RiskDiscussionFieldsFragment,
+  type SubcontrolDiscussionFieldsFragment,
 } from '@repo/codegen/src/schema.ts'
-import { TComment } from '@repo/ui/components/ui/comment.jsx'
+import { type TComment } from '@repo/ui/components/ui/comment.jsx'
 
 function setEditorChildren(editor: ReturnType<typeof createPlateEditor>, nodes: Value) {
   editor.children = nodes

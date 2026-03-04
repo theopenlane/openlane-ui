@@ -3,7 +3,7 @@ import type { AssociationEntityConfig } from '@/components/shared/object-associa
 
 const buildAssociationEntityConfig = <const TConfig extends AssociationEntityConfig>(config: TConfig): TConfig => config
 
-const assetAllowedObjectTypes = [ObjectTypeObjects.SCAN, ObjectTypeObjects.ENTITY, ObjectTypeObjects.IDENTITY_HOLDER, ObjectTypeObjects.CONTROL]
+const assetAllowedObjectTypes = [ObjectTypeObjects.CONTROL, ObjectTypeObjects.IDENTITY_HOLDER, ObjectTypeObjects.SCAN, ObjectTypeObjects.ENTITY]
 const assetInitialDataKeys = {
   scanIDs: 'scans',
   entityIDs: 'entities',
@@ -39,7 +39,7 @@ export const ASSET_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
   },
 })
 
-const entityAllowedObjectTypes = [ObjectTypeObjects.ASSET, ObjectTypeObjects.SCAN, ObjectTypeObjects.CAMPAIGN, ObjectTypeObjects.IDENTITY_HOLDER]
+const entityAllowedObjectTypes = [ObjectTypeObjects.ASSET, ObjectTypeObjects.CAMPAIGN, ObjectTypeObjects.IDENTITY_HOLDER, ObjectTypeObjects.SCAN]
 const entityInitialDataKeys = {
   assetIDs: 'assets',
   scanIDs: 'scans',
@@ -70,7 +70,7 @@ export const ENTITY_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
   },
 })
 
-const identityHolderAllowedObjectTypes = [ObjectTypeObjects.ASSET, ObjectTypeObjects.ENTITY, ObjectTypeObjects.CAMPAIGN, ObjectTypeObjects.TASK]
+const identityHolderAllowedObjectTypes = [ObjectTypeObjects.ASSET, ObjectTypeObjects.CAMPAIGN, ObjectTypeObjects.ENTITY, ObjectTypeObjects.TASK]
 const identityHolderInitialDataKeys = {
   assetIDs: 'assets',
   entityIDs: 'entities',

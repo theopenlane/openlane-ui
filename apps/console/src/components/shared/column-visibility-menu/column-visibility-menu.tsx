@@ -2,8 +2,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@repo/ui
 import { Button } from '@repo/ui/button'
 import { Columns3 } from 'lucide-react'
 import { Checkbox } from '@repo/ui/checkbox'
-import { VisibilityState } from '@tanstack/react-table'
-import { TableKeyValue } from '@repo/ui/table-key'
+import { type VisibilityState } from '@tanstack/react-table'
+import { type TableKeyValue } from '@repo/ui/table-key'
 
 const STORAGE_FILTER_PREFIX = 'column-visibility'
 

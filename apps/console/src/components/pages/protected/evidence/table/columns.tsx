@@ -1,5 +1,5 @@
-import { ColumnDef } from '@tanstack/react-table'
-import { Evidence, User } from '@repo/codegen/src/schema.ts'
+import { type ColumnDef } from '@tanstack/react-table'
+import { type Evidence, type User } from '@repo/codegen/src/schema.ts'
 import Link from 'next/link'
 import React from 'react'
 import { Check, LinkIcon, Minus } from 'lucide-react'
@@ -70,14 +70,15 @@ export const useGetEvidenceColumns = ({ userMap, selectedEvidence, setSelectedEv
         return (
           <div className="flex flex-wrap gap-1" onClick={(e) => e.stopPropagation()}>
             {allControls.map((control, index) => {
+              if (!control?.node) return null
               return (
                 <ControlChip
                   key={index}
                   control={{
-                    id: control!.node!.id,
-                    refCode: control!.node!.refCode,
-                    referenceFramework: control!.node!.referenceFramework,
-                    __typename: control!.node?.__typename,
+                    id: control.node.id,
+                    refCode: control.node.refCode,
+                    referenceFramework: control.node.referenceFramework,
+                    __typename: control.node.__typename,
                   }}
                 />
               )

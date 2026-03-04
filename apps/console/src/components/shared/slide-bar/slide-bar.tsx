@@ -1,4 +1,4 @@
-import React, { useState, useRef, ReactNode, useCallback } from 'react'
+import React, { useState, useRef, type ReactNode, useCallback } from 'react'
 import { PanelRight, PanelRightClose } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 
@@ -36,7 +36,7 @@ const SlideBarLayout: React.FC<TSlideBarLayoutProps> = ({
 }) => {
   const [open, setOpen] = useState<boolean>(true)
   const [width, setWidth] = useState<number>(minWidth || DEFAULT_WIDTH)
-  const resizing = useRef(false)
+  const resizingRef = useRef(false)
 
   const [prevSlideOpen, setPrevSlideOpen] = useState(slideOpen)
   if (slideOpen !== prevSlideOpen) {
@@ -49,10 +49,10 @@ const SlideBarLayout: React.FC<TSlideBarLayoutProps> = ({
   const startResize = useCallback(
     (e: React.MouseEvent<HTMLDivElement>) => {
       e.preventDefault()
-      resizing.current = true
+      resizingRef.current = true
 
       const handleMouseMove = (ev: MouseEvent) => {
-        if (!resizing.current) return
+        if (!resizingRef.current) return
         const newWidth = window.innerWidth - ev.clientX
         if (newWidth > minWidth && newWidth < window.innerWidth * MAX_RATIO) {
           setWidth(newWidth)
@@ -60,8 +60,8 @@ const SlideBarLayout: React.FC<TSlideBarLayoutProps> = ({
       }
 
       const handleMouseUp = () => {
-        if (!resizing.current) return
-        resizing.current = false
+        if (!resizingRef.current) return
+        resizingRef.current = false
         setBodyUserSelect('')
         document.removeEventListener('mousemove', handleMouseMove)
         document.removeEventListener('mouseup', handleMouseUp)

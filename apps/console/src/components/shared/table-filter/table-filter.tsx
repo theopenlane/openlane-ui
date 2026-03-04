@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { FilterField, WhereCondition } from '@/types'
+import { type FilterField, type WhereCondition } from '@/types'
 import { Filter, ChevronDown, CalendarIcon } from 'lucide-react'
 import { format } from 'date-fns'
 import { Input } from '@repo/ui/input'
@@ -10,12 +10,12 @@ import { cn } from '@repo/ui/lib/utils'
 import { Calendar } from '@repo/ui/calendar'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
-import { TableKeyValue } from '@repo/ui/table-key'
+import { type TableKeyValue } from '@repo/ui/table-key'
 import { Separator as Hr } from '@repo/ui/separator'
-import { saveFilters, loadFilters, clearFilters, TFilterState, TFilterValue, saveQuickFilters, loadQuickFilter, clearQuickFilters } from '@/components/shared/table-filter/filter-storage.ts'
+import { saveFilters, loadFilters, clearFilters, type TFilterState, type TFilterValue, saveQuickFilters, loadQuickFilter, clearQuickFilters } from '@/components/shared/table-filter/filter-storage.ts'
 import Slider from '../slider/slider'
 import { Checkbox } from '@repo/ui/checkbox'
-import { getActiveFilterCount, getQuickFiltersWhereCondition, getWhereCondition, TQuickFilter } from '@/components/shared/table-filter/table-filter-helper.ts'
+import { getActiveFilterCount, getQuickFiltersWhereCondition, getWhereCondition, type TQuickFilter } from '@/components/shared/table-filter/table-filter-helper.ts'
 import { DropdownSearchField } from '../filter-components/dropdown-search-field'
 import { DropdownSearchMultiselect } from '../filter-components/dropdown-search-multiselect-field'
 
@@ -114,6 +114,7 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageK
       onFilterChange?.(buildWhereCondition(cleaned, filterFields))
     }
 
+    // eslint-disable-next-line @eslint-react/web-api/no-leaked-event-listener
     window.addEventListener(`filters-updated:${pageKey}`, listener as EventListener)
     return () => window.removeEventListener(`filters-updated:${pageKey}`, listener as EventListener)
   }, [pageKey, filterFields, onFilterChange, buildWhereCondition, storageEnabled])

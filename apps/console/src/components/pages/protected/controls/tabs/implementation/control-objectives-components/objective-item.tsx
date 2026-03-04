@@ -3,7 +3,7 @@
 import React from 'react'
 import { Button } from '@repo/ui/button'
 import { Archive, MoreHorizontal, Pencil, Trash2 } from 'lucide-react'
-import { ControlObjectiveFieldsFragment, ControlObjectiveObjectiveStatus } from '@repo/codegen/src/schema'
+import { type ControlObjectiveFieldsFragment, ControlObjectiveObjectiveStatus } from '@repo/codegen/src/schema'
 import { canEdit } from '@/lib/authz/utils'
 import { ControlObjectiveCard } from './control-objective-card'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
@@ -79,7 +79,7 @@ export const ObjectiveItem: React.FC<Props> = ({ node, onEdit, onUnarchive, onDe
           )}
         />
       </div>
-      <ControlObjectiveCard obj={node} actions={<LinkControlsModal controlObjectiveData={node} aria-label="Link controls" />} />
+      <ControlObjectiveCard obj={node} actions={<LinkControlsModal controlObjectiveData={node} aria-label="Set associations" />} />
     </div>
   )
 }

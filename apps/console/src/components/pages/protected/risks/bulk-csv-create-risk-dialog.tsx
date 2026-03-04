@@ -9,7 +9,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { exportCSV } from '@/lib/export'
 import { GRAPHQL_OBJECT_DOCS } from '@/constants/docs'
 import { useCreateBulkCSVRisk } from '@/lib/graphql-hooks/risk'
-import { TUploadedFile } from '../evidence/upload/types/TUploadedFile'
+import { type TUploadedFile } from '../evidence/upload/types/TUploadedFile'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { Callout } from '@/components/shared/callout/callout'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
@@ -31,12 +31,12 @@ const BulkCSVCreateRiskDialog: React.FC<BulkCsvCreateRiskDialogProps> = ({ trigg
   const { mutateAsync: createBulkRisk, isPending: isSubmitting } = useCreateBulkCSVRisk()
 
   const handleFileUpload = async () => {
-    if (!uploadedFile) {
+    if (!uploadedFile || !uploadedFile.file) {
       return
     }
 
     try {
-      await createBulkRisk({ input: uploadedFile.file! })
+      await createBulkRisk({ input: uploadedFile.file })
       successNotification({
         title: 'Risks Created',
         description: `Risks has been successfully created`,
@@ -63,10 +63,13 @@ const BulkCSVCreateRiskDialog: React.FC<BulkCsvCreateRiskDialogProps> = ({ trigg
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       {trigger ? (
         <DialogTrigger className="bg-transparent">
-          {cloneElement(trigger, {
-            onClick: () => setIsOpen(true),
-            disabled: isSubmitting,
-          })}
+          {
+            // eslint-disable-next-line @eslint-react/no-clone-element
+            cloneElement(trigger, {
+              onClick: () => setIsOpen(true),
+              disabled: isSubmitting,
+            })
+          }
         </DialogTrigger>
       ) : (
         <DialogTrigger asChild>

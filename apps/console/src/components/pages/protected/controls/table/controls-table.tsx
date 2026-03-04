@@ -1,27 +1,27 @@
 'use client'
 
-import React, { useContext, useEffect, useMemo, useState } from 'react'
+import React, { use, useEffect, useMemo, useState } from 'react'
 import { useGetAllControls } from '@/lib/graphql-hooks/control'
 import { DataTable, getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
-import { ColumnDef } from '@tanstack/table-core'
+import { type ColumnDef } from '@tanstack/table-core'
 import {
   ControlControlStatus,
-  ControlListFieldsFragment,
+  type ControlListFieldsFragment,
   ControlOrderField,
-  ControlWhereInput,
+  type ControlWhereInput,
   ExportExportFormat,
   ExportExportType,
-  GetAllControlsQueryVariables,
+  type GetAllControlsQueryVariables,
   OrderDirection,
 } from '@repo/codegen/src/schema'
 import { useRouter } from 'next/navigation'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import ControlsTableToolbar from './controls-table-toolbar'
 import { CONTROLS_SORT_FIELDS, getControlColumns } from './table-config'
 import { useDebounce } from '@uidotdev/usehooks'
-import { VisibilityState } from '@tanstack/react-table'
+import { type VisibilityState } from '@tanstack/react-table'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
 import { canEdit } from '@/lib/authz/utils.ts'
@@ -47,7 +47,7 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
   const { push } = useRouter()
   const { convertToReadOnly } = usePlateEditor()
   const [filters, setFilters] = useState<ControlWhereInput>({})
-  const { setCrumbs } = useContext(BreadcrumbContext)
+  const { setCrumbs } = use(BreadcrumbContext)
   const { data: permission } = useOrganizationRoles()
   const { handleExport } = useFileExport()
   const { errorNotification } = useNotification()
@@ -83,7 +83,7 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.CONTROL, defaultVisibility))
 
   const [searchTerm, setSearchTerm] = useStorageSearch(ObjectTypes.CONTROL)
-  const [pagination, setPagination] = useState<TPagination>(getInitialPagination(TableKeyEnum.CONTROL, DEFAULT_PAGINATION))
+  const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(TableKeyEnum.CONTROL, DEFAULT_PAGINATION))
   const debouncedSearch = useDebounce(searchTerm, 300)
   const [selectedControls, setSelectedControls] = useState<{ id: string; refCode: string }[]>([])
 

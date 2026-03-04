@@ -1,26 +1,26 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
-  IdentityHoldersWithFilterQuery,
-  IdentityHoldersWithFilterQueryVariables,
-  CreateIdentityHolderMutation,
-  CreateIdentityHolderMutationVariables,
-  UpdateIdentityHolderMutation,
-  UpdateIdentityHolderMutationVariables,
-  DeleteIdentityHolderMutation,
-  DeleteIdentityHolderMutationVariables,
-  IdentityHolderQuery,
-  IdentityHolderQueryVariables,
-  CreateBulkCsvIdentityHolderMutation,
-  CreateBulkCsvIdentityHolderMutationVariables,
-  UpdateBulkIdentityHolderMutation,
-  UpdateBulkIdentityHolderMutationVariables,
-  DeleteBulkIdentityHolderMutation,
-  DeleteBulkIdentityHolderMutationVariables,
-  GetIdentityHolderAssociationsQuery,
+  type IdentityHoldersWithFilterQuery,
+  type IdentityHoldersWithFilterQueryVariables,
+  type CreateIdentityHolderMutation,
+  type CreateIdentityHolderMutationVariables,
+  type UpdateIdentityHolderMutation,
+  type UpdateIdentityHolderMutationVariables,
+  type DeleteIdentityHolderMutation,
+  type DeleteIdentityHolderMutationVariables,
+  type IdentityHolderQuery,
+  type IdentityHolderQueryVariables,
+  type CreateBulkCsvIdentityHolderMutation,
+  type CreateBulkCsvIdentityHolderMutationVariables,
+  type UpdateBulkIdentityHolderMutation,
+  type UpdateBulkIdentityHolderMutationVariables,
+  type DeleteBulkIdentityHolderMutation,
+  type DeleteBulkIdentityHolderMutationVariables,
+  type GetIdentityHolderAssociationsQuery,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 import {
   GET_ALL_IDENTITY_HOLDERS,
   CREATE_IDENTITY_HOLDER,

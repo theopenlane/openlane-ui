@@ -1,11 +1,11 @@
-import { GenericTablePageConfig, EnumOptionsGeneric } from '@/components/shared/crud-base/page'
-import { GenericDetailsSheetConfig, RenderFieldsProps } from '@/components/shared/crud-base/generic-sheet'
+import { type GenericTablePageConfig, type EnumOptionsGeneric } from '@/components/shared/crud-base/page'
+import { type GenericDetailsSheetConfig, type RenderFieldsProps } from '@/components/shared/crud-base/generic-sheet'
 
-import { ScanOrderField, ScanWhereInput, CreateScanInput, CreateScanMutation, UpdateScanInput, UpdateScanMutation, OrderDirection } from '@repo/codegen/src/schema'
+import { ScanOrderField, type ScanWhereInput, type CreateScanInput, type CreateScanMutation, type UpdateScanInput, type UpdateScanMutation, OrderDirection } from '@repo/codegen/src/schema'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { ObjectTypes, ObjectNames } from '@repo/codegen/src/type-names'
-import { ScansNodeNonNull } from '@/lib/graphql-hooks/scan'
-import { ScanFormData } from '../hooks/use-form-schema'
+import { type ScansNodeNonNull } from '@/lib/graphql-hooks/scan'
+import { type ScanFormData } from '../hooks/use-form-schema'
 
 type TFormData = ScanFormData
 type TData = ScansNodeNonNull

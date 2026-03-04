@@ -5,15 +5,15 @@ import { DataTable } from '@repo/ui/data-table'
 import { useDebounce } from '@uidotdev/usehooks'
 import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
 import { useParams } from 'next/navigation'
-import { TFormEvidenceData } from '@/components/pages/protected/evidence/types/TFormEvidenceData.ts'
+import { type TFormEvidenceData } from '@/components/pages/protected/evidence/types/TFormEvidenceData.ts'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import EvidenceCreateSheet from '@/components/pages/protected/evidence/evidence-create-sheet'
-import { CustomEvidenceControl } from '@/components/pages/protected/evidence/evidence-sheet-config'
+import { type CustomEvidenceControl } from '@/components/pages/protected/evidence/evidence-sheet-config'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useGetEvidenceListLight } from '@/lib/graphql-hooks/evidence'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
 import { SearchFilterBar, mergeWhere } from '@/components/pages/protected/controls/tabs/shared/documentation-shared'
-import { EvidenceOrder, EvidenceOrderField, EvidenceWhereInput, OrderDirection } from '@repo/codegen/src/schema'
+import { type EvidenceOrder, EvidenceOrderField, type EvidenceWhereInput, OrderDirection } from '@repo/codegen/src/schema'
 import type { ApiToken, User } from '@repo/codegen/src/schema'
 import type { FilterField, WhereCondition } from '@/types'
 import type { TPagination } from '@repo/ui/pagination-types'
@@ -155,16 +155,7 @@ const EvidenceTable = ({ control, subcontrolIds }: Props) => {
             onOpenChange={setIsSheetOpen}
             formData={control}
             controlParam={[controlParam]}
-            excludeObjectTypes={[
-              ObjectTypeObjects.EVIDENCE,
-              ObjectTypeObjects.RISK,
-              ObjectTypeObjects.PROCEDURE,
-              ObjectTypeObjects.GROUP,
-              ObjectTypeObjects.INTERNAL_POLICY,
-              ObjectTypeObjects.CONTROL,
-              ObjectTypeObjects.SUB_CONTROL,
-              ObjectTypeObjects.PROGRAM,
-            ]}
+            allowedObjectTypes={[ObjectTypeObjects.CONTROL_IMPLEMENTATION, ObjectTypeObjects.CONTROL_OBJECTIVE, ObjectTypeObjects.SCAN, ObjectTypeObjects.TASK]}
             defaultSelectedObject={ObjectTypeObjects.TASK}
           />
         </div>

@@ -3,10 +3,10 @@
 import React, { useState } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from '@repo/ui/avatar'
 import { DataTable } from '@repo/ui/data-table'
-import { ColumnDef } from '@tanstack/react-table'
+import { type ColumnDef } from '@tanstack/react-table'
 import { Trash2 } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { GroupMembershipRole, User } from '@repo/codegen/src/schema'
+import { GroupMembershipRole, type User } from '@repo/codegen/src/schema'
 import { useGroupsStore } from '@/hooks/useGroupsStore'
 import { useSession } from 'next-auth/react'
 import { useDeleteGroupMembership, useGetGroupDetails, useUpdateGroupMembership } from '@/lib/graphql-hooks/group'
@@ -29,7 +29,7 @@ interface Member {
 const GroupsMembersTable = () => {
   const { data: session } = useSession()
   const { selectedGroup } = useGroupsStore()
-  const { data: permission } = useAccountRoles(ObjectTypes.GROUP, selectedGroup!)
+  const { data: permission } = useAccountRoles(ObjectTypes.GROUP, selectedGroup ?? '')
   const { data } = useGetGroupDetails(selectedGroup)
   const { members, isManaged } = data?.group || {}
   const [users, setUsers] = useState<Member[]>([])

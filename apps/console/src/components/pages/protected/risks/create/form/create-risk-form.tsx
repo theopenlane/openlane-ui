@@ -1,10 +1,10 @@
 import React, { useCallback, useState } from 'react'
 import { useCreateRisk } from '@/lib/graphql-hooks/risk'
-import useFormSchema, { CreateRisksFormData } from '@/components/pages/protected/risks/view/hooks/use-form-schema.ts'
+import useFormSchema, { type CreateRisksFormData } from '@/components/pages/protected/risks/view/hooks/use-form-schema.ts'
 import { useNotification } from '@/hooks/useNotification.tsx'
 import { Form } from '@repo/ui/form'
 import PropertiesCard from '@/components/pages/protected/risks/view/cards/properties-card.tsx'
-import { Value } from 'platejs'
+import { type Value } from 'platejs'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import BusinessCostField from '@/components/pages/protected/risks/view/fields/business-cost-field.tsx'
 import TitleField from '../../view/fields/title-field'
@@ -16,7 +16,7 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@repo/ui/button'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { Switch } from '@repo/ui/switch'
-import { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap.ts'
+import { type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap.ts'
 
 const CreateRiskForm: React.FC = () => {
   const { mutateAsync: createRisk, isPending } = useCreateRisk()

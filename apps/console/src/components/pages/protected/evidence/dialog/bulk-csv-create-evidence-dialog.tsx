@@ -10,7 +10,7 @@ import { exportCSV } from '@/lib/export'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { GRAPHQL_OBJECT_DOCS } from '@/constants/docs'
 import { Callout } from '@/components/shared/callout/callout'
-import { TUploadedFile } from '../upload/types/TUploadedFile'
+import { type TUploadedFile } from '../upload/types/TUploadedFile'
 import { useCreateBulkCSVEvidence } from '@/lib/graphql-hooks/evidence'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
@@ -31,12 +31,12 @@ const BulkCSVCreateEvidenceDialog: React.FC<BulkCSVCreateEvidenceDialogProps> = 
   const { mutateAsync: createBulkEvidence, isPending: isSubmitting } = useCreateBulkCSVEvidence()
 
   const handleFileUpload = async () => {
-    if (!uploadedFile) {
+    if (!uploadedFile?.file) {
       return
     }
 
     try {
-      await createBulkEvidence({ input: uploadedFile.file! })
+      await createBulkEvidence({ input: uploadedFile.file })
       successNotification({
         title: 'Evidence Created',
         description: `Evidence has been successfully created`,
@@ -63,10 +63,13 @@ const BulkCSVCreateEvidenceDialog: React.FC<BulkCSVCreateEvidenceDialogProps> = 
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       {trigger ? (
         <DialogTrigger className="bg-transparent">
-          {cloneElement(trigger, {
-            onClick: () => setIsOpen(true),
-            disabled: isSubmitting,
-          })}
+          {
+            // eslint-disable-next-line @eslint-react/no-clone-element
+            cloneElement(trigger, {
+              onClick: () => setIsOpen(true),
+              disabled: isSubmitting,
+            })
+          }
         </DialogTrigger>
       ) : (
         <DialogTrigger asChild>

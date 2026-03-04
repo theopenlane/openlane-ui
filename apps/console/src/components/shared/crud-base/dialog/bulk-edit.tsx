@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { z, ZodObject, ZodRawShape } from 'zod'
+import { z, type ZodObject, type ZodRawShape } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useWatch } from 'react-hook-form'
 import { useForm, FormProvider, Controller, useFieldArray } from 'react-hook-form'
@@ -16,8 +16,8 @@ import { Input } from '@repo/ui/input'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
-import { ObjectTypes } from '@repo/codegen/src/type-names'
-import { EnumOptionsGeneric } from '../page'
+import { type ObjectTypes } from '@repo/codegen/src/type-names'
+import { type EnumOptionsGeneric } from '../page'
 import { toHumanLabel } from '@/utils/strings'
 
 export interface BulkEditFieldOption {

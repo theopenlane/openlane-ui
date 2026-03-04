@@ -1,7 +1,7 @@
 'use client'
 
-import React, { useContext, useEffect, useState } from 'react'
-import { defineStepper, Step } from '@stepperize/react'
+import React, { use, useEffect, useState } from 'react'
+import { defineStepper, type Step } from '@stepperize/react'
 import { useForm, FormProvider } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter } from 'next/navigation'
@@ -23,9 +23,9 @@ import {
   step5Schema,
   validateFullAndNotify,
   validateStepAndNotify,
-  WizardValues,
+  type WizardValues,
 } from './advanced-setup-wizard-config'
-import { CreateProgramWithMembersInput, ProgramMembershipRole } from '@repo/codegen/src/schema'
+import { type CreateProgramWithMembersInput, ProgramMembershipRole } from '@repo/codegen/src/schema'
 import { useNotification } from '@/hooks/useNotification'
 import { useCreateProgramWithMembers } from '@/lib/graphql-hooks/program'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -43,7 +43,7 @@ export default function AdvancedSetupWizard() {
   const { mutateAsync: createProgram, isPending } = useCreateProgramWithMembers()
   const router = useRouter()
   const [summaryData, setSummaryData] = useState<WizardValues>({} as WizardValues)
-  const { setCrumbs } = useContext(BreadcrumbContext)
+  const { setCrumbs } = use(BreadcrumbContext)
   const [showExitConfirm, setShowExitConfirm] = useState(false)
   const [isMemberSheetOpen, setIsMemberSheetOpen] = useState(false)
 
@@ -210,7 +210,7 @@ export default function AdvancedSetupWizard() {
       <div className="max-w-6xl mx-auto px-6 py-2">
         <StepHeader stepper={stepper} disabledIDs={disabledIDs} />
         <Separator separatorClass="bg-card" />
-        <FormProvider {...form} key={stepper.current.id}>
+        <FormProvider key={stepper.current.id} {...form}>
           <div className="py-6 flex gap-16">
             <div className="flex flex-col flex-1">
               {stepper.switch({

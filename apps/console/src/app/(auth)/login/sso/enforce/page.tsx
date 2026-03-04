@@ -13,7 +13,7 @@ const SSOEnforcePage: React.FC = () => {
   const searchParams = useSearchParams()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const hasRedirected = useRef(false)
+  const hasRedirectedRef = useRef(false)
 
   const directOAuth = getCookie('direct_oauth')
   const needsRedirect = !directOAuth
@@ -23,8 +23,8 @@ const SSOEnforcePage: React.FC = () => {
   const hasError = !email || !organizationId || !!error
 
   useEffect(() => {
-    if (needsRedirect && !hasRedirected.current) {
-      hasRedirected.current = true
+    if (needsRedirect && !hasRedirectedRef.current) {
+      hasRedirectedRef.current = true
       router.push('/login')
       return
     }

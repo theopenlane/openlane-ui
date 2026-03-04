@@ -5,10 +5,10 @@ import { Button } from '@repo/ui/button'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import { useMemo, useState } from 'react'
 import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
-import { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
+import { type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
 import { useNotification } from '@/hooks/useNotification'
 import { useUpdateControlObjective } from '@/lib/graphql-hooks/control-objective'
-import { ControlObjectiveFieldsFragment, ControlObjectiveObjectiveStatus } from '@repo/codegen/src/schema'
+import { type ControlObjectiveFieldsFragment, ControlObjectiveObjectiveStatus } from '@repo/codegen/src/schema'
 import { useParams } from 'next/navigation'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { SaveButton } from '@/components/shared/save-button/save-button'
@@ -36,6 +36,12 @@ export function LinkControlsModal({ controlObjectiveData, 'aria-label': ariaLabe
     () => ({
       controlIDs: controlObjectiveData.controls?.edges?.flatMap((edge) => edge?.node?.id || []),
       subcontrolIDs: controlObjectiveData.subcontrols?.edges?.flatMap((edge) => edge?.node?.id || []),
+      programIDs: controlObjectiveData.programs?.edges?.flatMap((edge) => edge?.node?.id || []),
+      evidenceIDs: controlObjectiveData.evidence?.edges?.flatMap((edge) => edge?.node?.id || []),
+      internalPolicyIDs: controlObjectiveData.internalPolicies?.edges?.flatMap((edge) => edge?.node?.id || []),
+      procedureIDs: controlObjectiveData.procedures?.edges?.flatMap((edge) => edge?.node?.id || []),
+      riskIDs: controlObjectiveData.risks?.edges?.flatMap((edge) => edge?.node?.id || []),
+      taskIDs: controlObjectiveData.tasks?.edges?.flatMap((edge) => edge?.node?.id || []),
     }),
     [controlObjectiveData],
   )
@@ -93,7 +99,7 @@ export function LinkControlsModal({ controlObjectiveData, 'aria-label': ariaLabe
       }
 
       await updateControlObjective({
-        updateControlObjectiveId: controlObjectiveData.id!,
+        updateControlObjectiveId: controlObjectiveData.id,
         input: associationInputs,
       })
 
@@ -121,7 +127,7 @@ export function LinkControlsModal({ controlObjectiveData, 'aria-label': ariaLabe
     <Dialog open={open} onOpenChange={handleDialogChange}>
       <DialogTrigger asChild>
         <Button disabled={controlObjectiveData.status === ControlObjectiveObjectiveStatus.ARCHIVED} className="h-8" aria-label={ariaLabel}>
-          Link Controls
+          Set Associations
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-2xl p-6 space-y-4">
@@ -136,15 +142,15 @@ export function LinkControlsModal({ controlObjectiveData, 'aria-label': ariaLabe
             setAssociations(updatedMap)
           }}
           initialData={initialData}
-          excludeObjectTypes={[
+          allowedObjectTypes={[
             ObjectTypeObjects.PROGRAM,
-            ObjectTypeObjects.TASK,
+            ObjectTypeObjects.EVIDENCE,
+            ObjectTypeObjects.CONTROL,
+            ObjectTypeObjects.SUB_CONTROL,
             ObjectTypeObjects.INTERNAL_POLICY,
             ObjectTypeObjects.PROCEDURE,
             ObjectTypeObjects.RISK,
-            ObjectTypeObjects.EVIDENCE,
-            ObjectTypeObjects.CONTROL_OBJECTIVE,
-            ObjectTypeObjects.GROUP,
+            ObjectTypeObjects.TASK,
           ]}
         />
         <DialogFooter>

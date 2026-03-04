@@ -6,12 +6,12 @@ import React, { cloneElement, useCallback, useState } from 'react'
 import { Button } from '@repo/ui/button'
 import { useNotification } from '@/hooks/useNotification'
 import { useCreateProcedure, useCreateUploadProcedure } from '@/lib/graphql-hooks/procedure'
-import { TUploadedFile } from '../../../evidence/upload/types/TUploadedFile'
+import { type TUploadedFile } from '../../../evidence/upload/types/TUploadedFile'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import UploadTab from '../../../evidence/upload/upload-tab'
 import { PolicyProcedureTabEnum } from '@/components/shared/enum-mapper/policy-procedure-tab-enum'
-import { CreateProcedureInput } from '@repo/codegen/src/schema'
+import { type CreateProcedureInput } from '@repo/codegen/src/schema'
 import { useRouter } from 'next/navigation'
 import DirectLinkCreatePolicyProcedureTab from '@/components/shared/policy-procedure-shared-tabs/direct-link-create-policy-procedure-tab'
 import { Callout } from '@/components/shared/callout/callout'
@@ -115,7 +115,8 @@ const CreateProcedureUploadDialog: React.FC<TCreateProcedureUploadDialogProps> =
     } else {
       try {
         for (const uploadedFile of uploadedFiles) {
-          await createUploadProcedure({ procedureFile: uploadedFile.file! })
+          if (!uploadedFile.file) continue
+          await createUploadProcedure({ procedureFile: uploadedFile.file })
         }
         successNotification({
           title: 'Procedure Created',
@@ -165,10 +166,13 @@ const CreateProcedureUploadDialog: React.FC<TCreateProcedureUploadDialogProps> =
     >
       {trigger ? (
         <DialogTrigger className="bg-transparent">
-          {cloneElement(trigger, {
-            onClick: () => setIsOpen(true),
-            disabled: isSubmitting,
-          })}
+          {
+            // eslint-disable-next-line @eslint-react/no-clone-element
+            cloneElement(trigger, {
+              onClick: () => setIsOpen(true),
+              disabled: isSubmitting,
+            })
+          }
         </DialogTrigger>
       ) : (
         <DialogTrigger asChild>

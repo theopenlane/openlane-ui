@@ -8,7 +8,7 @@ import FileUpload from '@/components/shared/file-upload/file-upload'
 import { useCreateBulkCSVTask } from '@/lib/graphql-hooks/task'
 import { useNotification } from '@/hooks/useNotification'
 import { exportCSV } from '@/lib/export'
-import { TUploadedFile } from '../../../evidence/upload/types/TUploadedFile'
+import { type TUploadedFile } from '../../../evidence/upload/types/TUploadedFile'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { GRAPHQL_OBJECT_DOCS } from '@/constants/docs'
 import { Callout } from '@/components/shared/callout/callout'
@@ -31,12 +31,12 @@ const BulkCSVCreateTaskDialog: React.FC<BulkCsvCreateTaskDialogProps> = ({ trigg
   const { mutateAsync: createBulkTask, isPending: isSubmitting } = useCreateBulkCSVTask()
 
   const handleFileUpload = async () => {
-    if (!uploadedFile) {
+    if (!uploadedFile || !uploadedFile.file) {
       return
     }
 
     try {
-      await createBulkTask({ input: uploadedFile.file! })
+      await createBulkTask({ input: uploadedFile.file })
       successNotification({
         title: 'Tasks Created',
         description: `Tasks has been successfully created`,
@@ -63,10 +63,13 @@ const BulkCSVCreateTaskDialog: React.FC<BulkCsvCreateTaskDialogProps> = ({ trigg
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       {trigger ? (
         <DialogTrigger className="bg-transparent">
-          {cloneElement(trigger, {
-            onClick: () => setIsOpen(true),
-            disabled: isSubmitting,
-          })}
+          {
+            // eslint-disable-next-line @eslint-react/no-clone-element
+            cloneElement(trigger, {
+              onClick: () => setIsOpen(true),
+              disabled: isSubmitting,
+            })
+          }
         </DialogTrigger>
       ) : (
         <DialogTrigger asChild>

@@ -7,7 +7,7 @@ import { Label } from '@repo/ui/label'
 import { Input } from '@repo/ui/input'
 import { RadioGroup, RadioGroupItem } from '@repo/ui/radio-group'
 import FileUpload from '@/components/shared/file-upload/file-upload'
-import { TUploadedFile } from '@/components/pages/protected/evidence/upload/types/TUploadedFile'
+import { type TUploadedFile } from '@/components/pages/protected/evidence/upload/types/TUploadedFile'
 import { normalizeUrl } from '@/utils/normalizeUrl'
 
 interface Props {

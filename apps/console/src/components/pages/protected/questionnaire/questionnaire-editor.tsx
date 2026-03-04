@@ -1,8 +1,8 @@
 'use client'
 
-import { useCallback, useContext, useEffect, useReducer, useRef, useState } from 'react'
+import { useCallback, use, useEffect, useReducer, useRef, useState } from 'react'
 import { SurveyCreatorComponent, SurveyCreator } from 'survey-creator-react'
-import { ITheme, slk } from 'survey-core'
+import { type ITheme, slk } from 'survey-core'
 import { editorLocalization } from 'survey-creator-core'
 import { useTheme } from 'next-themes'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
@@ -116,7 +116,7 @@ function questionnaireEditorReducer(state: TQuestionnaireEditorState, action: TQ
 slk(surveyLicenseKey as string)
 
 export default function CreateQuestionnaire(input: { templateId: string; existingId: string }) {
-  const { setCrumbs } = useContext(BreadcrumbContext)
+  const { setCrumbs } = use(BreadcrumbContext)
   const router = useRouter()
   const { successNotification, errorNotification } = useNotification()
 

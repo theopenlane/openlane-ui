@@ -37,7 +37,7 @@ export default function ForgotPasswordComponent() {
       return
     }
 
-    let recaptchaToken = ''
+    let recaptchaToken: string
 
     if (recaptchaSiteKey) {
       recaptchaToken = await grecaptcha.execute(recaptchaSiteKey, { action: 'forgot_password' })

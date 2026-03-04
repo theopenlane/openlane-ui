@@ -1,11 +1,11 @@
 'use client'
 
-import React, { useContext, useEffect, useMemo, useState } from 'react'
+import React, { use, useEffect, useMemo, useState } from 'react'
 import { useOrganization } from '@/hooks/useOrganization'
 import { useStandardsSelect } from '@/lib/graphql-hooks/standard'
 import { useGetControlsGroupedByCategoryResolver } from '@/lib/graphql-hooks/control'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
-import { ControlControlStatus, ControlWhereInput } from '@repo/codegen/src/schema'
+import { ControlControlStatus, type ControlWhereInput } from '@repo/codegen/src/schema'
 import { Card } from '@repo/ui/cardpanel'
 import { ChevronDown, ChevronsDownUp, List, SlidersHorizontal, SquarePlus, Upload } from 'lucide-react'
 import ControlChip from '../controls/map-controls/shared/control-chip'
@@ -19,7 +19,7 @@ import { PercentageDonut } from '@/components/shared/percentage-donut.tsx/percen
 import { canCreate } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { ControlReportPageSkeleton } from './skeleton/control-report-page-skeleton'
-import { isStringArray, loadFilters, saveFilters, TFilterState } from '@/components/shared/table-filter/filter-storage.ts'
+import { isStringArray, loadFilters, saveFilters, type TFilterState } from '@/components/shared/table-filter/filter-storage.ts'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import Menu from '@/components/shared/menu/menu'
 import { BulkCSVCloneControlDialog } from '../controls/bulk-csv-clone-control-dialog'
@@ -42,7 +42,7 @@ type TControlReportPageProps = {
 
 const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActive }) => {
   const { currentOrgId } = useOrganization()
-  const { setCrumbs } = useContext(BreadcrumbContext)
+  const { setCrumbs } = use(BreadcrumbContext)
   const [selectedStandards, setSelectedStandards] = useState<string[]>(() => {
     const saved = loadFilters(TableKeyEnum.CONTROL)
     return isStringArray(saved?.standardIDIn) ? saved.standardIDIn : []
@@ -150,6 +150,7 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
       setSelectedStandards(updated)
     }
 
+    // eslint-disable-next-line @eslint-react/web-api/no-leaked-event-listener
     window.addEventListener(`filters-updated:${TableKeyEnum.CONTROL}`, handleUpdate as EventListener)
     return () => window.removeEventListener(`filters-updated:${TableKeyEnum.CONTROL}`, handleUpdate as EventListener)
   }, [])

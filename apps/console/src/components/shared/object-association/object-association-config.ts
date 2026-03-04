@@ -1,6 +1,7 @@
 import { GET_ALL_ASSETS } from '@repo/codegen/query/asset'
 import { GET_ALL_CAMPAIGNS } from '@repo/codegen/query/campaign'
 import { GET_ALL_CONTROLS } from '@repo/codegen/query/control'
+import { GET_ALL_CONTROL_IMPLEMENTATIONS } from '@repo/codegen/query/control-implementation'
 import { GET_ALL_CONTROL_OBJECTIVES } from '@repo/codegen/query/control-objective'
 import { GET_ALL_ENTITIES } from '@repo/codegen/query/entity'
 import { GET_ALL_EVIDENCES } from '@repo/codegen/query/evidence'
@@ -9,48 +10,56 @@ import { GET_ALL_IDENTITY_HOLDERS } from '@repo/codegen/query/identity-holder'
 import { GET_ALL_INTERNAL_POLICIES } from '@repo/codegen/query/internal-policy'
 import { GET_ALL_PROCEDURES } from '@repo/codegen/query/procedure'
 import { GET_ALL_PROGRAMS } from '@repo/codegen/query/program'
+import { GET_ALL_REMEDIATIONS } from '@repo/codegen/query/remediation'
+import { GET_ALL_REVIEWS } from '@repo/codegen/query/review'
 import { GET_ALL_RISKS } from '@repo/codegen/query/risk'
 import { GET_ALL_SCANS } from '@repo/codegen/query/scan'
 import { GET_ALL_SUBCONTROLS } from '@repo/codegen/query/subcontrol'
 import { TASKS_WITH_FILTER } from '@repo/codegen/query/task'
 
 import {
-  Asset,
-  Campaign,
-  Control,
-  Subcontrol,
-  ControlObjective,
-  Entity,
-  Program,
-  TaskEdge,
-  Evidence,
-  Group,
-  IdentityHolder,
-  InternalPolicy,
-  Procedure,
-  Scan,
-  PageInfo,
+  type Asset,
+  type Campaign,
+  type Control,
+  type ControlImplementation,
+  type Subcontrol,
+  type ControlObjective,
+  type Entity,
+  type Program,
+  type TaskEdge,
+  type Evidence,
+  type Group,
+  type IdentityHolder,
+  type InternalPolicy,
+  type Procedure,
+  type Remediation,
+  type Review,
+  type Scan,
+  type PageInfo,
   ControlObjectiveObjectiveStatus,
 } from '@repo/codegen/src/schema'
-import { useQueryClient } from '@tanstack/react-query'
-import { RequestDocument } from 'graphql-request'
+import { type useQueryClient } from '@tanstack/react-query'
+import { type RequestDocument } from 'graphql-request'
 
 import {
-  AssetsWithFilterQuery,
-  CampaignsWithFilterQuery,
-  GetAllControlObjectivesQuery,
-  GetAllControlsQuery,
-  GetAllEvidencesQuery,
-  GetAllGroupsQuery,
-  GetAllInternalPoliciesQuery,
-  GetAllProceduresWithDetailsQuery,
-  GetAllProgramsQuery,
-  GetAllRisksQuery,
-  GetAllSubcontrolsQuery,
-  EntitiesWithFilterQuery,
-  IdentityHoldersWithFilterQuery,
-  ScansWithFilterQuery,
-  TasksWithFilterQuery,
+  type AssetsWithFilterQuery,
+  type CampaignsWithFilterQuery,
+  type GetAllControlImplementationsQuery,
+  type GetAllControlObjectivesQuery,
+  type GetAllControlsQuery,
+  type GetAllEvidencesQuery,
+  type GetAllGroupsQuery,
+  type GetAllInternalPoliciesQuery,
+  type GetAllProceduresWithDetailsQuery,
+  type GetAllProgramsQuery,
+  type GetAllRisksQuery,
+  type GetAllSubcontrolsQuery,
+  type EntitiesWithFilterQuery,
+  type IdentityHoldersWithFilterQuery,
+  type RemediationsWithFilterQuery,
+  type ReviewsWithFilterQuery,
+  type ScansWithFilterQuery,
+  type TasksWithFilterQuery,
 } from '@repo/codegen/src/schema'
 import type {
   UpdateAssetInput,
@@ -65,6 +74,7 @@ import type {
 
 export type QueryResponse =
   | GetAllControlsQuery
+  | GetAllControlImplementationsQuery
   | GetAllSubcontrolsQuery
   | GetAllControlObjectivesQuery
   | GetAllProgramsQuery
@@ -79,9 +89,12 @@ export type QueryResponse =
   | AssetsWithFilterQuery
   | EntitiesWithFilterQuery
   | IdentityHoldersWithFilterQuery
+  | RemediationsWithFilterQuery
+  | ReviewsWithFilterQuery
 
 type QueryResponseMapKey =
   | 'controls'
+  | 'controlImplementations'
   | 'subcontrols'
   | 'controlObjectives'
   | 'programs'
@@ -96,10 +109,17 @@ type QueryResponseMapKey =
   | 'assets'
   | 'entities'
   | 'identityHolders'
+  | 'remediations'
+  | 'reviews'
 
 export type AllObjectQueriesData = {
   controls?: {
     edges?: Array<{ node: Control }>
+    pageInfo?: PageInfo
+    totalCount?: number
+  }
+  controlImplementations?: {
+    edges?: Array<{ node: ControlImplementation }>
     pageInfo?: PageInfo
     totalCount?: number
   }
@@ -173,12 +193,23 @@ export type AllObjectQueriesData = {
     pageInfo?: PageInfo
     totalCount?: number
   }
+  remediations?: {
+    edges?: Array<{ node: Remediation }>
+    pageInfo?: PageInfo
+    totalCount?: number
+  }
+  reviews?: {
+    edges?: Array<{ node: Review }>
+    pageInfo?: PageInfo
+    totalCount?: number
+  }
 }
 
 export type AllObjectQueriesDataKey = keyof AllObjectQueriesData
 
 export enum ObjectTypeObjects {
   CONTROL = 'Control',
+  CONTROL_IMPLEMENTATION = 'Control Implementation',
   SUB_CONTROL = 'Subcontrol',
   CONTROL_OBJECTIVE = 'Control Objective',
   PROGRAM = 'Program',
@@ -193,6 +224,8 @@ export enum ObjectTypeObjects {
   ASSET = 'Asset',
   ENTITY = 'Vendor',
   IDENTITY_HOLDER = 'Personnel',
+  REMEDIATION = 'Remediation',
+  REVIEW = 'Review',
 }
 
 type ObjectQueryConfig = {
@@ -208,6 +241,12 @@ export const OBJECT_QUERY_CONFIG: Record<ObjectTypeObjects, ObjectQueryConfig> =
     inputName: 'controlIDs',
     placeholder: 'Search controls',
     queryDocument: GET_ALL_CONTROLS,
+  },
+  [ObjectTypeObjects.CONTROL_IMPLEMENTATION]: {
+    responseObjectKey: 'controlImplementations',
+    inputName: 'controlImplementationIDs',
+    placeholder: 'Search control implementations',
+    queryDocument: GET_ALL_CONTROL_IMPLEMENTATIONS,
   },
   [ObjectTypeObjects.SUB_CONTROL]: {
     responseObjectKey: 'subcontrols',
@@ -293,6 +332,18 @@ export const OBJECT_QUERY_CONFIG: Record<ObjectTypeObjects, ObjectQueryConfig> =
     placeholder: 'Search personnel',
     queryDocument: GET_ALL_IDENTITY_HOLDERS,
   },
+  [ObjectTypeObjects.REMEDIATION]: {
+    responseObjectKey: 'remediations',
+    inputName: 'remediationIDs',
+    placeholder: 'Search remediations',
+    queryDocument: GET_ALL_REMEDIATIONS,
+  },
+  [ObjectTypeObjects.REVIEW]: {
+    responseObjectKey: 'reviews',
+    inputName: 'reviewIDs',
+    placeholder: 'Search reviews',
+    queryDocument: GET_ALL_REVIEWS,
+  },
 }
 
 export const invalidateTaskAssociations = (payload: Record<string, unknown>, queryClient: ReturnType<typeof useQueryClient>) => {
@@ -313,6 +364,10 @@ export function getPagination(objectKey: QueryResponseMapKey | undefined, data: 
     case 'controls': {
       const typed = data as GetAllControlsQuery
       return { pageInfo: typed.controls.pageInfo, totalCount: typed.controls.totalCount }
+    }
+    case 'controlImplementations': {
+      const typed = data as GetAllControlImplementationsQuery
+      return { pageInfo: typed.controlImplementations.pageInfo, totalCount: typed.controlImplementations.totalCount }
     }
     case 'subcontrols': {
       const typed = data as GetAllSubcontrolsQuery
@@ -370,6 +425,14 @@ export function getPagination(objectKey: QueryResponseMapKey | undefined, data: 
       const typed = data as IdentityHoldersWithFilterQuery
       return { pageInfo: typed.identityHolders.pageInfo, totalCount: typed.identityHolders.totalCount }
     }
+    case 'remediations': {
+      const typed = data as RemediationsWithFilterQuery
+      return { pageInfo: typed.remediations.pageInfo, totalCount: typed.remediations.totalCount }
+    }
+    case 'reviews': {
+      const typed = data as ReviewsWithFilterQuery
+      return { pageInfo: typed.reviews.pageInfo, totalCount: typed.reviews.totalCount }
+    }
     default:
       return {}
   }
@@ -397,6 +460,16 @@ export function extractTableRows(objectKey: QueryResponseMapKey | undefined, dat
         refCode: item?.node?.refCode ?? '',
       }))
     }
+    case 'controlImplementations': {
+      const items = (data as GetAllControlImplementationsQuery).controlImplementations?.edges ?? []
+      return items.map((item) => ({
+        id: item?.node?.id || '',
+        name: item?.node?.controls?.edges?.[0]?.node?.refCode ?? item?.node?.details?.slice(0, 50) ?? '',
+        inputName: selectedInputName,
+        refCode: '',
+      }))
+    }
+
     case 'subcontrols': {
       const items = (data as GetAllSubcontrolsQuery).subcontrols?.edges ?? []
       return items.map((item) => ({
@@ -537,6 +610,26 @@ export function extractTableRows(objectKey: QueryResponseMapKey | undefined, dat
       }))
     }
 
+    case 'remediations': {
+      const items = (data as RemediationsWithFilterQuery).remediations?.edges ?? []
+      return items.map((item) => ({
+        id: item?.node?.id || '',
+        name: item?.node?.title ?? '',
+        inputName: selectedInputName,
+        refCode: item?.node?.displayID ?? '',
+      }))
+    }
+
+    case 'reviews': {
+      const items = (data as ReviewsWithFilterQuery).reviews?.edges ?? []
+      return items.map((item) => ({
+        id: item?.node?.id || '',
+        name: item?.node?.title ?? '',
+        inputName: selectedInputName,
+        refCode: '',
+      }))
+    }
+
     default:
       return []
   }
@@ -547,6 +640,7 @@ export const generateWhere = (selectedObject: ObjectTypeObjects | null, searchVa
 
   const mandatoryFilterMap: Partial<Record<ObjectTypeObjects, Record<string, unknown>>> = {
     [ObjectTypeObjects.CONTROL]: { systemOwned: false },
+    [ObjectTypeObjects.CONTROL_IMPLEMENTATION]: {},
     [ObjectTypeObjects.SUB_CONTROL]: { systemOwned: false },
     [ObjectTypeObjects.CONTROL_OBJECTIVE]: { ownerID: ownerID },
     [ObjectTypeObjects.PROGRAM]: { ownerID: ownerID },
@@ -561,10 +655,13 @@ export const generateWhere = (selectedObject: ObjectTypeObjects | null, searchVa
     [ObjectTypeObjects.ASSET]: { ownerID: ownerID },
     [ObjectTypeObjects.ENTITY]: { systemOwned: false },
     [ObjectTypeObjects.IDENTITY_HOLDER]: { ownerID: ownerID },
+    [ObjectTypeObjects.REMEDIATION]: {},
+    [ObjectTypeObjects.REVIEW]: {},
   }
 
   const searchAttributeMap: Partial<Record<ObjectTypeObjects, string>> = {
     [ObjectTypeObjects.CONTROL]: 'refCodeContainsFold',
+    [ObjectTypeObjects.CONTROL_IMPLEMENTATION]: 'detailsContainsFold',
     [ObjectTypeObjects.SUB_CONTROL]: 'refCodeContainsFold',
     [ObjectTypeObjects.CONTROL_OBJECTIVE]: 'nameContainsFold',
     [ObjectTypeObjects.PROGRAM]: 'nameContainsFold',
@@ -579,10 +676,13 @@ export const generateWhere = (selectedObject: ObjectTypeObjects | null, searchVa
     [ObjectTypeObjects.ASSET]: 'nameContainsFold',
     [ObjectTypeObjects.ENTITY]: 'nameContainsFold',
     [ObjectTypeObjects.IDENTITY_HOLDER]: 'fullNameContainsFold',
+    [ObjectTypeObjects.REMEDIATION]: 'titleContainsFold',
+    [ObjectTypeObjects.REVIEW]: 'titleContainsFold',
   }
 
   const secondarySearchMap: Partial<Record<ObjectTypeObjects, string>> = {
     [ObjectTypeObjects.CONTROL]: 'descriptionContainsFold',
+    [ObjectTypeObjects.CONTROL_IMPLEMENTATION]: 'statusContainsFold',
     [ObjectTypeObjects.SUB_CONTROL]: 'descriptionContainsFold',
     [ObjectTypeObjects.CONTROL_OBJECTIVE]: 'desiredOutcomeContainsFold',
     [ObjectTypeObjects.PROGRAM]: 'descriptionContainsFold',
@@ -595,6 +695,8 @@ export const generateWhere = (selectedObject: ObjectTypeObjects | null, searchVa
     [ObjectTypeObjects.ASSET]: 'descriptionContainsFold',
     [ObjectTypeObjects.ENTITY]: 'descriptionContainsFold',
     [ObjectTypeObjects.IDENTITY_HOLDER]: 'emailContainsFold',
+    [ObjectTypeObjects.REMEDIATION]: 'summaryContainsFold',
+    [ObjectTypeObjects.REVIEW]: 'summaryContainsFold',
   }
 
   const defaultWhereMap: Partial<Record<ObjectTypeObjects, Record<string, unknown>>> = {
@@ -612,7 +714,7 @@ export const generateWhere = (selectedObject: ObjectTypeObjects | null, searchVa
     return { ...mandatoryWhere, ...defaultWhere }
   }
 
-  const orFilters = secondaryAttribute ? [{ [searchAttribute!]: searchValue }, { [secondaryAttribute]: searchValue }] : [{ [searchAttribute!]: searchValue }]
+  const orFilters = secondaryAttribute ? [{ [searchAttribute ?? '']: searchValue }, { [secondaryAttribute]: searchValue }] : [{ [searchAttribute ?? '']: searchValue }]
 
   return {
     ...mandatoryWhere,
@@ -633,6 +735,7 @@ type TAssociationSectionDefinition = {
 
 export const ASSOCIATION_SECTION_CONFIG = {
   controls: { dataField: 'controls', inputName: 'controlIDs' },
+  controlImplementations: { dataField: 'controlImplementations', inputName: 'controlImplementationIDs' },
   subcontrols: { dataField: 'subcontrols', inputName: 'subcontrolIDs' },
   controlObjectives: { dataField: 'controlObjectives', inputName: 'controlObjectiveIDs' },
   policies: { dataField: 'internalPolicies', inputName: 'internalPolicyIDs' },
@@ -647,11 +750,14 @@ export const ASSOCIATION_SECTION_CONFIG = {
   assets: { dataField: 'assets', inputName: 'assetIDs' },
   entities: { dataField: 'entities', inputName: 'entityIDs' },
   identityHolders: { dataField: 'identityHolders', inputName: 'identityHolderIDs' },
+  remediations: { dataField: 'remediations', inputName: 'remediationIDs' },
+  reviews: { dataField: 'reviews', inputName: 'reviewIDs' },
 } as const satisfies Record<string, TAssociationSectionDefinition>
 
 export type AssociationSectionKey = keyof typeof ASSOCIATION_SECTION_CONFIG
 
 const SECTION_DISPLAY_NAMES_OVERRIDES: Partial<Record<AssociationSectionKey, string>> = {
+  controlImplementations: 'Control Implementations',
   entities: 'Vendors',
   identityHolders: 'Personnel',
 }
@@ -666,12 +772,13 @@ type TAssociationRemovalConfig<TInput extends object, TSectionKey extends Associ
   sectionKeyToInvalidateQueryKey: Record<TSectionKey, readonly unknown[]>
 }
 
-const toRemoveFieldName = <TInputName extends TObjectAssociationInputName>(inputName: TInputName): TRemoveFieldName<TInputName> => {
+export const toRemoveFieldName = <TInputName extends TObjectAssociationInputName>(inputName: TInputName): TRemoveFieldName<TInputName> => {
   return `remove${inputName.charAt(0).toUpperCase()}${inputName.slice(1)}` as TRemoveFieldName<TInputName>
 }
 
-const ASSOCIATION_SECTION_QUERY_KEY = {
+export const ASSOCIATION_SECTION_QUERY_KEY = {
   controls: ['controls'],
+  controlImplementations: ['controlImplementations'],
   subcontrols: ['subcontrols'],
   controlObjectives: ['controlObjectives'],
   policies: ['internalPolicies'],
@@ -686,6 +793,8 @@ const ASSOCIATION_SECTION_QUERY_KEY = {
   assets: ['assets'],
   entities: ['entities'],
   identityHolders: ['identityHolders'],
+  remediations: ['remediations'],
+  reviews: ['reviews'],
 } as const satisfies Record<AssociationSectionKey, readonly [string]>
 
 const createAssociationRemovalConfig =
@@ -710,11 +819,25 @@ const createAssociationRemovalConfig =
     }
   }
 
-const CONTROL_ASSOCIATION_SECTIONS = ['policies', 'procedures', 'tasks', 'programs', 'risks', 'subcontrols'] as const
+const CONTROL_ASSOCIATION_SECTIONS = [
+  'policies',
+  'procedures',
+  'tasks',
+  'programs',
+  'risks',
+  'subcontrols',
+  'assets',
+  'scans',
+  'entities',
+  'identityHolders',
+  'campaigns',
+  'remediations',
+  'reviews',
+] as const
 const SUBCONTROL_ASSOCIATION_SECTIONS = ['policies', 'procedures', 'tasks', 'risks'] as const
-const POLICY_ASSOCIATION_SECTIONS = ['procedures', 'controls', 'subcontrols', 'controlObjectives', 'tasks', 'programs'] as const
+const POLICY_ASSOCIATION_SECTIONS = ['procedures', 'controls', 'subcontrols', 'controlObjectives', 'tasks', 'programs', 'risks'] as const
 const PROCEDURE_ASSOCIATION_SECTIONS = ['policies', 'controls', 'subcontrols', 'risks', 'tasks', 'programs'] as const
-const RISK_ASSOCIATION_SECTIONS = ['controls', 'procedures', 'subcontrols', 'programs', 'tasks', 'policies'] as const
+const RISK_ASSOCIATION_SECTIONS = ['controls', 'procedures', 'subcontrols', 'programs', 'tasks', 'policies', 'assets', 'entities', 'scans'] as const
 const ASSET_ASSOCIATION_SECTIONS = ['scans', 'entities', 'identityHolders', 'controls'] as const
 const ENTITY_ASSOCIATION_SECTIONS = ['assets', 'scans', 'campaigns', 'identityHolders'] as const
 const IDENTITY_HOLDER_ASSOCIATION_SECTIONS = ['assets', 'entities', 'campaigns', 'tasks'] as const

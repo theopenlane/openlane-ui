@@ -1,26 +1,26 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
-  EntitiesWithFilterQuery,
-  EntitiesWithFilterQueryVariables,
-  CreateEntityMutation,
-  CreateEntityMutationVariables,
-  UpdateEntityMutation,
-  UpdateEntityMutationVariables,
-  DeleteEntityMutation,
-  DeleteEntityMutationVariables,
-  EntityQuery,
-  EntityQueryVariables,
-  CreateBulkCsvEntityMutation,
-  CreateBulkCsvEntityMutationVariables,
-  UpdateBulkEntityMutation,
-  UpdateBulkEntityMutationVariables,
-  DeleteBulkEntityMutation,
-  DeleteBulkEntityMutationVariables,
-  GetEntityAssociationsQuery,
+  type EntitiesWithFilterQuery,
+  type EntitiesWithFilterQueryVariables,
+  type CreateEntityMutation,
+  type CreateEntityMutationVariables,
+  type UpdateEntityMutation,
+  type UpdateEntityMutationVariables,
+  type DeleteEntityMutation,
+  type DeleteEntityMutationVariables,
+  type EntityQuery,
+  type EntityQueryVariables,
+  type CreateBulkCsvEntityMutation,
+  type CreateBulkCsvEntityMutationVariables,
+  type UpdateBulkEntityMutation,
+  type UpdateBulkEntityMutationVariables,
+  type DeleteBulkEntityMutation,
+  type DeleteBulkEntityMutationVariables,
+  type GetEntityAssociationsQuery,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 import {
   GET_ALL_ENTITIES,
   CREATE_ENTITY,

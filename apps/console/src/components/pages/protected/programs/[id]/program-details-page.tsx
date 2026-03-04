@@ -27,9 +27,9 @@ const ProgramDetailsPage: React.FC = () => {
 
   const { data: basicInfoData, isLoading } = useGetProgramBasicInfo(id)
   const { data: permission } = useOrganizationRoles()
-  const { setCrumbs } = React.useContext(BreadcrumbContext)
+  const { setCrumbs } = React.use(BreadcrumbContext)
   const { currentOrgId, getOrganizationByID } = useOrganization()
-  const currentOrganization = getOrganizationByID(currentOrgId!)
+  const currentOrganization = getOrganizationByID(currentOrgId ?? '')
 
   useEffect(() => {
     setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Compliance' }, { label: 'Programs', href: '/programs' }, { label: basicInfoData?.program?.name, isLoading }])

@@ -3,7 +3,7 @@
 import Loading from '@/app/(protected)/trust-center/domain/loading'
 import { useCreateCustomDomain, useDeleteCustomDomain, useGetTrustCenter, useValidateCustomDomain } from '@/lib/graphql-hooks/trust-center'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
-import { useContext, useEffect, useState } from 'react'
+import { use, useEffect, useState } from 'react'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { Label } from '@repo/ui/label'
 import { Button } from '@repo/ui/button'
@@ -17,7 +17,7 @@ import { normalizeUrl } from '@/utils/normalizeUrl'
 
 const DomainSettingsPage = () => {
   const { data, isLoading, error, refetch } = useGetTrustCenter()
-  const { setCrumbs } = useContext(BreadcrumbContext)
+  const { setCrumbs } = use(BreadcrumbContext)
   const { successNotification, errorNotification } = useNotification()
   const [inputValue, setInputValue] = useState('')
   const [editing, setEditing] = useState(false)

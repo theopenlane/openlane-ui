@@ -1,12 +1,12 @@
 'use client'
 
-import { Controller, UseFormReturn } from 'react-hook-form'
+import { Controller, type UseFormReturn } from 'react-hook-form'
 import PlateEditor from '@/components/shared/plate/plate-editor'
 import React from 'react'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import { RiskFieldsFragment } from '@repo/codegen/src/schema'
+import { type RiskFieldsFragment } from '@repo/codegen/src/schema'
 import { Card } from '@repo/ui/cardpanel'
-import { EditRisksFormData } from '@/components/pages/protected/risks/view/hooks/use-form-schema'
+import { type EditRisksFormData } from '@/components/pages/protected/risks/view/hooks/use-form-schema'
 
 type TBusinessCostFieldProps = {
   isEditing: boolean

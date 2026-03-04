@@ -3,15 +3,15 @@ import { defineStepper } from '@stepperize/react'
 import { useForm, FormProvider } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button } from '@repo/ui/button'
-import React, { useContext, useEffect, useState } from 'react'
+import React, { use, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Separator } from '@repo/ui/separator'
 import { StepHeader } from '@/components/shared/step-header/step-header'
 import TeamSetupStep from '../shared/steps/team-setup-step'
 import StartTypeStep from '../shared/steps/start-type-step'
 import SelectFrameworkStep from '../shared/steps/select-framework-step'
-import { validateFullAndNotify, wizardSchema, WizardValues } from './framework-based-wizard-config'
-import { ProgramMembershipRole, CreateProgramWithMembersInput } from '@repo/codegen/src/schema'
+import { validateFullAndNotify, wizardSchema, type WizardValues } from './framework-based-wizard-config'
+import { ProgramMembershipRole, type CreateProgramWithMembersInput } from '@repo/codegen/src/schema'
 import { useNotification } from '@/hooks/useNotification'
 import { useCreateProgramWithMembers } from '@/lib/graphql-hooks/program'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -27,7 +27,7 @@ export default function FrameworkBasedWizard() {
   const router = useRouter()
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: createProgram, isPending } = useCreateProgramWithMembers()
-  const { setCrumbs } = useContext(BreadcrumbContext)
+  const { setCrumbs } = use(BreadcrumbContext)
   const [showExitConfirm, setShowExitConfirm] = useState(false)
 
   const { useStepper } = defineStepper(
@@ -53,7 +53,7 @@ export default function FrameworkBasedWizard() {
   const handleNext = async (e?: React.FormEvent<HTMLFormElement>) => {
     e?.preventDefault()
     if (!stepper.isLast) {
-      let isValid = false
+      let isValid
       if (stepper.current.id === '0') {
         isValid = await methods.trigger(['framework', 'standardID', 'name'])
       } else if (stepper.current.id === '1') {

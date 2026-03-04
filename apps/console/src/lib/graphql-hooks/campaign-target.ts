@@ -1,19 +1,19 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
-  CampaignTargetsWithFilterQuery,
-  CampaignTargetsWithFilterQueryVariables,
-  CreateCampaignTargetMutation,
-  CreateCampaignTargetMutationVariables,
-  UpdateCampaignTargetMutation,
-  UpdateCampaignTargetMutationVariables,
-  DeleteCampaignTargetMutation,
-  DeleteCampaignTargetMutationVariables,
-  CampaignTargetQuery,
-  CampaignTargetQueryVariables,
+  type CampaignTargetsWithFilterQuery,
+  type CampaignTargetsWithFilterQueryVariables,
+  type CreateCampaignTargetMutation,
+  type CreateCampaignTargetMutationVariables,
+  type UpdateCampaignTargetMutation,
+  type UpdateCampaignTargetMutationVariables,
+  type DeleteCampaignTargetMutation,
+  type DeleteCampaignTargetMutationVariables,
+  type CampaignTargetQuery,
+  type CampaignTargetQueryVariables,
 } from '@repo/codegen/src/schema'
 
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 import { GET_ALL_CAMPAIGN_TARGETS, CREATE_CAMPAIGN_TARGET, UPDATE_CAMPAIGN_TARGET, DELETE_CAMPAIGN_TARGET, CAMPAIGN_TARGET } from '@repo/codegen/query/campaign-target'
 
 type GetAllCampaignTargetsArgs = {

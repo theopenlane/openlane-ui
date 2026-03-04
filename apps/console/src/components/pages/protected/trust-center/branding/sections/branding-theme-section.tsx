@@ -8,8 +8,8 @@ import { Label } from '@repo/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { TrustCenterWatermarkConfigFontOptions } from '@/components/shared/enum-mapper/trust-center-enum'
 import { useFormContext } from 'react-hook-form'
-import { BrandFormValues } from '../brand-schema'
-import { TrustCenterSetting } from '@/lib/graphql-hooks/trust-center'
+import { type BrandFormValues } from '../brand-schema'
+import { type TrustCenterSetting } from '@/lib/graphql-hooks/trust-center'
 
 interface BrandingThemeSectionProps {
   isReadOnly: boolean

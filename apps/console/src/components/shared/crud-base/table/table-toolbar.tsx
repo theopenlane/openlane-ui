@@ -1,13 +1,13 @@
 'use client'
 
 import React, { useState } from 'react'
-import { ZodObject, ZodRawShape } from 'zod'
+import { type ZodObject, type ZodRawShape } from 'zod'
 import { DownloadIcon, LoaderCircle, PlusCircle, SearchIcon } from 'lucide-react'
 import Menu from '@/components/shared/menu/menu'
-import { VisibilityState } from '@tanstack/react-table'
+import { type VisibilityState } from '@tanstack/react-table'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { Input } from '@repo/ui/input'
-import { TAccessRole, TPermissionData } from '@/types/authz'
+import { type TAccessRole, type TPermissionData } from '@/types/authz'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
@@ -15,13 +15,13 @@ import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-butto
 import { Button } from '@repo/ui/button'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import { GenericBulkCSVCreateDialog } from '@/components/shared/crud-base/dialog/bulk-csv-create-dialog'
-import { ObjectTypes } from '@repo/codegen/src/type-names'
-import { TableKeyValue } from '@repo/ui/table-key'
+import { type ObjectTypes } from '@repo/codegen/src/type-names'
+import { type TableKeyValue } from '@repo/ui/table-key'
 import { TableFilter } from '../../table-filter/table-filter'
-import { FilterField } from '@/types'
+import { type FilterField } from '@/types'
 import type { WhereCondition } from '@/types'
 import { GenericBulkEditDialog } from '../dialog/bulk-edit'
-import { EnumOptionsGeneric } from '../page'
+import { type EnumOptionsGeneric } from '../page'
 
 type GenericTableToolbarProps<T extends { id: string }, TWhereInput, TUpdateInput> = {
   entityType: ObjectTypes
@@ -74,7 +74,7 @@ function GenericTableToolbar<T extends { id: string }, TWhereInput, TUpdateInput
     }
 
     try {
-      await props.onBulkDelete!(props.selectedItems.map((item) => item.id))
+      await props.onBulkDelete?.(props.selectedItems.map((item) => item.id))
       successNotification({
         title: `Selected ${entityLabelPlural.toLowerCase()} have been successfully deleted.`,
       })
@@ -114,7 +114,7 @@ function GenericTableToolbar<T extends { id: string }, TWhereInput, TUpdateInput
                     setSelectedItems={props.setSelectedItems}
                     schema={props.bulkEditFormSchema as ZodObject<ZodRawShape>}
                     bulkEditMutation={{
-                      mutateAsync: ({ ids, input }) => props.onBulkEdit!(ids, input as TUpdateInput),
+                      mutateAsync: ({ ids, input }) => props.onBulkEdit?.(ids, input as TUpdateInput) ?? Promise.resolve(),
                     }}
                     enumOpts={props.enumOpts}
                     entityType={props.entityType}

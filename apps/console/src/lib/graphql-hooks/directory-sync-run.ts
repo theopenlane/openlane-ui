@@ -1,19 +1,19 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
-  DirectorySyncRunsWithFilterQuery,
-  DirectorySyncRunsWithFilterQueryVariables,
-  CreateDirectorySyncRunMutation,
-  CreateDirectorySyncRunMutationVariables,
-  UpdateDirectorySyncRunMutation,
-  UpdateDirectorySyncRunMutationVariables,
-  DeleteDirectorySyncRunMutation,
-  DeleteDirectorySyncRunMutationVariables,
-  DirectorySyncRunQuery,
-  DirectorySyncRunQueryVariables,
+  type DirectorySyncRunsWithFilterQuery,
+  type DirectorySyncRunsWithFilterQueryVariables,
+  type CreateDirectorySyncRunMutation,
+  type CreateDirectorySyncRunMutationVariables,
+  type UpdateDirectorySyncRunMutation,
+  type UpdateDirectorySyncRunMutationVariables,
+  type DeleteDirectorySyncRunMutation,
+  type DeleteDirectorySyncRunMutationVariables,
+  type DirectorySyncRunQuery,
+  type DirectorySyncRunQueryVariables,
 } from '@repo/codegen/src/schema'
 
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 import { GET_ALL_DIRECTORY_SYNC_RUNS, CREATE_DIRECTORY_SYNC_RUN, UPDATE_DIRECTORY_SYNC_RUN, DELETE_DIRECTORY_SYNC_RUN, DIRECTORY_SYNC_RUN } from '@repo/codegen/query/directory-sync-run'
 
 type GetAllDirectorySyncRunsArgs = {

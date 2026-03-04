@@ -88,7 +88,7 @@ const QuestionnaireDetailPage = () => {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
-  const { setCrumbs } = React.useContext(BreadcrumbContext)
+  const { setCrumbs } = React.use(BreadcrumbContext)
   const { client } = useGraphQLClient()
   const { errorNotification, successNotification } = useNotification()
   const { assessment, responses, isLoading } = useGetAssessmentDetail({ id })
@@ -169,12 +169,14 @@ const QuestionnaireDetailPage = () => {
 
   const responseRows = useMemo(
     () =>
-      (responses ?? []).filter(Boolean).map((r) => ({
-        id: r!.id,
-        email: r!.email,
-        completedAt: r!.completedAt,
-        document: r!.document,
-      })),
+      (responses ?? [])
+        .filter((r): r is NonNullable<typeof r> => r != null)
+        .map((r) => ({
+          id: r.id,
+          email: r.email,
+          completedAt: r.completedAt,
+          document: r.document,
+        })),
     [responses],
   )
 
@@ -200,16 +202,16 @@ const QuestionnaireDetailPage = () => {
       })
 
       const connection = response.assessment?.assessmentResponses
-      const nodes = (connection?.edges ?? []).map((edge) => edge?.node).filter(Boolean)
+      const nodes = (connection?.edges ?? []).map((edge) => edge?.node).filter((node): node is NonNullable<typeof node> => node != null)
 
       rows.push(
         ...nodes.map((node) => ({
-          email: node!.email,
-          status: node!.status,
-          assignedAt: node!.assignedAt,
-          dueDate: node!.dueDate,
-          completedAt: node!.completedAt,
-          sendAttempts: node!.sendAttempts,
+          email: node.email,
+          status: node.status,
+          assignedAt: node.assignedAt,
+          dueDate: node.dueDate,
+          completedAt: node.completedAt,
+          sendAttempts: node.sendAttempts,
         })),
       )
 

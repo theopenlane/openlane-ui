@@ -9,7 +9,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { exportCSV } from '@/lib/export'
 import { GRAPHQL_OBJECT_DOCS } from '@/constants/docs'
 import { useCreateBulkCSVTemplate } from '@/lib/graphql-hooks/template'
-import { TUploadedFile } from '../../evidence/upload/types/TUploadedFile'
+import { type TUploadedFile } from '../../evidence/upload/types/TUploadedFile'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { Callout } from '@/components/shared/callout/callout'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
@@ -31,12 +31,12 @@ const BulkCSVCreateTemplateDialog: React.FC<BulkCsvCreateTemplateDialogProps> = 
   const { mutateAsync: createBulkTemplate, isPending: isSubmitting } = useCreateBulkCSVTemplate()
 
   const handleFileUpload = async () => {
-    if (!uploadedFile) {
+    if (!uploadedFile || !uploadedFile.file) {
       return
     }
 
     try {
-      await createBulkTemplate({ input: uploadedFile.file! })
+      await createBulkTemplate({ input: uploadedFile.file })
       successNotification({
         title: 'Templates Created',
         description: `Templates has been successfully created`,
@@ -63,10 +63,13 @@ const BulkCSVCreateTemplateDialog: React.FC<BulkCsvCreateTemplateDialogProps> = 
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       {trigger ? (
         <DialogTrigger asChild>
-          {cloneElement(trigger, {
-            onClick: () => setIsOpen(true),
-            disabled: isSubmitting,
-          })}
+          {
+            // eslint-disable-next-line @eslint-react/no-clone-element
+            cloneElement(trigger, {
+              onClick: () => setIsOpen(true),
+              disabled: isSubmitting,
+            })
+          }
         </DialogTrigger>
       ) : (
         <DialogTrigger asChild>

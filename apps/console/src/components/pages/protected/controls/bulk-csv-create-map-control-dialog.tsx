@@ -9,7 +9,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { exportCSV } from '@/lib/export'
 import { GRAPHQL_OBJECT_DOCS } from '@/constants/docs'
 import { useCreateBulkCSVMappedControl } from '@/lib/graphql-hooks/control'
-import { TUploadedFile } from '../evidence/upload/types/TUploadedFile'
+import { type TUploadedFile } from '../evidence/upload/types/TUploadedFile'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { Callout } from '@/components/shared/callout/callout'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
@@ -36,7 +36,7 @@ const BulkCSVCreateMappedControlDialog: React.FC<BulkCsvCreateMappedControlDialo
     }
 
     try {
-      await createBulkMappedControl({ input: uploadedFile.file! })
+      await createBulkMappedControl({ input: uploadedFile.file })
       successNotification({
         title: 'Control Mappings Created',
         description: `Control mappings have been successfully created`,
@@ -63,10 +63,13 @@ const BulkCSVCreateMappedControlDialog: React.FC<BulkCsvCreateMappedControlDialo
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       {trigger ? (
         <DialogTrigger asChild className="bg-transparent self-start">
-          {cloneElement(trigger, {
-            onClick: () => setIsOpen(true),
-            disabled: isSubmitting,
-          })}
+          {
+            // eslint-disable-next-line @eslint-react/no-clone-element
+            cloneElement(trigger, {
+              onClick: () => setIsOpen(true),
+              disabled: isSubmitting,
+            })
+          }
         </DialogTrigger>
       ) : (
         <DialogTrigger asChild>

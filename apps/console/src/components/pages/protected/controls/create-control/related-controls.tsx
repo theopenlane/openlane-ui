@@ -5,7 +5,7 @@ import MapControlDialog from './map-control-dialog'
 import { Card } from '@repo/ui/cardpanel'
 import StandardChip from '../../standards/shared/standard-chip'
 import { RelatedControlChip } from '../shared/related-control-chip'
-import { Control, Subcontrol } from '@repo/codegen/src/schema'
+import { type Control, type Subcontrol } from '@repo/codegen/src/schema'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 export type RelatedNode = {

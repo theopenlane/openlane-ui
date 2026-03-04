@@ -2,14 +2,14 @@
 
 import { DataTable } from '@repo/ui/data-table'
 import React, { useEffect, useMemo } from 'react'
-import { ScanWhereInput, Scan, ScanOrderField } from '@repo/codegen/src/schema'
+import { type ScanWhereInput, type Scan, type ScanOrderField } from '@repo/codegen/src/schema'
 import { getColumns } from '@/components/pages/protected/scans/table/columns.tsx'
-import { ScansNodeNonNull, useScansWithFilter } from '@/lib/graphql-hooks/scan'
+import { type ScansNodeNonNull, useScansWithFilter } from '@/lib/graphql-hooks/scan'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import { useNotification } from '@/hooks/useNotification'
 import { SCANS_SORT_FIELDS } from './table-config'
-import { TTableProps } from '@/components/shared/crud-base/page'
+import { type TTableProps } from '@/components/shared/crud-base/page'
 import { objectName, tableKey } from './types'
 
 const TableComponent = ({

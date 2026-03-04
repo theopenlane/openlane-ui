@@ -3,10 +3,10 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { Card } from '@repo/ui/cardpanel'
 import { CircleUser, CircleArrowRight, Tag } from 'lucide-react'
-import { ControlControlSource, UpdateControlInput, UpdateSubcontrolInput } from '@repo/codegen/src/schema'
+import { ControlControlSource, type UpdateControlInput, type UpdateSubcontrolInput } from '@repo/codegen/src/schema'
 
-import { Group } from '@repo/codegen/src/schema'
-import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
+import { type Group } from '@repo/codegen/src/schema'
+import MultipleSelector, { type Option } from '@repo/ui/multiple-selector'
 import { useGetAllGroups } from '@/lib/graphql-hooks/group'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { usePathname } from 'next/navigation'

@@ -5,8 +5,8 @@ import {
   useGetPolicyDiscussionById,
   useUpdateInternalPolicy,
 } from '@/lib/graphql-hooks/internal-policy'
-import React, { useEffect, useMemo, useState } from 'react'
-import useFormSchema, { EditPolicyMetadataFormData } from '@/components/pages/protected/policies/view/hooks/use-form-schema.ts'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
+import useFormSchema, { type EditPolicyMetadataFormData } from '@/components/pages/protected/policies/view/hooks/use-form-schema.ts'
 import { Form } from '@repo/ui/form'
 import DetailsField from '@/components/pages/protected/policies/view/fields/details-field.tsx'
 import TitleField from '@/components/pages/protected/policies/view/fields/title-field.tsx'
@@ -15,10 +15,10 @@ import { LockOpen, PencilIcon, Trash2 } from 'lucide-react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import AuthorityCard from '@/components/pages/protected/policies/view/cards/authority-card.tsx'
 import PropertiesCard from '@/components/pages/protected/policies/view/cards/properties-card.tsx'
-import { InternalPolicyDocumentStatus, InternalPolicyFrequency, UpdateInternalPolicyInput } from '@repo/codegen/src/schema.ts'
+import { InternalPolicyDocumentStatus, InternalPolicyFrequency, type UpdateInternalPolicyInput } from '@repo/codegen/src/schema.ts'
 import HistoricalCard from '@/components/pages/protected/policies/view/cards/historical-card.tsx'
 import TagsCard from '@/components/pages/protected/policies/view/cards/tags-card.tsx'
-import { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap.ts'
+import { type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap.ts'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification.tsx'
 import { canDelete, canEdit } from '@/lib/authz/utils'
@@ -38,7 +38,7 @@ import { ASSOCIATION_REMOVAL_CONFIG } from '@/components/shared/object-associati
 import Loading from '@/app/(protected)/policies/[id]/view/loading'
 import { Card } from '@repo/ui/cardpanel'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
-import { Value } from 'platejs'
+import { type Value } from 'platejs'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
@@ -65,10 +65,10 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
   const { mutateAsync: deletePolicy } = useDeleteInternalPolicy()
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const router = useRouter()
-  const { setCrumbs } = React.useContext(BreadcrumbContext)
+  const { setCrumbs } = React.use(BreadcrumbContext)
   const { currentOrgId, getOrganizationByID } = useOrganization()
-  const currentOrganization = getOrganizationByID(currentOrgId!)
-  const [dataInitialized, setDataInitialized] = useState(false)
+  const currentOrganization = getOrganizationByID(currentOrgId ?? '')
+  const dataInitializedRef = useRef(false)
   const [showPermissionsSheet, setShowPermissionsSheet] = useState(false)
   const { data: assocData } = useGetInternalPolicyAssociationsById(policyId, !isDeleting)
   const { data: discussionData } = useGetPolicyDiscussionById(policyId)
@@ -87,6 +87,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
       controlObjectives: assocData.internalPolicy.controlObjectives,
       tasks: assocData.internalPolicy.tasks,
       programs: assocData.internalPolicy.programs,
+      risks: assocData.internalPolicy.risks,
     }
   }, [assocData])
 
@@ -107,8 +108,8 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
   }, [setCrumbs, policy, isLoading])
 
   useEffect(() => {
-    if (policy && assocData && !dataInitialized) {
-      setDataInitialized(true)
+    if (policy && assocData && !dataInitializedRef.current) {
+      dataInitializedRef.current = true
 
       form.reset({
         name: policy.name,
@@ -123,7 +124,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
         delegateID: policy.delegate?.id,
       })
     }
-  }, [policy, form, dataInitialized, assocData])
+  }, [policy, form, assocData])
 
   const initialData: TObjectAssociationMap = {
     ...(policyId ? { internalPolicyIDs: [policyId] } : {}),
@@ -237,7 +238,9 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
     sectionKeyToRemoveField: ASSOCIATION_REMOVAL_CONFIG.policy.sectionKeyToRemoveField,
     sectionKeyToDataField: ASSOCIATION_REMOVAL_CONFIG.policy.sectionKeyToDataField,
     sectionKeyToInvalidateQueryKey: ASSOCIATION_REMOVAL_CONFIG.policy.sectionKeyToInvalidateQueryKey,
-    onRemoved: () => setDataInitialized(false),
+    onRemoved: () => {
+      dataInitializedRef.current = false
+    },
   })
 
   if (isLoading) {

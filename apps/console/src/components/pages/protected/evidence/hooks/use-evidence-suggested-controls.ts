@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { useGetMappedControls } from '@/lib/graphql-hooks/mapped-control'
 import { useGetExistingOrgControls } from '@/lib/graphql-hooks/control'
 import { useGetExistingOrgSubcontrols } from '@/lib/graphql-hooks/subcontrol'
-import { buildWhere, CustomEvidenceControl, flattenAndFilterControls } from '../evidence-sheet-config'
+import { buildWhere, type CustomEvidenceControl, flattenAndFilterControls } from '../evidence-sheet-config'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 type SuggestedControl = {
@@ -42,10 +42,13 @@ export const useEvidenceSuggestedControls = ({ evidenceControls, evidenceSubcont
 
   const subcontrolRefCodes = useMemo(() => Array.from(new Set(suggestions.filter((s) => s.typeName === ObjectTypes.SUBCONTROL && s.referenceFramework).map((s) => s.refCode))), [suggestions])
 
-  const controlFrameworks = useMemo(() => Array.from(new Set(suggestions.filter((s) => s.typeName === ObjectTypes.CONTROL && s.referenceFramework).map((s) => s.referenceFramework!))), [suggestions])
+  const controlFrameworks = useMemo(
+    () => Array.from(new Set(suggestions.filter((s) => s.typeName === ObjectTypes.CONTROL && s.referenceFramework).map((s) => s.referenceFramework as string))),
+    [suggestions],
+  )
 
   const subcontrolFrameworks = useMemo(
-    () => Array.from(new Set(suggestions.filter((s) => s.typeName === ObjectTypes.SUBCONTROL && s.referenceFramework).map((s) => s.referenceFramework!))),
+    () => Array.from(new Set(suggestions.filter((s) => s.typeName === ObjectTypes.SUBCONTROL && s.referenceFramework).map((s) => s.referenceFramework as string))),
     [suggestions],
   )
 

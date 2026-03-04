@@ -5,10 +5,10 @@ import { useFormContext } from 'react-hook-form'
 import { FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { InfoIcon } from 'lucide-react'
-import { EditTaskFormData } from '../../../hooks/use-form-schema'
+import { type EditTaskFormData } from '../../../hooks/use-form-schema'
 import PlateEditor from '@/components/shared/plate/plate-editor'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import { Value } from 'platejs'
+import { type Value } from 'platejs'
 
 type DetailsFieldProps = {
   isEditing: boolean

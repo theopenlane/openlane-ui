@@ -8,13 +8,13 @@ import { DataTable, getInitialSortConditions, getInitialPagination } from '@repo
 import { useGetAllControls } from '@/lib/graphql-hooks/control'
 import { useGetAllSubcontrols } from '@/lib/graphql-hooks/subcontrol'
 import { useDebounce } from '@uidotdev/usehooks'
-import { TPagination } from '@repo/ui/pagination-types'
-import { ControlListFieldsFragment, ControlOrderField, GetAllControlsQueryVariables, OrderDirection, Subcontrol } from '@repo/codegen/src/schema'
+import { type TPagination } from '@repo/ui/pagination-types'
+import { type ControlListFieldsFragment, ControlOrderField, type GetAllControlsQueryVariables, OrderDirection, type Subcontrol } from '@repo/codegen/src/schema'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import usePlateEditor from '../plate/usePlateEditor'
 import { getControlsAndSubcontrolsColumns } from './object-association-controls-columns'
-import { CreateEvidenceFormMethods } from '@/components/pages/protected/evidence/hooks/use-form-schema'
-import { CustomEvidenceControl } from '@/components/pages/protected/evidence/evidence-sheet-config'
+import { type CreateEvidenceFormMethods } from '@/components/pages/protected/evidence/hooks/use-form-schema'
+import { type CustomEvidenceControl } from '@/components/pages/protected/evidence/evidence-sheet-config'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { SaveButton } from '../save-button/save-button'
 import { CancelButton } from '../cancel-button.tsx/cancel-button'
@@ -58,7 +58,7 @@ export const ControlSelectionDialog: React.FC<TControlSelectionDialogProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open])
 
-  const [pagination, setPagination] = useState<TPagination>(
+  const [pagination, setPagination] = useState<TPagination>(() =>
     getInitialPagination(TableKeyEnum.OBJECT_ASSOCIATION_CONTROLS, {
       ...DEFAULT_PAGINATION,
       page: 1,
@@ -140,7 +140,7 @@ export const ControlSelectionDialog: React.FC<TControlSelectionDialogProps> = ({
     () =>
       getControlsAndSubcontrolsColumns({
         selectedObject,
-        convertToReadOnly: convertToReadOnly!,
+        convertToReadOnly: convertToReadOnly,
         form,
         evidenceControls,
         setEvidenceControls,

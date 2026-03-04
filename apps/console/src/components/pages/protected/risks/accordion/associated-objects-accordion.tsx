@@ -4,7 +4,7 @@ import React, { Fragment, useState } from 'react'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
 import { ChevronDown } from 'lucide-react'
 import { Badge } from '@repo/ui/badge'
-import { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap.ts'
+import { type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap.ts'
 
 type AssociatedObjectsAccordionProps = {
   associationRefCodes: TObjectAssociationMap
@@ -13,6 +13,7 @@ type AssociatedObjectsAccordionProps = {
 const AssociatedObjectsAccordion: React.FC<AssociatedObjectsAccordionProps> = ({ associationRefCodes }) => {
   const [expandedItems, setExpandedItems] = useState<string[]>(['controls'])
 
+  // eslint-disable-next-line @eslint-react/no-nested-component-definitions
   const SectionTrigger = ({ label, count }: { label: string; count: number }) => (
     <AccordionTrigger asChild>
       <button className="group flex items-center py-2 text-left gap-3 w-full bg-unset">
@@ -32,10 +33,10 @@ const AssociatedObjectsAccordion: React.FC<AssociatedObjectsAccordionProps> = ({
           const label = key.replace(/IDs$/, '')
           return (
             <AccordionItem key={key} value={key}>
-              <SectionTrigger label={label.charAt(0).toUpperCase() + label.slice(1)} count={refCodes!.length} />
+              <SectionTrigger label={label.charAt(0).toUpperCase() + label.slice(1)} count={refCodes?.length ?? 0} />
               <AccordionContent>
                 <div className="flex gap-[5px]">
-                  {refCodes!.map((refCode, index) => (
+                  {refCodes?.map((refCode, index) => (
                     <Fragment key={`${refCode}-${index}`}>
                       <Badge className="bg-background-secondary mr-1" variant="outline">
                         {refCode}

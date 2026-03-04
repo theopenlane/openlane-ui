@@ -1,4 +1,4 @@
-import { ChatMessage } from '@repo/ui/components/editor/use-chat.js'
+import { type ChatMessage } from '@repo/ui/components/editor/use-chat.js'
 import { useState } from 'react'
 
 // Define the shape of the context object passed to the AI suggestions API

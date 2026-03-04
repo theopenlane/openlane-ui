@@ -5,7 +5,7 @@ import { Card } from '@repo/ui/cardpanel'
 import { ArrowUpDown } from 'lucide-react'
 import SetObjectAssociationRisksDialog from '../../modal/set-object-association-modal'
 import AssociatedObjectsAccordion from '@/components/pages/protected/risks/accordion/associated-objects-accordion.tsx'
-import { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap.ts'
+import { type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap.ts'
 
 type AssociationCardProps = {
   associations: TObjectAssociationMap

@@ -18,7 +18,7 @@ import { ProgramCreatePrefixIconBtn } from '@/components/shared/enum-mapper/prog
 import { TaskIconPrefixBtn } from '@/components/shared/enum-mapper/task-enum'
 import { CONTRIBUTE_URL, SUPPORT_URL } from '@/constants'
 import { featureUtil } from '@/lib/subscription-plan/plans'
-import { NavHeading, NavItem, Separator } from '@/types'
+import { type NavHeading, type NavItem, type Separator } from '@/types'
 import { Button } from '@repo/ui/button'
 import { DOCS_URL } from '@/constants/docs'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
@@ -173,6 +173,7 @@ export default function SideNav({
     })
   }
 
+  // eslint-disable-next-line @eslint-react/no-nested-component-definitions
   const SidebarChildLink: React.FC<{ child: NavItem }> = ({ child }) => {
     const isActive = pathname === child.href || pathname.startsWith(`${child.href}/`)
     if (child.hidden) return null

@@ -1,6 +1,6 @@
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 import { useNotification } from '@/hooks/useNotification'
-import { UpdateControlInput, UpdateSubcontrolInput } from '@repo/codegen/src/schema'
+import { type UpdateControlInput, type UpdateSubcontrolInput } from '@repo/codegen/src/schema'
 import { Input } from '@repo/ui/input'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { CopyIcon, FolderIcon, HelpCircle } from 'lucide-react'

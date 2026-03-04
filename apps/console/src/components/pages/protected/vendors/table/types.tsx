@@ -1,11 +1,20 @@
-import { GenericTablePageConfig, EnumOptionsGeneric } from '@/components/shared/crud-base/page'
-import { GenericDetailsSheetConfig, RenderFieldsProps } from '@/components/shared/crud-base/generic-sheet'
+import { type GenericTablePageConfig, type EnumOptionsGeneric } from '@/components/shared/crud-base/page'
+import { type GenericDetailsSheetConfig, type RenderFieldsProps } from '@/components/shared/crud-base/generic-sheet'
 
-import { EntityOrderField, EntityWhereInput, CreateEntityInput, CreateEntityMutation, UpdateEntityInput, UpdateEntityMutation, ExportExportType, OrderDirection } from '@repo/codegen/src/schema'
+import {
+  EntityOrderField,
+  type EntityWhereInput,
+  type CreateEntityInput,
+  type CreateEntityMutation,
+  type UpdateEntityInput,
+  type UpdateEntityMutation,
+  ExportExportType,
+  OrderDirection,
+} from '@repo/codegen/src/schema'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { ObjectTypes, ObjectNames } from '@repo/codegen/src/type-names'
-import { EntitiesNodeNonNull } from '@/lib/graphql-hooks/entity'
-import { EditVendorFormData } from '../hooks/use-form-schema'
+import { type EntitiesNodeNonNull } from '@/lib/graphql-hooks/entity'
+import { type EditVendorFormData } from '../hooks/use-form-schema'
 
 type TFormData = EditVendorFormData // form data for create and update
 type TData = EntitiesNodeNonNull // data returned from the list query

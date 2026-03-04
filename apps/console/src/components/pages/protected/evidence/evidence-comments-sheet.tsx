@@ -1,7 +1,7 @@
 import AddComment from '@/components/shared/comments/AddComment'
 import CommentList from '@/components/shared/comments/CommentList'
-import { TCommentData } from '@/components/shared/comments/types/TCommentData'
-import { TComments } from '@/components/shared/comments/types/TComments'
+import { type TCommentData } from '@/components/shared/comments/types/TCommentData'
+import { type TComments } from '@/components/shared/comments/types/TComments'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { useNotification } from '@/hooks/useNotification'
 import { useDeleteNote } from '@/lib/graphql-hooks/control'
@@ -17,7 +17,7 @@ import { useCallback, useMemo, useState } from 'react'
 
 const EvidenceCommentSheet = () => {
   const searchParams = useSearchParams()
-  const evidenceId = searchParams.get('id')
+  const evidenceId = searchParams.get('id') || searchParams.get('controlEvidenceId')
   const { data } = useGetEvidenceComments(evidenceId)
   const { mutateAsync: updateEvidenceComment } = useUpdateEvidenceComment()
   const { mutateAsync: updateEvidence } = useUpdateEvidence()
@@ -133,8 +133,8 @@ const EvidenceCommentSheet = () => {
       </div>
       {isUsersLoading && commentSource?.edges?.length ? (
         <div className="space-y-4">
-          {commentSource.edges.map((_, index) => (
-            <div key={index} className="w-full p-2 mb-2 rounded-lg">
+          {commentSource.edges.map((edge) => (
+            <div key={edge?.node?.id} className="w-full p-2 mb-2 rounded-lg">
               <div className="flex items-start space-x-3">
                 <Skeleton className="h-10 w-10 rounded-full shrink-0" />
                 <div className="flex flex-col w-full gap-2">

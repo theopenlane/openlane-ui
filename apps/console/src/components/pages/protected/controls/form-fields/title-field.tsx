@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { Input } from '@repo/ui/input'
-import { UpdateControlInput, UpdateSubcontrolInput } from '@repo/codegen/src/schema'
+import { type UpdateControlInput, type UpdateSubcontrolInput } from '@repo/codegen/src/schema'
 import useEscapeKey from '@/hooks/useEscapeKey'
 import { StandardsIconMapper } from '@/components/shared/standards-icon-mapper/standards-icon-mapper'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'

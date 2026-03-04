@@ -1,6 +1,6 @@
 import { z } from 'zod'
-import { UseFormReturn } from 'react-hook-form'
-import { TErrorProps } from '@/hooks/useNotification'
+import { type UseFormReturn } from 'react-hook-form'
+import { type TErrorProps } from '@/hooks/useNotification'
 
 export const step1Schema = z.object({
   categories: z.array(z.string()),

@@ -1,4 +1,4 @@
-import { FilterField } from '@/types'
+import { type FilterField } from '@/types'
 import { EvidenceOrderField, OrderDirection } from '@repo/codegen/src/schema.ts'
 import { EvidenceStatusOptions, FilterIcons } from '@/components/shared/enum-mapper/evidence-enum'
 

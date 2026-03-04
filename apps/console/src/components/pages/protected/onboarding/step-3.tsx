@@ -1,7 +1,7 @@
 'use client'
 import React, { useEffect } from 'react'
 import { useFormContext } from 'react-hook-form'
-import { z, infer as zInfer } from 'zod'
+import { z, type infer as zInfer } from 'zod'
 import { Label } from '@repo/ui/label'
 import { Switch } from '@repo/ui/switch'
 

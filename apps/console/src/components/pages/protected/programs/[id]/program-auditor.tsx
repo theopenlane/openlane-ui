@@ -103,7 +103,7 @@ const ProgramAuditor = ({ firm, name, email, isReady, programStatus }: ProgramAu
     }
     try {
       await updateProgram({
-        updateProgramId: id!,
+        updateProgramId: id ?? '',
         input: {
           ...(values.auditFirm === '' ? { clearAuditFirm: true } : { auditFirm: values.auditFirm }),
           ...(values.auditorName === '' ? { clearAuditor: true } : { auditor: values.auditorName }),

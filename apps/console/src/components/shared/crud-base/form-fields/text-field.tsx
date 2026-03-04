@@ -2,8 +2,8 @@
 
 import { FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
 import { Input } from '@repo/ui/input'
-import { FieldValues, useFormContext } from 'react-hook-form'
-import { InternalEditingType } from '../generic-sheet'
+import { type FieldValues, useFormContext } from 'react-hook-form'
+import { type InternalEditingType } from '../generic-sheet'
 import { formatDate, formatCurrency } from '@/utils/date'
 import { ExternalLink } from 'lucide-react'
 import { SystemTooltip } from '@repo/ui/system-tooltip'

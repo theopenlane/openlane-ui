@@ -7,7 +7,7 @@ import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuSep
 import { useTheme } from 'next-themes'
 import { useGetCurrentUser } from '@/lib/graphql-hooks/user'
 import { Avatar } from '../avatar/avatar'
-import { User } from '@repo/codegen/src/schema'
+import { type User } from '@repo/codegen/src/schema'
 import { Computer, Keyboard, LogOut, Moon, PaintbrushVertical, Sun, TextSearch, UserCog } from 'lucide-react'
 import { useShortcutSuffix } from '@/components/shared/shortcut-suffix/shortcut-suffix.tsx'
 import { useRouter } from 'next/navigation'

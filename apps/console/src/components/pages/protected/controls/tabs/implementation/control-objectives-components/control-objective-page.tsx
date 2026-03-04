@@ -1,9 +1,9 @@
 'use client'
 
-import React, { useEffect, useState, useContext } from 'react'
+import React, { useEffect, useState, use } from 'react'
 import { useParams, useSearchParams } from 'next/navigation'
 import { useDeleteControlObjective, useGetAllControlObjectives, useUpdateControlObjective } from '@/lib/graphql-hooks/control-objective'
-import { ControlObjectiveFieldsFragment, ControlObjectiveObjectiveStatus } from '@repo/codegen/src/schema'
+import { type ControlObjectiveFieldsFragment, ControlObjectiveObjectiveStatus } from '@repo/codegen/src/schema'
 import { ArrowRight, ChevronsDownUp, CirclePlus, List, Settings2 } from 'lucide-react'
 import { PageHeading } from '@repo/ui/page-heading'
 import { Button } from '@repo/ui/button'
@@ -33,7 +33,7 @@ const ControlObjectivePage = () => {
   const [editData, setEditData] = useState<ControlObjectiveFieldsFragment | null>(null)
   const [archivedChecked, setArchivedChecked] = useState(false)
   const { successNotification, errorNotification } = useNotification()
-  const { setCrumbs } = useContext(BreadcrumbContext)
+  const { setCrumbs } = use(BreadcrumbContext)
   const isControl = !subcontrolId && !!id
   const isSubControl = !!subcontrolId
   const { data: controlData, isLoading: isControlLoading } = useGetControlById(isControl ? (id as string) : null)

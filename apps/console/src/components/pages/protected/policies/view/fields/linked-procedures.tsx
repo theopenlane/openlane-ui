@@ -2,7 +2,7 @@
 
 import React, { memo } from 'react'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
-import { GetInternalPolicyAssociationsByIdQuery } from '@repo/codegen/src/schema.ts'
+import { type GetInternalPolicyAssociationsByIdQuery } from '@repo/codegen/src/schema.ts'
 import { AlignLeft, Clock, User } from 'lucide-react'
 
 type ProcedureEdges = NonNullable<NonNullable<GetInternalPolicyAssociationsByIdQuery['internalPolicy']>['procedures']>['edges']

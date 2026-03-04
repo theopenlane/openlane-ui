@@ -2,10 +2,10 @@
 
 import { TextField } from '@/components/shared/crud-base/form-fields/text-field'
 import { SelectField } from '@/components/shared/crud-base/form-fields/select-field'
-import { UpdateRemediationInput } from '@repo/codegen/src/schema'
-import { FieldValues } from 'react-hook-form'
-import { InternalEditingType } from '@/components/shared/crud-base/generic-sheet'
-import { EnumOptions } from '../../../table/types'
+import { type UpdateRemediationInput } from '@repo/codegen/src/schema'
+import { type FieldValues } from 'react-hook-form'
+import { type InternalEditingType } from '@/components/shared/crud-base/generic-sheet'
+import { type EnumOptions } from '../../../table/types'
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@repo/ui/cardpanel'
 
 interface AdditionalFieldsProps {

@@ -2,27 +2,27 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { gql } from 'graphql-request'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
-  TrustCenterFaQsWithFilterQuery,
-  TrustCenterFaQsWithFilterQueryVariables,
-  CreateTrustCenterFaqMutation,
-  CreateTrustCenterFaqMutationVariables,
-  UpdateTrustCenterFaqMutation,
-  UpdateTrustCenterFaqMutationVariables,
-  UpdateTrustCenterFaqCommentMutation,
-  UpdateTrustCenterFaqCommentMutationVariables,
-  DeleteTrustCenterFaqMutation,
-  DeleteTrustCenterFaqMutationVariables,
-  TrustCenterFaqQuery,
-  TrustCenterFaqQueryVariables,
-  CreateBulkCsvTrustCenterFaqMutation,
-  CreateBulkCsvTrustCenterFaqMutationVariables,
-  UpdateBulkTrustCenterFaqMutation,
-  UpdateBulkTrustCenterFaqMutationVariables,
-  DeleteBulkTrustCenterFaqMutation,
-  DeleteBulkTrustCenterFaqMutationVariables,
+  type TrustCenterFaQsWithFilterQuery,
+  type TrustCenterFaQsWithFilterQueryVariables,
+  type CreateTrustCenterFaqMutation,
+  type CreateTrustCenterFaqMutationVariables,
+  type UpdateTrustCenterFaqMutation,
+  type UpdateTrustCenterFaqMutationVariables,
+  type UpdateTrustCenterFaqCommentMutation,
+  type UpdateTrustCenterFaqCommentMutationVariables,
+  type DeleteTrustCenterFaqMutation,
+  type DeleteTrustCenterFaqMutationVariables,
+  type TrustCenterFaqQuery,
+  type TrustCenterFaqQueryVariables,
+  type CreateBulkCsvTrustCenterFaqMutation,
+  type CreateBulkCsvTrustCenterFaqMutationVariables,
+  type UpdateBulkTrustCenterFaqMutation,
+  type UpdateBulkTrustCenterFaqMutationVariables,
+  type DeleteBulkTrustCenterFaqMutation,
+  type DeleteBulkTrustCenterFaqMutationVariables,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 import {
   GET_ALL_TRUST_CENTER_FAQS,
   CREATE_TRUST_CENTER_FAQ,

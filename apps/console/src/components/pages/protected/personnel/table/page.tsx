@@ -9,10 +9,10 @@ import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
 import {
   IdentityHolderUserStatus,
   IdentityHolderIdentityHolderType,
-  IdentityHolderQuery,
-  UpdateIdentityHolderInput,
-  CreateIdentityHolderInput,
-  GetIdentityHolderAssociationsQuery,
+  type IdentityHolderQuery,
+  type UpdateIdentityHolderInput,
+  type CreateIdentityHolderInput,
+  type GetIdentityHolderAssociationsQuery,
 } from '@repo/codegen/src/schema'
 import { normalizeEntityData, buildResponsibilityPayload } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 import {
@@ -23,11 +23,11 @@ import {
   useBulkEditIdentityHolder,
   useIdentityHolder,
   useGetIdentityHolderAssociations,
-  IdentityHoldersNodeNonNull,
+  type IdentityHoldersNodeNonNull,
 } from '@/lib/graphql-hooks/identity-holder'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
 import { breadcrumbs, getFieldsToRender, getFilterFields, visibilityFields } from './table-config'
-import { PersonnelSheetConfig, PersonnelTablePageConfig, objectType, objectName, tableKey, exportType, orderFieldEnum, defaultSorting, PersonnelFieldProps } from './types'
+import { type PersonnelSheetConfig, type PersonnelTablePageConfig, objectType, objectName, tableKey, exportType, orderFieldEnum, defaultSorting, type PersonnelFieldProps } from './types'
 import { getColumns } from './columns'
 import TableComponent from './table'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'

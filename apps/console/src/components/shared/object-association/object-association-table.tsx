@@ -2,11 +2,11 @@
 
 import React, { useEffect, useMemo, useState } from 'react'
 import { DataTable } from '@repo/ui/data-table'
-import { ColumnDef } from '@tanstack/react-table'
+import { type ColumnDef } from '@tanstack/react-table'
 import { Checkbox } from '@repo/ui/checkbox'
-import { TObjectAssociationMap } from './types/TObjectAssociationMap'
-import { TPagination, TPaginationMeta } from '@repo/ui/pagination-types'
-import { TableRow } from './object-association-config'
+import { type TObjectAssociationMap } from './types/TObjectAssociationMap'
+import { type TPagination, type TPaginationMeta } from '@repo/ui/pagination-types'
+import { type TableRow } from './object-association-config'
 import { TableKeyEnum } from '@repo/ui/table-key'
 
 type Props = {
@@ -52,16 +52,18 @@ const hasSameAssociationMap = (left: TObjectAssociationMap | undefined, right: T
 const ObjectAssociationTable = ({ data, onIDsChange, initialData, refCodeInitialData, onPaginationChange, pagination, paginationMeta, isLoading }: Props) => {
   const [selectedIdsMap, setSelectedIdsMap] = useState<TObjectAssociationMap>(initialData ?? EMPTY_ASSOCIATIONS)
   const [selectedRefCodeMap, setSelectedRefCodeMap] = useState<TObjectAssociationMap>(refCodeInitialData ?? EMPTY_ASSOCIATIONS)
+  const [prevInitialData, setPrevInitialData] = useState(initialData)
+  const [prevRefCodeInitialData, setPrevRefCodeInitialData] = useState(refCodeInitialData)
 
-  useEffect(() => {
-    const nextSelectedIdsMap = initialData ?? EMPTY_ASSOCIATIONS
-    setSelectedIdsMap((previousSelectedIdsMap) => (hasSameAssociationMap(previousSelectedIdsMap, nextSelectedIdsMap) ? previousSelectedIdsMap : nextSelectedIdsMap))
-  }, [initialData])
+  if (!hasSameAssociationMap(prevInitialData, initialData)) {
+    setPrevInitialData(initialData)
+    setSelectedIdsMap(initialData ?? EMPTY_ASSOCIATIONS)
+  }
 
-  useEffect(() => {
-    const nextSelectedRefCodeMap = refCodeInitialData ?? EMPTY_ASSOCIATIONS
-    setSelectedRefCodeMap((previousSelectedRefCodeMap) => (hasSameAssociationMap(previousSelectedRefCodeMap, nextSelectedRefCodeMap) ? previousSelectedRefCodeMap : nextSelectedRefCodeMap))
-  }, [refCodeInitialData])
+  if (!hasSameAssociationMap(prevRefCodeInitialData, refCodeInitialData)) {
+    setPrevRefCodeInitialData(refCodeInitialData)
+    setSelectedRefCodeMap(refCodeInitialData ?? EMPTY_ASSOCIATIONS)
+  }
 
   useEffect(() => {
     onIDsChange(selectedIdsMap, selectedRefCodeMap)

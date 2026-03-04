@@ -1,6 +1,6 @@
 'use client'
 
-import React, { FC, useState, useMemo, useCallback } from 'react'
+import React, { type FC, useState, useMemo, useCallback } from 'react'
 import { useDebounce } from '@uidotdev/usehooks'
 import { SquarePlus, LoaderCircle, Search as SearchIcon, LayoutGrid } from 'lucide-react'
 
@@ -19,10 +19,10 @@ import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useCustomTypeEnumsPaginated, useDeleteCustomTypeEnum } from '@/lib/graphql-hooks/custom-type-enum'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 import ColumnVisibilityMenu, { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu'
-import { VisibilityState } from '@tanstack/react-table'
-import { CustomTypeEnumOrderField, GetCustomTypeEnumsPaginatedQueryVariables, OrderDirection, User } from '@repo/codegen/src/schema'
+import { type VisibilityState } from '@tanstack/react-table'
+import { CustomTypeEnumOrderField, type GetCustomTypeEnumsPaginatedQueryVariables, OrderDirection, type User } from '@repo/codegen/src/schema'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
 
 type SelectedEnum = { id: string; name: string }
@@ -55,7 +55,7 @@ const CustomEnumsTab: FC = () => {
   const [selectedEnums, setSelectedEnums] = useState<SelectedEnum[]>([])
   const [enumToDelete, setEnumToDelete] = useState<{ id: string; name: string } | null>(null)
 
-  const [pagination, setPagination] = useState<TPagination>(getInitialPagination(TableKeyEnum.CUSTOM_ENUMS, DEFAULT_PAGINATION))
+  const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(TableKeyEnum.CUSTOM_ENUMS, DEFAULT_PAGINATION))
 
   const whereFilter = useMemo(() => getEnumFilter(filter, debouncedSearch), [debouncedSearch, filter])
 

@@ -1,14 +1,14 @@
 import React, { useMemo, useState } from 'react'
 import { TabsContent } from '@repo/ui/tabs'
-import { ColumnDef } from '@tanstack/react-table'
+import { type ColumnDef } from '@tanstack/react-table'
 import { DataTable, getInitialPagination } from '@repo/ui/data-table'
 import { PlusCircle } from 'lucide-react'
-import { CreateEvidenceFormMethods } from '@/components/pages/protected/evidence/hooks/use-form-schema'
+import { type CreateEvidenceFormMethods } from '@/components/pages/protected/evidence/hooks/use-form-schema'
 import { useGetEvidenceFiles } from '@/lib/graphql-hooks/evidence'
 import { formatDateSince } from '@/utils/date'
-import { TUploadedFile } from './types/TUploadedFile'
-import { TEvidenceFilesColumn } from './types/TEvidenceFilesColumn'
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TUploadedFile } from './types/TUploadedFile'
+import { type TEvidenceFilesColumn } from './types/TEvidenceFilesColumn'
+import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { TableKeyEnum } from '@repo/ui/table-key'
 
@@ -19,7 +19,7 @@ type TProps = {
 }
 
 const ExistingFilesTab: React.FC<TProps> = (props: TProps) => {
-  const [pagination, setPagination] = useState<TPagination>(
+  const [pagination, setPagination] = useState<TPagination>(() =>
     getInitialPagination(TableKeyEnum.EVIDENCE_EXISTING_FILES, {
       ...DEFAULT_PAGINATION,
       pageSize: 5,
@@ -33,14 +33,20 @@ const ExistingFilesTab: React.FC<TProps> = (props: TProps) => {
   const files = useMemo<TEvidenceFilesColumn[]>(() => {
     if (isLoading) return []
     return (
-      data?.files?.edges?.map((edge) => ({
-        id: edge!.node!.id,
-        providedFileName: edge!.node!.providedFileName,
-        presignedURL: edge!.node!.presignedURL,
-        providedFileExtension: edge!.node!.providedFileExtension,
-        categoryType: edge!.node!.categoryType,
-        createdAt: edge!.node!.createdAt,
-      })) || []
+      data?.files?.edges?.flatMap((edge) =>
+        edge?.node
+          ? [
+              {
+                id: edge.node.id,
+                providedFileName: edge.node.providedFileName,
+                presignedURL: edge.node.presignedURL,
+                providedFileExtension: edge.node.providedFileExtension,
+                categoryType: edge.node.categoryType,
+                createdAt: edge.node.createdAt,
+              },
+            ]
+          : [],
+      ) || []
     )
   }, [isLoading, data?.files?.edges])
 

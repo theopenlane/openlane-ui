@@ -5,15 +5,15 @@ import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { Info, InfoIcon } from 'lucide-react'
 import React, { useCallback, useMemo, useRef, useState } from 'react'
 import PlateEditor from '@/components/shared/plate/plate-editor.tsx'
-import { Value } from 'platejs'
+import { type Value } from 'platejs'
 import { Alert, AlertDescription, AlertTitle } from '@repo/ui/alert'
 import { useCreateInternalPolicy, useGetInternalPolicyAssociationsById, useGetPolicyDiscussionById, useUpdateInternalPolicy } from '@/lib/graphql-hooks/internal-policy'
-import { CreateInternalPolicyInput, InternalPolicyByIdFragment, InternalPolicyDocumentStatus, InternalPolicyFrequency, UpdateInternalPolicyInput } from '@repo/codegen/src/schema.ts'
+import { type CreateInternalPolicyInput, type InternalPolicyByIdFragment, InternalPolicyDocumentStatus, InternalPolicyFrequency, type UpdateInternalPolicyInput } from '@repo/codegen/src/schema.ts'
 import { useNotification } from '@/hooks/useNotification.tsx'
 import { useRouter } from 'next/navigation'
-import { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap.ts'
+import { type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap.ts'
 import { useQueryClient } from '@tanstack/react-query'
-import useFormSchema, { CreatePolicyFormData, EditPolicyFormData } from '../hooks/use-form-schema'
+import useFormSchema, { type CreatePolicyFormData, type EditPolicyFormData } from '../hooks/use-form-schema'
 import StatusCard from '@/components/pages/protected/policies/create/cards/status-card.tsx'
 import AssociationCard from '@/components/pages/protected/policies/create/cards/association-card.tsx'
 import TagsCard from '@/components/pages/protected/policies/create/cards/tags-card.tsx'
@@ -68,7 +68,7 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
   )
   const isEditable = !!policy
   const { currentOrgId, getOrganizationByID } = useOrganization()
-  const currentOrganization = getOrganizationByID(currentOrgId!)
+  const currentOrganization = getOrganizationByID(currentOrgId ?? '')
   const { data: assocData } = useGetInternalPolicyAssociationsById(policy?.id || null)
   const { data: discussionData } = useGetPolicyDiscussionById(policy?.id || null)
   const [createMultiple, setCreateMultiple] = useState(false)

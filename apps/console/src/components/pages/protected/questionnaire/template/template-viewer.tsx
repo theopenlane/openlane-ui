@@ -1,11 +1,11 @@
 'use client'
 
-import { ITheme, Model } from 'survey-core'
+import { type ITheme, Model } from 'survey-core'
 import { Survey } from 'survey-react-ui'
 
 import 'survey-core/survey-core.min.css'
 
-import { useEffect, useContext } from 'react'
+import { useEffect, use } from 'react'
 import { useTheme } from 'next-themes'
 import { lightTheme } from '../theme-light'
 import { darkTheme } from '../theme-dark'
@@ -13,7 +13,7 @@ import { useGetTemplate } from '@/lib/graphql-hooks/template'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 
 export default function ViewTemplate(input: { existingId: string }) {
-  const { setCrumbs } = useContext(BreadcrumbContext)
+  const { setCrumbs } = use(BreadcrumbContext)
   const themeContext = useTheme()
   const theme = themeContext.resolvedTheme as 'light' | 'dark' | 'white' | undefined
 

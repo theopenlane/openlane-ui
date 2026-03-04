@@ -3,9 +3,9 @@ import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import React, { useEffect, useState } from 'react'
 import UploadTab from '@/components/pages/protected/evidence/upload/upload-tab'
 import DirectLinkTab from '@/components/pages/protected/evidence/upload/direct-link-tab'
-import { CreateEvidenceFormMethods } from '@/components/pages/protected/evidence/hooks/use-form-schema'
+import { type CreateEvidenceFormMethods } from '@/components/pages/protected/evidence/hooks/use-form-schema'
 import ExistingFilesTab from '@/components/pages/protected/evidence/upload/existing-files-tab'
-import { TUploadedFile } from './types/TUploadedFile'
+import { type TUploadedFile } from './types/TUploadedFile'
 import UploadedFileDetailsCard from '@/components/shared/file-upload/uploaded-file-details-card'
 
 type TProps = {
@@ -80,9 +80,7 @@ const EvidenceUploadForm: React.FC<TProps> = (props: TProps) => {
 
       <div className="mt-6 flex gap-6">
         {evidenceFiles.map((file, index) => (
-          <>
-            <UploadedFileDetailsCard key={index} fileName={file.name} fileSize={file.size} index={index} handleDeleteFile={() => handleDelete(file)} />
-          </>
+          <UploadedFileDetailsCard key={index} fileName={file.name} fileSize={file.size} index={index} handleDeleteFile={() => handleDelete(file)} />
         ))}
       </div>
     </Tabs>

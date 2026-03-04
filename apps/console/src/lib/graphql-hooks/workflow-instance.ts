@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
-import { WorkflowInstancesWithFilterQuery, WorkflowInstancesWithFilterQueryVariables, WorkflowInstanceQuery, WorkflowInstanceQueryVariables } from '@repo/codegen/src/schema'
+import { type WorkflowInstancesWithFilterQuery, type WorkflowInstancesWithFilterQueryVariables, type WorkflowInstanceQuery, type WorkflowInstanceQueryVariables } from '@repo/codegen/src/schema'
 
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 import { GET_ALL_WORKFLOW_INSTANCES, WORKFLOW_INSTANCE } from '@repo/codegen/query/workflow-instance'
 
 type GetAllWorkflowInstancesArgs = {

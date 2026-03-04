@@ -4,9 +4,9 @@ import { Card, CardContent } from '@repo/ui/cardpanel'
 import SectionWarning from '../section-warning'
 import { AssetInputGroup } from './asset-input-group'
 import { useFormContext } from 'react-hook-form'
-import { BrandFormValues } from '../brand-schema'
+import { type BrandFormValues } from '../brand-schema'
 import { useMemo, useState, useEffect } from 'react'
-import { TUploadedFile } from '../../../evidence/upload/types/TUploadedFile'
+import { type TUploadedFile } from '../../../evidence/upload/types/TUploadedFile'
 import { useGetTrustCenter } from '@/lib/graphql-hooks/trust-center'
 import { normalizeUrl } from '@/utils/normalizeUrl'
 
@@ -23,7 +23,7 @@ interface BrandingAssetsSectionProps {
 export const BrandingAssetsSection = ({ isReadOnly, hasWarning }: BrandingAssetsSectionProps) => {
   const { watch, setValue } = useFormContext<BrandFormValues>()
   const { data } = useGetTrustCenter()
-  const [isImageValidSize, setImageIsValidSize] = useState<boolean | null>(null)
+  const [isImageValidSize, setIsImageValidSize] = useState<boolean | null>(null)
   const trustCenter = data?.trustCenters?.edges?.[0]?.node
   const previewSetting = trustCenter?.previewSetting
   const setting = trustCenter?.setting
@@ -75,7 +75,7 @@ export const BrandingAssetsSection = ({ isReadOnly, hasWarning }: BrandingAssets
     } else {
       const isValidSize =
         uploadedFile.width !== undefined && uploadedFile.height !== undefined && uploadedFile.width >= 32 && uploadedFile.height >= 32 && uploadedFile.width <= 120 && uploadedFile.height <= 120
-      setImageIsValidSize(isValidSize)
+      setIsImageValidSize(isValidSize)
       setValue('faviconFile', uploadedFile.file, { shouldDirty: true })
       setValue('faviconRemoteURL', '', { shouldDirty: true })
     }

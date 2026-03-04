@@ -1,4 +1,4 @@
-import { ColumnDef } from '@tanstack/react-table'
+import { type ColumnDef } from '@tanstack/react-table'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { Download, Trash2 } from 'lucide-react'
 import React from 'react'

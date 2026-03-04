@@ -10,7 +10,7 @@ import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 
 const CreateRiskPage: React.FC = () => {
   const { data: permission, isLoading } = useOrganizationRoles()
-  const { setCrumbs } = React.useContext(BreadcrumbContext)
+  const { setCrumbs } = React.use(BreadcrumbContext)
 
   useEffect(() => {
     setCrumbs([

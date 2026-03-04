@@ -1,6 +1,6 @@
 'use client'
 
-import { PropsWithChildren, useEffect, useRef, useState, type FC } from 'react'
+import { type PropsWithChildren, useEffect, useRef, useState, type FC } from 'react'
 import { XIcon, PlusIcon, FileText } from 'lucide-react'
 import { AttachmentPrimitive, ComposerPrimitive, MessagePrimitive, useAuiState, useAui } from '@assistant-ui/react'
 import { useShallow } from 'zustand/shallow'
@@ -22,6 +22,7 @@ const useFileSrc = (file: File | undefined) => {
     }
     const newSrc = file ? URL.createObjectURL(file) : undefined
     setSrc(newSrc)
+    // eslint-disable-next-line react-hooks/refs
     srcRef.current = newSrc
   }
 
