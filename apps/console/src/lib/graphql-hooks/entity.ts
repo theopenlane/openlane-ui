@@ -18,6 +18,9 @@ import {
   DeleteBulkEntityMutation,
   DeleteBulkEntityMutationVariables,
   GetEntityAssociationsQuery,
+  GetEntityFilesPaginatedQuery,
+  UpdateEntityWithFilesMutationVariables,
+  CreateEntityWithFilesMutationVariables,
   FileOrder,
   InputMaybe,
 } from '@repo/codegen/src/schema'
@@ -151,30 +154,6 @@ export const useGetEntityAssociations = (entityId?: string) => {
   })
 }
 
-// Entity files types - mirrors the generated types from GET_ENTITY_FILES_PAGINATED query
-// These will be replaced by codegen-generated types once `task codegen:codegen` is run
-type GetEntityFilesPaginatedQuery = {
-  __typename?: 'Query'
-  entity: {
-    __typename?: 'Entity'
-    files: {
-      __typename?: 'FileConnection'
-      totalCount: number
-      pageInfo: { __typename?: 'PageInfo'; endCursor?: string | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: string | null }
-      edges?: Array<{
-        __typename?: 'FileEdge'
-        node?: { __typename?: 'File'; providedFileName: string; providedFileSize?: number | null; providedFileExtension: string; id: string; uri?: string | null; presignedURL?: string | null } | null
-      } | null> | null
-    }
-  }
-}
-
-type UpdateEntityWithFilesMutationVariables = {
-  updateEntityId: string
-  input: UpdateEntityMutationVariables['input']
-  entityFiles?: File[] | null
-}
-
 type EntityFilesPaginationArgs = {
   entityId?: string | null
   orderBy?: InputMaybe<Array<FileOrder> | FileOrder>
@@ -218,12 +197,6 @@ export const useUploadEntityFiles = () => {
       queryClient.invalidateQueries({ queryKey: ['entities'] })
     },
   })
-}
-
-type CreateEntityWithFilesMutationVariables = {
-  input: CreateEntityMutationVariables['input']
-  entityTypeName?: string | null
-  entityFiles?: File[] | null
 }
 
 export const useCreateEntityWithFiles = () => {

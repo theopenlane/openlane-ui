@@ -18,6 +18,9 @@ import {
   DeleteBulkIdentityHolderMutation,
   DeleteBulkIdentityHolderMutationVariables,
   GetIdentityHolderAssociationsQuery,
+  GetIdentityHolderFilesPaginatedQuery,
+  UpdateIdentityHolderWithFilesMutationVariables,
+  CreateIdentityHolderWithFilesMutationVariables,
   FileOrder,
   InputMaybe,
 } from '@repo/codegen/src/schema'
@@ -151,29 +154,6 @@ export const useGetIdentityHolderAssociations = (identityHolderId?: string) => {
   })
 }
 
-// Identity holder files types - mirrors the generated types from GET_IDENTITY_HOLDER_FILES_PAGINATED query
-type GetIdentityHolderFilesPaginatedQuery = {
-  __typename?: 'Query'
-  identityHolder: {
-    __typename?: 'IdentityHolder'
-    files: {
-      __typename?: 'FileConnection'
-      totalCount: number
-      pageInfo: { __typename?: 'PageInfo'; endCursor?: string | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: string | null }
-      edges?: Array<{
-        __typename?: 'FileEdge'
-        node?: { __typename?: 'File'; providedFileName: string; providedFileSize?: number | null; providedFileExtension: string; id: string; uri?: string | null; presignedURL?: string | null } | null
-      } | null> | null
-    }
-  }
-}
-
-type UpdateIdentityHolderWithFilesMutationVariables = {
-  updateIdentityHolderId: string
-  input: UpdateIdentityHolderMutationVariables['input']
-  identityHolderFiles?: File[] | null
-}
-
 type IdentityHolderFilesPaginationArgs = {
   identityHolderId?: string | null
   orderBy?: InputMaybe<Array<FileOrder> | FileOrder>
@@ -217,11 +197,6 @@ export const useUploadIdentityHolderFiles = () => {
       queryClient.invalidateQueries({ queryKey: ['identityHolders'] })
     },
   })
-}
-
-type CreateIdentityHolderWithFilesMutationVariables = {
-  input: CreateIdentityHolderMutationVariables['input']
-  identityHolderFiles?: File[] | null
 }
 
 export const useCreateIdentityHolderWithFiles = () => {
