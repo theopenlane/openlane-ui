@@ -39,4 +39,4 @@ export type RemediationTablePageConfig = GenericTablePageConfig<TData, TFormData
 export type RemediationSheetConfig = GenericDetailsSheetConfig<TFormData, TData, TUpdateInput, TUpdateData, TCreateInput, TCreateData>
 export type RemediationFieldProps = RenderFieldsProps<TData, TUpdateInput>
 
-export type EnumCreateHandlers = Partial<Record<string, (value: string) => Promise<void>>>
+export type { EnumCreateHandlers } from '@/components/shared/crud-base/page'

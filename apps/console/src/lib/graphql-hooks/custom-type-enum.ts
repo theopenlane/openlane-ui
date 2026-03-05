@@ -158,11 +158,12 @@ export const useCreatableEnumOptions = ({ objectType, field, isEditAllowed }: { 
   })
   const { mutateAsync: createEnum } = useCreateCustomTypeEnum()
 
-  const onCreateOption = resolvedEditAllowed
-    ? async (value: string) => {
-        await createEnum({ name: value, objectType: objectType ?? '', field })
-      }
-    : undefined
+  const onCreateOption =
+    resolvedEditAllowed && objectType
+      ? async (value: string) => {
+          await createEnum({ name: value, objectType, field })
+        }
+      : undefined
 
   return { enumOptions, onCreateOption, ...rest }
 }

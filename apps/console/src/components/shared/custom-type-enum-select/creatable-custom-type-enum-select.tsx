@@ -6,17 +6,13 @@ import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
 import { cn } from '@repo/ui/lib/utils'
 import { CustomTypeEnumOptionChip, CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
-
-type CustomEnumOption = {
-  label: string
-  value: string
-  color?: string
-  description?: string
-}
+import { CustomTypeEnumOption } from '@/lib/graphql-hooks/custom-type-enum'
+import { useNotification } from '@/hooks/useNotification'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 interface CreatableCustomTypeEnumSelectProps {
   value?: string
-  options: CustomEnumOption[]
+  options: CustomTypeEnumOption[]
   onValueChange: (value: string) => void | Promise<void>
   onCreateOption?: (value: string) => Promise<void>
   placeholder?: string
@@ -43,7 +39,8 @@ export const CreatableCustomTypeEnumSelect = ({
 }: CreatableCustomTypeEnumSelectProps) => {
   const [open, setOpen] = useState(false)
   const [searchValue, setSearchValue] = useState('')
-  const [createdOptions, setCreatedOptions] = useState<CustomEnumOption[]>([])
+  const [createdOptions, setCreatedOptions] = useState<CustomTypeEnumOption[]>([])
+  const { errorNotification } = useNotification()
 
   const allOptions = useMemo(() => {
     const combined = [...options, ...createdOptions]
@@ -72,16 +69,21 @@ export const CreatableCustomTypeEnumSelect = ({
     if (!onCreateOption) return
     if (!trimmedSearch) return
 
-    const newOption = {
+    const newOption: CustomTypeEnumOption = {
       label: trimmedSearch,
       value: trimmedSearch,
     }
 
-    setCreatedOptions((previous) => [...previous, newOption])
     setOpen(false)
     setSearchValue('')
-    await onCreateOption(trimmedSearch)
-    await Promise.resolve(onValueChange(trimmedSearch))
+
+    try {
+      await onCreateOption(trimmedSearch)
+      setCreatedOptions((previous) => [...previous, newOption])
+      await Promise.resolve(onValueChange(trimmedSearch))
+    } catch (error) {
+      errorNotification({ title: 'Failed to create option', description: parseErrorMessage(error) })
+    }
   }
 
   return (

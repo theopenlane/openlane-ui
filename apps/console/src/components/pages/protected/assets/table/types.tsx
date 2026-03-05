@@ -44,4 +44,4 @@ export type AssetSheetConfig = GenericDetailsSheetConfig<TFormData, TData, TUpda
 
 export type AssetFieldProps = RenderFieldsProps<TData, TUpdateInput>
 
-export type EnumCreateHandlers = Partial<Record<string, (value: string) => Promise<void>>>
+export type { EnumCreateHandlers } from '@/components/shared/crud-base/page'

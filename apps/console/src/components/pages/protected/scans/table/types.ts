@@ -29,4 +29,4 @@ export type ScanTablePageConfig = GenericTablePageConfig<TData, TFormData, TUpda
 export type ScanSheetConfig = GenericDetailsSheetConfig<TFormData, TData, TUpdateInput, TUpdateData, TCreateInput, TCreateData>
 export type ScanFieldProps = RenderFieldsProps<TData, TUpdateInput>
 
-export type EnumCreateHandlers = Partial<Record<string, (value: string) => Promise<void>>>
+export type { EnumCreateHandlers } from '@/components/shared/crud-base/page'

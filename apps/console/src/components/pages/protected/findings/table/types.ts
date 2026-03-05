@@ -30,4 +30,4 @@ export type FindingTablePageConfig = GenericTablePageConfig<TData, TFormData, TU
 export type FindingSheetConfig = GenericDetailsSheetConfig<TFormData, TData, TUpdateInput, TUpdateData, TCreateInput, TCreateData>
 export type FindingFieldProps = RenderFieldsProps<TData, TUpdateInput>
 
-export type EnumCreateHandlers = Partial<Record<string, (value: string) => Promise<void>>>
+export type { EnumCreateHandlers } from '@/components/shared/crud-base/page'

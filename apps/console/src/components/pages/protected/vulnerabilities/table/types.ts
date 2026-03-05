@@ -42,4 +42,4 @@ export type VulnerabilitySheetConfig = GenericDetailsSheetConfig<TFormData, TDat
 
 export type VulnerabilityFieldProps = RenderFieldsProps<TData, TUpdateInput>
 
-export type EnumCreateHandlers = Partial<Record<string, (value: string) => Promise<void>>>
+export type { EnumCreateHandlers } from '@/components/shared/crud-base/page'
