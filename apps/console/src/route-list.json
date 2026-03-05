@@ -226,12 +226,12 @@
     "name": "Vulnerabilities"
   },
   {
-    "route": "/risks",
+    "route": "/exposure/risks",
     "name": "Risks"
   },
   {
-    "route": "/risks/create",
-    "name": "Create"
+    "route": "/exposure/risks/create",
+    "name": "Create Risk"
   },
   {
     "route": "/standards",

@@ -21,7 +21,7 @@ const SIMPLE_ROUTES: Record<string, (id: string) => string> = {
   policies: (id) => `/policies/${id}/view`,
   procedures: (id) => `/procedures/${id}/view`,
   controls: (id) => `/controls/${id}`,
-  risks: (id) => `/risks/${id}`,
+  risks: (id) => `/exposure/risks/${id}`,
   tasks: (id) => `/automation/tasks?id=${id}`,
   programs: (id) => `/programs/${id}`,
   groups: (id) => `/groups?id=${id}`,

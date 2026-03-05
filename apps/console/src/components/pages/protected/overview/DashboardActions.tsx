@@ -15,7 +15,7 @@ const DashboardActions = () => {
   }
 
   const handleCreateRisk = () => {
-    router.push('/risks/create')
+    router.push('/exposure/risks/create')
   }
 
   const handleViewPolicies = () => {
