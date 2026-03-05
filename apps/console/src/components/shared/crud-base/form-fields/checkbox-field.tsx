@@ -3,10 +3,10 @@
 import { FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
 import { Checkbox } from '@repo/ui/checkbox'
 import { cn } from '@repo/ui/lib/utils'
-import { FieldValues, useFormContext } from 'react-hook-form'
-import { InternalEditingType } from '../generic-sheet'
+import { type FieldValues, useFormContext } from 'react-hook-form'
+import { type InternalEditingType } from '../generic-sheet'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
-import { InfoIcon } from 'lucide-react'
+import { CloudCog, InfoIcon } from 'lucide-react'
 
 interface CheckboxFieldProps {
   name: string
@@ -21,10 +21,11 @@ interface CheckboxFieldProps {
   tooltipContent?: string
 }
 
-export const CheckboxField: React.FC<CheckboxFieldProps> = ({ name, label, isEditing, isEditAllowed, isCreate = false, internalEditing, setInternalEditing, className, tooltipContent }) => {
+export const CheckboxField: React.FC<CheckboxFieldProps> = ({ name, label, isEditAllowed, isCreate = false, isEditing, internalEditing, setInternalEditing, className, tooltipContent }) => {
   const { control } = useFormContext()
-  const isFieldEditing = internalEditing === name
-  const isActive = isCreate || isEditing || isFieldEditing
+  const disabled = !isEditAllowed
+
+  console.log(disabled)
 
   return (
     <FormField
@@ -37,9 +38,14 @@ export const CheckboxField: React.FC<CheckboxFieldProps> = ({ name, label, isEdi
               id={name}
               name={name}
               checked={!!field.value}
-              disabled={!isActive}
+              disabled={disabled}
               className="items-center"
-              onCheckedChange={(checked) => field.onChange(checked)}
+              onCheckedChange={(checked) => {
+                if (!isCreate && !isEditing && internalEditing !== name) {
+                  setInternalEditing(name)
+                }
+                field.onChange(checked)
+              }}
               onBlur={() => {
                 field.onBlur()
                 if (!isCreate && !isEditing) {
@@ -49,13 +55,8 @@ export const CheckboxField: React.FC<CheckboxFieldProps> = ({ name, label, isEdi
             />
           </FormControl>
           <FormLabel
-            htmlFor={isActive ? name : undefined}
-            className={cn('text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex items-center', !isActive && 'cursor-not-allowed opacity-70')}
-            onClick={(e) => {
-              if (!isActive) {
-                e.preventDefault()
-              }
-            }}
+            htmlFor={disabled ? undefined : name}
+            className={cn('text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 flex items-center', disabled && 'cursor-not-allowed opacity-70')}
           >
             <span className="flex items-center gap-1">
               {label}
