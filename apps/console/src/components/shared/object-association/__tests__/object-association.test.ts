@@ -249,13 +249,7 @@ describe('generateWhere', () => {
   })
 
   it('applies systemOwned filter to correct types', () => {
-    const systemOwnedTypes = [
-      ObjectTypeObjects.CONTROL,
-      ObjectTypeObjects.SUB_CONTROL,
-      ObjectTypeObjects.INTERNAL_POLICY,
-      ObjectTypeObjects.PROCEDURE,
-      ObjectTypeObjects.ENTITY,
-    ]
+    const systemOwnedTypes = [ObjectTypeObjects.CONTROL, ObjectTypeObjects.SUB_CONTROL, ObjectTypeObjects.INTERNAL_POLICY, ObjectTypeObjects.PROCEDURE, ObjectTypeObjects.ENTITY]
     for (const objectType of systemOwnedTypes) {
       const result = generateWhere(objectType, '', ownerID)
       expect(result).toHaveProperty('systemOwned', false)

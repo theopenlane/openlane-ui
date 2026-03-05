@@ -41,3 +41,5 @@ export type VulnerabilityTablePageConfig = GenericTablePageConfig<TData, TFormDa
 export type VulnerabilitySheetConfig = GenericDetailsSheetConfig<TFormData, TData, TUpdateInput, TUpdateData, TCreateInput, TCreateData>
 
 export type VulnerabilityFieldProps = RenderFieldsProps<TData, TUpdateInput>
+
+export type EnumCreateHandlers = Partial<Record<string, (value: string) => Promise<void>>>

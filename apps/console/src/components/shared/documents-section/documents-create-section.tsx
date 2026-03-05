@@ -141,7 +141,14 @@ const DocumentsCreateSection: React.FC<DocumentsCreateSectionProps> = ({ onFiles
           <FileUpload acceptedFileTypes={acceptedFileTypes} onFileUpload={handleUploadedFile} acceptedFileTypesShort={acceptedFileTypesShort} maxFileSizeInMb={maxFileSizeInMb} multipleFiles={true} />
         </TabsContent>
         <TabsContent value="existingFiles">
-          <DataTable columns={columns} data={existingFiles} pagination={pagination} onPaginationChange={(p: TPagination) => setPagination(p)} paginationMeta={paginationMeta} tableKey={TableKeyEnum.EXISTING_FILES} />
+          <DataTable
+            columns={columns}
+            data={existingFiles}
+            pagination={pagination}
+            onPaginationChange={(p: TPagination) => setPagination(p)}
+            paginationMeta={paginationMeta}
+            tableKey={TableKeyEnum.EXISTING_FILES}
+          />
         </TabsContent>
 
         {allFiles.length > 0 && (

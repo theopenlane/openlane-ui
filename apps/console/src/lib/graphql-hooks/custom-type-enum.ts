@@ -145,3 +145,18 @@ export const useDeleteCustomTypeEnum = (): UseMutationResult<DeleteCustomTypeEnu
     },
   })
 }
+
+export const useCreatableEnumOptions = ({ objectType, field, isEditAllowed = false }: { objectType?: string; field: string; isEditAllowed?: boolean }) => {
+  const { enumOptions, ...rest } = useGetCustomTypeEnums({
+    where: { objectType, field },
+  })
+  const { mutateAsync: createEnum } = useCreateCustomTypeEnum()
+
+  const onCreateOption = isEditAllowed
+    ? async (value: string) => {
+        await createEnum({ name: value, objectType: objectType ?? '', field })
+      }
+    : undefined
+
+  return { enumOptions, onCreateOption, ...rest }
+}

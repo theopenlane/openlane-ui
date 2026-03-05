@@ -43,3 +43,5 @@ export type AssetTablePageConfig = GenericTablePageConfig<TData, TFormData, TUpd
 export type AssetSheetConfig = GenericDetailsSheetConfig<TFormData, TData, TUpdateInput, TUpdateData, TCreateInput, TCreateData>
 
 export type AssetFieldProps = RenderFieldsProps<TData, TUpdateInput>
+
+export type EnumCreateHandlers = Partial<Record<string, (value: string) => Promise<void>>>

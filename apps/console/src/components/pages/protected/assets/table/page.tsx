@@ -15,7 +15,9 @@ import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { Value } from 'platejs'
 import { AssetAssetType, AssetSourceType, AssetQuery, CreateAssetInput, UpdateAssetInput, GetAssetAssociationsQuery } from '@repo/codegen/src/schema'
 import { normalizeEntityData, buildResponsibilityPayload } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
-import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
+import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { canEdit } from '@/lib/authz/utils'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import { buildAssociationPayload } from '@/components/shared/object-association/utils'
 import { useInitialAssociations } from '@/hooks/useInitialAssociations'
@@ -89,24 +91,37 @@ const AssetPage: React.FC = () => {
 
   const bulkEditMutation = baseBulkEditMutation
 
-  const { enumOptions: accessModelOptions } = useGetCustomTypeEnums({
-    where: { objectType: 'asset', field: 'accessModel' },
+  const { data: orgPermission } = useOrganizationRoles()
+  const canEditOrg = canEdit(orgPermission?.roles)
+
+  const { enumOptions: accessModelOptions, onCreateOption: createAccessModel } = useCreatableEnumOptions({
+    objectType: 'asset',
+    field: 'accessModel',
+    isEditAllowed: canEditOrg,
   })
 
-  const { enumOptions: assetDataClassificationOptions } = useGetCustomTypeEnums({
-    where: { objectType: 'asset', field: 'dataClassification' },
+  const { enumOptions: assetDataClassificationOptions, onCreateOption: createDataClassification } = useCreatableEnumOptions({
+    objectType: 'asset',
+    field: 'dataClassification',
+    isEditAllowed: canEditOrg,
   })
 
-  const { enumOptions: assetSubtypeOptions } = useGetCustomTypeEnums({
-    where: { objectType: 'asset', field: 'subtype' },
+  const { enumOptions: assetSubtypeOptions, onCreateOption: createSubtype } = useCreatableEnumOptions({
+    objectType: 'asset',
+    field: 'subtype',
+    isEditAllowed: canEditOrg,
   })
 
-  const { enumOptions: criticalityOptions } = useGetCustomTypeEnums({
-    where: { objectType: 'asset', field: 'criticality' },
+  const { enumOptions: criticalityOptions, onCreateOption: createCriticality } = useCreatableEnumOptions({
+    objectType: 'asset',
+    field: 'criticality',
+    isEditAllowed: canEditOrg,
   })
 
-  const { enumOptions: encryptionStatusOptions } = useGetCustomTypeEnums({
-    where: { objectType: 'asset', field: 'encryptionStatus' },
+  const { enumOptions: encryptionStatusOptions, onCreateOption: createEncryptionStatus } = useCreatableEnumOptions({
+    objectType: 'asset',
+    field: 'encryptionStatus',
+    isEditAllowed: canEditOrg,
   })
 
   const assetSourceTypeOptions = Object.values(AssetSourceType).map((value) => ({
@@ -119,16 +134,20 @@ const AssetPage: React.FC = () => {
     label: getEnumLabel(value as string),
   }))
 
-  const { enumOptions: environmentOptions } = useGetCustomTypeEnums({
-    where: { field: 'environment' },
+  const { enumOptions: environmentOptions, onCreateOption: createEnvironment } = useCreatableEnumOptions({
+    field: 'environment',
+    isEditAllowed: canEditOrg,
   })
 
-  const { enumOptions: scopeOptions } = useGetCustomTypeEnums({
-    where: { field: 'scope' },
+  const { enumOptions: scopeOptions, onCreateOption: createScope } = useCreatableEnumOptions({
+    field: 'scope',
+    isEditAllowed: canEditOrg,
   })
 
-  const { enumOptions: securityTierOptions } = useGetCustomTypeEnums({
-    where: { objectType: 'asset', field: 'securityTier' },
+  const { enumOptions: securityTierOptions, onCreateOption: createSecurityTier } = useCreatableEnumOptions({
+    objectType: 'asset',
+    field: 'securityTier',
+    isEditAllowed: canEditOrg,
   })
 
   const tagOptions = useGetTags()
@@ -145,6 +164,17 @@ const AssetPage: React.FC = () => {
     scopeOptions,
     securityTierOptions,
     tagOptions: tagOptions.tagOptions,
+  }
+
+  const enumCreateHandlers = {
+    accessModelName: createAccessModel,
+    assetDataClassificationName: createDataClassification,
+    assetSubtypeName: createSubtype,
+    criticalityName: createCriticality,
+    encryptionStatusName: createEncryptionStatus,
+    environmentName: createEnvironment,
+    scopeName: createScope,
+    securityTierName: createSecurityTier,
   }
 
   const sheetConfig: AssetSheetConfig = {
@@ -168,7 +198,7 @@ const AssetPage: React.FC = () => {
     },
     normalizeData,
     getName,
-    renderFields: (props: AssetFieldProps) => getFieldsToRender(props, enumOpts),
+    renderFields: (props: AssetFieldProps) => getFieldsToRender(props, enumOpts, enumCreateHandlers),
   }
 
   const tableConfig: AssetTablePageConfig = {

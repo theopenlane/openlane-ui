@@ -7,7 +7,7 @@ import DescriptionField from '../create/form/fields/description-field'
 import { AdditionalFields } from '../create/form/fields/additional-fields'
 import Properties from '../create/form/fields/properties'
 import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
-import { VulnerabilityFieldProps, EnumOptions } from './types'
+import { VulnerabilityFieldProps, EnumOptions, EnumCreateHandlers } from './types'
 import { enumToSortFields } from '@/components/shared/crud-base/utils'
 
 export const formId = 'edit' + ObjectNames.VULNERABILITY
@@ -151,7 +151,7 @@ export const visibilityFields = {
   tags: false,
 }
 
-export const getFieldsToRender = (props: VulnerabilityFieldProps, enumOptions: EnumOptions) => {
+export const getFieldsToRender = (props: VulnerabilityFieldProps, enumOptions: EnumOptions, enumCreateHandlers?: EnumCreateHandlers) => {
   return (
     <div className="mr-6">
       <div className="flex flex-row items-center mb-6">
@@ -191,6 +191,7 @@ export const getFieldsToRender = (props: VulnerabilityFieldProps, enumOptions: E
         setInternalEditing={props.setInternalEditing}
         handleUpdateField={props.handleUpdateField}
         enumOptions={enumOptions}
+        enumCreateHandlers={enumCreateHandlers}
       />
     </div>
   )

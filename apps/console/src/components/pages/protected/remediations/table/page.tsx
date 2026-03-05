@@ -18,7 +18,9 @@ import { RemediationSheetConfig, RemediationTablePageConfig, RemediationFieldPro
 import { getColumns } from './columns'
 import TableComponent from './table'
 import { CreateRemediationInput, UpdateRemediationInput } from '@repo/codegen/src/schema'
-import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
+import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { canEdit } from '@/lib/authz/utils'
 
 const RemediationPage: React.FC = () => {
   const { form } = useFormSchema()
@@ -58,17 +60,27 @@ const RemediationPage: React.FC = () => {
     },
   }
 
-  const { enumOptions: environmentOptions } = useGetCustomTypeEnums({
-    where: { field: 'environment' },
+  const { data: orgPermission } = useOrganizationRoles()
+  const canEditOrg = canEdit(orgPermission?.roles)
+
+  const { enumOptions: environmentOptions, onCreateOption: createEnvironment } = useCreatableEnumOptions({
+    field: 'environment',
+    isEditAllowed: canEditOrg,
   })
 
-  const { enumOptions: scopeOptions } = useGetCustomTypeEnums({
-    where: { field: 'scope' },
+  const { enumOptions: scopeOptions, onCreateOption: createScope } = useCreatableEnumOptions({
+    field: 'scope',
+    isEditAllowed: canEditOrg,
   })
 
   const enumOpts = {
     environmentOptions,
     scopeOptions,
+  }
+
+  const enumCreateHandlers = {
+    environmentName: createEnvironment,
+    scopeName: createScope,
   }
 
   const sheetConfig: RemediationSheetConfig = {
@@ -80,7 +92,7 @@ const RemediationPage: React.FC = () => {
     createMutation,
     buildPayload: async (data) => data,
     getName,
-    renderFields: (props: RemediationFieldProps) => getFieldsToRender(props, enumOpts),
+    renderFields: (props: RemediationFieldProps) => getFieldsToRender(props, enumOpts, enumCreateHandlers),
   }
 
   const tableConfig: RemediationTablePageConfig = {

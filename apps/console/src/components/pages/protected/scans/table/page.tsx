@@ -10,7 +10,9 @@ import { ScanSheetConfig, ScanTablePageConfig, ScanFieldProps, objectType, objec
 import { getColumns } from './columns'
 import TableComponent from './table'
 import { CreateScanInput, ScanScanStatus, ScanScanType, UpdateScanInput } from '@repo/codegen/src/schema'
-import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
+import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { canEdit } from '@/lib/authz/utils'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 
 const ScanPage: React.FC = () => {
@@ -61,12 +63,17 @@ const ScanPage: React.FC = () => {
 
   const bulkEditMutation = baseBulkEditMutation
 
-  const { enumOptions: environmentOptions } = useGetCustomTypeEnums({
-    where: { field: 'environment' },
+  const { data: orgPermission } = useOrganizationRoles()
+  const canEditOrg = canEdit(orgPermission?.roles)
+
+  const { enumOptions: environmentOptions, onCreateOption: createEnvironment } = useCreatableEnumOptions({
+    field: 'environment',
+    isEditAllowed: canEditOrg,
   })
 
-  const { enumOptions: scopeOptions } = useGetCustomTypeEnums({
-    where: { field: 'scope' },
+  const { enumOptions: scopeOptions, onCreateOption: createScope } = useCreatableEnumOptions({
+    field: 'scope',
+    isEditAllowed: canEditOrg,
   })
 
   const statusOptions = Object.values(ScanScanStatus).map((value) => ({
@@ -86,6 +93,11 @@ const ScanPage: React.FC = () => {
     scanTypeOptions,
   }
 
+  const enumCreateHandlers = {
+    environmentName: createEnvironment,
+    scopeName: createScope,
+  }
+
   const sheetConfig: ScanSheetConfig = {
     objectType: objectType,
     form,
@@ -95,7 +107,7 @@ const ScanPage: React.FC = () => {
     createMutation,
     buildPayload: async (data) => data,
     getName,
-    renderFields: (props: ScanFieldProps) => getFieldsToRender(props, enumOpts),
+    renderFields: (props: ScanFieldProps) => getFieldsToRender(props, enumOpts, enumCreateHandlers),
   }
 
   const tableConfig: ScanTablePageConfig = {

@@ -29,3 +29,5 @@ export type EnumOptions = EnumOptionsGeneric<FindingEnumKeys>
 export type FindingTablePageConfig = GenericTablePageConfig<TData, TFormData, TUpdateInput, TUpdateData, TCreateInput, TCreateData, TWhereInput, TOrderField>
 export type FindingSheetConfig = GenericDetailsSheetConfig<TFormData, TData, TUpdateInput, TUpdateData, TCreateInput, TCreateData>
 export type FindingFieldProps = RenderFieldsProps<TData, TUpdateInput>
+
+export type EnumCreateHandlers = Partial<Record<string, (value: string) => Promise<void>>>

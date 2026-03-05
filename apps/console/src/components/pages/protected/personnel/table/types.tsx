@@ -41,3 +41,5 @@ export type PersonnelTablePageConfig = GenericTablePageConfig<TData, TFormData, 
 export type PersonnelSheetConfig = GenericDetailsSheetConfig<TFormData, TData, TUpdateInput, TUpdateData, TCreateInput, TCreateData>
 
 export type PersonnelFieldProps = RenderFieldsProps<TData, TUpdateInput>
+
+export type EnumCreateHandlers = Partial<Record<string, (value: string) => Promise<void>>>

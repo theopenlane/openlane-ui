@@ -8,7 +8,7 @@ import { AdditionalFields } from '../create/form/fields/additional-fields'
 import Properties from '../create/form/fields/properties'
 import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
-import { AssetFieldProps, EnumOptions } from './types'
+import { AssetFieldProps, EnumOptions, EnumCreateHandlers } from './types'
 import { enumToSortFields } from '@/components/shared/crud-base/utils'
 import { AssetAssociationSection } from '../create/form/fields/association-section'
 
@@ -159,7 +159,7 @@ export const visibilityFields = {
   website: false,
 }
 
-export const getFieldsToRender = (props: AssetFieldProps, enumOptions: EnumOptions) => {
+export const getFieldsToRender = (props: AssetFieldProps, enumOptions: EnumOptions, enumCreateHandlers?: EnumCreateHandlers) => {
   return (
     <div className="mr-6">
       <div className="flex flex-row items-center mb-6">
@@ -199,6 +199,7 @@ export const getFieldsToRender = (props: AssetFieldProps, enumOptions: EnumOptio
         setInternalEditing={props.setInternalEditing}
         handleUpdateField={props.handleUpdateField}
         enumOptions={enumOptions}
+        enumCreateHandlers={enumCreateHandlers}
       />
       <AssetAssociationSection data={props.data} isEditing={props.isEditing} isCreate={props.isCreate} isEditAllowed={props.isEditAllowed} />
     </div>

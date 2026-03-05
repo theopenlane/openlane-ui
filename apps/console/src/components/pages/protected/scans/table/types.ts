@@ -28,3 +28,5 @@ export type EnumOptions = EnumOptionsGeneric<ScanEnumKeys>
 export type ScanTablePageConfig = GenericTablePageConfig<TData, TFormData, TUpdateInput, TUpdateData, TCreateInput, TCreateData, TWhereInput, TOrderField>
 export type ScanSheetConfig = GenericDetailsSheetConfig<TFormData, TData, TUpdateInput, TUpdateData, TCreateInput, TCreateData>
 export type ScanFieldProps = RenderFieldsProps<TData, TUpdateInput>
+
+export type EnumCreateHandlers = Partial<Record<string, (value: string) => Promise<void>>>
