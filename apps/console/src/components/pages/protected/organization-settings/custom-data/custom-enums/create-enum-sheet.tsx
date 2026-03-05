@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useState, useMemo } from 'react'
-import { FormProvider, useForm, useController } from 'react-hook-form'
+import { FormProvider, useForm, useController, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { PanelRightClose, Trash2, LoaderCircle } from 'lucide-react'
@@ -95,8 +95,7 @@ export const CreateEnumSheet = ({ resetPagination, filter }: { resetPagination: 
   const { field: typeField } = useController({ name: 'objectType', control })
   const { field: fieldField } = useController({ name: 'field', control })
 
-  // eslint-disable-next-line react-hooks/incompatible-library
-  const selectedObjectType = formMethods.watch('objectType')
+  const selectedObjectType = useWatch({ control, name: 'objectType' })
 
   const isGlobal = useMemo(() => {
     const config = ENUM_GROUP_MAP[filter]

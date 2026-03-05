@@ -86,9 +86,6 @@ const GroupsPage = () => {
   }, [session?.user?.userId])
 
   const containsIsManaged = useCallback((cond: GroupWhereInput): boolean => {
-    if (!cond || typeof cond !== 'object') return false
-    if ('isManaged' in cond) return true
-
     const check = (c: GroupWhereInput): boolean => {
       if (!c || typeof c !== 'object') return false
       if ('isManaged' in c) return true
@@ -97,9 +94,7 @@ const GroupsPage = () => {
       return false
     }
 
-    if (cond.and?.some(check)) return true
-    if (cond.or?.some(check)) return true
-    return false
+    return check(cond)
   }, [])
 
   const whereFilter = useMemo(() => {

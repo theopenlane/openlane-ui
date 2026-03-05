@@ -44,21 +44,27 @@ export const useEvidenceSuggestedControls = ({ evidenceControls, evidenceSubcont
 
   const controlFrameworks = useMemo(
     () =>
-      suggestions
-        .filter((s) => s.typeName === ObjectTypes.CONTROL && s.referenceFramework)
-        .map((s) => s.referenceFramework)
-        .filter((v): v is string => v !== null)
-        .filter((v, i, a) => a.indexOf(v) === i),
+      Array.from(
+        new Set(
+          suggestions
+            .filter((s) => s.typeName === ObjectTypes.CONTROL && s.referenceFramework)
+            .map((s) => s.referenceFramework)
+            .filter((v): v is string => v !== null),
+        ),
+      ),
     [suggestions],
   )
 
   const subcontrolFrameworks = useMemo(
     () =>
-      suggestions
-        .filter((s) => s.typeName === ObjectTypes.SUBCONTROL && s.referenceFramework)
-        .map((s) => s.referenceFramework)
-        .filter((v): v is string => v !== null)
-        .filter((v, i, a) => a.indexOf(v) === i),
+      Array.from(
+        new Set(
+          suggestions
+            .filter((s) => s.typeName === ObjectTypes.SUBCONTROL && s.referenceFramework)
+            .map((s) => s.referenceFramework)
+            .filter((v): v is string => v !== null),
+        ),
+      ),
     [suggestions],
   )
 
