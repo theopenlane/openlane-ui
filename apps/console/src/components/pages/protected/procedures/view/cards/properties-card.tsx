@@ -13,10 +13,11 @@ import { EditProcedureMetadataFormData } from '../hooks/use-form-schema'
 import useEscapeKey from '@/hooks/useEscapeKey'
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
-import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
-import { CustomTypeEnumOptionChip, CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
+import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
+import { CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { objectToSnakeCase } from '@/utils/strings'
+import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-enum-select/creatable-custom-type-enum-select'
 
 type TPropertiesCardProps = {
   form: UseFormReturn<EditProcedureMetadataFormData>
@@ -34,11 +35,10 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEdi
   const editingField = isControlled ? activeField : internalEditingField
   const setEditingField = isControlled ? setActiveField : setInternalEditingField
 
-  const { enumOptions } = useGetCustomTypeEnums({
-    where: {
-      objectType: objectToSnakeCase(ObjectTypes.PROCEDURE),
-      field: 'kind',
-    },
+  const { enumOptions, onCreateOption } = useCreatableEnumOptions({
+    objectType: objectToSnakeCase(ObjectTypes.PROCEDURE),
+    field: 'kind',
+    isEditAllowed: editAllowed,
   })
 
   const handleUpdateIfChanged = (field: 'status' | 'procedureKindName', value: string, current: string | undefined | null) => {
@@ -196,27 +196,18 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEdi
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <Select
+                    <CreatableCustomTypeEnumSelect
                       value={field.value || ''}
+                      options={enumOptions ?? []}
+                      onCreateOption={onCreateOption}
+                      searchPlaceholder="Search procedure type..."
+                      contentRef={popoverRef}
                       onValueChange={(value) => {
                         field.onChange(value)
                         handleUpdateIfChanged('procedureKindName', value, procedure?.procedureKindName)
                       }}
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue>
-                          <CustomTypeEnumValue value={field.value} options={enumOptions ?? []} placeholder="Select type" />
-                        </SelectValue>
-                      </SelectTrigger>
-
-                      <SelectContent ref={popoverRef}>
-                        {enumOptions?.map((option) => (
-                          <SelectItem key={option.value} value={option.value}>
-                            <CustomTypeEnumOptionChip option={option} />
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                      placeholder="Select type"
+                    />
                   </FormControl>
 
                   {form.formState.errors.procedureKindName && <p className="text-red-500 text-sm">{form.formState.errors.procedureKindName.message}</p>}

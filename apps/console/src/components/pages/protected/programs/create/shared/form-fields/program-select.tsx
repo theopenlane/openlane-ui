@@ -1,21 +1,18 @@
 import { FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
-import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { useFormContext } from 'react-hook-form'
 import { getYear } from 'date-fns'
-import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
-import { CustomTypeEnumOptionChip, CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
+import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { objectToSnakeCase } from '@/utils/strings'
+import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-enum-select/creatable-custom-type-enum-select'
 
 const currentYear = getYear(new Date())
 
 const ProgramTypeSelect = () => {
   const { control, setValue, trigger } = useFormContext()
-  const { enumOptions } = useGetCustomTypeEnums({
-    where: {
-      objectType: objectToSnakeCase(ObjectTypes.PROGRAM),
-      field: 'kind',
-    },
+  const { enumOptions, onCreateOption } = useCreatableEnumOptions({
+    objectType: objectToSnakeCase(ObjectTypes.PROGRAM),
+    field: 'kind',
   })
 
   return (
@@ -30,8 +27,13 @@ const ProgramTypeSelect = () => {
           </FormLabel>
 
           <FormControl>
-            <Select
+            <CreatableCustomTypeEnumSelect
               value={field.value}
+              options={enumOptions ?? []}
+              onCreateOption={onCreateOption}
+              placeholder="Select Program Type"
+              searchPlaceholder="Search program type..."
+              triggerClassName="grow justify-between"
               onValueChange={(value) => {
                 field.onChange(value)
 
@@ -45,20 +47,7 @@ const ProgramTypeSelect = () => {
                   }
                 }
               }}
-              required
-            >
-              <SelectTrigger className="grow justify-between">
-                <CustomTypeEnumValue value={field.value} options={enumOptions ?? []} placeholder="Select Program Type" />
-              </SelectTrigger>
-
-              <SelectContent>
-                {enumOptions?.map((opt) => (
-                  <SelectItem key={opt.value} value={opt.value}>
-                    <CustomTypeEnumOptionChip option={opt} />
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            />
           </FormControl>
         </FormItem>
       )}

@@ -22,8 +22,6 @@ import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { buildPayload } from '../create/utils'
 import { CreateVulnerabilityInput, UpdateVulnerabilityInput } from '@repo/codegen/src/schema'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
-import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
-import { canEdit } from '@/lib/authz/utils'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 
 const VulnerabilityPage: React.FC = () => {
@@ -66,17 +64,12 @@ const VulnerabilityPage: React.FC = () => {
     },
   }
 
-  const { data: orgPermission } = useOrganizationRoles()
-  const canEditOrg = canEdit(orgPermission?.roles)
-
   const { enumOptions: environmentOptions, onCreateOption: createEnvironment } = useCreatableEnumOptions({
     field: 'environment',
-    isEditAllowed: canEditOrg,
   })
 
   const { enumOptions: scopeOptions, onCreateOption: createScope } = useCreatableEnumOptions({
     field: 'scope',
-    isEditAllowed: canEditOrg,
   })
 
   const tagOptions = useGetTags()

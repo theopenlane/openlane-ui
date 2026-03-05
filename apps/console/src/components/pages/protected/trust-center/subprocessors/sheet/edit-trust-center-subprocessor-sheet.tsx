@@ -23,9 +23,8 @@ import { NameField } from './form-fields/name-field'
 import { DescriptionField } from './form-fields/description-field'
 import { LogoField } from './form-fields/logo-field'
 import { TUploadedFile } from '@/components/pages/protected/evidence/upload/types/TUploadedFile'
-import { useCreateCustomTypeEnum, useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
-import { ObjectTypes } from '@repo/codegen/src/type-names'
-import { objectToSnakeCase } from '@/utils/strings'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { canEdit } from '@/lib/authz/utils'
 
 const schema = z.object({
   category: z.string().min(1, 'Category is required'),
@@ -50,16 +49,10 @@ export const EditTrustCenterSubprocessorSheet: React.FC = () => {
 
   const { mutateAsync: updateTCSubprocessor } = useUpdateTrustCenterSubprocessor()
   const { mutateAsync: updateSubprocessor } = useUpdateSubprocessor()
+  const { data: orgPermission } = useOrganizationRoles()
+  const canEditOrg = canEdit(orgPermission?.roles)
 
   const { data } = useGetTrustCenterSubprocessorByID({ trustCenterSubprocessorId: trustCenterSubprocessorId || '' })
-
-  const { mutateAsync: createEnum } = useCreateCustomTypeEnum()
-  const { enumOptions } = useGetCustomTypeEnums({
-    where: {
-      objectType: objectToSnakeCase(ObjectTypes.TRUST_CENTER_SUBPROCESSOR),
-      field: 'kind',
-    },
-  })
 
   const formMethods = useForm<FormData>({
     resolver: zodResolver(schema) as Resolver<FormData>,
@@ -77,7 +70,7 @@ export const EditTrustCenterSubprocessorSheet: React.FC = () => {
   const { handleSubmit, reset, formState } = formMethods
   const { isSubmitting } = formState
 
-  const isEditable = !data?.trustCenterSubprocessor?.subprocessor?.systemOwned
+  const isEditable = canEditOrg && !data?.trustCenterSubprocessor?.subprocessor?.systemOwned
 
   const handleOpenChange = (isOpen: boolean) => {
     setOpen(isOpen)
@@ -121,22 +114,8 @@ export const EditTrustCenterSubprocessorSheet: React.FC = () => {
     }
   }
 
-  const ensureCategoryExists = async (categoryName: string) => {
-    const exists = enumOptions.some((opt) => opt.value === categoryName || opt.label === categoryName)
-
-    if (!exists) {
-      await createEnum({
-        name: categoryName,
-        objectType: 'trust_center_subprocessor',
-        field: 'kind',
-      })
-    }
-  }
-
   const onSubmit = async (values: FormData) => {
     if (!trustCenterSubprocessorId) return
-
-    await ensureCategoryExists(values.category)
 
     try {
       const tc = data?.trustCenterSubprocessor
@@ -239,7 +218,7 @@ export const EditTrustCenterSubprocessorSheet: React.FC = () => {
             <NameField isEditing={false} />
             <DescriptionField isEditing={isEditable} />
             <CountriesField isEditing />
-            <CategoryField isEditing />
+            <CategoryField isEditing isCreateAllowed={canEditOrg} />
             <LogoField onFileUpload={handleLogoUpload} isEditing={isEditable} />
           </form>
         </FormProvider>

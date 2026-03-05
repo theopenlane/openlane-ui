@@ -12,8 +12,10 @@ import { formatTimeSince } from '@/utils/date'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { InternalPolicyStatusOptions } from '@/components/shared/enum-mapper/policy-enum'
 import { TMetadata } from '@/components/pages/protected/policies/create/form/create-policy-form.tsx'
-import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
-import { CustomTypeEnumOptionChip, CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
+import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
+import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-enum-select/creatable-custom-type-enum-select'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { canEdit } from '@/lib/authz/utils'
 
 type TStatusCardProps = {
   form: UseFormReturn<CreatePolicyFormData>
@@ -22,11 +24,16 @@ type TStatusCardProps = {
 
 const StatusCard: React.FC<TStatusCardProps> = ({ form, metadata }) => {
   const statusOptions = InternalPolicyStatusOptions
-  const { enumOptions, isSuccess: isTypesSuccess } = useGetCustomTypeEnums({
-    where: {
-      objectType: 'internal_policy',
-      field: 'kind',
-    },
+  const { data: orgPermission } = useOrganizationRoles()
+  const canEditOrg = canEdit(orgPermission?.roles)
+  const {
+    enumOptions,
+    onCreateOption,
+    isSuccess: isTypesSuccess,
+  } = useCreatableEnumOptions({
+    objectType: 'internal_policy',
+    field: 'kind',
+    isEditAllowed: canEditOrg,
   })
   const reviewFrequencyOptions = Object.values(InternalPolicyFrequency).map((value) => ({
     label: value.charAt(0) + value.slice(1).toLowerCase(),
@@ -157,18 +164,15 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form, metadata }) => {
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <Select value={field.value || ''} onValueChange={(value) => field.onChange(value)} disabled={!isTypesSuccess}>
-                      <SelectTrigger className="w-full">
-                        <CustomTypeEnumValue value={field.value} options={enumOptions ?? []} placeholder="Select type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {enumOptions?.map((option) => (
-                          <SelectItem key={option.value} value={option.value}>
-                            <CustomTypeEnumOptionChip option={option} />
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <CreatableCustomTypeEnumSelect
+                      value={field.value || ''}
+                      options={enumOptions}
+                      onCreateOption={onCreateOption}
+                      placeholder={isTypesSuccess ? 'Select type' : 'Loading...'}
+                      disabled={!isTypesSuccess}
+                      searchPlaceholder="Search policy type..."
+                      onValueChange={field.onChange}
+                    />
                   </FormControl>
 
                   {form.formState.errors.internalPolicyKindName && <p className="text-red-500 text-sm">{form.formState.errors.internalPolicyKindName.message}</p>}

@@ -13,10 +13,14 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { ClientError } from 'graphql-request'
 import { useBulkUpdateTrustCenterDocs } from '@/lib/graphql-hooks/trust-center-doc'
 import { TrustCenterDocTrustCenterDocumentVisibility } from '@repo/codegen/src/schema'
-import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
+import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
-import { CustomTypeEnumOptionChip, CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
+import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-enum-select/creatable-custom-type-enum-select'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { objectToSnakeCase } from '@/utils/strings'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { canEdit } from '@/lib/authz/utils'
 
 export enum SelectOptionBulkEditTrustCenterDocs {
   CATEGORY = 'Category',
@@ -44,11 +48,12 @@ export const BulkEditTrustCenterDocsDialog: React.FC<Props> = ({ selectedDocs, s
   const [open, setOpen] = useState(false)
   const { mutateAsync: bulkEditDocs } = useBulkUpdateTrustCenterDocs()
   const { successNotification, errorNotification } = useNotification()
-  const { enumOptions: categoryOptions } = useGetCustomTypeEnums({
-    where: {
-      objectType: 'trustcenterdoc',
-      field: 'kind',
-    },
+  const { data: orgPermission } = useOrganizationRoles()
+  const canEditOrg = canEdit(orgPermission?.roles)
+  const { enumOptions: categoryOptions, onCreateOption: createCategory } = useCreatableEnumOptions({
+    objectType: objectToSnakeCase(ObjectTypes.TRUST_CENTER_DOC),
+    field: 'kind',
+    isEditAllowed: canEditOrg,
   })
 
   const form = useForm<BulkEditDialogFormValues>({
@@ -154,20 +159,15 @@ export const BulkEditTrustCenterDocsDialog: React.FC<Props> = ({ selectedDocs, s
                       control={control}
                       name={`fieldsArray.${index}.selectedValue`}
                       render={({ field }) => (
-                        <Select value={field.value || ''} onValueChange={field.onChange}>
-                          <SelectTrigger className="w-60">
-                            <SelectValue placeholder="Select category">
-                              <CustomTypeEnumValue value={field.value} options={categoryOptions} placeholder="Select category" />
-                            </SelectValue>
-                          </SelectTrigger>
-                          <SelectContent>
-                            {categoryOptions.map((option) => (
-                              <SelectItem key={option.value} value={option.value}>
-                                <CustomTypeEnumOptionChip option={option} />
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <CreatableCustomTypeEnumSelect
+                          value={field.value}
+                          options={categoryOptions}
+                          onCreateOption={createCategory}
+                          triggerClassName="w-60"
+                          searchPlaceholder="Search category..."
+                          placeholder="Select category"
+                          onValueChange={field.onChange}
+                        />
                       )}
                     />
                   )}

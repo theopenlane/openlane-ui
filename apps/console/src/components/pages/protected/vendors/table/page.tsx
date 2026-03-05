@@ -5,8 +5,6 @@ import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { Value } from 'platejs'
 import { useSearchParams } from 'next/navigation'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
-import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
-import { canEdit } from '@/lib/authz/utils'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
 
@@ -99,35 +97,27 @@ const VendorPage: React.FC = () => {
 
   const bulkEditMutation = baseBulkEditMutation
 
-  const { data: orgPermission } = useOrganizationRoles()
-  const canEditOrg = canEdit(orgPermission?.roles)
-
   const { enumOptions: securityQuestionnaireStatusOptions, onCreateOption: createSecurityQuestionnaireStatus } = useCreatableEnumOptions({
     objectType: 'entity',
     field: 'entitySecurityQuestionnaireStatus',
-    isEditAllowed: canEditOrg,
   })
 
   const { enumOptions: sourceTypeOptions, onCreateOption: createSourceType } = useCreatableEnumOptions({
     objectType: 'entity',
     field: 'entitySourceType',
-    isEditAllowed: canEditOrg,
   })
 
   const { enumOptions: relationshipStateOptions, onCreateOption: createRelationshipState } = useCreatableEnumOptions({
     objectType: 'entity',
     field: 'relationshipState',
-    isEditAllowed: canEditOrg,
   })
 
   const { enumOptions: environmentOptions, onCreateOption: createEnvironment } = useCreatableEnumOptions({
     field: 'environment',
-    isEditAllowed: canEditOrg,
   })
 
   const { enumOptions: scopeOptions, onCreateOption: createScope } = useCreatableEnumOptions({
     field: 'scope',
-    isEditAllowed: canEditOrg,
   })
 
   const reviewFrequencyOptions = Object.values(EntityFrequency).map((value) => ({

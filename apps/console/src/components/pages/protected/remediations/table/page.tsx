@@ -19,8 +19,6 @@ import { getColumns } from './columns'
 import TableComponent from './table'
 import { CreateRemediationInput, UpdateRemediationInput } from '@repo/codegen/src/schema'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
-import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
-import { canEdit } from '@/lib/authz/utils'
 
 const RemediationPage: React.FC = () => {
   const { form } = useFormSchema()
@@ -60,17 +58,12 @@ const RemediationPage: React.FC = () => {
     },
   }
 
-  const { data: orgPermission } = useOrganizationRoles()
-  const canEditOrg = canEdit(orgPermission?.roles)
-
   const { enumOptions: environmentOptions, onCreateOption: createEnvironment } = useCreatableEnumOptions({
     field: 'environment',
-    isEditAllowed: canEditOrg,
   })
 
   const { enumOptions: scopeOptions, onCreateOption: createScope } = useCreatableEnumOptions({
     field: 'scope',
-    isEditAllowed: canEditOrg,
   })
 
   const enumOpts = {

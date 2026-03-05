@@ -3,8 +3,6 @@
 import React, { useCallback, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
-import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
-import { canEdit } from '@/lib/authz/utils'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
 
@@ -109,17 +107,12 @@ const PersonnelPage: React.FC = () => {
 
   const bulkEditMutation = baseBulkEditMutation
 
-  const { data: orgPermission } = useOrganizationRoles()
-  const canEditOrg = canEdit(orgPermission?.roles)
-
   const { enumOptions: environmentOptions, onCreateOption: createEnvironment } = useCreatableEnumOptions({
     field: 'environment',
-    isEditAllowed: canEditOrg,
   })
 
   const { enumOptions: scopeOptions, onCreateOption: createScope } = useCreatableEnumOptions({
     field: 'scope',
-    isEditAllowed: canEditOrg,
   })
 
   const statusOptions = Object.values(IdentityHolderUserStatus).map((value) => ({

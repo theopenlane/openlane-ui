@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
+import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { InfoIcon } from 'lucide-react'
 import useFormSchema, { CreateTaskFormData } from '../../hooks/use-form-schema'
 import { Input, InputRow } from '@repo/ui/input'
@@ -26,8 +26,8 @@ import { Value } from 'platejs'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import Link from 'next/link'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
-import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
-import { CustomTypeEnumOptionChip, CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
+import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
+import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-enum-select/creatable-custom-type-enum-select'
 
 type TProps = {
   onSuccess: () => void
@@ -54,11 +54,9 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
   const wasOpenRef = useRef(false)
   const { tagOptions } = useGetTags()
 
-  const { enumOptions: taskKindOptions } = useGetCustomTypeEnums({
-    where: {
-      objectType: 'task',
-      field: 'kind',
-    },
+  const { enumOptions: taskKindOptions, onCreateOption: createTaskKind } = useCreatableEnumOptions({
+    objectType: 'task',
+    field: 'kind',
   })
 
   useEffect(() => {
@@ -165,22 +163,16 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
                                 content={<p>Select a category for the task, such as evidence collection, policy review, risk review, or other.</p>}
                               />
                             </div>
-                            <Select value={field.value} onValueChange={field.onChange}>
-                              <FormControl>
-                                <SelectTrigger className="w-full">
-                                  <SelectValue>
-                                    <CustomTypeEnumValue value={field.value} options={taskKindOptions} placeholder="Select" />
-                                  </SelectValue>
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {taskKindOptions.map((o) => (
-                                  <SelectItem key={o.value} value={o.value}>
-                                    <CustomTypeEnumOptionChip option={o} />
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
+                            <FormControl>
+                              <CreatableCustomTypeEnumSelect
+                                value={field.value}
+                                options={taskKindOptions}
+                                onValueChange={field.onChange}
+                                onCreateOption={createTaskKind}
+                                placeholder="Select"
+                                searchPlaceholder="Search task type..."
+                              />
+                            </FormControl>
                             {form.formState.errors.taskKindName && <p className="text-red-500 text-sm">{form.formState.errors.taskKindName.message}</p>}
                           </FormItem>
                         )}

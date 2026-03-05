@@ -5,11 +5,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { RiskIconMapper } from '@/components/shared/enum-mapper/risk-enum'
 import { useRef } from 'react'
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
-import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
+import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { EditRisksFormData } from './view/hooks/use-form-schema'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { cn } from '@repo/ui/lib/utils'
-import { CustomTypeEnumOptionChip, CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
+import { CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
+import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-enum-select/creatable-custom-type-enum-select'
 
 interface RiskLabelProps {
   fieldName?: keyof EditRisksFormData
@@ -30,18 +31,14 @@ export const RiskLabel = ({ fieldName, score, impact, likelihood, riskCategoryNa
   const triggerRef = useRef<HTMLDivElement>(null)
   const popoverRef = useRef<HTMLDivElement>(null)
 
-  const { enumOptions: riskKindOptions } = useGetCustomTypeEnums({
-    where: {
-      objectType: 'risk',
-      field: 'kind',
-    },
+  const { enumOptions: riskKindOptions, onCreateOption: createRiskKind } = useCreatableEnumOptions({
+    objectType: 'risk',
+    field: 'kind',
   })
 
-  const { enumOptions: riskCategoryOptions } = useGetCustomTypeEnums({
-    where: {
-      objectType: 'risk',
-      field: 'category',
-    },
+  const { enumOptions: riskCategoryOptions, onCreateOption: createRiskCategory } = useCreatableEnumOptions({
+    objectType: 'risk',
+    field: 'category',
   })
 
   useClickOutsideWithPortal(
@@ -127,21 +124,16 @@ export const RiskLabel = ({ fieldName, score, impact, likelihood, riskCategoryNa
   if (fieldName === 'riskKindName' && isEditing) {
     return (
       <div ref={triggerRef}>
-        <Select value={riskKindName} onValueChange={(val) => onChange?.(val)}>
-          <SelectTrigger className={cn('w-40', selectFieldClassname)}>
-            <SelectValue>
-              <CustomTypeEnumValue value={riskKindName} options={riskKindOptions ?? []} placeholder="Select risk type" />
-            </SelectValue>
-          </SelectTrigger>
-
-          <SelectContent ref={popoverRef}>
-            {riskKindOptions?.map((opt) => (
-              <SelectItem key={opt.value} value={opt.value}>
-                <CustomTypeEnumOptionChip option={opt} />
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <CreatableCustomTypeEnumSelect
+          value={riskKindName}
+          options={riskKindOptions ?? []}
+          onValueChange={(val) => onChange?.(val)}
+          onCreateOption={createRiskKind}
+          placeholder="Select risk type"
+          searchPlaceholder="Search risk type..."
+          triggerClassName={cn('w-40', selectFieldClassname)}
+          contentRef={popoverRef}
+        />
       </div>
     )
   }
@@ -149,21 +141,16 @@ export const RiskLabel = ({ fieldName, score, impact, likelihood, riskCategoryNa
   if (fieldName === 'riskCategoryName' && isEditing) {
     return (
       <div ref={triggerRef}>
-        <Select value={riskCategoryName} onValueChange={(val) => onChange?.(val)}>
-          <SelectTrigger className={cn('w-40', selectFieldClassname)}>
-            <SelectValue>
-              <CustomTypeEnumValue value={riskCategoryName} options={riskCategoryOptions ?? []} placeholder="Select category" />
-            </SelectValue>
-          </SelectTrigger>
-
-          <SelectContent ref={popoverRef}>
-            {riskCategoryOptions?.map((opt) => (
-              <SelectItem key={opt.value} value={opt.value}>
-                <CustomTypeEnumOptionChip option={opt} />
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <CreatableCustomTypeEnumSelect
+          value={riskCategoryName}
+          options={riskCategoryOptions ?? []}
+          onValueChange={(val) => onChange?.(val)}
+          onCreateOption={createRiskCategory}
+          placeholder="Select category"
+          searchPlaceholder="Search category..."
+          triggerClassName={cn('w-40', selectFieldClassname)}
+          contentRef={popoverRef}
+        />
       </div>
     )
   }

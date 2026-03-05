@@ -8,7 +8,7 @@ import { ControlControlSource, UpdateControlInput, UpdateSubcontrolInput } from 
 import { Group } from '@repo/codegen/src/schema'
 import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
 import { useGetAllGroups } from '@/lib/graphql-hooks/group'
-import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
+import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { usePathname } from 'next/navigation'
 import { Property } from './fields/property'
 import { EditableSelect } from './fields/editable-select'
@@ -72,11 +72,10 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handle
   const { data: groupsData } = useGetAllGroups({ where: {}, enabled: isEditing || isGroupEditing })
   const groups = groupsData?.groups?.edges?.map((edge) => edge?.node) || []
 
-  const { enumOptions } = useGetCustomTypeEnums({
-    where: {
-      objectType: objectToSnakeCase(ObjectTypes.CONTROL),
-      field: 'kind',
-    },
+  const { enumOptions, onCreateOption } = useCreatableEnumOptions({
+    objectType: objectToSnakeCase(ObjectTypes.CONTROL),
+    field: 'kind',
+    isEditAllowed,
   })
 
   const { tagOptions } = useGetTags()
@@ -205,6 +204,7 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handle
           isEditing={isEditing}
           isEditAllowed={isEditAllowed}
           options={enumOptions}
+          onCreateOption={onCreateOption}
           handleUpdate={handleUpdateAdapter}
           activeField={editingField}
           setActiveField={setEditingField}

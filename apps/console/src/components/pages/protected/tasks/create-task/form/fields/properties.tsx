@@ -18,9 +18,10 @@ import useEscapeKey from '@/hooks/useEscapeKey'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
-import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
-import { CustomTypeEnumOptionChip, CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
+import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
+import { CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-enum-select/creatable-custom-type-enum-select'
 
 type PropertiesProps = {
   isEditing: boolean
@@ -40,11 +41,10 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
   const statusOptions = TaskStatusOptions
   const { tagOptions } = useGetTags()
 
-  const { enumOptions: taskKindOptions } = useGetCustomTypeEnums({
-    where: {
-      objectType: 'task',
-      field: 'kind',
-    },
+  const { enumOptions: taskKindOptions, onCreateOption: createTaskKind } = useCreatableEnumOptions({
+    objectType: 'task',
+    field: 'kind',
+    isEditAllowed,
   })
 
   const tags = watch('tags')
@@ -261,27 +261,19 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
             control={control}
             render={({ field }) => (
               <div className="w-[250px]" ref={triggerRef}>
-                <Select
+                <CreatableCustomTypeEnumSelect
                   value={field.value}
+                  options={taskKindOptions}
+                  onCreateOption={createTaskKind}
+                  contentRef={popoverRef}
+                  searchPlaceholder="Search task type..."
                   onValueChange={(value) => {
                     handleUpdate?.({ taskKindName: value })
                     field.onChange(value)
                     setInternalEditing(null)
                   }}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue>
-                      <CustomTypeEnumValue value={field.value} options={taskKindOptions} placeholder="Select" />
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent ref={popoverRef}>
-                    {taskKindOptions.map((o) => (
-                      <SelectItem key={o.value} value={o.value}>
-                        <CustomTypeEnumOptionChip option={o} />
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  placeholder="Select"
+                />
                 {formState.errors.taskKindName && <p className="text-red-500 text-sm">{formState.errors.taskKindName.message as string}</p>}
               </div>
             )}

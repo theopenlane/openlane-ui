@@ -23,11 +23,14 @@ import {
   SelectOptionBulkEditPolicies,
 } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-shared-objects'
 import { Group } from '@repo/codegen/src/schema'
-import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
+import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { CustomTypeEnumOptionChip, CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
 import { BulkEditTagField } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-tag-field'
+import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-enum-select/creatable-custom-type-enum-select'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { canEdit } from '@/lib/authz/utils'
 
 const fieldItemSchema = z.object({
   value: z.nativeEnum(SelectOptionBulkEditPolicies).optional(),
@@ -70,12 +73,17 @@ export const BulkEditPoliciesDialog: React.FC<BulkEditPoliciesDialogProps> = ({ 
     if (!data) return
     return data?.groups?.edges?.map((edge) => edge?.node) || []
   }, [data])
+  const { data: orgPermission } = useOrganizationRoles()
+  const canEditOrg = canEdit(orgPermission?.roles)
 
-  const { enumOptions, isSuccess: isTypesSuccess } = useGetCustomTypeEnums({
-    where: {
-      objectType: 'internal_policy',
-      field: 'kind',
-    },
+  const {
+    enumOptions,
+    onCreateOption: createPolicyType,
+    isSuccess: isTypesSuccess,
+  } = useCreatableEnumOptions({
+    objectType: 'internal_policy',
+    field: 'kind',
+    isEditAllowed: canEditOrg,
   })
 
   const allOptionSelects = useMemo(() => {
@@ -185,32 +193,49 @@ export const BulkEditPoliciesDialog: React.FC<BulkEditPoliciesDialogProps> = ({ 
                     {item.selectedObject &&
                       (item.selectedObject.inputType === InputType.Select ? (
                         <div className="flex flex-col items-center gap-2">
-                          <Select
-                            value={typeof item.selectedValue === 'string' ? item.selectedValue : undefined}
-                            onValueChange={(value) =>
-                              update(index, {
-                                ...item,
-                                selectedValue: value,
-                              })
-                            }
-                          >
-                            <SelectTrigger className="w-60">
-                              <SelectValue placeholder={item.selectedObject?.placeholder}>
-                                <CustomTypeEnumValue
-                                  value={typeof item.selectedValue === 'string' ? item.selectedValue : undefined}
-                                  options={item.selectedObject?.options || []}
-                                  placeholder={item.selectedObject?.placeholder ?? ''}
-                                />
-                              </SelectValue>
-                            </SelectTrigger>
-                            <SelectContent>
-                              {(item.selectedObject?.options || []).map((option) => (
-                                <SelectItem key={option.value} value={option.value}>
-                                  <CustomTypeEnumOptionChip option={option} />
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                          {item.selectedObject.name === 'internalPolicyKindName' ? (
+                            <CreatableCustomTypeEnumSelect
+                              value={typeof item.selectedValue === 'string' ? item.selectedValue : undefined}
+                              options={item.selectedObject?.options || []}
+                              onCreateOption={createPolicyType}
+                              triggerClassName="w-60"
+                              placeholder={item.selectedObject?.placeholder ?? ''}
+                              searchPlaceholder="Search policy type..."
+                              onValueChange={(value) =>
+                                update(index, {
+                                  ...item,
+                                  selectedValue: value,
+                                })
+                              }
+                            />
+                          ) : (
+                            <Select
+                              value={typeof item.selectedValue === 'string' ? item.selectedValue : undefined}
+                              onValueChange={(value) =>
+                                update(index, {
+                                  ...item,
+                                  selectedValue: value,
+                                })
+                              }
+                            >
+                              <SelectTrigger className="w-60">
+                                <SelectValue placeholder={item.selectedObject?.placeholder}>
+                                  <CustomTypeEnumValue
+                                    value={typeof item.selectedValue === 'string' ? item.selectedValue : undefined}
+                                    options={item.selectedObject?.options || []}
+                                    placeholder={item.selectedObject?.placeholder ?? ''}
+                                  />
+                                </SelectValue>
+                              </SelectTrigger>
+                              <SelectContent>
+                                {(item.selectedObject?.options || []).map((option) => (
+                                  <SelectItem key={option.value} value={option.value}>
+                                    <CustomTypeEnumOptionChip option={option} />
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          )}
                         </div>
                       ) : item.selectedObject.inputType === InputType.Tag ? (
                         <BulkEditTagField control={form.control} name={`fieldsArray.${index}.selectedValue`} placeholder={item.selectedObject?.placeholder} />

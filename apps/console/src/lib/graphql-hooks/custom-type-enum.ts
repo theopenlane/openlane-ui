@@ -25,6 +25,8 @@ import {
   UPDATE_CUSTOM_TYPE_ENUM,
   DELETE_CUSTOM_TYPE_ENUM,
 } from '@repo/codegen/query/custom-type-enum'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { canEdit } from '@/lib/authz/utils'
 
 export type CustomTypeEnumOption = Option & { color?: string; description?: string }
 
@@ -146,13 +148,17 @@ export const useDeleteCustomTypeEnum = (): UseMutationResult<DeleteCustomTypeEnu
   })
 }
 
-export const useCreatableEnumOptions = ({ objectType, field, isEditAllowed = false }: { objectType?: string; field: string; isEditAllowed?: boolean }) => {
+export const useCreatableEnumOptions = ({ objectType, field, isEditAllowed }: { objectType?: string; field: string; isEditAllowed?: boolean }) => {
+  const { data: orgPermission } = useOrganizationRoles()
+  const canEditOrg = canEdit(orgPermission?.roles)
+  const resolvedEditAllowed = isEditAllowed ?? canEditOrg
+
   const { enumOptions, ...rest } = useGetCustomTypeEnums({
     where: { objectType, field },
   })
   const { mutateAsync: createEnum } = useCreateCustomTypeEnum()
 
-  const onCreateOption = isEditAllowed
+  const onCreateOption = resolvedEditAllowed
     ? async (value: string) => {
         await createEnum({ name: value, objectType: objectType ?? '', field })
       }

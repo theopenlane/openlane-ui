@@ -29,12 +29,13 @@ import { Switch } from '@repo/ui/switch'
 import DocumentsWatermarkStatusChip from '../../documents-watermark-status-chip.'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
-import { useCreateCustomTypeEnum, useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { StandardField } from './form-fields/standard-field'
 import { Callout } from '@/components/shared/callout/callout'
 import { useGetTrustCenterNDAFiles } from '@/lib/graphql-hooks/trust-center-nda-request'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
-import { objectToSnakeCase } from '@/utils/strings'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { canCreate } from '@/lib/authz/utils'
+import { AccessEnum } from '@/lib/authz/enums/access-enum'
 
 const schema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -57,17 +58,11 @@ export const CreateDocumentSheet: React.FC = () => {
   const documentId = searchParams.get('id')
   const isEditMode = !!documentId
 
-  const { mutateAsync: createEnum } = useCreateCustomTypeEnum()
-  const { enumOptions } = useGetCustomTypeEnums({
-    where: {
-      objectType: objectToSnakeCase(ObjectTypes.TRUST_CENTER_DOC),
-      field: 'kind',
-    },
-  })
-
   const { data: permission } = useAccountRoles(ObjectTypes.TRUST_CENTER_DOC, documentId)
+  const { data: orgPermission } = useOrganizationRoles()
 
   const isEditAllowed = canEdit(permission?.roles)
+  const canCreateDoc = canCreate(orgPermission?.roles, AccessEnum.CanCreateTrustCenterDocument)
   const isDeleteAllowed = canDelete(permission?.roles)
 
   const [isEditing, setIsEditing] = useState(false)
@@ -128,22 +123,9 @@ export const CreateDocumentSheet: React.FC = () => {
     }
   }
 
-  const ensureCategoryExists = async (categoryName: string) => {
-    const exists = enumOptions.some((opt) => opt.value === categoryName || opt.label === categoryName)
-    if (!exists) {
-      await createEnum({
-        name: categoryName,
-        objectType: 'trust_center_doc',
-        field: 'kind',
-      })
-    }
-  }
-
   const onSubmit = async (data: FormData) => {
     try {
       if (!trustCenterID) throw new Error('Trust Center ID not found.')
-
-      await ensureCategoryExists(data.category)
 
       if (isEditMode) {
         await updateDoc({
@@ -351,7 +333,7 @@ export const CreateDocumentSheet: React.FC = () => {
         <FormProvider {...formMethods}>
           <form id="document-form" onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-5">
             <TitleField isEditing={isEditing || isCreateMode} />
-            <CategoryField isEditing={isEditing || isCreateMode} />
+            <CategoryField isEditing={isEditing || isCreateMode} isCreateAllowed={isEditAllowed || canCreateDoc} />
             <VisibilityField isEditing={isEditing || isCreateMode} />
             {isCreateMode && visibilityValue === TrustCenterDocTrustCenterDocumentVisibility.PROTECTED && !hasNdaTemplate && (
               <Callout variant="warning" compact>
