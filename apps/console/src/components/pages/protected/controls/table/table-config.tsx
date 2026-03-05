@@ -398,7 +398,7 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
       },
       cell: ({ row }) => {
         return (
-          <Link onClick={(e) => e.stopPropagation()} href={`/controls/${row.original.id}?showComments=true`} className="flex items-center gap-2">
+          <Link onClick={(e) => e.stopPropagation()} href={`/controls/${row.original.id}?showComments=true&tab=activity`} className="flex items-center gap-2">
             <Badge>
               {row.original.comments?.totalCount ?? 0} Comments <LinkIcon size={12} className="ml-1 inline-block" />
             </Badge>

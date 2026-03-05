@@ -8,20 +8,21 @@ import { type InternalEditingType } from '../generic-sheet'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { InfoIcon } from 'lucide-react'
 
-interface CheckboxFieldProps {
+interface CheckboxFieldProps<TUpdateInput = Record<string, unknown>> {
   name: string
   label: string
   isEditing: boolean
   isEditAllowed: boolean
   isCreate?: boolean
   data?: FieldValues | undefined
+  handleUpdate?: (input: TUpdateInput) => Promise<void>
   internalEditing: string | null
   setInternalEditing: InternalEditingType
   className?: string
   tooltipContent?: string
 }
 
-export const CheckboxField: React.FC<CheckboxFieldProps> = ({ name, label, isEditAllowed, isCreate = false, isEditing, internalEditing, setInternalEditing, className, tooltipContent }) => {
+export const CheckboxField = <TUpdateInput,>({ name, label, isEditAllowed, isCreate = false, isEditing: _isEditing, handleUpdate, internalEditing: _internalEditing, setInternalEditing: _setInternalEditing, className, tooltipContent }: CheckboxFieldProps<TUpdateInput>) => {
   const { control } = useFormContext()
   const disabled = !isEditAllowed
 
@@ -38,16 +39,10 @@ export const CheckboxField: React.FC<CheckboxFieldProps> = ({ name, label, isEdi
               checked={!!field.value}
               disabled={disabled}
               className="items-center"
-              onCheckedChange={(checked) => {
-                if (!isCreate && !isEditing && internalEditing !== name) {
-                  setInternalEditing(name)
-                }
+              onCheckedChange={async (checked) => {
                 field.onChange(checked)
-              }}
-              onBlur={() => {
-                field.onBlur()
-                if (!isCreate && !isEditing) {
-                  setInternalEditing(null)
+                if (!isCreate && handleUpdate) {
+                  await Promise.resolve(handleUpdate({ [name]: checked } as TUpdateInput))
                 }
               }}
             />
