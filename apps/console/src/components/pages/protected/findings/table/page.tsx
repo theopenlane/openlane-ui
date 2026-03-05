@@ -10,7 +10,7 @@ import { FindingSheetConfig, FindingTablePageConfig, FindingFieldProps, objectTy
 import { getColumns } from './columns'
 import TableComponent from './table'
 import { CreateFindingInput, UpdateFindingInput } from '@repo/codegen/src/schema'
-import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
+import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 
 const FindingPage: React.FC = () => {
   const { form } = useFormSchema()
@@ -50,17 +50,22 @@ const FindingPage: React.FC = () => {
     },
   }
 
-  const { enumOptions: environmentOptions } = useGetCustomTypeEnums({
-    where: { field: 'environment' },
+  const { enumOptions: environmentOptions, onCreateOption: createEnvironment } = useCreatableEnumOptions({
+    field: 'environment',
   })
 
-  const { enumOptions: scopeOptions } = useGetCustomTypeEnums({
-    where: { field: 'scope' },
+  const { enumOptions: scopeOptions, onCreateOption: createScope } = useCreatableEnumOptions({
+    field: 'scope',
   })
 
   const enumOpts = {
     environmentOptions,
     scopeOptions,
+  }
+
+  const enumCreateHandlers = {
+    environmentName: createEnvironment,
+    scopeName: createScope,
   }
 
   const sheetConfig: FindingSheetConfig = {
@@ -72,7 +77,7 @@ const FindingPage: React.FC = () => {
     createMutation,
     buildPayload: async (data) => data,
     getName,
-    renderFields: (props: FindingFieldProps) => getFieldsToRender(props, enumOpts),
+    renderFields: (props: FindingFieldProps) => getFieldsToRender(props, enumOpts, enumCreateHandlers),
   }
 
   const tableConfig: FindingTablePageConfig = {

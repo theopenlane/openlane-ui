@@ -12,8 +12,8 @@ import { formatTimeSince } from '@/utils/date'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { ProcedureStatusOptions } from '@/components/shared/enum-mapper/policy-enum'
 import { TMetadata } from '@/components/pages/protected/procedures/create/form/create-procedure-form.tsx'
-import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
-import { CustomTypeEnumOptionChip } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
+import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
+import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-enum-select/creatable-custom-type-enum-select'
 
 type TStatusCardProps = {
   form: UseFormReturn<CreateProcedureFormData>
@@ -28,11 +28,13 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form, metadata }) => {
     value,
   }))
 
-  const { enumOptions, isSuccess: isTypesSuccess } = useGetCustomTypeEnums({
-    where: {
-      objectType: 'procedure',
-      field: 'kind',
-    },
+  const {
+    enumOptions,
+    onCreateOption,
+    isSuccess: isTypesSuccess,
+  } = useCreatableEnumOptions({
+    objectType: 'procedure',
+    field: 'kind',
   })
 
   return (
@@ -163,17 +165,15 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form, metadata }) => {
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <Select value={field.value || ''} onValueChange={(value) => field.onChange(value)} disabled={!isTypesSuccess}>
-                      <SelectTrigger className="w-full">{enumOptions?.find((opt) => opt.value === field.value)?.label ?? 'Select type'}</SelectTrigger>
-
-                      <SelectContent>
-                        {enumOptions?.map((option) => (
-                          <SelectItem key={option.value} value={option.value}>
-                            <CustomTypeEnumOptionChip option={option} />
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <CreatableCustomTypeEnumSelect
+                      value={field.value || ''}
+                      options={enumOptions}
+                      onCreateOption={onCreateOption}
+                      placeholder={isTypesSuccess ? 'Select type' : 'Loading...'}
+                      disabled={!isTypesSuccess}
+                      searchPlaceholder="Search procedure type..."
+                      onValueChange={field.onChange}
+                    />
                   </FormControl>
 
                   {form.formState.errors.procedureKindName && <p className="text-red-500 text-sm">{form.formState.errors.procedureKindName.message}</p>}

@@ -819,7 +819,21 @@ const createAssociationRemovalConfig =
     }
   }
 
-const CONTROL_ASSOCIATION_SECTIONS = ['policies', 'procedures', 'tasks', 'programs', 'risks', 'subcontrols', 'assets', 'scans', 'entities', 'identityHolders', 'campaigns', 'remediations', 'reviews'] as const
+const CONTROL_ASSOCIATION_SECTIONS = [
+  'policies',
+  'procedures',
+  'tasks',
+  'programs',
+  'risks',
+  'subcontrols',
+  'assets',
+  'scans',
+  'entities',
+  'identityHolders',
+  'campaigns',
+  'remediations',
+  'reviews',
+] as const
 const SUBCONTROL_ASSOCIATION_SECTIONS = ['policies', 'procedures', 'tasks', 'risks'] as const
 const POLICY_ASSOCIATION_SECTIONS = ['procedures', 'controls', 'subcontrols', 'controlObjectives', 'tasks', 'programs', 'risks'] as const
 const PROCEDURE_ASSOCIATION_SECTIONS = ['policies', 'controls', 'subcontrols', 'risks', 'tasks', 'programs'] as const

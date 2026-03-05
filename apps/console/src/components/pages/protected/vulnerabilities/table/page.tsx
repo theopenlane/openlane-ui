@@ -21,7 +21,7 @@ import TableComponent from './table'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { buildPayload } from '../create/utils'
 import { CreateVulnerabilityInput, UpdateVulnerabilityInput } from '@repo/codegen/src/schema'
-import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
+import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 
 const VulnerabilityPage: React.FC = () => {
@@ -64,12 +64,12 @@ const VulnerabilityPage: React.FC = () => {
     },
   }
 
-  const { enumOptions: environmentOptions } = useGetCustomTypeEnums({
-    where: { field: 'environment' },
+  const { enumOptions: environmentOptions, onCreateOption: createEnvironment } = useCreatableEnumOptions({
+    field: 'environment',
   })
 
-  const { enumOptions: scopeOptions } = useGetCustomTypeEnums({
-    where: { field: 'scope' },
+  const { enumOptions: scopeOptions, onCreateOption: createScope } = useCreatableEnumOptions({
+    field: 'scope',
   })
 
   const tagOptions = useGetTags()
@@ -78,6 +78,11 @@ const VulnerabilityPage: React.FC = () => {
     environmentOptions,
     scopeOptions,
     tagOptions: tagOptions.tagOptions,
+  }
+
+  const enumCreateHandlers = {
+    environmentName: createEnvironment,
+    scopeName: createScope,
   }
 
   const sheetConfig: VulnerabilitySheetConfig = {
@@ -89,7 +94,7 @@ const VulnerabilityPage: React.FC = () => {
     createMutation,
     buildPayload: (data) => buildPayload(data, plateEditorHelper),
     getName,
-    renderFields: (props: VulnerabilityFieldProps) => getFieldsToRender(props, enumOpts),
+    renderFields: (props: VulnerabilityFieldProps) => getFieldsToRender(props, enumOpts, enumCreateHandlers),
   }
 
   const tableConfig: VulnerabilityTablePageConfig = {

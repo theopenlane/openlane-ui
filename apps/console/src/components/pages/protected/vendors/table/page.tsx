@@ -4,7 +4,7 @@ import React, { useCallback, useRef } from 'react'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { Value } from 'platejs'
 import { useSearchParams } from 'next/navigation'
-import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
+import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
 
@@ -97,24 +97,27 @@ const VendorPage: React.FC = () => {
 
   const bulkEditMutation = baseBulkEditMutation
 
-  const { enumOptions: securityQuestionnaireStatusOptions } = useGetCustomTypeEnums({
-    where: { objectType: 'entity', field: 'entitySecurityQuestionnaireStatus' },
+  const { enumOptions: securityQuestionnaireStatusOptions, onCreateOption: createSecurityQuestionnaireStatus } = useCreatableEnumOptions({
+    objectType: 'entity',
+    field: 'entitySecurityQuestionnaireStatus',
   })
 
-  const { enumOptions: sourceTypeOptions } = useGetCustomTypeEnums({
-    where: { objectType: 'entity', field: 'entitySourceType' },
+  const { enumOptions: sourceTypeOptions, onCreateOption: createSourceType } = useCreatableEnumOptions({
+    objectType: 'entity',
+    field: 'entitySourceType',
   })
 
-  const { enumOptions: relationshipStateOptions } = useGetCustomTypeEnums({
-    where: { objectType: 'entity', field: 'relationshipState' },
+  const { enumOptions: relationshipStateOptions, onCreateOption: createRelationshipState } = useCreatableEnumOptions({
+    objectType: 'entity',
+    field: 'relationshipState',
   })
 
-  const { enumOptions: environmentOptions } = useGetCustomTypeEnums({
-    where: { field: 'environment' },
+  const { enumOptions: environmentOptions, onCreateOption: createEnvironment } = useCreatableEnumOptions({
+    field: 'environment',
   })
 
-  const { enumOptions: scopeOptions } = useGetCustomTypeEnums({
-    where: { field: 'scope' },
+  const { enumOptions: scopeOptions, onCreateOption: createScope } = useCreatableEnumOptions({
+    field: 'scope',
   })
 
   const reviewFrequencyOptions = Object.values(EntityFrequency).map((value) => ({
@@ -138,6 +141,14 @@ const VendorPage: React.FC = () => {
     reviewFrequencyOptions,
     entityStatusOptions,
     tagOptions,
+  }
+
+  const enumCreateHandlers = {
+    entitySourceTypeName: createSourceType,
+    entityRelationshipStateName: createRelationshipState,
+    entitySecurityQuestionnaireStatusName: createSecurityQuestionnaireStatus,
+    environmentName: createEnvironment,
+    scopeName: createScope,
   }
 
   const sheetConfig: EntitySheetConfig = {
@@ -172,6 +183,7 @@ const VendorPage: React.FC = () => {
         (fileIds: string[]) => {
           existingFileIdsRef.current = fileIds
         },
+        enumCreateHandlers,
       ),
   }
 

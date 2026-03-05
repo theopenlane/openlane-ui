@@ -40,3 +40,5 @@ export type EntityTablePageConfig = GenericTablePageConfig<TData, TFormData, TUp
 export type EntitySheetConfig = GenericDetailsSheetConfig<TFormData, TData, TUpdateInput, TUpdateData, TCreateInput, TCreateData>
 
 export type EntityFieldProps = RenderFieldsProps<TData, TUpdateInput>
+
+export type { EnumCreateHandlers } from '@/components/shared/crud-base/page'

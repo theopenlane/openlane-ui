@@ -95,7 +95,14 @@ const ExistingFilesDialog: React.FC<ExistingFilesDialogProps> = ({ selectedFileI
         <DialogHeader>
           <DialogTitle>Link Existing Files</DialogTitle>
         </DialogHeader>
-        <DataTable columns={columns} data={files} pagination={pagination} onPaginationChange={(p: TPagination) => setPagination(p)} paginationMeta={paginationMeta} tableKey={TableKeyEnum.EXISTING_FILES} />
+        <DataTable
+          columns={columns}
+          data={files}
+          pagination={pagination}
+          onPaginationChange={(p: TPagination) => setPagination(p)}
+          paginationMeta={paginationMeta}
+          tableKey={TableKeyEnum.EXISTING_FILES}
+        />
       </DialogContent>
     </Dialog>
   )

@@ -7,7 +7,7 @@ import { ResponsibilityField } from '@/components/shared/crud-base/form-fields/r
 import { UpdateAssetInput } from '@repo/codegen/src/schema'
 import { FieldValues } from 'react-hook-form'
 import { InternalEditingType } from '@/components/shared/crud-base/generic-sheet'
-import { EnumOptions } from '../../../table/types'
+import { EnumOptions, EnumCreateHandlers } from '../../../table/types'
 
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@repo/ui/cardpanel'
 
@@ -20,9 +20,20 @@ interface AdditionalFieldsProps {
   setInternalEditing: InternalEditingType
   handleUpdateField?: (input: UpdateAssetInput) => Promise<void>
   enumOptions: EnumOptions
+  enumCreateHandlers?: EnumCreateHandlers
 }
 
-export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, isEditAllowed, isCreate = false, data, internalEditing, setInternalEditing, handleUpdateField, enumOptions }) => {
+export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
+  isEditing,
+  isEditAllowed,
+  isCreate = false,
+  data,
+  internalEditing,
+  setInternalEditing,
+  handleUpdateField,
+  enumOptions,
+  enumCreateHandlers,
+}) => {
   const sharedFieldProps = {
     isEditing,
     isEditAllowed,
@@ -61,8 +72,8 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             <SelectField name="assetType" label="Type" options={enumOptions.assetTypeOptions} {...sharedFieldProps} />
-            <SelectField name="assetSubtypeName" label="Subtype" options={enumOptions.assetSubtypeOptions} {...sharedFieldProps} />
-            <SelectField name="criticalityName" label="Criticality" options={enumOptions.criticalityOptions} {...sharedFieldProps} />
+            <SelectField name="assetSubtypeName" label="Subtype" options={enumOptions.assetSubtypeOptions} onCreateOption={enumCreateHandlers?.assetSubtypeName} {...sharedFieldProps} />
+            <SelectField name="criticalityName" label="Criticality" options={enumOptions.criticalityOptions} onCreateOption={enumCreateHandlers?.criticalityName} {...sharedFieldProps} />
           </div>
         </CardContent>
       </Card>
@@ -75,12 +86,24 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
         </CardHeader>
         <CardContent>
           <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-2">
-            <SelectField name="assetDataClassificationName" label="Data Classification" options={enumOptions.assetDataClassificationOptions} {...sharedFieldProps} />
-            <SelectField name="securityTierName" label="Security Tier" options={enumOptions.securityTierOptions} {...sharedFieldProps} />
+            <SelectField
+              name="assetDataClassificationName"
+              label="Data Classification"
+              options={enumOptions.assetDataClassificationOptions}
+              onCreateOption={enumCreateHandlers?.assetDataClassificationName}
+              {...sharedFieldProps}
+            />
+            <SelectField name="securityTierName" label="Security Tier" options={enumOptions.securityTierOptions} onCreateOption={enumCreateHandlers?.securityTierName} {...sharedFieldProps} />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-            <SelectField name="encryptionStatusName" label="Encryption Status" options={enumOptions.encryptionStatusOptions} {...sharedFieldProps} />
-            <SelectField name="accessModelName" label="Access Model" options={enumOptions.accessModelOptions} {...sharedFieldProps} />
+            <SelectField
+              name="encryptionStatusName"
+              label="Encryption Status"
+              options={enumOptions.encryptionStatusOptions}
+              onCreateOption={enumCreateHandlers?.encryptionStatusName}
+              {...sharedFieldProps}
+            />
+            <SelectField name="accessModelName" label="Access Model" options={enumOptions.accessModelOptions} onCreateOption={enumCreateHandlers?.accessModelName} {...sharedFieldProps} />
           </div>
         </CardContent>
       </Card>
@@ -107,8 +130,8 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
         </CardHeader>
         <CardContent>
           <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-2">
-            <SelectField name="environmentName" label="Environment" options={enumOptions.environmentOptions} {...sharedFieldProps} />
-            <SelectField name="scopeName" label="Scope" options={enumOptions.scopeOptions} {...sharedFieldProps} />
+            <SelectField name="environmentName" label="Environment" options={enumOptions.environmentOptions} onCreateOption={enumCreateHandlers?.environmentName} {...sharedFieldProps} />
+            <SelectField name="scopeName" label="Scope" options={enumOptions.scopeOptions} onCreateOption={enumCreateHandlers?.scopeName} {...sharedFieldProps} />
           </div>
           <CheckboxField name="containsPii" label="Contains PII" {...sharedFieldProps} />
         </CardContent>

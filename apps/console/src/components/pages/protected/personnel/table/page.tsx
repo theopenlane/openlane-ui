@@ -2,7 +2,7 @@
 
 import React, { useCallback, useRef } from 'react'
 import { useSearchParams } from 'next/navigation'
-import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
+import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
 
@@ -107,12 +107,12 @@ const PersonnelPage: React.FC = () => {
 
   const bulkEditMutation = baseBulkEditMutation
 
-  const { enumOptions: environmentOptions } = useGetCustomTypeEnums({
-    where: { field: 'environment' },
+  const { enumOptions: environmentOptions, onCreateOption: createEnvironment } = useCreatableEnumOptions({
+    field: 'environment',
   })
 
-  const { enumOptions: scopeOptions } = useGetCustomTypeEnums({
-    where: { field: 'scope' },
+  const { enumOptions: scopeOptions, onCreateOption: createScope } = useCreatableEnumOptions({
+    field: 'scope',
   })
 
   const statusOptions = Object.values(IdentityHolderUserStatus).map((value) => ({
@@ -133,6 +133,11 @@ const PersonnelPage: React.FC = () => {
     environmentOptions,
     scopeOptions,
     tagOptions,
+  }
+
+  const enumCreateHandlers = {
+    environmentName: createEnvironment,
+    scopeName: createScope,
   }
 
   const sheetConfig: PersonnelSheetConfig = {
@@ -164,6 +169,7 @@ const PersonnelPage: React.FC = () => {
         (fileIds: string[]) => {
           existingFileIdsRef.current = fileIds
         },
+        enumCreateHandlers,
       ),
   }
 

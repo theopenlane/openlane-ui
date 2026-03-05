@@ -30,6 +30,7 @@ type TOrderFieldEnum<TField> = Record<string, TField> | TField[]
 
 export type CustomEnumOption = { label: string; value: string }
 export type EnumOptionsGeneric<T extends string = string> = Record<T, CustomEnumOption[]>
+export type EnumCreateHandlers = Partial<Record<string, (value: string) => Promise<void>>>
 
 export type ColumnOptions = {
   userMap: Record<string, User>

@@ -5,7 +5,7 @@ import { SelectField } from '@/components/shared/crud-base/form-fields/select-fi
 import { UpdateRemediationInput } from '@repo/codegen/src/schema'
 import { FieldValues } from 'react-hook-form'
 import { InternalEditingType } from '@/components/shared/crud-base/generic-sheet'
-import { EnumOptions } from '../../../table/types'
+import { EnumOptions, EnumCreateHandlers } from '../../../table/types'
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@repo/ui/cardpanel'
 
 interface AdditionalFieldsProps {
@@ -17,9 +17,20 @@ interface AdditionalFieldsProps {
   setInternalEditing: InternalEditingType
   handleUpdateField?: (input: UpdateRemediationInput) => Promise<void>
   enumOptions: EnumOptions
+  enumCreateHandlers?: EnumCreateHandlers
 }
 
-export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, isEditAllowed, isCreate = false, data, internalEditing, setInternalEditing, handleUpdateField, enumOptions }) => {
+export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
+  isEditing,
+  isEditAllowed,
+  isCreate = false,
+  data,
+  internalEditing,
+  setInternalEditing,
+  handleUpdateField,
+  enumOptions,
+  enumCreateHandlers,
+}) => {
   const sharedFieldProps = {
     isEditing,
     isEditAllowed,
@@ -76,8 +87,8 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-            <SelectField name="environmentName" label="Environment" options={enumOptions.environmentOptions} {...sharedFieldProps} />
-            <SelectField name="scopeName" label="Scope" options={enumOptions.scopeOptions} {...sharedFieldProps} />
+            <SelectField name="environmentName" label="Environment" options={enumOptions.environmentOptions} onCreateOption={enumCreateHandlers?.environmentName} {...sharedFieldProps} />
+            <SelectField name="scopeName" label="Scope" options={enumOptions.scopeOptions} onCreateOption={enumCreateHandlers?.scopeName} {...sharedFieldProps} />
           </div>
         </CardContent>
       </Card>

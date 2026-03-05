@@ -9,6 +9,7 @@ import { FolderIcon } from 'lucide-react'
 import { controlIconsMap } from '@/components/shared/enum-mapper/control-enum'
 import { CustomTypeEnumOptionChip, CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
 import { Option } from '@repo/ui/multiple-selector'
+import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-enum-select/creatable-custom-type-enum-select'
 
 export const EditableSelect = ({
   label,
@@ -20,6 +21,7 @@ export const EditableSelect = ({
   activeField,
   setActiveField,
   fieldId,
+  onCreateOption,
 }: {
   label: string
   name: string
@@ -30,6 +32,7 @@ export const EditableSelect = ({
   activeField?: string | null
   setActiveField?: (field: string | null) => void
   fieldId?: string
+  onCreateOption?: (value: string) => Promise<void>
 }) => {
   const { control, getValues } = useFormContext()
   const [internalEditing, setInternalEditing] = useState(false)
@@ -55,15 +58,16 @@ export const EditableSelect = ({
     }
   }
 
-  const handleChange = (value: string) => {
+  const handleChange = (value: string, onFieldChange?: (value: string) => void) => {
     if (getValues(name) === value) {
       closeEditing()
       return
     }
     if (!isEditing) {
       handleUpdate?.({ [name]: value })
-      closeEditing()
     }
+    onFieldChange?.(value)
+    closeEditing()
   }
 
   const triggerRef = useRef<HTMLDivElement>(null)
@@ -96,30 +100,41 @@ export const EditableSelect = ({
           <Controller
             control={control}
             name={name}
-            render={({ field }) => (
-              <Select
-                value={field.value}
-                onValueChange={(val) => {
-                  if (val) {
-                    handleChange(val)
-                    field.onChange(val)
-                  }
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder={`Select ${label.toLowerCase()}`}>
-                    <CustomTypeEnumValue value={field.value} options={options} placeholder={`Select ${label.toLowerCase()}`} />
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent ref={popoverRef}>
-                  {options.map((opt, i) => (
-                    <SelectItem key={`${opt.value}-${i}`} value={opt.value}>
-                      <CustomTypeEnumOptionChip option={opt} />
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
+            render={({ field }) =>
+              onCreateOption ? (
+                <CreatableCustomTypeEnumSelect
+                  value={field.value}
+                  options={options}
+                  onCreateOption={onCreateOption}
+                  contentRef={popoverRef}
+                  placeholder={`Select ${label.toLowerCase()}`}
+                  searchPlaceholder={`Search ${label.toLowerCase()}...`}
+                  onValueChange={(val) => handleChange(val, field.onChange)}
+                />
+              ) : (
+                <Select
+                  value={field.value}
+                  onValueChange={(val) => {
+                    if (val) {
+                      handleChange(val, field.onChange)
+                    }
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder={`Select ${label.toLowerCase()}`}>
+                      <CustomTypeEnumValue value={field.value} options={options} placeholder={`Select ${label.toLowerCase()}`} />
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent ref={popoverRef}>
+                    {options.map((opt, i) => (
+                      <SelectItem key={`${opt.value}-${i}`} value={opt.value}>
+                        <CustomTypeEnumOptionChip option={opt} />
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )
+            }
           />
         ) : (
           <HoverPencilWrapper showPencil={isEditAllowed} className={isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} onPencilClick={isEditAllowed ? handleClick : undefined}>

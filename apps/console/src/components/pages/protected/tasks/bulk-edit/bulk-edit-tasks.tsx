@@ -24,11 +24,12 @@ import {
 import { Input } from '@repo/ui/input'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { useGetSingleOrganizationMembers } from '@/lib/graphql-hooks/organization'
-import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
+import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { CustomTypeEnumOptionChip, CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
 import { BulkEditTagField } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-tag-field'
+import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-enum-select/creatable-custom-type-enum-select'
 
 const fieldItemSchema = z.object({
   value: z.nativeEnum(SelectOptionBulkEditTasks).optional(),
@@ -77,12 +78,9 @@ export const BulkEditTasksDialog: React.FC<BulkEditTasksDialogProps> = ({ select
       label: `${member?.node?.user?.displayName}`,
     }))
   }, [membersData])
-
-  const { enumOptions: taskKindOptions } = useGetCustomTypeEnums({
-    where: {
-      objectType: 'task',
-      field: 'kind',
-    },
+  const { enumOptions: taskKindOptions, onCreateOption: createTaskType } = useCreatableEnumOptions({
+    objectType: 'task',
+    field: 'kind',
   })
 
   const allOptionSelects = useMemo(() => {
@@ -199,32 +197,49 @@ export const BulkEditTasksDialog: React.FC<BulkEditTasksDialogProps> = ({ select
                     {item.selectedObject &&
                       (item.selectedObject.inputType === InputType.Select ? (
                         <div className="flex flex-col items-center gap-2">
-                          <Select
-                            value={typeof item.selectedValue === 'string' ? item.selectedValue : undefined}
-                            onValueChange={(value) =>
-                              update(index, {
-                                ...item,
-                                selectedValue: value,
-                              })
-                            }
-                          >
-                            <SelectTrigger className="w-60">
-                              <SelectValue placeholder={item.selectedObject?.placeholder}>
-                                <CustomTypeEnumValue
-                                  value={typeof item.selectedValue === 'string' ? item.selectedValue : undefined}
-                                  options={item.selectedObject?.options || []}
-                                  placeholder={item.selectedObject?.placeholder ?? ''}
-                                />
-                              </SelectValue>
-                            </SelectTrigger>
-                            <SelectContent>
-                              {(item.selectedObject?.options || []).map((option) => (
-                                <SelectItem key={option.value} value={option.value}>
-                                  <CustomTypeEnumOptionChip option={option} />
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                          {item.selectedObject.name === 'taskKindName' ? (
+                            <CreatableCustomTypeEnumSelect
+                              value={typeof item.selectedValue === 'string' ? item.selectedValue : undefined}
+                              options={item.selectedObject?.options || []}
+                              onCreateOption={createTaskType}
+                              triggerClassName="w-60"
+                              placeholder={item.selectedObject?.placeholder ?? ''}
+                              searchPlaceholder="Search task type..."
+                              onValueChange={(value) =>
+                                update(index, {
+                                  ...item,
+                                  selectedValue: value,
+                                })
+                              }
+                            />
+                          ) : (
+                            <Select
+                              value={typeof item.selectedValue === 'string' ? item.selectedValue : undefined}
+                              onValueChange={(value) =>
+                                update(index, {
+                                  ...item,
+                                  selectedValue: value,
+                                })
+                              }
+                            >
+                              <SelectTrigger className="w-60">
+                                <SelectValue placeholder={item.selectedObject?.placeholder}>
+                                  <CustomTypeEnumValue
+                                    value={typeof item.selectedValue === 'string' ? item.selectedValue : undefined}
+                                    options={item.selectedObject?.options || []}
+                                    placeholder={item.selectedObject?.placeholder ?? ''}
+                                  />
+                                </SelectValue>
+                              </SelectTrigger>
+                              <SelectContent>
+                                {(item.selectedObject?.options || []).map((option) => (
+                                  <SelectItem key={option.value} value={option.value}>
+                                    <CustomTypeEnumOptionChip option={option} />
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          )}
                         </div>
                       ) : item.selectedObject.inputType === InputType.Date ? (
                         <div className="flex flex-col gap-2 w-full">
