@@ -1,11 +1,11 @@
-import { ColumnDef } from '@tanstack/react-table'
-import { Task, User } from '@repo/codegen/src/schema'
+import { type ColumnDef } from '@tanstack/react-table'
+import { type Task, type User } from '@repo/codegen/src/schema'
 import { Avatar } from '@/components/shared/avatar/avatar.tsx'
 import { formatDate } from '@/utils/date'
 import { TaskStatusIconMapper } from '@/components/shared/enum-mapper/task-enum'
 import AssigneeCell from './assignee-cell'
 import { CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
-import { CustomTypeEnumOption } from '@/lib/graphql-hooks/custom-type-enum'
+import { type CustomTypeEnumOption } from '@/lib/graphql-hooks/custom-type-enum'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { UserCell } from '@/components/shared/crud-base/columns/user-cell'
 import { TagsCell } from '@/components/shared/crud-base/columns/tags-cell'
@@ -47,7 +47,7 @@ export const getTaskColumns = ({ userMap, convertToReadOnly, selectedTasks, setS
       accessorKey: 'status',
       header: 'Status',
       cell: ({ row }) => {
-        const status = row.original.status!
+        const status = row.original.status ?? ''
         return (
           <div className="flex items-center space-x-2">
             {TaskStatusIconMapper[status]}
@@ -80,7 +80,7 @@ export const getTaskColumns = ({ userMap, convertToReadOnly, selectedTasks, setS
       meta: {
         exportPrefix: 'assignee.displayName',
       },
-      cell: ({ row }) => <AssigneeCell assignee={row.original.assignee!} taskId={row.original.id!} />,
+      cell: ({ row }) => <AssigneeCell assignee={row.original.assignee ?? undefined} taskId={row.original.id ?? ''} />,
       size: 160,
     },
     {

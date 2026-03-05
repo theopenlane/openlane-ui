@@ -1,4 +1,4 @@
-import { Metadata } from 'next'
+import { type Metadata } from 'next'
 import Waitlist from '@/components/pages/auth/waitlist/waitlist'
 
 export const metadata: Metadata = {

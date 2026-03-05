@@ -1,6 +1,6 @@
 'use client'
-import { ColumnDef } from '@tanstack/react-table'
-import { OrderDirection, TrustCenterDocOrderField, TrustCenterDocTrustCenterDocumentVisibility, TrustCenterDocWatermarkStatus } from '@repo/codegen/src/schema'
+import { type ColumnDef } from '@tanstack/react-table'
+import { OrderDirection, TrustCenterDocOrderField, TrustCenterDocTrustCenterDocumentVisibility, type TrustCenterDocWatermarkStatus } from '@repo/codegen/src/schema'
 
 type GqlFile = {
   presignedURL?: string | null
@@ -138,7 +138,7 @@ export const TRUST_CENTER_DOCS_SORT_FIELDS = [
 
 import { AlertTriangle, Eye, FileQuestion, Folder } from 'lucide-react'
 import Link from 'next/link'
-import { FilterField } from '@/types'
+import { type FilterField } from '@/types'
 import { Badge } from '@repo/ui/badge'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { createSelectColumn } from '@/components/shared/crud-base/columns/select-column'

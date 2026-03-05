@@ -1,7 +1,7 @@
 'use client'
 
 import { useCallback, useState } from 'react'
-import Cropper, { Area, MediaSize, Point } from 'react-easy-crop'
+import Cropper, { type Area, type MediaSize, type Point } from 'react-easy-crop'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@repo/ui/dialog'
 import { Button } from '@repo/ui/button'
 import { SaveButton } from '../save-button/save-button'

@@ -1,14 +1,14 @@
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
-  CreateMappedControlMutation,
-  CreateMappedControlMutationVariables,
-  DeleteMappedControlMutation,
-  DeleteMappedControlMutationVariables,
-  GetMappedControlByIdQuery,
-  GetAllMappedControlsQuery,
-  GetAllMappedControlsQueryVariables,
-  UpdateMappedControlMutation,
-  UpdateMappedControlMutationVariables,
+  type CreateMappedControlMutation,
+  type CreateMappedControlMutationVariables,
+  type DeleteMappedControlMutation,
+  type DeleteMappedControlMutationVariables,
+  type GetMappedControlByIdQuery,
+  type GetAllMappedControlsQuery,
+  type GetAllMappedControlsQueryVariables,
+  type UpdateMappedControlMutation,
+  type UpdateMappedControlMutationVariables,
 } from '@repo/codegen/src/schema'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { CREATE_MAPPED_CONTROL, DELETE_MAPPED_CONTROL, GET_MAPPED_CONTROL_BY_ID, GET_ALL_MAPPED_CONTROLS, UPDATE_MAPPED_CONTROL } from '@repo/codegen/query/mapped-control'

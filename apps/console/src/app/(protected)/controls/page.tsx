@@ -1,4 +1,4 @@
-import { Metadata } from 'next'
+import { type Metadata } from 'next'
 import { ControlSwitcher } from '@/components/shared/tab-switcher/control-switcher.tsx'
 
 export const metadata: Metadata = {

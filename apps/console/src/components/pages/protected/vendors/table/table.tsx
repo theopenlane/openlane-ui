@@ -2,15 +2,15 @@
 
 import { DataTable } from '@repo/ui/data-table'
 import React, { useEffect, useMemo } from 'react'
-import { EntityWhereInput, Entity, EntityOrderField } from '@repo/codegen/src/schema'
-import { EntitiesNodeNonNull, useEntitiesWithFilter } from '@/lib/graphql-hooks/entity'
+import { type EntityWhereInput, type Entity, type EntityOrderField } from '@repo/codegen/src/schema'
+import { type EntitiesNodeNonNull, useEntitiesWithFilter } from '@/lib/graphql-hooks/entity'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { useNotification } from '@/hooks/useNotification'
 import { VENDORS_SORT_FIELDS } from './table-config'
 import { getColumns } from './columns'
-import { TTableProps } from '@/components/shared/crud-base/page'
+import { type TTableProps } from '@/components/shared/crud-base/page'
 import { objectName, tableKey } from './types'
 
 const TableComponent = ({

@@ -1,10 +1,10 @@
 'use client'
 import { PageHeading } from '@repo/ui/page-heading'
-import React, { useContext, useEffect, useMemo, useRef, useState } from 'react'
+import React, { use, useEffect, useMemo, useRef, useState } from 'react'
 import IntegrationsToolbar from './integrations-toolbar'
 import { useGetIntegrations } from '@/lib/graphql-hooks/integration'
 import { IntegrationsGrid } from './integrations-grid'
-import { IntegrationTab, toAvailableIntegration } from './config'
+import { type IntegrationTab, toAvailableIntegration } from './config'
 import { useNotification } from '@/hooks/useNotification'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { canEdit } from '@/lib/authz/utils'
@@ -22,7 +22,7 @@ const IntegrationsPage = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const { data, isLoading: integrationsLoading } = useGetIntegrations({ where: {} })
   const { data: providersData, isLoading: providersLoading } = useIntegrationProviders()
-  const { setCrumbs } = useContext(BreadcrumbContext)
+  const { setCrumbs } = use(BreadcrumbContext)
 
   const { data: orgPermission, isLoading } = useOrganizationRoles()
   const editAllowed = canEdit(orgPermission?.roles)

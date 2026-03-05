@@ -16,28 +16,28 @@ import {
 import { CREATE_ASSESSMENT_RESPONSE } from '@repo/codegen/query/assessment-response'
 
 import {
-  CreateAssessmentMutation,
-  CreateAssessmentMutationVariables,
-  UpdateAssessmentMutation,
-  UpdateAssessmentMutationVariables,
-  FilterAssessmentsQuery,
-  FilterAssessmentsQueryVariables,
-  GetAssessmentQuery,
-  GetAssessmentQueryVariables,
-  GetAssessmentDetailQuery,
-  GetAssessmentDetailQueryVariables,
-  DeleteAssessmentMutation,
-  DeleteAssessmentMutationVariables,
-  CreateAssessmentResponseMutation,
-  CreateAssessmentResponseMutationVariables,
-  Assessment,
+  type CreateAssessmentMutation,
+  type CreateAssessmentMutationVariables,
+  type UpdateAssessmentMutation,
+  type UpdateAssessmentMutationVariables,
+  type FilterAssessmentsQuery,
+  type FilterAssessmentsQueryVariables,
+  type GetAssessmentQuery,
+  type GetAssessmentQueryVariables,
+  type GetAssessmentDetailQuery,
+  type GetAssessmentDetailQueryVariables,
+  type DeleteAssessmentMutation,
+  type DeleteAssessmentMutationVariables,
+  type CreateAssessmentResponseMutation,
+  type CreateAssessmentResponseMutationVariables,
+  type Assessment,
   AssessmentResponseAssessmentResponseStatus,
-  DeleteBulkAssessmentMutation,
-  DeleteBulkAssessmentMutationVariables,
-  AssessmentResponseOrder,
-  AssessmentResponseWhereInput,
+  type DeleteBulkAssessmentMutation,
+  type DeleteBulkAssessmentMutationVariables,
+  type AssessmentResponseOrder,
+  type AssessmentResponseWhereInput,
 } from '@repo/codegen/src/schema'
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 
 type UseAssessmentsArgs = {
   where?: FilterAssessmentsQueryVariables['where']
@@ -149,7 +149,7 @@ export const useGetAssessmentDetail = ({ id, where, orderBy, pagination, enabled
     queryKey: ['assessments', id, where, orderBy, pagination?.page, pagination?.pageSize],
     queryFn: () =>
       client.request<GetAssessmentDetailQuery, GetAssessmentDetailRequestVariables>(GET_ASSESSMENT_DETAIL, {
-        getAssessmentId: id!,
+        getAssessmentId: id ?? '',
         where,
         orderBy,
         ...pagination?.query,
@@ -203,7 +203,7 @@ export const useAssessmentRecipientsTotalCount = (id?: string) => {
     queryKey: ['assessments', 'recipients-total-count', id],
     queryFn: () =>
       client.request<AssessmentRecipientsTotalCountQuery, AssessmentRecipientsTotalCountQueryVariables>(GET_ASSESSMENT_RECIPIENTS_TOTAL_COUNT, {
-        getAssessmentId: id!,
+        getAssessmentId: id ?? '',
       }),
     enabled: !!id,
   })
@@ -236,7 +236,7 @@ export const useAssessmentResponsesTotalCount = (id?: string) => {
     queryKey: ['assessments', 'responses-total-count', id],
     queryFn: () =>
       client.request<AssessmentResponsesTotalCountQuery, AssessmentResponsesTotalCountQueryVariables>(GET_ASSESSMENT_RESPONSES_TOTAL_COUNT, {
-        getAssessmentId: id!,
+        getAssessmentId: id ?? '',
         where: {
           status: AssessmentResponseAssessmentResponseStatus.COMPLETED,
         },

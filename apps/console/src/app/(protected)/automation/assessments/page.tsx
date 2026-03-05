@@ -1,5 +1,5 @@
 import { QuestionnairesPageWrapper } from '@/components/pages/protected/questionnaire/questionnaires-page-wrapper'
-import { Metadata } from 'next'
+import { type Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Questionnaires',

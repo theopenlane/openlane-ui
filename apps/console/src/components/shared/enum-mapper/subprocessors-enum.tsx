@@ -1,4 +1,4 @@
-import { Globe, LucideIcon, Tag } from 'lucide-react'
+import { Globe, type LucideIcon, Tag } from 'lucide-react'
 
 export enum SubprocessorsFilterIconName {
   Category = 'Category',

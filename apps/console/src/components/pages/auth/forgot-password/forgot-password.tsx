@@ -37,10 +37,8 @@ export default function ForgotPasswordComponent() {
       return
     }
 
-    let recaptchaToken = ''
-
     if (recaptchaSiteKey) {
-      recaptchaToken = await grecaptcha.execute(recaptchaSiteKey, { action: 'forgot_password' })
+      const recaptchaToken = await grecaptcha.execute(recaptchaSiteKey, { action: 'forgot_password' })
       const validationRes = await fetch('/api/recaptchaVerify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

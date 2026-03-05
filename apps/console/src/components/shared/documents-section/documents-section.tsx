@@ -2,8 +2,8 @@
 
 import React, { useState } from 'react'
 import { DataTable } from '@repo/ui/data-table'
-import { TPagination } from '@repo/ui/pagination-types'
-import { fileColumns, TFile } from '@/components/shared/file-table/columns'
+import { type TPagination } from '@repo/ui/pagination-types'
+import { fileColumns, type TFile } from '@/components/shared/file-table/columns'
 import { FILE_SORT_FIELDS } from '@/components/shared/file-table/table-config'
 import { DocumentsUploadDialog } from './documents-upload-dialog'
 import { Download, Trash2 } from 'lucide-react'

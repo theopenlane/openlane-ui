@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { CheckCircle2, MoreHorizontal, Pencil, Trash2 } from 'lucide-react'
-import { ControlImplementationFieldsFragment } from '@repo/codegen/src/schema'
+import { type ControlImplementationFieldsFragment } from '@repo/codegen/src/schema'
 import { ControlImplementationCard } from './control-implementation-card'
 import { canEdit } from '@/lib/authz/utils'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'

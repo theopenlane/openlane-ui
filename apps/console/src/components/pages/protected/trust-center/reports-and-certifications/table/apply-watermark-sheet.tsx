@@ -7,7 +7,7 @@ import { Label } from '@repo/ui/label'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { ChevronDown, Droplet, InfoIcon, PanelRightClose, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { TUploadedFile } from '../../../evidence/upload/types/TUploadedFile'
+import { type TUploadedFile } from '../../../evidence/upload/types/TUploadedFile'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
 import { ColorInput } from '@/components/shared/color-input/color-input'
@@ -93,7 +93,7 @@ const ApplyWatermarkSheet = ({ watermarkConfig }: ApplyWatermarkSheetProps) => {
   const handleApplyWatermark = async () => {
     try {
       await updateWatermark({
-        updateTrustCenterWatermarkConfigId: id!,
+        updateTrustCenterWatermarkConfigId: id ?? '',
         input: disableWatermarkConfig
           ? {
               isEnabled: false,

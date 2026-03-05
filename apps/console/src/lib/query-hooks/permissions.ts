@@ -1,5 +1,5 @@
 import { useNotification } from '@/hooks/useNotification'
-import { TAccessRole, TPermissionData } from '@/types/authz'
+import { type TAccessRole, type TPermissionData } from '@/types/authz'
 import { useQuery } from '@tanstack/react-query'
 import { useEffect } from 'react'
 import { objectToSnakeCase } from '../../utils/strings'
@@ -7,18 +7,17 @@ import { objectToSnakeCase } from '../../utils/strings'
 export const useAccountRoles = (objectType: string, id?: string | number | null, enabled: boolean = true) => {
   const { errorNotification } = useNotification()
 
-  // ensure objectType is in snake_case before sending to backend
-  objectType = objectToSnakeCase(objectType)
+  const snakeCaseObjectType = objectToSnakeCase(objectType)
 
   const resp = useQuery<TPermissionData>({
-    queryKey: ['accountRoles', objectType, id],
-    enabled: !!objectType && !!id && enabled,
+    queryKey: ['accountRoles', snakeCaseObjectType, id],
+    enabled: !!snakeCaseObjectType && !!id && enabled,
     queryFn: async () => {
       const res = await fetch('/api/permissions/account-roles', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          object_type: objectType,
+          object_type: snakeCaseObjectType,
           object_id: id,
         }),
       })

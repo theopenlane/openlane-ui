@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query'
 import { GET_FILES } from '@repo/codegen/query/file'
-import { GetFilesQuery, FileWhereInput } from '@repo/codegen/src/schema'
+import { type GetFilesQuery, type FileWhereInput } from '@repo/codegen/src/schema'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 
 type TGetFilesProps = {
   pagination?: TPagination

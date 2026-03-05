@@ -1,7 +1,14 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { CREATE_TFA_SETTING, GET_TFA_SETTINGS, GET_USER_TFA_SETTINGS, UPDATE_TFA_SETTING } from '@repo/codegen/query/tfa-setting'
-import { CreateTfaSettingInput, CreateTfaSettingMutation, GetTfaSettingsQuery, GetUserTfaSettingsQuery, UpdateTfaSettingInput, UpdateTfaSettingMutation } from '@repo/codegen/src/schema'
+import {
+  type CreateTfaSettingInput,
+  type CreateTfaSettingMutation,
+  type GetTfaSettingsQuery,
+  type GetUserTfaSettingsQuery,
+  type UpdateTfaSettingInput,
+  type UpdateTfaSettingMutation,
+} from '@repo/codegen/src/schema'
 
 export const useGetTFASettings = () => {
   const { client } = useGraphQLClient()

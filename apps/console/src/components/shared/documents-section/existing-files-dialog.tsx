@@ -7,10 +7,10 @@ import { Button } from '@repo/ui/button'
 import { DataTable, getInitialPagination } from '@repo/ui/data-table'
 import { useGetFiles } from '@/lib/graphql-hooks/file'
 import { formatDateSince } from '@/utils/date'
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { TableKeyEnum } from '@repo/ui/table-key'
-import { ColumnDef } from '@tanstack/react-table'
+import { type ColumnDef } from '@tanstack/react-table'
 
 type ExistingFileRow = {
   id: string
@@ -27,7 +27,7 @@ type ExistingFilesDialogProps = {
 
 const ExistingFilesDialog: React.FC<ExistingFilesDialogProps> = ({ selectedFileIds, onFileSelected }) => {
   const [isOpen, setIsOpen] = useState(false)
-  const [pagination, setPagination] = useState<TPagination>(
+  const [pagination, setPagination] = useState<TPagination>(() =>
     getInitialPagination(TableKeyEnum.EXISTING_FILES, {
       ...DEFAULT_PAGINATION,
       pageSize: 5,
@@ -43,11 +43,11 @@ const ExistingFilesDialog: React.FC<ExistingFilesDialogProps> = ({ selectedFileI
     if (!isLoading) {
       const tableData: ExistingFileRow[] =
         data?.files?.edges?.map((edge) => ({
-          id: edge!.node!.id,
-          providedFileName: edge!.node!.providedFileName,
-          providedFileExtension: edge!.node!.providedFileExtension,
-          categoryType: edge!.node!.categoryType,
-          createdAt: edge!.node!.createdAt,
+          id: edge?.node?.id ?? '',
+          providedFileName: edge?.node?.providedFileName ?? '',
+          providedFileExtension: edge?.node?.providedFileExtension ?? '',
+          categoryType: edge?.node?.categoryType ?? '',
+          createdAt: edge?.node?.createdAt ?? '',
         })) || []
 
       setFiles(tableData)

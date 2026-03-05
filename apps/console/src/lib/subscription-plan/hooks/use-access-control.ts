@@ -1,7 +1,7 @@
 import { auth } from '@/lib/auth/auth'
 import { featureUtil } from '../plans'
-import { FeatureEnum } from '@/lib/subscription-plan/feature-enum'
-import { PlanEnum } from '@/lib/subscription-plan/plan-enum'
+import { type FeatureEnum } from '@/lib/subscription-plan/feature-enum'
+import { type PlanEnum } from '@/lib/subscription-plan/plan-enum'
 
 export async function hasFeature(feature: FeatureEnum): Promise<boolean> {
   const session = await auth()

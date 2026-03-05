@@ -3,11 +3,11 @@
 import React from 'react'
 import { Controller, useFormContext } from 'react-hook-form'
 import PlateEditor from '@/components/shared/plate/plate-editor'
-import { Value } from 'platejs'
+import { type Value } from 'platejs'
 import { useParams } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { useGetCurrentUser } from '@/lib/graphql-hooks/user.ts'
-import { ControlDiscussionFieldsFragment, SubcontrolDiscussionFieldsFragment } from '@repo/codegen/src/schema.ts'
+import { type ControlDiscussionFieldsFragment, type SubcontrolDiscussionFieldsFragment } from '@repo/codegen/src/schema.ts'
 
 interface DescriptionFieldProps {
   isEditing: boolean

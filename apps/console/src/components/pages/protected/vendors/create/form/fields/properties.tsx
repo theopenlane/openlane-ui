@@ -3,15 +3,15 @@
 import React, { useMemo, useRef } from 'react'
 import { useFormContext, Controller } from 'react-hook-form'
 import { Tag } from 'lucide-react'
-import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
-import { EntityQuery, UpdateEntityInput } from '@repo/codegen/src/schema'
-import { EditVendorFormData } from '../../../hooks/use-form-schema'
+import MultipleSelector, { type Option } from '@repo/ui/multiple-selector'
+import { type EntityQuery, type UpdateEntityInput } from '@repo/codegen/src/schema'
+import { type EditVendorFormData } from '../../../hooks/use-form-schema'
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 import useEscapeKey from '@/hooks/useEscapeKey'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
-import { InternalEditingType } from '@/components/shared/crud-base/generic-sheet'
+import { type InternalEditingType } from '@/components/shared/crud-base/generic-sheet'
 
 type PropertiesProps = {
   isEditing: boolean

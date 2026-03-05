@@ -95,6 +95,7 @@ export const CreateEnumSheet = ({ resetPagination, filter }: { resetPagination: 
   const { field: typeField } = useController({ name: 'objectType', control })
   const { field: fieldField } = useController({ name: 'field', control })
 
+  // eslint-disable-next-line react-hooks/incompatible-library
   const selectedObjectType = formMethods.watch('objectType')
 
   const isGlobal = useMemo(() => {

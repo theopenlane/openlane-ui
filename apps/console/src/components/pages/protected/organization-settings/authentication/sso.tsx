@@ -18,7 +18,7 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { Label } from '@repo/ui/label'
 import { Switch } from '@repo/ui/switch'
-import { OrganizationSettingSsoProvider, OrganizationSetting, UpdateOrganizationSettingInput } from '@repo/codegen/src/schema'
+import { OrganizationSettingSsoProvider, type OrganizationSetting, type UpdateOrganizationSettingInput } from '@repo/codegen/src/schema'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { Badge } from '@repo/ui/badge'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
@@ -80,7 +80,7 @@ const SSOOverview = ({
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-muted-foreground">Provider</span>
-                <Badge variant="secondary">{getProviderDisplayName(setting.identityProvider!)}</Badge>
+                <Badge variant="secondary">{getProviderDisplayName(setting.identityProvider ?? '')}</Badge>
               </div>
 
               {setting.oidcDiscoveryEndpoint && (

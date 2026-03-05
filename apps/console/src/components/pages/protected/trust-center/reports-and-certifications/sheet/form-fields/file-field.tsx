@@ -2,7 +2,7 @@
 import { useFormContext } from 'react-hook-form'
 import { Label } from '@repo/ui/label'
 import FileUpload from '@/components/shared/file-upload/file-upload'
-import { TUploadedFile } from '@/components/pages/protected/evidence/upload/types/TUploadedFile'
+import { type TUploadedFile } from '@/components/pages/protected/evidence/upload/types/TUploadedFile'
 import { FileText, Repeat2 } from 'lucide-react'
 import { Card } from '@repo/ui/cardpanel'
 import { Button } from '@repo/ui/button'
@@ -39,7 +39,7 @@ export const FileField = ({ onFileUpload, uploadedFile }: Props) => {
                   <div className="font-medium text-sm leading-5 truncate max-w-[240px]" title={uploadedFile.name}>
                     {uploadedFile.name}
                   </div>
-                  <div className="text-xs font-normal leading-4 text-muted-foreground">Size: {Math.round(uploadedFile.size! / 1024)} KB</div>
+                  <div className="text-xs font-normal leading-4 text-muted-foreground">Size: {Math.round((uploadedFile.size ?? 0) / 1024)} KB</div>
                 </div>
               </div>
               <Button icon={<Repeat2 />} iconPosition="left" onClick={handleRemoveFile} variant="secondary">

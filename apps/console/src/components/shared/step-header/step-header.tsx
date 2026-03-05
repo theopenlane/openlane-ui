@@ -1,6 +1,6 @@
 import React from 'react'
 import StepIndicator from '@/components/shared/step-indicator/step-indicator'
-import { Stepper, Step } from '@stepperize/react'
+import { type Stepper, type Step } from '@stepperize/react'
 
 interface StepHeaderProps<T extends Step[] = Step[]> {
   stepper: Stepper<T>

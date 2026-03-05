@@ -1,6 +1,7 @@
-import { GqlError } from '@/types'
+import { type GqlError } from '@/types'
 import { useToast } from '@repo/ui/use-toast'
-import React, { useCallback } from 'react'
+import type React from 'react'
+import { useCallback } from 'react'
 
 const defaultDuration = 5000
 

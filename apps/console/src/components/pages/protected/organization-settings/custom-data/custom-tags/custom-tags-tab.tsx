@@ -2,11 +2,11 @@
 
 import { useDebounce } from '@uidotdev/usehooks'
 import { SquarePlus, LoaderCircle, Search as SearchIcon } from 'lucide-react'
-import { FC, useEffect, useMemo, useState, useCallback } from 'react'
+import { type FC, useEffect, useMemo, useState, useCallback } from 'react'
 import { Input } from '@repo/ui/input'
 import { Button } from '@repo/ui/button'
 import { DataTable, getInitialPagination } from '@repo/ui/data-table'
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
@@ -17,7 +17,7 @@ import { useGetCustomTagColumns } from './custom-tags-table-config'
 import { CreateTagSheet } from './create-tag-sheet'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import ColumnVisibilityMenu, { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu'
-import { VisibilityState } from '@tanstack/react-table'
+import { type VisibilityState } from '@tanstack/react-table'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { canDelete, canEdit } from '@/lib/authz/utils'
@@ -41,7 +41,7 @@ const CustomTagsTab: FC = () => {
   const [selected, setSelected] = useState<Record<string, boolean>>({})
   const [tagToDelete, setTagToDelete] = useState<{ id: string; name: string } | null>(null)
 
-  const [pagination, setPagination] = useState<TPagination>(
+  const [pagination, setPagination] = useState<TPagination>(() =>
     getInitialPagination(TableKeyEnum.CUSTOM_TAGS, {
       ...DEFAULT_PAGINATION,
       pageSize: 10,

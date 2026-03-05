@@ -13,7 +13,7 @@ import BillingPageSkeleton, { ProductCardSkeleton } from './skeleton/billing-pag
 
 const PricingPlan = () => {
   const { currentOrgId, getOrganizationByID } = useOrganization()
-  const currentOrganization = getOrganizationByID(currentOrgId!)
+  const currentOrganization = getOrganizationByID(currentOrgId ?? '')
   const { errorNotification, successNotification } = useNotification()
   const searchParams = useSearchParams()
 

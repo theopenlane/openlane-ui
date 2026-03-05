@@ -7,7 +7,7 @@ import Link from 'next/link'
 import Soc2Illustration from './illustrations/soc2-illustration'
 import RiskAssessmentIllustration from './illustrations/risk-assessment-illustration'
 import FrameworkBasedIllustration from './illustrations/framework-based-illustration'
-import React, { useEffect, useContext } from 'react'
+import React, { useEffect, use } from 'react'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { usePathname } from 'next/navigation'
 
@@ -56,7 +56,7 @@ interface ProgramsCreateProps {
 }
 
 export default function ProgramsCreate({ disableHeader = false, noPrograms = false }: ProgramsCreateProps) {
-  const { setCrumbs } = useContext(BreadcrumbContext)
+  const { setCrumbs } = use(BreadcrumbContext)
   const path = usePathname()
 
   useEffect(() => {

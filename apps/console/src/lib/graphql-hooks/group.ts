@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient, InfiniteData } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient, type InfiniteData } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
   GET_ALL_GROUPS,
@@ -13,30 +13,30 @@ import {
 } from '@repo/codegen/query/group'
 
 import {
-  GetAllGroupsQuery,
-  GetAllGroupsQueryVariables,
-  GetGroupDetailsQuery,
-  GetGroupDetailsQueryVariables,
-  GetGroupPermissionsQuery,
-  GetGroupPermissionsQueryVariables,
-  CreateGroupWithMembersMutation,
-  CreateGroupWithMembersMutationVariables,
-  UpdateGroupMutation,
-  UpdateGroupMutationVariables,
-  DeleteGroupMutation,
-  DeleteGroupMutationVariables,
-  UpdateGroupMembershipMutation,
-  UpdateGroupMembershipMutationVariables,
-  Group,
-  DeleteGroupMembershipMutation,
-  DeleteGroupMembershipMutationVariables,
-  GroupWhereInput,
-  ControlWhereInput,
-  GetAllGroupsPaginatedQueryVariables,
-  GetAllGroupsPaginatedQuery,
-  AllGroupsPaginatedFieldsFragment,
+  type GetAllGroupsQuery,
+  type GetAllGroupsQueryVariables,
+  type GetGroupDetailsQuery,
+  type GetGroupDetailsQueryVariables,
+  type GetGroupPermissionsQuery,
+  type GetGroupPermissionsQueryVariables,
+  type CreateGroupWithMembersMutation,
+  type CreateGroupWithMembersMutationVariables,
+  type UpdateGroupMutation,
+  type UpdateGroupMutationVariables,
+  type DeleteGroupMutation,
+  type DeleteGroupMutationVariables,
+  type UpdateGroupMembershipMutation,
+  type UpdateGroupMembershipMutationVariables,
+  type Group,
+  type DeleteGroupMembershipMutation,
+  type DeleteGroupMembershipMutationVariables,
+  type GroupWhereInput,
+  type ControlWhereInput,
+  type GetAllGroupsPaginatedQueryVariables,
+  type GetAllGroupsPaginatedQuery,
+  type AllGroupsPaginatedFieldsFragment,
 } from '@repo/codegen/src/schema'
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 import { useInfiniteQuery } from '@tanstack/react-query'
 import { useEffect, useMemo } from 'react'
 

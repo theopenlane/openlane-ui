@@ -1,4 +1,4 @@
-import { TrustCenterDocWatermarkStatus } from '@repo/codegen/src/schema'
+import { type TrustCenterDocWatermarkStatus } from '@repo/codegen/src/schema'
 
 export const StatusBgClasses: Record<TrustCenterDocWatermarkStatus, string> = {
   DISABLED: 'bg-gray-200 text-gray-700',

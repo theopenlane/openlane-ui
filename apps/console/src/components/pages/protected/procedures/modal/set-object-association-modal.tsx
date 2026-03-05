@@ -4,9 +4,9 @@ import ObjectAssociation from '@/components/shared/object-association/object-ass
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import React, { useCallback, useState } from 'react'
 import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
-import { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
+import { type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
 import { useProcedure } from '@/components/pages/protected/procedures/create/hooks/use-procedure.tsx'
-import { UpdateProcedureInput } from '@repo/codegen/src/schema.ts'
+import { type UpdateProcedureInput } from '@repo/codegen/src/schema.ts'
 import { useUpdateProcedure } from '@/lib/graphql-hooks/procedure'
 import { useNotification } from '@/hooks/useNotification.tsx'
 import { useQueryClient } from '@tanstack/react-query'
@@ -102,7 +102,7 @@ const SetObjectAssociationProceduresDialog = ({ procedureId }: TSetObjectAssocia
         updateProcedureId: string
         input: UpdateProcedureInput
       } = {
-        updateProcedureId: procedureId!,
+        updateProcedureId: procedureId ?? '',
         input: {
           ...associationInputs,
         },
@@ -116,7 +116,7 @@ const SetObjectAssociationProceduresDialog = ({ procedureId }: TSetObjectAssocia
       })
 
       queryClient.invalidateQueries({ queryKey: ['procedures'] })
-      queryClient.invalidateQueries({ queryKey: ['procedure', procedureId!] })
+      queryClient.invalidateQueries({ queryKey: ['procedure', procedureId] })
       setOpen(false)
     } catch (error) {
       const errorMessage = parseErrorMessage(error)

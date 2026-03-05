@@ -5,14 +5,14 @@ import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { Info, InfoIcon } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import PlateEditor from '@/components/shared/plate/plate-editor.tsx'
-import { Value } from 'platejs'
+import { type Value } from 'platejs'
 import { Alert, AlertDescription, AlertTitle } from '@repo/ui/alert'
-import { CreateProcedureInput, ProcedureByIdFragment, ProcedureDocumentStatus, ProcedureFrequency, UpdateProcedureInput } from '@repo/codegen/src/schema.ts'
+import { type CreateProcedureInput, type ProcedureByIdFragment, ProcedureDocumentStatus, ProcedureFrequency, type UpdateProcedureInput } from '@repo/codegen/src/schema.ts'
 import { useNotification } from '@/hooks/useNotification.tsx'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap.ts'
+import { type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap.ts'
 import { useQueryClient } from '@tanstack/react-query'
-import useFormSchema, { CreateProcedureFormData } from '../hooks/use-form-schema'
+import useFormSchema, { type CreateProcedureFormData } from '../hooks/use-form-schema'
 import { useProcedure } from '../hooks/use-procedure.tsx'
 import StatusCard from '@/components/pages/protected/procedures/create/cards/status-card.tsx'
 import AssociationCard from '@/components/pages/protected/procedures/create/cards/association-card.tsx'
@@ -45,7 +45,7 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
   const { form } = useFormSchema()
   const router = useRouter()
   const queryClient = useQueryClient()
-  const { setCrumbs } = React.useContext(BreadcrumbContext)
+  const { setCrumbs } = React.use(BreadcrumbContext)
   const { mutateAsync: createProcedure, isPending: isCreating } = useCreateProcedure()
   const { mutateAsync: updateProcedure, isPending: isSaving } = useUpdateProcedure()
   const isSubmitting = isCreating || isSaving
@@ -59,7 +59,7 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
   const policyId = searchParams.get('policyId')
   const { data } = useGetInternalPolicyDetailsById(policyId)
   const { currentOrgId, getOrganizationByID } = useOrganization()
-  const currentOrganization = getOrganizationByID(currentOrgId!)
+  const currentOrganization = getOrganizationByID(currentOrgId ?? '')
   const [isInitialized, setIsInitialized] = useState(false)
   const [createMultiple, setCreateMultiple] = useState(false)
   const [clearData, setClearData] = useState<boolean>(false)
