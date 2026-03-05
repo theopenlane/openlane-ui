@@ -130,7 +130,7 @@ const RiskTable: React.FC = () => {
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
-      { label: 'Risks', href: '/risks' },
+      { label: 'Risks', href: '/exposure/risks' },
     ])
   }, [setCrumbs])
 
@@ -144,11 +144,11 @@ const RiskTable: React.FC = () => {
   }, [isError, errorNotification])
 
   const handleRowClick = (rowData: RiskTableFieldsFragment) => {
-    router.push(`/risks/${rowData.id}`)
+    router.push(`/exposure/risks/${rowData.id}`)
   }
 
   const handleCreateNew = async () => {
-    router.push(`/risks/create`)
+    router.push(`/exposure/risks/create`)
   }
 
   function isVisibleColumn<T>(col: ColumnDef<T>): col is ColumnDef<T> & { accessorKey: string; header: string } {

@@ -15,7 +15,7 @@ const CreateRiskPage: React.FC = () => {
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
-      { label: 'Risks', href: '/risks' },
+      { label: 'Risks', href: '/exposure/risks' },
     ])
   }, [setCrumbs])
 

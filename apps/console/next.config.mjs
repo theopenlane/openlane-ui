@@ -12,6 +12,16 @@ const nextConfig = {
         destination: '/automation/tasks',
         permanent: true,
       },
+      {
+        source: '/risks',
+        destination: '/exposure/risks',
+        permanent: true,
+      },
+      {
+        source: '/risks/:path*',
+        destination: '/exposure/risks/:path*',
+        permanent: true,
+      },
     ]
   },
   images: {

@@ -71,7 +71,7 @@ const CreateRiskForm: React.FC = () => {
           ...associationsState,
         })
       } else {
-        router.push(`/risks/${createdRisk.createRisk.risk.id}`)
+        router.push(`/exposure/risks/${createdRisk.createRisk.risk.id}`)
       }
     } catch (error) {
       const errorMessage = parseErrorMessage(error)

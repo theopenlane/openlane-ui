@@ -101,11 +101,6 @@ export const topNavigationItems = (session: Session | null): (NavItem | Separato
           href: '/standards',
           icon: FileBadge2,
         },
-        {
-          title: 'Risks',
-          href: '/risks',
-          icon: AlertTriangle,
-        },
       ],
     },
     {
@@ -184,6 +179,11 @@ export const topNavigationItems = (session: Session | null): (NavItem | Separato
       plan: PlanEnum.COMPLIANCE_MODULE,
       hidden: session?.user?.isOnboarding || billingExpired,
       children: [
+        {
+          title: 'Risks',
+          href: '/exposure/risks',
+          icon: AlertTriangle,
+        },
         {
           title: 'Scans',
           href: '/exposure/scans',
