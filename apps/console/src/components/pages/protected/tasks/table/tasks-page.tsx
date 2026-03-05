@@ -84,7 +84,7 @@ const TasksPage: React.FC = () => {
       return { [key]: value } as TaskWhereInput
     })
 
-    const statusInSet = result != null && 'statusIn' in result
+    const statusInSet = 'statusIn' in result
 
     const merged: TaskWhereInput = {
       ...result,
