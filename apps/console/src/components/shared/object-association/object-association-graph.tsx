@@ -369,7 +369,7 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
             {group.items.map((item) => (
               <Tooltip key={item.id}>
                 <TooltipTrigger asChild>
-                  <button onClick={() => router.push(item.link)} style={{ border: `1px solid ${typeColor}` }} className="text-left px-2 py-1 rounded-full text-sm mb-3 w-fit">
+                  <button type="button" onClick={() => router.push(item.link)} style={{ border: `1px solid ${typeColor}` }} className="text-left px-2 py-1 rounded-full text-sm mb-3 w-fit">
                     {item.refCode || item.name || item.title || item.displayID}
                   </button>
                 </TooltipTrigger>
