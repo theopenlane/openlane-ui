@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useContext, useEffect } from 'react'
+import React, { use, useEffect } from 'react'
 import { Globe, Plus, Info } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { useGetTrustCenter } from '@/lib/graphql-hooks/trust-center'
@@ -20,7 +20,7 @@ export default function AnalyticsPage() {
 
   const mode = resolvedTheme === 'dark' ? 'dark' : 'light'
 
-  const { setCrumbs } = useContext(BreadcrumbContext)
+  const { setCrumbs } = use(BreadcrumbContext)
 
   useEffect(() => {
     setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Trust Center' }, { label: 'Analytics', href: '/trust-center/analytics' }])

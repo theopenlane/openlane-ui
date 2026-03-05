@@ -1,6 +1,6 @@
-import { FilterField } from '@/types'
+import { type FilterField } from '@/types'
 import { TaskStatusWithoutCompletedAndOpen } from '@/components/pages/protected/tasks/util/task'
-import { TOrgMembers } from '../hooks/useTaskStore'
+import { type TOrgMembers } from '../hooks/useTaskStore'
 import { TaskFilterIcons } from '@/components/shared/enum-mapper/task-enum'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 

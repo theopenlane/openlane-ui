@@ -1,5 +1,5 @@
-import { ColumnDef } from '@tanstack/react-table'
-import { Template, User } from '@repo/codegen/src/schema'
+import { type ColumnDef } from '@tanstack/react-table'
+import { type Template, type User } from '@repo/codegen/src/schema'
 import { formatDate, formatTimeSince } from '@/utils/date'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { Avatar } from '@/components/shared/avatar/avatar'

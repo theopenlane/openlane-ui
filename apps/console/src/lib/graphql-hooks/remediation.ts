@@ -1,25 +1,25 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
-  RemediationsWithFilterQuery,
-  RemediationsWithFilterQueryVariables,
-  CreateRemediationMutation,
-  CreateRemediationMutationVariables,
-  UpdateRemediationMutation,
-  UpdateRemediationMutationVariables,
-  DeleteRemediationMutation,
-  DeleteRemediationMutationVariables,
-  RemediationQuery,
-  RemediationQueryVariables,
-  CreateBulkCsvRemediationMutation,
-  CreateBulkCsvRemediationMutationVariables,
-  UpdateBulkRemediationMutation,
-  UpdateBulkRemediationMutationVariables,
-  DeleteBulkRemediationMutation,
-  DeleteBulkRemediationMutationVariables,
+  type RemediationsWithFilterQuery,
+  type RemediationsWithFilterQueryVariables,
+  type CreateRemediationMutation,
+  type CreateRemediationMutationVariables,
+  type UpdateRemediationMutation,
+  type UpdateRemediationMutationVariables,
+  type DeleteRemediationMutation,
+  type DeleteRemediationMutationVariables,
+  type RemediationQuery,
+  type RemediationQueryVariables,
+  type CreateBulkCsvRemediationMutation,
+  type CreateBulkCsvRemediationMutationVariables,
+  type UpdateBulkRemediationMutation,
+  type UpdateBulkRemediationMutationVariables,
+  type DeleteBulkRemediationMutation,
+  type DeleteBulkRemediationMutationVariables,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 import {
   GET_ALL_REMEDIATIONS,
   CREATE_REMEDIATION,

@@ -8,13 +8,13 @@ import FileUpload from '@/components/shared/file-upload/file-upload'
 import { useNotification } from '@/hooks/useNotification'
 import { acceptedFileTypes, acceptedFileTypesShort } from '@/components/pages/protected/evidence/upload/evidence-upload-config.ts'
 import { Form, FormField, FormItem, FormLabel } from '@repo/ui/form'
-import useFormSchema, { CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema.ts'
+import useFormSchema, { type CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema.ts'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { InputRow } from '@repo/ui/input'
 import { useQueryClient } from '@tanstack/react-query'
 import { useCreateEvidence, useGetRenewEvidenceById } from '@/lib/graphql-hooks/evidence'
-import { TUploadedFile } from './upload/types/TUploadedFile'
+import { type TUploadedFile } from './upload/types/TUploadedFile'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
@@ -160,7 +160,7 @@ const EvidenceRenewDialog: React.FC<TEvidenceRenewDialog> = ({ evidenceId, contr
                 <div className="font-semibold truncate max-w-[240px]" title={file.name}>
                   {file.name}
                 </div>
-                <div className="text-sm">Size: {Math.round(file.size! / 1024)} KB</div>
+                <div className="text-sm">Size: {Math.round((file.size ?? 0) / 1024)} KB</div>
               </div>
             </div>
             <Trash2 className="hover:cursor-pointer" onClick={() => handleDelete(file)} />

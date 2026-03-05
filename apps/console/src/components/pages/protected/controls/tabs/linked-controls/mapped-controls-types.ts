@@ -1,5 +1,5 @@
 import type { MappedControlMappingSource, MappedControlMappingType } from '@repo/codegen/src/schema'
-import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { type ObjectTypes } from '@repo/codegen/src/type-names'
 
 export type MappedControlRow = {
   id: string

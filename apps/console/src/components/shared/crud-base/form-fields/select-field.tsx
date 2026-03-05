@@ -2,14 +2,14 @@
 
 import { FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { FieldValues, useFormContext } from 'react-hook-form'
+import { type FieldValues, useFormContext } from 'react-hook-form'
 import { CustomTypeEnumOptionChip, CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
 import { useState } from 'react'
 import { Plus, InfoIcon } from 'lucide-react'
-import { InternalEditingType } from '../generic-sheet'
+import { type InternalEditingType } from '../generic-sheet'
 
 interface SelectFieldProps<TUpdateInput> {
   name: string

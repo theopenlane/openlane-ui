@@ -1,11 +1,11 @@
 'use client'
 
 import React, { useEffect, useMemo, useState, useCallback } from 'react'
-import { ExportExportFormat, ExportExportType, OrderDirection } from '@repo/codegen/src/schema'
-import { ZodObject, ZodRawShape } from 'zod'
-import { TPagination } from '@repo/ui/pagination-types'
+import { ExportExportFormat, type ExportExportType, OrderDirection } from '@repo/codegen/src/schema'
+import { type ZodObject, type ZodRawShape } from 'zod'
+import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
-import { ColumnDef, VisibilityState } from '@tanstack/react-table'
+import { type ColumnDef, type VisibilityState } from '@tanstack/react-table'
 import { useDebounce } from '@uidotdev/usehooks'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 import { canEdit } from '@/lib/authz/utils.ts'
@@ -13,17 +13,17 @@ import useFileExport from '@/components/shared/export/use-file-export.ts'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
-import { getInitialSortConditions, getInitialPagination, SortCondition } from '@repo/ui/data-table'
+import { getInitialSortConditions, getInitialPagination, type SortCondition } from '@repo/ui/data-table'
 import { useStorageSearch } from '@/hooks/useStorageSearch'
-import { ObjectNames, ObjectTypes } from '@repo/codegen/src/type-names'
+import { type ObjectNames, type ObjectTypes } from '@repo/codegen/src/type-names'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { FieldValues, UseFormReturn } from 'react-hook-form'
-import { GenericDetailsSheet, GenericDetailsSheetConfig } from '@/components/shared/crud-base/generic-sheet'
+import { type FieldValues, type UseFormReturn } from 'react-hook-form'
+import { GenericDetailsSheet, type GenericDetailsSheetConfig } from '@/components/shared/crud-base/generic-sheet'
 import { GenericTableToolbar } from '@/components/shared/crud-base/table/table-toolbar'
-import { TableKeyValue } from '@repo/ui/table-key'
-import { TAccessRole, TPermissionData } from '@/types/authz'
-import { FilterField } from '@/types'
-import { User } from '@repo/codegen/src/schema'
+import { type TableKeyValue } from '@repo/ui/table-key'
+import { type TAccessRole, type TPermissionData } from '@/types/authz'
+import { type FilterField } from '@/types'
+import { type User } from '@repo/codegen/src/schema'
 
 type TOrderByInput = { field: string; direction?: OrderDirection }[] | undefined
 type TOrderFieldEnum<TField> = Record<string, TField> | TField[]
@@ -149,12 +149,12 @@ export function GenericTablePage<
   const isCreate = searchParams.get('create') === 'true'
 
   const [searchQuery, setSearchQuery] = useStorageSearch(objectType)
-  const { setCrumbs } = React.useContext(BreadcrumbContext)
+  const { setCrumbs } = React.use(BreadcrumbContext)
   const { handleExport } = useFileExport()
 
   const [filters, setFilters] = useState<TWhereInput | null>(null)
-  const [pagination, setPagination] = useState<TPagination>(getInitialPagination(tableKey, DEFAULT_PAGINATION))
-  const [orderBy, setOrderBy] = useState<SortCondition<TOrderField>[]>(getInitialSortConditions(tableKey, orderFieldEnum, defaultSorting))
+  const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(tableKey, DEFAULT_PAGINATION))
+  const [orderBy, setOrderBy] = useState<SortCondition<TOrderField>[]>(() => getInitialSortConditions(tableKey, orderFieldEnum, defaultSorting))
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(tableKey, defaultVisibility))
   const [selectedItems, setSelectedItems] = useState<{ id: string }[]>([])
 

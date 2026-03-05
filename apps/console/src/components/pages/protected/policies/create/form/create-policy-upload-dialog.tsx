@@ -5,11 +5,11 @@ import React, { cloneElement, useEffect, useState } from 'react'
 import { Button } from '@repo/ui/button'
 import { useNotification } from '@/hooks/useNotification'
 import { useCreateInternalPolicy, useCreateUploadInternalPolicy } from '@/lib/graphql-hooks/internal-policy'
-import { TUploadedFile } from '../../../evidence/upload/types/TUploadedFile'
+import { type TUploadedFile } from '../../../evidence/upload/types/TUploadedFile'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useRouter } from 'next/navigation'
 import { PolicyProcedureTabEnum } from '@/components/shared/enum-mapper/policy-procedure-tab-enum'
-import { CreateInternalPolicyInput } from '@repo/codegen/src/schema'
+import { type CreateInternalPolicyInput } from '@repo/codegen/src/schema'
 import { Import, Trash2 } from 'lucide-react'
 import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import UploadTab from '../../../evidence/upload/upload-tab'
@@ -122,7 +122,7 @@ const CreatePolicyUploadDialog: React.FC<TCreatePolicyUploadDialogProps> = ({ tr
     } else {
       try {
         for (const uploadedFile of uploadedFiles) {
-          await createUploadPolicy({ internalPolicyFile: uploadedFile.file! })
+          await createUploadPolicy({ internalPolicyFile: uploadedFile.file ?? new File([], '') })
         }
         successNotification({
           title: 'Policy Created',
@@ -146,16 +146,16 @@ const CreatePolicyUploadDialog: React.FC<TCreatePolicyUploadDialogProps> = ({ tr
     setUploadedFiles((prev) => prev.filter((_, i) => i !== index))
   }
 
+  const clearState = () => {
+    setPolicyMdDocumentLink('')
+    setPolicyMdDocumentLinks([])
+  }
+
   useEffect(() => {
     if (!isOpen) {
       clearState()
     }
   }, [isOpen])
-
-  const clearState = () => {
-    setPolicyMdDocumentLink('')
-    setPolicyMdDocumentLinks([])
-  }
 
   const handleAddLink = (link: string) => {
     if (link.trim() === '') return
@@ -172,6 +172,7 @@ const CreatePolicyUploadDialog: React.FC<TCreatePolicyUploadDialogProps> = ({ tr
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       {trigger ? (
         <DialogTrigger asChild>
+          {/* eslint-disable-next-line @eslint-react/no-clone-element */}
           {cloneElement(trigger, {
             onClick: () => setIsOpen(true),
             disabled: isSubmitting,

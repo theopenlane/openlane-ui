@@ -5,7 +5,7 @@ import { DownloadIcon, LoaderCircle, SearchIcon } from 'lucide-react'
 import { Input } from '@repo/ui/input'
 import Menu from '@/components/shared/menu/menu.tsx'
 import BulkCSVCreateSubscriberDialog from '@/components/pages/protected/organization-settings/subscribers/bulk-csv-create-subscriber-dialog.tsx'
-import { SubscriberWhereInput } from '@repo/codegen/src/schema'
+import { type SubscriberWhereInput } from '@repo/codegen/src/schema'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { Button } from '@repo/ui/button'
 

@@ -1,19 +1,19 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
-  JobRunnersWithFilterQuery,
-  JobRunnersWithFilterQueryVariables,
-  CreateJobRunnerMutation,
-  CreateJobRunnerMutationVariables,
-  UpdateJobRunnerMutation,
-  UpdateJobRunnerMutationVariables,
-  DeleteJobRunnerMutation,
-  DeleteJobRunnerMutationVariables,
-  JobRunnerQuery,
-  JobRunnerQueryVariables,
+  type JobRunnersWithFilterQuery,
+  type JobRunnersWithFilterQueryVariables,
+  type CreateJobRunnerMutation,
+  type CreateJobRunnerMutationVariables,
+  type UpdateJobRunnerMutation,
+  type UpdateJobRunnerMutationVariables,
+  type DeleteJobRunnerMutation,
+  type DeleteJobRunnerMutationVariables,
+  type JobRunnerQuery,
+  type JobRunnerQueryVariables,
 } from '@repo/codegen/src/schema'
 
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 import { GET_ALL_JOB_RUNNERS, CREATE_JOB_RUNNER, UPDATE_JOB_RUNNER, DELETE_JOB_RUNNER, JOB_RUNNER } from '@repo/codegen/query/job-runner'
 
 type GetAllJobRunnersArgs = {

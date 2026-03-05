@@ -1,6 +1,6 @@
 import React from 'react'
 import DashboardPage from '@/components/pages/protected/dashboard/dashboard-page'
-import { Metadata } from 'next'
+import { type Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Dashboard',

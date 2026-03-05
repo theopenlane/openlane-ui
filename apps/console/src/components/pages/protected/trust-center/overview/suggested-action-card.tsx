@@ -1,5 +1,5 @@
 import { Card, CardContent } from '@repo/ui/cardpanel'
-import { LucideIcon } from 'lucide-react'
+import { type LucideIcon } from 'lucide-react'
 
 type SuggestedActionCardProps = {
   handleRouting: (route: string) => void

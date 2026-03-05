@@ -2,7 +2,7 @@
 
 import { FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
 import { useFormContext } from 'react-hook-form'
-import { InternalEditingType } from '../generic-sheet'
+import { type InternalEditingType } from '../generic-sheet'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { InfoIcon, User, Users, Type, Check, X } from 'lucide-react'
 import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
@@ -13,7 +13,7 @@ import useEscapeKey from '@/hooks/useEscapeKey'
 import { useUserSelect } from '@/lib/graphql-hooks/member'
 import { useGroupSelect } from '@/lib/graphql-hooks/group'
 import { useNotification } from '@/hooks/useNotification'
-import { ResponsibilitySelection, buildResponsibilityInlineUpdate } from './responsibility-field-utils'
+import { type ResponsibilitySelection, buildResponsibilityInlineUpdate } from './responsibility-field-utils'
 import { isValidEmail } from '@/lib/validators'
 
 interface ResponsibilityFieldProps {

@@ -1,7 +1,7 @@
 'use client'
 import { BaseEditorKit } from '@repo/ui/components/editor/editor-base-kit.tsx'
 import { EditorStatic } from '@repo/ui/components/ui/editor-static.tsx'
-import { createSlateEditor, PlateStatic, serializeHtml, Value } from 'platejs'
+import { createSlateEditor, PlateStatic, serializeHtml, type Value } from 'platejs'
 
 type Detected = 'markdown' | 'html' | 'slate-json' | 'text'
 
@@ -93,10 +93,10 @@ const usePlateEditor = () => {
       const editor = createSlateEditor({
         plugins: [...BaseEditorKit],
       })
-      const finalStyle = style ? style! : { padding }
+      const finalStyle = style ? style : { padding }
 
       const fmt = detectFormat(data)
-      let nodes = []
+      let nodes
 
       if (Array.isArray(data)) {
         editor.children = data

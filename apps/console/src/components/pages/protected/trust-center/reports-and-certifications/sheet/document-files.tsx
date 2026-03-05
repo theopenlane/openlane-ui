@@ -8,7 +8,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 import { useGetTrustCenterDocById, useUpdateTrustCenterDoc } from '@/lib/graphql-hooks/trust-center-doc'
-import { TDocumentFile, useGetFilesColumns } from './document-files-table-config'
+import { type TDocumentFile, useGetFilesColumns } from './document-files-table-config'
 import { DocumentUploadDialog } from './document-upload-dialog'
 import { TableKeyEnum } from '@repo/ui/table-key'
 

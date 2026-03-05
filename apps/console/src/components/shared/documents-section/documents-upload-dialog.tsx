@@ -6,7 +6,7 @@ import React, { useState } from 'react'
 import { Button } from '@repo/ui/button'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { acceptedFileTypes, acceptedFileTypesShort, maxFileSizeInMb } from '@/components/shared/file-upload/file-upload-config'
-import { TUploadedFile } from '@/components/shared/file-upload/types'
+import { type TUploadedFile } from '@/components/shared/file-upload/types'
 import UploadedFileDetailsCard from '@/components/shared/file-upload/uploaded-file-details-card'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 

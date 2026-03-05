@@ -14,7 +14,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { ClientError } from 'graphql-request'
 import { useBulkEditTask } from '@/lib/graphql-hooks/task'
 import {
-  BulkEditTasksDialogProps,
+  type BulkEditTasksDialogProps,
   defaultObject,
   getAllSelectOptionsForBulkEditTasks,
   getMappedClearValue,

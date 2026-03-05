@@ -2,17 +2,17 @@
 import { Button } from '@repo/ui/button'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { InfoIcon, PanelRightClose, SearchIcon } from 'lucide-react'
-import { Control, SubmitHandler, useForm } from 'react-hook-form'
+import { type Control, type SubmitHandler, useForm } from 'react-hook-form'
 import type { Resolver } from 'react-hook-form'
-import { infer as zInfer, z } from 'zod'
+import { type infer as zInfer, z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
-  AllGroupsPaginatedFieldsFragment,
-  CreateInviteInput,
-  GetAllGroupsPaginatedQueryVariables,
+  type AllGroupsPaginatedFieldsFragment,
+  type CreateInviteInput,
+  type GetAllGroupsPaginatedQueryVariables,
   GroupOrderField,
-  GroupWhereInput,
-  InputMaybe,
+  type GroupWhereInput,
+  type InputMaybe,
   InviteRole,
   OrderDirection,
 } from '@repo/codegen/src/schema'
@@ -20,7 +20,7 @@ import { useCreateBulkInvite } from '@/lib/graphql-hooks/organization'
 import { useNotification } from '@/hooks/useNotification'
 import { isValidEmail } from '@/lib/validators'
 import { useQueryClient } from '@tanstack/react-query'
-import { Tag } from 'emblor'
+import { type Tag } from 'emblor'
 import { useMemo, useState } from 'react'
 import { TagInput } from '@repo/ui/tag-input'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
@@ -28,10 +28,10 @@ import { Form, FormControl, FormField, FormItem, FormMessage } from '@repo/ui/fo
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { useAllGroupsGrouped } from '@/lib/graphql-hooks/group'
 import { useDebounce } from '@uidotdev/usehooks'
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { groupTableForInvitesColumns } from '../table/columns'
-import { VisibilityState } from '@tanstack/react-table'
+import { type VisibilityState } from '@tanstack/react-table'
 import { canCreate, canEdit } from '@/lib/authz/utils.ts'
 import { DataTable, getInitialPagination } from '@repo/ui/data-table'
 import { Input } from '@repo/ui/input'
@@ -67,7 +67,7 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
   const [invalidEmail, setInvalidEmail] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const debouncedSearchQuery = useDebounce(searchQuery, 300)
-  const [pagination, setPagination] = useState<TPagination>(getInitialPagination(TableKeyEnum.MEMBERS_INVITE_SHEET, DEFAULT_PAGINATION))
+  const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(TableKeyEnum.MEMBERS_INVITE_SHEET, DEFAULT_PAGINATION))
   const [selectedGroups, setSelectedGroups] = useState<AllGroupsPaginatedFieldsFragment[]>([])
   const { data: permission, isLoading: isLoadingPermission } = useOrganizationRoles()
   const columnVisibility = useMemo<VisibilityState>(() => {

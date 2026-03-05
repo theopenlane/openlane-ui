@@ -1,9 +1,9 @@
 'use client'
 
 import React from 'react'
-import { Group, User } from '@repo/codegen/src/schema'
+import { type Group, type User } from '@repo/codegen/src/schema'
 import { Avatar } from '@/components/shared/avatar/avatar'
-import { WizardValues } from './advanced-setup-wizard-config'
+import { type WizardValues } from './advanced-setup-wizard-config'
 import { formatDate } from '@/utils/date'
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@repo/ui/tooltip'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'

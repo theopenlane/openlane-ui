@@ -30,7 +30,7 @@ const BillingEmailDialog = () => {
 
     try {
       await updateOrg({
-        updateOrganizationId: currentOrgId!,
+        updateOrganizationId: currentOrgId ?? '',
         input: {
           updateOrgSettings: { billingEmail: emailInput },
         },

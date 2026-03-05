@@ -12,7 +12,7 @@ const EditProcedurePage = ({ procedureId }: TEditProcedurePage) => {
   return (
     <>
       {isLoading && <Loading />}
-      {!isLoading && data?.procedure && <CreateProcedureForm procedure={data.procedure!} />}
+      {!isLoading && data?.procedure && <CreateProcedureForm procedure={data.procedure} />}
     </>
   )
 }

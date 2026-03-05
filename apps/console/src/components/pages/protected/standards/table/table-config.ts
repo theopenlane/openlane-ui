@@ -1,5 +1,5 @@
 import { FilterIcons } from '@/components/shared/enum-mapper/standard-enum'
-import { FilterField } from '@/types'
+import { type FilterField } from '@/types'
 
 export const getTasksFilterFields = (): FilterField[] => [
   { key: 'systemOwned', label: 'System Owned', type: 'boolean', icon: FilterIcons.SystemOwned },

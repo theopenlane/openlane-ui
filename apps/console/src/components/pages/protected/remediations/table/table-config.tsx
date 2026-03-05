@@ -1,11 +1,11 @@
-import { FilterField } from '@/types'
+import { type FilterField } from '@/types'
 import { ObjectNames } from '@repo/codegen/src/type-names'
 import React from 'react'
 import TitleField from '../create/form/fields/title-field'
-import { RemediationQuery, RemediationOrderField } from '@repo/codegen/src/schema'
+import { type RemediationQuery, RemediationOrderField } from '@repo/codegen/src/schema'
 import { AdditionalFields } from '../create/form/fields/additional-fields'
 import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
-import { RemediationFieldProps, EnumOptions } from './types'
+import { type RemediationFieldProps, type EnumOptions } from './types'
 import { enumToSortFields } from '@/components/shared/crud-base/utils'
 
 export const formId = 'edit' + ObjectNames.REMEDIATION

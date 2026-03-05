@@ -3,7 +3,7 @@
 import React from 'react'
 import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
 import {
-  RemediationsNodeNonNull,
+  type RemediationsNodeNonNull,
   useRemediation,
   useCreateRemediation,
   useUpdateRemediation,
@@ -14,10 +14,10 @@ import {
 import { useSearchParams } from 'next/navigation'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
 import { breadcrumbs, getFieldsToRender, getFilterFields, visibilityFields } from './table-config'
-import { RemediationSheetConfig, RemediationTablePageConfig, RemediationFieldProps, objectType, objectName, tableKey, exportType, orderFieldEnum, defaultSorting } from './types'
+import { type RemediationSheetConfig, type RemediationTablePageConfig, type RemediationFieldProps, objectType, objectName, tableKey, exportType, orderFieldEnum, defaultSorting } from './types'
 import { getColumns } from './columns'
 import TableComponent from './table'
-import { CreateRemediationInput, UpdateRemediationInput } from '@repo/codegen/src/schema'
+import { type CreateRemediationInput, type UpdateRemediationInput } from '@repo/codegen/src/schema'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 
 const RemediationPage: React.FC = () => {

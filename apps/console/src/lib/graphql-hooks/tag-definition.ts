@@ -1,20 +1,20 @@
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
-import { Option } from '@repo/ui/multiple-selector'
+import { type Option } from '@repo/ui/multiple-selector'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 
 import {
-  GetTagsQuery,
-  GetAllTagDefinitionsPaginatedQuery,
-  GetAllTagDefinitionsPaginatedQueryVariables,
-  CreateTagDefinitionMutation,
-  CreateTagDefinitionMutationVariables,
-  UpdateTagDefinitionMutation,
-  UpdateTagDefinitionMutationVariables,
-  DeleteTagDefinitionMutation,
-  DeleteTagDefinitionMutationVariables,
-  GetTagDefinitionDetailsQuery,
-  GetTagDefinitionDetailsQueryVariables,
+  type GetTagsQuery,
+  type GetAllTagDefinitionsPaginatedQuery,
+  type GetAllTagDefinitionsPaginatedQueryVariables,
+  type CreateTagDefinitionMutation,
+  type CreateTagDefinitionMutationVariables,
+  type UpdateTagDefinitionMutation,
+  type UpdateTagDefinitionMutationVariables,
+  type DeleteTagDefinitionMutation,
+  type DeleteTagDefinitionMutationVariables,
+  type GetTagDefinitionDetailsQuery,
+  type GetTagDefinitionDetailsQueryVariables,
 } from '@repo/codegen/src/schema'
 
 import { GET_TAGS, GET_ALL_TAG_DEFINITIONS_PAGINATED, CREATE_TAG_DEFINITION, UPDATE_TAG_DEFINITION, DELETE_TAG_DEFINITION, GET_TAG_DEFINITION_DETAILS } from '@repo/codegen/query/tag-definition'
@@ -128,7 +128,7 @@ export const useGetTagDetails = (tagDefinitionId?: string | null) => {
 
   return useQuery<GetTagDefinitionDetailsQuery>({
     queryKey: ['tags', 'details', tagDefinitionId],
-    queryFn: () => client.request<GetTagDefinitionDetailsQuery, GetTagDefinitionDetailsQueryVariables>(GET_TAG_DEFINITION_DETAILS, { tagDefinitionId: tagDefinitionId! }),
+    queryFn: () => client.request<GetTagDefinitionDetailsQuery, GetTagDefinitionDetailsQueryVariables>(GET_TAG_DEFINITION_DETAILS, { tagDefinitionId: tagDefinitionId ?? '' }),
     enabled: !!tagDefinitionId,
   })
 }

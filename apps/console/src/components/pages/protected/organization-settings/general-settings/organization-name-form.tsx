@@ -1,12 +1,12 @@
 'use client'
-import { File } from '@repo/codegen/src/schema'
+import { type File } from '@repo/codegen/src/schema'
 import { Input } from '@repo/ui/input'
 import { Panel, PanelHeader } from '@repo/ui/panel'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Form, FormItem, FormField, FormControl, FormMessage } from '@repo/ui/form'
 import { z } from 'zod'
-import { useEffect, useState, useContext } from 'react'
+import { useEffect, useState, use } from 'react'
 import { RESET_SUCCESS_STATE_MS } from '@/constants'
 import { useOrganization } from '@/hooks/useOrganization'
 import { AvatarUpload } from '@/components/shared/avatar-upload/avatar-upload'
@@ -21,7 +21,7 @@ const OrganizationNameForm = () => {
   const [isSuccess, setIsSuccess] = useState(false)
   const { isPending, mutateAsync: updateOrg } = useUpdateOrganization()
   const { mutateAsync: uploadAvatar } = useUpdateOrgAvatar()
-  const { setCrumbs } = useContext(BreadcrumbContext)
+  const { setCrumbs } = use(BreadcrumbContext)
 
   const queryClient = useQueryClient()
   const { successNotification, errorNotification } = useNotification()

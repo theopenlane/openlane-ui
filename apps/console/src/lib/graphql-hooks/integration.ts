@@ -1,5 +1,5 @@
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
-import { DeleteIntegrationMutation, DeleteIntegrationMutationVariables, GetIntegrationsQuery, IntegrationWhereInput } from '@repo/codegen/src/schema'
+import { type DeleteIntegrationMutation, type DeleteIntegrationMutationVariables, type GetIntegrationsQuery, type IntegrationWhereInput } from '@repo/codegen/src/schema'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { DELETE_INTEGRATION, GET_INTEGRATIONS } from '@repo/codegen/query/integration'
 

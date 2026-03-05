@@ -8,7 +8,7 @@ import { OrgMembershipRole } from '@repo/codegen/src/schema.ts'
 import { useRouter } from 'next/navigation'
 import { SUPPORT_URL } from '@/constants'
 import Link from 'next/link'
-import { saveFilters, TFilterState } from '@/components/shared/table-filter/filter-storage.ts'
+import { saveFilters, type TFilterState } from '@/components/shared/table-filter/filter-storage.ts'
 import { TableKeyEnum } from '@repo/ui/table-key'
 
 const ProtectedArea: React.FC = () => {

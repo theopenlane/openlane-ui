@@ -64,8 +64,8 @@ export const SendQuestionnaireDialog = ({ open, onOpenChange, assessmentId, asse
     return (contacts ?? [])
       .filter((c) => c.email && !addedEmails.has(c.email.toLowerCase()))
       .map((c) => ({
-        email: c.email!,
-        label: c.fullName ? `${c.fullName} (${c.email})` : c.email!,
+        email: c.email ?? '',
+        label: c.fullName ? `${c.fullName} (${c.email})` : (c.email ?? ''),
       }))
   }, [contacts, emails])
 

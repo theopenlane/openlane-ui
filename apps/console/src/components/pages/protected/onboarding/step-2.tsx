@@ -4,7 +4,7 @@ import { Label } from '@repo/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import React from 'react'
 import { useFormContext } from 'react-hook-form'
-import { z, infer as zInfer } from 'zod'
+import { z, type infer as zInfer } from 'zod'
 
 export const step2Schema = z.object({
   userDetails: z

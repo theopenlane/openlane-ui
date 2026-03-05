@@ -1,10 +1,10 @@
 'use client'
 import { z } from 'zod'
-import { useForm, UseFormReturn } from 'react-hook-form'
+import { useForm, type UseFormReturn } from 'react-hook-form'
 import { addDays } from 'date-fns'
 import { EvidenceEvidenceStatus } from '@repo/codegen/src/schema.ts'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Value } from 'platejs'
+import { type Value } from 'platejs'
 import type { TUploadedFile } from '../upload/types/TUploadedFile'
 
 const commonFields = {

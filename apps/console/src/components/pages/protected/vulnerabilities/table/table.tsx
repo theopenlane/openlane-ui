@@ -2,15 +2,15 @@
 
 import { DataTable } from '@repo/ui/data-table'
 import React, { useEffect, useMemo } from 'react'
-import { VulnerabilityWhereInput, Vulnerability, VulnerabilityOrderField } from '@repo/codegen/src/schema'
+import { type VulnerabilityWhereInput, type Vulnerability, type VulnerabilityOrderField } from '@repo/codegen/src/schema'
 import { getColumns } from '@/components/pages/protected/vulnerabilities/table/columns.tsx'
-import { VulnerabilitiesNodeNonNull, useVulnerabilitiesWithFilter } from '@/lib/graphql-hooks/vulnerability'
+import { type VulnerabilitiesNodeNonNull, useVulnerabilitiesWithFilter } from '@/lib/graphql-hooks/vulnerability'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { useNotification } from '@/hooks/useNotification'
 import { VULNERABILITIES_SORT_FIELDS } from './table-config'
-import { TTableProps } from '@/components/shared/crud-base/page'
+import { type TTableProps } from '@/components/shared/crud-base/page'
 import { objectName, tableKey } from './types'
 
 const TableComponent = ({

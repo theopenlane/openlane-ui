@@ -1,7 +1,7 @@
 'use client'
 
 import { Card } from '@repo/ui/cardpanel'
-import { ControlObjectiveControlSource, ControlObjectiveFieldsFragment, ControlObjectiveObjectiveStatus } from '@repo/codegen/src/schema'
+import { ControlObjectiveControlSource, type ControlObjectiveFieldsFragment, ControlObjectiveObjectiveStatus } from '@repo/codegen/src/schema'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { Archive, FilePenLineIcon, ThumbsUp } from 'lucide-react'
 

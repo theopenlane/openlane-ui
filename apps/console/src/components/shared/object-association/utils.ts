@@ -1,4 +1,4 @@
-import { TAssociationMutationKey, TAssociationUpdateInput, TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap.ts'
+import { type TAssociationMutationKey, type TAssociationUpdateInput, type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap.ts'
 
 export const buildMutationKey = <TPrefix extends 'add' | 'remove', TFieldKey extends string>(prefix: TPrefix, key: TFieldKey): TAssociationMutationKey<TPrefix, TFieldKey> => {
   return `${prefix}${key.charAt(0).toUpperCase()}${key.slice(1)}` as TAssociationMutationKey<TPrefix, TFieldKey>

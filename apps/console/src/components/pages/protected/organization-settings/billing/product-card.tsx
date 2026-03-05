@@ -1,5 +1,5 @@
 'use client'
-import { Price } from '@/types/stripe'
+import { type Price } from '@/types/stripe'
 import { useState } from 'react'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { formatDate } from '@/utils/date'

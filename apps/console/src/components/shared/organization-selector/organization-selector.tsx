@@ -14,7 +14,7 @@ import { Loading } from '../loading/loading'
 import { useOrganization } from '@/hooks/useOrganization'
 import { useGetAllOrganizationsWithMembers } from '@/lib/graphql-hooks/organization'
 import { useQueryClient } from '@tanstack/react-query'
-import { Organization } from '@repo/codegen/src/schema'
+import { type Organization } from '@repo/codegen/src/schema'
 import { Avatar } from '../avatar/avatar'
 import { useParams, usePathname, useRouter } from 'next/navigation'
 

@@ -1,4 +1,4 @@
-import { Metadata } from 'next'
+import { type Metadata } from 'next'
 import { AuthLayout, type AuthLayoutProps } from '../../components/layouts/auth'
 
 export const metadata: Metadata = {

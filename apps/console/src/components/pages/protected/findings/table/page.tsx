@@ -2,14 +2,14 @@
 
 import React from 'react'
 import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
-import { FindingsNodeNonNull, useFinding, useCreateFinding, useUpdateFinding, useCreateBulkCSVFinding, useBulkEditFinding, useBulkDeleteFinding } from '@/lib/graphql-hooks/finding'
+import { type FindingsNodeNonNull, useFinding, useCreateFinding, useUpdateFinding, useCreateBulkCSVFinding, useBulkEditFinding, useBulkDeleteFinding } from '@/lib/graphql-hooks/finding'
 import { useSearchParams } from 'next/navigation'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
 import { breadcrumbs, getFieldsToRender, getFilterFields, visibilityFields } from './table-config'
-import { FindingSheetConfig, FindingTablePageConfig, FindingFieldProps, objectType, objectName, tableKey, exportType, orderFieldEnum, defaultSorting } from './types'
+import { type FindingSheetConfig, type FindingTablePageConfig, type FindingFieldProps, objectType, objectName, tableKey, exportType, orderFieldEnum, defaultSorting } from './types'
 import { getColumns } from './columns'
 import TableComponent from './table'
-import { CreateFindingInput, UpdateFindingInput } from '@repo/codegen/src/schema'
+import { type CreateFindingInput, type UpdateFindingInput } from '@repo/codegen/src/schema'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 
 const FindingPage: React.FC = () => {

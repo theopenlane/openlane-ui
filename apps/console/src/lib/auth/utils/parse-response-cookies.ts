@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server'
+import { type NextResponse } from 'next/server'
 
 const ssoOnlyCookieTokens = new Set(['state', 'nonce', 'user_sso', 'token_id', 'token_type', 'organization_id'])
 

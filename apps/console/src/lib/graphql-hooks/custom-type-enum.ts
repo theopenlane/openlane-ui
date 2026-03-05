@@ -1,20 +1,20 @@
 'use client'
 
-import { useMutation, useQuery, useQueryClient, UseQueryResult, UseMutationResult } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient, type UseQueryResult, type UseMutationResult } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
-import { Option } from '@repo/ui/multiple-selector'
-import { TPagination } from '@repo/ui/pagination-types'
+import { type Option } from '@repo/ui/multiple-selector'
+import { type TPagination } from '@repo/ui/pagination-types'
 import {
-  CustomTypeEnumWhereInput,
-  CreateCustomTypeEnumInput,
-  UpdateCustomTypeEnumInput,
-  GetCustomTypeEnumsQuery,
-  GetCustomTypeEnumsPaginatedQuery,
-  GetCustomTypeEnumByIdQuery,
-  CreateCustomTypeEnumMutation,
-  UpdateCustomTypeEnumMutation,
-  DeleteCustomTypeEnumMutation,
-  GetCustomTypeEnumsPaginatedQueryVariables,
+  type CustomTypeEnumWhereInput,
+  type CreateCustomTypeEnumInput,
+  type UpdateCustomTypeEnumInput,
+  type GetCustomTypeEnumsQuery,
+  type GetCustomTypeEnumsPaginatedQuery,
+  type GetCustomTypeEnumByIdQuery,
+  type CreateCustomTypeEnumMutation,
+  type UpdateCustomTypeEnumMutation,
+  type DeleteCustomTypeEnumMutation,
+  type GetCustomTypeEnumsPaginatedQueryVariables,
 } from '@repo/codegen/src/schema'
 
 import {

@@ -3,15 +3,15 @@ import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { GET_ALL_SUBSCRIBERS, DELETE_SUBSCRIBER, CREATE_CSV_BULK_SUBSCRIBER } from '@repo/codegen/query/subscriber'
 
 import {
-  GetAllSubscribersQuery,
-  DeleteSubscriberMutation,
-  DeleteSubscriberMutationVariables,
-  GetAllSubscribersQueryVariables,
-  Subscriber,
-  CreateBulkCsvSubscriberMutation,
-  CreateBulkCsvSubscriberMutationVariables,
+  type GetAllSubscribersQuery,
+  type DeleteSubscriberMutation,
+  type DeleteSubscriberMutationVariables,
+  type GetAllSubscribersQueryVariables,
+  type Subscriber,
+  type CreateBulkCsvSubscriberMutation,
+  type CreateBulkCsvSubscriberMutationVariables,
 } from '@repo/codegen/src/schema'
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql.ts'
 
 type UseGetAllSubscribersArgs = {

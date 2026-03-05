@@ -1,5 +1,5 @@
 import { type LucideIcon } from 'lucide-react'
-import { PlanEnum } from '@/lib/subscription-plan/plan-enum.ts'
+import { type PlanEnum } from '@/lib/subscription-plan/plan-enum.ts'
 
 export interface NavItem {
   title: string

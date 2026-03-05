@@ -4,14 +4,22 @@ import { useMemo, useState } from 'react'
 import { Label } from '@repo/ui/label'
 import { Input } from '@repo/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
-import { extractTableRows, generateWhere, getPagination, OBJECT_QUERY_CONFIG, ObjectTypeObjects, QueryResponse, TableRow } from '@/components/shared/object-association/object-association-config'
+import {
+  extractTableRows,
+  generateWhere,
+  getPagination,
+  OBJECT_QUERY_CONFIG,
+  ObjectTypeObjects,
+  type QueryResponse,
+  type TableRow,
+} from '@/components/shared/object-association/object-association-config'
 import { useQuery } from '@tanstack/react-query'
 import ObjectAssociationTable from '@/components/shared/object-association/object-association-table'
 import ObjectAssociationPlaceholder from '@/components/shared/object-association/object-association-placeholder'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
-import { TObjectAssociationMap } from './types/TObjectAssociationMap'
+import { type TObjectAssociationMap } from './types/TObjectAssociationMap'
 import { useDebounce } from '@uidotdev/usehooks'
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useSession } from 'next-auth/react'
 import { getInitialPagination } from '@repo/ui/data-table'
@@ -31,7 +39,7 @@ const ObjectAssociation = ({ onIdChange, allowedObjectTypes, initialData, refCod
   const { client } = useGraphQLClient()
   const [selectedObject, setSelectedObject] = useState<ObjectTypeObjects | null>(defaultSelectedObject || null)
   const [searchValue, setSearchValue] = useState('')
-  const [pagination, setPagination] = useState<TPagination>(getInitialPagination(TableKeyEnum.OBJECT_ASSOCIATION, initialPagination))
+  const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(TableKeyEnum.OBJECT_ASSOCIATION, initialPagination))
   const debouncedSearchValue = useDebounce(searchValue, 300)
 
   const selectedConfig = selectedObject ? OBJECT_QUERY_CONFIG[selectedObject] : null

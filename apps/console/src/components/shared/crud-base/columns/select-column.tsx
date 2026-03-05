@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { ColumnDef, Row } from '@tanstack/react-table'
+import { type ColumnDef, type Row } from '@tanstack/react-table'
 import { Checkbox } from '@repo/ui/checkbox'
 import React from 'react'
 

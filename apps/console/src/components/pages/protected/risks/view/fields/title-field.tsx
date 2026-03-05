@@ -1,14 +1,14 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Controller, UseFormReturn } from 'react-hook-form'
+import { Controller, type UseFormReturn } from 'react-hook-form'
 import { FormControl, FormItem, FormLabel } from '@repo/ui/form'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { InfoIcon } from 'lucide-react'
 import { Input } from '@repo/ui/input'
 import { PageHeading } from '@repo/ui/page-heading'
-import { EditRisksFormData } from '@/components/pages/protected/risks/view/hooks/use-form-schema'
-import { UpdateRiskInput } from '@repo/codegen/src/schema'
+import { type EditRisksFormData } from '@/components/pages/protected/risks/view/hooks/use-form-schema'
+import { type UpdateRiskInput } from '@repo/codegen/src/schema'
 import useEscapeKey from '@/hooks/useEscapeKey'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 
