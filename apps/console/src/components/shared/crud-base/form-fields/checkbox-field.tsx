@@ -6,7 +6,7 @@ import { cn } from '@repo/ui/lib/utils'
 import { type FieldValues, useFormContext } from 'react-hook-form'
 import { type InternalEditingType } from '../generic-sheet'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
-import { CloudCog, InfoIcon } from 'lucide-react'
+import { InfoIcon } from 'lucide-react'
 
 interface CheckboxFieldProps {
   name: string
