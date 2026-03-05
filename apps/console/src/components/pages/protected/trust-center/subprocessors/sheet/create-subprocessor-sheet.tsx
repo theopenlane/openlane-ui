@@ -17,10 +17,10 @@ import { useCreateSubprocessor } from '@/lib/graphql-hooks/subprocessor'
 import { NameField } from './form-fields/name-field'
 import { DescriptionField } from './form-fields/description-field'
 import { LogoField } from './form-fields/logo-field'
-import { TUploadedFile } from '@/components/pages/protected/evidence/upload/types/TUploadedFile'
+import { type TUploadedFile } from '@/components/pages/protected/evidence/upload/types/TUploadedFile'
 import { TagsField } from './form-fields/tags-field'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
-import { CreateSubprocessorMutation } from '@repo/codegen/src/schema'
+import { type CreateSubprocessorMutation } from '@repo/codegen/src/schema'
 
 const schema = z
   .object({

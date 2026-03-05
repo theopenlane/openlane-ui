@@ -1,4 +1,4 @@
-import { AuthenticationResponseJSON, RegistrationResponseJSON } from '@simplewebauthn/types'
+import { type AuthenticationResponseJSON, type RegistrationResponseJSON } from '@simplewebauthn/types'
 import useSWR from 'swr'
 
 export interface LoginUser {

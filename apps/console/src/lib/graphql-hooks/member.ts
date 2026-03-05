@@ -4,18 +4,18 @@ import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { UPDATE_USER_ROLE_IN_ORG, REMOVE_USER_FROM_ORG, GET_ORG_MEMBERSHIPS, GET_ORG_USER_LIST } from '@repo/codegen/query/member'
 
 import {
-  UpdateUserRoleInOrgMutation,
-  UpdateUserRoleInOrgMutationVariables,
-  RemoveUserFromOrgMutation,
-  RemoveUserFromOrgMutationVariables,
-  OrgMembershipsQuery,
-  OrgMembershipsQueryVariables,
-  OrgMembershipWhereInput,
-  OrgMembership,
-  User,
-  OrgMembershipsByIdsQuery,
+  type UpdateUserRoleInOrgMutation,
+  type UpdateUserRoleInOrgMutationVariables,
+  type RemoveUserFromOrgMutation,
+  type RemoveUserFromOrgMutationVariables,
+  type OrgMembershipsQuery,
+  type OrgMembershipsQueryVariables,
+  type OrgMembershipWhereInput,
+  type OrgMembership,
+  type User,
+  type OrgMembershipsByIdsQuery,
 } from '@repo/codegen/src/schema'
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 
 export const useUpdateUserRoleInOrg = () => {
   const { client } = useGraphQLClient()

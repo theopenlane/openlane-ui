@@ -1,11 +1,11 @@
-import { FilterField } from '@/types'
+import { type FilterField } from '@/types'
 import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
 import { ObjectNames } from '@repo/codegen/src/type-names'
-import { IdentityHolderQuery, IdentityHolderOrderField } from '@repo/codegen/src/schema'
+import { type IdentityHolderQuery, IdentityHolderOrderField } from '@repo/codegen/src/schema'
 import NameField from '../create/form/fields/name-field'
 import { AdditionalFields } from '../create/form/fields/additional-fields'
 import Properties from '../create/form/fields/properties'
-import { PersonnelFieldProps, EnumOptions } from './types'
+import { type PersonnelFieldProps, type EnumOptions } from './types'
 import { enumToSortFields } from '@/components/shared/crud-base/utils'
 import { IdentityHolderAssociationSection } from '../create/form/fields/association-section'
 import { IdentityHolderDocumentsSection } from '../create/form/fields/documents-section'
@@ -134,7 +134,13 @@ export const getFieldsToRender = (props: PersonnelFieldProps, enumOptions: EnumO
         handleUpdateField={props.handleUpdateField}
         enumOptions={enumOptions}
       />
-      <IdentityHolderDocumentsSection identityHolderId={props.data?.id} isEditAllowed={props.isEditAllowed} isCreate={props.isCreate} onStagedFilesChange={onStagedFilesChange} onExistingFileIdsChange={onExistingFileIdsChange} />
+      <IdentityHolderDocumentsSection
+        identityHolderId={props.data?.id}
+        isEditAllowed={props.isEditAllowed}
+        isCreate={props.isCreate}
+        onStagedFilesChange={onStagedFilesChange}
+        onExistingFileIdsChange={onExistingFileIdsChange}
+      />
       <IdentityHolderAssociationSection data={props.data} isEditing={props.isEditing} isCreate={props.isCreate} isEditAllowed={props.isEditAllowed} />
     </div>
   )

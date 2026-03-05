@@ -1,13 +1,13 @@
 'use client'
 
 import React from 'react'
-import { Controller, UseFormReturn } from 'react-hook-form'
+import { Controller, type UseFormReturn } from 'react-hook-form'
 import PlateEditor from '@/components/shared/plate/plate-editor.tsx'
-import { EditPolicyMetadataFormData } from '@/components/pages/protected/policies/view/hooks/use-form-schema.ts'
-import { InternalPolicyByIdFragment, PolicyDiscussionFieldsFragment } from '@repo/codegen/src/schema.ts'
+import { type EditPolicyMetadataFormData } from '@/components/pages/protected/policies/view/hooks/use-form-schema.ts'
+import { type InternalPolicyByIdFragment, type PolicyDiscussionFieldsFragment } from '@repo/codegen/src/schema.ts'
 import { useSession } from 'next-auth/react'
 import { useGetCurrentUser } from '@/lib/graphql-hooks/user.ts'
-import { Value } from 'platejs'
+import { type Value } from 'platejs'
 
 type TDetailsFieldProps = {
   isEditing: boolean

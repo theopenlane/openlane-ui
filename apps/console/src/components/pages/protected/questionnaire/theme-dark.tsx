@@ -1,4 +1,4 @@
-import { ITheme } from 'survey-core'
+import { type ITheme } from 'survey-core'
 
 const colors = {
   primary: '#60e8c9',

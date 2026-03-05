@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useContext, useEffect, useState } from 'react'
+import React, { use, useEffect, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
@@ -28,7 +28,7 @@ const formSchema = z.object({
 type UpdateFormValues = z.infer<typeof formSchema>
 
 export default function UpdatesSection() {
-  const { setCrumbs } = useContext(BreadcrumbContext)
+  const { setCrumbs } = use(BreadcrumbContext)
   const [editingPostId, setEditingPostId] = useState<string | null>(null)
   const [postToDelete, setPostToDelete] = useState<string | null>(null) // New state for deletion
 
@@ -52,6 +52,7 @@ export default function UpdatesSection() {
     defaultValues: { text: '', title: '' },
   })
 
+  // eslint-disable-next-line react-hooks/incompatible-library
   const createTextValue = createForm.watch('text')
   const editTextValue = editForm.watch('text')
 

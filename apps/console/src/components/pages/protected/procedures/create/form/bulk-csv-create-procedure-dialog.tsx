@@ -8,7 +8,7 @@ import FileUpload from '@/components/shared/file-upload/file-upload'
 import { useNotification } from '@/hooks/useNotification'
 import { useCreateBulkCSVProcedure } from '@/lib/graphql-hooks/procedure'
 import { GRAPHQL_OBJECT_DOCS } from '@/constants/docs'
-import { TUploadedFile } from '../../../evidence/upload/types/TUploadedFile'
+import { type TUploadedFile } from '../../../evidence/upload/types/TUploadedFile'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { Callout } from '@/components/shared/callout/callout'
 import { exportCSV } from '@/lib/export'
@@ -40,7 +40,7 @@ const BulkCSVCreateProcedureDialog: React.FC<TBulkCSVCreateProcedureDialogProps>
     }
 
     try {
-      await createBulkProcedure({ input: uploadedFile.file! })
+      await createBulkProcedure({ input: uploadedFile.file ?? undefined })
       successNotification({
         title: 'Procedure Created',
         description: `Procedure has been successfully created`,
@@ -62,6 +62,7 @@ const BulkCSVCreateProcedureDialog: React.FC<TBulkCSVCreateProcedureDialogProps>
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       {trigger ? (
         <DialogTrigger className="bg-transparent">
+          {/* eslint-disable-next-line @eslint-react/no-clone-element */}
           {cloneElement(trigger, {
             onClick: () => setIsOpen(true),
             disabled: isSubmitting,

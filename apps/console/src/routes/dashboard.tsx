@@ -44,10 +44,10 @@ import {
   CircleHelp,
   ClipboardPenLine,
 } from 'lucide-react'
-import { NavHeading, type NavItem, type Separator } from '@/types'
+import { type NavHeading, type NavItem, type Separator } from '@/types'
 import { PlanEnum } from '@/lib/subscription-plan/plan-enum.ts'
 import { canEdit } from '@/lib/authz/utils'
-import { TPermissionData } from '@/types/authz'
+import { type TPermissionData } from '@/types/authz'
 import type { Session } from 'next-auth'
 import { hasNoModules } from '@/lib/auth/utils/modules'
 

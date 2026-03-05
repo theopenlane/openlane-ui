@@ -1,6 +1,6 @@
 import { FeatureEnum } from './feature-enum'
 import { PlanEnum } from '@/lib/subscription-plan/plan-enum.ts'
-import { OpenlaneProductsResponse } from '@/types/stripe.ts'
+import { type OpenlaneProductsResponse } from '@/types/stripe.ts'
 
 export const featureUtil = {
   notAvailableText: 'Not available in your current plan',

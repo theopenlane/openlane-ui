@@ -1,6 +1,6 @@
 import { Resend } from '@/components/pages/auth/resend-verify/resend'
 import { pageStyles } from './page.styles'
-import { Metadata } from 'next'
+import { type Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Resend Email Verification',

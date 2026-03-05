@@ -1,6 +1,6 @@
 import { auth } from '@/lib/auth/auth'
 import { stripe } from '@/lib/stripe'
-import { ExtendedPhase } from '@/types/stripe'
+import { type ExtendedPhase } from '@/types/stripe'
 import { NextResponse } from 'next/server'
 
 export async function POST(req: Request) {

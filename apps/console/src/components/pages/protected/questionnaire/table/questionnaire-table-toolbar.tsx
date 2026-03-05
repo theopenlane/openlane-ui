@@ -7,16 +7,16 @@ import { getQuestionnaireFilterFields } from '@/components/pages/protected/quest
 import { includeQuestionnaireCreation } from '@repo/dally/auth'
 import { CreateDropdown } from '@/components/pages/protected/questionnaire/create.tsx'
 import Menu from '@/components/shared/menu/menu.tsx'
-import { VisibilityState } from '@tanstack/react-table'
+import { type VisibilityState } from '@tanstack/react-table'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
-import { AssessmentWhereInput, TemplateTemplateKind } from '@repo/codegen/src/schema'
+import { type AssessmentWhereInput, TemplateTemplateKind } from '@repo/codegen/src/schema'
 import { BulkCSVCreateTemplateDialog } from '../dialog/bulk-csv-create-template-dialog'
 import { canCreate } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { Button } from '@repo/ui/button'
 import { TableKeyEnum } from '@repo/ui/table-key'
-import { TAccessRole } from '@/types/authz'
+import { type TAccessRole } from '@/types/authz'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useNotification } from '@/hooks/useNotification'
@@ -76,7 +76,7 @@ const QuestionnaireTableToolbar: React.FC<TQuestionnaireTableToolbarProps> = ({
   const filterFields = useMemo(() => getQuestionnaireFilterFields(tagOptions, templateOptions), [tagOptions, templateOptions])
 
   const createDropdown = () => {
-    if (includeQuestionnaireCreation == 'true' && canCreate(permission?.roles, AccessEnum.CanCreateTemplate)) {
+    if (includeQuestionnaireCreation === 'true' && canCreate(permission?.roles, AccessEnum.CanCreateTemplate)) {
       return <CreateDropdown />
     }
   }

@@ -9,7 +9,7 @@ import React from 'react'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { GenericDeleteDialog } from './dialog/delete-dialog'
-import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { type ObjectTypes } from '@repo/codegen/src/type-names'
 import { toHumanLabel } from '@/utils/strings'
 
 interface GenericSheetHeaderProps {

@@ -21,7 +21,7 @@ const DocumentActions = ({ documentId, watermarkEnabled, filePresignedURL }: Doc
   const { mutateAsync: updateDocument } = useUpdateTrustCenterDoc()
   const { successNotification, errorNotification } = useNotification()
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
-  const [isWatermarkEnabled, setWatermarkEnabled] = useState(watermarkEnabled ?? false)
+  const [isWatermarkEnabled, setIsWatermarkEnabled] = useState(watermarkEnabled ?? false)
   const queryClient = useQueryClient()
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [isPreviewOpen, setIsPreviewOpen] = useState(false)
@@ -142,7 +142,7 @@ const DocumentActions = ({ documentId, watermarkEnabled, filePresignedURL }: Doc
               <Switch
                 checked={isWatermarkEnabled}
                 onCheckedChange={(checked) => {
-                  setWatermarkEnabled(checked)
+                  setIsWatermarkEnabled(checked)
                   handleToggleWatermarkEnabled(checked)
                 }}
               />

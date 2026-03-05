@@ -1,6 +1,6 @@
 import { SearchableSingleSelect } from '@/components/shared/searchableSingleSelect/searchable-single-select'
 import { useGetStandards } from '@/lib/graphql-hooks/standard'
-import { Standard } from '@repo/codegen/src/schema'
+import { type Standard } from '@repo/codegen/src/schema'
 import { FormControl, FormField, FormItem } from '@repo/ui/form'
 import { useFormContext, useWatch, useController } from 'react-hook-form'
 import { useMemo } from 'react'

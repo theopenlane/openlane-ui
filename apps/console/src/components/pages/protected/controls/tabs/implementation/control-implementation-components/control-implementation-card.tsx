@@ -1,7 +1,7 @@
 'use client'
 
 import { Card } from '@repo/ui/cardpanel'
-import { ControlImplementationDocumentStatus, ControlImplementationFieldsFragment } from '@repo/codegen/src/schema'
+import { ControlImplementationDocumentStatus, type ControlImplementationFieldsFragment } from '@repo/codegen/src/schema'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { CheckCircle, XCircle } from 'lucide-react'
 import { formatDate } from '@/utils/date'

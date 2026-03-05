@@ -4,14 +4,14 @@ import React from 'react'
 import { InternalPolicyFrequency } from '@repo/codegen/src/schema.ts'
 import { Card } from '@repo/ui/cardpanel'
 import { Binoculars, Calendar, CalendarCheck2, CalendarClock, ClockArrowUp, FileStack, ScanEye, ScrollText } from 'lucide-react'
-import { Controller, UseFormReturn } from 'react-hook-form'
+import { Controller, type UseFormReturn } from 'react-hook-form'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { FormControl, FormField, FormItem } from '@repo/ui/form'
-import { CreatePolicyFormData } from '@/components/pages/protected/policies/create/hooks/use-form-schema.ts'
+import { type CreatePolicyFormData } from '@/components/pages/protected/policies/create/hooks/use-form-schema.ts'
 import { formatTimeSince } from '@/utils/date'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { InternalPolicyStatusOptions } from '@/components/shared/enum-mapper/policy-enum'
-import { TMetadata } from '@/components/pages/protected/policies/create/form/create-policy-form.tsx'
+import { type TMetadata } from '@/components/pages/protected/policies/create/form/create-policy-form.tsx'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { CustomTypeEnumOptionChip, CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
 
@@ -84,8 +84,8 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form, metadata }) => {
               control={form.control}
               render={({ field }) => (
                 <>
-                  <Select value={field.value!.toString()} onValueChange={(value) => field.onChange(value === 'true')}>
-                    <SelectTrigger className="w-full">{field.value!.toString()}</SelectTrigger>
+                  <Select value={String(field.value ?? false)} onValueChange={(value) => field.onChange(value === 'true')}>
+                    <SelectTrigger className="w-full">{String(field.value ?? false)}</SelectTrigger>
                     <SelectContent>
                       <SelectItem value="true">True</SelectItem>
                       <SelectItem value="false">False</SelectItem>
@@ -112,7 +112,7 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form, metadata }) => {
               render={({ field }) => (
                 <>
                   <Select
-                    value={field.value!.toString()}
+                    value={String(field.value ?? '')}
                     onValueChange={(value) => {
                       field.onChange(value)
                     }}

@@ -14,7 +14,7 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 import { useGetTrustCenterSubprocessorByID, useUpdateTrustCenterSubprocessor } from '@/lib/graphql-hooks/trust-center-subprocessor'
 import { useUpdateSubprocessor } from '@/lib/graphql-hooks/subprocessor'
-import { UpdateSubprocessorInput } from '@repo/codegen/src/schema'
+import { type UpdateSubprocessorInput } from '@repo/codegen/src/schema'
 
 import { CategoryField } from './form-fields/category-field'
 import { CountriesField } from './form-fields/countries-field'
@@ -22,7 +22,7 @@ import { SaveButton } from '@/components/shared/save-button/save-button'
 import { NameField } from './form-fields/name-field'
 import { DescriptionField } from './form-fields/description-field'
 import { LogoField } from './form-fields/logo-field'
-import { TUploadedFile } from '@/components/pages/protected/evidence/upload/types/TUploadedFile'
+import { type TUploadedFile } from '@/components/pages/protected/evidence/upload/types/TUploadedFile'
 import { useCreateCustomTypeEnum, useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { objectToSnakeCase } from '@/utils/strings'
@@ -92,11 +92,9 @@ export const EditTrustCenterSubprocessorSheet: React.FC = () => {
     router.push(params.toString() ? `?${params.toString()}` : '?')
   }
 
-  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     setOpen(!!trustCenterSubprocessorId)
   }, [trustCenterSubprocessorId])
-  /* eslint-enable react-hooks/set-state-in-effect */
 
   useEffect(() => {
     if (!data) return

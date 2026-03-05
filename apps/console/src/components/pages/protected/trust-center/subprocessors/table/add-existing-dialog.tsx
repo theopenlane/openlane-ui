@@ -12,7 +12,7 @@ import { SubprocessorSelectField } from '../sheet/form-fields/subprocessor-selec
 import { CountriesField } from '../sheet/form-fields/countries-field'
 import { CategoryField } from '../sheet/form-fields/category-field'
 import { useCreateTrustCenterSubprocessor } from '@/lib/graphql-hooks/trust-center-subprocessor'
-import { CreateSubprocessorMutation } from '@repo/codegen/src/schema'
+import { type CreateSubprocessorMutation } from '@repo/codegen/src/schema'
 import { useCreateCustomTypeEnum, useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { objectToSnakeCase } from '@/utils/strings'

@@ -7,11 +7,11 @@ import { ChevronDown, Expand } from 'lucide-react'
 import { useAllControlsGrouped } from '@/lib/graphql-hooks/control'
 
 import ControlChip from './shared/control-chip'
-import { ControlWhereInput, SubcontrolWhereInput } from '@repo/codegen/src/schema'
+import { type ControlWhereInput, type SubcontrolWhereInput } from '@repo/codegen/src/schema'
 import { useAllSubcontrolsGrouped } from '@/lib/graphql-hooks/subcontrol'
 import { useFormContext } from 'react-hook-form'
-import { MapControlsFormData } from './use-form-schema'
-import { MapControl } from '@/types'
+import { type MapControlsFormData } from './use-form-schema'
+import { type MapControl } from '@/types'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 interface Props {

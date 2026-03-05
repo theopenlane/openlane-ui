@@ -3,18 +3,18 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { PageHeading } from '@repo/ui/page-heading'
 import GroupsTable from '@/components/pages/protected/groups/components/groups-table'
 import { PlusCircle, SearchIcon } from 'lucide-react'
-import { GetAllGroupsQueryVariables, GroupSettingVisibility, GroupWhereInput } from '@repo/codegen/src/schema'
+import { type GetAllGroupsQueryVariables, type GroupSettingVisibility, type GroupWhereInput } from '@repo/codegen/src/schema'
 import CreateGroupDialog from './components/dialogs/create-group-dialog'
 import GroupDetailsSheet from './components/group-details-sheet'
 import { Input } from '@repo/ui/input'
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import { useSession } from 'next-auth/react'
 import { useDebounce } from '@uidotdev/usehooks'
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import GroupInfiniteCards from '@/components/pages/protected/groups/components/group-infinite-cards.tsx'
 import { Button } from '@repo/ui/button'
-import { VisibilityState } from '@tanstack/react-table'
+import { type VisibilityState } from '@tanstack/react-table'
 import { getGroupTableColumns } from './table/columns'
 import ColumnVisibilityMenu, { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
@@ -23,8 +23,8 @@ import { canCreate } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
-import { TQuickFilter } from '@/components/shared/table-filter/table-filter-helper'
-import { TFilterState } from '@/components/shared/table-filter/filter-storage'
+import { type TQuickFilter } from '@/components/shared/table-filter/table-filter-helper'
+import { type TFilterState } from '@/components/shared/table-filter/filter-storage'
 import { useGroupsFilters } from './table/table-config'
 import { getInitialPagination } from '@repo/ui/data-table'
 import { TableKeyEnum } from '@repo/ui/table-key'
@@ -36,7 +36,7 @@ const GroupsPage = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const { data: session } = useSession()
   const debouncedSearchQuery = useDebounce(searchQuery, 300)
-  const [pagination, setPagination] = useState<TPagination>(getInitialPagination(TableKeyEnum.GROUP, DEFAULT_PAGINATION))
+  const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(TableKeyEnum.GROUP, DEFAULT_PAGINATION))
   const defaultVisibility: VisibilityState = {
     id: false,
     updatedAt: false,
@@ -46,7 +46,7 @@ const GroupsPage = () => {
   }
 
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.GROUP, defaultVisibility))
-  const { setCrumbs } = React.useContext(BreadcrumbContext)
+  const { setCrumbs } = React.use(BreadcrumbContext)
   const { data: permissions } = useOrganizationRoles()
   const filterFields = useGroupsFilters()
   const quickFilters: TQuickFilter[] = useMemo(() => {
@@ -88,8 +88,16 @@ const GroupsPage = () => {
     if (!cond || typeof cond !== 'object') return false
     if ('isManaged' in cond) return true
 
-    if (cond.and?.some(containsIsManaged)) return true
-    if (cond.or?.some(containsIsManaged)) return true
+    const check = (c: GroupWhereInput): boolean => {
+      if (!c || typeof c !== 'object') return false
+      if ('isManaged' in c) return true
+      if (c.and?.some(check)) return true
+      if (c.or?.some(check)) return true
+      return false
+    }
+
+    if (cond.and?.some(check)) return true
+    if (cond.or?.some(check)) return true
     return false
   }, [])
 

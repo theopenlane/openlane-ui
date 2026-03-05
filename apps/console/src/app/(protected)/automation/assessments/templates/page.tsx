@@ -1,6 +1,6 @@
 import { PageHeading } from '@repo/ui/page-heading'
 import { TemplatesTable } from '@/components/pages/protected/questionnaire/template/table/template-table.tsx'
-import { Metadata } from 'next'
+import { type Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Templates',

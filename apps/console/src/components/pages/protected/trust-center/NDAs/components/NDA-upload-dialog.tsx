@@ -1,10 +1,10 @@
 'use client'
 
-import React, { ReactNode, useState } from 'react'
+import React, { type ReactNode, useState } from 'react'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import { Button } from '@repo/ui/button'
 import FileUpload from '@/components/shared/file-upload/file-upload'
-import { TUploadedFile } from '@/components/pages/protected/evidence/upload/types/TUploadedFile'
+import { type TUploadedFile } from '@/components/pages/protected/evidence/upload/types/TUploadedFile'
 import { Loader2 } from 'lucide-react'
 import { useCreateTrustCenterNDA, useUpdateTrustCenterNDA } from '@/lib/graphql-hooks/trust-center-nda-request'
 import { useGetTrustCenter } from '@/lib/graphql-hooks/trust-center'

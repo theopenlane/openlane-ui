@@ -1,7 +1,7 @@
-import { TFilterState } from './filter-storage'
+import { type TFilterState } from './filter-storage'
 import { addDays, format, isSameDay, isValid, startOfDay } from 'date-fns'
 import type { DateRange } from 'react-day-picker'
-import { Condition, FilterField, WhereCondition } from '@/types'
+import { type Condition, type FilterField, type WhereCondition } from '@/types'
 
 // For devs: Only 1 quick filter can be active in same time
 export type TQuickFilter = {

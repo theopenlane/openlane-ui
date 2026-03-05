@@ -1,11 +1,11 @@
-import { ControlWhereInput, SubcontrolWhereInput } from '@repo/codegen/src/schema'
+import { type ControlWhereInput, type SubcontrolWhereInput } from '@repo/codegen/src/schema'
 import React, { useMemo, useState } from 'react'
 import MapControlCategoriesAccordion from './map-control-categories-accordion'
 import { Button } from '@repo/ui/button'
 import { ChevronsDownUp, List } from 'lucide-react'
 import MapControlFrameworksAccordion from './map-control-frameworks-accordion'
 import MapControlResults from './map-control-results'
-import { MapControl } from '@/types'
+import { type MapControl } from '@/types'
 
 interface Props {
   controlData: (

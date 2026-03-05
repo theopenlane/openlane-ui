@@ -1,12 +1,12 @@
 'use client'
 
-import React, { useContext, useEffect, useMemo, useState } from 'react'
+import React, { use, useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { getRiskColumns } from '@/components/pages/protected/risks/table/columns.tsx'
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination.ts'
-import { ExportExportFormat, ExportExportType, GetAllRisksQueryVariables, OrderDirection, RiskOrderField, RiskTableFieldsFragment, RiskWhereInput } from '@repo/codegen/src/schema.ts'
-import { ColumnDef, VisibilityState } from '@tanstack/react-table'
+import { ExportExportFormat, ExportExportType, type GetAllRisksQueryVariables, OrderDirection, RiskOrderField, type RiskTableFieldsFragment, type RiskWhereInput } from '@repo/codegen/src/schema.ts'
+import { type ColumnDef, type VisibilityState } from '@tanstack/react-table'
 import { useDebounce } from '@uidotdev/usehooks'
 import { useRisks } from '@/lib/graphql-hooks/risk'
 import { PageHeading } from '@repo/ui/page-heading'
@@ -32,9 +32,9 @@ const RiskTable: React.FC = () => {
 
   const [searchQuery, setSearchQuery] = useStorageSearch(ObjectTypes.RISK)
   const [filters, setFilters] = useState<RiskWhereInput | null>(null)
-  const [pagination, setPagination] = useState<TPagination>(getInitialPagination(TableKeyEnum.RISK, DEFAULT_PAGINATION))
+  const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(TableKeyEnum.RISK, DEFAULT_PAGINATION))
   const [selectedRisks, setSelectedRisks] = useState<{ id: string }[]>([])
-  const { setCrumbs } = useContext(BreadcrumbContext)
+  const { setCrumbs } = use(BreadcrumbContext)
   const { data: permission } = useOrganizationRoles()
   const { handleExport } = useFileExport()
   const { errorNotification } = useNotification()

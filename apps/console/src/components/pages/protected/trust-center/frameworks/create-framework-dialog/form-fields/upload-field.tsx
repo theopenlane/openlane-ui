@@ -5,7 +5,7 @@ import { useFormContext } from 'react-hook-form'
 import { Label } from '@repo/ui/label'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { Eye } from 'lucide-react'
-import { TUploadedFile } from '@/components/pages/protected/evidence/upload/types/TUploadedFile'
+import { type TUploadedFile } from '@/components/pages/protected/evidence/upload/types/TUploadedFile'
 import { normalizeUrl } from '@/utils/normalizeUrl'
 
 export const UploadField = ({ initialUrl }: { initialUrl?: string | null }) => {

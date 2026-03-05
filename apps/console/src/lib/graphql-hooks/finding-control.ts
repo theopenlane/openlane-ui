@@ -1,21 +1,21 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
-  FindingControlsWithFilterQuery,
-  FindingControlsWithFilterQueryVariables,
-  CreateFindingControlMutation,
-  CreateFindingControlMutationVariables,
-  UpdateFindingControlMutation,
-  UpdateFindingControlMutationVariables,
-  DeleteFindingControlMutation,
-  DeleteFindingControlMutationVariables,
-  FindingControlQuery,
-  FindingControlQueryVariables,
-  CreateBulkCsvFindingControlMutation,
-  CreateBulkCsvFindingControlMutationVariables,
+  type FindingControlsWithFilterQuery,
+  type FindingControlsWithFilterQueryVariables,
+  type CreateFindingControlMutation,
+  type CreateFindingControlMutationVariables,
+  type UpdateFindingControlMutation,
+  type UpdateFindingControlMutationVariables,
+  type DeleteFindingControlMutation,
+  type DeleteFindingControlMutationVariables,
+  type FindingControlQuery,
+  type FindingControlQueryVariables,
+  type CreateBulkCsvFindingControlMutation,
+  type CreateBulkCsvFindingControlMutationVariables,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 import { GET_ALL_FINDING_CONTROLS, CREATE_FINDING_CONTROL, UPDATE_FINDING_CONTROL, DELETE_FINDING_CONTROL, FINDING_CONTROL, CREATE_CSV_BULK_FINDING_CONTROL } from '@repo/codegen/query/finding-control'
 
 type GetAllFindingControlsArgs = {

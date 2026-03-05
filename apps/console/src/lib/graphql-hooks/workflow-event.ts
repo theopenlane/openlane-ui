@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
-import { WorkflowEventsWithFilterQuery, WorkflowEventsWithFilterQueryVariables, WorkflowEventQuery, WorkflowEventQueryVariables } from '@repo/codegen/src/schema'
+import { type WorkflowEventsWithFilterQuery, type WorkflowEventsWithFilterQueryVariables, type WorkflowEventQuery, type WorkflowEventQueryVariables } from '@repo/codegen/src/schema'
 
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 import { GET_ALL_WORKFLOW_EVENTS, WORKFLOW_EVENT } from '@repo/codegen/query/workflow-event'
 
 type GetAllWorkflowEventsArgs = {

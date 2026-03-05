@@ -2,14 +2,14 @@
 
 import React from 'react'
 import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
-import { ScansNodeNonNull, useScan, useCreateScan, useUpdateScan, useCreateBulkCSVScan, useBulkEditScan, useBulkDeleteScan } from '@/lib/graphql-hooks/scan'
+import { type ScansNodeNonNull, useScan, useCreateScan, useUpdateScan, useCreateBulkCSVScan, useBulkEditScan, useBulkDeleteScan } from '@/lib/graphql-hooks/scan'
 import { useSearchParams } from 'next/navigation'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
 import { breadcrumbs, getFieldsToRender, getFilterFields, visibilityFields } from './table-config'
-import { ScanSheetConfig, ScanTablePageConfig, ScanFieldProps, objectType, objectName, tableKey, orderFieldEnum, defaultSorting } from './types'
+import { type ScanSheetConfig, type ScanTablePageConfig, type ScanFieldProps, objectType, objectName, tableKey, orderFieldEnum, defaultSorting } from './types'
 import { getColumns } from './columns'
 import TableComponent from './table'
-import { CreateScanInput, ScanScanStatus, ScanScanType, UpdateScanInput } from '@repo/codegen/src/schema'
+import { type CreateScanInput, ScanScanStatus, ScanScanType, type UpdateScanInput } from '@repo/codegen/src/schema'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 

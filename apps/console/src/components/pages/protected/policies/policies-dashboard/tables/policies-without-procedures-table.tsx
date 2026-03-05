@@ -3,16 +3,16 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { Button } from '@repo/ui/button'
 import { DataTable, getInitialPagination } from '@repo/ui/data-table'
-import { ColumnDef } from '@tanstack/table-core'
+import { type ColumnDef } from '@tanstack/table-core'
 import { useGetInternalPolicyAssociationsById, useGetInternalPolicyDetailsById, useInternalPolicies } from '@/lib/graphql-hooks/internal-policy'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 import { formatDate } from '@/utils/date'
-import { InternalPolicyWhereInput } from '@repo/codegen/src/schema'
+import { type InternalPolicyWhereInput } from '@repo/codegen/src/schema'
 import { wherePoliciesDashboard } from '../dashboard-config'
 import SetObjectAssociationPoliciesDialog from '../../modal/set-object-association-modal'
 import { usePolicy } from '../../create/hooks/use-policy'
-import { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
+import { type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
 import Link from 'next/link'
 import { TableKeyEnum } from '@repo/ui/table-key'
 
@@ -24,7 +24,7 @@ type FormattedPolicy = {
 }
 
 export default function PoliciesWithoutProceduresTable() {
-  const [pagination, setPagination] = useState<TPagination>(
+  const [pagination, setPagination] = useState<TPagination>(() =>
     getInitialPagination(TableKeyEnum.POLICY_WITHOUT_PROCEDURE, {
       ...DEFAULT_PAGINATION,
       pageSize: 5,

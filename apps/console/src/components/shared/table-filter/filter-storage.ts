@@ -1,8 +1,8 @@
-import { TableKeyValue } from '@repo/ui/table-key'
-import { FilterField } from '@/types'
+import { type TableKeyValue } from '@repo/ui/table-key'
+import { type FilterField } from '@/types'
 import type { DateRange } from 'react-day-picker'
 import { isValid } from 'date-fns'
-import { TQuickFilter } from '@/components/shared/table-filter/table-filter-helper.ts'
+import { type TQuickFilter } from '@/components/shared/table-filter/table-filter-helper.ts'
 
 export type TNumberRange = { min: number; max: number }
 export type TFilterValue = string | string[] | number | boolean | Date | DateRange | { from?: Date; to?: Date } | TNumberRange | undefined

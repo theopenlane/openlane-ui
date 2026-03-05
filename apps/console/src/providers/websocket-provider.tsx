@@ -1,7 +1,7 @@
 'use client'
 
-import { createContext, useContext, useEffect, useState, ReactNode, useRef, useCallback } from 'react'
-import { createClient, Client } from 'graphql-ws'
+import { createContext, use, useEffect, useState, type ReactNode, useRef, useCallback } from 'react'
+import { createClient, type Client } from 'graphql-ws'
 import { useSession } from 'next-auth/react'
 import { websocketGQLUrl } from '@repo/dally/auth'
 
@@ -20,7 +20,7 @@ const WebSocketContext = createContext<WebSocketContextType>({
 })
 
 export function useWebSocketClient() {
-  return useContext(WebSocketContext)
+  return use(WebSocketContext)
 }
 
 interface WebSocketProviderProps {
@@ -124,7 +124,7 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
   }, [token, status, hasFatalError, disposeClient])
 
   return (
-    <WebSocketContext.Provider
+    <WebSocketContext
       value={{
         client,
         isConnected,
@@ -133,6 +133,6 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
       }}
     >
       {children}
-    </WebSocketContext.Provider>
+    </WebSocketContext>
   )
 }

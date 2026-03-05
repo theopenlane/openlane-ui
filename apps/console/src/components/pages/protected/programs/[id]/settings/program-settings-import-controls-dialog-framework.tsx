@@ -1,6 +1,6 @@
 'use client'
 import { useGetStandards } from '@/lib/graphql-hooks/standard'
-import { ControlWhereInput, Standard } from '@repo/codegen/src/schema'
+import { type ControlWhereInput, type Standard } from '@repo/codegen/src/schema'
 import React, { useMemo, useState } from 'react'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { statCardStyles } from '@/components/shared/stats-cards/stats-cards-styles'
@@ -10,11 +10,11 @@ import { Label } from '@repo/ui/label'
 import { DataTable, getInitialPagination } from '@repo/ui/data-table'
 import { Button } from '@repo/ui/button'
 import { useAllControlsGroupedWithListFields } from '@/lib/graphql-hooks/control'
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useDebounce } from '@uidotdev/usehooks'
 import { Input } from '@repo/ui/input'
-import { SelectedItem, TSharedImportControlsComponentsPropsFrameworks } from '../shared/program-settings-import-controls-shared-props'
+import { type SelectedItem, type TSharedImportControlsComponentsPropsFrameworks } from '../shared/program-settings-import-controls-shared-props'
 import { getColumnsForImportControlsDialogFramework } from '../program-tasks-table/columns'
 import { TableKeyEnum } from '@repo/ui/table-key'
 
@@ -26,7 +26,7 @@ const ImportControlsDialogFramework = ({ setSelectedItems, selectedItems, select
   const { wrapper, content } = statCardStyles({ color: 'green' })
   const [customSelected, setCustomSelected] = useState(false)
 
-  const [pagination, setPagination] = useState<TPagination>(
+  const [pagination, setPagination] = useState<TPagination>(() =>
     getInitialPagination(TableKeyEnum.PROGRAM_SETTINGS_IMPORT_CONTROLS, {
       ...DEFAULT_PAGINATION,
       page: 1,
@@ -63,7 +63,7 @@ const ImportControlsDialogFramework = ({ setSelectedItems, selectedItems, select
   const customControlsData = useAllControlsGroupedWithListFields({ where: { referenceFrameworkIsNil: true } })
   const customControls = customControlsData.allControls
   const handleCheckboxShowToggle = () => {
-    setShowCheckboxes((prev) => (prev = !prev))
+    setShowCheckboxes((prev) => !prev)
   }
 
   const tableData: SelectedItem[] = useMemo(() => {

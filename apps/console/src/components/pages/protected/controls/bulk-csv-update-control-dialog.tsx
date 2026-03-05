@@ -8,7 +8,7 @@ import FileUpload from '@/components/shared/file-upload/file-upload'
 import { useNotification } from '@/hooks/useNotification'
 import { exportCSV } from '@/lib/export'
 import { useUpdateBulkCSVControl } from '@/lib/graphql-hooks/control'
-import { TUploadedFile } from '../evidence/upload/types/TUploadedFile'
+import { type TUploadedFile } from '../evidence/upload/types/TUploadedFile'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { GRAPHQL_OBJECT_DOCS } from '@/constants/docs'
 import { Callout } from '@/components/shared/callout/callout'
@@ -36,7 +36,7 @@ const BulkCSVUpdateControlDialog: React.FC<BulkCSVUpdateControlDialogProps> = ({
     }
 
     try {
-      await updateBulkControl({ input: uploadedFile.file! })
+      await updateBulkControl({ input: uploadedFile.file ?? new File([], '') })
       successNotification({
         title: 'Controls Updated',
         description: `Controls have been successfully updated`,
@@ -63,6 +63,7 @@ const BulkCSVUpdateControlDialog: React.FC<BulkCSVUpdateControlDialogProps> = ({
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       {trigger ? (
         <DialogTrigger asChild className="bg-transparent self-start">
+          {/* eslint-disable-next-line @eslint-react/no-clone-element */}
           {cloneElement(trigger, {
             onClick: () => setIsOpen(true),
             disabled: isSubmitting,

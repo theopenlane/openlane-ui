@@ -1,19 +1,19 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
-  ReviewsWithFilterQuery,
-  ReviewsWithFilterQueryVariables,
-  CreateReviewMutation,
-  CreateReviewMutationVariables,
-  UpdateReviewMutation,
-  UpdateReviewMutationVariables,
-  DeleteReviewMutation,
-  DeleteReviewMutationVariables,
-  ReviewQuery,
-  ReviewQueryVariables,
+  type ReviewsWithFilterQuery,
+  type ReviewsWithFilterQueryVariables,
+  type CreateReviewMutation,
+  type CreateReviewMutationVariables,
+  type UpdateReviewMutation,
+  type UpdateReviewMutationVariables,
+  type DeleteReviewMutation,
+  type DeleteReviewMutationVariables,
+  type ReviewQuery,
+  type ReviewQueryVariables,
 } from '@repo/codegen/src/schema'
 
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 import { GET_ALL_REVIEWS, CREATE_REVIEW, UPDATE_REVIEW, DELETE_REVIEW, REVIEW } from '@repo/codegen/query/review'
 
 type GetAllReviewsArgs = {

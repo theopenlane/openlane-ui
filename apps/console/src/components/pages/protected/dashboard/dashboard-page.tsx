@@ -20,7 +20,7 @@ const DashboardPage: React.FC = () => {
   const searchParams = useSearchParams()
   const programId = searchParams.get('id')
   const [, setSelectedProgram] = useState<string>('All programs')
-  const { setCrumbs } = React.useContext(BreadcrumbContext)
+  const { setCrumbs } = React.use(BreadcrumbContext)
 
   const { data, isLoading } = useGetAllPrograms({
     where: {

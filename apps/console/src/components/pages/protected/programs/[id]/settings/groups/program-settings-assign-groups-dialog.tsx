@@ -6,8 +6,8 @@ import { Button } from '@repo/ui/button'
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import { useUpdateProgram } from '@/lib/graphql-hooks/program'
 import { DataTable, getInitialPagination } from '@repo/ui/data-table'
-import { ColumnDef } from '@tanstack/react-table'
-import { TPagination } from '@repo/ui/pagination-types'
+import { type ColumnDef } from '@tanstack/react-table'
+import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useQueryClient } from '@tanstack/react-query'
 import { useGetAllGroups } from '@/lib/graphql-hooks/group'
@@ -34,7 +34,7 @@ export const ProgramSettingsAssignGroupDialog = () => {
   const [searchValue, setSearchValue] = useState('')
   const [selectedItems, setSelectedItems] = useState<{ id: string }[]>([])
   const [roleMap, setRoleMap] = useState<Record<string, 'View' | 'Edit'>>({})
-  const [pagination, setPagination] = useState<TPagination>(
+  const [pagination, setPagination] = useState<TPagination>(() =>
     getInitialPagination(TableKeyEnum.GROUP_PROGRAM_SETTINGS, {
       ...DEFAULT_PAGINATION,
       pageSize: 5,
@@ -56,14 +56,14 @@ export const ProgramSettingsAssignGroupDialog = () => {
             {
               hasProgramEditorsWith: [
                 {
-                  idIn: [id!],
+                  idIn: [id ?? ''],
                 },
               ],
             },
             {
               hasProgramViewersWith: [
                 {
-                  idIn: [id!],
+                  idIn: [id ?? ''],
                 },
               ],
             },

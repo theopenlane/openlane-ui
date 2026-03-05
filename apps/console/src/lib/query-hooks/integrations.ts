@@ -1,5 +1,5 @@
 import { useNotification } from '@/hooks/useNotification'
-import { IntegrationProvidersResponse } from '@/components/pages/protected/organization-settings/integrations/config'
+import { type IntegrationProvidersResponse } from '@/components/pages/protected/organization-settings/integrations/config'
 import { useQuery } from '@tanstack/react-query'
 import { useEffect } from 'react'
 
