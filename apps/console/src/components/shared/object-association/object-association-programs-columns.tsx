@@ -65,16 +65,14 @@ export const getProgramsColumns = ({ selectedRefCodeMap, frameworks, setSelected
     {
       accessorKey: 'name',
       header: 'Program',
-      meta: {
-        className: 'max-w-[40%] w-[30%]',
-      },
+      size: 160,
+      maxSize: 160,
       enableResizing: false,
       cell: ({ row }) => <span className="block truncate whitespace-nowrap">{row.original.name}</span>,
     },
     {
       accessorKey: 'description',
       header: 'Description',
-      size: 0,
       enableResizing: false,
       cell: ({ row }) => <div className="line-clamp-2 overflow-hidden">{convertToReadOnly(row.original.description ?? '', 0)}</div>,
     },
