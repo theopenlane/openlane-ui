@@ -19,8 +19,6 @@ import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-butto
 import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-enum-select/creatable-custom-type-enum-select'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { objectToSnakeCase } from '@/utils/strings'
-import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
-import { canEdit } from '@/lib/authz/utils'
 
 export enum SelectOptionBulkEditTrustCenterDocs {
   CATEGORY = 'Category',
@@ -48,12 +46,9 @@ export const BulkEditTrustCenterDocsDialog: React.FC<Props> = ({ selectedDocs, s
   const [open, setOpen] = useState(false)
   const { mutateAsync: bulkEditDocs } = useBulkUpdateTrustCenterDocs()
   const { successNotification, errorNotification } = useNotification()
-  const { data: orgPermission } = useOrganizationRoles()
-  const canEditOrg = canEdit(orgPermission?.roles)
   const { enumOptions: categoryOptions, onCreateOption: createCategory } = useCreatableEnumOptions({
     objectType: objectToSnakeCase(ObjectTypes.TRUST_CENTER_DOC),
     field: 'kind',
-    isEditAllowed: canEditOrg,
   })
 
   const form = useForm<BulkEditDialogFormValues>({

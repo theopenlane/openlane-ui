@@ -30,8 +30,6 @@ import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-butto
 import { CustomTypeEnumOptionChip, CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
 import { BulkEditTagField } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-tag-field'
 import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-enum-select/creatable-custom-type-enum-select'
-import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
-import { canEdit } from '@/lib/authz/utils'
 
 const fieldItemSchema = z.object({
   value: z.nativeEnum(SelectOptionBulkEditTasks).optional(),
@@ -80,13 +78,9 @@ export const BulkEditTasksDialog: React.FC<BulkEditTasksDialogProps> = ({ select
       label: `${member?.node?.user?.displayName}`,
     }))
   }, [membersData])
-  const { data: orgPermission } = useOrganizationRoles()
-  const canEditOrg = canEdit(orgPermission?.roles)
-
   const { enumOptions: taskKindOptions, onCreateOption: createTaskType } = useCreatableEnumOptions({
     objectType: 'task',
     field: 'kind',
-    isEditAllowed: canEditOrg,
   })
 
   const allOptionSelects = useMemo(() => {

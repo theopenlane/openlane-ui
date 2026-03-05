@@ -29,8 +29,6 @@ import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-butto
 import { CustomTypeEnumOptionChip, CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
 import { BulkEditTagField } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-tag-field'
 import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-enum-select/creatable-custom-type-enum-select'
-import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
-import { canEdit } from '@/lib/authz/utils'
 
 const fieldItemSchema = z.object({
   value: z.nativeEnum(SelectOptionBulkEditRisks).optional(),
@@ -73,9 +71,6 @@ export const BulkEditRisksDialog: React.FC<BulkEditRisksDialogProps> = ({ select
     if (!data) return
     return data?.groups?.edges?.map((edge) => edge?.node) || []
   }, [data])
-  const { data: orgPermission } = useOrganizationRoles()
-  const canEditOrg = canEdit(orgPermission?.roles)
-
   const {
     enumOptions: typeOptions,
     onCreateOption: createRiskType,
@@ -83,7 +78,6 @@ export const BulkEditRisksDialog: React.FC<BulkEditRisksDialogProps> = ({ select
   } = useCreatableEnumOptions({
     objectType: 'risk',
     field: 'kind',
-    isEditAllowed: canEditOrg,
   })
 
   const {
@@ -93,7 +87,6 @@ export const BulkEditRisksDialog: React.FC<BulkEditRisksDialogProps> = ({ select
   } = useCreatableEnumOptions({
     objectType: 'risk',
     field: 'category',
-    isEditAllowed: canEditOrg,
   })
 
   const allOptionSelects = useMemo(() => {

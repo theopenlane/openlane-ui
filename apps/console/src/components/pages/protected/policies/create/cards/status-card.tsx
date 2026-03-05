@@ -14,8 +14,6 @@ import { InternalPolicyStatusOptions } from '@/components/shared/enum-mapper/pol
 import { TMetadata } from '@/components/pages/protected/policies/create/form/create-policy-form.tsx'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-enum-select/creatable-custom-type-enum-select'
-import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
-import { canEdit } from '@/lib/authz/utils'
 
 type TStatusCardProps = {
   form: UseFormReturn<CreatePolicyFormData>
@@ -24,8 +22,6 @@ type TStatusCardProps = {
 
 const StatusCard: React.FC<TStatusCardProps> = ({ form, metadata }) => {
   const statusOptions = InternalPolicyStatusOptions
-  const { data: orgPermission } = useOrganizationRoles()
-  const canEditOrg = canEdit(orgPermission?.roles)
   const {
     enumOptions,
     onCreateOption,
@@ -33,7 +29,6 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form, metadata }) => {
   } = useCreatableEnumOptions({
     objectType: 'internal_policy',
     field: 'kind',
-    isEditAllowed: canEditOrg,
   })
   const reviewFrequencyOptions = Object.values(InternalPolicyFrequency).map((value) => ({
     label: value.charAt(0) + value.slice(1).toLowerCase(),

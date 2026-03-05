@@ -14,8 +14,6 @@ import { ProcedureStatusOptions } from '@/components/shared/enum-mapper/policy-e
 import { TMetadata } from '@/components/pages/protected/procedures/create/form/create-procedure-form.tsx'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-enum-select/creatable-custom-type-enum-select'
-import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
-import { canEdit } from '@/lib/authz/utils'
 
 type TStatusCardProps = {
   form: UseFormReturn<CreateProcedureFormData>
@@ -30,9 +28,6 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form, metadata }) => {
     value,
   }))
 
-  const { data: orgPermission } = useOrganizationRoles()
-  const canEditOrg = canEdit(orgPermission?.roles)
-
   const {
     enumOptions,
     onCreateOption,
@@ -40,7 +35,6 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form, metadata }) => {
   } = useCreatableEnumOptions({
     objectType: 'procedure',
     field: 'kind',
-    isEditAllowed: canEditOrg,
   })
 
   return (
