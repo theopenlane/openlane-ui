@@ -25,8 +25,6 @@ export const CheckboxField: React.FC<CheckboxFieldProps> = ({ name, label, isEdi
   const { control } = useFormContext()
   const disabled = !isEditAllowed
 
-  console.log(disabled)
-
   return (
     <FormField
       control={control}
