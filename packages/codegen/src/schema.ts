@@ -68312,6 +68312,7 @@ export type GetProgramGroupsQuery = {
         node?: {
           __typename?: 'Group'
           name: string
+          displayName: string
           id: string
           gravatarLogoURL?: string | null
           logoURL?: string | null
@@ -68327,6 +68328,7 @@ export type GetProgramGroupsQuery = {
         node?: {
           __typename?: 'Group'
           name: string
+          displayName: string
           id: string
           gravatarLogoURL?: string | null
           logoURL?: string | null

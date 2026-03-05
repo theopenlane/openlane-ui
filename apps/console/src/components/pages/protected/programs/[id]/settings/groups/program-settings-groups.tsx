@@ -64,14 +64,14 @@ export const ProgramSettingsGroups = () => {
     return [
       ...((viewers.map((edge) => ({
         id: edge?.node?.id,
-        name: edge?.node?.name,
+        name: edge?.node?.displayName ?? edge?.node?.name,
         membersCount: edge?.node?.members.totalCount,
         role: 'Viewer',
         group: edge?.node,
       })) as GroupRow[]) || []),
       ...((editors.map((edge) => ({
         id: edge?.node?.id,
-        name: edge?.node?.name,
+        name: edge?.node?.displayName ?? edge?.node?.name,
         membersCount: edge?.node?.members.totalCount,
         role: 'Editor',
         group: edge?.node,

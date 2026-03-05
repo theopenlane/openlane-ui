@@ -286,6 +286,7 @@ export const GET_PROGRAM_GROUPS = gql`
         edges {
           node {
             name
+            displayName
             id
             gravatarLogoURL
             logoURL
@@ -300,6 +301,7 @@ export const GET_PROGRAM_GROUPS = gql`
         edges {
           node {
             name
+            displayName
             id
             gravatarLogoURL
             logoURL
