@@ -36,12 +36,7 @@ const commonFields = {
   internalPolicyIDs: z.array(z.string()).optional().nullable(),
   procedureIDs: z.array(z.string()).optional().nullable(),
   riskIDs: z.array(z.string()).optional().nullable(),
-  status: z
-    .nativeEnum(EvidenceEvidenceStatus, {
-      errorMap: () => ({ message: 'Invalid status' }),
-    })
-    .optional()
-    .nullable(),
+  status: z.nativeEnum(EvidenceEvidenceStatus).optional() as z.ZodType<EvidenceEvidenceStatus | null | undefined>,
 }
 
 const createFormSchema = z.object({
