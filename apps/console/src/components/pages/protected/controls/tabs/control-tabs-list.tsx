@@ -9,6 +9,9 @@ const CONTROL_TABS = [
   { value: 'linked-controls', label: 'Linked Controls' },
   { value: 'guidance', label: 'Guidance' },
   { value: 'documentation', label: 'Documentation' },
+  { value: 'assets-scans', label: 'Assets + Scans' },
+  { value: 'findings-risks', label: 'Findings + Risks' },
+  { value: 'reviews', label: 'Reviews' },
   { value: 'activity', label: 'Activity' },
 ]
 

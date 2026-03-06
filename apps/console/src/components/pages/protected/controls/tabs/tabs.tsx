@@ -10,6 +10,9 @@ import LinkedControlsTab from '@/components/pages/protected/controls/tabs/linked
 import GuidanceTab from '@/components/pages/protected/controls/tabs/guidance/guidance-tab'
 import DocumentationTab from '@/components/pages/protected/controls/tabs/documentation/documentation-tab'
 import ActivityTab from '@/components/pages/protected/controls/tabs/activity/activity-tab'
+import AssetsScansTab from '@/components/pages/protected/controls/tabs/assets-scans/assets-scans-tab'
+import FindingsRisksTab from '@/components/pages/protected/controls/tabs/findings-risks/findings-risks-tab'
+import ReviewsTab from '@/components/pages/protected/controls/tabs/reviews/reviews-tab'
 import ScrollableTabsList from '@/components/pages/protected/controls/tabs/scrollable-tabs-list'
 import ControlTabsList from '@/components/pages/protected/controls/tabs/control-tabs-list'
 import { useGetControlAssociationsById, type ControlByIdNode } from '@/lib/graphql-hooks/control'
@@ -27,11 +30,11 @@ type SubcontrolTabsProps = {
 }
 
 type TabsProps = ControlTabsProps | SubcontrolTabsProps
-type ControlTabValue = 'implementation' | 'evidence' | 'linked-controls' | 'guidance' | 'documentation' | 'activity'
+type ControlTabValue = 'implementation' | 'evidence' | 'linked-controls' | 'guidance' | 'documentation' | 'assets-scans' | 'findings-risks' | 'reviews' | 'activity'
 
 const DEFAULT_TAB: ControlTabValue = 'implementation'
 const TAB_QUERY_PARAM = 'tab'
-const ALL_TABS: ControlTabValue[] = ['implementation', 'evidence', 'linked-controls', 'guidance', 'documentation', 'activity']
+const ALL_TABS: ControlTabValue[] = ['implementation', 'evidence', 'linked-controls', 'guidance', 'documentation', 'assets-scans', 'findings-risks', 'reviews', 'activity']
 
 const ControlDetailsTabs: React.FC<TabsProps> = (props) => {
   const router = useRouter()
@@ -171,6 +174,18 @@ const ControlDetailsTabs: React.FC<TabsProps> = (props) => {
 
       <TabsContent value="documentation" className="space-y-6">
         <DocumentationTab controlId={isSubcontrol ? (subcontrol?.control?.id ?? '') : (control?.id ?? '')} subcontrolIds={subcontrolIds} />
+      </TabsContent>
+
+      <TabsContent value="assets-scans" className="space-y-6">
+        <AssetsScansTab controlId={isSubcontrol ? (subcontrol?.control?.id ?? '') : (control?.id ?? '')} subcontrolIds={subcontrolIds} />
+      </TabsContent>
+
+      <TabsContent value="findings-risks" className="space-y-6">
+        <FindingsRisksTab controlId={isSubcontrol ? (subcontrol?.control?.id ?? '') : (control?.id ?? '')} subcontrolIds={subcontrolIds} />
+      </TabsContent>
+
+      <TabsContent value="reviews" className="space-y-6">
+        <ReviewsTab controlId={isSubcontrol ? (subcontrol?.control?.id ?? '') : (control?.id ?? '')} subcontrolIds={subcontrolIds} />
       </TabsContent>
 
       <TabsContent value="activity" className="space-y-6">
