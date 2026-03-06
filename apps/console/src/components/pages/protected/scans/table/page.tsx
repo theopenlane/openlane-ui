@@ -9,15 +9,24 @@ import { breadcrumbs, getFieldsToRender, getFilterFields, visibilityFields } fro
 import { ScanSheetConfig, ScanTablePageConfig, ScanFieldProps, objectType, objectName, tableKey, orderFieldEnum, defaultSorting } from './types'
 import { getColumns } from './columns'
 import TableComponent from './table'
-import { CreateScanInput, ScanScanStatus, ScanScanType, UpdateScanInput } from '@repo/codegen/src/schema'
+import { CreateScanInput, ScanQuery, ScanScanStatus, ScanScanType, UpdateScanInput } from '@repo/codegen/src/schema'
+import { normalizeEntityData, buildResponsibilityPayload } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+
+const normalizeData = (data: ScanQuery['scan']) =>
+  normalizeEntityData(data, {
+    assignedTo: { user: data?.assignedToUser, group: data?.assignedToGroup, stringValue: data?.assignedTo },
+    performedBy: { user: data?.performedByUser, group: data?.performedByGroup, stringValue: data?.performedBy },
+    reviewedBy: { user: data?.reviewedByUser, group: data?.reviewedByGroup, stringValue: data?.reviewedBy },
+  })
 
 const ScanPage: React.FC = () => {
   const { form } = useFormSchema()
 
   const searchParams = useSearchParams()
   const id = searchParams.get('id')
+  const isCreate = searchParams.get('create') === 'true'
   const { data, isLoading } = useScan(id || undefined)
 
   function getName(scan: ScansNodeNonNull) {
@@ -98,7 +107,17 @@ const ScanPage: React.FC = () => {
     isFetching: isLoading,
     updateMutation,
     createMutation,
-    buildPayload: async (data) => data,
+    normalizeData,
+    buildPayload: async (data) => {
+      const { assignedTo, performedBy, reviewedBy, ...rest } = data
+      const mode = isCreate ? 'create' : 'update'
+      return {
+        ...rest,
+        ...buildResponsibilityPayload('assignedTo', assignedTo, { mode }),
+        ...buildResponsibilityPayload('performedBy', performedBy, { mode }),
+        ...buildResponsibilityPayload('reviewedBy', reviewedBy, { mode }),
+      }
+    },
     getName,
     renderFields: (props: ScanFieldProps) => getFieldsToRender(props, enumOpts, enumCreateHandlers),
   }

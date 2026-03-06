@@ -90,6 +90,7 @@ export const getFieldsToRender = (props: ScanFieldProps, enumOptions: EnumOption
       <AdditionalFields
         isEditing={props.isEditing}
         isEditAllowed={props.isEditAllowed}
+        isCreate={props.isCreate}
         data={props.data}
         internalEditing={props.internalEditing}
         setInternalEditing={props.setInternalEditing}
