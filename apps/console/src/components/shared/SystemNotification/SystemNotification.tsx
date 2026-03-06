@@ -43,6 +43,12 @@ export default function SystemNotificationTracker({ open, onOpenChange }: System
 
   const { data: exportData } = useGetAllExports({ where: { idIn: exportIDs } })
 
+  const sortedNotifications = useMemo(() => {
+    return [...notifications].sort((a, b) => {
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    })
+  }, [notifications])
+
   return (
     <div className="mx-auto max-w-3xl">
       <div className="relative" ref={bellRef}>
@@ -68,7 +74,7 @@ export default function SystemNotificationTracker({ open, onOpenChange }: System
 
                 <div className="overflow-y-auto p-2 custom-scrollbar">
                   <div className="flex flex-col gap-1">
-                    {notifications.length === 0 ? (
+                    {sortedNotifications.length === 0 ? (
                       <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
                         <div className="mb-3 rounded-full bg-muted p-3">
                           <Bell className="h-6 w-6 text-muted-foreground" />
@@ -78,7 +84,7 @@ export default function SystemNotificationTracker({ open, onOpenChange }: System
                       </div>
                     ) : (
                       <>
-                        {notifications.map((n) =>
+                        {sortedNotifications.map((n) =>
                           exportIDs.includes(n.data?.export_id) ? (
                             <ExportRow key={n.id} notification={n} exportData={exportData?.exports.edges?.find((e) => e?.node?.id === n.data?.export_id)?.node} onRead={markAsRead} />
                           ) : (
