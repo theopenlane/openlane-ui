@@ -24,7 +24,7 @@ const formSchema = z.object({
 })
 
 type FormData = z.infer<typeof formSchema>
-type ContactSuggestion = { email: string; label: string; source: 'contact' | 'personnel' }
+type ContactSuggestion = { email: string; label: string }
 
 type SendQuestionnaireDialogProps = {
   open: boolean
@@ -75,7 +75,6 @@ export const SendQuestionnaireDialog = ({ open, onOpenChange, assessmentId, asse
       .map((c) => ({
         email: c.email!,
         label: c.fullName ? `${c.fullName} (${c.email})` : c.email!,
-        source: 'contact' as const,
       }))
 
     const contactEmails = new Set(contactSuggestions.map((s) => s.email.toLowerCase()))
@@ -84,7 +83,6 @@ export const SendQuestionnaireDialog = ({ open, onOpenChange, assessmentId, asse
       .map((p) => ({
         email: p.email,
         label: p.fullName ? `${p.fullName} (${p.email})` : p.email,
-        source: 'personnel' as const,
       }))
 
     return [...contactSuggestions, ...personnelSuggestions]
