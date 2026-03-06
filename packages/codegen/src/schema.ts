@@ -69195,8 +69195,6 @@ export type ScansWithFilterQuery = {
       node?: {
         __typename?: 'Scan'
         assignedTo?: string | null
-        assignedToGroupID?: string | null
-        assignedToUserID?: string | null
         createdAt?: any | null
         createdBy?: string | null
         environmentID?: string | null
@@ -69206,11 +69204,7 @@ export type ScansWithFilterQuery = {
         metadata?: any | null
         nextScanRunAt?: string | null
         performedBy?: string | null
-        performedByGroupID?: string | null
-        performedByUserID?: string | null
         reviewedBy?: string | null
-        reviewedByGroupID?: string | null
-        reviewedByUserID?: string | null
         scanDate?: string | null
         scanSchedule?: string | null
         scanType: ScanScanType
@@ -69220,6 +69214,12 @@ export type ScansWithFilterQuery = {
         target: string
         updatedAt?: any | null
         updatedBy?: string | null
+        assignedToUser?: { __typename?: 'User'; id: string; displayName: string } | null
+        assignedToGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
+        performedByUser?: { __typename?: 'User'; id: string; displayName: string } | null
+        performedByGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
+        reviewedByUser?: { __typename?: 'User'; id: string; displayName: string } | null
+        reviewedByGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
@@ -69235,8 +69235,6 @@ export type ScanQuery = {
   scan: {
     __typename?: 'Scan'
     assignedTo?: string | null
-    assignedToGroupID?: string | null
-    assignedToUserID?: string | null
     createdAt?: any | null
     createdBy?: string | null
     environmentID?: string | null
@@ -69246,11 +69244,7 @@ export type ScanQuery = {
     metadata?: any | null
     nextScanRunAt?: string | null
     performedBy?: string | null
-    performedByGroupID?: string | null
-    performedByUserID?: string | null
     reviewedBy?: string | null
-    reviewedByGroupID?: string | null
-    reviewedByUserID?: string | null
     scanDate?: string | null
     scanSchedule?: string | null
     scanType: ScanScanType
@@ -69260,6 +69254,12 @@ export type ScanQuery = {
     target: string
     updatedAt?: any | null
     updatedBy?: string | null
+    assignedToUser?: { __typename?: 'User'; id: string; displayName: string } | null
+    assignedToGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
+    performedByUser?: { __typename?: 'User'; id: string; displayName: string } | null
+    performedByGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
+    reviewedByUser?: { __typename?: 'User'; id: string; displayName: string } | null
+    reviewedByGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
   }
 }
 

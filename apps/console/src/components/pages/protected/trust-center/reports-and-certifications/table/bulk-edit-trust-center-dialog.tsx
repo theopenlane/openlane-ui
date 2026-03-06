@@ -106,7 +106,13 @@ export const BulkEditTrustCenterDocsDialog: React.FC<Props> = ({ selectedDocs, s
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={(value) => {
+        if (!value) replace([])
+        setOpen(value)
+      }}
+    >
       <FormProvider {...form}>
         <DialogTrigger asChild>
           <Button disabled={selectedDocs.length === 0} icon={<Pencil />} iconPosition="left" variant="secondary">
@@ -115,7 +121,7 @@ export const BulkEditTrustCenterDocsDialog: React.FC<Props> = ({ selectedDocs, s
         </DialogTrigger>
 
         <form onSubmit={handleSubmit(onSubmit)}>
-          <DialogContent onOpenAutoFocus={(e) => e.preventDefault()} className="max-w-[580px]">
+          <DialogContent onOpenAutoFocus={(e) => e.preventDefault()} className="max-w-145">
             <DialogHeader>
               <DialogTitle>Bulk Edit Documents</DialogTitle>
             </DialogHeader>

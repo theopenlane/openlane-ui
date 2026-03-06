@@ -3,7 +3,7 @@ import { tv, type VariantProps } from 'tailwind-variants'
 export const separatorStyles = tv({
   slots: {
     base: 'w-full flex items-center uppercase',
-    line: 'flex-1 h-px bg-separator bg-opacity-60 mx-4',
+    line: 'flex-1 h-px bg-separator/60 mx-4',
     horizontal: 'w-full h-px bg-separator my-2',
     text: 'opacity-80 text-sm text-text-dark px-4',
     vertical: 'bg-separator w-px h-10',
@@ -11,13 +11,13 @@ export const separatorStyles = tv({
   variants: {
     full: {
       true: {
-        line: 'flex-1 h-px bg-separator bg-opacity-60 mx-0',
+        line: 'flex-1 h-px bg-separator/60 mx-0',
       },
     },
     programStep: {
       true: {
         base: 'w-6 flex items-center uppercase',
-        line: 'w-6 h-0.5 bg-separator bg-opacity-60 mx-0',
+        line: 'w-6 h-0.5 bg-separator/60 mx-0',
       },
     },
     login: {

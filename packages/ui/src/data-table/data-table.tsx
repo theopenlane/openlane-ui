@@ -12,6 +12,7 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
+  Header,
   OnChangeFn,
   Row,
   Table as TanstackTable,
@@ -19,12 +20,16 @@ import {
   VisibilityState,
 } from '@tanstack/react-table'
 
+import { DndContext, closestCenter, type DragEndEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
+import { SortableContext, horizontalListSortingStrategy, useSortable, arrayMove } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../table/table'
 import { Button } from '../button/button'
 import { memo, ReactElement, type CSSProperties, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Input } from '../input/input'
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from '../dropdown-menu/dropdown-menu'
-import { ArrowDown, ArrowUp, ArrowUpDown, EyeIcon } from 'lucide-react'
+import { ArrowDown, ArrowUp, ArrowUpDown, EyeIcon, GripVertical } from 'lucide-react'
 import { OrderDirection } from '@repo/codegen/src/schema.ts'
 import Pagination from '../pagination/pagination'
 import { TPagination, TPaginationMeta } from '../pagination/types'
@@ -77,6 +82,7 @@ type DataTableProps<TData, TValue> = BaseDataTableProps<TData, TValue> & TSticky
 
 export const STORAGE_SORTING_KEY_PREFIX = 'sorting:'
 export const STORAGE_PAGINATION_KEY_PREFIX = 'pagination:'
+export const STORAGE_COLUMN_ORDER_KEY_PREFIX = 'column-order:'
 export type SortCondition<TField extends string> = {
   field: TField
   direction: OrderDirection
@@ -103,6 +109,18 @@ export function getInitialSortConditions<TField extends string>(
   }
 
   return defaultSortFields
+}
+
+export function getInitialColumnOrder(tableKey: TableKeyValue): string[] {
+  if (typeof window !== 'undefined') {
+    const stored = localStorage.getItem(`${STORAGE_COLUMN_ORDER_KEY_PREFIX}${tableKey}`)
+    if (stored) {
+      try {
+        return JSON.parse(stored)
+      } catch {}
+    }
+  }
+  return []
 }
 
 const normalizeKey = (key: string) => key.replace(/_/g, '').toLowerCase()
@@ -165,12 +183,104 @@ function redistributeColumnWidths(visibleColumns: VisibleColumnInfo[], currentSi
 const AUTO_MIN_SIZE_CHAR_WIDTH = 8
 const AUTO_MIN_SIZE_PADDING = 24
 const AUTO_MIN_SIZE_SORT_ICON = 24
+const AUTO_MIN_SIZE_GRIP_ICON = 18
 
 function calcHeaderTextMinSize(header: unknown, hasSortField: boolean): number | undefined {
   if (typeof header !== 'string') return undefined
   const textWidth = (header.length + 2) * AUTO_MIN_SIZE_CHAR_WIDTH + AUTO_MIN_SIZE_PADDING
   const sortWidth = hasSortField ? AUTO_MIN_SIZE_SORT_ICON : 0
-  return Math.max(60, textWidth + sortWidth)
+  return Math.max(60, textWidth + sortWidth + AUTO_MIN_SIZE_GRIP_ICON)
+}
+
+const NON_REORDERABLE_COLUMNS = new Set(['select'])
+
+interface SortableHeaderCellProps<TData> {
+  header: Header<TData, unknown>
+  sortField: { key: string; label: string } | undefined
+  sorting: OrderDirection | undefined
+  handleSortChange: (field: string) => void
+  isLastHeader: boolean
+}
+
+function SortableHeaderCell<TData>({ header, sortField, sorting, handleSortChange, isLastHeader }: SortableHeaderCellProps<TData>) {
+  const isDragDisabled = NON_REORDERABLE_COLUMNS.has(header.column.id)
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: header.column.id, disabled: isDragDisabled })
+  const columnCssKey = cssVarKey(header.column.id)
+  const columnWidth = `var(--col-${columnCssKey})`
+  const isResizing = header.column.getIsResizing()
+  const ariaSort = sorting === OrderDirection.ASC ? 'ascending' : sorting === OrderDirection.DESC ? 'descending' : 'none'
+
+  const style: CSSProperties = {
+    position: 'relative',
+    width: columnWidth,
+    minWidth: columnWidth,
+    transform: CSS.Translate.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  }
+
+  return (
+    <TableHead variant="data" ref={setNodeRef} style={style} aria-sort={ariaSort}>
+      {header.isPlaceholder ? null : (
+        <div className="flex items-center gap-1">
+          {!isDragDisabled && (
+            <button
+              type="button"
+              className="flex items-center cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 -ml-1 shrink-0"
+              {...attributes}
+              {...listeners}
+            >
+              <GripVertical size={14} />
+            </button>
+          )}
+          <div
+            onClick={() => sortField?.key && handleSortChange(sortField.key)}
+            className={cn('flex items-center gap-1 select-none', sortField ? 'cursor-pointer' : 'cursor-default')}
+            style={{ flex: '1 1 auto' }}
+            title={sortField ? `Sort by ${sortField.label}` : undefined}
+            role={sortField ? 'button' : undefined}
+            aria-disabled={!sortField}
+            tabIndex={sortField ? 0 : -1}
+            onKeyDown={(event) => {
+              if (!sortField) return
+              if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault()
+                handleSortChange(sortField.key)
+              }
+            }}
+          >
+            {flexRender(header.column.columnDef.header, header.getContext())}
+            {sortField &&
+              (sorting === OrderDirection.ASC ? (
+                <ArrowUp size={16} className="text-primary" />
+              ) : sorting === OrderDirection.DESC ? (
+                <ArrowDown size={16} className="text-primary" />
+              ) : (
+                <ArrowUpDown size={16} className="text-gray-400" />
+              ))}
+          </div>
+        </div>
+      )}
+      {!isLastHeader && (
+        <div
+          onDoubleClick={() => header.column.resetSize()}
+          onMouseDown={header.getResizeHandler()}
+          onTouchStart={header.getResizeHandler()}
+          className={cn(
+            'absolute right-0 top-0 h-full w-3 cursor-col-resize z-10 group/resizer select-none touch-none',
+            'flex items-center justify-center',
+            'opacity-80 hover:opacity-100 focus-visible:opacity-100',
+            isResizing && 'opacity-100',
+          )}
+          role="separator"
+          aria-orientation="vertical"
+          aria-label={`Resize ${header.column.id} column`}
+        >
+          <div className={cn('h-3/5 w-px rounded-full transition duration-150', isResizing ? 'bg-primary' : 'bg-[var(--color-border)] opacity-70 group-hover/resizer:opacity-100')} />
+        </div>
+      )}
+    </TableHead>
+  )
 }
 
 export function DataTable<TData, TValue>({
@@ -199,6 +309,9 @@ export function DataTable<TData, TValue>({
   const [sortConditions, setSortConditions] = useState<{ field: string; direction?: OrderDirection }[]>(defaultSorting ?? [])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [rowSelection, setRowSelection] = useState({})
+  const [columnOrder, setColumnOrder] = useState<string[]>(() => (tableKey ? getInitialColumnOrder(tableKey) : []))
+
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }))
 
   const currentPage = pagination?.page || 1
   const currentPageSize = pagination?.pageSize || 10
@@ -235,18 +348,14 @@ export function DataTable<TData, TValue>({
 
   const handleSortChange = (field: string) => {
     setSortConditions((prev) => {
-      const existingIndex = prev.findIndex((sc) => sc.field === field)
-      const newSortConditions = [...prev]
-
-      if (existingIndex === -1) {
-        newSortConditions.push({ field, direction: OrderDirection.ASC })
-      } else if (newSortConditions[existingIndex].direction === OrderDirection.ASC) {
-        newSortConditions[existingIndex] = { field, direction: OrderDirection.DESC }
+      const existing = prev.find((sc) => sc.field === field)
+      if (!existing) {
+        return [{ field, direction: OrderDirection.ASC }]
+      } else if (existing.direction === OrderDirection.ASC) {
+        return [{ field, direction: OrderDirection.DESC }]
       } else {
-        newSortConditions.splice(existingIndex, 1)
+        return []
       }
-
-      return newSortConditions
     })
   }
 
@@ -356,6 +465,7 @@ export function DataTable<TData, TValue>({
     state: {
       columnFilters,
       columnVisibility,
+      columnOrder,
       rowSelection,
       columnSizing: columnSizes,
       pagination: {
@@ -372,6 +482,21 @@ export function DataTable<TData, TValue>({
   tableRef.current = table
   containerWidthRef.current = containerWidth
   columnSizesRef.current = columnSizes
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+
+    setColumnOrder((prev) => {
+      const currentOrder = prev.length > 0 ? prev : table.getAllLeafColumns().map((c) => c.id)
+      const oldIndex = currentOrder.indexOf(active.id as string)
+      const newIndex = currentOrder.indexOf(over.id as string)
+      const reordered = arrayMove(currentOrder, oldIndex, newIndex)
+      const pinned = reordered.filter((id) => NON_REORDERABLE_COLUMNS.has(id))
+      const rest = reordered.filter((id) => !NON_REORDERABLE_COLUMNS.has(id))
+      return [...pinned, ...rest]
+    })
+  }
 
   useLayoutEffect(() => {
     if (containerWidth <= 0) return
@@ -477,6 +602,12 @@ export function DataTable<TData, TValue>({
     }
   }, [onSortChange, sortConditions, tableKey])
 
+  useEffect(() => {
+    if (typeof window !== 'undefined' && tableKey && columnOrder.length > 0) {
+      localStorage.setItem(`${STORAGE_COLUMN_ORDER_KEY_PREFIX}${tableKey}`, JSON.stringify(columnOrder))
+    }
+  }, [columnOrder, tableKey])
+
   return (
     <>
       <div className="relative">
@@ -536,76 +667,30 @@ export function DataTable<TData, TValue>({
                 width: containerWidth > 0 ? Math.max(containerWidth, table.getTotalSize()) : undefined,
               }}
             >
-              <TableHeader variant="data">
-                {table.getHeaderGroups().map((headerGroup) => (
-                  <TableRow variant="data" key={headerGroup.id}>
-                    {headerGroup.headers.map((header, index) => {
-                      const sortField = sortFields?.find((sf) => normalizeKey(sf.key) === normalizeKey(header.column.id))
-                      const columnCssKey = cssVarKey(header.column.id)
-                      const columnWidth = `var(--col-${columnCssKey})`
-                      const isResizing = header.column.getIsResizing()
-                      const sorting = sortConditions.find((sc) => sc.field === sortField?.key)?.direction || undefined
-                      const ariaSort = sorting === OrderDirection.ASC ? 'ascending' : sorting === OrderDirection.DESC ? 'descending' : 'none'
-                      return (
-                        <TableHead variant="data" key={`${header.id}-${index}`} style={{ position: 'relative', width: columnWidth, minWidth: columnWidth }} aria-sort={ariaSort}>
-                          {header.isPlaceholder ? null : (
-                            <div className="flex items-center gap-1">
-                              {/* Sorting Area */}
-                              <div
-                                onClick={() => sortField?.key && handleSortChange(sortField.key)}
-                                className={cn('flex items-center gap-1 select-none', sortField ? 'cursor-pointer' : 'cursor-default')}
-                                style={{ flex: '1 1 auto' }}
-                                title={sortField ? `Sort by ${sortField.label}` : undefined}
-                                role={sortField ? 'button' : undefined}
-                                aria-disabled={!sortField}
-                                tabIndex={sortField ? 0 : -1}
-                                onKeyDown={(event) => {
-                                  if (!sortField) return
-                                  if (event.key === 'Enter' || event.key === ' ') {
-                                    event.preventDefault()
-                                    handleSortChange(sortField.key)
-                                  }
-                                }}
-                              >
-                                {flexRender(header.column.columnDef.header, header.getContext())}
-                                {sortField &&
-                                  (sorting === OrderDirection.ASC ? (
-                                    <ArrowUp size={16} />
-                                  ) : sorting === OrderDirection.DESC ? (
-                                    <ArrowDown size={16} />
-                                  ) : (
-                                    <ArrowUpDown size={16} className="text-gray-400" />
-                                  ))}
-                              </div>
-                            </div>
-                          )}
-                          {/* Resizing Area */}
-                          {index < headerGroup.headers.length - 1 && (
-                            <div
-                              onDoubleClick={() => header.column.resetSize()}
-                              onMouseDown={header.getResizeHandler()}
-                              onTouchStart={header.getResizeHandler()}
-                              className={cn(
-                                'absolute right-0 top-0 h-full w-3 cursor-col-resize z-10 group/resizer select-none touch-none',
-                                'flex items-center justify-center',
-                                'opacity-80 hover:opacity-100 focus-visible:opacity-100',
-                                isResizing && 'opacity-100',
-                              )}
-                              role="separator"
-                              aria-orientation="vertical"
-                              aria-label={`Resize ${header.column.id} column`}
-                            >
-                              <div
-                                className={cn('h-3/5 w-px rounded-full transition duration-150', isResizing ? 'bg-primary' : 'bg-[var(--color-border)] opacity-70 group-hover/resizer:opacity-100')}
-                              />
-                            </div>
-                          )}
-                        </TableHead>
-                      )
-                    })}
-                  </TableRow>
-                ))}
-              </TableHeader>
+              <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                <TableHeader variant="data">
+                  {table.getHeaderGroups().map((headerGroup) => (
+                    <SortableContext key={headerGroup.id} items={headerGroup.headers.map((h) => h.column.id)} strategy={horizontalListSortingStrategy}>
+                      <TableRow variant="data" key={headerGroup.id}>
+                        {headerGroup.headers.map((header, index) => {
+                          const sortField = sortFields?.find((sf) => normalizeKey(sf.key) === normalizeKey(header.column.id))
+                          const sorting = sortConditions.find((sc) => sc.field === sortField?.key)?.direction || undefined
+                          return (
+                            <SortableHeaderCell
+                              key={header.id}
+                              header={header}
+                              sortField={sortField}
+                              sorting={sorting}
+                              handleSortChange={handleSortChange}
+                              isLastHeader={index >= headerGroup.headers.length - 1}
+                            />
+                          )
+                        })}
+                      </TableRow>
+                    </SortableContext>
+                  ))}
+                </TableHeader>
+              </DndContext>
               {columnSizingInfo.isResizingColumn ? (
                 <MemoizedDataTableBody table={table} onRowClick={onRowClick} loading={loading} noDataMarkup={noDataMarkup} noResultsText={noResultsText} />
               ) : (
@@ -696,10 +781,11 @@ interface DataTableBodyContentProps<TData> {
 }
 
 function DataTableBodyContent<TData>({ table, onRowClick, loading, noDataMarkup, noResultsText }: DataTableBodyContentProps<TData>) {
+  const columnOrderKey = table.getState().columnOrder.join(',')
   return (
     <TableBody variant="data">
       {table.getRowModel().rows?.length ? (
-        table.getRowModel().rows.map((row) => <DataRow key={row.id} row={row} onRowClick={onRowClick} cssVarKey={cssVarKey} columns={table.options.columns} />)
+        table.getRowModel().rows.map((row) => <DataRow key={`${row.id}-${columnOrderKey}`} row={row} onRowClick={onRowClick} cssVarKey={cssVarKey} columns={table.options.columns} />)
       ) : (
         <NoData loading={loading} columns={table.getAllLeafColumns()} noDataMarkup={noDataMarkup} noResultsText={noResultsText} />
       )}
@@ -708,5 +794,5 @@ function DataTableBodyContent<TData>({ table, onRowClick, loading, noDataMarkup,
 }
 
 const MemoizedDataTableBody = memo(DataTableBodyContent, (prev, next) => {
-  return prev.table.options.data === next.table.options.data
+  return prev.table.options.data === next.table.options.data && prev.table.getState().columnOrder === next.table.getState().columnOrder
 }) as typeof DataTableBodyContent

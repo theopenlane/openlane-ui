@@ -2,6 +2,7 @@
 
 import { TextField } from '@/components/shared/crud-base/form-fields/text-field'
 import { SelectField } from '@/components/shared/crud-base/form-fields/select-field'
+import { ResponsibilityField } from '@/components/shared/crud-base/form-fields/responsibility-field'
 import { UpdateScanInput } from '@repo/codegen/src/schema'
 import { FieldValues } from 'react-hook-form'
 import { InternalEditingType } from '@/components/shared/crud-base/generic-sheet'
@@ -93,11 +94,41 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
         </CardHeader>
         <CardContent>
           <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-2">
-            <TextField name="assignedTo" label="Assigned To" {...sharedFieldProps} />
-            <TextField name="performedBy" label="Performed By" {...sharedFieldProps} />
+            <ResponsibilityField
+              name="assignedTo"
+              fieldBaseName="assignedTo"
+              label="Assigned To"
+              isEditing={isEditing}
+              isEditAllowed={isEditAllowed}
+              isCreate={isCreate}
+              internalEditing={internalEditing}
+              setInternalEditing={setInternalEditing}
+              handleUpdate={handleUpdateField ? (input) => handleUpdateField(input as UpdateScanInput) : undefined}
+            />
+            <ResponsibilityField
+              name="performedBy"
+              fieldBaseName="performedBy"
+              label="Performed By"
+              isEditing={isEditing}
+              isEditAllowed={isEditAllowed}
+              isCreate={isCreate}
+              internalEditing={internalEditing}
+              setInternalEditing={setInternalEditing}
+              handleUpdate={handleUpdateField ? (input) => handleUpdateField(input as UpdateScanInput) : undefined}
+            />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-            <TextField name="reviewedBy" label="Reviewed By" {...sharedFieldProps} />
+            <ResponsibilityField
+              name="reviewedBy"
+              fieldBaseName="reviewedBy"
+              label="Reviewed By"
+              isEditing={isEditing}
+              isEditAllowed={isEditAllowed}
+              isCreate={isCreate}
+              internalEditing={internalEditing}
+              setInternalEditing={setInternalEditing}
+              handleUpdate={handleUpdateField ? (input) => handleUpdateField(input as UpdateScanInput) : undefined}
+            />
           </div>
         </CardContent>
       </Card>

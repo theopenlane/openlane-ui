@@ -14,6 +14,7 @@ import { Form, FormField, FormItem, FormControl, FormMessage } from '@repo/ui/fo
 import { useNotification } from '@/hooks/useNotification'
 import { useCreateAssessmentResponse } from '@/lib/graphql-hooks/assessment'
 import { useContacts } from '@/lib/graphql-hooks/contact'
+import { useIdentityHoldersWithFilter } from '@/lib/graphql-hooks/identity-holder'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { computeDueDate } from '@/utils/date'
 import { isValidEmail } from '@/lib/validators'
@@ -59,15 +60,33 @@ export const SendQuestionnaireDialog = ({ open, onOpenChange, assessmentId, asse
     enabled: open && debouncedSearch.length >= MIN_SEARCH_LENGTH,
   })
 
+  const { identityHoldersNodes: personnel } = useIdentityHoldersWithFilter({
+    where: {
+      or: [{ emailContainsFold: debouncedSearch }, { fullNameContainsFold: debouncedSearch }],
+    },
+    enabled: open && debouncedSearch.length >= MIN_SEARCH_LENGTH,
+  })
+
   const suggestions = useMemo<ContactSuggestion[]>(() => {
     const addedEmails = new Set(emails.map((e) => e.toLowerCase()))
-    return (contacts ?? [])
+
+    const contactSuggestions: ContactSuggestion[] = (contacts ?? [])
       .filter((c) => c.email && !addedEmails.has(c.email.toLowerCase()))
       .map((c) => ({
         email: c.email!,
         label: c.fullName ? `${c.fullName} (${c.email})` : c.email!,
       }))
-  }, [contacts, emails])
+
+    const contactEmails = new Set(contactSuggestions.map((s) => s.email.toLowerCase()))
+    const personnelSuggestions: ContactSuggestion[] = (personnel ?? [])
+      .filter((p) => p.email && !addedEmails.has(p.email.toLowerCase()) && !contactEmails.has(p.email.toLowerCase()))
+      .map((p) => ({
+        email: p.email,
+        label: p.fullName ? `${p.fullName} (${p.email})` : p.email,
+      }))
+
+    return [...contactSuggestions, ...personnelSuggestions]
+  }, [contacts, personnel, emails])
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -279,18 +298,18 @@ export const SendQuestionnaireDialog = ({ open, onOpenChange, assessmentId, asse
                         />
                         {showSuggestions && normalizeEmail(inputValue).length >= MIN_SEARCH_LENGTH && suggestions.length > 0 && (
                           <div className="absolute z-50 mt-1 w-full rounded-md border bg-popover shadow-md">
-                            <ul className="max-h-[200px] overflow-y-auto p-1">
+                            <ul className="max-h-50 overflow-y-auto p-1">
                               {suggestions.map((s) => (
                                 <li key={s.email}>
                                   <button
                                     type="button"
-                                    className="w-full rounded-xs px-2 py-1.5 text-left text-sm hover:bg-muted transition-colors cursor-default"
+                                    className="w-full rounded-xs px-2 py-1.5 text-left text-sm hover:bg-muted transition-colors cursor-default flex items-center justify-between gap-2"
                                     onMouseDown={(e) => {
                                       e.preventDefault()
                                       selectContact(s.email)
                                     }}
                                   >
-                                    {s.label}
+                                    <span>{s.label}</span>
                                   </button>
                                 </li>
                               ))}

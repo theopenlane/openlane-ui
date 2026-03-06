@@ -38,6 +38,8 @@ import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import PlateEditor from '@/components/shared/plate/plate-editor'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
+import { EvidenceEvidenceStatus } from '@repo/codegen/src/schema'
 
 type TEvidenceCreateSheetProps = {
   formData?: TFormEvidenceData
@@ -98,6 +100,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
       subcontrolIDs: data.subcontrolIDs,
       programIDs: programId ? [programId] : (data.programIDs ?? []),
       ...(data.url ? { url: data.url } : {}),
+      ...(data.status ? { status: data.status } : {}),
     }
 
     const payload = {
@@ -353,6 +356,40 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
                             <Input variant="medium" {...field} className="w-full" />
                           </FormControl>
                           {form.formState.errors.source && <p className="text-red-500 text-sm">{form.formState.errors.source.message}</p>}
+                        </FormItem>
+                      )}
+                    />
+                  </InputRow>
+
+                  {/* Status Field */}
+                  <InputRow className="w-full">
+                    <FormField
+                      control={form.control}
+                      name="status"
+                      render={({ field }) => (
+                        <FormItem className="w-full">
+                          <div className="flex items-center">
+                            <FormLabel>Status</FormLabel>
+                          </div>
+                          <FormControl>
+                            <Select value={field.value ?? undefined} onValueChange={(val) => field.onChange(val === 'none' ? undefined : val)}>
+                              <SelectTrigger className="w-full">
+                                <SelectValue placeholder="Select status..." />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="none">None</SelectItem>
+                                {Object.values(EvidenceEvidenceStatus).map((status) => (
+                                  <SelectItem key={status} value={status}>
+                                    {status
+                                      .toLowerCase()
+                                      .replace(/_/g, ' ')
+                                      .replace(/\b\w/g, (c) => c.toUpperCase())}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                          {form.formState.errors.status && <p className="text-red-500 text-sm">{form.formState.errors.status.message}</p>}
                         </FormItem>
                       )}
                     />

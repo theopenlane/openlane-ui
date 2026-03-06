@@ -152,7 +152,13 @@ export const BulkEditTasksDialog: React.FC<BulkEditTasksDialogProps> = ({ select
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={(value) => {
+        if (!value) replace([])
+        setOpen(value)
+      }}
+    >
       <FormProvider {...form}>
         <DialogTrigger asChild>
           <Button disabled={selectedTasks.length === 0} icon={<Pencil />} iconPosition="left" variant="secondary">
@@ -160,7 +166,7 @@ export const BulkEditTasksDialog: React.FC<BulkEditTasksDialogProps> = ({ select
           </Button>
         </DialogTrigger>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <DialogContent onOpenAutoFocus={(e) => e.preventDefault()} className="max-w-[580px]">
+          <DialogContent onOpenAutoFocus={(e) => e.preventDefault()} className="max-w-145">
             <DialogHeader>
               <DialogTitle>Bulk edit</DialogTitle>
             </DialogHeader>
