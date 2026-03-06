@@ -5,23 +5,18 @@ import { PageHeading } from '@repo/ui/page-heading'
 import dynamic from 'next/dynamic'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { Edit, Send, Trash2 } from 'lucide-react'
-import { useDeleteAssessment, useCreateAssessmentResponse, useGetAssessment } from '@/lib/graphql-hooks/assessment'
+import { useDeleteAssessment, useGetAssessment } from '@/lib/graphql-hooks/assessment'
 import { useCreateTemplate } from '@/lib/graphql-hooks/template'
 import { useNotification } from '@/hooks/useNotification'
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from '@repo/ui/alert-dialog'
 import { Button } from '@repo/ui/button'
-import { Form, FormField, FormItem, FormControl, FormMessage } from '@repo/ui/form'
-import { useForm, SubmitHandler } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
-import { Input } from '@repo/ui/input'
 import { canEdit } from '@/lib/authz/utils'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { computeDueDate } from '@/utils/date'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { TemplateDocumentType } from '@repo/codegen/src/schema'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { SendQuestionnaireDialog } from './dialog/send-questionnaire-dialog'
 
 const ViewQuestionnaire = dynamic(() => import('@/components/pages/protected/questionnaire/questionnaire-viewer'), {
   ssr: false,
@@ -37,7 +32,6 @@ const QuestionnaireViewerPage: React.FC = () => {
 
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: deleteAssessment } = useDeleteAssessment()
-  const { mutateAsync: createAssessmentResponse } = useCreateAssessmentResponse()
   const { mutateAsync: createTemplate } = useCreateTemplate()
   const { data: assessmentData } = useGetAssessment(existingId)
 
@@ -49,39 +43,8 @@ const QuestionnaireViewerPage: React.FC = () => {
   const questionnaire = assessmentData?.assessment
   const hasTemplate = !!questionnaire?.templateID
 
-  const formSchema = z.object({
-    email: z.string().email({ message: 'Invalid email address' }),
-  })
-
-  const form = useForm({
-    resolver: zodResolver(formSchema),
-    defaultValues: { email: '' },
-  })
-
   const handleEdit = () => {
     router.push(`/automation/assessments/questionnaire-editor?id=${existingId}`)
-  }
-
-  const handleSend: SubmitHandler<{ email: string }> = async (data) => {
-    try {
-      const dueDate = computeDueDate(questionnaire?.responseDueDuration)
-      await createAssessmentResponse({
-        input: {
-          email: data.email,
-          assessmentID: existingId,
-          ...(dueDate && { dueDate }),
-        },
-      })
-      successNotification({ title: `Questionnaire sent to ${data.email}` })
-      form.reset()
-      setIsSendDialogOpen(false)
-    } catch (error) {
-      const errorMessage = parseErrorMessage(error)
-      errorNotification({
-        title: 'Error',
-        description: errorMessage,
-      })
-    }
   }
 
   const handleDelete = async () => {
@@ -165,37 +128,13 @@ const QuestionnaireViewerPage: React.FC = () => {
 
       <ViewQuestionnaire existingId={existingId} />
 
-      {/* Send Dialog */}
-      <AlertDialog open={isSendDialogOpen} onOpenChange={setIsSendDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Send Questionnaire</AlertDialogTitle>
-            <AlertDialogDescription>Enter the recipient&apos;s email to send the questionnaire.</AlertDialogDescription>
-          </AlertDialogHeader>
-          <Form {...form}>
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormControl>
-                    <Input type="email" autoComplete="email" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </Form>
-          <AlertDialogFooter>
-            <AlertDialogCancel asChild>
-              <CancelButton />
-            </AlertDialogCancel>
-            <AlertDialogAction asChild>
-              <Button onClick={form.handleSubmit(handleSend)}>Send</Button>
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <SendQuestionnaireDialog
+        open={isSendDialogOpen}
+        onOpenChange={setIsSendDialogOpen}
+        assessmentId={existingId}
+        assessmentName={questionnaire?.name}
+        responseDueDuration={questionnaire?.responseDueDuration}
+      />
 
       {/* Delete Dialog */}
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
