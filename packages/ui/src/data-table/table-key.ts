@@ -68,6 +68,11 @@ export enum AdditionalTableKeyEnum {
   CONTROL_ACTIVITY_TASKS = 'control-activity-tasks',
   QUESTIONNAIRE_DELIVERY = 'questionnaire-delivery',
   VENDOR = 'vendor',
+  CONTROL_ASSETS = 'control-assets',
+  CONTROL_SCANS = 'control-scans',
+  CONTROL_FINDINGS = 'control-findings',
+  CONTROL_RISKS = 'control-risks',
+  CONTROL_REVIEWS = 'control-reviews',
 }
 
 export const TableKey = Object.freeze({
