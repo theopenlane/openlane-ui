@@ -11,7 +11,7 @@ import { useBulkEditEvidence } from '@/lib/graphql-hooks/evidence'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm, FormProvider, Controller, useFieldArray, useWatch } from 'react-hook-form'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogFooter, DialogTitle } from '@repo/ui/dialog'
 import { Button } from '@repo/ui/button'
 import { Pencil, Plus, Trash2 } from 'lucide-react'
@@ -69,6 +69,16 @@ export const BulkEditEvidenceDialog: React.FC<BulkEditEvidenceDialogProps> = ({ 
     rules: { maxLength: 4 },
   })
 
+  useEffect(() => {
+    if (open) {
+      append({
+        value: undefined,
+        selectedValue: undefined,
+        selectedDate: undefined,
+      })
+    }
+  }, [open, append])
+
   const allOptionSelects = useMemo(() => {
     return getAllSelectOptionsForBulkEditEvidence()
   }, [])
@@ -115,7 +125,13 @@ export const BulkEditEvidenceDialog: React.FC<BulkEditEvidenceDialogProps> = ({ 
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={(value) => {
+        if (!value) replace([])
+        setOpen(value)
+      }}
+    >
       <FormProvider {...form}>
         <DialogTrigger asChild>
           <Button disabled={selectedEvidence.length === 0} icon={<Pencil />} iconPosition="left" variant="secondary">
@@ -123,7 +139,7 @@ export const BulkEditEvidenceDialog: React.FC<BulkEditEvidenceDialogProps> = ({ 
           </Button>
         </DialogTrigger>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <DialogContent onOpenAutoFocus={(e) => e.preventDefault()} className="max-w-[580px]">
+          <DialogContent onOpenAutoFocus={(e) => e.preventDefault()} className="max-w-145">
             <DialogHeader>
               <DialogTitle>Bulk edit</DialogTitle>
             </DialogHeader>

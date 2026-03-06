@@ -154,7 +154,7 @@ export function GenericBulkEditDialog<T extends { id: string }, TUpdateInput>({
           </Button>
         </DialogTrigger>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <DialogContent onOpenAutoFocus={(e) => e.preventDefault()} className="max-w-[580px]">
+          <DialogContent onOpenAutoFocus={(e) => e.preventDefault()} className="max-w-145">
             <DialogHeader>
               <DialogTitle>Bulk edit {toHumanLabel(entityType as string)?.toLowerCase()}</DialogTitle>
             </DialogHeader>
@@ -199,7 +199,7 @@ export function GenericBulkEditDialog<T extends { id: string }, TUpdateInput>({
                         </SelectContent>
                       </Select>
                     </div>
-                    {selectOptions ? (
+                    {fieldKey && selectOptions ? (
                       <Controller
                         control={control}
                         name={`fieldsArray.${index}.selectedValue`}
@@ -218,7 +218,7 @@ export function GenericBulkEditDialog<T extends { id: string }, TUpdateInput>({
                           </Select>
                         )}
                       />
-                    ) : innerZodType instanceof z.ZodDate ? (
+                    ) : fieldKey && innerZodType instanceof z.ZodDate ? (
                       // Render date picker
                       <Controller
                         control={control}
@@ -233,7 +233,7 @@ export function GenericBulkEditDialog<T extends { id: string }, TUpdateInput>({
                           />
                         )}
                       />
-                    ) : innerZodType instanceof z.ZodBoolean ? (
+                    ) : fieldKey && innerZodType instanceof z.ZodBoolean ? (
                       // Render boolean select
                       <Controller
                         control={control}
@@ -250,7 +250,7 @@ export function GenericBulkEditDialog<T extends { id: string }, TUpdateInput>({
                           </Select>
                         )}
                       />
-                    ) : (
+                    ) : fieldKey ? (
                       // Fallback to text input
                       <Controller
                         control={control}
@@ -259,7 +259,7 @@ export function GenericBulkEditDialog<T extends { id: string }, TUpdateInput>({
                           <Input {...field} variant="medium" placeholder={toHumanLabel(fieldKey || '')} className="w-full" value={field.value === undefined ? '' : String(field.value)} />
                         )}
                       />
-                    )}
+                    ) : null}
                     <Button icon={<Trash2 />} iconPosition="center" variant="secondary" onClick={() => remove(index)}></Button>
                   </div>
                 )
