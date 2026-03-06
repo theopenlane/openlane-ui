@@ -63,10 +63,9 @@ export const useReviewsWithFilter = ({ where, orderBy, pagination, enabled = tru
 }
 
 export const useCreateReview = () => {
-  const { client } = useGraphQLClient()
-  const queryClient = useQueryClient()
+  const { queryClient } = useGraphQLClient()
   return useMutation<CreateReviewMutation, unknown, CreateReviewMutationVariables>({
-    mutationFn: async (variables) => client.request(CREATE_REVIEW, variables),
+    mutationFn: async (variables) => fetchGraphQLWithUpload({ query: CREATE_REVIEW, variables }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['reviews'] })
     },

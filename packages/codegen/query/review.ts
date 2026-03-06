@@ -84,8 +84,8 @@ export const REVIEW = gql`
 `
 
 export const CREATE_REVIEW = gql`
-  mutation CreateReview($input: CreateReviewInput!) {
-    createReview(input: $input) {
+  mutation CreateReview($input: CreateReviewInput!, $reviewFiles: [Upload!]) {
+    createReview(input: $input, reviewFiles: $reviewFiles) {
       review {
         id
       }

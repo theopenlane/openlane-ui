@@ -66,8 +66,9 @@ const ReviewPage: React.FC = () => {
   const createMutation = {
     isPending: baseCreateMutation.isPending,
     mutateAsync: async (input: CreateReviewInput) => {
+      const reviewFiles = stagedFilesRef.current.length > 0 ? stagedFilesRef.current : undefined
       const fileIDs = existingFileIdsRef.current.length > 0 ? existingFileIdsRef.current : undefined
-      const result = await baseCreateMutation.mutateAsync({ input: { ...input, fileIDs } })
+      const result = await baseCreateMutation.mutateAsync({ input: { ...input, fileIDs }, reviewFiles })
       stagedFilesRef.current = []
       existingFileIdsRef.current = []
       return result

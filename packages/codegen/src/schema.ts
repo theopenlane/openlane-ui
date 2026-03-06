@@ -28542,6 +28542,7 @@ export interface MutationCreateRemediationArgs {
 
 export interface MutationCreateReviewArgs {
   input: CreateReviewInput
+  reviewFiles?: InputMaybe<Array<Scalars['Upload']['input']>>
 }
 
 export interface MutationCreateRiskArgs {
@@ -68709,6 +68710,7 @@ export type ReviewQuery = {
 
 export type CreateReviewMutationVariables = Exact<{
   input: CreateReviewInput
+  reviewFiles?: InputMaybe<Array<Scalars['Upload']['input']> | Scalars['Upload']['input']>
 }>
 
 export type CreateReviewMutation = { __typename?: 'Mutation'; createReview: { __typename?: 'ReviewCreatePayload'; review: { __typename?: 'Review'; id: string } } }
