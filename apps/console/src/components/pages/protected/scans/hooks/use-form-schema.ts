@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { useForm, Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ScanScanStatus, ScanScanType } from '@repo/codegen/src/schema'
+import { responsibilityFieldSchema } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 
 const formSchema = z.object({
   target: z.string().min(1, 'Target is required'),
@@ -10,9 +11,9 @@ const formSchema = z.object({
   status: z.nativeEnum(ScanScanStatus).optional(),
   environmentName: z.string().optional().nullable(),
   scopeName: z.string().optional().nullable(),
-  assignedTo: z.string().optional(),
-  performedBy: z.string().optional(),
-  reviewedBy: z.string().optional(),
+  assignedTo: responsibilityFieldSchema,
+  performedBy: responsibilityFieldSchema,
+  reviewedBy: responsibilityFieldSchema,
   scanSchedule: z.string().optional(),
 })
 

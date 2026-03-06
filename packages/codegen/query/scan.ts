@@ -7,8 +7,14 @@ export const GET_ALL_SCANS = gql`
       edges {
         node {
           assignedTo
-          assignedToGroupID
-          assignedToUserID
+          assignedToUser {
+            id
+            displayName
+          }
+          assignedToGroup {
+            id
+            displayName
+          }
           createdAt
           createdBy
           environmentID
@@ -18,11 +24,23 @@ export const GET_ALL_SCANS = gql`
           metadata
           nextScanRunAt
           performedBy
-          performedByGroupID
-          performedByUserID
+          performedByUser {
+            id
+            displayName
+          }
+          performedByGroup {
+            id
+            displayName
+          }
           reviewedBy
-          reviewedByGroupID
-          reviewedByUserID
+          reviewedByUser {
+            id
+            displayName
+          }
+          reviewedByGroup {
+            id
+            displayName
+          }
           scanDate
           scanSchedule
           scanType
@@ -48,8 +66,14 @@ export const SCAN = gql`
   query Scan($scanId: ID!) {
     scan(id: $scanId) {
       assignedTo
-      assignedToGroupID
-      assignedToUserID
+      assignedToUser {
+        id
+        displayName
+      }
+      assignedToGroup {
+        id
+        displayName
+      }
       createdAt
       createdBy
       environmentID
@@ -59,11 +83,23 @@ export const SCAN = gql`
       metadata
       nextScanRunAt
       performedBy
-      performedByGroupID
-      performedByUserID
+      performedByUser {
+        id
+        displayName
+      }
+      performedByGroup {
+        id
+        displayName
+      }
       reviewedBy
-      reviewedByGroupID
-      reviewedByUserID
+      reviewedByUser {
+        id
+        displayName
+      }
+      reviewedByGroup {
+        id
+        displayName
+      }
       scanDate
       scanSchedule
       scanType

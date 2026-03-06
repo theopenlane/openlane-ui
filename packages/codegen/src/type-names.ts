@@ -36,6 +36,7 @@ import {
   TrustCenterSubprocessor,
   TrustCenterWatermarkConfig,
   Vulnerability,
+  WorkflowDefinition,
 } from './schema'
 import { GET_ALL_ACTION_PLANS } from '@repo/codegen/query/action-plan'
 import { GET_ALL_ASSESSMENTS } from '@repo/codegen/query/assessment'
@@ -66,6 +67,7 @@ import { GET_ALL_TRUST_CENTER_FAQS } from '@repo/codegen/query/trust-center-faq'
 import { GET_ALL_TRUST_CENTER_NDA_REQUESTS } from '@repo/codegen/query/trust-center-nda-request'
 import { GET_ALL_TRUST_CENTER_SUBPROCESSORS } from '@repo/codegen/query/trust-center-subprocessor'
 import { GET_ALL_VULNERABILITIES } from '@repo/codegen/query/vulnerability'
+import { GET_ALL_WORKFLOW_DEFINITIONS } from '@repo/codegen/query/workflow-definition'
 import { GET_ALL_EVIDENCES } from '@repo/codegen/query/evidence'
 import { GET_ALL_GROUPS } from '@repo/codegen/query/group'
 import { GET_ALL_SUBCONTROLS } from '@repo/codegen/query/subcontrol'
@@ -300,6 +302,7 @@ export enum TypesWithPermissions {
   TRUST_CENTER_SUBPROCESSOR = 'TrustCenterSubprocessor',
   TRUST_CENTER_WATERMARK_CONFIG = 'TrustCenterWatermarkConfig',
   VULNERABILITY = 'Vulnerability',
+  WORKFLOW_DEFINITION = 'WorkflowDefinition',
 }
 
 export type PermissionsAllQueriesData = {
@@ -455,6 +458,11 @@ export type PermissionsAllQueriesData = {
   }
   vulnerabilities?: {
     edges?: Array<{ node: Vulnerability }>
+    pageInfo?: PageInfo
+    totalCount?: number
+  }
+  workflowDefinitions?: {
+    edges?: Array<{ node: WorkflowDefinition }>
     pageInfo?: PageInfo
     totalCount?: number
   }
@@ -785,6 +793,16 @@ export const OBJECT_TYPE_PERMISSIONS_CONFIG: Record<TypesWithPermissions, Object
     roleOptions: ['View', 'Edit', 'Blocked'],
     responseObjectKey: 'vulnerabilities',
     queryDocument: GET_ALL_VULNERABILITIES,
+    objectName: 'name',
+    searchAttribute: 'nameContainsFold',
+    inputPlaceholder: 'name',
+    excludeViewersInFilter: false,
+    extraTableColumns: undefined,
+  },
+  [TypesWithPermissions.WORKFLOW_DEFINITION]: {
+    roleOptions: ['View', 'Edit', 'Blocked'],
+    responseObjectKey: 'workflowDefinitions',
+    queryDocument: GET_ALL_WORKFLOW_DEFINITIONS,
     objectName: 'name',
     searchAttribute: 'nameContainsFold',
     inputPlaceholder: 'name',
