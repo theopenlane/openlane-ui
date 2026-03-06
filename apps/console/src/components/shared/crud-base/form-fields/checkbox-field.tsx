@@ -22,9 +22,20 @@ interface CheckboxFieldProps<TUpdateInput = Record<string, unknown>> {
   tooltipContent?: string
 }
 
-export const CheckboxField = <TUpdateInput,>({ name, label, isEditAllowed, isCreate = false, isEditing: _isEditing, handleUpdate, internalEditing: _internalEditing, setInternalEditing: _setInternalEditing, className, tooltipContent }: CheckboxFieldProps<TUpdateInput>) => {
+export const CheckboxField = <TUpdateInput,>({
+  name,
+  label,
+  isEditAllowed,
+  isCreate = false,
+  isEditing: _isEditing,
+  handleUpdate,
+  internalEditing: _internalEditing,
+  setInternalEditing: _setInternalEditing,
+  className,
+  tooltipContent,
+}: CheckboxFieldProps<TUpdateInput>) => {
   const { control } = useFormContext()
-  const disabled = !isEditAllowed
+  const disabled = !isEditAllowed && !isCreate
 
   return (
     <FormField

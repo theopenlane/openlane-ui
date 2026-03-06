@@ -141,6 +141,7 @@ export const getFieldsToRender = (props: ReviewFieldProps, enumOptions: EnumOpti
       <AdditionalFields
         isEditing={props.isEditing}
         isEditAllowed={props.isEditAllowed}
+        isCreate={props.isCreate}
         data={props.data}
         internalEditing={props.internalEditing}
         setInternalEditing={props.setInternalEditing}

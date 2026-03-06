@@ -3,8 +3,9 @@
 import { CheckboxField } from '@/components/shared/crud-base/form-fields/checkbox-field'
 import { TextField } from '@/components/shared/crud-base/form-fields/text-field'
 import { SelectField } from '@/components/shared/crud-base/form-fields/select-field'
+import { DateField } from '@/components/shared/crud-base/form-fields/date-field'
 import { UpdateReviewInput } from '@repo/codegen/src/schema'
-import { FieldValues } from 'react-hook-form'
+import { FieldValues, useFormContext } from 'react-hook-form'
 import { InternalEditingType } from '@/components/shared/crud-base/generic-sheet'
 import { EnumOptions } from '../../../table/types'
 
@@ -22,6 +23,9 @@ interface AdditionalFieldsProps {
 }
 
 export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, isEditAllowed, isCreate = false, data, internalEditing, setInternalEditing, handleUpdateField, enumOptions }) => {
+  const { watch } = useFormContext()
+  const approved = watch('approved')
+
   const sharedFieldProps = {
     isEditing,
     isEditAllowed,
@@ -64,10 +68,14 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
           <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-2">
             <CheckboxField name="approved" label="Approved" {...sharedFieldProps} />
           </div>
+          {approved && (
+            <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-2">
+              <DateField name="approvedAt" label="Approved At" disableFuture {...sharedFieldProps} />
+            </div>
+          )}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-            <TextField name="approvedAt" label="Approved At" type="text" {...sharedFieldProps} />
-            <TextField name="reportedAt" label="Reported At" type="text" {...sharedFieldProps} />
-            <TextField name="reviewedAt" label="Reviewed At" type="text" {...sharedFieldProps} />
+            <DateField name="reportedAt" label="Reported At" disableFuture {...sharedFieldProps} />
+            <DateField name="reviewedAt" label="Reviewed At" disableFuture {...sharedFieldProps} />
           </div>
         </CardContent>
       </Card>
