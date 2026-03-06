@@ -1,5 +1,4 @@
 import { gql } from 'graphql-request'
-import { EvidenceEvidenceStatus, EvidenceWhereInput } from '../src/schema'
 
 export const CREATE_EVIDENCE = gql`
   mutation CreateEvidence($input: CreateEvidenceInput!, $evidenceFiles: [Upload!]) {
