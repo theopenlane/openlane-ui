@@ -100,3 +100,53 @@ export const IDENTITY_HOLDER_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
     initialDataKeys: identityHolderInitialDataKeys,
   },
 })
+
+const reviewAllowedObjectTypes = [
+  ObjectTypeObjects.CONTROL,
+  ObjectTypeObjects.SUB_CONTROL,
+  ObjectTypeObjects.REMEDIATION,
+  ObjectTypeObjects.ENTITY,
+  ObjectTypeObjects.TASK,
+  ObjectTypeObjects.ASSET,
+  ObjectTypeObjects.PROGRAM,
+]
+const reviewInitialDataKeys = {
+  controlIDs: 'controls',
+  subcontrolIDs: 'subcontrols',
+  remediationIDs: 'remediations',
+  entityIDs: 'entities',
+  taskIDs: 'tasks',
+  assetIDs: 'assets',
+  programIDs: 'programs',
+}
+const reviewAssociationKeys = ['controlIDs', 'subcontrolIDs', 'remediationIDs', 'entityIDs', 'taskIDs', 'assetIDs', 'programIDs']
+
+export const REVIEW_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
+  entityType: 'review',
+  dataRootField: 'review',
+  queryKeyPrefix: 'reviews',
+  allowedObjectTypes: reviewAllowedObjectTypes,
+  initialDataKeys: reviewInitialDataKeys,
+  associationKeys: reviewAssociationKeys,
+  sectionMappings: [
+    {
+      key: 'controls',
+      nameExtractor: (n) => n.refCode ?? '',
+      displayIdExtractor: (n) => n.displayID ?? '',
+      extraFields: (n) => ({ refCode: n.refCode, description: n.description }),
+    },
+    { key: 'subcontrols', nameExtractor: (n) => n.refCode ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
+    { key: 'remediations', nameExtractor: (n) => n.displayID ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
+    { key: 'entities', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayName ?? '' },
+    { key: 'tasks', nameExtractor: (n) => n.title ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ title: n.title }) },
+    { key: 'assets', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayName ?? '' },
+    { key: 'programs', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
+  ],
+  dialogConfig: {
+    dataRootField: 'review',
+    invalidateQueryKey: 'reviews',
+    successMessage: 'Review updated',
+    allowedObjectTypes: reviewAllowedObjectTypes,
+    initialDataKeys: reviewInitialDataKeys,
+  },
+})

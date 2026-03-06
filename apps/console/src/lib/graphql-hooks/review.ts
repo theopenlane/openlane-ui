@@ -7,14 +7,31 @@ import {
   CreateReviewMutationVariables,
   UpdateReviewMutation,
   UpdateReviewMutationVariables,
+  UpdateBulkReviewMutation,
+  UpdateBulkReviewMutationVariables,
   DeleteReviewMutation,
   DeleteReviewMutationVariables,
   ReviewQuery,
   ReviewQueryVariables,
+  GetReviewAssociationsQuery,
+  GetReviewFilesPaginatedQuery,
+  FileOrder,
+  InputMaybe,
 } from '@repo/codegen/src/schema'
 
+import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
 import { TPagination } from '@repo/ui/pagination-types'
-import { GET_ALL_REVIEWS, CREATE_REVIEW, UPDATE_REVIEW, DELETE_REVIEW, REVIEW } from '@repo/codegen/query/review'
+import {
+  GET_ALL_REVIEWS,
+  CREATE_REVIEW,
+  UPDATE_REVIEW,
+  DELETE_REVIEW,
+  REVIEW,
+  CREATE_CSV_BULK_REVIEW,
+  BULK_EDIT_REVIEW,
+  GET_REVIEW_ASSOCIATIONS,
+  GET_REVIEW_FILES_PAGINATED,
+} from '@repo/codegen/query/review'
 
 type GetAllReviewsArgs = {
   where?: ReviewsWithFilterQueryVariables['where']
@@ -78,6 +95,16 @@ export const useDeleteReview = () => {
   })
 }
 
+export const useBulkEditReview = () => {
+  const { client, queryClient } = useGraphQLClient()
+  return useMutation<UpdateBulkReviewMutation, unknown, UpdateBulkReviewMutationVariables>({
+    mutationFn: async (variables) => client.request(BULK_EDIT_REVIEW, variables),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['reviews'] })
+    },
+  })
+}
+
 export const useReview = (reviewId?: ReviewQueryVariables['reviewId']) => {
   const { client } = useGraphQLClient()
   return useQuery<ReviewQuery, unknown>({
@@ -88,4 +115,56 @@ export const useReview = (reviewId?: ReviewQueryVariables['reviewId']) => {
     },
     enabled: !!reviewId,
   })
+}
+
+export const useCreateBulkCSVReview = () => {
+  const { queryClient } = useGraphQLClient()
+  return useMutation<unknown, unknown, { input: File }>({
+    mutationFn: async (variables) => fetchGraphQLWithUpload({ query: CREATE_CSV_BULK_REVIEW, variables }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['reviews'] })
+    },
+  })
+}
+
+export const useGetReviewAssociations = (reviewId?: string) => {
+  const { client } = useGraphQLClient()
+  return useQuery<GetReviewAssociationsQuery, unknown>({
+    queryKey: ['reviews', reviewId, 'associations'],
+    queryFn: async () => client.request<GetReviewAssociationsQuery>(GET_REVIEW_ASSOCIATIONS, { reviewId: reviewId as string }),
+    enabled: !!reviewId,
+  })
+}
+
+type ReviewFilesPaginationArgs = {
+  reviewId?: string | null
+  orderBy?: InputMaybe<Array<FileOrder> | FileOrder>
+  pagination?: TPagination
+}
+
+export const useGetReviewFilesPaginated = ({ reviewId, orderBy, pagination }: ReviewFilesPaginationArgs) => {
+  const { client } = useGraphQLClient()
+
+  const queryResult = useQuery<GetReviewFilesPaginatedQuery, unknown>({
+    queryKey: ['reviewFiles', reviewId, orderBy, pagination?.page, pagination?.pageSize],
+    queryFn: async () =>
+      client.request(GET_REVIEW_FILES_PAGINATED, {
+        reviewId,
+        orderBy,
+        ...pagination?.query,
+      }),
+    enabled: !!reviewId,
+  })
+
+  const review = queryResult.data?.review
+  const files = review?.files?.edges?.map((edge) => edge?.node) ?? []
+  const pageInfo = review?.files?.pageInfo
+  const totalCount = review?.files?.totalCount
+
+  return {
+    ...queryResult,
+    files,
+    pageInfo,
+    totalCount,
+  }
 }
