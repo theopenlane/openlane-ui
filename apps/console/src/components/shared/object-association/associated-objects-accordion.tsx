@@ -62,7 +62,6 @@ const AssociatedObjectsAccordion: React.FC<AssociatedObjectsAccordionProps> = ({
     <div className="flex gap-2 flex-wrap">
       {rows.length > 0 ? (
         rows.map((row) => {
-          console.log(row)
           return (
             <ObjectAssociationChip
               kind={kind}
