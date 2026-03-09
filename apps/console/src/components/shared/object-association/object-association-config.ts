@@ -68,6 +68,7 @@ import type {
   UpdateIdentityHolderInput,
   UpdateInternalPolicyInput,
   UpdateProcedureInput,
+  UpdateReviewInput,
   UpdateRiskInput,
   UpdateSubcontrolInput,
 } from '@repo/codegen/src/schema'
@@ -841,6 +842,7 @@ const RISK_ASSOCIATION_SECTIONS = ['controls', 'procedures', 'subcontrols', 'pro
 const ASSET_ASSOCIATION_SECTIONS = ['scans', 'entities', 'identityHolders', 'controls'] as const
 const ENTITY_ASSOCIATION_SECTIONS = ['assets', 'scans', 'campaigns', 'identityHolders'] as const
 const IDENTITY_HOLDER_ASSOCIATION_SECTIONS = ['assets', 'entities', 'campaigns', 'tasks'] as const
+const REVIEW_ASSOCIATION_SECTIONS = ['controls', 'subcontrols', 'remediations', 'entities', 'tasks', 'assets', 'programs'] as const
 
 export const ASSOCIATION_REMOVAL_CONFIG = {
   control: createAssociationRemovalConfig<UpdateControlInput>()(CONTROL_ASSOCIATION_SECTIONS),
@@ -851,4 +853,5 @@ export const ASSOCIATION_REMOVAL_CONFIG = {
   asset: createAssociationRemovalConfig<UpdateAssetInput>()(ASSET_ASSOCIATION_SECTIONS),
   entity: createAssociationRemovalConfig<UpdateEntityInput>()(ENTITY_ASSOCIATION_SECTIONS),
   identityHolder: createAssociationRemovalConfig<UpdateIdentityHolderInput>()(IDENTITY_HOLDER_ASSOCIATION_SECTIONS),
+  review: createAssociationRemovalConfig<UpdateReviewInput>()(REVIEW_ASSOCIATION_SECTIONS),
 } as const
