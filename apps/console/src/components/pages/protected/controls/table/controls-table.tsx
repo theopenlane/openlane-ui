@@ -78,6 +78,7 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
     linkedPolicies: false,
     associatedObjects: false,
     comments: false,
+    title: false,
   }
 
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.CONTROL, defaultVisibility))

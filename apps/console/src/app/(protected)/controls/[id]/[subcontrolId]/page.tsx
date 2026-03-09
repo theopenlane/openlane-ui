@@ -265,7 +265,7 @@ const ControlDetailsPage: React.FC = () => {
         source: data.subcontrol.source || undefined,
         referenceID: data.subcontrol.referenceID || undefined,
         auditorReferenceID: data.subcontrol.auditorReferenceID || undefined,
-        title: data.subcontrol.title ? `${data.subcontrol.refCode} ${data.subcontrol.title}` : data.subcontrol.refCode,
+        title: data.subcontrol.title || '',
       }
 
       form.reset(newValues)
@@ -289,7 +289,8 @@ const ControlDetailsPage: React.FC = () => {
               isEditAllowed={!isSourceFramework && canEdit(permission?.roles)}
               isEditing={isEditing}
               handleUpdate={(val) => handleUpdateField(val as UpdateSubcontrolInput)}
-              initialValue={initialValues.title}
+              initialRefCode={initialValues.refCode}
+              initialTitle={initialValues.title}
               referenceFramework={subcontrol.referenceFramework}
             />
             {isVerified && (
