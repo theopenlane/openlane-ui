@@ -5,7 +5,7 @@ import NameField from '../create/form/fields/name-field'
 import { FindingQuery, FindingOrderField } from '@repo/codegen/src/schema'
 import { AdditionalFields } from '../create/form/fields/additional-fields'
 import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
-import { FindingFieldProps, EnumOptions } from './types'
+import { FindingFieldProps, EnumOptions, EnumCreateHandlers } from './types'
 import { enumToSortFields } from '@/components/shared/crud-base/utils'
 
 export const formId = 'edit' + ObjectNames.FINDING
@@ -130,7 +130,7 @@ export const visibilityFields = {
   updatedBy: false,
 }
 
-export const getFieldsToRender = (props: FindingFieldProps, enumOptions: EnumOptions) => {
+export const getFieldsToRender = (props: FindingFieldProps, enumOptions: EnumOptions, enumCreateHandlers?: EnumCreateHandlers) => {
   return (
     <div className="mr-6">
       <div className="mb-6">
@@ -151,6 +151,7 @@ export const getFieldsToRender = (props: FindingFieldProps, enumOptions: EnumOpt
         setInternalEditing={props.setInternalEditing}
         handleUpdateField={props.handleUpdateField}
         enumOptions={enumOptions}
+        enumCreateHandlers={enumCreateHandlers}
       />
     </div>
   )

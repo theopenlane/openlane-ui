@@ -56,7 +56,7 @@ const DashboardComplianceOverview = () => {
     }
 
     saveFilters(TableKeyEnum.RISK, filters)
-    router.push('/risks')
+    router.push('/exposure/risks')
   }
 
   return (

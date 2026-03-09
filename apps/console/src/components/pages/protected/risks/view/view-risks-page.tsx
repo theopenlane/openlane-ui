@@ -28,7 +28,7 @@ import { useOrganization } from '@/hooks/useOrganization'
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types.ts'
 import ObjectAssociationSwitch from '@/components/shared/object-association/object-association-switch.tsx'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import Loading from '@/app/(protected)/risks/[id]/loading'
+import Loading from '@/app/(protected)/exposure/risks/[id]/loading'
 import { Card } from '@repo/ui/cardpanel'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { SaveButton } from '@/components/shared/save-button/save-button'
@@ -101,7 +101,7 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
-      { label: 'Risks', href: '/risks' },
+      { label: 'Risks', href: '/exposure/risks' },
       { label: risk?.name, isLoading: isLoading },
     ])
   }, [setCrumbs, risk, isLoading])
@@ -173,7 +173,7 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
 
   const handleDeleteRisk = async () => {
     try {
-      router.push('/risks')
+      router.push('/exposure/risks')
       await deleteRisk({ deleteRiskId: riskId })
       successNotification({ title: 'Risk deleted successfully' })
     } catch (error) {

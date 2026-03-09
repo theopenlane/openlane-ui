@@ -5,9 +5,10 @@ import { IdentityHolderQuery, IdentityHolderOrderField } from '@repo/codegen/src
 import NameField from '../create/form/fields/name-field'
 import { AdditionalFields } from '../create/form/fields/additional-fields'
 import Properties from '../create/form/fields/properties'
-import { PersonnelFieldProps, EnumOptions } from './types'
+import { PersonnelFieldProps, EnumOptions, EnumCreateHandlers } from './types'
 import { enumToSortFields } from '@/components/shared/crud-base/utils'
 import { IdentityHolderAssociationSection } from '../create/form/fields/association-section'
+import { IdentityHolderDocumentsSection } from '../create/form/fields/documents-section'
 
 export const formId = 'edit' + ObjectNames.IDENTITY_HOLDER
 
@@ -99,7 +100,13 @@ export const visibilityFields = {
   updatedBy: false,
 }
 
-export const getFieldsToRender = (props: PersonnelFieldProps, enumOptions: EnumOptions) => {
+export const getFieldsToRender = (
+  props: PersonnelFieldProps,
+  enumOptions: EnumOptions,
+  onStagedFilesChange?: (files: File[]) => void,
+  onExistingFileIdsChange?: (fileIds: string[]) => void,
+  enumCreateHandlers?: EnumCreateHandlers,
+) => {
   return (
     <div className="mr-6">
       <div className="flex flex-row items-center mb-6">
@@ -132,6 +139,14 @@ export const getFieldsToRender = (props: PersonnelFieldProps, enumOptions: EnumO
         setInternalEditing={props.setInternalEditing}
         handleUpdateField={props.handleUpdateField}
         enumOptions={enumOptions}
+        enumCreateHandlers={enumCreateHandlers}
+      />
+      <IdentityHolderDocumentsSection
+        identityHolderId={props.data?.id}
+        isEditAllowed={props.isEditAllowed}
+        isCreate={props.isCreate}
+        onStagedFilesChange={onStagedFilesChange}
+        onExistingFileIdsChange={onExistingFileIdsChange}
       />
       <IdentityHolderAssociationSection data={props.data} isEditing={props.isEditing} isCreate={props.isCreate} isEditAllowed={props.isEditAllowed} />
     </div>

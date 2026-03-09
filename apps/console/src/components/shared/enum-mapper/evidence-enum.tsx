@@ -10,6 +10,7 @@ export const EvidenceIconMapper: Record<EvidenceEvidenceStatus, React.ReactNode>
   [EvidenceEvidenceStatus.MISSING_ARTIFACT]: <FileSearch height={16} width={16} className="text-missing-artifact" />,
   [EvidenceEvidenceStatus.SUBMITTED]: <FileSearch height={16} width={16} className="text-approved" />,
   [EvidenceEvidenceStatus.IN_REVIEW]: <FileSearch height={16} width={16} className="text-missing-artifact" />,
+  [EvidenceEvidenceStatus.DRAFT]: <FileText height={16} width={16} className="text-muted-foreground" />,
 }
 
 export enum EvidenceFilterIconName {
@@ -64,6 +65,11 @@ export const EvidenceBadgeMapper: Record<EvidenceEvidenceStatus, React.ReactNode
   [EvidenceEvidenceStatus.IN_REVIEW]: (
     <Badge style={{ backgroundColor: '#D97706' }} className="text-white text-xs font-medium">
       In Review
+    </Badge>
+  ),
+  [EvidenceEvidenceStatus.DRAFT]: (
+    <Badge style={{ backgroundColor: '#6B7280' }} className="text-white text-xs font-medium">
+      Draft
     </Badge>
   ),
 }

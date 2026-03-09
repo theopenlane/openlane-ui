@@ -1,6 +1,43 @@
 // This file is auto-generated. Do not edit manually.
 
-import { ActionPlan, Assessment, Asset, Campaign, Control, ControlImplementation, ControlObjective, EmailBranding, Entity, Evidence, Finding, Group, IdentityHolder, InternalPolicy, MappedControl, Narrative, PageInfo, Platform, Procedure, Program, Remediation, Review, Risk, Scan, Subcontrol, TrustCenter, TrustCenterCompliance, TrustCenterDoc, TrustCenterEntity, TrustCenterFaq, TrustCenterNdaRequest, TrustCenterSetting, TrustCenterSubprocessor, TrustCenterWatermarkConfig, Vulnerability } from './schema'
+import {
+  ActionPlan,
+  Assessment,
+  Asset,
+  Campaign,
+  Control,
+  ControlImplementation,
+  ControlObjective,
+  EmailBranding,
+  Entity,
+  Evidence,
+  Finding,
+  Group,
+  IdentityHolder,
+  InternalPolicy,
+  MappedControl,
+  Narrative,
+  PageInfo,
+  Platform,
+  Procedure,
+  Program,
+  Remediation,
+  Review,
+  Risk,
+  Scan,
+  Subcontrol,
+  TrustCenter,
+  TrustCenterCompliance,
+  TrustCenterDoc,
+  TrustCenterEntity,
+  TrustCenterFaq,
+  TrustCenterNdaRequest,
+  TrustCenterSetting,
+  TrustCenterSubprocessor,
+  TrustCenterWatermarkConfig,
+  Vulnerability,
+  WorkflowDefinition,
+} from './schema'
 import { GET_ALL_ACTION_PLANS } from '@repo/codegen/query/action-plan'
 import { GET_ALL_ASSESSMENTS } from '@repo/codegen/query/assessment'
 import { GET_ALL_ASSETS } from '@repo/codegen/query/asset'
@@ -30,6 +67,7 @@ import { GET_ALL_TRUST_CENTER_FAQS } from '@repo/codegen/query/trust-center-faq'
 import { GET_ALL_TRUST_CENTER_NDA_REQUESTS } from '@repo/codegen/query/trust-center-nda-request'
 import { GET_ALL_TRUST_CENTER_SUBPROCESSORS } from '@repo/codegen/query/trust-center-subprocessor'
 import { GET_ALL_VULNERABILITIES } from '@repo/codegen/query/vulnerability'
+import { GET_ALL_WORKFLOW_DEFINITIONS } from '@repo/codegen/query/workflow-definition'
 import { GET_ALL_EVIDENCES } from '@repo/codegen/query/evidence'
 import { GET_ALL_GROUPS } from '@repo/codegen/query/group'
 import { GET_ALL_SUBCONTROLS } from '@repo/codegen/query/subcontrol'
@@ -264,6 +302,7 @@ export enum TypesWithPermissions {
   TRUST_CENTER_SUBPROCESSOR = 'TrustCenterSubprocessor',
   TRUST_CENTER_WATERMARK_CONFIG = 'TrustCenterWatermarkConfig',
   VULNERABILITY = 'Vulnerability',
+  WORKFLOW_DEFINITION = 'WorkflowDefinition',
 }
 
 export type PermissionsAllQueriesData = {
@@ -422,6 +461,11 @@ export type PermissionsAllQueriesData = {
     pageInfo?: PageInfo
     totalCount?: number
   }
+  workflowDefinitions?: {
+    edges?: Array<{ node: WorkflowDefinition }>
+    pageInfo?: PageInfo
+    totalCount?: number
+  }
 }
 
 // Generated OBJECT_TYPE_PERMISSIONS_CONFIG
@@ -486,14 +530,14 @@ export const OBJECT_TYPE_PERMISSIONS_CONFIG: Record<TypesWithPermissions, Object
     inputPlaceholder: 'ref code',
     excludeViewersInFilter: true,
     extraTableColumns: [
-        {
-          header: 'Reference Framework',
-          accessorKey: 'referenceFramework',
-          size: 100,
-          minSize: 100,
-          maxSize: 100,
-        },
-      ],
+      {
+        header: 'Reference Framework',
+        accessorKey: 'referenceFramework',
+        size: 100,
+        minSize: 100,
+        maxSize: 100,
+      },
+    ],
   },
   [TypesWithPermissions.CONTROL_IMPLEMENTATION]: {
     roleOptions: ['View', 'Edit', 'Blocked'],
@@ -755,8 +799,17 @@ export const OBJECT_TYPE_PERMISSIONS_CONFIG: Record<TypesWithPermissions, Object
     excludeViewersInFilter: false,
     extraTableColumns: undefined,
   },
+  [TypesWithPermissions.WORKFLOW_DEFINITION]: {
+    roleOptions: ['View', 'Edit', 'Blocked'],
+    responseObjectKey: 'workflowDefinitions',
+    queryDocument: GET_ALL_WORKFLOW_DEFINITIONS,
+    objectName: 'name',
+    searchAttribute: 'nameContainsFold',
+    inputPlaceholder: 'name',
+    excludeViewersInFilter: false,
+    extraTableColumns: undefined,
+  },
 }
-
 
 export enum TaskObjectTypes {
   ACTION_PLAN = 'Action Plan',
@@ -971,4 +1024,3 @@ export const TASK_OBJECT_TYPE_CONFIG: Record<TaskObjectTypes, TTaskObjectTypeCon
     objectName: 'name',
   },
 }
-

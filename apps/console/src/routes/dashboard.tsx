@@ -15,6 +15,7 @@ import {
   KeyRoundIcon,
   ListChecks,
   MailCheck,
+  MessageSquareText,
   ScanLine,
   Radar,
   ScrollText,
@@ -101,11 +102,6 @@ export const topNavigationItems = (session: Session | null): (NavItem | Separato
           href: '/standards',
           icon: FileBadge2,
         },
-        {
-          title: 'Risks',
-          href: '/risks',
-          icon: AlertTriangle,
-        },
       ],
     },
     {
@@ -185,6 +181,11 @@ export const topNavigationItems = (session: Session | null): (NavItem | Separato
       hidden: session?.user?.isOnboarding || billingExpired,
       children: [
         {
+          title: 'Risks',
+          href: '/exposure/risks',
+          icon: AlertTriangle,
+        },
+        {
           title: 'Scans',
           href: '/exposure/scans',
           icon: ScanLine,
@@ -203,6 +204,11 @@ export const topNavigationItems = (session: Session | null): (NavItem | Separato
           title: 'Remediations',
           href: '/exposure/remediations',
           icon: Wrench,
+        },
+        {
+          title: 'Reviews',
+          href: '/exposure/reviews',
+          icon: MessageSquareText,
         },
       ],
     },

@@ -18,7 +18,7 @@ import { RemediationSheetConfig, RemediationTablePageConfig, RemediationFieldPro
 import { getColumns } from './columns'
 import TableComponent from './table'
 import { CreateRemediationInput, UpdateRemediationInput } from '@repo/codegen/src/schema'
-import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
+import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 
 const RemediationPage: React.FC = () => {
   const { form } = useFormSchema()
@@ -58,17 +58,22 @@ const RemediationPage: React.FC = () => {
     },
   }
 
-  const { enumOptions: environmentOptions } = useGetCustomTypeEnums({
-    where: { field: 'environment' },
+  const { enumOptions: environmentOptions, onCreateOption: createEnvironment } = useCreatableEnumOptions({
+    field: 'environment',
   })
 
-  const { enumOptions: scopeOptions } = useGetCustomTypeEnums({
-    where: { field: 'scope' },
+  const { enumOptions: scopeOptions, onCreateOption: createScope } = useCreatableEnumOptions({
+    field: 'scope',
   })
 
   const enumOpts = {
     environmentOptions,
     scopeOptions,
+  }
+
+  const enumCreateHandlers = {
+    environmentName: createEnvironment,
+    scopeName: createScope,
   }
 
   const sheetConfig: RemediationSheetConfig = {
@@ -80,7 +85,7 @@ const RemediationPage: React.FC = () => {
     createMutation,
     buildPayload: async (data) => data,
     getName,
-    renderFields: (props: RemediationFieldProps) => getFieldsToRender(props, enumOpts),
+    renderFields: (props: RemediationFieldProps) => getFieldsToRender(props, enumOpts, enumCreateHandlers),
   }
 
   const tableConfig: RemediationTablePageConfig = {

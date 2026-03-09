@@ -2,10 +2,11 @@
 
 import { TextField } from '@/components/shared/crud-base/form-fields/text-field'
 import { SelectField } from '@/components/shared/crud-base/form-fields/select-field'
+import { ResponsibilityField } from '@/components/shared/crud-base/form-fields/responsibility-field'
 import { UpdateScanInput } from '@repo/codegen/src/schema'
 import { FieldValues } from 'react-hook-form'
 import { InternalEditingType } from '@/components/shared/crud-base/generic-sheet'
-import { EnumOptions } from '../../../table/types'
+import { EnumOptions, EnumCreateHandlers } from '../../../table/types'
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@repo/ui/cardpanel'
 
 const SCAN_TYPE_OPTIONS = [
@@ -31,9 +32,20 @@ interface AdditionalFieldsProps {
   setInternalEditing: InternalEditingType
   handleUpdateField?: (input: UpdateScanInput) => Promise<void>
   enumOptions: EnumOptions
+  enumCreateHandlers?: EnumCreateHandlers
 }
 
-export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, isEditAllowed, isCreate = false, data, internalEditing, setInternalEditing, handleUpdateField, enumOptions }) => {
+export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
+  isEditing,
+  isEditAllowed,
+  isCreate = false,
+  data,
+  internalEditing,
+  setInternalEditing,
+  handleUpdateField,
+  enumOptions,
+  enumCreateHandlers,
+}) => {
   const sharedFieldProps = {
     isEditing,
     isEditAllowed,
@@ -69,8 +81,8 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-            <SelectField name="environmentName" label="Environment" options={enumOptions.environmentOptions} {...sharedFieldProps} />
-            <SelectField name="scopeName" label="Scope" options={enumOptions.scopeOptions} {...sharedFieldProps} />
+            <SelectField name="environmentName" label="Environment" options={enumOptions.environmentOptions} onCreateOption={enumCreateHandlers?.environmentName} {...sharedFieldProps} />
+            <SelectField name="scopeName" label="Scope" options={enumOptions.scopeOptions} onCreateOption={enumCreateHandlers?.scopeName} {...sharedFieldProps} />
           </div>
         </CardContent>
       </Card>
@@ -82,11 +94,41 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
         </CardHeader>
         <CardContent>
           <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-2">
-            <TextField name="assignedTo" label="Assigned To" {...sharedFieldProps} />
-            <TextField name="performedBy" label="Performed By" {...sharedFieldProps} />
+            <ResponsibilityField
+              name="assignedTo"
+              fieldBaseName="assignedTo"
+              label="Assigned To"
+              isEditing={isEditing}
+              isEditAllowed={isEditAllowed}
+              isCreate={isCreate}
+              internalEditing={internalEditing}
+              setInternalEditing={setInternalEditing}
+              handleUpdate={handleUpdateField ? (input) => handleUpdateField(input as UpdateScanInput) : undefined}
+            />
+            <ResponsibilityField
+              name="performedBy"
+              fieldBaseName="performedBy"
+              label="Performed By"
+              isEditing={isEditing}
+              isEditAllowed={isEditAllowed}
+              isCreate={isCreate}
+              internalEditing={internalEditing}
+              setInternalEditing={setInternalEditing}
+              handleUpdate={handleUpdateField ? (input) => handleUpdateField(input as UpdateScanInput) : undefined}
+            />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-            <TextField name="reviewedBy" label="Reviewed By" {...sharedFieldProps} />
+            <ResponsibilityField
+              name="reviewedBy"
+              fieldBaseName="reviewedBy"
+              label="Reviewed By"
+              isEditing={isEditing}
+              isEditAllowed={isEditAllowed}
+              isCreate={isCreate}
+              internalEditing={internalEditing}
+              setInternalEditing={setInternalEditing}
+              handleUpdate={handleUpdateField ? (input) => handleUpdateField(input as UpdateScanInput) : undefined}
+            />
           </div>
         </CardContent>
       </Card>

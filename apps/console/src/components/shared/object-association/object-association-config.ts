@@ -68,6 +68,7 @@ import type {
   UpdateIdentityHolderInput,
   UpdateInternalPolicyInput,
   UpdateProcedureInput,
+  UpdateReviewInput,
   UpdateRiskInput,
   UpdateSubcontrolInput,
 } from '@repo/codegen/src/schema'
@@ -819,7 +820,21 @@ const createAssociationRemovalConfig =
     }
   }
 
-const CONTROL_ASSOCIATION_SECTIONS = ['policies', 'procedures', 'tasks', 'programs', 'risks', 'subcontrols', 'assets', 'scans', 'entities', 'identityHolders', 'campaigns', 'remediations', 'reviews'] as const
+const CONTROL_ASSOCIATION_SECTIONS = [
+  'policies',
+  'procedures',
+  'tasks',
+  'programs',
+  'risks',
+  'subcontrols',
+  'assets',
+  'scans',
+  'entities',
+  'identityHolders',
+  'campaigns',
+  'remediations',
+  'reviews',
+] as const
 const SUBCONTROL_ASSOCIATION_SECTIONS = ['policies', 'procedures', 'tasks', 'risks'] as const
 const POLICY_ASSOCIATION_SECTIONS = ['procedures', 'controls', 'subcontrols', 'controlObjectives', 'tasks', 'programs', 'risks'] as const
 const PROCEDURE_ASSOCIATION_SECTIONS = ['policies', 'controls', 'subcontrols', 'risks', 'tasks', 'programs'] as const
@@ -827,6 +842,7 @@ const RISK_ASSOCIATION_SECTIONS = ['controls', 'procedures', 'subcontrols', 'pro
 const ASSET_ASSOCIATION_SECTIONS = ['scans', 'entities', 'identityHolders', 'controls'] as const
 const ENTITY_ASSOCIATION_SECTIONS = ['assets', 'scans', 'campaigns', 'identityHolders'] as const
 const IDENTITY_HOLDER_ASSOCIATION_SECTIONS = ['assets', 'entities', 'campaigns', 'tasks'] as const
+const REVIEW_ASSOCIATION_SECTIONS = ['controls', 'subcontrols', 'remediations', 'entities', 'tasks', 'assets', 'programs'] as const
 
 export const ASSOCIATION_REMOVAL_CONFIG = {
   control: createAssociationRemovalConfig<UpdateControlInput>()(CONTROL_ASSOCIATION_SECTIONS),
@@ -837,4 +853,5 @@ export const ASSOCIATION_REMOVAL_CONFIG = {
   asset: createAssociationRemovalConfig<UpdateAssetInput>()(ASSET_ASSOCIATION_SECTIONS),
   entity: createAssociationRemovalConfig<UpdateEntityInput>()(ENTITY_ASSOCIATION_SECTIONS),
   identityHolder: createAssociationRemovalConfig<UpdateIdentityHolderInput>()(IDENTITY_HOLDER_ASSOCIATION_SECTIONS),
+  review: createAssociationRemovalConfig<UpdateReviewInput>()(REVIEW_ASSOCIATION_SECTIONS),
 } as const

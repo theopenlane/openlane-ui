@@ -163,6 +163,52 @@ export const BULK_EDIT_IDENTITY_HOLDER = gql`
   }
 `
 
+export const GET_IDENTITY_HOLDER_FILES_PAGINATED = gql`
+  query GetIdentityHolderFilesPaginated($identityHolderId: ID!, $after: Cursor, $first: Int, $before: Cursor, $last: Int, $orderBy: [FileOrder!]) {
+    identityHolder(id: $identityHolderId) {
+      files(after: $after, first: $first, before: $before, last: $last, orderBy: $orderBy) {
+        pageInfo {
+          endCursor
+          hasNextPage
+          hasPreviousPage
+          startCursor
+        }
+        totalCount
+        edges {
+          node {
+            providedFileName
+            providedFileSize
+            providedFileExtension
+            id
+            uri
+            presignedURL
+          }
+        }
+      }
+    }
+  }
+`
+
+export const UPDATE_IDENTITY_HOLDER_WITH_FILES = gql`
+  mutation UpdateIdentityHolderWithFiles($updateIdentityHolderId: ID!, $input: UpdateIdentityHolderInput!, $identityHolderFiles: [Upload!]) {
+    updateIdentityHolder(id: $updateIdentityHolderId, input: $input, identityHolderFiles: $identityHolderFiles) {
+      identityHolder {
+        id
+      }
+    }
+  }
+`
+
+export const CREATE_IDENTITY_HOLDER_WITH_FILES = gql`
+  mutation CreateIdentityHolderWithFiles($input: CreateIdentityHolderInput!, $identityHolderFiles: [Upload!]) {
+    createIdentityHolder(input: $input, identityHolderFiles: $identityHolderFiles) {
+      identityHolder {
+        id
+      }
+    }
+  }
+`
+
 export const GET_IDENTITY_HOLDER_ASSOCIATIONS = gql`
   query GetIdentityHolderAssociations($identityHolderId: ID!) {
     identityHolder(id: $identityHolderId) {

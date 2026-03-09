@@ -7,7 +7,7 @@ import { NumberField } from '@/components/shared/crud-base/form-fields/number-fi
 import { ResponsibilityField } from '@/components/shared/crud-base/form-fields/responsibility-field'
 import { EntityQuery, UpdateEntityInput } from '@repo/codegen/src/schema'
 import { InternalEditingType } from '@/components/shared/crud-base/generic-sheet'
-import { EnumOptions } from '../../../table/types'
+import { EnumOptions, EnumCreateHandlers } from '../../../table/types'
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@repo/ui/cardpanel'
 import { MultiStringField } from '@/components/shared/crud-base/form-fields/multi-text-field'
 
@@ -20,9 +20,20 @@ interface AdditionalFieldsProps {
   setInternalEditing: InternalEditingType
   handleUpdateField?: (input: UpdateEntityInput) => Promise<void>
   enumOptions: EnumOptions
+  enumCreateHandlers?: EnumCreateHandlers
 }
 
-export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, isEditAllowed, isCreate = false, data, internalEditing, setInternalEditing, handleUpdateField, enumOptions }) => {
+export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
+  isEditing,
+  isEditAllowed,
+  isCreate = false,
+  data,
+  internalEditing,
+  setInternalEditing,
+  handleUpdateField,
+  enumOptions,
+  enumCreateHandlers,
+}) => {
   const sharedFieldProps = {
     isEditing,
     isEditAllowed,
@@ -44,7 +55,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
         <CardContent>
           <div className="mb-2 grid grid-cols-1 md:grid-cols-2 gap-2">
             <TextField name="displayName" label="Display Name" tooltipContent="User friendly name of the vendor, this does not need to be unique like the full name" {...sharedFieldProps} />
-            <SelectField name="entitySourceTypeName" label="Source Type" options={enumOptions.sourceTypeOptions} {...sharedFieldProps} />
+            <SelectField name="entitySourceTypeName" label="Source Type" options={enumOptions.sourceTypeOptions} onCreateOption={enumCreateHandlers?.entitySourceTypeName} {...sharedFieldProps} />
             <MultiStringField
               name="domains"
               label="Domains"
@@ -76,7 +87,13 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
             <CheckboxField name="approvedForUse" label="Approved For Use" tooltipContent="Indicates whether the vendor has been approved for use internally" {...sharedFieldProps} />
             <div className="col-span-2 h-1" />
             <SelectField name="status" label="Status" options={enumOptions.entityStatusOptions} {...sharedFieldProps} />
-            <SelectField name="entityRelationshipStateName" label="Relationship State" options={enumOptions.relationshipStateOptions} {...sharedFieldProps} />
+            <SelectField
+              name="entityRelationshipStateName"
+              label="Relationship State"
+              options={enumOptions.relationshipStateOptions}
+              onCreateOption={enumCreateHandlers?.entityRelationshipStateName}
+              {...sharedFieldProps}
+            />
           </div>
         </CardContent>
       </Card>
@@ -93,6 +110,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
               name="environmentName"
               label="Environment"
               options={enumOptions.environmentOptions}
+              onCreateOption={enumCreateHandlers?.environmentName}
               tooltipContent="The environment in which the vendor operates in your organization, e.g. production, development, etc"
               {...sharedFieldProps}
             />
@@ -100,6 +118,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
               name="scopeName"
               label="Scope"
               options={enumOptions.scopeOptions}
+              onCreateOption={enumCreateHandlers?.scopeName}
               tooltipContent="The audit scope of the vendor, generally indicating the areas and processes covered by the audit"
               {...sharedFieldProps}
             />
@@ -196,6 +215,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
                 label="Security Questionnaire Status"
                 tooltipContent="The current status of the vendor's security questionnaire"
                 options={enumOptions.securityQuestionnaireStatusOptions}
+                onCreateOption={enumCreateHandlers?.entitySecurityQuestionnaireStatusName}
                 {...sharedFieldProps}
               />
             </div>

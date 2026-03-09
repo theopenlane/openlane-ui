@@ -38,3 +38,5 @@ export type EnumOptions = EnumOptionsGeneric<RemediationEnumKeys>
 export type RemediationTablePageConfig = GenericTablePageConfig<TData, TFormData, TUpdateInput, TUpdateData, TCreateInput, TCreateData, TWhereInput, TOrderField>
 export type RemediationSheetConfig = GenericDetailsSheetConfig<TFormData, TData, TUpdateInput, TUpdateData, TCreateInput, TCreateData>
 export type RemediationFieldProps = RenderFieldsProps<TData, TUpdateInput>
+
+export type { EnumCreateHandlers } from '@/components/shared/crud-base/page'

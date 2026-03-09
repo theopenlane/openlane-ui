@@ -82,7 +82,7 @@ export enum SelectOptionBulkEditProcedures {
 
 export enum SelectOptionBulkEditRisks {
   Status = 'Status',
-  RiskType = 'Procedure type',
+  RiskType = 'Risk type',
   RiskStakeholder = 'Stakeholder',
   RiskDelegate = 'Delegate',
   RiskCategory = 'Category',

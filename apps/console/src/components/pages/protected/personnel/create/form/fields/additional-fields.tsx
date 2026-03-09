@@ -6,7 +6,7 @@ import { CheckboxField } from '@/components/shared/crud-base/form-fields/checkbo
 import { ResponsibilityField } from '@/components/shared/crud-base/form-fields/responsibility-field'
 import { IdentityHolderQuery, UpdateIdentityHolderInput } from '@repo/codegen/src/schema'
 import { InternalEditingType } from '@/components/shared/crud-base/generic-sheet'
-import { EnumOptions } from '../../../table/types'
+import { EnumOptions, EnumCreateHandlers } from '../../../table/types'
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@repo/ui/cardpanel'
 
 interface AdditionalFieldsProps {
@@ -18,9 +18,20 @@ interface AdditionalFieldsProps {
   setInternalEditing: InternalEditingType
   handleUpdateField?: (input: UpdateIdentityHolderInput) => Promise<void>
   enumOptions: EnumOptions
+  enumCreateHandlers?: EnumCreateHandlers
 }
 
-export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, isEditAllowed, isCreate = false, data, internalEditing, setInternalEditing, handleUpdateField, enumOptions }) => {
+export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
+  isEditing,
+  isEditAllowed,
+  isCreate = false,
+  data,
+  internalEditing,
+  setInternalEditing,
+  handleUpdateField,
+  enumOptions,
+  enumCreateHandlers,
+}) => {
   const sharedFieldProps = {
     isEditing,
     isEditAllowed,
@@ -112,6 +123,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
               name="environmentName"
               label="Environment"
               options={enumOptions.environmentOptions}
+              onCreateOption={enumCreateHandlers?.environmentName}
               tooltipContent="The environment in which this person operates, e.g. production, development"
               {...sharedFieldProps}
             />
@@ -119,6 +131,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
               name="scopeName"
               label="Scope"
               options={enumOptions.scopeOptions}
+              onCreateOption={enumCreateHandlers?.scopeName}
               tooltipContent="The audit scope for this person, indicating covered areas and processes"
               {...sharedFieldProps}
             />

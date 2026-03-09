@@ -14,10 +14,11 @@ import useEscapeKey from '@/hooks/useEscapeKey'
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
-import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
-import { CustomTypeEnumOptionChip, CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
+import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
+import { CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { objectToSnakeCase } from '@/utils/strings'
+import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-enum-select/creatable-custom-type-enum-select'
 
 type TPropertiesCardProps = {
   form: UseFormReturn<EditPolicyMetadataFormData>
@@ -35,11 +36,10 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditin
   const editingField = isControlled ? activeField : internalEditingField
   const setEditingField = isControlled ? setActiveField : setInternalEditingField
 
-  const { enumOptions } = useGetCustomTypeEnums({
-    where: {
-      objectType: objectToSnakeCase(ObjectTypes.INTERNAL_POLICY),
-      field: 'kind',
-    },
+  const { enumOptions, onCreateOption } = useCreatableEnumOptions({
+    objectType: objectToSnakeCase(ObjectTypes.INTERNAL_POLICY),
+    field: 'kind',
+    isEditAllowed: editAllowed,
   })
 
   const handleUpdateIfChanged = (field: 'status' | 'internalPolicyKindName', value: string, current: string | undefined | null) => {
@@ -215,25 +215,18 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditin
               render={({ field }) => (
                 <FormItem>
                   <FormControl>
-                    <Select
+                    <CreatableCustomTypeEnumSelect
                       value={field.value || ''}
+                      options={enumOptions ?? []}
+                      onCreateOption={onCreateOption}
+                      searchPlaceholder="Search policy type..."
+                      contentRef={popoverRef}
                       onValueChange={(val) => {
                         field.onChange(val)
                         handleUpdateIfChanged('internalPolicyKindName', val, policy?.internalPolicyKindName)
                       }}
-                    >
-                      <SelectTrigger className="w-full">
-                        <CustomTypeEnumValue value={field.value} options={enumOptions ?? []} placeholder="Select type" />
-                      </SelectTrigger>
-
-                      <SelectContent ref={popoverRef}>
-                        {enumOptions?.map((option) => (
-                          <SelectItem key={option.value} value={option.value}>
-                            <CustomTypeEnumOptionChip option={option} />
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                      placeholder="Select type"
+                    />
                   </FormControl>
 
                   {form.formState.errors.internalPolicyKindName && <p className="text-red-500 text-sm">{form.formState.errors.internalPolicyKindName.message}</p>}

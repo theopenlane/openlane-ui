@@ -10539,6 +10539,7 @@ export interface CreateVulnerabilityInput {
 export interface CreateWorkflowDefinitionInput {
   /** Whether the workflow definition is active */
   active?: InputMaybe<Scalars['Boolean']['input']>
+  blockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** Suppress duplicate triggers within this window per object/definition */
   cooldownSeconds?: InputMaybe<Scalars['Int']['input']>
   /** Typed document describing triggers, conditions, and actions */
@@ -10547,6 +10548,7 @@ export interface CreateWorkflowDefinitionInput {
   description?: InputMaybe<Scalars['String']['input']>
   /** Whether this definition is a draft */
   draft?: InputMaybe<Scalars['Boolean']['input']>
+  editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   emailTemplateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   groupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** internal notes about the object creation, this field is only available to system admins */
@@ -10570,6 +10572,7 @@ export interface CreateWorkflowDefinitionInput {
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   /** Cached list of fields that should trigger workflow evaluation */
   trackedFields?: InputMaybe<Array<Scalars['String']['input']>>
+  viewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** Kind of workflow, e.g. APPROVAL, LIFECYCLE, NOTIFICATION */
   workflowKind: WorkflowDefinitionWorkflowKind
 }
@@ -17442,6 +17445,7 @@ export interface EvidenceEdge {
 /** EvidenceEvidenceStatus is enum for the field status */
 export enum EvidenceEvidenceStatus {
   AUDITOR_APPROVED = 'AUDITOR_APPROVED',
+  DRAFT = 'DRAFT',
   IN_REVIEW = 'IN_REVIEW',
   MISSING_ARTIFACT = 'MISSING_ARTIFACT',
   NEEDS_RENEWAL = 'NEEDS_RENEWAL',
@@ -27396,6 +27400,8 @@ export interface Mutation {
   updateBulkCSVProgramMembership: ProgramMembershipBulkUpdatePayload
   /** Update multiple existing remediations via file upload */
   updateBulkCSVRemediation: RemediationBulkUpdatePayload
+  /** Update multiple existing reviews via file upload */
+  updateBulkCSVReview: ReviewBulkUpdatePayload
   /** Update multiple existing risks via file upload */
   updateBulkCSVRisk: RiskBulkUpdatePayload
   /** Update multiple existing scans via file upload */
@@ -27490,6 +27496,8 @@ export interface Mutation {
   updateBulkProgramMembership: ProgramMembershipBulkUpdatePayload
   /** Update multiple existing remediations */
   updateBulkRemediation: RemediationBulkUpdatePayload
+  /** Update multiple existing reviews */
+  updateBulkReview: ReviewBulkUpdatePayload
   /** Update multiple existing risks */
   updateBulkRisk: RiskBulkUpdatePayload
   /** Update multiple existing scans */
@@ -28535,6 +28543,7 @@ export interface MutationCreateRemediationArgs {
 
 export interface MutationCreateReviewArgs {
   input: CreateReviewInput
+  reviewFiles?: InputMaybe<Array<Scalars['Upload']['input']>>
 }
 
 export interface MutationCreateRiskArgs {
@@ -29465,6 +29474,10 @@ export interface MutationUpdateBulkCsvRemediationArgs {
   input: Scalars['Upload']['input']
 }
 
+export interface MutationUpdateBulkCsvReviewArgs {
+  input: Scalars['Upload']['input']
+}
+
 export interface MutationUpdateBulkCsvRiskArgs {
   input: Scalars['Upload']['input']
 }
@@ -29684,6 +29697,11 @@ export interface MutationUpdateBulkProgramMembershipArgs {
 export interface MutationUpdateBulkRemediationArgs {
   ids: Array<Scalars['ID']['input']>
   input: UpdateRemediationInput
+}
+
+export interface MutationUpdateBulkReviewArgs {
+  ids: Array<Scalars['ID']['input']>
+  input: UpdateReviewInput
 }
 
 export interface MutationUpdateBulkRiskArgs {
@@ -30037,6 +30055,7 @@ export interface MutationUpdateRemediationArgs {
 export interface MutationUpdateReviewArgs {
   id: Scalars['ID']['input']
   input: UpdateReviewInput
+  reviewFiles?: InputMaybe<Array<Scalars['Upload']['input']>>
 }
 
 export interface MutationUpdateRiskArgs {
@@ -41066,6 +41085,15 @@ export interface ReviewBulkCreatePayload {
   __typename?: 'ReviewBulkCreatePayload'
   /** Created reviews */
   reviews?: Maybe<Array<Review>>
+}
+
+/** Return response for updateBulkReview mutation */
+export interface ReviewBulkUpdatePayload {
+  __typename?: 'ReviewBulkUpdatePayload'
+  /** Updated reviews */
+  reviews?: Maybe<Array<Review>>
+  /** IDs of the updated reviews */
+  updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
 }
 
 /** A connection to a list of items. */
@@ -56873,14 +56901,19 @@ export interface UpdateVulnerabilityInput {
 export interface UpdateWorkflowDefinitionInput {
   /** Whether the workflow definition is active */
   active?: InputMaybe<Scalars['Boolean']['input']>
+  addBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEmailTemplateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addNotificationTemplateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTagDefinitionIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   appendTrackedFields?: InputMaybe<Array<Scalars['String']['input']>>
+  clearBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearDefinitionJSON?: InputMaybe<Scalars['Boolean']['input']>
   clearDescription?: InputMaybe<Scalars['Boolean']['input']>
+  clearEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearEmailTemplates?: InputMaybe<Scalars['Boolean']['input']>
   clearGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalNotes?: InputMaybe<Scalars['Boolean']['input']>
@@ -56890,6 +56923,7 @@ export interface UpdateWorkflowDefinitionInput {
   clearTagDefinitions?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearTrackedFields?: InputMaybe<Scalars['Boolean']['input']>
+  clearViewers?: InputMaybe<Scalars['Boolean']['input']>
   /** Suppress duplicate triggers within this window per object/definition */
   cooldownSeconds?: InputMaybe<Scalars['Int']['input']>
   /** Typed document describing triggers, conditions, and actions */
@@ -56906,10 +56940,13 @@ export interface UpdateWorkflowDefinitionInput {
   name?: InputMaybe<Scalars['String']['input']>
   /** When this definition was published */
   publishedAt?: InputMaybe<Scalars['Time']['input']>
+  removeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEmailTemplateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeNotificationTemplateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTagDefinitionIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** Revision number for this definition */
   revision?: InputMaybe<Scalars['Int']['input']>
   /** Type of schema this workflow applies to */
@@ -59674,6 +59711,7 @@ export interface WorkflowDefinition extends Node {
   __typename?: 'WorkflowDefinition'
   /** Whether the workflow definition is active */
   active: Scalars['Boolean']['output']
+  blockedGroups: GroupConnection
   /** Suppress duplicate triggers within this window per object/definition */
   cooldownSeconds: Scalars['Int']['output']
   createdAt?: Maybe<Scalars['Time']['output']>
@@ -59686,6 +59724,7 @@ export interface WorkflowDefinition extends Node {
   displayID: Scalars['String']['output']
   /** Whether this definition is a draft */
   draft: Scalars['Boolean']['output']
+  editors: GroupConnection
   emailTemplates: EmailTemplateConnection
   groups: GroupConnection
   id: Scalars['ID']['output']
@@ -59716,8 +59755,27 @@ export interface WorkflowDefinition extends Node {
   trackedFields?: Maybe<Array<Scalars['String']['output']>>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
+  viewers: GroupConnection
   /** Kind of workflow, e.g. APPROVAL, LIFECYCLE, NOTIFICATION */
   workflowKind: WorkflowDefinitionWorkflowKind
+}
+
+export interface WorkflowDefinitionBlockedGroupsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
+export interface WorkflowDefinitionEditorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 export interface WorkflowDefinitionEmailTemplatesArgs {
@@ -59754,6 +59812,15 @@ export interface WorkflowDefinitionTagDefinitionsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<TagDefinitionOrder>>
   where?: InputMaybe<TagDefinitionWhereInput>
+}
+
+export interface WorkflowDefinitionViewersArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 /** Return response for createBulkWorkflowDefinition mutation */
@@ -59896,6 +59963,12 @@ export interface WorkflowDefinitionWhereInput {
   /** draft field predicates */
   draft?: InputMaybe<Scalars['Boolean']['input']>
   draftNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  /** blocked_groups edge predicates */
+  hasBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
+  hasBlockedGroupsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** editors edge predicates */
+  hasEditors?: InputMaybe<Scalars['Boolean']['input']>
+  hasEditorsWith?: InputMaybe<Array<GroupWhereInput>>
   /** email_templates edge predicates */
   hasEmailTemplates?: InputMaybe<Scalars['Boolean']['input']>
   hasEmailTemplatesWith?: InputMaybe<Array<EmailTemplateWhereInput>>
@@ -59911,6 +59984,9 @@ export interface WorkflowDefinitionWhereInput {
   /** tag_definitions edge predicates */
   hasTagDefinitions?: InputMaybe<Scalars['Boolean']['input']>
   hasTagDefinitionsWith?: InputMaybe<Array<TagDefinitionWhereInput>>
+  /** viewers edge predicates */
+  hasViewers?: InputMaybe<Scalars['Boolean']['input']>
+  hasViewersWith?: InputMaybe<Array<GroupWhereInput>>
   /** id field predicates */
   id?: InputMaybe<Scalars['ID']['input']>
   idContainsFold?: InputMaybe<Scalars['ID']['input']>
@@ -64664,6 +64740,47 @@ export type UpdateBulkEntityMutationVariables = Exact<{
 
 export type UpdateBulkEntityMutation = { __typename?: 'Mutation'; updateBulkEntity: { __typename?: 'EntityBulkUpdatePayload'; updatedIDs?: Array<string> | null } }
 
+export type GetEntityFilesPaginatedQueryVariables = Exact<{
+  entityId: Scalars['ID']['input']
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<FileOrder> | FileOrder>
+}>
+
+export type GetEntityFilesPaginatedQuery = {
+  __typename?: 'Query'
+  entity: {
+    __typename?: 'Entity'
+    files: {
+      __typename?: 'FileConnection'
+      totalCount: number
+      pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
+      edges?: Array<{
+        __typename?: 'FileEdge'
+        node?: { __typename?: 'File'; providedFileName: string; providedFileSize?: number | null; providedFileExtension: string; id: string; uri?: string | null; presignedURL?: string | null } | null
+      } | null> | null
+    }
+  }
+}
+
+export type UpdateEntityWithFilesMutationVariables = Exact<{
+  updateEntityId: Scalars['ID']['input']
+  input: UpdateEntityInput
+  entityFiles?: InputMaybe<Array<Scalars['Upload']['input']> | Scalars['Upload']['input']>
+}>
+
+export type UpdateEntityWithFilesMutation = { __typename?: 'Mutation'; updateEntity: { __typename?: 'EntityUpdatePayload'; entity: { __typename?: 'Entity'; id: string } } }
+
+export type CreateEntityWithFilesMutationVariables = Exact<{
+  input: CreateEntityInput
+  entityTypeName?: InputMaybe<Scalars['String']['input']>
+  entityFiles?: InputMaybe<Array<Scalars['Upload']['input']> | Scalars['Upload']['input']>
+}>
+
+export type CreateEntityWithFilesMutation = { __typename?: 'Mutation'; createEntity: { __typename?: 'EntityCreatePayload'; entity: { __typename?: 'Entity'; id: string } } }
+
 export type GetEntityAssociationsQueryVariables = Exact<{
   entityId: Scalars['ID']['input']
 }>
@@ -64714,7 +64831,16 @@ export type GetEvidenceFilesQuery = {
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
     edges?: Array<{
       __typename?: 'FileEdge'
-      node?: { __typename?: 'File'; id: string; providedFileName: string; presignedURL?: string | null; providedFileExtension: string; categoryType?: string | null; createdAt?: any | null } | null
+      node?: {
+        __typename?: 'File'
+        id: string
+        providedFileName: string
+        providedFileSize?: number | null
+        presignedURL?: string | null
+        providedFileExtension: string
+        categoryType?: string | null
+        createdAt?: any | null
+      } | null
     } | null> | null
   }
 }
@@ -65143,6 +65269,36 @@ export type GetExportsQuery = {
         exportType: ExportExportType
         errorMessage?: string | null
         files: { __typename?: 'FileConnection'; edges?: Array<{ __typename?: 'FileEdge'; node?: { __typename?: 'File'; presignedURL?: string | null } | null } | null> | null }
+      } | null
+    } | null> | null
+  }
+}
+
+export type GetFilesQueryVariables = Exact<{
+  where?: InputMaybe<FileWhereInput>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type GetFilesQuery = {
+  __typename?: 'Query'
+  files: {
+    __typename?: 'FileConnection'
+    totalCount: number
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
+    edges?: Array<{
+      __typename?: 'FileEdge'
+      node?: {
+        __typename?: 'File'
+        id: string
+        providedFileName: string
+        providedFileSize?: number | null
+        presignedURL?: string | null
+        providedFileExtension: string
+        categoryType?: string | null
+        createdAt?: any | null
       } | null
     } | null> | null
   }
@@ -65848,6 +66004,52 @@ export type UpdateBulkIdentityHolderMutationVariables = Exact<{
 }>
 
 export type UpdateBulkIdentityHolderMutation = { __typename?: 'Mutation'; updateBulkIdentityHolder: { __typename?: 'IdentityHolderBulkUpdatePayload'; updatedIDs?: Array<string> | null } }
+
+export type GetIdentityHolderFilesPaginatedQueryVariables = Exact<{
+  identityHolderId: Scalars['ID']['input']
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<FileOrder> | FileOrder>
+}>
+
+export type GetIdentityHolderFilesPaginatedQuery = {
+  __typename?: 'Query'
+  identityHolder: {
+    __typename?: 'IdentityHolder'
+    files: {
+      __typename?: 'FileConnection'
+      totalCount: number
+      pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
+      edges?: Array<{
+        __typename?: 'FileEdge'
+        node?: { __typename?: 'File'; providedFileName: string; providedFileSize?: number | null; providedFileExtension: string; id: string; uri?: string | null; presignedURL?: string | null } | null
+      } | null> | null
+    }
+  }
+}
+
+export type UpdateIdentityHolderWithFilesMutationVariables = Exact<{
+  updateIdentityHolderId: Scalars['ID']['input']
+  input: UpdateIdentityHolderInput
+  identityHolderFiles?: InputMaybe<Array<Scalars['Upload']['input']> | Scalars['Upload']['input']>
+}>
+
+export type UpdateIdentityHolderWithFilesMutation = {
+  __typename?: 'Mutation'
+  updateIdentityHolder: { __typename?: 'IdentityHolderUpdatePayload'; identityHolder: { __typename?: 'IdentityHolder'; id: string } }
+}
+
+export type CreateIdentityHolderWithFilesMutationVariables = Exact<{
+  input: CreateIdentityHolderInput
+  identityHolderFiles?: InputMaybe<Array<Scalars['Upload']['input']> | Scalars['Upload']['input']>
+}>
+
+export type CreateIdentityHolderWithFilesMutation = {
+  __typename?: 'Mutation'
+  createIdentityHolder: { __typename?: 'IdentityHolderCreatePayload'; identityHolder: { __typename?: 'IdentityHolder'; id: string } }
+}
 
 export type GetIdentityHolderAssociationsQueryVariables = Exact<{
   identityHolderId: Scalars['ID']['input']
@@ -68186,6 +68388,7 @@ export type GetProgramGroupsQuery = {
         node?: {
           __typename?: 'Group'
           name: string
+          displayName: string
           id: string
           gravatarLogoURL?: string | null
           logoURL?: string | null
@@ -68201,6 +68404,7 @@ export type GetProgramGroupsQuery = {
         node?: {
           __typename?: 'Group'
           name: string
+          displayName: string
           id: string
           gravatarLogoURL?: string | null
           logoURL?: string | null
@@ -68456,6 +68660,7 @@ export type ReviewsWithFilterQuery = {
         state?: string | null
         summary?: string | null
         systemOwned?: boolean | null
+        tags?: Array<string> | null
         title: string
         updatedAt?: any | null
         updatedBy?: string | null
@@ -68498,6 +68703,7 @@ export type ReviewQuery = {
     state?: string | null
     summary?: string | null
     systemOwned?: boolean | null
+    tags?: Array<string> | null
     title: string
     updatedAt?: any | null
     updatedBy?: string | null
@@ -68506,6 +68712,7 @@ export type ReviewQuery = {
 
 export type CreateReviewMutationVariables = Exact<{
   input: CreateReviewInput
+  reviewFiles?: InputMaybe<Array<Scalars['Upload']['input']> | Scalars['Upload']['input']>
 }>
 
 export type CreateReviewMutation = { __typename?: 'Mutation'; createReview: { __typename?: 'ReviewCreatePayload'; review: { __typename?: 'Review'; id: string } } }
@@ -68513,6 +68720,7 @@ export type CreateReviewMutation = { __typename?: 'Mutation'; createReview: { __
 export type UpdateReviewMutationVariables = Exact<{
   updateReviewId: Scalars['ID']['input']
   input: UpdateReviewInput
+  reviewFiles?: InputMaybe<Array<Scalars['Upload']['input']> | Scalars['Upload']['input']>
 }>
 
 export type UpdateReviewMutation = { __typename?: 'Mutation'; updateReview: { __typename?: 'ReviewUpdatePayload'; review: { __typename?: 'Review'; id: string } } }
@@ -68522,6 +68730,100 @@ export type DeleteReviewMutationVariables = Exact<{
 }>
 
 export type DeleteReviewMutation = { __typename?: 'Mutation'; deleteReview: { __typename?: 'ReviewDeletePayload'; deletedID: string } }
+
+export type CreateBulkCsvReviewMutationVariables = Exact<{
+  input: Scalars['Upload']['input']
+}>
+
+export type CreateBulkCsvReviewMutation = { __typename?: 'Mutation'; createBulkCSVReview: { __typename?: 'ReviewBulkCreatePayload'; reviews?: Array<{ __typename?: 'Review'; id: string }> | null } }
+
+export type UpdateBulkReviewMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+  input: UpdateReviewInput
+}>
+
+export type UpdateBulkReviewMutation = { __typename?: 'Mutation'; updateBulkReview: { __typename?: 'ReviewBulkUpdatePayload'; updatedIDs?: Array<string> | null } }
+
+export type GetReviewAssociationsQueryVariables = Exact<{
+  reviewId: Scalars['ID']['input']
+}>
+
+export type GetReviewAssociationsQuery = {
+  __typename?: 'Query'
+  review: {
+    __typename?: 'Review'
+    controls: {
+      __typename?: 'ControlConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string; displayID: string; description?: string | null } | null } | null> | null
+    }
+    subcontrols: {
+      __typename?: 'SubcontrolConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string; displayID: string; description?: string | null } | null } | null> | null
+    }
+    findings: {
+      __typename?: 'FindingConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'FindingEdge'; node?: { __typename?: 'Finding'; id: string; displayID: string; displayName?: string | null } | null } | null> | null
+    }
+    remediations: {
+      __typename?: 'RemediationConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'RemediationEdge'; node?: { __typename?: 'Remediation'; id: string; displayID: string } | null } | null> | null
+    }
+    vulnerabilities: {
+      __typename?: 'VulnerabilityConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'VulnerabilityEdge'; node?: { __typename?: 'Vulnerability'; id: string; displayID: string; displayName?: string | null } | null } | null> | null
+    }
+    entities: {
+      __typename?: 'EntityConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'EntityEdge'; node?: { __typename?: 'Entity'; id: string; name?: string | null; displayName?: string | null } | null } | null> | null
+    }
+    tasks: {
+      __typename?: 'TaskConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; title: string; displayID: string } | null } | null> | null
+    }
+    assets: {
+      __typename?: 'AssetConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'AssetEdge'; node?: { __typename?: 'Asset'; id: string; name: string; displayName?: string | null } | null } | null> | null
+    }
+    programs: {
+      __typename?: 'ProgramConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; name: string; displayID: string } | null } | null> | null
+    }
+  }
+}
+
+export type GetReviewFilesPaginatedQueryVariables = Exact<{
+  reviewId: Scalars['ID']['input']
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<FileOrder> | FileOrder>
+}>
+
+export type GetReviewFilesPaginatedQuery = {
+  __typename?: 'Query'
+  review: {
+    __typename?: 'Review'
+    files: {
+      __typename?: 'FileConnection'
+      totalCount: number
+      pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
+      edges?: Array<{
+        __typename?: 'FileEdge'
+        node?: { __typename?: 'File'; providedFileName: string; providedFileSize?: number | null; providedFileExtension: string; id: string; uri?: string | null; presignedURL?: string | null } | null
+      } | null> | null
+    }
+  }
+}
 
 export type RiskFieldsFragment = {
   __typename?: 'Risk'
@@ -68896,8 +69198,6 @@ export type ScansWithFilterQuery = {
       node?: {
         __typename?: 'Scan'
         assignedTo?: string | null
-        assignedToGroupID?: string | null
-        assignedToUserID?: string | null
         createdAt?: any | null
         createdBy?: string | null
         environmentID?: string | null
@@ -68907,11 +69207,7 @@ export type ScansWithFilterQuery = {
         metadata?: any | null
         nextScanRunAt?: string | null
         performedBy?: string | null
-        performedByGroupID?: string | null
-        performedByUserID?: string | null
         reviewedBy?: string | null
-        reviewedByGroupID?: string | null
-        reviewedByUserID?: string | null
         scanDate?: string | null
         scanSchedule?: string | null
         scanType: ScanScanType
@@ -68921,6 +69217,12 @@ export type ScansWithFilterQuery = {
         target: string
         updatedAt?: any | null
         updatedBy?: string | null
+        assignedToUser?: { __typename?: 'User'; id: string; displayName: string } | null
+        assignedToGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
+        performedByUser?: { __typename?: 'User'; id: string; displayName: string } | null
+        performedByGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
+        reviewedByUser?: { __typename?: 'User'; id: string; displayName: string } | null
+        reviewedByGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
@@ -68936,8 +69238,6 @@ export type ScanQuery = {
   scan: {
     __typename?: 'Scan'
     assignedTo?: string | null
-    assignedToGroupID?: string | null
-    assignedToUserID?: string | null
     createdAt?: any | null
     createdBy?: string | null
     environmentID?: string | null
@@ -68947,11 +69247,7 @@ export type ScanQuery = {
     metadata?: any | null
     nextScanRunAt?: string | null
     performedBy?: string | null
-    performedByGroupID?: string | null
-    performedByUserID?: string | null
     reviewedBy?: string | null
-    reviewedByGroupID?: string | null
-    reviewedByUserID?: string | null
     scanDate?: string | null
     scanSchedule?: string | null
     scanType: ScanScanType
@@ -68961,6 +69257,12 @@ export type ScanQuery = {
     target: string
     updatedAt?: any | null
     updatedBy?: string | null
+    assignedToUser?: { __typename?: 'User'; id: string; displayName: string } | null
+    assignedToGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
+    performedByUser?: { __typename?: 'User'; id: string; displayName: string } | null
+    performedByGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
+    reviewedByUser?: { __typename?: 'User'; id: string; displayName: string } | null
+    reviewedByGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
   }
 }
 
