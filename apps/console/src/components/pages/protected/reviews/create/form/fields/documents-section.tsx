@@ -28,7 +28,7 @@ const ReviewDocumentsSection: React.FC<ReviewDocumentsSectionProps> = ({ reviewI
   const defaultSorting = getInitialSortConditions(REVIEW_FILES_TABLE_KEY, FileOrderField, [
     {
       field: FileOrderField.created_at,
-      direction: OrderDirection.ASC,
+      direction: OrderDirection.DESC,
     },
   ])
   const [orderBy, setOrderBy] = useState<FileOrder[]>(defaultSorting)
