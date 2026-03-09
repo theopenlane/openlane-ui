@@ -15,6 +15,7 @@ export const CONTROL_LIST_FIELDS_FRAGMENT = gql`
     auditorReferenceID
     source
     controlKindName
+    title
     subcontrols {
       totalCount
     }
