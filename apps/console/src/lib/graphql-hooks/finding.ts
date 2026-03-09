@@ -17,10 +17,11 @@ import {
   UpdateBulkFindingMutationVariables,
   DeleteBulkFindingMutation,
   DeleteBulkFindingMutationVariables,
+  GetFindingAssociationsQuery,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
 import { TPagination } from '@repo/ui/pagination-types'
-import { GET_ALL_FINDINGS, CREATE_FINDING, UPDATE_FINDING, DELETE_FINDING, FINDING, CREATE_CSV_BULK_FINDING, BULK_EDIT_FINDING, BULK_DELETE_FINDING } from '@repo/codegen/query/finding'
+import { GET_ALL_FINDINGS, CREATE_FINDING, UPDATE_FINDING, DELETE_FINDING, FINDING, CREATE_CSV_BULK_FINDING, BULK_EDIT_FINDING, BULK_DELETE_FINDING, GET_FINDING_ASSOCIATIONS } from '@repo/codegen/query/finding'
 
 type GetAllFindingsArgs = {
   where?: FindingsWithFilterQueryVariables['where']
@@ -122,6 +123,15 @@ export const useFinding = (findingId?: FindingQueryVariables['findingId']) => {
       const result = await client.request(FINDING, { findingId })
       return result as FindingQuery
     },
+    enabled: !!findingId,
+  })
+}
+
+export const useGetFindingAssociations = (findingId?: string) => {
+  const { client } = useGraphQLClient()
+  return useQuery<GetFindingAssociationsQuery, unknown>({
+    queryKey: ['findings', findingId, 'associations'],
+    queryFn: async () => client.request<GetFindingAssociationsQuery>(GET_FINDING_ASSOCIATIONS, { findingId: findingId as string }),
     enabled: !!findingId,
   })
 }

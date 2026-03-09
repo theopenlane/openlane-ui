@@ -7,6 +7,7 @@ import { AdditionalFields } from '../create/form/fields/additional-fields'
 import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
 import { FindingFieldProps, EnumOptions, EnumCreateHandlers } from './types'
 import { enumToSortFields } from '@/components/shared/crud-base/utils'
+import { FindingAssociationSection } from '../create/form/fields/association-section'
 
 export const formId = 'edit' + ObjectNames.FINDING
 
@@ -153,6 +154,7 @@ export const getFieldsToRender = (props: FindingFieldProps, enumOptions: EnumOpt
         enumOptions={enumOptions}
         enumCreateHandlers={enumCreateHandlers}
       />
+      <FindingAssociationSection data={props.data} isEditing={props.isEditing} isCreate={props.isCreate} isEditAllowed={props.isEditAllowed} />
     </div>
   )
 }

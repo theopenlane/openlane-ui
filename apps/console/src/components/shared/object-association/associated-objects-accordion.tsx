@@ -50,6 +50,7 @@ const AssociatedObjectsAccordion: React.FC<AssociatedObjectsAccordionProps> = ({
     rows: {
       id: string
       displayID?: string | null
+      displayName?: string | null
       refCode?: string | null
       name?: string | null
       title?: string | null
@@ -61,6 +62,7 @@ const AssociatedObjectsAccordion: React.FC<AssociatedObjectsAccordionProps> = ({
     <div className="flex gap-2 flex-wrap">
       {rows.length > 0 ? (
         rows.map((row) => {
+          console.log(row)
           return (
             <ObjectAssociationChip
               kind={kind}
@@ -68,7 +70,7 @@ const AssociatedObjectsAccordion: React.FC<AssociatedObjectsAccordionProps> = ({
               object={{
                 id: row.id,
                 refCode: row?.refCode,
-                name: row?.name,
+                name: row?.displayName || row?.name,
                 title: row?.title,
                 details: row?.details,
                 description: row?.description,
