@@ -7,6 +7,7 @@ import { Timer } from 'lucide-react'
 import { useCallback, useEffect } from 'react'
 import { addHours, differenceInMilliseconds } from 'date-fns'
 import { signOut } from 'next-auth/react'
+import { markSessionExpired } from '@/lib/graphqlClient'
 
 interface SessionExpiredModalProps {
   open: boolean
@@ -23,6 +24,7 @@ const SessionExpiredModal = ({ open }: SessionExpiredModalProps) => {
 
   useEffect(() => {
     if (!open) return
+    markSessionExpired()
     signoutNoRedirect()
     const now = new Date()
     const expireAt = addHours(now, 2)
