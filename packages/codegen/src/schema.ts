@@ -17445,6 +17445,7 @@ export interface EvidenceEdge {
 /** EvidenceEvidenceStatus is enum for the field status */
 export enum EvidenceEvidenceStatus {
   AUDITOR_APPROVED = 'AUDITOR_APPROVED',
+  DRAFT = 'DRAFT',
   IN_REVIEW = 'IN_REVIEW',
   MISSING_ARTIFACT = 'MISSING_ARTIFACT',
   NEEDS_RENEWAL = 'NEEDS_RENEWAL',
@@ -30054,6 +30055,7 @@ export interface MutationUpdateRemediationArgs {
 export interface MutationUpdateReviewArgs {
   id: Scalars['ID']['input']
   input: UpdateReviewInput
+  reviewFiles?: InputMaybe<Array<Scalars['Upload']['input']>>
 }
 
 export interface MutationUpdateRiskArgs {
@@ -68718,6 +68720,7 @@ export type CreateReviewMutation = { __typename?: 'Mutation'; createReview: { __
 export type UpdateReviewMutationVariables = Exact<{
   updateReviewId: Scalars['ID']['input']
   input: UpdateReviewInput
+  reviewFiles?: InputMaybe<Array<Scalars['Upload']['input']> | Scalars['Upload']['input']>
 }>
 
 export type UpdateReviewMutation = { __typename?: 'Mutation'; updateReview: { __typename?: 'ReviewUpdatePayload'; review: { __typename?: 'Review'; id: string } } }

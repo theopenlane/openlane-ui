@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { useGetReviewFilesPaginated, useUpdateReview } from '@/lib/graphql-hooks/review'
+import { useGetReviewFilesPaginated, useUpdateReview, useUploadReviewFiles } from '@/lib/graphql-hooks/review'
 import { DocumentsSection } from '@/components/shared/documents-section/documents-section'
 import { DocumentsCreateSection } from '@/components/shared/documents-section/documents-create-section'
 import { FileOrder, FileOrderField, OrderDirection } from '@repo/codegen/src/schema'
@@ -41,6 +41,7 @@ const ReviewDocumentsSection: React.FC<ReviewDocumentsSectionProps> = ({ reviewI
     pagination,
   })
 
+  const { mutateAsync: uploadFiles, isPending: isUploading } = useUploadReviewFiles()
   const { mutateAsync: updateReview } = useUpdateReview()
 
   if (isCreate || !reviewId) {
@@ -52,11 +53,14 @@ const ReviewDocumentsSection: React.FC<ReviewDocumentsSectionProps> = ({ reviewI
 
   const handleUpload = async (newFiles: File[]) => {
     try {
-      // Reviews don't have direct file upload - files must be uploaded separately
-      // and attached via fileIDs. For now, we attach existing file IDs.
-      errorNotification({
-        title: 'Not supported',
-        description: 'Direct file upload is not supported for reviews. Please upload files first and attach them.',
+      await uploadFiles({
+        updateReviewId: reviewId,
+        input: {},
+        reviewFiles: newFiles,
+      })
+      successNotification({
+        title: 'Documents uploaded',
+        description: 'Documents have been successfully uploaded.',
       })
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
@@ -105,7 +109,7 @@ const ReviewDocumentsSection: React.FC<ReviewDocumentsSectionProps> = ({ reviewI
       defaultSorting={defaultSorting}
       onSortChange={setOrderBy}
       onUpload={handleUpload}
-      isUploading={false}
+      isUploading={isUploading}
       onRemoveFile={handleRemoveFile}
     />
   )

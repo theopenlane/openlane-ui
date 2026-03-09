@@ -83,6 +83,17 @@ export const useUpdateReview = () => {
   })
 }
 
+export const useUploadReviewFiles = () => {
+  const { queryClient } = useGraphQLClient()
+  return useMutation<UpdateReviewMutation, unknown, UpdateReviewMutationVariables>({
+    mutationFn: async (variables) => fetchGraphQLWithUpload({ query: UPDATE_REVIEW, variables }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['reviewFiles'] })
+      queryClient.invalidateQueries({ queryKey: ['reviews'] })
+    },
+  })
+}
+
 export const useDeleteReview = () => {
   const { client } = useGraphQLClient()
   const queryClient = useQueryClient()
