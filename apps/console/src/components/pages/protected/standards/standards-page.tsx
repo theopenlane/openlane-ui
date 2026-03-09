@@ -36,6 +36,7 @@ const StandardsPage = () => {
 
   const whereFilter = useMemo(() => {
     const conditions: StandardWhereInput = {
+      frameworkNEQ: 'openlane-trust-center',
       ...(debouncedSearchQuery ? { shortNameContainsFold: debouncedSearchQuery } : {}),
       ...filters,
     }
