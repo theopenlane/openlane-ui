@@ -40,16 +40,16 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, pageSi
           Page {currentPage} of {totalPages}
         </span>
         <div className="flex gap-2">
-          <Button className="h-6 w-6 !p-0" variant="outline" disabled={isFirstPage} onClick={() => onPageChange(1)}>
+          <Button type="button" className="h-6 w-6 !p-0" variant="outline" disabled={isFirstPage} onClick={() => onPageChange(1)}>
             <ChevronsLeft size={16} />
           </Button>
-          <Button className="h-6 w-6 !p-0" variant="outline" disabled={isFirstPage} onClick={() => onPageChange(currentPage - 1)}>
+          <Button type="button" className="h-6 w-6 !p-0" variant="outline" disabled={isFirstPage} onClick={() => onPageChange(currentPage - 1)}>
             <ChevronLeft size={16} />
           </Button>
-          <Button className="h-6 w-6 !p-0" variant="outline" disabled={isLastPage} onClick={() => onPageChange(currentPage + 1)}>
+          <Button type="button" className="h-6 w-6 !p-0" variant="outline" disabled={isLastPage} onClick={() => onPageChange(currentPage + 1)}>
             <ChevronRight size={16} />
           </Button>
-          <Button className="h-6 w-6 !p-0" variant="outline" disabled={isLastPage} onClick={() => onPageChange(totalPages)}>
+          <Button type="button" className="h-6 w-6 !p-0" variant="outline" disabled={isLastPage} onClick={() => onPageChange(totalPages)}>
             <ChevronsRight size={16} />
           </Button>
         </div>
