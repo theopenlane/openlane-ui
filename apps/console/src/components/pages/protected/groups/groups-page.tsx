@@ -43,6 +43,7 @@ const GroupsPage = () => {
     updatedBy: false,
     createdAt: false,
     createdBy: false,
+    name: false,
   }
 
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.GROUP, defaultVisibility))
