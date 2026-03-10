@@ -33,6 +33,8 @@ const ObjectAssociationTable = ({ data, onIDsChange, initialData, refCodeInitial
     onIDsChange(selectedIdsMap, selectedRefCodeMap)
   }, [selectedIdsMap, selectedRefCodeMap, onIDsChange])
 
+  const showFramework = data.some((row) => 'referenceFramework' in row)
+
   const columns: ColumnDef<TableRow>[] = [
     {
       id: 'select',
@@ -103,24 +105,35 @@ const ObjectAssociationTable = ({ data, onIDsChange, initialData, refCodeInitial
           </div>
         )
       },
-      size: 50,
-      maxSize: 50,
+      size: 40,
+      maxSize: 40,
       enableResizing: false,
       meta: {
-        className: 'max-w-[5%] w-[5%]',
+        className: 'w-[40px] max-w-[40px]',
       },
     },
     {
       accessorKey: 'name',
       header: 'Name',
+      size: 100,
+      maxSize: 100,
       meta: {
-        className: 'max-w-[40%] w-[30%]',
+        className: 'w-[100px] max-w-[100px]',
       },
       cell: ({ row }) => {
         const { name } = row.original
-        return <span className="block truncate whitespace-nowrap">{name}</span>
+        return <span className="block truncate">{name}</span>
       },
     },
+    ...(showFramework
+      ? [
+          {
+            accessorKey: 'referenceFramework',
+            header: 'Framework',
+            cell: ({ row }: { row: { original: TableRow } }) => <span className="block truncate">{row.original.referenceFramework ?? '—'}</span>,
+          } satisfies ColumnDef<TableRow>,
+        ]
+      : []),
   ]
 
   // Force new data reference when selection changes so the memoized DataTable body re-renders

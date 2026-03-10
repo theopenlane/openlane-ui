@@ -110,13 +110,21 @@ export const getControlsAndSubcontrolsColumns = ({
     {
       accessorKey: 'name',
       header: selectedObject === AccordionEnum.Control ? AccordionEnum.Control : AccordionEnum.Subcontrol,
-      size: 160,
-      maxSize: 160,
+      size: 100,
+      maxSize: 100,
       enableResizing: false,
       cell: ({ row }) => {
         const { refCode } = row.original
         return <span className="block truncate whitespace-nowrap">{refCode}</span>
       },
+    },
+    {
+      accessorKey: 'referenceFramework',
+      header: 'Framework',
+      size: 140,
+      maxSize: 140,
+      enableResizing: false,
+      cell: ({ row }) => <span className="block truncate whitespace-nowrap">{row.original.referenceFramework ?? '—'}</span>,
     },
     {
       accessorKey: 'description',
