@@ -57,6 +57,7 @@ export function SetObjectAssociationDialog({ trigger, defaultSelectedObject, all
         campaignIDs: (controlAssociationsData.control.campaigns?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
         remediationIDs: (controlAssociationsData.control.remediations?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
         reviewIDs: (controlAssociationsData.control.reviews?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+        findingIDs: (controlAssociationsData.control.findings?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
       }
     }
 
@@ -139,6 +140,11 @@ export function SetObjectAssociationDialog({ trigger, defaultSelectedObject, all
 
       const policyAssociationsChanged = (added.internalPolicyIDs?.length ?? 0) > 0 || (removed.internalPolicyIDs?.length ?? 0) > 0
       const procedureAssociationsChanged = (added.procedureIDs?.length ?? 0) > 0 || (removed.procedureIDs?.length ?? 0) > 0
+      const reviewAssociationsChanged = (added.reviewIDs?.length ?? 0) > 0 || (removed.reviewIDs?.length ?? 0) > 0
+      const assetAssociationsChanged = (added.assetIDs?.length ?? 0) > 0 || (removed.assetIDs?.length ?? 0) > 0
+      const riskAssociationsChanged = (added.riskIDs?.length ?? 0) > 0 || (removed.riskIDs?.length ?? 0) > 0
+      const scanAssociationsChanged = (added.scanIDs?.length ?? 0) > 0 || (removed.scanIDs?.length ?? 0) > 0
+      const findingAssociationsChanged = (added.findingIDs?.length ?? 0) > 0 || (removed.findingIDs?.length ?? 0) > 0
 
       if (subcontrolId) {
         queryClient.invalidateQueries({ queryKey: ['subcontrols'] })
@@ -152,6 +158,26 @@ export function SetObjectAssociationDialog({ trigger, defaultSelectedObject, all
 
       if (procedureAssociationsChanged) {
         queryClient.invalidateQueries({ queryKey: ['procedures'] })
+      }
+
+      if (reviewAssociationsChanged) {
+        queryClient.invalidateQueries({ queryKey: ['reviews'] })
+      }
+
+      if (assetAssociationsChanged) {
+        queryClient.invalidateQueries({ queryKey: ['assets'] })
+      }
+
+      if (riskAssociationsChanged) {
+        queryClient.invalidateQueries({ queryKey: ['risks'] })
+      }
+
+      if (scanAssociationsChanged) {
+        queryClient.invalidateQueries({ queryKey: ['scans'] })
+      }
+
+      if (findingAssociationsChanged || scanAssociationsChanged) {
+        queryClient.invalidateQueries({ queryKey: ['findings'] })
       }
 
       successNotification({ title: `${isControl ? ObjectNames.CONTROL : ObjectNames.SUBCONTROL} updated` })
@@ -196,6 +222,7 @@ export function SetObjectAssociationDialog({ trigger, defaultSelectedObject, all
             allowedObjectTypes || [
               ...(isSubcontrol ? [] : [ObjectTypeObjects.ASSET]),
               ...(isSubcontrol ? [] : [ObjectTypeObjects.CAMPAIGN]),
+              ...(isSubcontrol ? [] : [ObjectTypeObjects.FINDING]),
               ObjectTypeObjects.INTERNAL_POLICY,
               ...(isSubcontrol ? [] : [ObjectTypeObjects.IDENTITY_HOLDER]),
               ObjectTypeObjects.PROCEDURE,

@@ -71,6 +71,11 @@ export enum AdditionalTableKeyEnum {
   ENTITY_FILES = 'entity-files',
   IDENTITY_HOLDER_FILES = 'identity-holder-files',
   VENDOR = 'vendor',
+  CONTROL_ASSETS = 'control-assets',
+  CONTROL_SCANS = 'control-scans',
+  CONTROL_FINDINGS = 'control-findings',
+  CONTROL_RISKS = 'control-risks',
+  CONTROL_REVIEWS = 'control-reviews',
 }
 
 export const TableKey = Object.freeze({

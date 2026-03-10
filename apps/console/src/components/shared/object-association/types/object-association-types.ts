@@ -1,6 +1,7 @@
 export type TBaseAssociatedNode = {
   id: string
   displayID?: string | null
+  displayName?: string | null
   name?: string | null
   fullName?: string | null
   title?: string | null

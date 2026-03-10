@@ -64,6 +64,9 @@ export interface GenericDetailsSheetConfig<TFormData extends FieldValues, TData,
 
   onClose?: () => void
 
+  entityId?: string | null
+  isCreateMode?: boolean
+
   data?: TData
   isFetching: boolean
   formId?: string
@@ -85,14 +88,31 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
   const [isFormInitialized, setIsFormInitialized] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
 
-  const { form, updateMutation, createMutation, deleteMutation, objectType, data, isFetching, buildPayload, normalizeData, getName, formId = 'editForm', renderHeader, renderFields, onClose } = config
+  const {
+    form,
+    updateMutation,
+    createMutation,
+    deleteMutation,
+    objectType,
+    data,
+    isFetching,
+    buildPayload,
+    normalizeData,
+    getName,
+    formId = 'editForm',
+    renderHeader,
+    renderFields,
+    onClose,
+    entityId: entityIdOverride,
+    isCreateMode,
+  } = config
   const { reset } = form
   const queryClient = useQueryClient()
   const { successNotification, errorNotification } = useNotification()
 
   const searchParams = useSearchParams()
-  const id = searchParams.get('id')
-  const isCreate = searchParams.get('create') === 'true'
+  const id = entityIdOverride !== undefined ? entityIdOverride : searchParams.get('id')
+  const isCreate = isCreateMode !== undefined ? isCreateMode : searchParams.get('create') === 'true'
 
   const { data: permission } = useAccountRoles(objectType, id)
   const isEditAllowed = canEdit(permission?.roles)

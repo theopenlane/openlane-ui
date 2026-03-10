@@ -52,6 +52,7 @@ const AssociatedObjectsAccordion: React.FC<AssociatedObjectsAccordionProps> = ({
     rows: {
       id: string
       displayID?: string | null
+      displayName?: string | null
       refCode?: string | null
       name?: string | null
       fullName?: string | null
@@ -71,7 +72,7 @@ const AssociatedObjectsAccordion: React.FC<AssociatedObjectsAccordionProps> = ({
               object={{
                 id: row.id,
                 refCode: row?.refCode,
-                name: row?.fullName || row?.name,
+                name: row?.displayName || row?.fullName || row?.name,
                 title: row?.title,
                 details: row?.details,
                 description: row?.description,

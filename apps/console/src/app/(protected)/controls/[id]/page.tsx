@@ -39,6 +39,10 @@ import AIChat from '@/components/shared/ai-suggetions/chat.tsx'
 import { useSession } from 'next-auth/react'
 import { useGetCurrentUser } from '@/lib/graphql-hooks/user.ts'
 import TaskDetailsSheet from '@/components/pages/protected/tasks/create-task/sidebar/task-details-sheet'
+import AssetDetailsSheet from '@/components/pages/protected/controls/tabs/assets-scans/asset-details-sheet'
+import ScanDetailsSheet from '@/components/pages/protected/controls/tabs/assets-scans/scan-details-sheet'
+import FindingDetailsSheet from '@/components/pages/protected/controls/tabs/findings-risks/finding-details-sheet'
+import ReviewDetailsSheet from '@/components/pages/protected/controls/tabs/reviews/review-details-sheet'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 
@@ -116,6 +120,7 @@ const ControlDetailsPage: React.FC = () => {
       campaigns: associationsData.control.campaigns,
       remediations: associationsData.control.remediations,
       reviews: associationsData.control.reviews,
+      findings: associationsData.control.findings,
     }
   }, [associationsData?.control, data])
 
@@ -416,6 +421,10 @@ const ControlDetailsPage: React.FC = () => {
 
       <EvidenceDetailsSheet controlId={id} />
       <TaskDetailsSheet queryParamKey="taskId" />
+      <AssetDetailsSheet queryParamKey="assetId" />
+      <ScanDetailsSheet queryParamKey="scanId" />
+      <FindingDetailsSheet queryParamKey="findingId" />
+      <ReviewDetailsSheet queryParamKey="reviewId" />
 
       <ConfirmationDialog
         open={isDeleteDialogOpen}

@@ -10,6 +10,7 @@ import { GET_ALL_IDENTITY_HOLDERS } from '@repo/codegen/query/identity-holder'
 import { GET_ALL_INTERNAL_POLICIES } from '@repo/codegen/query/internal-policy'
 import { GET_ALL_PROCEDURES } from '@repo/codegen/query/procedure'
 import { GET_ALL_PROGRAMS } from '@repo/codegen/query/program'
+import { GET_ALL_FINDINGS } from '@repo/codegen/query/finding'
 import { GET_ALL_REMEDIATIONS } from '@repo/codegen/query/remediation'
 import { GET_ALL_REVIEWS } from '@repo/codegen/query/review'
 import { GET_ALL_RISKS } from '@repo/codegen/query/risk'
@@ -25,6 +26,7 @@ import {
   type Subcontrol,
   type ControlObjective,
   type Entity,
+  type Finding,
   type Program,
   type TaskEdge,
   type Evidence,
@@ -55,6 +57,7 @@ import {
   type GetAllRisksQuery,
   type GetAllSubcontrolsQuery,
   type EntitiesWithFilterQuery,
+  type FindingsWithFilterQuery,
   type IdentityHoldersWithFilterQuery,
   type RemediationsWithFilterQuery,
   type ReviewsWithFilterQuery,
@@ -65,6 +68,7 @@ import type {
   UpdateAssetInput,
   UpdateControlInput,
   UpdateEntityInput,
+  UpdateFindingInput,
   UpdateIdentityHolderInput,
   UpdateInternalPolicyInput,
   UpdateProcedureInput,
@@ -89,6 +93,7 @@ export type QueryResponse =
   | CampaignsWithFilterQuery
   | AssetsWithFilterQuery
   | EntitiesWithFilterQuery
+  | FindingsWithFilterQuery
   | IdentityHoldersWithFilterQuery
   | RemediationsWithFilterQuery
   | ReviewsWithFilterQuery
@@ -109,6 +114,7 @@ type QueryResponseMapKey =
   | 'campaigns'
   | 'assets'
   | 'entities'
+  | 'findings'
   | 'identityHolders'
   | 'remediations'
   | 'reviews'
@@ -189,6 +195,11 @@ export type AllObjectQueriesData = {
     pageInfo?: PageInfo
     totalCount?: number
   }
+  findings?: {
+    edges?: Array<{ node: Finding }>
+    pageInfo?: PageInfo
+    totalCount?: number
+  }
   identityHolders?: {
     edges?: Array<{ node: IdentityHolder }>
     pageInfo?: PageInfo
@@ -224,6 +235,7 @@ export enum ObjectTypeObjects {
   CAMPAIGN = 'Campaign',
   ASSET = 'Asset',
   ENTITY = 'Vendor',
+  FINDING = 'Finding',
   IDENTITY_HOLDER = 'Personnel',
   REMEDIATION = 'Remediation',
   REVIEW = 'Review',
@@ -327,6 +339,12 @@ export const OBJECT_QUERY_CONFIG: Record<ObjectTypeObjects, ObjectQueryConfig> =
     placeholder: 'Search vendors',
     queryDocument: GET_ALL_ENTITIES,
   },
+  [ObjectTypeObjects.FINDING]: {
+    responseObjectKey: 'findings',
+    inputName: 'findingIDs',
+    placeholder: 'Search findings',
+    queryDocument: GET_ALL_FINDINGS,
+  },
   [ObjectTypeObjects.IDENTITY_HOLDER]: {
     responseObjectKey: 'identityHolders',
     inputName: 'identityHolderIDs',
@@ -421,6 +439,10 @@ export function getPagination(objectKey: QueryResponseMapKey | undefined, data: 
     case 'entities': {
       const typed = data as EntitiesWithFilterQuery
       return { pageInfo: typed.entities.pageInfo, totalCount: typed.entities.totalCount }
+    }
+    case 'findings': {
+      const typed = data as FindingsWithFilterQuery
+      return { pageInfo: typed.findings.pageInfo, totalCount: typed.findings.totalCount }
     }
     case 'identityHolders': {
       const typed = data as IdentityHoldersWithFilterQuery
@@ -601,6 +623,16 @@ export function extractTableRows(objectKey: QueryResponseMapKey | undefined, dat
       }))
     }
 
+    case 'findings': {
+      const items = (data as FindingsWithFilterQuery).findings?.edges ?? []
+      return items.map((item) => ({
+        id: item?.node?.id || '',
+        name: item?.node?.displayName ?? '',
+        inputName: selectedInputName,
+        refCode: item?.node?.displayID ?? '',
+      }))
+    }
+
     case 'identityHolders': {
       const items = (data as IdentityHoldersWithFilterQuery).identityHolders?.edges ?? []
       return items.map((item) => ({
@@ -655,6 +687,7 @@ export const generateWhere = (selectedObject: ObjectTypeObjects | null, searchVa
     [ObjectTypeObjects.CAMPAIGN]: { ownerID: ownerID },
     [ObjectTypeObjects.ASSET]: { ownerID: ownerID },
     [ObjectTypeObjects.ENTITY]: { systemOwned: false },
+    [ObjectTypeObjects.FINDING]: {},
     [ObjectTypeObjects.IDENTITY_HOLDER]: { ownerID: ownerID },
     [ObjectTypeObjects.REMEDIATION]: {},
     [ObjectTypeObjects.REVIEW]: {},
@@ -676,6 +709,7 @@ export const generateWhere = (selectedObject: ObjectTypeObjects | null, searchVa
     [ObjectTypeObjects.CAMPAIGN]: 'nameContainsFold',
     [ObjectTypeObjects.ASSET]: 'nameContainsFold',
     [ObjectTypeObjects.ENTITY]: 'nameContainsFold',
+    [ObjectTypeObjects.FINDING]: 'displayNameContainsFold',
     [ObjectTypeObjects.IDENTITY_HOLDER]: 'fullNameContainsFold',
     [ObjectTypeObjects.REMEDIATION]: 'titleContainsFold',
     [ObjectTypeObjects.REVIEW]: 'titleContainsFold',
@@ -695,6 +729,7 @@ export const generateWhere = (selectedObject: ObjectTypeObjects | null, searchVa
     [ObjectTypeObjects.CAMPAIGN]: 'descriptionContainsFold',
     [ObjectTypeObjects.ASSET]: 'descriptionContainsFold',
     [ObjectTypeObjects.ENTITY]: 'descriptionContainsFold',
+    [ObjectTypeObjects.FINDING]: 'descriptionContainsFold',
     [ObjectTypeObjects.IDENTITY_HOLDER]: 'emailContainsFold',
     [ObjectTypeObjects.REMEDIATION]: 'summaryContainsFold',
     [ObjectTypeObjects.REVIEW]: 'summaryContainsFold',
@@ -750,6 +785,7 @@ export const ASSOCIATION_SECTION_CONFIG = {
   campaigns: { dataField: 'campaigns', inputName: 'campaignIDs' },
   assets: { dataField: 'assets', inputName: 'assetIDs' },
   entities: { dataField: 'entities', inputName: 'entityIDs' },
+  findings: { dataField: 'findings', inputName: 'findingIDs' },
   identityHolders: { dataField: 'identityHolders', inputName: 'identityHolderIDs' },
   remediations: { dataField: 'remediations', inputName: 'remediationIDs' },
   reviews: { dataField: 'reviews', inputName: 'reviewIDs' },
@@ -793,6 +829,7 @@ export const ASSOCIATION_SECTION_QUERY_KEY = {
   campaigns: ['campaigns'],
   assets: ['assets'],
   entities: ['entities'],
+  findings: ['findings'],
   identityHolders: ['identityHolders'],
   remediations: ['remediations'],
   reviews: ['reviews'],
@@ -830,6 +867,7 @@ const CONTROL_ASSOCIATION_SECTIONS = [
   'assets',
   'scans',
   'entities',
+  'findings',
   'identityHolders',
   'campaigns',
   'remediations',
@@ -842,6 +880,7 @@ const RISK_ASSOCIATION_SECTIONS = ['controls', 'procedures', 'subcontrols', 'pro
 const ASSET_ASSOCIATION_SECTIONS = ['scans', 'entities', 'identityHolders', 'controls'] as const
 const ENTITY_ASSOCIATION_SECTIONS = ['assets', 'scans', 'campaigns', 'identityHolders'] as const
 const IDENTITY_HOLDER_ASSOCIATION_SECTIONS = ['assets', 'entities', 'campaigns', 'tasks'] as const
+const FINDING_ASSOCIATION_SECTIONS = ['controls', 'subcontrols', 'risks', 'programs', 'tasks', 'assets', 'scans', 'remediations', 'reviews'] as const
 const REVIEW_ASSOCIATION_SECTIONS = ['controls', 'subcontrols', 'remediations', 'entities', 'tasks', 'assets', 'programs'] as const
 
 export const ASSOCIATION_REMOVAL_CONFIG = {
@@ -852,6 +891,7 @@ export const ASSOCIATION_REMOVAL_CONFIG = {
   risk: createAssociationRemovalConfig<UpdateRiskInput>()(RISK_ASSOCIATION_SECTIONS),
   asset: createAssociationRemovalConfig<UpdateAssetInput>()(ASSET_ASSOCIATION_SECTIONS),
   entity: createAssociationRemovalConfig<UpdateEntityInput>()(ENTITY_ASSOCIATION_SECTIONS),
+  finding: createAssociationRemovalConfig<UpdateFindingInput>()(FINDING_ASSOCIATION_SECTIONS),
   identityHolder: createAssociationRemovalConfig<UpdateIdentityHolderInput>()(IDENTITY_HOLDER_ASSOCIATION_SECTIONS),
   review: createAssociationRemovalConfig<UpdateReviewInput>()(REVIEW_ASSOCIATION_SECTIONS),
 } as const

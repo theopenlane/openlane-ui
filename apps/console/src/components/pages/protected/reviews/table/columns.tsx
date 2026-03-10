@@ -1,6 +1,6 @@
-import { ColumnDef } from '@tanstack/react-table'
-import { ReviewsNodeNonNull } from '@/lib/graphql-hooks/review'
-import { ColumnOptions } from '@/components/shared/crud-base/page'
+import { type ColumnDef } from '@tanstack/react-table'
+import { type ReviewsNodeNonNull } from '@/lib/graphql-hooks/review'
+import { type ColumnOptions } from '@/components/shared/crud-base/page'
 import { createSelectColumn } from '@/components/shared/crud-base/columns/select-column'
 import { UserCell } from '@/components/shared/crud-base/columns/user-cell'
 import { TagsCell } from '@/components/shared/crud-base/columns/tags-cell'
@@ -8,7 +8,7 @@ import { BooleanCell } from '@/components/shared/crud-base/columns/boolean-cell'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { CustomEnumChipCell } from '@/components/shared/crud-base/columns/custom-enum-chip-cell'
 
-export const getColumns = ({ userMap, convertToReadOnly, selectedItems, setSelectedItems }: ColumnOptions): ColumnDef<ReviewsNodeNonNull>[] => {
+export const getColumns = ({ userMap, selectedItems, setSelectedItems }: ColumnOptions): ColumnDef<ReviewsNodeNonNull>[] => {
   return [
     createSelectColumn<ReviewsNodeNonNull>(selectedItems, setSelectedItems),
     { accessorKey: 'id', header: 'ID', size: 120, cell: ({ row }) => <div className="text-muted-foreground">{row.original.id}</div> },

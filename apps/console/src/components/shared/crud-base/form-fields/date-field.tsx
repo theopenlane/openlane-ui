@@ -1,8 +1,8 @@
 'use client'
 
 import { FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
-import { FieldValues, useFormContext } from 'react-hook-form'
-import { InternalEditingType } from '../generic-sheet'
+import { type FieldValues, useFormContext } from 'react-hook-form'
+import { type InternalEditingType } from '../generic-sheet'
 import { formatDate } from '@/utils/date'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { SystemTooltip } from '@repo/ui/system-tooltip'

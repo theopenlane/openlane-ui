@@ -179,7 +179,7 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
           count: nodes.length,
           items: nodes.map((node) => ({
             ...node,
-            refCode: node.refCode || node.fullName || node.name || node.title || '',
+            refCode: node.refCode || node.displayName || node.fullName || node.name || node.title || '',
             description: node.summary || node.description || node.details || '',
             displayID: node.displayID || node.id,
             link:

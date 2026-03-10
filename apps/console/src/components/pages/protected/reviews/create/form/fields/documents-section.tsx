@@ -4,10 +4,10 @@ import React, { useState } from 'react'
 import { useGetReviewFilesPaginated, useUpdateReview, useUploadReviewFiles } from '@/lib/graphql-hooks/review'
 import { DocumentsSection } from '@/components/shared/documents-section/documents-section'
 import { DocumentsCreateSection } from '@/components/shared/documents-section/documents-create-section'
-import { FileOrder, FileOrderField, OrderDirection } from '@repo/codegen/src/schema'
-import { TPagination } from '@repo/ui/pagination-types'
+import { type FileOrder, FileOrderField, OrderDirection } from '@repo/codegen/src/schema'
+import { type TPagination } from '@repo/ui/pagination-types'
 import { getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
-import { AdditionalTableKeyEnum } from '@repo/ui/table-key'
+import { type TableKeyValue } from '@repo/ui/table-key'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useNotification } from '@/hooks/useNotification'
 import { useQueryClient } from '@tanstack/react-query'
@@ -21,10 +21,10 @@ type ReviewDocumentsSectionProps = {
   onExistingFileIdsChange?: (fileIds: string[]) => void
 }
 
-const REVIEW_FILES_TABLE_KEY = 'review-files' as any
+const REVIEW_FILES_TABLE_KEY = 'review-files' as TableKeyValue
 
 const ReviewDocumentsSection: React.FC<ReviewDocumentsSectionProps> = ({ reviewId, isEditAllowed, isCreate, onStagedFilesChange, onExistingFileIdsChange }) => {
-  const [pagination, setPagination] = useState<TPagination>(getInitialPagination(REVIEW_FILES_TABLE_KEY, DEFAULT_PAGINATION))
+  const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(REVIEW_FILES_TABLE_KEY, DEFAULT_PAGINATION))
   const defaultSorting = getInitialSortConditions(REVIEW_FILES_TABLE_KEY, FileOrderField, [
     {
       field: FileOrderField.created_at,
