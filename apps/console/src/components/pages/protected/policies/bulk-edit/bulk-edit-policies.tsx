@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useEffect, useMemo, useState } from 'react'
-import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm, FormProvider, Controller, useFieldArray, useWatch } from 'react-hook-form'
 import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogFooter, DialogTitle } from '@repo/ui/dialog'
@@ -15,12 +14,15 @@ import { ClientError } from 'graphql-request'
 import { useBulkEditInternalPolicy } from '@/lib/graphql-hooks/internal-policy'
 import { Input } from '@repo/ui/input'
 import {
+  checkHasFieldsToUpdate,
+  collectAssociationInput,
   type BulkEditPoliciesDialogProps,
   defaultObject,
   getAllSelectOptionsForBulkEditPolicies,
   getMappedClearValue,
   InputType,
-  SelectOptionBulkEditPolicies,
+  bulkEditFieldsSchema,
+  type BulkEditFieldsFormValues,
 } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-shared-objects'
 import { type Group } from '@repo/codegen/src/schema'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
@@ -29,41 +31,19 @@ import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-butto
 import { CustomTypeEnumOptionChip, CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
 import { BulkEditTagField } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-tag-field'
 import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-enum-select/creatable-custom-type-enum-select'
+import { BulkEditSingleObjectAssociation } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-single-object-association'
+import { BulkEditAssociationCollapsible } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-association-collapsible'
+import { getAssociationSelectedCount } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-shared-objects'
 
-const fieldItemSchema = z.object({
-  value: z.nativeEnum(SelectOptionBulkEditPolicies).optional(),
-  selectedObject: z
-    .object({
-      selectOptionEnum: z.nativeEnum(SelectOptionBulkEditPolicies),
-      name: z.string(),
-      placeholder: z.string(),
-      inputType: z.nativeEnum(InputType),
-      options: z
-        .array(
-          z.object({
-            label: z.string(),
-            value: z.string(),
-          }),
-        )
-        .optional(),
-    })
-    .optional(),
-  selectedValue: z.union([z.string(), z.array(z.string())]).optional(),
-  selectedDate: z.date().nullable().optional(),
-})
-
-const bulkEditPoliciesSchema = z.object({
-  fieldsArray: z.array(fieldItemSchema),
-})
-
-type BulkEditPoliciesFormValues = z.infer<typeof bulkEditPoliciesSchema>
+type BulkEditPoliciesFormValues = BulkEditFieldsFormValues
 
 export const BulkEditPoliciesDialog: React.FC<BulkEditPoliciesDialogProps> = ({ selectedPolicies, setSelectedPolicies }) => {
   const [open, setOpen] = useState(false)
+  const [collapsedAssociations, setCollapsedAssociations] = useState<Record<string, boolean>>({})
   const { mutateAsync: bulkEditPolicies } = useBulkEditInternalPolicy()
   const { errorNotification, successNotification } = useNotification()
   const form = useForm<BulkEditPoliciesFormValues>({
-    resolver: zodResolver(bulkEditPoliciesSchema),
+    resolver: zodResolver(bulkEditFieldsSchema),
     defaultValues: defaultObject,
   })
   const { data } = useGetAllGroups({ where: {} })
@@ -88,12 +68,12 @@ export const BulkEditPoliciesDialog: React.FC<BulkEditPoliciesDialogProps> = ({ 
   const { control, handleSubmit } = form
 
   const watchedFields = useWatch({ control, name: 'fieldsArray' }) ?? []
-  const hasFieldsToUpdate = watchedFields.some((field) => (field.selectedObject && field.selectedValue) || field.selectedObject?.inputType === InputType.Input)
+  const hasFieldsToUpdate = checkHasFieldsToUpdate(watchedFields)
 
   const { fields, append, update, replace, remove } = useFieldArray({
     control,
     name: 'fieldsArray',
-    rules: { maxLength: 4 },
+    rules: { maxLength: allOptionSelects.length },
   })
 
   useEffect(() => {
@@ -112,6 +92,8 @@ export const BulkEditPoliciesDialog: React.FC<BulkEditPoliciesDialogProps> = ({ 
 
     if (ids.length === 0) return
     watchedFields.forEach((field) => {
+      if (collectAssociationInput(field, input)) return
+
       const key = field.selectedObject?.name
       if (!key) return
 
@@ -150,7 +132,10 @@ export const BulkEditPoliciesDialog: React.FC<BulkEditPoliciesDialogProps> = ({ 
     <Dialog
       open={open}
       onOpenChange={(value) => {
-        if (!value) replace([])
+        if (!value) {
+          replace([])
+          setCollapsedAssociations({})
+        }
         setOpen(value)
       }}
     >
@@ -161,106 +146,127 @@ export const BulkEditPoliciesDialog: React.FC<BulkEditPoliciesDialogProps> = ({ 
           </Button>
         </DialogTrigger>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <DialogContent onOpenAutoFocus={(e) => e.preventDefault()} className="max-w-145">
+          <DialogContent onOpenAutoFocus={(e) => e.preventDefault()} className="max-w-3xl">
             <DialogHeader>
               <DialogTitle>Bulk edit</DialogTitle>
             </DialogHeader>
             <div className="flex flex-col gap-4 mt-4">
               {fields.map((item, index) => {
+                const isObjectAssociation = item.selectedObject?.inputType === InputType.ObjectAssociation
                 return (
-                  <div key={item.id} className="flex justify-items items-start gap-2">
-                    <div className="flex flex-col items-start gap-2">
-                      <Select
-                        value={watchedFields[index]?.value || undefined}
-                        onValueChange={(value) => {
-                          const selectedOption = allOptionSelects.find((item) => item.selectOptionEnum === value)
-                          if (!selectedOption) return
-                          update(index, { value: selectedOption.selectOptionEnum, selectedObject: selectedOption, selectedValue: undefined })
-                        }}
-                      >
-                        <SelectTrigger className="w-48">
-                          <SelectValue placeholder="Select field..." />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {Object.values(SelectOptionBulkEditPolicies).map((option) => (
-                            <SelectItem key={option} value={option} disabled={fields.some((f, i) => f.value === option && i !== index)}>
-                              {option}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    {item.selectedObject &&
-                      (item.selectedObject.inputType === InputType.Select ? (
-                        <div className="flex flex-col items-center gap-2">
-                          {item.selectedObject.name === 'internalPolicyKindName' ? (
-                            <CreatableCustomTypeEnumSelect
-                              value={typeof item.selectedValue === 'string' ? item.selectedValue : undefined}
-                              options={item.selectedObject?.options || []}
-                              onCreateOption={createPolicyType}
-                              triggerClassName="w-60"
-                              placeholder={item.selectedObject?.placeholder ?? ''}
-                              searchPlaceholder="Search policy type..."
-                              onValueChange={(value) =>
-                                update(index, {
-                                  ...item,
-                                  selectedValue: value,
-                                })
-                              }
+                  <div key={item.id} className="flex flex-col gap-2">
+                    <div className="flex justify-items items-start gap-2">
+                      <div className="flex flex-col items-start gap-2">
+                        <Select
+                          value={watchedFields[index]?.value || undefined}
+                          onValueChange={(value) => {
+                            const selectedOption = allOptionSelects.find((item) => item.selectOptionEnum === value)
+                            if (!selectedOption) return
+                            update(index, { value: selectedOption.selectOptionEnum, selectedObject: selectedOption, selectedValue: undefined })
+                          }}
+                        >
+                          <SelectTrigger className="w-48">
+                            <SelectValue placeholder="Select field..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {allOptionSelects.map((option) => (
+                              <SelectItem key={option.selectOptionEnum} value={option.selectOptionEnum} disabled={fields.some((f, i) => f.value === option.selectOptionEnum && i !== index)}>
+                                {option.selectOptionEnum}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      {item.selectedObject &&
+                        !isObjectAssociation &&
+                        (item.selectedObject.inputType === InputType.Select ? (
+                          <div className="flex flex-col items-center gap-2">
+                            {item.selectedObject.name === 'internalPolicyKindName' ? (
+                              <CreatableCustomTypeEnumSelect
+                                value={typeof item.selectedValue === 'string' ? item.selectedValue : undefined}
+                                options={item.selectedObject?.options || []}
+                                onCreateOption={createPolicyType}
+                                triggerClassName="w-60"
+                                placeholder={item.selectedObject?.placeholder ?? ''}
+                                searchPlaceholder="Search policy type..."
+                                onValueChange={(value) =>
+                                  update(index, {
+                                    ...item,
+                                    selectedValue: value,
+                                  })
+                                }
+                              />
+                            ) : (
+                              <Select
+                                value={typeof item.selectedValue === 'string' ? item.selectedValue : undefined}
+                                onValueChange={(value) =>
+                                  update(index, {
+                                    ...item,
+                                    selectedValue: value,
+                                  })
+                                }
+                              >
+                                <SelectTrigger className="w-60">
+                                  <SelectValue placeholder={item.selectedObject?.placeholder}>
+                                    <CustomTypeEnumValue
+                                      value={typeof item.selectedValue === 'string' ? item.selectedValue : undefined}
+                                      options={item.selectedObject?.options || []}
+                                      placeholder={item.selectedObject?.placeholder ?? ''}
+                                    />
+                                  </SelectValue>
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {(item.selectedObject?.options || []).map((option) => (
+                                    <SelectItem key={option.value} value={option.value}>
+                                      <CustomTypeEnumOptionChip option={option} />
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            )}
+                          </div>
+                        ) : item.selectedObject.inputType === InputType.Tag ? (
+                          <BulkEditTagField control={form.control} name={`fieldsArray.${index}.selectedValue`} placeholder={item.selectedObject?.placeholder} />
+                        ) : (
+                          <div className="flex flex-col items-center gap-2">
+                            <Controller
+                              control={form.control}
+                              name={`fieldsArray.${index}.selectedValue`}
+                              render={({ field }) => <Input {...field} variant="medium" placeholder={item.selectedObject?.placeholder} className="w-full" />}
                             />
-                          ) : (
-                            <Select
-                              value={typeof item.selectedValue === 'string' ? item.selectedValue : undefined}
-                              onValueChange={(value) =>
-                                update(index, {
-                                  ...item,
-                                  selectedValue: value,
-                                })
-                              }
-                            >
-                              <SelectTrigger className="w-60">
-                                <SelectValue placeholder={item.selectedObject?.placeholder}>
-                                  <CustomTypeEnumValue
-                                    value={typeof item.selectedValue === 'string' ? item.selectedValue : undefined}
-                                    options={item.selectedObject?.options || []}
-                                    placeholder={item.selectedObject?.placeholder ?? ''}
-                                  />
-                                </SelectValue>
-                              </SelectTrigger>
-                              <SelectContent>
-                                {(item.selectedObject?.options || []).map((option) => (
-                                  <SelectItem key={option.value} value={option.value}>
-                                    <CustomTypeEnumOptionChip option={option} />
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          )}
-                        </div>
-                      ) : item.selectedObject.inputType === InputType.Tag ? (
-                        <BulkEditTagField control={form.control} name={`fieldsArray.${index}.selectedValue`} placeholder={item.selectedObject?.placeholder} />
-                      ) : (
-                        <div className="flex flex-col items-center gap-2">
-                          <Controller
-                            control={form.control}
-                            name={`fieldsArray.${index}.selectedValue`}
-                            render={({ field }) => <Input {...field} variant="medium" placeholder={item.selectedObject?.placeholder} className="w-full" />}
-                          />
-                        </div>
-                      ))}
-                    <Button icon={<Trash2 />} iconPosition="center" variant="secondary" onClick={() => remove(index)}></Button>
+                          </div>
+                        ))}
+                      <Button icon={<Trash2 />} iconPosition="center" variant="secondary" onClick={() => remove(index)}></Button>
+                    </div>
+                    {isObjectAssociation && item.selectedObject?.objectType && (
+                      <BulkEditAssociationCollapsible
+                        isCollapsed={!!collapsedAssociations[item.id]}
+                        selectedCount={getAssociationSelectedCount(watchedFields[index]?.selectedAssociations)}
+                        displayLabel={item.selectedObject.selectOptionEnum}
+                        onToggle={() => setCollapsedAssociations((prev) => ({ ...prev, [item.id]: !prev[item.id] }))}
+                      >
+                        <BulkEditSingleObjectAssociation objectType={item.selectedObject.objectType} onChange={(map) => form.setValue(`fieldsArray.${index}.selectedAssociations`, map)} />
+                      </BulkEditAssociationCollapsible>
+                    )}
                   </div>
                 )
               })}
-              {fields.length < Object.keys(SelectOptionBulkEditPolicies).length ? (
+              {fields.length < allOptionSelects.length ? (
                 <Button
                   icon={<Plus />}
-                  onClick={() =>
+                  onClick={() => {
+                    setCollapsedAssociations((prev) => {
+                      const next = { ...prev }
+                      fields.forEach((f) => {
+                        if (f.selectedObject?.inputType === InputType.ObjectAssociation) next[f.id] = true
+                      })
+                      return next
+                    })
                     append({
                       value: undefined,
                       selectedValue: undefined,
                     })
-                  }
+                  }}
                   iconPosition="left"
                   variant="secondary"
                 >
