@@ -6,6 +6,9 @@ import { RiskLikelihoodOptions, RiskStatusOptions } from '../enum-mapper/risk-en
 import { TaskStatusOptions } from '../enum-mapper/task-enum'
 import { useProgramSelect } from '@/lib/graphql-hooks/program'
 import { EvidenceStatusOptions } from '../enum-mapper/evidence-enum'
+import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
+import { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
+import { buildMutationKey } from '@/components/shared/object-association/utils'
 
 export type BulkEditRisksDialogProps = {
   selectedRisks: { id: string }[]
@@ -52,6 +55,7 @@ export interface SelectOptionSelectedObject<T extends SelectOptionBulkEdit = Sel
   placeholder: string
   options?: Option[]
   inputType: InputType
+  allowedObjectTypes?: readonly ObjectTypeObjects[]
 }
 
 export enum SelectOptionBulkEditControls {
@@ -62,6 +66,7 @@ export enum SelectOptionBulkEditControls {
   Category = 'Category',
   SubCategory = 'Subcategory',
   Tags = 'Tags',
+  ObjectAssociation = 'Object association',
 }
 
 export enum SelectOptionBulkEditPolicies {
@@ -70,6 +75,7 @@ export enum SelectOptionBulkEditPolicies {
   PolicyApprover = 'Approver',
   PolicyDelegate = 'Delegate',
   Tags = 'Tags',
+  ObjectAssociation = 'Object association',
 }
 
 export enum SelectOptionBulkEditProcedures {
@@ -89,6 +95,7 @@ export enum SelectOptionBulkEditRisks {
   RiskScore = 'Score',
   RiskLikelihood = 'Likelihood',
   Tags = 'Tags',
+  ObjectAssociation = 'Object association',
 }
 
 export enum SelectOptionBulkEditTasks {
@@ -103,6 +110,7 @@ export enum SelectOptionBulkEditEvidence {
   Status = 'Status',
   Tags = 'Tags',
   Source = 'Source',
+  ObjectAssociation = 'Object association',
 }
 
 export enum SelectOptionBulkEditAssets {
@@ -124,6 +132,7 @@ export enum InputType {
   Date = 'DATETIME',
   Tag = 'TAG',
   TypeAhead = 'TYPE_AHEAD',
+  ObjectAssociation = 'OBJECT_ASSOCIATION',
 }
 
 export interface FieldItem {
@@ -131,6 +140,7 @@ export interface FieldItem {
   selectedObject?: SelectOptionSelectedObject
   selectedValue?: string | string[] | undefined
   selectedDate?: Date | null
+  selectedAssociations?: TObjectAssociationMap
 }
 
 export const defaultObject = {
@@ -151,6 +161,43 @@ const clearValueMap: Record<string, string> = {
 export const getMappedClearValue = (key: string): string => {
   return clearValueMap[key]
 }
+
+type BulkEditFieldLike = {
+  selectedObject?: { inputType: InputType } | undefined
+  selectedValue?: string | string[] | undefined
+  selectedAssociations?: Record<string, string[]> | undefined
+}
+
+export const collectAssociationInput = (
+  field: BulkEditFieldLike,
+  input: Record<string, string | string[] | boolean>,
+): boolean => {
+  if (field.selectedObject?.inputType !== InputType.ObjectAssociation || !field.selectedAssociations) {
+    return false
+  }
+  Object.entries(field.selectedAssociations).forEach(([key, associationIds]) => {
+    if (associationIds && associationIds.length > 0) {
+      input[buildMutationKey('add', key)] = associationIds
+    }
+  })
+  return true
+}
+
+export const checkHasFieldsToUpdate = (watchedFields: BulkEditFieldLike[]): boolean => {
+  return watchedFields.some(
+    (field) =>
+      (field.selectedObject && field.selectedValue) ||
+      field.selectedObject?.inputType === InputType.Input ||
+      (field.selectedObject?.inputType === InputType.ObjectAssociation &&
+        field.selectedAssociations &&
+        Object.values(field.selectedAssociations).some((ids) => ids && ids.length > 0)),
+  )
+}
+
+const POLICY_ALLOWED_OBJECT_TYPES = [ObjectTypeObjects.CONTROL, ObjectTypeObjects.SUB_CONTROL, ObjectTypeObjects.PROCEDURE, ObjectTypeObjects.RISK] as const
+const CONTROL_ALLOWED_OBJECT_TYPES = [ObjectTypeObjects.INTERNAL_POLICY, ObjectTypeObjects.PROCEDURE, ObjectTypeObjects.RISK] as const
+const RISK_ALLOWED_OBJECT_TYPES = [ObjectTypeObjects.CONTROL, ObjectTypeObjects.SUB_CONTROL, ObjectTypeObjects.PROCEDURE, ObjectTypeObjects.INTERNAL_POLICY] as const
+const EVIDENCE_ALLOWED_OBJECT_TYPES = [ObjectTypeObjects.CONTROL, ObjectTypeObjects.SUB_CONTROL] as const
 
 export const getAllSelectOptionsForBulkEditRisks = (groups: Group[], typeOptions: Option[], categoryOptions: Option[]): SelectOptionSelectedObject<SelectOptionBulkEditRisks>[] => {
   return [
@@ -207,6 +254,13 @@ export const getAllSelectOptionsForBulkEditRisks = (groups: Group[], typeOptions
       name: 'appendTags',
       inputType: InputType.Tag,
       placeholder: 'Add a tag',
+    },
+    {
+      selectOptionEnum: SelectOptionBulkEditRisks.ObjectAssociation,
+      name: 'objectAssociation',
+      inputType: InputType.ObjectAssociation,
+      placeholder: 'Select associations',
+      allowedObjectTypes: RISK_ALLOWED_OBJECT_TYPES,
     },
   ]
 }
@@ -286,6 +340,13 @@ export const getAllSelectOptionsForBulkEditPolicies = (groups: Group[], typeOpti
       inputType: InputType.Tag,
       placeholder: 'Add a tag',
     },
+    {
+      selectOptionEnum: SelectOptionBulkEditPolicies.ObjectAssociation,
+      name: 'objectAssociation',
+      inputType: InputType.ObjectAssociation,
+      placeholder: 'Select associations',
+      allowedObjectTypes: POLICY_ALLOWED_OBJECT_TYPES,
+    },
   ]
 }
 
@@ -338,6 +399,13 @@ export const useGetAllSelectOptionsForBulkEditControls = (groups: Group[], typeO
       name: 'appendTags',
       inputType: InputType.Tag,
       placeholder: 'Add a tag',
+    },
+    {
+      selectOptionEnum: SelectOptionBulkEditControls.ObjectAssociation,
+      name: 'objectAssociation',
+      inputType: InputType.ObjectAssociation,
+      placeholder: 'Select associations',
+      allowedObjectTypes: CONTROL_ALLOWED_OBJECT_TYPES,
     },
   ]
 }
@@ -408,6 +476,13 @@ export const getAllSelectOptionsForBulkEditEvidence = (): SelectOptionSelectedOb
       name: 'appendTags',
       inputType: InputType.Tag,
       placeholder: 'Add a tag',
+    },
+    {
+      selectOptionEnum: SelectOptionBulkEditEvidence.ObjectAssociation,
+      name: 'objectAssociation',
+      inputType: InputType.ObjectAssociation,
+      placeholder: 'Select associations',
+      allowedObjectTypes: EVIDENCE_ALLOWED_OBJECT_TYPES,
     },
   ]
 }

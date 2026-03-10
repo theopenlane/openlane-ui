@@ -1,6 +1,8 @@
 'use client'
 import {
   BulkEditEvidenceDialogProps,
+  checkHasFieldsToUpdate,
+  collectAssociationInput,
   defaultObject,
   getAllSelectOptionsForBulkEditEvidence,
   getMappedClearValue,
@@ -23,6 +25,8 @@ import { useNotification } from '@/hooks/useNotification'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { BulkEditTagField } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-tag-field'
+import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
+import { BulkEditObjectAssociation } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-object-association'
 
 const fieldItemSchema = z.object({
   value: z.nativeEnum(SelectOptionBulkEditEvidence).optional(),
@@ -40,10 +44,12 @@ const fieldItemSchema = z.object({
           }),
         )
         .optional(),
+      allowedObjectTypes: z.array(z.nativeEnum(ObjectTypeObjects)).readonly().optional(),
     })
     .optional(),
   selectedValue: z.union([z.string(), z.array(z.string())]).optional(),
   selectedDate: z.date().nullable().optional(),
+  selectedAssociations: z.record(z.string(), z.array(z.string())).optional(),
 })
 
 const bulkEditEvidenceSchema = z.object({
@@ -62,11 +68,11 @@ export const BulkEditEvidenceDialog: React.FC<BulkEditEvidenceDialogProps> = ({ 
   })
   const { control, handleSubmit } = form
   const watchedFields = useWatch({ control, name: 'fieldsArray' }) ?? []
-  const hasFieldsToUpdate = watchedFields.some((field) => (field.selectedObject && field.selectedValue) || field.selectedObject?.inputType === InputType.Input)
+  const hasFieldsToUpdate = checkHasFieldsToUpdate(watchedFields)
   const { fields, append, update, replace, remove } = useFieldArray({
     control,
     name: 'fieldsArray',
-    rules: { maxLength: 4 },
+    rules: { maxLength: 3 },
   })
 
   useEffect(() => {
@@ -90,6 +96,8 @@ export const BulkEditEvidenceDialog: React.FC<BulkEditEvidenceDialogProps> = ({ 
 
     if (ids.length === 0) return
     watchedFields.forEach((field) => {
+      if (collectAssociationInput(field, input)) return
+
       const key = field.selectedObject?.name
       if (!key) return
 
@@ -139,77 +147,89 @@ export const BulkEditEvidenceDialog: React.FC<BulkEditEvidenceDialogProps> = ({ 
           </Button>
         </DialogTrigger>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <DialogContent onOpenAutoFocus={(e) => e.preventDefault()} className="max-w-145">
+          <DialogContent onOpenAutoFocus={(e) => e.preventDefault()} className="max-w-3xl">
             <DialogHeader>
               <DialogTitle>Bulk edit</DialogTitle>
             </DialogHeader>
             <div className="flex flex-col gap-4 mt-4">
               {fields.map((item, index) => {
+                const isObjectAssociation = item.selectedObject?.inputType === InputType.ObjectAssociation
                 return (
-                  <div key={item.id} className="flex items-center gap-2 w-full">
-                    <div className="flex flex-col items-start gap-2">
-                      <Select
-                        value={watchedFields[index]?.value || undefined}
-                        onValueChange={(value) => {
-                          const selectedOption = allOptionSelects.find((option) => option.selectOptionEnum === value)
-                          if (!selectedOption) return
+                  <div key={item.id} className="flex flex-col gap-2">
+                    <div className="flex items-center gap-2 w-full">
+                      <div className="flex flex-col items-start gap-2">
+                        <Select
+                          value={watchedFields[index]?.value || undefined}
+                          onValueChange={(value) => {
+                            const selectedOption = allOptionSelects.find((option) => option.selectOptionEnum === value)
+                            if (!selectedOption) return
 
-                          update(index, {
-                            value: selectedOption.selectOptionEnum,
-                            selectedObject: selectedOption,
-                            selectedValue: undefined,
-                            selectedDate: undefined,
-                          })
-                        }}
-                      >
-                        <SelectTrigger className="w-48">
-                          <SelectValue placeholder="Select field..." />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {Object.values(SelectOptionBulkEditEvidence).map((option) => (
-                            <SelectItem key={option} value={option} disabled={fields.some((f, i) => f.value === option && i !== index)}>
-                              {option}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                            update(index, {
+                              value: selectedOption.selectOptionEnum,
+                              selectedObject: selectedOption,
+                              selectedValue: undefined,
+                              selectedDate: undefined,
+                            })
+                          }}
+                        >
+                          <SelectTrigger className="w-48">
+                            <SelectValue placeholder="Select field..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {Object.values(SelectOptionBulkEditEvidence).map((option) => (
+                              <SelectItem key={option} value={option} disabled={fields.some((f, i) => f.value === option && i !== index)}>
+                                {option}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      {item.selectedObject &&
+                        !isObjectAssociation &&
+                        (item.selectedObject.inputType === InputType.Select ? (
+                          <div className="flex flex-col items-center gap-2">
+                            <Select
+                              value={typeof item.selectedValue === 'string' ? item.selectedValue : undefined}
+                              onValueChange={(value) =>
+                                update(index, {
+                                  ...item,
+                                  selectedValue: value,
+                                })
+                              }
+                            >
+                              <SelectTrigger className="w-60">
+                                <SelectValue placeholder={item.selectedObject?.placeholder} />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {item.selectedObject?.options?.map((option) => (
+                                  <SelectItem key={option.value} value={option.value}>
+                                    {option.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        ) : item.selectedObject.inputType === InputType.Tag ? (
+                          <BulkEditTagField control={form.control} name={`fieldsArray.${index}.selectedValue`} placeholder={item.selectedObject?.placeholder} />
+                        ) : (
+                          <div className="flex flex-col items-center gap-2">
+                            <Controller
+                              control={form.control}
+                              name={`fieldsArray.${index}.selectedValue`}
+                              render={({ field }) => <Input {...field} variant="medium" placeholder={item.selectedObject?.placeholder} className="w-full" />}
+                            />
+                          </div>
+                        ))}
+                      <Button icon={<Trash2 />} iconPosition="center" variant="secondary" onClick={() => remove(index)}></Button>
                     </div>
-                    {item.selectedObject &&
-                      (item.selectedObject.inputType === InputType.Select ? (
-                        <div className="flex flex-col items-center gap-2">
-                          <Select
-                            value={typeof item.selectedValue === 'string' ? item.selectedValue : undefined}
-                            onValueChange={(value) =>
-                              update(index, {
-                                ...item,
-                                selectedValue: value,
-                              })
-                            }
-                          >
-                            <SelectTrigger className="w-60">
-                              <SelectValue placeholder={item.selectedObject?.placeholder} />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {item.selectedObject?.options?.map((option) => (
-                                <SelectItem key={option.value} value={option.value}>
-                                  {option.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      ) : item.selectedObject.inputType === InputType.Tag ? (
-                        <BulkEditTagField control={form.control} name={`fieldsArray.${index}.selectedValue`} placeholder={item.selectedObject?.placeholder} />
-                      ) : (
-                        <div className="flex flex-col items-center gap-2">
-                          <Controller
-                            control={form.control}
-                            name={`fieldsArray.${index}.selectedValue`}
-                            render={({ field }) => <Input {...field} variant="medium" placeholder={item.selectedObject?.placeholder} className="w-full" />}
-                          />
-                        </div>
-                      ))}
-                    <Button icon={<Trash2 />} iconPosition="center" variant="secondary" onClick={() => remove(index)}></Button>
+                    {isObjectAssociation && item.selectedObject && (
+                      <BulkEditObjectAssociation
+                        allowedObjectTypes={item.selectedObject.allowedObjectTypes}
+                        onChange={(updatedMap) => {
+                          form.setValue(`fieldsArray.${index}.selectedAssociations`, updatedMap)
+                        }}
+                      />
+                    )}
                   </div>
                 )
               })}
