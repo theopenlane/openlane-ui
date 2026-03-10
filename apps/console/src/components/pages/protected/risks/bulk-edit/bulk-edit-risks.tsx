@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useEffect, useMemo, useState } from 'react'
-import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm, FormProvider, Controller, useFieldArray, useWatch } from 'react-hook-form'
 import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogFooter, DialogTitle } from '@repo/ui/dialog'
@@ -21,7 +20,8 @@ import {
   getAllSelectOptionsForBulkEditRisks,
   getMappedClearValue,
   InputType,
-  SelectOptionBulkEditRisks,
+  bulkEditFieldsSchema,
+  type BulkEditFieldsFormValues,
 } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-shared-objects'
 import { type Group } from '@repo/codegen/src/schema'
 import { useBulkEditRisk } from '@/lib/graphql-hooks/risk'
@@ -31,45 +31,19 @@ import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-butto
 import { CustomTypeEnumOptionChip, CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
 import { BulkEditTagField } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-tag-field'
 import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-enum-select/creatable-custom-type-enum-select'
-import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
-import { BulkEditObjectAssociation } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-object-association'
+import { BulkEditSingleObjectAssociation } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-single-object-association'
+import { BulkEditAssociationCollapsible } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-association-collapsible'
+import { getAssociationSelectedCount } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-shared-objects'
 
-const fieldItemSchema = z.object({
-  value: z.nativeEnum(SelectOptionBulkEditRisks).optional(),
-  selectedObject: z
-    .object({
-      selectOptionEnum: z.nativeEnum(SelectOptionBulkEditRisks),
-      name: z.string(),
-      placeholder: z.string(),
-      inputType: z.nativeEnum(InputType),
-      options: z
-        .array(
-          z.object({
-            label: z.string(),
-            value: z.string(),
-          }),
-        )
-        .optional(),
-      allowedObjectTypes: z.array(z.nativeEnum(ObjectTypeObjects)).readonly().optional(),
-    })
-    .optional(),
-  selectedValue: z.union([z.string(), z.array(z.string())]).optional(),
-  selectedDate: z.date().nullable().optional(),
-  selectedAssociations: z.record(z.string(), z.array(z.string())).optional(),
-})
-
-const bulkEditRisksSchema = z.object({
-  fieldsArray: z.array(fieldItemSchema),
-})
-
-type BulkEditRisksFormValues = z.infer<typeof bulkEditRisksSchema>
+type BulkEditRisksFormValues = BulkEditFieldsFormValues
 
 export const BulkEditRisksDialog: React.FC<BulkEditRisksDialogProps> = ({ selectedRisks, setSelectedRisks }) => {
   const [open, setOpen] = useState(false)
+  const [collapsedAssociations, setCollapsedAssociations] = useState<Record<string, boolean>>({})
   const { mutateAsync: bulkEditRisks } = useBulkEditRisk()
   const { errorNotification, successNotification } = useNotification()
   const form = useForm<BulkEditRisksFormValues>({
-    resolver: zodResolver(bulkEditRisksSchema),
+    resolver: zodResolver(bulkEditFieldsSchema),
     defaultValues: defaultObject,
   })
   const { data } = useGetAllGroups({ where: {} })
@@ -108,7 +82,7 @@ export const BulkEditRisksDialog: React.FC<BulkEditRisksDialogProps> = ({ select
   const { fields, append, update, replace, remove } = useFieldArray({
     control,
     name: 'fieldsArray',
-    rules: { maxLength: 8 },
+    rules: { maxLength: allOptionSelects.length },
   })
 
   useEffect(() => {
@@ -167,7 +141,10 @@ export const BulkEditRisksDialog: React.FC<BulkEditRisksDialogProps> = ({ select
     <Dialog
       open={open}
       onOpenChange={(value) => {
-        if (!value) replace([])
+        if (!value) {
+          replace([])
+          setCollapsedAssociations({})
+        }
         setOpen(value)
       }}
     >
@@ -201,9 +178,9 @@ export const BulkEditRisksDialog: React.FC<BulkEditRisksDialogProps> = ({ select
                             <SelectValue placeholder="Select field..." />
                           </SelectTrigger>
                           <SelectContent>
-                            {Object.values(SelectOptionBulkEditRisks).map((option) => (
-                              <SelectItem key={option} value={option} disabled={fields.some((f, i) => f.value === option && i !== index)}>
-                                {option}
+                            {allOptionSelects.map((option) => (
+                              <SelectItem key={option.selectOptionEnum} value={option.selectOptionEnum} disabled={fields.some((f, i) => f.value === option.selectOptionEnum && i !== index)}>
+                                {option.selectOptionEnum}
                               </SelectItem>
                             ))}
                           </SelectContent>
@@ -270,26 +247,35 @@ export const BulkEditRisksDialog: React.FC<BulkEditRisksDialogProps> = ({ select
                         ))}
                       <Button icon={<Trash2 />} iconPosition="center" variant="secondary" onClick={() => remove(index)}></Button>
                     </div>
-                    {isObjectAssociation && item.selectedObject && (
-                      <BulkEditObjectAssociation
-                        allowedObjectTypes={item.selectedObject.allowedObjectTypes}
-                        onChange={(updatedMap) => {
-                          form.setValue(`fieldsArray.${index}.selectedAssociations`, updatedMap)
-                        }}
-                      />
+                    {isObjectAssociation && item.selectedObject?.objectType && (
+                      <BulkEditAssociationCollapsible
+                        isCollapsed={!!collapsedAssociations[item.id]}
+                        selectedCount={getAssociationSelectedCount(watchedFields[index]?.selectedAssociations)}
+                        displayLabel={item.selectedObject.selectOptionEnum}
+                        onToggle={() => setCollapsedAssociations((prev) => ({ ...prev, [item.id]: !prev[item.id] }))}
+                      >
+                        <BulkEditSingleObjectAssociation objectType={item.selectedObject.objectType} onChange={(map) => form.setValue(`fieldsArray.${index}.selectedAssociations`, map)} />
+                      </BulkEditAssociationCollapsible>
                     )}
                   </div>
                 )
               })}
-              {fields.length < Object.keys(SelectOptionBulkEditRisks).length ? (
+              {fields.length < allOptionSelects.length ? (
                 <Button
                   icon={<Plus />}
-                  onClick={() =>
+                  onClick={() => {
+                    setCollapsedAssociations((prev) => {
+                      const next = { ...prev }
+                      fields.forEach((f) => {
+                        if (f.selectedObject?.inputType === InputType.ObjectAssociation) next[f.id] = true
+                      })
+                      return next
+                    })
                     append({
                       value: undefined,
                       selectedValue: undefined,
                     })
-                  }
+                  }}
                   iconPosition="left"
                   variant="secondary"
                 >

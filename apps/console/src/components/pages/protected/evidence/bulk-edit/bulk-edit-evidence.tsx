@@ -7,10 +7,10 @@ import {
   getAllSelectOptionsForBulkEditEvidence,
   getMappedClearValue,
   InputType,
-  SelectOptionBulkEditEvidence,
+  bulkEditFieldsSchema,
+  type BulkEditFieldsFormValues,
 } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-shared-objects'
 import { useBulkEditEvidence } from '@/lib/graphql-hooks/evidence'
-import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm, FormProvider, Controller, useFieldArray, useWatch } from 'react-hook-form'
 import { useEffect, useMemo, useState } from 'react'
@@ -25,54 +25,33 @@ import { useNotification } from '@/hooks/useNotification'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { BulkEditTagField } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-tag-field'
-import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
-import { BulkEditObjectAssociation } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-object-association'
+import { BulkEditSingleObjectAssociation } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-single-object-association'
+import { BulkEditAssociationCollapsible } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-association-collapsible'
+import { getAssociationSelectedCount } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-shared-objects'
 
-const fieldItemSchema = z.object({
-  value: z.nativeEnum(SelectOptionBulkEditEvidence).optional(),
-  selectedObject: z
-    .object({
-      selectOptionEnum: z.nativeEnum(SelectOptionBulkEditEvidence),
-      name: z.string(),
-      placeholder: z.string(),
-      inputType: z.nativeEnum(InputType),
-      options: z
-        .array(
-          z.object({
-            label: z.string(),
-            value: z.string(),
-          }),
-        )
-        .optional(),
-      allowedObjectTypes: z.array(z.nativeEnum(ObjectTypeObjects)).readonly().optional(),
-    })
-    .optional(),
-  selectedValue: z.union([z.string(), z.array(z.string())]).optional(),
-  selectedDate: z.date().nullable().optional(),
-  selectedAssociations: z.record(z.string(), z.array(z.string())).optional(),
-})
-
-const bulkEditEvidenceSchema = z.object({
-  fieldsArray: z.array(fieldItemSchema),
-})
-
-type BulkEditEvidenceFormValues = z.infer<typeof bulkEditEvidenceSchema>
+type BulkEditEvidenceFormValues = BulkEditFieldsFormValues
 
 export const BulkEditEvidenceDialog: React.FC<BulkEditEvidenceDialogProps> = ({ selectedEvidence, setSelectedEvidence }: BulkEditEvidenceDialogProps) => {
   const [open, setOpen] = useState(false)
+  const [collapsedAssociations, setCollapsedAssociations] = useState<Record<string, boolean>>({})
   const { mutateAsync: bulkEditEvidence } = useBulkEditEvidence()
   const { errorNotification, successNotification } = useNotification()
   const form = useForm<BulkEditEvidenceFormValues>({
-    resolver: zodResolver(bulkEditEvidenceSchema),
+    resolver: zodResolver(bulkEditFieldsSchema),
     defaultValues: defaultObject,
   })
   const { control, handleSubmit } = form
   const watchedFields = useWatch({ control, name: 'fieldsArray' }) ?? []
   const hasFieldsToUpdate = checkHasFieldsToUpdate(watchedFields)
+
+  const allOptionSelects = useMemo(() => {
+    return getAllSelectOptionsForBulkEditEvidence()
+  }, [])
+
   const { fields, append, update, replace, remove } = useFieldArray({
     control,
     name: 'fieldsArray',
-    rules: { maxLength: 3 },
+    rules: { maxLength: allOptionSelects.length },
   })
 
   useEffect(() => {
@@ -84,10 +63,6 @@ export const BulkEditEvidenceDialog: React.FC<BulkEditEvidenceDialogProps> = ({ 
       })
     }
   }, [open, append])
-
-  const allOptionSelects = useMemo(() => {
-    return getAllSelectOptionsForBulkEditEvidence()
-  }, [])
 
   const onSubmit = async () => {
     const ids = selectedEvidence.map((evidence) => evidence.id)
@@ -136,7 +111,10 @@ export const BulkEditEvidenceDialog: React.FC<BulkEditEvidenceDialogProps> = ({ 
     <Dialog
       open={open}
       onOpenChange={(value) => {
-        if (!value) replace([])
+        if (!value) {
+          replace([])
+          setCollapsedAssociations({})
+        }
         setOpen(value)
       }}
     >
@@ -176,9 +154,9 @@ export const BulkEditEvidenceDialog: React.FC<BulkEditEvidenceDialogProps> = ({ 
                             <SelectValue placeholder="Select field..." />
                           </SelectTrigger>
                           <SelectContent>
-                            {Object.values(SelectOptionBulkEditEvidence).map((option) => (
-                              <SelectItem key={option} value={option} disabled={fields.some((f, i) => f.value === option && i !== index)}>
-                                {option}
+                            {allOptionSelects.map((option) => (
+                              <SelectItem key={option.selectOptionEnum} value={option.selectOptionEnum} disabled={fields.some((f, i) => f.value === option.selectOptionEnum && i !== index)}>
+                                {option.selectOptionEnum}
                               </SelectItem>
                             ))}
                           </SelectContent>
@@ -222,27 +200,36 @@ export const BulkEditEvidenceDialog: React.FC<BulkEditEvidenceDialogProps> = ({ 
                         ))}
                       <Button icon={<Trash2 />} iconPosition="center" variant="secondary" onClick={() => remove(index)}></Button>
                     </div>
-                    {isObjectAssociation && item.selectedObject && (
-                      <BulkEditObjectAssociation
-                        allowedObjectTypes={item.selectedObject.allowedObjectTypes}
-                        onChange={(updatedMap) => {
-                          form.setValue(`fieldsArray.${index}.selectedAssociations`, updatedMap)
-                        }}
-                      />
+                    {isObjectAssociation && item.selectedObject?.objectType && (
+                      <BulkEditAssociationCollapsible
+                        isCollapsed={!!collapsedAssociations[item.id]}
+                        selectedCount={getAssociationSelectedCount(watchedFields[index]?.selectedAssociations)}
+                        displayLabel={item.selectedObject.selectOptionEnum}
+                        onToggle={() => setCollapsedAssociations((prev) => ({ ...prev, [item.id]: !prev[item.id] }))}
+                      >
+                        <BulkEditSingleObjectAssociation objectType={item.selectedObject.objectType} onChange={(map) => form.setValue(`fieldsArray.${index}.selectedAssociations`, map)} />
+                      </BulkEditAssociationCollapsible>
                     )}
                   </div>
                 )
               })}
-              {fields.length < Object.keys(SelectOptionBulkEditEvidence).length ? (
+              {fields.length < allOptionSelects.length ? (
                 <Button
                   icon={<Plus />}
-                  onClick={() =>
+                  onClick={() => {
+                    setCollapsedAssociations((prev) => {
+                      const next = { ...prev }
+                      fields.forEach((f) => {
+                        if (f.selectedObject?.inputType === InputType.ObjectAssociation) next[f.id] = true
+                      })
+                      return next
+                    })
                     append({
                       value: undefined,
                       selectedValue: undefined,
                       selectedDate: undefined,
                     })
-                  }
+                  }}
                   iconPosition="left"
                   variant="secondary"
                 >
