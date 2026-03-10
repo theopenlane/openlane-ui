@@ -2,7 +2,7 @@
 
 import React, { useMemo, useState } from 'react'
 import { useDebounce } from '@uidotdev/usehooks'
-import { ColumnDef } from '@tanstack/react-table'
+import { type ColumnDef } from '@tanstack/react-table'
 import { DataTable } from '@repo/ui/data-table'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import type { FindingWhereInput } from '@repo/codegen/src/schema'
@@ -102,7 +102,7 @@ const FindingsTable: React.FC<FindingsTableProps> = ({ controlId, subcontrolIds 
         }
         return col
       })
-  }, [userMap])
+  }, [userMap, replace])
 
   const paginationMeta = useMemo(
     () => ({

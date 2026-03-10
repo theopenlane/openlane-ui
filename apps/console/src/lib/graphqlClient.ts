@@ -81,7 +81,7 @@ export function useGetGraphQLClient() {
       } catch (e) {
         console.error('❌ Failed to decode refresh token:', e)
         handleSessionExpired()
-        throw new Error('Session expired')
+        throw new Error('Session expired', { cause: e })
       }
     }
 

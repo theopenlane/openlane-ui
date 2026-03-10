@@ -5,9 +5,9 @@ import { useFormContext } from 'react-hook-form'
 import { FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { InfoIcon } from 'lucide-react'
-import { ReviewFormData } from '../../../hooks/use-form-schema'
+import { type ReviewFormData } from '../../../hooks/use-form-schema'
 import PlateEditor from '@/components/shared/plate/plate-editor'
-import { Value } from 'platejs'
+import { type Value } from 'platejs'
 
 type DescriptionFieldProps = {
   isEditing: boolean
@@ -18,7 +18,7 @@ type DescriptionFieldProps = {
 
 const DescriptionField: React.FC<DescriptionFieldProps> = ({ isEditing, isCreate, initialValue, isFormInitialized }) => {
   const { control, formState } = useFormContext<ReviewFormData>()
-  const hasInitialized = useRef(false)
+  const hasInitializedRef = useRef(false)
 
   return isEditing || isCreate ? (
     <FormField
@@ -33,12 +33,12 @@ const DescriptionField: React.FC<DescriptionFieldProps> = ({ isEditing, isCreate
           <FormControl>
             <PlateEditor
               onChange={(val) => {
-                if (!hasInitialized.current && isFormInitialized) {
-                  hasInitialized.current = true
+                if (!hasInitializedRef.current && isFormInitialized) {
+                  hasInitializedRef.current = true
                   return
                 }
 
-                if (hasInitialized.current && isFormInitialized) {
+                if (hasInitializedRef.current && isFormInitialized) {
                   field.onChange(val)
                 }
               }}

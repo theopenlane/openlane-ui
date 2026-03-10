@@ -78,7 +78,7 @@ tasks:
   lint:
     desc: Run ESLint on the console app
     cmds:
-      - npx eslint --config apps/console/eslint.config.js --max-warnings=0 {{.CLI_ARGS | default "apps/console/src"}}
+      - npx eslint --config apps/console/eslint.config.js --max-warnings=0 {{.CLI_ARGS | default "apps/console/src"}} --fix
 
   precommit-full:
     desc: Run lint-staged and tests against all files

@@ -2,7 +2,7 @@
 
 import React, { useCallback } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Value } from 'platejs'
+import { type Value } from 'platejs'
 import useFormSchema from '@/components/pages/protected/assets/hooks/use-form-schema'
 import { type AssetsNodeNonNull, useAsset, useUpdateAsset, useCreateAsset, useGetAssetAssociations } from '@/lib/graphql-hooks/asset'
 import { GenericDetailsSheet } from '@/components/shared/crud-base/generic-sheet'

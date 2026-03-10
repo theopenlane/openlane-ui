@@ -2,7 +2,7 @@
 
 import React, { useCallback, useRef } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import useFormSchema from '@/components/pages/protected/reviews/hooks/use-form-schema'
+import useFormSchema, { type ReviewFormData } from '@/components/pages/protected/reviews/hooks/use-form-schema'
 import { type ReviewsNodeNonNull, useReview, useUpdateReview, useCreateReview, useGetReviewAssociations } from '@/lib/graphql-hooks/review'
 import { GenericDetailsSheet } from '@/components/shared/crud-base/generic-sheet'
 import { getFieldsToRender } from '@/components/pages/protected/reviews/table/table-config'
@@ -95,7 +95,7 @@ const ReviewDetailsSheet: React.FC<ReviewDetailsSheetProps> = ({ queryParamKey }
     createMutation,
     buildPayload: async (formData) => {
       const { controlIDs, subcontrolIDs, remediationIDs, entityIDs, taskIDs, assetIDs, programIDs, ...rest } = formData
-      const payload = await buildPayload(rest as any, plateEditorHelper)
+      const payload = await buildPayload(rest as ReviewFormData, plateEditorHelper)
       const associationPayload = buildAssociationPayload(
         REVIEW_ASSOCIATION_CONFIG.associationKeys,
         { controlIDs, subcontrolIDs, remediationIDs, entityIDs, taskIDs, assetIDs, programIDs },

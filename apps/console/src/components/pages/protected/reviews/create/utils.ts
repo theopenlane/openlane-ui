@@ -1,6 +1,6 @@
-import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import { ReviewFormData } from '../hooks/use-form-schema'
-import { Value } from 'platejs'
+import type usePlateEditor from '@/components/shared/plate/usePlateEditor'
+import { type ReviewFormData } from '../hooks/use-form-schema'
+import { type Value } from 'platejs'
 
 const toISOString = (value: string | Date | null | undefined): string | undefined => {
   if (!value) return undefined
