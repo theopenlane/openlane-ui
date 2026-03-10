@@ -19,12 +19,15 @@ import { type ObjectNames, type ObjectTypes } from '@repo/codegen/src/type-names
 import { useRouter, useSearchParams } from 'next/navigation'
 import { type FieldValues, type UseFormReturn } from 'react-hook-form'
 import { GenericDetailsSheet, type GenericDetailsSheetConfig } from '@/components/shared/crud-base/generic-sheet'
+import { TabbedDetailView } from '@/components/shared/crud-base/tabbed-detail-view'
+import { StepDialog } from '@/components/shared/crud-base/step-dialog'
 import { GenericTableToolbar } from '@/components/shared/crud-base/table/table-toolbar'
 import { type ResponsibilityFieldsMap } from '@/components/shared/crud-base/dialog/bulk-edit'
 import { type TableKeyValue } from '@repo/ui/table-key'
 import { type TAccessRole, type TPermissionData } from '@/types/authz'
 import { type FilterField } from '@/types'
 import { type User } from '@repo/codegen/src/schema'
+import type { ViewEditMode, CreateMode } from './types'
 
 type TOrderByInput = { field: string; direction?: OrderDirection }[] | undefined
 type TOrderFieldEnum<TField> = Record<string, TField> | TField[]
@@ -103,10 +106,15 @@ export interface GenericTablePageConfig<TEntity extends { id: string }, TFormDat
     bulkEditFormSchema?: ZodObject<ZodRawShape>
     enumOpts?: EnumOptionsGeneric
     responsibilityFields?: ResponsibilityFieldsMap
+    createMode?: CreateMode
   }>
 
   // Sheet configuration
   sheetConfig: Omit<GenericDetailsSheetConfig<TFormData, TEntity, TUpdateInput, TUpdateData, TCreateInput, TCreateData>, 'form' | 'onClose'>
+
+  // View/Create mode configuration
+  viewEditMode?: ViewEditMode<TEntity, TUpdateInput>
+  createMode?: CreateMode
 
   // Bulk operations
   onBulkDelete: (ids: string[]) => Promise<void>
@@ -142,6 +150,8 @@ export function GenericTablePage<
     TableComponent,
     ToolbarComponent,
     sheetConfig,
+    viewEditMode,
+    createMode,
     onBulkDelete,
     onBulkCreate,
     onBulkEdit,
@@ -256,6 +266,44 @@ export function GenericTablePage<
 
   const ToolbarToUse = ToolbarComponent || GenericTableToolbar
 
+  const resolvedViewMode = viewEditMode?.type ?? 'slideout'
+  const resolvedCreateMode = createMode?.type ?? 'slideout'
+
+  const renderDetailView = () => {
+    // Handle step-dialog create mode
+    if (isCreate && resolvedCreateMode === 'step-dialog' && createMode?.type === 'step-dialog') {
+      return (
+        <StepDialog<TFormData, TCreateInput, TCreateData>
+          key="create-step-dialog"
+          objectType={sheetConfig.objectType}
+          form={form}
+          steps={createMode.steps}
+          title={createMode.title}
+          createMutation={sheetConfig.createMutation}
+          buildPayload={sheetConfig.buildPayload as (data: TFormData) => Promise<TCreateInput>}
+          onClose={handleCloseSheet}
+        />
+      )
+    }
+
+    // Handle full-page create mode — create button navigates away, nothing to render
+    if (isCreate && resolvedCreateMode === 'full-page') {
+      return null
+    }
+
+    // Handle tabbed view/edit mode
+    if (id && resolvedViewMode === 'tabbed' && viewEditMode?.type === 'tabbed') {
+      return <TabbedDetailView<TFormData, TEntity, TUpdateInput, TUpdateData, TCreateInput, TCreateData> key={id} onClose={handleCloseSheet} form={form} tabs={viewEditMode.tabs} {...sheetConfig} />
+    }
+
+    // Default: slideout for both view/edit and create
+    if (id || isCreate) {
+      return <GenericDetailsSheet<TFormData, TEntity, TUpdateInput, TUpdateData, TCreateInput, TCreateData> key={id || 'create'} onClose={handleCloseSheet} form={form} {...sheetConfig} />
+    }
+
+    return null
+  }
+
   return (
     <>
       <ToolbarToUse
@@ -291,6 +339,7 @@ export function GenericTablePage<
         enumOpts={config.enumOpts}
         storageKey={tableKey}
         responsibilityFields={config.responsibilityFields}
+        createMode={createMode}
       />
 
       <TableComponent
@@ -308,9 +357,7 @@ export function GenericTablePage<
         permission={permission}
       />
 
-      {(id || isCreate) && (
-        <GenericDetailsSheet<TFormData, TEntity, TUpdateInput, TUpdateData, TCreateInput, TCreateData> key={id || 'create'} onClose={handleCloseSheet} form={form} {...sheetConfig} />
-      )}
+      {renderDetailView()}
     </>
   )
 }
