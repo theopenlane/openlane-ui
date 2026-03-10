@@ -1,6 +1,6 @@
 'use client'
 
-import React, { Fragment, useEffect, useRef, useMemo, useState, useCallback } from 'react'
+import React, { useEffect, useRef, useMemo, useState, useCallback } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@repo/ui/button'
 import {
@@ -74,6 +74,8 @@ import { useEvidenceSuggestedControls } from './hooks/use-evidence-suggested-con
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 import EvidenceCommentsCard from './evidence-comment-card'
+import AssociatedObjectsAccordion from '@/components/shared/object-association/associated-objects-accordion'
+import type { Section } from '@/components/shared/object-association/types/object-association-types'
 import PlateEditor from '@/components/shared/plate/plate-editor'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { SaveButton } from '@/components/shared/save-button/save-button'
@@ -195,6 +197,17 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
       controlReferenceFramework: Object.fromEntries(controls.map((c) => [c.id, c.referenceFramework ?? ''])),
     }
   }, [evidence])
+
+  const associatedObjectSections = useMemo<Section>(() => {
+    if (!evidence) return {}
+    const sections: Section = {}
+    if (evidence.programs?.edges?.length) sections.programs = evidence.programs
+    if (evidence.tasks?.edges?.length) sections.tasks = evidence.tasks
+    if (evidence.controlObjectives?.edges?.length) sections.controlObjectives = evidence.controlObjectives
+    return sections
+  }, [evidence])
+
+  const hasAssociatedObjects = Object.keys(associatedObjectSections).length > 0
 
   /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
@@ -952,6 +965,14 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                         </CardContent>
                       </Card>
                       <EvidenceCommentsCard />
+                      {hasAssociatedObjects && (
+                        <Card>
+                          <CardContent className="flex flex-col gap-3 p-5">
+                            <h3 className="text-sm font-medium">Associated Objects</h3>
+                            <AssociatedObjectsAccordion sections={associatedObjectSections} toggleAll={false} />
+                          </CardContent>
+                        </Card>
+                      )}
                     </div>
                   )}
                 </div>
