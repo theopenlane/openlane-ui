@@ -4,7 +4,7 @@ import React, { useMemo, useRef } from 'react'
 import { useFormContext, Controller } from 'react-hook-form'
 import { BookText, CalendarCheck2, Circle, CircleUser, Folder, Tag, UserRoundPen } from 'lucide-react'
 
-import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@repo/ui/select'
+import { Select, SelectTrigger, SelectContent, SelectItem } from '@repo/ui/select'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
 import MultipleSelector, { type Option } from '@repo/ui/multiple-selector'
 import { formatDate } from '@/utils/date'
