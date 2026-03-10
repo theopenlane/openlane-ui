@@ -35,14 +35,12 @@ import { BulkEditSingleObjectAssociation } from '@/components/shared/bulk-edit-s
 import { BulkEditAssociationCollapsible } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-association-collapsible'
 import { getAssociationSelectedCount } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-shared-objects'
 
-type BulkEditPoliciesFormValues = BulkEditFieldsFormValues
-
 export const BulkEditPoliciesDialog: React.FC<BulkEditPoliciesDialogProps> = ({ selectedPolicies, setSelectedPolicies }) => {
   const [open, setOpen] = useState(false)
   const [collapsedAssociations, setCollapsedAssociations] = useState<Record<string, boolean>>({})
   const { mutateAsync: bulkEditPolicies } = useBulkEditInternalPolicy()
   const { errorNotification, successNotification } = useNotification()
-  const form = useForm<BulkEditPoliciesFormValues>({
+  const form = useForm<BulkEditFieldsFormValues>({
     resolver: zodResolver(bulkEditFieldsSchema),
     defaultValues: defaultObject,
   })
@@ -162,7 +160,7 @@ export const BulkEditPoliciesDialog: React.FC<BulkEditPoliciesDialogProps> = ({ 
                           onValueChange={(value) => {
                             const selectedOption = allOptionSelects.find((item) => item.selectOptionEnum === value)
                             if (!selectedOption) return
-                            update(index, { value: selectedOption.selectOptionEnum, selectedObject: selectedOption, selectedValue: undefined })
+                            update(index, { value: selectedOption.selectOptionEnum, selectedObject: selectedOption, selectedValue: undefined, selectedAssociations: undefined })
                           }}
                         >
                           <SelectTrigger className="w-48">

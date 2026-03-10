@@ -13,6 +13,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { ClientError } from 'graphql-request'
 import { useBulkEditControl } from '@/lib/graphql-hooks/control'
 import {
+  checkHasFieldsToUpdate,
   collectAssociationInput,
   type BulkEditControlsDialogProps,
   defaultObject,
@@ -37,14 +38,12 @@ import { BulkEditSingleObjectAssociation } from '@/components/shared/bulk-edit-s
 import { BulkEditAssociationCollapsible } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-association-collapsible'
 import { getAssociationSelectedCount } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-shared-objects'
 
-type BulkEditControlsFormValues = BulkEditFieldsFormValues
-
 export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ selectedControls, setSelectedControls }) => {
   const [open, setOpen] = useState(false)
   const [collapsedAssociations, setCollapsedAssociations] = useState<Record<string, boolean>>({})
   const { mutateAsync: bulkEditControl } = useBulkEditControl()
   const { errorNotification, successNotification } = useNotification()
-  const form = useForm<BulkEditControlsFormValues>({
+  const form = useForm<BulkEditFieldsFormValues>({
     resolver: zodResolver(bulkEditFieldsSchema),
     defaultValues: defaultObject,
   })
@@ -64,6 +63,7 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
 
   const { control, handleSubmit } = form
   const watchedFields = useWatch({ control, name: 'fieldsArray' }) ?? []
+  const hasFieldsToUpdate = checkHasFieldsToUpdate(watchedFields)
 
   const { fields, append, update, replace, remove } = useFieldArray({
     control,
@@ -95,7 +95,7 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
         input[key] = field.selectedValue
         return
       }
-      const value = form.getValues(key as Path<BulkEditControlsFormValues>)
+      const value = form.getValues(key as Path<BulkEditFieldsFormValues>)
       if (typeof value === 'string' && value.trim() !== '') {
         input[key] = value
         return
@@ -159,7 +159,7 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
                           onValueChange={(value) => {
                             const selectedOption = allOptionSelects.find((item) => item.selectOptionEnum === value)
                             if (!selectedOption) return
-                            update(index, { value: selectedOption.selectOptionEnum, selectedObject: selectedOption, selectedValue: undefined })
+                            update(index, { value: selectedOption.selectOptionEnum, selectedObject: selectedOption, selectedValue: undefined, selectedAssociations: undefined })
                           }}
                         >
                           <SelectTrigger className="w-48">
@@ -284,7 +284,7 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
             </div>
 
             <DialogFooter className="mt-6 flex gap-2">
-              <SaveButton onClick={form.handleSubmit(onSubmit)} />
+              <SaveButton disabled={!hasFieldsToUpdate} onClick={form.handleSubmit(onSubmit)} />
               <CancelButton
                 onClick={() => {
                   setOpen(false)

@@ -46,8 +46,7 @@ export const BulkEditSingleObjectAssociation: React.FC<Props> = ({ objectType, o
     queryFn: async () => client.request(config.queryDocument, { where: whereFilter, ...pagination?.query }),
   })
 
-  const pageInfo = !isLoading && !isFetching ? getPagination(config.responseObjectKey, data).pageInfo : undefined
-  const totalCount = !isLoading && !isFetching ? getPagination(config.responseObjectKey, data).totalCount : undefined
+  const { pageInfo, totalCount } = !isLoading && !isFetching ? getPagination(config.responseObjectKey, data) : { pageInfo: undefined, totalCount: undefined }
 
   const tableData = useMemo<TableRow[]>(() => extractTableRows(config.responseObjectKey, data, config.inputName), [data, config.responseObjectKey, config.inputName])
 

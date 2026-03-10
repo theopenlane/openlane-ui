@@ -56,7 +56,6 @@ export interface SelectOptionSelectedObject<T extends string = string> {
   placeholder: string
   options?: Option[]
   inputType: InputType
-  allowedObjectTypes?: readonly ObjectTypeObjects[]
   objectType?: ObjectTypeObjects
 }
 
@@ -161,7 +160,6 @@ export const fieldItemSchema = z.object({
           }),
         )
         .optional(),
-      allowedObjectTypes: z.array(z.nativeEnum(ObjectTypeObjects)).readonly().optional(),
       objectType: z.nativeEnum(ObjectTypeObjects).optional(),
     })
     .optional(),
@@ -239,7 +237,6 @@ export const generateAssociationSelectOptions = (allowedTypes: readonly ObjectTy
     name: 'objectAssociation',
     inputType: InputType.ObjectAssociation,
     placeholder: 'Select associations',
-    allowedObjectTypes: [objectType],
     objectType,
   }))
 }

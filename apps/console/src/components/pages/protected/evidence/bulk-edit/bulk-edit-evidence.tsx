@@ -29,14 +29,12 @@ import { BulkEditSingleObjectAssociation } from '@/components/shared/bulk-edit-s
 import { BulkEditAssociationCollapsible } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-association-collapsible'
 import { getAssociationSelectedCount } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-shared-objects'
 
-type BulkEditEvidenceFormValues = BulkEditFieldsFormValues
-
 export const BulkEditEvidenceDialog: React.FC<BulkEditEvidenceDialogProps> = ({ selectedEvidence, setSelectedEvidence }: BulkEditEvidenceDialogProps) => {
   const [open, setOpen] = useState(false)
   const [collapsedAssociations, setCollapsedAssociations] = useState<Record<string, boolean>>({})
   const { mutateAsync: bulkEditEvidence } = useBulkEditEvidence()
   const { errorNotification, successNotification } = useNotification()
-  const form = useForm<BulkEditEvidenceFormValues>({
+  const form = useForm<BulkEditFieldsFormValues>({
     resolver: zodResolver(bulkEditFieldsSchema),
     defaultValues: defaultObject,
   })
@@ -147,6 +145,7 @@ export const BulkEditEvidenceDialog: React.FC<BulkEditEvidenceDialogProps> = ({ 
                               selectedObject: selectedOption,
                               selectedValue: undefined,
                               selectedDate: undefined,
+                              selectedAssociations: undefined,
                             })
                           }}
                         >
