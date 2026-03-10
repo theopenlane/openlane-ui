@@ -122,10 +122,10 @@ export function useGetGraphQLClient() {
           headers,
         })
         response = await makeRequest()
-      } catch {
+      } catch (e) {
         refreshPromise = null
         handleSessionExpired()
-        throw new Error('Session expired')
+        throw new Error('Session expired', { cause: e })
       }
     }
 

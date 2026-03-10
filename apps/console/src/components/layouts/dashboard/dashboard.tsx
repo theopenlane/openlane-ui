@@ -97,7 +97,8 @@ export function DashboardLayout({ children, error }: DashboardLayoutProps) {
     }
 
     const decoded: { exp?: number } = jwtDecode(refreshToken)
-    const delay = differenceInMilliseconds(fromUnixTime(decoded.exp ?? 0), new Date())
+    if (!decoded.exp) return
+    const delay = differenceInMilliseconds(fromUnixTime(decoded.exp), new Date())
     const id = setTimeout(() => setShowSessionExpiredModal(true), delay)
     return () => clearTimeout(id)
   }, [sessionData])
