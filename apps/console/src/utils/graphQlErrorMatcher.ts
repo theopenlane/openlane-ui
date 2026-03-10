@@ -1,4 +1,4 @@
-import { errorCodeMessages, GraphQlResponseError } from '@/constants/graphQlResponseError'
+import { errorCodeMessages, type GraphQlResponseError } from '@/constants/graphQlResponseError'
 import { ClientError } from 'graphql-request'
 
 export interface GraphQLErrorExtension {

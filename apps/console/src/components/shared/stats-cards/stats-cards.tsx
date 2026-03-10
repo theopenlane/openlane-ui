@@ -7,7 +7,7 @@ import { useGlobalEvidenceStats, useProgramEvidenceStats } from '@/lib/graphql-h
 import { useSubmittedEvidenceTrend, useAcceptedEvidenceTrend, useRejectedEvidenceTrend } from '@/lib/graphql-hooks/evidence'
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@repo/ui/tooltip'
 import Link from 'next/link'
-import { saveFilters, TFilterState } from '@/components/shared/table-filter/filter-storage.ts'
+import { saveFilters, type TFilterState } from '@/components/shared/table-filter/filter-storage.ts'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { EvidenceEvidenceStatus } from '@repo/codegen/src/schema.ts'
 

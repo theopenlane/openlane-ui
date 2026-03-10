@@ -1,11 +1,11 @@
 'use client'
 
 import { useProgramSelect } from '@/lib/graphql-hooks/program'
-import { SelectedItem, TSharedImportControlsComponentsPropsPrograms } from '../shared/program-settings-import-controls-shared-props'
+import { type SelectedItem, type TSharedImportControlsComponentsPropsPrograms } from '../shared/program-settings-import-controls-shared-props'
 import { useMemo, useState } from 'react'
 import { useDebounce } from '@uidotdev/usehooks'
-import { ControlWhereInput } from '@repo/codegen/src/schema'
-import { TPagination } from '@repo/ui/pagination-types'
+import { type ControlWhereInput } from '@repo/codegen/src/schema'
+import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useAllControlsGroupedWithListFields } from '@/lib/graphql-hooks/control'
 import { Button } from '@repo/ui/button'
@@ -28,7 +28,7 @@ const ImportControlsDialogProgram = ({ setSelectedItems, selectedItems, selected
   const [searchQuery, setSearchQuery] = useState<string>('')
   const debouncedSearchQuery = useDebounce(searchQuery, 300)
   const { wrapper, content } = statCardStyles({ color: 'green' })
-  const [pagination, setPagination] = useState<TPagination>(
+  const [pagination, setPagination] = useState<TPagination>(() =>
     getInitialPagination(TableKeyEnum.PROGRAM_SETTINGS_IMPORT_CONTROLS_PROGRAM, {
       ...DEFAULT_PAGINATION,
       page: 1,
@@ -62,7 +62,7 @@ const ImportControlsDialogProgram = ({ setSelectedItems, selectedItems, selected
   }
   const { allControls } = useAllControlsGroupedWithListFields({ where: where as ControlWhereInput, enabled: selectedProgramIds.length > 0 })
   const handleCheckboxShowToggle = () => {
-    setShowCheckboxes((prev) => (prev = !prev))
+    setShowCheckboxes((prev) => !prev)
   }
 
   const tableData: SelectedItem[] = useMemo(() => {

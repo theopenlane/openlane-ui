@@ -1,4 +1,4 @@
-import { createUIMessageStream, createUIMessageStreamResponse, generateText, Output, streamText, StreamTextTransform, tool, ToolSet } from 'ai'
+import { createUIMessageStream, createUIMessageStreamResponse, generateText, Output, streamText, type StreamTextTransform, tool, type ToolSet } from 'ai'
 import { google } from '@ai-sdk/google'
 
 import { NextResponse, type NextRequest } from 'next/server'

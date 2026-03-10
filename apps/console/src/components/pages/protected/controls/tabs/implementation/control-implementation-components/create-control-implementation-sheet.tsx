@@ -3,7 +3,7 @@
 import { Sheet, SheetContent } from '@repo/ui/sheet'
 import React from 'react'
 import { CreateControlImplementationForm } from './form/create-control-implementation-form'
-import { ControlImplementationDocumentStatus, ControlImplementationFieldsFragment } from '@repo/codegen/src/schema'
+import { type ControlImplementationDocumentStatus, type ControlImplementationFieldsFragment } from '@repo/codegen/src/schema'
 
 type CreateControlImplementationSheetProps = {
   open: boolean

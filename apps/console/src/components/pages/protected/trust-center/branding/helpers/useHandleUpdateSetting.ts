@@ -1,7 +1,7 @@
 'use client'
 import { useUpdateTrustCenterSetting } from '@/lib/graphql-hooks/trust-center'
 import { useNotification } from '@/hooks/useNotification'
-import { UpdateTrustCenterSettingInput, UpdateTrustCenterSettingMutation } from '@repo/codegen/src/schema'
+import { type UpdateTrustCenterSettingInput, type UpdateTrustCenterSettingMutation } from '@repo/codegen/src/schema'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 export type UpdateTrustCenterSettingsArgs = {

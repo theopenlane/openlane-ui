@@ -4,9 +4,9 @@ import ObjectAssociation from '@/components/shared/object-association/object-ass
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import React, { useCallback, useEffect, useState } from 'react'
 import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
-import { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
+import { type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
 import { usePolicy } from '@/components/pages/protected/policies/create/hooks/use-policy.tsx'
-import { UpdateInternalPolicyInput } from '@repo/codegen/src/schema.ts'
+import { type UpdateInternalPolicyInput } from '@repo/codegen/src/schema.ts'
 import { useQueryClient } from '@tanstack/react-query'
 import { useUpdateInternalPolicy } from '@/lib/graphql-hooks/internal-policy'
 import { useNotification } from '@/hooks/useNotification.tsx'
@@ -117,7 +117,7 @@ const SetObjectAssociationPoliciesDialog = ({ policyId, fromTable = false, onClo
         updateInternalPolicyId: string
         input: UpdateInternalPolicyInput
       } = {
-        updateInternalPolicyId: policyId!,
+        updateInternalPolicyId: policyId ?? '',
         input: {
           ...associationInputs,
         },

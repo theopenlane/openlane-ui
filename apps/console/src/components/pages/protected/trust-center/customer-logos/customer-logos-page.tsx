@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useContext, useEffect, useState } from 'react'
+import React, { use, useEffect, useState } from 'react'
 import { Building2 } from 'lucide-react'
 
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
@@ -14,7 +14,7 @@ import CustomerLogoCard from './customer-logo-card'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 
 export default function CustomerLogosPage() {
-  const { setCrumbs } = useContext(BreadcrumbContext)
+  const { setCrumbs } = use(BreadcrumbContext)
 
   const [entityToDelete, setEntityToDelete] = useState<string | null>(null)
 

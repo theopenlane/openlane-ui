@@ -1,6 +1,6 @@
 'use client'
 
-import { NextPage } from 'next'
+import { type NextPage } from 'next'
 import { useParams } from 'next/navigation'
 import { PageHeading } from '@repo/ui/page-heading'
 import React from 'react'

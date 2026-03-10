@@ -1,6 +1,6 @@
 'use client'
 
-import { Control, Controller, FieldPathByValue } from 'react-hook-form'
+import { type Control, Controller, type FieldPathByValue } from 'react-hook-form'
 import MultipleSelector from '@repo/ui/multiple-selector'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 

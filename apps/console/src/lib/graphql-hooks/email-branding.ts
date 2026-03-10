@@ -1,25 +1,25 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
-  EmailBrandingsWithFilterQuery,
-  EmailBrandingsWithFilterQueryVariables,
-  CreateEmailBrandingMutation,
-  CreateEmailBrandingMutationVariables,
-  UpdateEmailBrandingMutation,
-  UpdateEmailBrandingMutationVariables,
-  DeleteEmailBrandingMutation,
-  DeleteEmailBrandingMutationVariables,
-  EmailBrandingQuery,
-  EmailBrandingQueryVariables,
-  CreateBulkCsvEmailBrandingMutation,
-  CreateBulkCsvEmailBrandingMutationVariables,
-  UpdateBulkEmailBrandingMutation,
-  UpdateBulkEmailBrandingMutationVariables,
-  DeleteBulkEmailBrandingMutation,
-  DeleteBulkEmailBrandingMutationVariables,
+  type EmailBrandingsWithFilterQuery,
+  type EmailBrandingsWithFilterQueryVariables,
+  type CreateEmailBrandingMutation,
+  type CreateEmailBrandingMutationVariables,
+  type UpdateEmailBrandingMutation,
+  type UpdateEmailBrandingMutationVariables,
+  type DeleteEmailBrandingMutation,
+  type DeleteEmailBrandingMutationVariables,
+  type EmailBrandingQuery,
+  type EmailBrandingQueryVariables,
+  type CreateBulkCsvEmailBrandingMutation,
+  type CreateBulkCsvEmailBrandingMutationVariables,
+  type UpdateBulkEmailBrandingMutation,
+  type UpdateBulkEmailBrandingMutationVariables,
+  type DeleteBulkEmailBrandingMutation,
+  type DeleteBulkEmailBrandingMutationVariables,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 import {
   GET_ALL_EMAIL_BRANDINGS,
   CREATE_EMAIL_BRANDING,

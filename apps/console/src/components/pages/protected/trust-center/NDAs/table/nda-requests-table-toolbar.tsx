@@ -7,7 +7,7 @@ import { CheckCheck, SearchIcon, ShieldOff } from 'lucide-react'
 import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import { TableKeyEnum } from '@repo/ui/table-key'
-import { WhereCondition } from '@/types'
+import { type WhereCondition } from '@/types'
 import { ndaRequestsFilterFields } from './table-config'
 
 type Props = {

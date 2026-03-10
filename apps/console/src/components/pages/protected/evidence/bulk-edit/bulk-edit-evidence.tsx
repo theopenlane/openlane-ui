@@ -1,6 +1,6 @@
 'use client'
 import {
-  BulkEditEvidenceDialogProps,
+  type BulkEditEvidenceDialogProps,
   defaultObject,
   getAllSelectOptionsForBulkEditEvidence,
   getMappedClearValue,

@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useWebSocketClient } from '@/providers/websocket-provider'
 import { useSession } from 'next-auth/react'
-import { Notification as SchemaNotification } from '@repo/codegen/src/schema'
+import { type Notification as SchemaNotification } from '@repo/codegen/src/schema'
 import { useMarkNotificationsAsRead } from '@/lib/graphql-hooks/notifications'
 
 export type Notification = Pick<SchemaNotification, 'id' | 'title' | 'body' | 'topic' | 'data' | 'readAt' | 'objectType' | 'createdAt'>

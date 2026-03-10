@@ -1,11 +1,11 @@
 import {
-  GetTrustCenterCompliancesQuery,
-  UpdateTrustCenterComplianceMutation,
-  UpdateTrustCenterComplianceMutationVariables,
-  DeleteBulkTrustCenterComplianceMutation,
-  CreateBulkTrustCenterComplianceMutation,
-  CreateBulkTrustCenterComplianceMutationVariables,
-  DeleteBulkTrustCenterComplianceMutationVariables,
+  type GetTrustCenterCompliancesQuery,
+  type UpdateTrustCenterComplianceMutation,
+  type UpdateTrustCenterComplianceMutationVariables,
+  type DeleteBulkTrustCenterComplianceMutation,
+  type CreateBulkTrustCenterComplianceMutation,
+  type CreateBulkTrustCenterComplianceMutationVariables,
+  type DeleteBulkTrustCenterComplianceMutationVariables,
 } from '@repo/codegen/src/schema'
 
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'

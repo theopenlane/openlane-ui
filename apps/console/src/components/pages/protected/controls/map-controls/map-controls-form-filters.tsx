@@ -2,13 +2,13 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { useOrganization } from '@/hooks/useOrganization'
 import { useGetControlCategories } from '@/lib/graphql-hooks/control'
 import { useStandardsSelect } from '@/lib/graphql-hooks/standard'
-import { ControlWhereInput } from '@repo/codegen/src/schema'
+import { type ControlWhereInput } from '@repo/codegen/src/schema'
 import { Input } from '@repo/ui/input'
 import { useDebounce } from '@uidotdev/usehooks'
-import { Option } from '@repo/ui/multiple-selector'
+import { type Option } from '@repo/ui/multiple-selector'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { Checkbox } from '@repo/ui/checkbox'
-import { MapControl } from '@/types'
+import { type MapControl } from '@/types'
 
 interface Props {
   onFilterChange: (where: ControlWhereInput) => void

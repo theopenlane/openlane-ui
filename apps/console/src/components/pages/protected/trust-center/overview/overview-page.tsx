@@ -5,16 +5,16 @@ import { formatDate } from '@/utils/date'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { PageHeading } from '@repo/ui/page-heading'
 import { Brush, Globe, Megaphone, Server, Upload } from 'lucide-react'
-import { LivePreview, LivePreviewTrustCenter } from './live-preview'
+import { LivePreview, type LivePreviewTrustCenter } from './live-preview'
 import { useGetTrustCenterSubprocessors } from '@/lib/graphql-hooks/trust-center-subprocessor'
 import { useRouter } from 'next/navigation'
 import { SuggestedActionCard } from './suggested-action-card'
-import { useContext, useEffect } from 'react'
+import { use, useEffect } from 'react'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import AnalyticsCards from './analytics-cards'
 
 const OverviewPage: React.FC = () => {
-  const { setCrumbs } = useContext(BreadcrumbContext)
+  const { setCrumbs } = use(BreadcrumbContext)
   const { data: trustCenterData } = useGetTrustCenter()
 
   const { trustCenterSubprocessors, isLoading: isLoadingSubprocessors } = useGetTrustCenterSubprocessors({})

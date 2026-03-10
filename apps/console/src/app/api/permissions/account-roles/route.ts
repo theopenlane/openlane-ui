@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { type NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/lib/auth/auth'
 import { secureFetch } from '@/lib/auth/utils/secure-fetch'
 import { openlaneAPIUrl } from '@repo/dally/auth'

@@ -1,5 +1,5 @@
 import { Globe, Tag, Shield, CalendarPlus, History, type LucideIcon } from 'lucide-react'
-import { FilterField } from '@/types'
+import { type FilterField } from '@/types'
 import { OrderDirection, TemplateOrderField } from '@repo/codegen/src/schema.ts'
 import { useMemo } from 'react'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'

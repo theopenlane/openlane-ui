@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { Info, PencilLine, SlidersHorizontal } from 'lucide-react'
-import { TaskQuery } from '@repo/codegen/src/schema'
+import { type TaskQuery } from '@repo/codegen/src/schema'
 import { getHrefForObjectType } from '@/utils/getHrefForObjectType'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import ObjectsChip from '@/components/shared/objects-chip/objects-chip'

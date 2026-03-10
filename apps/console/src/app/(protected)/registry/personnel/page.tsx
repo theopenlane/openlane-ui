@@ -1,5 +1,5 @@
 import React from 'react'
-import { Metadata } from 'next'
+import { type Metadata } from 'next'
 import { PageHeading } from '@repo/ui/page-heading'
 import PersonnelPage from '@/components/pages/protected/personnel/table/page'
 

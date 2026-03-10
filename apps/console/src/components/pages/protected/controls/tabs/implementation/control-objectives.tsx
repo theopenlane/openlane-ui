@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { useDeleteControlObjective, useUpdateControlObjective } from '@/lib/graphql-hooks/control-objective'
-import { ControlObjectiveFieldsFragment, ControlObjectiveObjectiveStatus } from '@repo/codegen/src/schema'
+import { type ControlObjectiveFieldsFragment, ControlObjectiveObjectiveStatus } from '@repo/codegen/src/schema'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import CreateControlObjectiveSheet from './control-objectives-components/create-control-objective-sheet'

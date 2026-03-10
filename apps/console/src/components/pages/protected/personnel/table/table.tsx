@@ -2,14 +2,14 @@
 
 import { DataTable } from '@repo/ui/data-table'
 import React, { useEffect, useMemo } from 'react'
-import { IdentityHolderWhereInput, IdentityHolder, IdentityHolderOrderField } from '@repo/codegen/src/schema'
-import { IdentityHoldersNodeNonNull, useIdentityHoldersWithFilter } from '@/lib/graphql-hooks/identity-holder'
+import { type IdentityHolderWhereInput, type IdentityHolder, type IdentityHolderOrderField } from '@repo/codegen/src/schema'
+import { type IdentityHoldersNodeNonNull, useIdentityHoldersWithFilter } from '@/lib/graphql-hooks/identity-holder'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import { useNotification } from '@/hooks/useNotification'
 import { PERSONNEL_SORT_FIELDS } from './table-config'
 import { getColumns } from './columns'
-import { TTableProps } from '@/components/shared/crud-base/page'
+import { type TTableProps } from '@/components/shared/crud-base/page'
 import { objectName, tableKey } from './types'
 
 const TableComponent = ({

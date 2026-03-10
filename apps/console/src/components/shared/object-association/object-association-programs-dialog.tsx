@@ -3,13 +3,13 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@repo/ui/dialog'
 import { DataTable, getInitialPagination } from '@repo/ui/data-table'
-import { TPagination } from '@repo/ui/pagination-types'
-import { ProgramProgramStatus, ProgramWhereInput } from '@repo/codegen/src/schema'
+import { type TPagination } from '@repo/ui/pagination-types'
+import { ProgramProgramStatus, type ProgramWhereInput } from '@repo/codegen/src/schema'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import usePlateEditor from '../plate/usePlateEditor'
 import { useGetAllProgramsPaginated } from '@/lib/graphql-hooks/program'
 import { getProgramsColumns } from './object-association-programs-columns'
-import { CreateEvidenceFormMethods } from '@/components/pages/protected/evidence/hooks/use-form-schema'
+import { type CreateEvidenceFormMethods } from '@/components/pages/protected/evidence/hooks/use-form-schema'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { SaveButton } from '../save-button/save-button'
 import { CancelButton } from '../cancel-button.tsx/cancel-button'
@@ -27,7 +27,7 @@ export const ProgramSelectionDialog: React.FC<TProgramSelectionDialogProps> = ({
   const [frameworks, setFrameworks] = useState<string[]>([])
   const { convertToReadOnly } = usePlateEditor()
 
-  const [pagination, setPagination] = useState<TPagination>(
+  const [pagination, setPagination] = useState<TPagination>(() =>
     getInitialPagination(TableKeyEnum.OBJECT_ASSOCIATION_PROGRAMS, {
       ...DEFAULT_PAGINATION,
       page: 1,
@@ -36,13 +36,11 @@ export const ProgramSelectionDialog: React.FC<TProgramSelectionDialogProps> = ({
     }),
   )
 
-  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (open) {
       setSelectedRefCodeMap(initialRefCodes ? [...initialRefCodes] : [])
     }
   }, [open, initialRefCodes])
-  /* eslint-enable react-hooks/set-state-in-effect */
 
   const where: ProgramWhereInput = useMemo(() => {
     return {
@@ -69,7 +67,7 @@ export const ProgramSelectionDialog: React.FC<TProgramSelectionDialogProps> = ({
         frameworks,
         setSelectedRefCodeMap,
         setFrameworks,
-        convertToReadOnly: convertToReadOnly!,
+        convertToReadOnly: convertToReadOnly ?? (() => null),
         form,
       }),
     [selectedRefCodeMap, frameworks, convertToReadOnly, form],

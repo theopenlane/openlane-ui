@@ -1,4 +1,4 @@
-import { User } from '@repo/codegen/src/schema'
+import { type User } from '@repo/codegen/src/schema'
 import { Avatar } from '@/components/shared/avatar/avatar'
 
 type UserCellProps = {

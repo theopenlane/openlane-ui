@@ -1,5 +1,5 @@
 'use client'
-import React, { Suspense, useContext, useEffect } from 'react'
+import React, { Suspense, use, useEffect } from 'react'
 import { PageHeading } from '@repo/ui/page-heading'
 import PricingPlan from '@/components/pages/protected/organization-settings/billing/pricing-plan'
 import { useOrganization } from '@/hooks/useOrganization'
@@ -12,7 +12,7 @@ import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 
 const BillingPage: React.FC = () => {
   const { data: permission, isLoading } = useOrganizationRoles()
-  const { setCrumbs } = useContext(BreadcrumbContext)
+  const { setCrumbs } = use(BreadcrumbContext)
 
   useEffect(() => {
     setCrumbs([

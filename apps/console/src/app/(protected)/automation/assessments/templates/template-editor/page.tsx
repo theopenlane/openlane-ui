@@ -1,6 +1,6 @@
 import React from 'react'
 import TemplateEditorPage from '@/components/pages/protected/questionnaire/template/template-editor-page'
-import { Metadata } from 'next'
+import { type Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Template Editor',

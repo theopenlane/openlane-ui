@@ -1,12 +1,12 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useCallback, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { TemplateWhereInput, TemplateDocumentType, TemplateTemplateKind } from '@repo/codegen/src/schema'
+import { type TemplateWhereInput, TemplateDocumentType, TemplateTemplateKind } from '@repo/codegen/src/schema'
 import { Select, SelectContent, SelectTrigger, SelectValue, SelectItem } from '@repo/ui/select'
 import { Form, FormControl, FormField, FormItem } from '@repo/ui/form'
-import { z, infer as zInfer } from 'zod'
+import { z, type infer as zInfer } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { pageStyles } from './page.styles'
@@ -36,42 +36,45 @@ export const TemplateList = ({ initialTemplateId, onCreateSuccess }: TemplateLis
 
   const { selectTemplate } = pageStyles()
 
-  const handleFromTemplate = async (templateId: string) => {
-    try {
-      const selectedTemplate = templates?.find((template) => template?.id === templateId)
-
-      const suffix = `-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
-
-      const response = await createAssessment({
-        input: {
-          name: `${selectedTemplate?.name}${suffix}`,
-          templateID: templateId,
-        },
-      })
-
-      const assessmentId = response.createAssessment?.assessment?.id
-      if (assessmentId) {
-        successNotification({
-          title: 'Questionnaire created successfully',
-        })
-        onCreateSuccess?.()
-        router.push(`/automation/assessments/questionnaire-viewer?id=${assessmentId}`)
-      }
-    } catch (error) {
-      const errorMessage = parseErrorMessage(error)
-      errorNotification({
-        title: 'Error',
-        description: errorMessage,
-      })
-    }
-  }
-
   const whereFilter: TemplateWhereInput = {
     templateType: TemplateDocumentType.DOCUMENT,
     kind: TemplateTemplateKind.QUESTIONNAIRE,
   }
 
   const { templates, isLoading, isError } = useTemplates({ where: whereFilter })
+
+  const handleFromTemplate = useCallback(
+    async (templateId: string) => {
+      try {
+        const selectedTemplate = templates?.find((template) => template?.id === templateId)
+
+        const suffix = `-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`
+
+        const response = await createAssessment({
+          input: {
+            name: `${selectedTemplate?.name}${suffix}`,
+            templateID: templateId,
+          },
+        })
+
+        const assessmentId = response.createAssessment?.assessment?.id
+        if (assessmentId) {
+          successNotification({
+            title: 'Questionnaire created successfully',
+          })
+          onCreateSuccess?.()
+          router.push(`/automation/assessments/questionnaire-viewer?id=${assessmentId}`)
+        }
+      } catch (error) {
+        const errorMessage = parseErrorMessage(error)
+        errorNotification({
+          title: 'Error',
+          description: errorMessage,
+        })
+      }
+    },
+    [templates, createAssessment, successNotification, errorNotification, onCreateSuccess, router],
+  )
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),

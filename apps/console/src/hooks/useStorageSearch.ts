@@ -1,4 +1,4 @@
-import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { type ObjectTypes } from '@repo/codegen/src/type-names'
 import { useCallback, useEffect, useState } from 'react'
 
 function searchKey(key: ObjectTypes): string {
@@ -25,11 +25,11 @@ type UseStorageSearchOptions = {
 export function useStorageSearch(key: ObjectTypes, options: UseStorageSearchOptions = {}): [string, (value: string) => void] {
   const { fallback = '', persist = true } = options
 
-  const [searchTerm, _setSearchTerm] = useState<string>(() => getInitialSearchTerm(key, fallback))
+  const [searchTerm, setSearchTerm] = useState<string>(() => getInitialSearchTerm(key, fallback))
 
-  const setSearchTerm = useCallback(
+  const updateSearchTerm = useCallback(
     (value: string) => {
-      _setSearchTerm(value)
+      setSearchTerm(value)
 
       if (!persist) return
       if (typeof window === 'undefined') return
@@ -46,8 +46,8 @@ export function useStorageSearch(key: ObjectTypes, options: UseStorageSearchOpti
   )
 
   useEffect(() => {
-    _setSearchTerm(getInitialSearchTerm(key, fallback))
+    setSearchTerm(getInitialSearchTerm(key, fallback))
   }, [key, fallback])
 
-  return [searchTerm, setSearchTerm]
+  return [searchTerm, updateSearchTerm]
 }

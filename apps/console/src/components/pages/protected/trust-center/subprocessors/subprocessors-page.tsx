@@ -1,15 +1,15 @@
 'use client'
 
-import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, use, useEffect, useMemo, useState } from 'react'
 import { DataTable } from '@repo/ui/data-table'
-import { ColumnDef, VisibilityState } from '@tanstack/react-table'
-import { TPagination } from '@repo/ui/pagination-types'
+import { type ColumnDef, type VisibilityState } from '@tanstack/react-table'
+import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useGetTrustCenterSubprocessors } from '@/lib/graphql-hooks/trust-center-subprocessor'
-import { ExportExportFormat, ExportExportType, TrustCenterSubprocessorWhereInput, User } from '@repo/codegen/src/schema'
+import { ExportExportFormat, ExportExportType, type TrustCenterSubprocessorWhereInput, type User } from '@repo/codegen/src/schema'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import SubprocessorsTableToolbar from './table/subprocessors-table-toolbar'
-import { getSubprocessorsColumns, SubprocessorTableItem } from './table/table-config'
+import { getSubprocessorsColumns, type SubprocessorTableItem } from './table/table-config'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu'
@@ -44,7 +44,7 @@ const SubprocessorsPage = () => {
   const [selectedRows, setSelectedRows] = useState<{ id: string }[]>([])
   const { handleExport } = useFileExport()
 
-  const { setCrumbs } = useContext(BreadcrumbContext)
+  const { setCrumbs } = use(BreadcrumbContext)
 
   const { successNotification, errorNotification } = useNotification()
   const { data: trustCenterData } = useGetTrustCenter()

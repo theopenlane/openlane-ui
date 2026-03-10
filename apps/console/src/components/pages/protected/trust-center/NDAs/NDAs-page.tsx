@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useContext, useEffect, useState } from 'react'
+import React, { use, useEffect, useState } from 'react'
 import { PageHeading } from '@repo/ui/page-heading'
 import { FileText, Loader2, Eye, RefreshCw, FileUp, Plus, InfoIcon } from 'lucide-react'
 import { Button } from '@repo/ui/button'
@@ -18,7 +18,7 @@ import NdaRequestsTable from './table/nda-requests-table.tsx'
 
 const NDAsPage = () => {
   const { latestFile, isLoading, latestTemplate } = useGetTrustCenterNDAFiles()
-  const { setCrumbs } = useContext(BreadcrumbContext)
+  const { setCrumbs } = use(BreadcrumbContext)
   const { data: trustCenterData } = useGetTrustCenter()
   const { updateTrustCenterSetting, isPending: isUpdatingSetting } = useHandleUpdateSetting()
 

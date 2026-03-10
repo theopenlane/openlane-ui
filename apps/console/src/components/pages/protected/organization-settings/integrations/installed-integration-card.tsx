@@ -10,8 +10,8 @@ import {
   getInstalledIntegrationConfig,
   HEALTH_CHECK_STALE_TIME_MS,
   installedIntegrationDisplayName,
-  IntegrationNode,
-  IntegrationProvider,
+  type IntegrationNode,
+  type IntegrationProvider,
   parseIntegrationErrorMessage,
   providerSupportsHealth,
 } from './config'

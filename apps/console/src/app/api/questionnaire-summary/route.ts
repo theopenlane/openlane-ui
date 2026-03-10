@@ -1,6 +1,6 @@
 import { auth } from '@/lib/auth/auth'
 import { VertexAI, type Part, type TextPart } from '@google-cloud/vertexai'
-import { NextRequest, NextResponse } from 'next/server'
+import { type NextRequest, NextResponse } from 'next/server'
 import { aiEnabled, googleAPIKey, googleAIRegion, googleProjectID, geminiModelName } from '@repo/dally/ai'
 import { z } from 'zod'
 

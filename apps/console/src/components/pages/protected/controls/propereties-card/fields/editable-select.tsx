@@ -1,14 +1,14 @@
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 import useEscapeKey from '@/hooks/useEscapeKey'
-import { UpdateControlInput, UpdateSubcontrolInput } from '@repo/codegen/src/schema'
+import { type UpdateControlInput, type UpdateSubcontrolInput } from '@repo/codegen/src/schema'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { useRef, useState } from 'react'
 import { Controller, useFormContext } from 'react-hook-form'
 import { FolderIcon } from 'lucide-react'
 import { controlIconsMap } from '@/components/shared/enum-mapper/control-enum'
 import { CustomTypeEnumOptionChip, CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
-import { Option } from '@repo/ui/multiple-selector'
+import { type Option } from '@repo/ui/multiple-selector'
 import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-enum-select/creatable-custom-type-enum-select'
 
 export const EditableSelect = ({

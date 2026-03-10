@@ -1,6 +1,6 @@
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { StatusBgClasses } from '@/components/shared/enum-mapper/watermark-enum'
-import { TrustCenterDocWatermarkStatus } from '@repo/codegen/src/schema'
+import { type TrustCenterDocWatermarkStatus } from '@repo/codegen/src/schema'
 
 type DocumentsWatermarkStatusChipProps = {
   status?: TrustCenterDocWatermarkStatus

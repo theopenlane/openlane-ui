@@ -1,11 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useDeleteRisk, useGetRiskById, useGetRiskDiscussionById, useUpdateRisk } from '@/lib/graphql-hooks/risk'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
-import { RiskRiskImpact, RiskRiskLikelihood, RiskRiskStatus, UpdateRiskInput } from '@repo/codegen/src/schema.ts'
-import useFormSchema, { EditRisksFormData } from '@/components/pages/protected/risks/view/hooks/use-form-schema.ts'
+import { RiskRiskImpact, RiskRiskLikelihood, RiskRiskStatus, type UpdateRiskInput } from '@repo/codegen/src/schema.ts'
+import useFormSchema, { type EditRisksFormData } from '@/components/pages/protected/risks/view/hooks/use-form-schema.ts'
 import { useNotification } from '@/hooks/useNotification.tsx'
 import { useRisk } from '@/components/pages/protected/risks/create/hooks/use-risk.tsx'
-import { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap.ts'
+import { type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap.ts'
 import { ASSOCIATION_REMOVAL_CONFIG } from '@/components/shared/object-association/object-association-config'
 import { Form } from '@repo/ui/form'
 import { PencilIcon, Trash2 } from 'lucide-react'
@@ -18,7 +18,7 @@ import DetailsField from './fields/details-field'
 import AuthorityCard from './cards/authority-card'
 import PropertiesCard from '@/components/pages/protected/risks/view/cards/properties-card.tsx'
 import TagsCard from './cards/tags-card'
-import { Value } from 'platejs'
+import { type Value } from 'platejs'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import BusinessCostField from '@/components/pages/protected/risks/view/fields/business-cost-field.tsx'
 import MitigationField from '@/components/pages/protected/risks/view/fields/mitigation-field.tsx'
@@ -41,7 +41,7 @@ type TRisksPageProps = {
 }
 
 const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
-  const { setCrumbs } = React.useContext(BreadcrumbContext)
+  const { setCrumbs } = React.use(BreadcrumbContext)
   const { queryClient } = useGraphQLClient()
   const { risk, isLoading } = useGetRiskById(riskId)
   const { mutateAsync: updateRisk, isPending } = useUpdateRisk()
@@ -58,7 +58,7 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const router = useRouter()
   const { currentOrgId, getOrganizationByID } = useOrganization()
-  const currentOrganization = getOrganizationByID(currentOrgId!)
+  const currentOrganization = getOrganizationByID(currentOrgId ?? '')
   const riskState = useRisk()
   const [dataInitialized, setDataInitialized] = useState(false)
   const { data: discussionData } = useGetRiskDiscussionById(riskId)

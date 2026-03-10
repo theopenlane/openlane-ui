@@ -15,10 +15,10 @@ import { useGetSubcontrolById } from '@/lib/graphql-hooks/subcontrol'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { MappingIconMapper } from '@/components/shared/enum-mapper/map-control-enum'
 import MapControlsCard from './map-controls-card'
-import { MapControlsFormData, mapControlsSchema } from './use-form-schema'
+import { type MapControlsFormData, mapControlsSchema } from './use-form-schema'
 import MapControlsRelations from './map-controls-relations'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar'
-import { MapControl } from '@/types'
+import { type MapControl } from '@/types'
 import { useOrganization } from '@/hooks/useOrganization'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
@@ -35,10 +35,10 @@ const MapControlPage = () => {
   const isSubControl = !!subcontrolId
   const { data: controlData, isLoading } = useGetControlById(isControl ? (id as string) : null)
   const { data: subcontrolData, isLoading: isLoadingSubcontrol } = useGetSubcontrolById(isSubControl ? (subcontrolId as string) : null)
-  const { setCrumbs } = React.useContext(BreadcrumbContext)
+  const { setCrumbs } = React.use(BreadcrumbContext)
   const router = useRouter()
   const { currentOrgId, getOrganizationByID } = useOrganization()
-  const currentOrganization = getOrganizationByID(currentOrgId!)
+  const currentOrganization = getOrganizationByID(currentOrgId ?? '')
 
   const handleCardToggle = (title: 'From' | 'To') => {
     if (expandedCard === title) {
@@ -104,7 +104,6 @@ const MapControlPage = () => {
     ])
   }, [isLoading, setCrumbs, subcontrolData?.subcontrol?.refCode, id, subcontrolId])
 
-  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (controlData) {
       setControlsCrumbs()
@@ -117,7 +116,6 @@ const MapControlPage = () => {
       setPresetControls([subcontrolData.subcontrol])
     }
   }, [setCrumbs, controlData, subcontrolData, form, isLoading, isLoadingSubcontrol, setControlsCrumbs, setSubControlsCrumbs])
-  /* eslint-enable react-hooks/set-state-in-effect */
 
   return (
     <>

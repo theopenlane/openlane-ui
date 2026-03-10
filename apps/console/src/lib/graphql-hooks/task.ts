@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient, useInfiniteQuery, InfiniteData } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient, useInfiniteQuery, type InfiniteData } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
   TASKS_WITH_FILTER,
@@ -14,31 +14,31 @@ import {
   GET_TASK_ASSOCIATIONS,
 } from '@repo/codegen/query/task'
 import {
-  TasksWithFilterQuery,
-  TasksWithFilterQueryVariables,
-  CreateTaskMutation,
-  CreateTaskMutationVariables,
-  UpdateTaskMutation,
-  UpdateTaskMutationVariables,
-  DeleteTaskMutation,
-  DeleteTaskMutationVariables,
-  TaskQuery,
-  TaskQueryVariables,
-  CreateBulkCsvTaskMutation,
-  CreateBulkCsvTaskMutationVariables,
-  Task,
-  UpdateBulkTaskMutation,
-  UpdateBulkTaskMutationVariables,
-  UpdateTaskCommentMutation,
-  UpdateTaskCommentMutationVariables,
-  DeleteBulkTaskMutation,
-  DeleteBulkTaskMutationVariables,
-  GetOverdueTaskCountQuery,
-  GetTaskAssociationsQuery,
-  GetTaskAssociationsQueryVariables,
+  type TasksWithFilterQuery,
+  type TasksWithFilterQueryVariables,
+  type CreateTaskMutation,
+  type CreateTaskMutationVariables,
+  type UpdateTaskMutation,
+  type UpdateTaskMutationVariables,
+  type DeleteTaskMutation,
+  type DeleteTaskMutationVariables,
+  type TaskQuery,
+  type TaskQueryVariables,
+  type CreateBulkCsvTaskMutation,
+  type CreateBulkCsvTaskMutationVariables,
+  type Task,
+  type UpdateBulkTaskMutation,
+  type UpdateBulkTaskMutationVariables,
+  type UpdateTaskCommentMutation,
+  type UpdateTaskCommentMutationVariables,
+  type DeleteBulkTaskMutation,
+  type DeleteBulkTaskMutationVariables,
+  type GetOverdueTaskCountQuery,
+  type GetTaskAssociationsQuery,
+  type GetTaskAssociationsQueryVariables,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 import { invalidateTaskAssociations } from '@/components/shared/object-association/object-association-config'
 
 type GetAllTasksArgs = {

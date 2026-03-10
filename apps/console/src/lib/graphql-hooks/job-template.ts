@@ -1,25 +1,25 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
-  JobTemplatesWithFilterQuery,
-  JobTemplatesWithFilterQueryVariables,
-  CreateJobTemplateMutation,
-  CreateJobTemplateMutationVariables,
-  UpdateJobTemplateMutation,
-  UpdateJobTemplateMutationVariables,
-  DeleteJobTemplateMutation,
-  DeleteJobTemplateMutationVariables,
-  JobTemplateQuery,
-  JobTemplateQueryVariables,
-  CreateBulkCsvJobTemplateMutation,
-  CreateBulkCsvJobTemplateMutationVariables,
-  UpdateBulkJobTemplateMutation,
-  UpdateBulkJobTemplateMutationVariables,
-  DeleteBulkJobTemplateMutation,
-  DeleteBulkJobTemplateMutationVariables,
+  type JobTemplatesWithFilterQuery,
+  type JobTemplatesWithFilterQueryVariables,
+  type CreateJobTemplateMutation,
+  type CreateJobTemplateMutationVariables,
+  type UpdateJobTemplateMutation,
+  type UpdateJobTemplateMutationVariables,
+  type DeleteJobTemplateMutation,
+  type DeleteJobTemplateMutationVariables,
+  type JobTemplateQuery,
+  type JobTemplateQueryVariables,
+  type CreateBulkCsvJobTemplateMutation,
+  type CreateBulkCsvJobTemplateMutationVariables,
+  type UpdateBulkJobTemplateMutation,
+  type UpdateBulkJobTemplateMutationVariables,
+  type DeleteBulkJobTemplateMutation,
+  type DeleteBulkJobTemplateMutationVariables,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 import {
   GET_ALL_JOB_TEMPLATES,
   CREATE_JOB_TEMPLATE,

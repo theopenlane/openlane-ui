@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useMemo, useRef } from 'react'
 import { useNotification } from '@/hooks/useNotification'
 import { Survey } from 'survey-react-ui'
-import { ITheme, Model } from 'survey-core'
+import { type ITheme, Model } from 'survey-core'
 import { useSession } from 'next-auth/react'
 import { useTheme } from 'next-themes'
 import 'survey-core/survey-core.min.css'

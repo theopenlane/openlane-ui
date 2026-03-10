@@ -66,7 +66,7 @@ export const SetAuditorDialog = () => {
         updateProgramId: id,
         input: {
           auditor: values.auditorName,
-          auditorEmail: values.auditorEmail == '' ? undefined : values.auditorEmail,
+          auditorEmail: values.auditorEmail === '' ? undefined : values.auditorEmail,
           auditFirm: values.auditFirm,
           auditorReadComments: values.auditorReadComments,
           auditorWriteComments: values.auditorWriteComments,

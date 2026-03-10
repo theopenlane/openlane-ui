@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
-import { NarrativesWithFilterQuery, NarrativesWithFilterQueryVariables } from '@repo/codegen/src/schema'
+import { type NarrativesWithFilterQuery, type NarrativesWithFilterQueryVariables } from '@repo/codegen/src/schema'
 
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 import { GET_ALL_NARRATIVES } from '@repo/codegen/query/narrative'
 
 type GetAllNarrativesArgs = {
