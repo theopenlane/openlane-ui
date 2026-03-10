@@ -64907,6 +64907,20 @@ export type EvidenceFieldsFragment = {
     totalCount: number
     edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; referenceFramework?: string | null; refCode: string } | null } | null> | null
   }
+  controlImplementations: {
+    __typename?: 'ControlImplementationConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'ControlImplementationEdge'
+      node?: {
+        __typename?: 'ControlImplementation'
+        id: string
+        details?: string | null
+        controls: { __typename?: 'ControlConnection'; edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; refCode: string } | null } | null> | null }
+      } | null
+    } | null> | null
+  }
+  scans: { __typename?: 'ScanConnection'; totalCount: number; edges?: Array<{ __typename?: 'ScanEdge'; node?: { __typename?: 'Scan'; id: string; target: string } | null } | null> | null }
 }
 
 export type GetEvidenceQueryVariables = Exact<{
@@ -64957,6 +64971,20 @@ export type GetEvidenceQuery = {
       totalCount: number
       edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; referenceFramework?: string | null; refCode: string } | null } | null> | null
     }
+    controlImplementations: {
+      __typename?: 'ControlImplementationConnection'
+      totalCount: number
+      edges?: Array<{
+        __typename?: 'ControlImplementationEdge'
+        node?: {
+          __typename?: 'ControlImplementation'
+          id: string
+          details?: string | null
+          controls: { __typename?: 'ControlConnection'; edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; refCode: string } | null } | null> | null }
+        } | null
+      } | null> | null
+    }
+    scans: { __typename?: 'ScanConnection'; totalCount: number; edges?: Array<{ __typename?: 'ScanEdge'; node?: { __typename?: 'Scan'; id: string; target: string } | null } | null> | null }
   }
 }
 

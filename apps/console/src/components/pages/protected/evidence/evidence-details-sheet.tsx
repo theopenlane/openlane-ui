@@ -204,6 +204,23 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
     if (evidence.programs?.edges?.length) sections.programs = evidence.programs
     if (evidence.tasks?.edges?.length) sections.tasks = evidence.tasks
     if (evidence.controlObjectives?.edges?.length) sections.controlObjectives = evidence.controlObjectives
+    if (evidence.controlImplementations?.edges?.length) {
+      sections.controlImplementations = {
+        totalCount: evidence.controlImplementations.totalCount,
+        edges: evidence.controlImplementations.edges.map((edge) => {
+          if (!edge?.node?.id) return edge
+          const refCode = edge.node.controls?.edges?.[0]?.node?.refCode
+          return {
+            node: {
+              id: edge.node.id,
+              details: edge.node.details,
+              name: refCode ? `Control ${refCode} - Control Implementation` : (edge.node.details?.slice(0, 50) ?? ''),
+            },
+          }
+        }),
+      }
+    }
+    if (evidence.scans?.edges?.length) sections.scans = evidence.scans
     return sections
   }, [evidence])
 

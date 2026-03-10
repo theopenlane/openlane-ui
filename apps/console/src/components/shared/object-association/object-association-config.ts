@@ -465,7 +465,7 @@ export function extractTableRows(objectKey: QueryResponseMapKey | undefined, dat
       const items = (data as GetAllControlImplementationsQuery).controlImplementations?.edges ?? []
       return items.map((item) => ({
         id: item?.node?.id || '',
-        name: item?.node?.controls?.edges?.[0]?.node?.refCode ?? item?.node?.details?.slice(0, 50) ?? '',
+        name: item?.node?.controls?.edges?.[0]?.node?.refCode ? `Control Implementation for ${item.node.controls.edges[0].node.refCode}` : (item?.node?.details?.slice(0, 50) ?? ''),
         inputName: selectedInputName,
         refCode: '',
       }))

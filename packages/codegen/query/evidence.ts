@@ -124,6 +124,31 @@ const EVIDENCE_FIELDS = gql`
         }
       }
     }
+    controlImplementations {
+      totalCount
+      edges {
+        node {
+          id
+          details
+          controls {
+            edges {
+              node {
+                refCode
+              }
+            }
+          }
+        }
+      }
+    }
+    scans {
+      totalCount
+      edges {
+        node {
+          id
+          target
+        }
+      }
+    }
   }
 `
 
