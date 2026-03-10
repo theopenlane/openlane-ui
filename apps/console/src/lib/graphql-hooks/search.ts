@@ -223,7 +223,6 @@ export const useSearch = (query: string) => {
   }, [query])
 
   const searchData = queryData.data?.search
-  console.log(searchData)
 
   const baseContextResults = useMemo<SearchContextResult[]>(() => {
     const rawResults = searchData?.searchContext ?? []
