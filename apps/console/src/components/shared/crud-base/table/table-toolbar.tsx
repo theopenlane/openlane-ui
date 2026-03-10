@@ -14,6 +14,7 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { Button } from '@repo/ui/button'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
+import { useRouter } from 'next/navigation'
 import { GenericBulkCSVCreateDialog } from '@/components/shared/crud-base/dialog/bulk-csv-create-dialog'
 import { type ObjectTypes } from '@repo/codegen/src/type-names'
 import { type TableKeyValue } from '@repo/ui/table-key'
@@ -22,6 +23,7 @@ import { type FilterField } from '@/types'
 import type { WhereCondition } from '@/types'
 import { GenericBulkEditDialog } from '../dialog/bulk-edit'
 import { type EnumOptionsGeneric } from '../page'
+import type { CreateMode } from '../types'
 
 type GenericTableToolbarProps<T extends { id: string }, TWhereInput, TUpdateInput> = {
   entityType: ObjectTypes
@@ -48,6 +50,7 @@ type GenericTableToolbarProps<T extends { id: string }, TWhereInput, TUpdateInpu
   bulkEditFormSchema?: ZodObject<ZodRawShape>
   storageKey: TableKeyValue
   enumOpts?: EnumOptionsGeneric
+  createMode?: CreateMode
 }
 
 function GenericTableToolbar<T extends { id: string }, TWhereInput, TUpdateInput>(props: GenericTableToolbarProps<T, TWhereInput, TUpdateInput>) {
@@ -56,11 +59,16 @@ function GenericTableToolbar<T extends { id: string }, TWhereInput, TUpdateInput
 
   const { successNotification, errorNotification } = useNotification()
   const { replace } = useSmartRouter()
+  const router = useRouter()
 
   const entityLabel = props.entityType.charAt(0).toUpperCase() + props.entityType.slice(1).toLowerCase()
   const entityLabelPlural = `${entityLabel}s`
 
   const openCreateSheet = () => {
+    if (props.createMode?.type === 'full-page') {
+      router.push(props.createMode.route)
+      return
+    }
     replace({ create: 'true', id: null })
   }
 
