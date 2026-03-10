@@ -13,6 +13,7 @@ import { useAssetsWithFilter, type AssetsNodeNonNull } from '@/lib/graphql-hooks
 import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
 import { getColumns } from '@/components/pages/protected/assets/table/columns'
 import { SearchFilterBar } from '@/components/pages/protected/controls/tabs/shared/documentation-shared'
+import { useSmartRouter } from '@/hooks/useSmartRouter'
 
 type AssetsTableProps = {
   controlId?: string
@@ -20,6 +21,7 @@ type AssetsTableProps = {
 
 const HIDDEN_COLUMNS: Record<string, boolean> = {
   id: false,
+  name: false,
   accessModelName: false,
   assetDataClassificationName: false,
   assetSubtypeName: false,
@@ -36,7 +38,6 @@ const HIDDEN_COLUMNS: Record<string, boolean> = {
   physicalLocation: false,
   purchaseDate: false,
   region: false,
-  scopeName: false,
   securityTierName: false,
   sourceIdentifier: false,
   sourceType: false,
@@ -46,6 +47,7 @@ const HIDDEN_COLUMNS: Record<string, boolean> = {
 }
 
 const AssetsTable: React.FC<AssetsTableProps> = ({ controlId }) => {
+  const { replace } = useSmartRouter()
   const [search, setSearch] = useState('')
   const debouncedSearch = useDebounce(search, 300)
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
@@ -82,7 +84,21 @@ const AssetsTable: React.FC<AssetsTableProps> = ({ controlId }) => {
 
   const columns = useMemo<ColumnDef<AssetsNodeNonNull>[]>(() => {
     const allCols = getColumns({ userMap, selectedItems: [], setSelectedItems: () => {} })
-    return allCols.filter((col) => 'accessorKey' in col && col.accessorKey !== 'select')
+    return allCols
+      .filter((col) => 'accessorKey' in col && col.accessorKey !== 'select')
+      .map((col) => {
+        if ('accessorKey' in col && col.accessorKey === 'displayName') {
+          return {
+            ...col,
+            cell: ({ row }: { row: { original: AssetsNodeNonNull } }) => (
+              <button type="button" onClick={() => replace({ assetId: row.original.id })} className="block truncate text-blue-500 hover:underline">
+                {row.original.displayName || ''}
+              </button>
+            ),
+          }
+        }
+        return col
+      })
   }, [userMap])
 
   const paginationMeta = useMemo(
@@ -100,7 +116,16 @@ const AssetsTable: React.FC<AssetsTableProps> = ({ controlId }) => {
       <div className="mb-3">
         <SearchFilterBar placeholder="Search assets" isSearching={search !== debouncedSearch} searchValue={search} onSearchChange={setSearch} filterFields={null} onFilterChange={() => {}} />
       </div>
-      <DataTable columns={columns} data={assetsNodes} loading={isLoading} pagination={pagination} onPaginationChange={setPagination} paginationMeta={paginationMeta} tableKey={TableKeyEnum.CONTROL_ASSETS} columnVisibility={HIDDEN_COLUMNS} />
+      <DataTable
+        columns={columns}
+        data={assetsNodes}
+        loading={isLoading}
+        pagination={pagination}
+        onPaginationChange={setPagination}
+        paginationMeta={paginationMeta}
+        tableKey={TableKeyEnum.CONTROL_ASSETS}
+        columnVisibility={HIDDEN_COLUMNS}
+      />
     </div>
   )
 }

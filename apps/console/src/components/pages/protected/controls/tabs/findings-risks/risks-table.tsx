@@ -1,10 +1,12 @@
 'use client'
 
 import React, { useMemo, useState } from 'react'
+import Link from 'next/link'
 import { useDebounce } from '@uidotdev/usehooks'
 import { DataTable } from '@repo/ui/data-table'
 import { TableKeyEnum } from '@repo/ui/table-key'
-import type { RiskWhereInput, User } from '@repo/codegen/src/schema'
+import { ColumnDef } from '@tanstack/react-table'
+import type { Risk, RiskTableFieldsFragment, RiskWhereInput, User } from '@repo/codegen/src/schema'
 import type { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useRisks } from '@/lib/graphql-hooks/risk'
@@ -21,6 +23,7 @@ type RisksTableProps = {
 const HIDDEN_COLUMNS: Record<string, boolean> = {
   id: false,
   businessCosts: false,
+  category: false,
   delegate: false,
   details: false,
   impact: false,
@@ -68,7 +71,25 @@ const RisksTable: React.FC<RisksTableProps> = ({ controlId, subcontrolIds }) => 
 
   const { columns } = useMemo(() => getRiskColumns({ userMap, convertToReadOnly, selectedRisks: [], setSelectedRisks: () => {} }), [userMap, convertToReadOnly])
 
-  const filteredColumns = useMemo(() => columns.filter((col) => 'accessorKey' in col && col.accessorKey !== 'select'), [columns])
+  const filteredColumns = useMemo<ColumnDef<RiskTableFieldsFragment>[]>(
+    () =>
+      columns
+        .filter((col) => 'accessorKey' in col && col.accessorKey !== 'select')
+        .map((col) => {
+          if ('accessorKey' in col && col.accessorKey === 'name') {
+            return {
+              ...col,
+              cell: ({ row }: { row: { original: Risk } }) => (
+                <Link href={`/exposure/risks/${row.original.id}`} className="block truncate text-blue-500 hover:underline">
+                  {row.original.name || ''}
+                </Link>
+              ),
+            }
+          }
+          return col
+        }) as ColumnDef<RiskTableFieldsFragment>[],
+    [columns],
+  )
 
   return (
     <div>
@@ -76,7 +97,16 @@ const RisksTable: React.FC<RisksTableProps> = ({ controlId, subcontrolIds }) => 
       <div className="mb-3">
         <SearchFilterBar placeholder="Search risks" isSearching={search !== debouncedSearch} searchValue={search} onSearchChange={setSearch} filterFields={null} onFilterChange={() => {}} />
       </div>
-      <DataTable columns={filteredColumns} data={risks ?? []} loading={isLoading} pagination={pagination} onPaginationChange={setPagination} paginationMeta={paginationMeta} tableKey={TableKeyEnum.CONTROL_RISKS} columnVisibility={HIDDEN_COLUMNS} />
+      <DataTable
+        columns={filteredColumns}
+        data={risks ?? []}
+        loading={isLoading}
+        pagination={pagination}
+        onPaginationChange={setPagination}
+        paginationMeta={paginationMeta}
+        tableKey={TableKeyEnum.CONTROL_RISKS}
+        columnVisibility={HIDDEN_COLUMNS}
+      />
     </div>
   )
 }

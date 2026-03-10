@@ -13,6 +13,7 @@ import { useScansWithFilter, type ScansNodeNonNull } from '@/lib/graphql-hooks/s
 import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
 import { getColumns } from '@/components/pages/protected/scans/table/columns'
 import { SearchFilterBar } from '@/components/pages/protected/controls/tabs/shared/documentation-shared'
+import { useSmartRouter } from '@/hooks/useSmartRouter'
 
 type ScansTableProps = {
   controlId?: string
@@ -28,10 +29,12 @@ const HIDDEN_COLUMNS: Record<string, boolean> = {
   reviewedBy: false,
   createdAt: false,
   createdBy: false,
+  updatedAt: false,
   updatedBy: false,
 }
 
 const ScansTable: React.FC<ScansTableProps> = ({ controlId }) => {
+  const { replace } = useSmartRouter()
   const [search, setSearch] = useState('')
   const debouncedSearch = useDebounce(search, 300)
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
@@ -68,7 +71,21 @@ const ScansTable: React.FC<ScansTableProps> = ({ controlId }) => {
 
   const columns = useMemo<ColumnDef<ScansNodeNonNull>[]>(() => {
     const allCols = getColumns({ userMap, selectedItems: [], setSelectedItems: () => {} })
-    return allCols.filter((col) => 'accessorKey' in col && col.accessorKey !== 'select')
+    return allCols
+      .filter((col) => 'accessorKey' in col && col.accessorKey !== 'select')
+      .map((col) => {
+        if ('accessorKey' in col && col.accessorKey === 'target') {
+          return {
+            ...col,
+            cell: ({ row }: { row: { original: ScansNodeNonNull } }) => (
+              <button type="button" onClick={() => replace({ scanId: row.original.id })} className="block truncate text-blue-500 hover:underline">
+                {row.original.target || ''}
+              </button>
+            ),
+          }
+        }
+        return col
+      })
   }, [userMap])
 
   const paginationMeta = useMemo(
@@ -86,7 +103,16 @@ const ScansTable: React.FC<ScansTableProps> = ({ controlId }) => {
       <div className="mb-3">
         <SearchFilterBar placeholder="Search scans" isSearching={search !== debouncedSearch} searchValue={search} onSearchChange={setSearch} filterFields={null} onFilterChange={() => {}} />
       </div>
-      <DataTable columns={columns} data={scansNodes} loading={isLoading} pagination={pagination} onPaginationChange={setPagination} paginationMeta={paginationMeta} tableKey={TableKeyEnum.CONTROL_SCANS} columnVisibility={HIDDEN_COLUMNS} />
+      <DataTable
+        columns={columns}
+        data={scansNodes}
+        loading={isLoading}
+        pagination={pagination}
+        onPaginationChange={setPagination}
+        paginationMeta={paginationMeta}
+        tableKey={TableKeyEnum.CONTROL_SCANS}
+        columnVisibility={HIDDEN_COLUMNS}
+      />
     </div>
   )
 }

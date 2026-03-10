@@ -13,6 +13,7 @@ import { useFindingsWithFilter, type FindingsNodeNonNull } from '@/lib/graphql-h
 import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
 import { getColumns } from '@/components/pages/protected/findings/table/columns'
 import { buildAssociationFilter, mergeWhere, SearchFilterBar } from '@/components/pages/protected/controls/tabs/shared/documentation-shared'
+import { useSmartRouter } from '@/hooks/useSmartRouter'
 
 type FindingsTableProps = {
   controlId?: string
@@ -46,9 +47,11 @@ const HIDDEN_COLUMNS: Record<string, boolean> = {
   createdBy: false,
   updatedAt: false,
   updatedBy: false,
+  displayID: false,
 }
 
 const FindingsTable: React.FC<FindingsTableProps> = ({ controlId, subcontrolIds }) => {
+  const { replace } = useSmartRouter()
   const associationFilter = useMemo(() => buildAssociationFilter(controlId, subcontrolIds), [controlId, subcontrolIds])
 
   const [search, setSearch] = useState('')
@@ -84,7 +87,21 @@ const FindingsTable: React.FC<FindingsTableProps> = ({ controlId, subcontrolIds 
 
   const columns = useMemo<ColumnDef<FindingsNodeNonNull>[]>(() => {
     const allCols = getColumns({ userMap, selectedItems: [], setSelectedItems: () => {} })
-    return allCols.filter((col) => 'accessorKey' in col && col.accessorKey !== 'select')
+    return allCols
+      .filter((col) => 'accessorKey' in col && col.accessorKey !== 'select')
+      .map((col) => {
+        if ('accessorKey' in col && col.accessorKey === 'displayName') {
+          return {
+            ...col,
+            cell: ({ row }: { row: { original: FindingsNodeNonNull } }) => (
+              <button type="button" onClick={() => replace({ findingId: row.original.id })} className="block truncate text-blue-500 hover:underline">
+                {row.original.displayName || ''}
+              </button>
+            ),
+          }
+        }
+        return col
+      })
   }, [userMap])
 
   const paginationMeta = useMemo(
@@ -102,7 +119,16 @@ const FindingsTable: React.FC<FindingsTableProps> = ({ controlId, subcontrolIds 
       <div className="mb-3">
         <SearchFilterBar placeholder="Search findings" isSearching={search !== debouncedSearch} searchValue={search} onSearchChange={setSearch} filterFields={null} onFilterChange={() => {}} />
       </div>
-      <DataTable columns={columns} data={findingsNodes} loading={isLoading} pagination={pagination} onPaginationChange={setPagination} paginationMeta={paginationMeta} tableKey={TableKeyEnum.CONTROL_FINDINGS} columnVisibility={HIDDEN_COLUMNS} />
+      <DataTable
+        columns={columns}
+        data={findingsNodes}
+        loading={isLoading}
+        pagination={pagination}
+        onPaginationChange={setPagination}
+        paginationMeta={paginationMeta}
+        tableKey={TableKeyEnum.CONTROL_FINDINGS}
+        columnVisibility={HIDDEN_COLUMNS}
+      />
     </div>
   )
 }
