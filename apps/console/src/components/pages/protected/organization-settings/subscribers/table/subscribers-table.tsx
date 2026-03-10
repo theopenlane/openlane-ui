@@ -5,10 +5,10 @@ import { DataTable, getInitialSortConditions, getInitialPagination } from '@repo
 import { useGetAllSubscribers } from '@/lib/graphql-hooks/subscriber'
 import { exportableSubscriberColumns, subscribersColumns } from '@/components/pages/protected/organization-settings/subscribers/table/columns.tsx'
 import SubscribersTableToolbar from '@/components/pages/protected/organization-settings/subscribers/table/subscribers-table-toolbar.tsx'
-import { GetAllSubscribersQueryVariables, OrderDirection, SubscriberOrderField, SubscriberWhereInput } from '@repo/codegen/src/schema.ts'
+import { type GetAllSubscribersQueryVariables, OrderDirection, SubscriberOrderField, type SubscriberWhereInput } from '@repo/codegen/src/schema.ts'
 import { SUBSCRIBERS_SORT_FIELDS } from '@/components/pages/protected/organization-settings/subscribers/table/table-config.ts'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 import { useDebounce } from '@uidotdev/usehooks'
 import { exportToCSV } from '@/utils/exportToCSV'
 import { useNotification } from '@/hooks/useNotification'
@@ -18,7 +18,7 @@ export const SubscribersTable = () => {
   const [filters, setFilters] = useState<SubscriberWhereInput | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const debouncedSearch = useDebounce(searchTerm, 300)
-  const [pagination, setPagination] = useState<TPagination>(getInitialPagination(TableKeyEnum.SUBSCRIBER, DEFAULT_PAGINATION))
+  const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(TableKeyEnum.SUBSCRIBER, DEFAULT_PAGINATION))
   const { errorNotification } = useNotification()
   const defaultSorting = getInitialSortConditions(TableKeyEnum.SUBSCRIBER, SubscriberOrderField, [
     {

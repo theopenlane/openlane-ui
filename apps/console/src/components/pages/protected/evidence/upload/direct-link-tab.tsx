@@ -2,8 +2,8 @@
 import React, { useState } from 'react'
 import { TabsContent } from '@repo/ui/tabs'
 import { FormItem } from '@repo/ui/form'
-import { CreateEvidenceFormMethods } from '@/components/pages/protected/evidence/hooks/use-form-schema'
-import { TUploadedFile } from './types/TUploadedFile'
+import { type CreateEvidenceFormMethods } from '@/components/pages/protected/evidence/hooks/use-form-schema'
+import { type TUploadedFile } from './types/TUploadedFile'
 import DirectLinkTabSection from '@/components/shared/file-upload/direct-link-tab-section'
 
 type TProps = {

@@ -1,23 +1,23 @@
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
-  CreateTrustCenterDocMutation,
-  CreateTrustCenterDocMutationVariables,
-  DeleteTrustCenterDocMutation,
-  DeleteTrustCenterDocMutationVariables,
-  BulkDeleteTrustCenterDocMutation,
-  BulkDeleteTrustCenterDocMutationVariables,
-  BulkUpdateTrustCenterDocMutation,
-  BulkUpdateTrustCenterDocMutationVariables,
-  GetTruestCenterDocByIdQuery,
-  GetTruestCenterDocByIdQueryVariables,
-  GetTrustCenterDocsQuery,
-  GetTrustCenterDocsQueryVariables,
-  UpdateTrustCenterDocMutation,
-  UpdateTrustCenterDocMutationVariables,
+  type CreateTrustCenterDocMutation,
+  type CreateTrustCenterDocMutationVariables,
+  type DeleteTrustCenterDocMutation,
+  type DeleteTrustCenterDocMutationVariables,
+  type BulkDeleteTrustCenterDocMutation,
+  type BulkDeleteTrustCenterDocMutationVariables,
+  type BulkUpdateTrustCenterDocMutation,
+  type BulkUpdateTrustCenterDocMutationVariables,
+  type GetTruestCenterDocByIdQuery,
+  type GetTruestCenterDocByIdQueryVariables,
+  type GetTrustCenterDocsQuery,
+  type GetTrustCenterDocsQueryVariables,
+  type UpdateTrustCenterDocMutation,
+  type UpdateTrustCenterDocMutationVariables,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 import {
   UPDATE_TRUST_CENTER_DOC,
   GET_ALL_TRUST_CENTER_DOCS,

@@ -2,11 +2,11 @@ import React, { useState } from 'react'
 import { Button } from '@repo/ui/button'
 import { useSession } from 'next-auth/react'
 import { useGetCurrentUser } from '@/lib/graphql-hooks/user'
-import { TComments } from '@/components/shared/comments/types/TComments'
+import { type TComments } from '@/components/shared/comments/types/TComments'
 import { Avatar } from '../avatar/avatar'
-import { User } from '@repo/codegen/src/schema'
+import { type User } from '@repo/codegen/src/schema'
 import PlateEditor from '@/components/shared/plate/plate-editor.tsx'
-import { TElement, Value } from 'platejs'
+import { type TElement, type Value } from 'platejs'
 
 type TProps = {
   onSuccess: (data: TComments) => void

@@ -1,19 +1,19 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
-  DirectoryGroupsWithFilterQuery,
-  DirectoryGroupsWithFilterQueryVariables,
-  CreateDirectoryGroupMutation,
-  CreateDirectoryGroupMutationVariables,
-  UpdateDirectoryGroupMutation,
-  UpdateDirectoryGroupMutationVariables,
-  DeleteDirectoryGroupMutation,
-  DeleteDirectoryGroupMutationVariables,
-  DirectoryGroupQuery,
-  DirectoryGroupQueryVariables,
+  type DirectoryGroupsWithFilterQuery,
+  type DirectoryGroupsWithFilterQueryVariables,
+  type CreateDirectoryGroupMutation,
+  type CreateDirectoryGroupMutationVariables,
+  type UpdateDirectoryGroupMutation,
+  type UpdateDirectoryGroupMutationVariables,
+  type DeleteDirectoryGroupMutation,
+  type DeleteDirectoryGroupMutationVariables,
+  type DirectoryGroupQuery,
+  type DirectoryGroupQueryVariables,
 } from '@repo/codegen/src/schema'
 
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 import { GET_ALL_DIRECTORY_GROUPS, CREATE_DIRECTORY_GROUP, UPDATE_DIRECTORY_GROUP, DELETE_DIRECTORY_GROUP, DIRECTORY_GROUP } from '@repo/codegen/query/directory-group'
 
 type GetAllDirectoryGroupsArgs = {

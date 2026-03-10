@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useContext } from 'react'
+import React, { useEffect, use } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import CustomTagsTab from './custom-tags/custom-tags-tab'
@@ -8,7 +8,7 @@ import CustomEnumsTab from './custom-enums/custom-enums-tab'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 
 const CustomDataPage = () => {
-  const { setCrumbs } = useContext(BreadcrumbContext)
+  const { setCrumbs } = use(BreadcrumbContext)
   const router = useRouter()
   const searchParams = useSearchParams()
 

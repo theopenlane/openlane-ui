@@ -1,6 +1,6 @@
 'use client'
 
-import { NextPage } from 'next'
+import { type NextPage } from 'next'
 import { useParams } from 'next/navigation'
 import EditPolicyPage from '@/components/pages/protected/policies/edit-policy-page.tsx'
 import { PageHeading } from '@repo/ui/page-heading'

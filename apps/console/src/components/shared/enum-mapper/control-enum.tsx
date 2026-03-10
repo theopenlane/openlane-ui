@@ -26,7 +26,7 @@ import {
   UsersRound,
   type LucideIcon,
 } from 'lucide-react'
-import { ControlControlSource, ControlControlStatus, ControlImplementationDocumentStatus } from '@repo/codegen/src/schema.ts'
+import { type ControlControlSource, ControlControlStatus, ControlImplementationDocumentStatus } from '@repo/codegen/src/schema.ts'
 import { getEnumLabel } from './common-enum'
 
 export const ControlIconMapper16: Record<ControlControlStatus, React.ReactNode> = {

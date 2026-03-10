@@ -1,26 +1,26 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
-  AssetsWithFilterQuery,
-  AssetsWithFilterQueryVariables,
-  CreateAssetMutation,
-  CreateAssetMutationVariables,
-  UpdateAssetMutation,
-  UpdateAssetMutationVariables,
-  DeleteAssetMutation,
-  DeleteAssetMutationVariables,
-  AssetQuery,
-  AssetQueryVariables,
-  CreateBulkCsvAssetMutation,
-  CreateBulkCsvAssetMutationVariables,
-  UpdateBulkAssetMutation,
-  UpdateBulkAssetMutationVariables,
-  DeleteBulkAssetMutation,
-  DeleteBulkAssetMutationVariables,
-  GetAssetAssociationsQuery,
+  type AssetsWithFilterQuery,
+  type AssetsWithFilterQueryVariables,
+  type CreateAssetMutation,
+  type CreateAssetMutationVariables,
+  type UpdateAssetMutation,
+  type UpdateAssetMutationVariables,
+  type DeleteAssetMutation,
+  type DeleteAssetMutationVariables,
+  type AssetQuery,
+  type AssetQueryVariables,
+  type CreateBulkCsvAssetMutation,
+  type CreateBulkCsvAssetMutationVariables,
+  type UpdateBulkAssetMutation,
+  type UpdateBulkAssetMutationVariables,
+  type DeleteBulkAssetMutation,
+  type DeleteBulkAssetMutationVariables,
+  type GetAssetAssociationsQuery,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 import { GET_ALL_ASSETS, CREATE_ASSET, UPDATE_ASSET, DELETE_ASSET, ASSET, CREATE_CSV_BULK_ASSET, BULK_EDIT_ASSET, BULK_DELETE_ASSET, GET_ASSET_ASSOCIATIONS } from '@repo/codegen/query/asset'
 
 type GetAllAssetsArgs = {

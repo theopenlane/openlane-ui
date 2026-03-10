@@ -3,7 +3,7 @@ import { Button } from '@repo/ui/button'
 import { Check, Copy, Sparkles } from 'lucide-react'
 import { Textarea } from '@repo/ui/textarea'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@repo/ui/dialog'
-import { ControlContext, OrganizationContext, ConversationMessage, useAISuggestions, UserContext, PolicyContext } from '@/hooks/useGetAISuggestions.tsx'
+import { type ControlContext, type OrganizationContext, type ConversationMessage, useAISuggestions, type UserContext, type PolicyContext } from '@/hooks/useGetAISuggestions.tsx'
 import ReactMarkdown from 'react-markdown'
 
 interface ChatMessage {

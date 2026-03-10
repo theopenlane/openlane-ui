@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient, useInfiniteQuery, InfiniteData } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient, useInfiniteQuery, type InfiniteData } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
   CREATE_CONTROL,
@@ -33,60 +33,60 @@ import {
 } from '@repo/codegen/query/control'
 
 import {
-  Control,
-  ControlWhereInput,
-  CreateBulkCsvControlMutation,
-  CreateBulkCsvControlMutationVariables,
-  CreateControlMutation,
-  CreateControlMutationVariables,
-  DeleteControlMutation,
-  DeleteControlMutationVariables,
-  GetAllControlsQuery,
-  GetAllControlsQueryVariables,
-  GetControlByIdMinifiedQuery,
-  GetControlByIdMinifiedQueryVariables,
-  GetControlByIdQuery,
-  GetControlCategoriesQuery,
-  GetControlCountsByStatusQuery,
-  GetControlSelectOptionsQuery,
-  GetControlSelectOptionsQueryVariables,
-  GetControlsPaginatedQuery,
-  GetControlsPaginatedQueryVariables,
-  GetControlSubcategoriesQuery,
-  UpdateBulkCsvControlMutation,
-  UpdateBulkCsvControlMutationVariables,
-  UpdateControlMutation,
-  UpdateControlMutationVariables,
-  GetControlsPaginatedWithListFieldsQuery,
-  GetControlsPaginatedWithListFieldsQueryVariables,
-  ControlListStandardFieldsFragment,
-  GetControlsGroupedByCategoryResolverQuery,
-  UpdateBulkControlMutation,
-  UpdateBulkControlMutationVariables,
-  CloneBulkCsvControlMutation,
-  CloneBulkCsvControlMutationVariables,
-  GetControlsByRefCodeQuery,
-  GetControlCommentsQuery,
-  GetControlCommentsQueryVariables,
-  UpdateControlCommentMutation,
-  UpdateControlCommentMutationVariables,
-  CreateBulkCsvMappedControlMutation,
-  CreateBulkCsvMappedControlMutationVariables,
-  DeleteNoteMutation,
-  DeleteNoteMutationVariables,
-  DeleteBulkControlMutation,
-  DeleteBulkControlMutationVariables,
-  MappedControlWhereInput,
-  GetSuggestedControlsOrSubcontrolsQuery,
-  GetControlAssociationsByIdQuery,
-  GetControlAssociationsByIdQueryVariables,
-  GetNotImplementedControlCountQuery,
-  InsertControlPlateCommentMutation,
-  InsertControlPlateCommentMutationVariables,
-  GetControlDiscussionByIdQuery,
-  GetExistingControlsForOrganizationQuery,
+  type Control,
+  type ControlWhereInput,
+  type CreateBulkCsvControlMutation,
+  type CreateBulkCsvControlMutationVariables,
+  type CreateControlMutation,
+  type CreateControlMutationVariables,
+  type DeleteControlMutation,
+  type DeleteControlMutationVariables,
+  type GetAllControlsQuery,
+  type GetAllControlsQueryVariables,
+  type GetControlByIdMinifiedQuery,
+  type GetControlByIdMinifiedQueryVariables,
+  type GetControlByIdQuery,
+  type GetControlCategoriesQuery,
+  type GetControlCountsByStatusQuery,
+  type GetControlSelectOptionsQuery,
+  type GetControlSelectOptionsQueryVariables,
+  type GetControlsPaginatedQuery,
+  type GetControlsPaginatedQueryVariables,
+  type GetControlSubcategoriesQuery,
+  type UpdateBulkCsvControlMutation,
+  type UpdateBulkCsvControlMutationVariables,
+  type UpdateControlMutation,
+  type UpdateControlMutationVariables,
+  type GetControlsPaginatedWithListFieldsQuery,
+  type GetControlsPaginatedWithListFieldsQueryVariables,
+  type ControlListStandardFieldsFragment,
+  type GetControlsGroupedByCategoryResolverQuery,
+  type UpdateBulkControlMutation,
+  type UpdateBulkControlMutationVariables,
+  type CloneBulkCsvControlMutation,
+  type CloneBulkCsvControlMutationVariables,
+  type GetControlsByRefCodeQuery,
+  type GetControlCommentsQuery,
+  type GetControlCommentsQueryVariables,
+  type UpdateControlCommentMutation,
+  type UpdateControlCommentMutationVariables,
+  type CreateBulkCsvMappedControlMutation,
+  type CreateBulkCsvMappedControlMutationVariables,
+  type DeleteNoteMutation,
+  type DeleteNoteMutationVariables,
+  type DeleteBulkControlMutation,
+  type DeleteBulkControlMutationVariables,
+  type MappedControlWhereInput,
+  type GetSuggestedControlsOrSubcontrolsQuery,
+  type GetControlAssociationsByIdQuery,
+  type GetControlAssociationsByIdQueryVariables,
+  type GetNotImplementedControlCountQuery,
+  type InsertControlPlateCommentMutation,
+  type InsertControlPlateCommentMutationVariables,
+  type GetControlDiscussionByIdQuery,
+  type GetExistingControlsForOrganizationQuery,
 } from '@repo/codegen/src/schema'
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql.ts'
 import { useEffect, useMemo } from 'react'
 
@@ -409,7 +409,7 @@ export function useGetControlMinifiedById(controlId?: string, enabled = true) {
   return useQuery<GetControlByIdMinifiedQuery, Error>({
     queryKey: ['controls', controlId, 'minified'],
     queryFn: async () => {
-      const data = await client.request<GetControlByIdMinifiedQuery, GetControlByIdMinifiedQueryVariables>(GET_CONTROL_BY_ID_MINIFIED, { controlId: controlId! })
+      const data = await client.request<GetControlByIdMinifiedQuery, GetControlByIdMinifiedQueryVariables>(GET_CONTROL_BY_ID_MINIFIED, { controlId: controlId ?? '' })
       return data
     },
     enabled: !!controlId && enabled,
@@ -471,7 +471,7 @@ export const useGetControlsGroupedByCategoryResolver = ({ where, enabled }: { wh
 
       const promises = Object.entries(hasNextMap)
         .filter(([, hasNext]) => hasNext)
-        .map(([category]) => fetchNextForCategory(category, cursors[category]!))
+        .map(([category]) => fetchNextForCategory(category, cursors[category] ?? ''))
 
       await Promise.all(promises)
 
@@ -504,7 +504,7 @@ export const useGetControlComments = (controlId?: string | null) => {
 
   return useQuery<GetControlCommentsQuery, unknown>({
     queryKey: ['controlComments', controlId],
-    queryFn: async () => client.request<GetControlCommentsQuery, GetControlCommentsQueryVariables>(GET_CONTROL_COMMENTS, { controlId: controlId! }),
+    queryFn: async () => client.request<GetControlCommentsQuery, GetControlCommentsQueryVariables>(GET_CONTROL_COMMENTS, { controlId: controlId ?? '' }),
     enabled: !!controlId,
   })
 }

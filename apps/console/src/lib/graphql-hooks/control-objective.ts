@@ -2,14 +2,14 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { CREATE_CONTROL_OBJECTIVE, DELETE_CONTROL_OBJECTIVE, GET_ALL_CONTROL_OBJECTIVES, UPDATE_CONTROL_OBJECTIVE } from '@repo/codegen/query/control-objective'
 import {
-  CreateControlObjectiveInput,
-  CreateControlObjectiveMutation,
-  DeleteControlObjectiveMutation,
-  DeleteControlObjectiveMutationVariables,
-  GetAllControlObjectivesQuery,
-  GetAllControlObjectivesQueryVariables,
-  UpdateControlObjectiveMutation,
-  UpdateControlObjectiveMutationVariables,
+  type CreateControlObjectiveInput,
+  type CreateControlObjectiveMutation,
+  type DeleteControlObjectiveMutation,
+  type DeleteControlObjectiveMutationVariables,
+  type GetAllControlObjectivesQuery,
+  type GetAllControlObjectivesQueryVariables,
+  type UpdateControlObjectiveMutation,
+  type UpdateControlObjectiveMutationVariables,
 } from '@repo/codegen/src/schema'
 
 export const useGetAllControlObjectives = (where?: GetAllControlObjectivesQueryVariables['where']) => {

@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { GET_CONTACTS } from '@repo/codegen/query/contact'
-import { GetContactsQuery, GetContactsQueryVariables, ContactWhereInput, ContactUserStatus } from '@repo/codegen/src/schema'
+import { type GetContactsQuery, type GetContactsQueryVariables, type ContactWhereInput, ContactUserStatus } from '@repo/codegen/src/schema'
 
 type UseContactsArgs = {
   where?: ContactWhereInput

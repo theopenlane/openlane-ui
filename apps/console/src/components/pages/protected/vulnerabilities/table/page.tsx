@@ -4,7 +4,7 @@ import React from 'react'
 import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
 
 import {
-  VulnerabilitiesNodeNonNull,
+  type VulnerabilitiesNodeNonNull,
   useVulnerability,
   useCreateVulnerability,
   useUpdateVulnerability,
@@ -15,12 +15,12 @@ import {
 import { useSearchParams } from 'next/navigation'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
 import { breadcrumbs, getFieldsToRender, getFilterFields, visibilityFields } from './table-config'
-import { VulnerabilitySheetConfig, VulnerabilityTablePageConfig, VulnerabilityFieldProps, objectType, objectName, tableKey, exportType, orderFieldEnum, defaultSorting } from './types'
+import { type VulnerabilitySheetConfig, type VulnerabilityTablePageConfig, type VulnerabilityFieldProps, objectType, objectName, tableKey, exportType, orderFieldEnum, defaultSorting } from './types'
 import { getColumns } from './columns'
 import TableComponent from './table'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { buildPayload } from '../create/utils'
-import { CreateVulnerabilityInput, UpdateVulnerabilityInput } from '@repo/codegen/src/schema'
+import { type CreateVulnerabilityInput, type UpdateVulnerabilityInput } from '@repo/codegen/src/schema'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 

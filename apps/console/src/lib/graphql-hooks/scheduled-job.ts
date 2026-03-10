@@ -1,19 +1,19 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
-  ScheduledJobsWithFilterQuery,
-  ScheduledJobsWithFilterQueryVariables,
-  CreateScheduledJobMutation,
-  CreateScheduledJobMutationVariables,
-  UpdateScheduledJobMutation,
-  UpdateScheduledJobMutationVariables,
-  DeleteScheduledJobMutation,
-  DeleteScheduledJobMutationVariables,
-  ScheduledJobQuery,
-  ScheduledJobQueryVariables,
+  type ScheduledJobsWithFilterQuery,
+  type ScheduledJobsWithFilterQueryVariables,
+  type CreateScheduledJobMutation,
+  type CreateScheduledJobMutationVariables,
+  type UpdateScheduledJobMutation,
+  type UpdateScheduledJobMutationVariables,
+  type DeleteScheduledJobMutation,
+  type DeleteScheduledJobMutationVariables,
+  type ScheduledJobQuery,
+  type ScheduledJobQueryVariables,
 } from '@repo/codegen/src/schema'
 
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 import { GET_ALL_SCHEDULED_JOBS, CREATE_SCHEDULED_JOB, UPDATE_SCHEDULED_JOB, DELETE_SCHEDULED_JOB, SCHEDULED_JOB } from '@repo/codegen/query/scheduled-job'
 
 type GetAllScheduledJobsArgs = {

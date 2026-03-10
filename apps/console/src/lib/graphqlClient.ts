@@ -3,15 +3,16 @@
 import { GraphQLClient } from 'graphql-request'
 import { csrfCookieName, csrfHeader } from '@repo/dally/auth'
 import { getCookie } from './auth/utils/getCookie'
-import { fetchNewAccessToken, Tokens } from './auth/utils/refresh-token'
+import { fetchNewAccessToken, type Tokens } from './auth/utils/refresh-token'
 import { jwtDecode } from 'jwt-decode'
 import { useSession } from 'next-auth/react'
-import { Session } from 'next-auth'
+import { type Session } from 'next-auth'
 import { fetchCSRFToken } from './auth/utils/secure-fetch'
 
-const GRAPHQL_ENDPOINT = process.env.NEXT_PUBLIC_API_GQL_URL!
+const GRAPHQL_ENDPOINT = process.env.NEXT_PUBLIC_API_GQL_URL ?? ''
 
 let isSessionInvalid = false
+let sessionExpiredModalOpen = false
 let refreshPromise: Promise<Tokens | null> | null = null
 let lastAccessToken = ''
 let refreshAllowedAfter = Number.POSITIVE_INFINITY
@@ -22,6 +23,11 @@ export function useGetGraphQLClient() {
 
   const fetchWithRetry = async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
     if (isSessionInvalid) {
+      if (!sessionExpiredModalOpen) {
+        const currentPath = window.location.pathname + window.location.search
+        window.location.href = `/login?redirect=${encodeURIComponent(currentPath)}`
+        resetSessionState()
+      }
       throw new Error('Session invalid')
     }
 
@@ -31,6 +37,7 @@ export function useGetGraphQLClient() {
 
     if (!accessToken || !refreshToken) {
       handleSessionExpired()
+      throw new Error('Session expired')
     }
 
     const headers = new Headers(init?.headers || {})
@@ -74,6 +81,7 @@ export function useGetGraphQLClient() {
       } catch (e) {
         console.error('❌ Failed to decode refresh token:', e)
         handleSessionExpired()
+        throw new Error('Session expired')
       }
     }
 
@@ -130,7 +138,21 @@ export function useGetGraphQLClient() {
   })
 }
 
+export function resetSessionState() {
+  isSessionInvalid = false
+  sessionExpiredModalOpen = false
+  refreshPromise = null
+  lastAccessToken = ''
+  refreshAllowedAfter = Number.POSITIVE_INFINITY
+}
+
+export function markSessionExpired() {
+  isSessionInvalid = true
+  sessionExpiredModalOpen = true
+}
+
 function handleSessionExpired() {
+  if (isSessionInvalid) return
   isSessionInvalid = true
   window.dispatchEvent(new Event('session-expired'))
 }

@@ -1,4 +1,4 @@
-import { SiteExistsResponse } from '@/types/site-exists'
+import { type SiteExistsResponse } from '@/types/site-exists'
 import { formatDate } from '@/utils/date'
 import { normalizeUrl } from '@/utils/normalizeUrl'
 import { Button } from '@repo/ui/button'

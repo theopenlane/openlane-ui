@@ -4,14 +4,14 @@ import { useForm, FormProvider } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button } from '@repo/ui/button'
 
-import React, { useContext, useEffect, useState } from 'react'
+import React, { use, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Separator } from '@repo/ui/separator'
 import { StepHeader } from '@/components/shared/step-header/step-header'
-import { CreateProgramWithMembersInput, ProgramMembershipRole } from '@repo/codegen/src/schema'
+import { type CreateProgramWithMembersInput, ProgramMembershipRole } from '@repo/codegen/src/schema'
 import TeamSetupStep from '../shared/steps/team-setup-step'
 import SelectFrameworkStep from '../shared/steps/select-framework-step'
-import { programInviteSchema, selectFrameworkSchema, step3Schema, wizardSchema, WizardValues } from './risk-assessment-wizard-config'
+import { programInviteSchema, selectFrameworkSchema, step3Schema, wizardSchema, type WizardValues } from './risk-assessment-wizard-config'
 import AssociateRisksStep from './associate-risk-step'
 import { useNotification } from '@/hooks/useNotification'
 import { useCreateProgramWithMembers } from '@/lib/graphql-hooks/program'
@@ -28,7 +28,7 @@ export default function RiskAssessmentWizard() {
   const router = useRouter()
   const { errorNotification, successNotification } = useNotification()
   const { mutateAsync: createProgram, isPending } = useCreateProgramWithMembers()
-  const { setCrumbs } = useContext(BreadcrumbContext)
+  const { setCrumbs } = use(BreadcrumbContext)
   const [showExitConfirm, setShowExitConfirm] = useState(false) // ✅ new state
 
   const { useStepper } = defineStepper(

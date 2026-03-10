@@ -1,4 +1,4 @@
-import React, { useState, useRef, ReactNode, useEffect } from 'react'
+import React, { useState, useRef, type ReactNode, useEffect } from 'react'
 import { PanelRight, PanelRightClose } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 
@@ -19,6 +19,10 @@ const DEFAULT_WIDTH = 400
 const FLOATING_MARGIN = 24
 const SCROLLBAR_OFFSET = '3rem'
 
+function setBodyUserSelect(value: string) {
+  document.body.style.userSelect = value
+}
+
 const SlideBarLayout: React.FC<TSlideBarLayoutProps> = ({
   sidebarTitle,
   sidebarContent,
@@ -32,7 +36,8 @@ const SlideBarLayout: React.FC<TSlideBarLayoutProps> = ({
 }) => {
   const [open, setOpen] = useState<boolean>(true)
   const [width, setWidth] = useState<number>(minWidth || DEFAULT_WIDTH)
-  const resizing = useRef(false)
+  const resizingRef = useRef(false)
+  const resizeTargetRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (slideOpen) {
@@ -40,35 +45,59 @@ const SlideBarLayout: React.FC<TSlideBarLayoutProps> = ({
     }
   }, [slideOpen])
 
-  const handleMouseMove = (e: MouseEvent) => {
-    if (!resizing.current) {
-      return
+  const minWidthRef = useRef(minWidth)
+  useEffect(() => {
+    minWidthRef.current = minWidth
+  }, [minWidth])
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!resizingRef.current) {
+        return
+      }
+
+      const newWidth = window.innerWidth - e.clientX
+      if (newWidth > minWidthRef.current && newWidth < window.innerWidth * MAX_RATIO) {
+        setWidth(newWidth)
+      }
     }
 
-    const newWidth = window.innerWidth - e.clientX
-    if (newWidth > minWidth && newWidth < window.innerWidth * MAX_RATIO) {
-      setWidth(newWidth)
+    const handleMouseUp = () => {
+      if (!resizingRef.current) {
+        return
+      }
+
+      resizingRef.current = false
+      setBodyUserSelect('')
+      document.removeEventListener('mousemove', handleMouseMove)
+      document.removeEventListener('mouseup', handleMouseUp)
     }
-  }
 
-  const handleMouseUp = () => {
-    if (!resizing.current) {
-      return
+    const startResizeHandler = () => {
+      resizingRef.current = true
+      setBodyUserSelect('none')
+      document.addEventListener('mousemove', handleMouseMove)
+      document.addEventListener('mouseup', handleMouseUp)
     }
 
-    resizing.current = false
-    document.body.style.userSelect = ''
-    document.removeEventListener('mousemove', handleMouseMove)
-    document.removeEventListener('mouseup', handleMouseUp)
-  }
+    const resizeTarget = resizeTargetRef.current
+    const onMouseDown = (e: MouseEvent) => {
+      e.preventDefault()
+      startResizeHandler()
+    }
 
-  const startResize = (e: React.MouseEvent<HTMLDivElement>) => {
-    e.preventDefault()
-    resizing.current = true
-    document.body.style.userSelect = 'none'
-    document.addEventListener('mousemove', handleMouseMove)
-    document.addEventListener('mouseup', handleMouseUp)
-  }
+    if (resizeTarget) {
+      resizeTarget.addEventListener('mousedown', onMouseDown)
+    }
+
+    return () => {
+      if (resizeTarget) {
+        resizeTarget.removeEventListener('mousedown', onMouseDown)
+      }
+      document.removeEventListener('mousemove', handleMouseMove)
+      document.removeEventListener('mouseup', handleMouseUp)
+    }
+  }, [])
 
   return (
     <div className="relative flex">
@@ -108,7 +137,7 @@ const SlideBarLayout: React.FC<TSlideBarLayoutProps> = ({
           <div className="p-4"></div>
         )}
 
-        <div onMouseDown={startResize} className="absolute left-0 top-0 h-full w-1 cursor-col-resize" />
+        <div ref={resizeTargetRef} className="absolute left-0 top-0 h-full w-1 cursor-col-resize" />
 
         <div className="p-4 space-y-6 overflow-y-auto h-[calc(100%-64px)]">{sidebarContent}</div>
       </div>

@@ -1,6 +1,6 @@
-import { ColumnDef } from '@tanstack/react-table'
+import { type ColumnDef } from '@tanstack/react-table'
 import { SubscriberActions } from '@/components/pages/protected/organization-settings/subscribers/actions/subscriber-actions.tsx'
-import { GetAllSubscribersQuery } from '@repo/codegen/src/schema'
+import { type GetAllSubscribersQuery } from '@repo/codegen/src/schema'
 import EmailCell from '@/components/pages/protected/organization-settings/subscribers/table/email-cell.tsx'
 import { formatDate } from '@/utils/date'
 

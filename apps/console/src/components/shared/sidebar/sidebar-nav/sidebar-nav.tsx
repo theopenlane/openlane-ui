@@ -18,13 +18,47 @@ import { ProgramCreatePrefixIconBtn } from '@/components/shared/enum-mapper/prog
 import { TaskIconPrefixBtn } from '@/components/shared/enum-mapper/task-enum'
 import { CONTRIBUTE_URL, SUPPORT_URL } from '@/constants'
 import { featureUtil } from '@/lib/subscription-plan/plans'
-import { NavHeading, NavItem, Separator } from '@/types'
+import { type NavHeading, type NavItem, type Separator } from '@/types'
 import { Button } from '@repo/ui/button'
 import { DOCS_URL } from '@/constants/docs'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { canCreate } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { hasNoModules } from '@/lib/auth/utils/modules'
+
+const SidebarChildLink: React.FC<{ child: NavItem; pathname: string; secondaryExpanded: boolean; router: ReturnType<typeof useRouter> }> = ({ child, pathname, secondaryExpanded, router }) => {
+  const isActive = pathname === child.href || pathname.startsWith(`${child.href}/`)
+  if (child.hidden) return null
+
+  const linkContent = (
+    <Link
+      onClick={(e) => {
+        e.preventDefault()
+        router.push(child.href ?? '#')
+      }}
+      href={child.href ?? '#'}
+      className={`flex items-center gap-2 mb-2 h-8 rounded-md hover:bg-card text-muted-foreground transition-colors duration-500 ${isActive ? 'bg-card text-paragraph' : ''} ${
+        secondaryExpanded ? 'px-2.5' : 'justify-center'
+      }`}
+    >
+      {child.icon && <child.icon size={secondaryExpanded ? 16 : 20} />}
+      {secondaryExpanded && <span className="text-sm font-normal leading-5">{child.title}</span>}
+    </Link>
+  )
+
+  if (secondaryExpanded) {
+    return linkContent
+  }
+
+  return (
+    <TooltipProvider delayDuration={100}>
+      <Tooltip>
+        <TooltipTrigger asChild>{linkContent}</TooltipTrigger>
+        <TooltipContent side="right">{child.title}</TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  )
+}
 
 export type PanelKey = 'compliance' | 'trust center' | 'automation' | 'registry' | null
 
@@ -171,40 +205,6 @@ export default function SideNav({
 
       return null
     })
-  }
-
-  const SidebarChildLink: React.FC<{ child: NavItem }> = ({ child }) => {
-    const isActive = pathname === child.href || pathname.startsWith(`${child.href}/`)
-    if (child.hidden) return null
-
-    const linkContent = (
-      <Link
-        onClick={(e) => {
-          e.preventDefault()
-          router.push(child.href ?? '#')
-        }}
-        href={child.href ?? '#'}
-        className={`flex items-center gap-2 mb-2 h-8 rounded-md hover:bg-card text-muted-foreground transition-colors duration-500 ${isActive ? 'bg-card text-paragraph' : ''} ${
-          secondaryExpanded ? 'px-2.5' : 'justify-center'
-        }`}
-      >
-        {child.icon && <child.icon size={secondaryExpanded ? 16 : 20} />}
-        {secondaryExpanded && <span className="text-sm font-normal leading-5">{child.title}</span>}
-      </Link>
-    )
-
-    if (secondaryExpanded) {
-      return linkContent
-    }
-
-    return (
-      <TooltipProvider delayDuration={100}>
-        <Tooltip>
-          <TooltipTrigger asChild>{linkContent}</TooltipTrigger>
-          <TooltipContent side="right">{child.title}</TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
-    )
   }
 
   const footerLinks = [
@@ -365,7 +365,7 @@ export default function SideNav({
                 item.children ? (
                   <div key={item.title} className="flex flex-col">
                     {item.children.map((child, index) => (
-                      <SidebarChildLink key={index} child={child} />
+                      <SidebarChildLink key={index} child={child} pathname={pathname} secondaryExpanded={secondaryExpanded} router={router} />
                     ))}
                   </div>
                 ) : null,

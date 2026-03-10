@@ -4,7 +4,7 @@ import { useForm, FormProvider } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { defineStepper } from '@stepperize/react'
 import { useSession } from 'next-auth/react'
-import { CreateOnboardingInput } from '@repo/codegen/src/schema'
+import { type CreateOnboardingInput } from '@repo/codegen/src/schema'
 import { Card } from '@repo/ui/cardpanel'
 import { Button } from '@repo/ui/button'
 import { ArrowRight, ArrowLeft, PartyPopper, WindIcon } from 'lucide-react'
@@ -18,7 +18,7 @@ import { switchOrganization, handleSSORedirect } from '@/lib/user'
 import { useCreateOnboarding } from '@/lib/graphql-hooks/onboarding'
 import { useQueryClient } from '@tanstack/react-query'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { z } from 'zod'
+import { type z } from 'zod'
 
 const { useStepper, steps } = defineStepper(
   { id: '0', label: `Company Info`, schema: step1Schema },
@@ -122,7 +122,7 @@ export default function MultiStepForm() {
   }
 
   const handleNext = async () => {
-    let isValid = false
+    let isValid: boolean
 
     if (stepper.current.id === '0') {
       isValid = await methods.trigger(['companyName', 'domains'])

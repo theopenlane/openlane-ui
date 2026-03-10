@@ -2,13 +2,13 @@
 
 import React, { useState } from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from '@repo/ui/avatar'
-import { TCommentData } from '@/components/shared/comments/types/TCommentData'
+import { type TCommentData } from '@/components/shared/comments/types/TCommentData'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { formatDateTime } from '@/utils/date'
 import PlateEditor from '../plate/plate-editor'
 import { useSession } from 'next-auth/react'
 import { Pencil, Trash2, Check, X } from 'lucide-react'
-import { Value } from 'platejs'
+import { type Value } from 'platejs'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 
 type CommentListProps = {

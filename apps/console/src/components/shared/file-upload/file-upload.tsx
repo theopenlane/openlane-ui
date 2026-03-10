@@ -1,10 +1,10 @@
 'use client'
 import React, { useCallback, useState } from 'react'
 import { File, FileUp, Upload } from 'lucide-react'
-import { FileWithPath, useDropzone } from 'react-dropzone'
+import { type FileWithPath, useDropzone } from 'react-dropzone'
 import { cn } from '@repo/ui/lib/utils'
 import { useNotification } from '@/hooks/useNotification'
-import { TUploadedFile } from '@/components/pages/protected/evidence/upload/types/TUploadedFile'
+import { type TUploadedFile } from '@/components/pages/protected/evidence/upload/types/TUploadedFile'
 
 type TProps = {
   onFileUpload: (uploadedFile: TUploadedFile) => void
@@ -131,7 +131,7 @@ const FileUpload: React.FC<TProps> = (props: TProps) => {
               <div className="font-semibold truncate" title={uploadedFile.name}>
                 {uploadedFile.name}
               </div>
-              <div className="text-muted-foreground">{(uploadedFile.size! / 1024).toFixed(2)} KB</div>
+              <div className="text-muted-foreground">{((uploadedFile.size ?? 0) / 1024).toFixed(2)} KB</div>
             </div>
           )}
         </div>

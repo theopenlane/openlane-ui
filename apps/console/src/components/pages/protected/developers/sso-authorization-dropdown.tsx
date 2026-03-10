@@ -1,5 +1,5 @@
 import { useOrganization } from '@/hooks/useOrganization'
-import { Organization } from '@repo/codegen/src/schema'
+import { type Organization } from '@repo/codegen/src/schema'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { Button } from '@repo/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'

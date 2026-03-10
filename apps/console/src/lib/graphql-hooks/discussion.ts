@@ -1,6 +1,6 @@
 import { useGraphQLClient } from '@/hooks/useGraphQLClient.ts'
 import { useMutation } from '@tanstack/react-query'
-import { CreateDiscussionMutation, CreateDiscussionMutationVariables } from '@repo/codegen/src/schema.ts'
+import { type CreateDiscussionMutation, type CreateDiscussionMutationVariables } from '@repo/codegen/src/schema.ts'
 import { CREATE_DISCUSSION } from '@repo/codegen/query/discussion.ts'
 
 export const useCreateDiscussion = () => {

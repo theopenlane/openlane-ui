@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useMemo, useEffect, useContext, useCallback } from 'react'
+import React, { useState, useMemo, useEffect, use, useCallback } from 'react'
 import { Button } from '@repo/ui/button'
 import { Loading } from '@/components/shared/loading/loading'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
@@ -10,7 +10,7 @@ import { useDeleteStandard, useGetAllStandardsInfinite, useStandardsSelect } fro
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { Switch } from '@repo/ui/switch'
 import InfiniteScroll from '@repo/ui/infinite-scroll'
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 import { CARD_DEFAULT_PAGINATION } from '@/constants/pagination'
 import { StandardsIconMapper } from '@/components/shared/standards-icon-mapper/standards-icon-mapper'
 import { BookUp2, PencilIcon, SquarePlus, Trash2 } from 'lucide-react'
@@ -21,7 +21,7 @@ import { StandardDialog } from './create-framework-dialog/create-framework-dialo
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { Label } from '@repo/ui/label'
 import { useGetTrustCenter } from '@/lib/graphql-hooks/trust-center'
-import { StandardWhereInput } from '@repo/codegen/src/schema'
+import { type StandardWhereInput } from '@repo/codegen/src/schema'
 import { useNavigationGuard } from 'next-navigation-guard'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
 import { useOrganization } from '@/hooks/useOrganization'
@@ -29,7 +29,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/
 
 export default function FrameworksPage() {
   const { successNotification, errorNotification } = useNotification()
-  const { setCrumbs } = useContext(BreadcrumbContext)
+  const { setCrumbs } = use(BreadcrumbContext)
   const { currentOrgId } = useOrganization()
 
   const [cardPagination, setCardPagination] = useState<TPagination>(CARD_DEFAULT_PAGINATION)

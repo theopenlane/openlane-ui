@@ -3,14 +3,14 @@
 import React, { useMemo, useState } from 'react'
 import Link from 'next/link'
 import { DataTable, getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
-import { ColumnDef } from '@tanstack/table-core'
+import { type ColumnDef } from '@tanstack/table-core'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { useInternalPolicies } from '@/lib/graphql-hooks/internal-policy'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 import { formatDate } from '@/utils/date'
 import { addDays } from 'date-fns'
-import { GetInternalPoliciesListQueryVariables, InternalPolicyOrderField, InternalPolicyWhereInput, OrderDirection, Organization } from '@repo/codegen/src/schema'
+import { type GetInternalPoliciesListQueryVariables, InternalPolicyOrderField, type InternalPolicyWhereInput, OrderDirection, type Organization } from '@repo/codegen/src/schema'
 import { wherePoliciesDashboard } from '../dashboard-config'
 import { Button } from '@repo/ui/button'
 import { TableKeyEnum } from '@repo/ui/table-key'
@@ -72,7 +72,7 @@ const columns: ColumnDef<FormattedPolicy>[] = [
 ]
 
 export default function ReviewDueSoonTable() {
-  const [pagination, setPagination] = useState<TPagination>(
+  const [pagination, setPagination] = useState<TPagination>(() =>
     getInitialPagination(TableKeyEnum.POLICIES_REVIEW_DUE_SOON, {
       ...DEFAULT_PAGINATION,
       pageSize: 5,

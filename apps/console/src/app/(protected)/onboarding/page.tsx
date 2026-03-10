@@ -1,6 +1,6 @@
 import React from 'react'
 import MultiStepForm from '@/components/pages/protected/onboarding/onboarding-page'
-import { Metadata } from 'next'
+import { type Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Onboarding',

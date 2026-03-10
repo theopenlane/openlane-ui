@@ -5,17 +5,17 @@ import { Button } from '@repo/ui/button'
 import { DataTable, getInitialPagination } from '@repo/ui/data-table'
 import { EllipsisVertical } from 'lucide-react'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
-import { ColumnDef, Row } from '@tanstack/react-table'
+import { type ColumnDef, type Row } from '@tanstack/react-table'
 import { useGetProgramBasicInfo, useGetProgramGroups, useUpdateProgram } from '@/lib/graphql-hooks/program'
 import { Avatar } from '@/components/shared/avatar/avatar'
-import { Group as GroupType, ProgramProgramStatus, UpdateProgramInput } from '@repo/codegen/src/schema'
+import { type Group as GroupType, ProgramProgramStatus, type UpdateProgramInput } from '@repo/codegen/src/schema'
 import { useParams } from 'next/navigation'
 import { ProgramSettingsAssignGroupDialog } from './program-settings-assign-groups-dialog'
 import { useQueryClient } from '@tanstack/react-query'
 import { EditGroupRoleDialog } from '../program-settings-edit-role-dialog'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useNotification } from '@/hooks/useNotification'
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import Pagination from '@repo/ui/pagination'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -37,7 +37,7 @@ export const ProgramSettingsGroups = () => {
   const { data: permission } = useAccountRoles(ObjectTypes.PROGRAM, id)
   const editAllowed = canEdit(permission?.roles)
   const queryClient = useQueryClient()
-  const [pagination, setPagination] = useState<TPagination>(
+  const [pagination, setPagination] = useState<TPagination>(() =>
     getInitialPagination(TableKeyEnum.PROGRAM_SETTINGS_GROUP, {
       ...DEFAULT_PAGINATION,
       pageSize: 5,

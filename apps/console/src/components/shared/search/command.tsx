@@ -3,7 +3,7 @@
 import { CommandDialog, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { NavHeading, type NavItem, type Separator } from '@/types'
+import { type NavHeading, type NavItem, type Separator } from '@/types'
 
 interface CommandNavProps {
   items: (NavItem | Separator | NavHeading)[]

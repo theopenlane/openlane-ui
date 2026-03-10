@@ -7,7 +7,7 @@ import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 import { BreadcrumbSkeleton } from './breadcrumb-skeleton'
 
 export function BreadcrumbNavigation() {
-  const crumbsData = React.useContext(BreadcrumbContext)
+  const crumbsData = React.use(BreadcrumbContext)
 
   if (!crumbsData.crumbs) {
     return null
