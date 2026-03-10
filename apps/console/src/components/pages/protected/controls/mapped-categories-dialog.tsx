@@ -101,8 +101,9 @@ const MappedCategoriesDialog = ({ onClose }: { onClose: () => void }) => {
         id: 'select',
         header: '',
         cell: ({ row }) => <Checkbox checked={selected.includes(row.original.domain)} onCheckedChange={() => toggle(row.original.domain)} />,
-        size: 10,
-        maxSize: 10,
+        size: 50,
+        maxSize: 50,
+        minSize: 50,
       },
       {
         accessorKey: 'standardLabel',
@@ -141,7 +142,7 @@ const MappedCategoriesDialog = ({ onClose }: { onClose: () => void }) => {
           }
         }}
       >
-        <DialogContent className="max-w-xl">
+        <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Set mapped categories</DialogTitle>
           </DialogHeader>
@@ -176,23 +177,24 @@ const MappedCategoriesDialog = ({ onClose }: { onClose: () => void }) => {
               </Select>
             </div>
           </div>
-
-          <DataTable
-            columns={columns}
-            data={pagedRows || []}
-            pagination={pagination}
-            paginationMeta={{
-              totalCount: allRows.length,
-              pageInfo: {
-                hasNextPage: pagination.page * pagination.pageSize < allRows.length,
-                hasPreviousPage: pagination.page > 1,
-              },
-              isLoading: isLoading,
-            }}
-            onPaginationChange={setPagination}
-            loading={isLoading}
-            tableKey={TableKeyEnum.CONTROLS_MAPPED_CATEGORIES}
-          />
+          <div className="w-155">
+            <DataTable
+              columns={columns}
+              data={pagedRows || []}
+              pagination={pagination}
+              paginationMeta={{
+                totalCount: allRows.length,
+                pageInfo: {
+                  hasNextPage: pagination.page * pagination.pageSize < allRows.length,
+                  hasPreviousPage: pagination.page > 1,
+                },
+                isLoading: isLoading,
+              }}
+              onPaginationChange={setPagination}
+              loading={isLoading}
+              tableKey={TableKeyEnum.CONTROLS_MAPPED_CATEGORIES}
+            />
+          </div>
 
           {/* Actions */}
           <div className="flex justify-end gap-2 mt-6">
