@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { User } from '@repo/codegen/src/schema'
+import { type User } from '@repo/codegen/src/schema'
 import { UserCell } from './user-cell'
 
 const mockUser: User = {

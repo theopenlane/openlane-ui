@@ -1,8 +1,8 @@
 'use client'
 import { z } from 'zod'
-import { useForm, Resolver } from 'react-hook-form'
+import { useForm, type Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Value } from 'platejs'
+import { type Value } from 'platejs'
 import { AssetAssetType, AssetSourceType } from '@repo/codegen/src/schema'
 import { responsibilityFieldSchema } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 

@@ -9,22 +9,22 @@ import {
 } from '@repo/codegen/query/trust-center-subprocessor'
 
 import {
-  GetTrustCenterSubprocessorsQuery,
-  GetTrustCenterSubprocessorsQueryVariables,
-  CreateTrustCenterSubprocessorMutation,
-  CreateTrustCenterSubprocessorMutationVariables,
-  UpdateTrustCenterSubprocessorMutation,
-  UpdateTrustCenterSubprocessorMutationVariables,
-  DeleteBulkTrustCenterSubprocessorsMutation,
-  DeleteBulkTrustCenterSubprocessorsMutationVariables,
-  DeleteTrustCenterSubprocessorMutation,
-  DeleteTrustCenterSubprocessorMutationVariables,
-  GetTrustCenterSubprocessorByIdQuery,
-  GetTrustCenterSubprocessorByIdQueryVariables,
+  type GetTrustCenterSubprocessorsQuery,
+  type GetTrustCenterSubprocessorsQueryVariables,
+  type CreateTrustCenterSubprocessorMutation,
+  type CreateTrustCenterSubprocessorMutationVariables,
+  type UpdateTrustCenterSubprocessorMutation,
+  type UpdateTrustCenterSubprocessorMutationVariables,
+  type DeleteBulkTrustCenterSubprocessorsMutation,
+  type DeleteBulkTrustCenterSubprocessorsMutationVariables,
+  type DeleteTrustCenterSubprocessorMutation,
+  type DeleteTrustCenterSubprocessorMutationVariables,
+  type GetTrustCenterSubprocessorByIdQuery,
+  type GetTrustCenterSubprocessorByIdQueryVariables,
 } from '@repo/codegen/src/schema'
 
 import { useQuery, useMutation } from '@tanstack/react-query'
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 
 type UseGetTrustCenterSubprocessorsArgs = {
   where?: GetTrustCenterSubprocessorsQueryVariables['where']

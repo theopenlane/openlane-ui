@@ -14,16 +14,16 @@ import { useNotification } from '@/hooks/useNotification'
 import { ClientError } from 'graphql-request'
 import { Input } from '@repo/ui/input'
 import {
-  BulkEditRisksDialogProps,
   checkHasFieldsToUpdate,
   collectAssociationInput,
+  type BulkEditRisksDialogProps,
   defaultObject,
   getAllSelectOptionsForBulkEditRisks,
   getMappedClearValue,
   InputType,
   SelectOptionBulkEditRisks,
 } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-shared-objects'
-import { Group } from '@repo/codegen/src/schema'
+import { type Group } from '@repo/codegen/src/schema'
 import { useBulkEditRisk } from '@/lib/graphql-hooks/risk'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { SaveButton } from '@/components/shared/save-button/save-button'

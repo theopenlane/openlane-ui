@@ -1,5 +1,5 @@
-import { Group } from '@repo/codegen/src/schema'
-import { Option } from '@repo/ui/multiple-selector'
+import { type Group } from '@repo/codegen/src/schema'
+import { type Option } from '@repo/ui/multiple-selector'
 import { InternalPolicyStatusOptions, ProcedureStatusOptions } from '@/components/shared/enum-mapper/policy-enum'
 import { ControlStatusOptions } from '@/components/shared/enum-mapper/control-enum'
 import { RiskLikelihoodOptions, RiskStatusOptions } from '../enum-mapper/risk-enum'
@@ -7,7 +7,7 @@ import { TaskStatusOptions } from '../enum-mapper/task-enum'
 import { useProgramSelect } from '@/lib/graphql-hooks/program'
 import { EvidenceStatusOptions } from '../enum-mapper/evidence-enum'
 import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
-import { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
+import { type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
 import { buildMutationKey } from '@/components/shared/object-association/utils'
 
 export type BulkEditRisksDialogProps = {
@@ -168,10 +168,7 @@ type BulkEditFieldLike = {
   selectedAssociations?: Record<string, string[]> | undefined
 }
 
-export const collectAssociationInput = (
-  field: BulkEditFieldLike,
-  input: Record<string, string | string[] | boolean>,
-): boolean => {
+export const collectAssociationInput = (field: BulkEditFieldLike, input: Record<string, string | string[] | boolean>): boolean => {
   if (field.selectedObject?.inputType !== InputType.ObjectAssociation || !field.selectedAssociations) {
     return false
   }
@@ -188,9 +185,7 @@ export const checkHasFieldsToUpdate = (watchedFields: BulkEditFieldLike[]): bool
     (field) =>
       (field.selectedObject && field.selectedValue) ||
       field.selectedObject?.inputType === InputType.Input ||
-      (field.selectedObject?.inputType === InputType.ObjectAssociation &&
-        field.selectedAssociations &&
-        Object.values(field.selectedAssociations).some((ids) => ids && ids.length > 0)),
+      (field.selectedObject?.inputType === InputType.ObjectAssociation && field.selectedAssociations && Object.values(field.selectedAssociations).some((ids) => ids && ids.length > 0)),
   )
 }
 

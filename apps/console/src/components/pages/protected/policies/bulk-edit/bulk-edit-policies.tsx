@@ -15,16 +15,16 @@ import { ClientError } from 'graphql-request'
 import { useBulkEditInternalPolicy } from '@/lib/graphql-hooks/internal-policy'
 import { Input } from '@repo/ui/input'
 import {
-  BulkEditPoliciesDialogProps,
   checkHasFieldsToUpdate,
   collectAssociationInput,
+  type BulkEditPoliciesDialogProps,
   defaultObject,
   getAllSelectOptionsForBulkEditPolicies,
   getMappedClearValue,
   InputType,
   SelectOptionBulkEditPolicies,
 } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-shared-objects'
-import { Group } from '@repo/codegen/src/schema'
+import { type Group } from '@repo/codegen/src/schema'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'

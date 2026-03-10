@@ -11,7 +11,7 @@ const ICON_SIZE = 12
 export const CreateDropdown = () => {
   const router = useRouter()
 
-  const [isTemplateDialogOpen, setTemplateDialogOpen] = useState(false)
+  const [isTemplateDialogOpen, setIsTemplateDialogOpen] = useState(false)
 
   const handleCreateNew = () => {
     router.push('/automation/assessments/questionnaire-editor')
@@ -32,7 +32,7 @@ export const CreateDropdown = () => {
           </DropdownMenuItem>
           <DropdownMenuItem
             onClick={() => {
-              setTemplateDialogOpen(true)
+              setIsTemplateDialogOpen(true)
             }}
           >
             <LayoutTemplate width={ICON_SIZE} className="text-muted-foreground" />
@@ -41,7 +41,7 @@ export const CreateDropdown = () => {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <Dialog open={isTemplateDialogOpen} onOpenChange={setTemplateDialogOpen}>
+      <Dialog open={isTemplateDialogOpen} onOpenChange={setIsTemplateDialogOpen}>
         <TemplateList />
       </Dialog>
     </div>

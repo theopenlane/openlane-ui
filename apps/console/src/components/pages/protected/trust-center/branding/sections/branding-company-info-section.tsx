@@ -1,8 +1,8 @@
 import { useFormContext } from 'react-hook-form'
-import { BrandFormValues } from '../brand-schema'
+import { type BrandFormValues } from '../brand-schema'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { RenderBrandField } from '../../shared/render-field'
-import { TrustCenterSetting } from '@/lib/graphql-hooks/trust-center'
+import { type TrustCenterSetting } from '@/lib/graphql-hooks/trust-center'
 import SectionWarning from '../section-warning'
 
 interface BrandingCompanyInfoSectionProps {

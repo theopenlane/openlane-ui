@@ -1,4 +1,4 @@
-import { Session } from 'next-auth'
+import { type Session } from 'next-auth'
 
 export function hasNoModules(session: Session | null): boolean {
   if (!session) {

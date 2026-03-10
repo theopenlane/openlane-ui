@@ -1,7 +1,7 @@
 import React from 'react'
 import ControlChip from './shared/control-chip'
 import ContextMenu from '@/components/shared/context-menu/context-menu'
-import { MapControl } from '@/types'
+import { type MapControl } from '@/types'
 import { useMapControls } from './shared/use-selectable-controls'
 
 interface Props {

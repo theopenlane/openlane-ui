@@ -3,7 +3,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm, FormProvider, useFieldArray, useWatch, Path } from 'react-hook-form'
+import { useForm, FormProvider, useFieldArray, useWatch, type Path } from 'react-hook-form'
 import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogFooter, DialogTitle } from '@repo/ui/dialog'
 import { Button } from '@repo/ui/button'
 import { Pencil, PlusIcon as Plus, Trash2 } from 'lucide-react'
@@ -14,14 +14,14 @@ import { useNotification } from '@/hooks/useNotification'
 import { ClientError } from 'graphql-request'
 import { useBulkEditControl } from '@/lib/graphql-hooks/control'
 import {
-  BulkEditControlsDialogProps,
   collectAssociationInput,
+  type BulkEditControlsDialogProps,
   defaultObject,
   SelectOptionBulkEditControls,
   useGetAllSelectOptionsForBulkEditControls,
   InputType,
 } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-shared-objects'
-import { Group } from '@repo/codegen/src/schema'
+import { type Group } from '@repo/codegen/src/schema'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { EditableSelectFromQuery } from '../propereties-card/fields/editable-select-from-query'
 import { SaveButton } from '@/components/shared/save-button/save-button'

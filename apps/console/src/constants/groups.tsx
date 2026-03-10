@@ -1,7 +1,7 @@
-import { OBJECT_TYPE_PERMISSIONS_CONFIG, TypesWithPermissions } from '@repo/codegen/src/type-names'
+import { OBJECT_TYPE_PERMISSIONS_CONFIG, type TypesWithPermissions } from '@repo/codegen/src/type-names'
 import { Checkbox } from '@repo/ui/checkbox'
-import { ColumnDef } from '@tanstack/table-core'
-import { GroupPermissionWhereInput } from '@repo/codegen/src/schema'
+import { type ColumnDef } from '@tanstack/table-core'
+import { type GroupPermissionWhereInput } from '@repo/codegen/src/schema'
 
 export type TableDataItem = {
   id: string

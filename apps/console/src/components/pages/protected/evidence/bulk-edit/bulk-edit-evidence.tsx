@@ -1,8 +1,8 @@
 'use client'
 import {
-  BulkEditEvidenceDialogProps,
   checkHasFieldsToUpdate,
   collectAssociationInput,
+  type BulkEditEvidenceDialogProps,
   defaultObject,
   getAllSelectOptionsForBulkEditEvidence,
   getMappedClearValue,

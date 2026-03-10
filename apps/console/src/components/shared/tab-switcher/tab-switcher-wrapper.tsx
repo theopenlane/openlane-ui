@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { TabSwitcherStorageKeys } from '@/components/shared/tab-switcher/tab-switcher-storage-keys'
+import { type TabSwitcherStorageKeys } from '@/components/shared/tab-switcher/tab-switcher-storage-keys'
 import { STORAGE_KEY_PREFIX } from '@/components/shared/tab-switcher/tab-switcher'
 
 type TTab = 'dashboard' | 'table'

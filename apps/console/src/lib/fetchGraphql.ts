@@ -79,7 +79,7 @@ export const fetchGraphQLWithUpload = async ({ query, variables = {} }: { query:
     body = JSON.stringify({ query, variables })
   }
 
-  const response = await fetch(process.env.NEXT_PUBLIC_API_GQL_URL!, {
+  const response = await fetch(process.env.NEXT_PUBLIC_API_GQL_URL ?? '', {
     method: 'POST',
     headers,
     body,

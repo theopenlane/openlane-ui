@@ -1,5 +1,5 @@
 import React from 'react'
-import { Metadata } from 'next'
+import { type Metadata } from 'next'
 import ProgramDetailsPage from '@/components/pages/protected/programs/[id]/program-details-page'
 
 export const metadata: Metadata = {

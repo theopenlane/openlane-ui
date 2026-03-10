@@ -1,7 +1,7 @@
 'use client'
 
-import { ColumnDef } from '@tanstack/react-table'
-import { AllGroupsPaginatedFieldsFragment, InviteInviteStatus, InviteRole } from '@repo/codegen/src/schema.ts'
+import { type ColumnDef } from '@tanstack/react-table'
+import { type AllGroupsPaginatedFieldsFragment, type InviteInviteStatus, type InviteRole } from '@repo/codegen/src/schema.ts'
 import { InviteActions } from '../actions/invite-actions'
 import { formatDateSince } from '@/utils/date'
 import { InvitationIconMapper } from '@/components/shared/enum-mapper/invitation-enum'

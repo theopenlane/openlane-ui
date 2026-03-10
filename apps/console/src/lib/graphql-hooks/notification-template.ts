@@ -1,25 +1,25 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
-  NotificationTemplatesWithFilterQuery,
-  NotificationTemplatesWithFilterQueryVariables,
-  CreateNotificationTemplateMutation,
-  CreateNotificationTemplateMutationVariables,
-  UpdateNotificationTemplateMutation,
-  UpdateNotificationTemplateMutationVariables,
-  DeleteNotificationTemplateMutation,
-  DeleteNotificationTemplateMutationVariables,
-  NotificationTemplateQuery,
-  NotificationTemplateQueryVariables,
-  CreateBulkCsvNotificationTemplateMutation,
-  CreateBulkCsvNotificationTemplateMutationVariables,
-  UpdateBulkNotificationTemplateMutation,
-  UpdateBulkNotificationTemplateMutationVariables,
-  DeleteBulkNotificationTemplateMutation,
-  DeleteBulkNotificationTemplateMutationVariables,
+  type NotificationTemplatesWithFilterQuery,
+  type NotificationTemplatesWithFilterQueryVariables,
+  type CreateNotificationTemplateMutation,
+  type CreateNotificationTemplateMutationVariables,
+  type UpdateNotificationTemplateMutation,
+  type UpdateNotificationTemplateMutationVariables,
+  type DeleteNotificationTemplateMutation,
+  type DeleteNotificationTemplateMutationVariables,
+  type NotificationTemplateQuery,
+  type NotificationTemplateQueryVariables,
+  type CreateBulkCsvNotificationTemplateMutation,
+  type CreateBulkCsvNotificationTemplateMutationVariables,
+  type UpdateBulkNotificationTemplateMutation,
+  type UpdateBulkNotificationTemplateMutationVariables,
+  type DeleteBulkNotificationTemplateMutation,
+  type DeleteBulkNotificationTemplateMutationVariables,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 import {
   GET_ALL_NOTIFICATION_TEMPLATES,
   CREATE_NOTIFICATION_TEMPLATE,

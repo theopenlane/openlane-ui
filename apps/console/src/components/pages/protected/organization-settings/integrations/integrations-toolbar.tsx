@@ -2,7 +2,7 @@ import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import { Input } from '@repo/ui/input'
 import { Search } from 'lucide-react'
 import React from 'react'
-import { IntegrationTab } from './config'
+import { type IntegrationTab } from './config'
 
 type Props = {
   activeTab: IntegrationTab

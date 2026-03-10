@@ -11,9 +11,9 @@ import { StepHeader } from '@/components/shared/step-header/step-header'
 import SelectCategoryStep from '../shared/steps/select-category-step'
 import TeamSetupStep from '../shared/steps/team-setup-step'
 import StartTypeStep from '../shared/steps/start-type-step'
-import { fullSchema, validateFullAndNotify, WizardValues } from './sco2-wizard-config'
+import { fullSchema, validateFullAndNotify, type WizardValues } from './sco2-wizard-config'
 import { useNotification } from '@/hooks/useNotification'
-import { CreateProgramWithMembersInput, ProgramMembershipRole } from '@repo/codegen/src/schema'
+import { type CreateProgramWithMembersInput, ProgramMembershipRole } from '@repo/codegen/src/schema'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useCreateProgramWithMembers } from '@/lib/graphql-hooks/program'
 import { addYears, getYear } from 'date-fns'
@@ -29,7 +29,7 @@ export default function Soc2Wizard() {
   const router = useRouter()
   const { errorNotification, successNotification } = useNotification()
   const { mutateAsync: createProgram, isPending } = useCreateProgramWithMembers()
-  const { setCrumbs } = React.useContext(BreadcrumbContext)
+  const { setCrumbs } = React.use(BreadcrumbContext)
   const { data } = useStandardsSelect({ where: { shortName: 'SOC 2' } })
   const [showExitConfirm, setShowExitConfirm] = useState(false)
 
@@ -99,7 +99,7 @@ export default function Soc2Wizard() {
   const handleNext = async (e?: React.FormEvent<HTMLFormElement>) => {
     e?.preventDefault()
     if (!stepper.isLast) {
-      let isValid = false
+      let isValid: boolean
       if (stepper.current.id === '0') {
         isValid = await methods.trigger(['categories', 'standardID'])
       } else {

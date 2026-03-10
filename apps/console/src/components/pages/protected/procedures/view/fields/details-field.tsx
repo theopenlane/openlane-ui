@@ -1,11 +1,11 @@
 'use client'
 
 import React from 'react'
-import { Controller, UseFormReturn } from 'react-hook-form'
+import { Controller, type UseFormReturn } from 'react-hook-form'
 import PlateEditor from '@/components/shared/plate/plate-editor.tsx'
-import { ProcedureDiscussionFieldsFragment, ProcedureByIdFragment } from '@repo/codegen/src/schema.ts'
-import { EditProcedureMetadataFormData } from '../hooks/use-form-schema'
-import { Value } from 'platejs'
+import { type ProcedureDiscussionFieldsFragment, type ProcedureByIdFragment } from '@repo/codegen/src/schema.ts'
+import { type EditProcedureMetadataFormData } from '../hooks/use-form-schema'
+import { type Value } from 'platejs'
 import { useSession } from 'next-auth/react'
 import { useGetCurrentUser } from '@/lib/graphql-hooks/user.ts'
 

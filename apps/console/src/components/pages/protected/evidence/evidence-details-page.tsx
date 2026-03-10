@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useGetAllPrograms, useGetProgramBasicInfo } from '@/lib/graphql-hooks/program'
 import { OrderDirection, ProgramOrderField, ProgramProgramStatus } from '@repo/codegen/src/schema.ts'
-import { BreadcrumbContext, Crumb } from '@/providers/BreadcrumbContext.tsx'
+import { BreadcrumbContext, type Crumb } from '@/providers/BreadcrumbContext.tsx'
 import { useOrganization } from '@/hooks/useOrganization.ts'
 import { PageHeading } from '@repo/ui/page-heading'
 import { Button } from '@repo/ui/button'
@@ -33,11 +33,11 @@ const EvidenceDetailsPage = () => {
   })
 
   const { data: basicInfoData } = useGetProgramBasicInfo(programId)
-  const { setCrumbs } = React.useContext(BreadcrumbContext)
+  const { setCrumbs } = React.use(BreadcrumbContext)
   const { currentOrgId, getOrganizationByID } = useOrganization()
   const [isSheetOpen, setIsSheetOpen] = useState(false)
 
-  const currentOrganization = getOrganizationByID(currentOrgId!)
+  const currentOrganization = getOrganizationByID(currentOrgId ?? '')
   const { data: permission } = useOrganizationRoles()
 
   const createAllowed = canCreate(permission?.roles, AccessEnum.CanCreateEvidence)

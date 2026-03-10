@@ -5,7 +5,7 @@ import { Card, CardContent } from '@repo/ui/cardpanel'
 import { DonutChart } from '@repo/ui/donut-chart'
 import { Settings2 } from 'lucide-react'
 import Link from 'next/link'
-import { saveFilters, TFilterState } from '@/components/shared/table-filter/filter-storage.ts'
+import { saveFilters, type TFilterState } from '@/components/shared/table-filter/filter-storage.ts'
 import { useParams } from 'next/navigation'
 import { TableKeyEnum } from '@repo/ui/table-key'
 

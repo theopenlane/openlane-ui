@@ -1,25 +1,25 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
-  SystemDetailsWithFilterQuery,
-  SystemDetailsWithFilterQueryVariables,
-  CreateSystemDetailMutation,
-  CreateSystemDetailMutationVariables,
-  UpdateSystemDetailMutation,
-  UpdateSystemDetailMutationVariables,
-  DeleteSystemDetailMutation,
-  DeleteSystemDetailMutationVariables,
-  SystemDetailQuery,
-  SystemDetailQueryVariables,
-  CreateBulkCsvSystemDetailMutation,
-  CreateBulkCsvSystemDetailMutationVariables,
-  UpdateBulkSystemDetailMutation,
-  UpdateBulkSystemDetailMutationVariables,
-  DeleteBulkSystemDetailMutation,
-  DeleteBulkSystemDetailMutationVariables,
+  type SystemDetailsWithFilterQuery,
+  type SystemDetailsWithFilterQueryVariables,
+  type CreateSystemDetailMutation,
+  type CreateSystemDetailMutationVariables,
+  type UpdateSystemDetailMutation,
+  type UpdateSystemDetailMutationVariables,
+  type DeleteSystemDetailMutation,
+  type DeleteSystemDetailMutationVariables,
+  type SystemDetailQuery,
+  type SystemDetailQueryVariables,
+  type CreateBulkCsvSystemDetailMutation,
+  type CreateBulkCsvSystemDetailMutationVariables,
+  type UpdateBulkSystemDetailMutation,
+  type UpdateBulkSystemDetailMutationVariables,
+  type DeleteBulkSystemDetailMutation,
+  type DeleteBulkSystemDetailMutationVariables,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 import {
   GET_ALL_SYSTEM_DETAILS,
   CREATE_SYSTEM_DETAIL,

@@ -10,7 +10,7 @@ import { InfoIcon, X } from 'lucide-react'
 import { useSession } from 'next-auth/react'
 import React, { useEffect, useState } from 'react'
 import { useFormContext } from 'react-hook-form'
-import { z, infer as zInfer } from 'zod'
+import { z, type infer as zInfer } from 'zod'
 
 export const step1Schema = z.object({
   companyName: z.string().min(3, 'Company name requires at least 3 characters'),

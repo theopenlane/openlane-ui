@@ -1,6 +1,6 @@
 'use client'
 import { z } from 'zod'
-import { useForm, Resolver } from 'react-hook-form'
+import { useForm, type Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 
 const urlField = z.string().url('Please enter a valid URL').optional().or(z.literal(''))

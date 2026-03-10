@@ -1,4 +1,4 @@
-import { TAccessRole } from '@/types/authz'
+import { type TAccessRole } from '@/types/authz'
 import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
 
 export const canCreate = (accessRole: TAccessRole[] | undefined, accessEnum: AccessEnum) => {

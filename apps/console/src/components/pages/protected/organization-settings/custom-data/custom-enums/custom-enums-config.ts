@@ -1,7 +1,7 @@
-import { CustomTypeEnumWhereInput } from '@repo/codegen/src/schema'
+import { type CustomTypeEnumWhereInput } from '@repo/codegen/src/schema'
 import {
   Drill,
-  LucideIcon,
+  type LucideIcon,
   Eye,
   CopyCheck,
   SlidersHorizontal,

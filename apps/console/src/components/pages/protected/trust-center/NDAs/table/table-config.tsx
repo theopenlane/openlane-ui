@@ -1,11 +1,11 @@
 'use client'
 
-import { ColumnDef, Row } from '@tanstack/react-table'
+import { type ColumnDef, type Row } from '@tanstack/react-table'
 import { formatDate } from '@/utils/date'
 import { Button } from '@repo/ui/button'
 import { Building2, Calendar, CheckCheck, Mail, XIcon } from 'lucide-react'
 import { Checkbox } from '@repo/ui/checkbox'
-import { FilterField } from '@/types'
+import { type FilterField } from '@/types'
 import React from 'react'
 
 export type NdaRequestRow = {

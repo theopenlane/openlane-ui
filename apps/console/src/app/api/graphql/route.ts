@@ -1,6 +1,6 @@
 import { secureFetch } from '@/lib/auth/utils/secure-fetch'
 import { openlaneGQLUrl } from '@repo/dally/auth'
-import { NextRequest, NextResponse } from 'next/server'
+import { type NextRequest, NextResponse } from 'next/server'
 
 export async function POST(request: NextRequest) {
   const { query, variables } = await request.json()

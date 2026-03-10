@@ -2,27 +2,27 @@
 
 import { useRouter } from 'next/navigation'
 import { DataTable, getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
-import React, { useContext, useEffect, useMemo, useState } from 'react'
+import React, { use, useEffect, useMemo, useState } from 'react'
 import {
   ExportExportFormat,
   ExportExportType,
-  GetProceduresListQueryVariables,
-  Maybe,
+  type GetProceduresListQueryVariables,
+  type Maybe,
   OrderDirection,
-  OrgMembershipWhereInput,
-  Procedure,
+  type OrgMembershipWhereInput,
+  type Procedure,
   ProcedureDocumentStatus,
   ProcedureOrderField,
-  ProcedureWhereInput,
+  type ProcedureWhereInput,
 } from '@repo/codegen/src/schema'
 import { getProceduresColumns } from '@/components/pages/protected/procedures/table/columns.tsx'
 import ProceduresTableToolbar from '@/components/pages/protected/procedures/table/procedures-table-toolbar.tsx'
 import { PROCEDURES_SORTABLE_FIELDS } from '@/components/pages/protected/procedures/table/table-config.ts'
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useProcedures } from '@/lib/graphql-hooks/procedure'
 import { useDebounce } from '@uidotdev/usehooks'
-import { ColumnDef, VisibilityState } from '@tanstack/react-table'
+import { type ColumnDef, type VisibilityState } from '@tanstack/react-table'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
 import { useGetApiTokensByIds } from '@/lib/graphql-hooks/tokens.ts'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
@@ -40,11 +40,11 @@ import { objectToSnakeCase } from '@/utils/strings'
 
 export const ProceduresTable = () => {
   const router = useRouter()
-  const [pagination, setPagination] = useState<TPagination>(getInitialPagination(TableKeyEnum.PROCEDURE, DEFAULT_PAGINATION))
+  const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(TableKeyEnum.PROCEDURE, DEFAULT_PAGINATION))
   const [filters, setFilters] = useState<ProcedureWhereInput | null>(null)
   const [memberIds, setMemberIds] = useState<(Maybe<string> | undefined)[] | null>(null)
   const [searchTerm, setSearchTerm] = useStorageSearch(ObjectTypes.PROCEDURE)
-  const { setCrumbs } = useContext(BreadcrumbContext)
+  const { setCrumbs } = use(BreadcrumbContext)
   const { data: permission } = useOrganizationRoles()
   const { errorNotification } = useNotification()
   const { handleExport } = useFileExport()
