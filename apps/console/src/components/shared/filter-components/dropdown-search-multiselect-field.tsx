@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react'
-import { FilterField } from '@/types'
+import { type FilterField } from '@/types'
 import { Popover, PopoverTrigger, PopoverContent } from '@repo/ui/popover'
 import { Input } from '@repo/ui/input'
 import { ChevronDown } from 'lucide-react'

@@ -9,7 +9,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { cn } from '@repo/ui/lib/utils'
 import { useGetSubprocessors } from '@/lib/graphql-hooks/subprocessor'
 import { useDebounce } from '@uidotdev/usehooks'
-import { CreateSubprocessorMutation } from '@repo/codegen/src/schema'
+import { type CreateSubprocessorMutation } from '@repo/codegen/src/schema'
 
 interface SubprocessorSelectFieldProps {
   isEditing: boolean

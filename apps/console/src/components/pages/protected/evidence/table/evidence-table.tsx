@@ -2,12 +2,12 @@
 
 import { useSearchParams } from 'next/navigation'
 import { DataTable, getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
-import React, { useState, useMemo, useEffect, useContext } from 'react'
-import { Evidence, EvidenceOrder, EvidenceOrderField, EvidenceWhereInput, OrderDirection } from '@repo/codegen/src/schema'
-import { TPagination } from '@repo/ui/pagination-types'
+import React, { useState, useMemo, useEffect, use } from 'react'
+import { type Evidence, type EvidenceOrder, EvidenceOrderField, type EvidenceWhereInput, OrderDirection } from '@repo/codegen/src/schema'
+import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useDebounce } from '@uidotdev/usehooks'
-import { VisibilityState } from '@tanstack/react-table'
+import { type VisibilityState } from '@tanstack/react-table'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useGetEvidenceList } from '@/lib/graphql-hooks/evidence.ts'
 import { useGetEvidenceColumns } from '@/components/pages/protected/evidence/table/columns.tsx'
@@ -27,9 +27,9 @@ import { ObjectTypes } from '@repo/codegen/src/type-names'
 export const EvidenceTable = () => {
   const searchParams = useSearchParams()
   const programId = searchParams.get('programId')
-  const [pagination, setPagination] = useState<TPagination>(getInitialPagination(TableKeyEnum.EVIDENCE, DEFAULT_PAGINATION))
+  const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(TableKeyEnum.EVIDENCE, DEFAULT_PAGINATION))
   const [filters, setFilters] = useState<EvidenceWhereInput>({})
-  const { setCrumbs } = useContext(BreadcrumbContext)
+  const { setCrumbs } = use(BreadcrumbContext)
   const [searchTerm, setSearchTerm] = useStorageSearch(ObjectTypes.EVIDENCE)
   const { replace } = useSmartRouter()
   const { errorNotification } = useNotification()

@@ -62754,6 +62754,7 @@ export type ControlListFieldsFragment = {
   auditorReferenceID?: string | null
   source?: ControlControlSource | null
   controlKindName?: string | null
+  title?: string | null
   updatedAt?: any | null
   updatedBy?: string | null
   createdAt?: any | null
@@ -62908,6 +62909,7 @@ export type GetAllControlsQuery = {
         auditorReferenceID?: string | null
         source?: ControlControlSource | null
         controlKindName?: string | null
+        title?: string | null
         updatedAt?: any | null
         updatedBy?: string | null
         createdAt?: any | null
@@ -69475,7 +69477,10 @@ export type SearchQuery = {
     }> | null
     controls?: {
       __typename?: 'ControlConnection'
-      edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string; ownerID?: string | null; standardID?: string | null } | null } | null> | null
+      edges?: Array<{
+        __typename?: 'ControlEdge'
+        node?: { __typename?: 'Control'; id: string; refCode: string; ownerID?: string | null; standardID?: string | null; isTrustCenterControl?: boolean | null } | null
+      } | null> | null
     } | null
     subcontrols?: {
       __typename?: 'SubcontrolConnection'

@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
-import { TPagination, TPaginationMeta } from '@repo/ui/pagination-types'
+import { type TPagination, type TPaginationMeta } from '@repo/ui/pagination-types'
 import { GET_DOCUMENTATION_POLICIES, GET_DOCUMENTATION_PROCEDURES, GET_DOCUMENTATION_TASKS, GET_DOCUMENTATION_PROGRAMS, GET_DOCUMENTATION_RISKS } from '@repo/codegen/query/documentation'
 import type {
   InternalPolicy,

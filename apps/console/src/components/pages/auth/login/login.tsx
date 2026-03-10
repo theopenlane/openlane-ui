@@ -1,10 +1,10 @@
 'use client'
 
-import { LoginUser } from '@repo/dally/user'
+import { type LoginUser } from '@repo/dally/user'
 import { Button } from '@repo/ui/button'
 import SimpleForm from '@repo/ui/simple-form'
 import { ArrowRightCircle, Github, KeyRoundIcon } from 'lucide-react'
-import { signIn, SignInResponse } from 'next-auth/react'
+import { signIn, type SignInResponse } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Separator } from '@repo/ui/separator'
@@ -47,7 +47,7 @@ export const LoginPage = () => {
   const urlErrorMessage = searchParams.get('error')
   const showLoginError = !signInLoading && signInError
 
-  const debounceTimeout = useRef<NodeJS.Timeout | null>(null)
+  const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   const shouldShowPasswordField = useCallback((): boolean => {
     if (!webfingerResponse) {
@@ -159,18 +159,18 @@ export const LoginPage = () => {
 
   const debouncedCheckLoginMethods = useCallback(
     (email: string) => {
-      if (debounceTimeout.current) {
-        clearTimeout(debounceTimeout.current)
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current)
       }
-      debounceTimeout.current = setTimeout(() => checkLoginMethods(email), 500)
+      debounceTimeoutRef.current = setTimeout(() => checkLoginMethods(email), 500)
     },
     [checkLoginMethods],
   )
 
   useEffect(() => {
     return () => {
-      if (debounceTimeout.current) {
-        clearTimeout(debounceTimeout.current)
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current)
       }
     }
   }, [])

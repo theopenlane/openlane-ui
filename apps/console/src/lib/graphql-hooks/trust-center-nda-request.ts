@@ -10,28 +10,28 @@ import {
   UPDATE_TRUST_CENTER_NDA_REQUEST,
 } from '@repo/codegen/query/trust-center-nda-request'
 import {
-  CreateTrustCenterNdaMutation,
-  CreateTrustCenterNdaMutationVariables,
-  GetNdaRequestCountQuery,
-  GetNdaRequestCountQueryVariables,
-  GetTrustCenterNdaFilesQuery,
-  GetTrustCenterNdaRequestsQuery,
-  GetTrustCenterNdaRequestsQueryVariables,
+  type CreateTrustCenterNdaMutation,
+  type CreateTrustCenterNdaMutationVariables,
+  type GetNdaRequestCountQuery,
+  type GetNdaRequestCountQueryVariables,
+  type GetTrustCenterNdaFilesQuery,
+  type GetTrustCenterNdaRequestsQuery,
+  type GetTrustCenterNdaRequestsQueryVariables,
   OrderDirection,
-  TrustCenterNdaRequest,
-  TrustCenterNdaRequestOrder,
+  type TrustCenterNdaRequest,
+  type TrustCenterNdaRequestOrder,
   TrustCenterNdaRequestOrderField,
-  TrustCenterNdaRequestWhereInput,
+  type TrustCenterNdaRequestWhereInput,
   TrustCenterNdaRequestTrustCenterNdaRequestStatus,
-  UpdateTrustCenterNdaMutation,
-  UpdateTrustCenterNdaMutationVariables,
-  UpdateTrustCenterNdaRequestMutation,
-  UpdateTrustCenterNdaRequestMutationVariables,
-  DeleteBulkTrustCenterNdaRequestMutation,
-  DeleteBulkTrustCenterNdaRequestMutationVariables,
+  type UpdateTrustCenterNdaMutation,
+  type UpdateTrustCenterNdaMutationVariables,
+  type UpdateTrustCenterNdaRequestMutation,
+  type UpdateTrustCenterNdaRequestMutationVariables,
+  type DeleteBulkTrustCenterNdaRequestMutation,
+  type DeleteBulkTrustCenterNdaRequestMutationVariables,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '../fetchGraphql'
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 
 export const useGetTrustCenterNDAFiles = (enabled = true) => {
   const { client } = useGraphQLClient()

@@ -1,5 +1,5 @@
 'use client'
-import React, { useContext, useEffect, useState } from 'react'
+import React, { use, useEffect, useState } from 'react'
 import { useForm, FormProvider } from 'react-hook-form'
 import { Input } from '@repo/ui/input'
 import { Textarea } from '@repo/ui/textarea'
@@ -7,7 +7,7 @@ import { Button } from '@repo/ui/button'
 import { useRouter } from 'next/navigation'
 import ProgramTypeSelect from '../shared/form-fields/program-select'
 import { useCreateProgramWithMembers } from '@/lib/graphql-hooks/program'
-import { CreateProgramWithMembersInput } from '@repo/codegen/src/schema'
+import { type CreateProgramWithMembersInput } from '@repo/codegen/src/schema'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { addYears } from 'date-fns'
@@ -41,7 +41,7 @@ const GenericProgram = () => {
   const router = useRouter()
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: createProgram } = useCreateProgramWithMembers()
-  const { setCrumbs } = useContext(BreadcrumbContext)
+  const { setCrumbs } = use(BreadcrumbContext)
   const [showExitConfirm, setShowExitConfirm] = useState(false)
   const onSubmit = async (data: ProgramFormValues) => {
     try {

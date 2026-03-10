@@ -1,7 +1,7 @@
 import { auth } from '@/lib/auth/auth'
 import { secureFetch } from '@/lib/auth/utils/secure-fetch'
 import { openlaneAPIUrl } from '@repo/dally/auth'
-import { NextRequest, NextResponse } from 'next/server'
+import { type NextRequest, NextResponse } from 'next/server'
 
 // GET is exposed to the client for simple polling. The upstream health check
 // is an operations/run POST endpoint, so this handler bridges the two.

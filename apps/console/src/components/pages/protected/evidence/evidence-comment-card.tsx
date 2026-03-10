@@ -118,7 +118,7 @@ const EvidenceCommentsCard = () => {
             <>
               <Avatar className="h-8 w-8 border border-border shrink-0" title={latestCommentUser?.displayName}>
                 {latestCommentUser?.avatarFile?.presignedURL || latestCommentUser?.avatarRemoteURL ? (
-                  <AvatarImage src={(latestCommentUser.avatarFile?.presignedURL || latestCommentUser.avatarRemoteURL)!} alt={latestCommentUser?.displayName || 'User'} />
+                  <AvatarImage src={(latestCommentUser.avatarFile?.presignedURL || latestCommentUser.avatarRemoteURL) ?? ''} alt={latestCommentUser?.displayName || 'User'} />
                 ) : (
                   <AvatarFallback>{latestCommentUser?.displayName?.slice(0, 2).toUpperCase() || '?'}</AvatarFallback>
                 )}

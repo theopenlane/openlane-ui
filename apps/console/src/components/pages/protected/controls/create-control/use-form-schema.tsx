@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { ControlControlSource, ControlControlStatus } from '@repo/codegen/src/schema'
-import { Value } from 'platejs'
+import { type Value } from 'platejs'
 
 export const controlFormSchema = z.object({
   refCode: z.string().min(1, 'Ref Code is required'),

@@ -2,9 +2,9 @@
 
 import { Input } from '@repo/ui/input'
 import { Textarea } from '@repo/ui/textarea'
-import { UseFormRegister } from 'react-hook-form'
-import { TrustCenterSetting } from '@/lib/graphql-hooks/trust-center'
-import { BrandFormValues } from '../branding/brand-schema'
+import { type UseFormRegister } from 'react-hook-form'
+import { type TrustCenterSetting } from '@/lib/graphql-hooks/trust-center'
+import { type BrandFormValues } from '../branding/brand-schema'
 
 interface RenderBrandFieldProps {
   name: keyof BrandFormValues

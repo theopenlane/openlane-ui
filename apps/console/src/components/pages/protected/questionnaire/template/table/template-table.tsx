@@ -1,17 +1,17 @@
 'use client'
 
 import { DataTable, getInitialSortConditions } from '@repo/ui/data-table'
-import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, use, useEffect, useMemo, useState } from 'react'
 import { getTemplateColumns } from './columns'
 import TemplateTableToolbar from '@/components/pages/protected/questionnaire/template/table/template-table-toolbar.tsx'
 import { TEMPLATE_SORT_FIELDS } from '@/components/pages/protected/questionnaire/template/table/table-config.ts'
-import { OrderDirection, Template, TemplateOrderField, TemplateWhereInput, FilterTemplatesQueryVariables, TemplateTemplateKind } from '@repo/codegen/src/schema.ts'
-import { TPagination } from '@repo/ui/pagination-types'
+import { OrderDirection, type Template, TemplateOrderField, type TemplateWhereInput, type FilterTemplatesQueryVariables, TemplateTemplateKind } from '@repo/codegen/src/schema.ts'
+import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useDebounce } from '@uidotdev/usehooks'
 import { useTemplates, useDeleteTemplate } from '@/lib/graphql-hooks/template'
 import { useRouter } from 'next/navigation'
-import { ColumnDef, VisibilityState } from '@tanstack/react-table'
+import { type ColumnDef, type VisibilityState } from '@tanstack/react-table'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { exportToCSV } from '@/utils/exportToCSV'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
@@ -31,7 +31,7 @@ export const TemplatesTable = () => {
   const router = useRouter()
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
   const [filters, setFilters] = useState<TemplateWhereInput>({})
-  const { setCrumbs } = useContext(BreadcrumbContext)
+  const { setCrumbs } = use(BreadcrumbContext)
   const { successNotification, errorNotification } = useNotification()
 
   const [deleteTarget, setDeleteTarget] = useState<Template | null>(null)

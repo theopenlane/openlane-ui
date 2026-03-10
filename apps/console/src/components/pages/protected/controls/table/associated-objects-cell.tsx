@@ -1,7 +1,7 @@
 import React from 'react'
 import { Badge } from '@repo/ui/badge'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
-import { ControlListFieldsFragment } from '@repo/codegen/src/schema'
+import { type ControlListFieldsFragment } from '@repo/codegen/src/schema'
 
 const ASSOCIATION_BADGES = [
   { key: 'procedures', label: 'Procedures', nameField: 'name' },

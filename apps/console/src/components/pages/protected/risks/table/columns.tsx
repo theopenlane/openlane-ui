@@ -1,5 +1,5 @@
-import { ColumnDef } from '@tanstack/react-table'
-import { Group, RiskRiskStatus, RiskTableFieldsFragment, User } from '@repo/codegen/src/schema.ts'
+import { type ColumnDef } from '@tanstack/react-table'
+import { type Group, type RiskRiskStatus, type RiskTableFieldsFragment, type User } from '@repo/codegen/src/schema.ts'
 import React from 'react'
 import RiskLabel from '@/components/pages/protected/risks/risk-label.tsx'
 import { UserCell } from '@/components/shared/crud-base/columns/user-cell'

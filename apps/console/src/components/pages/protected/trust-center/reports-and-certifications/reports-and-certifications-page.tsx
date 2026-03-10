@@ -1,15 +1,15 @@
 'use client'
 
-import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, use, useEffect, useMemo, useState } from 'react'
 import { DataTable, getInitialPagination } from '@repo/ui/data-table'
 import { Loading } from '@/components/shared/loading/loading'
-import { VisibilityState } from '@tanstack/react-table'
-import { TPagination } from '@repo/ui/pagination-types'
+import { type VisibilityState } from '@tanstack/react-table'
+import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useGetTrustCenterDocs } from '@/lib/graphql-hooks/trust-center-doc'
 import { useGetTrustCenterNDAFiles } from '@/lib/graphql-hooks/trust-center-nda-request'
 import { CreateDocumentSheet } from './sheet/create-document.sheet'
-import { TrustCenterDocWatermarkStatus, TrustCenterDocWhereInput } from '@repo/codegen/src/schema'
+import { TrustCenterDocWatermarkStatus, type TrustCenterDocWhereInput } from '@repo/codegen/src/schema'
 import { Panel, PanelHeader } from '@repo/ui/panel'
 import { Button } from '@repo/ui/button'
 import { File } from 'lucide-react'
@@ -30,11 +30,11 @@ import { ObjectTypes } from '@repo/codegen/src/type-names'
 const ReportsAndCertificationsPage = () => {
   const [searchTerm, setSearchTerm] = useStorageSearch(ObjectTypes.TRUST_CENTER_DOC)
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.DOCUMENTS, { createdAt: false, updatedAt: false }))
-  const [pagination, setPagination] = useState<TPagination>(getInitialPagination(TableKeyEnum.TRUST_CENTER_REPORTS_AND_CERTS, DEFAULT_PAGINATION))
+  const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(TableKeyEnum.TRUST_CENTER_REPORTS_AND_CERTS, DEFAULT_PAGINATION))
   const [filters, setFilters] = useState<TrustCenterDocWhereInput | null>(null)
   const [selectedDocs, setSelectedDocs] = useState<{ id: string }[]>([])
   const router = useRouter()
-  const { setCrumbs } = useContext(BreadcrumbContext)
+  const { setCrumbs } = use(BreadcrumbContext)
   const { data: orgPermission } = useOrganizationRoles()
   const canCreateAllowed = canCreate(orgPermission?.roles, AccessEnum.CanCreateTrustCenterDocument)
 

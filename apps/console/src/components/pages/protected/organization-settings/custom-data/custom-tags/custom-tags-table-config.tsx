@@ -2,7 +2,7 @@
 
 import * as React from 'react'
 import { useMemo } from 'react'
-import { ColumnDef } from '@tanstack/react-table'
+import { type ColumnDef } from '@tanstack/react-table'
 import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react'
 
 import { Badge } from '@repo/ui/badge'
@@ -13,7 +13,7 @@ import ColorCell from '../shared/color-cell'
 import { useUpdateTag } from '@/lib/graphql-hooks/tag-definition'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { formatDate, formatDateSince } from '@/utils/date'
-import { TagDefinition, User } from '@repo/codegen/src/schema'
+import { type TagDefinition, type User } from '@repo/codegen/src/schema'
 
 type ColumnsParams = {
   tags: TagDefinition[]

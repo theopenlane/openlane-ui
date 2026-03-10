@@ -14,7 +14,7 @@ export const InitPlugSDK = () => {
   const [sessionToken, setSessionToken] = useState<string | null>(null)
   const lastInitRef = useRef<string | null>(null) // new
 
-  const currentOrganization = getOrganizationByID(currentOrgId!)
+  const currentOrganization = getOrganizationByID(currentOrgId ?? '')
   const orgName = currentOrganization?.node?.name
   const orgDisplayName = currentOrganization?.node?.displayName
 

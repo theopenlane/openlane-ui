@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { MARK_NOTIFICATIONS_AS_READ } from '@repo/codegen/query/notifications'
-import { MarkNotificationsAsReadMutation, MarkNotificationsAsReadMutationVariables } from '@repo/codegen/src/schema'
+import { type MarkNotificationsAsReadMutation, type MarkNotificationsAsReadMutationVariables } from '@repo/codegen/src/schema'
 
 export const useMarkNotificationsAsRead = () => {
   const { client } = useGraphQLClient()

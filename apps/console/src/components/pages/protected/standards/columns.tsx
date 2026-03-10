@@ -2,8 +2,8 @@
 
 import React from 'react'
 import { Checkbox } from '@repo/ui/checkbox'
-import { ControlListStandardFieldsFragment } from '@repo/codegen/src/schema'
-import { ColumnDef } from '@tanstack/react-table'
+import { type ControlListStandardFieldsFragment } from '@repo/codegen/src/schema'
+import { type ColumnDef } from '@tanstack/react-table'
 
 type ControlSelection = { id: string; refCode: string }
 

@@ -5,21 +5,21 @@ import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { CREATE_TEMPLATE, UPDATE_TEMPLATE, GET_ALL_TEMPLATES, GET_TEMPLATE, DELETE_TEMPLATE, CREATE_CSV_BULK_TEMPLATE } from '@repo/codegen/query/template'
 
 import {
-  CreateTemplateMutation,
-  CreateTemplateMutationVariables,
-  UpdateTemplateMutation,
-  UpdateTemplateMutationVariables,
-  FilterTemplatesQuery,
-  FilterTemplatesQueryVariables,
-  GetTemplateQuery,
-  GetTemplateQueryVariables,
-  DeleteTemplateMutation,
-  DeleteTemplateMutationVariables,
-  Template,
-  CreateBulkCsvTemplateMutation,
-  CreateBulkCsvTemplateMutationVariables,
+  type CreateTemplateMutation,
+  type CreateTemplateMutationVariables,
+  type UpdateTemplateMutation,
+  type UpdateTemplateMutationVariables,
+  type FilterTemplatesQuery,
+  type FilterTemplatesQueryVariables,
+  type GetTemplateQuery,
+  type GetTemplateQueryVariables,
+  type DeleteTemplateMutation,
+  type DeleteTemplateMutationVariables,
+  type Template,
+  type CreateBulkCsvTemplateMutation,
+  type CreateBulkCsvTemplateMutationVariables,
 } from '@repo/codegen/src/schema'
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
 
 type UseTemplatesArgs = {

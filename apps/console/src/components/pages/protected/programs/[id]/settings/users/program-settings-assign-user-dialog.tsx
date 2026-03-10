@@ -6,11 +6,11 @@ import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '@repo/ui/dial
 import { useGetOrgMemberships } from '@/lib/graphql-hooks/member'
 import { useUpdateProgram } from '@/lib/graphql-hooks/program'
 import { DataTable, getInitialPagination } from '@repo/ui/data-table'
-import { ColumnDef } from '@tanstack/react-table'
+import { type ColumnDef } from '@tanstack/react-table'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
-import { ProgramMembershipRole, User } from '@repo/codegen/src/schema'
+import { ProgramMembershipRole, type User } from '@repo/codegen/src/schema'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification'
 import { Input } from '@repo/ui/input'
@@ -32,7 +32,7 @@ export const ProgramSettingsAssignUserDialog = ({ trigger, id }: { trigger?: Rea
   const [open, setOpen] = useState(false)
   const [selectedItems, setSelectedItems] = useState<{ id: string }[]>([])
   const [roleMap, setRoleMap] = useState<Record<string, 'View' | 'Edit'>>({})
-  const [pagination, setPagination] = useState<TPagination>(getInitialPagination(TableKeyEnum.PROGRAM_ASSIGN_USER, defaultPagination))
+  const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(TableKeyEnum.PROGRAM_ASSIGN_USER, defaultPagination))
 
   const [searchValue, setSearchValue] = useState('')
 
@@ -112,7 +112,7 @@ export const ProgramSettingsAssignUserDialog = ({ trigger, id }: { trigger?: Rea
       const userRow = rows.find((r) => r.id === item.id)
       const role = roleMap[item.id] ?? 'View'
       return {
-        userID: userRow!.user.id,
+        userID: userRow?.user.id ?? '',
         role: role === 'Edit' ? ProgramMembershipRole.ADMIN : ProgramMembershipRole.MEMBER,
       }
     })

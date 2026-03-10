@@ -18,48 +18,48 @@ import { GET_ALL_SUBCONTROLS } from '@repo/codegen/query/subcontrol'
 import { TASKS_WITH_FILTER } from '@repo/codegen/query/task'
 
 import {
-  Asset,
-  Campaign,
-  Control,
-  ControlImplementation,
-  Subcontrol,
-  ControlObjective,
-  Entity,
-  Program,
-  TaskEdge,
-  Evidence,
-  Group,
-  IdentityHolder,
-  InternalPolicy,
-  Procedure,
-  Remediation,
-  Review,
-  Scan,
-  PageInfo,
+  type Asset,
+  type Campaign,
+  type Control,
+  type ControlImplementation,
+  type Subcontrol,
+  type ControlObjective,
+  type Entity,
+  type Program,
+  type TaskEdge,
+  type Evidence,
+  type Group,
+  type IdentityHolder,
+  type InternalPolicy,
+  type Procedure,
+  type Remediation,
+  type Review,
+  type Scan,
+  type PageInfo,
   ControlObjectiveObjectiveStatus,
 } from '@repo/codegen/src/schema'
-import { useQueryClient } from '@tanstack/react-query'
-import { RequestDocument } from 'graphql-request'
+import { type useQueryClient } from '@tanstack/react-query'
+import { type RequestDocument } from 'graphql-request'
 
 import {
-  AssetsWithFilterQuery,
-  CampaignsWithFilterQuery,
-  GetAllControlImplementationsQuery,
-  GetAllControlObjectivesQuery,
-  GetAllControlsQuery,
-  GetAllEvidencesQuery,
-  GetAllGroupsQuery,
-  GetAllInternalPoliciesQuery,
-  GetAllProceduresWithDetailsQuery,
-  GetAllProgramsQuery,
-  GetAllRisksQuery,
-  GetAllSubcontrolsQuery,
-  EntitiesWithFilterQuery,
-  IdentityHoldersWithFilterQuery,
-  RemediationsWithFilterQuery,
-  ReviewsWithFilterQuery,
-  ScansWithFilterQuery,
-  TasksWithFilterQuery,
+  type AssetsWithFilterQuery,
+  type CampaignsWithFilterQuery,
+  type GetAllControlImplementationsQuery,
+  type GetAllControlObjectivesQuery,
+  type GetAllControlsQuery,
+  type GetAllEvidencesQuery,
+  type GetAllGroupsQuery,
+  type GetAllInternalPoliciesQuery,
+  type GetAllProceduresWithDetailsQuery,
+  type GetAllProgramsQuery,
+  type GetAllRisksQuery,
+  type GetAllSubcontrolsQuery,
+  type EntitiesWithFilterQuery,
+  type IdentityHoldersWithFilterQuery,
+  type RemediationsWithFilterQuery,
+  type ReviewsWithFilterQuery,
+  type ScansWithFilterQuery,
+  type TasksWithFilterQuery,
 } from '@repo/codegen/src/schema'
 import type {
   UpdateAssetInput,
@@ -718,7 +718,7 @@ export const generateWhere = (selectedObject: ObjectTypeObjects | null, searchVa
     return { ...mandatoryWhere, ...defaultWhere }
   }
 
-  const orFilters = secondaryAttribute ? [{ [searchAttribute!]: searchValue }, { [secondaryAttribute]: searchValue }] : [{ [searchAttribute!]: searchValue }]
+  const orFilters = secondaryAttribute ? [{ [searchAttribute ?? '']: searchValue }, { [secondaryAttribute]: searchValue }] : [{ [searchAttribute ?? '']: searchValue }]
 
   return {
     ...mandatoryWhere,

@@ -1,10 +1,10 @@
-import { ColumnDef } from '@tanstack/react-table'
+import { type ColumnDef } from '@tanstack/react-table'
 import { MoreVertical, Trash2 } from 'lucide-react'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { Avatar } from '@/components/shared/avatar/avatar' // adjust if path differs
 import { useState } from 'react'
-import { Group as TGroup } from './assign-permissions-table-config'
-import { Group, User } from '@repo/codegen/src/schema'
+import { type Group as TGroup } from './assign-permissions-table-config'
+import { type Group, type User } from '@repo/codegen/src/schema'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 
 export const useGroupColumns = ({ onRemoveGroup }: { onRemoveGroup: (group: TGroup) => void }) => {

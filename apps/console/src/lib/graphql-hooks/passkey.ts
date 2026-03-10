@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
-import { DeletePasskeyMutation, DeletePasskeyMutationVariables, GetPasskeysQuery } from '@repo/codegen/src/schema'
+import { type DeletePasskeyMutation, type DeletePasskeyMutationVariables, type GetPasskeysQuery } from '@repo/codegen/src/schema'
 import { DELETE_PASSKEY, GET_PASSKEYS } from '@repo/codegen/query/passkey'
 
 export const useGetPasskeys = () => {

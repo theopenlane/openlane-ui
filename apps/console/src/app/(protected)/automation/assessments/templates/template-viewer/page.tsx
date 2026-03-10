@@ -1,6 +1,6 @@
 import React from 'react'
 import TemplateViewerPage from '@/components/pages/protected/questionnaire/template/template-viewer-page'
-import { Metadata } from 'next'
+import { type Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Template Viewer',

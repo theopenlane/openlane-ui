@@ -3,7 +3,7 @@
 import React from 'react'
 import { GlobeIcon, LockIcon } from 'lucide-react'
 import { Card } from '@repo/ui/cardpanel'
-import { Group } from '@repo/codegen/src/schema'
+import { type Group } from '@repo/codegen/src/schema'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { useSmartRouter } from '@/hooks/useSmartRouter'

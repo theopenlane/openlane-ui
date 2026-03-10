@@ -72,7 +72,7 @@ export const EmbedSubprocessorSheet: React.FC<EmbedSubprocessorSheetProps> = ({ 
             </TabsContent>
 
             <TabsContent value="preview" className="mt-3">
-              <iframe srcDoc={previewSrcDoc} title="Subprocessor embed preview" className="w-full h-[400px] rounded-md border" sandbox="allow-scripts allow-same-origin" />
+              <iframe srcDoc={previewSrcDoc} title="Subprocessor embed preview" className="w-full h-[400px] rounded-md border" sandbox="allow-scripts" />
             </TabsContent>
           </Tabs>
 

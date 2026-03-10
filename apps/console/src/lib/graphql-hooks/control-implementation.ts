@@ -2,14 +2,14 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { CREATE_CONTROL_IMPLEMENTATION, DELETE_CONTROL_IMPLEMENTATION, GET_ALL_CONTROL_IMPLEMENTATIONS, UPDATE_CONTROL_IMPLEMENTATION } from '@repo/codegen/query/control-implementation'
 import {
-  CreateControlImplementationInput,
-  CreateControlImplementationMutation,
-  DeleteControlImplementationMutation,
-  DeleteControlImplementationMutationVariables,
-  GetAllControlImplementationsQuery,
-  GetAllControlImplementationsQueryVariables,
-  UpdateControlImplementationMutation,
-  UpdateControlImplementationMutationVariables,
+  type CreateControlImplementationInput,
+  type CreateControlImplementationMutation,
+  type DeleteControlImplementationMutation,
+  type DeleteControlImplementationMutationVariables,
+  type GetAllControlImplementationsQuery,
+  type GetAllControlImplementationsQueryVariables,
+  type UpdateControlImplementationMutation,
+  type UpdateControlImplementationMutationVariables,
 } from '@repo/codegen/src/schema'
 
 export const useGetAllControlImplementations = (where?: GetAllControlImplementationsQueryVariables['where']) => {

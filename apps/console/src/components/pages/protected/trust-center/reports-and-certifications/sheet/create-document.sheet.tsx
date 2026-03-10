@@ -21,7 +21,7 @@ import { CategoryField } from './form-fields/category-field'
 import { VisibilityField } from './form-fields/visibility-field'
 import { TagsField } from './form-fields/tags-field'
 import { FileField } from './form-fields/file-field'
-import { TUploadedFile } from '@/components/pages/protected/evidence/upload/types/TUploadedFile'
+import { type TUploadedFile } from '@/components/pages/protected/evidence/upload/types/TUploadedFile'
 import { Label } from '@repo/ui/label'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { canDelete, canEdit } from '@/lib/authz/utils'
@@ -86,7 +86,7 @@ export const CreateDocumentSheet: React.FC = () => {
 
   const trustCenterID = trustCenterData?.trustCenters?.edges?.[0]?.node?.id ?? null
   const watermarkEnabled = trustCenterData?.trustCenters?.edges?.[0]?.node?.watermarkConfig?.isEnabled ?? null
-  const [isWatermarkEnabled, setWatermarkEnabled] = useState(watermarkEnabled ?? false)
+  const [isWatermarkEnabled, setIsWatermarkEnabled] = useState(watermarkEnabled ?? false)
   const formMethods = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -136,7 +136,7 @@ export const CreateDocumentSheet: React.FC = () => {
             tags: data.tags ?? [],
             ...(data.standardID != null ? { standardID: data.standardID } : { clearStandard: true }),
           },
-          updateTrustCenterDocId: documentId!,
+          updateTrustCenterDocId: documentId ?? '',
           trustCenterDocFile: data.file,
         })
 
@@ -351,7 +351,7 @@ export const CreateDocumentSheet: React.FC = () => {
                 <Switch
                   checked={isWatermarkEnabled}
                   onCheckedChange={(checked) => {
-                    setWatermarkEnabled(checked)
+                    setIsWatermarkEnabled(checked)
                   }}
                 />
               </div>
@@ -362,7 +362,7 @@ export const CreateDocumentSheet: React.FC = () => {
                 <DocumentsWatermarkStatusChip className="self-start" status={documentData?.trustCenterDoc?.watermarkStatus ?? undefined} />
               </div>
             )}
-            {isEditMode ? <DocumentFiles documentId={documentId!} editAllowed={isEditAllowed} /> : <FileField uploadedFile={uploadedFile} isEditing={isEditing} onFileUpload={handleFileUpload} />}
+            {isEditMode ? <DocumentFiles documentId={documentId ?? ''} editAllowed={isEditAllowed} /> : <FileField uploadedFile={uploadedFile} isEditing={isEditing} onFileUpload={handleFileUpload} />}
           </form>
         </FormProvider>
       </SheetContent>

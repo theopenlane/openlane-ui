@@ -1,14 +1,14 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Group, RiskFieldsFragment, UpdateRiskInput } from '@repo/codegen/src/schema'
+import { type Group, type RiskFieldsFragment, type UpdateRiskInput } from '@repo/codegen/src/schema'
 import { Stamp, CircleArrowRight } from 'lucide-react'
-import { Controller, UseFormReturn } from 'react-hook-form'
-import { Option } from '@repo/ui/multiple-selector'
+import { Controller, type UseFormReturn } from 'react-hook-form'
+import { type Option } from '@repo/ui/multiple-selector'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { useGetAllGroups } from '@/lib/graphql-hooks/group'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
-import { EditRisksFormData } from '@/components/pages/protected/risks/view/hooks/use-form-schema'
+import { type EditRisksFormData } from '@/components/pages/protected/risks/view/hooks/use-form-schema'
 import { SearchableSingleSelect } from '@/components/shared/searchableSingleSelect/searchable-single-select'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 

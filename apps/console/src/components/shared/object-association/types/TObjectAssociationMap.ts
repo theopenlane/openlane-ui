@@ -1,4 +1,4 @@
-import { OBJECT_QUERY_CONFIG } from '../object-association-config'
+import { type OBJECT_QUERY_CONFIG } from '../object-association-config'
 
 export type TObjectAssociationInputName = (typeof OBJECT_QUERY_CONFIG)[keyof typeof OBJECT_QUERY_CONFIG]['inputName']
 
