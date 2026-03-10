@@ -312,13 +312,19 @@ export default function CreateControlForm() {
 
         <div className="flex gap-12">
           <div className="w-[55%]">
-            {/* Name */}
+            {/* Ref Code */}
             <div>
               <Label>
-                Name <span className="text-destructive">*</span>
+                Ref Code <span className="text-destructive">*</span>
               </Label>
               {errors?.refCode && <p className="text-destructive text-sm mt-1">{errors.refCode.message}</p>}
               <Controller name="refCode" control={control} rules={{ required: true }} render={({ field }) => <Input {...field} />} />
+            </div>
+
+            {/* Title */}
+            <div className="mt-4">
+              <Label>Title</Label>
+              <Controller name="title" control={control} render={({ field }) => <Input {...field} value={field.value ?? ''} />} />
             </div>
 
             {isCreateSubcontrol && (

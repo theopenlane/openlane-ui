@@ -264,7 +264,7 @@ const ControlDetailsPage: React.FC = () => {
         source: data.control.source || undefined,
         referenceID: data.control.referenceID || undefined,
         auditorReferenceID: data.control.auditorReferenceID || undefined,
-        title: data.control.title ? `${data.control.refCode} ${data.control.title}` : data.control.refCode,
+        title: data.control.title || '',
         controlKindName: data.control?.controlKindName || undefined,
       }
       form.reset(newValues)
@@ -287,7 +287,8 @@ const ControlDetailsPage: React.FC = () => {
             <TitleField
               isEditAllowed={!isSourceFramework && canEdit(permission?.roles)}
               isEditing={isEditing}
-              initialValue={initialValues.title}
+              initialRefCode={initialValues.refCode}
+              initialTitle={initialValues.title}
               handleUpdate={(val) => handleUpdateField(val as UpdateControlInput)}
               referenceFramework={control.referenceFramework}
             />
