@@ -63123,6 +63123,11 @@ export type GetControlAssociationsByIdQuery = {
       edges?: Array<{ __typename?: 'RemediationEdge'; node?: { __typename?: 'Remediation'; id: string; title?: string | null; displayID: string } | null } | null> | null
     }
     reviews: { __typename?: 'ReviewConnection'; totalCount: number; edges?: Array<{ __typename?: 'ReviewEdge'; node?: { __typename?: 'Review'; id: string; title: string } | null } | null> | null }
+    findings: {
+      __typename?: 'FindingConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'FindingEdge'; node?: { __typename?: 'Finding'; id: string; displayName?: string | null; displayID: string } | null } | null> | null
+    }
   }
 }
 
@@ -65559,6 +65564,54 @@ export type DeleteBulkFindingMutationVariables = Exact<{
 }>
 
 export type DeleteBulkFindingMutation = { __typename?: 'Mutation'; deleteBulkFinding: { __typename?: 'FindingBulkDeletePayload'; deletedIDs: Array<string> } }
+
+export type GetFindingAssociationsQueryVariables = Exact<{
+  findingId: Scalars['ID']['input']
+}>
+
+export type GetFindingAssociationsQuery = {
+  __typename?: 'Query'
+  finding: {
+    __typename?: 'Finding'
+    controls: {
+      __typename?: 'ControlConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string; description?: string | null; displayID: string } | null } | null> | null
+    }
+    subcontrols: {
+      __typename?: 'SubcontrolConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string; displayID: string } | null } | null> | null
+    }
+    risks: {
+      __typename?: 'RiskConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string; displayID: string } | null } | null> | null
+    }
+    programs: {
+      __typename?: 'ProgramConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; name: string; displayID: string } | null } | null> | null
+    }
+    tasks: {
+      __typename?: 'TaskConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; title: string; displayID: string } | null } | null> | null
+    }
+    assets: {
+      __typename?: 'AssetConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'AssetEdge'; node?: { __typename?: 'Asset'; id: string; name: string; displayName?: string | null } | null } | null> | null
+    }
+    scans: { __typename?: 'ScanConnection'; totalCount: number; edges?: Array<{ __typename?: 'ScanEdge'; node?: { __typename?: 'Scan'; id: string; target: string } | null } | null> | null }
+    remediations: {
+      __typename?: 'RemediationConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'RemediationEdge'; node?: { __typename?: 'Remediation'; id: string; title?: string | null; displayID: string } | null } | null> | null
+    }
+    reviews: { __typename?: 'ReviewConnection'; totalCount: number; edges?: Array<{ __typename?: 'ReviewEdge'; node?: { __typename?: 'Review'; id: string; title: string } | null } | null> | null }
+  }
+}
 
 export type UpdateBulkFindingMutationVariables = Exact<{
   ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
