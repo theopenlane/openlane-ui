@@ -74,6 +74,8 @@ import { useEvidenceSuggestedControls } from './hooks/use-evidence-suggested-con
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 import EvidenceCommentsCard from './evidence-comment-card'
+import AssociatedObjectsAccordion from '@/components/shared/object-association/associated-objects-accordion'
+import type { Section } from '@/components/shared/object-association/types/object-association-types'
 import PlateEditor from '@/components/shared/plate/plate-editor'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { SaveButton } from '@/components/shared/save-button/save-button'
@@ -195,6 +197,34 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
       controlReferenceFramework: Object.fromEntries(controls.map((c) => [c.id, c.referenceFramework ?? ''])),
     }
   }, [evidence])
+
+  const associatedObjectSections = useMemo<Section>(() => {
+    if (!evidence) return {}
+    const sections: Section = {}
+    if (evidence.programs?.edges?.length) sections.programs = evidence.programs
+    if (evidence.tasks?.edges?.length) sections.tasks = evidence.tasks
+    if (evidence.controlObjectives?.edges?.length) sections.controlObjectives = evidence.controlObjectives
+    if (evidence.controlImplementations?.edges?.length) {
+      sections.controlImplementations = {
+        totalCount: evidence.controlImplementations.totalCount,
+        edges: evidence.controlImplementations.edges.map((edge) => {
+          if (!edge?.node?.id) return edge
+          const refCode = edge.node.controls?.edges?.[0]?.node?.refCode
+          return {
+            node: {
+              id: edge.node.id,
+              details: edge.node.details,
+              name: refCode ? `Control ${refCode} - Control Implementation` : (edge.node.details?.slice(0, 50) ?? ''),
+            },
+          }
+        }),
+      }
+    }
+    if (evidence.scans?.edges?.length) sections.scans = evidence.scans
+    return sections
+  }, [evidence])
+
+  const hasAssociatedObjects = Object.keys(associatedObjectSections).length > 0
 
   useEffect(() => {
     if (initialAssociationsControlsAndPrograms.controls) {
@@ -946,6 +976,14 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                         </CardContent>
                       </Card>
                       <EvidenceCommentsCard />
+                      {hasAssociatedObjects && (
+                        <Card>
+                          <CardContent className="flex flex-col gap-3 p-5">
+                            <h3 className="text-sm font-medium">Associated Objects</h3>
+                            <AssociatedObjectsAccordion sections={associatedObjectSections} toggleAll={false} />
+                          </CardContent>
+                        </Card>
+                      )}
                     </div>
                   )}
                 </div>
