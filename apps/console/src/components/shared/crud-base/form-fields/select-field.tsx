@@ -115,7 +115,15 @@ export const SelectField = <TUpdateInput,>({
                   }
                 }}
               >
-                {displayValue || <span className="text-muted-foreground italic">Not set</span>}
+                {useCustomDisplay ? (
+                  rawValue ? (
+                    <CustomTypeEnumValue value={rawValue} options={options} placeholder={rawValue} />
+                  ) : (
+                    <span className="text-muted-foreground italic">Not set</span>
+                  )
+                ) : (
+                  displayValue || <span className="text-muted-foreground italic">Not set</span>
+                )}
               </div>
             )}
           </FormControl>
