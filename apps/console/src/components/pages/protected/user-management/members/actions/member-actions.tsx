@@ -22,7 +22,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useForm } from 'react-hook-form'
 import type { Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { z, infer as zInfer } from 'zod'
+import { z, type infer as zInfer } from 'zod'
 import { useSession } from 'next-auth/react'
 import { useQueryClient } from '@tanstack/react-query'
 import { OrgMembershipRole } from '@repo/codegen/src/schema'

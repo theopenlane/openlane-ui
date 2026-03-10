@@ -1,6 +1,6 @@
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import { FilterIcons } from '@/components/shared/enum-mapper/risk-enum'
-import { FilterField } from '@/types'
+import { type FilterField } from '@/types'
 import { RiskOrderField, RiskRiskImpact, RiskRiskLikelihood, RiskRiskStatus } from '@repo/codegen/src/schema.ts'
 
 export const getRisksFilterFields = (

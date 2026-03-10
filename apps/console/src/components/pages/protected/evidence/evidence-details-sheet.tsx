@@ -29,14 +29,14 @@ import { Input, InputRow } from '@repo/ui/input'
 import { useNotification } from '@/hooks/useNotification'
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
-import MultipleSelector, { Option } from '@repo/ui/multiple-selector'
+import MultipleSelector, { type Option } from '@repo/ui/multiple-selector'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
 import { useControlEvidenceStore } from '@/components/pages/protected/controls/hooks/useControlEvidenceStore.ts'
 import { useDeleteEvidence, useGetEvidenceById, useUpdateEvidence } from '@/lib/graphql-hooks/evidence.ts'
 import { formatDate } from '@/utils/date.ts'
 import { Avatar } from '@/components/shared/avatar/avatar.tsx'
-import { Control, EvidenceEvidenceStatus, Subcontrol } from '@repo/codegen/src/schema.ts'
-import useFormSchema, { EditEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema.ts'
+import { type Control, EvidenceEvidenceStatus, type Subcontrol } from '@repo/codegen/src/schema.ts'
+import useFormSchema, { type EditEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema.ts'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { Controller } from 'react-hook-form'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
@@ -50,7 +50,7 @@ import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
 import { Panel, PanelHeader } from '@repo/ui/panel'
 import ObjectAssociation from '@/components/shared/object-association/object-association.tsx'
 import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config.ts'
-import { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap.ts'
+import { type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap.ts'
 import { getAssociationInput } from '@/components/shared/object-association/utils.ts'
 import { canEdit } from '@/lib/authz/utils'
 import useEscapeKey from '@/hooks/useEscapeKey'
@@ -69,7 +69,7 @@ import ObjectAssociationProgramsChips from '@/components/shared/object-associati
 import ObjectAssociationControlsChips from '@/components/shared/object-association/object-association-controls-chips'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
-import { CustomEvidenceControl } from './evidence-sheet-config'
+import { type CustomEvidenceControl } from './evidence-sheet-config'
 import { useEvidenceSuggestedControls } from './hooks/use-evidence-suggested-controls'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
@@ -209,7 +209,6 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
   const hasAssociatedObjects = Object.keys(associatedObjectSections).length > 0
 
-  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (initialAssociationsControlsAndPrograms.controls) {
       setEvidenceControls(initialAssociationsControlsAndPrograms.controls)
@@ -244,7 +243,6 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
       }
     }
   }, [evidence, form])
-  /* eslint-enable react-hooks/set-state-in-effect */
 
   // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const handleInitialValue = useCallback(() => {
@@ -257,11 +255,9 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
     }
   }, [form, initialAssociations, initialAssociationsControlsAndPrograms])
 
-  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     handleInitialValue()
   }, [handleInitialValue])
-  /* eslint-enable react-hooks/set-state-in-effect */
 
   const programIDs = form.watch('programIDs')
 
@@ -322,7 +318,6 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
     const associationInputs = getAssociationInput(initialAssociations, updatedAssociations)
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars -- destructured to exclude from cleanFormData
     const { programIDs: _programIDs, controlIDs: _controlIDs, subcontrolIDs: _subcontrolIDs, ...restFormData } = formData
     const cleanFormData = form.formState.dirtyFields.renewalDate ? restFormData : Object.fromEntries(Object.entries(restFormData).filter(([key]) => key !== 'renewalDate'))
 
@@ -439,11 +434,11 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
     },
   )
 
-  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (isEditPreset) {
       setIsEditing(true)
       setIsEditPreset(false)
+      // eslint-disable-next-line @eslint-react/web-api/no-leaked-timeout
       setTimeout(() => {
         requestAnimationFrame(() => {
           objectAssociationRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
@@ -451,7 +446,6 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
       }, 500)
     }
   }, [isEditPreset, setIsEditPreset, setIsEditing])
-  /* eslint-enable react-hooks/set-state-in-effect */
 
   const handleTags = () => {
     if (evidence?.tags?.length === 0) {
@@ -953,7 +947,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                                       <Eye size={16} />
                                       View
                                     </p>
-                                    <p className="flex items-center gap-1" onClick={() => fileDownload(evidence.url!, 'customFileName', errorNotification)}>
+                                    <p className="flex items-center gap-1" onClick={() => fileDownload(evidence.url ?? '', 'customFileName', errorNotification)}>
                                       <Download size={16} />
                                       Download
                                     </p>

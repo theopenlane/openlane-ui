@@ -1,4 +1,4 @@
-import { FilterField } from '@/types'
+import { type FilterField } from '@/types'
 import { useEffect, useMemo, useState } from 'react'
 import { useProgramSelect } from '@/lib/graphql-hooks/program'
 import { useGroupSelect } from '@/lib/graphql-hooks/group'

@@ -2,7 +2,7 @@
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Value } from 'platejs'
+import { type Value } from 'platejs'
 import { EntityEntityStatus, EntityFrequency } from '@repo/codegen/src/schema'
 import { responsibilityFieldSchema } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 

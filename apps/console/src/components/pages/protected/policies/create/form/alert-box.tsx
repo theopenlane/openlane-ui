@@ -8,7 +8,7 @@ import { Button } from '@repo/ui/button'
 import { BookOpenIcon, ChevronDown, FileTextIcon, InfoIcon, LoaderCircle, Sparkles, X } from 'lucide-react'
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
-import { TUploadedFile } from '../../../evidence/upload/types/TUploadedFile'
+import { type TUploadedFile } from '../../../evidence/upload/types/TUploadedFile'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useRouter } from 'next/navigation'
 import { PolicyTemplateBrowser } from '@/components/shared/github-selector/policy-selector'
@@ -36,7 +36,7 @@ const HelperText = ({ name, editorRef, onNameChange }: THelperProps) => {
   const { currentOrgId, getOrganizationByID } = useOrganization()
   const currentOrganization = getOrganizationByID(currentOrgId)
   const router = useRouter()
-  const [isHelperOpen, setIsAIHelperOpen] = useState(true)
+  const [isHelperOpen, setIsHelperOpen] = useState(true)
 
   const [showNameDialog, setShowNameDialog] = useState(false)
   const [tempPolicyName, setTempPolicyName] = useState('')
@@ -143,7 +143,7 @@ const HelperText = ({ name, editorRef, onNameChange }: THelperProps) => {
     <>
       <div className="relative overflow-hidden rounded-lg border dark:border-gray-700/50 bg-linear-to-br dark:from-blue-800/10 dark:via-gray-800/60 dark:to-purple-900/20 from-blue-200/10 via-white-800/20 to-purple-400/10">
         {/* Header */}
-        <button type="button" onClick={() => setIsAIHelperOpen(!isHelperOpen)} className="w-full flex items-center justify-between px-4 pt-4 pb-2 transition-colors">
+        <button type="button" onClick={() => setIsHelperOpen(!isHelperOpen)} className="w-full flex items-center justify-between px-4 pt-4 pb-2 transition-colors">
           <div className="flex items-center gap-3">
             {aiEnabled ? (
               <div className="shrink-0 w-9 h-9 rounded-full bg-purple-500/20 flex items-center justify-center">

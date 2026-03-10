@@ -1,8 +1,8 @@
 'use client'
 
-import React, { useContext, useEffect, useState } from 'react'
+import React, { use, useEffect, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import * as z from 'zod'
 import { Keyboard, Megaphone, Pencil, Loader2, Trash2 } from 'lucide-react'
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
@@ -28,7 +28,7 @@ const formSchema = z.object({
 type UpdateFormValues = z.infer<typeof formSchema>
 
 export default function UpdatesSection() {
-  const { setCrumbs } = useContext(BreadcrumbContext)
+  const { setCrumbs } = use(BreadcrumbContext)
   const [editingPostId, setEditingPostId] = useState<string | null>(null)
   const [postToDelete, setPostToDelete] = useState<string | null>(null) // New state for deletion
 
@@ -52,8 +52,8 @@ export default function UpdatesSection() {
     defaultValues: { text: '', title: '' },
   })
 
-  const createTextValue = createForm.watch('text')
-  const editTextValue = editForm.watch('text')
+  const createTextValue = useWatch({ control: createForm.control, name: 'text' })
+  const editTextValue = useWatch({ control: editForm.control, name: 'text' })
 
   const createCharsRemaining = 280 - (createTextValue?.length || 0)
   const editCharsRemaining = 280 - (editTextValue?.length || 0)

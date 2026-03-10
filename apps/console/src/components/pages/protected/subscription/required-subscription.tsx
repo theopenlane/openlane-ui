@@ -3,7 +3,7 @@
 import Diamond from '@/assets/Diamond'
 import { Button } from '@repo/ui/button'
 import { useRouter } from 'next/navigation'
-import { PlanEnum } from '@/lib/subscription-plan/plan-enum.ts'
+import { type PlanEnum } from '@/lib/subscription-plan/plan-enum.ts'
 import { featureUtil } from '@/lib/subscription-plan/plans.ts'
 import { useOpenlaneProductsQuery } from '@/lib/query-hooks/stripe.ts'
 

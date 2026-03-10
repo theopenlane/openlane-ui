@@ -10,10 +10,10 @@ import { useGetStandards } from '@/lib/graphql-hooks/standard'
 import { FolderIcon } from 'lucide-react'
 import { useParams } from 'next/navigation'
 import { useUpdateControl } from '@/lib/graphql-hooks/control'
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { DataTable, getInitialPagination } from '@repo/ui/data-table'
-import { ColumnDef } from '@tanstack/react-table'
+import { type ColumnDef } from '@tanstack/react-table'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
@@ -26,7 +26,7 @@ const MappedCategoriesDialog = ({ onClose }: { onClose: () => void }) => {
 
   const { mutateAsync: updateControl, isPending } = useUpdateControl()
 
-  const [pagination, setPagination] = useState<TPagination>(
+  const [pagination, setPagination] = useState<TPagination>(() =>
     getInitialPagination(TableKeyEnum.CONTROLS_MAPPED_CATEGORIES, {
       ...DEFAULT_PAGINATION,
       page: 1,
@@ -74,7 +74,7 @@ const MappedCategoriesDialog = ({ onClose }: { onClose: () => void }) => {
     }
 
     await updateControl({
-      updateControlId: id!,
+      updateControlId: id ?? '',
       input: {
         mappedCategories: selected,
       },
@@ -101,8 +101,9 @@ const MappedCategoriesDialog = ({ onClose }: { onClose: () => void }) => {
         id: 'select',
         header: '',
         cell: ({ row }) => <Checkbox checked={selected.includes(row.original.domain)} onCheckedChange={() => toggle(row.original.domain)} />,
-        size: 10,
-        maxSize: 10,
+        size: 50,
+        maxSize: 50,
+        minSize: 50,
       },
       {
         accessorKey: 'standardLabel',
@@ -141,7 +142,7 @@ const MappedCategoriesDialog = ({ onClose }: { onClose: () => void }) => {
           }
         }}
       >
-        <DialogContent className="max-w-xl">
+        <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Set mapped categories</DialogTitle>
           </DialogHeader>
@@ -176,23 +177,24 @@ const MappedCategoriesDialog = ({ onClose }: { onClose: () => void }) => {
               </Select>
             </div>
           </div>
-
-          <DataTable
-            columns={columns}
-            data={pagedRows || []}
-            pagination={pagination}
-            paginationMeta={{
-              totalCount: allRows.length,
-              pageInfo: {
-                hasNextPage: pagination.page * pagination.pageSize < allRows.length,
-                hasPreviousPage: pagination.page > 1,
-              },
-              isLoading: isLoading,
-            }}
-            onPaginationChange={setPagination}
-            loading={isLoading}
-            tableKey={TableKeyEnum.CONTROLS_MAPPED_CATEGORIES}
-          />
+          <div className="w-155">
+            <DataTable
+              columns={columns}
+              data={pagedRows || []}
+              pagination={pagination}
+              paginationMeta={{
+                totalCount: allRows.length,
+                pageInfo: {
+                  hasNextPage: pagination.page * pagination.pageSize < allRows.length,
+                  hasPreviousPage: pagination.page > 1,
+                },
+                isLoading: isLoading,
+              }}
+              onPaginationChange={setPagination}
+              loading={isLoading}
+              tableKey={TableKeyEnum.CONTROLS_MAPPED_CATEGORIES}
+            />
+          </div>
 
           {/* Actions */}
           <div className="flex justify-end gap-2 mt-6">

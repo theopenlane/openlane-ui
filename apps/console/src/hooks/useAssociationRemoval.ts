@@ -1,5 +1,5 @@
 import { useCallback } from 'react'
-import { QueryClient } from '@tanstack/react-query'
+import { type QueryClient } from '@tanstack/react-query'
 
 type CacheTarget = {
   queryKey: readonly unknown[]

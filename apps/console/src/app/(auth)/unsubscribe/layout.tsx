@@ -1,6 +1,6 @@
 import { Logo } from '@repo/ui/logo'
 import Link from 'next/link'
-import React, { ReactNode, Suspense } from 'react'
+import React, { type ReactNode, Suspense } from 'react'
 
 const layout = ({ children }: { children: ReactNode }) => {
   return (

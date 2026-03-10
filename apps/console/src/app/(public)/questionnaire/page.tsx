@@ -1,5 +1,5 @@
 import React, { Suspense } from 'react'
-import { Metadata } from 'next'
+import { type Metadata } from 'next'
 import Link from 'next/link'
 import { Logo } from '@repo/ui/logo'
 import { QuestionnairePage } from '@/components/pages/public/questionnaire/questionnaire'

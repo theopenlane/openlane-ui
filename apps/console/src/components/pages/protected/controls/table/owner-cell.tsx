@@ -1,10 +1,10 @@
 'use client'
 import React from 'react'
-import { Group } from '@repo/codegen/src/schema'
+import { type Group } from '@repo/codegen/src/schema'
 import { useUpdateControl } from '@/lib/graphql-hooks/control'
 import EditableGroupCell from '@/components/shared/editable-group-cell/editable-group-cell'
-import { QueryClient } from '@tanstack/react-query'
-import { EditableFieldFormData } from '@/components/pages/protected/tasks/hooks/use-editable-field-form-schema'
+import { type QueryClient } from '@tanstack/react-query'
+import { type EditableFieldFormData } from '@/components/pages/protected/tasks/hooks/use-editable-field-form-schema'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 type TOwnerCellProps = {

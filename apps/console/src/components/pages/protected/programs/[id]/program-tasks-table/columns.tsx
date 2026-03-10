@@ -1,8 +1,8 @@
 'use client'
 import { Checkbox } from '@repo/ui/checkbox'
 import React from 'react'
-import { ColumnDef } from '@tanstack/react-table'
-import { SelectedItem } from '../shared/program-settings-import-controls-shared-props'
+import { type ColumnDef } from '@tanstack/react-table'
+import { type SelectedItem } from '../shared/program-settings-import-controls-shared-props'
 
 type TGetColumnsForImportControlsDialogFrameworkProps = {
   selectedItems: SelectedItem[]

@@ -1,6 +1,6 @@
 import { auth } from '@/lib/auth/auth'
-import { Tool, VertexAI } from '@google-cloud/vertexai'
-import { NextRequest, NextResponse } from 'next/server'
+import { type Tool, VertexAI } from '@google-cloud/vertexai'
+import { type NextRequest, NextResponse } from 'next/server'
 import { VertexRagServiceClient } from '@google-cloud/aiplatform'
 import { Storage } from '@google-cloud/storage'
 import {
@@ -138,7 +138,7 @@ export async function POST(req: NextRequest) {
 
     const text = response.candidates?.[0]?.content?.parts?.[0]?.text ?? 'No response generated.'
 
-    if (response.candidates?.[0]?.finishReason != 'STOP') {
+    if (response.candidates?.[0]?.finishReason !== 'STOP') {
       console.warn('response finished with reason:', response.candidates?.[0]?.finishReason)
     }
 
@@ -165,8 +165,11 @@ async function getContext(prompt: string): Promise<string> {
   const ragCorpus = `projects/${googleProjectID}/locations/${googleAIRegion}/ragCorpora/${ragCorpusID}`
   const parent = `projects/${googleProjectID}/locations/${googleAIRegion}`
 
-  // ragclient will exist here because aiEnabled check is done before calling this function
-  const [response] = await ragClient!.retrieveContexts({
+  if (!ragClient) {
+    return ''
+  }
+
+  const [response] = await ragClient.retrieveContexts({
     parent,
     query: {
       text: prompt,

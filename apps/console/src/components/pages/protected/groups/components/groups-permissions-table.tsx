@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { ColumnDef } from '@tanstack/table-core'
+import { type ColumnDef } from '@tanstack/table-core'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { DataTable } from '@repo/ui/data-table'
 import { useNotification } from '@/hooks/useNotification'
@@ -10,7 +10,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { Permission } from '@repo/codegen/src/schema'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { TableKeyEnum } from '@repo/ui/table-key'
-import { OBJECT_TYPE_PERMISSIONS_CONFIG, TypesWithPermissions } from '@repo/codegen/src/type-names'
+import { OBJECT_TYPE_PERMISSIONS_CONFIG, type TypesWithPermissions } from '@repo/codegen/src/type-names'
 
 const PERMISSION_LABELS: Record<Permission, string> = {
   [Permission.VIEWER]: 'View',

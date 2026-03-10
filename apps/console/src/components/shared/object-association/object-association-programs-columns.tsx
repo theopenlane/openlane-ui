@@ -1,7 +1,7 @@
-import { Program } from '@repo/codegen/src/schema'
-import { ColumnDef } from '@tanstack/react-table'
+import { type Program } from '@repo/codegen/src/schema'
+import { type ColumnDef } from '@tanstack/react-table'
 import { Checkbox } from '@repo/ui/checkbox'
-import { CreateEvidenceFormMethods } from '@/components/pages/protected/evidence/hooks/use-form-schema'
+import { type CreateEvidenceFormMethods } from '@/components/pages/protected/evidence/hooks/use-form-schema'
 
 type TColumnOptions = {
   selectedRefCodeMap: string[]

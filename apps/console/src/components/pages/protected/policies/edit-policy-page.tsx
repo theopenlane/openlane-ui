@@ -12,7 +12,7 @@ const EditPolicyPage = ({ policyId }: TEditPolicyPage) => {
   return (
     <>
       {isLoading && <Loading />}
-      {!isLoading && data?.internalPolicy && <CreatePolicyForm policy={data.internalPolicy!} />}
+      {!isLoading && data?.internalPolicy && <CreatePolicyForm policy={data.internalPolicy} />}
     </>
   )
 }

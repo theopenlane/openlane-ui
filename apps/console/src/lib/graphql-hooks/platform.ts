@@ -1,19 +1,19 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
-  PlatformsWithFilterQuery,
-  PlatformsWithFilterQueryVariables,
-  CreatePlatformMutation,
-  CreatePlatformMutationVariables,
-  UpdatePlatformMutation,
-  UpdatePlatformMutationVariables,
-  DeletePlatformMutation,
-  DeletePlatformMutationVariables,
-  PlatformQuery,
-  PlatformQueryVariables,
+  type PlatformsWithFilterQuery,
+  type PlatformsWithFilterQueryVariables,
+  type CreatePlatformMutation,
+  type CreatePlatformMutationVariables,
+  type UpdatePlatformMutation,
+  type UpdatePlatformMutationVariables,
+  type DeletePlatformMutation,
+  type DeletePlatformMutationVariables,
+  type PlatformQuery,
+  type PlatformQueryVariables,
 } from '@repo/codegen/src/schema'
 
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 import { GET_ALL_PLATFORMS, CREATE_PLATFORM, UPDATE_PLATFORM, DELETE_PLATFORM, PLATFORM } from '@repo/codegen/query/platform'
 
 type GetAllPlatformsArgs = {

@@ -1,7 +1,7 @@
 import React from 'react'
 import { ExistingOrganizations } from '@/components/shared/organization/existing-organizations/existing-organizations'
 import { CreateOrganizationForm } from '@/components/shared/organization/create-organization/create-organization'
-import { Metadata } from 'next'
+import { type Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Organizations',

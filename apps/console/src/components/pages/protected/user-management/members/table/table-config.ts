@@ -1,6 +1,6 @@
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import { InvitesFilterIcons, MembersFilterIcons } from '@/components/shared/enum-mapper/members-enum'
-import { FilterField } from '@/types'
+import { type FilterField } from '@/types'
 import { InviteInviteStatus, InviteRole, OrgMembershipRole, UserAuthProvider } from '@repo/codegen/src/schema'
 
 const AUTH_PROVIDER_LABELS: Partial<Record<UserAuthProvider, string>> = {

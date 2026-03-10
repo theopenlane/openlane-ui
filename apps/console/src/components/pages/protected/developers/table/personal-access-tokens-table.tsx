@@ -1,22 +1,22 @@
 'use client'
 
 import {
-  GetApiTokensQuery,
-  GetApiTokensQueryVariables,
-  GetPersonalAccessTokensQuery,
-  GetPersonalAccessTokensQueryVariables,
+  type GetApiTokensQuery,
+  type GetApiTokensQueryVariables,
+  type GetPersonalAccessTokensQuery,
+  type GetPersonalAccessTokensQueryVariables,
   OrderDirection,
   PersonalAccessTokenOrderField,
 } from '@repo/codegen/src/schema'
 import { DataTable, getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
-import { ColumnDef } from '@tanstack/react-table'
+import { type ColumnDef } from '@tanstack/react-table'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { useGetApiTokens, useGetPersonalAccessTokens } from '@/lib/graphql-hooks/tokens'
 import PersonalAccessTokensTableToolbar from '@/components/pages/protected/developers/table/personal-access-tokens-table-toolbar.tsx'
 import { useMemo, useState, useEffect } from 'react'
 import { TokenAction } from '@/components/pages/protected/developers/actions/pat-actions.tsx'
 import { TOKEN_SORT_FIELDS } from '@/components/pages/protected/developers/table/table-config.ts'
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { formatDate, formatTimeSince } from '@/utils/date'
 import { useNotification } from '@/hooks/useNotification'
@@ -37,7 +37,7 @@ export const PersonalAccessTokenTable = () => {
   const searchParams = useSearchParams()
   const isApiTokenPage = path.includes('/api-tokens')
   const tableKey = isApiTokenPage ? TableKeyEnum.API_TOKEN : TableKeyEnum.PERSONAL_ACCESS_TOKEN
-  const [pagination, setPagination] = useState<TPagination>(getInitialPagination(tableKey, DEFAULT_PAGINATION))
+  const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(tableKey, DEFAULT_PAGINATION))
   const { successNotification, errorNotification } = useNotification()
 
   type CommonWhereType = GetPersonalAccessTokensQueryVariables['where'] | GetApiTokensQueryVariables['where']
@@ -157,7 +157,7 @@ export const PersonalAccessTokenTable = () => {
         .filter((node): node is NonNullable<typeof node> => !!node && !!node.id)
         .map((node) => ({
           id: node.id,
-          name: node.name!,
+          name: node.name ?? '',
           description: node.description ?? undefined,
           expiresAt: node.expiresAt,
           lastUsedAt: node.lastUsedAt,

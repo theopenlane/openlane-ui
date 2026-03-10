@@ -100,7 +100,7 @@ const GuidanceTab: React.FC<GuidanceTabProps> = ({
       hasData: !!implementationGuidance?.length,
       render: () => (
         <div className="space-y-4">
-          {implementationGuidance!.map(({ referenceId, guidance }) => (
+          {implementationGuidance?.map(({ referenceId, guidance }) => (
             <Card key={referenceId} className="p-4">
               <ol className="text-sm text-muted-foreground list-inside space-y-2">
                 {guidance.map((item, index) => (
@@ -118,7 +118,7 @@ const GuidanceTab: React.FC<GuidanceTabProps> = ({
       hasData: !!assessmentMethods?.length,
       render: () => (
         <div className="space-y-4">
-          {assessmentMethods!.map((method) => (
+          {assessmentMethods?.map((method) => (
             <Card key={method.id} className="p-4">
               <div className="text-sm text-muted-foreground" dangerouslySetInnerHTML={{ __html: method.method }} />
             </Card>
@@ -164,7 +164,7 @@ const GuidanceTab: React.FC<GuidanceTabProps> = ({
 
         return (
           <div className="space-y-4">
-            {testingProcedures!.map(({ referenceId, procedures }, groupIndex) => {
+            {testingProcedures?.map(({ referenceId, procedures }, groupIndex) => {
               const title = refCode ? `Control ${refCode} Test - ${groupIndex + 1}` : `Control Test - ${groupIndex + 1}`
               const details = procedures.join('\n')
 

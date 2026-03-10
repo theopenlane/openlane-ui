@@ -1,19 +1,19 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
-  WorkflowDefinitionsWithFilterQuery,
-  WorkflowDefinitionsWithFilterQueryVariables,
-  CreateWorkflowDefinitionMutation,
-  CreateWorkflowDefinitionMutationVariables,
-  UpdateWorkflowDefinitionMutation,
-  UpdateWorkflowDefinitionMutationVariables,
-  DeleteWorkflowDefinitionMutation,
-  DeleteWorkflowDefinitionMutationVariables,
-  WorkflowDefinitionQuery,
-  WorkflowDefinitionQueryVariables,
+  type WorkflowDefinitionsWithFilterQuery,
+  type WorkflowDefinitionsWithFilterQueryVariables,
+  type CreateWorkflowDefinitionMutation,
+  type CreateWorkflowDefinitionMutationVariables,
+  type UpdateWorkflowDefinitionMutation,
+  type UpdateWorkflowDefinitionMutationVariables,
+  type DeleteWorkflowDefinitionMutation,
+  type DeleteWorkflowDefinitionMutationVariables,
+  type WorkflowDefinitionQuery,
+  type WorkflowDefinitionQueryVariables,
 } from '@repo/codegen/src/schema'
 
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 import { GET_ALL_WORKFLOW_DEFINITIONS, CREATE_WORKFLOW_DEFINITION, UPDATE_WORKFLOW_DEFINITION, DELETE_WORKFLOW_DEFINITION, WORKFLOW_DEFINITION } from '@repo/codegen/query/workflow-definition'
 
 type GetAllWorkflowDefinitionsArgs = {

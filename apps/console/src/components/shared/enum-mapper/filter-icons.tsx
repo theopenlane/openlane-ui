@@ -6,7 +6,7 @@ import {
   UserRoundPen,
   Shapes,
   CalendarClock,
-  LucideIcon,
+  type LucideIcon,
   CircleDollarSign,
   IdCard,
   ScanEye,

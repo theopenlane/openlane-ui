@@ -14,14 +14,14 @@ import { useNotification } from '@/hooks/useNotification'
 import { ClientError } from 'graphql-request'
 import { Input } from '@repo/ui/input'
 import {
-  BulkEditProceduresDialogProps,
+  type BulkEditProceduresDialogProps,
   defaultObject,
   getAllSelectOptionsForBulkEditProcedures,
   getMappedClearValue,
   InputType,
   SelectOptionBulkEditProcedures,
 } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-shared-objects'
-import { Group } from '@repo/codegen/src/schema'
+import { type Group } from '@repo/codegen/src/schema'
 import { useBulkEditProcedure } from '@/lib/graphql-hooks/procedure'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { SaveButton } from '@/components/shared/save-button/save-button'

@@ -1,5 +1,5 @@
-import { ColumnDef, Row } from '@tanstack/react-table'
-import { Assessment, User } from '@repo/codegen/src/schema'
+import { type ColumnDef, type Row } from '@tanstack/react-table'
+import { type Assessment, type User } from '@repo/codegen/src/schema'
 import { formatDate, formatTimeSince } from '@/utils/date'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { Checkbox } from '@repo/ui/checkbox'

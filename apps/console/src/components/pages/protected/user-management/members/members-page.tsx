@@ -2,7 +2,7 @@
 
 import { pageStyles } from './page.styles'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
-import { useState, useContext, useEffect } from 'react'
+import { useState, use, useEffect } from 'react'
 import { MembersTable } from './members-table'
 import { useGetInvites } from '@/lib/graphql-hooks/organization'
 import { OrganizationInvitesTable } from './table/organization-invites-table'
@@ -19,7 +19,7 @@ const MembersPage = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMembersPage) 
   const defaultTab = 'members'
   const [activeTab, setActiveTab] = useState(defaultTab)
   const { data } = useGetInvites({ where: {} })
-  const { setCrumbs } = useContext(BreadcrumbContext)
+  const { setCrumbs } = use(BreadcrumbContext)
 
   const numInvites = Array.isArray(data?.invites.edges) ? data?.invites.edges.length : 0
 

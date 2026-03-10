@@ -1,4 +1,4 @@
-import { useEffect, RefObject } from 'react'
+import { useEffect, type RefObject } from 'react'
 
 type RefRecord<T extends HTMLElement = HTMLElement> = Record<string, RefObject<T | null>>
 

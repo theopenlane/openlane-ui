@@ -1,26 +1,26 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
-  ReviewsWithFilterQuery,
-  ReviewsWithFilterQueryVariables,
-  CreateReviewMutation,
-  CreateReviewMutationVariables,
-  UpdateReviewMutation,
-  UpdateReviewMutationVariables,
-  UpdateBulkReviewMutation,
-  UpdateBulkReviewMutationVariables,
-  DeleteReviewMutation,
-  DeleteReviewMutationVariables,
-  ReviewQuery,
-  ReviewQueryVariables,
-  GetReviewAssociationsQuery,
-  GetReviewFilesPaginatedQuery,
-  FileOrder,
-  InputMaybe,
+  type ReviewsWithFilterQuery,
+  type ReviewsWithFilterQueryVariables,
+  type CreateReviewMutation,
+  type CreateReviewMutationVariables,
+  type UpdateReviewMutation,
+  type UpdateReviewMutationVariables,
+  type UpdateBulkReviewMutation,
+  type UpdateBulkReviewMutationVariables,
+  type DeleteReviewMutation,
+  type DeleteReviewMutationVariables,
+  type ReviewQuery,
+  type ReviewQueryVariables,
+  type GetReviewAssociationsQuery,
+  type GetReviewFilesPaginatedQuery,
+  type FileOrder,
+  type InputMaybe,
 } from '@repo/codegen/src/schema'
 
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 import {
   GET_ALL_REVIEWS,
   CREATE_REVIEW,

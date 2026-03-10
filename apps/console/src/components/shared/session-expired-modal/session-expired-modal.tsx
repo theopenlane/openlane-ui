@@ -22,6 +22,10 @@ const SessionExpiredModal = ({ open }: SessionExpiredModalProps) => {
     await signOut({ redirect: true, redirectTo: `/login?redirect=${encodeURIComponent(currentUrl)}` })
   }, [pathname, searchParams])
 
+  const signoutNoRedirect = async () => {
+    await signOut({ redirect: false })
+  }
+
   useEffect(() => {
     if (!open) return
     markSessionExpired()
@@ -36,10 +40,6 @@ const SessionExpiredModal = ({ open }: SessionExpiredModalProps) => {
 
     return () => clearTimeout(id)
   }, [open, handleSignOut])
-
-  const signoutNoRedirect = async () => {
-    await signOut({ redirect: false })
-  }
   return (
     <Dialog open={open}>
       <DialogContent className="flex flex-col items-center justify-center gap-6 py-7 size-fit" showCloseButton={false}>

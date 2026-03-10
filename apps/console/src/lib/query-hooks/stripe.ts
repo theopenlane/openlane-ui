@@ -1,4 +1,4 @@
-import { InvoicesResponse, OpenlaneProductsResponse, SubscriptionSchedulesResponse, UpcomingInvoiceResponse } from '@/types/stripe'
+import { type InvoicesResponse, type OpenlaneProductsResponse, type SubscriptionSchedulesResponse, type UpcomingInvoiceResponse } from '@/types/stripe'
 import { openlaneAPIUrl } from '@repo/dally/auth'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
@@ -154,7 +154,7 @@ export function useOpenlaneProductsQuery(includeBeta: boolean = false) {
   })
 }
 
-import { PaymentMethodsResponse } from '@/types/stripe'
+import { type PaymentMethodsResponse } from '@/types/stripe'
 
 export function usePaymentMethodsQuery(customerId?: string | null) {
   return useQuery<PaymentMethodsResponse>({

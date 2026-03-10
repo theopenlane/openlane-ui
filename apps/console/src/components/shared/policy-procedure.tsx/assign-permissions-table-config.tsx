@@ -1,6 +1,6 @@
-import { GetAllGroupsQuery } from '@repo/codegen/src/schema'
+import { type GetAllGroupsQuery } from '@repo/codegen/src/schema'
 import { Checkbox } from '@repo/ui/checkbox'
-import { ColumnDef } from '@tanstack/react-table'
+import { type ColumnDef } from '@tanstack/react-table'
 
 type GroupEdge = NonNullable<NonNullable<GetAllGroupsQuery['groups']>['edges']>[number]
 

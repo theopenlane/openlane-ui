@@ -1,10 +1,10 @@
 import InfiniteScroll from '@repo/ui/infinite-scroll'
 import React, { useEffect, useImperativeHandle, useState } from 'react'
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 import { CARD_DEFAULT_PAGINATION } from '@/constants/pagination.ts'
 import TaskCards from '@/components/pages/protected/tasks/cards/task-cards.tsx'
 import { useTasksWithFilterInfinite } from '@/lib/graphql-hooks/task'
-import { TaskOrder, TaskWhereInput } from '@repo/codegen/src/schema.ts'
+import { type TaskOrder, type TaskWhereInput } from '@repo/codegen/src/schema.ts'
 import { getInitialPagination } from '@repo/ui/data-table'
 import { TableKeyEnum } from '@repo/ui/table-key'
 
@@ -14,7 +14,7 @@ type TTaskInfiniteCardsProps = {
 }
 
 const TaskInfiniteCards = ({ whereFilter, orderByFilter, ref }: TTaskInfiniteCardsProps & { ref?: React.Ref<{ exportData: () => unknown }> }) => {
-  const [cardPagination, setCardPagination] = useState<TPagination>(getInitialPagination(TableKeyEnum.TASK, CARD_DEFAULT_PAGINATION))
+  const [cardPagination, setCardPagination] = useState<TPagination>(() => getInitialPagination(TableKeyEnum.TASK, CARD_DEFAULT_PAGINATION))
 
   const { tasks, isError, paginationMeta, fetchNextPage } = useTasksWithFilterInfinite({
     where: whereFilter,

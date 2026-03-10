@@ -1,5 +1,5 @@
 'use client'
-import React, { useContext, useEffect, useState } from 'react'
+import React, { use, useEffect, useState } from 'react'
 import { PoliciesTable } from './table/policies-table'
 import PoliciesDashboard from './policies-dashboard/policies-dashboard'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
@@ -27,7 +27,7 @@ type TPoliciesPageProps = {
 const PoliciesPage: React.FC<TPoliciesPageProps> = ({ active, setActive }) => {
   const { data: permission } = useOrganizationRoles()
   const { groupOptions } = useGroupSelect()
-  const { setCrumbs } = useContext(BreadcrumbContext)
+  const { setCrumbs } = use(BreadcrumbContext)
   const { isLoading: fetching, totalCount } = useInternalPoliciesCount({
     page: 1,
     pageSize: 1,
@@ -45,6 +45,7 @@ const PoliciesPage: React.FC<TPoliciesPageProps> = ({ active, setActive }) => {
       setSelectedGroups((e.detail?.approverIDIn as string[]) || [])
     }
 
+    // eslint-disable-next-line @eslint-react/web-api/no-leaked-event-listener
     window.addEventListener(`filters-updated:${TableKeyEnum.INTERNAL_POLICY}`, handleUpdate as EventListener)
 
     return () => {

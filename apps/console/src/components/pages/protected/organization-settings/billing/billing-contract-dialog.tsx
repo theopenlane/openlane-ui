@@ -1,6 +1,6 @@
 'use client'
 import React, { useEffect, useRef, useState } from 'react'
-import { Libraries, useLoadScript } from '@react-google-maps/api'
+import { type Libraries, useLoadScript } from '@react-google-maps/api'
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import { Input } from '@repo/ui/input'
 import { Label } from '@repo/ui/label'
@@ -20,16 +20,15 @@ const BillingContactDialog = () => {
   const { data: setting } = useGetOrganizationSetting(currentOrgId)
   const { isPending, mutateAsync: updateOrg } = useUpdateOrganization()
   const { successNotification, errorNotification } = useNotification()
+  const [fullName, setFullName] = useState('')
+  const [predictions, setPredictions] = useState<google.maps.places.AutocompletePrediction[]>([])
+  const [placeService, setPlaceService] = useState<google.maps.places.AutocompleteService | null>(null)
+  const [showPredictions, setShowPredictions] = useState<boolean>(false)
   const wrapperRef = useClickOutside(() => setShowPredictions(false))
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
     libraries,
   })
-
-  const [fullName, setFullName] = useState('')
-  const [predictions, setPredictions] = useState<google.maps.places.AutocompletePrediction[]>([])
-  const [placeService, setPlaceService] = useState<google.maps.places.AutocompleteService | null>(null)
-  const [showPredictions, setShowPredictions] = useState<boolean>(false)
   const [address, setAddress] = useState({
     line1: '',
     line2: '',
@@ -101,7 +100,7 @@ const BillingContactDialog = () => {
 
     try {
       await updateOrg({
-        updateOrganizationId: currentOrgId!,
+        updateOrganizationId: currentOrgId ?? '',
         input: {
           updateOrgSettings: {
             billingAddress: address,

@@ -1,6 +1,6 @@
 import React from 'react'
 import StandardsPage from '@/components/pages/protected/standards/standards-page'
-import { Metadata } from 'next'
+import { type Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Standards Catalog',

@@ -1,4 +1,4 @@
-import { InfiniteData, useInfiniteQuery, useMutation, useQuery } from '@tanstack/react-query'
+import { type InfiniteData, useInfiniteQuery, useMutation, useQuery } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 
 import {
@@ -13,24 +13,24 @@ import {
 } from '@repo/codegen/query/standard'
 
 import {
-  CloneControlInput,
-  CreateControlsByCloneMutation,
-  GetAllStandardsQuery,
-  GetAllStandardsQueryVariables,
-  GetStandardDetailsQuery,
-  Standard,
-  CreateStandardMutation,
-  CreateStandardMutationVariables,
-  UpdateStandardMutation,
-  UpdateStandardMutationVariables,
-  DeleteStandardMutation,
-  DeleteStandardMutationVariables,
-  GetStandardsPaginatedQuery,
-  GetStandardsPaginatedQueryVariables,
-  StandardWhereInput,
+  type CloneControlInput,
+  type CreateControlsByCloneMutation,
+  type GetAllStandardsQuery,
+  type GetAllStandardsQueryVariables,
+  type GetStandardDetailsQuery,
+  type Standard,
+  type CreateStandardMutation,
+  type CreateStandardMutationVariables,
+  type UpdateStandardMutation,
+  type UpdateStandardMutationVariables,
+  type DeleteStandardMutation,
+  type DeleteStandardMutationVariables,
+  type GetStandardsPaginatedQuery,
+  type GetStandardsPaginatedQueryVariables,
+  type StandardWhereInput,
 } from '@repo/codegen/src/schema'
 import { useMemo } from 'react'
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 import { fetchGraphQLWithUpload } from '../fetchGraphql'
 
 export const useGetStandards = ({ where, enabled = true }: { where?: GetAllStandardsQueryVariables['where']; enabled?: boolean }) => {

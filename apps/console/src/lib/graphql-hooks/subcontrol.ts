@@ -1,4 +1,4 @@
-import { InfiniteData, useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { type InfiniteData, useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
@@ -19,34 +19,39 @@ import {
   GET_EXISTING_SUBCONTROLS_FOR_ORGANIZATION,
 } from '@repo/codegen/query/subcontrol'
 import {
-  CreateSubcontrolMutation,
-  CreateSubcontrolMutationVariables,
-  DeleteSubcontrolMutation,
-  DeleteSubcontrolMutationVariables,
-  GetAllSubcontrolsQuery,
-  GetAllSubcontrolsQueryVariables,
-  GetSubcontrolAssociationsByIdQuery,
-  GetSubcontrolAssociationsByIdQueryVariables,
-  GetSubcontrolByIdMinifiedQuery,
-  GetSubcontrolByIdMinifiedQueryVariables,
-  GetSubcontrolByIdQuery,
-  GetSubcontrolDiscussionByIdQuery,
-  GetSubcontrolsByRefCodeQuery,
-  GetSubcontrolSelectOptionsQuery,
-  GetSubcontrolSelectOptionsQueryVariables,
-  GetSubcontrolsPaginatedQuery,
-  GetSubcontrolsPaginatedQueryVariables,
-  Subcontrol,
-  SubcontrolWhereInput,
-  UpdateSubcontrolMutation,
-  UpdateSubcontrolMutationVariables,
-  InsertSubcontrolPlateCommentMutation,
-  InsertSubcontrolPlateCommentMutationVariables,
-  GetExistingSubcontrolsForOrganizationQuery,
+  type CreateSubcontrolMutation,
+  type CreateSubcontrolMutationVariables,
+  type DeleteSubcontrolMutation,
+  type DeleteSubcontrolMutationVariables,
+  type GetAllSubcontrolsQuery,
+  type GetAllSubcontrolsQueryVariables,
+  type GetSubcontrolAssociationsByIdQuery,
+  type GetSubcontrolAssociationsByIdQueryVariables,
+  type GetSubcontrolByIdMinifiedQuery,
+  type GetSubcontrolByIdMinifiedQueryVariables,
+  type GetSubcontrolByIdQuery,
+  type GetSubcontrolDiscussionByIdQuery,
+  type GetSubcontrolsByRefCodeQuery,
+  type GetSubcontrolSelectOptionsQuery,
+  type GetSubcontrolSelectOptionsQueryVariables,
+  type GetSubcontrolsPaginatedQuery,
+  type GetSubcontrolsPaginatedQueryVariables,
+  type Subcontrol,
+  type SubcontrolWhereInput,
+  type UpdateSubcontrolMutation,
+  type UpdateSubcontrolMutationVariables,
+  type InsertSubcontrolPlateCommentMutation,
+  type InsertSubcontrolPlateCommentMutationVariables,
+  type GetExistingSubcontrolsForOrganizationQuery,
 } from '@repo/codegen/src/schema'
 import { useEffect, useMemo } from 'react'
-import { TPagination } from '@repo/ui/pagination-types'
-import { GetSubcontrolCommentsQuery, GetSubcontrolCommentsQueryVariables, UpdateSubcontrolCommentMutation, UpdateSubcontrolCommentMutationVariables } from '@repo/codegen/src/schema'
+import { type TPagination } from '@repo/ui/pagination-types'
+import {
+  type GetSubcontrolCommentsQuery,
+  type GetSubcontrolCommentsQueryVariables,
+  type UpdateSubcontrolCommentMutation,
+  type UpdateSubcontrolCommentMutationVariables,
+} from '@repo/codegen/src/schema'
 
 export type SubcontrolByIdNode = GetSubcontrolByIdQuery['subcontrol']
 export type SubcontrolsByRefcodeEdge = NonNullable<NonNullable<NonNullable<GetSubcontrolsByRefCodeQuery['subcontrols']>['edges']>[number]>
@@ -260,7 +265,7 @@ export function useGetSubcontrolMinifiedById(subcontrolId?: string, enabled = tr
   return useQuery<GetSubcontrolByIdMinifiedQuery, Error>({
     queryKey: ['subcontrols', subcontrolId, 'minified'],
     queryFn: async () => {
-      const data = await client.request<GetSubcontrolByIdMinifiedQuery, GetSubcontrolByIdMinifiedQueryVariables>(GET_SUBCONTROL_BY_ID_MINIFIED, { subcontrolId: subcontrolId! })
+      const data = await client.request<GetSubcontrolByIdMinifiedQuery, GetSubcontrolByIdMinifiedQueryVariables>(GET_SUBCONTROL_BY_ID_MINIFIED, { subcontrolId: subcontrolId ?? '' })
       return data
     },
     enabled: !!subcontrolId && enabled,
@@ -288,7 +293,7 @@ export const useGetSubcontrolComments = (subcontrolId?: string | null) => {
 
   return useQuery<GetSubcontrolCommentsQuery, unknown>({
     queryKey: ['subcontrolComments', subcontrolId],
-    queryFn: async () => client.request<GetSubcontrolCommentsQuery, GetSubcontrolCommentsQueryVariables>(GET_SUBCONTROL_COMMENTS, { subcontrolId: subcontrolId! }),
+    queryFn: async () => client.request<GetSubcontrolCommentsQuery, GetSubcontrolCommentsQueryVariables>(GET_SUBCONTROL_COMMENTS, { subcontrolId: subcontrolId ?? '' }),
     enabled: !!subcontrolId,
   })
 }

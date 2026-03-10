@@ -3,10 +3,10 @@
 import { TextField } from '@/components/shared/crud-base/form-fields/text-field'
 import { SelectField } from '@/components/shared/crud-base/form-fields/select-field'
 import { ResponsibilityField } from '@/components/shared/crud-base/form-fields/responsibility-field'
-import { UpdateScanInput } from '@repo/codegen/src/schema'
-import { FieldValues } from 'react-hook-form'
-import { InternalEditingType } from '@/components/shared/crud-base/generic-sheet'
-import { EnumOptions, EnumCreateHandlers } from '../../../table/types'
+import { type UpdateScanInput } from '@repo/codegen/src/schema'
+import { type FieldValues } from 'react-hook-form'
+import { type InternalEditingType } from '@/components/shared/crud-base/generic-sheet'
+import { type EnumOptions, type EnumCreateHandlers } from '../../../table/types'
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@repo/ui/cardpanel'
 
 const SCAN_TYPE_OPTIONS = [

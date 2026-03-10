@@ -1,4 +1,4 @@
-import { Group, Organization, User } from '@repo/codegen/src/schema'
+import { type Group, type Organization, type User } from '@repo/codegen/src/schema'
 import { Avatar as AvatarComponent, AvatarFallback, AvatarImage } from '@repo/ui/avatar'
 
 interface AvatarProps {
