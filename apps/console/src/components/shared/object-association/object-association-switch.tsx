@@ -3,7 +3,7 @@ import { ArrowLeft, ChevronsDownUp, ChevronsUpDown, Expand, LayoutList, List, Wa
 import ObjectAssociationGraph from '@/components/shared/object-association/object-association-graph.tsx'
 import { SetObjectAssociationDialog } from '@/components/pages/protected/controls/set-object-association-modal.tsx'
 import { Button } from '@repo/ui/button'
-import { ObjectAssociationNodeEnum, Section, TCenterNode } from '@/components/shared/object-association/types/object-association-types.ts'
+import { ObjectAssociationNodeEnum, type Section, type TCenterNode } from '@/components/shared/object-association/types/object-association-types.ts'
 import AssociatedObjectsAccordion from '@/components/shared/object-association/associated-objects-accordion.tsx'
 import SetObjectAssociationPoliciesDialog from '@/components/pages/protected/policies/modal/set-object-association-modal.tsx'
 import SetObjectAssociationProceduresDialog from '@/components/pages/protected/procedures/modal/set-object-association-modal.tsx'

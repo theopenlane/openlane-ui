@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { RelatedControlChip } from '../shared/related-control-chip'
-import { Row } from '@tanstack/react-table'
-import { ControlListFieldsFragment } from '@repo/codegen/src/schema'
+import { type Row } from '@tanstack/react-table'
+import { type ControlListFieldsFragment } from '@repo/codegen/src/schema'
 
 type Props = {
   row: Row<ControlListFieldsFragment>

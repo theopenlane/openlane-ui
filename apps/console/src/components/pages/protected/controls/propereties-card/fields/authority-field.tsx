@@ -1,8 +1,8 @@
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 import { SearchableSingleSelect } from '@/components/shared/searchableSingleSelect/searchable-single-select'
-import { Group, UpdateControlInput, UpdateSubcontrolInput } from '@repo/codegen/src/schema'
-import { Option } from '@repo/ui/multiple-selector'
+import { type Group, type UpdateControlInput, type UpdateSubcontrolInput } from '@repo/codegen/src/schema'
+import { type Option } from '@repo/ui/multiple-selector'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { useFormContext, Controller } from 'react-hook-form'
 

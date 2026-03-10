@@ -77,18 +77,16 @@ const ActivityTasksSection: React.FC<ActivityTasksSectionProps> = ({ controlId, 
 
   const where = useMemo(() => {
     const defaultStatuses = Object.values(TaskTaskStatus).filter((status) => status !== TaskTaskStatus.COMPLETED)
-    let statusInSet = false
 
     const base: TaskWhereInput = {
       titleContainsFold: debouncedSearch,
     }
 
     const result = whereGenerator<TaskWhereInput>(filters as TaskWhereInput, (key, value) => {
-      if (key === 'statusIn') {
-        statusInSet = true
-      }
       return { [key]: value } as TaskWhereInput
     })
+
+    const statusInSet = 'statusIn' in result
 
     const withDefaults = {
       ...base,

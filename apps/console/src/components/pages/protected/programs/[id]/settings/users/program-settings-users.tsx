@@ -1,18 +1,18 @@
 'use client'
 
-import React, { useContext, useEffect, useState } from 'react'
+import React, { use, useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { Button } from '@repo/ui/button'
 import { DataTable, getInitialPagination } from '@repo/ui/data-table'
 import { EllipsisVertical } from 'lucide-react'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
-import { ColumnDef, Row } from '@tanstack/react-table'
+import { type ColumnDef, type Row } from '@tanstack/react-table'
 import { useGetProgramBasicInfo, useGetProgramMembers, useUpdateProgram, useUpdateProgramMembership } from '@/lib/graphql-hooks/program'
 import { Avatar } from '@/components/shared/avatar/avatar'
-import { ProgramMembershipRole, ProgramProgramStatus, User } from '@repo/codegen/src/schema'
+import { ProgramMembershipRole, ProgramProgramStatus, type User } from '@repo/codegen/src/schema'
 import { ProgramSettingsAssignUserDialog } from './program-settings-assign-user-dialog'
 import { useQueryClient } from '@tanstack/react-query'
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { EditGroupRoleDialog } from '../program-settings-edit-role-dialog' // You can reuse for users
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
@@ -41,7 +41,7 @@ export const ProgramSettingsUsers = () => {
 
   const editAllowed = canEdit(permission?.roles)
 
-  const [pagination, setPagination] = useState<TPagination>(
+  const [pagination, setPagination] = useState<TPagination>(() =>
     getInitialPagination(TableKeyEnum.PROGRAM_SETTINGS_USERS, {
       ...DEFAULT_PAGINATION,
       pageSize: 5,
@@ -197,7 +197,7 @@ export const ProgramSettingsUsers = () => {
       : []),
   ]
 
-  const { setCrumbs } = useContext(BreadcrumbContext)
+  const { setCrumbs } = use(BreadcrumbContext)
 
   useEffect(() => {
     setCrumbs([

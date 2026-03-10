@@ -1,6 +1,6 @@
 import RequiredSubscription from '@/components/pages/protected/subscription/required-subscription'
-import { FeatureEnum } from '@/lib/subscription-plan/feature-enum'
-import { PlanEnum } from '@/lib/subscription-plan/plan-enum'
+import { type FeatureEnum } from '@/lib/subscription-plan/feature-enum'
+import { type PlanEnum } from '@/lib/subscription-plan/plan-enum'
 import { hasFeature } from '@/lib/subscription-plan/hooks/use-access-control.ts'
 
 interface FeatureGateProps {

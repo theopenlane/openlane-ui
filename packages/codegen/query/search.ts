@@ -19,6 +19,7 @@ export const SEARCH = gql`
             refCode
             ownerID
             standardID
+            isTrustCenterControl
           }
         }
       }

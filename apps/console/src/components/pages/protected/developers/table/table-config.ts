@@ -1,5 +1,5 @@
 import { FilterIcons } from '@/components/shared/enum-mapper/tokens-enum'
-import { FilterField } from '@/types'
+import { type FilterField } from '@/types'
 
 export const TOKEN_FILTER_FIELDS: FilterField[] = [
   { key: 'nameContainsFold', label: 'Name', type: 'text', icon: FilterIcons.Name },

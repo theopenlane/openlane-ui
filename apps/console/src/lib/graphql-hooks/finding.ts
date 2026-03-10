@@ -1,26 +1,26 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
-  FindingsWithFilterQuery,
-  FindingsWithFilterQueryVariables,
-  CreateFindingMutation,
-  CreateFindingMutationVariables,
-  UpdateFindingMutation,
-  UpdateFindingMutationVariables,
-  DeleteFindingMutation,
-  DeleteFindingMutationVariables,
-  FindingQuery,
-  FindingQueryVariables,
-  CreateBulkCsvFindingMutation,
-  CreateBulkCsvFindingMutationVariables,
-  UpdateBulkFindingMutation,
-  UpdateBulkFindingMutationVariables,
-  DeleteBulkFindingMutation,
-  DeleteBulkFindingMutationVariables,
-  GetFindingAssociationsQuery,
+  type FindingsWithFilterQuery,
+  type FindingsWithFilterQueryVariables,
+  type CreateFindingMutation,
+  type CreateFindingMutationVariables,
+  type UpdateFindingMutation,
+  type UpdateFindingMutationVariables,
+  type DeleteFindingMutation,
+  type DeleteFindingMutationVariables,
+  type FindingQuery,
+  type FindingQueryVariables,
+  type CreateBulkCsvFindingMutation,
+  type CreateBulkCsvFindingMutationVariables,
+  type UpdateBulkFindingMutation,
+  type UpdateBulkFindingMutationVariables,
+  type DeleteBulkFindingMutation,
+  type DeleteBulkFindingMutationVariables,
+  type GetFindingAssociationsQuery,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 import { GET_ALL_FINDINGS, CREATE_FINDING, UPDATE_FINDING, DELETE_FINDING, FINDING, CREATE_CSV_BULK_FINDING, BULK_EDIT_FINDING, BULK_DELETE_FINDING, GET_FINDING_ASSOCIATIONS } from '@repo/codegen/query/finding'
 
 type GetAllFindingsArgs = {

@@ -112,7 +112,7 @@ export default function CreateCustomerLogo({ trustCenterID, onCreated }: CreateC
                 <div className="flex h-[110px] w-[110px] items-center justify-center rounded-md border border-muted bg-background">
                   {preview ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={normalizeUrl(preview)!} alt="Logo preview" className="max-h-24 object-contain p-2" />
+                    <img src={normalizeUrl(preview) ?? ''} alt="Logo preview" className="max-h-24 object-contain p-2" />
                   ) : (
                     <Eye className="h-6 w-6 text-muted-foreground" />
                   )}

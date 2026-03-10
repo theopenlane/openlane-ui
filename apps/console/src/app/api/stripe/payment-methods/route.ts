@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { stripe } from '@/lib/stripe'
-import Stripe from 'stripe'
+import type Stripe from 'stripe'
 import { auth } from '@/lib/auth/auth'
 
 export async function GET(req: Request) {

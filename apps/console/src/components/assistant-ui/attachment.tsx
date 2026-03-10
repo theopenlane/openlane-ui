@@ -1,6 +1,6 @@
 'use client'
 
-import { PropsWithChildren, useEffect, useState, type FC } from 'react'
+import { type PropsWithChildren, useEffect, useState, type FC } from 'react'
 import { XIcon, PlusIcon, FileText } from 'lucide-react'
 import { AttachmentPrimitive, ComposerPrimitive, MessagePrimitive, useAuiState, useAui } from '@assistant-ui/react'
 import { useShallow } from 'zustand/shallow'

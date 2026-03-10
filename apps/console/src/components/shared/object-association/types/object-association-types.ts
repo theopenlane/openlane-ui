@@ -3,6 +3,7 @@ export type TBaseAssociatedNode = {
   displayID?: string | null
   displayName?: string | null
   name?: string | null
+  fullName?: string | null
   title?: string | null
   summary?: string | null
   description?: string | null

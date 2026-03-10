@@ -1,4 +1,4 @@
-import { SiteExistsRequest, SiteExistsResponse } from '@/types/site-exists'
+import { type SiteExistsRequest, type SiteExistsResponse } from '@/types/site-exists'
 import { NextResponse } from 'next/server'
 import net from 'net'
 import { lookup } from 'dns/promises'

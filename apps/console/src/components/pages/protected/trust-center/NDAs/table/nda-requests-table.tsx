@@ -2,13 +2,13 @@
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { DataTable, getInitialPagination } from '@repo/ui/data-table'
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { TableKeyEnum } from '@repo/ui/table-key'
-import { TrustCenterNdaRequestTrustCenterNdaRequestStatus, TrustCenterNdaRequestWhereInput } from '@repo/codegen/src/schema'
+import { TrustCenterNdaRequestTrustCenterNdaRequestStatus, type TrustCenterNdaRequestWhereInput } from '@repo/codegen/src/schema'
 import { DEFAULT_NDA_REQUESTS_ORDER, useBulkDeleteTrustCenterNdaRequest, useGetTrustCenterNdaRequests, useUpdateTrustCenterNdaRequest } from '@/lib/graphql-hooks/trust-center-nda-request'
 import NdaRequestsTableToolbar from './nda-requests-table-toolbar'
-import { getNdaRequestColumns, NdaRequestRow } from './table-config'
+import { getNdaRequestColumns, type NdaRequestRow } from './table-config'
 import { useNotification } from '@/hooks/useNotification'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -28,7 +28,7 @@ const NdaRequestsTable = ({ requireApproval }: NdaRequestsTableProps) => {
   const [selectedRows, setSelectedRows] = useState<{ id: string }[]>([])
   const [revokeDialogOpen, setRevokeDialogOpen] = useState(false)
   const [revokeLoading, setRevokeLoading] = useState(false)
-  const [pagination, setPagination] = useState<TPagination>(getInitialPagination(TableKeyEnum.TRUST_CENTER_NDA_REQUESTS, DEFAULT_PAGINATION))
+  const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(TableKeyEnum.TRUST_CENTER_NDA_REQUESTS, DEFAULT_PAGINATION))
   const [filters, setFilters] = useState<TrustCenterNdaRequestWhereInput | null>(null)
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: updateNdaRequest } = useUpdateTrustCenterNdaRequest()

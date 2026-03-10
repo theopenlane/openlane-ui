@@ -52,7 +52,7 @@ export function EvidenceSummaryCard() {
           {chartData.map((item, i) => (
             <div key={item.name} className="flex flex-col items-center gap-1">
               <div className="text-2xl font-semibold">{isLoading ? '...' : item.value}</div>
-              <EvidenceStatusChip data={item} programId={programId!} index={i} />
+              <EvidenceStatusChip data={item} programId={programId ?? ''} index={i} />
             </div>
           ))}
         </div>

@@ -2,12 +2,12 @@
 
 import React, { useMemo, useRef, useState, useEffect } from 'react'
 import ReactDOM from 'react-dom'
-import ForceGraph, { ForceGraphMethods, NodeObject } from 'react-force-graph-2d'
+import ForceGraph, { type ForceGraphMethods, type NodeObject } from 'react-force-graph-2d'
 import usePlateEditor from '../plate/usePlateEditor'
 import { Info, PencilLine, SlidersHorizontal, X } from 'lucide-react'
 import { ObjectAssociationMap } from '@/components/shared/enum-mapper/object-association-enum.tsx'
-import { getHrefForObjectType, NormalizedObject } from '@/utils/getHrefForObjectType.ts'
-import { Section, TBaseAssociatedNode, TEdgeNode } from '@/components/shared/object-association/types/object-association-types.ts'
+import { getHrefForObjectType, type NormalizedObject } from '@/utils/getHrefForObjectType.ts'
+import { type Section, type TBaseAssociatedNode, type TEdgeNode } from '@/components/shared/object-association/types/object-association-types.ts'
 import { useTheme } from 'next-themes'
 import { useRouter } from 'next/navigation'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
@@ -53,6 +53,37 @@ const GROUP_NODE_RADIUS = 12
 const FONT_SIZE = 12
 const LABEL_PADDING = 4
 
+const CustomTooltipContent = ({ node }: { node: TBaseAssociatedNode & { link: string } }) => {
+  const { convertToReadOnly } = usePlateEditor()
+  const displayText = node.refCode || node.name || node.title || ''
+  const displayDescription = node.summary || node.description || node.details || ''
+  return (
+    <div>
+      <div className="grid grid-cols-[max-content_1fr] gap-x-4 items-center border-b pb-2">
+        <div className="flex items-center gap-1">
+          <SlidersHorizontal size={12} />
+          <span className="font-medium">Name</span>
+        </div>
+        <span className="cursor-pointer break-words">{displayText}</span>
+      </div>
+      <div className="grid grid-cols-[max-content_1fr] gap-x-4 items-center border-b pb-2 pt-2">
+        <div className="flex items-center gap-1">
+          <Info size={12} />
+          <span className="font-medium">Type</span>
+        </div>
+        <span className="cursor-pointer break-words">{node.__typename}</span>
+      </div>
+      <div className="flex flex-col pt-2">
+        <div className="flex items-center gap-1">
+          <PencilLine size={12} />
+          <span className="font-medium">Description</span>
+        </div>
+        <div className="line-clamp-4 text-justify">{displayDescription ? convertToReadOnly(displayDescription) : 'No description available'}</div>
+      </div>
+    </div>
+  )
+}
+
 const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ centerNode, sections, isFullscreen, closeFullScreen, controlId, onGroupSelect, clearGroupRef }) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const [dimensions, setDimensions] = useState({ width: 300, height: 300 })
@@ -86,7 +117,8 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
   useEffect(() => {
     if (!containerRef.current) return
     const updateSize = () => {
-      const { width, height } = containerRef.current!.getBoundingClientRect()
+      if (!containerRef.current) return
+      const { width, height } = containerRef.current.getBoundingClientRect()
       setDimensions({ width, height })
     }
     updateSize()
@@ -147,7 +179,7 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
           count: nodes.length,
           items: nodes.map((node) => ({
             ...node,
-            refCode: node.refCode || node.displayName || node.name || node.title || '',
+            refCode: node.refCode || node.displayName || node.fullName || node.name || node.title || '',
             description: node.summary || node.description || node.details || '',
             displayID: node.displayID || node.id,
             link:
@@ -195,13 +227,13 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
 
     if (!colorMap[centerNode.type])
       colorMap[centerNode.type] = ObjectAssociationMap[centerNode.type as keyof typeof ObjectAssociationMap]
-        ? resolveCssVar(ObjectAssociationMap[centerNode.type as keyof typeof ObjectAssociationMap]!.color)
+        ? resolveCssVar(ObjectAssociationMap[centerNode.type as keyof typeof ObjectAssociationMap]?.color ?? '')
         : '#ccc'
 
     Object.entries(groupedSections).forEach(([sectionType, group]) => {
       if (!colorMap[sectionType]) {
         colorMap[sectionType] = ObjectAssociationMap[sectionType as keyof typeof ObjectAssociationMap]
-          ? resolveCssVar(ObjectAssociationMap[sectionType as keyof typeof ObjectAssociationMap]!.color)
+          ? resolveCssVar(ObjectAssociationMap[sectionType as keyof typeof ObjectAssociationMap]?.color ?? '')
           : '#ccc'
       }
       nodes.push({
@@ -257,37 +289,6 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
     }, 300)
     return () => clearTimeout(timer)
   }, [centerNode.type, dimensions, graphData])
-
-  const CustomTooltipContent = ({ node }: { node: TBaseAssociatedNode & { link: string } }) => {
-    const { convertToReadOnly } = usePlateEditor()
-    const displayText = node.refCode || node.name || node.title || ''
-    const displayDescription = node.summary || node.description || node.details || ''
-    return (
-      <div>
-        <div className="grid grid-cols-[max-content_1fr] gap-x-4 items-center border-b pb-2">
-          <div className="flex items-center gap-1">
-            <SlidersHorizontal size={12} />
-            <span className="font-medium">Name</span>
-          </div>
-          <span className="cursor-pointer break-words">{displayText}</span>
-        </div>
-        <div className="grid grid-cols-[max-content_1fr] gap-x-4 items-center border-b pb-2 pt-2">
-          <div className="flex items-center gap-1">
-            <Info size={12} />
-            <span className="font-medium">Type</span>
-          </div>
-          <span className="cursor-pointer break-words">{node.__typename}</span>
-        </div>
-        <div className="flex flex-col pt-2">
-          <div className="flex items-center gap-1">
-            <PencilLine size={12} />
-            <span className="font-medium">Description</span>
-          </div>
-          <div className="line-clamp-4 text-justify">{displayDescription ? convertToReadOnly(displayDescription) : 'No description available'}</div>
-        </div>
-      </div>
-    )
-  }
 
   const getTooltipPosition = (x: number, y: number, tooltipEl: HTMLDivElement, isCenter: boolean) => {
     if (!fgRef.current || !tooltipEl || !containerRef.current) return { x: 0, y: 0 }
@@ -431,8 +432,8 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
             const nodeH = 11
             const cornerR = 22
             const nodeW = iconSize + pad * 2
-            const nx = node.x! - nodeW / 2
-            const ny = node.y! - nodeH / 2
+            const nx = (node.x ?? 0) - nodeW / 2
+            const ny = (node.y ?? 0) - nodeH / 2
 
             ctx.beginPath()
             ctx.roundRect(nx, ny, nodeW, nodeH, cornerR)
@@ -458,7 +459,7 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
 
             const coloredIcon = coloredIconImages[graphNode.type]
             if (coloredIcon?.complete) {
-              ctx.drawImage(coloredIcon, node.x! - iconSize / 2, node.y! - iconSize / 2, iconSize, iconSize)
+              ctx.drawImage(coloredIcon, (node.x ?? 0) - iconSize / 2, (node.y ?? 0) - iconSize / 2, iconSize, iconSize)
             }
           } else {
             const typeColor = colorMap[graphNode.type] || '#ccc'
@@ -474,8 +475,8 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
             const countTextWidth = ctx.measureText(countStr).width
             const contentW = iconSize + gap + countTextWidth
             const nodeW = contentW + pad * 2
-            const nx = node.x! - nodeW / 2
-            const ny = node.y! - nodeH / 2
+            const nx = (node.x ?? 0) - nodeW / 2
+            const ny = (node.y ?? 0) - nodeH / 2
 
             ctx.beginPath()
             ctx.roundRect(nx, ny, nodeW, nodeH, cornerR)
@@ -499,22 +500,22 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
 
             ctx.restore()
 
-            const contentX = node.x! - contentW / 2
+            const contentX = (node.x ?? 0) - contentW / 2
             const coloredIcon = coloredIconImages[graphNode.type]
             if (coloredIcon?.complete) {
-              ctx.drawImage(coloredIcon, contentX, node.y! - iconSize / 2, iconSize, iconSize)
+              ctx.drawImage(coloredIcon, contentX, (node.y ?? 0) - iconSize / 2, iconSize, iconSize)
             }
 
             ctx.fillStyle = resolvedTheme === 'dark' ? '#FFFFFF' : '#09151D'
             ctx.textAlign = 'left'
             ctx.textBaseline = 'middle'
-            ctx.fillText(countStr, contentX + iconSize + gap, node.y! + 0.4)
+            ctx.fillText(countStr, contentX + iconSize + gap, (node.y ?? 0) + 0.4)
 
             ctx.font = `${fontSize}px sans-serif`
             ctx.fillStyle = resolvedTheme === 'dark' ? '#FFFFFF' : '#09151D'
             ctx.textAlign = 'center'
             ctx.textBaseline = 'top'
-            ctx.fillText(label, node.x!, ny + nodeH + 4)
+            ctx.fillText(label, node.x ?? 0, ny + nodeH + 4)
           }
         }}
         nodePointerAreaPaint={(node, color, ctx) => {
@@ -524,8 +525,8 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
             const pad = 3
             const nodeW = iconSize + pad * 2
             const nodeH = 11
-            const nx = node.x! - nodeW / 2
-            const ny = node.y! - nodeH / 2
+            const nx = (node.x ?? 0) - nodeW / 2
+            const ny = (node.y ?? 0) - nodeH / 2
             ctx.beginPath()
             ctx.roundRect(nx, ny, nodeW, nodeH, 22)
             ctx.fillStyle = color
@@ -539,8 +540,8 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
             const gap = 2
             const nodeW = iconSize + gap + countTextWidth + pad * 2
             const nodeH = 11
-            const nx = node.x! - nodeW / 2
-            const ny = node.y! - nodeH / 2
+            const nx = (node.x ?? 0) - nodeW / 2
+            const ny = (node.y ?? 0) - nodeH / 2
             ctx.beginPath()
             ctx.roundRect(nx, ny, nodeW, nodeH, 22)
             ctx.fillStyle = color
@@ -556,7 +557,7 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
           <div
             ref={(el) => {
               if (!el) return
-              const { x, y } = getTooltipPosition(hoverNode.x!, hoverNode.y!, el, true)
+              const { x, y } = getTooltipPosition(hoverNode.x ?? 0, hoverNode.y ?? 0, el, true)
               el.style.left = `${x}px`
               el.style.top = `${y}px`
             }}
@@ -587,7 +588,7 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
           <div
             ref={(el) => {
               if (!el) return
-              const { x, y } = getTooltipPosition(hoverNode.x!, hoverNode.y!, el, false)
+              const { x, y } = getTooltipPosition(hoverNode.x ?? 0, hoverNode.y ?? 0, el, false)
               el.style.left = `${x}px`
               el.style.top = `${y}px`
             }}

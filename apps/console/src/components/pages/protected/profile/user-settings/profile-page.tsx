@@ -1,6 +1,6 @@
 'use client'
 
-import React, { Suspense, useMemo, useState, useEffect, useContext, useCallback } from 'react'
+import React, { Suspense, useMemo, useState, useEffect, use, useCallback } from 'react'
 import { ProfileNameForm } from './profile-name-form'
 import { AvatarUpload } from '@/components/shared/avatar-upload/avatar-upload'
 import { useSession } from 'next-auth/react'
@@ -20,7 +20,7 @@ import DeleteUserSection from '../delete-user-section'
 
 const ProfilePage = () => {
   const { data: sessionData } = useSession()
-  const { setCrumbs } = useContext(BreadcrumbContext)
+  const { setCrumbs } = use(BreadcrumbContext)
   const { successNotification, errorNotification } = useNotification()
   const userId = sessionData?.user.userId
 
@@ -96,6 +96,7 @@ const ProfilePage = () => {
     setSecret(secret || null)
   }, [createTfaSetting, isVerified, tfaSettings, updateTfaSetting])
 
+  /* eslint-disable react-hooks/preserve-manual-memoization */
   const handleTfaChange = useCallback(
     async (checked: boolean) => {
       try {
@@ -119,6 +120,7 @@ const ProfilePage = () => {
     },
     [errorNotification, successNotification, updateUserSetting, userData?.user?.setting?.id],
   )
+  /* eslint-enable react-hooks/preserve-manual-memoization */
 
   const removeTfa = useCallback(async () => {
     try {

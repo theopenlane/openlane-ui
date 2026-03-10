@@ -1,7 +1,7 @@
 // framework-based-wizard-config.ts
-import { TErrorProps } from '@/hooks/useNotification'
+import { type TErrorProps } from '@/hooks/useNotification'
 import { z } from 'zod'
-import { UseFormReturn } from 'react-hook-form'
+import { type UseFormReturn } from 'react-hook-form'
 
 export const selectFrameworkSchema = z.object({
   framework: z.string({ required_error: 'Framework is required' }).min(1, { message: 'Framework is required' }),

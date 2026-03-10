@@ -4,7 +4,7 @@ import { LoaderCircle, SearchIcon } from 'lucide-react'
 import { Input } from '@repo/ui/input'
 import { useDebounce } from '@uidotdev/usehooks'
 import { MEMBERS_FILTER_FIELDS } from '@/components/pages/protected/user-management/members/table/table-config.ts'
-import { ExtendedOrgMembershipWhereInput } from './members-table'
+import { type ExtendedOrgMembershipWhereInput } from './members-table'
 import { TableKeyEnum } from '@repo/ui/table-key'
 
 type TMembersTableToolbarProps = {

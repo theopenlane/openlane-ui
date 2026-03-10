@@ -2,11 +2,11 @@
 
 import React, { useEffect, useMemo, useState } from 'react'
 import { DataTable } from '@repo/ui/data-table'
-import { ColumnDef } from '@tanstack/react-table'
+import { type ColumnDef } from '@tanstack/react-table'
 import { Checkbox } from '@repo/ui/checkbox'
-import { TObjectAssociationMap } from './types/TObjectAssociationMap'
-import { TPagination, TPaginationMeta } from '@repo/ui/pagination-types'
-import { TableRow } from './object-association-config'
+import { type TObjectAssociationMap } from './types/TObjectAssociationMap'
+import { type TPagination, type TPaginationMeta } from '@repo/ui/pagination-types'
+import { type TableRow } from './object-association-config'
 import { TableKeyEnum } from '@repo/ui/table-key'
 
 type Props = {

@@ -1,25 +1,25 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
-  ActionPlansWithFilterQuery,
-  ActionPlansWithFilterQueryVariables,
-  CreateActionPlanMutation,
-  CreateActionPlanMutationVariables,
-  UpdateActionPlanMutation,
-  UpdateActionPlanMutationVariables,
-  DeleteActionPlanMutation,
-  DeleteActionPlanMutationVariables,
-  ActionPlanQuery,
-  ActionPlanQueryVariables,
-  CreateBulkCsvActionPlanMutation,
-  CreateBulkCsvActionPlanMutationVariables,
-  UpdateBulkActionPlanMutation,
-  UpdateBulkActionPlanMutationVariables,
-  DeleteBulkActionPlanMutation,
-  DeleteBulkActionPlanMutationVariables,
+  type ActionPlansWithFilterQuery,
+  type ActionPlansWithFilterQueryVariables,
+  type CreateActionPlanMutation,
+  type CreateActionPlanMutationVariables,
+  type UpdateActionPlanMutation,
+  type UpdateActionPlanMutationVariables,
+  type DeleteActionPlanMutation,
+  type DeleteActionPlanMutationVariables,
+  type ActionPlanQuery,
+  type ActionPlanQueryVariables,
+  type CreateBulkCsvActionPlanMutation,
+  type CreateBulkCsvActionPlanMutationVariables,
+  type UpdateBulkActionPlanMutation,
+  type UpdateBulkActionPlanMutationVariables,
+  type DeleteBulkActionPlanMutation,
+  type DeleteBulkActionPlanMutationVariables,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 import {
   GET_ALL_ACTION_PLANS,
   CREATE_ACTION_PLAN,

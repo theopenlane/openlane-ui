@@ -1,9 +1,9 @@
-import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import { EditTaskFormData } from '../hooks/use-form-schema'
-import { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
+import type usePlateEditor from '@/components/shared/plate/usePlateEditor'
+import { type EditTaskFormData } from '../hooks/use-form-schema'
+import { type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
 import { capitalizeFirstLetter } from '@/lib/auth/utils/strings'
-import { Value } from 'platejs'
-import { GetTaskAssociationsQuery, TaskQuery } from '@repo/codegen/src/schema'
+import { type Value } from 'platejs'
+import { type GetTaskAssociationsQuery, type TaskQuery } from '@repo/codegen/src/schema'
 
 const generateAssociationPayload = (original: TObjectAssociationMap, updated: TObjectAssociationMap) => {
   const payload: Record<string, string[]> = {}
@@ -51,8 +51,8 @@ export const generateEvidenceFormData = (taskData: TaskQuery['task'] | undefined
   }
 
   return {
-    displayID: taskData!.displayID,
-    tags: taskData!.tags ?? undefined,
+    displayID: taskData.displayID,
+    tags: taskData.tags ?? undefined,
     controlRefCodes: associationData?.task?.controls?.edges?.map((item) => item?.node?.refCode).filter((id): id is string => !!id) || [],
     subcontrolRefCodes: associationData?.task?.subcontrols?.edges?.map((item) => item?.node?.refCode).filter((id): id is string => !!id) || [],
     programDisplayIDs: associationData?.task?.programs?.edges?.map((item) => item?.node?.name).filter((id): id is string => !!id) || [],

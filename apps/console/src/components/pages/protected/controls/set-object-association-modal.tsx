@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogT
 import React, { useMemo, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
-import { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
+import { type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
 import { useNotification } from '@/hooks/useNotification'
 import { useGetSubcontrolAssociationsById } from '@/lib/graphql-hooks/subcontrol'
 import { useUpdateSubcontrol } from '@/lib/graphql-hooks/subcontrol'
@@ -128,12 +128,12 @@ export function SetObjectAssociationDialog({ trigger, defaultSelectedObject, all
 
       if (isControl) {
         await updateControl({
-          updateControlId: id!,
+          updateControlId: id ?? '',
           input: associationInputs,
         })
       } else {
         await updateSubcontrol({
-          updateSubcontrolId: subcontrolId!,
+          updateSubcontrolId: subcontrolId ?? '',
           input: associationInputs,
         })
       }

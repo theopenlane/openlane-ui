@@ -6,12 +6,12 @@ import React, { cloneElement, useState, useEffect } from 'react'
 import { Button } from '@repo/ui/button'
 import { useNotification } from '@/hooks/useNotification'
 import { useCreateProcedure, useCreateUploadProcedure } from '@/lib/graphql-hooks/procedure'
-import { TUploadedFile } from '../../../evidence/upload/types/TUploadedFile'
+import { type TUploadedFile } from '../../../evidence/upload/types/TUploadedFile'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import UploadTab from '../../../evidence/upload/upload-tab'
 import { PolicyProcedureTabEnum } from '@/components/shared/enum-mapper/policy-procedure-tab-enum'
-import { CreateProcedureInput } from '@repo/codegen/src/schema'
+import { type CreateProcedureInput } from '@repo/codegen/src/schema'
 import { useRouter } from 'next/navigation'
 import DirectLinkCreatePolicyProcedureTab from '@/components/shared/policy-procedure-shared-tabs/direct-link-create-policy-procedure-tab'
 import { Callout } from '@/components/shared/callout/callout'
@@ -115,7 +115,7 @@ const CreateProcedureUploadDialog: React.FC<TCreateProcedureUploadDialogProps> =
     } else {
       try {
         for (const uploadedFile of uploadedFiles) {
-          await createUploadProcedure({ procedureFile: uploadedFile.file! })
+          await createUploadProcedure({ procedureFile: uploadedFile.file ?? undefined })
         }
         successNotification({
           title: 'Procedure Created',
@@ -139,16 +139,16 @@ const CreateProcedureUploadDialog: React.FC<TCreateProcedureUploadDialogProps> =
     setUploadedFiles((prev) => prev.filter((_, i) => i !== index))
   }
 
+  const clearState = () => {
+    setProcedureMdDocumentLink('')
+    setProcedureMdDocumentLinks([])
+  }
+
   useEffect(() => {
     if (!isOpen) {
       clearState()
     }
   }, [isOpen])
-
-  const clearState = () => {
-    setProcedureMdDocumentLink('')
-    setProcedureMdDocumentLinks([])
-  }
 
   const handleAddLink = (link: string) => {
     if (link.trim() === '') return
@@ -165,6 +165,7 @@ const CreateProcedureUploadDialog: React.FC<TCreateProcedureUploadDialogProps> =
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       {trigger ? (
         <DialogTrigger className="bg-transparent">
+          {/* eslint-disable-next-line @eslint-react/no-clone-element */}
           {cloneElement(trigger, {
             onClick: () => setIsOpen(true),
             disabled: isSubmitting,

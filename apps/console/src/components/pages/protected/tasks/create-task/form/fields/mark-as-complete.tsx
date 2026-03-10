@@ -2,7 +2,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { useUpdateTask } from '@/lib/graphql-hooks/task'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
-import { TaskQuery, TaskTaskStatus } from '@repo/codegen/src/schema'
+import { type TaskQuery, TaskTaskStatus } from '@repo/codegen/src/schema'
 import { Button } from '@repo/ui/button'
 import { useQueryClient } from '@tanstack/react-query'
 import { Check } from 'lucide-react'

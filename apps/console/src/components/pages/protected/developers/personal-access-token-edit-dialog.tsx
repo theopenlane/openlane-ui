@@ -12,7 +12,7 @@ import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@repo/
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuCheckboxItem } from '@repo/ui/dropdown-menu'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { useOrganization } from '@/hooks/useOrganization'
-import { Organization, OrganizationSetting } from '@repo/codegen/src/schema'
+import { type Organization, type OrganizationSetting } from '@repo/codegen/src/schema'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useUpdateApiToken, useUpdatePersonalAccessToken } from '@/lib/graphql-hooks/tokens'
@@ -272,7 +272,7 @@ const PersonalAccessTokenEdit: React.FC<PersonalAccessTokenEditProps> = ({ token
                               {field.value && field.value.length > 0
                                 ? Object.entries(orgs)
                                     .filter(([, value]) => value?.node && field.value?.includes(value.node.id))
-                                    .map(([, value]) => value!.node!.name)
+                                    .map(([, value]) => value?.node?.name)
                                     .join(', ')
                                 : 'Select organization(s)'}
                             </Button>

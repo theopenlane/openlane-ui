@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useContext, useEffect, useMemo, useState } from 'react'
+import React, { use, useEffect, useMemo, useState } from 'react'
 import { PageHeading } from '@repo/ui/page-heading'
 import { Card } from '@repo/ui/cardpanel'
 import { Button } from '@repo/ui/button'
@@ -13,7 +13,7 @@ import Link from 'next/link'
 import { formatDateSince } from '@/utils/date'
 import { INFO_EMAIL } from '@/constants'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
-import { StandardWhereInput } from '@repo/codegen/src/schema'
+import { type StandardWhereInput } from '@repo/codegen/src/schema'
 import { StandardsIconMapper } from '@/components/shared/standards-icon-mapper/standards-icon-mapper'
 import Loading from '@/app/(protected)/standards/loading'
 import { getTasksFilterFields } from './table/table-config'
@@ -22,7 +22,7 @@ import { TableKeyEnum } from '@repo/ui/table-key'
 
 const filterFields = getTasksFilterFields()
 const StandardsPage = () => {
-  const { setCrumbs } = useContext(BreadcrumbContext)
+  const { setCrumbs } = use(BreadcrumbContext)
   const [searchQuery, setSearchQuery] = useState('')
   const [filters, setFilters] = useState<StandardWhereInput | null>(null)
   const debouncedSearchQuery = useDebounce(searchQuery, 300)
@@ -36,6 +36,7 @@ const StandardsPage = () => {
 
   const whereFilter = useMemo(() => {
     const conditions: StandardWhereInput = {
+      frameworkNEQ: 'openlane-trust-center',
       ...(debouncedSearchQuery ? { shortNameContainsFold: debouncedSearchQuery } : {}),
       ...filters,
     }

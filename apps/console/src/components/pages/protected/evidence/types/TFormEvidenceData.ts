@@ -1,4 +1,4 @@
-import { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap.ts'
+import { type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap.ts'
 
 export type TFormEvidenceData = {
   displayID?: string
