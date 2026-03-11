@@ -8,12 +8,24 @@ import { useRouter } from 'next/navigation'
 import { AlertTriangle } from 'lucide-react'
 import Skeleton from '@/components/shared/skeleton/skeleton'
 import { Dialog, DialogContent, DialogHeader } from '@repo/ui/dialog'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import { useGetFindingAssociations } from '@/lib/graphql-hooks/finding'
 import { useGetRiskById } from '@/lib/graphql-hooks/risk'
 import { useVulnerability } from '@/lib/graphql-hooks/vulnerability'
 import ObjectAssociationSwitch from '@/components/shared/object-association/object-association-switch'
 import { ObjectAssociationNodeEnum, type Section, type TConnectionLike } from '@/components/shared/object-association/types/object-association-types'
-import { getAttentionColumns, getSeverityClass, TYPE_HREFS, TYPE_ICONS } from './attention-table-config'
+import { getAttentionColumns, getSeverityClass, TYPE_ICONS } from './attention-table-config'
+import ViewFindingSheet from '@/components/pages/protected/findings/view-finding-sheet'
+import ViewVulnerabilitySheet from '@/components/pages/protected/vulnerabilities/view-vulnerability-sheet'
+import AssociationTimeline from './association-timeline'
+import {
+  useFindingTimeline,
+  useRiskTimeline,
+  useVulnerabilityTimeline,
+  extractFindingTimelineNodes,
+  extractRiskTimelineNodes,
+  extractVulnerabilityTimelineNodes,
+} from '@/lib/graphql-hooks/associations-timeline'
 
 export type AttentionItem = {
   id: string
@@ -30,7 +42,7 @@ const TYPE_NODE_ENUM: Record<AttentionItem['type'], ObjectAssociationNodeEnum> =
   Risk: ObjectAssociationNodeEnum.RISKS,
 }
 
-const AssociationDialogContent = ({ item }: { item: AttentionItem }) => {
+const AssociationGraphContent = ({ item }: { item: AttentionItem }) => {
   const { data: findingData } = useGetFindingAssociations(item.type === 'Finding' ? item.id : undefined)
   const { data: riskData } = useGetRiskById(item.type === 'Risk' ? item.id : null)
   useVulnerability(item.type === 'Vulnerability' ? item.id : undefined)
@@ -67,6 +79,22 @@ const AssociationDialogContent = ({ item }: { item: AttentionItem }) => {
   return <ObjectAssociationSwitch centerNode={centerNode} sections={sections} canEdit={false} />
 }
 
+const AssociationTimelineContent = ({ item }: { item: AttentionItem }) => {
+  const { data: findingData, isLoading: findingLoading } = useFindingTimeline(item.type === 'Finding' ? item.id : undefined)
+  const { data: riskData, isLoading: riskLoading } = useRiskTimeline(item.type === 'Risk' ? item.id : undefined)
+  const { data: vulnData, isLoading: vulnLoading } = useVulnerabilityTimeline(item.type === 'Vulnerability' ? item.id : undefined)
+
+  const isLoading = findingLoading || riskLoading || vulnLoading
+
+  const nodes = useMemo(() => {
+    if (item.type === 'Finding') return extractFindingTimelineNodes(findingData)
+    if (item.type === 'Risk') return extractRiskTimelineNodes(riskData)
+    return extractVulnerabilityTimelineNodes(vulnData)
+  }, [item.type, findingData, riskData, vulnData])
+
+  return <AssociationTimeline nodes={nodes} isLoading={isLoading} />
+}
+
 type Props = {
   items: AttentionItem[]
   isLoading?: boolean
@@ -75,8 +103,17 @@ type Props = {
 const ItemsRequiringAttention = ({ items, isLoading }: Props) => {
   const router = useRouter()
   const [selectedItem, setSelectedItem] = useState<AttentionItem | null>(null)
+  const [viewItem, setViewItem] = useState<AttentionItem | null>(null)
 
   const columns = useMemo(() => getAttentionColumns(setSelectedItem), [])
+
+  const handleRowClick = (row: AttentionItem) => {
+    if (row.type === 'Risk') {
+      router.push(`/exposure/risks/${row.id}`)
+    } else {
+      setViewItem(row)
+    }
+  }
 
   return (
     <Card>
@@ -96,7 +133,7 @@ const ItemsRequiringAttention = ({ items, isLoading }: Props) => {
           </div>
         ) : (
           <>
-            <DataTable columns={columns} data={items} onRowClick={(row) => router.push(TYPE_HREFS[row.type])} tableKey={TableKeyEnum.EXPOSURE_ATTENTION} />
+            <DataTable columns={columns} data={items} onRowClick={(row) => handleRowClick(row)} tableKey={TableKeyEnum.EXPOSURE_ATTENTION} />
           </>
         )}
       </CardContent>
@@ -114,10 +151,24 @@ const ItemsRequiringAttention = ({ items, isLoading }: Props) => {
                 <span className="text-xs text-muted-foreground">{selectedItem.type}</span>
               </div>
             </DialogHeader>
-            <AssociationDialogContent item={selectedItem} />
+            <Tabs defaultValue="associations">
+              <TabsList className="mb-4">
+                <TabsTrigger value="associations">Associations</TabsTrigger>
+                <TabsTrigger value="timeline">Timeline</TabsTrigger>
+              </TabsList>
+              <TabsContent value="associations">
+                <AssociationGraphContent item={selectedItem} />
+              </TabsContent>
+              <TabsContent value="timeline">
+                <AssociationTimelineContent item={selectedItem} />
+              </TabsContent>
+            </Tabs>
           </DialogContent>
         </Dialog>
       )}
+
+      <ViewFindingSheet entityId={viewItem?.type === 'Finding' ? viewItem.id : null} onClose={() => setViewItem(null)} />
+      <ViewVulnerabilitySheet entityId={viewItem?.type === 'Vulnerability' ? viewItem.id : null} onClose={() => setViewItem(null)} />
     </Card>
   )
 }

@@ -30,20 +30,29 @@ const ExposureOverviewPage = () => {
     setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Exposure', href: '/exposure/overview' }, { label: 'Overview' }])
   }, [setCrumbs])
 
-  const { data: vulnCritData } = useVulnerabilitiesWithFilter({ where: { open: true, ...CRIT_WHERE }, pagination: DEFAULT_PAGINATION })
-  const { data: vulnHighData } = useVulnerabilitiesWithFilter({ where: { open: true, ...HIGH_WHERE }, pagination: DEFAULT_PAGINATION })
-  const { data: vulnMedData } = useVulnerabilitiesWithFilter({ where: { open: true, ...MED_WHERE }, pagination: DEFAULT_PAGINATION })
-  const { data: vulnLowData } = useVulnerabilitiesWithFilter({ where: { open: true, ...LOW_WHERE }, pagination: DEFAULT_PAGINATION })
+  const { data: vulnCritData, vulnerabilitiesNodes: vulnCritNodes } = useVulnerabilitiesWithFilter({ where: { open: true, ...CRIT_WHERE }, pagination: DEFAULT_PAGINATION })
+  const { data: vulnHighData, vulnerabilitiesNodes: vulnHighNodes } = useVulnerabilitiesWithFilter({ where: { open: true, ...HIGH_WHERE }, pagination: DEFAULT_PAGINATION })
+  const { data: vulnMedData, vulnerabilitiesNodes: vulnMedNodes } = useVulnerabilitiesWithFilter({ where: { open: true, ...MED_WHERE }, pagination: DEFAULT_PAGINATION })
+  const { data: vulnLowData, vulnerabilitiesNodes: vulnLowNodes } = useVulnerabilitiesWithFilter({ where: { open: true, ...LOW_WHERE }, pagination: DEFAULT_PAGINATION })
 
-  const { data: findCritData } = useFindingsWithFilter({ where: { open: true, ...CRIT_WHERE }, pagination: DEFAULT_PAGINATION })
-  const { data: findHighData } = useFindingsWithFilter({ where: { open: true, ...HIGH_WHERE }, pagination: DEFAULT_PAGINATION })
-  const { data: findMedData } = useFindingsWithFilter({ where: { open: true, ...MED_WHERE }, pagination: DEFAULT_PAGINATION })
-  const { data: findLowData } = useFindingsWithFilter({ where: { open: true, ...LOW_WHERE }, pagination: DEFAULT_PAGINATION })
+  const { data: findCritData, findingsNodes: findCritNodes } = useFindingsWithFilter({ where: { open: true, ...CRIT_WHERE }, pagination: DEFAULT_PAGINATION })
+  const { data: findHighData, findingsNodes: findHighNodes } = useFindingsWithFilter({ where: { open: true, ...HIGH_WHERE }, pagination: DEFAULT_PAGINATION })
+  const { data: findMedData, findingsNodes: findMedNodes } = useFindingsWithFilter({ where: { open: true, ...MED_WHERE }, pagination: DEFAULT_PAGINATION })
+  const { data: findLowData, findingsNodes: findLowNodes } = useFindingsWithFilter({ where: { open: true, ...LOW_WHERE }, pagination: DEFAULT_PAGINATION })
 
-  const { data: riskCritData } = useRisks({ where: { statusIn: [RiskRiskStatus.OPEN, RiskRiskStatus.IDENTIFIED], impactIn: [RiskRiskImpact.CRITICAL] }, pagination: DEFAULT_PAGINATION })
-  const { data: riskHighData } = useRisks({ where: { statusIn: [RiskRiskStatus.OPEN, RiskRiskStatus.IDENTIFIED], impactIn: [RiskRiskImpact.HIGH] }, pagination: DEFAULT_PAGINATION })
-  const { data: riskMedData } = useRisks({ where: { statusIn: [RiskRiskStatus.OPEN, RiskRiskStatus.IDENTIFIED], impactIn: [RiskRiskImpact.MODERATE] }, pagination: DEFAULT_PAGINATION })
-  const { data: riskLowData } = useRisks({ where: { statusIn: [RiskRiskStatus.OPEN, RiskRiskStatus.IDENTIFIED], impactIn: [RiskRiskImpact.LOW] }, pagination: DEFAULT_PAGINATION })
+  const { data: riskCritData, risks: riskCritNodes } = useRisks({
+    where: { statusIn: [RiskRiskStatus.OPEN, RiskRiskStatus.IDENTIFIED], impactIn: [RiskRiskImpact.CRITICAL] },
+    pagination: DEFAULT_PAGINATION,
+  })
+  const { data: riskHighData, risks: riskHighNodes } = useRisks({
+    where: { statusIn: [RiskRiskStatus.OPEN, RiskRiskStatus.IDENTIFIED], impactIn: [RiskRiskImpact.HIGH] },
+    pagination: DEFAULT_PAGINATION,
+  })
+  const { data: riskMedData, risks: riskMedNodes } = useRisks({
+    where: { statusIn: [RiskRiskStatus.OPEN, RiskRiskStatus.IDENTIFIED], impactIn: [RiskRiskImpact.MODERATE] },
+    pagination: DEFAULT_PAGINATION,
+  })
+  const { data: riskLowData, risks: riskLowNodes } = useRisks({ where: { statusIn: [RiskRiskStatus.OPEN, RiskRiskStatus.IDENTIFIED], impactIn: [RiskRiskImpact.LOW] }, pagination: DEFAULT_PAGINATION })
 
   const severityData = useMemo(
     () => ({
@@ -67,6 +76,30 @@ const ExposureOverviewPage = () => {
       },
     }),
     [vulnCritData, vulnHighData, vulnMedData, vulnLowData, findCritData, findHighData, findMedData, findLowData, riskCritData, riskHighData, riskMedData, riskLowData],
+  )
+
+  const severityItems = useMemo(
+    () => ({
+      vulns: {
+        critical: vulnCritNodes?.map((v) => v.displayName ?? v.cveID ?? v.displayID ?? v.id) ?? [],
+        high: vulnHighNodes?.map((v) => v.displayName ?? v.cveID ?? v.displayID ?? v.id) ?? [],
+        medium: vulnMedNodes?.map((v) => v.displayName ?? v.cveID ?? v.displayID ?? v.id) ?? [],
+        low: vulnLowNodes?.map((v) => v.displayName ?? v.cveID ?? v.displayID ?? v.id) ?? [],
+      },
+      findings: {
+        critical: findCritNodes?.map((f) => f.displayName ?? f.displayID ?? f.id) ?? [],
+        high: findHighNodes?.map((f) => f.displayName ?? f.displayID ?? f.id) ?? [],
+        medium: findMedNodes?.map((f) => f.displayName ?? f.displayID ?? f.id) ?? [],
+        low: findLowNodes?.map((f) => f.displayName ?? f.displayID ?? f.id) ?? [],
+      },
+      risks: {
+        critical: riskCritNodes?.map((r) => r.name ?? r.displayID ?? r.id) ?? [],
+        high: riskHighNodes?.map((r) => r.name ?? r.displayID ?? r.id) ?? [],
+        medium: riskMedNodes?.map((r) => r.name ?? r.displayID ?? r.id) ?? [],
+        low: riskLowNodes?.map((r) => r.name ?? r.displayID ?? r.id) ?? [],
+      },
+    }),
+    [vulnCritNodes, vulnHighNodes, vulnMedNodes, vulnLowNodes, findCritNodes, findHighNodes, findMedNodes, findLowNodes, riskCritNodes, riskHighNodes, riskMedNodes, riskLowNodes],
   )
 
   const criticalCounts = useMemo(
@@ -174,7 +207,7 @@ const ExposureOverviewPage = () => {
         <ExposureQuickActions />
         <div className="grid grid-cols-5 gap-4">
           <div className="col-span-3">
-            <ExposureSeverityChart severityData={severityData} isLoading={isLoading} />
+            <ExposureSeverityChart severityData={severityData} severityItems={severityItems} isLoading={isLoading} />
           </div>
           <div className="col-span-2">
             <ExposureActivityFeed activityItems={activityItems} />

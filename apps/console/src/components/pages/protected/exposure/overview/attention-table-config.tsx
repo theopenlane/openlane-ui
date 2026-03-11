@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { type ColumnDef } from '@tanstack/react-table'
-import { Bug, FileSearch, AlertTriangle, GitMerge } from 'lucide-react'
+import { Bug, FileSearch, AlertTriangle, Share2 } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { type AttentionItem } from './items-requiring-attention'
@@ -101,7 +101,7 @@ export const getAttentionColumns = (onAssociate: (item: AttentionItem) => void):
                 onAssociate(row.original)
               }}
             >
-              <GitMerge size={14} className="text-muted-foreground" />
+              <Share2 size={14} className="text-muted-foreground" />
             </button>
           </TooltipTrigger>
           <TooltipContent side="left">View associated objects</TooltipContent>
