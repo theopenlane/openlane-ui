@@ -105,21 +105,15 @@ const ObjectAssociationTable = ({ data, onIDsChange, initialData, refCodeInitial
           </div>
         )
       },
-      size: 15,
-      maxSize: 15,
+      size: showFramework ? 35 : 15,
+      maxSize: showFramework ? 35 : 15,
       enableResizing: false,
-      meta: {
-        className: 'max-w-[5%] w-[5%]',
-      },
     },
     {
       accessorKey: 'name',
       header: 'Name',
       size: 120,
       maxSize: 120,
-      meta: {
-        className: 'max-w-[70%] w-[60%]',
-      },
       cell: ({ row }) => {
         const { name } = row.original
         return <span className="block truncate whitespace-nowrap">{name}</span>
@@ -146,6 +140,7 @@ const ObjectAssociationTable = ({ data, onIDsChange, initialData, refCodeInitial
 
   return (
     <DataTable
+      key={showFramework ? 'with-framework' : 'no-framework'}
       loading={isLoading}
       onPaginationChange={onPaginationChange}
       pagination={pagination}
