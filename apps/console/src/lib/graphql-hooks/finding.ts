@@ -21,7 +21,17 @@ import {
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
 import { type TPagination } from '@repo/ui/pagination-types'
-import { GET_ALL_FINDINGS, CREATE_FINDING, UPDATE_FINDING, DELETE_FINDING, FINDING, CREATE_CSV_BULK_FINDING, BULK_EDIT_FINDING, BULK_DELETE_FINDING, GET_FINDING_ASSOCIATIONS } from '@repo/codegen/query/finding'
+import {
+  GET_ALL_FINDINGS,
+  CREATE_FINDING,
+  UPDATE_FINDING,
+  DELETE_FINDING,
+  FINDING,
+  CREATE_CSV_BULK_FINDING,
+  BULK_EDIT_FINDING,
+  BULK_DELETE_FINDING,
+  GET_FINDING_ASSOCIATIONS,
+} from '@repo/codegen/query/finding'
 
 type GetAllFindingsArgs = {
   where?: FindingsWithFilterQueryVariables['where']

@@ -1,6 +1,43 @@
 // This file is auto-generated. Do not edit manually.
 
-import { ActionPlan, Assessment, Asset, Campaign, Control, ControlImplementation, ControlObjective, EmailBranding, Entity, Evidence, Finding, Group, IdentityHolder, InternalPolicy, MappedControl, Narrative, PageInfo, Platform, Procedure, Program, Remediation, Review, Risk, Scan, Subcontrol, TrustCenter, TrustCenterCompliance, TrustCenterDoc, TrustCenterEntity, TrustCenterFaq, TrustCenterNdaRequest, TrustCenterSetting, TrustCenterSubprocessor, TrustCenterWatermarkConfig, Vulnerability, WorkflowDefinition } from './schema'
+import {
+  ActionPlan,
+  Assessment,
+  Asset,
+  Campaign,
+  Control,
+  ControlImplementation,
+  ControlObjective,
+  EmailBranding,
+  Entity,
+  Evidence,
+  Finding,
+  Group,
+  IdentityHolder,
+  InternalPolicy,
+  MappedControl,
+  Narrative,
+  PageInfo,
+  Platform,
+  Procedure,
+  Program,
+  Remediation,
+  Review,
+  Risk,
+  Scan,
+  Subcontrol,
+  TrustCenter,
+  TrustCenterCompliance,
+  TrustCenterDoc,
+  TrustCenterEntity,
+  TrustCenterFaq,
+  TrustCenterNdaRequest,
+  TrustCenterSetting,
+  TrustCenterSubprocessor,
+  TrustCenterWatermarkConfig,
+  Vulnerability,
+  WorkflowDefinition,
+} from './schema'
 import { GET_ALL_ACTION_PLANS } from '@repo/codegen/query/action-plan'
 import { GET_ALL_ASSESSMENTS } from '@repo/codegen/query/assessment'
 import { GET_ALL_ASSETS } from '@repo/codegen/query/asset'
@@ -493,14 +530,14 @@ export const OBJECT_TYPE_PERMISSIONS_CONFIG: Record<TypesWithPermissions, Object
     inputPlaceholder: 'ref code',
     excludeViewersInFilter: true,
     extraTableColumns: [
-        {
-          header: 'Reference Framework',
-          accessorKey: 'referenceFramework',
-          size: 100,
-          minSize: 100,
-          maxSize: 100,
-        },
-      ],
+      {
+        header: 'Reference Framework',
+        accessorKey: 'referenceFramework',
+        size: 100,
+        minSize: 100,
+        maxSize: 100,
+      },
+    ],
   },
   [TypesWithPermissions.CONTROL_IMPLEMENTATION]: {
     roleOptions: ['View', 'Edit', 'Blocked'],
@@ -774,7 +811,6 @@ export const OBJECT_TYPE_PERMISSIONS_CONFIG: Record<TypesWithPermissions, Object
   },
 }
 
-
 export enum TaskObjectTypes {
   ACTION_PLAN = 'Action Plan',
   CONTROL_IMPLEMENTATION = 'Control Implementation',
@@ -988,4 +1024,3 @@ export const TASK_OBJECT_TYPE_CONFIG: Record<TaskObjectTypes, TTaskObjectTypeCon
     objectName: 'name',
   },
 }
-

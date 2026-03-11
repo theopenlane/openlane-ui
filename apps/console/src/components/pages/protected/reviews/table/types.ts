@@ -1,7 +1,16 @@
 import { type GenericTablePageConfig, type EnumOptionsGeneric } from '@/components/shared/crud-base/page'
 import { type GenericDetailsSheetConfig, type RenderFieldsProps } from '@/components/shared/crud-base/generic-sheet'
 
-import { ReviewOrderField, type ReviewWhereInput, type CreateReviewInput, type CreateReviewMutation, type UpdateReviewInput, type UpdateReviewMutation, ExportExportType, OrderDirection } from '@repo/codegen/src/schema'
+import {
+  ReviewOrderField,
+  type ReviewWhereInput,
+  type CreateReviewInput,
+  type CreateReviewMutation,
+  type UpdateReviewInput,
+  type UpdateReviewMutation,
+  ExportExportType,
+  OrderDirection,
+} from '@repo/codegen/src/schema'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { ObjectTypes, ObjectNames } from '@repo/codegen/src/type-names'
 import { type ReviewsNodeNonNull } from '@/lib/graphql-hooks/review'
