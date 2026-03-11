@@ -1,5 +1,5 @@
 import { FilterIcons } from '@/components/shared/enum-mapper/subscribers-enum'
-import { FilterField } from '@/types'
+import { type FilterField } from '@/types'
 
 export const SUBSCRIBERS_FILTER_FIELDS: FilterField[] = [
   { key: 'email', label: 'Email', type: 'text', icon: FilterIcons.Email },

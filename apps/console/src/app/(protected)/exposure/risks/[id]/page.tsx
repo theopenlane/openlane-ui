@@ -7,7 +7,7 @@ import ViewRisksPage from '@/components/pages/protected/risks/view/view-risks-pa
 const RiskDetailsPage: React.FC = () => {
   const { id } = useParams()
 
-  return <ViewRisksPage riskId={id! as string} />
+  return <ViewRisksPage riskId={id as string} />
 }
 
 export default RiskDetailsPage

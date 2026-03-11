@@ -3,8 +3,8 @@ import { cn } from '@repo/ui/lib/utils'
 import React from 'react'
 
 import { ShieldCheck, Fingerprint, AlertTriangle, FileCheck, NotebookPen, AlertCircleIcon, ListChecks, ScrollText, Download, CircleOff } from 'lucide-react'
-import { Notification } from '@/lib/graphql-hooks/websocket/use-websocket-notifications'
-import { GetExportsQueryNode } from '@/lib/graphql-hooks/export'
+import { type Notification } from '@/lib/graphql-hooks/websocket/use-websocket-notifications'
+import { type GetExportsQueryNode } from '@/lib/graphql-hooks/export'
 
 interface ExportRowProps {
   notification: Notification

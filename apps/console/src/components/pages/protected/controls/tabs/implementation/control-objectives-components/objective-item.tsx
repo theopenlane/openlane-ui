@@ -3,7 +3,7 @@
 import React from 'react'
 import { Button } from '@repo/ui/button'
 import { Archive, MoreHorizontal, Pencil, Trash2 } from 'lucide-react'
-import { ControlObjectiveFieldsFragment, ControlObjectiveObjectiveStatus } from '@repo/codegen/src/schema'
+import { type ControlObjectiveFieldsFragment, ControlObjectiveObjectiveStatus } from '@repo/codegen/src/schema'
 import { canEdit } from '@/lib/authz/utils'
 import { ControlObjectiveCard } from './control-objective-card'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'

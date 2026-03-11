@@ -1,9 +1,9 @@
 'use client'
 
-import { FieldValues, useFormContext } from 'react-hook-form'
+import { type FieldValues, useFormContext } from 'react-hook-form'
 import { Input } from '@repo/ui/input'
 import { FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
-import { InternalEditingType } from '../generic-sheet'
+import { type InternalEditingType } from '../generic-sheet'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { InfoIcon } from 'lucide-react'
 

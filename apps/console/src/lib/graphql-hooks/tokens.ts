@@ -12,27 +12,27 @@ import {
   UPDATE_PERSONAL_ACCESS_TOKEN,
 } from '@repo/codegen/query/tokens'
 import {
-  GetPersonalAccessTokensQuery,
-  CreatePersonalAccessTokenMutation,
-  CreatePersonalAccessTokenMutationVariables,
-  DeletePersonalAccessTokenMutation,
-  DeletePersonalAccessTokenMutationVariables,
-  GetApiTokensQuery,
-  CreateApiTokenMutation,
-  CreateApiTokenMutationVariables,
-  DeleteApiTokenMutation,
-  DeleteApiTokenMutationVariables,
-  GetApiTokensQueryVariables,
-  GetPersonalAccessTokensQueryVariables,
-  GetApiTokensByIdsQuery,
-  GetApiTokensByIdsQueryVariables,
-  ApiToken,
-  UpdatePersonalAccessTokenMutation,
-  UpdatePersonalAccessTokenMutationVariables,
-  UpdateApiTokenMutation,
-  UpdateApiTokenMutationVariables,
+  type GetPersonalAccessTokensQuery,
+  type CreatePersonalAccessTokenMutation,
+  type CreatePersonalAccessTokenMutationVariables,
+  type DeletePersonalAccessTokenMutation,
+  type DeletePersonalAccessTokenMutationVariables,
+  type GetApiTokensQuery,
+  type CreateApiTokenMutation,
+  type CreateApiTokenMutationVariables,
+  type DeleteApiTokenMutation,
+  type DeleteApiTokenMutationVariables,
+  type GetApiTokensQueryVariables,
+  type GetPersonalAccessTokensQueryVariables,
+  type GetApiTokensByIdsQuery,
+  type GetApiTokensByIdsQueryVariables,
+  type ApiToken,
+  type UpdatePersonalAccessTokenMutation,
+  type UpdatePersonalAccessTokenMutationVariables,
+  type UpdateApiTokenMutation,
+  type UpdateApiTokenMutationVariables,
 } from '@repo/codegen/src/schema'
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 
 type UseGetPersonalAccessTokensArgs = {
   where?: GetPersonalAccessTokensQueryVariables['where']

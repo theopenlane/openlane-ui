@@ -1,5 +1,5 @@
 import { useCreateExport } from '@/lib/graphql-hooks/export'
-import { ExportExportFormat, ExportExportType, InputMaybe, Scalars } from '@repo/codegen/src/schema'
+import { type ExportExportFormat, type ExportExportType, type InputMaybe, type Scalars } from '@repo/codegen/src/schema'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useNotification } from '@/hooks/useNotification.tsx'
 

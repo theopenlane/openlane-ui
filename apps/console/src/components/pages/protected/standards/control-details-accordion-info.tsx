@@ -59,7 +59,7 @@ const AccordionInfo: React.FC<AccordionInfoProps> = ({ implementationGuidance, t
           hasData: !!testingProcedures?.length,
           render: () => (
             <div className="space-y-4">
-              {testingProcedures!.map(({ referenceId, procedures }, idx) => (
+              {testingProcedures?.map(({ referenceId, procedures }, idx) => (
                 <div key={`${referenceId}-${idx}`} className="rich-text text-sm text-muted-foreground">
                   <ul>
                     {procedures.map((p, i) => (

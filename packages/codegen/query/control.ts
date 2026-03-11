@@ -15,6 +15,7 @@ export const CONTROL_LIST_FIELDS_FRAGMENT = gql`
     auditorReferenceID
     source
     controlKindName
+    title
     subcontrols {
       totalCount
     }
@@ -403,6 +404,16 @@ export const GET_CONTROL_ASSOCIATIONS_BY_ID = gql`
           node {
             id
             title
+          }
+        }
+        totalCount
+      }
+      findings {
+        edges {
+          node {
+            id
+            displayName
+            displayID
           }
         }
         totalCount

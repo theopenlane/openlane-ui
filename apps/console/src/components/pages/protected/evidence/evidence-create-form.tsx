@@ -1,9 +1,9 @@
 'use client'
 import { Grid, GridCell, GridRow } from '@repo/ui/grid'
-import React, { useContext, useEffect, useState } from 'react'
+import React, { use, useEffect, useState } from 'react'
 import { InfoIcon } from 'lucide-react'
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
-import useFormSchema, { CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema'
+import useFormSchema, { type CreateEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema'
 import { Input, InputRow } from '@repo/ui/input'
 import { Textarea } from '@repo/ui/textarea'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
@@ -11,20 +11,20 @@ import MultipleSelector from '@repo/ui/multiple-selector'
 import { Button } from '@repo/ui/button'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { useRouter } from 'next/navigation'
-import { CreateEvidenceInput } from '@repo/codegen/src/schema'
+import { type CreateEvidenceInput } from '@repo/codegen/src/schema'
 import EvidenceUploadForm from '@/components/pages/protected/evidence/upload/evidence-upload-form'
 import { useNotification } from '@/hooks/useNotification'
-import { Option } from '@repo/ui/multiple-selector'
+import { type Option } from '@repo/ui/multiple-selector'
 import { useCreateEvidence } from '@/lib/graphql-hooks/evidence'
-import { TFormEvidenceData } from '@/components/pages/protected/evidence/types/TFormEvidenceData.ts'
+import { type TFormEvidenceData } from '@/components/pages/protected/evidence/types/TFormEvidenceData.ts'
 import ObjectAssociation from '@/components/shared/object-association/object-association'
-import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
-import { TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
+import { type ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
+import { type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
 import { Panel, PanelHeader } from '@repo/ui/panel'
 import { useQueryClient } from '@tanstack/react-query'
 import HeadsUpDisplay from '@/components/shared/heads-up/heads-up'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
-import { TUploadedFile } from './upload/types/TUploadedFile'
+import { type TUploadedFile } from './upload/types/TUploadedFile'
 import { useSearchParams } from 'next/navigation'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
@@ -46,7 +46,7 @@ const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSucces
   const [resetEvidenceFiles, setResetEvidenceFiles] = useState(false)
   const [evidenceObjectTypes, setEvidenceObjectTypes] = useState<TObjectAssociationMap>()
   const { mutateAsync: createEvidence, isPending } = useCreateEvidence()
-  const { setCrumbs } = useContext(BreadcrumbContext)
+  const { setCrumbs } = use(BreadcrumbContext)
   const searchParams = useSearchParams()
   const programId = searchParams.get('programId')
   const queryClient = useQueryClient()
@@ -105,7 +105,6 @@ const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSucces
     }
   }
 
-  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (formData) {
       form.setValue('name', `Evidence for ${formData.displayID}`)
@@ -128,7 +127,6 @@ const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSucces
       }
     }
   }, [form, formData])
-  /* eslint-enable react-hooks/set-state-in-effect */
 
   useEffect(() => {
     setCrumbs([

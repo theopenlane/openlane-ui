@@ -1,5 +1,5 @@
 import { secureFetch } from '@/lib/auth/utils/secure-fetch'
-import { NextRequest, NextResponse } from 'next/server'
+import { type NextRequest, NextResponse } from 'next/server'
 
 export async function GET(request: NextRequest) {
   try {

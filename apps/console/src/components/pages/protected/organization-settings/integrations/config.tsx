@@ -1,5 +1,5 @@
 import { PLATFORM_DOCS_URL } from '@/constants/docs'
-import { GetIntegrationsQuery } from '@repo/codegen/src/schema'
+import { type GetIntegrationsQuery } from '@repo/codegen/src/schema'
 
 export type IntegrationTab = 'All' | 'Coming Soon' | 'Installed'
 

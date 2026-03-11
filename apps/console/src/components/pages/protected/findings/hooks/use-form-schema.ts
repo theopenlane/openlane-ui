@@ -1,6 +1,6 @@
 'use client'
 import { z } from 'zod'
-import { useForm, Resolver } from 'react-hook-form'
+import { useForm, type Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 
 const numericField = z.preprocess((val) => {
@@ -36,6 +36,15 @@ const formSchema = z.object({
   findingClass: z.string().optional(),
   environmentName: z.string().optional().nullable(),
   scopeName: z.string().optional().nullable(),
+  controlIDs: z.array(z.string()).optional(),
+  subcontrolIDs: z.array(z.string()).optional(),
+  riskIDs: z.array(z.string()).optional(),
+  programIDs: z.array(z.string()).optional(),
+  taskIDs: z.array(z.string()).optional(),
+  assetIDs: z.array(z.string()).optional(),
+  scanIDs: z.array(z.string()).optional(),
+  remediationIDs: z.array(z.string()).optional(),
+  reviewIDs: z.array(z.string()).optional(),
 })
 
 export const bulkEditFieldSchema = z.object({

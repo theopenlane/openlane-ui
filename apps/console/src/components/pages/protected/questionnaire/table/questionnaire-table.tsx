@@ -1,17 +1,17 @@
 'use client'
 
 import { DataTable, getInitialSortConditions } from '@repo/ui/data-table'
-import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, use, useEffect, useMemo, useState } from 'react'
 import { getQuestionnaireColumns } from './columns'
 import QuestionnaireTableToolbar from '@/components/pages/protected/questionnaire/table/questionnaire-table-toolbar.tsx'
 import { QUESTIONNAIRE_SORT_FIELDS } from '@/components/pages/protected/questionnaire/table/table-config.ts'
-import { OrderDirection, Assessment, AssessmentOrderField, AssessmentWhereInput, FilterAssessmentsQueryVariables } from '@repo/codegen/src/schema.ts'
-import { TPagination } from '@repo/ui/pagination-types'
+import { OrderDirection, type Assessment, AssessmentOrderField, type AssessmentWhereInput, type FilterAssessmentsQueryVariables } from '@repo/codegen/src/schema.ts'
+import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useDebounce } from '@uidotdev/usehooks'
 import { useAssessments, useDeleteAssessment } from '@/lib/graphql-hooks/assessment'
 import { useRouter } from 'next/navigation'
-import { ColumnDef, VisibilityState } from '@tanstack/react-table'
+import { type ColumnDef, type VisibilityState } from '@tanstack/react-table'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { exportToCSV } from '@/utils/exportToCSV'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
@@ -29,7 +29,7 @@ export const QuestionnairesTable = () => {
   const router = useRouter()
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
   const [filters, setFilters] = useState<AssessmentWhereInput | null>(null)
-  const { setCrumbs } = useContext(BreadcrumbContext)
+  const { setCrumbs } = use(BreadcrumbContext)
   const { successNotification, errorNotification } = useNotification()
   const [selectedQuestionnaires, setSelectedQuestionnaires] = useState<{ id: string }[]>([])
 
@@ -211,7 +211,7 @@ export const QuestionnairesTable = () => {
         return key !== null && key !== 'select' && key !== 'actions' && typeof col.header === 'string' && columnVisibility[key] !== false
       })
       .map((col) => {
-        const key = getColumnExportKey(col)!
+        const key = getColumnExportKey(col) ?? ''
         const label = col.header as string
         return {
           label,

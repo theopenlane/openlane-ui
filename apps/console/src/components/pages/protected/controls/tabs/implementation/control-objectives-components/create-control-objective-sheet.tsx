@@ -3,7 +3,7 @@
 import { Sheet, SheetContent } from '@repo/ui/sheet'
 import React from 'react'
 import { CreateControlObjectiveForm } from './form/create-control-objective-form'
-import { ControlObjectiveControlSource, ControlObjectiveFieldsFragment, ControlObjectiveObjectiveStatus } from '@repo/codegen/src/schema'
+import { ControlObjectiveControlSource, type ControlObjectiveFieldsFragment, ControlObjectiveObjectiveStatus } from '@repo/codegen/src/schema'
 import { VersionBump } from './form/use-form-schema'
 
 type CreateControlObjectiveSheetProps = {

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useContext, useEffect, useMemo } from 'react'
+import React, { use, useEffect, useMemo } from 'react'
 import { usePathname } from 'next/navigation'
 import { PersonalAccessTokenTable } from './table/personal-access-tokens-table'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
@@ -20,7 +20,7 @@ const PAGE_CONFIG = [
 ]
 
 const DevelopersPage: React.FC = () => {
-  const { setCrumbs } = useContext(BreadcrumbContext)
+  const { setCrumbs } = use(BreadcrumbContext)
   const path = usePathname()
 
   const { heading, crumbHref } = useMemo(() => {

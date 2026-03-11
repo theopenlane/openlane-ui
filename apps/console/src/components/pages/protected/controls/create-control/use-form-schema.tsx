@@ -1,9 +1,10 @@
 import { z } from 'zod'
 import { ControlControlSource, ControlControlStatus } from '@repo/codegen/src/schema'
-import { Value } from 'platejs'
+import { type Value } from 'platejs'
 
 export const controlFormSchema = z.object({
-  refCode: z.string().min(1, 'Name is required'),
+  refCode: z.string().min(1, 'Ref Code is required'),
+  title: z.string().optional(),
   description: z.any(),
   descriptionJSON: z.custom<Value>().optional(),
   controlOwnerID: z.string().optional(),

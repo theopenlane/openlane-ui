@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@repo/ui/switch'
 import { useNotification } from '@/hooks/useNotification'
 import { useQueryClient } from '@tanstack/react-query'
-import { IntegrationCredentialsSchema, IntegrationProvider, IntegrationSchemaNode, IntegrationSchemaProperty, parseIntegrationErrorMessage } from './config'
+import { type IntegrationCredentialsSchema, type IntegrationProvider, type IntegrationSchemaNode, type IntegrationSchemaProperty, parseIntegrationErrorMessage } from './config'
 import { toHumanLabel } from '@/utils/strings'
 
 type Props = {

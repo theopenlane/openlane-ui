@@ -1,5 +1,5 @@
 import React from 'react'
-import { CreateEvidenceFormMethods } from '@/components/pages/protected/evidence/hooks/use-form-schema'
+import { type CreateEvidenceFormMethods } from '@/components/pages/protected/evidence/hooks/use-form-schema'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import ObjectsChip from '../objects-chip/objects-chip'
 import { getHrefForObjectType } from '@/utils/getHrefForObjectType'

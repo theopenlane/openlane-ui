@@ -4,7 +4,7 @@ import React from 'react'
 import { Button } from '@repo/ui/button'
 import { Card } from '@repo/ui/cardpanel'
 
-import { AvailableIntegrationNode, getInstalledIntegrationConfig, IntegrationNode, IntegrationProvider, IntegrationTab } from './config'
+import { type AvailableIntegrationNode, getInstalledIntegrationConfig, type IntegrationNode, type IntegrationProvider, type IntegrationTab } from './config'
 import AvailableIntegrationCard from './available-integration-card'
 import InstalledIntegrationCard from './installed-integration-card'
 import { INFO_EMAIL } from '@/constants'

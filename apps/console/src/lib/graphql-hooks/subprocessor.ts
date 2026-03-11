@@ -1,21 +1,21 @@
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { CREATE_SUBPROCESSOR, UPDATE_SUBPROCESSOR, GET_SUBPROCESSORS, DELETE_BULK_SUBPROCESSORS } from '@repo/codegen/query/subprocessor'
 import {
-  CreateSubprocessorMutation,
-  CreateSubprocessorMutationVariables,
-  UpdateSubprocessorMutation,
-  UpdateSubprocessorMutationVariables,
-  GetSubprocessorsQuery,
-  GetSubprocessorsQueryVariables,
-  DeleteBulkSubprocessorsMutation,
-  DeleteBulkControlMutationVariables,
+  type CreateSubprocessorMutation,
+  type CreateSubprocessorMutationVariables,
+  type UpdateSubprocessorMutation,
+  type UpdateSubprocessorMutationVariables,
+  type GetSubprocessorsQuery,
+  type GetSubprocessorsQueryVariables,
+  type DeleteBulkSubprocessorsMutation,
+  type DeleteBulkControlMutationVariables,
   OrderDirection,
   SubprocessorOrderField,
 } from '@repo/codegen/src/schema'
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { fetchGraphQLWithUpload } from '../fetchGraphql'
 
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 
 type UseGetSubprocessorsArgs = {
   where?: GetSubprocessorsQueryVariables['where']

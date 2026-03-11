@@ -2,7 +2,7 @@ import { z } from 'zod'
 import { TrustCenterSettingTrustCenterThemeMode } from '@repo/codegen/src/schema'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Value } from 'platejs'
+import { type Value } from 'platejs'
 
 export const brandSchema = z.object({
   title: z.string().min(1, 'Title is required').optional(),

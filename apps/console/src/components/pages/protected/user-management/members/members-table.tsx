@@ -1,17 +1,26 @@
 'use client'
 
-import { OrderDirection, OrgMembership, OrgMembershipOrderField, OrgMembershipRole, OrgMembershipsQueryVariables, OrgMembershipWhereInput, User, UserAuthProvider } from '@repo/codegen/src/schema'
+import {
+  OrderDirection,
+  type OrgMembership,
+  OrgMembershipOrderField,
+  type OrgMembershipRole,
+  type OrgMembershipsQueryVariables,
+  type OrgMembershipWhereInput,
+  type User,
+  UserAuthProvider,
+} from '@repo/codegen/src/schema'
 import { pageStyles } from './page.styles'
 import React, { useEffect, useMemo, useState } from 'react'
 import { Copy, KeyRoundIcon } from 'lucide-react'
 import { DataTable, getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
-import { ColumnDef } from '@tanstack/react-table'
+import { type ColumnDef } from '@tanstack/react-table'
 import Image from 'next/image'
 import { useCopyToClipboard, useDebounce } from '@uidotdev/usehooks'
 import { MemberActions } from './actions/member-actions'
 import { useNotification } from '@/hooks/useNotification'
 import { Avatar } from '@/components/shared/avatar/avatar'
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { formatDateSince } from '@/utils/date'
 import { UserRoleIconMapper } from '@/components/shared/enum-mapper/user-role-enum'
@@ -31,9 +40,9 @@ export const MembersTable = () => {
   const [searchTerm, setSearchTerm] = useState('')
   const [, copyToClipboard] = useCopyToClipboard()
   const { successNotification, errorNotification } = useNotification()
-  const [pagination, setPagination] = useState<TPagination>(getInitialPagination(TableKeyEnum.MEMBER, DEFAULT_PAGINATION))
+  const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(TableKeyEnum.MEMBER, DEFAULT_PAGINATION))
   const debouncedSearch = useDebounce(searchTerm, 300)
-  const [orderBy, setOrderBy] = useState<OrgMembershipsQueryVariables['orderBy']>(
+  const [orderBy, setOrderBy] = useState<OrgMembershipsQueryVariables['orderBy']>(() =>
     getInitialSortConditions(TableKeyEnum.MEMBER, OrgMembershipOrderField, [
       {
         field: OrgMembershipOrderField.created_at,

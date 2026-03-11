@@ -1,7 +1,7 @@
 import { auth } from '@/lib/auth/auth'
 import { stripe } from '@/lib/stripe'
 import { NextResponse } from 'next/server'
-import Stripe from 'stripe'
+import type Stripe from 'stripe'
 
 type Action = 'subscribe' | 'unsubscribe'
 

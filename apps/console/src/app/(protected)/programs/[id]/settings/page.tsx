@@ -1,5 +1,5 @@
 import React from 'react'
-import { Metadata } from 'next'
+import { type Metadata } from 'next'
 import { PageHeading } from '@repo/ui/page-heading'
 import { ProgramSettingsUsers } from '@/components/pages/protected/programs/[id]/settings/users/program-settings-users'
 import { ProgramSettingsGroups } from '@/components/pages/protected/programs/[id]/settings/groups/program-settings-groups'

@@ -7,9 +7,9 @@ import { useTemplateFilters } from '@/components/pages/protected/questionnaire/t
 import { includeQuestionnaireCreation } from '@repo/dally/auth'
 import { CreateTemplateButton } from '@/components/pages/protected/questionnaire/template/create.tsx'
 import Menu from '@/components/shared/menu/menu.tsx'
-import { VisibilityState } from '@tanstack/react-table'
+import { type VisibilityState } from '@tanstack/react-table'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
-import { TemplateWhereInput } from '@repo/codegen/src/schema'
+import { type TemplateWhereInput } from '@repo/codegen/src/schema'
 import { BulkCSVCreateTemplateDialog } from '@/components/pages/protected/questionnaire/dialog/bulk-csv-create-template-dialog'
 import { canCreate } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
@@ -50,7 +50,7 @@ const TemplateTableToolbar: React.FC<TTemplateTableToolbarProps> = ({
   const filterFields = useTemplateFilters()
 
   const createButton = () => {
-    if (includeQuestionnaireCreation == 'true' && canCreate(permission?.roles, AccessEnum.CanCreateTemplate)) {
+    if (includeQuestionnaireCreation === 'true' && canCreate(permission?.roles, AccessEnum.CanCreateTemplate)) {
       return <CreateTemplateButton />
     }
   }

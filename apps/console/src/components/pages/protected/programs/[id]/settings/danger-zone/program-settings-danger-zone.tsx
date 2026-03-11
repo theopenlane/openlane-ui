@@ -20,7 +20,7 @@ export const ProgramSettingsDangerZone = () => {
   const [isDeleting, setIsDeleting] = useState<boolean>(false)
   const router = useRouter()
 
-  const [isDialogOpen, setDialogOpen] = useState(false)
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isArchiveDialogOpen, setIsArchiveDialogOpen] = useState(false)
   const [isUnArchiveDialogOpen, setIsUnArchiveDialogOpen] = useState(false)
   const { mutateAsync: updateProgram, isPending: isArchivePending } = useUpdateProgram()
@@ -52,7 +52,7 @@ export const ProgramSettingsDangerZone = () => {
         description: errorMessage,
       })
     } finally {
-      setDialogOpen(false)
+      setIsDialogOpen(false)
     }
   }
 
@@ -110,7 +110,7 @@ export const ProgramSettingsDangerZone = () => {
     <>
       <ConfirmationDialog
         open={isDialogOpen}
-        onOpenChange={setDialogOpen}
+        onOpenChange={setIsDialogOpen}
         onConfirm={handleDelete}
         title={`Delete Program ${program?.name}?`}
         description={
@@ -186,7 +186,7 @@ export const ProgramSettingsDangerZone = () => {
                 <p className="text-base">
                   Proceed with caution, deleting a program is <strong>permanent and irreversible</strong>.
                 </p>
-                <Button variant="destructive" className="w-fit" onClick={() => setDialogOpen(true)} disabled={isPending}>
+                <Button variant="destructive" className="w-fit" onClick={() => setIsDialogOpen(true)} disabled={isPending}>
                   {isPending ? 'Deleting... ' : 'Delete'}
                 </Button>
               </div>

@@ -1,5 +1,5 @@
 import React from 'react'
-import { Metadata } from 'next'
+import { type Metadata } from 'next'
 import ProgramsCreate from '@/components/pages/protected/programs/create/programs-page'
 
 export const metadata: Metadata = {

@@ -8302,6 +8302,7 @@ export interface CreateGroupInput {
   actionPlanBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   actionPlanEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   actionPlanViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  avatarFileID?: InputMaybe<Scalars['ID']['input']>
   campaignBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   campaignEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   campaignIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -17445,6 +17446,7 @@ export interface EvidenceEdge {
 /** EvidenceEvidenceStatus is enum for the field status */
 export enum EvidenceEvidenceStatus {
   AUDITOR_APPROVED = 'AUDITOR_APPROVED',
+  DRAFT = 'DRAFT',
   IN_REVIEW = 'IN_REVIEW',
   MISSING_ARTIFACT = 'MISSING_ARTIFACT',
   NEEDS_RENEWAL = 'NEEDS_RENEWAL',
@@ -20127,6 +20129,9 @@ export interface Group extends Node {
   actionPlanBlockedGroups: ActionPlanConnection
   actionPlanEditors: ActionPlanConnection
   actionPlanViewers: ActionPlanConnection
+  avatarFile?: Maybe<File>
+  /** The group's local avatar file id, takes precedence over the gravatar logo URL */
+  avatarLocalFileID?: Maybe<Scalars['ID']['output']>
   campaignBlockedGroups: CampaignConnection
   campaignEditors: CampaignConnection
   campaignTargets: CampaignTargetConnection
@@ -21253,6 +21258,22 @@ export interface GroupUpdatePayload {
  */
 export interface GroupWhereInput {
   and?: InputMaybe<Array<GroupWhereInput>>
+  /** avatar_local_file_id field predicates */
+  avatarLocalFileID?: InputMaybe<Scalars['ID']['input']>
+  avatarLocalFileIDContains?: InputMaybe<Scalars['ID']['input']>
+  avatarLocalFileIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  avatarLocalFileIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  avatarLocalFileIDGT?: InputMaybe<Scalars['ID']['input']>
+  avatarLocalFileIDGTE?: InputMaybe<Scalars['ID']['input']>
+  avatarLocalFileIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  avatarLocalFileIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  avatarLocalFileIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  avatarLocalFileIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  avatarLocalFileIDLT?: InputMaybe<Scalars['ID']['input']>
+  avatarLocalFileIDLTE?: InputMaybe<Scalars['ID']['input']>
+  avatarLocalFileIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  avatarLocalFileIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  avatarLocalFileIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** created_at field predicates */
   createdAt?: InputMaybe<Scalars['Time']['input']>
   createdAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -21317,6 +21338,9 @@ export interface GroupWhereInput {
   /** action_plan_viewers edge predicates */
   hasActionPlanViewers?: InputMaybe<Scalars['Boolean']['input']>
   hasActionPlanViewersWith?: InputMaybe<Array<ActionPlanWhereInput>>
+  /** avatar_file edge predicates */
+  hasAvatarFile?: InputMaybe<Scalars['Boolean']['input']>
+  hasAvatarFileWith?: InputMaybe<Array<FileWhereInput>>
   /** campaign_blocked_groups edge predicates */
   hasCampaignBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   hasCampaignBlockedGroupsWith?: InputMaybe<Array<CampaignWhereInput>>
@@ -27095,6 +27119,8 @@ export interface Mutation {
   deleteBulkProgramMembership: ProgramMembershipBulkDeletePayload
   /** Delete multiple remediations */
   deleteBulkRemediation: RemediationBulkDeletePayload
+  /** Delete multiple existing reviews (soft-deletes them and removes FGA tuples) */
+  deleteBulkReview: ReviewBulkDeletePayload
   /** Delete multiple risks */
   deleteBulkRisk: RiskBulkDeletePayload
   /** Delete multiple scans */
@@ -28408,6 +28434,7 @@ export interface MutationCreateFullProgramArgs {
 }
 
 export interface MutationCreateGroupArgs {
+  avatarFile?: InputMaybe<Scalars['Upload']['input']>
   input: CreateGroupInput
 }
 
@@ -28542,6 +28569,7 @@ export interface MutationCreateRemediationArgs {
 
 export interface MutationCreateReviewArgs {
   input: CreateReviewInput
+  reviewFiles?: InputMaybe<Array<Scalars['Upload']['input']>>
 }
 
 export interface MutationCreateRiskArgs {
@@ -28851,6 +28879,10 @@ export interface MutationDeleteBulkProgramMembershipArgs {
 }
 
 export interface MutationDeleteBulkRemediationArgs {
+  ids: Array<Scalars['ID']['input']>
+}
+
+export interface MutationDeleteBulkReviewArgs {
   ids: Array<Scalars['ID']['input']>
 }
 
@@ -29909,6 +29941,7 @@ export interface MutationUpdateFindingControlArgs {
 }
 
 export interface MutationUpdateGroupArgs {
+  avatarFile?: InputMaybe<Scalars['Upload']['input']>
   id: Scalars['ID']['input']
   input: UpdateGroupInput
 }
@@ -30053,6 +30086,7 @@ export interface MutationUpdateRemediationArgs {
 export interface MutationUpdateReviewArgs {
   id: Scalars['ID']['input']
   input: UpdateReviewInput
+  reviewFiles?: InputMaybe<Array<Scalars['Upload']['input']>>
 }
 
 export interface MutationUpdateRiskArgs {
@@ -41082,6 +41116,13 @@ export interface ReviewBulkCreatePayload {
   __typename?: 'ReviewBulkCreatePayload'
   /** Created reviews */
   reviews?: Maybe<Array<Review>>
+}
+
+/** Return response for deleteBulkReview mutation */
+export interface ReviewBulkDeletePayload {
+  __typename?: 'ReviewBulkDeletePayload'
+  /** Deleted trustCenterNDARequest IDs */
+  deletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** Return response for updateBulkReview mutation */
@@ -53288,9 +53329,11 @@ export interface UpdateGroupInput {
   addTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendOscalContactUuids?: InputMaybe<Array<Scalars['String']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
+  avatarFileID?: InputMaybe<Scalars['ID']['input']>
   clearActionPlanBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearActionPlanEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearActionPlanViewers?: InputMaybe<Scalars['Boolean']['input']>
+  clearAvatarFile?: InputMaybe<Scalars['Boolean']['input']>
   clearCampaignBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearCampaignEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearCampaignTargets?: InputMaybe<Scalars['Boolean']['input']>
@@ -62751,6 +62794,7 @@ export type ControlListFieldsFragment = {
   auditorReferenceID?: string | null
   source?: ControlControlSource | null
   controlKindName?: string | null
+  title?: string | null
   updatedAt?: any | null
   updatedBy?: string | null
   createdAt?: any | null
@@ -62905,6 +62949,7 @@ export type GetAllControlsQuery = {
         auditorReferenceID?: string | null
         source?: ControlControlSource | null
         controlKindName?: string | null
+        title?: string | null
         updatedAt?: any | null
         updatedBy?: string | null
         createdAt?: any | null
@@ -63118,6 +63163,11 @@ export type GetControlAssociationsByIdQuery = {
       edges?: Array<{ __typename?: 'RemediationEdge'; node?: { __typename?: 'Remediation'; id: string; title?: string | null; displayID: string } | null } | null> | null
     }
     reviews: { __typename?: 'ReviewConnection'; totalCount: number; edges?: Array<{ __typename?: 'ReviewEdge'; node?: { __typename?: 'Review'; id: string; title: string } | null } | null> | null }
+    findings: {
+      __typename?: 'FindingConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'FindingEdge'; node?: { __typename?: 'Finding'; id: string; displayName?: string | null; displayID: string } | null } | null> | null
+    }
   }
 }
 
@@ -64877,17 +64927,45 @@ export type EvidenceFieldsFragment = {
   url?: string | null
   updatedBy?: string | null
   updatedAt?: any | null
-  programs: { __typename?: 'ProgramConnection'; edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; name: string; displayID: string } | null } | null> | null }
+  programs: {
+    __typename?: 'ProgramConnection'
+    totalCount: number
+    edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; name: string; displayID: string } | null } | null> | null
+  }
   subcontrols: {
     __typename?: 'SubcontrolConnection'
+    totalCount: number
     edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; referenceFramework?: string | null; refCode: string } | null } | null> | null
   }
-  tasks: { __typename?: 'TaskConnection'; edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string } | null } | null> | null }
-  controlObjectives: { __typename?: 'ControlObjectiveConnection'; edges?: Array<{ __typename?: 'ControlObjectiveEdge'; node?: { __typename?: 'ControlObjective'; id: string } | null } | null> | null }
+  tasks: {
+    __typename?: 'TaskConnection'
+    totalCount: number
+    edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; title: string; displayID: string } | null } | null> | null
+  }
+  controlObjectives: {
+    __typename?: 'ControlObjectiveConnection'
+    totalCount: number
+    edges?: Array<{ __typename?: 'ControlObjectiveEdge'; node?: { __typename?: 'ControlObjective'; id: string; name: string; displayID: string } | null } | null> | null
+  }
   controls: {
     __typename?: 'ControlConnection'
+    totalCount: number
     edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; referenceFramework?: string | null; refCode: string } | null } | null> | null
   }
+  controlImplementations: {
+    __typename?: 'ControlImplementationConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'ControlImplementationEdge'
+      node?: {
+        __typename?: 'ControlImplementation'
+        id: string
+        details?: string | null
+        controls: { __typename?: 'ControlConnection'; edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; refCode: string } | null } | null> | null }
+      } | null
+    } | null> | null
+  }
+  scans: { __typename?: 'ScanConnection'; totalCount: number; edges?: Array<{ __typename?: 'ScanEdge'; node?: { __typename?: 'Scan'; id: string; target: string } | null } | null> | null }
 }
 
 export type GetEvidenceQueryVariables = Exact<{
@@ -64913,20 +64991,45 @@ export type GetEvidenceQuery = {
     url?: string | null
     updatedBy?: string | null
     updatedAt?: any | null
-    programs: { __typename?: 'ProgramConnection'; edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; name: string; displayID: string } | null } | null> | null }
+    programs: {
+      __typename?: 'ProgramConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; name: string; displayID: string } | null } | null> | null
+    }
     subcontrols: {
       __typename?: 'SubcontrolConnection'
+      totalCount: number
       edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; referenceFramework?: string | null; refCode: string } | null } | null> | null
     }
-    tasks: { __typename?: 'TaskConnection'; edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string } | null } | null> | null }
+    tasks: {
+      __typename?: 'TaskConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; title: string; displayID: string } | null } | null> | null
+    }
     controlObjectives: {
       __typename?: 'ControlObjectiveConnection'
-      edges?: Array<{ __typename?: 'ControlObjectiveEdge'; node?: { __typename?: 'ControlObjective'; id: string } | null } | null> | null
+      totalCount: number
+      edges?: Array<{ __typename?: 'ControlObjectiveEdge'; node?: { __typename?: 'ControlObjective'; id: string; name: string; displayID: string } | null } | null> | null
     }
     controls: {
       __typename?: 'ControlConnection'
+      totalCount: number
       edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; referenceFramework?: string | null; refCode: string } | null } | null> | null
     }
+    controlImplementations: {
+      __typename?: 'ControlImplementationConnection'
+      totalCount: number
+      edges?: Array<{
+        __typename?: 'ControlImplementationEdge'
+        node?: {
+          __typename?: 'ControlImplementation'
+          id: string
+          details?: string | null
+          controls: { __typename?: 'ControlConnection'; edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; refCode: string } | null } | null> | null }
+        } | null
+      } | null> | null
+    }
+    scans: { __typename?: 'ScanConnection'; totalCount: number; edges?: Array<{ __typename?: 'ScanEdge'; node?: { __typename?: 'Scan'; id: string; target: string } | null } | null> | null }
   }
 }
 
@@ -65554,6 +65657,54 @@ export type DeleteBulkFindingMutationVariables = Exact<{
 }>
 
 export type DeleteBulkFindingMutation = { __typename?: 'Mutation'; deleteBulkFinding: { __typename?: 'FindingBulkDeletePayload'; deletedIDs: Array<string> } }
+
+export type GetFindingAssociationsQueryVariables = Exact<{
+  findingId: Scalars['ID']['input']
+}>
+
+export type GetFindingAssociationsQuery = {
+  __typename?: 'Query'
+  finding: {
+    __typename?: 'Finding'
+    controls: {
+      __typename?: 'ControlConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string; description?: string | null; displayID: string } | null } | null> | null
+    }
+    subcontrols: {
+      __typename?: 'SubcontrolConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string; displayID: string } | null } | null> | null
+    }
+    risks: {
+      __typename?: 'RiskConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string; displayID: string } | null } | null> | null
+    }
+    programs: {
+      __typename?: 'ProgramConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; name: string; displayID: string } | null } | null> | null
+    }
+    tasks: {
+      __typename?: 'TaskConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; title: string; displayID: string } | null } | null> | null
+    }
+    assets: {
+      __typename?: 'AssetConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'AssetEdge'; node?: { __typename?: 'Asset'; id: string; name: string; displayName?: string | null } | null } | null> | null
+    }
+    scans: { __typename?: 'ScanConnection'; totalCount: number; edges?: Array<{ __typename?: 'ScanEdge'; node?: { __typename?: 'Scan'; id: string; target: string } | null } | null> | null }
+    remediations: {
+      __typename?: 'RemediationConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'RemediationEdge'; node?: { __typename?: 'Remediation'; id: string; title?: string | null; displayID: string } | null } | null> | null
+    }
+    reviews: { __typename?: 'ReviewConnection'; totalCount: number; edges?: Array<{ __typename?: 'ReviewEdge'; node?: { __typename?: 'Review'; id: string; title: string } | null } | null> | null }
+  }
+}
 
 export type UpdateBulkFindingMutationVariables = Exact<{
   ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
@@ -68657,6 +68808,7 @@ export type ReviewsWithFilterQuery = {
         state?: string | null
         summary?: string | null
         systemOwned?: boolean | null
+        tags?: Array<string> | null
         title: string
         updatedAt?: any | null
         updatedBy?: string | null
@@ -68699,6 +68851,7 @@ export type ReviewQuery = {
     state?: string | null
     summary?: string | null
     systemOwned?: boolean | null
+    tags?: Array<string> | null
     title: string
     updatedAt?: any | null
     updatedBy?: string | null
@@ -68707,6 +68860,7 @@ export type ReviewQuery = {
 
 export type CreateReviewMutationVariables = Exact<{
   input: CreateReviewInput
+  reviewFiles?: InputMaybe<Array<Scalars['Upload']['input']> | Scalars['Upload']['input']>
 }>
 
 export type CreateReviewMutation = { __typename?: 'Mutation'; createReview: { __typename?: 'ReviewCreatePayload'; review: { __typename?: 'Review'; id: string } } }
@@ -68714,6 +68868,7 @@ export type CreateReviewMutation = { __typename?: 'Mutation'; createReview: { __
 export type UpdateReviewMutationVariables = Exact<{
   updateReviewId: Scalars['ID']['input']
   input: UpdateReviewInput
+  reviewFiles?: InputMaybe<Array<Scalars['Upload']['input']> | Scalars['Upload']['input']>
 }>
 
 export type UpdateReviewMutation = { __typename?: 'Mutation'; updateReview: { __typename?: 'ReviewUpdatePayload'; review: { __typename?: 'Review'; id: string } } }
@@ -68723,6 +68878,106 @@ export type DeleteReviewMutationVariables = Exact<{
 }>
 
 export type DeleteReviewMutation = { __typename?: 'Mutation'; deleteReview: { __typename?: 'ReviewDeletePayload'; deletedID: string } }
+
+export type CreateBulkCsvReviewMutationVariables = Exact<{
+  input: Scalars['Upload']['input']
+}>
+
+export type CreateBulkCsvReviewMutation = { __typename?: 'Mutation'; createBulkCSVReview: { __typename?: 'ReviewBulkCreatePayload'; reviews?: Array<{ __typename?: 'Review'; id: string }> | null } }
+
+export type UpdateBulkReviewMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+  input: UpdateReviewInput
+}>
+
+export type UpdateBulkReviewMutation = { __typename?: 'Mutation'; updateBulkReview: { __typename?: 'ReviewBulkUpdatePayload'; updatedIDs?: Array<string> | null } }
+
+export type DeleteBulkReviewMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+}>
+
+export type DeleteBulkReviewMutation = { __typename?: 'Mutation'; deleteBulkReview: { __typename?: 'ReviewBulkDeletePayload'; deletedIDs: Array<string> } }
+
+export type GetReviewAssociationsQueryVariables = Exact<{
+  reviewId: Scalars['ID']['input']
+}>
+
+export type GetReviewAssociationsQuery = {
+  __typename?: 'Query'
+  review: {
+    __typename?: 'Review'
+    controls: {
+      __typename?: 'ControlConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string; displayID: string; description?: string | null } | null } | null> | null
+    }
+    subcontrols: {
+      __typename?: 'SubcontrolConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string; displayID: string; description?: string | null } | null } | null> | null
+    }
+    findings: {
+      __typename?: 'FindingConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'FindingEdge'; node?: { __typename?: 'Finding'; id: string; displayID: string; displayName?: string | null } | null } | null> | null
+    }
+    remediations: {
+      __typename?: 'RemediationConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'RemediationEdge'; node?: { __typename?: 'Remediation'; id: string; displayID: string } | null } | null> | null
+    }
+    vulnerabilities: {
+      __typename?: 'VulnerabilityConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'VulnerabilityEdge'; node?: { __typename?: 'Vulnerability'; id: string; displayID: string; displayName?: string | null } | null } | null> | null
+    }
+    entities: {
+      __typename?: 'EntityConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'EntityEdge'; node?: { __typename?: 'Entity'; id: string; name?: string | null; displayName?: string | null } | null } | null> | null
+    }
+    tasks: {
+      __typename?: 'TaskConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; title: string; displayID: string } | null } | null> | null
+    }
+    assets: {
+      __typename?: 'AssetConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'AssetEdge'; node?: { __typename?: 'Asset'; id: string; name: string; displayName?: string | null } | null } | null> | null
+    }
+    programs: {
+      __typename?: 'ProgramConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; name: string; displayID: string } | null } | null> | null
+    }
+  }
+}
+
+export type GetReviewFilesPaginatedQueryVariables = Exact<{
+  reviewId: Scalars['ID']['input']
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<FileOrder> | FileOrder>
+}>
+
+export type GetReviewFilesPaginatedQuery = {
+  __typename?: 'Query'
+  review: {
+    __typename?: 'Review'
+    files: {
+      __typename?: 'FileConnection'
+      totalCount: number
+      pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
+      edges?: Array<{
+        __typename?: 'FileEdge'
+        node?: { __typename?: 'File'; providedFileName: string; providedFileSize?: number | null; providedFileExtension: string; id: string; uri?: string | null; presignedURL?: string | null } | null
+      } | null> | null
+    }
+  }
+}
 
 export type RiskFieldsFragment = {
   __typename?: 'Risk'
@@ -69374,7 +69629,10 @@ export type SearchQuery = {
     }> | null
     controls?: {
       __typename?: 'ControlConnection'
-      edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string; ownerID?: string | null; standardID?: string | null } | null } | null> | null
+      edges?: Array<{
+        __typename?: 'ControlEdge'
+        node?: { __typename?: 'Control'; id: string; refCode: string; ownerID?: string | null; standardID?: string | null; isTrustCenterControl?: boolean | null } | null
+      } | null> | null
     } | null
     subcontrols?: {
       __typename?: 'SubcontrolConnection'

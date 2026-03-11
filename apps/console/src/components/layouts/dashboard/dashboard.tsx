@@ -11,10 +11,10 @@ import { jwtDecode } from 'jwt-decode'
 import { fromUnixTime, differenceInMilliseconds, isAfter } from 'date-fns'
 import { bottomNavigationItems, personalNavigationItems, topNavigationItems } from '@/routes/dashboard'
 import Sidebar from '@/components/shared/sidebar/sidebar'
-import { NavHeading, NavItem, Separator } from '@/types'
+import { type NavHeading, type NavItem, type Separator } from '@/types'
 import { usePathname } from 'next/navigation'
 import { useOrganization } from '@/hooks/useOrganization'
-import { PanelKey, PRIMARY_EXPANDED_WIDTH, PRIMARY_WIDTH, SECONDARY_COLLAPSED_WIDTH, SECONDARY_EXPANDED_WIDTH } from '@/components/shared/sidebar/sidebar-nav/sidebar-nav'
+import { type PanelKey, PRIMARY_EXPANDED_WIDTH, PRIMARY_WIDTH, SECONDARY_COLLAPSED_WIDTH, SECONDARY_EXPANDED_WIDTH } from '@/components/shared/sidebar/sidebar-nav/sidebar-nav'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 
 export interface DashboardLayoutProps {
@@ -77,27 +77,46 @@ export function DashboardLayout({ children, error }: DashboardLayoutProps) {
     return () => window.removeEventListener('session-expired', handler)
   }, [])
 
+  const isRefreshTokenExpired = (refreshToken: string): boolean => {
+    try {
+      const decoded: { exp?: number } = jwtDecode(refreshToken)
+      if (!decoded.exp) return false
+      return isAfter(new Date(), fromUnixTime(decoded.exp))
+    } catch {
+      return true
+    }
+  }
+
   useEffect(() => {
-    if (!sessionData?.user?.refreshToken) {
-      return
-    }
+    const refreshToken = sessionData?.user?.refreshToken
+    if (!refreshToken) return
 
-    const decoded: { exp?: number } = jwtDecode(sessionData.user.refreshToken)
-    if (!decoded.exp) {
-      return
-    }
-
-    const expirationDate = fromUnixTime(decoded.exp)
-    const now = new Date()
-
-    if (isAfter(now, expirationDate)) {
+    if (isRefreshTokenExpired(refreshToken)) {
       setShowSessionExpiredModal(true)
       return
     }
 
-    const delay = differenceInMilliseconds(expirationDate, now)
+    const decoded: { exp?: number } = jwtDecode(refreshToken)
+    if (!decoded.exp) return
+    const delay = differenceInMilliseconds(fromUnixTime(decoded.exp), new Date())
     const id = setTimeout(() => setShowSessionExpiredModal(true), delay)
     return () => clearTimeout(id)
+  }, [sessionData])
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState !== 'visible') return
+
+      const refreshToken = sessionData?.user?.refreshToken
+      if (!refreshToken) return
+
+      if (isRefreshTokenExpired(refreshToken)) {
+        setShowSessionExpiredModal(true)
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange)
   }, [sessionData])
 
   const handleOpenPanel = (panel: PanelKey) => {

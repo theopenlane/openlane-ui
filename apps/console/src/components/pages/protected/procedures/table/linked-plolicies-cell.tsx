@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { Row } from '@tanstack/react-table'
-import { Procedure } from '@repo/codegen/src/schema'
+import { type Row } from '@tanstack/react-table'
+import { type Procedure } from '@repo/codegen/src/schema'
 import { Badge } from '@repo/ui/badge'
 import Link from 'next/link'
 

@@ -11,8 +11,8 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { GRAPHQL_OBJECT_DOCS } from '@/constants/docs'
 import { Callout } from '@/components/shared/callout/callout'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
-import { ObjectTypes } from '@repo/codegen/src/type-names'
-import { TUploadedFile } from '../upload/TUploadedFile'
+import { type ObjectTypes } from '@repo/codegen/src/type-names'
+import { type TUploadedFile } from '../upload/TUploadedFile'
 import { toHumanLabel, pluralizeTypeName } from '@/utils/strings'
 
 type GenericBulkCsvCreateDialogProps = {

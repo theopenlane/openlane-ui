@@ -1,11 +1,12 @@
-import { ColumnDef } from '@tanstack/react-table'
-import { VulnerabilitiesNodeNonNull } from '@/lib/graphql-hooks/vulnerability'
-import { ColumnOptions } from '@/components/shared/crud-base/page'
+import { type ColumnDef } from '@tanstack/react-table'
+import { type VulnerabilitiesNodeNonNull } from '@/lib/graphql-hooks/vulnerability'
+import { type ColumnOptions } from '@/components/shared/crud-base/page'
 import { createSelectColumn } from '@/components/shared/crud-base/columns/select-column'
 import { UserCell } from '@/components/shared/crud-base/columns/user-cell'
 import { TagsCell } from '@/components/shared/crud-base/columns/tags-cell'
 import { BooleanCell } from '@/components/shared/crud-base/columns/boolean-cell'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
+import { CustomEnumChipCell } from '@/components/shared/crud-base/columns/custom-enum-chip-cell'
 
 export const getColumns = ({ userMap, convertToReadOnly, selectedItems, setSelectedItems }: ColumnOptions): ColumnDef<VulnerabilitiesNodeNonNull>[] => {
   return [
@@ -30,8 +31,8 @@ export const getColumns = ({ userMap, convertToReadOnly, selectedItems, setSelec
     { accessorKey: 'production', header: 'Production', size: 100, cell: ({ cell }) => <BooleanCell value={cell.getValue() as boolean | null | undefined} /> },
     { accessorKey: 'validated', header: 'Validated', size: 100, cell: ({ cell }) => <BooleanCell value={cell.getValue() as boolean | null | undefined} /> },
     { accessorKey: 'public', header: 'Public', size: 80, cell: ({ cell }) => <BooleanCell value={cell.getValue() as boolean | null | undefined} /> },
-    { accessorKey: 'environmentName', header: 'Environment', size: 120 },
-    { accessorKey: 'scopeName', header: 'Scope', size: 120 },
+    { accessorKey: 'environmentName', header: 'Environment', size: 120, cell: ({ cell }) => <CustomEnumChipCell value={cell.getValue() as string} field="environment" /> },
+    { accessorKey: 'scopeName', header: 'Scope', size: 120, cell: ({ cell }) => <CustomEnumChipCell value={cell.getValue() as string} field="scope" /> },
     { accessorKey: 'externalOwnerID', header: 'External Owner', size: 140 },
     { accessorKey: 'externalURI', header: 'External URI', size: 160 },
     { accessorKey: 'summary', header: 'Summary', size: 200 },

@@ -59,7 +59,7 @@ const GetDashboardDataDocument = `
 
 export async function getDashboardData(accessToken: string, session: string): Promise<OrganizationsData | null> {
   try {
-    const response = await secureFetch(process.env.NEXT_PUBLIC_API_GQL_URL!, {
+    const response = await secureFetch(process.env.NEXT_PUBLIC_API_GQL_URL ?? '', {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${accessToken}`,

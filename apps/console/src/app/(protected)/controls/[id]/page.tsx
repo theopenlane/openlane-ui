@@ -3,15 +3,15 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useHasScrollbar } from '@/hooks/useHasScrollbar'
 import { useParams, useRouter } from 'next/navigation'
-import { useGetControlAssociationsById, useGetControlById, useGetControlDiscussionById, useUpdateControl, useDeleteControl, ControlByIdNode } from '@/lib/graphql-hooks/control'
+import { useGetControlAssociationsById, useGetControlById, useGetControlDiscussionById, useUpdateControl, useDeleteControl, type ControlByIdNode } from '@/lib/graphql-hooks/control'
 import { useQueryClient } from '@tanstack/react-query'
 import { FormProvider, useForm } from 'react-hook-form'
-import { Value } from 'platejs'
+import { type Value } from 'platejs'
 import { InfoIcon } from 'lucide-react'
 import TitleField from '@/components/pages/protected/controls/form-fields/title-field.tsx'
 import DescriptionField from '@/components/pages/protected/controls/form-fields/description-field.tsx'
 import PropertiesCard from '@/components/pages/protected/controls/propereties-card/properties-card.tsx'
-import { ControlControlSource, ControlControlStatus, UpdateControlInput } from '@repo/codegen/src/schema.ts'
+import { ControlControlSource, ControlControlStatus, type UpdateControlInput } from '@repo/codegen/src/schema.ts'
 import { useNavigationGuard } from 'next-navigation-guard'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
 import { canEdit } from '@/lib/authz/utils.ts'
@@ -39,6 +39,10 @@ import AIChat from '@/components/shared/ai-suggetions/chat.tsx'
 import { useSession } from 'next-auth/react'
 import { useGetCurrentUser } from '@/lib/graphql-hooks/user.ts'
 import TaskDetailsSheet from '@/components/pages/protected/tasks/create-task/sidebar/task-details-sheet'
+import AssetDetailsSheet from '@/components/pages/protected/controls/tabs/assets-scans/asset-details-sheet'
+import ScanDetailsSheet from '@/components/pages/protected/controls/tabs/assets-scans/scan-details-sheet'
+import FindingDetailsSheet from '@/components/pages/protected/controls/tabs/findings-risks/finding-details-sheet'
+import ReviewDetailsSheet from '@/components/pages/protected/controls/tabs/reviews/review-details-sheet'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 
@@ -79,7 +83,7 @@ const ControlDetailsPage: React.FC = () => {
 
   const { id } = useParams<{ id: string }>()
   const router = useRouter()
-  const { setCrumbs } = React.useContext(BreadcrumbContext)
+  const { setCrumbs } = React.use(BreadcrumbContext)
   const { data, isLoading, isError } = useGetControlById(id)
   const [isEditing, setIsEditing] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
@@ -96,7 +100,7 @@ const ControlDetailsPage: React.FC = () => {
   const plateEditorHelper = usePlateEditor()
   const { data: discussionData } = useGetControlDiscussionById(id)
   const { currentOrgId, getOrganizationByID } = useOrganization()
-  const currentOrganization = getOrganizationByID(currentOrgId!)
+  const currentOrganization = getOrganizationByID(currentOrgId ?? '')
   const { data: associationsData } = useGetControlAssociationsById(id)
   const hasScrollbar = useHasScrollbar([isEditing, data?.control, associationsData?.control])
 
@@ -116,6 +120,7 @@ const ControlDetailsPage: React.FC = () => {
       campaigns: associationsData.control.campaigns,
       remediations: associationsData.control.remediations,
       reviews: associationsData.control.reviews,
+      findings: associationsData.control.findings,
     }
   }, [associationsData?.control, data])
 
@@ -165,7 +170,7 @@ const ControlDetailsPage: React.FC = () => {
       }
 
       await updateControl({
-        updateControlId: id!,
+        updateControlId: id ?? '',
         input,
       })
 
@@ -263,7 +268,7 @@ const ControlDetailsPage: React.FC = () => {
         source: data.control.source || undefined,
         referenceID: data.control.referenceID || undefined,
         auditorReferenceID: data.control.auditorReferenceID || undefined,
-        title: data.control.title ? `${data.control.refCode} ${data.control.title}` : data.control.refCode,
+        title: data.control.title || '',
         controlKindName: data.control?.controlKindName || undefined,
       }
       form.reset(newValues)
@@ -286,7 +291,8 @@ const ControlDetailsPage: React.FC = () => {
             <TitleField
               isEditAllowed={!isSourceFramework && canEdit(permission?.roles)}
               isEditing={isEditing}
-              initialValue={initialValues.title}
+              initialRefCode={initialValues.refCode}
+              initialTitle={initialValues.title}
               handleUpdate={(val) => handleUpdateField(val as UpdateControlInput)}
               referenceFramework={control.referenceFramework}
             />
@@ -415,6 +421,10 @@ const ControlDetailsPage: React.FC = () => {
 
       <EvidenceDetailsSheet controlId={id} />
       <TaskDetailsSheet queryParamKey="taskId" />
+      <AssetDetailsSheet queryParamKey="assetId" />
+      <ScanDetailsSheet queryParamKey="scanId" />
+      <FindingDetailsSheet queryParamKey="findingId" />
+      <ReviewDetailsSheet queryParamKey="reviewId" />
 
       <ConfirmationDialog
         open={isDeleteDialogOpen}

@@ -10,6 +10,7 @@ import { GET_ALL_IDENTITY_HOLDERS } from '@repo/codegen/query/identity-holder'
 import { GET_ALL_INTERNAL_POLICIES } from '@repo/codegen/query/internal-policy'
 import { GET_ALL_PROCEDURES } from '@repo/codegen/query/procedure'
 import { GET_ALL_PROGRAMS } from '@repo/codegen/query/program'
+import { GET_ALL_FINDINGS } from '@repo/codegen/query/finding'
 import { GET_ALL_REMEDIATIONS } from '@repo/codegen/query/remediation'
 import { GET_ALL_REVIEWS } from '@repo/codegen/query/review'
 import { GET_ALL_RISKS } from '@repo/codegen/query/risk'
@@ -18,56 +19,60 @@ import { GET_ALL_SUBCONTROLS } from '@repo/codegen/query/subcontrol'
 import { TASKS_WITH_FILTER } from '@repo/codegen/query/task'
 
 import {
-  Asset,
-  Campaign,
-  Control,
-  ControlImplementation,
-  Subcontrol,
-  ControlObjective,
-  Entity,
-  Program,
-  TaskEdge,
-  Evidence,
-  Group,
-  IdentityHolder,
-  InternalPolicy,
-  Procedure,
-  Remediation,
-  Review,
-  Scan,
-  PageInfo,
+  type Asset,
+  type Campaign,
+  type Control,
+  type ControlImplementation,
+  type Subcontrol,
+  type ControlObjective,
+  type Entity,
+  type Finding,
+  type Program,
+  type TaskEdge,
+  type Evidence,
+  type Group,
+  type IdentityHolder,
+  type InternalPolicy,
+  type Procedure,
+  type Remediation,
+  type Review,
+  type Scan,
+  type PageInfo,
   ControlObjectiveObjectiveStatus,
 } from '@repo/codegen/src/schema'
-import { useQueryClient } from '@tanstack/react-query'
-import { RequestDocument } from 'graphql-request'
+import { type useQueryClient } from '@tanstack/react-query'
+import { type RequestDocument } from 'graphql-request'
 
 import {
-  AssetsWithFilterQuery,
-  CampaignsWithFilterQuery,
-  GetAllControlImplementationsQuery,
-  GetAllControlObjectivesQuery,
-  GetAllControlsQuery,
-  GetAllEvidencesQuery,
-  GetAllGroupsQuery,
-  GetAllInternalPoliciesQuery,
-  GetAllProceduresWithDetailsQuery,
-  GetAllProgramsQuery,
-  GetAllRisksQuery,
-  GetAllSubcontrolsQuery,
-  EntitiesWithFilterQuery,
-  IdentityHoldersWithFilterQuery,
-  RemediationsWithFilterQuery,
-  ReviewsWithFilterQuery,
-  ScansWithFilterQuery,
-  TasksWithFilterQuery,
+  type AssetsWithFilterQuery,
+  type CampaignsWithFilterQuery,
+  type GetAllControlImplementationsQuery,
+  type GetAllControlObjectivesQuery,
+  type GetAllControlsQuery,
+  type GetAllEvidencesQuery,
+  type GetAllGroupsQuery,
+  type GetAllInternalPoliciesQuery,
+  type GetAllProceduresWithDetailsQuery,
+  type GetAllProgramsQuery,
+  type GetAllRisksQuery,
+  type GetAllSubcontrolsQuery,
+  type EntitiesWithFilterQuery,
+  type FindingsWithFilterQuery,
+  type IdentityHoldersWithFilterQuery,
+  type RemediationsWithFilterQuery,
+  type ReviewsWithFilterQuery,
+  type ScansWithFilterQuery,
+  type TasksWithFilterQuery,
 } from '@repo/codegen/src/schema'
 import type {
   UpdateAssetInput,
   UpdateControlInput,
   UpdateEntityInput,
+  UpdateFindingInput,
   UpdateIdentityHolderInput,
   UpdateInternalPolicyInput,
   UpdateProcedureInput,
+  UpdateReviewInput,
   UpdateRiskInput,
   UpdateSubcontrolInput,
 } from '@repo/codegen/src/schema'
@@ -88,6 +93,7 @@ export type QueryResponse =
   | CampaignsWithFilterQuery
   | AssetsWithFilterQuery
   | EntitiesWithFilterQuery
+  | FindingsWithFilterQuery
   | IdentityHoldersWithFilterQuery
   | RemediationsWithFilterQuery
   | ReviewsWithFilterQuery
@@ -108,6 +114,7 @@ type QueryResponseMapKey =
   | 'campaigns'
   | 'assets'
   | 'entities'
+  | 'findings'
   | 'identityHolders'
   | 'remediations'
   | 'reviews'
@@ -188,6 +195,11 @@ export type AllObjectQueriesData = {
     pageInfo?: PageInfo
     totalCount?: number
   }
+  findings?: {
+    edges?: Array<{ node: Finding }>
+    pageInfo?: PageInfo
+    totalCount?: number
+  }
   identityHolders?: {
     edges?: Array<{ node: IdentityHolder }>
     pageInfo?: PageInfo
@@ -223,6 +235,7 @@ export enum ObjectTypeObjects {
   CAMPAIGN = 'Campaign',
   ASSET = 'Asset',
   ENTITY = 'Vendor',
+  FINDING = 'Finding',
   IDENTITY_HOLDER = 'Personnel',
   REMEDIATION = 'Remediation',
   REVIEW = 'Review',
@@ -326,6 +339,12 @@ export const OBJECT_QUERY_CONFIG: Record<ObjectTypeObjects, ObjectQueryConfig> =
     placeholder: 'Search vendors',
     queryDocument: GET_ALL_ENTITIES,
   },
+  [ObjectTypeObjects.FINDING]: {
+    responseObjectKey: 'findings',
+    inputName: 'findingIDs',
+    placeholder: 'Search findings',
+    queryDocument: GET_ALL_FINDINGS,
+  },
   [ObjectTypeObjects.IDENTITY_HOLDER]: {
     responseObjectKey: 'identityHolders',
     inputName: 'identityHolderIDs',
@@ -421,6 +440,10 @@ export function getPagination(objectKey: QueryResponseMapKey | undefined, data: 
       const typed = data as EntitiesWithFilterQuery
       return { pageInfo: typed.entities.pageInfo, totalCount: typed.entities.totalCount }
     }
+    case 'findings': {
+      const typed = data as FindingsWithFilterQuery
+      return { pageInfo: typed.findings.pageInfo, totalCount: typed.findings.totalCount }
+    }
     case 'identityHolders': {
       const typed = data as IdentityHoldersWithFilterQuery
       return { pageInfo: typed.identityHolders.pageInfo, totalCount: typed.identityHolders.totalCount }
@@ -464,7 +487,7 @@ export function extractTableRows(objectKey: QueryResponseMapKey | undefined, dat
       const items = (data as GetAllControlImplementationsQuery).controlImplementations?.edges ?? []
       return items.map((item) => ({
         id: item?.node?.id || '',
-        name: item?.node?.controls?.edges?.[0]?.node?.refCode ?? item?.node?.details?.slice(0, 50) ?? '',
+        name: item?.node?.controls?.edges?.[0]?.node?.refCode ? `Control Implementation for ${item.node.controls.edges[0].node.refCode}` : (item?.node?.details?.slice(0, 50) ?? ''),
         inputName: selectedInputName,
         refCode: '',
       }))
@@ -600,6 +623,16 @@ export function extractTableRows(objectKey: QueryResponseMapKey | undefined, dat
       }))
     }
 
+    case 'findings': {
+      const items = (data as FindingsWithFilterQuery).findings?.edges ?? []
+      return items.map((item) => ({
+        id: item?.node?.id || '',
+        name: item?.node?.displayName ?? '',
+        inputName: selectedInputName,
+        refCode: item?.node?.displayID ?? '',
+      }))
+    }
+
     case 'identityHolders': {
       const items = (data as IdentityHoldersWithFilterQuery).identityHolders?.edges ?? []
       return items.map((item) => ({
@@ -654,6 +687,7 @@ export const generateWhere = (selectedObject: ObjectTypeObjects | null, searchVa
     [ObjectTypeObjects.CAMPAIGN]: { ownerID: ownerID },
     [ObjectTypeObjects.ASSET]: { ownerID: ownerID },
     [ObjectTypeObjects.ENTITY]: { systemOwned: false },
+    [ObjectTypeObjects.FINDING]: {},
     [ObjectTypeObjects.IDENTITY_HOLDER]: { ownerID: ownerID },
     [ObjectTypeObjects.REMEDIATION]: {},
     [ObjectTypeObjects.REVIEW]: {},
@@ -675,6 +709,7 @@ export const generateWhere = (selectedObject: ObjectTypeObjects | null, searchVa
     [ObjectTypeObjects.CAMPAIGN]: 'nameContainsFold',
     [ObjectTypeObjects.ASSET]: 'nameContainsFold',
     [ObjectTypeObjects.ENTITY]: 'nameContainsFold',
+    [ObjectTypeObjects.FINDING]: 'displayNameContainsFold',
     [ObjectTypeObjects.IDENTITY_HOLDER]: 'fullNameContainsFold',
     [ObjectTypeObjects.REMEDIATION]: 'titleContainsFold',
     [ObjectTypeObjects.REVIEW]: 'titleContainsFold',
@@ -694,6 +729,7 @@ export const generateWhere = (selectedObject: ObjectTypeObjects | null, searchVa
     [ObjectTypeObjects.CAMPAIGN]: 'descriptionContainsFold',
     [ObjectTypeObjects.ASSET]: 'descriptionContainsFold',
     [ObjectTypeObjects.ENTITY]: 'descriptionContainsFold',
+    [ObjectTypeObjects.FINDING]: 'descriptionContainsFold',
     [ObjectTypeObjects.IDENTITY_HOLDER]: 'emailContainsFold',
     [ObjectTypeObjects.REMEDIATION]: 'summaryContainsFold',
     [ObjectTypeObjects.REVIEW]: 'summaryContainsFold',
@@ -714,7 +750,7 @@ export const generateWhere = (selectedObject: ObjectTypeObjects | null, searchVa
     return { ...mandatoryWhere, ...defaultWhere }
   }
 
-  const orFilters = secondaryAttribute ? [{ [searchAttribute!]: searchValue }, { [secondaryAttribute]: searchValue }] : [{ [searchAttribute!]: searchValue }]
+  const orFilters = secondaryAttribute ? [{ [searchAttribute ?? '']: searchValue }, { [secondaryAttribute]: searchValue }] : [{ [searchAttribute ?? '']: searchValue }]
 
   return {
     ...mandatoryWhere,
@@ -749,6 +785,7 @@ export const ASSOCIATION_SECTION_CONFIG = {
   campaigns: { dataField: 'campaigns', inputName: 'campaignIDs' },
   assets: { dataField: 'assets', inputName: 'assetIDs' },
   entities: { dataField: 'entities', inputName: 'entityIDs' },
+  findings: { dataField: 'findings', inputName: 'findingIDs' },
   identityHolders: { dataField: 'identityHolders', inputName: 'identityHolderIDs' },
   remediations: { dataField: 'remediations', inputName: 'remediationIDs' },
   reviews: { dataField: 'reviews', inputName: 'reviewIDs' },
@@ -758,6 +795,7 @@ export type AssociationSectionKey = keyof typeof ASSOCIATION_SECTION_CONFIG
 
 const SECTION_DISPLAY_NAMES_OVERRIDES: Partial<Record<AssociationSectionKey, string>> = {
   controlImplementations: 'Control Implementations',
+  controlObjectives: 'Control Objectives',
   entities: 'Vendors',
   identityHolders: 'Personnel',
 }
@@ -792,6 +830,7 @@ export const ASSOCIATION_SECTION_QUERY_KEY = {
   campaigns: ['campaigns'],
   assets: ['assets'],
   entities: ['entities'],
+  findings: ['findings'],
   identityHolders: ['identityHolders'],
   remediations: ['remediations'],
   reviews: ['reviews'],
@@ -829,6 +868,7 @@ const CONTROL_ASSOCIATION_SECTIONS = [
   'assets',
   'scans',
   'entities',
+  'findings',
   'identityHolders',
   'campaigns',
   'remediations',
@@ -841,6 +881,8 @@ const RISK_ASSOCIATION_SECTIONS = ['controls', 'procedures', 'subcontrols', 'pro
 const ASSET_ASSOCIATION_SECTIONS = ['scans', 'entities', 'identityHolders', 'controls'] as const
 const ENTITY_ASSOCIATION_SECTIONS = ['assets', 'scans', 'campaigns', 'identityHolders'] as const
 const IDENTITY_HOLDER_ASSOCIATION_SECTIONS = ['assets', 'entities', 'campaigns', 'tasks'] as const
+const FINDING_ASSOCIATION_SECTIONS = ['controls', 'subcontrols', 'risks', 'programs', 'tasks', 'assets', 'scans', 'remediations', 'reviews'] as const
+const REVIEW_ASSOCIATION_SECTIONS = ['controls', 'subcontrols', 'remediations', 'entities', 'tasks', 'assets', 'programs'] as const
 
 export const ASSOCIATION_REMOVAL_CONFIG = {
   control: createAssociationRemovalConfig<UpdateControlInput>()(CONTROL_ASSOCIATION_SECTIONS),
@@ -850,5 +892,7 @@ export const ASSOCIATION_REMOVAL_CONFIG = {
   risk: createAssociationRemovalConfig<UpdateRiskInput>()(RISK_ASSOCIATION_SECTIONS),
   asset: createAssociationRemovalConfig<UpdateAssetInput>()(ASSET_ASSOCIATION_SECTIONS),
   entity: createAssociationRemovalConfig<UpdateEntityInput>()(ENTITY_ASSOCIATION_SECTIONS),
+  finding: createAssociationRemovalConfig<UpdateFindingInput>()(FINDING_ASSOCIATION_SECTIONS),
   identityHolder: createAssociationRemovalConfig<UpdateIdentityHolderInput>()(IDENTITY_HOLDER_ASSOCIATION_SECTIONS),
+  review: createAssociationRemovalConfig<UpdateReviewInput>()(REVIEW_ASSOCIATION_SECTIONS),
 } as const

@@ -26,47 +26,47 @@ import {
   BULK_EDIT_EVIDENCE,
 } from '@repo/codegen/query/evidence'
 import {
-  CreateEvidenceMutation,
-  CreateEvidenceMutationVariables,
-  EvidenceWhereInput,
-  FileOrder,
-  GetAllEvidencesQuery,
-  GetEvidenceFilesPaginatedQuery,
-  GetEvidenceFilesQuery,
-  GetEvidenceQuery,
-  InputMaybe,
-  UpdateEvidenceMutation,
-  UpdateEvidenceMutationVariables,
-  DeleteEvidenceMutation,
-  DeleteEvidenceMutationVariables,
-  GetRenewEvidenceQuery,
-  GetRenewEvidenceQueryVariables,
-  GetEvidenceListQuery,
-  GetEvidenceListLightQuery,
-  EvidenceOrder,
-  Evidence,
-  GetEvidenceTrendDataQuery,
-  GetProgramEvidenceTrendDataQuery,
+  type CreateEvidenceMutation,
+  type CreateEvidenceMutationVariables,
+  type EvidenceWhereInput,
+  type FileOrder,
+  type GetAllEvidencesQuery,
+  type GetEvidenceFilesPaginatedQuery,
+  type GetEvidenceFilesQuery,
+  type GetEvidenceQuery,
+  type InputMaybe,
+  type UpdateEvidenceMutation,
+  type UpdateEvidenceMutationVariables,
+  type DeleteEvidenceMutation,
+  type DeleteEvidenceMutationVariables,
+  type GetRenewEvidenceQuery,
+  type GetRenewEvidenceQueryVariables,
+  type GetEvidenceListQuery,
+  type GetEvidenceListLightQuery,
+  type EvidenceOrder,
+  type Evidence,
+  type GetEvidenceTrendDataQuery,
+  type GetProgramEvidenceTrendDataQuery,
   EvidenceEvidenceStatus,
-  GetEvidencesByStatusQuery,
-  GetEvidenceFilesByIdQuery,
-  GetEvidenceCountsByStatusAllProgramsQuery,
-  EvidenceSuggestedActionsQuery,
-  FileWhereInput,
-  GetItemsMissingEvidenceCountQuery,
-  GetEvidenceCommentsQuery,
-  GetEvidenceCommentsQueryVariables,
-  UpdateEvidenceCommentMutation,
-  UpdateEvidenceCommentMutationVariables,
-  CreateBulkCsvEvidenceMutation,
-  CreateBulkCsvEvidenceMutationVariables,
-  DeleteBulkEvidenceMutation,
-  DeleteBulkEvidenceMutationVariables,
-  UpdateBulkEvidenceMutation,
-  UpdateBulkEvidenceMutationVariables,
+  type GetEvidencesByStatusQuery,
+  type GetEvidenceFilesByIdQuery,
+  type GetEvidenceCountsByStatusAllProgramsQuery,
+  type EvidenceSuggestedActionsQuery,
+  type FileWhereInput,
+  type GetItemsMissingEvidenceCountQuery,
+  type GetEvidenceCommentsQuery,
+  type GetEvidenceCommentsQueryVariables,
+  type UpdateEvidenceCommentMutation,
+  type UpdateEvidenceCommentMutationVariables,
+  type CreateBulkCsvEvidenceMutation,
+  type CreateBulkCsvEvidenceMutationVariables,
+  type DeleteBulkEvidenceMutation,
+  type DeleteBulkEvidenceMutationVariables,
+  type UpdateBulkEvidenceMutation,
+  type UpdateBulkEvidenceMutationVariables,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '../fetchGraphql'
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 
 type TInvalidateClient = { invalidateQueries: (args: { queryKey: unknown[] }) => void }
 
@@ -83,6 +83,17 @@ export function useCreateEvidence() {
       invalidateEvidenceQueries(queryClient)
     },
   })
+}
+
+function calculateTrend(currentWeekCount: number, previousWeekCount: number) {
+  if (previousWeekCount > 0) {
+    const trend = ((currentWeekCount - previousWeekCount) / previousWeekCount) * 100
+    if (trend > 0) return { trend: Math.round(trend), trendType: 'up' as const }
+    if (trend < 0) return { trend: Math.round(trend), trendType: 'down' as const }
+    return { trend: 0, trendType: 'flat' as const }
+  }
+  if (currentWeekCount > 0) return { trend: 100, trendType: 'up' as const }
+  return { trend: 0, trendType: 'flat' as const }
 }
 
 type TEvidenceFilesProps = {
@@ -335,26 +346,9 @@ export const useEvidenceTrend = (programId?: string | null, status?: EvidenceEvi
         const data = await client.request<GetProgramEvidenceTrendDataQuery>(GET_PROGRAM_EVIDENCE_TREND_DATA, variables)
         const currentWeekCount = data.currentWeek.totalCount
         const previousWeekCount = data.previousWeek.totalCount
-        // Calculate trend percentage
-        let trend = 0
-        let trendType: 'up' | 'down' | 'flat' = 'flat'
-        if (previousWeekCount > 0) {
-          trend = ((currentWeekCount - previousWeekCount) / previousWeekCount) * 100
-          if (trend > 0) {
-            trendType = 'up'
-          } else if (trend < 0) {
-            trendType = 'down'
-          } else {
-            trendType = 'flat'
-          }
-        } else if (currentWeekCount > 0) {
-          trend = 100
-          trendType = 'up'
-        } else {
-          trendType = 'flat'
-        }
+        const { trend, trendType } = calculateTrend(currentWeekCount, previousWeekCount)
         return {
-          trend: Math.round(trend),
+          trend,
           trendType,
           currentWeekCount,
           previousWeekCount,
@@ -364,26 +358,9 @@ export const useEvidenceTrend = (programId?: string | null, status?: EvidenceEvi
         const data = await client.request<GetEvidenceTrendDataQuery>(GET_EVIDENCE_TREND_DATA, variables)
         const currentWeekCount = data.currentWeek.totalCount
         const previousWeekCount = data.previousWeek.totalCount
-        // Calculate trend percentage
-        let trend = 0
-        let trendType: 'up' | 'down' | 'flat' = 'flat'
-        if (previousWeekCount > 0) {
-          trend = ((currentWeekCount - previousWeekCount) / previousWeekCount) * 100
-          if (trend > 0) {
-            trendType = 'up'
-          } else if (trend < 0) {
-            trendType = 'down'
-          } else {
-            trendType = 'flat'
-          }
-        } else if (currentWeekCount > 0) {
-          trend = 100
-          trendType = 'up'
-        } else {
-          trendType = 'flat'
-        }
+        const { trend, trendType } = calculateTrend(currentWeekCount, previousWeekCount)
         return {
-          trend: Math.round(trend),
+          trend,
           trendType,
           currentWeekCount,
           previousWeekCount,
@@ -460,7 +437,7 @@ export const useGetEvidenceComments = (evidenceId?: string | null) => {
 
   return useQuery<GetEvidenceCommentsQuery, unknown>({
     queryKey: ['evidenceComments', evidenceId],
-    queryFn: async () => client.request<GetEvidenceCommentsQuery, GetEvidenceCommentsQueryVariables>(GET_EVIDENCE_COMMENTS, { evidenceId: evidenceId! }),
+    queryFn: async () => client.request<GetEvidenceCommentsQuery, GetEvidenceCommentsQueryVariables>(GET_EVIDENCE_COMMENTS, { evidenceId: evidenceId ?? '' }),
     enabled: !!evidenceId,
   })
 }

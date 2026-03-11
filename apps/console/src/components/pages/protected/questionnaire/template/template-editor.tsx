@@ -1,8 +1,8 @@
 'use client'
 
-import { useContext, useEffect, useRef } from 'react'
+import { use, useEffect, useRef } from 'react'
 import { SurveyCreatorComponent, SurveyCreator } from 'survey-creator-react'
-import { ITheme, slk } from 'survey-core'
+import { type ITheme, slk } from 'survey-core'
 import { editorLocalization } from 'survey-creator-core'
 import { useTheme } from 'next-themes'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
@@ -36,26 +36,34 @@ const creatorOptions = {
 slk(surveyLicenseKey as string)
 
 export default function CreateTemplate(input: { templateId: string; existingId: string }) {
-  const { setCrumbs } = useContext(BreadcrumbContext)
+  const { setCrumbs } = use(BreadcrumbContext)
   const router = useRouter()
   const { successNotification, errorNotification } = useNotification()
 
   const creatorRef = useRef<SurveyCreator>(new SurveyCreator(creatorOptions))
+  // eslint-disable-next-line react-hooks/refs -- SurveyCreator is a mutable third-party object, stable across renders
+  const creator = creatorRef.current
 
-  if (!creatorRef.current) {
-    creatorRef.current = new SurveyCreator(creatorOptions)
-    creatorRef.current.toolbox.forceCompact = false
+  const themeContext = useTheme()
+  const theme = themeContext.resolvedTheme as 'light' | 'dark' | 'white' | undefined
 
-    const themeTabPlugin = creatorRef.current.themeEditor
+  useEffect(() => {
+    creator.toolbox.forceCompact = false
+
+    const themeTabPlugin = creator.themeEditor
     if (lightTheme.themeName) enLocale.theme.names[lightTheme.themeName] = customThemeName
     if (darkTheme.themeName) enLocale.theme.names[darkTheme.themeName] = customThemeName
     themeTabPlugin.addTheme(lightTheme, true)
     themeTabPlugin.addTheme(darkTheme as ITheme, true)
-  }
+  }, [creator])
 
-  const creator = creatorRef.current
-  const themeTabPlugin = creator.themeEditor
-  creator.toolbox.forceCompact = false
+  useEffect(() => {
+    if (theme === 'dark') {
+      creator.applyCreatorTheme(darkTheme as ITheme)
+    } else {
+      creator.applyCreatorTheme(lightTheme)
+    }
+  }, [creator, theme])
 
   useEffect(() => {
     setCrumbs([
@@ -66,35 +74,13 @@ export default function CreateTemplate(input: { templateId: string; existingId: 
     ])
   }, [setCrumbs])
 
-  function addCustomTheme(theme: ITheme, userFriendlyThemeName: string) {
-    // Add a localized user-friendly theme name
-    if (theme.themeName) {
-      enLocale.theme.names[theme.themeName] = userFriendlyThemeName
-    }
-    // Add the theme to the theme list as the default theme
-    themeTabPlugin.addTheme(theme, true)
-  }
-
-  // Register a custom theme with Dark and Light variations
-  addCustomTheme(lightTheme, customThemeName)
-  addCustomTheme(darkTheme as ITheme, customThemeName)
-
-  const themeContext = useTheme()
-  const theme = themeContext.resolvedTheme as 'light' | 'dark' | 'white' | undefined
-
-  if (theme === 'dark') {
-    creator.applyCreatorTheme(darkTheme as ITheme)
-  } else {
-    creator.applyCreatorTheme(lightTheme)
-  }
-
   const { data: templateResult } = useGetTemplate(input.existingId)
 
   useEffect(() => {
     if (templateResult?.template?.jsonconfig) {
       creator.JSON = templateResult.template.jsonconfig
     }
-  }, [templateResult, creator])
+  }, [creator, templateResult])
 
   const { mutateAsync: createTemplateData } = useCreateTemplate()
   const { mutateAsync: updateTemplateData } = useUpdateTemplate()

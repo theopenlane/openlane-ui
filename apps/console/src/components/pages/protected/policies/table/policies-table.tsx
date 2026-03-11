@@ -2,27 +2,27 @@
 
 import { useRouter } from 'next/navigation'
 import { DataTable, getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
-import React, { useContext, useEffect, useMemo, useState } from 'react'
+import React, { use, useEffect, useMemo, useState } from 'react'
 import {
   ExportExportFormat,
   ExportExportType,
-  GetInternalPoliciesListQueryVariables,
-  InternalPolicy,
+  type GetInternalPoliciesListQueryVariables,
+  type InternalPolicy,
   InternalPolicyDocumentStatus,
   InternalPolicyOrderField,
-  InternalPolicyWhereInput,
+  type InternalPolicyWhereInput,
   OrderDirection,
 } from '@repo/codegen/src/schema'
 import PoliciesTableToolbar from '@/components/pages/protected/policies/table/policies-table-toolbar.tsx'
 import { INTERNAL_POLICIES_SORT_FIELDS } from '@/components/pages/protected/policies/table/table-config.ts'
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useDebounce } from '@uidotdev/usehooks'
 import { useInternalPolicies } from '@/lib/graphql-hooks/internal-policy'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
 import { getPoliciesColumns } from '@/components/pages/protected/policies/table/columns.tsx'
 import { useGetApiTokensByIds } from '@/lib/graphql-hooks/tokens.ts'
-import { ColumnDef, VisibilityState } from '@tanstack/react-table'
+import { type ColumnDef, type VisibilityState } from '@tanstack/react-table'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { canEdit } from '@/lib/authz/utils.ts'
 import useFileExport from '@/components/shared/export/use-file-export.ts'
@@ -38,10 +38,10 @@ import { objectToSnakeCase } from '@/utils/strings'
 
 export const PoliciesTable = () => {
   const router = useRouter()
-  const [pagination, setPagination] = useState<TPagination>(getInitialPagination(TableKeyEnum.INTERNAL_POLICY, DEFAULT_PAGINATION))
+  const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(TableKeyEnum.INTERNAL_POLICY, DEFAULT_PAGINATION))
   const [filters, setFilters] = useState<InternalPolicyWhereInput | null>(null)
   const [searchTerm, setSearchTerm] = useStorageSearch(ObjectTypes.INTERNAL_POLICY)
-  const { setCrumbs } = useContext(BreadcrumbContext)
+  const { setCrumbs } = use(BreadcrumbContext)
   const { data: permission } = useOrganizationRoles()
   const { handleExport } = useFileExport()
   const defaultSorting = getInitialSortConditions(TableKeyEnum.INTERNAL_POLICY, InternalPolicyOrderField, [

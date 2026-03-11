@@ -1,20 +1,20 @@
-import { GenericTablePageConfig, EnumOptionsGeneric } from '@/components/shared/crud-base/page'
-import { GenericDetailsSheetConfig, RenderFieldsProps } from '@/components/shared/crud-base/generic-sheet'
+import { type GenericTablePageConfig, type EnumOptionsGeneric } from '@/components/shared/crud-base/page'
+import { type GenericDetailsSheetConfig, type RenderFieldsProps } from '@/components/shared/crud-base/generic-sheet'
 
 import {
   IdentityHolderOrderField,
-  IdentityHolderWhereInput,
-  CreateIdentityHolderInput,
-  CreateIdentityHolderMutation,
-  UpdateIdentityHolderInput,
-  UpdateIdentityHolderMutation,
+  type IdentityHolderWhereInput,
+  type CreateIdentityHolderInput,
+  type CreateIdentityHolderMutation,
+  type UpdateIdentityHolderInput,
+  type UpdateIdentityHolderMutation,
   ExportExportType,
   OrderDirection,
 } from '@repo/codegen/src/schema'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { ObjectTypes, ObjectNames } from '@repo/codegen/src/type-names'
-import { IdentityHoldersNodeNonNull } from '@/lib/graphql-hooks/identity-holder'
-import { EditPersonnelFormData } from '../hooks/use-form-schema'
+import { type IdentityHoldersNodeNonNull } from '@/lib/graphql-hooks/identity-holder'
+import { type EditPersonnelFormData } from '../hooks/use-form-schema'
 
 type TFormData = EditPersonnelFormData
 type TData = IdentityHoldersNodeNonNull

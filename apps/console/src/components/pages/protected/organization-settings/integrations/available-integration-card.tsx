@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 import { Button } from '@repo/ui/button'
 import { Badge } from '@repo/ui/badge'
 import { Card, CardContent, CardFooter, CardHeader } from '@repo/ui/cardpanel'
-import { AvailableIntegrationNode, IntegrationOAuthMetadata, IntegrationProvider, parseIntegrationErrorMessage } from './config'
+import { type AvailableIntegrationNode, type IntegrationOAuthMetadata, type IntegrationProvider, parseIntegrationErrorMessage } from './config'
 import { useNotification } from '@/hooks/useNotification'
 import IntegrationConfigurationDialog from './integration-configuration-dialog'
 import IntegrationTagList from './integration-tag-list'
@@ -24,7 +24,7 @@ type StartIntegrationResponse = {
 
 const AvailableIntegrationCard = ({ integration }: AvailableIntegrationCardProps) => {
   const { errorNotification } = useNotification()
-  const [isConfigDialogOpen, setConfigDialogOpen] = useState(false)
+  const [isConfigDialogOpen, setIsConfigDialogOpen] = useState(false)
   const [isConnecting, setIsConnecting] = useState(false)
 
   const provider = integration.provider
@@ -42,7 +42,7 @@ const AvailableIntegrationCard = ({ integration }: AvailableIntegrationCardProps
     const mode = resolveProviderConnectMode(targetProvider)
 
     if (mode === 'config') {
-      setConfigDialogOpen(true)
+      setIsConfigDialogOpen(true)
       return
     }
 
@@ -132,7 +132,7 @@ const AvailableIntegrationCard = ({ integration }: AvailableIntegrationCardProps
         </CardFooter>
       </Card>
 
-      <IntegrationConfigurationDialog open={isConfigDialogOpen} onOpenChange={setConfigDialogOpen} provider={provider} />
+      <IntegrationConfigurationDialog open={isConfigDialogOpen} onOpenChange={setIsConfigDialogOpen} provider={provider} />
     </>
   )
 }

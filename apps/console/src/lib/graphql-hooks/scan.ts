@@ -1,25 +1,25 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
-  ScansWithFilterQuery,
-  ScansWithFilterQueryVariables,
-  CreateScanMutation,
-  CreateScanMutationVariables,
-  UpdateScanMutation,
-  UpdateScanMutationVariables,
-  DeleteScanMutation,
-  DeleteScanMutationVariables,
-  ScanQuery,
-  ScanQueryVariables,
-  CreateBulkCsvScanMutation,
-  CreateBulkCsvScanMutationVariables,
-  UpdateBulkScanMutation,
-  UpdateBulkScanMutationVariables,
-  DeleteBulkScanMutation,
-  DeleteBulkScanMutationVariables,
+  type ScansWithFilterQuery,
+  type ScansWithFilterQueryVariables,
+  type CreateScanMutation,
+  type CreateScanMutationVariables,
+  type UpdateScanMutation,
+  type UpdateScanMutationVariables,
+  type DeleteScanMutation,
+  type DeleteScanMutationVariables,
+  type ScanQuery,
+  type ScanQueryVariables,
+  type CreateBulkCsvScanMutation,
+  type CreateBulkCsvScanMutationVariables,
+  type UpdateBulkScanMutation,
+  type UpdateBulkScanMutationVariables,
+  type DeleteBulkScanMutation,
+  type DeleteBulkScanMutationVariables,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 import { GET_ALL_SCANS, CREATE_SCAN, UPDATE_SCAN, DELETE_SCAN, SCAN, CREATE_CSV_BULK_SCAN, BULK_EDIT_SCAN, BULK_DELETE_SCAN } from '@repo/codegen/query/scan'
 
 type GetAllScansArgs = {

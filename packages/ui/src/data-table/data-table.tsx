@@ -224,12 +224,7 @@ function SortableHeaderCell<TData>({ header, sortField, sorting, handleSortChang
       {header.isPlaceholder ? null : (
         <div className="flex items-center gap-1">
           {!isDragDisabled && (
-            <button
-              type="button"
-              className="flex items-center cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 -ml-1 shrink-0"
-              {...attributes}
-              {...listeners}
-            >
+            <button type="button" className="flex items-center cursor-grab active:cursor-grabbing text-gray-400 hover:text-gray-600 -ml-1 shrink-0" {...attributes} {...listeners}>
               <GripVertical size={14} />
             </button>
           )}
@@ -657,17 +652,17 @@ export function DataTable<TData, TValue>({
                 style={{ bottom: horizontalScrollbarHeight ? `${horizontalScrollbarHeight}px` : '0', right: hasVerticalScroll ? `${verticalScrollbarWidth}px` : '0' }}
               />
             )}
-            <Table
-              ref={scrollRef}
-              variant="data"
-              stickyHeader={stickyHeader}
-              stickyDialogHeader={stickyDialogHeader}
-              style={{
-                ...columnSizeVars,
-                width: containerWidth > 0 ? Math.max(containerWidth, table.getTotalSize()) : undefined,
-              }}
-            >
-              <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+              <Table
+                ref={scrollRef}
+                variant="data"
+                stickyHeader={stickyHeader}
+                stickyDialogHeader={stickyDialogHeader}
+                style={{
+                  ...columnSizeVars,
+                  width: containerWidth > 0 ? Math.max(containerWidth, table.getTotalSize()) : undefined,
+                }}
+              >
                 <TableHeader variant="data">
                   {table.getHeaderGroups().map((headerGroup) => (
                     <SortableContext key={headerGroup.id} items={headerGroup.headers.map((h) => h.column.id)} strategy={horizontalListSortingStrategy}>
@@ -690,13 +685,13 @@ export function DataTable<TData, TValue>({
                     </SortableContext>
                   ))}
                 </TableHeader>
-              </DndContext>
-              {columnSizingInfo.isResizingColumn ? (
-                <MemoizedDataTableBody table={table} onRowClick={onRowClick} loading={loading} noDataMarkup={noDataMarkup} noResultsText={noResultsText} />
-              ) : (
-                <DataTableBodyContent table={table} onRowClick={onRowClick} loading={loading} noDataMarkup={noDataMarkup} noResultsText={noResultsText} />
-              )}
-            </Table>
+                {columnSizingInfo.isResizingColumn ? (
+                  <MemoizedDataTableBody table={table} onRowClick={onRowClick} loading={loading} noDataMarkup={noDataMarkup} noResultsText={noResultsText} />
+                ) : (
+                  <DataTableBodyContent table={table} onRowClick={onRowClick} loading={loading} noDataMarkup={noDataMarkup} noResultsText={noResultsText} />
+                )}
+              </Table>
+            </DndContext>
           </div>
           {footer}
         </div>

@@ -35,7 +35,7 @@ export const CheckboxField = <TUpdateInput,>({
   tooltipContent,
 }: CheckboxFieldProps<TUpdateInput>) => {
   const { control } = useFormContext()
-  const disabled = !isEditAllowed
+  const disabled = !isEditAllowed && !isCreate
 
   return (
     <FormField

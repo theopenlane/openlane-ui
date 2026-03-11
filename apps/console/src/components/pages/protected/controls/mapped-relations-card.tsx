@@ -1,4 +1,4 @@
-import { MappedControlMappingType, MappedControlsFragmentFragment, MappedSubcontrolsFragmentFragment } from '@repo/codegen/src/schema'
+import { MappedControlMappingType, type MappedControlsFragmentFragment, type MappedSubcontrolsFragmentFragment } from '@repo/codegen/src/schema'
 import { usePathname } from 'next/navigation'
 import { MappingIconMapper } from '@/components/shared/enum-mapper/map-control-enum'
 import Link from 'next/link'
