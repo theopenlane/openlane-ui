@@ -8302,6 +8302,7 @@ export interface CreateGroupInput {
   actionPlanBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   actionPlanEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   actionPlanViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  avatarFileID?: InputMaybe<Scalars['ID']['input']>
   campaignBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   campaignEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   campaignIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -20128,6 +20129,9 @@ export interface Group extends Node {
   actionPlanBlockedGroups: ActionPlanConnection
   actionPlanEditors: ActionPlanConnection
   actionPlanViewers: ActionPlanConnection
+  avatarFile?: Maybe<File>
+  /** The group's local avatar file id, takes precedence over the gravatar logo URL */
+  avatarLocalFileID?: Maybe<Scalars['ID']['output']>
   campaignBlockedGroups: CampaignConnection
   campaignEditors: CampaignConnection
   campaignTargets: CampaignTargetConnection
@@ -21254,6 +21258,22 @@ export interface GroupUpdatePayload {
  */
 export interface GroupWhereInput {
   and?: InputMaybe<Array<GroupWhereInput>>
+  /** avatar_local_file_id field predicates */
+  avatarLocalFileID?: InputMaybe<Scalars['ID']['input']>
+  avatarLocalFileIDContains?: InputMaybe<Scalars['ID']['input']>
+  avatarLocalFileIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  avatarLocalFileIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  avatarLocalFileIDGT?: InputMaybe<Scalars['ID']['input']>
+  avatarLocalFileIDGTE?: InputMaybe<Scalars['ID']['input']>
+  avatarLocalFileIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  avatarLocalFileIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  avatarLocalFileIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  avatarLocalFileIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  avatarLocalFileIDLT?: InputMaybe<Scalars['ID']['input']>
+  avatarLocalFileIDLTE?: InputMaybe<Scalars['ID']['input']>
+  avatarLocalFileIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  avatarLocalFileIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  avatarLocalFileIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** created_at field predicates */
   createdAt?: InputMaybe<Scalars['Time']['input']>
   createdAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -21318,6 +21338,9 @@ export interface GroupWhereInput {
   /** action_plan_viewers edge predicates */
   hasActionPlanViewers?: InputMaybe<Scalars['Boolean']['input']>
   hasActionPlanViewersWith?: InputMaybe<Array<ActionPlanWhereInput>>
+  /** avatar_file edge predicates */
+  hasAvatarFile?: InputMaybe<Scalars['Boolean']['input']>
+  hasAvatarFileWith?: InputMaybe<Array<FileWhereInput>>
   /** campaign_blocked_groups edge predicates */
   hasCampaignBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   hasCampaignBlockedGroupsWith?: InputMaybe<Array<CampaignWhereInput>>
@@ -27096,6 +27119,8 @@ export interface Mutation {
   deleteBulkProgramMembership: ProgramMembershipBulkDeletePayload
   /** Delete multiple remediations */
   deleteBulkRemediation: RemediationBulkDeletePayload
+  /** Delete multiple existing reviews (soft-deletes them and removes FGA tuples) */
+  deleteBulkReview: ReviewBulkDeletePayload
   /** Delete multiple risks */
   deleteBulkRisk: RiskBulkDeletePayload
   /** Delete multiple scans */
@@ -28409,6 +28434,7 @@ export interface MutationCreateFullProgramArgs {
 }
 
 export interface MutationCreateGroupArgs {
+  avatarFile?: InputMaybe<Scalars['Upload']['input']>
   input: CreateGroupInput
 }
 
@@ -28853,6 +28879,10 @@ export interface MutationDeleteBulkProgramMembershipArgs {
 }
 
 export interface MutationDeleteBulkRemediationArgs {
+  ids: Array<Scalars['ID']['input']>
+}
+
+export interface MutationDeleteBulkReviewArgs {
   ids: Array<Scalars['ID']['input']>
 }
 
@@ -29911,6 +29941,7 @@ export interface MutationUpdateFindingControlArgs {
 }
 
 export interface MutationUpdateGroupArgs {
+  avatarFile?: InputMaybe<Scalars['Upload']['input']>
   id: Scalars['ID']['input']
   input: UpdateGroupInput
 }
@@ -41085,6 +41116,13 @@ export interface ReviewBulkCreatePayload {
   __typename?: 'ReviewBulkCreatePayload'
   /** Created reviews */
   reviews?: Maybe<Array<Review>>
+}
+
+/** Return response for deleteBulkReview mutation */
+export interface ReviewBulkDeletePayload {
+  __typename?: 'ReviewBulkDeletePayload'
+  /** Deleted trustCenterNDARequest IDs */
+  deletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** Return response for updateBulkReview mutation */
@@ -53291,9 +53329,11 @@ export interface UpdateGroupInput {
   addTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendOscalContactUuids?: InputMaybe<Array<Scalars['String']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
+  avatarFileID?: InputMaybe<Scalars['ID']['input']>
   clearActionPlanBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearActionPlanEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearActionPlanViewers?: InputMaybe<Scalars['Boolean']['input']>
+  clearAvatarFile?: InputMaybe<Scalars['Boolean']['input']>
   clearCampaignBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearCampaignEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearCampaignTargets?: InputMaybe<Scalars['Boolean']['input']>
@@ -68851,6 +68891,12 @@ export type UpdateBulkReviewMutationVariables = Exact<{
 }>
 
 export type UpdateBulkReviewMutation = { __typename?: 'Mutation'; updateBulkReview: { __typename?: 'ReviewBulkUpdatePayload'; updatedIDs?: Array<string> | null } }
+
+export type DeleteBulkReviewMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+}>
+
+export type DeleteBulkReviewMutation = { __typename?: 'Mutation'; deleteBulkReview: { __typename?: 'ReviewBulkDeletePayload'; deletedIDs: Array<string> } }
 
 export type GetReviewAssociationsQueryVariables = Exact<{
   reviewId: Scalars['ID']['input']

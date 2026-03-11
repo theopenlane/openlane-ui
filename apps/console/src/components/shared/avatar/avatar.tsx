@@ -11,7 +11,11 @@ export function Avatar({ variant, entity, className }: AvatarProps) {
   if (!entity) return null
 
   const image =
-    'avatarFile' in entity ? entity.avatarFile?.presignedURL || entity.avatarRemoteURL : 'gravatarLogoURL' in entity || 'logoURL' in entity ? entity.gravatarLogoURL || entity.logoURL : undefined
+    'avatarFile' in entity
+      ? entity.avatarFile?.presignedURL || ('avatarRemoteURL' in entity ? entity.avatarRemoteURL : undefined)
+      : 'gravatarLogoURL' in entity || 'logoURL' in entity
+        ? entity.gravatarLogoURL || entity.logoURL
+        : undefined
 
   const fallbackText = entity.displayName?.substring(0, variant === 'small' ? 1 : 2)
 

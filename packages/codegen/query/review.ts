@@ -129,6 +129,14 @@ export const BULK_EDIT_REVIEW = gql`
   }
 `
 
+export const BULK_DELETE_REVIEW = gql`
+  mutation DeleteBulkReview($ids: [ID!]!) {
+    deleteBulkReview(ids: $ids) {
+      deletedIDs
+    }
+  }
+`
+
 export const GET_REVIEW_ASSOCIATIONS = gql`
   query GetReviewAssociations($reviewId: ID!) {
     review(id: $reviewId) {

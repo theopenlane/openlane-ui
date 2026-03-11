@@ -9,8 +9,8 @@ import {
   type UpdateReviewMutationVariables,
   type UpdateBulkReviewMutation,
   type UpdateBulkReviewMutationVariables,
-  type DeleteReviewMutation,
-  type DeleteReviewMutationVariables,
+  type DeleteBulkReviewMutation,
+  type DeleteBulkReviewMutationVariables,
   type ReviewQuery,
   type ReviewQueryVariables,
   type GetReviewAssociationsQuery,
@@ -25,7 +25,7 @@ import {
   GET_ALL_REVIEWS,
   CREATE_REVIEW,
   UPDATE_REVIEW,
-  DELETE_REVIEW,
+  BULK_DELETE_REVIEW,
   REVIEW,
   CREATE_CSV_BULK_REVIEW,
   BULK_EDIT_REVIEW,
@@ -94,11 +94,10 @@ export const useUploadReviewFiles = () => {
   })
 }
 
-export const useDeleteReview = () => {
-  const { client } = useGraphQLClient()
-  const queryClient = useQueryClient()
-  return useMutation<DeleteReviewMutation, unknown, DeleteReviewMutationVariables>({
-    mutationFn: async (variables) => client.request(DELETE_REVIEW, variables),
+export const useBulkDeleteReview = () => {
+  const { client, queryClient } = useGraphQLClient()
+  return useMutation<DeleteBulkReviewMutation, unknown, DeleteBulkReviewMutationVariables>({
+    mutationFn: async (variables) => client.request(BULK_DELETE_REVIEW, variables),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['reviews'] })
     },
