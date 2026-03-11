@@ -13,7 +13,7 @@ import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { canEdit } from '@/lib/authz/utils'
 import { GenericSheetHeader } from './header'
 import { GenericDetailsSheetSkeleton } from './skeleton/details-sheet-skeleton'
-import { pluralizeTypeName } from '@/utils/strings'
+import { pluralizeTypeName, toHumanLabel } from '@/utils/strings'
 import type { TabConfig } from './types'
 import type { RenderFieldsProps, RenderHeaderProps, GenericDetailsSheetConfig } from './generic-sheet'
 
@@ -61,7 +61,7 @@ export function TabbedDetailView<TFormData extends FieldValues, TData, TUpdateIn
   const { data: permission } = useAccountRoles(objectType, id)
   const isEditAllowed = canEdit(permission?.roles)
 
-  const objectTypeName = objectType.charAt(0).toUpperCase() + objectType.slice(1).toLowerCase()
+  const objectTypeName = toHumanLabel(objectType)
   const queryKey = [pluralizeTypeName(objectType.toLowerCase())]
 
   useEffect(() => {
@@ -76,9 +76,10 @@ export function TabbedDetailView<TFormData extends FieldValues, TData, TUpdateIn
         reset(normalizedData as TFormData, { keepDefaultValues: false, keepDirty: false })
       }
 
-      requestAnimationFrame(() => {
+      const rafId = requestAnimationFrame(() => {
         setIsFormInitialized(true)
       })
+      return () => cancelAnimationFrame(rafId)
     }
   }, [data, isCreate, id, normalizeData, reset])
 

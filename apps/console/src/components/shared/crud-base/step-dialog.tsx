@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useMemo, useState } from 'react'
+import React, { useRef } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@repo/ui/dialog'
 import { Button } from '@repo/ui/button'
 import { useNotification } from '@/hooks/useNotification'
@@ -34,23 +34,14 @@ export function StepDialog<TFormData extends FieldValues, TCreateInput, TCreateD
   const { objectType, form, steps, title, createMutation, buildPayload, onClose } = config
   const queryClient = useQueryClient()
   const { successNotification, errorNotification } = useNotification()
-  const [isOpen, setIsOpen] = useState(true)
 
-  const { useStepper } = useMemo(
-    () =>
-      defineStepper(
-        ...steps.map((step) => ({
-          id: step.id,
-          label: step.label,
-          schema: step.schema,
-        })),
-      ),
-    [steps],
-  )
+  const stepperDefRef = useRef<ReturnType<typeof defineStepper> | null>(null)
+  if (!stepperDefRef.current) {
+    stepperDefRef.current = defineStepper(...steps.map((step) => ({ id: step.id })))
+  }
+  const stepper = stepperDefRef.current!.useStepper()
 
-  const stepper = useStepper()
-
-  const objectTypeName = objectType.charAt(0).toUpperCase() + objectType.slice(1).toLowerCase()
+  const objectTypeName = toHumanLabel(objectType)
   const queryKey = [pluralizeTypeName(objectType.toLowerCase())]
 
   const currentStepConfig = steps.find((s) => s.id === stepper.current.id)
@@ -58,8 +49,7 @@ export function StepDialog<TFormData extends FieldValues, TCreateInput, TCreateD
   const handleNext = async () => {
     if (!currentStepConfig) return
 
-    const shape = 'shape' in currentStepConfig.schema ? (currentStepConfig.schema as { shape: Record<string, unknown> }).shape : {}
-    const fieldsToValidate = Object.keys(shape)
+    const fieldsToValidate = Object.keys(currentStepConfig.schema.shape)
     const isValid = await form.trigger(fieldsToValidate as Parameters<typeof form.trigger>[0])
     if (!isValid) return
 
@@ -72,7 +62,7 @@ export function StepDialog<TFormData extends FieldValues, TCreateInput, TCreateD
 
   const handleBack = () => {
     if (stepper.isFirst) {
-      handleClose()
+      onClose()
     } else {
       stepper.prev()
     }
@@ -90,7 +80,7 @@ export function StepDialog<TFormData extends FieldValues, TCreateInput, TCreateD
         description: `The ${objectTypeName.toLowerCase()} has been successfully created.`,
       })
 
-      handleClose()
+      onClose()
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
       errorNotification({
@@ -100,18 +90,13 @@ export function StepDialog<TFormData extends FieldValues, TCreateInput, TCreateD
     }
   }
 
-  const handleClose = () => {
-    setIsOpen(false)
-    onClose()
-  }
-
   const dialogTitle = title ?? `Create ${toHumanLabel(objectType)}`
 
   return (
     <Dialog
-      open={isOpen}
+      open
       onOpenChange={(open) => {
-        if (!open) handleClose()
+        if (!open) onClose()
       }}
     >
       <DialogContent className="sm:max-w-[600px]">
@@ -122,7 +107,7 @@ export function StepDialog<TFormData extends FieldValues, TCreateInput, TCreateD
         <StepHeader stepper={stepper} />
 
         <FormProvider {...form}>
-          <div className="py-4">{stepper.switch(Object.fromEntries(steps.map((step) => [step.id, () => step.render()])) as Record<string, () => React.ReactNode>)}</div>
+          <div className="py-4">{currentStepConfig?.render()}</div>
         </FormProvider>
 
         <DialogFooter>

@@ -1,5 +1,5 @@
 import React from 'react'
-import { ZodType } from 'zod'
+import { ZodObject, ZodRawShape } from 'zod'
 import { RenderFieldsProps } from './generic-sheet'
 
 export interface TabConfig<TData, TUpdateInput> {
@@ -11,7 +11,7 @@ export interface TabConfig<TData, TUpdateInput> {
 export interface StepConfig {
   id: string
   label: string
-  schema: ZodType
+  schema: ZodObject<ZodRawShape>
   render: () => React.ReactNode
 }
 
