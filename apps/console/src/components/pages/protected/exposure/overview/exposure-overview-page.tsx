@@ -42,7 +42,7 @@ const ExposureOverviewPage = () => {
 
   const { data: riskCritData } = useRisks({ where: { statusIn: [RiskRiskStatus.OPEN, RiskRiskStatus.IDENTIFIED], impactIn: [RiskRiskImpact.CRITICAL] }, pagination: DEFAULT_PAGINATION })
   const { data: riskHighData } = useRisks({ where: { statusIn: [RiskRiskStatus.OPEN, RiskRiskStatus.IDENTIFIED], impactIn: [RiskRiskImpact.HIGH] }, pagination: DEFAULT_PAGINATION })
-  const { data: riskMedData } = useRisks({ where: { statusIn: [RiskRiskStatus.OPEN, RiskRiskStatus.IDENTIFIED], impactIn: [RiskRiskImpact.MEDIUM] }, pagination: DEFAULT_PAGINATION })
+  const { data: riskMedData } = useRisks({ where: { statusIn: [RiskRiskStatus.OPEN, RiskRiskStatus.IDENTIFIED], impactIn: [RiskRiskImpact.MODERATE] }, pagination: DEFAULT_PAGINATION })
   const { data: riskLowData } = useRisks({ where: { statusIn: [RiskRiskStatus.OPEN, RiskRiskStatus.IDENTIFIED], impactIn: [RiskRiskImpact.LOW] }, pagination: DEFAULT_PAGINATION })
 
   const severityData = useMemo(
