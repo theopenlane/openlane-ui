@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useCallback, useRef } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { type Value } from 'platejs'
 import { useSearchParams } from 'next/navigation'
@@ -23,6 +23,7 @@ import { useEntity } from '@/lib/graphql-hooks/entity'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
 import { breadcrumbs, getFieldsToRender, getFilterFields, visibilityFields } from './table-config'
 import { type EntitySheetConfig, type EntityTablePageConfig, objectType, objectName, tableKey, exportType, orderFieldEnum, defaultSorting, type EntityFieldProps } from './types'
+import { createVendorSteps } from '../create/steps/vendor-create-steps'
 import { getColumns } from './columns'
 import TableComponent from './table'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
@@ -55,8 +56,8 @@ const VendorPage: React.FC = () => {
   }, [])
   const initialAssociationsRef = useInitialAssociations(associationsData, extractAssociations, id)
 
-  const stagedFilesRef = useRef<File[]>([])
-  const existingFileIdsRef = useRef<string[]>([])
+  const [stagedFiles, setStagedFiles] = useState<File[]>([])
+  const [existingFileIds, setExistingFileIds] = useState<string[]>([])
   const plateEditorHelper = usePlateEditor()
 
   function getName(data: EntitiesNodeNonNull) {
@@ -77,11 +78,11 @@ const VendorPage: React.FC = () => {
   const createMutation = {
     isPending: baseCreateMutation.isPending,
     mutateAsync: async (input: CreateEntityInput) => {
-      const entityFiles = stagedFilesRef.current.length > 0 ? stagedFilesRef.current : undefined
-      const fileIDs = existingFileIdsRef.current.length > 0 ? existingFileIdsRef.current : undefined
+      const entityFiles = stagedFiles.length > 0 ? stagedFiles : undefined
+      const fileIDs = existingFileIds.length > 0 ? existingFileIds : undefined
       const result = await baseCreateMutation.mutateAsync({ input: { ...input, fileIDs }, entityTypeName: 'vendor', entityFiles })
-      stagedFilesRef.current = []
-      existingFileIdsRef.current = []
+      setStagedFiles([])
+      setExistingFileIds([])
       return result
     },
   }
@@ -181,19 +182,10 @@ const VendorPage: React.FC = () => {
     },
     normalizeData,
     getName,
-    renderFields: (props: EntityFieldProps) =>
-      getFieldsToRender(
-        props,
-        enumOpts,
-        (files: File[]) => {
-          stagedFilesRef.current = files
-        },
-        (fileIds: string[]) => {
-          existingFileIdsRef.current = fileIds
-        },
-        enumCreateHandlers,
-      ),
+    renderFields: (props: EntityFieldProps) => getFieldsToRender(props, enumOpts, setStagedFiles, setExistingFileIds, enumCreateHandlers),
   }
+
+  const vendorCreateSteps = useMemo(() => createVendorSteps(setStagedFiles, setExistingFileIds), [setStagedFiles, setExistingFileIds])
 
   const tableConfig: EntityTablePageConfig = {
     objectType,
@@ -210,6 +202,8 @@ const VendorPage: React.FC = () => {
     getColumns,
     TableComponent,
     sheetConfig,
+    viewEditMode: { type: 'full-page', route: '/registry/vendors' },
+    createMode: { type: 'step-dialog', steps: vendorCreateSteps, title: 'Create Vendor' },
     onBulkDelete: async (ids: string[]) => {
       await deleteMutation.mutateAsync({ ids })
     },
