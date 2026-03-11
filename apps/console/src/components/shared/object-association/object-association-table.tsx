@@ -105,24 +105,24 @@ const ObjectAssociationTable = ({ data, onIDsChange, initialData, refCodeInitial
           </div>
         )
       },
-      size: 40,
-      maxSize: 40,
+      size: 15,
+      maxSize: 15,
       enableResizing: false,
       meta: {
-        className: 'w-[40px] max-w-[40px]',
+        className: 'max-w-[5%] w-[5%]',
       },
     },
     {
       accessorKey: 'name',
       header: 'Name',
-      size: 100,
-      maxSize: 100,
+      size: 120,
+      maxSize: 120,
       meta: {
-        className: 'w-[100px] max-w-[100px]',
+        className: 'max-w-[70%] w-[60%]',
       },
       cell: ({ row }) => {
         const { name } = row.original
-        return <span className="block truncate">{name}</span>
+        return <span className="block truncate whitespace-nowrap">{name}</span>
       },
     },
     ...(showFramework
@@ -130,6 +130,8 @@ const ObjectAssociationTable = ({ data, onIDsChange, initialData, refCodeInitial
           {
             accessorKey: 'referenceFramework',
             header: 'Framework',
+            size: 100,
+            maxSize: 100,
             cell: ({ row }: { row: { original: TableRow } }) => <span className="block truncate">{row.original.referenceFramework ?? '—'}</span>,
           } satisfies ColumnDef<TableRow>,
         ]
