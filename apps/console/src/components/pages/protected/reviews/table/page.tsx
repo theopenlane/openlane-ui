@@ -3,7 +3,16 @@
 import React, { useCallback, useRef } from 'react'
 import useFormSchema, { bulkEditFieldSchema, type ReviewFormData } from '../hooks/use-form-schema'
 
-import { type ReviewsNodeNonNull, useReview, useCreateReview, useUpdateReview, useDeleteReview, useCreateBulkCSVReview, useBulkEditReview, useGetReviewAssociations } from '@/lib/graphql-hooks/review'
+import {
+  type ReviewsNodeNonNull,
+  useReview,
+  useCreateReview,
+  useUpdateReview,
+  useBulkDeleteReview,
+  useCreateBulkCSVReview,
+  useBulkEditReview,
+  useGetReviewAssociations,
+} from '@/lib/graphql-hooks/review'
 import { useSearchParams } from 'next/navigation'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
 import { breadcrumbs, getFieldsToRender, getFilterFields, visibilityFields } from './table-config'
@@ -54,7 +63,7 @@ const ReviewPage: React.FC = () => {
 
   const baseUpdateMutation = useUpdateReview()
   const baseCreateMutation = useCreateReview()
-  const baseDeleteMutation = useDeleteReview()
+  const baseBulkDeleteMutation = useBulkDeleteReview()
   const baseBulkCreateMutation = useCreateBulkCSVReview()
   const bulkEditMutation = useBulkEditReview()
 
@@ -151,9 +160,7 @@ const ReviewPage: React.FC = () => {
     TableComponent,
     sheetConfig,
     onBulkDelete: async (ids: string[]) => {
-      for (const deleteId of ids) {
-        await baseDeleteMutation.mutateAsync({ deleteReviewId: deleteId })
-      }
+      await baseBulkDeleteMutation.mutateAsync({ ids })
     },
     onBulkCreate: async (file: File) => {
       await bulkCreateMutation.mutateAsync({ input: file })
