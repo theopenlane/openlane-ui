@@ -1,11 +1,15 @@
-import { Group } from '@repo/codegen/src/schema'
-import { Option } from '@repo/ui/multiple-selector'
+import { z } from 'zod'
+import { type Group } from '@repo/codegen/src/schema'
+import { type Option } from '@repo/ui/multiple-selector'
 import { InternalPolicyStatusOptions, ProcedureStatusOptions } from '@/components/shared/enum-mapper/policy-enum'
 import { ControlStatusOptions } from '@/components/shared/enum-mapper/control-enum'
 import { RiskLikelihoodOptions, RiskStatusOptions } from '../enum-mapper/risk-enum'
 import { TaskStatusOptions } from '../enum-mapper/task-enum'
 import { useProgramSelect } from '@/lib/graphql-hooks/program'
 import { EvidenceStatusOptions } from '../enum-mapper/evidence-enum'
+import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
+import { type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
+import { buildMutationKey } from '@/components/shared/object-association/utils'
 
 export type BulkEditRisksDialogProps = {
   selectedRisks: { id: string }[]
@@ -46,12 +50,14 @@ export interface BulkEditDialogFormValues {
   fieldsArray: FieldItem[]
 }
 
-export interface SelectOptionSelectedObject<T extends SelectOptionBulkEdit = SelectOptionBulkEdit> {
+export interface SelectOptionSelectedObject<T extends string = string> {
   selectOptionEnum: T
   name: string
   placeholder: string
   options?: Option[]
   inputType: InputType
+  allowedObjectTypes?: readonly ObjectTypeObjects[]
+  objectType?: ObjectTypeObjects
 }
 
 export enum SelectOptionBulkEditControls {
@@ -124,18 +130,51 @@ export enum InputType {
   Date = 'DATETIME',
   Tag = 'TAG',
   TypeAhead = 'TYPE_AHEAD',
+  ObjectAssociation = 'OBJECT_ASSOCIATION',
 }
 
 export interface FieldItem {
-  value: SelectOptionBulkEdit | undefined
+  value: string | undefined
   selectedObject?: SelectOptionSelectedObject
   selectedValue?: string | string[] | undefined
   selectedDate?: Date | null
+  selectedAssociations?: TObjectAssociationMap
 }
 
 export const defaultObject = {
   fieldsArray: [],
 }
+
+export const fieldItemSchema = z.object({
+  value: z.string().optional(),
+  selectedObject: z
+    .object({
+      selectOptionEnum: z.string(),
+      name: z.string(),
+      placeholder: z.string(),
+      inputType: z.nativeEnum(InputType),
+      options: z
+        .array(
+          z.object({
+            label: z.string(),
+            value: z.string(),
+          }),
+        )
+        .optional(),
+      allowedObjectTypes: z.array(z.nativeEnum(ObjectTypeObjects)).readonly().optional(),
+      objectType: z.nativeEnum(ObjectTypeObjects).optional(),
+    })
+    .optional(),
+  selectedValue: z.union([z.string(), z.array(z.string())]).optional(),
+  selectedDate: z.date().nullable().optional(),
+  selectedAssociations: z.record(z.string(), z.array(z.string())).optional(),
+})
+
+export const bulkEditFieldsSchema = z.object({
+  fieldsArray: z.array(fieldItemSchema),
+})
+
+export type BulkEditFieldsFormValues = z.infer<typeof bulkEditFieldsSchema>
 
 const clearValueMap: Record<string, string> = {
   procedureType: 'clearObjectTypes.PROCEDURE',
@@ -152,7 +191,65 @@ export const getMappedClearValue = (key: string): string => {
   return clearValueMap[key]
 }
 
-export const getAllSelectOptionsForBulkEditRisks = (groups: Group[], typeOptions: Option[], categoryOptions: Option[]): SelectOptionSelectedObject<SelectOptionBulkEditRisks>[] => {
+type BulkEditFieldLike = {
+  selectedObject?: { inputType: InputType } | undefined
+  selectedValue?: string | string[] | undefined
+  selectedAssociations?: Record<string, string[]> | undefined
+}
+
+export const collectAssociationInput = (field: BulkEditFieldLike, input: Record<string, string | string[] | boolean>): boolean => {
+  if (field.selectedObject?.inputType !== InputType.ObjectAssociation || !field.selectedAssociations) {
+    return false
+  }
+  Object.entries(field.selectedAssociations).forEach(([key, associationIds]) => {
+    if (associationIds && associationIds.length > 0) {
+      input[buildMutationKey('add', key)] = associationIds
+    }
+  })
+  return true
+}
+
+export const checkHasFieldsToUpdate = (watchedFields: BulkEditFieldLike[]): boolean => {
+  return watchedFields.some(
+    (field) =>
+      (field.selectedObject && field.selectedValue) ||
+      field.selectedObject?.inputType === InputType.Input ||
+      (field.selectedObject?.inputType === InputType.ObjectAssociation && field.selectedAssociations && Object.values(field.selectedAssociations).some((ids) => ids && ids.length > 0)),
+  )
+}
+
+const POLICY_ALLOWED_OBJECT_TYPES = [ObjectTypeObjects.CONTROL, ObjectTypeObjects.SUB_CONTROL, ObjectTypeObjects.PROCEDURE, ObjectTypeObjects.RISK] as const
+const CONTROL_ALLOWED_OBJECT_TYPES = [ObjectTypeObjects.INTERNAL_POLICY, ObjectTypeObjects.PROCEDURE, ObjectTypeObjects.RISK] as const
+const RISK_ALLOWED_OBJECT_TYPES = [ObjectTypeObjects.CONTROL, ObjectTypeObjects.SUB_CONTROL, ObjectTypeObjects.PROCEDURE, ObjectTypeObjects.INTERNAL_POLICY] as const
+const EVIDENCE_ALLOWED_OBJECT_TYPES = [ObjectTypeObjects.CONTROL, ObjectTypeObjects.SUB_CONTROL, ObjectTypeObjects.CONTROL_IMPLEMENTATION, ObjectTypeObjects.SCAN] as const
+
+const ASSOCIATION_DISPLAY_NAMES: Partial<Record<ObjectTypeObjects, string>> = {
+  [ObjectTypeObjects.CONTROL]: 'Associate Controls',
+  [ObjectTypeObjects.INTERNAL_POLICY]: 'Associate Policies',
+  [ObjectTypeObjects.PROCEDURE]: 'Associate Procedures',
+  [ObjectTypeObjects.RISK]: 'Associate Risks',
+  [ObjectTypeObjects.SUB_CONTROL]: 'Associate Subcontrols',
+  [ObjectTypeObjects.CONTROL_IMPLEMENTATION]: 'Associate Control Implementations',
+  [ObjectTypeObjects.SCAN]: 'Associate Scans',
+}
+
+export const generateAssociationSelectOptions = (allowedTypes: readonly ObjectTypeObjects[]): SelectOptionSelectedObject[] => {
+  return allowedTypes.map((objectType) => ({
+    selectOptionEnum: ASSOCIATION_DISPLAY_NAMES[objectType] ?? objectType,
+    name: 'objectAssociation',
+    inputType: InputType.ObjectAssociation,
+    placeholder: 'Select associations',
+    allowedObjectTypes: [objectType],
+    objectType,
+  }))
+}
+
+export const getAssociationSelectedCount = (selectedAssociations?: Record<string, string[]>): number => {
+  if (!selectedAssociations) return 0
+  return Object.values(selectedAssociations).reduce((sum, ids) => sum + (ids?.length ?? 0), 0)
+}
+
+export const getAllSelectOptionsForBulkEditRisks = (groups: Group[], typeOptions: Option[], categoryOptions: Option[]): SelectOptionSelectedObject[] => {
   return [
     {
       selectOptionEnum: SelectOptionBulkEditRisks.RiskDelegate,
@@ -208,6 +305,7 @@ export const getAllSelectOptionsForBulkEditRisks = (groups: Group[], typeOptions
       inputType: InputType.Tag,
       placeholder: 'Add a tag',
     },
+    ...generateAssociationSelectOptions(RISK_ALLOWED_OBJECT_TYPES),
   ]
 }
 
@@ -250,7 +348,7 @@ export const getAllSelectOptionsForBulkEditProcedures = (groups: Group[], typeOp
   ]
 }
 
-export const getAllSelectOptionsForBulkEditPolicies = (groups: Group[], typeOptions: Option[]): SelectOptionSelectedObject<SelectOptionBulkEditPolicies>[] => {
+export const getAllSelectOptionsForBulkEditPolicies = (groups: Group[], typeOptions: Option[]): SelectOptionSelectedObject[] => {
   return [
     {
       selectOptionEnum: SelectOptionBulkEditPolicies.PolicyDelegate,
@@ -286,10 +384,11 @@ export const getAllSelectOptionsForBulkEditPolicies = (groups: Group[], typeOpti
       inputType: InputType.Tag,
       placeholder: 'Add a tag',
     },
+    ...generateAssociationSelectOptions(POLICY_ALLOWED_OBJECT_TYPES),
   ]
 }
 
-export const useGetAllSelectOptionsForBulkEditControls = (groups: Group[], typeOptions: Option[]): SelectOptionSelectedObject<SelectOptionBulkEditControls>[] => {
+export const useGetAllSelectOptionsForBulkEditControls = (groups: Group[], typeOptions: Option[]): SelectOptionSelectedObject[] => {
   const { programOptions } = useProgramSelect({})
 
   return [
@@ -339,6 +438,7 @@ export const useGetAllSelectOptionsForBulkEditControls = (groups: Group[], typeO
       inputType: InputType.Tag,
       placeholder: 'Add a tag',
     },
+    ...generateAssociationSelectOptions(CONTROL_ALLOWED_OBJECT_TYPES),
   ]
 }
 
@@ -388,7 +488,7 @@ export const getAllSelectOptionsForBulkEditTasks = (
   ]
 }
 
-export const getAllSelectOptionsForBulkEditEvidence = (): SelectOptionSelectedObject<SelectOptionBulkEditEvidence>[] => {
+export const getAllSelectOptionsForBulkEditEvidence = (): SelectOptionSelectedObject[] => {
   return [
     {
       selectOptionEnum: SelectOptionBulkEditEvidence.Status,
@@ -409,6 +509,7 @@ export const getAllSelectOptionsForBulkEditEvidence = (): SelectOptionSelectedOb
       inputType: InputType.Tag,
       placeholder: 'Add a tag',
     },
+    ...generateAssociationSelectOptions(EVIDENCE_ALLOWED_OBJECT_TYPES),
   ]
 }
 export const getAllSelectOptionsForBulkEditAssets = (): SelectOptionSelectedObject[] => {

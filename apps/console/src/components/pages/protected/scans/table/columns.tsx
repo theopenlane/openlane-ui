@@ -1,10 +1,11 @@
-import { ColumnDef } from '@tanstack/react-table'
-import { ScansNodeNonNull } from '@/lib/graphql-hooks/scan'
-import { ColumnOptions } from '@/components/shared/crud-base/page'
+import { type ColumnDef } from '@tanstack/react-table'
+import { type ScansNodeNonNull } from '@/lib/graphql-hooks/scan'
+import { type ColumnOptions } from '@/components/shared/crud-base/page'
 import { createSelectColumn } from '@/components/shared/crud-base/columns/select-column'
 import { UserCell } from '@/components/shared/crud-base/columns/user-cell'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { CustomEnumChipCell } from '@/components/shared/crud-base/columns/custom-enum-chip-cell'
 
 export const getColumns = ({ userMap, selectedItems, setSelectedItems }: ColumnOptions): ColumnDef<ScansNodeNonNull>[] => {
   return [
@@ -32,8 +33,8 @@ export const getColumns = ({ userMap, selectedItems, setSelectedItems }: ColumnO
     { accessorKey: 'scanDate', header: 'Scan Date', size: 130, cell: ({ cell }) => <DateCell value={cell.getValue() as string} /> },
     { accessorKey: 'scanSchedule', header: 'Schedule', size: 160 },
     { accessorKey: 'nextScanRunAt', header: 'Next Run', size: 130, cell: ({ cell }) => <DateCell value={cell.getValue() as string} /> },
-    { accessorKey: 'environmentName', header: 'Environment', size: 120 },
-    { accessorKey: 'scopeName', header: 'Scope', size: 120 },
+    { accessorKey: 'environmentName', header: 'Environment', size: 120, cell: ({ cell }) => <CustomEnumChipCell value={cell.getValue() as string} field="environment" /> },
+    { accessorKey: 'scopeName', header: 'Scope', size: 120, cell: ({ cell }) => <CustomEnumChipCell value={cell.getValue() as string} field="scope" /> },
     { accessorKey: 'assignedTo', header: 'Assigned To', size: 140 },
     { accessorKey: 'performedBy', header: 'Performed By', size: 140 },
     { accessorKey: 'reviewedBy', header: 'Reviewed By', size: 140 },

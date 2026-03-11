@@ -159,6 +159,102 @@ export const BULK_DELETE_FINDING = gql`
   }
 `
 
+export const GET_FINDING_ASSOCIATIONS = gql`
+  query GetFindingAssociations($findingId: ID!) {
+    finding(id: $findingId) {
+      controls {
+        edges {
+          node {
+            id
+            refCode
+            description
+            displayID
+          }
+        }
+        totalCount
+      }
+      subcontrols {
+        edges {
+          node {
+            id
+            refCode
+            displayID
+          }
+        }
+        totalCount
+      }
+      risks {
+        edges {
+          node {
+            id
+            name
+            displayID
+          }
+        }
+        totalCount
+      }
+      programs {
+        edges {
+          node {
+            id
+            name
+            displayID
+          }
+        }
+        totalCount
+      }
+      tasks {
+        edges {
+          node {
+            id
+            title
+            displayID
+          }
+        }
+        totalCount
+      }
+      assets {
+        edges {
+          node {
+            id
+            name
+            displayName
+          }
+        }
+        totalCount
+      }
+      scans {
+        edges {
+          node {
+            id
+            target
+          }
+        }
+        totalCount
+      }
+      remediations {
+        edges {
+          node {
+            id
+            title
+            displayID
+          }
+        }
+        totalCount
+      }
+      reviews {
+        edges {
+          node {
+            id
+            title
+          }
+        }
+        totalCount
+      }
+    }
+  }
+`
+
 export const BULK_EDIT_FINDING = gql`
   mutation UpdateBulkFinding($ids: [ID!]!, $input: UpdateFindingInput!) {
     updateBulkFinding(ids: $ids, input: $input) {

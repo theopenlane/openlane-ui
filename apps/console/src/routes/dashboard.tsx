@@ -45,10 +45,10 @@ import {
   CircleHelp,
   ClipboardPenLine,
 } from 'lucide-react'
-import { NavHeading, type NavItem, type Separator } from '@/types'
+import { type NavHeading, type NavItem, type Separator } from '@/types'
 import { PlanEnum } from '@/lib/subscription-plan/plan-enum.ts'
 import { canEdit } from '@/lib/authz/utils'
-import { TPermissionData } from '@/types/authz'
+import { type TPermissionData } from '@/types/authz'
 import type { Session } from 'next-auth'
 import { hasNoModules } from '@/lib/auth/utils/modules'
 
@@ -169,7 +169,7 @@ export const topNavigationItems = (session: Session | null): (NavItem | Separato
         { title: 'Subprocessors', href: '/trust-center/subprocessors', icon: Server },
         { title: 'Updates', href: '/trust-center/updates', icon: Megaphone },
         { title: 'Customer Logos', href: '/trust-center/customer-logos', icon: Component },
-        { title: 'FAQs', href: '/trust-center/faqs', icon: CircleHelp, hidden: true },
+        { title: 'FAQs', href: '/trust-center/faqs', icon: CircleHelp, hidden: false },
         { title: 'Analytics', href: '/trust-center/analytics', icon: ChartLine },
       ],
     },

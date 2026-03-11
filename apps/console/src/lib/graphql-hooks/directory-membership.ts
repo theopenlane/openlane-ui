@@ -1,19 +1,19 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
-  DirectoryMembershipsWithFilterQuery,
-  DirectoryMembershipsWithFilterQueryVariables,
-  CreateDirectoryMembershipMutation,
-  CreateDirectoryMembershipMutationVariables,
-  UpdateDirectoryMembershipMutation,
-  UpdateDirectoryMembershipMutationVariables,
-  DeleteDirectoryMembershipMutation,
-  DeleteDirectoryMembershipMutationVariables,
-  DirectoryMembershipQuery,
-  DirectoryMembershipQueryVariables,
+  type DirectoryMembershipsWithFilterQuery,
+  type DirectoryMembershipsWithFilterQueryVariables,
+  type CreateDirectoryMembershipMutation,
+  type CreateDirectoryMembershipMutationVariables,
+  type UpdateDirectoryMembershipMutation,
+  type UpdateDirectoryMembershipMutationVariables,
+  type DeleteDirectoryMembershipMutation,
+  type DeleteDirectoryMembershipMutationVariables,
+  type DirectoryMembershipQuery,
+  type DirectoryMembershipQueryVariables,
 } from '@repo/codegen/src/schema'
 
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 import { GET_ALL_DIRECTORY_MEMBERSHIPS, CREATE_DIRECTORY_MEMBERSHIP, UPDATE_DIRECTORY_MEMBERSHIP, DELETE_DIRECTORY_MEMBERSHIP, DIRECTORY_MEMBERSHIP } from '@repo/codegen/query/directory-membership'
 
 type GetAllDirectoryMembershipsArgs = {

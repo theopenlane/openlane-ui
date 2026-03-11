@@ -1,17 +1,17 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
-  AssessmentResponse,
-  AssessmentResponseQuery,
-  AssessmentResponseQueryVariables,
-  AssessmentResponsesWithFilterQuery,
-  AssessmentResponsesWithFilterQueryVariables,
-  CreateAssessmentResponseMutation,
-  CreateAssessmentResponseMutationVariables,
-  DeleteAssessmentResponseMutation,
-  DeleteAssessmentResponseMutationVariables,
+  type AssessmentResponse,
+  type AssessmentResponseQuery,
+  type AssessmentResponseQueryVariables,
+  type AssessmentResponsesWithFilterQuery,
+  type AssessmentResponsesWithFilterQueryVariables,
+  type CreateAssessmentResponseMutation,
+  type CreateAssessmentResponseMutationVariables,
+  type DeleteAssessmentResponseMutation,
+  type DeleteAssessmentResponseMutationVariables,
 } from '@repo/codegen/src/schema'
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 import { ASSESSMENT_RESPONSE, GET_ALL_ASSESSMENT_RESPONSES, CREATE_ASSESSMENT_RESPONSE, DELETE_ASSESSMENT_RESPONSE } from '@repo/codegen/query/assessment-response'
 
 type GetAllAssessmentResponsesArgs = {

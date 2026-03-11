@@ -1,18 +1,18 @@
 'use client'
 
 import React, { useCallback, useRef } from 'react'
-import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
+import useFormSchema, { bulkEditFieldSchema, type ReviewFormData } from '../hooks/use-form-schema'
 
-import { ReviewsNodeNonNull, useReview, useCreateReview, useUpdateReview, useDeleteReview, useCreateBulkCSVReview, useBulkEditReview, useGetReviewAssociations } from '@/lib/graphql-hooks/review'
+import { type ReviewsNodeNonNull, useReview, useCreateReview, useUpdateReview, useDeleteReview, useCreateBulkCSVReview, useBulkEditReview, useGetReviewAssociations } from '@/lib/graphql-hooks/review'
 import { useSearchParams } from 'next/navigation'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
 import { breadcrumbs, getFieldsToRender, getFilterFields, visibilityFields } from './table-config'
-import { ReviewSheetConfig, ReviewTablePageConfig, ReviewFieldProps, objectType, objectName, tableKey, exportType, orderFieldEnum, defaultSorting } from './types'
+import { type ReviewSheetConfig, type ReviewTablePageConfig, type ReviewFieldProps, objectType, objectName, tableKey, exportType, orderFieldEnum, defaultSorting } from './types'
 import { getColumns } from './columns'
 import TableComponent from './table'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { buildPayload } from '../create/utils'
-import { CreateReviewInput, UpdateReviewInput, GetReviewAssociationsQuery } from '@repo/codegen/src/schema'
+import { type CreateReviewInput, type UpdateReviewInput, type GetReviewAssociationsQuery } from '@repo/codegen/src/schema'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import { buildAssociationPayload } from '@/components/shared/object-association/utils'
@@ -108,7 +108,7 @@ const ReviewPage: React.FC = () => {
     createMutation,
     buildPayload: async (data) => {
       const { controlIDs, subcontrolIDs, remediationIDs, entityIDs, taskIDs, assetIDs, programIDs, ...rest } = data
-      const payload = await buildPayload(rest as any, plateEditorHelper)
+      const payload = await buildPayload(rest as ReviewFormData, plateEditorHelper)
       const associationPayload = buildAssociationPayload(
         REVIEW_ASSOCIATION_CONFIG.associationKeys,
         { controlIDs, subcontrolIDs, remediationIDs, entityIDs, taskIDs, assetIDs, programIDs },

@@ -5,17 +5,17 @@ import Link from 'next/link'
 import { formatDate } from '@/utils/date'
 import { Button } from '@repo/ui/button'
 import { DataTable, getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
-import { ColumnDef } from '@tanstack/table-core'
+import { type ColumnDef } from '@tanstack/table-core'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { useTasksWithFilter } from '@/lib/graphql-hooks/task.ts'
-import { OrderDirection, TaskOrderField, TasksWithFilterQueryVariables, TaskTaskStatus, TaskWhereInput, User } from '@repo/codegen/src/schema'
-import { TPagination } from '@repo/ui/pagination-types'
+import { OrderDirection, TaskOrderField, type TasksWithFilterQueryVariables, TaskTaskStatus, type TaskWhereInput, type User } from '@repo/codegen/src/schema'
+import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { TASK_SORT_FIELDS } from '../../../tasks/table/table-config.ts'
 import { useParams } from 'next/navigation'
 import Frame from '@/assets/Frame'
 import { TaskStatusIconMapper } from '@/components/shared/enum-mapper/task-enum'
-import { saveFilters, TFilterState } from '@/components/shared/table-filter/filter-storage.ts'
+import { saveFilters, type TFilterState } from '@/components/shared/table-filter/filter-storage.ts'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum.ts'
 import { CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip.tsx'
@@ -32,7 +32,7 @@ type FormattedTask = {
 
 const ProgramTasksTable = () => {
   const { id } = useParams<{ id: string | undefined }>()
-  const [pagination, setPagination] = useState<TPagination>(
+  const [pagination, setPagination] = useState<TPagination>(() =>
     getInitialPagination(TableKeyEnum.PROGRAM, {
       ...DEFAULT_PAGINATION,
       pageSize: 5,

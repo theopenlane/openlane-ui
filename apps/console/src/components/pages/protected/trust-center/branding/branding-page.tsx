@@ -1,11 +1,11 @@
 'use client'
 
-import { TrustCenterPreviewSetting, TrustCenterSetting, useGetTrustCenter } from '@/lib/graphql-hooks/trust-center'
+import { type TrustCenterPreviewSetting, type TrustCenterSetting, useGetTrustCenter } from '@/lib/graphql-hooks/trust-center'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { TrustCenterSettingTrustCenterThemeMode } from '@repo/codegen/src/schema'
 import { PageHeading } from '@repo/ui/page-heading'
-import { useContext, useEffect, useMemo, useState } from 'react'
-import { UpdateTrustCenterSettingsArgs, useHandleUpdateSetting } from './helpers/useHandleUpdateSetting'
+import { use, useEffect, useMemo, useState } from 'react'
+import { type UpdateTrustCenterSettingsArgs, useHandleUpdateSetting } from './helpers/useHandleUpdateSetting'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useNavigationGuard } from 'next-navigation-guard'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
@@ -15,11 +15,11 @@ import { BrandingTextSection } from './sections/branding-text-section'
 import { BrandingThemeSection } from './sections/branding-theme-section'
 import { BrandingAssetsSection } from './sections/branding-assets-section'
 import { FormProvider } from 'react-hook-form'
-import { BrandFormValues, useBrandForm } from './brand-schema'
+import { type BrandFormValues, useBrandForm } from './brand-schema'
 import { TrustCenterSkeleton } from '../skeleton/trust-center-skeleton'
 import { BrandingCompanyInfoSection } from './sections/branding-company-info-section'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import { Value } from 'platejs'
+import { type Value } from 'platejs'
 
 export enum InputTypeEnum {
   URL = 'url',
@@ -27,7 +27,7 @@ export enum InputTypeEnum {
 }
 
 const BrandPage: React.FC = () => {
-  const { setCrumbs } = useContext(BreadcrumbContext)
+  const { setCrumbs } = use(BreadcrumbContext)
   const { updateTrustCenterSetting } = useHandleUpdateSetting()
   const { convertToHtml } = usePlateEditor()
 

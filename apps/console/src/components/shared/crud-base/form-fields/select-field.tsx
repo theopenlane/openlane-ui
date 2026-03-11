@@ -2,11 +2,11 @@
 
 import { FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { FieldValues, useFormContext } from 'react-hook-form'
+import { type FieldValues, useFormContext } from 'react-hook-form'
 import { CustomTypeEnumOptionChip, CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { InfoIcon } from 'lucide-react'
-import { InternalEditingType } from '../generic-sheet'
+import { type InternalEditingType } from '../generic-sheet'
 import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-enum-select/creatable-custom-type-enum-select'
 
 interface SelectFieldProps<TUpdateInput> {
@@ -115,7 +115,15 @@ export const SelectField = <TUpdateInput,>({
                   }
                 }}
               >
-                {displayValue || <span className="text-muted-foreground italic">Not set</span>}
+                {useCustomDisplay ? (
+                  rawValue ? (
+                    <CustomTypeEnumValue value={rawValue} options={options} placeholder={rawValue} />
+                  ) : (
+                    <span className="text-muted-foreground italic">Not set</span>
+                  )
+                ) : (
+                  displayValue || <span className="text-muted-foreground italic">Not set</span>
+                )}
               </div>
             )}
           </FormControl>

@@ -4,8 +4,8 @@ import React, { useState } from 'react'
 import { useGetEntityFilesPaginated, useUploadEntityFiles, useUpdateEntity } from '@/lib/graphql-hooks/entity'
 import { DocumentsSection } from '@/components/shared/documents-section/documents-section'
 import { DocumentsCreateSection } from '@/components/shared/documents-section/documents-create-section'
-import { FileOrder, FileOrderField, OrderDirection } from '@repo/codegen/src/schema'
-import { TPagination } from '@repo/ui/pagination-types'
+import { type FileOrder, FileOrderField, OrderDirection } from '@repo/codegen/src/schema'
+import { type TPagination } from '@repo/ui/pagination-types'
 import { getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
@@ -22,7 +22,7 @@ type EntityDocumentsSectionProps = {
 }
 
 const EntityDocumentsSection: React.FC<EntityDocumentsSectionProps> = ({ entityId, isEditAllowed, isCreate, onStagedFilesChange, onExistingFileIdsChange }) => {
-  const [pagination, setPagination] = useState<TPagination>(getInitialPagination(TableKeyEnum.ENTITY_FILES, DEFAULT_PAGINATION))
+  const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(TableKeyEnum.ENTITY_FILES, DEFAULT_PAGINATION))
   const defaultSorting = getInitialSortConditions(TableKeyEnum.ENTITY_FILES, FileOrderField, [
     {
       field: FileOrderField.created_at,

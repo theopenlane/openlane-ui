@@ -1,10 +1,10 @@
 'use client'
 
 import React, { useState } from 'react'
-import { RiskFieldsFragment, RiskRiskImpact, RiskRiskLikelihood, RiskRiskStatus, UpdateRiskInput } from '@repo/codegen/src/schema'
+import { type RiskFieldsFragment, type RiskRiskImpact, type RiskRiskLikelihood, type RiskRiskStatus, type UpdateRiskInput } from '@repo/codegen/src/schema'
 import { Binoculars, Circle, CircleAlert, CircleHelp, Folder, Gauge, Tag } from 'lucide-react'
-import { Controller, UseFormReturn } from 'react-hook-form'
-import { EditRisksFormData } from '@/components/pages/protected/risks/view/hooks/use-form-schema'
+import { Controller, type UseFormReturn } from 'react-hook-form'
+import { type EditRisksFormData } from '@/components/pages/protected/risks/view/hooks/use-form-schema'
 import RiskLabel from '@/components/pages/protected/risks/risk-label'
 import useEscapeKey from '@/hooks/useEscapeKey'
 import { Card } from '@repo/ui/cardpanel'

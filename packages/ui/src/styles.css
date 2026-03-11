@@ -1,7 +1,7 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 @source "../../../packages/ui/src/**/*.{js,ts,jsx,tsx}";
-@source inline("border-controls border-subcontrols border-controlObjectives border-policies border-procedures border-programs border-tasks border-risks border-evidences border-groups border-scans border-campaigns border-assets border-entities border-identityHolders");
+@source inline("border-controls border-subcontrols border-controlObjectives border-policies border-procedures border-programs border-tasks border-risks border-evidences border-groups border-scans border-campaigns border-assets border-entities border-identityHolders border-reviews border-findings border-remediations");
 
 @variant dark (&:where(.dark, .dark *));
 
@@ -515,10 +515,13 @@
   --color-evidence: #93c5fd;
   --color-evidences: #93c5fd;
   --color-scans: #f472b6;
+  --color-reviews: #818cf8;
+  --color-findings: #f87171;
   --color-campaigns: #fb923c;
   --color-assets: #38bdf8;
   --color-entities: #a3e635;
   --color-identityHolders: #e879f9;
+  --color-remediations: #f97316;
 
   /* Avatar */
   --color-avatar: #e5a000;

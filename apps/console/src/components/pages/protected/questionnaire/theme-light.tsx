@@ -1,4 +1,4 @@
-import { ITheme } from 'survey-core'
+import { type ITheme } from 'survey-core'
 
 export const lightTheme: ITheme = {
   backgroundImageFit: 'cover',

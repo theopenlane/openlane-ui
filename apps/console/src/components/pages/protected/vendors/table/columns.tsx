@@ -1,11 +1,12 @@
-import { ColumnDef } from '@tanstack/react-table'
+import { type ColumnDef } from '@tanstack/react-table'
 import { formatDate } from '@/utils/date'
-import { EntitiesNodeNonNull } from '@/lib/graphql-hooks/entity'
-import { ColumnOptions } from '@/components/shared/crud-base/page'
+import { type EntitiesNodeNonNull } from '@/lib/graphql-hooks/entity'
+import { type ColumnOptions } from '@/components/shared/crud-base/page'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { UserCell } from '@/components/shared/crud-base/columns/user-cell'
 import { BooleanCell } from '@/components/shared/crud-base/columns/boolean-cell'
 import { createSelectColumn } from '@/components/shared/crud-base/columns/select-column'
+import { CustomEnumChipCell } from '@/components/shared/crud-base/columns/custom-enum-chip-cell'
 
 export const getColumns = ({ userMap, convertToReadOnly, selectedItems, setSelectedItems }: ColumnOptions): ColumnDef<EntitiesNodeNonNull>[] => {
   return [
@@ -49,10 +50,10 @@ export const getColumns = ({ userMap, convertToReadOnly, selectedItems, setSelec
     { accessorKey: 'contractEndDate', header: 'Contract End Date', size: 130, cell: ({ cell }) => formatDate(cell.getValue() as string) },
     { accessorKey: 'contractRenewalAt', header: 'Contract Renewal At', size: 130, cell: ({ cell }) => formatDate(cell.getValue() as string) },
     { accessorKey: 'contractStartDate', header: 'Contract Start Date', size: 130, cell: ({ cell }) => formatDate(cell.getValue() as string) },
-    { accessorKey: 'entityRelationshipStateName', header: 'Relationship State', size: 150 },
-    { accessorKey: 'entitySecurityQuestionnaireStatusName', header: 'Security Questionnaire Status', size: 180 },
-    { accessorKey: 'entitySourceTypeName', header: 'Source Type', size: 120 },
-    { accessorKey: 'environmentName', header: 'Environment', size: 120 },
+    { accessorKey: 'entityRelationshipStateName', header: 'Relationship State', size: 150, cell: ({ cell }) => <CustomEnumChipCell value={cell.getValue() as string} objectType="entity" field="relationshipState" /> },
+    { accessorKey: 'entitySecurityQuestionnaireStatusName', header: 'Security Questionnaire Status', size: 180, cell: ({ cell }) => <CustomEnumChipCell value={cell.getValue() as string} objectType="entity" field="entitySecurityQuestionnaireStatus" /> },
+    { accessorKey: 'entitySourceTypeName', header: 'Source Type', size: 120, cell: ({ cell }) => <CustomEnumChipCell value={cell.getValue() as string} objectType="entity" field="entitySourceType" /> },
+    { accessorKey: 'environmentName', header: 'Environment', size: 120, cell: ({ cell }) => <CustomEnumChipCell value={cell.getValue() as string} field="environment" /> },
     {
       accessorKey: 'hasSoc2',
       header: 'Has SOC 2',
@@ -78,7 +79,7 @@ export const getColumns = ({ userMap, convertToReadOnly, selectedItems, setSelec
     { accessorKey: 'reviewedBy', header: 'Reviewed By', size: 120 },
     { accessorKey: 'riskRating', header: 'Risk Rating', size: 120 },
     { accessorKey: 'riskScore', header: 'Risk Score', size: 100 },
-    { accessorKey: 'scopeName', header: 'Scope Name', size: 120 },
+    { accessorKey: 'scopeName', header: 'Scope Name', size: 120, cell: ({ cell }) => <CustomEnumChipCell value={cell.getValue() as string} field="scope" /> },
     { accessorKey: 'soc2PeriodEnd', header: 'SOC 2 Period End', size: 130, cell: ({ cell }) => formatDate(cell.getValue() as string) },
     { accessorKey: 'spendCurrency', header: 'Spend Currency', size: 100 },
     {

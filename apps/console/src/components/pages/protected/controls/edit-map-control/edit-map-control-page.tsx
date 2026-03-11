@@ -9,11 +9,11 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import {
   MappedControlMappingType,
   MappedControlMappingSource,
-  UpdateMappedControlMutationVariables,
-  UpdateMappedControlInput,
-  GetMappedControlByIdQuery,
-  ControlEdge,
-  SubcontrolEdge,
+  type UpdateMappedControlMutationVariables,
+  type UpdateMappedControlInput,
+  type GetMappedControlByIdQuery,
+  type ControlEdge,
+  type SubcontrolEdge,
 } from '@repo/codegen/src/schema'
 import { useNotification } from '@/hooks/useNotification'
 import { useGetMappedControlById, useUpdateMappedControl } from '@/lib/graphql-hooks/mapped-control'
@@ -23,11 +23,11 @@ import { useGetSubcontrolById } from '@/lib/graphql-hooks/subcontrol'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { MappingIconMapper } from '@/components/shared/enum-mapper/map-control-enum'
 import MapControlsCard from '../map-controls/map-controls-card'
-import { MapControlsFormData, mapControlsSchema } from '../map-controls/use-form-schema'
+import { type MapControlsFormData, mapControlsSchema } from '../map-controls/use-form-schema'
 import MapControlsRelations from '../map-controls/map-controls-relations'
 import { useQueryClient } from '@tanstack/react-query'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar'
-import { MapControl } from '@/types'
+import { type MapControl } from '@/types'
 import { useOrganization } from '@/hooks/useOrganization'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
@@ -36,7 +36,7 @@ const EditMapControlPage = () => {
   const router = useRouter()
   const queryClient = useQueryClient()
   const searchParams = useSearchParams()
-  const { setCrumbs } = React.useContext(BreadcrumbContext)
+  const { setCrumbs } = React.use(BreadcrumbContext)
   const { errorNotification, successNotification } = useNotification()
   const mappedControlId = searchParams.get('mappedControlId')
   const [expandedCard, setExpandedCard] = useState<'From' | 'To' | ''>('From')
@@ -51,7 +51,7 @@ const EditMapControlPage = () => {
   const { data: controlData, isLoading } = useGetControlById(isControl ? (id as string) : null)
   const { data: subcontrolData, isLoading: isLoadingSubcontrol } = useGetSubcontrolById(isSubControl ? (subcontrolId as string) : null)
   const { currentOrgId, getOrganizationByID } = useOrganization()
-  const currentOrganization = getOrganizationByID(currentOrgId!)
+  const currentOrganization = getOrganizationByID(currentOrgId ?? '')
 
   const { data: mappedControlData } = useGetMappedControlById({ mappedControlId: mappedControlId ?? '', enabled: !!mappedControlId && !updateData && !isPending })
 
@@ -173,7 +173,6 @@ const EditMapControlPage = () => {
     ])
   }, [isLoading, setCrumbs, subcontrolData?.subcontrol?.refCode, id, subcontrolId])
 
-  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (controlData) {
       setControlsCrumbs()
@@ -233,7 +232,6 @@ const EditMapControlPage = () => {
       setPresetControlsTo(presetTo)
     }
   }, [setCrumbs, controlData, subcontrolData, form, isLoading, isLoadingSubcontrol, setControlsCrumbs, setSubControlsCrumbs, mappedControlId, mappedControlData])
-  /* eslint-enable react-hooks/set-state-in-effect */
 
   return (
     <>

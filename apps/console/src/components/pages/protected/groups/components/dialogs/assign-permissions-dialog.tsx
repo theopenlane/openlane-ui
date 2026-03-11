@@ -7,22 +7,22 @@ import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/selec
 import { Input } from '@repo/ui/input'
 import { Label } from '@repo/ui/label'
 import { DataTable, getInitialPagination } from '@repo/ui/data-table'
-import { ColumnDef } from '@tanstack/table-core'
+import { type ColumnDef } from '@tanstack/table-core'
 import { useGroupsStore } from '@/hooks/useGroupsStore'
-import { generateColumns, generateGroupsPermissionsWhere, TableDataItem } from '@/constants/groups'
+import { generateColumns, generateGroupsPermissionsWhere, type TableDataItem } from '@/constants/groups'
 import { useUpdateGroup } from '@/lib/graphql-hooks/group'
 import { useQuery } from '@tanstack/react-query'
 import { GET_ALL_RISKS } from '@repo/codegen/query/risk'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { useNotification } from '@/hooks/useNotification'
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
-import { Control } from '@repo/codegen/src/schema'
+import { type Control } from '@repo/codegen/src/schema'
 import { canEdit } from '@/lib/authz/utils'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { TableKeyEnum } from '@repo/ui/table-key'
-import { OBJECT_TYPE_PERMISSIONS_CONFIG, ObjectTypes, TypesWithPermissions, PermissionsAllQueriesData } from '@repo/codegen/src/type-names'
+import { OBJECT_TYPE_PERMISSIONS_CONFIG, ObjectTypes, TypesWithPermissions, type PermissionsAllQueriesData } from '@repo/codegen/src/type-names'
 import { toHumanLabel } from '@/utils/strings'
 
 const options = Object.values(TypesWithPermissions)
@@ -45,7 +45,7 @@ const AssignPermissionsDialog = () => {
   const [roles, setRoles] = useState<Record<string, string>>({})
   const [searchValue, setSearchValue] = useState('')
   const [debouncedSearchValue, setDebouncedSearchValue] = useState('')
-  const [pagination, setPagination] = useState<TPagination>(getInitialPagination(TableKeyEnum.GROUP_ASSIGN_PERMISSION, defaultPagination))
+  const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(TableKeyEnum.GROUP_ASSIGN_PERMISSION, defaultPagination))
 
   const { mutateAsync: updateGroup } = useUpdateGroup()
 

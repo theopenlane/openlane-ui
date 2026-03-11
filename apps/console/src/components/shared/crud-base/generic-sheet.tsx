@@ -8,8 +8,8 @@ import { Form } from '@repo/ui/form'
 import { useQueryClient } from '@tanstack/react-query'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { UseFormReturn, FieldValues } from 'react-hook-form'
-import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { type UseFormReturn, type FieldValues } from 'react-hook-form'
+import { type ObjectTypes } from '@repo/codegen/src/type-names'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { canEdit } from '@/lib/authz/utils'
 import { GenericSheetHeader } from './header'
@@ -64,6 +64,9 @@ export interface GenericDetailsSheetConfig<TFormData extends FieldValues, TData,
 
   onClose?: () => void
 
+  entityId?: string | null
+  isCreateMode?: boolean
+
   data?: TData
   isFetching: boolean
   formId?: string
@@ -85,14 +88,31 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
   const [isFormInitialized, setIsFormInitialized] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
 
-  const { form, updateMutation, createMutation, deleteMutation, objectType, data, isFetching, buildPayload, normalizeData, getName, formId = 'editForm', renderHeader, renderFields, onClose } = config
+  const {
+    form,
+    updateMutation,
+    createMutation,
+    deleteMutation,
+    objectType,
+    data,
+    isFetching,
+    buildPayload,
+    normalizeData,
+    getName,
+    formId = 'editForm',
+    renderHeader,
+    renderFields,
+    onClose,
+    entityId: entityIdOverride,
+    isCreateMode,
+  } = config
   const { reset } = form
   const queryClient = useQueryClient()
   const { successNotification, errorNotification } = useNotification()
 
   const searchParams = useSearchParams()
-  const id = searchParams.get('id')
-  const isCreate = searchParams.get('create') === 'true'
+  const id = entityIdOverride !== undefined ? entityIdOverride : searchParams.get('id')
+  const isCreate = isCreateMode !== undefined ? isCreateMode : searchParams.get('create') === 'true'
 
   const { data: permission } = useAccountRoles(objectType, id)
   const isEditAllowed = canEdit(permission?.roles)

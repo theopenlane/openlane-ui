@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { FormProvider, useForm } from 'react-hook-form'
+import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import type { Resolver } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -17,10 +17,10 @@ import { useCreateSubprocessor } from '@/lib/graphql-hooks/subprocessor'
 import { NameField } from './form-fields/name-field'
 import { DescriptionField } from './form-fields/description-field'
 import { LogoField } from './form-fields/logo-field'
-import { TUploadedFile } from '@/components/pages/protected/evidence/upload/types/TUploadedFile'
+import { type TUploadedFile } from '@/components/pages/protected/evidence/upload/types/TUploadedFile'
 import { TagsField } from './form-fields/tags-field'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
-import { CreateSubprocessorMutation } from '@repo/codegen/src/schema'
+import { type CreateSubprocessorMutation } from '@repo/codegen/src/schema'
 
 const schema = z
   .object({
@@ -77,14 +77,12 @@ export const CreateSubprocessorSheet = ({ onCreateSuccess, trigger, open: contro
     },
   })
 
-  const { handleSubmit, reset, formState, watch } = formMethods
+  const { handleSubmit, reset, formState, control } = formMethods
   const { isSubmitting } = formState
 
-  /* eslint-disable react-hooks/incompatible-library */
-  const currentUploadMode = watch('uploadMode')
-  const currentFile = watch('logoFile')
-  const currentUrl = watch('logoUrl')
-  /* eslint-enable react-hooks/incompatible-library */
+  const currentUploadMode = useWatch({ control, name: 'uploadMode' })
+  const currentFile = useWatch({ control, name: 'logoFile' })
+  const currentUrl = useWatch({ control, name: 'logoUrl' })
 
   const isSubmitDisabled = currentUploadMode === 'file' ? !currentFile : !currentUrl
 

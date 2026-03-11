@@ -2,14 +2,14 @@ import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { GET_ALL_TRUST_CENTER_ENTITIES, CREATE_TRUST_CENTER_ENTITY, DELETE_TRUST_CENTER_ENTITY, UPDATE_TRUST_CENTER_ENTITY } from '@repo/codegen/query/trust-center-entity'
 import {
-  GetTrustCenterEntitiesQuery,
-  GetTrustCenterEntitiesQueryVariables,
-  CreateTrustCenterEntityMutation,
-  CreateTrustCenterEntityMutationVariables,
-  DeleteTrustCenterEntityMutation,
-  DeleteTrustCenterEntityMutationVariables,
-  UpdateTrustCenterEntityMutation,
-  UpdateTrustCenterEntityMutationVariables,
+  type GetTrustCenterEntitiesQuery,
+  type GetTrustCenterEntitiesQueryVariables,
+  type CreateTrustCenterEntityMutation,
+  type CreateTrustCenterEntityMutationVariables,
+  type DeleteTrustCenterEntityMutation,
+  type DeleteTrustCenterEntityMutationVariables,
+  type UpdateTrustCenterEntityMutation,
+  type UpdateTrustCenterEntityMutationVariables,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '../fetchGraphql'
 

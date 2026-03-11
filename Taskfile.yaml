@@ -20,18 +20,11 @@ tasks:
     desc: Setup the project dependencies
     cmds:
       - task: install-bun
-      - task: install-precommit
-      - pre-commit install && pre-commit install-hooks
-      - pre-commit autoupdate
-      - pre-commit run --show-diff-on-failure --color=always --all-files
+      - bun install
 
   install-bun:
     desc: install bun package manager
     cmd: curl -fsSL https://bun.sh/install | bash
-
-  install-precommit:
-    desc: install pre-commit
-    cmd: brew install pre-commit
 
   build:
     desc: build all apps and package
@@ -85,14 +78,13 @@ tasks:
   lint:
     desc: Run ESLint on the console app
     cmds:
-      - npx eslint --config apps/console/eslint.config.js --max-warnings=0 {{.CLI_ARGS | default "apps/console/src"}}
+      - npx eslint --config apps/console/eslint.config.js --max-warnings=0 {{.CLI_ARGS | default "apps/console/src"}} --fix
 
   precommit-full:
-    desc: Lint the project against all files
+    desc: Run lint-staged and tests against all files
     cmds:
-      - pre-commit install && pre-commit install-hooks
-      - pre-commit autoupdate
-      - pre-commit run --show-diff-on-failure --color=always --all-files
+      - bunx lint-staged
+      - bun test
 
   update:passkeys:
     desc: Update the known passkey aaguids. This should be run periodically

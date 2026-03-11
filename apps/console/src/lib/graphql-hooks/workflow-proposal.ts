@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
-import { WorkflowProposalQuery, WorkflowProposalQueryVariables } from '@repo/codegen/src/schema'
+import { type WorkflowProposalQuery, type WorkflowProposalQueryVariables } from '@repo/codegen/src/schema'
 
 import { WORKFLOW_PROPOSAL } from '@repo/codegen/query/workflow-proposal'
 

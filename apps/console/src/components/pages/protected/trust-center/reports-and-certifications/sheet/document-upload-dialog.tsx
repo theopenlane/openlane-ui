@@ -7,7 +7,7 @@ import { FileUp, Trash2, Upload } from 'lucide-react'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { TUploadedFile } from '@/components/pages/protected/evidence/upload/types/TUploadedFile'
+import { type TUploadedFile } from '@/components/pages/protected/evidence/upload/types/TUploadedFile'
 import { useUpdateTrustCenterDoc } from '@/lib/graphql-hooks/trust-center-doc'
 import { useQueryClient } from '@tanstack/react-query'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
@@ -93,7 +93,7 @@ export const DocumentUploadDialog: React.FC<TDocumentUploadDialog> = ({ document
                 <div className="font-semibold truncate max-w-[240px]" title={file.name}>
                   {file.name}
                 </div>
-                <div className="text-sm">Size: {Math.round(file.size! / 1024)} KB</div>
+                <div className="text-sm">Size: {Math.round((file.size ?? 0) / 1024)} KB</div>
               </div>
             </div>
             <Trash2 className="hover:cursor-pointer" onClick={() => handleDelete(file)} />

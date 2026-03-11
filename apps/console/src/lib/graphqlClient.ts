@@ -3,13 +3,13 @@
 import { GraphQLClient } from 'graphql-request'
 import { csrfCookieName, csrfHeader } from '@repo/dally/auth'
 import { getCookie } from './auth/utils/getCookie'
-import { fetchNewAccessToken, Tokens } from './auth/utils/refresh-token'
+import { fetchNewAccessToken, type Tokens } from './auth/utils/refresh-token'
 import { jwtDecode } from 'jwt-decode'
 import { useSession } from 'next-auth/react'
-import { Session } from 'next-auth'
+import { type Session } from 'next-auth'
 import { fetchCSRFToken } from './auth/utils/secure-fetch'
 
-const GRAPHQL_ENDPOINT = process.env.NEXT_PUBLIC_API_GQL_URL!
+const GRAPHQL_ENDPOINT = process.env.NEXT_PUBLIC_API_GQL_URL ?? ''
 
 let isSessionInvalid = false
 let sessionExpiredModalOpen = false
@@ -81,7 +81,7 @@ export function useGetGraphQLClient() {
       } catch (e) {
         console.error('❌ Failed to decode refresh token:', e)
         handleSessionExpired()
-        throw new Error('Session expired')
+        throw new Error('Session expired', { cause: e })
       }
     }
 
@@ -122,10 +122,10 @@ export function useGetGraphQLClient() {
           headers,
         })
         response = await makeRequest()
-      } catch {
+      } catch (e) {
         refreshPromise = null
         handleSessionExpired()
-        throw new Error('Session expired')
+        throw new Error('Session expired', { cause: e })
       }
     }
 

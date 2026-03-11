@@ -2,14 +2,14 @@ import { useQuery } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { DELETE_USER, GET_USER_PROFILE, UPDATE_USER, UPDATE_USER_SETTING } from '@repo/codegen/query/user'
 import {
-  DeleteUserMutation,
-  DeleteUserMutationVariables,
-  GetUserProfileQuery,
-  GetUserProfileQueryVariables,
-  UpdateUserMutation,
-  UpdateUserMutationVariables,
-  UpdateUserSettingMutation,
-  UpdateUserSettingMutationVariables,
+  type DeleteUserMutation,
+  type DeleteUserMutationVariables,
+  type GetUserProfileQuery,
+  type GetUserProfileQueryVariables,
+  type UpdateUserMutation,
+  type UpdateUserMutationVariables,
+  type UpdateUserSettingMutation,
+  type UpdateUserSettingMutationVariables,
 } from '@repo/codegen/src/schema'
 
 import { useMutation } from '@tanstack/react-query'

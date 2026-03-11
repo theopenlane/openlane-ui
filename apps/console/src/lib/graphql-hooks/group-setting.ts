@@ -1,26 +1,26 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
-  GroupSetting,
-  GroupSettingQuery,
-  GroupSettingQueryVariables,
-  GroupSettingsWithFilterQuery,
-  GroupSettingsWithFilterQueryVariables,
-  CreateGroupSettingMutation,
-  CreateGroupSettingMutationVariables,
-  CreateBulkCsvGroupSettingMutation,
-  CreateBulkCsvGroupSettingMutationVariables,
-  DeleteGroupSettingMutation,
-  DeleteGroupSettingMutationVariables,
-  DeleteBulkGroupSettingMutation,
-  DeleteBulkGroupSettingMutationVariables,
-  UpdateGroupSettingMutation,
-  UpdateGroupSettingMutationVariables,
-  UpdateBulkGroupSettingMutation,
-  UpdateBulkGroupSettingMutationVariables,
+  type GroupSetting,
+  type GroupSettingQuery,
+  type GroupSettingQueryVariables,
+  type GroupSettingsWithFilterQuery,
+  type GroupSettingsWithFilterQueryVariables,
+  type CreateGroupSettingMutation,
+  type CreateGroupSettingMutationVariables,
+  type CreateBulkCsvGroupSettingMutation,
+  type CreateBulkCsvGroupSettingMutationVariables,
+  type DeleteGroupSettingMutation,
+  type DeleteGroupSettingMutationVariables,
+  type DeleteBulkGroupSettingMutation,
+  type DeleteBulkGroupSettingMutationVariables,
+  type UpdateGroupSettingMutation,
+  type UpdateGroupSettingMutationVariables,
+  type UpdateBulkGroupSettingMutation,
+  type UpdateBulkGroupSettingMutationVariables,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 import {
   GROUP_SETTING,
   GET_ALL_GROUP_SETTINGS,

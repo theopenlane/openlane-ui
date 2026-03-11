@@ -7,7 +7,7 @@ import { Input } from '@repo/ui/input'
 import { SheetTitle } from '@repo/ui/sheet'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { InfoIcon } from 'lucide-react'
-import { EditTaskFormData } from '../../../hooks/use-form-schema'
+import { type EditTaskFormData } from '../../../hooks/use-form-schema'
 import useEscapeKey from '@/hooks/useEscapeKey'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 

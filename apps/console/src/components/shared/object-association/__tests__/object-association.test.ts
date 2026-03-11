@@ -335,7 +335,7 @@ describe('extractTableRows', () => {
       },
     }
     const rows = extractTableRows('controlImplementations', data as never)
-    expect(rows[0].name).toBe('CTL-001')
+    expect(rows[0].name).toBe('Control Implementation for CTL-001')
   })
 
   it('returns empty array for empty edges', () => {

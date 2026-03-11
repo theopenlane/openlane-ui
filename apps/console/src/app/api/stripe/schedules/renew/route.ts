@@ -1,7 +1,7 @@
 import { auth } from '@/lib/auth/auth'
 import { stripe } from '@/lib/stripe'
 import { NextResponse } from 'next/server'
-import Stripe from 'stripe'
+import type Stripe from 'stripe'
 
 export async function POST(req: Request) {
   // ensure we have a valid session
@@ -20,9 +20,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'No phases found in schedule' }, { status: 404 })
     }
 
-    const lastPhase = schedule.phases.at(-1)!
+    const lastPhase = schedule.phases.at(-1)
 
-    const firstItem = lastPhase.items[0]
+    const firstItem = lastPhase?.items[0]
     if (!firstItem) {
       return NextResponse.json({ error: 'No items in last phase' }, { status: 404 })
     }

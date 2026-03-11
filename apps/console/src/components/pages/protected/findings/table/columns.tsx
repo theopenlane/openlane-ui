@@ -1,10 +1,11 @@
-import { ColumnDef } from '@tanstack/react-table'
-import { FindingsNodeNonNull } from '@/lib/graphql-hooks/finding'
-import { ColumnOptions } from '@/components/shared/crud-base/page'
+import { type ColumnDef } from '@tanstack/react-table'
+import { type FindingsNodeNonNull } from '@/lib/graphql-hooks/finding'
+import { type ColumnOptions } from '@/components/shared/crud-base/page'
 import { createSelectColumn } from '@/components/shared/crud-base/columns/select-column'
 import { UserCell } from '@/components/shared/crud-base/columns/user-cell'
 import { BooleanCell } from '@/components/shared/crud-base/columns/boolean-cell'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
+import { CustomEnumChipCell } from '@/components/shared/crud-base/columns/custom-enum-chip-cell'
 
 export const getColumns = ({ userMap, selectedItems, setSelectedItems }: ColumnOptions): ColumnDef<FindingsNodeNonNull>[] => {
   return [
@@ -32,8 +33,8 @@ export const getColumns = ({ userMap, selectedItems, setSelectedItems }: ColumnO
     { accessorKey: 'source', header: 'Source', size: 120 },
     { accessorKey: 'findingClass', header: 'Finding Class', size: 130 },
     { accessorKey: 'remediationSLA', header: 'Remediation SLA (days)', size: 160 },
-    { accessorKey: 'environmentName', header: 'Environment', size: 120 },
-    { accessorKey: 'scopeName', header: 'Scope', size: 120 },
+    { accessorKey: 'environmentName', header: 'Environment', size: 120, cell: ({ cell }) => <CustomEnumChipCell value={cell.getValue() as string} field="environment" /> },
+    { accessorKey: 'scopeName', header: 'Scope', size: 120, cell: ({ cell }) => <CustomEnumChipCell value={cell.getValue() as string} field="scope" /> },
     { accessorKey: 'reportedAt', header: 'Reported At', size: 130, cell: ({ cell }) => <DateCell value={cell.getValue() as string} /> },
     { accessorKey: 'eventTime', header: 'Event Time', size: 130, cell: ({ cell }) => <DateCell value={cell.getValue() as string} /> },
     { accessorKey: 'sourceUpdatedAt', header: 'Source Updated At', size: 140, cell: ({ cell }) => <DateCell value={cell.getValue() as string} /> },

@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation'
 import { useGetStandardDetails } from '@/lib/graphql-hooks/standard'
 import StandardDetailsCard from '@/components/pages/protected/standards/standard-details-card'
 import StandardDetailsAccordion from '@/components/pages/protected/standards/standard-details-accordion'
-import { useEffect, useContext, useState } from 'react'
+import { useEffect, use, useState } from 'react'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
 import { useOrganization } from '@/hooks/useOrganization'
 import { StandardsIconMapper } from '@/components/shared/standards-icon-mapper/standards-icon-mapper'
@@ -19,9 +19,9 @@ const StandardDetailsPage = () => {
   const { id } = useParams()
   const { data, isLoading, error } = useGetStandardDetails(id as string)
   const standard = data?.standard
-  const { setCrumbs } = useContext(BreadcrumbContext)
+  const { setCrumbs } = use(BreadcrumbContext)
   const { currentOrgId, getOrganizationByID } = useOrganization()
-  const currentOrganization = getOrganizationByID(currentOrgId!)
+  const currentOrganization = getOrganizationByID(currentOrgId ?? '')
   const [selectedControls, setSelectedControls] = useState<{ id: string; refCode: string }[]>([])
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const { data: permission, isLoading: isLoadingPermission } = useOrganizationRoles()

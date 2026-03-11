@@ -75,6 +75,7 @@ const EVIDENCE_FIELDS = gql`
     updatedBy
     updatedAt
     programs {
+      totalCount
       edges {
         node {
           id
@@ -84,6 +85,7 @@ const EVIDENCE_FIELDS = gql`
       }
     }
     subcontrols {
+      totalCount
       edges {
         node {
           id
@@ -93,25 +95,57 @@ const EVIDENCE_FIELDS = gql`
       }
     }
     tasks {
+      totalCount
       edges {
         node {
           id
+          title
+          displayID
         }
       }
     }
     controlObjectives {
+      totalCount
       edges {
         node {
           id
+          name
+          displayID
         }
       }
     }
     controls {
+      totalCount
       edges {
         node {
           id
           referenceFramework
           refCode
+        }
+      }
+    }
+    controlImplementations {
+      totalCount
+      edges {
+        node {
+          id
+          details
+          controls {
+            edges {
+              node {
+                refCode
+              }
+            }
+          }
+        }
+      }
+    }
+    scans {
+      totalCount
+      edges {
+        node {
+          id
+          target
         }
       }
     }

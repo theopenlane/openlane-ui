@@ -1,13 +1,13 @@
-import { FilterField } from '@/types'
+import { type FilterField } from '@/types'
 import { ObjectNames } from '@repo/codegen/src/type-names'
 import React from 'react'
 import NameField from '../create/form/fields/name-field'
-import { VulnerabilityQuery, VulnerabilityOrderField } from '@repo/codegen/src/schema'
+import { type VulnerabilityQuery, VulnerabilityOrderField } from '@repo/codegen/src/schema'
 import DescriptionField from '../create/form/fields/description-field'
 import { AdditionalFields } from '../create/form/fields/additional-fields'
 import Properties from '../create/form/fields/properties'
 import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
-import { VulnerabilityFieldProps, EnumOptions, EnumCreateHandlers } from './types'
+import { type VulnerabilityFieldProps, type EnumOptions, type EnumCreateHandlers } from './types'
 import { enumToSortFields } from '@/components/shared/crud-base/utils'
 
 export const formId = 'edit' + ObjectNames.VULNERABILITY

@@ -1,11 +1,20 @@
-import { GenericTablePageConfig, EnumOptionsGeneric } from '@/components/shared/crud-base/page'
-import { GenericDetailsSheetConfig, RenderFieldsProps } from '@/components/shared/crud-base/generic-sheet'
+import { type GenericTablePageConfig, type EnumOptionsGeneric } from '@/components/shared/crud-base/page'
+import { type GenericDetailsSheetConfig, type RenderFieldsProps } from '@/components/shared/crud-base/generic-sheet'
 
-import { AssetOrderField, AssetWhereInput, CreateAssetInput, CreateAssetMutation, UpdateAssetInput, UpdateAssetMutation, ExportExportType, OrderDirection } from '@repo/codegen/src/schema'
+import {
+  AssetOrderField,
+  type AssetWhereInput,
+  type CreateAssetInput,
+  type CreateAssetMutation,
+  type UpdateAssetInput,
+  type UpdateAssetMutation,
+  ExportExportType,
+  OrderDirection,
+} from '@repo/codegen/src/schema'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { ObjectTypes, ObjectNames } from '@repo/codegen/src/type-names'
-import { AssetsNodeNonNull } from '@/lib/graphql-hooks/asset'
-import { AssetFormData } from '../hooks/use-form-schema'
+import { type AssetsNodeNonNull } from '@/lib/graphql-hooks/asset'
+import { type AssetFormData } from '../hooks/use-form-schema'
 
 type TFormData = AssetFormData // form data for create and update
 type TData = AssetsNodeNonNull // data returned from the list query

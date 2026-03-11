@@ -5,7 +5,7 @@ import { Lightbulb } from 'lucide-react'
 import MultipleSelector from '@repo/ui/multiple-selector'
 import { useUserSelect } from '@/lib/graphql-hooks/member'
 import { useGroupSelect } from '@/lib/graphql-hooks/group'
-import { WizardValues } from '../advanced-setup-wizard-config'
+import { type WizardValues } from '../advanced-setup-wizard-config'
 import { useSession } from 'next-auth/react'
 import MembersInviteSheet from '@/components/pages/protected/user-management/members/sidebar/members-invite-sheet'
 

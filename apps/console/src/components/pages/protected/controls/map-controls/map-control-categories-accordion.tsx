@@ -5,7 +5,7 @@ import RelationsAccordionTrigger from '@/components/shared/relations-accordion-t
 import { useGetControlCategories } from '@/lib/graphql-hooks/control'
 import { useMapControls } from './shared/use-selectable-controls'
 import ContextMenu from '@/components/shared/context-menu/context-menu'
-import { MapControl } from '@/types'
+import { type MapControl } from '@/types'
 
 interface Props {
   controlData?: (

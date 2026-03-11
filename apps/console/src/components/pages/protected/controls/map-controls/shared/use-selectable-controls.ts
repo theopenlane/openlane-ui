@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect } from 'react'
 import { useFormContext } from 'react-hook-form'
-import { MapControl } from '@/types'
+import { type MapControl } from '@/types'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 interface useMapControlsParams {

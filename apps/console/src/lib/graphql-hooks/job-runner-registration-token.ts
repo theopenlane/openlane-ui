@@ -1,17 +1,17 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
-  JobRunnerRegistrationTokensWithFilterQuery,
-  JobRunnerRegistrationTokensWithFilterQueryVariables,
-  CreateJobRunnerRegistrationTokenMutation,
-  CreateJobRunnerRegistrationTokenMutationVariables,
-  DeleteJobRunnerRegistrationTokenMutation,
-  DeleteJobRunnerRegistrationTokenMutationVariables,
-  JobRunnerRegistrationTokenQuery,
-  JobRunnerRegistrationTokenQueryVariables,
+  type JobRunnerRegistrationTokensWithFilterQuery,
+  type JobRunnerRegistrationTokensWithFilterQueryVariables,
+  type CreateJobRunnerRegistrationTokenMutation,
+  type CreateJobRunnerRegistrationTokenMutationVariables,
+  type DeleteJobRunnerRegistrationTokenMutation,
+  type DeleteJobRunnerRegistrationTokenMutationVariables,
+  type JobRunnerRegistrationTokenQuery,
+  type JobRunnerRegistrationTokenQueryVariables,
 } from '@repo/codegen/src/schema'
 
-import { TPagination } from '@repo/ui/pagination-types'
+import { type TPagination } from '@repo/ui/pagination-types'
 import {
   GET_ALL_JOB_RUNNER_REGISTRATION_TOKENS,
   CREATE_JOB_RUNNER_REGISTRATION_TOKEN,

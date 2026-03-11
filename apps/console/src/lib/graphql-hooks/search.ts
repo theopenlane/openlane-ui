@@ -31,6 +31,7 @@ type SearchContextLabelData = {
   subcontrolParentId?: string
   controlOwnerID?: string | null
   controlStandardID?: string | null
+  isTrustCenterControl?: boolean | null
 }
 
 type SearchContextLabelLookup = Map<string, SearchContextLabelData>
@@ -58,11 +59,13 @@ export const buildSearchContextLabelLookup = (search?: SearchQuery['search']): S
     if (!node?.id) continue
 
     const controlStandardID = typeof node === 'object' && node !== null && 'standardID' in node ? ((node as { standardID?: string | null }).standardID ?? null) : null
+    const isTrustCenterControl = typeof node === 'object' && node !== null && 'isTrustCenterControl' in node ? ((node as { isTrustCenterControl?: boolean | null }).isTrustCenterControl ?? null) : null
 
     lookup.set(getLabelLookupKey('Control', node.id), {
       primaryLabel: node.refCode ?? node.id,
       controlOwnerID: node.ownerID ?? null,
       controlStandardID,
+      isTrustCenterControl,
     })
   }
 
@@ -170,16 +173,22 @@ export const buildSearchContextLabelLookup = (search?: SearchQuery['search']): S
 }
 
 export const enrichSearchContextResults = (results: SearchContextResult[], labelLookup: SearchContextLabelLookup): SearchContextResult[] => {
-  return results.map((result) => {
+  return results.flatMap((result) => {
     const labelData = labelLookup.get(getLabelLookupKey(result.entityType, result.entityID))
 
-    return {
-      ...result,
-      primaryLabel: labelData?.primaryLabel ?? result.entityID,
-      subcontrolParentId: labelData?.subcontrolParentId,
-      controlOwnerID: labelData?.controlOwnerID,
-      controlStandardID: labelData?.controlStandardID,
+    if (result.entityType === 'Control' && labelData?.isTrustCenterControl) {
+      return []
     }
+
+    return [
+      {
+        ...result,
+        primaryLabel: labelData?.primaryLabel ?? result.entityID,
+        subcontrolParentId: labelData?.subcontrolParentId,
+        controlOwnerID: labelData?.controlOwnerID,
+        controlStandardID: labelData?.controlStandardID,
+      },
+    ]
   })
 }
 
