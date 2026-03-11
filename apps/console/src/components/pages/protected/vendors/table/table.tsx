@@ -27,6 +27,7 @@ const TableComponent = ({
   canEdit,
   permission,
   defaultSorting,
+  onRowClick,
 }: TTableProps<EntityWhereInput>) => {
   const { replace } = useSmartRouter()
 
@@ -119,7 +120,11 @@ const TableComponent = ({
       loading={fetching || fetchingUsers}
       defaultSorting={defaultSorting}
       onRowClick={(item) => {
-        replace({ id: item.id })
+        if (onRowClick) {
+          onRowClick(item)
+        } else {
+          replace({ id: item.id })
+        }
       }}
       pagination={pagination}
       onPaginationChange={onPaginationChange}

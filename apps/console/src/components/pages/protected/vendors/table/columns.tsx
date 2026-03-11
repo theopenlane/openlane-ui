@@ -50,9 +50,24 @@ export const getColumns = ({ userMap, convertToReadOnly, selectedItems, setSelec
     { accessorKey: 'contractEndDate', header: 'Contract End Date', size: 130, cell: ({ cell }) => formatDate(cell.getValue() as string) },
     { accessorKey: 'contractRenewalAt', header: 'Contract Renewal At', size: 130, cell: ({ cell }) => formatDate(cell.getValue() as string) },
     { accessorKey: 'contractStartDate', header: 'Contract Start Date', size: 130, cell: ({ cell }) => formatDate(cell.getValue() as string) },
-    { accessorKey: 'entityRelationshipStateName', header: 'Relationship State', size: 150, cell: ({ cell }) => <CustomEnumChipCell value={cell.getValue() as string} objectType="entity" field="relationshipState" /> },
-    { accessorKey: 'entitySecurityQuestionnaireStatusName', header: 'Security Questionnaire Status', size: 180, cell: ({ cell }) => <CustomEnumChipCell value={cell.getValue() as string} objectType="entity" field="entitySecurityQuestionnaireStatus" /> },
-    { accessorKey: 'entitySourceTypeName', header: 'Source Type', size: 120, cell: ({ cell }) => <CustomEnumChipCell value={cell.getValue() as string} objectType="entity" field="entitySourceType" /> },
+    {
+      accessorKey: 'entityRelationshipStateName',
+      header: 'Relationship State',
+      size: 150,
+      cell: ({ cell }) => <CustomEnumChipCell value={cell.getValue() as string} objectType="entity" field="relationshipState" />,
+    },
+    {
+      accessorKey: 'entitySecurityQuestionnaireStatusName',
+      header: 'Security Questionnaire Status',
+      size: 180,
+      cell: ({ cell }) => <CustomEnumChipCell value={cell.getValue() as string} objectType="entity" field="entitySecurityQuestionnaireStatus" />,
+    },
+    {
+      accessorKey: 'entitySourceTypeName',
+      header: 'Source Type',
+      size: 120,
+      cell: ({ cell }) => <CustomEnumChipCell value={cell.getValue() as string} objectType="entity" field="entitySourceType" />,
+    },
     { accessorKey: 'environmentName', header: 'Environment', size: 120, cell: ({ cell }) => <CustomEnumChipCell value={cell.getValue() as string} field="environment" /> },
     {
       accessorKey: 'hasSoc2',

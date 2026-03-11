@@ -2,7 +2,16 @@
 
 import React, { useCallback } from 'react'
 import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
-import { type FindingsNodeNonNull, useFinding, useCreateFinding, useUpdateFinding, useCreateBulkCSVFinding, useBulkEditFinding, useBulkDeleteFinding, useGetFindingAssociations} from '@/lib/graphql-hooks/finding'
+import {
+  type FindingsNodeNonNull,
+  useFinding,
+  useCreateFinding,
+  useUpdateFinding,
+  useCreateBulkCSVFinding,
+  useBulkEditFinding,
+  useBulkDeleteFinding,
+  useGetFindingAssociations,
+} from '@/lib/graphql-hooks/finding'
 import { useSearchParams } from 'next/navigation'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
 import { breadcrumbs, getFieldsToRender, getFilterFields, visibilityFields } from './table-config'
@@ -97,7 +106,12 @@ const FindingPage: React.FC = () => {
     createMutation,
     buildPayload: async (data) => {
       const { controlIDs, subcontrolIDs, riskIDs, programIDs, taskIDs, assetIDs, scanIDs, remediationIDs, reviewIDs, ...rest } = data
-      const associationPayload = buildAssociationPayload(FINDING_ASSOCIATION_CONFIG.associationKeys, { controlIDs, subcontrolIDs, riskIDs, programIDs, taskIDs, assetIDs, scanIDs, remediationIDs, reviewIDs }, isCreate, initialAssociationsRef.current)
+      const associationPayload = buildAssociationPayload(
+        FINDING_ASSOCIATION_CONFIG.associationKeys,
+        { controlIDs, subcontrolIDs, riskIDs, programIDs, taskIDs, assetIDs, scanIDs, remediationIDs, reviewIDs },
+        isCreate,
+        initialAssociationsRef.current,
+      )
       return {
         ...rest,
         ...associationPayload,

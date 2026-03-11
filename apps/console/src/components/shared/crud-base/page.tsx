@@ -57,6 +57,7 @@ export interface TTableProps<TWhereInput> {
   canEdit: (accessRole: TAccessRole[] | undefined) => boolean
   permission: TPermissionData | undefined
   defaultSorting: SortCondition<string>[]
+  onRowClick?: (item: { id: string }) => void
 }
 
 export interface GenericTablePageConfig<TEntity extends { id: string }, TFormData extends FieldValues, TUpdateInput, TUpdateData, TCreateInput, TCreateData, TWhereInput, TOrderField extends string> {
@@ -265,6 +266,14 @@ export function GenericTablePage<
   const resolvedViewMode = viewEditMode?.type ?? 'slideout'
   const resolvedCreateMode = createMode?.type ?? 'slideout'
 
+  const onRowClick = useMemo(() => {
+    if (resolvedViewMode === 'full-page' && viewEditMode?.type === 'full-page') {
+      const route = viewEditMode.route
+      return (item: { id: string }) => router.push(`${route}/${item.id}`)
+    }
+    return undefined
+  }, [resolvedViewMode, viewEditMode, router])
+
   const renderDetailView = () => {
     // Handle step-dialog create mode
     if (isCreate && resolvedCreateMode === 'step-dialog' && createMode?.type === 'step-dialog') {
@@ -284,6 +293,11 @@ export function GenericTablePage<
 
     // Handle full-page create mode — create button navigates away, nothing to render
     if (isCreate && resolvedCreateMode === 'full-page') {
+      return null
+    }
+
+    // Handle full-page view/edit mode — detail is on another route, nothing to render
+    if (id && resolvedViewMode === 'full-page') {
       return null
     }
 
@@ -350,6 +364,7 @@ export function GenericTablePage<
         canEdit={canEdit}
         defaultSorting={defaultSorting}
         permission={permission}
+        onRowClick={onRowClick}
       />
 
       {renderDetailView()}
