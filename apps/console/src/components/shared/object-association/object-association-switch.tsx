@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react'
-import { ArrowLeft, ChevronsDownUp, ChevronsUpDown, Expand, LayoutList, List, Waypoints } from 'lucide-react'
+import { ArrowLeft, ChartGantt, ChevronsDownUp, ChevronsUpDown, Expand, List, Waypoints } from 'lucide-react'
 import ObjectAssociationGraph from '@/components/shared/object-association/object-association-graph.tsx'
 import { SetObjectAssociationDialog } from '@/components/pages/protected/controls/set-object-association-modal.tsx'
 import { Button } from '@repo/ui/button'
@@ -40,6 +40,13 @@ const ObjectAssociationSwitch: React.FC<TObjectAssociationSwitchProps> = ({ sect
         return <SetObjectAssociationProceduresDialog procedureId={centerNode?.node.id} />
       case ObjectAssociationNodeEnum.RISKS:
         return <SetObjectAssociationRisksDialog riskId={centerNode?.node.id} />
+      case ObjectAssociationNodeEnum.VULNERABILITY:
+      case ObjectAssociationNodeEnum.FINDING:
+      case ObjectAssociationNodeEnum.SCAN:
+      case ObjectAssociationNodeEnum.REVIEW:
+      case ObjectAssociationNodeEnum.REMEDIATION:
+      case ObjectAssociationNodeEnum.ASSET:
+        return null
     }
   }
 
@@ -63,7 +70,7 @@ const ObjectAssociationSwitch: React.FC<TObjectAssociationSwitchProps> = ({ sect
                         <Waypoints size={14} />
                       </Button>
                       <Button type="button" variant={isGraphView ? 'transparent' : 'secondary'} size="sm" className="h-6" style={{ boxShadow: 'none', outline: 'none', border: 'none' }}>
-                        <LayoutList size={14} />
+                        <ChartGantt size={14} />
                       </Button>
                     </div>
                   </TooltipTrigger>

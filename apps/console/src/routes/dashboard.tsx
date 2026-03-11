@@ -181,6 +181,11 @@ export const topNavigationItems = (session: Session | null): (NavItem | Separato
       hidden: session?.user?.isOnboarding || billingExpired,
       children: [
         {
+          title: 'Overview',
+          href: '/exposure/overview',
+          icon: LayoutDashboard,
+        },
+        {
           title: 'Risks',
           href: '/exposure/risks',
           icon: AlertTriangle,
@@ -191,14 +196,14 @@ export const topNavigationItems = (session: Session | null): (NavItem | Separato
           icon: ScanLine,
         },
         {
-          title: 'Vulnerabilities',
-          href: '/exposure/vulnerabilities',
-          icon: Bug,
-        },
-        {
           title: 'Findings',
           href: '/exposure/findings',
           icon: FileSearch,
+        },
+        {
+          title: 'Vulnerabilities',
+          href: '/exposure/vulnerabilities',
+          icon: Bug,
         },
         {
           title: 'Remediations',
