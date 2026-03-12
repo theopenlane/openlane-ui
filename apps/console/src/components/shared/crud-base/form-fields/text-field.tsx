@@ -9,6 +9,7 @@ import { ExternalLink } from 'lucide-react'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { InfoIcon } from 'lucide-react'
 import { normalizeUrl } from '@/utils/normalizeUrl'
+import { cn } from '@repo/ui/lib/utils'
 
 interface TextFieldProps<TUpdateInput> {
   name: string
@@ -27,6 +28,9 @@ interface TextFieldProps<TUpdateInput> {
   className?: string
   error?: string
   tooltipContent?: string
+  icon?: React.ReactNode
+  layout?: 'vertical' | 'horizontal'
+  labelClassName?: string
 }
 
 export const TextField = <TUpdateInput,>({
@@ -46,6 +50,9 @@ export const TextField = <TUpdateInput,>({
   className,
   error,
   tooltipContent,
+  icon,
+  layout = 'vertical',
+  labelClassName,
 }: TextFieldProps<TUpdateInput>) => {
   const { control, getValues, formState } = useFormContext()
 
@@ -94,16 +101,17 @@ export const TextField = <TUpdateInput,>({
       control={control}
       name={name}
       render={({ field }) => (
-        <FormItem className={className}>
-          <div className="flex items-center gap-1">
-            <FormLabel>{label}</FormLabel>
+        <FormItem className={cn(className, layout === 'horizontal' ? 'flex items-center justify-between gap-4' : '')}>
+          <div className="flex items-center gap-2 shrink-0">
+            {icon}
+            <FormLabel className={cn(layout === 'horizontal' && 'mb-0!', labelClassName)}>{label}</FormLabel>
             {tooltipContent && <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={tooltipContent} />}
           </div>
           <FormControl>
             {isFieldEditing ? (
               <Input {...field} value={field.value ?? ''} type={type} prefix={prefix} placeholder={placeholder} onBlur={handleBlur} onKeyDown={handleKeyDown} autoFocus={internalEditing === name} />
             ) : (
-              <div className={`text-sm py-2 rounded-md cursor-pointer px-1 w-full` + (type !== 'link' ? ' hover:bg-accent' : '')} onClick={handleClick}>
+              <div className={cn('text-sm py-2 rounded-md cursor-pointer px-1 w-full', type !== 'link' && 'hover:bg-accent', layout === 'horizontal' && 'text-right')} onClick={handleClick}>
                 {type === 'date' ? (
                   value ? (
                     formatDate(value)

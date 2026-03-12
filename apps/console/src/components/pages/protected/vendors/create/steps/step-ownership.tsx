@@ -9,8 +9,8 @@ const StepOwnership: React.FC = () => {
       <ResponsibilityField
         name="internalOwner"
         fieldBaseName="internalOwner"
-        label="Internal Owner"
-        tooltipContent="The internal owner responsible for the vendor"
+        label="Owner"
+        tooltipContent="The owner responsible for the vendor"
         isEditing={true}
         isEditAllowed={true}
         isCreate={true}
@@ -21,8 +21,8 @@ const StepOwnership: React.FC = () => {
       <ResponsibilityField
         name="reviewedBy"
         fieldBaseName="reviewedBy"
-        label="Reviewed By"
-        tooltipContent="The person or group who reviewed the vendor"
+        label="Reviewer"
+        tooltipContent="The person or group who reviews the vendor"
         isEditing={true}
         isEditAllowed={true}
         isCreate={true}

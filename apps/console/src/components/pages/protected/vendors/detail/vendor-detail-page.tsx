@@ -21,6 +21,7 @@ import { normalizeEntityData, buildResponsibilityPayload } from '@/components/sh
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { type UpdateEntityInput, type EntityQuery } from '@repo/codegen/src/schema'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import AssetDetailsSheet from '@/components/pages/protected/controls/tabs/assets-scans/asset-details-sheet'
 import VendorDetailHeader from './vendor-detail-header'
 import VendorPropertiesSidebar from './vendor-properties-sidebar'
 import VendorDetailTabs from './tabs/vendor-detail-tabs'
@@ -247,6 +248,8 @@ const VendorDetailPage: React.FC<VendorDetailPageProps> = ({ vendorId }) => {
           </>
         }
       />
+
+      <AssetDetailsSheet queryParamKey="assetId" />
     </>
   )
 }

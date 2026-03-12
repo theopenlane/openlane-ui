@@ -1,69 +1,158 @@
 'use client'
 
-import React from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@repo/ui/cardpanel'
-import { Badge } from '@repo/ui/badge'
-import { formatDate } from '@/utils/date'
+import React, { useState } from 'react'
+import { type ColumnDef, type VisibilityState } from '@tanstack/react-table'
+import { DataTable } from '@repo/ui/data-table'
+import { TableKeyEnum } from '@repo/ui/table-key'
+import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
+import { Switch } from '@repo/ui/switch'
+import { Input } from '@repo/ui/input'
+import { Plus, SearchIcon } from 'lucide-react'
+import ColumnVisibilityMenu, { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu'
+import { TableFilter } from '@/components/shared/table-filter/table-filter'
+import Menu from '@/components/shared/menu/menu'
+import { Button } from '@repo/ui/button'
 import type { EntityQuery } from '@repo/codegen/src/schema'
 
 interface ContractTabProps {
   vendor: EntityQuery['entity']
 }
 
-const ContractTab: React.FC<ContractTabProps> = ({ vendor }) => {
-  const hasContractData =
-    vendor.contractStartDate || vendor.contractEndDate || vendor.contractRenewalAt || vendor.annualSpend || vendor.billingModel || vendor.terminationNoticeDays || vendor.autoRenews !== null
+type ContractRow = {
+  id: string
+  startDate: string | null | undefined
+  endDate: string | null | undefined
+  terminationNoticeDays: number | null | undefined
+  renewalDate: string | null | undefined
+  annualSpend: number | null | undefined
+  spendCurrency: string | null | undefined
+  autoRenews: boolean | null | undefined
+}
 
-  if (!hasContractData) {
-    return (
-      <Card>
-        <CardContent className="py-8 text-center text-muted-foreground">
-          <p>No contract details available for this vendor.</p>
-        </CardContent>
-      </Card>
-    )
+const COLUMN_VISIBILITY_DEFAULTS: VisibilityState = {
+  startDate: true,
+  endDate: true,
+  terminationNoticeDays: true,
+  renewalDate: true,
+  annualSpend: true,
+  spendCurrency: true,
+  autoRenews: true,
+}
+
+const columns: ColumnDef<ContractRow>[] = [
+  {
+    accessorKey: 'startDate',
+    header: 'Start Date',
+    size: 150,
+    cell: ({ row }) => <DateCell value={row.original.startDate} />,
+  },
+  {
+    accessorKey: 'endDate',
+    header: 'End Date',
+    size: 150,
+    cell: ({ row }) => <DateCell value={row.original.endDate} />,
+  },
+  {
+    accessorKey: 'terminationNoticeDays',
+    header: 'Termination Notice',
+    size: 170,
+    cell: ({ row }) => {
+      const days = row.original.terminationNoticeDays
+      return <span>{days != null ? `${days} days` : '-'}</span>
+    },
+  },
+  {
+    accessorKey: 'renewalDate',
+    header: 'Renewal Date',
+    size: 150,
+    cell: ({ row }) => <DateCell value={row.original.renewalDate} />,
+  },
+  {
+    accessorKey: 'annualSpend',
+    header: 'Annual Spend',
+    size: 150,
+    cell: ({ row }) => {
+      const spend = row.original.annualSpend
+      return <span>{spend != null ? `$${spend.toLocaleString()}` : '-'}</span>
+    },
+  },
+  {
+    accessorKey: 'spendCurrency',
+    header: 'Spend Currency',
+    size: 140,
+    cell: ({ row }) => <span>{row.original.spendCurrency ?? '-'}</span>,
+  },
+  {
+    accessorKey: 'autoRenews',
+    header: 'Auto-Renew?',
+    size: 140,
+    cell: ({ row }) => {
+      const autoRenews = row.original.autoRenews ?? false
+      return (
+        <div className="flex items-center gap-2">
+          <Switch checked={autoRenews} disabled />
+          <span>{autoRenews ? 'Yes' : 'No'}</span>
+        </div>
+      )
+    },
+  },
+]
+
+const mappedColumns = columns
+  .filter((column): column is ColumnDef<ContractRow> & { accessorKey: string; header: string } => {
+    const col = column as { accessorKey?: string; header?: string }
+    return typeof col.accessorKey === 'string' && typeof col.header === 'string'
+  })
+  .map((column) => ({
+    accessorKey: column.accessorKey,
+    header: column.header as string,
+  }))
+
+const ContractTab: React.FC<ContractTabProps> = ({ vendor }) => {
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.VENDOR_CONTRACT, COLUMN_VISIBILITY_DEFAULTS))
+
+  const contractData: ContractRow[] = []
+
+  const hasContractData = vendor.contractStartDate || vendor.contractEndDate || vendor.contractRenewalAt || vendor.annualSpend || vendor.terminationNoticeDays || vendor.autoRenews !== null
+
+  if (hasContractData) {
+    contractData.push({
+      id: vendor.id,
+      startDate: vendor.contractStartDate,
+      endDate: vendor.contractEndDate,
+      terminationNoticeDays: vendor.terminationNoticeDays,
+      renewalDate: vendor.contractRenewalAt,
+      annualSpend: vendor.annualSpend,
+      spendCurrency: vendor.spendCurrency,
+      autoRenews: vendor.autoRenews,
+    })
   }
 
   return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader className="pb-2">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-md">Contract Details</CardTitle>
-            {vendor.autoRenews && <Badge variant="outline">Auto-Renews</Badge>}
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <ContractField label="Contract Start" value={formatDate(vendor.contractStartDate)} />
-            <ContractField label="Contract End" value={formatDate(vendor.contractEndDate)} />
-            <ContractField label="Renewal Date" value={formatDate(vendor.contractRenewalAt)} />
-            <ContractField label="Termination Notice" value={vendor.terminationNoticeDays ? `${vendor.terminationNoticeDays} days` : '—'} />
-          </div>
-        </CardContent>
-      </Card>
+    <div className="mt-5">
+      <div className="flex items-center gap-2 mb-3">
+        <Input icon={<SearchIcon size={16} />} placeholder="Search..." disabled variant="searchTable" />
+        <div className="grow flex flex-row items-center gap-2 justify-end">
+          <Menu content={<div className="text-sm text-muted-foreground">No actions available</div>} />
+          <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.VENDOR_CONTRACT} />
+          <TableFilter filterFields={[]} onFilterChange={() => {}} pageKey={TableKeyEnum.VENDOR_CONTRACT} />
+          <Button icon={<Plus size={16} />} iconPosition="left">
+            Add Contract
+          </Button>
+        </div>
+      </div>
 
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-md">Billing</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <ContractField label="Annual Spend" value={vendor.annualSpend ? `${vendor.spendCurrency ?? 'USD'} ${vendor.annualSpend.toLocaleString()}` : '—'} />
-            <ContractField label="Billing Model" value={vendor.billingModel ?? '—'} />
-            <ContractField label="Currency" value={vendor.spendCurrency ?? '—'} />
-          </div>
-        </CardContent>
-      </Card>
+      <DataTable
+        columns={columns}
+        data={contractData}
+        loading={false}
+        columnVisibility={columnVisibility}
+        setColumnVisibility={setColumnVisibility}
+        tableKey={TableKeyEnum.VENDOR_CONTRACT}
+        noResultsText="No contract details available for this vendor."
+      />
     </div>
   )
 }
-
-const ContractField: React.FC<{ label: string; value: string }> = ({ label, value }) => (
-  <div>
-    <p className="text-sm text-muted-foreground">{label}</p>
-    <p className="text-sm font-medium">{value}</p>
-  </div>
-)
 
 export default ContractTab
