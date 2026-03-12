@@ -168,7 +168,7 @@ const VendorPage: React.FC = () => {
     updateMutation,
     createMutation,
     buildPayload: async (data) => {
-      const { assetIDs, scanIDs, campaignIDs, identityHolderIDs, internalOwner, reviewedBy, ...rest } = data
+      const { assetIDs, scanIDs, campaignIDs, identityHolderIDs, contactIDs, internalOwner, reviewedBy, ...rest } = data
       const description = rest.description ? await plateEditorHelper.convertToHtml(rest.description as Value) : undefined
       const associationPayload = buildAssociationPayload(ENTITY_ASSOCIATION_CONFIG.associationKeys, { assetIDs, scanIDs, campaignIDs, identityHolderIDs }, isCreate, initialAssociationsRef.current)
 
@@ -176,6 +176,7 @@ const VendorPage: React.FC = () => {
         ...rest,
         description,
         ...associationPayload,
+        ...(contactIDs && contactIDs.length > 0 ? { contactIDs } : {}),
         ...buildResponsibilityPayload('internalOwner', internalOwner, { mode: isCreate ? 'create' : 'update' }),
         ...buildResponsibilityPayload('reviewedBy', reviewedBy, { mode: isCreate ? 'create' : 'update' }),
       }

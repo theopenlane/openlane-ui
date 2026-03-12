@@ -14,9 +14,11 @@ type DocumentsUploadDialogProps = {
   onUpload: (files: File[]) => Promise<void>
   isUploading: boolean
   title?: string
+  buttonLabel?: string
+  buttonVariant?: 'primary' | 'secondary' | 'secondaryOutline'
 }
 
-const DocumentsUploadDialog: React.FC<DocumentsUploadDialogProps> = ({ onUpload, isUploading, title = 'Document Upload' }) => {
+const DocumentsUploadDialog: React.FC<DocumentsUploadDialogProps> = ({ onUpload, isUploading, title = 'Document Upload', buttonLabel = 'File Upload', buttonVariant = 'secondary' }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const [stagedFiles, setStagedFiles] = useState<TUploadedFile[]>([])
 
@@ -47,8 +49,8 @@ const DocumentsUploadDialog: React.FC<DocumentsUploadDialogProps> = ({ onUpload,
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="secondary" icon={<Upload />} iconPosition="left" onClick={() => setIsOpen(true)} disabled={isUploading} loading={isUploading}>
-          File Upload
+        <Button variant={buttonVariant} icon={<Upload />} iconPosition="left" onClick={() => setIsOpen(true)} disabled={isUploading} loading={isUploading}>
+          {buttonLabel}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-2xl">

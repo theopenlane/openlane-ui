@@ -226,6 +226,8 @@ export const GET_ENTITY_FILES_PAGINATED = gql`
             id
             uri
             presignedURL
+            categoryType
+            createdAt
           }
         }
       }
@@ -262,6 +264,9 @@ export const GET_ENTITY_ASSOCIATIONS = gql`
             id
             name
             displayName
+            environmentName
+            scopeName
+            assetType
           }
         }
         totalCount
@@ -291,6 +296,17 @@ export const GET_ENTITY_ASSOCIATIONS = gql`
             id
             fullName
             displayID
+          }
+        }
+        totalCount
+      }
+      integrations {
+        edges {
+          node {
+            id
+            name
+            kind
+            description
           }
         }
         totalCount

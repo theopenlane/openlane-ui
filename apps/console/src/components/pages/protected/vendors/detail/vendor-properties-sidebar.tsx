@@ -9,6 +9,9 @@ import { TextField } from '@/components/shared/crud-base/form-fields/text-field'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { formatDate } from '@/utils/date'
+import { UserRound, UserRoundCheck, Settings2, Maximize2, Radio, CalendarDays, RefreshCw } from 'lucide-react'
+
+const iconClass = 'h-4 w-4 text-muted-foreground'
 
 interface VendorPropertiesSidebarProps {
   data: EntityQuery['entity']
@@ -41,17 +44,21 @@ const VendorPropertiesSidebar: React.FC<VendorPropertiesSidebarProps> = ({ data,
     internalEditing,
     setInternalEditing,
     handleUpdate,
+    layout: 'horizontal' as const,
+    labelClassName: 'text-muted-foreground',
   }
 
   return (
     <Card className="p-4 bg-card rounded-xl shadow-xs">
       <h3 className="text-lg font-medium mb-4">Properties</h3>
-      <div className="space-y-3">
+      <div className="flex flex-col gap-3">
         <ResponsibilityField
           name="internalOwner"
           fieldBaseName="internalOwner"
           label="Owner"
-          tooltipContent="The internal owner responsible for the vendor"
+          icon={<UserRound className={iconClass} />}
+          layout="horizontal"
+          labelClassName="text-muted-foreground"
           isEditing={isEditing}
           isEditAllowed={canEditVendor}
           isCreate={false}
@@ -64,7 +71,9 @@ const VendorPropertiesSidebar: React.FC<VendorPropertiesSidebarProps> = ({ data,
           name="reviewedBy"
           fieldBaseName="reviewedBy"
           label="Reviewer"
-          tooltipContent="The person or group who reviews the vendor"
+          icon={<UserRoundCheck className={iconClass} />}
+          layout="horizontal"
+          labelClassName="text-muted-foreground"
           isEditing={isEditing}
           isEditAllowed={canEditVendor}
           isCreate={false}
@@ -73,25 +82,30 @@ const VendorPropertiesSidebar: React.FC<VendorPropertiesSidebarProps> = ({ data,
           handleUpdate={(input) => handleUpdate(input as UpdateEntityInput)}
         />
 
-        <SelectField name="status" label="Status" options={entityStatusOptions} {...sharedFieldProps} />
+        <SelectField name="status" label="Status" icon={<Settings2 className={iconClass} />} options={entityStatusOptions} {...sharedFieldProps} />
 
-        <SelectField name="environmentName" label="Environment" options={environmentOptions} onCreateOption={createEnvironment} {...sharedFieldProps} />
+        <SelectField name="environmentName" label="Environment" icon={<Maximize2 className={iconClass} />} options={environmentOptions} onCreateOption={createEnvironment} {...sharedFieldProps} />
 
-        <SelectField name="scopeName" label="Scope" options={scopeOptions} onCreateOption={createScope} {...sharedFieldProps} />
+        <SelectField name="scopeName" label="Scope" icon={<Radio className={iconClass} />} options={scopeOptions} onCreateOption={createScope} {...sharedFieldProps} />
 
-        <SelectField name="reviewFrequency" label="Review Frequency" options={reviewFrequencyOptions} {...sharedFieldProps} />
+        <SelectField name="reviewFrequency" label="Review Frequency" icon={<RefreshCw className={iconClass} />} options={reviewFrequencyOptions} {...sharedFieldProps} />
 
-        <TextField name="nextReviewAt" label="Next Review" type="date" {...sharedFieldProps} />
+        <TextField name="nextReviewAt" label="Next Review Date" icon={<CalendarDays className={iconClass} />} type="date" {...sharedFieldProps} />
 
-        <div className="pt-2 border-t space-y-2">
-          <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Last Updated</span>
-            <span>{formatDate(data?.updatedAt)}</span>
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-2 shrink-0">
+            <CalendarDays className={iconClass} />
+            <span className="text-base text-muted-foreground">Last Updated</span>
           </div>
-          <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Last Reviewed</span>
-            <span>{formatDate(data?.lastReviewedAt)}</span>
+          <span className="text-sm py-2 px-1">{formatDate(data?.updatedAt)}</span>
+        </div>
+
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-2 shrink-0">
+            <CalendarDays className={iconClass} />
+            <span className="text-base text-muted-foreground">Last Reviewed</span>
           </div>
+          <span className="text-sm py-2 px-1">{formatDate(data?.lastReviewedAt)}</span>
         </div>
       </div>
     </Card>
