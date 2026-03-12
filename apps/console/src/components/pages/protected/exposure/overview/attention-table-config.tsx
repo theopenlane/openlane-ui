@@ -2,37 +2,18 @@
 
 import React from 'react'
 import { type ColumnDef } from '@tanstack/react-table'
-import { Bug, FileSearch, AlertTriangle, Share2 } from 'lucide-react'
+import { Share2 } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { type AttentionItem } from './items-requiring-attention'
-
-export const TYPE_ICONS = {
-  Vulnerability: Bug,
-  Finding: FileSearch,
-  Risk: AlertTriangle,
-}
+import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { getSeverityStyle } from '@/utils/severity'
+import { searchTypeIcons } from '@/components/shared/search/search-config'
 
 export const TYPE_HREFS: Record<AttentionItem['type'], string> = {
-  Vulnerability: '/exposure/vulnerabilities',
-  Finding: '/exposure/findings',
-  Risk: '/exposure/risks',
-}
-
-const SEVERITY_COLORS: Record<string, string> = {
-  critical: 'text-destructive bg-destructive/10',
-  high: 'text-orange-600 bg-orange-50 dark:bg-orange-950/20',
-  medium: 'text-yellow-600 bg-yellow-50 dark:bg-yellow-950/20',
-  low: 'text-blue-500 bg-blue-50 dark:bg-blue-950/20',
-}
-
-export const getSeverityClass = (severity: string) => {
-  const s = severity.toLowerCase()
-  if (s.includes('critical')) return SEVERITY_COLORS.critical
-  if (s.includes('high')) return SEVERITY_COLORS.high
-  if (s.includes('medium') || s.includes('med')) return SEVERITY_COLORS.medium
-  if (s.includes('low')) return SEVERITY_COLORS.low
-  return 'text-muted-foreground bg-muted'
+  [ObjectTypes.VULNERABILITY]: '/exposure/vulnerabilities',
+  [ObjectTypes.FINDING]: '/exposure/findings',
+  [ObjectTypes.RISK]: '/exposure/risks',
 }
 
 export const getAttentionColumns = (onAssociate: (item: AttentionItem) => void): ColumnDef<AttentionItem>[] => [
@@ -41,7 +22,7 @@ export const getAttentionColumns = (onAssociate: (item: AttentionItem) => void):
     header: 'Name',
     size: 240,
     cell: ({ row }) => {
-      const Icon = TYPE_ICONS[row.original.type]
+      const Icon = searchTypeIcons[row.original.type]
       return (
         <div className="flex items-center gap-2">
           <Icon size={14} className="text-muted-foreground shrink-0" />
@@ -57,7 +38,7 @@ export const getAttentionColumns = (onAssociate: (item: AttentionItem) => void):
     header: 'Type',
     size: 120,
     cell: ({ row }) => {
-      const Icon = TYPE_ICONS[row.original.type]
+      const Icon = searchTypeIcons[row.original.type]
       return (
         <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
           <Icon size={12} />
@@ -70,7 +51,11 @@ export const getAttentionColumns = (onAssociate: (item: AttentionItem) => void):
     accessorKey: 'severity',
     header: 'Severity',
     size: 110,
-    cell: ({ row }) => <span className={`text-xs px-2 py-0.5 rounded-full font-medium capitalize ${getSeverityClass(row.original.severity)}`}>{row.original.severity || '—'}</span>,
+    cell: ({ row }) => (
+      <span className="text-xs px-2 py-0.5 rounded-full font-medium capitalize" style={getSeverityStyle(row.original.severity)}>
+        {row.original.severity || '—'}
+      </span>
+    ),
   },
   {
     accessorKey: 'status',

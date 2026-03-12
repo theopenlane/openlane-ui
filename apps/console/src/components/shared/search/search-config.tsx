@@ -1,7 +1,23 @@
 import type { RoutePage } from '@/types'
 import type { SearchContextGroup } from '@/lib/graphql-hooks/search'
 import { toHumanLabel } from '@/utils/strings'
-import { CircleGaugeIcon, UsersRoundIcon, ShieldCheck, AlertTriangle, Fingerprint, ListChecks, Settings2, ScrollText, Workflow, NotebookPen, FileBadge2 } from 'lucide-react'
+import {
+  CircleGaugeIcon,
+  UsersRoundIcon,
+  ShieldCheck,
+  AlertTriangle,
+  Fingerprint,
+  ListChecks,
+  Settings2,
+  ScrollText,
+  Workflow,
+  NotebookPen,
+  FileBadge2,
+  Bug,
+  FileSearch,
+  ScanLine,
+  MessageSquareText,
+} from 'lucide-react'
 
 export const searchTypeIcons: Record<string, React.ElementType> = {
   Pages: CircleGaugeIcon,
@@ -21,6 +37,10 @@ export const searchTypeIcons: Record<string, React.ElementType> = {
   Subcontrol: Settings2,
   ControlObjectives: Settings2,
   Organization: UsersRoundIcon,
+  Vulnerability: Bug,
+  Finding: FileSearch,
+  Scan: ScanLine,
+  Review: MessageSquareText,
 }
 
 export const getEntityTypeLabel = (entityType: string) => toHumanLabel(entityType)

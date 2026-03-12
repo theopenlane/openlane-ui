@@ -3,33 +3,41 @@
 import React, { useState } from 'react'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { formatDate } from '@/utils/date'
-import { AlertTriangle, Bug, FileSearch, ScanLine, MessageSquareText, Shield } from 'lucide-react'
+import { Shield } from 'lucide-react'
+import Link from 'next/link'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@repo/ui/sheet'
 import { Button } from '@repo/ui/button'
 import ViewVulnerabilitySheet from '@/components/pages/protected/vulnerabilities/view-vulnerability-sheet'
 import ViewFindingSheet from '@/components/pages/protected/findings/view-finding-sheet'
-
-const TYPE_ICONS: Record<string, React.ElementType> = {
-  Vulnerability: Bug,
-  Finding: FileSearch,
-  Risk: AlertTriangle,
-  Scan: ScanLine,
-  Review: MessageSquareText,
-}
+import ViewScanSheet from '@/components/pages/protected/scans/view-scan-sheet'
+import ViewReviewSheet from '@/components/pages/protected/reviews/view-review-sheet'
+import { searchTypeIcons } from '@/components/shared/search/search-config'
 
 type ActivityItem = {
   id: string
   label: string
   type: string
   createdAt: string
-  href: string
+  href?: string
   source?: string | null
 }
 
 const ActivityRow = ({ item, onLabelClick }: { item: ActivityItem; onLabelClick?: (item: ActivityItem) => void }) => {
-  const Icon = TYPE_ICONS[item.type] ?? Shield
-  const isClickable = (item.type === 'Vulnerability' || item.type === 'Finding') && !!onLabelClick
+  const Icon = searchTypeIcons[item.type] ?? Shield
+  const hasSheet = (item.type === 'Vulnerability' || item.type === 'Finding' || item.type === 'Scan' || item.type === 'Review') && !!onLabelClick
   const subtitle = item.source ? `${item.type} detected by ${item.source}` : `${item.type} detected`
+
+  const labelEl = hasSheet ? (
+    <button className="text-sm font-medium truncate block w-full text-left hover:underline cursor-pointer" onClick={() => onLabelClick?.(item)}>
+      {item.label}
+    </button>
+  ) : item.href ? (
+    <Link href={item.href} className="text-sm font-medium truncate block hover:underline">
+      {item.label}
+    </Link>
+  ) : (
+    <p className="text-sm font-medium truncate">{item.label}</p>
+  )
 
   return (
     <div className="flex items-start gap-3 py-2 border-b last:border-0">
@@ -37,13 +45,7 @@ const ActivityRow = ({ item, onLabelClick }: { item: ActivityItem; onLabelClick?
         <Icon size={14} className="text-muted-foreground" />
       </div>
       <div className="flex-1 min-w-0">
-        {isClickable ? (
-          <button className="text-sm font-medium truncate block w-full text-left hover:underline cursor-pointer" onClick={() => onLabelClick(item)}>
-            {item.label}
-          </button>
-        ) : (
-          <p className="text-sm font-medium truncate">{item.label}</p>
-        )}
+        {labelEl}
         <p className="text-xs text-muted-foreground">{subtitle}</p>
       </div>
       <span className="text-xs text-muted-foreground whitespace-nowrap">{formatDate(item.createdAt)}</span>
@@ -101,6 +103,8 @@ const ExposureActivityFeed = ({ activityItems }: Props) => {
 
       <ViewVulnerabilitySheet entityId={viewItem?.type === 'Vulnerability' ? viewItem.id : null} onClose={() => setViewItem(null)} />
       <ViewFindingSheet entityId={viewItem?.type === 'Finding' ? viewItem.id : null} onClose={() => setViewItem(null)} />
+      <ViewScanSheet entityId={viewItem?.type === 'Scan' ? viewItem.id : null} onClose={() => setViewItem(null)} />
+      <ViewReviewSheet entityId={viewItem?.type === 'Review' ? viewItem.id : null} onClose={() => setViewItem(null)} />
     </Card>
   )
 }

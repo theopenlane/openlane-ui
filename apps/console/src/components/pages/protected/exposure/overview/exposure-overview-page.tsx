@@ -10,6 +10,7 @@ import { useScansWithFilter } from '@/lib/graphql-hooks/scan'
 import { useReviewsWithFilter } from '@/lib/graphql-hooks/review'
 import { OrderDirection, RiskRiskImpact, RiskRiskStatus, VulnerabilityOrderField, FindingOrderField, RiskOrderField, ScanOrderField, ReviewOrderField } from '@repo/codegen/src/schema'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 import ExposureQuickActions from './exposure-quick-actions'
 import ExposureSeverityChart from './exposure-severity-chart'
 import ExposureActivityFeed from './exposure-activity-feed'
@@ -142,15 +143,24 @@ const ExposureOverviewPage = () => {
   })
 
   const activityItems = useMemo(() => {
-    const items: { id: string; label: string; type: string; createdAt: string; href: string; source?: string | null }[] = []
+    const items: { id: string; label: string; type: string; createdAt: string; href?: string; source?: string | null }[] = []
 
     recentVulns?.forEach((v) =>
-      items.push({ id: v.id, label: v.displayName ?? v.displayID ?? 'Vulnerability', type: 'Vulnerability', createdAt: v.createdAt, href: '/exposure/vulnerabilities', source: v.source ?? null }),
+      items.push({
+        id: v.id,
+        label: v.displayName ?? v.displayID ?? 'Vulnerability',
+        type: 'Vulnerability',
+        createdAt: v.createdAt,
+        href: `/exposure/vulnerabilities?id=${v.id}`,
+        source: v.source ?? null,
+      }),
     )
-    recentFindings?.forEach((f) => items.push({ id: f.id, label: f.displayName ?? 'Finding', type: 'Finding', createdAt: f.createdAt, href: '/exposure/findings', source: f.source ?? null }))
-    recentRisks?.forEach((r) => items.push({ id: r.id, label: r.name ?? 'Risk', type: 'Risk', createdAt: r.createdAt, href: '/exposure/risks' }))
-    recentScans?.forEach((s) => items.push({ id: s.id, label: s.target ?? 'Scan', type: 'Scan', createdAt: s.createdAt, href: '/exposure/scans' }))
-    recentReviews?.forEach((r) => items.push({ id: r.id, label: r.title ?? 'Review', type: 'Review', createdAt: r.createdAt, href: '/exposure/reviews' }))
+    recentFindings?.forEach((f) =>
+      items.push({ id: f.id, label: f.displayName ?? 'Finding', type: 'Finding', createdAt: f.createdAt, href: `/exposure/findings?id=${f.id}`, source: f.source ?? null }),
+    )
+    recentRisks?.forEach((r) => items.push({ id: r.id, label: r.name ?? 'Risk', type: 'Risk', createdAt: r.createdAt, href: `/exposure/risks/${r.id}` }))
+    recentScans?.forEach((s) => items.push({ id: s.id, label: s.target ?? 'Scan', type: 'Scan', createdAt: s.createdAt }))
+    recentReviews?.forEach((r) => items.push({ id: r.id, label: r.title ?? 'Review', type: 'Review', createdAt: r.createdAt }))
 
     return items.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
   }, [recentVulns, recentFindings, recentRisks, recentScans, recentReviews])
@@ -179,22 +189,22 @@ const ExposureOverviewPage = () => {
       return s.includes('critical') || s.includes('high')
     }
 
-    const items: { id: string; name: string; type: 'Vulnerability' | 'Finding' | 'Risk'; severity: string; status: string; createdAt: string }[] = []
+    const items: { id: string; name: string; type: typeof ObjectTypes.VULNERABILITY | typeof ObjectTypes.FINDING | typeof ObjectTypes.RISK; severity: string; status: string; createdAt: string }[] = []
 
     critVulns
       ?.filter((v) => isCritOrHigh(v.severity ?? ''))
       .forEach((v) => {
-        items.push({ id: v.id, name: v.displayName ?? v.displayID ?? 'Vulnerability', type: 'Vulnerability', severity: v.severity ?? '', status: v.status ?? '', createdAt: v.createdAt })
+        items.push({ id: v.id, name: v.displayName ?? v.displayID ?? 'Vulnerability', type: ObjectTypes.VULNERABILITY, severity: v.severity ?? '', status: v.status ?? '', createdAt: v.createdAt })
       })
     critFindings
       ?.filter((f) => isCritOrHigh(f.severity ?? ''))
       .forEach((f) => {
-        items.push({ id: f.id, name: f.displayName ?? 'Finding', type: 'Finding', severity: f.severity ?? '', status: f.status ?? '', createdAt: f.createdAt })
+        items.push({ id: f.id, name: f.displayName ?? 'Finding', type: ObjectTypes.FINDING, severity: f.severity ?? '', status: f.status ?? '', createdAt: f.createdAt })
       })
     critRisks
       ?.filter((r) => isCritOrHigh(r.impact ?? ''))
       .forEach((r) => {
-        items.push({ id: r.id, name: r.name ?? 'Risk', type: 'Risk', severity: r.impact ?? '', status: r.status ?? '', createdAt: r.createdAt })
+        items.push({ id: r.id, name: r.name ?? 'Risk', type: ObjectTypes.RISK, severity: r.impact ?? '', status: r.status ?? '', createdAt: r.createdAt })
       })
 
     return items.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 10)

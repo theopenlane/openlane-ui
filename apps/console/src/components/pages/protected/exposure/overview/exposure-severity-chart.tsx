@@ -22,12 +22,7 @@ type Props = {
   isLoading?: boolean
 }
 
-const SEV_COLORS = {
-  critical: { bg: 'bg-destructive', text: 'text-destructive' },
-  high: { bg: 'bg-orange-500', text: 'text-orange-500' },
-  medium: { bg: 'bg-yellow-500', text: 'text-yellow-500' },
-  low: { bg: 'bg-blue-400', text: 'text-blue-400' },
-}
+const sevColor = (sev: string) => `var(--color-severity-${sev})`
 
 const SEVERITIES = ['critical', 'high', 'medium', 'low'] as const
 const TYPES = [
@@ -50,15 +45,17 @@ const SeverityRow = ({ label, counts }: { label: string; counts: SeverityCounts 
         {SEVERITIES.map((sev) => {
           const pct = (counts[sev] / total) * 100
           if (pct === 0) return null
-          return <div key={sev} className={`${SEV_COLORS[sev].bg} h-full`} style={{ width: `${pct}%` }} />
+          return <div key={sev} className="h-full" style={{ width: `${pct}%`, backgroundColor: sevColor(sev) }} />
         })}
       </div>
       <div className="flex gap-3">
         {SEVERITIES.map((sev) => (
           <div key={sev} className="flex items-center gap-1 text-xs">
-            <span className={`inline-block w-2 h-2 rounded-full ${SEV_COLORS[sev].bg}`} />
+            <span className="inline-block w-2 h-2 rounded-full" style={{ backgroundColor: sevColor(sev) }} />
             <span className="capitalize text-muted-foreground">{sev}</span>
-            <span className={`font-medium ${SEV_COLORS[sev].text}`}>{counts[sev]}</span>
+            <span className="font-medium" style={{ color: sevColor(sev) }}>
+              {counts[sev]}
+            </span>
           </div>
         ))}
       </div>
@@ -92,9 +89,11 @@ const ExposureSeverityChart = ({ severityData, severityItems, isLoading }: Props
                 <Tooltip key={sev}>
                   <TooltipTrigger asChild>
                     <div className="flex items-center gap-1 text-xs cursor-default">
-                      <span className={`inline-block w-2 h-2 rounded-full ${SEV_COLORS[sev].bg}`} />
+                      <span className="inline-block w-2 h-2 rounded-full" style={{ backgroundColor: sevColor(sev) }} />
                       <span className="capitalize">{sev}</span>
-                      <span className={`font-semibold ${SEV_COLORS[sev].text}`}>{totals[sev]}</span>
+                      <span className="font-semibold" style={{ color: sevColor(sev) }}>
+                        {totals[sev]}
+                      </span>
                     </div>
                   </TooltipTrigger>
                   <TooltipContent side="bottom" className="max-w-64">

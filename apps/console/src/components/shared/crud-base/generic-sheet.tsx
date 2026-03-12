@@ -66,6 +66,7 @@ export interface GenericDetailsSheetConfig<TFormData extends FieldValues, TData,
 
   entityId?: string | null
   isCreateMode?: boolean
+  basePath?: string
 
   data?: TData
   isFetching: boolean
@@ -105,6 +106,7 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
     onClose,
     entityId: entityIdOverride,
     isCreateMode,
+    basePath,
   } = config
   const { reset } = form
   const queryClient = useQueryClient()
@@ -310,6 +312,8 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
                 handleCancelEdit={handleCancelEdit}
                 formId={formId}
                 onDelete={handleDelete}
+                entityId={id}
+                basePath={basePath}
               />
             )
           }

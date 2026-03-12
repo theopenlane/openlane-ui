@@ -6,6 +6,7 @@ import { AlertTriangle, Bug, FileSearch } from 'lucide-react'
 import Skeleton from '@/components/shared/skeleton/skeleton'
 import { useRouter } from 'next/navigation'
 import { saveFilters, type TFilterState } from '@/components/shared/table-filter/filter-storage'
+import { TableKeyEnum, type TableKeyValue } from '@repo/ui/table-key'
 
 type Counts = {
   vulns: { critical: number; high: number }
@@ -24,7 +25,7 @@ const TYPES = [
     label: 'Vulnerabilities',
     icon: Bug,
     href: '/exposure/vulnerabilities',
-    tableKey: 'vulnerability',
+    tableKey: TableKeyEnum.VULNERABILITY,
     critFilter: { severityContainsFold: 'critical' } as TFilterState,
     highFilter: { severityContainsFold: 'high' } as TFilterState,
   },
@@ -33,7 +34,7 @@ const TYPES = [
     label: 'Findings',
     icon: FileSearch,
     href: '/exposure/findings',
-    tableKey: 'finding',
+    tableKey: TableKeyEnum.FINDING,
     critFilter: { severityContainsFold: 'critical' } as TFilterState,
     highFilter: { severityContainsFold: 'high' } as TFilterState,
   },
@@ -42,7 +43,7 @@ const TYPES = [
     label: 'Risks',
     icon: AlertTriangle,
     href: '/exposure/risks',
-    tableKey: 'risk',
+    tableKey: TableKeyEnum.RISK,
     critFilter: { impactIn: ['CRITICAL'] } as TFilterState,
     highFilter: { impactIn: ['HIGH'] } as TFilterState,
   },
@@ -51,7 +52,7 @@ const TYPES = [
 const ExposureCriticalCounts = ({ counts, isLoading }: Props) => {
   const router = useRouter()
 
-  const handleClick = (tableKey: string, href: string, filter: TFilterState) => {
+  const handleClick = (tableKey: TableKeyValue, href: string, filter: TFilterState) => {
     saveFilters(tableKey, filter)
     router.push(href)
   }

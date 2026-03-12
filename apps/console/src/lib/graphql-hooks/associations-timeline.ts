@@ -13,6 +13,7 @@ import {
   type GetVulnerabilityAssociationsTimelineQuery,
   type GetVulnerabilityAssociationsTimelineQueryVariables,
 } from '@repo/codegen/src/schema'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 export type TimelineNode = {
   id: string
@@ -41,7 +42,7 @@ type ConnectionEdge = { node?: EdgeNode | null }
 type Connection = { edges?: (ConnectionEdge | null)[] | null }
 
 const nodeName = (node: EdgeNode, type: string): string => {
-  if (type === 'Control' || type === 'Subcontrol') return node.refCode ?? node.displayID ?? node.id
+  if (type === ObjectTypes.CONTROL || type === ObjectTypes.SUBCONTROL) return node.refCode ?? node.displayID ?? node.id
   return node.displayName ?? node.name ?? node.title ?? node.target ?? node.displayID ?? node.id
 }
 
@@ -56,8 +57,8 @@ const extractNodes = (connection: Connection | null | undefined, type: string, o
     const node = e?.node
     if (!node?.createdAt) continue
 
-    const isScan = type === 'Scan'
-    const isRisk = type === 'Risk'
+    const isScan = type === ObjectTypes.SCAN
+    const isRisk = type === ObjectTypes.RISK
 
     result.push({
       id: node.id,
