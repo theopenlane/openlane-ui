@@ -18,10 +18,10 @@ import ItemsRequiringAttention from './items-requiring-attention'
 
 const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
 
-const CRIT_WHERE = { severityContainsFold: 'critical' }
-const HIGH_WHERE = { severityContainsFold: 'high' }
-const MED_WHERE = { severityContainsFold: 'medium' }
-const LOW_WHERE = { severityContainsFold: 'low' }
+const CRIT_WHERE = { or: [{ severityContainsFold: 'critical' }, { severityIn: ['CRITICAL', 'Critical'] }] }
+const HIGH_WHERE = { or: [{ severityContainsFold: 'high' }, { severityIn: ['HIGH', 'High'] }] }
+const MED_WHERE = { or: [{ severityContainsFold: 'medium' }, { severityIn: ['MEDIUM', 'Medium'] }] }
+const LOW_WHERE = { or: [{ severityContainsFold: 'low' }, { severityIn: ['LOW', 'Low'] }] }
 
 const ExposureOverviewPage = () => {
   const { setCrumbs } = use(BreadcrumbContext)
@@ -142,10 +142,12 @@ const ExposureOverviewPage = () => {
   })
 
   const activityItems = useMemo(() => {
-    const items: { id: string; label: string; type: string; createdAt: string; href: string }[] = []
+    const items: { id: string; label: string; type: string; createdAt: string; href: string; source?: string | null }[] = []
 
-    recentVulns?.forEach((v) => items.push({ id: v.id, label: v.displayName ?? v.displayID ?? 'Vulnerability', type: 'Vulnerability', createdAt: v.createdAt, href: '/exposure/vulnerabilities' }))
-    recentFindings?.forEach((f) => items.push({ id: f.id, label: f.displayName ?? 'Finding', type: 'Finding', createdAt: f.createdAt, href: '/exposure/findings' }))
+    recentVulns?.forEach((v) =>
+      items.push({ id: v.id, label: v.displayName ?? v.displayID ?? 'Vulnerability', type: 'Vulnerability', createdAt: v.createdAt, href: '/exposure/vulnerabilities', source: v.source ?? null }),
+    )
+    recentFindings?.forEach((f) => items.push({ id: f.id, label: f.displayName ?? 'Finding', type: 'Finding', createdAt: f.createdAt, href: '/exposure/findings', source: f.source ?? null }))
     recentRisks?.forEach((r) => items.push({ id: r.id, label: r.name ?? 'Risk', type: 'Risk', createdAt: r.createdAt, href: '/exposure/risks' }))
     recentScans?.forEach((s) => items.push({ id: s.id, label: s.target ?? 'Scan', type: 'Scan', createdAt: s.createdAt, href: '/exposure/scans' }))
     recentReviews?.forEach((r) => items.push({ id: r.id, label: r.title ?? 'Review', type: 'Review', createdAt: r.createdAt, href: '/exposure/reviews' }))
