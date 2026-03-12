@@ -466,6 +466,7 @@ export type TableRow = {
   name?: string
   inputName?: string
   refCode?: string
+  referenceFramework?: string | null
 }
 
 export function extractTableRows(objectKey: QueryResponseMapKey | undefined, data: QueryResponse | undefined, inputName?: string): TableRow[] {
@@ -481,6 +482,7 @@ export function extractTableRows(objectKey: QueryResponseMapKey | undefined, dat
         name: item?.node?.refCode,
         inputName: selectedInputName,
         refCode: item?.node?.refCode ?? '',
+        referenceFramework: item?.node?.referenceFramework ?? null,
       }))
     }
     case 'controlImplementations': {
@@ -500,6 +502,7 @@ export function extractTableRows(objectKey: QueryResponseMapKey | undefined, dat
         name: item?.node?.refCode,
         inputName: selectedInputName,
         refCode: item?.node?.refCode ?? '',
+        referenceFramework: item?.node?.referenceFramework ?? null,
       }))
     }
 

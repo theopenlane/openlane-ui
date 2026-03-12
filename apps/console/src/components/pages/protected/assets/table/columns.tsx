@@ -16,7 +16,12 @@ export const getColumns = ({ userMap, convertToReadOnly, selectedItems, setSelec
     { accessorKey: 'name', header: 'Name', size: 100, cell: ({ cell }) => cell.getValue() || '' },
     { accessorKey: 'displayName', header: 'Display Name', size: 120, cell: ({ cell }) => cell.getValue() || '' },
     { accessorKey: 'accessModelName', header: 'Access Model', size: 140, cell: ({ cell }) => <CustomEnumChipCell value={cell.getValue() as string} objectType="asset" field="accessModel" /> },
-    { accessorKey: 'assetDataClassificationName', header: 'Data Classification', size: 140, cell: ({ cell }) => <CustomEnumChipCell value={cell.getValue() as string} objectType="asset" field="dataClassification" /> },
+    {
+      accessorKey: 'assetDataClassificationName',
+      header: 'Data Classification',
+      size: 140,
+      cell: ({ cell }) => <CustomEnumChipCell value={cell.getValue() as string} objectType="asset" field="dataClassification" />,
+    },
     { accessorKey: 'assetSubtypeName', header: 'Subtype', size: 120, cell: ({ cell }) => <CustomEnumChipCell value={cell.getValue() as string} objectType="asset" field="subtype" /> },
     {
       accessorKey: 'assetType',
@@ -50,7 +55,12 @@ export const getColumns = ({ userMap, convertToReadOnly, selectedItems, setSelec
       size: 100,
       cell: ({ cell }) => <BooleanCell value={cell.getValue() as boolean | null | undefined} />,
     },
-    { accessorKey: 'encryptionStatusName', header: 'Encryption Status', size: 140, cell: ({ cell }) => <CustomEnumChipCell value={cell.getValue() as string} objectType="asset" field="encryptionStatus" /> },
+    {
+      accessorKey: 'encryptionStatusName',
+      header: 'Encryption Status',
+      size: 140,
+      cell: ({ cell }) => <CustomEnumChipCell value={cell.getValue() as string} objectType="asset" field="encryptionStatus" />,
+    },
     { accessorKey: 'environmentName', header: 'Environment', size: 120, cell: ({ cell }) => <CustomEnumChipCell value={cell.getValue() as string} field="environment" /> },
     { accessorKey: 'estimatedMonthlyCost', header: 'Est. Monthly Cost', size: 120 },
     { accessorKey: 'identifier', header: 'Identifier', size: 120 },

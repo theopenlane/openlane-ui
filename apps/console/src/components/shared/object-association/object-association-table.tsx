@@ -33,6 +33,8 @@ const ObjectAssociationTable = ({ data, onIDsChange, initialData, refCodeInitial
     onIDsChange(selectedIdsMap, selectedRefCodeMap)
   }, [selectedIdsMap, selectedRefCodeMap, onIDsChange])
 
+  const showFramework = data.some((row) => 'referenceFramework' in row)
+
   const columns: ColumnDef<TableRow>[] = [
     {
       id: 'select',
@@ -103,24 +105,31 @@ const ObjectAssociationTable = ({ data, onIDsChange, initialData, refCodeInitial
           </div>
         )
       },
-      size: 50,
-      maxSize: 50,
+      size: showFramework ? 35 : 15,
+      maxSize: showFramework ? 35 : 15,
       enableResizing: false,
-      meta: {
-        className: 'max-w-[5%] w-[5%]',
-      },
     },
     {
       accessorKey: 'name',
       header: 'Name',
-      meta: {
-        className: 'max-w-[40%] w-[30%]',
-      },
+      size: 120,
+      maxSize: 120,
       cell: ({ row }) => {
         const { name } = row.original
         return <span className="block truncate whitespace-nowrap">{name}</span>
       },
     },
+    ...(showFramework
+      ? [
+          {
+            accessorKey: 'referenceFramework',
+            header: 'Framework',
+            size: 100,
+            maxSize: 100,
+            cell: ({ row }: { row: { original: TableRow } }) => <span className="block truncate">{row.original.referenceFramework ?? '—'}</span>,
+          } satisfies ColumnDef<TableRow>,
+        ]
+      : []),
   ]
 
   // Force new data reference when selection changes so the memoized DataTable body re-renders
@@ -131,6 +140,7 @@ const ObjectAssociationTable = ({ data, onIDsChange, initialData, refCodeInitial
 
   return (
     <DataTable
+      key={showFramework ? 'with-framework' : 'no-framework'}
       loading={isLoading}
       onPaginationChange={onPaginationChange}
       pagination={pagination}
