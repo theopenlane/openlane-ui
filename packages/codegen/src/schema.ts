@@ -48940,6 +48940,7 @@ export interface TrustCenterFaqOrder {
 
 /** Properties by which TrustCenterFAQ connections can be ordered. */
 export enum TrustCenterFaqOrderField {
+  DISPLAY_ORDER = 'DISPLAY_ORDER',
   created_at = 'created_at',
   updated_at = 'updated_at',
 }
@@ -68807,6 +68808,37 @@ export type DeleteBulkRemediationMutationVariables = Exact<{
 
 export type DeleteBulkRemediationMutation = { __typename?: 'Mutation'; deleteBulkRemediation: { __typename?: 'RemediationBulkDeletePayload'; deletedIDs: Array<string> } }
 
+export type GetRemediationAssociationsQueryVariables = Exact<{
+  remediationId: Scalars['ID']['input']
+}>
+
+export type GetRemediationAssociationsQuery = {
+  __typename?: 'Query'
+  remediation: {
+    __typename?: 'Remediation'
+    controls: {
+      __typename?: 'ControlConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string; description?: string | null; displayID: string } | null } | null> | null
+    }
+    subcontrols: {
+      __typename?: 'SubcontrolConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string; displayID: string } | null } | null> | null
+    }
+    findings: {
+      __typename?: 'FindingConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'FindingEdge'; node?: { __typename?: 'Finding'; id: string; displayName?: string | null; displayID: string } | null } | null> | null
+    }
+    vulnerabilities: {
+      __typename?: 'VulnerabilityConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'VulnerabilityEdge'; node?: { __typename?: 'Vulnerability'; id: string; displayName?: string | null; displayID: string } | null } | null> | null
+    }
+  }
+}
+
 export type UpdateBulkRemediationMutationVariables = Exact<{
   ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
   input: UpdateRemediationInput
@@ -69545,6 +69577,42 @@ export type UpdateBulkScanMutationVariables = Exact<{
 }>
 
 export type UpdateBulkScanMutation = { __typename?: 'Mutation'; updateBulkScan: { __typename?: 'ScanBulkUpdatePayload'; updatedIDs?: Array<string> | null } }
+
+export type GetScanAssociationsQueryVariables = Exact<{
+  scanId: Scalars['ID']['input']
+}>
+
+export type GetScanAssociationsQuery = {
+  __typename?: 'Query'
+  scan: {
+    __typename?: 'Scan'
+    controls: {
+      __typename?: 'ControlConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string; description?: string | null; displayID: string } | null } | null> | null
+    }
+    assets: {
+      __typename?: 'AssetConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'AssetEdge'; node?: { __typename?: 'Asset'; id: string; name: string; displayName?: string | null } | null } | null> | null
+    }
+    remediations: {
+      __typename?: 'RemediationConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'RemediationEdge'; node?: { __typename?: 'Remediation'; id: string; title?: string | null; displayID: string } | null } | null> | null
+    }
+    tasks: {
+      __typename?: 'TaskConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; title: string; displayID: string } | null } | null> | null
+    }
+    vulnerabilities: {
+      __typename?: 'VulnerabilityConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'VulnerabilityEdge'; node?: { __typename?: 'Vulnerability'; id: string; displayName?: string | null; displayID: string } | null } | null> | null
+    }
+  }
+}
 
 export type ScheduledJobRunsWithFilterQueryVariables = Exact<{
   where?: InputMaybe<ScheduledJobRunWhereInput>
@@ -71957,6 +72025,48 @@ export type DeleteBulkVulnerabilityMutationVariables = Exact<{
 
 export type DeleteBulkVulnerabilityMutation = { __typename?: 'Mutation'; deleteBulkVulnerability: { __typename?: 'VulnerabilityBulkDeletePayload'; deletedIDs: Array<string> } }
 
+export type GetVulnerabilityAssociationsQueryVariables = Exact<{
+  vulnerabilityId: Scalars['ID']['input']
+}>
+
+export type GetVulnerabilityAssociationsQuery = {
+  __typename?: 'Query'
+  vulnerability: {
+    __typename?: 'Vulnerability'
+    controls: {
+      __typename?: 'ControlConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string; description?: string | null; displayID: string } | null } | null> | null
+    }
+    subcontrols: {
+      __typename?: 'SubcontrolConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string; displayID: string } | null } | null> | null
+    }
+    findings: {
+      __typename?: 'FindingConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'FindingEdge'; node?: { __typename?: 'Finding'; id: string; displayName?: string | null; displayID: string } | null } | null> | null
+    }
+    remediations: {
+      __typename?: 'RemediationConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'RemediationEdge'; node?: { __typename?: 'Remediation'; id: string; title?: string | null; displayID: string } | null } | null> | null
+    }
+    reviews: { __typename?: 'ReviewConnection'; totalCount: number; edges?: Array<{ __typename?: 'ReviewEdge'; node?: { __typename?: 'Review'; id: string; title: string } | null } | null> | null }
+    assets: {
+      __typename?: 'AssetConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'AssetEdge'; node?: { __typename?: 'Asset'; id: string; name: string; displayName?: string | null } | null } | null> | null
+    }
+    tasks: {
+      __typename?: 'TaskConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; title: string; displayID: string } | null } | null> | null
+    }
+  }
+}
+
 export type UpdateBulkVulnerabilityMutationVariables = Exact<{
   ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
   input: UpdateVulnerabilityInput
@@ -72456,41 +72566,5 @@ export type WorkflowProposalQuery = {
     updatedAt?: any | null
     updatedBy?: string | null
     workflowObjectRefID: string
-  }
-}
-
-export type GetScanAssociationsQueryVariables = Exact<{
-  scanId: Scalars['ID']['input']
-}>
-
-export type GetScanAssociationsQuery = {
-  __typename?: 'Query'
-  scan: {
-    __typename?: 'Scan'
-    controls: {
-      __typename?: 'ControlConnection'
-      totalCount: number
-      edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string; description?: string | null; displayID: string } | null } | null> | null
-    }
-    assets: {
-      __typename?: 'AssetConnection'
-      totalCount: number
-      edges?: Array<{ __typename?: 'AssetEdge'; node?: { __typename?: 'Asset'; id: string; name: string; displayName?: string | null } | null } | null> | null
-    }
-    remediations: {
-      __typename?: 'RemediationConnection'
-      totalCount: number
-      edges?: Array<{ __typename?: 'RemediationEdge'; node?: { __typename?: 'Remediation'; id: string; title?: string | null; displayID: string } | null } | null> | null
-    }
-    tasks: {
-      __typename?: 'TaskConnection'
-      totalCount: number
-      edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; title: string; displayID: string } | null } | null> | null
-    }
-    vulnerabilities: {
-      __typename?: 'VulnerabilityConnection'
-      totalCount: number
-      edges?: Array<{ __typename?: 'VulnerabilityEdge'; node?: { __typename?: 'Vulnerability'; id: string; displayName?: string | null; displayID: string } | null } | null> | null
-    }
   }
 }
