@@ -224,7 +224,7 @@ export const VULNERABILITY_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
     { key: 'findings', nameExtractor: (n) => n.displayName ?? n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
     { key: 'remediations', nameExtractor: (n) => n.title ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
     { key: 'reviews', nameExtractor: (n) => n.title ?? '', displayIdExtractor: () => '' },
-    { key: 'assets', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayName ?? '' },
+    { key: 'assets', nameExtractor: (n) => n.displayName ?? n.name ?? '', displayIdExtractor: (n) => n.displayName ?? '' },
     { key: 'tasks', nameExtractor: (n) => n.title ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ title: n.title }) },
   ],
   dialogConfig: {
