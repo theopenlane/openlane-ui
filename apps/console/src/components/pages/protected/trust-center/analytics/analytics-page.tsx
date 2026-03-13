@@ -23,7 +23,11 @@ export default function AnalyticsPage() {
   const { setCrumbs } = use(BreadcrumbContext)
 
   useEffect(() => {
-    setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Trust Center' }, { label: 'Analytics', href: '/trust-center/analytics' }])
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Trust Center', href: '/trust-center/overview' },
+      { label: 'Analytics', href: '/trust-center/analytics' },
+    ])
   }, [setCrumbs])
   if (!accessLink && !customDomain) {
     return (

@@ -272,3 +272,100 @@ export const BULK_EDIT_FINDING = gql`
     }
   }
 `
+
+export const GET_FINDING_ASSOCIATIONS_TIMELINE = gql`
+  query GetFindingAssociationsTimeline($findingId: ID!) {
+    finding(id: $findingId) {
+      controls {
+        edges {
+          node {
+            id
+            displayID
+            refCode
+            createdAt
+          }
+        }
+      }
+      subcontrols {
+        edges {
+          node {
+            id
+            displayID
+            refCode
+            createdAt
+          }
+        }
+      }
+      risks {
+        edges {
+          node {
+            id
+            name
+            displayID
+            createdAt
+            createdBy
+          }
+        }
+      }
+      programs {
+        edges {
+          node {
+            id
+            name
+            displayID
+            createdAt
+          }
+        }
+      }
+      tasks {
+        edges {
+          node {
+            id
+            title
+            displayID
+            createdAt
+          }
+        }
+      }
+      assets {
+        edges {
+          node {
+            id
+            name
+            displayName
+            createdAt
+          }
+        }
+      }
+      scans {
+        edges {
+          node {
+            id
+            target
+            createdAt
+            createdBy
+          }
+        }
+      }
+      remediations {
+        edges {
+          node {
+            id
+            title
+            displayID
+            createdAt
+          }
+        }
+      }
+      reviews {
+        edges {
+          node {
+            id
+            title
+            createdAt
+          }
+        }
+      }
+    }
+  }
+`

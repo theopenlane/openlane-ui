@@ -102,7 +102,7 @@ const BulkCSVCreateSubscriberDialog: React.FC<BulkCsvCreateSubscriberDialogProps
         />
         <div className="flex justify-end gap-2">
           <CancelButton onClick={() => setIsOpen(false)}></CancelButton>
-          <Button className="btn-secondary" onClick={handleFileUpload} loading={isSubmitting} disabled={isSubmitting}>
+          <Button className="btn-secondary" onClick={handleFileUpload} loading={isSubmitting} disabled={isSubmitting || !uploadedFile}>
             {isSubmitting ? 'Uploading...' : 'Upload'}
           </Button>
         </div>

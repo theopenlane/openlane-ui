@@ -195,6 +195,7 @@ export const ProceduresTable = () => {
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
+      { label: 'Compliance', href: '/programs' },
       { label: 'Procedures', href: '/procedures' },
     ])
   }, [setCrumbs])

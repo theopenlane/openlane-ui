@@ -12,7 +12,7 @@ export const formId = 'edit' + ObjectNames.SCAN
 
 export const breadcrumbs = [
   { label: 'Home', href: '/dashboard' },
-  { label: 'Exposure', href: '/exposure/scans' },
+  { label: 'Exposure', href: '/exposure/overview' },
   { label: 'Scans', href: '/exposure/scans' },
 ]
 

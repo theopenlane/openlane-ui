@@ -15,7 +15,7 @@ export const formId = 'edit' + ObjectNames.VULNERABILITY
 
 export const breadcrumbs = [
   { label: 'Home', href: '/dashboard' },
-  { label: 'Exposure', href: '/exposure/vulnerabilities' },
+  { label: 'Exposure', href: '/exposure/overview' },
   { label: 'Vulnerabilities', href: '/exposure/vulnerabilities' },
 ]
 

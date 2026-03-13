@@ -29,6 +29,7 @@ const StandardDetailsPage = () => {
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
+      { label: 'Compliance', href: '/programs' },
       { label: 'Standards', href: '/standards' },
       { label: standard?.shortName ?? standard?.name, isLoading: isLoading },
     ])

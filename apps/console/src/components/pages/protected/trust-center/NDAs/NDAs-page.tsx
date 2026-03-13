@@ -29,7 +29,11 @@ const NDAsPage = () => {
   const ndaApprovalRequired = !!trustCenterSetting?.ndaApprovalRequired
 
   useEffect(() => {
-    setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Trust Center' }, { label: 'NDAs', href: '/trust-center/NDAs' }])
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Trust Center', href: '/trust-center/overview' },
+      { label: 'NDAs', href: '/trust-center/NDAs' },
+    ])
   }, [setCrumbs])
 
   useEffect(() => {

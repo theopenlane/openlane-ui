@@ -127,7 +127,7 @@ export default function Soc2Wizard() {
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
-      { label: 'Compliance' },
+      { label: 'Compliance', href: '/programs' },
       { label: 'Programs', href: '/programs' },
       { label: 'Create', href: '/programs/create' },
       { label: 'SOC2', href: '/programs/create/soc2' },

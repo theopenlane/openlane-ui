@@ -159,7 +159,11 @@ const GroupsPage = () => {
   const { mappedColumns } = getGroupTableColumns({})
 
   useEffect(() => {
-    setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'User Management' }, { label: 'Groups', href: '/user-management/groups' }])
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'User Management', href: '/user-management/groups' },
+      { label: 'Groups', href: '/user-management/groups' },
+    ])
   }, [setCrumbs])
 
   return (

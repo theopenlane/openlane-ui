@@ -27,7 +27,11 @@ const DomainSettingsPage = () => {
   const { mutateAsync: validateCustomDomain, isPending: isValidating } = useValidateCustomDomain()
 
   useEffect(() => {
-    setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Trust Center' }, { label: 'Domain', href: '/trust-center/domain' }])
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Trust Center', href: '/trust-center/overview' },
+      { label: 'Domain', href: '/trust-center/domain' },
+    ])
   }, [setCrumbs])
 
   const trustCenter = data?.trustCenters?.edges?.[0]?.node

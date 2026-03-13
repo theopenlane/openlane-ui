@@ -111,7 +111,11 @@ export default function UpdatesSection() {
   }
 
   useEffect(() => {
-    setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Trust Center' }, { label: 'Updates', href: '/trust-center/updates' }])
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Trust Center', href: '/trust-center/overview' },
+      { label: 'Updates', href: '/trust-center/updates' },
+    ])
   }, [setCrumbs])
 
   return (

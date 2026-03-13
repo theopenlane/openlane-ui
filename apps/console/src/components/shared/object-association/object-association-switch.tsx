@@ -40,6 +40,13 @@ const ObjectAssociationSwitch: React.FC<TObjectAssociationSwitchProps> = ({ sect
         return <SetObjectAssociationProceduresDialog procedureId={centerNode?.node.id} />
       case ObjectAssociationNodeEnum.RISKS:
         return <SetObjectAssociationRisksDialog riskId={centerNode?.node.id} />
+      case ObjectAssociationNodeEnum.VULNERABILITY:
+      case ObjectAssociationNodeEnum.FINDING:
+      case ObjectAssociationNodeEnum.SCAN:
+      case ObjectAssociationNodeEnum.REVIEW:
+      case ObjectAssociationNodeEnum.REMEDIATION:
+      case ObjectAssociationNodeEnum.ASSET:
+        return null
     }
   }
 

@@ -103,7 +103,7 @@ const BulkCSVCreateTemplateDialog: React.FC<BulkCsvCreateTemplateDialogProps> = 
           acceptedFilesClass="flex justify-between text-sm"
         />
         <div className="flex flex-col gap-2">
-          <Button className="primary" onClick={handleFileUpload} loading={isSubmitting} disabled={isSubmitting}>
+          <Button className="primary" onClick={handleFileUpload} loading={isSubmitting} disabled={isSubmitting || !uploadedFile}>
             {isSubmitting ? 'Uploading...' : 'Upload'}
           </Button>
           <CancelButton onClick={() => setIsOpen(false)}></CancelButton>

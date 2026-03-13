@@ -65718,80 +65718,47 @@ export type UpdateBulkFindingMutationVariables = Exact<{
 
 export type UpdateBulkFindingMutation = { __typename?: 'Mutation'; updateBulkFinding: { __typename?: 'FindingBulkUpdatePayload'; updatedIDs?: Array<string> | null } }
 
-export type GetRemediationAssociationsQueryVariables = Exact<{
-  remediationId: Scalars['ID']['input']
+export type GetFindingAssociationsTimelineQueryVariables = Exact<{
+  findingId: Scalars['ID']['input']
 }>
 
-export type GetRemediationAssociationsQuery = {
+export type GetFindingAssociationsTimelineQuery = {
   __typename?: 'Query'
-  remediation: {
-    __typename?: 'Remediation'
+  finding: {
+    __typename?: 'Finding'
     controls: {
       __typename?: 'ControlConnection'
-      totalCount: number
-      edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string; description?: string | null; displayID: string } | null } | null> | null
+      edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; displayID: string; refCode: string; createdAt?: any | null } | null } | null> | null
     }
     subcontrols: {
       __typename?: 'SubcontrolConnection'
-      totalCount: number
-      edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string; displayID: string } | null } | null> | null
+      edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; displayID: string; refCode: string; createdAt?: any | null } | null } | null> | null
     }
-    findings: {
-      __typename?: 'FindingConnection'
-      totalCount: number
-      edges?: Array<{ __typename?: 'FindingEdge'; node?: { __typename?: 'Finding'; id: string; displayName?: string | null; displayID: string } | null } | null> | null
+    risks: {
+      __typename?: 'RiskConnection'
+      edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string; displayID: string; createdAt?: any | null; createdBy?: string | null } | null } | null> | null
     }
-    vulnerabilities: {
-      __typename?: 'VulnerabilityConnection'
-      totalCount: number
-      edges?: Array<{ __typename?: 'VulnerabilityEdge'; node?: { __typename?: 'Vulnerability'; id: string; displayName?: string | null; displayID: string } | null } | null> | null
-    }
-  }
-}
-
-export type GetVulnerabilityAssociationsQueryVariables = Exact<{
-  vulnerabilityId: Scalars['ID']['input']
-}>
-
-export type GetVulnerabilityAssociationsQuery = {
-  __typename?: 'Query'
-  vulnerability: {
-    __typename?: 'Vulnerability'
-    controls: {
-      __typename?: 'ControlConnection'
-      totalCount: number
-      edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string; description?: string | null; displayID: string } | null } | null> | null
-    }
-    subcontrols: {
-      __typename?: 'SubcontrolConnection'
-      totalCount: number
-      edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string; displayID: string } | null } | null> | null
-    }
-    findings: {
-      __typename?: 'FindingConnection'
-      totalCount: number
-      edges?: Array<{ __typename?: 'FindingEdge'; node?: { __typename?: 'Finding'; id: string; displayName?: string | null; displayID: string } | null } | null> | null
-    }
-    remediations: {
-      __typename?: 'RemediationConnection'
-      totalCount: number
-      edges?: Array<{ __typename?: 'RemediationEdge'; node?: { __typename?: 'Remediation'; id: string; title?: string | null; displayID: string } | null } | null> | null
-    }
-    reviews: {
-      __typename?: 'ReviewConnection'
-      totalCount: number
-      edges?: Array<{ __typename?: 'ReviewEdge'; node?: { __typename?: 'Review'; id: string; title: string } | null } | null> | null
-    }
-    assets: {
-      __typename?: 'AssetConnection'
-      totalCount: number
-      edges?: Array<{ __typename?: 'AssetEdge'; node?: { __typename?: 'Asset'; id: string; name: string; displayName?: string | null } | null } | null> | null
+    programs: {
+      __typename?: 'ProgramConnection'
+      edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; name: string; displayID: string; createdAt?: any | null } | null } | null> | null
     }
     tasks: {
       __typename?: 'TaskConnection'
-      totalCount: number
-      edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; title: string; displayID: string } | null } | null> | null
+      edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; title: string; displayID: string; createdAt?: any | null } | null } | null> | null
     }
+    assets: {
+      __typename?: 'AssetConnection'
+      edges?: Array<{ __typename?: 'AssetEdge'; node?: { __typename?: 'Asset'; id: string; name: string; displayName?: string | null; createdAt?: any | null } | null } | null> | null
+    }
+    scans: {
+      __typename?: 'ScanConnection'
+      edges?: Array<{ __typename?: 'ScanEdge'; node?: { __typename?: 'Scan'; id: string; target: string; createdAt?: any | null; createdBy?: string | null } | null } | null> | null
+    }
+    remediations: {
+      __typename?: 'RemediationConnection'
+      edges?: Array<{ __typename?: 'RemediationEdge'; node?: { __typename?: 'Remediation'; id: string; title?: string | null; displayID: string; createdAt?: any | null } | null } | null> | null
+    }
+    reviews: { __typename?: 'ReviewConnection'; edges?: Array<{ __typename?: 'ReviewEdge'; node?: { __typename?: 'Review'; id: string; title: string; createdAt?: any | null } | null } | null> | null }
   }
 }
 
@@ -69415,6 +69382,45 @@ export type UpdateRiskCommentMutationVariables = Exact<{
 
 export type UpdateRiskCommentMutation = { __typename?: 'Mutation'; updateRiskComment: { __typename?: 'RiskUpdatePayload'; risk: { __typename?: 'Risk'; id: string } } }
 
+export type GetRiskAssociationsTimelineQueryVariables = Exact<{
+  riskId: Scalars['ID']['input']
+}>
+
+export type GetRiskAssociationsTimelineQuery = {
+  __typename?: 'Query'
+  risk: {
+    __typename?: 'Risk'
+    procedures: {
+      __typename?: 'ProcedureConnection'
+      edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string; displayID: string; createdAt?: any | null } | null } | null> | null
+    }
+    controls: {
+      __typename?: 'ControlConnection'
+      edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; displayID: string; refCode: string; createdAt?: any | null } | null } | null> | null
+    }
+    subcontrols: {
+      __typename?: 'SubcontrolConnection'
+      edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; displayID: string; refCode: string; createdAt?: any | null } | null } | null> | null
+    }
+    programs: {
+      __typename?: 'ProgramConnection'
+      edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; name: string; displayID: string; createdAt?: any | null } | null } | null> | null
+    }
+    tasks: {
+      __typename?: 'TaskConnection'
+      edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; title: string; displayID: string; createdAt?: any | null } | null } | null> | null
+    }
+    assets: {
+      __typename?: 'AssetConnection'
+      edges?: Array<{ __typename?: 'AssetEdge'; node?: { __typename?: 'Asset'; id: string; name: string; displayName?: string | null; createdAt?: any | null } | null } | null> | null
+    }
+    scans: {
+      __typename?: 'ScanConnection'
+      edges?: Array<{ __typename?: 'ScanEdge'; node?: { __typename?: 'Scan'; id: string; target: string; createdAt?: any | null; createdBy?: string | null } | null } | null> | null
+    }
+  }
+}
+
 export type ScansWithFilterQueryVariables = Exact<{
   where?: InputMaybe<ScanWhereInput>
   orderBy?: InputMaybe<Array<ScanOrder> | ScanOrder>
@@ -71957,6 +71963,44 @@ export type UpdateBulkVulnerabilityMutationVariables = Exact<{
 }>
 
 export type UpdateBulkVulnerabilityMutation = { __typename?: 'Mutation'; updateBulkVulnerability: { __typename?: 'VulnerabilityBulkUpdatePayload'; updatedIDs?: Array<string> | null } }
+
+export type GetVulnerabilityAssociationsTimelineQueryVariables = Exact<{
+  vulnerabilityId: Scalars['ID']['input']
+}>
+
+export type GetVulnerabilityAssociationsTimelineQuery = {
+  __typename?: 'Query'
+  vulnerability: {
+    __typename?: 'Vulnerability'
+    controls: {
+      __typename?: 'ControlConnection'
+      edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; displayID: string; refCode: string; createdAt?: any | null } | null } | null> | null
+    }
+    risks: {
+      __typename?: 'RiskConnection'
+      edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string; displayID: string; createdAt?: any | null; createdBy?: string | null } | null } | null> | null
+    }
+    findings: {
+      __typename?: 'FindingConnection'
+      edges?: Array<{
+        __typename?: 'FindingEdge'
+        node?: { __typename?: 'Finding'; id: string; displayName?: string | null; displayID: string; createdAt?: any | null; source?: string | null } | null
+      } | null> | null
+    }
+    assets: {
+      __typename?: 'AssetConnection'
+      edges?: Array<{ __typename?: 'AssetEdge'; node?: { __typename?: 'Asset'; id: string; name: string; displayName?: string | null; createdAt?: any | null } | null } | null> | null
+    }
+    scans: {
+      __typename?: 'ScanConnection'
+      edges?: Array<{ __typename?: 'ScanEdge'; node?: { __typename?: 'Scan'; id: string; target: string; createdAt?: any | null; createdBy?: string | null } | null } | null> | null
+    }
+    remediations: {
+      __typename?: 'RemediationConnection'
+      edges?: Array<{ __typename?: 'RemediationEdge'; node?: { __typename?: 'Remediation'; id: string; title?: string | null; displayID: string; createdAt?: any | null } | null } | null> | null
+    }
+  }
+}
 
 export type WorkflowAssignmentTargetsWithFilterQueryVariables = Exact<{
   where?: InputMaybe<WorkflowAssignmentTargetWhereInput>

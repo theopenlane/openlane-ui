@@ -84,7 +84,11 @@ const BrandPage: React.FC = () => {
   }, [previewSetting, reset, methods])
 
   useEffect(() => {
-    setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Trust Center' }, { label: 'Branding', href: '/trust-center/branding' }])
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Trust Center', href: '/trust-center/overview' },
+      { label: 'Branding', href: '/trust-center/branding' },
+    ])
   }, [setCrumbs])
 
   const hasPreviewDifference = useMemo(() => {

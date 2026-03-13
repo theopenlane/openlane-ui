@@ -250,6 +250,7 @@ const ControlDetailsPage: React.FC = () => {
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
+      { label: 'Compliance', href: '/programs' },
       { label: 'Controls', href: '/controls' },
       { label: controlData?.control?.refCode, isLoading: isLoadingControl, href: `/controls/${controlData?.control.id}` },
       { label: data?.subcontrol?.refCode, isLoading: isLoading },

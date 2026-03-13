@@ -13,7 +13,7 @@ export const formId = 'edit' + ObjectNames.REMEDIATION
 
 export const breadcrumbs = [
   { label: 'Home', href: '/dashboard' },
-  { label: 'Exposure', href: '/exposure/remediations' },
+  { label: 'Exposure', href: '/exposure/overview' },
   { label: 'Remediations', href: '/exposure/remediations' },
 ]
 

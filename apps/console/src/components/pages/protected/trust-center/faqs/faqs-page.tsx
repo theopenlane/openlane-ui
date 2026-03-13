@@ -167,7 +167,11 @@ export default function FaqsPage() {
   }
 
   useEffect(() => {
-    setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Trust Center' }, { label: 'FAQs', href: '/trust-center/faqs' }])
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Trust Center', href: '/trust-center/overview' },
+      { label: 'FAQs', href: '/trust-center/faqs' },
+    ])
   }, [setCrumbs])
 
   return (
