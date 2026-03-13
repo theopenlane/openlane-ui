@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { gql } from 'graphql-request'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
   type EntitiesWithFilterQuery,
@@ -206,6 +207,38 @@ export const useCreateEntityWithFiles = () => {
     mutationFn: async (variables) => fetchGraphQLWithUpload({ query: CREATE_ENTITY_WITH_FILES, variables }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['entities'] })
+    },
+  })
+}
+
+const UPDATE_FILE_CATEGORY = gql`
+  mutation UpdateFile($updateFileId: ID!, $input: UpdateFileInput!) {
+    updateFile(id: $updateFileId, input: $input) {
+      file {
+        id
+        categoryType
+      }
+    }
+  }
+`
+
+type UpdateFileCategoryVariables = {
+  updateFileId: string
+  input: { categoryType?: string | null; clearCategoryType?: boolean }
+}
+
+type UpdateFileCategoryResponse = {
+  updateFile: { file: { id: string; categoryType: string | null } }
+}
+
+export const useUpdateFileCategoryType = () => {
+  const { client } = useGraphQLClient()
+  const queryClient = useQueryClient()
+
+  return useMutation<UpdateFileCategoryResponse, unknown, UpdateFileCategoryVariables>({
+    mutationFn: async (variables) => client.request<UpdateFileCategoryResponse>(UPDATE_FILE_CATEGORY, variables),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['entityFiles'] })
     },
   })
 }

@@ -48940,6 +48940,7 @@ export interface TrustCenterFaqOrder {
 
 /** Properties by which TrustCenterFAQ connections can be ordered. */
 export enum TrustCenterFaqOrderField {
+  DISPLAY_ORDER = 'DISPLAY_ORDER',
   created_at = 'created_at',
   updated_at = 'updated_at',
 }
@@ -62438,7 +62439,17 @@ export type GetContactsQuery = {
     __typename?: 'ContactConnection'
     edges?: Array<{
       __typename?: 'ContactEdge'
-      node?: { __typename?: 'Contact'; id: string; fullName?: string | null; email?: string | null; company?: string | null; title?: string | null; status: ContactUserStatus } | null
+      node?: {
+        __typename?: 'Contact'
+        id: string
+        fullName?: string | null
+        email?: string | null
+        company?: string | null
+        title?: string | null
+        phoneNumber?: string | null
+        address?: string | null
+        status: ContactUserStatus
+      } | null
     } | null> | null
   }
 }
@@ -64806,7 +64817,17 @@ export type GetEntityFilesPaginatedQuery = {
       pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
       edges?: Array<{
         __typename?: 'FileEdge'
-        node?: { __typename?: 'File'; providedFileName: string; providedFileSize?: number | null; providedFileExtension: string; id: string; uri?: string | null; presignedURL?: string | null } | null
+        node?: {
+          __typename?: 'File'
+          providedFileName: string
+          providedFileSize?: number | null
+          providedFileExtension: string
+          id: string
+          uri?: string | null
+          presignedURL?: string | null
+          categoryType?: string | null
+          createdAt?: any | null
+        } | null
       } | null> | null
     }
   }
@@ -64839,7 +64860,10 @@ export type GetEntityAssociationsQuery = {
     assets: {
       __typename?: 'AssetConnection'
       totalCount: number
-      edges?: Array<{ __typename?: 'AssetEdge'; node?: { __typename?: 'Asset'; id: string; name: string; displayName?: string | null } | null } | null> | null
+      edges?: Array<{
+        __typename?: 'AssetEdge'
+        node?: { __typename?: 'Asset'; id: string; name: string; displayName?: string | null; environmentName?: string | null; scopeName?: string | null; assetType: AssetAssetType } | null
+      } | null> | null
     }
     scans: { __typename?: 'ScanConnection'; totalCount: number; edges?: Array<{ __typename?: 'ScanEdge'; node?: { __typename?: 'Scan'; id: string; target: string } | null } | null> | null }
     campaigns: {
@@ -64851,6 +64875,11 @@ export type GetEntityAssociationsQuery = {
       __typename?: 'IdentityHolderConnection'
       totalCount: number
       edges?: Array<{ __typename?: 'IdentityHolderEdge'; node?: { __typename?: 'IdentityHolder'; id: string; fullName: string; displayID: string } | null } | null> | null
+    }
+    integrations: {
+      __typename?: 'IntegrationConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'IntegrationEdge'; node?: { __typename?: 'Integration'; id: string; name: string; kind?: string | null; description?: string | null } | null } | null> | null
     }
   }
 }
@@ -66245,8 +66274,11 @@ export type GetIntegrationsQuery = {
         id: string
         name: string
         kind?: string | null
-        tags?: Array<string> | null
         description?: string | null
+        tags?: Array<string> | null
+        integrationType?: string | null
+        environmentName?: string | null
+        scopeName?: string | null
         createdAt?: any | null
         createdBy?: string | null
       } | null

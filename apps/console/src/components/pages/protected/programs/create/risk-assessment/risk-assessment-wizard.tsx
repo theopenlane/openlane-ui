@@ -130,7 +130,7 @@ export default function RiskAssessmentWizard() {
   return (
     <>
       <div className="max-w-3xl mx-auto px-6 py-2">
-        <StepHeader stepper={stepper} />
+        <StepHeader stepper={stepper} className="mb-6" />
         <Separator separatorClass="bg-card" />
         <FormProvider {...methods}>
           <form onSubmit={handleNext}>

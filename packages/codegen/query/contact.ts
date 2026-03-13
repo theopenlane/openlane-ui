@@ -10,6 +10,8 @@ export const GET_CONTACTS = gql`
           email
           company
           title
+          phoneNumber
+          address
           status
         }
       }

@@ -1,0 +1,126 @@
+'use client'
+
+import React, { useRef } from 'react'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@repo/ui/dialog'
+import { Button } from '@repo/ui/button'
+import { useNotification } from '@/hooks/useNotification'
+import { useQueryClient } from '@tanstack/react-query'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { UseFormReturn, FieldValues, FormProvider } from 'react-hook-form'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { defineStepper } from '@stepperize/react'
+import { StepHeader } from '@/components/shared/step-header/step-header'
+import { SaveButton } from '@/components/shared/save-button/save-button'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { pluralizeTypeName, toHumanLabel } from '@/utils/strings'
+import type { StepConfig } from './types'
+
+export interface StepDialogConfig<TFormData extends FieldValues, TCreateInput, TCreateData> {
+  objectType: ObjectTypes
+  form: UseFormReturn<TFormData>
+  steps: StepConfig[]
+  title?: string
+
+  createMutation: {
+    mutateAsync: (input: TCreateInput) => Promise<TCreateData>
+    isPending: boolean
+  }
+
+  buildPayload: (data: TFormData) => Promise<TCreateInput>
+  onClose: () => void
+}
+
+export function StepDialog<TFormData extends FieldValues, TCreateInput, TCreateData>(config: StepDialogConfig<TFormData, TCreateInput, TCreateData>) {
+  const { objectType, form, steps, title, createMutation, buildPayload, onClose } = config
+  const queryClient = useQueryClient()
+  const { successNotification, errorNotification } = useNotification()
+
+  const stepperDefRef = useRef<ReturnType<typeof defineStepper> | null>(null)
+  if (!stepperDefRef.current) {
+    stepperDefRef.current = defineStepper(...steps.map((step) => ({ id: step.id })))
+  }
+  const stepper = stepperDefRef.current!.useStepper()
+
+  const objectTypeName = toHumanLabel(objectType)
+  const queryKey = [pluralizeTypeName(objectType.toLowerCase())]
+
+  const currentStepConfig = steps.find((s) => s.id === stepper.current.id)
+
+  const handleNext = async () => {
+    if (!currentStepConfig) return
+
+    const fieldsToValidate = Object.keys(currentStepConfig.schema.shape)
+    const isValid = await form.trigger(fieldsToValidate as Parameters<typeof form.trigger>[0])
+    if (!isValid) return
+
+    if (stepper.isLast) {
+      await handleSubmit()
+    } else {
+      stepper.next()
+    }
+  }
+
+  const handleBack = () => {
+    if (stepper.isFirst) {
+      onClose()
+    } else {
+      stepper.prev()
+    }
+  }
+
+  const handleSubmit = async () => {
+    try {
+      const formData = form.getValues()
+      const payload = await buildPayload(formData)
+      await createMutation.mutateAsync(payload)
+
+      queryClient.invalidateQueries({ queryKey })
+      successNotification({
+        title: `${objectTypeName} Created`,
+        description: `The ${objectTypeName.toLowerCase()} has been successfully created.`,
+      })
+
+      onClose()
+    } catch (error) {
+      const errorMessage = parseErrorMessage(error)
+      errorNotification({
+        title: 'Error',
+        description: errorMessage,
+      })
+    }
+  }
+
+  const dialogTitle = title ?? `Create ${toHumanLabel(objectType)}`
+
+  return (
+    <Dialog
+      open
+      onOpenChange={(open) => {
+        if (!open) onClose()
+      }}
+    >
+      <DialogContent className="sm:max-w-[600px]">
+        <DialogHeader>
+          <DialogTitle>{dialogTitle}</DialogTitle>
+        </DialogHeader>
+
+        <StepHeader stepper={stepper} />
+
+        <FormProvider {...form}>
+          <div className="py-4">{currentStepConfig?.render()}</div>
+        </FormProvider>
+
+        <DialogFooter>
+          <CancelButton onClick={handleBack} title={stepper.isFirst ? 'Cancel' : 'Back'} />
+          {stepper.isLast ? (
+            <SaveButton onClick={handleNext} disabled={createMutation.isPending} isSaving={createMutation.isPending} title="Create" savingTitle="Creating..." />
+          ) : (
+            <Button type="button" onClick={handleNext}>
+              Next
+            </Button>
+          )}
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
+}

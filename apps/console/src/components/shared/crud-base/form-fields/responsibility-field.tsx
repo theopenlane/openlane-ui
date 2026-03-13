@@ -15,6 +15,7 @@ import { useGroupSelect } from '@/lib/graphql-hooks/group'
 import { useNotification } from '@/hooks/useNotification'
 import { type ResponsibilitySelection, buildResponsibilityInlineUpdate } from './responsibility-field-utils'
 import { isValidEmail } from '@/lib/validators'
+import { cn } from '@repo/ui/lib/utils'
 
 interface ResponsibilityFieldProps {
   name: string
@@ -27,6 +28,9 @@ interface ResponsibilityFieldProps {
   setInternalEditing: InternalEditingType
   handleUpdate?: (input: Record<string, string | boolean | undefined>) => Promise<void>
   tooltipContent?: string
+  icon?: React.ReactNode
+  layout?: 'vertical' | 'horizontal'
+  labelClassName?: string
 }
 
 export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
@@ -40,6 +44,9 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
   setInternalEditing,
   handleUpdate,
   tooltipContent,
+  icon,
+  layout = 'vertical',
+  labelClassName,
 }) => {
   const { control } = useFormContext()
   const [open, setOpen] = useState(false)
@@ -133,14 +140,15 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
         const currentValue = field.value as ResponsibilitySelection
 
         return (
-          <FormItem>
-            <div className="flex items-center gap-1">
-              <FormLabel>{label}</FormLabel>
+          <FormItem className={layout === 'horizontal' ? 'flex items-center justify-between gap-4' : ''}>
+            <div className="flex items-center gap-2 shrink-0">
+              {icon}
+              <FormLabel className={cn(layout === 'horizontal' && 'mb-0!', labelClassName)}>{label}</FormLabel>
               {tooltipContent && <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={tooltipContent} />}
             </div>
             <FormControl>
               {isFieldEditing ? (
-                <div ref={triggerRef}>
+                <div ref={triggerRef} className="w-full">
                   <Popover open={open} onOpenChange={setOpen}>
                     <PopoverTrigger asChild>
                       <div className="flex w-full items-center gap-2 rounded-md border bg-input px-3 py-2 text-sm cursor-pointer h-10" onClick={() => setOpen(true)}>
@@ -217,7 +225,7 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
                   </Popover>
                 </div>
               ) : (
-                <div className="flex items-center gap-2 rounded-md px-1 py-2 text-sm cursor-pointer hover:bg-accent" onClick={handleClick}>
+                <div className={cn('flex items-center gap-2 rounded-md px-1 py-2 text-sm cursor-pointer hover:bg-accent w-full', layout === 'horizontal' && 'justify-end')} onClick={handleClick}>
                   {currentValue ? (
                     <>
                       {getTypeIcon(currentValue.type)}
