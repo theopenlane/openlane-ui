@@ -19,7 +19,6 @@ export const createVendorSteps = (onStagedFilesChange: (files: File[]) => void, 
       status: z.string().optional(),
       environmentName: z.string().optional(),
       scopeName: z.string().optional().nullable(),
-      contactIDs: z.array(z.string()).optional(),
     }),
     render: () => <StepVendorInfo />,
   },
@@ -35,7 +34,9 @@ export const createVendorSteps = (onStagedFilesChange: (files: File[]) => void, 
   {
     id: 'upload-import',
     label: 'Documents',
-    schema: z.object({}),
+    schema: z.object({
+      contactIDs: z.array(z.string()).optional(),
+    }),
     render: () => <StepUploadImport onStagedFilesChange={onStagedFilesChange} onExistingFileIdsChange={onExistingFileIdsChange} />,
   },
 ]

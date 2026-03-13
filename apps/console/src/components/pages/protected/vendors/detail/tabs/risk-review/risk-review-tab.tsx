@@ -107,19 +107,19 @@ const RiskReviewTab: React.FC<RiskReviewTabProps> = ({ vendor }) => {
           <Card>
             <CardContent className="p-4">
               <p className="text-sm text-muted-foreground mb-2">Risk Rating</p>
-              <Badge variant="outline">{vendor.riskRating ?? '—'}</Badge>
+              {vendor.riskRating ? <Badge variant="outline">{vendor.riskRating}</Badge> : <span className="text-sm">—</span>}
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-4">
               <p className="text-sm text-muted-foreground mb-2">Risk Score</p>
-              <Badge variant="outline">{vendor.riskScore != null ? String(vendor.riskScore) : '—'}</Badge>
+              {vendor.riskScore != null ? <Badge variant="outline">{String(vendor.riskScore)}</Badge> : <span className="text-sm">—</span>}
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-4">
               <p className="text-sm text-muted-foreground mb-2">Renewal Risk Rating</p>
-              <Badge variant="outline">{vendor.renewalRisk ?? '—'}</Badge>
+              {vendor.renewalRisk ? <Badge variant="outline">{vendor.renewalRisk}</Badge> : <span className="text-sm">—</span>}
             </CardContent>
           </Card>
         </div>

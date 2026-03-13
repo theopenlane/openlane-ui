@@ -1,11 +1,10 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Plus } from 'lucide-react'
-import { Button } from '@repo/ui/button'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { type TUploadedFile } from '@/components/shared/file-upload/types'
 import UploadedFileDetailsCard from '@/components/shared/file-upload/uploaded-file-details-card'
+import ContactMultiSelect from './contact-multi-select'
 
 const csvAcceptedFileTypes = ['text/csv', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet']
 const csvAcceptedFileTypesShort = ['.csv', '.xls']
@@ -56,12 +55,7 @@ const StepUploadImport: React.FC<StepUploadImportProps> = ({ onStagedFilesChange
         </div>
       )}
 
-      <div className="flex items-center justify-between rounded-lg border border-dashed border-muted-foreground/40 px-4 py-3">
-        <p className="text-sm font-medium">Contact (Optional)</p>
-        <Button type="button" variant="secondary" className="h-8 px-2!" iconPosition="left" icon={<Plus />}>
-          Add Contact
-        </Button>
-      </div>
+      <ContactMultiSelect label="Contacts (optional)" />
     </div>
   )
 }
