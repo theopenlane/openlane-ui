@@ -132,6 +132,7 @@ export default function CreateQuestionnaire(input: { templateId: string; existin
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
+      { label: 'Automation', href: '/automation/assessments' },
       { label: 'Questionnaires', href: '/automation/assessments' },
       { label: 'Questionnaire Editor', href: '/questionnaire-editor' },
     ])

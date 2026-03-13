@@ -158,7 +158,11 @@ export default function FrameworksPage() {
   }, [cardPagination.page, fetchNextPage, paginationMeta.pageInfo?.hasNextPage])
 
   useEffect(() => {
-    setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Trust Center' }, { label: 'Frameworks', href: '/trust-center/frameworks' }])
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Trust Center', href: '/trust-center/overview' },
+      { label: 'Frameworks', href: '/trust-center/frameworks' },
+    ])
   }, [setCrumbs])
 
   const resetPagination = () => {

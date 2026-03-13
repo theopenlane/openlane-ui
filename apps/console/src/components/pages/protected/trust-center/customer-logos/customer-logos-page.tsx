@@ -51,7 +51,11 @@ export default function CustomerLogosPage() {
   }
 
   useEffect(() => {
-    setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Trust Center' }, { label: 'Customer Logos', href: '/trust-center/customer-logos' }])
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Trust Center', href: '/trust-center/overview' },
+      { label: 'Customer Logos', href: '/trust-center/customer-logos' },
+    ])
   }, [setCrumbs])
 
   return (

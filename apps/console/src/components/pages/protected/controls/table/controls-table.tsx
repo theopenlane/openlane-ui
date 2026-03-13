@@ -159,6 +159,7 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
+      { label: 'Compliance', href: '/programs' },
       { label: 'Controls', href: '/controls' },
     ])
   }, [setCrumbs])

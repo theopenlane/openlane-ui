@@ -139,6 +139,7 @@ const ControlObjectivePage = () => {
     if (controlData) {
       setCrumbs([
         { label: 'Home', href: '/dashboard' },
+        { label: 'Compliance', href: '/programs' },
         { label: 'Controls', href: '/controls' },
         { label: controlData?.control?.refCode, isLoading: isControlLoading, href: `/controls/${id}` },
         { label: 'Control Objective' },
@@ -147,6 +148,7 @@ const ControlObjectivePage = () => {
     if (subcontrolData) {
       setCrumbs([
         { label: 'Home', href: '/dashboard' },
+        { label: 'Compliance', href: '/programs' },
         { label: 'Controls', href: '/controls' },
         { label: subcontrolData?.subcontrol?.refCode, isLoading: isSubcontrolLoading, href: `/controls/${id}/${subcontrolId}` },
         { label: 'Control Objective' },

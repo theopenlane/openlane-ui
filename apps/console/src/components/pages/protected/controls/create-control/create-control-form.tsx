@@ -238,6 +238,7 @@ export default function CreateControlForm() {
   useEffect(() => {
     const crumbs: Crumb[] = [
       { label: 'Home', href: '/dashboard' },
+      { label: 'Compliance', href: '/programs' },
       { label: 'Controls', href: '/controls' },
     ]
     if (id) {
