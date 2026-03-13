@@ -18,7 +18,7 @@ import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { useNotification } from '@/hooks/useNotification'
 import { isValidEmail } from '@/lib/validators'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { SUPPORT_EMAIL } from '@/constants'
+import { AUDITOR_URL } from '@/constants'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
@@ -103,7 +103,7 @@ export const SetAuditorDialog = () => {
             <p className="text-base ">Need help finding an auditor?</p>
             <p>
               Reach out to support{' '}
-              <a href={SUPPORT_EMAIL} className="underline">
+              <a href={AUDITOR_URL} className="underline">
                 for our partners list
               </a>
               .
