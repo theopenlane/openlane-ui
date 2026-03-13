@@ -155,6 +155,7 @@ const QuestionnaireDetailPage = () => {
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
+      { label: 'Automation', href: '/automation/assessments' },
       { label: 'Questionnaires', href: '/automation/assessments' },
       { label: assessment?.name, isLoading },
     ])

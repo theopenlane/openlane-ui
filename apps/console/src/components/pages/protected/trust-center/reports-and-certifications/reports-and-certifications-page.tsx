@@ -97,7 +97,11 @@ const ReportsAndCertificationsPage = () => {
   const { columns, mappedColumns } = useMemo(() => getTrustCenterDocColumns({ selectedDocs, setSelectedDocs, hasNdaTemplate }), [selectedDocs, hasNdaTemplate])
 
   useEffect(() => {
-    setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Trust Center' }, { label: 'Documents', href: '/trust-center/reports-and-certifications' }])
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Trust Center', href: '/trust-center/overview' },
+      { label: 'Documents', href: '/trust-center/reports-and-certifications' },
+    ])
   }, [setCrumbs])
 
   if (isLoading) return <Loading />

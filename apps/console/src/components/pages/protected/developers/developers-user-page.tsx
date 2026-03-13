@@ -29,7 +29,11 @@ const DevelopersPage: React.FC = () => {
   }, [path])
 
   useEffect(() => {
-    setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Developers' }, { label: heading, href: crumbHref }])
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Developers', href: crumbHref },
+      { label: heading, href: crumbHref },
+    ])
   }, [setCrumbs, heading, crumbHref])
 
   return (

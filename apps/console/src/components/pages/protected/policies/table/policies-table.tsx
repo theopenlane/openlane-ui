@@ -202,6 +202,7 @@ export const PoliciesTable = () => {
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
+      { label: 'Compliance', href: '/programs' },
       { label: 'Policies', href: '/policies' },
     ])
   }, [setCrumbs])

@@ -23,6 +23,7 @@ export default function ViewTemplate(input: { existingId: string }) {
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
+      { label: 'Automation', href: '/automation/assessments' },
       { label: 'Questionnaires', href: '/automation/assessments' },
       { label: 'Templates', href: '/automation/assessments/templates' },
       { label: 'Template Viewer', href: '/template-viewer' },
