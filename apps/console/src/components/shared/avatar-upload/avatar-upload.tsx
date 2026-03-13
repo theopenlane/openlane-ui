@@ -148,7 +148,7 @@ const AvatarUpload = ({ className, placeholderImage, uploadCallback, fallbackStr
           </div>
           <DialogFooter>
             <CancelButton onClick={closeModal}></CancelButton>
-            <SaveButton onClick={saveCroppedImage} />
+            <SaveButton onClick={saveCroppedImage} disabled={!uploadedImage || !croppedAreaPixels} />
           </DialogFooter>
         </DialogContent>
       </Dialog>
