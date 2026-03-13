@@ -111,6 +111,7 @@ const findingAllowedObjectTypes = [
   ObjectTypeObjects.SCAN,
   ObjectTypeObjects.REMEDIATION,
   ObjectTypeObjects.REVIEW,
+  ObjectTypeObjects.VULNERABILITY,
 ]
 const findingInitialDataKeys = {
   controlIDs: 'controls',
@@ -122,8 +123,9 @@ const findingInitialDataKeys = {
   scanIDs: 'scans',
   remediationIDs: 'remediations',
   reviewIDs: 'reviews',
+  vulnerabilityIDs: 'vulnerabilities',
 }
-const findingAssociationKeys = ['controlIDs', 'subcontrolIDs', 'riskIDs', 'programIDs', 'taskIDs', 'assetIDs', 'scanIDs', 'remediationIDs', 'reviewIDs']
+const findingAssociationKeys = ['controlIDs', 'subcontrolIDs', 'riskIDs', 'programIDs', 'taskIDs', 'assetIDs', 'scanIDs', 'remediationIDs', 'reviewIDs', 'vulnerabilityIDs']
 
 export const FINDING_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
   entityType: 'finding',
@@ -147,6 +149,7 @@ export const FINDING_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
     { key: 'scans', nameExtractor: (n) => n.target ?? '', displayIdExtractor: () => '' },
     { key: 'remediations', nameExtractor: (n) => n.title ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
     { key: 'reviews', nameExtractor: (n) => n.title ?? '', displayIdExtractor: () => '' },
+    { key: 'vulnerabilities', nameExtractor: (n) => n.displayName ?? n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
   ],
   dialogConfig: {
     dataRootField: 'finding',
@@ -154,6 +157,82 @@ export const FINDING_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
     successMessage: 'Finding updated',
     allowedObjectTypes: findingAllowedObjectTypes,
     initialDataKeys: findingInitialDataKeys,
+  },
+})
+
+const remediationAllowedObjectTypes = [ObjectTypeObjects.CONTROL, ObjectTypeObjects.SUB_CONTROL, ObjectTypeObjects.FINDING, ObjectTypeObjects.VULNERABILITY]
+const remediationInitialDataKeys = {
+  controlIDs: 'controls',
+  subcontrolIDs: 'subcontrols',
+  findingIDs: 'findings',
+  vulnerabilityIDs: 'vulnerabilities',
+}
+const remediationAssociationKeys = ['controlIDs', 'subcontrolIDs', 'findingIDs', 'vulnerabilityIDs']
+
+export const REMEDIATION_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
+  entityType: 'remediation',
+  dataRootField: 'remediation',
+  queryKeyPrefix: 'remediations',
+  allowedObjectTypes: remediationAllowedObjectTypes,
+  initialDataKeys: remediationInitialDataKeys,
+  associationKeys: remediationAssociationKeys,
+  sectionMappings: [
+    { key: 'controls', nameExtractor: (n) => n.refCode ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ refCode: n.refCode, description: n.description }) },
+    { key: 'subcontrols', nameExtractor: (n) => n.refCode ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
+    { key: 'findings', nameExtractor: (n) => n.displayName ?? n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
+    { key: 'vulnerabilities', nameExtractor: (n) => n.displayName ?? n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
+  ],
+  dialogConfig: {
+    dataRootField: 'remediation',
+    invalidateQueryKey: 'remediations',
+    successMessage: 'Remediation updated',
+    allowedObjectTypes: remediationAllowedObjectTypes,
+    initialDataKeys: remediationInitialDataKeys,
+  },
+})
+
+const vulnerabilityAllowedObjectTypes = [
+  ObjectTypeObjects.CONTROL,
+  ObjectTypeObjects.SUB_CONTROL,
+  ObjectTypeObjects.FINDING,
+  ObjectTypeObjects.REMEDIATION,
+  ObjectTypeObjects.REVIEW,
+  ObjectTypeObjects.ASSET,
+  ObjectTypeObjects.TASK,
+]
+const vulnerabilityInitialDataKeys = {
+  controlIDs: 'controls',
+  subcontrolIDs: 'subcontrols',
+  findingIDs: 'findings',
+  remediationIDs: 'remediations',
+  reviewIDs: 'reviews',
+  assetIDs: 'assets',
+  taskIDs: 'tasks',
+}
+const vulnerabilityAssociationKeys = ['controlIDs', 'subcontrolIDs', 'findingIDs', 'remediationIDs', 'reviewIDs', 'assetIDs', 'taskIDs']
+
+export const VULNERABILITY_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
+  entityType: 'vulnerability',
+  dataRootField: 'vulnerability',
+  queryKeyPrefix: 'vulnerabilities',
+  allowedObjectTypes: vulnerabilityAllowedObjectTypes,
+  initialDataKeys: vulnerabilityInitialDataKeys,
+  associationKeys: vulnerabilityAssociationKeys,
+  sectionMappings: [
+    { key: 'controls', nameExtractor: (n) => n.refCode ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ refCode: n.refCode, description: n.description }) },
+    { key: 'subcontrols', nameExtractor: (n) => n.refCode ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
+    { key: 'findings', nameExtractor: (n) => n.displayName ?? n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
+    { key: 'remediations', nameExtractor: (n) => n.title ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
+    { key: 'reviews', nameExtractor: (n) => n.title ?? '', displayIdExtractor: () => '' },
+    { key: 'assets', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayName ?? '' },
+    { key: 'tasks', nameExtractor: (n) => n.title ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ title: n.title }) },
+  ],
+  dialogConfig: {
+    dataRootField: 'vulnerability',
+    invalidateQueryKey: 'vulnerabilities',
+    successMessage: 'Vulnerability updated',
+    allowedObjectTypes: vulnerabilityAllowedObjectTypes,
+    initialDataKeys: vulnerabilityInitialDataKeys,
   },
 })
 

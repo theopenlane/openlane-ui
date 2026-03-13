@@ -32,6 +32,7 @@ const FindingPage: React.FC = () => {
   const isCreate = searchParams.get('create') === 'true'
   const { data, isLoading } = useFinding(id || undefined)
   const { data: associationsData } = useGetFindingAssociations(id || undefined)
+
   const extractAssociations = useCallback((assocData: GetFindingAssociationsQuery) => {
     const finding = assocData.finding
     return {
@@ -44,6 +45,7 @@ const FindingPage: React.FC = () => {
       scanIDs: (finding.scans?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
       remediationIDs: (finding.remediations?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
       reviewIDs: (finding.reviews?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+      vulnerabilityIDs: (finding.vulnerabilities?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
     }
   }, [])
   const initialAssociationsRef = useInitialAssociations(associationsData, extractAssociations, id)
@@ -105,10 +107,10 @@ const FindingPage: React.FC = () => {
     updateMutation,
     createMutation,
     buildPayload: async (data) => {
-      const { controlIDs, subcontrolIDs, riskIDs, programIDs, taskIDs, assetIDs, scanIDs, remediationIDs, reviewIDs, ...rest } = data
+      const { controlIDs, subcontrolIDs, riskIDs, programIDs, taskIDs, assetIDs, scanIDs, remediationIDs, reviewIDs, vulnerabilityIDs, ...rest } = data
       const associationPayload = buildAssociationPayload(
         FINDING_ASSOCIATION_CONFIG.associationKeys,
-        { controlIDs, subcontrolIDs, riskIDs, programIDs, taskIDs, assetIDs, scanIDs, remediationIDs, reviewIDs },
+        { controlIDs, subcontrolIDs, riskIDs, programIDs, taskIDs, assetIDs, scanIDs, remediationIDs, reviewIDs, vulnerabilityIDs },
         isCreate,
         initialAssociationsRef.current,
       )

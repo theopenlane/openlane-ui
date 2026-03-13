@@ -17,6 +17,7 @@ import {
   type UpdateBulkRemediationMutationVariables,
   type DeleteBulkRemediationMutation,
   type DeleteBulkRemediationMutationVariables,
+  type GetRemediationAssociationsQuery,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
 import { type TPagination } from '@repo/ui/pagination-types'
@@ -29,6 +30,7 @@ import {
   CREATE_CSV_BULK_REMEDIATION,
   BULK_EDIT_REMEDIATION,
   BULK_DELETE_REMEDIATION,
+  GET_REMEDIATION_ASSOCIATIONS,
 } from '@repo/codegen/query/remediation'
 
 type GetAllRemediationsArgs = {
@@ -131,6 +133,15 @@ export const useRemediation = (remediationId?: RemediationQueryVariables['remedi
       const result = await client.request(REMEDIATION, { remediationId })
       return result as RemediationQuery
     },
+    enabled: !!remediationId,
+  })
+}
+
+export const useGetRemediationAssociations = (remediationId?: string) => {
+  const { client } = useGraphQLClient()
+  return useQuery<GetRemediationAssociationsQuery, unknown>({
+    queryKey: ['remediations', remediationId, 'associations'],
+    queryFn: async () => client.request<GetRemediationAssociationsQuery>(GET_REMEDIATION_ASSOCIATIONS, { remediationId: remediationId as string }),
     enabled: !!remediationId,
   })
 }

@@ -166,3 +166,61 @@ export const BULK_EDIT_SCAN = gql`
     }
   }
 `
+
+export const GET_SCAN_ASSOCIATIONS = gql`
+  query GetScanAssociations($scanId: ID!) {
+    scan(id: $scanId) {
+      controls {
+        totalCount
+        edges {
+          node {
+            id
+            refCode
+            description
+            displayID
+          }
+        }
+      }
+      assets {
+        totalCount
+        edges {
+          node {
+            id
+            name
+            displayName
+          }
+        }
+      }
+      remediations {
+        totalCount
+        edges {
+          node {
+            id
+            title
+            displayID
+          }
+        }
+      }
+      tasks {
+        totalCount
+        edges {
+          node {
+            id
+            title
+            displayID
+          }
+        }
+      }
+      vulnerabilities {
+        totalCount
+        edges {
+          node {
+            id
+            displayName
+            displayID
+          }
+        }
+      }
+    }
+  }
+`
