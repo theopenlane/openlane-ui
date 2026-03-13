@@ -78,6 +78,7 @@ export interface GenericDetailsSheetConfig<TFormData extends FieldValues, TData,
 
   renderFields?: (props: RenderFieldsProps<TData, TUpdateInput>) => React.ReactNode
   renderHeader?: (props: RenderHeaderProps) => React.ReactNode
+  extraContent?: React.ReactNode
 }
 
 export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdateInput, TUpdateData, TCreateInput, TCreateData>(
@@ -103,6 +104,7 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
     formId = 'editForm',
     renderHeader,
     renderFields,
+    extraContent,
     onClose,
     entityId: entityIdOverride,
     isCreateMode,
@@ -321,22 +323,25 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
           {isFetching && !isCreate ? (
             <GenericDetailsSheetSkeleton />
           ) : (
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} id={formId} className="space-y-6 mt-4">
-                {renderFields
-                  ? renderFields({
-                      isEditing,
-                      isCreate,
-                      data,
-                      isFormInitialized,
-                      internalEditing,
-                      setInternalEditing,
-                      handleUpdateField,
-                      isEditAllowed,
-                    })
-                  : null}
-              </form>
-            </Form>
+            <>
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} id={formId} className="space-y-6 mt-4">
+                  {renderFields
+                    ? renderFields({
+                        isEditing,
+                        isCreate,
+                        data,
+                        isFormInitialized,
+                        internalEditing,
+                        setInternalEditing,
+                        handleUpdateField,
+                        isEditAllowed,
+                      })
+                    : null}
+                </form>
+              </Form>
+              {extraContent}
+            </>
           )}
         </SheetContent>
       </Sheet>

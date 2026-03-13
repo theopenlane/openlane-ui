@@ -13,6 +13,7 @@ import { type CreateScanInput, type ScanQuery, ScanScanStatus, ScanScanType, typ
 import { normalizeEntityData, buildResponsibilityPayload } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { ScanAssociationsSection } from '../create/form/fields/association-section'
 
 const normalizeData = (data: ScanQuery['scan']) =>
   normalizeEntityData(data, {
@@ -108,6 +109,7 @@ const ScanPage: React.FC = () => {
     updateMutation,
     createMutation,
     normalizeData,
+    extraContent: id ? <ScanAssociationsSection scanId={id} /> : undefined,
     buildPayload: async (data) => {
       const { assignedTo, performedBy, reviewedBy, ...rest } = data
       const mode = isCreate ? 'create' : 'update'

@@ -131,6 +131,54 @@ export const BULK_DELETE_REMEDIATION = gql`
   }
 `
 
+export const GET_REMEDIATION_ASSOCIATIONS = gql`
+  query GetRemediationAssociations($remediationId: ID!) {
+    remediation(id: $remediationId) {
+      controls {
+        edges {
+          node {
+            id
+            refCode
+            description
+            displayID
+          }
+        }
+        totalCount
+      }
+      subcontrols {
+        edges {
+          node {
+            id
+            refCode
+            displayID
+          }
+        }
+        totalCount
+      }
+      findings {
+        edges {
+          node {
+            id
+            displayName
+            displayID
+          }
+        }
+        totalCount
+      }
+      vulnerabilities {
+        edges {
+          node {
+            id
+            displayName
+            displayID
+          }
+        }
+        totalCount
+      }
+    }
+  }
+`
+
 export const BULK_EDIT_REMEDIATION = gql`
   mutation UpdateBulkRemediation($ids: [ID!]!, $input: UpdateRemediationInput!) {
     updateBulkRemediation(ids: $ids, input: $input) {

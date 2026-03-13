@@ -13,6 +13,7 @@ import { GET_ALL_PROGRAMS } from '@repo/codegen/query/program'
 import { GET_ALL_FINDINGS } from '@repo/codegen/query/finding'
 import { GET_ALL_REMEDIATIONS } from '@repo/codegen/query/remediation'
 import { GET_ALL_REVIEWS } from '@repo/codegen/query/review'
+import { GET_ALL_VULNERABILITIES } from '@repo/codegen/query/vulnerability'
 import { GET_ALL_RISKS } from '@repo/codegen/query/risk'
 import { GET_ALL_SCANS } from '@repo/codegen/query/scan'
 import { GET_ALL_SUBCONTROLS } from '@repo/codegen/query/subcontrol'
@@ -37,6 +38,7 @@ import {
   type Remediation,
   type Review,
   type Scan,
+  type Vulnerability,
   type PageInfo,
   ControlObjectiveObjectiveStatus,
 } from '@repo/codegen/src/schema'
@@ -63,6 +65,7 @@ import {
   type ReviewsWithFilterQuery,
   type ScansWithFilterQuery,
   type TasksWithFilterQuery,
+  type VulnerabilitiesWithFilterQuery,
 } from '@repo/codegen/src/schema'
 import type {
   UpdateAssetInput,
@@ -72,9 +75,11 @@ import type {
   UpdateIdentityHolderInput,
   UpdateInternalPolicyInput,
   UpdateProcedureInput,
+  UpdateRemediationInput,
   UpdateReviewInput,
   UpdateRiskInput,
   UpdateSubcontrolInput,
+  UpdateVulnerabilityInput,
 } from '@repo/codegen/src/schema'
 
 export type QueryResponse =
@@ -97,6 +102,7 @@ export type QueryResponse =
   | IdentityHoldersWithFilterQuery
   | RemediationsWithFilterQuery
   | ReviewsWithFilterQuery
+  | VulnerabilitiesWithFilterQuery
 
 type QueryResponseMapKey =
   | 'controls'
@@ -118,6 +124,7 @@ type QueryResponseMapKey =
   | 'identityHolders'
   | 'remediations'
   | 'reviews'
+  | 'vulnerabilities'
 
 export type AllObjectQueriesData = {
   controls?: {
@@ -215,6 +222,11 @@ export type AllObjectQueriesData = {
     pageInfo?: PageInfo
     totalCount?: number
   }
+  vulnerabilities?: {
+    edges?: Array<{ node: Vulnerability }>
+    pageInfo?: PageInfo
+    totalCount?: number
+  }
 }
 
 export type AllObjectQueriesDataKey = keyof AllObjectQueriesData
@@ -239,6 +251,7 @@ export enum ObjectTypeObjects {
   IDENTITY_HOLDER = 'Personnel',
   REMEDIATION = 'Remediation',
   REVIEW = 'Review',
+  VULNERABILITY = 'Vulnerability',
 }
 
 type ObjectQueryConfig = {
@@ -363,6 +376,12 @@ export const OBJECT_QUERY_CONFIG: Record<ObjectTypeObjects, ObjectQueryConfig> =
     placeholder: 'Search reviews',
     queryDocument: GET_ALL_REVIEWS,
   },
+  [ObjectTypeObjects.VULNERABILITY]: {
+    responseObjectKey: 'vulnerabilities',
+    inputName: 'vulnerabilityIDs',
+    placeholder: 'Search vulnerabilities',
+    queryDocument: GET_ALL_VULNERABILITIES,
+  },
 }
 
 export const invalidateTaskAssociations = (payload: Record<string, unknown>, queryClient: ReturnType<typeof useQueryClient>) => {
@@ -455,6 +474,10 @@ export function getPagination(objectKey: QueryResponseMapKey | undefined, data: 
     case 'reviews': {
       const typed = data as ReviewsWithFilterQuery
       return { pageInfo: typed.reviews.pageInfo, totalCount: typed.reviews.totalCount }
+    }
+    case 'vulnerabilities': {
+      const typed = data as VulnerabilitiesWithFilterQuery
+      return { pageInfo: typed.vulnerabilities.pageInfo, totalCount: typed.vulnerabilities.totalCount }
     }
     default:
       return {}
@@ -666,6 +689,16 @@ export function extractTableRows(objectKey: QueryResponseMapKey | undefined, dat
       }))
     }
 
+    case 'vulnerabilities': {
+      const items = (data as VulnerabilitiesWithFilterQuery).vulnerabilities?.edges ?? []
+      return items.map((item) => ({
+        id: item?.node?.id || '',
+        name: item?.node?.displayName ?? '',
+        inputName: selectedInputName,
+        refCode: item?.node?.displayID ?? '',
+      }))
+    }
+
     default:
       return []
   }
@@ -694,6 +727,7 @@ export const generateWhere = (selectedObject: ObjectTypeObjects | null, searchVa
     [ObjectTypeObjects.IDENTITY_HOLDER]: { ownerID: ownerID },
     [ObjectTypeObjects.REMEDIATION]: {},
     [ObjectTypeObjects.REVIEW]: {},
+    [ObjectTypeObjects.VULNERABILITY]: {},
   }
 
   const searchAttributeMap: Partial<Record<ObjectTypeObjects, string>> = {
@@ -716,6 +750,7 @@ export const generateWhere = (selectedObject: ObjectTypeObjects | null, searchVa
     [ObjectTypeObjects.IDENTITY_HOLDER]: 'fullNameContainsFold',
     [ObjectTypeObjects.REMEDIATION]: 'titleContainsFold',
     [ObjectTypeObjects.REVIEW]: 'titleContainsFold',
+    [ObjectTypeObjects.VULNERABILITY]: 'displayNameContainsFold',
   }
 
   const secondarySearchMap: Partial<Record<ObjectTypeObjects, string>> = {
@@ -736,6 +771,7 @@ export const generateWhere = (selectedObject: ObjectTypeObjects | null, searchVa
     [ObjectTypeObjects.IDENTITY_HOLDER]: 'emailContainsFold',
     [ObjectTypeObjects.REMEDIATION]: 'summaryContainsFold',
     [ObjectTypeObjects.REVIEW]: 'summaryContainsFold',
+    [ObjectTypeObjects.VULNERABILITY]: 'descriptionContainsFold',
   }
 
   const defaultWhereMap: Partial<Record<ObjectTypeObjects, Record<string, unknown>>> = {
@@ -792,6 +828,7 @@ export const ASSOCIATION_SECTION_CONFIG = {
   identityHolders: { dataField: 'identityHolders', inputName: 'identityHolderIDs' },
   remediations: { dataField: 'remediations', inputName: 'remediationIDs' },
   reviews: { dataField: 'reviews', inputName: 'reviewIDs' },
+  vulnerabilities: { dataField: 'vulnerabilities', inputName: 'vulnerabilityIDs' },
 } as const satisfies Record<string, TAssociationSectionDefinition>
 
 export type AssociationSectionKey = keyof typeof ASSOCIATION_SECTION_CONFIG
@@ -837,6 +874,7 @@ export const ASSOCIATION_SECTION_QUERY_KEY = {
   identityHolders: ['identityHolders'],
   remediations: ['remediations'],
   reviews: ['reviews'],
+  vulnerabilities: ['vulnerabilities'],
 } as const satisfies Record<AssociationSectionKey, readonly [string]>
 
 const createAssociationRemovalConfig =
@@ -886,6 +924,8 @@ const ENTITY_ASSOCIATION_SECTIONS = ['assets', 'scans', 'campaigns', 'identityHo
 const IDENTITY_HOLDER_ASSOCIATION_SECTIONS = ['assets', 'entities', 'campaigns', 'tasks'] as const
 const FINDING_ASSOCIATION_SECTIONS = ['controls', 'subcontrols', 'risks', 'programs', 'tasks', 'assets', 'scans', 'remediations', 'reviews'] as const
 const REVIEW_ASSOCIATION_SECTIONS = ['controls', 'subcontrols', 'remediations', 'entities', 'tasks', 'assets', 'programs'] as const
+const REMEDIATION_ASSOCIATION_SECTIONS = ['controls', 'subcontrols', 'findings', 'vulnerabilities'] as const
+const VULNERABILITY_ASSOCIATION_SECTIONS = ['controls', 'subcontrols', 'findings', 'remediations', 'reviews', 'assets', 'tasks'] as const
 
 export const ASSOCIATION_REMOVAL_CONFIG = {
   control: createAssociationRemovalConfig<UpdateControlInput>()(CONTROL_ASSOCIATION_SECTIONS),
@@ -898,4 +938,6 @@ export const ASSOCIATION_REMOVAL_CONFIG = {
   finding: createAssociationRemovalConfig<UpdateFindingInput>()(FINDING_ASSOCIATION_SECTIONS),
   identityHolder: createAssociationRemovalConfig<UpdateIdentityHolderInput>()(IDENTITY_HOLDER_ASSOCIATION_SECTIONS),
   review: createAssociationRemovalConfig<UpdateReviewInput>()(REVIEW_ASSOCIATION_SECTIONS),
+  remediation: createAssociationRemovalConfig<UpdateRemediationInput>()(REMEDIATION_ASSOCIATION_SECTIONS),
+  vulnerability: createAssociationRemovalConfig<UpdateVulnerabilityInput>()(VULNERABILITY_ASSOCIATION_SECTIONS),
 } as const
