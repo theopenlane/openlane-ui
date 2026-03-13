@@ -13,7 +13,11 @@ import type { EditVendorFormData } from '../../hooks/use-form-schema'
 
 type ContactInfo = { id: string; fullName?: string | null; email?: string | null }
 
-const ContactMultiSelect: React.FC = () => {
+interface ContactMultiSelectProps {
+  label?: string
+}
+
+const ContactMultiSelect: React.FC<ContactMultiSelectProps> = ({ label = 'Contacts' }) => {
   const form = useFormContext<EditVendorFormData>()
   const [open, setOpen] = useState(false)
   const [searchText, setSearchText] = useState('')
@@ -82,7 +86,7 @@ const ContactMultiSelect: React.FC = () => {
       name="contactIDs"
       render={() => (
         <FormItem>
-          <FormLabel>Contacts</FormLabel>
+          <FormLabel className="block">{label}</FormLabel>
           <FormControl>
             <Popover open={open} onOpenChange={setOpen}>
               <PopoverTrigger asChild>

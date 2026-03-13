@@ -13,9 +13,11 @@ import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import Menu from '@/components/shared/menu/menu'
 import { Button } from '@repo/ui/button'
 import type { EntityQuery } from '@repo/codegen/src/schema'
+import AddContractDialog from './add-contract-dialog'
 
 interface ContractTabProps {
   vendor: EntityQuery['entity']
+  vendorId: string
 }
 
 type ContractRow = {
@@ -108,8 +110,9 @@ const mappedColumns = columns
     header: column.header as string,
   }))
 
-const ContractTab: React.FC<ContractTabProps> = ({ vendor }) => {
+const ContractTab: React.FC<ContractTabProps> = ({ vendor, vendorId }) => {
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.VENDOR_CONTRACT, COLUMN_VISIBILITY_DEFAULTS))
+  const [showAddDialog, setShowAddDialog] = useState(false)
 
   const contractData: ContractRow[] = []
 
@@ -136,9 +139,11 @@ const ContractTab: React.FC<ContractTabProps> = ({ vendor }) => {
           <Menu content={<div className="text-sm text-muted-foreground">No actions available</div>} />
           <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.VENDOR_CONTRACT} />
           <TableFilter filterFields={[]} onFilterChange={() => {}} pageKey={TableKeyEnum.VENDOR_CONTRACT} />
-          <Button icon={<Plus size={16} />} iconPosition="left">
-            Add Contract
-          </Button>
+          {!hasContractData && (
+            <Button icon={<Plus size={16} />} iconPosition="left" onClick={() => setShowAddDialog(true)}>
+              Add Contract
+            </Button>
+          )}
         </div>
       </div>
 
@@ -151,6 +156,8 @@ const ContractTab: React.FC<ContractTabProps> = ({ vendor }) => {
         tableKey={TableKeyEnum.VENDOR_CONTRACT}
         noResultsText="No contract details available for this vendor."
       />
+
+      {showAddDialog && <AddContractDialog vendorId={vendorId} onClose={() => setShowAddDialog(false)} />}
     </div>
   )
 }

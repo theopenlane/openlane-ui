@@ -9,7 +9,6 @@ import { FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
 import { EntityEntityStatus } from '@repo/codegen/src/schema'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import type { EditVendorFormData } from '../../hooks/use-form-schema'
-import ContactMultiSelect from './contact-multi-select'
 
 const StepVendorInfo: React.FC = () => {
   const form = useFormContext<EditVendorFormData>()
@@ -116,8 +115,6 @@ const StepVendorInfo: React.FC = () => {
           )}
         />
       </div>
-
-      <ContactMultiSelect />
     </div>
   )
 }

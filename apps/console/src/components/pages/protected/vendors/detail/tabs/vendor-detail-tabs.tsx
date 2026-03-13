@@ -95,7 +95,7 @@ const VendorDetailTabs: React.FC<VendorDetailTabsProps> = ({ vendor, association
       </TabsContent>
 
       <TabsContent value="contract" className="space-y-6">
-        <ContractTab vendor={vendor} />
+        <ContractTab vendor={vendor} vendorId={vendor.id} />
       </TabsContent>
 
       <TabsContent value="contacts" className="space-y-6">
