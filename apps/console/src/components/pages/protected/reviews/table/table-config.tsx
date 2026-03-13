@@ -16,7 +16,7 @@ export const formId = 'edit' + ObjectNames.REVIEW
 
 export const breadcrumbs = [
   { label: 'Home', href: '/dashboard' },
-  { label: 'Exposure', href: '/exposure/reviews' },
+  { label: 'Exposure', href: '/exposure/overview' },
   { label: 'Reviews', href: '/exposure/reviews' },
 ]
 

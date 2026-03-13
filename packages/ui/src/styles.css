@@ -517,6 +517,7 @@
   --color-scans: #f472b6;
   --color-reviews: #818cf8;
   --color-findings: #f87171;
+  --color-vulnerabilities: #f45b50;
   --color-campaigns: #fb923c;
   --color-assets: #38bdf8;
   --color-entities: #a3e635;
@@ -532,6 +533,12 @@
   --color-logo-fg: #4dc6ad;
   --color-logo-dark: #303e4a;
   --color-logo-light: #ffffff;
+
+  /* Severity */
+  --color-severity-critical: var(--color-danger);
+  --color-severity-high: var(--color-warning);
+  --color-severity-medium: #ca8a04;
+  --color-severity-low: var(--color-info);
 
   /* Task */
   --color-task-in-review: #ff842c;

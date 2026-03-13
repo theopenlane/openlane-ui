@@ -2,7 +2,7 @@
 
 import { useNotification } from '@/hooks/useNotification'
 import { Button } from '@repo/ui/button'
-import { SheetHeader } from '@repo/ui/sheet'
+import { SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { LinkIcon, PanelRightClose, Pencil } from 'lucide-react'
 import { useSearchParams } from 'next/navigation'
 import React from 'react'
@@ -23,19 +23,35 @@ interface GenericSheetHeaderProps {
   formId: string
   entityType: ObjectTypes
   onDelete?: (id: string) => Promise<void>
+  entityId?: string | null
+  basePath?: string
 }
 
-export const GenericSheetHeader = ({ close, isEditing, isCreate, setIsEditing, isPending, isEditAllowed, handleCancelEdit, formId, entityType, onDelete }: GenericSheetHeaderProps) => {
+export const GenericSheetHeader = ({
+  close,
+  isEditing,
+  isCreate,
+  setIsEditing,
+  isPending,
+  isEditAllowed,
+  handleCancelEdit,
+  formId,
+  entityType,
+  onDelete,
+  entityId,
+  basePath,
+}: GenericSheetHeaderProps) => {
   const { successNotification, errorNotification } = useNotification()
   const searchParams = useSearchParams()
-  const id = searchParams.get('id')
+  const id = entityId ?? searchParams.get('id')
 
   const handleCopyLink = () => {
     if (!id) {
       return
     }
 
-    const url = `${window.location.origin}${window.location.pathname}?id=${id}`
+    const path = basePath ?? window.location.pathname
+    const url = `${window.location.origin}${path}?id=${id}`
     navigator.clipboard
       .writeText(url)
       .then(() => {
@@ -52,6 +68,7 @@ export const GenericSheetHeader = ({ close, isEditing, isCreate, setIsEditing, i
 
   return (
     <SheetHeader>
+      <SheetTitle className="sr-only">{isCreate ? `Create ${toHumanLabel(entityType)}` : toHumanLabel(entityType)}</SheetTitle>
       <div className="flex items-center justify-between">
         {!isCreate ? <PanelRightClose aria-label="Close detail sheet" size={16} className="cursor-pointer" onClick={close} /> : <div className="h-6 text-lg">Create {toHumanLabel(entityType)}</div>}
         <div className="flex justify-end gap-2 mr-6">
