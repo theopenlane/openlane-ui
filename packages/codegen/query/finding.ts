@@ -251,6 +251,16 @@ export const GET_FINDING_ASSOCIATIONS = gql`
         }
         totalCount
       }
+      vulnerabilities {
+        edges {
+          node {
+            id
+            displayName
+            displayID
+          }
+        }
+        totalCount
+      }
     }
   }
 `

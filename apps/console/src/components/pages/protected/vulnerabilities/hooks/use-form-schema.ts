@@ -42,6 +42,13 @@ const formSchema = z.object({
   production: z.boolean().optional(),
   public: z.boolean().optional(),
   validated: z.boolean().optional(),
+  controlIDs: z.array(z.string()).optional(),
+  subcontrolIDs: z.array(z.string()).optional(),
+  findingIDs: z.array(z.string()).optional(),
+  remediationIDs: z.array(z.string()).optional(),
+  reviewIDs: z.array(z.string()).optional(),
+  assetIDs: z.array(z.string()).optional(),
+  taskIDs: z.array(z.string()).optional(),
 })
 
 export const bulkEditFieldSchema = z.object({
