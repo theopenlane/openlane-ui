@@ -4,7 +4,6 @@ import React from 'react'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useNotification } from '@/hooks/useNotification'
 import { useGetAllEvidences, useDeleteEvidence } from '@/lib/graphql-hooks/evidence'
-import { useUpdateFileCategoryType } from '@/lib/graphql-hooks/entity'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 interface UnmarkEvidenceDialogProps {
@@ -16,7 +15,6 @@ interface UnmarkEvidenceDialogProps {
 const UnmarkEvidenceDialog: React.FC<UnmarkEvidenceDialogProps> = ({ fileId, fileName, onClose }) => {
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: deleteEvidence } = useDeleteEvidence()
-  const { mutateAsync: updateFileCategoryType } = useUpdateFileCategoryType()
   const { data: evidencesData } = useGetAllEvidences({
     hasFilesWith: [{ id: fileId }],
   })
@@ -26,11 +24,6 @@ const UnmarkEvidenceDialog: React.FC<UnmarkEvidenceDialogProps> = ({ fileId, fil
   const handleConfirm = async () => {
     try {
       await Promise.all(evidences.map((evidence) => deleteEvidence({ deleteEvidenceId: evidence.id })))
-
-      await updateFileCategoryType({
-        updateFileId: fileId,
-        input: { clearCategoryType: true },
-      })
 
       successNotification({
         title: 'Evidence removed',

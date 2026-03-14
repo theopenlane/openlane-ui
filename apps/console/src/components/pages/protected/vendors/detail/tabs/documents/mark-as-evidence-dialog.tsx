@@ -13,7 +13,6 @@ import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-butto
 import { useNotification } from '@/hooks/useNotification'
 import { useCreateEvidence } from '@/lib/graphql-hooks/evidence'
 import { useGetAllControls } from '@/lib/graphql-hooks/control'
-import { useUpdateFileCategoryType } from '@/lib/graphql-hooks/entity'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 
 const markAsEvidenceSchema = z.object({
@@ -32,7 +31,6 @@ interface MarkAsEvidenceDialogProps {
 const MarkAsEvidenceDialog: React.FC<MarkAsEvidenceDialogProps> = ({ fileId, fileName, vendorId, onClose }) => {
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: createEvidence, isPending } = useCreateEvidence()
-  const { mutateAsync: updateFileCategoryType } = useUpdateFileCategoryType()
   const [selectedControlIds, setSelectedControlIds] = useState<string[]>([])
 
   const { controls, isLoading: controlsLoading } = useGetAllControls({
@@ -61,11 +59,6 @@ const MarkAsEvidenceDialog: React.FC<MarkAsEvidenceDialogProps> = ({ fileId, fil
           fileIDs: [fileId],
           ...(selectedControlIds.length > 0 ? { controlIDs: selectedControlIds } : {}),
         },
-      })
-
-      await updateFileCategoryType({
-        updateFileId: fileId,
-        input: { categoryType: 'evidence' },
       })
 
       successNotification({

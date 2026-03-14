@@ -10,7 +10,7 @@ import CampaignsTab from './campaigns/campaigns-tab'
 import ContractTab from './contract/contract-tab'
 import ContactsTab from './contacts/contacts-tab'
 import RiskReviewTab from './risk-review/risk-review-tab'
-import type { EntityQuery, GetEntityAssociationsQuery } from '@repo/codegen/src/schema'
+import type { EntityQuery, GetEntityAssociationsQuery, UpdateEntityInput } from '@repo/codegen/src/schema'
 
 type VendorTabValue = 'overview' | 'documents' | 'campaigns' | 'contract' | 'contacts' | 'risk-review'
 
@@ -23,9 +23,10 @@ interface VendorDetailTabsProps {
   associations?: GetEntityAssociationsQuery
   isEditing: boolean
   canEdit: boolean
+  handleUpdateField: (input: UpdateEntityInput) => Promise<void>
 }
 
-const VendorDetailTabs: React.FC<VendorDetailTabsProps> = ({ vendor, associations, isEditing, canEdit: canEditVendor }) => {
+const VendorDetailTabs: React.FC<VendorDetailTabsProps> = ({ vendor, associations, isEditing, canEdit: canEditVendor, handleUpdateField }) => {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -103,7 +104,7 @@ const VendorDetailTabs: React.FC<VendorDetailTabsProps> = ({ vendor, association
       </TabsContent>
 
       <TabsContent value="risk-review" className="space-y-6">
-        <RiskReviewTab vendor={vendor} />
+        <RiskReviewTab vendor={vendor} handleUpdateField={handleUpdateField} canEdit={canEditVendor} />
       </TabsContent>
     </Tabs>
   )
