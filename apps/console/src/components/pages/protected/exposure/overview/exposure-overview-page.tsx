@@ -16,6 +16,7 @@ import ExposureSeverityChart from './exposure-severity-chart'
 import ExposureActivityFeed from './exposure-activity-feed'
 import ExposureCriticalCounts from './exposure-critical-counts'
 import ItemsRequiringAttention from './items-requiring-attention'
+import { TableKeyEnum } from '@repo/ui/table-key'
 
 const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
 
@@ -58,18 +59,24 @@ const ExposureOverviewPage = () => {
   const severityData = useMemo(
     () => ({
       vulns: {
+        href: '/exposure/vulnerabilities',
+        tableKey: TableKeyEnum.VULNERABILITY,
         critical: vulnCritData?.vulnerabilities?.totalCount ?? 0,
         high: vulnHighData?.vulnerabilities?.totalCount ?? 0,
         medium: vulnMedData?.vulnerabilities?.totalCount ?? 0,
         low: vulnLowData?.vulnerabilities?.totalCount ?? 0,
       },
       findings: {
+        href: '/exposure/findings',
+        tableKey: TableKeyEnum.FINDING,
         critical: findCritData?.findings?.totalCount ?? 0,
         high: findHighData?.findings?.totalCount ?? 0,
         medium: findMedData?.findings?.totalCount ?? 0,
         low: findLowData?.findings?.totalCount ?? 0,
       },
       risks: {
+        href: '/exposure/risks',
+        tableKey: TableKeyEnum.RISK,
         critical: riskCritData?.risks?.totalCount ?? 0,
         high: riskHighData?.risks?.totalCount ?? 0,
         medium: riskMedData?.risks?.totalCount ?? 0,

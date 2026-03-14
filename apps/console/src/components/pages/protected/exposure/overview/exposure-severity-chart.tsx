@@ -4,8 +4,11 @@ import React from 'react'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import Skeleton from '@/components/shared/skeleton/skeleton'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
+import { saveFilters, type TFilterState } from '@/components/shared/table-filter/filter-storage'
+import { useRouter } from 'next/navigation'
+import { TableKeyEnum, type TableKeyValue } from '@repo/ui/table-key'
 
-type SeverityCounts = { critical: number; high: number; medium: number; low: number }
+type SeverityCounts = { href: string; tableKey: TableKeyValue; critical: number; high: number; medium: number; low: number }
 type SeverityItems = { critical: string[]; high: string[]; medium: string[]; low: string[] }
 
 type Props = {
@@ -31,23 +34,82 @@ const TYPES = [
   { key: 'risks', label: 'Risks' },
 ] as const
 
-const SeverityRow = ({ label, counts }: { label: string; counts: SeverityCounts }) => {
+const SeverityRow = ({
+  label,
+  counts,
+  severityData,
+  items,
+}: {
+  label: string
+  severityData: { href: string; tableKey: TableKeyValue; critical: number; high: number; medium: number; low: number }
+  counts: SeverityCounts
+  items?: SeverityItems
+}) => {
+  const router = useRouter()
   const total = counts.critical + counts.high + counts.medium + counts.low || 1
   const totalCount = counts.critical + counts.high + counts.medium + counts.low
-
+  const navigateToFiltered = (sev: string) => {
+    let filter: TFilterState
+    if (severityData.tableKey === TableKeyEnum.RISK) {
+      const impactMap: Record<string, string> = { critical: 'CRITICAL', high: 'HIGH', medium: 'MODERATE', low: 'LOW' }
+      filter = { impactIn: [impactMap[sev] ?? sev.toUpperCase()] }
+    } else {
+      filter = { severityContainsFold: sev }
+    }
+    saveFilters(severityData.tableKey, filter)
+    router.push(severityData.href)
+  }
   return (
     <div className="space-y-1">
       <div className="flex justify-between text-sm">
         <span className="font-medium">{label}</span>
         <span className="text-muted-foreground text-xs">{totalCount === 0 ? '0 items' : `${totalCount} items`}</span>
       </div>
-      <div className="flex h-3 rounded-full overflow-hidden gap-0.5">
-        {SEVERITIES.map((sev) => {
-          const pct = (counts[sev] / total) * 100
-          if (pct === 0) return null
-          return <div key={sev} className="h-full" style={{ width: `${pct}%`, backgroundColor: sevColor(sev) }} />
-        })}
-      </div>
+      <TooltipProvider disableHoverableContent={false} delayDuration={200}>
+        <div className="flex h-3 rounded-full overflow-hidden gap-0.5">
+          {SEVERITIES.map((sev) => {
+            const pct = (counts[sev] / total) * 100
+            if (pct === 0) return null
+            const sevItems = items?.[sev] ?? []
+            const preview = sevItems.slice(0, 5)
+            const hasMore = sevItems.length > 5
+            return (
+              <Tooltip key={sev}>
+                <TooltipTrigger asChild>
+                  <div onClick={() => navigateToFiltered(sev)} className="h-full cursor-pointer" style={{ width: `${pct}%`, backgroundColor: sevColor(sev) }} />
+                </TooltipTrigger>
+                <TooltipContent side="top" className="max-w-64">
+                  <p className="font-semibold capitalize mb-1">{sev}</p>
+                  {preview.length > 0 ? (
+                    <>
+                      <ul className="space-y-0.5 mb-1">
+                        {preview.map((name) => (
+                          <li key={name} className="text-xs">
+                            {name}
+                          </li>
+                        ))}
+                      </ul>
+                      {hasMore && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            navigateToFiltered(sev)
+                          }}
+                          className="text-xs underline text-muted-foreground hover:text-foreground mt-0.5"
+                        >
+                          See more
+                        </button>
+                      )}
+                    </>
+                  ) : (
+                    <p className="text-xs">No items</p>
+                  )}
+                </TooltipContent>
+              </Tooltip>
+            )
+          })}
+        </div>
+      </TooltipProvider>
       <div className="flex gap-3">
         {SEVERITIES.map((sev) => (
           <div key={sev} className="flex items-center gap-1 text-xs">
@@ -128,7 +190,7 @@ const ExposureSeverityChart = ({ severityData, severityItems, isLoading }: Props
         ) : (
           <div className="space-y-5">
             {TYPES.map(({ key, label }) => (
-              <SeverityRow key={key} label={label} counts={severityData[key]} />
+              <SeverityRow key={key} label={label} severityData={severityData[key]} counts={severityData[key]} items={severityItems?.[key]} />
             ))}
           </div>
         )}
