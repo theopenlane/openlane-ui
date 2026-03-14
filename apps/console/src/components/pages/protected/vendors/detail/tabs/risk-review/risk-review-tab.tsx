@@ -1,54 +1,57 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import { type ColumnDef } from '@tanstack/react-table'
 import { DataTable } from '@repo/ui/data-table'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
 import { AlertTriangle, Clock, ClipboardCheck, CalendarClock } from 'lucide-react'
-import type { EntityQuery } from '@repo/codegen/src/schema'
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuRadioGroup, DropdownMenuRadioItem } from '@repo/ui/dropdown-menu'
+import { EntityFrequency, type EntityQuery, type UpdateEntityInput } from '@repo/codegen/src/schema'
+import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { type ReviewsNodeNonNull, useReviewsWithFilter } from '@/lib/graphql-hooks/review'
+import { formatDate } from '@/utils/date'
+import CreateReviewSheet from './create-review-sheet'
 
 interface RiskReviewTabProps {
   vendor: EntityQuery['entity']
+  handleUpdateField: (input: UpdateEntityInput) => Promise<void>
+  canEdit: boolean
 }
 
-type ReviewHistoryRow = {
-  id: string
-  reviewer: string
-  date: string
-  riskTier: string
-  notes: string
-}
-
-const reviewHistoryColumns: ColumnDef<ReviewHistoryRow>[] = [
+const reviewHistoryColumns: ColumnDef<ReviewsNodeNonNull>[] = [
   {
-    accessorKey: 'reviewer',
+    accessorKey: 'reporter',
     header: 'Reviewer',
     size: 200,
-    cell: ({ row }) => (
-      <div className="flex items-center gap-2">
-        <div className="h-7 w-7 rounded-full bg-muted flex items-center justify-center text-xs font-medium">{row.original.reviewer.charAt(0)}</div>
-        <span>{row.original.reviewer}</span>
-      </div>
-    ),
+    cell: ({ row }) =>
+      row.original.reporter ? (
+        <div className="flex items-center gap-2">
+          <div className="h-7 w-7 rounded-full bg-muted flex items-center justify-center text-xs font-medium">{row.original.reporter.charAt(0)}</div>
+          <span>{row.original.reporter}</span>
+        </div>
+      ) : (
+        <span className="text-sm">—</span>
+      ),
   },
   {
-    accessorKey: 'date',
+    accessorKey: 'reviewedAt',
     header: 'Date',
     size: 150,
+    cell: ({ row }) => (row.original.reviewedAt ? formatDate(row.original.reviewedAt) : <span className="text-sm">—</span>),
   },
   {
-    accessorKey: 'riskTier',
+    accessorKey: 'classification',
     header: 'Risk Tier',
     size: 150,
-    cell: ({ row }) => <TierBadge tier={row.original.riskTier} />,
+    cell: ({ row }) => (row.original.classification ? <TierBadge tier={row.original.classification} /> : <span className="text-sm">—</span>),
   },
   {
-    accessorKey: 'notes',
+    accessorKey: 'summary',
     header: 'Notes',
     size: 300,
-    cell: ({ row }) => <span className="truncate">{row.original.notes}</span>,
+    cell: ({ row }) => <span className="truncate">{row.original.summary ?? '—'}</span>,
   },
 ]
 
@@ -64,7 +67,13 @@ const TierBadge: React.FC<{ tier: string }> = ({ tier }) => {
   return <Badge className={colorClass}>{tier}</Badge>
 }
 
-const RiskReviewTab: React.FC<RiskReviewTabProps> = ({ vendor }) => {
+const RiskReviewTab: React.FC<RiskReviewTabProps> = ({ vendor, handleUpdateField, canEdit }) => {
+  const [isCreateReviewOpen, setIsCreateReviewOpen] = useState(false)
+
+  const { reviewsNodes, isLoading } = useReviewsWithFilter({
+    where: { hasEntitiesWith: [{ id: vendor.id }] },
+  })
+
   const isOverdue = vendor.nextReviewAt && new Date(vendor.nextReviewAt) < new Date()
   const isHighRisk = vendor.tier?.toLowerCase() === 'high' || vendor.tier?.toLowerCase() === 'critical'
 
@@ -88,10 +97,24 @@ const RiskReviewTab: React.FC<RiskReviewTabProps> = ({ vendor }) => {
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold">Risk summary</h3>
           <div className="flex items-center gap-2">
-            <Button variant="outline" icon={<CalendarClock size={16} />} iconPosition="left">
-              Edit Frequency
-            </Button>
-            <Button icon={<ClipboardCheck size={16} />} iconPosition="left">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="secondary" icon={<CalendarClock size={16} />} iconPosition="left" disabled={!canEdit}>
+                  Edit Frequency
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Review Frequency</DropdownMenuLabel>
+                <DropdownMenuRadioGroup value={vendor.reviewFrequency ?? ''} onValueChange={(value) => handleUpdateField({ reviewFrequency: value as EntityFrequency })}>
+                  {Object.values(EntityFrequency).map((freq) => (
+                    <DropdownMenuRadioItem key={freq} value={freq}>
+                      {getEnumLabel(freq)}
+                    </DropdownMenuRadioItem>
+                  ))}
+                </DropdownMenuRadioGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <Button icon={<ClipboardCheck size={16} />} iconPosition="left" disabled={!canEdit} onClick={() => setIsCreateReviewOpen(true)}>
               Review
             </Button>
           </div>
@@ -127,8 +150,10 @@ const RiskReviewTab: React.FC<RiskReviewTabProps> = ({ vendor }) => {
 
       <div>
         <h3 className="text-lg font-semibold mb-4">Review History</h3>
-        <DataTable columns={reviewHistoryColumns} data={[]} loading={false} tableKey={undefined} noResultsText="No review history available." />
+        <DataTable columns={reviewHistoryColumns} data={reviewsNodes} loading={isLoading} tableKey={undefined} noResultsText="No review history available." />
       </div>
+
+      {isCreateReviewOpen && <CreateReviewSheet entityId={vendor.id} onClose={() => setIsCreateReviewOpen(false)} />}
     </div>
   )
 }

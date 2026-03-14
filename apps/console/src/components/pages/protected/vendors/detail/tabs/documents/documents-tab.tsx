@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import { type ColumnDef, type VisibilityState, type Row } from '@tanstack/react-table'
 import { DataTable, getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
 import { type TPagination } from '@repo/ui/pagination-types'
@@ -8,6 +8,9 @@ import { TableKeyEnum } from '@repo/ui/table-key'
 import { type TFile } from '@/components/shared/file-table/columns'
 import { FILE_SORT_FIELDS } from '@/components/shared/file-table/table-config'
 import { type FileOrder, FileOrderField, OrderDirection } from '@repo/codegen/src/schema'
+import { useQuery } from '@tanstack/react-query'
+import { gql } from 'graphql-request'
+import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { useGetEntityFilesPaginated, useUploadEntityFiles } from '@/lib/graphql-hooks/entity'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -24,6 +27,25 @@ import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import { Check, X, Download, SearchIcon } from 'lucide-react'
 import MarkAsEvidenceDialog from './mark-as-evidence-dialog'
 import UnmarkEvidenceDialog from './unmark-evidence-dialog'
+
+const GET_EVIDENCES_WITH_FILE_IDS = gql`
+  query GetEvidencesWithFileIds($where: EvidenceWhereInput) {
+    evidences(where: $where, first: 100) {
+      edges {
+        node {
+          id
+          files {
+            edges {
+              node {
+                id
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`
 
 interface DocumentsTabProps {
   vendorId: string
@@ -54,11 +76,34 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, canEdit }) => {
   const [markEvidenceFile, setMarkEvidenceFile] = useState<{ id: string; name: string } | null>(null)
   const [unmarkEvidenceFile, setUnmarkEvidenceFile] = useState<{ id: string; name: string } | null>(null)
 
+  const { client } = useGraphQLClient()
+
   const { files, isLoading, isError, pageInfo, totalCount } = useGetEntityFilesPaginated({
     entityId: vendorId,
     orderBy,
     pagination,
   })
+
+  const fileIds = useMemo(() => files.map((f) => f?.id).filter(Boolean) as string[], [files])
+
+  const { data: evidencesData } = useQuery({
+    queryKey: ['evidences', 'byFiles', fileIds],
+    queryFn: async () =>
+      client.request<{ evidences: { edges: Array<{ node: { id: string; files: { edges: Array<{ node: { id: string } }> } } }> } }>(GET_EVIDENCES_WITH_FILE_IDS, {
+        where: { hasFilesWith: [{ idIn: fileIds }] },
+      }),
+    enabled: fileIds.length > 0,
+  })
+
+  const evidenceFileIds = useMemo(() => {
+    const ids = new Set<string>()
+    for (const edge of evidencesData?.evidences?.edges ?? []) {
+      for (const fileEdge of edge?.node?.files?.edges ?? []) {
+        ids.add(fileEdge?.node?.id)
+      }
+    }
+    return ids
+  }, [evidencesData])
 
   const { mutateAsync: uploadFiles, isPending: isUploading } = useUploadEntityFiles()
 
@@ -89,7 +134,7 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, canEdit }) => {
     return f.providedFileName.toLowerCase().includes(searchTerm.toLowerCase())
   })
 
-  const isClassifiedAsEvidence = (file: TFile) => file.categoryType === 'evidence'
+  const isClassifiedAsEvidence = (file: TFile) => evidenceFileIds.has(file.id)
 
   const columns: ColumnDef<TFile>[] = [
     createSelectColumn<TFile>(selectedFiles, setSelectedFiles),

@@ -210,7 +210,7 @@ const VendorDetailPage: React.FC<VendorDetailPageProps> = ({ vendorId }) => {
     <div className="space-y-6">
       <VendorDetailHeader vendor={vendor} isEditing={isEditing} onEdit={handleEdit} onCancel={handleCancel} onDeleteClick={() => setIsDeleteDialogOpen(true)} permissionRoles={permission?.roles} />
 
-      <VendorDetailTabs vendor={vendor} associations={associationsData} isEditing={isEditing} canEdit={canEditVendor} />
+      <VendorDetailTabs vendor={vendor} associations={associationsData} isEditing={isEditing} canEdit={canEditVendor} handleUpdateField={handleUpdateField} />
     </div>
   )
 
