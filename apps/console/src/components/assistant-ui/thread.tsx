@@ -23,7 +23,7 @@ export const Thread: FC<ThreadProps> = ({ welcome }) => {
         ['--thread-max-width' as string]: '44rem',
       }}
     >
-      <ThreadPrimitive.Viewport turnAnchor="top" className="aui-thread-viewport relative flex flex-1 flex-col overflow-x-auto overflow-y-scroll scroll-smooth px-4 pt-4">
+      <ThreadPrimitive.Viewport turnAnchor="top" className="aui-thread-viewport relative flex flex-1 flex-col overflow-x-hidden overflow-y-scroll scroll-smooth px-4 pt-4">
         <AuiIf condition={({ thread }) => thread.isEmpty}>
           {/* 3. Proslijedite welcome u ThreadWelcome */}
           <ThreadWelcome message={welcome?.message} suggestions={welcome?.suggestions} />
@@ -160,7 +160,7 @@ const MessageError: FC = () => {
 const AssistantMessage: FC = () => {
   return (
     <MessagePrimitive.Root className="aui-assistant-message-root fade-in slide-in-from-bottom-1 relative mx-auto w-full max-w-(--thread-max-width) animate-in py-3 duration-150" data-role="assistant">
-      <div className="aui-assistant-message-content wrap-break-word px-2 text-foreground leading-relaxed">
+      <div className="aui-assistant-message-content min-w-0 overflow-hidden wrap-break-word px-2 text-foreground leading-relaxed">
         <MessagePrimitive.Parts
           components={{
             Text: MarkdownText,
