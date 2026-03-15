@@ -34,7 +34,7 @@
     "@storybook/react-vite": "10.2.13",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
-    "@vitejs/plugin-react": "^5.0.0",
+    "@vitejs/plugin-react": "^6.0.0",
     "@vitejs/plugin-react-swc": "^4.0.0",
     "@vueless/storybook-dark-mode": "^10.0.0",
     "eslint": "^10.0.0",
