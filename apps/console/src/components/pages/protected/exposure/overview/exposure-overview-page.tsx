@@ -148,19 +148,19 @@ const ExposureOverviewPage = () => {
     recentVulns?.forEach((v) =>
       items.push({
         id: v.id,
-        label: v.displayName ?? v.displayID ?? 'Vulnerability',
-        type: 'Vulnerability',
+        label: v.displayName ?? v.displayID ?? ObjectTypes.VULNERABILITY,
+        type: ObjectTypes.VULNERABILITY,
         createdAt: v.createdAt,
         href: `/exposure/vulnerabilities?id=${v.id}`,
         source: v.source ?? null,
       }),
     )
     recentFindings?.forEach((f) =>
-      items.push({ id: f.id, label: f.displayName ?? 'Finding', type: 'Finding', createdAt: f.createdAt, href: `/exposure/findings?id=${f.id}`, source: f.source ?? null }),
+      items.push({ id: f.id, label: f.displayName ?? ObjectTypes.FINDING, type: ObjectTypes.FINDING, createdAt: f.createdAt, href: `/exposure/findings?id=${f.id}`, source: f.source ?? null }),
     )
-    recentRisks?.forEach((r) => items.push({ id: r.id, label: r.name ?? 'Risk', type: 'Risk', createdAt: r.createdAt, href: `/exposure/risks/${r.id}` }))
-    recentScans?.forEach((s) => items.push({ id: s.id, label: s.target ?? 'Scan', type: 'Scan', createdAt: s.createdAt }))
-    recentReviews?.forEach((r) => items.push({ id: r.id, label: r.title ?? 'Review', type: 'Review', createdAt: r.createdAt }))
+    recentRisks?.forEach((r) => items.push({ id: r.id, label: r.name ?? ObjectTypes.RISK, type: ObjectTypes.RISK, createdAt: r.createdAt }))
+    recentScans?.forEach((s) => items.push({ id: s.id, label: s.target ?? ObjectTypes.SCAN, type: ObjectTypes.SCAN, createdAt: s.createdAt }))
+    recentReviews?.forEach((r) => items.push({ id: r.id, label: r.title ?? ObjectTypes.REVIEW, type: ObjectTypes.REVIEW, createdAt: r.createdAt }))
 
     return items.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
   }, [recentVulns, recentFindings, recentRisks, recentScans, recentReviews])

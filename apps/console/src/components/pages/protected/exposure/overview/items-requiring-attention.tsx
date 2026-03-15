@@ -4,7 +4,6 @@ import React, { useMemo, useState } from 'react'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { DataTable } from '@repo/ui/data-table'
 import { TableKeyEnum } from '@repo/ui/table-key'
-import { useRouter } from 'next/navigation'
 import { AlertTriangle } from 'lucide-react'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import Skeleton from '@/components/shared/skeleton/skeleton'
@@ -20,6 +19,7 @@ import { searchTypeIcons } from '@/components/shared/search/search-config'
 import { getSeverityStyle } from '@/utils/severity'
 import ViewFindingSheet from '@/components/pages/protected/findings/view-finding-sheet'
 import ViewVulnerabilitySheet from '@/components/pages/protected/vulnerabilities/view-vulnerability-sheet'
+import ViewRiskSheet from '@/components/pages/protected/risks/view-risk-sheet'
 import AssociationTimeline from './association-timeline'
 import {
   useFindingTimeline,
@@ -123,18 +123,13 @@ type Props = {
 }
 
 const ItemsRequiringAttention = ({ items, isLoading }: Props) => {
-  const router = useRouter()
   const [selectedItem, setSelectedItem] = useState<AttentionItem | null>(null)
   const [viewItem, setViewItem] = useState<AttentionItem | null>(null)
 
   const columns = useMemo(() => getAttentionColumns(setSelectedItem), [])
 
   const handleRowClick = (row: AttentionItem) => {
-    if (row.type === ObjectTypes.RISK) {
-      router.push(`/exposure/risks/${row.id}`)
-    } else {
-      setViewItem(row)
-    }
+    setViewItem(row)
   }
 
   return (
@@ -195,6 +190,7 @@ const ItemsRequiringAttention = ({ items, isLoading }: Props) => {
 
       <ViewFindingSheet entityId={viewItem?.type === ObjectTypes.FINDING ? viewItem.id : null} onClose={() => setViewItem(null)} />
       <ViewVulnerabilitySheet entityId={viewItem?.type === ObjectTypes.VULNERABILITY ? viewItem.id : null} onClose={() => setViewItem(null)} />
+      <ViewRiskSheet entityId={viewItem?.type === ObjectTypes.RISK ? viewItem.id : null} onClose={() => setViewItem(null)} />
     </Card>
   )
 }

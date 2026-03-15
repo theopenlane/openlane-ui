@@ -11,7 +11,9 @@ import ViewVulnerabilitySheet from '@/components/pages/protected/vulnerabilities
 import ViewFindingSheet from '@/components/pages/protected/findings/view-finding-sheet'
 import ViewScanSheet from '@/components/pages/protected/scans/view-scan-sheet'
 import ViewReviewSheet from '@/components/pages/protected/reviews/view-review-sheet'
+import ViewRiskSheet from '@/components/pages/protected/risks/view-risk-sheet'
 import { searchTypeIcons } from '@/components/shared/search/search-config'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 type ActivityItem = {
   id: string
@@ -24,7 +26,9 @@ type ActivityItem = {
 
 const ActivityRow = ({ item, onLabelClick }: { item: ActivityItem; onLabelClick?: (item: ActivityItem) => void }) => {
   const Icon = searchTypeIcons[item.type] ?? Shield
-  const hasSheet = (item.type === 'Vulnerability' || item.type === 'Finding' || item.type === 'Scan' || item.type === 'Review') && !!onLabelClick
+  const hasSheet =
+    (item.type === ObjectTypes.VULNERABILITY || item.type === ObjectTypes.FINDING || item.type === ObjectTypes.SCAN || item.type === ObjectTypes.REVIEW || item.type === ObjectTypes.RISK) &&
+    !!onLabelClick
   const subtitle = item.source ? `${item.type} detected by ${item.source}` : `${item.type} detected`
 
   const labelEl = hasSheet ? (
@@ -101,10 +105,11 @@ const ExposureActivityFeed = ({ activityItems }: Props) => {
         )}
       </CardContent>
 
-      <ViewVulnerabilitySheet entityId={viewItem?.type === 'Vulnerability' ? viewItem.id : null} onClose={() => setViewItem(null)} />
-      <ViewFindingSheet entityId={viewItem?.type === 'Finding' ? viewItem.id : null} onClose={() => setViewItem(null)} />
-      <ViewScanSheet entityId={viewItem?.type === 'Scan' ? viewItem.id : null} onClose={() => setViewItem(null)} />
-      <ViewReviewSheet entityId={viewItem?.type === 'Review' ? viewItem.id : null} onClose={() => setViewItem(null)} />
+      <ViewVulnerabilitySheet entityId={viewItem?.type === ObjectTypes.VULNERABILITY ? viewItem.id : null} onClose={() => setViewItem(null)} />
+      <ViewFindingSheet entityId={viewItem?.type === ObjectTypes.FINDING ? viewItem.id : null} onClose={() => setViewItem(null)} />
+      <ViewScanSheet entityId={viewItem?.type === ObjectTypes.SCAN ? viewItem.id : null} onClose={() => setViewItem(null)} />
+      <ViewReviewSheet entityId={viewItem?.type === ObjectTypes.REVIEW ? viewItem.id : null} onClose={() => setViewItem(null)} />
+      <ViewRiskSheet entityId={viewItem?.type === ObjectTypes.RISK ? viewItem.id : null} onClose={() => setViewItem(null)} />
     </Card>
   )
 }
