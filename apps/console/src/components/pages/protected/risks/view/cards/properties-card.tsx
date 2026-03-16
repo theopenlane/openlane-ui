@@ -62,7 +62,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, risk, isCreate, 
           control={control}
           render={({ field, fieldState }) => {
             return (
-              <div className="flex flex-col gap-1 w-37.5 min-w-0">
+              <div className="flex flex-col gap-1 w-50 min-w-0">
                 <RiskLabel
                   selectFieldClassname={'w-full'}
                   fieldName={fieldName}
