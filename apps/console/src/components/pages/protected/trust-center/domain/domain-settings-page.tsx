@@ -14,6 +14,9 @@ import { DnsRecords } from './dns-records'
 import { PageHeading } from '@repo/ui/page-heading'
 import { DnsVerificationDnsVerificationStatus } from '@repo/codegen/src/schema'
 import { normalizeUrl } from '@/utils/normalizeUrl'
+import { useAccountRoles } from '@/lib/query-hooks/permissions'
+import { canEdit } from '@/lib/authz/utils'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 const DomainSettingsPage = () => {
   const { data, isLoading, error, refetch } = useGetTrustCenter()
@@ -35,6 +38,8 @@ const DomainSettingsPage = () => {
   }, [setCrumbs])
 
   const trustCenter = data?.trustCenters?.edges?.[0]?.node
+  const { data: tcPermission } = useAccountRoles(ObjectTypes.TRUST_CENTER, trustCenter?.id)
+  const canEditTc = canEdit(tcPermission?.roles)
   const setting = trustCenter?.setting
 
   useEffect(() => {
@@ -214,9 +219,11 @@ const DomainSettingsPage = () => {
       return (
         <div className="flex w-full gap-2">
           <UrlInput value={inputValue} onChange={setInputValue} className="flex-1 h-8" />
-          <Button onClick={handleCreateCustomDomain} variant="secondary" className="flex items-center justify-center gap-2 px-4" icon={<Save size={16} />} iconPosition="left">
-            Set
-          </Button>
+          {canEditTc && (
+            <Button onClick={handleCreateCustomDomain} variant="secondary" className="flex items-center justify-center gap-2 px-4" icon={<Save size={16} />} iconPosition="left">
+              Set
+            </Button>
+          )}
         </div>
       )
     }
@@ -236,10 +243,12 @@ const DomainSettingsPage = () => {
             </div>
           ) : (
             <div className="flex gap-2">
-              <Button variant="secondary" className=" flex items-center justify-center gap-2 px-4" icon={<Pencil size={16} />} iconPosition="left" onClick={() => setEditing(true)}>
-                Edit
-              </Button>
-              <Button onClick={handleDeleteCustomDomain} variant="secondary" className=" flex items-center justify-center" icon={<Trash2 size={14} />} iconPosition="center" />
+              {canEditTc && (
+                <Button variant="secondary" className=" flex items-center justify-center gap-2 px-4" icon={<Pencil size={16} />} iconPosition="left" onClick={() => setEditing(true)}>
+                  Edit
+                </Button>
+              )}
+              {canEditTc && <Button onClick={handleDeleteCustomDomain} variant="secondary" className=" flex items-center justify-center" icon={<Trash2 size={14} />} iconPosition="center" />}
               {dnsVerification?.dnsVerificationStatus && (
                 <>
                   <Button onClick={handleCopyDefaultCname} variant="secondary" className="flex items-center justify-center  gap-1" icon={<Copy size={14} />} iconPosition="left"></Button>
@@ -257,7 +266,7 @@ const DomainSettingsPage = () => {
 
   return (
     <div className="w-full flex justify-center py-4">
-      <div className="w-full max-w-[1200px] grid gap-6">
+      <div className="w-full max-w-300 grid gap-6">
         <PageHeading heading="Domain settings" />
         <Card>
           <CardContent>

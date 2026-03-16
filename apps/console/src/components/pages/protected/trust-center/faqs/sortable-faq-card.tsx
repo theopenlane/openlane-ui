@@ -21,9 +21,10 @@ interface SortableFaqCardProps {
   isUpdating: boolean
   onSaveEdit: () => void
   onCancelEdit: () => void
+  canEdit?: boolean
 }
 
-export function SortableFaqCard({ faq, isEditing, editingId, onStartEdit, onDelete, editForm, isUpdating, onSaveEdit, onCancelEdit }: SortableFaqCardProps) {
+export function SortableFaqCard({ faq, isEditing, editingId, onStartEdit, onDelete, editForm, isUpdating, onSaveEdit, onCancelEdit, canEdit }: SortableFaqCardProps) {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: faq.id })
 
   const style = {
@@ -41,7 +42,7 @@ export function SortableFaqCard({ faq, isEditing, editingId, onStartEdit, onDele
               <Input autoFocus className="bg-background text-sm" {...editForm.register('question')} />
               {editForm.formState.errors.question && <p className="text-red-500 text-sm">{editForm.formState.errors.question.message}</p>}
               <Label>Answer</Label>
-              <Textarea className="min-h-[100px] bg-background text-sm" {...editForm.register('answer')} />
+              <Textarea className="min-h-25 bg-background text-sm" {...editForm.register('answer')} />
               {editForm.formState.errors.answer && <p className="text-red-500 text-sm">{editForm.formState.errors.answer.message}</p>}
               <Label>Reference Link</Label>
               <Input className="bg-background text-sm" placeholder="https://..." {...editForm.register('referenceLink')} />
@@ -69,12 +70,16 @@ export function SortableFaqCard({ faq, isEditing, editingId, onStartEdit, onDele
                 )}
                 <div className="flex justify-end mt-1">
                   <div className="flex gap-3">
-                    <button className="text-muted-foreground" onClick={() => onStartEdit(faq)} disabled={!!editingId}>
-                      <Pencil size={16} />
-                    </button>
-                    <button className="text-muted-foreground" onClick={() => onDelete(faq.id)} disabled={!!editingId}>
-                      <Trash2 size={16} />
-                    </button>
+                    {canEdit && (
+                      <button className="text-muted-foreground" onClick={() => onStartEdit(faq)} disabled={!!editingId}>
+                        <Pencil size={16} />
+                      </button>
+                    )}
+                    {canEdit && (
+                      <button className="text-muted-foreground" onClick={() => onDelete(faq.id)} disabled={!!editingId}>
+                        <Trash2 size={16} />
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>

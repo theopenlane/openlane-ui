@@ -21,11 +21,14 @@ import { StandardDialog } from './create-framework-dialog/create-framework-dialo
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { Label } from '@repo/ui/label'
 import { useGetTrustCenter } from '@/lib/graphql-hooks/trust-center'
+import { useAccountRoles } from '@/lib/query-hooks/permissions'
+import { canEdit } from '@/lib/authz/utils'
 import { type StandardWhereInput } from '@repo/codegen/src/schema'
 import { useNavigationGuard } from 'next-navigation-guard'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
 import { useOrganization } from '@/hooks/useOrganization'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 export default function FrameworksPage() {
   const { successNotification, errorNotification } = useNotification()
@@ -41,6 +44,8 @@ export default function FrameworksPage() {
   const { mutateAsync: deleteStandard } = useDeleteStandard()
   const { data: trustCenterData } = useGetTrustCenter()
   const trustCenterID = trustCenterData?.trustCenters?.edges?.[0]?.node?.id ?? ''
+  const { data: tcPermission } = useAccountRoles(ObjectTypes.TRUST_CENTER, trustCenterID)
+  const canEditTc = canEdit(tcPermission?.roles)
 
   const { compliances, isLoading: compliancesLoading, isError: compliancesError, isFetched } = useGetTrustCenterCompliances()
   const where: StandardWhereInput = isChecked ? { hasTrustCenterCompliancesWith: [{ trustCenterID }] } : {}
@@ -212,18 +217,22 @@ export default function FrameworksPage() {
           </div>
 
           <div className="flex gap-2">
-            <Button icon={<BookUp2 />} iconPosition="left" variant="secondary" disabled={publishDisabled} onClick={handlePublish}>
-              Publish
-            </Button>
+            {canEditTc && (
+              <Button icon={<BookUp2 />} iconPosition="left" variant="secondary" disabled={publishDisabled} onClick={handlePublish}>
+                Publish
+              </Button>
+            )}
 
-            <StandardDialog
-              resetPagination={resetPagination}
-              trigger={
-                <Button icon={<SquarePlus />} iconPosition="left">
-                  Add Custom Framework
-                </Button>
-              }
-            />
+            {canEditTc && (
+              <StandardDialog
+                resetPagination={resetPagination}
+                trigger={
+                  <Button icon={<SquarePlus />} iconPosition="left">
+                    Add Custom Framework
+                  </Button>
+                }
+              />
+            )}
           </div>
         </div>
       </div>
@@ -257,36 +266,40 @@ export default function FrameworksPage() {
                       {!standard.systemOwned && (
                         <>
                           <Badge variant="blue">Custom</Badge>
-                          <StandardDialog
-                            resetPagination={resetPagination}
-                            trigger={
-                              <button>
-                                <PencilIcon size={16} className="text-muted-foreground" />
-                              </button>
-                            }
-                            standard={standard}
-                          />
-                          <TooltipProvider>
-                            <Tooltip delayDuration={0}>
-                              <TooltipTrigger asChild>
-                                <button
-                                  disabled={defaultIsAssociated}
-                                  className="disabled:opacity-50 disabled:cursor-not-allowed"
-                                  onClick={() => {
-                                    setStandardToDelete(standard.id)
-                                    setDeleteDialogOpen(true)
-                                  }}
-                                >
-                                  <Trash2 size={16} className="text-muted-foreground" />
+                          {canEditTc && (
+                            <StandardDialog
+                              resetPagination={resetPagination}
+                              trigger={
+                                <button>
+                                  <PencilIcon size={16} className="text-muted-foreground" />
                                 </button>
-                              </TooltipTrigger>
-                              {defaultIsAssociated && (
-                                <TooltipContent side="top">
-                                  <p className="max-w-[250px] text-xs">You must remove this and publish the trust center before you can delete the custom framework.</p>
-                                </TooltipContent>
-                              )}
-                            </Tooltip>
-                          </TooltipProvider>
+                              }
+                              standard={standard}
+                            />
+                          )}
+                          {canEditTc && (
+                            <TooltipProvider>
+                              <Tooltip delayDuration={0}>
+                                <TooltipTrigger asChild>
+                                  <button
+                                    disabled={defaultIsAssociated}
+                                    className="disabled:opacity-50 disabled:cursor-not-allowed"
+                                    onClick={() => {
+                                      setStandardToDelete(standard.id)
+                                      setDeleteDialogOpen(true)
+                                    }}
+                                  >
+                                    <Trash2 size={16} className="text-muted-foreground" />
+                                  </button>
+                                </TooltipTrigger>
+                                {defaultIsAssociated && (
+                                  <TooltipContent side="top">
+                                    <p className="max-w-62.5 text-xs">You must remove this and publish the trust center before you can delete the custom framework.</p>
+                                  </TooltipContent>
+                                )}
+                              </Tooltip>
+                            </TooltipProvider>
+                          )}
                         </>
                       )}
                     </div>
