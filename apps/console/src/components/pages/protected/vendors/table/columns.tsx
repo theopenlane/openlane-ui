@@ -7,6 +7,7 @@ import { UserCell } from '@/components/shared/crud-base/columns/user-cell'
 import { BooleanCell } from '@/components/shared/crud-base/columns/boolean-cell'
 import { createSelectColumn } from '@/components/shared/crud-base/columns/select-column'
 import { CustomEnumChipCell } from '@/components/shared/crud-base/columns/custom-enum-chip-cell'
+import { ResponsibilityCell } from '@/components/shared/crud-base/columns/responsibility-cell'
 
 export const getColumns = ({ userMap, convertToReadOnly, selectedItems, setSelectedItems }: ColumnOptions): ColumnDef<EntitiesNodeNonNull>[] => {
   return [
@@ -75,7 +76,12 @@ export const getColumns = ({ userMap, convertToReadOnly, selectedItems, setSelec
       size: 100,
       cell: ({ cell }) => <BooleanCell value={cell.getValue() as boolean | null | undefined} />,
     },
-    { accessorKey: 'internalOwner', header: 'Internal Owner', size: 150 },
+    {
+      accessorKey: 'internalOwner',
+      header: 'Internal Owner',
+      size: 160,
+      cell: ({ row }) => <ResponsibilityCell userMap={userMap} user={row.original.internalOwnerUser} group={row.original.internalOwnerGroup} stringValue={row.original.internalOwner} />,
+    },
     { accessorKey: 'lastReviewedAt', header: 'Last Reviewed At', size: 130, cell: ({ cell }) => formatDate(cell.getValue() as string) },
     {
       accessorKey: 'mfaEnforced',
@@ -91,7 +97,12 @@ export const getColumns = ({ userMap, convertToReadOnly, selectedItems, setSelec
     },
     { accessorKey: 'nextReviewAt', header: 'Next Review At', size: 130, cell: ({ cell }) => formatDate(cell.getValue() as string) },
     { accessorKey: 'renewalRisk', header: 'Renewal Risk', size: 120 },
-    { accessorKey: 'reviewedBy', header: 'Reviewed By', size: 120 },
+    {
+      accessorKey: 'reviewedBy',
+      header: 'Reviewed By',
+      size: 160,
+      cell: ({ row }) => <ResponsibilityCell userMap={userMap} user={row.original.reviewedByUser} group={row.original.reviewedByGroup} stringValue={row.original.reviewedBy} />,
+    },
     { accessorKey: 'riskRating', header: 'Risk Rating', size: 120 },
     { accessorKey: 'riskScore', header: 'Risk Score', size: 100 },
     { accessorKey: 'scopeName', header: 'Scope Name', size: 120, cell: ({ cell }) => <CustomEnumChipCell value={cell.getValue() as string} field="scope" /> },

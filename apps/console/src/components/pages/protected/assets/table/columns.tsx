@@ -8,6 +8,7 @@ import { BooleanCell } from '@/components/shared/crud-base/columns/boolean-cell'
 import { createSelectColumn } from '@/components/shared/crud-base/columns/select-column'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { CustomEnumChipCell } from '@/components/shared/crud-base/columns/custom-enum-chip-cell'
+import { ResponsibilityCell } from '@/components/shared/crud-base/columns/responsibility-cell'
 
 export const getColumns = ({ userMap, convertToReadOnly, selectedItems, setSelectedItems }: ColumnOptions): ColumnDef<AssetsNodeNonNull>[] => {
   return [
@@ -64,6 +65,12 @@ export const getColumns = ({ userMap, convertToReadOnly, selectedItems, setSelec
     { accessorKey: 'environmentName', header: 'Environment', size: 120, cell: ({ cell }) => <CustomEnumChipCell value={cell.getValue() as string} field="environment" /> },
     { accessorKey: 'estimatedMonthlyCost', header: 'Est. Monthly Cost', size: 120 },
     { accessorKey: 'identifier', header: 'Identifier', size: 120 },
+    {
+      accessorKey: 'internalOwner',
+      header: 'Internal Owner',
+      size: 160,
+      cell: ({ row }) => <ResponsibilityCell userMap={userMap} user={row.original.internalOwnerUser} group={row.original.internalOwnerGroup} stringValue={row.original.internalOwner} />,
+    },
     { accessorKey: 'physicalLocation', header: 'Physical Location', size: 120 },
     { accessorKey: 'purchaseDate', header: 'Purchase Date', size: 120, cell: ({ cell }) => <DateCell value={cell.getValue() as string} /> },
     { accessorKey: 'region', header: 'Region', size: 120 },
