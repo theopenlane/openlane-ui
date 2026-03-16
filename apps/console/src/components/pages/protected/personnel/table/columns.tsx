@@ -8,6 +8,7 @@ import { TagsCell } from '@/components/shared/crud-base/columns/tags-cell'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { createSelectColumn } from '@/components/shared/crud-base/columns/select-column'
 import { CustomEnumChipCell } from '@/components/shared/crud-base/columns/custom-enum-chip-cell'
+import { ResponsibilityCell } from '@/components/shared/crud-base/columns/responsibility-cell'
 
 export const getColumns = ({ userMap, selectedItems, setSelectedItems }: ColumnOptions): ColumnDef<IdentityHoldersNodeNonNull>[] => {
   return [
@@ -48,7 +49,12 @@ export const getColumns = ({ userMap, selectedItems, setSelectedItems }: ColumnO
     { accessorKey: 'externalReferenceID', header: 'External Reference ID', size: 170 },
     { accessorKey: 'environmentName', header: 'Environment', size: 120, cell: ({ cell }) => <CustomEnumChipCell value={cell.getValue() as string} field="environment" /> },
     { accessorKey: 'scopeName', header: 'Scope', size: 120, cell: ({ cell }) => <CustomEnumChipCell value={cell.getValue() as string} field="scope" /> },
-    { accessorKey: 'internalOwner', header: 'Internal Owner', size: 150 },
+    {
+      accessorKey: 'internalOwner',
+      header: 'Internal Owner',
+      size: 160,
+      cell: ({ row }) => <ResponsibilityCell userMap={userMap} user={row.original.internalOwnerUser} group={row.original.internalOwnerGroup} stringValue={row.original.internalOwner} />,
+    },
     { accessorKey: 'tags', header: 'Tags', size: 180, cell: ({ row }) => <TagsCell tags={row.original.tags} /> },
     { accessorKey: 'createdAt', header: 'Created At', size: 130, cell: ({ cell }) => <DateCell value={cell.getValue() as string} /> },
     {

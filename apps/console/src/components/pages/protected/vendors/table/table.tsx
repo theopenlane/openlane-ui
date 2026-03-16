@@ -64,6 +64,8 @@ const TableComponent = ({
     items.forEach((item) => {
       if (item.createdBy) ids.add(item.createdBy)
       if (item.updatedBy) ids.add(item.updatedBy)
+      if (item.internalOwnerUser?.id) ids.add(item.internalOwnerUser.id)
+      if (item.reviewedByUser?.id) ids.add(item.reviewedByUser.id)
     })
     return Array.from(ids)
   }, [items])

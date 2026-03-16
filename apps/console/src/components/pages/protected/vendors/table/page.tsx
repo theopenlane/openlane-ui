@@ -221,6 +221,10 @@ const VendorPage: React.FC = () => {
     },
     bulkEditFormSchema: bulkEditFieldSchema,
     enumOpts,
+    responsibilityFields: {
+      internalOwner: { fieldBaseName: 'internalOwner' },
+      reviewedBy: { fieldBaseName: 'reviewedBy' },
+    },
   }
 
   return <GenericTablePage {...tableConfig} />

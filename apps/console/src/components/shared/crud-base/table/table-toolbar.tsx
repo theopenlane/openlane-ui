@@ -20,7 +20,7 @@ import { type TableKeyValue } from '@repo/ui/table-key'
 import { TableFilter } from '../../table-filter/table-filter'
 import { type FilterField } from '@/types'
 import type { WhereCondition } from '@/types'
-import { GenericBulkEditDialog } from '../dialog/bulk-edit'
+import { GenericBulkEditDialog, type ResponsibilityFieldsMap } from '../dialog/bulk-edit'
 import { type EnumOptionsGeneric } from '../page'
 
 type GenericTableToolbarProps<T extends { id: string }, TWhereInput, TUpdateInput> = {
@@ -48,6 +48,7 @@ type GenericTableToolbarProps<T extends { id: string }, TWhereInput, TUpdateInpu
   bulkEditFormSchema?: ZodObject<ZodRawShape>
   storageKey: TableKeyValue
   enumOpts?: EnumOptionsGeneric
+  responsibilityFields?: ResponsibilityFieldsMap
 }
 
 function GenericTableToolbar<T extends { id: string }, TWhereInput, TUpdateInput>(props: GenericTableToolbarProps<T, TWhereInput, TUpdateInput>) {
@@ -120,6 +121,7 @@ function GenericTableToolbar<T extends { id: string }, TWhereInput, TUpdateInput
                     }}
                     enumOpts={props.enumOpts}
                     entityType={props.entityType}
+                    responsibilityFields={props.responsibilityFields}
                   />
                 </>
               )}
