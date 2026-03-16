@@ -47,12 +47,12 @@ export interface GenericDetailsSheetConfig<TFormData extends FieldValues, TData,
   objectType: ObjectTypes
   form: UseFormReturn<TFormData>
 
-  createMutation: {
+  createMutation?: {
     mutateAsync: (input: TCreateInput) => Promise<TCreateData>
     isPending: boolean
   }
 
-  updateMutation: {
+  updateMutation?: {
     mutateAsync: (params: { id: string; input: TUpdateInput }) => Promise<TUpdateData>
     isPending: boolean
   }
@@ -72,7 +72,7 @@ export interface GenericDetailsSheetConfig<TFormData extends FieldValues, TData,
   isFetching: boolean
   formId?: string
 
-  buildPayload: (data: TFormData) => Promise<TUpdateInput | TCreateInput>
+  buildPayload?: (data: TFormData) => Promise<TUpdateInput | TCreateInput>
   normalizeData?: (data: TData) => Partial<TFormData>
   getName?: (data: TData) => string | null | undefined
 
@@ -119,7 +119,7 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
   const isCreate = isCreateMode !== undefined ? isCreateMode : searchParams.get('create') === 'true'
 
   const { data: permission } = useAccountRoles(objectType, id)
-  const isEditAllowed = canEdit(permission?.roles)
+  const isEditAllowed = !!updateMutation && canEdit(permission?.roles)
 
   const objectTypeName = objectType.charAt(0).toUpperCase() + objectType.slice(1).toLowerCase()
   const createSuccessTitle = `${objectTypeName} Created`
@@ -186,11 +186,12 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
   }
 
   const onSubmit = async (formData: TFormData) => {
+    if (!buildPayload) return
     try {
       const payload = await buildPayload(formData)
       console.log(payload)
 
-      if (isCreate) {
+      if (isCreate && createMutation) {
         await createMutation.mutateAsync(payload as TCreateInput)
 
         queryClient.invalidateQueries({ queryKey })
@@ -200,7 +201,7 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
         })
 
         onClose?.()
-      } else if (id) {
+      } else if (id && updateMutation) {
         await updateMutation.mutateAsync({ id, input: payload as TUpdateInput })
 
         queryClient.invalidateQueries({ queryKey })
@@ -245,7 +246,7 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
   }
 
   const handleUpdateField = async (input: TUpdateInput) => {
-    if (!id || isEditing) {
+    if (!id || isEditing || !updateMutation) {
       return
     }
     try {
@@ -294,7 +295,7 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
               renderHeader({
                 close: handleSheetClose,
                 isEditing,
-                isPending: updateMutation.isPending || createMutation.isPending,
+                isPending: (updateMutation?.isPending || createMutation?.isPending) ?? false,
                 isCreate,
                 setIsEditing,
                 name: data && getName ? getName(data) : null,
@@ -306,7 +307,7 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
               <GenericSheetHeader
                 close={handleSheetClose}
                 isEditing={isEditing}
-                isPending={updateMutation.isPending || createMutation.isPending}
+                isPending={(updateMutation?.isPending || createMutation?.isPending) ?? false}
                 isCreate={isCreate}
                 setIsEditing={setIsEditing}
                 entityType={objectType}

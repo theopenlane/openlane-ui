@@ -1,8 +1,8 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
 import { DataTable, getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
 import React, { use, useEffect, useMemo, useState } from 'react'
+import { ViewPolicySheet } from '@/components/pages/protected/policies/view-policy-sheet'
 import {
   ExportExportFormat,
   ExportExportType,
@@ -37,7 +37,7 @@ import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { objectToSnakeCase } from '@/utils/strings'
 
 export const PoliciesTable = () => {
-  const router = useRouter()
+  const [selectedPolicyId, setSelectedPolicyId] = useState<string | null>(null)
   const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(TableKeyEnum.INTERNAL_POLICY, DEFAULT_PAGINATION))
   const [filters, setFilters] = useState<InternalPolicyWhereInput | null>(null)
   const [searchTerm, setSearchTerm] = useStorageSearch(ObjectTypes.INTERNAL_POLICY)
@@ -161,7 +161,7 @@ export const PoliciesTable = () => {
   const { columns, mappedColumns } = useMemo(() => getPoliciesColumns({ users, tokens, selectedPolicies, setSelectedPolicies, enumOptions }), [users, tokens, selectedPolicies, enumOptions])
 
   const handleRowClick = (rowData: InternalPolicy) => {
-    router.push(`/policies/${rowData.id}/view`)
+    setSelectedPolicyId(rowData.id)
   }
 
   function isVisibleColumn<T>(col: ColumnDef<T>): col is ColumnDef<T> & { accessorKey: string; header: string } {
@@ -248,6 +248,8 @@ export const PoliciesTable = () => {
         setColumnVisibility={setColumnVisibility}
         tableKey={TableKeyEnum.INTERNAL_POLICY}
       />
+
+      <ViewPolicySheet policyId={selectedPolicyId} onClose={() => setSelectedPolicyId(null)} />
     </>
   )
 }
