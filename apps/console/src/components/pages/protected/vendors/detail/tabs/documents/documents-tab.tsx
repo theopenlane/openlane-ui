@@ -242,37 +242,26 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, canEdit }) => {
       <div className="flex items-center gap-2 mb-3">
         <Input icon={<SearchIcon size={16} />} placeholder="Search..." value={searchTerm} onChange={(e) => setSearchTerm(e.currentTarget.value)} variant="searchTable" />
         <div className="grow flex flex-row items-center gap-2 justify-end">
+          {canEdit && (
+            <Button variant="primary" icon={<Upload />} iconPosition="left" onClick={() => setIsUploadDialogOpen(true)}>
+              Upload
+            </Button>
+          )}
           <Menu
             closeOnSelect={true}
             content={(close) => (
-              <>
-                {canEdit && (
-                  <Button
-                    size="sm"
-                    variant="transparent"
-                    className="px-1 flex items-center justify-start space-x-2 cursor-pointer"
-                    onClick={() => {
-                      setIsUploadDialogOpen(true)
-                      close()
-                    }}
-                  >
-                    <Upload size={16} strokeWidth={2} />
-                    <span>Bulk Upload</span>
-                  </Button>
-                )}
-                <Button
-                  size="sm"
-                  variant="transparent"
-                  className="px-1 flex items-center justify-start space-x-2 cursor-pointer"
-                  onClick={() => {
-                    handleExportCSV()
-                    close()
-                  }}
-                >
-                  <DownloadIcon size={16} strokeWidth={2} />
-                  <span>Export</span>
-                </Button>
-              </>
+              <Button
+                size="sm"
+                variant="transparent"
+                className="px-1 flex items-center justify-start space-x-2 cursor-pointer"
+                onClick={() => {
+                  handleExportCSV()
+                  close()
+                }}
+              >
+                <DownloadIcon size={16} strokeWidth={2} />
+                <span>Export</span>
+              </Button>
             )}
           />
           <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.ENTITY_FILES} />
