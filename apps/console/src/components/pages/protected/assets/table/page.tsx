@@ -214,6 +214,9 @@ const AssetPage: React.FC = () => {
     },
     bulkEditFormSchema: bulkEditFieldSchema,
     enumOpts,
+    responsibilityFields: {
+      internalOwner: { fieldBaseName: 'internalOwner' },
+    },
   }
 
   return <GenericTablePage {...tableConfig} />

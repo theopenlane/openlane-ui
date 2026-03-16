@@ -19,6 +19,10 @@ import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-butto
 import { type ObjectTypes } from '@repo/codegen/src/type-names'
 import { type EnumOptionsGeneric } from '../page'
 import { toHumanLabel } from '@/utils/strings'
+import { type ResponsibilitySelection } from '../form-fields/responsibility-field-utils'
+import { BulkResponsibilityPicker } from '../form-fields/bulk-responsibility-picker'
+
+export type ResponsibilityFieldsMap = Record<string, { fieldBaseName: string }>
 
 export interface BulkEditFieldOption {
   label: string
@@ -36,13 +40,14 @@ interface GenericBulkEditDialogProps<T extends { id: string }, TUpdateInput> {
   open?: boolean
   onOpenChange?: (open: boolean) => void
   enumOpts?: EnumOptionsGeneric
+  responsibilityFields?: ResponsibilityFieldsMap
 }
 
 const fieldItemSchema = z.object({
   fieldKey: z.string().optional(),
-  selectedConfig: z.any().optional(),
   selectedValue: z.union([z.string(), z.boolean()]).optional(),
   selectedDate: z.date().nullable().optional(),
+  selectedResponsibility: z.any().optional(),
 })
 
 const bulkEditSchema = z.object({
@@ -54,6 +59,7 @@ interface BulkEditFormValues {
     fieldKey?: string
     selectedValue?: string | boolean
     selectedDate?: Date | null
+    selectedResponsibility?: ResponsibilitySelection
   }>
 }
 
@@ -68,6 +74,7 @@ export function GenericBulkEditDialog<T extends { id: string }, TUpdateInput>({
   open: openProp,
   onOpenChange,
   enumOpts,
+  responsibilityFields,
 }: GenericBulkEditDialogProps<T, TUpdateInput>) {
   const [open, setOpen] = useState(openProp ?? false)
   const { errorNotification, successNotification } = useNotification()
@@ -91,7 +98,9 @@ export function GenericBulkEditDialog<T extends { id: string }, TUpdateInput>({
 
   const watchedFields = useWatch({ control, name: 'fieldsArray' }) || []
   const hasFieldsToUpdate = watchedFields.some(
-    (field) => field.fieldKey && ((field.selectedValue !== undefined && field.selectedValue !== '') || (field.selectedDate !== undefined && field.selectedDate !== null)),
+    (field) =>
+      field.fieldKey &&
+      ((field.selectedValue !== undefined && field.selectedValue !== '') || (field.selectedDate !== undefined && field.selectedDate !== null) || field.selectedResponsibility !== undefined),
   )
 
   const { fields, append, update, replace, remove } = useFieldArray({
@@ -107,6 +116,7 @@ export function GenericBulkEditDialog<T extends { id: string }, TUpdateInput>({
         fieldKey: undefined,
         selectedValue: undefined,
         selectedDate: undefined,
+        selectedResponsibility: undefined,
       })
     }
   }, [open, append, replace])
@@ -119,10 +129,37 @@ export function GenericBulkEditDialog<T extends { id: string }, TUpdateInput>({
 
     watchedFields.forEach((field) => {
       const key = field.fieldKey
-      if (key && field.selectedValue !== undefined && field.selectedValue !== '') {
+      if (!key) return
+
+      const respConfig = responsibilityFields?.[key]
+      if (respConfig && field.selectedResponsibility !== undefined) {
+        const selection = field.selectedResponsibility as ResponsibilitySelection
+        const baseName = respConfig.fieldBaseName
+        const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
+        const inputRecord = input as Record<string, unknown>
+
+        if (!selection) {
+          inputRecord[`clear${capitalize(baseName)}User`] = true
+          inputRecord[`clear${capitalize(baseName)}Group`] = true
+          inputRecord[`clear${capitalize(baseName)}`] = true
+        } else if (selection.type === 'user') {
+          inputRecord[`${baseName}UserID`] = selection.value
+          inputRecord[`clear${capitalize(baseName)}Group`] = true
+        } else if (selection.type === 'group') {
+          inputRecord[`${baseName}GroupID`] = selection.value
+          inputRecord[`clear${capitalize(baseName)}User`] = true
+        } else if (selection.type === 'string') {
+          inputRecord[baseName] = selection.value
+          inputRecord[`clear${capitalize(baseName)}User`] = true
+          inputRecord[`clear${capitalize(baseName)}Group`] = true
+        }
+        return
+      }
+
+      if (field.selectedValue !== undefined && field.selectedValue !== '') {
         input[key as keyof TUpdateInput] = field.selectedValue as TUpdateInput[keyof TUpdateInput]
       }
-      if (key && field.selectedDate) {
+      if (field.selectedDate) {
         input[key as keyof TUpdateInput] = field.selectedDate as TUpdateInput[keyof TUpdateInput]
       }
     })
@@ -184,6 +221,7 @@ export function GenericBulkEditDialog<T extends { id: string }, TUpdateInput>({
                             fieldKey: value,
                             selectedValue: undefined,
                             selectedDate: undefined,
+                            selectedResponsibility: undefined,
                           })
                         }}
                       >
@@ -199,7 +237,13 @@ export function GenericBulkEditDialog<T extends { id: string }, TUpdateInput>({
                         </SelectContent>
                       </Select>
                     </div>
-                    {fieldKey && selectOptions ? (
+                    {fieldKey && responsibilityFields?.[fieldKey] ? (
+                      <Controller
+                        control={control}
+                        name={`fieldsArray.${index}.selectedResponsibility`}
+                        render={({ field }) => <BulkResponsibilityPicker value={field.value as ResponsibilitySelection} onChange={field.onChange} />}
+                      />
+                    ) : fieldKey && selectOptions ? (
                       <Controller
                         control={control}
                         name={`fieldsArray.${index}.selectedValue`}
@@ -272,6 +316,7 @@ export function GenericBulkEditDialog<T extends { id: string }, TUpdateInput>({
                       fieldKey: undefined,
                       selectedValue: undefined,
                       selectedDate: undefined,
+                      selectedResponsibility: undefined,
                     })
                   }
                   iconPosition="left"
