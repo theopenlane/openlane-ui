@@ -177,14 +177,14 @@ const FieldRow = ({
   }
 
   return (
-    <div className={`flex justify-between items-center border-b border-border pb-3`}>
-      <div className="flex gap-2 w-50 items-center">
+    <div className="flex items-center gap-4 border-b border-border pb-3">
+      <div className="flex gap-2 w-32 shrink-0 items-center">
         {getFieldIcon(label)}
         <span className="text-sm">{label}</span>
       </div>
       <HoverPencilWrapper
         showPencil={showPencil}
-        className={`w-50 ${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+        className={`flex-1 min-w-0 ${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
         onPencilClick={() => {
           if (isEditAllowed && onDoubleClick) onDoubleClick()
         }}

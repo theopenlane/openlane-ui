@@ -113,8 +113,6 @@ const ViewRiskSheet: React.FC<Props> = ({ entityId, onClose }) => {
     normalizeData,
     getName,
     renderFields,
-    minWidth: '30vw',
-    initialWidth: '40vw',
   }
 
   return <GenericDetailsSheet onClose={onClose} {...sheetConfig} />
