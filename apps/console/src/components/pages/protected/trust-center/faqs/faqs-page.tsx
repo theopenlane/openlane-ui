@@ -18,7 +18,7 @@ import {
   type TrustCenterFaqsNodeNonNull,
 } from '@/lib/graphql-hooks/trust-center-faq'
 import { useQueryClient } from '@tanstack/react-query'
-import { type TrustCenterFaQsWithFilterQuery } from '@repo/codegen/src/schema'
+import { type TrustCenterFaQsWithFilterQuery, OrderDirection, TrustCenterFaqOrderField } from '@repo/codegen/src/schema'
 import { DndContext, closestCenter, type DragEndEvent } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable'
 import type { FaqFormValues } from './hooks/use-form-schema'
@@ -37,14 +37,13 @@ export default function FaqsPage() {
 
   const { trustCenterFaqsNodes } = useTrustCenterFaqsWithFilter({
     where: { hasTrustCenterWith: [{ id: trustCenterID }] },
+    orderBy: [{ field: TrustCenterFaqOrderField.DISPLAY_ORDER, direction: OrderDirection.ASC }],
     enabled: !!trustCenterID,
   })
 
   const [dragOrderIds, setDragOrderIds] = useState<string[] | null>(null)
 
-  const sortedFaqs = [...trustCenterFaqsNodes].sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0))
-
-  const orderedFaqs = dragOrderIds ? dragOrderIds.map((id) => sortedFaqs.find((f) => f.id === id)).filter((f): f is TrustCenterFaqsNodeNonNull => f != null) : sortedFaqs
+  const orderedFaqs = dragOrderIds ? dragOrderIds.map((id) => trustCenterFaqsNodes.find((f) => f.id === id)).filter((f): f is TrustCenterFaqsNodeNonNull => f != null) : trustCenterFaqsNodes
 
   const { mutateAsync: createFaq, isPending: isCreating } = useCreateTrustCenterFaq()
   const { mutateAsync: updateFaq } = useUpdateTrustCenterFaq()
