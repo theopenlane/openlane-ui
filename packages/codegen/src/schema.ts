@@ -65813,7 +65813,19 @@ export type GetEntityAssociationsQuery = {
     integrations: {
       __typename?: 'IntegrationConnection'
       totalCount: number
-      edges?: Array<{ __typename?: 'IntegrationEdge'; node?: { __typename?: 'Integration'; id: string; name: string; kind?: string | null; description?: string | null } | null } | null> | null
+      edges?: Array<{
+        __typename?: 'IntegrationEdge'
+        node?: {
+          __typename?: 'Integration'
+          id: string
+          name: string
+          kind?: string | null
+          description?: string | null
+          environmentName?: string | null
+          integrationType?: string | null
+          updatedAt?: any | null
+        } | null
+      } | null> | null
     }
   }
 }

@@ -7,7 +7,7 @@ import { TableKeyEnum } from '@repo/ui/table-key'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { Switch } from '@repo/ui/switch'
 import { Input } from '@repo/ui/input'
-import { Plus, SearchIcon } from 'lucide-react'
+import { DownloadIcon, Plus, SearchIcon } from 'lucide-react'
 import ColumnVisibilityMenu, { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import Menu from '@/components/shared/menu/menu'
@@ -114,6 +114,32 @@ const ContractTab: React.FC<ContractTabProps> = ({ vendor, vendorId }) => {
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.VENDOR_CONTRACT, COLUMN_VISIBILITY_DEFAULTS))
   const [showAddDialog, setShowAddDialog] = useState(false)
 
+  const handleExportCSV = (data: ContractRow[]) => {
+    if (data.length === 0) return
+
+    const headers = ['Start Date', 'End Date', 'Termination Notice', 'Renewal Date', 'Annual Spend', 'Spend Currency', 'Auto-Renew']
+    const rows = data.map((r) => [
+      r.startDate ? new Date(r.startDate).toLocaleDateString() : '',
+      r.endDate ? new Date(r.endDate).toLocaleDateString() : '',
+      r.terminationNoticeDays != null ? `${r.terminationNoticeDays} days` : '',
+      r.renewalDate ? new Date(r.renewalDate).toLocaleDateString() : '',
+      r.annualSpend != null ? `$${r.annualSpend.toLocaleString()}` : '',
+      r.spendCurrency ?? '',
+      r.autoRenews ? 'Yes' : 'No',
+    ])
+
+    const csvContent = [headers, ...rows].map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n')
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', 'vendor-contract.csv')
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+  }
+
   const contractData: ContractRow[] = []
 
   const hasContractData = vendor.contractStartDate || vendor.contractEndDate || vendor.contractRenewalAt || vendor.annualSpend || vendor.terminationNoticeDays || vendor.autoRenews !== null
@@ -136,7 +162,23 @@ const ContractTab: React.FC<ContractTabProps> = ({ vendor, vendorId }) => {
       <div className="flex items-center gap-2 mb-3">
         <Input icon={<SearchIcon size={16} />} placeholder="Search..." disabled variant="searchTable" />
         <div className="grow flex flex-row items-center gap-2 justify-end">
-          <Menu content={<div className="text-sm text-muted-foreground">No actions available</div>} />
+          <Menu
+            closeOnSelect={true}
+            content={(close) => (
+              <Button
+                size="sm"
+                variant="transparent"
+                className="px-1 flex items-center justify-start space-x-2 cursor-pointer"
+                onClick={() => {
+                  handleExportCSV(contractData)
+                  close()
+                }}
+              >
+                <DownloadIcon size={16} strokeWidth={2} />
+                <span>Export</span>
+              </Button>
+            )}
+          />
           <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.VENDOR_CONTRACT} />
           <TableFilter filterFields={[]} onFilterChange={() => {}} pageKey={TableKeyEnum.VENDOR_CONTRACT} />
           {!hasContractData && (

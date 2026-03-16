@@ -1,8 +1,20 @@
 import { useMemo } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useMutation } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
-import { GET_CONTACTS } from '@repo/codegen/query/contact'
-import { type GetContactsQuery, type GetContactsQueryVariables, type ContactWhereInput, ContactUserStatus } from '@repo/codegen/src/schema'
+import { GET_CONTACTS, CREATE_CSV_BULK_CONTACT, BULK_DELETE_CONTACT, BULK_EDIT_CONTACT } from '@repo/codegen/query/contact'
+import {
+  type GetContactsQuery,
+  type GetContactsQueryVariables,
+  type ContactWhereInput,
+  ContactUserStatus,
+  type CreateBulkCsvContactMutation,
+  type CreateBulkCsvContactMutationVariables,
+  type DeleteBulkContactMutation,
+  type DeleteBulkContactMutationVariables,
+  type UpdateBulkContactMutation,
+  type UpdateBulkContactMutationVariables,
+} from '@repo/codegen/src/schema'
+import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
 
 type UseContactsArgs = {
   where?: ContactWhereInput
@@ -34,4 +46,37 @@ export const useContacts = ({ where, enabled = true }: UseContactsArgs) => {
     contacts,
     isLoading: queryResult.isLoading,
   }
+}
+
+export const useCreateBulkCSVContact = () => {
+  const { queryClient } = useGraphQLClient()
+
+  return useMutation<CreateBulkCsvContactMutation, unknown, CreateBulkCsvContactMutationVariables>({
+    mutationFn: async (variables) => fetchGraphQLWithUpload({ query: CREATE_CSV_BULK_CONTACT, variables }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['contacts'] })
+    },
+  })
+}
+
+export const useBulkDeleteContact = () => {
+  const { client, queryClient } = useGraphQLClient()
+
+  return useMutation<DeleteBulkContactMutation, unknown, DeleteBulkContactMutationVariables>({
+    mutationFn: async (variables) => client.request(BULK_DELETE_CONTACT, variables),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['contacts'] })
+    },
+  })
+}
+
+export const useBulkEditContact = () => {
+  const { client, queryClient } = useGraphQLClient()
+
+  return useMutation<UpdateBulkContactMutation, unknown, UpdateBulkContactMutationVariables>({
+    mutationFn: async (variables) => client.request(BULK_EDIT_CONTACT, variables),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['contacts'] })
+    },
+  })
 }

@@ -15,7 +15,6 @@ import { useGetEntityFilesPaginated, useUploadEntityFiles } from '@/lib/graphql-
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
-import { createSelectColumn } from '@/components/shared/crud-base/columns/select-column'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { DocumentsUploadDialog } from '@/components/shared/documents-section/documents-upload-dialog'
 import { Button } from '@repo/ui/button'
@@ -24,7 +23,7 @@ import { fileDownload } from '@/components/shared/lib/export'
 import ColumnVisibilityMenu, { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import Menu from '@/components/shared/menu/menu'
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
-import { Check, X, Download, SearchIcon } from 'lucide-react'
+import { Check, X, Download, DownloadIcon, Upload, SearchIcon } from 'lucide-react'
 import MarkAsEvidenceDialog from './mark-as-evidence-dialog'
 import UnmarkEvidenceDialog from './unmark-evidence-dialog'
 
@@ -69,12 +68,12 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, canEdit }) => {
   ])
   const [orderBy, setOrderBy] = useState<FileOrder[]>(defaultSorting)
   const [searchTerm, setSearchTerm] = useState('')
-  const [selectedFiles, setSelectedFiles] = useState<{ id: string }[]>([])
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.ENTITY_FILES, COLUMN_VISIBILITY_DEFAULTS))
   const { successNotification, errorNotification } = useNotification()
 
   const [markEvidenceFile, setMarkEvidenceFile] = useState<{ id: string; name: string } | null>(null)
   const [unmarkEvidenceFile, setUnmarkEvidenceFile] = useState<{ id: string; name: string } | null>(null)
+  const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false)
 
   const { client } = useGraphQLClient()
 
@@ -128,6 +127,25 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, canEdit }) => {
     }
   }
 
+  const handleExportCSV = () => {
+    const visibleFiles = files.filter((f): f is TFile => !!f)
+    if (visibleFiles.length === 0) return
+
+    const headers = ['File Name', 'Category', 'Uploaded Date', 'Classified as Evidence']
+    const rows = visibleFiles.map((f) => [f.providedFileName, f.categoryType || '', f.createdAt ? new Date(f.createdAt).toLocaleDateString() : '', evidenceFileIds.has(f.id) ? 'Yes' : 'No'])
+
+    const csvContent = [headers, ...rows].map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n')
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', 'vendor-documents.csv')
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+  }
+
   const filteredFiles = files.filter((f): f is TFile => {
     if (!f) return false
     if (!searchTerm) return true
@@ -137,7 +155,6 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, canEdit }) => {
   const isClassifiedAsEvidence = (file: TFile) => evidenceFileIds.has(file.id)
 
   const columns: ColumnDef<TFile>[] = [
-    createSelectColumn<TFile>(selectedFiles, setSelectedFiles),
     {
       accessorKey: 'providedFileName',
       header: 'File Name',
@@ -188,7 +205,7 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, canEdit }) => {
           <div onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()} className="flex items-center gap-2 justify-end">
             {canEdit &&
               (classified ? (
-                <Button variant="secondary" size="sm" icon={<X size={14} />} iconPosition="left" onClick={() => setUnmarkEvidenceFile({ id: row.original.id, name: row.original.providedFileName })}>
+                <Button variant="secondary" icon={<X />} iconPosition="left" onClick={() => setUnmarkEvidenceFile({ id: row.original.id, name: row.original.providedFileName })}>
                   Unmark Evidence
                 </Button>
               ) : (
@@ -225,10 +242,41 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, canEdit }) => {
       <div className="flex items-center gap-2 mb-3">
         <Input icon={<SearchIcon size={16} />} placeholder="Search..." value={searchTerm} onChange={(e) => setSearchTerm(e.currentTarget.value)} variant="searchTable" />
         <div className="grow flex flex-row items-center gap-2 justify-end">
-          <Menu content={<div className="text-sm text-muted-foreground">No actions available</div>} />
+          <Menu
+            closeOnSelect={true}
+            content={(close) => (
+              <>
+                {canEdit && (
+                  <Button
+                    size="sm"
+                    variant="transparent"
+                    className="px-1 flex items-center justify-start space-x-2 cursor-pointer"
+                    onClick={() => {
+                      setIsUploadDialogOpen(true)
+                      close()
+                    }}
+                  >
+                    <Upload size={16} strokeWidth={2} />
+                    <span>Bulk Upload</span>
+                  </Button>
+                )}
+                <Button
+                  size="sm"
+                  variant="transparent"
+                  className="px-1 flex items-center justify-start space-x-2 cursor-pointer"
+                  onClick={() => {
+                    handleExportCSV()
+                    close()
+                  }}
+                >
+                  <DownloadIcon size={16} strokeWidth={2} />
+                  <span>Export</span>
+                </Button>
+              </>
+            )}
+          />
           <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.ENTITY_FILES} />
           <TableFilter filterFields={[]} onFilterChange={() => {}} pageKey={TableKeyEnum.ENTITY_FILES} />
-          {canEdit && <DocumentsUploadDialog onUpload={handleUpload} isUploading={isUploading} title="Upload" buttonLabel="Upload" buttonVariant="primary" />}
         </div>
       </div>
 
@@ -249,6 +297,7 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, canEdit }) => {
 
       {markEvidenceFile && <MarkAsEvidenceDialog fileId={markEvidenceFile.id} fileName={markEvidenceFile.name} vendorId={vendorId} onClose={() => setMarkEvidenceFile(null)} />}
       {unmarkEvidenceFile && <UnmarkEvidenceDialog fileId={unmarkEvidenceFile.id} fileName={unmarkEvidenceFile.name} onClose={() => setUnmarkEvidenceFile(null)} />}
+      {canEdit && <DocumentsUploadDialog onUpload={handleUpload} isUploading={isUploading} title="Upload Documents" open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen} />}
     </div>
   )
 }

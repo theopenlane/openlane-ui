@@ -307,6 +307,9 @@ export const GET_ENTITY_ASSOCIATIONS = gql`
             name
             kind
             description
+            environmentName
+            integrationType
+            updatedAt
           }
         }
         totalCount

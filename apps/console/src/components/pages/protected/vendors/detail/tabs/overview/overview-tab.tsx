@@ -5,14 +5,15 @@ import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import { Input } from '@repo/ui/input'
-import { Check, X, Plus, SearchIcon, Link } from 'lucide-react'
+import { Check, X, Plus, SearchIcon, Link, MoreHorizontal } from 'lucide-react'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import type { EntityQuery, GetEntityAssociationsQuery } from '@repo/codegen/src/schema'
 import { useUpdateEntity } from '@/lib/graphql-hooks/entity'
 import { useNotification } from '@/hooks/useNotification'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { CustomEnumChipCell } from '@/components/shared/crud-base/columns/custom-enum-chip-cell'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { formatDateSince } from '@/utils/date'
 import AddDomainDialog from './add-domain-dialog'
 import LinkSystemDialog from './link-system-dialog'
 import AddAssetDialog from './add-asset-dialog'
@@ -272,8 +273,10 @@ const SystemSection: React.FC<SystemSectionProps> = ({ vendor, associations, can
             <thead>
               <tr className="border-b border-border bg-muted/50">
                 <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">System Name</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Kind</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Description</th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Environment</th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Connection Type</th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Status</th>
+                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Last Synced</th>
                 <th className="px-4 py-3" />
               </tr>
             </thead>
@@ -282,20 +285,31 @@ const SystemSection: React.FC<SystemSectionProps> = ({ vendor, associations, can
                 filteredIntegrations.map((integration) => (
                   <tr key={integration.id} className="border-b border-border last:border-b-0">
                     <td className="px-4 py-3 text-sm">{integration.name}</td>
-                    <td className="px-4 py-3 text-sm text-muted-foreground">{integration.kind ?? '—'}</td>
-                    <td className="px-4 py-3 text-sm text-muted-foreground">{integration.description ?? '—'}</td>
+                    <td className="px-4 py-3 text-sm text-muted-foreground">{integration.environmentName ?? '—'}</td>
+                    <td className="px-4 py-3 text-sm text-muted-foreground">{integration.integrationType ? getEnumLabel(integration.integrationType) : '—'}</td>
+                    <td className="px-4 py-3 text-sm text-muted-foreground">—</td>
+                    <td className="px-4 py-3 text-sm text-muted-foreground">{formatDateSince(integration.updatedAt)}</td>
                     <td className="px-4 py-3 text-right">
-                      {canEdit && (
-                        <button type="button" onClick={() => handleUnlinkSystem(integration.id, integration.name)} className="text-muted-foreground hover:text-destructive transition-colors">
-                          <X size={16} />
-                        </button>
-                      )}
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button type="button" variant="secondary" size="sm" className="size-8 p-0">
+                            <MoreHorizontal size={16} />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          {canEdit && (
+                            <DropdownMenuItem onClick={() => handleUnlinkSystem(integration.id, integration.name)} className="text-destructive">
+                              Unlink System
+                            </DropdownMenuItem>
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan={4} className="px-4 py-8 text-center text-sm text-muted-foreground">
+                  <td colSpan={6} className="px-4 py-8 text-center text-sm text-muted-foreground">
                     No systems linked
                   </td>
                 </tr>
@@ -314,55 +328,33 @@ const SystemSection: React.FC<SystemSectionProps> = ({ vendor, associations, can
             </Button>
           )}
         </div>
-        <div className="rounded-lg border border-border overflow-hidden">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-border bg-muted/50">
-                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Name</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Environment</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Scope</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Type</th>
-                <th className="px-4 py-3" />
-              </tr>
-            </thead>
-            <tbody>
-              {assets.length > 0 ? (
-                assets.map((asset) => (
-                  <tr key={asset.id} className="border-b border-border last:border-b-0 cursor-pointer hover:bg-muted/30 transition-colors" onClick={() => smartRouter.replace({ assetId: asset.id })}>
-                    <td className="px-4 py-3 text-sm">{asset.displayName || asset.name}</td>
-                    <td className="px-4 py-3 text-sm">
-                      <CustomEnumChipCell value={asset.environmentName} field="environment" />
-                    </td>
-                    <td className="px-4 py-3 text-sm">
-                      <CustomEnumChipCell value={asset.scopeName} field="scope" />
-                    </td>
-                    <td className="px-4 py-3 text-sm">{asset.assetType ? getEnumLabel(asset.assetType) : '-'}</td>
-                    <td className="px-4 py-3 text-right">
-                      {canEdit && (
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            handleRemoveAsset(asset.id, asset.displayName || asset.name)
-                          }}
-                          className="text-muted-foreground hover:text-destructive transition-colors"
-                        >
-                          <X size={16} />
-                        </button>
-                      )}
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={5} className="px-4 py-8 text-center text-sm text-muted-foreground">
-                    No assets configured
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+        {assets.length > 0 ? (
+          <div className="space-y-3">
+            {assets.map((asset) => (
+              <div
+                key={asset.id}
+                className="flex items-center justify-between rounded-lg border border-border bg-card px-4 py-3 text-sm cursor-pointer hover:bg-muted/30 transition-colors"
+                onClick={() => smartRouter.replace({ assetId: asset.id })}
+              >
+                <span>{asset.displayName || asset.name}</span>
+                {canEdit && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleRemoveAsset(asset.id, asset.displayName || asset.name)
+                    }}
+                    className="text-muted-foreground hover:text-destructive transition-colors"
+                  >
+                    <X size={16} />
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-muted-foreground">No assets configured</p>
+        )}
       </div>
 
       {showLinkDialog && <LinkSystemDialog vendorId={vendor.id} linkedIntegrationIds={linkedIntegrationIds} onClose={() => setShowLinkDialog(false)} />}
