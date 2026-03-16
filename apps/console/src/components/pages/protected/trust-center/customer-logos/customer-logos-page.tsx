@@ -12,6 +12,9 @@ import { useDeleteTrustCenterEntity, useGetTrustCenterEntities, useUpdateTrustCe
 import CreateCustomerLogo from './create-customer-logo'
 import CustomerLogoCard from './customer-logo-card'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
+import { useAccountRoles } from '@/lib/query-hooks/permissions'
+import { canEdit } from '@/lib/authz/utils'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 export default function CustomerLogosPage() {
   const { setCrumbs } = use(BreadcrumbContext)
@@ -22,6 +25,8 @@ export default function CustomerLogosPage() {
 
   const { data: trustCenterData } = useGetTrustCenter()
   const trustCenterID = trustCenterData?.trustCenters?.edges?.[0]?.node?.id ?? ''
+  const { data: tcPermission } = useAccountRoles(ObjectTypes.TRUST_CENTER, trustCenterID)
+  const canEditTc = canEdit(tcPermission?.roles)
   const { entities } = useGetTrustCenterEntities({})
   const { mutateAsync: deleteEntity } = useDeleteTrustCenterEntity()
   const { mutateAsync: updateEntity } = useUpdateTrustCenterEntity()
@@ -63,9 +68,9 @@ export default function CustomerLogosPage() {
       <h1 className="text-2xl font-bold tracking-tight mb-8">Customer Logos</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <CreateCustomerLogo trustCenterID={trustCenterID} />
+        {canEditTc && <CreateCustomerLogo trustCenterID={trustCenterID} />}
 
-        <div className="relative min-h-[400px]">
+        <div className="relative min-h-100">
           {entities.length === 0 ? (
             <div className="absolute inset-0 border-2 border-dashed rounded-lg flex flex-col items-center justify-center text-center p-8 border-muted">
               <Building2 size={24} className="mb-4 text-muted-foreground" />
@@ -83,6 +88,7 @@ export default function CustomerLogosPage() {
                   logoUrl={entity.logoFile?.presignedURL ?? null}
                   onDelete={(id) => setEntityToDelete(id)}
                   url={entity.url}
+                  canEdit={canEditTc}
                 />
               ))}
             </div>
