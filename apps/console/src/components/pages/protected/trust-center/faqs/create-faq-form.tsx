@@ -25,7 +25,7 @@ export function CreateFaqForm({ disabled, isCreating, onSubmit }: CreateFaqFormP
     <Card className={disabled ? 'opacity-50 pointer-events-none' : ''}>
       <CardContent className="pt-6">
         <div className="mb-6">
-          <CardTitle>Add FAQ</CardTitle>
+          <CardTitle className="p-0 pb-6">Add FAQ</CardTitle>
           <p className="text-sm text-muted-foreground">Proactively answer the security questions buyers ask most to speed up procurement and security reviews.</p>
         </div>
 
