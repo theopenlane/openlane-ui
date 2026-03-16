@@ -62,7 +62,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, risk, isCreate, 
           control={control}
           render={({ field, fieldState }) => {
             return (
-              <div className="flex flex-col gap-1 w-[150px] min-w-0">
+              <div className="flex flex-col gap-1 w-37.5 min-w-0">
                 <RiskLabel
                   selectFieldClassname={'w-full'}
                   fieldName={fieldName}
@@ -178,13 +178,13 @@ const FieldRow = ({
 
   return (
     <div className={`flex justify-between items-center border-b border-border pb-3`}>
-      <div className="flex gap-2 w-[200px] items-center">
+      <div className="flex gap-2 w-50 items-center">
         {getFieldIcon(label)}
         <span className="text-sm">{label}</span>
       </div>
       <HoverPencilWrapper
         showPencil={showPencil}
-        className={`w-[200px] ${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+        className={`w-50 ${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
         onPencilClick={() => {
           if (isEditAllowed && onDoubleClick) onDoubleClick()
         }}
