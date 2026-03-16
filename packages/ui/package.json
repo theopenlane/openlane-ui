@@ -93,7 +93,7 @@
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
     "@emoji-mart/data": "1.2.1",
-    "@faker-js/faker": "^9.9.0",
+    "@faker-js/faker": "^10.0.0",
     "@hookform/resolvers": "^5.2.2",
     "@platejs/ai": "^52.0.1",
     "@platejs/autoformat": "^49.0.0",
