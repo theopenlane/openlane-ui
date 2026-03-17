@@ -27,7 +27,7 @@ const ObjectAssociationChip: React.FC<ObjectChipProps> = ({ object, kind, remova
   const { convertToReadOnly } = usePlateEditor()
 
   const displayText = object.refCode || object.displayName || object.name || object.title || ''
-  const displayDescription = object.details || object.summary || object.description || object.desiredOutcome || ''
+  const displayDescription = object.summary || object.details || object.description || object.desiredOutcome || ''
   const objectKind = kind || ''
   const handleNavigate = () => {
     window.open(object.link, '_blank')

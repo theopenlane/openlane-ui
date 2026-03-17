@@ -58,7 +58,7 @@ const LABEL_PADDING = 4
 const CustomTooltipContent = ({ node, interactive }: { node: TBaseAssociatedNode & { link: string }; interactive?: boolean }) => {
   const { convertToReadOnly } = usePlateEditor()
   const displayText = node.refCode || node.displayName || node.name || node.title || ''
-  const displayDescription = node.details || node.summary || node.description || node.desiredOutcome || ''
+  const displayDescription = node.summary || node.details || node.description || node.desiredOutcome || ''
   return (
     <div>
       <div className="grid grid-cols-[max-content_1fr] gap-x-4 items-center border-b pb-2">
@@ -188,7 +188,7 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
           items: nodes.map((node) => ({
             ...node,
             displayName: node.displayName || node.fullName,
-            description: node.details || node.summary || node.description || node.desiredOutcome || '',
+            description: node.summary || node.details || node.description || node.desiredOutcome || '',
             displayID: node.displayID || node.id,
             link:
               sectionType === 'subcontrols' && controlId ? getHrefForObjectType(sectionType, { ...node, controlId } as NormalizedObject) : getHrefForObjectType(sectionType, node as NormalizedObject),
@@ -227,7 +227,7 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
     const centerMeta: TBaseAssociatedNode & { link: string } = {
       ...centerNode.node,
       refCode: displayText,
-      description: centerNode.node.details || centerNode.node.summary || centerNode.node.description || centerNode.node.desiredOutcome || '',
+      description: centerNode.node.summary || centerNode.node.details || centerNode.node.description || centerNode.node.desiredOutcome || '',
       displayID: centerNode.node.displayID || centerNode.node.id,
       link: getHrefForObjectType(centerNode.type, centerNode.node as NormalizedObject),
       __typename: getType(centerNode.type),
