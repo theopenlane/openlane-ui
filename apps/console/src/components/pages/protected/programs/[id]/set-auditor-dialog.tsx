@@ -93,7 +93,7 @@ export const SetAuditorDialog = () => {
         <Button className="w-fit">Set auditor</Button>
       </DialogTrigger>
 
-      <DialogContent onOpenAutoFocus={(e) => e.preventDefault()} className="max-w-[497px]">
+      <DialogContent onOpenAutoFocus={(e) => e.preventDefault()} className="max-w-124.25">
         <DialogHeader>
           <DialogTitle>Set auditor</DialogTitle>
         </DialogHeader>
@@ -103,7 +103,7 @@ export const SetAuditorDialog = () => {
             <p className="text-base ">Need help finding an auditor?</p>
             <p>
               Reach out to support{' '}
-              <a href={AUDITOR_URL} className="underline">
+              <a href={AUDITOR_URL} className="underline" target="_blank" rel="noopener noreferrer">
                 for our partners list
               </a>
               .
