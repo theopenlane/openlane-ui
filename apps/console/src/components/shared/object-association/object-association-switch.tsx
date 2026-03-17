@@ -30,8 +30,8 @@ const ObjectAssociationSwitch: React.FC<TObjectAssociationSwitchProps> = ({ sect
   const [selectedProcedureId, setSelectedProcedureId] = useState<string | null>(null)
 
   const handleItemClick = (id: string, kind: string) => {
-    if (kind === 'policies') setSelectedPolicyId(id)
-    else if (kind === 'procedures') setSelectedProcedureId(id)
+    if (kind === ObjectAssociationNodeEnum.POLICY) setSelectedPolicyId(id)
+    else if (kind === ObjectAssociationNodeEnum.PROCEDURE) setSelectedProcedureId(id)
   }
 
   const handleAssociationDialog = () => {
@@ -115,6 +115,7 @@ const ObjectAssociationSwitch: React.FC<TObjectAssociationSwitchProps> = ({ sect
           isFullscreen={isFullscreen}
           onGroupSelect={setActiveGroup}
           clearGroupRef={clearGroupRef}
+          onItemClick={handleItemClick}
         />
       )}
       {isGraphView && !activeGroup && (
