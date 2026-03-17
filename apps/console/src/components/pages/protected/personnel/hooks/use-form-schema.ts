@@ -35,6 +35,7 @@ const formSchema = z.object({
 export const bulkEditFieldSchema = z.object({
   status: z.nativeEnum(IdentityHolderUserStatus).optional(),
   identityHolderType: z.nativeEnum(IdentityHolderIdentityHolderType).optional(),
+  internalOwner: responsibilityFieldSchema,
   isActive: z.boolean().optional(),
   isOpenlaneUser: z.boolean().optional(),
   environmentName: z.string().optional(),

@@ -53,6 +53,7 @@ export const bulkEditFieldSchema = z.object({
   encryptionStatusName: z.string().optional(),
   environmentName: z.string().optional(),
   identifier: z.string().optional(),
+  internalOwner: responsibilityFieldSchema,
   physicalLocation: z.string().optional(),
   region: z.string().optional(),
   scopeName: z.string().optional().nullable(),

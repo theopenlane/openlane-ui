@@ -130,6 +130,7 @@ const RiskTable: React.FC = () => {
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
+      { label: 'Exposure', href: '/exposure/overview' },
       { label: 'Risks', href: '/exposure/risks' },
     ])
   }, [setCrumbs])

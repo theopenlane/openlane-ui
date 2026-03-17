@@ -137,6 +137,7 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
+      { label: 'Compliance', href: '/programs' },
       { label: 'Controls', href: '/controls' },
     ])
   }, [setCrumbs])

@@ -38,10 +38,15 @@ export const getDeliveryColumns = ({ onResend, onViewResponse }: DeliveryColumnC
   {
     accessorKey: 'email',
     header: 'Recipient',
+    size: 250,
+    minSize: 150,
+    cell: ({ cell }) => <div className="truncate">{cell.getValue() as string}</div>,
   },
   {
     accessorKey: 'status',
     header: 'Status',
+    size: 120,
+    minSize: 120,
     cell: ({ row }) => {
       const status = row.getValue('status') as AssessmentResponseAssessmentResponseStatus
       return <Badge variant={statusVariantMap[status] || 'default'}>{getEnumLabel(status)}</Badge>
@@ -50,21 +55,25 @@ export const getDeliveryColumns = ({ onResend, onViewResponse }: DeliveryColumnC
   {
     accessorKey: 'assignedAt',
     header: 'Sent Date',
+    size: 140,
     cell: ({ row }) => formatDate(row.getValue('assignedAt')),
   },
   {
     accessorKey: 'dueDate',
     header: 'Due Date',
+    size: 140,
     cell: ({ row }) => formatDate(row.getValue('dueDate')),
   },
   {
     accessorKey: 'completedAt',
     header: 'Completed',
+    size: 140,
     cell: ({ row }) => formatDate(row.getValue('completedAt')),
   },
   {
     accessorKey: 'sendAttempts',
     header: 'Resent',
+    size: 80,
   },
   {
     id: 'actions',

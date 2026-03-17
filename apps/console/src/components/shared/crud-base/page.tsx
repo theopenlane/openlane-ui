@@ -20,6 +20,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { type FieldValues, type UseFormReturn } from 'react-hook-form'
 import { GenericDetailsSheet, type GenericDetailsSheetConfig } from '@/components/shared/crud-base/generic-sheet'
 import { GenericTableToolbar } from '@/components/shared/crud-base/table/table-toolbar'
+import { type ResponsibilityFieldsMap } from '@/components/shared/crud-base/dialog/bulk-edit'
 import { type TableKeyValue } from '@repo/ui/table-key'
 import { type TAccessRole, type TPermissionData } from '@/types/authz'
 import { type FilterField } from '@/types'
@@ -101,6 +102,7 @@ export interface GenericTablePageConfig<TEntity extends { id: string }, TFormDat
     setSelectedItems: React.Dispatch<React.SetStateAction<{ id: string }[]>>
     bulkEditFormSchema?: ZodObject<ZodRawShape>
     enumOpts?: EnumOptionsGeneric
+    responsibilityFields?: ResponsibilityFieldsMap
   }>
 
   // Sheet configuration
@@ -112,6 +114,7 @@ export interface GenericTablePageConfig<TEntity extends { id: string }, TFormDat
   onBulkEdit?: (ids: string[], data: TUpdateInput) => Promise<void>
   bulkEditFormSchema?: ZodObject<ZodRawShape>
   enumOpts?: EnumOptionsGeneric
+  responsibilityFields?: ResponsibilityFieldsMap
 }
 
 export function GenericTablePage<
@@ -287,6 +290,7 @@ export function GenericTablePage<
         bulkEditFormSchema={config.bulkEditFormSchema}
         enumOpts={config.enumOpts}
         storageKey={tableKey}
+        responsibilityFields={config.responsibilityFields}
       />
 
       <TableComponent

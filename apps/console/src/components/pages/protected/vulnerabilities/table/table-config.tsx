@@ -9,12 +9,13 @@ import Properties from '../create/form/fields/properties'
 import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
 import { type VulnerabilityFieldProps, type EnumOptions, type EnumCreateHandlers } from './types'
 import { enumToSortFields } from '@/components/shared/crud-base/utils'
+import { VulnerabilityAssociationSection } from '../create/form/fields/association-section'
 
 export const formId = 'edit' + ObjectNames.VULNERABILITY
 
 export const breadcrumbs = [
   { label: 'Home', href: '/dashboard' },
-  { label: 'Exposure', href: '/exposure/vulnerabilities' },
+  { label: 'Exposure', href: '/exposure/overview' },
   { label: 'Vulnerabilities', href: '/exposure/vulnerabilities' },
 ]
 
@@ -193,6 +194,7 @@ export const getFieldsToRender = (props: VulnerabilityFieldProps, enumOptions: E
         enumOptions={enumOptions}
         enumCreateHandlers={enumCreateHandlers}
       />
+      <VulnerabilityAssociationSection data={props.data} isEditing={props.isEditing} isCreate={props.isCreate} isEditAllowed={props.isEditAllowed} />
     </div>
   )
 }

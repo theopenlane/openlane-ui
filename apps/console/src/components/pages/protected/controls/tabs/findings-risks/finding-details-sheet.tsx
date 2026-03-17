@@ -38,6 +38,7 @@ const FindingDetailsSheet: React.FC<FindingDetailsSheetProps> = ({ queryParamKey
       scanIDs: (finding.scans?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
       remediationIDs: (finding.remediations?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
       reviewIDs: (finding.reviews?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+      vulnerabilityIDs: (finding.vulnerabilities?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
     }
   }, [])
   const initialAssociationsRef = useInitialAssociations(associationsData, extractAssociations, entityId)
@@ -82,10 +83,10 @@ const FindingDetailsSheet: React.FC<FindingDetailsSheetProps> = ({ queryParamKey
     updateMutation,
     createMutation,
     buildPayload: async (formData) => {
-      const { controlIDs, subcontrolIDs, riskIDs, programIDs, taskIDs, assetIDs, scanIDs, remediationIDs, reviewIDs, ...rest } = formData
+      const { controlIDs, subcontrolIDs, riskIDs, programIDs, taskIDs, assetIDs, scanIDs, remediationIDs, reviewIDs, vulnerabilityIDs, ...rest } = formData
       const associationPayload = buildAssociationPayload(
         FINDING_ASSOCIATION_CONFIG.associationKeys,
-        { controlIDs, subcontrolIDs, riskIDs, programIDs, taskIDs, assetIDs, scanIDs, remediationIDs, reviewIDs },
+        { controlIDs, subcontrolIDs, riskIDs, programIDs, taskIDs, assetIDs, scanIDs, remediationIDs, reviewIDs, vulnerabilityIDs },
         false,
         initialAssociationsRef.current,
       )

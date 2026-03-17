@@ -89,6 +89,7 @@ const MapControlPage = () => {
   const setControlsCrumbs = useCallback(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
+      { label: 'Compliance', href: '/programs' },
       { label: 'Controls', href: '/controls' },
       { label: controlData?.control?.refCode, isLoading: isLoading, href: `/controls/${id}` },
       { label: 'Create Map Control' },
@@ -98,6 +99,7 @@ const MapControlPage = () => {
   const setSubControlsCrumbs = useCallback(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
+      { label: 'Compliance', href: '/programs' },
       { label: 'Controls', href: '/controls' },
       { label: subcontrolData?.subcontrol?.refCode, isLoading: isLoading, href: `/controls/${id}/${subcontrolId}` },
       { label: 'Create Map Control' },

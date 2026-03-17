@@ -19,6 +19,9 @@ import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { Input } from '@repo/ui/input'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
+import { useAccountRoles } from '@/lib/query-hooks/permissions'
+import { canEdit } from '@/lib/authz/utils'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 const formSchema = z.object({
   title: z.string().min(1, 'Title is required').max(280),
@@ -35,6 +38,8 @@ export default function UpdatesSection() {
   const { successNotification, errorNotification } = useNotification()
   const { data: trustCenterData } = useGetTrustCenter()
   const trustCenterID = trustCenterData?.trustCenters?.edges?.[0]?.node?.id ?? ''
+  const { data: tcPermission } = useAccountRoles(ObjectTypes.TRUST_CENTER, trustCenterID)
+  const canEditTc = canEdit(tcPermission?.roles)
 
   const { data: postsData } = useGetTrustCenterPosts({ trustCenterId: trustCenterID })
   const posts = postsData?.trustCenter?.posts?.edges ?? []
@@ -111,7 +116,11 @@ export default function UpdatesSection() {
   }
 
   useEffect(() => {
-    setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Trust Center' }, { label: 'Updates', href: '/trust-center/updates' }])
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Trust Center', href: '/trust-center/overview' },
+      { label: 'Updates', href: '/trust-center/updates' },
+    ])
   }, [setCrumbs])
 
   return (
@@ -119,7 +128,7 @@ export default function UpdatesSection() {
       <h1 className="text-2xl font-bold tracking-tight mb-8">Updates</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className={editingPostId ? 'opacity-50 pointer-events-none' : ''}>
+        <Card className={editingPostId || !canEditTc ? 'opacity-50 pointer-events-none' : ''}>
           <CardContent className="pt-6">
             <div className="mb-6">
               <h2 className="text-lg font-semibold">Share Update</h2>
@@ -150,7 +159,7 @@ export default function UpdatesSection() {
                       <FormLabel>Description</FormLabel>
 
                       <FormControl>
-                        <Textarea placeholder="Write an update..." className="min-h-[120px] bg-background" {...field} />
+                        <Textarea placeholder="Write an update..." className="min-h-30 bg-background" {...field} />
                       </FormControl>
                     </FormItem>
                   )}
@@ -172,7 +181,7 @@ export default function UpdatesSection() {
           </CardContent>
         </Card>
 
-        <div className="relative min-h-[400px]">
+        <div className="relative min-h-100">
           {posts.length === 0 ? (
             <div className="absolute inset-0 border-2 border-dashed rounded-lg flex flex-col items-center justify-center text-center p-8">
               <Megaphone size={24} className="mb-4 text-muted-foreground" />
@@ -180,7 +189,7 @@ export default function UpdatesSection() {
               <p className="text-sm text-muted-foreground">Send your first update to see them here</p>
             </div>
           ) : (
-            <div className="space-y-4 overflow-y-auto max-h-[700px] pr-2">
+            <div className="space-y-4 overflow-y-auto max-h-175 pr-2">
               {posts.map((edge) => {
                 const post = edge?.node
                 if (!post) return null
@@ -194,7 +203,7 @@ export default function UpdatesSection() {
                           <Label>Title</Label>
                           <Input autoFocus className="bg-background text-sm" {...editForm.register('title')} />
                           <Label>Description</Label>
-                          <Textarea autoFocus className="min-h-[100px] bg-background text-sm" {...editForm.register('text')} />
+                          <Textarea autoFocus className="min-h-25 bg-background text-sm" {...editForm.register('text')} />
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2 text-xs text-muted-foreground">
                               <Keyboard size={16} />
@@ -213,12 +222,16 @@ export default function UpdatesSection() {
                           <div className="flex justify-between mt-1">
                             <p className="text-muted-foreground text-sm">{formatDate(post.updatedAt)}</p>
                             <div className="flex gap-3">
-                              <button className="text-muted-foreground" onClick={() => startEditing(post.id, post.text, post.title ?? '')} disabled={!!editingPostId}>
-                                <Pencil size={16} />
-                              </button>
-                              <button className="text-muted-foreground " onClick={() => setPostToDelete(post.id)} disabled={!!editingPostId}>
-                                <Trash2 size={16} />
-                              </button>
+                              {canEditTc && (
+                                <button className="text-muted-foreground" onClick={() => startEditing(post.id, post.text, post.title ?? '')} disabled={!!editingPostId}>
+                                  <Pencil size={16} />
+                                </button>
+                              )}
+                              {canEditTc && (
+                                <button className="text-muted-foreground " onClick={() => setPostToDelete(post.id)} disabled={!!editingPostId}>
+                                  <Trash2 size={16} />
+                                </button>
+                              )}
                             </div>
                           </div>
                         </div>

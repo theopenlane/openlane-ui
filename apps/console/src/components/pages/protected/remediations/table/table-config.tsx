@@ -7,12 +7,13 @@ import { AdditionalFields } from '../create/form/fields/additional-fields'
 import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
 import { type RemediationFieldProps, type EnumOptions, type EnumCreateHandlers } from './types'
 import { enumToSortFields } from '@/components/shared/crud-base/utils'
+import { RemediationAssociationSection } from '../create/form/fields/association-section'
 
 export const formId = 'edit' + ObjectNames.REMEDIATION
 
 export const breadcrumbs = [
   { label: 'Home', href: '/dashboard' },
-  { label: 'Exposure', href: '/exposure/remediations' },
+  { label: 'Exposure', href: '/exposure/overview' },
   { label: 'Remediations', href: '/exposure/remediations' },
 ]
 
@@ -107,6 +108,7 @@ export const getFieldsToRender = (props: RemediationFieldProps, enumOptions: Enu
         enumOptions={enumOptions}
         enumCreateHandlers={enumCreateHandlers}
       />
+      <RemediationAssociationSection data={props.data} isEditing={props.isEditing} isCreate={props.isCreate} isEditAllowed={props.isEditAllowed} />
     </div>
   )
 }

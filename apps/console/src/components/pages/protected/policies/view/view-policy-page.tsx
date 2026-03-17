@@ -104,6 +104,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
+      { label: 'Compliance', href: '/programs' },
       { label: 'Policies', href: '/policies' },
       { label: policy?.name, isLoading: isLoading },
     ])

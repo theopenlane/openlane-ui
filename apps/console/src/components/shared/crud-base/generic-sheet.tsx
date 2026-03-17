@@ -66,6 +66,7 @@ export interface GenericDetailsSheetConfig<TFormData extends FieldValues, TData,
 
   entityId?: string | null
   isCreateMode?: boolean
+  basePath?: string
 
   data?: TData
   isFetching: boolean
@@ -77,6 +78,9 @@ export interface GenericDetailsSheetConfig<TFormData extends FieldValues, TData,
 
   renderFields?: (props: RenderFieldsProps<TData, TUpdateInput>) => React.ReactNode
   renderHeader?: (props: RenderHeaderProps) => React.ReactNode
+  extraContent?: React.ReactNode
+  minWidth?: string | number
+  initialWidth?: string | number
 }
 
 export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdateInput, TUpdateData, TCreateInput, TCreateData>(
@@ -102,9 +106,13 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
     formId = 'editForm',
     renderHeader,
     renderFields,
+    extraContent,
     onClose,
     entityId: entityIdOverride,
     isCreateMode,
+    basePath,
+    minWidth: minWidthOverride,
+    initialWidth: initialWidthOverride,
   } = config
   const { reset } = form
   const queryClient = useQueryClient()
@@ -283,8 +291,8 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
           }}
           side="right"
           className="flex flex-col "
-          minWidth="40vw"
-          initialWidth={'60vw'}
+          minWidth={minWidthOverride ?? '40vw'}
+          initialWidth={initialWidthOverride ?? '60vw'}
           header={
             renderHeader ? (
               renderHeader({
@@ -310,6 +318,8 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
                 handleCancelEdit={handleCancelEdit}
                 formId={formId}
                 onDelete={handleDelete}
+                entityId={id}
+                basePath={basePath}
               />
             )
           }
@@ -317,22 +327,25 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
           {isFetching && !isCreate ? (
             <GenericDetailsSheetSkeleton />
           ) : (
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} id={formId} className="space-y-6 mt-4">
-                {renderFields
-                  ? renderFields({
-                      isEditing,
-                      isCreate,
-                      data,
-                      isFormInitialized,
-                      internalEditing,
-                      setInternalEditing,
-                      handleUpdateField,
-                      isEditAllowed,
-                    })
-                  : null}
-              </form>
-            </Form>
+            <>
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} id={formId} className="space-y-6 mt-4">
+                  {renderFields
+                    ? renderFields({
+                        isEditing,
+                        isCreate,
+                        data,
+                        isFormInitialized,
+                        internalEditing,
+                        setInternalEditing,
+                        handleUpdateField,
+                        isEditAllowed,
+                      })
+                    : null}
+                </form>
+              </Form>
+              {extraContent}
+            </>
           )}
         </SheetContent>
       </Sheet>

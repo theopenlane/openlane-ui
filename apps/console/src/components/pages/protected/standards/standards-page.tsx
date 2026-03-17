@@ -30,6 +30,7 @@ const StandardsPage = () => {
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
+      { label: 'Compliance', href: '/programs' },
       { label: 'Standards', href: '/standards' },
     ])
   }, [setCrumbs])

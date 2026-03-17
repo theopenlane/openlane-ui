@@ -18,12 +18,15 @@ import {
   type TrustCenterFaqsNodeNonNull,
 } from '@/lib/graphql-hooks/trust-center-faq'
 import { useQueryClient } from '@tanstack/react-query'
-import { type TrustCenterFaQsWithFilterQuery } from '@repo/codegen/src/schema'
+import { type TrustCenterFaQsWithFilterQuery, OrderDirection, TrustCenterFaqOrderField } from '@repo/codegen/src/schema'
 import { DndContext, closestCenter, type DragEndEvent } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable'
 import type { FaqFormValues } from './hooks/use-form-schema'
 import { CreateFaqForm } from './create-faq-form'
 import { SortableFaqCard } from './sortable-faq-card'
+import { useAccountRoles } from '@/lib/query-hooks/permissions'
+import { canEdit } from '@/lib/authz/utils'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 export default function FaqsPage() {
   const { setCrumbs } = use(BreadcrumbContext)
@@ -34,17 +37,18 @@ export default function FaqsPage() {
   const { successNotification, errorNotification } = useNotification()
   const { data: trustCenterData } = useGetTrustCenter()
   const trustCenterID = trustCenterData?.trustCenters?.edges?.[0]?.node?.id ?? ''
+  const { data: tcPermission } = useAccountRoles(ObjectTypes.TRUST_CENTER, trustCenterID)
+  const canEditTc = canEdit(tcPermission?.roles)
 
   const { trustCenterFaqsNodes } = useTrustCenterFaqsWithFilter({
     where: { hasTrustCenterWith: [{ id: trustCenterID }] },
+    orderBy: [{ field: TrustCenterFaqOrderField.DISPLAY_ORDER, direction: OrderDirection.ASC }],
     enabled: !!trustCenterID,
   })
 
   const [dragOrderIds, setDragOrderIds] = useState<string[] | null>(null)
 
-  const sortedFaqs = [...trustCenterFaqsNodes].sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0))
-
-  const orderedFaqs = dragOrderIds ? dragOrderIds.map((id) => sortedFaqs.find((f) => f.id === id)).filter((f): f is TrustCenterFaqsNodeNonNull => f != null) : sortedFaqs
+  const orderedFaqs = dragOrderIds ? dragOrderIds.map((id) => trustCenterFaqsNodes.find((f) => f.id === id)).filter((f): f is TrustCenterFaqsNodeNonNull => f != null) : trustCenterFaqsNodes
 
   const { mutateAsync: createFaq, isPending: isCreating } = useCreateTrustCenterFaq()
   const { mutateAsync: updateFaq } = useUpdateTrustCenterFaq()
@@ -167,7 +171,11 @@ export default function FaqsPage() {
   }
 
   useEffect(() => {
-    setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Trust Center' }, { label: 'FAQs', href: '/trust-center/faqs' }])
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Trust Center', href: '/trust-center/overview' },
+      { label: 'FAQs', href: '/trust-center/faqs' },
+    ])
   }, [setCrumbs])
 
   return (
@@ -178,9 +186,9 @@ export default function FaqsPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <CreateFaqForm disabled={!!editingFaqId} isCreating={isCreating} onSubmit={handleCreateSubmit} />
+        <CreateFaqForm disabled={!!editingFaqId || !canEditTc} isCreating={isCreating} onSubmit={handleCreateSubmit} />
 
-        <div className="relative min-h-[400px]">
+        <div className="relative min-h-100">
           {orderedFaqs.length === 0 ? (
             <div className="absolute inset-0 border-2 border-dashed rounded-lg flex flex-col items-center justify-center text-center p-8">
               <CircleHelp size={24} className="mb-4 text-muted-foreground" />
@@ -190,7 +198,7 @@ export default function FaqsPage() {
           ) : (
             <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
               <SortableContext items={orderedFaqs.map((f) => f.id)} strategy={verticalListSortingStrategy}>
-                <div className="space-y-4 overflow-y-auto max-h-[700px] pr-2">
+                <div className="space-y-4 overflow-y-auto max-h-175 pr-2">
                   {orderedFaqs.map((faq) => (
                     <SortableFaqCard
                       key={faq.id}
@@ -203,6 +211,7 @@ export default function FaqsPage() {
                       isUpdating={isUpdating}
                       onSaveEdit={editForm.handleSubmit(handleUpdateSubmit)}
                       onCancelEdit={cancelEditing}
+                      canEdit={canEditTc}
                     />
                   ))}
                 </div>

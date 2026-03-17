@@ -22,6 +22,10 @@ const formSchema = z.object({
   repositoryURI: urlField,
   environmentName: z.string().optional().nullable(),
   scopeName: z.string().optional().nullable(),
+  controlIDs: z.array(z.string()).optional(),
+  subcontrolIDs: z.array(z.string()).optional(),
+  findingIDs: z.array(z.string()).optional(),
+  vulnerabilityIDs: z.array(z.string()).optional(),
 })
 
 export const bulkEditFieldSchema = z.object({

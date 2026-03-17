@@ -31,9 +31,10 @@ type CustomerLogoCardProps = {
   onDelete: (id: string) => void
   isUpdating?: boolean
   isDeleting?: boolean
+  canEdit?: boolean
 }
 
-export default function CustomerLogoCard({ id, name, url, logoUrl, onUpdate, onDelete, isUpdating, isDeleting }: CustomerLogoCardProps) {
+export default function CustomerLogoCard({ id, name, url, logoUrl, onUpdate, onDelete, isUpdating, isDeleting, canEdit }: CustomerLogoCardProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [preview, setPreview] = useState<string | null>(null)
@@ -90,13 +91,16 @@ export default function CustomerLogoCard({ id, name, url, logoUrl, onUpdate, onD
             </div>
 
             <div className="flex items-center gap-3 text-muted-foreground ">
-              <button onClick={() => setIsEditing(true)} aria-label={`Edit URL for ${name}`} disabled={isUpdating || isDeleting}>
-                <Pencil className="h-4 w-4" />
-              </button>
-
-              <button onClick={() => onDelete(id)} aria-label={`Delete ${name}`} disabled={isDeleting || isUpdating}>
-                <Trash2 className="h-4 w-4" />
-              </button>
+              {canEdit && (
+                <button onClick={() => setIsEditing(true)} aria-label={`Edit URL for ${name}`} disabled={isUpdating || isDeleting}>
+                  <Pencil className="h-4 w-4" />
+                </button>
+              )}
+              {canEdit && (
+                <button onClick={() => onDelete(id)} aria-label={`Delete ${name}`} disabled={isDeleting || isUpdating}>
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              )}
             </div>
           </div>
         </CardContent>

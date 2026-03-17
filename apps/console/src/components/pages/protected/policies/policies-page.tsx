@@ -67,6 +67,7 @@ const PoliciesPage: React.FC<TPoliciesPageProps> = ({ active, setActive }) => {
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
+      { label: 'Compliance', href: '/programs' },
       { label: 'Policies', href: '/policies' },
     ])
   }, [setCrumbs])

@@ -17,10 +17,11 @@ import {
   type UpdateBulkScanMutationVariables,
   type DeleteBulkScanMutation,
   type DeleteBulkScanMutationVariables,
+  type GetScanAssociationsQuery,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
 import { type TPagination } from '@repo/ui/pagination-types'
-import { GET_ALL_SCANS, CREATE_SCAN, UPDATE_SCAN, DELETE_SCAN, SCAN, CREATE_CSV_BULK_SCAN, BULK_EDIT_SCAN, BULK_DELETE_SCAN } from '@repo/codegen/query/scan'
+import { GET_ALL_SCANS, CREATE_SCAN, UPDATE_SCAN, DELETE_SCAN, SCAN, CREATE_CSV_BULK_SCAN, BULK_EDIT_SCAN, BULK_DELETE_SCAN, GET_SCAN_ASSOCIATIONS } from '@repo/codegen/query/scan'
 
 type GetAllScansArgs = {
   where?: ScansWithFilterQueryVariables['where']
@@ -123,5 +124,16 @@ export const useBulkDeleteScan = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['scans'] })
     },
+  })
+}
+
+export const useGetScanAssociations = (scanId?: string) => {
+  const { client } = useGraphQLClient()
+  return useQuery<GetScanAssociationsQuery, unknown>({
+    queryKey: ['scans', scanId, 'associations'],
+    queryFn: async (): Promise<GetScanAssociationsQuery> => {
+      return client.request(GET_SCAN_ASSOCIATIONS, { scanId })
+    },
+    enabled: !!scanId,
   })
 }

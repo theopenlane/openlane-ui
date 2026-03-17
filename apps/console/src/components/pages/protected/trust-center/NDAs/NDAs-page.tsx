@@ -14,7 +14,10 @@ import { Switch } from '@repo/ui/switch'
 import { Label } from '@repo/ui/label'
 import { useGetTrustCenter } from '@/lib/graphql-hooks/trust-center'
 import { useHandleUpdateSetting } from '../branding/helpers/useHandleUpdateSetting'
+import { useAccountRoles } from '@/lib/query-hooks/permissions'
+import { canEdit } from '@/lib/authz/utils'
 import NdaRequestsTable from './table/nda-requests-table.tsx'
+import { ObjectTypes } from '@repo/codegen/src/type-names.ts'
 
 const NDAsPage = () => {
   const { latestFile, isLoading, latestTemplate } = useGetTrustCenterNDAFiles()
@@ -25,11 +28,17 @@ const NDAsPage = () => {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [isPreviewOpen, setIsPreviewOpen] = useState(false)
   const trustCenter = trustCenterData?.trustCenters?.edges?.[0]?.node
+  const { data: tcPermission } = useAccountRoles(ObjectTypes.TRUST_CENTER, trustCenter?.id)
+  const canEditTc = canEdit(tcPermission?.roles)
   const trustCenterSetting = trustCenter?.setting
   const ndaApprovalRequired = !!trustCenterSetting?.ndaApprovalRequired
 
   useEffect(() => {
-    setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Trust Center' }, { label: 'NDAs', href: '/trust-center/NDAs' }])
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Trust Center', href: '/trust-center/overview' },
+      { label: 'NDAs', href: '/trust-center/NDAs' },
+    ])
   }, [setCrumbs])
 
   useEffect(() => {
@@ -64,7 +73,7 @@ const NDAsPage = () => {
 
   return (
     <div className="flex w-full justify-center py-8">
-      <div className="grid w-full max-w-[1200px] gap-4 px-6">
+      <div className="grid w-full max-w-300 gap-4 px-6">
         <div>
           <PageHeading heading="Non-Disclosure Agreements" />
           <h3 className="mt-6 text-lg font-medium">NDA Document</h3>
@@ -79,13 +88,15 @@ const NDAsPage = () => {
                   <h4 className="text-lg font-semibold">No NDA uploaded</h4>
                   <p className="mt-1 text-sm text-muted-foreground">Upload your NDA here using the button below</p>
                 </div>
-                <NDAUploadDialog
-                  trigger={
-                    <Button icon={<Plus />} iconPosition="left">
-                      Upload
-                    </Button>
-                  }
-                />
+                {canEditTc && (
+                  <NDAUploadDialog
+                    trigger={
+                      <Button icon={<Plus />} iconPosition="left">
+                        Upload
+                      </Button>
+                    }
+                  />
+                )}
               </div>
             ) : (
               <div className="space-y-6">
@@ -105,14 +116,16 @@ const NDAsPage = () => {
                       <Eye className="h-4 w-4" />
                       View
                     </Button>
-                    <NDAUploadDialog
-                      ndaId={latestTemplate?.id}
-                      trigger={
-                        <Button variant="secondary" iconPosition="left" icon={<RefreshCw />}>
-                          Replace
-                        </Button>
-                      }
-                    />
+                    {canEditTc && (
+                      <NDAUploadDialog
+                        ndaId={latestTemplate?.id}
+                        trigger={
+                          <Button variant="secondary" iconPosition="left" icon={<RefreshCw />}>
+                            Replace
+                          </Button>
+                        }
+                      />
+                    )}
                   </div>
                   <div className="text-xs text-muted-foreground">Last Updated • {formatDate(latestFile.updatedAt)}</div>
                 </div>
@@ -122,7 +135,7 @@ const NDAsPage = () => {
         </Card>
 
         <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
-          <DialogContent className="w-[80vw] max-w-[1000px] h-[80vh] flex flex-col">
+          <DialogContent className="w-[80vw] max-w-250 h-[80vh] flex flex-col">
             <DialogHeader>
               <DialogTitle>NDA Preview - {latestFile?.providedFileName}</DialogTitle>
             </DialogHeader>
@@ -150,7 +163,7 @@ const NDAsPage = () => {
                       input: { ndaApprovalRequired: checked },
                     })
                   }}
-                  disabled={isUpdatingSetting || !trustCenterSetting?.id}
+                  disabled={isUpdatingSetting || !trustCenterSetting?.id || !canEditTc}
                 />
               </div>
               {ndaApprovalRequired ? (

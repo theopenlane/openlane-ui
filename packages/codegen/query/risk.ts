@@ -326,3 +326,80 @@ export const UPDATE_RISK_COMMENT = gql`
     }
   }
 `
+
+export const GET_RISK_ASSOCIATIONS_TIMELINE = gql`
+  query GetRiskAssociationsTimeline($riskId: ID!) {
+    risk(id: $riskId) {
+      procedures {
+        edges {
+          node {
+            id
+            name
+            displayID
+            createdAt
+          }
+        }
+      }
+      controls {
+        edges {
+          node {
+            id
+            displayID
+            refCode
+            createdAt
+          }
+        }
+      }
+      subcontrols {
+        edges {
+          node {
+            id
+            displayID
+            refCode
+            createdAt
+          }
+        }
+      }
+      programs {
+        edges {
+          node {
+            id
+            name
+            displayID
+            createdAt
+          }
+        }
+      }
+      tasks {
+        edges {
+          node {
+            id
+            title
+            displayID
+            createdAt
+          }
+        }
+      }
+      assets {
+        edges {
+          node {
+            id
+            name
+            displayName
+            createdAt
+          }
+        }
+      }
+      scans {
+        edges {
+          node {
+            id
+            target
+            createdAt
+            createdBy
+          }
+        }
+      }
+    }
+  }
+`

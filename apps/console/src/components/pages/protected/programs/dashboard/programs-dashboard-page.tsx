@@ -92,7 +92,11 @@ const ProgramsDashboardPage = () => {
   }, [allKeys])
 
   useEffect(() => {
-    setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Compliance' }, { label: 'Programs', href: '/programs' }])
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Compliance', href: '/programs' },
+      { label: 'Programs', href: '/programs' },
+    ])
   }, [setCrumbs])
 
   if (isLoading) {

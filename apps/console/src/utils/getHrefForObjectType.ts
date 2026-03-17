@@ -38,6 +38,7 @@ const SIMPLE_ROUTES: Record<string, (id: string) => string> = {
   findings: (id) => `/exposure/findings?id=${id}`,
   remediations: (id) => `/exposure/remediations?id=${id}`,
   reviews: (id) => `/exposure/reviews?id=${id}`,
+  vulnerabilities: (id) => `/exposure/vulnerabilities?id=${id}`,
 }
 
 export const getHrefForObjectType = (kind: string, row?: NormalizedObject): string => {

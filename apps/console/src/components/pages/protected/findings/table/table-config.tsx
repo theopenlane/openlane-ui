@@ -13,7 +13,7 @@ export const formId = 'edit' + ObjectNames.FINDING
 
 export const breadcrumbs = [
   { label: 'Home', href: '/dashboard' },
-  { label: 'Exposure', href: '/exposure/findings' },
+  { label: 'Exposure', href: '/exposure/overview' },
   { label: 'Findings', href: '/exposure/findings' },
 ]
 

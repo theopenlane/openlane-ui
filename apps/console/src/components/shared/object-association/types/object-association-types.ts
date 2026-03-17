@@ -36,4 +36,10 @@ export enum ObjectAssociationNodeEnum {
   POLICY = 'policies',
   PROCEDURE = 'procedures',
   RISKS = 'risks',
+  VULNERABILITY = 'vulnerabilities',
+  FINDING = 'findings',
+  SCAN = 'scans',
+  REVIEW = 'reviews',
+  REMEDIATION = 'remediations',
+  ASSET = 'assets',
 }

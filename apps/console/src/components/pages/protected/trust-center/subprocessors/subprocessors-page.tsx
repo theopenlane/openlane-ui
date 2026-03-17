@@ -149,7 +149,11 @@ const SubprocessorsPage = () => {
   }
 
   useEffect(() => {
-    setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Trust Center' }, { label: 'Subprocessors', href: '/trust-center/subprocessors' }])
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Trust Center', href: '/trust-center/overview' },
+      { label: 'Subprocessors', href: '/trust-center/subprocessors' },
+    ])
   }, [setCrumbs])
 
   return (
