@@ -60,6 +60,7 @@ const AssociatedObjectsAccordion: React.FC<AssociatedObjectsAccordionProps> = ({
       title?: string | null
       details?: string | null
       description?: string | null
+      desiredOutcome?: string | null
       summary?: string | null
     }[],
   ) => (
@@ -73,11 +74,13 @@ const AssociatedObjectsAccordion: React.FC<AssociatedObjectsAccordionProps> = ({
               object={{
                 id: row.id,
                 refCode: row?.refCode,
-                name: row?.displayName || row?.fullName || row?.name,
+                displayName: row?.displayName || row?.fullName,
+                name: row?.name,
                 title: row?.title,
                 details: row?.details,
-                description: row?.description,
                 summary: row?.summary,
+                description: row?.description,
+                desiredOutcome: row?.desiredOutcome,
                 link: getHrefForObjectType(kind, row as NormalizedObject),
               }}
               removable={removable}

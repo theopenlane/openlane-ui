@@ -64,6 +64,13 @@ export const GET_SUBCONTROL_BY_ID = gql`
             desiredOutcome
             name
             displayID
+            controls {
+              edges {
+                node {
+                  id
+                }
+              }
+            }
           }
         }
       }

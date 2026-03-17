@@ -116,6 +116,8 @@ const ObjectAssociationSwitch: React.FC<TObjectAssociationSwitchProps> = ({ sect
           onGroupSelect={setActiveGroup}
           clearGroupRef={clearGroupRef}
           onItemClick={handleItemClick}
+          removable={canEdit && !!onRemoveAssociation}
+          onRemove={onRemoveAssociation}
         />
       )}
       {isGraphView && !activeGroup && (

@@ -227,6 +227,14 @@ export const GET_INTERNAL_POLICY_ASSOCIATIONS_BY_ID = gql`
             id
             displayID
             name
+            desiredOutcome
+            controls {
+              edges {
+                node {
+                  id
+                }
+              }
+            }
           }
         }
         totalCount
