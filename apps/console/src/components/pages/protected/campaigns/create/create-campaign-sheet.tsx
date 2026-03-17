@@ -1,0 +1,181 @@
+'use client'
+
+import React, { useCallback, useMemo, useState } from 'react'
+import { Form } from '@repo/ui/form'
+import { StepperSheet, type StepperStep } from '@/components/shared/stepper-sheet/stepper-sheet'
+import { TemplateStep } from './steps/template-step'
+import { TargetsStep, type CampaignTargetEntry } from './steps/targets-step'
+import { PreviewStep } from './steps/preview-step'
+import { ScheduleStep } from './steps/schedule-step'
+import { EmailBrandingPanel } from './email-branding-panel'
+import { useCreateCampaign } from '@/lib/graphql-hooks/campaign'
+import { useCreateCampaignTarget } from '@/lib/graphql-hooks/campaign-target'
+import { useNotification } from '@/hooks/useNotification'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { CampaignCampaignStatus } from '@repo/codegen/src/schema'
+import useCampaignFormSchema, { type CampaignFormData } from './hooks/use-campaign-form-schema'
+
+interface CreateCampaignSheetProps {
+  open: boolean
+  onClose: () => void
+}
+
+export const CreateCampaignSheet: React.FC<CreateCampaignSheetProps> = ({ open, onClose }) => {
+  const { form } = useCampaignFormSchema()
+  const [currentStep, setCurrentStep] = useState(0)
+  const [showEmailBranding, setShowEmailBranding] = useState(false)
+
+  const [targets, setTargets] = useState<CampaignTargetEntry[]>([])
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null)
+
+  const { mutateAsync: createCampaign, isPending: isCreating } = useCreateCampaign()
+  const { mutateAsync: createTarget } = useCreateCampaignTarget()
+  const { successNotification, errorNotification } = useNotification()
+
+  const resetAll = useCallback(() => {
+    setCurrentStep(0)
+    setTargets([])
+    setUploadedFile(null)
+    setShowEmailBranding(false)
+    form.reset()
+  }, [form])
+
+  const handleCancel = useCallback(() => {
+    resetAll()
+    onClose()
+  }, [resetAll, onClose])
+
+  const createTargetsForCampaign = useCallback(
+    async (campaignId: string) => {
+      const manualTargets = targets.filter((t) => t.email.trim())
+      if (manualTargets.length === 0) return
+
+      await Promise.all(
+        manualTargets.map((target) =>
+          createTarget({
+            input: {
+              campaignID: campaignId,
+              email: target.email.trim(),
+              fullName: target.fullName.trim() || undefined,
+            },
+          }),
+        ),
+      )
+    },
+    [targets, createTarget],
+  )
+
+  const submitCampaign = useCallback(
+    async (data: CampaignFormData, status: CampaignCampaignStatus) => {
+      try {
+        const result = await createCampaign({
+          input: {
+            name: data.name,
+            description: data.description || undefined,
+            campaignType: data.campaignType || undefined,
+            status,
+            templateID: data.templateID || undefined,
+            emailBrandingID: data.emailBrandingID || undefined,
+            dueDate: data.sendImmediately ? undefined : data.dueDate || undefined,
+            scheduledAt: data.sendImmediately ? undefined : data.scheduledAt || undefined,
+          },
+        })
+
+        const campaignId = result?.createCampaign?.campaign?.id
+        if (campaignId) {
+          await createTargetsForCampaign(campaignId)
+          successNotification({
+            title: status === CampaignCampaignStatus.DRAFT ? 'Campaign saved as draft' : 'Campaign launched successfully',
+          })
+          handleCancel()
+        }
+      } catch (error) {
+        errorNotification({ title: 'Error', description: parseErrorMessage(error) })
+      }
+    },
+    [createCampaign, createTargetsForCampaign, successNotification, errorNotification, handleCancel],
+  )
+
+  const handleSaveDraft = useCallback(async () => {
+    const isNameValid = await form.trigger('name')
+    if (!isNameValid) {
+      setCurrentStep(0)
+      return
+    }
+    const data = form.getValues()
+    await submitCampaign(data, CampaignCampaignStatus.DRAFT)
+  }, [form, submitCampaign])
+
+  const handleLaunch = useCallback(async () => {
+    const isValid = await form.trigger()
+    if (!isValid) {
+      setCurrentStep(0)
+      return
+    }
+    const data = form.getValues()
+    await submitCampaign(data, CampaignCampaignStatus.ACTIVE)
+  }, [form, submitCampaign])
+
+  const handleCreateTemplate = useCallback(() => {
+    window.open('/automation/campaigns?create-template=true', '_blank')
+  }, [])
+
+  const handleEmailBrandingSave = useCallback(
+    (brandingId: string) => {
+      form.setValue('emailBrandingID', brandingId)
+      setShowEmailBranding(false)
+    },
+    [form],
+  )
+
+  const steps: StepperStep[] = useMemo(
+    () => [
+      {
+        title: 'Template',
+        description: 'Choose a template to get started with your campaign',
+        content: <TemplateStep form={form} onCreateTemplate={handleCreateTemplate} />,
+      },
+      {
+        title: 'Targets',
+        description: 'Choose who will receive this campaign',
+        content: <TargetsStep targets={targets} onTargetsChange={setTargets} uploadedFile={uploadedFile} onFileUpload={setUploadedFile} />,
+      },
+      {
+        title: 'Preview',
+        description: 'Preview how your campaign will appear to recipients',
+        content: <PreviewStep form={form} onOpenEmailBranding={() => setShowEmailBranding(true)} />,
+      },
+      {
+        title: 'Schedule',
+        description: 'Set when your campaign should start and configure reminders',
+        content: <ScheduleStep form={form} />,
+      },
+    ],
+    [form, targets, uploadedFile, handleCreateTemplate],
+  )
+
+  return (
+    <>
+      <Form {...form}>
+        <StepperSheet
+          open={open}
+          onOpenChange={(isOpen) => {
+            if (!isOpen) handleCancel()
+          }}
+          title="Create Campaign"
+          steps={steps}
+          currentStep={currentStep}
+          onStepChange={setCurrentStep}
+          onCancel={handleCancel}
+          onSaveDraft={handleSaveDraft}
+          onComplete={handleLaunch}
+          completeLabel="Launch Now"
+          isSaving={isCreating}
+          isCompleting={isCreating}
+          isDirty={form.formState.isDirty || targets.length > 0 || uploadedFile !== null}
+        />
+      </Form>
+      <EmailBrandingPanel open={showEmailBranding} onClose={() => setShowEmailBranding(false)} onSave={handleEmailBrandingSave} />
+    </>
+  )
+}

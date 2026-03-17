@@ -7810,9 +7810,12 @@ export interface CreateEmailTemplateInput {
   /** body template for the email */
   bodyTemplate?: InputMaybe<Scalars['String']['input']>
   campaignIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** static variable values merged as base layer at render time; call-site data takes precedence */
+  defaults?: InputMaybe<Scalars['Map']['input']>
   /** description of the template */
   description?: InputMaybe<Scalars['String']['input']>
   emailBrandingID?: InputMaybe<Scalars['ID']['input']>
+  fileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** template format for rendering */
   format?: InputMaybe<EmailTemplateNotificationTemplateFormat>
   integrationID?: InputMaybe<Scalars['ID']['input']>
@@ -7832,10 +7835,14 @@ export interface CreateEmailTemplateInput {
   ownerID?: InputMaybe<Scalars['ID']['input']>
   /** preheader/preview text template for email notifications */
   preheaderTemplate?: InputMaybe<Scalars['String']['input']>
+  /** revision of the object as a semver (e.g. v1.0.0), by default any update will bump the patch version, unless the revision_bump field is set */
+  revision?: InputMaybe<Scalars['String']['input']>
   /** subject template for email notifications */
   subjectTemplate?: InputMaybe<Scalars['String']['input']>
   /** an internal identifier for the mapping, this field is only available to system admins */
   systemInternalID?: InputMaybe<Scalars['String']['input']>
+  /** runtime data context defining available variable keys for this template */
+  templateContext?: InputMaybe<EmailTemplateTemplateContext>
   /** plain text fallback template for the email */
   textTemplate?: InputMaybe<Scalars['String']['input']>
   /** uischema for a template builder */
@@ -8904,6 +8911,8 @@ export interface CreateNotificationTemplateInput {
   bodyTemplate?: InputMaybe<Scalars['String']['input']>
   /** channel this template is intended for */
   channel: NotificationTemplateChannel
+  /** static variable values merged as base layer at render time; call-site data takes precedence */
+  defaults?: InputMaybe<Scalars['Map']['input']>
   /** description of the template */
   description?: InputMaybe<Scalars['String']['input']>
   emailTemplateID?: InputMaybe<Scalars['ID']['input']>
@@ -8924,10 +8933,14 @@ export interface CreateNotificationTemplateInput {
   name: Scalars['String']['input']
   notificationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   ownerID?: InputMaybe<Scalars['ID']['input']>
+  /** revision of the object as a semver (e.g. v1.0.0), by default any update will bump the patch version, unless the revision_bump field is set */
+  revision?: InputMaybe<Scalars['String']['input']>
   /** subject template for email notifications */
   subjectTemplate?: InputMaybe<Scalars['String']['input']>
   /** an internal identifier for the mapping, this field is only available to system admins */
   systemInternalID?: InputMaybe<Scalars['String']['input']>
+  /** runtime data context defining available variable keys for this template */
+  templateContext?: InputMaybe<NotificationTemplateTemplateContext>
   /** title template for external channel messages */
   titleTemplate?: InputMaybe<Scalars['String']['input']>
   /** topic name or wildcard pattern this template targets */
@@ -14838,11 +14851,14 @@ export interface EmailTemplate extends Node {
   campaigns: CampaignConnection
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
+  /** static variable values merged as base layer at render time; call-site data takes precedence */
+  defaults?: Maybe<Scalars['Map']['output']>
   /** description of the template */
   description?: Maybe<Scalars['String']['output']>
   emailBranding?: Maybe<EmailBranding>
   /** email branding configuration to apply for this template */
   emailBrandingID?: Maybe<Scalars['ID']['output']>
+  files: FileConnection
   /** template format for rendering */
   format: EmailTemplateNotificationTemplateFormat
   id: Scalars['ID']['output']
@@ -14867,12 +14883,16 @@ export interface EmailTemplate extends Node {
   ownerID?: Maybe<Scalars['ID']['output']>
   /** preheader/preview text template for email notifications */
   preheaderTemplate?: Maybe<Scalars['String']['output']>
+  /** revision of the object as a semver (e.g. v1.0.0), by default any update will bump the patch version, unless the revision_bump field is set */
+  revision?: Maybe<Scalars['String']['output']>
   /** subject template for email notifications */
   subjectTemplate?: Maybe<Scalars['String']['output']>
   /** an internal identifier for the mapping, this field is only available to system admins */
   systemInternalID?: Maybe<Scalars['String']['output']>
   /** indicates if the record is owned by the the openlane system and not by an organization */
   systemOwned?: Maybe<Scalars['Boolean']['output']>
+  /** runtime data context defining available variable keys for this template */
+  templateContext?: Maybe<EmailTemplateTemplateContext>
   /** plain text fallback template for the email */
   textTemplate?: Maybe<Scalars['String']['output']>
   /** uischema for a template builder */
@@ -14896,6 +14916,15 @@ export interface EmailTemplateCampaignsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<CampaignOrder>>
   where?: InputMaybe<CampaignWhereInput>
+}
+
+export interface EmailTemplateFilesArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<FileOrder>>
+  where?: InputMaybe<FileWhereInput>
 }
 
 export interface EmailTemplateNotificationTemplatesArgs {
@@ -14987,9 +15016,18 @@ export enum EmailTemplateOrderField {
   KEY = 'KEY',
   LOCALE = 'LOCALE',
   NAME = 'NAME',
+  TEMPLATE_CONTEXT = 'TEMPLATE_CONTEXT',
   VERSION = 'VERSION',
   created_at = 'created_at',
+  revision = 'revision',
   updated_at = 'updated_at',
+}
+
+/** EmailTemplateTemplateContext is enum for the field template_context */
+export enum EmailTemplateTemplateContext {
+  CAMPAIGN_RECIPIENT = 'CAMPAIGN_RECIPIENT',
+  TRANSACTIONAL = 'TRANSACTIONAL',
+  WORKFLOW_ACTION = 'WORKFLOW_ACTION',
 }
 
 /** Return response for updateEmailTemplate mutation */
@@ -15094,6 +15132,9 @@ export interface EmailTemplateWhereInput {
   /** email_branding edge predicates */
   hasEmailBranding?: InputMaybe<Scalars['Boolean']['input']>
   hasEmailBrandingWith?: InputMaybe<Array<EmailBrandingWhereInput>>
+  /** files edge predicates */
+  hasFiles?: InputMaybe<Scalars['Boolean']['input']>
+  hasFilesWith?: InputMaybe<Array<FileWhereInput>>
   /** integration edge predicates */
   hasIntegration?: InputMaybe<Scalars['Boolean']['input']>
   hasIntegrationWith?: InputMaybe<Array<IntegrationWhereInput>>
@@ -15228,6 +15269,22 @@ export interface EmailTemplateWhereInput {
   preheaderTemplateNEQ?: InputMaybe<Scalars['String']['input']>
   preheaderTemplateNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   preheaderTemplateNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** revision field predicates */
+  revision?: InputMaybe<Scalars['String']['input']>
+  revisionContains?: InputMaybe<Scalars['String']['input']>
+  revisionContainsFold?: InputMaybe<Scalars['String']['input']>
+  revisionEqualFold?: InputMaybe<Scalars['String']['input']>
+  revisionGT?: InputMaybe<Scalars['String']['input']>
+  revisionGTE?: InputMaybe<Scalars['String']['input']>
+  revisionHasPrefix?: InputMaybe<Scalars['String']['input']>
+  revisionHasSuffix?: InputMaybe<Scalars['String']['input']>
+  revisionIn?: InputMaybe<Array<Scalars['String']['input']>>
+  revisionIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  revisionLT?: InputMaybe<Scalars['String']['input']>
+  revisionLTE?: InputMaybe<Scalars['String']['input']>
+  revisionNEQ?: InputMaybe<Scalars['String']['input']>
+  revisionNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  revisionNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** subject_template field predicates */
   subjectTemplate?: InputMaybe<Scalars['String']['input']>
   subjectTemplateContains?: InputMaybe<Scalars['String']['input']>
@@ -15265,6 +15322,13 @@ export interface EmailTemplateWhereInput {
   systemOwnedIsNil?: InputMaybe<Scalars['Boolean']['input']>
   systemOwnedNEQ?: InputMaybe<Scalars['Boolean']['input']>
   systemOwnedNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** template_context field predicates */
+  templateContext?: InputMaybe<EmailTemplateTemplateContext>
+  templateContextIn?: InputMaybe<Array<EmailTemplateTemplateContext>>
+  templateContextIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  templateContextNEQ?: InputMaybe<EmailTemplateTemplateContext>
+  templateContextNotIn?: InputMaybe<Array<EmailTemplateTemplateContext>>
+  templateContextNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** text_template field predicates */
   textTemplate?: InputMaybe<Scalars['String']['input']>
   textTemplateContains?: InputMaybe<Scalars['String']['input']>
@@ -22897,6 +22961,12 @@ export interface Integration extends Node {
   actionPlans: ActionPlanConnection
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
+  /** the canonical definition identifier for the installation */
+  definitionID?: Maybe<Scalars['String']['output']>
+  /** the human-readable definition slug recorded for this installation */
+  definitionSlug?: Maybe<Scalars['String']['output']>
+  /** the definition version recorded for this installation */
+  definitionVersion?: Maybe<Scalars['String']['output']>
   /** a description of the integration */
   description?: Maybe<Scalars['String']['output']>
   directoryAccounts: DirectoryAccountConnection
@@ -22911,6 +22981,8 @@ export interface Integration extends Node {
   /** the environment of the integration */
   environmentName?: Maybe<Scalars['String']['output']>
   events: EventConnection
+  /** the denormalized family label for the installation definition */
+  family?: Maybe<Scalars['String']['output']>
   files: FileConnection
   findings: FindingConnection
   id: Scalars['ID']['output']
@@ -22932,6 +23004,8 @@ export interface Integration extends Node {
   platform?: Maybe<Platform>
   /** optional platform associated with this integration for downstream inventory linkage */
   platformID?: Maybe<Scalars['ID']['output']>
+  /** snapshot of definition metadata captured on the installation */
+  providerMetadataSnapshot?: Maybe<Scalars['Map']['output']>
   remediations: RemediationConnection
   reviews: ReviewConnection
   scope?: Maybe<CustomTypeEnum>
@@ -22940,6 +23014,8 @@ export interface Integration extends Node {
   /** the scope of the integration */
   scopeName?: Maybe<Scalars['String']['output']>
   secrets: HushConnection
+  /** the lifecycle status of the installation */
+  status: IntegrationIntegrationStatus
   /** an internal identifier for the mapping, this field is only available to system admins */
   systemInternalID?: Maybe<Scalars['String']['output']>
   /** indicates if the record is owned by the the openlane system and not by an organization */
@@ -23123,6 +23199,15 @@ export interface IntegrationEdge {
   node?: Maybe<Integration>
 }
 
+/** IntegrationIntegrationStatus is enum for the field status */
+export enum IntegrationIntegrationStatus {
+  CONNECTED = 'CONNECTED',
+  DELETED = 'DELETED',
+  DISABLED = 'DISABLED',
+  ERRORED = 'ERRORED',
+  PENDING = 'PENDING',
+}
+
 /** Ordering options for Integration connections */
 export interface IntegrationOrder {
   /** The ordering direction. */
@@ -23134,9 +23219,14 @@ export interface IntegrationOrder {
 /** Properties by which Integration connections can be ordered. */
 export enum IntegrationOrderField {
   created_at = 'created_at',
+  definition_id = 'definition_id',
+  definition_slug = 'definition_slug',
+  definition_version = 'definition_version',
+  family = 'family',
   integration_type = 'integration_type',
   kind = 'kind',
   name = 'name',
+  status = 'status',
   updated_at = 'updated_at',
 }
 
@@ -23173,6 +23263,54 @@ export interface IntegrationWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** definition_id field predicates */
+  definitionID?: InputMaybe<Scalars['String']['input']>
+  definitionIDContains?: InputMaybe<Scalars['String']['input']>
+  definitionIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  definitionIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  definitionIDGT?: InputMaybe<Scalars['String']['input']>
+  definitionIDGTE?: InputMaybe<Scalars['String']['input']>
+  definitionIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  definitionIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  definitionIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  definitionIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  definitionIDLT?: InputMaybe<Scalars['String']['input']>
+  definitionIDLTE?: InputMaybe<Scalars['String']['input']>
+  definitionIDNEQ?: InputMaybe<Scalars['String']['input']>
+  definitionIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  definitionIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** definition_slug field predicates */
+  definitionSlug?: InputMaybe<Scalars['String']['input']>
+  definitionSlugContains?: InputMaybe<Scalars['String']['input']>
+  definitionSlugContainsFold?: InputMaybe<Scalars['String']['input']>
+  definitionSlugEqualFold?: InputMaybe<Scalars['String']['input']>
+  definitionSlugGT?: InputMaybe<Scalars['String']['input']>
+  definitionSlugGTE?: InputMaybe<Scalars['String']['input']>
+  definitionSlugHasPrefix?: InputMaybe<Scalars['String']['input']>
+  definitionSlugHasSuffix?: InputMaybe<Scalars['String']['input']>
+  definitionSlugIn?: InputMaybe<Array<Scalars['String']['input']>>
+  definitionSlugIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  definitionSlugLT?: InputMaybe<Scalars['String']['input']>
+  definitionSlugLTE?: InputMaybe<Scalars['String']['input']>
+  definitionSlugNEQ?: InputMaybe<Scalars['String']['input']>
+  definitionSlugNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  definitionSlugNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** definition_version field predicates */
+  definitionVersion?: InputMaybe<Scalars['String']['input']>
+  definitionVersionContains?: InputMaybe<Scalars['String']['input']>
+  definitionVersionContainsFold?: InputMaybe<Scalars['String']['input']>
+  definitionVersionEqualFold?: InputMaybe<Scalars['String']['input']>
+  definitionVersionGT?: InputMaybe<Scalars['String']['input']>
+  definitionVersionGTE?: InputMaybe<Scalars['String']['input']>
+  definitionVersionHasPrefix?: InputMaybe<Scalars['String']['input']>
+  definitionVersionHasSuffix?: InputMaybe<Scalars['String']['input']>
+  definitionVersionIn?: InputMaybe<Array<Scalars['String']['input']>>
+  definitionVersionIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  definitionVersionLT?: InputMaybe<Scalars['String']['input']>
+  definitionVersionLTE?: InputMaybe<Scalars['String']['input']>
+  definitionVersionNEQ?: InputMaybe<Scalars['String']['input']>
+  definitionVersionNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  definitionVersionNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** environment_id field predicates */
   environmentID?: InputMaybe<Scalars['ID']['input']>
   environmentIDContains?: InputMaybe<Scalars['ID']['input']>
@@ -23205,6 +23343,22 @@ export interface IntegrationWhereInput {
   environmentNameNEQ?: InputMaybe<Scalars['String']['input']>
   environmentNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   environmentNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** family field predicates */
+  family?: InputMaybe<Scalars['String']['input']>
+  familyContains?: InputMaybe<Scalars['String']['input']>
+  familyContainsFold?: InputMaybe<Scalars['String']['input']>
+  familyEqualFold?: InputMaybe<Scalars['String']['input']>
+  familyGT?: InputMaybe<Scalars['String']['input']>
+  familyGTE?: InputMaybe<Scalars['String']['input']>
+  familyHasPrefix?: InputMaybe<Scalars['String']['input']>
+  familyHasSuffix?: InputMaybe<Scalars['String']['input']>
+  familyIn?: InputMaybe<Array<Scalars['String']['input']>>
+  familyIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  familyLT?: InputMaybe<Scalars['String']['input']>
+  familyLTE?: InputMaybe<Scalars['String']['input']>
+  familyNEQ?: InputMaybe<Scalars['String']['input']>
+  familyNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  familyNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** action_plans edge predicates */
   hasActionPlans?: InputMaybe<Scalars['Boolean']['input']>
   hasActionPlansWith?: InputMaybe<Array<ActionPlanWhereInput>>
@@ -23404,6 +23558,11 @@ export interface IntegrationWhereInput {
   scopeNameNEQ?: InputMaybe<Scalars['String']['input']>
   scopeNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   scopeNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** status field predicates */
+  status?: InputMaybe<IntegrationIntegrationStatus>
+  statusIn?: InputMaybe<Array<IntegrationIntegrationStatus>>
+  statusNEQ?: InputMaybe<IntegrationIntegrationStatus>
+  statusNotIn?: InputMaybe<Array<IntegrationIntegrationStatus>>
   /** system_internal_id field predicates */
   systemInternalID?: InputMaybe<Scalars['String']['input']>
   systemInternalIDContains?: InputMaybe<Scalars['String']['input']>
@@ -31558,6 +31717,8 @@ export interface NotificationTemplate extends Node {
   channel: NotificationTemplateChannel
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
+  /** static variable values merged as base layer at render time; call-site data takes precedence */
+  defaults?: Maybe<Scalars['Map']['output']>
   /** description of the template */
   description?: Maybe<Scalars['String']['output']>
   emailTemplate?: Maybe<EmailTemplate>
@@ -31585,12 +31746,16 @@ export interface NotificationTemplate extends Node {
   owner?: Maybe<Organization>
   /** the ID of the organization owner of the object */
   ownerID?: Maybe<Scalars['ID']['output']>
+  /** revision of the object as a semver (e.g. v1.0.0), by default any update will bump the patch version, unless the revision_bump field is set */
+  revision?: Maybe<Scalars['String']['output']>
   /** subject template for email notifications */
   subjectTemplate?: Maybe<Scalars['String']['output']>
   /** an internal identifier for the mapping, this field is only available to system admins */
   systemInternalID?: Maybe<Scalars['String']['output']>
   /** indicates if the record is owned by the the openlane system and not by an organization */
   systemOwned?: Maybe<Scalars['Boolean']['output']>
+  /** runtime data context defining available variable keys for this template */
+  templateContext?: Maybe<NotificationTemplateTemplateContext>
   /** title template for external channel messages */
   titleTemplate?: Maybe<Scalars['String']['output']>
   /** topic name or wildcard pattern this template targets */
@@ -31703,10 +31868,19 @@ export enum NotificationTemplateOrderField {
   KEY = 'KEY',
   LOCALE = 'LOCALE',
   NAME = 'NAME',
+  TEMPLATE_CONTEXT = 'TEMPLATE_CONTEXT',
   TOPIC_PATTERN = 'TOPIC_PATTERN',
   VERSION = 'VERSION',
   created_at = 'created_at',
+  revision = 'revision',
   updated_at = 'updated_at',
+}
+
+/** NotificationTemplateTemplateContext is enum for the field template_context */
+export enum NotificationTemplateTemplateContext {
+  CAMPAIGN_RECIPIENT = 'CAMPAIGN_RECIPIENT',
+  TRANSACTIONAL = 'TRANSACTIONAL',
+  WORKFLOW_ACTION = 'WORKFLOW_ACTION',
 }
 
 /** Return response for updateNotificationTemplate mutation */
@@ -31925,6 +32099,22 @@ export interface NotificationTemplateWhereInput {
   ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
   ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** revision field predicates */
+  revision?: InputMaybe<Scalars['String']['input']>
+  revisionContains?: InputMaybe<Scalars['String']['input']>
+  revisionContainsFold?: InputMaybe<Scalars['String']['input']>
+  revisionEqualFold?: InputMaybe<Scalars['String']['input']>
+  revisionGT?: InputMaybe<Scalars['String']['input']>
+  revisionGTE?: InputMaybe<Scalars['String']['input']>
+  revisionHasPrefix?: InputMaybe<Scalars['String']['input']>
+  revisionHasSuffix?: InputMaybe<Scalars['String']['input']>
+  revisionIn?: InputMaybe<Array<Scalars['String']['input']>>
+  revisionIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  revisionLT?: InputMaybe<Scalars['String']['input']>
+  revisionLTE?: InputMaybe<Scalars['String']['input']>
+  revisionNEQ?: InputMaybe<Scalars['String']['input']>
+  revisionNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  revisionNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** subject_template field predicates */
   subjectTemplate?: InputMaybe<Scalars['String']['input']>
   subjectTemplateContains?: InputMaybe<Scalars['String']['input']>
@@ -31962,6 +32152,13 @@ export interface NotificationTemplateWhereInput {
   systemOwnedIsNil?: InputMaybe<Scalars['Boolean']['input']>
   systemOwnedNEQ?: InputMaybe<Scalars['Boolean']['input']>
   systemOwnedNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** template_context field predicates */
+  templateContext?: InputMaybe<NotificationTemplateTemplateContext>
+  templateContextIn?: InputMaybe<Array<NotificationTemplateTemplateContext>>
+  templateContextIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  templateContextNEQ?: InputMaybe<NotificationTemplateTemplateContext>
+  templateContextNotIn?: InputMaybe<Array<NotificationTemplateTemplateContext>>
+  templateContextNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** title_template field predicates */
   titleTemplate?: InputMaybe<Scalars['String']['input']>
   titleTemplateContains?: InputMaybe<Scalars['String']['input']>
@@ -52468,25 +52665,32 @@ export interface UpdateEmailTemplateInput {
   /** whether the template is active */
   active?: InputMaybe<Scalars['Boolean']['input']>
   addCampaignIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addNotificationTemplateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** body template for the email */
   bodyTemplate?: InputMaybe<Scalars['String']['input']>
   clearBodyTemplate?: InputMaybe<Scalars['Boolean']['input']>
   clearCampaigns?: InputMaybe<Scalars['Boolean']['input']>
+  clearDefaults?: InputMaybe<Scalars['Boolean']['input']>
   clearDescription?: InputMaybe<Scalars['Boolean']['input']>
   clearEmailBranding?: InputMaybe<Scalars['Boolean']['input']>
+  clearFiles?: InputMaybe<Scalars['Boolean']['input']>
   clearIntegration?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalNotes?: InputMaybe<Scalars['Boolean']['input']>
   clearJsonconfig?: InputMaybe<Scalars['Boolean']['input']>
   clearMetadata?: InputMaybe<Scalars['Boolean']['input']>
   clearNotificationTemplates?: InputMaybe<Scalars['Boolean']['input']>
   clearPreheaderTemplate?: InputMaybe<Scalars['Boolean']['input']>
+  clearRevision?: InputMaybe<Scalars['Boolean']['input']>
   clearSubjectTemplate?: InputMaybe<Scalars['Boolean']['input']>
   clearSystemInternalID?: InputMaybe<Scalars['Boolean']['input']>
+  clearTemplateContext?: InputMaybe<Scalars['Boolean']['input']>
   clearTextTemplate?: InputMaybe<Scalars['Boolean']['input']>
   clearUischema?: InputMaybe<Scalars['Boolean']['input']>
   clearWorkflowDefinition?: InputMaybe<Scalars['Boolean']['input']>
   clearWorkflowInstance?: InputMaybe<Scalars['Boolean']['input']>
+  /** static variable values merged as base layer at render time; call-site data takes precedence */
+  defaults?: InputMaybe<Scalars['Map']['input']>
   /** description of the template */
   description?: InputMaybe<Scalars['String']['input']>
   emailBrandingID?: InputMaybe<Scalars['ID']['input']>
@@ -52508,11 +52712,16 @@ export interface UpdateEmailTemplateInput {
   /** preheader/preview text template for email notifications */
   preheaderTemplate?: InputMaybe<Scalars['String']['input']>
   removeCampaignIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeNotificationTemplateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** revision of the object as a semver (e.g. v1.0.0), by default any update will bump the patch version, unless the revision_bump field is set */
+  revision?: InputMaybe<Scalars['String']['input']>
   /** subject template for email notifications */
   subjectTemplate?: InputMaybe<Scalars['String']['input']>
   /** an internal identifier for the mapping, this field is only available to system admins */
   systemInternalID?: InputMaybe<Scalars['String']['input']>
+  /** runtime data context defining available variable keys for this template */
+  templateContext?: InputMaybe<EmailTemplateTemplateContext>
   /** plain text fallback template for the email */
   textTemplate?: InputMaybe<Scalars['String']['input']>
   /** uischema for a template builder */
@@ -54227,6 +54436,7 @@ export interface UpdateNotificationTemplateInput {
   channel?: InputMaybe<NotificationTemplateChannel>
   clearBlocks?: InputMaybe<Scalars['Boolean']['input']>
   clearBodyTemplate?: InputMaybe<Scalars['Boolean']['input']>
+  clearDefaults?: InputMaybe<Scalars['Boolean']['input']>
   clearDescription?: InputMaybe<Scalars['Boolean']['input']>
   clearEmailTemplate?: InputMaybe<Scalars['Boolean']['input']>
   clearIntegration?: InputMaybe<Scalars['Boolean']['input']>
@@ -54234,11 +54444,15 @@ export interface UpdateNotificationTemplateInput {
   clearJsonconfig?: InputMaybe<Scalars['Boolean']['input']>
   clearMetadata?: InputMaybe<Scalars['Boolean']['input']>
   clearNotifications?: InputMaybe<Scalars['Boolean']['input']>
+  clearRevision?: InputMaybe<Scalars['Boolean']['input']>
   clearSubjectTemplate?: InputMaybe<Scalars['Boolean']['input']>
   clearSystemInternalID?: InputMaybe<Scalars['Boolean']['input']>
+  clearTemplateContext?: InputMaybe<Scalars['Boolean']['input']>
   clearTitleTemplate?: InputMaybe<Scalars['Boolean']['input']>
   clearUischema?: InputMaybe<Scalars['Boolean']['input']>
   clearWorkflowDefinition?: InputMaybe<Scalars['Boolean']['input']>
+  /** static variable values merged as base layer at render time; call-site data takes precedence */
+  defaults?: InputMaybe<Scalars['Map']['input']>
   /** description of the template */
   description?: InputMaybe<Scalars['String']['input']>
   emailTemplateID?: InputMaybe<Scalars['ID']['input']>
@@ -54258,10 +54472,14 @@ export interface UpdateNotificationTemplateInput {
   /** display name for the template */
   name?: InputMaybe<Scalars['String']['input']>
   removeNotificationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** revision of the object as a semver (e.g. v1.0.0), by default any update will bump the patch version, unless the revision_bump field is set */
+  revision?: InputMaybe<Scalars['String']['input']>
   /** subject template for email notifications */
   subjectTemplate?: InputMaybe<Scalars['String']['input']>
   /** an internal identifier for the mapping, this field is only available to system admins */
   systemInternalID?: InputMaybe<Scalars['String']['input']>
+  /** runtime data context defining available variable keys for this template */
+  templateContext?: InputMaybe<NotificationTemplateTemplateContext>
   /** title template for external channel messages */
   titleTemplate?: InputMaybe<Scalars['String']['input']>
   /** topic name or wildcard pattern this template targets */
@@ -62323,6 +62541,7 @@ export type CampaignsWithFilterQuery = {
       node?: {
         __typename?: 'Campaign'
         assessmentID?: string | null
+        campaignType: CampaignCampaignType
         completedAt?: string | null
         createdAt?: any | null
         createdBy?: string | null
@@ -62353,6 +62572,8 @@ export type CampaignsWithFilterQuery = {
         recurrenceTimezone?: string | null
         resendCount?: number | null
         scheduledAt?: string | null
+        status: CampaignCampaignStatus
+        tags?: Array<string> | null
         templateID?: string | null
         updatedAt?: any | null
         updatedBy?: string | null
@@ -62372,6 +62593,7 @@ export type CampaignQuery = {
   campaign: {
     __typename?: 'Campaign'
     assessmentID?: string | null
+    campaignType: CampaignCampaignType
     completedAt?: string | null
     createdAt?: any | null
     createdBy?: string | null
@@ -62402,6 +62624,8 @@ export type CampaignQuery = {
     recurrenceTimezone?: string | null
     resendCount?: number | null
     scheduledAt?: string | null
+    status: CampaignCampaignStatus
+    tags?: Array<string> | null
     templateID?: string | null
     updatedAt?: any | null
     updatedBy?: string | null
