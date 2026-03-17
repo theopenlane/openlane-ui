@@ -1,8 +1,8 @@
 'use client'
 
 import React, { useMemo, useState } from 'react'
-import Link from 'next/link'
 import { useDebounce } from '@uidotdev/usehooks'
+import { ViewPolicySheet } from '@/components/pages/protected/policies/view-policy-sheet'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
 import { usePoliciesFilters } from '@/components/pages/protected/policies/table/table-config'
@@ -32,6 +32,7 @@ type PoliciesTableProps = {
 }
 
 const PoliciesTable: React.FC<PoliciesTableProps> = ({ controlId, subcontrolIds }) => {
+  const [selectedPolicyId, setSelectedPolicyId] = useState<string | null>(null)
   const associationFilter = useMemo(() => buildAssociationFilter(controlId, subcontrolIds), [controlId, subcontrolIds])
 
   const [search, setSearch] = useState('')
@@ -110,9 +111,9 @@ const PoliciesTable: React.FC<PoliciesTableProps> = ({ controlId, subcontrolIds 
         accessorKey: 'name',
         header: () => <span className="whitespace-nowrap">Name</span>,
         cell: ({ row }) => (
-          <Link href={row.original.href} className="text-blue-500 hover:underline whitespace-nowrap">
+          <span className="text-blue-500 hover:underline whitespace-nowrap cursor-pointer" onClick={() => setSelectedPolicyId(row.original.id)}>
             {row.original.name}
-          </Link>
+          </span>
         ),
       },
       {
@@ -190,36 +191,40 @@ const PoliciesTable: React.FC<PoliciesTableProps> = ({ controlId, subcontrolIds 
   )
 
   return (
-    <AssociationSection
-      title="Internal Policies"
-      rows={rows}
-      columns={columns}
-      loading={isLoading}
-      pagination={pagination}
-      onPaginationChange={setPagination}
-      paginationMeta={paginationMeta}
-      searchBar={
-        <SearchFilterBar
-          placeholder="Search policies"
-          isSearching={search !== debouncedSearch}
-          searchValue={search}
-          onSearchChange={setSearch}
-          filterFields={filteredFields}
-          onFilterChange={setFilters}
-          actionButtons={
-            <SetObjectAssociationDialog
-              defaultSelectedObject={ObjectTypeObjects.INTERNAL_POLICY}
-              allowedObjectTypes={[ObjectTypeObjects.INTERNAL_POLICY]}
-              trigger={
-                <Button type="button" icon={<Plus size={16} />} iconPosition="left" variant="secondary" size="md" className="size-fit py-1.5 px-2">
-                  Add Policy
-                </Button>
-              }
-            />
-          }
-        />
-      }
-    />
+    <>
+      <AssociationSection
+        title="Internal Policies"
+        rows={rows}
+        columns={columns}
+        loading={isLoading}
+        pagination={pagination}
+        onPaginationChange={setPagination}
+        paginationMeta={paginationMeta}
+        onRowClick={(row) => setSelectedPolicyId(row.id)}
+        searchBar={
+          <SearchFilterBar
+            placeholder="Search policies"
+            isSearching={search !== debouncedSearch}
+            searchValue={search}
+            onSearchChange={setSearch}
+            filterFields={filteredFields}
+            onFilterChange={setFilters}
+            actionButtons={
+              <SetObjectAssociationDialog
+                defaultSelectedObject={ObjectTypeObjects.INTERNAL_POLICY}
+                allowedObjectTypes={[ObjectTypeObjects.INTERNAL_POLICY]}
+                trigger={
+                  <Button type="button" icon={<Plus size={16} />} iconPosition="left" variant="secondary" size="md" className="size-fit py-1.5 px-2">
+                    Add Policy
+                  </Button>
+                }
+              />
+            }
+          />
+        }
+      />
+      <ViewPolicySheet policyId={selectedPolicyId} onClose={() => setSelectedPolicyId(null)} />
+    </>
   )
 }
 

@@ -19,9 +19,10 @@ export interface ObjectChipProps {
   kind?: string
   removable?: boolean
   onRemove?: () => void
+  onItemClick?: (id: string, kind: string) => void
 }
 
-const ObjectAssociationChip: React.FC<ObjectChipProps> = ({ object, kind, removable, onRemove }) => {
+const ObjectAssociationChip: React.FC<ObjectChipProps> = ({ object, kind, removable, onRemove, onItemClick }) => {
   const [tooltipOpen, setTooltipOpen] = useState(false)
   const { convertToReadOnly } = usePlateEditor()
   const router = useRouter()
@@ -30,17 +31,27 @@ const ObjectAssociationChip: React.FC<ObjectChipProps> = ({ object, kind, remova
   const displayDescription = object.summary || object.description || object.details || ''
   const objectKind = kind || ''
   const handleNavigate = () => {
-    router.push(object.link)
+    if (onItemClick) {
+      onItemClick(object.id, objectKind)
+    } else {
+      router.push(object.link)
+    }
   }
 
   return (
     <TooltipProvider delayDuration={300}>
       <Tooltip open={tooltipOpen} onOpenChange={setTooltipOpen}>
-        <TooltipTrigger className="bg-transparent" onClick={(e) => e.preventDefault()}>
+        <TooltipTrigger
+          className="bg-transparent"
+          onClick={(e) => {
+            e.preventDefault()
+            handleNavigate()
+          }}
+        >
           <ObjectsChip name={displayText} objectType={objectKind} removable={removable} onRemove={onRemove ? () => onRemove() : undefined} />
         </TooltipTrigger>
 
-        <TooltipContent side="top" className="bg-secondary p-3 rounded-md shadow-lg text-xs min-w-[240px]">
+        <TooltipContent side="top" className="bg-secondary p-3 rounded-md shadow-lg text-xs min-w-60">
           <div>
             <div className="grid grid-cols-[auto_1fr] gap-y-2">
               <div className="flex items-center gap-1 border-b pb-2">

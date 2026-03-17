@@ -1,8 +1,8 @@
 'use client'
 
 import React, { useMemo, useState } from 'react'
-import Link from 'next/link'
 import { useDebounce } from '@uidotdev/usehooks'
+import { ViewProcedureSheet } from '@/components/pages/protected/procedures/view-procedure-sheet'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
 import { useProceduresFilters } from '@/components/pages/protected/procedures/table/table-config'
@@ -32,6 +32,7 @@ type ProceduresTableProps = {
 }
 
 const ProceduresTable: React.FC<ProceduresTableProps> = ({ controlId, subcontrolIds }) => {
+  const [selectedProcedureId, setSelectedProcedureId] = useState<string | null>(null)
   const associationFilter = useMemo(() => buildAssociationFilter(controlId, subcontrolIds), [controlId, subcontrolIds])
 
   const [search, setSearch] = useState('')
@@ -113,9 +114,9 @@ const ProceduresTable: React.FC<ProceduresTableProps> = ({ controlId, subcontrol
         accessorKey: 'name',
         header: () => <span className="whitespace-nowrap">Name</span>,
         cell: ({ row }) => (
-          <Link href={row.original.href} className="text-blue-500 hover:underline whitespace-nowrap">
+          <span className="text-blue-500 hover:underline whitespace-nowrap cursor-pointer" onClick={() => setSelectedProcedureId(row.original.id)}>
             {row.original.name}
-          </Link>
+          </span>
         ),
       },
       {
@@ -193,36 +194,40 @@ const ProceduresTable: React.FC<ProceduresTableProps> = ({ controlId, subcontrol
   )
 
   return (
-    <AssociationSection
-      title="Procedures"
-      rows={rows}
-      columns={columns}
-      loading={isLoading}
-      pagination={pagination}
-      onPaginationChange={setPagination}
-      paginationMeta={paginationMeta}
-      searchBar={
-        <SearchFilterBar
-          placeholder="Search procedures"
-          isSearching={search !== debouncedSearch}
-          searchValue={search}
-          onSearchChange={setSearch}
-          filterFields={filteredFields}
-          onFilterChange={setFilters}
-          actionButtons={
-            <SetObjectAssociationDialog
-              defaultSelectedObject={ObjectTypeObjects.PROCEDURE}
-              allowedObjectTypes={[ObjectTypeObjects.PROCEDURE]}
-              trigger={
-                <Button type="button" icon={<Plus size={16} />} iconPosition="left" variant="secondary" size="md" className="size-fit py-1.5 px-2">
-                  Add Procedure
-                </Button>
-              }
-            />
-          }
-        />
-      }
-    />
+    <>
+      <AssociationSection
+        title="Procedures"
+        rows={rows}
+        columns={columns}
+        loading={isLoading}
+        pagination={pagination}
+        onPaginationChange={setPagination}
+        paginationMeta={paginationMeta}
+        onRowClick={(row) => setSelectedProcedureId(row.id)}
+        searchBar={
+          <SearchFilterBar
+            placeholder="Search procedures"
+            isSearching={search !== debouncedSearch}
+            searchValue={search}
+            onSearchChange={setSearch}
+            filterFields={filteredFields}
+            onFilterChange={setFilters}
+            actionButtons={
+              <SetObjectAssociationDialog
+                defaultSelectedObject={ObjectTypeObjects.PROCEDURE}
+                allowedObjectTypes={[ObjectTypeObjects.PROCEDURE]}
+                trigger={
+                  <Button type="button" icon={<Plus size={16} />} iconPosition="left" variant="secondary" size="md" className="size-fit py-1.5 px-2">
+                    Add Procedure
+                  </Button>
+                }
+              />
+            }
+          />
+        }
+      />
+      <ViewProcedureSheet procedureId={selectedProcedureId} onClose={() => setSelectedProcedureId(null)} />
+    </>
   )
 }
 

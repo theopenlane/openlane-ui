@@ -87,12 +87,22 @@ type AssociationSectionProps = {
   onPaginationChange: (pagination: TPagination) => void
   paginationMeta: TPaginationMeta
   searchBar: React.ReactNode
+  onRowClick?: (row: AssociationRow) => void
 }
 
-export const AssociationSection = ({ title, rows, columns, loading, pagination, onPaginationChange, paginationMeta, searchBar }: AssociationSectionProps) => (
+export const AssociationSection = ({ title, rows, columns, loading, pagination, onPaginationChange, paginationMeta, searchBar, onRowClick }: AssociationSectionProps) => (
   <div>
     <h3 className="text-base font-semibold mb-2">{title}</h3>
     <div className="mb-3">{searchBar}</div>
-    <DataTable columns={columns} data={rows} loading={loading} pagination={pagination} onPaginationChange={onPaginationChange} paginationMeta={paginationMeta} tableKey={undefined} />
+    <DataTable
+      columns={columns}
+      data={rows}
+      loading={loading}
+      pagination={pagination}
+      onPaginationChange={onPaginationChange}
+      paginationMeta={paginationMeta}
+      tableKey={undefined}
+      onRowClick={onRowClick}
+    />
   </div>
 )

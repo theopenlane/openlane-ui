@@ -3,7 +3,6 @@
 import { useRouter } from 'next/navigation'
 import { DataTable, getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
 import React, { use, useEffect, useMemo, useState } from 'react'
-import { ViewProcedureSheet } from '@/components/pages/protected/procedures/view-procedure-sheet'
 import {
   ExportExportFormat,
   ExportExportType,
@@ -41,7 +40,6 @@ import { objectToSnakeCase } from '@/utils/strings'
 
 export const ProceduresTable = () => {
   const router = useRouter()
-  const [selectedProcedureId, setSelectedProcedureId] = useState<string | null>(null)
   const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(TableKeyEnum.PROCEDURE, DEFAULT_PAGINATION))
   const [filters, setFilters] = useState<ProcedureWhereInput | null>(null)
   const [memberIds, setMemberIds] = useState<(Maybe<string> | undefined)[] | null>(null)
@@ -158,7 +156,7 @@ export const ProceduresTable = () => {
   }
 
   const handleRowClick = (rowData: Procedure) => {
-    setSelectedProcedureId(rowData.id)
+    router.push(`/procedures/${rowData.id}/view`)
   }
 
   function isVisibleColumn<T>(col: ColumnDef<T>): col is ColumnDef<T> & { accessorKey: string; header: string } {
@@ -254,8 +252,6 @@ export const ProceduresTable = () => {
         defaultSorting={defaultSorting}
         tableKey={TableKeyEnum.PROCEDURE}
       />
-
-      <ViewProcedureSheet procedureId={selectedProcedureId} onClose={() => setSelectedProcedureId(null)} />
     </>
   )
 }

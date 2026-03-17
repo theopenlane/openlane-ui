@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useMemo } from 'react'
+import React, { useMemo, useState } from 'react'
 import { DonutChart } from '@repo/ui/donut-chart'
 import { FileCheck2, FilePen, ScanEye, Stamp } from 'lucide-react'
 import { wherePoliciesDashboard } from './dashboard-config'
@@ -11,13 +11,14 @@ import { saveFilters } from '@/components/shared/table-filter/filter-storage'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { Button } from '@repo/ui/button'
-import Link from 'next/link'
+import { ViewPolicySheet } from '@/components/pages/protected/policies/view-policy-sheet'
 
 interface Props {
   onStatusClick: () => void
 }
 
 export default function StatusBreakdown({ onStatusClick }: Props) {
+  const [selectedPolicyId, setSelectedPolicyId] = useState<string | null>(null)
   const saved = loadFilters(TableKeyEnum.INTERNAL_POLICY) || {}
   const validated = isStringArray(saved?.approverIDIn) ? saved?.approverIDIn : []
   const { policies } = useInternalPoliciesDashboard({
@@ -114,16 +115,18 @@ export default function StatusBreakdown({ onStatusClick }: Props) {
                   <TooltipContent side="right" className="max-w-xs border p-3 rounded-md space-y-2">
                     <p className="font-medium">{label} Policies</p>
 
-                    {showList.map((item, i) => {
-                      const policyLink = `/policies/${item.id}/view`
-                      return (
-                        <Link href={policyLink} key={i}>
-                          <p key={i} className="text-sm text-muted-foreground truncate">
-                            {item.name}
-                          </p>
-                        </Link>
-                      )
-                    })}
+                    {showList.map((item, i) => (
+                      <p
+                        key={i}
+                        className="text-sm text-muted-foreground truncate cursor-pointer hover:text-foreground"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setSelectedPolicyId(item.id)
+                        }}
+                      >
+                        {item.name}
+                      </p>
+                    ))}
 
                     {hasMore && (
                       <Button
@@ -142,6 +145,8 @@ export default function StatusBreakdown({ onStatusClick }: Props) {
           </ul>
         </TooltipProvider>
       </div>
+
+      <ViewPolicySheet policyId={selectedPolicyId} onClose={() => setSelectedPolicyId(null)} />
     </div>
   )
 }
