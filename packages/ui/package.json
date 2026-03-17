@@ -100,7 +100,7 @@
     "@platejs/basic-nodes": "^49.0.0",
     "@platejs/basic-styles": "^49.0.0",
     "@platejs/callout": "^49.0.0",
-    "@platejs/caption": "^49.0.0",
+    "@platejs/caption": "^52.0.0",
     "@platejs/code-block": "^49.0.0",
     "@platejs/combobox": "^49.0.0",
     "@platejs/comment": "^52.0.1",

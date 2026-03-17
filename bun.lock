@@ -241,7 +241,7 @@
         "@platejs/basic-nodes": "^49.0.0",
         "@platejs/basic-styles": "^49.0.0",
         "@platejs/callout": "^49.0.0",
-        "@platejs/caption": "^49.0.0",
+        "@platejs/caption": "^52.0.0",
         "@platejs/code-block": "^49.0.0",
         "@platejs/combobox": "^49.0.0",
         "@platejs/comment": "^52.0.1",
@@ -1114,7 +1114,7 @@
 
     "@platejs/callout": ["@platejs/callout@49.0.0", "", { "peerDependencies": { "platejs": ">=49.0.0", "react": ">=18.0.0", "react-dom": ">=18.0.0" } }, "sha512-8Juxp1pfcUfPj9DQdibFgoimZdeexbYgOEMmASY9UVOxbXNYNdn/l/IdlZfQFrWXYdA5Hlfqj6bMAm0Yl85QhA=="],
 
-    "@platejs/caption": ["@platejs/caption@49.0.0", "", { "dependencies": { "react-textarea-autosize": "^8.5.9" }, "peerDependencies": { "platejs": ">=49.0.0", "react": ">=18.0.0", "react-dom": ">=18.0.0" } }, "sha512-8a71Uwt+A1E1wzp9Wh+LVdkaByKpBysZ1jr0oMnbVmnwzjeCIMl+05bQhxOOKSfVkXFUEiIyRxLdq7gXeSejdg=="],
+    "@platejs/caption": ["@platejs/caption@52.0.11", "", { "dependencies": { "react-compiler-runtime": "^1.0.0", "react-textarea-autosize": "^8.5.9" }, "peerDependencies": { "platejs": ">=52.0.11", "react": ">=18.0.0", "react-dom": ">=18.0.0" } }, "sha512-ATLKe+9eXvb7lDs/t1tIcNDunGejPRPzyxGqT+EQEh4O6U0e7Hk+QO+fbvF62FUirZoDk6hrPeGIgZpl9XhVEA=="],
 
     "@platejs/code-block": ["@platejs/code-block@49.0.0", "", { "peerDependencies": { "platejs": ">=49.0.0", "react": ">=18.0.0", "react-dom": ">=18.0.0" } }, "sha512-yDkJBGoCFHvWhhSnzgET2hyD+5+zBj4uCkO4qZpeNsncshBwJuADnSLUcPc6B4Xf6FC5rHDaIYL+889YykrlEA=="],
 
