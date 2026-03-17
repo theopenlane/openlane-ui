@@ -437,3 +437,21 @@ export const UPDATE_POLICY_COMMENT = gql`
     }
   }
 `
+
+export const GET_POLICY_COMMENTS_BY_ID = gql`
+  query GetPolicyCommentsById($policyId: ID!) {
+    internalPolicy(id: $policyId) {
+      id
+      comments {
+        edges {
+          node {
+            id
+            createdAt
+            createdBy
+            text
+          }
+        }
+      }
+    }
+  }
+`
