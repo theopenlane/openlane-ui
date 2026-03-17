@@ -79,6 +79,8 @@ export interface GenericDetailsSheetConfig<TFormData extends FieldValues, TData,
   renderFields?: (props: RenderFieldsProps<TData, TUpdateInput>) => React.ReactNode
   renderHeader?: (props: RenderHeaderProps) => React.ReactNode
   extraContent?: React.ReactNode
+  minWidth?: string | number
+  initialWidth?: string | number
 }
 
 export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdateInput, TUpdateData, TCreateInput, TCreateData>(
@@ -109,6 +111,8 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
     entityId: entityIdOverride,
     isCreateMode,
     basePath,
+    minWidth: minWidthOverride,
+    initialWidth: initialWidthOverride,
   } = config
   const { reset } = form
   const queryClient = useQueryClient()
@@ -288,8 +292,8 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
           }}
           side="right"
           className="flex flex-col "
-          minWidth="40vw"
-          initialWidth={'60vw'}
+          minWidth={minWidthOverride ?? '40vw'}
+          initialWidth={initialWidthOverride ?? '60vw'}
           header={
             renderHeader ? (
               renderHeader({
