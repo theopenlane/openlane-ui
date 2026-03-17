@@ -13,21 +13,22 @@ type AssociatedObjectsAccordionProps = {
   toggleAll: boolean
   removable?: boolean
   onRemove?: (objectId: string, kind: string) => void
+  onItemClick?: (id: string, kind: string) => void
 }
 
 const SectionTrigger = ({ label, count }: { label: string; count: number }) => (
   <AccordionTrigger asChild>
     <button className="group flex items-center py-2 text-left bg-transparent gap-3 w-full">
       <div className="flex items-center gap-2">
-        <ChevronDown className="h-4 w-4 text-primary transform rotate-[-90deg] transition-transform group-data-[state=open]:rotate-0" />
+        <ChevronDown className="h-4 w-4 text-primary transform -rotate-90 transition-transform group-data-[state=open]:rotate-0" />
         <span className="text-base font-medium">{label}</span>
       </div>
-      <span className="rounded-full border border-border text-xs text-muted-foreground flex justify-center items-center h-[26px] w-[26px]">{count}</span>
+      <span className="rounded-full border border-border text-xs text-muted-foreground flex justify-center items-center h-6.5 w-6.5">{count}</span>
     </button>
   </AccordionTrigger>
 )
 
-const AssociatedObjectsAccordion: React.FC<AssociatedObjectsAccordionProps> = ({ sections, toggleAll, removable, onRemove }) => {
+const AssociatedObjectsAccordion: React.FC<AssociatedObjectsAccordionProps> = ({ sections, toggleAll, removable, onRemove, onItemClick }) => {
   const sectionKeys = useMemo(() => Object.keys(sections), [sections])
   const sectionKeysRef = useRef(sectionKeys)
   useEffect(() => {
@@ -84,6 +85,7 @@ const AssociatedObjectsAccordion: React.FC<AssociatedObjectsAccordionProps> = ({
               }}
               removable={removable}
               onRemove={onRemove ? () => onRemove(row.id, kind) : undefined}
+              onItemClick={onItemClick}
             />
           )
         })

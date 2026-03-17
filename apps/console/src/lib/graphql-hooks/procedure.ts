@@ -15,6 +15,7 @@ import {
   INSERT_PROCEDURE_COMMENT,
   GET_PROCEDURE_DISCUSSION_BY_ID,
   UPDATE_PROCEDURE_COMMENT,
+  GET_PROCEDURE_COMMENTS_BY_ID,
 } from '@repo/codegen/query/procedure'
 
 import {
@@ -229,5 +230,31 @@ export const useUpdateProcedureComment = () => {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['procedureComments', data.updateProcedureComment.procedure.id] })
     },
+  })
+}
+
+type ProcedureCommentsQuery = {
+  procedure: {
+    id: string
+    comments: {
+      edges: Array<{
+        node: {
+          id: string
+          createdAt: string | null
+          createdBy: string | null
+          text: string | null
+        } | null
+      } | null> | null
+    }
+  }
+}
+
+export const useGetProcedureCommentsById = (procedureId: string | null | undefined) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<ProcedureCommentsQuery>({
+    queryKey: ['procedureComments', procedureId],
+    queryFn: async () => client.request(GET_PROCEDURE_COMMENTS_BY_ID, { procedureId }),
+    enabled: !!procedureId,
   })
 }

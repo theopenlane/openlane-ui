@@ -20,9 +20,10 @@ export interface ObjectChipProps {
   kind?: string
   removable?: boolean
   onRemove?: () => void
+  onItemClick?: (id: string, kind: string) => void
 }
 
-const ObjectAssociationChip: React.FC<ObjectChipProps> = ({ object, kind, removable, onRemove }) => {
+const ObjectAssociationChip: React.FC<ObjectChipProps> = ({ object, kind, removable, onRemove, onItemClick }) => {
   const [tooltipOpen, setTooltipOpen] = useState(false)
   const { convertToReadOnly } = usePlateEditor()
 
@@ -30,13 +31,20 @@ const ObjectAssociationChip: React.FC<ObjectChipProps> = ({ object, kind, remova
   const displayDescription = object.summary || object.details || object.description || object.desiredOutcome || ''
   const objectKind = kind || ''
   const handleNavigate = () => {
-    window.open(object.link, '_blank')
+    if (onItemClick) {
+      onItemClick(object.id, objectKind)
+    } else {
+      window.open(object.link, '_blank')
+    }
   }
 
   return (
     <TooltipProvider delayDuration={300}>
       <Tooltip open={tooltipOpen} onOpenChange={setTooltipOpen}>
-        <TooltipTrigger className="bg-transparent" onClick={(e) => e.preventDefault()}>
+        <TooltipTrigger className="bg-transparent" onClick={(e) => {
+          e.preventDefault()
+          handleNavigate()
+        }}>
           <ObjectsChip name={displayText} objectType={objectKind} removable={removable} onRemove={onRemove ? () => onRemove() : undefined} onClick={handleNavigate} />
         </TooltipTrigger>
 

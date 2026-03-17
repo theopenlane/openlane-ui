@@ -7,7 +7,7 @@ import usePlateEditor from '../plate/usePlateEditor'
 import { ExternalLink, Info, PencilLine, SlidersHorizontal, X, XIcon } from 'lucide-react'
 import { ObjectAssociationMap } from '@/components/shared/enum-mapper/object-association-enum.tsx'
 import { getHrefForObjectType, type NormalizedObject } from '@/utils/getHrefForObjectType.ts'
-import { type Section, type TBaseAssociatedNode, type TEdgeNode } from '@/components/shared/object-association/types/object-association-types.ts'
+import { ObjectAssociationNodeEnum, type Section, type TBaseAssociatedNode, type TEdgeNode } from '@/components/shared/object-association/types/object-association-types.ts'
 import { useTheme } from 'next-themes'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
@@ -38,6 +38,7 @@ type TObjectAssociationGraphProps = {
   closeFullScreen: () => void
   onGroupSelect?: (group: string | null) => void
   clearGroupRef?: React.MutableRefObject<(() => void) | null>
+  onItemClick?: (id: string, kind: string) => void
   removable?: boolean
   onRemove?: (objectId: string, kind: string) => void
 }
@@ -67,12 +68,12 @@ const CustomTooltipContent = ({ node, interactive }: { node: TBaseAssociatedNode
           <span className="font-medium">Name</span>
         </div>
         {interactive ? (
-          <span className="cursor-pointer break-words text-brand hover:underline inline-flex items-center gap-1" onClick={() => window.open(node.link, '_blank')}>
+          <span className="cursor-pointer wrap-break-word text-brand hover:underline inline-flex items-center gap-1" onClick={() => window.open(node.link, '_blank')}>
             {displayText}
             <ExternalLink size={12} />
           </span>
         ) : (
-          <span className="break-words">{displayText}</span>
+          <span className="wrap-break-word">{displayText}</span>
         )}
       </div>
       <div className="grid grid-cols-[max-content_1fr] gap-x-4 items-center border-b pb-2 pt-2">
@@ -80,7 +81,7 @@ const CustomTooltipContent = ({ node, interactive }: { node: TBaseAssociatedNode
           <Info size={12} />
           <span className="font-medium">Type</span>
         </div>
-        <span className="cursor-pointer break-words">{toHumanLabel(node.__typename || '')}</span>
+        <span className="cursor-pointer wrap-break-word">{toHumanLabel(node.__typename || '')}</span>
       </div>
       <div className="flex flex-col pt-2">
         <div className="flex items-center gap-1">
@@ -93,7 +94,7 @@ const CustomTooltipContent = ({ node, interactive }: { node: TBaseAssociatedNode
   )
 }
 
-const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ centerNode, sections, isFullscreen, closeFullScreen, controlId, onGroupSelect, clearGroupRef, removable, onRemove }) => {
+const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ centerNode, sections, isFullscreen, closeFullScreen, controlId, onGroupSelect, clearGroupRef, removable, onRemove, onItemClick }) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const [dimensions, setDimensions] = useState({ width: 300, height: 300 })
   const fgRef = useRef<ForceGraphMethods | undefined>(undefined)
@@ -375,10 +376,19 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
 
         <TooltipProvider delayDuration={300}>
           <div className="flex flex-col gap-1">
-            {group.items.map((item) => (
+            {group.items.map((item: TGroupItem) => {
+              const handleChipClick = () => {
+                if (onItemClick && selectedGroup && [ObjectAssociationNodeEnum.POLICY, ObjectAssociationNodeEnum.PROCEDURE].includes(selectedGroup as ObjectAssociationNodeEnum)) {
+                  onItemClick(item.id, selectedGroup)
+                } else {
+                  window.open(item.link, '_blank')
+                }
+              }
+
+              return (
               <Tooltip key={item.id}>
                 <TooltipTrigger asChild>
-                  <button type="button" onClick={() => window.open(item.link, '_blank')} style={{ border: `1px solid ${typeColor}` }} className="inline-flex items-center gap-1 text-left px-2 py-1 rounded-full text-sm cursor-pointer mb-3 w-fit">
+                  <button type="button" onClick={handleChipClick} style={{ border: `1px solid ${typeColor}` }} className="inline-flex items-center gap-1 text-left px-2 py-1 rounded-full text-sm cursor-pointer mb-3 w-fit">
                     {item.refCode || item.displayName || item.name || item.title || item.displayID}
                     {removable && onRemove && (
                       <XIcon
@@ -396,8 +406,8 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
                 <TooltipContent side="right" className="max-w-[300px] p-2 text-xs border">
                   <CustomTooltipContent node={item} interactive />
                 </TooltipContent>
-              </Tooltip>
-            ))}
+              </Tooltip>)
+            })}
           </div>
         </TooltipProvider>
       </div>
@@ -633,28 +643,32 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
     </>
   )
 
-  return showFullscreen ? (
-    ReactDOM.createPortal(
-      <div
-        onClick={closeFullScreen}
-        className={`fixed inset-0 z-[10000] flex items-center justify-center bg-black bg-opacity-50 transition-opacity duration-300 ${isFullscreen ? 'opacity-100' : 'opacity-0'}`}
-      >
-        <div onClick={(e) => e.stopPropagation()} className="relative w-[90vw] h-[90vh] bg-white dark:bg-gray-800 rounded-lg shadow-lg p-2">
-          <button onClick={closeFullScreen} className="absolute top-4 right-4 z-50 p-2 rounded hover:bg-opacity-80">
-            <X size={20} />
-          </button>
+  return (
+    <>
+      {showFullscreen ? (
+        ReactDOM.createPortal(
+          <div
+            onClick={closeFullScreen}
+            className={`fixed inset-0 z-10000 flex items-center justify-center bg-black bg-opacity-50 transition-opacity duration-300 ${isFullscreen ? 'opacity-100' : 'opacity-0'}`}
+          >
+            <div onClick={(e) => e.stopPropagation()} className="relative w-[90vw] h-[90vh] bg-white dark:bg-gray-800 rounded-lg shadow-lg p-2">
+              <button onClick={closeFullScreen} className="absolute top-4 right-4 z-50 p-2 rounded hover:bg-opacity-80">
+                <X size={20} />
+              </button>
 
-          <div ref={containerRef} className={`w-full ${isFullscreen ? 'h-full' : 'h-[400px]'} transition-all duration-300`}>
-            {renderContent()}
-          </div>
+              <div ref={containerRef} className={`w-full ${isFullscreen ? 'h-full' : 'h-100'} transition-all duration-300`}>
+                {renderContent()}
+              </div>
+            </div>
+          </div>,
+          document.body,
+        )
+      ) : (
+        <div ref={containerRef} className={`w-full ${isFullscreen ? 'h-full' : 'h-75'} transition-all duration-300`}>
+          {renderContent()}
         </div>
-      </div>,
-      document.body,
-    )
-  ) : (
-    <div ref={containerRef} className={`w-full ${isFullscreen ? 'h-full' : 'h-[300px]'} transition-all duration-300`}>
-      {renderContent()}
-    </div>
+      )}
+    </>
   )
 }
 
