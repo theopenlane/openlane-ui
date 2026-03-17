@@ -12,12 +12,16 @@ import { EntityFrequency, type EntityQuery, type UpdateEntityInput } from '@repo
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { type ReviewsNodeNonNull, useReviewsWithFilter } from '@/lib/graphql-hooks/review'
 import { formatDate } from '@/utils/date'
+import { TextField } from '@/components/shared/crud-base/form-fields/text-field'
+import { CheckboxField } from '@/components/shared/crud-base/form-fields/checkbox-field'
 import CreateReviewSheet from './create-review-sheet'
+import ReviewDetailSheet from './review-detail-sheet'
 
 interface RiskReviewTabProps {
   vendor: EntityQuery['entity']
   handleUpdateField: (input: UpdateEntityInput) => Promise<void>
   canEdit: boolean
+  isEditing: boolean
 }
 
 const reviewHistoryColumns: ColumnDef<ReviewsNodeNonNull>[] = [
@@ -67,8 +71,10 @@ const TierBadge: React.FC<{ tier: string }> = ({ tier }) => {
   return <Badge className={colorClass}>{tier}</Badge>
 }
 
-const RiskReviewTab: React.FC<RiskReviewTabProps> = ({ vendor, handleUpdateField, canEdit }) => {
+const RiskReviewTab: React.FC<RiskReviewTabProps> = ({ vendor, handleUpdateField, canEdit, isEditing }) => {
   const [isCreateReviewOpen, setIsCreateReviewOpen] = useState(false)
+  const [selectedReviewId, setSelectedReviewId] = useState<string | null>(null)
+  const [internalEditing, setInternalEditing] = useState<string | null>(null)
 
   const { reviewsNodes, isLoading } = useReviewsWithFilter({
     where: { hasEntitiesWith: [{ id: vendor.id }] },
@@ -76,6 +82,26 @@ const RiskReviewTab: React.FC<RiskReviewTabProps> = ({ vendor, handleUpdateField
 
   const isOverdue = vendor.nextReviewAt && new Date(vendor.nextReviewAt) < new Date()
   const isHighRisk = vendor.tier?.toLowerCase() === 'high' || vendor.tier?.toLowerCase() === 'critical'
+
+  const sharedFieldProps = {
+    isEditing,
+    isEditAllowed: canEdit,
+    isCreate: false,
+    data: vendor,
+    internalEditing,
+    setInternalEditing,
+    handleUpdate: handleUpdateField,
+  }
+
+  const riskScoreFieldProps = {
+    ...sharedFieldProps,
+    handleUpdate: async (input: UpdateEntityInput) => {
+      if ('riskScore' in input && input.riskScore !== undefined) {
+        return handleUpdateField({ riskScore: parseInt(String(input.riskScore), 10) || 0 })
+      }
+      return handleUpdateField(input)
+    },
+  }
 
   return (
     <div className="space-y-6">
@@ -123,37 +149,60 @@ const RiskReviewTab: React.FC<RiskReviewTabProps> = ({ vendor, handleUpdateField
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <Card>
             <CardContent className="p-4">
-              <p className="text-sm text-muted-foreground mb-2">Risk Tier</p>
-              {vendor.tier ? <TierBadge tier={vendor.tier} /> : <span className="text-sm">—</span>}
+              <TextField name="tier" label="Risk Tier" {...sharedFieldProps} />
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-4">
-              <p className="text-sm text-muted-foreground mb-2">Risk Rating</p>
-              {vendor.riskRating ? <Badge variant="outline">{vendor.riskRating}</Badge> : <span className="text-sm">—</span>}
+              <TextField name="riskRating" label="Risk Rating" type="number" {...sharedFieldProps} />
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-4">
-              <p className="text-sm text-muted-foreground mb-2">Risk Score</p>
-              {vendor.riskScore != null ? <Badge variant="outline">{String(vendor.riskScore)}</Badge> : <span className="text-sm">—</span>}
+              <TextField name="riskScore" label="Risk Score" type="number" {...riskScoreFieldProps} />
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-4">
-              <p className="text-sm text-muted-foreground mb-2">Renewal Risk Rating</p>
-              {vendor.renewalRisk ? <Badge variant="outline">{vendor.renewalRisk}</Badge> : <span className="text-sm">—</span>}
+              <TextField name="renewalRisk" label="Renewal Risk Rating" type="number" {...sharedFieldProps} />
             </CardContent>
           </Card>
         </div>
       </div>
 
       <div>
+        <h3 className="text-lg font-semibold mb-4">Vendor Details</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <TextField name="name" label="Name" {...sharedFieldProps} />
+          <TextField name="description" label="Description" {...sharedFieldProps} />
+        </div>
+      </div>
+
+      <div>
+        <h3 className="text-lg font-semibold mb-4">Security Settings</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <CheckboxField name="ssoEnforced" label="SSO Enforced" {...sharedFieldProps} />
+          <CheckboxField name="mfaSupported" label="MFA Supported" {...sharedFieldProps} />
+          <CheckboxField name="mfaEnforced" label="MFA Enforced" {...sharedFieldProps} />
+          <CheckboxField name="hasSoc2" label="SOC 2 Compliant" {...sharedFieldProps} />
+          <TextField name="soc2PeriodEnd" label="SOC 2 Period End" type="date" {...sharedFieldProps} />
+        </div>
+      </div>
+
+      <div>
         <h3 className="text-lg font-semibold mb-4">Review History</h3>
-        <DataTable columns={reviewHistoryColumns} data={reviewsNodes} loading={isLoading} tableKey={undefined} noResultsText="No review history available." />
+        <DataTable
+          columns={reviewHistoryColumns}
+          data={reviewsNodes}
+          loading={isLoading}
+          tableKey={undefined}
+          noResultsText="No review history available."
+          onRowClick={(row) => setSelectedReviewId(row.id)}
+        />
       </div>
 
       {isCreateReviewOpen && <CreateReviewSheet entityId={vendor.id} onClose={() => setIsCreateReviewOpen(false)} />}
+      {selectedReviewId && <ReviewDetailSheet reviewId={selectedReviewId} onClose={() => setSelectedReviewId(null)} />}
     </div>
   )
 }

@@ -63431,6 +63431,7 @@ export type ContactQuery = {
     fullName?: string | null
     id: string
     phoneNumber?: string | null
+    status: ContactUserStatus
     title?: string | null
     updatedAt?: any | null
     updatedBy?: string | null

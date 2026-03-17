@@ -10,6 +10,7 @@ import { Input } from '@repo/ui/input'
 import { Check, CircleAlert, Copy, DownloadIcon, Plus, SearchIcon } from 'lucide-react'
 import ColumnVisibilityMenu, { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
+import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
 import Menu from '@/components/shared/menu/menu'
 import TableCardView from '@/components/shared/table-card-view/table-card-view'
 import { useContacts, useCreateBulkCSVContact, useBulkDeleteContact, useBulkEditContact } from '@/lib/graphql-hooks/contact'
@@ -23,13 +24,16 @@ import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-butto
 import { createSelectColumn } from '@/components/shared/crud-base/columns/select-column'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { z } from 'zod'
+import type { FilterField, WhereCondition } from '@/types'
 import AddContactDialog from './add-contact-dialog'
+import ContactDetailSheet from './contact-detail-sheet'
 
 type ContactNode = NonNullable<NonNullable<NonNullable<GetContactsQuery['contacts']['edges']>[number]>['node']>
 
 interface ContactsTabProps {
   vendorId: string
   canEdit: boolean
+  vendorName: string
 }
 
 type ViewMode = 'table' | 'card'
@@ -58,6 +62,11 @@ const bulkEditFieldSchema = z.object({
 })
 
 const statusEnumOptions = Object.entries(STATUS_LABELS).map(([value, label]) => ({ value, label }))
+
+const CONTACT_FILTER_FIELDS: FilterField[] = [
+  { key: 'statusIn', label: 'Status', type: 'multiselect', icon: FilterIcons.Status, options: statusEnumOptions },
+  { key: 'titleContainsFold', label: 'Title', type: 'text', icon: FilterIcons.Title },
+]
 
 const StatusCell: React.FC<{ status: ContactUserStatus }> = ({ status }) => {
   const isActive = status === ContactUserStatus.ACTIVE
@@ -132,8 +141,8 @@ const mappedColumns = DATA_COLUMNS.filter((column): column is ColumnDef<ContactN
   header: column.header as string,
 }))
 
-const ContactCard: React.FC<{ contact: ContactNode }> = ({ contact }) => (
-  <Card>
+const ContactCard: React.FC<{ contact: ContactNode; onClick?: () => void }> = ({ contact, onClick }) => (
+  <Card className="cursor-pointer" onClick={onClick}>
     <CardContent className="p-5">
       <div className="mb-4">
         <p className="font-semibold text-sm">{contact.fullName}</p>
@@ -170,7 +179,7 @@ const ContactCard: React.FC<{ contact: ContactNode }> = ({ contact }) => (
   </Card>
 )
 
-const ContactsTab: React.FC<ContactsTabProps> = ({ vendorId, canEdit: canEditVendor }) => {
+const ContactsTab: React.FC<ContactsTabProps> = ({ vendorId, canEdit: canEditVendor, vendorName }) => {
   const [viewMode, setViewMode] = useState<ViewMode>('table')
   const handleViewChange = (tab: 'table' | 'card') => setViewMode(tab)
   const [showAddDialog, setShowAddDialog] = useState(false)
@@ -179,12 +188,16 @@ const ContactsTab: React.FC<ContactsTabProps> = ({ vendorId, canEdit: canEditVen
   const [selectedContacts, setSelectedContacts] = useState<{ id: string }[]>([])
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)
   const [isBulkEditDialogOpen, setIsBulkEditDialogOpen] = useState(false)
+  const [selectedContactId, setSelectedContactId] = useState<string | null>(null)
+  const [filterWhere, setFilterWhere] = useState<WhereCondition>({})
   const { successNotification, errorNotification } = useNotification()
 
   const { contacts, isLoading } = useContacts({
-    where: { hasEntitiesWith: [{ id: vendorId }] },
+    where: { hasEntitiesWith: [{ id: vendorId }], ...filterWhere },
     enabled: true,
   })
+
+  const existingContactIds = useMemo(() => contacts.map((c) => c.id), [contacts])
 
   const { mutateAsync: createBulkCSVContact } = useCreateBulkCSVContact()
   const { mutateAsync: bulkDeleteContacts } = useBulkDeleteContact()
@@ -314,7 +327,7 @@ const ContactsTab: React.FC<ContactsTabProps> = ({ vendorId, canEdit: canEditVen
                 )}
               />
               <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.VENDOR_CONTACTS} />
-              <TableFilter filterFields={[]} onFilterChange={() => {}} pageKey={TableKeyEnum.VENDOR_CONTACTS} />
+              <TableFilter filterFields={CONTACT_FILTER_FIELDS} onFilterChange={setFilterWhere} pageKey={TableKeyEnum.VENDOR_CONTACTS} />
               {canEditVendor && (
                 <Button icon={<Plus size={16} />} iconPosition="left" onClick={() => setShowAddDialog(true)}>
                   Add Contact
@@ -334,6 +347,7 @@ const ContactsTab: React.FC<ContactsTabProps> = ({ vendorId, canEdit: canEditVen
           setColumnVisibility={setColumnVisibility}
           tableKey={TableKeyEnum.VENDOR_CONTACTS}
           noResultsText="No contacts associated with this vendor."
+          onRowClick={(row) => setSelectedContactId(row.id)}
         />
       ) : isLoading ? (
         <Card>
@@ -346,12 +360,14 @@ const ContactsTab: React.FC<ContactsTabProps> = ({ vendorId, canEdit: canEditVen
       ) : (
         <div className="space-y-4">
           {filteredContacts.map((contact) => (
-            <ContactCard key={contact.id} contact={contact} />
+            <ContactCard key={contact.id} contact={contact} onClick={() => setSelectedContactId(contact.id)} />
           ))}
         </div>
       )}
 
-      {showAddDialog && <AddContactDialog vendorId={vendorId} onClose={() => setShowAddDialog(false)} />}
+      {showAddDialog && <AddContactDialog vendorId={vendorId} onClose={() => setShowAddDialog(false)} vendorName={vendorName} existingContactIds={existingContactIds} />}
+
+      {selectedContactId && <ContactDetailSheet contactId={selectedContactId} onClose={() => setSelectedContactId(null)} canEdit={canEditVendor} />}
     </div>
   )
 }

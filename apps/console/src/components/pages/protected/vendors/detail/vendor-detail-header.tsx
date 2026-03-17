@@ -2,14 +2,11 @@
 
 import React from 'react'
 import { Button } from '@repo/ui/button'
-import { PencilIcon, MoreHorizontal, Trash2, ArrowLeft } from 'lucide-react'
+import { PencilIcon, MoreHorizontal, Trash2, Building2 } from 'lucide-react'
 import { canEdit, canDelete } from '@/lib/authz/utils'
 import Menu from '@/components/shared/menu/menu'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
-import { Badge } from '@repo/ui/badge'
-import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
-import Link from 'next/link'
 import type { TAccessRole } from '@/types/authz'
 import type { EntityQuery } from '@repo/codegen/src/schema'
 
@@ -25,18 +22,16 @@ interface VendorDetailHeaderProps {
 const VendorDetailHeader: React.FC<VendorDetailHeaderProps> = ({ vendor, isEditing, onEdit, onCancel, onDeleteClick, permissionRoles }) => {
   const canEditVendor = canEdit(permissionRoles)
   const canDeleteVendor = canDelete(permissionRoles)
-
   return (
     <div className="flex justify-between items-start gap-4">
-      <div className="flex flex-col gap-1">
-        <div className="flex items-center gap-2">
-          <Link href="/registry/vendors" className="text-muted-foreground hover:text-foreground">
-            <ArrowLeft size={20} />
-          </Link>
-          <h1 className="text-2xl font-semibold">{vendor.name}</h1>
-          {vendor.status && <Badge variant="outline">{getEnumLabel(vendor.status)}</Badge>}
+      <div className="flex items-center gap-4">
+        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-muted">
+          <Building2 size={24} className="text-muted-foreground" />
         </div>
-        {vendor.displayName && <p className="text-sm text-muted-foreground ml-7">{vendor.displayName}</p>}
+        <div className="flex flex-col gap-1">
+          <h1 className="text-2xl font-semibold">{vendor.name}</h1>
+          {vendor.displayName && <p className="text-sm text-muted-foreground">{vendor.displayName}</p>}
+        </div>
       </div>
 
       <div className="flex items-center gap-2">

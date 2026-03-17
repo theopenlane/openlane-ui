@@ -4,18 +4,13 @@ import React, { useState } from 'react'
 import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
-import { Input } from '@repo/ui/input'
-import { Check, X, Plus, SearchIcon, Link, MoreHorizontal } from 'lucide-react'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
+import { Check, X, Plus } from 'lucide-react'
 import type { EntityQuery, GetEntityAssociationsQuery } from '@repo/codegen/src/schema'
 import { useUpdateEntity } from '@/lib/graphql-hooks/entity'
 import { useNotification } from '@/hooks/useNotification'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
-import { formatDateSince } from '@/utils/date'
 import AddDomainDialog from './add-domain-dialog'
-import LinkSystemDialog from './link-system-dialog'
 import AddAssetDialog from './add-asset-dialog'
 
 interface OverviewTabProps {
@@ -25,7 +20,7 @@ interface OverviewTabProps {
   canEdit: boolean
 }
 
-type SubTab = 'domains' | 'security' | 'platform'
+type SubTab = 'domains' | 'security' | 'dependencies'
 
 const OverviewTab: React.FC<OverviewTabProps> = ({ vendor, associations, canEdit }) => {
   const [activeSubTab, setActiveSubTab] = useState<SubTab>('domains')
@@ -60,8 +55,8 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ vendor, associations, canEdit
           <TabsTrigger value="security" className="whitespace-nowrap">
             Security Settings
           </TabsTrigger>
-          <TabsTrigger value="platform" className="whitespace-nowrap">
-            Platform
+          <TabsTrigger value="dependencies" className="whitespace-nowrap">
+            Dependencies
           </TabsTrigger>
         </TabsList>
 
@@ -73,7 +68,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ vendor, associations, canEdit
           <SecuritySection vendor={vendor} />
         </TabsContent>
 
-        <TabsContent value="platform">
+        <TabsContent value="dependencies">
           <SystemSection vendor={vendor} associations={associations} canEdit={canEdit} />
         </TabsContent>
       </Tabs>
@@ -186,45 +181,13 @@ interface SystemSectionProps {
 }
 
 const SystemSection: React.FC<SystemSectionProps> = ({ vendor, associations, canEdit }) => {
-  const [searchQuery, setSearchQuery] = useState('')
-  const [showLinkDialog, setShowLinkDialog] = useState(false)
   const [showAddAssetDialog, setShowAddAssetDialog] = useState(false)
   const updateEntityMutation = useUpdateEntity()
   const { successNotification, errorNotification } = useNotification()
   const smartRouter = useSmartRouter()
 
-  const integrations = associations?.entity?.integrations?.edges?.map((e) => e?.node).filter((node): node is NonNullable<typeof node> => Boolean(node)) ?? []
   const assets = associations?.entity?.assets?.edges?.map((e) => e?.node).filter((node): node is NonNullable<typeof node> => Boolean(node)) ?? []
-
-  const filteredIntegrations = integrations.filter((i) => {
-    if (!searchQuery) return true
-    const q = searchQuery.toLowerCase()
-    return i.name.toLowerCase().includes(q) || i.kind?.toLowerCase().includes(q)
-  })
-
-  const linkedIntegrationIds = integrations.map((i) => i.id)
   const linkedAssetIds = assets.map((a) => a.id)
-
-  const handleUnlinkSystem = async (integrationId: string, integrationName: string) => {
-    try {
-      await updateEntityMutation.mutateAsync({
-        updateEntityId: vendor.id,
-        input: {
-          removeIntegrationIDs: [integrationId],
-        },
-      })
-      successNotification({
-        title: 'System unlinked',
-        description: `${integrationName} has been unlinked.`,
-      })
-    } catch (error) {
-      const errorMessage = parseErrorMessage(error)
-      errorNotification({
-        title: 'Error',
-        description: errorMessage,
-      })
-    }
-  }
 
   const handleRemoveAsset = async (assetId: string, assetName: string) => {
     try {
@@ -248,116 +211,60 @@ const SystemSection: React.FC<SystemSectionProps> = ({ vendor, associations, can
   }
 
   return (
-    <div className="space-y-8">
-      <div>
-        <div className="flex items-center gap-2 my-2">
-          <Input
-            className="bg-transparent w-[280px]"
-            icon={<SearchIcon size={16} />}
-            placeholder="Search"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.currentTarget.value)}
-            variant="searchTable"
-            iconPosition="left"
-          />
-          <div className="grow flex flex-row items-center gap-2 justify-end">
-            {canEdit && (
-              <Button type="button" icon={<Link size={16} strokeWidth={2} />} iconPosition="left" onClick={() => setShowLinkDialog(true)}>
-                Link System
-              </Button>
-            )}
-          </div>
-        </div>
-        <div className="rounded-lg border border-border overflow-hidden">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-border bg-muted/50">
-                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">System Name</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Environment</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Connection Type</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Status</th>
-                <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Last Synced</th>
-                <th className="px-4 py-3" />
-              </tr>
-            </thead>
-            <tbody>
-              {filteredIntegrations.length > 0 ? (
-                filteredIntegrations.map((integration) => (
-                  <tr key={integration.id} className="border-b border-border last:border-b-0">
-                    <td className="px-4 py-3 text-sm">{integration.name}</td>
-                    <td className="px-4 py-3 text-sm text-muted-foreground">{integration.environmentName ?? '—'}</td>
-                    <td className="px-4 py-3 text-sm text-muted-foreground">{integration.integrationType ? getEnumLabel(integration.integrationType) : '—'}</td>
-                    <td className="px-4 py-3 text-sm text-muted-foreground">—</td>
-                    <td className="px-4 py-3 text-sm text-muted-foreground">{formatDateSince(integration.updatedAt)}</td>
-                    <td className="px-4 py-3 text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button type="button" variant="secondary" size="sm" className="size-8 p-0">
-                            <MoreHorizontal size={16} />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          {canEdit && (
-                            <DropdownMenuItem onClick={() => handleUnlinkSystem(integration.id, integration.name)} className="text-destructive">
-                              Unlink System
-                            </DropdownMenuItem>
-                          )}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={6} className="px-4 py-8 text-center text-sm text-muted-foreground">
-                    No systems linked
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold">Assets</h3>
-          {canEdit && (
-            <Button type="button" variant="secondary" icon={<Plus size={16} strokeWidth={2} />} iconPosition="left" onClick={() => setShowAddAssetDialog(true)}>
-              Add New Asset
-            </Button>
-          )}
-        </div>
-        {assets.length > 0 ? (
-          <div className="space-y-3">
-            {assets.map((asset) => (
-              <div
-                key={asset.id}
-                className="flex items-center justify-between rounded-lg border border-border bg-card px-4 py-3 text-sm cursor-pointer hover:bg-muted/30 transition-colors"
-                onClick={() => smartRouter.replace({ assetId: asset.id })}
-              >
-                <span>{asset.displayName || asset.name}</span>
-                {canEdit && (
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      handleRemoveAsset(asset.id, asset.displayName || asset.name)
-                    }}
-                    className="text-muted-foreground hover:text-destructive transition-colors"
-                  >
-                    <X size={16} />
-                  </button>
-                )}
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="text-sm text-muted-foreground">No assets configured</p>
+    <div>
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg font-semibold">Assets</h3>
+        {canEdit && (
+          <Button type="button" variant="secondary" icon={<Plus size={16} strokeWidth={2} />} iconPosition="left" onClick={() => setShowAddAssetDialog(true)}>
+            Add Asset
+          </Button>
         )}
       </div>
-
-      {showLinkDialog && <LinkSystemDialog vendorId={vendor.id} linkedIntegrationIds={linkedIntegrationIds} onClose={() => setShowLinkDialog(false)} />}
+      <div className="rounded-lg border border-border overflow-hidden">
+        <table className="w-full">
+          <thead>
+            <tr className="border-b border-border bg-muted/50">
+              <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Name</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Environment</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Scope</th>
+              <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Type</th>
+              {canEdit && <th className="px-4 py-3" />}
+            </tr>
+          </thead>
+          <tbody>
+            {assets.length > 0 ? (
+              assets.map((asset) => (
+                <tr key={asset.id} className="border-b border-border last:border-b-0 cursor-pointer hover:bg-muted/30 transition-colors" onClick={() => smartRouter.replace({ assetId: asset.id })}>
+                  <td className="px-4 py-3 text-sm">{asset.displayName || asset.name}</td>
+                  <td className="px-4 py-3 text-sm text-muted-foreground">{asset.environmentName ?? '—'}</td>
+                  <td className="px-4 py-3 text-sm text-muted-foreground">{asset.scopeName ?? '—'}</td>
+                  <td className="px-4 py-3 text-sm text-muted-foreground">{asset.assetType ?? '—'}</td>
+                  {canEdit && (
+                    <td className="px-4 py-3 text-right">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleRemoveAsset(asset.id, asset.displayName || asset.name)
+                        }}
+                        className="text-muted-foreground hover:text-destructive transition-colors"
+                      >
+                        <X size={16} />
+                      </button>
+                    </td>
+                  )}
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={canEdit ? 5 : 4} className="px-4 py-8 text-center text-sm text-muted-foreground">
+                  No assets configured
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
       {showAddAssetDialog && <AddAssetDialog vendorId={vendor.id} linkedAssetIds={linkedAssetIds} onClose={() => setShowAddAssetDialog(false)} />}
     </div>
   )

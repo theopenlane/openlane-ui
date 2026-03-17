@@ -13,6 +13,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { useUpdateEntity } from '@/lib/graphql-hooks/entity'
 import { useAssetsWithFilter } from '@/lib/graphql-hooks/asset'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import Link from 'next/link'
 
 const addAssetSchema = z.object({
   assetId: z.string().min(1, 'Please select an asset'),
@@ -71,6 +72,9 @@ const AddAssetDialog: React.FC<AddAssetDialogProps> = ({ vendorId, linkedAssetId
       <DialogContent className="sm:max-w-[450px]">
         <DialogHeader>
           <DialogTitle>Add Asset</DialogTitle>
+          <p className="text-sm text-muted-foreground">
+            Choose the systems or assets that rely on this vendor. This helps identify where the vendor is used across your platform for risk reviews, vendor assessments, and audits.
+          </p>
         </DialogHeader>
 
         <Form {...form}>
@@ -80,9 +84,7 @@ const AddAssetDialog: React.FC<AddAssetDialogProps> = ({ vendorId, linkedAssetId
               name="assetId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>
-                    Asset <span className="text-destructive">*</span>
-                  </FormLabel>
+                  <FormLabel>Select system that uses this vendor</FormLabel>
                   <FormControl>
                     <Select value={field.value} onValueChange={field.onChange}>
                       <SelectTrigger>
@@ -104,6 +106,13 @@ const AddAssetDialog: React.FC<AddAssetDialogProps> = ({ vendorId, linkedAssetId
                     </Select>
                   </FormControl>
                   <FormMessage />
+                  <p className="text-sm text-muted-foreground">
+                    Don&apos;t see the system you&apos;re looking for?{' '}
+                    <Link href="/registry/assets?create=true" className="text-primary underline hover:text-primary/80">
+                      Create a new asset
+                    </Link>
+                    .
+                  </p>
                 </FormItem>
               )}
             />

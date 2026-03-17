@@ -6,10 +6,12 @@ import { type UpdateEntityInput, type EntityQuery, EntityEntityStatus, EntityFre
 import { ResponsibilityField } from '@/components/shared/crud-base/form-fields/responsibility-field'
 import { SelectField } from '@/components/shared/crud-base/form-fields/select-field'
 import { TextField } from '@/components/shared/crud-base/form-fields/text-field'
+import { DateField } from '@/components/shared/crud-base/form-fields/date-field'
+import { CheckboxField } from '@/components/shared/crud-base/form-fields/checkbox-field'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { formatDate } from '@/utils/date'
-import { UserRound, UserRoundCheck, Settings2, Maximize2, Radio, CalendarDays, RefreshCw } from 'lucide-react'
+import { UserRound, UserRoundCheck, Settings2, Maximize2, Radio, CalendarDays, RefreshCw, DollarSign } from 'lucide-react'
 
 const iconClass = 'h-4 w-4 text-muted-foreground'
 
@@ -49,66 +51,79 @@ const VendorPropertiesSidebar: React.FC<VendorPropertiesSidebarProps> = ({ data,
   }
 
   return (
-    <Card className="p-4 bg-card rounded-xl shadow-xs">
-      <h3 className="text-lg font-medium mb-4">Properties</h3>
-      <div className="flex flex-col gap-3">
-        <ResponsibilityField
-          name="internalOwner"
-          fieldBaseName="internalOwner"
-          label="Owner"
-          icon={<UserRound className={iconClass} />}
-          layout="horizontal"
-          labelClassName="text-muted-foreground"
-          isEditing={isEditing}
-          isEditAllowed={canEditVendor}
-          isCreate={false}
-          internalEditing={internalEditing}
-          setInternalEditing={setInternalEditing}
-          handleUpdate={(input) => handleUpdate(input as UpdateEntityInput)}
-        />
+    <>
+      <Card className="p-4 bg-card rounded-xl shadow-xs">
+        <h3 className="text-lg font-medium mb-4">Properties</h3>
+        <div className="flex flex-col gap-3">
+          <ResponsibilityField
+            name="internalOwner"
+            fieldBaseName="internalOwner"
+            label="Owner"
+            icon={<UserRound className={iconClass} />}
+            layout="horizontal"
+            labelClassName="text-muted-foreground"
+            isEditing={isEditing}
+            isEditAllowed={canEditVendor}
+            isCreate={false}
+            internalEditing={internalEditing}
+            setInternalEditing={setInternalEditing}
+            handleUpdate={(input) => handleUpdate(input as UpdateEntityInput)}
+          />
 
-        <ResponsibilityField
-          name="reviewedBy"
-          fieldBaseName="reviewedBy"
-          label="Reviewer"
-          icon={<UserRoundCheck className={iconClass} />}
-          layout="horizontal"
-          labelClassName="text-muted-foreground"
-          isEditing={isEditing}
-          isEditAllowed={canEditVendor}
-          isCreate={false}
-          internalEditing={internalEditing}
-          setInternalEditing={setInternalEditing}
-          handleUpdate={(input) => handleUpdate(input as UpdateEntityInput)}
-        />
+          <ResponsibilityField
+            name="reviewedBy"
+            fieldBaseName="reviewedBy"
+            label="Reviewer"
+            icon={<UserRoundCheck className={iconClass} />}
+            layout="horizontal"
+            labelClassName="text-muted-foreground"
+            isEditing={isEditing}
+            isEditAllowed={canEditVendor}
+            isCreate={false}
+            internalEditing={internalEditing}
+            setInternalEditing={setInternalEditing}
+            handleUpdate={(input) => handleUpdate(input as UpdateEntityInput)}
+          />
 
-        <SelectField name="status" label="Status" icon={<Settings2 className={iconClass} />} options={entityStatusOptions} {...sharedFieldProps} />
+          <SelectField name="status" label="Status" icon={<Settings2 className={iconClass} />} options={entityStatusOptions} {...sharedFieldProps} />
 
-        <SelectField name="environmentName" label="Environment" icon={<Maximize2 className={iconClass} />} options={environmentOptions} onCreateOption={createEnvironment} {...sharedFieldProps} />
+          <SelectField name="environmentName" label="Environment" icon={<Maximize2 className={iconClass} />} options={environmentOptions} onCreateOption={createEnvironment} {...sharedFieldProps} />
 
-        <SelectField name="scopeName" label="Scope" icon={<Radio className={iconClass} />} options={scopeOptions} onCreateOption={createScope} {...sharedFieldProps} />
+          <SelectField name="scopeName" label="Scope" icon={<Radio className={iconClass} />} options={scopeOptions} onCreateOption={createScope} {...sharedFieldProps} />
 
-        <SelectField name="reviewFrequency" label="Review Frequency" icon={<RefreshCw className={iconClass} />} options={reviewFrequencyOptions} {...sharedFieldProps} />
+          <SelectField name="reviewFrequency" label="Review Frequency" icon={<RefreshCw className={iconClass} />} options={reviewFrequencyOptions} {...sharedFieldProps} />
 
-        <TextField name="nextReviewAt" label="Next Review Date" icon={<CalendarDays className={iconClass} />} type="date" {...sharedFieldProps} />
+          <TextField name="nextReviewAt" label="Next Review Date" icon={<CalendarDays className={iconClass} />} type="date" {...sharedFieldProps} />
 
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-2 shrink-0">
-            <CalendarDays className={iconClass} />
-            <span className="text-base text-muted-foreground">Last Updated</span>
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-2 shrink-0">
+              <CalendarDays className={iconClass} />
+              <span className="text-base text-muted-foreground">Last Updated</span>
+            </div>
+            <span className="text-sm py-2 px-1">{formatDate(data?.updatedAt)}</span>
           </div>
-          <span className="text-sm py-2 px-1">{formatDate(data?.updatedAt)}</span>
-        </div>
 
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-2 shrink-0">
-            <CalendarDays className={iconClass} />
-            <span className="text-base text-muted-foreground">Last Reviewed</span>
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-2 shrink-0">
+              <CalendarDays className={iconClass} />
+              <span className="text-base text-muted-foreground">Last Reviewed</span>
+            </div>
+            <span className="text-sm py-2 px-1">{formatDate(data?.lastReviewedAt)}</span>
           </div>
-          <span className="text-sm py-2 px-1">{formatDate(data?.lastReviewedAt)}</span>
         </div>
-      </div>
-    </Card>
+      </Card>
+
+      <Card className="p-4 bg-card rounded-xl shadow-xs">
+        <h3 className="text-lg font-medium mb-4">Contract</h3>
+        <div className="flex flex-col gap-3">
+          <DateField name="contractStartDate" label="Start Date" {...sharedFieldProps} />
+          <DateField name="contractEndDate" label="End Date" {...sharedFieldProps} />
+          <DateField name="contractRenewalAt" label="Renewal Date" {...sharedFieldProps} />
+          <TextField name="annualSpend" label="Spend" type="currency" icon={<DollarSign className={iconClass} />} {...sharedFieldProps} />
+          <CheckboxField name="autoRenews" label="Auto Renews" {...sharedFieldProps} />
+        </div>
+      </Card>
+    </>
   )
 }
 

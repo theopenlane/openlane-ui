@@ -58,6 +58,7 @@ export const CONTACT = gql`
       fullName
       id
       phoneNumber
+      status
       title
       updatedAt
       updatedBy
