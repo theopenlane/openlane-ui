@@ -48940,6 +48940,7 @@ export interface TrustCenterFaqOrder {
 
 /** Properties by which TrustCenterFAQ connections can be ordered. */
 export enum TrustCenterFaqOrderField {
+  DISPLAY_ORDER = 'DISPLAY_ORDER',
   created_at = 'created_at',
   updated_at = 'updated_at',
 }
@@ -64945,7 +64946,7 @@ export type EvidenceFieldsFragment = {
   controlObjectives: {
     __typename?: 'ControlObjectiveConnection'
     totalCount: number
-    edges?: Array<{ __typename?: 'ControlObjectiveEdge'; node?: { __typename?: 'ControlObjective'; id: string; name: string; displayID: string } | null } | null> | null
+    edges?: Array<{ __typename?: 'ControlObjectiveEdge'; node?: { __typename?: 'ControlObjective'; id: string; name: string; displayID: string; desiredOutcome?: string | null } | null } | null> | null
   }
   controls: {
     __typename?: 'ControlConnection'
@@ -65009,7 +65010,10 @@ export type GetEvidenceQuery = {
     controlObjectives: {
       __typename?: 'ControlObjectiveConnection'
       totalCount: number
-      edges?: Array<{ __typename?: 'ControlObjectiveEdge'; node?: { __typename?: 'ControlObjective'; id: string; name: string; displayID: string } | null } | null> | null
+      edges?: Array<{
+        __typename?: 'ControlObjectiveEdge'
+        node?: { __typename?: 'ControlObjective'; id: string; name: string; displayID: string; desiredOutcome?: string | null } | null
+      } | null> | null
     }
     controls: {
       __typename?: 'ControlConnection'
@@ -66455,7 +66459,10 @@ export type GetInternalPolicyAssociationsByIdQuery = {
     controlObjectives: {
       __typename?: 'ControlObjectiveConnection'
       totalCount: number
-      edges?: Array<{ __typename?: 'ControlObjectiveEdge'; node?: { __typename?: 'ControlObjective'; id: string; displayID: string; name: string } | null } | null> | null
+      edges?: Array<{
+        __typename?: 'ControlObjectiveEdge'
+        node?: { __typename?: 'ControlObjective'; id: string; displayID: string; name: string; desiredOutcome?: string | null } | null
+      } | null> | null
     }
     risks: {
       __typename?: 'RiskConnection'
@@ -68416,7 +68423,7 @@ export type GetProgramDetailsByIdQuery = {
     }
     controlObjectives: {
       __typename?: 'ControlObjectiveConnection'
-      edges?: Array<{ __typename?: 'ControlObjectiveEdge'; node?: { __typename?: 'ControlObjective'; id: string; name: string } | null } | null> | null
+      edges?: Array<{ __typename?: 'ControlObjectiveEdge'; node?: { __typename?: 'ControlObjective'; id: string; name: string; desiredOutcome?: string | null } | null } | null> | null
     }
     controls: { __typename?: 'ControlConnection'; edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string } | null } | null> | null }
     subcontrols: { __typename?: 'SubcontrolConnection'; edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string } | null } | null> | null }

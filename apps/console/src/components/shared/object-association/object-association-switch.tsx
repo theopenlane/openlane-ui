@@ -99,6 +99,8 @@ const ObjectAssociationSwitch: React.FC<TObjectAssociationSwitchProps> = ({ sect
           isFullscreen={isFullscreen}
           onGroupSelect={setActiveGroup}
           clearGroupRef={clearGroupRef}
+          removable={canEdit && !!onRemoveAssociation}
+          onRemove={onRemoveAssociation}
         />
       )}
       {isGraphView && !activeGroup && (

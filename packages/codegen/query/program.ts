@@ -137,6 +137,14 @@ export const GET_PROGRAM_DETAILS_BY_ID = gql`
           node {
             id
             name
+            desiredOutcome
+            controls {
+              edges {
+                node {
+                  id
+                }
+              }
+            }
           }
         }
       }

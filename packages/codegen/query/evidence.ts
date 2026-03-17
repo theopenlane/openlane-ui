@@ -111,6 +111,14 @@ const EVIDENCE_FIELDS = gql`
           id
           name
           displayID
+          desiredOutcome
+          controls {
+            edges {
+              node {
+                id
+              }
+            }
+          }
         }
       }
     }
