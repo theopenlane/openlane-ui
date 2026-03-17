@@ -98,7 +98,7 @@
     "@platejs/ai": "^52.0.1",
     "@platejs/autoformat": "^49.0.0",
     "@platejs/basic-nodes": "^49.0.0",
-    "@platejs/basic-styles": "^49.0.0",
+    "@platejs/basic-styles": "^52.0.0",
     "@platejs/callout": "^49.0.0",
     "@platejs/caption": "^49.0.0",
     "@platejs/code-block": "^49.0.0",

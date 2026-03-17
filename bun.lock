@@ -239,7 +239,7 @@
         "@platejs/ai": "^52.0.1",
         "@platejs/autoformat": "^49.0.0",
         "@platejs/basic-nodes": "^49.0.0",
-        "@platejs/basic-styles": "^49.0.0",
+        "@platejs/basic-styles": "^52.0.0",
         "@platejs/callout": "^49.0.0",
         "@platejs/caption": "^49.0.0",
         "@platejs/code-block": "^49.0.0",
@@ -1110,7 +1110,7 @@
 
     "@platejs/basic-nodes": ["@platejs/basic-nodes@49.0.0", "", { "peerDependencies": { "platejs": ">=49.0.0", "react": ">=18.0.0", "react-dom": ">=18.0.0" } }, "sha512-l7MbW1Oy2uyRRYOiWVGxTNs8nIvBM/EWjZZFEmtOZcpzXrSY6c3cZd0KAA6u0Z+NLLbLABLJNxuYFBZ5ARvBsg=="],
 
-    "@platejs/basic-styles": ["@platejs/basic-styles@49.0.0", "", { "peerDependencies": { "platejs": ">=49.0.0", "react": ">=18.0.0", "react-dom": ">=18.0.0" } }, "sha512-MjbQj+LjflUBhd1DPZqnlodHZiX7kJo0LpJ7wHRUI515nNJ7zMQJHocCHo1EYfAU2VtV1j5CpZ7wxHUw3nuHmA=="],
+    "@platejs/basic-styles": ["@platejs/basic-styles@52.0.11", "", { "dependencies": { "react-compiler-runtime": "^1.0.0" }, "peerDependencies": { "platejs": ">=52.0.11", "react": ">=18.0.0", "react-dom": ">=18.0.0" } }, "sha512-GBOkDJ2jpKzJxOzBUcnAIrpftGJKosdzEq1NkCjDyZgJ6LlttCGa3nCKtssk2eROXjnXFfmD866jHFMZjWvjeg=="],
 
     "@platejs/callout": ["@platejs/callout@49.0.0", "", { "peerDependencies": { "platejs": ">=49.0.0", "react": ">=18.0.0", "react-dom": ">=18.0.0" } }, "sha512-8Juxp1pfcUfPj9DQdibFgoimZdeexbYgOEMmASY9UVOxbXNYNdn/l/IdlZfQFrWXYdA5Hlfqj6bMAm0Yl85QhA=="],
 
