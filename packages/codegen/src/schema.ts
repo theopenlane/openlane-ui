@@ -71039,23 +71039,23 @@ export type CreateSlaDefinitionMutationVariables = Exact<{
 export type CreateSlaDefinitionMutation = { __typename?: 'Mutation'; createSLADefinition: { __typename?: 'SLADefinitionCreatePayload'; slaDefinition: { __typename?: 'SLADefinition'; id: string } } }
 
 export type UpdateSlaDefinitionMutationVariables = Exact<{
-  updateSLADefinitionId: Scalars['ID']['input']
+  updateSlaDefinitionId: Scalars['ID']['input']
   input: UpdateSlaDefinitionInput
 }>
 
 export type UpdateSlaDefinitionMutation = { __typename?: 'Mutation'; updateSLADefinition: { __typename?: 'SLADefinitionUpdatePayload'; slaDefinition: { __typename?: 'SLADefinition'; id: string } } }
 
 export type DeleteSlaDefinitionMutationVariables = Exact<{
-  deleteSLADefinitionId: Scalars['ID']['input']
+  deleteSlaDefinitionId: Scalars['ID']['input']
 }>
 
 export type DeleteSlaDefinitionMutation = { __typename?: 'Mutation'; deleteSLADefinition: { __typename?: 'SLADefinitionDeletePayload'; deletedID: string } }
 
-export type CreateBulkCsvslaDefinitionMutationVariables = Exact<{
+export type CreateBulkCsvSlaDefinitionMutationVariables = Exact<{
   input: Scalars['Upload']['input']
 }>
 
-export type CreateBulkCsvslaDefinitionMutation = {
+export type CreateBulkCsvSlaDefinitionMutation = {
   __typename?: 'Mutation'
   createBulkCSVSLADefinition: { __typename?: 'SLADefinitionBulkCreatePayload'; slaDefinitions?: Array<{ __typename?: 'SLADefinition'; id: string }> | null }
 }
