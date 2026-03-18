@@ -41,14 +41,17 @@ const ObjectAssociationChip: React.FC<ObjectChipProps> = ({ object, kind, remova
   return (
     <TooltipProvider delayDuration={300}>
       <Tooltip open={tooltipOpen} onOpenChange={setTooltipOpen}>
-        <TooltipTrigger className="bg-transparent" onClick={(e) => {
-          e.preventDefault()
-          handleNavigate()
-        }}>
-          <ObjectsChip name={displayText} objectType={objectKind} removable={removable} onRemove={onRemove ? () => onRemove() : undefined} onClick={handleNavigate} />
+        <TooltipTrigger
+          className="bg-transparent"
+          onClick={(e) => {
+            e.preventDefault()
+            handleNavigate()
+          }}
+        >
+          <ObjectsChip name={displayText} objectType={objectKind} removable={removable} onRemove={onRemove ? () => onRemove() : undefined} />
         </TooltipTrigger>
 
-        <TooltipContent side="top" className="p-3 rounded-md shadow-lg text-xs min-w-[240px]">
+        <TooltipContent side="top" className="p-3 rounded-md shadow-lg text-xs min-w-60">
           <div>
             <div className="grid grid-cols-[auto_1fr] gap-y-2">
               <div className="flex items-center gap-1 border-b pb-2">

@@ -9,6 +9,17 @@ import { ObjectAssociationMap } from '@/components/shared/enum-mapper/object-ass
 import { getHrefForObjectType, type NormalizedObject } from '@/utils/getHrefForObjectType.ts'
 import { ObjectAssociationNodeEnum, type Section, type TBaseAssociatedNode, type TEdgeNode } from '@/components/shared/object-association/types/object-association-types.ts'
 import { useTheme } from 'next-themes'
+
+const SHEET_KINDS = new Set<string>([
+  ObjectAssociationNodeEnum.POLICY,
+  ObjectAssociationNodeEnum.PROCEDURE,
+  ObjectAssociationNodeEnum.VULNERABILITY,
+  ObjectAssociationNodeEnum.RISKS,
+  ObjectAssociationNodeEnum.SCAN,
+  ObjectAssociationNodeEnum.FINDING,
+  ObjectAssociationNodeEnum.REMEDIATION,
+  ObjectAssociationNodeEnum.ASSET,
+])
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { toHumanLabel } from '@/utils/strings'
@@ -94,7 +105,18 @@ const CustomTooltipContent = ({ node, interactive }: { node: TBaseAssociatedNode
   )
 }
 
-const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ centerNode, sections, isFullscreen, closeFullScreen, controlId, onGroupSelect, clearGroupRef, removable, onRemove, onItemClick }) => {
+const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({
+  centerNode,
+  sections,
+  isFullscreen,
+  closeFullScreen,
+  controlId,
+  onGroupSelect,
+  clearGroupRef,
+  removable,
+  onRemove,
+  onItemClick,
+}) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const [dimensions, setDimensions] = useState({ width: 300, height: 300 })
   const fgRef = useRef<ForceGraphMethods | undefined>(undefined)
@@ -378,7 +400,7 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
           <div className="flex flex-col gap-1">
             {group.items.map((item: TGroupItem) => {
               const handleChipClick = () => {
-                if (onItemClick && selectedGroup && [ObjectAssociationNodeEnum.POLICY, ObjectAssociationNodeEnum.PROCEDURE].includes(selectedGroup as ObjectAssociationNodeEnum)) {
+                if (onItemClick && selectedGroup && SHEET_KINDS.has(selectedGroup)) {
                   onItemClick(item.id, selectedGroup)
                 } else {
                   window.open(item.link, '_blank')
@@ -386,27 +408,33 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
               }
 
               return (
-              <Tooltip key={item.id}>
-                <TooltipTrigger asChild>
-                  <button type="button" onClick={handleChipClick} style={{ border: `1px solid ${typeColor}` }} className="inline-flex items-center gap-1 text-left px-2 py-1 rounded-full text-sm cursor-pointer mb-3 w-fit">
-                    {item.refCode || item.displayName || item.name || item.title || item.displayID}
-                    {removable && onRemove && (
-                      <XIcon
-                        size={12}
-                        className="cursor-pointer ml-1"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          e.preventDefault()
-                          if (selectedGroup) onRemove(item.id, selectedGroup)
-                        }}
-                      />
-                    )}
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent side="right" className="max-w-[300px] p-2 text-xs border">
-                  <CustomTooltipContent node={item} interactive />
-                </TooltipContent>
-              </Tooltip>)
+                <Tooltip key={item.id}>
+                  <TooltipTrigger asChild>
+                    <button
+                      type="button"
+                      onClick={handleChipClick}
+                      style={{ border: `1px solid ${typeColor}` }}
+                      className="inline-flex items-center gap-1 text-left px-2 py-1 rounded-full text-sm cursor-pointer mb-3 w-fit"
+                    >
+                      {item.refCode || item.displayName || item.name || item.title || item.displayID}
+                      {removable && onRemove && (
+                        <XIcon
+                          size={12}
+                          className="cursor-pointer ml-1"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            e.preventDefault()
+                            if (selectedGroup) onRemove(item.id, selectedGroup)
+                          }}
+                        />
+                      )}
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="right" className="max-w-75 p-2 text-xs border">
+                    <CustomTooltipContent node={item} interactive />
+                  </TooltipContent>
+                </Tooltip>
+              )
             })}
           </div>
         </TooltipProvider>
