@@ -3,6 +3,7 @@ import { ExternalLink, PencilLine, SlidersHorizontal } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import ObjectsChip from '../objects-chip/objects-chip'
+import { useSheetNavigation, SHEET_KINDS } from '@/providers/sheet-navigation-provider'
 
 export interface ObjectChipProps {
   object: {
@@ -30,9 +31,13 @@ const ObjectAssociationChip: React.FC<ObjectChipProps> = ({ object, kind, remova
   const displayText = object.refCode || object.displayName || object.name || object.title || ''
   const displayDescription = object.summary || object.details || object.description || object.desiredOutcome || ''
   const objectKind = kind || ''
+  const sheetNavigation = useSheetNavigation()
+
   const handleNavigate = () => {
     if (onItemClick) {
       onItemClick(object.id, objectKind)
+    } else if (sheetNavigation && SHEET_KINDS.has(objectKind)) {
+      sheetNavigation.openSheet(object.id, objectKind)
     } else {
       window.open(object.link, '_blank')
     }
@@ -48,7 +53,7 @@ const ObjectAssociationChip: React.FC<ObjectChipProps> = ({ object, kind, remova
             handleNavigate()
           }}
         >
-          <ObjectsChip name={displayText} objectType={objectKind} removable={removable} onRemove={onRemove ? () => onRemove() : undefined} />
+          <ObjectsChip name={displayText} objectType={objectKind} removable={removable} onRemove={onRemove ? () => onRemove() : undefined} onClick={handleNavigate} />
         </TooltipTrigger>
 
         <TooltipContent side="top" className="p-3 rounded-md shadow-lg text-xs min-w-60">
