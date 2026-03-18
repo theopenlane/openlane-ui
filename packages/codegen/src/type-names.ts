@@ -702,7 +702,7 @@ export const OBJECT_TYPE_PERMISSIONS_CONFIG: Record<TypesWithPermissions, Object
   [TypesWithPermissions.SLA_DEFINITION]: {
     roleOptions: ['View', 'Edit', 'Blocked'],
     responseObjectKey: 'slaDefinitions',
-    queryDocument: GET_ALL_SLA_DEFINITIONS,
+    queryDocument: '',
     objectName: 'name',
     searchAttribute: 'nameContainsFold',
     inputPlaceholder: 'name',

@@ -11,8 +11,8 @@ import {
   type DeleteSlaDefinitionMutationVariables,
   type SlaDefinitionQuery,
   type SlaDefinitionQueryVariables,
-  type CreateBulkCsvslaDefinitionMutation,
-  type CreateBulkCsvslaDefinitionMutationVariables,
+  type CreateBulkCsvSlaDefinitionMutation,
+  type CreateBulkCsvSlaDefinitionMutationVariables,
   type UpdateBulkSlaDefinitionMutation,
   type UpdateBulkSlaDefinitionMutationVariables,
   type DeleteBulkSlaDefinitionMutation,
@@ -107,7 +107,7 @@ export const useSlaDefinition = (slaDefinitionId?: SlaDefinitionQueryVariables['
 
 export const useCreateBulkCSVSlaDefinition = () => {
   const { queryClient } = useGraphQLClient()
-  return useMutation<CreateBulkCsvslaDefinitionMutation, unknown, CreateBulkCsvslaDefinitionMutationVariables>({
+  return useMutation<CreateBulkCsvSlaDefinitionMutation, unknown, CreateBulkCsvSlaDefinitionMutationVariables>({
     mutationFn: async (variables) => fetchGraphQLWithUpload({ query: CREATE_CSV_BULK_SLA_DEFINITION, variables }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['slaDefinitions'] })

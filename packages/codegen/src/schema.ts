@@ -63467,6 +63467,7 @@ export type ContactsWithFilterQuery = {
         id: string
         phoneNumber?: string | null
         status: ContactUserStatus
+        tags?: Array<string> | null
         title?: string | null
         updatedAt?: any | null
         updatedBy?: string | null
@@ -63493,6 +63494,7 @@ export type ContactQuery = {
     id: string
     phoneNumber?: string | null
     status: ContactUserStatus
+    tags?: Array<string> | null
     title?: string | null
     updatedAt?: any | null
     updatedBy?: string | null

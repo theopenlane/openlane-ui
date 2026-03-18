@@ -144,7 +144,7 @@ function generateQueryFile(nodeType) {
   const queries = []
 
   queries.push(`export const GET_ALL_${upperPluralName} = gql\`
-  query ${gqlName}sWithFilter($where: ${gqlName}WhereInput, $orderBy: [${gqlName}Order!], $first: Int, $after: Cursor, $last: Int, $before: Cursor) {
+  query ${name}sWithFilter($where: ${gqlName}WhereInput, $orderBy: [${gqlName}Order!], $first: Int, $after: Cursor, $last: Int, $before: Cursor) {
     ${pluralName}(where: $where, orderBy: $orderBy, first: $first, after: $after, last: $last, before: $before) {
       totalCount
       edges {
@@ -171,7 +171,7 @@ ${fieldsGetList}
 \``)
 
   queries.push(`export const CREATE_${upperName} = gql\`
-  mutation Create${gqlName}($input: Create${gqlName}Input!) {
+  mutation Create${name}($input: Create${gqlName}Input!) {
     create${gqlName}(input: $input) {
       ${lowerName} {
         id
@@ -181,8 +181,8 @@ ${fieldsGetList}
 \``)
 
   queries.push(`export const UPDATE_${upperName} = gql\`
-  mutation Update${gqlName}($update${gqlName}Id: ID!, $input: Update${gqlName}Input!) {
-    update${gqlName}(id: $update${gqlName}Id, input: $input) {
+  mutation Update${name}($update${name}Id: ID!, $input: Update${gqlName}Input!) {
+    update${gqlName}(id: $update${name}Id, input: $input) {
       ${lowerName} {
         id
       }
@@ -191,8 +191,8 @@ ${fieldsGetList}
 \``)
 
   queries.push(`export const DELETE_${upperName} = gql\`
-  mutation Delete${gqlName}($delete${gqlName}Id: ID!) {
-    delete${gqlName}(id: $delete${gqlName}Id) {
+  mutation Delete${name}($delete${name}Id: ID!) {
+    delete${gqlName}(id: $delete${name}Id) {
       deletedID
     }
   }
@@ -200,7 +200,7 @@ ${fieldsGetList}
 
   if (schemaContent.includes(`${gqlName}BulkCreatePayload`)) {
     queries.push(`export const CREATE_CSV_BULK_${upperName} = gql\`
-  mutation CreateBulkCSV${gqlName}($input: Upload!) {
+  mutation CreateBulkCSV${name}($input: Upload!) {
     createBulkCSV${gqlName}(input: $input) {
       ${pluralName} {
         id
@@ -211,7 +211,7 @@ ${fieldsGetList}
   }
 
   queries.push(`export const BULK_DELETE_${upperName} = gql\`
-  mutation DeleteBulk${gqlName}($ids: [ID!]!) {
+  mutation DeleteBulk${name}($ids: [ID!]!) {
     deleteBulk${gqlName}(ids: $ids) {
       deletedIDs
     }
@@ -244,7 +244,7 @@ ${associations}
   }
 
   queries.push(`export const BULK_EDIT_${upperName} = gql\`
-  mutation UpdateBulk${gqlName}($ids: [ID!]!, $input: Update${gqlName}Input!) {
+  mutation UpdateBulk${name}($ids: [ID!]!, $input: Update${gqlName}Input!) {
     updateBulk${gqlName}(ids: $ids, input: $input) {
       updatedIDs
     }
