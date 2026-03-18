@@ -163,6 +163,7 @@ export const useGetTrustCenterPosts = ({ trustCenterId, enabled = true }: UseGet
     queryFn: () =>
       client.request<GetTrustCenterPostsQuery, GetTrustCenterPostsQueryVariables>(GET_ALL_TRUST_CENTER_POSTS, {
         trustCenterId,
+        where: { hasTrustCenterFaqs: false },
       }),
     enabled: !!trustCenterId && enabled,
   })

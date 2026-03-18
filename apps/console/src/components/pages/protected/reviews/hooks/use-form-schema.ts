@@ -40,6 +40,9 @@ export const bulkEditFieldSchema = z.object({
   approved: z.boolean().optional(),
   environmentName: z.string().optional().nullable(),
   scopeName: z.string().optional().nullable(),
+  reviewedAt: z.date().optional().nullable(),
+  approvedAt: z.date().optional().nullable(),
+  reportedAt: z.date().optional().nullable(),
 })
 
 export type ReviewFormData = z.infer<typeof formSchema>

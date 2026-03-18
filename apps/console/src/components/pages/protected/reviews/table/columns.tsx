@@ -7,6 +7,7 @@ import { TagsCell } from '@/components/shared/crud-base/columns/tags-cell'
 import { BooleanCell } from '@/components/shared/crud-base/columns/boolean-cell'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { CustomEnumChipCell } from '@/components/shared/crud-base/columns/custom-enum-chip-cell'
+import ControlChip from '@/components/pages/protected/controls/map-controls/shared/control-chip'
 
 export const getColumns = ({ userMap, selectedItems, setSelectedItems }: ColumnOptions): ColumnDef<ReviewsNodeNonNull>[] => {
   return [
@@ -42,6 +43,32 @@ export const getColumns = ({ userMap, selectedItems, setSelectedItems }: ColumnO
       header: 'Updated By',
       size: 160,
       cell: ({ row }) => <UserCell user={userMap[row.original.updatedBy ?? '']} />,
+    },
+    {
+      accessorKey: 'relatedControls',
+      header: 'Related Controls',
+      cell: ({ row }) => {
+        const controlEdges = row.original?.controls?.edges || []
+        const subcontrolEdges = row.original?.subcontrols?.edges || []
+        const allControls = [...controlEdges, ...subcontrolEdges]
+        return (
+          <div className="flex flex-wrap gap-1" onClick={(e) => e.stopPropagation()}>
+            {allControls.map((control, index) => (
+              <ControlChip
+                key={index}
+                control={{
+                  id: control?.node?.id ?? '',
+                  refCode: control?.node?.refCode ?? '',
+                  referenceFramework: control?.node?.referenceFramework ?? '',
+                  __typename: control?.node?.__typename,
+                }}
+              />
+            ))}
+          </div>
+        )
+      },
+      minSize: 100,
+      size: 180,
     },
     {
       accessorKey: 'tags',
