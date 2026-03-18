@@ -1,6 +1,6 @@
 'use client'
 
-import React, { createContext, use, useState } from 'react'
+import React, { createContext, use, useCallback, useMemo, useState } from 'react'
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types'
 import { ViewPolicySheet } from '@/components/pages/protected/policies/view-policy-sheet'
 import { ViewProcedureSheet } from '@/components/pages/protected/procedures/view-procedure-sheet'
@@ -32,27 +32,47 @@ export const useSheetNavigation = () => use(SheetNavigationContext)
 
 type ActiveSheet = { id: string; kind: string } | null
 
+const renderSheet = (activeSheet: ActiveSheet, onClose: () => void) => {
+  if (!activeSheet) return null
+  const { id, kind } = activeSheet
+  switch (kind) {
+    case ObjectAssociationNodeEnum.POLICY:
+      return <ViewPolicySheet policyId={id} onClose={onClose} />
+    case ObjectAssociationNodeEnum.PROCEDURE:
+      return <ViewProcedureSheet procedureId={id} onClose={onClose} />
+    case ObjectAssociationNodeEnum.VULNERABILITY:
+      return <ViewVulnerabilitySheet entityId={id} onClose={onClose} />
+    case ObjectAssociationNodeEnum.RISKS:
+      return <ViewRiskSheet entityId={id} onClose={onClose} />
+    case ObjectAssociationNodeEnum.SCAN:
+      return <ViewScanSheet entityId={id} onClose={onClose} />
+    case ObjectAssociationNodeEnum.FINDING:
+      return <ViewFindingSheet entityId={id} onClose={onClose} />
+    case ObjectAssociationNodeEnum.REMEDIATION:
+      return <ViewRemediationSheet entityId={id} onClose={onClose} />
+    case ObjectAssociationNodeEnum.ASSET:
+      return <ViewAssetSheet entityId={id} onClose={onClose} />
+    default:
+      return null
+  }
+}
+
 export const SheetNavigationProvider = ({ children }: { children: React.ReactNode }) => {
   const [activeSheet, setActiveSheet] = useState<ActiveSheet>(null)
-  const closeSheet = () => setActiveSheet(null)
+  const closeSheet = useCallback(() => setActiveSheet(null), [])
 
-  const openSheet = (id: string, kind: string) => {
+  const openSheet = useCallback((id: string, kind: string) => {
     if (SHEET_KINDS.has(kind)) {
       setActiveSheet({ id, kind })
     }
-  }
+  }, [])
+
+  const contextValue = useMemo(() => ({ openSheet }), [openSheet])
 
   return (
-    <SheetNavigationContext value={{ openSheet }}>
+    <SheetNavigationContext value={contextValue}>
       {children}
-      <ViewPolicySheet policyId={activeSheet?.kind === ObjectAssociationNodeEnum.POLICY ? activeSheet.id : null} onClose={closeSheet} />
-      <ViewProcedureSheet procedureId={activeSheet?.kind === ObjectAssociationNodeEnum.PROCEDURE ? activeSheet.id : null} onClose={closeSheet} />
-      <ViewVulnerabilitySheet entityId={activeSheet?.kind === ObjectAssociationNodeEnum.VULNERABILITY ? activeSheet.id : null} onClose={closeSheet} />
-      <ViewRiskSheet entityId={activeSheet?.kind === ObjectAssociationNodeEnum.RISKS ? activeSheet.id : null} onClose={closeSheet} />
-      <ViewScanSheet entityId={activeSheet?.kind === ObjectAssociationNodeEnum.SCAN ? activeSheet.id : null} onClose={closeSheet} />
-      <ViewFindingSheet entityId={activeSheet?.kind === ObjectAssociationNodeEnum.FINDING ? activeSheet.id : null} onClose={closeSheet} />
-      <ViewRemediationSheet entityId={activeSheet?.kind === ObjectAssociationNodeEnum.REMEDIATION ? activeSheet.id : null} onClose={closeSheet} />
-      <ViewAssetSheet entityId={activeSheet?.kind === ObjectAssociationNodeEnum.ASSET ? activeSheet.id : null} onClose={closeSheet} />
+      {renderSheet(activeSheet, closeSheet)}
     </SheetNavigationContext>
   )
 }
