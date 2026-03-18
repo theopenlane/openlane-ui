@@ -9,8 +9,7 @@ import SetObjectAssociationPoliciesDialog from '@/components/pages/protected/pol
 import SetObjectAssociationProceduresDialog from '@/components/pages/protected/procedures/modal/set-object-association-modal.tsx'
 import SetObjectAssociationRisksDialog from '@/components/pages/protected/risks/modal/set-object-association-modal'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
-import { ViewPolicySheet } from '@/components/pages/protected/policies/view-policy-sheet'
-import { ViewProcedureSheet } from '@/components/pages/protected/procedures/view-procedure-sheet'
+import { useSheetNavigation } from '@/providers/sheet-navigation-provider'
 
 type TObjectAssociationSwitchProps = {
   controlId?: string
@@ -26,12 +25,10 @@ const ObjectAssociationSwitch: React.FC<TObjectAssociationSwitchProps> = ({ sect
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false)
   const [activeGroup, setActiveGroup] = useState<string | null>(null)
   const clearGroupRef = useRef<(() => void) | null>(null)
-  const [selectedPolicyId, setSelectedPolicyId] = useState<string | null>(null)
-  const [selectedProcedureId, setSelectedProcedureId] = useState<string | null>(null)
+  const sheetNavigation = useSheetNavigation()
 
   const handleItemClick = (id: string, kind: string) => {
-    if (kind === ObjectAssociationNodeEnum.POLICY) setSelectedPolicyId(id)
-    else if (kind === ObjectAssociationNodeEnum.PROCEDURE) setSelectedProcedureId(id)
+    sheetNavigation?.openSheet(id, kind)
   }
 
   const handleAssociationDialog = () => {
@@ -137,8 +134,6 @@ const ObjectAssociationSwitch: React.FC<TObjectAssociationSwitchProps> = ({ sect
           {handleAssociationDialog()}
         </div>
       )}
-      <ViewPolicySheet policyId={selectedPolicyId} onClose={() => setSelectedPolicyId(null)} />
-      <ViewProcedureSheet procedureId={selectedProcedureId} onClose={() => setSelectedProcedureId(null)} />
     </div>
   )
 }
