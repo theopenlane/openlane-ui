@@ -76,11 +76,17 @@ export const GET_TABLE_PROCEDURES = gql`
             displayName
             gravatarLogoURL
             logoURL
+            avatarFile {
+              base64
+            }
           }
           delegate {
             displayName
             gravatarLogoURL
             logoURL
+            avatarFile {
+              base64
+            }
           }
           procedureKindName
           reviewDue
@@ -170,12 +176,18 @@ export const PROCEDURE_BY_ID = gql`
       displayName
       gravatarLogoURL
       logoURL
+      avatarFile {
+        base64
+      }
     }
     delegate {
       id
       displayName
       gravatarLogoURL
       logoURL
+      avatarFile {
+        base64
+      }
     }
   }
 `

@@ -26,6 +26,9 @@ export const CONTROL_LIST_FIELDS_FRAGMENT = gql`
       displayName
       logoURL
       gravatarLogoURL
+      avatarFile {
+        base64
+      }
     }
     subcontrols {
       edges {
@@ -39,6 +42,9 @@ export const CONTROL_LIST_FIELDS_FRAGMENT = gql`
       displayName
       logoURL
       gravatarLogoURL
+      avatarFile {
+        base64
+      }
     }
 
     controlImplementations {
@@ -223,12 +229,18 @@ export const CONTROL_DETAILS_FIELDS_FRAGMENT = gql`
       displayName
       logoURL
       gravatarLogoURL
+      avatarFile {
+        base64
+      }
     }
     controlOwner {
       id
       displayName
       logoURL
       gravatarLogoURL
+      avatarFile {
+        base64
+      }
     }
   }
 `
@@ -278,6 +290,9 @@ export const GET_CONTROL_ASSOCIATIONS_BY_ID = gql`
               gravatarLogoURL
               logoURL
               displayName
+              avatarFile {
+                base64
+              }
             }
           }
         }
@@ -295,6 +310,9 @@ export const GET_CONTROL_ASSOCIATIONS_BY_ID = gql`
               gravatarLogoURL
               logoURL
               displayName
+              avatarFile {
+                base64
+              }
             }
           }
         }

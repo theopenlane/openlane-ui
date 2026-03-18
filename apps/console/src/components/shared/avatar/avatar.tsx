@@ -7,15 +7,29 @@ interface AvatarProps {
   className?: string
 }
 
+const toBase64DataUri = (base64: string): string => {
+  if (base64.startsWith('/9j/')) return `data:image/jpeg;base64,${base64}`
+  if (base64.startsWith('R0lGOD')) return `data:image/gif;base64,${base64}`
+  return `data:image/png;base64,${base64}`
+}
+
 export function Avatar({ variant, entity, className }: AvatarProps) {
   if (!entity) return null
 
-  const image =
-    'avatarFile' in entity
-      ? entity.avatarFile?.presignedURL || ('avatarRemoteURL' in entity ? entity.avatarRemoteURL : undefined)
-      : 'gravatarLogoURL' in entity || 'logoURL' in entity
-        ? entity.gravatarLogoURL || entity.logoURL
-        : undefined
+  const image = (() => {
+    if ('avatarFile' in entity && entity.avatarFile) {
+      if ('presignedURL' in entity.avatarFile && entity.avatarFile.presignedURL) {
+        return entity.avatarFile.presignedURL
+      }
+      if ('base64' in entity.avatarFile && entity.avatarFile.base64) {
+        return toBase64DataUri(entity.avatarFile.base64)
+      }
+    }
+    if ('avatarRemoteURL' in entity) return entity.avatarRemoteURL
+    if ('gravatarLogoURL' in entity) return entity.gravatarLogoURL
+    if ('logoURL' in entity) return entity.logoURL
+    return undefined
+  })()
 
   const fallbackText = entity.displayName?.substring(0, variant === 'small' ? 1 : 2)
 
