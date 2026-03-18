@@ -17,6 +17,7 @@ import { DataTable, getInitialSortConditions, getInitialPagination } from '@repo
 import { type ColumnDef } from '@tanstack/react-table'
 import Image from 'next/image'
 import { useCopyToClipboard, useDebounce } from '@uidotdev/usehooks'
+import { useSession } from 'next-auth/react'
 import { MemberActions } from './actions/member-actions'
 import { useNotification } from '@/hooks/useNotification'
 import { Avatar } from '@/components/shared/avatar/avatar'
@@ -36,6 +37,7 @@ export type ExtendedOrgMembershipWhereInput = OrgMembershipWhereInput & {
 
 export const MembersTable = () => {
   const { nameRow, copyIcon } = pageStyles()
+  const { data: sessionData } = useSession()
   const [filters, setFilters] = useState<ExtendedOrgMembershipWhereInput | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [, copyToClipboard] = useCopyToClipboard()
@@ -81,6 +83,16 @@ export const MembersTable = () => {
   }, [filters, debouncedSearch])
 
   const { members, isError, isLoading, paginationMeta } = useGetOrgMemberships({ where: whereFilters, orderBy: orderBy, pagination, enabled: !!filters })
+
+  const currentUserId = sessionData?.user?.userId
+  const sortedMembers = useMemo(() => {
+    if (!currentUserId) return members
+    return [...members].sort((a, b) => {
+      if (a.user?.id === currentUserId) return -1
+      if (b.user?.id === currentUserId) return 1
+      return 0
+    })
+  }, [members, currentUserId])
 
   const handleCopy = (text: string) => {
     copyToClipboard(text)
@@ -207,7 +219,7 @@ export const MembersTable = () => {
         columns={columns}
         sortFields={MEMBERS_SORT_FIELDS}
         onSortChange={setOrderBy}
-        data={members}
+        data={sortedMembers}
         pagination={pagination}
         onPaginationChange={(pagination: TPagination) => setPagination(pagination)}
         paginationMeta={paginationMeta}
