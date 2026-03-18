@@ -35,6 +35,26 @@ export const GET_ALL_REVIEWS = gql`
           title
           updatedAt
           updatedBy
+          controls {
+            edges {
+              node {
+                __typename
+                id
+                refCode
+                referenceFramework
+              }
+            }
+          }
+          subcontrols {
+            edges {
+              node {
+                __typename
+                id
+                refCode
+                referenceFramework
+              }
+            }
+          }
         }
       }
       pageInfo {
@@ -79,6 +99,26 @@ export const REVIEW = gql`
       title
       updatedAt
       updatedBy
+      controls {
+        edges {
+          node {
+            __typename
+            id
+            refCode
+            referenceFramework
+          }
+        }
+      }
+      subcontrols {
+        edges {
+          node {
+            __typename
+            id
+            refCode
+            referenceFramework
+          }
+        }
+      }
     }
   }
 `
