@@ -18,6 +18,7 @@ import { type ColumnDef } from '@tanstack/react-table'
 import Image from 'next/image'
 import { useCopyToClipboard, useDebounce } from '@uidotdev/usehooks'
 import { useSession } from 'next-auth/react'
+import { Badge } from '@repo/ui/badge'
 import { MemberActions } from './actions/member-actions'
 import { useNotification } from '@/hooks/useNotification'
 import { Avatar } from '@/components/shared/avatar/avatar'
@@ -128,10 +129,12 @@ export const MembersTable = () => {
       header: 'Name',
       cell: ({ row }) => {
         const fullName = `${row.original.user.displayName}` || `${row.original.user.email}`
+        const isCurrentUser = row.original.user?.id === currentUserId
         return (
           <div className={nameRow()}>
             <Avatar variant="small" entity={row.original.user as User} />
             {fullName}
+            {isCurrentUser && <Badge variant="outline">me</Badge>}
             <Copy width={16} height={16} className={copyIcon()} onClick={() => handleCopy(fullName)} />
           </div>
         )
