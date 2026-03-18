@@ -32,7 +32,13 @@ const HIDDEN_COLUMNS: Record<string, boolean> = {
   updatedAt: false,
   updatedBy: false,
   tags: false,
+  category: false,
+  source: false,
+  approved: false,
+  approvedAt: false,
 }
+
+const COLUMN_ORDER = ['title', 'summary', 'state', 'reporter', 'reportedAt', 'reviewedAt']
 
 const ReviewsTable: React.FC<ReviewsTableProps> = ({ controlId, subcontrolIds }) => {
   const { replace } = useSmartRouter()
@@ -73,12 +79,19 @@ const ReviewsTable: React.FC<ReviewsTableProps> = ({ controlId, subcontrolIds })
     const allCols = getColumns({ userMap, selectedItems: [], setSelectedItems: () => {} })
     return allCols
       .filter((col) => 'accessorKey' in col && col.accessorKey !== 'select')
+      .sort((a, b) => {
+        const aKey = 'accessorKey' in a ? String(a.accessorKey) : ''
+        const bKey = 'accessorKey' in b ? String(b.accessorKey) : ''
+        const aIndex = COLUMN_ORDER.indexOf(aKey)
+        const bIndex = COLUMN_ORDER.indexOf(bKey)
+        return (aIndex === -1 ? COLUMN_ORDER.length : aIndex) - (bIndex === -1 ? COLUMN_ORDER.length : bIndex)
+      })
       .map((col) => {
         if ('accessorKey' in col && col.accessorKey === 'title') {
           return {
             ...col,
             cell: ({ row }: { row: { original: ReviewsNodeNonNull } }) => (
-              <button type="button" onClick={() => replace({ reviewId: row.original.id })} className="block truncate text-blue-500 hover:underline">
+              <button type="button" onClick={() => replace({ reviewId: row.original.id })} className="line-clamp-3 text-blue-500 hover:underline">
                 {row.original.title || ''}
               </button>
             ),
