@@ -48,7 +48,6 @@ const PublicRepresentationField: React.FC<PublicRepresentationFieldProps> = ({ i
             onChange={(val) => {
               field.onChange(val)
             }}
-            variant="standard"
             placeholder="Write the public wording for this control"
           />
         )}
