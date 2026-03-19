@@ -114,7 +114,7 @@ const ReportsAndCertificationsPage = () => {
       <CreateDocumentSheet />
 
       {showCreatePanel ? (
-        <Panel align="center" justify="center" textAlign="center" className="min-h-[300px]">
+        <Panel align="center" justify="center" textAlign="center" className="min-h-75">
           <PanelHeader
             heading="Documents"
             subheading={
