@@ -8,6 +8,7 @@ import { useCallback, useEffect } from 'react'
 import { addHours, differenceInMilliseconds } from 'date-fns'
 import { signOut } from 'next-auth/react'
 import { markSessionExpired } from '@/lib/graphqlClient'
+import { buildLoginRedirect } from '@/lib/auth/utils/redirect'
 
 interface SessionExpiredModalProps {
   open: boolean
@@ -19,7 +20,7 @@ const SessionExpiredModal = ({ open }: SessionExpiredModalProps) => {
 
   const handleSignOut = useCallback(async () => {
     const currentUrl = `${pathname}${searchParams.toString() ? `?${searchParams.toString()}` : ''}`
-    await signOut({ redirect: true, redirectTo: `/login?redirect=${encodeURIComponent(currentUrl)}` })
+    await signOut({ redirect: true, redirectTo: buildLoginRedirect(currentUrl) })
   }, [pathname, searchParams])
 
   const signoutNoRedirect = async () => {

@@ -271,6 +271,7 @@ export function GenericBulkEditDialog<T extends { id: string }, TUpdateInput>({
                           <CalendarPopover
                             required={false}
                             field={field}
+                            showNowButton={true}
                             onChange={(date) => {
                               if (date) field.onChange(new Date(date))
                             }}

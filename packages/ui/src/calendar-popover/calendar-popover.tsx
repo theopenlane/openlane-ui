@@ -18,9 +18,21 @@ export type CalendarPopoverProps<T extends FieldValues> = {
   disabledFrom?: Date
   disableFuture?: boolean
   onChange?: (val: Date | null) => void
+  showNowButton?: boolean
 }
 
-const CalendarPopover = <T extends FieldValues>({ field, defaultToday, required, defaultAddDays, defaultValue, buttonClassName, disabledFrom, disableFuture, onChange }: CalendarPopoverProps<T>) => {
+const CalendarPopover = <T extends FieldValues>({
+  field,
+  defaultToday,
+  required,
+  defaultAddDays,
+  defaultValue,
+  buttonClassName,
+  disabledFrom,
+  disableFuture,
+  onChange,
+  showNowButton,
+}: CalendarPopoverProps<T>) => {
   const todayDate = defaultToday ? new Date() : undefined
   const defaultAddDaysDate = defaultAddDays ? addDays(new Date(), defaultAddDays) : undefined
   const defaultDate = defaultValue ?? defaultAddDaysDate ?? todayDate ?? null
@@ -69,6 +81,20 @@ const CalendarPopover = <T extends FieldValues>({ field, defaultToday, required,
           <div className={calendarInput()}>
             <span>{value ? format(value, 'PPP') : 'Select a date:'}</span>
             <div className="flex items-center gap-x-2">
+              {showNowButton && (
+                <span
+                  className="text-xs text-brand cursor-pointer hover:underline"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    const now = new Date()
+                    setValue(now)
+                    field?.onChange(now)
+                    onChange?.(now)
+                  }}
+                >
+                  Now
+                </span>
+              )}
               {value && !required && <X className="h-4 w-4 opacity-50 cursor-pointer" onClick={(e) => handleClearDate(e)} />}
               <CalendarIcon className="h-4 w-4 opacity-50" />
             </div>

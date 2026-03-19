@@ -21,6 +21,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { isValidEmail } from '@/lib/validators'
 import { OPENLANE_WEBSITE_URL } from '@/constants'
 import { cn } from '@repo/ui/lib/utils'
+import { sanitizeLoginRedirect } from '@/lib/auth/utils/redirect'
 
 export const LoginPage = () => {
   const { separator, buttons, form, input } = loginStyles()
@@ -179,11 +180,7 @@ export const LoginPage = () => {
     if (token) {
       return `/invite?token=${token}`
     }
-    if (redirect) {
-      return redirect
-    }
-
-    return '/'
+    return sanitizeLoginRedirect(redirect)
   }, [redirect, token])
 
   const submit = async (payload: LoginUser) => {
