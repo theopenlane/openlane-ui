@@ -53,10 +53,6 @@ const ControlObjectives: React.FC<ControlObjectivesProps> = ({ edges }) => {
     }
   }
 
-  if (!edges?.length) {
-    return null
-  }
-
   return (
     <div className="space-y-6">
       <CreateControlObjectiveSheet
@@ -74,18 +70,22 @@ const ControlObjectives: React.FC<ControlObjectivesProps> = ({ edges }) => {
             <h2 className="text-lg font-semibold">Control Objectives</h2>
           </div>
         </div>
-        {edges.map(({ node }) => (
-          <ObjectiveItem
-            key={node.id}
-            node={node}
-            onEdit={(selected) => {
-              setEditData(selected)
-              setShowCreateSheet(true)
-            }}
-            onUnarchive={handleUnarchive}
-            onDelete={handleDelete}
-          />
-        ))}
+        {edges && edges?.length > 0 ? (
+          edges.map(({ node }) => (
+            <ObjectiveItem
+              key={node.id}
+              node={node}
+              onEdit={(selected) => {
+                setEditData(selected)
+                setShowCreateSheet(true)
+              }}
+              onUnarchive={handleUnarchive}
+              onDelete={handleDelete}
+            />
+          ))
+        ) : (
+          <div className="text-base text-muted-foreground">No control objectives found.</div>
+        )}
       </div>
     </div>
   )

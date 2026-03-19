@@ -10,6 +10,7 @@ import { Controller, useFormContext } from 'react-hook-form'
 export const ReferenceProperty = ({
   name,
   label,
+  icon,
   tooltip,
   value,
   isEditing,
@@ -20,6 +21,7 @@ export const ReferenceProperty = ({
 }: {
   name: string
   label: string
+  icon?: React.ReactNode
   tooltip: string
   value?: string | null
   isEditing: boolean
@@ -62,9 +64,9 @@ export const ReferenceProperty = ({
   }
 
   return (
-    <div className="grid grid-cols-[140px_1fr] items-start gap-x-3 border-b border-border pb-3 last:border-b-0">
+    <div className="grid grid-cols-[140px_1fr] items-start gap-x-3 border-b border-border pb-3 last:border-b-0 text-sm">
       <div className="flex items-start gap-2">
-        <FolderIcon size={16} className="text-brand mt-0.5 shrink-0" />
+        {icon || <FolderIcon size={14} className="text-brand mt-0.5 shrink-0" />}
         <div>
           <div className="flex gap-1 items-start">
             <span className="leading-none">{label}</span>

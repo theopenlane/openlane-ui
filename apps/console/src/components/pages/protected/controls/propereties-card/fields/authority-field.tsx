@@ -5,11 +5,13 @@ import { type Group, type UpdateControlInput, type UpdateSubcontrolInput } from 
 import { type Option } from '@repo/ui/multiple-selector'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { useFormContext, Controller } from 'react-hook-form'
+import { HelpCircle } from 'lucide-react'
 
 export const AuthorityField = ({
   label,
   fieldKey,
   icon,
+  tooltip,
   value,
   editingKey,
   isEditing,
@@ -22,6 +24,7 @@ export const AuthorityField = ({
   label: string
   fieldKey: 'controlOwnerID' | 'delegateID'
   icon: React.ReactNode
+  tooltip: string
   value: Group | undefined
   editingKey: string
   isEditing: boolean
@@ -40,7 +43,23 @@ export const AuthorityField = ({
     <div className="grid grid-cols-[140px_1fr] items-start gap-x-3 border-b border-border pb-3">
       <div className="flex items-start gap-2">
         <div className="pt-0.5">{icon}</div>
-        <div className="text-sm">{label}</div>
+        {tooltip ? (
+          <div>
+            <div className="flex gap-1 items-start">
+              <span className="leading-none text-sm">{label}</span>
+              <TooltipProvider disableHoverableContent>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <HelpCircle size={12} className="mb-1 ml-1 text-muted-foreground" />
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom">{tooltip}</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+          </div>
+        ) : (
+          <div className="text-sm">{label}</div>
+        )}
       </div>
 
       {editing ? (

@@ -354,7 +354,7 @@ const ControlDetailsPage: React.FC = () => {
 
       <QuickActions kind="subcontrol" controlId={id} subcontrolId={subcontrolId} subcontrol={subcontrol} />
 
-      <ControlTabs kind="subcontrol" subcontrol={subcontrol} />
+      <ControlTabs kind="subcontrol" subcontrol={subcontrol} isEditing={isEditing} data={subcontrol} handleUpdate={handleUpdateField} canEdit={canEdit(permission?.roles)} />
     </div>
   )
 
