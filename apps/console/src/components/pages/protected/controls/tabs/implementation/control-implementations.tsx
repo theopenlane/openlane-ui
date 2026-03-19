@@ -50,10 +50,6 @@ const ControlImplementations: React.FC<ControlImplementationsProps> = ({ edges }
     }
   }
 
-  if (!edges?.length) {
-    return null
-  }
-
   return (
     <div className="space-y-6">
       <CreateControlImplementationSheet
@@ -70,19 +66,23 @@ const ControlImplementations: React.FC<ControlImplementationsProps> = ({ edges }
             <h2 className="text-lg font-semibold">Implementations</h2>
           </div>
         </div>
-        {edges?.map((edge) => (
-          <ImplementationItem
-            key={edge.node.id}
-            node={edge.node}
-            onEdit={(node) => {
-              setEditData(node)
-              setShowCreateSheet(true)
-            }}
-            onMarkVerified={handleMarkVerified}
-            onDelete={handleDelete}
-            isUpdating={isPending}
-          />
-        ))}
+        {edges && edges?.length > 0 ? (
+          edges?.map((edge) => (
+            <ImplementationItem
+              key={edge.node.id}
+              node={edge.node}
+              onEdit={(node) => {
+                setEditData(node)
+                setShowCreateSheet(true)
+              }}
+              onMarkVerified={handleMarkVerified}
+              onDelete={handleDelete}
+              isUpdating={isPending}
+            />
+          ))
+        ) : (
+          <div className="text-base text-muted-foreground">No implementations found.</div>
+        )}
       </div>
     </div>
   )

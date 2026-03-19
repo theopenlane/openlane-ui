@@ -65,6 +65,8 @@ interface FormValues {
   auditorReferenceID?: string
   title: string
   subcontrolKindName?: string
+  sourceName?: string
+  publicRepresentation?: Value | string
 }
 
 const initialDataObj = {
@@ -78,6 +80,8 @@ const initialDataObj = {
   status: SubcontrolControlStatus.NOT_IMPLEMENTED,
   mappedCategories: [],
   title: '',
+  sourceName: '',
+  publicRepresentation: '',
 }
 
 const ControlDetailsPage: React.FC = () => {
@@ -354,7 +358,7 @@ const ControlDetailsPage: React.FC = () => {
 
       <QuickActions kind="subcontrol" controlId={id} subcontrolId={subcontrolId} subcontrol={subcontrol} />
 
-      <ControlTabs kind="subcontrol" subcontrol={subcontrol} />
+      <ControlTabs kind="subcontrol" subcontrol={subcontrol} isEditing={isEditing} data={subcontrol} handleUpdate={handleUpdateField} canEdit={canEdit(permission?.roles)} />
     </div>
   )
 
