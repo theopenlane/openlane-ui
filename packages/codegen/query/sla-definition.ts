@@ -1,7 +1,7 @@
 import { gql } from 'graphql-request'
 
 export const GET_ALL_SLA_DEFINITIONS = gql`
-  query SlaDefinitionsWithFilter($where: SlaDefinitionWhereInput, $orderBy: [SlaDefinitionOrder!], $first: Int, $after: Cursor, $last: Int, $before: Cursor) {
+  query SLADefinitionsWithFilter($where: SLADefinitionWhereInput, $orderBy: [SLADefinitionOrder!], $first: Int, $after: Cursor, $last: Int, $before: Cursor) {
     slaDefinitions(where: $where, orderBy: $orderBy, first: $first, after: $after, last: $last, before: $before) {
       totalCount
       edges {
@@ -28,7 +28,7 @@ export const GET_ALL_SLA_DEFINITIONS = gql`
 `
 
 export const SLA_DEFINITION = gql`
-  query SlaDefinition($slaDefinitionId: ID!) {
+  query SLADefinition($slaDefinitionId: ID!) {
     slaDefinition(id: $slaDefinitionId) {
       createdAt
       createdBy
@@ -44,8 +44,8 @@ export const SLA_DEFINITION = gql`
 `
 
 export const CREATE_SLA_DEFINITION = gql`
-  mutation CreateSlaDefinition($input: CreateSlaDefinitionInput!) {
-    createSlaDefinition(input: $input) {
+  mutation CreateSLADefinition($input: CreateSLADefinitionInput!) {
+    createSLADefinition(input: $input) {
       slaDefinition {
         id
       }
@@ -54,8 +54,8 @@ export const CREATE_SLA_DEFINITION = gql`
 `
 
 export const UPDATE_SLA_DEFINITION = gql`
-  mutation UpdateSlaDefinition($updateSlaDefinitionId: ID!, $input: UpdateSlaDefinitionInput!) {
-    updateSlaDefinition(id: $updateSlaDefinitionId, input: $input) {
+  mutation UpdateSLADefinition($updateSLADefinitionId: ID!, $input: UpdateSLADefinitionInput!) {
+    updateSLADefinition(id: $updateSLADefinitionId, input: $input) {
       slaDefinition {
         id
       }
@@ -64,16 +64,16 @@ export const UPDATE_SLA_DEFINITION = gql`
 `
 
 export const DELETE_SLA_DEFINITION = gql`
-  mutation DeleteSlaDefinition($deleteSlaDefinitionId: ID!) {
-    deleteSlaDefinition(id: $deleteSlaDefinitionId) {
+  mutation DeleteSLADefinition($deleteSLADefinitionId: ID!) {
+    deleteSLADefinition(id: $deleteSLADefinitionId) {
       deletedID
     }
   }
 `
 
 export const CREATE_CSV_BULK_SLA_DEFINITION = gql`
-  mutation CreateBulkCSVSlaDefinition($input: Upload!) {
-    createBulkCSVSlaDefinition(input: $input) {
+  mutation CreateBulkCSVSLADefinition($input: Upload!) {
+    createBulkCSVSLADefinition(input: $input) {
       slaDefinitions {
         id
       }
@@ -82,16 +82,16 @@ export const CREATE_CSV_BULK_SLA_DEFINITION = gql`
 `
 
 export const BULK_DELETE_SLA_DEFINITION = gql`
-  mutation DeleteBulkSlaDefinition($ids: [ID!]!) {
-    deleteBulkSlaDefinition(ids: $ids) {
+  mutation DeleteBulkSLADefinition($ids: [ID!]!) {
+    deleteBulkSLADefinition(ids: $ids) {
       deletedIDs
     }
   }
 `
 
 export const BULK_EDIT_SLA_DEFINITION = gql`
-  mutation UpdateBulkSlaDefinition($ids: [ID!]!, $input: UpdateSlaDefinitionInput!) {
-    updateBulkSlaDefinition(ids: $ids, input: $input) {
+  mutation UpdateBulkSLADefinition($ids: [ID!]!, $input: UpdateSLADefinitionInput!) {
+    updateBulkSLADefinition(ids: $ids, input: $input) {
       updatedIDs
     }
   }

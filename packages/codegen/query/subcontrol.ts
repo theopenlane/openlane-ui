@@ -49,6 +49,7 @@ export const GET_SUBCONTROL_BY_ID = gql`
       source
       sourceName
       subcontrolKindName
+      publicRepresentation
       auditorReferenceID
       referenceID
       referenceFramework
@@ -236,6 +237,7 @@ export const GET_SUBCONTROLS_PAGINATED = gql`
           subcontrolKindName
           source
           sourceName
+          publicRepresentation
           category
           subcategory
           referenceFramework
@@ -280,6 +282,7 @@ export const GET_SUBCONTROLS_BY_REFCODE = gql`
           subcontrolKindName
           source
           sourceName
+          publicRepresentation
           category
           subcategory
           systemOwned

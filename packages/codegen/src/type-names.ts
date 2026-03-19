@@ -1,6 +1,44 @@
 // This file is auto-generated. Do not edit manually.
 
-import { ActionPlan, Assessment, Asset, Campaign, Control, ControlImplementation, ControlObjective, EmailBranding, Entity, Evidence, Finding, Group, IdentityHolder, InternalPolicy, MappedControl, Narrative, PageInfo, Platform, Procedure, Program, Remediation, Review, Risk, Scan, SlaDefinition, Subcontrol, TrustCenter, TrustCenterCompliance, TrustCenterDoc, TrustCenterEntity, TrustCenterFaq, TrustCenterNdaRequest, TrustCenterSetting, TrustCenterSubprocessor, TrustCenterWatermarkConfig, Vulnerability, WorkflowDefinition } from './schema'
+import {
+  ActionPlan,
+  Assessment,
+  Asset,
+  Campaign,
+  Control,
+  ControlImplementation,
+  ControlObjective,
+  EmailBranding,
+  Entity,
+  Evidence,
+  Finding,
+  Group,
+  IdentityHolder,
+  InternalPolicy,
+  MappedControl,
+  Narrative,
+  PageInfo,
+  Platform,
+  Procedure,
+  Program,
+  Remediation,
+  Review,
+  Risk,
+  Scan,
+  SlaDefinition,
+  Subcontrol,
+  TrustCenter,
+  TrustCenterCompliance,
+  TrustCenterDoc,
+  TrustCenterEntity,
+  TrustCenterFaq,
+  TrustCenterNdaRequest,
+  TrustCenterSetting,
+  TrustCenterSubprocessor,
+  TrustCenterWatermarkConfig,
+  Vulnerability,
+  WorkflowDefinition,
+} from './schema'
 import { GET_ALL_ACTION_PLANS } from '@repo/codegen/query/action-plan'
 import { GET_ALL_ASSESSMENTS } from '@repo/codegen/query/assessment'
 import { GET_ALL_ASSETS } from '@repo/codegen/query/asset'
@@ -21,6 +59,7 @@ import { GET_ALL_PROGRAMS } from '@repo/codegen/query/program'
 import { GET_ALL_REMEDIATIONS } from '@repo/codegen/query/remediation'
 import { GET_ALL_REVIEWS } from '@repo/codegen/query/review'
 import { GET_ALL_RISKS } from '@repo/codegen/query/risk'
+import { GET_ALL_SLA_DEFINITIONS } from '@repo/codegen/query/sla-definition'
 import { GET_ALL_SCANS } from '@repo/codegen/query/scan'
 import { GET_ALL_TRUST_CENTERS } from '@repo/codegen/query/trust-center'
 import { GET_ALL_TRUST_CENTER_COMPLIANCES } from '@repo/codegen/query/trust-center-compliance'
@@ -501,14 +540,14 @@ export const OBJECT_TYPE_PERMISSIONS_CONFIG: Record<TypesWithPermissions, Object
     inputPlaceholder: 'ref code',
     excludeViewersInFilter: true,
     extraTableColumns: [
-        {
-          header: 'Reference Framework',
-          accessorKey: 'referenceFramework',
-          size: 100,
-          minSize: 100,
-          maxSize: 100,
-        },
-      ],
+      {
+        header: 'Reference Framework',
+        accessorKey: 'referenceFramework',
+        size: 100,
+        minSize: 100,
+        maxSize: 100,
+      },
+    ],
   },
   [TypesWithPermissions.CONTROL_IMPLEMENTATION]: {
     roleOptions: ['View', 'Edit', 'Blocked'],
@@ -663,7 +702,7 @@ export const OBJECT_TYPE_PERMISSIONS_CONFIG: Record<TypesWithPermissions, Object
   [TypesWithPermissions.SLA_DEFINITION]: {
     roleOptions: ['View', 'Edit', 'Blocked'],
     responseObjectKey: 'slaDefinitions',
-    queryDocument: '',
+    queryDocument: GET_ALL_SLA_DEFINITIONS,
     objectName: 'name',
     searchAttribute: 'nameContainsFold',
     inputPlaceholder: 'name',
@@ -791,7 +830,6 @@ export const OBJECT_TYPE_PERMISSIONS_CONFIG: Record<TypesWithPermissions, Object
     extraTableColumns: undefined,
   },
 }
-
 
 export enum TaskObjectTypes {
   ACTION_PLAN = 'Action Plan',
@@ -1006,4 +1044,3 @@ export const TASK_OBJECT_TYPE_CONFIG: Record<TaskObjectTypes, TTaskObjectTypeCon
     objectName: 'name',
   },
 }
-

@@ -57,10 +57,12 @@ interface FormValues {
   status: ControlControlStatus
   mappedCategories: string[]
   source?: ControlControlSource
+  sourceName?: string
   referenceID?: string
   auditorReferenceID?: string
   title: string
   controlKindName?: string
+  publicRepresentation?: Value | string
 }
 
 const initialDataObj = {
@@ -74,6 +76,8 @@ const initialDataObj = {
   status: ControlControlStatus.NOT_IMPLEMENTED,
   mappedCategories: [],
   title: '',
+  sourceName: '',
+  publicRepresentation: '',
 }
 
 const ControlDetailsPage: React.FC = () => {

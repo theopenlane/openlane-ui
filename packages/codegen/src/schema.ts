@@ -70837,6 +70837,100 @@ export type SearchQuery = {
   } | null
 }
 
+export type SlaDefinitionsWithFilterQueryVariables = Exact<{
+  where?: InputMaybe<SlaDefinitionWhereInput>
+  orderBy?: InputMaybe<Array<SlaDefinitionOrder> | SlaDefinitionOrder>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type SlaDefinitionsWithFilterQuery = {
+  __typename?: 'Query'
+  slaDefinitions: {
+    __typename?: 'SLADefinitionConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'SLADefinitionEdge'
+      node?: {
+        __typename?: 'SLADefinition'
+        createdAt?: any | null
+        createdBy?: string | null
+        displayID: string
+        id: string
+        slaDays: number
+        slaDefinitionSeverityLevelID?: string | null
+        slaDefinitionSeverityLevelName?: string | null
+        updatedAt?: any | null
+        updatedBy?: string | null
+      } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
+  }
+}
+
+export type SlaDefinitionQueryVariables = Exact<{
+  slaDefinitionId: Scalars['ID']['input']
+}>
+
+export type SlaDefinitionQuery = {
+  __typename?: 'Query'
+  slaDefinition: {
+    __typename?: 'SLADefinition'
+    createdAt?: any | null
+    createdBy?: string | null
+    displayID: string
+    id: string
+    slaDays: number
+    slaDefinitionSeverityLevelID?: string | null
+    slaDefinitionSeverityLevelName?: string | null
+    updatedAt?: any | null
+    updatedBy?: string | null
+  }
+}
+
+export type CreateSlaDefinitionMutationVariables = Exact<{
+  input: CreateSlaDefinitionInput
+}>
+
+export type CreateSlaDefinitionMutation = { __typename?: 'Mutation'; createSLADefinition: { __typename?: 'SLADefinitionCreatePayload'; slaDefinition: { __typename?: 'SLADefinition'; id: string } } }
+
+export type UpdateSlaDefinitionMutationVariables = Exact<{
+  updateSLADefinitionId: Scalars['ID']['input']
+  input: UpdateSlaDefinitionInput
+}>
+
+export type UpdateSlaDefinitionMutation = { __typename?: 'Mutation'; updateSLADefinition: { __typename?: 'SLADefinitionUpdatePayload'; slaDefinition: { __typename?: 'SLADefinition'; id: string } } }
+
+export type DeleteSlaDefinitionMutationVariables = Exact<{
+  deleteSLADefinitionId: Scalars['ID']['input']
+}>
+
+export type DeleteSlaDefinitionMutation = { __typename?: 'Mutation'; deleteSLADefinition: { __typename?: 'SLADefinitionDeletePayload'; deletedID: string } }
+
+export type CreateBulkCsvslaDefinitionMutationVariables = Exact<{
+  input: Scalars['Upload']['input']
+}>
+
+export type CreateBulkCsvslaDefinitionMutation = {
+  __typename?: 'Mutation'
+  createBulkCSVSLADefinition: { __typename?: 'SLADefinitionBulkCreatePayload'; slaDefinitions?: Array<{ __typename?: 'SLADefinition'; id: string }> | null }
+}
+
+export type DeleteBulkSlaDefinitionMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+}>
+
+export type DeleteBulkSlaDefinitionMutation = { __typename?: 'Mutation'; deleteBulkSLADefinition: { __typename?: 'SLADefinitionBulkDeletePayload'; deletedIDs: Array<string> } }
+
+export type UpdateBulkSlaDefinitionMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+  input: UpdateSlaDefinitionInput
+}>
+
+export type UpdateBulkSlaDefinitionMutation = { __typename?: 'Mutation'; updateBulkSLADefinition: { __typename?: 'SLADefinitionBulkUpdatePayload'; updatedIDs?: Array<string> | null } }
+
 export type GetAllStandardsQueryVariables = Exact<{
   where?: InputMaybe<StandardWhereInput>
 }>
@@ -71008,6 +71102,7 @@ export type GetSubcontrolByIdQuery = {
     source?: SubcontrolControlSource | null
     sourceName?: string | null
     subcontrolKindName?: string | null
+    publicRepresentation?: string | null
     auditorReferenceID?: string | null
     referenceID?: string | null
     referenceFramework?: string | null
@@ -71161,6 +71256,7 @@ export type GetSubcontrolsPaginatedQuery = {
         subcontrolKindName?: string | null
         source?: SubcontrolControlSource | null
         sourceName?: string | null
+        publicRepresentation?: string | null
         category?: string | null
         subcategory?: string | null
         referenceFramework?: string | null
@@ -71209,6 +71305,7 @@ export type GetSubcontrolsByRefCodeQuery = {
         subcontrolKindName?: string | null
         source?: SubcontrolControlSource | null
         sourceName?: string | null
+        publicRepresentation?: string | null
         category?: string | null
         subcategory?: string | null
         systemOwned?: boolean | null
