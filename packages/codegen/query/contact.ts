@@ -32,6 +32,7 @@ export const GET_ALL_CONTACTS = gql`
           fullName
           id
           phoneNumber
+          status
           title
           updatedAt
           updatedBy

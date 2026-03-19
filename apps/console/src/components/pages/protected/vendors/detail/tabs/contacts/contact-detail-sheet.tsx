@@ -1,9 +1,6 @@
 'use client'
 
 import React, { useEffect } from 'react'
-import { useForm } from 'react-hook-form'
-import { z } from 'zod'
-import { zodResolver } from '@hookform/resolvers/zod'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { Input } from '@repo/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
@@ -12,28 +9,12 @@ import { SaveButton } from '@/components/shared/save-button/save-button'
 import { useNotification } from '@/hooks/useNotification'
 import { useContact, useUpdateContact } from '@/lib/graphql-hooks/contact'
 import { ContactUserStatus, type UpdateContactInput } from '@repo/codegen/src/schema'
+import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { LoaderCircle } from 'lucide-react'
+import useContactFormSchema, { type AddContactFormData } from './use-contact-form-schema'
 
-const contactSchema = z.object({
-  fullName: z.string().min(1, 'Name is required'),
-  email: z.string().email('Invalid email').optional().or(z.literal('')),
-  company: z.string().optional(),
-  title: z.string().optional(),
-  phoneNumber: z.string().optional(),
-  status: z.nativeEnum(ContactUserStatus).optional(),
-  address: z.string().optional(),
-})
-
-type ContactFormData = z.infer<typeof contactSchema>
-
-const STATUS_OPTIONS = [
-  { value: ContactUserStatus.ACTIVE, label: 'Active' },
-  { value: ContactUserStatus.INACTIVE, label: 'Inactive' },
-  { value: ContactUserStatus.DEACTIVATED, label: 'Deactivated' },
-  { value: ContactUserStatus.ONBOARDING, label: 'Onboarding' },
-  { value: ContactUserStatus.SUSPENDED, label: 'Suspended' },
-]
+const STATUS_OPTIONS = enumToOptions(ContactUserStatus)
 
 interface ContactDetailSheetProps {
   contactId: string
@@ -45,19 +26,7 @@ const ContactDetailSheet: React.FC<ContactDetailSheetProps> = ({ contactId, onCl
   const { contact, isLoading } = useContact(contactId)
   const { mutateAsync: updateContact, isPending } = useUpdateContact()
   const { successNotification, errorNotification } = useNotification()
-
-  const form = useForm<ContactFormData>({
-    resolver: zodResolver(contactSchema),
-    defaultValues: {
-      fullName: '',
-      email: '',
-      company: '',
-      title: '',
-      phoneNumber: '',
-      status: ContactUserStatus.ACTIVE,
-      address: '',
-    },
-  })
+  const { form } = useContactFormSchema()
 
   useEffect(() => {
     if (contact) {
@@ -73,17 +42,17 @@ const ContactDetailSheet: React.FC<ContactDetailSheetProps> = ({ contactId, onCl
     }
   }, [contact, form])
 
-  const handleSubmit = async (data: ContactFormData) => {
+  const handleSubmit = async (data: AddContactFormData) => {
     if (!contact) return
 
     const input: UpdateContactInput = {}
-    if (data.fullName !== (contact.fullName ?? '')) input.fullName = data.fullName
-    if (data.email !== (contact.email ?? '')) input.email = data.email || undefined
-    if (data.company !== (contact.company ?? '')) input.company = data.company || undefined
-    if (data.title !== (contact.title ?? '')) input.title = data.title || undefined
-    if (data.phoneNumber !== (contact.phoneNumber ?? '')) input.phoneNumber = data.phoneNumber || undefined
+    const fields = ['fullName', 'email', 'company', 'title', 'phoneNumber', 'address'] as const
+    for (const field of fields) {
+      if (data[field] !== (contact[field] ?? '')) {
+        input[field] = data[field] || undefined
+      }
+    }
     if (data.status !== contact.status) input.status = data.status
-    if (data.address !== (contact.address ?? '')) input.address = data.address || undefined
 
     if (Object.keys(input).length === 0) {
       onClose()

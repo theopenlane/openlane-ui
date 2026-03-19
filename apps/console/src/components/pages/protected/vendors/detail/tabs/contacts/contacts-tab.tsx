@@ -1,8 +1,10 @@
 'use client'
 
 import React, { useState, useMemo } from 'react'
+import { useDebounce } from '@uidotdev/usehooks'
 import { type ColumnDef, type VisibilityState } from '@tanstack/react-table'
-import { DataTable } from '@repo/ui/data-table'
+import { DataTable, getInitialPagination } from '@repo/ui/data-table'
+import { type TPagination } from '@repo/ui/pagination-types'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { Button } from '@repo/ui/button'
@@ -13,7 +15,8 @@ import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
 import Menu from '@/components/shared/menu/menu'
 import TableCardView from '@/components/shared/table-card-view/table-card-view'
-import { useContacts, useCreateBulkCSVContact, useBulkEditContact } from '@/lib/graphql-hooks/contact'
+import { useContactsWithFilter, useCreateBulkCSVContact, useBulkEditContact } from '@/lib/graphql-hooks/contact'
+import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useUpdateEntity } from '@/lib/graphql-hooks/entity'
 import { useNotification } from '@/hooks/useNotification'
 import { ContactUserStatus, type UpdateContactInput } from '@repo/codegen/src/schema'
@@ -70,6 +73,7 @@ const ContactsTab: React.FC<ContactsTabProps> = ({ vendorId, canEdit: canEditVen
   const handleViewChange = (tab: 'table' | 'card') => setViewMode(tab)
   const [showAddDialog, setShowAddDialog] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
+  const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(TableKeyEnum.VENDOR_CONTACTS, DEFAULT_PAGINATION))
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.VENDOR_CONTACTS, {}))
   const [selectedContacts, setSelectedContacts] = useState<{ id: string }[]>([])
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)
@@ -78,11 +82,12 @@ const ContactsTab: React.FC<ContactsTabProps> = ({ vendorId, canEdit: canEditVen
   const [filterWhere, setFilterWhere] = useState<WhereCondition>({})
   const { successNotification, errorNotification } = useNotification()
 
-  const searchFields = searchTerm ? { fullNameContainsFold: searchTerm } : {}
+  const debouncedSearch = useDebounce(searchTerm, 300)
+  const searchFields = debouncedSearch ? { fullNameContainsFold: debouncedSearch } : {}
 
-  const { contacts, isLoading } = useContacts({
+  const { contacts, isLoading, pageInfo, totalCount } = useContactsWithFilter({
     where: { hasEntitiesWith: [{ id: vendorId }], ...filterWhere, ...searchFields },
-    enabled: true,
+    pagination,
   })
 
   const existingContactIds = useMemo(() => contacts.map((c) => c.id), [contacts])
@@ -223,6 +228,9 @@ const ContactsTab: React.FC<ContactsTabProps> = ({ vendorId, canEdit: canEditVen
           columns={columns}
           data={contacts}
           loading={isLoading}
+          pagination={pagination}
+          onPaginationChange={setPagination}
+          paginationMeta={{ totalCount, pageInfo, isLoading }}
           columnVisibility={columnVisibility}
           setColumnVisibility={setColumnVisibility}
           tableKey={TableKeyEnum.VENDOR_CONTACTS}

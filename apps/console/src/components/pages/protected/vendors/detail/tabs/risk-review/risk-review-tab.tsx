@@ -1,19 +1,17 @@
 'use client'
 
 import React, { useState } from 'react'
-import { type ColumnDef } from '@tanstack/react-table'
 import { DataTable } from '@repo/ui/data-table'
 import { Card, CardContent } from '@repo/ui/cardpanel'
-import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
 import { AlertTriangle, Clock, ClipboardCheck, CalendarClock } from 'lucide-react'
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuRadioGroup, DropdownMenuRadioItem } from '@repo/ui/dropdown-menu'
 import { EntityFrequency, type EntityQuery, type UpdateEntityInput } from '@repo/codegen/src/schema'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
-import { type ReviewsNodeNonNull, useReviewsWithFilter } from '@/lib/graphql-hooks/review'
-import { formatDate } from '@/utils/date'
+import { useReviewsWithFilter } from '@/lib/graphql-hooks/review'
 import { TextField } from '@/components/shared/crud-base/form-fields/text-field'
 import { CheckboxField } from '@/components/shared/crud-base/form-fields/checkbox-field'
+import { reviewHistoryColumns, isHighRiskTier } from './risk-review-config'
 import CreateReviewSheet from './create-review-sheet'
 import ReviewDetailSheet from './review-detail-sheet'
 
@@ -22,53 +20,6 @@ interface RiskReviewTabProps {
   handleUpdateField: (input: UpdateEntityInput) => Promise<void>
   canEdit: boolean
   isEditing: boolean
-}
-
-const reviewHistoryColumns: ColumnDef<ReviewsNodeNonNull>[] = [
-  {
-    accessorKey: 'reporter',
-    header: 'Reviewer',
-    size: 200,
-    cell: ({ row }) =>
-      row.original.reporter ? (
-        <div className="flex items-center gap-2">
-          <div className="h-7 w-7 rounded-full bg-muted flex items-center justify-center text-xs font-medium">{row.original.reporter.charAt(0)}</div>
-          <span>{row.original.reporter}</span>
-        </div>
-      ) : (
-        <span className="text-sm">—</span>
-      ),
-  },
-  {
-    accessorKey: 'reviewedAt',
-    header: 'Date',
-    size: 150,
-    cell: ({ row }) => (row.original.reviewedAt ? formatDate(row.original.reviewedAt) : <span className="text-sm">—</span>),
-  },
-  {
-    accessorKey: 'classification',
-    header: 'Risk Tier',
-    size: 150,
-    cell: ({ row }) => (row.original.classification ? <TierBadge tier={row.original.classification} /> : <span className="text-sm">—</span>),
-  },
-  {
-    accessorKey: 'summary',
-    header: 'Notes',
-    size: 300,
-    cell: ({ row }) => <span className="truncate">{row.original.summary ?? '—'}</span>,
-  },
-]
-
-const TIER_COLORS: Record<string, string> = {
-  high: 'bg-red-500/16 text-red-400 border-red-500/24',
-  critical: 'bg-red-500/16 text-red-400 border-red-500/24',
-  medium: 'bg-orange-500/16 text-orange-400 border-orange-500/24',
-  low: 'bg-green-500/16 text-green-400 border-green-500/24',
-}
-
-const TierBadge: React.FC<{ tier: string }> = ({ tier }) => {
-  const colorClass = TIER_COLORS[tier.toLowerCase()] ?? ''
-  return <Badge className={colorClass}>{tier}</Badge>
 }
 
 const RiskReviewTab: React.FC<RiskReviewTabProps> = ({ vendor, handleUpdateField, canEdit, isEditing }) => {
@@ -81,7 +32,7 @@ const RiskReviewTab: React.FC<RiskReviewTabProps> = ({ vendor, handleUpdateField
   })
 
   const isOverdue = vendor.nextReviewAt && new Date(vendor.nextReviewAt) < new Date()
-  const isHighRisk = vendor.tier?.toLowerCase() === 'high' || vendor.tier?.toLowerCase() === 'critical'
+  const isHighRisk = isHighRiskTier(vendor.tier)
 
   const sharedFieldProps = {
     isEditing,

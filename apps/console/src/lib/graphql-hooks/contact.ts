@@ -1,11 +1,14 @@
 import { useMemo } from 'react'
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
-import { GET_CONTACTS, CONTACT, UPDATE_CONTACT, CREATE_CSV_BULK_CONTACT, BULK_DELETE_CONTACT, BULK_EDIT_CONTACT } from '@repo/codegen/query/contact'
+import { GET_CONTACTS, GET_ALL_CONTACTS, CONTACT, UPDATE_CONTACT, CREATE_CSV_BULK_CONTACT, BULK_DELETE_CONTACT, BULK_EDIT_CONTACT } from '@repo/codegen/query/contact'
 import {
   type GetContactsQuery,
   type GetContactsQueryVariables,
+  type ContactsWithFilterQuery,
   type ContactWhereInput,
+  type ContactOrder,
+  type InputMaybe,
   type ContactQuery,
   type ContactQueryVariables,
   type UpdateContactInput,
@@ -18,6 +21,7 @@ import {
   type UpdateBulkContactMutationVariables,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
+import { type TPagination } from '@repo/ui/pagination-types'
 
 type UseContactsArgs = {
   where?: ContactWhereInput
@@ -46,6 +50,42 @@ export const useContacts = ({ where, enabled = true, first = 20 }: UseContactsAr
     ...queryResult,
     contacts,
     isLoading: queryResult.isLoading,
+  }
+}
+
+type ContactNodePaginated = NonNullable<NonNullable<NonNullable<ContactsWithFilterQuery['contacts']['edges']>[number]>['node']>
+
+type UseContactsWithFilterArgs = {
+  where?: ContactWhereInput
+  orderBy?: InputMaybe<Array<ContactOrder> | ContactOrder>
+  pagination?: TPagination
+  enabled?: boolean
+}
+
+export const useContactsWithFilter = ({ where, orderBy, pagination, enabled = true }: UseContactsWithFilterArgs) => {
+  const { client } = useGraphQLClient()
+
+  const queryResult = useQuery<ContactsWithFilterQuery>({
+    queryKey: ['contacts', where, orderBy, pagination?.page, pagination?.pageSize],
+    queryFn: () =>
+      client.request(GET_ALL_CONTACTS, {
+        where,
+        orderBy,
+        ...pagination?.query,
+      }),
+    enabled,
+  })
+
+  const edges = queryResult.data?.contacts?.edges ?? []
+  const contacts = edges.map((edge) => edge?.node).filter(Boolean) as ContactNodePaginated[]
+  const pageInfo = queryResult.data?.contacts?.pageInfo
+  const totalCount = queryResult.data?.contacts?.totalCount ?? 0
+
+  return {
+    ...queryResult,
+    contacts,
+    pageInfo,
+    totalCount,
   }
 }
 

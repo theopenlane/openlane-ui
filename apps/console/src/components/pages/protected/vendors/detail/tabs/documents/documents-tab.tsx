@@ -9,10 +9,8 @@ import { TableKeyEnum } from '@repo/ui/table-key'
 import { type TFile } from '@/components/shared/file-table/columns'
 import { FILE_SORT_FIELDS } from '@/components/shared/file-table/table-config'
 import { type FileOrder, FileOrderField, OrderDirection } from '@repo/codegen/src/schema'
-import { useQuery } from '@tanstack/react-query'
-import { gql } from 'graphql-request'
-import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { useGetEntityFilesPaginated, useUploadEntityFiles } from '@/lib/graphql-hooks/entity'
+import { useGetEvidencesWithFileIds } from '@/lib/graphql-hooks/evidence'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
@@ -28,25 +26,6 @@ import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import { Check, X, Download, DownloadIcon, Upload, SearchIcon } from 'lucide-react'
 import MarkAsEvidenceDialog from './mark-as-evidence-dialog'
 import UnmarkEvidenceDialog from './unmark-evidence-dialog'
-
-const GET_EVIDENCES_WITH_FILE_IDS = gql`
-  query GetEvidencesWithFileIds($where: EvidenceWhereInput) {
-    evidences(where: $where, first: 100) {
-      edges {
-        node {
-          id
-          files {
-            edges {
-              node {
-                id
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-`
 
 interface DocumentsTabProps {
   vendorId: string
@@ -70,8 +49,6 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, canEdit }) => {
   const [unmarkEvidenceFile, setUnmarkEvidenceFile] = useState<{ id: string; name: string } | null>(null)
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false)
 
-  const { client } = useGraphQLClient()
-
   const debouncedSearch = useDebounce(searchTerm, 300)
   const fileWhere = debouncedSearch ? { providedFileNameContainsFold: debouncedSearch } : undefined
 
@@ -84,20 +61,13 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, canEdit }) => {
 
   const fileIds = useMemo(() => files.map((f) => f?.id).filter(Boolean) as string[], [files])
 
-  const { data: evidencesData } = useQuery({
-    queryKey: ['evidences', 'byFiles', fileIds],
-    queryFn: async () =>
-      client.request<{ evidences: { edges: Array<{ node: { id: string; files: { edges: Array<{ node: { id: string } }> } } }> } }>(GET_EVIDENCES_WITH_FILE_IDS, {
-        where: { hasFilesWith: [{ idIn: fileIds }] },
-      }),
-    enabled: fileIds.length > 0,
-  })
+  const { data: evidencesData } = useGetEvidencesWithFileIds(fileIds)
 
   const evidenceFileIds = useMemo(() => {
     const ids = new Set<string>()
     for (const edge of evidencesData?.evidences?.edges ?? []) {
       for (const fileEdge of edge?.node?.files?.edges ?? []) {
-        ids.add(fileEdge?.node?.id)
+        if (fileEdge?.node?.id) ids.add(fileEdge.node.id)
       }
     }
     return ids

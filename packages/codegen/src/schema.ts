@@ -63406,6 +63406,7 @@ export type ContactsWithFilterQuery = {
         fullName?: string | null
         id: string
         phoneNumber?: string | null
+        status: ContactUserStatus
         title?: string | null
         updatedAt?: any | null
         updatedBy?: string | null
@@ -66322,6 +66323,25 @@ export type DeleteBulkEvidenceMutationVariables = Exact<{
 }>
 
 export type DeleteBulkEvidenceMutation = { __typename?: 'Mutation'; deleteBulkEvidence: { __typename?: 'EvidenceBulkDeletePayload'; deletedIDs: Array<string> } }
+
+export type GetEvidencesWithFileIdsQueryVariables = Exact<{
+  where?: InputMaybe<EvidenceWhereInput>
+}>
+
+export type GetEvidencesWithFileIdsQuery = {
+  __typename?: 'Query'
+  evidences: {
+    __typename?: 'EvidenceConnection'
+    edges?: Array<{
+      __typename?: 'EvidenceEdge'
+      node?: {
+        __typename?: 'Evidence'
+        id: string
+        files: { __typename?: 'FileConnection'; edges?: Array<{ __typename?: 'FileEdge'; node?: { __typename?: 'File'; id: string } | null } | null> | null }
+      } | null
+    } | null> | null
+  }
+}
 
 export type UpdateBulkEvidenceMutationVariables = Exact<{
   ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
