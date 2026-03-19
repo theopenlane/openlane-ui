@@ -15,13 +15,20 @@ interface StepUploadImportProps {
   onExistingFileIdsChange: (fileIds: string[]) => void
 }
 
-const StepUploadImport: React.FC<StepUploadImportProps> = ({ onStagedFilesChange }) => {
+const StepUploadImport: React.FC<StepUploadImportProps> = ({ onStagedFilesChange, onExistingFileIdsChange }) => {
   const [uploadedFiles, setUploadedFiles] = useState<TUploadedFile[]>([])
+
+  const updateCallbacks = (files: TUploadedFile[]) => {
+    onStagedFilesChange(files.filter((f) => f.file).map((f) => f.file as File))
+
+    const existingFileIds = files.filter((f) => !f.file && typeof f.id === 'string').map((f) => f.id as string)
+    onExistingFileIdsChange(existingFileIds)
+  }
 
   const handleFileUpload = (uploadedFile: TUploadedFile) => {
     setUploadedFiles((prev) => {
       const updated = [uploadedFile, ...prev]
-      onStagedFilesChange(updated.filter((f) => f.file).map((f) => f.file as File))
+      updateCallbacks(updated)
       return updated
     })
   }
@@ -29,7 +36,7 @@ const StepUploadImport: React.FC<StepUploadImportProps> = ({ onStagedFilesChange
   const handleDeleteFile = (index: number) => {
     setUploadedFiles((prev) => {
       const updated = prev.filter((_, i) => i !== index)
-      onStagedFilesChange(updated.filter((f) => f.file).map((f) => f.file as File))
+      updateCallbacks(updated)
       return updated
     })
   }
