@@ -57,10 +57,12 @@ interface FormValues {
   status: ControlControlStatus
   mappedCategories: string[]
   source?: ControlControlSource
+  sourceName?: string
   referenceID?: string
   auditorReferenceID?: string
   title: string
   controlKindName?: string
+  publicRepresentation?: Value | string
 }
 
 const initialDataObj = {
@@ -74,6 +76,8 @@ const initialDataObj = {
   status: ControlControlStatus.NOT_IMPLEMENTED,
   mappedCategories: [],
   title: '',
+  sourceName: '',
+  publicRepresentation: '',
 }
 
 const ControlDetailsPage: React.FC = () => {
@@ -97,7 +101,7 @@ const ControlDetailsPage: React.FC = () => {
   const isSourceFramework = data?.control.source === ControlControlSource.FRAMEWORK
   const { mutateAsync: updateControl } = useUpdateControl()
   const { mutateAsync: deleteControl } = useDeleteControl()
-  const plateEditorHelper = usePlateEditor()
+  const { convertToHtml } = usePlateEditor()
   const { data: discussionData } = useGetControlDiscussionById(id)
   const { currentOrgId, getOrganizationByID } = useOrganization()
   const currentOrganization = getOrganizationByID(currentOrgId ?? '')
@@ -152,7 +156,11 @@ const ControlDetailsPage: React.FC = () => {
 
       if (changedFields.descriptionJSON) {
         changedFields.descriptionJSON = values?.descriptionJSON
-        changedFields.description = await plateEditorHelper.convertToHtml(values.descriptionJSON as Value)
+        changedFields.description = await convertToHtml(values.descriptionJSON as Value)
+      }
+
+      if (changedFields.publicRepresentation) {
+        changedFields.publicRepresentation = changedFields.publicRepresentation ? await convertToHtml(changedFields.publicRepresentation as Value) : undefined
       }
 
       if (isSourceFramework) {
@@ -354,7 +362,7 @@ const ControlDetailsPage: React.FC = () => {
 
       <QuickActions kind="control" controlId={id} control={control} />
 
-      <ControlTabs kind="control" control={control} />
+      <ControlTabs kind="control" control={control} isEditing={isEditing} data={control} handleUpdate={handleUpdateField} canEdit={canEdit(permission?.roles)} />
     </div>
   )
 

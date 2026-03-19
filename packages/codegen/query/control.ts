@@ -14,7 +14,9 @@ export const CONTROL_LIST_FIELDS_FRAGMENT = gql`
     referenceID
     auditorReferenceID
     source
+    sourceName
     controlKindName
+    publicRepresentation
     title
     subcontrols {
       totalCount
@@ -159,7 +161,9 @@ export const CONTROL_DETAILS_FIELDS_FRAGMENT = gql`
     references
     displayID
     source
+    sourceName
     controlKindName
+    publicRepresentation
     auditorReferenceID
     referenceID
     referenceFramework

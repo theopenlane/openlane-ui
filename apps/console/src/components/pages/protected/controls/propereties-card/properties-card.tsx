@@ -146,6 +146,7 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handle
           setEditingField={setEditingField}
           options={options}
           handleUpdate={handleUpdateAdapter}
+          tooltip="The group responsible for maintaining the control and ensuring it is up to date"
         />
         <AuthorityField
           label="Delegate"
@@ -159,6 +160,7 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handle
           setEditingField={setEditingField}
           options={options}
           handleUpdate={handleUpdateAdapter}
+          tooltip="The group responsible for maintaining the control when the owner is unavailable, such as during a leave of absence"
         />
 
         {data && <Property value={data.referenceFramework || 'CUSTOM'} label="Framework"></Property>}
@@ -198,6 +200,20 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handle
           setActiveField={setEditingField}
           fieldId="source"
         />
+        {isEditing || (data?.sourceName && data.source !== 'FRAMEWORK') ? (
+          <ReferenceProperty
+            handleUpdate={handleUpdateAdapter}
+            name="sourceName"
+            label="Source Name"
+            tooltip="Source of the control if not from a framework, such as the name of the system it is imported from or if it is user defined"
+            value={data?.sourceName}
+            isEditing={isEditing}
+            activeField={editingField}
+            setActiveField={setEditingField}
+            fieldId="sourceName"
+            icon={controlIconsMap.Reference}
+          />
+        ) : null}
         <EditableSelect
           label="Type"
           name={data?.__typename === 'Subcontrol' || isCreateSubcontrol ? 'subcontrolKindName' : 'controlKindName'}
@@ -221,6 +237,7 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handle
             activeField={editingField}
             setActiveField={setEditingField}
             fieldId="referenceID"
+            icon={controlIconsMap.ID}
           />
         ) : null}
         {isEditing || data?.auditorReferenceID ? (
@@ -234,6 +251,7 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handle
             activeField={editingField}
             setActiveField={setEditingField}
             fieldId="auditorReferenceID"
+            icon={controlIconsMap.ID}
           />
         ) : null}
 

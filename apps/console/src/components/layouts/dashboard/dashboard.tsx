@@ -16,6 +16,7 @@ import { usePathname } from 'next/navigation'
 import { useOrganization } from '@/hooks/useOrganization'
 import { type PanelKey, PRIMARY_EXPANDED_WIDTH, PRIMARY_WIDTH, SECONDARY_COLLAPSED_WIDTH, SECONDARY_EXPANDED_WIDTH } from '@/components/shared/sidebar/sidebar-nav/sidebar-nav'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { SheetNavigationProvider } from '@/providers/sheet-navigation-provider'
 
 export interface DashboardLayoutProps {
   children?: React.ReactNode
@@ -124,7 +125,7 @@ export function DashboardLayout({ children, error }: DashboardLayoutProps) {
   }
 
   return (
-    <>
+    <SheetNavigationProvider>
       <SessionExpiredModal open={showSessionExpiredModal} />
       <Sidebar
         navItems={navItems}
@@ -161,6 +162,6 @@ export function DashboardLayout({ children, error }: DashboardLayoutProps) {
           <CommandMenu items={navItems} />
         </div>
       </div>
-    </>
+    </SheetNavigationProvider>
   )
 }

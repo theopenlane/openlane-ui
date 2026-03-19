@@ -10,6 +10,8 @@ import {
   CircleDollarSign,
   IdCard,
   ScanEye,
+  FileText,
+  FileBadge2,
   Folder,
   FolderTree,
   GitBranch,
@@ -19,13 +21,17 @@ import {
   Globe2,
   MapPin,
   EarthLock,
+  UsersRound,
   MapPlus,
+  Link,
   Tag,
   Blend,
   Focus,
   ShieldPlus,
+  MessageCircle,
   ShieldCheck,
   KeyRound,
+  BookMarked,
 } from 'lucide-react'
 
 export enum FilterIconName {
@@ -56,6 +62,14 @@ export enum FilterIconName {
   SecurityFeatureSupported = 'SecurityFeatureSupported',
   SecurityFeatureEnforced = 'SecurityFeatureEnforced',
   SSO = 'SSO',
+  RefCode = 'RefCode',
+  Program = 'Program',
+  Standard = 'Standard',
+  Owners = 'Owners',
+  ProgramName = 'ProgramName',
+  LinkedPolicies = 'LinkedPolicies',
+  Comments = 'Comments',
+  Reference = 'Reference',
 }
 
 export const FilterIcons: Record<FilterIconName, LucideIcon> = {
@@ -86,4 +100,12 @@ export const FilterIcons: Record<FilterIconName, LucideIcon> = {
   [FilterIconName.SecurityFeatureSupported]: ShieldPlus,
   [FilterIconName.SecurityFeatureEnforced]: ShieldCheck,
   [FilterIconName.SSO]: KeyRound,
+  [FilterIconName.RefCode]: Key,
+  [FilterIconName.Program]: FileText,
+  [FilterIconName.Standard]: FileBadge2,
+  [FilterIconName.Owners]: UsersRound,
+  [FilterIconName.ProgramName]: ShieldCheck,
+  [FilterIconName.LinkedPolicies]: Link,
+  [FilterIconName.Comments]: MessageCircle,
+  [FilterIconName.Reference]: BookMarked,
 }
