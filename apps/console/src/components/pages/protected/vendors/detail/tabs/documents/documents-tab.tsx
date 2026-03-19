@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useMemo } from 'react'
+import { useDebounce } from '@uidotdev/usehooks'
 import { type ColumnDef, type VisibilityState, type Row } from '@tanstack/react-table'
 import { DataTable, getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
 import { type TPagination } from '@repo/ui/pagination-types'
@@ -22,6 +23,7 @@ import { Input } from '@repo/ui/input'
 import { fileDownload } from '@/components/shared/lib/export'
 import ColumnVisibilityMenu, { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import Menu from '@/components/shared/menu/menu'
+import { getMappedColumns } from '@/components/shared/crud-base/columns/get-mapped-columns'
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import { Check, X, Download, DownloadIcon, Upload, SearchIcon } from 'lucide-react'
 import MarkAsEvidenceDialog from './mark-as-evidence-dialog'
@@ -51,13 +53,6 @@ interface DocumentsTabProps {
   canEdit: boolean
 }
 
-const COLUMN_VISIBILITY_DEFAULTS: VisibilityState = {
-  providedFileName: true,
-  categoryType: true,
-  createdAt: true,
-  classifiedAsEvidence: true,
-}
-
 const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, canEdit }) => {
   const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(TableKeyEnum.ENTITY_FILES, DEFAULT_PAGINATION))
   const defaultSorting = getInitialSortConditions(TableKeyEnum.ENTITY_FILES, FileOrderField, [
@@ -68,7 +63,7 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, canEdit }) => {
   ])
   const [orderBy, setOrderBy] = useState<FileOrder[]>(defaultSorting)
   const [searchTerm, setSearchTerm] = useState('')
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.ENTITY_FILES, COLUMN_VISIBILITY_DEFAULTS))
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.ENTITY_FILES, {}))
   const { successNotification, errorNotification } = useNotification()
 
   const [markEvidenceFile, setMarkEvidenceFile] = useState<{ id: string; name: string } | null>(null)
@@ -77,10 +72,14 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, canEdit }) => {
 
   const { client } = useGraphQLClient()
 
+  const debouncedSearch = useDebounce(searchTerm, 300)
+  const fileWhere = debouncedSearch ? { providedFileNameContainsFold: debouncedSearch } : undefined
+
   const { files, isLoading, isError, pageInfo, totalCount } = useGetEntityFilesPaginated({
     entityId: vendorId,
     orderBy,
     pagination,
+    where: fileWhere,
   })
 
   const fileIds = useMemo(() => files.map((f) => f?.id).filter(Boolean) as string[], [files])
@@ -146,11 +145,7 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, canEdit }) => {
     URL.revokeObjectURL(url)
   }
 
-  const filteredFiles = files.filter((f): f is TFile => {
-    if (!f) return false
-    if (!searchTerm) return true
-    return f.providedFileName.toLowerCase().includes(searchTerm.toLowerCase())
-  })
+  const validFiles = files.filter((f): f is TFile => !!f)
 
   const isClassifiedAsEvidence = (file: TFile) => evidenceFileIds.has(file.id)
 
@@ -223,15 +218,7 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, canEdit }) => {
     } as ColumnDef<TFile>,
   ]
 
-  const mappedColumns = columns
-    .filter((column): column is ColumnDef<TFile> & { accessorKey: string; header: string } => {
-      const col = column as { accessorKey?: string; header?: string }
-      return typeof col.accessorKey === 'string' && typeof col.header === 'string'
-    })
-    .map((column) => ({
-      accessorKey: column.accessorKey,
-      header: column.header as string,
-    }))
+  const mappedColumns = getMappedColumns(columns)
 
   if (isError) {
     return <p className="text-red-500">Error loading documents</p>
@@ -274,7 +261,7 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, canEdit }) => {
         sortFields={FILE_SORT_FIELDS}
         defaultSorting={defaultSorting}
         onSortChange={setOrderBy}
-        data={filteredFiles}
+        data={validFiles}
         loading={isLoading}
         pagination={pagination}
         onPaginationChange={setPagination}

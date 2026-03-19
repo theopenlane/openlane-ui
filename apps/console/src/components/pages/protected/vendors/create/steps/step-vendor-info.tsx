@@ -7,7 +7,7 @@ import { Textarea } from '@repo/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
 import { EntityEntityStatus } from '@repo/codegen/src/schema'
-import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import type { EditVendorFormData } from '../../hooks/use-form-schema'
 
 const StepVendorInfo: React.FC = () => {
@@ -75,9 +75,9 @@ const StepVendorInfo: React.FC = () => {
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  {Object.values(EntityEntityStatus).map((status) => (
-                    <SelectItem key={status} value={status}>
-                      {getEnumLabel(status)}
+                  {enumToOptions(EntityEntityStatus).map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
                     </SelectItem>
                   ))}
                 </SelectContent>

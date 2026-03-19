@@ -5,7 +5,7 @@ import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { type Value } from 'platejs'
 import { useSearchParams } from 'next/navigation'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
-import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
 
 import { EntityEntityStatus, EntityFrequency, type EntityQuery, type UpdateEntityInput, type CreateEntityInput, type GetEntityAssociationsQuery } from '@repo/codegen/src/schema'
@@ -129,15 +129,8 @@ const VendorPage: React.FC = () => {
     field: 'scope',
   })
 
-  const reviewFrequencyOptions = Object.values(EntityFrequency).map((value) => ({
-    value,
-    label: getEnumLabel(value as string),
-  }))
-
-  const entityStatusOptions = Object.values(EntityEntityStatus).map((value) => ({
-    value,
-    label: getEnumLabel(value as string),
-  }))
+  const reviewFrequencyOptions = enumToOptions(EntityFrequency)
+  const entityStatusOptions = enumToOptions(EntityEntityStatus)
 
   const { tagOptions } = useGetTags()
 

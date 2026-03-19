@@ -9,7 +9,7 @@ import { Button } from '@repo/ui/button'
 import { AlertTriangle, Clock, ClipboardCheck, CalendarClock } from 'lucide-react'
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuRadioGroup, DropdownMenuRadioItem } from '@repo/ui/dropdown-menu'
 import { EntityFrequency, type EntityQuery, type UpdateEntityInput } from '@repo/codegen/src/schema'
-import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import { type ReviewsNodeNonNull, useReviewsWithFilter } from '@/lib/graphql-hooks/review'
 import { formatDate } from '@/utils/date'
 import { TextField } from '@/components/shared/crud-base/form-fields/text-field'
@@ -132,9 +132,9 @@ const RiskReviewTab: React.FC<RiskReviewTabProps> = ({ vendor, handleUpdateField
               <DropdownMenuContent align="end">
                 <DropdownMenuLabel>Review Frequency</DropdownMenuLabel>
                 <DropdownMenuRadioGroup value={vendor.reviewFrequency ?? ''} onValueChange={(value) => handleUpdateField({ reviewFrequency: value as EntityFrequency })}>
-                  {Object.values(EntityFrequency).map((freq) => (
-                    <DropdownMenuRadioItem key={freq} value={freq}>
-                      {getEnumLabel(freq)}
+                  {enumToOptions(EntityFrequency).map((option) => (
+                    <DropdownMenuRadioItem key={option.value} value={option.value}>
+                      {option.label}
                     </DropdownMenuRadioItem>
                   ))}
                 </DropdownMenuRadioGroup>

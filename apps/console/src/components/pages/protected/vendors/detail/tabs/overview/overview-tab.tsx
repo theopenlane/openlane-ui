@@ -1,10 +1,14 @@
 'use client'
 
 import React, { useState } from 'react'
+import { type ColumnDef } from '@tanstack/react-table'
+import { DataTable } from '@repo/ui/data-table'
 import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
-import { Check, X, Plus } from 'lucide-react'
+import { Check, X, Plus, Trash2 } from 'lucide-react'
+import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import type { EntityQuery, GetEntityAssociationsQuery } from '@repo/codegen/src/schema'
 import { useUpdateEntity } from '@/lib/graphql-hooks/entity'
 import { useNotification } from '@/hooks/useNotification'
@@ -69,7 +73,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ vendor, associations, canEdit
         </TabsContent>
 
         <TabsContent value="dependencies">
-          <SystemSection vendor={vendor} associations={associations} canEdit={canEdit} />
+          <DependenciesSection vendor={vendor} associations={associations} canEdit={canEdit} />
         </TabsContent>
       </Tabs>
     </div>
@@ -174,20 +178,52 @@ const StatusBadge: React.FC<{ label: string; enabled: boolean }> = ({ label, ena
   </div>
 )
 
-interface SystemSectionProps {
+interface DependenciesSectionProps {
   vendor: EntityQuery['entity']
   associations?: GetEntityAssociationsQuery
   canEdit: boolean
 }
 
-const SystemSection: React.FC<SystemSectionProps> = ({ vendor, associations, canEdit }) => {
+type AssetEdges = NonNullable<NonNullable<NonNullable<GetEntityAssociationsQuery['entity']>['assets']>['edges']>
+type AssetNode = NonNullable<NonNullable<AssetEdges[number]>['node']>
+
+const getAssetColumns = (canEdit: boolean, onRemove: (asset: AssetNode) => void): ColumnDef<AssetNode>[] => {
+  const cols: ColumnDef<AssetNode>[] = [
+    { accessorKey: 'name', header: 'Name', size: 200, cell: ({ row }) => <span>{row.original.displayName || row.original.name}</span> },
+    { accessorKey: 'environmentName', header: 'Environment', size: 150, cell: ({ row }) => <span className="text-muted-foreground">{row.original.environmentName ?? '—'}</span> },
+    { accessorKey: 'scopeName', header: 'Scope', size: 150, cell: ({ row }) => <span className="text-muted-foreground">{row.original.scopeName ?? '—'}</span> },
+    { accessorKey: 'assetType', header: 'Type', size: 150, cell: ({ row }) => <span className="text-muted-foreground">{row.original.assetType ? getEnumLabel(row.original.assetType) : '—'}</span> },
+  ]
+
+  if (canEdit) {
+    cols.push({
+      id: 'actions',
+      header: '',
+      size: 60,
+      cell: ({ row }) => (
+        <div className="flex justify-end" onClick={(e) => e.stopPropagation()}>
+          <button type="button" onClick={() => onRemove(row.original)} className="text-muted-foreground hover:text-destructive transition-colors">
+            <Trash2 size={16} />
+          </button>
+        </div>
+      ),
+    })
+  }
+
+  return cols
+}
+
+const DependenciesSection: React.FC<DependenciesSectionProps> = ({ vendor, associations, canEdit }) => {
   const [showAddAssetDialog, setShowAddAssetDialog] = useState(false)
+  const [assetToRemove, setAssetToRemove] = useState<{ id: string; name: string } | null>(null)
   const updateEntityMutation = useUpdateEntity()
   const { successNotification, errorNotification } = useNotification()
   const smartRouter = useSmartRouter()
 
-  const assets = associations?.entity?.assets?.edges?.map((e) => e?.node).filter((node): node is NonNullable<typeof node> => Boolean(node)) ?? []
+  const assets = associations?.entity?.assets?.edges?.map((e) => e?.node).filter((node): node is AssetNode => Boolean(node)) ?? []
   const linkedAssetIds = assets.map((a) => a.id)
+
+  const columns = getAssetColumns(canEdit, (asset) => setAssetToRemove({ id: asset.id, name: asset.displayName || asset.name }))
 
   const handleRemoveAsset = async (assetId: string, assetName: string) => {
     try {
@@ -220,52 +256,23 @@ const SystemSection: React.FC<SystemSectionProps> = ({ vendor, associations, can
           </Button>
         )}
       </div>
-      <div className="rounded-lg border border-border overflow-hidden">
-        <table className="w-full">
-          <thead>
-            <tr className="border-b border-border bg-muted/50">
-              <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Name</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Environment</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Scope</th>
-              <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Type</th>
-              {canEdit && <th className="px-4 py-3" />}
-            </tr>
-          </thead>
-          <tbody>
-            {assets.length > 0 ? (
-              assets.map((asset) => (
-                <tr key={asset.id} className="border-b border-border last:border-b-0 cursor-pointer hover:bg-muted/30 transition-colors" onClick={() => smartRouter.replace({ assetId: asset.id })}>
-                  <td className="px-4 py-3 text-sm">{asset.displayName || asset.name}</td>
-                  <td className="px-4 py-3 text-sm text-muted-foreground">{asset.environmentName ?? '—'}</td>
-                  <td className="px-4 py-3 text-sm text-muted-foreground">{asset.scopeName ?? '—'}</td>
-                  <td className="px-4 py-3 text-sm text-muted-foreground">{asset.assetType ?? '—'}</td>
-                  {canEdit && (
-                    <td className="px-4 py-3 text-right">
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          handleRemoveAsset(asset.id, asset.displayName || asset.name)
-                        }}
-                        className="text-muted-foreground hover:text-destructive transition-colors"
-                      >
-                        <X size={16} />
-                      </button>
-                    </td>
-                  )}
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={canEdit ? 5 : 4} className="px-4 py-8 text-center text-sm text-muted-foreground">
-                  No assets configured
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+      <DataTable columns={columns} data={assets} noResultsText="No assets configured" onRowClick={(row) => smartRouter.replace({ assetId: row.id })} tableKey="vendor-assets" />
       {showAddAssetDialog && <AddAssetDialog vendorId={vendor.id} linkedAssetIds={linkedAssetIds} onClose={() => setShowAddAssetDialog(false)} />}
+      <ConfirmationDialog
+        open={!!assetToRemove}
+        onOpenChange={(open) => !open && setAssetToRemove(null)}
+        onConfirm={async () => {
+          if (assetToRemove) {
+            await handleRemoveAsset(assetToRemove.id, assetToRemove.name)
+            setAssetToRemove(null)
+          }
+        }}
+        title={`Remove ${assetToRemove?.name ?? 'asset'}?`}
+        description={<>This will unlink the asset from this vendor. The asset will not be deleted.</>}
+        confirmationText="Remove"
+        confirmationTextVariant="destructive"
+        showInput={false}
+      />
     </div>
   )
 }

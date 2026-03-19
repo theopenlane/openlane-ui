@@ -7,7 +7,7 @@ import { TableKeyEnum } from '@repo/ui/table-key'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
-import { Check, CircleAlert, Copy, DownloadIcon, Plus, SearchIcon } from 'lucide-react'
+import { DownloadIcon, Plus, SearchIcon } from 'lucide-react'
 import ColumnVisibilityMenu, { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
@@ -16,20 +16,22 @@ import TableCardView from '@/components/shared/table-card-view/table-card-view'
 import { useContacts, useCreateBulkCSVContact, useBulkEditContact } from '@/lib/graphql-hooks/contact'
 import { useUpdateEntity } from '@/lib/graphql-hooks/entity'
 import { useNotification } from '@/hooks/useNotification'
-import { ContactUserStatus, type GetContactsQuery, type UpdateContactInput } from '@repo/codegen/src/schema'
+import { ContactUserStatus, type UpdateContactInput } from '@repo/codegen/src/schema'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { GenericBulkCSVCreateDialog } from '@/components/shared/crud-base/dialog/bulk-csv-create-dialog'
 import { GenericBulkEditDialog } from '@/components/shared/crud-base/dialog/bulk-edit'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { createSelectColumn } from '@/components/shared/crud-base/columns/select-column'
+import { getMappedColumns } from '@/components/shared/crud-base/columns/get-mapped-columns'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
+import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { z } from 'zod'
 import type { FilterField, WhereCondition } from '@/types'
+import ContactCard, { StatusCell, type ContactNode } from './contact-card'
 import AddContactDialog from './add-contact-dialog'
 import ContactDetailSheet from './contact-detail-sheet'
-
-type ContactNode = NonNullable<NonNullable<NonNullable<GetContactsQuery['contacts']['edges']>[number]>['node']>
 
 interface ContactsTabProps {
   vendorId: string
@@ -39,153 +41,36 @@ interface ContactsTabProps {
 
 type ViewMode = 'table' | 'card'
 
-const COLUMN_VISIBILITY_DEFAULTS: VisibilityState = {
-  fullName: true,
-  email: true,
-  title: true,
-  phoneNumber: true,
-  address: true,
-  status: true,
-}
-
-const STATUS_LABELS: Record<ContactUserStatus, string> = {
-  [ContactUserStatus.ACTIVE]: 'Active',
-  [ContactUserStatus.INACTIVE]: 'Inactive',
-  [ContactUserStatus.DEACTIVATED]: 'Deactivated',
-  [ContactUserStatus.ONBOARDING]: 'Onboarding',
-  [ContactUserStatus.SUSPENDED]: 'Suspended',
-}
-
 const bulkEditFieldSchema = z.object({
   title: z.string().optional(),
   company: z.string().optional(),
   status: z.nativeEnum(ContactUserStatus).optional(),
 })
 
-const statusEnumOptions = Object.entries(STATUS_LABELS).map(([value, label]) => ({ value, label }))
+const statusEnumOptions = enumToOptions(ContactUserStatus)
 
 const CONTACT_FILTER_FIELDS: FilterField[] = [
   { key: 'statusIn', label: 'Status', type: 'multiselect', icon: FilterIcons.Status, options: statusEnumOptions },
   { key: 'titleContainsFold', label: 'Title', type: 'text', icon: FilterIcons.Title },
 ]
 
-const StatusCell: React.FC<{ status: ContactUserStatus }> = ({ status }) => {
-  const isActive = status === ContactUserStatus.ACTIVE
-  return (
-    <div className="flex items-center gap-1.5">
-      {isActive ? <Check size={14} className="text-success" /> : <CircleAlert size={14} className="text-muted-foreground" />}
-      <span>{STATUS_LABELS[status] ?? status}</span>
-    </div>
-  )
-}
-
-const CopyButton: React.FC<{ value: string }> = ({ value }) => {
-  const { successNotification } = useNotification()
-
-  const handleCopy = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    navigator.clipboard.writeText(value)
-    successNotification({ title: 'Copied', description: `"${value}" copied to clipboard.` })
-  }
-
-  return (
-    <button type="button" onClick={handleCopy} className="text-muted-foreground hover:text-foreground transition-colors">
-      <Copy size={13} />
-    </button>
-  )
-}
-
 const DATA_COLUMNS: ColumnDef<ContactNode>[] = [
-  {
-    accessorKey: 'fullName',
-    header: 'Name',
-    size: 150,
-    cell: ({ row }) => <span className="truncate">{row.original.fullName ?? '-'}</span>,
-  },
-  {
-    accessorKey: 'email',
-    header: 'Email',
-    size: 180,
-    cell: ({ row }) => <span className="truncate">{row.original.email ?? '-'}</span>,
-  },
-  {
-    accessorKey: 'title',
-    header: 'Title',
-    size: 180,
-    cell: ({ row }) => <span className="truncate">{row.original.title ?? '-'}</span>,
-  },
-  {
-    accessorKey: 'phoneNumber',
-    header: 'Phone',
-    size: 150,
-    cell: ({ row }) => <span>{row.original.phoneNumber ?? '-'}</span>,
-  },
-  {
-    accessorKey: 'address',
-    header: 'Address',
-    size: 200,
-    cell: ({ row }) => <span className="truncate">{row.original.address ?? '-'}</span>,
-  },
-  {
-    accessorKey: 'status',
-    header: 'Status',
-    size: 140,
-    cell: ({ row }) => <StatusCell status={row.original.status} />,
-  },
+  { accessorKey: 'fullName', header: 'Name', size: 150, cell: ({ row }) => <span className="truncate">{row.original.fullName ?? '-'}</span> },
+  { accessorKey: 'email', header: 'Email', size: 180, cell: ({ row }) => <span className="truncate">{row.original.email ?? '-'}</span> },
+  { accessorKey: 'title', header: 'Title', size: 180, cell: ({ row }) => <span className="truncate">{row.original.title ?? '-'}</span> },
+  { accessorKey: 'phoneNumber', header: 'Phone', size: 150, cell: ({ row }) => <span>{row.original.phoneNumber ?? '-'}</span> },
+  { accessorKey: 'address', header: 'Address', size: 200, cell: ({ row }) => <span className="truncate">{row.original.address ?? '-'}</span> },
+  { accessorKey: 'status', header: 'Status', size: 140, cell: ({ row }) => <StatusCell status={row.original.status} /> },
 ]
 
-const mappedColumns = DATA_COLUMNS.filter((column): column is ColumnDef<ContactNode> & { accessorKey: string; header: string } => {
-  const col = column as { accessorKey?: string; header?: string }
-  return typeof col.accessorKey === 'string' && typeof col.header === 'string'
-}).map((column) => ({
-  accessorKey: column.accessorKey,
-  header: column.header as string,
-}))
-
-const ContactCard: React.FC<{ contact: ContactNode; onClick?: () => void }> = ({ contact, onClick }) => (
-  <Card className="cursor-pointer" onClick={onClick}>
-    <CardContent className="p-5">
-      <div className="mb-4">
-        <p className="font-semibold text-sm">{contact.fullName}</p>
-        {contact.email && (
-          <div className="flex items-center gap-1.5 mt-1">
-            <span className="text-sm text-muted-foreground">{contact.email}</span>
-            <CopyButton value={contact.email} />
-          </div>
-        )}
-      </div>
-
-      <div className="grid grid-cols-4 pt-4">
-        <div className="px-4 first:pl-0">
-          <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Title</p>
-          <p className="text-sm">{contact.title ?? '-'}</p>
-        </div>
-        <div className="border-l border-border px-4">
-          <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Phone</p>
-          <div className="flex items-center gap-1.5">
-            <span className="text-sm">{contact.phoneNumber ?? '-'}</span>
-            {contact.phoneNumber && <CopyButton value={contact.phoneNumber} />}
-          </div>
-        </div>
-        <div className="border-l border-border px-4">
-          <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Address</p>
-          <p className="text-sm truncate">{contact.address ?? '-'}</p>
-        </div>
-        <div className="border-l border-border px-4">
-          <p className="text-xs text-muted-foreground uppercase tracking-wide mb-1">Status</p>
-          <StatusCell status={contact.status} />
-        </div>
-      </div>
-    </CardContent>
-  </Card>
-)
+const mappedColumns = getMappedColumns(DATA_COLUMNS)
 
 const ContactsTab: React.FC<ContactsTabProps> = ({ vendorId, canEdit: canEditVendor, vendorName }) => {
   const [viewMode, setViewMode] = useState<ViewMode>('table')
   const handleViewChange = (tab: 'table' | 'card') => setViewMode(tab)
   const [showAddDialog, setShowAddDialog] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.VENDOR_CONTACTS, COLUMN_VISIBILITY_DEFAULTS))
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.VENDOR_CONTACTS, {}))
   const [selectedContacts, setSelectedContacts] = useState<{ id: string }[]>([])
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)
   const [isBulkEditDialogOpen, setIsBulkEditDialogOpen] = useState(false)
@@ -193,8 +78,10 @@ const ContactsTab: React.FC<ContactsTabProps> = ({ vendorId, canEdit: canEditVen
   const [filterWhere, setFilterWhere] = useState<WhereCondition>({})
   const { successNotification, errorNotification } = useNotification()
 
+  const searchFields = searchTerm ? { fullNameContainsFold: searchTerm } : {}
+
   const { contacts, isLoading } = useContacts({
-    where: { hasEntitiesWith: [{ id: vendorId }], ...filterWhere },
+    where: { hasEntitiesWith: [{ id: vendorId }], ...filterWhere, ...searchFields },
     enabled: true,
   })
 
@@ -238,7 +125,7 @@ const ContactsTab: React.FC<ContactsTabProps> = ({ vendorId, canEdit: canEditVen
     if (contacts.length === 0) return
 
     const headers = ['Name', 'Email', 'Title', 'Phone', 'Address', 'Status']
-    const rows = contacts.map((c) => [c.fullName ?? '', c.email ?? '', c.title ?? '', c.phoneNumber ?? '', c.address ?? '', STATUS_LABELS[c.status] ?? c.status])
+    const rows = contacts.map((c) => [c.fullName ?? '', c.email ?? '', c.title ?? '', c.phoneNumber ?? '', c.address ?? '', getEnumLabel(c.status)])
 
     const csvContent = [headers, ...rows].map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n')
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
@@ -251,18 +138,6 @@ const ContactsTab: React.FC<ContactsTabProps> = ({ vendorId, canEdit: canEditVen
     document.body.removeChild(link)
     URL.revokeObjectURL(url)
   }
-
-  const filteredContacts = contacts.filter((contact) => {
-    if (!searchTerm) return true
-    const term = searchTerm.toLowerCase()
-    return (
-      contact.fullName?.toLowerCase().includes(term) ||
-      contact.email?.toLowerCase().includes(term) ||
-      contact.title?.toLowerCase().includes(term) ||
-      contact.phoneNumber?.toLowerCase().includes(term) ||
-      contact.address?.toLowerCase().includes(term)
-    )
-  })
 
   return (
     <div className="mt-5">
@@ -346,7 +221,7 @@ const ContactsTab: React.FC<ContactsTabProps> = ({ vendorId, canEdit: canEditVen
       {viewMode === 'table' ? (
         <DataTable
           columns={columns}
-          data={filteredContacts}
+          data={contacts}
           loading={isLoading}
           columnVisibility={columnVisibility}
           setColumnVisibility={setColumnVisibility}
@@ -358,13 +233,13 @@ const ContactsTab: React.FC<ContactsTabProps> = ({ vendorId, canEdit: canEditVen
         <Card>
           <CardContent className="py-8 text-center text-muted-foreground">Loading contacts...</CardContent>
         </Card>
-      ) : filteredContacts.length === 0 ? (
+      ) : contacts.length === 0 ? (
         <Card>
           <CardContent className="py-8 text-center text-muted-foreground">No contacts associated with this vendor.</CardContent>
         </Card>
       ) : (
         <div className="space-y-4">
-          {filteredContacts.map((contact) => (
+          {contacts.map((contact) => (
             <ContactCard key={contact.id} contact={contact} onClick={() => setSelectedContactId(contact.id)} />
           ))}
         </div>

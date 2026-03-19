@@ -11,6 +11,7 @@ import { DownloadIcon, Plus, SearchIcon } from 'lucide-react'
 import ColumnVisibilityMenu, { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import Menu from '@/components/shared/menu/menu'
+import { getMappedColumns } from '@/components/shared/crud-base/columns/get-mapped-columns'
 import { Button } from '@repo/ui/button'
 import type { EntityQuery } from '@repo/codegen/src/schema'
 import AddContractDialog from './add-contract-dialog'
@@ -29,16 +30,6 @@ type ContractRow = {
   annualSpend: number | null | undefined
   spendCurrency: string | null | undefined
   autoRenews: boolean | null | undefined
-}
-
-const COLUMN_VISIBILITY_DEFAULTS: VisibilityState = {
-  startDate: true,
-  endDate: true,
-  terminationNoticeDays: true,
-  renewalDate: true,
-  annualSpend: true,
-  spendCurrency: true,
-  autoRenews: true,
 }
 
 const columns: ColumnDef<ContractRow>[] = [
@@ -100,18 +91,10 @@ const columns: ColumnDef<ContractRow>[] = [
   },
 ]
 
-const mappedColumns = columns
-  .filter((column): column is ColumnDef<ContractRow> & { accessorKey: string; header: string } => {
-    const col = column as { accessorKey?: string; header?: string }
-    return typeof col.accessorKey === 'string' && typeof col.header === 'string'
-  })
-  .map((column) => ({
-    accessorKey: column.accessorKey,
-    header: column.header as string,
-  }))
+const mappedColumns = getMappedColumns(columns)
 
 const ContractTab: React.FC<ContractTabProps> = ({ vendor, vendorId }) => {
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.VENDOR_CONTRACT, COLUMN_VISIBILITY_DEFAULTS))
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.VENDOR_CONTRACT, {}))
   const [showAddDialog, setShowAddDialog] = useState(false)
 
   const handleExportCSV = (data: ContractRow[]) => {

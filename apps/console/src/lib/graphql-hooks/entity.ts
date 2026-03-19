@@ -22,6 +22,7 @@ import {
   type UpdateEntityWithFilesMutationVariables,
   type CreateEntityWithFilesMutationVariables,
   type FileOrder,
+  type FileWhereInput,
   type InputMaybe,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
@@ -158,17 +159,19 @@ type EntityFilesPaginationArgs = {
   entityId?: string | null
   orderBy?: InputMaybe<Array<FileOrder> | FileOrder>
   pagination?: TPagination
+  where?: FileWhereInput
 }
 
-export const useGetEntityFilesPaginated = ({ entityId, orderBy, pagination }: EntityFilesPaginationArgs) => {
+export const useGetEntityFilesPaginated = ({ entityId, orderBy, pagination, where }: EntityFilesPaginationArgs) => {
   const { client } = useGraphQLClient()
 
   const queryResult = useQuery<GetEntityFilesPaginatedQuery, unknown>({
-    queryKey: ['entityFiles', entityId, orderBy, pagination?.page, pagination?.pageSize],
+    queryKey: ['entityFiles', entityId, orderBy, pagination?.page, pagination?.pageSize, where],
     queryFn: async () =>
       client.request(GET_ENTITY_FILES_PAGINATED, {
         entityId,
         orderBy,
+        where,
         ...pagination?.query,
       }),
     enabled: !!entityId,

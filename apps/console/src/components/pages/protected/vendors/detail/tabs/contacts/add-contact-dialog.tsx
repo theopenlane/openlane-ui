@@ -1,9 +1,6 @@
 'use client'
 
 import React, { useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { z } from 'zod'
-import { zodResolver } from '@hookform/resolvers/zod'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@repo/ui/dialog'
 import { Input } from '@repo/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
@@ -18,21 +15,11 @@ import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { CREATE_CONTACT } from '@repo/codegen/query/contact'
 import { ContactUserStatus, type CreateContactMutation, type CreateContactMutationVariables } from '@repo/codegen/src/schema'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import { useContacts, useUpdateContact } from '@/lib/graphql-hooks/contact'
 import { Check, Users } from 'lucide-react'
 import { cn } from '@repo/ui/lib/utils'
-
-const addContactSchema = z.object({
-  fullName: z.string().min(1, 'Name is required'),
-  email: z.string().email('Invalid email').optional().or(z.literal('')),
-  company: z.string().optional(),
-  title: z.string().optional(),
-  phoneNumber: z.string().optional(),
-  status: z.nativeEnum(ContactUserStatus).optional(),
-  address: z.string().optional(),
-})
-
-type AddContactFormData = z.infer<typeof addContactSchema>
+import useContactFormSchema, { type AddContactFormData } from './use-contact-form-schema'
 
 interface AddContactDialogProps {
   vendorId: string
@@ -41,13 +28,7 @@ interface AddContactDialogProps {
   existingContactIds?: string[]
 }
 
-const STATUS_OPTIONS = [
-  { value: ContactUserStatus.ACTIVE, label: 'Active' },
-  { value: ContactUserStatus.INACTIVE, label: 'Inactive' },
-  { value: ContactUserStatus.DEACTIVATED, label: 'Deactivated' },
-  { value: ContactUserStatus.ONBOARDING, label: 'Onboarding' },
-  { value: ContactUserStatus.SUSPENDED, label: 'Suspended' },
-]
+const STATUS_OPTIONS = enumToOptions(ContactUserStatus)
 
 type DialogMode = 'create' | 'link'
 
@@ -59,18 +40,7 @@ const AddContactDialog: React.FC<AddContactDialogProps> = ({ vendorId, onClose, 
   const [searchText, setSearchText] = useState('')
   const [selectedContactId, setSelectedContactId] = useState<string | null>(null)
 
-  const form = useForm<AddContactFormData>({
-    resolver: zodResolver(addContactSchema),
-    defaultValues: {
-      fullName: '',
-      email: '',
-      company: vendorName ?? '',
-      title: '',
-      phoneNumber: '',
-      status: ContactUserStatus.ACTIVE,
-      address: '',
-    },
-  })
+  const { form } = useContactFormSchema(vendorName)
 
   const createContactMutation = useMutation<CreateContactMutation, unknown, CreateContactMutationVariables>({
     mutationFn: async (variables) => client.request(CREATE_CONTACT, variables),
@@ -138,7 +108,7 @@ const AddContactDialog: React.FC<AddContactDialogProps> = ({ vendorId, onClose, 
 
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-[550px]">
+      <DialogContent className="sm:max-w-137.5">
         <DialogHeader>
           <DialogTitle>Add Contact</DialogTitle>
         </DialogHeader>
@@ -282,7 +252,7 @@ const AddContactDialog: React.FC<AddContactDialogProps> = ({ vendorId, onClose, 
           <TabsContent value="link">
             <Command shouldFilter={false} className="overflow-visible border rounded-md">
               <CommandInput placeholder="Search contacts by name..." value={searchText} onValueChange={setSearchText} />
-              <CommandList className="max-h-[250px]">
+              <CommandList className="max-h-62.5">
                 <CommandEmpty>{isSearching ? 'Searching...' : 'No contacts found.'}</CommandEmpty>
                 {availableContacts.length > 0 && (
                   <CommandGroup>

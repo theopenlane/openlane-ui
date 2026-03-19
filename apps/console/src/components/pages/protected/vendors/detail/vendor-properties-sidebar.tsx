@@ -8,7 +8,7 @@ import { SelectField } from '@/components/shared/crud-base/form-fields/select-fi
 import { TextField } from '@/components/shared/crud-base/form-fields/text-field'
 import { DateField } from '@/components/shared/crud-base/form-fields/date-field'
 import { CheckboxField } from '@/components/shared/crud-base/form-fields/checkbox-field'
-import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { formatDate } from '@/utils/date'
 import { UserRound, UserRoundCheck, Settings2, Maximize2, Radio, CalendarDays, RefreshCw, DollarSign } from 'lucide-react'
@@ -28,15 +28,8 @@ const VendorPropertiesSidebar: React.FC<VendorPropertiesSidebarProps> = ({ data,
   const { enumOptions: environmentOptions, onCreateOption: createEnvironment } = useCreatableEnumOptions({ field: 'environment' })
   const { enumOptions: scopeOptions, onCreateOption: createScope } = useCreatableEnumOptions({ field: 'scope' })
 
-  const entityStatusOptions = Object.values(EntityEntityStatus).map((value) => ({
-    value,
-    label: getEnumLabel(value),
-  }))
-
-  const reviewFrequencyOptions = Object.values(EntityFrequency).map((value) => ({
-    value,
-    label: getEnumLabel(value),
-  }))
+  const entityStatusOptions = enumToOptions(EntityEntityStatus)
+  const reviewFrequencyOptions = enumToOptions(EntityFrequency)
 
   const sharedFieldProps = {
     isEditing,

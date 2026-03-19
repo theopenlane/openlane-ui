@@ -65740,6 +65740,7 @@ export type GetEntityFilesPaginatedQueryVariables = Exact<{
   before?: InputMaybe<Scalars['Cursor']['input']>
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<FileOrder> | FileOrder>
+  where?: InputMaybe<FileWhereInput>
 }>
 
 export type GetEntityFilesPaginatedQuery = {

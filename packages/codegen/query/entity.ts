@@ -208,9 +208,9 @@ export const BULK_EDIT_ENTITY = gql`
 `
 
 export const GET_ENTITY_FILES_PAGINATED = gql`
-  query GetEntityFilesPaginated($entityId: ID!, $after: Cursor, $first: Int, $before: Cursor, $last: Int, $orderBy: [FileOrder!]) {
+  query GetEntityFilesPaginated($entityId: ID!, $after: Cursor, $first: Int, $before: Cursor, $last: Int, $orderBy: [FileOrder!], $where: FileWhereInput) {
     entity(id: $entityId) {
-      files(after: $after, first: $first, before: $before, last: $last, orderBy: $orderBy) {
+      files(after: $after, first: $first, before: $before, last: $last, orderBy: $orderBy, where: $where) {
         pageInfo {
           endCursor
           hasNextPage

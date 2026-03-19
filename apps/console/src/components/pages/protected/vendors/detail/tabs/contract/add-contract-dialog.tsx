@@ -1,9 +1,6 @@
 'use client'
 
 import React from 'react'
-import { useForm } from 'react-hook-form'
-import { z } from 'zod'
-import { zodResolver } from '@hookform/resolvers/zod'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@repo/ui/dialog'
 import { Input } from '@repo/ui/input'
 import { Checkbox } from '@repo/ui/checkbox'
@@ -13,19 +10,7 @@ import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-butto
 import { useNotification } from '@/hooks/useNotification'
 import { useUpdateEntity } from '@/lib/graphql-hooks/entity'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-
-const addContractSchema = z.object({
-  contractStartDate: z.string().optional(),
-  contractEndDate: z.string().optional(),
-  contractRenewalAt: z.string().optional(),
-  terminationNoticeDays: z.string().optional(),
-  annualSpend: z.string().optional(),
-  spendCurrency: z.string().optional(),
-  billingModel: z.string().optional(),
-  autoRenews: z.boolean().optional(),
-})
-
-type AddContractFormData = z.infer<typeof addContractSchema>
+import useContractFormSchema, { type AddContractFormData } from './use-contract-form-schema'
 
 interface AddContractDialogProps {
   vendorId: string
@@ -36,19 +21,7 @@ const AddContractDialog: React.FC<AddContractDialogProps> = ({ vendorId, onClose
   const { successNotification, errorNotification } = useNotification()
   const updateEntityMutation = useUpdateEntity()
 
-  const form = useForm<AddContractFormData>({
-    resolver: zodResolver(addContractSchema),
-    defaultValues: {
-      contractStartDate: '',
-      contractEndDate: '',
-      contractRenewalAt: '',
-      terminationNoticeDays: '',
-      annualSpend: '',
-      spendCurrency: 'USD',
-      billingModel: '',
-      autoRenews: false,
-    },
-  })
+  const { form } = useContractFormSchema()
 
   const handleSubmit = async (data: AddContractFormData) => {
     try {

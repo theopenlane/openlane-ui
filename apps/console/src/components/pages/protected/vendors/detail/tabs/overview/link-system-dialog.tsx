@@ -77,7 +77,7 @@ const LinkSystemDialog: React.FC<LinkSystemDialogProps> = ({ vendorId, linkedInt
 
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-[550px]">
+      <DialogContent className="sm:max-w-137.5">
         <DialogHeader>
           <DialogTitle>Link System</DialogTitle>
         </DialogHeader>
