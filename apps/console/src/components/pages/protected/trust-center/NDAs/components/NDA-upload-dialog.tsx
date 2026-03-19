@@ -74,7 +74,7 @@ export const NDAUploadDialog = ({ trigger, ndaId, open: controlledOpen, onOpenCh
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
-      <DialogContent className="sm:max-w-106.25">
+      <DialogContent className="sm:max-w-106.25" onClick={(e) => e.stopPropagation()}>
         <DialogHeader>
           <DialogTitle>{ndaId ? 'Replace NDA Document' : 'Upload NDA Document'}</DialogTitle>
           <DialogDescription>Upload a PDF version of the Non-Disclosure Agreement.</DialogDescription>
