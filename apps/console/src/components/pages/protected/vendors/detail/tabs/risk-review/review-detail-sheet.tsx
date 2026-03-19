@@ -2,7 +2,7 @@
 
 import React, { useRef } from 'react'
 import useFormSchema, { type ReviewFormData } from '@/components/pages/protected/reviews/hooks/use-form-schema'
-import { type ReviewsNodeNonNull, useReview, useUpdateReview, useCreateReview, useDeleteReview } from '@/lib/graphql-hooks/review'
+import { type ReviewsNodeNonNull, useReview, useUpdateReview, useCreateReview, useBulkDeleteReview } from '@/lib/graphql-hooks/review'
 import { GenericDetailsSheet } from '@/components/shared/crud-base/generic-sheet'
 import { getFieldsToRender } from '@/components/pages/protected/reviews/table/table-config'
 import { type ReviewSheetConfig, type ReviewFieldProps, objectType } from '@/components/pages/protected/reviews/table/types'
@@ -27,7 +27,7 @@ const ReviewDetailSheet: React.FC<ReviewDetailSheetProps> = ({ reviewId, onClose
 
   const baseUpdateMutation = useUpdateReview()
   const baseCreateMutation = useCreateReview()
-  const baseDeleteMutation = useDeleteReview()
+  const baseDeleteMutation = useBulkDeleteReview()
 
   const updateMutation = {
     isPending: baseUpdateMutation.isPending,
@@ -49,8 +49,8 @@ const ReviewDetailSheet: React.FC<ReviewDetailSheetProps> = ({ reviewId, onClose
   const deleteMutation = {
     isPending: baseDeleteMutation.isPending,
     mutateAsync: async (params: { ids: string[] }) => {
-      const results = await Promise.all(params.ids.map((id) => baseDeleteMutation.mutateAsync({ deleteReviewId: id })))
-      return results.map((r) => r.deleteReview.deletedID)
+      const result = await baseDeleteMutation.mutateAsync({ ids: params.ids })
+      return result.deleteBulkReview.deletedIDs
     },
   }
 

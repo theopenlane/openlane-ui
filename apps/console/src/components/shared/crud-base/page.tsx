@@ -281,6 +281,7 @@ export function GenericTablePage<
   const renderDetailView = () => {
     // Handle step-dialog create mode
     if (isCreate && resolvedCreateMode === 'step-dialog' && createMode?.type === 'step-dialog') {
+      if (!sheetConfig.createMutation || !sheetConfig.buildPayload) return null
       return (
         <StepDialog<TFormData, TCreateInput, TCreateData>
           key="create-step-dialog"

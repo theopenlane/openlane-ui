@@ -8,7 +8,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@repo/ui/tabs'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { FieldValues } from 'react-hook-form'
+import { type FieldValues } from 'react-hook-form'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { canEdit } from '@/lib/authz/utils'
 import { GenericSheetHeader } from './header'
@@ -113,9 +113,11 @@ export function TabbedDetailView<TFormData extends FieldValues, TData, TUpdateIn
 
   const onSubmit = async (formData: TFormData) => {
     try {
+      if (!buildPayload) return
       const payload = await buildPayload(formData)
 
       if (isCreate) {
+        if (!createMutation) return
         await createMutation.mutateAsync(payload as TCreateInput)
         queryClient.invalidateQueries({ queryKey })
         successNotification({
@@ -124,6 +126,7 @@ export function TabbedDetailView<TFormData extends FieldValues, TData, TUpdateIn
         })
         onClose?.()
       } else if (id) {
+        if (!updateMutation) return
         await updateMutation.mutateAsync({ id, input: payload as TUpdateInput })
         queryClient.invalidateQueries({ queryKey })
         successNotification({
@@ -162,7 +165,7 @@ export function TabbedDetailView<TFormData extends FieldValues, TData, TUpdateIn
   }
 
   const handleUpdateField = async (input: TUpdateInput) => {
-    if (!id || isEditing) return
+    if (!id || isEditing || !updateMutation) return
     try {
       await updateMutation.mutateAsync({ id, input })
       successNotification({
@@ -178,7 +181,7 @@ export function TabbedDetailView<TFormData extends FieldValues, TData, TUpdateIn
     }
   }
 
-  const isPending = updateMutation.isPending || createMutation.isPending
+  const isPending = (updateMutation?.isPending ?? false) || (createMutation?.isPending ?? false)
 
   const headerProps: RenderHeaderProps = {
     close: handleClose,

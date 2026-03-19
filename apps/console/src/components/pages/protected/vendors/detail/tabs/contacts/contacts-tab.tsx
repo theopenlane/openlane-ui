@@ -13,7 +13,8 @@ import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
 import Menu from '@/components/shared/menu/menu'
 import TableCardView from '@/components/shared/table-card-view/table-card-view'
-import { useContacts, useCreateBulkCSVContact, useBulkDeleteContact, useBulkEditContact } from '@/lib/graphql-hooks/contact'
+import { useContacts, useCreateBulkCSVContact, useBulkEditContact } from '@/lib/graphql-hooks/contact'
+import { useUpdateEntity } from '@/lib/graphql-hooks/entity'
 import { useNotification } from '@/hooks/useNotification'
 import { ContactUserStatus, type GetContactsQuery, type UpdateContactInput } from '@repo/codegen/src/schema'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
@@ -200,14 +201,18 @@ const ContactsTab: React.FC<ContactsTabProps> = ({ vendorId, canEdit: canEditVen
   const existingContactIds = useMemo(() => contacts.map((c) => c.id), [contacts])
 
   const { mutateAsync: createBulkCSVContact } = useCreateBulkCSVContact()
-  const { mutateAsync: bulkDeleteContacts } = useBulkDeleteContact()
   const { mutateAsync: bulkEditContacts } = useBulkEditContact()
+  const { mutateAsync: updateEntity } = useUpdateEntity()
 
   const columns = useMemo<ColumnDef<ContactNode>[]>(() => [createSelectColumn<ContactNode>(selectedContacts, setSelectedContacts), ...DATA_COLUMNS], [selectedContacts])
 
   const handleBulkCreate = async (file: File) => {
     try {
-      await createBulkCSVContact({ input: file })
+      const result = await createBulkCSVContact({ input: file })
+      const newContactIds = result.createBulkCSVContact?.contacts?.map((c) => c.id) ?? []
+      if (newContactIds.length > 0) {
+        await updateEntity({ updateEntityId: vendorId, input: { addContactIDs: newContactIds } })
+      }
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
       errorNotification({ title: 'Error', description: errorMessage })
@@ -215,11 +220,11 @@ const ContactsTab: React.FC<ContactsTabProps> = ({ vendorId, canEdit: canEditVen
     }
   }
 
-  const handleBulkDelete = async () => {
+  const handleBulkUnlink = async () => {
     if (selectedContacts.length === 0) return
     try {
-      await bulkDeleteContacts({ ids: selectedContacts.map((c) => c.id) })
-      successNotification({ title: 'Selected contacts have been successfully deleted.' })
+      await updateEntity({ updateEntityId: vendorId, input: { removeContactIDs: selectedContacts.map((c) => c.id) } })
+      successNotification({ title: 'Selected contacts have been unlinked from this vendor.' })
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
       errorNotification({ title: 'Error', description: errorMessage })
@@ -288,15 +293,15 @@ const ContactsTab: React.FC<ContactsTabProps> = ({ vendorId, canEdit: canEditVen
               {canEditVendor && (
                 <>
                   <Button type="button" variant="secondary" onClick={() => setIsBulkDeleteDialogOpen(true)}>
-                    {`Bulk Delete (${selectedContacts.length})`}
+                    {`Remove (${selectedContacts.length})`}
                   </Button>
                   <ConfirmationDialog
                     open={isBulkDeleteDialogOpen}
                     onOpenChange={setIsBulkDeleteDialogOpen}
-                    onConfirm={handleBulkDelete}
-                    title="Delete selected contacts?"
-                    description={<>This action cannot be undone. This will permanently delete selected contacts.</>}
-                    confirmationText="Delete"
+                    onConfirm={handleBulkUnlink}
+                    title="Remove selected contacts from this vendor?"
+                    description={<>This will unlink the selected contacts from this vendor. The contacts will not be deleted.</>}
+                    confirmationText="Remove"
                     confirmationTextVariant="destructive"
                     showInput={false}
                   />

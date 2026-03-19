@@ -6,8 +6,8 @@ import { Button } from '@repo/ui/button'
 import { useNotification } from '@/hooks/useNotification'
 import { useQueryClient } from '@tanstack/react-query'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { UseFormReturn, FieldValues, FormProvider } from 'react-hook-form'
-import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { type UseFormReturn, type FieldValues, FormProvider } from 'react-hook-form'
+import { type ObjectTypes } from '@repo/codegen/src/type-names'
 import { defineStepper } from '@stepperize/react'
 import { StepHeader } from '@/components/shared/step-header/step-header'
 import { SaveButton } from '@/components/shared/save-button/save-button'
@@ -39,7 +39,7 @@ export function StepDialog<TFormData extends FieldValues, TCreateInput, TCreateD
   if (!stepperDefRef.current) {
     stepperDefRef.current = defineStepper(...steps.map((step) => ({ id: step.id })))
   }
-  const stepper = stepperDefRef.current!.useStepper()
+  const stepper = stepperDefRef.current.useStepper()
 
   const objectTypeName = toHumanLabel(objectType)
   const queryKey = [pluralizeTypeName(objectType.toLowerCase())]
@@ -99,12 +99,12 @@ export function StepDialog<TFormData extends FieldValues, TCreateInput, TCreateD
         if (!open) onClose()
       }}
     >
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="sm:max-w-150">
         <DialogHeader>
           <DialogTitle>{dialogTitle}</DialogTitle>
         </DialogHeader>
 
-        <StepHeader stepper={stepper} />
+        <StepHeader stepper={stepper} className="mb-6" />
 
         <FormProvider {...form}>
           <div className="py-4">{currentStepConfig?.render()}</div>

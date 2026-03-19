@@ -22,19 +22,20 @@ import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
 type UseContactsArgs = {
   where?: ContactWhereInput
   enabled?: boolean
+  first?: number
 }
 
 type ContactNode = NonNullable<NonNullable<NonNullable<GetContactsQuery['contacts']['edges']>[number]>['node']>
 
-export const useContacts = ({ where, enabled = true }: UseContactsArgs) => {
+export const useContacts = ({ where, enabled = true, first = 20 }: UseContactsArgs) => {
   const { client } = useGraphQLClient()
 
   const queryResult = useQuery<GetContactsQuery, GetContactsQueryVariables>({
-    queryKey: ['contacts', where],
+    queryKey: ['contacts', where, first],
     queryFn: () =>
       client.request(GET_CONTACTS, {
         where,
-        first: 20,
+        first,
       }),
     enabled,
   })
