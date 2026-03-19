@@ -1,18 +1,20 @@
 'use client'
 
 import React, { useCallback } from 'react'
-import { GenericDetailsSheet } from '@/components/shared/crud-base/generic-sheet'
-import { type RenderFieldsProps } from '@/components/shared/crud-base/generic-sheet'
+import { SheetHeader, SheetTitle } from '@repo/ui/sheet'
+import { ExternalLink, PanelRightClose } from 'lucide-react'
 import useFormSchema, { type EditRisksFormData } from './view/hooks/use-form-schema'
 import { type RiskFieldsFragment, type UpdateRiskInput, type CreateRiskInput, RiskRiskImpact, RiskRiskLikelihood, RiskRiskStatus } from '@repo/codegen/src/schema'
-import { useGetRiskById, useUpdateRisk, useCreateRisk } from '@/lib/graphql-hooks/risk'
+import { useGetRiskById } from '@/lib/graphql-hooks/risk'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import TitleField from './view/fields/title-field'
 import DetailsField from './view/fields/details-field'
 import PropertiesCard from './view/cards/properties-card'
 import { type Value } from 'platejs'
-import { type GenericDetailsSheetConfig } from '@/components/shared/crud-base/generic-sheet'
+import { GenericDetailsSheet, type GenericDetailsSheetConfig, type RenderFieldsProps, type RenderHeaderProps } from '@/components/shared/crud-base/generic-sheet'
+import { useRouter } from 'next/navigation'
+import { Button } from '@repo/ui/button'
 
 type Props = {
   entityId: string | null
@@ -20,22 +22,10 @@ type Props = {
 }
 
 const ViewRiskSheet: React.FC<Props> = ({ entityId, onClose }) => {
+  const router = useRouter()
   const { form } = useFormSchema()
   const { data, isLoading } = useGetRiskById(entityId)
   const plateEditorHelper = usePlateEditor()
-
-  const baseUpdateMutation = useUpdateRisk()
-  const baseCreateMutation = useCreateRisk()
-
-  const updateMutation = {
-    isPending: baseUpdateMutation.isPending,
-    mutateAsync: async (params: { id: string; input: UpdateRiskInput }) => baseUpdateMutation.mutateAsync({ updateRiskId: params.id, input: params.input }),
-  }
-
-  const createMutation = {
-    isPending: baseCreateMutation.isPending,
-    mutateAsync: async (input: CreateRiskInput) => baseCreateMutation.mutateAsync({ input }),
-  }
 
   const getName = useCallback((d: RiskFieldsFragment) => d?.name, [])
 
@@ -85,6 +75,32 @@ const ViewRiskSheet: React.FC<Props> = ({ entityId, onClose }) => {
     [plateEditorHelper],
   )
 
+  const renderHeader = useCallback(
+    ({ close }: RenderHeaderProps) => (
+      <SheetHeader>
+        <SheetTitle className="sr-only">Risk</SheetTitle>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <PanelRightClose size={16} className="cursor-pointer" onClick={close} />
+          </div>
+          <div className="flex items-center gap-2 mr-6">
+            <Button
+              variant="secondary"
+              icon={<ExternalLink />}
+              iconPosition="left"
+              onClick={() => {
+                if (entityId) router.push(`/exposure/risks/${entityId}`)
+              }}
+            >
+              Open Full
+            </Button>
+          </div>
+        </div>
+      </SheetHeader>
+    ),
+    [entityId, router],
+  )
+
   const renderFields = useCallback(
     ({ isEditing, isCreate, data: risk, handleUpdateField, isEditAllowed }: RenderFieldsProps<RiskFieldsFragment, UpdateRiskInput>) => {
       return (
@@ -106,13 +122,12 @@ const ViewRiskSheet: React.FC<Props> = ({ entityId, onClose }) => {
     basePath: '/exposure/risks',
     data: entityId ? data?.risk : undefined,
     isFetching: isLoading,
-    updateMutation,
-    createMutation,
     onClose,
     buildPayload,
     normalizeData,
     getName,
     renderFields,
+    renderHeader,
   }
 
   return <GenericDetailsSheet onClose={onClose} {...sheetConfig} />
