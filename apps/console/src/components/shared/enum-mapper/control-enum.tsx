@@ -2,29 +2,21 @@ import {
   Archive,
   ArrowUpFromDot,
   BinocularsIcon,
+  BookMarked,
   Circle,
-  CircleDot,
   FileBadge2,
   FilePenLine,
-  FileText,
-  Folder,
   FolderIcon,
   FolderSymlink,
   FolderTree,
-  Key,
-  Link,
-  MessageCircle,
+  IdCard,
   RefreshCw,
   RouteOff,
   ScanEye,
   Settings2,
   Shapes,
-  ShieldCheck,
   Stamp,
-  Tag,
   ThumbsUp,
-  UsersRound,
-  type LucideIcon,
 } from 'lucide-react'
 import { type ControlControlSource, ControlControlStatus, ControlImplementationDocumentStatus } from '@repo/codegen/src/schema.ts'
 import { getEnumLabel } from './common-enum'
@@ -92,20 +84,6 @@ export enum ControlsFilterIconName {
   Comments = 'Comments',
 }
 
-export const FilterIcons: Record<ControlsFilterIconName, LucideIcon> = {
-  [ControlsFilterIconName.RefCode]: Key,
-  [ControlsFilterIconName.Program]: FileText,
-  [ControlsFilterIconName.Category]: Folder,
-  [ControlsFilterIconName.Subcategory]: FolderTree,
-  [ControlsFilterIconName.Status]: CircleDot,
-  [ControlsFilterIconName.Standard]: FileBadge2,
-  [ControlsFilterIconName.Owners]: UsersRound,
-  [ControlsFilterIconName.ProgramName]: ShieldCheck,
-  [ControlsFilterIconName.Type]: Tag,
-  [ControlsFilterIconName.LinkedPolicies]: Link,
-  [ControlsFilterIconName.Comments]: MessageCircle,
-}
-
 // Status options for select dropdowns
 export const ControlStatusOptions = Object.values(ControlControlStatus).map((status) => ({
   label: getEnumLabel(status),
@@ -140,9 +118,11 @@ export const controlIconsMap: Record<string, React.ReactNode> = {
   Framework: <FileBadge2 size={16} className="text-brand" />,
   Control: <Settings2 size={16} className="text-brand" />,
   Category: <FolderIcon size={16} className="text-brand" />,
-  Subcategory: <FolderIcon size={16} className="text-brand" />,
+  Subcategory: <FolderTree size={16} className="text-brand" />,
   Status: <BinocularsIcon size={16} className="text-brand" />,
   'Mapped categories': <FolderSymlink size={16} className="text-brand" />,
   Source: <ArrowUpFromDot size={16} className="text-brand" />,
   Type: <Shapes size={16} className="text-brand" />,
+  ID: <IdCard size={16} className="text-brand" />,
+  Reference: <BookMarked size={16} className="text-brand" />,
 }

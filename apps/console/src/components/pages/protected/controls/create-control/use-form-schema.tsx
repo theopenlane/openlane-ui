@@ -21,6 +21,7 @@ export const controlFormSchema = z.object({
   auditorReferenceID: z.string().optional(),
   desiredOutcome: z.any(),
   details: z.any(),
+  publicRepresentation: z.any().optional(),
 })
 
 export const createControlFormSchema = (isCreateSubcontrol: boolean) =>
