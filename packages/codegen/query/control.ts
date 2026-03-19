@@ -135,6 +135,7 @@ export const CONTROL_LIST_STANDARDS_FIELDS_FRAGMENT = gql`
         }
       }
     }
+    trustCenterVisibility
   }
 `
 

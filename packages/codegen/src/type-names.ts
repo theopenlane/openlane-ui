@@ -1,6 +1,6 @@
 // This file is auto-generated. Do not edit manually.
 
-import { ActionPlan, Assessment, Asset, Campaign, Control, ControlImplementation, ControlObjective, EmailBranding, Entity, Evidence, Finding, Group, IdentityHolder, InternalPolicy, MappedControl, Narrative, PageInfo, Platform, Procedure, Program, Remediation, Review, Risk, Scan, Subcontrol, TrustCenter, TrustCenterCompliance, TrustCenterDoc, TrustCenterEntity, TrustCenterFaq, TrustCenterNdaRequest, TrustCenterSetting, TrustCenterSubprocessor, TrustCenterWatermarkConfig, Vulnerability, WorkflowDefinition } from './schema'
+import { ActionPlan, Assessment, Asset, Campaign, Control, ControlImplementation, ControlObjective, EmailBranding, Entity, Evidence, Finding, Group, IdentityHolder, InternalPolicy, MappedControl, Narrative, PageInfo, Platform, Procedure, Program, Remediation, Review, Risk, Scan, SlaDefinition, Subcontrol, TrustCenter, TrustCenterCompliance, TrustCenterDoc, TrustCenterEntity, TrustCenterFaq, TrustCenterNdaRequest, TrustCenterSetting, TrustCenterSubprocessor, TrustCenterWatermarkConfig, Vulnerability, WorkflowDefinition } from './schema'
 import { GET_ALL_ACTION_PLANS } from '@repo/codegen/query/action-plan'
 import { GET_ALL_ASSESSMENTS } from '@repo/codegen/query/assessment'
 import { GET_ALL_ASSETS } from '@repo/codegen/query/asset'
@@ -100,6 +100,7 @@ export enum ObjectTypes {
   REMEDIATION = 'Remediation',
   REVIEW = 'Review',
   RISK = 'Risk',
+  SLA_DEFINITION = 'SlaDefinition',
   SCAN = 'Scan',
   SCHEDULED_JOB = 'ScheduledJob',
   SCHEDULED_JOB_RUN = 'ScheduledJobRun',
@@ -199,6 +200,7 @@ export enum ObjectNames {
   REMEDIATION = 'Remediation',
   REVIEW = 'Review',
   RISK = 'Risk',
+  SLA_DEFINITION = 'Sla Definition',
   SCAN = 'Scan',
   SCHEDULED_JOB = 'Scheduled Job',
   SCHEDULED_JOB_RUN = 'Scheduled Job Run',
@@ -254,6 +256,7 @@ export enum TypesWithPermissions {
   REMEDIATION = 'Remediation',
   REVIEW = 'Review',
   RISK = 'Risk',
+  SLA_DEFINITION = 'SlaDefinition',
   SCAN = 'Scan',
   TRUST_CENTER = 'TrustCenter',
   TRUST_CENTER_COMPLIANCE = 'TrustCenterCompliance',
@@ -366,6 +369,11 @@ export type PermissionsAllQueriesData = {
   }
   risks?: {
     edges?: Array<{ node: Risk }>
+    pageInfo?: PageInfo
+    totalCount?: number
+  }
+  slaDefinitions?: {
+    edges?: Array<{ node: SlaDefinition }>
     pageInfo?: PageInfo
     totalCount?: number
   }
@@ -646,6 +654,16 @@ export const OBJECT_TYPE_PERMISSIONS_CONFIG: Record<TypesWithPermissions, Object
     roleOptions: ['View', 'Edit', 'Blocked'],
     responseObjectKey: 'risks',
     queryDocument: GET_ALL_RISKS,
+    objectName: 'name',
+    searchAttribute: 'nameContainsFold',
+    inputPlaceholder: 'name',
+    excludeViewersInFilter: false,
+    extraTableColumns: undefined,
+  },
+  [TypesWithPermissions.SLA_DEFINITION]: {
+    roleOptions: ['View', 'Edit', 'Blocked'],
+    responseObjectKey: 'slaDefinitions',
+    queryDocument: '',
     objectName: 'name',
     searchAttribute: 'nameContainsFold',
     inputPlaceholder: 'name',
