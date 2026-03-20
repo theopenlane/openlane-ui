@@ -90,7 +90,7 @@ const DefaultOrgForm = () => {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Default Organization</FormLabel>
-                <div className="flex items-center w-80 gap-4">
+                <div className="flex items-center w-90 gap-4">
                   <FormControl>
                     <Select value={field.value} onValueChange={(value) => field.onChange(value)}>
                       <SelectTrigger>
@@ -105,7 +105,7 @@ const DefaultOrgForm = () => {
                       </SelectContent>
                     </Select>
                   </FormControl>
-                  <SaveButton title={isSubmitting ? 'Saving' : isSuccess ? 'Saved' : 'Save'} />
+                  <SaveButton className="min-w-20" title={isSubmitting ? 'Saving' : isSuccess ? 'Saved' : 'Save'} />
                 </div>
                 <FormMessage />
               </FormItem>
