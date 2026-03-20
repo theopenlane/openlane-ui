@@ -105,22 +105,24 @@ const ReportsAndCertificationsPage = () => {
       <CreateDocumentSheet />
 
       {showCreatePanel && (
-        <Panel align="center" justify="center" textAlign="center" className="mb-4 pt-10">
+        <Panel align="center" justify="center" textAlign="left" className="mb-4 pt-10">
           <PanelHeader
             className="border-0"
             heading="Add Documents to Your Trust Center"
             subheading={
-              <div className="space-y-2 text-sm text-left">
-                <p>Share security reports, certifications, and policies to help customers evaluate your security posture.</p>
-                <p>Documents can be shared publicly or securely behind an NDA.</p>
-                <p className="font-medium mt-3">Examples of documents customers often request:</p>
-                <ul className="list-disc list-inside text-left inline-block">
-                  <li>SOC 2 Report</li>
-                  <li>ISO 27001 Certificate</li>
-                  <li>Penetration Test Summary</li>
-                  <li>Security Overview</li>
-                  <li>Data Processing Agreement (DPA)</li>
-                </ul>
+              <div className="space-y-3 text-sm">
+                <p className="text-sm text-muted-foreground">
+                  Share security reports, certifications, and policies to help customers evaluate your security posture. Documents can be shared publicly or securely behind an NDA.
+                </p>
+                <hr className="border-border" />
+                <p className="font-medium">Common documents:</p>
+                <div className="flex flex-wrap gap-2">
+                  {['SOC 2 Report', 'Pen Test', 'Security Overview', 'DPA'].map((doc) => (
+                    <span key={doc} className="inline-flex items-center rounded-full border border-border px-3 py-1 text-xs font-medium text-muted-foreground">
+                      {doc}
+                    </span>
+                  ))}
+                </div>
               </div>
             }
           />
