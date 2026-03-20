@@ -79,6 +79,9 @@ export interface GenericDetailsSheetConfig<TFormData extends FieldValues, TData,
   renderFields?: (props: RenderFieldsProps<TData, TUpdateInput>) => React.ReactNode
   renderHeader?: (props: RenderHeaderProps) => React.ReactNode
   extraContent?: React.ReactNode
+  extraHeaderActions?: React.ReactNode
+  overrideContent?: React.ReactNode
+  overrideHeader?: React.ReactNode
   minWidth?: string | number
   initialWidth?: string | number
 }
@@ -107,6 +110,9 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
     renderHeader,
     renderFields,
     extraContent,
+    extraHeaderActions,
+    overrideContent,
+    overrideHeader,
     onClose,
     entityId: entityIdOverride,
     isCreateMode,
@@ -295,7 +301,9 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
           minWidth={minWidthOverride ?? '40vw'}
           initialWidth={initialWidthOverride ?? '60vw'}
           header={
-            renderHeader ? (
+            overrideHeader ? (
+              overrideHeader
+            ) : renderHeader ? (
               renderHeader({
                 close: handleSheetClose,
                 isEditing,
@@ -321,12 +329,15 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
                 onDelete={handleDelete}
                 entityId={id}
                 basePath={basePath}
+                extraActions={extraHeaderActions}
               />
             )
           }
         >
           {isFetching && !isCreate ? (
             <GenericDetailsSheetSkeleton />
+          ) : overrideContent ? (
+            overrideContent
           ) : (
             <>
               <Form {...form}>

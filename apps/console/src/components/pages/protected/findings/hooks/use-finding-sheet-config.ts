@@ -2,7 +2,7 @@
 
 import { useCallback } from 'react'
 import useFormSchema from './use-form-schema'
-import { type FindingsNodeNonNull, useFinding, useUpdateFinding, useCreateFinding, useGetFindingAssociations } from '@/lib/graphql-hooks/finding'
+import { type FindingsNodeNonNull, useFinding, useUpdateFinding, useCreateFinding, useBulkDeleteFinding, useGetFindingAssociations } from '@/lib/graphql-hooks/finding'
 import { getFieldsToRender } from '../table/table-config'
 import { type FindingSheetConfig, type FindingFieldProps, type EnumOptions, objectType } from '../table/types'
 import { type CreateFindingInput, type UpdateFindingInput, type GetFindingAssociationsQuery } from '@repo/codegen/src/schema'
@@ -35,6 +35,7 @@ export const useFindingSheetConfig = (entityId: string | null | undefined, isCre
 
   const baseUpdateMutation = useUpdateFinding()
   const baseCreateMutation = useCreateFinding()
+  const baseDeleteMutation = useBulkDeleteFinding()
 
   const updateMutation = {
     isPending: baseUpdateMutation.isPending,
@@ -66,6 +67,13 @@ export const useFindingSheetConfig = (entityId: string | null | undefined, isCre
     isFetching: isLoading,
     updateMutation,
     createMutation,
+    deleteMutation: {
+      isPending: baseDeleteMutation.isPending,
+      mutateAsync: async ({ ids }) => {
+        await baseDeleteMutation.mutateAsync({ ids })
+        return ids
+      },
+    },
     buildPayload: async (formData) => {
       const { controlIDs, subcontrolIDs, riskIDs, programIDs, taskIDs, assetIDs, scanIDs, remediationIDs, reviewIDs, ...rest } = formData
       const associationPayload = buildAssociationPayload(

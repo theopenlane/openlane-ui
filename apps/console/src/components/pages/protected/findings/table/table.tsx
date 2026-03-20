@@ -1,8 +1,8 @@
 'use client'
 
 import { DataTable } from '@repo/ui/data-table'
-import React, { useEffect, useMemo } from 'react'
-import { type FindingWhereInput, type Finding, type FindingOrderField } from '@repo/codegen/src/schema'
+import React, { useEffect, useMemo, useState } from 'react'
+import { type FindingWhereInput, type Finding, type FindingOrderField, TaskTaskStatus } from '@repo/codegen/src/schema'
 import { getColumns } from '@/components/pages/protected/findings/table/columns.tsx'
 import { type FindingsNodeNonNull, useFindingsWithFilter } from '@/lib/graphql-hooks/finding'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
@@ -11,6 +11,9 @@ import { useNotification } from '@/hooks/useNotification'
 import { FINDINGS_SORT_FIELDS } from './table-config'
 import { type TTableProps } from '@/components/shared/crud-base/page'
 import { objectName, tableKey } from './types'
+import { useSession } from 'next-auth/react'
+import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/create-task-dialog'
+import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
 
 const TableComponent = ({
   onSortChange,
@@ -28,6 +31,9 @@ const TableComponent = ({
   defaultSorting,
 }: TTableProps<FindingWhereInput>) => {
   const { replace } = useSmartRouter()
+  const { data: session } = useSession()
+  const { errorNotification } = useNotification()
+  const [createTaskRow, setCreateTaskRow] = useState<FindingsNodeNonNull | null>(null)
 
   const orderBy = useMemo(() => {
     if (!orderByFilter) return undefined
@@ -49,8 +55,6 @@ const TableComponent = ({
     pagination,
     enabled: true,
   })
-
-  const { errorNotification } = useNotification()
 
   const userIds = useMemo(() => {
     if (!items) return []
@@ -102,30 +106,73 @@ const TableComponent = ({
     return map
   }, [users])
 
-  const columns = useMemo(() => getColumns({ userMap, selectedItems, setSelectedItems }), [userMap, selectedItems, setSelectedItems])
+  const handleTrackRemediation = (row: FindingsNodeNonNull) => {
+    replace({ id: row.id, trackRemediation: 'true' })
+  }
+
+  const handleCreateTask = (row: FindingsNodeNonNull) => {
+    setCreateTaskRow(row)
+  }
+
+  const columns = useMemo(
+    () => getColumns({ userMap, selectedItems, setSelectedItems, onTrackRemediation: handleTrackRemediation, onCreateTask: handleCreateTask }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [userMap, selectedItems, setSelectedItems],
+  )
+
+  const createTaskInitialValues = useMemo(() => {
+    if (!createTaskRow) return undefined
+    const displayName = createTaskRow.displayName || createTaskRow.displayID || createTaskRow.externalID || 'Finding'
+    return {
+      title: `Finding: ${displayName} Remediation`,
+      taskKindName: 'Finding Remediation',
+      assigneeID: session?.user?.id,
+      status: TaskTaskStatus.OPEN,
+    }
+  }, [createTaskRow, session?.user?.id])
+
+  const createTaskInitialData = useMemo(() => {
+    if (!createTaskRow) return undefined
+    return { findingIDs: [createTaskRow.id] }
+  }, [createTaskRow])
 
   return (
-    <DataTable<FindingsNodeNonNull, Finding>
-      columns={columns}
-      sortFields={FINDINGS_SORT_FIELDS}
-      onSortChange={onSortChange}
-      data={items}
-      loading={fetching || fetchingUsers}
-      defaultSorting={defaultSorting}
-      onRowClick={(item) => {
-        replace({ id: item.id })
-      }}
-      pagination={pagination}
-      onPaginationChange={onPaginationChange}
-      paginationMeta={{
-        totalCount: data?.findings.totalCount,
-        pageInfo: data?.findings?.pageInfo,
-        isLoading: isFetching,
-      }}
-      columnVisibility={columnVisibility}
-      setColumnVisibility={setColumnVisibility}
-      tableKey={tableKey}
-    />
+    <>
+      <DataTable<FindingsNodeNonNull, Finding>
+        columns={columns}
+        sortFields={FINDINGS_SORT_FIELDS}
+        onSortChange={onSortChange}
+        data={items}
+        loading={fetching || fetchingUsers}
+        defaultSorting={defaultSorting}
+        onRowClick={(item) => {
+          replace({ id: item.id })
+        }}
+        pagination={pagination}
+        onPaginationChange={onPaginationChange}
+        paginationMeta={{
+          totalCount: data?.findings.totalCount,
+          pageInfo: data?.findings?.pageInfo,
+          isLoading: isFetching,
+        }}
+        columnVisibility={columnVisibility}
+        setColumnVisibility={setColumnVisibility}
+        tableKey={tableKey}
+      />
+      <CreateTaskDialog
+        open={!!createTaskRow}
+        onOpenChange={(open) => {
+          if (!open) setCreateTaskRow(null)
+        }}
+        initialValues={createTaskInitialValues}
+        initialData={createTaskInitialData}
+        defaultSelectedObject={ObjectTypeObjects.FINDING}
+        onSuccessWithId={(taskId) => {
+          setCreateTaskRow(null)
+          replace({ taskId })
+        }}
+      />
+    </>
   )
 }
 
