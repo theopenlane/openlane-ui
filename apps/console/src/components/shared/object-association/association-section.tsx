@@ -1,24 +1,16 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { useQueryClient } from '@tanstack/react-query'
 import AssociatedObjectsAccordion from '@/components/shared/object-association/associated-objects-accordion'
-import { type Section, type TBaseAssociatedNode, ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types'
+import { type Section, type TBaseAssociatedNode } from '@/components/shared/object-association/types/object-association-types'
 import { ASSOCIATION_REMOVAL_CONFIG, type ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
 import { useAssociationRemoval } from '@/hooks/useAssociationRemoval'
 import { Panel, PanelHeader } from '@repo/ui/panel'
 import ObjectAssociation from '@/components/shared/object-association/object-association'
 import { type TAssociationUpdateInput, type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
 import { SetAssociationDialog, type SetAssociationDialogConfig } from '@/components/shared/object-association/set-association-dialog'
-import { ViewPolicySheet } from '@/components/pages/protected/policies/view-policy-sheet'
-import { ViewProcedureSheet } from '@/components/pages/protected/procedures/view-procedure-sheet'
-import ViewVulnerabilitySheet from '@/components/pages/protected/vulnerabilities/view-vulnerability-sheet'
-import ViewRiskSheet from '@/components/pages/protected/risks/view-risk-sheet'
-import ViewScanSheet from '@/components/pages/protected/scans/view-scan-sheet'
-import ViewFindingSheet from '@/components/pages/protected/findings/view-finding-sheet'
-import ViewRemediationSheet from '@/components/pages/protected/remediations/view-remediation-sheet'
-import ViewAssetSheet from '@/components/pages/protected/assets/view-asset-sheet'
 
 export type BaseAssociationSectionProps = {
   data?: { id: string }
@@ -108,7 +100,6 @@ export const AssociationSection = <TConfig extends AssociationEntityConfig>({
   type TRootField = TConfig['dataRootField']
 
   const entityId = data?.id
-  const [activeSheet, setActiveSheet] = useState<{ id: string; kind: string } | null>(null)
   const form = useFormContext<Record<string, string[]>>()
   const queryClient = useQueryClient()
   const setAssociationValue = form.setValue as (name: string, value: string[], options?: { shouldDirty?: boolean }) => void
@@ -212,17 +203,7 @@ export const AssociationSection = <TConfig extends AssociationEntityConfig>({
         <PanelHeader heading="Associated Objects" noBorder />
         {isEditAllowed && entityId && <SetAssociationDialog config={config.dialogConfig} associationsData={associationsData} onUpdate={onUpdateEntity} />}
       </div>
-      {hasSections && (
-        <AssociatedObjectsAccordion sections={sections} toggleAll={false} removable={isEditAllowed} onRemove={handleRemoveAssociation} onItemClick={(id, kind) => setActiveSheet({ id, kind })} />
-      )}
-      {activeSheet?.kind === ObjectAssociationNodeEnum.POLICY && <ViewPolicySheet policyId={activeSheet.id} onClose={() => setActiveSheet(null)} />}
-      {activeSheet?.kind === ObjectAssociationNodeEnum.PROCEDURE && <ViewProcedureSheet procedureId={activeSheet.id} onClose={() => setActiveSheet(null)} />}
-      {activeSheet?.kind === ObjectAssociationNodeEnum.VULNERABILITY && <ViewVulnerabilitySheet entityId={activeSheet.id} onClose={() => setActiveSheet(null)} />}
-      {activeSheet?.kind === ObjectAssociationNodeEnum.RISKS && <ViewRiskSheet entityId={activeSheet.id} onClose={() => setActiveSheet(null)} />}
-      {activeSheet?.kind === ObjectAssociationNodeEnum.SCAN && <ViewScanSheet entityId={activeSheet.id} onClose={() => setActiveSheet(null)} />}
-      {activeSheet?.kind === ObjectAssociationNodeEnum.FINDING && <ViewFindingSheet entityId={activeSheet.id} onClose={() => setActiveSheet(null)} />}
-      {activeSheet?.kind === ObjectAssociationNodeEnum.REMEDIATION && <ViewRemediationSheet entityId={activeSheet.id} onClose={() => setActiveSheet(null)} />}
-      {activeSheet?.kind === ObjectAssociationNodeEnum.ASSET && <ViewAssetSheet entityId={activeSheet.id} onClose={() => setActiveSheet(null)} />}
+      {hasSections && <AssociatedObjectsAccordion sections={sections} toggleAll={false} removable={isEditAllowed} onRemove={handleRemoveAssociation} />}
     </Panel>
   )
 }

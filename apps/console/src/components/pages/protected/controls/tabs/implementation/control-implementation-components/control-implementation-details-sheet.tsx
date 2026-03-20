@@ -19,12 +19,15 @@ import { Loading } from '@/components/shared/loading/loading'
 
 type Props = {
   queryParamKey?: string
+  entityId?: string | null
+  onClose?: () => void
 }
 
-const ControlImplementationDetailsSheet: React.FC<Props> = ({ queryParamKey = 'controlImplementationId' }) => {
+const ControlImplementationDetailsSheet: React.FC<Props> = ({ queryParamKey = 'controlImplementationId', entityId: entityIdProp, onClose: onCloseProp }) => {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const entityId = searchParams.get(queryParamKey)
+  const entityIdFromUrl = searchParams.get(queryParamKey)
+  const entityId = entityIdProp !== undefined ? entityIdProp : entityIdFromUrl
 
   const { data: node, isLoading } = useGetControlImplementationById(entityId)
   const { mutateAsync: updateImplementation, isPending: isUpdating } = useUpdateControlImplementation()
@@ -38,6 +41,10 @@ const ControlImplementationDetailsSheet: React.FC<Props> = ({ queryParamKey = 'c
   const [associationsOpen, setAssociationsOpen] = useState(false)
 
   const handleClose = () => {
+    if (onCloseProp) {
+      onCloseProp()
+      return
+    }
     const params = new URLSearchParams(searchParams.toString())
     params.delete(queryParamKey)
     router.replace(`${window.location.pathname}?${params.toString()}`)

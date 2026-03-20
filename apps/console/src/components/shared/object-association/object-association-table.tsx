@@ -18,9 +18,10 @@ type Props = {
   onPaginationChange?: (arg: TPagination) => void
   paginationMeta?: TPaginationMeta
   isLoading?: boolean
+  onRowClick?: (id: string) => void
 }
 
-const ObjectAssociationTable = ({ data, onIDsChange, initialData, refCodeInitialData, onPaginationChange, pagination, paginationMeta, isLoading }: Props) => {
+const ObjectAssociationTable = ({ data, onIDsChange, initialData, refCodeInitialData, onPaginationChange, pagination, paginationMeta, isLoading, onRowClick }: Props) => {
   const [selectedIdsMap, setSelectedIdsMap] = useState<TObjectAssociationMap>({})
   const [selectedRefCodeMap, setSelectedRefCodeMap] = useState<TObjectAssociationMap>({})
 
@@ -149,6 +150,7 @@ const ObjectAssociationTable = ({ data, onIDsChange, initialData, refCodeInitial
       data={tableData}
       wrapperClass="max-h-96 overflow-auto"
       tableKey={TableKeyEnum.OBJECT_ASSOCIATION}
+      onRowClick={onRowClick ? (row) => row.id && onRowClick(row.id) : undefined}
     />
   )
 }

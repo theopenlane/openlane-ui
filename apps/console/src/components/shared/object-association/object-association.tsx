@@ -1,6 +1,8 @@
 'use client'
 
 import { useMemo, useState } from 'react'
+import ControlObjectiveDetailsSheet from '@/components/pages/protected/controls/tabs/implementation/control-objectives-components/control-objective-details-sheet'
+import ControlImplementationDetailsSheet from '@/components/pages/protected/controls/tabs/implementation/control-implementation-components/control-implementation-details-sheet'
 import { Label } from '@repo/ui/label'
 import { Input } from '@repo/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
@@ -41,6 +43,7 @@ const ObjectAssociation = ({ onIdChange, allowedObjectTypes, initialData, refCod
   const [searchValue, setSearchValue] = useState('')
   const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(TableKeyEnum.OBJECT_ASSOCIATION, initialPagination))
   const debouncedSearchValue = useDebounce(searchValue, 300)
+  const [activeSheet, setActiveSheet] = useState<{ id: string; type: ObjectTypeObjects } | null>(null)
 
   const selectedConfig = selectedObject ? OBJECT_QUERY_CONFIG[selectedObject] : null
   const selectedQuery = selectedConfig?.queryDocument || ''
@@ -107,12 +110,17 @@ const ObjectAssociation = ({ onIdChange, allowedObjectTypes, initialData, refCod
           onIDsChange={onIdChange}
           initialData={initialData}
           refCodeInitialData={refCodeInitialData}
+          onRowClick={
+            selectedObject === ObjectTypeObjects.CONTROL_OBJECTIVE || selectedObject === ObjectTypeObjects.CONTROL_IMPLEMENTATION ? (id) => setActiveSheet({ id, type: selectedObject }) : undefined
+          }
         />
       ) : (
         <div className="flex items-center justify-center w-full">
           <ObjectAssociationPlaceholder />
         </div>
       )}
+      {activeSheet?.type === ObjectTypeObjects.CONTROL_OBJECTIVE && <ControlObjectiveDetailsSheet entityId={activeSheet.id} onClose={() => setActiveSheet(null)} />}
+      {activeSheet?.type === ObjectTypeObjects.CONTROL_IMPLEMENTATION && <ControlImplementationDetailsSheet entityId={activeSheet.id} onClose={() => setActiveSheet(null)} />}
     </div>
   )
 }

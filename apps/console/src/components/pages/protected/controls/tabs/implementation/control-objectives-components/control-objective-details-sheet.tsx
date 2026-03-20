@@ -19,12 +19,15 @@ import { Loading } from '@/components/shared/loading/loading'
 
 type Props = {
   queryParamKey?: string
+  entityId?: string | null
+  onClose?: () => void
 }
 
-const ControlObjectiveDetailsSheet: React.FC<Props> = ({ queryParamKey = 'controlObjectiveId' }) => {
+const ControlObjectiveDetailsSheet: React.FC<Props> = ({ queryParamKey = 'controlObjectiveId', entityId: entityIdProp, onClose: onCloseProp }) => {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const entityId = searchParams.get(queryParamKey)
+  const entityIdFromUrl = searchParams.get(queryParamKey)
+  const entityId = entityIdProp !== undefined ? entityIdProp : entityIdFromUrl
 
   const { data: node, isLoading } = useGetControlObjectiveById(entityId)
   const { mutateAsync: updateObjective } = useUpdateControlObjective()
@@ -37,6 +40,10 @@ const ControlObjectiveDetailsSheet: React.FC<Props> = ({ queryParamKey = 'contro
   const [showEditSheet, setShowEditSheet] = useState(false)
 
   const handleClose = () => {
+    if (onCloseProp) {
+      onCloseProp()
+      return
+    }
     const params = new URLSearchParams(searchParams.toString())
     params.delete(queryParamKey)
     router.replace(`${window.location.pathname}?${params.toString()}`)

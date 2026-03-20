@@ -486,7 +486,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
                                 <div className="flex items-center gap-2 cursor-pointer group">
                                   <ChevronDown size={22} className="text-brand transform -rotate-90 transition-transform group-data-[state=open]:rotate-0" />
                                   <span className="text-sm font-medium">Linked Control(s)</span>
-                                  <span className="rounded-full border border-border text-xs text-muted-foreground flex justify-center items-center h-[26px] w-[26px]">
+                                  <span className="rounded-full border border-border text-xs text-muted-foreground flex justify-center items-center h-6.5 w-6.5">
                                     {(form.getValues('subcontrolIDs')?.length || 0) + (form.getValues('controlIDs')?.length || 0)}
                                   </span>
                                 </div>
@@ -542,7 +542,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
                                 <div className="flex items-center gap-2 cursor-pointer group">
                                   <ChevronDown size={22} className="text-brand transform -rotate-90 transition-transform group-data-[state=open]:rotate-0" />
                                   <span className="text-sm font-medium">Linked Program(s)</span>
-                                  <span className="rounded-full border border-border text-xs text-muted-foreground flex justify-center items-center h-[26px] w-[26px]">
+                                  <span className="rounded-full border border-border text-xs text-muted-foreground flex justify-center items-center h-6.5 w-6.5">
                                     {form.getValues('programIDs')?.length || 0}
                                   </span>
                                 </div>

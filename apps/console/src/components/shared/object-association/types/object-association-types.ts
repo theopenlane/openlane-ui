@@ -33,6 +33,8 @@ export type TCenterNode = {
 export enum ObjectAssociationNodeEnum {
   CONTROL = 'controls',
   SUBCONTROL = 'subcontrols',
+  CONTROL_OBJECTIVE = 'controlObjectives',
+  CONTROL_IMPLEMENTATION = 'controlImplementations',
   POLICY = 'policies',
   PROCEDURE = 'procedures',
   RISKS = 'risks',

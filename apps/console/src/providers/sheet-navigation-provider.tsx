@@ -10,6 +10,10 @@ import ViewScanSheet from '@/components/pages/protected/scans/view-scan-sheet'
 import ViewFindingSheet from '@/components/pages/protected/findings/view-finding-sheet'
 import ViewRemediationSheet from '@/components/pages/protected/remediations/view-remediation-sheet'
 import ViewAssetSheet from '@/components/pages/protected/assets/view-asset-sheet'
+import ControlObjectiveDetailsSheet from '@/components/pages/protected/controls/tabs/implementation/control-objectives-components/control-objective-details-sheet'
+import ControlImplementationDetailsSheet from '@/components/pages/protected/controls/tabs/implementation/control-implementation-components/control-implementation-details-sheet'
+
+export const FULL_PAGE_KINDS = new Set<string>([ObjectAssociationNodeEnum.CONTROL, ObjectAssociationNodeEnum.SUBCONTROL])
 
 export const SHEET_KINDS = new Set<string>([
   ObjectAssociationNodeEnum.POLICY,
@@ -20,6 +24,8 @@ export const SHEET_KINDS = new Set<string>([
   ObjectAssociationNodeEnum.FINDING,
   ObjectAssociationNodeEnum.REMEDIATION,
   ObjectAssociationNodeEnum.ASSET,
+  ObjectAssociationNodeEnum.CONTROL_OBJECTIVE,
+  ObjectAssociationNodeEnum.CONTROL_IMPLEMENTATION,
 ])
 
 type SheetNavigationContextValue = {
@@ -35,6 +41,7 @@ type ActiveSheet = { id: string; kind: string } | null
 const renderSheet = (activeSheet: ActiveSheet, onClose: () => void) => {
   if (!activeSheet) return null
   const { id, kind } = activeSheet
+
   switch (kind) {
     case ObjectAssociationNodeEnum.POLICY:
       return <ViewPolicySheet policyId={id} onClose={onClose} />
@@ -52,6 +59,10 @@ const renderSheet = (activeSheet: ActiveSheet, onClose: () => void) => {
       return <ViewRemediationSheet entityId={id} onClose={onClose} />
     case ObjectAssociationNodeEnum.ASSET:
       return <ViewAssetSheet entityId={id} onClose={onClose} />
+    case ObjectAssociationNodeEnum.CONTROL_OBJECTIVE:
+      return <ControlObjectiveDetailsSheet entityId={id} onClose={onClose} />
+    case ObjectAssociationNodeEnum.CONTROL_IMPLEMENTATION:
+      return <ControlImplementationDetailsSheet entityId={id} onClose={onClose} />
     default:
       return null
   }

@@ -9,14 +9,6 @@ import SetObjectAssociationPoliciesDialog from '@/components/pages/protected/pol
 import SetObjectAssociationProceduresDialog from '@/components/pages/protected/procedures/modal/set-object-association-modal.tsx'
 import SetObjectAssociationRisksDialog from '@/components/pages/protected/risks/modal/set-object-association-modal'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
-import { ViewPolicySheet } from '@/components/pages/protected/policies/view-policy-sheet'
-import { ViewProcedureSheet } from '@/components/pages/protected/procedures/view-procedure-sheet'
-import ViewVulnerabilitySheet from '@/components/pages/protected/vulnerabilities/view-vulnerability-sheet'
-import ViewRiskSheet from '@/components/pages/protected/risks/view-risk-sheet'
-import ViewScanSheet from '@/components/pages/protected/scans/view-scan-sheet'
-import ViewFindingSheet from '@/components/pages/protected/findings/view-finding-sheet'
-import ViewRemediationSheet from '@/components/pages/protected/remediations/view-remediation-sheet'
-import ViewAssetSheet from '@/components/pages/protected/assets/view-asset-sheet'
 
 type TObjectAssociationSwitchProps = {
   controlId?: string
@@ -32,11 +24,6 @@ const ObjectAssociationSwitch: React.FC<TObjectAssociationSwitchProps> = ({ sect
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false)
   const [activeGroup, setActiveGroup] = useState<string | null>(null)
   const clearGroupRef = useRef<(() => void) | null>(null)
-  const [activeSheet, setActiveSheet] = useState<{ id: string; kind: string } | null>(null)
-
-  const handleItemClick = (id: string, kind: string) => {
-    setActiveSheet({ id, kind })
-  }
 
   const handleAssociationDialog = () => {
     if (!canEdit) {
@@ -109,7 +96,7 @@ const ObjectAssociationSwitch: React.FC<TObjectAssociationSwitchProps> = ({ sect
       </div>
 
       {!isGraphView ? (
-        <AssociatedObjectsAccordion sections={sections} toggleAll={toggleAll} removable={canEdit && !!onRemoveAssociation} onRemove={onRemoveAssociation} onItemClick={handleItemClick} />
+        <AssociatedObjectsAccordion sections={sections} toggleAll={toggleAll} removable={canEdit && !!onRemoveAssociation} onRemove={onRemoveAssociation} />
       ) : (
         <ObjectAssociationGraph
           controlId={controlId}
@@ -119,7 +106,6 @@ const ObjectAssociationSwitch: React.FC<TObjectAssociationSwitchProps> = ({ sect
           isFullscreen={isFullscreen}
           onGroupSelect={setActiveGroup}
           clearGroupRef={clearGroupRef}
-          onItemClick={handleItemClick}
           removable={canEdit && !!onRemoveAssociation}
           onRemove={onRemoveAssociation}
         />
@@ -141,14 +127,6 @@ const ObjectAssociationSwitch: React.FC<TObjectAssociationSwitchProps> = ({ sect
           {handleAssociationDialog()}
         </div>
       )}
-      {activeSheet?.kind === ObjectAssociationNodeEnum.POLICY && <ViewPolicySheet policyId={activeSheet.id} onClose={() => setActiveSheet(null)} />}
-      {activeSheet?.kind === ObjectAssociationNodeEnum.PROCEDURE && <ViewProcedureSheet procedureId={activeSheet.id} onClose={() => setActiveSheet(null)} />}
-      {activeSheet?.kind === ObjectAssociationNodeEnum.VULNERABILITY && <ViewVulnerabilitySheet entityId={activeSheet.id} onClose={() => setActiveSheet(null)} />}
-      {activeSheet?.kind === ObjectAssociationNodeEnum.RISKS && <ViewRiskSheet entityId={activeSheet.id} onClose={() => setActiveSheet(null)} />}
-      {activeSheet?.kind === ObjectAssociationNodeEnum.SCAN && <ViewScanSheet entityId={activeSheet.id} onClose={() => setActiveSheet(null)} />}
-      {activeSheet?.kind === ObjectAssociationNodeEnum.FINDING && <ViewFindingSheet entityId={activeSheet.id} onClose={() => setActiveSheet(null)} />}
-      {activeSheet?.kind === ObjectAssociationNodeEnum.REMEDIATION && <ViewRemediationSheet entityId={activeSheet.id} onClose={() => setActiveSheet(null)} />}
-      {activeSheet?.kind === ObjectAssociationNodeEnum.ASSET && <ViewAssetSheet entityId={activeSheet.id} onClose={() => setActiveSheet(null)} />}
     </div>
   )
 }

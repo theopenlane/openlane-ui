@@ -7,19 +7,10 @@ import usePlateEditor from '../plate/usePlateEditor'
 import { ExternalLink, Info, PencilLine, SlidersHorizontal, X, XIcon } from 'lucide-react'
 import { ObjectAssociationMap } from '@/components/shared/enum-mapper/object-association-enum.tsx'
 import { getHrefForObjectType, type NormalizedObject } from '@/utils/getHrefForObjectType.ts'
-import { ObjectAssociationNodeEnum, type Section, type TBaseAssociatedNode, type TEdgeNode } from '@/components/shared/object-association/types/object-association-types.ts'
+import { type Section, type TBaseAssociatedNode, type TEdgeNode } from '@/components/shared/object-association/types/object-association-types.ts'
 import { useTheme } from 'next-themes'
-
-const SHEET_KINDS = new Set<string>([
-  ObjectAssociationNodeEnum.POLICY,
-  ObjectAssociationNodeEnum.PROCEDURE,
-  ObjectAssociationNodeEnum.VULNERABILITY,
-  ObjectAssociationNodeEnum.RISKS,
-  ObjectAssociationNodeEnum.SCAN,
-  ObjectAssociationNodeEnum.FINDING,
-  ObjectAssociationNodeEnum.REMEDIATION,
-  ObjectAssociationNodeEnum.ASSET,
-])
+import { useSheetNavigation, SHEET_KINDS, FULL_PAGE_KINDS } from '@/providers/sheet-navigation-provider'
+import { useRouter } from 'next/navigation'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { toHumanLabel } from '@/utils/strings'
@@ -117,6 +108,8 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({
   onRemove,
   onItemClick,
 }) => {
+  const sheetNavigation = useSheetNavigation()
+  const router = useRouter()
   const containerRef = useRef<HTMLDivElement>(null)
   const [dimensions, setDimensions] = useState({ width: 300, height: 300 })
   const fgRef = useRef<ForceGraphMethods | undefined>(undefined)
@@ -400,8 +393,14 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({
           <div className="flex flex-col gap-1">
             {group.items.map((item: TGroupItem) => {
               const handleChipClick = () => {
-                if (onItemClick && selectedGroup && SHEET_KINDS.has(selectedGroup)) {
-                  onItemClick(item.id, selectedGroup)
+                if (selectedGroup && SHEET_KINDS.has(selectedGroup)) {
+                  if (onItemClick) {
+                    onItemClick(item.id, selectedGroup)
+                  } else {
+                    sheetNavigation?.openSheet(item.id, selectedGroup)
+                  }
+                } else if (selectedGroup && FULL_PAGE_KINDS.has(selectedGroup) && item.link) {
+                  router.push(item.link)
                 } else {
                   window.open(item.link, '_blank')
                 }
