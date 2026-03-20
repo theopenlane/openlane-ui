@@ -13,6 +13,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import AddAssetDialog from './add-asset-dialog'
+import AssetCreateSheet from '@/components/pages/protected/assets/create/asset-create-sheet'
 
 type AssetEdges = NonNullable<NonNullable<NonNullable<GetEntityAssociationsQuery['entity']>['assets']>['edges']>
 type AssetNode = NonNullable<NonNullable<AssetEdges[number]>['node']>
@@ -51,6 +52,7 @@ interface DependenciesSectionProps {
 
 const DependenciesSection: React.FC<DependenciesSectionProps> = ({ vendor, associations, canEdit }) => {
   const [showAddAssetDialog, setShowAddAssetDialog] = useState(false)
+  const [showAssetCreateSheet, setShowAssetCreateSheet] = useState(false)
   const [assetToRemove, setAssetToRemove] = useState<{ id: string; name: string } | null>(null)
   const updateEntityMutation = useUpdateEntity()
   const { successNotification, errorNotification } = useNotification()
@@ -93,7 +95,18 @@ const DependenciesSection: React.FC<DependenciesSectionProps> = ({ vendor, assoc
         )}
       </div>
       <DataTable columns={columns} data={assets} noResultsText="No assets configured" onRowClick={(row) => smartRouter.replace({ assetId: row.id })} tableKey="vendor-assets" />
-      {showAddAssetDialog && <AddAssetDialog vendorId={vendor.id} linkedAssetIds={linkedAssetIds} onClose={() => setShowAddAssetDialog(false)} />}
+      {showAddAssetDialog && (
+        <AddAssetDialog
+          vendorId={vendor.id}
+          linkedAssetIds={linkedAssetIds}
+          onClose={() => setShowAddAssetDialog(false)}
+          onCreateNew={() => {
+            setShowAddAssetDialog(false)
+            setShowAssetCreateSheet(true)
+          }}
+        />
+      )}
+      {showAssetCreateSheet && <AssetCreateSheet onClose={() => setShowAssetCreateSheet(false)} defaultEntityIDs={[vendor.id]} />}
       <ConfirmationDialog
         open={!!assetToRemove}
         onOpenChange={(open) => !open && setAssetToRemove(null)}

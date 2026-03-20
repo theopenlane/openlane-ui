@@ -6,14 +6,13 @@ import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@repo/ui/dialog'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { FormField, FormItem, FormLabel, FormControl, FormMessage, Form } from '@repo/ui/form'
+import { FormField, FormItem, FormLabel, FormControl, Form } from '@repo/ui/form'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { useNotification } from '@/hooks/useNotification'
 import { useUpdateEntity } from '@/lib/graphql-hooks/entity'
 import { useAssetsWithFilter } from '@/lib/graphql-hooks/asset'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import Link from 'next/link'
 
 const addAssetSchema = z.object({
   assetId: z.string().min(1, 'Please select an asset'),
@@ -25,9 +24,10 @@ interface AddAssetDialogProps {
   vendorId: string
   linkedAssetIds: string[]
   onClose: () => void
+  onCreateNew: () => void
 }
 
-const AddAssetDialog: React.FC<AddAssetDialogProps> = ({ vendorId, linkedAssetIds, onClose }) => {
+const AddAssetDialog: React.FC<AddAssetDialogProps> = ({ vendorId, linkedAssetIds, onClose, onCreateNew }) => {
   const { successNotification, errorNotification } = useNotification()
   const updateEntityMutation = useUpdateEntity()
   const { assetsNodes, isLoading } = useAssetsWithFilter({})
@@ -105,12 +105,12 @@ const AddAssetDialog: React.FC<AddAssetDialogProps> = ({ vendorId, linkedAssetId
                       </SelectContent>
                     </Select>
                   </FormControl>
-                  <FormMessage />
+                  {form.formState.errors.assetId?.message && <p className="text-sm text-red-500">{form.formState.errors.assetId.message}</p>}
                   <p className="text-sm text-muted-foreground">
                     Don&apos;t see the system you&apos;re looking for?{' '}
-                    <Link href="/registry/assets?create=true" className="text-primary underline hover:text-primary/80">
+                    <button type="button" onClick={onCreateNew} className="text-primary underline hover:text-primary/80">
                       Create a new asset
-                    </Link>
+                    </button>
                     .
                   </p>
                 </FormItem>
