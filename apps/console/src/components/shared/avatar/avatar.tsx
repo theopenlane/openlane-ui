@@ -18,11 +18,11 @@ export function Avatar({ variant, entity, className }: AvatarProps) {
 
   const image = (() => {
     if ('avatarFile' in entity && entity.avatarFile) {
-      if ('presignedURL' in entity.avatarFile && entity.avatarFile.presignedURL) {
-        return entity.avatarFile.presignedURL
-      }
       if ('base64' in entity.avatarFile && entity.avatarFile.base64) {
         return toBase64DataUri(entity.avatarFile.base64)
+      }
+      if ('presignedURL' in entity.avatarFile && entity.avatarFile.presignedURL) {
+        return entity.avatarFile.presignedURL
       }
     }
     if ('avatarRemoteURL' in entity) return entity.avatarRemoteURL
