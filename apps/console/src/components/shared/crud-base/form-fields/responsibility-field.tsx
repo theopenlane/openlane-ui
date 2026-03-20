@@ -140,7 +140,7 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
         const currentValue = field.value as ResponsibilitySelection
 
         return (
-          <FormItem className={layout === 'horizontal' ? 'flex items-center justify-between gap-4' : ''}>
+          <FormItem className={layout === 'horizontal' ? 'flex items-center justify-between gap-4 space-y-0' : ''}>
             <div className="flex items-center gap-2 shrink-0">
               {icon}
               <FormLabel className={cn(layout === 'horizontal' && 'mb-0!', labelClassName)}>{label}</FormLabel>

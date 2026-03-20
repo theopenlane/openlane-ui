@@ -104,10 +104,10 @@ export function StepDialog<TFormData extends FieldValues, TCreateInput, TCreateD
           <DialogTitle>{dialogTitle}</DialogTitle>
         </DialogHeader>
 
-        <StepHeader stepper={stepper} className="mb-6" />
+        <StepHeader stepper={stepper} />
 
         <FormProvider {...form}>
-          <div className="py-4">{currentStepConfig?.render()}</div>
+          <div className="pt-2">{currentStepConfig?.render()}</div>
         </FormProvider>
 
         <DialogFooter>

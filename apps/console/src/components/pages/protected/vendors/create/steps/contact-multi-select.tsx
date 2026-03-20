@@ -94,7 +94,7 @@ const ContactMultiSelect: React.FC<ContactMultiSelectProps> = ({ label = 'Contac
                   {selectedContacts.length > 0 ? (
                     selectedContacts.map((contact) => (
                       <Badge key={contact.id} variant="outline" className="flex items-center gap-1 pr-1">
-                        <span>{contact.fullName}</span>
+                        <span>{contact.fullName || contact.email || contact.id}</span>
                         <X
                           className="h-3 w-3 cursor-pointer"
                           onClick={(e) => {
@@ -125,8 +125,8 @@ const ContactMultiSelect: React.FC<ContactMultiSelectProps> = ({ label = 'Contac
                               </div>
                               <Users className="mr-2 h-4 w-4 text-muted-foreground" />
                               <div className="flex flex-col">
-                                <span>{contact.fullName}</span>
-                                {contact.email && <span className="text-xs text-muted-foreground">{contact.email}</span>}
+                                <span>{contact.fullName || contact.email || contact.id}</span>
+                                {contact.fullName && contact.email && <span className="text-xs text-muted-foreground">{contact.email}</span>}
                               </div>
                             </CommandItem>
                           )

@@ -101,7 +101,7 @@ export const TextField = <TUpdateInput,>({
       control={control}
       name={name}
       render={({ field }) => (
-        <FormItem className={cn(className, layout === 'horizontal' ? 'flex items-center justify-between gap-4' : '')}>
+        <FormItem className={cn(className, layout === 'horizontal' ? 'flex items-center justify-between gap-4 space-y-0' : '')}>
           <div className="flex items-center gap-2 shrink-0">
             {icon}
             <FormLabel className={cn(layout === 'horizontal' && 'mb-0!', labelClassName)}>{label}</FormLabel>
@@ -111,7 +111,7 @@ export const TextField = <TUpdateInput,>({
             {isFieldEditing ? (
               <Input {...field} value={field.value ?? ''} type={type} prefix={prefix} placeholder={placeholder} onBlur={handleBlur} onKeyDown={handleKeyDown} autoFocus={internalEditing === name} />
             ) : (
-              <div className={cn('text-sm py-2 rounded-md cursor-pointer px-1 w-full', type !== 'link' && 'hover:bg-accent', layout === 'horizontal' && 'text-right')} onClick={handleClick}>
+              <div className={cn('text-sm py-2 rounded-md cursor-pointer px-1 w-full hover:bg-accent', layout === 'horizontal' && 'text-right')} onClick={handleClick}>
                 {type === 'date' ? (
                   value ? (
                     formatDate(value)
@@ -122,16 +122,12 @@ export const TextField = <TUpdateInput,>({
                   formatCurrency(value)
                 ) : type === 'link' ? (
                   value ? (
-                    <a
-                      href={normalizeUrl(value)}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 hover:bg-accent bg-muted rounded-md px-2 py-1"
-                      onClick={(e) => e.stopPropagation()}
-                    >
+                    <span className="inline-flex items-center gap-1">
                       {normalizeUrl(value)}
-                      <ExternalLink className="w-4 h-4 ml-1" />
-                    </a>
+                      <a href={normalizeUrl(value)} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
+                        <ExternalLink className="w-4 h-4 ml-1" />
+                      </a>
+                    </span>
                   ) : (
                     <span className="text-muted-foreground italic">Not set</span>
                   )

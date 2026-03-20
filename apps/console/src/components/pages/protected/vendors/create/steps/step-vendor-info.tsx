@@ -8,10 +8,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
 import { EntityEntityStatus } from '@repo/codegen/src/schema'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
+import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
+import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-enum-select/creatable-custom-type-enum-select'
 import type { EditVendorFormData } from '../../hooks/use-form-schema'
 
 const StepVendorInfo: React.FC = () => {
   const form = useFormContext<EditVendorFormData>()
+  const { enumOptions: environmentOptions, onCreateOption: createEnvironment } = useCreatableEnumOptions({ field: 'environment' })
+  const { enumOptions: scopeOptions, onCreateOption: createScope } = useCreatableEnumOptions({ field: 'scope' })
 
   return (
     <div className="space-y-4">
@@ -94,7 +98,7 @@ const StepVendorInfo: React.FC = () => {
             <FormItem>
               <FormLabel>Environment</FormLabel>
               <FormControl>
-                <Input placeholder="e.g. Production" {...field} />
+                <CreatableCustomTypeEnumSelect value={field.value} options={environmentOptions} onValueChange={field.onChange} onCreateOption={createEnvironment} placeholder="Select environment" />
               </FormControl>
               {form.formState.errors.environmentName?.message && <p className="text-sm text-red-500">{String(form.formState.errors.environmentName.message)}</p>}
             </FormItem>
@@ -108,7 +112,7 @@ const StepVendorInfo: React.FC = () => {
             <FormItem>
               <FormLabel>Scope</FormLabel>
               <FormControl>
-                <Input placeholder="e.g. SOC 2" {...field} value={field.value ?? ''} />
+                <CreatableCustomTypeEnumSelect value={field.value ?? ''} options={scopeOptions} onValueChange={field.onChange} onCreateOption={createScope} placeholder="Select scope" />
               </FormControl>
               {form.formState.errors.scopeName?.message && <p className="text-sm text-red-500">{String(form.formState.errors.scopeName.message)}</p>}
             </FormItem>

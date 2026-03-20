@@ -43,6 +43,7 @@ const StepUploadImport: React.FC<StepUploadImportProps> = ({ onStagedFilesChange
 
   return (
     <div className="space-y-6">
+      <h3 className="text-lg font-medium">Bulk upload contacts or select existing ones</h3>
       <div>
         <p className="text-sm font-medium mb-2">Bulk Upload (CSV)</p>
         <FileUpload

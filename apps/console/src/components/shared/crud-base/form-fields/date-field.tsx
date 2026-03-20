@@ -7,6 +7,7 @@ import { formatDate } from '@/utils/date'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { InfoIcon } from 'lucide-react'
+import { cn } from '@repo/ui/lib/utils'
 
 interface DateFieldProps<TUpdateInput> {
   name: string
@@ -21,6 +22,9 @@ interface DateFieldProps<TUpdateInput> {
   className?: string
   tooltipContent?: string
   disableFuture?: boolean
+  icon?: React.ReactNode
+  layout?: 'vertical' | 'horizontal'
+  labelClassName?: string
 }
 
 export const DateField = <TUpdateInput,>({
@@ -36,6 +40,9 @@ export const DateField = <TUpdateInput,>({
   className,
   tooltipContent,
   disableFuture,
+  icon,
+  layout = 'vertical',
+  labelClassName,
 }: DateFieldProps<TUpdateInput>) => {
   const { control } = useFormContext()
 
@@ -53,9 +60,10 @@ export const DateField = <TUpdateInput,>({
       control={control}
       name={name}
       render={({ field }) => (
-        <FormItem className={className}>
-          <div className="flex items-center gap-1">
-            <FormLabel>{label}</FormLabel>
+        <FormItem className={cn(className, layout === 'horizontal' ? 'flex items-center justify-between gap-4 space-y-0' : '')}>
+          <div className="flex items-center gap-2 shrink-0">
+            {icon}
+            <FormLabel className={cn(layout === 'horizontal' && 'mb-0!', labelClassName)}>{label}</FormLabel>
             {tooltipContent && <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={tooltipContent} />}
           </div>
           <FormControl>
@@ -71,7 +79,7 @@ export const DateField = <TUpdateInput,>({
                 }}
               />
             ) : (
-              <div className="text-sm py-2 rounded-md cursor-pointer px-1 w-full hover:bg-accent" onClick={handleClick}>
+              <div className={cn('text-sm py-2 rounded-md cursor-pointer px-1 w-full hover:bg-accent', layout === 'horizontal' && 'text-right')} onClick={handleClick}>
                 {value ? formatDate(value) : <span className="text-muted-foreground italic">Not set</span>}
               </div>
             )}
