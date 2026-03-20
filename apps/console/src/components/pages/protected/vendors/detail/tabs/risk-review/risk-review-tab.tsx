@@ -10,7 +10,6 @@ import { EntityFrequency, type EntityQuery, type UpdateEntityInput } from '@repo
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import { useReviewsWithFilter } from '@/lib/graphql-hooks/review'
 import { TextField } from '@/components/shared/crud-base/form-fields/text-field'
-import { CheckboxField } from '@/components/shared/crud-base/form-fields/checkbox-field'
 import { reviewHistoryColumns, isHighRiskTier } from './risk-review-config'
 import CreateReviewSheet from './create-review-sheet'
 import ReviewDetailSheet from './review-detail-sheet'
@@ -105,7 +104,7 @@ const RiskReviewTab: React.FC<RiskReviewTabProps> = ({ vendor, handleUpdateField
           </Card>
           <Card>
             <CardContent className="p-4">
-              <TextField name="riskRating" label="Risk Rating" type="number" {...sharedFieldProps} />
+              <TextField name="riskRating" label="Risk Rating" {...sharedFieldProps} />
             </CardContent>
           </Card>
           <Card>
@@ -115,28 +114,9 @@ const RiskReviewTab: React.FC<RiskReviewTabProps> = ({ vendor, handleUpdateField
           </Card>
           <Card>
             <CardContent className="p-4">
-              <TextField name="renewalRisk" label="Renewal Risk Rating" type="number" {...sharedFieldProps} />
+              <TextField name="renewalRisk" label="Renewal Risk Rating" {...sharedFieldProps} />
             </CardContent>
           </Card>
-        </div>
-      </div>
-
-      <div>
-        <h3 className="text-lg font-semibold mb-4">Vendor Details</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <TextField name="name" label="Name" {...sharedFieldProps} />
-          <TextField name="description" label="Description" {...sharedFieldProps} />
-        </div>
-      </div>
-
-      <div>
-        <h3 className="text-lg font-semibold mb-4">Security Settings</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <CheckboxField name="ssoEnforced" label="SSO Enforced" {...sharedFieldProps} />
-          <CheckboxField name="mfaSupported" label="MFA Supported" {...sharedFieldProps} />
-          <CheckboxField name="mfaEnforced" label="MFA Enforced" {...sharedFieldProps} />
-          <CheckboxField name="hasSoc2" label="SOC 2 Compliant" {...sharedFieldProps} />
-          <TextField name="soc2PeriodEnd" label="SOC 2 Period End" type="date" {...sharedFieldProps} />
         </div>
       </div>
 

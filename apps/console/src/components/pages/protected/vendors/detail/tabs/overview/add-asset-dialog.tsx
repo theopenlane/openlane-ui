@@ -69,7 +69,7 @@ const AddAssetDialog: React.FC<AddAssetDialogProps> = ({ vendorId, linkedAssetId
 
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-[450px]">
+      <DialogContent className="sm:max-w-112.5">
         <DialogHeader>
           <DialogTitle>Add Asset</DialogTitle>
           <p className="text-sm text-muted-foreground">

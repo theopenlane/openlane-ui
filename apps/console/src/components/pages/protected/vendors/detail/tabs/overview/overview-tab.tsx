@@ -1,9 +1,10 @@
 'use client'
 
-import React, { useState } from 'react'
-import { Badge } from '@repo/ui/badge'
+import React, { useRef, useState } from 'react'
+import { useFormContext } from 'react-hook-form'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
-import type { EntityQuery, GetEntityAssociationsQuery } from '@repo/codegen/src/schema'
+import type { EntityQuery, GetEntityAssociationsQuery, UpdateEntityInput } from '@repo/codegen/src/schema'
+import DescriptionField from '@/components/pages/protected/vendors/create/form/fields/description-field'
 import DomainsSection from './domains-section'
 import SecuritySection from './security-section'
 import DependenciesSection from './dependencies-section'
@@ -13,34 +14,41 @@ interface OverviewTabProps {
   associations?: GetEntityAssociationsQuery
   isEditing: boolean
   canEdit: boolean
+  handleUpdateField: (input: UpdateEntityInput) => Promise<void>
 }
 
 type SubTab = 'domains' | 'security' | 'dependencies'
 
-const OverviewTab: React.FC<OverviewTabProps> = ({ vendor, associations, canEdit }) => {
+const OverviewTab: React.FC<OverviewTabProps> = ({ vendor, associations, isEditing, canEdit, handleUpdateField }) => {
   const [activeSubTab, setActiveSubTab] = useState<SubTab>('domains')
+  const [internalEditing, setInternalEditing] = useState<string | null>(null)
+  const { getValues } = useFormContext()
+  const originalDescriptionRef = useRef<string>('')
+
+  const handleDescriptionBlur = async () => {
+    const description = getValues('description') as string
+    if (description !== originalDescriptionRef.current) {
+      await handleUpdateField({ description })
+    }
+    setInternalEditing(null)
+  }
+
+  const startDescriptionEditing = () => {
+    if (!canEdit || isEditing) return
+    originalDescriptionRef.current = (typeof vendor.description === 'string' ? vendor.description : '') ?? ''
+    setInternalEditing('description')
+  }
 
   return (
     <div className="space-y-6">
-      {vendor.description && (
-        <div>
-          <p className="text-sm text-muted-foreground mb-2">Description</p>
-          <div className="text-sm prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: vendor.description }} />
-        </div>
-      )}
-
-      {vendor.tags && vendor.tags.length > 0 && (
-        <div>
-          <p className="text-sm text-muted-foreground mb-3">Provided Services</p>
-          <div className="flex flex-wrap gap-2">
-            {vendor.tags.map((tag) => (
-              <Badge key={tag} variant="outline">
-                {tag}
-              </Badge>
-            ))}
-          </div>
-        </div>
-      )}
+      <DescriptionField
+        isEditing={isEditing || internalEditing === 'description'}
+        isCreate={false}
+        initialValue={typeof vendor.description === 'string' ? vendor.description : null}
+        canEdit={canEdit && !isEditing}
+        onDoubleClickEdit={startDescriptionEditing}
+        onBlurSave={internalEditing === 'description' ? handleDescriptionBlur : undefined}
+      />
 
       <Tabs value={activeSubTab} onValueChange={(v) => setActiveSubTab(v as SubTab)} variant="solid">
         <TabsList className="w-fit">
@@ -60,7 +68,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ vendor, associations, canEdit
         </TabsContent>
 
         <TabsContent value="security">
-          <SecuritySection vendor={vendor} />
+          <SecuritySection vendor={vendor} isEditing={isEditing} canEdit={canEdit} handleUpdateField={handleUpdateField} />
         </TabsContent>
 
         <TabsContent value="dependencies">

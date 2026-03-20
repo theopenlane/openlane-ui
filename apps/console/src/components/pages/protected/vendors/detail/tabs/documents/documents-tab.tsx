@@ -22,8 +22,8 @@ import { fileDownload } from '@/components/shared/lib/export'
 import ColumnVisibilityMenu, { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import Menu from '@/components/shared/menu/menu'
 import { getMappedColumns } from '@/components/shared/crud-base/columns/get-mapped-columns'
-import { TableFilter } from '@/components/shared/table-filter/table-filter'
-import { Check, X, Download, DownloadIcon, Upload, SearchIcon } from 'lucide-react'
+import { Check, X, Download, DownloadIcon, Upload, SearchIcon, Eye } from 'lucide-react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import MarkAsEvidenceDialog from './mark-as-evidence-dialog'
 import UnmarkEvidenceDialog from './unmark-evidence-dialog'
 
@@ -33,6 +33,8 @@ interface DocumentsTabProps {
 }
 
 const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, canEdit }) => {
+  const router = useRouter()
+  const searchParams = useSearchParams()
   const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(TableKeyEnum.ENTITY_FILES, DEFAULT_PAGINATION))
   const defaultSorting = getInitialSortConditions(TableKeyEnum.ENTITY_FILES, FileOrderField, [
     {
@@ -63,14 +65,16 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, canEdit }) => {
 
   const { data: evidencesData } = useGetEvidencesWithFileIds(fileIds)
 
-  const evidenceFileIds = useMemo(() => {
-    const ids = new Set<string>()
+  const fileToEvidenceMap = useMemo(() => {
+    const map = new Map<string, string>()
     for (const edge of evidencesData?.evidences?.edges ?? []) {
+      const evidenceId = edge?.node?.id
+      if (!evidenceId) continue
       for (const fileEdge of edge?.node?.files?.edges ?? []) {
-        if (fileEdge?.node?.id) ids.add(fileEdge.node.id)
+        if (fileEdge?.node?.id) map.set(fileEdge.node.id, evidenceId)
       }
     }
-    return ids
+    return map
   }, [evidencesData])
 
   const { mutateAsync: uploadFiles, isPending: isUploading } = useUploadEntityFiles()
@@ -101,7 +105,7 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, canEdit }) => {
     if (visibleFiles.length === 0) return
 
     const headers = ['File Name', 'Category', 'Uploaded Date', 'Classified as Evidence']
-    const rows = visibleFiles.map((f) => [f.providedFileName, f.categoryType || '', f.createdAt ? new Date(f.createdAt).toLocaleDateString() : '', evidenceFileIds.has(f.id) ? 'Yes' : 'No'])
+    const rows = visibleFiles.map((f) => [f.providedFileName, f.categoryType || '', f.createdAt ? new Date(f.createdAt).toLocaleDateString() : '', fileToEvidenceMap.has(f.id) ? 'Yes' : 'No'])
 
     const csvContent = [headers, ...rows].map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n')
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
@@ -117,13 +121,22 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, canEdit }) => {
 
   const validFiles = files.filter((f): f is TFile => !!f)
 
-  const isClassifiedAsEvidence = (file: TFile) => evidenceFileIds.has(file.id)
+  const isClassifiedAsEvidence = (file: TFile) => fileToEvidenceMap.has(file.id)
+
+  const openEvidenceSheet = (fileId: string) => {
+    const evidenceId = fileToEvidenceMap.get(fileId)
+    if (!evidenceId) return
+    const params = new URLSearchParams(searchParams.toString())
+    params.set('id', evidenceId)
+    router.push(`${window.location.pathname}?${params.toString()}`)
+  }
 
   const columns: ColumnDef<TFile>[] = [
     {
       accessorKey: 'providedFileName',
       header: 'File Name',
       size: 280,
+      cell: ({ row }) => <span className="block truncate">{row.original.providedFileName}</span>,
     },
     {
       accessorKey: 'categoryType',
@@ -139,8 +152,10 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, canEdit }) => {
     },
     {
       id: 'classifiedAsEvidence',
-      header: 'Classified as Evidence',
-      size: 180,
+      header: 'Evidence?',
+      size: 120,
+      maxSize: 120,
+      minSize: 120,
       cell: ({ row }) => {
         const classified = isClassifiedAsEvidence(row.original)
         return (
@@ -149,6 +164,17 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, canEdit }) => {
               <>
                 <Check size={16} className="text-success" />
                 <span>Yes</span>
+                <button
+                  type="button"
+                  className="p-0 bg-transparent border-0 cursor-pointer text-muted-foreground hover:text-foreground transition-colors"
+                  aria-label="View evidence"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    openEvidenceSheet(row.original.id)
+                  }}
+                >
+                  <Eye size={16} />
+                </button>
               </>
             ) : (
               <>
@@ -163,7 +189,9 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, canEdit }) => {
     {
       id: 'actions',
       header: '',
-      size: 260,
+      size: 230,
+      maxSize: 230,
+      minSize: 230,
       cell: ({ row }: { row: Row<TFile> }) => {
         const classified = isClassifiedAsEvidence(row.original)
         return (
@@ -199,11 +227,6 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, canEdit }) => {
       <div className="flex items-center gap-2 mb-3">
         <Input icon={<SearchIcon size={16} />} placeholder="Search..." value={searchTerm} onChange={(e) => setSearchTerm(e.currentTarget.value)} variant="searchTable" />
         <div className="grow flex flex-row items-center gap-2 justify-end">
-          {canEdit && (
-            <Button variant="primary" icon={<Upload />} iconPosition="left" onClick={() => setIsUploadDialogOpen(true)}>
-              Upload
-            </Button>
-          )}
           <Menu
             closeOnSelect={true}
             content={(close) => (
@@ -222,7 +245,11 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, canEdit }) => {
             )}
           />
           <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.ENTITY_FILES} />
-          <TableFilter filterFields={[]} onFilterChange={() => {}} pageKey={TableKeyEnum.ENTITY_FILES} />
+          {canEdit && (
+            <Button variant="primary" icon={<Upload />} iconPosition="left" onClick={() => setIsUploadDialogOpen(true)}>
+              Upload
+            </Button>
+          )}
         </div>
       </div>
 

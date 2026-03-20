@@ -80,7 +80,7 @@ const VendorDetailTabs: React.FC<VendorDetailTabsProps> = ({ vendor, association
       </div>
 
       <TabsContent value="overview" className="space-y-6">
-        <OverviewTab vendor={vendor} associations={associations} isEditing={isEditing} canEdit={canEditVendor} />
+        <OverviewTab vendor={vendor} associations={associations} isEditing={isEditing} canEdit={canEditVendor} handleUpdateField={handleUpdateField} />
       </TabsContent>
 
       <TabsContent value="documents" className="space-y-6">

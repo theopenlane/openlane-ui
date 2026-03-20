@@ -1,25 +1,29 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@repo/ui/dialog'
-import { FormField, FormItem, FormLabel, FormControl, FormMessage, Form } from '@repo/ui/form'
+import { FormField, FormItem, FormLabel, FormControl, Form } from '@repo/ui/form'
 import { Input } from '@repo/ui/input'
-import { Checkbox } from '@repo/ui/checkbox'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { useNotification } from '@/hooks/useNotification'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useCreateEvidence } from '@/lib/graphql-hooks/evidence'
-import { useGetAllControls } from '@/lib/graphql-hooks/control'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import ObjectAssociation from '@/components/shared/object-association/object-association'
+import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
+import { type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
 
 const markAsEvidenceSchema = z.object({
   name: z.string().min(1, 'Evidence name is required'),
 })
 
 type MarkAsEvidenceFormData = z.infer<typeof markAsEvidenceSchema>
+
+const ALLOWED_OBJECT_TYPES = [ObjectTypeObjects.CONTROL, ObjectTypeObjects.SUB_CONTROL] as const
 
 interface MarkAsEvidenceDialogProps {
   fileId: string
@@ -28,16 +32,12 @@ interface MarkAsEvidenceDialogProps {
   onClose: () => void
 }
 
-const MarkAsEvidenceDialog: React.FC<MarkAsEvidenceDialogProps> = ({ fileId, fileName, vendorId, onClose }) => {
+const MarkAsEvidenceDialog: React.FC<MarkAsEvidenceDialogProps> = ({ fileId, fileName, vendorId: _vendorId, onClose }) => {
+  const router = useRouter()
+  const searchParams = useSearchParams()
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: createEvidence, isPending } = useCreateEvidence()
-  const [selectedControlIds, setSelectedControlIds] = useState<string[]>([])
-
-  const { controls, isLoading: controlsLoading } = useGetAllControls({
-    where: { hasEntitiesWith: [{ id: vendorId }] },
-    pagination: { page: 1, pageSize: 100, query: { first: 100 } },
-    orderBy: [],
-  })
+  const [selectedIds, setSelectedIds] = useState<TObjectAssociationMap>({})
 
   const form = useForm<MarkAsEvidenceFormData>({
     resolver: zodResolver(markAsEvidenceSchema),
@@ -46,24 +46,42 @@ const MarkAsEvidenceDialog: React.FC<MarkAsEvidenceDialogProps> = ({ fileId, fil
     },
   })
 
-  const toggleControl = (controlId: string) => {
-    setSelectedControlIds((prev) => (prev.includes(controlId) ? prev.filter((id) => id !== controlId) : [...prev, controlId]))
+  const handleIdChange = useCallback((updatedMap: TObjectAssociationMap) => {
+    setSelectedIds(updatedMap)
+  }, [])
+
+  const openEvidence = (evidenceId: string) => {
+    const params = new URLSearchParams(searchParams.toString())
+    params.set('id', evidenceId)
+    router.push(`${window.location.pathname}?${params.toString()}`)
   }
 
   const handleSubmit = async (data: MarkAsEvidenceFormData) => {
+    const controlIDs = selectedIds.controlIDs ?? []
+    const subcontrolIDs = selectedIds.subcontrolIDs ?? []
+
     try {
-      await createEvidence({
+      const result = await createEvidence({
         input: {
           name: data.name,
           source: 'Vendor Documents',
           fileIDs: [fileId],
-          ...(selectedControlIds.length > 0 ? { controlIDs: selectedControlIds } : {}),
+          ...(controlIDs.length > 0 ? { controlIDs } : {}),
+          ...(subcontrolIDs.length > 0 ? { subcontrolIDs } : {}),
         },
       })
 
+      const evidenceId = result.createEvidence.evidence.id
       successNotification({
         title: 'Marked as evidence',
-        description: `"${data.name}" has been created as evidence.`,
+        description: (
+          <span>
+            &quot;{data.name}&quot; has been created as evidence.{' '}
+            <button type="button" className="underline font-medium cursor-pointer bg-transparent border-0 p-0" onClick={() => openEvidence(evidenceId)}>
+              View evidence
+            </button>
+          </span>
+        ),
       })
       onClose()
     } catch (error) {
@@ -77,7 +95,7 @@ const MarkAsEvidenceDialog: React.FC<MarkAsEvidenceDialogProps> = ({ fileId, fil
 
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-[550px]">
+      <DialogContent className="sm:max-w-175">
         <DialogHeader>
           <DialogTitle>Mark as Evidence</DialogTitle>
         </DialogHeader>
@@ -95,30 +113,13 @@ const MarkAsEvidenceDialog: React.FC<MarkAsEvidenceDialogProps> = ({ fileId, fil
                   <FormControl>
                     <Input {...field} placeholder='e.g. "SOC 2 report for AWS"' />
                   </FormControl>
-                  <FormMessage />
+                  {form.formState.errors.name?.message && <p className="text-sm text-red-500">{form.formState.errors.name.message}</p>}
                 </FormItem>
               )}
             />
 
-            <div className="space-y-2">
-              <FormLabel>Attach to Controls</FormLabel>
-              {controlsLoading ? (
-                <p className="text-sm text-muted-foreground">Loading controls...</p>
-              ) : controls && controls.length > 0 ? (
-                <div className="max-h-[200px] overflow-y-auto space-y-2 rounded-lg border border-border p-3">
-                  {controls.map((control) => (
-                    <label key={control.id} className="flex items-center gap-2 cursor-pointer text-sm">
-                      <Checkbox checked={selectedControlIds.includes(control.id)} onCheckedChange={() => toggleControl(control.id)} />
-                      <span>
-                        {control.refCode} — {control.title ?? control.description ?? ''}
-                      </span>
-                    </label>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-sm text-muted-foreground">No controls linked to this vendor</p>
-              )}
-            </div>
+            <FormLabel className="mb-4 block border-b pb-1">Add Controls</FormLabel>
+            <ObjectAssociation onIdChange={handleIdChange} allowedObjectTypes={ALLOWED_OBJECT_TYPES} defaultSelectedObject={ObjectTypeObjects.CONTROL} />
 
             <DialogFooter>
               <CancelButton onClick={onClose} />

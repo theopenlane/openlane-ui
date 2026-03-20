@@ -1,7 +1,9 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useMemo, useRef, useState } from 'react'
+import { useFormContext, Controller } from 'react-hook-form'
 import { Card } from '@repo/ui/cardpanel'
+import MultipleSelector, { type Option } from '@repo/ui/multiple-selector'
 import { type UpdateEntityInput, type EntityQuery, EntityEntityStatus, EntityFrequency } from '@repo/codegen/src/schema'
 import { ResponsibilityField } from '@/components/shared/crud-base/form-fields/responsibility-field'
 import { SelectField } from '@/components/shared/crud-base/form-fields/select-field'
@@ -10,8 +12,14 @@ import { DateField } from '@/components/shared/crud-base/form-fields/date-field'
 import { CheckboxField } from '@/components/shared/crud-base/form-fields/checkbox-field'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
+import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import { formatDate } from '@/utils/date'
-import { UserRound, UserRoundCheck, Settings2, Maximize2, Radio, CalendarDays, RefreshCw, DollarSign } from 'lucide-react'
+import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
+import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
+import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
+import useEscapeKey from '@/hooks/useEscapeKey'
+import { type EditVendorFormData } from '../hooks/use-form-schema'
+import { UserRound, UserRoundCheck, Settings2, Maximize2, Radio, CalendarDays, RefreshCw, DollarSign, Tag } from 'lucide-react'
 
 const iconClass = 'h-4 w-4 text-muted-foreground'
 
@@ -24,9 +32,57 @@ interface VendorPropertiesSidebarProps {
 
 const VendorPropertiesSidebar: React.FC<VendorPropertiesSidebarProps> = ({ data, isEditing, handleUpdate, canEdit: canEditVendor }) => {
   const [internalEditing, setInternalEditing] = useState<string | null>(null)
+  const { control, watch, setValue } = useFormContext<EditVendorFormData>()
 
   const { enumOptions: environmentOptions, onCreateOption: createEnvironment } = useCreatableEnumOptions({ field: 'environment' })
   const { enumOptions: scopeOptions, onCreateOption: createScope } = useCreatableEnumOptions({ field: 'scope' })
+  const { tagOptions } = useGetTags()
+
+  const tags = watch('tags')
+  const tagValues = useMemo(() => {
+    return (tags ?? []).filter((item: string): item is string => typeof item === 'string').map((item: string) => ({ value: item, label: item }))
+  }, [tags])
+
+  const triggerRef = useRef<HTMLDivElement>(null)
+  const popoverRef = useRef<HTMLDivElement>(null)
+
+  const blurTags = () => {
+    const current = data?.tags || []
+    const next = tagValues.map((item: { value: string; label: string }) => item.value)
+    const changed = current.length !== next.length || current.some((val) => !next.includes(val))
+
+    if (changed) {
+      setValue('tags', next)
+      handleUpdate({ tags: next })
+    }
+  }
+
+  useClickOutsideWithPortal(
+    () => {
+      setInternalEditing(null)
+      if (internalEditing === 'tags') {
+        blurTags()
+      }
+    },
+    {
+      refs: { triggerRef, popoverRef },
+      enabled: internalEditing === 'tags',
+    },
+  )
+
+  useEscapeKey(
+    () => {
+      if (internalEditing === 'tags') {
+        const options: Option[] = (data?.tags ?? []).filter((item: string): item is string => typeof item === 'string').map((item: string) => ({ value: item, label: item }))
+        setValue(
+          'tags',
+          options.map((opt) => opt.value),
+        )
+        setInternalEditing(null)
+      }
+    },
+    { enabled: internalEditing === 'tags' },
+  )
 
   const entityStatusOptions = enumToOptions(EntityEntityStatus)
   const reviewFrequencyOptions = enumToOptions(EntityFrequency)
@@ -103,6 +159,58 @@ const VendorPropertiesSidebar: React.FC<VendorPropertiesSidebarProps> = ({ data,
             </div>
             <span className="text-sm py-2 px-1">{formatDate(data?.lastReviewedAt)}</span>
           </div>
+
+          <div className={`flex justify-between items-start ${isEditing || internalEditing === 'tags' ? 'flex-col items-start' : ''}`}>
+            <div className="min-w-40">
+              <div className="flex gap-2 items-center">
+                <Tag size={16} className="text-brand" />
+                <span className="text-sm">Tags</span>
+              </div>
+            </div>
+
+            <div className="grid w-full items-center gap-2" ref={triggerRef}>
+              <div className="flex gap-2 items-center flex-wrap">
+                {isEditing || internalEditing === 'tags' ? (
+                  <Controller
+                    name="tags"
+                    control={control}
+                    render={({ field }) => (
+                      <MultipleSelector
+                        options={tagOptions}
+                        hideClearAllButton
+                        className="w-full"
+                        placeholder="Add tag..."
+                        creatable
+                        value={tagValues}
+                        onChange={(selectedOptions) => {
+                          const newTags = selectedOptions.map((opt) => opt.value)
+                          field.onChange(newTags)
+                        }}
+                      />
+                    )}
+                  />
+                ) : (
+                  <HoverPencilWrapper
+                    showPencil={canEditVendor}
+                    className={`w-full flex gap-2 flex-wrap ${canEditVendor ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+                    onPencilClick={() => canEditVendor && !isEditing && setInternalEditing('tags')}
+                  >
+                    <div onDoubleClick={() => canEditVendor && !isEditing && setInternalEditing('tags')}>
+                      {data?.tags?.length ? (
+                        <div className="flex gap-2 flex-wrap">
+                          {data.tags.map((tag) => (
+                            <TagChip key={tag} tag={tag} />
+                          ))}
+                        </div>
+                      ) : (
+                        <span className="text-muted-foreground text-sm italic">No tags</span>
+                      )}
+                    </div>
+                  </HoverPencilWrapper>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
       </Card>
 
@@ -112,7 +220,9 @@ const VendorPropertiesSidebar: React.FC<VendorPropertiesSidebarProps> = ({ data,
           <DateField name="contractStartDate" label="Start Date" {...sharedFieldProps} />
           <DateField name="contractEndDate" label="End Date" {...sharedFieldProps} />
           <DateField name="contractRenewalAt" label="Renewal Date" {...sharedFieldProps} />
+          <TextField name="terminationNoticeDays" label="Termination Notice Days" {...sharedFieldProps} />
           <TextField name="annualSpend" label="Spend" type="currency" icon={<DollarSign className={iconClass} />} {...sharedFieldProps} />
+          <TextField name="billingModel" label="Billing Model" {...sharedFieldProps} />
           <CheckboxField name="autoRenews" label="Auto Renews" {...sharedFieldProps} />
         </div>
       </Card>

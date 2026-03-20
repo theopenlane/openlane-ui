@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation'
 import { FormProvider, useForm } from 'react-hook-form'
 import type { ResponsibilitySelection } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 import { useNavigationGuard } from 'next-navigation-guard'
-import { type Value } from 'platejs'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useEntity, useGetEntityAssociations, useUpdateEntity, useDeleteEntity } from '@/lib/graphql-hooks/entity'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
@@ -13,7 +12,6 @@ import { canEdit } from '@/lib/authz/utils'
 import { useNotification } from '@/hooks/useNotification'
 import { useHasScrollbar } from '@/hooks/useHasScrollbar'
 import { useOrganization } from '@/hooks/useOrganization'
-import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
@@ -22,6 +20,7 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { type UpdateEntityInput, type EntityQuery } from '@repo/codegen/src/schema'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import AssetDetailsSheet from '@/components/pages/protected/controls/tabs/assets-scans/asset-details-sheet'
+import EvidenceDetailsSheet from '@/components/pages/protected/evidence/evidence-details-sheet'
 import VendorDetailHeader from './vendor-detail-header'
 import VendorPropertiesSidebar from './vendor-properties-sidebar'
 import VendorDetailTabs from './tabs/vendor-detail-tabs'
@@ -43,7 +42,6 @@ const VendorDetailPage: React.FC<VendorDetailPageProps> = ({ vendorId }) => {
   const router = useRouter()
   const { setCrumbs } = React.use(BreadcrumbContext)
   const { successNotification, errorNotification } = useNotification()
-  const plateEditorHelper = usePlateEditor()
   const { currentOrgId, getOrganizationByID } = useOrganization()
   const currentOrganization = getOrganizationByID(currentOrgId ?? '')
 
@@ -130,10 +128,6 @@ const VendorDetailPage: React.FC<VendorDetailPageProps> = ({ vendorId }) => {
         return acc
       }, {})
 
-      if (changedFields.description && typeof changedFields.description !== 'string') {
-        changedFields.description = await plateEditorHelper.convertToHtml(changedFields.description as Value)
-      }
-
       const { internalOwner, reviewedBy, ...rest } = changedFields
       const input: UpdateEntityInput = {
         ...rest,
@@ -208,7 +202,16 @@ const VendorDetailPage: React.FC<VendorDetailPageProps> = ({ vendorId }) => {
 
   const mainContent = (
     <div className="space-y-6">
-      <VendorDetailHeader vendor={vendor} isEditing={isEditing} onEdit={handleEdit} onCancel={handleCancel} onDeleteClick={() => setIsDeleteDialogOpen(true)} permissionRoles={permission?.roles} />
+      <VendorDetailHeader
+        vendor={vendor}
+        isEditing={isEditing}
+        canEditVendor={canEditVendor}
+        onEdit={handleEdit}
+        onCancel={handleCancel}
+        onDeleteClick={() => setIsDeleteDialogOpen(true)}
+        permissionRoles={permission?.roles}
+        handleUpdateField={handleUpdateField}
+      />
 
       <VendorDetailTabs vendor={vendor} associations={associationsData} isEditing={isEditing} canEdit={canEditVendor} handleUpdateField={handleUpdateField} />
     </div>
@@ -249,6 +252,7 @@ const VendorDetailPage: React.FC<VendorDetailPageProps> = ({ vendorId }) => {
         }
       />
 
+      <EvidenceDetailsSheet />
       <AssetDetailsSheet queryParamKey="assetId" />
     </>
   )

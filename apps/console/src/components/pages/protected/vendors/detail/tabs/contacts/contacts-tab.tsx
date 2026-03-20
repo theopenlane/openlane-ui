@@ -58,9 +58,9 @@ const CONTACT_FILTER_FIELDS: FilterField[] = [
 ]
 
 const DATA_COLUMNS: ColumnDef<ContactNode>[] = [
-  { accessorKey: 'fullName', header: 'Name', size: 150, cell: ({ row }) => <span className="truncate">{row.original.fullName ?? '-'}</span> },
-  { accessorKey: 'email', header: 'Email', size: 180, cell: ({ row }) => <span className="truncate">{row.original.email ?? '-'}</span> },
-  { accessorKey: 'title', header: 'Title', size: 180, cell: ({ row }) => <span className="truncate">{row.original.title ?? '-'}</span> },
+  { accessorKey: 'fullName', header: 'Name', size: 150, cell: ({ row }) => <span className="block truncate">{row.original.fullName ?? '-'}</span> },
+  { accessorKey: 'email', header: 'Email', size: 180, cell: ({ row }) => <span className="block truncate">{row.original.email ?? '-'}</span> },
+  { accessorKey: 'title', header: 'Title', size: 180, cell: ({ row }) => <span className="block truncate">{row.original.title ?? '-'}</span> },
   { accessorKey: 'phoneNumber', header: 'Phone', size: 150, cell: ({ row }) => <span>{row.original.phoneNumber ?? '-'}</span> },
   { accessorKey: 'address', header: 'Address', size: 200, cell: ({ row }) => <span className="truncate">{row.original.address ?? '-'}</span> },
   { accessorKey: 'status', header: 'Status', size: 140, cell: ({ row }) => <StatusCell status={row.original.status} /> },
