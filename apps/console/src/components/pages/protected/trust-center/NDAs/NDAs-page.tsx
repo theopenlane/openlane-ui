@@ -84,9 +84,11 @@ const NDAsPage = () => {
             {!latestFile ? (
               <div className="flex flex-col items-center justify-center text-center gap-4">
                 <FileUp size={24} />
-                <div>
+                <div className="space-y-1">
                   <h4 className="text-lg font-semibold">No NDA uploaded</h4>
-                  <p className="mt-1 text-sm text-muted-foreground">Upload your NDA here using the button below</p>
+                  <p className="mt-1 text-sm text-muted-foreground">Upload the Non-Disclosure Agreement visitors must sign before accessing protected documents in your Trust Center.</p>
+                  <p className="text-sm text-muted-foreground">This allows you to safely share sensitive materials such as SOC 2 reports, penetration tests, and other security documentation.</p>
+                  <p className="text-sm text-muted-foreground">Protected documents require an NDA before they can be accessed.</p>
                 </div>
                 {canEditTc && (
                   <NDAUploadDialog

@@ -14,10 +14,14 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 interface NDAUploadDialogProps {
   trigger?: ReactNode
   ndaId?: string
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
 }
 
-export const NDAUploadDialog = ({ trigger, ndaId }: NDAUploadDialogProps) => {
-  const [isOpen, setIsOpen] = useState<boolean>(false)
+export const NDAUploadDialog = ({ trigger, ndaId, open: controlledOpen, onOpenChange: controlledOnOpenChange }: NDAUploadDialogProps) => {
+  const [internalOpen, setInternalOpen] = useState<boolean>(false)
+  const isOpen = controlledOpen !== undefined ? controlledOpen : internalOpen
+  const setIsOpen = controlledOnOpenChange ?? setInternalOpen
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
 
   const { successNotification, errorNotification } = useNotification()
@@ -70,7 +74,7 @@ export const NDAUploadDialog = ({ trigger, ndaId }: NDAUploadDialogProps) => {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>{trigger}</DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-106.25" onClick={(e) => e.stopPropagation()}>
         <DialogHeader>
           <DialogTitle>{ndaId ? 'Replace NDA Document' : 'Upload NDA Document'}</DialogTitle>
           <DialogDescription>Upload a PDF version of the Non-Disclosure Agreement.</DialogDescription>
