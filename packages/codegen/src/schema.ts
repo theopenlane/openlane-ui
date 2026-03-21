@@ -66518,6 +66518,11 @@ export type FindingsWithFilterQuery = {
         updatedBy?: string | null
         validated?: boolean | null
         vector?: string | null
+        remediations?: {
+          __typename?: 'RemediationConnection'
+          totalCount: number
+          edges?: Array<{ __typename?: 'RemediationEdge'; node?: { __typename?: 'Remediation'; id: string } | null } | null> | null
+        } | null
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
@@ -73063,6 +73068,11 @@ export type VulnerabilitiesWithFilterQuery = {
         updatedBy?: string | null
         validated?: boolean | null
         vector?: string | null
+        remediations?: {
+          __typename?: 'RemediationConnection'
+          totalCount: number
+          edges?: Array<{ __typename?: 'RemediationEdge'; node?: { __typename?: 'Remediation'; id: string } | null } | null> | null
+        } | null
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }

@@ -15,6 +15,10 @@ import { objectName, tableKey } from './types'
 import { useSession } from 'next-auth/react'
 import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/create-task-dialog'
 import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
+import { useSheetNavigation } from '@/providers/sheet-navigation-provider'
+import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types'
+import CreateRemediationSheet from '@/components/pages/protected/remediations/create-remediation-sheet'
+import { useQueryClient } from '@tanstack/react-query'
 
 const TableComponent = ({
   onSortChange,
@@ -32,9 +36,12 @@ const TableComponent = ({
   defaultSorting,
 }: TTableProps<VulnerabilityWhereInput>) => {
   const { replace } = useSmartRouter()
+  const sheetNav = useSheetNavigation()
+  const queryClient = useQueryClient()
   const { data: session } = useSession()
   const { errorNotification } = useNotification()
   const [createTaskRow, setCreateTaskRow] = useState<VulnerabilitiesNodeNonNull | null>(null)
+  const [trackRemediationRow, setTrackRemediationRow] = useState<VulnerabilitiesNodeNonNull | null>(null)
 
   const orderBy = useMemo(() => {
     if (!orderByFilter) return undefined
@@ -110,7 +117,14 @@ const TableComponent = ({
   }, [users])
 
   const handleTrackRemediation = (row: VulnerabilitiesNodeNonNull) => {
-    replace({ id: row.id, trackRemediation: 'true' })
+    setTrackRemediationRow(row)
+  }
+
+  const handleOpenRemediation = (row: VulnerabilitiesNodeNonNull) => {
+    const remediationId = row.remediations?.edges?.[0]?.node?.id
+    if (remediationId) {
+      sheetNav?.openSheet(remediationId, ObjectAssociationNodeEnum.REMEDIATION)
+    }
   }
 
   const handleCreateTask = (row: VulnerabilitiesNodeNonNull) => {
@@ -118,7 +132,8 @@ const TableComponent = ({
   }
 
   const columns = useMemo(
-    () => getColumns({ userMap, convertToReadOnly, selectedItems, setSelectedItems, onTrackRemediation: handleTrackRemediation, onCreateTask: handleCreateTask }),
+    () =>
+      getColumns({ userMap, convertToReadOnly, selectedItems, setSelectedItems, onTrackRemediation: handleTrackRemediation, onOpenRemediation: handleOpenRemediation, onCreateTask: handleCreateTask }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [userMap, convertToReadOnly, selectedItems, setSelectedItems],
   )
@@ -174,6 +189,13 @@ const TableComponent = ({
           setCreateTaskRow(null)
           replace({ taskId })
         }}
+      />
+      <CreateRemediationSheet
+        isOpen={!!trackRemediationRow}
+        onClose={() => setTrackRemediationRow(null)}
+        initialData={trackRemediationRow ? { vulnerabilityIDs: [trackRemediationRow.id] } : undefined}
+        defaultTitle={trackRemediationRow ? `${trackRemediationRow.displayName ?? trackRemediationRow.displayID ?? trackRemediationRow.externalID ?? ''} Remediation`.trim() : undefined}
+        onSuccess={() => queryClient.invalidateQueries({ queryKey: ['vulnerabilities'] })}
       />
     </>
   )

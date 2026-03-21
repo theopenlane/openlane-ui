@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useCallback, useState, useEffect } from 'react'
+import React, { useCallback } from 'react'
 import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
 
 import {
@@ -15,9 +15,6 @@ import {
 } from '@/lib/graphql-hooks/vulnerability'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
-import { Button } from '@repo/ui/button'
-import { ShieldCheck } from 'lucide-react'
-import { TrackRemediationForm, TrackRemediationHeader } from '../../remediations/track-remediation-inline'
 import { breadcrumbs, getFieldsToRender, getFilterFields, visibilityFields } from './table-config'
 import { type VulnerabilitySheetConfig, type VulnerabilityTablePageConfig, type VulnerabilityFieldProps, objectType, objectName, tableKey, exportType, orderFieldEnum, defaultSorting } from './types'
 import { getColumns } from './columns'
@@ -30,43 +27,19 @@ import { buildAssociationPayload } from '@/components/shared/object-association/
 import { useInitialAssociations } from '@/hooks/useInitialAssociations'
 import { VULNERABILITY_ASSOCIATION_CONFIG } from '@/components/shared/object-association/association-configs'
 import TaskDetailsSheet from '../../tasks/create-task/sidebar/task-details-sheet'
+import ViewVulnerabilitySheet from '../view-vulnerability-sheet'
 import type { Value } from 'platejs'
 
 const VulnerabilityPage: React.FC = () => {
-  const [isTrackingRemediation, setIsTrackingRemediation] = useState(false)
-  const [isRemediationPending, setIsRemediationPending] = useState(false)
-  const [trackingDefaultTitle, setTrackingDefaultTitle] = useState<string | undefined>(undefined)
-
   const { form } = useFormSchema()
 
   const router = useRouter()
   const searchParams = useSearchParams()
   const id = searchParams.get('id')
   const isCreate = searchParams.get('create') === 'true'
-  const trackRemediation = searchParams.get('trackRemediation') === 'true'
-
-  useEffect(() => {
-    if (trackRemediation && id) {
-      setIsTrackingRemediation(true)
-      const newParams = new URLSearchParams(searchParams.toString())
-      newParams.delete('trackRemediation')
-      router.replace(`${window.location.pathname}?${newParams.toString()}`)
-    } else if (!id) {
-      setIsTrackingRemediation(false)
-      setTrackingDefaultTitle(undefined)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id, trackRemediation])
 
   const { data, isLoading } = useVulnerability(id || undefined)
   const { data: associationsData } = useGetVulnerabilityAssociations(id || undefined)
-
-  useEffect(() => {
-    if (isTrackingRemediation && data?.vulnerability) {
-      const name = data.vulnerability.displayName || data.vulnerability.displayID || data.vulnerability.externalID || ''
-      setTrackingDefaultTitle(`${name} Remediation`.trim() || undefined)
-    }
-  }, [isTrackingRemediation, data?.vulnerability])
 
   const plateEditorHelper = usePlateEditor()
 
@@ -136,20 +109,18 @@ const VulnerabilityPage: React.FC = () => {
     scopeName: createScope,
   }
 
-  const handleCloseAfterCreate = () => {
-    setIsTrackingRemediation(false)
-    setTrackingDefaultTitle(undefined)
-    form.reset()
+  const handleCloseViewSheet = () => {
     const newSearchParams = new URLSearchParams(searchParams.toString())
     newSearchParams.delete('id')
-    newSearchParams.delete('create')
     router.replace(`${window.location.pathname}?${newSearchParams.toString()}`)
   }
 
+  // sheetConfig handles CREATE mode only — view/edit is handled by ViewVulnerabilitySheet below
   const sheetConfig: VulnerabilitySheetConfig = {
     objectType: objectType,
     form,
-    data: id ? data?.vulnerability : undefined,
+    entityId: null,
+    data: isCreate ? data?.vulnerability : undefined,
     isFetching: isLoading,
     updateMutation,
     createMutation,
@@ -178,17 +149,6 @@ const VulnerabilityPage: React.FC = () => {
     },
     getName,
     renderFields: (props: VulnerabilityFieldProps) => getFieldsToRender(props, enumOpts, enumCreateHandlers),
-    extraHeaderActions:
-      id && !isTrackingRemediation ? (
-        <Button icon={<ShieldCheck size={16} />} iconPosition="left" variant="primary" onClick={() => setIsTrackingRemediation(true)}>
-          Track Remediation
-        </Button>
-      ) : undefined,
-    overrideContent:
-      isTrackingRemediation && id ? (
-        <TrackRemediationForm entityId={id} entityType="vulnerability" onClose={handleCloseAfterCreate} onPendingChange={setIsRemediationPending} defaultTitle={trackingDefaultTitle} />
-      ) : undefined,
-    overrideHeader: isTrackingRemediation ? <TrackRemediationHeader onBack={() => setIsTrackingRemediation(false)} isPending={isRemediationPending} /> : undefined,
   }
 
   const tableConfig: VulnerabilityTablePageConfig = {
@@ -222,6 +182,7 @@ const VulnerabilityPage: React.FC = () => {
   return (
     <>
       <GenericTablePage {...tableConfig} />
+      <ViewVulnerabilitySheet entityId={isCreate ? null : id} onClose={handleCloseViewSheet} />
       <TaskDetailsSheet queryParamKey="taskId" />
     </>
   )

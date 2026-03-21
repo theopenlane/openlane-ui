@@ -14,10 +14,19 @@ import React from 'react'
 
 type VulnColumnOptions = ColumnOptions & {
   onTrackRemediation?: (row: VulnerabilitiesNodeNonNull) => void
+  onOpenRemediation?: (row: VulnerabilitiesNodeNonNull) => void
   onCreateTask?: (row: VulnerabilitiesNodeNonNull) => void
 }
 
-export const getColumns = ({ userMap, convertToReadOnly, selectedItems, setSelectedItems, onTrackRemediation, onCreateTask }: VulnColumnOptions): ColumnDef<VulnerabilitiesNodeNonNull>[] => {
+export const getColumns = ({
+  userMap,
+  convertToReadOnly,
+  selectedItems,
+  setSelectedItems,
+  onTrackRemediation,
+  onOpenRemediation,
+  onCreateTask,
+}: VulnColumnOptions): ColumnDef<VulnerabilitiesNodeNonNull>[] => {
   const columns: ColumnDef<VulnerabilitiesNodeNonNull>[] = [
     createSelectColumn<VulnerabilitiesNodeNonNull>(selectedItems, setSelectedItems),
     { accessorKey: 'id', header: 'ID', size: 120, cell: ({ row }) => <div className="text-muted-foreground">{row.original.id}</div> },
@@ -71,7 +80,7 @@ export const getColumns = ({ userMap, convertToReadOnly, selectedItems, setSelec
     },
   ]
 
-  if (onTrackRemediation || onCreateTask) {
+  if (onTrackRemediation || onOpenRemediation || onCreateTask) {
     columns.push({
       id: 'actions',
       header: '',
@@ -85,12 +94,19 @@ export const getColumns = ({ userMap, convertToReadOnly, selectedItems, setSelec
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="min-w-48">
-              {onTrackRemediation && (
-                <DropdownMenuItem onClick={() => onTrackRemediation(row.original)}>
-                  <ShieldCheck className="h-4 w-4" />
-                  Track Remediation
-                </DropdownMenuItem>
-              )}
+              {(row.original.remediations?.totalCount ?? 0) > 0
+                ? onOpenRemediation && (
+                    <DropdownMenuItem onClick={() => onOpenRemediation(row.original)}>
+                      <ShieldCheck className="h-4 w-4" />
+                      Open Remediation
+                    </DropdownMenuItem>
+                  )
+                : onTrackRemediation && (
+                    <DropdownMenuItem onClick={() => onTrackRemediation(row.original)}>
+                      <ShieldCheck className="h-4 w-4" />
+                      Track Remediation
+                    </DropdownMenuItem>
+                  )}
               {onCreateTask && (
                 <DropdownMenuItem onClick={() => onCreateTask(row.original)}>
                   <ListTodo className="h-4 w-4" />

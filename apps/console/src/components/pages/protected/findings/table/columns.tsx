@@ -13,10 +13,11 @@ import React from 'react'
 
 type FindingColumnOptions = ColumnOptions & {
   onTrackRemediation?: (row: FindingsNodeNonNull) => void
+  onOpenRemediation?: (row: FindingsNodeNonNull) => void
   onCreateTask?: (row: FindingsNodeNonNull) => void
 }
 
-export const getColumns = ({ userMap, selectedItems, setSelectedItems, onTrackRemediation, onCreateTask }: FindingColumnOptions): ColumnDef<FindingsNodeNonNull>[] => {
+export const getColumns = ({ userMap, selectedItems, setSelectedItems, onTrackRemediation, onOpenRemediation, onCreateTask }: FindingColumnOptions): ColumnDef<FindingsNodeNonNull>[] => {
   const columns: ColumnDef<FindingsNodeNonNull>[] = [
     createSelectColumn<FindingsNodeNonNull>(selectedItems, setSelectedItems),
     { accessorKey: 'id', header: 'ID', size: 120, cell: ({ row }) => <div className="text-muted-foreground">{row.original.id}</div> },
@@ -63,7 +64,7 @@ export const getColumns = ({ userMap, selectedItems, setSelectedItems, onTrackRe
     },
   ]
 
-  if (onTrackRemediation || onCreateTask) {
+  if (onTrackRemediation || onOpenRemediation || onCreateTask) {
     columns.push({
       id: 'actions',
       header: '',
@@ -77,12 +78,19 @@ export const getColumns = ({ userMap, selectedItems, setSelectedItems, onTrackRe
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="min-w-48">
-              {onTrackRemediation && (
-                <DropdownMenuItem onClick={() => onTrackRemediation(row.original)}>
-                  <ShieldCheck className="h-4 w-4" />
-                  Track Remediation
-                </DropdownMenuItem>
-              )}
+              {(row.original.remediations?.totalCount ?? 0) > 0
+                ? onOpenRemediation && (
+                    <DropdownMenuItem onClick={() => onOpenRemediation(row.original)}>
+                      <ShieldCheck className="h-4 w-4" />
+                      Open Remediation
+                    </DropdownMenuItem>
+                  )
+                : onTrackRemediation && (
+                    <DropdownMenuItem onClick={() => onTrackRemediation(row.original)}>
+                      <ShieldCheck className="h-4 w-4" />
+                      Track Remediation
+                    </DropdownMenuItem>
+                  )}
               {onCreateTask && (
                 <DropdownMenuItem onClick={() => onCreateTask(row.original)}>
                   <ListTodo className="h-4 w-4" />

@@ -152,11 +152,11 @@ export const visibilityFields = {
   tags: false,
 }
 
-export const getFieldsToRender = (props: VulnerabilityFieldProps, enumOptions: EnumOptions, enumCreateHandlers?: EnumCreateHandlers) => {
+export const getFieldsToRender = (props: VulnerabilityFieldProps, enumOptions: EnumOptions, enumCreateHandlers?: EnumCreateHandlers, riskScoresAction?: React.ReactNode) => {
   return (
     <div className="mr-6">
       <div className="flex flex-row items-center mb-6">
-        <div className="min-w-[300px]">
+        <div className="min-w-75">
           <NameField
             isEditing={props.isEditing}
             isEditAllowed={props.isEditAllowed}
@@ -193,6 +193,7 @@ export const getFieldsToRender = (props: VulnerabilityFieldProps, enumOptions: E
         handleUpdateField={props.handleUpdateField}
         enumOptions={enumOptions}
         enumCreateHandlers={enumCreateHandlers}
+        riskScoresAction={riskScoresAction}
       />
       <VulnerabilityAssociationSection data={props.data} isEditing={props.isEditing} isCreate={props.isCreate} isEditAllowed={props.isEditAllowed} />
     </div>

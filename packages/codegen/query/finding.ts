@@ -50,6 +50,14 @@ export const GET_ALL_FINDINGS = gql`
           updatedBy
           validated
           vector
+          remediations(first: 1) {
+            totalCount
+            edges {
+              node {
+                id
+              }
+            }
+          }
         }
       }
       pageInfo {

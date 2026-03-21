@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React from 'react'
 import { bulkEditFieldSchema } from '../hooks/use-form-schema'
 import { useCreateBulkCSVFinding, useBulkEditFinding, useBulkDeleteFinding } from '@/lib/graphql-hooks/finding'
 import { useSearchParams, useRouter } from 'next/navigation'
@@ -11,53 +11,21 @@ import { getColumns } from './columns'
 import TableComponent from './table'
 import { type UpdateFindingInput } from '@repo/codegen/src/schema'
 import { useFindingSheetConfig } from '../hooks/use-finding-sheet-config'
-import { Button } from '@repo/ui/button'
-import { ShieldCheck } from 'lucide-react'
-import { TrackRemediationForm, TrackRemediationHeader } from '../../remediations/track-remediation-inline'
 import TaskDetailsSheet from '../../tasks/create-task/sidebar/task-details-sheet'
+import ViewFindingSheet from '../view-finding-sheet'
 
 const FindingPage: React.FC = () => {
-  const [isTrackingRemediation, setIsTrackingRemediation] = useState(false)
-  const [isRemediationPending, setIsRemediationPending] = useState(false)
-  const [trackingDefaultTitle, setTrackingDefaultTitle] = useState<string | undefined>(undefined)
-
   const router = useRouter()
   const searchParams = useSearchParams()
   const id = searchParams.get('id')
   const isCreate = searchParams.get('create') === 'true'
-  const trackRemediation = searchParams.get('trackRemediation') === 'true'
 
-  useEffect(() => {
-    if (trackRemediation && id) {
-      setIsTrackingRemediation(true)
-      const newParams = new URLSearchParams(searchParams.toString())
-      newParams.delete('trackRemediation')
-      router.replace(`${window.location.pathname}?${newParams.toString()}`)
-    } else if (!id) {
-      setIsTrackingRemediation(false)
-      setTrackingDefaultTitle(undefined)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id, trackRemediation])
+  const { enumOpts, form, ...sheetConfig } = useFindingSheetConfig(null, isCreate)
 
-  const { enumOpts, form, ...sheetConfig } = useFindingSheetConfig(id, isCreate)
-
-  useEffect(() => {
-    if (isTrackingRemediation && sheetConfig.data) {
-      const d = sheetConfig.data
-      const name = d.displayName || d.displayID || d.externalID || ''
-      setTrackingDefaultTitle(`${name} Remediation`.trim() || undefined)
-    }
-     
-  }, [isTrackingRemediation, sheetConfig.data])
-
-  const handleCloseAfterCreate = () => {
-    setIsTrackingRemediation(false)
-    setTrackingDefaultTitle(undefined)
-    form.reset()
+  const handleCloseViewSheet = () => {
     const newSearchParams = new URLSearchParams(searchParams.toString())
     newSearchParams.delete('id')
-    newSearchParams.delete('create')
+    newSearchParams.delete('trackRemediation')
     router.replace(`${window.location.pathname}?${newSearchParams.toString()}`)
   }
 
@@ -68,21 +36,6 @@ const FindingPage: React.FC = () => {
   const bulkCreateMutation = {
     isPending: baseBulkCreateMutation.isPending,
     mutateAsync: async (params: { input: File }) => baseBulkCreateMutation.mutateAsync({ input: params.input }),
-  }
-
-  const trackingSheetConfig = {
-    ...sheetConfig,
-    extraHeaderActions:
-      id && !isTrackingRemediation ? (
-        <Button icon={<ShieldCheck size={16} />} iconPosition="left" variant="primary" onClick={() => setIsTrackingRemediation(true)}>
-          Track Remediation
-        </Button>
-      ) : undefined,
-    overrideContent:
-      isTrackingRemediation && id ? (
-        <TrackRemediationForm entityId={id} entityType="finding" onClose={handleCloseAfterCreate} onPendingChange={setIsRemediationPending} defaultTitle={trackingDefaultTitle} />
-      ) : undefined,
-    overrideHeader: isTrackingRemediation ? <TrackRemediationHeader onBack={() => setIsTrackingRemediation(false)} isPending={isRemediationPending} /> : undefined,
   }
 
   const tableConfig: FindingTablePageConfig = {
@@ -99,7 +52,7 @@ const FindingPage: React.FC = () => {
     form,
     getColumns,
     TableComponent,
-    sheetConfig: trackingSheetConfig,
+    sheetConfig,
     onBulkDelete: async (ids: string[]) => {
       await baseBulkDeleteMutation.mutateAsync({ ids })
     },
@@ -116,6 +69,7 @@ const FindingPage: React.FC = () => {
   return (
     <>
       <GenericTablePage {...tableConfig} />
+      <ViewFindingSheet entityId={isCreate ? null : id} onClose={handleCloseViewSheet} />
       <TaskDetailsSheet queryParamKey="taskId" />
     </>
   )
