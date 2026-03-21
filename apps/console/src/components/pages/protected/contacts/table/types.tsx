@@ -8,6 +8,7 @@ import {
   type CreateContactMutation,
   type UpdateContactInput,
   type UpdateContactMutation,
+  ExportExportType,
   OrderDirection,
 } from '@repo/codegen/src/schema'
 import { TableKeyEnum } from '@repo/ui/table-key'
@@ -27,6 +28,7 @@ type TOrderField = ContactOrderField
 export const objectType = ObjectTypes.CONTACT
 export const objectName = ObjectNames.CONTACT
 export const tableKey = TableKeyEnum.CONTACT
+export const exportType = ExportExportType.CONTACT
 export const orderFieldEnum = ContactOrderField
 export const defaultSorting = [{ field: ContactOrderField.full_name, direction: OrderDirection.ASC }]
 

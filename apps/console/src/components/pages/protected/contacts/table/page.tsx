@@ -8,7 +8,7 @@ import { type ContactsNodeNonNull, useContact, useUpdateContact, useCreateContac
 import { useSearchParams } from 'next/navigation'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
 import { breadcrumbs, getFieldsToRender, getFilterFields, visibilityFields } from './table-config'
-import { type ContactSheetConfig, type ContactTablePageConfig, type ContactFieldProps, objectType, objectName, tableKey, orderFieldEnum, defaultSorting } from './types'
+import { type ContactSheetConfig, type ContactTablePageConfig, type ContactFieldProps, objectType, objectName, tableKey, exportType, orderFieldEnum, defaultSorting } from './types'
 import { getColumns } from './columns'
 import TableComponent from './table'
 import { ContactUserStatus, type CreateContactInput, type UpdateContactInput } from '@repo/codegen/src/schema'
@@ -92,6 +92,7 @@ const ContactPage: React.FC = () => {
     objectType,
     objectName,
     tableKey,
+    exportType,
     orderFieldEnum,
     defaultSorting,
     defaultVisibility: visibilityFields,
