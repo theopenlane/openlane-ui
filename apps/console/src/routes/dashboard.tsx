@@ -3,7 +3,6 @@ import {
   Bot,
   Bug,
   Building2,
-  Contact,
   DollarSign,
   FileBadge2,
   FileSearch,
@@ -45,6 +44,7 @@ import {
   Route,
   CircleHelp,
   ClipboardPenLine,
+  IdCard,
 } from 'lucide-react'
 import { type NavHeading, type NavItem, type Separator } from '@/types'
 import { PlanEnum } from '@/lib/subscription-plan/plan-enum.ts'
@@ -130,7 +130,7 @@ export const topNavigationItems = (session: Session | null): (NavItem | Separato
         {
           title: 'Contacts',
           href: '/registry/contacts',
-          icon: Contact,
+          icon: IdCard,
         },
       ],
     },
