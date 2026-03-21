@@ -12,7 +12,7 @@ export const formId = 'edit' + ObjectNames.CONTACT
 export const breadcrumbs = [
   { label: 'Home', href: '/dashboard' },
   { label: 'Registry', href: '/registry/contacts' },
-  { label: 'Contacts', href: '/contacts' },
+  { label: 'Contacts', href: '/registry/contacts' },
 ]
 
 export const getFilterFields = (enumOptions: EnumOptions): FilterField[] => [
