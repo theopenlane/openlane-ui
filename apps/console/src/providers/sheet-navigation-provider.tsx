@@ -12,6 +12,7 @@ import ViewRemediationSheet from '@/components/pages/protected/remediations/view
 import ViewAssetSheet from '@/components/pages/protected/assets/view-asset-sheet'
 import ControlObjectiveDetailsSheet from '@/components/pages/protected/controls/tabs/implementation/control-objectives-components/control-objective-details-sheet'
 import ControlImplementationDetailsSheet from '@/components/pages/protected/controls/tabs/implementation/control-implementation-components/control-implementation-details-sheet'
+import TaskDetailsSheet from '@/components/pages/protected/tasks/create-task/sidebar/task-details-sheet'
 
 export const FULL_PAGE_KINDS = new Set<string>([ObjectAssociationNodeEnum.CONTROL, ObjectAssociationNodeEnum.SUBCONTROL])
 
@@ -26,6 +27,7 @@ export const SHEET_KINDS = new Set<string>([
   ObjectAssociationNodeEnum.ASSET,
   ObjectAssociationNodeEnum.CONTROL_OBJECTIVE,
   ObjectAssociationNodeEnum.CONTROL_IMPLEMENTATION,
+  ObjectAssociationNodeEnum.TASK,
 ])
 
 type SheetNavigationContextValue = {
@@ -63,6 +65,8 @@ const renderSheet = (activeSheet: ActiveSheet, onClose: () => void) => {
       return <ControlObjectiveDetailsSheet entityId={id} onClose={onClose} />
     case ObjectAssociationNodeEnum.CONTROL_IMPLEMENTATION:
       return <ControlImplementationDetailsSheet entityId={id} onClose={onClose} />
+    case ObjectAssociationNodeEnum.TASK:
+      return <TaskDetailsSheet entityId={id} onClose={onClose} />
     default:
       return null
   }
