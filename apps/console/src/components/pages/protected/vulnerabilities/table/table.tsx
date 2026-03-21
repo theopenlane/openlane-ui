@@ -196,6 +196,8 @@ const TableComponent = ({
         initialData={trackRemediationRow ? { vulnerabilityIDs: [trackRemediationRow.id] } : undefined}
         defaultTitle={trackRemediationRow ? `${trackRemediationRow.displayName ?? trackRemediationRow.displayID ?? trackRemediationRow.externalID ?? ''} Remediation`.trim() : undefined}
         onSuccess={() => queryClient.invalidateQueries({ queryKey: ['vulnerabilities'] })}
+        entityId={trackRemediationRow?.id}
+        entityType="vulnerability"
       />
     </>
   )

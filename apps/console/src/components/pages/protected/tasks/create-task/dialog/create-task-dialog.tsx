@@ -48,17 +48,18 @@ const CreateTaskDialog = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      {trigger ? (
-        <DialogTrigger className={className ?? ''} asChild>
-          {trigger}
-        </DialogTrigger>
-      ) : (
-        <DialogTrigger asChild>
-          <Button className={className ?? 'h-8 px-2!'} icon={<PlusCircle />} iconPosition="left" onClick={() => setIsOpen(true)}>
-            Create
-          </Button>
-        </DialogTrigger>
-      )}
+      {controlledOpen === undefined &&
+        (trigger ? (
+          <DialogTrigger className={className ?? ''} asChild>
+            {trigger}
+          </DialogTrigger>
+        ) : (
+          <DialogTrigger asChild>
+            <Button className={className ?? 'h-8 px-2!'} icon={<PlusCircle />} iconPosition="left" onClick={() => setIsOpen(true)}>
+              Create
+            </Button>
+          </DialogTrigger>
+        ))}
       <DialogContent className={hideObjectAssociation ? 'max-w-4xl' : ''}>
         <DialogHeader>
           <DialogTitle>Create a new Task</DialogTitle>

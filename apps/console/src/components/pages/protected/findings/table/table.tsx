@@ -192,6 +192,8 @@ const TableComponent = ({
         initialData={trackRemediationRow ? { findingIDs: [trackRemediationRow.id] } : undefined}
         defaultTitle={trackRemediationRow ? `${trackRemediationRow.displayName ?? trackRemediationRow.displayID ?? ''} Remediation`.trim() : undefined}
         onSuccess={() => queryClient.invalidateQueries({ queryKey: ['findings'] })}
+        entityId={trackRemediationRow?.id}
+        entityType="finding"
       />
     </>
   )
