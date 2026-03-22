@@ -32,7 +32,7 @@ const FindingRemediationButton: React.FC<RemediationButtonProps> = ({ entityId, 
         icon={<ExternalLink size={14} />}
         iconPosition="left"
         variant="outline"
-        size="sm"
+        size="md"
         onClick={() => sheetNav?.openSheet(firstRemediationId, ObjectAssociationNodeEnum.REMEDIATION)}
       >
         Open Remediation
@@ -41,7 +41,7 @@ const FindingRemediationButton: React.FC<RemediationButtonProps> = ({ entityId, 
   }
 
   return (
-    <Button type="button" icon={<ShieldCheck size={14} />} iconPosition="left" variant="primary" size="sm" onClick={onTrack}>
+    <Button type="button" icon={<ShieldCheck size={14} />} iconPosition="left" variant="primary" size="md" onClick={onTrack}>
       Track Remediation
     </Button>
   )
