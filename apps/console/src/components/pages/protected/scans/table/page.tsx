@@ -108,6 +108,7 @@ const ScanPage: React.FC = () => {
     isFetching: isLoading,
     updateMutation,
     createMutation,
+    deleteMutation,
     normalizeData,
     extraContent: id ? <ScanAssociationsSection scanId={id} /> : undefined,
     buildPayload: async (data) => {

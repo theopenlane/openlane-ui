@@ -237,29 +237,28 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
     }
   }
 
-  const handleDelete = async (id: string) => {
-    if (!deleteMutation) {
-      return
-    }
+  const handleDelete =
+    deleteMutation && isDeleteAllowed
+      ? async (id: string) => {
+          try {
+            await deleteMutation.mutateAsync({ ids: [id] })
 
-    try {
-      await deleteMutation.mutateAsync({ ids: [id] })
+            queryClient.invalidateQueries({ queryKey })
+            successNotification({
+              title: `${objectTypeName} Deleted`,
+              description: `The ${objectTypeName.toLowerCase()} has been successfully deleted.`,
+            })
 
-      queryClient.invalidateQueries({ queryKey })
-      successNotification({
-        title: `${objectTypeName} Deleted`,
-        description: `The ${objectTypeName.toLowerCase()} has been successfully deleted.`,
-      })
-
-      onClose?.()
-    } catch (error) {
-      const errorMessage = parseErrorMessage(error)
-      errorNotification({
-        title: 'Error',
-        description: errorMessage,
-      })
-    }
-  }
+            onClose?.()
+          } catch (error) {
+            const errorMessage = parseErrorMessage(error)
+            errorNotification({
+              title: 'Error',
+              description: errorMessage,
+            })
+          }
+        }
+      : undefined
 
   const handleUpdateField = async (input: TUpdateInput) => {
     if (!id || isEditing || !updateMutation) {
@@ -336,7 +335,6 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
                 entityId={id}
                 basePath={basePath}
                 extraActions={extraHeaderActions}
-                isDeleteAllowed={isDeleteAllowed}
               />
             )
           }
