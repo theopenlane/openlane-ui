@@ -99,7 +99,7 @@ export function StepDialog<TFormData extends FieldValues, TCreateInput, TCreateD
         if (!open) onClose()
       }}
     >
-      <DialogContent className="sm:max-w-150">
+      <DialogContent className="sm:max-w-150" onInteractOutside={(e) => e.preventDefault()} onEscapeKeyDown={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle>{dialogTitle}</DialogTitle>
         </DialogHeader>
