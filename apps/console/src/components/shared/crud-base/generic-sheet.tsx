@@ -10,8 +10,9 @@ import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { type UseFormReturn, type FieldValues } from 'react-hook-form'
 import { type ObjectTypes } from '@repo/codegen/src/type-names'
-import { useAccountRoles } from '@/lib/query-hooks/permissions'
-import { canEdit } from '@/lib/authz/utils'
+import { useAccountRoles, useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { canEdit, canDelete } from '@/lib/authz/utils'
+import { getPermissionStrategy } from './utils'
 import { GenericSheetHeader } from './header'
 import { GenericDetailsSheetSkeleton } from './skeleton/details-sheet-skeleton'
 import { pluralizeTypeName } from '@/utils/strings'
@@ -128,8 +129,13 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
   const id = entityIdOverride !== undefined ? entityIdOverride : searchParams.get('id')
   const isCreate = isCreateMode !== undefined ? isCreateMode : searchParams.get('create') === 'true'
 
-  const { data: permission } = useAccountRoles(objectType, id)
+  const permissionStrategy = getPermissionStrategy(objectType)
+  const useObjectPermissions = permissionStrategy === 'object'
+  const { data: objectPermission } = useAccountRoles(objectType, id, useObjectPermissions)
+  const { data: orgPermission } = useOrganizationRoles()
+  const permission = useObjectPermissions ? objectPermission : orgPermission
   const isEditAllowed = !!updateMutation && canEdit(permission?.roles)
+  const isDeleteAllowed = !!deleteMutation && canDelete(permission?.roles)
 
   const objectTypeName = objectType.charAt(0).toUpperCase() + objectType.slice(1).toLowerCase()
   const createSuccessTitle = `${objectTypeName} Created`
@@ -330,6 +336,7 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
                 entityId={id}
                 basePath={basePath}
                 extraActions={extraHeaderActions}
+                isDeleteAllowed={isDeleteAllowed}
               />
             )
           }

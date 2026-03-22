@@ -26,6 +26,7 @@ interface GenericSheetHeaderProps {
   entityId?: string | null
   basePath?: string
   extraActions?: React.ReactNode
+  isDeleteAllowed?: boolean
 }
 
 export const GenericSheetHeader = ({
@@ -42,6 +43,7 @@ export const GenericSheetHeader = ({
   entityId,
   basePath,
   extraActions,
+  isDeleteAllowed,
 }: GenericSheetHeaderProps) => {
   const { successNotification, errorNotification } = useNotification()
   const searchParams = useSearchParams()
@@ -96,7 +98,7 @@ export const GenericSheetHeader = ({
                   Edit
                 </Button>
               )}
-              {onDelete && entityType && id && <GenericDeleteDialog entityId={id} entityType={entityType} onDelete={onDelete} />}
+              {isDeleteAllowed && onDelete && id && <GenericDeleteDialog entityId={id} entityType={entityType} onDelete={onDelete} />}
             </>
           )}
         </div>

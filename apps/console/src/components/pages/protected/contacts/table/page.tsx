@@ -81,6 +81,7 @@ const ContactPage: React.FC = () => {
     isFetching: isLoading,
     updateMutation,
     createMutation,
+    deleteMutation,
     buildPayload: async (data) => {
       return { ...data }
     },
