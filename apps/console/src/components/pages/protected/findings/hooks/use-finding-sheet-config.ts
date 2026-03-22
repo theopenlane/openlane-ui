@@ -3,7 +3,7 @@
 import { useCallback } from 'react'
 import type React from 'react'
 import useFormSchema from './use-form-schema'
-import { type FindingsNodeNonNull, useFinding, useUpdateFinding, useCreateFinding, useBulkDeleteFinding, useGetFindingAssociations } from '@/lib/graphql-hooks/finding'
+import { type FindingsNodeNonNull, useFinding, useUpdateFinding, useCreateFinding, useGetFindingAssociations, useBulkDeleteFinding } from '@/lib/graphql-hooks/finding'
 import { getFieldsToRender } from '../table/table-config'
 import { type FindingSheetConfig, type FindingFieldProps, type EnumOptions, objectType } from '../table/types'
 import { type CreateFindingInput, type UpdateFindingInput, type GetFindingAssociationsQuery } from '@repo/codegen/src/schema'
@@ -36,7 +36,7 @@ export const useFindingSheetConfig = (entityId: string | null | undefined, isCre
 
   const baseUpdateMutation = useUpdateFinding()
   const baseCreateMutation = useCreateFinding()
-  const baseDeleteMutation = useBulkDeleteFinding()
+  const baseBulkDeleteMutation = useBulkDeleteFinding()
 
   const updateMutation = {
     isPending: baseUpdateMutation.isPending,
@@ -46,6 +46,14 @@ export const useFindingSheetConfig = (entityId: string | null | undefined, isCre
   const createMutation = {
     isPending: baseCreateMutation.isPending,
     mutateAsync: async (input: CreateFindingInput) => baseCreateMutation.mutateAsync({ input }),
+  }
+
+  const deleteMutation = {
+    isPending: baseBulkDeleteMutation.isPending,
+    mutateAsync: async (params: { ids: string[] }) => {
+      const result = await baseBulkDeleteMutation.mutateAsync({ ids: params.ids })
+      return result.deleteBulkFinding.deletedIDs
+    },
   }
 
   const { enumOptions: environmentOptions, onCreateOption: createEnvironment } = useCreatableEnumOptions({ field: 'environment' })
@@ -68,13 +76,7 @@ export const useFindingSheetConfig = (entityId: string | null | undefined, isCre
     isFetching: isLoading,
     updateMutation,
     createMutation,
-    deleteMutation: {
-      isPending: baseDeleteMutation.isPending,
-      mutateAsync: async ({ ids }) => {
-        await baseDeleteMutation.mutateAsync({ ids })
-        return ids
-      },
-    },
+    deleteMutation,
     buildPayload: async (formData) => {
       const { controlIDs, subcontrolIDs, riskIDs, programIDs, taskIDs, assetIDs, scanIDs, remediationIDs, reviewIDs, ...rest } = formData
       const associationPayload = buildAssociationPayload(

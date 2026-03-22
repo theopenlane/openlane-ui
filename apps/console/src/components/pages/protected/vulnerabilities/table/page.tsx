@@ -80,6 +80,14 @@ const VulnerabilityPage: React.FC = () => {
     },
   }
 
+  const deleteMutation = {
+    isPending: baseBulkDeleteMutation.isPending,
+    mutateAsync: async (params: { ids: string[] }) => {
+      const result = await baseBulkDeleteMutation.mutateAsync({ ids: params.ids })
+      return result.deleteBulkVulnerability.deletedIDs
+    },
+  }
+
   const bulkCreateMutation = {
     isPending: baseBulkCreateMutation.isPending,
     mutateAsync: async (params: { input: File }) => {
@@ -124,6 +132,7 @@ const VulnerabilityPage: React.FC = () => {
     isFetching: isLoading,
     updateMutation,
     createMutation,
+    deleteMutation,
     buildPayload: async (data) => {
       const { controlIDs, subcontrolIDs, findingIDs, remediationIDs, reviewIDs, assetIDs, taskIDs, ...rest } = data
       const associationPayload = buildAssociationPayload(

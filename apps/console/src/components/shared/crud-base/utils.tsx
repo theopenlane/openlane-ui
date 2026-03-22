@@ -10,7 +10,7 @@ export function enumToSortFields<T extends Record<string, string>>(enumObj: T) {
 
 export type PermissionStrategy = 'object' | 'org'
 
-const ORG_LEVEL_TYPES: ObjectTypes[] = [ObjectTypes.CONTACT, ObjectTypes.SCAN]
+const ORG_LEVEL_TYPES: ObjectTypes[] = [ObjectTypes.CONTACT]
 
 export const getPermissionStrategy = (objectType: ObjectTypes): PermissionStrategy => {
   return ORG_LEVEL_TYPES.includes(objectType) ? 'org' : 'object'
