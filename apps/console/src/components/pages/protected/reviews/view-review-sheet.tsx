@@ -46,7 +46,7 @@ const ViewReviewSheet: React.FC<Props> = ({ entityId, onClose }) => {
 
   const baseUpdateMutation = useUpdateReview()
   const baseCreateMutation = useCreateReview()
-  const baseDeleteMutation = useBulkDeleteReview()
+  const baseBulkDeleteMutation = useBulkDeleteReview()
 
   const updateMutation = {
     isPending: baseUpdateMutation.isPending,
@@ -62,6 +62,14 @@ const ViewReviewSheet: React.FC<Props> = ({ entityId, onClose }) => {
       stagedFilesRef.current = []
       existingFileIdsRef.current = []
       return result
+    },
+  }
+
+  const deleteMutation = {
+    isPending: baseBulkDeleteMutation.isPending,
+    mutateAsync: async (params: { ids: string[] }) => {
+      const result = await baseBulkDeleteMutation.mutateAsync({ ids: params.ids })
+      return result.deleteBulkReview.deletedIDs
     },
   }
 
@@ -84,13 +92,7 @@ const ViewReviewSheet: React.FC<Props> = ({ entityId, onClose }) => {
     isFetching: isLoading,
     updateMutation,
     createMutation,
-    deleteMutation: {
-      isPending: baseDeleteMutation.isPending,
-      mutateAsync: async ({ ids }) => {
-        await baseDeleteMutation.mutateAsync({ ids })
-        return ids
-      },
-    },
+    deleteMutation,
     onClose,
     basePath: '/exposure/reviews',
     buildPayload: async (formData) => {

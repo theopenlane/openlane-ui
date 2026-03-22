@@ -3,7 +3,7 @@
 import React, { useCallback, useRef } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import useFormSchema, { type ReviewFormData } from '@/components/pages/protected/reviews/hooks/use-form-schema'
-import { type ReviewsNodeNonNull, useReview, useUpdateReview, useCreateReview, useGetReviewAssociations } from '@/lib/graphql-hooks/review'
+import { type ReviewsNodeNonNull, useReview, useUpdateReview, useCreateReview, useGetReviewAssociations, useBulkDeleteReview } from '@/lib/graphql-hooks/review'
 import { GenericDetailsSheet } from '@/components/shared/crud-base/generic-sheet'
 import { getFieldsToRender } from '@/components/pages/protected/reviews/table/table-config'
 import { type ReviewSheetConfig, type ReviewFieldProps, objectType } from '@/components/pages/protected/reviews/table/types'
@@ -49,6 +49,7 @@ const ReviewDetailsSheet: React.FC<ReviewDetailsSheetProps> = ({ queryParamKey }
 
   const baseUpdateMutation = useUpdateReview()
   const baseCreateMutation = useCreateReview()
+  const baseBulkDeleteMutation = useBulkDeleteReview()
 
   const updateMutation = {
     isPending: baseUpdateMutation.isPending,
@@ -64,6 +65,14 @@ const ReviewDetailsSheet: React.FC<ReviewDetailsSheetProps> = ({ queryParamKey }
       stagedFilesRef.current = []
       existingFileIdsRef.current = []
       return result
+    },
+  }
+
+  const deleteMutation = {
+    isPending: baseBulkDeleteMutation.isPending,
+    mutateAsync: async (params: { ids: string[] }) => {
+      const result = await baseBulkDeleteMutation.mutateAsync({ ids: params.ids })
+      return result.deleteBulkReview.deletedIDs
     },
   }
 
@@ -93,6 +102,7 @@ const ReviewDetailsSheet: React.FC<ReviewDetailsSheetProps> = ({ queryParamKey }
     isFetching: isLoading,
     updateMutation,
     createMutation,
+    deleteMutation,
     buildPayload: async (formData) => {
       const { controlIDs, subcontrolIDs, remediationIDs, entityIDs, taskIDs, assetIDs, programIDs, ...rest } = formData
       const payload = await buildPayload(rest as ReviewFormData, plateEditorHelper)
