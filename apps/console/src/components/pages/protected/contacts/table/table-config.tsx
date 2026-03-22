@@ -1,9 +1,10 @@
 import { type FilterField } from '@/types'
 import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
 import { ObjectNames } from '@repo/codegen/src/type-names'
-import { ContactOrderField, type UpdateContactInput } from '@repo/codegen/src/schema'
+import { ContactOrderField, type ContactQuery, type UpdateContactInput } from '@repo/codegen/src/schema'
 import NameField from '../create/form/fields/name-field'
 import { AdditionalFields } from '../create/form/fields/additional-fields'
+import Properties from '../create/form/fields/properties'
 import { type ContactFieldProps, type EnumOptions } from './types'
 import { enumToSortFields } from '@/components/shared/crud-base/utils'
 
@@ -52,6 +53,16 @@ export const getFieldsToRender = (props: ContactFieldProps, enumOptions: EnumOpt
             isEditing={props.isEditing}
             isEditAllowed={props.isEditAllowed}
             initialValue={props.isCreate ? '' : (props.data?.fullName ?? '')}
+            internalEditing={props.internalEditing}
+            setInternalEditing={props.setInternalEditing}
+            handleUpdateField={props.handleUpdateField as ((input: UpdateContactInput) => Promise<void>) | undefined}
+          />
+        </div>
+        <div className="ml-20 mt-6">
+          <Properties
+            isEditing={props.isEditing}
+            isEditAllowed={props.isEditAllowed}
+            data={props.data as ContactQuery['contact'] | undefined}
             internalEditing={props.internalEditing}
             setInternalEditing={props.setInternalEditing}
             handleUpdateField={props.handleUpdateField as ((input: UpdateContactInput) => Promise<void>) | undefined}
