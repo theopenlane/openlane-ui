@@ -134,7 +134,7 @@ const AddContactDialog: React.FC<AddContactDialogProps> = ({ vendorId, onClose, 
                       <FormItem>
                         <FormLabel>Name</FormLabel>
                         <FormControl>
-                          <Input placeholder="e.g. Acme Corp" {...field} />
+                          <Input placeholder="e.g. John Doe" {...field} />
                         </FormControl>
                         {form.formState.errors.fullName?.message && <p className="text-sm text-red-500">{form.formState.errors.fullName.message}</p>}
                       </FormItem>
