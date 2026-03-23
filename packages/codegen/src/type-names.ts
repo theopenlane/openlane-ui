@@ -799,6 +799,7 @@ export enum TaskObjectTypes {
   CONTROL_OBJECTIVE = 'Control Objective',
   CONTROL = 'Control',
   EVIDENCE = 'Evidence',
+  FINDING = 'Finding',
   GROUP = 'Group',
   IDENTITY_HOLDER = 'Identity Holder',
   INTERNAL_POLICY = 'Internal Policy',
@@ -808,6 +809,7 @@ export enum TaskObjectTypes {
   RISK = 'Risk',
   SCAN = 'Scan',
   SUBCONTROL = 'Subcontrol',
+  VULNERABILITY = 'Vulnerability',
 }
 
 export type TaskAllQueriesData = {
@@ -833,6 +835,11 @@ export type TaskAllQueriesData = {
   }
   evidence?: {
     edges?: Array<{ node: Evidence }>
+    pageInfo?: PageInfo
+    totalCount?: number
+  }
+  findings?: {
+    edges?: Array<{ node: Finding }>
     pageInfo?: PageInfo
     totalCount?: number
   }
@@ -878,6 +885,11 @@ export type TaskAllQueriesData = {
   }
   subcontrols?: {
     edges?: Array<{ node: Subcontrol }>
+    pageInfo?: PageInfo
+    totalCount?: number
+  }
+  vulnerabilities?: {
+    edges?: Array<{ node: Vulnerability }>
     pageInfo?: PageInfo
     totalCount?: number
   }
@@ -930,6 +942,14 @@ export const TASK_OBJECT_TYPE_CONFIG: Record<TaskObjectTypes, TTaskObjectTypeCon
     inputName: 'evidenceIDs',
     placeholder: 'evidence',
     queryDocument: GET_ALL_EVIDENCES,
+    searchAttribute: 'nameContainsFold',
+    objectName: 'name',
+  },
+  [TaskObjectTypes.FINDING]: {
+    responseObjectKey: 'findings',
+    inputName: 'findingIDs',
+    placeholder: 'finding',
+    queryDocument: GET_ALL_FINDINGS,
     searchAttribute: 'nameContainsFold',
     objectName: 'name',
   },
@@ -1002,6 +1022,14 @@ export const TASK_OBJECT_TYPE_CONFIG: Record<TaskObjectTypes, TTaskObjectTypeCon
     inputName: 'subcontrolIDs',
     placeholder: 'subcontrol',
     queryDocument: GET_ALL_SUBCONTROLS,
+    searchAttribute: 'nameContainsFold',
+    objectName: 'name',
+  },
+  [TaskObjectTypes.VULNERABILITY]: {
+    responseObjectKey: 'vulnerabilities',
+    inputName: 'vulnerabilityIDs',
+    placeholder: 'vulnerability',
+    queryDocument: GET_ALL_VULNERABILITIES,
     searchAttribute: 'nameContainsFold',
     objectName: 'name',
   },
