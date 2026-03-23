@@ -21,12 +21,18 @@ const RISK_FIELDS = gql`
       displayName
       gravatarLogoURL
       logoURL
+      avatarFile {
+        base64
+      }
     }
     delegate {
       id
       displayName
       gravatarLogoURL
       logoURL
+      avatarFile {
+        base64
+      }
     }
     procedures {
       totalCount
@@ -138,6 +144,9 @@ const RISK_TABLE_FIELDS = gql`
       displayName
       gravatarLogoURL
       logoURL
+      avatarFile {
+        base64
+      }
     }
     details
     impact
@@ -152,6 +161,9 @@ const RISK_TABLE_FIELDS = gql`
       displayName
       gravatarLogoURL
       logoURL
+      avatarFile {
+        base64
+      }
     }
   }
 `
