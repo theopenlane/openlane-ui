@@ -63805,8 +63805,15 @@ export type ControlListFieldsFragment = {
     totalCount: number
     edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string } | null } | null> | null
   }
-  controlOwner?: { __typename?: 'Group'; id: string; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
-  delegate?: { __typename?: 'Group'; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
+  controlOwner?: {
+    __typename?: 'Group'
+    id: string
+    displayName: string
+    logoURL?: string | null
+    gravatarLogoURL?: string | null
+    avatarFile?: { __typename?: 'File'; base64?: string | null } | null
+  } | null
+  delegate?: { __typename?: 'Group'; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
   controlImplementations: {
     __typename?: 'ControlImplementationConnection'
     edges?: Array<{ __typename?: 'ControlImplementationEdge'; node?: { __typename?: 'ControlImplementation'; details?: string | null } | null } | null> | null
@@ -63916,8 +63923,22 @@ export type ControlDetailsFieldsFragment = {
       } | null
     } | null> | null
   }
-  delegate?: { __typename?: 'Group'; id: string; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
-  controlOwner?: { __typename?: 'Group'; id: string; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
+  delegate?: {
+    __typename?: 'Group'
+    id: string
+    displayName: string
+    logoURL?: string | null
+    gravatarLogoURL?: string | null
+    avatarFile?: { __typename?: 'File'; base64?: string | null } | null
+  } | null
+  controlOwner?: {
+    __typename?: 'Group'
+    id: string
+    displayName: string
+    logoURL?: string | null
+    gravatarLogoURL?: string | null
+    avatarFile?: { __typename?: 'File'; base64?: string | null } | null
+  } | null
 }
 
 export type GetAllControlsQueryVariables = Exact<{
@@ -63964,8 +63985,15 @@ export type GetAllControlsQuery = {
           totalCount: number
           edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string } | null } | null> | null
         }
-        controlOwner?: { __typename?: 'Group'; id: string; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
-        delegate?: { __typename?: 'Group'; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
+        controlOwner?: {
+          __typename?: 'Group'
+          id: string
+          displayName: string
+          logoURL?: string | null
+          gravatarLogoURL?: string | null
+          avatarFile?: { __typename?: 'File'; base64?: string | null } | null
+        } | null
+        delegate?: { __typename?: 'Group'; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
         controlImplementations: {
           __typename?: 'ControlImplementationConnection'
           edges?: Array<{ __typename?: 'ControlImplementationEdge'; node?: { __typename?: 'ControlImplementation'; details?: string | null } | null } | null> | null
@@ -64072,8 +64100,22 @@ export type GetControlByIdQuery = {
         } | null
       } | null> | null
     }
-    delegate?: { __typename?: 'Group'; id: string; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
-    controlOwner?: { __typename?: 'Group'; id: string; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
+    delegate?: {
+      __typename?: 'Group'
+      id: string
+      displayName: string
+      logoURL?: string | null
+      gravatarLogoURL?: string | null
+      avatarFile?: { __typename?: 'File'; base64?: string | null } | null
+    } | null
+    controlOwner?: {
+      __typename?: 'Group'
+      id: string
+      displayName: string
+      logoURL?: string | null
+      gravatarLogoURL?: string | null
+      avatarFile?: { __typename?: 'File'; base64?: string | null } | null
+    } | null
   }
 }
 
@@ -64096,7 +64138,7 @@ export type GetControlAssociationsByIdQuery = {
           name: string
           displayID: string
           summary?: string | null
-          approver?: { __typename?: 'Group'; gravatarLogoURL?: string | null; logoURL?: string | null; displayName: string } | null
+          approver?: { __typename?: 'Group'; gravatarLogoURL?: string | null; logoURL?: string | null; displayName: string; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
         } | null
       } | null> | null
     }
@@ -64111,7 +64153,7 @@ export type GetControlAssociationsByIdQuery = {
           name: string
           displayID: string
           summary?: string | null
-          approver?: { __typename?: 'Group'; gravatarLogoURL?: string | null; logoURL?: string | null; displayName: string } | null
+          approver?: { __typename?: 'Group'; gravatarLogoURL?: string | null; logoURL?: string | null; displayName: string; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
         } | null
       } | null> | null
     }
@@ -66975,6 +67017,7 @@ export type GetAllGroupsQuery = {
         updatedBy?: string | null
         createdAt?: any | null
         createdBy?: string | null
+        avatarFile?: { __typename?: 'File'; base64?: string | null } | null
         members: {
           __typename?: 'GroupMembershipConnection'
           edges?: Array<{
@@ -67041,8 +67084,10 @@ export type GetGroupDetailsQuery = {
     description?: string | null
     displayName: string
     logoURL?: string | null
+    gravatarLogoURL?: string | null
     isManaged?: boolean | null
     tags?: Array<string> | null
+    avatarFile?: { __typename?: 'File'; base64?: string | null } | null
     members: {
       __typename?: 'GroupMembershipConnection'
       edges?: Array<{
@@ -67467,8 +67512,8 @@ export type GetInternalPoliciesListQuery = {
         revision?: string | null
         status?: InternalPolicyDocumentStatus | null
         tags?: Array<string> | null
-        approver?: { __typename?: 'Group'; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
-        delegate?: { __typename?: 'Group'; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
+        approver?: { __typename?: 'Group'; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
+        delegate?: { __typename?: 'Group'; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
         controls: { __typename?: 'ControlConnection'; edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string } | null } | null> | null }
         procedures: { __typename?: 'ProcedureConnection'; edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string } | null } | null> | null }
       } | null
@@ -67514,8 +67559,22 @@ export type InternalPolicyByIdFragment = {
   summary?: string | null
   detailsJSON?: Array<any> | null
   internalPolicyKindName?: string | null
-  approver?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
-  delegate?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
+  approver?: {
+    __typename?: 'Group'
+    id: string
+    displayName: string
+    gravatarLogoURL?: string | null
+    logoURL?: string | null
+    avatarFile?: { __typename?: 'File'; base64?: string | null } | null
+  } | null
+  delegate?: {
+    __typename?: 'Group'
+    id: string
+    displayName: string
+    gravatarLogoURL?: string | null
+    logoURL?: string | null
+    avatarFile?: { __typename?: 'File'; base64?: string | null } | null
+  } | null
 }
 
 export type GetInternalPolicyDetailsByIdQueryVariables = Exact<{
@@ -67543,8 +67602,22 @@ export type GetInternalPolicyDetailsByIdQuery = {
     summary?: string | null
     detailsJSON?: Array<any> | null
     internalPolicyKindName?: string | null
-    approver?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
-    delegate?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
+    approver?: {
+      __typename?: 'Group'
+      id: string
+      displayName: string
+      gravatarLogoURL?: string | null
+      logoURL?: string | null
+      avatarFile?: { __typename?: 'File'; base64?: string | null } | null
+    } | null
+    delegate?: {
+      __typename?: 'Group'
+      id: string
+      displayName: string
+      gravatarLogoURL?: string | null
+      logoURL?: string | null
+      avatarFile?: { __typename?: 'File'; base64?: string | null } | null
+    } | null
   }
 }
 
@@ -69188,8 +69261,8 @@ export type GetProceduresTableListQuery = {
         revision?: string | null
         status?: ProcedureDocumentStatus | null
         tags?: Array<string> | null
-        approver?: { __typename?: 'Group'; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
-        delegate?: { __typename?: 'Group'; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
+        approver?: { __typename?: 'Group'; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
+        delegate?: { __typename?: 'Group'; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
         internalPolicies: {
           __typename?: 'InternalPolicyConnection'
           edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string } | null } | null> | null
@@ -69255,8 +69328,22 @@ export type ProcedureByIdFragment = {
   approvalRequired?: boolean | null
   procedureKindName?: string | null
   detailsJSON?: Array<any> | null
-  approver?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
-  delegate?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
+  approver?: {
+    __typename?: 'Group'
+    id: string
+    displayName: string
+    gravatarLogoURL?: string | null
+    logoURL?: string | null
+    avatarFile?: { __typename?: 'File'; base64?: string | null } | null
+  } | null
+  delegate?: {
+    __typename?: 'Group'
+    id: string
+    displayName: string
+    gravatarLogoURL?: string | null
+    logoURL?: string | null
+    avatarFile?: { __typename?: 'File'; base64?: string | null } | null
+  } | null
 }
 
 export type GetProcedureAssociationsByIdQueryVariables = Exact<{
@@ -69327,8 +69414,22 @@ export type GetProcedureDetailsByIdQuery = {
     approvalRequired?: boolean | null
     procedureKindName?: string | null
     detailsJSON?: Array<any> | null
-    approver?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
-    delegate?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
+    approver?: {
+      __typename?: 'Group'
+      id: string
+      displayName: string
+      gravatarLogoURL?: string | null
+      logoURL?: string | null
+      avatarFile?: { __typename?: 'File'; base64?: string | null } | null
+    } | null
+    delegate?: {
+      __typename?: 'Group'
+      id: string
+      displayName: string
+      gravatarLogoURL?: string | null
+      logoURL?: string | null
+      avatarFile?: { __typename?: 'File'; base64?: string | null } | null
+    } | null
   }
 }
 
@@ -69659,11 +69760,31 @@ export type GetProgramSettingsQuery = {
     __typename?: 'Program'
     viewers: {
       __typename?: 'GroupConnection'
-      edges?: Array<{ __typename?: 'GroupEdge'; node?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null } | null> | null
+      edges?: Array<{
+        __typename?: 'GroupEdge'
+        node?: {
+          __typename?: 'Group'
+          id: string
+          displayName: string
+          gravatarLogoURL?: string | null
+          logoURL?: string | null
+          avatarFile?: { __typename?: 'File'; base64?: string | null } | null
+        } | null
+      } | null> | null
     }
     editors: {
       __typename?: 'GroupConnection'
-      edges?: Array<{ __typename?: 'GroupEdge'; node?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null } | null> | null
+      edges?: Array<{
+        __typename?: 'GroupEdge'
+        node?: {
+          __typename?: 'Group'
+          id: string
+          displayName: string
+          gravatarLogoURL?: string | null
+          logoURL?: string | null
+          avatarFile?: { __typename?: 'File'; base64?: string | null } | null
+        } | null
+      } | null> | null
     }
     members: {
       __typename?: 'ProgramMembershipConnection'
@@ -69735,6 +69856,7 @@ export type GetProgramGroupsQuery = {
           id: string
           gravatarLogoURL?: string | null
           logoURL?: string | null
+          avatarFile?: { __typename?: 'File'; base64?: string | null } | null
           members: { __typename?: 'GroupMembershipConnection'; totalCount: number }
         } | null
       } | null> | null
@@ -69751,6 +69873,7 @@ export type GetProgramGroupsQuery = {
           id: string
           gravatarLogoURL?: string | null
           logoURL?: string | null
+          avatarFile?: { __typename?: 'File'; base64?: string | null } | null
           members: { __typename?: 'GroupMembershipConnection'; totalCount: number }
         } | null
       } | null> | null
@@ -70237,8 +70360,22 @@ export type RiskFieldsFragment = {
   likelihood?: RiskRiskLikelihood | null
   impact?: RiskRiskImpact | null
   mitigation?: string | null
-  stakeholder?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
-  delegate?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
+  stakeholder?: {
+    __typename?: 'Group'
+    id: string
+    displayName: string
+    gravatarLogoURL?: string | null
+    logoURL?: string | null
+    avatarFile?: { __typename?: 'File'; base64?: string | null } | null
+  } | null
+  delegate?: {
+    __typename?: 'Group'
+    id: string
+    displayName: string
+    gravatarLogoURL?: string | null
+    logoURL?: string | null
+    avatarFile?: { __typename?: 'File'; base64?: string | null } | null
+  } | null
   procedures: {
     __typename?: 'ProcedureConnection'
     totalCount: number
@@ -70300,8 +70437,15 @@ export type RiskTableFieldsFragment = {
   updatedBy?: string | null
   createdAt?: any | null
   createdBy?: string | null
-  delegate?: { __typename?: 'Group'; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
-  stakeholder?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
+  delegate?: { __typename?: 'Group'; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
+  stakeholder?: {
+    __typename?: 'Group'
+    id: string
+    displayName: string
+    gravatarLogoURL?: string | null
+    logoURL?: string | null
+    avatarFile?: { __typename?: 'File'; base64?: string | null } | null
+  } | null
 }
 
 export type GetRiskByIdQueryVariables = Exact<{
@@ -70326,8 +70470,22 @@ export type GetRiskByIdQuery = {
     likelihood?: RiskRiskLikelihood | null
     impact?: RiskRiskImpact | null
     mitigation?: string | null
-    stakeholder?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
-    delegate?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
+    stakeholder?: {
+      __typename?: 'Group'
+      id: string
+      displayName: string
+      gravatarLogoURL?: string | null
+      logoURL?: string | null
+      avatarFile?: { __typename?: 'File'; base64?: string | null } | null
+    } | null
+    delegate?: {
+      __typename?: 'Group'
+      id: string
+      displayName: string
+      gravatarLogoURL?: string | null
+      logoURL?: string | null
+      avatarFile?: { __typename?: 'File'; base64?: string | null } | null
+    } | null
     procedures: {
       __typename?: 'ProcedureConnection'
       totalCount: number
@@ -70407,8 +70565,15 @@ export type GetAllRisksQuery = {
         updatedBy?: string | null
         createdAt?: any | null
         createdBy?: string | null
-        delegate?: { __typename?: 'Group'; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
-        stakeholder?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
+        delegate?: { __typename?: 'Group'; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
+        stakeholder?: {
+          __typename?: 'Group'
+          id: string
+          displayName: string
+          gravatarLogoURL?: string | null
+          logoURL?: string | null
+          avatarFile?: { __typename?: 'File'; base64?: string | null } | null
+        } | null
       } | null
     } | null> | null
   }
@@ -71274,8 +71439,22 @@ export type GetSubcontrolByIdQuery = {
       __typename?: 'EvidenceConnection'
       edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; id: string; displayID: string; name: string; creationDate: any } | null } | null> | null
     }
-    delegate?: { __typename?: 'Group'; id: string; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
-    controlOwner?: { __typename?: 'Group'; id: string; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
+    delegate?: {
+      __typename?: 'Group'
+      id: string
+      displayName: string
+      logoURL?: string | null
+      gravatarLogoURL?: string | null
+      avatarFile?: { __typename?: 'File'; base64?: string | null } | null
+    } | null
+    controlOwner?: {
+      __typename?: 'Group'
+      id: string
+      displayName: string
+      logoURL?: string | null
+      gravatarLogoURL?: string | null
+      avatarFile?: { __typename?: 'File'; base64?: string | null } | null
+    } | null
   }
 }
 
@@ -71297,7 +71476,7 @@ export type GetSubcontrolAssociationsByIdQuery = {
           id: string
           name: string
           displayID: string
-          approver?: { __typename?: 'Group'; gravatarLogoURL?: string | null; logoURL?: string | null; displayName: string } | null
+          approver?: { __typename?: 'Group'; gravatarLogoURL?: string | null; logoURL?: string | null; displayName: string; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
         } | null
       } | null> | null
     }
@@ -71311,7 +71490,7 @@ export type GetSubcontrolAssociationsByIdQuery = {
           id: string
           name: string
           displayID: string
-          approver?: { __typename?: 'Group'; gravatarLogoURL?: string | null; logoURL?: string | null; displayName: string } | null
+          approver?: { __typename?: 'Group'; gravatarLogoURL?: string | null; logoURL?: string | null; displayName: string; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
         } | null
       } | null> | null
     }

@@ -52,11 +52,17 @@ export const GET_INTERNAL_POLICIES_LIST = gql`
             displayName
             gravatarLogoURL
             logoURL
+            avatarFile {
+              base64
+            }
           }
           delegate {
             displayName
             gravatarLogoURL
             logoURL
+            avatarFile {
+              base64
+            }
           }
           internalPolicyKindName
           reviewDue
@@ -140,12 +146,18 @@ export const INTERNAL_POLICY_BY_ID = gql`
       displayName
       gravatarLogoURL
       logoURL
+      avatarFile {
+        base64
+      }
     }
     delegate {
       id
       displayName
       gravatarLogoURL
       logoURL
+      avatarFile {
+        base64
+      }
     }
   }
 `

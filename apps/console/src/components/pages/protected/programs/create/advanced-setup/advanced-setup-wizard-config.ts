@@ -95,6 +95,7 @@ export const groupSchema = z
     displayName: z.string().nullable().optional(),
     gravatarLogoURL: z.string().nullable().optional(),
     logoURL: z.string().nullable().optional(),
+    avatarFile: z.object({ base64: z.string().nullable().optional() }).nullable().optional(),
     members: z
       .object({
         edges: z.array(groupMemberSchema),
