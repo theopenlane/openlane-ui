@@ -1,8 +1,9 @@
 'use client'
 
 import { useCallback } from 'react'
+import type React from 'react'
 import useFormSchema from './use-form-schema'
-import { type FindingsNodeNonNull, useFinding, useUpdateFinding, useCreateFinding, useGetFindingAssociations } from '@/lib/graphql-hooks/finding'
+import { type FindingsNodeNonNull, useFinding, useUpdateFinding, useCreateFinding, useBulkDeleteFinding, useGetFindingAssociations } from '@/lib/graphql-hooks/finding'
 import { getFieldsToRender } from '../table/table-config'
 import { type FindingSheetConfig, type FindingFieldProps, type EnumOptions, objectType } from '../table/types'
 import { type CreateFindingInput, type UpdateFindingInput, type GetFindingAssociationsQuery } from '@repo/codegen/src/schema'
@@ -11,7 +12,7 @@ import { buildAssociationPayload } from '@/components/shared/object-association/
 import { useInitialAssociations } from '@/hooks/useInitialAssociations'
 import { FINDING_ASSOCIATION_CONFIG } from '@/components/shared/object-association/association-configs'
 
-export const useFindingSheetConfig = (entityId: string | null | undefined, isCreate = false): Omit<FindingSheetConfig, 'onClose'> & { enumOpts: EnumOptions } => {
+export const useFindingSheetConfig = (entityId: string | null | undefined, isCreate = false, riskScoresAction?: React.ReactNode): Omit<FindingSheetConfig, 'onClose'> & { enumOpts: EnumOptions } => {
   const { form } = useFormSchema()
   const { data, isLoading } = useFinding(entityId || undefined)
   const { data: associationsData } = useGetFindingAssociations(entityId || undefined)
@@ -35,6 +36,7 @@ export const useFindingSheetConfig = (entityId: string | null | undefined, isCre
 
   const baseUpdateMutation = useUpdateFinding()
   const baseCreateMutation = useCreateFinding()
+  const baseDeleteMutation = useBulkDeleteFinding()
 
   const updateMutation = {
     isPending: baseUpdateMutation.isPending,
@@ -66,6 +68,13 @@ export const useFindingSheetConfig = (entityId: string | null | undefined, isCre
     isFetching: isLoading,
     updateMutation,
     createMutation,
+    deleteMutation: {
+      isPending: baseDeleteMutation.isPending,
+      mutateAsync: async ({ ids }) => {
+        await baseDeleteMutation.mutateAsync({ ids })
+        return ids
+      },
+    },
     buildPayload: async (formData) => {
       const { controlIDs, subcontrolIDs, riskIDs, programIDs, taskIDs, assetIDs, scanIDs, remediationIDs, reviewIDs, ...rest } = formData
       const associationPayload = buildAssociationPayload(
@@ -77,6 +86,6 @@ export const useFindingSheetConfig = (entityId: string | null | undefined, isCre
       return { ...rest, ...associationPayload }
     },
     getName,
-    renderFields: (props: FindingFieldProps) => getFieldsToRender(props, enumOpts, enumCreateHandlers),
+    renderFields: (props: FindingFieldProps) => getFieldsToRender(props, enumOpts, enumCreateHandlers, riskScoresAction),
   }
 }

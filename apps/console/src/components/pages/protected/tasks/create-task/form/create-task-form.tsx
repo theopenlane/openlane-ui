@@ -31,6 +31,7 @@ import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-e
 
 type TProps = {
   onSuccess: () => void
+  onSuccessWithId?: (id: string) => void
   defaultSelectedObject?: ObjectTypeObjects
   allowedObjectTypes?: ObjectTypeObjects[]
   initialData?: TObjectAssociationMap
@@ -111,13 +112,14 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
       }
 
       const res = await createTask(formData)
+      const taskId = res.createTask.task.id
 
       successNotification({
         title: 'Task Created',
         description: (
           <>
             Task has been successfully created.{' '}
-            <Link href={`/automation/tasks?id=${res.createTask.task.id}`} className="text-blue-600 underline">
+            <Link href={`/automation/tasks?id=${taskId}`} className="text-blue-600 underline">
               View Task
             </Link>
           </>
@@ -125,6 +127,7 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
       })
 
       form.reset()
+      props.onSuccessWithId?.(taskId)
       props.onSuccess()
       setAssociationResetTrigger((prev) => prev + 1)
     } catch (error) {
