@@ -11,11 +11,14 @@ import {
   type DeleteSlaDefinitionMutationVariables,
   type SlaDefinitionQuery,
   type SlaDefinitionQueryVariables,
+  type CreateBulkCsvslaDefinitionMutation,
+  type CreateBulkCsvslaDefinitionMutationVariables,
   type UpdateBulkSlaDefinitionMutation,
   type UpdateBulkSlaDefinitionMutationVariables,
   type DeleteBulkSlaDefinitionMutation,
   type DeleteBulkSlaDefinitionMutationVariables,
 } from '@repo/codegen/src/schema'
+import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
 import { type TPagination } from '@repo/ui/pagination-types'
 import {
   GET_ALL_SLA_DEFINITIONS,
@@ -23,22 +26,23 @@ import {
   UPDATE_SLA_DEFINITION,
   DELETE_SLA_DEFINITION,
   SLA_DEFINITION,
+  CREATE_CSV_BULK_SLA_DEFINITION,
   BULK_EDIT_SLA_DEFINITION,
   BULK_DELETE_SLA_DEFINITION,
 } from '@repo/codegen/query/sla-definition'
 
-type GetAllSLADefinitionsArgs = {
+type GetAllSlaDefinitionsArgs = {
   where?: SlaDefinitionsWithFilterQueryVariables['where']
   orderBy?: SlaDefinitionsWithFilterQueryVariables['orderBy']
   pagination?: TPagination
   enabled?: boolean
 }
 
-export type SLADefinitionsNode = NonNullable<NonNullable<NonNullable<SlaDefinitionsWithFilterQuery['slaDefinitions']>['edges']>[number]>['node']
+export type SlaDefinitionsNode = NonNullable<NonNullable<NonNullable<SlaDefinitionsWithFilterQuery['slaDefinitions']>['edges']>[number]>['node']
 
-export type SLADefinitionsNodeNonNull = NonNullable<SLADefinitionsNode>
+export type SlaDefinitionsNodeNonNull = NonNullable<SlaDefinitionsNode>
 
-export const useSLADefinitionsWithFilter = ({ where, orderBy, pagination, enabled = true }: GetAllSLADefinitionsArgs) => {
+export const useSlaDefinitionsWithFilter = ({ where, orderBy, pagination, enabled = true }: GetAllSlaDefinitionsArgs) => {
   const { client } = useGraphQLClient()
   const queryResult = useQuery<SlaDefinitionsWithFilterQuery, unknown>({
     queryKey: ['slaDefinitions', where, orderBy, pagination?.page, pagination?.pageSize],
@@ -51,12 +55,12 @@ export const useSLADefinitionsWithFilter = ({ where, orderBy, pagination, enable
 
   const edges = queryResult.data?.slaDefinitions?.edges ?? []
 
-  const slaDefinitionsNodes: SLADefinitionsNodeNonNull[] = edges.filter((edge) => edge != null).map((edge) => edge?.node as SLADefinitionsNodeNonNull)
+  const slaDefinitionsNodes: SlaDefinitionsNodeNonNull[] = edges.filter((edge) => edge != null).map((edge) => edge?.node as SlaDefinitionsNodeNonNull)
 
   return { ...queryResult, slaDefinitionsNodes }
 }
 
-export const useCreateSLADefinition = () => {
+export const useCreateSlaDefinition = () => {
   const { client } = useGraphQLClient()
   const queryClient = useQueryClient()
   return useMutation<CreateSlaDefinitionMutation, unknown, CreateSlaDefinitionMutationVariables>({
@@ -67,7 +71,7 @@ export const useCreateSLADefinition = () => {
   })
 }
 
-export const useUpdateSLADefinition = () => {
+export const useUpdateSlaDefinition = () => {
   const { client } = useGraphQLClient()
   const queryClient = useQueryClient()
   return useMutation<UpdateSlaDefinitionMutation, unknown, UpdateSlaDefinitionMutationVariables>({
@@ -78,7 +82,7 @@ export const useUpdateSLADefinition = () => {
   })
 }
 
-export const useDeleteSLADefinition = () => {
+export const useDeleteSlaDefinition = () => {
   const { client } = useGraphQLClient()
   const queryClient = useQueryClient()
   return useMutation<DeleteSlaDefinitionMutation, unknown, DeleteSlaDefinitionMutationVariables>({
@@ -89,7 +93,7 @@ export const useDeleteSLADefinition = () => {
   })
 }
 
-export const useSLADefinition = (slaDefinitionId?: SlaDefinitionQueryVariables['slaDefinitionId']) => {
+export const useSlaDefinition = (slaDefinitionId?: SlaDefinitionQueryVariables['slaDefinitionId']) => {
   const { client } = useGraphQLClient()
   return useQuery<SlaDefinitionQuery, unknown>({
     queryKey: ['slaDefinitions', slaDefinitionId],
@@ -101,7 +105,17 @@ export const useSLADefinition = (slaDefinitionId?: SlaDefinitionQueryVariables['
   })
 }
 
-export const useBulkEditSLADefinition = () => {
+export const useCreateBulkCSVSlaDefinition = () => {
+  const { queryClient } = useGraphQLClient()
+  return useMutation<CreateBulkCsvslaDefinitionMutation, unknown, CreateBulkCsvslaDefinitionMutationVariables>({
+    mutationFn: async (variables) => fetchGraphQLWithUpload({ query: CREATE_CSV_BULK_SLA_DEFINITION, variables }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['slaDefinitions'] })
+    },
+  })
+}
+
+export const useBulkEditSlaDefinition = () => {
   const { client, queryClient } = useGraphQLClient()
   return useMutation<UpdateBulkSlaDefinitionMutation, unknown, UpdateBulkSlaDefinitionMutationVariables>({
     mutationFn: async (variables) => client.request(BULK_EDIT_SLA_DEFINITION, variables),
@@ -111,7 +125,7 @@ export const useBulkEditSLADefinition = () => {
   })
 }
 
-export const useBulkDeleteSLADefinition = () => {
+export const useBulkDeleteSlaDefinition = () => {
   const { client, queryClient } = useGraphQLClient()
   return useMutation<DeleteBulkSlaDefinitionMutation, unknown, DeleteBulkSlaDefinitionMutationVariables>({
     mutationFn: async (variables) => client.request(BULK_DELETE_SLA_DEFINITION, variables),

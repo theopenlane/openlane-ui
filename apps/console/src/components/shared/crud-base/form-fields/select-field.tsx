@@ -8,6 +8,7 @@ import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { InfoIcon } from 'lucide-react'
 import { type InternalEditingType } from '../generic-sheet'
 import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-enum-select/creatable-custom-type-enum-select'
+import { cn } from '@repo/ui/lib/utils'
 
 interface SelectFieldProps<TUpdateInput> {
   name: string
@@ -23,6 +24,9 @@ interface SelectFieldProps<TUpdateInput> {
   onCreateOption?: (value: string) => Promise<void>
   useCustomDisplay?: boolean
   tooltipContent?: string
+  icon?: React.ReactNode
+  layout?: 'vertical' | 'horizontal'
+  labelClassName?: string
 }
 
 export const SelectField = <TUpdateInput,>({
@@ -39,6 +43,9 @@ export const SelectField = <TUpdateInput,>({
   onCreateOption,
   useCustomDisplay = true,
   tooltipContent,
+  icon,
+  layout = 'vertical',
+  labelClassName,
 }: SelectFieldProps<TUpdateInput>) => {
   const { control } = useFormContext()
   const rawValue = data?.[name]
@@ -53,9 +60,10 @@ export const SelectField = <TUpdateInput,>({
       control={control}
       name={name}
       render={({ field }) => (
-        <FormItem>
-          <div className="flex items-center gap-1">
-            <FormLabel>{label}</FormLabel>
+        <FormItem className={layout === 'horizontal' ? 'flex items-center justify-between gap-4 space-y-0' : ''}>
+          <div className="flex items-center gap-2 shrink-0">
+            {icon}
+            <FormLabel className={cn(layout === 'horizontal' && 'mb-0!', labelClassName)}>{label}</FormLabel>
             {tooltipContent && <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={tooltipContent} />}
           </div>
           <FormControl>
@@ -108,7 +116,7 @@ export const SelectField = <TUpdateInput,>({
               )
             ) : (
               <div
-                className="text-sm py-2 rounded-md cursor-pointer hover:bg-accent px-1 w-full"
+                className={cn('text-sm py-2 rounded-md cursor-pointer hover:bg-accent px-1 w-full', layout === 'horizontal' && 'flex justify-end')}
                 onClick={() => {
                   if (isEditAllowed) {
                     setInternalEditing(name)

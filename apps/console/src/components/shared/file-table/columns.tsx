@@ -9,6 +9,8 @@ export type TFile = {
   id: string
   uri?: string | null
   presignedURL?: string | null
+  categoryType?: string | null
+  createdAt?: string | null
 }
 
 export const fileColumns: ColumnDef<TFile>[] = [

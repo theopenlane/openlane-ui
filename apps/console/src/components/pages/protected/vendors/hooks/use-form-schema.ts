@@ -46,6 +46,7 @@ const formSchema = z.object({
   scanIDs: z.array(z.string()).optional(),
   campaignIDs: z.array(z.string()).optional(),
   identityHolderIDs: z.array(z.string()).optional(),
+  contactIDs: z.array(z.string()).optional(),
 })
 
 export const bulkEditFieldSchema = z.object({

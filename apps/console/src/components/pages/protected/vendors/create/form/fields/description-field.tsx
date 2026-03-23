@@ -1,24 +1,27 @@
 'use client'
 
-import React, { useRef } from 'react'
+import React from 'react'
 import { useFormContext } from 'react-hook-form'
 import { FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
+import { Textarea } from '@repo/ui/textarea'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { InfoIcon } from 'lucide-react'
+import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
+import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { type EditVendorFormData } from '../../../hooks/use-form-schema'
-import PlateEditor from '@/components/shared/plate/plate-editor'
-import { type Value } from 'platejs'
 
 type DescriptionFieldProps = {
   isEditing: boolean
   isCreate: boolean
-  initialValue: string | Value | undefined | null
-  isFormInitialized?: boolean
+  initialValue: string | undefined | null
+  onDoubleClickEdit?: () => void
+  onBlurSave?: () => void
+  canEdit?: boolean
 }
 
-const DescriptionField: React.FC<DescriptionFieldProps> = ({ isEditing, isCreate, initialValue, isFormInitialized }) => {
+const DescriptionField: React.FC<DescriptionFieldProps> = ({ isEditing, isCreate, initialValue, onDoubleClickEdit, onBlurSave, canEdit }) => {
   const { control, formState } = useFormContext<EditVendorFormData>()
-  const hasInitializedRef = useRef(false)
+  const { convertToReadOnly } = usePlateEditor()
 
   return isEditing || isCreate ? (
     <FormField
@@ -31,21 +34,17 @@ const DescriptionField: React.FC<DescriptionFieldProps> = ({ isEditing, isCreate
             <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Provide a detailed description of the vendor</p>} />
           </div>
           <FormControl>
-            <PlateEditor
-              onChange={(val) => {
-                console.log('PlateEditor onChange called, hasInitializedRef:', hasInitializedRef.current, 'isFormInitialized:', isFormInitialized)
-
-                if (!hasInitializedRef.current && isFormInitialized) {
-                  hasInitializedRef.current = true
-                  return
-                }
-
-                if (hasInitializedRef.current && isFormInitialized) {
-                  field.onChange(val)
+            <Textarea
+              autoFocus={!!onBlurSave}
+              placeholder="Write your vendor description"
+              {...field}
+              value={typeof field.value === 'string' ? field.value : ''}
+              onBlur={() => onBlurSave?.()}
+              onKeyDown={(e) => {
+                if (e.key === 'Escape') {
+                  e.currentTarget.blur()
                 }
               }}
-              initialValue={initialValue ?? ''}
-              placeholder="Write your vendor description"
             />
           </FormControl>
           {formState.errors.description && <p className="text-red-500 text-sm">{formState.errors.description.message}</p>}
@@ -58,13 +57,23 @@ const DescriptionField: React.FC<DescriptionFieldProps> = ({ isEditing, isCreate
         <span className="font-medium">Description</span>
         <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Provide a detailed description of the vendor and what it is used for</p>} />
       </div>
-      {initialValue ? (
-        <div className="min-h-5 pb-4">
-          <PlateEditor toolbarClassName="-mt-20" placeholder="No description set" key={JSON.stringify(initialValue)} initialValue={initialValue} readonly={true} variant="readonly" />
-        </div>
-      ) : (
-        <p className="text-muted-foreground italic pb-4">No description set</p>
-      )}
+      <HoverPencilWrapper showPencil={!!canEdit} onPencilClick={onDoubleClickEdit}>
+        {initialValue ? (
+          initialValue.includes('slate') ? (
+            <div className="min-h-5" onDoubleClick={onDoubleClickEdit}>
+              {convertToReadOnly(initialValue)}
+            </div>
+          ) : (
+            <p className="min-h-5 whitespace-pre-wrap" onDoubleClick={onDoubleClickEdit}>
+              {initialValue}
+            </p>
+          )
+        ) : (
+          <p className="text-muted-foreground italic" onDoubleClick={onDoubleClickEdit}>
+            No description set
+          </p>
+        )}
+      </HoverPencilWrapper>
     </div>
   )
 }

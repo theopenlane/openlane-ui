@@ -208,9 +208,9 @@ export const BULK_EDIT_ENTITY = gql`
 `
 
 export const GET_ENTITY_FILES_PAGINATED = gql`
-  query GetEntityFilesPaginated($entityId: ID!, $after: Cursor, $first: Int, $before: Cursor, $last: Int, $orderBy: [FileOrder!]) {
+  query GetEntityFilesPaginated($entityId: ID!, $after: Cursor, $first: Int, $before: Cursor, $last: Int, $orderBy: [FileOrder!], $where: FileWhereInput) {
     entity(id: $entityId) {
-      files(after: $after, first: $first, before: $before, last: $last, orderBy: $orderBy) {
+      files(after: $after, first: $first, before: $before, last: $last, orderBy: $orderBy, where: $where) {
         pageInfo {
           endCursor
           hasNextPage
@@ -226,6 +226,8 @@ export const GET_ENTITY_FILES_PAGINATED = gql`
             id
             uri
             presignedURL
+            categoryType
+            createdAt
           }
         }
       }
@@ -262,6 +264,9 @@ export const GET_ENTITY_ASSOCIATIONS = gql`
             id
             name
             displayName
+            environmentName
+            scopeName
+            assetType
           }
         }
         totalCount
@@ -291,6 +296,31 @@ export const GET_ENTITY_ASSOCIATIONS = gql`
             id
             fullName
             displayID
+          }
+        }
+        totalCount
+      }
+      integrations {
+        edges {
+          node {
+            id
+            name
+            kind
+            description
+            environmentName
+            integrationType
+            updatedAt
+          }
+        }
+        totalCount
+      }
+      controls {
+        edges {
+          node {
+            id
+            refCode
+            title
+            description
           }
         }
         totalCount

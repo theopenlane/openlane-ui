@@ -538,6 +538,25 @@ export const BULK_DELETE_EVIDENCE = gql`
   }
 `
 
+export const GET_EVIDENCES_WITH_FILE_IDS = gql`
+  query GetEvidencesWithFileIds($where: EvidenceWhereInput) {
+    evidences(where: $where, first: 100) {
+      edges {
+        node {
+          id
+          files {
+            edges {
+              node {
+                id
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`
+
 export const BULK_EDIT_EVIDENCE = gql`
   mutation UpdateBulkEvidence($ids: [ID!]!, $input: UpdateEvidenceInput!) {
     updateBulkEvidence(ids: $ids, input: $input) {
