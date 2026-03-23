@@ -59,7 +59,7 @@ const DescriptionField: React.FC<DescriptionFieldProps> = ({ isEditing, isCreate
       </div>
       <HoverPencilWrapper showPencil={!!canEdit} onPencilClick={onDoubleClickEdit}>
         {initialValue ? (
-          initialValue.includes('plate') ? (
+          initialValue.includes('slate') ? (
             <div className="min-h-5" onDoubleClick={onDoubleClickEdit}>
               {convertToReadOnly(initialValue)}
             </div>
