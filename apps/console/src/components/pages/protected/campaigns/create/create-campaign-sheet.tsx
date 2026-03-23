@@ -116,6 +116,8 @@ export const CreateCampaignSheet: React.FC<CreateCampaignSheetProps> = ({ open, 
     await submitCampaign(data, CampaignCampaignStatus.ACTIVE)
   }, [form, submitCampaign])
 
+  const templateID = form.watch('templateID')
+
   const handleCreateTemplate = useCallback(() => {
     window.open('/automation/campaigns?create-template=true', '_blank')
   }, [])
@@ -173,6 +175,7 @@ export const CreateCampaignSheet: React.FC<CreateCampaignSheetProps> = ({ open, 
           isSaving={isCreating}
           isCompleting={isCreating}
           isDirty={form.formState.isDirty || targets.length > 0 || uploadedFile !== null}
+          canProceed={currentStep !== 0 || !!templateID}
         />
       </Form>
       <EmailBrandingPanel open={showEmailBranding} onClose={() => setShowEmailBranding(false)} onSave={handleEmailBrandingSave} />

@@ -1,16 +1,12 @@
 'use client'
 
-import React from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { type UseFormReturn } from 'react-hook-form'
 import { Button } from '@repo/ui/button'
-import { Input } from '@repo/ui/input'
-import { Textarea } from '@repo/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@repo/ui/form'
 import { SquarePlus } from 'lucide-react'
 import { useTemplateSelect } from '@/lib/graphql-hooks/template'
-import { CampaignCampaignType } from '@repo/codegen/src/schema'
-import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import { type CampaignFormData } from '../hooks/use-campaign-form-schema'
 
 interface TemplateStepProps {
@@ -18,72 +14,38 @@ interface TemplateStepProps {
   onCreateTemplate: () => void
 }
 
-const campaignTypeOptions = enumToOptions(CampaignCampaignType)
-
 export const TemplateStep: React.FC<TemplateStepProps> = ({ form, onCreateTemplate }) => {
-  const { templateOptions, isLoading } = useTemplateSelect({ where: {} })
+  const { templateOptions, templates, isLoading } = useTemplateSelect({ where: {} })
   const templateId = form.watch('templateID')
+
+  const selectedTemplate = useMemo(() => templates?.find((t) => t.id === templateId), [templates, templateId])
+
+  const handleTemplateChange = useCallback(
+    (val: string) => {
+      const id = val || undefined
+      form.setValue('templateID', val, { shouldDirty: true, shouldValidate: true })
+
+      const template = templates?.find((t) => t.id === id)
+      if (template) {
+        form.setValue('name', template.name, { shouldDirty: true })
+        form.setValue('description', template.description ?? '', { shouldDirty: true })
+      } else {
+        form.setValue('name', '', { shouldDirty: true })
+        form.setValue('description', '', { shouldDirty: true })
+      }
+    },
+    [form, templates],
+  )
 
   return (
     <div className="flex flex-col gap-4">
-      <FormField
-        control={form.control}
-        name="name"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Campaign Name</FormLabel>
-            <FormControl>
-              <Input placeholder="Enter campaign name" {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      <FormField
-        control={form.control}
-        name="campaignType"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Campaign Type</FormLabel>
-            <Select value={field.value ?? ''} onValueChange={field.onChange}>
-              <FormControl>
-                <SelectTrigger className="w-full">{field.value ? campaignTypeOptions.find((o) => o.value === field.value)?.label ?? 'Select a type' : 'Select a type'}</SelectTrigger>
-              </FormControl>
-              <SelectContent>
-                {campaignTypeOptions.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      <FormField
-        control={form.control}
-        name="description"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Description</FormLabel>
-            <FormControl>
-              <Textarea placeholder="Describe the purpose of this campaign" rows={3} {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
       <FormField
         control={form.control}
         name="templateID"
         render={({ field }) => (
           <FormItem>
             <FormLabel>Campaign Template</FormLabel>
-            <Select value={field.value ?? ''} onValueChange={(val) => field.onChange(val || undefined)}>
+            <Select value={field.value ?? ''} onValueChange={handleTemplateChange}>
               <FormControl>
                 <SelectTrigger className="w-full">{templateId ? templateOptions.find((t) => t.value === templateId)?.label ?? 'Select a template' : 'Select a template'}</SelectTrigger>
               </FormControl>
@@ -112,6 +74,32 @@ export const TemplateStep: React.FC<TemplateStepProps> = ({ form, onCreateTempla
           Create Template
         </Button>
       </div>
+
+      {selectedTemplate && (
+        <div className="flex flex-col gap-3 rounded-md border border-border p-4">
+          <h4 className="text-sm font-semibold">Template Details</h4>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <span className="text-xs text-muted-foreground">Name</span>
+              <p className="text-sm">{selectedTemplate.name}</p>
+            </div>
+            <div>
+              <span className="text-xs text-muted-foreground">Type</span>
+              <p className="text-sm">{selectedTemplate.templateType ?? '—'}</p>
+            </div>
+            <div>
+              <span className="text-xs text-muted-foreground">Owner</span>
+              <p className="text-sm">{selectedTemplate.owner?.displayName ?? '—'}</p>
+            </div>
+          </div>
+          {selectedTemplate.description && (
+            <div>
+              <span className="text-xs text-muted-foreground">Description</span>
+              <p className="text-sm">{selectedTemplate.description}</p>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }
