@@ -96,7 +96,7 @@ export const GenericSheetHeader = ({
                   Edit
                 </Button>
               )}
-              {onDelete && entityType && id && <GenericDeleteDialog entityId={id} entityType={entityType} onDelete={onDelete} />}
+              {onDelete && id && <GenericDeleteDialog entityId={id} entityType={entityType} onDelete={onDelete} />}
             </>
           )}
         </div>

@@ -33,6 +33,7 @@ export const GET_ALL_CONTACTS = gql`
           id
           phoneNumber
           status
+          tags
           title
           updatedAt
           updatedBy
@@ -60,6 +61,7 @@ export const CONTACT = gql`
       id
       phoneNumber
       status
+      tags
       title
       updatedAt
       updatedBy

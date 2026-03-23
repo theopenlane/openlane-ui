@@ -23,7 +23,8 @@ interface ContactDetailSheetProps {
 }
 
 const ContactDetailSheet: React.FC<ContactDetailSheetProps> = ({ contactId, onClose, canEdit }) => {
-  const { contact, isLoading } = useContact(contactId)
+  const { data, isLoading } = useContact(contactId)
+  const contact = data?.contact
   const { mutateAsync: updateContact, isPending } = useUpdateContact()
   const { successNotification, errorNotification } = useNotification()
   const { form } = useContactFormSchema()
@@ -60,7 +61,7 @@ const ContactDetailSheet: React.FC<ContactDetailSheetProps> = ({ contactId, onCl
     }
 
     try {
-      await updateContact({ id: contactId, input })
+      await updateContact({ updateContactId: contactId, input })
       successNotification({ title: 'Contact updated', description: 'The contact has been successfully updated.' })
       onClose()
     } catch (error) {

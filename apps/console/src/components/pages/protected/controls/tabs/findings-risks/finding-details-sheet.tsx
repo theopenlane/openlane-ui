@@ -3,7 +3,7 @@
 import React, { useCallback } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import useFormSchema from '@/components/pages/protected/findings/hooks/use-form-schema'
-import { type FindingsNodeNonNull, useFinding, useUpdateFinding, useCreateFinding, useGetFindingAssociations } from '@/lib/graphql-hooks/finding'
+import { type FindingsNodeNonNull, useFinding, useUpdateFinding, useCreateFinding, useGetFindingAssociations, useBulkDeleteFinding } from '@/lib/graphql-hooks/finding'
 import { GenericDetailsSheet } from '@/components/shared/crud-base/generic-sheet'
 import { getFieldsToRender } from '@/components/pages/protected/findings/table/table-config'
 import { type FindingSheetConfig, type FindingFieldProps, objectType } from '@/components/pages/protected/findings/table/types'
@@ -45,6 +45,7 @@ const FindingDetailsSheet: React.FC<FindingDetailsSheetProps> = ({ queryParamKey
 
   const baseUpdateMutation = useUpdateFinding()
   const baseCreateMutation = useCreateFinding()
+  const baseBulkDeleteMutation = useBulkDeleteFinding()
 
   const updateMutation = {
     isPending: baseUpdateMutation.isPending,
@@ -54,6 +55,14 @@ const FindingDetailsSheet: React.FC<FindingDetailsSheetProps> = ({ queryParamKey
   const createMutation = {
     isPending: baseCreateMutation.isPending,
     mutateAsync: async (input: CreateFindingInput) => baseCreateMutation.mutateAsync({ input }),
+  }
+
+  const deleteMutation = {
+    isPending: baseBulkDeleteMutation.isPending,
+    mutateAsync: async (params: { ids: string[] }) => {
+      const result = await baseBulkDeleteMutation.mutateAsync({ ids: params.ids })
+      return result.deleteBulkFinding.deletedIDs
+    },
   }
 
   const { enumOptions: environmentOptions, onCreateOption: createEnvironment } = useCreatableEnumOptions({ field: 'environment' })
@@ -82,6 +91,7 @@ const FindingDetailsSheet: React.FC<FindingDetailsSheetProps> = ({ queryParamKey
     isFetching: isLoading,
     updateMutation,
     createMutation,
+    deleteMutation,
     buildPayload: async (formData) => {
       const { controlIDs, subcontrolIDs, riskIDs, programIDs, taskIDs, assetIDs, scanIDs, remediationIDs, reviewIDs, vulnerabilityIDs, ...rest } = formData
       const associationPayload = buildAssociationPayload(

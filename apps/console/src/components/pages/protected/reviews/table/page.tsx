@@ -86,6 +86,14 @@ const ReviewPage: React.FC = () => {
     },
   }
 
+  const deleteMutation = {
+    isPending: baseBulkDeleteMutation.isPending,
+    mutateAsync: async (params: { ids: string[] }) => {
+      const result = await baseBulkDeleteMutation.mutateAsync({ ids: params.ids })
+      return result.deleteBulkReview.deletedIDs
+    },
+  }
+
   const bulkCreateMutation = {
     isPending: baseBulkCreateMutation.isPending,
     mutateAsync: async (params: { input: File }) => {
@@ -124,6 +132,7 @@ const ReviewPage: React.FC = () => {
     isFetching: isLoading,
     updateMutation,
     createMutation,
+    deleteMutation,
     buildPayload: async (data) => {
       const { controlIDs, subcontrolIDs, remediationIDs, entityIDs, taskIDs, assetIDs, programIDs, ...rest } = data
       const payload = await buildPayload(rest as ReviewFormData, plateEditorHelper)
