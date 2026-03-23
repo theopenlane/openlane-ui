@@ -47,7 +47,9 @@ export const GET_SUBCONTROL_BY_ID = gql`
       references
       displayID
       source
+      sourceName
       subcontrolKindName
+      publicRepresentation
       auditorReferenceID
       referenceID
       referenceFramework
@@ -64,6 +66,13 @@ export const GET_SUBCONTROL_BY_ID = gql`
             desiredOutcome
             name
             displayID
+            controls {
+              edges {
+                node {
+                  id
+                }
+              }
+            }
           }
         }
       }
@@ -227,6 +236,8 @@ export const GET_SUBCONTROLS_PAGINATED = gql`
           status
           subcontrolKindName
           source
+          sourceName
+          publicRepresentation
           category
           subcategory
           referenceFramework
@@ -270,6 +281,8 @@ export const GET_SUBCONTROLS_BY_REFCODE = gql`
           status
           subcontrolKindName
           source
+          sourceName
+          publicRepresentation
           category
           subcategory
           systemOwned

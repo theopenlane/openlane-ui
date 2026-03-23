@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import { GenericDetailsSheet } from '@/components/shared/crud-base/generic-sheet'
 import useFormSchema from './hooks/use-form-schema'
 import { useCreateRemediation, useUpdateRemediation } from '@/lib/graphql-hooks/remediation'
@@ -12,10 +12,18 @@ import { type CreateRemediationInput, type UpdateRemediationInput } from '@repo/
 type Props = {
   isOpen: boolean
   onClose: () => void
+  initialData?: Partial<CreateRemediationInput>
+  defaultTitle?: string
+  onSuccess?: () => void
 }
 
-const CreateRemediationSheet = ({ isOpen, onClose }: Props) => {
+const CreateRemediationSheet = ({ isOpen, onClose, initialData, defaultTitle, onSuccess }: Props) => {
   const { form } = useFormSchema()
+  useEffect(() => {
+    if (isOpen) {
+      form.reset({ title: defaultTitle ?? '' })
+    }
+  }, [isOpen, defaultTitle]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const baseCreateMutation = useCreateRemediation()
   const baseUpdateMutation = useUpdateRemediation()
@@ -24,6 +32,7 @@ const CreateRemediationSheet = ({ isOpen, onClose }: Props) => {
     isPending: baseCreateMutation.isPending,
     mutateAsync: async (input: CreateRemediationInput) => {
       const result = await baseCreateMutation.mutateAsync({ input })
+      onSuccess?.()
       return result
     },
   }
@@ -53,7 +62,7 @@ const CreateRemediationSheet = ({ isOpen, onClose }: Props) => {
       onClose={onClose}
       createMutation={createMutation}
       updateMutation={updateMutation}
-      buildPayload={async (data) => data}
+      buildPayload={async (data) => ({ ...data, ...initialData })}
       renderFields={(props: RemediationFieldProps) => getFieldsToRender(props, enumOpts, enumCreateHandlers)}
     />
   )

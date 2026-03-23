@@ -103,7 +103,7 @@ export const CreatableCustomTypeEnumSelect = ({
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </button>
       </PopoverTrigger>
-      <PopoverContent ref={contentRef} className={cn('w-(--radix-popover-trigger-width) p-0', contentClassName)} align="start">
+      <PopoverContent ref={contentRef} className={cn('min-w-(--radix-popover-trigger-width) w-auto p-0', contentClassName)} align="start">
         <Command
           onKeyDown={(event) => {
             if ((event.key === 'Enter' || event.key === 'Tab') && showCreateOption) {

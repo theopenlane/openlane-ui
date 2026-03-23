@@ -131,7 +131,7 @@ export const visibilityFields = {
   updatedBy: false,
 }
 
-export const getFieldsToRender = (props: FindingFieldProps, enumOptions: EnumOptions, enumCreateHandlers?: EnumCreateHandlers) => {
+export const getFieldsToRender = (props: FindingFieldProps, enumOptions: EnumOptions, enumCreateHandlers?: EnumCreateHandlers, riskScoresAction?: React.ReactNode) => {
   return (
     <div className="mr-6">
       <div className="mb-6">
@@ -153,6 +153,7 @@ export const getFieldsToRender = (props: FindingFieldProps, enumOptions: EnumOpt
         handleUpdateField={props.handleUpdateField}
         enumOptions={enumOptions}
         enumCreateHandlers={enumCreateHandlers}
+        riskScoresAction={riskScoresAction}
       />
       <FindingAssociationSection data={props.data} isEditing={props.isEditing} isCreate={props.isCreate} isEditAllowed={props.isEditAllowed} />
     </div>

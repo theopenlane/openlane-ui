@@ -1,28 +1,45 @@
 import { useMemo } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useMutation } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
-import { GET_CONTACTS } from '@repo/codegen/query/contact'
-import { type GetContactsQuery, type GetContactsQueryVariables, type ContactWhereInput, ContactUserStatus } from '@repo/codegen/src/schema'
+import { GET_CONTACTS, GET_ALL_CONTACTS, CONTACT, UPDATE_CONTACT, CREATE_CSV_BULK_CONTACT, BULK_DELETE_CONTACT, BULK_EDIT_CONTACT } from '@repo/codegen/query/contact'
+import {
+  type GetContactsQuery,
+  type GetContactsQueryVariables,
+  type ContactsWithFilterQuery,
+  type ContactWhereInput,
+  type ContactOrder,
+  type InputMaybe,
+  type ContactQuery,
+  type ContactQueryVariables,
+  type UpdateContactInput,
+  type UpdateContactMutation,
+  type CreateBulkCsvContactMutation,
+  type CreateBulkCsvContactMutationVariables,
+  type DeleteBulkContactMutation,
+  type DeleteBulkContactMutationVariables,
+  type UpdateBulkContactMutation,
+  type UpdateBulkContactMutationVariables,
+} from '@repo/codegen/src/schema'
+import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
+import { type TPagination } from '@repo/ui/pagination-types'
 
 type UseContactsArgs = {
   where?: ContactWhereInput
   enabled?: boolean
+  first?: number
 }
 
 type ContactNode = NonNullable<NonNullable<NonNullable<GetContactsQuery['contacts']['edges']>[number]>['node']>
 
-export const useContacts = ({ where, enabled = true }: UseContactsArgs) => {
+export const useContacts = ({ where, enabled = true, first = 20 }: UseContactsArgs) => {
   const { client } = useGraphQLClient()
 
   const queryResult = useQuery<GetContactsQuery, GetContactsQueryVariables>({
-    queryKey: ['contacts', where],
+    queryKey: ['contacts', where, first],
     queryFn: () =>
       client.request(GET_CONTACTS, {
-        where: {
-          ...where,
-          status: ContactUserStatus.ACTIVE,
-        },
-        first: 20,
+        where,
+        first,
       }),
     enabled,
   })
@@ -34,4 +51,99 @@ export const useContacts = ({ where, enabled = true }: UseContactsArgs) => {
     contacts,
     isLoading: queryResult.isLoading,
   }
+}
+
+type ContactNodePaginated = NonNullable<NonNullable<NonNullable<ContactsWithFilterQuery['contacts']['edges']>[number]>['node']>
+
+type UseContactsWithFilterArgs = {
+  where?: ContactWhereInput
+  orderBy?: InputMaybe<Array<ContactOrder> | ContactOrder>
+  pagination?: TPagination
+  enabled?: boolean
+}
+
+export const useContactsWithFilter = ({ where, orderBy, pagination, enabled = true }: UseContactsWithFilterArgs) => {
+  const { client } = useGraphQLClient()
+
+  const queryResult = useQuery<ContactsWithFilterQuery>({
+    queryKey: ['contacts', where, orderBy, pagination?.page, pagination?.pageSize],
+    queryFn: () =>
+      client.request(GET_ALL_CONTACTS, {
+        where,
+        orderBy,
+        ...pagination?.query,
+      }),
+    enabled,
+  })
+
+  const edges = queryResult.data?.contacts?.edges ?? []
+  const contacts = edges.map((edge) => edge?.node).filter(Boolean) as ContactNodePaginated[]
+  const pageInfo = queryResult.data?.contacts?.pageInfo
+  const totalCount = queryResult.data?.contacts?.totalCount ?? 0
+
+  return {
+    ...queryResult,
+    contacts,
+    pageInfo,
+    totalCount,
+  }
+}
+
+export const useContact = (contactId: string | null) => {
+  const { client } = useGraphQLClient()
+
+  const queryResult = useQuery<ContactQuery, ContactQueryVariables>({
+    queryKey: ['contacts', contactId],
+    queryFn: () => client.request(CONTACT, { contactId: contactId }),
+    enabled: !!contactId,
+  })
+
+  return {
+    ...queryResult,
+    contact: queryResult.data?.contact ?? null,
+  }
+}
+
+export const useUpdateContact = () => {
+  const { client, queryClient } = useGraphQLClient()
+
+  return useMutation<UpdateContactMutation, unknown, { id: string; input: UpdateContactInput }>({
+    mutationFn: async ({ id, input }) => client.request(UPDATE_CONTACT, { updateContactId: id, input }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['contacts'] })
+    },
+  })
+}
+
+export const useCreateBulkCSVContact = () => {
+  const { queryClient } = useGraphQLClient()
+
+  return useMutation<CreateBulkCsvContactMutation, unknown, CreateBulkCsvContactMutationVariables>({
+    mutationFn: async (variables) => fetchGraphQLWithUpload({ query: CREATE_CSV_BULK_CONTACT, variables }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['contacts'] })
+    },
+  })
+}
+
+export const useBulkDeleteContact = () => {
+  const { client, queryClient } = useGraphQLClient()
+
+  return useMutation<DeleteBulkContactMutation, unknown, DeleteBulkContactMutationVariables>({
+    mutationFn: async (variables) => client.request(BULK_DELETE_CONTACT, variables),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['contacts'] })
+    },
+  })
+}
+
+export const useBulkEditContact = () => {
+  const { client, queryClient } = useGraphQLClient()
+
+  return useMutation<UpdateBulkContactMutation, unknown, UpdateBulkContactMutationVariables>({
+    mutationFn: async (variables) => client.request(BULK_EDIT_CONTACT, variables),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['contacts'] })
+    },
+  })
 }

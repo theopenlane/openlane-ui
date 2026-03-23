@@ -15,6 +15,10 @@ export type NormalizedObject = {
     // for subcontrols
     id?: string
   }
+  controls?: {
+    // for control objectives
+    edges?: Array<{ node?: { id: string } | null } | null> | null
+  }
 }
 
 const SIMPLE_ROUTES: Record<string, (id: string) => string> = {
@@ -43,7 +47,7 @@ export const getHrefForObjectType = (kind: string, row?: NormalizedObject): stri
   const simpleRoute = SIMPLE_ROUTES[kind]
   if (simpleRoute) return simpleRoute(row.id)
 
-  const controlId = row.control?.id ?? row.controlId
+  const controlId = row.control?.id ?? row.controlId ?? row.controls?.edges?.[0]?.node?.id
 
   switch (kind) {
     case 'standard controls':
@@ -51,7 +55,9 @@ export const getHrefForObjectType = (kind: string, row?: NormalizedObject): stri
     case 'subcontrols':
       return `/controls/${controlId}/${row.id}`
     case 'controlObjectives':
-      return `/controls/${controlId}/control-objectives`
+      return controlId ? `/controls/${controlId}?controlObjectiveId=${row.id}` : `?controlObjectiveId=${row.id}`
+    case 'controlImplementations':
+      return controlId ? `/controls/${controlId}?controlImplementationId=${row.id}` : `?controlImplementationId=${row.id}`
     default:
       return ''
   }

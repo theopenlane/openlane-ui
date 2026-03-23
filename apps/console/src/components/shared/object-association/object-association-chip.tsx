@@ -1,17 +1,20 @@
 import React, { useState } from 'react'
-import { PencilLine, SlidersHorizontal } from 'lucide-react'
+import { ExternalLink, PencilLine, SlidersHorizontal } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import { useRouter } from 'next/navigation'
 import ObjectsChip from '../objects-chip/objects-chip'
+import { useSheetNavigation, SHEET_KINDS, FULL_PAGE_KINDS } from '@/providers/sheet-navigation-provider'
+import { useRouter } from 'next/navigation'
 
 export interface ObjectChipProps {
   object: {
     id: string
     refCode?: string | null
+    displayName?: string | null
     name?: string | null
     title?: string | null
     description?: string | null
+    desiredOutcome?: string | null
     details?: string | null
     summary?: string | null
     link: string
@@ -19,28 +22,45 @@ export interface ObjectChipProps {
   kind?: string
   removable?: boolean
   onRemove?: () => void
+  onItemClick?: (id: string, kind: string) => void
 }
 
-const ObjectAssociationChip: React.FC<ObjectChipProps> = ({ object, kind, removable, onRemove }) => {
+const ObjectAssociationChip: React.FC<ObjectChipProps> = ({ object, kind, removable, onRemove, onItemClick }) => {
   const [tooltipOpen, setTooltipOpen] = useState(false)
   const { convertToReadOnly } = usePlateEditor()
   const router = useRouter()
 
-  const displayText = object.refCode || object.name || object.title || ''
-  const displayDescription = object.summary || object.description || object.details || ''
+  const displayText = object.refCode || object.displayName || object.name || object.title || ''
+  const displayDescription = object.summary || object.details || object.description || object.desiredOutcome || ''
   const objectKind = kind || ''
+  const sheetNavigation = useSheetNavigation()
+
   const handleNavigate = () => {
-    router.push(object.link)
+    if (onItemClick) {
+      onItemClick(object.id, objectKind)
+    } else if (sheetNavigation && SHEET_KINDS.has(objectKind)) {
+      sheetNavigation.openSheet(object.id, objectKind)
+    } else if (FULL_PAGE_KINDS.has(objectKind) && object.link) {
+      router.push(object.link)
+    } else {
+      window.open(object.link, '_blank')
+    }
   }
 
   return (
     <TooltipProvider delayDuration={300}>
       <Tooltip open={tooltipOpen} onOpenChange={setTooltipOpen}>
-        <TooltipTrigger className="bg-transparent" onClick={(e) => e.preventDefault()}>
-          <ObjectsChip name={displayText} objectType={objectKind} removable={removable} onRemove={onRemove ? () => onRemove() : undefined} />
+        <TooltipTrigger
+          className="bg-transparent"
+          onClick={(e) => {
+            e.preventDefault()
+            handleNavigate()
+          }}
+        >
+          <ObjectsChip name={displayText} objectType={objectKind} removable={removable} onRemove={onRemove ? () => onRemove() : undefined} onClick={handleNavigate} />
         </TooltipTrigger>
 
-        <TooltipContent side="top" className="bg-secondary p-3 rounded-md shadow-lg text-xs min-w-[240px]">
+        <TooltipContent side="top" className="p-3 rounded-md shadow-lg text-xs min-w-60">
           <div>
             <div className="grid grid-cols-[auto_1fr] gap-y-2">
               <div className="flex items-center gap-1 border-b pb-2">
@@ -48,8 +68,9 @@ const ObjectAssociationChip: React.FC<ObjectChipProps> = ({ object, kind, remova
                 <span className="font-medium">Name</span>
               </div>
               <div className="w-full border-b pb-2">
-                <span className="text-brand pl-3 cursor-pointer" onClick={handleNavigate}>
+                <span className="text-brand pl-3 cursor-pointer hover:underline inline-flex items-center gap-1" onClick={handleNavigate}>
                   {displayText}
+                  <ExternalLink size={12} />
                 </span>
               </div>
             </div>

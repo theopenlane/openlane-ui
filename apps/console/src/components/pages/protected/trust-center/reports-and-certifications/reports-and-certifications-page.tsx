@@ -11,9 +11,6 @@ import { useGetTrustCenterNDAFiles } from '@/lib/graphql-hooks/trust-center-nda-
 import { CreateDocumentSheet } from './sheet/create-document.sheet'
 import { TrustCenterDocWatermarkStatus, type TrustCenterDocWhereInput } from '@repo/codegen/src/schema'
 import { Panel, PanelHeader } from '@repo/ui/panel'
-import { Button } from '@repo/ui/button'
-import { File } from 'lucide-react'
-import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import DocumentsTableToolbar from './table/documents-table-toolbar'
@@ -21,9 +18,6 @@ import { getTrustCenterDocColumns } from './table/table-config'
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { useStorageSearch } from '@/hooks/useStorageSearch'
-import { canCreate } from '@/lib/authz/utils'
-import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
-import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 
@@ -35,9 +29,6 @@ const ReportsAndCertificationsPage = () => {
   const [selectedDocs, setSelectedDocs] = useState<{ id: string }[]>([])
   const router = useRouter()
   const { setCrumbs } = use(BreadcrumbContext)
-  const { data: orgPermission } = useOrganizationRoles()
-  const canCreateAllowed = canCreate(orgPermission?.roles, AccessEnum.CanCreateTrustCenterDocument)
-
   const whereFilter = useMemo(() => {
     const base: TrustCenterDocWhereInput = {}
 
@@ -113,56 +104,61 @@ const ReportsAndCertificationsPage = () => {
     <>
       <CreateDocumentSheet />
 
-      {showCreatePanel ? (
-        <Panel align="center" justify="center" textAlign="center" className="min-h-[300px]">
+      {showCreatePanel && (
+        <Panel align="center" justify="center" textAlign="left" className="mb-4 pt-10">
           <PanelHeader
-            heading="Documents"
+            className="border-0"
+            heading="Add Documents to Your Trust Center"
             subheading={
-              canCreateAllowed
-                ? "You haven't added any Trust Center documents yet. Upload reports, certifications, or other materials you'd like customers to see when visiting your Trust Center."
-                : "Unfortunately, you don't have permission to upload documents."
+              <div className="space-y-3 text-sm">
+                <p className="text-sm text-muted-foreground">
+                  Share security reports, certifications, and policies to help customers evaluate your security posture. Documents can be shared publicly or securely behind an NDA.
+                </p>
+                <hr className="border-border" />
+                <p className="font-medium">Common documents:</p>
+                <div className="flex flex-wrap gap-2">
+                  {['SOC 2 Report', 'Pen Test', 'Security Overview', 'DPA'].map((doc) => (
+                    <span key={doc} className="inline-flex items-center rounded-full border border-border px-3 py-1 text-xs font-medium text-muted-foreground">
+                      {doc}
+                    </span>
+                  ))}
+                </div>
+              </div>
             }
           />
-          {canCreateAllowed && (
-            <Link href="/trust-center/reports-and-certifications?create=true">
-              <Button variant="primary" icon={<File size={16} strokeWidth={2} />} iconPosition="left">
-                Upload Document
-              </Button>
-            </Link>
-          )}
         </Panel>
-      ) : (
-        <div className="p-4">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold">Documents</h2>
-          </div>
-
-          <DocumentsTableToolbar
-            searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
-            mappedColumns={mappedColumns}
-            columnVisibility={columnVisibility}
-            setColumnVisibility={setColumnVisibility}
-            handleFilterChange={handleFilterChange}
-            selectedDocs={selectedDocs}
-            setSelectedDocs={setSelectedDocs}
-          />
-
-          <DataTable
-            columns={columns}
-            data={tableData}
-            pagination={pagination}
-            onPaginationChange={setPagination}
-            paginationMeta={paginationMeta}
-            loading={isLoading}
-            columnVisibility={columnVisibility}
-            onRowClick={(row) => {
-              router.push(`/trust-center/reports-and-certifications?id=${row.id}`)
-            }}
-            tableKey={TableKeyEnum.TRUST_CENTER_REPORTS_AND_CERTS}
-          />
-        </div>
       )}
+
+      <div className="p-4">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold">Documents</h2>
+        </div>
+
+        <DocumentsTableToolbar
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          mappedColumns={mappedColumns}
+          columnVisibility={columnVisibility}
+          setColumnVisibility={setColumnVisibility}
+          handleFilterChange={handleFilterChange}
+          selectedDocs={selectedDocs}
+          setSelectedDocs={setSelectedDocs}
+        />
+
+        <DataTable
+          columns={columns}
+          data={tableData}
+          pagination={pagination}
+          onPaginationChange={setPagination}
+          paginationMeta={paginationMeta}
+          loading={isLoading}
+          columnVisibility={columnVisibility}
+          onRowClick={(row) => {
+            router.push(`/trust-center/reports-and-certifications?id=${row.id}`)
+          }}
+          tableKey={TableKeyEnum.TRUST_CENTER_REPORTS_AND_CERTS}
+        />
+      </div>
     </>
   )
 }

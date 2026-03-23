@@ -7,9 +7,11 @@ export const CustomTypeEnumOptionChip = ({ option }: { option: CustomTypeEnumOpt
     return <span>{option.label}</span>
   }
   return (
-    <Badge variant="outline" className="flex items-center gap-1 w-fit">
-      <div className="w-2 h-2 rounded-full" style={{ backgroundColor: option.color ?? '#6B7280' }} />
-      <span>{option.label}</span>
+    <Badge variant="outline" className="flex items-center gap-1 w-fit overflow-hidden">
+      <div className="shrink-0 w-2 h-2 rounded-full" style={{ backgroundColor: option.color ?? '#6B7280' }} />
+      <span title={option.label} className="truncate">
+        {option.label}
+      </span>
     </Badge>
   )
 }

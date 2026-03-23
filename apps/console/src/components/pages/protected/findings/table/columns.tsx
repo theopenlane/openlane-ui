@@ -6,9 +6,19 @@ import { UserCell } from '@/components/shared/crud-base/columns/user-cell'
 import { BooleanCell } from '@/components/shared/crud-base/columns/boolean-cell'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { CustomEnumChipCell } from '@/components/shared/crud-base/columns/custom-enum-chip-cell'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
+import { Button } from '@repo/ui/button'
+import { MoreHorizontal, ShieldCheck, ListTodo } from 'lucide-react'
+import React from 'react'
 
-export const getColumns = ({ userMap, selectedItems, setSelectedItems }: ColumnOptions): ColumnDef<FindingsNodeNonNull>[] => {
-  return [
+type FindingColumnOptions = ColumnOptions & {
+  onTrackRemediation?: (row: FindingsNodeNonNull) => void
+  onOpenRemediation?: (row: FindingsNodeNonNull) => void
+  onCreateTask?: (row: FindingsNodeNonNull) => void
+}
+
+export const getColumns = ({ userMap, selectedItems, setSelectedItems, onTrackRemediation, onOpenRemediation, onCreateTask }: FindingColumnOptions): ColumnDef<FindingsNodeNonNull>[] => {
+  const columns: ColumnDef<FindingsNodeNonNull>[] = [
     createSelectColumn<FindingsNodeNonNull>(selectedItems, setSelectedItems),
     { accessorKey: 'id', header: 'ID', size: 120, cell: ({ row }) => <div className="text-muted-foreground">{row.original.id}</div> },
     { accessorKey: 'displayID', header: 'Display ID', size: 140, cell: ({ cell }) => cell.getValue() || '' },
@@ -53,4 +63,46 @@ export const getColumns = ({ userMap, selectedItems, setSelectedItems }: ColumnO
       cell: ({ row }) => <UserCell user={userMap[row.original.updatedBy ?? '']} />,
     },
   ]
+
+  if (onTrackRemediation || onOpenRemediation || onCreateTask) {
+    columns.push({
+      id: 'actions',
+      header: '',
+      size: 50,
+      cell: ({ row }) => (
+        <div onClick={(e) => e.stopPropagation()} className="flex justify-end">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="secondary" className="h-8 w-8 p-0">
+                <MoreHorizontal className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="min-w-48">
+              {(row.original.remediations?.totalCount ?? 0) > 0
+                ? onOpenRemediation && (
+                    <DropdownMenuItem onClick={() => onOpenRemediation(row.original)}>
+                      <ShieldCheck className="h-4 w-4" />
+                      Open Remediation
+                    </DropdownMenuItem>
+                  )
+                : onTrackRemediation && (
+                    <DropdownMenuItem onClick={() => onTrackRemediation(row.original)}>
+                      <ShieldCheck className="h-4 w-4" />
+                      Track Remediation
+                    </DropdownMenuItem>
+                  )}
+              {onCreateTask && (
+                <DropdownMenuItem onClick={() => onCreateTask(row.original)}>
+                  <ListTodo className="h-4 w-4" />
+                  Create Task
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      ),
+    })
+  }
+
+  return columns
 }

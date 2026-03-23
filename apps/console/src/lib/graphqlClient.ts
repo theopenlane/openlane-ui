@@ -8,6 +8,7 @@ import { jwtDecode } from 'jwt-decode'
 import { useSession } from 'next-auth/react'
 import { type Session } from 'next-auth'
 import { fetchCSRFToken } from './auth/utils/secure-fetch'
+import { buildLoginRedirect } from './auth/utils/redirect'
 
 const GRAPHQL_ENDPOINT = process.env.NEXT_PUBLIC_API_GQL_URL ?? ''
 
@@ -25,7 +26,9 @@ export function useGetGraphQLClient() {
     if (isSessionInvalid) {
       if (!sessionExpiredModalOpen) {
         const currentPath = window.location.pathname + window.location.search
-        window.location.href = `/login?redirect=${encodeURIComponent(currentPath)}`
+        if (window.location.pathname !== '/login') {
+          window.location.href = buildLoginRedirect(currentPath)
+        }
         resetSessionState()
       }
       throw new Error('Session invalid')

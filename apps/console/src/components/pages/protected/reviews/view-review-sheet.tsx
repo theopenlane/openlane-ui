@@ -2,7 +2,7 @@
 
 import React, { useCallback, useRef } from 'react'
 import useFormSchema from './hooks/use-form-schema'
-import { type ReviewsNodeNonNull, useReview, useCreateReview, useUpdateReview, useGetReviewAssociations } from '@/lib/graphql-hooks/review'
+import { type ReviewsNodeNonNull, useReview, useCreateReview, useUpdateReview, useGetReviewAssociations, useBulkDeleteReview } from '@/lib/graphql-hooks/review'
 import { GenericDetailsSheet } from '@/components/shared/crud-base/generic-sheet'
 import { getFieldsToRender } from './table/table-config'
 import { type ReviewSheetConfig, type ReviewFieldProps, objectType } from './table/types'
@@ -46,6 +46,7 @@ const ViewReviewSheet: React.FC<Props> = ({ entityId, onClose }) => {
 
   const baseUpdateMutation = useUpdateReview()
   const baseCreateMutation = useCreateReview()
+  const baseDeleteMutation = useBulkDeleteReview()
 
   const updateMutation = {
     isPending: baseUpdateMutation.isPending,
@@ -70,7 +71,7 @@ const ViewReviewSheet: React.FC<Props> = ({ entityId, onClose }) => {
 
   const enumOpts = { environmentOptions, scopeOptions, tagOptions: tagOptions.tagOptions }
 
-  function getName(d: ReviewsNodeNonNull) {
+  const getName = (d: ReviewsNodeNonNull) => {
     return d?.title
   }
 
@@ -83,6 +84,13 @@ const ViewReviewSheet: React.FC<Props> = ({ entityId, onClose }) => {
     isFetching: isLoading,
     updateMutation,
     createMutation,
+    deleteMutation: {
+      isPending: baseDeleteMutation.isPending,
+      mutateAsync: async ({ ids }) => {
+        await baseDeleteMutation.mutateAsync({ ids })
+        return ids
+      },
+    },
     onClose,
     basePath: '/exposure/reviews',
     buildPayload: async (formData) => {

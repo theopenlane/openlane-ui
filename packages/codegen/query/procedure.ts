@@ -386,3 +386,21 @@ export const UPDATE_PROCEDURE_COMMENT = gql`
     }
   }
 `
+
+export const GET_PROCEDURE_COMMENTS_BY_ID = gql`
+  query GetProcedureCommentsById($procedureId: ID!) {
+    procedure(id: $procedureId) {
+      id
+      comments {
+        edges {
+          node {
+            id
+            createdAt
+            createdBy
+            text
+          }
+        }
+      }
+    }
+  }
+`

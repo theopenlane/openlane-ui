@@ -7,6 +7,7 @@ export type TBaseAssociatedNode = {
   title?: string | null
   summary?: string | null
   description?: string | null
+  desiredOutcome?: string | null
   details?: string | null
   refCode?: string | null
   __typename?: string
@@ -32,6 +33,8 @@ export type TCenterNode = {
 export enum ObjectAssociationNodeEnum {
   CONTROL = 'controls',
   SUBCONTROL = 'subcontrols',
+  CONTROL_OBJECTIVE = 'controlObjectives',
+  CONTROL_IMPLEMENTATION = 'controlImplementations',
   POLICY = 'policies',
   PROCEDURE = 'procedures',
   RISKS = 'risks',
@@ -41,4 +44,5 @@ export enum ObjectAssociationNodeEnum {
   REVIEW = 'reviews',
   REMEDIATION = 'remediations',
   ASSET = 'assets',
+  TASK = 'tasks',
 }

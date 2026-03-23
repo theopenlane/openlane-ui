@@ -100,6 +100,13 @@ const RemediationPage: React.FC = () => {
     isFetching: isLoading,
     updateMutation,
     createMutation,
+    deleteMutation: {
+      isPending: baseBulkDeleteMutation.isPending,
+      mutateAsync: async ({ ids }) => {
+        await baseBulkDeleteMutation.mutateAsync({ ids })
+        return ids
+      },
+    },
     buildPayload: async (data) => {
       const { controlIDs, subcontrolIDs, findingIDs, vulnerabilityIDs, ...rest } = data
       const associationPayload = buildAssociationPayload(

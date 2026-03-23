@@ -73,7 +73,7 @@ export const RiskLabel = ({ fieldName, score, impact, likelihood, riskCategoryNa
       return (
         <div ref={triggerRef}>
           <Select value={impact} onValueChange={(val) => onChange?.(val)}>
-            <SelectTrigger className={cn('w-[120px]', selectFieldClassname)}>
+            <SelectTrigger className={cn('w-30', selectFieldClassname)}>
               <SelectValue placeholder="Select impact" />
             </SelectTrigger>
             <SelectContent ref={popoverRef}>
@@ -90,7 +90,7 @@ export const RiskLabel = ({ fieldName, score, impact, likelihood, riskCategoryNa
     if (likelihood) {
       return (
         <Select value={likelihood} onValueChange={(val) => onChange?.(val)}>
-          <SelectTrigger className={cn('w-[140px]', selectFieldClassname)}>
+          <SelectTrigger className={cn('w-35', selectFieldClassname)}>
             <SelectValue placeholder="Select likelihood" />
           </SelectTrigger>
           <SelectContent ref={popoverRef}>
@@ -105,7 +105,7 @@ export const RiskLabel = ({ fieldName, score, impact, likelihood, riskCategoryNa
     if (status) {
       return (
         <Select value={status} onValueChange={(v) => onChange?.(v)}>
-          <SelectTrigger className={cn('w-[140px]', selectFieldClassname)}>
+          <SelectTrigger className={cn('w-35', selectFieldClassname)}>
             <SelectValue placeholder="Select status" />
           </SelectTrigger>
 

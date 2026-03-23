@@ -4,6 +4,7 @@ import { useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { signIn } from 'next-auth/react'
 import { getCookie } from '@/lib/auth/utils/getCookie'
+import { sanitizeLoginRedirect } from '@/lib/auth/utils/redirect'
 
 const ORG_SETTINGS_URL = '/organization-settings/authentication'
 const LOGIN_URL = '/login'
@@ -77,7 +78,7 @@ const SSOCallbackPage: React.FC = () => {
           })
 
           if (signInResult && !signInResult.error) {
-            const redirectUrl = data.redirect_url || getRedirectUrl(undefined, true)
+            const redirectUrl = sanitizeLoginRedirect(data.redirect_url, getRedirectUrl(undefined, true))
             router.push(redirectUrl)
             return
           }

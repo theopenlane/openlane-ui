@@ -14,10 +14,24 @@ type DocumentsUploadDialogProps = {
   onUpload: (files: File[]) => Promise<void>
   isUploading: boolean
   title?: string
+  buttonLabel?: string
+  buttonVariant?: 'primary' | 'secondary' | 'secondaryOutline'
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
 }
 
-const DocumentsUploadDialog: React.FC<DocumentsUploadDialogProps> = ({ onUpload, isUploading, title = 'Document Upload' }) => {
-  const [isOpen, setIsOpen] = useState<boolean>(false)
+const DocumentsUploadDialog: React.FC<DocumentsUploadDialogProps> = ({
+  onUpload,
+  isUploading,
+  title = 'Document Upload',
+  buttonLabel = 'File Upload',
+  buttonVariant = 'secondary',
+  open,
+  onOpenChange,
+}) => {
+  const [internalOpen, setInternalOpen] = useState<boolean>(false)
+  const isOpen = open ?? internalOpen
+  const setIsOpen = onOpenChange ?? setInternalOpen
   const [stagedFiles, setStagedFiles] = useState<TUploadedFile[]>([])
 
   const handleFileUpload = async () => {
@@ -46,11 +60,13 @@ const DocumentsUploadDialog: React.FC<DocumentsUploadDialogProps> = ({ onUpload,
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button variant="secondary" icon={<Upload />} iconPosition="left" onClick={() => setIsOpen(true)} disabled={isUploading} loading={isUploading}>
-          File Upload
-        </Button>
-      </DialogTrigger>
+      {!onOpenChange && (
+        <DialogTrigger asChild>
+          <Button variant={buttonVariant} icon={<Upload />} iconPosition="left" onClick={() => setIsOpen(true)} disabled={isUploading} loading={isUploading}>
+            {buttonLabel}
+          </Button>
+        </DialogTrigger>
+      )}
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>

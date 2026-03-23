@@ -4,14 +4,16 @@ import React, { useMemo, useRef, useState, useEffect } from 'react'
 import ReactDOM from 'react-dom'
 import ForceGraph, { type ForceGraphMethods, type NodeObject } from 'react-force-graph-2d'
 import usePlateEditor from '../plate/usePlateEditor'
-import { Info, PencilLine, SlidersHorizontal, X } from 'lucide-react'
+import { ExternalLink, Info, PencilLine, SlidersHorizontal, X, XIcon } from 'lucide-react'
 import { ObjectAssociationMap } from '@/components/shared/enum-mapper/object-association-enum.tsx'
 import { getHrefForObjectType, type NormalizedObject } from '@/utils/getHrefForObjectType.ts'
 import { type Section, type TBaseAssociatedNode, type TEdgeNode } from '@/components/shared/object-association/types/object-association-types.ts'
 import { useTheme } from 'next-themes'
+import { useSheetNavigation, SHEET_KINDS, FULL_PAGE_KINDS } from '@/providers/sheet-navigation-provider'
 import { useRouter } from 'next/navigation'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { toHumanLabel } from '@/utils/strings'
 
 interface IGraphNode {
   id: string
@@ -38,6 +40,9 @@ type TObjectAssociationGraphProps = {
   closeFullScreen: () => void
   onGroupSelect?: (group: string | null) => void
   clearGroupRef?: React.MutableRefObject<(() => void) | null>
+  onItemClick?: (id: string, kind: string) => void
+  removable?: boolean
+  onRemove?: (objectId: string, kind: string) => void
 }
 
 type TGroupItem = TBaseAssociatedNode & { link: string }
@@ -53,10 +58,10 @@ const GROUP_NODE_RADIUS = 12
 const FONT_SIZE = 12
 const LABEL_PADDING = 4
 
-const CustomTooltipContent = ({ node }: { node: TBaseAssociatedNode & { link: string } }) => {
+const CustomTooltipContent = ({ node, interactive }: { node: TBaseAssociatedNode & { link: string }; interactive?: boolean }) => {
   const { convertToReadOnly } = usePlateEditor()
-  const displayText = node.refCode || node.name || node.title || ''
-  const displayDescription = node.summary || node.description || node.details || ''
+  const displayText = node.refCode || node.displayName || node.name || node.title || ''
+  const displayDescription = node.summary || node.details || node.description || node.desiredOutcome || ''
   return (
     <div>
       <div className="grid grid-cols-[max-content_1fr] gap-x-4 items-center border-b pb-2">
@@ -64,14 +69,21 @@ const CustomTooltipContent = ({ node }: { node: TBaseAssociatedNode & { link: st
           <SlidersHorizontal size={12} />
           <span className="font-medium">Name</span>
         </div>
-        <span className="cursor-pointer break-words">{displayText}</span>
+        {interactive ? (
+          <span className="cursor-pointer wrap-break-word text-brand hover:underline inline-flex items-center gap-1" onClick={() => window.open(node.link, '_blank')}>
+            {displayText}
+            <ExternalLink size={12} />
+          </span>
+        ) : (
+          <span className="wrap-break-word">{displayText}</span>
+        )}
       </div>
       <div className="grid grid-cols-[max-content_1fr] gap-x-4 items-center border-b pb-2 pt-2">
         <div className="flex items-center gap-1">
           <Info size={12} />
           <span className="font-medium">Type</span>
         </div>
-        <span className="cursor-pointer break-words">{node.__typename}</span>
+        <span className="cursor-pointer wrap-break-word">{toHumanLabel(node.__typename || '')}</span>
       </div>
       <div className="flex flex-col pt-2">
         <div className="flex items-center gap-1">
@@ -84,7 +96,20 @@ const CustomTooltipContent = ({ node }: { node: TBaseAssociatedNode & { link: st
   )
 }
 
-const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ centerNode, sections, isFullscreen, closeFullScreen, controlId, onGroupSelect, clearGroupRef }) => {
+const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({
+  centerNode,
+  sections,
+  isFullscreen,
+  closeFullScreen,
+  controlId,
+  onGroupSelect,
+  clearGroupRef,
+  removable,
+  onRemove,
+  onItemClick,
+}) => {
+  const sheetNavigation = useSheetNavigation()
+  const router = useRouter()
   const containerRef = useRef<HTMLDivElement>(null)
   const [dimensions, setDimensions] = useState({ width: 300, height: 300 })
   const fgRef = useRef<ForceGraphMethods | undefined>(undefined)
@@ -92,7 +117,6 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
   const { resolvedTheme } = useTheme()
   const [showFullscreen, setShowFullscreen] = useState(false)
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null)
-  const router = useRouter()
 
   useEffect(() => {
     if (isFullscreen) {
@@ -179,8 +203,8 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
           count: nodes.length,
           items: nodes.map((node) => ({
             ...node,
-            refCode: node.refCode || node.displayName || node.fullName || node.name || node.title || '',
-            description: node.summary || node.description || node.details || '',
+            displayName: node.displayName || node.fullName,
+            description: node.summary || node.details || node.description || node.desiredOutcome || '',
             displayID: node.displayID || node.id,
             link:
               sectionType === 'subcontrols' && controlId ? getHrefForObjectType(sectionType, { ...node, controlId } as NormalizedObject) : getHrefForObjectType(sectionType, node as NormalizedObject),
@@ -219,7 +243,7 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
     const centerMeta: TBaseAssociatedNode & { link: string } = {
       ...centerNode.node,
       refCode: displayText,
-      description: centerNode.node.summary || centerNode.node.description || centerNode.node.details || '',
+      description: centerNode.node.summary || centerNode.node.details || centerNode.node.description || centerNode.node.desiredOutcome || '',
       displayID: centerNode.node.displayID || centerNode.node.id,
       link: getHrefForObjectType(centerNode.type, centerNode.node as NormalizedObject),
       __typename: getType(centerNode.type),
@@ -367,26 +391,50 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
 
         <TooltipProvider delayDuration={300}>
           <div className="flex flex-col gap-1">
-            {group.items.map((item) => (
-              <Tooltip key={item.id}>
-                <TooltipTrigger asChild>
-                  <button type="button" onClick={() => router.push(item.link)} style={{ border: `1px solid ${typeColor}` }} className="text-left px-2 py-1 rounded-full text-sm mb-3 w-fit">
-                    {item.refCode || item.name || item.title || item.displayID}
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent
-                  side="right"
-                  className="max-w-[300px] p-2 text-xs border"
-                  style={{
-                    background: resolvedTheme === 'dark' ? '#09151D' : '#FFFFFF',
-                    color: resolvedTheme === 'dark' ? '#FFFFFF' : '#09151D',
-                    borderColor: resolvedTheme === 'dark' ? '#233440' : '#09151D1F',
-                  }}
-                >
-                  <CustomTooltipContent node={item} />
-                </TooltipContent>
-              </Tooltip>
-            ))}
+            {group.items.map((item: TGroupItem) => {
+              const handleChipClick = () => {
+                if (selectedGroup && SHEET_KINDS.has(selectedGroup)) {
+                  if (onItemClick) {
+                    onItemClick(item.id, selectedGroup)
+                  } else {
+                    sheetNavigation?.openSheet(item.id, selectedGroup)
+                  }
+                } else if (selectedGroup && FULL_PAGE_KINDS.has(selectedGroup) && item.link) {
+                  router.push(item.link)
+                } else {
+                  window.open(item.link, '_blank')
+                }
+              }
+
+              return (
+                <Tooltip key={item.id}>
+                  <TooltipTrigger asChild>
+                    <button
+                      type="button"
+                      onClick={handleChipClick}
+                      style={{ border: `1px solid ${typeColor}` }}
+                      className="inline-flex items-center gap-1 text-left px-2 py-1 rounded-full text-sm cursor-pointer mb-3 w-fit"
+                    >
+                      {item.refCode || item.displayName || item.name || item.title || item.displayID}
+                      {removable && onRemove && (
+                        <XIcon
+                          size={12}
+                          className="cursor-pointer ml-1"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            e.preventDefault()
+                            if (selectedGroup) onRemove(item.id, selectedGroup)
+                          }}
+                        />
+                      )}
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="right" className="max-w-75 p-2 text-xs border">
+                    <CustomTooltipContent node={item} interactive />
+                  </TooltipContent>
+                </Tooltip>
+              )
+            })}
           </div>
         </TooltipProvider>
       </div>
@@ -564,9 +612,9 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
             style={{
               position: 'fixed',
               pointerEvents: 'none',
-              background: resolvedTheme === 'dark' ? '#09151D' : '#FFFFFF',
-              color: resolvedTheme === 'dark' ? '#FFFFFF' : '#09151D',
-              border: `1px solid ${resolvedTheme === 'dark' ? '#233440' : '#09151D1F'}`,
+              background: 'var(--popover)',
+              color: 'var(--popover-foreground)',
+              border: '1px solid var(--border)',
               padding: '8px',
               borderRadius: '4px',
               zIndex: 11000,
@@ -595,9 +643,9 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
             style={{
               position: 'fixed',
               pointerEvents: 'none',
-              background: resolvedTheme === 'dark' ? '#09151D' : '#FFFFFF',
-              color: resolvedTheme === 'dark' ? '#FFFFFF' : '#09151D',
-              border: `1px solid ${resolvedTheme === 'dark' ? '#233440' : '#09151D1F'}`,
+              background: 'var(--popover)',
+              color: 'var(--popover-foreground)',
+              border: '1px solid var(--border)',
               padding: '8px',
               borderRadius: '6px',
               zIndex: 11000,
@@ -607,7 +655,7 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
             }}
           >
             {groupedSections[hoverNode.type].items.map((item) => (
-              <div key={item.id}>{item.refCode || item.name || item.title || item.displayID}</div>
+              <div key={item.id}>{item.refCode || item.displayName || item.name || item.title || item.displayID}</div>
             ))}
           </div>,
           document.body,
@@ -622,28 +670,32 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({ center
     </>
   )
 
-  return showFullscreen ? (
-    ReactDOM.createPortal(
-      <div
-        onClick={closeFullScreen}
-        className={`fixed inset-0 z-[10000] flex items-center justify-center bg-black bg-opacity-50 transition-opacity duration-300 ${isFullscreen ? 'opacity-100' : 'opacity-0'}`}
-      >
-        <div onClick={(e) => e.stopPropagation()} className="relative w-[90vw] h-[90vh] bg-white dark:bg-gray-800 rounded-lg shadow-lg p-2">
-          <button onClick={closeFullScreen} className="absolute top-4 right-4 z-50 p-2 rounded hover:bg-opacity-80">
-            <X size={20} />
-          </button>
+  return (
+    <>
+      {showFullscreen ? (
+        ReactDOM.createPortal(
+          <div
+            onClick={closeFullScreen}
+            className={`fixed inset-0 z-10000 flex items-center justify-center bg-black bg-opacity-50 transition-opacity duration-300 ${isFullscreen ? 'opacity-100' : 'opacity-0'}`}
+          >
+            <div onClick={(e) => e.stopPropagation()} className="relative w-[90vw] h-[90vh] bg-white dark:bg-gray-800 rounded-lg shadow-lg p-2">
+              <button onClick={closeFullScreen} className="absolute top-4 right-4 z-50 p-2 rounded hover:bg-opacity-80">
+                <X size={20} />
+              </button>
 
-          <div ref={containerRef} className={`w-full ${isFullscreen ? 'h-full' : 'h-[400px]'} transition-all duration-300`}>
-            {renderContent()}
-          </div>
+              <div ref={containerRef} className={`w-full ${isFullscreen ? 'h-full' : 'h-100'} transition-all duration-300`}>
+                {renderContent()}
+              </div>
+            </div>
+          </div>,
+          document.body,
+        )
+      ) : (
+        <div ref={containerRef} className={`w-full ${isFullscreen ? 'h-full' : 'h-75'} transition-all duration-300`}>
+          {renderContent()}
         </div>
-      </div>,
-      document.body,
-    )
-  ) : (
-    <div ref={containerRef} className={`w-full ${isFullscreen ? 'h-full' : 'h-[300px]'} transition-all duration-300`}>
-      {renderContent()}
-    </div>
+      )}
+    </>
   )
 }
 

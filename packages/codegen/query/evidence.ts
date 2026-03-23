@@ -111,6 +111,14 @@ const EVIDENCE_FIELDS = gql`
           id
           name
           displayID
+          desiredOutcome
+          controls {
+            edges {
+              node {
+                id
+              }
+            }
+          }
         }
       }
     }
@@ -526,6 +534,25 @@ export const BULK_DELETE_EVIDENCE = gql`
   mutation DeleteBulkEvidence($ids: [ID!]!) {
     deleteBulkEvidence(ids: $ids) {
       deletedIDs
+    }
+  }
+`
+
+export const GET_EVIDENCES_WITH_FILE_IDS = gql`
+  query GetEvidencesWithFileIds($where: EvidenceWhereInput) {
+    evidences(where: $where, first: 100) {
+      edges {
+        node {
+          id
+          files {
+            edges {
+              node {
+                id
+              }
+            }
+          }
+        }
+      }
     }
   }
 `

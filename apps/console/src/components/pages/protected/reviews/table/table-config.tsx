@@ -101,6 +101,7 @@ export const visibilityFields = {
   systemOwned: false,
   createdAt: false,
   createdBy: false,
+  relatedControls: false,
   updatedAt: true,
   updatedBy: false,
   tags: false,

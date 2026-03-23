@@ -86,7 +86,15 @@ type AssociationSectionProps<TConfig extends AssociationEntityConfig> = BaseAsso
   onUpdateEntity: (input: TAssociationUpdateInput<AssociationFieldKey<TConfig>>) => Promise<void>
 }
 
-export function AssociationSection<TConfig extends AssociationEntityConfig>({ data, isEditing, isCreate, isEditAllowed, config, associationsData, onUpdateEntity }: AssociationSectionProps<TConfig>) {
+export const AssociationSection = <TConfig extends AssociationEntityConfig>({
+  data,
+  isEditing,
+  isCreate,
+  isEditAllowed,
+  config,
+  associationsData,
+  onUpdateEntity,
+}: AssociationSectionProps<TConfig>) => {
   type TFieldKey = AssociationFieldKey<TConfig>
   type TSectionKey = AssociationSectionKey<TConfig>
   type TRootField = TConfig['dataRootField']

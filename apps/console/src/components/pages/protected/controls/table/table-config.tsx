@@ -4,7 +4,8 @@ import { type ColumnDef, type Row } from '@tanstack/react-table'
 import SubcontrolCell from './subcontrol-cell'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { formatDate, formatTimeSince } from '@/utils/date'
-import { ControlIconMapper16, ControlStatusTooltips, ControlStatusFilterOptions, FilterIcons } from '@/components/shared/enum-mapper/control-enum'
+import { ControlIconMapper16, ControlStatusTooltips, ControlStatusFilterOptions } from '@/components/shared/enum-mapper/control-enum'
+import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
 import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from '@repo/ui/tooltip'
 import StandardChip from '../../standards/shared/standard-chip'
 import { Badge } from '@repo/ui/badge'
@@ -98,9 +99,10 @@ export const getControlsFilterFields = (
     key: 'tagsHas',
     label: 'Tags',
     type: 'dropdownSearchSingleSelect',
-    icon: FilterIcons.Status,
+    icon: FilterIcons.Tag,
     options: tagOptions,
   },
+  { key: 'sourceNameContainsFold', label: 'Source Name', type: 'text', icon: FilterIcons.Source },
 ]
 
 export const CONTROLS_SORT_FIELDS = [
@@ -273,6 +275,12 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
       accessorKey: 'source',
       size: 120,
       cell: ({ row }) => <div>{row.getValue('source') || '-'}</div>,
+    },
+    {
+      header: 'Source Name',
+      accessorKey: 'sourceName',
+      size: 120,
+      cell: ({ row }) => <div>{row.getValue('sourceName') || '-'}</div>,
     },
     {
       header: 'Control Type',

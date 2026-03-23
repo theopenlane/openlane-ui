@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useMemo } from 'react'
+import React, { useMemo, useState } from 'react'
 import { useInternalPoliciesDashboard } from '@/lib/graphql-hooks/internal-policy'
 import { wherePoliciesDashboard } from './dashboard-config'
 import { formatDate } from '@/utils/date'
@@ -8,9 +8,10 @@ import { cn } from '@repo/ui/lib/utils'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { type User } from '@repo/codegen/src/schema'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
-import Link from 'next/link'
+import { ViewPolicySheet } from '@/components/pages/protected/policies/view-policy-sheet'
 
 const RecentActivity = () => {
+  const [selectedPolicyId, setSelectedPolicyId] = useState<string | null>(null)
   const { policies } = useInternalPoliciesDashboard({
     where: wherePoliciesDashboard,
   })
@@ -50,10 +51,9 @@ const RecentActivity = () => {
           const action = isCreated ? 'created' : 'updated'
           const timestamp = isCreated ? policy.createdAt : policy.updatedAt
           const formattedDate = formatDate(timestamp)
-          const policyLink = `/policies/${policy.id}/view`
           return (
-            <li key={policy.id} className={cn('flex justify-between items-center border-b pb-2 last:border-b-0')}>
-              <Link href={policyLink} className="flex-1 flex justify-between items-center no-underline">
+            <li key={policy.id} className={cn('flex justify-between items-center border-b pb-2 last:border-b-0 cursor-pointer')} onClick={() => setSelectedPolicyId(policy.id)}>
+              <div className="flex-1 flex justify-between items-center">
                 <div className="flex items-center gap-3">
                   <span className="text-sm flex items-center">
                     <strong>{policy.name}</strong> &nbsp;was {action} by&nbsp;
@@ -62,11 +62,13 @@ const RecentActivity = () => {
                   </span>
                 </div>
                 <span className="text-sm text-text-informational">{formattedDate}</span>
-              </Link>
+              </div>
             </li>
           )
         })}
       </ul>
+
+      <ViewPolicySheet policyId={selectedPolicyId} onClose={() => setSelectedPolicyId(null)} />
     </div>
   )
 }

@@ -227,6 +227,14 @@ export const GET_INTERNAL_POLICY_ASSOCIATIONS_BY_ID = gql`
             id
             displayID
             name
+            desiredOutcome
+            controls {
+              edges {
+                node {
+                  id
+                }
+              }
+            }
           }
         }
         totalCount
@@ -433,6 +441,24 @@ export const UPDATE_POLICY_COMMENT = gql`
     updateInternalPolicyComment(id: $updateInternalPolicyCommentId, input: $input) {
       internalPolicy {
         id
+      }
+    }
+  }
+`
+
+export const GET_POLICY_COMMENTS_BY_ID = gql`
+  query GetPolicyCommentsById($policyId: ID!) {
+    internalPolicy(id: $policyId) {
+      id
+      comments {
+        edges {
+          node {
+            id
+            createdAt
+            createdBy
+            text
+          }
+        }
       }
     }
   }

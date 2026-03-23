@@ -16,6 +16,7 @@ import {
   INSERT_POLICY_COMMENT,
   GET_POLICY_DISCUSSION_BY_ID,
   UPDATE_POLICY_COMMENT,
+  GET_POLICY_COMMENTS_BY_ID,
 } from '@repo/codegen/query/internal-policy'
 import {
   type CreateBulkCsvInternalPolicyMutation,
@@ -302,5 +303,31 @@ export const useUpdatePolicyComment = () => {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['policyComments', data.updateInternalPolicyComment.internalPolicy.id] })
     },
+  })
+}
+
+type PolicyCommentsQuery = {
+  internalPolicy: {
+    id: string
+    comments: {
+      edges: Array<{
+        node: {
+          id: string
+          createdAt: string | null
+          createdBy: string | null
+          text: string | null
+        } | null
+      } | null> | null
+    }
+  }
+}
+
+export const useGetPolicyCommentsById = (policyId: string | null | undefined) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<PolicyCommentsQuery>({
+    queryKey: ['policyComments', policyId],
+    queryFn: async () => client.request(GET_POLICY_COMMENTS_BY_ID, { policyId }),
+    enabled: !!policyId,
   })
 }
