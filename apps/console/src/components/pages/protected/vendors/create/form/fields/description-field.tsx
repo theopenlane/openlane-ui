@@ -7,6 +7,7 @@ import { Textarea } from '@repo/ui/textarea'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { InfoIcon } from 'lucide-react'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
+import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { type EditVendorFormData } from '../../../hooks/use-form-schema'
 
 type DescriptionFieldProps = {
@@ -20,6 +21,7 @@ type DescriptionFieldProps = {
 
 const DescriptionField: React.FC<DescriptionFieldProps> = ({ isEditing, isCreate, initialValue, onDoubleClickEdit, onBlurSave, canEdit }) => {
   const { control, formState } = useFormContext<EditVendorFormData>()
+  const { convertToReadOnly } = usePlateEditor()
 
   return isEditing || isCreate ? (
     <FormField
@@ -57,9 +59,15 @@ const DescriptionField: React.FC<DescriptionFieldProps> = ({ isEditing, isCreate
       </div>
       <HoverPencilWrapper showPencil={!!canEdit} onPencilClick={onDoubleClickEdit}>
         {initialValue ? (
-          <p className="min-h-5 whitespace-pre-wrap" onDoubleClick={onDoubleClickEdit}>
-            {initialValue}
-          </p>
+          initialValue.includes('plate') ? (
+            <div className="min-h-5" onDoubleClick={onDoubleClickEdit}>
+              {convertToReadOnly(initialValue)}
+            </div>
+          ) : (
+            <p className="min-h-5 whitespace-pre-wrap" onDoubleClick={onDoubleClickEdit}>
+              {initialValue}
+            </p>
+          )
         ) : (
           <p className="text-muted-foreground italic" onDoubleClick={onDoubleClickEdit}>
             No description set
