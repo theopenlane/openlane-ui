@@ -43,8 +43,6 @@ import AssetDetailsSheet from '@/components/pages/protected/controls/tabs/assets
 import ScanDetailsSheet from '@/components/pages/protected/controls/tabs/assets-scans/scan-details-sheet'
 import FindingDetailsSheet from '@/components/pages/protected/controls/tabs/findings-risks/finding-details-sheet'
 import ReviewDetailsSheet from '@/components/pages/protected/controls/tabs/reviews/review-details-sheet'
-import ControlImplementationDetailsSheet from '@/components/pages/protected/controls/tabs/implementation/control-implementation-components/control-implementation-details-sheet'
-import ControlObjectiveDetailsSheet from '@/components/pages/protected/controls/tabs/implementation/control-objectives-components/control-objective-details-sheet'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 
@@ -436,8 +434,6 @@ const ControlDetailsPage: React.FC = () => {
       <ScanDetailsSheet queryParamKey="scanId" />
       <FindingDetailsSheet queryParamKey="findingId" />
       <ReviewDetailsSheet queryParamKey="reviewId" />
-      <ControlImplementationDetailsSheet />
-      <ControlObjectiveDetailsSheet />
 
       <ConfirmationDialog
         open={isDeleteDialogOpen}

@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@repo/ui/label'
 import PlateEditor from '@/components/shared/plate/plate-editor'
 import { ControlObjectiveControlSource, ControlObjectiveObjectiveStatus, type ControlObjectiveFieldsFragment, type UpdateControlObjectiveInput } from '@repo/codegen/src/schema'
+import { toHumanLabel } from '@/utils/strings'
 import { useGetControlObjectiveById, useUpdateControlObjective, useDeleteControlObjective } from '@/lib/graphql-hooks/control-objective'
 import { ControlObjectiveCard } from './control-objective-card'
 import { LinkControlsModal } from './link-controls-modal'
@@ -23,13 +24,6 @@ type Props = {
   queryParamKey?: string
   entityId?: string | null
   onClose?: () => void
-}
-
-const controlSourceLabels: Record<ControlObjectiveControlSource, string> = {
-  [ControlObjectiveControlSource.FRAMEWORK]: 'Framework',
-  [ControlObjectiveControlSource.IMPORTED]: 'Imported',
-  [ControlObjectiveControlSource.TEMPLATE]: 'Template',
-  [ControlObjectiveControlSource.USER_DEFINED]: 'User Defined',
 }
 
 const ControlObjectiveDetailsSheet: React.FC<Props> = ({ queryParamKey = 'controlObjectiveId', entityId: entityIdProp, onClose: onCloseProp }) => {
@@ -165,7 +159,7 @@ const ControlObjectiveDetailsSheet: React.FC<Props> = ({ queryParamKey = 'contro
                   <SelectContent>
                     {Object.entries(ControlObjectiveControlSource).map(([key, value]) => (
                       <SelectItem key={key} value={value}>
-                        {controlSourceLabels[value]}
+                        {toHumanLabel(value)}
                       </SelectItem>
                     ))}
                   </SelectContent>

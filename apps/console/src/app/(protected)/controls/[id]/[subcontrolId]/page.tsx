@@ -47,8 +47,6 @@ import StandardChip from '@/components/pages/protected/standards/shared/standard
 import ControlTabs from '@/components/pages/protected/controls/tabs/tabs.tsx'
 import QuickActions from '@/components/pages/protected/controls/quick-actions/quick-actions.tsx'
 import TaskDetailsSheet from '@/components/pages/protected/tasks/create-task/sidebar/task-details-sheet'
-import ControlImplementationDetailsSheet from '@/components/pages/protected/controls/tabs/implementation/control-implementation-components/control-implementation-details-sheet'
-import ControlObjectiveDetailsSheet from '@/components/pages/protected/controls/tabs/implementation/control-objectives-components/control-objective-details-sheet'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 
@@ -428,8 +426,6 @@ const ControlDetailsPage: React.FC = () => {
 
       <EvidenceDetailsSheet controlId={subcontrolId} />
       <TaskDetailsSheet queryParamKey="taskId" />
-      <ControlImplementationDetailsSheet />
-      <ControlObjectiveDetailsSheet />
 
       <ConfirmationDialog
         open={isDeleteDialogOpen}
