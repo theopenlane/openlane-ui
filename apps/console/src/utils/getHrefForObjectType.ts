@@ -55,7 +55,9 @@ export const getHrefForObjectType = (kind: string, row?: NormalizedObject): stri
     case 'subcontrols':
       return `/controls/${controlId}/${row.id}`
     case 'controlObjectives':
-      return controlId ? `/controls/${controlId}/control-objectives` : ''
+      return controlId ? `/controls/${controlId}?controlObjectiveId=${row.id}` : `?controlObjectiveId=${row.id}`
+    case 'controlImplementations':
+      return controlId ? `/controls/${controlId}?controlImplementationId=${row.id}` : `?controlImplementationId=${row.id}`
     default:
       return ''
   }

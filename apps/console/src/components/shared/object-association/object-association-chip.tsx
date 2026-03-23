@@ -3,7 +3,8 @@ import { ExternalLink, PencilLine, SlidersHorizontal } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import ObjectsChip from '../objects-chip/objects-chip'
-import { useSheetNavigation, SHEET_KINDS } from '@/providers/sheet-navigation-provider'
+import { useSheetNavigation, SHEET_KINDS, FULL_PAGE_KINDS } from '@/providers/sheet-navigation-provider'
+import { useRouter } from 'next/navigation'
 
 export interface ObjectChipProps {
   object: {
@@ -27,6 +28,7 @@ export interface ObjectChipProps {
 const ObjectAssociationChip: React.FC<ObjectChipProps> = ({ object, kind, removable, onRemove, onItemClick }) => {
   const [tooltipOpen, setTooltipOpen] = useState(false)
   const { convertToReadOnly } = usePlateEditor()
+  const router = useRouter()
 
   const displayText = object.refCode || object.displayName || object.name || object.title || ''
   const displayDescription = object.summary || object.details || object.description || object.desiredOutcome || ''
@@ -38,6 +40,8 @@ const ObjectAssociationChip: React.FC<ObjectChipProps> = ({ object, kind, remova
       onItemClick(object.id, objectKind)
     } else if (sheetNavigation && SHEET_KINDS.has(objectKind)) {
       sheetNavigation.openSheet(object.id, objectKind)
+    } else if (FULL_PAGE_KINDS.has(objectKind) && object.link) {
+      router.push(object.link)
     } else {
       window.open(object.link, '_blank')
     }

@@ -2,6 +2,7 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { CREATE_CONTROL_IMPLEMENTATION, DELETE_CONTROL_IMPLEMENTATION, GET_ALL_CONTROL_IMPLEMENTATIONS, UPDATE_CONTROL_IMPLEMENTATION } from '@repo/codegen/query/control-implementation'
 import {
+  type ControlImplementationFieldsFragment,
   type CreateControlImplementationInput,
   type CreateControlImplementationMutation,
   type DeleteControlImplementationMutation,
@@ -19,6 +20,17 @@ export const useGetAllControlImplementations = (where?: GetAllControlImplementat
     queryKey: ['controlImplementations', where],
     queryFn: () => client.request(GET_ALL_CONTROL_IMPLEMENTATIONS, { where }),
   })
+}
+
+export const useGetControlImplementationById = (id?: string | null) => {
+  const { client } = useGraphQLClient()
+  const result = useQuery<GetAllControlImplementationsQuery>({
+    queryKey: ['controlImplementations', { id }],
+    queryFn: () => client.request(GET_ALL_CONTROL_IMPLEMENTATIONS, { where: { id } }),
+    enabled: !!id,
+  })
+  const node = result.data?.controlImplementations?.edges?.[0]?.node as ControlImplementationFieldsFragment | undefined
+  return { ...result, data: node }
 }
 
 export const useCreateControlImplementation = () => {

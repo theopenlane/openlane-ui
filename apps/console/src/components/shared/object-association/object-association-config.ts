@@ -515,6 +515,7 @@ export function extractTableRows(objectKey: QueryResponseMapKey | undefined, dat
         name: item?.node?.controls?.edges?.[0]?.node?.refCode ? `Control Implementation for ${item.node.controls.edges[0].node.refCode}` : (item?.node?.details?.slice(0, 50) ?? ''),
         inputName: selectedInputName,
         refCode: '',
+        controls: item?.node?.controls,
       }))
     }
 

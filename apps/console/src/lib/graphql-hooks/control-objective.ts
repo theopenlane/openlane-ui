@@ -2,6 +2,7 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { CREATE_CONTROL_OBJECTIVE, DELETE_CONTROL_OBJECTIVE, GET_ALL_CONTROL_OBJECTIVES, UPDATE_CONTROL_OBJECTIVE } from '@repo/codegen/query/control-objective'
 import {
+  type ControlObjectiveFieldsFragment,
   type CreateControlObjectiveInput,
   type CreateControlObjectiveMutation,
   type DeleteControlObjectiveMutation,
@@ -19,6 +20,17 @@ export const useGetAllControlObjectives = (where?: GetAllControlObjectivesQueryV
     queryKey: ['controlObjectives', where],
     queryFn: () => client.request(GET_ALL_CONTROL_OBJECTIVES, { where }),
   })
+}
+
+export const useGetControlObjectiveById = (id?: string | null) => {
+  const { client } = useGraphQLClient()
+  const result = useQuery<GetAllControlObjectivesQuery>({
+    queryKey: ['controlObjectives', { id }],
+    queryFn: () => client.request(GET_ALL_CONTROL_OBJECTIVES, { where: { id } }),
+    enabled: !!id,
+  })
+  const node = result.data?.controlObjectives?.edges?.[0]?.node as ControlObjectiveFieldsFragment | undefined
+  return { ...result, data: node }
 }
 
 export const useCreateControlObjective = () => {

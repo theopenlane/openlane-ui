@@ -33,9 +33,11 @@ import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 type TaskDetailsSheetProps = {
   queryParamKey?: string
+  entityId?: string | null
+  onClose?: () => void
 }
 
-const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id' }) => {
+const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id', entityId: entityIdProp, onClose: onCloseProp }) => {
   const [isEditing, setIsEditing] = useState(false)
   const [internalEditing, setInternalEditing] = useState<keyof EditTaskFormData | null>(null)
   const queryClient = useQueryClient()
@@ -47,7 +49,7 @@ const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id
   const { mutateAsync: updateTask, isPending } = useUpdateTask()
 
   const searchParams = useSearchParams()
-  const id = searchParams.get(queryParamKey)
+  const id = entityIdProp !== undefined ? entityIdProp : searchParams.get(queryParamKey)
   const { data: permission } = useAccountRoles(ObjectTypes.TASK, id)
   const isEditAllowed = canEdit(permission?.roles)
   const { data, isLoading: fetching } = useTask(id as string)
@@ -113,6 +115,11 @@ const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id
   const isCreateButtonVisible = !!((associationsData?.task?.controls.edges?.length ?? 0) > 0 || (associationsData?.task?.subcontrols.edges?.length ?? 0) > 0 || taskData?.taskKindName === 'Evidence')
 
   const handleCloseParams = () => {
+    if (onCloseProp) {
+      onCloseProp()
+      setIsEditing(false)
+      return
+    }
     const newSearchParams = new URLSearchParams(searchParams.toString())
     newSearchParams.delete(queryParamKey)
     router.replace(`${window.location.pathname}?${newSearchParams.toString()}`)
