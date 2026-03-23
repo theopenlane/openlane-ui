@@ -13,7 +13,7 @@ import {
   useBulkEditReview,
   useGetReviewAssociations,
 } from '@/lib/graphql-hooks/review'
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
 import { breadcrumbs, getFieldsToRender, getFilterFields, visibilityFields } from './table-config'
 import { type ReviewSheetConfig, type ReviewTablePageConfig, type ReviewFieldProps, objectType, objectName, tableKey, exportType, orderFieldEnum, defaultSorting } from './types'
@@ -27,10 +27,12 @@ import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import { buildAssociationPayload } from '@/components/shared/object-association/utils'
 import { useInitialAssociations } from '@/hooks/useInitialAssociations'
 import { REVIEW_ASSOCIATION_CONFIG } from '@/components/shared/object-association/association-configs'
+import ViewReviewSheet from '../view-review-sheet'
 
 const ReviewPage: React.FC = () => {
   const { form } = useFormSchema()
 
+  const router = useRouter()
   const searchParams = useSearchParams()
   const id = searchParams.get('id')
   const isCreate = searchParams.get('create') === 'true'
@@ -108,10 +110,17 @@ const ReviewPage: React.FC = () => {
     tagOptions: tagOptions.tagOptions,
   }
 
+  const handleCloseViewSheet = () => {
+    const newSearchParams = new URLSearchParams(searchParams.toString())
+    newSearchParams.delete('id')
+    router.replace(`${window.location.pathname}?${newSearchParams.toString()}`)
+  }
+
   const sheetConfig: ReviewSheetConfig = {
     objectType: objectType,
     form,
-    data: id ? data?.review : undefined,
+    entityId: null,
+    data: isCreate ? data?.review : undefined,
     isFetching: isLoading,
     updateMutation,
     createMutation,
@@ -172,7 +181,12 @@ const ReviewPage: React.FC = () => {
     enumOpts,
   }
 
-  return <GenericTablePage {...tableConfig} />
+  return (
+    <>
+      <GenericTablePage {...tableConfig} />
+      <ViewReviewSheet entityId={isCreate ? null : id} onClose={handleCloseViewSheet} />
+    </>
+  )
 }
 
 export default ReviewPage

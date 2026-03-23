@@ -66,7 +66,6 @@ const ViewFindingSheet: React.FC<Props> = ({ entityId, onClose }) => {
   }
   const handleCloseAfterCreate = () => {
     setIsTrackingRemediation(false)
-    onClose()
   }
 
   return (
