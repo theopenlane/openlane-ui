@@ -8,8 +8,11 @@ export const GET_INTEGRATIONS = gql`
           id
           name
           kind
-          tags
           description
+          tags
+          integrationType
+          environmentName
+          scopeName
           createdAt
           createdBy
         }

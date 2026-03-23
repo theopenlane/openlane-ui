@@ -24,6 +24,7 @@ import {
   CREATE_CSV_BULK_EVIDENCE,
   BULK_DELETE_EVIDENCE,
   BULK_EDIT_EVIDENCE,
+  GET_EVIDENCES_WITH_FILE_IDS,
 } from '@repo/codegen/query/evidence'
 import {
   type CreateEvidenceMutation,
@@ -64,6 +65,8 @@ import {
   type DeleteBulkEvidenceMutationVariables,
   type UpdateBulkEvidenceMutation,
   type UpdateBulkEvidenceMutationVariables,
+  type GetEvidencesWithFileIdsQuery,
+  type GetEvidencesWithFileIdsQueryVariables,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '../fetchGraphql'
 import { type TPagination } from '@repo/ui/pagination-types'
@@ -484,5 +487,18 @@ export const useBulkEditEvidence = () => {
     onSuccess: () => {
       invalidateEvidenceQueries(queryClient)
     },
+  })
+}
+
+export const useGetEvidencesWithFileIds = (fileIds: string[]) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<GetEvidencesWithFileIdsQuery, GetEvidencesWithFileIdsQueryVariables>({
+    queryKey: ['evidences', 'byFiles', fileIds],
+    queryFn: () =>
+      client.request(GET_EVIDENCES_WITH_FILE_IDS, {
+        where: { hasFilesWith: [{ idIn: fileIds }] },
+      }),
+    enabled: fileIds.length > 0,
   })
 }
