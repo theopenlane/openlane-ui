@@ -7,8 +7,6 @@ import { SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { ArrowLeft } from 'lucide-react'
 import useFormSchema, { type RemediationFormData } from './hooks/use-form-schema'
 import { useCreateRemediation } from '@/lib/graphql-hooks/remediation'
-import { useUpdateVulnerability } from '@/lib/graphql-hooks/vulnerability'
-import { useUpdateFinding } from '@/lib/graphql-hooks/finding'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { useNotification } from '@/hooks/useNotification'
 import { useQueryClient } from '@tanstack/react-query'
@@ -32,15 +30,12 @@ type TrackRemediationFormProps = {
 
 export const TrackRemediationForm: React.FC<TrackRemediationFormProps> = ({ entityId, entityType, onClose, onPendingChange, defaultTitle }) => {
   const { form } = useFormSchema()
-
   React.useEffect(() => {
     if (defaultTitle) {
       form.setValue('title', defaultTitle)
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
   const { mutateAsync, isPending } = useCreateRemediation()
-  const { mutateAsync: updateVulnerability } = useUpdateVulnerability()
-  const { mutateAsync: updateFinding } = useUpdateFinding()
   const { successNotification, errorNotification } = useNotification()
   const queryClient = useQueryClient()
 
@@ -62,13 +57,8 @@ export const TrackRemediationForm: React.FC<TrackRemediationFormProps> = ({ enti
         ...data,
         ...(entityType === 'finding' ? { findingIDs: [entityId] } : { vulnerabilityIDs: [entityId] }),
       }
-      const result = await mutateAsync({ input })
-      const remediationId = result.createRemediation.remediation.id
-      if (entityType === 'vulnerability') {
-        await updateVulnerability({ updateVulnerabilityId: entityId, input: { addRemediationIDs: [remediationId] } })
-      } else {
-        await updateFinding({ updateFindingId: entityId, input: { addRemediationIDs: [remediationId] } })
-      }
+      console.log('INPUT2', input)
+      await mutateAsync({ input })
       queryClient.invalidateQueries({ queryKey: ['remediations'] })
       queryClient.invalidateQueries({ queryKey: [entityType === 'vulnerability' ? 'vulnerabilities' : 'findings', entityId, 'associations'] })
       successNotification({ title: 'Remediation Created', description: 'The remediation has been successfully created.' })

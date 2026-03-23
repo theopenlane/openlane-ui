@@ -117,6 +117,14 @@ export const FINDING = gql`
       updatedBy
       validated
       vector
+      remediations(first: 1) {
+        totalCount
+        edges {
+          node {
+            id
+          }
+        }
+      }
     }
   }
 `
