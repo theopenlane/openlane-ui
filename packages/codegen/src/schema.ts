@@ -9767,6 +9767,7 @@ export interface CreateScanInput {
   scopeName?: InputMaybe<Scalars['String']['input']>
   /** the status of the scan, e.g., processing, completed, failed */
   status?: InputMaybe<ScanScanStatus>
+  subcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   /** the target of the scan, e.g., a domain name or IP address, codebase */
@@ -9929,8 +9930,11 @@ export interface CreateSubcontrolInput {
   referenceID?: InputMaybe<Scalars['String']['input']>
   /** references for the control */
   references?: InputMaybe<Array<Scalars['Reference']['input']>>
+  remediationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   responsiblePartyID?: InputMaybe<Scalars['ID']['input']>
+  reviewIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   riskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  scanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   scheduledJobIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** source of the control, e.g. framework, template, custom, etc. */
   source?: InputMaybe<SubcontrolControlSource>
@@ -43288,6 +43292,7 @@ export interface Scan extends Node {
   scopeName?: Maybe<Scalars['String']['output']>
   /** the status of the scan, e.g., processing, completed, failed */
   status: ScanScanStatus
+  subcontrols: SubcontrolConnection
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
   /** the target of the scan, e.g., a domain name or IP address, codebase */
@@ -43389,6 +43394,15 @@ export interface ScanRemediationsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<RemediationOrder>>
   where?: InputMaybe<RemediationWhereInput>
+}
+
+export interface ScanSubcontrolsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<SubcontrolOrder>>
+  where?: InputMaybe<SubcontrolWhereInput>
 }
 
 export interface ScanTasksArgs {
@@ -43705,6 +43719,9 @@ export interface ScanWhereInput {
   /** scope edge predicates */
   hasScope?: InputMaybe<Scalars['Boolean']['input']>
   hasScopeWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
+  /** subcontrols edge predicates */
+  hasSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
+  hasSubcontrolsWith?: InputMaybe<Array<SubcontrolWhereInput>>
   /** tasks edge predicates */
   hasTasks?: InputMaybe<Scalars['Boolean']['input']>
   hasTasksWith?: InputMaybe<Array<TaskWhereInput>>
@@ -45145,11 +45162,14 @@ export interface Subcontrol extends Node {
   referenceID?: Maybe<Scalars['String']['output']>
   /** references for the control */
   references?: Maybe<Array<Scalars['Reference']['output']>>
+  remediations: RemediationConnection
   /** the entity who is responsible for the control implementation when it is a third party */
   responsibleParty?: Maybe<Entity>
   /** the id of the party responsible for the control, usually used when the control is implemented by a third party */
   responsiblePartyID?: Maybe<Scalars['ID']['output']>
+  reviews: ReviewConnection
   risks: RiskConnection
+  scans: ScanConnection
   scheduledJobs: ScheduledJobConnection
   /** source of the control, e.g. framework, template, custom, etc. */
   source?: Maybe<SubcontrolControlSource>
@@ -45265,6 +45285,24 @@ export interface SubcontrolProceduresArgs {
   where?: InputMaybe<ProcedureWhereInput>
 }
 
+export interface SubcontrolRemediationsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<RemediationOrder>>
+  where?: InputMaybe<RemediationWhereInput>
+}
+
+export interface SubcontrolReviewsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ReviewOrder>>
+  where?: InputMaybe<ReviewWhereInput>
+}
+
 export interface SubcontrolRisksArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -45272,6 +45310,15 @@ export interface SubcontrolRisksArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<RiskOrder>>
   where?: InputMaybe<RiskWhereInput>
+}
+
+export interface SubcontrolScansArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ScanOrder>>
+  where?: InputMaybe<ScanWhereInput>
 }
 
 export interface SubcontrolScheduledJobsArgs {
@@ -45643,12 +45690,21 @@ export interface SubcontrolWhereInput {
   /** procedures edge predicates */
   hasProcedures?: InputMaybe<Scalars['Boolean']['input']>
   hasProceduresWith?: InputMaybe<Array<ProcedureWhereInput>>
+  /** remediations edge predicates */
+  hasRemediations?: InputMaybe<Scalars['Boolean']['input']>
+  hasRemediationsWith?: InputMaybe<Array<RemediationWhereInput>>
   /** responsible_party edge predicates */
   hasResponsibleParty?: InputMaybe<Scalars['Boolean']['input']>
   hasResponsiblePartyWith?: InputMaybe<Array<EntityWhereInput>>
+  /** reviews edge predicates */
+  hasReviews?: InputMaybe<Scalars['Boolean']['input']>
+  hasReviewsWith?: InputMaybe<Array<ReviewWhereInput>>
   /** risks edge predicates */
   hasRisks?: InputMaybe<Scalars['Boolean']['input']>
   hasRisksWith?: InputMaybe<Array<RiskWhereInput>>
+  /** scans edge predicates */
+  hasScans?: InputMaybe<Scalars['Boolean']['input']>
+  hasScansWith?: InputMaybe<Array<ScanWhereInput>>
   /** scheduled_jobs edge predicates */
   hasScheduledJobs?: InputMaybe<Scalars['Boolean']['input']>
   hasScheduledJobsWith?: InputMaybe<Array<ScheduledJobWhereInput>>
@@ -56487,6 +56543,7 @@ export interface UpdateScanInput {
   addFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addPlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addRemediationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addVulnerabilityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -56524,6 +56581,7 @@ export interface UpdateScanInput {
   clearScanSchedule?: InputMaybe<Scalars['Boolean']['input']>
   clearScope?: InputMaybe<Scalars['Boolean']['input']>
   clearScopeName?: InputMaybe<Scalars['Boolean']['input']>
+  clearSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearTasks?: InputMaybe<Scalars['Boolean']['input']>
   clearViewers?: InputMaybe<Scalars['Boolean']['input']>
@@ -56551,6 +56609,7 @@ export interface UpdateScanInput {
   removeFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removePlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeRemediationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeVulnerabilityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -56710,7 +56769,10 @@ export interface UpdateSubcontrolInput {
   addInternalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addNarrativeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProcedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addRemediationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addReviewIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addRiskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addScanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addScheduledJobIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addWorkflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -56770,8 +56832,11 @@ export interface UpdateSubcontrolInput {
   clearReferenceFrameworkRevision?: InputMaybe<Scalars['Boolean']['input']>
   clearReferenceID?: InputMaybe<Scalars['Boolean']['input']>
   clearReferences?: InputMaybe<Scalars['Boolean']['input']>
+  clearRemediations?: InputMaybe<Scalars['Boolean']['input']>
   clearResponsibleParty?: InputMaybe<Scalars['Boolean']['input']>
+  clearReviews?: InputMaybe<Scalars['Boolean']['input']>
   clearRisks?: InputMaybe<Scalars['Boolean']['input']>
+  clearScans?: InputMaybe<Scalars['Boolean']['input']>
   clearScheduledJobs?: InputMaybe<Scalars['Boolean']['input']>
   clearSource?: InputMaybe<Scalars['Boolean']['input']>
   clearSourceName?: InputMaybe<Scalars['Boolean']['input']>
@@ -56832,7 +56897,10 @@ export interface UpdateSubcontrolInput {
   removeInternalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeNarrativeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProcedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeRemediationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeReviewIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeRiskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeScanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeScheduledJobIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeWorkflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>

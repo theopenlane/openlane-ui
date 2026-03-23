@@ -165,7 +165,7 @@ export const UPDATE_TRUST_CENTER_WATERMARK_CONFIG = gql`
 export const GET_ALL_TRUST_CENTER_POSTS = gql`
   query GetTrustCenterPosts($trustCenterId: ID!, $where: NoteWhereInput) {
     trustCenter(id: $trustCenterId) {
-      posts(where: $where) {
+      posts(where: $where, orderBy: [{ field: created_at, direction: DESC }]) {
         edges {
           node {
             id
