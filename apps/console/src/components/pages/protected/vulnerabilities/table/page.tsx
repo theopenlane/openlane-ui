@@ -149,13 +149,6 @@ const VulnerabilityPage: React.FC = () => {
         ...associationPayload,
       }
     },
-    deleteMutation: {
-      isPending: baseBulkDeleteMutation.isPending,
-      mutateAsync: async ({ ids }) => {
-        await baseBulkDeleteMutation.mutateAsync({ ids })
-        return ids
-      },
-    },
     getName,
     renderFields: (props: VulnerabilityFieldProps) => getFieldsToRender(props, enumOpts, enumCreateHandlers),
   }
