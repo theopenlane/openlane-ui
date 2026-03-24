@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
 import { Badge } from '@repo/ui/badge'
-import { Form, FormField, FormItem, FormControl, FormMessage } from '@repo/ui/form'
+import { Form, FormField, FormItem, FormControl } from '@repo/ui/form'
 import { useNotification } from '@/hooks/useNotification'
 import { useCreateAssessmentResponse } from '@/lib/graphql-hooks/assessment'
 import { useContacts } from '@/lib/graphql-hooks/contact'
@@ -321,6 +321,7 @@ export const SendQuestionnaireDialog = ({ open, onOpenChange, assessmentId, asse
                         Add More
                       </Button>
                     </div>
+                    {(inputError || errorMessage) && <p className="text-red-500 text-sm">{inputError ?? errorMessage}</p>}
                     {emails.length > 0 && (
                       <div className="flex flex-wrap gap-2">
                         {emails.map((email) => (
@@ -335,7 +336,6 @@ export const SendQuestionnaireDialog = ({ open, onOpenChange, assessmentId, asse
                     )}
                   </div>
                 </FormControl>
-                {(inputError || errorMessage) && <FormMessage>{inputError ?? errorMessage}</FormMessage>}
               </FormItem>
             )}
           />
