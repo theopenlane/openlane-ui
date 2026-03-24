@@ -56,10 +56,10 @@ const TemplateViewerPage: React.FC = () => {
           <div className="flex gap-2 items-center">
             {editAllowed && (
               <>
-                <Button type="button" className="h-8 px-3" icon={<Edit />} iconPosition="left" onClick={handleEdit}>
+                <Button type="button" variant="secondary" className="h-8 px-3" icon={<Edit />} iconPosition="left" onClick={handleEdit}>
                   Edit
                 </Button>
-                <Button type="button" className="h-8 px-3" icon={<Trash2 />} iconPosition="left" onClick={() => setIsDeleteDialogOpen(true)}>
+                <Button type="button" variant="secondary" className="h-8 px-3" icon={<Trash2 />} iconPosition="left" onClick={() => setIsDeleteDialogOpen(true)}>
                   Delete
                 </Button>
               </>
