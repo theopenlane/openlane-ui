@@ -11,14 +11,15 @@ import { EntityEntityStatus } from '@repo/codegen/src/schema'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-enum-select/creatable-custom-type-enum-select'
-import { VendorLogoDialog } from '../../vendor-logo-dialog'
+import { VendorLogoDialog, type LogoSelection } from '../../vendor-logo-dialog'
 import type { EditVendorFormData } from '../../hooks/use-form-schema'
 
 interface StepVendorInfoProps {
   onLogoFileChange: (file: File | null) => void
+  onLogoFileIdChange: (fileId: string | null) => void
 }
 
-const StepVendorInfo: React.FC<StepVendorInfoProps> = ({ onLogoFileChange }) => {
+const StepVendorInfo: React.FC<StepVendorInfoProps> = ({ onLogoFileChange, onLogoFileIdChange }) => {
   const form = useFormContext<EditVendorFormData>()
   const [logoDialogOpen, setLogoDialogOpen] = useState(false)
   const [logoPreview, setLogoPreview] = useState<string | null>(null)
@@ -28,10 +29,17 @@ const StepVendorInfo: React.FC<StepVendorInfoProps> = ({ onLogoFileChange }) => 
   const vendorName = form.watch('name') ?? ''
   const vendorDisplayName = form.watch('displayName')
 
-  const handleLogoSelect = async (file: File) => {
-    onLogoFileChange(file)
-    const url = URL.createObjectURL(file)
-    setLogoPreview(url)
+  const handleLogoSelect = async (selection: LogoSelection) => {
+    if (selection.type === 'file') {
+      onLogoFileChange(selection.file)
+      onLogoFileIdChange(null)
+      const url = URL.createObjectURL(selection.file)
+      setLogoPreview(url)
+    } else {
+      onLogoFileIdChange(selection.fileId)
+      onLogoFileChange(null)
+      setLogoPreview(selection.previewUrl)
+    }
   }
 
   return (

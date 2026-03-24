@@ -34,6 +34,7 @@ export const GET_SUBPROCESSORS = gql`
           name
           description
           logoFile {
+            id
             presignedURL
           }
           logoRemoteURL

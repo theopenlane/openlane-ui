@@ -8,7 +8,12 @@ import StepVendorInfo from './step-vendor-info'
 import StepOwnership from './step-ownership'
 import StepUploadImport from './step-upload-import'
 
-export const createVendorSteps = (onStagedFilesChange: (files: File[]) => void, onExistingFileIdsChange: (fileIds: string[]) => void, onLogoFileChange: (file: File | null) => void): StepConfig[] => [
+export const createVendorSteps = (
+  onStagedFilesChange: (files: File[]) => void,
+  onExistingFileIdsChange: (fileIds: string[]) => void,
+  onLogoFileChange: (file: File | null) => void,
+  onLogoFileIdChange: (fileId: string | null) => void,
+): StepConfig[] => [
   {
     id: 'vendor-info',
     label: 'Vendor Info',
@@ -20,7 +25,7 @@ export const createVendorSteps = (onStagedFilesChange: (files: File[]) => void, 
       environmentName: z.string().optional(),
       scopeName: z.string().optional().nullable(),
     }),
-    render: () => <StepVendorInfo onLogoFileChange={onLogoFileChange} />,
+    render: () => <StepVendorInfo onLogoFileChange={onLogoFileChange} onLogoFileIdChange={onLogoFileIdChange} />,
   },
   {
     id: 'ownership',
