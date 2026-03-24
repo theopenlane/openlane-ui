@@ -99,7 +99,7 @@ export const VendorLogoDialog: React.FC<VendorLogoDialogProps> = ({ open, onOpen
 
         <div className="space-y-5">
           {preview && (
-            <div className="flex justify-center">
+            <div className="flex">
               <div className="flex h-20 w-20 items-center justify-center rounded-lg border border-border bg-background overflow-hidden">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={preview} alt="Logo preview" className="max-h-full max-w-full object-contain p-1" />
