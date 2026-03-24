@@ -8,6 +8,7 @@ import { TargetsStep, type CampaignTargetEntry } from './steps/targets-step'
 import { PreviewStep } from './steps/preview-step'
 import { ScheduleStep } from './steps/schedule-step'
 import { EmailBrandingPanel } from './email-branding-panel'
+import { CreateTemplateSheet } from './create-template-sheet'
 import { useCreateCampaign } from '@/lib/graphql-hooks/campaign'
 import { useCreateCampaignTarget } from '@/lib/graphql-hooks/campaign-target'
 import { useNotification } from '@/hooks/useNotification'
@@ -24,6 +25,7 @@ export const CreateCampaignSheet: React.FC<CreateCampaignSheetProps> = ({ open, 
   const { form } = useCampaignFormSchema()
   const [currentStep, setCurrentStep] = useState(0)
   const [showEmailBranding, setShowEmailBranding] = useState(false)
+  const [showCreateTemplate, setShowCreateTemplate] = useState(false)
 
   const [targets, setTargets] = useState<CampaignTargetEntry[]>([])
   const [uploadedFile, setUploadedFile] = useState<File | null>(null)
@@ -37,6 +39,7 @@ export const CreateCampaignSheet: React.FC<CreateCampaignSheetProps> = ({ open, 
     setTargets([])
     setUploadedFile(null)
     setShowEmailBranding(false)
+    setShowCreateTemplate(false)
     form.reset()
   }, [form])
 
@@ -107,20 +110,36 @@ export const CreateCampaignSheet: React.FC<CreateCampaignSheetProps> = ({ open, 
   }, [form, submitCampaign])
 
   const handleLaunch = useCallback(async () => {
-    const isValid = await form.trigger()
-    if (!isValid) {
+    const data = form.getValues()
+
+    if (!data.templateID) {
+      errorNotification({ title: 'Validation Error', description: 'Please select a template' })
       setCurrentStep(0)
       return
     }
-    const data = form.getValues()
+
+    if (!data.name?.trim()) {
+      errorNotification({ title: 'Validation Error', description: 'Campaign name is required' })
+      setCurrentStep(0)
+      return
+    }
+
     await submitCampaign(data, CampaignCampaignStatus.ACTIVE)
-  }, [form, submitCampaign])
+  }, [form, submitCampaign, errorNotification])
 
   const templateID = form.watch('templateID')
 
   const handleCreateTemplate = useCallback(() => {
-    window.open('/automation/campaigns?create-template=true', '_blank')
+    setShowCreateTemplate(true)
   }, [])
+
+  const handleTemplateSave = useCallback(
+    (templateId: string) => {
+      form.setValue('templateID', templateId, { shouldDirty: true, shouldValidate: true })
+      setShowCreateTemplate(false)
+    },
+    [form],
+  )
 
   const handleEmailBrandingSave = useCallback(
     (brandingId: string) => {
@@ -143,9 +162,9 @@ export const CreateCampaignSheet: React.FC<CreateCampaignSheetProps> = ({ open, 
         content: <TargetsStep targets={targets} onTargetsChange={setTargets} uploadedFile={uploadedFile} onFileUpload={setUploadedFile} />,
       },
       {
-        title: 'Preview',
-        description: 'Preview how your campaign will appear to recipients',
-        content: <PreviewStep form={form} onOpenEmailBranding={() => setShowEmailBranding(true)} />,
+        title: 'Template',
+        description: 'Choose a template to get started with your campaign',
+        content: <PreviewStep form={form} onOpenEmailBranding={() => setShowEmailBranding(true)} onCreateTemplate={handleCreateTemplate} />,
       },
       {
         title: 'Schedule',
@@ -179,6 +198,7 @@ export const CreateCampaignSheet: React.FC<CreateCampaignSheetProps> = ({ open, 
         />
       </Form>
       <EmailBrandingPanel open={showEmailBranding} onClose={() => setShowEmailBranding(false)} onSave={handleEmailBrandingSave} />
+      <CreateTemplateSheet open={showCreateTemplate} onClose={() => setShowCreateTemplate(false)} onCreated={handleTemplateSave} />
     </>
   )
 }

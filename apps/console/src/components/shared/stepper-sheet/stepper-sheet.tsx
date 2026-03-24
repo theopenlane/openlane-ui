@@ -4,7 +4,6 @@ import React, { useState } from 'react'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { Button } from '@repo/ui/button'
 import { SaveIcon, X } from 'lucide-react'
-import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
 import { Badge } from '@repo/ui/badge'
 
@@ -101,7 +100,7 @@ export function StepperSheet({
           header={
             <SheetHeader>
               <SheetTitle className="sr-only">{title}</SheetTitle>
-              <div className="flex flex-col gap-3">
+              <div className="flex flex-col gap-4">
                 {showBreadcrumb && <div className="text-sm text-muted-foreground">{breadcrumbContent ?? breadcrumb}</div>}
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -115,7 +114,9 @@ export function StepperSheet({
                   </button>
                 </div>
                 <div className="flex items-center gap-2">
-                  <CancelButton onClick={handleClose} disabled={isSaving || isCompleting} />
+                  <Button variant="secondary" onClick={handleClose} disabled={isSaving || isCompleting}>
+                    Cancel
+                  </Button>
                   <Button variant="secondary" onClick={onSaveDraft} disabled={isSaving || isCompleting} icon={<SaveIcon size={16} />} iconPosition="left">
                     {isSaving ? 'Saving...' : 'Save Draft'}
                   </Button>

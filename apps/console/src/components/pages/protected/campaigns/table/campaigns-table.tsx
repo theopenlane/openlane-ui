@@ -9,7 +9,7 @@ import { CAMPAIGN_SORT_FIELDS } from '@/components/pages/protected/campaigns/tab
 import { useCampaignsWithFilter } from '@/lib/graphql-hooks/campaign'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
 import { type VisibilityState } from '@tanstack/react-table'
-import { useSmartRouter } from '@/hooks/useSmartRouter'
+import { useRouter } from 'next/navigation'
 import { type TAccessRole, type TPermissionData } from '@/types/authz'
 import { useNotification } from '@/hooks/useNotification'
 import { TableKeyEnum } from '@repo/ui/table-key'
@@ -45,7 +45,7 @@ const CampaignsTable = ({
   permission,
   defaultSorting,
 }: TCampaignsTableProps) => {
-  const { replace } = useSmartRouter()
+  const router = useRouter()
   const { CampaignsNodes: campaigns, isLoading: fetching, data, isFetching, isError } = useCampaignsWithFilter({ where: whereFilter, orderBy: orderByFilter, pagination, enabled: !!whereFilter })
 
   const { errorNotification } = useNotification()
@@ -114,7 +114,7 @@ const CampaignsTable = ({
       loading={fetching || fetchingUsers}
       defaultSorting={defaultSorting}
       onRowClick={(campaign) => {
-        replace({ id: campaign.id })
+        router.push(`/automation/campaigns/${campaign.id}`)
       }}
       pagination={pagination}
       onPaginationChange={onPaginationChange}

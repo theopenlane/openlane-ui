@@ -1,12 +1,13 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { type TUploadedFile } from '@/components/pages/protected/evidence/upload/types/TUploadedFile'
-import { Input } from '@repo/ui/input'
 import { Button } from '@repo/ui/button'
-import { Plus, Trash2 } from 'lucide-react'
+import { Trash2 } from 'lucide-react'
+import MultipleSelector, { type Option } from '@repo/ui/multiple-selector'
+import { isValidEmail } from '@/lib/validators'
 
 export interface CampaignTargetEntry {
   email: string
@@ -29,19 +30,14 @@ export const TargetsStep: React.FC<TargetsStepProps> = ({ targets, onTargetsChan
     }
   }
 
-  const handleAddManualTarget = () => {
-    onTargetsChange([...targets, { email: '', fullName: '' }])
-  }
+  const selectedOptions: Option[] = useMemo(() => targets.map((t) => ({ value: t.email, label: t.email })), [targets])
 
-  const handleUpdateTarget = (index: number, field: keyof CampaignTargetEntry, value: string) => {
-    const updated = [...targets]
-    updated[index] = { ...updated[index], [field]: value }
-    onTargetsChange(updated)
-  }
-
-  const handleRemoveTarget = (index: number) => {
-    onTargetsChange(targets.filter((_, i) => i !== index))
-  }
+  const handleChange = useCallback(
+    (options: Option[]) => {
+      onTargetsChange(options.map((o) => ({ email: o.value, fullName: '' })))
+    },
+    [onTargetsChange],
+  )
 
   return (
     <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -68,19 +64,22 @@ export const TargetsStep: React.FC<TargetsStepProps> = ({ targets, onTargetsChan
       </TabsContent>
 
       <TabsContent value="manual" className="mt-4">
-        <div className="flex flex-col gap-3">
-          {targets.map((target, index) => (
-            <div key={index} className="flex items-center gap-2">
-              <Input placeholder="Full name" value={target.fullName} onChange={(e) => handleUpdateTarget(index, 'fullName', e.target.value)} className="flex-1" />
-              <Input placeholder="Email address" value={target.email} onChange={(e) => handleUpdateTarget(index, 'email', e.target.value)} className="flex-1" />
-              <Button variant="icon" onClick={() => handleRemoveTarget(index)}>
-                <Trash2 size={16} />
-              </Button>
-            </div>
-          ))}
-          <Button variant="secondary" icon={<Plus size={16} />} iconPosition="left" onClick={handleAddManualTarget} className="w-fit">
-            Add Recipient
-          </Button>
+        <div className="flex flex-col gap-2">
+          <label className="text-sm font-medium">Enter emails</label>
+          <MultipleSelector
+            value={selectedOptions}
+            onChange={handleChange}
+            creatable
+            placeholder="Type an email and press Enter..."
+            hidePlaceholderWhenSelected
+            hideClearAllButton
+            className="h-[400px] items-start overflow-y-auto"
+            commandProps={{
+              filter: (value: string, search: string) => {
+                return isValidEmail(search) && value.toLowerCase().includes(search.toLowerCase()) ? 1 : -1
+              },
+            }}
+          />
         </div>
       </TabsContent>
 

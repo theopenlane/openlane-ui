@@ -83,10 +83,7 @@ const CampaignsPage: React.FC = () => {
   }, [setCrumbs])
 
   useEffect(() => {
-    const campaignId = searchParams.get('id')
-    if (campaignId) {
-      // Campaign detail view will be handled in a future PR
-    }
+    // Campaign detail is now handled by the [id] route page
   }, [searchParams])
 
   const mappedColumns = useMemo(() => {
