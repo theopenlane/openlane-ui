@@ -1,6 +1,6 @@
 'use client'
 
-import React, { use, useEffect, useMemo } from 'react'
+import React, { use, useEffect, useMemo, useState } from 'react'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { PageHeading } from '@repo/ui/page-heading'
 import { useVulnerabilitiesWithFilter } from '@/lib/graphql-hooks/vulnerability'
@@ -16,6 +16,7 @@ import ExposureSeverityChart from './exposure-severity-chart'
 import ExposureActivityFeed from './exposure-activity-feed'
 import ExposureCriticalCounts from './exposure-critical-counts'
 import ItemsRequiringAttention from './items-requiring-attention'
+import ConfigureSlaSheet from './configure-sla-sheet'
 import { TableKeyEnum } from '@repo/ui/table-key'
 
 const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
@@ -27,6 +28,7 @@ const LOW_WHERE = { or: [{ severityContainsFold: 'low' }, { severityIn: ['LOW', 
 
 const ExposureOverviewPage = () => {
   const { setCrumbs } = use(BreadcrumbContext)
+  const [slaSheetOpen, setSlaSheetOpen] = useState(false)
 
   useEffect(() => {
     setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Exposure', href: '/exposure/overview' }, { label: 'Overview' }])
@@ -233,7 +235,8 @@ const ExposureOverviewPage = () => {
           </div>
         </div>
         <ExposureCriticalCounts counts={criticalCounts} isLoading={isLoading} />
-        <ItemsRequiringAttention items={attentionItems} isLoading={isLoading} />
+        <ItemsRequiringAttention items={attentionItems} isLoading={isLoading} onConfigureSla={() => setSlaSheetOpen(true)} />
+        <ConfigureSlaSheet isOpen={slaSheetOpen} onClose={() => setSlaSheetOpen(false)} />
       </div>
     </div>
   )

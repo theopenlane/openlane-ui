@@ -4,13 +4,15 @@ import React, { useMemo, useState } from 'react'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { DataTable } from '@repo/ui/data-table'
 import { TableKeyEnum } from '@repo/ui/table-key'
-import { AlertTriangle } from 'lucide-react'
+import { AlertTriangle, Settings2 } from 'lucide-react'
+import { Button } from '@repo/ui/button'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import Skeleton from '@/components/shared/skeleton/skeleton'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@repo/ui/dialog'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import { useGetFindingAssociations } from '@/lib/graphql-hooks/finding'
 import { useGetRiskById } from '@/lib/graphql-hooks/risk'
+import { useSlaDefinitionsWithFilter } from '@/lib/graphql-hooks/sla-definition'
 
 import ObjectAssociationSwitch from '@/components/shared/object-association/object-association-switch'
 import { ObjectAssociationNodeEnum, type Section, type TConnectionLike } from '@/components/shared/object-association/types/object-association-types'
@@ -120,13 +122,16 @@ const AssociationTimelineContent = ({ item }: { item: AttentionItem }) => {
 type Props = {
   items: AttentionItem[]
   isLoading?: boolean
+  onConfigureSla?: () => void
 }
 
-const ItemsRequiringAttention = ({ items, isLoading }: Props) => {
+const ItemsRequiringAttention = ({ items, isLoading, onConfigureSla }: Props) => {
   const [selectedItem, setSelectedItem] = useState<AttentionItem | null>(null)
   const [viewItem, setViewItem] = useState<AttentionItem | null>(null)
 
-  const columns = useMemo(() => getAttentionColumns(setSelectedItem), [])
+  const { slaDefinitionsNodes } = useSlaDefinitionsWithFilter({})
+
+  const columns = useMemo(() => getAttentionColumns(setSelectedItem, slaDefinitionsNodes), [slaDefinitionsNodes])
 
   const handleRowClick = (row: AttentionItem) => {
     setViewItem(row)
@@ -135,7 +140,15 @@ const ItemsRequiringAttention = ({ items, isLoading }: Props) => {
   return (
     <Card>
       <CardContent className="pt-6">
-        <p className="text-xl font-medium leading-7 mb-4">Items Requiring Attention</p>
+        <div className="flex items-center justify-between mb-4">
+          <p className="text-xl font-medium leading-7">Items Requiring Attention</p>
+          {onConfigureSla && (
+            <Button variant="primary" size="md" onClick={onConfigureSla} className="gap-1.5">
+              <Settings2 size={14} />
+              Configure SLA
+            </Button>
+          )}
+        </div>
         {isLoading ? (
           <div className="space-y-2">
             {[1, 2, 3, 4, 5].map((i) => (

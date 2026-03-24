@@ -9,6 +9,7 @@ import { type AttentionItem } from './items-requiring-attention'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { getSeverityStyle } from '@/utils/severity'
 import { searchTypeIcons } from '@/components/shared/search/search-config'
+import { type SlaDefinitionsNodeNonNull } from '@/lib/graphql-hooks/sla-definition'
 
 export const TYPE_HREFS: Record<AttentionItem['type'], string> = {
   [ObjectTypes.VULNERABILITY]: '/exposure/vulnerabilities',
@@ -16,19 +17,44 @@ export const TYPE_HREFS: Record<AttentionItem['type'], string> = {
   [ObjectTypes.RISK]: '/exposure/risks',
 }
 
-export const getAttentionColumns = (onAssociate: (item: AttentionItem) => void): ColumnDef<AttentionItem>[] => [
+const isPastDue = (item: AttentionItem, slaDefinitions: SlaDefinitionsNodeNonNull[]): { pastDue: boolean; slaDays?: number; dueDate?: Date } => {
+  const sla = slaDefinitions.find((def) => def.slaDefinitionSeverityLevelName?.toLowerCase() === item.severity.toLowerCase())
+  if (!sla?.slaDays) return { pastDue: false }
+  const dueDate = new Date(item.createdAt)
+  dueDate.setDate(dueDate.getDate() + sla.slaDays)
+  return { pastDue: dueDate < new Date(), slaDays: sla.slaDays, dueDate }
+}
+
+export const getAttentionColumns = (onAssociate: (item: AttentionItem) => void, slaDefinitions: SlaDefinitionsNodeNonNull[]): ColumnDef<AttentionItem>[] => [
   {
     accessorKey: 'name',
     header: 'Name',
-    size: 240,
+    size: 280,
     cell: ({ row }) => {
       const Icon = searchTypeIcons[row.original.type]
+      const { pastDue, slaDays, dueDate } = isPastDue(row.original, slaDefinitions)
       return (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 min-w-0">
           <Icon size={14} className="text-muted-foreground shrink-0" />
           <span className="truncate font-medium" title={row.original.name}>
             {row.original.name}
           </span>
+          {pastDue && (
+            <TooltipProvider delayDuration={200}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="shrink-0 text-xs px-1.5 py-0.5 rounded-full font-medium bg-danger/15 text-danger border border-danger/30 cursor-default">Past Due</span>
+                </TooltipTrigger>
+                <TooltipContent side="top" className="max-w-56">
+                  <p className="font-medium mb-1">SLA Exceeded</p>
+                  <p className="text-xs text-muted-foreground">
+                    {slaDays}-day SLA for {row.original.severity.toLowerCase()} severity
+                  </p>
+                  {dueDate && <p className="text-xs text-muted-foreground">Due: {dueDate.toLocaleDateString()}</p>}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
         </div>
       )
     },
