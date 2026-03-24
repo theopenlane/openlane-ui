@@ -16,7 +16,7 @@ import { TemplateDocumentType } from '@repo/codegen/src/schema'
 interface CreateTemplateSheetProps {
   open: boolean
   onClose: () => void
-  onCreated: (templateId: string) => void
+  onCreated: (templateId: string, templateName: string) => void
 }
 
 export const CreateTemplateSheet: React.FC<CreateTemplateSheetProps> = ({ open, onClose, onCreated }) => {
@@ -60,11 +60,11 @@ export const CreateTemplateSheet: React.FC<CreateTemplateSheetProps> = ({ open, 
         },
       })
 
-      const templateId = result?.createTemplate?.template?.id
-      if (templateId) {
+      const template = result?.createTemplate?.template
+      if (template?.id) {
         successNotification({ title: 'Template created' })
         resetForm()
-        onCreated(templateId)
+        onCreated(template.id, name.trim())
       }
     } catch (error) {
       errorNotification({ title: 'Error', description: parseErrorMessage(error) })

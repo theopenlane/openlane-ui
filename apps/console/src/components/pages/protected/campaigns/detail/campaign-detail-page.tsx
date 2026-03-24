@@ -14,19 +14,14 @@ import { CampaignCampaignStatus } from '@repo/codegen/src/schema'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { formatDate } from '@/utils/date'
 import Skeleton from '@/components/shared/skeleton/skeleton'
-import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar'
 import Menu from '@/components/shared/menu/menu'
 import { useDeleteCampaign } from '@/lib/graphql-hooks/campaign'
 import { useRouter } from 'next/navigation'
 import { RecipientDetailPanel } from './recipient-detail-panel'
-
-const getRecipientStatus = (recipient: CampaignTargetsNodeNonNull) => {
-  if (recipient.completedAt) return { label: 'Completed', color: 'bg-green-500' }
-  if (recipient.sentAt) return { label: 'Sent', color: 'bg-blue-500' }
-  return { label: 'Pending', color: 'bg-gray-500' }
-}
+import CampaignRunsTable from './campaign-runs-table'
+import RecipientsTable from './recipients-table'
 
 const CampaignDetailPage: React.FC = () => {
   const params = useParams<{ id: string }>()
@@ -38,12 +33,11 @@ const CampaignDetailPage: React.FC = () => {
   const { successNotification, errorNotification } = useNotification()
   const router = useRouter()
 
-  const [pagination] = useState<TPagination>(DEFAULT_PAGINATION)
   const [selectedRecipient, setSelectedRecipient] = useState<CampaignTargetsNodeNonNull | null>(null)
 
-  const { CampaignTargetsNodes: recipients, isLoading: recipientsLoading } = useCampaignTargetsWithFilter({
+  const { CampaignTargetsNodes: recipients } = useCampaignTargetsWithFilter({
     where: { hasCampaignWith: [{ id: campaignId }] },
-    pagination,
+    pagination: DEFAULT_PAGINATION,
     enabled: !!campaignId,
   })
 
@@ -78,7 +72,7 @@ const CampaignDetailPage: React.FC = () => {
     try {
       await updateCampaign({
         updateCampaignId: campaignId,
-        input: { status: CampaignCampaignStatus.ACTIVE },
+        input: { status: CampaignCampaignStatus.ACTIVE, launchedAt: new Date().toISOString() },
       })
       successNotification({ title: 'Campaign started' })
     } catch (error) {
@@ -202,135 +196,56 @@ const CampaignDetailPage: React.FC = () => {
       <h1 className="text-xl font-semibold mb-6">{campaign.name}</h1>
 
       {/* Campaign Progress */}
-      <div className="rounded-md border border-border bg-card p-4 mb-4">
+      <div className="rounded-md border border-border bg-card p-4 mb-4 w-full">
         <h3 className="text-sm font-semibold mb-3">Campaign Progress</h3>
-        <div className="w-full h-2 bg-muted rounded-full overflow-hidden mb-4">
+        <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
           <div className="h-full bg-green-500 rounded-full transition-all" style={{ width: `${progressPercent}%` }} />
         </div>
+      </div>
 
-        {/* Stats Row 1 */}
-        <div className="grid grid-cols-4 gap-3 mb-3">
-          <div className="rounded-md bg-input p-3">
-            <span className="text-xs text-muted-foreground">Total Targets</span>
-            <p className="text-lg font-semibold">{stats.total}</p>
-          </div>
-          <div className="rounded-md bg-input p-3">
-            <span className="text-xs text-muted-foreground">Completed</span>
-            <p className="text-lg font-semibold">{stats.completed}</p>
-          </div>
-          <div className="rounded-md bg-input p-3">
-            <span className="text-xs text-muted-foreground">In Progress</span>
-            <p className="text-lg font-semibold">{stats.inProgress}</p>
-          </div>
-          <div className="rounded-md bg-input p-3">
-            <span className="text-xs text-muted-foreground">Overdue</span>
-            <p className="text-lg font-semibold">{stats.overdue}</p>
-          </div>
+      {/* Stats Row 1 */}
+      <div className="grid grid-cols-4 gap-3 mb-3">
+        <div className="rounded-md border border-border bg-card p-3">
+          <span className="text-xs text-muted-foreground">Total Targets</span>
+          <p className="text-lg font-semibold">{stats.total}</p>
         </div>
-
-        {/* Stats Row 2 */}
-        <div className="grid grid-cols-4 gap-3">
-          <div className="rounded-md bg-input p-3">
-            <span className="text-xs text-muted-foreground">Email Sent</span>
-            <p className="text-lg font-semibold">{stats.sent}</p>
-          </div>
-          <div className="rounded-md bg-input p-3">
-            <span className="text-xs text-muted-foreground">Email Delivered</span>
-            <p className="text-lg font-semibold">{stats.sent}</p>
-          </div>
-          <div className="rounded-md bg-input p-3">
-            <span className="text-xs text-muted-foreground">Email Bounced</span>
-            <p className="text-lg font-semibold">0</p>
-          </div>
-          <div className="rounded-md bg-input p-3">
-            <span className="text-xs text-muted-foreground">Email Opened</span>
-            <p className="text-lg font-semibold">—</p>
-          </div>
+        <div className="rounded-md border border-border bg-card p-3">
+          <span className="text-xs text-muted-foreground">Completed</span>
+          <p className="text-lg font-semibold">{stats.completed}</p>
+        </div>
+        <div className="rounded-md border border-border bg-card p-3">
+          <span className="text-xs text-muted-foreground">In Progress</span>
+          <p className="text-lg font-semibold">{stats.inProgress}</p>
+        </div>
+        <div className="rounded-md border border-border bg-card p-3">
+          <span className="text-xs text-muted-foreground">Overdue</span>
+          <p className="text-lg font-semibold">{stats.overdue}</p>
         </div>
       </div>
 
-      {/* Campaign Runs */}
-      <div className="rounded-md border border-border bg-card overflow-hidden mb-4">
-        <div className="p-4 border-b border-border">
-          <h3 className="text-sm font-semibold">Campaign Runs</h3>
+      {/* Stats Row 2 */}
+      <div className="grid grid-cols-4 gap-3 mb-4">
+        <div className="rounded-md border border-border bg-card p-3">
+          <span className="text-xs text-muted-foreground">Email Sent</span>
+          <p className="text-lg font-semibold">{stats.sent}</p>
         </div>
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-border text-muted-foreground">
-              <th className="text-left p-3 font-medium">Run Date</th>
-              <th className="text-left p-3 font-medium"># Targets</th>
-              <th className="text-left p-3 font-medium"># Completed</th>
-              <th className="text-left p-3 font-medium"># Paused</th>
-              <th className="text-left p-3 font-medium">Status</th>
-              <th className="text-left p-3 font-medium">Expiration</th>
-            </tr>
-          </thead>
-          <tbody>
-            {campaign.lastRunAt ? (
-              <tr className="border-b border-border">
-                <td className="p-3">{formatDate(campaign.lastRunAt as string)}</td>
-                <td className="p-3">{stats.total}</td>
-                <td className="p-3">{stats.completed}</td>
-                <td className="p-3">{stats.inProgress}</td>
-                <td className="p-3">{getEnumLabel(campaign.status)}</td>
-                <td className="p-3">{campaign.dueDate ? formatDate(campaign.dueDate as string) : '—'}</td>
-              </tr>
-            ) : (
-              <tr>
-                <td colSpan={6} className="p-8 text-center text-muted-foreground">
-                  No campaign runs yet
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+        <div className="rounded-md border border-border bg-card p-3">
+          <span className="text-xs text-muted-foreground">Email Delivered</span>
+          <p className="text-lg font-semibold">{stats.sent}</p>
+        </div>
+        <div className="rounded-md border border-border bg-card p-3">
+          <span className="text-xs text-muted-foreground">Email Bounced</span>
+          <p className="text-lg font-semibold">0</p>
+        </div>
+        <div className="rounded-md border border-border bg-card p-3">
+          <span className="text-xs text-muted-foreground">Email Opened</span>
+          <p className="text-lg font-semibold">—</p>
+        </div>
       </div>
 
-      {/* Recipients Table */}
-      <div className="rounded-md border border-border bg-card overflow-hidden">
-        <div className="p-4 border-b border-border">
-          <h3 className="text-sm font-semibold">Recipients</h3>
-        </div>
-        {recipientsLoading ? (
-          <div className="p-4">
-            <Skeleton />
-          </div>
-        ) : recipients.length === 0 ? (
-          <div className="p-8 text-center text-sm text-muted-foreground">No recipients found</div>
-        ) : (
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-border text-muted-foreground">
-                <th className="text-left p-3 font-medium">Name</th>
-                <th className="text-left p-3 font-medium">Email</th>
-                <th className="text-left p-3 font-medium">Status</th>
-                <th className="text-left p-3 font-medium">Sent At</th>
-                <th className="text-left p-3 font-medium">Completed At</th>
-              </tr>
-            </thead>
-            <tbody>
-              {recipients.map((recipient) => (
-                <tr key={recipient.id} className="border-b border-border hover:bg-muted/30 cursor-pointer transition-colors" onClick={() => setSelectedRecipient(recipient)}>
-                  <td className="p-3">{recipient.fullName || '—'}</td>
-                  <td className="p-3 text-muted-foreground">{recipient.email}</td>
-                  <td className="p-3">
-                    {(() => {
-                      const s = getRecipientStatus(recipient)
-                      return (
-                        <div className="flex items-center gap-2">
-                          <div className={`w-2 h-2 rounded-full ${s.color}`} />
-                          {s.label}
-                        </div>
-                      )
-                    })()}
-                  </td>
-                  <td className="p-3 text-muted-foreground">{recipient.sentAt ? formatDate(recipient.sentAt as string) : '—'}</td>
-                  <td className="p-3 text-muted-foreground">{recipient.completedAt ? formatDate(recipient.completedAt as string) : '—'}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+      <div className="space-y-6">
+        <CampaignRunsTable campaign={campaign} stats={stats} />
+        <RecipientsTable campaignId={campaignId} onRecipientClick={setSelectedRecipient} />
       </div>
     </div>
   )

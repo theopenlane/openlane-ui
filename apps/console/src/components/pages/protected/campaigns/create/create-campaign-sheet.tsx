@@ -71,6 +71,9 @@ export const CreateCampaignSheet: React.FC<CreateCampaignSheetProps> = ({ open, 
   const submitCampaign = useCallback(
     async (data: CampaignFormData, status: CampaignCampaignStatus) => {
       try {
+        const isLaunching = status === CampaignCampaignStatus.ACTIVE
+        const now = new Date().toISOString()
+
         const result = await createCampaign({
           input: {
             name: data.name,
@@ -80,7 +83,8 @@ export const CreateCampaignSheet: React.FC<CreateCampaignSheetProps> = ({ open, 
             templateID: data.templateID || undefined,
             emailBrandingID: data.emailBrandingID || undefined,
             dueDate: data.sendImmediately ? undefined : data.dueDate || undefined,
-            scheduledAt: data.sendImmediately ? undefined : data.scheduledAt || undefined,
+            scheduledAt: data.sendImmediately && isLaunching ? now : data.scheduledAt || undefined,
+            launchedAt: data.sendImmediately && isLaunching ? now : undefined,
           },
         })
 
@@ -134,8 +138,11 @@ export const CreateCampaignSheet: React.FC<CreateCampaignSheetProps> = ({ open, 
   }, [])
 
   const handleTemplateSave = useCallback(
-    (templateId: string) => {
+    (templateId: string, templateName: string) => {
       form.setValue('templateID', templateId, { shouldDirty: true, shouldValidate: true })
+      if (!form.getValues('name')?.trim()) {
+        form.setValue('name', templateName, { shouldDirty: true })
+      }
       setShowCreateTemplate(false)
     },
     [form],
