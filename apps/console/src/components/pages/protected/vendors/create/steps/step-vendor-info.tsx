@@ -1,70 +1,24 @@
 'use client'
 
-import React, { useState } from 'react'
+import React from 'react'
 import { useFormContext } from 'react-hook-form'
 import { Input } from '@repo/ui/input'
 import { Textarea } from '@repo/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
-import { Building2, PencilIcon } from 'lucide-react'
 import { EntityEntityStatus } from '@repo/codegen/src/schema'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-enum-select/creatable-custom-type-enum-select'
-import { VendorLogoDialog, type LogoSelection } from '../../vendor-logo-dialog'
 import type { EditVendorFormData } from '../../hooks/use-form-schema'
 
-interface StepVendorInfoProps {
-  onLogoFileChange: (file: File | null) => void
-  onLogoFileIdChange: (fileId: string | null) => void
-}
-
-const StepVendorInfo: React.FC<StepVendorInfoProps> = ({ onLogoFileChange, onLogoFileIdChange }) => {
+const StepVendorInfo: React.FC = () => {
   const form = useFormContext<EditVendorFormData>()
-  const [logoDialogOpen, setLogoDialogOpen] = useState(false)
-  const [logoPreview, setLogoPreview] = useState<string | null>(null)
   const { enumOptions: environmentOptions, onCreateOption: createEnvironment } = useCreatableEnumOptions({ field: 'environment' })
   const { enumOptions: scopeOptions, onCreateOption: createScope } = useCreatableEnumOptions({ field: 'scope' })
 
-  const vendorName = form.watch('name') ?? ''
-  const vendorDisplayName = form.watch('displayName')
-
-  const handleLogoSelect = async (selection: LogoSelection) => {
-    if (selection.type === 'file') {
-      onLogoFileChange(selection.file)
-      onLogoFileIdChange(null)
-      const url = URL.createObjectURL(selection.file)
-      setLogoPreview(url)
-    } else {
-      onLogoFileIdChange(selection.fileId)
-      onLogoFileChange(null)
-      setLogoPreview(selection.previewUrl)
-    }
-  }
-
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-4 pb-2">
-        <button
-          type="button"
-          className="group/logo relative flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-muted overflow-hidden border-0 p-0 cursor-pointer"
-          onClick={() => setLogoDialogOpen(true)}
-        >
-          {logoPreview ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={logoPreview} alt="Vendor logo" className="h-full w-full object-contain p-1" />
-          ) : (
-            <Building2 size={24} className="text-muted-foreground" />
-          )}
-          <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover/logo:opacity-100 rounded-lg">
-            <PencilIcon size={16} className="text-white" />
-          </div>
-        </button>
-        <p className="text-sm text-muted-foreground">Click to add a logo</p>
-      </div>
-
-      <VendorLogoDialog open={logoDialogOpen} onOpenChange={setLogoDialogOpen} vendorName={vendorName} vendorDisplayName={vendorDisplayName} onLogoSelect={handleLogoSelect} />
-
       <div className="grid grid-cols-2 gap-4">
         <FormField
           control={form.control}

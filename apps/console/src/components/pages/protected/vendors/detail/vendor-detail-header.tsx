@@ -11,8 +11,8 @@ import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hov
 import Menu from '@/components/shared/menu/menu'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
-import { VendorLogoDialog, type LogoSelection } from '../vendor-logo-dialog'
-import { useUpdateEntityLogo, useUpdateEntity } from '@/lib/graphql-hooks/entity'
+import { VendorLogoDialog } from '../vendor-logo-dialog'
+import { useUpdateEntityLogo } from '@/lib/graphql-hooks/entity'
 import { useNotification } from '@/hooks/useNotification'
 import type { TAccessRole } from '@/types/authz'
 import type { EntityQuery, UpdateEntityInput } from '@repo/codegen/src/schema'
@@ -36,18 +36,13 @@ const VendorDetailHeader: React.FC<VendorDetailHeaderProps> = ({ vendor, isEditi
   const originalValueRef = useRef<string>('')
   const [logoDialogOpen, setLogoDialogOpen] = useState(false)
   const { mutateAsync: updateLogo, isPending: isLogoUploading } = useUpdateEntityLogo()
-  const { mutateAsync: updateEntity, isPending: isEntityUpdating } = useUpdateEntity()
   const { successNotification, errorNotification } = useNotification()
 
   const logoUrl = vendor.logoFile?.presignedURL
 
-  const handleLogoSelect = async (selection: LogoSelection) => {
+  const handleLogoSelect = async (file: File) => {
     try {
-      if (selection.type === 'file') {
-        await updateLogo({ updateEntityId: vendor.id, input: {}, logoFile: selection.file })
-      } else {
-        await updateEntity({ updateEntityId: vendor.id, input: { logoFileID: selection.fileId } })
-      }
+      await updateLogo({ updateEntityId: vendor.id, input: {}, logoFile: file })
       successNotification({ title: 'Logo updated', description: 'The vendor logo was successfully updated.' })
     } catch {
       errorNotification({ title: 'Failed to update logo' })
@@ -185,7 +180,7 @@ const VendorDetailHeader: React.FC<VendorDetailHeaderProps> = ({ vendor, isEditi
         vendorName={vendor.name ?? ''}
         vendorDisplayName={vendor.displayName ?? undefined}
         onLogoSelect={handleLogoSelect}
-        isLoading={isLogoUploading || isEntityUpdating}
+        isLoading={isLogoUploading}
       />
     </>
   )

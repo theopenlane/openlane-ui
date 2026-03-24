@@ -71908,7 +71908,7 @@ export type GetSubprocessorsQuery = {
         name: string
         description?: string | null
         logoRemoteURL?: string | null
-        logoFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
+        logoFile?: { __typename?: 'File'; presignedURL?: string | null } | null
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }

@@ -9,21 +9,29 @@ import { type TUploadedFile } from '@/components/pages/protected/evidence/upload
 import { useGetSubprocessors } from '@/lib/graphql-hooks/subprocessor'
 import { cn } from '@repo/ui/lib/utils'
 
-export type LogoSelection = { type: 'file'; file: File } | { type: 'fileId'; fileId: string; previewUrl: string }
-
 interface VendorLogoDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   vendorName: string
   vendorDisplayName?: string
-  onLogoSelect: (selection: LogoSelection) => Promise<void>
+  onLogoSelect: (file: File) => Promise<void>
   isLoading?: boolean
+}
+
+export const fetchLogoAsFile = async (logoUrl: string): Promise<File> => {
+  const response = await fetch(logoUrl)
+  if (!response.ok) throw new Error('Failed to fetch logo')
+  const blob = await response.blob()
+  const extension = blob.type.includes('png') ? '.png' : blob.type.includes('svg') ? '.svg' : '.jpg'
+  return new File([blob], `logo${extension}`, { type: blob.type })
 }
 
 export const VendorLogoDialog: React.FC<VendorLogoDialogProps> = ({ open, onOpenChange, vendorName, vendorDisplayName, onLogoSelect, isLoading }) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [preview, setPreview] = useState<string | null>(null)
-  const [selectedSubprocessor, setSelectedSubprocessor] = useState<{ id: string; fileId: string; logoUrl: string } | null>(null)
+  const [selectedSubprocessorId, setSelectedSubprocessorId] = useState<string | null>(null)
+  const [selectedSubprocessorUrl, setSelectedSubprocessorUrl] = useState<string | null>(null)
+  const [saving, setSaving] = useState(false)
 
   const searchTerms = useMemo(() => {
     const terms = [vendorName]
@@ -45,14 +53,14 @@ export const VendorLogoDialog: React.FC<VendorLogoDialogProps> = ({ open, onOpen
 
   const suggestedLogos = useMemo(() => {
     const seen = new Set<string>()
-    const results: Array<{ id: string; name: string; logoUrl: string; fileId: string | null }> = []
+    const results: Array<{ id: string; name: string; logoUrl: string }> = []
 
     for (const sp of [...(nameResults ?? []), ...(displayNameResults ?? [])]) {
       if (!sp || seen.has(sp.id)) continue
       const logoUrl = sp.logoFile?.presignedURL || sp.logoRemoteURL
       if (!logoUrl) continue
       seen.add(sp.id)
-      results.push({ id: sp.id, name: sp.name, logoUrl, fileId: sp.logoFile?.id ?? null })
+      results.push({ id: sp.id, name: sp.name, logoUrl })
     }
 
     return results
@@ -62,33 +70,44 @@ export const VendorLogoDialog: React.FC<VendorLogoDialogProps> = ({ open, onOpen
     if (!open) {
       setSelectedFile(null)
       setPreview(null)
-      setSelectedSubprocessor(null)
+      setSelectedSubprocessorId(null)
+      setSelectedSubprocessorUrl(null)
     }
   }, [open])
 
   const handleFileUpload = (uploaded: TUploadedFile) => {
     setSelectedFile(uploaded.file ?? null)
     setPreview(uploaded.url ?? null)
-    setSelectedSubprocessor(null)
+    setSelectedSubprocessorId(null)
+    setSelectedSubprocessorUrl(null)
   }
 
-  const handleSubprocessorSelect = (logo: { id: string; name: string; logoUrl: string; fileId: string | null }) => {
-    if (!logo.fileId) return
-    setSelectedSubprocessor({ id: logo.id, fileId: logo.fileId, logoUrl: logo.logoUrl })
+  const handleSubprocessorSelect = (logo: { id: string; logoUrl: string }) => {
+    setSelectedSubprocessorId(logo.id)
+    setSelectedSubprocessorUrl(logo.logoUrl)
     setPreview(logo.logoUrl)
     setSelectedFile(null)
   }
 
-  const hasSelection = selectedFile !== null || selectedSubprocessor !== null
+  const hasSelection = selectedFile !== null || selectedSubprocessorId !== null
 
   const handleSave = async () => {
-    if (selectedFile) {
-      await onLogoSelect({ type: 'file', file: selectedFile })
-    } else if (selectedSubprocessor) {
-      await onLogoSelect({ type: 'fileId', fileId: selectedSubprocessor.fileId, previewUrl: selectedSubprocessor.logoUrl })
+    setSaving(true)
+    try {
+      let file = selectedFile
+      if (!file && selectedSubprocessorUrl) {
+        file = await fetchLogoAsFile(selectedSubprocessorUrl)
+      }
+      if (file) {
+        await onLogoSelect(file)
+        onOpenChange(false)
+      }
+    } finally {
+      setSaving(false)
     }
-    onOpenChange(false)
   }
+
+  const isBusy = isLoading || saving
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -126,14 +145,13 @@ export const VendorLogoDialog: React.FC<VendorLogoDialogProps> = ({ open, onOpen
                   <button
                     key={logo.id}
                     type="button"
-                    disabled={!logo.fileId}
                     onClick={() => handleSubprocessorSelect(logo)}
                     className={cn(
                       'relative flex flex-col items-center gap-1.5 rounded-lg border p-3 cursor-pointer transition-all bg-transparent hover:bg-muted/50',
-                      selectedSubprocessor?.id === logo.id ? 'border-primary ring-1 ring-primary/30' : 'border-border',
+                      selectedSubprocessorId === logo.id ? 'border-primary ring-1 ring-primary/30' : 'border-border',
                     )}
                   >
-                    {selectedSubprocessor?.id === logo.id && (
+                    {selectedSubprocessorId === logo.id && (
                       <div className="absolute top-1 right-1">
                         <Check size={14} className="text-primary" />
                       </div>
@@ -154,8 +172,8 @@ export const VendorLogoDialog: React.FC<VendorLogoDialogProps> = ({ open, onOpen
           <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button type="button" onClick={handleSave} disabled={!hasSelection || isLoading}>
-            {isLoading ? (
+          <Button type="button" onClick={handleSave} disabled={!hasSelection || isBusy}>
+            {isBusy ? (
               <>
                 <Loader2 size={16} className="animate-spin mr-2" />
                 Saving...

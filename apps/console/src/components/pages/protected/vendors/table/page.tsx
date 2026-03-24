@@ -59,7 +59,6 @@ const VendorPage: React.FC = () => {
   const [stagedFiles, setStagedFiles] = useState<File[]>([])
   const [existingFileIds, setExistingFileIds] = useState<string[]>([])
   const [stagedLogoFile, setStagedLogoFile] = useState<File | null>(null)
-  const [stagedLogoFileId, setStagedLogoFileId] = useState<string | null>(null)
   const plateEditorHelper = usePlateEditor()
 
   function getName(data: EntitiesNodeNonNull) {
@@ -83,12 +82,10 @@ const VendorPage: React.FC = () => {
       const entityFiles = stagedFiles.length > 0 ? stagedFiles : undefined
       const fileIDs = existingFileIds.length > 0 ? existingFileIds : undefined
       const logoFile = stagedLogoFile ?? undefined
-      const logoFileID = stagedLogoFileId ?? undefined
-      const result = await baseCreateMutation.mutateAsync({ input: { ...input, fileIDs, logoFileID }, entityTypeName: 'vendor', entityFiles, logoFile })
+      const result = await baseCreateMutation.mutateAsync({ input: { ...input, fileIDs }, entityTypeName: 'vendor', entityFiles, logoFile })
       setStagedFiles([])
       setExistingFileIds([])
       setStagedLogoFile(null)
-      setStagedLogoFileId(null)
       return result
     },
   }
@@ -186,10 +183,7 @@ const VendorPage: React.FC = () => {
     renderFields: (props: EntityFieldProps) => getFieldsToRender(props, enumOpts, setStagedFiles, setExistingFileIds, enumCreateHandlers),
   }
 
-  const vendorCreateSteps = useMemo(
-    () => createVendorSteps(setStagedFiles, setExistingFileIds, setStagedLogoFile, setStagedLogoFileId),
-    [setStagedFiles, setExistingFileIds, setStagedLogoFile, setStagedLogoFileId],
-  )
+  const vendorCreateSteps = useMemo(() => createVendorSteps(setStagedFiles, setExistingFileIds, setStagedLogoFile), [setStagedFiles, setExistingFileIds, setStagedLogoFile])
 
   const tableConfig: EntityTablePageConfig = {
     objectType,
