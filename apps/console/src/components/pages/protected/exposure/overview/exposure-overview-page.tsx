@@ -9,9 +9,9 @@ import { useRisks } from '@/lib/graphql-hooks/risk'
 import { useScansWithFilter } from '@/lib/graphql-hooks/scan'
 import { useReviewsWithFilter } from '@/lib/graphql-hooks/review'
 import { OrderDirection, RiskRiskImpact, RiskRiskStatus, VulnerabilityOrderField, FindingOrderField, RiskOrderField, ScanOrderField, ReviewOrderField } from '@repo/codegen/src/schema'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { Button } from '@repo/ui/button'
-import { Settings2 } from 'lucide-react'
+import { Settings } from 'lucide-react'
+import Menu from '@/components/shared/menu/menu'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { canEdit } from '@/lib/authz/utils'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
@@ -234,16 +234,19 @@ const ExposureOverviewPage = () => {
         <PageHeading
           heading="Exposure Overview"
           actions={
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
+            <Menu
+              trigger={
                 <Button variant="secondary" size="md" className="gap-1.5">
-                  <Settings2 size={14} />
+                  <Settings size={14} />
                 </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => setSlaSheetOpen(true)}>{hasWriteAccess ? 'Configure SLA' : 'View SLA'}</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+              }
+              content={
+                <button className="flex items-center space-x-2 px-1 cursor-pointer bg-transparent" onClick={() => setSlaSheetOpen(true)}>
+                  <Settings size={16} strokeWidth={2} />
+                  <span>{hasWriteAccess ? 'Configure SLA' : 'View SLA'}</span>
+                </button>
+              }
+            />
           }
         />
         <ExposureQuickActions />

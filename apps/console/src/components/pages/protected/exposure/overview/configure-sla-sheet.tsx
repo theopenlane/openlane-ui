@@ -7,7 +7,7 @@ import { SheetTitle } from '@repo/ui/sheet'
 import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
 import { useSlaDefinitionsWithFilter, useUpdateSlaDefinition } from '@/lib/graphql-hooks/sla-definition'
-import { SlaDefinitionOrderField, OrderDirection } from '@repo/codegen/src/schema'
+import { SlaDefinitionSecurityLevel } from '@repo/codegen/src/schema'
 import { useNotification } from '@/hooks/useNotification'
 import { Pencil, Check, X, Loader2 } from 'lucide-react'
 import { getSeverityStyle } from '@/utils/severity'
@@ -21,8 +21,14 @@ type Props = {
 }
 
 const ConfigureSlaSheet = ({ isOpen, onClose, readOnly = false }: Props) => {
-  const { slaDefinitionsNodes, isLoading } = useSlaDefinitionsWithFilter({
-    orderBy: { field: SlaDefinitionOrderField.security_level, direction: OrderDirection.ASC },
+  const SEVERITY_ORDER = [SlaDefinitionSecurityLevel.CRITICAL, SlaDefinitionSecurityLevel.HIGH, SlaDefinitionSecurityLevel.MEDIUM, SlaDefinitionSecurityLevel.LOW]
+
+  const { slaDefinitionsNodes: rawSlaNodes, isLoading } = useSlaDefinitionsWithFilter({})
+
+  const slaDefinitionsNodes = [...(rawSlaNodes ?? [])].sort((a, b) => {
+    const aIdx = SEVERITY_ORDER.indexOf((a.securityLevel as SlaDefinitionSecurityLevel) ?? SlaDefinitionSecurityLevel.NONE)
+    const bIdx = SEVERITY_ORDER.indexOf((b.securityLevel as SlaDefinitionSecurityLevel) ?? SlaDefinitionSecurityLevel.NONE)
+    return (aIdx === -1 ? 99 : aIdx) - (bIdx === -1 ? 99 : bIdx)
   })
   const { mutateAsync: updateSlaDefinition, isPending } = useUpdateSlaDefinition()
   const { successNotification, errorNotification } = useNotification()
