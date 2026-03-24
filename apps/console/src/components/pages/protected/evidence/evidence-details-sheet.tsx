@@ -694,14 +694,14 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                               <HoverPencilWrapper
                                 showPencil={editAllowed}
                                 pencilClass="!-right-5"
-                                className={`w-[250px] text-right ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+                                className={`w-[250px] ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
                                 onPencilClick={() => handleDoubleClick('url')}
                               >
                                 <TooltipProvider>
                                   <Tooltip>
                                     <TooltipTrigger asChild>
-                                      <div className="flex items-center justify-end w-full" onDoubleClick={() => handleDoubleClick('url')}>
-                                        <span className="truncate overflow-hidden whitespace-nowrap text-right">{evidence?.url || <span className="text-gray-500">no url provided</span>}</span>
+                                      <div className="flex items-center w-full" onDoubleClick={() => handleDoubleClick('url')}>
+                                        <span className="truncate overflow-hidden whitespace-nowrap">{evidence?.url || <span className="text-gray-500">no url provided</span>}</span>
                                       </div>
                                     </TooltipTrigger>
                                     <TooltipContent>
