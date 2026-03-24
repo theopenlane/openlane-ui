@@ -4,8 +4,7 @@ import React, { useMemo, useState } from 'react'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { DataTable } from '@repo/ui/data-table'
 import { TableKeyEnum } from '@repo/ui/table-key'
-import { AlertTriangle, Settings2 } from 'lucide-react'
-import { Button } from '@repo/ui/button'
+import { AlertTriangle } from 'lucide-react'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import Skeleton from '@/components/shared/skeleton/skeleton'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@repo/ui/dialog'
@@ -122,10 +121,9 @@ const AssociationTimelineContent = ({ item }: { item: AttentionItem }) => {
 type Props = {
   items: AttentionItem[]
   isLoading?: boolean
-  onConfigureSla?: () => void
 }
 
-const ItemsRequiringAttention = ({ items, isLoading, onConfigureSla }: Props) => {
+const ItemsRequiringAttention = ({ items, isLoading }: Props) => {
   const [selectedItem, setSelectedItem] = useState<AttentionItem | null>(null)
   const [viewItem, setViewItem] = useState<AttentionItem | null>(null)
 
@@ -142,12 +140,6 @@ const ItemsRequiringAttention = ({ items, isLoading, onConfigureSla }: Props) =>
       <CardContent className="pt-6">
         <div className="flex items-center justify-between mb-4">
           <p className="text-xl font-medium leading-7">Items Requiring Attention</p>
-          {onConfigureSla && (
-            <Button variant="primary" size="md" onClick={onConfigureSla} className="gap-1.5">
-              <Settings2 size={14} />
-              Configure SLA
-            </Button>
-          )}
         </div>
         {isLoading ? (
           <div className="space-y-2">

@@ -9,6 +9,11 @@ import { useRisks } from '@/lib/graphql-hooks/risk'
 import { useScansWithFilter } from '@/lib/graphql-hooks/scan'
 import { useReviewsWithFilter } from '@/lib/graphql-hooks/review'
 import { OrderDirection, RiskRiskImpact, RiskRiskStatus, VulnerabilityOrderField, FindingOrderField, RiskOrderField, ScanOrderField, ReviewOrderField } from '@repo/codegen/src/schema'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
+import { Button } from '@repo/ui/button'
+import { Settings2 } from 'lucide-react'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { canEdit } from '@/lib/authz/utils'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import ExposureQuickActions from './exposure-quick-actions'
@@ -29,6 +34,8 @@ const LOW_WHERE = { or: [{ severityContainsFold: 'low' }, { severityIn: ['LOW', 
 const ExposureOverviewPage = () => {
   const { setCrumbs } = use(BreadcrumbContext)
   const [slaSheetOpen, setSlaSheetOpen] = useState(false)
+  const { data: orgPermission } = useOrganizationRoles()
+  const hasWriteAccess = canEdit(orgPermission?.roles)
 
   useEffect(() => {
     setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Exposure', href: '/exposure/overview' }, { label: 'Overview' }])
@@ -224,7 +231,21 @@ const ExposureOverviewPage = () => {
   return (
     <div className="w-full flex justify-center py-4">
       <div className="w-full max-w-308 flex flex-col gap-6">
-        <PageHeading heading="Exposure Overview" />
+        <PageHeading
+          heading="Exposure Overview"
+          actions={
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="secondary" size="md" className="gap-1.5">
+                  <Settings2 size={14} />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => setSlaSheetOpen(true)}>{hasWriteAccess ? 'Configure SLA' : 'View SLA'}</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          }
+        />
         <ExposureQuickActions />
         <div className="grid grid-cols-5 gap-4">
           <div className="col-span-3">
@@ -235,8 +256,8 @@ const ExposureOverviewPage = () => {
           </div>
         </div>
         <ExposureCriticalCounts counts={criticalCounts} isLoading={isLoading} />
-        <ItemsRequiringAttention items={attentionItems} isLoading={isLoading} onConfigureSla={() => setSlaSheetOpen(true)} />
-        <ConfigureSlaSheet isOpen={slaSheetOpen} onClose={() => setSlaSheetOpen(false)} />
+        <ItemsRequiringAttention items={attentionItems} isLoading={isLoading} />
+        <ConfigureSlaSheet isOpen={slaSheetOpen} onClose={() => setSlaSheetOpen(false)} readOnly={!hasWriteAccess} />
       </div>
     </div>
   )

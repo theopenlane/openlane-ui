@@ -18,7 +18,7 @@ export const TYPE_HREFS: Record<AttentionItem['type'], string> = {
 }
 
 const isPastDue = (item: AttentionItem, slaDefinitions: SlaDefinitionsNodeNonNull[]): { pastDue: boolean; slaDays?: number; dueDate?: Date } => {
-  const sla = slaDefinitions.find((def) => def.slaDefinitionSeverityLevelName?.toLowerCase() === item.severity.toLowerCase())
+  const sla = slaDefinitions.find((def) => def.securityLevel?.toLowerCase() === item.severity.toLowerCase())
   if (!sla?.slaDays) return { pastDue: false }
   const dueDate = new Date(item.createdAt)
   dueDate.setDate(dueDate.getDate() + sla.slaDays)
@@ -29,6 +29,7 @@ export const getAttentionColumns = (onAssociate: (item: AttentionItem) => void, 
   {
     accessorKey: 'name',
     header: 'Name',
+
     size: 280,
     cell: ({ row }) => {
       const Icon = searchTypeIcons[row.original.type]

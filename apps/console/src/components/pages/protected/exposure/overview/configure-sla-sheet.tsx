@@ -7,6 +7,7 @@ import { SheetTitle } from '@repo/ui/sheet'
 import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
 import { useSlaDefinitionsWithFilter, useUpdateSlaDefinition } from '@/lib/graphql-hooks/sla-definition'
+import { SlaDefinitionOrderField, OrderDirection } from '@repo/codegen/src/schema'
 import { useNotification } from '@/hooks/useNotification'
 import { Pencil, Check, X, Loader2 } from 'lucide-react'
 import { getSeverityStyle } from '@/utils/severity'
@@ -16,10 +17,13 @@ import { ObjectTypes } from '@repo/codegen/src/type-names'
 type Props = {
   isOpen: boolean
   onClose: () => void
+  readOnly?: boolean
 }
 
-const ConfigureSlaSheet = ({ isOpen, onClose }: Props) => {
-  const { slaDefinitionsNodes, isLoading } = useSlaDefinitionsWithFilter({})
+const ConfigureSlaSheet = ({ isOpen, onClose, readOnly = false }: Props) => {
+  const { slaDefinitionsNodes, isLoading } = useSlaDefinitionsWithFilter({
+    orderBy: { field: SlaDefinitionOrderField.security_level, direction: OrderDirection.ASC },
+  })
   const { mutateAsync: updateSlaDefinition, isPending } = useUpdateSlaDefinition()
   const { successNotification, errorNotification } = useNotification()
 
@@ -61,7 +65,7 @@ const ConfigureSlaSheet = ({ isOpen, onClose }: Props) => {
     }
   }
 
-  const overrideHeader = <SheetTitle>Configure SLA Definitions</SheetTitle>
+  const overrideHeader = <SheetTitle>{readOnly ? 'View SLA Definitions' : 'Configure SLA Definitions'}</SheetTitle>
 
   const overrideContent = (
     <div className="mt-6 space-y-1">
@@ -78,7 +82,7 @@ const ConfigureSlaSheet = ({ isOpen, onClose }: Props) => {
         <div className="divide-y divide-border rounded-md border">
           {slaDefinitionsNodes.map((def) => {
             const isEditing = editingId === def.id
-            const severityName = def.slaDefinitionSeverityLevelName ?? 'Unknown'
+            const severityName = def.securityLevel ?? 'Unknown'
             return (
               <div key={def.id} className="flex items-center justify-between px-4 py-3">
                 <div className="flex items-center gap-3">
@@ -92,6 +96,7 @@ const ConfigureSlaSheet = ({ isOpen, onClose }: Props) => {
                       <Input
                         type="number"
                         min={0}
+                        max={365}
                         value={editValue}
                         onChange={(e) => setEditValue(e.target.value)}
                         className="w-25 h-8 text-sm"
@@ -112,9 +117,11 @@ const ConfigureSlaSheet = ({ isOpen, onClose }: Props) => {
                   ) : (
                     <>
                       <span className="text-sm font-medium tabular-nums">{def.slaDays != null ? `${def.slaDays} days` : <span className="text-muted-foreground">—</span>}</span>
-                      <Button size="sm" variant="outline" className="h-8 w-8 p-0" onClick={() => handleEdit(def.id, def.slaDays)}>
-                        <Pencil size={14} className="text-muted-foreground" />
-                      </Button>
+                      {!readOnly && (
+                        <Button size="sm" variant="outline" className="h-8 w-8 p-0" onClick={() => handleEdit(def.id, def.slaDays)}>
+                          <Pencil size={14} className="text-muted-foreground" />
+                        </Button>
+                      )}
                     </>
                   )}
                 </div>
