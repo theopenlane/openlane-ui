@@ -7,6 +7,7 @@ import useFormSchema, { type CreateEvidenceFormData } from '@/components/pages/p
 import { Input, InputRow } from '@repo/ui/input'
 import { Textarea } from '@repo/ui/textarea'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import MultipleSelector from '@repo/ui/multiple-selector'
 import { Button } from '@repo/ui/button'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
@@ -369,6 +370,30 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
                         <FormItem className="w-full">
                           <div className="flex items-center">
                             <FormLabel>Status</FormLabel>
+                            <TooltipProvider delayDuration={300}>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <InfoIcon size={14} className="mx-1 mt-1 cursor-pointer" />
+                                </TooltipTrigger>
+                                <TooltipContent side="top" className="max-w-xs space-y-2 text-sm">
+                                  <p>
+                                    By default, evidence will be set to <strong>Submitted</strong> status unless there are no files attached which will set it to <strong>Missing Artifact</strong>.
+                                  </p>
+                                  <p>You can optionally set the status yourself, common statuses are:</p>
+                                  <ul className="list-disc pl-4 space-y-1">
+                                    <li>
+                                      <strong>Draft</strong>: This is started, but not quite ready for review
+                                    </li>
+                                    <li>
+                                      <strong>In Review</strong>: In an internal review before ready for the auditor to take a look
+                                    </li>
+                                    <li>
+                                      <strong>Ready For Auditor</strong>: Ready for auditor to look at this evidence
+                                    </li>
+                                  </ul>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
                           </div>
                           <FormControl>
                             <Select value={field.value ?? undefined} onValueChange={(val) => field.onChange(val === 'none' ? undefined : val)}>
@@ -376,7 +401,6 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
                                 <SelectValue placeholder="Select status..." />
                               </SelectTrigger>
                               <SelectContent>
-                                <SelectItem value="none">None</SelectItem>
                                 {Object.values(EvidenceEvidenceStatus).map((status) => (
                                   <SelectItem key={status} value={status}>
                                     {status
