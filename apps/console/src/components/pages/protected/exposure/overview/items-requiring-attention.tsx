@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@repo/ui/dialo
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import { useGetFindingAssociations } from '@/lib/graphql-hooks/finding'
 import { useGetRiskById } from '@/lib/graphql-hooks/risk'
+import { useSlaDefinitionsWithFilter } from '@/lib/graphql-hooks/sla-definition'
 
 import ObjectAssociationSwitch from '@/components/shared/object-association/object-association-switch'
 import { ObjectAssociationNodeEnum, type Section, type TConnectionLike } from '@/components/shared/object-association/types/object-association-types'
@@ -126,7 +127,9 @@ const ItemsRequiringAttention = ({ items, isLoading }: Props) => {
   const [selectedItem, setSelectedItem] = useState<AttentionItem | null>(null)
   const [viewItem, setViewItem] = useState<AttentionItem | null>(null)
 
-  const columns = useMemo(() => getAttentionColumns(setSelectedItem), [])
+  const { slaDefinitionsNodes } = useSlaDefinitionsWithFilter({})
+
+  const columns = useMemo(() => getAttentionColumns(setSelectedItem, slaDefinitionsNodes), [slaDefinitionsNodes])
 
   const handleRowClick = (row: AttentionItem) => {
     setViewItem(row)
@@ -135,7 +138,9 @@ const ItemsRequiringAttention = ({ items, isLoading }: Props) => {
   return (
     <Card>
       <CardContent className="pt-6">
-        <p className="text-xl font-medium leading-7 mb-4">Items Requiring Attention</p>
+        <div className="flex items-center justify-between mb-4">
+          <p className="text-xl font-medium leading-7">Items Requiring Attention</p>
+        </div>
         {isLoading ? (
           <div className="space-y-2">
             {[1, 2, 3, 4, 5].map((i) => (

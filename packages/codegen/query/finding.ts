@@ -39,11 +39,13 @@ export const GET_ALL_FINDINGS = gql`
           scopeID
           scopeName
           score
+          securityLevel
           severity
           source
           sourceUpdatedAt
           state
           status
+          findingStatusName
           systemOwned
           targetDetails
           updatedAt
@@ -106,11 +108,13 @@ export const FINDING = gql`
       scopeID
       scopeName
       score
+      securityLevel
       severity
       source
       sourceUpdatedAt
       state
       status
+      findingStatusName
       systemOwned
       targetDetails
       updatedAt

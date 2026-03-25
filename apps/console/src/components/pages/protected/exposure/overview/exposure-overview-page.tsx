@@ -1,6 +1,6 @@
 'use client'
 
-import React, { use, useEffect, useMemo } from 'react'
+import React, { use, useEffect, useMemo, useState } from 'react'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { PageHeading } from '@repo/ui/page-heading'
 import { useVulnerabilitiesWithFilter } from '@/lib/graphql-hooks/vulnerability'
@@ -9,6 +9,11 @@ import { useRisks } from '@/lib/graphql-hooks/risk'
 import { useScansWithFilter } from '@/lib/graphql-hooks/scan'
 import { useReviewsWithFilter } from '@/lib/graphql-hooks/review'
 import { OrderDirection, RiskRiskImpact, RiskRiskStatus, VulnerabilityOrderField, FindingOrderField, RiskOrderField, ScanOrderField, ReviewOrderField } from '@repo/codegen/src/schema'
+import { Button } from '@repo/ui/button'
+import { Settings } from 'lucide-react'
+import Menu from '@/components/shared/menu/menu'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { canEdit } from '@/lib/authz/utils'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import ExposureQuickActions from './exposure-quick-actions'
@@ -16,6 +21,7 @@ import ExposureSeverityChart from './exposure-severity-chart'
 import ExposureActivityFeed from './exposure-activity-feed'
 import ExposureCriticalCounts from './exposure-critical-counts'
 import ItemsRequiringAttention from './items-requiring-attention'
+import ConfigureSlaSheet from './configure-sla-sheet'
 import { TableKeyEnum } from '@repo/ui/table-key'
 
 const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
@@ -27,6 +33,9 @@ const LOW_WHERE = { or: [{ severityContainsFold: 'low' }, { severityIn: ['LOW', 
 
 const ExposureOverviewPage = () => {
   const { setCrumbs } = use(BreadcrumbContext)
+  const [slaSheetOpen, setSlaSheetOpen] = useState(false)
+  const { data: orgPermission } = useOrganizationRoles()
+  const hasWriteAccess = canEdit(orgPermission?.roles)
 
   useEffect(() => {
     setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Exposure', href: '/exposure/overview' }, { label: 'Overview' }])
@@ -222,7 +231,24 @@ const ExposureOverviewPage = () => {
   return (
     <div className="w-full flex justify-center py-4">
       <div className="w-full max-w-308 flex flex-col gap-6">
-        <PageHeading heading="Exposure Overview" />
+        <PageHeading
+          heading="Exposure Overview"
+          actions={
+            <Menu
+              trigger={
+                <Button variant="secondary" size="md" className="gap-1.5">
+                  <Settings size={14} />
+                </Button>
+              }
+              content={
+                <button className="flex items-center space-x-2 px-1 cursor-pointer bg-transparent" onClick={() => setSlaSheetOpen(true)}>
+                  <Settings size={16} strokeWidth={2} />
+                  <span>{hasWriteAccess ? 'Configure SLA' : 'View SLA'}</span>
+                </button>
+              }
+            />
+          }
+        />
         <ExposureQuickActions />
         <div className="grid grid-cols-5 gap-4">
           <div className="col-span-3">
@@ -234,6 +260,7 @@ const ExposureOverviewPage = () => {
         </div>
         <ExposureCriticalCounts counts={criticalCounts} isLoading={isLoading} />
         <ItemsRequiringAttention items={attentionItems} isLoading={isLoading} />
+        <ConfigureSlaSheet isOpen={slaSheetOpen} onClose={() => setSlaSheetOpen(false)} readOnly={!hasWriteAccess} />
       </div>
     </div>
   )

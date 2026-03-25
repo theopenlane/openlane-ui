@@ -106,22 +106,22 @@ const QuestionnaireViewerPage: React.FC = () => {
         <PageHeading eyebrow="Questionnaires" heading="Preview" />
         {!isLoading && (
           <div className="flex gap-2 items-center">
-            {editAllowed && !hasTemplate && <SaveButton type="button" onClick={() => setIsSaveAsTemplateDialogOpen(true)} disabled={isSaving} />}
-
-            <Button type="button" className="h-8 px-3" icon={<Send />} iconPosition="left" onClick={() => setIsSendDialogOpen(true)}>
-              Send
-            </Button>
+            {editAllowed && !hasTemplate && <SaveButton type="button" variant="secondary" title="Save as Template" onClick={() => setIsSaveAsTemplateDialogOpen(true)} disabled={isSaving} />}
 
             {editAllowed && (
               <>
-                <Button type="button" className="h-8 px-3" icon={<Edit />} iconPosition="left" onClick={handleEdit}>
+                <Button type="button" variant="secondary" className="h-8 px-3" icon={<Edit />} iconPosition="left" onClick={handleEdit}>
                   Edit
                 </Button>
-                <Button type="button" className="h-8 px-3" icon={<Trash2 />} iconPosition="left" onClick={() => setIsDeleteDialogOpen(true)}>
+                <Button type="button" variant="secondary" className="h-8 px-3" icon={<Trash2 />} iconPosition="left" onClick={() => setIsDeleteDialogOpen(true)}>
                   Delete
                 </Button>
               </>
             )}
+
+            <Button type="button" className="h-8 px-3" icon={<Send />} iconPosition="left" onClick={() => setIsSendDialogOpen(true)}>
+              Send
+            </Button>
           </div>
         )}
       </div>
