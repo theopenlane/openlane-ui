@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { Button } from '@repo/ui/button'
-import { Plus, X } from 'lucide-react'
+import { Copy, Plus, X } from 'lucide-react'
 import { useUpdateEntity } from '@/lib/graphql-hooks/entity'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -55,11 +55,24 @@ const DomainsSection: React.FC<DomainsSectionProps> = ({ domains, vendorId, canE
           {domains.map((domain) => (
             <div key={domain} className="flex items-center justify-between rounded-lg border border-border bg-card px-4 py-3 text-sm">
               {domain}
-              {canEdit && (
-                <button type="button" onClick={() => handleRemoveDomain(domain)} className="text-muted-foreground hover:text-destructive transition-colors">
-                  <X size={16} />
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    navigator.clipboard.writeText(domain)
+                    successNotification({ title: 'Copied', description: `"${domain}" copied to clipboard.` })
+                  }}
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <Copy size={13} />
                 </button>
-              )}
+                {canEdit && (
+                  <button type="button" onClick={() => handleRemoveDomain(domain)} className="text-muted-foreground hover:text-destructive transition-colors">
+                    <X size={16} />
+                  </button>
+                )}
+              </div>
             </div>
           ))}
         </div>
