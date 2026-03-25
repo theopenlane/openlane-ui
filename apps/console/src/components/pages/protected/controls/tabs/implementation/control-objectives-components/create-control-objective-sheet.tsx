@@ -1,10 +1,11 @@
 'use client'
 
 import { Sheet, SheetContent } from '@repo/ui/sheet'
-import React from 'react'
+import React, { useState } from 'react'
 import { CreateControlObjectiveForm } from './form/create-control-objective-form'
 import { ControlObjectiveControlSource, type ControlObjectiveFieldsFragment, ControlObjectiveObjectiveStatus } from '@repo/codegen/src/schema'
-import { VersionBump } from './form/use-form-schema'
+import useFormSchema, { VersionBump } from './form/use-form-schema'
+import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
 
 type CreateControlObjectiveSheetProps = {
   open: boolean
@@ -13,6 +14,9 @@ type CreateControlObjectiveSheetProps = {
 }
 
 const CreateControlObjectiveSheet: React.FC<CreateControlObjectiveSheetProps> = ({ open, onOpenChange, editData }) => {
+  const [showCancelDialog, setShowCancelDialog] = useState(false)
+  const { form } = useFormSchema()
+
   const RevisionBump: VersionBump | undefined = editData?.status === ControlObjectiveObjectiveStatus.DRAFT ? VersionBump.DRAFT : undefined
   const normalizedValues = editData
     ? {
@@ -29,12 +33,46 @@ const CreateControlObjectiveSheet: React.FC<CreateControlObjectiveSheetProps> = 
       }
     : undefined
 
+  const handleClose = () => {
+    if (form.formState.isDirty) {
+      setShowCancelDialog(true)
+      return
+    }
+    onOpenChange(false)
+  }
+
+  const handleConfirmClose = () => {
+    setShowCancelDialog(false)
+    form.reset()
+    onOpenChange(false)
+  }
+
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="flex flex-col">
-        <CreateControlObjectiveForm onSuccess={() => onOpenChange(false)} defaultValues={normalizedValues} />
-      </SheetContent>
-    </Sheet>
+    <>
+      <Sheet
+        open={open}
+        onOpenChange={(nextOpen) => {
+          if (!nextOpen) {
+            handleClose()
+          } else {
+            onOpenChange(true)
+          }
+        }}
+      >
+        <SheetContent
+          className="flex flex-col"
+          onEscapeKeyDown={(e) => {
+            if (form.formState.isDirty) {
+              e.preventDefault()
+              setShowCancelDialog(true)
+            }
+          }}
+        >
+          <CreateControlObjectiveForm form={form} onSuccess={() => onOpenChange(false)} onClose={handleClose} defaultValues={normalizedValues} />
+        </SheetContent>
+      </Sheet>
+      <CancelDialog isOpen={showCancelDialog} onConfirm={handleConfirmClose} onCancel={() => setShowCancelDialog(false)} />
+    </>
   )
 }
 
