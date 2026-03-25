@@ -212,3 +212,14 @@ export const useCreateEntityWithFiles = () => {
     },
   })
 }
+
+export const useUpdateEntityLogo = () => {
+  const { queryClient } = useGraphQLClient()
+
+  return useMutation<UpdateEntityMutation, unknown, UpdateEntityWithFilesMutationVariables>({
+    mutationFn: async (variables) => fetchGraphQLWithUpload({ query: UPDATE_ENTITY_WITH_FILES, variables }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['entities'] })
+    },
+  })
+}

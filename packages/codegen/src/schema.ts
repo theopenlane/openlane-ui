@@ -65752,6 +65752,7 @@ export type EntitiesWithFilterQuery = {
         vendorMetadata?: any | null
         internalOwnerGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
         internalOwnerUser?: { __typename?: 'User'; id: string; displayName: string } | null
+        logoFile?: { __typename?: 'File'; presignedURL?: string | null } | null
         reviewedByGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
         reviewedByUser?: { __typename?: 'User'; id: string; displayName: string } | null
       } | null
@@ -65818,6 +65819,7 @@ export type EntityQuery = {
     vendorMetadata?: any | null
     internalOwnerGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
     internalOwnerUser?: { __typename?: 'User'; id: string; displayName: string } | null
+    logoFile?: { __typename?: 'File'; presignedURL?: string | null } | null
     reviewedByGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
     reviewedByUser?: { __typename?: 'User'; id: string; displayName: string } | null
   }
@@ -65903,6 +65905,7 @@ export type UpdateEntityWithFilesMutationVariables = Exact<{
   updateEntityId: Scalars['ID']['input']
   input: UpdateEntityInput
   entityFiles?: InputMaybe<Array<Scalars['Upload']['input']> | Scalars['Upload']['input']>
+  logoFile?: InputMaybe<Scalars['Upload']['input']>
 }>
 
 export type UpdateEntityWithFilesMutation = { __typename?: 'Mutation'; updateEntity: { __typename?: 'EntityUpdatePayload'; entity: { __typename?: 'Entity'; id: string } } }
@@ -65911,6 +65914,7 @@ export type CreateEntityWithFilesMutationVariables = Exact<{
   input: CreateEntityInput
   entityTypeName?: InputMaybe<Scalars['String']['input']>
   entityFiles?: InputMaybe<Array<Scalars['Upload']['input']> | Scalars['Upload']['input']>
+  logoFile?: InputMaybe<Scalars['Upload']['input']>
 }>
 
 export type CreateEntityWithFilesMutation = { __typename?: 'Mutation'; createEntity: { __typename?: 'EntityCreatePayload'; entity: { __typename?: 'Entity'; id: string } } }
