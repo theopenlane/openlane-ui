@@ -65750,6 +65750,7 @@ export type EntitiesWithFilterQuery = {
         updatedAt?: any | null
         updatedBy?: string | null
         vendorMetadata?: any | null
+        logoFile?: { __typename?: 'File'; presignedURL?: string | null } | null
         internalOwnerGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
         internalOwnerUser?: { __typename?: 'User'; id: string; displayName: string } | null
         reviewedByGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
