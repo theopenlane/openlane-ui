@@ -16,7 +16,7 @@ import { buildControlEvidenceData, buildEvidenceControlParam, buildSubcontrolEvi
 import CreateControlObjectiveSheet from '../tabs/implementation/control-objectives-components/create-control-objective-sheet'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 
-const EDIT_RESTRICTED_IDS = new Set(['add-implementation', 'add-objective', 'create-subcontrol'])
+const EDIT_RESTRICTED_IDS = new Set(['add-implementation', 'add-objective', 'create-subcontrol', 'map-control'])
 
 type ControlLike = {
   id?: string | null
