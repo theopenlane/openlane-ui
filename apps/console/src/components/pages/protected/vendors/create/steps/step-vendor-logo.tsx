@@ -72,7 +72,8 @@ const StepVendorLogo: React.FC<StepVendorLogoProps> = ({ onLogoFileChange }) => 
         onLogoFileChange(file)
       })
       .catch(() => {
-        // If fetch fails, just show the preview - user can still upload manually
+        setSelectedSubprocessorId(null)
+        setPreview(null)
       })
       .finally(() => {
         setAutoSelecting(false)
@@ -97,7 +98,9 @@ const StepVendorLogo: React.FC<StepVendorLogoProps> = ({ onLogoFileChange }) => 
       const file = await fetchLogoAsFile(logo.logoUrl)
       onLogoFileChange(file)
     } catch {
-      // Keep selection visible even if fetch fails
+      setSelectedSubprocessorId(null)
+      setPreview(null)
+      onLogoFileChange(null)
     } finally {
       setAutoSelecting(false)
     }

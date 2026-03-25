@@ -44,8 +44,9 @@ const VendorDetailHeader: React.FC<VendorDetailHeaderProps> = ({ vendor, isEditi
     try {
       await updateLogo({ updateEntityId: vendor.id, input: {}, logoFile: file })
       successNotification({ title: 'Logo updated', description: 'The vendor logo was successfully updated.' })
-    } catch {
+    } catch (error) {
       errorNotification({ title: 'Failed to update logo' })
+      throw error
     }
   }
 
@@ -95,6 +96,7 @@ const VendorDetailHeader: React.FC<VendorDetailHeaderProps> = ({ vendor, isEditi
             className="group/logo relative flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-muted overflow-hidden border-0 p-0 cursor-pointer"
             onClick={() => canEditVendor && setLogoDialogOpen(true)}
             disabled={!canEditVendor}
+            aria-label="Edit vendor logo"
           >
             {logoUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
