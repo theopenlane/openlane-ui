@@ -66,8 +66,8 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, stakeho
     const showEditable = isEditAllowed && (isEditing || editingField === editingKey)
 
     return (
-      <div className="flex justify-between items-center border-b border-border pb-3">
-        <div className={`flex gap-2 w-[200px] items-center ${inputClassName ?? ''}`}>
+      <div className="flex items-center gap-4 border-b border-border pb-3">
+        <div className={`flex gap-2 w-32 shrink-0 items-center ${inputClassName ?? ''}`}>
           {icon}
           <span className="text-sm">{label}</span>
         </div>
@@ -93,7 +93,7 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, stakeho
         ) : (
           <HoverPencilWrapper
             showPencil={isEditAllowed}
-            className={`w-[200px] bg-unset ${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+            className={`flex-1 min-w-0 ${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
             onPencilClick={() => {
               if (!isEditing && isEditAllowed) setEditingField(editingKey)
             }}
