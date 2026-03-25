@@ -16,6 +16,8 @@ import { buildControlEvidenceData, buildEvidenceControlParam, buildSubcontrolEvi
 import CreateControlObjectiveSheet from '../tabs/implementation/control-objectives-components/create-control-objective-sheet'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 
+const EDIT_RESTRICTED_IDS = new Set(['add-implementation', 'add-objective', 'create-subcontrol'])
+
 type ControlLike = {
   id?: string | null
   referenceFramework?: string | null
@@ -36,6 +38,7 @@ type SubcontrolLike = {
 
 type BaseQuickActionsProps = {
   controlId: string
+  canEdit: boolean
 }
 
 type ControlQuickActionsProps = BaseQuickActionsProps & {
@@ -140,6 +143,11 @@ const ControlQuickActions: React.FC<QuickActionsProps> = (props) => {
     ]
   }, [isSubcontrol, controlId, subcontrolId])
 
+  const filteredActions = useMemo(() => {
+    if (props.canEdit) return actions
+    return actions.filter((action) => !EDIT_RESTRICTED_IDS.has(action.id))
+  }, [actions, props.canEdit])
+
   const renderActionButton = (action: QuickActionItem, { inMenu }: { inMenu: boolean }) => {
     if (action.id === 'create-task' && !inMenu) {
       return (
@@ -217,7 +225,7 @@ const ControlQuickActions: React.FC<QuickActionsProps> = (props) => {
 
   return (
     <div className="space-y-3">
-      <QuickActionsBar actions={actions} renderAction={renderActionButton} />
+      <QuickActionsBar actions={filteredActions} renderAction={renderActionButton} />
       <EvidenceCreateSheet
         open={isEvidenceSheetOpen}
         onEvidenceCreateSuccess={() => setIsEvidenceSheetOpen(false)}

@@ -106,7 +106,7 @@ const SubcontrolsTable: React.FC = () => {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
           <h2 className="text-lg font-semibold">Subcontrols</h2>
-          {canCreate(orgPermission?.roles, AccessEnum.CanCreateSubcontrol) || (canEdit(permission?.roles) && <CreateButton type="subcontrol" href={`/controls/${id}/create-subcontrol`} />)}
+          {(canCreate(orgPermission?.roles, AccessEnum.CanCreateSubcontrol) || canEdit(permission?.roles)) && <CreateButton type="subcontrol" href={`/controls/${id}/create-subcontrol`} />}
         </div>
       </div>
 
