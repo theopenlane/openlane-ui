@@ -11,8 +11,7 @@ export const GET_ALL_SLA_DEFINITIONS = gql`
           displayID
           id
           slaDays
-          slaDefinitionSeverityLevelID
-          slaDefinitionSeverityLevelName
+          securityLevel
           updatedAt
           updatedBy
         }
@@ -35,8 +34,7 @@ export const SLA_DEFINITION = gql`
       displayID
       id
       slaDays
-      slaDefinitionSeverityLevelID
-      slaDefinitionSeverityLevelName
+      securityLevel
       updatedAt
       updatedBy
     }

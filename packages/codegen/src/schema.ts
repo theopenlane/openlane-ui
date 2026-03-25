@@ -718,6 +718,7 @@ export interface ActionPlanEdge {
 export enum ActionPlanFrequency {
   BIANNUALLY = 'BIANNUALLY',
   MONTHLY = 'MONTHLY',
+  NONE = 'NONE',
   QUARTERLY = 'QUARTERLY',
   YEARLY = 'YEARLY',
 }
@@ -3321,6 +3322,7 @@ export interface CampaignEdge {
 export enum CampaignFrequency {
   BIANNUALLY = 'BIANNUALLY',
   MONTHLY = 'MONTHLY',
+  NONE = 'NONE',
   QUARTERLY = 'QUARTERLY',
   YEARLY = 'YEARLY',
 }
@@ -9712,9 +9714,6 @@ export interface CreateSlaDefinitionInput {
   ownerID?: InputMaybe<Scalars['ID']['input']>
   /** remediation service level agreement in days for the severity level */
   slaDays: Scalars['Int']['input']
-  slaDefinitionSeverityLevelID?: InputMaybe<Scalars['ID']['input']>
-  /** the severity_level of the sla_definition */
-  slaDefinitionSeverityLevelName?: InputMaybe<Scalars['String']['input']>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   viewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -15897,6 +15896,7 @@ export enum EntityEntityStatus {
 export enum EntityFrequency {
   BIANNUALLY = 'BIANNUALLY',
   MONTHLY = 'MONTHLY',
+  NONE = 'NONE',
   QUARTERLY = 'QUARTERLY',
   YEARLY = 'YEARLY',
 }
@@ -24093,6 +24093,7 @@ export interface InternalPolicyEdge {
 export enum InternalPolicyFrequency {
   BIANNUALLY = 'BIANNUALLY',
   MONTHLY = 'MONTHLY',
+  NONE = 'NONE',
   QUARTERLY = 'QUARTERLY',
   YEARLY = 'YEARLY',
 }
@@ -37057,6 +37058,7 @@ export interface ProcedureEdge {
 export enum ProcedureFrequency {
   BIANNUALLY = 'BIANNUALLY',
   MONTHLY = 'MONTHLY',
+  NONE = 'NONE',
   QUARTERLY = 'QUARTERLY',
   YEARLY = 'YEARLY',
 }
@@ -42925,15 +42927,10 @@ export interface SlaDefinition extends Node {
   owner?: Maybe<Organization>
   /** the organization id that owns the object */
   ownerID?: Maybe<Scalars['ID']['output']>
-  /** incoming source severity */
+  /** security level to map with the SLA definition */
   securityLevel: SlaDefinitionSecurityLevel
   /** remediation service level agreement in days for the severity level */
   slaDays: Scalars['Int']['output']
-  slaDefinitionSeverityLevel?: Maybe<CustomTypeEnum>
-  /** the severity_level of the sla_definition */
-  slaDefinitionSeverityLevelID?: Maybe<Scalars['ID']['output']>
-  /** the severity_level of the sla_definition */
-  slaDefinitionSeverityLevelName?: Maybe<Scalars['String']['output']>
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
   updatedAt?: Maybe<Scalars['Time']['output']>
@@ -43113,9 +43110,6 @@ export interface SlaDefinitionWhereInput {
   /** owner edge predicates */
   hasOwner?: InputMaybe<Scalars['Boolean']['input']>
   hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
-  /** sla_definition_severity_level edge predicates */
-  hasSLADefinitionSeverityLevel?: InputMaybe<Scalars['Boolean']['input']>
-  hasSLADefinitionSeverityLevelWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
   /** viewers edge predicates */
   hasViewers?: InputMaybe<Scalars['Boolean']['input']>
   hasViewersWith?: InputMaybe<Array<GroupWhereInput>>
@@ -43162,38 +43156,6 @@ export interface SlaDefinitionWhereInput {
   slaDaysLTE?: InputMaybe<Scalars['Int']['input']>
   slaDaysNEQ?: InputMaybe<Scalars['Int']['input']>
   slaDaysNotIn?: InputMaybe<Array<Scalars['Int']['input']>>
-  /** sla_definition_severity_level_id field predicates */
-  slaDefinitionSeverityLevelID?: InputMaybe<Scalars['ID']['input']>
-  slaDefinitionSeverityLevelIDContains?: InputMaybe<Scalars['ID']['input']>
-  slaDefinitionSeverityLevelIDContainsFold?: InputMaybe<Scalars['ID']['input']>
-  slaDefinitionSeverityLevelIDEqualFold?: InputMaybe<Scalars['ID']['input']>
-  slaDefinitionSeverityLevelIDGT?: InputMaybe<Scalars['ID']['input']>
-  slaDefinitionSeverityLevelIDGTE?: InputMaybe<Scalars['ID']['input']>
-  slaDefinitionSeverityLevelIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
-  slaDefinitionSeverityLevelIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
-  slaDefinitionSeverityLevelIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
-  slaDefinitionSeverityLevelIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  slaDefinitionSeverityLevelIDLT?: InputMaybe<Scalars['ID']['input']>
-  slaDefinitionSeverityLevelIDLTE?: InputMaybe<Scalars['ID']['input']>
-  slaDefinitionSeverityLevelIDNEQ?: InputMaybe<Scalars['ID']['input']>
-  slaDefinitionSeverityLevelIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
-  slaDefinitionSeverityLevelIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** sla_definition_severity_level_name field predicates */
-  slaDefinitionSeverityLevelName?: InputMaybe<Scalars['String']['input']>
-  slaDefinitionSeverityLevelNameContains?: InputMaybe<Scalars['String']['input']>
-  slaDefinitionSeverityLevelNameContainsFold?: InputMaybe<Scalars['String']['input']>
-  slaDefinitionSeverityLevelNameEqualFold?: InputMaybe<Scalars['String']['input']>
-  slaDefinitionSeverityLevelNameGT?: InputMaybe<Scalars['String']['input']>
-  slaDefinitionSeverityLevelNameGTE?: InputMaybe<Scalars['String']['input']>
-  slaDefinitionSeverityLevelNameHasPrefix?: InputMaybe<Scalars['String']['input']>
-  slaDefinitionSeverityLevelNameHasSuffix?: InputMaybe<Scalars['String']['input']>
-  slaDefinitionSeverityLevelNameIn?: InputMaybe<Array<Scalars['String']['input']>>
-  slaDefinitionSeverityLevelNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  slaDefinitionSeverityLevelNameLT?: InputMaybe<Scalars['String']['input']>
-  slaDefinitionSeverityLevelNameLTE?: InputMaybe<Scalars['String']['input']>
-  slaDefinitionSeverityLevelNameNEQ?: InputMaybe<Scalars['String']['input']>
-  slaDefinitionSeverityLevelNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  slaDefinitionSeverityLevelNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** Filter for tagsHas to contain a specific value */
   tagsHas?: InputMaybe<Scalars['String']['input']>
   /** updated_at field predicates */
@@ -56511,8 +56473,6 @@ export interface UpdateSlaDefinitionInput {
   clearBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearOwner?: InputMaybe<Scalars['Boolean']['input']>
-  clearSLADefinitionSeverityLevel?: InputMaybe<Scalars['Boolean']['input']>
-  clearSLADefinitionSeverityLevelName?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearViewers?: InputMaybe<Scalars['Boolean']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
@@ -56521,9 +56481,6 @@ export interface UpdateSlaDefinitionInput {
   removeViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** remediation service level agreement in days for the severity level */
   slaDays?: InputMaybe<Scalars['Int']['input']>
-  slaDefinitionSeverityLevelID?: InputMaybe<Scalars['ID']['input']>
-  /** the severity_level of the sla_definition */
-  slaDefinitionSeverityLevelName?: InputMaybe<Scalars['String']['input']>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
 }
@@ -66746,11 +66703,13 @@ export type FindingsWithFilterQuery = {
         scopeID?: string | null
         scopeName?: string | null
         score?: number | null
+        securityLevel?: FindingSecurityLevel | null
         severity?: string | null
         source?: string | null
         sourceUpdatedAt?: string | null
         state?: string | null
         status?: string | null
+        findingStatusName?: string | null
         systemOwned?: boolean | null
         targetDetails?: any | null
         updatedAt?: any | null
@@ -66809,11 +66768,13 @@ export type FindingQuery = {
     scopeID?: string | null
     scopeName?: string | null
     score?: number | null
+    securityLevel?: FindingSecurityLevel | null
     severity?: string | null
     source?: string | null
     sourceUpdatedAt?: string | null
     state?: string | null
     status?: string | null
+    findingStatusName?: string | null
     systemOwned?: boolean | null
     targetDetails?: any | null
     updatedAt?: any | null
@@ -71235,8 +71196,7 @@ export type SlaDefinitionsWithFilterQuery = {
         displayID: string
         id: string
         slaDays: number
-        slaDefinitionSeverityLevelID?: string | null
-        slaDefinitionSeverityLevelName?: string | null
+        securityLevel: SlaDefinitionSecurityLevel
         updatedAt?: any | null
         updatedBy?: string | null
       } | null
@@ -71258,8 +71218,7 @@ export type SlaDefinitionQuery = {
     displayID: string
     id: string
     slaDays: number
-    slaDefinitionSeverityLevelID?: string | null
-    slaDefinitionSeverityLevelName?: string | null
+    securityLevel: SlaDefinitionSecurityLevel
     updatedAt?: any | null
     updatedBy?: string | null
   }
@@ -73439,6 +73398,7 @@ export type VulnerabilitiesWithFilterQuery = {
         scopeID?: string | null
         scopeName?: string | null
         score?: number | null
+        securityLevel?: VulnerabilitySecurityLevel | null
         severity?: string | null
         source?: string | null
         sourceUpdatedAt?: string | null
@@ -73452,6 +73412,7 @@ export type VulnerabilitiesWithFilterQuery = {
         updatedBy?: string | null
         validated?: boolean | null
         vector?: string | null
+        vulnerabilityStatusName?: string | null
         remediations: {
           __typename?: 'RemediationConnection'
           totalCount: number
@@ -73499,6 +73460,7 @@ export type VulnerabilityQuery = {
     scopeID?: string | null
     scopeName?: string | null
     score?: number | null
+    securityLevel?: VulnerabilitySecurityLevel | null
     severity?: string | null
     source?: string | null
     sourceUpdatedAt?: string | null
@@ -73512,6 +73474,7 @@ export type VulnerabilityQuery = {
     updatedBy?: string | null
     validated?: boolean | null
     vector?: string | null
+    vulnerabilityStatusName?: string | null
     remediations: {
       __typename?: 'RemediationConnection'
       totalCount: number
