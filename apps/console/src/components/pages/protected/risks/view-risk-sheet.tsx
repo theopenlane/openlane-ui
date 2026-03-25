@@ -15,6 +15,7 @@ import { type Value } from 'platejs'
 import { GenericDetailsSheet, type GenericDetailsSheetConfig, type RenderFieldsProps, type RenderHeaderProps } from '@/components/shared/crud-base/generic-sheet'
 import { useRouter } from 'next/navigation'
 import { Button } from '@repo/ui/button'
+import PastDueBadge from '@/components/shared/past-due-badge/past-due-badge'
 
 type Props = {
   entityId: string | null
@@ -105,7 +106,10 @@ const ViewRiskSheet: React.FC<Props> = ({ entityId, onClose }) => {
     ({ isEditing, isCreate, data: risk, handleUpdateField, isEditAllowed }: RenderFieldsProps<RiskFieldsFragment, UpdateRiskInput>) => {
       return (
         <div className="space-y-6">
-          <TitleField isEditing={isEditing} isEditAllowed={isEditAllowed} form={form} initialValue={risk?.name} handleUpdate={(val) => handleUpdateField(val)} />
+          <div className="flex items-center gap-3">
+            <TitleField isEditing={isEditing} isEditAllowed={isEditAllowed} form={form} initialValue={risk?.name} handleUpdate={(val) => handleUpdateField(val)} />
+            {!isEditing && !isCreate && <PastDueBadge severity={risk?.impact} createdAt={risk?.createdAt} />}
+          </div>
           <PropertiesCard form={form} risk={risk} isEditing={isEditing} isEditAllowed={isEditAllowed} handleUpdate={(val) => handleUpdateField(val)} isCreate={isCreate} />
           <DetailsField isEditing={isEditing} isEditAllowed={isEditAllowed} form={form} risk={risk} isCreate={isCreate} />
         </div>

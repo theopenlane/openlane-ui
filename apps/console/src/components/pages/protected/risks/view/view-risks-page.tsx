@@ -35,6 +35,7 @@ import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { useAssociationRemoval } from '@/hooks/useAssociationRemoval'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import PastDueBadge from '@/components/shared/past-due-badge/past-due-badge'
 
 type TRisksPageProps = {
   riskId: string
@@ -333,7 +334,10 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
 
   const mainContent = (
     <div className="space-y-6 p-2">
-      <TitleField isEditing={isEditing} form={form} handleUpdate={handleUpdateField} isEditAllowed={editAllowed} initialValue={risk.name} />
+      <div className="flex items-center gap-3">
+        <TitleField isEditing={isEditing} form={form} handleUpdate={handleUpdateField} isEditAllowed={editAllowed} initialValue={risk.name} />
+        {!isEditing && <PastDueBadge severity={risk.impact} createdAt={risk.createdAt} />}
+      </div>
       <DetailsField isEditing={isEditing} form={form} risk={risk} isEditAllowed={editAllowed} discussionData={discussionData?.risk} />
       <BusinessCostField isEditing={isEditing} form={form} risk={risk} isEditAllowed={editAllowed} />
       <MitigationField isEditing={isEditing} form={form} risk={risk} isEditAllowed={editAllowed} />

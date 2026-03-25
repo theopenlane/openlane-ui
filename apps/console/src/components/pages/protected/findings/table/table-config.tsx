@@ -3,6 +3,7 @@ import { ObjectNames } from '@repo/codegen/src/type-names'
 import React from 'react'
 import NameField from '../create/form/fields/name-field'
 import { type FindingQuery, FindingOrderField } from '@repo/codegen/src/schema'
+import PastDueBadge from '@/components/shared/past-due-badge/past-due-badge'
 import { AdditionalFields } from '../create/form/fields/additional-fields'
 import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
 import { type FindingFieldProps, type EnumOptions, type EnumCreateHandlers } from './types'
@@ -134,16 +135,18 @@ export const visibilityFields = {
 }
 
 export const getFieldsToRender = (props: FindingFieldProps, enumOptions: EnumOptions, enumCreateHandlers?: EnumCreateHandlers, riskScoresAction?: React.ReactNode) => {
+  const findingData = props.data as FindingQuery['finding']
   return (
     <div className="mr-6">
       <div className="mb-6">
         <NameField
           isEditing={props.isEditing}
           isEditAllowed={props.isEditAllowed}
-          initialValue={props.isCreate ? '' : ((props.data as FindingQuery['finding'])?.displayName ?? '')}
+          initialValue={props.isCreate ? '' : (findingData?.displayName ?? '')}
           internalEditing={props.internalEditing}
           setInternalEditing={props.setInternalEditing}
           handleUpdateField={props.handleUpdateField}
+          badge={!props.isCreate && !props.isEditing ? <PastDueBadge severity={findingData?.securityLevel} createdAt={findingData?.createdAt} /> : undefined}
         />
       </div>
       <AdditionalFields
