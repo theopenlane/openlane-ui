@@ -1,9 +1,11 @@
 'use client'
 
 import { Sheet, SheetContent } from '@repo/ui/sheet'
-import React from 'react'
+import React, { useState } from 'react'
 import { CreateControlImplementationForm } from './form/create-control-implementation-form'
 import { type ControlImplementationDocumentStatus, type ControlImplementationFieldsFragment } from '@repo/codegen/src/schema'
+import useFormSchema from './form/use-form-schema'
+import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
 
 type CreateControlImplementationSheetProps = {
   open: boolean
@@ -12,6 +14,9 @@ type CreateControlImplementationSheetProps = {
 }
 
 const CreateControlImplementationSheet: React.FC<CreateControlImplementationSheetProps> = ({ open, onOpenChange, editData }) => {
+  const [showCancelDialog, setShowCancelDialog] = useState(false)
+  const { form } = useFormSchema()
+
   const normalizedValues = editData
     ? {
         id: editData.id,
@@ -22,12 +27,46 @@ const CreateControlImplementationSheet: React.FC<CreateControlImplementationShee
       }
     : undefined
 
+  const handleClose = () => {
+    if (form.formState.isDirty) {
+      setShowCancelDialog(true)
+      return
+    }
+    onOpenChange(false)
+  }
+
+  const handleConfirmClose = () => {
+    setShowCancelDialog(false)
+    form.reset()
+    onOpenChange(false)
+  }
+
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent className="flex flex-col">
-        <CreateControlImplementationForm onSuccess={() => onOpenChange(false)} defaultValues={normalizedValues} />
-      </SheetContent>
-    </Sheet>
+    <>
+      <Sheet
+        open={open}
+        onOpenChange={(nextOpen) => {
+          if (!nextOpen) {
+            handleClose()
+          } else {
+            onOpenChange(true)
+          }
+        }}
+      >
+        <SheetContent
+          className="flex flex-col"
+          onEscapeKeyDown={(e) => {
+            if (form.formState.isDirty) {
+              e.preventDefault()
+              setShowCancelDialog(true)
+            }
+          }}
+        >
+          <CreateControlImplementationForm form={form} onSuccess={() => onOpenChange(false)} onClose={handleClose} defaultValues={normalizedValues} />
+        </SheetContent>
+      </Sheet>
+      <CancelDialog isOpen={showCancelDialog} onConfirm={handleConfirmClose} onCancel={() => setShowCancelDialog(false)} />
+    </>
   )
 }
 
