@@ -16,11 +16,10 @@ import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-butto
 
 type LinkControlsModalProps = {
   controlObjectiveData: ControlObjectiveFieldsFragment
-  disabled?: boolean
   'aria-label'?: string
 }
 
-export function LinkControlsModal({ controlObjectiveData, disabled, 'aria-label': ariaLabel }: LinkControlsModalProps) {
+export function LinkControlsModal({ controlObjectiveData, 'aria-label': ariaLabel }: LinkControlsModalProps) {
   const params = useParams()
   const isSubcontrol: string | undefined = params.subcontrolId as string
 
@@ -127,7 +126,7 @@ export function LinkControlsModal({ controlObjectiveData, disabled, 'aria-label'
   return (
     <Dialog open={open} onOpenChange={handleDialogChange}>
       <DialogTrigger asChild>
-        <Button disabled={disabled || controlObjectiveData.status === ControlObjectiveObjectiveStatus.ARCHIVED} className="h-8" aria-label={ariaLabel}>
+        <Button disabled={controlObjectiveData.status === ControlObjectiveObjectiveStatus.ARCHIVED} className="h-8" aria-label={ariaLabel}>
           Set Associations
         </Button>
       </DialogTrigger>
