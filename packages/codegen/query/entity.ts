@@ -29,6 +29,9 @@ export const GET_ALL_ENTITIES = gql`
           environmentName
           hasSoc2
           id
+          logoFile {
+            presignedURL
+          }
           internalOwner
           internalOwnerGroup {
             id
