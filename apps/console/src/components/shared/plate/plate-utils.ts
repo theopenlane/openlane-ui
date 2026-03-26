@@ -1,0 +1,29 @@
+import { type Value } from 'platejs'
+
+/**
+ * Checks if a PlateJS Value is effectively empty.
+ * PlateJS always maintains at least one paragraph node. When the editor is
+ * "empty", it contains a single paragraph whose only child has text that is
+ * either truly empty or contains only the zero-width no-break space (U+FEFF)
+ * that PlateJS uses as a cursor anchor.
+ */
+export const isPlateValueEmpty = (value: Value | string | undefined | null): boolean => {
+  if (!value) return true
+  if (typeof value === 'string') return value.trim().length === 0
+
+  if (!Array.isArray(value)) return true
+  if (value.length === 0) return true
+  if (value.length > 1) return false
+
+  const firstNode = value[0]
+  if (!firstNode || typeof firstNode !== 'object') return true
+
+  const children = (firstNode as Record<string, unknown>).children as Array<Record<string, unknown>> | undefined
+  if (!children || children.length === 0) return true
+  if (children.length > 1) return false
+
+  const text = children[0]?.text
+  if (typeof text !== 'string') return false
+
+  return text.replace(/\uFEFF/g, '').trim().length === 0
+}

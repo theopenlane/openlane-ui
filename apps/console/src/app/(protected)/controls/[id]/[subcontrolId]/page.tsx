@@ -41,6 +41,7 @@ import { useAssociationRemoval } from '@/hooks/useAssociationRemoval'
 import Loading from './loading.tsx'
 import { useAccountRoles } from '@/lib/query-hooks/permissions.ts'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
+import { isPlateValueEmpty } from '@/components/shared/plate/plate-utils.ts'
 import AIChat from '@/components/shared/ai-suggetions/chat.tsx'
 import { useGetCurrentUser } from '@/lib/graphql-hooks/user.ts'
 import StandardChip from '@/components/pages/protected/standards/shared/standard-chip'
@@ -147,6 +148,7 @@ const ControlDetailsPage: React.FC = () => {
   const onSubmit = async (values: FormValues) => {
     try {
       const changedFields = Object.entries(values).reduce<Record<string, unknown>>((acc, [key, value]) => {
+        if (key === 'publicRepresentation') return acc
         const initialValue = initialValues[key as keyof FormValues]
         if (JSON.stringify(value) !== JSON.stringify(initialValue)) {
           acc[key] = value
@@ -157,6 +159,20 @@ const ControlDetailsPage: React.FC = () => {
       if (changedFields.descriptionJSON) {
         changedFields.descriptionJSON = values?.descriptionJSON
         changedFields.description = await plateEditorHelper.convertToHtml(values.descriptionJSON as Value)
+      }
+
+      const currentPR = values.publicRepresentation
+      if (Array.isArray(currentPR)) {
+        if (isPlateValueEmpty(currentPR)) {
+          if (initialValues.publicRepresentation) {
+            changedFields.publicRepresentation = undefined
+          }
+        } else {
+          const newHtml = await plateEditorHelper.convertToHtml(currentPR as Value)
+          if (newHtml !== initialValues.publicRepresentation) {
+            changedFields.publicRepresentation = newHtml
+          }
+        }
       }
 
       if (isSourceFramework) {
@@ -278,6 +294,7 @@ const ControlDetailsPage: React.FC = () => {
         referenceID: data.subcontrol.referenceID || undefined,
         auditorReferenceID: data.subcontrol.auditorReferenceID || undefined,
         title: data.subcontrol.title || '',
+        publicRepresentation: data.subcontrol.publicRepresentation || '',
       }
 
       form.reset(newValues)
