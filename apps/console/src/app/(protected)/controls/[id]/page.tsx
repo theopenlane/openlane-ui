@@ -360,7 +360,7 @@ const ControlDetailsPage: React.FC = () => {
         </div>
       </div>
 
-      <QuickActions kind="control" controlId={id} control={control} />
+      <QuickActions kind="control" controlId={id} control={control} canEdit={canEdit(permission?.roles)} />
 
       <ControlTabs kind="control" control={control} isEditing={isEditing} data={control} handleUpdate={handleUpdateField} canEdit={canEdit(permission?.roles)} />
     </div>
