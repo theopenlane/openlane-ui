@@ -5,10 +5,11 @@ import { z } from 'zod'
 import { responsibilityFieldSchema } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 import type { StepConfig } from '@/components/shared/crud-base/types'
 import StepVendorInfo from './step-vendor-info'
+import StepVendorLogo from './step-vendor-logo'
 import StepOwnership from './step-ownership'
 import StepUploadImport from './step-upload-import'
 
-export const createVendorSteps = (onStagedFilesChange: (files: File[]) => void, onExistingFileIdsChange: (fileIds: string[]) => void): StepConfig[] => [
+export const createVendorSteps = (onStagedFilesChange: (files: File[]) => void, onExistingFileIdsChange: (fileIds: string[]) => void, onLogoFileChange: (file: File | null) => void): StepConfig[] => [
   {
     id: 'vendor-info',
     label: 'Vendor Info',
@@ -21,6 +22,12 @@ export const createVendorSteps = (onStagedFilesChange: (files: File[]) => void, 
       scopeName: z.string().optional().nullable(),
     }),
     render: () => <StepVendorInfo />,
+  },
+  {
+    id: 'vendor-logo',
+    label: 'Logo',
+    schema: z.object({}),
+    render: () => <StepVendorLogo onLogoFileChange={onLogoFileChange} />,
   },
   {
     id: 'ownership',

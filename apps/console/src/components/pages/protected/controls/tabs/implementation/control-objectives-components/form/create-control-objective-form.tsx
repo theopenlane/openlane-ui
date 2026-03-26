@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { Controller } from 'react-hook-form'
+import { Controller, type UseFormReturn } from 'react-hook-form'
 import { Input } from '@repo/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { Button } from '@repo/ui/button'
@@ -15,7 +15,7 @@ import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { type Value } from 'platejs'
 import { Info, Trash2 } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
-import useFormSchema, { type TFormData, VersionBump } from './use-form-schema'
+import { type TFormData, VersionBump } from './use-form-schema'
 import { useGetControlById } from '@/lib/graphql-hooks/control'
 import { useGetSubcontrolById } from '@/lib/graphql-hooks/subcontrol'
 import { Alert, AlertDescription, AlertTitle } from '@repo/ui/alert'
@@ -29,7 +29,17 @@ const controlSourceLabels: Record<ControlObjectiveControlSource, string> = {
   [ControlObjectiveControlSource.TEMPLATE]: 'Template',
   [ControlObjectiveControlSource.USER_DEFINED]: 'User Defined',
 }
-export const CreateControlObjectiveForm = ({ onSuccess, defaultValues }: { onSuccess: () => void; defaultValues?: Partial<TFormData> }) => {
+export const CreateControlObjectiveForm = ({
+  onSuccess,
+  onClose,
+  defaultValues,
+  form,
+}: {
+  onSuccess: () => void
+  onClose: () => void
+  defaultValues?: Partial<TFormData>
+  form: UseFormReturn<TFormData>
+}) => {
   const { id, subcontrolId } = useParams()
   const { successNotification, errorNotification } = useNotification()
   const isEditing = !!defaultValues
@@ -39,7 +49,6 @@ export const CreateControlObjectiveForm = ({ onSuccess, defaultValues }: { onSuc
   const loading = isLoadingControl || isLoading
   const [defaultValuesSet, setDefaultValuesSet] = useState(false)
   const { convertToHtml } = usePlateEditor()
-  const { form } = useFormSchema()
   const {
     handleSubmit,
     control,
@@ -69,7 +78,7 @@ export const CreateControlObjectiveForm = ({ onSuccess, defaultValues }: { onSuc
   }
 
   const onSubmit = async (data: TFormData) => {
-    const desiredOutcome = await convertToHtml(data.desiredOutcome as Value)
+    const desiredOutcome = typeof data.desiredOutcome === 'string' ? data.desiredOutcome || undefined : data.desiredOutcome ? await convertToHtml(data.desiredOutcome as Value) : undefined
 
     const basePayload = {
       ...data,
@@ -113,9 +122,15 @@ export const CreateControlObjectiveForm = ({ onSuccess, defaultValues }: { onSuc
   }
 
   useEffect(() => {
-    if (loading && defaultValuesSet) {
+    if (defaultValuesSet) return
+
+    if (isEditing) {
+      reset(defaultValues)
+      setDefaultValuesSet(true)
       return
     }
+
+    if (loading) return
 
     const createDefValues: Partial<TFormData> = {
       status: ControlObjectiveObjectiveStatus.DRAFT,
@@ -123,8 +138,7 @@ export const CreateControlObjectiveForm = ({ onSuccess, defaultValues }: { onSuc
       category: subcontrolData?.subcontrol?.category || controlData?.control?.category || '',
       subcategory: subcontrolData?.subcontrol?.subcategory || controlData?.control?.subcategory || '',
     }
-    const defValues = isEditing ? defaultValues : createDefValues
-    reset(defValues)
+    reset(createDefValues)
     setDefaultValuesSet(true)
   }, [defaultValues, reset, isEditing, controlData, subcontrolData, loading, defaultValuesSet])
 
@@ -134,7 +148,7 @@ export const CreateControlObjectiveForm = ({ onSuccess, defaultValues }: { onSuc
         {isEditing ? (
           <>
             <SaveButton />
-            <CancelButton onClick={onSuccess}></CancelButton>
+            <CancelButton onClick={onClose}></CancelButton>
             <Button variant="destructive" className="h-8 px-4!" icon={<Trash2 />} iconPosition="left" type="button" onClick={handleDelete}>
               Delete
             </Button>
@@ -144,7 +158,7 @@ export const CreateControlObjectiveForm = ({ onSuccess, defaultValues }: { onSuc
             <Button variant="secondary" className="h-8 px-4!">
               Create
             </Button>
-            <CancelButton onClick={onSuccess}></CancelButton>
+            <CancelButton onClick={onClose}></CancelButton>
           </>
         )}
       </div>

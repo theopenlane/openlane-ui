@@ -1,6 +1,7 @@
 'use client'
 
-import { useMutation, useQuery, useQueryClient, type UseQueryResult, type UseMutationResult } from '@tanstack/react-query'
+import { useEffect, useMemo } from 'react'
+import { useMutation, useQuery, useQueryClient, useInfiniteQuery, type InfiniteData, type UseQueryResult, type UseMutationResult } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { type Option } from '@repo/ui/multiple-selector'
 import { type TPagination } from '@repo/ui/pagination-types'
@@ -8,7 +9,6 @@ import {
   type CustomTypeEnumWhereInput,
   type CreateCustomTypeEnumInput,
   type UpdateCustomTypeEnumInput,
-  type GetCustomTypeEnumsQuery,
   type GetCustomTypeEnumsPaginatedQuery,
   type GetCustomTypeEnumByIdQuery,
   type CreateCustomTypeEnumMutation,
@@ -17,41 +17,84 @@ import {
   type GetCustomTypeEnumsPaginatedQueryVariables,
 } from '@repo/codegen/src/schema'
 
-import {
-  GET_CUSTOM_TYPE_ENUMS,
-  GET_CUSTOM_TYPE_ENUMS_PAGINATED,
-  GET_CUSTOM_TYPE_ENUM_BY_ID,
-  CREATE_CUSTOM_TYPE_ENUM,
-  UPDATE_CUSTOM_TYPE_ENUM,
-  DELETE_CUSTOM_TYPE_ENUM,
-} from '@repo/codegen/query/custom-type-enum'
+import { GET_CUSTOM_TYPE_ENUMS_PAGINATED, GET_CUSTOM_TYPE_ENUM_BY_ID, CREATE_CUSTOM_TYPE_ENUM, UPDATE_CUSTOM_TYPE_ENUM, DELETE_CUSTOM_TYPE_ENUM } from '@repo/codegen/query/custom-type-enum'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { canEdit } from '@/lib/authz/utils'
 
 export type CustomTypeEnumOption = Option & { color?: string; description?: string }
 
-export const useGetCustomTypeEnums = ({ where }: { where?: CustomTypeEnumWhereInput } = {}) => {
+const useFetchAllCustomTypeEnums = () => {
   const { client } = useGraphQLClient()
 
-  const query = useQuery<GetCustomTypeEnumsQuery>({
-    queryKey: ['customTypeEnums', where],
-    queryFn: () => client.request<GetCustomTypeEnumsQuery>(GET_CUSTOM_TYPE_ENUMS, { where }),
+  return useInfiniteQuery<GetCustomTypeEnumsPaginatedQuery['customTypeEnums'], Error, InfiniteData<GetCustomTypeEnumsPaginatedQuery['customTypeEnums']>, ['customTypeEnums', 'all']>({
+    queryKey: ['customTypeEnums', 'all'],
+    queryFn: async ({ pageParam }) => {
+      const { customTypeEnums } = await client.request<GetCustomTypeEnumsPaginatedQuery, GetCustomTypeEnumsPaginatedQueryVariables>(GET_CUSTOM_TYPE_ENUMS_PAGINATED, { after: pageParam })
+      return customTypeEnums
+    },
+    initialPageParam: undefined,
+    getNextPageParam: (last) => (last.pageInfo.hasNextPage ? last.pageInfo.endCursor : undefined),
+    staleTime: 5 * 60 * 1000,
   })
+}
 
-  const enumOptions: CustomTypeEnumOption[] =
-    query.data?.customTypeEnums?.edges?.reduce<CustomTypeEnumOption[]>((acc, edge) => {
-      if (edge?.node) {
-        acc.push({
-          value: edge.node.name,
-          label: edge.node.name,
-          color: edge.node.color ?? undefined,
-          description: edge.node.description ?? '',
-        })
-      }
-      return acc
-    }, []) ?? []
+const useAllCustomTypeEnums = () => {
+  const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage, isFetching, ...rest } = useFetchAllCustomTypeEnums()
 
-  return { ...query, enumOptions }
+  useEffect(() => {
+    if (hasNextPage && !isFetchingNextPage) {
+      fetchNextPage()
+    }
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage])
+
+  const allEdges = useMemo(() => {
+    return data?.pages.flatMap((page) => page.edges ?? []) ?? []
+  }, [data?.pages])
+
+  const isLoadingAll = isLoading || isFetchingNextPage || hasNextPage || isFetching
+
+  return { ...rest, allEdges, isLoading: isLoadingAll, isSuccess: !isLoadingAll && !rest.isError }
+}
+
+export const useGetCustomTypeEnums = ({ where }: { where?: CustomTypeEnumWhereInput } = {}) => {
+  const { allEdges, ...queryRest } = useAllCustomTypeEnums()
+
+  const filteredEdges = useMemo(() => {
+    if (!allEdges || allEdges.length === 0) return null
+    if (!where?.objectType && !where?.field) return allEdges
+    return allEdges.filter((edge) => {
+      const node = edge?.node
+      if (!node) return false
+      if (where.objectType && node.objectType !== where.objectType) return false
+      if (where.field && node.field !== where.field) return false
+      return true
+    })
+  }, [allEdges, where])
+
+  const enumOptions: CustomTypeEnumOption[] = useMemo(
+    () =>
+      filteredEdges?.reduce<CustomTypeEnumOption[]>((acc, edge) => {
+        if (edge?.node) {
+          acc.push({
+            value: edge.node.name,
+            label: edge.node.name,
+            color: edge.node.color ?? undefined,
+            description: edge.node.description ?? '',
+          })
+        }
+        return acc
+      }, []) ?? [],
+    [filteredEdges],
+  )
+
+  const data = useMemo(() => {
+    if (allEdges.length === 0 && !filteredEdges) return undefined
+    return {
+      customTypeEnums: { edges: filteredEdges },
+    }
+  }, [allEdges, filteredEdges])
+
+  return { ...queryRest, data, enumOptions }
 }
 
 export type CustomTypeEnumNode = NonNullable<NonNullable<NonNullable<GetCustomTypeEnumsPaginatedQuery['customTypeEnums']>['edges']>[number]>['node']

@@ -1,4 +1,5 @@
 import { type ColumnDef } from '@tanstack/react-table'
+import { Building2 } from 'lucide-react'
 import { formatDate } from '@/utils/date'
 import { type EntitiesNodeNonNull } from '@/lib/graphql-hooks/entity'
 import { type ColumnOptions } from '@/components/shared/crud-base/page'
@@ -9,12 +10,40 @@ import { createSelectColumn } from '@/components/shared/crud-base/columns/select
 import { CustomEnumChipCell } from '@/components/shared/crud-base/columns/custom-enum-chip-cell'
 import { ResponsibilityCell } from '@/components/shared/crud-base/columns/responsibility-cell'
 
+const renderVendorIdentityCell = (row: EntitiesNodeNonNull, label: string) => {
+  const logo = row.logoFile?.presignedURL
+
+  return (
+    <div className="flex items-center gap-2">
+      <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-md border bg-muted">
+        {logo ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={logo} alt={label} className="h-full w-full object-contain p-0.5" />
+        ) : (
+          <Building2 size={16} className="text-muted-foreground" />
+        )}
+      </div>
+      <span>{label}</span>
+    </div>
+  )
+}
+
 export const getColumns = ({ userMap, convertToReadOnly, selectedItems, setSelectedItems }: ColumnOptions): ColumnDef<EntitiesNodeNonNull>[] => {
   return [
     createSelectColumn<EntitiesNodeNonNull>(selectedItems, setSelectedItems),
     { accessorKey: 'id', header: 'ID', size: 120, cell: ({ row }) => <div className="text-muted-foreground">{row.original.id}</div> },
-    { accessorKey: 'name', header: 'Name', size: 120, cell: ({ cell }) => cell.getValue() || '' },
-    { accessorKey: 'displayName', header: 'Display Name', size: 120 },
+    {
+      accessorKey: 'name',
+      header: 'Name',
+      size: 200,
+      cell: ({ row }) => renderVendorIdentityCell(row.original, row.original.name ?? ''),
+    },
+    {
+      accessorKey: 'displayName',
+      header: 'Display Name',
+      size: 200,
+      cell: ({ row }) => renderVendorIdentityCell(row.original, row.original.displayName ?? row.original.name ?? ''),
+    },
 
     {
       accessorKey: 'description',
