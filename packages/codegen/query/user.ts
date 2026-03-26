@@ -12,7 +12,7 @@ export const GET_USER_PROFILE = gql`
       email
       avatarRemoteURL
       avatarFile {
-        presignedURL
+        base64
       }
       setting {
         id
@@ -35,7 +35,7 @@ export const UPDATE_USER = gql`
       user {
         id
         avatarFile {
-          presignedURL
+          base64
         }
       }
     }

@@ -13,6 +13,7 @@ import { useDeleteGroupMembership, useGetGroupDetails, useUpdateGroupMembership 
 import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification.tsx'
 import { canEdit } from '@/lib/authz/utils'
+import { toBase64DataUri } from '@/lib/image-utils'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { TableKeyEnum } from '@repo/ui/table-key'
@@ -53,7 +54,7 @@ const GroupsMembersTable = () => {
           id: member.membershipID || '',
           name: member.user.displayName || 'Unknown Member',
           role: member.role as GroupMembershipRole,
-          avatar: member.user.avatarFile?.presignedURL || member.user.avatarRemoteURL || '',
+          avatar: (member.user.avatarFile?.base64 ? toBase64DataUri(member.user.avatarFile.base64) : null) || member.user.avatarRemoteURL || '',
           userId: member.user.id,
         }))
         .sort((a, b) => {

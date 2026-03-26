@@ -8,6 +8,7 @@ import { type TUploadedFile } from '@/components/pages/protected/evidence/upload
 import { useGetSubprocessors } from '@/lib/graphql-hooks/subprocessor'
 import { fetchLogoAsFile } from '../../vendor-logo-dialog'
 import { cn } from '@repo/ui/lib/utils'
+import { toBase64DataUri } from '@/lib/image-utils'
 import type { EditVendorFormData } from '../../hooks/use-form-schema'
 
 interface StepVendorLogoProps {
@@ -48,7 +49,7 @@ const StepVendorLogo: React.FC<StepVendorLogoProps> = ({ onLogoFileChange }) => 
 
     for (const sp of [...(nameResults ?? []), ...(displayNameResults ?? [])]) {
       if (!sp || seen.has(sp.id)) continue
-      const logoUrl = sp.logoFile?.presignedURL || sp.logoRemoteURL
+      const logoUrl = (sp.logoFile?.base64 ? toBase64DataUri(sp.logoFile.base64) : null) || sp.logoRemoteURL
       if (!logoUrl) continue
       seen.add(sp.id)
       results.push({ id: sp.id, name: sp.name, logoUrl })

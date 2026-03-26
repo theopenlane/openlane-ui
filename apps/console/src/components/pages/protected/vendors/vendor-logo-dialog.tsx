@@ -8,6 +8,7 @@ import FileUpload from '@/components/shared/file-upload/file-upload'
 import { type TUploadedFile } from '@/components/pages/protected/evidence/upload/types/TUploadedFile'
 import { useGetSubprocessors } from '@/lib/graphql-hooks/subprocessor'
 import { cn } from '@repo/ui/lib/utils'
+import { toBase64DataUri } from '@/lib/image-utils'
 
 interface VendorLogoDialogProps {
   open: boolean
@@ -19,6 +20,17 @@ interface VendorLogoDialogProps {
 }
 
 export const fetchLogoAsFile = async (logoUrl: string): Promise<File> => {
+  if (logoUrl.startsWith('data:')) {
+    const [header, data] = logoUrl.split(',')
+    const mimeType = header.split(':')[1].split(';')[0]
+    const binaryString = atob(data)
+    const bytes = new Uint8Array(binaryString.length)
+    for (let i = 0; i < binaryString.length; i++) {
+      bytes[i] = binaryString.charCodeAt(i)
+    }
+    const extension = mimeType.includes('png') ? '.png' : mimeType.includes('svg') ? '.svg' : '.jpg'
+    return new File([bytes], `logo${extension}`, { type: mimeType })
+  }
   const response = await fetch(logoUrl)
   if (!response.ok) throw new Error('Failed to fetch logo')
   const blob = await response.blob()
@@ -57,7 +69,7 @@ export const VendorLogoDialog: React.FC<VendorLogoDialogProps> = ({ open, onOpen
 
     for (const sp of [...(nameResults ?? []), ...(displayNameResults ?? [])]) {
       if (!sp || seen.has(sp.id)) continue
-      const logoUrl = sp.logoFile?.presignedURL || sp.logoRemoteURL
+      const logoUrl = (sp.logoFile?.base64 ? toBase64DataUri(sp.logoFile.base64) : null) || sp.logoRemoteURL
       if (!logoUrl) continue
       seen.add(sp.id)
       results.push({ id: sp.id, name: sp.name, logoUrl })

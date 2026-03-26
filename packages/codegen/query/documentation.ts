@@ -71,7 +71,7 @@ export const GET_DOCUMENTATION_TASKS = gql`
             displayName
             avatarRemoteURL
             avatarFile {
-              presignedURL
+              base64
             }
           }
         }

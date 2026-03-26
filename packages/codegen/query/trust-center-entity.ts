@@ -10,7 +10,7 @@ export const GET_ALL_TRUST_CENTER_ENTITIES = gql`
           name
           url
           logoFile {
-            presignedURL
+            base64
           }
         }
       }

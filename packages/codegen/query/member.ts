@@ -46,7 +46,7 @@ export const GET_ORG_MEMBERSHIPS = gql`
             createdAt
             avatarFile {
               id
-              presignedURL
+              base64
             }
           }
         }
@@ -65,7 +65,7 @@ export const GET_ORG_USER_LIST = gql`
             displayName
             avatarRemoteURL
             avatarFile {
-              presignedURL
+              base64
             }
           }
         }

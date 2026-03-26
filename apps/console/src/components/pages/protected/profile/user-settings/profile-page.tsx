@@ -12,6 +12,7 @@ import { Button } from '@repo/ui/button'
 import { Panel, PanelHeader } from '@repo/ui/panel'
 import { Badge } from '@repo/ui/badge'
 import { useGetCurrentUser, useUpdateUserAvatar, useUpdateUserSetting } from '@/lib/graphql-hooks/user'
+import { toBase64DataUri } from '@/lib/image-utils'
 import { useCreateTfaSetting, useGetUserTFASettings, useUpdateTfaSetting } from '@/lib/graphql-hooks/tfa-setting'
 import PasskeySection from './passkeys-section'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
@@ -214,7 +215,7 @@ const ProfilePage = () => {
       <AvatarUpload
         fallbackString={userData?.user?.displayName?.substring(0, 2)}
         uploadCallback={handleUploadAvatar || 'N/A'}
-        placeholderImage={userData?.user.avatarFile?.presignedURL || sessionData?.user?.image}
+        placeholderImage={(userData?.user.avatarFile?.base64 ? toBase64DataUri(userData.user.avatarFile.base64) : null) || sessionData?.user?.image}
       />
       <Suspense fallback={<Loader />}>
         <DefaultOrgForm />

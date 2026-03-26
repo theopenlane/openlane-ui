@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogDescription, DialogTrigger, 
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { type StandardNode, useCreateStandard, useUpdateStandard } from '@/lib/graphql-hooks/standard'
+import { toBase64DataUri } from '@/lib/image-utils'
 import { TitleField } from './form-fields/title-field'
 import { DescriptionField } from './form-fields/description-field'
 import { UploadField } from './form-fields/upload-field'
@@ -116,7 +117,7 @@ export const StandardDialog = ({ trigger, standard, resetPagination }: StandardD
           <form id="standard-form" onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <TitleField />
             <DescriptionField />
-            <UploadField initialUrl={standard?.logoFile?.presignedURL ?? null} />
+            <UploadField initialUrl={standard?.logoFile?.base64 ? toBase64DataUri(standard.logoFile.base64) : null} />
           </form>
         </FormProvider>
         <div className="flex gap-2 justify-end">
