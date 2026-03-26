@@ -29,9 +29,10 @@ import type { ApiToken, User } from '@repo/codegen/src/schema'
 type ProceduresTableProps = {
   controlId?: string
   subcontrolIds: string[]
+  canEdit: boolean
 }
 
-const ProceduresTable: React.FC<ProceduresTableProps> = ({ controlId, subcontrolIds }) => {
+const ProceduresTable: React.FC<ProceduresTableProps> = ({ controlId, subcontrolIds, canEdit }) => {
   const [selectedProcedureId, setSelectedProcedureId] = useState<string | null>(null)
   const associationFilter = useMemo(() => buildAssociationFilter(controlId, subcontrolIds), [controlId, subcontrolIds])
 
@@ -213,15 +214,17 @@ const ProceduresTable: React.FC<ProceduresTableProps> = ({ controlId, subcontrol
             filterFields={filteredFields}
             onFilterChange={setFilters}
             actionButtons={
-              <SetObjectAssociationDialog
-                defaultSelectedObject={ObjectTypeObjects.PROCEDURE}
-                allowedObjectTypes={[ObjectTypeObjects.PROCEDURE]}
-                trigger={
-                  <Button type="button" icon={<Plus size={16} />} iconPosition="left" variant="secondary" size="md" className="size-fit py-1.5 px-2">
-                    Add Procedure
-                  </Button>
-                }
-              />
+              canEdit ? (
+                <SetObjectAssociationDialog
+                  defaultSelectedObject={ObjectTypeObjects.PROCEDURE}
+                  allowedObjectTypes={[ObjectTypeObjects.PROCEDURE]}
+                  trigger={
+                    <Button type="button" icon={<Plus size={16} />} iconPosition="left" variant="secondary" size="md" className="size-fit py-1.5 px-2">
+                      Add Procedure
+                    </Button>
+                  }
+                />
+              ) : undefined
             }
           />
         }
