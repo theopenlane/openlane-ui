@@ -13,7 +13,7 @@ const formSchema = z.object({
   category: z.string().optional(),
   cveID: z.string().optional(),
   severity: z.string().optional(),
-  status: z.string().optional(),
+  vulnerabilityStatusName: z.string().optional().nullable(),
   priority: z.string().optional(),
   score: z.preprocess((val) => {
     if (val === '' || val === undefined || val === null) return undefined
@@ -53,7 +53,7 @@ const formSchema = z.object({
 
 export const bulkEditFieldSchema = z.object({
   severity: z.string().optional(),
-  status: z.string().optional(),
+  vulnerabilityStatusName: z.string().optional().nullable(),
   priority: z.string().optional(),
   category: z.string().optional(),
   environmentName: z.string().optional().nullable(),

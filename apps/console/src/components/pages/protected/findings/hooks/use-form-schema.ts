@@ -13,7 +13,7 @@ const formSchema = z.object({
   description: z.string().optional(),
   category: z.string().optional(),
   severity: z.string().optional(),
-  status: z.string().optional(),
+  findingStatusName: z.string().optional().nullable(),
   priority: z.string().optional(),
   score: numericField,
   numericSeverity: numericField,
@@ -50,7 +50,7 @@ const formSchema = z.object({
 
 export const bulkEditFieldSchema = z.object({
   severity: z.string().optional(),
-  status: z.string().optional(),
+  findingStatusName: z.string().optional().nullable(),
   priority: z.string().optional(),
   category: z.string().optional(),
   open: z.boolean().optional(),
