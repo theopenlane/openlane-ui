@@ -89,7 +89,10 @@ const ViewRiskSheet: React.FC<Props> = ({ entityId, onClose }) => {
               icon={<ExternalLink />}
               iconPosition="left"
               onClick={() => {
-                if (entityId) router.push(`/exposure/risks/${entityId}`)
+                if (entityId) {
+                  close()
+                  router.push(`/exposure/risks/${entityId}`)
+                }
               }}
             >
               Open Full
