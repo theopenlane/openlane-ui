@@ -29,6 +29,7 @@ import { ASSOCIATION_REMOVAL_CONFIG } from '@/components/shared/object-associati
 import Loading from './loading.tsx'
 import { useAccountRoles, useOrganizationRoles } from '@/lib/query-hooks/permissions.ts'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
+import { isPlateValueEmpty } from '@/components/shared/plate/plate-utils.ts'
 import { Badge } from '@repo/ui/badge'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -147,6 +148,7 @@ const ControlDetailsPage: React.FC = () => {
   const onSubmit = async (values: FormValues) => {
     try {
       const changedFields = Object.entries(values).reduce<Record<string, unknown>>((acc, [key, value]) => {
+        if (key === 'publicRepresentation') return acc
         const initialValue = initialValues[key as keyof FormValues]
         if (JSON.stringify(value) !== JSON.stringify(initialValue)) {
           acc[key] = value
@@ -159,8 +161,18 @@ const ControlDetailsPage: React.FC = () => {
         changedFields.description = await convertToHtml(values.descriptionJSON as Value)
       }
 
-      if (changedFields.publicRepresentation) {
-        changedFields.publicRepresentation = changedFields.publicRepresentation ? await convertToHtml(changedFields.publicRepresentation as Value) : undefined
+      const currentPR = values.publicRepresentation
+      if (Array.isArray(currentPR)) {
+        if (isPlateValueEmpty(currentPR)) {
+          if (initialValues.publicRepresentation) {
+            changedFields.publicRepresentation = undefined
+          }
+        } else {
+          const newHtml = await convertToHtml(currentPR as Value)
+          if (newHtml !== initialValues.publicRepresentation) {
+            changedFields.publicRepresentation = newHtml
+          }
+        }
       }
 
       if (isSourceFramework) {
@@ -279,6 +291,7 @@ const ControlDetailsPage: React.FC = () => {
         auditorReferenceID: data.control.auditorReferenceID || undefined,
         title: data.control.title || '',
         controlKindName: data.control?.controlKindName || undefined,
+        publicRepresentation: data.control.publicRepresentation || '',
       }
       form.reset(newValues)
       setInitialValues(newValues)
