@@ -144,9 +144,9 @@ const CampaignDetailPage: React.FC = () => {
         <div className="flex flex-col gap-3">
           <div>
             <span className="text-xs text-muted-foreground">Status</span>
-            <p className="text-sm mt-1">
+            <div className="text-sm mt-1">
               <Badge variant="outline">{getEnumLabel(campaign.status)}</Badge>
-            </p>
+            </div>
           </div>
           <div>
             <span className="text-xs text-muted-foreground">Type</span>

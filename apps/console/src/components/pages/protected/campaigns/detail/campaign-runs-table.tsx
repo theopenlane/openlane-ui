@@ -11,7 +11,7 @@ type CampaignRunRow = {
   runDate: string
   totalTargets: number
   completed: number
-  paused: number
+  inProgress: number
   status: string
   expiration: string
 }
@@ -43,7 +43,7 @@ const CampaignRunsTable: React.FC<CampaignRunsTableProps> = ({ campaign, stats }
         runDate: formatDate(runDate as string),
         totalTargets: stats.total,
         completed: stats.completed,
-        paused: stats.inProgress,
+        inProgress: stats.inProgress,
         status: getEnumLabel(campaign.status as string) || '',
         expiration: campaign.dueDate ? formatDate(campaign.dueDate as string) : '—',
       },
@@ -61,16 +61,20 @@ const CampaignRunsTable: React.FC<CampaignRunsTableProps> = ({ campaign, stats }
         header: '# Targets',
       },
       {
-        accessorKey: 'completed',
-        header: '# Completed',
-      },
-      {
-        accessorKey: 'paused',
-        header: '# Paused',
-      },
-      {
         accessorKey: 'status',
         header: 'Status',
+        cell: ({ row }) => {
+          const { status, completed, inProgress } = row.original
+          const parts = [status]
+          if (completed > 0) parts.push(`${completed} completed`)
+          if (inProgress > 0) parts.push(`${inProgress} in progress`)
+          return (
+            <div className="flex items-center gap-2">
+              <span>{parts[0]}</span>
+              {parts.length > 1 && <span className="text-muted-foreground text-xs">({parts.slice(1).join(', ')})</span>}
+            </div>
+          )
+        },
       },
       {
         accessorKey: 'expiration',
