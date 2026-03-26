@@ -23,67 +23,70 @@ export const ImplementationItem: React.FC<Props> = ({ node, onEdit, onMarkVerifi
   const { data: permission, isLoading: permLoading } = useAccountRoles(ObjectTypes.CONTROL_IMPLEMENTATION, node.id)
   const isEditAllowed = canEdit(permission?.roles)
   const [associationsOpen, setAssociationsOpen] = React.useState(false)
-  const isMenuDisabled = !isEditAllowed || isUpdating || permLoading
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-end">
-        <Menu
-          closeOnSelect
-          trigger={
-            <Button type="button" variant="secondary" className="h-8 px-2" aria-label="Implementation actions">
-              <span className="sr-only">Implementation actions</span>
-              <MoreHorizontal size={16} />
-            </Button>
-          }
-          content={(close) => (
-            <>
-              <button
-                type="button"
-                className="flex items-center gap-2"
-                onClick={() => {
-                  onMarkVerified(node.id, !node.verified)
-                  close()
-                }}
-                disabled={isMenuDisabled}
-              >
-                <CheckCircle2 size={16} />
-                {node.verified ? 'Mark Not Verified' : 'Mark Verified'}
-              </button>
-              <button
-                type="button"
-                className="flex items-center gap-2"
-                onClick={() => {
-                  onEdit(node)
-                  close()
-                }}
-                disabled={isMenuDisabled}
-              >
-                <Pencil size={16} />
-                Edit
-              </button>
-              <button
-                type="button"
-                className="flex items-center gap-2 text-destructive"
-                onClick={() => {
-                  onDelete(node.id)
-                  close()
-                }}
-                disabled={isMenuDisabled}
-              >
-                <Trash2 size={16} />
-                Delete
-              </button>
-            </>
-          )}
-        />
-      </div>
+      {isEditAllowed && !permLoading && (
+        <div className="flex items-center justify-end">
+          <Menu
+            closeOnSelect
+            trigger={
+              <Button type="button" variant="secondary" className="h-8 px-2" aria-label="Implementation actions">
+                <span className="sr-only">Implementation actions</span>
+                <MoreHorizontal size={16} />
+              </Button>
+            }
+            content={(close) => (
+              <>
+                <button
+                  type="button"
+                  className="flex items-center gap-2"
+                  onClick={() => {
+                    onMarkVerified(node.id, !node.verified)
+                    close()
+                  }}
+                  disabled={isUpdating}
+                >
+                  <CheckCircle2 size={16} />
+                  {node.verified ? 'Mark Not Verified' : 'Mark Verified'}
+                </button>
+                <button
+                  type="button"
+                  className="flex items-center gap-2"
+                  onClick={() => {
+                    onEdit(node)
+                    close()
+                  }}
+                  disabled={isUpdating}
+                >
+                  <Pencil size={16} />
+                  Edit
+                </button>
+                <button
+                  type="button"
+                  className="flex items-center gap-2 text-destructive"
+                  onClick={() => {
+                    onDelete(node.id)
+                    close()
+                  }}
+                  disabled={isUpdating}
+                >
+                  <Trash2 size={16} />
+                  Delete
+                </button>
+              </>
+            )}
+          />
+        </div>
+      )}
       <ControlImplementationCard
         obj={node}
         actions={
-          <Button type="button" className="h-8" onClick={() => setAssociationsOpen(true)} disabled={isMenuDisabled} aria-label="Link controls">
-            Link Controls
-          </Button>
+          isEditAllowed && !permLoading ? (
+            <Button type="button" className="h-8" onClick={() => setAssociationsOpen(true)} disabled={isUpdating} aria-label="Link controls">
+              Link Controls
+            </Button>
+          ) : undefined
         }
       />
       <LinkControlsModal
