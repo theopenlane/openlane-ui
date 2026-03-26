@@ -3,6 +3,7 @@ import Link from 'next/link'
 import type { ColumnDef } from '@tanstack/react-table'
 import { Folder, FolderTree, Layers, Tag } from 'lucide-react'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { CustomEnumChipCell } from '@/components/shared/crud-base/columns/custom-enum-chip-cell'
 import type { FilterField } from '@/types'
 
 export type SubcontrolRow = {
@@ -40,15 +41,13 @@ export const getSubcontrolsColumns = (controlId: string, convertToReadOnly: (val
     cell: ({ row }) => <span className="block truncate">{row.original.status ? getEnumLabel(row.original.status) : '-'}</span>,
     size: 120,
     minSize: 120,
-    maxSize: 120,
   },
   {
     accessorKey: 'type',
     header: () => <span className="whitespace-nowrap">Type</span>,
-    cell: ({ row }) => <span className="block truncate">{row.original.type ? getEnumLabel(row.original.type) : '-'}</span>,
+    cell: ({ row }) => <CustomEnumChipCell value={row.original.type} objectType="control" field="kind" />,
     size: 120,
     minSize: 120,
-    maxSize: 120,
   },
 ]
 

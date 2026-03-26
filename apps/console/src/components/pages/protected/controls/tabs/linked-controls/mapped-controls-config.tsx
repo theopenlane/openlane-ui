@@ -7,6 +7,7 @@ import { MappedControlMappingSource, MappedControlMappingType } from '@repo/code
 import type { FilterField } from '@/types'
 import type { MappedControlRow } from './mapped-controls-types'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { CustomEnumChipCell } from '@/components/shared/crud-base/columns/custom-enum-chip-cell'
 
 type LinkMap = Map<string, string>
 
@@ -42,15 +43,13 @@ export const getMappedControlsBaseColumns = (
     cell: ({ row }) => <span className="block truncate">{row.original.status ? getEnumLabel(row.original.status) : '-'}</span>,
     size: 120,
     minSize: 120,
-    maxSize: 120,
   },
   {
     accessorKey: 'type',
     header: () => <span className="whitespace-nowrap">Type</span>,
-    cell: ({ row }) => <span className="block truncate">{row.original.type ? getEnumLabel(row.original.type) : '-'}</span>,
+    cell: ({ row }) => <CustomEnumChipCell value={row.original.type} objectType="control" field="kind" />,
     size: 120,
     minSize: 120,
-    maxSize: 120,
   },
 ]
 
