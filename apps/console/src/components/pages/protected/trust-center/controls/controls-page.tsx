@@ -8,10 +8,10 @@ import { Badge } from '@repo/ui/badge'
 import { Checkbox } from '@repo/ui/checkbox'
 import { Input } from '@repo/ui/input'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
-import { ChevronDown, ChevronRight, ChevronsDownUp, List, Minus, Plus, SearchIcon, SquareMinus, SquarePlay, SquarePlus } from 'lucide-react'
+import { ChevronDown, ChevronRight, ChevronsDownUp, List, Minus, Plus, SearchIcon, ShieldCheck, SquareMinus, SquarePlay, SquarePlus } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@repo/ui/dialog'
 import { useGetTrustCenter } from '@/lib/graphql-hooks/trust-center'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { canEdit } from '@/lib/authz/utils'
@@ -23,6 +23,9 @@ import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { useAllControlsGroupedWithListFields, useBulkEditControl, useGetExistingOrgControls } from '@/lib/graphql-hooks/control'
 import { useDebounce } from '@uidotdev/usehooks'
 import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
+import { useGetStandards, useCloneControls } from '@/lib/graphql-hooks/standard'
+import { useGraphQLClient } from '@/hooks/useGraphQLClient'
+import { ControlCategoryIcon } from '@/components/shared/control-category-icon-mapper/control-category-icon-mapper'
 
 type FilterTab = 'all' | 'added' | 'not-added' | 'recommended'
 type DraftAction = 'add' | 'remove'
@@ -45,6 +48,13 @@ export default function ControlsPage() {
   const canEditTc = canEdit(tcPermission?.roles)
 
   const { mutateAsync: bulkEditControl, isPending: isBulkEditing } = useBulkEditControl()
+  const { queryClient } = useGraphQLClient()
+
+  const { data: otsStandardData } = useGetStandards({
+    where: { shortName: 'OTS', framework: 'openlane-trust-center' },
+  })
+  const otsStandardID = otsStandardData?.standards?.edges?.[0]?.node?.id
+  const { mutateAsync: cloneControls, isPending: isCloning } = useCloneControls()
 
   const filterWhere = useMemo((): ControlWhereInput => {
     return {
@@ -65,17 +75,7 @@ export default function ControlsPage() {
 
   const tcRefCodes = useMemo(() => Array.from(new Set(allControls.filter((c) => c.referenceFramework).map((c) => c.refCode))), [allControls])
 
-  const tcFrameworks = useMemo(
-    () =>
-      Array.from(
-        new Set(
-          allControls
-            .map((c) => c.referenceFramework)
-            .filter((v): v is string => v != null),
-        ),
-      ),
-    [allControls],
-  )
+  const tcFrameworks = useMemo(() => Array.from(new Set(allControls.map((c) => c.referenceFramework).filter((v): v is string => v != null))), [allControls])
 
   const { data: orgControls } = useGetExistingOrgControls({
     refCodeIn: tcRefCodes,
@@ -92,11 +92,7 @@ export default function ControlsPage() {
       if (node) orgControlSet.add(`${node.refCode}::${node.referenceFramework ?? 'CUSTOM'}`)
     })
 
-    return new Set(
-      allControls
-        .filter((c) => c.referenceFramework && orgControlSet.has(`${c.refCode}::${c.referenceFramework}`))
-        .map((c) => c.id),
-    )
+    return new Set(allControls.filter((c) => c.referenceFramework && orgControlSet.has(`${c.refCode}::${c.referenceFramework}`)).map((c) => c.id))
   }, [allControls, currentOrgId, orgControls])
 
   const getEffectiveState = useCallback(
@@ -184,6 +180,19 @@ export default function ControlsPage() {
 
     return { adds, removes }
   }, [drafts, allControls])
+
+  const publishGroupedByCategory = useMemo(() => {
+    const grouped: Record<string, { adds: number; removes: number }> = {}
+    for (const item of publishDraftSummary.adds) {
+      if (!grouped[item.category]) grouped[item.category] = { adds: 0, removes: 0 }
+      grouped[item.category].adds++
+    }
+    for (const item of publishDraftSummary.removes) {
+      if (!grouped[item.category]) grouped[item.category] = { adds: 0, removes: 0 }
+      grouped[item.category].removes++
+    }
+    return grouped
+  }, [publishDraftSummary])
 
   const handlePublish = useCallback(async () => {
     try {
@@ -287,9 +296,41 @@ export default function ControlsPage() {
     ])
   }, [setCrumbs])
 
+  const handleAddControls = useCallback(async () => {
+    if (!otsStandardID) return
+    try {
+      await cloneControls({ input: { standardID: otsStandardID } })
+      successNotification({
+        title: 'Controls added',
+        description: 'Trust center controls have been added to your workspace.',
+      })
+      queryClient.removeQueries({ queryKey: ['controls'] })
+    } catch (err) {
+      errorNotification({
+        title: 'Error adding controls',
+        description: parseErrorMessage(err),
+      })
+    }
+  }, [otsStandardID, cloneControls, successNotification, errorNotification, queryClient])
+
   const navGuard = useNavigationGuard({ enabled: isDirty })
 
   if (isLoading) return <Loading />
+
+  if (hasLoadedOnce && allControls.length === 0) {
+    return (
+      <div className="p-4">
+        <div className="flex flex-col items-center justify-center py-24 text-center">
+          <ShieldCheck size={48} className="text-brand mb-4" />
+          <h2 className="text-2xl font-semibold mb-2">Set up your trust center controls</h2>
+          <p className="text-muted-foreground max-w-md mb-6">Add the recommended controls to your workspace. These won&apos;t be published to your trust center until you choose to include them.</p>
+          <Button variant="primary" onClick={handleAddControls} disabled={!otsStandardID || isCloning}>
+            {isCloning ? 'Adding controls...' : 'Add controls'}
+          </Button>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="p-4">
@@ -355,6 +396,7 @@ export default function ControlsPage() {
               <div className="flex items-center justify-between pt-4 pb-4">
                 <AccordionTrigger className="flex items-center gap-2 text-lg font-semibold cursor-pointer bg-unset">
                   {isOpen ? <ChevronDown size={22} className="text-brand" /> : <ChevronRight size={22} className="text-brand" />}
+                  <ControlCategoryIcon category={category} size={20} className="text-primary" />
                   <span>{category}</span>
                   <span className="text-sm font-normal text-muted-foreground">({controls.length})</span>
                 </AccordionTrigger>
@@ -418,14 +460,61 @@ export default function ControlsPage() {
 
       {Object.keys(filteredGroupedControls).length === 0 && !isLoading && <p className="text-center text-muted-foreground py-12">No controls found.</p>}
 
-      <ConfirmationDialog
-        open={publishDialogOpen}
-        onOpenChange={setPublishDialogOpen}
-        onConfirm={handlePublish}
-        title="Publish Changes"
-        description={`You are about to publish ${publishDraftSummary.adds.length} addition(s) and ${publishDraftSummary.removes.length} removal(s) to your Trust Center.`}
-        confirmationText="Publish"
-      />
+      <Dialog open={publishDialogOpen} onOpenChange={setPublishDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Add Controls</DialogTitle>
+            <DialogDescription>
+              You are about to publish {publishDraftSummary.adds.length} addition(s) and {publishDraftSummary.removes.length} removal(s) to your Trust Center.
+            </DialogDescription>
+          </DialogHeader>
+          <Accordion type="multiple" className="w-full">
+            {Object.entries(publishGroupedByCategory).map(([category, counts]) => {
+              const total = counts.adds + counts.removes
+              return (
+                <AccordionItem key={category} value={category} className="border rounded-lg px-3 mb-2">
+                  <AccordionTrigger className="flex items-center justify-between w-full py-3 cursor-pointer bg-unset">
+                    <div className="flex items-center gap-2">
+                      <ChevronDown size={16} className="text-brand" />
+                      <ControlCategoryIcon category={category} size={16} className="text-primary" />
+                      <span className="font-medium">{category}</span>
+                    </div>
+                    <Badge variant="outline">{total}</Badge>
+                  </AccordionTrigger>
+                  <AccordionContent className="pb-3">
+                    <div className="flex flex-col gap-1 text-sm text-muted-foreground pl-9">
+                      {publishDraftSummary.adds
+                        .filter((a) => a.category === category)
+                        .map((a) => (
+                          <div key={a.id} className="flex items-center gap-1.5">
+                            <Plus size={12} className="text-green-500" />
+                            <span>{a.refCode}</span>
+                          </div>
+                        ))}
+                      {publishDraftSummary.removes
+                        .filter((r) => r.category === category)
+                        .map((r) => (
+                          <div key={r.id} className="flex items-center gap-1.5">
+                            <Minus size={12} className="text-red-500" />
+                            <span>{r.refCode}</span>
+                          </div>
+                        ))}
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              )
+            })}
+          </Accordion>
+          <DialogFooter>
+            <Button variant="secondary" onClick={() => setPublishDialogOpen(false)}>
+              Back
+            </Button>
+            <Button variant="primary" icon={<SquarePlay />} iconPosition="left" disabled={isBulkEditing} onClick={handlePublish}>
+              {isBulkEditing ? 'Publishing...' : 'Publish'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <CancelDialog isOpen={navGuard.active} onConfirm={navGuard.accept} onCancel={navGuard.reject} />
     </div>
