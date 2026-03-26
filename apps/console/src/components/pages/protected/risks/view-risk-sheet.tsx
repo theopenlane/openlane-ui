@@ -101,14 +101,14 @@ const ViewRiskSheet: React.FC<Props> = ({ entityId, onClose }) => {
     ),
     [entityId, router],
   )
-
   const renderFields = useCallback(
     ({ isEditing, isCreate, data: risk, handleUpdateField, isEditAllowed }: RenderFieldsProps<RiskFieldsFragment, UpdateRiskInput>) => {
+      const isStatusForPastDue = risk?.status === RiskRiskStatus.OPEN || risk?.status === RiskRiskStatus.IDENTIFIED || risk?.status === RiskRiskStatus.IN_PROGRESS
       return (
         <div className="space-y-6">
           <div className="flex items-center gap-3">
             <TitleField isEditing={isEditing} isEditAllowed={isEditAllowed} form={form} initialValue={risk?.name} handleUpdate={(val) => handleUpdateField(val)} />
-            {!isEditing && !isCreate && <PastDueBadge severity={risk?.impact} createdAt={risk?.createdAt} />}
+            {!isEditing && !isCreate && isStatusForPastDue && <PastDueBadge severity={risk?.impact} createdAt={risk?.createdAt} />}
           </div>
           <PropertiesCard form={form} risk={risk} isEditing={isEditing} isEditAllowed={isEditAllowed} handleUpdate={(val) => handleUpdateField(val)} isCreate={isCreate} />
           <DetailsField isEditing={isEditing} isEditAllowed={isEditAllowed} form={form} risk={risk} isCreate={isCreate} />

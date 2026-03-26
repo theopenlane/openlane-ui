@@ -331,12 +331,12 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
       )}
     </div>
   )
-
+  const isStatusForPastDue = risk?.status === RiskRiskStatus.OPEN || risk?.status === RiskRiskStatus.IDENTIFIED || risk?.status === RiskRiskStatus.IN_PROGRESS
   const mainContent = (
     <div className="space-y-6 p-2">
       <div className="flex items-center gap-3">
         <TitleField isEditing={isEditing} form={form} handleUpdate={handleUpdateField} isEditAllowed={editAllowed} initialValue={risk.name} />
-        {!isEditing && <PastDueBadge severity={risk.impact} createdAt={risk.createdAt} />}
+        {!isEditing && isStatusForPastDue && <PastDueBadge severity={risk.impact} createdAt={risk.createdAt} />}
       </div>
       <DetailsField isEditing={isEditing} form={form} risk={risk} isEditAllowed={editAllowed} discussionData={discussionData?.risk} />
       <BusinessCostField isEditing={isEditing} form={form} risk={risk} isEditAllowed={editAllowed} />

@@ -3,7 +3,6 @@ import { ObjectNames } from '@repo/codegen/src/type-names'
 import React from 'react'
 import NameField from '../create/form/fields/name-field'
 import { type FindingQuery, FindingOrderField } from '@repo/codegen/src/schema'
-import PastDueBadge from '@/components/shared/past-due-badge/past-due-badge'
 import { AdditionalFields } from '../create/form/fields/additional-fields'
 import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
 import { type FindingFieldProps, type EnumOptions, type EnumCreateHandlers } from './types'
@@ -146,7 +145,7 @@ export const getFieldsToRender = (props: FindingFieldProps, enumOptions: EnumOpt
           internalEditing={props.internalEditing}
           setInternalEditing={props.setInternalEditing}
           handleUpdateField={props.handleUpdateField}
-          badge={!props.isCreate && !props.isEditing ? <PastDueBadge severity={findingData?.securityLevel} createdAt={findingData?.createdAt} /> : undefined}
+          // badge={!props.isCreate && !props.isEditing ? <PastDueBadge severity={findingData?.securityLevel} createdAt={findingData?.createdAt} /> : undefined}
         />
       </div>
       <AdditionalFields

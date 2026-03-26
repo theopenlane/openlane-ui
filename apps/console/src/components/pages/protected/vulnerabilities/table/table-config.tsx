@@ -3,7 +3,6 @@ import { ObjectNames } from '@repo/codegen/src/type-names'
 import React from 'react'
 import NameField from '../create/form/fields/name-field'
 import { type VulnerabilityQuery, VulnerabilityOrderField } from '@repo/codegen/src/schema'
-import PastDueBadge from '@/components/shared/past-due-badge/past-due-badge'
 import DescriptionField from '../create/form/fields/description-field'
 import { AdditionalFields } from '../create/form/fields/additional-fields'
 import Properties from '../create/form/fields/properties'
@@ -168,7 +167,7 @@ export const getFieldsToRender = (props: VulnerabilityFieldProps, enumOptions: E
             internalEditing={props.internalEditing}
             setInternalEditing={props.setInternalEditing}
             handleUpdateField={props.handleUpdateField}
-            badge={!props.isCreate && !props.isEditing ? <PastDueBadge severity={vulnData?.securityLevel} createdAt={vulnData?.createdAt} /> : undefined}
+            // badge={!props.isCreate && !props.isEditing ? <PastDueBadge severity={vulnData?.securityLevel} createdAt={vulnData?.createdAt} /> : undefined}
           />
         </div>
         <div className="ml-20 mt-6">
