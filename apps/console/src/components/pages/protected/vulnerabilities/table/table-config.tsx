@@ -27,7 +27,7 @@ export const getFilterFields = (enumOptions: EnumOptions): FilterField[] => [
     icon: FilterIcons.Criticality,
   },
   {
-    key: 'statusContainsFold',
+    key: 'vulnerabilityStatusNameContainsFold',
     label: 'Status',
     type: 'text',
     icon: FilterIcons.Status,

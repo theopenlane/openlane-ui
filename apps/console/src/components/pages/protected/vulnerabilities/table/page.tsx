@@ -104,17 +104,24 @@ const VulnerabilityPage: React.FC = () => {
     field: 'scope',
   })
 
+  const { enumOptions: vulnerabilityStatusOptions, onCreateOption: createVulnStatus } = useCreatableEnumOptions({
+    objectType: 'vulnerability',
+    field: 'status',
+  })
+
   const tagOptions = useGetTags()
 
   const enumOpts = {
     environmentOptions,
     scopeOptions,
     tagOptions: tagOptions.tagOptions,
+    vulnerabilityStatusOptions,
   }
 
   const enumCreateHandlers = {
     environmentName: createEnvironment,
     scopeName: createScope,
+    vulnerabilityStatusName: createVulnStatus,
   }
 
   const handleCloseViewSheet = () => {

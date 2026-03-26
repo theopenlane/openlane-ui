@@ -67,11 +67,12 @@ const FindingDetailsSheet: React.FC<FindingDetailsSheetProps> = ({ queryParamKey
 
   const { enumOptions: environmentOptions, onCreateOption: createEnvironment } = useCreatableEnumOptions({ field: 'environment' })
   const { enumOptions: scopeOptions, onCreateOption: createScope } = useCreatableEnumOptions({ field: 'scope' })
+  const { enumOptions: findingStatusOptions, onCreateOption: createFindingStatus } = useCreatableEnumOptions({ objectType: 'finding', field: 'status' })
 
-  const enumOpts = { environmentOptions, scopeOptions }
-  const enumCreateHandlers = { environmentName: createEnvironment, scopeName: createScope }
+  const enumOpts = { environmentOptions, scopeOptions, findingStatusOptions }
+  const enumCreateHandlers = { environmentName: createEnvironment, scopeName: createScope, findingStatusName: createFindingStatus }
 
-  function getName(d: FindingsNodeNonNull) {
+  const getName = (d: FindingsNodeNonNull) => {
     return d?.displayName || d?.displayID || d?.externalID
   }
 
