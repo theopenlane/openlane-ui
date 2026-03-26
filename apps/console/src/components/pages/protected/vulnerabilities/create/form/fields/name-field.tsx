@@ -16,14 +16,16 @@ type NameFieldProps = {
   setInternalEditing: InternalEditingType
   className?: string
   error?: string
+  badge?: React.ReactNode
 }
 
-const NameField: React.FC<NameFieldProps> = ({ isEditing, isEditAllowed = true, handleUpdateField, initialValue, internalEditing, setInternalEditing, className, error }) => {
+const NameField: React.FC<NameFieldProps> = ({ isEditing, isEditAllowed = true, handleUpdateField, initialValue, internalEditing, setInternalEditing, className, error, badge }) => {
   return (
     <div className={className}>
       <div className="flex items-center mb-1">
         <span className="font-medium">Display Name</span>
-        <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Provide a descriptive name for the vulnerability</p>} />
+        <SystemTooltip icon={<InfoIcon size={14} className="mx-2 mt-1" />} content={<p>Provide a descriptive name for the vulnerability</p>} />
+        {badge}
       </div>
       <TextField
         name="displayName"

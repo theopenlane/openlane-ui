@@ -127,6 +127,7 @@ const RISK_FIELDS = gql`
         }
       }
     }
+    createdAt
   }
 `
 

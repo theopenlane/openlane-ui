@@ -70395,6 +70395,7 @@ export type RiskFieldsFragment = {
   likelihood?: RiskRiskLikelihood | null
   impact?: RiskRiskImpact | null
   mitigation?: string | null
+  createdAt?: any | null
   stakeholder?: {
     __typename?: 'Group'
     id: string
@@ -70505,6 +70506,7 @@ export type GetRiskByIdQuery = {
     likelihood?: RiskRiskLikelihood | null
     impact?: RiskRiskImpact | null
     mitigation?: string | null
+    createdAt?: any | null
     stakeholder?: {
       __typename?: 'Group'
       id: string

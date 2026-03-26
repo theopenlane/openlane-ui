@@ -134,16 +134,18 @@ export const visibilityFields = {
 }
 
 export const getFieldsToRender = (props: FindingFieldProps, enumOptions: EnumOptions, enumCreateHandlers?: EnumCreateHandlers, riskScoresAction?: React.ReactNode) => {
+  const findingData = props.data as FindingQuery['finding']
   return (
     <div className="mr-6">
       <div className="mb-6">
         <NameField
           isEditing={props.isEditing}
           isEditAllowed={props.isEditAllowed}
-          initialValue={props.isCreate ? '' : ((props.data as FindingQuery['finding'])?.displayName ?? '')}
+          initialValue={props.isCreate ? '' : (findingData?.displayName ?? '')}
           internalEditing={props.internalEditing}
           setInternalEditing={props.setInternalEditing}
           handleUpdateField={props.handleUpdateField}
+          // badge={!props.isCreate && !props.isEditing ? <PastDueBadge severity={findingData?.securityLevel} createdAt={findingData?.createdAt} /> : undefined}
         />
       </div>
       <AdditionalFields
