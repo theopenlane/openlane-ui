@@ -1,8 +1,9 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { FormProvider, useForm } from 'react-hook-form'
+import { useQueryClient } from '@tanstack/react-query'
 import type { ResponsibilitySelection } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 import { useNavigationGuard } from 'next-navigation-guard'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
@@ -19,6 +20,10 @@ import { normalizeEntityData, buildResponsibilityPayload } from '@/components/sh
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { type UpdateEntityInput, type EntityQuery } from '@repo/codegen/src/schema'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import ObjectAssociationSwitch from '@/components/shared/object-association/object-association-switch'
+import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types'
+import { useAssociationRemoval } from '@/hooks/useAssociationRemoval'
+import { ASSOCIATION_REMOVAL_CONFIG } from '@/components/shared/object-association/object-association-config'
 import AssetDetailsSheet from '@/components/pages/protected/controls/tabs/assets-scans/asset-details-sheet'
 import EvidenceDetailsSheet from '@/components/pages/protected/evidence/evidence-details-sheet'
 import VendorDetailHeader from './vendor-detail-header'
@@ -164,15 +169,19 @@ const VendorDetailPage: React.FC<VendorDetailPageProps> = ({ vendorId }) => {
     setIsEditing(true)
   }
 
-  const handleUpdateField = async (input: UpdateEntityInput) => {
+  const handleUpdateField = async (input: UpdateEntityInput, options?: { throwOnError?: boolean }) => {
     try {
       await updateEntity({ updateEntityId: vendorId, input })
       successNotification({
         title: 'Vendor updated',
         description: 'The vendor was successfully updated.',
       })
-    } catch {
+    } catch (error) {
       errorNotification({ title: 'Failed to update vendor' })
+
+      if (options?.throwOnError) {
+        throw error
+      }
     }
   }
 
@@ -188,6 +197,38 @@ const VendorDetailPage: React.FC<VendorDetailPageProps> = ({ vendorId }) => {
       setIsDeleteDialogOpen(false)
     }
   }
+
+  const queryClient = useQueryClient()
+
+  const memoizedSections = useMemo(() => {
+    if (!associationsData?.entity) return {}
+    return {
+      assets: associationsData.entity.assets,
+      scans: associationsData.entity.scans,
+      campaigns: associationsData.entity.campaigns,
+      identityHolders: associationsData.entity.identityHolders,
+      controls: associationsData.entity.controls,
+    }
+  }, [associationsData?.entity])
+
+  const memoizedCenterNode = useMemo(() => {
+    if (!data?.entity) return null
+    return {
+      node: data.entity,
+      type: ObjectAssociationNodeEnum.ENTITY,
+    }
+  }, [data?.entity])
+
+  const handleRemoveAssociation = useAssociationRemoval({
+    entityId: vendorId,
+    handleUpdateField: (input: UpdateEntityInput) => handleUpdateField(input, { throwOnError: true }),
+    queryClient,
+    cacheTargets: [{ queryKey: ['entities'], dataRootField: 'entity', exact: false }],
+    invalidateQueryKeys: [['entities']],
+    sectionKeyToRemoveField: ASSOCIATION_REMOVAL_CONFIG.entity.sectionKeyToRemoveField,
+    sectionKeyToDataField: ASSOCIATION_REMOVAL_CONFIG.entity.sectionKeyToDataField,
+    sectionKeyToInvalidateQueryKey: ASSOCIATION_REMOVAL_CONFIG.entity.sectionKeyToInvalidateQueryKey,
+  })
 
   const vendor = data?.entity
   const canEditVendor = canEdit(permission?.roles)
@@ -217,7 +258,12 @@ const VendorDetailPage: React.FC<VendorDetailPageProps> = ({ vendorId }) => {
     </div>
   )
 
-  const sidebarContent = <VendorPropertiesSidebar data={vendor} isEditing={isEditing} handleUpdate={handleUpdateField} canEdit={canEditVendor} />
+  const sidebarContent = (
+    <>
+      {memoizedCenterNode && <ObjectAssociationSwitch sections={memoizedSections} centerNode={memoizedCenterNode} canEdit={canEditVendor} onRemoveAssociation={handleRemoveAssociation} />}
+      <VendorPropertiesSidebar data={vendor} isEditing={isEditing} handleUpdate={handleUpdateField} canEdit={canEditVendor} />
+    </>
+  )
 
   return (
     <>
