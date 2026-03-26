@@ -65753,7 +65753,6 @@ export type EntitiesWithFilterQuery = {
         logoFile?: { __typename?: 'File'; presignedURL?: string | null } | null
         internalOwnerGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
         internalOwnerUser?: { __typename?: 'User'; id: string; displayName: string } | null
-        logoFile?: { __typename?: 'File'; presignedURL?: string | null } | null
         reviewedByGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
         reviewedByUser?: { __typename?: 'User'; id: string; displayName: string } | null
       } | null
