@@ -29,6 +29,7 @@ export const useFindingSheetConfig = (entityId: string | null | undefined, isCre
       scanIDs: (finding.scans?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
       remediationIDs: (finding.remediations?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
       reviewIDs: (finding.reviews?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+      vulnerabilityIDs: (finding.vulnerabilities?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
     }
   }, [])
 
@@ -58,9 +59,10 @@ export const useFindingSheetConfig = (entityId: string | null | undefined, isCre
 
   const { enumOptions: environmentOptions, onCreateOption: createEnvironment } = useCreatableEnumOptions({ field: 'environment' })
   const { enumOptions: scopeOptions, onCreateOption: createScope } = useCreatableEnumOptions({ field: 'scope' })
+  const { enumOptions: findingStatusOptions, onCreateOption: createFindingStatus } = useCreatableEnumOptions({ objectType: 'finding', field: 'status' })
 
-  const enumOpts = { environmentOptions, scopeOptions }
-  const enumCreateHandlers = { environmentName: createEnvironment, scopeName: createScope }
+  const enumOpts = { environmentOptions, scopeOptions, findingStatusOptions }
+  const enumCreateHandlers = { environmentName: createEnvironment, scopeName: createScope, findingStatusName: createFindingStatus }
 
   function getName(d: FindingsNodeNonNull) {
     return d?.displayName || d?.displayID || d?.externalID
@@ -78,10 +80,10 @@ export const useFindingSheetConfig = (entityId: string | null | undefined, isCre
     createMutation,
     deleteMutation,
     buildPayload: async (formData) => {
-      const { controlIDs, subcontrolIDs, riskIDs, programIDs, taskIDs, assetIDs, scanIDs, remediationIDs, reviewIDs, ...rest } = formData
+      const { controlIDs, subcontrolIDs, riskIDs, programIDs, taskIDs, assetIDs, scanIDs, remediationIDs, reviewIDs, vulnerabilityIDs, ...rest } = formData
       const associationPayload = buildAssociationPayload(
         FINDING_ASSOCIATION_CONFIG.associationKeys,
-        { controlIDs, subcontrolIDs, riskIDs, programIDs, taskIDs, assetIDs, scanIDs, remediationIDs, reviewIDs },
+        { controlIDs, subcontrolIDs, riskIDs, programIDs, taskIDs, assetIDs, scanIDs, remediationIDs, reviewIDs, vulnerabilityIDs },
         isCreate,
         initialAssociationsRef.current,
       )

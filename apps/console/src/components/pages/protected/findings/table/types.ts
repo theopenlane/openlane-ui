@@ -32,7 +32,7 @@ export const exportType = ExportExportType.FINDING
 export const orderFieldEnum = FindingOrderField
 export const defaultSorting = [{ field: FindingOrderField.updated_at, direction: OrderDirection.DESC }]
 
-type FindingEnumKeys = 'environmentOptions' | 'scopeOptions'
+type FindingEnumKeys = 'environmentOptions' | 'scopeOptions' | 'findingStatusOptions'
 export type EnumOptions = EnumOptionsGeneric<FindingEnumKeys>
 
 export type FindingTablePageConfig = GenericTablePageConfig<TData, TFormData, TUpdateInput, TUpdateData, TCreateInput, TCreateData, TWhereInput, TOrderField>

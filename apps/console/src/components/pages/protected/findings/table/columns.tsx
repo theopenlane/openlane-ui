@@ -40,7 +40,7 @@ export const getColumns = ({ userMap, selectedItems, setSelectedItems, onTrackRe
         )
       },
     },
-    { accessorKey: 'findingStatusName', header: 'Status', size: 120, cell: ({ cell }) => <CustomEnumChipCell value={cell.getValue() as string} objectType="finding" field="findingStatus" /> },
+    { accessorKey: 'findingStatusName', header: 'Status', size: 120, cell: ({ cell }) => <CustomEnumChipCell value={cell.getValue() as string} objectType="finding" field="status" /> },
     { accessorKey: 'numericSeverity', header: 'Numeric Severity', size: 130 },
     { accessorKey: 'priority', header: 'Priority', size: 100 },
     { accessorKey: 'score', header: 'Score', size: 90 },

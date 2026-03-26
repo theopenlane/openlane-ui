@@ -32,7 +32,7 @@ export const exportType = ExportExportType.VULNERABILITY
 export const orderFieldEnum = VulnerabilityOrderField
 export const defaultSorting = [{ field: VulnerabilityOrderField.updated_at, direction: OrderDirection.DESC }]
 
-type VulnerabilityEnumKeys = 'environmentOptions' | 'scopeOptions' | 'tagOptions'
+type VulnerabilityEnumKeys = 'environmentOptions' | 'scopeOptions' | 'tagOptions' | 'vulnerabilityStatusOptions'
 
 export type EnumOptions = EnumOptionsGeneric<VulnerabilityEnumKeys>
 
