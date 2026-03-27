@@ -67131,14 +67131,7 @@ export type GetGroupDetailsQuery = {
           __typename?: 'GroupMembership'
           id: string
           role: GroupMembershipRole
-          user: {
-            __typename?: 'User'
-            id: string
-            displayName: string
-            avatarRemoteURL?: string | null
-            role?: UserRole | null
-            avatarFile?: { __typename?: 'File'; base64?: string | null } | null
-          }
+          user: { __typename?: 'User'; id: string; displayName: string; avatarRemoteURL?: string | null; role?: UserRole | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null }
         } | null
       } | null> | null
     }
