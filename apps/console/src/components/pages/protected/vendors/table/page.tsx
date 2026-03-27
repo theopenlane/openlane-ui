@@ -1,11 +1,11 @@
 'use client'
 
-import React, { useCallback, useRef } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { type Value } from 'platejs'
 import { useSearchParams } from 'next/navigation'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
-import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
 
 import { EntityEntityStatus, EntityFrequency, type EntityQuery, type UpdateEntityInput, type CreateEntityInput, type GetEntityAssociationsQuery } from '@repo/codegen/src/schema'
@@ -23,6 +23,7 @@ import { useEntity } from '@/lib/graphql-hooks/entity'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
 import { breadcrumbs, getFieldsToRender, getFilterFields, visibilityFields } from './table-config'
 import { type EntitySheetConfig, type EntityTablePageConfig, objectType, objectName, tableKey, exportType, orderFieldEnum, defaultSorting, type EntityFieldProps } from './types'
+import { createVendorSteps } from '../create/steps/vendor-create-steps'
 import { getColumns } from './columns'
 import TableComponent from './table'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
@@ -55,8 +56,9 @@ const VendorPage: React.FC = () => {
   }, [])
   const initialAssociationsRef = useInitialAssociations(associationsData, extractAssociations, id)
 
-  const stagedFilesRef = useRef<File[]>([])
-  const existingFileIdsRef = useRef<string[]>([])
+  const [stagedFiles, setStagedFiles] = useState<File[]>([])
+  const [existingFileIds, setExistingFileIds] = useState<string[]>([])
+  const [stagedLogoFile, setStagedLogoFile] = useState<File | null>(null)
   const plateEditorHelper = usePlateEditor()
 
   function getName(data: EntitiesNodeNonNull) {
@@ -77,11 +79,13 @@ const VendorPage: React.FC = () => {
   const createMutation = {
     isPending: baseCreateMutation.isPending,
     mutateAsync: async (input: CreateEntityInput) => {
-      const entityFiles = stagedFilesRef.current.length > 0 ? stagedFilesRef.current : undefined
-      const fileIDs = existingFileIdsRef.current.length > 0 ? existingFileIdsRef.current : undefined
-      const result = await baseCreateMutation.mutateAsync({ input: { ...input, fileIDs }, entityTypeName: 'vendor', entityFiles })
-      stagedFilesRef.current = []
-      existingFileIdsRef.current = []
+      const entityFiles = stagedFiles.length > 0 ? stagedFiles : undefined
+      const fileIDs = existingFileIds.length > 0 ? existingFileIds : undefined
+      const logoFile = stagedLogoFile ?? undefined
+      const result = await baseCreateMutation.mutateAsync({ input: { ...input, fileIDs }, entityTypeName: 'vendor', entityFiles, logoFile })
+      setStagedFiles([])
+      setExistingFileIds([])
+      setStagedLogoFile(null)
       return result
     },
   }
@@ -128,15 +132,8 @@ const VendorPage: React.FC = () => {
     field: 'scope',
   })
 
-  const reviewFrequencyOptions = Object.values(EntityFrequency).map((value) => ({
-    value,
-    label: getEnumLabel(value as string),
-  }))
-
-  const entityStatusOptions = Object.values(EntityEntityStatus).map((value) => ({
-    value,
-    label: getEnumLabel(value as string),
-  }))
+  const reviewFrequencyOptions = enumToOptions(EntityFrequency)
+  const entityStatusOptions = enumToOptions(EntityEntityStatus)
 
   const { tagOptions } = useGetTags()
 
@@ -166,8 +163,9 @@ const VendorPage: React.FC = () => {
     isFetching: isLoading,
     updateMutation,
     createMutation,
+    deleteMutation,
     buildPayload: async (data) => {
-      const { assetIDs, scanIDs, campaignIDs, identityHolderIDs, internalOwner, reviewedBy, ...rest } = data
+      const { assetIDs, scanIDs, campaignIDs, identityHolderIDs, contactIDs, internalOwner, reviewedBy, ...rest } = data
       const description = rest.description ? await plateEditorHelper.convertToHtml(rest.description as Value) : undefined
       const associationPayload = buildAssociationPayload(ENTITY_ASSOCIATION_CONFIG.associationKeys, { assetIDs, scanIDs, campaignIDs, identityHolderIDs }, isCreate, initialAssociationsRef.current)
 
@@ -175,25 +173,17 @@ const VendorPage: React.FC = () => {
         ...rest,
         description,
         ...associationPayload,
+        ...(contactIDs && contactIDs.length > 0 ? { contactIDs } : {}),
         ...buildResponsibilityPayload('internalOwner', internalOwner, { mode: isCreate ? 'create' : 'update' }),
         ...buildResponsibilityPayload('reviewedBy', reviewedBy, { mode: isCreate ? 'create' : 'update' }),
       }
     },
     normalizeData,
     getName,
-    renderFields: (props: EntityFieldProps) =>
-      getFieldsToRender(
-        props,
-        enumOpts,
-        (files: File[]) => {
-          stagedFilesRef.current = files
-        },
-        (fileIds: string[]) => {
-          existingFileIdsRef.current = fileIds
-        },
-        enumCreateHandlers,
-      ),
+    renderFields: (props: EntityFieldProps) => getFieldsToRender(props, enumOpts, setStagedFiles, setExistingFileIds, enumCreateHandlers),
   }
+
+  const vendorCreateSteps = useMemo(() => createVendorSteps(setStagedFiles, setExistingFileIds, setStagedLogoFile), [setStagedFiles, setExistingFileIds, setStagedLogoFile])
 
   const tableConfig: EntityTablePageConfig = {
     objectType,
@@ -210,6 +200,8 @@ const VendorPage: React.FC = () => {
     getColumns,
     TableComponent,
     sheetConfig,
+    viewEditMode: { type: 'full-page', route: '/registry/vendors' },
+    createMode: { type: 'step-dialog', steps: vendorCreateSteps, title: 'Create Vendor' },
     onBulkDelete: async (ids: string[]) => {
       await deleteMutation.mutateAsync({ ids })
     },

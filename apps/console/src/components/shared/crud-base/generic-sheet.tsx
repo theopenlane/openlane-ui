@@ -10,8 +10,9 @@ import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { type UseFormReturn, type FieldValues } from 'react-hook-form'
 import { type ObjectTypes } from '@repo/codegen/src/type-names'
-import { useAccountRoles } from '@/lib/query-hooks/permissions'
-import { canEdit } from '@/lib/authz/utils'
+import { useAccountRoles, useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { canEdit, canDelete } from '@/lib/authz/utils'
+import { getPermissionStrategy } from './utils'
 import { GenericSheetHeader } from './header'
 import { GenericDetailsSheetSkeleton } from './skeleton/details-sheet-skeleton'
 import { pluralizeTypeName } from '@/utils/strings'
@@ -79,6 +80,9 @@ export interface GenericDetailsSheetConfig<TFormData extends FieldValues, TData,
   renderFields?: (props: RenderFieldsProps<TData, TUpdateInput>) => React.ReactNode
   renderHeader?: (props: RenderHeaderProps) => React.ReactNode
   extraContent?: React.ReactNode
+  extraHeaderActions?: React.ReactNode
+  overrideContent?: React.ReactNode
+  overrideHeader?: React.ReactNode
   minWidth?: string | number
   initialWidth?: string | number
 }
@@ -107,6 +111,9 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
     renderHeader,
     renderFields,
     extraContent,
+    extraHeaderActions,
+    overrideContent,
+    overrideHeader,
     onClose,
     entityId: entityIdOverride,
     isCreateMode,
@@ -122,8 +129,13 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
   const id = entityIdOverride !== undefined ? entityIdOverride : searchParams.get('id')
   const isCreate = isCreateMode !== undefined ? isCreateMode : searchParams.get('create') === 'true'
 
-  const { data: permission } = useAccountRoles(objectType, id)
+  const permissionStrategy = getPermissionStrategy(objectType)
+  const useObjectPermissions = permissionStrategy === 'object'
+  const { data: objectPermission } = useAccountRoles(objectType, id, useObjectPermissions)
+  const { data: orgPermission } = useOrganizationRoles()
+  const permission = useObjectPermissions ? objectPermission : orgPermission
   const isEditAllowed = !!updateMutation && canEdit(permission?.roles)
+  const isDeleteAllowed = !!deleteMutation && canDelete(permission?.roles)
 
   const objectTypeName = objectType.charAt(0).toUpperCase() + objectType.slice(1).toLowerCase()
   const createSuccessTitle = `${objectTypeName} Created`
@@ -225,29 +237,28 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
     }
   }
 
-  const handleDelete = async (id: string) => {
-    if (!deleteMutation) {
-      return
-    }
+  const handleDelete =
+    deleteMutation && isDeleteAllowed
+      ? async (id: string) => {
+          try {
+            await deleteMutation.mutateAsync({ ids: [id] })
 
-    try {
-      await deleteMutation.mutateAsync({ ids: [id] })
+            queryClient.invalidateQueries({ queryKey })
+            successNotification({
+              title: `${objectTypeName} Deleted`,
+              description: `The ${objectTypeName.toLowerCase()} has been successfully deleted.`,
+            })
 
-      queryClient.invalidateQueries({ queryKey })
-      successNotification({
-        title: `${objectTypeName} Deleted`,
-        description: `The ${objectTypeName.toLowerCase()} has been successfully deleted.`,
-      })
-
-      onClose?.()
-    } catch (error) {
-      const errorMessage = parseErrorMessage(error)
-      errorNotification({
-        title: 'Error',
-        description: errorMessage,
-      })
-    }
-  }
+            onClose?.()
+          } catch (error) {
+            const errorMessage = parseErrorMessage(error)
+            errorNotification({
+              title: 'Error',
+              description: errorMessage,
+            })
+          }
+        }
+      : undefined
 
   const handleUpdateField = async (input: TUpdateInput) => {
     if (!id || isEditing || !updateMutation) {
@@ -295,7 +306,9 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
           minWidth={minWidthOverride ?? '40vw'}
           initialWidth={initialWidthOverride ?? '60vw'}
           header={
-            renderHeader ? (
+            overrideHeader ? (
+              overrideHeader
+            ) : renderHeader ? (
               renderHeader({
                 close: handleSheetClose,
                 isEditing,
@@ -321,12 +334,15 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
                 onDelete={handleDelete}
                 entityId={id}
                 basePath={basePath}
+                extraActions={extraHeaderActions}
               />
             )
           }
         >
           {isFetching && !isCreate ? (
             <GenericDetailsSheetSkeleton />
+          ) : overrideContent ? (
+            overrideContent
           ) : (
             <>
               <Form {...form}>

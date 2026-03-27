@@ -31,7 +31,7 @@ export const getFilterFields = (enumOptions: EnumOptions): FilterField[] => [
     icon: FilterIcons.Criticality,
   },
   {
-    key: 'statusContainsFold',
+    key: 'findingStatusNameContainsFold',
     label: 'Status',
     type: 'text',
     icon: FilterIcons.Status,
@@ -102,10 +102,12 @@ export const visibilityFields = {
   displayName: true,
   category: true,
   severity: true,
+  securityLevel: true,
+  findingStatusName: true,
   numericSeverity: false,
-  status: true,
+  status: false,
   priority: true,
-  score: true,
+  score: false,
   exploitability: false,
   impact: false,
   vector: false,
@@ -131,17 +133,19 @@ export const visibilityFields = {
   updatedBy: false,
 }
 
-export const getFieldsToRender = (props: FindingFieldProps, enumOptions: EnumOptions, enumCreateHandlers?: EnumCreateHandlers) => {
+export const getFieldsToRender = (props: FindingFieldProps, enumOptions: EnumOptions, enumCreateHandlers?: EnumCreateHandlers, riskScoresAction?: React.ReactNode) => {
+  const findingData = props.data as FindingQuery['finding']
   return (
     <div className="mr-6">
       <div className="mb-6">
         <NameField
           isEditing={props.isEditing}
           isEditAllowed={props.isEditAllowed}
-          initialValue={props.isCreate ? '' : ((props.data as FindingQuery['finding'])?.displayName ?? '')}
+          initialValue={props.isCreate ? '' : (findingData?.displayName ?? '')}
           internalEditing={props.internalEditing}
           setInternalEditing={props.setInternalEditing}
           handleUpdateField={props.handleUpdateField}
+          // badge={!props.isCreate && !props.isEditing ? <PastDueBadge severity={findingData?.securityLevel} createdAt={findingData?.createdAt} /> : undefined}
         />
       </div>
       <AdditionalFields
@@ -153,6 +157,7 @@ export const getFieldsToRender = (props: FindingFieldProps, enumOptions: EnumOpt
         handleUpdateField={props.handleUpdateField}
         enumOptions={enumOptions}
         enumCreateHandlers={enumCreateHandlers}
+        riskScoresAction={riskScoresAction}
       />
       <FindingAssociationSection data={props.data} isEditing={props.isEditing} isCreate={props.isCreate} isEditAllowed={props.isEditAllowed} />
     </div>

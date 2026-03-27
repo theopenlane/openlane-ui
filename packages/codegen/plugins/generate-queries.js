@@ -44,11 +44,16 @@ const nodeTypeRegex = /export interface (\w+) extends Node\s*\{([\s\S]*?)\n\}/g
 const matches = [...schemaContent.matchAll(nodeTypeRegex)]
 
 const nodeTypes = matches
-  .map((m) => ({
-    name: m[1],
-    body: m[0],
-    fields: extractFields(m[2]),
-  }))
+  .map((m) => {
+    const name = m[1]
+    const gqlNameMatch = m[2].match(/__typename\?\s*:\s*'(\w+)'/)
+    return {
+      name,
+      gqlName: gqlNameMatch ? gqlNameMatch[1] : name,
+      body: m[0],
+      fields: extractFields(m[2]),
+    }
+  })
   .filter((nt) => !EXCLUDED_TYPES.includes(nt.name))
 
 function isScalarField(fieldType) {
@@ -124,7 +129,7 @@ function hasField(typeName, fieldName) {
 }
 
 function generateQueryFile(nodeType) {
-  const { name, fields } = nodeType
+  const { name, gqlName, fields } = nodeType
   const lowerName = name.charAt(0).toLowerCase() + name.slice(1)
   const pluralName = pluralizeTypeName(name)
   const upperName = toUpperSnake(name)
@@ -139,7 +144,7 @@ function generateQueryFile(nodeType) {
   const queries = []
 
   queries.push(`export const GET_ALL_${upperPluralName} = gql\`
-  query ${name}sWithFilter($where: ${name}WhereInput, $orderBy: [${name}Order!], $first: Int, $after: Cursor, $last: Int, $before: Cursor) {
+  query ${name}sWithFilter($where: ${gqlName}WhereInput, $orderBy: [${gqlName}Order!], $first: Int, $after: Cursor, $last: Int, $before: Cursor) {
     ${pluralName}(where: $where, orderBy: $orderBy, first: $first, after: $after, last: $last, before: $before) {
       totalCount
       edges {
@@ -158,7 +163,7 @@ ${fieldsList}
 \``)
 
   queries.push(`export const ${upperName} = gql\`
-  query ${name}($${lowerName}Id: ID!) {
+  query ${gqlName}($${lowerName}Id: ID!) {
     ${lowerName}(id: $${lowerName}Id) {
 ${fieldsGetList}
     }
@@ -166,8 +171,8 @@ ${fieldsGetList}
 \``)
 
   queries.push(`export const CREATE_${upperName} = gql\`
-  mutation Create${name}($input: Create${name}Input!) {
-    create${name}(input: $input) {
+  mutation Create${name}($input: Create${gqlName}Input!) {
+    create${gqlName}(input: $input) {
       ${lowerName} {
         id
       }
@@ -176,8 +181,8 @@ ${fieldsGetList}
 \``)
 
   queries.push(`export const UPDATE_${upperName} = gql\`
-  mutation Update${name}($update${name}Id: ID!, $input: Update${name}Input!) {
-    update${name}(id: $update${name}Id, input: $input) {
+  mutation Update${name}($update${name}Id: ID!, $input: Update${gqlName}Input!) {
+    update${gqlName}(id: $update${name}Id, input: $input) {
       ${lowerName} {
         id
       }
@@ -187,16 +192,16 @@ ${fieldsGetList}
 
   queries.push(`export const DELETE_${upperName} = gql\`
   mutation Delete${name}($delete${name}Id: ID!) {
-    delete${name}(id: $delete${name}Id) {
+    delete${gqlName}(id: $delete${name}Id) {
       deletedID
     }
   }
 \``)
 
-  if (schemaContent.includes(`${name}BulkCreatePayload`)) {
+  if (schemaContent.includes(`${gqlName}BulkCreatePayload`)) {
     queries.push(`export const CREATE_CSV_BULK_${upperName} = gql\`
   mutation CreateBulkCSV${name}($input: Upload!) {
-    createBulkCSV${name}(input: $input) {
+    createBulkCSV${gqlName}(input: $input) {
       ${pluralName} {
         id
       }
@@ -207,7 +212,7 @@ ${fieldsGetList}
 
   queries.push(`export const BULK_DELETE_${upperName} = gql\`
   mutation DeleteBulk${name}($ids: [ID!]!) {
-    deleteBulk${name}(ids: $ids) {
+    deleteBulk${gqlName}(ids: $ids) {
       deletedIDs
     }
   }
@@ -230,7 +235,7 @@ ${fieldsGetList}
       .join('\n')
 
     queries.push(`export const GET_${upperName}_ASSOCIATIONS = gql\`
-  query Get${name}Associations($${lowerName}Id: ID!) {
+  query Get${gqlName}Associations($${lowerName}Id: ID!) {
     ${lowerName}(id: $${lowerName}Id) {
 ${associations}
     }
@@ -239,8 +244,8 @@ ${associations}
   }
 
   queries.push(`export const BULK_EDIT_${upperName} = gql\`
-  mutation UpdateBulk${name}($ids: [ID!]!, $input: Update${name}Input!) {
-    updateBulk${name}(ids: $ids, input: $input) {
+  mutation UpdateBulk${name}($ids: [ID!]!, $input: Update${gqlName}Input!) {
+    updateBulk${gqlName}(ids: $ids, input: $input) {
       updatedIDs
     }
   }

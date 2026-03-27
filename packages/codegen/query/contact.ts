@@ -10,6 +10,8 @@ export const GET_CONTACTS = gql`
           email
           company
           title
+          phoneNumber
+          address
           status
         }
       }
@@ -30,6 +32,8 @@ export const GET_ALL_CONTACTS = gql`
           fullName
           id
           phoneNumber
+          status
+          tags
           title
           updatedAt
           updatedBy
@@ -56,6 +60,8 @@ export const CONTACT = gql`
       fullName
       id
       phoneNumber
+      status
+      tags
       title
       updatedAt
       updatedBy

@@ -4,10 +4,8 @@ import { useNotification } from '@/hooks/useNotification'
 import { Trash2 } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
-import { canDelete } from '@/lib/authz/utils.ts'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { type ObjectTypes } from '@repo/codegen/src/type-names'
 import { toHumanLabel } from '@/utils/strings'
 
@@ -21,7 +19,6 @@ export const GenericDeleteDialog: React.FC<GenericDeleteDialogProps> = ({ entity
   const searchParams = useSearchParams()
   const router = useRouter()
   const { successNotification, errorNotification } = useNotification()
-  const { data: permission } = useAccountRoles(entityType, entityId)
   const [isOpen, setIsOpen] = useState(false)
 
   const entityLabel = toHumanLabel(entityType)
@@ -44,10 +41,6 @@ export const GenericDeleteDialog: React.FC<GenericDeleteDialogProps> = ({ entity
     } finally {
       setIsOpen(false)
     }
-  }
-
-  if (!canDelete(permission?.roles)) {
-    return null
   }
 
   return (

@@ -221,6 +221,9 @@ export const GET_PROGRAM_SETTINGS = gql`
             displayName
             gravatarLogoURL
             logoURL
+            avatarFile {
+              base64
+            }
           }
         }
       }
@@ -231,6 +234,9 @@ export const GET_PROGRAM_SETTINGS = gql`
             displayName
             gravatarLogoURL
             logoURL
+            avatarFile {
+              base64
+            }
           }
         }
       }
@@ -298,6 +304,9 @@ export const GET_PROGRAM_GROUPS = gql`
             id
             gravatarLogoURL
             logoURL
+            avatarFile {
+              base64
+            }
             members {
               totalCount
             }
@@ -313,6 +322,9 @@ export const GET_PROGRAM_GROUPS = gql`
             id
             gravatarLogoURL
             logoURL
+            avatarFile {
+              base64
+            }
             members {
               totalCount
             }

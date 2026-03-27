@@ -39,17 +39,27 @@ export const GET_ALL_FINDINGS = gql`
           scopeID
           scopeName
           score
+          securityLevel
           severity
           source
           sourceUpdatedAt
           state
           status
+          findingStatusName
           systemOwned
           targetDetails
           updatedAt
           updatedBy
           validated
           vector
+          remediations(first: 1) {
+            totalCount
+            edges {
+              node {
+                id
+              }
+            }
+          }
         }
       }
       pageInfo {
@@ -98,17 +108,27 @@ export const FINDING = gql`
       scopeID
       scopeName
       score
+      securityLevel
       severity
       source
       sourceUpdatedAt
       state
       status
+      findingStatusName
       systemOwned
       targetDetails
       updatedAt
       updatedBy
       validated
       vector
+      remediations(first: 1) {
+        totalCount
+        edges {
+          node {
+            id
+          }
+        }
+      }
     }
   }
 `

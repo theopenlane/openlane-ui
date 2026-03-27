@@ -29,9 +29,10 @@ import type { AssociationRow } from '@/components/pages/protected/controls/tabs/
 type PoliciesTableProps = {
   controlId?: string
   subcontrolIds: string[]
+  canEdit: boolean
 }
 
-const PoliciesTable: React.FC<PoliciesTableProps> = ({ controlId, subcontrolIds }) => {
+const PoliciesTable: React.FC<PoliciesTableProps> = ({ controlId, subcontrolIds, canEdit }) => {
   const [selectedPolicyId, setSelectedPolicyId] = useState<string | null>(null)
   const associationFilter = useMemo(() => buildAssociationFilter(controlId, subcontrolIds), [controlId, subcontrolIds])
 
@@ -210,15 +211,17 @@ const PoliciesTable: React.FC<PoliciesTableProps> = ({ controlId, subcontrolIds 
             filterFields={filteredFields}
             onFilterChange={setFilters}
             actionButtons={
-              <SetObjectAssociationDialog
-                defaultSelectedObject={ObjectTypeObjects.INTERNAL_POLICY}
-                allowedObjectTypes={[ObjectTypeObjects.INTERNAL_POLICY]}
-                trigger={
-                  <Button type="button" icon={<Plus size={16} />} iconPosition="left" variant="secondary" size="md" className="size-fit py-1.5 px-2">
-                    Add Policy
-                  </Button>
-                }
-              />
+              canEdit ? (
+                <SetObjectAssociationDialog
+                  defaultSelectedObject={ObjectTypeObjects.INTERNAL_POLICY}
+                  allowedObjectTypes={[ObjectTypeObjects.INTERNAL_POLICY]}
+                  trigger={
+                    <Button type="button" icon={<Plus size={16} />} iconPosition="left" variant="secondary" size="md" className="size-fit py-1.5 px-2">
+                      Add Policy
+                    </Button>
+                  }
+                />
+              ) : undefined
             }
           />
         }

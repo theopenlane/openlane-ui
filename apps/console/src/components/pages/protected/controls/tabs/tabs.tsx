@@ -18,15 +18,24 @@ import ControlTabsList from '@/components/pages/protected/controls/tabs/control-
 import { useGetControlAssociationsById, type ControlByIdNode } from '@/lib/graphql-hooks/control'
 import { useGetSubcontrolAssociationsById, type SubcontrolByIdNode } from '@/lib/graphql-hooks/subcontrol'
 import { buildControlEvidenceData, buildSubcontrolEvidenceData } from '@/components/pages/protected/controls/evidence-data'
+import { type UpdateSubcontrolInput, type UpdateControlInput } from '@repo/codegen/src/schema.ts'
 
 type ControlTabsProps = {
   kind: 'control'
   control: ControlByIdNode
+  isEditing: boolean
+  data?: ControlByIdNode
+  handleUpdate?: (val: UpdateControlInput) => void
+  canEdit: boolean
 }
 
 type SubcontrolTabsProps = {
   kind: 'subcontrol'
   subcontrol: SubcontrolByIdNode
+  isEditing: boolean
+  data?: SubcontrolByIdNode
+  handleUpdate?: (val: UpdateSubcontrolInput) => void
+  canEdit: boolean
 }
 
 type TabsProps = ControlTabsProps | SubcontrolTabsProps
@@ -139,7 +148,7 @@ const ControlDetailsTabs: React.FC<TabsProps> = (props) => {
       </div>
 
       <TabsContent value="implementation" className="space-y-6">
-        <ImplementationTab />
+        <ImplementationTab isEditing={props.isEditing} data={props.data} canEdit={props.canEdit} />
       </TabsContent>
 
       <TabsContent value="evidence" className="space-y-6">
@@ -173,7 +182,7 @@ const ControlDetailsTabs: React.FC<TabsProps> = (props) => {
       )}
 
       <TabsContent value="documentation" className="space-y-6">
-        <DocumentationTab controlId={isSubcontrol ? (subcontrol?.control?.id ?? '') : (control?.id ?? '')} subcontrolIds={subcontrolIds} />
+        <DocumentationTab controlId={isSubcontrol ? (subcontrol?.control?.id ?? '') : (control?.id ?? '')} subcontrolIds={subcontrolIds} canEdit={props.canEdit} />
       </TabsContent>
 
       <TabsContent value="assets-scans" className="space-y-6">

@@ -29,6 +29,7 @@ import { ASSOCIATION_REMOVAL_CONFIG } from '@/components/shared/object-associati
 import Loading from './loading.tsx'
 import { useAccountRoles, useOrganizationRoles } from '@/lib/query-hooks/permissions.ts'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
+import { isPlateValueEmpty } from '@/components/shared/plate/plate-utils.ts'
 import { Badge } from '@repo/ui/badge'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -57,10 +58,12 @@ interface FormValues {
   status: ControlControlStatus
   mappedCategories: string[]
   source?: ControlControlSource
+  sourceName?: string
   referenceID?: string
   auditorReferenceID?: string
   title: string
   controlKindName?: string
+  publicRepresentation?: Value | string
 }
 
 const initialDataObj = {
@@ -74,6 +77,8 @@ const initialDataObj = {
   status: ControlControlStatus.NOT_IMPLEMENTED,
   mappedCategories: [],
   title: '',
+  sourceName: '',
+  publicRepresentation: '',
 }
 
 const ControlDetailsPage: React.FC = () => {
@@ -97,7 +102,7 @@ const ControlDetailsPage: React.FC = () => {
   const isSourceFramework = data?.control.source === ControlControlSource.FRAMEWORK
   const { mutateAsync: updateControl } = useUpdateControl()
   const { mutateAsync: deleteControl } = useDeleteControl()
-  const plateEditorHelper = usePlateEditor()
+  const { convertToHtml } = usePlateEditor()
   const { data: discussionData } = useGetControlDiscussionById(id)
   const { currentOrgId, getOrganizationByID } = useOrganization()
   const currentOrganization = getOrganizationByID(currentOrgId ?? '')
@@ -143,6 +148,7 @@ const ControlDetailsPage: React.FC = () => {
   const onSubmit = async (values: FormValues) => {
     try {
       const changedFields = Object.entries(values).reduce<Record<string, unknown>>((acc, [key, value]) => {
+        if (key === 'publicRepresentation') return acc
         const initialValue = initialValues[key as keyof FormValues]
         if (JSON.stringify(value) !== JSON.stringify(initialValue)) {
           acc[key] = value
@@ -152,7 +158,21 @@ const ControlDetailsPage: React.FC = () => {
 
       if (changedFields.descriptionJSON) {
         changedFields.descriptionJSON = values?.descriptionJSON
-        changedFields.description = await plateEditorHelper.convertToHtml(values.descriptionJSON as Value)
+        changedFields.description = await convertToHtml(values.descriptionJSON as Value)
+      }
+
+      const currentPR = values.publicRepresentation
+      if (Array.isArray(currentPR)) {
+        if (isPlateValueEmpty(currentPR)) {
+          if (initialValues.publicRepresentation) {
+            changedFields.publicRepresentation = undefined
+          }
+        } else {
+          const newHtml = await convertToHtml(currentPR as Value)
+          if (newHtml !== initialValues.publicRepresentation) {
+            changedFields.publicRepresentation = newHtml
+          }
+        }
       }
 
       if (isSourceFramework) {
@@ -271,6 +291,7 @@ const ControlDetailsPage: React.FC = () => {
         auditorReferenceID: data.control.auditorReferenceID || undefined,
         title: data.control.title || '',
         controlKindName: data.control?.controlKindName || undefined,
+        publicRepresentation: data.control.publicRepresentation || '',
       }
       form.reset(newValues)
       setInitialValues(newValues)
@@ -352,9 +373,9 @@ const ControlDetailsPage: React.FC = () => {
         </div>
       </div>
 
-      <QuickActions kind="control" controlId={id} control={control} />
+      <QuickActions kind="control" controlId={id} control={control} canEdit={canEdit(permission?.roles)} />
 
-      <ControlTabs kind="control" control={control} />
+      <ControlTabs kind="control" control={control} isEditing={isEditing} data={control} handleUpdate={handleUpdateField} canEdit={canEdit(permission?.roles)} />
     </div>
   )
 

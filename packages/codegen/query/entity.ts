@@ -29,6 +29,9 @@ export const GET_ALL_ENTITIES = gql`
           environmentName
           hasSoc2
           id
+          logoFile {
+            presignedURL
+          }
           internalOwner
           internalOwnerGroup {
             id
@@ -41,6 +44,9 @@ export const GET_ALL_ENTITIES = gql`
           lastReviewedAt
           mfaEnforced
           mfaSupported
+          logoFile {
+            presignedURL
+          }
           name
           nextReviewAt
           renewalRisk
@@ -118,6 +124,9 @@ export const ENTITY = gql`
         displayName
       }
       lastReviewedAt
+      logoFile {
+        presignedURL
+      }
       mfaEnforced
       mfaSupported
       name
@@ -208,9 +217,9 @@ export const BULK_EDIT_ENTITY = gql`
 `
 
 export const GET_ENTITY_FILES_PAGINATED = gql`
-  query GetEntityFilesPaginated($entityId: ID!, $after: Cursor, $first: Int, $before: Cursor, $last: Int, $orderBy: [FileOrder!]) {
+  query GetEntityFilesPaginated($entityId: ID!, $after: Cursor, $first: Int, $before: Cursor, $last: Int, $orderBy: [FileOrder!], $where: FileWhereInput) {
     entity(id: $entityId) {
-      files(after: $after, first: $first, before: $before, last: $last, orderBy: $orderBy) {
+      files(after: $after, first: $first, before: $before, last: $last, orderBy: $orderBy, where: $where) {
         pageInfo {
           endCursor
           hasNextPage
@@ -226,6 +235,8 @@ export const GET_ENTITY_FILES_PAGINATED = gql`
             id
             uri
             presignedURL
+            categoryType
+            createdAt
           }
         }
       }
@@ -234,8 +245,8 @@ export const GET_ENTITY_FILES_PAGINATED = gql`
 `
 
 export const UPDATE_ENTITY_WITH_FILES = gql`
-  mutation UpdateEntityWithFiles($updateEntityId: ID!, $input: UpdateEntityInput!, $entityFiles: [Upload!]) {
-    updateEntity(id: $updateEntityId, input: $input, entityFiles: $entityFiles) {
+  mutation UpdateEntityWithFiles($updateEntityId: ID!, $input: UpdateEntityInput!, $entityFiles: [Upload!], $logoFile: Upload) {
+    updateEntity(id: $updateEntityId, input: $input, entityFiles: $entityFiles, logoFile: $logoFile) {
       entity {
         id
       }
@@ -244,8 +255,8 @@ export const UPDATE_ENTITY_WITH_FILES = gql`
 `
 
 export const CREATE_ENTITY_WITH_FILES = gql`
-  mutation CreateEntityWithFiles($input: CreateEntityInput!, $entityTypeName: String, $entityFiles: [Upload!]) {
-    createEntity(input: $input, entityTypeName: $entityTypeName, entityFiles: $entityFiles) {
+  mutation CreateEntityWithFiles($input: CreateEntityInput!, $entityTypeName: String, $entityFiles: [Upload!], $logoFile: Upload) {
+    createEntity(input: $input, entityTypeName: $entityTypeName, entityFiles: $entityFiles, logoFile: $logoFile) {
       entity {
         id
       }
@@ -262,6 +273,9 @@ export const GET_ENTITY_ASSOCIATIONS = gql`
             id
             name
             displayName
+            environmentName
+            scopeName
+            assetType
           }
         }
         totalCount
@@ -291,6 +305,31 @@ export const GET_ENTITY_ASSOCIATIONS = gql`
             id
             fullName
             displayID
+          }
+        }
+        totalCount
+      }
+      integrations {
+        edges {
+          node {
+            id
+            name
+            kind
+            description
+            environmentName
+            integrationType
+            updatedAt
+          }
+        }
+        totalCount
+      }
+      controls {
+        edges {
+          node {
+            id
+            refCode
+            title
+            description
           }
         }
         totalCount

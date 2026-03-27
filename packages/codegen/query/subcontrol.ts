@@ -47,7 +47,9 @@ export const GET_SUBCONTROL_BY_ID = gql`
       references
       displayID
       source
+      sourceName
       subcontrolKindName
+      publicRepresentation
       auditorReferenceID
       referenceID
       referenceFramework
@@ -101,6 +103,9 @@ export const GET_SUBCONTROL_BY_ID = gql`
         displayName
         logoURL
         gravatarLogoURL
+        avatarFile {
+          base64
+        }
       }
 
       controlOwner {
@@ -108,6 +113,9 @@ export const GET_SUBCONTROL_BY_ID = gql`
         displayName
         logoURL
         gravatarLogoURL
+        avatarFile {
+          base64
+        }
       }
     }
   }
@@ -126,6 +134,9 @@ export const GET_SUBCONTROL_ASSOCIATIONS_BY_ID = gql`
               gravatarLogoURL
               logoURL
               displayName
+              avatarFile {
+                base64
+              }
             }
           }
         }
@@ -141,6 +152,9 @@ export const GET_SUBCONTROL_ASSOCIATIONS_BY_ID = gql`
               gravatarLogoURL
               logoURL
               displayName
+              avatarFile {
+                base64
+              }
             }
           }
         }
@@ -234,6 +248,8 @@ export const GET_SUBCONTROLS_PAGINATED = gql`
           status
           subcontrolKindName
           source
+          sourceName
+          publicRepresentation
           category
           subcategory
           referenceFramework
@@ -277,6 +293,8 @@ export const GET_SUBCONTROLS_BY_REFCODE = gql`
           status
           subcontrolKindName
           source
+          sourceName
+          publicRepresentation
           category
           subcategory
           systemOwned

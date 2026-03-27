@@ -3,7 +3,7 @@
 import React from 'react'
 import { bulkEditFieldSchema } from '../hooks/use-form-schema'
 import { useCreateBulkCSVFinding, useBulkEditFinding, useBulkDeleteFinding } from '@/lib/graphql-hooks/finding'
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
 import { breadcrumbs, getFilterFields, visibilityFields } from './table-config'
 import { type FindingTablePageConfig, objectType, objectName, tableKey, exportType, orderFieldEnum, defaultSorting } from './types'
@@ -11,13 +11,23 @@ import { getColumns } from './columns'
 import TableComponent from './table'
 import { type UpdateFindingInput } from '@repo/codegen/src/schema'
 import { useFindingSheetConfig } from '../hooks/use-finding-sheet-config'
+import TaskDetailsSheet from '../../tasks/create-task/sidebar/task-details-sheet'
+import ViewFindingSheet from '../view-finding-sheet'
 
 const FindingPage: React.FC = () => {
+  const router = useRouter()
   const searchParams = useSearchParams()
   const id = searchParams.get('id')
   const isCreate = searchParams.get('create') === 'true'
 
-  const { enumOpts, form, ...sheetConfig } = useFindingSheetConfig(id, isCreate)
+  const { enumOpts, form, ...sheetConfig } = useFindingSheetConfig(null, isCreate)
+
+  const handleCloseViewSheet = () => {
+    const newSearchParams = new URLSearchParams(searchParams.toString())
+    newSearchParams.delete('id')
+    newSearchParams.delete('trackRemediation')
+    router.replace(`${window.location.pathname}?${newSearchParams.toString()}`)
+  }
 
   const baseBulkCreateMutation = useCreateBulkCSVFinding()
   const baseBulkDeleteMutation = useBulkDeleteFinding()
@@ -56,7 +66,13 @@ const FindingPage: React.FC = () => {
     enumOpts,
   }
 
-  return <GenericTablePage {...tableConfig} />
+  return (
+    <>
+      <GenericTablePage {...tableConfig} />
+      <ViewFindingSheet entityId={isCreate ? null : id} onClose={handleCloseViewSheet} />
+      <TaskDetailsSheet queryParamKey="taskId" />
+    </>
+  )
 }
 
 export default FindingPage

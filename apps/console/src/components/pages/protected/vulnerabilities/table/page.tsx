@@ -13,7 +13,7 @@ import {
   useBulkDeleteVulnerability,
   useGetVulnerabilityAssociations,
 } from '@/lib/graphql-hooks/vulnerability'
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
 import { breadcrumbs, getFieldsToRender, getFilterFields, visibilityFields } from './table-config'
 import { type VulnerabilitySheetConfig, type VulnerabilityTablePageConfig, type VulnerabilityFieldProps, objectType, objectName, tableKey, exportType, orderFieldEnum, defaultSorting } from './types'
@@ -26,14 +26,18 @@ import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import { buildAssociationPayload } from '@/components/shared/object-association/utils'
 import { useInitialAssociations } from '@/hooks/useInitialAssociations'
 import { VULNERABILITY_ASSOCIATION_CONFIG } from '@/components/shared/object-association/association-configs'
+import TaskDetailsSheet from '../../tasks/create-task/sidebar/task-details-sheet'
+import ViewVulnerabilitySheet from '../view-vulnerability-sheet'
 import type { Value } from 'platejs'
 
 const VulnerabilityPage: React.FC = () => {
   const { form } = useFormSchema()
 
+  const router = useRouter()
   const searchParams = useSearchParams()
   const id = searchParams.get('id')
   const isCreate = searchParams.get('create') === 'true'
+
   const { data, isLoading } = useVulnerability(id || undefined)
   const { data: associationsData } = useGetVulnerabilityAssociations(id || undefined)
 
@@ -76,6 +80,14 @@ const VulnerabilityPage: React.FC = () => {
     },
   }
 
+  const deleteMutation = {
+    isPending: baseBulkDeleteMutation.isPending,
+    mutateAsync: async (params: { ids: string[] }) => {
+      const result = await baseBulkDeleteMutation.mutateAsync({ ids: params.ids })
+      return result.deleteBulkVulnerability.deletedIDs
+    },
+  }
+
   const bulkCreateMutation = {
     isPending: baseBulkCreateMutation.isPending,
     mutateAsync: async (params: { input: File }) => {
@@ -92,26 +104,42 @@ const VulnerabilityPage: React.FC = () => {
     field: 'scope',
   })
 
+  const { enumOptions: vulnerabilityStatusOptions, onCreateOption: createVulnStatus } = useCreatableEnumOptions({
+    objectType: 'vulnerability',
+    field: 'status',
+  })
+
   const tagOptions = useGetTags()
 
   const enumOpts = {
     environmentOptions,
     scopeOptions,
     tagOptions: tagOptions.tagOptions,
+    vulnerabilityStatusOptions,
   }
 
   const enumCreateHandlers = {
     environmentName: createEnvironment,
     scopeName: createScope,
+    vulnerabilityStatusName: createVulnStatus,
   }
 
+  const handleCloseViewSheet = () => {
+    const newSearchParams = new URLSearchParams(searchParams.toString())
+    newSearchParams.delete('id')
+    router.replace(`${window.location.pathname}?${newSearchParams.toString()}`)
+  }
+
+  // sheetConfig handles CREATE mode only — view/edit is handled by ViewVulnerabilitySheet below
   const sheetConfig: VulnerabilitySheetConfig = {
     objectType: objectType,
     form,
-    data: id ? data?.vulnerability : undefined,
+    entityId: null,
+    data: isCreate ? data?.vulnerability : undefined,
     isFetching: isLoading,
     updateMutation,
     createMutation,
+    deleteMutation,
     buildPayload: async (data) => {
       const { controlIDs, subcontrolIDs, findingIDs, remediationIDs, reviewIDs, assetIDs, taskIDs, ...rest } = data
       const associationPayload = buildAssociationPayload(
@@ -122,9 +150,9 @@ const VulnerabilityPage: React.FC = () => {
       )
 
       const description = rest.description ? await plateEditorHelper.convertToHtml(rest.description as Value) : undefined
+      const cleaned = Object.fromEntries(Object.entries({ ...rest, description }).filter(([, v]) => v !== '' && v !== undefined))
       return {
-        ...rest,
-        description,
+        ...cleaned,
         ...associationPayload,
       }
     },
@@ -160,7 +188,13 @@ const VulnerabilityPage: React.FC = () => {
     enumOpts,
   }
 
-  return <GenericTablePage {...tableConfig} />
+  return (
+    <>
+      <GenericTablePage {...tableConfig} />
+      <ViewVulnerabilitySheet entityId={isCreate ? null : id} onClose={handleCloseViewSheet} />
+      <TaskDetailsSheet queryParamKey="taskId" />
+    </>
+  )
 }
 
 export default VulnerabilityPage

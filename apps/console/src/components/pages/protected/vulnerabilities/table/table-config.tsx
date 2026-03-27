@@ -27,7 +27,7 @@ export const getFilterFields = (enumOptions: EnumOptions): FilterField[] => [
     icon: FilterIcons.Criticality,
   },
   {
-    key: 'statusContainsFold',
+    key: 'vulnerabilityStatusNameContainsFold',
     label: 'Status',
     type: 'text',
     icon: FilterIcons.Status,
@@ -121,9 +121,11 @@ export const visibilityFields = {
   displayName: true,
   externalID: false,
   severity: true,
-  status: true,
+  securityLevel: true,
+  vulnerabilityStatusName: true,
+  status: false,
   priority: true,
-  score: true,
+  score: false,
   exploitability: false,
   impact: false,
   cveID: true,
@@ -152,18 +154,20 @@ export const visibilityFields = {
   tags: false,
 }
 
-export const getFieldsToRender = (props: VulnerabilityFieldProps, enumOptions: EnumOptions, enumCreateHandlers?: EnumCreateHandlers) => {
+export const getFieldsToRender = (props: VulnerabilityFieldProps, enumOptions: EnumOptions, enumCreateHandlers?: EnumCreateHandlers, riskScoresAction?: React.ReactNode) => {
+  const vulnData = props.data as VulnerabilityQuery['vulnerability']
   return (
     <div className="mr-6">
       <div className="flex flex-row items-center mb-6">
-        <div className="min-w-[300px]">
+        <div className="min-w-75">
           <NameField
             isEditing={props.isEditing}
             isEditAllowed={props.isEditAllowed}
-            initialValue={props.isCreate ? '' : ((props.data as VulnerabilityQuery['vulnerability'])?.displayName ?? '')}
+            initialValue={props.isCreate ? '' : (vulnData?.displayName ?? '')}
             internalEditing={props.internalEditing}
             setInternalEditing={props.setInternalEditing}
             handleUpdateField={props.handleUpdateField}
+            // badge={!props.isCreate && !props.isEditing ? <PastDueBadge severity={vulnData?.securityLevel} createdAt={vulnData?.createdAt} /> : undefined}
           />
         </div>
         <div className="ml-20 mt-6">
@@ -193,6 +197,7 @@ export const getFieldsToRender = (props: VulnerabilityFieldProps, enumOptions: E
         handleUpdateField={props.handleUpdateField}
         enumOptions={enumOptions}
         enumCreateHandlers={enumCreateHandlers}
+        riskScoresAction={riskScoresAction}
       />
       <VulnerabilityAssociationSection data={props.data} isEditing={props.isEditing} isCreate={props.isCreate} isEditAllowed={props.isEditAllowed} />
     </div>

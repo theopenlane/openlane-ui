@@ -19,6 +19,7 @@ interface AdditionalFieldsProps {
   handleUpdateField?: (input: UpdateFindingInput) => Promise<void>
   enumOptions: EnumOptions
   enumCreateHandlers?: EnumCreateHandlers
+  riskScoresAction?: React.ReactNode
 }
 
 export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
@@ -31,6 +32,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
   handleUpdateField,
   enumOptions,
   enumCreateHandlers,
+  riskScoresAction,
 }) => {
   const sharedFieldProps = {
     isEditing,
@@ -60,15 +62,20 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             <TextField name="priority" label="Priority" {...sharedFieldProps} />
-            <TextField name="status" label="Status" {...sharedFieldProps} />
+            <SelectField name="findingStatusName" label="Status" options={enumOptions.findingStatusOptions} onCreateOption={enumCreateHandlers?.findingStatusName} {...sharedFieldProps} />
           </div>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-md p-0">Risk Scores</CardTitle>
-          <CardDescription className="p-0">Severity, scoring, and remediation timeline</CardDescription>
+          <div className="flex items-start justify-between">
+            <div>
+              <CardTitle className="text-md p-0">Risk Scores</CardTitle>
+              <CardDescription className="p-0">Severity, scoring, and remediation timeline</CardDescription>
+            </div>
+            {riskScoresAction}
+          </div>
         </CardHeader>
         <CardContent>
           <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-2">

@@ -184,7 +184,7 @@ const SubprocessorsPage = () => {
                 }
               }}
             />
-            <SaveButton onClick={handleSaveSubprocessorURL} disabled={isSavingURL || subprocessorURL.trim() === savedSubprocessorURL} isSaving={isSavingURL} className="h-9!" />
+            <SaveButton onClick={handleSaveSubprocessorURL} disabled={isSavingURL || subprocessorURL.trim() === savedSubprocessorURL} isSaving={isSavingURL} className="h-9! w-56 px-5!" />
           </div>
           {tableData.length > 0 ? (
             <p className="text-sm text-muted-foreground">This Trust Center uses the subprocessors listed below. The fallback URL will only be used if this list is empty.</p>

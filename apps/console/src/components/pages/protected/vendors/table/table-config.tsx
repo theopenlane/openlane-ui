@@ -189,7 +189,6 @@ export const getFieldsToRender = (
         isEditing={props.isEditing}
         isCreate={props.isCreate}
         initialValue={props.isCreate ? '' : (props.data?.description ?? '')}
-        isFormInitialized={props.isFormInitialized}
       />
       <AdditionalFields
         isEditing={props.isEditing}

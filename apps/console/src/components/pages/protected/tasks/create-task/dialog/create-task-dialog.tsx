@@ -17,10 +17,30 @@ interface Props {
   hideObjectAssociation?: boolean
   trigger?: React.ReactElement
   className?: string
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
+  onSuccessWithId?: (id: string) => void
 }
 
-const CreateTaskDialog = ({ defaultSelectedObject, initialData, objectAssociationsDisplayIDs, initialValues, hideObjectAssociation, trigger, className }: Props) => {
-  const [isOpen, setIsOpen] = useState<boolean>(false)
+const CreateTaskDialog = ({
+  defaultSelectedObject,
+  initialData,
+  objectAssociationsDisplayIDs,
+  initialValues,
+  hideObjectAssociation,
+  trigger,
+  className,
+  open: controlledOpen,
+  onOpenChange,
+  onSuccessWithId,
+}: Props) => {
+  const [internalOpen, setInternalOpen] = useState<boolean>(false)
+
+  const isOpen = controlledOpen !== undefined ? controlledOpen : internalOpen
+  const setIsOpen = (val: boolean) => {
+    setInternalOpen(val)
+    onOpenChange?.(val)
+  }
 
   const handleSuccess = () => {
     setIsOpen(false)
@@ -28,17 +48,18 @@ const CreateTaskDialog = ({ defaultSelectedObject, initialData, objectAssociatio
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      {trigger ? (
-        <DialogTrigger className={className ?? ''} asChild>
-          {trigger}
-        </DialogTrigger>
-      ) : (
-        <DialogTrigger asChild>
-          <Button className={className ?? 'h-8 px-2!'} icon={<PlusCircle />} iconPosition="left" onClick={() => setIsOpen(true)}>
-            Create
-          </Button>
-        </DialogTrigger>
-      )}
+      {controlledOpen === undefined &&
+        (trigger ? (
+          <DialogTrigger className={className ?? ''} asChild>
+            {trigger}
+          </DialogTrigger>
+        ) : (
+          <DialogTrigger asChild>
+            <Button className={className ?? 'h-8 px-2!'} icon={<PlusCircle />} iconPosition="left" onClick={() => setIsOpen(true)}>
+              Create
+            </Button>
+          </DialogTrigger>
+        ))}
       <DialogContent className={hideObjectAssociation ? 'max-w-4xl' : ''}>
         <DialogHeader>
           <DialogTitle>Create a new Task</DialogTitle>
@@ -59,6 +80,8 @@ const CreateTaskDialog = ({ defaultSelectedObject, initialData, objectAssociatio
             ObjectTypeObjects.ASSET,
             ObjectTypeObjects.ENTITY,
             ObjectTypeObjects.IDENTITY_HOLDER,
+            ObjectTypeObjects.FINDING,
+            ObjectTypeObjects.VULNERABILITY,
           ]}
           initialData={initialData}
           objectAssociationsDisplayIDs={objectAssociationsDisplayIDs}
@@ -66,6 +89,7 @@ const CreateTaskDialog = ({ defaultSelectedObject, initialData, objectAssociatio
           hideObjectAssociation={hideObjectAssociation}
           isOpen={isOpen}
           onSuccess={handleSuccess}
+          onSuccessWithId={onSuccessWithId}
         />
       </DialogContent>
     </Dialog>
