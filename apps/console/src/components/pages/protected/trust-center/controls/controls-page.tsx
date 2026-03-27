@@ -18,23 +18,20 @@ import { canEdit } from '@/lib/authz/utils'
 import { type ControlWhereInput, type ControlListStandardFieldsFragment, ControlTrustCenterControlVisibility, ControlControlImplementationStatus } from '@repo/codegen/src/schema'
 import { useNavigationGuard } from 'next-navigation-guard'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
-import { useOrganization } from '@/hooks/useOrganization'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
-import { useAllControlsGroupedWithListFields, useBulkEditControl, useGetExistingOrgControls } from '@/lib/graphql-hooks/control'
+import { useAllControlsGroupedWithListFields, useBulkEditControl } from '@/lib/graphql-hooks/control'
 import { useDebounce } from '@uidotdev/usehooks'
 import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import { useGetStandards, useCloneControls } from '@/lib/graphql-hooks/standard'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { ControlCategoryIcon } from '@/components/shared/control-category-icon-mapper/control-category-icon-mapper'
 
-type FilterTab = 'all' | 'added' | 'not-added' | 'recommended'
+type FilterTab = 'all' | 'added' | 'not-added'
 type DraftAction = 'add' | 'remove'
 
 export default function ControlsPage() {
   const { successNotification, errorNotification } = useNotification()
   const { setCrumbs } = use(BreadcrumbContext)
-  const { currentOrgId } = useOrganization()
-
   const [activeTab, setActiveTab] = useState<FilterTab>('all')
   const [searchQuery, setSearchQuery] = useState('')
   const debouncedSearch = useDebounce(searchQuery, 300)
@@ -73,28 +70,6 @@ export default function ControlsPage() {
 
   const isLoading = isLoadingAll && !hasLoadedOnce
 
-  const tcRefCodes = useMemo(() => Array.from(new Set(allControls.filter((c) => c.referenceFramework).map((c) => c.refCode))), [allControls])
-
-  const tcFrameworks = useMemo(() => Array.from(new Set(allControls.map((c) => c.referenceFramework).filter((v): v is string => v != null))), [allControls])
-
-  const { data: orgControls } = useGetExistingOrgControls({
-    refCodeIn: tcRefCodes,
-    referenceFrameworkIn: tcFrameworks,
-    enabled: !!currentOrgId && tcRefCodes.length > 0,
-  })
-
-  const recommendedControlIds = useMemo(() => {
-    if (!currentOrgId || !orgControls) return new Set<string>()
-
-    const orgControlSet = new Set<string>()
-    orgControls.controls?.edges?.forEach((edge) => {
-      const node = edge?.node
-      if (node) orgControlSet.add(`${node.refCode}::${node.referenceFramework ?? 'CUSTOM'}`)
-    })
-
-    return new Set(allControls.filter((c) => c.referenceFramework && orgControlSet.has(`${c.refCode}::${c.referenceFramework}`)).map((c) => c.id))
-  }, [allControls, currentOrgId, orgControls])
-
   const getEffectiveState = useCallback(
     (control: ControlListStandardFieldsFragment): 'added' | 'not-added' => {
       const draftAction = drafts.get(control.id)
@@ -108,9 +83,8 @@ export default function ControlsPage() {
   const tabCounts = useMemo(() => {
     const added = allControls.filter((c) => getEffectiveState(c) === 'added').length
     const notAdded = allControls.length - added
-    const recommended = allControls.filter((c) => recommendedControlIds.has(c.id)).length
-    return { all: allControls.length, added, 'not-added': notAdded, recommended }
-  }, [allControls, recommendedControlIds, getEffectiveState])
+    return { all: allControls.length, added, 'not-added': notAdded }
+  }, [allControls, getEffectiveState])
 
   const filteredGroupedControls = useMemo(() => {
     const search = debouncedSearch.toLowerCase()
@@ -130,8 +104,6 @@ export default function ControlsPage() {
           return getEffectiveState(control) === 'added'
         case 'not-added':
           return getEffectiveState(control) === 'not-added'
-        case 'recommended':
-          return recommendedControlIds.has(control.id)
         default:
           return true
       }
@@ -143,7 +115,7 @@ export default function ControlsPage() {
       if (matching.length > 0) filtered[category] = matching
     }
     return filtered
-  }, [activeTab, debouncedSearch, groupedControls, recommendedControlIds, getEffectiveState])
+  }, [activeTab, debouncedSearch, groupedControls, getEffectiveState])
 
   const isDirty = useMemo(() => drafts.size > 0, [drafts])
   const publishDisabled = !isDirty || isBulkEditing
@@ -366,9 +338,6 @@ export default function ControlsPage() {
             <TabsTrigger value="not-added" className="whitespace-nowrap">
               Not Added ({tabCounts['not-added']})
             </TabsTrigger>
-            <TabsTrigger value="recommended" className="whitespace-nowrap">
-              Recommended ({tabCounts.recommended})
-            </TabsTrigger>
           </TabsList>
         </Tabs>
       </div>
@@ -408,7 +377,6 @@ export default function ControlsPage() {
                     const effectiveState = getEffectiveState(control)
                     const isAdded = effectiveState === 'added'
                     const hasDraft = drafts.has(control.id)
-                    const isRecommended = recommendedControlIds.has(control.id)
 
                     return (
                       <div key={control.id} className={`flex items-start justify-between p-4 rounded-lg border bg-card ${hasDraft ? 'border-brand bg-brand/5' : 'border-border'}`}>
@@ -417,7 +385,6 @@ export default function ControlsPage() {
                           <div className="flex flex-col gap-1 min-w-0">
                             <div className="flex items-center gap-2">
                               <span className="font-medium">{control.title || control.refCode}</span>
-                              {isRecommended && <Badge variant="green">Recommended</Badge>}
                               {hasDraft && <Badge variant="blue">{drafts.get(control.id) === 'add' ? 'Pending Add' : 'Pending Remove'}</Badge>}
                             </div>
                             <p className="text-sm text-muted-foreground line-clamp-2">{control.description || 'No description provided'}</p>
