@@ -139,7 +139,10 @@ export const ViewPolicySheet: React.FC<Props> = ({ policyId, onClose }) => {
               icon={<ExternalLink />}
               iconPosition="left"
               onClick={() => {
-                if (policyId) router.push(`/policies/${policyId}/view`)
+                if (policyId) {
+                  close()
+                  router.push(`/policies/${policyId}/view`)
+                }
               }}
             >
               Open Full

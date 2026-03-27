@@ -139,7 +139,10 @@ export const ViewProcedureSheet: React.FC<Props> = ({ procedureId, onClose }) =>
               icon={<ExternalLink />}
               iconPosition="left"
               onClick={() => {
-                if (procedureId) router.push(`/procedures/${procedureId}/view`)
+                if (procedureId) {
+                  close()
+                  router.push(`/procedures/${procedureId}/view`)
+                }
               }}
             >
               Open Full

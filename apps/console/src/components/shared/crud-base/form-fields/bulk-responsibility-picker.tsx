@@ -72,10 +72,15 @@ export const BulkResponsibilityPicker: React.FC<BulkResponsibilityPickerProps> =
           )}
         </div>
       </PopoverTrigger>
-      <PopoverContent className="p-0 bg-input! border w-(--radix-popover-trigger-width) min-w-(--radix-popover-trigger-width)" side="bottom" align="start" sideOffset={4}>
+      <PopoverContent
+        className="p-0 bg-input! border w-(--radix-popover-trigger-width) min-w-(--radix-popover-trigger-width) max-h-(--radix-popover-content-available-height)"
+        side="bottom"
+        align="start"
+        sideOffset={4}
+      >
         <Command shouldFilter={false}>
           <CommandInput placeholder="Search users, groups, or type a name..." value={searchText} onValueChange={setSearchText} />
-          <CommandList>
+          <CommandList className="max-h-[min(300px,var(--radix-popover-content-available-height,300px))]">
             <CommandEmpty>No results found.</CommandEmpty>
             {value && (
               <CommandGroup heading="Actions">

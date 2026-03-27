@@ -392,7 +392,7 @@ const QuestionnaireDetailPage = () => {
           try {
             await deleteAssessment({ deleteAssessmentId: id })
             successNotification({ title: 'Questionnaire deleted successfully' })
-            router.push('/questionnaires')
+            router.push('/automation/assessments')
           } catch (error) {
             const errorMessage = parseErrorMessage(error)
             errorNotification({ title: 'Error', description: errorMessage })

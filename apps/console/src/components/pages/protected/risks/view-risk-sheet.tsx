@@ -15,6 +15,7 @@ import { type Value } from 'platejs'
 import { GenericDetailsSheet, type GenericDetailsSheetConfig, type RenderFieldsProps, type RenderHeaderProps } from '@/components/shared/crud-base/generic-sheet'
 import { useRouter } from 'next/navigation'
 import { Button } from '@repo/ui/button'
+import PastDueBadge from '@/components/shared/past-due-badge/past-due-badge'
 
 type Props = {
   entityId: string | null
@@ -89,7 +90,10 @@ const ViewRiskSheet: React.FC<Props> = ({ entityId, onClose }) => {
               icon={<ExternalLink />}
               iconPosition="left"
               onClick={() => {
-                if (entityId) router.push(`/exposure/risks/${entityId}`)
+                if (entityId) {
+                  close()
+                  router.push(`/exposure/risks/${entityId}`)
+                }
               }}
             >
               Open Full
@@ -100,12 +104,15 @@ const ViewRiskSheet: React.FC<Props> = ({ entityId, onClose }) => {
     ),
     [entityId, router],
   )
-
   const renderFields = useCallback(
     ({ isEditing, isCreate, data: risk, handleUpdateField, isEditAllowed }: RenderFieldsProps<RiskFieldsFragment, UpdateRiskInput>) => {
+      const isStatusForPastDue = risk?.status === RiskRiskStatus.OPEN || risk?.status === RiskRiskStatus.IDENTIFIED || risk?.status === RiskRiskStatus.IN_PROGRESS
       return (
         <div className="space-y-6">
-          <TitleField isEditing={isEditing} isEditAllowed={isEditAllowed} form={form} initialValue={risk?.name} handleUpdate={(val) => handleUpdateField(val)} />
+          <div className="flex items-center gap-3">
+            <TitleField isEditing={isEditing} isEditAllowed={isEditAllowed} form={form} initialValue={risk?.name} handleUpdate={(val) => handleUpdateField(val)} />
+            {!isEditing && !isCreate && isStatusForPastDue && <PastDueBadge severity={risk?.impact} createdAt={risk?.createdAt} />}
+          </div>
           <PropertiesCard form={form} risk={risk} isEditing={isEditing} isEditAllowed={isEditAllowed} handleUpdate={(val) => handleUpdateField(val)} isCreate={isCreate} />
           <DetailsField isEditing={isEditing} isEditAllowed={isEditAllowed} form={form} risk={risk} isCreate={isCreate} />
         </div>

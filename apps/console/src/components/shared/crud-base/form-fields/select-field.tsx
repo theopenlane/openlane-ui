@@ -27,6 +27,7 @@ interface SelectFieldProps<TUpdateInput> {
   icon?: React.ReactNode
   layout?: 'vertical' | 'horizontal'
   labelClassName?: string
+  renderValue?: (value: string) => React.ReactNode
 }
 
 export const SelectField = <TUpdateInput,>({
@@ -46,6 +47,7 @@ export const SelectField = <TUpdateInput,>({
   icon,
   layout = 'vertical',
   labelClassName,
+  renderValue,
 }: SelectFieldProps<TUpdateInput>) => {
   const { control } = useFormContext()
   const rawValue = data?.[name]
@@ -123,7 +125,9 @@ export const SelectField = <TUpdateInput,>({
                   }
                 }}
               >
-                {useCustomDisplay ? (
+                {renderValue && rawValue ? (
+                  renderValue(rawValue)
+                ) : useCustomDisplay ? (
                   rawValue ? (
                     <CustomTypeEnumValue value={rawValue} options={options} placeholder={rawValue} />
                   ) : (

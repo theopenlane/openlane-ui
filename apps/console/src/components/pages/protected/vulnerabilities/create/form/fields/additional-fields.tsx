@@ -63,7 +63,13 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             <TextField name="priority" label="Priority" {...sharedFieldProps} />
-            <TextField name="status" label="Status" {...sharedFieldProps} />
+            <SelectField
+              name="vulnerabilityStatusName"
+              label="Status"
+              options={enumOptions.vulnerabilityStatusOptions}
+              onCreateOption={enumCreateHandlers?.vulnerabilityStatusName}
+              {...sharedFieldProps}
+            />
           </div>
         </CardContent>
       </Card>

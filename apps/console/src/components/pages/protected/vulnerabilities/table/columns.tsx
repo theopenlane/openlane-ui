@@ -53,7 +53,7 @@ export const getColumns = ({
       accessorKey: 'vulnerabilityStatusName',
       header: 'Status',
       size: 120,
-      cell: ({ cell }) => <CustomEnumChipCell value={cell.getValue() as string} objectType="vulnerability" field="vulnerabilityStatus" />,
+      cell: ({ cell }) => <CustomEnumChipCell value={cell.getValue() as string} objectType="vulnerability" field="status" />,
     },
     { accessorKey: 'priority', header: 'Priority', size: 100 },
     { accessorKey: 'score', header: 'Score', size: 90 },

@@ -4,8 +4,10 @@ import { TextField } from '@/components/shared/crud-base/form-fields/text-field'
 import { SelectField } from '@/components/shared/crud-base/form-fields/select-field'
 import { CheckboxField } from '@/components/shared/crud-base/form-fields/checkbox-field'
 import { ResponsibilityField } from '@/components/shared/crud-base/form-fields/responsibility-field'
-import { type IdentityHolderQuery, type UpdateIdentityHolderInput } from '@repo/codegen/src/schema'
+import { type IdentityHolderQuery, type UpdateIdentityHolderInput, type IdentityHolderUserStatus } from '@repo/codegen/src/schema'
 import { type InternalEditingType } from '@/components/shared/crud-base/generic-sheet'
+import { PersonnelStatusIconMapper } from '@/components/shared/enum-mapper/personnel-enum'
+import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { type EnumOptions, type EnumCreateHandlers } from '../../../table/types'
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@repo/ui/cardpanel'
 
@@ -90,7 +92,20 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
               tooltipContent="The type of personnel, e.g. Employee or Contractor"
               {...sharedFieldProps}
             />
-            <SelectField name="status" label="Status" options={enumOptions.statusOptions} tooltipContent="The current status of this person" {...sharedFieldProps} />
+            <SelectField
+              name="status"
+              label="Status"
+              options={enumOptions.statusOptions}
+              useCustomDisplay={false}
+              tooltipContent="The current status of this person"
+              renderValue={(value) => (
+                <div className="flex items-center space-x-2 text-sm">
+                  {PersonnelStatusIconMapper[value as IdentityHolderUserStatus]}
+                  <span>{getEnumLabel(value)}</span>
+                </div>
+              )}
+              {...sharedFieldProps}
+            />
             <CheckboxField name="isActive" label="Active" tooltipContent="Whether this person is currently active" {...sharedFieldProps} />
             <CheckboxField name="isOpenlaneUser" label="Openlane User" tooltipContent="Whether this person has an Openlane user account" {...sharedFieldProps} />
           </div>
