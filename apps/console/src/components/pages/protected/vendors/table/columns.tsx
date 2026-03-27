@@ -3,7 +3,8 @@ import { Building2 } from 'lucide-react'
 import { formatDate } from '@/utils/date'
 import { type EntitiesNodeNonNull } from '@/lib/graphql-hooks/entity'
 import { type ColumnOptions } from '@/components/shared/crud-base/page'
-import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { type EntityEntityStatus } from '@repo/codegen/src/schema.ts'
+import { VendorStatusBadge } from '@/components/shared/enum-mapper/vendor-enum'
 import { UserCell } from '@/components/shared/crud-base/columns/user-cell'
 import { BooleanCell } from '@/components/shared/crud-base/columns/boolean-cell'
 import { createSelectColumn } from '@/components/shared/crud-base/columns/select-column'
@@ -60,10 +61,10 @@ export const getColumns = ({ userMap, convertToReadOnly, selectedItems, setSelec
     {
       accessorKey: 'status',
       header: 'Status',
-      size: 120,
+      size: 150,
       cell: ({ cell }) => {
-        const value = cell.getValue() as string
-        return <div>{value ? getEnumLabel(value) : '-'}</div>
+        const value = cell.getValue() as EntityEntityStatus
+        return value ? <VendorStatusBadge status={value} /> : <div>-</div>
       },
     },
     { accessorKey: 'tags', header: 'Tags', size: 180, cell: ({ cell }) => (cell.getValue() as string[])?.join(', ') || '' },

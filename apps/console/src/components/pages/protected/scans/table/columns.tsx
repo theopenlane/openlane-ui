@@ -5,6 +5,8 @@ import { createSelectColumn } from '@/components/shared/crud-base/columns/select
 import { UserCell } from '@/components/shared/crud-base/columns/user-cell'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { type ScanScanStatus } from '@repo/codegen/src/schema.ts'
+import { ScanStatusBadge } from '@/components/shared/enum-mapper/scan-enum'
 import { CustomEnumChipCell } from '@/components/shared/crud-base/columns/custom-enum-chip-cell'
 
 export const getColumns = ({ userMap, selectedItems, setSelectedItems }: ColumnOptions): ColumnDef<ScansNodeNonNull>[] => {
@@ -24,10 +26,10 @@ export const getColumns = ({ userMap, selectedItems, setSelectedItems }: ColumnO
     {
       accessorKey: 'status',
       header: 'Status',
-      size: 110,
+      size: 140,
       cell: ({ cell }) => {
-        const value = cell.getValue() as string
-        return <div>{value ? getEnumLabel(value) : '-'}</div>
+        const value = cell.getValue() as ScanScanStatus
+        return value ? <ScanStatusBadge status={value} /> : <div>-</div>
       },
     },
     { accessorKey: 'scanDate', header: 'Scan Date', size: 130, cell: ({ cell }) => <DateCell value={cell.getValue() as string} /> },

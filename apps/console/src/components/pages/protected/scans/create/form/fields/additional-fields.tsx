@@ -3,9 +3,11 @@
 import { TextField } from '@/components/shared/crud-base/form-fields/text-field'
 import { SelectField } from '@/components/shared/crud-base/form-fields/select-field'
 import { ResponsibilityField } from '@/components/shared/crud-base/form-fields/responsibility-field'
-import { type UpdateScanInput } from '@repo/codegen/src/schema'
+import { type UpdateScanInput, type ScanScanStatus } from '@repo/codegen/src/schema'
 import { type FieldValues } from 'react-hook-form'
 import { type InternalEditingType } from '@/components/shared/crud-base/generic-sheet'
+import { ScanStatusIconMapper } from '@/components/shared/enum-mapper/scan-enum'
+import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { type EnumOptions, type EnumCreateHandlers } from '../../../table/types'
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@repo/ui/cardpanel'
 
@@ -66,7 +68,19 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
         <CardContent>
           <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-2">
             <SelectField name="scanType" label="Scan Type" options={SCAN_TYPE_OPTIONS} {...sharedFieldProps} />
-            <SelectField name="status" label="Status" options={SCAN_STATUS_OPTIONS} {...sharedFieldProps} />
+            <SelectField
+              name="status"
+              label="Status"
+              options={SCAN_STATUS_OPTIONS}
+              useCustomDisplay={false}
+              renderValue={(value) => (
+                <div className="flex items-center space-x-2 text-sm">
+                  {ScanStatusIconMapper[value as ScanScanStatus]}
+                  <span>{getEnumLabel(value)}</span>
+                </div>
+              )}
+              {...sharedFieldProps}
+            />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             <TextField name="scanSchedule" label="Schedule (cron)" {...sharedFieldProps} />

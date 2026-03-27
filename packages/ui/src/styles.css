@@ -625,6 +625,18 @@
   --color-invitation-sent: #a855f7;
   --color-invitation-accepted: #22c55e;
   --color-invitation-expired: #94a3b8;
+  --color-under-review: #8f46f5;
+  --color-restricted: #f97316;
+  --color-active: #22c55e;
+  --color-suspended: #f97316;
+  --color-offboarding: #94a3b8;
+  --color-terminated: #94a3b8;
+  --color-inactive: #94a3b8;
+  --color-deactivated: #dc2626;
+  --color-onboarding: #3b82f6;
+  --color-pending: #f97316;
+  --color-processing: #3b82f6;
+  --color-failed: #dc2626;
 
   /* Document Status */
   --color-document-draft: #3b82f6;
@@ -642,6 +654,66 @@
   --color-document-published: #22c55e;
   --color-document-published-muted: #21c55d29;
   --color-document-published-border: #21c55d3d;
+
+  /* Vendor Status */
+  --color-vendor-draft: #3b82f6;
+  --color-vendor-draft-muted: #3b82f629;
+  --color-vendor-draft-border: #3b82f63d;
+  --color-vendor-under-review: #8f46f5;
+  --color-vendor-under-review-muted: #8f46f529;
+  --color-vendor-under-review-border: #8f46f53d;
+  --color-vendor-approved: #22c55e;
+  --color-vendor-approved-muted: #22c55e29;
+  --color-vendor-approved-border: #22c55e3d;
+  --color-vendor-restricted: #f97316;
+  --color-vendor-restricted-muted: #f9731629;
+  --color-vendor-restricted-border: #f973163d;
+  --color-vendor-rejected: #dc2626;
+  --color-vendor-rejected-muted: #dc262629;
+  --color-vendor-rejected-border: #dc26263d;
+  --color-vendor-active: #22c55e;
+  --color-vendor-active-muted: #22c55e29;
+  --color-vendor-active-border: #22c55e3d;
+  --color-vendor-suspended: #f97316;
+  --color-vendor-suspended-muted: #f9731629;
+  --color-vendor-suspended-border: #f973163d;
+  --color-vendor-offboarding: #94a3b8;
+  --color-vendor-offboarding-muted: #94a3b829;
+  --color-vendor-offboarding-border: #94a3b83d;
+  --color-vendor-terminated: #94a3b8;
+  --color-vendor-terminated-muted: #94a3b829;
+  --color-vendor-terminated-border: #94a3b83d;
+
+  /* Personnel Status */
+  --color-personnel-active: #22c55e;
+  --color-personnel-active-muted: #22c55e29;
+  --color-personnel-active-border: #22c55e3d;
+  --color-personnel-inactive: #94a3b8;
+  --color-personnel-inactive-muted: #94a3b829;
+  --color-personnel-inactive-border: #94a3b83d;
+  --color-personnel-deactivated: #dc2626;
+  --color-personnel-deactivated-muted: #dc262629;
+  --color-personnel-deactivated-border: #dc26263d;
+  --color-personnel-suspended: #f97316;
+  --color-personnel-suspended-muted: #f9731629;
+  --color-personnel-suspended-border: #f973163d;
+  --color-personnel-onboarding: #3b82f6;
+  --color-personnel-onboarding-muted: #3b82f629;
+  --color-personnel-onboarding-border: #3b82f63d;
+
+  /* Scan Status */
+  --color-scan-pending: #f97316;
+  --color-scan-pending-muted: #f9731629;
+  --color-scan-pending-border: #f973163d;
+  --color-scan-processing: #3b82f6;
+  --color-scan-processing-muted: #3b82f629;
+  --color-scan-processing-border: #3b82f63d;
+  --color-scan-completed: #22c55e;
+  --color-scan-completed-muted: #22c55e29;
+  --color-scan-completed-border: #22c55e3d;
+  --color-scan-failed: #dc2626;
+  --color-scan-failed-muted: #dc262629;
+  --color-scan-failed-border: #dc26263d;
 
   --color-infobox: #6392ff1f;
 
