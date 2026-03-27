@@ -18,7 +18,9 @@ import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 import useEscapeKey from '@/hooks/useEscapeKey'
 import { type EditVendorFormData } from '../hooks/use-form-schema'
-import { UserRound, UserRoundCheck, Settings2, Maximize2, Radio, CalendarDays, RefreshCw, DollarSign, Tag, Globe } from 'lucide-react'
+import { UserRound, UserRoundCheck, Binoculars, Maximize2, Radio, CalendarDays, RefreshCw, DollarSign, Tag, Globe } from 'lucide-react'
+import { VendorStatusIconMapper } from '@/components/shared/enum-mapper/vendor-enum'
+import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 
 const iconClass = 'h-4 w-4 text-muted-foreground'
 
@@ -133,7 +135,20 @@ const VendorPropertiesSidebar: React.FC<VendorPropertiesSidebarProps> = ({ data,
             handleUpdate={(input) => handleUpdate(input as UpdateEntityInput)}
           />
 
-          <SelectField name="status" label="Status" icon={<Settings2 className={iconClass} />} options={entityStatusOptions} {...sharedFieldProps} />
+          <SelectField
+            name="status"
+            label="Status"
+            icon={<Binoculars className={iconClass} />}
+            options={entityStatusOptions}
+            useCustomDisplay={false}
+            renderValue={(value) => (
+              <div className="flex items-center space-x-2 text-sm">
+                {VendorStatusIconMapper[value as EntityEntityStatus]}
+                <span>{getEnumLabel(value)}</span>
+              </div>
+            )}
+            {...sharedFieldProps}
+          />
 
           <SelectField name="environmentName" label="Environment" icon={<Maximize2 className={iconClass} />} options={environmentOptions} onCreateOption={createEnvironment} {...sharedFieldProps} />
 
