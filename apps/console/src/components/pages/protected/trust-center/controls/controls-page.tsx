@@ -8,14 +8,14 @@ import { Badge } from '@repo/ui/badge'
 import { Checkbox } from '@repo/ui/checkbox'
 import { Input } from '@repo/ui/input'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
-import { ChevronDown, ChevronRight, ChevronsDownUp, List, Minus, Plus, SearchIcon, ShieldCheck, SquareMinus, SquarePlay, SquarePlus } from 'lucide-react'
+import { ChevronDown, ChevronRight, ChevronsDownUp, List, Minus, Plus, SearchIcon, ShieldCheck, SquarePlay, SquarePlus } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@repo/ui/dialog'
 import { useGetTrustCenter } from '@/lib/graphql-hooks/trust-center'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { canEdit } from '@/lib/authz/utils'
-import { type ControlWhereInput, type ControlListStandardFieldsFragment, ControlTrustCenterControlVisibility } from '@repo/codegen/src/schema'
+import { type ControlWhereInput, type ControlListStandardFieldsFragment, ControlTrustCenterControlVisibility, ControlControlImplementationStatus } from '@repo/codegen/src/schema'
 import { useNavigationGuard } from 'next-navigation-guard'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
 import { useOrganization } from '@/hooks/useOrganization'
@@ -148,23 +148,19 @@ export default function ControlsPage() {
   const isDirty = useMemo(() => drafts.size > 0, [drafts])
   const publishDisabled = !isDirty || isBulkEditing
 
-  const handleToggle = useCallback(
-    (control: ControlListStandardFieldsFragment) => {
-      const currentState = control.trustCenterVisibility === ControlTrustCenterControlVisibility.PUBLICLY_VISIBLE
-      const draftAction = drafts.get(control.id)
+  const handleToggle = useCallback((control: ControlListStandardFieldsFragment) => {
+    const currentState = control.trustCenterVisibility === ControlTrustCenterControlVisibility.PUBLICLY_VISIBLE
 
-      setDrafts((prev) => {
-        const next = new Map(prev)
-        if (draftAction) {
-          next.delete(control.id)
-        } else {
-          next.set(control.id, currentState ? 'remove' : 'add')
-        }
-        return next
-      })
-    },
-    [drafts],
-  )
+    setDrafts((prev) => {
+      const next = new Map(prev)
+      if (prev.has(control.id)) {
+        next.delete(control.id)
+      } else {
+        next.set(control.id, currentState ? 'remove' : 'add')
+      }
+      return next
+    })
+  }, [])
 
   const publishDraftSummary = useMemo(() => {
     const adds: { id: string; refCode: string; category: string }[] = []
@@ -203,7 +199,7 @@ export default function ControlsPage() {
         addIds.length
           ? bulkEditControl({
               ids: addIds,
-              input: { trustCenterVisibility: ControlTrustCenterControlVisibility.PUBLICLY_VISIBLE },
+              input: { trustCenterVisibility: ControlTrustCenterControlVisibility.PUBLICLY_VISIBLE, implementationStatus: ControlControlImplementationStatus.IMPLEMENTED },
             })
           : null,
         removeIds.length
@@ -380,7 +376,7 @@ export default function ControlsPage() {
       <Accordion type="multiple" value={openSections} onValueChange={setOpenSections} className="w-full">
         <div className="flex gap-2.5 items-center mb-2">
           <p>Domains</p>
-          <Button type="button" className="h-8 !px-2" variant="secondary" onClick={toggleAllSections}>
+          <Button type="button" className="h-8 !px-2" variant="secondary" onClick={toggleAllSections} aria-label="Expand or collapse all domains">
             <div className="flex">
               <List size={16} />
               <ChevronsDownUp size={16} />
@@ -417,7 +413,7 @@ export default function ControlsPage() {
                     return (
                       <div key={control.id} className={`flex items-start justify-between p-4 rounded-lg border bg-card ${hasDraft ? 'border-brand bg-brand/5' : 'border-border'}`}>
                         <div className="flex items-center gap-3 flex-1 min-w-0 mr-4">
-                          {canEditTc && <Checkbox checked={isAdded} onCheckedChange={() => handleToggle(control)} />}
+                          {canEditTc && <Checkbox checked={isAdded} onCheckedChange={() => handleToggle(control)} aria-label={`Toggle ${control.title || control.refCode}`} />}
                           <div className="flex flex-col gap-1 min-w-0">
                             <div className="flex items-center gap-2">
                               <span className="font-medium">{control.title || control.refCode}</span>
