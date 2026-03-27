@@ -19,7 +19,8 @@ export function NotificationRow({ notification, onRead }: NotificationRowProps) 
       await onRead(notification.id)
     }
     if (notification.data?.url) {
-      router.push(notification.data.url)
+      const url = notification.data.url.startsWith('/') ? notification.data.url : `/${notification.data.url}`
+      router.push(url)
     }
   }
 
