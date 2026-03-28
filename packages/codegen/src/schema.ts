@@ -63869,11 +63869,14 @@ export type ControlListStandardFieldsFragment = {
   __typename?: 'Control'
   id: string
   refCode: string
+  title?: string | null
   description?: string | null
   category?: string | null
   subcategory?: string | null
   mappedCategories?: Array<string> | null
+  tags?: Array<string> | null
   referenceFramework?: string | null
+  trustCenterVisibility?: ControlTrustCenterControlVisibility | null
   subcontrols: { __typename?: 'SubcontrolConnection'; totalCount: number }
   controlObjectives: {
     __typename?: 'ControlObjectiveConnection'
@@ -64393,11 +64396,14 @@ export type GetControlsPaginatedWithListFieldsQuery = {
         __typename?: 'Control'
         id: string
         refCode: string
+        title?: string | null
         description?: string | null
         category?: string | null
         subcategory?: string | null
         mappedCategories?: Array<string> | null
+        tags?: Array<string> | null
         referenceFramework?: string | null
+        trustCenterVisibility?: ControlTrustCenterControlVisibility | null
         subcontrols: { __typename?: 'SubcontrolConnection'; totalCount: number }
         controlObjectives: {
           __typename?: 'ControlObjectiveConnection'

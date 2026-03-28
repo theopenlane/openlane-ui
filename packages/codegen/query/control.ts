@@ -121,10 +121,12 @@ export const CONTROL_LIST_STANDARDS_FIELDS_FRAGMENT = gql`
   fragment ControlListStandardFields on Control {
     id
     refCode
+    title
     description
     category
     subcategory
     mappedCategories
+    tags
     referenceFramework
     subcontrols {
       totalCount
@@ -143,6 +145,7 @@ export const CONTROL_LIST_STANDARDS_FIELDS_FRAGMENT = gql`
         }
       }
     }
+    trustCenterVisibility
   }
 `
 

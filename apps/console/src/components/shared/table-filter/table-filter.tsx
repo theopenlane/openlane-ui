@@ -28,7 +28,17 @@ type TTableFilterProps = {
 
 const EMPTY_QUICK_FILTERS: TQuickFilter[] = []
 
-const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields, pageKey, onFilterChange, quickFilters = EMPTY_QUICK_FILTERS }) => {
+const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields: filterFieldsProp, pageKey, onFilterChange, quickFilters = EMPTY_QUICK_FILTERS }) => {
+  const [filterFields, setFilterFields] = useState(filterFieldsProp)
+  useEffect(() => {
+    setFilterFields((prev) => {
+      if (JSON.stringify(prev) !== JSON.stringify(filterFieldsProp)) {
+        return filterFieldsProp
+      }
+      return prev
+    })
+  }, [filterFieldsProp])
+
   const [values, setValues] = useState<TFilterState>({})
   const [open, setOpen] = useState(false)
   const [activeQuickFilters, setActiveQuickFilters] = useState<TQuickFilter[]>(quickFilters)
