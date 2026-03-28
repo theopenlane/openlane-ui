@@ -91,7 +91,7 @@ const ReviewsTable: React.FC<ReviewsTableProps> = ({ controlId, subcontrolIds })
           return {
             ...col,
             cell: ({ row }: { row: { original: ReviewsNodeNonNull } }) => (
-              <button type="button" onClick={() => replace({ reviewId: row.original.id })} className="line-clamp-3 text-blue-500 hover:underline">
+              <button type="button" onClick={() => replace({ reviewId: row.original.id })} className="line-clamp-3 text-left text-blue-500 hover:underline">
                 {row.original.title || ''}
               </button>
             ),
