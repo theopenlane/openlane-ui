@@ -16,7 +16,7 @@ export const formId = 'edit' + ObjectNames.ENTITY
 export const breadcrumbs = [
   { label: 'Home', href: '/dashboard' },
   { label: 'Registry', href: '/registry/vendors' },
-  { label: 'Vendors', href: '/vendors' },
+  { label: 'Vendors', href: '/registry/vendors' },
 ]
 export const getFilterFields = (enumOptions: EnumOptions): FilterField[] => [
   {
