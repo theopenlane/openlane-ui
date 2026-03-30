@@ -8,10 +8,9 @@ import { Textarea } from '@repo/ui/textarea'
 import { Switch } from '@repo/ui/switch'
 import { SaveIcon, X } from 'lucide-react'
 import MultipleSelector, { type Option } from '@repo/ui/multiple-selector'
-import { useCreateTemplate } from '@/lib/graphql-hooks/template'
+import { useCreateEmailTemplate } from '@/lib/graphql-hooks/email-template'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { TemplateDocumentType } from '@repo/codegen/src/schema'
 
 interface CreateTemplateSheetProps {
   open: boolean
@@ -26,7 +25,7 @@ export const CreateTemplateSheet: React.FC<CreateTemplateSheetProps> = ({ open, 
   const [tokenOptions, setTokenOptions] = useState<Option[]>([])
   const [addButtonLink, setAddButtonLink] = useState(false)
 
-  const { mutateAsync: createTemplate, isPending } = useCreateTemplate()
+  const { mutateAsync: createEmailTemplate, isPending } = useCreateEmailTemplate()
   const { successNotification, errorNotification } = useNotification()
 
   const resetForm = () => {
@@ -47,24 +46,24 @@ export const CreateTemplateSheet: React.FC<CreateTemplateSheetProps> = ({ open, 
 
     try {
       const tokens = tokenOptions.map((t) => t.value)
-      const result = await createTemplate({
+      const result = await createEmailTemplate({
         input: {
           name: name.trim(),
-          templateType: TemplateDocumentType.DOCUMENT,
+          key: name.trim().toLowerCase().replace(/\s+/g, '-'),
+          subjectTemplate: subject.trim() || undefined,
+          bodyTemplate: body.trim() || undefined,
           jsonconfig: {
-            subject: subject.trim(),
-            body: body.trim(),
             tokens,
             addButtonLink,
           },
         },
       })
 
-      const template = result?.createTemplate?.template
-      if (template?.id) {
-        successNotification({ title: 'Template created' })
+      const emailTemplate = result?.createEmailTemplate?.emailTemplate
+      if (emailTemplate?.id) {
+        successNotification({ title: 'Email template created' })
         resetForm()
-        onCreated(template.id, name.trim())
+        onCreated(emailTemplate.id, name.trim())
       }
     } catch (error) {
       errorNotification({ title: 'Error', description: parseErrorMessage(error) })

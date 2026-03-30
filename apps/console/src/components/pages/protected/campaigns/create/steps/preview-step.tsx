@@ -1,14 +1,14 @@
 'use client'
 
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { type UseFormReturn } from 'react-hook-form'
 import { Button } from '@repo/ui/button'
 import { Palette, SquarePlus } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
-import { useGetTemplate } from '@/lib/graphql-hooks/template'
-import { useTemplateSelect } from '@/lib/graphql-hooks/template'
+import { useEmailTemplatesWithFilter, useEmailTemplate } from '@/lib/graphql-hooks/email-template'
 import { Badge } from '@repo/ui/badge'
+import { type TPagination } from '@repo/ui/pagination-types'
 import { type CampaignFormData } from '../hooks/use-campaign-form-schema'
 
 interface PreviewStepProps {
@@ -17,10 +17,16 @@ interface PreviewStepProps {
   onCreateTemplate: () => void
 }
 
+const selectPagination: TPagination = {
+  page: 1,
+  pageSize: 100,
+  query: { first: 100 },
+}
+
 export const PreviewStep: React.FC<PreviewStepProps> = ({ form, onOpenEmailBranding, onCreateTemplate }) => {
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>(form.getValues('templateID') || '')
-  const { data: templateData } = useGetTemplate(selectedTemplateId || undefined)
-  const { templateOptions, templates, isLoading } = useTemplateSelect({ where: {} })
+  const { data: templateData } = useEmailTemplate(selectedTemplateId || undefined)
+  const { emailTemplatesNodes, isLoading } = useEmailTemplatesWithFilter({ where: {}, pagination: selectPagination })
 
   // Sync local state when templateID is set externally (e.g. via CreateTemplateSheet)
   useEffect(() => {
@@ -32,23 +38,27 @@ export const PreviewStep: React.FC<PreviewStepProps> = ({ form, onOpenEmailBrand
     return () => subscription.unsubscribe()
   }, [form, selectedTemplateId])
 
-  const template = templateData?.template
-  const config = template?.jsonconfig as Record<string, unknown> | undefined
-  const subject = (config?.subject as string) ?? ''
-  const body = (config?.body as string) ?? ''
+  const templateOptions = useMemo(
+    () =>
+      emailTemplatesNodes?.map((t) => ({
+        label: t.name,
+        value: t.id,
+      })) ?? [],
+    [emailTemplatesNodes],
+  )
+
+  const emailTemplate = templateData?.emailTemplate
+  const subject = emailTemplate?.subjectTemplate ?? ''
+  const body = emailTemplate?.bodyTemplate ?? ''
+  const config = emailTemplate?.jsonconfig as Record<string, unknown> | undefined
   const tokens = (config?.tokens as string[]) ?? []
 
   const handleTemplateChange = useCallback(
     (val: string) => {
       setSelectedTemplateId(val)
       form.setValue('templateID', val, { shouldDirty: true })
-      const tmpl = templates?.find((t) => t.id === val)
-      if (tmpl) {
-        form.setValue('name', tmpl.name, { shouldDirty: true })
-        form.setValue('description', tmpl.description ?? '', { shouldDirty: true })
-      }
     },
-    [form, templates],
+    [form],
   )
 
   return (
