@@ -9,13 +9,20 @@ export type UpdateTrustCenterSettingsArgs = {
   input: UpdateTrustCenterSettingInput
   logoFile?: File
   faviconFile?: File
+  heroImageFile?: File
 }
 
 export function useHandleUpdateSetting() {
   const { mutateAsync, isPending } = useUpdateTrustCenterSetting()
   const { successNotification, errorNotification } = useNotification()
 
-  const updateTrustCenterSetting = async ({ id, input, logoFile, faviconFile }: UpdateTrustCenterSettingsArgs): Promise<UpdateTrustCenterSettingMutation['updateTrustCenterSetting'] | undefined> => {
+  const updateTrustCenterSetting = async ({
+    id,
+    input,
+    logoFile,
+    faviconFile,
+    heroImageFile,
+  }: UpdateTrustCenterSettingsArgs): Promise<UpdateTrustCenterSettingMutation['updateTrustCenterSetting'] | undefined> => {
     if (!id) {
       errorNotification({
         title: 'Missing ID',
@@ -30,6 +37,7 @@ export function useHandleUpdateSetting() {
         input,
         logoFile,
         faviconFile,
+        heroImageFile,
       })
 
       successNotification({
