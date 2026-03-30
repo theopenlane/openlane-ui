@@ -23,6 +23,7 @@ import { ResponsesTab } from './responses-tab/responses-tab'
 import { extractQuestions } from './responses-tab/extract-questions'
 import type { LucideIcon } from 'lucide-react'
 import { SendQuestionnaireDialog } from './dialog/send-questionnaire-dialog'
+import PastDueBadge from '@/components/shared/past-due-badge/past-due-badge'
 import { renderAnswer } from './utils/render-answer'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
@@ -69,16 +70,24 @@ type StatCardProps = {
   label: string
   value: string | number
   isLoading: boolean
+  chip?: React.ReactNode
 }
 
-const StatCard = ({ icon: Icon, label, value, isLoading }: StatCardProps) => (
+const StatCard = ({ icon: Icon, label, value, isLoading, chip }: StatCardProps) => (
   <Card>
     <CardContent className="flex flex-col p-6">
       <div className="flex h-10 w-10 items-center justify-center rounded-lg border bg-homepage-card-item border-switch-bg-inactive">
         <Icon className="h-5 w-5 text-muted-foreground" />
       </div>
       <p className="mt-4 text-sm text-muted-foreground">{label}</p>
-      {isLoading ? <Skeleton className="mt-1 h-8 w-12 rounded" /> : <p className="text-3xl font-semibold">{value}</p>}
+      {isLoading ? (
+        <Skeleton className="mt-1 h-8 w-12 rounded" />
+      ) : (
+        <div className="flex items-center gap-2 mt-1">
+          <p className="text-3xl font-semibold">{value}</p>
+          {chip}
+        </div>
+      )}
     </CardContent>
   </Card>
 )
@@ -161,12 +170,13 @@ const QuestionnaireDetailPage = () => {
     ])
   }, [setCrumbs, assessment?.name, isLoading])
 
-  const dueDate = useMemo(() => {
-    if (!responses?.length) return '-'
+  const { dueDate, isPastDue } = useMemo(() => {
+    if (!responses?.length) return { dueDate: '-', isPastDue: false }
     const firstDueDate = responses.find((r) => r?.dueDate)?.dueDate
-    if (firstDueDate) return formatDate(firstDueDate)
-    return '-'
-  }, [responses])
+    if (!firstDueDate) return { dueDate: '-', isPastDue: false }
+    const isOverdue = new Date(firstDueDate) < new Date() && completedResponses < totalRecipients
+    return { dueDate: formatDate(firstDueDate), isPastDue: isOverdue }
+  }, [responses, completedResponses, totalRecipients])
 
   const responseRows = useMemo(
     () =>
@@ -334,7 +344,7 @@ const QuestionnaireDetailPage = () => {
       <div className="grid grid-cols-3 gap-4 mt-6">
         <StatCard icon={Users} label="Recipients" value={totalRecipients} isLoading={isRecipientsCountLoading} />
         <StatCard icon={CheckCircle} label="Responses" value={completedResponses} isLoading={isResponsesCountLoading} />
-        <StatCard icon={Calendar} label="Due Date" value={dueDate} isLoading={false} />
+        <StatCard icon={Calendar} label="Due Date" value={dueDate} isLoading={false} chip={isPastDue ? <PastDueBadge show /> : undefined} />
       </div>
 
       <div className="mt-6">
