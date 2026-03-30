@@ -60,6 +60,10 @@ export function LinkFloatingToolbar({ state }: { state?: LinkFloatingToolbarStat
     preventDefaultOnEnterKeydown: true,
   })
 
+  const stopPropagation = React.useCallback((e: React.MouseEvent) => {
+    e.stopPropagation()
+  }, [])
+
   if (hidden) return null
 
   const input = (
@@ -69,14 +73,25 @@ export function LinkFloatingToolbar({ state }: { state?: LinkFloatingToolbarStat
           <Link className="size-4" />
         </div>
 
-        <FloatingLinkUrlInput className={inputVariants()} placeholder="Paste link" data-plate-focus />
+        <FloatingLinkUrlInput
+          className={inputVariants()}
+          placeholder="Paste link"
+          data-plate-focus
+          onMouseDown={(e: React.MouseEvent) => e.stopPropagation()}
+        />
       </div>
       <Separator className="my-1" />
       <div className="flex items-center">
         <div className="flex items-center pr-1 pl-2 text-muted-foreground">
           <Text className="size-4" />
         </div>
-        <input className={inputVariants()} placeholder="Text to display" data-plate-focus {...textInputProps} />
+        <input
+          className={inputVariants()}
+          placeholder="Text to display"
+          data-plate-focus
+          {...textInputProps}
+          onMouseDown={(e: React.MouseEvent) => e.stopPropagation()}
+        />
       </div>
     </div>
   )
@@ -110,11 +125,11 @@ export function LinkFloatingToolbar({ state }: { state?: LinkFloatingToolbarStat
 
   return (
     <>
-      <div ref={insertRef} className={popoverVariants()} {...insertProps}>
+      <div ref={insertRef} {...insertProps} className={popoverVariants()} onClick={stopPropagation}>
         {input}
       </div>
 
-      <div ref={editRef} className={popoverVariants()} {...editProps}>
+      <div ref={editRef} {...editProps} className={popoverVariants()} onClick={stopPropagation}>
         {editContent}
       </div>
     </>

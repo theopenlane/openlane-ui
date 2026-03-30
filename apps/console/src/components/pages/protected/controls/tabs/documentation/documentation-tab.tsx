@@ -13,9 +13,10 @@ import EmptyTabState from '@/components/pages/protected/controls/tabs/shared/emp
 type DocumentationTabProps = {
   controlId?: string
   subcontrolIds: string[]
+  canEdit: boolean
 }
 
-const DocumentationTab: React.FC<DocumentationTabProps> = ({ controlId, subcontrolIds }) => {
+const DocumentationTab: React.FC<DocumentationTabProps> = ({ controlId, subcontrolIds, canEdit }) => {
   const hasAssociationTarget = Boolean(controlId) || subcontrolIds.length > 0
 
   const associationFilter = useMemo(() => buildAssociationFilter(controlId, subcontrolIds), [controlId, subcontrolIds])
@@ -71,8 +72,8 @@ const DocumentationTab: React.FC<DocumentationTabProps> = ({ controlId, subcontr
 
   return (
     <div className="space-y-6">
-      <ProceduresTable controlId={controlId} subcontrolIds={subcontrolIds} />
-      <PoliciesTable controlId={controlId} subcontrolIds={subcontrolIds} />
+      <ProceduresTable controlId={controlId} subcontrolIds={subcontrolIds} canEdit={canEdit} />
+      <PoliciesTable controlId={controlId} subcontrolIds={subcontrolIds} canEdit={canEdit} />
     </div>
   )
 }

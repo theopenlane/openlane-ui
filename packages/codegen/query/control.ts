@@ -26,6 +26,9 @@ export const CONTROL_LIST_FIELDS_FRAGMENT = gql`
       displayName
       logoURL
       gravatarLogoURL
+      avatarFile {
+        base64
+      }
     }
     subcontrols {
       edges {
@@ -39,6 +42,9 @@ export const CONTROL_LIST_FIELDS_FRAGMENT = gql`
       displayName
       logoURL
       gravatarLogoURL
+      avatarFile {
+        base64
+      }
     }
 
     controlImplementations {
@@ -115,10 +121,12 @@ export const CONTROL_LIST_STANDARDS_FIELDS_FRAGMENT = gql`
   fragment ControlListStandardFields on Control {
     id
     refCode
+    title
     description
     category
     subcategory
     mappedCategories
+    tags
     referenceFramework
     subcontrols {
       totalCount
@@ -137,6 +145,7 @@ export const CONTROL_LIST_STANDARDS_FIELDS_FRAGMENT = gql`
         }
       }
     }
+    trustCenterVisibility
   }
 `
 
@@ -223,12 +232,18 @@ export const CONTROL_DETAILS_FIELDS_FRAGMENT = gql`
       displayName
       logoURL
       gravatarLogoURL
+      avatarFile {
+        base64
+      }
     }
     controlOwner {
       id
       displayName
       logoURL
       gravatarLogoURL
+      avatarFile {
+        base64
+      }
     }
   }
 `
@@ -278,6 +293,9 @@ export const GET_CONTROL_ASSOCIATIONS_BY_ID = gql`
               gravatarLogoURL
               logoURL
               displayName
+              avatarFile {
+                base64
+              }
             }
           }
         }
@@ -295,6 +313,9 @@ export const GET_CONTROL_ASSOCIATIONS_BY_ID = gql`
               gravatarLogoURL
               logoURL
               displayName
+              avatarFile {
+                base64
+              }
             }
           }
         }

@@ -1,7 +1,9 @@
 import { type ColumnDef } from '@tanstack/react-table'
 import { type IdentityHoldersNodeNonNull } from '@/lib/graphql-hooks/identity-holder'
 import { type ColumnOptions } from '@/components/shared/crud-base/page'
+import { type IdentityHolderUserStatus } from '@repo/codegen/src/schema.ts'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { PersonnelStatusBadge } from '@/components/shared/enum-mapper/personnel-enum'
 import { UserCell } from '@/components/shared/crud-base/columns/user-cell'
 import { BooleanCell } from '@/components/shared/crud-base/columns/boolean-cell'
 import { TagsCell } from '@/components/shared/crud-base/columns/tags-cell'
@@ -26,10 +28,10 @@ export const getColumns = ({ userMap, selectedItems, setSelectedItems }: ColumnO
     {
       accessorKey: 'status',
       header: 'Status',
-      size: 120,
+      size: 150,
       cell: ({ cell }) => {
-        const value = cell.getValue() as string
-        return <div>{value ? getEnumLabel(value) : '-'}</div>
+        const value = cell.getValue() as IdentityHolderUserStatus
+        return value ? <PersonnelStatusBadge status={value} /> : <div>-</div>
       },
     },
     {

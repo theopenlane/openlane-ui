@@ -4,7 +4,7 @@ import React, { useCallback } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { type Value } from 'platejs'
 import useFormSchema from '@/components/pages/protected/assets/hooks/use-form-schema'
-import { type AssetsNodeNonNull, useAsset, useUpdateAsset, useCreateAsset, useGetAssetAssociations } from '@/lib/graphql-hooks/asset'
+import { type AssetsNodeNonNull, useAsset, useUpdateAsset, useCreateAsset, useGetAssetAssociations, useBulkDeleteAsset } from '@/lib/graphql-hooks/asset'
 import { GenericDetailsSheet } from '@/components/shared/crud-base/generic-sheet'
 import { getFieldsToRender } from '@/components/pages/protected/assets/table/table-config'
 import { type AssetSheetConfig, type AssetFieldProps, objectType } from '@/components/pages/protected/assets/table/types'
@@ -51,6 +51,7 @@ const AssetDetailsSheet: React.FC<AssetDetailsSheetProps> = ({ queryParamKey }) 
 
   const baseUpdateMutation = useUpdateAsset()
   const baseCreateMutation = useCreateAsset()
+  const baseBulkDeleteMutation = useBulkDeleteAsset()
 
   const updateMutation = {
     isPending: baseUpdateMutation.isPending,
@@ -60,6 +61,14 @@ const AssetDetailsSheet: React.FC<AssetDetailsSheetProps> = ({ queryParamKey }) 
   const createMutation = {
     isPending: baseCreateMutation.isPending,
     mutateAsync: async (input: CreateAssetInput) => baseCreateMutation.mutateAsync({ input }),
+  }
+
+  const deleteMutation = {
+    isPending: baseBulkDeleteMutation.isPending,
+    mutateAsync: async (params: { ids: string[] }) => {
+      const result = await baseBulkDeleteMutation.mutateAsync({ ids: params.ids })
+      return result.deleteBulkAsset.deletedIDs
+    },
   }
 
   const { enumOptions: accessModelOptions, onCreateOption: createAccessModel } = useCreatableEnumOptions({ objectType: 'asset', field: 'accessModel' })
@@ -120,6 +129,7 @@ const AssetDetailsSheet: React.FC<AssetDetailsSheetProps> = ({ queryParamKey }) 
     isFetching: isLoading,
     updateMutation,
     createMutation,
+    deleteMutation,
     buildPayload: async (formData) => {
       const { controlIDs, scanIDs, entityIDs, identityHolderIDs, internalOwner, ...rest } = formData
       const description = rest.description ? await plateEditorHelper.convertToHtml(rest.description as Value) : undefined

@@ -718,6 +718,7 @@ export interface ActionPlanEdge {
 export enum ActionPlanFrequency {
   BIANNUALLY = 'BIANNUALLY',
   MONTHLY = 'MONTHLY',
+  NONE = 'NONE',
   QUARTERLY = 'QUARTERLY',
   YEARLY = 'YEARLY',
 }
@@ -3321,6 +3322,7 @@ export interface CampaignEdge {
 export enum CampaignFrequency {
   BIANNUALLY = 'BIANNUALLY',
   MONTHLY = 'MONTHLY',
+  NONE = 'NONE',
   QUARTERLY = 'QUARTERLY',
   YEARLY = 'YEARLY',
 }
@@ -9712,9 +9714,6 @@ export interface CreateSlaDefinitionInput {
   ownerID?: InputMaybe<Scalars['ID']['input']>
   /** remediation service level agreement in days for the severity level */
   slaDays: Scalars['Int']['input']
-  slaDefinitionSeverityLevelID?: InputMaybe<Scalars['ID']['input']>
-  /** the severity_level of the sla_definition */
-  slaDefinitionSeverityLevelName?: InputMaybe<Scalars['String']['input']>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   viewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -9767,6 +9766,7 @@ export interface CreateScanInput {
   scopeName?: InputMaybe<Scalars['String']['input']>
   /** the status of the scan, e.g., processing, completed, failed */
   status?: InputMaybe<ScanScanStatus>
+  subcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   /** the target of the scan, e.g., a domain name or IP address, codebase */
@@ -9929,8 +9929,11 @@ export interface CreateSubcontrolInput {
   referenceID?: InputMaybe<Scalars['String']['input']>
   /** references for the control */
   references?: InputMaybe<Array<Scalars['Reference']['input']>>
+  remediationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   responsiblePartyID?: InputMaybe<Scalars['ID']['input']>
+  reviewIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   riskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  scanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   scheduledJobIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** source of the control, e.g. framework, template, custom, etc. */
   source?: InputMaybe<SubcontrolControlSource>
@@ -15893,6 +15896,7 @@ export enum EntityEntityStatus {
 export enum EntityFrequency {
   BIANNUALLY = 'BIANNUALLY',
   MONTHLY = 'MONTHLY',
+  NONE = 'NONE',
   QUARTERLY = 'QUARTERLY',
   YEARLY = 'YEARLY',
 }
@@ -24089,6 +24093,7 @@ export interface InternalPolicyEdge {
 export enum InternalPolicyFrequency {
   BIANNUALLY = 'BIANNUALLY',
   MONTHLY = 'MONTHLY',
+  NONE = 'NONE',
   QUARTERLY = 'QUARTERLY',
   YEARLY = 'YEARLY',
 }
@@ -37053,6 +37058,7 @@ export interface ProcedureEdge {
 export enum ProcedureFrequency {
   BIANNUALLY = 'BIANNUALLY',
   MONTHLY = 'MONTHLY',
+  NONE = 'NONE',
   QUARTERLY = 'QUARTERLY',
   YEARLY = 'YEARLY',
 }
@@ -42921,15 +42927,10 @@ export interface SlaDefinition extends Node {
   owner?: Maybe<Organization>
   /** the organization id that owns the object */
   ownerID?: Maybe<Scalars['ID']['output']>
-  /** incoming source severity */
+  /** security level to map with the SLA definition */
   securityLevel: SlaDefinitionSecurityLevel
   /** remediation service level agreement in days for the severity level */
   slaDays: Scalars['Int']['output']
-  slaDefinitionSeverityLevel?: Maybe<CustomTypeEnum>
-  /** the severity_level of the sla_definition */
-  slaDefinitionSeverityLevelID?: Maybe<Scalars['ID']['output']>
-  /** the severity_level of the sla_definition */
-  slaDefinitionSeverityLevelName?: Maybe<Scalars['String']['output']>
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
   updatedAt?: Maybe<Scalars['Time']['output']>
@@ -43109,9 +43110,6 @@ export interface SlaDefinitionWhereInput {
   /** owner edge predicates */
   hasOwner?: InputMaybe<Scalars['Boolean']['input']>
   hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
-  /** sla_definition_severity_level edge predicates */
-  hasSLADefinitionSeverityLevel?: InputMaybe<Scalars['Boolean']['input']>
-  hasSLADefinitionSeverityLevelWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
   /** viewers edge predicates */
   hasViewers?: InputMaybe<Scalars['Boolean']['input']>
   hasViewersWith?: InputMaybe<Array<GroupWhereInput>>
@@ -43158,38 +43156,6 @@ export interface SlaDefinitionWhereInput {
   slaDaysLTE?: InputMaybe<Scalars['Int']['input']>
   slaDaysNEQ?: InputMaybe<Scalars['Int']['input']>
   slaDaysNotIn?: InputMaybe<Array<Scalars['Int']['input']>>
-  /** sla_definition_severity_level_id field predicates */
-  slaDefinitionSeverityLevelID?: InputMaybe<Scalars['ID']['input']>
-  slaDefinitionSeverityLevelIDContains?: InputMaybe<Scalars['ID']['input']>
-  slaDefinitionSeverityLevelIDContainsFold?: InputMaybe<Scalars['ID']['input']>
-  slaDefinitionSeverityLevelIDEqualFold?: InputMaybe<Scalars['ID']['input']>
-  slaDefinitionSeverityLevelIDGT?: InputMaybe<Scalars['ID']['input']>
-  slaDefinitionSeverityLevelIDGTE?: InputMaybe<Scalars['ID']['input']>
-  slaDefinitionSeverityLevelIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
-  slaDefinitionSeverityLevelIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
-  slaDefinitionSeverityLevelIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
-  slaDefinitionSeverityLevelIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  slaDefinitionSeverityLevelIDLT?: InputMaybe<Scalars['ID']['input']>
-  slaDefinitionSeverityLevelIDLTE?: InputMaybe<Scalars['ID']['input']>
-  slaDefinitionSeverityLevelIDNEQ?: InputMaybe<Scalars['ID']['input']>
-  slaDefinitionSeverityLevelIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
-  slaDefinitionSeverityLevelIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** sla_definition_severity_level_name field predicates */
-  slaDefinitionSeverityLevelName?: InputMaybe<Scalars['String']['input']>
-  slaDefinitionSeverityLevelNameContains?: InputMaybe<Scalars['String']['input']>
-  slaDefinitionSeverityLevelNameContainsFold?: InputMaybe<Scalars['String']['input']>
-  slaDefinitionSeverityLevelNameEqualFold?: InputMaybe<Scalars['String']['input']>
-  slaDefinitionSeverityLevelNameGT?: InputMaybe<Scalars['String']['input']>
-  slaDefinitionSeverityLevelNameGTE?: InputMaybe<Scalars['String']['input']>
-  slaDefinitionSeverityLevelNameHasPrefix?: InputMaybe<Scalars['String']['input']>
-  slaDefinitionSeverityLevelNameHasSuffix?: InputMaybe<Scalars['String']['input']>
-  slaDefinitionSeverityLevelNameIn?: InputMaybe<Array<Scalars['String']['input']>>
-  slaDefinitionSeverityLevelNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  slaDefinitionSeverityLevelNameLT?: InputMaybe<Scalars['String']['input']>
-  slaDefinitionSeverityLevelNameLTE?: InputMaybe<Scalars['String']['input']>
-  slaDefinitionSeverityLevelNameNEQ?: InputMaybe<Scalars['String']['input']>
-  slaDefinitionSeverityLevelNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  slaDefinitionSeverityLevelNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** Filter for tagsHas to contain a specific value */
   tagsHas?: InputMaybe<Scalars['String']['input']>
   /** updated_at field predicates */
@@ -43288,6 +43254,7 @@ export interface Scan extends Node {
   scopeName?: Maybe<Scalars['String']['output']>
   /** the status of the scan, e.g., processing, completed, failed */
   status: ScanScanStatus
+  subcontrols: SubcontrolConnection
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
   /** the target of the scan, e.g., a domain name or IP address, codebase */
@@ -43389,6 +43356,15 @@ export interface ScanRemediationsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<RemediationOrder>>
   where?: InputMaybe<RemediationWhereInput>
+}
+
+export interface ScanSubcontrolsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<SubcontrolOrder>>
+  where?: InputMaybe<SubcontrolWhereInput>
 }
 
 export interface ScanTasksArgs {
@@ -43705,6 +43681,9 @@ export interface ScanWhereInput {
   /** scope edge predicates */
   hasScope?: InputMaybe<Scalars['Boolean']['input']>
   hasScopeWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
+  /** subcontrols edge predicates */
+  hasSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
+  hasSubcontrolsWith?: InputMaybe<Array<SubcontrolWhereInput>>
   /** tasks edge predicates */
   hasTasks?: InputMaybe<Scalars['Boolean']['input']>
   hasTasksWith?: InputMaybe<Array<TaskWhereInput>>
@@ -45145,11 +45124,14 @@ export interface Subcontrol extends Node {
   referenceID?: Maybe<Scalars['String']['output']>
   /** references for the control */
   references?: Maybe<Array<Scalars['Reference']['output']>>
+  remediations: RemediationConnection
   /** the entity who is responsible for the control implementation when it is a third party */
   responsibleParty?: Maybe<Entity>
   /** the id of the party responsible for the control, usually used when the control is implemented by a third party */
   responsiblePartyID?: Maybe<Scalars['ID']['output']>
+  reviews: ReviewConnection
   risks: RiskConnection
+  scans: ScanConnection
   scheduledJobs: ScheduledJobConnection
   /** source of the control, e.g. framework, template, custom, etc. */
   source?: Maybe<SubcontrolControlSource>
@@ -45265,6 +45247,24 @@ export interface SubcontrolProceduresArgs {
   where?: InputMaybe<ProcedureWhereInput>
 }
 
+export interface SubcontrolRemediationsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<RemediationOrder>>
+  where?: InputMaybe<RemediationWhereInput>
+}
+
+export interface SubcontrolReviewsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ReviewOrder>>
+  where?: InputMaybe<ReviewWhereInput>
+}
+
 export interface SubcontrolRisksArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -45272,6 +45272,15 @@ export interface SubcontrolRisksArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<RiskOrder>>
   where?: InputMaybe<RiskWhereInput>
+}
+
+export interface SubcontrolScansArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ScanOrder>>
+  where?: InputMaybe<ScanWhereInput>
 }
 
 export interface SubcontrolScheduledJobsArgs {
@@ -45643,12 +45652,21 @@ export interface SubcontrolWhereInput {
   /** procedures edge predicates */
   hasProcedures?: InputMaybe<Scalars['Boolean']['input']>
   hasProceduresWith?: InputMaybe<Array<ProcedureWhereInput>>
+  /** remediations edge predicates */
+  hasRemediations?: InputMaybe<Scalars['Boolean']['input']>
+  hasRemediationsWith?: InputMaybe<Array<RemediationWhereInput>>
   /** responsible_party edge predicates */
   hasResponsibleParty?: InputMaybe<Scalars['Boolean']['input']>
   hasResponsiblePartyWith?: InputMaybe<Array<EntityWhereInput>>
+  /** reviews edge predicates */
+  hasReviews?: InputMaybe<Scalars['Boolean']['input']>
+  hasReviewsWith?: InputMaybe<Array<ReviewWhereInput>>
   /** risks edge predicates */
   hasRisks?: InputMaybe<Scalars['Boolean']['input']>
   hasRisksWith?: InputMaybe<Array<RiskWhereInput>>
+  /** scans edge predicates */
+  hasScans?: InputMaybe<Scalars['Boolean']['input']>
+  hasScansWith?: InputMaybe<Array<ScanWhereInput>>
   /** scheduled_jobs edge predicates */
   hasScheduledJobs?: InputMaybe<Scalars['Boolean']['input']>
   hasScheduledJobsWith?: InputMaybe<Array<ScheduledJobWhereInput>>
@@ -56455,8 +56473,6 @@ export interface UpdateSlaDefinitionInput {
   clearBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearOwner?: InputMaybe<Scalars['Boolean']['input']>
-  clearSLADefinitionSeverityLevel?: InputMaybe<Scalars['Boolean']['input']>
-  clearSLADefinitionSeverityLevelName?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearViewers?: InputMaybe<Scalars['Boolean']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
@@ -56465,9 +56481,6 @@ export interface UpdateSlaDefinitionInput {
   removeViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** remediation service level agreement in days for the severity level */
   slaDays?: InputMaybe<Scalars['Int']['input']>
-  slaDefinitionSeverityLevelID?: InputMaybe<Scalars['ID']['input']>
-  /** the severity_level of the sla_definition */
-  slaDefinitionSeverityLevelName?: InputMaybe<Scalars['String']['input']>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
 }
@@ -56487,6 +56500,7 @@ export interface UpdateScanInput {
   addFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addPlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addRemediationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addVulnerabilityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -56524,6 +56538,7 @@ export interface UpdateScanInput {
   clearScanSchedule?: InputMaybe<Scalars['Boolean']['input']>
   clearScope?: InputMaybe<Scalars['Boolean']['input']>
   clearScopeName?: InputMaybe<Scalars['Boolean']['input']>
+  clearSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearTasks?: InputMaybe<Scalars['Boolean']['input']>
   clearViewers?: InputMaybe<Scalars['Boolean']['input']>
@@ -56551,6 +56566,7 @@ export interface UpdateScanInput {
   removeFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removePlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeRemediationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeVulnerabilityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -56710,7 +56726,10 @@ export interface UpdateSubcontrolInput {
   addInternalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addNarrativeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProcedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addRemediationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addReviewIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addRiskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addScanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addScheduledJobIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addWorkflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -56770,8 +56789,11 @@ export interface UpdateSubcontrolInput {
   clearReferenceFrameworkRevision?: InputMaybe<Scalars['Boolean']['input']>
   clearReferenceID?: InputMaybe<Scalars['Boolean']['input']>
   clearReferences?: InputMaybe<Scalars['Boolean']['input']>
+  clearRemediations?: InputMaybe<Scalars['Boolean']['input']>
   clearResponsibleParty?: InputMaybe<Scalars['Boolean']['input']>
+  clearReviews?: InputMaybe<Scalars['Boolean']['input']>
   clearRisks?: InputMaybe<Scalars['Boolean']['input']>
+  clearScans?: InputMaybe<Scalars['Boolean']['input']>
   clearScheduledJobs?: InputMaybe<Scalars['Boolean']['input']>
   clearSource?: InputMaybe<Scalars['Boolean']['input']>
   clearSourceName?: InputMaybe<Scalars['Boolean']['input']>
@@ -56832,7 +56854,10 @@ export interface UpdateSubcontrolInput {
   removeInternalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeNarrativeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProcedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeRemediationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeReviewIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeRiskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeScanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeScheduledJobIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeWorkflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -63473,6 +63498,7 @@ export type ContactsWithFilterQuery = {
         id: string
         phoneNumber?: string | null
         status: ContactUserStatus
+        tags?: Array<string> | null
         title?: string | null
         updatedAt?: any | null
         updatedBy?: string | null
@@ -63499,6 +63525,7 @@ export type ContactQuery = {
     id: string
     phoneNumber?: string | null
     status: ContactUserStatus
+    tags?: Array<string> | null
     title?: string | null
     updatedAt?: any | null
     updatedBy?: string | null
@@ -63811,8 +63838,15 @@ export type ControlListFieldsFragment = {
     totalCount: number
     edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string } | null } | null> | null
   }
-  controlOwner?: { __typename?: 'Group'; id: string; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
-  delegate?: { __typename?: 'Group'; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
+  controlOwner?: {
+    __typename?: 'Group'
+    id: string
+    displayName: string
+    logoURL?: string | null
+    gravatarLogoURL?: string | null
+    avatarFile?: { __typename?: 'File'; base64?: string | null } | null
+  } | null
+  delegate?: { __typename?: 'Group'; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
   controlImplementations: {
     __typename?: 'ControlImplementationConnection'
     edges?: Array<{ __typename?: 'ControlImplementationEdge'; node?: { __typename?: 'ControlImplementation'; details?: string | null } | null } | null> | null
@@ -63841,11 +63875,14 @@ export type ControlListStandardFieldsFragment = {
   __typename?: 'Control'
   id: string
   refCode: string
+  title?: string | null
   description?: string | null
   category?: string | null
   subcategory?: string | null
   mappedCategories?: Array<string> | null
+  tags?: Array<string> | null
   referenceFramework?: string | null
+  trustCenterVisibility?: ControlTrustCenterControlVisibility | null
   subcontrols: { __typename?: 'SubcontrolConnection'; totalCount: number }
   controlObjectives: {
     __typename?: 'ControlObjectiveConnection'
@@ -63922,8 +63959,22 @@ export type ControlDetailsFieldsFragment = {
       } | null
     } | null> | null
   }
-  delegate?: { __typename?: 'Group'; id: string; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
-  controlOwner?: { __typename?: 'Group'; id: string; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
+  delegate?: {
+    __typename?: 'Group'
+    id: string
+    displayName: string
+    logoURL?: string | null
+    gravatarLogoURL?: string | null
+    avatarFile?: { __typename?: 'File'; base64?: string | null } | null
+  } | null
+  controlOwner?: {
+    __typename?: 'Group'
+    id: string
+    displayName: string
+    logoURL?: string | null
+    gravatarLogoURL?: string | null
+    avatarFile?: { __typename?: 'File'; base64?: string | null } | null
+  } | null
 }
 
 export type GetAllControlsQueryVariables = Exact<{
@@ -63970,8 +64021,15 @@ export type GetAllControlsQuery = {
           totalCount: number
           edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string } | null } | null> | null
         }
-        controlOwner?: { __typename?: 'Group'; id: string; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
-        delegate?: { __typename?: 'Group'; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
+        controlOwner?: {
+          __typename?: 'Group'
+          id: string
+          displayName: string
+          logoURL?: string | null
+          gravatarLogoURL?: string | null
+          avatarFile?: { __typename?: 'File'; base64?: string | null } | null
+        } | null
+        delegate?: { __typename?: 'Group'; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
         controlImplementations: {
           __typename?: 'ControlImplementationConnection'
           edges?: Array<{ __typename?: 'ControlImplementationEdge'; node?: { __typename?: 'ControlImplementation'; details?: string | null } | null } | null> | null
@@ -64078,8 +64136,22 @@ export type GetControlByIdQuery = {
         } | null
       } | null> | null
     }
-    delegate?: { __typename?: 'Group'; id: string; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
-    controlOwner?: { __typename?: 'Group'; id: string; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
+    delegate?: {
+      __typename?: 'Group'
+      id: string
+      displayName: string
+      logoURL?: string | null
+      gravatarLogoURL?: string | null
+      avatarFile?: { __typename?: 'File'; base64?: string | null } | null
+    } | null
+    controlOwner?: {
+      __typename?: 'Group'
+      id: string
+      displayName: string
+      logoURL?: string | null
+      gravatarLogoURL?: string | null
+      avatarFile?: { __typename?: 'File'; base64?: string | null } | null
+    } | null
   }
 }
 
@@ -64102,7 +64174,7 @@ export type GetControlAssociationsByIdQuery = {
           name: string
           displayID: string
           summary?: string | null
-          approver?: { __typename?: 'Group'; gravatarLogoURL?: string | null; logoURL?: string | null; displayName: string } | null
+          approver?: { __typename?: 'Group'; gravatarLogoURL?: string | null; logoURL?: string | null; displayName: string; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
         } | null
       } | null> | null
     }
@@ -64117,7 +64189,7 @@ export type GetControlAssociationsByIdQuery = {
           name: string
           displayID: string
           summary?: string | null
-          approver?: { __typename?: 'Group'; gravatarLogoURL?: string | null; logoURL?: string | null; displayName: string } | null
+          approver?: { __typename?: 'Group'; gravatarLogoURL?: string | null; logoURL?: string | null; displayName: string; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
         } | null
       } | null> | null
     }
@@ -64330,11 +64402,14 @@ export type GetControlsPaginatedWithListFieldsQuery = {
         __typename?: 'Control'
         id: string
         refCode: string
+        title?: string | null
         description?: string | null
         category?: string | null
         subcategory?: string | null
         mappedCategories?: Array<string> | null
+        tags?: Array<string> | null
         referenceFramework?: string | null
+        trustCenterVisibility?: ControlTrustCenterControlVisibility | null
         subcontrols: { __typename?: 'SubcontrolConnection'; totalCount: number }
         controlObjectives: {
           __typename?: 'ControlObjectiveConnection'
@@ -65687,6 +65762,7 @@ export type EntitiesWithFilterQuery = {
         updatedAt?: any | null
         updatedBy?: string | null
         vendorMetadata?: any | null
+        logoFile?: { __typename?: 'File'; presignedURL?: string | null } | null
         internalOwnerGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
         internalOwnerUser?: { __typename?: 'User'; id: string; displayName: string } | null
         reviewedByGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
@@ -65755,6 +65831,7 @@ export type EntityQuery = {
     vendorMetadata?: any | null
     internalOwnerGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
     internalOwnerUser?: { __typename?: 'User'; id: string; displayName: string } | null
+    logoFile?: { __typename?: 'File'; presignedURL?: string | null } | null
     reviewedByGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
     reviewedByUser?: { __typename?: 'User'; id: string; displayName: string } | null
   }
@@ -65840,6 +65917,7 @@ export type UpdateEntityWithFilesMutationVariables = Exact<{
   updateEntityId: Scalars['ID']['input']
   input: UpdateEntityInput
   entityFiles?: InputMaybe<Array<Scalars['Upload']['input']> | Scalars['Upload']['input']>
+  logoFile?: InputMaybe<Scalars['Upload']['input']>
 }>
 
 export type UpdateEntityWithFilesMutation = { __typename?: 'Mutation'; updateEntity: { __typename?: 'EntityUpdatePayload'; entity: { __typename?: 'Entity'; id: string } } }
@@ -65848,6 +65926,7 @@ export type CreateEntityWithFilesMutationVariables = Exact<{
   input: CreateEntityInput
   entityTypeName?: InputMaybe<Scalars['String']['input']>
   entityFiles?: InputMaybe<Array<Scalars['Upload']['input']> | Scalars['Upload']['input']>
+  logoFile?: InputMaybe<Scalars['Upload']['input']>
 }>
 
 export type CreateEntityWithFilesMutation = { __typename?: 'Mutation'; createEntity: { __typename?: 'EntityCreatePayload'; entity: { __typename?: 'Entity'; id: string } } }
@@ -66640,11 +66719,13 @@ export type FindingsWithFilterQuery = {
         scopeID?: string | null
         scopeName?: string | null
         score?: number | null
+        securityLevel?: FindingSecurityLevel | null
         severity?: string | null
         source?: string | null
         sourceUpdatedAt?: string | null
         state?: string | null
         status?: string | null
+        findingStatusName?: string | null
         systemOwned?: boolean | null
         targetDetails?: any | null
         updatedAt?: any | null
@@ -66703,11 +66784,13 @@ export type FindingQuery = {
     scopeID?: string | null
     scopeName?: string | null
     score?: number | null
+    securityLevel?: FindingSecurityLevel | null
     severity?: string | null
     source?: string | null
     sourceUpdatedAt?: string | null
     state?: string | null
     status?: string | null
+    findingStatusName?: string | null
     systemOwned?: boolean | null
     targetDetails?: any | null
     updatedAt?: any | null
@@ -66981,6 +67064,7 @@ export type GetAllGroupsQuery = {
         updatedBy?: string | null
         createdAt?: any | null
         createdBy?: string | null
+        avatarFile?: { __typename?: 'File'; base64?: string | null } | null
         members: {
           __typename?: 'GroupMembershipConnection'
           edges?: Array<{
@@ -67047,8 +67131,10 @@ export type GetGroupDetailsQuery = {
     description?: string | null
     displayName: string
     logoURL?: string | null
+    gravatarLogoURL?: string | null
     isManaged?: boolean | null
     tags?: Array<string> | null
+    avatarFile?: { __typename?: 'File'; base64?: string | null } | null
     members: {
       __typename?: 'GroupMembershipConnection'
       edges?: Array<{
@@ -67473,8 +67559,8 @@ export type GetInternalPoliciesListQuery = {
         revision?: string | null
         status?: InternalPolicyDocumentStatus | null
         tags?: Array<string> | null
-        approver?: { __typename?: 'Group'; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
-        delegate?: { __typename?: 'Group'; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
+        approver?: { __typename?: 'Group'; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
+        delegate?: { __typename?: 'Group'; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
         controls: { __typename?: 'ControlConnection'; edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string } | null } | null> | null }
         procedures: { __typename?: 'ProcedureConnection'; edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string } | null } | null> | null }
       } | null
@@ -67520,8 +67606,22 @@ export type InternalPolicyByIdFragment = {
   summary?: string | null
   detailsJSON?: Array<any> | null
   internalPolicyKindName?: string | null
-  approver?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
-  delegate?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
+  approver?: {
+    __typename?: 'Group'
+    id: string
+    displayName: string
+    gravatarLogoURL?: string | null
+    logoURL?: string | null
+    avatarFile?: { __typename?: 'File'; base64?: string | null } | null
+  } | null
+  delegate?: {
+    __typename?: 'Group'
+    id: string
+    displayName: string
+    gravatarLogoURL?: string | null
+    logoURL?: string | null
+    avatarFile?: { __typename?: 'File'; base64?: string | null } | null
+  } | null
 }
 
 export type GetInternalPolicyDetailsByIdQueryVariables = Exact<{
@@ -67549,8 +67649,22 @@ export type GetInternalPolicyDetailsByIdQuery = {
     summary?: string | null
     detailsJSON?: Array<any> | null
     internalPolicyKindName?: string | null
-    approver?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
-    delegate?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
+    approver?: {
+      __typename?: 'Group'
+      id: string
+      displayName: string
+      gravatarLogoURL?: string | null
+      logoURL?: string | null
+      avatarFile?: { __typename?: 'File'; base64?: string | null } | null
+    } | null
+    delegate?: {
+      __typename?: 'Group'
+      id: string
+      displayName: string
+      gravatarLogoURL?: string | null
+      logoURL?: string | null
+      avatarFile?: { __typename?: 'File'; base64?: string | null } | null
+    } | null
   }
 }
 
@@ -69194,8 +69308,8 @@ export type GetProceduresTableListQuery = {
         revision?: string | null
         status?: ProcedureDocumentStatus | null
         tags?: Array<string> | null
-        approver?: { __typename?: 'Group'; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
-        delegate?: { __typename?: 'Group'; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
+        approver?: { __typename?: 'Group'; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
+        delegate?: { __typename?: 'Group'; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
         internalPolicies: {
           __typename?: 'InternalPolicyConnection'
           edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string } | null } | null> | null
@@ -69261,8 +69375,22 @@ export type ProcedureByIdFragment = {
   approvalRequired?: boolean | null
   procedureKindName?: string | null
   detailsJSON?: Array<any> | null
-  approver?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
-  delegate?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
+  approver?: {
+    __typename?: 'Group'
+    id: string
+    displayName: string
+    gravatarLogoURL?: string | null
+    logoURL?: string | null
+    avatarFile?: { __typename?: 'File'; base64?: string | null } | null
+  } | null
+  delegate?: {
+    __typename?: 'Group'
+    id: string
+    displayName: string
+    gravatarLogoURL?: string | null
+    logoURL?: string | null
+    avatarFile?: { __typename?: 'File'; base64?: string | null } | null
+  } | null
 }
 
 export type GetProcedureAssociationsByIdQueryVariables = Exact<{
@@ -69333,8 +69461,22 @@ export type GetProcedureDetailsByIdQuery = {
     approvalRequired?: boolean | null
     procedureKindName?: string | null
     detailsJSON?: Array<any> | null
-    approver?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
-    delegate?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
+    approver?: {
+      __typename?: 'Group'
+      id: string
+      displayName: string
+      gravatarLogoURL?: string | null
+      logoURL?: string | null
+      avatarFile?: { __typename?: 'File'; base64?: string | null } | null
+    } | null
+    delegate?: {
+      __typename?: 'Group'
+      id: string
+      displayName: string
+      gravatarLogoURL?: string | null
+      logoURL?: string | null
+      avatarFile?: { __typename?: 'File'; base64?: string | null } | null
+    } | null
   }
 }
 
@@ -69665,11 +69807,31 @@ export type GetProgramSettingsQuery = {
     __typename?: 'Program'
     viewers: {
       __typename?: 'GroupConnection'
-      edges?: Array<{ __typename?: 'GroupEdge'; node?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null } | null> | null
+      edges?: Array<{
+        __typename?: 'GroupEdge'
+        node?: {
+          __typename?: 'Group'
+          id: string
+          displayName: string
+          gravatarLogoURL?: string | null
+          logoURL?: string | null
+          avatarFile?: { __typename?: 'File'; base64?: string | null } | null
+        } | null
+      } | null> | null
     }
     editors: {
       __typename?: 'GroupConnection'
-      edges?: Array<{ __typename?: 'GroupEdge'; node?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null } | null> | null
+      edges?: Array<{
+        __typename?: 'GroupEdge'
+        node?: {
+          __typename?: 'Group'
+          id: string
+          displayName: string
+          gravatarLogoURL?: string | null
+          logoURL?: string | null
+          avatarFile?: { __typename?: 'File'; base64?: string | null } | null
+        } | null
+      } | null> | null
     }
     members: {
       __typename?: 'ProgramMembershipConnection'
@@ -69741,6 +69903,7 @@ export type GetProgramGroupsQuery = {
           id: string
           gravatarLogoURL?: string | null
           logoURL?: string | null
+          avatarFile?: { __typename?: 'File'; base64?: string | null } | null
           members: { __typename?: 'GroupMembershipConnection'; totalCount: number }
         } | null
       } | null> | null
@@ -69757,6 +69920,7 @@ export type GetProgramGroupsQuery = {
           id: string
           gravatarLogoURL?: string | null
           logoURL?: string | null
+          avatarFile?: { __typename?: 'File'; base64?: string | null } | null
           members: { __typename?: 'GroupMembershipConnection'; totalCount: number }
         } | null
       } | null> | null
@@ -70243,8 +70407,23 @@ export type RiskFieldsFragment = {
   likelihood?: RiskRiskLikelihood | null
   impact?: RiskRiskImpact | null
   mitigation?: string | null
-  stakeholder?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
-  delegate?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
+  createdAt?: any | null
+  stakeholder?: {
+    __typename?: 'Group'
+    id: string
+    displayName: string
+    gravatarLogoURL?: string | null
+    logoURL?: string | null
+    avatarFile?: { __typename?: 'File'; base64?: string | null } | null
+  } | null
+  delegate?: {
+    __typename?: 'Group'
+    id: string
+    displayName: string
+    gravatarLogoURL?: string | null
+    logoURL?: string | null
+    avatarFile?: { __typename?: 'File'; base64?: string | null } | null
+  } | null
   procedures: {
     __typename?: 'ProcedureConnection'
     totalCount: number
@@ -70306,8 +70485,15 @@ export type RiskTableFieldsFragment = {
   updatedBy?: string | null
   createdAt?: any | null
   createdBy?: string | null
-  delegate?: { __typename?: 'Group'; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
-  stakeholder?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
+  delegate?: { __typename?: 'Group'; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
+  stakeholder?: {
+    __typename?: 'Group'
+    id: string
+    displayName: string
+    gravatarLogoURL?: string | null
+    logoURL?: string | null
+    avatarFile?: { __typename?: 'File'; base64?: string | null } | null
+  } | null
 }
 
 export type GetRiskByIdQueryVariables = Exact<{
@@ -70332,8 +70518,23 @@ export type GetRiskByIdQuery = {
     likelihood?: RiskRiskLikelihood | null
     impact?: RiskRiskImpact | null
     mitigation?: string | null
-    stakeholder?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
-    delegate?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
+    createdAt?: any | null
+    stakeholder?: {
+      __typename?: 'Group'
+      id: string
+      displayName: string
+      gravatarLogoURL?: string | null
+      logoURL?: string | null
+      avatarFile?: { __typename?: 'File'; base64?: string | null } | null
+    } | null
+    delegate?: {
+      __typename?: 'Group'
+      id: string
+      displayName: string
+      gravatarLogoURL?: string | null
+      logoURL?: string | null
+      avatarFile?: { __typename?: 'File'; base64?: string | null } | null
+    } | null
     procedures: {
       __typename?: 'ProcedureConnection'
       totalCount: number
@@ -70413,8 +70614,15 @@ export type GetAllRisksQuery = {
         updatedBy?: string | null
         createdAt?: any | null
         createdBy?: string | null
-        delegate?: { __typename?: 'Group'; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
-        stakeholder?: { __typename?: 'Group'; id: string; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null } | null
+        delegate?: { __typename?: 'Group'; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
+        stakeholder?: {
+          __typename?: 'Group'
+          id: string
+          displayName: string
+          gravatarLogoURL?: string | null
+          logoURL?: string | null
+          avatarFile?: { __typename?: 'File'; base64?: string | null } | null
+        } | null
       } | null
     } | null> | null
   }
@@ -71006,8 +71214,7 @@ export type SlaDefinitionsWithFilterQuery = {
         displayID: string
         id: string
         slaDays: number
-        slaDefinitionSeverityLevelID?: string | null
-        slaDefinitionSeverityLevelName?: string | null
+        securityLevel: SlaDefinitionSecurityLevel
         updatedAt?: any | null
         updatedBy?: string | null
       } | null
@@ -71029,8 +71236,7 @@ export type SlaDefinitionQuery = {
     displayID: string
     id: string
     slaDays: number
-    slaDefinitionSeverityLevelID?: string | null
-    slaDefinitionSeverityLevelName?: string | null
+    securityLevel: SlaDefinitionSecurityLevel
     updatedAt?: any | null
     updatedBy?: string | null
   }
@@ -71043,23 +71249,23 @@ export type CreateSlaDefinitionMutationVariables = Exact<{
 export type CreateSlaDefinitionMutation = { __typename?: 'Mutation'; createSLADefinition: { __typename?: 'SLADefinitionCreatePayload'; slaDefinition: { __typename?: 'SLADefinition'; id: string } } }
 
 export type UpdateSlaDefinitionMutationVariables = Exact<{
-  updateSLADefinitionId: Scalars['ID']['input']
+  updateSlaDefinitionId: Scalars['ID']['input']
   input: UpdateSlaDefinitionInput
 }>
 
 export type UpdateSlaDefinitionMutation = { __typename?: 'Mutation'; updateSLADefinition: { __typename?: 'SLADefinitionUpdatePayload'; slaDefinition: { __typename?: 'SLADefinition'; id: string } } }
 
 export type DeleteSlaDefinitionMutationVariables = Exact<{
-  deleteSLADefinitionId: Scalars['ID']['input']
+  deleteSlaDefinitionId: Scalars['ID']['input']
 }>
 
 export type DeleteSlaDefinitionMutation = { __typename?: 'Mutation'; deleteSLADefinition: { __typename?: 'SLADefinitionDeletePayload'; deletedID: string } }
 
-export type CreateBulkCsvslaDefinitionMutationVariables = Exact<{
+export type CreateBulkCsvSlaDefinitionMutationVariables = Exact<{
   input: Scalars['Upload']['input']
 }>
 
-export type CreateBulkCsvslaDefinitionMutation = {
+export type CreateBulkCsvSlaDefinitionMutation = {
   __typename?: 'Mutation'
   createBulkCSVSLADefinition: { __typename?: 'SLADefinitionBulkCreatePayload'; slaDefinitions?: Array<{ __typename?: 'SLADefinition'; id: string }> | null }
 }
@@ -71280,8 +71486,22 @@ export type GetSubcontrolByIdQuery = {
       __typename?: 'EvidenceConnection'
       edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; id: string; displayID: string; name: string; creationDate: any } | null } | null> | null
     }
-    delegate?: { __typename?: 'Group'; id: string; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
-    controlOwner?: { __typename?: 'Group'; id: string; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null } | null
+    delegate?: {
+      __typename?: 'Group'
+      id: string
+      displayName: string
+      logoURL?: string | null
+      gravatarLogoURL?: string | null
+      avatarFile?: { __typename?: 'File'; base64?: string | null } | null
+    } | null
+    controlOwner?: {
+      __typename?: 'Group'
+      id: string
+      displayName: string
+      logoURL?: string | null
+      gravatarLogoURL?: string | null
+      avatarFile?: { __typename?: 'File'; base64?: string | null } | null
+    } | null
   }
 }
 
@@ -71303,7 +71523,7 @@ export type GetSubcontrolAssociationsByIdQuery = {
           id: string
           name: string
           displayID: string
-          approver?: { __typename?: 'Group'; gravatarLogoURL?: string | null; logoURL?: string | null; displayName: string } | null
+          approver?: { __typename?: 'Group'; gravatarLogoURL?: string | null; logoURL?: string | null; displayName: string; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
         } | null
       } | null> | null
     }
@@ -71317,7 +71537,7 @@ export type GetSubcontrolAssociationsByIdQuery = {
           id: string
           name: string
           displayID: string
-          approver?: { __typename?: 'Group'; gravatarLogoURL?: string | null; logoURL?: string | null; displayName: string } | null
+          approver?: { __typename?: 'Group'; gravatarLogoURL?: string | null; logoURL?: string | null; displayName: string; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
         } | null
       } | null> | null
     }
@@ -73196,6 +73416,7 @@ export type VulnerabilitiesWithFilterQuery = {
         scopeID?: string | null
         scopeName?: string | null
         score?: number | null
+        securityLevel?: VulnerabilitySecurityLevel | null
         severity?: string | null
         source?: string | null
         sourceUpdatedAt?: string | null
@@ -73209,6 +73430,7 @@ export type VulnerabilitiesWithFilterQuery = {
         updatedBy?: string | null
         validated?: boolean | null
         vector?: string | null
+        vulnerabilityStatusName?: string | null
         remediations: {
           __typename?: 'RemediationConnection'
           totalCount: number
@@ -73256,6 +73478,7 @@ export type VulnerabilityQuery = {
     scopeID?: string | null
     scopeName?: string | null
     score?: number | null
+    securityLevel?: VulnerabilitySecurityLevel | null
     severity?: string | null
     source?: string | null
     sourceUpdatedAt?: string | null
@@ -73269,6 +73492,7 @@ export type VulnerabilityQuery = {
     updatedBy?: string | null
     validated?: boolean | null
     vector?: string | null
+    vulnerabilityStatusName?: string | null
     remediations: {
       __typename?: 'RemediationConnection'
       totalCount: number

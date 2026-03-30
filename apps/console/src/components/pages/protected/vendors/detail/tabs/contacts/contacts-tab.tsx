@@ -85,7 +85,12 @@ const ContactsTab: React.FC<ContactsTabProps> = ({ vendorId, canEdit: canEditVen
   const debouncedSearch = useDebounce(searchTerm, 300)
   const searchFields = debouncedSearch ? { fullNameContainsFold: debouncedSearch } : {}
 
-  const { contacts, isLoading, pageInfo, totalCount } = useContactsWithFilter({
+  const {
+    contactsNodes: contacts,
+    isLoading,
+    pageInfo,
+    totalCount,
+  } = useContactsWithFilter({
     where: { hasEntitiesWith: [{ id: vendorId }], ...filterWhere, ...searchFields },
     pagination,
   })

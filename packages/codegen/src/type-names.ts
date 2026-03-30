@@ -1,44 +1,6 @@
 // This file is auto-generated. Do not edit manually.
 
-import {
-  ActionPlan,
-  Assessment,
-  Asset,
-  Campaign,
-  Control,
-  ControlImplementation,
-  ControlObjective,
-  EmailBranding,
-  Entity,
-  Evidence,
-  Finding,
-  Group,
-  IdentityHolder,
-  InternalPolicy,
-  MappedControl,
-  Narrative,
-  PageInfo,
-  Platform,
-  Procedure,
-  Program,
-  Remediation,
-  Review,
-  Risk,
-  Scan,
-  SlaDefinition,
-  Subcontrol,
-  TrustCenter,
-  TrustCenterCompliance,
-  TrustCenterDoc,
-  TrustCenterEntity,
-  TrustCenterFaq,
-  TrustCenterNdaRequest,
-  TrustCenterSetting,
-  TrustCenterSubprocessor,
-  TrustCenterWatermarkConfig,
-  Vulnerability,
-  WorkflowDefinition,
-} from './schema'
+import { ActionPlan, Assessment, Asset, Campaign, Control, ControlImplementation, ControlObjective, EmailBranding, Entity, Evidence, Finding, Group, IdentityHolder, InternalPolicy, MappedControl, Narrative, PageInfo, Platform, Procedure, Program, Remediation, Review, Risk, Scan, SlaDefinition, Subcontrol, TrustCenter, TrustCenterCompliance, TrustCenterDoc, TrustCenterEntity, TrustCenterFaq, TrustCenterNdaRequest, TrustCenterSetting, TrustCenterSubprocessor, TrustCenterWatermarkConfig, Vulnerability, WorkflowDefinition } from './schema'
 import { GET_ALL_ACTION_PLANS } from '@repo/codegen/query/action-plan'
 import { GET_ALL_ASSESSMENTS } from '@repo/codegen/query/assessment'
 import { GET_ALL_ASSETS } from '@repo/codegen/query/asset'

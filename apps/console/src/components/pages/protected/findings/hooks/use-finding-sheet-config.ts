@@ -3,7 +3,7 @@
 import { useCallback } from 'react'
 import type React from 'react'
 import useFormSchema from './use-form-schema'
-import { type FindingsNodeNonNull, useFinding, useUpdateFinding, useCreateFinding, useBulkDeleteFinding, useGetFindingAssociations } from '@/lib/graphql-hooks/finding'
+import { type FindingsNodeNonNull, useFinding, useUpdateFinding, useCreateFinding, useGetFindingAssociations, useBulkDeleteFinding } from '@/lib/graphql-hooks/finding'
 import { getFieldsToRender } from '../table/table-config'
 import { type FindingSheetConfig, type FindingFieldProps, type EnumOptions, objectType } from '../table/types'
 import { type CreateFindingInput, type UpdateFindingInput, type GetFindingAssociationsQuery } from '@repo/codegen/src/schema'
@@ -29,6 +29,7 @@ export const useFindingSheetConfig = (entityId: string | null | undefined, isCre
       scanIDs: (finding.scans?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
       remediationIDs: (finding.remediations?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
       reviewIDs: (finding.reviews?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+      vulnerabilityIDs: (finding.vulnerabilities?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
     }
   }, [])
 
@@ -36,7 +37,7 @@ export const useFindingSheetConfig = (entityId: string | null | undefined, isCre
 
   const baseUpdateMutation = useUpdateFinding()
   const baseCreateMutation = useCreateFinding()
-  const baseDeleteMutation = useBulkDeleteFinding()
+  const baseBulkDeleteMutation = useBulkDeleteFinding()
 
   const updateMutation = {
     isPending: baseUpdateMutation.isPending,
@@ -48,11 +49,20 @@ export const useFindingSheetConfig = (entityId: string | null | undefined, isCre
     mutateAsync: async (input: CreateFindingInput) => baseCreateMutation.mutateAsync({ input }),
   }
 
+  const deleteMutation = {
+    isPending: baseBulkDeleteMutation.isPending,
+    mutateAsync: async (params: { ids: string[] }) => {
+      const result = await baseBulkDeleteMutation.mutateAsync({ ids: params.ids })
+      return result.deleteBulkFinding.deletedIDs
+    },
+  }
+
   const { enumOptions: environmentOptions, onCreateOption: createEnvironment } = useCreatableEnumOptions({ field: 'environment' })
   const { enumOptions: scopeOptions, onCreateOption: createScope } = useCreatableEnumOptions({ field: 'scope' })
+  const { enumOptions: findingStatusOptions, onCreateOption: createFindingStatus } = useCreatableEnumOptions({ objectType: 'finding', field: 'status' })
 
-  const enumOpts = { environmentOptions, scopeOptions }
-  const enumCreateHandlers = { environmentName: createEnvironment, scopeName: createScope }
+  const enumOpts = { environmentOptions, scopeOptions, findingStatusOptions }
+  const enumCreateHandlers = { environmentName: createEnvironment, scopeName: createScope, findingStatusName: createFindingStatus }
 
   function getName(d: FindingsNodeNonNull) {
     return d?.displayName || d?.displayID || d?.externalID
@@ -68,18 +78,12 @@ export const useFindingSheetConfig = (entityId: string | null | undefined, isCre
     isFetching: isLoading,
     updateMutation,
     createMutation,
-    deleteMutation: {
-      isPending: baseDeleteMutation.isPending,
-      mutateAsync: async ({ ids }) => {
-        await baseDeleteMutation.mutateAsync({ ids })
-        return ids
-      },
-    },
+    deleteMutation,
     buildPayload: async (formData) => {
-      const { controlIDs, subcontrolIDs, riskIDs, programIDs, taskIDs, assetIDs, scanIDs, remediationIDs, reviewIDs, ...rest } = formData
+      const { controlIDs, subcontrolIDs, riskIDs, programIDs, taskIDs, assetIDs, scanIDs, remediationIDs, reviewIDs, vulnerabilityIDs, ...rest } = formData
       const associationPayload = buildAssociationPayload(
         FINDING_ASSOCIATION_CONFIG.associationKeys,
-        { controlIDs, subcontrolIDs, riskIDs, programIDs, taskIDs, assetIDs, scanIDs, remediationIDs, reviewIDs },
+        { controlIDs, subcontrolIDs, riskIDs, programIDs, taskIDs, assetIDs, scanIDs, remediationIDs, reviewIDs, vulnerabilityIDs },
         isCreate,
         initialAssociationsRef.current,
       )

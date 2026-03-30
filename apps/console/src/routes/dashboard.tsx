@@ -44,6 +44,7 @@ import {
   Route,
   CircleHelp,
   ClipboardPenLine,
+  IdCard,
 } from 'lucide-react'
 import { type NavHeading, type NavItem, type Separator } from '@/types'
 import { PlanEnum } from '@/lib/subscription-plan/plan-enum.ts'
@@ -126,6 +127,11 @@ export const topNavigationItems = (session: Session | null): (NavItem | Separato
           href: '/registry/personnel',
           icon: IdCardLanyardIcon,
         },
+        {
+          title: 'Contacts',
+          href: '/registry/contacts',
+          icon: IdCard,
+        },
       ],
     },
     {
@@ -165,6 +171,11 @@ export const topNavigationItems = (session: Session | null): (NavItem | Separato
           title: 'Frameworks',
           href: '/trust-center/frameworks',
           icon: ShieldCheck,
+        },
+        {
+          title: 'Controls',
+          href: '/trust-center/controls',
+          icon: Settings2,
         },
         { title: 'Subprocessors', href: '/trust-center/subprocessors', icon: Server },
         { title: 'Updates', href: '/trust-center/updates', icon: Megaphone },

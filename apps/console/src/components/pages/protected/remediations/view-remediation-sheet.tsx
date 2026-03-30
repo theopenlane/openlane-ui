@@ -2,7 +2,7 @@
 
 import React from 'react'
 import useFormSchema from './hooks/use-form-schema'
-import { type RemediationsNodeNonNull, useRemediation, useCreateRemediation, useUpdateRemediation } from '@/lib/graphql-hooks/remediation'
+import { type RemediationsNodeNonNull, useRemediation, useCreateRemediation, useUpdateRemediation, useBulkDeleteRemediation } from '@/lib/graphql-hooks/remediation'
 import { GenericDetailsSheet } from '@/components/shared/crud-base/generic-sheet'
 import { getFieldsToRender } from './table/table-config'
 import { type RemediationSheetConfig, type RemediationFieldProps, objectType } from './table/types'
@@ -20,6 +20,7 @@ const ViewRemediationSheet: React.FC<Props> = ({ entityId, onClose }) => {
 
   const baseUpdateMutation = useUpdateRemediation()
   const baseCreateMutation = useCreateRemediation()
+  const baseBulkDeleteMutation = useBulkDeleteRemediation()
 
   const updateMutation = {
     isPending: baseUpdateMutation.isPending,
@@ -29,6 +30,14 @@ const ViewRemediationSheet: React.FC<Props> = ({ entityId, onClose }) => {
   const createMutation = {
     isPending: baseCreateMutation.isPending,
     mutateAsync: async (input: CreateRemediationInput) => baseCreateMutation.mutateAsync({ input }),
+  }
+
+  const deleteMutation = {
+    isPending: baseBulkDeleteMutation.isPending,
+    mutateAsync: async (params: { ids: string[] }) => {
+      const result = await baseBulkDeleteMutation.mutateAsync({ ids: params.ids })
+      return result.deleteBulkRemediation.deletedIDs
+    },
   }
 
   const { enumOptions: environmentOptions, onCreateOption: createEnvironment } = useCreatableEnumOptions({ field: 'environment' })
@@ -50,6 +59,7 @@ const ViewRemediationSheet: React.FC<Props> = ({ entityId, onClose }) => {
     isFetching: isLoading,
     updateMutation,
     createMutation,
+    deleteMutation,
     onClose,
     basePath: '/exposure/remediations',
     buildPayload: async (formData) => {

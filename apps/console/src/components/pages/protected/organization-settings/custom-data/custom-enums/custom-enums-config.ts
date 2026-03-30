@@ -22,6 +22,8 @@ import {
   Blend,
   CircleDot,
   GitBranch,
+  ShieldAlert,
+  SearchCheck,
 } from 'lucide-react'
 
 export type EnumGroupConfig = {
@@ -159,6 +161,18 @@ export const ENUM_GROUP_MAP: Record<string, EnumGroupConfig> = {
     objectType: 'entity',
     field: 'sourceType',
     icon: GitBranch,
+  },
+  'Vulnerability Statuses': {
+    label: 'Vulnerability Statuses',
+    objectType: 'vulnerability',
+    field: 'status',
+    icon: ShieldAlert,
+  },
+  'Finding Statuses': {
+    label: 'Finding Statuses',
+    objectType: 'finding',
+    field: 'status',
+    icon: SearchCheck,
   },
 }
 

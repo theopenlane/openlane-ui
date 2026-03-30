@@ -80,6 +80,14 @@ const VulnerabilityPage: React.FC = () => {
     },
   }
 
+  const deleteMutation = {
+    isPending: baseBulkDeleteMutation.isPending,
+    mutateAsync: async (params: { ids: string[] }) => {
+      const result = await baseBulkDeleteMutation.mutateAsync({ ids: params.ids })
+      return result.deleteBulkVulnerability.deletedIDs
+    },
+  }
+
   const bulkCreateMutation = {
     isPending: baseBulkCreateMutation.isPending,
     mutateAsync: async (params: { input: File }) => {
@@ -96,17 +104,24 @@ const VulnerabilityPage: React.FC = () => {
     field: 'scope',
   })
 
+  const { enumOptions: vulnerabilityStatusOptions, onCreateOption: createVulnStatus } = useCreatableEnumOptions({
+    objectType: 'vulnerability',
+    field: 'status',
+  })
+
   const tagOptions = useGetTags()
 
   const enumOpts = {
     environmentOptions,
     scopeOptions,
     tagOptions: tagOptions.tagOptions,
+    vulnerabilityStatusOptions,
   }
 
   const enumCreateHandlers = {
     environmentName: createEnvironment,
     scopeName: createScope,
+    vulnerabilityStatusName: createVulnStatus,
   }
 
   const handleCloseViewSheet = () => {
@@ -124,6 +139,7 @@ const VulnerabilityPage: React.FC = () => {
     isFetching: isLoading,
     updateMutation,
     createMutation,
+    deleteMutation,
     buildPayload: async (data) => {
       const { controlIDs, subcontrolIDs, findingIDs, remediationIDs, reviewIDs, assetIDs, taskIDs, ...rest } = data
       const associationPayload = buildAssociationPayload(
@@ -139,13 +155,6 @@ const VulnerabilityPage: React.FC = () => {
         ...cleaned,
         ...associationPayload,
       }
-    },
-    deleteMutation: {
-      isPending: baseBulkDeleteMutation.isPending,
-      mutateAsync: async ({ ids }) => {
-        await baseBulkDeleteMutation.mutateAsync({ ids })
-        return ids
-      },
     },
     getName,
     renderFields: (props: VulnerabilityFieldProps) => getFieldsToRender(props, enumOpts, enumCreateHandlers),

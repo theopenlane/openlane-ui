@@ -103,6 +103,9 @@ export const GET_SUBCONTROL_BY_ID = gql`
         displayName
         logoURL
         gravatarLogoURL
+        avatarFile {
+          base64
+        }
       }
 
       controlOwner {
@@ -110,6 +113,9 @@ export const GET_SUBCONTROL_BY_ID = gql`
         displayName
         logoURL
         gravatarLogoURL
+        avatarFile {
+          base64
+        }
       }
     }
   }
@@ -128,6 +134,9 @@ export const GET_SUBCONTROL_ASSOCIATIONS_BY_ID = gql`
               gravatarLogoURL
               logoURL
               displayName
+              avatarFile {
+                base64
+              }
             }
           }
         }
@@ -143,6 +152,9 @@ export const GET_SUBCONTROL_ASSOCIATIONS_BY_ID = gql`
               gravatarLogoURL
               logoURL
               displayName
+              avatarFile {
+                base64
+              }
             }
           }
         }

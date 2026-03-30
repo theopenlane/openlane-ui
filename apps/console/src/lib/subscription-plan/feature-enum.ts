@@ -22,4 +22,5 @@ export enum FeatureEnum {
   VENDORS = 'VENDORS',
   PERSONNEL = 'PERSONNEL',
   EXPOSURE = 'EXPOSURE',
+  CONTACTS = 'CONTACTS',
 }

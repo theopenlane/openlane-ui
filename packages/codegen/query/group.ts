@@ -11,6 +11,9 @@ export const GET_ALL_GROUPS = gql`
           displayName
           gravatarLogoURL
           logoURL
+          avatarFile {
+            base64
+          }
           tags
           members {
             edges {
@@ -90,6 +93,10 @@ export const GET_GROUP_DETAILS = gql`
       description
       displayName
       logoURL
+      gravatarLogoURL
+      avatarFile {
+        base64
+      }
       isManaged
       tags
       members {

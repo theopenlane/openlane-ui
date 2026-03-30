@@ -29,6 +29,9 @@ export const GET_ALL_ENTITIES = gql`
           environmentName
           hasSoc2
           id
+          logoFile {
+            presignedURL
+          }
           internalOwner
           internalOwnerGroup {
             id
@@ -41,6 +44,9 @@ export const GET_ALL_ENTITIES = gql`
           lastReviewedAt
           mfaEnforced
           mfaSupported
+          logoFile {
+            presignedURL
+          }
           name
           nextReviewAt
           renewalRisk
@@ -118,6 +124,9 @@ export const ENTITY = gql`
         displayName
       }
       lastReviewedAt
+      logoFile {
+        presignedURL
+      }
       mfaEnforced
       mfaSupported
       name
@@ -236,8 +245,8 @@ export const GET_ENTITY_FILES_PAGINATED = gql`
 `
 
 export const UPDATE_ENTITY_WITH_FILES = gql`
-  mutation UpdateEntityWithFiles($updateEntityId: ID!, $input: UpdateEntityInput!, $entityFiles: [Upload!]) {
-    updateEntity(id: $updateEntityId, input: $input, entityFiles: $entityFiles) {
+  mutation UpdateEntityWithFiles($updateEntityId: ID!, $input: UpdateEntityInput!, $entityFiles: [Upload!], $logoFile: Upload) {
+    updateEntity(id: $updateEntityId, input: $input, entityFiles: $entityFiles, logoFile: $logoFile) {
       entity {
         id
       }
@@ -246,8 +255,8 @@ export const UPDATE_ENTITY_WITH_FILES = gql`
 `
 
 export const CREATE_ENTITY_WITH_FILES = gql`
-  mutation CreateEntityWithFiles($input: CreateEntityInput!, $entityTypeName: String, $entityFiles: [Upload!]) {
-    createEntity(input: $input, entityTypeName: $entityTypeName, entityFiles: $entityFiles) {
+  mutation CreateEntityWithFiles($input: CreateEntityInput!, $entityTypeName: String, $entityFiles: [Upload!], $logoFile: Upload) {
+    createEntity(input: $input, entityTypeName: $entityTypeName, entityFiles: $entityFiles, logoFile: $logoFile) {
       entity {
         id
       }

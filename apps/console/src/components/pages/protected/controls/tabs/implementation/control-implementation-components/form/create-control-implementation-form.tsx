@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { Controller } from 'react-hook-form'
+import { Controller, type UseFormReturn } from 'react-hook-form'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { Button } from '@repo/ui/button'
 import { Label } from '@repo/ui/label'
@@ -12,7 +12,7 @@ import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { type Value } from 'platejs'
 import { Info, Trash2 } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
-import useFormSchema, { type TFormData } from './use-form-schema'
+import { type TFormData } from './use-form-schema'
 import { useGetControlById } from '@/lib/graphql-hooks/control'
 import { useGetSubcontrolById } from '@/lib/graphql-hooks/subcontrol'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
@@ -22,7 +22,17 @@ import { ControlImplementationStatusOptions } from '@/components/shared/enum-map
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
-export const CreateControlImplementationForm = ({ onSuccess, defaultValues }: { onSuccess: () => void; defaultValues?: Partial<TFormData> }) => {
+export const CreateControlImplementationForm = ({
+  onSuccess,
+  onClose,
+  defaultValues,
+  form,
+}: {
+  onSuccess: () => void
+  onClose: () => void
+  defaultValues?: Partial<TFormData>
+  form: UseFormReturn<TFormData>
+}) => {
   const { id, subcontrolId } = useParams()
   const { successNotification, errorNotification } = useNotification()
   const isEditing = !!defaultValues
@@ -32,7 +42,6 @@ export const CreateControlImplementationForm = ({ onSuccess, defaultValues }: { 
   const loading = isLoadingControl || isLoading
   const [defaultValuesSet, setDefaultValuesSet] = useState(false)
   const { convertToHtml } = usePlateEditor()
-  const { form } = useFormSchema()
   const { handleSubmit, control, reset } = form
   const { mutate: createImplementation } = useCreateControlImplementation()
   const { mutate: updateImplementation } = useUpdateControlImplementation()
@@ -59,7 +68,7 @@ export const CreateControlImplementationForm = ({ onSuccess, defaultValues }: { 
   }
 
   const onSubmit = async (data: TFormData) => {
-    const details = data.details ? await convertToHtml(data.details as Value) : undefined
+    const details = typeof data.details === 'string' ? data.details || undefined : data.details ? await convertToHtml(data.details as Value) : undefined
 
     const basePayload = {
       ...data,
@@ -108,13 +117,18 @@ export const CreateControlImplementationForm = ({ onSuccess, defaultValues }: { 
   }
 
   useEffect(() => {
-    if (loading && defaultValuesSet) {
+    if (defaultValuesSet) return
+
+    if (isEditing) {
+      reset(defaultValues)
+      setDefaultValuesSet(true)
       return
     }
 
-    const defaultValuesCreate = { implementationDate: new Date() }
+    if (loading) return
 
-    reset(isEditing ? defaultValues : defaultValuesCreate)
+    const defaultValuesCreate = { implementationDate: new Date() }
+    reset(defaultValuesCreate)
     setDefaultValuesSet(true)
   }, [defaultValues, reset, isEditing, controlData, subcontrolData, loading, defaultValuesSet])
 
@@ -124,7 +138,7 @@ export const CreateControlImplementationForm = ({ onSuccess, defaultValues }: { 
         {isEditing ? (
           <>
             <SaveButton />
-            <CancelButton onClick={onSuccess}></CancelButton>
+            <CancelButton onClick={onClose}></CancelButton>
             <Button variant="destructive" className="h-8 px-4!" icon={<Trash2 />} iconPosition="left" type="button" onClick={handleDelete}>
               Delete
             </Button>
@@ -132,7 +146,7 @@ export const CreateControlImplementationForm = ({ onSuccess, defaultValues }: { 
         ) : (
           <>
             <Button className="h-8 px-4!">Create</Button>
-            <CancelButton onClick={onSuccess}></CancelButton>
+            <CancelButton onClick={onClose}></CancelButton>
           </>
         )}
       </div>
@@ -178,7 +192,7 @@ export const CreateControlImplementationForm = ({ onSuccess, defaultValues }: { 
         <div className="flex items-center py-2.5">
           <Label className="min-w-36">Date Implemented</Label>
           <div className="w-48">
-            <Controller name="implementationDate" control={form.control} render={({ field }) => <CalendarPopover field={field} disabledFrom={new Date()} defaultToday />} />
+            <Controller name="implementationDate" control={control} render={({ field }) => <CalendarPopover field={field} disabledFrom={new Date()} defaultToday />} />
           </div>
         </div>
       </div>

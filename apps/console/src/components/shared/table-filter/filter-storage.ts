@@ -194,6 +194,23 @@ const validateValues = (values: TFilterState, filterFields: FilterField[]): TFil
         break
       }
 
+      case 'dropdownSearchSingleSelect':
+      case 'dropdownUserSearch':
+        if (typeof value === 'string' && value.trim() !== '') {
+          result[key] = value
+        }
+        break
+
+      case 'dropdownSearchMultiselect': {
+        if (Array.isArray(value) && value.length > 0) {
+          const filteredValues = value.filter((v) => typeof v === 'string' && v.trim() !== '')
+          if (filteredValues.length > 0) {
+            result[key] = filteredValues
+          }
+        }
+        break
+      }
+
       default:
         break
     }

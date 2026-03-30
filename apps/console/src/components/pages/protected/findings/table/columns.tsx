@@ -9,6 +9,7 @@ import { CustomEnumChipCell } from '@/components/shared/crud-base/columns/custom
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { Button } from '@repo/ui/button'
 import { MoreHorizontal, ShieldCheck, ListTodo } from 'lucide-react'
+import { getSeverityStyle } from '@/utils/severity'
 import React from 'react'
 
 type FindingColumnOptions = ColumnOptions & {
@@ -25,8 +26,22 @@ export const getColumns = ({ userMap, selectedItems, setSelectedItems, onTrackRe
     { accessorKey: 'displayName', header: 'Display Name', size: 180, cell: ({ cell }) => cell.getValue() || '' },
     { accessorKey: 'category', header: 'Category', size: 130 },
     { accessorKey: 'severity', header: 'Severity', size: 100 },
+    {
+      accessorKey: 'securityLevel',
+      header: 'Severity Level',
+      size: 120,
+      cell: ({ cell }) => {
+        const val = cell.getValue() as string | null | undefined
+        if (!val) return ''
+        return (
+          <span className="text-xs px-2 py-0.5 rounded-full font-medium capitalize" style={getSeverityStyle(val)}>
+            {val.toLowerCase()}
+          </span>
+        )
+      },
+    },
+    { accessorKey: 'findingStatusName', header: 'Status', size: 120, cell: ({ cell }) => <CustomEnumChipCell value={cell.getValue() as string} objectType="finding" field="status" /> },
     { accessorKey: 'numericSeverity', header: 'Numeric Severity', size: 130 },
-    { accessorKey: 'status', header: 'Status', size: 110 },
     { accessorKey: 'priority', header: 'Priority', size: 100 },
     { accessorKey: 'score', header: 'Score', size: 90 },
     { accessorKey: 'exploitability', header: 'Exploitability', size: 120 },

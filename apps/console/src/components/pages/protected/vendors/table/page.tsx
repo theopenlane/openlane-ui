@@ -58,6 +58,7 @@ const VendorPage: React.FC = () => {
 
   const [stagedFiles, setStagedFiles] = useState<File[]>([])
   const [existingFileIds, setExistingFileIds] = useState<string[]>([])
+  const [stagedLogoFile, setStagedLogoFile] = useState<File | null>(null)
   const plateEditorHelper = usePlateEditor()
 
   function getName(data: EntitiesNodeNonNull) {
@@ -80,9 +81,11 @@ const VendorPage: React.FC = () => {
     mutateAsync: async (input: CreateEntityInput) => {
       const entityFiles = stagedFiles.length > 0 ? stagedFiles : undefined
       const fileIDs = existingFileIds.length > 0 ? existingFileIds : undefined
-      const result = await baseCreateMutation.mutateAsync({ input: { ...input, fileIDs }, entityTypeName: 'vendor', entityFiles })
+      const logoFile = stagedLogoFile ?? undefined
+      const result = await baseCreateMutation.mutateAsync({ input: { ...input, fileIDs }, entityTypeName: 'vendor', entityFiles, logoFile })
       setStagedFiles([])
       setExistingFileIds([])
+      setStagedLogoFile(null)
       return result
     },
   }
@@ -160,6 +163,7 @@ const VendorPage: React.FC = () => {
     isFetching: isLoading,
     updateMutation,
     createMutation,
+    deleteMutation,
     buildPayload: async (data) => {
       const { assetIDs, scanIDs, campaignIDs, identityHolderIDs, contactIDs, internalOwner, reviewedBy, ...rest } = data
       const description = rest.description ? await plateEditorHelper.convertToHtml(rest.description as Value) : undefined
@@ -179,7 +183,7 @@ const VendorPage: React.FC = () => {
     renderFields: (props: EntityFieldProps) => getFieldsToRender(props, enumOpts, setStagedFiles, setExistingFileIds, enumCreateHandlers),
   }
 
-  const vendorCreateSteps = useMemo(() => createVendorSteps(setStagedFiles, setExistingFileIds), [setStagedFiles, setExistingFileIds])
+  const vendorCreateSteps = useMemo(() => createVendorSteps(setStagedFiles, setExistingFileIds, setStagedLogoFile), [setStagedFiles, setExistingFileIds, setStagedLogoFile])
 
   const tableConfig: EntityTablePageConfig = {
     objectType,

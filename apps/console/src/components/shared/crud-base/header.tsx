@@ -72,7 +72,14 @@ export const GenericSheetHeader = ({
     <SheetHeader>
       <SheetTitle className="sr-only">{isCreate ? `Create ${toHumanLabel(entityType)}` : toHumanLabel(entityType)}</SheetTitle>
       <div className="flex items-center justify-between">
-        {!isCreate ? <PanelRightClose aria-label="Close detail sheet" size={16} className="cursor-pointer" onClick={close} /> : <div className="h-6 text-lg">Create {toHumanLabel(entityType)}</div>}
+        {!isCreate ? (
+          <div className="flex items-center gap-2">
+            <PanelRightClose aria-label="Close detail sheet" size={16} className="cursor-pointer" onClick={close} />
+            <span className="text-lg">{toHumanLabel(entityType)}</span>
+          </div>
+        ) : (
+          <div className="h-6 text-lg">Create {toHumanLabel(entityType)}</div>
+        )}
         <div className="flex justify-end gap-2 mr-6">
           {!isCreate && (
             <Button icon={<LinkIcon />} iconPosition="left" variant="secondary" onClick={handleCopyLink}>
@@ -96,7 +103,7 @@ export const GenericSheetHeader = ({
                   Edit
                 </Button>
               )}
-              {onDelete && entityType && id && <GenericDeleteDialog entityId={id} entityType={entityType} onDelete={onDelete} />}
+              {onDelete && id && <GenericDeleteDialog entityId={id} entityType={entityType} onDelete={onDelete} />}
             </>
           )}
         </div>

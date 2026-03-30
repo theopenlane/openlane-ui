@@ -147,6 +147,7 @@ const PersonnelPage: React.FC = () => {
     isFetching: isLoading,
     updateMutation,
     createMutation,
+    deleteMutation,
     buildPayload: async (data) => {
       const { assetIDs, entityIDs, campaignIDs, taskIDs, internalOwner, ...rest } = data
       const associationPayload = buildAssociationPayload(IDENTITY_HOLDER_ASSOCIATION_CONFIG.associationKeys, { assetIDs, entityIDs, campaignIDs, taskIDs }, isCreate, initialAssociationsRef.current)

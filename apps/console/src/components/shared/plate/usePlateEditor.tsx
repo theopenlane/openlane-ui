@@ -2,6 +2,7 @@
 import { BaseEditorKit } from '@repo/ui/components/editor/editor-base-kit.tsx'
 import { EditorStatic } from '@repo/ui/components/ui/editor-static.tsx'
 import { createSlateEditor, PlateStatic, serializeHtml, type Value } from 'platejs'
+import { isPlateValueEmpty } from './plate-utils'
 
 type Detected = 'markdown' | 'html' | 'slate-json' | 'text'
 
@@ -66,7 +67,7 @@ const usePlateEditor = () => {
   return {
     convertToHtml: async (data: Value) => {
       // Converts PlateJs data format into serializable html which we can save in database
-      if (!data) {
+      if (!data || isPlateValueEmpty(data)) {
         return ''
       }
 
