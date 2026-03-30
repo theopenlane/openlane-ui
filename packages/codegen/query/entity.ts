@@ -124,6 +124,7 @@ export const ENTITY = gql`
         displayName
       }
       lastReviewedAt
+      logoFileID
       logoFile {
         presignedURL
       }

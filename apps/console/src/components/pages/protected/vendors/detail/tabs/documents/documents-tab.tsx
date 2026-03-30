@@ -8,7 +8,7 @@ import { type TPagination } from '@repo/ui/pagination-types'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { type TFile } from '@/components/shared/file-table/columns'
 import { FILE_SORT_FIELDS } from '@/components/shared/file-table/table-config'
-import { type FileOrder, FileOrderField, OrderDirection } from '@repo/codegen/src/schema'
+import { type FileOrder, type FileWhereInput, FileOrderField, OrderDirection } from '@repo/codegen/src/schema'
 import { useGetEntityFilesPaginated, useUploadEntityFiles } from '@/lib/graphql-hooks/entity'
 import { useGetEvidencesWithFileIds } from '@/lib/graphql-hooks/evidence'
 import { useNotification } from '@/hooks/useNotification'
@@ -31,9 +31,10 @@ import DeleteDocumentDialog from './delete-document-dialog'
 interface DocumentsTabProps {
   vendorId: string
   canEdit: boolean
+  logoFileId?: string | null
 }
 
-const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, canEdit }) => {
+const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, canEdit, logoFileId }) => {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(TableKeyEnum.ENTITY_FILES, DEFAULT_PAGINATION))
@@ -54,7 +55,12 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, canEdit }) => {
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false)
 
   const debouncedSearch = useDebounce(searchTerm, 300)
-  const fileWhere = debouncedSearch ? { providedFileNameContainsFold: debouncedSearch } : undefined
+  const fileWhere: FileWhereInput | undefined = (() => {
+    const where: FileWhereInput = {}
+    if (debouncedSearch) where.providedFileNameContainsFold = debouncedSearch
+    if (logoFileId) where.idNEQ = logoFileId
+    return Object.keys(where).length > 0 ? where : undefined
+  })()
 
   const { files, isLoading, isError, pageInfo, totalCount } = useGetEntityFilesPaginated({
     entityId: vendorId,
