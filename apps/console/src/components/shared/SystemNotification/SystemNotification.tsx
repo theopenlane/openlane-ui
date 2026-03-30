@@ -109,7 +109,7 @@ export function BellButton({ count, onClick, isOpen }: { count: number; onClick:
     <button onClick={onClick} className={`bg-transparent text-muted-foreground relative grid h-7 w-7 place-items-center rounded-md ${isOpen ? 'is-active' : ''}`} aria-label="Notifications">
       <span className={'absolute inset-0 rounded-full animate-ping opacity-40'} />
       <Bell className="h-5 w-5 " />
-      {count > 0 && <span className="absolute top-0.75 right-1.25 grid h-2 w-2 place-items-center rounded-full px-1 text-[10px] font-semibold bg-orange-500 shadow-sm"></span>}
+      {count > 0 && <span className="absolute bottom-0.75 right-1.25 grid h-2 w-2 place-items-center rounded-full px-1 text-[10px] font-semibold bg-orange-500 shadow-sm"></span>}
     </button>
   )
 }
