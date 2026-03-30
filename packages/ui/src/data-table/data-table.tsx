@@ -728,7 +728,7 @@ const DataRow = memo(function DataRow<TData, TValue>({ row, onRowClick, cssVarKe
           <TableCell
             variant="data"
             key={cell.id}
-            className={(cell.column.columnDef.meta as CustomColumnDef<TData, TValue>['meta'])?.className || ''}
+            className={cn('truncate', (cell.column.columnDef.meta as CustomColumnDef<TData, TValue>['meta'])?.className)}
             style={{ width: widthVar, minWidth: widthVar, maxWidth: widthVar }}
           >
             {flexRender(cell.column.columnDef.cell, cell.getContext())}
