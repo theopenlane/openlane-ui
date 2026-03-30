@@ -62941,6 +62941,8 @@ export type FilterAssessmentsQuery = {
         createdBy?: string | null
         updatedBy?: string | null
         template?: { __typename?: 'Template'; id: string; name: string } | null
+        assessmentResponses: { __typename?: 'AssessmentResponseConnection'; totalCount: number }
+        completedAssessmentResponses: { __typename?: 'AssessmentResponseConnection'; totalCount: number }
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }

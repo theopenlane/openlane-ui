@@ -71,7 +71,7 @@ export const useAssessments = ({ where, orderBy, pagination, enabled = true }: U
     enabled,
   })
 
-  const assessments = useMemo(() => (queryResult.data?.assessments?.edges ?? []).map((edge) => edge?.node) as Assessment[], [queryResult.data?.assessments?.edges])
+  const assessments = useMemo(() => (queryResult.data?.assessments?.edges ?? []).map((edge) => edge?.node) as unknown as Assessment[], [queryResult.data?.assessments?.edges])
 
   const paginationMeta = useMemo(
     () => ({
