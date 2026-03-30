@@ -8314,8 +8314,6 @@ export interface CreateFindingInput {
   sourceUpdatedAt?: InputMaybe<Scalars['DateTime']['input']>
   /** state reported by the source system, such as ACTIVE or INACTIVE */
   state?: InputMaybe<Scalars['String']['input']>
-  /** lifecycle status of the finding */
-  status?: InputMaybe<Scalars['String']['input']>
   /** steps required to reproduce the finding */
   stepsToReproduce?: InputMaybe<Array<Scalars['String']['input']>>
   subcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -10604,8 +10602,6 @@ export interface CreateVulnerabilityInput {
   source?: InputMaybe<Scalars['String']['input']>
   /** timestamp when the source last updated the vulnerability */
   sourceUpdatedAt?: InputMaybe<Scalars['DateTime']['input']>
-  /** lifecycle status of the vulnerability */
-  status?: InputMaybe<Scalars['String']['input']>
   subcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** short summary of the vulnerability details */
   summary?: InputMaybe<Scalars['String']['input']>
@@ -19075,11 +19071,6 @@ export interface Finding extends Node {
   sourceUpdatedAt?: Maybe<Scalars['DateTime']['output']>
   /** state reported by the source system, such as ACTIVE or INACTIVE */
   state?: Maybe<Scalars['String']['output']>
-  /**
-   * lifecycle status of the finding
-   * @deprecated Use `finding_status_name` instead.
-   */
-  status?: Maybe<Scalars['String']['output']>
   /** steps required to reproduce the finding */
   stepsToReproduce?: Maybe<Array<Scalars['String']['output']>>
   subcontrols: SubcontrolConnection
@@ -20262,22 +20253,6 @@ export interface FindingWhereInput {
   stateNEQ?: InputMaybe<Scalars['String']['input']>
   stateNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   stateNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** status field predicates */
-  status?: InputMaybe<Scalars['String']['input']>
-  statusContains?: InputMaybe<Scalars['String']['input']>
-  statusContainsFold?: InputMaybe<Scalars['String']['input']>
-  statusEqualFold?: InputMaybe<Scalars['String']['input']>
-  statusGT?: InputMaybe<Scalars['String']['input']>
-  statusGTE?: InputMaybe<Scalars['String']['input']>
-  statusHasPrefix?: InputMaybe<Scalars['String']['input']>
-  statusHasSuffix?: InputMaybe<Scalars['String']['input']>
-  statusIn?: InputMaybe<Array<Scalars['String']['input']>>
-  statusIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  statusLT?: InputMaybe<Scalars['String']['input']>
-  statusLTE?: InputMaybe<Scalars['String']['input']>
-  statusNEQ?: InputMaybe<Scalars['String']['input']>
-  statusNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  statusNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** Filter for stepsToReproduceHas to contain a specific value */
   stepsToReproduceHas?: InputMaybe<Scalars['String']['input']>
   /** system_internal_id field predicates */
@@ -27272,6 +27247,8 @@ export interface Mutation {
   createMappedControl: MappedControlCreatePayload
   /** Create a new narrative */
   createNarrative: NarrativeCreatePayload
+  /** Create a new notification */
+  createNotification: NotificationCreatePayload
   /** Create a new notificationPreference */
   createNotificationPreference: NotificationPreferenceCreatePayload
   /** Create a new notificationTemplate */
@@ -28858,6 +28835,10 @@ export interface MutationCreateMappedControlArgs {
 
 export interface MutationCreateNarrativeArgs {
   input: CreateNarrativeInput
+}
+
+export interface MutationCreateNotificationArgs {
+  input: CreateNotificationInput
 }
 
 export interface MutationCreateNotificationPreferenceArgs {
@@ -31431,6 +31412,13 @@ export interface NotificationConnection {
   totalCount: Scalars['Int']['output']
 }
 
+/** Return response for createNotification mutation */
+export interface NotificationCreatePayload {
+  __typename?: 'NotificationCreatePayload'
+  /** Created notification */
+  notification: Notification
+}
+
 /** An edge in a connection. */
 export interface NotificationEdge {
   __typename?: 'NotificationEdge'
@@ -31443,6 +31431,7 @@ export interface NotificationEdge {
 /** NotificationNotificationTopic is enum for the field topic */
 export enum NotificationNotificationTopic {
   APPROVAL = 'APPROVAL',
+  DOMAIN_SCAN = 'DOMAIN_SCAN',
   EXPORT = 'EXPORT',
   MENTION = 'MENTION',
   STANDARD_UPDATE = 'STANDARD_UPDATE',
@@ -54045,7 +54034,6 @@ export interface UpdateFindingInput {
   clearSource?: InputMaybe<Scalars['Boolean']['input']>
   clearSourceUpdatedAt?: InputMaybe<Scalars['Boolean']['input']>
   clearState?: InputMaybe<Scalars['Boolean']['input']>
-  clearStatus?: InputMaybe<Scalars['Boolean']['input']>
   clearStepsToReproduce?: InputMaybe<Scalars['Boolean']['input']>
   clearSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
   clearSystemInternalID?: InputMaybe<Scalars['Boolean']['input']>
@@ -54144,8 +54132,6 @@ export interface UpdateFindingInput {
   sourceUpdatedAt?: InputMaybe<Scalars['DateTime']['input']>
   /** state reported by the source system, such as ACTIVE or INACTIVE */
   state?: InputMaybe<Scalars['String']['input']>
-  /** lifecycle status of the finding */
-  status?: InputMaybe<Scalars['String']['input']>
   /** steps required to reproduce the finding */
   stepsToReproduce?: InputMaybe<Array<Scalars['String']['input']>>
   /** an internal identifier for the mapping, this field is only available to system admins */
@@ -57784,7 +57770,6 @@ export interface UpdateVulnerabilityInput {
   clearSeverity?: InputMaybe<Scalars['Boolean']['input']>
   clearSource?: InputMaybe<Scalars['Boolean']['input']>
   clearSourceUpdatedAt?: InputMaybe<Scalars['Boolean']['input']>
-  clearStatus?: InputMaybe<Scalars['Boolean']['input']>
   clearSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
   clearSummary?: InputMaybe<Scalars['Boolean']['input']>
   clearSystemInternalID?: InputMaybe<Scalars['Boolean']['input']>
@@ -57867,8 +57852,6 @@ export interface UpdateVulnerabilityInput {
   source?: InputMaybe<Scalars['String']['input']>
   /** timestamp when the source last updated the vulnerability */
   sourceUpdatedAt?: InputMaybe<Scalars['DateTime']['input']>
-  /** lifecycle status of the vulnerability */
-  status?: InputMaybe<Scalars['String']['input']>
   /** short summary of the vulnerability details */
   summary?: InputMaybe<Scalars['String']['input']>
   /** an internal identifier for the mapping, this field is only available to system admins */
@@ -59027,11 +59010,6 @@ export interface Vulnerability extends Node {
   source?: Maybe<Scalars['String']['output']>
   /** timestamp when the source last updated the vulnerability */
   sourceUpdatedAt?: Maybe<Scalars['DateTime']['output']>
-  /**
-   * lifecycle status of the vulnerability
-   * @deprecated Use `vulnerability_status_name` instead.
-   */
-  status?: Maybe<Scalars['String']['output']>
   subcontrols: SubcontrolConnection
   /** short summary of the vulnerability details */
   summary?: Maybe<Scalars['String']['output']>
@@ -59830,22 +59808,6 @@ export interface VulnerabilityWhereInput {
   sourceUpdatedAtNEQ?: InputMaybe<Scalars['DateTime']['input']>
   sourceUpdatedAtNotIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
   sourceUpdatedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** status field predicates */
-  status?: InputMaybe<Scalars['String']['input']>
-  statusContains?: InputMaybe<Scalars['String']['input']>
-  statusContainsFold?: InputMaybe<Scalars['String']['input']>
-  statusEqualFold?: InputMaybe<Scalars['String']['input']>
-  statusGT?: InputMaybe<Scalars['String']['input']>
-  statusGTE?: InputMaybe<Scalars['String']['input']>
-  statusHasPrefix?: InputMaybe<Scalars['String']['input']>
-  statusHasSuffix?: InputMaybe<Scalars['String']['input']>
-  statusIn?: InputMaybe<Array<Scalars['String']['input']>>
-  statusIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  statusLT?: InputMaybe<Scalars['String']['input']>
-  statusLTE?: InputMaybe<Scalars['String']['input']>
-  statusNEQ?: InputMaybe<Scalars['String']['input']>
-  statusNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  statusNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** summary field predicates */
   summary?: InputMaybe<Scalars['String']['input']>
   summaryContains?: InputMaybe<Scalars['String']['input']>
@@ -66720,7 +66682,6 @@ export type FindingsWithFilterQuery = {
         source?: string | null
         sourceUpdatedAt?: string | null
         state?: string | null
-        status?: string | null
         findingStatusName?: string | null
         systemOwned?: boolean | null
         targetDetails?: any | null
@@ -66785,7 +66746,6 @@ export type FindingQuery = {
     source?: string | null
     sourceUpdatedAt?: string | null
     state?: string | null
-    status?: string | null
     findingStatusName?: string | null
     systemOwned?: boolean | null
     targetDetails?: any | null
@@ -73416,7 +73376,6 @@ export type VulnerabilitiesWithFilterQuery = {
         severity?: string | null
         source?: string | null
         sourceUpdatedAt?: string | null
-        status?: string | null
         summary?: string | null
         systemOwned?: boolean | null
         tags?: Array<string> | null
@@ -73478,7 +73437,6 @@ export type VulnerabilityQuery = {
     severity?: string | null
     source?: string | null
     sourceUpdatedAt?: string | null
-    status?: string | null
     summary?: string | null
     systemOwned?: boolean | null
     tags?: Array<string> | null

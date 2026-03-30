@@ -210,12 +210,12 @@ const ExposureOverviewPage = () => {
     critVulns
       ?.filter((v) => isCritOrHigh(v.severity ?? ''))
       .forEach((v) => {
-        items.push({ id: v.id, name: v.displayName ?? v.displayID ?? 'Vulnerability', type: ObjectTypes.VULNERABILITY, severity: v.severity ?? '', status: v.status ?? '', createdAt: v.createdAt })
+        items.push({ id: v.id, name: v.displayName ?? v.displayID ?? 'Vulnerability', type: ObjectTypes.VULNERABILITY, severity: v.severity ?? '', status: v.vulnerabilityStatusName ?? '', createdAt: v.createdAt })
       })
     critFindings
       ?.filter((f) => isCritOrHigh(f.severity ?? ''))
       .forEach((f) => {
-        items.push({ id: f.id, name: f.displayName ?? 'Finding', type: ObjectTypes.FINDING, severity: f.severity ?? '', status: f.status ?? '', createdAt: f.createdAt })
+        items.push({ id: f.id, name: f.displayName ?? 'Finding', type: ObjectTypes.FINDING, severity: f.severity ?? '', status: f.findingStatusName ?? '', createdAt: f.createdAt })
       })
     critRisks
       ?.filter((r) => isCritOrHigh(r.impact ?? ''))
