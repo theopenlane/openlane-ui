@@ -27,7 +27,7 @@ import {
 } from '@/lib/graphql-hooks/identity-holder'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
 import { breadcrumbs, getFieldsToRender, getFilterFields, visibilityFields } from './table-config'
-import { type PersonnelSheetConfig, type PersonnelTablePageConfig, objectType, objectName, tableKey, exportType, orderFieldEnum, defaultSorting, type PersonnelFieldProps } from './types'
+import { type PersonnelSheetConfig, type PersonnelTablePageConfig, objectType, objectName, displayName, tableKey, exportType, orderFieldEnum, defaultSorting, type PersonnelFieldProps } from './types'
 import { getColumns } from './columns'
 import TableComponent from './table'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
@@ -142,6 +142,7 @@ const PersonnelPage: React.FC = () => {
 
   const sheetConfig: PersonnelSheetConfig = {
     objectType: objectType,
+    displayName,
     form,
     data: id ? data?.identityHolder : undefined,
     isFetching: isLoading,
@@ -177,6 +178,7 @@ const PersonnelPage: React.FC = () => {
   const tableConfig: PersonnelTablePageConfig = {
     objectType,
     objectName,
+    displayName,
     tableKey,
     exportType,
     orderFieldEnum,

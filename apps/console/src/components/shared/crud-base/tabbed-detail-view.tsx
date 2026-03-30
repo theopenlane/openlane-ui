@@ -39,6 +39,7 @@ export function TabbedDetailView<TFormData extends FieldValues, TData, TUpdateIn
     createMutation,
     deleteMutation,
     objectType,
+    displayName,
     data,
     isFetching,
     buildPayload,
@@ -61,7 +62,7 @@ export function TabbedDetailView<TFormData extends FieldValues, TData, TUpdateIn
   const { data: permission } = useAccountRoles(objectType, id)
   const isEditAllowed = canEdit(permission?.roles)
 
-  const objectTypeName = toHumanLabel(objectType)
+  const objectTypeName = displayName ?? toHumanLabel(objectType)
   const queryKey = [pluralizeTypeName(objectType.toLowerCase())]
 
   useEffect(() => {
@@ -221,6 +222,7 @@ export function TabbedDetailView<TFormData extends FieldValues, TData, TUpdateIn
             isCreate={isCreate}
             setIsEditing={setIsEditing}
             entityType={objectType}
+            displayName={displayName}
             isEditAllowed={isEditAllowed}
             handleCancelEdit={handleCancelEdit}
             formId={formId}
