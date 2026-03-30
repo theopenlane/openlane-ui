@@ -58,27 +58,42 @@ export const BrandingAssetsSection = ({ isReadOnly, hasWarning }: BrandingAssets
     return (previewSetting?.faviconFile?.base64 ? toBase64DataUri(previewSetting.faviconFile.base64) : null) ?? formValues.faviconRemoteURL ?? null
   }, [isReadOnly, setting, formValues.faviconFile, formValues.faviconRemoteURL, previewSetting])
 
+  const heroImagePreview = useMemo(() => {
+    if (isReadOnly) {
+      return setting?.heroImageFile?.base64 ?? null
+    }
+
+    if (formValues.heroImageFile) {
+      return URL.createObjectURL(formValues.heroImageFile)
+    }
+
+    return previewSetting?.heroImageFile?.base64 ?? null
+  }, [isReadOnly, setting, formValues.heroImageFile, previewSetting])
+
   useEffect(() => {
     if (isReadOnly) return
 
     return () => {
       if (logoPreview?.startsWith('blob:')) URL.revokeObjectURL(logoPreview)
       if (faviconPreview?.startsWith('blob:')) URL.revokeObjectURL(faviconPreview)
+      if (heroImagePreview?.startsWith('blob:')) URL.revokeObjectURL(heroImagePreview)
     }
-  }, [isReadOnly, logoPreview, faviconPreview])
+  }, [isReadOnly, logoPreview, faviconPreview, heroImagePreview])
 
-  const handleUpload = (type: 'logo' | 'favicon', uploadedFile: TUploadedFile) => {
+  const handleUpload = (type: 'logo' | 'favicon' | 'heroImage', uploadedFile: TUploadedFile) => {
     if (!uploadedFile.file || isReadOnly) return
 
     if (type === 'logo') {
       setValue('logoFile', uploadedFile.file, { shouldDirty: true })
       setValue('logoRemoteURL', '', { shouldDirty: true })
-    } else {
+    } else if (type === 'favicon') {
       const isValidSize =
         uploadedFile.width !== undefined && uploadedFile.height !== undefined && uploadedFile.width >= 32 && uploadedFile.height >= 32 && uploadedFile.width <= 120 && uploadedFile.height <= 120
       setIsImageValidSize(isValidSize)
       setValue('faviconFile', uploadedFile.file, { shouldDirty: true })
       setValue('faviconRemoteURL', '', { shouldDirty: true })
+    } else if (type === 'heroImage') {
+      setValue('heroImageFile', uploadedFile.file, { shouldDirty: true })
     }
   }
 
@@ -136,6 +151,29 @@ export const BrandingAssetsSection = ({ isReadOnly, hasWarning }: BrandingAssets
               note: 'Recommended size: 32x32 or 64x64 · Max dimensions: 120x120',
             }}
             isImageValidSize={isImageValidSize}
+          />
+
+          <div className="border-b my-2" />
+          <AssetInputGroup
+            label="Hero Image"
+            helperText="Used as a banner image at the top of your site. If not provided, the brand color gradient is used instead."
+            preview={heroImagePreview}
+            link=""
+            setLink={() => {}}
+            onUpload={(file) => handleUpload('heroImage', file)}
+            inputType={InputTypeEnum.FILE}
+            setInputType={() => {}}
+            isReadOnly={isReadOnly}
+            normalizeUrl={normalizeUrl}
+            fileConfigs={{
+              types: ['image/jpeg', 'image/png'],
+              shortTypes: ['PNG', 'JPG'],
+              maxSize: 5,
+              note: 'Recommended size: 1600×600 (8:3 aspect ratio)',
+            }}
+            enableCrop
+            aspect={8 / 3}
+            hideUrlOption
           />
         </div>
       </CardContent>

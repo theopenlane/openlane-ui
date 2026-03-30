@@ -72,6 +72,7 @@ const BrandPage: React.FC = () => {
         faviconRemoteURL: previewSetting.faviconRemoteURL ?? '',
         logoFile: null,
         faviconFile: null,
+        heroImageFile: null,
         companyName: previewSetting.companyName ?? '',
         companyDescription: previewSetting.companyDescription ?? '',
         companyDomain: previewSetting.companyDomain ?? '',
@@ -103,7 +104,8 @@ const BrandPage: React.FC = () => {
     const textDiff = setting.title !== previewSetting.title || setting.overview !== previewSetting.overview || setting.securityContact !== previewSetting.securityContact
     const themeDiff =
       setting.themeMode !== previewSetting.themeMode || setting.font !== previewSetting.font || normalizeHexColor(setting.primaryColor) !== normalizeHexColor(previewSetting.primaryColor)
-    const assetDiff = setting.logoFile?.id !== previewSetting.logoFile?.id || setting.logoRemoteURL !== previewSetting.logoRemoteURL
+    const assetDiff =
+      setting.logoFile?.id !== previewSetting.logoFile?.id || setting.logoRemoteURL !== previewSetting.logoRemoteURL || setting.heroImageFile?.id !== previewSetting.heroImageFile?.id
     return { companyInfo: companyInfoDiff, text: textDiff, theme: themeDiff, assets: assetDiff, any: textDiff || themeDiff || assetDiff || companyInfoDiff }
   }, [setting, previewSetting])
 
@@ -162,6 +164,12 @@ const BrandPage: React.FC = () => {
       payload.input.clearFaviconFile = true
     }
 
+    if (values.heroImageFile) {
+      payload.heroImageFile = values.heroImageFile
+    } else if (action === 'publish' && previewSetting?.heroImageFile?.id) {
+      payload.input.heroImageFileID = previewSetting.heroImageFile.id
+    }
+
     const resp = await updateTrustCenterSetting(payload)
 
     if (action === 'publish' && previewSetting?.id) {
@@ -173,6 +181,7 @@ const BrandPage: React.FC = () => {
           logoRemoteURL: resp?.trustCenterSetting.logoRemoteURL,
           faviconFileID: resp?.trustCenterSetting.faviconFile?.id,
           faviconRemoteURL: resp?.trustCenterSetting.faviconRemoteURL,
+          heroImageFileID: resp?.trustCenterSetting.heroImageFile?.id,
         },
       })
     }
@@ -206,6 +215,7 @@ const BrandPage: React.FC = () => {
           : setting.faviconRemoteURL
             ? { faviconRemoteURL: setting.faviconRemoteURL, clearFaviconFile: true }
             : { clearFaviconFile: true, clearFaviconRemoteURL: true }),
+        ...(setting.heroImageFile?.id ? { heroImageFileID: setting.heroImageFile.id } : { clearHeroImageFile: true }),
         ...(setting.companyName ? { companyName: setting.companyName } : { clearCompanyName: true }),
         ...(setting.companyDescription ? { companyDescription: setting.companyDescription } : { clearCompanyDescription: true }),
         ...(setting.companyDomain ? { companyDomain: setting.companyDomain } : { clearCompanyDomain: true }),
