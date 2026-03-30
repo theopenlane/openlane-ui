@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import { type UseFormReturn } from 'react-hook-form'
 import { Switch } from '@repo/ui/switch'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
@@ -12,7 +12,7 @@ interface ScheduleStepProps {
 }
 
 export const ScheduleStep: React.FC<ScheduleStepProps> = ({ form }) => {
-  const sendImmediately = form.watch('sendImmediately')
+  const [sendImmediately, setSendImmediately] = useState<boolean>(form.getValues('sendImmediately'))
 
   return (
     <div className="flex flex-col gap-6">
@@ -21,7 +21,13 @@ export const ScheduleStep: React.FC<ScheduleStepProps> = ({ form }) => {
         name="sendImmediately"
         render={({ field }) => (
           <div className="flex items-center gap-3">
-            <Switch checked={field.value} onCheckedChange={field.onChange} />
+            <Switch
+              checked={field.value}
+              onCheckedChange={(checked) => {
+                field.onChange(checked)
+                setSendImmediately(checked)
+              }}
+            />
             <div>
               <p className="text-sm font-medium">Send Immediately</p>
               <p className="text-xs text-muted-foreground">If enabled, the campaign will be sent as soon as it is launched.</p>

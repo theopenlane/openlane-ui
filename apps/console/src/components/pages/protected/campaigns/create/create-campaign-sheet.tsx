@@ -3,7 +3,7 @@
 import React, { useCallback, useMemo, useState } from 'react'
 import { Form } from '@repo/ui/form'
 import { StepperSheet, type StepperStep } from '@/components/shared/stepper-sheet/stepper-sheet'
-import { TemplateStep } from './steps/template-step'
+import { QuestionnaireStep } from './steps/questionnaire-step'
 import { TargetsStep, type CampaignTargetEntry } from './steps/targets-step'
 import { PreviewStep } from './steps/preview-step'
 import { ScheduleStep } from './steps/schedule-step'
@@ -80,7 +80,8 @@ export const CreateCampaignSheet: React.FC<CreateCampaignSheetProps> = ({ open, 
             description: data.description || undefined,
             campaignType: data.campaignType || undefined,
             status,
-            templateID: data.templateID || undefined,
+            templateID: data.questionnaireTemplateID || undefined,
+            emailTemplateID: data.templateID || undefined,
             emailBrandingID: data.emailBrandingID || undefined,
             dueDate: data.sendImmediately ? undefined : data.dueDate || undefined,
             scheduledAt: data.sendImmediately && isLaunching ? now : data.scheduledAt || undefined,
@@ -116,8 +117,8 @@ export const CreateCampaignSheet: React.FC<CreateCampaignSheetProps> = ({ open, 
   const handleLaunch = useCallback(async () => {
     const data = form.getValues()
 
-    if (!data.templateID) {
-      errorNotification({ title: 'Validation Error', description: 'Please select a template' })
+    if (!data.questionnaireTemplateID) {
+      errorNotification({ title: 'Validation Error', description: 'Please select a questionnaire' })
       setCurrentStep(0)
       return
     }
@@ -131,7 +132,7 @@ export const CreateCampaignSheet: React.FC<CreateCampaignSheetProps> = ({ open, 
     await submitCampaign(data, CampaignCampaignStatus.ACTIVE)
   }, [form, submitCampaign, errorNotification])
 
-  const templateID = form.watch('templateID')
+  const questionnaireTemplateID = form.watch('questionnaireTemplateID')
 
   const handleCreateTemplate = useCallback(() => {
     setShowCreateTemplate(true)
@@ -159,9 +160,9 @@ export const CreateCampaignSheet: React.FC<CreateCampaignSheetProps> = ({ open, 
   const steps: StepperStep[] = useMemo(
     () => [
       {
-        title: 'Template',
-        description: 'Choose a template to get started with your campaign',
-        content: <TemplateStep form={form} onCreateTemplate={handleCreateTemplate} />,
+        title: 'Questionnaire',
+        description: 'Choose a questionnaire to get started with your campaign',
+        content: <QuestionnaireStep form={form} />,
       },
       {
         title: 'Targets',
@@ -201,7 +202,7 @@ export const CreateCampaignSheet: React.FC<CreateCampaignSheetProps> = ({ open, 
           isSaving={isCreating}
           isCompleting={isCreating}
           isDirty={form.formState.isDirty || targets.length > 0 || uploadedFile !== null}
-          canProceed={currentStep !== 0 || !!templateID}
+          canProceed={currentStep !== 0 || !!questionnaireTemplateID}
         />
       </Form>
       <EmailBrandingPanel open={showEmailBranding} onClose={() => setShowEmailBranding(false)} onSave={handleEmailBrandingSave} />

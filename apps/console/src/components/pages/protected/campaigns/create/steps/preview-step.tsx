@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useCallback } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { type UseFormReturn } from 'react-hook-form'
 import { Button } from '@repo/ui/button'
 import { Palette, SquarePlus } from 'lucide-react'
@@ -18,9 +18,19 @@ interface PreviewStepProps {
 }
 
 export const PreviewStep: React.FC<PreviewStepProps> = ({ form, onOpenEmailBranding, onCreateTemplate }) => {
-  const templateId = form.watch('templateID')
-  const { data: templateData } = useGetTemplate(templateId ?? undefined)
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string>(form.getValues('templateID') || '')
+  const { data: templateData } = useGetTemplate(selectedTemplateId || undefined)
   const { templateOptions, templates, isLoading } = useTemplateSelect({ where: {} })
+
+  // Sync local state when templateID is set externally (e.g. via CreateTemplateSheet)
+  useEffect(() => {
+    const subscription = form.watch((values, { name }) => {
+      if (name === 'templateID' && values.templateID && values.templateID !== selectedTemplateId) {
+        setSelectedTemplateId(values.templateID)
+      }
+    })
+    return () => subscription.unsubscribe()
+  }, [form, selectedTemplateId])
 
   const template = templateData?.template
   const config = template?.jsonconfig as Record<string, unknown> | undefined
@@ -28,8 +38,10 @@ export const PreviewStep: React.FC<PreviewStepProps> = ({ form, onOpenEmailBrand
   const body = (config?.body as string) ?? ''
   const tokens = (config?.tokens as string[]) ?? []
 
-  const populateFromTemplate = useCallback(
+  const handleTemplateChange = useCallback(
     (val: string) => {
+      setSelectedTemplateId(val)
+      form.setValue('templateID', val, { shouldDirty: true })
       const tmpl = templates?.find((t) => t.id === val)
       if (tmpl) {
         form.setValue('name', tmpl.name, { shouldDirty: true })
@@ -48,10 +60,10 @@ export const PreviewStep: React.FC<PreviewStepProps> = ({ form, onOpenEmailBrand
           <FormItem>
             <FormLabel className="pb-1 block">Campaign Template</FormLabel>
             <Select
-              value={field.value || undefined}
+              value={selectedTemplateId || undefined}
               onValueChange={(val) => {
                 field.onChange(val)
-                populateFromTemplate(val)
+                handleTemplateChange(val)
               }}
             >
               <FormControl>
@@ -80,7 +92,7 @@ export const PreviewStep: React.FC<PreviewStepProps> = ({ form, onOpenEmailBrand
       <div className="flex items-center justify-between rounded-md border border-border p-3">
         <span className="text-sm text-muted-foreground">Don&apos;t see a template?</span>
         <Button variant="secondary" icon={<SquarePlus size={16} />} iconPosition="left" onClick={onCreateTemplate} type="button">
-          Create Template
+          Create an email template
         </Button>
       </div>
 
@@ -91,7 +103,7 @@ export const PreviewStep: React.FC<PreviewStepProps> = ({ form, onOpenEmailBrand
         </Button>
       </div>
 
-      {templateId && (
+      {selectedTemplateId && (
         <div className="rounded-md border border-border overflow-hidden bg-input">
           <div className="p-4">
             <h4 className="text-sm font-semibold">Campaign Preview</h4>
