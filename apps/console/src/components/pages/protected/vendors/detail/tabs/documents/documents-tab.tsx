@@ -22,10 +22,11 @@ import { fileDownload } from '@/components/shared/lib/export'
 import ColumnVisibilityMenu, { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import Menu from '@/components/shared/menu/menu'
 import { getMappedColumns } from '@/components/shared/crud-base/columns/get-mapped-columns'
-import { Check, X, Download, DownloadIcon, Upload, SearchIcon, Eye } from 'lucide-react'
+import { Check, X, Download, DownloadIcon, Upload, SearchIcon, Eye, Trash2 } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import MarkAsEvidenceDialog from './mark-as-evidence-dialog'
 import UnmarkEvidenceDialog from './unmark-evidence-dialog'
+import DeleteDocumentDialog from './delete-document-dialog'
 
 interface DocumentsTabProps {
   vendorId: string
@@ -49,6 +50,7 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, canEdit }) => {
 
   const [markEvidenceFile, setMarkEvidenceFile] = useState<{ id: string; name: string } | null>(null)
   const [unmarkEvidenceFile, setUnmarkEvidenceFile] = useState<{ id: string; name: string } | null>(null)
+  const [deleteFile, setDeleteFile] = useState<{ id: string; name: string } | null>(null)
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false)
 
   const debouncedSearch = useDebounce(searchTerm, 300)
@@ -189,9 +191,9 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, canEdit }) => {
     {
       id: 'actions',
       header: '',
-      size: 230,
-      maxSize: 230,
-      minSize: 230,
+      size: 260,
+      maxSize: 260,
+      minSize: 260,
       cell: ({ row }: { row: Row<TFile> }) => {
         const classified = isClassifiedAsEvidence(row.original)
         return (
@@ -210,6 +212,11 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, canEdit }) => {
             <Button type="button" variant="secondary" onClick={() => fileDownload(row.original.presignedURL || '', row.original.providedFileName, errorNotification)}>
               <Download size={16} />
             </Button>
+            {canEdit && (
+              <Button type="button" variant="secondary" onClick={() => setDeleteFile({ id: row.original.id, name: row.original.providedFileName })}>
+                <Trash2 size={16} />
+              </Button>
+            )}
           </div>
         )
       },
@@ -270,6 +277,7 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ vendorId, canEdit }) => {
 
       {markEvidenceFile && <MarkAsEvidenceDialog fileId={markEvidenceFile.id} fileName={markEvidenceFile.name} vendorId={vendorId} onClose={() => setMarkEvidenceFile(null)} />}
       {unmarkEvidenceFile && <UnmarkEvidenceDialog fileId={unmarkEvidenceFile.id} fileName={unmarkEvidenceFile.name} onClose={() => setUnmarkEvidenceFile(null)} />}
+      {deleteFile && <DeleteDocumentDialog fileId={deleteFile.id} fileName={deleteFile.name} vendorId={vendorId} onClose={() => setDeleteFile(null)} />}
       {canEdit && <DocumentsUploadDialog onUpload={handleUpload} isUploading={isUploading} title="Upload Documents" open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen} />}
     </div>
   )
