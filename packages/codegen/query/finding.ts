@@ -44,7 +44,6 @@ export const GET_ALL_FINDINGS = gql`
           source
           sourceUpdatedAt
           state
-          status
           findingStatusName
           systemOwned
           targetDetails
@@ -113,7 +112,6 @@ export const FINDING = gql`
       source
       sourceUpdatedAt
       state
-      status
       findingStatusName
       systemOwned
       targetDetails
