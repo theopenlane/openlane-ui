@@ -5,12 +5,26 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/
 import { useSlaDefinitionsWithFilter } from '@/lib/graphql-hooks/sla-definition'
 
 type Props = {
-  severity: string | null | undefined
-  createdAt: string | null | undefined
+  severity?: string | null | undefined
+  createdAt?: string | null | undefined
+  show?: boolean
 }
 
-const PastDueBadge: React.FC<Props> = ({ severity, createdAt }) => {
+const PastDueBadge: React.FC<Props> = ({ severity, createdAt, show }) => {
   const { slaDefinitionsNodes } = useSlaDefinitionsWithFilter({})
+
+  if (show) {
+    return (
+      <TooltipProvider delayDuration={200}>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <span className="shrink-0 text-xs px-1.5 py-0.5 rounded-full font-medium bg-danger/15 text-danger border border-danger/30 cursor-default">Past Due</span>
+          </TooltipTrigger>
+        </Tooltip>
+      </TooltipProvider>
+    )
+  }
+
   if (!severity || !createdAt) return null
 
   const sla = slaDefinitionsNodes.find((def) => def.securityLevel?.toLowerCase() === severity.toLowerCase())
