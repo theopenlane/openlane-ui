@@ -8,6 +8,7 @@ import AssociatedObjectsAccordion from '@/components/shared/object-association/a
 import SetObjectAssociationPoliciesDialog from '@/components/pages/protected/policies/modal/set-object-association-modal.tsx'
 import SetObjectAssociationProceduresDialog from '@/components/pages/protected/procedures/modal/set-object-association-modal.tsx'
 import SetObjectAssociationRisksDialog from '@/components/pages/protected/risks/modal/set-object-association-modal'
+import SetObjectAssociationVendorsDialog from '@/components/pages/protected/vendors/modal/set-object-association-modal'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 
 type TObjectAssociationSwitchProps = {
@@ -40,6 +41,8 @@ const ObjectAssociationSwitch: React.FC<TObjectAssociationSwitchProps> = ({ sect
         return <SetObjectAssociationProceduresDialog procedureId={centerNode?.node.id} />
       case ObjectAssociationNodeEnum.RISKS:
         return <SetObjectAssociationRisksDialog riskId={centerNode?.node.id} />
+      case ObjectAssociationNodeEnum.ENTITY:
+        return <SetObjectAssociationVendorsDialog entityId={centerNode?.node.id} />
       case ObjectAssociationNodeEnum.VULNERABILITY:
       case ObjectAssociationNodeEnum.FINDING:
       case ObjectAssociationNodeEnum.SCAN:

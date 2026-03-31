@@ -4,7 +4,7 @@ import React, { type ReactNode, Suspense } from 'react'
 
 const layout = ({ children }: { children: ReactNode }) => {
   return (
-    <main className="flex items-center justify-center h-screen relative">
+    <main className="flex items-center justify-center h-screen relative w-full">
       <div className="w-full relative z-3 px-4">
         <div className="mx-auto animate-pulse w-96">
           <Logo theme="dark" />

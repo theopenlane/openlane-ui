@@ -2,7 +2,7 @@
 import React, { useMemo, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { Bell, CheckCheck } from 'lucide-react'
-import { useWebsocketNotifications } from '@/lib/graphql-hooks/websocket/use-websocket-notifications'
+import { useNotificationsContext } from '@/providers/notifications-provider'
 import { NotificationRow } from './notification-row'
 import { NotificationNotificationTopic } from '@repo/codegen/src/schema'
 import { useGetAllExports } from '@/lib/graphql-hooks/export'
@@ -15,7 +15,7 @@ interface SystemNotificationTrackerProps {
 }
 
 export default function SystemNotificationTracker({ open, onOpenChange }: SystemNotificationTrackerProps) {
-  const { notifications, markAsRead, markAllAsRead } = useWebsocketNotifications()
+  const { notifications, markAsRead, markAllAsRead } = useNotificationsContext()
 
   const bellRef = useRef<HTMLDivElement>(null)
 
@@ -56,7 +56,7 @@ export default function SystemNotificationTracker({ open, onOpenChange }: System
 
         {open &&
           createPortal(
-            <div ref={dropdownRef} className="fixed top-14 right-6 w-[400px] max-w-[92vw] rounded-2xl border bg-card shadow-xl z-10000">
+            <div ref={dropdownRef} className="fixed top-14 right-6 w-100 max-w-[92vw] rounded-2xl border bg-card shadow-xl z-10000">
               <div className="flex flex-col max-h-[70vh]">
                 <div className="flex items-center justify-between p-4 pb-2">
                   <div className="flex items-center gap-2">
@@ -109,7 +109,7 @@ export function BellButton({ count, onClick, isOpen }: { count: number; onClick:
     <button onClick={onClick} className={`bg-transparent text-muted-foreground relative grid h-7 w-7 place-items-center rounded-md ${isOpen ? 'is-active' : ''}`} aria-label="Notifications">
       <span className={'absolute inset-0 rounded-full animate-ping opacity-40'} />
       <Bell className="h-5 w-5 " />
-      {count > 0 && <span className="absolute top-[3px] right-[5px] grid h-2 w-2 place-items-center rounded-full px-1 text-[10px] font-semibold bg-orange-500 shadow-sm"></span>}
+      {count > 0 && <span className="absolute bottom-0.75 right-1.25 grid h-2 w-2 place-items-center rounded-full px-1 text-[10px] font-semibold bg-orange-500 shadow-sm"></span>}
     </button>
   )
 }
