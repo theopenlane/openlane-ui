@@ -334,6 +334,7 @@ export function GenericTablePage<
 
   return (
     <>
+      {beforeTable}
       <ToolbarToUse
         entityType={objectType}
         displayName={displayName}
@@ -371,8 +372,6 @@ export function GenericTablePage<
         createMode={createMode}
         additionalActiveFilterCount={additionalWhereFilter ? Object.values(additionalWhereFilter).filter((v) => v != null).length : 0}
       />
-
-      {beforeTable}
 
       <TableComponent
         orderByFilter={orderByFilter}
