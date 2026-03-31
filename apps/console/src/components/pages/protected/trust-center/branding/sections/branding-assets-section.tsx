@@ -36,26 +36,30 @@ export const BrandingAssetsSection = ({ isReadOnly, hasWarning }: BrandingAssets
 
   const logoPreview = useMemo(() => {
     if (isReadOnly) {
-      return setting?.logoFile?.presignedURL ?? setting?.logoRemoteURL ?? null
+      const b64 = setting?.logoFile?.base64
+      return (b64 ? toBase64DataUri(b64) : null) ?? setting?.logoRemoteURL ?? null
     }
 
     if (formValues.logoFile) {
       return URL.createObjectURL(formValues.logoFile)
     }
 
-    return previewSetting?.logoFile?.presignedURL ?? formValues.logoRemoteURL ?? null
+    const b64 = previewSetting?.logoFile?.base64
+    return (b64 ? toBase64DataUri(b64) : null) ?? formValues.logoRemoteURL ?? null
   }, [isReadOnly, setting, formValues.logoFile, formValues.logoRemoteURL, previewSetting])
 
   const faviconPreview = useMemo(() => {
     if (isReadOnly) {
-      return setting?.faviconFile?.presignedURL ?? setting?.faviconRemoteURL ?? null
+      const b64 = setting?.faviconFile?.base64
+      return (b64 ? toBase64DataUri(b64) : null) ?? setting?.faviconRemoteURL ?? null
     }
 
     if (formValues.faviconFile) {
       return URL.createObjectURL(formValues.faviconFile)
     }
 
-    return previewSetting?.faviconFile?.presignedURL ?? formValues.faviconRemoteURL ?? null
+    const b64 = previewSetting?.faviconFile?.base64
+    return (b64 ? toBase64DataUri(b64) : null) ?? formValues.faviconRemoteURL ?? null
   }, [isReadOnly, setting, formValues.faviconFile, formValues.faviconRemoteURL, previewSetting])
 
   const heroImagePreview = useMemo(() => {
