@@ -27,13 +27,22 @@ export const BrandingCompanyInfoSection = ({ isReadOnly, setting, hasWarning }: 
           </div>
 
           <div className="flex flex-col gap-3">
-            <p className="text-base font-medium">Name</p>
+            <div className="flex flex-col gap-1">
+              <p className="text-base font-medium">Name</p>
+              <p className="text-sm text-inverted-muted-foreground">The company name displayed on your trust center.</p>
+            </div>
             <RenderBrandField name="companyName" label="Company Name" component="input" isReadOnly={isReadOnly} setting={setting} register={register} />
 
-            <p className="text-base font-medium">Company Domain</p>
+            <div className="flex flex-col gap-1">
+              <p className="text-base font-medium">Company Domain</p>
+              <p className="text-sm text-inverted-muted-foreground">Your primary website domain. Used for links from the trust center back to your site.</p>
+            </div>
             <RenderBrandField name="companyDomain" label="https://example.com" component="input" isReadOnly={isReadOnly} setting={setting} register={register} />
 
-            <p className="text-base font-medium">Description</p>
+            <div className="flex flex-col gap-1">
+              <p className="text-base font-medium">Description</p>
+              <p className="text-sm text-inverted-muted-foreground">A short description of your company and what you do.</p>
+            </div>
             <RenderBrandField name="companyDescription" label="Briefly describe your company" component="textarea" isReadOnly={isReadOnly} setting={setting} register={register} />
           </div>
 
