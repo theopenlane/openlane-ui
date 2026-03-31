@@ -21,6 +21,7 @@ export const HoverPencilWrapper: React.FC<HoverPencilWrapperProps> = ({ children
             type="button"
             aria-label={pencilAriaLabel}
             onMouseDown={(event) => {
+              event.preventDefault()
               event.stopPropagation()
               onPencilClick(event)
             }}
