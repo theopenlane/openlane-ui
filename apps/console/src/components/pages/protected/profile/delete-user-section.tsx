@@ -42,11 +42,11 @@ const DeleteUserSection: React.FC<DeleteUserSectionProps> = ({ userId }: DeleteU
 
   return (
     <Panel>
-      <PanelHeader heading="Delete Account" noBorder></PanelHeader>
+      <PanelHeader heading="Delete User Account" noBorder></PanelHeader>
       <Panel align="start" destructive>
-        <p className="text-red-600">This action is permanent. Your account and all associated organizational access will be permanently removed and cannot be recovered.</p>
+        <p className="text-red-600">This action is permanent. Your user account and all associated organizational access will be permanently removed and cannot be recovered.</p>
         <Button variant="redOutline" type="button" onClick={() => setIsDialogOpen(true)}>
-          Delete Account
+          Delete User Account
         </Button>
 
         <ConfirmationDialog
@@ -54,7 +54,7 @@ const DeleteUserSection: React.FC<DeleteUserSectionProps> = ({ userId }: DeleteU
           onOpenChange={setIsDialogOpen}
           onConfirm={handleUserDelete}
           confirmationText="Delete"
-          title={`Delete Account`}
+          title={`Delete User Account`}
           description={<>This action is permanent and cannot be undone. You will immediately lose access to all organizations and associated data.</>}
           showInput={true}
         />
