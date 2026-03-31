@@ -709,7 +709,7 @@ export const generateWhere = (selectedObject: ObjectTypeObjects | null, searchVa
   if (!selectedObject) return {}
 
   const mandatoryFilterMap: Partial<Record<ObjectTypeObjects, Record<string, unknown>>> = {
-    [ObjectTypeObjects.CONTROL]: { systemOwned: false },
+    [ObjectTypeObjects.CONTROL]: { systemOwned: false, isTrustCenterControl: false },
     [ObjectTypeObjects.CONTROL_IMPLEMENTATION]: {},
     [ObjectTypeObjects.SUB_CONTROL]: { systemOwned: false },
     [ObjectTypeObjects.CONTROL_OBJECTIVE]: { ownerID: ownerID },

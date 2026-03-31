@@ -196,13 +196,14 @@ describe('generateWhere', () => {
 
   it('returns mandatory filter only when search is empty', () => {
     const result = generateWhere(ObjectTypeObjects.CONTROL, '', ownerID)
-    expect(result).toEqual({ systemOwned: false })
+    expect(result).toEqual({ systemOwned: false, isTrustCenterControl: false })
   })
 
   it('returns or clause with primary and secondary search fields', () => {
     const result = generateWhere(ObjectTypeObjects.CONTROL, 'test', ownerID)
     expect(result).toEqual({
       systemOwned: false,
+      isTrustCenterControl: false,
       or: [{ refCodeContainsFold: 'test' }, { descriptionContainsFold: 'test' }],
     })
   })
