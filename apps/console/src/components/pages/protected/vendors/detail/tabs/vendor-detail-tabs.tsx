@@ -84,7 +84,7 @@ const VendorDetailTabs: React.FC<VendorDetailTabsProps> = ({ vendor, association
       </TabsContent>
 
       <TabsContent value="documents" className="space-y-6">
-        <DocumentsTab vendorId={vendor.id} canEdit={canEditVendor} />
+        <DocumentsTab vendorId={vendor.id} canEdit={canEditVendor} logoFileId={vendor.logoFileID} />
       </TabsContent>
 
       <TabsContent value="contacts" className="space-y-6">

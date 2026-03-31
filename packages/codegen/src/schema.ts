@@ -62903,6 +62903,8 @@ export type FilterAssessmentsQuery = {
         createdBy?: string | null
         updatedBy?: string | null
         template?: { __typename?: 'Template'; id: string; name: string } | null
+        assessmentResponses: { __typename?: 'AssessmentResponseConnection'; totalCount: number }
+        completedAssessmentResponses: { __typename?: 'AssessmentResponseConnection'; totalCount: number }
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
@@ -64160,7 +64162,7 @@ export type GetControlAssociationsByIdQuery = {
           title: string
           displayID: string
           details?: string | null
-          assignee?: { __typename?: 'User'; displayName: string; avatarRemoteURL?: string | null; avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null } | null
+          assignee?: { __typename?: 'User'; displayName: string; avatarRemoteURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
         } | null
       } | null> | null
     }
@@ -65287,7 +65289,7 @@ export type GetDocumentationTasksQuery = {
         status: TaskTaskStatus
         due?: string | null
         updatedAt?: any | null
-        assignee?: { __typename?: 'User'; id: string; displayName: string; avatarRemoteURL?: string | null; avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null } | null
+        assignee?: { __typename?: 'User'; id: string; displayName: string; avatarRemoteURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
@@ -65718,7 +65720,7 @@ export type EntitiesWithFilterQuery = {
         updatedAt?: any | null
         updatedBy?: string | null
         vendorMetadata?: any | null
-        logoFile?: { __typename?: 'File'; presignedURL?: string | null } | null
+        logoFile?: { __typename?: 'File'; base64?: string | null } | null
         internalOwnerGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
         internalOwnerUser?: { __typename?: 'User'; id: string; displayName: string } | null
         reviewedByGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
@@ -65762,6 +65764,7 @@ export type EntityQuery = {
     id: string
     internalOwner?: string | null
     lastReviewedAt?: string | null
+    logoFileID?: string | null
     mfaEnforced?: boolean | null
     mfaSupported?: boolean | null
     name?: string | null
@@ -65787,7 +65790,7 @@ export type EntityQuery = {
     vendorMetadata?: any | null
     internalOwnerGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
     internalOwnerUser?: { __typename?: 'User'; id: string; displayName: string } | null
-    logoFile?: { __typename?: 'File'; presignedURL?: string | null } | null
+    logoFile?: { __typename?: 'File'; base64?: string | null } | null
     reviewedByGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
     reviewedByUser?: { __typename?: 'User'; id: string; displayName: string } | null
   }
@@ -67033,7 +67036,7 @@ export type GetAllGroupsQuery = {
                 displayName: string
                 avatarRemoteURL?: string | null
                 role?: UserRole | null
-                avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null
+                avatarFile?: { __typename?: 'File'; base64?: string | null } | null
               }
             } | null
           } | null> | null
@@ -67097,14 +67100,7 @@ export type GetGroupDetailsQuery = {
           __typename?: 'GroupMembership'
           id: string
           role: GroupMembershipRole
-          user: {
-            __typename?: 'User'
-            id: string
-            displayName: string
-            avatarRemoteURL?: string | null
-            role?: UserRole | null
-            avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null
-          }
+          user: { __typename?: 'User'; id: string; displayName: string; avatarRemoteURL?: string | null; role?: UserRole | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null }
         } | null
       } | null> | null
     }
@@ -68418,7 +68414,7 @@ export type OrgMembershipsQuery = {
           email: string
           role?: UserRole | null
           createdAt?: any | null
-          avatarFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
+          avatarFile?: { __typename?: 'File'; id: string; base64?: string | null } | null
         }
       } | null
     } | null> | null
@@ -68437,7 +68433,7 @@ export type OrgMembershipsByIdsQuery = {
       __typename?: 'OrgMembershipEdge'
       node?: {
         __typename?: 'OrgMembership'
-        user: { __typename?: 'User'; id: string; displayName: string; avatarRemoteURL?: string | null; avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null }
+        user: { __typename?: 'User'; id: string; displayName: string; avatarRemoteURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null }
       } | null
     } | null> | null
   }
@@ -68781,7 +68777,7 @@ export type GetAllOrganizationsQuery = {
         avatarRemoteURL?: string | null
         personalOrg?: boolean | null
         stripeCustomerID?: string | null
-        avatarFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
+        avatarFile?: { __typename?: 'File'; id: string; base64?: string | null } | null
         setting?: { __typename?: 'OrganizationSetting'; identityProviderLoginEnforced: boolean } | null
       } | null
     } | null> | null
@@ -68825,7 +68821,7 @@ export type GetSingleOrganizationMembersQuery = {
             email: string
             role?: UserRole | null
             createdAt?: any | null
-            avatarFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
+            avatarFile?: { __typename?: 'File'; id: string; base64?: string | null } | null
           }
         } | null
       } | null> | null
@@ -68851,7 +68847,7 @@ export type GetAllOrganizationsWithMembersQuery = {
         displayName: string
         name: string
         avatarRemoteURL?: string | null
-        avatarFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
+        avatarFile?: { __typename?: 'File'; id: string; base64?: string | null } | null
         members: {
           __typename?: 'OrgMembershipConnection'
           edges?: Array<{
@@ -69802,7 +69798,7 @@ export type GetProgramSettingsQuery = {
             id: string
             displayName: string
             avatarRemoteURL?: string | null
-            avatarFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
+            avatarFile?: { __typename?: 'File'; id: string; base64?: string | null } | null
           }
         } | null
       } | null> | null
@@ -69830,7 +69826,7 @@ export type GetProgramMembersQuery = {
         __typename?: 'ProgramMembership'
         id: string
         role: ProgramMembershipRole
-        user: { __typename?: 'User'; id: string; displayName: string; email: string; avatarRemoteURL?: string | null; avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null }
+        user: { __typename?: 'User'; id: string; displayName: string; email: string; avatarRemoteURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null }
       } | null
     } | null> | null
   }
@@ -71288,7 +71284,7 @@ export type GetStandardDetailsQuery = {
     framework?: string | null
     governingBody?: string | null
     controls: { __typename?: 'ControlConnection'; totalCount: number }
-    logoFile?: { __typename?: 'File'; presignedURL?: string | null } | null
+    logoFile?: { __typename?: 'File'; base64?: string | null } | null
   }
 }
 
@@ -71332,7 +71328,7 @@ export type GetStandardsPaginatedQuery = {
         description?: string | null
         systemOwned?: boolean | null
         governingBodyLogoURL?: string | null
-        logoFile?: { __typename?: 'File'; presignedURL?: string | null } | null
+        logoFile?: { __typename?: 'File'; base64?: string | null } | null
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
@@ -71506,7 +71502,7 @@ export type GetSubcontrolAssociationsByIdQuery = {
           title: string
           displayID: string
           details?: string | null
-          assignee?: { __typename?: 'User'; displayName: string; avatarRemoteURL?: string | null; avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null } | null
+          assignee?: { __typename?: 'User'; displayName: string; avatarRemoteURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
         } | null
       } | null> | null
     }
@@ -71796,7 +71792,7 @@ export type CreateSubprocessorMutation = {
   __typename?: 'Mutation'
   createSubprocessor: {
     __typename?: 'SubprocessorCreatePayload'
-    subprocessor: { __typename?: 'Subprocessor'; id: string; name: string; logoRemoteURL?: string | null; logoFile?: { __typename?: 'File'; presignedURL?: string | null } | null }
+    subprocessor: { __typename?: 'Subprocessor'; id: string; name: string; logoRemoteURL?: string | null; logoFile?: { __typename?: 'File'; base64?: string | null } | null }
   }
 }
 
@@ -71830,7 +71826,7 @@ export type GetSubprocessorsQuery = {
         name: string
         description?: string | null
         logoRemoteURL?: string | null
-        logoFile?: { __typename?: 'File'; presignedURL?: string | null } | null
+        logoFile?: { __typename?: 'File'; base64?: string | null } | null
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
@@ -72100,8 +72096,8 @@ export type TasksWithFilterQuery = {
         createdBy?: string | null
         taskKindName?: string | null
         completed?: string | null
-        assigner?: { __typename?: 'User'; displayName: string; avatarRemoteURL?: string | null; avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null } | null
-        assignee?: { __typename?: 'User'; displayName: string; avatarRemoteURL?: string | null; avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null } | null
+        assigner?: { __typename?: 'User'; displayName: string; avatarRemoteURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
+        assignee?: { __typename?: 'User'; displayName: string; avatarRemoteURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
@@ -72156,7 +72152,7 @@ export type TaskQuery = {
           createdAt?: any | null
           createdBy?: string | null
           text: string
-          owner?: { __typename?: 'Organization'; avatarRemoteURL?: string | null; displayName: string; avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null } | null
+          owner?: { __typename?: 'Organization'; avatarRemoteURL?: string | null; displayName: string; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
         } | null
       } | null> | null
     }
@@ -72722,7 +72718,7 @@ export type GetTrustCenterEntitiesQuery = {
     __typename?: 'TrustCenterEntityConnection'
     edges?: Array<{
       __typename?: 'TrustCenterEntityEdge'
-      node?: { __typename?: 'TrustCenterEntity'; id: string; name: string; url?: string | null; logoFile?: { __typename?: 'File'; presignedURL?: string | null } | null } | null
+      node?: { __typename?: 'TrustCenterEntity'; id: string; name: string; url?: string | null; logoFile?: { __typename?: 'File'; base64?: string | null } | null } | null
     } | null> | null
   }
 }
@@ -72990,7 +72986,7 @@ export type GetTrustCenterSubprocessorsQuery = {
           description?: string | null
           logoRemoteURL?: string | null
           systemOwned?: boolean | null
-          logoFile?: { __typename?: 'File'; presignedURL?: string | null; base64?: string | null } | null
+          logoFile?: { __typename?: 'File'; base64?: string | null } | null
         }
       } | null
     } | null> | null
@@ -73050,7 +73046,7 @@ export type GetTrustCenterSubprocessorByIdQuery = {
       description?: string | null
       logoRemoteURL?: string | null
       systemOwned?: boolean | null
-      logoFile?: { __typename?: 'File'; presignedURL?: string | null; base64?: string | null } | null
+      logoFile?: { __typename?: 'File'; base64?: string | null } | null
     }
   }
 }
@@ -73105,8 +73101,8 @@ export type GetTrustCenterQuery = {
           logoRemoteURL?: string | null
           securityContact?: string | null
           ndaApprovalRequired?: boolean | null
-          logoFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
-          faviconFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
+          logoFile?: { __typename?: 'File'; id: string; base64?: string | null } | null
+          faviconFile?: { __typename?: 'File'; id: string; base64?: string | null } | null
         } | null
         previewSetting?: {
           __typename?: 'TrustCenterSetting'
@@ -73129,8 +73125,8 @@ export type GetTrustCenterQuery = {
           logoRemoteURL?: string | null
           securityContact?: string | null
           updatedAt?: any | null
-          logoFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
-          faviconFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
+          logoFile?: { __typename?: 'File'; id: string; base64?: string | null } | null
+          faviconFile?: { __typename?: 'File'; id: string; base64?: string | null } | null
         } | null
         watermarkConfig?: {
           __typename?: 'TrustCenterWatermarkConfig'
@@ -73287,7 +73283,7 @@ export type GetUserProfileQuery = {
     displayName: string
     email: string
     avatarRemoteURL?: string | null
-    avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null
+    avatarFile?: { __typename?: 'File'; base64?: string | null } | null
     setting: {
       __typename?: 'UserSetting'
       id: string
@@ -73308,7 +73304,7 @@ export type UpdateUserMutationVariables = Exact<{
 
 export type UpdateUserMutation = {
   __typename?: 'Mutation'
-  updateUser: { __typename?: 'UserUpdatePayload'; user: { __typename?: 'User'; id: string; avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null } }
+  updateUser: { __typename?: 'UserUpdatePayload'; user: { __typename?: 'User'; id: string; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } }
 }
 
 export type UpdateUserSettingMutationVariables = Exact<{

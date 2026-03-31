@@ -6,6 +6,7 @@ import AvatarList from '@/components/shared/avatar-list/avatar-list'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 import { UserCell } from '@/components/shared/crud-base/columns/user-cell'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
+import { toBase64DataUri } from '@/lib/image-utils'
 
 type Params = {
   userMap?: Record<string, User>
@@ -104,7 +105,7 @@ export const getGroupTableColumns = ({ userMap }: Params) => {
             max={10}
             data={members.map((user) => ({
               id: user.id,
-              imageUrl: user.avatarFile?.presignedURL ?? user.avatarRemoteURL ?? undefined,
+              imageUrl: (user.avatarFile?.base64 ? toBase64DataUri(user.avatarFile.base64) : null) ?? user.avatarRemoteURL ?? undefined,
               fallback: user.firstName?.substring(0, 2) ?? undefined,
               displayName: user?.displayName ?? undefined,
             }))}

@@ -27,6 +27,7 @@ type TOrderField = EntityOrderField // order by fields
 
 export const objectType = ObjectTypes.ENTITY
 export const objectName = ObjectNames.ENTITY
+export const displayName = 'Vendor'
 export const tableKey = TableKeyEnum.VENDOR
 export const exportType = ExportExportType.ENTITY
 export const orderFieldEnum = EntityOrderField

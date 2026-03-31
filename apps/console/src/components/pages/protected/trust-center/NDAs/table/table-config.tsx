@@ -131,7 +131,7 @@ export const getNdaRequestColumns = ({
         const isDenying = actionLoadingId === requestId && actionLoadingType === 'deny'
 
         return (
-          <div className="flex items-center gap-2 justify-end" onClick={(event) => event.stopPropagation()} onMouseDown={(event) => event.stopPropagation()}>
+          <div className="flex items-center gap-4 justify-end" onClick={(event) => event.stopPropagation()} onMouseDown={(event) => event.stopPropagation()}>
             <Button loading={isApproving} disabled={isApproving || isDenying} onClick={() => onApprove?.(requestId)} icon={<CheckCheck size={16} />} iconPosition="left">
               Approve
             </Button>
@@ -141,7 +141,7 @@ export const getNdaRequestColumns = ({
           </div>
         )
       },
-      size: 120,
+      size: 170,
     })
   }
 

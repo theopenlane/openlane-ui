@@ -17,6 +17,7 @@ import { BookUp2, PencilIcon, SquarePlus, Trash2 } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import Image from 'next/image'
+import { toBase64DataUri } from '@/lib/image-utils'
 import { StandardDialog } from './create-framework-dialog/create-framework-dialog'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { Label } from '@repo/ui/label'
@@ -252,8 +253,8 @@ export default function FrameworksPage() {
                   <div className="flex gap-3 items-center">
                     {standard.systemOwned ? (
                       <StandardsIconMapper height={32} width={32} key={standard?.id} shortName={standard?.shortName ?? ''} />
-                    ) : standard.logoFile?.presignedURL ? (
-                      <Image src={standard.logoFile.presignedURL} alt="logo" width={32} height={32} />
+                    ) : standard.logoFile?.base64 ? (
+                      <Image src={toBase64DataUri(standard.logoFile.base64)} alt="logo" width={32} height={32} />
                     ) : (
                       <div className="h-8 w-8 rounded-full bg-white/20" />
                     )}

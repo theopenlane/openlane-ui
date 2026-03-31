@@ -16,7 +16,7 @@ export const formId = 'edit' + ObjectNames.ENTITY
 export const breadcrumbs = [
   { label: 'Home', href: '/dashboard' },
   { label: 'Registry', href: '/registry/vendors' },
-  { label: 'Vendors', href: '/vendors' },
+  { label: 'Vendors', href: '/registry/vendors' },
 ]
 export const getFilterFields = (enumOptions: EnumOptions): FilterField[] => [
   {
@@ -206,6 +206,7 @@ export const getFieldsToRender = (
         isCreate={props.isCreate}
         onStagedFilesChange={onStagedFilesChange}
         onExistingFileIdsChange={onExistingFileIdsChange}
+        logoFileId={(props.data as EntityQuery['entity'] | undefined)?.logoFileID}
       />
       <EntityAssociationSection data={props.data} isEditing={props.isEditing} isCreate={props.isCreate} isEditAllowed={props.isEditAllowed} />
     </div>

@@ -11,6 +11,7 @@ import { RESET_SUCCESS_STATE_MS } from '@/constants'
 import { useOrganization } from '@/hooks/useOrganization'
 import { AvatarUpload } from '@/components/shared/avatar-upload/avatar-upload'
 import { useUpdateOrganization, useUpdateOrgAvatar } from '@/lib/graphql-hooks/organization'
+import { toBase64DataUri } from '@/lib/image-utils'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
@@ -28,7 +29,7 @@ const OrganizationNameForm = () => {
   const { currentOrgId, allOrgs } = useOrganization()
   const currentOrganization = allOrgs.filter((org) => org?.node?.id === currentOrgId)[0]?.node
 
-  const image = currentOrganization?.avatarFile?.presignedURL || currentOrganization?.avatarRemoteURL || ''
+  const image = (currentOrganization?.avatarFile?.base64 ? toBase64DataUri(currentOrganization.avatarFile.base64) : null) || currentOrganization?.avatarRemoteURL || ''
   const formSchema = z.object({
     displayName: z.string().min(2, {
       message: 'Display name must be at least 2 characters',

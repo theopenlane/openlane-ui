@@ -6,8 +6,9 @@ import { Checkbox } from '@repo/ui/checkbox'
 import { Button } from '@repo/ui/button'
 import { Badge } from '@repo/ui/badge'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
-import { MoreHorizontal, Send, Pencil, Eye, Trash2, FileText } from 'lucide-react'
+import { MoreHorizontal, Send, Pencil, Eye, Trash2, FileText, Info } from 'lucide-react'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 
 type Params = {
   userMap?: Record<string, User>
@@ -101,6 +102,35 @@ export const getQuestionnaireColumns = (params?: Params) => {
       cell: ({ cell }) => {
         const value = cell.getValue() as string
         return <Badge variant="outline">{value === 'INTERNAL' ? 'Internal' : 'External'}</Badge>
+      },
+    },
+    {
+      id: 'responses',
+      header: () => (
+        <TooltipProvider delayDuration={200}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="flex items-center gap-1 cursor-default">
+                Responses
+                <Info className="h-3.5 w-3.5 text-muted-foreground" />
+              </span>
+            </TooltipTrigger>
+            <TooltipContent side="top">Completed responses out of total questionnaires sent</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      ),
+      size: 120,
+      cell: ({ row }) => {
+        const assessment = row.original as Assessment & {
+          completedAssessmentResponses?: { totalCount: number }
+        }
+        const total = assessment.assessmentResponses?.totalCount ?? 0
+        const completed = assessment.completedAssessmentResponses?.totalCount ?? 0
+        return (
+          <span>
+            {completed}/{total}
+          </span>
+        )
       },
     },
     {

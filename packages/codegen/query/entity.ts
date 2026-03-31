@@ -30,7 +30,7 @@ export const GET_ALL_ENTITIES = gql`
           hasSoc2
           id
           logoFile {
-            presignedURL
+            base64
           }
           internalOwner
           internalOwnerGroup {
@@ -44,9 +44,6 @@ export const GET_ALL_ENTITIES = gql`
           lastReviewedAt
           mfaEnforced
           mfaSupported
-          logoFile {
-            presignedURL
-          }
           name
           nextReviewAt
           renewalRisk
@@ -124,8 +121,9 @@ export const ENTITY = gql`
         displayName
       }
       lastReviewedAt
+      logoFileID
       logoFile {
-        presignedURL
+        base64
       }
       mfaEnforced
       mfaSupported

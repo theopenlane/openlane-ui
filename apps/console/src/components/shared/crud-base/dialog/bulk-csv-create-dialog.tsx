@@ -17,16 +17,17 @@ import { toHumanLabel, pluralizeTypeName } from '@/utils/strings'
 
 type GenericBulkCsvCreateDialogProps = {
   entityType: ObjectTypes
+  displayName?: string
   onBulkCreate: (file: File) => Promise<void>
 }
 
-const GenericBulkCSVCreateDialog: React.FC<GenericBulkCsvCreateDialogProps> = ({ entityType, onBulkCreate }) => {
+const GenericBulkCSVCreateDialog: React.FC<GenericBulkCsvCreateDialogProps> = ({ entityType, displayName, onBulkCreate }) => {
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const [uploadedFile, setUploadedFile] = useState<TUploadedFile | null>(null)
   const { successNotification, errorNotification } = useNotification()
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const entityLabel = toHumanLabel(entityType)
+  const entityLabel = displayName ?? toHumanLabel(entityType)
   const entityLabelPlural = pluralizeTypeName(entityLabel)
 
   const handleFileUpload = async () => {

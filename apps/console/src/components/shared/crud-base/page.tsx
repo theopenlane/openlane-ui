@@ -65,6 +65,7 @@ export interface GenericTablePageConfig<TEntity extends { id: string }, TFormDat
   // Entity configuration
   objectType: ObjectTypes
   objectName: ObjectNames
+  displayName?: string
 
   // Table configuration
   tableKey: TableKeyValue
@@ -138,6 +139,7 @@ export function GenericTablePage<
 >(config: GenericTablePageConfig<TEntity, TFormData, TUpdateInput, TUpdateData, TCreateInput, TCreateData, TWhereInput, TOrderField>) {
   const {
     objectType,
+    displayName,
     tableKey,
     exportType,
     orderFieldEnum,
@@ -323,6 +325,7 @@ export function GenericTablePage<
     <>
       <ToolbarToUse
         entityType={objectType}
+        displayName={displayName}
         onFilterChange={(filters) => {
           setFilters((prev) => {
             if (JSON.stringify(prev) !== JSON.stringify(filters)) {

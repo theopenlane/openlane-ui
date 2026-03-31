@@ -18,6 +18,7 @@ import useFileExport from '@/components/shared/export/use-file-export'
 import { EditTrustCenterSubprocessorSheet } from './sheet/edit-trust-center-subprocessor-sheet'
 import { EmbedSubprocessorSheet } from './sheet/embed-subprocessor-sheet'
 import { useGetTrustCenter, useUpdateTrustCenter } from '@/lib/graphql-hooks/trust-center'
+import { toBase64DataUri } from '@/lib/image-utils'
 import { useNotification } from '@/hooks/useNotification'
 import { Input } from '@repo/ui/input'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -118,7 +119,7 @@ const SubprocessorsPage = () => {
         id: item?.id ?? '',
         name: item?.subprocessor?.name ?? '',
         description: item?.subprocessor?.description ?? '',
-        logo: item?.subprocessor?.logoFile?.presignedURL ?? item?.subprocessor?.logoRemoteURL ?? null,
+        logo: (item?.subprocessor?.logoFile?.base64 ? toBase64DataUri(item.subprocessor.logoFile.base64) : null) ?? item?.subprocessor?.logoRemoteURL ?? null,
         category: item?.trustCenterSubprocessorKindName ?? '',
         countries: item?.countries ?? [],
         createdAt: item?.createdAt ?? null,

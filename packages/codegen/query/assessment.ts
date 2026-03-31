@@ -61,6 +61,12 @@ export const GET_ALL_ASSESSMENTS = gql`
           updatedAt
           createdBy
           updatedBy
+          assessmentResponses(first: 1) {
+            totalCount
+          }
+          completedAssessmentResponses: assessmentResponses(where: { status: COMPLETED }, first: 1) {
+            totalCount
+          }
         }
       }
       pageInfo {

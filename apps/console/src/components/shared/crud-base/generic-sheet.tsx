@@ -46,6 +46,7 @@ export interface RenderHeaderProps {
 
 export interface GenericDetailsSheetConfig<TFormData extends FieldValues, TData, TUpdateInput, TUpdateData, TCreateInput, TCreateData> {
   objectType: ObjectTypes
+  displayName?: string
   form: UseFormReturn<TFormData>
 
   createMutation?: {
@@ -102,6 +103,7 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
     createMutation,
     deleteMutation,
     objectType,
+    displayName,
     data,
     isFetching,
     buildPayload,
@@ -328,6 +330,7 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
                 isCreate={isCreate}
                 setIsEditing={setIsEditing}
                 entityType={objectType}
+                displayName={displayName}
                 isEditAllowed={isEditAllowed}
                 handleCancelEdit={handleCancelEdit}
                 formId={formId}
