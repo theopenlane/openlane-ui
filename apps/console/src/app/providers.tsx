@@ -12,6 +12,8 @@ import { InitPlugSDK } from '@/providers/chatSdk'
 import { TooltipProvider } from '@repo/ui/tooltip'
 import { enableDevrevChat } from '@repo/dally/auth'
 import { WebSocketProvider } from '@/providers/websocket-provider'
+import { NotificationsProvider } from '@/providers/notifications-provider'
+import { NotificationToastContainer } from '@/components/shared/SystemNotification/notification-toast-container'
 
 interface ProvidersProps {
   children: ReactNode
@@ -70,12 +72,15 @@ const Providers = ({ children }: ProvidersProps) => {
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
         <QueryClientProvider client={queryClient}>
           <WebSocketProvider>
-            <BreadcrumbProvider>
-              {enableDevrevChat === 'true' && <InitPlugSDK />}
-              <TooltipProvider disableHoverableContent delayDuration={500} skipDelayDuration={0}>
-                {children}
-              </TooltipProvider>
-            </BreadcrumbProvider>
+            <NotificationsProvider>
+              <BreadcrumbProvider>
+                {enableDevrevChat === 'true' && <InitPlugSDK />}
+                <TooltipProvider disableHoverableContent delayDuration={500} skipDelayDuration={0}>
+                  {children}
+                </TooltipProvider>
+                <NotificationToastContainer />
+              </BreadcrumbProvider>
+            </NotificationsProvider>
           </WebSocketProvider>
         </QueryClientProvider>
       </ThemeProvider>

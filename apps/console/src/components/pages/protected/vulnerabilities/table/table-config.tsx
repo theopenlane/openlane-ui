@@ -10,6 +10,7 @@ import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
 import { type VulnerabilityFieldProps, type EnumOptions, type EnumCreateHandlers } from './types'
 import { enumToSortFields } from '@/components/shared/crud-base/utils'
 import { VulnerabilityAssociationSection } from '../create/form/fields/association-section'
+import PastDueBadge from '@/components/shared/past-due-badge/past-due-badge'
 
 export const formId = 'edit' + ObjectNames.VULNERABILITY
 
@@ -156,6 +157,8 @@ export const visibilityFields = {
 
 export const getFieldsToRender = (props: VulnerabilityFieldProps, enumOptions: EnumOptions, enumCreateHandlers?: EnumCreateHandlers, riskScoresAction?: React.ReactNode) => {
   const vulnData = props.data as VulnerabilityQuery['vulnerability']
+  const showBadge =
+    !props.isCreate && !props.isEditing && (vulnData?.vulnerabilityStatusName === 'Open' || vulnData?.vulnerabilityStatusName === 'Triaged' || vulnData?.vulnerabilityStatusName === 'In Progress')
   return (
     <div className="mr-6">
       <div className="flex flex-row items-center mb-6">
@@ -167,7 +170,7 @@ export const getFieldsToRender = (props: VulnerabilityFieldProps, enumOptions: E
             internalEditing={props.internalEditing}
             setInternalEditing={props.setInternalEditing}
             handleUpdateField={props.handleUpdateField}
-            // badge={!props.isCreate && !props.isEditing ? <PastDueBadge severity={vulnData?.securityLevel} createdAt={vulnData?.createdAt} /> : undefined}
+            badge={showBadge ? <PastDueBadge severity={vulnData?.securityLevel} createdAt={vulnData?.createdAt} /> : undefined}
           />
         </div>
         <div className="ml-20 mt-6">
