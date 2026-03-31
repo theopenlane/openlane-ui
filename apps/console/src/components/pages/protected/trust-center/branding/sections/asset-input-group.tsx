@@ -4,7 +4,7 @@ import { useState } from 'react'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { Label } from '@repo/ui/label'
 import UrlInput from '../../shared/url-input'
-import { Eye } from 'lucide-react'
+import { Eye, Trash2 } from 'lucide-react'
 import { type TUploadedFile } from '../../../evidence/upload/types/TUploadedFile'
 import { InputTypeEnum } from './branding-assets-section'
 import { Callout } from '@/components/shared/callout/callout'
@@ -35,6 +35,7 @@ interface AssetInputGroupProps {
   aspect?: number
   hideUrlOption?: boolean
   helperText?: string
+  onRemove?: () => void
 }
 
 export const AssetInputGroup = ({
@@ -53,6 +54,7 @@ export const AssetInputGroup = ({
   aspect,
   hideUrlOption,
   helperText,
+  onRemove,
 }: AssetInputGroupProps) => {
   const [cropDialogOpen, setCropDialogOpen] = useState(false)
   const [imageToCrop, setImageToCrop] = useState<string | null>(null)
@@ -113,6 +115,13 @@ export const AssetInputGroup = ({
               <Eye className="h-6 w-6 text-muted-foreground" />
             )}
           </div>
+
+          {onRemove && preview && !isReadOnly && (
+            <button type="button" onClick={onRemove} className="mt-2 flex items-center gap-1 text-sm text-destructive hover:underline">
+              <Trash2 className="h-3.5 w-3.5" />
+              Remove
+            </button>
+          )}
 
           {isImageValidSize === false && (
             <Callout className="w-[300px] mt-5" variant="warning" title="File size">
