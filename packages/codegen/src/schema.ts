@@ -65762,6 +65762,7 @@ export type EntityQuery = {
     id: string
     internalOwner?: string | null
     lastReviewedAt?: string | null
+    logoFileID?: string | null
     mfaEnforced?: boolean | null
     mfaSupported?: boolean | null
     name?: string | null

@@ -206,6 +206,7 @@ export const getFieldsToRender = (
         isCreate={props.isCreate}
         onStagedFilesChange={onStagedFilesChange}
         onExistingFileIdsChange={onExistingFileIdsChange}
+        logoFileId={(props.data as EntityQuery['entity'] | undefined)?.logoFileID}
       />
       <EntityAssociationSection data={props.data} isEditing={props.isEditing} isCreate={props.isCreate} isEditAllowed={props.isEditAllowed} />
     </div>
