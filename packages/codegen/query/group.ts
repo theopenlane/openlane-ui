@@ -23,7 +23,7 @@ export const GET_ALL_GROUPS = gql`
                 user {
                   id
                   avatarFile {
-                    presignedURL
+                    base64
                   }
                   displayName
                   avatarRemoteURL
@@ -108,7 +108,7 @@ export const GET_GROUP_DETAILS = gql`
               id
               displayName
               avatarFile {
-                presignedURL
+                base64
               }
               avatarRemoteURL
               role

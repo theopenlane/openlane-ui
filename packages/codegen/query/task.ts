@@ -23,14 +23,14 @@ export const TASKS_WITH_FILTER = gql`
             displayName
             avatarRemoteURL
             avatarFile {
-              presignedURL
+              base64
             }
           }
           assignee {
             displayName
             avatarRemoteURL
             avatarFile {
-              presignedURL
+              base64
             }
           }
         }
@@ -110,7 +110,7 @@ export const TASK = gql`
             owner {
               avatarRemoteURL
               avatarFile {
-                presignedURL
+                base64
               }
               displayName
             }

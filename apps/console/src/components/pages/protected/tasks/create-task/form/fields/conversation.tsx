@@ -13,6 +13,7 @@ import { useUpdateTask, useUpdateTaskComment } from '@/lib/graphql-hooks/task'
 import { type TCommentData } from '@/components/shared/comments/types/TCommentData'
 import { useSearchParams } from 'next/navigation'
 import { type TaskQuery } from '@repo/codegen/src/schema'
+import { toBase64DataUri } from '@/lib/image-utils'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useDeleteNote } from '@/lib/graphql-hooks/control'
 import { useGetOrgMemberships } from '@/lib/graphql-hooks/member'
@@ -103,7 +104,7 @@ const Conversation: React.FC<ConversationProps> = ({ isEditing, taskData }) => {
   }, [])
 
   const userMap = useMemo(() => {
-    const map: Record<string, { id: string; displayName?: string | null; avatarFile?: { presignedURL?: string | null } | null; avatarRemoteURL?: string | null }> = {}
+    const map: Record<string, { id: string; displayName?: string | null; avatarFile?: { base64?: string | null } | null; avatarRemoteURL?: string | null }> = {}
     userData?.orgMemberships?.edges?.forEach((edge) => {
       const user = edge?.node?.user
       if (user) map[user.id] = user
@@ -116,7 +117,7 @@ const Conversation: React.FC<ConversationProps> = ({ isEditing, taskData }) => {
 
     const mapped = taskData.comments.edges.map((item) => {
       const user = item?.node?.createdBy ? userMap[item.node.createdBy] : undefined
-      const avatarUrl = user?.avatarFile?.presignedURL || user?.avatarRemoteURL
+      const avatarUrl = (user?.avatarFile?.base64 ? toBase64DataUri(user.avatarFile.base64) : null) || user?.avatarRemoteURL
       return {
         comment: item?.node?.text,
         avatarUrl,

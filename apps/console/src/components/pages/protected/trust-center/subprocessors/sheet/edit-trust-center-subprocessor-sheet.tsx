@@ -11,6 +11,7 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { toBase64DataUri } from '@/lib/image-utils'
 
 import { useGetTrustCenterSubprocessorByID, useUpdateTrustCenterSubprocessor } from '@/lib/graphql-hooks/trust-center-subprocessor'
 import { useUpdateSubprocessor } from '@/lib/graphql-hooks/subprocessor'
@@ -33,7 +34,7 @@ const schema = z.object({
   description: z.string().optional(),
   uploadMode: z.enum(['file', 'url']).default('file'),
   logoFile: z.instanceof(File).optional(),
-  logoUrl: z.string().url('Please enter a valid URL').optional().or(z.literal('')),
+  logoUrl: z.string().url('Please enter a valid URL').optional().or(z.literal('')).or(z.string().startsWith('data:')),
 })
 
 type FormData = z.infer<typeof schema>
@@ -92,7 +93,8 @@ export const EditTrustCenterSubprocessorSheet: React.FC = () => {
   useEffect(() => {
     if (!data) return
     const sp = data.trustCenterSubprocessor?.subprocessor
-    const existingLogoFileUrl = sp?.logoFile?.presignedURL
+    const existingLogoBase64 = sp?.logoFile?.base64
+    const existingLogoFileUrl = existingLogoBase64 ? toBase64DataUri(existingLogoBase64) : undefined
     const existingLogoRemoteUrl = sp?.logoRemoteURL
 
     reset({
@@ -100,7 +102,7 @@ export const EditTrustCenterSubprocessorSheet: React.FC = () => {
       countries: data.trustCenterSubprocessor?.countries ?? [],
       name: sp?.name ?? '',
       description: sp?.description ?? '',
-      uploadMode: existingLogoRemoteUrl && !existingLogoFileUrl ? 'url' : 'file',
+      uploadMode: existingLogoRemoteUrl && !existingLogoBase64 ? 'url' : 'file',
       logoFile: undefined,
       logoUrl: existingLogoRemoteUrl ?? existingLogoFileUrl ?? '',
     })

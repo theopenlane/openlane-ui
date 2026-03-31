@@ -8,6 +8,7 @@ import { useDeleteNote } from '@/lib/graphql-hooks/control'
 import { useGetEvidenceComments, useUpdateEvidence, useUpdateEvidenceComment } from '@/lib/graphql-hooks/evidence'
 import { useGetOrgMemberships } from '@/lib/graphql-hooks/member'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { toBase64DataUri } from '@/lib/image-utils'
 import Skeleton from '@/components/shared/skeleton/skeleton'
 import { SheetTitle } from '@repo/ui/sheet'
 import { useQueryClient } from '@tanstack/react-query'
@@ -40,7 +41,7 @@ const EvidenceCommentSheet = () => {
     enabled: userIds.length > 0,
   })
   const userMap = useMemo(() => {
-    const map: Record<string, { id: string; displayName?: string | null; avatarFile?: { presignedURL?: string | null } | null; avatarRemoteURL?: string | null }> = {}
+    const map: Record<string, { id: string; displayName?: string | null; avatarFile?: { base64?: string | null } | null; avatarRemoteURL?: string | null }> = {}
     userData?.orgMemberships?.edges?.forEach((edge) => {
       const user = edge?.node?.user
       if (user) map[user.id] = user
@@ -56,7 +57,7 @@ const EvidenceCommentSheet = () => {
       if (!commentNode) return []
 
       const user = commentNode.createdBy ? userMap[commentNode.createdBy] : undefined
-      const avatarUrl = user?.avatarFile?.presignedURL || user?.avatarRemoteURL
+      const avatarUrl = (user?.avatarFile?.base64 ? toBase64DataUri(user.avatarFile.base64) : null) || user?.avatarRemoteURL
 
       return [
         {

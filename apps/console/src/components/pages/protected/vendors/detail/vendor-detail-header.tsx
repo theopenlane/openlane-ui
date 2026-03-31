@@ -16,6 +16,7 @@ import { useUpdateEntityLogo } from '@/lib/graphql-hooks/entity'
 import { useNotification } from '@/hooks/useNotification'
 import type { TAccessRole } from '@/types/authz'
 import type { EntityQuery, UpdateEntityInput } from '@repo/codegen/src/schema'
+import { toBase64DataUri } from '@/lib/image-utils'
 
 interface VendorDetailHeaderProps {
   vendor: EntityQuery['entity']
@@ -38,7 +39,7 @@ const VendorDetailHeader: React.FC<VendorDetailHeaderProps> = ({ vendor, isEditi
   const { mutateAsync: updateLogo, isPending: isLogoUploading } = useUpdateEntityLogo()
   const { successNotification, errorNotification } = useNotification()
 
-  const logoUrl = vendor.logoFile?.presignedURL
+  const logoUrl = vendor.logoFile?.base64 ? toBase64DataUri(vendor.logoFile.base64) : undefined
 
   const handleLogoSelect = async (file: File) => {
     try {

@@ -9,6 +9,7 @@ import { useMemo, useState, useEffect } from 'react'
 import { type TUploadedFile } from '../../../evidence/upload/types/TUploadedFile'
 import { useGetTrustCenter } from '@/lib/graphql-hooks/trust-center'
 import { normalizeUrl } from '@/utils/normalizeUrl'
+import { toBase64DataUri } from '@/lib/image-utils'
 
 export enum InputTypeEnum {
   URL = 'url',
@@ -35,26 +36,26 @@ export const BrandingAssetsSection = ({ isReadOnly, hasWarning }: BrandingAssets
 
   const logoPreview = useMemo(() => {
     if (isReadOnly) {
-      return setting?.logoFile?.presignedURL ?? setting?.logoRemoteURL ?? null
+      return (setting?.logoFile?.base64 ? toBase64DataUri(setting.logoFile.base64) : null) ?? setting?.logoRemoteURL ?? null
     }
 
     if (formValues.logoFile) {
       return URL.createObjectURL(formValues.logoFile)
     }
 
-    return previewSetting?.logoFile?.presignedURL ?? formValues.logoRemoteURL ?? null
+    return (previewSetting?.logoFile?.base64 ? toBase64DataUri(previewSetting.logoFile.base64) : null) ?? formValues.logoRemoteURL ?? null
   }, [isReadOnly, setting, formValues.logoFile, formValues.logoRemoteURL, previewSetting])
 
   const faviconPreview = useMemo(() => {
     if (isReadOnly) {
-      return setting?.faviconFile?.presignedURL ?? setting?.faviconRemoteURL ?? null
+      return (setting?.faviconFile?.base64 ? toBase64DataUri(setting.faviconFile.base64) : null) ?? setting?.faviconRemoteURL ?? null
     }
 
     if (formValues.faviconFile) {
       return URL.createObjectURL(formValues.faviconFile)
     }
 
-    return previewSetting?.faviconFile?.presignedURL ?? formValues.faviconRemoteURL ?? null
+    return (previewSetting?.faviconFile?.base64 ? toBase64DataUri(previewSetting.faviconFile.base64) : null) ?? formValues.faviconRemoteURL ?? null
   }, [isReadOnly, setting, formValues.faviconFile, formValues.faviconRemoteURL, previewSetting])
 
   useEffect(() => {

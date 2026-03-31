@@ -13,6 +13,7 @@ import { useSmartRouter } from '@/hooks/useSmartRouter'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import Skeleton from '@/components/shared/skeleton/skeleton'
 import { formatDateTime } from '@/utils/date'
+import { toBase64DataUri } from '@/lib/image-utils'
 
 const EvidenceCommentsCard = () => {
   const searchParams = useSearchParams()
@@ -117,8 +118,11 @@ const EvidenceCommentsCard = () => {
           ) : (
             <>
               <Avatar className="h-8 w-8 border border-border shrink-0" title={latestCommentUser?.displayName}>
-                {latestCommentUser?.avatarFile?.presignedURL || latestCommentUser?.avatarRemoteURL ? (
-                  <AvatarImage src={(latestCommentUser.avatarFile?.presignedURL || latestCommentUser.avatarRemoteURL) ?? ''} alt={latestCommentUser?.displayName || 'User'} />
+                {(latestCommentUser?.avatarFile?.base64 ? toBase64DataUri(latestCommentUser.avatarFile.base64) : null) || latestCommentUser?.avatarRemoteURL ? (
+                  <AvatarImage
+                    src={((latestCommentUser?.avatarFile?.base64 ? toBase64DataUri(latestCommentUser.avatarFile.base64) : null) || latestCommentUser?.avatarRemoteURL) ?? ''}
+                    alt={latestCommentUser?.displayName || 'User'}
+                  />
                 ) : (
                   <AvatarFallback>{latestCommentUser?.displayName?.slice(0, 2).toUpperCase() || '?'}</AvatarFallback>
                 )}
