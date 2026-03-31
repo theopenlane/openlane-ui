@@ -13,7 +13,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { CheckCircle, UserPlus, XCircle } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
 import { useOrganization } from '@/hooks/useOrganization'
-import { useApproveAssignment, useReassignAssignment, useRejectAssignment, useRequestChangesAssignment, useWorkflowAssignments } from '@/lib/graphql-hooks/workflows'
+import { useApproveAssignment, useReassignAssignment, useRejectAssignment, useRequestChangesAssignment } from '@/lib/graphql-hooks/workflows'
+import { useWorkflowAssignmentsWithFilter } from '@/lib/graphql-hooks/workflow-assignment'
 import { useUserSelect } from '@/lib/graphql-hooks/member'
 import { OrderDirection, WorkflowAssignment, WorkflowAssignmentOrderField, WorkflowAssignmentWhereInput, WorkflowAssignmentWorkflowAssignmentStatus } from '@repo/codegen/src/schema'
 import { WorkflowStatusBadge } from '@/components/workflows/workflow-status-badge'
@@ -24,7 +25,6 @@ import { definitionHasApprovalAction, definitionHasApprovalTiming, definitionHas
 const WorkflowInboxPage = () => {
   const router = useRouter()
   const { data: sessionData } = useSession()
-  const { currentOrgId } = useOrganization()
   const { successNotification, errorNotification } = useNotification()
   const userId = sessionData?.user?.userId
 
@@ -46,12 +46,9 @@ const WorkflowInboxPage = () => {
     return filter
   }, [userId])
 
-  const { assignments, isLoading, refetch } = useWorkflowAssignments({
-    organizationId: currentOrgId,
+  const { data: assignments, isLoading, refetch } = useWorkflowAssignmentsWithFilter({
     where,
     orderBy: [{ field: WorkflowAssignmentOrderField.created_at, direction: OrderDirection.DESC }],
-    enabled: Boolean(userId && currentOrgId),
-    first: 100,
   })
 
   const approveMutation = useApproveAssignment()
@@ -65,12 +62,14 @@ const WorkflowInboxPage = () => {
     const reviews: WorkflowAssignment[] = []
     const changeRequests: WorkflowAssignment[] = []
 
-    assignments.forEach((assignment) => {
-      const role = (assignment.role || '').toUpperCase()
-      const key = assignment.assignmentKey || ''
+    assignments?.workflowAssignments.edges?.forEach((assignment) => {
+      if (!assignment?.node) return
+
+      const role = (assignment.node.role || '').toUpperCase()
+      const key = assignment.node.assignmentKey || ''
       const isChangeRequest = role === 'REQUESTER' || key.startsWith('change_request_')
-      const definitionDoc = assignment.workflowInstance?.workflowDefinition?.definitionJSON ?? assignment.workflowInstance?.definitionSnapshot
-      const workflowKind = (assignment.workflowInstance?.workflowDefinition?.workflowKind || '').toUpperCase()
+      const definitionDoc = assignment.node.workflowInstance?.workflowDefinition?.definitionJSON ?? assignment.node.workflowInstance?.definitionSnapshot
+      const workflowKind = (assignment.node.workflowInstance?.workflowDefinition?.workflowKind || '').toUpperCase()
       const hasApprovalAction = definitionHasApprovalAction(definitionDoc)
       const hasApprovalTiming = definitionHasApprovalTiming(definitionDoc)
       const hasReviewAction = definitionHasReviewAction(definitionDoc)
@@ -78,13 +77,13 @@ const WorkflowInboxPage = () => {
       const isReview = hasReviewAction || (!isApprovalWorkflow && (role === 'REVIEWER' || key.startsWith('review_')))
 
       if (isChangeRequest) {
-        changeRequests.push(assignment)
+        changeRequests.push(assignment.node as WorkflowAssignment)
       } else if (isApprovalWorkflow) {
-        approvals.push(assignment)
+        approvals.push(assignment.node as WorkflowAssignment)
       } else if (isReview) {
-        reviews.push(assignment)
+        reviews.push(assignment.node as WorkflowAssignment)
       } else {
-        approvals.push(assignment)
+        approvals.push(assignment.node as WorkflowAssignment)
       }
     })
 
@@ -472,7 +471,7 @@ const WorkflowInboxPage = () => {
 
       {isLoading ? (
         <p className="text-sm text-muted-foreground">Loading workflow assignments...</p>
-      ) : assignments.length === 0 ? (
+      ) : assignments?.workflowAssignments?.edges?.length === 0 ? (
         <Card>
           <CardContent className="py-8 text-center text-sm text-muted-foreground">No pending assignments right now.</CardContent>
         </Card>

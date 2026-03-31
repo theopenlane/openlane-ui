@@ -23,9 +23,40 @@ export const GET_ALL_WORKFLOW_ASSIGNMENTS = gql`
           rejectionMetadata
           required
           role
+          status
           updatedAt
           updatedBy
           workflowInstanceID
+          workflowInstance {
+              id
+              state
+              context
+              controlID
+              subcontrolID
+              evidenceID
+              internalPolicyID
+              procedureID
+              workflowDefinition {
+                id
+                name
+                schemaType
+                workflowKind
+                definitionJSON
+              }
+              definitionSnapshot
+            }
+            workflowAssignmentTargets {
+              totalCount
+              edges {
+                node {
+                  id
+                  targetType
+                  targetUserID
+                  targetGroupID
+                  resolverKey
+              } 
+            }
+          } 
         }
       }
       pageInfo {

@@ -15,11 +15,9 @@ import { WorkflowFormEditor } from '@/components/workflows/workflow-form-editor'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import {
-  useUpdateWorkflowDefinition,
-  useWorkflowDefinition,
   useWorkflowMetadata,
 } from '@/lib/graphql-hooks/workflows'
-import { useCreateWorkflowDefinition } from '@/lib/graphql-hooks/workflow-definition'
+import { useWorkflowDefinition, useCreateWorkflowDefinition, useUpdateWorkflowDefinition } from '@/lib/graphql-hooks/workflow-definition'
 import { getWorkflowTemplateById } from '@/lib/workflow-templates'
 import {
   CreateWorkflowDefinitionInput,
@@ -89,7 +87,7 @@ export default function WorkflowEditor() {
   const template = useMemo(() => (templateId ? getWorkflowTemplateById(templateId) : undefined), [templateId])
 
   const { objectTypes, isLoading: isLoadingMetadata } = useWorkflowMetadata()
-  const { definition, isLoading: isLoadingDefinition } = useWorkflowDefinition(workflowId)
+  const { data: definition, isLoading: isLoadingDefinition } = useWorkflowDefinition(workflowId!)
   const createMutation = useCreateWorkflowDefinition()
   const updateMutation = useUpdateWorkflowDefinition()
   const { successNotification, errorNotification } = useNotification()
@@ -117,17 +115,17 @@ export default function WorkflowEditor() {
   useEffect(() => {
     if (!definition || initialized) return
 
-    const document = parseDefinitionJSON(definition.definitionJSON)
+    const document = parseDefinitionJSON(definition?.workflowDefinition?.definitionJSON)
 
-    setName(definition.name ?? document.name ?? '')
-    setDescription(definition.description ?? document.description ?? '')
-    setSchemaType(definition.schemaType ?? document.schemaType ?? '')
-    setWorkflowKind((definition.workflowKind ?? document.workflowKind ?? WorkflowDefinitionWorkflowKind.APPROVAL) as WorkflowDefinitionWorkflowKind)
+    setName(definition.workflowDefinition?.name ?? document.name ?? '')
+    setDescription(definition.workflowDefinition?.description ?? document.description ?? '')
+    setSchemaType(definition.workflowDefinition?.schemaType ?? document.schemaType ?? '')
+    setWorkflowKind((definition.workflowDefinition?.workflowKind ?? document.workflowKind ?? WorkflowDefinitionWorkflowKind.APPROVAL) as WorkflowDefinitionWorkflowKind)
     setApprovalTiming(normalizeApprovalTiming(document?.approvalTiming))
-    setActive(definition.active ?? true)
-    setDraft(definition.draft ?? false)
-    setIsDefault(definition.isDefault ?? false)
-    setCooldownSeconds(definition.cooldownSeconds ?? 0)
+    setActive(definition.workflowDefinition?.active ?? true)
+    setDraft(definition.workflowDefinition?.draft ?? false)
+    setIsDefault(definition.workflowDefinition?.isDefault ?? false)
+    setCooldownSeconds(definition.workflowDefinition?.cooldownSeconds ?? 0)
     setTriggers(document.triggers ?? [])
     setConditions(document.conditions ?? [])
     setActions(document.actions ?? [])
@@ -208,7 +206,7 @@ export default function WorkflowEditor() {
           definitionJSON: workflowDocument,
         }
 
-        await updateMutation.mutateAsync({ id: workflowId, input })
+        await updateMutation.mutateAsync({ updateWorkflowDefinitionId: workflowId, input })
         successNotification({
           title: 'Workflow updated',
           description: 'Your workflow definition was updated successfully.',

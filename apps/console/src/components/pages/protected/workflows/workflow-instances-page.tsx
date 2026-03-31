@@ -5,11 +5,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@repo/ui/badge'
 import { Card } from '@repo/ui/cardpanel'
 import { formatDateSince } from '@/utils/date'
-import { useWorkflowInstances } from '@/lib/graphql-hooks/workflows'
+import { useWorkflowInstancesWithFilter } from '@/lib/graphql-hooks/workflow-instance'
 import { WorkflowStatusBadge } from '@/components/workflows/workflow-status-badge'
 
 const WorkflowInstancesPage = () => {
-  const { instances, isLoading } = useWorkflowInstances({ first: 100 })
+  const { data: instances, isLoading } = useWorkflowInstancesWithFilter({})
 
   return (
     <>
@@ -41,14 +41,16 @@ const WorkflowInstancesPage = () => {
                   Loading workflow instances...
                 </TableCell>
               </TableRow>
-            ) : instances.length === 0 ? (
+            ) : instances?.workflowInstances?.edges?.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6} className="px-4 py-6 text-center text-muted-foreground">
                   No workflow instances yet.
                 </TableCell>
               </TableRow>
             ) : (
-              instances.map((instance) => {
+              instances?.workflowInstances?.edges?.map((edge) => {
+                const instance = edge?.node
+                if (!instance) return null
                 const assignments = instance.workflowAssignments?.edges?.map((edge) => edge?.node).filter(Boolean) ?? []
                 const pending = assignments.filter((assignment) => assignment?.status === 'PENDING').length
                 const approved = assignments.filter((assignment) => assignment?.status === 'APPROVED').length
@@ -80,7 +82,7 @@ const WorkflowInstancesPage = () => {
         </Table>
       </div>
 
-      {instances.length > 0 && (
+      {(instances?.workflowInstances?.edges?.length ?? 0) > 0 && (
         <Card className="mt-6 border border-border/60 bg-muted/10 p-4 text-xs text-muted-foreground">
           Instances represent active workflow runs. Approval counts reflect assignments attached to each instance.
         </Card>

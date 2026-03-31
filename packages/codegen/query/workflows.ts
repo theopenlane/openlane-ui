@@ -19,46 +19,6 @@ export const GET_WORKFLOW_METADATA = gql`
   }
 `
 
-export const GET_WORKFLOW_INSTANCES = gql`
-  query GetWorkflowInstances($first: Int, $where: WorkflowInstanceWhereInput) {
-    workflowInstances(first: $first, where: $where) {
-      edges {
-        node {
-          id
-          state
-          context
-          definitionSnapshot
-          createdAt
-          updatedAt
-          workflowProposalID
-          workflowDefinition {
-            id
-            name
-            schemaType
-            workflowKind
-            definitionJSON
-          }
-          workflowAssignments(first: 100) {
-            edges {
-              node {
-                id
-                status
-                assignmentKey
-                label
-                metadata
-                createdAt
-                decidedAt
-                actorUserID
-                actorGroupID
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-`
-
 export const GET_WORKFLOW_PROPOSALS_FOR_OBJECT = gql`
   query GetWorkflowProposalsForObject($objectType: String!, $objectID: ID!, $includeStates: [WorkflowProposalState!]) {
     workflowProposalsForObject(objectType: $objectType, objectID: $objectID, includeStates: $includeStates) {
@@ -70,59 +30,6 @@ export const GET_WORKFLOW_PROPOSALS_FOR_OBJECT = gql`
       createdAt
       updatedAt
       submittedAt
-    }
-  }
-`
-
-export const GET_WORKFLOW_ASSIGNMENTS = gql`
-  query GetWorkflowAssignments($organizationId: ID!, $first: Int, $where: WorkflowAssignmentWhereInput, $orderBy: [WorkflowAssignmentOrder!]) {
-    organization(id: $organizationId) {
-      workflowAssignments(first: $first, where: $where, orderBy: $orderBy) {
-        totalCount
-        edges {
-          node {
-            id
-            assignmentKey
-            label
-            status
-            role
-            approvalMetadata
-            rejectionMetadata
-            metadata
-            createdAt
-            decidedAt
-            workflowInstance {
-              id
-              state
-              context
-              controlID
-              subcontrolID
-              evidenceID
-              internalPolicyID
-              procedureID
-              workflowDefinition {
-                id
-                name
-                schemaType
-                workflowKind
-                definitionJSON
-              }
-              definitionSnapshot
-            }
-            workflowAssignmentTargets(first: 50) {
-              edges {
-                node {
-                  id
-                  targetType
-                  targetUserID
-                  targetGroupID
-                  resolverKey
-                }
-              }
-            }
-          }
-        }
-      }
     }
   }
 `
