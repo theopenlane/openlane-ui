@@ -1,6 +1,6 @@
 import { type Group, type Organization, type User } from '@repo/codegen/src/schema'
 import { Avatar as AvatarComponent, AvatarFallback, AvatarImage } from '@repo/ui/avatar'
-import { toBase64DataUri } from '@/lib/image-utils'
+import { toBase64DataUri } from '@/utils/toBase64DataUri'
 
 interface AvatarProps {
   entity?: User | Organization | Group | null
@@ -15,6 +15,9 @@ export function Avatar({ variant, entity, className }: AvatarProps) {
     if ('avatarFile' in entity && entity.avatarFile) {
       if ('base64' in entity.avatarFile && entity.avatarFile.base64) {
         return toBase64DataUri(entity.avatarFile.base64)
+      }
+      if ('presignedURL' in entity.avatarFile && entity.avatarFile.presignedURL) {
+        return entity.avatarFile.presignedURL
       }
     }
     if ('avatarRemoteURL' in entity) return entity.avatarRemoteURL
