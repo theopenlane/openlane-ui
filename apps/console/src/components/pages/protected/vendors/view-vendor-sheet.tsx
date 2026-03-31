@@ -94,7 +94,10 @@ const ViewVendorSheet: React.FC<Props> = ({ entityId, onClose }) => {
               icon={<ExternalLink />}
               iconPosition="left"
               onClick={() => {
-                if (entityId) router.push(`/registry/vendors/${entityId}`)
+                if (entityId) {
+                  close()
+                  router.push(`/registry/vendors/${entityId}`)
+                }
               }}
             >
               Open Full
