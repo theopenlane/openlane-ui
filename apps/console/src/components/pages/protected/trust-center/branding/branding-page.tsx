@@ -157,7 +157,9 @@ const BrandPage: React.FC = () => {
       payload.input.clearFaviconFile = true
     }
 
-    if (values.heroImageFile) {
+    if (values.clearHeroImage) {
+      payload.input.clearHeroImageFile = true
+    } else if (values.heroImageFile) {
       payload.heroImageFile = values.heroImageFile
     } else if (action === 'publish' && previewSetting?.heroImageFile?.id) {
       payload.input.heroImageFileID = previewSetting.heroImageFile.id

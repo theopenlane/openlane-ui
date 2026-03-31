@@ -63,12 +63,16 @@ export const BrandingAssetsSection = ({ isReadOnly, hasWarning }: BrandingAssets
       return setting?.heroImageFile?.base64 ?? null
     }
 
+    if (formValues.clearHeroImage) {
+      return null
+    }
+
     if (formValues.heroImageFile) {
       return URL.createObjectURL(formValues.heroImageFile)
     }
 
     return previewSetting?.heroImageFile?.base64 ?? null
-  }, [isReadOnly, setting, formValues.heroImageFile, previewSetting])
+  }, [isReadOnly, setting, formValues.heroImageFile, formValues.clearHeroImage, previewSetting])
 
   useEffect(() => {
     if (isReadOnly) return
@@ -94,6 +98,7 @@ export const BrandingAssetsSection = ({ isReadOnly, hasWarning }: BrandingAssets
       setValue('faviconRemoteURL', '', { shouldDirty: true })
     } else if (type === 'heroImage') {
       setValue('heroImageFile', uploadedFile.file, { shouldDirty: true })
+      setValue('clearHeroImage', false)
     }
   }
 
@@ -166,10 +171,14 @@ export const BrandingAssetsSection = ({ isReadOnly, hasWarning }: BrandingAssets
             isReadOnly={isReadOnly}
             normalizeUrl={normalizeUrl}
             fileConfigs={{
-              types: ['image/jpeg', 'image/png'],
-              shortTypes: ['PNG', 'JPG'],
+              types: ['image/jpeg', 'image/png', 'image/webp'],
+              shortTypes: ['PNG', 'JPG', 'WEBP'],
               maxSize: 5,
-              note: 'Recommended size: 1600×600 (8:3 aspect ratio)',
+              note: 'Recommended size: 1600x600 (8:3 aspect ratio)',
+            }}
+            onRemove={() => {
+              setValue('heroImageFile', null, { shouldDirty: true })
+              setValue('clearHeroImage', true, { shouldDirty: true })
             }}
             enableCrop
             aspect={8 / 3}
