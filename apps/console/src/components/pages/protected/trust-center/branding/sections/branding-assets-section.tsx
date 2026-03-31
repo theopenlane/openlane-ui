@@ -9,7 +9,7 @@ import { useMemo, useState, useEffect } from 'react'
 import { type TUploadedFile } from '../../../evidence/upload/types/TUploadedFile'
 import { useGetTrustCenter } from '@/lib/graphql-hooks/trust-center'
 import { normalizeUrl } from '@/utils/normalizeUrl'
-import { toBase64DataUri } from '@/lib/image-utils'
+import { toBase64DataUri } from '@/utils/toBase64DataUri'
 
 export enum InputTypeEnum {
   URL = 'url',
@@ -36,37 +36,32 @@ export const BrandingAssetsSection = ({ isReadOnly, hasWarning }: BrandingAssets
 
   const logoPreview = useMemo(() => {
     if (isReadOnly) {
-      return (setting?.logoFile?.base64 ? toBase64DataUri(setting.logoFile.base64) : null) ?? setting?.logoRemoteURL ?? null
+      return setting?.logoFile?.presignedURL ?? setting?.logoRemoteURL ?? null
     }
 
     if (formValues.logoFile) {
       return URL.createObjectURL(formValues.logoFile)
     }
 
-    return (previewSetting?.logoFile?.base64 ? toBase64DataUri(previewSetting.logoFile.base64) : null) ?? formValues.logoRemoteURL ?? null
+    return previewSetting?.logoFile?.presignedURL ?? formValues.logoRemoteURL ?? null
   }, [isReadOnly, setting, formValues.logoFile, formValues.logoRemoteURL, previewSetting])
 
   const faviconPreview = useMemo(() => {
     if (isReadOnly) {
-      return (setting?.faviconFile?.base64 ? toBase64DataUri(setting.faviconFile.base64) : null) ?? setting?.faviconRemoteURL ?? null
+      return setting?.faviconFile?.presignedURL ?? setting?.faviconRemoteURL ?? null
     }
 
     if (formValues.faviconFile) {
       return URL.createObjectURL(formValues.faviconFile)
     }
 
-    return (previewSetting?.faviconFile?.base64 ? toBase64DataUri(previewSetting.faviconFile.base64) : null) ?? formValues.faviconRemoteURL ?? null
+    return previewSetting?.faviconFile?.presignedURL ?? formValues.faviconRemoteURL ?? null
   }, [isReadOnly, setting, formValues.faviconFile, formValues.faviconRemoteURL, previewSetting])
-
-  const toDataUri = (base64: string) => {
-    if (base64.startsWith('data:')) return base64
-    return `data:image/jpeg;base64,${base64}`
-  }
 
   const heroImagePreview = useMemo(() => {
     if (isReadOnly) {
       const b64 = setting?.heroImageFile?.base64
-      return b64 ? toDataUri(b64) : null
+      return b64 ? toBase64DataUri(b64) : null
     }
 
     if (formValues.clearHeroImage) {
@@ -78,7 +73,7 @@ export const BrandingAssetsSection = ({ isReadOnly, hasWarning }: BrandingAssets
     }
 
     const b64 = previewSetting?.heroImageFile?.base64
-    return b64 ? toDataUri(b64) : null
+    return b64 ? toBase64DataUri(b64) : null
   }, [isReadOnly, setting, formValues.heroImageFile, formValues.clearHeroImage, previewSetting])
 
   useEffect(() => {
