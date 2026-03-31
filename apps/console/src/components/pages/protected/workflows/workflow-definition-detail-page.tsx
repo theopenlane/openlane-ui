@@ -70,7 +70,7 @@ const WorkflowDefinitionDetailPage = ({ workflowId }: WorkflowDefinitionDetailPa
               <Button variant="secondary" onClick={() => router.push('/workflows')}>
                 Back to definitions
               </Button>
-              <Button onClick={() => router.push(`/workflows/editor?id=${definition.id}`)}>Edit definition</Button>
+              <Button onClick={() => router.push(`/automation/workflows/editor?id=${definition.id}`)}>Edit definition</Button>
             </div>
           </div>
         }

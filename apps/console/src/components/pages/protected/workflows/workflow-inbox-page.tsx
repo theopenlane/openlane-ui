@@ -222,17 +222,6 @@ const WorkflowInboxPage = () => {
     }
   }
 
-  if (!userId) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Workflow Inbox</CardTitle>
-          <CardDescription>Sign in to view your approvals.</CardDescription>
-        </CardHeader>
-      </Card>
-    )
-  }
-
   const renderAssignmentCard = (assignment: WorkflowAssignment, allowDecision: boolean) => {
     const definition = assignment.workflowInstance?.workflowDefinition
     const instanceState = assignment.workflowInstance?.state
@@ -472,9 +461,9 @@ const WorkflowInboxPage = () => {
           <div className="flex items-center justify-between">
             <div>
               <h1>Workflow Inbox</h1>
-              <p className="text-sm text-muted-foreground">Review approvals, reviews, and requested changes assigned to you.</p>
+              <p className="text-md text-muted-foreground">Review approvals, reviews, and requested changes assigned to you.</p>
             </div>
-            <Badge variant="secondary" className="text-amber-600">
+            <Badge variant="secondary" className="text-[var(--color-warning)]">
               {pendingCount} pending
             </Badge>
           </div>

@@ -18585,6 +18585,12 @@ export enum ExportExportMode {
   FOLDER = 'FOLDER',
 }
 
+/** ExportExportMode is enum for the field mode */
+export enum ExportExportMode {
+  FLAT = 'FLAT',
+  FOLDER = 'FOLDER',
+}
+
 /** ExportExportStatus is enum for the field status */
 export enum ExportExportStatus {
   FAILED = 'FAILED',
@@ -74647,6 +74653,7 @@ export type WorkflowDefinitionsWithFilterQuery = {
         publishedAt?: any | null
         revision: number
         schemaType: string
+        workflowKind: WorkflowDefinitionWorkflowKind
         systemOwned?: boolean | null
         updatedAt?: any | null
         updatedBy?: string | null
@@ -74679,6 +74686,7 @@ export type WorkflowDefinitionQuery = {
     revision: number
     schemaType: string
     systemOwned?: boolean | null
+    workflowKind: WorkflowDefinitionWorkflowKind
     updatedAt?: any | null
     updatedBy?: string | null
   }

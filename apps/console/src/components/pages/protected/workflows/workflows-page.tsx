@@ -8,11 +8,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { formatDateSince } from '@/utils/date'
 import { useNotification } from '@/hooks/useNotification'
-import { useDeleteWorkflowDefinition, useWorkflowDefinitionsWithFilter } from '@/lib/graphql-hooks/workflows'
+import { useDeleteWorkflowDefinition, useWorkflowDefinitionsWithFilter } from '@/lib/graphql-hooks/workflow-definition'
 
 const WorkflowsPage = () => {
   const router = useRouter()
-  const { definitions, isLoading } = useWorkflowDefinitionsWithFilter({})
+  const { workflowDefinitionsNodes: definitions, isLoading } = useWorkflowDefinitionsWithFilter({})
   const deleteMutation = useDeleteWorkflowDefinition()
   const { successNotification, errorNotification } = useNotification()
   const [deleteId, setDeleteId] = useState<string | null>(null)
@@ -20,7 +20,7 @@ const WorkflowsPage = () => {
   const handleDelete = async () => {
     if (!deleteId) return
     try {
-      await deleteMutation.mutateAsync(deleteId)
+      await deleteMutation.mutateAsync({ deleteWorkflowDefinitionId: deleteId })
       successNotification({
         title: 'Workflow deleted',
         description: 'The workflow definition was removed successfully.',
@@ -44,7 +44,7 @@ const WorkflowsPage = () => {
               <h1>Workflows</h1>
               <p className="text-sm text-muted-foreground">Automate approvals, notifications, and lifecycle actions.</p>
             </div>
-            <Button onClick={() => router.push('/workflows/editor')}>Create workflow</Button>
+            <Button onClick={() => router.push('/automation/workflows/editor')}>Create workflow</Button>
           </div>
         }
       />
@@ -81,10 +81,10 @@ const WorkflowsPage = () => {
                   <TableCell className="px-4 py-2">{formatDateSince(workflow.updatedAt)}</TableCell>
                   <TableCell className="px-4 py-2 text-right">
                     <div className="flex justify-end gap-2">
-                      <Button size="sm" variant="secondary" onClick={() => router.push(`/workflows/definitions/${workflow.id}`)}>
+                      <Button size="sm" variant="secondary" onClick={() => router.push(`/automation/workflows/definitions/${workflow.id}`)}>
                         View
                       </Button>
-                      <Button size="sm" variant="outline" onClick={() => router.push(`/workflows/editor?id=${workflow.id}`)}>
+                      <Button size="sm" variant="outline" onClick={() => router.push(`/automation/workflows/editor?id=${workflow.id}`)}>
                         Edit
                       </Button>
                       <Button size="sm" variant="transparent" onClick={() => setDeleteId(workflow.id)}>

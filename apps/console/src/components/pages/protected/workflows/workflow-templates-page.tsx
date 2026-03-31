@@ -9,6 +9,7 @@ import { Separator } from '@repo/ui/separator'
 import { Button } from '@repo/ui/button'
 import { Workflow, Sparkles } from 'lucide-react'
 import { WORKFLOW_TEMPLATES, type WorkflowTemplate } from '@/lib/workflow-templates'
+import { toHumanLabel } from '@/utils/strings'
 
 const categoryLabel: Record<string, string> = {
   approval: 'Approval',
@@ -31,13 +32,6 @@ const actionLabelMap: Record<string, string> = {
   CREATE_OBJECT: 'Create object',
 }
 
-const formatTitleCase = (value: string) =>
-  value
-    .toLowerCase()
-    .split('_')
-    .map((word) => (word ? word[0].toUpperCase() + word.slice(1) : word))
-    .join(' ')
-
 const parseDefinition = (template: WorkflowTemplate) => {
   if (!template.definitionJSON) return undefined
   if (typeof template.definitionJSON === 'string') {
@@ -52,7 +46,7 @@ const parseDefinition = (template: WorkflowTemplate) => {
 
 const formatTrigger = (trigger?: any) => {
   if (!trigger) return '—'
-  const operation = trigger.operation ? formatTitleCase(String(trigger.operation)) : '—'
+  const operation = trigger.operation ? toHumanLabel(String(trigger.operation)) : '—'
   const fields = Array.isArray(trigger.fields) && trigger.fields.length > 0 ? `Fields: ${trigger.fields.join(', ')}` : ''
   const edges = Array.isArray(trigger.edges) && trigger.edges.length > 0 ? `Edges: ${trigger.edges.join(', ')}` : ''
   const detail = [fields, edges].filter(Boolean).join(' • ')
@@ -68,12 +62,12 @@ const formatTargets = (action?: any) => {
       const targetType = target?.type
       if (targetType === 'RESOLVER') {
         const key = target?.resolver_key || target?.resolverKey
-        return key ? formatTitleCase(String(key)) : 'Resolver'
+        return key ? toHumanLabel(String(key)) : 'Resolver'
       }
       if (targetType === 'GROUP') return 'Group'
       if (targetType === 'USER') return 'User'
       if (targetType === 'ROLE') return 'Role'
-      return targetType ? formatTitleCase(String(targetType)) : null
+      return targetType ? toHumanLabel(String(targetType)) : null
     })
     .filter(Boolean) as string[]
 
@@ -85,12 +79,12 @@ const formatTargets = (action?: any) => {
 
 const TemplateSummary = ({ template }: { template: WorkflowTemplate }) => {
   const definition = parseDefinition(template)
-  const workflowKind = definition?.workflowKind ? formatTitleCase(String(definition.workflowKind)) : categoryLabel[template.category]
+  const workflowKind = definition?.workflowKind ? toHumanLabel(String(definition.workflowKind)) : categoryLabel[template.category]
   const schemaType = definition?.schemaType || template.schemaType
   const triggers = Array.isArray(definition?.triggers) ? definition.triggers : []
   const actions = Array.isArray(definition?.actions) ? definition.actions : []
   const primaryAction = actions[0]
-  const goal = primaryAction?.type ? actionLabelMap[String(primaryAction.type)] ?? formatTitleCase(String(primaryAction.type)) : workflowKind
+  const goal = primaryAction?.type ? actionLabelMap[String(primaryAction.type)] ?? toHumanLabel(String(primaryAction.type)) : workflowKind
 
   return (
     <div className="mt-auto rounded-lg border border-border/60 bg-muted/10 p-3">
@@ -138,7 +132,7 @@ const WorkflowTemplatesPage = () => {
       <Separator className="" separatorClass="bg-card" />
 
       <div className="mt-6">
-        <Link href="/workflows/wizard" className="block">
+        <Link href="/automation/workflows/wizard" className="block">
           <Card className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-xl p-4 hover:border-primary transition cursor-pointer">
             <div>
               <h2 className="text-base font-medium">Need something else?</h2>
@@ -155,7 +149,7 @@ const WorkflowTemplatesPage = () => {
         <h2 className="mb-3">Templates</h2>
         <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
           {templates.map((template) => (
-            <Link key={template.id} href={`/workflows/wizard?template=${template.id}`} className="h-full">
+            <Link key={template.id} href={`/automation/workflows/wizard?template=${template.id}`} className="h-full">
               <Card className="flex h-[360px] w-full flex-col rounded-xl overflow-hidden hover:border-primary transition cursor-pointer p-4">
                 <div className="flex-1 flex flex-col">
                   <div className="flex items-center gap-2 mb-2">
@@ -178,7 +172,7 @@ const WorkflowTemplatesPage = () => {
       <div className="mt-6">
         <h2 className="mb-3">Custom</h2>
         <div className="flex gap-6 flex-wrap max-w-[1092px]">
-          <Link className="flex flex-1" href="/workflows/wizard">
+          <Link className="flex flex-1" href="/automation/workflows/wizard">
             <Card className="flex w-full items-center gap-3 rounded-xl p-4 hover:border-primary transition cursor-pointer">
               <div className="flex items-center justify-center w-12 h-12 rounded-md bg-secondary border">
                 <Workflow className="text-btn-primary" size={20} />

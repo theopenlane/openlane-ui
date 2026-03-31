@@ -6,8 +6,53 @@ export type WorkflowTemplate = {
   description: string
   category: WorkflowTemplateCategory
   schemaType: string
-  definitionJSON: any
+  definitionJSON: definitionJSON
   highlights?: string[]
+}
+
+type definitionJSON = {
+  name: string
+  description: string
+  schemaType: string
+  workflowKind: string
+  version: string
+  triggers: [{
+    operation: string
+    objectType: string
+    fields?: string[]
+    edges?: string[]
+    expression?: string
+    description?: string
+  }]
+  conditions?: any[]
+  actions:{
+    key: string
+    type: string
+    description?: string
+    when?: string
+    params: {
+      targets?: {
+        type: string
+        id?: string
+        resolver_key?: string
+      }[]
+      required?: boolean
+      required_count?: number
+      label?: string
+      fields?: string[]
+      updates?: Record<string, any>
+      title?: string
+      body?: string
+      channels?: string[]
+      url?: string
+      method?: string
+      headers?: Record<string, any>
+      payload?: any
+      timeout_ms?: number
+      data?: Record<string, any>
+    }
+  }[]
+  metadata?: Record<string, any>
 }
 
 export const WORKFLOW_TEMPLATES: WorkflowTemplate[] = [

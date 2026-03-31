@@ -45,7 +45,7 @@ type WorkflowDocument = {
   workflowKind?: WorkflowDefinitionWorkflowKind
   name?: string
   conditions?: any[]
-  actions?: any[]
+  actions?: any[] | undefined | null
   description?: string
   approvalTiming?: ApprovalTiming
   approvalSubmissionMode?: ApprovalSubmissionMode
@@ -177,9 +177,9 @@ const WorkflowWizardPage = () => {
   const templateId = searchParams.get('template')
   const template = useMemo(() => (templateId ? getWorkflowTemplateById(templateId) : undefined), [templateId])
   const { successNotification, errorNotification } = useNotification()
-  const createMutation = useCreateWorkflowDefinition()
+  const baseCreateMutation = useCreateWorkflowDefinition()
   const { objectTypes, isLoading: isLoadingMetadata } = useWorkflowMetadata()
-  const { data: definitions WorkflowDefinitionsNodeNonNull } = useWorkflowDefinitionsWithFilter({ enabled: !templateId })
+  const { workflowDefinitionsNodes, isLoading: isLoadingDefinitions } = useWorkflowDefinitionsWithFilter({ enabled: !templateId })
   const { userOptions, isLoading: isLoadingUsers } = useUserSelect({})
   const { groupOptions, isLoading: isLoadingGroups } = useGroupSelect()
 
@@ -380,8 +380,8 @@ const WorkflowWizardPage = () => {
       })
     }
 
-    if (definitions?.workflowDefinitions?.edges) {
-      definitions.workflowDefinitions.edges.forEach((definition: WorkflowDefinitionsNodeNonNull) => {
+    if (workflowDefinitionsNodes.length > 0) {
+      workflowDefinitionsNodes.forEach((definition: WorkflowDefinitionsNodeNonNull) => {
         if (!definition) return
         const doc: WorkflowDocument = parseDefinitionJSON(definition.definitionJSON)
         addEdgesFromDoc(doc, definition.schemaType ?? undefined)
@@ -397,7 +397,7 @@ const WorkflowWizardPage = () => {
     edges.forEach((edge) => edgesSet.add(edge))
 
     return Array.from(edgesSet).sort((a, b) => a.localeCompare(b))
-  }, [definitions, edges, objectTypes, schemaType])
+  }, [workflowDefinitionsNodes, edges, objectTypes, schemaType])
 
   const hasEdgeOptions = edgeOptions.length > 0
 
@@ -585,7 +585,7 @@ const WorkflowWizardPage = () => {
       targets: {},
       triggers: [trigger],
       conditions,
-      actions: actionType ? [action] : [],
+      actions: action ? action : null,
       metadata: {
         createdFrom: 'wizard',
       },
@@ -702,6 +702,16 @@ const WorkflowWizardPage = () => {
       cooldownSeconds,
       definitionJSON: workflowDocument,
     }
+
+
+    const createMutation = {
+      isPending: baseCreateMutation.isPending,
+      mutateAsync: async (input: CreateWorkflowDefinitionInput) => {
+        const result = await baseCreateMutation.mutateAsync({ input })
+        return result
+      },
+    }
+
 
     try {
       const response = await createMutation.mutateAsync(input)
@@ -1333,7 +1343,7 @@ const WorkflowWizardPage = () => {
           <Button type="button" variant="secondary" onClick={handleBack}>
             Back
           </Button>
-          <Button type="button" variant="primary" onClick={handleNext} disabled={!canContinue || createMutation.isPending} loading={createMutation.isPending}>
+          <Button type="button" variant="primary" onClick={handleNext} disabled={!canContinue || baseCreateMutation.isPending} loading={baseCreateMutation.isPending}>
             {stepper.isLast ? 'Create workflow' : 'Continue'}
           </Button>
         </div>
