@@ -15,11 +15,11 @@ import { WorkflowFormEditor } from '@/components/workflows/workflow-form-editor'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import {
-  useCreateWorkflowDefinition,
   useUpdateWorkflowDefinition,
   useWorkflowDefinition,
   useWorkflowMetadata,
 } from '@/lib/graphql-hooks/workflows'
+import { useCreateWorkflowDefinition } from '@/lib/graphql-hooks/workflow-definition'
 import { getWorkflowTemplateById } from '@/lib/workflow-templates'
 import {
   CreateWorkflowDefinitionInput,
@@ -226,7 +226,7 @@ export default function WorkflowEditor() {
           definitionJSON: workflowDocument,
         }
 
-        await createMutation.mutateAsync(input)
+        await createMutation.mutateAsync({ input: input })
         successNotification({
           title: 'Workflow created',
           description: 'Your workflow definition was created successfully.',
