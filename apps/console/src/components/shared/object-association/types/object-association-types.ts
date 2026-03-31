@@ -45,4 +45,5 @@ export enum ObjectAssociationNodeEnum {
   REMEDIATION = 'remediations',
   ASSET = 'assets',
   TASK = 'tasks',
+  ENTITY = 'entities',
 }
