@@ -2,15 +2,14 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
   APPROVE_WORKFLOW_ASSIGNMENT,
-  GET_WORKFLOW_INSTANCES,
   GET_WORKFLOW_METADATA,
-  GET_WORKFLOW_ASSIGNMENTS,
   GET_WORKFLOW_PROPOSALS_FOR_OBJECT,
   REJECT_WORKFLOW_ASSIGNMENT,
   REQUEST_CHANGES_WORKFLOW_ASSIGNMENT,
   REASSIGN_WORKFLOW_ASSIGNMENT,
 } from '@repo/codegen/query/workflows'
-import { WorkflowInstance, WorkflowInstanceWhereInput, WorkflowAssignment, WorkflowAssignmentOrder, WorkflowAssignmentWhereInput } from '@repo/codegen/src/schema'
+import { GET_ALL_WORKFLOW_INSTANCES } from '@repo/codegen/query/workflow-instance'
+import { WorkflowInstance, WorkflowInstanceWhereInput, WorkflowAssignment, WorkflowAssignmentOrder, WorkflowAssignmentWhereInput, WorkflowDefinitionWhereInput, WorkflowDefinitionOrder } from '@repo/codegen/src/schema'
 import { GET_ALL_WORKFLOW_DEFINITIONS } from '@repo/codegen/query/workflow-definition'
 
 type WorkflowFieldMetadata = {
@@ -33,24 +32,6 @@ type WorkflowMetadataResponse = {
     objectTypes: WorkflowObjectTypeMetadata[]
   }
 }
-
-type WorkflowDefinitionsResponse = {
-  workflowDefinitions: {
-    totalCount: number
-    pageInfo: {
-      startCursor?: string | null
-      endCursor?: string | null
-      hasPreviousPage: boolean
-      hasNextPage: boolean
-    }
-    edges: { node?: WorkflowDefinition | null }[]
-  }
-}
-
-type WorkflowDefinitionResponse = {
-  workflowDefinition: WorkflowDefinition | null
-}
-
 type WorkflowInstancesResponse = {
   workflowInstances: {
     edges: { node?: WorkflowInstance | null }[]
@@ -110,75 +91,6 @@ export const useWorkflowMetadata = () => {
   }
 }
 
-type UseWorkflowDefinitionsArgs = {
-  where?: WorkflowDefinitionWhereInput
-  orderBy?: WorkflowDefinitionOrder[]
-  first?: number
-  enabled?: boolean
-}
-
-export const useWorkflowDefinitions = ({ where, orderBy, first = 50, enabled = true }: UseWorkflowDefinitionsArgs) => {
-  const { client } = useGraphQLClient()
-
-  const queryResult = useQuery<WorkflowDefinitionsResponse>({
-    queryKey: ['workflowDefinitions', where, orderBy, first],
-    queryFn: () =>
-      client.request(GET_ALL_WORKFLOW_DEFINITIONS, {
-        where,
-        orderBy,
-        first,
-      }),
-    enabled,
-  })
-
-  const definitions = queryResult.data?.workflowDefinitions?.edges?.map((edge) => edge?.node).filter(Boolean) as WorkflowDefinition[]
-
-  return {
-    ...queryResult,
-    definitions,
-    totalCount: queryResult.data?.workflowDefinitions?.totalCount ?? 0,
-    pageInfo: queryResult.data?.workflowDefinitions?.pageInfo,
-  }
-}
-
-export const useWorkflowDefinition = (id?: string | null, enabled = true) => {
-  const { client } = useGraphQLClient()
-
-  const queryResult = useQuery<WorkflowDefinitionResponse>({
-    queryKey: ['workflowDefinition', id],
-    queryFn: () => client.request(GET_WORKFLOW_DEFINITION_BY_ID, { workflowDefinitionId: id }),
-    enabled: Boolean(id) && enabled,
-  })
-
-  return {
-    ...queryResult,
-    definition: queryResult.data?.workflowDefinition ?? null,
-  }
-}
-
-export const useUpdateWorkflowDefinition = () => {
-  const { client, queryClient } = useGraphQLClient()
-
-  return useMutation({
-    mutationFn: ({ id, input }: { id: string; input: UpdateWorkflowDefinitionInput }) => client.request(UPDATE_WORKFLOW_DEFINITION, { updateWorkflowDefinitionId: id, input }),
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['workflowDefinitions'] })
-      queryClient.invalidateQueries({ queryKey: ['workflowDefinition', variables.id] })
-    },
-  })
-}
-
-export const useDeleteWorkflowDefinition = () => {
-  const { client, queryClient } = useGraphQLClient()
-
-  return useMutation({
-    mutationFn: (id: string) => client.request(DELETE_WORKFLOW_DEFINITION, { deleteWorkflowDefinitionId: id }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['workflowDefinitions'] })
-    },
-  })
-}
-
 type UseWorkflowInstancesArgs = {
   objectId?: string | null
   objectType?: string | null
@@ -195,7 +107,7 @@ export const useWorkflowInstancesForObject = ({ objectId, objectType, first = 50
 
   const queryResult = useQuery<WorkflowInstancesResponse>({
     queryKey: ['workflowInstances', objectType, objectId, first],
-    queryFn: () => client.request(GET_WORKFLOW_INSTANCES, { where, first }),
+    queryFn: () => client.request(GET_ALL_WORKFLOW_INSTANCES, { where, first }),
     enabled: Boolean(whereField && objectId) && enabled,
   })
 
@@ -231,61 +143,6 @@ export const useWorkflowProposalsForObject = ({ objectId, objectType, includeSta
   return {
     ...queryResult,
     proposals: queryResult.data?.workflowProposalsForObject ?? [],
-  }
-}
-
-type UseWorkflowInstancesQueryArgs = {
-  where?: WorkflowInstanceWhereInput
-  first?: number
-  enabled?: boolean
-}
-
-export const useWorkflowInstances = ({ where, first = 50, enabled = true }: UseWorkflowInstancesQueryArgs) => {
-  const { client } = useGraphQLClient()
-
-  const queryResult = useQuery<WorkflowInstancesResponse>({
-    queryKey: ['workflowInstances', where, first],
-    queryFn: () => client.request(GET_WORKFLOW_INSTANCES, { where, first }),
-    enabled,
-  })
-
-  const instances = (queryResult.data?.workflowInstances?.edges ?? []).map((edge) => edge?.node).filter(Boolean) as WorkflowInstance[]
-
-  return {
-    ...queryResult,
-    instances,
-  }
-}
-
-type UseWorkflowAssignmentsArgs = {
-  organizationId?: string | null
-  where?: WorkflowAssignmentWhereInput
-  orderBy?: WorkflowAssignmentOrder[]
-  first?: number
-  enabled?: boolean
-}
-
-export const useWorkflowAssignments = ({ organizationId, where, orderBy, first = 50, enabled = true }: UseWorkflowAssignmentsArgs) => {
-  const { client } = useGraphQLClient()
-
-  const queryResult = useQuery<WorkflowAssignmentsResponse>({
-    queryKey: ['workflowAssignments', organizationId, where, orderBy, first],
-    queryFn: () =>
-      client.request(GET_WORKFLOW_ASSIGNMENTS, {
-        organizationId,
-        where,
-        orderBy,
-        first,
-      }),
-    enabled: Boolean(organizationId) && enabled,
-  })
-
-  const assignments = (queryResult.data?.organization?.workflowAssignments?.edges ?? []).map((edge) => edge?.node).filter(Boolean) as WorkflowAssignment[]
-
-  return {
-    ...queryResult,
-    assignments,
-    totalCount: queryResult.data?.organization?.workflowAssignments?.totalCount ?? 0,
   }
 }
 

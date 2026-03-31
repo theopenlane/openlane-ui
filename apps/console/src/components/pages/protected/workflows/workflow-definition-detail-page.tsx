@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@repo/ui/cardpanel'
 import { Button } from '@repo/ui/button'
 import { Badge } from '@repo/ui/badge'
 import { Textarea } from '@repo/ui/textarea'
-import { useWorkflowDefinition } from '@/lib/graphql-hooks/workflows'
+import { useWorkflowDefinition } from '@/lib/graphql-hooks/workflow-definition'
 import { formatDateSince } from '@/utils/date'
 import { definitionHasApprovalAction, formatApprovalTimingLabel, parseWorkflowDefinition, resolveApprovalTiming } from '@/utils/workflow'
 
@@ -17,9 +17,9 @@ type WorkflowDefinitionDetailPageProps = {
 
 const WorkflowDefinitionDetailPage = ({ workflowId }: WorkflowDefinitionDetailPageProps) => {
   const router = useRouter()
-  const { definition, isLoading } = useWorkflowDefinition(workflowId)
+  const { data: definition, isLoading } = useWorkflowDefinition(workflowId)
 
-  const definitionDoc = useMemo(() => parseWorkflowDefinition(definition?.definitionJSON), [definition?.definitionJSON])
+  const definitionDoc = useMemo(() => parseWorkflowDefinition(definition?.workflowDefinition?.definitionJSON), [definition?.workflowDefinition?.definitionJSON])
   const actions = useMemo(() => (Array.isArray(definitionDoc?.actions) ? definitionDoc.actions : []), [definitionDoc])
   const actionSummary = useMemo(() => {
     if (!actions.length) return '—'
@@ -43,10 +43,10 @@ const WorkflowDefinitionDetailPage = ({ workflowId }: WorkflowDefinitionDetailPa
   const approvalTimingLabel = useMemo(() => formatApprovalTimingLabel(approvalTiming), [approvalTiming])
 
   const definitionJSON = useMemo(() => {
-    if (!definition?.definitionJSON) return ''
-    return typeof definition.definitionJSON === 'string'
-      ? definition.definitionJSON
-      : JSON.stringify(definition.definitionJSON, null, 2)
+    if (!definition?.workflowDefinition?.definitionJSON) return ''
+    return typeof definition.workflowDefinition.definitionJSON === 'string'
+      ? definition.workflowDefinition.definitionJSON
+      : JSON.stringify(definition.workflowDefinition.definitionJSON, null, 2)
   }, [definition])
 
   if (isLoading) {
@@ -63,14 +63,14 @@ const WorkflowDefinitionDetailPage = ({ workflowId }: WorkflowDefinitionDetailPa
         heading={
           <div className="flex items-center justify-between gap-4">
             <div>
-              <h1>{definition.name}</h1>
-              <p className="text-sm text-muted-foreground">{definition.description || 'Workflow definition details'}</p>
+              <h1>{definition.workflowDefinition?.name}</h1>
+              <p className="text-sm text-muted-foreground">{definition.workflowDefinition?.description || 'Workflow definition details'}</p>
             </div>
             <div className="flex gap-2">
               <Button variant="secondary" onClick={() => router.push('/workflows')}>
                 Back to definitions
               </Button>
-              <Button onClick={() => router.push(`/automation/workflows/editor?id=${definition.id}`)}>Edit definition</Button>
+              <Button onClick={() => router.push(`/automation/workflows/editor?id=${definition.workflowDefinition?.id}`)}>Edit definition</Button>
             </div>
           </div>
         }
@@ -84,11 +84,11 @@ const WorkflowDefinitionDetailPage = ({ workflowId }: WorkflowDefinitionDetailPa
           <CardContent className="space-y-3 text-sm">
             <div>
               <p className="text-xs text-muted-foreground">Schema</p>
-              <p className="font-medium">{definition.schemaType}</p>
+              <p className="font-medium">{definition.workflowDefinition?.schemaType}</p>
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Kind</p>
-              <p className="font-medium">{definition.workflowKind}</p>
+              <p className="font-medium">{definition.workflowDefinition?.workflowKind}</p>
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Action summary</p>
@@ -100,13 +100,13 @@ const WorkflowDefinitionDetailPage = ({ workflowId }: WorkflowDefinitionDetailPa
             <div>
               <p className="text-xs text-muted-foreground">Status</p>
               <div className="flex flex-wrap gap-2">
-                <Badge variant="secondary">{definition.draft ? 'Draft' : definition.active ? 'Active' : 'Inactive'}</Badge>
-                {definition.isDefault && <Badge variant="outline">Default</Badge>}
+                <Badge variant="secondary">{definition.workflowDefinition?.draft ? 'Draft' : definition.workflowDefinition?.active ? 'Active' : 'Inactive'}</Badge>
+                {definition.workflowDefinition?.isDefault && <Badge variant="outline">Default</Badge>}
               </div>
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Updated</p>
-              <p className="font-medium">{formatDateSince(definition.updatedAt)}</p>
+              <p className="font-medium">{formatDateSince(definition.workflowDefinition?.updatedAt)}</p>
             </div>
           </CardContent>
         </Card>

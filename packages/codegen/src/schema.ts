@@ -7509,6 +7509,8 @@ export interface CreateCustomDomainInput {
   /** the name of the custom domain */
   cnameRecord: Scalars['String']['input']
   dnsVerificationID?: InputMaybe<Scalars['ID']['input']>
+  /** the type of this custom domain */
+  domainType?: InputMaybe<CustomDomainCustomDomainType>
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: InputMaybe<Scalars['String']['input']>
   mappableDomainID: Scalars['ID']['input']
@@ -10674,6 +10676,8 @@ export interface CustomDomain extends Node {
   dnsVerification?: Maybe<DnsVerification>
   /** The ID of the dns verification record */
   dnsVerificationID?: Maybe<Scalars['ID']['output']>
+  /** the type of this custom domain */
+  domainType: CustomDomainCustomDomainType
   id: Scalars['ID']['output']
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: Maybe<Scalars['String']['output']>
@@ -10734,6 +10738,13 @@ export interface CustomDomainCreatePayload {
   __typename?: 'CustomDomainCreatePayload'
   /** Created customDomain */
   customDomain: CustomDomain
+}
+
+/** CustomDomainCustomDomainType is enum for the field domain_type */
+export enum CustomDomainCustomDomainType {
+  EXTERNAL = 'EXTERNAL',
+  PREVIEW = 'PREVIEW',
+  UNKNOWN = 'UNKNOWN',
 }
 
 /** Return response for deleteCustomDomain mutation */
@@ -10844,6 +10855,11 @@ export interface CustomDomainWhereInput {
   dnsVerificationIDNEQ?: InputMaybe<Scalars['ID']['input']>
   dnsVerificationIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   dnsVerificationIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** domain_type field predicates */
+  domainType?: InputMaybe<CustomDomainCustomDomainType>
+  domainTypeIn?: InputMaybe<Array<CustomDomainCustomDomainType>>
+  domainTypeNEQ?: InputMaybe<CustomDomainCustomDomainType>
+  domainTypeNotIn?: InputMaybe<Array<CustomDomainCustomDomainType>>
   /** dns_verification edge predicates */
   hasDNSVerification?: InputMaybe<Scalars['Boolean']['input']>
   hasDNSVerificationWith?: InputMaybe<Array<DnsVerificationWhereInput>>
@@ -18089,12 +18105,6 @@ export enum ExportExportFormat {
   DOCX = 'DOCX',
   MARKDOWN = 'MARKDOWN',
   PDF = 'PDF',
-}
-
-/** ExportExportMode is enum for the field mode */
-export enum ExportExportMode {
-  FLAT = 'FLAT',
-  FOLDER = 'FOLDER',
 }
 
 /** ExportExportMode is enum for the field mode */
@@ -73666,9 +73676,38 @@ export type WorkflowAssignmentsWithFilterQuery = {
         rejectionMetadata?: any | null
         required: boolean
         role: string
+        status: WorkflowAssignmentWorkflowAssignmentStatus
         updatedAt?: any | null
         updatedBy?: string | null
         workflowInstanceID: string
+        workflowInstance: {
+          __typename?: 'WorkflowInstance'
+          id: string
+          state: WorkflowInstanceWorkflowInstanceState
+          context?: any | null
+          controlID?: string | null
+          subcontrolID?: string | null
+          evidenceID?: string | null
+          internalPolicyID?: string | null
+          procedureID?: string | null
+          definitionSnapshot?: any | null
+          workflowDefinition: { __typename?: 'WorkflowDefinition'; id: string; name: string; schemaType: string; workflowKind: WorkflowDefinitionWorkflowKind; definitionJSON?: any | null }
+        }
+        workflowAssignmentTargets: {
+          __typename?: 'WorkflowAssignmentTargetConnection'
+          totalCount: number
+          edges?: Array<{
+            __typename?: 'WorkflowAssignmentTargetEdge'
+            node?: {
+              __typename?: 'WorkflowAssignmentTarget'
+              id: string
+              targetType: WorkflowAssignmentTargetWorkflowTargetType
+              targetUserID?: string | null
+              targetGroupID?: string | null
+              resolverKey?: string | null
+            } | null
+          } | null> | null
+        }
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
@@ -73871,31 +73910,34 @@ export type WorkflowInstancesWithFilterQuery = {
       __typename?: 'WorkflowInstanceEdge'
       node?: {
         __typename?: 'WorkflowInstance'
-        actionPlanID?: string | null
-        campaignID?: string | null
-        campaignTargetID?: string | null
-        context?: any | null
-        controlID?: string | null
-        createdAt?: any | null
-        createdBy?: string | null
-        currentActionIndex: number
-        definitionSnapshot?: any | null
-        displayID: string
-        evidenceID?: string | null
         id: string
-        identityHolderID?: string | null
-        internalPolicyID?: string | null
-        lastEvaluatedAt?: any | null
-        platformID?: string | null
-        procedureID?: string | null
-        subcontrolID?: string | null
+        state: WorkflowInstanceWorkflowInstanceState
+        context?: any | null
+        definitionSnapshot?: any | null
+        createdAt?: any | null
         updatedAt?: any | null
-        updatedBy?: string | null
-        workflowDefinitionID: string
         workflowProposalID?: string | null
+        workflowDefinition: { __typename?: 'WorkflowDefinition'; id: string; name: string; schemaType: string; workflowKind: WorkflowDefinitionWorkflowKind; definitionJSON?: any | null }
+        workflowAssignments: {
+          __typename?: 'WorkflowAssignmentConnection'
+          edges?: Array<{
+            __typename?: 'WorkflowAssignmentEdge'
+            node?: {
+              __typename?: 'WorkflowAssignment'
+              id: string
+              status: WorkflowAssignmentWorkflowAssignmentStatus
+              assignmentKey: string
+              label?: string | null
+              metadata?: any | null
+              createdAt?: any | null
+              decidedAt?: any | null
+              actorUserID?: string | null
+              actorGroupID?: string | null
+            } | null
+          } | null> | null
+        }
       } | null
     } | null> | null
-    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
   }
 }
 
@@ -74053,50 +74095,6 @@ export type WorkflowMetadataQuery = {
   }
 }
 
-export type GetWorkflowInstancesQueryVariables = Exact<{
-  first?: InputMaybe<Scalars['Int']['input']>
-  where?: InputMaybe<WorkflowInstanceWhereInput>
-}>
-
-export type GetWorkflowInstancesQuery = {
-  __typename?: 'Query'
-  workflowInstances: {
-    __typename?: 'WorkflowInstanceConnection'
-    edges?: Array<{
-      __typename?: 'WorkflowInstanceEdge'
-      node?: {
-        __typename?: 'WorkflowInstance'
-        id: string
-        state: WorkflowInstanceWorkflowInstanceState
-        context?: any | null
-        definitionSnapshot?: any | null
-        createdAt?: any | null
-        updatedAt?: any | null
-        workflowProposalID?: string | null
-        workflowDefinition: { __typename?: 'WorkflowDefinition'; id: string; name: string; schemaType: string; workflowKind: WorkflowDefinitionWorkflowKind; definitionJSON?: any | null }
-        workflowAssignments: {
-          __typename?: 'WorkflowAssignmentConnection'
-          edges?: Array<{
-            __typename?: 'WorkflowAssignmentEdge'
-            node?: {
-              __typename?: 'WorkflowAssignment'
-              id: string
-              status: WorkflowAssignmentWorkflowAssignmentStatus
-              assignmentKey: string
-              label?: string | null
-              metadata?: any | null
-              createdAt?: any | null
-              decidedAt?: any | null
-              actorUserID?: string | null
-              actorGroupID?: string | null
-            } | null
-          } | null> | null
-        }
-      } | null
-    } | null> | null
-  }
-}
-
 export type GetWorkflowProposalsForObjectQueryVariables = Exact<{
   objectType: Scalars['String']['input']
   objectID: Scalars['ID']['input']
@@ -74116,67 +74114,6 @@ export type GetWorkflowProposalsForObjectQuery = {
     updatedAt?: any | null
     submittedAt?: any | null
   }>
-}
-
-export type GetWorkflowAssignmentsQueryVariables = Exact<{
-  organizationId: Scalars['ID']['input']
-  first?: InputMaybe<Scalars['Int']['input']>
-  where?: InputMaybe<WorkflowAssignmentWhereInput>
-  orderBy?: InputMaybe<Array<WorkflowAssignmentOrder> | WorkflowAssignmentOrder>
-}>
-
-export type GetWorkflowAssignmentsQuery = {
-  __typename?: 'Query'
-  organization: {
-    __typename?: 'Organization'
-    workflowAssignments: {
-      __typename?: 'WorkflowAssignmentConnection'
-      totalCount: number
-      edges?: Array<{
-        __typename?: 'WorkflowAssignmentEdge'
-        node?: {
-          __typename?: 'WorkflowAssignment'
-          id: string
-          assignmentKey: string
-          label?: string | null
-          status: WorkflowAssignmentWorkflowAssignmentStatus
-          role: string
-          approvalMetadata?: any | null
-          rejectionMetadata?: any | null
-          metadata?: any | null
-          createdAt?: any | null
-          decidedAt?: any | null
-          workflowInstance: {
-            __typename?: 'WorkflowInstance'
-            id: string
-            state: WorkflowInstanceWorkflowInstanceState
-            context?: any | null
-            controlID?: string | null
-            subcontrolID?: string | null
-            evidenceID?: string | null
-            internalPolicyID?: string | null
-            procedureID?: string | null
-            definitionSnapshot?: any | null
-            workflowDefinition: { __typename?: 'WorkflowDefinition'; id: string; name: string; schemaType: string; workflowKind: WorkflowDefinitionWorkflowKind; definitionJSON?: any | null }
-          }
-          workflowAssignmentTargets: {
-            __typename?: 'WorkflowAssignmentTargetConnection'
-            edges?: Array<{
-              __typename?: 'WorkflowAssignmentTargetEdge'
-              node?: {
-                __typename?: 'WorkflowAssignmentTarget'
-                id: string
-                targetType: WorkflowAssignmentTargetWorkflowTargetType
-                targetUserID?: string | null
-                targetGroupID?: string | null
-                resolverKey?: string | null
-              } | null
-            } | null> | null
-          }
-        } | null
-      } | null> | null
-    }
-  }
 }
 
 export type ApproveWorkflowAssignmentMutationVariables = Exact<{
