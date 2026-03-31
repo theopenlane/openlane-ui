@@ -58,9 +58,15 @@ export const BrandingAssetsSection = ({ isReadOnly, hasWarning }: BrandingAssets
     return (previewSetting?.faviconFile?.base64 ? toBase64DataUri(previewSetting.faviconFile.base64) : null) ?? formValues.faviconRemoteURL ?? null
   }, [isReadOnly, setting, formValues.faviconFile, formValues.faviconRemoteURL, previewSetting])
 
+  const toDataUri = (base64: string) => {
+    if (base64.startsWith('data:')) return base64
+    return `data:image/jpeg;base64,${base64}`
+  }
+
   const heroImagePreview = useMemo(() => {
     if (isReadOnly) {
-      return setting?.heroImageFile?.base64 ?? null
+      const b64 = setting?.heroImageFile?.base64
+      return b64 ? toDataUri(b64) : null
     }
 
     if (formValues.clearHeroImage) {
@@ -71,7 +77,8 @@ export const BrandingAssetsSection = ({ isReadOnly, hasWarning }: BrandingAssets
       return URL.createObjectURL(formValues.heroImageFile)
     }
 
-    return previewSetting?.heroImageFile?.base64 ?? null
+    const b64 = previewSetting?.heroImageFile?.base64
+    return b64 ? toDataUri(b64) : null
   }, [isReadOnly, setting, formValues.heroImageFile, formValues.clearHeroImage, previewSetting])
 
   useEffect(() => {
