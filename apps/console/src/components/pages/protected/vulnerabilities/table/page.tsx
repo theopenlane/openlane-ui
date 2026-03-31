@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useCallback } from 'react'
+import React, { useCallback, useState } from 'react'
 import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
 
 import {
@@ -13,6 +13,7 @@ import {
   useBulkDeleteVulnerability,
   useGetVulnerabilityAssociations,
 } from '@/lib/graphql-hooks/vulnerability'
+import VulnerabilitySeverityChart from './severity-chart'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
 import { breadcrumbs, getFieldsToRender, getFilterFields, visibilityFields } from './table-config'
@@ -32,6 +33,7 @@ import type { Value } from 'platejs'
 
 const VulnerabilityPage: React.FC = () => {
   const { form } = useFormSchema()
+  const [selectedSeverity, setSelectedSeverity] = useState<'critical' | 'high' | 'medium' | 'low' | null>(null)
 
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -160,6 +162,8 @@ const VulnerabilityPage: React.FC = () => {
     renderFields: (props: VulnerabilityFieldProps) => getFieldsToRender(props, enumOpts, enumCreateHandlers),
   }
 
+  const severityWhereFilter = selectedSeverity ? { severityEqualFold: selectedSeverity } : undefined
+
   const tableConfig: VulnerabilityTablePageConfig = {
     objectType,
     objectName,
@@ -186,6 +190,19 @@ const VulnerabilityPage: React.FC = () => {
     },
     bulkEditFormSchema: bulkEditFieldSchema,
     enumOpts,
+    additionalWhereFilter: severityWhereFilter,
+    beforeTable: (
+      <>
+        {/* TODO: Uncomment when integrations page is released
+        <div className="flex items-center justify-between rounded-lg border bg-muted/40 px-4 py-3 mb-4 text-sm text-muted-foreground">
+          <span>Setup integrations to automatically import vulnerabilities into Openlane</span>
+          <Button variant="outline" size="sm" asChild>
+            <a href="/settings/integrations">Setup Integrations</a>
+          </Button>
+        </div> */}
+        <VulnerabilitySeverityChart selectedSeverity={selectedSeverity} onSeveritySelect={setSelectedSeverity} />
+      </>
+    ),
   }
 
   return (

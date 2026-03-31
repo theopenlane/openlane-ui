@@ -53,6 +53,7 @@ type GenericTableToolbarProps<T extends { id: string }, TWhereInput, TUpdateInpu
   enumOpts?: EnumOptionsGeneric
   responsibilityFields?: ResponsibilityFieldsMap
   createMode?: CreateMode
+  additionalActiveFilterCount?: number
 }
 
 function GenericTableToolbar<T extends { id: string }, TWhereInput, TUpdateInput>(props: GenericTableToolbarProps<T, TWhereInput, TUpdateInput>) {
@@ -194,7 +195,14 @@ function GenericTableToolbar<T extends { id: string }, TWhereInput, TUpdateInput
               {props.mappedColumns && props.columnVisibility && props.setColumnVisibility && (
                 <ColumnVisibilityMenu mappedColumns={props.mappedColumns} columnVisibility={props.columnVisibility} setColumnVisibility={props.setColumnVisibility} storageKey={props.storageKey} />
               )}
-              {props.filterFields && <TableFilter filterFields={props.filterFields} onFilterChange={props.onFilterChange as (whereCondition: WhereCondition) => void} pageKey={props.storageKey} />}
+              {props.filterFields && (
+                <TableFilter
+                  filterFields={props.filterFields}
+                  onFilterChange={props.onFilterChange as (whereCondition: WhereCondition) => void}
+                  pageKey={props.storageKey}
+                  additionalActiveFilterCount={props.additionalActiveFilterCount}
+                />
+              )}
               {props.canEdit(props.permission?.roles) && (
                 <Button icon={<PlusCircle />} iconPosition="left" onClick={openCreateSheet}>
                   Create

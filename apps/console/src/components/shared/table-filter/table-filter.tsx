@@ -24,11 +24,12 @@ type TTableFilterProps = {
   pageKey?: TableKeyValue
   onFilterChange?: (whereCondition: WhereCondition) => void
   quickFilters?: TQuickFilter[]
+  additionalActiveFilterCount?: number
 }
 
 const EMPTY_QUICK_FILTERS: TQuickFilter[] = []
 
-const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields: filterFieldsProp, pageKey, onFilterChange, quickFilters = EMPTY_QUICK_FILTERS }) => {
+const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields: filterFieldsProp, pageKey, onFilterChange, quickFilters = EMPTY_QUICK_FILTERS, additionalActiveFilterCount = 0 }) => {
   const [filterFields, setFilterFields] = useState(filterFieldsProp)
   useEffect(() => {
     setFilterFields((prev) => {
@@ -42,7 +43,7 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields: filte
   const [values, setValues] = useState<TFilterState>({})
   const [open, setOpen] = useState(false)
   const [activeQuickFilters, setActiveQuickFilters] = useState<TQuickFilter[]>(quickFilters)
-  const activeFilterCount = useMemo(() => getActiveFilterCount(values, activeQuickFilters), [values, activeQuickFilters])
+  const activeFilterCount = useMemo(() => getActiveFilterCount(values, activeQuickFilters) + additionalActiveFilterCount, [values, activeQuickFilters, additionalActiveFilterCount])
   const storageEnabled = Boolean(pageKey)
 
   const buildWhereCondition = useCallback((filterState: TFilterState, filterFields: FilterField[]): WhereCondition => {
