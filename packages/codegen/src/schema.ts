@@ -7509,6 +7509,8 @@ export interface CreateCustomDomainInput {
   /** the name of the custom domain */
   cnameRecord: Scalars['String']['input']
   dnsVerificationID?: InputMaybe<Scalars['ID']['input']>
+  /** the type of this custom domain */
+  domainType?: InputMaybe<CustomDomainCustomDomainType>
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: InputMaybe<Scalars['String']['input']>
   mappableDomainID: Scalars['ID']['input']
@@ -8314,8 +8316,6 @@ export interface CreateFindingInput {
   sourceUpdatedAt?: InputMaybe<Scalars['DateTime']['input']>
   /** state reported by the source system, such as ACTIVE or INACTIVE */
   state?: InputMaybe<Scalars['String']['input']>
-  /** lifecycle status of the finding */
-  status?: InputMaybe<Scalars['String']['input']>
   /** steps required to reproduce the finding */
   stepsToReproduce?: InputMaybe<Array<Scalars['String']['input']>>
   subcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -10604,8 +10604,6 @@ export interface CreateVulnerabilityInput {
   source?: InputMaybe<Scalars['String']['input']>
   /** timestamp when the source last updated the vulnerability */
   sourceUpdatedAt?: InputMaybe<Scalars['DateTime']['input']>
-  /** lifecycle status of the vulnerability */
-  status?: InputMaybe<Scalars['String']['input']>
   subcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** short summary of the vulnerability details */
   summary?: InputMaybe<Scalars['String']['input']>
@@ -10678,6 +10676,8 @@ export interface CustomDomain extends Node {
   dnsVerification?: Maybe<DnsVerification>
   /** The ID of the dns verification record */
   dnsVerificationID?: Maybe<Scalars['ID']['output']>
+  /** the type of this custom domain */
+  domainType: CustomDomainCustomDomainType
   id: Scalars['ID']['output']
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: Maybe<Scalars['String']['output']>
@@ -10738,6 +10738,13 @@ export interface CustomDomainCreatePayload {
   __typename?: 'CustomDomainCreatePayload'
   /** Created customDomain */
   customDomain: CustomDomain
+}
+
+/** CustomDomainCustomDomainType is enum for the field domain_type */
+export enum CustomDomainCustomDomainType {
+  EXTERNAL = 'EXTERNAL',
+  PREVIEW = 'PREVIEW',
+  UNKNOWN = 'UNKNOWN',
 }
 
 /** Return response for deleteCustomDomain mutation */
@@ -10848,6 +10855,11 @@ export interface CustomDomainWhereInput {
   dnsVerificationIDNEQ?: InputMaybe<Scalars['ID']['input']>
   dnsVerificationIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   dnsVerificationIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** domain_type field predicates */
+  domainType?: InputMaybe<CustomDomainCustomDomainType>
+  domainTypeIn?: InputMaybe<Array<CustomDomainCustomDomainType>>
+  domainTypeNEQ?: InputMaybe<CustomDomainCustomDomainType>
+  domainTypeNotIn?: InputMaybe<Array<CustomDomainCustomDomainType>>
   /** dns_verification edge predicates */
   hasDNSVerification?: InputMaybe<Scalars['Boolean']['input']>
   hasDNSVerificationWith?: InputMaybe<Array<DnsVerificationWhereInput>>
@@ -19075,11 +19087,6 @@ export interface Finding extends Node {
   sourceUpdatedAt?: Maybe<Scalars['DateTime']['output']>
   /** state reported by the source system, such as ACTIVE or INACTIVE */
   state?: Maybe<Scalars['String']['output']>
-  /**
-   * lifecycle status of the finding
-   * @deprecated Use `finding_status_name` instead.
-   */
-  status?: Maybe<Scalars['String']['output']>
   /** steps required to reproduce the finding */
   stepsToReproduce?: Maybe<Array<Scalars['String']['output']>>
   subcontrols: SubcontrolConnection
@@ -20262,22 +20269,6 @@ export interface FindingWhereInput {
   stateNEQ?: InputMaybe<Scalars['String']['input']>
   stateNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   stateNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** status field predicates */
-  status?: InputMaybe<Scalars['String']['input']>
-  statusContains?: InputMaybe<Scalars['String']['input']>
-  statusContainsFold?: InputMaybe<Scalars['String']['input']>
-  statusEqualFold?: InputMaybe<Scalars['String']['input']>
-  statusGT?: InputMaybe<Scalars['String']['input']>
-  statusGTE?: InputMaybe<Scalars['String']['input']>
-  statusHasPrefix?: InputMaybe<Scalars['String']['input']>
-  statusHasSuffix?: InputMaybe<Scalars['String']['input']>
-  statusIn?: InputMaybe<Array<Scalars['String']['input']>>
-  statusIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  statusLT?: InputMaybe<Scalars['String']['input']>
-  statusLTE?: InputMaybe<Scalars['String']['input']>
-  statusNEQ?: InputMaybe<Scalars['String']['input']>
-  statusNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  statusNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** Filter for stepsToReproduceHas to contain a specific value */
   stepsToReproduceHas?: InputMaybe<Scalars['String']['input']>
   /** system_internal_id field predicates */
@@ -27272,6 +27263,8 @@ export interface Mutation {
   createMappedControl: MappedControlCreatePayload
   /** Create a new narrative */
   createNarrative: NarrativeCreatePayload
+  /** Create a new notification */
+  createNotification: NotificationCreatePayload
   /** Create a new notificationPreference */
   createNotificationPreference: NotificationPreferenceCreatePayload
   /** Create a new notificationTemplate */
@@ -28858,6 +28851,10 @@ export interface MutationCreateMappedControlArgs {
 
 export interface MutationCreateNarrativeArgs {
   input: CreateNarrativeInput
+}
+
+export interface MutationCreateNotificationArgs {
+  input: CreateNotificationInput
 }
 
 export interface MutationCreateNotificationPreferenceArgs {
@@ -31431,6 +31428,13 @@ export interface NotificationConnection {
   totalCount: Scalars['Int']['output']
 }
 
+/** Return response for createNotification mutation */
+export interface NotificationCreatePayload {
+  __typename?: 'NotificationCreatePayload'
+  /** Created notification */
+  notification: Notification
+}
+
 /** An edge in a connection. */
 export interface NotificationEdge {
   __typename?: 'NotificationEdge'
@@ -31443,6 +31447,7 @@ export interface NotificationEdge {
 /** NotificationNotificationTopic is enum for the field topic */
 export enum NotificationNotificationTopic {
   APPROVAL = 'APPROVAL',
+  DOMAIN_SCAN = 'DOMAIN_SCAN',
   EXPORT = 'EXPORT',
   MENTION = 'MENTION',
   STANDARD_UPDATE = 'STANDARD_UPDATE',
@@ -54045,7 +54050,6 @@ export interface UpdateFindingInput {
   clearSource?: InputMaybe<Scalars['Boolean']['input']>
   clearSourceUpdatedAt?: InputMaybe<Scalars['Boolean']['input']>
   clearState?: InputMaybe<Scalars['Boolean']['input']>
-  clearStatus?: InputMaybe<Scalars['Boolean']['input']>
   clearStepsToReproduce?: InputMaybe<Scalars['Boolean']['input']>
   clearSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
   clearSystemInternalID?: InputMaybe<Scalars['Boolean']['input']>
@@ -54144,8 +54148,6 @@ export interface UpdateFindingInput {
   sourceUpdatedAt?: InputMaybe<Scalars['DateTime']['input']>
   /** state reported by the source system, such as ACTIVE or INACTIVE */
   state?: InputMaybe<Scalars['String']['input']>
-  /** lifecycle status of the finding */
-  status?: InputMaybe<Scalars['String']['input']>
   /** steps required to reproduce the finding */
   stepsToReproduce?: InputMaybe<Array<Scalars['String']['input']>>
   /** an internal identifier for the mapping, this field is only available to system admins */
@@ -57784,7 +57786,6 @@ export interface UpdateVulnerabilityInput {
   clearSeverity?: InputMaybe<Scalars['Boolean']['input']>
   clearSource?: InputMaybe<Scalars['Boolean']['input']>
   clearSourceUpdatedAt?: InputMaybe<Scalars['Boolean']['input']>
-  clearStatus?: InputMaybe<Scalars['Boolean']['input']>
   clearSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
   clearSummary?: InputMaybe<Scalars['Boolean']['input']>
   clearSystemInternalID?: InputMaybe<Scalars['Boolean']['input']>
@@ -57867,8 +57868,6 @@ export interface UpdateVulnerabilityInput {
   source?: InputMaybe<Scalars['String']['input']>
   /** timestamp when the source last updated the vulnerability */
   sourceUpdatedAt?: InputMaybe<Scalars['DateTime']['input']>
-  /** lifecycle status of the vulnerability */
-  status?: InputMaybe<Scalars['String']['input']>
   /** short summary of the vulnerability details */
   summary?: InputMaybe<Scalars['String']['input']>
   /** an internal identifier for the mapping, this field is only available to system admins */
@@ -59027,11 +59026,6 @@ export interface Vulnerability extends Node {
   source?: Maybe<Scalars['String']['output']>
   /** timestamp when the source last updated the vulnerability */
   sourceUpdatedAt?: Maybe<Scalars['DateTime']['output']>
-  /**
-   * lifecycle status of the vulnerability
-   * @deprecated Use `vulnerability_status_name` instead.
-   */
-  status?: Maybe<Scalars['String']['output']>
   subcontrols: SubcontrolConnection
   /** short summary of the vulnerability details */
   summary?: Maybe<Scalars['String']['output']>
@@ -59830,22 +59824,6 @@ export interface VulnerabilityWhereInput {
   sourceUpdatedAtNEQ?: InputMaybe<Scalars['DateTime']['input']>
   sourceUpdatedAtNotIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
   sourceUpdatedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** status field predicates */
-  status?: InputMaybe<Scalars['String']['input']>
-  statusContains?: InputMaybe<Scalars['String']['input']>
-  statusContainsFold?: InputMaybe<Scalars['String']['input']>
-  statusEqualFold?: InputMaybe<Scalars['String']['input']>
-  statusGT?: InputMaybe<Scalars['String']['input']>
-  statusGTE?: InputMaybe<Scalars['String']['input']>
-  statusHasPrefix?: InputMaybe<Scalars['String']['input']>
-  statusHasSuffix?: InputMaybe<Scalars['String']['input']>
-  statusIn?: InputMaybe<Array<Scalars['String']['input']>>
-  statusIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  statusLT?: InputMaybe<Scalars['String']['input']>
-  statusLTE?: InputMaybe<Scalars['String']['input']>
-  statusNEQ?: InputMaybe<Scalars['String']['input']>
-  statusNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  statusNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** summary field predicates */
   summary?: InputMaybe<Scalars['String']['input']>
   summaryContains?: InputMaybe<Scalars['String']['input']>
@@ -62941,6 +62919,8 @@ export type FilterAssessmentsQuery = {
         createdBy?: string | null
         updatedBy?: string | null
         template?: { __typename?: 'Template'; id: string; name: string } | null
+        assessmentResponses: { __typename?: 'AssessmentResponseConnection'; totalCount: number }
+        completedAssessmentResponses: { __typename?: 'AssessmentResponseConnection'; totalCount: number }
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
@@ -64198,7 +64178,7 @@ export type GetControlAssociationsByIdQuery = {
           title: string
           displayID: string
           details?: string | null
-          assignee?: { __typename?: 'User'; displayName: string; avatarRemoteURL?: string | null; avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null } | null
+          assignee?: { __typename?: 'User'; displayName: string; avatarRemoteURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
         } | null
       } | null> | null
     }
@@ -65325,7 +65305,7 @@ export type GetDocumentationTasksQuery = {
         status: TaskTaskStatus
         due?: string | null
         updatedAt?: any | null
-        assignee?: { __typename?: 'User'; id: string; displayName: string; avatarRemoteURL?: string | null; avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null } | null
+        assignee?: { __typename?: 'User'; id: string; displayName: string; avatarRemoteURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
@@ -65756,7 +65736,7 @@ export type EntitiesWithFilterQuery = {
         updatedAt?: any | null
         updatedBy?: string | null
         vendorMetadata?: any | null
-        logoFile?: { __typename?: 'File'; presignedURL?: string | null } | null
+        logoFile?: { __typename?: 'File'; base64?: string | null } | null
         internalOwnerGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
         internalOwnerUser?: { __typename?: 'User'; id: string; displayName: string } | null
         reviewedByGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
@@ -65800,6 +65780,7 @@ export type EntityQuery = {
     id: string
     internalOwner?: string | null
     lastReviewedAt?: string | null
+    logoFileID?: string | null
     mfaEnforced?: boolean | null
     mfaSupported?: boolean | null
     name?: string | null
@@ -65825,7 +65806,7 @@ export type EntityQuery = {
     vendorMetadata?: any | null
     internalOwnerGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
     internalOwnerUser?: { __typename?: 'User'; id: string; displayName: string } | null
-    logoFile?: { __typename?: 'File'; presignedURL?: string | null } | null
+    logoFile?: { __typename?: 'File'; base64?: string | null } | null
     reviewedByGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
     reviewedByUser?: { __typename?: 'User'; id: string; displayName: string } | null
   }
@@ -66718,7 +66699,6 @@ export type FindingsWithFilterQuery = {
         source?: string | null
         sourceUpdatedAt?: string | null
         state?: string | null
-        status?: string | null
         findingStatusName?: string | null
         systemOwned?: boolean | null
         targetDetails?: any | null
@@ -66783,7 +66763,6 @@ export type FindingQuery = {
     source?: string | null
     sourceUpdatedAt?: string | null
     state?: string | null
-    status?: string | null
     findingStatusName?: string | null
     systemOwned?: boolean | null
     targetDetails?: any | null
@@ -67073,7 +67052,7 @@ export type GetAllGroupsQuery = {
                 displayName: string
                 avatarRemoteURL?: string | null
                 role?: UserRole | null
-                avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null
+                avatarFile?: { __typename?: 'File'; base64?: string | null } | null
               }
             } | null
           } | null> | null
@@ -67137,14 +67116,7 @@ export type GetGroupDetailsQuery = {
           __typename?: 'GroupMembership'
           id: string
           role: GroupMembershipRole
-          user: {
-            __typename?: 'User'
-            id: string
-            displayName: string
-            avatarRemoteURL?: string | null
-            role?: UserRole | null
-            avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null
-          }
+          user: { __typename?: 'User'; id: string; displayName: string; avatarRemoteURL?: string | null; role?: UserRole | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null }
         } | null
       } | null> | null
     }
@@ -68458,7 +68430,7 @@ export type OrgMembershipsQuery = {
           email: string
           role?: UserRole | null
           createdAt?: any | null
-          avatarFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
+          avatarFile?: { __typename?: 'File'; id: string; base64?: string | null } | null
         }
       } | null
     } | null> | null
@@ -68477,7 +68449,7 @@ export type OrgMembershipsByIdsQuery = {
       __typename?: 'OrgMembershipEdge'
       node?: {
         __typename?: 'OrgMembership'
-        user: { __typename?: 'User'; id: string; displayName: string; avatarRemoteURL?: string | null; avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null }
+        user: { __typename?: 'User'; id: string; displayName: string; avatarRemoteURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null }
       } | null
     } | null> | null
   }
@@ -68821,7 +68793,7 @@ export type GetAllOrganizationsQuery = {
         avatarRemoteURL?: string | null
         personalOrg?: boolean | null
         stripeCustomerID?: string | null
-        avatarFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
+        avatarFile?: { __typename?: 'File'; id: string; base64?: string | null } | null
         setting?: { __typename?: 'OrganizationSetting'; identityProviderLoginEnforced: boolean } | null
       } | null
     } | null> | null
@@ -68865,7 +68837,7 @@ export type GetSingleOrganizationMembersQuery = {
             email: string
             role?: UserRole | null
             createdAt?: any | null
-            avatarFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
+            avatarFile?: { __typename?: 'File'; id: string; base64?: string | null } | null
           }
         } | null
       } | null> | null
@@ -68891,7 +68863,7 @@ export type GetAllOrganizationsWithMembersQuery = {
         displayName: string
         name: string
         avatarRemoteURL?: string | null
-        avatarFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
+        avatarFile?: { __typename?: 'File'; id: string; base64?: string | null } | null
         members: {
           __typename?: 'OrgMembershipConnection'
           edges?: Array<{
@@ -69842,7 +69814,7 @@ export type GetProgramSettingsQuery = {
             id: string
             displayName: string
             avatarRemoteURL?: string | null
-            avatarFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
+            avatarFile?: { __typename?: 'File'; id: string; base64?: string | null } | null
           }
         } | null
       } | null> | null
@@ -69870,7 +69842,7 @@ export type GetProgramMembersQuery = {
         __typename?: 'ProgramMembership'
         id: string
         role: ProgramMembershipRole
-        user: { __typename?: 'User'; id: string; displayName: string; email: string; avatarRemoteURL?: string | null; avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null }
+        user: { __typename?: 'User'; id: string; displayName: string; email: string; avatarRemoteURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null }
       } | null
     } | null> | null
   }
@@ -71328,7 +71300,7 @@ export type GetStandardDetailsQuery = {
     framework?: string | null
     governingBody?: string | null
     controls: { __typename?: 'ControlConnection'; totalCount: number }
-    logoFile?: { __typename?: 'File'; presignedURL?: string | null } | null
+    logoFile?: { __typename?: 'File'; base64?: string | null } | null
   }
 }
 
@@ -71372,7 +71344,7 @@ export type GetStandardsPaginatedQuery = {
         description?: string | null
         systemOwned?: boolean | null
         governingBodyLogoURL?: string | null
-        logoFile?: { __typename?: 'File'; presignedURL?: string | null } | null
+        logoFile?: { __typename?: 'File'; base64?: string | null } | null
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
@@ -71546,7 +71518,7 @@ export type GetSubcontrolAssociationsByIdQuery = {
           title: string
           displayID: string
           details?: string | null
-          assignee?: { __typename?: 'User'; displayName: string; avatarRemoteURL?: string | null; avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null } | null
+          assignee?: { __typename?: 'User'; displayName: string; avatarRemoteURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
         } | null
       } | null> | null
     }
@@ -71836,7 +71808,7 @@ export type CreateSubprocessorMutation = {
   __typename?: 'Mutation'
   createSubprocessor: {
     __typename?: 'SubprocessorCreatePayload'
-    subprocessor: { __typename?: 'Subprocessor'; id: string; name: string; logoRemoteURL?: string | null; logoFile?: { __typename?: 'File'; presignedURL?: string | null } | null }
+    subprocessor: { __typename?: 'Subprocessor'; id: string; name: string; logoRemoteURL?: string | null; logoFile?: { __typename?: 'File'; base64?: string | null } | null }
   }
 }
 
@@ -71870,7 +71842,7 @@ export type GetSubprocessorsQuery = {
         name: string
         description?: string | null
         logoRemoteURL?: string | null
-        logoFile?: { __typename?: 'File'; presignedURL?: string | null } | null
+        logoFile?: { __typename?: 'File'; base64?: string | null } | null
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
@@ -72140,8 +72112,8 @@ export type TasksWithFilterQuery = {
         createdBy?: string | null
         taskKindName?: string | null
         completed?: string | null
-        assigner?: { __typename?: 'User'; displayName: string; avatarRemoteURL?: string | null; avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null } | null
-        assignee?: { __typename?: 'User'; displayName: string; avatarRemoteURL?: string | null; avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null } | null
+        assigner?: { __typename?: 'User'; displayName: string; avatarRemoteURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
+        assignee?: { __typename?: 'User'; displayName: string; avatarRemoteURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
@@ -72196,7 +72168,7 @@ export type TaskQuery = {
           createdAt?: any | null
           createdBy?: string | null
           text: string
-          owner?: { __typename?: 'Organization'; avatarRemoteURL?: string | null; displayName: string; avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null } | null
+          owner?: { __typename?: 'Organization'; avatarRemoteURL?: string | null; displayName: string; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
         } | null
       } | null> | null
     }
@@ -72762,7 +72734,7 @@ export type GetTrustCenterEntitiesQuery = {
     __typename?: 'TrustCenterEntityConnection'
     edges?: Array<{
       __typename?: 'TrustCenterEntityEdge'
-      node?: { __typename?: 'TrustCenterEntity'; id: string; name: string; url?: string | null; logoFile?: { __typename?: 'File'; presignedURL?: string | null } | null } | null
+      node?: { __typename?: 'TrustCenterEntity'; id: string; name: string; url?: string | null; logoFile?: { __typename?: 'File'; base64?: string | null } | null } | null
     } | null> | null
   }
 }
@@ -73030,7 +73002,7 @@ export type GetTrustCenterSubprocessorsQuery = {
           description?: string | null
           logoRemoteURL?: string | null
           systemOwned?: boolean | null
-          logoFile?: { __typename?: 'File'; presignedURL?: string | null; base64?: string | null } | null
+          logoFile?: { __typename?: 'File'; base64?: string | null } | null
         }
       } | null
     } | null> | null
@@ -73090,7 +73062,7 @@ export type GetTrustCenterSubprocessorByIdQuery = {
       description?: string | null
       logoRemoteURL?: string | null
       systemOwned?: boolean | null
-      logoFile?: { __typename?: 'File'; presignedURL?: string | null; base64?: string | null } | null
+      logoFile?: { __typename?: 'File'; base64?: string | null } | null
     }
   }
 }
@@ -73145,8 +73117,8 @@ export type GetTrustCenterQuery = {
           logoRemoteURL?: string | null
           securityContact?: string | null
           ndaApprovalRequired?: boolean | null
-          logoFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
-          faviconFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
+          logoFile?: { __typename?: 'File'; id: string; base64?: string | null } | null
+          faviconFile?: { __typename?: 'File'; id: string; base64?: string | null } | null
           heroImageFile?: { __typename?: 'File'; id: string; base64?: string | null } | null
         } | null
         previewSetting?: {
@@ -73170,8 +73142,8 @@ export type GetTrustCenterQuery = {
           logoRemoteURL?: string | null
           securityContact?: string | null
           updatedAt?: any | null
-          logoFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
-          faviconFile?: { __typename?: 'File'; id: string; presignedURL?: string | null } | null
+          logoFile?: { __typename?: 'File'; id: string; base64?: string | null } | null
+          faviconFile?: { __typename?: 'File'; id: string; base64?: string | null } | null
           heroImageFile?: { __typename?: 'File'; id: string; base64?: string | null } | null
         } | null
         watermarkConfig?: {
@@ -73331,7 +73303,7 @@ export type GetUserProfileQuery = {
     displayName: string
     email: string
     avatarRemoteURL?: string | null
-    avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null
+    avatarFile?: { __typename?: 'File'; base64?: string | null } | null
     setting: {
       __typename?: 'UserSetting'
       id: string
@@ -73352,7 +73324,7 @@ export type UpdateUserMutationVariables = Exact<{
 
 export type UpdateUserMutation = {
   __typename?: 'Mutation'
-  updateUser: { __typename?: 'UserUpdatePayload'; user: { __typename?: 'User'; id: string; avatarFile?: { __typename?: 'File'; presignedURL?: string | null } | null } }
+  updateUser: { __typename?: 'UserUpdatePayload'; user: { __typename?: 'User'; id: string; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } }
 }
 
 export type UpdateUserSettingMutationVariables = Exact<{
@@ -73418,7 +73390,6 @@ export type VulnerabilitiesWithFilterQuery = {
         severity?: string | null
         source?: string | null
         sourceUpdatedAt?: string | null
-        status?: string | null
         summary?: string | null
         systemOwned?: boolean | null
         tags?: Array<string> | null
@@ -73480,7 +73451,6 @@ export type VulnerabilityQuery = {
     severity?: string | null
     source?: string | null
     sourceUpdatedAt?: string | null
-    status?: string | null
     summary?: string | null
     systemOwned?: boolean | null
     tags?: Array<string> | null
