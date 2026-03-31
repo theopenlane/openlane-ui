@@ -34,13 +34,19 @@ export const BrandingTextSection = ({ isReadOnly, hasWarning, setting }: Brandin
             <p className="text-sm text-inverted-muted-foreground">This information appears prominently at the top of your Trust Center and is used for SEO.</p>
           </div>
           <div className="flex flex-col gap-3">
-            <p className="text-base font-medium">Title</p>
+            <div className="flex flex-col gap-1">
+              <p className="text-base font-medium">Title</p>
+              <p className="text-sm text-inverted-muted-foreground">The headline shown at the top of your trust center.</p>
+            </div>
             <RenderBrandField name="title" label="Title" component="input" isReadOnly={isReadOnly} setting={setting} register={register} />
             {!isReadOnly && errors.title && <p className="text-xs text-red-500">{errors.title.message}</p>}
           </div>
 
           <div className="flex flex-col gap-3">
-            <p className="text-base font-medium">Overview</p>
+            <div className="flex flex-col gap-1">
+              <p className="text-base font-medium">Overview</p>
+              <p className="text-sm text-inverted-muted-foreground">A summary of your security posture, compliance efforts, and any key details or contact information visitors should know.</p>
+            </div>
             {isReadOnly ? (
               <div className="rounded-md px-3 py-2">
                 {setting?.overview ? convertToReadOnly(setting.overview, 0, { padding: 0 }) : <p className="text-sm text-muted-foreground italic">No information provided</p>}
