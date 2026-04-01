@@ -11,25 +11,23 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@repo/ui/badge'
 import { Switch } from '@repo/ui/switch'
 import { TRIGGER_OPERATION_OPTIONS } from '@/lib/workflow-templates'
-import { WorkflowObjectTypeMetadata } from '@/lib/graphql-hooks/workflows'
+import type { WorkflowObjectTypeMetadata } from '@/lib/graphql-hooks/workflows'
 import { useUserSelect } from '@/lib/graphql-hooks/member'
 import { useGroupSelect } from '@/lib/graphql-hooks/group'
 import { CELConditionBuilder } from '@/components/workflows/cel-condition-builder'
+import type { Target } from '@/components/pages/protected/workflows/types'
 
 type NodeEditPanelProps = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   node: any | null
   objectTypes: WorkflowObjectTypeMetadata[]
   onClose: () => void
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onUpdate: (nodeId: string, data: any) => void
   onDelete: (nodeId: string) => void
 }
 
-type Target = {
-  type: 'USER' | 'GROUP' | 'ROLE' | 'RESOLVER'
-  id?: string
-  resolver_key?: string
-}
-
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const normalizeTargets = (params: any): Target[] => {
   if (!params) return []
   if (Array.isArray(params.targets)) return params.targets
@@ -43,7 +41,8 @@ const normalizeTargets = (params: any): Target[] => {
   return [...users.map((id: string) => ({ type: 'USER' as const, id })), ...groups.map((id: string) => ({ type: 'GROUP' as const, id }))]
 }
 
-export function NodeEditPanel({ node, objectTypes, onClose, onUpdate, onDelete }: NodeEditPanelProps) {
+export const NodeEditPanel = ({ node, objectTypes, onClose, onUpdate, onDelete }: NodeEditPanelProps) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [localData, setLocalData] = useState<any>(null)
   const [paramsInput, setParamsInput] = useState('')
   const [paramsError, setParamsError] = useState<string | null>(null)
@@ -67,11 +66,12 @@ export function NodeEditPanel({ node, objectTypes, onClose, onUpdate, onDelete }
 
   useEffect(() => {
     if (!localData || node?.type !== 'action') return
-    if (localData.type === 'REQUEST_APPROVAL' || localData.type === 'REVIEW') return
+    if (localData.type === 'REQUEST_APPROVAL' || localData.type === 'REQUEST_REVIEW') return
 
     const serialized = JSON.stringify(localData.params ?? {}, null, 2)
     setParamsInput(serialized)
     setParamsError(null)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [localData?.type, node?.type])
 
   const resolverKeys = useMemo(() => objectTypes[0]?.resolverKeys ?? [], [objectTypes])
@@ -159,7 +159,7 @@ export function NodeEditPanel({ node, objectTypes, onClose, onUpdate, onDelete }
         ...localData,
         params: parsed,
       })
-    } catch (error) {
+    } catch {
       setParamsError('Invalid JSON')
     }
   }
@@ -306,22 +306,6 @@ export function NodeEditPanel({ node, objectTypes, onClose, onUpdate, onDelete }
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Tracked Edges (comma-separated)</Label>
-                  <Input
-                    value={localData.edges?.join(', ') || ''}
-                    onChange={(e) => {
-                      const raw = e.target.value
-                      const edges = raw
-                        .split(',')
-                        .map((edge) => edge.trim())
-                        .filter(Boolean)
-                      setLocalData({ ...localData, edges })
-                    }}
-                    placeholder="controls, tasks"
-                  />
-                </div>
-
-                <div className="space-y-2">
                   <Label>Description</Label>
                   <Input value={localData.description || ''} onChange={(e) => setLocalData({ ...localData, description: e.target.value })} placeholder="When to trigger" />
                 </div>
@@ -365,7 +349,7 @@ export function NodeEditPanel({ node, objectTypes, onClose, onUpdate, onDelete }
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="REQUEST_APPROVAL">Request Approval</SelectItem>
-                      <SelectItem value="REVIEW">Review</SelectItem>
+                      <SelectItem value="REQUEST_REVIEW">Review</SelectItem>
                       <SelectItem value="NOTIFY">Notify</SelectItem>
                       <SelectItem value="WEBHOOK">Webhook</SelectItem>
                       <SelectItem value="UPDATE_FIELD">Update Field</SelectItem>
@@ -379,10 +363,10 @@ export function NodeEditPanel({ node, objectTypes, onClose, onUpdate, onDelete }
                   <Input value={localData.description || ''} onChange={(e) => setLocalData({ ...localData, description: e.target.value })} placeholder="What this action does" />
                 </div>
 
-                {(localData.type === 'REQUEST_APPROVAL' || localData.type === 'REVIEW') && (
+                {(localData.type === 'REQUEST_APPROVAL' || localData.type === 'REQUEST_REVIEW') && (
                   <>
                     <div className="space-y-2">
-                      <Label>{localData.type === 'REVIEW' ? 'Review label' : 'Approval label'}</Label>
+                      <Label>{localData.type === 'REQUEST_REVIEW' ? 'Review label' : 'Approval label'}</Label>
                       <Input
                         value={localData.params?.label || ''}
                         onChange={(e) =>
@@ -409,7 +393,7 @@ export function NodeEditPanel({ node, objectTypes, onClose, onUpdate, onDelete }
                     </div>
 
                     <div className="space-y-2">
-                      <Label>{localData.type === 'REVIEW' ? 'Required reviews' : 'Required approvals'}</Label>
+                      <Label>{localData.type === 'REQUEST_REVIEW' ? 'Required reviews' : 'Required approvals'}</Label>
                       <Input
                         type="number"
                         min="0"
@@ -512,7 +496,7 @@ export function NodeEditPanel({ node, objectTypes, onClose, onUpdate, onDelete }
                   </>
                 )}
 
-                {localData.type !== 'REQUEST_APPROVAL' && localData.type !== 'REVIEW' && (
+                {localData.type !== 'REQUEST_APPROVAL' && localData.type !== 'REQUEST_REVIEW' && (
                   <div className="space-y-2">
                     <Label>Action Parameters (JSON)</Label>
                     <Textarea value={paramsInput} onChange={(e) => handleParamsChange(e.target.value)} placeholder='{"key": "value"}' rows={6} />

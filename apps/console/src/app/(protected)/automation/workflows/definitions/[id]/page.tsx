@@ -1,14 +1,10 @@
 import WorkflowDefinitionDetailPage from '@/components/pages/protected/workflows/workflow-definition-detail-page'
-import { Metadata } from 'next'
+import { type Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Workflow Definition',
 }
 
-type PageProps = {
-  params: { id: string }
-}
-
-const Page = ({ params }: PageProps) => <WorkflowDefinitionDetailPage workflowId={params.id} />
+const Page = () => <WorkflowDefinitionDetailPage />
 
 export default Page

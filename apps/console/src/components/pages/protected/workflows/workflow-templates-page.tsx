@@ -28,7 +28,7 @@ const actionLabelMap: Record<string, string> = {
   REQUEST_REVIEW: 'Review',
   NOTIFY: 'Notification',
   WEBHOOK: 'Webhook',
-  FIELD_UPDATE: 'Field update',
+  UPDATE_FIELD: 'Field update',
   CREATE_OBJECT: 'Create object',
 }
 

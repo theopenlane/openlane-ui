@@ -29,11 +29,11 @@ export const ConfigureStep = ({ state, isLoadingUsers, isLoadingGroups }: Config
       <CardContent className="space-y-6">
         <FlowSummary objectLabel={toHumanLabel(state.objectLabel)} operationLabel={state.operationLabel || '—'} actionLabel={state.selectedActionLabel || '—'} />
 
-        {(state.actionType === WizardActionType.REQUEST_APPROVAL || state.actionType === WizardActionType.REVIEW) && (
+        {(state.actionType === WizardActionType.REQUEST_APPROVAL || state.actionType === WizardActionType.REQUEST_REVIEW) && (
           <div className="space-y-4">
             <div className="space-y-2">
               <Label>
-                {state.actionType === WizardActionType.REVIEW ? 'Reviewers' : 'Approvers'} <span className="text-destructive">*</span>
+                {state.actionType === WizardActionType.REQUEST_REVIEW ? 'Reviewers' : 'Approvers'} <span className="text-destructive">*</span>
               </Label>
               <TargetSelector
                 targets={state.targets}
@@ -49,15 +49,15 @@ export const ConfigureStep = ({ state, isLoadingUsers, isLoadingGroups }: Config
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label>{state.actionType === WizardActionType.REVIEW ? 'Review label' : 'Approval label'}</Label>
+                <Label>{state.actionType === WizardActionType.REQUEST_REVIEW ? 'Review label' : 'Approval label'}</Label>
                 <Input
                   value={state.approvalLabel}
                   onChange={(e) => state.setApprovalLabel(e.target.value)}
-                  placeholder={state.actionType === WizardActionType.REVIEW ? 'e.g. Control change review' : 'e.g. Control change approval'}
+                  placeholder={state.actionType === WizardActionType.REQUEST_REVIEW ? 'e.g. Control change review' : 'e.g. Control change approval'}
                 />
               </div>
               <div className="space-y-2">
-                <Label>{state.actionType === WizardActionType.REVIEW ? 'Required reviews' : 'Required approvals'}</Label>
+                <Label>{state.actionType === WizardActionType.REQUEST_REVIEW ? 'Required reviews' : 'Required approvals'}</Label>
                 <Input type="number" min="1" value={state.requiredCount} onChange={(e) => state.setRequiredCount(Number(e.target.value) || 1)} />
               </div>
             </div>
@@ -156,7 +156,7 @@ export const ConfigureStep = ({ state, isLoadingUsers, isLoadingGroups }: Config
           </div>
         )}
 
-        {state.actionType === WizardActionType.FIELD_UPDATE && (
+        {state.actionType === WizardActionType.UPDATE_FIELD && (
           <div className="space-y-4">
             <div className="space-y-2">
               <Label>

@@ -25,7 +25,7 @@ const formatObjectTypeLabel = (value: string) =>
     .replace(/([a-z])([A-Z])/g, '$1 $2')
     .trim()
 
-export function ObjectWorkflowPanel({ objectId, objectType, objectLabel }: ObjectWorkflowPanelProps) {
+export const ObjectWorkflowPanel = ({ objectId, objectType, objectLabel }: ObjectWorkflowPanelProps) => {
   const { successNotification, errorNotification } = useNotification()
   const [selectedAssignmentId, setSelectedAssignmentId] = useState<string | null>(null)
   const [rejectReason, setRejectReason] = useState('')

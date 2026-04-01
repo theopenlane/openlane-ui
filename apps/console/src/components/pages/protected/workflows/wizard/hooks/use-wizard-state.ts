@@ -182,8 +182,8 @@ export const useWizardState = ({ objectTypes, workflowDefinitionsNodes, userOpti
   const getTargetLabel = (target: Target) => {
     if (target.type === 'USER') return userLabels.get(target.id ?? '') ?? target.id ?? 'User'
     if (target.type === 'GROUP') return groupLabels.get(target.id ?? '') ?? target.id ?? 'Group'
-    if (target.resolver_key) return resolverLabels.get(target.resolver_key) ?? formatResolverLabel(target.resolver_key)
-    return 'Resolver'
+    if (target.type === 'RESOLVER' && target.resolver_key) return resolverLabels.get(target.resolver_key) ?? formatResolverLabel(target.resolver_key)
+    return target.type
   }
 
   const handleSelectGoal = (option: GoalOption) => {
@@ -241,7 +241,7 @@ export const useWizardState = ({ objectTypes, workflowDefinitionsNodes, userOpti
 
     switch (actionType) {
       case WizardActionType.REQUEST_APPROVAL:
-      case WizardActionType.REVIEW: {
+      case WizardActionType.REQUEST_REVIEW: {
         const params: Record<string, unknown> = {
           targets,
           required: true,
@@ -251,7 +251,7 @@ export const useWizardState = ({ objectTypes, workflowDefinitionsNodes, userOpti
         if (approvalLabel.trim()) params.label = approvalLabel.trim()
         if (trackedFields.length > 0) params.fields = trackedFields
 
-        const key = actionType === WizardActionType.REVIEW ? 'review' : 'approval'
+        const key = actionType === WizardActionType.REQUEST_REVIEW ? 'review' : 'approval'
         action = {
           key,
           type: actionType,
@@ -287,7 +287,7 @@ export const useWizardState = ({ objectTypes, workflowDefinitionsNodes, userOpti
           },
         }
         break
-      case WizardActionType.FIELD_UPDATE:
+      case WizardActionType.UPDATE_FIELD:
         action = {
           key: 'field_update',
           type: actionType,
@@ -311,7 +311,7 @@ export const useWizardState = ({ objectTypes, workflowDefinitionsNodes, userOpti
       targets: {},
       triggers: [trigger],
       conditions,
-      actions: Object.keys(action).length > 0 ? action : null,
+      actions: Object.keys(action).length > 0 ? [action] : [],
       metadata: {
         createdFrom: 'wizard',
       },
@@ -369,13 +369,13 @@ export const useWizardState = ({ objectTypes, workflowDefinitionsNodes, userOpti
     if (stepId === 'configure') {
       if (!actionType) return 'Select an action in the Flow step before configuring.'
       if (actionType === WizardActionType.REQUEST_APPROVAL && targets.length === 0) return 'Add at least one approver target.'
-      if (actionType === WizardActionType.REVIEW && targets.length === 0) return 'Add at least one review target.'
+      if (actionType === WizardActionType.REQUEST_REVIEW && targets.length === 0) return 'Add at least one review target.'
       if (actionType === WizardActionType.NOTIFY && targets.length === 0) return 'Add at least one notification target.'
       if (actionType === WizardActionType.WEBHOOK) {
         if (!webhookUrl.trim()) return 'Add a webhook URL.'
         if (webhookPayloadError) return webhookPayloadError
       }
-      if (actionType === WizardActionType.FIELD_UPDATE && !fieldUpdateField) return 'Select the field you want to update.'
+      if (actionType === WizardActionType.UPDATE_FIELD && !fieldUpdateField) return 'Select the field you want to update.'
     }
     if (stepId === 'review') {
       const finalName = name.trim() || suggestedName

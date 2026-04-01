@@ -64,7 +64,7 @@ const sanitizeActions = (actions: Record<string, unknown>[]) =>
   actions.map((action) => {
     if (!action) return action
     const params = { ...((action.params as Record<string, unknown>) || {}) }
-    if (action.type === 'REQUEST_APPROVAL' || action.type === 'REVIEW') {
+    if (action.type === 'REQUEST_APPROVAL' || action.type === 'REQUEST_REVIEW') {
       if (!Array.isArray(params.targets)) {
         params.targets = []
       }
@@ -251,7 +251,14 @@ export default function WorkflowEditor() {
             </div>
             <div className="space-y-2">
               <Label>Schema Type</Label>
-              <Select value={schemaType} onValueChange={setSchemaType} disabled={isLoadingMetadata}>
+              <Select
+                value={schemaType}
+                onValueChange={(val) => {
+                  setSchemaType(val)
+                  setTriggers((prev) => prev.map((t) => ({ ...t, objectType: val })))
+                }}
+                disabled={isLoadingMetadata}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder={isLoadingMetadata ? 'Loading types...' : 'Select object type'} />
                 </SelectTrigger>

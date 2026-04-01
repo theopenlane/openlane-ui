@@ -45,5 +45,8 @@ export const definitionHasApprovalAction = (definition: unknown) => {
 export const definitionHasReviewAction = (definition: unknown) => {
   const doc = parseWorkflowDefinition(definition)
   const actions = Array.isArray(doc?.actions) ? doc.actions : []
-  return actions.some((action) => String(action?.type ?? '').toUpperCase() === 'REVIEW')
+  return actions.some((action) => {
+    const type = String(action?.type ?? '').toUpperCase()
+    return type === 'REQUEST_REVIEW' || type === 'REVIEW'
+  })
 }

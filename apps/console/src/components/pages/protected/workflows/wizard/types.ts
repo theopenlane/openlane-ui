@@ -1,11 +1,7 @@
 import type { WorkflowDefinitionWorkflowKind } from '@repo/codegen/src/schema'
-import type { WizardActionType } from '../types'
+import type { WizardActionType, Target } from '../types'
 
-export type Target = {
-  type: 'USER' | 'GROUP' | 'RESOLVER'
-  id?: string
-  resolver_key?: string
-}
+export type { Target }
 
 export type WorkflowDocument = {
   schemaType?: string

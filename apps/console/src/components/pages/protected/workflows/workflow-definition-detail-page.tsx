@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo } from 'react'
-import { useRouter } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { PageHeading } from '@repo/ui/page-heading'
 import { Card, CardContent, CardHeader, CardTitle } from '@repo/ui/cardpanel'
 import { Button } from '@repo/ui/button'
@@ -11,12 +11,11 @@ import { useWorkflowDefinition } from '@/lib/graphql-hooks/workflow-definition'
 import { formatDateSince } from '@/utils/date'
 import { definitionHasApprovalAction, formatApprovalTimingLabel, parseWorkflowDefinition, resolveApprovalTiming } from '@/utils/workflow'
 
-type WorkflowDefinitionDetailPageProps = {
-  workflowId: string
-}
-
-const WorkflowDefinitionDetailPage = ({ workflowId }: WorkflowDefinitionDetailPageProps) => {
+const WorkflowDefinitionDetailPage = () => {
   const router = useRouter()
+  const params = useParams()
+  const workflowId = params.id as string | undefined
+
   const { data: definition, isLoading } = useWorkflowDefinition(workflowId)
 
   const definitionDoc = useMemo(() => parseWorkflowDefinition(definition?.workflowDefinition?.definitionJSON), [definition?.workflowDefinition?.definitionJSON])
@@ -27,10 +26,10 @@ const WorkflowDefinitionDetailPage = ({ workflowId }: WorkflowDefinitionDetailPa
       .map((action) => {
         const type = String(action?.type ?? '').toUpperCase()
         if (type === 'REQUEST_APPROVAL' || type === 'APPROVAL') return 'Approval'
-        if (type === 'REVIEW') return 'Review'
+        if (type === 'REQUEST_REVIEW' || type === 'REVIEW') return 'Review'
         if (type === 'NOTIFY') return 'Notification'
         if (type === 'WEBHOOK') return 'Webhook'
-        if (type === 'FIELD_UPDATE') return 'Field update'
+        if (type === 'UPDATE_FIELD' || type === 'FIELD_UPDATE') return 'Field update'
         return action?.type ? String(action.type) : 'Action'
       })
       .filter(Boolean)
@@ -51,7 +50,7 @@ const WorkflowDefinitionDetailPage = ({ workflowId }: WorkflowDefinitionDetailPa
     return <p className="text-sm text-muted-foreground">Loading workflow definition...</p>
   }
 
-  if (!definition) {
+  if (!definition?.workflowDefinition) {
     return <p className="text-sm text-muted-foreground">Workflow definition not found.</p>
   }
 
@@ -65,7 +64,7 @@ const WorkflowDefinitionDetailPage = ({ workflowId }: WorkflowDefinitionDetailPa
               <p className="text-sm text-muted-foreground">{definition.workflowDefinition?.description || 'Workflow definition details'}</p>
             </div>
             <div className="flex gap-2">
-              <Button variant="secondary" onClick={() => router.push('/workflows')}>
+              <Button variant="secondary" onClick={() => router.push('/automation/workflows')}>
                 Back to definitions
               </Button>
               <Button onClick={() => router.push(`/automation/workflows/editor?id=${definition.workflowDefinition?.id}`)}>Edit definition</Button>

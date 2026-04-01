@@ -53,6 +53,12 @@ export const buildConditionExpression = ({
 
 export const buildTargetKey = (target: Target) => `${target.type}:${target.id ?? target.resolver_key ?? ''}`
 
+export const sanitizeTargets = (targets: Target[]): Target[] =>
+  targets.filter((target) => {
+    if (target.type === 'RESOLVER') return !isPlaceholderValue(target.resolver_key)
+    return !isPlaceholderValue(target.id)
+  })
+
 export const formatResolverLabel = (value: string) =>
   value
     .toLowerCase()

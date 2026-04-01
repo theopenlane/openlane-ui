@@ -65,6 +65,15 @@ const WorkflowWizardPage = () => {
       return
     }
 
+    for (const step of ['flow', 'rules', 'configure', 'review'] as const) {
+      const stepError = state.getValidationError(step)
+      if (stepError) {
+        errorNotification({ title: 'Missing details', description: stepError })
+        stepper.goTo(step)
+        return
+      }
+    }
+
     const finalName = state.name.trim() || state.suggestedName
     const workflowDocument = state.buildWorkflowDocument()
 

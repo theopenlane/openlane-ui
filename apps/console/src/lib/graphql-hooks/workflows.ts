@@ -9,48 +9,19 @@ import {
   REASSIGN_WORKFLOW_ASSIGNMENT,
 } from '@repo/codegen/query/workflows'
 import { GET_ALL_WORKFLOW_INSTANCES } from '@repo/codegen/query/workflow-instance'
-import type { WorkflowInstance, WorkflowInstanceWhereInput } from '@repo/codegen/src/schema'
+import type { WorkflowInstance, WorkflowInstanceWhereInput, WorkflowMetadataQuery, GetWorkflowProposalsForObjectQuery } from '@repo/codegen/src/schema'
 
-type WorkflowFieldMetadata = {
-  name: string
-  label: string
-  type: string
-}
+export type WorkflowObjectTypeMetadata = WorkflowMetadataQuery['workflowMetadata']['objectTypes'][number]
 
-export type WorkflowObjectTypeMetadata = {
-  type: string
-  label: string
-  description: string
-  eligibleFields: WorkflowFieldMetadata[]
-  eligibleEdges: string[]
-  resolverKeys: string[]
-}
+type WorkflowMetadataResponse = WorkflowMetadataQuery
 
-type WorkflowMetadataResponse = {
-  workflowMetadata: {
-    objectTypes: WorkflowObjectTypeMetadata[]
-  }
-}
 type WorkflowInstancesResponse = {
   workflowInstances: {
     edges: { node?: WorkflowInstance | null }[]
   }
 }
 
-type WorkflowProposal = {
-  id: string
-  state: string
-  domainKey?: string | null
-  revision?: number | null
-  changes?: Record<string, unknown> | null
-  createdAt?: string | null
-  updatedAt?: string | null
-  submittedAt?: string | null
-}
-
-type WorkflowProposalsResponse = {
-  workflowProposalsForObject: WorkflowProposal[]
-}
+type WorkflowProposalsResponse = GetWorkflowProposalsForObjectQuery
 
 const WORKFLOW_OBJECT_WHERE_FIELD_MAP: Record<string, keyof WorkflowInstanceWhereInput> = {
   actionplan: 'actionPlanID',

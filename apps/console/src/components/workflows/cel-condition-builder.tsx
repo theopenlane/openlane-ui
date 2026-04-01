@@ -7,7 +7,7 @@ import { Label } from '@repo/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { Card } from '@repo/ui/cardpanel'
 import { Plus, Trash2, Code, AlertCircle, CheckCircle } from 'lucide-react'
-import { WorkflowObjectTypeMetadata } from '@/lib/graphql-hooks/workflows'
+import type { WorkflowObjectTypeMetadata } from '@/lib/graphql-hooks/workflows'
 import { validateCELExpression } from '@/lib/workflow-validation'
 import { useUserSelect } from '@/lib/graphql-hooks/member'
 import { TRIGGER_OPERATION_OPTIONS } from '@/lib/workflow-templates'
@@ -45,7 +45,7 @@ type CELConditionBuilderProps = {
   onChange: (expression: string) => void
 }
 
-export function CELConditionBuilder({ objectType, objectTypes, initialExpression = '', onChange }: CELConditionBuilderProps) {
+export const CELConditionBuilder = ({ objectType, objectTypes, initialExpression = '', onChange }: CELConditionBuilderProps) => {
   const [conditions, setConditions] = useState<Condition[]>([])
   const [showRawEditor, setShowRawEditor] = useState(false)
   const [rawExpression, setRawExpression] = useState(initialExpression)
@@ -65,6 +65,7 @@ export function CELConditionBuilder({ objectType, objectTypes, initialExpression
       setShowRawEditor(true)
       setRawExpression(initialExpression)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialExpression])
 
   const generateExpression = (conds: Condition[]): string => {
@@ -73,6 +74,7 @@ export function CELConditionBuilder({ objectType, objectTypes, initialExpression
     }
 
     const parts = conds.map((cond, idx) => {
+      // eslint-disable-next-line no-useless-assignment
       let expr = ''
 
       if (cond.field.startsWith('object.')) {

@@ -168,7 +168,7 @@ function workflowToNodes(triggers: Record<string, unknown>[], conditions: Record
   return { nodes, edges }
 }
 
-export function WorkflowVisualEditor({ triggers, conditions, actions, objectTypes, onUpdate }: WorkflowVisualEditorProps) {
+export const WorkflowVisualEditor = ({ triggers, conditions, actions, objectTypes, onUpdate }: WorkflowVisualEditorProps) => {
   const { nodes: initialNodes, edges: initialEdges } = useMemo(() => workflowToNodes(triggers, conditions, actions), [triggers, conditions, actions])
 
   const [nodes, setNodes] = useNodesState(initialNodes)

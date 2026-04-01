@@ -3,7 +3,7 @@ import { getWorkflowTemplateById } from '@/lib/workflow-templates'
 import { WorkflowDefinitionWorkflowKind } from '@repo/codegen/src/schema'
 import { WizardActionType } from '../../types'
 import type { Target } from '../types'
-import { parseDefinitionJSON, normalizeApprovalTiming, isPlaceholderValue } from '../utils'
+import { parseDefinitionJSON, normalizeApprovalTiming, isPlaceholderValue, sanitizeTargets } from '../utils'
 import type { WizardState } from './use-wizard-state'
 
 type UseTemplateLoaderParams = {
@@ -80,7 +80,8 @@ export const useTemplateLoader = ({ templateId, state, goToStep }: UseTemplateLo
     state.setDescription(document?.description ?? template.description ?? '')
 
     const actionTypeRaw = (action?.type as string) || ''
-    const actionTypeNormalized = actionTypeRaw === 'APPROVAL' ? WizardActionType.REQUEST_APPROVAL : actionTypeRaw
+    const ACTION_TYPE_ALIASES: Record<string, string> = { APPROVAL: WizardActionType.REQUEST_APPROVAL, REVIEW: WizardActionType.REQUEST_REVIEW, FIELD_UPDATE: WizardActionType.UPDATE_FIELD }
+    const actionTypeNormalized = ACTION_TYPE_ALIASES[actionTypeRaw] ?? actionTypeRaw
     let shouldJumpToConfigure = false
 
     state.setActionType(actionTypeNormalized as WizardActionType)
@@ -89,14 +90,9 @@ export const useTemplateLoader = ({ templateId, state, goToStep }: UseTemplateLo
 
     switch (actionTypeNormalized) {
       case WizardActionType.REQUEST_APPROVAL:
-      case WizardActionType.REVIEW: {
+      case WizardActionType.REQUEST_REVIEW: {
         const rawTargets = Array.isArray(actionParams?.targets) ? (actionParams.targets as Target[]) : []
-        const sanitizedTargets = rawTargets.filter((target: Target) => {
-          if (target.type === 'RESOLVER') {
-            return !isPlaceholderValue(target.resolver_key)
-          }
-          return !isPlaceholderValue(target.id)
-        })
+        const sanitizedTargets = sanitizeTargets(rawTargets)
         state.setTargets(sanitizedTargets)
         state.setApprovalLabel((actionParams?.label as string) ?? '')
         state.setRequiredCount((actionParams?.required_count as number) ?? 1)
@@ -105,12 +101,7 @@ export const useTemplateLoader = ({ templateId, state, goToStep }: UseTemplateLo
       }
       case WizardActionType.NOTIFY: {
         const rawTargets = Array.isArray(actionParams?.targets) ? (actionParams.targets as Target[]) : []
-        const sanitizedTargets = rawTargets.filter((target: Target) => {
-          if (target.type === 'RESOLVER') {
-            return !isPlaceholderValue(target.resolver_key)
-          }
-          return !isPlaceholderValue(target.id)
-        })
+        const sanitizedTargets = sanitizeTargets(rawTargets)
         state.setTargets(sanitizedTargets)
         state.setNotificationTitle((actionParams?.title as string) ?? '')
         state.setNotificationBody((actionParams?.body as string) ?? '')
@@ -126,7 +117,7 @@ export const useTemplateLoader = ({ templateId, state, goToStep }: UseTemplateLo
         shouldJumpToConfigure = isPlaceholderValue(urlValue) || !urlValue
         break
       }
-      case WizardActionType.FIELD_UPDATE: {
+      case WizardActionType.UPDATE_FIELD: {
         const updates = (actionParams?.updates as Record<string, unknown>) ?? {}
         const [field, value] = Object.entries(updates)[0] ?? []
         if (field) state.setFieldUpdateField(field)

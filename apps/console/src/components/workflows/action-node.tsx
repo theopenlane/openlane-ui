@@ -15,7 +15,7 @@ type ActionNodeData = {
 
 export const ActionNode = memo(({ data, selected }: NodeProps<Node<ActionNodeData>>) => {
   const targets = Array.isArray(data.params?.targets) ? data.params.targets : []
-  const isApprovalLike = data.type === 'REQUEST_APPROVAL' || data.type === 'REVIEW'
+  const isApprovalLike = data.type === 'REQUEST_APPROVAL' || data.type === 'REQUEST_REVIEW'
   const hasWarning = !data.type || !data.key || (isApprovalLike && targets.length === 0)
 
   return (

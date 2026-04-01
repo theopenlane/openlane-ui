@@ -412,7 +412,7 @@ export const WORKFLOW_TEMPLATES: WorkflowTemplate[] = [
       actions: [
         {
           key: 'auto_enrich_control',
-          type: 'FIELD_UPDATE',
+          type: 'UPDATE_FIELD',
           description: 'Update metadata fields automatically',
           params: {
             updates: {
