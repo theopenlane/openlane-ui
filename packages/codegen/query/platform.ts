@@ -11,6 +11,15 @@ export const GET_ALL_PLATFORMS = gql`
           businessOwner
           businessOwnerGroupID
           businessOwnerUserID
+          businessOwnerUser {
+            id
+            displayName
+            email
+          }
+          businessOwnerGroup {
+            id
+            name
+          }
           businessPurpose
           containsPii
           costCenter
@@ -52,9 +61,19 @@ export const GET_ALL_PLATFORMS = gql`
           securityTierID
           securityTierName
           sourceIdentifier
+          status
           technicalOwner
           technicalOwnerGroupID
           technicalOwnerUserID
+          technicalOwnerUser {
+            id
+            displayName
+            email
+          }
+          technicalOwnerGroup {
+            id
+            name
+          }
           trustBoundaryDescription
           updatedAt
           updatedBy
@@ -79,6 +98,15 @@ export const PLATFORM = gql`
       businessOwner
       businessOwnerGroupID
       businessOwnerUserID
+      businessOwnerUser {
+        id
+        displayName
+        email
+      }
+      businessOwnerGroup {
+        id
+        name
+      }
       businessPurpose
       containsPii
       costCenter
@@ -109,6 +137,11 @@ export const PLATFORM = gql`
       platformKindID
       platformKindName
       platformOwnerID
+      platformOwner {
+        id
+        displayName
+        email
+      }
       purchaseDate
       region
       scopeID
@@ -120,13 +153,61 @@ export const PLATFORM = gql`
       securityTierID
       securityTierName
       sourceIdentifier
+      status
       technicalOwner
       technicalOwnerGroupID
       technicalOwnerUserID
+      technicalOwnerUser {
+        id
+        displayName
+        email
+      }
+      technicalOwnerGroup {
+        id
+        name
+      }
       trustBoundaryDescription
       updatedAt
       updatedBy
       workflowEligibleMarker
+      assets {
+        edges {
+          node {
+            id
+            name
+            assetType
+          }
+        }
+      }
+      outOfScopeAssets {
+        edges {
+          node {
+            id
+            name
+            assetType
+          }
+        }
+      }
+      entities {
+        edges {
+          node {
+            id
+            name
+            displayName
+            status
+          }
+        }
+      }
+      outOfScopeVendors {
+        edges {
+          node {
+            id
+            name
+            displayName
+            status
+          }
+        }
+      }
     }
   }
 `
