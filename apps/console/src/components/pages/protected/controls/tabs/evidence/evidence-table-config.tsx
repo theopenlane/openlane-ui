@@ -1,12 +1,13 @@
 import React from 'react'
 import type { ColumnDef } from '@tanstack/react-table'
 import { formatDateSince } from '@/utils/date'
-import { EvidenceIconMapper, EvidenceStatusOptions, FilterIcons } from '@/components/shared/enum-mapper/evidence-enum'
+import { EvidenceIconMapper, EvidenceStatusOptions } from '@/components/shared/enum-mapper/evidence-enum'
 import type { FilterField } from '@/types'
 import type { ApiToken, EvidenceEvidenceStatus, User } from '@repo/codegen/src/schema.ts'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { KeyRound } from 'lucide-react'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
 
 export type EvidenceRow = {
   id: string
@@ -22,6 +23,9 @@ export const getEvidenceFilterFields = (): FilterField[] => [
   { key: 'statusIn', label: 'Status', type: 'multiselect', options: EvidenceStatusOptions, icon: FilterIcons.Status },
   { key: 'creationDate', label: 'Created', type: 'dateRange', icon: FilterIcons.Date },
   { key: 'renewalDate', label: 'Renewed', type: 'dateRange', icon: FilterIcons.Date },
+  { key: 'scopeNameIn', label: 'Scope', type: 'text', icon: FilterIcons.Scope },
+  { key: 'environmentNameIn', label: 'Environment', type: 'text', icon: FilterIcons.Environment },
+  { key: 'externalUUIDContainsFold', label: 'External UUID', type: 'text', icon: FilterIcons.ID },
 ]
 
 export const getEvidenceColumns = (onOpenEvidence: (id: string) => void, userMap: Record<string, User>, tokenMap: Record<string, ApiToken>): ColumnDef<EvidenceRow>[] => [

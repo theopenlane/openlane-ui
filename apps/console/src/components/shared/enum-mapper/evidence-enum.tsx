@@ -1,4 +1,4 @@
-import { ArchiveX, Bot, CalendarClock, CircleDot, FileArchive, FileSearch, FileText, FolderPen, Inbox, RefreshCw, Stamp, type LucideIcon } from 'lucide-react'
+import { ArchiveX, FileArchive, FileSearch, FileText, Inbox, RefreshCw, Stamp } from 'lucide-react'
 import { EvidenceEvidenceStatus } from '@repo/codegen/src/schema.ts'
 import { Badge } from '@repo/ui/badge'
 
@@ -12,22 +12,6 @@ export const EvidenceIconMapper: Record<EvidenceEvidenceStatus, React.ReactNode>
   [EvidenceEvidenceStatus.IN_REVIEW]: <FileSearch height={16} width={16} className="text-missing-artifact" />,
   [EvidenceEvidenceStatus.DRAFT]: <FileText height={16} width={16} className="text-muted-foreground" />,
   [EvidenceEvidenceStatus.REQUESTED]: <Inbox height={16} width={16} className="text-requested" />,
-}
-
-export enum EvidenceFilterIconName {
-  Name = 'Name',
-  Description = 'Description',
-  IsAutomated = 'IsAutomated',
-  Status = 'Status',
-  Date = 'Date',
-}
-
-export const FilterIcons: Record<EvidenceFilterIconName, LucideIcon> = {
-  [EvidenceFilterIconName.Name]: FolderPen,
-  [EvidenceFilterIconName.Description]: FileText,
-  [EvidenceFilterIconName.IsAutomated]: Bot,
-  [EvidenceFilterIconName.Status]: CircleDot,
-  [EvidenceFilterIconName.Date]: CalendarClock,
 }
 
 export const ChartColorsSequence = ['#f97316', '#2563EB', '#16A34A', '#15803D', '#CA8A04', '#EF4444', '#B91C1C', '#2563EB', '#D97706']

@@ -68,6 +68,9 @@ const EVIDENCE_FIELDS = gql`
     id
     name
     renewalDate
+    externalUUID
+    scopeName
+    environmentName
     source
     status
     tags
@@ -181,6 +184,9 @@ export const GET_RENEW_EVIDENCE = gql`
       id
       name
       renewalDate
+      externalUUID
+      scopeName
+      environmentName
       source
       status
       tags

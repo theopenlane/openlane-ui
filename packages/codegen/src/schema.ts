@@ -66595,6 +66595,9 @@ export type EvidenceFieldsFragment = {
   id: string
   name: string
   renewalDate?: string | null
+  externalUUID?: string | null
+  scopeName?: string | null
+  environmentName?: string | null
   source?: string | null
   status?: EvidenceEvidenceStatus | null
   tags?: Array<string> | null
@@ -66669,6 +66672,9 @@ export type GetEvidenceQuery = {
     id: string
     name: string
     renewalDate?: string | null
+    externalUUID?: string | null
+    scopeName?: string | null
+    environmentName?: string | null
     source?: string | null
     status?: EvidenceEvidenceStatus | null
     tags?: Array<string> | null
@@ -66744,6 +66750,9 @@ export type GetRenewEvidenceQuery = {
     id: string
     name: string
     renewalDate?: string | null
+    externalUUID?: string | null
+    scopeName?: string | null
+    environmentName?: string | null
     source?: string | null
     status?: EvidenceEvidenceStatus | null
     tags?: Array<string> | null
