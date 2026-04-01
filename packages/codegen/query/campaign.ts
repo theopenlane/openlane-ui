@@ -92,6 +92,7 @@ export const CAMPAIGN = gql`
       resendCount
       scheduledAt
       status
+      tags
       template {
         id
         name

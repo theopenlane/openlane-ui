@@ -63966,6 +63966,7 @@ export type CampaignQuery = {
     resendCount?: number | null
     scheduledAt?: string | null
     status: CampaignCampaignStatus
+    tags?: Array<string> | null
     templateID?: string | null
     updatedAt?: any | null
     updatedBy?: string | null
