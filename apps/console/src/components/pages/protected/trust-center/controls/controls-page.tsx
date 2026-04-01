@@ -135,13 +135,13 @@ export default function ControlsPage() {
   }, [])
 
   const publishDraftSummary = useMemo(() => {
-    const adds: { id: string; refCode: string; category: string }[] = []
-    const removes: { id: string; refCode: string; category: string }[] = []
+    const adds: { id: string; description: string; category: string }[] = []
+    const removes: { id: string; description: string; category: string }[] = []
 
     drafts.forEach((action, controlId) => {
       const control = allControls.find((c) => c.id === controlId)
       if (!control) return
-      const item = { id: control.id, refCode: control.refCode, category: control.category || 'Uncategorized' }
+      const item = { id: control.id, description: control.description || 'No description provided', category: control.category || 'Uncategorized' }
       if (action === 'add') adds.push(item)
       else removes.push(item)
     })
@@ -384,10 +384,9 @@ export default function ControlsPage() {
                           {canEditTc && <Checkbox checked={isAdded} onCheckedChange={() => handleToggle(control)} aria-label={`Toggle ${control.title || control.refCode}`} />}
                           <div className="flex flex-col gap-1 min-w-0">
                             <div className="flex items-center gap-2">
-                              <span className="font-medium">{control.title || control.refCode}</span>
+                              <p className="text-sm text-muted-foreground line-clamp-2">{control.description || 'No description provided'}</p>
                               {hasDraft && <Badge variant="blue">{drafts.get(control.id) === 'add' ? 'Pending Add' : 'Pending Remove'}</Badge>}
                             </div>
-                            <p className="text-sm text-muted-foreground line-clamp-2">{control.description || 'No description provided'}</p>
                             {control.tags && control.tags.length > 0 && (
                               <div className="flex flex-wrap gap-1.5 mt-1">
                                 {control.tags.map((tag) => (
@@ -424,7 +423,7 @@ export default function ControlsPage() {
       {Object.keys(filteredGroupedControls).length === 0 && !isLoading && <p className="text-center text-muted-foreground py-12">No controls found.</p>}
 
       <Dialog open={publishDialogOpen} onOpenChange={setPublishDialogOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-3xl">
           <DialogHeader>
             <DialogTitle>Add Controls</DialogTitle>
             <DialogDescription>
@@ -445,13 +444,13 @@ export default function ControlsPage() {
                     <Badge variant="outline">{total}</Badge>
                   </AccordionTrigger>
                   <AccordionContent className="pb-3">
-                    <div className="flex flex-col gap-1 text-sm text-muted-foreground pl-9">
+                    <div className="flex flex-col gap-1 text-sm text-muted-foreground pl-4">
                       {publishDraftSummary.adds
                         .filter((a) => a.category === category)
                         .map((a) => (
-                          <div key={a.id} className="flex items-center gap-1.5">
+                          <div key={a.id} className="flex items-center gap-2.5">
                             <Plus size={12} className="text-green-500" />
-                            <span>{a.refCode}</span>
+                            <span className="line-clamp-1">{a.description}</span>
                           </div>
                         ))}
                       {publishDraftSummary.removes
@@ -459,7 +458,7 @@ export default function ControlsPage() {
                         .map((r) => (
                           <div key={r.id} className="flex items-center gap-1.5">
                             <Minus size={12} className="text-red-500" />
-                            <span>{r.refCode}</span>
+                            <span>{r.description}</span>
                           </div>
                         ))}
                     </div>
