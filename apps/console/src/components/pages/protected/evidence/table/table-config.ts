@@ -1,6 +1,7 @@
 import { type FilterField } from '@/types'
 import { EvidenceOrderField, OrderDirection } from '@repo/codegen/src/schema.ts'
-import { EvidenceStatusOptions, FilterIcons } from '@/components/shared/enum-mapper/evidence-enum'
+import { EvidenceStatusOptions } from '@/components/shared/enum-mapper/evidence-enum'
+import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
 
 export const getEvidenceFilterableFields = (frameworkOptions: { value: string; label: string }[], tagOptions: { value: string; label: string }[]): FilterField[] => [
   { key: 'name', label: 'Name', type: 'text', icon: FilterIcons.Name },
@@ -31,6 +32,9 @@ export const getEvidenceFilterableFields = (frameworkOptions: { value: string; l
     icon: FilterIcons.Status,
     options: tagOptions,
   },
+  { key: 'scopeNameIn', label: 'Scope', type: 'text', icon: FilterIcons.Scope },
+  { key: 'environmentNameIn', label: 'Environment', type: 'text', icon: FilterIcons.Environment },
+  { key: 'externalUUIDContainsFold', label: 'External UUID', type: 'text', icon: FilterIcons.ID },
 ]
 
 export const EVIDENCE_SORTABLE_FIELDS = [
@@ -45,4 +49,6 @@ export const EVIDENCE_SORTABLE_FIELDS = [
   },
   { key: 'created_at', label: 'Created At' },
   { key: 'updated_at', label: 'Updated At' },
+  { key: 'renewal_date', label: 'Renewal Date' },
+  { key: 'creation_date', label: 'Creation Date' },
 ]

@@ -14,6 +14,7 @@ import { TagsCell } from '@/components/shared/crud-base/columns/tags-cell'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { createSelectColumn } from '@/components/shared/crud-base/columns/select-column'
 import { formatDate } from '@/utils/date.ts'
+import { CustomEnumChipCell } from '@/components/shared/crud-base/columns/custom-enum-chip-cell'
 
 type TGetEvidenceColumnsProps = {
   userMap: Record<string, User>
@@ -32,6 +33,12 @@ export const useGetEvidenceColumns = ({ userMap, selectedEvidence, setSelectedEv
       minSize: 270,
       maxSize: 270,
       cell: ({ row }) => <div className="text-muted-foreground">{row.original.id}</div>,
+    },
+    {
+      accessorKey: 'externalUUID',
+      header: 'External UUID',
+      size: 200,
+      cell: ({ row }) => <div>{row.original.externalUUID}</div>,
     },
     {
       accessorKey: 'name',
@@ -144,6 +151,8 @@ export const useGetEvidenceColumns = ({ userMap, selectedEvidence, setSelectedEv
       minSize: 100,
       size: 180,
     },
+    { accessorKey: 'scopeName', header: 'Scope', size: 120, cell: ({ cell }) => <CustomEnumChipCell value={cell.getValue() as string} field="scope" /> },
+    { accessorKey: 'environmentName', header: 'Environment', size: 120, cell: ({ cell }) => <CustomEnumChipCell value={cell.getValue() as string} field="environment" /> },
     {
       accessorKey: 'tags',
       header: 'Tags',
