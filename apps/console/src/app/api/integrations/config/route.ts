@@ -2,10 +2,14 @@ import { auth } from '@/lib/auth/auth'
 import { secureFetch } from '@/lib/auth/utils/secure-fetch'
 import { openlaneAPIUrl } from '@repo/dally/auth'
 import { type NextRequest, NextResponse } from 'next/server'
+import { parseProxyResponse } from '../proxy-response'
 
 type ConfigRequestBody = {
-  provider?: string
-  payload?: Record<string, unknown>
+  definitionId?: string
+  installationId?: string
+  credentialRef?: string
+  body?: Record<string, unknown>
+  userInput?: Record<string, unknown>
 }
 
 export async function POST(request: NextRequest) {
@@ -17,33 +21,28 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const body = (await request.json().catch(() => ({}))) as ConfigRequestBody
-    const provider = body.provider?.trim()
-    const payload = body.payload ?? {}
+    const payload = (await request.json()) as ConfigRequestBody
+    const definitionId = payload.definitionId?.trim()
 
-    if (!provider) {
-      return NextResponse.json({ error: 'Provider is required' }, { status: 400 })
+    if (!definitionId) {
+      return NextResponse.json({ error: 'Definition ID is required' }, { status: 400 })
     }
 
-    const res = await secureFetch(`${openlaneAPIUrl}/v1/integrations/${encodeURIComponent(provider)}/config`, {
+    const upstreamResponse = await secureFetch(`${openlaneAPIUrl}/v1/integrations/${encodeURIComponent(definitionId)}/config`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({ payload }),
+      body: JSON.stringify({
+        installationId: payload.installationId,
+        credentialRef: payload.credentialRef,
+        body: payload.body ?? {},
+        userInput: payload.userInput ?? {},
+      }),
     })
 
-    const raw = await res.text()
-    if (!res.ok) {
-      return NextResponse.json({ error: raw || `Failed to configure ${provider}` }, { status: res.status })
-    }
-
-    try {
-      const json = JSON.parse(raw) as unknown
-      return NextResponse.json(json)
-    } catch {
-      return NextResponse.json({ error: 'Invalid JSON response while configuring integration' }, { status: 500 })
-    }
+    const rawBody = await upstreamResponse.text()
+    return parseProxyResponse(rawBody, upstreamResponse.status, upstreamResponse.ok, `Failed to configure ${definitionId}`)
   } catch (error) {
     console.error('Error configuring integration:', error)
     return NextResponse.json({ error: 'An error occurred while configuring integration' }, { status: 500 })

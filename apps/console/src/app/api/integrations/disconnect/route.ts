@@ -1,11 +1,10 @@
 import { auth } from '@/lib/auth/auth'
 import { secureFetch } from '@/lib/auth/utils/secure-fetch'
-import { HEALTH_CHECK_OPERATION_NAME } from '@/lib/integrations/utils'
 import { openlaneAPIUrl } from '@repo/dally/auth'
 import { type NextRequest, NextResponse } from 'next/server'
 import { parseProxyResponse } from '../proxy-response'
 
-type HealthRequestBody = {
+type DisconnectRequestBody = {
   integrationId?: string
 }
 
@@ -18,31 +17,24 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const payload = (await request.json()) as HealthRequestBody
+    const payload = (await request.json()) as DisconnectRequestBody
     const integrationId = payload.integrationId?.trim()
+
     if (!integrationId) {
       return NextResponse.json({ error: 'Integration ID is required' }, { status: 400 })
     }
 
-    const upstreamURL = `${openlaneAPIUrl}/v1/integrations/${encodeURIComponent(integrationId)}/operations/run`
-
-    const upstreamResponse = await secureFetch(upstreamURL, {
+    const upstreamResponse = await secureFetch(`${openlaneAPIUrl}/v1/integrations/${encodeURIComponent(integrationId)}/disconnect`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({
-        body: {
-          operation: HEALTH_CHECK_OPERATION_NAME,
-          config: {},
-        },
-      }),
     })
 
     const rawBody = await upstreamResponse.text()
-    return parseProxyResponse(rawBody, upstreamResponse.status, upstreamResponse.ok, `Health check failed for ${integrationId}`)
+    return parseProxyResponse(rawBody, upstreamResponse.status, upstreamResponse.ok, 'Failed to disconnect integration')
   } catch (error) {
-    console.error('Error checking integration health:', error)
-    return NextResponse.json({ error: 'An error occurred while checking integration health' }, { status: 500 })
+    console.error('Error disconnecting integration:', error)
+    return NextResponse.json({ error: 'An error occurred while disconnecting integration' }, { status: 500 })
   }
 }

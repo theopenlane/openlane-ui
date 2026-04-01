@@ -3,8 +3,10 @@
 import React from 'react'
 import { Button } from '@repo/ui/button'
 import { Card } from '@repo/ui/cardpanel'
+import { Separator } from '@repo/ui/separator'
 
-import { type AvailableIntegrationNode, getInstalledIntegrationConfig, type IntegrationNode, type IntegrationProvider, type IntegrationTab } from './config'
+import { type AvailableIntegrationNode, type IntegrationNode, type IntegrationProvider, type IntegrationTab } from '@/lib/integrations/types'
+import { getInstalledIntegrationConfig } from '@/lib/integrations/utils'
 import AvailableIntegrationCard from './available-integration-card'
 import InstalledIntegrationCard from './installed-integration-card'
 import { INFO_EMAIL } from '@/constants'
@@ -45,7 +47,19 @@ export function IntegrationsGrid({ installedIntegrations, availableIntegrations,
       return true
     }
 
-    return matchesAvailableSearch(integration, normalizedQuery)
+    return matchesSearch(
+      [
+        integration.name,
+        integration.description,
+        integration.provider.id,
+        integration.provider.slug,
+        integration.provider.family,
+        integration.provider.displayName,
+        integration.provider.category,
+        ...(integration.tags ?? []),
+      ],
+      normalizedQuery,
+    )
   })
 
   const filteredInstalledIntegrations = installedIntegrations.filter((integration) => {
@@ -58,7 +72,12 @@ export function IntegrationsGrid({ installedIntegrations, availableIntegrations,
     }
 
     const integrationConfig = getInstalledIntegrationConfig(integration, providers)
-    return matchesInstalledSearch(integration, integrationConfig?.provider, normalizedQuery)
+    const provider = integrationConfig?.provider
+    const tags = provider?.tags?.length ? provider.tags : (integration.tags ?? [])
+    return matchesSearch(
+      [integration.name, integration.kind, provider?.id, provider?.slug, provider?.displayName, provider?.family, provider?.description || integration.description, ...tags],
+      normalizedQuery,
+    )
   })
 
   if (activeTab === 'Installed' && filteredInstalledIntegrations.length === 0) {
@@ -73,37 +92,43 @@ export function IntegrationsGrid({ installedIntegrations, availableIntegrations,
     return <EmptyState message="No coming soon integrations." />
   }
 
+  if (activeTab === 'Installed') {
+    return (
+      <div className="grid gap-4 lg:grid-cols-2 mt-5">
+        {filteredInstalledIntegrations.map((integration) => (
+          <InstalledIntegrationCard key={integration.id} integration={integration} providers={providers} />
+        ))}
+      </div>
+    )
+  }
+
   return (
-    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 mt-5">
-      {activeTab !== 'Installed' && filteredAvailableIntegrations.map((integration) => <AvailableIntegrationCard key={integration.id} integration={integration} />)}
-      {activeTab === 'Installed' && filteredInstalledIntegrations.map((integration) => <InstalledIntegrationCard key={integration.id} integration={integration} providers={providers} />)}
+    <div className="mt-5">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {filteredAvailableIntegrations.map((integration) => (
+          <AvailableIntegrationCard key={integration.id} integration={integration} />
+        ))}
+      </div>
       {activeTab === 'All' && (
-        <Card className="flex min-h-[300px] items-center justify-center p-8">
-          <div className="flex max-w-[280px] flex-col items-center justify-center gap-6 text-center">
-            <h2 className="text-center">
-              Missing an Integration? <br />
-              Reach out and we can get you setup.
-            </h2>
+        <>
+          <Separator className="my-6" />
+          <Card className="flex items-center justify-between p-6 transition-all duration-200 hover:-translate-y-1 hover:border-primary">
+            <div>
+              <h3 className="text-sm font-medium">Missing an Integration?</h3>
+              <p className="text-sm text-muted-foreground">Reach out and we can get you setup.</p>
+            </div>
             <a href={INFO_EMAIL}>
               <Button variant="secondary" className="text-brand">
                 Request
               </Button>
             </a>
-          </div>
-        </Card>
+          </Card>
+        </>
       )}
     </div>
   )
 }
 
-function matchesAvailableSearch(integration: AvailableIntegrationNode, query: string): boolean {
-  const haystack = [integration.name, integration.description, integration.provider.name, integration.provider.displayName, ...(integration.tags ?? [])].join(' ').toLowerCase()
-  return haystack.includes(query)
-}
-
-function matchesInstalledSearch(integration: IntegrationNode, provider: IntegrationProvider | undefined, query: string): boolean {
-  const tags = provider?.tags?.length ? provider.tags : (integration.tags ?? [])
-  const description = provider?.description || integration.description || ''
-  const haystack = [integration.name, provider?.name ?? '', provider?.displayName ?? '', description, ...tags].join(' ').toLowerCase()
-  return haystack.includes(query)
+function matchesSearch(fields: Array<string | null | undefined>, query: string): boolean {
+  return fields.filter(Boolean).join(' ').toLowerCase().includes(query)
 }

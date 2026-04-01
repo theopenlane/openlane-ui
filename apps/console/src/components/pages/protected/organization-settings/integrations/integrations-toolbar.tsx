@@ -2,7 +2,7 @@ import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import { Input } from '@repo/ui/input'
 import { Search } from 'lucide-react'
 import React from 'react'
-import { type IntegrationTab } from './config'
+import { type IntegrationTab } from '@/lib/integrations/types'
 
 type Props = {
   activeTab: IntegrationTab
@@ -47,7 +47,7 @@ const IntegrationsToolbar = ({ activeTab, setActiveTab, allCount, comingSoonCoun
         </TabsList>
       </Tabs>
 
-      <div className="grow flex flex-row items-center gap-2 md:max-w-[340px]">
+      <div className="flex flex-1 flex-row items-center gap-2 justify-end">
         <Input
           variant="searchTable"
           icon={<Search size={16} className="text-muted-foreground" />}
