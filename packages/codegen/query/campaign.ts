@@ -92,6 +92,13 @@ export const CAMPAIGN = gql`
       resendCount
       scheduledAt
       status
+      template {
+        id
+        name
+        description
+        updatedAt
+        jsonconfig
+      }
       templateID
       updatedAt
       updatedBy

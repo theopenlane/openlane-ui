@@ -4,7 +4,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
-import { CheckCircle, Play, Trash2 } from 'lucide-react'
+import { Calendar, CheckCircle, FileText, Play, Trash2 } from 'lucide-react'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useCampaign, useUpdateCampaign } from '@/lib/graphql-hooks/campaign'
 import { useCampaignTargetsWithFilter, type CampaignTargetsNodeNonNull } from '@/lib/graphql-hooks/campaign-target'
@@ -186,7 +186,35 @@ const CampaignDetailPage: React.FC = () => {
       {/* Questionnaires */}
       <div className="rounded-md border border-border bg-card p-4">
         <h3 className="text-sm font-semibold mb-3">Questionnaires</h3>
-        <p className="text-sm text-muted-foreground">No questionnaires linked to this campaign.</p>
+        {/* template field added to query but generated types are stale */}
+        {(() => {
+          const tmpl = (campaign as unknown as { template?: { id: string; name: string; description?: string; updatedAt?: string; jsonconfig?: Record<string, unknown> } }).template
+          if (!tmpl) return <p className="text-sm text-muted-foreground">No questionnaires linked to this campaign.</p>
+          const questions = Array.isArray(tmpl.jsonconfig?.questions) ? tmpl.jsonconfig.questions : []
+          return (
+            <div className="flex flex-col gap-3">
+              <p className="text-sm font-medium">{tmpl.name}</p>
+              <div className="flex items-center gap-2">
+                <div className="flex items-center justify-center h-7 w-7 rounded-sm bg-secondary">
+                  <Calendar size={14} className="text-muted-foreground" />
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Last updated</p>
+                  <p className="text-sm">{tmpl.updatedAt ? formatDate(tmpl.updatedAt) : '—'}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="flex items-center justify-center h-7 w-7 rounded-sm bg-secondary">
+                  <FileText size={14} className="text-muted-foreground" />
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Questions</p>
+                  <p className="text-sm">{questions.length} question{questions.length !== 1 ? 's' : ''}</p>
+                </div>
+              </div>
+            </div>
+          )
+        })()}
       </div>
     </>
   )

@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { Button } from '@repo/ui/button'
-import { SaveIcon, X } from 'lucide-react'
+import { ArrowLeft, SaveIcon, X } from 'lucide-react'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
 import { Badge } from '@repo/ui/badge'
 
@@ -52,6 +52,7 @@ export function StepperSheet({
 }: StepperSheetProps) {
   const [showCancelDialog, setShowCancelDialog] = useState(false)
   const totalSteps = steps.length
+  const isFirstStep = currentStep === 0
   const isLastStep = currentStep === totalSteps - 1
   const step = steps[currentStep]
 
@@ -120,6 +121,11 @@ export function StepperSheet({
                   <Button variant="secondary" onClick={onSaveDraft} disabled={isSaving || isCompleting} icon={<SaveIcon size={16} />} iconPosition="left">
                     {isSaving ? 'Saving...' : 'Save Draft'}
                   </Button>
+                  {!isFirstStep && (
+                    <Button variant="outline" onClick={() => onStepChange(currentStep - 1)} disabled={isSaving || isCompleting} icon={<ArrowLeft size={16} />} iconPosition="left">
+                      Previous
+                    </Button>
+                  )}
                   <Button variant="primary" onClick={handleNext} disabled={!canProceed || isSaving || isCompleting}>
                     {isLastStep ? (isCompleting ? 'Launching...' : completeLabel) : 'Next'}
                   </Button>

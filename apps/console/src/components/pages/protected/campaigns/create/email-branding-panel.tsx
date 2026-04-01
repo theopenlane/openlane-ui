@@ -3,9 +3,11 @@
 import React, { useState } from 'react'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { Button } from '@repo/ui/button'
+import { Input } from '@repo/ui/input'
+import { Switch } from '@repo/ui/switch'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
-import { SaveIcon, X } from 'lucide-react'
-import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
+import { ChevronDown, SaveIcon, X } from 'lucide-react'
 import { ColorInput } from '@/components/shared/color-input/color-input'
 import { useCreateEmailBranding } from '@/lib/graphql-hooks/email-branding'
 import { useNotification } from '@/hooks/useNotification'
@@ -25,33 +27,67 @@ const FONT_OPTIONS = Object.values(EmailBrandingFont).map((value) => ({
 }))
 
 export const EmailBrandingPanel: React.FC<EmailBrandingPanelProps> = ({ open, onClose, onSave }) => {
+  const [name, setName] = useState('')
+  const [brandName, setBrandName] = useState('')
+  const [logoRemoteURL, setLogoRemoteURL] = useState('')
+  const [isDefault, setIsDefault] = useState(false)
   const [fontFamily, setFontFamily] = useState<EmailBrandingFont>(EmailBrandingFont.HELVETICA)
-  const [foregroundColor, setForegroundColor] = useState('#7391FF')
-  const [backgroundColor, setBackgroundColor] = useState('#7391FF')
-  const [accentColor, setAccentColor] = useState('#7391FF')
-  const [secondaryForegroundColor, setSecondaryForegroundColor] = useState('#7391FF')
-  const [secondaryBackgroundColor, setSecondaryBackgroundColor] = useState('#7391FF')
+  const [textColor, setTextColor] = useState('#333333')
+  const [backgroundColor, setBackgroundColor] = useState('#FFFFFF')
+  const [primaryColor, setPrimaryColor] = useState('#7391FF')
+  const [secondaryColor, setSecondaryColor] = useState('#6B7280')
+  const [linkColor, setLinkColor] = useState('#7391FF')
+  const [buttonColor, setButtonColor] = useState('#7391FF')
+  const [buttonTextColor, setButtonTextColor] = useState('#FFFFFF')
 
   const { mutateAsync: createBranding, isPending } = useCreateEmailBranding()
   const { successNotification, errorNotification } = useNotification()
 
+  const resetForm = () => {
+    setName('')
+    setBrandName('')
+    setLogoRemoteURL('')
+    setIsDefault(false)
+    setFontFamily(EmailBrandingFont.HELVETICA)
+    setTextColor('#333333')
+    setBackgroundColor('#FFFFFF')
+    setPrimaryColor('#7391FF')
+    setSecondaryColor('#6B7280')
+    setLinkColor('#7391FF')
+    setButtonColor('#7391FF')
+    setButtonTextColor('#FFFFFF')
+  }
+
+  const handleClose = () => {
+    resetForm()
+    onClose()
+  }
+
   const handleSave = async () => {
+    if (!name.trim()) return
+
     try {
       const result = await createBranding({
         input: {
-          name: `Campaign Branding ${Date.now()}`,
+          name: name.trim(),
+          brandName: brandName.trim() || undefined,
+          logoRemoteURL: logoRemoteURL.trim() || undefined,
+          isDefault,
           fontFamily,
-          textColor: foregroundColor,
+          textColor,
           backgroundColor,
-          primaryColor: accentColor,
-          secondaryColor: secondaryForegroundColor,
-          buttonColor: secondaryBackgroundColor,
+          primaryColor,
+          secondaryColor,
+          linkColor,
+          buttonColor,
+          buttonTextColor,
         },
       })
 
       const brandingId = result?.createEmailBranding?.emailBranding?.id
       if (brandingId) {
-        successNotification({ title: 'Email branding saved' })
+        successNotification({ title: 'Email branding created' })
+        resetForm()
         onSave(brandingId)
       }
     } catch (error) {
@@ -60,7 +96,7 @@ export const EmailBrandingPanel: React.FC<EmailBrandingPanelProps> = ({ open, on
   }
 
   return (
-    <Sheet open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
+    <Sheet open={open} onOpenChange={(isOpen) => !isOpen && handleClose()}>
       <SheetContent
         side="right"
         className="flex flex-col"
@@ -70,51 +106,122 @@ export const EmailBrandingPanel: React.FC<EmailBrandingPanelProps> = ({ open, on
           <SheetHeader>
             <SheetTitle className="sr-only">Email Branding</SheetTitle>
             <div className="flex flex-col gap-3">
-              <div className="text-sm text-muted-foreground">Campaign Template / Email Branding</div>
+              <div className="text-sm text-muted-foreground">
+                Campaign Template / <span className="font-semibold text-foreground">Create Branding</span>
+              </div>
               <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold">Email Branding</h2>
-                <button type="button" onClick={onClose} className="cursor-pointer mr-6">
+                <div className="flex items-center gap-2">
+                  <Button variant="secondary" onClick={handleClose} disabled={isPending}>
+                    Cancel
+                  </Button>
+                  <Button variant="primary" onClick={handleSave} disabled={isPending || !name.trim()} icon={<SaveIcon size={16} />} iconPosition="left">
+                    {isPending ? 'Saving...' : 'Save'}
+                  </Button>
+                </div>
+                <button type="button" onClick={handleClose} className="cursor-pointer mr-6">
                   <X size={16} />
                 </button>
-              </div>
-              <div className="flex items-center gap-2">
-                <CancelButton onClick={onClose} disabled={isPending} />
-                <Button variant="primary" onClick={handleSave} disabled={isPending} icon={<SaveIcon size={16} />} iconPosition="left">
-                  {isPending ? 'Saving...' : 'Save'}
-                </Button>
               </div>
             </div>
           </SheetHeader>
         }
       >
         <div className="flex flex-col gap-6 mt-2">
-          <div className="flex flex-col gap-1.5">
-            <label className="text-sm font-medium">Font</label>
-            <Select value={fontFamily} onValueChange={(val) => setFontFamily(val as EmailBrandingFont)}>
-              <SelectTrigger className="w-full">{getEnumLabel(fontFamily)}</SelectTrigger>
-              <SelectContent>
-                {FONT_OPTIONS.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          {/* Default Toggle */}
+          <div className="flex items-center justify-between rounded-lg border border-border bg-card p-4">
+            <span className="text-sm font-semibold">Set as Default</span>
+            <Switch checked={isDefault} onCheckedChange={setIsDefault} />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <ColorInput label="Foreground Color" value={foregroundColor} onChange={setForegroundColor} />
-            <ColorInput label="Background Color" value={backgroundColor} onChange={setBackgroundColor} />
-          </div>
+          <Accordion type="multiple" defaultValue={['basic', 'colors', 'button']} className="flex flex-col gap-6">
+            {/* Basic Section */}
+            <AccordionItem value="basic" className="rounded-lg border border-border bg-card overflow-hidden">
+              <AccordionTrigger asChild>
+                <div className="flex items-center justify-between w-full px-4 py-3 cursor-pointer group">
+                  <span className="text-sm font-semibold">Basic</span>
+                  <ChevronDown size={18} className="text-muted-foreground transform transition-transform group-data-[state=open]:rotate-180" />
+                </div>
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="border-t border-border px-4 py-4 flex flex-col gap-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-sm font-medium">
+                        Name<span className="text-destructive">*</span>
+                      </label>
+                      <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Corporate Branding" />
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                      <label className="text-sm font-medium">Brand Name</label>
+                      <Input value={brandName} onChange={(e) => setBrandName(e.target.value)} placeholder="e.g. Openlane" />
+                    </div>
+                  </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <ColorInput label="Accent/Brand Color" value={accentColor} onChange={setAccentColor} />
-            <ColorInput label="Secondary Foreground Color" value={secondaryForegroundColor} onChange={setSecondaryForegroundColor} />
-          </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-sm font-medium">Logo URL</label>
+                    <Input value={logoRemoteURL} onChange={(e) => setLogoRemoteURL(e.target.value)} placeholder="https://example.com/logo.png" />
+                  </div>
 
-          <div className="w-1/2">
-            <ColorInput label="Secondary Background Color" value={secondaryBackgroundColor} onChange={setSecondaryBackgroundColor} />
-          </div>
+                  <div className="flex flex-col gap-1.5">
+                    <label className="text-sm font-medium">Font</label>
+                    <Select value={fontFamily} onValueChange={(val) => setFontFamily(val as EmailBrandingFont)}>
+                      <SelectTrigger className="w-full">{getEnumLabel(fontFamily)}</SelectTrigger>
+                      <SelectContent>
+                        {FONT_OPTIONS.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+
+            {/* Colors Section */}
+            <AccordionItem value="colors" className="rounded-lg border border-border bg-card overflow-hidden">
+              <AccordionTrigger asChild>
+                <div className="flex items-center justify-between w-full px-4 py-3 cursor-pointer group">
+                  <span className="text-sm font-semibold">Colors</span>
+                  <ChevronDown size={18} className="text-muted-foreground transform transition-transform group-data-[state=open]:rotate-180" />
+                </div>
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="border-t border-border px-4 py-4 flex flex-col gap-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <ColorInput label="Text Color" value={textColor} onChange={setTextColor} />
+                    <ColorInput label="Background Color" value={backgroundColor} onChange={setBackgroundColor} />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <ColorInput label="Primary Color" value={primaryColor} onChange={setPrimaryColor} />
+                    <ColorInput label="Secondary Color" value={secondaryColor} onChange={setSecondaryColor} />
+                  </div>
+                  <div className="w-1/2">
+                    <ColorInput label="Link Color" value={linkColor} onChange={setLinkColor} />
+                  </div>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+
+            {/* Button Styles Section */}
+            <AccordionItem value="button" className="rounded-lg border border-border bg-card overflow-hidden">
+              <AccordionTrigger asChild>
+                <div className="flex items-center justify-between w-full px-4 py-3 cursor-pointer group">
+                  <span className="text-sm font-semibold">Button Styles</span>
+                  <ChevronDown size={18} className="text-muted-foreground transform transition-transform group-data-[state=open]:rotate-180" />
+                </div>
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="border-t border-border px-4 py-4 flex flex-col gap-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <ColorInput label="Button Color" value={buttonColor} onChange={setButtonColor} />
+                    <ColorInput label="Button Text Color" value={buttonTextColor} onChange={setButtonTextColor} />
+                  </div>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
         </div>
       </SheetContent>
     </Sheet>

@@ -37,64 +37,64 @@ export const ScheduleStep: React.FC<ScheduleStepProps> = ({ form }) => {
       />
 
       {!sendImmediately && (
-        <>
-          <FormField
-            control={form.control}
-            name="dueDate"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Due Date</FormLabel>
-                <FormControl>
-                  <CalendarPopover
-                    field={{
-                      value: field.value ?? '',
-                      onChange: (val: string) => field.onChange(val || null),
-                      onBlur: field.onBlur,
-                      name: field.name,
-                      ref: field.ref,
-                    }}
-                  />
-                </FormControl>
-                <p className="text-xs text-muted-foreground">The due date is when you want a response to be completed by.</p>
-              </FormItem>
-            )}
-          />
+        <FormField
+          control={form.control}
+          name="scheduledAt"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>First Run Date</FormLabel>
+              <FormControl>
+                <CalendarPopover
+                  field={{
+                    value: field.value ?? '',
+                    onChange: (val: string) => field.onChange(val || null),
+                    onBlur: field.onBlur,
+                    name: field.name,
+                    ref: field.ref,
+                  }}
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+      )}
 
-          <FormField
-            control={form.control}
-            name="scheduledAt"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>First Run Date</FormLabel>
-                <FormControl>
-                  <CalendarPopover
-                    field={{
-                      value: field.value ?? '',
-                      onChange: (val: string) => field.onChange(val || null),
-                      onBlur: field.onBlur,
-                      name: field.name,
-                      ref: field.ref,
-                    }}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
+      <FormField
+        control={form.control}
+        name="dueDate"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Due Date</FormLabel>
+            <FormControl>
+              <CalendarPopover
+                field={{
+                  value: field.value ?? '',
+                  onChange: (val: string) => field.onChange(val || null),
+                  onBlur: field.onBlur,
+                  name: field.name,
+                  ref: field.ref,
+                }}
+              />
+            </FormControl>
+            <p className="text-xs text-muted-foreground">The due date is when you want a response to be completed by.</p>
+          </FormItem>
+        )}
+      />
 
-          <FormField
-            control={form.control}
-            name="reminderEnabled"
-            render={({ field }) => (
-              <div className="flex items-center gap-3">
-                <Switch checked={field.value} onCheckedChange={field.onChange} />
-                <div>
-                  <p className="text-sm font-medium">Reminder</p>
-                  <p className="text-xs text-muted-foreground">If enabled, you will have a notification from us on your email.</p>
-                </div>
+      {!sendImmediately && (
+        <FormField
+          control={form.control}
+          name="reminderEnabled"
+          render={({ field }) => (
+            <div className="flex items-center gap-3">
+              <Switch checked={field.value} onCheckedChange={field.onChange} />
+              <div>
+                <p className="text-sm font-medium">Reminder</p>
+                <p className="text-xs text-muted-foreground">If enabled, you will have a notification from us on your email.</p>
               </div>
-            )}
-          />
-        </>
+            </div>
+          )}
+        />
       )}
     </div>
   )

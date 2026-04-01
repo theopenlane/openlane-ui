@@ -11,7 +11,9 @@ export const GET_ALL_EMAIL_TEMPLATES = gql`
           createdAt
           createdBy
           description
-          emailBrandingID
+          emailBranding {
+            id
+          }
           id
           integrationID
           jsonconfig
@@ -49,7 +51,9 @@ export const EMAIL_TEMPLATE = gql`
       createdAt
       createdBy
       description
-      emailBrandingID
+      emailBranding {
+        id
+      }
       id
       integrationID
       jsonconfig

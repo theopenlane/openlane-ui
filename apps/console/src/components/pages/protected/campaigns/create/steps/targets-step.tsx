@@ -47,7 +47,7 @@ export const TargetsStep: React.FC<TargetsStepProps> = ({ targets, onTargetsChan
         <TabsTrigger value="saved">Saved List</TabsTrigger>
       </TabsList>
 
-      <TabsContent value="csv" className="mt-4">
+      <TabsContent value="csv" forceMount className={`mt-4 ${activeTab !== 'csv' ? 'hidden' : ''}`}>
         <div className="flex flex-col gap-2">
           <label className="text-sm font-medium">Upload (CSV)</label>
           {uploadedFile ? (
@@ -63,7 +63,7 @@ export const TargetsStep: React.FC<TargetsStepProps> = ({ targets, onTargetsChan
         </div>
       </TabsContent>
 
-      <TabsContent value="manual" className="mt-4">
+      <TabsContent value="manual" forceMount className={`mt-4 ${activeTab !== 'manual' ? 'hidden' : ''}`}>
         <div className="flex flex-col gap-2">
           <label className="text-sm font-medium">Enter emails</label>
           <MultipleSelector
@@ -83,7 +83,7 @@ export const TargetsStep: React.FC<TargetsStepProps> = ({ targets, onTargetsChan
         </div>
       </TabsContent>
 
-      <TabsContent value="saved" className="mt-4">
+      <TabsContent value="saved" forceMount className={`mt-4 ${activeTab !== 'saved' ? 'hidden' : ''}`}>
         <div className="text-sm text-muted-foreground p-4 text-center border border-dashed border-border rounded-md">Saved lists will be available in a future update.</div>
       </TabsContent>
     </Tabs>
