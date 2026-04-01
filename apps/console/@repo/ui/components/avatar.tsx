@@ -9,7 +9,7 @@ function Avatar({
   className,
   size = 'default',
   ...props
-}: React.ComponentProps<typeof AvatarPrimitive.Root> & {
+}: Omit<React.ComponentProps<typeof AvatarPrimitive.Root>, 'key'> & {
   size?: 'default' | 'sm' | 'lg'
 }) {
   return (
@@ -22,11 +22,11 @@ function Avatar({
   )
 }
 
-function AvatarImage({ className, ...props }: React.ComponentProps<typeof AvatarPrimitive.Image>) {
+function AvatarImage({ className, ...props }: Omit<React.ComponentProps<typeof AvatarPrimitive.Image>, 'key'>) {
   return <AvatarPrimitive.Image data-slot="avatar-image" className={cn('aspect-square size-full', className)} {...props} />
 }
 
-function AvatarFallback({ className, ...props }: React.ComponentProps<typeof AvatarPrimitive.Fallback>) {
+function AvatarFallback({ className, ...props }: Omit<React.ComponentProps<typeof AvatarPrimitive.Fallback>, 'key'>) {
   return (
     <AvatarPrimitive.Fallback
       data-slot="avatar-fallback"

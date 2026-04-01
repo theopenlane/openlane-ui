@@ -57,7 +57,7 @@ const EvidenceRenewDialog: React.FC<TEvidenceRenewDialog> = ({ evidenceId, contr
 
     try {
       await createEvidence({
-        input: { ...data, collectionProcedure },
+        input: { ...data, collectionProcedure, creationDate: data.creationDate?.toISOString(), renewalDate: data.renewalDate?.toISOString() },
         evidenceFiles: evidenceFiles?.map((item) => item.file) || [],
       })
       setIsOpen(false)
