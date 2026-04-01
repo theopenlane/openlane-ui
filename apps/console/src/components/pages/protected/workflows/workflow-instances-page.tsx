@@ -67,10 +67,20 @@ const WorkflowInstancesPage = () => {
                     </TableCell>
                     <TableCell className="px-4 py-2">
                       <div className="flex flex-wrap gap-2">
-                        <Badge variant="secondary" className="text-xs">Pending: {pending}</Badge>
-                        <Badge variant="outline" className="text-xs">Approved: {approved}</Badge>
-                        <Badge variant="outline" className="text-xs">Rejected: {rejected}</Badge>
-                        {changesRequested > 0 && <Badge variant="outline" className="text-xs">Changes: {changesRequested}</Badge>}
+                        <Badge variant="secondary" className="text-xs">
+                          Pending: {pending}
+                        </Badge>
+                        <Badge variant="outline" className="text-xs">
+                          Approved: {approved}
+                        </Badge>
+                        <Badge variant="outline" className="text-xs">
+                          Rejected: {rejected}
+                        </Badge>
+                        {changesRequested > 0 && (
+                          <Badge variant="outline" className="text-xs">
+                            Changes: {changesRequested}
+                          </Badge>
+                        )}
                       </div>
                     </TableCell>
                     <TableCell className="px-4 py-2">{formatDateSince(instance.updatedAt)}</TableCell>

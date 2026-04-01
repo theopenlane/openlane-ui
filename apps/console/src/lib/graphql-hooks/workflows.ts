@@ -9,8 +9,7 @@ import {
   REASSIGN_WORKFLOW_ASSIGNMENT,
 } from '@repo/codegen/query/workflows'
 import { GET_ALL_WORKFLOW_INSTANCES } from '@repo/codegen/query/workflow-instance'
-import { WorkflowInstance, WorkflowInstanceWhereInput, WorkflowAssignment, WorkflowAssignmentOrder, WorkflowAssignmentWhereInput, WorkflowDefinitionWhereInput, WorkflowDefinitionOrder } from '@repo/codegen/src/schema'
-import { GET_ALL_WORKFLOW_DEFINITIONS } from '@repo/codegen/query/workflow-definition'
+import type { WorkflowInstance, WorkflowInstanceWhereInput } from '@repo/codegen/src/schema'
 
 type WorkflowFieldMetadata = {
   name: string
@@ -36,15 +35,6 @@ type WorkflowInstancesResponse = {
   workflowInstances: {
     edges: { node?: WorkflowInstance | null }[]
   }
-}
-
-type WorkflowAssignmentsResponse = {
-  organization?: {
-    workflowAssignments: {
-      totalCount: number
-      edges: { node?: WorkflowAssignment | null }[]
-    }
-  } | null
 }
 
 type WorkflowProposal = {

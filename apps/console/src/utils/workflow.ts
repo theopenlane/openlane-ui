@@ -1,16 +1,16 @@
 export type ApprovalTiming = 'PRE_COMMIT' | 'POST_COMMIT'
 
-export const parseWorkflowDefinition = (value: unknown): Record<string, any> => {
+export const parseWorkflowDefinition = (value: unknown): Record<string, unknown> => {
   if (!value) return {}
   if (typeof value === 'string') {
     try {
-      return JSON.parse(value) as Record<string, any>
+      return JSON.parse(value) as Record<string, unknown>
     } catch {
       return {}
     }
   }
   if (typeof value === 'object') {
-    return value as Record<string, any>
+    return value as Record<string, unknown>
   }
   return {}
 }
@@ -31,8 +31,7 @@ export const resolveApprovalTiming = (definition: unknown): ApprovalTiming => {
   return normalizeApprovalTiming(doc?.approvalTiming)
 }
 
-export const formatApprovalTimingLabel = (timing: ApprovalTiming) =>
-  timing === 'POST_COMMIT' ? 'Post-commit' : 'Pre-commit'
+export const formatApprovalTimingLabel = (timing: ApprovalTiming) => (timing === 'POST_COMMIT' ? 'Post-commit' : 'Pre-commit')
 
 export const definitionHasApprovalAction = (definition: unknown) => {
   const doc = parseWorkflowDefinition(definition)

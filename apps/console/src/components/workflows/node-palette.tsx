@@ -38,14 +38,7 @@ export function NodePalette({ onAddNode }: NodePaletteProps) {
           <Input placeholder="Search nodes..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-8" />
         </div>
         {filteredNodes.map((node) => (
-          <Button
-            key={node.type}
-            variant="outline"
-            className="w-full justify-start"
-            onClick={() => onAddNode(node.type)}
-            draggable
-            onDragStart={(event) => handleDragStart(event, node.type)}
-          >
+          <Button key={node.type} variant="outline" className="w-full justify-start" onClick={() => onAddNode(node.type)} draggable onDragStart={(event) => handleDragStart(event, node.type)}>
             <div className={`h-3 w-3 rounded-full ${node.color} mr-2`} />
             <Plus className="h-3 w-3 mr-1" />
             {node.label}

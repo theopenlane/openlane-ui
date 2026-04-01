@@ -14,16 +14,11 @@ import { WorkflowVisualEditor } from '@/components/workflows/workflow-visual-edi
 import { WorkflowFormEditor } from '@/components/workflows/workflow-form-editor'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import {
-  useWorkflowMetadata,
-} from '@/lib/graphql-hooks/workflows'
+import { useWorkflowMetadata } from '@/lib/graphql-hooks/workflows'
 import { useWorkflowDefinition, useCreateWorkflowDefinition, useUpdateWorkflowDefinition } from '@/lib/graphql-hooks/workflow-definition'
 import { getWorkflowTemplateById } from '@/lib/workflow-templates'
-import {
-  CreateWorkflowDefinitionInput,
-  UpdateWorkflowDefinitionInput,
-  WorkflowDefinitionWorkflowKind,
-} from '@repo/codegen/src/schema'
+import type { CreateWorkflowDefinitionInput, UpdateWorkflowDefinitionInput } from '@repo/codegen/src/schema'
+import { WorkflowDefinitionWorkflowKind } from '@repo/codegen/src/schema'
 
 const DEFAULT_VERSION = '1.0'
 const DEFAULT_APPROVAL_TIMING = 'PRE_COMMIT'
@@ -40,10 +35,10 @@ type WorkflowDocument = {
   approvalTiming?: ApprovalTiming
   approvalSubmissionMode?: ApprovalSubmissionMode
   version?: string
-  targets?: any
-  triggers?: any[]
-  conditions?: any[]
-  actions?: any[]
+  targets?: Record<string, unknown>
+  triggers?: Record<string, unknown>[]
+  conditions?: Record<string, unknown>[]
+  actions?: Record<string, unknown>[]
   metadata?: Record<string, unknown>
 }
 
@@ -65,10 +60,10 @@ const parseDefinitionJSON = (value: unknown): WorkflowDocument => {
   return value as WorkflowDocument
 }
 
-const sanitizeActions = (actions: any[]) =>
+const sanitizeActions = (actions: Record<string, unknown>[]) =>
   actions.map((action) => {
     if (!action) return action
-    const params = { ...(action.params || {}) }
+    const params = { ...((action.params as Record<string, unknown>) || {}) }
     if (action.type === 'REQUEST_APPROVAL' || action.type === 'REVIEW') {
       if (!Array.isArray(params.targets)) {
         params.targets = []
@@ -87,7 +82,7 @@ export default function WorkflowEditor() {
   const template = useMemo(() => (templateId ? getWorkflowTemplateById(templateId) : undefined), [templateId])
 
   const { objectTypes, isLoading: isLoadingMetadata } = useWorkflowMetadata()
-  const { data: definition, isLoading: isLoadingDefinition } = useWorkflowDefinition(workflowId!)
+  const { data: definition, isLoading: isLoadingDefinition } = useWorkflowDefinition(workflowId ?? '')
   const createMutation = useCreateWorkflowDefinition()
   const updateMutation = useUpdateWorkflowDefinition()
   const { successNotification, errorNotification } = useNotification()
@@ -102,9 +97,9 @@ export default function WorkflowEditor() {
   const [draft, setDraft] = useState(true)
   const [isDefault, setIsDefault] = useState(false)
   const [cooldownSeconds, setCooldownSeconds] = useState(0)
-  const [triggers, setTriggers] = useState<any[]>([])
-  const [conditions, setConditions] = useState<any[]>([])
-  const [actions, setActions] = useState<any[]>([])
+  const [triggers, setTriggers] = useState<Record<string, unknown>[]>([])
+  const [conditions, setConditions] = useState<Record<string, unknown>[]>([])
+  const [actions, setActions] = useState<Record<string, unknown>[]>([])
   const [editorMode, setEditorMode] = useState<'visual' | 'form'>(templateId ? 'form' : 'visual')
 
   useEffect(() => {
@@ -182,8 +177,7 @@ export default function WorkflowEditor() {
       schemaType,
       workflowKind,
       approvalTiming: workflowKind === WorkflowDefinitionWorkflowKind.APPROVAL ? approvalTiming : undefined,
-      approvalSubmissionMode:
-        workflowKind === WorkflowDefinitionWorkflowKind.APPROVAL ? DEFAULT_APPROVAL_SUBMISSION_MODE : undefined,
+      approvalSubmissionMode: workflowKind === WorkflowDefinitionWorkflowKind.APPROVAL ? DEFAULT_APPROVAL_SUBMISSION_MODE : undefined,
       version: DEFAULT_VERSION,
       targets: {},
       triggers,
@@ -318,12 +312,7 @@ export default function WorkflowEditor() {
 
           <div className="space-y-2">
             <Label>Cooldown (seconds)</Label>
-            <Input
-              type="number"
-              min="0"
-              value={cooldownSeconds}
-              onChange={(e) => setCooldownSeconds(Number(e.target.value) || 0)}
-            />
+            <Input type="number" min="0" value={cooldownSeconds} onChange={(e) => setCooldownSeconds(Number(e.target.value) || 0)} />
           </div>
 
           <div className="flex items-center justify-between">

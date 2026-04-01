@@ -9,13 +9,7 @@ import { formatDistanceToNow } from 'date-fns'
 import { Textarea } from '@repo/ui/textarea'
 import { Label } from '@repo/ui/label'
 import { WorkflowStatusBadge } from '@/components/workflows/workflow-status-badge'
-import {
-  useApproveAssignment,
-  useRejectAssignment,
-  useRequestChangesAssignment,
-  useWorkflowInstancesForObject,
-  useWorkflowProposalsForObject,
-} from '@/lib/graphql-hooks/workflows'
+import { useApproveAssignment, useRejectAssignment, useRequestChangesAssignment, useWorkflowInstancesForObject, useWorkflowProposalsForObject } from '@/lib/graphql-hooks/workflows'
 import { useNotification } from '@/hooks/useNotification'
 import { definitionHasApprovalAction, definitionHasApprovalTiming, resolveApprovalTiming } from '@/utils/workflow'
 
@@ -57,6 +51,7 @@ export function ObjectWorkflowPanel({ objectId, objectType, objectLabel }: Objec
   const requestChangesMutation = useRequestChangesAssignment()
 
   const pendingAssignments = useMemo(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const assignments: any[] = []
     if (!instances || !Array.isArray(instances)) return assignments
 
@@ -100,7 +95,7 @@ export function ObjectWorkflowPanel({ objectId, objectType, objectLabel }: Objec
         return null
       }
       return parsed
-    } catch (error) {
+    } catch {
       errorNotification({
         title: 'Invalid JSON',
         description: 'Please provide valid JSON for the change request inputs.',
@@ -170,12 +165,7 @@ export function ObjectWorkflowPanel({ objectId, objectType, objectLabel }: Objec
         ? `${objectLabel} has staged workflow proposals`
         : `This ${objectTypeLabel.toLowerCase()} has staged workflow proposals`
   const headerCount = pendingAssignments.length > 0 ? pendingAssignments.length : proposals.length
-  const headerCountLabel =
-    pendingAssignments.length > 0
-      ? 'pending'
-      : proposals.length === 1
-        ? 'proposal'
-        : 'proposals'
+  const headerCountLabel = pendingAssignments.length > 0 ? 'pending' : proposals.length === 1 ? 'proposal' : 'proposals'
 
   return (
     <Card className="border-amber-500">
@@ -195,34 +185,29 @@ export function ObjectWorkflowPanel({ objectId, objectType, objectLabel }: Objec
       </CardHeader>
       <CardContent className="space-y-4">
         {pendingAssignments.map((assignment) => {
-          const definitionDoc =
-            assignment.workflowInstance?.workflowDefinition?.definitionJSON ?? assignment.workflowInstance?.definitionSnapshot
+          const definitionDoc = assignment.workflowInstance?.workflowDefinition?.definitionJSON ?? assignment.workflowInstance?.definitionSnapshot
           const hasApprovalAction = definitionHasApprovalAction(definitionDoc)
           const hasApprovalTiming = definitionHasApprovalTiming(definitionDoc)
           const approvalTiming = hasApprovalAction || hasApprovalTiming ? resolveApprovalTiming(definitionDoc) : undefined
           const isPostCommit = approvalTiming === 'POST_COMMIT'
-          const proposedChanges = (assignment.workflowInstance?.context as { triggerProposedChanges?: Record<string, unknown> } | undefined)
-            ?.triggerProposedChanges
-          const proposedChangesText =
-            proposedChanges && Object.keys(proposedChanges).length > 0 ? JSON.stringify(proposedChanges, null, 2) : ''
+          const proposedChanges = (assignment.workflowInstance?.context as { triggerProposedChanges?: Record<string, unknown> } | undefined)?.triggerProposedChanges
+          const proposedChangesText = proposedChanges && Object.keys(proposedChanges).length > 0 ? JSON.stringify(proposedChanges, null, 2) : ''
 
           return (
             <div key={assignment.id} className="border rounded-lg p-4 space-y-3">
               <div className="flex items-start justify-between">
                 <div className="space-y-1">
                   <p className="font-medium">{assignment.label || assignment.assignmentKey}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {assignment.workflowInstance?.workflowDefinition?.name || 'Workflow'}
-                  </p>
-                  {assignment.createdAt && (
-                    <p className="text-xs text-muted-foreground">
-                      Requested {formatDistanceToNow(new Date(assignment.createdAt), { addSuffix: true })}
-                    </p>
-                  )}
+                  <p className="text-sm text-muted-foreground">{assignment.workflowInstance?.workflowDefinition?.name || 'Workflow'}</p>
+                  {assignment.createdAt && <p className="text-xs text-muted-foreground">Requested {formatDistanceToNow(new Date(assignment.createdAt), { addSuffix: true })}</p>}
                 </div>
                 <div className="flex flex-col items-end gap-2">
                   <WorkflowStatusBadge status={assignment.status || 'PENDING'} size="sm" />
-                  {(hasApprovalAction || hasApprovalTiming) && isPostCommit && <Badge variant="outline" className="text-xs">Post-commit</Badge>}
+                  {(hasApprovalAction || hasApprovalTiming) && isPostCommit && (
+                    <Badge variant="outline" className="text-xs">
+                      Post-commit
+                    </Badge>
+                  )}
                 </div>
               </div>
 
@@ -253,21 +238,11 @@ export function ObjectWorkflowPanel({ objectId, objectType, objectLabel }: Objec
                 <div className="space-y-3">
                   <div className="space-y-2">
                     <Label>Change request</Label>
-                    <Textarea
-                      value={changeRequestReason}
-                      onChange={(e) => setChangeRequestReason(e.target.value)}
-                      placeholder="Describe what needs to be updated"
-                      rows={3}
-                    />
+                    <Textarea value={changeRequestReason} onChange={(e) => setChangeRequestReason(e.target.value)} placeholder="Describe what needs to be updated" rows={3} />
                   </div>
                   <div className="space-y-2">
                     <Label>Inputs (JSON)</Label>
-                    <Textarea
-                      value={changeRequestInputs}
-                      onChange={(e) => setChangeRequestInputs(e.target.value)}
-                      placeholder='{"field":"value"}'
-                      rows={3}
-                    />
+                    <Textarea value={changeRequestInputs} onChange={(e) => setChangeRequestInputs(e.target.value)} placeholder='{"field":"value"}' rows={3} />
                   </div>
                   <div className="flex gap-2">
                     <Button size="sm" onClick={() => handleRequestChanges(assignment.id)} disabled={requestChangesMutation.isPending}>
@@ -278,66 +253,61 @@ export function ObjectWorkflowPanel({ objectId, objectType, objectLabel }: Objec
                     </Button>
                   </div>
                 </div>
-            ) : showRejectForm && selectedAssignmentId === assignment.id ? (
-              <div className="space-y-3">
-                <div className="space-y-2">
-                  <Label>Rejection Reason</Label>
-                  <Textarea
-                    value={rejectReason}
-                    onChange={(e) => setRejectReason(e.target.value)}
-                    placeholder="Please provide a reason for rejection..."
-                    rows={3}
-                  />
+              ) : showRejectForm && selectedAssignmentId === assignment.id ? (
+                <div className="space-y-3">
+                  <div className="space-y-2">
+                    <Label>Rejection Reason</Label>
+                    <Textarea value={rejectReason} onChange={(e) => setRejectReason(e.target.value)} placeholder="Please provide a reason for rejection..." rows={3} />
+                  </div>
+                  <div className="flex gap-2">
+                    <Button size="sm" variant="destructive" onClick={() => handleReject(assignment.id)} disabled={rejectMutation.isPending}>
+                      {rejectMutation.isPending ? 'Rejecting...' : 'Confirm Rejection'}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      onClick={() => {
+                        resetDecisionState()
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
                 </div>
+              ) : (
                 <div className="flex gap-2">
-                  <Button size="sm" variant="destructive" onClick={() => handleReject(assignment.id)} disabled={rejectMutation.isPending}>
-                    {rejectMutation.isPending ? 'Rejecting...' : 'Confirm Rejection'}
+                  <Button size="sm" onClick={() => handleApprove(assignment.id)} disabled={approveMutation.isPending}>
+                    <CheckCircle className="h-4 w-4 mr-1" />
+                    {approveMutation.isPending ? 'Approving...' : 'Approve'}
                   </Button>
                   <Button
                     size="sm"
                     variant="secondary"
                     onClick={() => {
-                      resetDecisionState()
+                      setSelectedAssignmentId(assignment.id)
+                      setShowChangeRequestForm(true)
+                      setShowRejectForm(false)
+                      setChangeRequestReason('')
+                      setChangeRequestInputs('')
                     }}
                   >
-                    Cancel
+                    Request changes
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => {
+                      setSelectedAssignmentId(assignment.id)
+                      setShowRejectForm(true)
+                      setShowChangeRequestForm(false)
+                      setRejectReason('')
+                    }}
+                  >
+                    <XCircle className="h-4 w-4 mr-1" />
+                    Reject
                   </Button>
                 </div>
-              </div>
-            ) : (
-              <div className="flex gap-2">
-                <Button size="sm" onClick={() => handleApprove(assignment.id)} disabled={approveMutation.isPending}>
-                  <CheckCircle className="h-4 w-4 mr-1" />
-                  {approveMutation.isPending ? 'Approving...' : 'Approve'}
-                </Button>
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  onClick={() => {
-                    setSelectedAssignmentId(assignment.id)
-                    setShowChangeRequestForm(true)
-                    setShowRejectForm(false)
-                    setChangeRequestReason('')
-                    setChangeRequestInputs('')
-                  }}
-                >
-                  Request changes
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => {
-                    setSelectedAssignmentId(assignment.id)
-                    setShowRejectForm(true)
-                    setShowChangeRequestForm(false)
-                    setRejectReason('')
-                  }}
-                >
-                  <XCircle className="h-4 w-4 mr-1" />
-                  Reject
-                </Button>
-              </div>
-            )}
+              )}
             </div>
           )
         })}
@@ -355,10 +325,11 @@ export function ObjectWorkflowPanel({ objectId, objectType, objectLabel }: Objec
             </div>
 
             {proposals.map((proposal) => {
-              const changesObject =
-                proposal.changes && typeof proposal.changes === 'object' && !Array.isArray(proposal.changes) ? proposal.changes : null
+              const changesObject = proposal.changes && typeof proposal.changes === 'object' && !Array.isArray(proposal.changes) ? proposal.changes : null
               const proposalChanges = changesObject && Object.keys(changesObject).length > 0 ? JSON.stringify(changesObject, null, 2) : ''
-              const stateLabel = String(proposal.state || 'UNKNOWN').replace(/_/g, ' ').toLowerCase()
+              const stateLabel = String(proposal.state || 'UNKNOWN')
+                .replace(/_/g, ' ')
+                .toLowerCase()
               const stateDisplay = stateLabel.charAt(0).toUpperCase() + stateLabel.slice(1)
               const proposalIdSuffix = proposal.id ? proposal.id.slice(-6) : ''
               const updatedAt = proposal.updatedAt || proposal.createdAt
@@ -367,15 +338,9 @@ export function ObjectWorkflowPanel({ objectId, objectType, objectLabel }: Objec
                 <div key={proposal.id} className="border rounded-lg p-4 space-y-2">
                   <div className="flex items-start justify-between">
                     <div className="space-y-1">
-                      <p className="text-sm font-medium">
-                        Proposal {proposalIdSuffix ? `…${proposalIdSuffix}` : ''}
-                      </p>
+                      <p className="text-sm font-medium">Proposal {proposalIdSuffix ? `…${proposalIdSuffix}` : ''}</p>
                       {proposal.domainKey && <p className="text-xs text-muted-foreground">Domain: {proposal.domainKey}</p>}
-                      {updatedAt && (
-                        <p className="text-xs text-muted-foreground">
-                          Updated {formatDistanceToNow(new Date(updatedAt), { addSuffix: true })}
-                        </p>
-                      )}
+                      {updatedAt && <p className="text-xs text-muted-foreground">Updated {formatDistanceToNow(new Date(updatedAt), { addSuffix: true })}</p>}
                     </div>
                     <Badge variant="secondary" className="text-xs">
                       {stateDisplay}

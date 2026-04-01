@@ -41,10 +41,14 @@ const parseDefinition = (template: WorkflowTemplate) => {
       return undefined
     }
   }
-  return template.definitionJSON as any
+  return template.definitionJSON
 }
 
-const formatTrigger = (trigger?: any) => {
+type TriggerData = { operation?: string; fields?: string[]; edges?: string[] }
+type ActionData = { params?: { targets?: TargetData[] }; targets?: TargetData[] }
+type TargetData = { type?: string; resolver_key?: string; resolverKey?: string }
+
+const formatTrigger = (trigger?: TriggerData) => {
   if (!trigger) return '—'
   const operation = trigger.operation ? toHumanLabel(String(trigger.operation)) : '—'
   const fields = Array.isArray(trigger.fields) && trigger.fields.length > 0 ? `Fields: ${trigger.fields.join(', ')}` : ''
@@ -53,12 +57,12 @@ const formatTrigger = (trigger?: any) => {
   return detail ? `${operation} · ${detail}` : operation
 }
 
-const formatTargets = (action?: any) => {
+const formatTargets = (action?: ActionData) => {
   const targets = action?.params?.targets ?? action?.targets
   if (!Array.isArray(targets) || targets.length === 0) return '—'
 
   const labels = targets
-    .map((target: any) => {
+    .map((target: TargetData) => {
       const targetType = target?.type
       if (targetType === 'RESOLVER') {
         const key = target?.resolver_key || target?.resolverKey
@@ -84,7 +88,7 @@ const TemplateSummary = ({ template }: { template: WorkflowTemplate }) => {
   const triggers = Array.isArray(definition?.triggers) ? definition.triggers : []
   const actions = Array.isArray(definition?.actions) ? definition.actions : []
   const primaryAction = actions[0]
-  const goal = primaryAction?.type ? actionLabelMap[String(primaryAction.type)] ?? toHumanLabel(String(primaryAction.type)) : workflowKind
+  const goal = primaryAction?.type ? (actionLabelMap[String(primaryAction.type)] ?? toHumanLabel(String(primaryAction.type))) : workflowKind
 
   return (
     <div className="mt-auto rounded-lg border border-border/60 bg-muted/10 p-3">
@@ -122,9 +126,7 @@ const WorkflowTemplatesPage = () => {
               <Sparkles className="h-5 w-5 text-muted-foreground" />
               <h1>Workflow Templates</h1>
             </div>
-            <p className="text-sm text-muted-foreground">
-              Pick a pre-built workflow and customize it, or start from scratch. Templates map to the same definitions used by the workflow engine.
-            </p>
+            <p className="text-sm text-muted-foreground">Pick a pre-built workflow and customize it, or start from scratch. Templates map to the same definitions used by the workflow engine.</p>
           </div>
         }
       />
@@ -136,9 +138,7 @@ const WorkflowTemplatesPage = () => {
           <Card className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-xl p-4 hover:border-primary transition cursor-pointer">
             <div>
               <h2 className="text-base font-medium">Need something else?</h2>
-              <p className="text-sm text-muted-foreground">
-                Don&apos;t see a template that matches your use-case? Use our wizard to construct a definition.
-              </p>
+              <p className="text-sm text-muted-foreground">Don&apos;t see a template that matches your use-case? Use our wizard to construct a definition.</p>
             </div>
             <Button variant="secondary">Open wizard</Button>
           </Card>

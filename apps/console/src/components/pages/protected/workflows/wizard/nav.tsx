@@ -21,14 +21,6 @@ export const WizardStepNav = <T extends Step[]>({ stepper, enabledMap }: WizardS
 
         const textClass: string = isCurrent ? 'text-foreground font-medium' : isComplete ? 'text-primary' : isEnabled ? 'text-muted-foreground' : 'text-muted-foreground/50'
 
-        interface StepNavButtonProps {
-          canNavigate: boolean
-          onClick: () => void
-          textClass: string
-          dotClass: string
-          label: string
-        }
-
         return (
           <div key={step.id} className="flex items-center gap-2">
             <button

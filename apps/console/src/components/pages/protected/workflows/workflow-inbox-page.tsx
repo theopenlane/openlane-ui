@@ -12,11 +12,10 @@ import { Label } from '@repo/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { CheckCircle, UserPlus, XCircle } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
-import { useOrganization } from '@/hooks/useOrganization'
 import { useApproveAssignment, useReassignAssignment, useRejectAssignment, useRequestChangesAssignment } from '@/lib/graphql-hooks/workflows'
 import { useWorkflowAssignmentsWithFilter } from '@/lib/graphql-hooks/workflow-assignment'
 import { useUserSelect } from '@/lib/graphql-hooks/member'
-import { OrderDirection, WorkflowAssignment, WorkflowAssignmentOrderField, WorkflowAssignmentWhereInput, WorkflowAssignmentWorkflowAssignmentStatus } from '@repo/codegen/src/schema'
+import { OrderDirection, type WorkflowAssignment, WorkflowAssignmentOrderField, type WorkflowAssignmentWhereInput, WorkflowAssignmentWorkflowAssignmentStatus } from '@repo/codegen/src/schema'
 import { WorkflowStatusBadge } from '@/components/workflows/workflow-status-badge'
 import { useNotification } from '@/hooks/useNotification'
 import { getHrefForObjectType } from '@/utils/getHrefForObjectType'
@@ -46,7 +45,11 @@ const WorkflowInboxPage = () => {
     return filter
   }, [userId])
 
-  const { data: assignments, isLoading, refetch } = useWorkflowAssignmentsWithFilter({
+  const {
+    data: assignments,
+    isLoading,
+    refetch,
+  } = useWorkflowAssignmentsWithFilter({
     where,
     orderBy: [{ field: WorkflowAssignmentOrderField.created_at, direction: OrderDirection.DESC }],
   })
@@ -119,7 +122,7 @@ const WorkflowInboxPage = () => {
         return null
       }
       return parsed
-    } catch (error) {
+    } catch {
       errorNotification({
         title: 'Invalid JSON',
         description: 'Please provide valid JSON for the change request inputs.',

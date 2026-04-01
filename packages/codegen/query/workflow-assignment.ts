@@ -28,35 +28,35 @@ export const GET_ALL_WORKFLOW_ASSIGNMENTS = gql`
           updatedBy
           workflowInstanceID
           workflowInstance {
+            id
+            state
+            context
+            controlID
+            subcontrolID
+            evidenceID
+            internalPolicyID
+            procedureID
+            workflowDefinition {
               id
-              state
-              context
-              controlID
-              subcontrolID
-              evidenceID
-              internalPolicyID
-              procedureID
-              workflowDefinition {
+              name
+              schemaType
+              workflowKind
+              definitionJSON
+            }
+            definitionSnapshot
+          }
+          workflowAssignmentTargets {
+            totalCount
+            edges {
+              node {
                 id
-                name
-                schemaType
-                workflowKind
-                definitionJSON
+                targetType
+                targetUserID
+                targetGroupID
+                resolverKey
               }
-              definitionSnapshot
             }
-            workflowAssignmentTargets {
-              totalCount
-              edges {
-                node {
-                  id
-                  targetType
-                  targetUserID
-                  targetGroupID
-                  resolverKey
-              } 
-            }
-          } 
+          }
         }
       }
       pageInfo {

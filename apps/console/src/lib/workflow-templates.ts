@@ -16,16 +16,18 @@ type definitionJSON = {
   schemaType: string
   workflowKind: string
   version: string
-  triggers: [{
-    operation: string
-    objectType: string
-    fields?: string[]
-    edges?: string[]
-    expression?: string
-    description?: string
-  }]
-  conditions?: any[]
-  actions:{
+  triggers: [
+    {
+      operation: string
+      objectType: string
+      fields?: string[]
+      edges?: string[]
+      expression?: string
+      description?: string
+    },
+  ]
+  conditions?: { expression: string; description?: string }[]
+  actions: {
     key: string
     type: string
     description?: string
@@ -40,19 +42,19 @@ type definitionJSON = {
       required_count?: number
       label?: string
       fields?: string[]
-      updates?: Record<string, any>
+      updates?: Record<string, unknown>
       title?: string
       body?: string
       channels?: string[]
       url?: string
       method?: string
-      headers?: Record<string, any>
-      payload?: any
+      headers?: Record<string, string>
+      payload?: Record<string, unknown>
       timeout_ms?: number
-      data?: Record<string, any>
+      data?: Record<string, unknown>
     }
   }[]
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
 }
 
 export const WORKFLOW_TEMPLATES: WorkflowTemplate[] = [
@@ -356,7 +358,7 @@ export const WORKFLOW_TEMPLATES: WorkflowTemplate[] = [
       ],
       conditions: [
         {
-          expression: "'status' in changed_fields && object.status == \"APPROVED\"",
+          expression: '\'status\' in changed_fields && object.status == "APPROVED"',
           description: 'Only fire when status transitions to APPROVED',
         },
       ],
@@ -403,7 +405,7 @@ export const WORKFLOW_TEMPLATES: WorkflowTemplate[] = [
       ],
       conditions: [
         {
-          expression: "'status' in changed_fields && object.status == \"APPROVED\"",
+          expression: '\'status\' in changed_fields && object.status == "APPROVED"',
           description: 'Only when status transitions to APPROVED',
         },
       ],

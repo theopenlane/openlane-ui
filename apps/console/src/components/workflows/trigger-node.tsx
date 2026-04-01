@@ -1,7 +1,7 @@
 'use client'
 
 import { memo } from 'react'
-import { Handle, Position, type Node, NodeProps } from '@xyflow/react'
+import { Handle, Position, type Node, type NodeProps } from '@xyflow/react'
 import { Card } from '@repo/ui/cardpanel'
 import { AlertCircle } from 'lucide-react'
 
@@ -30,15 +30,9 @@ export const TriggerNode = memo(({ data, selected }: NodeProps<Node<TriggerNodeD
             {data.operation} {data.objectType}
           </p>
           {data.description && <p className="text-xs text-muted-foreground">{data.description}</p>}
-          {data.fields && data.fields.length > 0 && (
-            <p className="text-xs text-muted-foreground">Fields: {data.fields.join(', ')}</p>
-          )}
-          {data.edges && data.edges.length > 0 && (
-            <p className="text-xs text-muted-foreground">Edges: {data.edges.join(', ')}</p>
-          )}
-          {data.expression && (
-            <p className="text-xs text-muted-foreground">When: {data.expression}</p>
-          )}
+          {data.fields && data.fields.length > 0 && <p className="text-xs text-muted-foreground">Fields: {data.fields.join(', ')}</p>}
+          {data.edges && data.edges.length > 0 && <p className="text-xs text-muted-foreground">Edges: {data.edges.join(', ')}</p>}
+          {data.expression && <p className="text-xs text-muted-foreground">When: {data.expression}</p>}
         </div>
       </div>
       <Handle type="source" position={Position.Bottom} className="w-2 h-2" />

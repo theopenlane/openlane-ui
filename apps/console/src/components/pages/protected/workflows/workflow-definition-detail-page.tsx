@@ -44,9 +44,7 @@ const WorkflowDefinitionDetailPage = ({ workflowId }: WorkflowDefinitionDetailPa
 
   const definitionJSON = useMemo(() => {
     if (!definition?.workflowDefinition?.definitionJSON) return ''
-    return typeof definition.workflowDefinition.definitionJSON === 'string'
-      ? definition.workflowDefinition.definitionJSON
-      : JSON.stringify(definition.workflowDefinition.definitionJSON, null, 2)
+    return typeof definition.workflowDefinition.definitionJSON === 'string' ? definition.workflowDefinition.definitionJSON : JSON.stringify(definition.workflowDefinition.definitionJSON, null, 2)
   }, [definition])
 
   if (isLoading) {
@@ -94,7 +92,11 @@ const WorkflowDefinitionDetailPage = ({ workflowId }: WorkflowDefinitionDetailPa
               <p className="text-xs text-muted-foreground">Action summary</p>
               <div className="flex flex-wrap items-center gap-2">
                 <p className="font-medium">{actionSummary}</p>
-                {showTiming && <Badge variant="outline" className="text-xs">{approvalTimingLabel}</Badge>}
+                {showTiming && (
+                  <Badge variant="outline" className="text-xs">
+                    {approvalTimingLabel}
+                  </Badge>
+                )}
               </div>
             </div>
             <div>
