@@ -1,6 +1,7 @@
 import {
   CircleDot,
   FolderPen,
+  Bot,
   Key,
   UserRoundCheck,
   UserRoundPen,
@@ -70,6 +71,8 @@ export enum FilterIconName {
   LinkedPolicies = 'LinkedPolicies',
   Comments = 'Comments',
   Reference = 'Reference',
+  Description = 'Description',
+  IsAutomated = 'IsAutomated',
 }
 
 export const FilterIcons: Record<FilterIconName, LucideIcon> = {
@@ -108,4 +111,6 @@ export const FilterIcons: Record<FilterIconName, LucideIcon> = {
   [FilterIconName.LinkedPolicies]: Link,
   [FilterIconName.Comments]: MessageCircle,
   [FilterIconName.Reference]: BookMarked,
+  [FilterIconName.Description]: FileText,
+  [FilterIconName.IsAutomated]: Bot,
 }
