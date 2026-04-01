@@ -1,6 +1,7 @@
 'use client'
 
-import React, { useRef, useState } from 'react'
+import React, { useMemo, useRef, useState } from 'react'
+import DOMPurify from 'dompurify'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
@@ -43,6 +44,7 @@ export const CreateTemplateSheet: React.FC<CreateTemplateSheetProps> = ({ open, 
   const [brandingPanelOpen, setBrandingPanelOpen] = useState(false)
 
   const bodyRef = useRef<HTMLTextAreaElement>(null)
+  const sanitizedBody = useMemo(() => DOMPurify.sanitize(bodyTemplate || '<em>No body content</em>'), [bodyTemplate])
 
   const { mutateAsync: createEmailTemplate, isPending } = useCreateEmailTemplate()
   const { successNotification, errorNotification } = useNotification()
@@ -316,7 +318,7 @@ export const CreateTemplateSheet: React.FC<CreateTemplateSheetProps> = ({ open, 
                         <div>
                           <p className="text-xs text-muted-foreground mb-1">Body</p>
                           {format === EmailTemplateNotificationTemplateFormat.HTML ? (
-                            <div className="prose prose-sm dark:prose-invert max-w-none text-sm" dangerouslySetInnerHTML={{ __html: bodyTemplate || '<em>No body content</em>' }} />
+                            <div className="prose prose-sm dark:prose-invert max-w-none text-sm" dangerouslySetInnerHTML={{ __html: sanitizedBody }} />
                           ) : (
                             <pre className="text-sm whitespace-pre-wrap">{bodyTemplate || '(No body content)'}</pre>
                           )}
