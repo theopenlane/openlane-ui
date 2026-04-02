@@ -28,6 +28,8 @@ import {
   type GetStandardsPaginatedQuery,
   type GetStandardsPaginatedQueryVariables,
   type StandardWhereInput,
+  OrderDirection,
+  StandardOrderField,
 } from '@repo/codegen/src/schema'
 import { useMemo } from 'react'
 import { type TPagination } from '@repo/ui/pagination-types'
@@ -169,6 +171,7 @@ export const useGetAllStandardsInfinite = ({ where = {}, pagination, enabled = t
         first: pagination.query.first,
         after: pageParam ?? undefined,
         where,
+        orderBy: [{ field: StandardOrderField.short_name, direction: OrderDirection.ASC }],
       }),
 
     getNextPageParam: (lastPage) => {
