@@ -168,19 +168,36 @@ const PlateEditor = ({ onChange, initialValue, variant = 'basic', styleVariant, 
     if (plateEditor && !initialValueSet) {
       setInitialValueSet(true)
 
-      const fmt = detectFormat(initialValue)
       let slateNodes
 
-      switch (fmt) {
-        case 'markdown':
+      if (Array.isArray(initialValue)) {
+        const extractedText = initialValue
+          .map((node) => {
+            const n = node as TElement
+            if (n.children) {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              return n.children.map((child: any) => child.text ?? '').join('')
+            }
+            return (n as unknown as { text?: string }).text ?? ''
+          })
+          .join('\n')
+
+        const textFormat = detectFormat(extractedText)
+        if (textFormat === 'markdown') {
+          slateNodes = (plateEditor.api.markdown?.deserialize?.(extractedText) ?? []) as Value
+        } else {
+          slateNodes = initialValue
+        }
+      } else {
+        const fmt = detectFormat(initialValue)
+
+        if (fmt === 'html') {
+          slateNodes = plateEditor.api.html.deserialize({
+            element: initialValue || '',
+          }) as Value
+        } else {
           slateNodes = (plateEditor.api.markdown?.deserialize?.(initialValue || '') ?? []) as Value
-          break
-        default:
-          slateNodes = Array.isArray(initialValue)
-            ? initialValue
-            : (plateEditor.api.html.deserialize({
-                element: initialValue || '',
-              }) as Value)
+        }
       }
 
       if (Array.isArray(slateNodes) && slateNodes.length === 1 && typeof (slateNodes[0] as TElement).text === 'string' && !(slateNodes[0] as TElement).type) {
