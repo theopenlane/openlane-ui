@@ -13,7 +13,6 @@ export const GET_ALL_TRUST_CENTER_SUBPROCESSORS = gql`
             logoRemoteURL
             systemOwned
             logoFile {
-              presignedURL
               base64
             }
           }
@@ -86,7 +85,6 @@ export const GET_ALL_TRUST_CENTER_SUBPROCESSOR_BY_ID = gql`
         logoRemoteURL
         systemOwned
         logoFile {
-          presignedURL
           base64
         }
       }

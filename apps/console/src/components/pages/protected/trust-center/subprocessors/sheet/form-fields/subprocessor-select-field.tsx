@@ -10,6 +10,7 @@ import { cn } from '@repo/ui/lib/utils'
 import { useGetSubprocessors } from '@/lib/graphql-hooks/subprocessor'
 import { useDebounce } from '@uidotdev/usehooks'
 import { type CreateSubprocessorMutation } from '@repo/codegen/src/schema'
+import { toBase64DataUri } from '@/lib/image-utils'
 
 interface SubprocessorSelectFieldProps {
   isEditing: boolean
@@ -17,7 +18,7 @@ interface SubprocessorSelectFieldProps {
   selectedSubprocessor?: {
     id?: string | null
     name?: string | null
-    logoFile?: { presignedURL?: string | null } | null
+    logoFile?: { base64?: string | null } | null
     logoRemoteURL?: string | null
   } | null
 }
@@ -45,7 +46,7 @@ export const SubprocessorSelectField = ({ isEditing, createdSubprocessor, select
       subprocessors?.map((sp) => ({
         label: sp?.name ?? '',
         value: sp?.id ?? '',
-        logo: sp?.logoFile?.presignedURL || sp?.logoRemoteURL,
+        logo: (sp?.logoFile?.base64 ? toBase64DataUri(sp.logoFile.base64) : null) || sp?.logoRemoteURL,
       })) ?? [],
     [subprocessors],
   )
@@ -64,7 +65,7 @@ export const SubprocessorSelectField = ({ isEditing, createdSubprocessor, select
       return {
         label: createdSubprocessor.name,
         value: createdSubprocessor.id,
-        logo: createdSubprocessor.logoFile?.presignedURL || createdSubprocessor.logoRemoteURL,
+        logo: (createdSubprocessor.logoFile?.base64 ? toBase64DataUri(createdSubprocessor.logoFile.base64) : null) || createdSubprocessor.logoRemoteURL,
       }
     }
 
@@ -72,7 +73,7 @@ export const SubprocessorSelectField = ({ isEditing, createdSubprocessor, select
       return {
         label: selectedSubprocessor.name ?? '',
         value: selectedSubprocessor.id ?? '',
-        logo: selectedSubprocessor.logoFile?.presignedURL || selectedSubprocessor.logoRemoteURL,
+        logo: (selectedSubprocessor.logoFile?.base64 ? toBase64DataUri(selectedSubprocessor.logoFile.base64) : null) || selectedSubprocessor.logoRemoteURL,
       }
     }
 

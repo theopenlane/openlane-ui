@@ -12,16 +12,17 @@ import { toHumanLabel } from '@/utils/strings'
 interface GenericDeleteDialogProps {
   entityId: string
   entityType: ObjectTypes
+  displayName?: string
   onDelete: (id: string) => Promise<void>
 }
 
-export const GenericDeleteDialog: React.FC<GenericDeleteDialogProps> = ({ entityId, entityType, onDelete }) => {
+export const GenericDeleteDialog: React.FC<GenericDeleteDialogProps> = ({ entityId, entityType, displayName, onDelete }) => {
   const searchParams = useSearchParams()
   const router = useRouter()
   const { successNotification, errorNotification } = useNotification()
   const [isOpen, setIsOpen] = useState(false)
 
-  const entityLabel = toHumanLabel(entityType)
+  const entityLabel = displayName ?? toHumanLabel(entityType)
 
   const handleDelete = async () => {
     if (!entityId) return

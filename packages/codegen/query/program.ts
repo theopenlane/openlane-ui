@@ -253,7 +253,7 @@ export const GET_PROGRAM_SETTINGS = gql`
               avatarRemoteURL
               avatarFile {
                 id
-                presignedURL
+                base64
               }
             }
           }
@@ -281,7 +281,7 @@ export const GET_PROGRAM_MEMBERS = gql`
             displayName
             email
             avatarFile {
-              presignedURL
+              base64
             }
             avatarRemoteURL
           }

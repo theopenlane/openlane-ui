@@ -25,8 +25,12 @@ export function EvidenceSummaryCard() {
   const readyCount = data?.ready?.totalCount ?? 0
   const missingArtifactCount = data?.missingArtifact?.totalCount ?? 0
   const needsRenewalCount = data?.needsRenewal?.totalCount ?? 0
+  const submittedCount = data?.submitted?.totalCount ?? 0
+  const requestedCount = data?.requested?.totalCount ?? 0
 
   const chartData: TChardData[] = [
+    { name: 'Requested', value: requestedCount, status: EvidenceEvidenceStatus.REQUESTED, description: 'Indicates that the evidence has been requested' },
+    { name: 'Submitted', value: submittedCount, status: EvidenceEvidenceStatus.SUBMITTED, description: 'Indicates that the evidence has been submitted' },
     { name: 'Ready', value: readyCount, status: EvidenceEvidenceStatus.READY_FOR_AUDITOR, description: 'Indicates that the evidence is ready for auditor review.' },
     { name: 'Approved', value: approvedCount, status: EvidenceEvidenceStatus.AUDITOR_APPROVED, description: 'Indicates that the evidence has been approved by the auditor' },
     { name: 'Needs Renewal', value: needsRenewalCount, status: EvidenceEvidenceStatus.NEEDS_RENEWAL, description: 'Indicates that the evidence needs to be renewed' },

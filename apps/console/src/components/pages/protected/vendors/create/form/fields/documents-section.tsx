@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 import { useGetEntityFilesPaginated, useUploadEntityFiles, useUpdateEntity } from '@/lib/graphql-hooks/entity'
 import { DocumentsSection } from '@/components/shared/documents-section/documents-section'
 import { DocumentsCreateSection } from '@/components/shared/documents-section/documents-create-section'
-import { type FileOrder, FileOrderField, OrderDirection } from '@repo/codegen/src/schema'
+import { type FileOrder, type FileWhereInput, FileOrderField, OrderDirection } from '@repo/codegen/src/schema'
 import { type TPagination } from '@repo/ui/pagination-types'
 import { getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
 import { TableKeyEnum } from '@repo/ui/table-key'
@@ -19,9 +19,10 @@ type EntityDocumentsSectionProps = {
   isCreate: boolean
   onStagedFilesChange?: (files: File[]) => void
   onExistingFileIdsChange?: (fileIds: string[]) => void
+  logoFileId?: string | null
 }
 
-const EntityDocumentsSection: React.FC<EntityDocumentsSectionProps> = ({ entityId, isEditAllowed, isCreate, onStagedFilesChange, onExistingFileIdsChange }) => {
+const EntityDocumentsSection: React.FC<EntityDocumentsSectionProps> = ({ entityId, isEditAllowed, isCreate, onStagedFilesChange, onExistingFileIdsChange, logoFileId }) => {
   const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(TableKeyEnum.ENTITY_FILES, DEFAULT_PAGINATION))
   const defaultSorting = getInitialSortConditions(TableKeyEnum.ENTITY_FILES, FileOrderField, [
     {
@@ -33,10 +34,13 @@ const EntityDocumentsSection: React.FC<EntityDocumentsSectionProps> = ({ entityI
   const { successNotification, errorNotification } = useNotification()
   const queryClient = useQueryClient()
 
+  const fileWhere: FileWhereInput | undefined = logoFileId ? { idNEQ: logoFileId } : undefined
+
   const { files, isLoading, isError, pageInfo, totalCount } = useGetEntityFilesPaginated({
     entityId,
     orderBy,
     pagination,
+    where: fileWhere,
   })
 
   const { mutateAsync: uploadFiles, isPending: isUploading } = useUploadEntityFiles()

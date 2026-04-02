@@ -22,6 +22,7 @@ interface GenericSheetHeaderProps {
   handleCancelEdit: () => void
   formId: string
   entityType: ObjectTypes
+  displayName?: string
   onDelete?: (id: string) => Promise<void>
   entityId?: string | null
   basePath?: string
@@ -38,6 +39,7 @@ export const GenericSheetHeader = ({
   handleCancelEdit,
   formId,
   entityType,
+  displayName,
   onDelete,
   entityId,
   basePath,
@@ -46,6 +48,7 @@ export const GenericSheetHeader = ({
   const { successNotification, errorNotification } = useNotification()
   const searchParams = useSearchParams()
   const id = entityId ?? searchParams.get('id')
+  const entityLabel = displayName ?? toHumanLabel(entityType)
 
   const handleCopyLink = () => {
     if (!id) {
@@ -70,15 +73,15 @@ export const GenericSheetHeader = ({
 
   return (
     <SheetHeader>
-      <SheetTitle className="sr-only">{isCreate ? `Create ${toHumanLabel(entityType)}` : toHumanLabel(entityType)}</SheetTitle>
+      <SheetTitle className="sr-only">{isCreate ? `Create ${entityLabel}` : entityLabel}</SheetTitle>
       <div className="flex items-center justify-between">
         {!isCreate ? (
           <div className="flex items-center gap-2">
             <PanelRightClose aria-label="Close detail sheet" size={16} className="cursor-pointer" onClick={close} />
-            <span className="text-lg">{toHumanLabel(entityType)}</span>
+            <span className="text-lg">{entityLabel}</span>
           </div>
         ) : (
-          <div className="h-6 text-lg">Create {toHumanLabel(entityType)}</div>
+          <div className="h-6 text-lg">Create {entityLabel}</div>
         )}
         <div className="flex justify-end gap-2 mr-6">
           {!isCreate && (
@@ -103,7 +106,7 @@ export const GenericSheetHeader = ({
                   Edit
                 </Button>
               )}
-              {onDelete && id && <GenericDeleteDialog entityId={id} entityType={entityType} onDelete={onDelete} />}
+              {onDelete && id && <GenericDeleteDialog entityId={id} entityType={entityType} displayName={displayName} onDelete={onDelete} />}
             </>
           )}
         </div>

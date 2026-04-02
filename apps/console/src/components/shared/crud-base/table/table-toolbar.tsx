@@ -27,6 +27,7 @@ import type { CreateMode } from '../types'
 
 type GenericTableToolbarProps<T extends { id: string }, TWhereInput, TUpdateInput> = {
   entityType: ObjectTypes
+  displayName?: string
   handleExport: () => void
   filterFields?: FilterField[] | undefined
   onFilterChange?: (filters: TWhereInput | null) => void
@@ -52,6 +53,7 @@ type GenericTableToolbarProps<T extends { id: string }, TWhereInput, TUpdateInpu
   enumOpts?: EnumOptionsGeneric
   responsibilityFields?: ResponsibilityFieldsMap
   createMode?: CreateMode
+  additionalActiveFilterCount?: number
 }
 
 function GenericTableToolbar<T extends { id: string }, TWhereInput, TUpdateInput>(props: GenericTableToolbarProps<T, TWhereInput, TUpdateInput>) {
@@ -62,7 +64,7 @@ function GenericTableToolbar<T extends { id: string }, TWhereInput, TUpdateInput
   const { replace } = useSmartRouter()
   const router = useRouter()
 
-  const entityLabel = props.entityType.charAt(0).toUpperCase() + props.entityType.slice(1).toLowerCase()
+  const entityLabel = props.displayName ?? props.entityType.charAt(0).toUpperCase() + props.entityType.slice(1).toLowerCase()
   const entityLabelPlural = `${entityLabel}s`
 
   const openCreateSheet = () => {
@@ -129,6 +131,7 @@ function GenericTableToolbar<T extends { id: string }, TWhereInput, TUpdateInput
                     }}
                     enumOpts={props.enumOpts}
                     entityType={props.entityType}
+                    displayName={props.displayName}
                     responsibilityFields={props.responsibilityFields}
                   />
                 </>
@@ -172,7 +175,7 @@ function GenericTableToolbar<T extends { id: string }, TWhereInput, TUpdateInput
                 closeOnSelect={true}
                 content={(close) => (
                   <>
-                    {props.onBulkCreate && <GenericBulkCSVCreateDialog entityType={props.entityType} onBulkCreate={props.onBulkCreate} />}
+                    {props.onBulkCreate && <GenericBulkCSVCreateDialog entityType={props.entityType} displayName={props.displayName} onBulkCreate={props.onBulkCreate} />}
                     <Button
                       size="sm"
                       variant="transparent"
@@ -192,7 +195,14 @@ function GenericTableToolbar<T extends { id: string }, TWhereInput, TUpdateInput
               {props.mappedColumns && props.columnVisibility && props.setColumnVisibility && (
                 <ColumnVisibilityMenu mappedColumns={props.mappedColumns} columnVisibility={props.columnVisibility} setColumnVisibility={props.setColumnVisibility} storageKey={props.storageKey} />
               )}
-              {props.filterFields && <TableFilter filterFields={props.filterFields} onFilterChange={props.onFilterChange as (whereCondition: WhereCondition) => void} pageKey={props.storageKey} />}
+              {props.filterFields && (
+                <TableFilter
+                  filterFields={props.filterFields}
+                  onFilterChange={props.onFilterChange as (whereCondition: WhereCondition) => void}
+                  pageKey={props.storageKey}
+                  additionalActiveFilterCount={props.additionalActiveFilterCount}
+                />
+              )}
               {props.canEdit(props.permission?.roles) && (
                 <Button icon={<PlusCircle />} iconPosition="left" onClick={openCreateSheet}>
                   Create

@@ -37,6 +37,7 @@ interface GenericBulkEditDialogProps<T extends { id: string }, TUpdateInput> {
     mutateAsync: (params: { ids: string[]; input: TUpdateInput }) => Promise<void>
   }
   entityType?: ObjectTypes
+  displayName?: string
   open?: boolean
   onOpenChange?: (open: boolean) => void
   enumOpts?: EnumOptionsGeneric
@@ -71,6 +72,7 @@ export function GenericBulkEditDialog<T extends { id: string }, TUpdateInput>({
   schema,
   bulkEditMutation,
   entityType,
+  displayName,
   open: openProp,
   onOpenChange,
   enumOpts,
@@ -78,6 +80,7 @@ export function GenericBulkEditDialog<T extends { id: string }, TUpdateInput>({
 }: GenericBulkEditDialogProps<T, TUpdateInput>) {
   const [open, setOpen] = useState(openProp ?? false)
   const { errorNotification, successNotification } = useNotification()
+  const entityLabel = displayName ?? toHumanLabel(entityType as string)
 
   const handleOpenChange = (nextOpen: boolean) => {
     setOpen(nextOpen)
@@ -167,7 +170,7 @@ export function GenericBulkEditDialog<T extends { id: string }, TUpdateInput>({
     try {
       await bulkEditMutation.mutateAsync({ ids, input })
       successNotification({
-        title: `Successfully bulk updated selected ${toHumanLabel(entityType as string)?.toLowerCase()}.`,
+        title: `Successfully bulk updated selected ${entityLabel?.toLowerCase()}.`,
       })
       setSelectedItems([])
       handleOpenChange(false)
@@ -177,7 +180,7 @@ export function GenericBulkEditDialog<T extends { id: string }, TUpdateInput>({
         errorMessage = parseErrorMessage(error.response.errors)
       }
       errorNotification({
-        title: errorMessage ?? `Failed to bulk edit ${toHumanLabel(entityType as string)?.toLowerCase()}. Please try again.`,
+        title: errorMessage ?? `Failed to bulk edit ${entityLabel?.toLowerCase()}. Please try again.`,
       })
     }
   }
@@ -193,7 +196,7 @@ export function GenericBulkEditDialog<T extends { id: string }, TUpdateInput>({
         <form onSubmit={handleSubmit(onSubmit)}>
           <DialogContent onOpenAutoFocus={(e) => e.preventDefault()} className="max-w-145">
             <DialogHeader>
-              <DialogTitle>Bulk edit {toHumanLabel(entityType as string)?.toLowerCase()}</DialogTitle>
+              <DialogTitle>Bulk edit {entityLabel?.toLowerCase()}</DialogTitle>
             </DialogHeader>
             <div className="flex flex-col gap-4 mt-4">
               {fields.map((item, index) => {

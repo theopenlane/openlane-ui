@@ -44,12 +44,12 @@ export const GET_ALL_TRUST_CENTERS = gql`
             statusPageURL
             logoFile {
               id
-              presignedURL
+              base64
             }
             faviconRemoteURL
             faviconFile {
               id
-              presignedURL
+              base64
             }
             overview
             title
@@ -75,12 +75,12 @@ export const GET_ALL_TRUST_CENTERS = gql`
             statusPageURL
             logoFile {
               id
-              presignedURL
+              base64
             }
             faviconRemoteURL
             faviconFile {
               id
-              presignedURL
+              base64
             }
             logoRemoteURL
             securityContact

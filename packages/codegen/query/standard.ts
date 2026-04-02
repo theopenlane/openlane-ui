@@ -49,7 +49,7 @@ export const GET_STANDARD_DETAILS = gql`
         totalCount
       }
       logoFile {
-        presignedURL
+        base64
       }
     }
   }
@@ -89,7 +89,7 @@ export const GET_STANDARDS_PAGINATED = gql`
           systemOwned
           governingBodyLogoURL
           logoFile {
-            presignedURL
+            base64
           }
         }
       }

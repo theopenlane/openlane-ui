@@ -22,7 +22,7 @@ import {
 import { useEntity } from '@/lib/graphql-hooks/entity'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
 import { breadcrumbs, getFieldsToRender, getFilterFields, visibilityFields } from './table-config'
-import { type EntitySheetConfig, type EntityTablePageConfig, objectType, objectName, tableKey, exportType, orderFieldEnum, defaultSorting, type EntityFieldProps } from './types'
+import { type EntitySheetConfig, type EntityTablePageConfig, objectType, objectName, displayName, tableKey, exportType, orderFieldEnum, defaultSorting, type EntityFieldProps } from './types'
 import { createVendorSteps } from '../create/steps/vendor-create-steps'
 import { getColumns } from './columns'
 import TableComponent from './table'
@@ -158,6 +158,7 @@ const VendorPage: React.FC = () => {
 
   const sheetConfig: EntitySheetConfig = {
     objectType: objectType,
+    displayName,
     form,
     data: id ? data?.entity : undefined,
     isFetching: isLoading,
@@ -188,6 +189,7 @@ const VendorPage: React.FC = () => {
   const tableConfig: EntityTablePageConfig = {
     objectType,
     objectName,
+    displayName,
     tableKey,
     exportType,
     orderFieldEnum,

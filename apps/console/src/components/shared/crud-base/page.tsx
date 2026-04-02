@@ -65,6 +65,7 @@ export interface GenericTablePageConfig<TEntity extends { id: string }, TFormDat
   // Entity configuration
   objectType: ObjectTypes
   objectName: ObjectNames
+  displayName?: string
 
   // Table configuration
   tableKey: TableKeyValue
@@ -108,6 +109,7 @@ export interface GenericTablePageConfig<TEntity extends { id: string }, TFormDat
     enumOpts?: EnumOptionsGeneric
     responsibilityFields?: ResponsibilityFieldsMap
     createMode?: CreateMode
+    additionalActiveFilterCount?: number
   }>
 
   // Sheet configuration
@@ -124,6 +126,8 @@ export interface GenericTablePageConfig<TEntity extends { id: string }, TFormDat
   bulkEditFormSchema?: ZodObject<ZodRawShape>
   enumOpts?: EnumOptionsGeneric
   responsibilityFields?: ResponsibilityFieldsMap
+  beforeTable?: React.ReactNode
+  additionalWhereFilter?: Partial<TWhereInput>
 }
 
 export function GenericTablePage<
@@ -138,6 +142,7 @@ export function GenericTablePage<
 >(config: GenericTablePageConfig<TEntity, TFormData, TUpdateInput, TUpdateData, TCreateInput, TCreateData, TWhereInput, TOrderField>) {
   const {
     objectType,
+    displayName,
     tableKey,
     exportType,
     orderFieldEnum,
@@ -157,6 +162,8 @@ export function GenericTablePage<
     onBulkCreate,
     onBulkEdit,
   } = config
+
+  const { beforeTable, additionalWhereFilter } = config
 
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -188,21 +195,27 @@ export function GenericTablePage<
   }
 
   const whereFilter = useMemo(() => {
-    if (!filters) return null
+    const result = filters
+      ? (whereGenerator<TWhereInput>(filters, (key, value) => {
+          return { [key]: value } as TWhereInput
+        }) as Record<string, unknown>)
+      : ({} as Record<string, unknown>)
 
-    const result = whereGenerator<TWhereInput>(filters, (key, value) => {
-      return { [key]: value } as TWhereInput
-    })
-
-    const merged = { ...result } as Record<string, unknown>
+    const merged = { ...result }
 
     if (debouncedSearch && searchFields && searchFields.length > 0) {
       const orClause = searchFields.map((field) => ({ [field]: debouncedSearch }))
       merged.and = [...((merged.and as unknown[]) || []), { or: orClause }]
     }
 
+    if (additionalWhereFilter && Object.keys(additionalWhereFilter).length > 0) {
+      Object.assign(merged, additionalWhereFilter)
+    }
+
+    if (Object.keys(merged).length === 0) return null
+
     return merged as TWhereInput
-  }, [filters, debouncedSearch, searchFields])
+  }, [filters, debouncedSearch, searchFields, additionalWhereFilter])
 
   const orderByFilter = useMemo(() => {
     return orderBy || undefined
@@ -321,8 +334,10 @@ export function GenericTablePage<
 
   return (
     <>
+      {beforeTable}
       <ToolbarToUse
         entityType={objectType}
+        displayName={displayName}
         onFilterChange={(filters) => {
           setFilters((prev) => {
             if (JSON.stringify(prev) !== JSON.stringify(filters)) {
@@ -355,6 +370,7 @@ export function GenericTablePage<
         storageKey={tableKey}
         responsibilityFields={config.responsibilityFields}
         createMode={createMode}
+        additionalActiveFilterCount={additionalWhereFilter ? Object.values(additionalWhereFilter).filter((v) => v != null).length : 0}
       />
 
       <TableComponent

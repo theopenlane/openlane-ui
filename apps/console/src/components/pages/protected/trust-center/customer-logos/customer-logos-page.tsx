@@ -9,6 +9,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useGetTrustCenter } from '@/lib/graphql-hooks/trust-center'
 import { useDeleteTrustCenterEntity, useGetTrustCenterEntities, useUpdateTrustCenterEntity } from '@/lib/graphql-hooks/trust-center-entity'
+import { toBase64DataUri } from '@/lib/image-utils'
 import CreateCustomerLogo from './create-customer-logo'
 import CustomerLogoCard from './customer-logo-card'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
@@ -85,7 +86,7 @@ export default function CustomerLogosPage() {
                   key={entity.id}
                   id={entity.id}
                   name={entity.name}
-                  logoUrl={entity.logoFile?.presignedURL ?? null}
+                  logoUrl={entity.logoFile?.base64 ? toBase64DataUri(entity.logoFile.base64) : null}
                   onDelete={(id) => setEntityToDelete(id)}
                   url={entity.url}
                   canEdit={canEditTc}

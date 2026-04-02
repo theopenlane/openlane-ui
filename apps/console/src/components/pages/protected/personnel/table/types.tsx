@@ -27,6 +27,7 @@ type TOrderField = IdentityHolderOrderField
 
 export const objectType = ObjectTypes.IDENTITY_HOLDER
 export const objectName = ObjectNames.IDENTITY_HOLDER
+export const displayName = 'Personnel'
 export const tableKey = TableKeyEnum.IDENTITY_HOLDER
 export const exportType = ExportExportType.IDENTITY_HOLDER
 export const orderFieldEnum = IdentityHolderOrderField

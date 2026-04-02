@@ -7,7 +7,7 @@ export const CREATE_SUBPROCESSOR = gql`
         id
         name
         logoFile {
-          presignedURL
+          base64
         }
         logoRemoteURL
       }
@@ -34,7 +34,7 @@ export const GET_SUBPROCESSORS = gql`
           name
           description
           logoFile {
-            presignedURL
+            base64
           }
           logoRemoteURL
         }

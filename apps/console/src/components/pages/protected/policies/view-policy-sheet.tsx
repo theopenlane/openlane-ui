@@ -22,6 +22,7 @@ import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import Skeleton from '@/components/shared/skeleton/skeleton'
 import { type Value } from 'platejs'
 import { type Group, type InternalPolicyByIdFragment } from '@repo/codegen/src/schema'
+import { toBase64DataUri } from '@/lib/image-utils'
 import { GenericDetailsSheet, type RenderFieldsProps, type RenderHeaderProps } from '@/components/shared/crud-base/generic-sheet'
 import { useForm } from 'react-hook-form'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
@@ -59,7 +60,7 @@ export const ViewPolicySheet: React.FC<Props> = ({ policyId, onClose }) => {
   })
 
   const userMap = useMemo(() => {
-    const map: Record<string, { id: string; displayName?: string | null; avatarFile?: { presignedURL?: string | null } | null; avatarRemoteURL?: string | null }> = {}
+    const map: Record<string, { id: string; displayName?: string | null; avatarFile?: { base64?: string | null } | null; avatarRemoteURL?: string | null }> = {}
     userData?.orgMemberships?.edges?.forEach((edge) => {
       const user = edge?.node?.user
       if (user) map[user.id] = user
@@ -72,7 +73,7 @@ export const ViewPolicySheet: React.FC<Props> = ({ policyId, onClose }) => {
       const node = item?.node
       if (!node) return []
       const user = node.createdBy ? userMap[node.createdBy] : undefined
-      const avatarUrl = user?.avatarFile?.presignedURL || user?.avatarRemoteURL
+      const avatarUrl = (user?.avatarFile?.base64 ? toBase64DataUri(user.avatarFile.base64) : null) || user?.avatarRemoteURL
       return [
         {
           id: node.id,

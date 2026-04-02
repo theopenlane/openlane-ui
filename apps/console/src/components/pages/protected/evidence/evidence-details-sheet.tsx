@@ -344,6 +344,8 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
     try {
       const collectionProcedure = formData.collectionProcedure && typeof formData.collectionProcedure !== 'string' ? await convertToHtml(formData.collectionProcedure) : formData.collectionProcedure
+      const creationDate = formData.creationDate instanceof Date ? formData.creationDate.toISOString() : formData.creationDate
+      const renewalDate = formData.renewalDate instanceof Date ? formData.renewalDate.toISOString() : formData.renewalDate
 
       await updateEvidence({
         updateEvidenceId: config.id,
@@ -351,6 +353,8 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
           ...cleanFormData,
           ...associationInputs,
           collectionProcedure,
+          creationDate,
+          renewalDate,
           clearURL: formData?.url === undefined,
         },
       })

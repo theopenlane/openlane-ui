@@ -12,7 +12,7 @@ export const GET_ALL_ORGANIZATIONS = gql`
           personalOrg
           avatarFile {
             id
-            presignedURL
+            base64
           }
           stripeCustomerID
           setting {
@@ -52,7 +52,7 @@ export const GET_SINGLE_ORGANIZATION_MEMBERS = gql`
               createdAt
               avatarFile {
                 id
-                presignedURL
+                base64
               }
             }
           }
@@ -81,7 +81,7 @@ export const GET_ALL_ORGANIZATIONS_WITH_MEMBERS = gql`
           avatarRemoteURL
           avatarFile {
             id
-            presignedURL
+            base64
           }
           members(where: $membersWhere) {
             edges {

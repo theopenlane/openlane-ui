@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import { Button } from '@repo/ui/button'
-import { Copy, Plus, X } from 'lucide-react'
+import { Copy, Plus, Trash2 } from 'lucide-react'
 import { useUpdateEntity } from '@/lib/graphql-hooks/entity'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -69,7 +69,7 @@ const DomainsSection: React.FC<DomainsSectionProps> = ({ domains, vendorId, canE
                 </button>
                 {canEdit && (
                   <button type="button" onClick={() => handleRemoveDomain(domain)} className="text-muted-foreground hover:text-destructive transition-colors">
-                    <X size={16} />
+                    <Trash2 size={14} />
                   </button>
                 )}
               </div>

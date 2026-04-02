@@ -13,6 +13,7 @@ import { useGetOrgMemberships } from '@/lib/graphql-hooks/member'
 import Skeleton from '@/components/shared/skeleton/skeleton'
 import type { TComments } from '@/components/shared/comments/types/TComments'
 import type { TCommentData } from '@/components/shared/comments/types/TCommentData'
+import { toBase64DataUri } from '@/lib/image-utils'
 
 const ActivityCommentsSection = () => {
   const { id, subcontrolId } = useParams<{ id: string; subcontrolId?: string }>()
@@ -44,7 +45,7 @@ const ActivityCommentsSection = () => {
   })
 
   const userMap = useMemo(() => {
-    const map: Record<string, { id: string; displayName?: string | null; avatarFile?: { presignedURL?: string | null } | null; avatarRemoteURL?: string | null }> = {}
+    const map: Record<string, { id: string; displayName?: string | null; avatarFile?: { base64?: string | null } | null; avatarRemoteURL?: string | null }> = {}
     userData?.orgMemberships?.edges?.forEach((edge) => {
       const user = edge?.node?.user
       if (user) map[user.id] = user
@@ -129,7 +130,7 @@ const ActivityCommentsSection = () => {
 
     const mapped = commentSource.comments.edges.map((item) => {
       const user = item?.node?.createdBy ? userMap[item.node.createdBy] : undefined
-      const avatarUrl = user?.avatarFile?.presignedURL || user?.avatarRemoteURL
+      const avatarUrl = (user?.avatarFile?.base64 ? toBase64DataUri(user.avatarFile.base64) : null) || user?.avatarRemoteURL
       return {
         comment: item?.node?.text,
         avatarUrl,

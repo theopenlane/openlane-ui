@@ -332,7 +332,7 @@ export const GET_CONTROL_ASSOCIATIONS_BY_ID = gql`
             assignee {
               displayName
               avatarFile {
-                presignedURL
+                base64
               }
               avatarRemoteURL
             }
