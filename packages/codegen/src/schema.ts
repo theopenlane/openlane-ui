@@ -71912,6 +71912,7 @@ export type GetStandardsPaginatedQueryVariables = Exact<{
   after?: InputMaybe<Scalars['Cursor']['input']>
   last?: InputMaybe<Scalars['Int']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
+  orderBy?: InputMaybe<Array<StandardOrder> | StandardOrder>
 }>
 
 export type GetStandardsPaginatedQuery = {
