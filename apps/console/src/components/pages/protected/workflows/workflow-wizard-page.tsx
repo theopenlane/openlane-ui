@@ -30,8 +30,8 @@ const WorkflowWizardPage = () => {
   const baseCreateMutation = useCreateWorkflowDefinition()
   const { objectTypes, isLoading: isLoadingMetadata } = useWorkflowMetadata()
   const { workflowDefinitionsNodes } = useWorkflowDefinitionsWithFilter({ enabled: !templateId })
-  const { userOptions, isLoading: isLoadingUsers } = useUserSelect({})
-  const { groupOptions, isLoading: isLoadingGroups } = useGroupSelect()
+  const { userOptions } = useUserSelect({})
+  const { groupOptions } = useGroupSelect()
 
   const state = useWizardState({
     objectTypes,
@@ -105,11 +105,11 @@ const WorkflowWizardPage = () => {
 
       successNotification({
         title: 'Workflow created',
-        description: 'Your workflow has been saved. You can continue editing in the advanced editor.',
+        description: 'Your workflow has been saved successfully.',
       })
 
       if (id) {
-        router.push(`/automation/workflows/editor?id=${id}`)
+        router.push(`/automation/workflows/definitions/${id}`)
         return
       }
 
@@ -142,7 +142,7 @@ const WorkflowWizardPage = () => {
         {stepper.switch({
           flow: () => <FlowStep state={state} isLoadingMetadata={isLoadingMetadata} />,
           rules: () => <RulesStep state={state} />,
-          configure: () => <ConfigureStep state={state} isLoadingUsers={isLoadingUsers} isLoadingGroups={isLoadingGroups} />,
+          configure: () => <ConfigureStep state={state} />,
           review: () => <ReviewStep state={state} />,
         })}
 

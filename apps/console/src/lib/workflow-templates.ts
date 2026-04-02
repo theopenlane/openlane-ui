@@ -48,10 +48,8 @@ type definitionJSON = {
       channels?: string[]
       url?: string
       method?: string
-      headers?: Record<string, string>
-      payload?: Record<string, unknown>
-      timeout_ms?: number
-      data?: Record<string, unknown>
+      payload_expr?: string
+      [key: string]: unknown
     }
   }[]
   metadata?: Record<string, unknown>
@@ -323,9 +321,6 @@ export const WORKFLOW_TEMPLATES: WorkflowTemplate[] = [
           params: {
             url: '<REPLACE_WITH_WEBHOOK_URL>',
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            payload: { text: 'Evidence review completed for {{object_id}}' },
-            timeout_ms: 5000,
           },
         },
       ],
@@ -370,9 +365,6 @@ export const WORKFLOW_TEMPLATES: WorkflowTemplate[] = [
           params: {
             url: '<REPLACE_WITH_SLACK_WEBHOOK_URL>',
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            payload: { text: 'Control status approved. Control details are included in the payload.' },
-            timeout_ms: 5000,
           },
         },
       ],

@@ -8,6 +8,7 @@ import { Button } from '@repo/ui/button'
 import { Badge } from '@repo/ui/badge'
 import { Textarea } from '@repo/ui/textarea'
 import { useWorkflowDefinition } from '@/lib/graphql-hooks/workflow-definition'
+import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { formatDateSince } from '@/utils/date'
 import { definitionHasApprovalAction, formatApprovalTimingLabel, parseWorkflowDefinition, resolveApprovalTiming } from '@/utils/workflow'
 
@@ -85,7 +86,7 @@ const WorkflowDefinitionDetailPage = () => {
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Kind</p>
-              <p className="font-medium">{definition.workflowDefinition?.workflowKind}</p>
+              <p className="font-medium">{getEnumLabel(definition.workflowDefinition?.workflowKind)}</p>
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Action summary</p>

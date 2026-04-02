@@ -41,7 +41,6 @@ type ActionFormSectionProps = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onUpdateActionParam: (index: number, paramField: string, value: any) => void
   onActionParamsChange: (index: number, value: string) => void
-  onWebhookPayloadTextUpdate: (index: number, value: string) => void
   onAddTarget: (index: number, target: Target) => void
   onRemoveTarget: (index: number, target: Target) => void
 }
@@ -61,7 +60,6 @@ export const ActionFormSection = ({
   onUpdateAction,
   onUpdateActionParam,
   onActionParamsChange,
-  onWebhookPayloadTextUpdate,
   onAddTarget,
   onRemoveTarget,
 }: ActionFormSectionProps) => {
@@ -90,7 +88,6 @@ export const ActionFormSection = ({
           const selectedGroups = targets.filter((t) => t.type === 'GROUP' && t.id)
           const selectedResolvers = targets.filter((t) => t.type === 'RESOLVER' && t.resolver_key).map((t) => t.resolver_key as string)
           const paramsDraft = actionParamsDrafts[index]
-          const webhookPayloadText = action.params?.payload && typeof action.params.payload === 'object' && !Array.isArray(action.params.payload) ? action.params.payload.text || '' : ''
           return (
             <Card key={`action-${index}`} className="border-dashed">
               <CardHeader>
@@ -303,24 +300,17 @@ export const ActionFormSection = ({
                           </SelectContent>
                         </Select>
                       </div>
-
-                      <div className="space-y-2">
-                        <Label>Timeout (ms)</Label>
-                        <Input type="number" min="0" value={action.params?.timeout_ms ?? 5000} onChange={(e) => onUpdateActionParam(index, 'timeout_ms', Number(e.target.value) || 0)} />
-                      </div>
                     </div>
 
                     <div className="space-y-2">
-                      <Label>Message template</Label>
+                      <Label>Payload expression (optional)</Label>
                       <Textarea
-                        value={webhookPayloadText}
-                        onChange={(e) => onWebhookPayloadTextUpdate(index, e.target.value)}
-                        placeholder="Control status approved. Control details are included in the payload."
-                        rows={4}
+                        value={action.params?.payload_expr || ''}
+                        onChange={(e) => onUpdateActionParam(index, 'payload_expr', e.target.value)}
+                        placeholder='{"text": "Workflow triggered for " + object.name}'
+                        rows={3}
                       />
-                      <p className="text-xs text-muted-foreground">
-                        Templates can reference workflow variables (e.g. <span>{'{{ object_id }}'}</span>).
-                      </p>
+                      <p className="text-xs text-muted-foreground">CEL expression that evaluates to a JSON object merged into the base payload.</p>
                     </div>
                   </div>
                 ) : (

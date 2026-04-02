@@ -13,11 +13,9 @@ import type { WizardState } from '../hooks/use-wizard-state'
 
 type ConfigureStepProps = {
   state: WizardState
-  isLoadingUsers: boolean
-  isLoadingGroups: boolean
 }
 
-export const ConfigureStep = ({ state, isLoadingUsers, isLoadingGroups }: ConfigureStepProps) => {
+export const ConfigureStep = ({ state }: ConfigureStepProps) => {
   const currentStepError = state.getValidationError('configure')
 
   return (
@@ -40,10 +38,8 @@ export const ConfigureStep = ({ state, isLoadingUsers, isLoadingGroups }: Config
                 onAdd={state.addTarget}
                 onRemove={state.removeTarget}
                 resolverKeys={state.resolverKeys}
-                userOptions={state.userOptions}
-                groupOptions={state.groupOptions}
                 getTargetLabel={state.getTargetLabel}
-                isLoading={isLoadingUsers || isLoadingGroups}
+                error={currentStepError}
               />
             </div>
 
@@ -93,10 +89,8 @@ export const ConfigureStep = ({ state, isLoadingUsers, isLoadingGroups }: Config
                 onAdd={state.addTarget}
                 onRemove={state.removeTarget}
                 resolverKeys={state.resolverKeys}
-                userOptions={state.userOptions}
-                groupOptions={state.groupOptions}
                 getTargetLabel={state.getTargetLabel}
-                isLoading={isLoadingUsers || isLoadingGroups}
+                error={currentStepError}
               />
             </div>
 
@@ -149,9 +143,9 @@ export const ConfigureStep = ({ state, isLoadingUsers, isLoadingGroups }: Config
             </div>
 
             <div className="space-y-2">
-              <Label>Payload (JSON)</Label>
-              <Textarea value={state.webhookPayload} onChange={(e) => state.setWebhookPayload(e.target.value)} rows={4} placeholder='{"event":"workflow"}' />
-              {state.webhookPayloadError && <p className="text-sm text-destructive">{state.webhookPayloadError}</p>}
+              <Label>Payload expression (optional)</Label>
+              <Textarea value={state.webhookPayload} onChange={(e) => state.setWebhookPayload(e.target.value)} rows={3} placeholder='{"text": "Workflow triggered for " + object.name}' />
+              <p className="text-xs text-muted-foreground">CEL expression that evaluates to a JSON object merged into the base payload. Leave empty for default payload.</p>
             </div>
           </div>
         )}
@@ -187,7 +181,9 @@ export const ConfigureStep = ({ state, isLoadingUsers, isLoadingGroups }: Config
         )}
 
         {!state.actionType && <p className="text-sm text-muted-foreground">Choose a goal to configure the action.</p>}
-        {currentStepError && <p className="text-sm text-destructive">{currentStepError}</p>}
+        {currentStepError && state.actionType !== WizardActionType.REQUEST_APPROVAL && state.actionType !== WizardActionType.REQUEST_REVIEW && state.actionType !== WizardActionType.NOTIFY && (
+          <p className="text-sm text-destructive">{currentStepError}</p>
+        )}
       </CardContent>
     </Card>
   )

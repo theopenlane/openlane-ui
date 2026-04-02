@@ -34,10 +34,8 @@ export type TargetSelectorProps = {
   onAdd: (target: Target) => void
   onRemove: (target: Target) => void
   resolverKeys: string[]
-  userOptions: { label: string; value: string }[]
-  groupOptions: { label: string; value: string }[]
   getTargetLabel: (target: Target) => string
-  isLoading?: boolean
+  error?: string | null
 }
 
 export type FlowSummaryProps = {

@@ -140,17 +140,6 @@ export const WorkflowFormEditor = ({ triggers, conditions, actions, objectTypes,
     }
   }
 
-  const updateWebhookPayloadText = (index: number, value: string) => {
-    const currentPayload = actions[index]?.params?.payload
-    const payload = currentPayload && typeof currentPayload === 'object' && !Array.isArray(currentPayload) ? { ...currentPayload } : {}
-    if (value.trim()) {
-      payload.text = value
-    } else {
-      delete payload.text
-    }
-    updateActionParam(index, 'payload', payload)
-  }
-
   const eligibleFields = useMemo(() => {
     const selected = objectTypes.find((t) => t.type === schemaType) || objectTypes[0]
     return selected?.eligibleFields ?? []
@@ -217,7 +206,6 @@ export const WorkflowFormEditor = ({ triggers, conditions, actions, objectTypes,
         onUpdateAction={updateAction}
         onUpdateActionParam={updateActionParam}
         onActionParamsChange={handleActionParamsChange}
-        onWebhookPayloadTextUpdate={updateWebhookPayloadText}
         onAddTarget={handleAddTarget}
         onRemoveTarget={handleRemoveTarget}
       />

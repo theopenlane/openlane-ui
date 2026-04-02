@@ -1,150 +1,191 @@
 import { useMemo, useState } from 'react'
-import { Button } from '@repo/ui/button'
-import { Input } from '@repo/ui/input'
+import { useDebounce } from '@uidotdev/usehooks'
 import { Badge } from '@repo/ui/badge'
 import { Label } from '@repo/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { Plus, X } from 'lucide-react'
-import type { Target, TargetSelectorProps } from '../types'
+import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
+import { X, KeyRound } from 'lucide-react'
+import type { User, Group } from '@repo/codegen/src/schema'
+import { Avatar } from '@/components/shared/avatar/avatar'
+import { useGetOrgMemberships } from '@/lib/graphql-hooks/member'
+import { useGetAllGroups } from '@/lib/graphql-hooks/group'
+import type { TargetSelectorProps } from '../types'
 import { buildTargetKey, formatResolverLabel } from '../utils'
 
-const RECIPIENT_BADGE_CLASSES = [
-  'border-emerald-500/30 bg-emerald-500/10 text-emerald-700',
-  'border-sky-500/30 bg-sky-500/10 text-sky-700',
-  'border-amber-500/30 bg-amber-500/10 text-amber-700',
-  'border-rose-500/30 bg-rose-500/10 text-rose-700',
-  'border-violet-500/30 bg-violet-500/10 text-violet-700',
-  'border-teal-500/30 bg-teal-500/10 text-teal-700',
-  'border-orange-500/30 bg-orange-500/10 text-orange-700',
-  'border-lime-500/30 bg-lime-500/10 text-lime-700',
-  'border-cyan-500/30 bg-cyan-500/10 text-cyan-700',
-  'border-fuchsia-500/30 bg-fuchsia-500/10 text-fuchsia-700',
-]
+const ResolverIcon = ({ size = 'sm' }: { size?: 'sm' | 'md' }) => {
+  const sizeClass = size === 'sm' ? 'h-4 w-4' : 'h-5 w-5'
+  const iconClass = size === 'sm' ? 'h-2.5 w-2.5' : 'h-3 w-3'
+  return (
+    <div className={`flex ${sizeClass} shrink-0 items-center justify-center rounded-full bg-avatar text-button-text`}>
+      <KeyRound className={iconClass} />
+    </div>
+  )
+}
 
-export const TargetSelector = ({ targets, onAdd, onRemove, resolverKeys, userOptions, groupOptions, getTargetLabel, isLoading = false }: TargetSelectorProps) => {
-  const [targetType, setTargetType] = useState<Target['type']>('USER')
-  const [targetValue, setTargetValue] = useState('')
+export const TargetSelector = ({ targets, onAdd, onRemove, resolverKeys, getTargetLabel, error }: TargetSelectorProps) => {
+  const [open, setOpen] = useState(false)
+  const [searchText, setSearchText] = useState('')
+  const debouncedSearch = useDebounce(searchText, 300)
 
-  const options = useMemo(() => {
-    if (targetType === 'USER') return userOptions
-    if (targetType === 'GROUP') return groupOptions
-    return resolverKeys.map((key) => ({ label: formatResolverLabel(key), value: key }))
-  }, [groupOptions, resolverKeys, targetType, userOptions])
-
-  const showManualInput = options.length === 0
-  const manualPlaceholder = targetType === 'USER' ? 'Paste a user ID' : targetType === 'GROUP' ? 'Paste a group ID' : 'Enter resolver key'
-
-  const handleTargetTypeChange = (value: string) => {
-    setTargetType(value as Target['type'])
-    setTargetValue('')
-  }
-
-  const handleAdd = () => {
-    if (!targetValue) return
-    if (targetType === 'RESOLVER') {
-      onAdd({ type: 'RESOLVER', resolver_key: targetValue })
-    } else {
-      onAdd({ type: targetType, id: targetValue })
+  const searchWhere = debouncedSearch.trim() ? { hasUserWith: [{ displayNameContainsFold: debouncedSearch.trim() }] } : undefined
+  const { members, isLoading: isLoadingUsers } = useGetOrgMemberships({ where: searchWhere })
+  const userMap = useMemo(() => {
+    const map = new Map<string, User>()
+    for (const m of members) {
+      if (m?.user) map.set(m.user.id, m.user as User)
     }
-    setTargetValue('')
-  }
+    return map
+  }, [members])
+  const userOptions = useMemo(() => Array.from(userMap.values()).map((u) => ({ label: u.displayName || '', value: u.id })), [userMap])
 
-  const handleSelectTarget = (value: string) => {
-    setTargetValue(value)
-    if (!value) return
-    if (targetType === 'RESOLVER') {
-      onAdd({ type: 'RESOLVER', resolver_key: value })
-    } else {
-      onAdd({ type: targetType, id: value })
+  const groupSearchWhere = debouncedSearch.trim() ? { displayNameContainsFold: debouncedSearch.trim() } : undefined
+  const { groups, isLoading: isLoadingGroups } = useGetAllGroups({ where: groupSearchWhere })
+  const groupMap = useMemo(() => {
+    const map = new Map<string, Group>()
+    for (const g of groups) {
+      if (g?.id) map.set(g.id, g)
     }
-    setTargetValue('')
-  }
+    return map
+  }, [groups])
+  const groupOptions = useMemo(() => groups.map((g) => ({ label: g.displayName || '', value: g.id || '' })), [groups])
+
+  const selectedKeys = useMemo(() => new Set(targets.map(buildTargetKey)), [targets])
+
+  const filteredUsers = useMemo(() => userOptions.filter((u) => !selectedKeys.has(`USER:${u.value}`)), [userOptions, selectedKeys])
+  const filteredGroups = useMemo(() => groupOptions.filter((g) => !selectedKeys.has(`GROUP:${g.value}`)), [groupOptions, selectedKeys])
+  const filteredResolvers = useMemo(() => {
+    const lowerSearch = debouncedSearch.trim().toLowerCase()
+    return resolverKeys
+      .map((key) => ({ label: formatResolverLabel(key), value: key }))
+      .filter((r) => !selectedKeys.has(`RESOLVER:${r.value}`))
+      .filter((r) => !lowerSearch || r.label.toLowerCase().includes(lowerSearch))
+  }, [resolverKeys, selectedKeys, debouncedSearch])
+
+  const isLoading = isLoadingUsers || isLoadingGroups
+  const hasResults = filteredUsers.length > 0 || filteredGroups.length > 0 || filteredResolvers.length > 0
 
   return (
-    <div className="space-y-4">
-      <div className="rounded-lg border border-border/60 bg-muted/10 p-4">
-        <div className="mb-3">
-          <p className="text-sm font-medium">Add a recipient</p>
-          <p className="text-xs text-muted-foreground">Select a target type, then pick a recipient to add it.</p>
-        </div>
-
-        {resolverKeys.length > 0 && (
-          <div className="mb-4">
-            <p className="text-xs text-muted-foreground">Suggested resolvers</p>
-            <div className="mt-2 flex flex-wrap gap-2">
-              {resolverKeys.map((key) => (
-                <button
-                  key={key}
-                  type="button"
-                  onClick={() => onAdd({ type: 'RESOLVER', resolver_key: key })}
-                  className="rounded-full border border-border/60 bg-background px-3 py-1 text-xs text-foreground hover:border-primary/60"
-                >
-                  {formatResolverLabel(key)}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        <div className="grid grid-cols-1 md:grid-cols-[180px_minmax(220px,1fr)_auto] gap-3 items-end">
-          <Select value={targetType} onValueChange={handleTargetTypeChange}>
-            <SelectTrigger>
-              <SelectValue placeholder="Target type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="USER">User</SelectItem>
-              <SelectItem value="GROUP">Group</SelectItem>
-              <SelectItem value="RESOLVER">Resolver</SelectItem>
-            </SelectContent>
-          </Select>
-
-          {showManualInput ? (
-            <Input value={targetValue} onChange={(e) => setTargetValue(e.target.value)} placeholder={manualPlaceholder} />
-          ) : (
-            <Select value={targetValue} onValueChange={handleSelectTarget}>
-              <SelectTrigger>
-                <SelectValue placeholder={isLoading ? 'Loading...' : 'Select target'} />
-              </SelectTrigger>
-              <SelectContent>
-                {options.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
-
-          <Button type="button" variant="primary" onClick={handleAdd} disabled={!targetValue} className="whitespace-nowrap">
-            <Plus className="h-4 w-4 mr-1" />
-            Add recipient
-          </Button>
-        </div>
-
-        {showManualInput && (
-          <p className="mt-2 text-xs text-muted-foreground">No {targetType === 'USER' ? 'users' : targetType === 'GROUP' ? 'groups' : 'resolvers'} found. Paste an ID or switch the target type.</p>
-        )}
-      </div>
-
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <Label>Selected recipients</Label>
-          <span className="text-xs text-muted-foreground">{targets.length} added</span>
-        </div>
-        {targets.length > 0 ? (
+    <div className="space-y-3">
+      {resolverKeys.length > 0 && (
+        <div>
+          <p className="text-xs text-muted-foreground mb-2">Suggested resolvers</p>
           <div className="flex flex-wrap gap-2">
-            {targets.map((target, index) => (
-              <Badge key={buildTargetKey(target)} variant="outline" className={`flex items-center gap-1 px-2.5 py-1 text-sm ${RECIPIENT_BADGE_CLASSES[index % RECIPIENT_BADGE_CLASSES.length]}`}>
-                {getTargetLabel(target)}
-                <button type="button" onClick={() => onRemove(target)} className="text-muted-foreground hover:text-foreground">
-                  <X className="h-3 w-3" />
-                </button>
-              </Badge>
-            ))}
+            {resolverKeys
+              .filter((key) => !selectedKeys.has(`RESOLVER:${key}`))
+              .map((key) => (
+                <Badge
+                  key={key}
+                  variant="outline"
+                  className="flex cursor-pointer items-center gap-1.5 pr-2 pl-1 hover:border-primary/60"
+                  onClick={() => onAdd({ type: 'RESOLVER', resolver_key: key })}
+                >
+                  <ResolverIcon />
+                  <span>{formatResolverLabel(key)}</span>
+                </Badge>
+              ))}
           </div>
-        ) : (
-          <p className="text-sm text-muted-foreground">No recipients yet. Add one above to continue.</p>
-        )}
+        </div>
+      )}
+
+      <div>
+        <Label className="mb-2 block">Selected recipients</Label>
+        <Popover open={open} onOpenChange={setOpen}>
+          <PopoverTrigger asChild>
+            <div className="flex min-h-10 w-full cursor-pointer flex-wrap items-center gap-1.5 rounded-md border bg-input px-3 py-2 text-sm">
+              {targets.length > 0 ? (
+                targets.map((target) => {
+                  const label = getTargetLabel(target)
+                  return (
+                    <Badge key={buildTargetKey(target)} variant="outline" className="flex items-center gap-1.5 pr-1 pl-1">
+                      {target.type === 'RESOLVER' ? (
+                        <ResolverIcon />
+                      ) : target.type === 'GROUP' ? (
+                        <Avatar entity={groupMap.get(target.id ?? '') as Group | undefined} variant="small" />
+                      ) : (
+                        <Avatar entity={userMap.get(target.id ?? '') as User | undefined} variant="small" />
+                      )}
+                      <span>{label}</span>
+                      <X
+                        className="h-3 w-3 cursor-pointer"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          onRemove(target)
+                        }}
+                      />
+                    </Badge>
+                  )
+                })
+              ) : (
+                <span className="text-muted-foreground">Search and select recipients...</span>
+              )}
+            </div>
+          </PopoverTrigger>
+          <PopoverContent className="w-(--radix-popover-trigger-width) min-w-(--radix-popover-trigger-width) border bg-input! p-0" side="bottom" align="start" sideOffset={4}>
+            <Command shouldFilter={false}>
+              <CommandInput placeholder="Search users, groups, or resolvers..." value={searchText} onValueChange={setSearchText} />
+              <CommandList>
+                <CommandEmpty>{isLoading ? 'Loading...' : 'No results found.'}</CommandEmpty>
+
+                {filteredUsers.length > 0 && (
+                  <CommandGroup heading="Users">
+                    {filteredUsers.map((option) => (
+                      <CommandItem
+                        key={option.value}
+                        value={option.value}
+                        onSelect={() => {
+                          onAdd({ type: 'USER', id: option.value })
+                          setSearchText('')
+                        }}
+                      >
+                        <Avatar entity={userMap.get(option.value) as User | undefined} variant="small" />
+                        <span className="ml-2">{option.label}</span>
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                )}
+
+                {filteredGroups.length > 0 && (
+                  <CommandGroup heading="Groups">
+                    {filteredGroups.map((option) => (
+                      <CommandItem
+                        key={option.value}
+                        value={option.value}
+                        onSelect={() => {
+                          onAdd({ type: 'GROUP', id: option.value })
+                          setSearchText('')
+                        }}
+                      >
+                        <Avatar entity={groupMap.get(option.value) as Group | undefined} variant="small" />
+                        <span className="ml-2">{option.label}</span>
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                )}
+
+                {filteredResolvers.length > 0 && (
+                  <CommandGroup heading="Resolvers">
+                    {filteredResolvers.map((option) => (
+                      <CommandItem
+                        key={option.value}
+                        value={option.value}
+                        onSelect={() => {
+                          onAdd({ type: 'RESOLVER', resolver_key: option.value })
+                          setSearchText('')
+                        }}
+                      >
+                        <ResolverIcon size="md" />
+                        <span className="ml-2">{option.label}</span>
+                      </CommandItem>
+                    ))}
+                  </CommandGroup>
+                )}
+
+                {!isLoading && !hasResults && debouncedSearch.trim() && <CommandEmpty>No results found.</CommandEmpty>}
+              </CommandList>
+            </Command>
+          </PopoverContent>
+        </Popover>
+        {error && <p className="mt-1.5 text-sm text-destructive">{error}</p>}
       </div>
     </div>
   )

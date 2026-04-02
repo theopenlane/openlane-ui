@@ -11,6 +11,8 @@ import { X } from 'lucide-react'
 import { toHumanLabel } from '@/utils/strings'
 import { ACTION_LABELS } from '../../types'
 import { FlowSummary } from '../components/flow-summary'
+import { useEffect } from 'react'
+import { WizardActionType } from '../../types'
 import type { WizardState } from '../hooks/use-wizard-state'
 
 type RulesStepProps = {
@@ -18,6 +20,15 @@ type RulesStepProps = {
 }
 
 export const RulesStep = ({ state }: RulesStepProps) => {
+  const requiresSpecificFields = state.actionType === WizardActionType.REQUEST_APPROVAL && state.operation === 'UPDATE'
+
+  useEffect(() => {
+    if (requiresSpecificFields && state.fieldScope === 'any') {
+      state.setFieldScope('specific')
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [requiresSpecificFields, state.fieldScope, state.setFieldScope])
+
   return (
     <div className="space-y-6">
       <Card>
@@ -35,10 +46,13 @@ export const RulesStep = ({ state }: RulesStepProps) => {
                   <Label>Tracked fields</Label>
                   <p className="text-xs text-muted-foreground">Select which field changes should trigger this workflow.</p>
                 </div>
-                <div className="flex items-center gap-3 rounded-full border border-border/60 bg-muted/10 px-3 py-2">
-                  <span className={`text-xs ${state.fieldScope === 'any' ? 'text-foreground font-medium' : 'text-muted-foreground'}`}>Any field</span>
-                  <Switch checked={state.fieldScope === 'specific'} onCheckedChange={(checked) => state.setFieldScope(checked ? 'specific' : 'any')} />
-                  <span className={`text-xs ${state.fieldScope === 'specific' ? 'text-foreground font-medium' : 'text-muted-foreground'}`}>Specific fields</span>
+                <div className="flex flex-col gap-1">
+                  <div className={`flex w-fit self-end items-center gap-3 rounded-full border border-border/60 bg-muted/10 px-3 py-2 ${requiresSpecificFields ? 'cursor-not-allowed opacity-70' : ''}`}>
+                    <span className={`text-xs ${state.fieldScope === 'any' ? 'text-foreground font-medium' : 'text-muted-foreground'}`}>Any field</span>
+                    <Switch checked={state.fieldScope === 'specific'} disabled={requiresSpecificFields} onCheckedChange={(checked) => state.setFieldScope(checked ? 'specific' : 'any')} />
+                    <span className={`text-xs ${state.fieldScope === 'specific' ? 'text-foreground font-medium' : 'text-muted-foreground'}`}>Specific fields</span>
+                  </div>
+                  {requiresSpecificFields && <p className="text-xs text-muted-foreground">Approval workflows require specific fields to be selected.</p>}
                 </div>
               </div>
               {state.fieldScope === 'any' ? (

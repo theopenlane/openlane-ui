@@ -273,20 +273,20 @@ export const useWizardState = ({ objectTypes, workflowDefinitionsNodes, userOpti
           },
         }
         break
-      case WizardActionType.WEBHOOK:
+      case WizardActionType.WEBHOOK: {
+        const webhookParams: Record<string, unknown> = {
+          url: webhookUrl.trim(),
+          method: webhookMethod,
+        }
+        if (webhookPayload.trim()) webhookParams.payload_expr = webhookPayload.trim()
         action = {
           key: 'webhook',
           type: actionType,
           description: `Webhook ${webhookMethod}`,
-          params: {
-            url: webhookUrl.trim(),
-            method: webhookMethod,
-            headers: { 'Content-Type': 'application/json' },
-            payload: parsedWebhookPayload || {},
-            timeout_ms: 5000,
-          },
+          params: webhookParams,
         }
         break
+      }
       case WizardActionType.UPDATE_FIELD:
         action = {
           key: 'field_update',
@@ -359,7 +359,7 @@ export const useWizardState = ({ objectTypes, workflowDefinitionsNodes, userOpti
     if (stepId === 'rules') {
       if (!schemaType || !operationPicked) return 'Complete the Flow step first.'
       if (operation === 'UPDATE' && fieldScope === 'specific' && trackedFields.length === 0) {
-        return 'Pick at least one tracked field, or choose "Any field change".'
+        return 'Pick at least one tracked field.'
       }
       if (conditionEnabled) {
         if (conditionUseCel && !conditionExpression.trim()) return 'Add a CEL condition or turn off conditions.'
@@ -373,7 +373,7 @@ export const useWizardState = ({ objectTypes, workflowDefinitionsNodes, userOpti
       if (actionType === WizardActionType.NOTIFY && targets.length === 0) return 'Add at least one notification target.'
       if (actionType === WizardActionType.WEBHOOK) {
         if (!webhookUrl.trim()) return 'Add a webhook URL.'
-        if (webhookPayloadError) return webhookPayloadError
+        if (webhookUrl.trim() && !/^https?:\/\/.+/.test(webhookUrl.trim())) return 'Webhook URL must start with http:// or https://'
       }
       if (actionType === WizardActionType.UPDATE_FIELD && !fieldUpdateField) return 'Select the field you want to update.'
     }
