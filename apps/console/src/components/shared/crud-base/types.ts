@@ -17,4 +17,4 @@ export interface StepConfig {
 
 export type ViewEditMode<TData, TUpdateInput> = { type: 'slideout' } | { type: 'tabbed'; tabs: TabConfig<TData, TUpdateInput>[] } | { type: 'full-page'; route: string }
 
-export type CreateMode = { type: 'slideout' } | { type: 'step-dialog'; steps: StepConfig[]; title?: string } | { type: 'full-page'; route: string }
+export type CreateMode = { type: 'slideout' } | { type: 'step-dialog'; steps: StepConfig[]; title?: string; dialogClassName?: string } | { type: 'full-page'; route: string }

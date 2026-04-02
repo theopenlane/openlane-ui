@@ -106,7 +106,7 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId }) =
     <div className="space-y-4">
       {platform.businessPurpose && (
         <Card>
-          <CardHeader className="pb-2">
+          <CardHeader className="pb-2 p-0">
             <CardTitle className="text-sm font-medium text-muted-foreground">Business Purpose</CardTitle>
           </CardHeader>
           <CardContent>
@@ -116,7 +116,7 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId }) =
       )}
       {platform.dataFlowSummary && (
         <Card>
-          <CardHeader className="pb-2">
+          <CardHeader className="pb-2 p-0">
             <CardTitle className="text-sm font-medium text-muted-foreground">Data Flow Summary</CardTitle>
           </CardHeader>
           <CardContent>
@@ -126,7 +126,7 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId }) =
       )}
       {platform.trustBoundaryDescription && (
         <Card>
-          <CardHeader className="pb-2">
+          <CardHeader className="pb-2 p-0">
             <CardTitle className="text-sm font-medium text-muted-foreground">Trust Boundary</CardTitle>
           </CardHeader>
           <CardContent>
@@ -136,7 +136,7 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId }) =
       )}
 
       <Card>
-        <CardHeader className="pb-3">
+        <CardHeader className="pb-3 p-0">
           <CardTitle className="text-sm font-medium">Ownership</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
@@ -166,7 +166,7 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId }) =
       </Card>
 
       <Card>
-        <CardHeader className="pb-3">
+        <CardHeader className="pb-3 p-0">
           <CardTitle className="text-sm font-medium flex items-center gap-1.5">
             <NetworkIcon size={14} />
             Graph
@@ -228,14 +228,14 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId }) =
 
       <Tabs defaultValue="assets">
         <TabsList>
-          <TabsTrigger value="assets" className="flex items-center gap-1.5">
+          <TabsTrigger value="assets" className="flex items-center gap-1.5 pl-2">
             <Laptop size={14} />
             Assets
             <Badge variant="secondary" className="ml-1 text-xs">
               {inScopeAssets.length + outOfScopeAssets.length}
             </Badge>
           </TabsTrigger>
-          <TabsTrigger value="vendors" className="flex items-center gap-1.5">
+          <TabsTrigger value="vendors" className="flex items-center gap-1.5 pl-2">
             <Building2 size={14} />
             Vendors
             <Badge variant="secondary" className="ml-1 text-xs">

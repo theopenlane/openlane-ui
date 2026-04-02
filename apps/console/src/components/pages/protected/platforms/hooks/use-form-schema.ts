@@ -2,14 +2,15 @@
 import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { type Value } from 'platejs'
 import { PlatformPlatformStatus } from '@repo/codegen/src/schema'
 import { responsibilityFieldSchema } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
-  businessPurpose: z.string().optional(),
-  dataFlowSummary: z.string().optional(),
-  trustBoundaryDescription: z.string().optional(),
+  businessPurpose: z.custom<Value | string>().optional(),
+  dataFlowSummary: z.custom<Value | string>().optional(),
+  trustBoundaryDescription: z.custom<Value | string>().optional(),
   status: z.nativeEnum(PlatformPlatformStatus).optional(),
   environmentName: z.string().optional().nullable(),
   scopeName: z.string().optional().nullable(),

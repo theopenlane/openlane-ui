@@ -10,6 +10,8 @@ import { PlatformPlatformStatus, type UpdatePlatformInput, type CreatePlatformIn
 import { type EditPlatformFormData } from '../hooks/use-form-schema'
 import { buildResponsibilityPayload } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 import { useCreatePlatform, useUpdatePlatform, useDeletePlatform } from '@/lib/graphql-hooks/platform'
+import usePlateEditor from '@/components/shared/plate/usePlateEditor'
+import { type Value } from 'platejs'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
 import { breadcrumbs, getFilterFields, visibilityFields } from './table-config'
 import { type PlatformSheetConfig, type PlatformTablePageConfig, objectType, objectName, displayName, tableKey, orderFieldEnum, defaultSorting } from './types'
@@ -19,6 +21,7 @@ import TableComponent from './table'
 
 const PlatformPage: React.FC = () => {
   const { form } = useFormSchema()
+  const plateEditorHelper = usePlateEditor()
 
   const searchParams = useSearchParams()
   const id = searchParams.get('id')
@@ -67,8 +70,16 @@ const PlatformPage: React.FC = () => {
     deleteMutation,
     buildPayload: async (data) => {
       const { businessOwner, technicalOwner, ...rest } = data
+      const [businessPurpose, dataFlowSummary, trustBoundaryDescription] = await Promise.all([
+        rest.businessPurpose ? plateEditorHelper.convertToHtml(rest.businessPurpose as Value) : undefined,
+        rest.dataFlowSummary ? plateEditorHelper.convertToHtml(rest.dataFlowSummary as Value) : undefined,
+        rest.trustBoundaryDescription ? plateEditorHelper.convertToHtml(rest.trustBoundaryDescription as Value) : undefined,
+      ])
       return {
         ...rest,
+        businessPurpose,
+        dataFlowSummary,
+        trustBoundaryDescription,
         ...buildResponsibilityPayload('businessOwner', businessOwner, { mode: isCreate ? 'create' : 'update' }),
         ...buildResponsibilityPayload('technicalOwner', technicalOwner, { mode: isCreate ? 'create' : 'update' }),
       } as CreatePlatformInput
@@ -96,7 +107,7 @@ const PlatformPage: React.FC = () => {
     TableComponent,
     sheetConfig,
     viewEditMode: { type: 'full-page', route: '/registry/platforms' },
-    createMode: { type: 'step-dialog', steps: platformCreateSteps, title: 'Create Platform' },
+    createMode: { type: 'step-dialog', steps: platformCreateSteps, title: 'Create Platform', dialogClassName: 'sm:max-w-2xl' },
     onBulkDelete: async (ids: string[]) => {
       await deleteMutation.mutateAsync({ ids })
     },

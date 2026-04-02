@@ -226,7 +226,7 @@ const PlatformGraph: React.FC<PlatformGraphProps> = ({ platform, inScopeAssets, 
 
   if (totalNodes <= 1) {
     return (
-      <div className="rounded-md border p-8 text-center">
+      <div className="p-5 text-left">
         <p className="text-sm text-muted-foreground">No linked assets or vendors to display in the graph.</p>
         <p className="text-xs text-muted-foreground mt-1">Add assets and vendors to this platform to see the hierarchy.</p>
       </div>
