@@ -6,7 +6,6 @@ import { type TaskQuery, TaskTaskStatus } from '@repo/codegen/src/schema'
 import { Button } from '@repo/ui/button'
 import { useQueryClient } from '@tanstack/react-query'
 import { Check } from 'lucide-react'
-import { useSearchParams } from 'next/navigation'
 import React from 'react'
 
 type MarkAsCompleteProps = {
@@ -15,8 +14,7 @@ type MarkAsCompleteProps = {
 
 const MarkAsComplete = ({ taskData }: MarkAsCompleteProps) => {
   const { successNotification, errorNotification } = useNotification()
-  const searchParams = useSearchParams()
-  const id = searchParams.get('id')
+  const id = taskData?.id
   const queryClient = useQueryClient()
   const { mutateAsync: updateTask } = useUpdateTask()
 

@@ -2073,6 +2073,10 @@ export interface Asset extends Node {
   /** unique identifier like domain, device id, etc */
   identifier?: Maybe<Scalars['String']['output']>
   identityHolders: IdentityHolderConnection
+  /** integration that owns this asset */
+  integration?: Maybe<Integration>
+  /** integration that discovered this asset, when sourced via integration ingest */
+  integrationID?: Maybe<Scalars['ID']['output']>
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: Maybe<Scalars['String']['output']>
   /** the internal owner for the asset when no user or group is linked */
@@ -2085,6 +2089,8 @@ export interface Asset extends Node {
   internalOwnerUserID?: Maybe<Scalars['ID']['output']>
   /** the name of the asset, e.g. matts computer, office router, IP address, etc */
   name: Scalars['String']['output']
+  /** time when this asset was last observed by the source integration */
+  observedAt?: Maybe<Scalars['DateTime']['output']>
   outOfScopePlatforms: PlatformConnection
   owner?: Maybe<Organization>
   /** the ID of the organization owner of the object */
@@ -2310,6 +2316,7 @@ export enum AssetOrderField {
   estimated_monthly_cost = 'estimated_monthly_cost',
   internal_owner = 'internal_owner',
   name = 'name',
+  observed_at = 'observed_at',
   physical_location = 'physical_location',
   purchase_date = 'purchase_date',
   region = 'region',
@@ -2667,6 +2674,9 @@ export interface AssetWhereInput {
   /** identity_holders edge predicates */
   hasIdentityHolders?: InputMaybe<Scalars['Boolean']['input']>
   hasIdentityHoldersWith?: InputMaybe<Array<IdentityHolderWhereInput>>
+  /** integration edge predicates */
+  hasIntegration?: InputMaybe<Scalars['Boolean']['input']>
+  hasIntegrationWith?: InputMaybe<Array<IntegrationWhereInput>>
   /** internal_owner_group edge predicates */
   hasInternalOwnerGroup?: InputMaybe<Scalars['Boolean']['input']>
   hasInternalOwnerGroupWith?: InputMaybe<Array<GroupWhereInput>>
@@ -2724,6 +2734,22 @@ export interface AssetWhereInput {
   identifierNEQ?: InputMaybe<Scalars['String']['input']>
   identifierNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   identifierNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** integration_id field predicates */
+  integrationID?: InputMaybe<Scalars['ID']['input']>
+  integrationIDContains?: InputMaybe<Scalars['ID']['input']>
+  integrationIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  integrationIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  integrationIDGT?: InputMaybe<Scalars['ID']['input']>
+  integrationIDGTE?: InputMaybe<Scalars['ID']['input']>
+  integrationIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  integrationIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  integrationIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  integrationIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  integrationIDLT?: InputMaybe<Scalars['ID']['input']>
+  integrationIDLTE?: InputMaybe<Scalars['ID']['input']>
+  integrationIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  integrationIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  integrationIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** internal_notes field predicates */
   internalNotes?: InputMaybe<Scalars['String']['input']>
   internalNotesContains?: InputMaybe<Scalars['String']['input']>
@@ -2803,6 +2829,17 @@ export interface AssetWhereInput {
   nameNEQ?: InputMaybe<Scalars['String']['input']>
   nameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   not?: InputMaybe<AssetWhereInput>
+  /** observed_at field predicates */
+  observedAt?: InputMaybe<Scalars['DateTime']['input']>
+  observedAtGT?: InputMaybe<Scalars['DateTime']['input']>
+  observedAtGTE?: InputMaybe<Scalars['DateTime']['input']>
+  observedAtIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  observedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  observedAtLT?: InputMaybe<Scalars['DateTime']['input']>
+  observedAtLTE?: InputMaybe<Scalars['DateTime']['input']>
+  observedAtNEQ?: InputMaybe<Scalars['DateTime']['input']>
+  observedAtNotIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  observedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
   or?: InputMaybe<Array<AssetWhereInput>>
   /** owner_id field predicates */
   ownerID?: InputMaybe<Scalars['ID']['input']>
@@ -4321,10 +4358,16 @@ export interface Contact extends Node {
   /** the email of the contact */
   email?: Maybe<Scalars['String']['output']>
   entities: EntityConnection
+  /** stable identifier assigned by the source system, used for integration ingest deduplication */
+  externalID?: Maybe<Scalars['String']['output']>
   files: FileConnection
   /** the full name of the contact */
   fullName?: Maybe<Scalars['String']['output']>
   id: Scalars['ID']['output']
+  /** integration that sourced this contact, when populated via integration ingest */
+  integrationID?: Maybe<Scalars['String']['output']>
+  /** time when this contact was last observed by the source integration */
+  observedAt?: Maybe<Scalars['DateTime']['output']>
   owner?: Maybe<Organization>
   /** the organization id that owns the object */
   ownerID?: Maybe<Scalars['ID']['output']>
@@ -4447,7 +4490,9 @@ export enum ContactOrderField {
   company = 'company',
   created_at = 'created_at',
   email = 'email',
+  external_id = 'external_id',
   full_name = 'full_name',
+  observed_at = 'observed_at',
   title = 'title',
   updated_at = 'updated_at',
 }
@@ -4466,6 +4511,7 @@ export enum ContactUserStatus {
   INACTIVE = 'INACTIVE',
   ONBOARDING = 'ONBOARDING',
   SUSPENDED = 'SUSPENDED',
+  UNKNOWN = 'UNKNOWN',
 }
 
 /**
@@ -4549,6 +4595,22 @@ export interface ContactWhereInput {
   emailNEQ?: InputMaybe<Scalars['String']['input']>
   emailNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   emailNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** external_id field predicates */
+  externalID?: InputMaybe<Scalars['String']['input']>
+  externalIDContains?: InputMaybe<Scalars['String']['input']>
+  externalIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  externalIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  externalIDGT?: InputMaybe<Scalars['String']['input']>
+  externalIDGTE?: InputMaybe<Scalars['String']['input']>
+  externalIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  externalIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  externalIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  externalIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  externalIDLT?: InputMaybe<Scalars['String']['input']>
+  externalIDLTE?: InputMaybe<Scalars['String']['input']>
+  externalIDNEQ?: InputMaybe<Scalars['String']['input']>
+  externalIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  externalIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** full_name field predicates */
   fullName?: InputMaybe<Scalars['String']['input']>
   fullNameContains?: InputMaybe<Scalars['String']['input']>
@@ -4591,7 +4653,34 @@ export interface ContactWhereInput {
   idLTE?: InputMaybe<Scalars['ID']['input']>
   idNEQ?: InputMaybe<Scalars['ID']['input']>
   idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** integration_id field predicates */
+  integrationID?: InputMaybe<Scalars['String']['input']>
+  integrationIDContains?: InputMaybe<Scalars['String']['input']>
+  integrationIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  integrationIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  integrationIDGT?: InputMaybe<Scalars['String']['input']>
+  integrationIDGTE?: InputMaybe<Scalars['String']['input']>
+  integrationIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  integrationIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  integrationIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  integrationIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  integrationIDLT?: InputMaybe<Scalars['String']['input']>
+  integrationIDLTE?: InputMaybe<Scalars['String']['input']>
+  integrationIDNEQ?: InputMaybe<Scalars['String']['input']>
+  integrationIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  integrationIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   not?: InputMaybe<ContactWhereInput>
+  /** observed_at field predicates */
+  observedAt?: InputMaybe<Scalars['DateTime']['input']>
+  observedAtGT?: InputMaybe<Scalars['DateTime']['input']>
+  observedAtGTE?: InputMaybe<Scalars['DateTime']['input']>
+  observedAtIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  observedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  observedAtLT?: InputMaybe<Scalars['DateTime']['input']>
+  observedAtLTE?: InputMaybe<Scalars['DateTime']['input']>
+  observedAtNEQ?: InputMaybe<Scalars['DateTime']['input']>
+  observedAtNotIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  observedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
   or?: InputMaybe<Array<ContactWhereInput>>
   /** owner_id field predicates */
   ownerID?: InputMaybe<Scalars['ID']['input']>
@@ -7132,6 +7221,7 @@ export interface CreateAssetInput {
   /** unique identifier like domain, device id, etc */
   identifier?: InputMaybe<Scalars['String']['input']>
   identityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  integrationID?: InputMaybe<Scalars['ID']['input']>
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: InputMaybe<Scalars['String']['input']>
   /** the internal owner for the asset when no user or group is linked */
@@ -7140,6 +7230,8 @@ export interface CreateAssetInput {
   internalOwnerUserID?: InputMaybe<Scalars['ID']['input']>
   /** the name of the asset, e.g. matts computer, office router, IP address, etc */
   name: Scalars['String']['input']
+  /** time when this asset was last observed by the source integration */
+  observedAt?: InputMaybe<Scalars['DateTime']['input']>
   outOfScopePlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   ownerID?: InputMaybe<Scalars['ID']['input']>
   /** physical location of the asset, if applicable */
@@ -7293,9 +7385,15 @@ export interface CreateContactInput {
   /** the email of the contact */
   email?: InputMaybe<Scalars['String']['input']>
   entityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** stable identifier assigned by the source system, used for integration ingest deduplication */
+  externalID?: InputMaybe<Scalars['String']['input']>
   fileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the full name of the contact */
   fullName?: InputMaybe<Scalars['String']['input']>
+  /** integration that sourced this contact, when populated via integration ingest */
+  integrationID?: InputMaybe<Scalars['String']['input']>
+  /** time when this contact was last observed by the source integration */
+  observedAt?: InputMaybe<Scalars['DateTime']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
   /** the phone number of the contact */
   phoneNumber?: InputMaybe<Scalars['String']['input']>
@@ -7509,6 +7607,8 @@ export interface CreateCustomDomainInput {
   /** the name of the custom domain */
   cnameRecord: Scalars['String']['input']
   dnsVerificationID?: InputMaybe<Scalars['ID']['input']>
+  /** the type of this custom domain */
+  domainType?: InputMaybe<CustomDomainCustomDomainType>
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: InputMaybe<Scalars['String']['input']>
   mappableDomainID: Scalars['ID']['input']
@@ -7589,6 +7689,8 @@ export interface CreateDnsVerificationInput {
 export interface CreateDirectoryAccountInput {
   /** type of principal represented in the directory */
   accountType?: InputMaybe<DirectoryAccountDirectoryAccountType>
+  /** provider-reported time the account was added or provisioned in the source directory */
+  addedAt?: InputMaybe<Scalars['Time']['input']>
   avatarFileID?: InputMaybe<Scalars['ID']['input']>
   /** URL of the avatar supplied by the directory provider */
   avatarRemoteURL?: InputMaybe<Scalars['String']['input']>
@@ -7598,6 +7700,8 @@ export interface CreateDirectoryAccountInput {
   canonicalEmail?: InputMaybe<Scalars['String']['input']>
   /** department captured at sync time */
   department?: InputMaybe<Scalars['String']['input']>
+  /** stable external workspace, tenant, or installation identifier used to correlate accounts across multiple integrations pointed at the same directory instance */
+  directoryInstanceID?: InputMaybe<Scalars['String']['input']>
   /** directory source label set by the integration (e.g. googleworkspace, github, slack) */
   directoryName?: InputMaybe<Scalars['String']['input']>
   directorySyncRunID?: InputMaybe<Scalars['ID']['input']>
@@ -7611,6 +7715,8 @@ export interface CreateDirectoryAccountInput {
   /** last name reported by the provider */
   familyName?: InputMaybe<Scalars['String']['input']>
   findingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** time this account was first observed by Openlane from directory ingest */
+  firstSeenAt?: InputMaybe<Scalars['Time']['input']>
   /** first name reported by the provider */
   givenName?: InputMaybe<Scalars['String']['input']>
   groupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -7620,8 +7726,12 @@ export interface CreateDirectoryAccountInput {
   jobTitle?: InputMaybe<Scalars['String']['input']>
   /** timestamp of the most recent login reported by the provider */
   lastLoginAt?: InputMaybe<Scalars['Time']['input']>
+  /** time this account was most recently confirmed by directory ingest */
+  lastSeenAt?: InputMaybe<Scalars['Time']['input']>
   /** last IP address observed by the provider, if any */
   lastSeenIP?: InputMaybe<Scalars['String']['input']>
+  /** provider-specific metadata captured alongside the normalized profile to preserve directory quirks without schema sprawl */
+  metadata?: InputMaybe<Scalars['Map']['input']>
   /** multi-factor authentication state reported by the directory */
   mfaState?: InputMaybe<DirectoryAccountDirectoryAccountMfaState>
   /** time when this snapshot was recorded */
@@ -7634,6 +7744,8 @@ export interface CreateDirectoryAccountInput {
   profile?: InputMaybe<Scalars['Map']['input']>
   /** hash of the normalized profile payload for change detection */
   profileHash?: InputMaybe<Scalars['String']['input']>
+  /** provider-reported or locally-recorded time the account was removed from the source directory */
+  removedAt?: InputMaybe<Scalars['Time']['input']>
   scopeID?: InputMaybe<Scalars['ID']['input']>
   /** the scope of the directory_account */
   scopeName?: InputMaybe<Scalars['String']['input']>
@@ -7653,10 +7765,14 @@ export interface CreateDirectoryAccountInput {
  * Input was generated by ent.
  */
 export interface CreateDirectoryGroupInput {
+  /** provider-reported time the group was added or provisioned in the source directory */
+  addedAt?: InputMaybe<Scalars['Time']['input']>
   /** provider classification such as security, distribution, or dynamic */
   classification?: InputMaybe<DirectoryGroupDirectoryGroupClassification>
   /** free-form description captured at sync time */
   description?: InputMaybe<Scalars['String']['input']>
+  /** stable external workspace, tenant, or installation identifier used to correlate groups across multiple integrations pointed at the same directory instance */
+  directoryInstanceID?: InputMaybe<Scalars['String']['input']>
   directorySyncRunID: Scalars['ID']['input']
   /** directory supplied display name */
   displayName?: InputMaybe<Scalars['String']['input']>
@@ -7669,9 +7785,15 @@ export interface CreateDirectoryGroupInput {
   externalID: Scalars['String']['input']
   /** true when directory settings allow sharing outside the tenant */
   externalSharingAllowed?: InputMaybe<Scalars['Boolean']['input']>
+  /** time this group was first observed by Openlane from directory ingest */
+  firstSeenAt?: InputMaybe<Scalars['Time']['input']>
   integrationID: Scalars['ID']['input']
+  /** time this group was most recently confirmed by directory ingest */
+  lastSeenAt?: InputMaybe<Scalars['Time']['input']>
   /** member count reported by the directory */
   memberCount?: InputMaybe<Scalars['Int']['input']>
+  /** provider-specific metadata captured alongside the normalized profile to preserve directory quirks without schema sprawl */
+  metadata?: InputMaybe<Scalars['Map']['input']>
   /** time when this snapshot was recorded */
   observedAt?: InputMaybe<Scalars['Time']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
@@ -7680,6 +7802,8 @@ export interface CreateDirectoryGroupInput {
   profile?: InputMaybe<Scalars['Map']['input']>
   /** hash of the normalized payload for diffing */
   profileHash?: InputMaybe<Scalars['String']['input']>
+  /** provider-reported or locally-recorded time the group was removed from the source directory */
+  removedAt?: InputMaybe<Scalars['Time']['input']>
   scopeID?: InputMaybe<Scalars['ID']['input']>
   /** the scope of the directory_group */
   scopeName?: InputMaybe<Scalars['String']['input']>
@@ -7697,8 +7821,12 @@ export interface CreateDirectoryGroupInput {
  * Input was generated by ent.
  */
 export interface CreateDirectoryMembershipInput {
+  /** provider-reported time the membership was added in the source directory */
+  addedAt?: InputMaybe<Scalars['Time']['input']>
   directoryAccountID: Scalars['ID']['input']
   directoryGroupID: Scalars['ID']['input']
+  /** stable external workspace, tenant, or installation identifier used to correlate memberships across multiple integrations pointed at the same directory instance */
+  directoryInstanceID?: InputMaybe<Scalars['String']['input']>
   directorySyncRunID: Scalars['ID']['input']
   environmentID?: InputMaybe<Scalars['ID']['input']>
   /** the environment of the directory_membership */
@@ -7709,7 +7837,7 @@ export interface CreateDirectoryMembershipInput {
   integrationID: Scalars['ID']['input']
   /** sync run identifier that most recently confirmed this membership */
   lastConfirmedRunID?: InputMaybe<Scalars['String']['input']>
-  /** most recent time the membership was detected */
+  /** most recent time the membership was confirmed by directory ingest */
   lastSeenAt?: InputMaybe<Scalars['Time']['input']>
   /** raw metadata associated with this membership from the provider */
   metadata?: InputMaybe<Scalars['Map']['input']>
@@ -7717,6 +7845,8 @@ export interface CreateDirectoryMembershipInput {
   observedAt?: InputMaybe<Scalars['Time']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
   platformID?: InputMaybe<Scalars['ID']['input']>
+  /** provider-reported or locally-recorded time the membership was removed from the source directory */
+  removedAt?: InputMaybe<Scalars['Time']['input']>
   /** membership role reported by the provider */
   role?: InputMaybe<DirectoryMembershipDirectoryMembershipRole>
   scopeID?: InputMaybe<Scalars['ID']['input']>
@@ -7738,6 +7868,8 @@ export interface CreateDirectorySyncRunInput {
   deltaCount?: InputMaybe<Scalars['Int']['input']>
   directoryAccountIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   directoryGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** stable external workspace, tenant, or installation identifier derived from integration installation metadata for grouping runs across integrations pointed at the same directory instance */
+  directoryInstanceID?: InputMaybe<Scalars['String']['input']>
   environmentID?: InputMaybe<Scalars['ID']['input']>
   /** the environment of the directory_sync_run */
   environmentName?: InputMaybe<Scalars['String']['input']>
@@ -7849,6 +7981,7 @@ export interface CreateEmailBrandingInput {
 export interface CreateEmailTemplateInput {
   /** whether the template is active */
   active?: InputMaybe<Scalars['Boolean']['input']>
+  blockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** body template for the email */
   bodyTemplate?: InputMaybe<Scalars['String']['input']>
   campaignIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -7856,7 +7989,8 @@ export interface CreateEmailTemplateInput {
   defaults?: InputMaybe<Scalars['Map']['input']>
   /** description of the template */
   description?: InputMaybe<Scalars['String']['input']>
-  emailBrandingID?: InputMaybe<Scalars['ID']['input']>
+  editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  emailBrandingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   fileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** template format for rendering */
   format?: InputMaybe<EmailTemplateNotificationTemplateFormat>
@@ -7884,13 +8018,14 @@ export interface CreateEmailTemplateInput {
   /** an internal identifier for the mapping, this field is only available to system admins */
   systemInternalID?: InputMaybe<Scalars['String']['input']>
   /** runtime data context defining available variable keys for this template */
-  templateContext?: InputMaybe<EmailTemplateTemplateContext>
+  templateContext: EmailTemplateTemplateContext
   /** plain text fallback template for the email */
   textTemplate?: InputMaybe<Scalars['String']['input']>
   /** uischema for a template builder */
   uischema?: InputMaybe<Scalars['Map']['input']>
   /** template version */
   version?: InputMaybe<Scalars['Int']['input']>
+  viewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   workflowDefinitionID?: InputMaybe<Scalars['ID']['input']>
   workflowInstanceID?: InputMaybe<Scalars['ID']['input']>
 }
@@ -7943,6 +8078,8 @@ export interface CreateEntityInput {
   environmentID?: InputMaybe<Scalars['ID']['input']>
   /** the environment of the entity */
   environmentName?: InputMaybe<Scalars['String']['input']>
+  /** stable identifier assigned by the source system, used for integration ingest deduplication */
+  externalID?: InputMaybe<Scalars['String']['input']>
   fileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** whether the entity has an active SOC 2 report */
   hasSoc2?: InputMaybe<Scalars['Boolean']['input']>
@@ -7971,6 +8108,8 @@ export interface CreateEntityInput {
   nextReviewAt?: InputMaybe<Scalars['DateTime']['input']>
   note?: InputMaybe<CreateNoteInput>
   noteIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** time when this entity was last observed by the source integration */
+  observedAt?: InputMaybe<Scalars['DateTime']['input']>
   outOfScopePlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   ownerID?: InputMaybe<Scalars['ID']['input']>
   platformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -8069,7 +8208,7 @@ export interface CreateEvidenceInput {
   controlImplementationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   controlObjectiveIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the date the evidence was retrieved */
-  creationDate?: InputMaybe<Scalars['Time']['input']>
+  creationDate?: InputMaybe<Scalars['DateTime']['input']>
   /** the description of the evidence, what is contained in the uploaded file(s) or url(s) */
   description?: InputMaybe<Scalars['String']['input']>
   environmentID?: InputMaybe<Scalars['ID']['input']>
@@ -8086,7 +8225,7 @@ export interface CreateEvidenceInput {
   platformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   programIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the date the evidence should be renewed, defaults to a year from entry date */
-  renewalDate?: InputMaybe<Scalars['Time']['input']>
+  renewalDate?: InputMaybe<Scalars['DateTime']['input']>
   scanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   scopeID?: InputMaybe<Scalars['ID']['input']>
   /** the scope of the evidence */
@@ -8959,6 +9098,8 @@ export interface CreateNotificationTemplateInput {
   defaults?: InputMaybe<Scalars['Map']['input']>
   /** description of the template */
   description?: InputMaybe<Scalars['String']['input']>
+  /** optional explicit provider destination identifiers for this template, such as Slack channel IDs */
+  destinations?: InputMaybe<Array<Scalars['String']['input']>>
   emailTemplateID?: InputMaybe<Scalars['ID']['input']>
   /** template format for rendering */
   format?: InputMaybe<NotificationTemplateNotificationTemplateFormat>
@@ -9663,10 +9804,14 @@ export interface CreateRiskInput {
   environmentID?: InputMaybe<Scalars['ID']['input']>
   /** the environment of the risk */
   environmentName?: InputMaybe<Scalars['String']['input']>
+  /** stable identifier assigned by the source system, used for integration ingest deduplication */
+  externalID?: InputMaybe<Scalars['String']['input']>
   /** stable external UUID for deterministic OSCAL export and round-tripping */
   externalUUID?: InputMaybe<Scalars['String']['input']>
   /** impact of the risk -critical, high, medium, low */
   impact?: InputMaybe<RiskRiskImpact>
+  /** integration that surfaced this risk, when sourced via integration ingest */
+  integrationID?: InputMaybe<Scalars['String']['input']>
   internalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** likelihood of the risk occurring; unlikely, likely, highly likely */
   likelihood?: InputMaybe<RiskRiskLikelihood>
@@ -9676,6 +9821,8 @@ export interface CreateRiskInput {
   mitigationJSON?: InputMaybe<Array<Scalars['Any']['input']>>
   /** the name of the risk */
   name: Scalars['String']['input']
+  /** time when this risk was last observed by the source integration */
+  observedAt?: InputMaybe<Scalars['DateTime']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
   platformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   procedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -10674,6 +10821,8 @@ export interface CustomDomain extends Node {
   dnsVerification?: Maybe<DnsVerification>
   /** The ID of the dns verification record */
   dnsVerificationID?: Maybe<Scalars['ID']['output']>
+  /** the type of this custom domain */
+  domainType: CustomDomainCustomDomainType
   id: Scalars['ID']['output']
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: Maybe<Scalars['String']['output']>
@@ -10734,6 +10883,13 @@ export interface CustomDomainCreatePayload {
   __typename?: 'CustomDomainCreatePayload'
   /** Created customDomain */
   customDomain: CustomDomain
+}
+
+/** CustomDomainCustomDomainType is enum for the field domain_type */
+export enum CustomDomainCustomDomainType {
+  EXTERNAL = 'EXTERNAL',
+  PREVIEW = 'PREVIEW',
+  UNKNOWN = 'UNKNOWN',
 }
 
 /** Return response for deleteCustomDomain mutation */
@@ -10844,6 +11000,11 @@ export interface CustomDomainWhereInput {
   dnsVerificationIDNEQ?: InputMaybe<Scalars['ID']['input']>
   dnsVerificationIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   dnsVerificationIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** domain_type field predicates */
+  domainType?: InputMaybe<CustomDomainCustomDomainType>
+  domainTypeIn?: InputMaybe<Array<CustomDomainCustomDomainType>>
+  domainTypeNEQ?: InputMaybe<CustomDomainCustomDomainType>
+  domainTypeNotIn?: InputMaybe<Array<CustomDomainCustomDomainType>>
   /** dns_verification edge predicates */
   hasDNSVerification?: InputMaybe<Scalars['Boolean']['input']>
   hasDNSVerificationWith?: InputMaybe<Array<DnsVerificationWhereInput>>
@@ -11810,6 +11971,8 @@ export interface DirectoryAccount extends Node {
   __typename?: 'DirectoryAccount'
   /** type of principal represented in the directory */
   accountType?: Maybe<DirectoryAccountDirectoryAccountType>
+  /** provider-reported time the account was added or provisioned in the source directory */
+  addedAt?: Maybe<Scalars['Time']['output']>
   /** local avatar file for the directory account */
   avatarFile?: Maybe<File>
   /** local avatar file identifier, takes precedence over avatar_remote_url */
@@ -11824,6 +11987,8 @@ export interface DirectoryAccount extends Node {
   createdBy?: Maybe<Scalars['String']['output']>
   /** department captured at sync time */
   department?: Maybe<Scalars['String']['output']>
+  /** stable external workspace, tenant, or installation identifier used to correlate accounts across multiple integrations pointed at the same directory instance */
+  directoryInstanceID?: Maybe<Scalars['String']['output']>
   /** directory source label set by the integration (e.g. googleworkspace, github, slack) */
   directoryName?: Maybe<Scalars['String']['output']>
   /** sync run that produced this snapshot */
@@ -11844,6 +12009,8 @@ export interface DirectoryAccount extends Node {
   /** last name reported by the provider */
   familyName?: Maybe<Scalars['String']['output']>
   findings: FindingConnection
+  /** time this account was first observed by Openlane from directory ingest */
+  firstSeenAt?: Maybe<Scalars['Time']['output']>
   /** first name reported by the provider */
   givenName?: Maybe<Scalars['String']['output']>
   groups: DirectoryGroupConnection
@@ -11860,9 +12027,13 @@ export interface DirectoryAccount extends Node {
   jobTitle?: Maybe<Scalars['String']['output']>
   /** timestamp of the most recent login reported by the provider */
   lastLoginAt?: Maybe<Scalars['Time']['output']>
+  /** time this account was most recently confirmed by directory ingest */
+  lastSeenAt?: Maybe<Scalars['Time']['output']>
   /** last IP address observed by the provider, if any */
   lastSeenIP?: Maybe<Scalars['String']['output']>
   memberships: DirectoryMembershipConnection
+  /** provider-specific metadata captured alongside the normalized profile to preserve directory quirks without schema sprawl */
+  metadata?: Maybe<Scalars['Map']['output']>
   /** multi-factor authentication state reported by the directory */
   mfaState: DirectoryAccountDirectoryAccountMfaState
   /** time when this snapshot was recorded */
@@ -11882,6 +12053,8 @@ export interface DirectoryAccount extends Node {
   profileHash: Scalars['String']['output']
   /** object storage file identifier that holds the raw upstream payload */
   rawProfileFileID?: Maybe<Scalars['String']['output']>
+  /** provider-reported or locally-recorded time the account was removed from the source directory */
+  removedAt?: Maybe<Scalars['Time']['output']>
   scope?: Maybe<CustomTypeEnum>
   /** the scope of the directory_account */
   scopeID?: Maybe<Scalars['ID']['output']>
@@ -12013,6 +12186,7 @@ export interface DirectoryAccountOrder {
 export enum DirectoryAccountOrderField {
   canonical_email = 'canonical_email',
   created_at = 'created_at',
+  directory_instance_id = 'directory_instance_id',
   directory_name = 'directory_name',
   display_name = 'display_name',
   external_id = 'external_id',
@@ -12038,6 +12212,17 @@ export interface DirectoryAccountWhereInput {
   accountTypeNEQ?: InputMaybe<DirectoryAccountDirectoryAccountType>
   accountTypeNotIn?: InputMaybe<Array<DirectoryAccountDirectoryAccountType>>
   accountTypeNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** added_at field predicates */
+  addedAt?: InputMaybe<Scalars['Time']['input']>
+  addedAtGT?: InputMaybe<Scalars['Time']['input']>
+  addedAtGTE?: InputMaybe<Scalars['Time']['input']>
+  addedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  addedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  addedAtLT?: InputMaybe<Scalars['Time']['input']>
+  addedAtLTE?: InputMaybe<Scalars['Time']['input']>
+  addedAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  addedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  addedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
   and?: InputMaybe<Array<DirectoryAccountWhereInput>>
   /** avatar_local_file_id field predicates */
   avatarLocalFileID?: InputMaybe<Scalars['ID']['input']>
@@ -12141,6 +12326,22 @@ export interface DirectoryAccountWhereInput {
   departmentNEQ?: InputMaybe<Scalars['String']['input']>
   departmentNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   departmentNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** directory_instance_id field predicates */
+  directoryInstanceID?: InputMaybe<Scalars['String']['input']>
+  directoryInstanceIDContains?: InputMaybe<Scalars['String']['input']>
+  directoryInstanceIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  directoryInstanceIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  directoryInstanceIDGT?: InputMaybe<Scalars['String']['input']>
+  directoryInstanceIDGTE?: InputMaybe<Scalars['String']['input']>
+  directoryInstanceIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  directoryInstanceIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  directoryInstanceIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  directoryInstanceIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  directoryInstanceIDLT?: InputMaybe<Scalars['String']['input']>
+  directoryInstanceIDLTE?: InputMaybe<Scalars['String']['input']>
+  directoryInstanceIDNEQ?: InputMaybe<Scalars['String']['input']>
+  directoryInstanceIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  directoryInstanceIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** directory_name field predicates */
   directoryName?: InputMaybe<Scalars['String']['input']>
   directoryNameContains?: InputMaybe<Scalars['String']['input']>
@@ -12265,6 +12466,17 @@ export interface DirectoryAccountWhereInput {
   familyNameNEQ?: InputMaybe<Scalars['String']['input']>
   familyNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   familyNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** first_seen_at field predicates */
+  firstSeenAt?: InputMaybe<Scalars['Time']['input']>
+  firstSeenAtGT?: InputMaybe<Scalars['Time']['input']>
+  firstSeenAtGTE?: InputMaybe<Scalars['Time']['input']>
+  firstSeenAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  firstSeenAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  firstSeenAtLT?: InputMaybe<Scalars['Time']['input']>
+  firstSeenAtLTE?: InputMaybe<Scalars['Time']['input']>
+  firstSeenAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  firstSeenAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  firstSeenAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** given_name field predicates */
   givenName?: InputMaybe<Scalars['String']['input']>
   givenNameContains?: InputMaybe<Scalars['String']['input']>
@@ -12387,6 +12599,17 @@ export interface DirectoryAccountWhereInput {
   lastLoginAtNEQ?: InputMaybe<Scalars['Time']['input']>
   lastLoginAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
   lastLoginAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** last_seen_at field predicates */
+  lastSeenAt?: InputMaybe<Scalars['Time']['input']>
+  lastSeenAtGT?: InputMaybe<Scalars['Time']['input']>
+  lastSeenAtGTE?: InputMaybe<Scalars['Time']['input']>
+  lastSeenAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  lastSeenAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  lastSeenAtLT?: InputMaybe<Scalars['Time']['input']>
+  lastSeenAtLTE?: InputMaybe<Scalars['Time']['input']>
+  lastSeenAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  lastSeenAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  lastSeenAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** last_seen_ip field predicates */
   lastSeenIP?: InputMaybe<Scalars['String']['input']>
   lastSeenIPContains?: InputMaybe<Scalars['String']['input']>
@@ -12481,6 +12704,17 @@ export interface DirectoryAccountWhereInput {
   profileHashLTE?: InputMaybe<Scalars['String']['input']>
   profileHashNEQ?: InputMaybe<Scalars['String']['input']>
   profileHashNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** removed_at field predicates */
+  removedAt?: InputMaybe<Scalars['Time']['input']>
+  removedAtGT?: InputMaybe<Scalars['Time']['input']>
+  removedAtGTE?: InputMaybe<Scalars['Time']['input']>
+  removedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  removedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  removedAtLT?: InputMaybe<Scalars['Time']['input']>
+  removedAtLTE?: InputMaybe<Scalars['Time']['input']>
+  removedAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  removedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  removedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** scope_id field predicates */
   scopeID?: InputMaybe<Scalars['ID']['input']>
   scopeIDContains?: InputMaybe<Scalars['ID']['input']>
@@ -12584,12 +12818,16 @@ export interface DirectoryAccountWhereInput {
 export interface DirectoryGroup extends Node {
   __typename?: 'DirectoryGroup'
   accounts: DirectoryAccountConnection
+  /** provider-reported time the group was added or provisioned in the source directory */
+  addedAt?: Maybe<Scalars['Time']['output']>
   /** provider classification such as security, distribution, or dynamic */
   classification: DirectoryGroupDirectoryGroupClassification
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
   /** free-form description captured at sync time */
   description?: Maybe<Scalars['String']['output']>
+  /** stable external workspace, tenant, or installation identifier used to correlate groups across multiple integrations pointed at the same directory instance */
+  directoryInstanceID?: Maybe<Scalars['String']['output']>
   /** sync run that produced this snapshot */
   directorySyncRun: DirectorySyncRun
   /** sync run that produced this snapshot */
@@ -12609,14 +12847,20 @@ export interface DirectoryGroup extends Node {
   externalID: Scalars['String']['output']
   /** true when directory settings allow sharing outside the tenant */
   externalSharingAllowed?: Maybe<Scalars['Boolean']['output']>
+  /** time this group was first observed by Openlane from directory ingest */
+  firstSeenAt?: Maybe<Scalars['Time']['output']>
   id: Scalars['ID']['output']
   /** integration that owns this directory group */
   integration: Integration
   /** integration that owns this directory group */
   integrationID: Scalars['ID']['output']
+  /** time this group was most recently confirmed by directory ingest */
+  lastSeenAt?: Maybe<Scalars['Time']['output']>
   /** member count reported by the directory */
   memberCount?: Maybe<Scalars['Int']['output']>
   members: DirectoryMembershipConnection
+  /** provider-specific metadata captured alongside the normalized profile to preserve directory quirks without schema sprawl */
+  metadata?: Maybe<Scalars['Map']['output']>
   /** time when this snapshot was recorded */
   observedAt: Scalars['Time']['output']
   owner?: Maybe<Organization>
@@ -12632,6 +12876,8 @@ export interface DirectoryGroup extends Node {
   profileHash: Scalars['String']['output']
   /** object storage file identifier containing the raw upstream payload */
   rawProfileFileID?: Maybe<Scalars['String']['output']>
+  /** provider-reported or locally-recorded time the group was removed from the source directory */
+  removedAt?: Maybe<Scalars['Time']['output']>
   scope?: Maybe<CustomTypeEnum>
   /** the scope of the directory_group */
   scopeID?: Maybe<Scalars['ID']['output']>
@@ -12742,6 +12988,7 @@ export interface DirectoryGroupOrder {
 /** Properties by which DirectoryGroup connections can be ordered. */
 export enum DirectoryGroupOrderField {
   created_at = 'created_at',
+  directory_instance_id = 'directory_instance_id',
   display_name = 'display_name',
   email = 'email',
   external_id = 'external_id',
@@ -12760,6 +13007,17 @@ export interface DirectoryGroupUpdatePayload {
  * Input was generated by ent.
  */
 export interface DirectoryGroupWhereInput {
+  /** added_at field predicates */
+  addedAt?: InputMaybe<Scalars['Time']['input']>
+  addedAtGT?: InputMaybe<Scalars['Time']['input']>
+  addedAtGTE?: InputMaybe<Scalars['Time']['input']>
+  addedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  addedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  addedAtLT?: InputMaybe<Scalars['Time']['input']>
+  addedAtLTE?: InputMaybe<Scalars['Time']['input']>
+  addedAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  addedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  addedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
   and?: InputMaybe<Array<DirectoryGroupWhereInput>>
   /** classification field predicates */
   classification?: InputMaybe<DirectoryGroupDirectoryGroupClassification>
@@ -12793,6 +13051,22 @@ export interface DirectoryGroupWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** directory_instance_id field predicates */
+  directoryInstanceID?: InputMaybe<Scalars['String']['input']>
+  directoryInstanceIDContains?: InputMaybe<Scalars['String']['input']>
+  directoryInstanceIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  directoryInstanceIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  directoryInstanceIDGT?: InputMaybe<Scalars['String']['input']>
+  directoryInstanceIDGTE?: InputMaybe<Scalars['String']['input']>
+  directoryInstanceIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  directoryInstanceIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  directoryInstanceIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  directoryInstanceIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  directoryInstanceIDLT?: InputMaybe<Scalars['String']['input']>
+  directoryInstanceIDLTE?: InputMaybe<Scalars['String']['input']>
+  directoryInstanceIDNEQ?: InputMaybe<Scalars['String']['input']>
+  directoryInstanceIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  directoryInstanceIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** directory_sync_run_id field predicates */
   directorySyncRunID?: InputMaybe<Scalars['ID']['input']>
   directorySyncRunIDContains?: InputMaybe<Scalars['ID']['input']>
@@ -12904,6 +13178,17 @@ export interface DirectoryGroupWhereInput {
   externalSharingAllowedIsNil?: InputMaybe<Scalars['Boolean']['input']>
   externalSharingAllowedNEQ?: InputMaybe<Scalars['Boolean']['input']>
   externalSharingAllowedNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** first_seen_at field predicates */
+  firstSeenAt?: InputMaybe<Scalars['Time']['input']>
+  firstSeenAtGT?: InputMaybe<Scalars['Time']['input']>
+  firstSeenAtGTE?: InputMaybe<Scalars['Time']['input']>
+  firstSeenAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  firstSeenAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  firstSeenAtLT?: InputMaybe<Scalars['Time']['input']>
+  firstSeenAtLTE?: InputMaybe<Scalars['Time']['input']>
+  firstSeenAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  firstSeenAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  firstSeenAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** accounts edge predicates */
   hasAccounts?: InputMaybe<Scalars['Boolean']['input']>
   hasAccountsWith?: InputMaybe<Array<DirectoryAccountWhereInput>>
@@ -12956,6 +13241,17 @@ export interface DirectoryGroupWhereInput {
   integrationIDLTE?: InputMaybe<Scalars['ID']['input']>
   integrationIDNEQ?: InputMaybe<Scalars['ID']['input']>
   integrationIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** last_seen_at field predicates */
+  lastSeenAt?: InputMaybe<Scalars['Time']['input']>
+  lastSeenAtGT?: InputMaybe<Scalars['Time']['input']>
+  lastSeenAtGTE?: InputMaybe<Scalars['Time']['input']>
+  lastSeenAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  lastSeenAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  lastSeenAtLT?: InputMaybe<Scalars['Time']['input']>
+  lastSeenAtLTE?: InputMaybe<Scalars['Time']['input']>
+  lastSeenAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  lastSeenAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  lastSeenAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** member_count field predicates */
   memberCount?: InputMaybe<Scalars['Int']['input']>
   memberCountGT?: InputMaybe<Scalars['Int']['input']>
@@ -13024,6 +13320,17 @@ export interface DirectoryGroupWhereInput {
   profileHashLTE?: InputMaybe<Scalars['String']['input']>
   profileHashNEQ?: InputMaybe<Scalars['String']['input']>
   profileHashNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** removed_at field predicates */
+  removedAt?: InputMaybe<Scalars['Time']['input']>
+  removedAtGT?: InputMaybe<Scalars['Time']['input']>
+  removedAtGTE?: InputMaybe<Scalars['Time']['input']>
+  removedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  removedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  removedAtLT?: InputMaybe<Scalars['Time']['input']>
+  removedAtLTE?: InputMaybe<Scalars['Time']['input']>
+  removedAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  removedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  removedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** scope_id field predicates */
   scopeID?: InputMaybe<Scalars['ID']['input']>
   scopeIDContains?: InputMaybe<Scalars['ID']['input']>
@@ -13110,6 +13417,8 @@ export interface DirectoryGroupWhereInput {
 
 export interface DirectoryMembership extends Node {
   __typename?: 'DirectoryMembership'
+  /** provider-reported time the membership was added in the source directory */
+  addedAt?: Maybe<Scalars['Time']['output']>
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
   directoryAccount: DirectoryAccount
@@ -13118,6 +13427,8 @@ export interface DirectoryMembership extends Node {
   directoryGroup: DirectoryGroup
   /** directory group associated with this membership */
   directoryGroupID: Scalars['ID']['output']
+  /** stable external workspace, tenant, or installation identifier used to correlate memberships across multiple integrations pointed at the same directory instance */
+  directoryInstanceID?: Maybe<Scalars['String']['output']>
   /** sync run that produced this snapshot */
   directorySyncRun: DirectorySyncRun
   /** sync run that produced this snapshot */
@@ -13139,7 +13450,7 @@ export interface DirectoryMembership extends Node {
   integrationID: Scalars['ID']['output']
   /** sync run identifier that most recently confirmed this membership */
   lastConfirmedRunID?: Maybe<Scalars['String']['output']>
-  /** most recent time the membership was detected */
+  /** most recent time the membership was confirmed by directory ingest */
   lastSeenAt?: Maybe<Scalars['Time']['output']>
   /** raw metadata associated with this membership from the provider */
   metadata?: Maybe<Scalars['Map']['output']>
@@ -13152,6 +13463,8 @@ export interface DirectoryMembership extends Node {
   platform?: Maybe<Platform>
   /** optional platform associated with this directory membership */
   platformID?: Maybe<Scalars['ID']['output']>
+  /** provider-reported or locally-recorded time the membership was removed from the source directory */
+  removedAt?: Maybe<Scalars['Time']['output']>
   /** membership role reported by the provider */
   role?: Maybe<DirectoryMembershipDirectoryMembershipRole>
   scope?: Maybe<CustomTypeEnum>
@@ -13258,6 +13571,17 @@ export interface DirectoryMembershipUpdatePayload {
  * Input was generated by ent.
  */
 export interface DirectoryMembershipWhereInput {
+  /** added_at field predicates */
+  addedAt?: InputMaybe<Scalars['Time']['input']>
+  addedAtGT?: InputMaybe<Scalars['Time']['input']>
+  addedAtGTE?: InputMaybe<Scalars['Time']['input']>
+  addedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  addedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  addedAtLT?: InputMaybe<Scalars['Time']['input']>
+  addedAtLTE?: InputMaybe<Scalars['Time']['input']>
+  addedAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  addedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  addedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
   and?: InputMaybe<Array<DirectoryMembershipWhereInput>>
   /** created_at field predicates */
   createdAt?: InputMaybe<Scalars['Time']['input']>
@@ -13286,6 +13610,22 @@ export interface DirectoryMembershipWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** directory_instance_id field predicates */
+  directoryInstanceID?: InputMaybe<Scalars['String']['input']>
+  directoryInstanceIDContains?: InputMaybe<Scalars['String']['input']>
+  directoryInstanceIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  directoryInstanceIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  directoryInstanceIDGT?: InputMaybe<Scalars['String']['input']>
+  directoryInstanceIDGTE?: InputMaybe<Scalars['String']['input']>
+  directoryInstanceIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  directoryInstanceIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  directoryInstanceIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  directoryInstanceIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  directoryInstanceIDLT?: InputMaybe<Scalars['String']['input']>
+  directoryInstanceIDLTE?: InputMaybe<Scalars['String']['input']>
+  directoryInstanceIDNEQ?: InputMaybe<Scalars['String']['input']>
+  directoryInstanceIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  directoryInstanceIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** display_id field predicates */
   displayID?: InputMaybe<Scalars['String']['input']>
   displayIDContains?: InputMaybe<Scalars['String']['input']>
@@ -13376,6 +13716,17 @@ export interface DirectoryMembershipWhereInput {
   observedAtNEQ?: InputMaybe<Scalars['Time']['input']>
   observedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
   or?: InputMaybe<Array<DirectoryMembershipWhereInput>>
+  /** removed_at field predicates */
+  removedAt?: InputMaybe<Scalars['Time']['input']>
+  removedAtGT?: InputMaybe<Scalars['Time']['input']>
+  removedAtGTE?: InputMaybe<Scalars['Time']['input']>
+  removedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  removedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  removedAtLT?: InputMaybe<Scalars['Time']['input']>
+  removedAtLTE?: InputMaybe<Scalars['Time']['input']>
+  removedAtNEQ?: InputMaybe<Scalars['Time']['input']>
+  removedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  removedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** role field predicates */
   role?: InputMaybe<DirectoryMembershipDirectoryMembershipRole>
   roleIn?: InputMaybe<Array<DirectoryMembershipDirectoryMembershipRole>>
@@ -13454,6 +13805,8 @@ export interface DirectorySyncRun extends Node {
   deltaCount: Scalars['Int']['output']
   directoryAccounts: DirectoryAccountConnection
   directoryGroups: DirectoryGroupConnection
+  /** stable external workspace, tenant, or installation identifier derived from integration installation metadata for grouping runs across integrations pointed at the same directory instance */
+  directoryInstanceID?: Maybe<Scalars['String']['output']>
   directoryMemberships: DirectoryMembershipConnection
   /** a shortened prefixed id field to use as a human readable identifier */
   displayID: Scalars['String']['output']
@@ -13648,6 +14001,22 @@ export interface DirectorySyncRunWhereInput {
   deltaCountLTE?: InputMaybe<Scalars['Int']['input']>
   deltaCountNEQ?: InputMaybe<Scalars['Int']['input']>
   deltaCountNotIn?: InputMaybe<Array<Scalars['Int']['input']>>
+  /** directory_instance_id field predicates */
+  directoryInstanceID?: InputMaybe<Scalars['String']['input']>
+  directoryInstanceIDContains?: InputMaybe<Scalars['String']['input']>
+  directoryInstanceIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  directoryInstanceIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  directoryInstanceIDGT?: InputMaybe<Scalars['String']['input']>
+  directoryInstanceIDGTE?: InputMaybe<Scalars['String']['input']>
+  directoryInstanceIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  directoryInstanceIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  directoryInstanceIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  directoryInstanceIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  directoryInstanceIDLT?: InputMaybe<Scalars['String']['input']>
+  directoryInstanceIDLTE?: InputMaybe<Scalars['String']['input']>
+  directoryInstanceIDNEQ?: InputMaybe<Scalars['String']['input']>
+  directoryInstanceIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  directoryInstanceIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** display_id field predicates */
   displayID?: InputMaybe<Scalars['String']['input']>
   displayIDContains?: InputMaybe<Scalars['String']['input']>
@@ -14920,6 +15289,7 @@ export interface EmailTemplate extends Node {
   __typename?: 'EmailTemplate'
   /** whether the template is active */
   active: Scalars['Boolean']['output']
+  blockedGroups: GroupConnection
   /** body template for the email */
   bodyTemplate?: Maybe<Scalars['String']['output']>
   campaigns: CampaignConnection
@@ -14929,9 +15299,8 @@ export interface EmailTemplate extends Node {
   defaults?: Maybe<Scalars['Map']['output']>
   /** description of the template */
   description?: Maybe<Scalars['String']['output']>
-  emailBranding?: Maybe<EmailBranding>
-  /** email branding configuration to apply for this template */
-  emailBrandingID?: Maybe<Scalars['ID']['output']>
+  editors: GroupConnection
+  emailBranding?: Maybe<Array<EmailBranding>>
   files: FileConnection
   /** template format for rendering */
   format: EmailTemplateNotificationTemplateFormat
@@ -14966,7 +15335,7 @@ export interface EmailTemplate extends Node {
   /** indicates if the record is owned by the the openlane system and not by an organization */
   systemOwned?: Maybe<Scalars['Boolean']['output']>
   /** runtime data context defining available variable keys for this template */
-  templateContext?: Maybe<EmailTemplateTemplateContext>
+  templateContext: EmailTemplateTemplateContext
   /** plain text fallback template for the email */
   textTemplate?: Maybe<Scalars['String']['output']>
   /** uischema for a template builder */
@@ -14975,12 +15344,22 @@ export interface EmailTemplate extends Node {
   updatedBy?: Maybe<Scalars['String']['output']>
   /** template version */
   version: Scalars['Int']['output']
+  viewers: GroupConnection
   workflowDefinition?: Maybe<WorkflowDefinition>
   /** workflow definition associated with this template */
   workflowDefinitionID?: Maybe<Scalars['ID']['output']>
   workflowInstance?: Maybe<WorkflowInstance>
   /** workflow instance associated with this template */
   workflowInstanceID?: Maybe<Scalars['ID']['output']>
+}
+
+export interface EmailTemplateBlockedGroupsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 export interface EmailTemplateCampaignsArgs {
@@ -14990,6 +15369,15 @@ export interface EmailTemplateCampaignsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<CampaignOrder>>
   where?: InputMaybe<CampaignWhereInput>
+}
+
+export interface EmailTemplateEditorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 export interface EmailTemplateFilesArgs {
@@ -15008,6 +15396,15 @@ export interface EmailTemplateNotificationTemplatesArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<NotificationTemplateOrder>>
   where?: InputMaybe<NotificationTemplateWhereInput>
+}
+
+export interface EmailTemplateViewersArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 /** Return response for createBulkEmailTemplate mutation */
@@ -15179,30 +15576,20 @@ export interface EmailTemplateWhereInput {
   descriptionNEQ?: InputMaybe<Scalars['String']['input']>
   descriptionNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   descriptionNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** email_branding_id field predicates */
-  emailBrandingID?: InputMaybe<Scalars['ID']['input']>
-  emailBrandingIDContains?: InputMaybe<Scalars['ID']['input']>
-  emailBrandingIDContainsFold?: InputMaybe<Scalars['ID']['input']>
-  emailBrandingIDEqualFold?: InputMaybe<Scalars['ID']['input']>
-  emailBrandingIDGT?: InputMaybe<Scalars['ID']['input']>
-  emailBrandingIDGTE?: InputMaybe<Scalars['ID']['input']>
-  emailBrandingIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
-  emailBrandingIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
-  emailBrandingIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
-  emailBrandingIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  emailBrandingIDLT?: InputMaybe<Scalars['ID']['input']>
-  emailBrandingIDLTE?: InputMaybe<Scalars['ID']['input']>
-  emailBrandingIDNEQ?: InputMaybe<Scalars['ID']['input']>
-  emailBrandingIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
-  emailBrandingIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** format field predicates */
   format?: InputMaybe<EmailTemplateNotificationTemplateFormat>
   formatIn?: InputMaybe<Array<EmailTemplateNotificationTemplateFormat>>
   formatNEQ?: InputMaybe<EmailTemplateNotificationTemplateFormat>
   formatNotIn?: InputMaybe<Array<EmailTemplateNotificationTemplateFormat>>
+  /** blocked_groups edge predicates */
+  hasBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
+  hasBlockedGroupsWith?: InputMaybe<Array<GroupWhereInput>>
   /** campaigns edge predicates */
   hasCampaigns?: InputMaybe<Scalars['Boolean']['input']>
   hasCampaignsWith?: InputMaybe<Array<CampaignWhereInput>>
+  /** editors edge predicates */
+  hasEditors?: InputMaybe<Scalars['Boolean']['input']>
+  hasEditorsWith?: InputMaybe<Array<GroupWhereInput>>
   /** email_branding edge predicates */
   hasEmailBranding?: InputMaybe<Scalars['Boolean']['input']>
   hasEmailBrandingWith?: InputMaybe<Array<EmailBrandingWhereInput>>
@@ -15218,6 +15605,9 @@ export interface EmailTemplateWhereInput {
   /** owner edge predicates */
   hasOwner?: InputMaybe<Scalars['Boolean']['input']>
   hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
+  /** viewers edge predicates */
+  hasViewers?: InputMaybe<Scalars['Boolean']['input']>
+  hasViewersWith?: InputMaybe<Array<GroupWhereInput>>
   /** workflow_definition edge predicates */
   hasWorkflowDefinition?: InputMaybe<Scalars['Boolean']['input']>
   hasWorkflowDefinitionWith?: InputMaybe<Array<WorkflowDefinitionWhereInput>>
@@ -15399,10 +15789,8 @@ export interface EmailTemplateWhereInput {
   /** template_context field predicates */
   templateContext?: InputMaybe<EmailTemplateTemplateContext>
   templateContextIn?: InputMaybe<Array<EmailTemplateTemplateContext>>
-  templateContextIsNil?: InputMaybe<Scalars['Boolean']['input']>
   templateContextNEQ?: InputMaybe<EmailTemplateTemplateContext>
   templateContextNotIn?: InputMaybe<Array<EmailTemplateTemplateContext>>
-  templateContextNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** text_template field predicates */
   textTemplate?: InputMaybe<Scalars['String']['input']>
   textTemplateContains?: InputMaybe<Scalars['String']['input']>
@@ -15546,6 +15934,8 @@ export interface Entity extends Node {
   environmentID?: Maybe<Scalars['ID']['output']>
   /** the environment of the entity */
   environmentName?: Maybe<Scalars['String']['output']>
+  /** stable identifier assigned by the source system, used for integration ingest deduplication */
+  externalID?: Maybe<Scalars['String']['output']>
   files: FileConnection
   /** whether the entity has an active SOC 2 report */
   hasSoc2?: Maybe<Scalars['Boolean']['output']>
@@ -15580,6 +15970,8 @@ export interface Entity extends Node {
   /** when the entity is due for review */
   nextReviewAt?: Maybe<Scalars['DateTime']['output']>
   notes: NoteConnection
+  /** time when this entity was last observed by the source integration */
+  observedAt?: Maybe<Scalars['DateTime']['output']>
   outOfScopePlatforms: PlatformConnection
   owner?: Maybe<Organization>
   /** the ID of the organization owner of the object */
@@ -15917,6 +16309,7 @@ export enum EntityOrderField {
   contract_start_date = 'contract_start_date',
   created_at = 'created_at',
   display_name = 'display_name',
+  external_id = 'external_id',
   has_soc2 = 'has_soc2',
   internal_owner = 'internal_owner',
   last_reviewed_at = 'last_reviewed_at',
@@ -15924,6 +16317,7 @@ export enum EntityOrderField {
   mfa_supported = 'mfa_supported',
   name = 'name',
   next_review_at = 'next_review_at',
+  observed_at = 'observed_at',
   renewal_risk = 'renewal_risk',
   reviewed_by = 'reviewed_by',
   risk_rating = 'risk_rating',
@@ -16471,6 +16865,22 @@ export interface EntityWhereInput {
   environmentNameNEQ?: InputMaybe<Scalars['String']['input']>
   environmentNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   environmentNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** external_id field predicates */
+  externalID?: InputMaybe<Scalars['String']['input']>
+  externalIDContains?: InputMaybe<Scalars['String']['input']>
+  externalIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  externalIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  externalIDGT?: InputMaybe<Scalars['String']['input']>
+  externalIDGTE?: InputMaybe<Scalars['String']['input']>
+  externalIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  externalIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  externalIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  externalIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  externalIDLT?: InputMaybe<Scalars['String']['input']>
+  externalIDLTE?: InputMaybe<Scalars['String']['input']>
+  externalIDNEQ?: InputMaybe<Scalars['String']['input']>
+  externalIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  externalIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** assessment_responses edge predicates */
   hasAssessmentResponses?: InputMaybe<Scalars['Boolean']['input']>
   hasAssessmentResponsesWith?: InputMaybe<Array<AssessmentResponseWhereInput>>
@@ -16716,6 +17126,17 @@ export interface EntityWhereInput {
   nextReviewAtNotIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
   nextReviewAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
   not?: InputMaybe<EntityWhereInput>
+  /** observed_at field predicates */
+  observedAt?: InputMaybe<Scalars['DateTime']['input']>
+  observedAtGT?: InputMaybe<Scalars['DateTime']['input']>
+  observedAtGTE?: InputMaybe<Scalars['DateTime']['input']>
+  observedAtIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  observedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  observedAtLT?: InputMaybe<Scalars['DateTime']['input']>
+  observedAtLTE?: InputMaybe<Scalars['DateTime']['input']>
+  observedAtNEQ?: InputMaybe<Scalars['DateTime']['input']>
+  observedAtNotIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  observedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
   or?: InputMaybe<Array<EntityWhereInput>>
   /** owner_id field predicates */
   ownerID?: InputMaybe<Scalars['ID']['input']>
@@ -17384,7 +17805,7 @@ export interface Evidence extends Node {
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
   /** the date the evidence was retrieved */
-  creationDate: Scalars['Time']['output']
+  creationDate: Scalars['DateTime']['output']
   /** the description of the evidence, what is contained in the uploaded file(s) or url(s) */
   description?: Maybe<Scalars['String']['output']>
   /** a shortened prefixed id field to use as a human readable identifier */
@@ -17412,7 +17833,7 @@ export interface Evidence extends Node {
   platforms: PlatformConnection
   programs: ProgramConnection
   /** the date the evidence should be renewed, defaults to a year from entry date */
-  renewalDate?: Maybe<Scalars['Time']['output']>
+  renewalDate?: Maybe<Scalars['DateTime']['output']>
   scans: ScanConnection
   scope?: Maybe<CustomTypeEnum>
   /** the scope of the evidence */
@@ -17613,6 +18034,7 @@ export enum EvidenceEvidenceStatus {
   NEEDS_RENEWAL = 'NEEDS_RENEWAL',
   READY_FOR_AUDITOR = 'READY_FOR_AUDITOR',
   REJECTED = 'REJECTED',
+  REQUESTED = 'REQUESTED',
   SUBMITTED = 'SUBMITTED',
 }
 
@@ -17691,14 +18113,14 @@ export interface EvidenceWhereInput {
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** creation_date field predicates */
-  creationDate?: InputMaybe<Scalars['Time']['input']>
-  creationDateGT?: InputMaybe<Scalars['Time']['input']>
-  creationDateGTE?: InputMaybe<Scalars['Time']['input']>
-  creationDateIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  creationDateLT?: InputMaybe<Scalars['Time']['input']>
-  creationDateLTE?: InputMaybe<Scalars['Time']['input']>
-  creationDateNEQ?: InputMaybe<Scalars['Time']['input']>
-  creationDateNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  creationDate?: InputMaybe<Scalars['DateTime']['input']>
+  creationDateGT?: InputMaybe<Scalars['DateTime']['input']>
+  creationDateGTE?: InputMaybe<Scalars['DateTime']['input']>
+  creationDateIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  creationDateLT?: InputMaybe<Scalars['DateTime']['input']>
+  creationDateLTE?: InputMaybe<Scalars['DateTime']['input']>
+  creationDateNEQ?: InputMaybe<Scalars['DateTime']['input']>
+  creationDateNotIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
   /** description field predicates */
   description?: InputMaybe<Scalars['String']['input']>
   descriptionContains?: InputMaybe<Scalars['String']['input']>
@@ -17868,15 +18290,15 @@ export interface EvidenceWhereInput {
   ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** renewal_date field predicates */
-  renewalDate?: InputMaybe<Scalars['Time']['input']>
-  renewalDateGT?: InputMaybe<Scalars['Time']['input']>
-  renewalDateGTE?: InputMaybe<Scalars['Time']['input']>
-  renewalDateIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  renewalDate?: InputMaybe<Scalars['DateTime']['input']>
+  renewalDateGT?: InputMaybe<Scalars['DateTime']['input']>
+  renewalDateGTE?: InputMaybe<Scalars['DateTime']['input']>
+  renewalDateIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
   renewalDateIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  renewalDateLT?: InputMaybe<Scalars['Time']['input']>
-  renewalDateLTE?: InputMaybe<Scalars['Time']['input']>
-  renewalDateNEQ?: InputMaybe<Scalars['Time']['input']>
-  renewalDateNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
+  renewalDateLT?: InputMaybe<Scalars['DateTime']['input']>
+  renewalDateLTE?: InputMaybe<Scalars['DateTime']['input']>
+  renewalDateNEQ?: InputMaybe<Scalars['DateTime']['input']>
+  renewalDateNotIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
   renewalDateNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** scope_id field predicates */
   scopeID?: InputMaybe<Scalars['ID']['input']>
@@ -22526,6 +22948,10 @@ export interface IdentityHolderEdge {
 export enum IdentityHolderIdentityHolderType {
   CONTRACTOR = 'CONTRACTOR',
   EMPLOYEE = 'EMPLOYEE',
+  INTERN = 'INTERN',
+  PARTNER = 'PARTNER',
+  SERVICE = 'SERVICE',
+  UNSPECIFIED = 'UNSPECIFIED',
 }
 
 /** Ordering options for IdentityHolder connections */
@@ -22572,6 +22998,7 @@ export enum IdentityHolderUserStatus {
   INACTIVE = 'INACTIVE',
   ONBOARDING = 'ONBOARDING',
   SUSPENDED = 'SUSPENDED',
+  UNKNOWN = 'UNKNOWN',
 }
 
 /**
@@ -23101,6 +23528,7 @@ export interface IdentityHolderWhereInput {
 export interface Integration extends Node {
   __typename?: 'Integration'
   actionPlans: ActionPlanConnection
+  assets: AssetConnection
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
   /** the canonical definition identifier for the installation */
@@ -23168,6 +23596,7 @@ export interface Integration extends Node {
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
   vulnerabilities: VulnerabilityConnection
+  webhookURLs?: Maybe<Scalars['Map']['output']>
 }
 
 export interface IntegrationActionPlansArgs {
@@ -23177,6 +23606,15 @@ export interface IntegrationActionPlansArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<ActionPlanOrder>>
   where?: InputMaybe<ActionPlanWhereInput>
+}
+
+export interface IntegrationAssetsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<AssetOrder>>
+  where?: InputMaybe<AssetWhereInput>
 }
 
 export interface IntegrationDirectoryAccountsArgs {
@@ -23504,6 +23942,9 @@ export interface IntegrationWhereInput {
   /** action_plans edge predicates */
   hasActionPlans?: InputMaybe<Scalars['Boolean']['input']>
   hasActionPlansWith?: InputMaybe<Array<ActionPlanWhereInput>>
+  /** assets edge predicates */
+  hasAssets?: InputMaybe<Scalars['Boolean']['input']>
+  hasAssetsWith?: InputMaybe<Array<AssetWhereInput>>
   /** directory_accounts edge predicates */
   hasDirectoryAccounts?: InputMaybe<Scalars['Boolean']['input']>
   hasDirectoryAccountsWith?: InputMaybe<Array<DirectoryAccountWhereInput>>
@@ -31934,6 +32375,8 @@ export interface NotificationTemplate extends Node {
   defaults?: Maybe<Scalars['Map']['output']>
   /** description of the template */
   description?: Maybe<Scalars['String']['output']>
+  /** optional explicit provider destination identifiers for this template, such as Slack channel IDs */
+  destinations?: Maybe<Array<Scalars['String']['output']>>
   emailTemplate?: Maybe<EmailTemplate>
   /** optional email template used for branded email delivery */
   emailTemplateID?: Maybe<Scalars['ID']['output']>
@@ -42149,11 +42592,15 @@ export interface Risk extends Node {
   environmentID?: Maybe<Scalars['ID']['output']>
   /** the environment of the risk */
   environmentName?: Maybe<Scalars['String']['output']>
+  /** stable identifier assigned by the source system, used for integration ingest deduplication */
+  externalID?: Maybe<Scalars['String']['output']>
   /** stable external UUID for deterministic OSCAL export and round-tripping */
   externalUUID?: Maybe<Scalars['String']['output']>
   id: Scalars['ID']['output']
   /** impact of the risk -critical, high, medium, low */
   impact?: Maybe<RiskRiskImpact>
+  /** integration that surfaced this risk, when sourced via integration ingest */
+  integrationID?: Maybe<Scalars['String']['output']>
   internalPolicies: InternalPolicyConnection
   /** likelihood of the risk occurring; unlikely, likely, highly likely */
   likelihood?: Maybe<RiskRiskLikelihood>
@@ -42163,6 +42610,8 @@ export interface Risk extends Node {
   mitigationJSON?: Maybe<Array<Scalars['Any']['output']>>
   /** the name of the risk */
   name: Scalars['String']['output']
+  /** time when this risk was last observed by the source integration */
+  observedAt?: Maybe<Scalars['DateTime']['output']>
   owner?: Maybe<Organization>
   /** the ID of the organization owner of the object */
   ownerID?: Maybe<Scalars['ID']['output']>
@@ -42418,7 +42867,9 @@ export enum RiskOrderField {
   STATUS = 'STATUS',
   business_costs = 'business_costs',
   created_at = 'created_at',
+  external_id = 'external_id',
   name = 'name',
+  observed_at = 'observed_at',
   score = 'score',
   updated_at = 'updated_at',
 }
@@ -42585,6 +43036,22 @@ export interface RiskWhereInput {
   environmentNameNEQ?: InputMaybe<Scalars['String']['input']>
   environmentNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   environmentNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** external_id field predicates */
+  externalID?: InputMaybe<Scalars['String']['input']>
+  externalIDContains?: InputMaybe<Scalars['String']['input']>
+  externalIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  externalIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  externalIDGT?: InputMaybe<Scalars['String']['input']>
+  externalIDGTE?: InputMaybe<Scalars['String']['input']>
+  externalIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  externalIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  externalIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  externalIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  externalIDLT?: InputMaybe<Scalars['String']['input']>
+  externalIDLTE?: InputMaybe<Scalars['String']['input']>
+  externalIDNEQ?: InputMaybe<Scalars['String']['input']>
+  externalIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  externalIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** external_uuid field predicates */
   externalUUID?: InputMaybe<Scalars['String']['input']>
   externalUUIDContains?: InputMaybe<Scalars['String']['input']>
@@ -42688,6 +43155,22 @@ export interface RiskWhereInput {
   impactNEQ?: InputMaybe<RiskRiskImpact>
   impactNotIn?: InputMaybe<Array<RiskRiskImpact>>
   impactNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** integration_id field predicates */
+  integrationID?: InputMaybe<Scalars['String']['input']>
+  integrationIDContains?: InputMaybe<Scalars['String']['input']>
+  integrationIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  integrationIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  integrationIDGT?: InputMaybe<Scalars['String']['input']>
+  integrationIDGTE?: InputMaybe<Scalars['String']['input']>
+  integrationIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  integrationIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  integrationIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  integrationIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  integrationIDLT?: InputMaybe<Scalars['String']['input']>
+  integrationIDLTE?: InputMaybe<Scalars['String']['input']>
+  integrationIDNEQ?: InputMaybe<Scalars['String']['input']>
+  integrationIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  integrationIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** likelihood field predicates */
   likelihood?: InputMaybe<RiskRiskLikelihood>
   likelihoodIn?: InputMaybe<Array<RiskRiskLikelihood>>
@@ -42726,6 +43209,17 @@ export interface RiskWhereInput {
   nameNEQ?: InputMaybe<Scalars['String']['input']>
   nameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   not?: InputMaybe<RiskWhereInput>
+  /** observed_at field predicates */
+  observedAt?: InputMaybe<Scalars['DateTime']['input']>
+  observedAtGT?: InputMaybe<Scalars['DateTime']['input']>
+  observedAtGTE?: InputMaybe<Scalars['DateTime']['input']>
+  observedAtIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  observedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  observedAtLT?: InputMaybe<Scalars['DateTime']['input']>
+  observedAtLTE?: InputMaybe<Scalars['DateTime']['input']>
+  observedAtNEQ?: InputMaybe<Scalars['DateTime']['input']>
+  observedAtNotIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  observedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
   or?: InputMaybe<Array<RiskWhereInput>>
   /** owner_id field predicates */
   ownerID?: InputMaybe<Scalars['ID']['input']>
@@ -52200,6 +52694,7 @@ export interface UpdateAssetInput {
   clearInternalOwner?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalOwnerGroup?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalOwnerUser?: InputMaybe<Scalars['Boolean']['input']>
+  clearObservedAt?: InputMaybe<Scalars['Boolean']['input']>
   clearOutOfScopePlatforms?: InputMaybe<Scalars['Boolean']['input']>
   clearPhysicalLocation?: InputMaybe<Scalars['Boolean']['input']>
   clearPlatforms?: InputMaybe<Scalars['Boolean']['input']>
@@ -52246,6 +52741,8 @@ export interface UpdateAssetInput {
   internalOwnerUserID?: InputMaybe<Scalars['ID']['input']>
   /** the name of the asset, e.g. matts computer, office router, IP address, etc */
   name?: InputMaybe<Scalars['String']['input']>
+  /** time when this asset was last observed by the source integration */
+  observedAt?: InputMaybe<Scalars['DateTime']['input']>
   /** physical location of the asset, if applicable */
   physicalLocation?: InputMaybe<Scalars['String']['input']>
   /** purchase date for the asset */
@@ -52458,8 +52955,11 @@ export interface UpdateContactInput {
   clearCompany?: InputMaybe<Scalars['Boolean']['input']>
   clearEmail?: InputMaybe<Scalars['Boolean']['input']>
   clearEntities?: InputMaybe<Scalars['Boolean']['input']>
+  clearExternalID?: InputMaybe<Scalars['Boolean']['input']>
   clearFiles?: InputMaybe<Scalars['Boolean']['input']>
   clearFullName?: InputMaybe<Scalars['Boolean']['input']>
+  clearIntegrationID?: InputMaybe<Scalars['Boolean']['input']>
+  clearObservedAt?: InputMaybe<Scalars['Boolean']['input']>
   clearOwner?: InputMaybe<Scalars['Boolean']['input']>
   clearPhoneNumber?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
@@ -52468,8 +52968,14 @@ export interface UpdateContactInput {
   company?: InputMaybe<Scalars['String']['input']>
   /** the email of the contact */
   email?: InputMaybe<Scalars['String']['input']>
+  /** stable identifier assigned by the source system, used for integration ingest deduplication */
+  externalID?: InputMaybe<Scalars['String']['input']>
   /** the full name of the contact */
   fullName?: InputMaybe<Scalars['String']['input']>
+  /** integration that sourced this contact, when populated via integration ingest */
+  integrationID?: InputMaybe<Scalars['String']['input']>
+  /** time when this contact was last observed by the source integration */
+  observedAt?: InputMaybe<Scalars['DateTime']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
   /** the phone number of the contact */
   phoneNumber?: InputMaybe<Scalars['String']['input']>
@@ -52964,6 +53470,8 @@ export interface UpdateDirectoryAccountInput {
   addFindingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addWorkflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** provider-reported time the account was added or provisioned in the source directory */
+  addedAt?: InputMaybe<Scalars['Time']['input']>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   avatarFileID?: InputMaybe<Scalars['ID']['input']>
   /** URL of the avatar supplied by the directory provider */
@@ -52973,26 +53481,32 @@ export interface UpdateDirectoryAccountInput {
   /** lower-cased primary email address, if present */
   canonicalEmail?: InputMaybe<Scalars['String']['input']>
   clearAccountType?: InputMaybe<Scalars['Boolean']['input']>
+  clearAddedAt?: InputMaybe<Scalars['Boolean']['input']>
   clearAvatarFile?: InputMaybe<Scalars['Boolean']['input']>
   clearAvatarRemoteURL?: InputMaybe<Scalars['Boolean']['input']>
   clearAvatarUpdatedAt?: InputMaybe<Scalars['Boolean']['input']>
   clearCanonicalEmail?: InputMaybe<Scalars['Boolean']['input']>
   clearDepartment?: InputMaybe<Scalars['Boolean']['input']>
+  clearDirectoryInstanceID?: InputMaybe<Scalars['Boolean']['input']>
   clearDirectoryName?: InputMaybe<Scalars['Boolean']['input']>
   clearDisplayName?: InputMaybe<Scalars['Boolean']['input']>
   clearEnvironment?: InputMaybe<Scalars['Boolean']['input']>
   clearEnvironmentName?: InputMaybe<Scalars['Boolean']['input']>
   clearFamilyName?: InputMaybe<Scalars['Boolean']['input']>
   clearFindings?: InputMaybe<Scalars['Boolean']['input']>
+  clearFirstSeenAt?: InputMaybe<Scalars['Boolean']['input']>
   clearGivenName?: InputMaybe<Scalars['Boolean']['input']>
   clearGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearIdentityHolder?: InputMaybe<Scalars['Boolean']['input']>
   clearJobTitle?: InputMaybe<Scalars['Boolean']['input']>
   clearLastLoginAt?: InputMaybe<Scalars['Boolean']['input']>
+  clearLastSeenAt?: InputMaybe<Scalars['Boolean']['input']>
   clearLastSeenIP?: InputMaybe<Scalars['Boolean']['input']>
+  clearMetadata?: InputMaybe<Scalars['Boolean']['input']>
   clearOrganizationUnit?: InputMaybe<Scalars['Boolean']['input']>
   clearOwner?: InputMaybe<Scalars['Boolean']['input']>
   clearProfile?: InputMaybe<Scalars['Boolean']['input']>
+  clearRemovedAt?: InputMaybe<Scalars['Boolean']['input']>
   clearScope?: InputMaybe<Scalars['Boolean']['input']>
   clearScopeName?: InputMaybe<Scalars['Boolean']['input']>
   clearSecondaryKey?: InputMaybe<Scalars['Boolean']['input']>
@@ -53001,6 +53515,8 @@ export interface UpdateDirectoryAccountInput {
   clearWorkflowObjectRefs?: InputMaybe<Scalars['Boolean']['input']>
   /** department captured at sync time */
   department?: InputMaybe<Scalars['String']['input']>
+  /** stable external workspace, tenant, or installation identifier used to correlate accounts across multiple integrations pointed at the same directory instance */
+  directoryInstanceID?: InputMaybe<Scalars['String']['input']>
   /** directory source label set by the integration (e.g. googleworkspace, github, slack) */
   directoryName?: InputMaybe<Scalars['String']['input']>
   /** provider supplied display name */
@@ -53010,6 +53526,8 @@ export interface UpdateDirectoryAccountInput {
   environmentName?: InputMaybe<Scalars['String']['input']>
   /** last name reported by the provider */
   familyName?: InputMaybe<Scalars['String']['input']>
+  /** time this account was first observed by Openlane from directory ingest */
+  firstSeenAt?: InputMaybe<Scalars['Time']['input']>
   /** first name reported by the provider */
   givenName?: InputMaybe<Scalars['String']['input']>
   identityHolderID?: InputMaybe<Scalars['ID']['input']>
@@ -53017,8 +53535,12 @@ export interface UpdateDirectoryAccountInput {
   jobTitle?: InputMaybe<Scalars['String']['input']>
   /** timestamp of the most recent login reported by the provider */
   lastLoginAt?: InputMaybe<Scalars['Time']['input']>
+  /** time this account was most recently confirmed by directory ingest */
+  lastSeenAt?: InputMaybe<Scalars['Time']['input']>
   /** last IP address observed by the provider, if any */
   lastSeenIP?: InputMaybe<Scalars['String']['input']>
+  /** provider-specific metadata captured alongside the normalized profile to preserve directory quirks without schema sprawl */
+  metadata?: InputMaybe<Scalars['Map']['input']>
   /** multi-factor authentication state reported by the directory */
   mfaState?: InputMaybe<DirectoryAccountDirectoryAccountMfaState>
   /** organizational unit or OU path the account lives under */
@@ -53031,6 +53553,8 @@ export interface UpdateDirectoryAccountInput {
   removeFindingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeWorkflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** provider-reported or locally-recorded time the account was removed from the source directory */
+  removedAt?: InputMaybe<Scalars['Time']['input']>
   scopeID?: InputMaybe<Scalars['ID']['input']>
   /** the scope of the directory_account */
   scopeName?: InputMaybe<Scalars['String']['input']>
@@ -53050,18 +53574,26 @@ export interface UpdateDirectoryAccountInput {
  */
 export interface UpdateDirectoryGroupInput {
   addWorkflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** provider-reported time the group was added or provisioned in the source directory */
+  addedAt?: InputMaybe<Scalars['Time']['input']>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   /** provider classification such as security, distribution, or dynamic */
   classification?: InputMaybe<DirectoryGroupDirectoryGroupClassification>
+  clearAddedAt?: InputMaybe<Scalars['Boolean']['input']>
   clearDescription?: InputMaybe<Scalars['Boolean']['input']>
+  clearDirectoryInstanceID?: InputMaybe<Scalars['Boolean']['input']>
   clearDisplayName?: InputMaybe<Scalars['Boolean']['input']>
   clearEmail?: InputMaybe<Scalars['Boolean']['input']>
   clearEnvironment?: InputMaybe<Scalars['Boolean']['input']>
   clearEnvironmentName?: InputMaybe<Scalars['Boolean']['input']>
   clearExternalSharingAllowed?: InputMaybe<Scalars['Boolean']['input']>
+  clearFirstSeenAt?: InputMaybe<Scalars['Boolean']['input']>
+  clearLastSeenAt?: InputMaybe<Scalars['Boolean']['input']>
   clearMemberCount?: InputMaybe<Scalars['Boolean']['input']>
+  clearMetadata?: InputMaybe<Scalars['Boolean']['input']>
   clearOwner?: InputMaybe<Scalars['Boolean']['input']>
   clearProfile?: InputMaybe<Scalars['Boolean']['input']>
+  clearRemovedAt?: InputMaybe<Scalars['Boolean']['input']>
   clearScope?: InputMaybe<Scalars['Boolean']['input']>
   clearScopeName?: InputMaybe<Scalars['Boolean']['input']>
   clearSourceVersion?: InputMaybe<Scalars['Boolean']['input']>
@@ -53069,6 +53601,8 @@ export interface UpdateDirectoryGroupInput {
   clearWorkflowObjectRefs?: InputMaybe<Scalars['Boolean']['input']>
   /** free-form description captured at sync time */
   description?: InputMaybe<Scalars['String']['input']>
+  /** stable external workspace, tenant, or installation identifier used to correlate groups across multiple integrations pointed at the same directory instance */
+  directoryInstanceID?: InputMaybe<Scalars['String']['input']>
   /** directory supplied display name */
   displayName?: InputMaybe<Scalars['String']['input']>
   /** primary group email address, when applicable */
@@ -53078,14 +53612,22 @@ export interface UpdateDirectoryGroupInput {
   environmentName?: InputMaybe<Scalars['String']['input']>
   /** true when directory settings allow sharing outside the tenant */
   externalSharingAllowed?: InputMaybe<Scalars['Boolean']['input']>
+  /** time this group was first observed by Openlane from directory ingest */
+  firstSeenAt?: InputMaybe<Scalars['Time']['input']>
+  /** time this group was most recently confirmed by directory ingest */
+  lastSeenAt?: InputMaybe<Scalars['Time']['input']>
   /** member count reported by the directory */
   memberCount?: InputMaybe<Scalars['Int']['input']>
+  /** provider-specific metadata captured alongside the normalized profile to preserve directory quirks without schema sprawl */
+  metadata?: InputMaybe<Scalars['Map']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
   /** flattened attribute bag used for filtering/diffing */
   profile?: InputMaybe<Scalars['Map']['input']>
   /** hash of the normalized payload for diffing */
   profileHash?: InputMaybe<Scalars['String']['input']>
   removeWorkflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** provider-reported or locally-recorded time the group was removed from the source directory */
+  removedAt?: InputMaybe<Scalars['Time']['input']>
   scopeID?: InputMaybe<Scalars['ID']['input']>
   /** the scope of the directory_group */
   scopeName?: InputMaybe<Scalars['String']['input']>
@@ -53104,6 +53646,10 @@ export interface UpdateDirectoryGroupInput {
 export interface UpdateDirectoryMembershipInput {
   addEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addWorkflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** provider-reported time the membership was added in the source directory */
+  addedAt?: InputMaybe<Scalars['Time']['input']>
+  clearAddedAt?: InputMaybe<Scalars['Boolean']['input']>
+  clearDirectoryInstanceID?: InputMaybe<Scalars['Boolean']['input']>
   clearEnvironment?: InputMaybe<Scalars['Boolean']['input']>
   clearEnvironmentName?: InputMaybe<Scalars['Boolean']['input']>
   clearEvents?: InputMaybe<Scalars['Boolean']['input']>
@@ -53112,11 +53658,14 @@ export interface UpdateDirectoryMembershipInput {
   clearLastSeenAt?: InputMaybe<Scalars['Boolean']['input']>
   clearMetadata?: InputMaybe<Scalars['Boolean']['input']>
   clearOwner?: InputMaybe<Scalars['Boolean']['input']>
+  clearRemovedAt?: InputMaybe<Scalars['Boolean']['input']>
   clearRole?: InputMaybe<Scalars['Boolean']['input']>
   clearScope?: InputMaybe<Scalars['Boolean']['input']>
   clearScopeName?: InputMaybe<Scalars['Boolean']['input']>
   clearSource?: InputMaybe<Scalars['Boolean']['input']>
   clearWorkflowObjectRefs?: InputMaybe<Scalars['Boolean']['input']>
+  /** stable external workspace, tenant, or installation identifier used to correlate memberships across multiple integrations pointed at the same directory instance */
+  directoryInstanceID?: InputMaybe<Scalars['String']['input']>
   environmentID?: InputMaybe<Scalars['ID']['input']>
   /** the environment of the directory_membership */
   environmentName?: InputMaybe<Scalars['String']['input']>
@@ -53124,13 +53673,15 @@ export interface UpdateDirectoryMembershipInput {
   firstSeenAt?: InputMaybe<Scalars['Time']['input']>
   /** sync run identifier that most recently confirmed this membership */
   lastConfirmedRunID?: InputMaybe<Scalars['String']['input']>
-  /** most recent time the membership was detected */
+  /** most recent time the membership was confirmed by directory ingest */
   lastSeenAt?: InputMaybe<Scalars['Time']['input']>
   /** raw metadata associated with this membership from the provider */
   metadata?: InputMaybe<Scalars['Map']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
   removeEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeWorkflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** provider-reported or locally-recorded time the membership was removed from the source directory */
+  removedAt?: InputMaybe<Scalars['Time']['input']>
   /** membership role reported by the provider */
   role?: InputMaybe<DirectoryMembershipDirectoryMembershipRole>
   scopeID?: InputMaybe<Scalars['ID']['input']>
@@ -53150,6 +53701,7 @@ export interface UpdateDirectorySyncRunInput {
   clearCompletedAt?: InputMaybe<Scalars['Boolean']['input']>
   clearDirectoryAccounts?: InputMaybe<Scalars['Boolean']['input']>
   clearDirectoryGroups?: InputMaybe<Scalars['Boolean']['input']>
+  clearDirectoryInstanceID?: InputMaybe<Scalars['Boolean']['input']>
   clearEnvironment?: InputMaybe<Scalars['Boolean']['input']>
   clearEnvironmentName?: InputMaybe<Scalars['Boolean']['input']>
   clearError?: InputMaybe<Scalars['Boolean']['input']>
@@ -53163,6 +53715,8 @@ export interface UpdateDirectorySyncRunInput {
   completedAt?: InputMaybe<Scalars['Time']['input']>
   /** number of records that changed compared to the prior run */
   deltaCount?: InputMaybe<Scalars['Int']['input']>
+  /** stable external workspace, tenant, or installation identifier derived from integration installation metadata for grouping runs across integrations pointed at the same directory instance */
+  directoryInstanceID?: InputMaybe<Scalars['String']['input']>
   environmentID?: InputMaybe<Scalars['ID']['input']>
   /** the environment of the directory_sync_run */
   environmentName?: InputMaybe<Scalars['String']['input']>
@@ -53321,15 +53875,21 @@ export interface UpdateEmailBrandingInput {
 export interface UpdateEmailTemplateInput {
   /** whether the template is active */
   active?: InputMaybe<Scalars['Boolean']['input']>
+  addBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addCampaignIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addEmailBrandingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addNotificationTemplateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** body template for the email */
   bodyTemplate?: InputMaybe<Scalars['String']['input']>
+  clearBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearBodyTemplate?: InputMaybe<Scalars['Boolean']['input']>
   clearCampaigns?: InputMaybe<Scalars['Boolean']['input']>
   clearDefaults?: InputMaybe<Scalars['Boolean']['input']>
   clearDescription?: InputMaybe<Scalars['Boolean']['input']>
+  clearEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearEmailBranding?: InputMaybe<Scalars['Boolean']['input']>
   clearFiles?: InputMaybe<Scalars['Boolean']['input']>
   clearIntegration?: InputMaybe<Scalars['Boolean']['input']>
@@ -53341,16 +53901,15 @@ export interface UpdateEmailTemplateInput {
   clearRevision?: InputMaybe<Scalars['Boolean']['input']>
   clearSubjectTemplate?: InputMaybe<Scalars['Boolean']['input']>
   clearSystemInternalID?: InputMaybe<Scalars['Boolean']['input']>
-  clearTemplateContext?: InputMaybe<Scalars['Boolean']['input']>
   clearTextTemplate?: InputMaybe<Scalars['Boolean']['input']>
   clearUischema?: InputMaybe<Scalars['Boolean']['input']>
+  clearViewers?: InputMaybe<Scalars['Boolean']['input']>
   clearWorkflowDefinition?: InputMaybe<Scalars['Boolean']['input']>
   clearWorkflowInstance?: InputMaybe<Scalars['Boolean']['input']>
   /** static variable values merged as base layer at render time; call-site data takes precedence */
   defaults?: InputMaybe<Scalars['Map']['input']>
   /** description of the template */
   description?: InputMaybe<Scalars['String']['input']>
-  emailBrandingID?: InputMaybe<Scalars['ID']['input']>
   /** template format for rendering */
   format?: InputMaybe<EmailTemplateNotificationTemplateFormat>
   integrationID?: InputMaybe<Scalars['ID']['input']>
@@ -53368,9 +53927,13 @@ export interface UpdateEmailTemplateInput {
   name?: InputMaybe<Scalars['String']['input']>
   /** preheader/preview text template for email notifications */
   preheaderTemplate?: InputMaybe<Scalars['String']['input']>
+  removeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeCampaignIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeEmailBrandingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeNotificationTemplateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** revision of the object as a semver (e.g. v1.0.0), by default any update will bump the patch version, unless the revision_bump field is set */
   revision?: InputMaybe<Scalars['String']['input']>
   /** subject template for email notifications */
@@ -53456,6 +54019,7 @@ export interface UpdateEntityInput {
   clearEntityType?: InputMaybe<Scalars['Boolean']['input']>
   clearEnvironment?: InputMaybe<Scalars['Boolean']['input']>
   clearEnvironmentName?: InputMaybe<Scalars['Boolean']['input']>
+  clearExternalID?: InputMaybe<Scalars['Boolean']['input']>
   clearFiles?: InputMaybe<Scalars['Boolean']['input']>
   clearHasSoc2?: InputMaybe<Scalars['Boolean']['input']>
   clearIdentityHolders?: InputMaybe<Scalars['Boolean']['input']>
@@ -53473,6 +54037,7 @@ export interface UpdateEntityInput {
   clearName?: InputMaybe<Scalars['Boolean']['input']>
   clearNextReviewAt?: InputMaybe<Scalars['Boolean']['input']>
   clearNotes?: InputMaybe<Scalars['Boolean']['input']>
+  clearObservedAt?: InputMaybe<Scalars['Boolean']['input']>
   clearOutOfScopePlatforms?: InputMaybe<Scalars['Boolean']['input']>
   clearPlatforms?: InputMaybe<Scalars['Boolean']['input']>
   clearProvidedServices?: InputMaybe<Scalars['Boolean']['input']>
@@ -53524,6 +54089,8 @@ export interface UpdateEntityInput {
   environmentID?: InputMaybe<Scalars['ID']['input']>
   /** the environment of the entity */
   environmentName?: InputMaybe<Scalars['String']['input']>
+  /** stable identifier assigned by the source system, used for integration ingest deduplication */
+  externalID?: InputMaybe<Scalars['String']['input']>
   /** whether the entity has an active SOC 2 report */
   hasSoc2?: InputMaybe<Scalars['Boolean']['input']>
   /** internal notes about the object creation, this field is only available to system admins */
@@ -53548,6 +54115,8 @@ export interface UpdateEntityInput {
   /** when the entity is due for review */
   nextReviewAt?: InputMaybe<Scalars['DateTime']['input']>
   note?: InputMaybe<CreateNoteInput>
+  /** time when this entity was last observed by the source integration */
+  observedAt?: InputMaybe<Scalars['DateTime']['input']>
   /** services provided by the entity */
   providedServices?: InputMaybe<Array<Scalars['String']['input']>>
   removeAssessmentResponseIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -53725,7 +54294,7 @@ export interface UpdateEvidenceInput {
   /** description of how the evidence was collected */
   collectionProcedure?: InputMaybe<Scalars['String']['input']>
   /** the date the evidence was retrieved */
-  creationDate?: InputMaybe<Scalars['Time']['input']>
+  creationDate?: InputMaybe<Scalars['DateTime']['input']>
   deleteComment?: InputMaybe<Scalars['ID']['input']>
   /** the description of the evidence, what is contained in the uploaded file(s) or url(s) */
   description?: InputMaybe<Scalars['String']['input']>
@@ -53750,7 +54319,7 @@ export interface UpdateEvidenceInput {
   removeTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeWorkflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the date the evidence should be renewed, defaults to a year from entry date */
-  renewalDate?: InputMaybe<Scalars['Time']['input']>
+  renewalDate?: InputMaybe<Scalars['DateTime']['input']>
   scopeID?: InputMaybe<Scalars['ID']['input']>
   /** the scope of the evidence */
   scopeName?: InputMaybe<Scalars['String']['input']>
@@ -55089,6 +55658,7 @@ export interface UpdateNotificationTemplateInput {
   /** whether the template is active */
   active?: InputMaybe<Scalars['Boolean']['input']>
   addNotificationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  appendDestinations?: InputMaybe<Array<Scalars['String']['input']>>
   /** structured blocks for channels like Slack or Teams */
   blocks?: InputMaybe<Scalars['Map']['input']>
   /** body template for the notification */
@@ -55099,6 +55669,7 @@ export interface UpdateNotificationTemplateInput {
   clearBodyTemplate?: InputMaybe<Scalars['Boolean']['input']>
   clearDefaults?: InputMaybe<Scalars['Boolean']['input']>
   clearDescription?: InputMaybe<Scalars['Boolean']['input']>
+  clearDestinations?: InputMaybe<Scalars['Boolean']['input']>
   clearEmailTemplate?: InputMaybe<Scalars['Boolean']['input']>
   clearIntegration?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalNotes?: InputMaybe<Scalars['Boolean']['input']>
@@ -55116,6 +55687,8 @@ export interface UpdateNotificationTemplateInput {
   defaults?: InputMaybe<Scalars['Map']['input']>
   /** description of the template */
   description?: InputMaybe<Scalars['String']['input']>
+  /** optional explicit provider destination identifiers for this template, such as Slack channel IDs */
+  destinations?: InputMaybe<Array<Scalars['String']['input']>>
   emailTemplateID?: InputMaybe<Scalars['ID']['input']>
   /** template format for rendering */
   format?: InputMaybe<NotificationTemplateNotificationTemplateFormat>
@@ -56367,12 +56940,15 @@ export interface UpdateRiskInput {
   clearEntities?: InputMaybe<Scalars['Boolean']['input']>
   clearEnvironment?: InputMaybe<Scalars['Boolean']['input']>
   clearEnvironmentName?: InputMaybe<Scalars['Boolean']['input']>
+  clearExternalID?: InputMaybe<Scalars['Boolean']['input']>
   clearExternalUUID?: InputMaybe<Scalars['Boolean']['input']>
   clearImpact?: InputMaybe<Scalars['Boolean']['input']>
+  clearIntegrationID?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalPolicies?: InputMaybe<Scalars['Boolean']['input']>
   clearLikelihood?: InputMaybe<Scalars['Boolean']['input']>
   clearMitigation?: InputMaybe<Scalars['Boolean']['input']>
   clearMitigationJSON?: InputMaybe<Scalars['Boolean']['input']>
+  clearObservedAt?: InputMaybe<Scalars['Boolean']['input']>
   clearPlatforms?: InputMaybe<Scalars['Boolean']['input']>
   clearProcedures?: InputMaybe<Scalars['Boolean']['input']>
   clearPrograms?: InputMaybe<Scalars['Boolean']['input']>
@@ -56400,10 +56976,14 @@ export interface UpdateRiskInput {
   environmentID?: InputMaybe<Scalars['ID']['input']>
   /** the environment of the risk */
   environmentName?: InputMaybe<Scalars['String']['input']>
+  /** stable identifier assigned by the source system, used for integration ingest deduplication */
+  externalID?: InputMaybe<Scalars['String']['input']>
   /** stable external UUID for deterministic OSCAL export and round-tripping */
   externalUUID?: InputMaybe<Scalars['String']['input']>
   /** impact of the risk -critical, high, medium, low */
   impact?: InputMaybe<RiskRiskImpact>
+  /** integration that surfaced this risk, when sourced via integration ingest */
+  integrationID?: InputMaybe<Scalars['String']['input']>
   /** likelihood of the risk occurring; unlikely, likely, highly likely */
   likelihood?: InputMaybe<RiskRiskLikelihood>
   /** mitigation for the risk */
@@ -56412,6 +56992,8 @@ export interface UpdateRiskInput {
   mitigationJSON?: InputMaybe<Array<Scalars['Any']['input']>>
   /** the name of the risk */
   name?: InputMaybe<Scalars['String']['input']>
+  /** time when this risk was last observed by the source integration */
+  observedAt?: InputMaybe<Scalars['DateTime']['input']>
   removeActionPlanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeAssetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -58365,6 +58947,7 @@ export enum UserSettingUserStatus {
   INACTIVE = 'INACTIVE',
   ONBOARDING = 'ONBOARDING',
   SUSPENDED = 'SUSPENDED',
+  UNKNOWN = 'UNKNOWN',
 }
 
 /**
@@ -60449,6 +61032,7 @@ export interface WorkflowAssignmentTargetWhereInput {
 
 /** WorkflowAssignmentTargetWorkflowTargetType is enum for the field target_type */
 export enum WorkflowAssignmentTargetWorkflowTargetType {
+  CHANNEL = 'CHANNEL',
   GROUP = 'GROUP',
   RESOLVER = 'RESOLVER',
   ROLE = 'ROLE',
@@ -61948,6 +62532,8 @@ export enum WorkflowInstanceWorkflowInstanceState {
 /** Workflow metadata including supported object types and their fields */
 export interface WorkflowMetadata {
   __typename?: 'WorkflowMetadata'
+  /** Extensible workflow metadata payload for action configuration surfaces */
+  extensions: Scalars['Map']['output']
   /** Available workflow object types */
   objectTypes: Array<WorkflowObjectTypeMetadata>
 }
@@ -63896,7 +64482,10 @@ export type ControlDetailsFieldsFragment = {
   }
   evidence: {
     __typename?: 'EvidenceConnection'
-    edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; id: string; displayID: string; name: string; creationDate: any; description?: string | null } | null } | null> | null
+    edges?: Array<{
+      __typename?: 'EvidenceEdge'
+      node?: { __typename?: 'Evidence'; id: string; displayID: string; name: string; creationDate: string; description?: string | null } | null
+    } | null> | null
   }
   subcontrols: {
     __typename?: 'SubcontrolConnection'
@@ -64072,7 +64661,7 @@ export type GetControlByIdQuery = {
       __typename?: 'EvidenceConnection'
       edges?: Array<{
         __typename?: 'EvidenceEdge'
-        node?: { __typename?: 'Evidence'; id: string; displayID: string; name: string; creationDate: any; description?: string | null } | null
+        node?: { __typename?: 'Evidence'; id: string; displayID: string; name: string; creationDate: string; description?: string | null } | null
       } | null> | null
     }
     subcontrols: {
@@ -65465,7 +66054,6 @@ export type EmailTemplatesWithFilterQuery = {
         createdAt?: any | null
         createdBy?: string | null
         description?: string | null
-        emailBrandingID?: string | null
         id: string
         integrationID?: string | null
         jsonconfig?: any | null
@@ -65502,7 +66090,6 @@ export type EmailTemplateQuery = {
     createdAt?: any | null
     createdBy?: string | null
     description?: string | null
-    emailBrandingID?: string | null
     id: string
     integrationID?: string | null
     jsonconfig?: any | null
@@ -66002,12 +66589,15 @@ export type EvidenceFieldsFragment = {
   collectionProcedure?: string | null
   createdAt?: any | null
   createdBy?: string | null
-  creationDate: any
+  creationDate: string
   description?: string | null
   displayID: string
   id: string
   name: string
-  renewalDate?: any | null
+  renewalDate?: string | null
+  externalUUID?: string | null
+  scopeName?: string | null
+  environmentName?: string | null
   source?: string | null
   status?: EvidenceEvidenceStatus | null
   tags?: Array<string> | null
@@ -66076,12 +66666,15 @@ export type GetEvidenceQuery = {
     collectionProcedure?: string | null
     createdAt?: any | null
     createdBy?: string | null
-    creationDate: any
+    creationDate: string
     description?: string | null
     displayID: string
     id: string
     name: string
-    renewalDate?: any | null
+    renewalDate?: string | null
+    externalUUID?: string | null
+    scopeName?: string | null
+    environmentName?: string | null
     source?: string | null
     status?: EvidenceEvidenceStatus | null
     tags?: Array<string> | null
@@ -66151,12 +66744,15 @@ export type GetRenewEvidenceQuery = {
     collectionProcedure?: string | null
     createdAt?: any | null
     createdBy?: string | null
-    creationDate: any
+    creationDate: string
     description?: string | null
     displayID: string
     id: string
     name: string
-    renewalDate?: any | null
+    renewalDate?: string | null
+    externalUUID?: string | null
+    scopeName?: string | null
+    environmentName?: string | null
     source?: string | null
     status?: EvidenceEvidenceStatus | null
     tags?: Array<string> | null
@@ -66245,8 +66841,8 @@ export type GetEvidenceListQuery = {
         tags?: Array<string> | null
         source?: string | null
         url?: string | null
-        creationDate: any
-        renewalDate?: any | null
+        creationDate: string
+        renewalDate?: string | null
         collectionProcedure?: string | null
         controls: {
           __typename?: 'ControlConnection'
@@ -66304,6 +66900,8 @@ export type GetEvidenceCountsByStatusByProgramIdQuery = {
   ready: { __typename?: 'EvidenceConnection'; totalCount: number }
   missingArtifact: { __typename?: 'EvidenceConnection'; totalCount: number }
   needsRenewal: { __typename?: 'EvidenceConnection'; totalCount: number }
+  requested: { __typename?: 'EvidenceConnection'; totalCount: number }
+  submitted: { __typename?: 'EvidenceConnection'; totalCount: number }
 }
 
 export type GetEvidenceCountsByStatusAllProgramsQueryVariables = Exact<{ [key: string]: never }>
@@ -66315,6 +66913,8 @@ export type GetEvidenceCountsByStatusAllProgramsQuery = {
   ready: { __typename?: 'EvidenceConnection'; totalCount: number }
   missingArtifact: { __typename?: 'EvidenceConnection'; totalCount: number }
   needsRenewal: { __typename?: 'EvidenceConnection'; totalCount: number }
+  requested: { __typename?: 'EvidenceConnection'; totalCount: number }
+  submitted: { __typename?: 'EvidenceConnection'; totalCount: number }
 }
 
 export type GetEvidencesByStatusQueryVariables = Exact<{
@@ -71312,6 +71912,7 @@ export type GetStandardsPaginatedQueryVariables = Exact<{
   after?: InputMaybe<Scalars['Cursor']['input']>
   last?: InputMaybe<Scalars['Int']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
+  orderBy?: InputMaybe<Array<StandardOrder> | StandardOrder>
 }>
 
 export type GetStandardsPaginatedQuery = {
@@ -71434,7 +72035,7 @@ export type GetSubcontrolByIdQuery = {
     }
     evidence: {
       __typename?: 'EvidenceConnection'
-      edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; id: string; displayID: string; name: string; creationDate: any } | null } | null> | null
+      edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; id: string; displayID: string; name: string; creationDate: string } | null } | null> | null
     }
     delegate?: {
       __typename?: 'Group'

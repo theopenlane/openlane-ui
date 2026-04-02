@@ -68,6 +68,9 @@ const EVIDENCE_FIELDS = gql`
     id
     name
     renewalDate
+    externalUUID
+    scopeName
+    environmentName
     source
     status
     tags
@@ -181,6 +184,9 @@ export const GET_RENEW_EVIDENCE = gql`
       id
       name
       renewalDate
+      externalUUID
+      scopeName
+      environmentName
       source
       status
       tags
@@ -369,6 +375,12 @@ export const GET_EVIDENCE_COUNTS_BY_STATUS_BY_PROGRAM_ID = gql`
     needsRenewal: evidences(where: { status: NEEDS_RENEWAL, hasProgramsWith: [{ id: $programId }] }) {
       totalCount
     }
+    requested: evidences(where: { status: REQUESTED, hasProgramsWith: [{ id: $programId }] }) {
+      totalCount
+    }
+    submitted: evidences(where: { status: SUBMITTED, hasProgramsWith: [{ id: $programId }] }) {
+      totalCount
+    }
   }
 `
 
@@ -387,6 +399,12 @@ export const GET_EVIDENCE_COUNTS_BY_STATUS_ALL_PROGRAMS = gql`
       totalCount
     }
     needsRenewal: evidences(where: { status: NEEDS_RENEWAL }) {
+      totalCount
+    }
+    requested: evidences(where: { status: REQUESTED }) {
+      totalCount
+    }
+    submitted: evidences(where: { status: SUBMITTED }) {
       totalCount
     }
   }

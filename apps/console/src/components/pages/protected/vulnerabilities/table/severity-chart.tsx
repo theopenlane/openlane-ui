@@ -2,6 +2,7 @@
 
 import React from 'react'
 import { useVulnerabilitySeverityCounts } from '@/lib/graphql-hooks/vulnerability'
+import { useFindingSeverityCounts } from '@/lib/graphql-hooks/finding'
 import { cn } from '@repo/ui/lib/utils'
 
 type SeverityLevel = 'critical' | 'high' | 'medium' | 'low'
@@ -14,12 +15,20 @@ const SEVERITY_CONFIG: { level: SeverityLevel; label: string; color: string; bgC
 ]
 
 type Props = {
+  variant: 'vulnerability' | 'finding'
   selectedSeverity: SeverityLevel | null
   onSeveritySelect: (severity: SeverityLevel | null) => void
 }
 
-const VulnerabilitySeverityChart: React.FC<Props> = ({ selectedSeverity, onSeveritySelect }) => {
-  const counts = useVulnerabilitySeverityCounts()
+const LABELS: Record<Props['variant'], string> = {
+  vulnerability: 'Vulnerabilities by Severity',
+  finding: 'Findings by Severity',
+}
+
+const SeverityChart: React.FC<Props> = ({ variant, selectedSeverity, onSeveritySelect }) => {
+  const vulnCounts = useVulnerabilitySeverityCounts()
+  const findingCounts = useFindingSeverityCounts()
+  const counts = variant === 'finding' ? findingCounts : vulnCounts
   const total = counts.critical + counts.high + counts.medium + counts.low
 
   const handleClick = (level: SeverityLevel) => {
@@ -28,7 +37,7 @@ const VulnerabilitySeverityChart: React.FC<Props> = ({ selectedSeverity, onSever
 
   return (
     <div className="mb-4 rounded-lg border bg-card p-4">
-      <p className="text-sm font-medium text-muted-foreground mb-3">Vulnerabilities by Severity</p>
+      <p className="text-sm font-medium text-muted-foreground mb-3">{LABELS[variant]}</p>
       <div className="flex flex-col gap-2">
         {SEVERITY_CONFIG.map(({ level, label, color, bgColor }) => {
           const count = counts[level]
@@ -61,5 +70,9 @@ const VulnerabilitySeverityChart: React.FC<Props> = ({ selectedSeverity, onSever
     </div>
   )
 }
+
+export const VulnerabilitySeverityChart: React.FC<Omit<Props, 'variant'>> = (props) => <SeverityChart variant="vulnerability" {...props} />
+
+export const FindingSeverityChart: React.FC<Omit<Props, 'variant'>> = (props) => <SeverityChart variant="finding" {...props} />
 
 export default VulnerabilitySeverityChart

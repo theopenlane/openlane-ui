@@ -1,6 +1,45 @@
 // This file is auto-generated. Do not edit manually.
 
-import { ActionPlan, Assessment, Asset, Campaign, Control, ControlImplementation, ControlObjective, EmailBranding, Entity, Evidence, Finding, Group, IdentityHolder, InternalPolicy, MappedControl, Narrative, PageInfo, Platform, Procedure, Program, Remediation, Review, Risk, Scan, SlaDefinition, Subcontrol, TrustCenter, TrustCenterCompliance, TrustCenterDoc, TrustCenterEntity, TrustCenterFaq, TrustCenterNdaRequest, TrustCenterSetting, TrustCenterSubprocessor, TrustCenterWatermarkConfig, Vulnerability, WorkflowDefinition } from './schema'
+import {
+  ActionPlan,
+  Assessment,
+  Asset,
+  Campaign,
+  Control,
+  ControlImplementation,
+  ControlObjective,
+  EmailBranding,
+  EmailTemplate,
+  Entity,
+  Evidence,
+  Finding,
+  Group,
+  IdentityHolder,
+  InternalPolicy,
+  MappedControl,
+  Narrative,
+  PageInfo,
+  Platform,
+  Procedure,
+  Program,
+  Remediation,
+  Review,
+  Risk,
+  Scan,
+  SlaDefinition,
+  Subcontrol,
+  TrustCenter,
+  TrustCenterCompliance,
+  TrustCenterDoc,
+  TrustCenterEntity,
+  TrustCenterFaq,
+  TrustCenterNdaRequest,
+  TrustCenterSetting,
+  TrustCenterSubprocessor,
+  TrustCenterWatermarkConfig,
+  Vulnerability,
+  WorkflowDefinition,
+} from './schema'
 import { GET_ALL_ACTION_PLANS } from '@repo/codegen/query/action-plan'
 import { GET_ALL_ASSESSMENTS } from '@repo/codegen/query/assessment'
 import { GET_ALL_ASSETS } from '@repo/codegen/query/asset'
@@ -9,6 +48,7 @@ import { GET_ALL_CONTROLS } from '@repo/codegen/query/control'
 import { GET_ALL_CONTROL_IMPLEMENTATIONS } from '@repo/codegen/query/control-implementation'
 import { GET_ALL_CONTROL_OBJECTIVES } from '@repo/codegen/query/control-objective'
 import { GET_ALL_EMAIL_BRANDINGS } from '@repo/codegen/query/email-branding'
+import { GET_ALL_EMAIL_TEMPLATES } from '@repo/codegen/query/email-template'
 import { GET_ALL_ENTITIES } from '@repo/codegen/query/entity'
 import { GET_ALL_FINDINGS } from '@repo/codegen/query/finding'
 import { GET_ALL_IDENTITY_HOLDERS } from '@repo/codegen/query/identity-holder'
@@ -245,6 +285,7 @@ export enum TypesWithPermissions {
   CONTROL_IMPLEMENTATION = 'ControlImplementation',
   CONTROL_OBJECTIVE = 'ControlObjective',
   EMAIL_BRANDING = 'EmailBranding',
+  EMAIL_TEMPLATE = 'EmailTemplate',
   ENTITY = 'Entity',
   FINDING = 'Finding',
   IDENTITY_HOLDER = 'IdentityHolder',
@@ -310,6 +351,11 @@ export type PermissionsAllQueriesData = {
   }
   emailBrandings?: {
     edges?: Array<{ node: EmailBranding }>
+    pageInfo?: PageInfo
+    totalCount?: number
+  }
+  emailTemplates?: {
+    edges?: Array<{ node: EmailTemplate }>
     pageInfo?: PageInfo
     totalCount?: number
   }
@@ -502,14 +548,14 @@ export const OBJECT_TYPE_PERMISSIONS_CONFIG: Record<TypesWithPermissions, Object
     inputPlaceholder: 'ref code',
     excludeViewersInFilter: true,
     extraTableColumns: [
-        {
-          header: 'Reference Framework',
-          accessorKey: 'referenceFramework',
-          size: 100,
-          minSize: 100,
-          maxSize: 100,
-        },
-      ],
+      {
+        header: 'Reference Framework',
+        accessorKey: 'referenceFramework',
+        size: 100,
+        minSize: 100,
+        maxSize: 100,
+      },
+    ],
   },
   [TypesWithPermissions.CONTROL_IMPLEMENTATION]: {
     roleOptions: ['View', 'Edit', 'Blocked'],
@@ -535,6 +581,16 @@ export const OBJECT_TYPE_PERMISSIONS_CONFIG: Record<TypesWithPermissions, Object
     roleOptions: ['View', 'Edit', 'Blocked'],
     responseObjectKey: 'emailBrandings',
     queryDocument: GET_ALL_EMAIL_BRANDINGS,
+    objectName: 'name',
+    searchAttribute: 'nameContainsFold',
+    inputPlaceholder: 'name',
+    excludeViewersInFilter: false,
+    extraTableColumns: undefined,
+  },
+  [TypesWithPermissions.EMAIL_TEMPLATE]: {
+    roleOptions: ['View', 'Edit', 'Blocked'],
+    responseObjectKey: 'emailTemplates',
+    queryDocument: GET_ALL_EMAIL_TEMPLATES,
     objectName: 'name',
     searchAttribute: 'nameContainsFold',
     inputPlaceholder: 'name',
@@ -793,7 +849,6 @@ export const OBJECT_TYPE_PERMISSIONS_CONFIG: Record<TypesWithPermissions, Object
   },
 }
 
-
 export enum TaskObjectTypes {
   ACTION_PLAN = 'Action Plan',
   CONTROL_IMPLEMENTATION = 'Control Implementation',
@@ -1035,4 +1090,3 @@ export const TASK_OBJECT_TYPE_CONFIG: Record<TaskObjectTypes, TTaskObjectTypeCon
     objectName: 'name',
   },
 }
-

@@ -162,7 +162,7 @@ const VulnerabilityPage: React.FC = () => {
     renderFields: (props: VulnerabilityFieldProps) => getFieldsToRender(props, enumOpts, enumCreateHandlers),
   }
 
-  const severityWhereFilter = selectedSeverity ? { severityEqualFold: selectedSeverity } : undefined
+  const severityWhereFilter = selectedSeverity ? { severityEqualFold: selectedSeverity, vulnerabilityStatusNameIn: ['Open', 'In Progress', 'Triaged'] } : undefined
 
   const tableConfig: VulnerabilityTablePageConfig = {
     objectType,
