@@ -55,10 +55,11 @@ export function detectFormat(input: unknown): Detected {
   const mdScore = (hasMarkdownHeading(s) ? 1 : 0) + (hasMarkdownUList(s) ? 1 : 0) + (hasMarkdownOList(s) ? 1 : 0) + (hasMarkdownCodeBlock(s) ? 1 : 0)
 
   const htmlScore = (hasHtmlTags(s) ? 2 : 0) + (hasHtmlGenericClose(s) ? 1 : 0)
-  if (mdScore >= 2 && mdScore >= htmlScore) return 'markdown'
-  if (htmlScore >= 2 && htmlScore > mdScore) return 'html'
-  if (mdScore === 1 && htmlScore === 0) return 'markdown'
-  if (htmlScore === 1 && mdScore === 0) return 'html'
+  if (mdScore > 0 && htmlScore > 0) return 'markdown'
+  if (mdScore >= 2) return 'markdown'
+  if (htmlScore >= 2) return 'html'
+  if (mdScore === 1) return 'markdown'
+  if (htmlScore === 1) return 'html'
 
   return 'text'
 }
@@ -100,16 +101,28 @@ const usePlateEditor = () => {
       let nodes
 
       if (Array.isArray(data)) {
-        editor.children = data
-        return <PlateStatic editor={editor} style={finalStyle} className="plate-static" />
-      }
+        // Check if the array contains raw markdown text in basic nodes
+        const extractedText = data
+          .map((node: Record<string, unknown>) => {
+            const children = node.children as Array<{ text?: string }> | undefined
+            if (children) {
+              return children.map((child) => child.text ?? '').join('')
+            }
+            return (node as { text?: string }).text ?? ''
+          })
+          .join('\n')
 
-      switch (fmt) {
-        case 'markdown':
-          nodes = editor.api.markdown?.deserialize?.(data)
-          break
-        default:
-          nodes = editor.api.html?.deserialize?.({ element: data })
+        const textFormat = detectFormat(extractedText)
+        if (textFormat === 'markdown') {
+          nodes = editor.api.markdown?.deserialize?.(extractedText)
+        } else {
+          editor.children = data
+          return <PlateStatic editor={editor} style={finalStyle} className="plate-static" />
+        }
+      } else if (fmt === 'html') {
+        nodes = editor.api.html?.deserialize?.({ element: data })
+      } else {
+        nodes = editor.api.markdown?.deserialize?.(data)
       }
 
       editor.children = nodes as Value
