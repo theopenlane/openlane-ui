@@ -86,7 +86,11 @@ const TitleField = ({ isEditing, isEditAllowed = true, handleUpdate, initialRefC
     </div>
   ) : (
     <div className="flex gap-2 items-center">
-      {referenceFramework && <StandardsIconMapper height={40} width={42} shortName={referenceFramework} />}
+      {referenceFramework && (
+        <div className="shrink-0">
+          <StandardsIconMapper height={40} width={42} shortName={referenceFramework} />
+        </div>
+      )}
       <HoverPencilWrapper showPencil={isEditAllowed} onPencilClick={handleClick}>
         <h1 onDoubleClick={handleClick} className={`text-3xl font-semibold pr-5 ${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}>
           {displayTitle}
