@@ -303,6 +303,9 @@ export const GET_EVIDENCE_LIST = gql`
           url
           creationDate
           renewalDate
+          externalUUID
+          scopeName
+          environmentName
           collectionProcedure
           controls {
             edges {
