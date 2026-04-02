@@ -139,12 +139,12 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
                   value={field.value || 'unassigned'}
                   onValueChange={(value) => {
                     const newValue = value === 'unassigned' ? null : value
-                    handleUpdate?.({ assigneeID: newValue })
+                    handleUpdate?.({ assigneeID: newValue, clearAssignee: !newValue })
                     field.onChange(newValue)
                     setInternalEditing(null)
                   }}
                 >
-                  <SelectTrigger className="w-full">{orgMembers?.find((m) => m.value === field.value)?.label || 'Select'}</SelectTrigger>
+                  <SelectTrigger className="w-full">{orgMembers?.find((m) => m.value === field.value)?.label || (field.value ? 'Select' : 'Not Assigned')}</SelectTrigger>
                   <SelectContent ref={popoverRef}>
                     <SelectItem value="unassigned">Not Assigned</SelectItem>
                     {orgMembers?.map((option) => (
@@ -164,7 +164,9 @@ const Properties: React.FC<PropertiesProps> = ({ isEditing, taskData, internalEd
             className={`${isEditAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} capitalize text-sm pr-5`}
             onPencilClick={() => isEditAllowed && !isEditing && setInternalEditing('assigneeID')}
           >
-            <p onDoubleClick={() => isEditAllowed && !isEditing && setInternalEditing('assigneeID')}>{taskData?.assignee?.displayName || 'Unassigned'}</p>
+            <p onDoubleClick={() => isEditAllowed && !isEditing && setInternalEditing('assigneeID')}>
+              {watch('assigneeID') ? (orgMembers?.find((m) => m.value === watch('assigneeID'))?.label ?? taskData?.assignee?.displayName ?? 'Unassigned') : 'Unassigned'}
+            </p>
           </HoverPencilWrapper>
         )}
       </div>
