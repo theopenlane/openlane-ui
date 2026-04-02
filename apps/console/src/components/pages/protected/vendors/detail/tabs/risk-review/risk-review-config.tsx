@@ -1,8 +1,13 @@
 import React from 'react'
-import { type ColumnDef } from '@tanstack/react-table'
+import { type ColumnDef, type VisibilityState } from '@tanstack/react-table'
 import { Badge } from '@repo/ui/badge'
 import { type ReviewsNodeNonNull } from '@/lib/graphql-hooks/review'
 import { formatDate } from '@/utils/date'
+import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
+import { TagsCell } from '@/components/shared/crud-base/columns/tags-cell'
+import { getMappedColumns } from '@/components/shared/crud-base/columns/get-mapped-columns'
+import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
+import type { FilterField } from '@/types'
 
 const TIER_COLORS: Record<string, string> = {
   high: 'bg-red-500/16 text-red-400 border-red-500/24',
@@ -21,7 +26,28 @@ export const isHighRiskTier = (tier?: string | null) => {
   return t === 'high' || t === 'critical'
 }
 
+export const DEFAULT_VISIBILITY: VisibilityState = {
+  category: false,
+  source: false,
+  state: false,
+  tags: false,
+  createdAt: false,
+  updatedAt: false,
+}
+
+export const REVIEW_FILTER_FIELDS: FilterField[] = [
+  { key: 'classificationContainsFold', label: 'Risk Tier', type: 'text', icon: FilterIcons.Tier },
+  { key: 'categoryContainsFold', label: 'Category', type: 'text', icon: FilterIcons.Category },
+  { key: 'sourceContainsFold', label: 'Source', type: 'text', icon: FilterIcons.Source },
+]
+
 export const reviewHistoryColumns: ColumnDef<ReviewsNodeNonNull>[] = [
+  {
+    accessorKey: 'title',
+    header: 'Title',
+    size: 200,
+    cell: ({ row }) => <span className="block truncate">{row.original.title ?? '—'}</span>,
+  },
   {
     accessorKey: 'reporter',
     header: 'Reviewer',
@@ -54,4 +80,42 @@ export const reviewHistoryColumns: ColumnDef<ReviewsNodeNonNull>[] = [
     size: 300,
     cell: ({ row }) => <span className="truncate">{row.original.summary ?? '—'}</span>,
   },
+  {
+    accessorKey: 'category',
+    header: 'Category',
+    size: 150,
+    cell: ({ row }) => <span className="block truncate">{row.original.category ?? '—'}</span>,
+  },
+  {
+    accessorKey: 'source',
+    header: 'Source',
+    size: 150,
+    cell: ({ row }) => <span className="block truncate">{row.original.source ?? '—'}</span>,
+  },
+  {
+    accessorKey: 'state',
+    header: 'State',
+    size: 130,
+    cell: ({ row }) => <span className="block truncate">{row.original.state ?? '—'}</span>,
+  },
+  {
+    accessorKey: 'tags',
+    header: 'Tags',
+    size: 180,
+    cell: ({ row }) => <TagsCell tags={row.original.tags} />,
+  },
+  {
+    accessorKey: 'createdAt',
+    header: 'Created',
+    size: 130,
+    cell: ({ cell }) => <DateCell value={cell.getValue() as string} />,
+  },
+  {
+    accessorKey: 'updatedAt',
+    header: 'Updated',
+    size: 130,
+    cell: ({ cell }) => <DateCell value={cell.getValue() as string} variant="timesince" />,
+  },
 ]
+
+export const mappedReviewColumns = getMappedColumns(reviewHistoryColumns)

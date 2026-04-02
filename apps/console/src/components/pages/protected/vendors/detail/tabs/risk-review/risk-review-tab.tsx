@@ -1,16 +1,23 @@
 'use client'
 
 import React, { useState } from 'react'
+import { useDebounce } from '@uidotdev/usehooks'
+import { type VisibilityState } from '@tanstack/react-table'
 import { DataTable } from '@repo/ui/data-table'
+import { TableKeyEnum } from '@repo/ui/table-key'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { Button } from '@repo/ui/button'
-import { AlertTriangle, Clock, ClipboardCheck, CalendarClock } from 'lucide-react'
+import { Input } from '@repo/ui/input'
+import { AlertTriangle, Clock, ClipboardCheck, CalendarClock, SearchIcon } from 'lucide-react'
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuRadioGroup, DropdownMenuRadioItem } from '@repo/ui/dropdown-menu'
 import { EntityFrequency, type EntityQuery, type UpdateEntityInput } from '@repo/codegen/src/schema'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import { useReviewsWithFilter } from '@/lib/graphql-hooks/review'
 import { TextField } from '@/components/shared/crud-base/form-fields/text-field'
-import { reviewHistoryColumns, isHighRiskTier } from './risk-review-config'
+import ColumnVisibilityMenu, { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu'
+import { TableFilter } from '@/components/shared/table-filter/table-filter'
+import type { WhereCondition } from '@/types'
+import { reviewHistoryColumns, isHighRiskTier, mappedReviewColumns, DEFAULT_VISIBILITY, REVIEW_FILTER_FIELDS } from './risk-review-config'
 import CreateReviewSheet from './create-review-sheet'
 import ReviewDetailSheet from './review-detail-sheet'
 
@@ -25,9 +32,15 @@ const RiskReviewTab: React.FC<RiskReviewTabProps> = ({ vendor, handleUpdateField
   const [isCreateReviewOpen, setIsCreateReviewOpen] = useState(false)
   const [selectedReviewId, setSelectedReviewId] = useState<string | null>(null)
   const [internalEditing, setInternalEditing] = useState<string | null>(null)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.VENDOR_REVIEWS, DEFAULT_VISIBILITY))
+  const [filterWhere, setFilterWhere] = useState<WhereCondition>({})
+
+  const debouncedSearch = useDebounce(searchTerm, 300)
+  const searchFields = debouncedSearch ? { or: [{ titleContainsFold: debouncedSearch }, { summaryContainsFold: debouncedSearch }, { reporterContainsFold: debouncedSearch }] } : {}
 
   const { reviewsNodes, isLoading } = useReviewsWithFilter({
-    where: { hasEntitiesWith: [{ id: vendor.id }] },
+    where: { hasEntitiesWith: [{ id: vendor.id }], ...filterWhere, ...searchFields },
   })
 
   const isOverdue = vendor.nextReviewAt && new Date(vendor.nextReviewAt) < new Date()
@@ -122,11 +135,20 @@ const RiskReviewTab: React.FC<RiskReviewTabProps> = ({ vendor, handleUpdateField
 
       <div>
         <h3 className="text-lg font-semibold mb-4">Review History</h3>
+        <div className="flex items-center gap-2 mb-3">
+          <Input icon={<SearchIcon size={16} />} placeholder="Search..." value={searchTerm} onChange={(e) => setSearchTerm(e.currentTarget.value)} variant="searchTable" />
+          <div className="grow flex flex-row items-center gap-2 justify-end">
+            <ColumnVisibilityMenu mappedColumns={mappedReviewColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.VENDOR_REVIEWS} />
+            <TableFilter filterFields={REVIEW_FILTER_FIELDS} onFilterChange={setFilterWhere} pageKey={TableKeyEnum.VENDOR_REVIEWS} />
+          </div>
+        </div>
         <DataTable
           columns={reviewHistoryColumns}
           data={reviewsNodes}
           loading={isLoading}
-          tableKey={undefined}
+          tableKey={TableKeyEnum.VENDOR_REVIEWS}
+          columnVisibility={columnVisibility}
+          setColumnVisibility={setColumnVisibility}
           noResultsText="No review history available."
           onRowClick={(row) => setSelectedReviewId(row.id)}
         />
