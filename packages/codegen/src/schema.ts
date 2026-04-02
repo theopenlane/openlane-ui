@@ -63884,6 +63884,7 @@ export type CampaignsWithFilterQuery = {
       node?: {
         __typename?: 'Campaign'
         assessmentID?: string | null
+        campaignType: CampaignCampaignType
         completedAt?: string | null
         createdAt?: any | null
         createdBy?: string | null
@@ -63914,6 +63915,8 @@ export type CampaignsWithFilterQuery = {
         recurrenceTimezone?: string | null
         resendCount?: number | null
         scheduledAt?: string | null
+        status: CampaignCampaignStatus
+        tags?: Array<string> | null
         templateID?: string | null
         updatedAt?: any | null
         updatedBy?: string | null
@@ -63933,6 +63936,7 @@ export type CampaignQuery = {
   campaign: {
     __typename?: 'Campaign'
     assessmentID?: string | null
+    campaignType: CampaignCampaignType
     completedAt?: string | null
     createdAt?: any | null
     createdBy?: string | null
@@ -63963,10 +63967,13 @@ export type CampaignQuery = {
     recurrenceTimezone?: string | null
     resendCount?: number | null
     scheduledAt?: string | null
+    status: CampaignCampaignStatus
+    tags?: Array<string> | null
     templateID?: string | null
     updatedAt?: any | null
     updatedBy?: string | null
     workflowEligibleMarker?: boolean | null
+    template?: { __typename?: 'Template'; id: string; name: string; description?: string | null; updatedAt?: any | null; jsonconfig: any } | null
   }
 }
 
@@ -66071,6 +66078,7 @@ export type EmailTemplatesWithFilterQuery = {
         version: number
         workflowDefinitionID?: string | null
         workflowInstanceID?: string | null
+        emailBranding?: Array<{ __typename?: 'EmailBranding'; id: string }> | null
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
@@ -66107,6 +66115,7 @@ export type EmailTemplateQuery = {
     version: number
     workflowDefinitionID?: string | null
     workflowInstanceID?: string | null
+    emailBranding?: Array<{ __typename?: 'EmailBranding'; id: string }> | null
   }
 }
 
@@ -72942,6 +72951,7 @@ export type FilterTemplatesQuery = {
         kind?: TemplateTemplateKind | null
         scopeName?: string | null
         systemOwned?: boolean | null
+        owner?: { __typename?: 'Organization'; id: string; displayName: string } | null
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
