@@ -8,25 +8,26 @@ import { Badge } from '@repo/ui/badge'
 import { Checkbox } from '@repo/ui/checkbox'
 import { Input } from '@repo/ui/input'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
-import { ChevronDown, ChevronRight, ChevronsDownUp, List, Minus, Plus, SearchIcon, ShieldCheck, SquarePlay, SquarePlus } from 'lucide-react'
+import { ChevronDown, ChevronRight, ChevronsDownUp, List, Minus, Plus, SearchIcon, ShieldCheck, SquarePlay, SquarePlus, Star } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@repo/ui/dialog'
 import { useGetTrustCenter } from '@/lib/graphql-hooks/trust-center'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { canEdit } from '@/lib/authz/utils'
-import { type ControlWhereInput, type ControlListStandardFieldsFragment, ControlTrustCenterControlVisibility, ControlControlImplementationStatus } from '@repo/codegen/src/schema'
+import { type ControlWhereInput, type ControlListStandardFieldsFragment, ControlTrustCenterControlVisibility, ControlControlImplementationStatus, ControlControlStatus } from '@repo/codegen/src/schema'
 import { useNavigationGuard } from 'next-navigation-guard'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { useAllControlsGroupedWithListFields, useBulkEditControl } from '@/lib/graphql-hooks/control'
+import { useGetMappedControls } from '@/lib/graphql-hooks/mapped-control'
 import { useDebounce } from '@uidotdev/usehooks'
 import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import { useGetStandards, useCloneControls } from '@/lib/graphql-hooks/standard'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { ControlCategoryIcon } from '@/components/shared/control-category-icon-mapper/control-category-icon-mapper'
 
-type FilterTab = 'all' | 'added' | 'not-added'
+type FilterTab = 'all' | 'added' | 'not-added' | 'recommended'
 type DraftAction = 'add' | 'remove'
 
 export default function ControlsPage() {
@@ -52,6 +53,29 @@ export default function ControlsPage() {
   })
   const otsStandardID = otsStandardData?.standards?.edges?.[0]?.node?.id
   const { mutateAsync: cloneControls, isPending: isCloning } = useCloneControls()
+
+  const { data: recommendedMappedControls } = useGetMappedControls({
+    where: {
+      hasFromControlsWith: [{ referenceFramework: 'OTS' }],
+      hasToControlsWith: [{ status: ControlControlStatus.APPROVED }],
+    },
+  })
+
+  const recommendedRefCodes = useMemo(() => {
+    const refCodes = new Set<string>()
+    const edges = recommendedMappedControls?.mappedControls?.edges
+    if (!edges) return refCodes
+    for (const edge of edges) {
+      const fromControls = edge?.node?.fromControls?.edges
+      if (!fromControls) continue
+      for (const fromEdge of fromControls) {
+        if (fromEdge?.node?.refCode) {
+          refCodes.add(fromEdge.node.refCode)
+        }
+      }
+    }
+    return refCodes
+  }, [recommendedMappedControls])
 
   const filterWhere = useMemo((): ControlWhereInput => {
     return {
@@ -83,8 +107,9 @@ export default function ControlsPage() {
   const tabCounts = useMemo(() => {
     const added = allControls.filter((c) => getEffectiveState(c) === 'added').length
     const notAdded = allControls.length - added
-    return { all: allControls.length, added, 'not-added': notAdded }
-  }, [allControls, getEffectiveState])
+    const recommended = allControls.filter((c) => recommendedRefCodes.has(c.refCode)).length
+    return { all: allControls.length, added, 'not-added': notAdded, recommended }
+  }, [allControls, getEffectiveState, recommendedRefCodes])
 
   const filteredGroupedControls = useMemo(() => {
     const search = debouncedSearch.toLowerCase()
@@ -104,6 +129,8 @@ export default function ControlsPage() {
           return getEffectiveState(control) === 'added'
         case 'not-added':
           return getEffectiveState(control) === 'not-added'
+        case 'recommended':
+          return recommendedRefCodes.has(control.refCode)
         default:
           return true
       }
@@ -115,7 +142,7 @@ export default function ControlsPage() {
       if (matching.length > 0) filtered[category] = matching
     }
     return filtered
-  }, [activeTab, debouncedSearch, groupedControls, getEffectiveState])
+  }, [activeTab, debouncedSearch, groupedControls, getEffectiveState, recommendedRefCodes])
 
   const isDirty = useMemo(() => drafts.size > 0, [drafts])
   const publishDisabled = !isDirty || isBulkEditing
@@ -338,6 +365,9 @@ export default function ControlsPage() {
             <TabsTrigger value="not-added" className="whitespace-nowrap">
               Not Added ({tabCounts['not-added']})
             </TabsTrigger>
+            <TabsTrigger value="recommended" className="whitespace-nowrap">
+              Recommended ({tabCounts.recommended})
+            </TabsTrigger>
           </TabsList>
         </Tabs>
       </div>
@@ -378,6 +408,8 @@ export default function ControlsPage() {
                     const isAdded = effectiveState === 'added'
                     const hasDraft = drafts.has(control.id)
 
+                    const isRecommended = recommendedRefCodes.has(control.refCode)
+
                     return (
                       <div key={control.id} className={`flex items-start justify-between p-4 rounded-lg border bg-card ${hasDraft ? 'border-brand bg-brand/5' : 'border-border'}`}>
                         <div className="flex items-center gap-3 flex-1 min-w-0 mr-4">
@@ -385,6 +417,12 @@ export default function ControlsPage() {
                           <div className="flex flex-col gap-1 min-w-0">
                             <div className="flex items-center gap-2">
                               <p className="text-sm text-muted-foreground line-clamp-2">{control.description || 'No description provided'}</p>
+                              {isRecommended && (
+                                <Badge variant="green" className="shrink-0">
+                                  <Star size={12} className="mr-1" />
+                                  Recommended
+                                </Badge>
+                              )}
                               {hasDraft && <Badge variant="blue">{drafts.get(control.id) === 'add' ? 'Pending Add' : 'Pending Remove'}</Badge>}
                             </div>
                             {control.tags && control.tags.length > 0 && (
