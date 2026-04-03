@@ -52,8 +52,11 @@ const PersonnelPage: React.FC = () => {
     const identityHolder = assocData.identityHolder
     return {
       assetIDs: (identityHolder.assets?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+      controlIDs: (identityHolder.controls?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+      subcontrolIDs: (identityHolder.subcontrols?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
       entityIDs: (identityHolder.entities?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
       campaignIDs: (identityHolder.campaigns?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+      internalPolicyIDs: (identityHolder.internalPolicies?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
       taskIDs: (identityHolder.tasks?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
     }
   }, [])
@@ -150,8 +153,13 @@ const PersonnelPage: React.FC = () => {
     createMutation,
     deleteMutation,
     buildPayload: async (data) => {
-      const { assetIDs, entityIDs, campaignIDs, taskIDs, internalOwner, ...rest } = data
-      const associationPayload = buildAssociationPayload(IDENTITY_HOLDER_ASSOCIATION_CONFIG.associationKeys, { assetIDs, entityIDs, campaignIDs, taskIDs }, isCreate, initialAssociationsRef.current)
+      const { assetIDs, controlIDs, subcontrolIDs, entityIDs, campaignIDs, internalPolicyIDs, taskIDs, internalOwner, ...rest } = data
+      const associationPayload = buildAssociationPayload(
+        IDENTITY_HOLDER_ASSOCIATION_CONFIG.associationKeys,
+        { assetIDs, controlIDs, subcontrolIDs, entityIDs, campaignIDs, internalPolicyIDs, taskIDs },
+        isCreate,
+        initialAssociationsRef.current,
+      )
 
       return {
         ...rest,

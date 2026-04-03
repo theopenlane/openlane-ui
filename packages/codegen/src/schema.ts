@@ -2121,6 +2121,7 @@ export interface Asset extends Node {
   sourcePlatformID?: Maybe<Scalars['ID']['output']>
   /** the source of the asset record, e.g., manual, discovered, imported, api */
   sourceType: AssetSourceType
+  subcontrols: SubcontrolConnection
   /** an internal identifier for the mapping, this field is only available to system admins */
   systemInternalID?: Maybe<Scalars['String']['output']>
   /** indicates if the record is owned by the the openlane system and not by an organization */
@@ -2231,6 +2232,15 @@ export interface AssetScansArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<ScanOrder>>
   where?: InputMaybe<ScanWhereInput>
+}
+
+export interface AssetSubcontrolsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<SubcontrolOrder>>
+  where?: InputMaybe<SubcontrolWhereInput>
 }
 
 export interface AssetViewersArgs {
@@ -2717,6 +2727,9 @@ export interface AssetWhereInput {
   /** source_platform edge predicates */
   hasSourcePlatform?: InputMaybe<Scalars['Boolean']['input']>
   hasSourcePlatformWith?: InputMaybe<Array<PlatformWhereInput>>
+  /** subcontrols edge predicates */
+  hasSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
+  hasSubcontrolsWith?: InputMaybe<Array<SubcontrolWhereInput>>
   /** viewers edge predicates */
   hasViewers?: InputMaybe<Scalars['Boolean']['input']>
   hasViewersWith?: InputMaybe<Array<GroupWhereInput>>
@@ -7267,6 +7280,7 @@ export interface CreateAssetInput {
   sourcePlatformID?: InputMaybe<Scalars['ID']['input']>
   /** the source of the asset record, e.g., manual, discovered, imported, api */
   sourceType?: InputMaybe<AssetSourceType>
+  subcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** an internal identifier for the mapping, this field is only available to system admins */
   systemInternalID?: InputMaybe<Scalars['String']['input']>
   /** tags associated with the object */
@@ -8157,6 +8171,7 @@ export interface CreateEntityInput {
   status?: InputMaybe<EntityEntityStatus>
   /** status page URL for the entity */
   statusPageURL?: InputMaybe<Scalars['String']['input']>
+  subcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   subprocessorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** an internal identifier for the mapping, this field is only available to system admins */
   systemInternalID?: InputMaybe<Scalars['String']['input']>
@@ -8698,6 +8713,7 @@ export interface CreateIdentityHolderInput {
   startDate?: InputMaybe<Scalars['DateTime']['input']>
   /** the status of the identity holder record */
   status?: InputMaybe<IdentityHolderUserStatus>
+  subcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   taskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -10043,6 +10059,7 @@ export interface CreateSubcontrolInput {
   assessmentMethods?: InputMaybe<Array<Scalars['AssessmentMethod']['input']>>
   /** objectives of the audit assessment for the control */
   assessmentObjectives?: InputMaybe<Array<Scalars['AssessmentObjective']['input']>>
+  assetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** external auditor id of the control, can be used to map to external audit partner mappings */
   auditorReferenceID?: InputMaybe<Scalars['String']['input']>
   /** category of the control */
@@ -10062,6 +10079,7 @@ export interface CreateSubcontrolInput {
   /** structured details of the control in JSON format */
   descriptionJSON?: InputMaybe<Array<Scalars['Any']['input']>>
   discussionIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  entityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   evidenceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** list of common evidence requests for the control */
   evidenceRequests?: InputMaybe<Array<Scalars['EvidenceRequests']['input']>>
@@ -10069,6 +10087,7 @@ export interface CreateSubcontrolInput {
   exampleEvidence?: InputMaybe<Array<Scalars['ExampleEvidence']['input']>>
   /** stable external UUID for deterministic OSCAL export and round-tripping */
   externalUUID?: InputMaybe<Scalars['String']['input']>
+  identityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** narrative describing current implementation state for OSCAL export */
   implementationDescription?: InputMaybe<Scalars['String']['input']>
   /** implementation guidance for the control */
@@ -16034,6 +16053,7 @@ export interface Entity extends Node {
   status?: Maybe<EntityEntityStatus>
   /** status page URL for the entity */
   statusPageURL?: Maybe<Scalars['String']['output']>
+  subcontrols: SubcontrolConnection
   subprocessors: SubprocessorConnection
   /** an internal identifier for the mapping, this field is only available to system admins */
   systemInternalID?: Maybe<Scalars['String']['output']>
@@ -16221,6 +16241,15 @@ export interface EntitySourcePlatformsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<PlatformOrder>>
   where?: InputMaybe<PlatformWhereInput>
+}
+
+export interface EntitySubcontrolsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<SubcontrolOrder>>
+  where?: InputMaybe<SubcontrolWhereInput>
 }
 
 export interface EntitySubprocessorsArgs {
@@ -17010,6 +17039,9 @@ export interface EntityWhereInput {
   /** source_platforms edge predicates */
   hasSourcePlatforms?: InputMaybe<Scalars['Boolean']['input']>
   hasSourcePlatformsWith?: InputMaybe<Array<PlatformWhereInput>>
+  /** subcontrols edge predicates */
+  hasSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
+  hasSubcontrolsWith?: InputMaybe<Array<SubcontrolWhereInput>>
   /** subprocessors edge predicates */
   hasSubprocessors?: InputMaybe<Scalars['Boolean']['input']>
   hasSubprocessorsWith?: InputMaybe<Array<SubprocessorWhereInput>>
@@ -22740,6 +22772,7 @@ export interface IdentityHolder extends Node {
   startDate?: Maybe<Scalars['DateTime']['output']>
   /** the status of the identity holder record */
   status: IdentityHolderUserStatus
+  subcontrols: SubcontrolConnection
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
   tasks: TaskConnection
@@ -22885,6 +22918,15 @@ export interface IdentityHolderPlatformsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<PlatformOrder>>
   where?: InputMaybe<PlatformWhereInput>
+}
+
+export interface IdentityHolderSubcontrolsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<SubcontrolOrder>>
+  where?: InputMaybe<SubcontrolWhereInput>
 }
 
 export interface IdentityHolderTasksArgs {
@@ -23305,6 +23347,9 @@ export interface IdentityHolderWhereInput {
   /** scope edge predicates */
   hasScope?: InputMaybe<Scalars['Boolean']['input']>
   hasScopeWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
+  /** subcontrols edge predicates */
+  hasSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
+  hasSubcontrolsWith?: InputMaybe<Array<SubcontrolWhereInput>>
   /** tasks edge predicates */
   hasTasks?: InputMaybe<Scalars['Boolean']['input']>
   hasTasksWith?: InputMaybe<Array<TaskWhereInput>>
@@ -45650,6 +45695,7 @@ export interface Subcontrol extends Node {
   assessmentMethods?: Maybe<Array<Scalars['AssessmentMethod']['output']>>
   /** objectives of the audit assessment for the control */
   assessmentObjectives?: Maybe<Array<Scalars['AssessmentObjective']['output']>>
+  assets: AssetConnection
   /** external auditor id of the control, can be used to map to external audit partner mappings */
   auditorReferenceID?: Maybe<Scalars['String']['output']>
   /** category of the control */
@@ -45681,6 +45727,7 @@ export interface Subcontrol extends Node {
   discussions: DiscussionConnection
   /** a shortened prefixed id field to use as a human readable identifier */
   displayID: Scalars['String']['output']
+  entities: EntityConnection
   evidence: EvidenceConnection
   /** list of common evidence requests for the control */
   evidenceRequests?: Maybe<Array<Scalars['EvidenceRequests']['output']>>
@@ -45693,6 +45740,7 @@ export interface Subcontrol extends Node {
   /** Indicates if this subcontrol has any workflow history (completed or failed instances) */
   hasWorkflowHistory: Scalars['Boolean']['output']
   id: Scalars['ID']['output']
+  identityHolders: IdentityHolderConnection
   /** narrative describing current implementation state for OSCAL export */
   implementationDescription?: Maybe<Scalars['String']['output']>
   /** implementation guidance for the control */
@@ -45772,6 +45820,15 @@ export interface SubcontrolActionPlansArgs {
   where?: InputMaybe<ActionPlanWhereInput>
 }
 
+export interface SubcontrolAssetsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<AssetOrder>>
+  where?: InputMaybe<AssetWhereInput>
+}
+
 export interface SubcontrolCommentsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -45808,6 +45865,15 @@ export interface SubcontrolDiscussionsArgs {
   where?: InputMaybe<DiscussionWhereInput>
 }
 
+export interface SubcontrolEntitiesArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<EntityOrder>>
+  where?: InputMaybe<EntityWhereInput>
+}
+
 export interface SubcontrolEvidenceArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -45815,6 +45881,15 @@ export interface SubcontrolEvidenceArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<EvidenceOrder>>
   where?: InputMaybe<EvidenceWhereInput>
+}
+
+export interface SubcontrolIdentityHoldersArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<IdentityHolderOrder>>
+  where?: InputMaybe<IdentityHolderWhereInput>
 }
 
 export interface SubcontrolInternalPoliciesArgs {
@@ -46213,6 +46288,9 @@ export interface SubcontrolWhereInput {
   /** action_plans edge predicates */
   hasActionPlans?: InputMaybe<Scalars['Boolean']['input']>
   hasActionPlansWith?: InputMaybe<Array<ActionPlanWhereInput>>
+  /** assets edge predicates */
+  hasAssets?: InputMaybe<Scalars['Boolean']['input']>
+  hasAssetsWith?: InputMaybe<Array<AssetWhereInput>>
   /** comments edge predicates */
   hasComments?: InputMaybe<Scalars['Boolean']['input']>
   hasCommentsWith?: InputMaybe<Array<NoteWhereInput>>
@@ -46234,9 +46312,15 @@ export interface SubcontrolWhereInput {
   /** discussions edge predicates */
   hasDiscussions?: InputMaybe<Scalars['Boolean']['input']>
   hasDiscussionsWith?: InputMaybe<Array<DiscussionWhereInput>>
+  /** entities edge predicates */
+  hasEntities?: InputMaybe<Scalars['Boolean']['input']>
+  hasEntitiesWith?: InputMaybe<Array<EntityWhereInput>>
   /** evidence edge predicates */
   hasEvidence?: InputMaybe<Scalars['Boolean']['input']>
   hasEvidenceWith?: InputMaybe<Array<EvidenceWhereInput>>
+  /** identity_holders edge predicates */
+  hasIdentityHolders?: InputMaybe<Scalars['Boolean']['input']>
+  hasIdentityHoldersWith?: InputMaybe<Array<IdentityHolderWhereInput>>
   /** internal_policies edge predicates */
   hasInternalPolicies?: InputMaybe<Scalars['Boolean']['input']>
   hasInternalPoliciesWith?: InputMaybe<Array<InternalPolicyWhereInput>>
@@ -52765,6 +52849,7 @@ export interface UpdateAssetInput {
   addOutOfScopePlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addPlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addScanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendCategories?: InputMaybe<Array<Scalars['String']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
@@ -52823,6 +52908,7 @@ export interface UpdateAssetInput {
   clearSecurityTierName?: InputMaybe<Scalars['Boolean']['input']>
   clearSourceIdentifier?: InputMaybe<Scalars['Boolean']['input']>
   clearSourcePlatform?: InputMaybe<Scalars['Boolean']['input']>
+  clearSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
   clearSystemInternalID?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearViewers?: InputMaybe<Scalars['Boolean']['input']>
@@ -52876,6 +52962,7 @@ export interface UpdateAssetInput {
   removeOutOfScopePlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removePlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeScanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   scopeID?: InputMaybe<Scalars['ID']['input']>
   /** the scope of the asset */
@@ -54093,6 +54180,7 @@ export interface UpdateEntityInput {
   addPlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addScanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addSourcePlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addSubprocessorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** annual spend associated with the entity */
@@ -54176,6 +54264,7 @@ export interface UpdateEntityInput {
   clearSpendCurrency?: InputMaybe<Scalars['Boolean']['input']>
   clearStatus?: InputMaybe<Scalars['Boolean']['input']>
   clearStatusPageURL?: InputMaybe<Scalars['Boolean']['input']>
+  clearSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
   clearSubprocessors?: InputMaybe<Scalars['Boolean']['input']>
   clearSystemInternalID?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
@@ -54257,6 +54346,7 @@ export interface UpdateEntityInput {
   removePlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeScanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeSourcePlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeSubprocessorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** renewal risk rating for the entity */
@@ -55118,6 +55208,7 @@ export interface UpdateIdentityHolderInput {
   addFindingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addInternalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addPlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTemplateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -55157,6 +55248,7 @@ export interface UpdateIdentityHolderInput {
   clearScope?: InputMaybe<Scalars['Boolean']['input']>
   clearScopeName?: InputMaybe<Scalars['Boolean']['input']>
   clearStartDate?: InputMaybe<Scalars['Boolean']['input']>
+  clearSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearTasks?: InputMaybe<Scalars['Boolean']['input']>
   clearTeam?: InputMaybe<Scalars['Boolean']['input']>
@@ -55212,6 +55304,7 @@ export interface UpdateIdentityHolderInput {
   removeFindingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeInternalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removePlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTemplateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -57422,13 +57515,16 @@ export interface UpdateStandardInput {
  */
 export interface UpdateSubcontrolInput {
   addActionPlanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addAssetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addComment?: InputMaybe<CreateNoteInput>
   addCommentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlImplementationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlObjectiveIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addDiscussion?: InputMaybe<CreateDiscussionInput>
   addDiscussionIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEvidenceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addIdentityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addInternalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addNarrativeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProcedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -57467,6 +57563,7 @@ export interface UpdateSubcontrolInput {
   clearAliases?: InputMaybe<Scalars['Boolean']['input']>
   clearAssessmentMethods?: InputMaybe<Scalars['Boolean']['input']>
   clearAssessmentObjectives?: InputMaybe<Scalars['Boolean']['input']>
+  clearAssets?: InputMaybe<Scalars['Boolean']['input']>
   clearAuditorReferenceID?: InputMaybe<Scalars['Boolean']['input']>
   clearCategory?: InputMaybe<Scalars['Boolean']['input']>
   clearCategoryID?: InputMaybe<Scalars['Boolean']['input']>
@@ -57479,10 +57576,12 @@ export interface UpdateSubcontrolInput {
   clearDescription?: InputMaybe<Scalars['Boolean']['input']>
   clearDescriptionJSON?: InputMaybe<Scalars['Boolean']['input']>
   clearDiscussions?: InputMaybe<Scalars['Boolean']['input']>
+  clearEntities?: InputMaybe<Scalars['Boolean']['input']>
   clearEvidence?: InputMaybe<Scalars['Boolean']['input']>
   clearEvidenceRequests?: InputMaybe<Scalars['Boolean']['input']>
   clearExampleEvidence?: InputMaybe<Scalars['Boolean']['input']>
   clearExternalUUID?: InputMaybe<Scalars['Boolean']['input']>
+  clearIdentityHolders?: InputMaybe<Scalars['Boolean']['input']>
   clearImplementationDescription?: InputMaybe<Scalars['Boolean']['input']>
   clearImplementationGuidance?: InputMaybe<Scalars['Boolean']['input']>
   clearImplementationStatus?: InputMaybe<Scalars['Boolean']['input']>
@@ -57552,11 +57651,14 @@ export interface UpdateSubcontrolInput {
   /** references for the control */
   references?: InputMaybe<Array<Scalars['Reference']['input']>>
   removeActionPlanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeAssetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeCommentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlImplementationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlObjectiveIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeDiscussionIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEvidenceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeIdentityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeInternalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeNarrativeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProcedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -63899,6 +64001,16 @@ export type GetAssetAssociationsQuery = {
         node?: { __typename?: 'Control'; id: string; refCode: string; description?: string | null; displayID: string; referenceFramework?: string | null } | null
       } | null> | null
     }
+    internalPolicies: {
+      __typename?: 'InternalPolicyConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string; displayID: string } | null } | null> | null
+    }
+    subcontrols: {
+      __typename?: 'SubcontrolConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string; displayID: string } | null } | null> | null
+    }
   }
 }
 
@@ -66664,6 +66776,16 @@ export type GetEntityAssociationsQuery = {
       totalCount: number
       edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string; title?: string | null; description?: string | null } | null } | null> | null
     }
+    internalPolicies: {
+      __typename?: 'InternalPolicyConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string; displayID: string } | null } | null> | null
+    }
+    subcontrols: {
+      __typename?: 'SubcontrolConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string; displayID: string } | null } | null> | null
+    }
   }
 }
 
@@ -68157,6 +68279,21 @@ export type GetIdentityHolderAssociationsQuery = {
       totalCount: number
       edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; title: string; displayID: string } | null } | null> | null
     }
+    controls: {
+      __typename?: 'ControlConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string; displayID: string; description?: string | null } | null } | null> | null
+    }
+    internalPolicies: {
+      __typename?: 'InternalPolicyConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string; displayID: string; summary?: string | null } | null } | null> | null
+    }
+    subcontrols: {
+      __typename?: 'SubcontrolConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string; displayID: string } | null } | null> | null
+    }
   }
 }
 
@@ -68432,6 +68569,21 @@ export type GetInternalPolicyAssociationsByIdQuery = {
       __typename?: 'RiskConnection'
       totalCount: number
       edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; displayID: string; name: string } | null } | null> | null
+    }
+    assets: {
+      __typename?: 'AssetConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'AssetEdge'; node?: { __typename?: 'Asset'; id: string; name: string; displayName?: string | null } | null } | null> | null
+    }
+    entities: {
+      __typename?: 'EntityConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'EntityEdge'; node?: { __typename?: 'Entity'; id: string; name?: string | null; displayName?: string | null } | null } | null> | null
+    }
+    identityHolders: {
+      __typename?: 'IdentityHolderConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'IdentityHolderEdge'; node?: { __typename?: 'IdentityHolder'; id: string; fullName: string; displayID: string } | null } | null> | null
     }
   }
 }
@@ -72258,6 +72410,21 @@ export type GetSubcontrolAssociationsByIdQuery = {
       __typename?: 'RiskConnection'
       totalCount: number
       edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string; displayID: string; details?: string | null } | null } | null> | null
+    }
+    assets: {
+      __typename?: 'AssetConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'AssetEdge'; node?: { __typename?: 'Asset'; id: string; name: string; displayName?: string | null } | null } | null> | null
+    }
+    entities: {
+      __typename?: 'EntityConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'EntityEdge'; node?: { __typename?: 'Entity'; id: string; name?: string | null; displayName?: string | null } | null } | null> | null
+    }
+    identityHolders: {
+      __typename?: 'IdentityHolderConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'IdentityHolderEdge'; node?: { __typename?: 'IdentityHolder'; id: string; fullName: string; displayID: string } | null } | null> | null
     }
   }
 }
