@@ -53,6 +53,7 @@ const VendorPage: React.FC = () => {
       campaignIDs: (entity.campaigns?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
       identityHolderIDs: (entity.identityHolders?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
       internalPolicyIDs: (entity.internalPolicies?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+      subcontrolIDs: (entity.subcontrols?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
     }
   }, [])
   const initialAssociationsRef = useInitialAssociations(associationsData, extractAssociations, id)
@@ -167,11 +168,11 @@ const VendorPage: React.FC = () => {
     createMutation,
     deleteMutation,
     buildPayload: async (data) => {
-      const { assetIDs, internalPolicyIDs, scanIDs, campaignIDs, identityHolderIDs, contactIDs, internalOwner, reviewedBy, ...rest } = data
+      const { assetIDs, internalPolicyIDs, subcontrolIDs, scanIDs, campaignIDs, identityHolderIDs, contactIDs, internalOwner, reviewedBy, ...rest } = data
       const description = rest.description ? await plateEditorHelper.convertToHtml(rest.description as Value) : undefined
       const associationPayload = buildAssociationPayload(
         ENTITY_ASSOCIATION_CONFIG.associationKeys,
-        { assetIDs, internalPolicyIDs, scanIDs, campaignIDs, identityHolderIDs },
+        { assetIDs, internalPolicyIDs, subcontrolIDs, scanIDs, campaignIDs, identityHolderIDs },
         isCreate,
         initialAssociationsRef.current,
       )

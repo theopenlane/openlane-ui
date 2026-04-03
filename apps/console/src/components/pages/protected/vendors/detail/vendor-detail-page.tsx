@@ -208,6 +208,7 @@ const VendorDetailPage: React.FC<VendorDetailPageProps> = ({ vendorId }) => {
       campaigns: associationsData.entity.campaigns,
       identityHolders: associationsData.entity.identityHolders,
       controls: associationsData.entity.controls,
+      subcontrols: associationsData.entity.subcontrols,
       policies: associationsData.entity.internalPolicies,
     }
   }, [associationsData?.entity])

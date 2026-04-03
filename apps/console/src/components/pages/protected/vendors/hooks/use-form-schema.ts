@@ -44,6 +44,7 @@ const formSchema = z.object({
   tier: z.string().optional(),
   assetIDs: z.array(z.string()).optional(),
   internalPolicyIDs: z.array(z.string()).optional(),
+  subcontrolIDs: z.array(z.string()).optional(),
   scanIDs: z.array(z.string()).optional(),
   campaignIDs: z.array(z.string()).optional(),
   identityHolderIDs: z.array(z.string()).optional(),

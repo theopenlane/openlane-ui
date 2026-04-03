@@ -201,6 +201,16 @@ export const GET_ASSET_ASSOCIATIONS = gql`
         }
         totalCount
       }
+      subcontrols {
+        edges {
+          node {
+            id
+            refCode
+            displayID
+          }
+        }
+        totalCount
+      }
     }
   }
 `

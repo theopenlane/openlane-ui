@@ -274,6 +274,16 @@ export const GET_IDENTITY_HOLDER_ASSOCIATIONS = gql`
         }
         totalCount
       }
+      subcontrols {
+        edges {
+          node {
+            id
+            refCode
+            displayID
+          }
+        }
+        totalCount
+      }
     }
   }
 `

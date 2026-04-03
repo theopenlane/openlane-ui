@@ -28,6 +28,7 @@ const formSchema = z.object({
   tags: z.array(z.string()).optional(),
   assetIDs: z.array(z.string()).optional(),
   controlIDs: z.array(z.string()).optional(),
+  subcontrolIDs: z.array(z.string()).optional(),
   entityIDs: z.array(z.string()).optional(),
   campaignIDs: z.array(z.string()).optional(),
   internalPolicyIDs: z.array(z.string()).optional(),

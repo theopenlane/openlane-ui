@@ -916,13 +916,13 @@ const CONTROL_ASSOCIATION_SECTIONS = [
   'remediations',
   'reviews',
 ] as const
-const SUBCONTROL_ASSOCIATION_SECTIONS = ['policies', 'procedures', 'tasks', 'risks'] as const
+const SUBCONTROL_ASSOCIATION_SECTIONS = ['policies', 'procedures', 'tasks', 'risks', 'assets', 'entities', 'identityHolders'] as const
 const POLICY_ASSOCIATION_SECTIONS = ['procedures', 'controls', 'subcontrols', 'controlObjectives', 'tasks', 'programs', 'risks', 'assets', 'entities', 'identityHolders'] as const
 const PROCEDURE_ASSOCIATION_SECTIONS = ['policies', 'controls', 'subcontrols', 'risks', 'tasks', 'programs'] as const
 const RISK_ASSOCIATION_SECTIONS = ['controls', 'procedures', 'subcontrols', 'programs', 'tasks', 'policies', 'assets', 'entities', 'scans'] as const
-const ASSET_ASSOCIATION_SECTIONS = ['scans', 'entities', 'identityHolders', 'controls', 'policies'] as const
-const ENTITY_ASSOCIATION_SECTIONS = ['assets', 'scans', 'campaigns', 'identityHolders', 'controls', 'policies'] as const
-const IDENTITY_HOLDER_ASSOCIATION_SECTIONS = ['assets', 'controls', 'entities', 'campaigns', 'policies', 'tasks'] as const
+const ASSET_ASSOCIATION_SECTIONS = ['scans', 'entities', 'identityHolders', 'controls', 'subcontrols', 'policies'] as const
+const ENTITY_ASSOCIATION_SECTIONS = ['assets', 'scans', 'campaigns', 'identityHolders', 'controls', 'subcontrols', 'policies'] as const
+const IDENTITY_HOLDER_ASSOCIATION_SECTIONS = ['assets', 'controls', 'subcontrols', 'entities', 'campaigns', 'policies', 'tasks'] as const
 const FINDING_ASSOCIATION_SECTIONS = ['controls', 'subcontrols', 'risks', 'programs', 'tasks', 'assets', 'scans', 'remediations', 'reviews'] as const
 const REVIEW_ASSOCIATION_SECTIONS = ['controls', 'subcontrols', 'remediations', 'entities', 'tasks', 'assets', 'programs'] as const
 const REMEDIATION_ASSOCIATION_SECTIONS = ['controls', 'subcontrols', 'findings', 'vulnerabilities'] as const

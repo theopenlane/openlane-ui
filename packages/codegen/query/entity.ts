@@ -342,6 +342,16 @@ export const GET_ENTITY_ASSOCIATIONS = gql`
         }
         totalCount
       }
+      subcontrols {
+        edges {
+          node {
+            id
+            refCode
+            displayID
+          }
+        }
+        totalCount
+      }
     }
   }
 `

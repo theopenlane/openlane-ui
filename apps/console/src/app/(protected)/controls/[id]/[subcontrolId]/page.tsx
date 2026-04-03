@@ -123,6 +123,9 @@ const ControlDetailsPage: React.FC = () => {
       procedures: associationsData?.subcontrol.procedures,
       tasks: associationsData?.subcontrol.tasks,
       risks: associationsData?.subcontrol.risks,
+      assets: associationsData?.subcontrol.assets,
+      entities: associationsData?.subcontrol.entities,
+      identityHolders: associationsData?.subcontrol.identityHolders,
       controls: data?.subcontrol.control,
     }
   }, [associationsData, data])

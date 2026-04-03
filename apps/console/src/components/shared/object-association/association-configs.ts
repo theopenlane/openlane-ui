@@ -3,15 +3,23 @@ import type { AssociationEntityConfig } from '@/components/shared/object-associa
 
 const buildAssociationEntityConfig = <const TConfig extends AssociationEntityConfig>(config: TConfig): TConfig => config
 
-const assetAllowedObjectTypes = [ObjectTypeObjects.CONTROL, ObjectTypeObjects.IDENTITY_HOLDER, ObjectTypeObjects.INTERNAL_POLICY, ObjectTypeObjects.SCAN, ObjectTypeObjects.ENTITY]
+const assetAllowedObjectTypes = [
+  ObjectTypeObjects.CONTROL,
+  ObjectTypeObjects.SUB_CONTROL,
+  ObjectTypeObjects.IDENTITY_HOLDER,
+  ObjectTypeObjects.INTERNAL_POLICY,
+  ObjectTypeObjects.SCAN,
+  ObjectTypeObjects.ENTITY,
+]
 const assetInitialDataKeys = {
   scanIDs: 'scans',
   entityIDs: 'entities',
   identityHolderIDs: 'identityHolders',
   controlIDs: 'controls',
+  subcontrolIDs: 'subcontrols',
   internalPolicyIDs: 'internalPolicies',
 }
-const assetAssociationKeys = ['controlIDs', 'internalPolicyIDs', 'scanIDs', 'entityIDs', 'identityHolderIDs']
+const assetAssociationKeys = ['controlIDs', 'subcontrolIDs', 'internalPolicyIDs', 'scanIDs', 'entityIDs', 'identityHolderIDs']
 
 export const ASSET_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
   entityType: 'asset',
@@ -30,6 +38,7 @@ export const ASSET_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
       displayIdExtractor: (n) => n.displayID ?? '',
       extraFields: (n) => ({ refCode: n.refCode, description: n.description }),
     },
+    { key: 'subcontrols', nameExtractor: (n) => n.refCode ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
     { key: 'internalPolicies', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
   ],
   dialogConfig: {
@@ -41,15 +50,23 @@ export const ASSET_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
   },
 })
 
-const entityAllowedObjectTypes = [ObjectTypeObjects.ASSET, ObjectTypeObjects.CAMPAIGN, ObjectTypeObjects.IDENTITY_HOLDER, ObjectTypeObjects.INTERNAL_POLICY, ObjectTypeObjects.SCAN]
+const entityAllowedObjectTypes = [
+  ObjectTypeObjects.ASSET,
+  ObjectTypeObjects.CAMPAIGN,
+  ObjectTypeObjects.IDENTITY_HOLDER,
+  ObjectTypeObjects.INTERNAL_POLICY,
+  ObjectTypeObjects.SCAN,
+  ObjectTypeObjects.SUB_CONTROL,
+]
 const entityInitialDataKeys = {
   assetIDs: 'assets',
   scanIDs: 'scans',
   campaignIDs: 'campaigns',
   identityHolderIDs: 'identityHolders',
   internalPolicyIDs: 'internalPolicies',
+  subcontrolIDs: 'subcontrols',
 }
-const entityAssociationKeys = ['assetIDs', 'internalPolicyIDs', 'scanIDs', 'campaignIDs', 'identityHolderIDs']
+const entityAssociationKeys = ['assetIDs', 'internalPolicyIDs', 'subcontrolIDs', 'scanIDs', 'campaignIDs', 'identityHolderIDs']
 
 export const ENTITY_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
   entityType: 'entity',
@@ -64,6 +81,7 @@ export const ENTITY_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
     { key: 'campaigns', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
     { key: 'identityHolders', nameExtractor: (n) => n.fullName ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
     { key: 'internalPolicies', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
+    { key: 'subcontrols', nameExtractor: (n) => n.refCode ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
   ],
   dialogConfig: {
     dataRootField: 'entity',
@@ -78,6 +96,7 @@ const identityHolderAllowedObjectTypes = [
   ObjectTypeObjects.ASSET,
   ObjectTypeObjects.CAMPAIGN,
   ObjectTypeObjects.CONTROL,
+  ObjectTypeObjects.SUB_CONTROL,
   ObjectTypeObjects.ENTITY,
   ObjectTypeObjects.INTERNAL_POLICY,
   ObjectTypeObjects.TASK,
@@ -85,12 +104,13 @@ const identityHolderAllowedObjectTypes = [
 const identityHolderInitialDataKeys = {
   assetIDs: 'assets',
   controlIDs: 'controls',
+  subcontrolIDs: 'subcontrols',
   entityIDs: 'entities',
   campaignIDs: 'campaigns',
   internalPolicyIDs: 'internalPolicies',
   taskIDs: 'tasks',
 }
-const identityHolderAssociationKeys = ['assetIDs', 'controlIDs', 'entityIDs', 'campaignIDs', 'internalPolicyIDs', 'taskIDs']
+const identityHolderAssociationKeys = ['assetIDs', 'controlIDs', 'subcontrolIDs', 'entityIDs', 'campaignIDs', 'internalPolicyIDs', 'taskIDs']
 
 export const IDENTITY_HOLDER_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
   entityType: 'identityHolder',
@@ -107,6 +127,7 @@ export const IDENTITY_HOLDER_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
       displayIdExtractor: (n) => n.displayID ?? '',
       extraFields: (n) => ({ refCode: n.refCode, description: n.description }),
     },
+    { key: 'subcontrols', nameExtractor: (n) => n.refCode ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
     { key: 'entities', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayName ?? '' },
     { key: 'campaigns', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
     { key: 'internalPolicies', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '' },

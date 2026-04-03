@@ -39,6 +39,7 @@ const ViewAssetSheet: React.FC<Props> = ({ entityId, onClose }) => {
       entityIDs: (asset.entities?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
       identityHolderIDs: (asset.identityHolders?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
       controlIDs: (asset.controls?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+      subcontrolIDs: (asset.subcontrols?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
       internalPolicyIDs: (asset.internalPolicies?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
     }
   }, [])
@@ -121,11 +122,11 @@ const ViewAssetSheet: React.FC<Props> = ({ entityId, onClose }) => {
     createMutation,
     deleteMutation,
     buildPayload: async (formData) => {
-      const { controlIDs, internalPolicyIDs, scanIDs, entityIDs, identityHolderIDs, internalOwner, ...rest } = formData
+      const { controlIDs, subcontrolIDs, internalPolicyIDs, scanIDs, entityIDs, identityHolderIDs, internalOwner, ...rest } = formData
       const description = rest.description ? await plateEditorHelper.convertToHtml(rest.description as Value) : undefined
       const associationPayload = buildAssociationPayload(
         ASSET_ASSOCIATION_CONFIG.associationKeys,
-        { controlIDs, internalPolicyIDs, scanIDs, entityIDs, identityHolderIDs },
+        { controlIDs, subcontrolIDs, internalPolicyIDs, scanIDs, entityIDs, identityHolderIDs },
         false,
         initialAssociationsRef.current,
       )
