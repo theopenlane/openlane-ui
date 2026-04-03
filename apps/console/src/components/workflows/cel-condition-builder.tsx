@@ -150,7 +150,7 @@ export const CELConditionBuilder = ({ objectType, objectTypes, initialExpression
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <Label>CEL Expression</Label>
-          <Button type="button" variant="transparent" size="sm" onClick={toggleMode}>
+          <Button type="button" variant="outline" onClick={toggleMode}>
             Switch to Builder
           </Button>
         </div>
@@ -172,7 +172,7 @@ export const CELConditionBuilder = ({ objectType, objectTypes, initialExpression
             Expression is valid
           </div>
         )}
-        <Button type="button" variant="outline" size="sm" onClick={handleRawExpressionSave} className="w-full" disabled={!validationResult.valid}>
+        <Button type="button" variant="outline" onClick={handleRawExpressionSave} disabled={!validationResult.valid}>
           Apply Expression
         </Button>
       </div>
@@ -183,7 +183,7 @@ export const CELConditionBuilder = ({ objectType, objectTypes, initialExpression
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <Label>Condition Builder</Label>
-        <Button type="button" variant="transparent" size="sm" onClick={toggleMode}>
+        <Button type="button" variant="outline" onClick={toggleMode}>
           <Code className="h-3 w-3 mr-1" />
           Raw CEL
         </Button>
@@ -336,16 +336,16 @@ export const CELConditionBuilder = ({ objectType, objectTypes, initialExpression
                 })()}
               </div>
 
-              <Button type="button" variant="iconButton" size="sm" onClick={() => removeCondition(condition.id)} className="h-8 w-8 p-0">
-                <Trash2 className="h-3 w-3" />
+              <Button type="button" variant="iconButton" onClick={() => removeCondition(condition.id)} className="h-8 w-8 p-0">
+                <Trash2 />
               </Button>
             </div>
           </Card>
         ))}
       </div>
 
-      <Button type="button" variant="outline" size="sm" onClick={addCondition} className="w-full">
-        <Plus className="h-3 w-3 mr-1" />
+      <Button type="button" variant="secondary" onClick={addCondition} className="w-fit">
+        <Plus />
         Add Condition
       </Button>
 

@@ -225,7 +225,7 @@ export default function WorkflowEditor() {
         })
       }
 
-      router.push('/workflows')
+      router.push('/automation/workflows')
     } catch (error) {
       const message = parseErrorMessage(error)
       errorNotification({
@@ -240,8 +240,8 @@ export default function WorkflowEditor() {
   return (
     <div className="space-y-6">
       <Card>
-        <CardHeader>
-          <CardTitle>Workflow Details</CardTitle>
+        <CardHeader className="pb-0">
+          <CardTitle className="p-0">Workflow Details</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -281,8 +281,8 @@ export default function WorkflowEditor() {
       </Card>
 
       <Card>
-        <CardHeader>
-          <CardTitle>Settings</CardTitle>
+        <CardHeader className="pb-0">
+          <CardTitle className="p-0">Settings</CardTitle>
         </CardHeader>
         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
@@ -340,9 +340,9 @@ export default function WorkflowEditor() {
       </Card>
 
       <Card>
-        <CardHeader>
+        <CardHeader className="pb-0">
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            <CardTitle>Workflow Builder</CardTitle>
+            <CardTitle className="p-0">Workflow Builder</CardTitle>
             <Tabs value={editorMode} onValueChange={(value) => setEditorMode(value as 'visual' | 'form')}>
               <TabsList>
                 <TabsTrigger value="form">Form</TabsTrigger>
@@ -384,7 +384,7 @@ export default function WorkflowEditor() {
       </Card>
 
       <div className="flex justify-end gap-2">
-        <Button variant="secondary" onClick={() => router.push('/workflows')} disabled={isSaving}>
+        <Button variant="secondary" onClick={() => router.push('/automation/workflows')} disabled={isSaving}>
           Cancel
         </Button>
         <Button onClick={handleSave} disabled={isSaving || isLoading}>

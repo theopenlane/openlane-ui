@@ -14,6 +14,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { useDeleteWorkflowDefinition } from '@/lib/graphql-hooks/workflow-definition'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { type TAccessRole, type TPermissionData } from '@/types/authz'
+import { type TQuickFilter } from '@/components/shared/table-filter/table-filter-helper'
 import { getFilterFields } from './table-config'
 import { tableKey } from './types'
 
@@ -50,6 +51,7 @@ const WorkflowsTableToolbar: React.FC<WorkflowsTableToolbarProps> = ({
   const router = useRouter()
   const isSearching = useDebounce(searching, 200)
   const filterFields = getFilterFields()
+  const quickFilters: TQuickFilter[] = [{ label: 'Active', key: 'active', type: 'boolean', isActive: false }]
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)
   const { successNotification, errorNotification } = useNotification()
   const deleteMutation = useDeleteWorkflowDefinition()
@@ -112,7 +114,7 @@ const WorkflowsTableToolbar: React.FC<WorkflowsTableToolbarProps> = ({
               {mappedColumns && columnVisibility && setColumnVisibility && (
                 <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={tableKey} />
               )}
-              {filterFields && <TableFilter filterFields={filterFields} onFilterChange={onFilterChange} pageKey={tableKey} />}
+              {filterFields && <TableFilter filterFields={filterFields} onFilterChange={onFilterChange} pageKey={tableKey} quickFilters={quickFilters} />}
               <Menu
                 trigger={
                   <Button variant="primary" className="h-8 px-2! pl-3!" icon={<SquarePlus />} iconPosition="left">

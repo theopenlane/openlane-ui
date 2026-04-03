@@ -29,8 +29,8 @@ export function NodePalette({ onAddNode }: NodePaletteProps) {
 
   return (
     <Card className="w-64">
-      <CardHeader>
-        <CardTitle className="text-sm">Add Node</CardTitle>
+      <CardHeader className="pb-0">
+        <CardTitle className="p-0 text-sm">Add Node</CardTitle>
       </CardHeader>
       <CardContent className="space-y-2">
         <div className="relative">

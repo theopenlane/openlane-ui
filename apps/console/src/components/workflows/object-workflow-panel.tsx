@@ -12,18 +12,13 @@ import { WorkflowStatusBadge } from '@/components/workflows/workflow-status-badg
 import { useApproveAssignment, useRejectAssignment, useRequestChangesAssignment, useWorkflowInstancesForObject, useWorkflowProposalsForObject } from '@/lib/graphql-hooks/workflows'
 import { useNotification } from '@/hooks/useNotification'
 import { definitionHasApprovalAction, definitionHasApprovalTiming, resolveApprovalTiming } from '@/utils/workflow'
+import { toHumanLabel } from '@/utils/strings'
 
 type ObjectWorkflowPanelProps = {
   objectId: string
   objectType: string
   objectLabel?: string
 }
-
-const formatObjectTypeLabel = (value: string) =>
-  value
-    .replace(/_/g, ' ')
-    .replace(/([a-z])([A-Z])/g, '$1 $2')
-    .trim()
 
 export const ObjectWorkflowPanel = ({ objectId, objectType, objectLabel }: ObjectWorkflowPanelProps) => {
   const { successNotification, errorNotification } = useNotification()
@@ -154,7 +149,7 @@ export const ObjectWorkflowPanel = ({ objectId, objectType, objectLabel }: Objec
     return null
   }
 
-  const objectTypeLabel = formatObjectTypeLabel(objectType)
+  const objectTypeLabel = toHumanLabel(objectType)
   const headerTitle = pendingAssignments.length > 0 ? 'Pending Approvals' : 'Workflow Proposals'
   const headerDescription =
     pendingAssignments.length > 0
@@ -169,10 +164,10 @@ export const ObjectWorkflowPanel = ({ objectId, objectType, objectLabel }: Objec
 
   return (
     <Card className="border-amber-500">
-      <CardHeader>
+      <CardHeader className="pb-0">
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="text-lg flex items-center gap-2">
+            <CardTitle className="p-0 text-lg flex items-center gap-2">
               <Clock className="h-5 w-5 text-amber-500" />
               {headerTitle}
             </CardTitle>

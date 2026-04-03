@@ -36,6 +36,7 @@ type WorkflowVisualEditorProps = {
   actions: Record<string, unknown>[]
   objectTypes: WorkflowObjectTypeMetadata[]
   onUpdate?: (triggers: Record<string, unknown>[], conditions: Record<string, unknown>[], actions: Record<string, unknown>[]) => void
+  readOnly?: boolean
 }
 
 const NODE_X = 220
@@ -168,7 +169,7 @@ function workflowToNodes(triggers: Record<string, unknown>[], conditions: Record
   return { nodes, edges }
 }
 
-export const WorkflowVisualEditor = ({ triggers, conditions, actions, objectTypes, onUpdate }: WorkflowVisualEditorProps) => {
+export const WorkflowVisualEditor = ({ triggers, conditions, actions, objectTypes, onUpdate, readOnly = false }: WorkflowVisualEditorProps) => {
   const { nodes: initialNodes, edges: initialEdges } = useMemo(() => workflowToNodes(triggers, conditions, actions), [triggers, conditions, actions])
 
   const [nodes, setNodes] = useNodesState(initialNodes)
@@ -376,28 +377,33 @@ export const WorkflowVisualEditor = ({ triggers, conditions, actions, objectType
 
   return (
     <>
-      <div className="flex gap-4 h-[600px] w-full">
-        <NodePalette onAddNode={handleAddNode} />
+      <div className="flex gap-4 h-150 w-full">
+        {!readOnly && <NodePalette onAddNode={handleAddNode} />}
 
         <div ref={reactFlowWrapperRef} className="flex-1 border rounded-lg bg-background relative min-w-0 h-full">
-          <div className="absolute top-2 right-2 z-10 flex gap-2">
-            <Button size="sm" variant="outline" onClick={handleUndo} disabled={historyIndex <= 0}>
-              <Undo2 className="h-4 w-4" />
-            </Button>
-            <Button size="sm" variant="outline" onClick={handleRedo} disabled={historyIndex >= history.length - 1}>
-              <Redo2 className="h-4 w-4" />
-            </Button>
-          </div>
+          {!readOnly && (
+            <div className="absolute top-2 right-2 z-10 flex gap-2">
+              <Button size="sm" variant="outline" onClick={handleUndo} disabled={historyIndex <= 0}>
+                <Undo2 className="h-4 w-4" />
+              </Button>
+              <Button size="sm" variant="outline" onClick={handleRedo} disabled={historyIndex >= history.length - 1}>
+                <Redo2 className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
 
           <div className="w-full h-full">
             <ReactFlow
               nodes={nodes}
               edges={edges}
-              onNodesChange={handleNodesChange}
-              onEdgesChange={handleEdgesChange}
-              onConnect={onConnect}
-              onNodeClick={handleNodeClick}
+              onNodesChange={readOnly ? undefined : handleNodesChange}
+              onEdgesChange={readOnly ? undefined : handleEdgesChange}
+              onConnect={readOnly ? undefined : onConnect}
+              onNodeClick={readOnly ? undefined : handleNodeClick}
               nodeTypes={nodeTypes}
+              nodesDraggable={!readOnly}
+              nodesConnectable={!readOnly}
+              elementsSelectable={!readOnly}
               snapToGrid={true}
               snapGrid={[15, 15]}
               fitView
@@ -406,17 +412,17 @@ export const WorkflowVisualEditor = ({ triggers, conditions, actions, objectType
               connectionLineType={ConnectionLineType.SmoothStep}
               attributionPosition="bottom-left"
               onInit={setReactFlowInstance}
-              onDragOver={onDragOver}
-              onDrop={onDrop}
+              onDragOver={readOnly ? undefined : onDragOver}
+              onDrop={readOnly ? undefined : onDrop}
             >
               <Background />
-              <Controls />
+              <Controls className="[&>button]:bg-background! [&>button]:border-border!" />
             </ReactFlow>
           </div>
         </div>
       </div>
 
-      <NodeEditPanel node={selectedNode} objectTypes={objectTypes} onClose={() => setSelectedNode(null)} onUpdate={handleNodeUpdate} onDelete={handleNodeDelete} />
+      {!readOnly && <NodeEditPanel node={selectedNode} objectTypes={objectTypes} onClose={() => setSelectedNode(null)} onUpdate={handleNodeUpdate} onDelete={handleNodeDelete} />}
     </>
   )
 }

@@ -1,6 +1,6 @@
 'use client'
 
-import { Plus, Trash2, X } from 'lucide-react'
+import { Plus, Trash2 } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@repo/ui/cardpanel'
 import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
@@ -8,8 +8,9 @@ import { Label } from '@repo/ui/label'
 import { Textarea } from '@repo/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { Switch } from '@repo/ui/switch'
-import { Badge } from '@repo/ui/badge'
 import { Separator } from '@repo/ui/separator'
+import { TargetSelector } from '@/components/pages/protected/workflows/wizard/components/target-selector'
+import { getTargetLabel } from '@/components/pages/protected/workflows/wizard/utils'
 import type { Target } from '@/components/pages/protected/workflows/types'
 
 const ACTION_TYPE_OPTIONS = [
@@ -27,10 +28,6 @@ type ActionFormSectionProps = {
   actions: any[]
   eligibleFields: { name: string; label: string; type: string }[]
   resolverKeys: string[]
-  userOptions: { label: string; value: string }[]
-  groupOptions: { label: string; value: string }[]
-  isLoadingUsers: boolean
-  isLoadingGroups: boolean
   actionParamsDrafts: Record<number, { value: string; error?: string }>
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getApprovalTargets: (action: any) => Target[]
@@ -49,10 +46,6 @@ export const ActionFormSection = ({
   actions,
   eligibleFields,
   resolverKeys,
-  userOptions,
-  groupOptions,
-  isLoadingUsers,
-  isLoadingGroups,
   actionParamsDrafts,
   getApprovalTargets,
   onAddAction,
@@ -65,10 +58,10 @@ export const ActionFormSection = ({
 }: ActionFormSectionProps) => {
   return (
     <Card className="border border-muted-foreground/30">
-      <CardHeader>
+      <CardHeader className="pb-0">
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle>Actions</CardTitle>
+            <CardTitle className="p-0">Actions</CardTitle>
             <CardDescription>Define what happens when the workflow executes.</CardDescription>
           </div>
           <Button size="sm" variant="outline" onClick={onAddAction}>
@@ -84,15 +77,12 @@ export const ActionFormSection = ({
           const isApprovalLike = isApproval || isReview
           const isWebhook = action.type === 'WEBHOOK'
           const targets = getApprovalTargets(action)
-          const selectedUsers = targets.filter((t) => t.type === 'USER' && t.id)
-          const selectedGroups = targets.filter((t) => t.type === 'GROUP' && t.id)
-          const selectedResolvers = targets.filter((t) => t.type === 'RESOLVER' && t.resolver_key).map((t) => t.resolver_key as string)
           const paramsDraft = actionParamsDrafts[index]
           return (
             <Card key={`action-${index}`} className="border-dashed">
-              <CardHeader>
+              <CardHeader className="pb-0">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-sm">Action {index + 1}</CardTitle>
+                  <CardTitle className="p-0 text-sm">Action {index + 1}</CardTitle>
                   {actions.length > 1 && (
                     <Button size="sm" variant="transparent" onClick={() => onRemoveAction(index)}>
                       <Trash2 className="h-4 w-4" />
@@ -190,91 +180,13 @@ export const ActionFormSection = ({
                         <p className="text-xs text-muted-foreground">Use 0 to require all targets.</p>
                       </div>
 
-                      <div className="space-y-2">
-                        <Label>Assign to Users</Label>
-                        <Select onValueChange={(val) => onAddTarget(index, { type: 'USER', id: val })} value="">
-                          <SelectTrigger disabled={isLoadingUsers}>
-                            <SelectValue placeholder={isLoadingUsers ? 'Loading users...' : 'Select user...'} />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {userOptions
-                              .filter((u) => !selectedUsers.find((s) => s.id === u.value))
-                              .map((user) => (
-                                <SelectItem key={user.value} value={user.value}>
-                                  {user.label}
-                                </SelectItem>
-                              ))}
-                          </SelectContent>
-                        </Select>
-                        {selectedUsers.length > 0 && (
-                          <div className="flex flex-wrap gap-1 mt-2">
-                            {selectedUsers.map((user) => (
-                              <Badge key={user.id} variant="secondary" className="gap-1">
-                                {userOptions.find((u) => u.value === user.id)?.label || user.id}
-                                <X className="h-3 w-3 cursor-pointer" onClick={() => onRemoveTarget(index, { type: 'USER', id: user.id })} />
-                              </Badge>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label>Assign to Groups</Label>
-                        <Select onValueChange={(val) => onAddTarget(index, { type: 'GROUP', id: val })} value="">
-                          <SelectTrigger disabled={isLoadingGroups}>
-                            <SelectValue placeholder={isLoadingGroups ? 'Loading groups...' : 'Select group...'} />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {groupOptions
-                              .filter((g) => !selectedGroups.find((s) => s.id === g.value))
-                              .map((group) => (
-                                <SelectItem key={group.value} value={group.value}>
-                                  {group.label}
-                                </SelectItem>
-                              ))}
-                          </SelectContent>
-                        </Select>
-                        {selectedGroups.length > 0 && (
-                          <div className="flex flex-wrap gap-1 mt-2">
-                            {selectedGroups.map((group) => (
-                              <Badge key={group.id} variant="secondary" className="gap-1">
-                                {groupOptions.find((g) => g.value === group.id)?.label || group.id}
-                                <X className="h-3 w-3 cursor-pointer" onClick={() => onRemoveTarget(index, { type: 'GROUP', id: group.id })} />
-                              </Badge>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-
-                      {resolverKeys.length > 0 && (
-                        <div className="space-y-2">
-                          <Label>Assign via Resolver</Label>
-                          <Select onValueChange={(val) => onAddTarget(index, { type: 'RESOLVER', resolver_key: val })} value="">
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select resolver..." />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {resolverKeys
-                                .filter((key) => !selectedResolvers.includes(key))
-                                .map((key) => (
-                                  <SelectItem key={key} value={key}>
-                                    {key}
-                                  </SelectItem>
-                                ))}
-                            </SelectContent>
-                          </Select>
-                          {selectedResolvers.length > 0 && (
-                            <div className="flex flex-wrap gap-1 mt-2">
-                              {selectedResolvers.map((resolverKey) => (
-                                <Badge key={resolverKey} variant="secondary" className="gap-1">
-                                  {resolverKey}
-                                  <X className="h-3 w-3 cursor-pointer" onClick={() => onRemoveTarget(index, { type: 'RESOLVER', resolver_key: resolverKey })} />
-                                </Badge>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      )}
+                      <TargetSelector
+                        targets={targets}
+                        onAdd={(target) => onAddTarget(index, target)}
+                        onRemove={(target) => onRemoveTarget(index, target)}
+                        resolverKeys={resolverKeys}
+                        getTargetLabel={getTargetLabel}
+                      />
                     </div>
                   </>
                 ) : isWebhook ? (

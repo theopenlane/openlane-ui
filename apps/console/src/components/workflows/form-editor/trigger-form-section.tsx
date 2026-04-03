@@ -40,10 +40,10 @@ export const TriggerFormSection = ({
 }: TriggerFormSectionProps) => {
   return (
     <Card className="border border-muted-foreground/30">
-      <CardHeader>
+      <CardHeader className="pb-0">
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle>Triggers</CardTitle>
+            <CardTitle className="p-0">Triggers</CardTitle>
             <CardDescription>Define when this workflow should execute.</CardDescription>
           </div>
           <Button size="sm" variant="outline" onClick={onAddTrigger}>
@@ -59,9 +59,9 @@ export const TriggerFormSection = ({
 
           return (
             <Card key={`trigger-${index}`} className="border-dashed">
-              <CardHeader>
+              <CardHeader className="pb-0">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-sm">Trigger {index + 1}</CardTitle>
+                  <CardTitle className="p-0 text-sm">Trigger {index + 1}</CardTitle>
                   {triggers.length > 1 && (
                     <Button size="sm" variant="transparent" onClick={() => onRemoveTrigger(index)}>
                       <Trash2 className="h-4 w-4" />

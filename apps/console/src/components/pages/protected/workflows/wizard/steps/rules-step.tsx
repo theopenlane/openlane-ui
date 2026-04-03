@@ -32,8 +32,8 @@ export const RulesStep = ({ state }: RulesStepProps) => {
   return (
     <div className="space-y-6">
       <Card>
-        <CardHeader>
-          <CardTitle>Refine the trigger</CardTitle>
+        <CardHeader className="pb-0">
+          <CardTitle className="p-0">Refine the trigger</CardTitle>
           <CardDescription>Fine-tune fields, edges, and optional conditions for the selected flow.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">

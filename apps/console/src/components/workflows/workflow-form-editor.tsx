@@ -2,9 +2,8 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import type { WorkflowObjectTypeMetadata } from '@/lib/graphql-hooks/workflows'
-import { useUserSelect } from '@/lib/graphql-hooks/member'
-import { useGroupSelect } from '@/lib/graphql-hooks/group'
 import type { Target } from '@/components/pages/protected/workflows/types'
+import { normalizeTargets } from '@/components/pages/protected/workflows/wizard/utils'
 import { TriggerFormSection } from '@/components/workflows/form-editor/trigger-form-section'
 import { ConditionFormSection } from '@/components/workflows/form-editor/condition-form-section'
 import { ActionFormSection } from '@/components/workflows/form-editor/action-form-section'
@@ -22,23 +21,7 @@ type WorkflowFormEditorProps = {
   onUpdate: (nextTriggers: any[], nextConditions: any[], nextActions: any[]) => void
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const normalizeTargets = (params: any): Target[] => {
-  if (!params) return []
-  if (Array.isArray(params.targets)) return params.targets
-
-  const legacyAssignees = params.assignees
-  if (!legacyAssignees) return []
-
-  const users = Array.isArray(legacyAssignees.users) ? legacyAssignees.users : []
-  const groups = Array.isArray(legacyAssignees.groups) ? legacyAssignees.groups : []
-
-  return [...users.map((id: string) => ({ type: 'USER' as const, id })), ...groups.map((id: string) => ({ type: 'GROUP' as const, id }))]
-}
-
 export const WorkflowFormEditor = ({ triggers, conditions, actions, objectTypes, schemaType, onUpdate }: WorkflowFormEditorProps) => {
-  const { userOptions, isLoading: isLoadingUsers } = useUserSelect({})
-  const { groupOptions, isLoading: isLoadingGroups } = useGroupSelect()
   const resolverKeys = useMemo(() => objectTypes[0]?.resolverKeys ?? [], [objectTypes])
 
   const [actionParamsDrafts, setActionParamsDrafts] = useState<Record<number, { value: string; error?: string }>>({})
@@ -195,10 +178,6 @@ export const WorkflowFormEditor = ({ triggers, conditions, actions, objectTypes,
         actions={actions}
         eligibleFields={eligibleFields}
         resolverKeys={resolverKeys}
-        userOptions={userOptions}
-        groupOptions={groupOptions}
-        isLoadingUsers={isLoadingUsers}
-        isLoadingGroups={isLoadingGroups}
         actionParamsDrafts={actionParamsDrafts}
         getApprovalTargets={getApprovalTargets}
         onAddAction={addAction}

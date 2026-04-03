@@ -1,5 +1,6 @@
 'use client'
 
+import React, { useEffect } from 'react'
 import { defineStepper } from '@stepperize/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@repo/ui/button'
@@ -18,11 +19,17 @@ import { FlowStep } from './wizard/steps/flow-step'
 import { RulesStep } from './wizard/steps/rules-step'
 import { ConfigureStep } from './wizard/steps/configure-step'
 import { ReviewStep } from './wizard/steps/review-step'
+import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 
 const { useStepper } = defineStepper({ id: 'flow', label: 'Flow' }, { id: 'rules', label: 'Refine' }, { id: 'configure', label: 'Configure' }, { id: 'review', label: 'Review' })
 
 const WorkflowWizardPage = () => {
   const stepper = useStepper()
+  const { setCrumbs } = React.use(BreadcrumbContext)
+
+  useEffect(() => {
+    setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Automation', href: '/automation/workflows' }, { label: 'Workflows', href: '/automation/workflows' }, { label: 'Wizard' }])
+  }, [setCrumbs])
   const router = useRouter()
   const searchParams = useSearchParams()
   const templateId = searchParams.get('template')

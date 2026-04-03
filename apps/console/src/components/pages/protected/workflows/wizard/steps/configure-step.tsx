@@ -20,8 +20,8 @@ export const ConfigureStep = ({ state }: ConfigureStepProps) => {
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>{state.selectedActionLabel ? `Configure ${state.selectedActionLabel.toLowerCase()}` : 'Configure the action'}</CardTitle>
+      <CardHeader className="pb-0">
+        <CardTitle className="p-0">{state.selectedActionLabel ? `Configure ${state.selectedActionLabel.toLowerCase()}` : 'Configure the action'}</CardTitle>
         <CardDescription>Choose recipients and fill out the action details.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">

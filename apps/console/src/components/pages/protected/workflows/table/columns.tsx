@@ -5,6 +5,8 @@ import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { BooleanCell } from '@/components/shared/crud-base/columns/boolean-cell'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { createSelectColumn } from '@/components/shared/crud-base/columns/select-column'
+import { Badge } from '@repo/ui/badge'
+import { toHumanLabel } from '@/utils/strings'
 
 export const getColumns = ({ selectedItems, setSelectedItems }: ColumnOptions): ColumnDef<WorkflowDefinitionsNodeNonNull>[] => {
   return [
@@ -25,13 +27,13 @@ export const getColumns = ({ selectedItems, setSelectedItems }: ColumnOptions): 
       accessorKey: 'description',
       header: 'Description',
       size: 250,
-      cell: ({ row }) => <span className="text-muted-foreground truncate block max-w-[240px]">{row.original.description || '-'}</span>,
+      cell: ({ row }) => <span className="truncate block max-w-[240px]">{row.original.description || '-'}</span>,
     },
     {
       accessorKey: 'schemaType',
       header: 'Schema',
       size: 150,
-      cell: ({ cell }) => getEnumLabel(cell.getValue() as string),
+      cell: ({ cell }) => toHumanLabel(cell.getValue() as string),
     },
     {
       accessorKey: 'workflowKind',
@@ -46,7 +48,18 @@ export const getColumns = ({ selectedItems, setSelectedItems }: ColumnOptions): 
       cell: ({ row }) => {
         const { draft, active, isDefault } = row.original
         const status = draft ? 'Draft' : active ? 'Active' : 'Inactive'
-        return `${status}${isDefault ? ' / Default' : ''}`
+        const dotColor = active && !draft ? 'bg-green-500' : 'bg-gray-400'
+        return (
+          <div className="flex items-center gap-2">
+            <span className={`h-2 w-2 rounded-full shrink-0 ${dotColor}`} />
+            <span>{status}</span>
+            {isDefault && (
+              <Badge variant="outline" className="text-xs">
+                Default
+              </Badge>
+            )}
+          </div>
+        )
       },
     },
     {

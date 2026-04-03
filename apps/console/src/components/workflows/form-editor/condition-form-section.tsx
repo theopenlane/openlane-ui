@@ -22,10 +22,10 @@ type ConditionFormSectionProps = {
 export const ConditionFormSection = ({ conditions, objectTypes, schemaType, onAddCondition, onRemoveCondition, onUpdateCondition }: ConditionFormSectionProps) => {
   return (
     <Card className="border border-muted-foreground/30">
-      <CardHeader>
+      <CardHeader className="pb-0">
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle>Conditions</CardTitle>
+            <CardTitle className="p-0">Conditions</CardTitle>
             <CardDescription>CEL expressions that must evaluate to true for the workflow to proceed.</CardDescription>
           </div>
           <Button size="sm" variant="outline" onClick={onAddCondition}>
@@ -40,9 +40,9 @@ export const ConditionFormSection = ({ conditions, objectTypes, schemaType, onAd
         ) : (
           conditions.map((condition, index) => (
             <Card key={`condition-${index}`} className="border-dashed">
-              <CardHeader>
+              <CardHeader className="pb-0">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-sm">Condition {index + 1}</CardTitle>
+                  <CardTitle className="p-0 text-sm">Condition {index + 1}</CardTitle>
                   <Button size="sm" variant="transparent" onClick={() => onRemoveCondition(index)}>
                     <Trash2 className="h-4 w-4" />
                   </Button>

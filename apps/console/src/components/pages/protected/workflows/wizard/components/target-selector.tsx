@@ -12,12 +12,10 @@ import { useGetAllGroups } from '@/lib/graphql-hooks/group'
 import type { TargetSelectorProps } from '../types'
 import { buildTargetKey, formatResolverLabel } from '../utils'
 
-const ResolverIcon = ({ size = 'sm' }: { size?: 'sm' | 'md' }) => {
-  const sizeClass = size === 'sm' ? 'h-4 w-4' : 'h-5 w-5'
-  const iconClass = size === 'sm' ? 'h-2.5 w-2.5' : 'h-3 w-3'
+const ResolverIcon = () => {
   return (
-    <div className={`flex ${sizeClass} shrink-0 items-center justify-center rounded-full bg-avatar text-button-text`}>
-      <KeyRound className={iconClass} />
+    <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-avatar text-button-text">
+      <KeyRound className="h-3 w-3" />
     </div>
   )
 }
@@ -62,7 +60,6 @@ export const TargetSelector = ({ targets, onAdd, onRemove, resolverKeys, getTarg
   }, [resolverKeys, selectedKeys, debouncedSearch])
 
   const isLoading = isLoadingUsers || isLoadingGroups
-  const hasResults = filteredUsers.length > 0 || filteredGroups.length > 0 || filteredResolvers.length > 0
 
   return (
     <div className="space-y-3">
@@ -94,9 +91,14 @@ export const TargetSelector = ({ targets, onAdd, onRemove, resolverKeys, getTarg
             <div className="flex min-h-10 w-full cursor-pointer flex-wrap items-center gap-1.5 rounded-md border bg-input px-3 py-2 text-sm">
               {targets.length > 0 ? (
                 targets.map((target) => {
-                  const label = getTargetLabel(target)
+                  const label =
+                    target.type === 'USER'
+                      ? userMap.get(target.id ?? '')?.displayName || getTargetLabel(target)
+                      : target.type === 'GROUP'
+                        ? groupMap.get(target.id ?? '')?.displayName || getTargetLabel(target)
+                        : getTargetLabel(target)
                   return (
-                    <Badge key={buildTargetKey(target)} variant="outline" className="flex items-center gap-1.5 pr-1 pl-1">
+                    <Badge key={buildTargetKey(target)} variant="outline" className="flex items-center gap-1.5 pr-2 pl-1">
                       {target.type === 'RESOLVER' ? (
                         <ResolverIcon />
                       ) : target.type === 'GROUP' ? (
@@ -173,14 +175,12 @@ export const TargetSelector = ({ targets, onAdd, onRemove, resolverKeys, getTarg
                           setSearchText('')
                         }}
                       >
-                        <ResolverIcon size="md" />
+                        <ResolverIcon />
                         <span className="ml-2">{option.label}</span>
                       </CommandItem>
                     ))}
                   </CommandGroup>
                 )}
-
-                {!isLoading && !hasResults && debouncedSearch.trim() && <CommandEmpty>No results found.</CommandEmpty>}
               </CommandList>
             </Command>
           </PopoverContent>

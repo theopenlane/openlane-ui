@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import Link from 'next/link'
 import { PageHeading } from '@repo/ui/page-heading'
 import { Card } from '@repo/ui/cardpanel'
@@ -10,6 +10,7 @@ import { Button } from '@repo/ui/button'
 import { Workflow, Sparkles } from 'lucide-react'
 import { WORKFLOW_TEMPLATES, type WorkflowTemplate } from '@/lib/workflow-templates'
 import { toHumanLabel } from '@/utils/strings'
+import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 
 const categoryLabel: Record<string, string> = {
   approval: 'Approval',
@@ -116,6 +117,11 @@ const TemplateSummary = ({ template }: { template: WorkflowTemplate }) => {
 
 const WorkflowTemplatesPage = () => {
   const templates = useMemo(() => WORKFLOW_TEMPLATES, [])
+  const { setCrumbs } = React.use(BreadcrumbContext)
+
+  useEffect(() => {
+    setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Automation', href: '/automation/workflows' }, { label: 'Workflows', href: '/automation/workflows' }, { label: 'Templates' }])
+  }, [setCrumbs])
 
   return (
     <div className="max-w-6xl mx-auto">

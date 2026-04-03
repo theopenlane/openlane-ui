@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { PageHeading } from '@repo/ui/page-heading'
@@ -18,6 +18,7 @@ import { useUserSelect } from '@/lib/graphql-hooks/member'
 import { OrderDirection, type WorkflowAssignment, WorkflowAssignmentOrderField, type WorkflowAssignmentWhereInput, WorkflowAssignmentWorkflowAssignmentStatus } from '@repo/codegen/src/schema'
 import { WorkflowStatusBadge } from '@/components/workflows/workflow-status-badge'
 import { useNotification } from '@/hooks/useNotification'
+import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { getHrefForObjectType } from '@/utils/getHrefForObjectType'
 import { definitionHasApprovalAction, definitionHasApprovalTiming, definitionHasReviewAction, resolveApprovalTiming } from '@/utils/workflow'
 
@@ -26,6 +27,11 @@ const WorkflowInboxPage = () => {
   const { data: sessionData } = useSession()
   const { successNotification, errorNotification } = useNotification()
   const userId = sessionData?.user?.userId
+  const { setCrumbs } = React.use(BreadcrumbContext)
+
+  useEffect(() => {
+    setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Automation', href: '/automation/workflows' }, { label: 'Workflows', href: '/automation/workflows' }, { label: 'Inbox' }])
+  }, [setCrumbs])
 
   const [selectedAssignmentId, setSelectedAssignmentId] = useState<string | null>(null)
   const [rejectReason, setRejectReason] = useState('')
@@ -251,10 +257,10 @@ const WorkflowInboxPage = () => {
 
     return (
       <Card key={assignment.id} className="border border-border/60">
-        <CardHeader className="pb-3">
+        <CardHeader className="pb-0">
           <div className="flex items-start justify-between gap-4">
             <div className="space-y-1">
-              <CardTitle className="text-base">{assignment.label || assignment.assignmentKey}</CardTitle>
+              <CardTitle className="p-0 text-base">{assignment.label || assignment.assignmentKey}</CardTitle>
               <CardDescription>
                 {definition?.name || 'Workflow'} • {definition?.schemaType || 'Schema'}
               </CardDescription>

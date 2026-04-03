@@ -65,3 +65,21 @@ export const formatResolverLabel = (value: string) =>
     .split('_')
     .map((word) => (word ? word[0].toUpperCase() + word.slice(1) : word))
     .join(' ')
+
+export const normalizeTargets = (params: Record<string, unknown> | null | undefined): Target[] => {
+  if (!params) return []
+  if (Array.isArray(params.targets)) return params.targets as Target[]
+
+  const legacyAssignees = params.assignees as Record<string, unknown> | undefined
+  if (!legacyAssignees) return []
+
+  const users = Array.isArray(legacyAssignees.users) ? legacyAssignees.users : []
+  const groups = Array.isArray(legacyAssignees.groups) ? legacyAssignees.groups : []
+
+  return [...users.map((id: string) => ({ type: 'USER' as const, id })), ...groups.map((id: string) => ({ type: 'GROUP' as const, id }))]
+}
+
+export const getTargetLabel = (target: Target): string => {
+  if (target.type === 'RESOLVER') return formatResolverLabel(target.resolver_key ?? '')
+  return target.id ?? ''
+}

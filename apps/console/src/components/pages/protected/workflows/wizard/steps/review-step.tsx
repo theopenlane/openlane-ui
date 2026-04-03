@@ -17,8 +17,8 @@ export const ReviewStep = ({ state }: ReviewStepProps) => {
   return (
     <div className="space-y-2">
       <Card>
-        <CardHeader>
-          <CardTitle>Review & create</CardTitle>
+        <CardHeader className="pb-0">
+          <CardTitle className="p-0">Review & create</CardTitle>
           <CardDescription>Give the workflow a name and confirm the details.</CardDescription>
         </CardHeader>
         <CardContent>

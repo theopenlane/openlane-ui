@@ -1,5 +1,6 @@
 'use client'
 
+import React, { useEffect } from 'react'
 import { PageHeading } from '@repo/ui/page-heading'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@repo/ui/table'
 import { Badge } from '@repo/ui/badge'
@@ -7,9 +8,15 @@ import { Card } from '@repo/ui/cardpanel'
 import { formatDateSince } from '@/utils/date'
 import { useWorkflowInstancesWithFilter } from '@/lib/graphql-hooks/workflow-instance'
 import { WorkflowStatusBadge } from '@/components/workflows/workflow-status-badge'
+import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 
 const WorkflowInstancesPage = () => {
   const { data: instances, isLoading } = useWorkflowInstancesWithFilter({})
+  const { setCrumbs } = React.use(BreadcrumbContext)
+
+  useEffect(() => {
+    setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Automation', href: '/automation/workflows' }, { label: 'Workflows', href: '/automation/workflows' }, { label: 'Instances' }])
+  }, [setCrumbs])
 
   return (
     <>
