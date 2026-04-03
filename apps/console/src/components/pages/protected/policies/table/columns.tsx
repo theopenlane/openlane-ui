@@ -8,6 +8,7 @@ import { DocumentStatusBadge, DocumentStatusTooltips } from '@/components/shared
 import DelegateCell from './delegate-cell'
 import ApproverCell from './approver-cell'
 import { LinkedControlsCell } from './linked-controls-cell'
+import { TruncatedCell } from '@repo/ui/data-table'
 import { LinkedProceduresCell } from './linked-procedures-cell'
 import { type CustomTypeEnumOption } from '@/lib/graphql-hooks/custom-type-enum'
 import { CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
@@ -69,7 +70,7 @@ export const getPoliciesColumns = ({ users, tokens, selectedPolicies, setSelecte
       size: 500,
       cell: ({ cell }) => {
         const summary = cell.getValue() as string
-        return <div className="line-clamp-4 text-justify">{summary === '' ? 'N/A' : summary}</div>
+        return <TruncatedCell className="line-clamp-4 text-justify whitespace-normal">{summary === '' ? 'N/A' : summary}</TruncatedCell>
       },
     },
     {

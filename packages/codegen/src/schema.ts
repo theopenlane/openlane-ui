@@ -66843,6 +66843,9 @@ export type GetEvidenceListQuery = {
         url?: string | null
         creationDate: string
         renewalDate?: string | null
+        externalUUID?: string | null
+        scopeName?: string | null
+        environmentName?: string | null
         collectionProcedure?: string | null
         controls: {
           __typename?: 'ControlConnection'
