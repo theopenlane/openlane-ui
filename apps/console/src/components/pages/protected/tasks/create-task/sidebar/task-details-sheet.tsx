@@ -30,6 +30,9 @@ import { CreateButton } from '@/components/shared/create-button/create-button'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { type CustomEvidenceControl } from '../../../evidence/evidence-sheet-config'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { useSession } from 'next-auth/react'
+import { useGetSingleOrganizationMembers } from '@/lib/graphql-hooks/organization'
+import { type TOrgMembers, useTaskStore } from '../../hooks/useTaskStore'
 
 type TaskDetailsSheetProps = {
   queryParamKey?: string
@@ -47,6 +50,9 @@ const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id
   const [isDiscardDialogOpen, setIsDiscardDialogOpen] = useState<boolean>(false)
   const [associations, setAssociations] = useState<TObjectAssociationMap>({})
   const { mutateAsync: updateTask, isPending } = useUpdateTask()
+  const { orgMembers, setOrgMembers } = useTaskStore()
+  const { data: session } = useSession()
+  const { data: membersData } = useGetSingleOrganizationMembers({ organizationId: orgMembers === undefined ? session?.user.activeOrganizationId : undefined })
 
   const searchParams = useSearchParams()
   const id = entityIdProp !== undefined ? entityIdProp : searchParams.get(queryParamKey)
@@ -74,6 +80,19 @@ const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id
     }),
     [associationsData?.task, taskData],
   )
+
+  useEffect(() => {
+    if (!membersData) return
+    const members = membersData.organization?.members?.edges?.map(
+      (member) =>
+        ({
+          value: member?.node?.user?.id,
+          label: `${member?.node?.user?.displayName}`,
+          membershipId: member?.node?.user?.id,
+        }) as TOrgMembers,
+    )
+    setOrgMembers(members)
+  }, [membersData, setOrgMembers])
 
   useEffect(() => {
     if (taskData) {
