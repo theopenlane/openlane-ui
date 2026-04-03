@@ -86,10 +86,10 @@ const AssetCreateSheet: React.FC<AssetCreateSheetProps> = ({ onClose, defaultEnt
     isCreateMode: true,
     onClose,
     buildPayload: async (data) => {
-      const { controlIDs, scanIDs, entityIDs, identityHolderIDs, internalOwner, ...rest } = data
+      const { controlIDs, internalPolicyIDs, scanIDs, entityIDs, identityHolderIDs, internalOwner, ...rest } = data
       const mergedEntityIDs = [...(entityIDs ?? []), ...(defaultEntityIDs ?? [])].filter((id, i, arr) => arr.indexOf(id) === i)
       const description = rest.description ? await plateEditorHelper.convertToHtml(rest.description as Value) : undefined
-      const associationPayload = buildAssociationPayload(ASSET_ASSOCIATION_CONFIG.associationKeys, { controlIDs, scanIDs, entityIDs: mergedEntityIDs, identityHolderIDs }, true, {})
+      const associationPayload = buildAssociationPayload(ASSET_ASSOCIATION_CONFIG.associationKeys, { controlIDs, internalPolicyIDs, scanIDs, entityIDs: mergedEntityIDs, identityHolderIDs }, true, {})
 
       return {
         ...rest,

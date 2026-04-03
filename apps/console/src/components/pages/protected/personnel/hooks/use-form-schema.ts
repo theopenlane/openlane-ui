@@ -27,8 +27,10 @@ const formSchema = z.object({
   internalOwner: responsibilityFieldSchema,
   tags: z.array(z.string()).optional(),
   assetIDs: z.array(z.string()).optional(),
+  controlIDs: z.array(z.string()).optional(),
   entityIDs: z.array(z.string()).optional(),
   campaignIDs: z.array(z.string()).optional(),
+  internalPolicyIDs: z.array(z.string()).optional(),
   taskIDs: z.array(z.string()).optional(),
 })
 

@@ -2087,6 +2087,7 @@ export interface Asset extends Node {
   internalOwnerUser?: Maybe<User>
   /** the internal owner user id for the asset */
   internalOwnerUserID?: Maybe<Scalars['ID']['output']>
+  internalPolicies: InternalPolicyConnection
   /** the name of the asset, e.g. matts computer, office router, IP address, etc */
   name: Scalars['String']['output']
   /** time when this asset was last observed by the source integration */
@@ -2194,6 +2195,15 @@ export interface AssetIdentityHoldersArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<IdentityHolderOrder>>
   where?: InputMaybe<IdentityHolderWhereInput>
+}
+
+export interface AssetInternalPoliciesArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<InternalPolicyOrder>>
+  where?: InputMaybe<InternalPolicyWhereInput>
 }
 
 export interface AssetOutOfScopePlatformsArgs {
@@ -2683,6 +2693,9 @@ export interface AssetWhereInput {
   /** internal_owner_user edge predicates */
   hasInternalOwnerUser?: InputMaybe<Scalars['Boolean']['input']>
   hasInternalOwnerUserWith?: InputMaybe<Array<UserWhereInput>>
+  /** internal_policies edge predicates */
+  hasInternalPolicies?: InputMaybe<Scalars['Boolean']['input']>
+  hasInternalPoliciesWith?: InputMaybe<Array<InternalPolicyWhereInput>>
   /** out_of_scope_platforms edge predicates */
   hasOutOfScopePlatforms?: InputMaybe<Scalars['Boolean']['input']>
   hasOutOfScopePlatformsWith?: InputMaybe<Array<PlatformWhereInput>>
@@ -7228,6 +7241,7 @@ export interface CreateAssetInput {
   internalOwner?: InputMaybe<Scalars['String']['input']>
   internalOwnerGroupID?: InputMaybe<Scalars['ID']['input']>
   internalOwnerUserID?: InputMaybe<Scalars['ID']['input']>
+  internalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the name of the asset, e.g. matts computer, office router, IP address, etc */
   name: Scalars['String']['input']
   /** time when this asset was last observed by the source integration */
@@ -8091,6 +8105,7 @@ export interface CreateEntityInput {
   internalOwner?: InputMaybe<Scalars['String']['input']>
   internalOwnerGroupID?: InputMaybe<Scalars['ID']['input']>
   internalOwnerUserID?: InputMaybe<Scalars['ID']['input']>
+  internalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** when the entity was last reviewed */
   lastReviewedAt?: InputMaybe<Scalars['DateTime']['input']>
   /** asset identifiers linked to the entity */
@@ -8663,6 +8678,7 @@ export interface CreateIdentityHolderInput {
   internalOwner?: InputMaybe<Scalars['String']['input']>
   internalOwnerGroupID?: InputMaybe<Scalars['ID']['input']>
   internalOwnerUserID?: InputMaybe<Scalars['ID']['input']>
+  internalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** whether the identity holder record is active */
   isActive?: InputMaybe<Scalars['Boolean']['input']>
   /** whether the identity holder record is linked to an Openlane user account */
@@ -8705,6 +8721,7 @@ export interface CreateInternalPolicyInput {
   /** whether approval is required for edits to the policy */
   approvalRequired?: InputMaybe<Scalars['Boolean']['input']>
   approverID?: InputMaybe<Scalars['ID']['input']>
+  assetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   blockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   commentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   controlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -8725,12 +8742,14 @@ export interface CreateInternalPolicyInput {
   /** tag suggestions dismissed by the user for the policy */
   dismissedTagSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  entityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   environmentID?: InputMaybe<Scalars['ID']['input']>
   /** the environment of the internal_policy */
   environmentName?: InputMaybe<Scalars['String']['input']>
   /** stable external UUID for deterministic OSCAL export and round-tripping */
   externalUUID?: InputMaybe<Scalars['String']['input']>
   fileID?: InputMaybe<Scalars['ID']['input']>
+  identityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** suggested improvements for the policy */
   improvementSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   /** internal notes about the object creation, this field is only available to system admins */
@@ -8748,6 +8767,7 @@ export interface CreateInternalPolicyInput {
   reviewDue?: InputMaybe<Scalars['Time']['input']>
   /** the frequency at which the policy should be reviewed, used to calculate the review_due date */
   reviewFrequency?: InputMaybe<InternalPolicyFrequency>
+  reviewIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** revision of the object as a semver (e.g. v1.0.0), by default any update will bump the patch version, unless the revision_bump field is set */
   revision?: InputMaybe<Scalars['String']['input']>
   riskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -9743,6 +9763,7 @@ export interface CreateReviewInput {
   integrationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: InputMaybe<Scalars['String']['input']>
+  internalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** raw metadata payload for the review from the source system */
   metadata?: InputMaybe<Scalars['Map']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
@@ -15952,6 +15973,7 @@ export interface Entity extends Node {
   internalOwnerUser?: Maybe<User>
   /** the internal owner user id for the entity */
   internalOwnerUserID?: Maybe<Scalars['ID']['output']>
+  internalPolicies: InternalPolicyConnection
   /** when the entity was last reviewed */
   lastReviewedAt?: Maybe<Scalars['DateTime']['output']>
   /** asset identifiers linked to the entity */
@@ -16145,6 +16167,15 @@ export interface EntityIntegrationsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<IntegrationOrder>>
   where?: InputMaybe<IntegrationWhereInput>
+}
+
+export interface EntityInternalPoliciesArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<InternalPolicyOrder>>
+  where?: InputMaybe<InternalPolicyWhereInput>
 }
 
 export interface EntityNotesArgs {
@@ -16941,6 +16972,9 @@ export interface EntityWhereInput {
   /** internal_owner_user edge predicates */
   hasInternalOwnerUser?: InputMaybe<Scalars['Boolean']['input']>
   hasInternalOwnerUserWith?: InputMaybe<Array<UserWhereInput>>
+  /** internal_policies edge predicates */
+  hasInternalPolicies?: InputMaybe<Scalars['Boolean']['input']>
+  hasInternalPoliciesWith?: InputMaybe<Array<InternalPolicyWhereInput>>
   /** logo_file edge predicates */
   hasLogoFile?: InputMaybe<Scalars['Boolean']['input']>
   hasLogoFileWith?: InputMaybe<Array<FileWhereInput>>
@@ -22680,6 +22714,7 @@ export interface IdentityHolder extends Node {
   internalOwnerUser?: Maybe<User>
   /** the internal owner user id for the identity holder */
   internalOwnerUserID?: Maybe<Scalars['ID']['output']>
+  internalPolicies: InternalPolicyConnection
   /** whether the identity holder record is active */
   isActive: Scalars['Boolean']['output']
   /** whether the identity holder record is linked to an Openlane user account */
@@ -22830,6 +22865,15 @@ export interface IdentityHolderFindingsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<FindingOrder>>
   where?: InputMaybe<FindingWhereInput>
+}
+
+export interface IdentityHolderInternalPoliciesArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<InternalPolicyOrder>>
+  where?: InputMaybe<InternalPolicyWhereInput>
 }
 
 export interface IdentityHolderPlatformsArgs {
@@ -23247,6 +23291,9 @@ export interface IdentityHolderWhereInput {
   /** internal_owner_user edge predicates */
   hasInternalOwnerUser?: InputMaybe<Scalars['Boolean']['input']>
   hasInternalOwnerUserWith?: InputMaybe<Array<UserWhereInput>>
+  /** internal_policies edge predicates */
+  hasInternalPolicies?: InputMaybe<Scalars['Boolean']['input']>
+  hasInternalPoliciesWith?: InputMaybe<Array<InternalPolicyWhereInput>>
   /** owner edge predicates */
   hasOwner?: InputMaybe<Scalars['Boolean']['input']>
   hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
@@ -24208,6 +24255,7 @@ export interface InternalPolicy extends Node {
   approver?: Maybe<Group>
   /** the id of the group responsible for approving the policy */
   approverID?: Maybe<Scalars['ID']['output']>
+  assets: AssetConnection
   blockedGroups: GroupConnection
   comments: NoteConnection
   controlImplementations: ControlImplementationConnection
@@ -24235,6 +24283,7 @@ export interface InternalPolicy extends Node {
   /** a shortened prefixed id field to use as a human readable identifier */
   displayID: Scalars['String']['output']
   editors: GroupConnection
+  entities: EntityConnection
   environment?: Maybe<CustomTypeEnum>
   /** the environment of the internal_policy */
   environmentID?: Maybe<Scalars['ID']['output']>
@@ -24250,6 +24299,7 @@ export interface InternalPolicy extends Node {
   /** Indicates if this internalPolicy has any workflow history (completed or failed instances) */
   hasWorkflowHistory: Scalars['Boolean']['output']
   id: Scalars['ID']['output']
+  identityHolders: IdentityHolderConnection
   /** suggested improvements for the policy */
   improvementSuggestions?: Maybe<Array<Scalars['String']['output']>>
   /** internal notes about the object creation, this field is only available to system admins */
@@ -24271,6 +24321,7 @@ export interface InternalPolicy extends Node {
   reviewDue?: Maybe<Scalars['Time']['output']>
   /** the frequency at which the policy should be reviewed, used to calculate the review_due date */
   reviewFrequency?: Maybe<InternalPolicyFrequency>
+  reviews: ReviewConnection
   /** revision of the object as a semver (e.g. v1.0.0), by default any update will bump the patch version, unless the revision_bump field is set */
   revision?: Maybe<Scalars['String']['output']>
   risks: RiskConnection
@@ -24301,6 +24352,15 @@ export interface InternalPolicy extends Node {
   workflowObjectRefs: WorkflowObjectRefConnection
   /** Returns the workflow event timeline for this internalPolicy across all workflow instances */
   workflowTimeline: WorkflowEventConnection
+}
+
+export interface InternalPolicyAssetsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<AssetOrder>>
+  where?: InputMaybe<AssetWhereInput>
 }
 
 export interface InternalPolicyBlockedGroupsArgs {
@@ -24366,6 +24426,24 @@ export interface InternalPolicyEditorsArgs {
   where?: InputMaybe<GroupWhereInput>
 }
 
+export interface InternalPolicyEntitiesArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<EntityOrder>>
+  where?: InputMaybe<EntityWhereInput>
+}
+
+export interface InternalPolicyIdentityHoldersArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<IdentityHolderOrder>>
+  where?: InputMaybe<IdentityHolderWhereInput>
+}
+
 export interface InternalPolicyNarrativesArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -24391,6 +24469,15 @@ export interface InternalPolicyProgramsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<ProgramOrder>>
   where?: InputMaybe<ProgramWhereInput>
+}
+
+export interface InternalPolicyReviewsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<ReviewOrder>>
+  where?: InputMaybe<ReviewWhereInput>
 }
 
 export interface InternalPolicyRisksArgs {
@@ -24715,6 +24802,9 @@ export interface InternalPolicyWhereInput {
   /** approver edge predicates */
   hasApprover?: InputMaybe<Scalars['Boolean']['input']>
   hasApproverWith?: InputMaybe<Array<GroupWhereInput>>
+  /** assets edge predicates */
+  hasAssets?: InputMaybe<Scalars['Boolean']['input']>
+  hasAssetsWith?: InputMaybe<Array<AssetWhereInput>>
   /** blocked_groups edge predicates */
   hasBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   hasBlockedGroupsWith?: InputMaybe<Array<GroupWhereInput>>
@@ -24739,12 +24829,18 @@ export interface InternalPolicyWhereInput {
   /** editors edge predicates */
   hasEditors?: InputMaybe<Scalars['Boolean']['input']>
   hasEditorsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** entities edge predicates */
+  hasEntities?: InputMaybe<Scalars['Boolean']['input']>
+  hasEntitiesWith?: InputMaybe<Array<EntityWhereInput>>
   /** environment edge predicates */
   hasEnvironment?: InputMaybe<Scalars['Boolean']['input']>
   hasEnvironmentWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
   /** file edge predicates */
   hasFile?: InputMaybe<Scalars['Boolean']['input']>
   hasFileWith?: InputMaybe<Array<FileWhereInput>>
+  /** identity_holders edge predicates */
+  hasIdentityHolders?: InputMaybe<Scalars['Boolean']['input']>
+  hasIdentityHoldersWith?: InputMaybe<Array<IdentityHolderWhereInput>>
   /** internal_policy_kind edge predicates */
   hasInternalPolicyKind?: InputMaybe<Scalars['Boolean']['input']>
   hasInternalPolicyKindWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
@@ -24760,6 +24856,9 @@ export interface InternalPolicyWhereInput {
   /** programs edge predicates */
   hasPrograms?: InputMaybe<Scalars['Boolean']['input']>
   hasProgramsWith?: InputMaybe<Array<ProgramWhereInput>>
+  /** reviews edge predicates */
+  hasReviews?: InputMaybe<Scalars['Boolean']['input']>
+  hasReviewsWith?: InputMaybe<Array<ReviewWhereInput>>
   /** risks edge predicates */
   hasRisks?: InputMaybe<Scalars['Boolean']['input']>
   hasRisksWith?: InputMaybe<Array<RiskWhereInput>>
@@ -41794,6 +41893,7 @@ export interface Review extends Node {
   integrations: IntegrationConnection
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: Maybe<Scalars['String']['output']>
+  internalPolicies: InternalPolicyConnection
   /** raw metadata payload for the review from the source system */
   metadata?: Maybe<Scalars['Map']['output']>
   owner?: Maybe<Organization>
@@ -41929,6 +42029,15 @@ export interface ReviewIntegrationsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<IntegrationOrder>>
   where?: InputMaybe<IntegrationWhereInput>
+}
+
+export interface ReviewInternalPoliciesArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<InternalPolicyOrder>>
+  where?: InputMaybe<InternalPolicyWhereInput>
 }
 
 export interface ReviewProgramsArgs {
@@ -42286,6 +42395,9 @@ export interface ReviewWhereInput {
   /** integrations edge predicates */
   hasIntegrations?: InputMaybe<Scalars['Boolean']['input']>
   hasIntegrationsWith?: InputMaybe<Array<IntegrationWhereInput>>
+  /** internal_policies edge predicates */
+  hasInternalPolicies?: InputMaybe<Scalars['Boolean']['input']>
+  hasInternalPoliciesWith?: InputMaybe<Array<InternalPolicyWhereInput>>
   /** owner edge predicates */
   hasOwner?: InputMaybe<Scalars['Boolean']['input']>
   hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
@@ -52647,6 +52759,7 @@ export interface UpdateAssetInput {
   addEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addIdentityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addInternalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addOutOfScopePlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addPlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addScanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -52694,6 +52807,7 @@ export interface UpdateAssetInput {
   clearInternalOwner?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalOwnerGroup?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalOwnerUser?: InputMaybe<Scalars['Boolean']['input']>
+  clearInternalPolicies?: InputMaybe<Scalars['Boolean']['input']>
   clearObservedAt?: InputMaybe<Scalars['Boolean']['input']>
   clearOutOfScopePlatforms?: InputMaybe<Scalars['Boolean']['input']>
   clearPhysicalLocation?: InputMaybe<Scalars['Boolean']['input']>
@@ -52756,6 +52870,7 @@ export interface UpdateAssetInput {
   removeEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeIdentityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeInternalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeOutOfScopePlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removePlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeScanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -53970,6 +54085,7 @@ export interface UpdateEntityInput {
   addFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addIdentityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addIntegrationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addInternalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addNoteIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addOutOfScopePlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addPlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -54028,6 +54144,7 @@ export interface UpdateEntityInput {
   clearInternalOwner?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalOwnerGroup?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalOwnerUser?: InputMaybe<Scalars['Boolean']['input']>
+  clearInternalPolicies?: InputMaybe<Scalars['Boolean']['input']>
   clearLastReviewedAt?: InputMaybe<Scalars['Boolean']['input']>
   clearLinkedAssetIds?: InputMaybe<Scalars['Boolean']['input']>
   clearLinks?: InputMaybe<Scalars['Boolean']['input']>
@@ -54132,6 +54249,7 @@ export interface UpdateEntityInput {
   removeFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeIdentityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeIntegrationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeInternalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeNoteIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeOutOfScopePlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removePlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -54996,6 +55114,7 @@ export interface UpdateIdentityHolderInput {
   addEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addFindingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addInternalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addPlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTemplateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -55027,6 +55146,7 @@ export interface UpdateIdentityHolderInput {
   clearInternalOwner?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalOwnerGroup?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalOwnerUser?: InputMaybe<Scalars['Boolean']['input']>
+  clearInternalPolicies?: InputMaybe<Scalars['Boolean']['input']>
   clearIsOpenlaneUser?: InputMaybe<Scalars['Boolean']['input']>
   clearLocation?: InputMaybe<Scalars['Boolean']['input']>
   clearMetadata?: InputMaybe<Scalars['Boolean']['input']>
@@ -55088,6 +55208,7 @@ export interface UpdateIdentityHolderInput {
   removeEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeFindingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeInternalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removePlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTemplateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -55117,6 +55238,7 @@ export interface UpdateIdentityHolderInput {
  */
 export interface UpdateInternalPolicyInput {
   RevisionBump?: InputMaybe<Scalars['VersionBump']['input']>
+  addAssetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addComment?: InputMaybe<CreateNoteInput>
   addCommentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -55126,9 +55248,12 @@ export interface UpdateInternalPolicyInput {
   addDiscussion?: InputMaybe<CreateDiscussionInput>
   addDiscussionIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addIdentityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addNarrativeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProcedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addReviewIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addRiskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -55146,6 +55271,7 @@ export interface UpdateInternalPolicyInput {
   approverID?: InputMaybe<Scalars['ID']['input']>
   clearApprovalRequired?: InputMaybe<Scalars['Boolean']['input']>
   clearApprover?: InputMaybe<Scalars['Boolean']['input']>
+  clearAssets?: InputMaybe<Scalars['Boolean']['input']>
   clearBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearComments?: InputMaybe<Scalars['Boolean']['input']>
   clearControlImplementations?: InputMaybe<Scalars['Boolean']['input']>
@@ -55160,10 +55286,12 @@ export interface UpdateInternalPolicyInput {
   clearDismissedImprovementSuggestions?: InputMaybe<Scalars['Boolean']['input']>
   clearDismissedTagSuggestions?: InputMaybe<Scalars['Boolean']['input']>
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
+  clearEntities?: InputMaybe<Scalars['Boolean']['input']>
   clearEnvironment?: InputMaybe<Scalars['Boolean']['input']>
   clearEnvironmentName?: InputMaybe<Scalars['Boolean']['input']>
   clearExternalUUID?: InputMaybe<Scalars['Boolean']['input']>
   clearFile?: InputMaybe<Scalars['Boolean']['input']>
+  clearIdentityHolders?: InputMaybe<Scalars['Boolean']['input']>
   clearImprovementSuggestions?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalNotes?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalPolicyKind?: InputMaybe<Scalars['Boolean']['input']>
@@ -55174,6 +55302,7 @@ export interface UpdateInternalPolicyInput {
   clearPrograms?: InputMaybe<Scalars['Boolean']['input']>
   clearReviewDue?: InputMaybe<Scalars['Boolean']['input']>
   clearReviewFrequency?: InputMaybe<Scalars['Boolean']['input']>
+  clearReviews?: InputMaybe<Scalars['Boolean']['input']>
   clearRevision?: InputMaybe<Scalars['Boolean']['input']>
   clearRisks?: InputMaybe<Scalars['Boolean']['input']>
   clearScope?: InputMaybe<Scalars['Boolean']['input']>
@@ -55218,6 +55347,7 @@ export interface UpdateInternalPolicyInput {
   /** the name of the policy */
   name?: InputMaybe<Scalars['String']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
+  removeAssetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeCommentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -55225,9 +55355,12 @@ export interface UpdateInternalPolicyInput {
   removeControlObjectiveIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeDiscussionIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeIdentityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeNarrativeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProcedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeReviewIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeRiskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -56779,6 +56912,7 @@ export interface UpdateReviewInput {
   addFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addFindingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addIntegrationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addInternalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addRemediationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addRiskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -56816,6 +56950,7 @@ export interface UpdateReviewInput {
   clearFindings?: InputMaybe<Scalars['Boolean']['input']>
   clearIntegrations?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalNotes?: InputMaybe<Scalars['Boolean']['input']>
+  clearInternalPolicies?: InputMaybe<Scalars['Boolean']['input']>
   clearMetadata?: InputMaybe<Scalars['Boolean']['input']>
   clearPrograms?: InputMaybe<Scalars['Boolean']['input']>
   clearRawPayload?: InputMaybe<Scalars['Boolean']['input']>
@@ -56863,6 +56998,7 @@ export interface UpdateReviewInput {
   removeFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeFindingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeIntegrationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeInternalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeRemediationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeRiskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -63761,6 +63897,11 @@ export type GetAssetAssociationsQuery = {
         node?: { __typename?: 'Control'; id: string; refCode: string; description?: string | null; displayID: string; referenceFramework?: string | null } | null
       } | null> | null
     }
+    internalPolicies: {
+      __typename?: 'InternalPolicyConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string; displayID: string } | null } | null> | null
+    }
   }
 }
 
@@ -66526,6 +66667,11 @@ export type GetEntityAssociationsQuery = {
       totalCount: number
       edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string; title?: string | null; description?: string | null } | null } | null> | null
     }
+    internalPolicies: {
+      __typename?: 'InternalPolicyConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string; displayID: string } | null } | null> | null
+    }
   }
 }
 
@@ -68013,6 +68159,16 @@ export type GetIdentityHolderAssociationsQuery = {
       totalCount: number
       edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; title: string; displayID: string } | null } | null> | null
     }
+    controls: {
+      __typename?: 'ControlConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; refCode: string; displayID: string; description?: string | null } | null } | null> | null
+    }
+    internalPolicies: {
+      __typename?: 'InternalPolicyConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string; displayID: string; summary?: string | null } | null } | null> | null
+    }
   }
 }
 
@@ -68288,6 +68444,21 @@ export type GetInternalPolicyAssociationsByIdQuery = {
       __typename?: 'RiskConnection'
       totalCount: number
       edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; displayID: string; name: string } | null } | null> | null
+    }
+    assets: {
+      __typename?: 'AssetConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'AssetEdge'; node?: { __typename?: 'Asset'; id: string; name: string; displayName?: string | null } | null } | null> | null
+    }
+    entities: {
+      __typename?: 'EntityConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'EntityEdge'; node?: { __typename?: 'Entity'; id: string; name?: string | null; displayName?: string | null } | null } | null> | null
+    }
+    identityHolders: {
+      __typename?: 'IdentityHolderConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'IdentityHolderEdge'; node?: { __typename?: 'IdentityHolder'; id: string; fullName: string; displayID: string } | null } | null> | null
     }
   }
 }
