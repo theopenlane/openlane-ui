@@ -8,6 +8,7 @@ import { CountryFlag } from '@repo/ui/country-flag'
 import { formatDate, formatTimeSince } from '@/utils/date'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { type User } from '@repo/codegen/src/schema'
+import { TruncatedCell } from '@repo/ui/data-table'
 import { DeleteTrustCenterSubprocessorCell } from './delete-trust-center-subcontrol-cell'
 import { Button } from '@repo/ui/button'
 import { Pencil } from 'lucide-react'
@@ -105,7 +106,7 @@ export const getSubprocessorsColumns = ({ selectedRows, setSelectedRows, userMap
     {
       accessorKey: 'description',
       header: 'Description',
-      cell: ({ row }) => row.original.description || '—',
+      cell: ({ row }) => <TruncatedCell>{row.original.description || '—'}</TruncatedCell>,
       meta: {
         exportPrefix: 'subprocessor.description',
       },
@@ -138,7 +139,7 @@ export const getSubprocessorsColumns = ({ selectedRows, setSelectedRows, userMap
     {
       accessorKey: 'category',
       header: 'Category',
-      cell: ({ row }) => row.original.category || '—',
+      cell: ({ row }) => <TruncatedCell>{row.original.category || '—'}</TruncatedCell>,
       size: 180,
       maxSize: 200,
       minSize: 180,

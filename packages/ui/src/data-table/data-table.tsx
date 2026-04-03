@@ -35,6 +35,8 @@ import Pagination from '../pagination/pagination'
 import { TPagination, TPaginationMeta } from '../pagination/types'
 import { cn } from '../../lib/utils'
 import { TableKeyValue } from '../data-table/table-key.ts'
+export { TruncatedCell } from './truncated-cell'
+import { TruncatedCell } from './truncated-cell'
 
 type CustomColumnDef<TData, TValue> = ColumnDef<TData, TValue> & {
   meta?: {
@@ -724,14 +726,16 @@ const DataRow = memo(function DataRow<TData, TValue>({ row, onRowClick, cssVarKe
     <TableRow variant="data" onClick={() => onRowClick?.(row.original)} className={`hover:bg-table-row-bg-hover ${onRowClick ? 'cursor-pointer' : ''}`} data-state={row.getIsSelected() && 'selected'}>
       {row.getVisibleCells().map((cell) => {
         const widthVar = `var(--col-${cssVarKey(cell.column.id)})`
+        const isDefaultCell = cell.column.columnDef.cell === undefined
+        const content = flexRender(cell.column.columnDef.cell, cell.getContext())
         return (
           <TableCell
             variant="data"
             key={cell.id}
-            className={cn('truncate', (cell.column.columnDef.meta as CustomColumnDef<TData, TValue>['meta'])?.className)}
+            className={cn(!isDefaultCell && 'truncate', (cell.column.columnDef.meta as CustomColumnDef<TData, TValue>['meta'])?.className)}
             style={{ width: widthVar, minWidth: widthVar, maxWidth: widthVar }}
           >
-            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+            {isDefaultCell ? <TruncatedCell>{content}</TruncatedCell> : content}
           </TableCell>
         )
       })}
