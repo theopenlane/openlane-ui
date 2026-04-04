@@ -261,6 +261,36 @@ export const GET_INTERNAL_POLICY_ASSOCIATIONS_BY_ID = gql`
         }
         totalCount
       }
+      assets {
+        edges {
+          node {
+            id
+            name
+            displayName
+          }
+        }
+        totalCount
+      }
+      entities {
+        edges {
+          node {
+            id
+            name
+            displayName
+          }
+        }
+        totalCount
+      }
+      identityHolders {
+        edges {
+          node {
+            id
+            fullName
+            displayID
+          }
+        }
+        totalCount
+      }
     }
   }
 `

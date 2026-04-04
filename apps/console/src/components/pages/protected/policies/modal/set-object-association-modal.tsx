@@ -41,8 +41,11 @@ const SetObjectAssociationPoliciesDialog = ({ policyId, fromTable = false, onClo
   const allowedObjectTypes = fromTable
     ? [ObjectTypeObjects.PROCEDURE]
     : [
+        ObjectTypeObjects.ASSET,
         ObjectTypeObjects.CONTROL,
         ObjectTypeObjects.CONTROL_OBJECTIVE,
+        ObjectTypeObjects.ENTITY,
+        ObjectTypeObjects.IDENTITY_HOLDER,
         ObjectTypeObjects.PROCEDURE,
         ObjectTypeObjects.PROGRAM,
         ObjectTypeObjects.RISK,

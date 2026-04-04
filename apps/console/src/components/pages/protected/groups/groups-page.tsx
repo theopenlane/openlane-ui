@@ -28,6 +28,10 @@ import { type TFilterState } from '@/components/shared/table-filter/filter-stora
 import { useGroupsFilters } from './table/table-config'
 import { getInitialPagination } from '@repo/ui/data-table'
 import { TableKeyEnum } from '@repo/ui/table-key'
+import { GenericBulkCSVCreateDialog } from '@/components/shared/crud-base/dialog/bulk-csv-create-dialog'
+import Menu from '@/components/shared/menu/menu'
+import { useCreateBulkCSVGroup } from '@/lib/graphql-hooks/group'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 const GroupsPage = () => {
   const [activeTab, setActiveTab] = useState<'table' | 'card'>('table')
@@ -158,6 +162,13 @@ const GroupsPage = () => {
 
   const { mappedColumns } = getGroupTableColumns({})
 
+  const baseBulkCreateMutation = useCreateBulkCSVGroup()
+
+  const bulkCreateMutation = {
+    isPending: baseBulkCreateMutation.isPending,
+    mutateAsync: async (params: { input: File }) => baseBulkCreateMutation.mutateAsync({ input: params.input }),
+  }
+
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
@@ -181,6 +192,20 @@ const GroupsPage = () => {
         />
         <TableCardView activeTab={activeTab} onTabChange={setActiveTab}></TableCardView>
         <div className="grow flex flex-row items-center gap-2 justify-end">
+          <Menu
+            closeOnSelect={true}
+            content={() => (
+              <>
+                <GenericBulkCSVCreateDialog
+                  entityType={ObjectTypes.GROUP}
+                  displayName="Group"
+                  onBulkCreate={async (file: File) => {
+                    await bulkCreateMutation.mutateAsync({ input: file })
+                  }}
+                />
+              </>
+            )}
+          />
           {mappedColumns && columnVisibility && setColumnVisibility && (
             <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.GROUP} />
           )}

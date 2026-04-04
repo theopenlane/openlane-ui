@@ -193,3 +193,13 @@ export const GET_ALL_GROUPS_PAGINATED = gql`
     }
   }
 `
+
+export const CREATE_CSV_BULK_GROUP = gql`
+  mutation CreateBulkCSVGroup($input: Upload!) {
+    createBulkCSVGroup(input: $input) {
+      groups {
+        id
+      }
+    }
+  }
+`

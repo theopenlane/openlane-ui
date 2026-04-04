@@ -188,6 +188,36 @@ export const GET_SUBCONTROL_ASSOCIATIONS_BY_ID = gql`
           }
         }
       }
+      assets {
+        edges {
+          node {
+            id
+            name
+            displayName
+          }
+        }
+        totalCount
+      }
+      entities {
+        edges {
+          node {
+            id
+            name
+            displayName
+          }
+        }
+        totalCount
+      }
+      identityHolders {
+        edges {
+          node {
+            id
+            fullName
+            displayID
+          }
+        }
+        totalCount
+      }
     }
   }
 `
