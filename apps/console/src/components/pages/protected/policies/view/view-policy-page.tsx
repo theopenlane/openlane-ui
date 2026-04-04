@@ -90,6 +90,9 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
       tasks: assocData.internalPolicy.tasks,
       programs: assocData.internalPolicy.programs,
       risks: assocData.internalPolicy.risks,
+      assets: assocData.internalPolicy.assets,
+      entities: assocData.internalPolicy.entities,
+      identityHolders: assocData.internalPolicy.identityHolders,
     }
   }, [assocData])
 

@@ -3,14 +3,23 @@ import type { AssociationEntityConfig } from '@/components/shared/object-associa
 
 const buildAssociationEntityConfig = <const TConfig extends AssociationEntityConfig>(config: TConfig): TConfig => config
 
-const assetAllowedObjectTypes = [ObjectTypeObjects.CONTROL, ObjectTypeObjects.IDENTITY_HOLDER, ObjectTypeObjects.SCAN, ObjectTypeObjects.ENTITY]
+const assetAllowedObjectTypes = [
+  ObjectTypeObjects.CONTROL,
+  ObjectTypeObjects.SUB_CONTROL,
+  ObjectTypeObjects.IDENTITY_HOLDER,
+  ObjectTypeObjects.INTERNAL_POLICY,
+  ObjectTypeObjects.SCAN,
+  ObjectTypeObjects.ENTITY,
+]
 const assetInitialDataKeys = {
   scanIDs: 'scans',
   entityIDs: 'entities',
   identityHolderIDs: 'identityHolders',
   controlIDs: 'controls',
+  subcontrolIDs: 'subcontrols',
+  internalPolicyIDs: 'internalPolicies',
 }
-const assetAssociationKeys = ['controlIDs', 'scanIDs', 'entityIDs', 'identityHolderIDs']
+const assetAssociationKeys = ['controlIDs', 'subcontrolIDs', 'internalPolicyIDs', 'scanIDs', 'entityIDs', 'identityHolderIDs']
 
 export const ASSET_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
   entityType: 'asset',
@@ -27,8 +36,10 @@ export const ASSET_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
       key: 'controls',
       nameExtractor: (n) => n.refCode ?? '',
       displayIdExtractor: (n) => n.displayID ?? '',
-      extraFields: (n) => ({ refCode: n.refCode, description: n.description }),
+      extraFields: (n) => ({ description: n.description }),
     },
+    { key: 'subcontrols', nameExtractor: (n) => n.refCode ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ description: n.description }) },
+    { key: 'internalPolicies', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
   ],
   dialogConfig: {
     dataRootField: 'asset',
@@ -39,14 +50,23 @@ export const ASSET_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
   },
 })
 
-const entityAllowedObjectTypes = [ObjectTypeObjects.ASSET, ObjectTypeObjects.CAMPAIGN, ObjectTypeObjects.IDENTITY_HOLDER, ObjectTypeObjects.SCAN]
+const entityAllowedObjectTypes = [
+  ObjectTypeObjects.ASSET,
+  ObjectTypeObjects.CAMPAIGN,
+  ObjectTypeObjects.IDENTITY_HOLDER,
+  ObjectTypeObjects.INTERNAL_POLICY,
+  ObjectTypeObjects.SCAN,
+  ObjectTypeObjects.SUB_CONTROL,
+]
 const entityInitialDataKeys = {
   assetIDs: 'assets',
   scanIDs: 'scans',
   campaignIDs: 'campaigns',
   identityHolderIDs: 'identityHolders',
+  internalPolicyIDs: 'internalPolicies',
+  subcontrolIDs: 'subcontrols',
 }
-const entityAssociationKeys = ['assetIDs', 'scanIDs', 'campaignIDs', 'identityHolderIDs']
+const entityAssociationKeys = ['assetIDs', 'internalPolicyIDs', 'subcontrolIDs', 'scanIDs', 'campaignIDs', 'identityHolderIDs']
 
 export const ENTITY_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
   entityType: 'entity',
@@ -60,6 +80,8 @@ export const ENTITY_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
     { key: 'scans', nameExtractor: (n) => n.target ?? '', displayIdExtractor: () => '' },
     { key: 'campaigns', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
     { key: 'identityHolders', nameExtractor: (n) => n.fullName ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
+    { key: 'internalPolicies', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
+    { key: 'subcontrols', nameExtractor: (n) => n.refCode ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ description: n.description }) },
   ],
   dialogConfig: {
     dataRootField: 'entity',
@@ -70,14 +92,25 @@ export const ENTITY_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
   },
 })
 
-const identityHolderAllowedObjectTypes = [ObjectTypeObjects.ASSET, ObjectTypeObjects.CAMPAIGN, ObjectTypeObjects.ENTITY, ObjectTypeObjects.TASK]
+const identityHolderAllowedObjectTypes = [
+  ObjectTypeObjects.ASSET,
+  ObjectTypeObjects.CAMPAIGN,
+  ObjectTypeObjects.CONTROL,
+  ObjectTypeObjects.SUB_CONTROL,
+  ObjectTypeObjects.ENTITY,
+  ObjectTypeObjects.INTERNAL_POLICY,
+  ObjectTypeObjects.TASK,
+]
 const identityHolderInitialDataKeys = {
   assetIDs: 'assets',
+  controlIDs: 'controls',
+  subcontrolIDs: 'subcontrols',
   entityIDs: 'entities',
   campaignIDs: 'campaigns',
+  internalPolicyIDs: 'internalPolicies',
   taskIDs: 'tasks',
 }
-const identityHolderAssociationKeys = ['assetIDs', 'entityIDs', 'campaignIDs', 'taskIDs']
+const identityHolderAssociationKeys = ['assetIDs', 'controlIDs', 'subcontrolIDs', 'entityIDs', 'campaignIDs', 'internalPolicyIDs', 'taskIDs']
 
 export const IDENTITY_HOLDER_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
   entityType: 'identityHolder',
@@ -88,8 +121,16 @@ export const IDENTITY_HOLDER_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
   associationKeys: identityHolderAssociationKeys,
   sectionMappings: [
     { key: 'assets', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayName ?? '' },
+    {
+      key: 'controls',
+      nameExtractor: (n) => n.refCode ?? '',
+      displayIdExtractor: (n) => n.displayID ?? '',
+      extraFields: (n) => ({ description: n.description }),
+    },
+    { key: 'subcontrols', nameExtractor: (n) => n.refCode ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ description: n.description }) },
     { key: 'entities', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayName ?? '' },
     { key: 'campaigns', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
+    { key: 'internalPolicies', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
     { key: 'tasks', nameExtractor: (n) => n.title ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ title: n.title }) },
   ],
   dialogConfig: {
@@ -139,9 +180,9 @@ export const FINDING_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
       key: 'controls',
       nameExtractor: (n) => n.refCode ?? '',
       displayIdExtractor: (n) => n.displayID ?? '',
-      extraFields: (n) => ({ refCode: n.refCode, description: n.description }),
+      extraFields: (n) => ({ description: n.description }),
     },
-    { key: 'subcontrols', nameExtractor: (n) => n.refCode ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
+    { key: 'subcontrols', nameExtractor: (n) => n.refCode ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ description: n.description }) },
     { key: 'risks', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
     { key: 'programs', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
     { key: 'tasks', nameExtractor: (n) => n.title ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ title: n.title }) },
@@ -177,8 +218,8 @@ export const REMEDIATION_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
   initialDataKeys: remediationInitialDataKeys,
   associationKeys: remediationAssociationKeys,
   sectionMappings: [
-    { key: 'controls', nameExtractor: (n) => n.refCode ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ refCode: n.refCode, description: n.description }) },
-    { key: 'subcontrols', nameExtractor: (n) => n.refCode ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
+    { key: 'controls', nameExtractor: (n) => n.refCode ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ description: n.description }) },
+    { key: 'subcontrols', nameExtractor: (n) => n.refCode ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ description: n.description }) },
     { key: 'findings', nameExtractor: (n) => n.displayName ?? n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
     { key: 'vulnerabilities', nameExtractor: (n) => n.displayName ?? n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
   ],
@@ -219,8 +260,8 @@ export const VULNERABILITY_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
   initialDataKeys: vulnerabilityInitialDataKeys,
   associationKeys: vulnerabilityAssociationKeys,
   sectionMappings: [
-    { key: 'controls', nameExtractor: (n) => n.refCode ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ refCode: n.refCode, description: n.description }) },
-    { key: 'subcontrols', nameExtractor: (n) => n.refCode ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
+    { key: 'controls', nameExtractor: (n) => n.refCode ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ description: n.description }) },
+    { key: 'subcontrols', nameExtractor: (n) => n.refCode ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ description: n.description }) },
     { key: 'findings', nameExtractor: (n) => n.displayName ?? n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
     { key: 'remediations', nameExtractor: (n) => n.title ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
     { key: 'reviews', nameExtractor: (n) => n.title ?? '', displayIdExtractor: () => '' },
@@ -268,9 +309,9 @@ export const REVIEW_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
       key: 'controls',
       nameExtractor: (n) => n.refCode ?? '',
       displayIdExtractor: (n) => n.displayID ?? '',
-      extraFields: (n) => ({ refCode: n.refCode, description: n.description }),
+      extraFields: (n) => ({ description: n.description }),
     },
-    { key: 'subcontrols', nameExtractor: (n) => n.refCode ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
+    { key: 'subcontrols', nameExtractor: (n) => n.refCode ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ description: n.description }) },
     { key: 'remediations', nameExtractor: (n) => n.displayID ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
     { key: 'entities', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayName ?? '' },
     { key: 'tasks', nameExtractor: (n) => n.title ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ title: n.title }) },
