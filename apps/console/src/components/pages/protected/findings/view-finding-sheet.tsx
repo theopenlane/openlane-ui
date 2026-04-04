@@ -51,6 +51,7 @@ const ViewFindingSheet: React.FC<Props> = ({ entityId, onClose }) => {
   const [isTrackingRemediation, setIsTrackingRemediation] = useState(false)
   const [isRemediationPending, setIsRemediationPending] = useState(false)
   const [trackingDefaultTitle, setTrackingDefaultTitle] = useState<string | undefined>(undefined)
+  const [trackingDefaultInstructions, setTrackingDefaultInstructions] = useState<string | undefined>(undefined)
 
   const riskScoresAction = entityId && !isTrackingRemediation ? <FindingRemediationButton entityId={entityId} onTrack={handleStartTracking} /> : undefined
 
@@ -58,11 +59,13 @@ const ViewFindingSheet: React.FC<Props> = ({ entityId, onClose }) => {
 
   function handleStartTracking() {
     setTrackingDefaultTitle(`${sheetConfig.data?.displayName ?? sheetConfig.data?.displayID ?? ''} Remediation`.trim() || undefined)
+    setTrackingDefaultInstructions(sheetConfig.data?.recommendedActions ?? undefined)
     setIsTrackingRemediation(true)
   }
   const handleStopTracking = () => {
     setIsTrackingRemediation(false)
     setTrackingDefaultTitle(undefined)
+    setTrackingDefaultInstructions(undefined)
   }
   const handleCloseAfterCreate = () => {
     setIsTrackingRemediation(false)
@@ -75,7 +78,14 @@ const ViewFindingSheet: React.FC<Props> = ({ entityId, onClose }) => {
       {...sheetConfig}
       overrideContent={
         isTrackingRemediation && entityId ? (
-          <TrackRemediationForm entityId={entityId} entityType="finding" onClose={handleCloseAfterCreate} onPendingChange={setIsRemediationPending} defaultTitle={trackingDefaultTitle} />
+          <TrackRemediationForm
+            entityId={entityId}
+            entityType="finding"
+            onClose={handleCloseAfterCreate}
+            onPendingChange={setIsRemediationPending}
+            defaultTitle={trackingDefaultTitle}
+            defaultInstructions={trackingDefaultInstructions}
+          />
         ) : undefined
       }
       overrideHeader={isTrackingRemediation ? <TrackRemediationHeader onBack={handleStopTracking} isPending={isRemediationPending} /> : undefined}
