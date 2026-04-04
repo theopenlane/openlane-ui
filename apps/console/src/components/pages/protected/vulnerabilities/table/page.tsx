@@ -21,7 +21,7 @@ import { type VulnerabilitySheetConfig, type VulnerabilityTablePageConfig, type 
 import { getColumns } from './columns'
 import TableComponent from './table'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import { type CreateVulnerabilityInput, type UpdateVulnerabilityInput, type GetVulnerabilityAssociationsQuery } from '@repo/codegen/src/schema'
+import { type CreateVulnerabilityInput, type UpdateVulnerabilityInput, type GetVulnerabilityAssociationsQuery, VulnerabilitySecurityLevel } from '@repo/codegen/src/schema'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import { buildAssociationPayload } from '@/components/shared/object-association/utils'
@@ -162,7 +162,9 @@ const VulnerabilityPage: React.FC = () => {
     renderFields: (props: VulnerabilityFieldProps) => getFieldsToRender(props, enumOpts, enumCreateHandlers),
   }
 
-  const severityWhereFilter = selectedSeverity ? { severityEqualFold: selectedSeverity, vulnerabilityStatusNameIn: ['Open', 'In Progress', 'Triaged'] } : undefined
+  const severityWhereFilter = selectedSeverity
+    ? { securityLevelIn: [VulnerabilitySecurityLevel[selectedSeverity.toUpperCase() as keyof typeof VulnerabilitySecurityLevel]], vulnerabilityStatusNameIn: ['Open', 'In Progress', 'Triaged'] }
+    : undefined
 
   const tableConfig: VulnerabilityTablePageConfig = {
     objectType,
