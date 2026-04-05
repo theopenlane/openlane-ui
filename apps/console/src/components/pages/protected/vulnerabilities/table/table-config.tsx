@@ -121,7 +121,7 @@ export const visibilityFields = {
   displayID: true,
   displayName: true,
   externalID: false,
-  severity: true,
+  severity: false,
   securityLevel: true,
   vulnerabilityStatusName: true,
   status: false,

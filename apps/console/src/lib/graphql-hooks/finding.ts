@@ -18,6 +18,7 @@ import {
   type DeleteBulkFindingMutation,
   type DeleteBulkFindingMutationVariables,
   type GetFindingAssociationsQuery,
+  FindingSecurityLevel,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
 import { type TPagination } from '@repo/ui/pagination-types'
@@ -151,22 +152,26 @@ export const useFindingSeverityCounts = () => {
 
   const critical = useQuery<FindingsWithFilterQuery, unknown>({
     queryKey: ['findings', 'severity-count', 'critical'],
-    queryFn: async () => client.request<FindingsWithFilterQuery>(GET_ALL_FINDINGS, { where: { severityEqualFold: 'critical', findingStatusNameIn: ['Open', 'In Progress', 'Triaged'] }, first: 1 }),
+    queryFn: async () =>
+      client.request<FindingsWithFilterQuery>(GET_ALL_FINDINGS, { where: { securityLevelIn: [FindingSecurityLevel.CRITICAL], findingStatusNameIn: ['Open', 'In Progress', 'Triaged'] }, first: 1 }),
   })
 
   const high = useQuery<FindingsWithFilterQuery, unknown>({
     queryKey: ['findings', 'severity-count', 'high'],
-    queryFn: async () => client.request<FindingsWithFilterQuery>(GET_ALL_FINDINGS, { where: { severityEqualFold: 'high', findingStatusNameIn: ['Open', 'In Progress', 'Triaged'] }, first: 1 }),
+    queryFn: async () =>
+      client.request<FindingsWithFilterQuery>(GET_ALL_FINDINGS, { where: { securityLevelIn: [FindingSecurityLevel.HIGH], findingStatusNameIn: ['Open', 'In Progress', 'Triaged'] }, first: 1 }),
   })
 
   const medium = useQuery<FindingsWithFilterQuery, unknown>({
     queryKey: ['findings', 'severity-count', 'medium'],
-    queryFn: async () => client.request<FindingsWithFilterQuery>(GET_ALL_FINDINGS, { where: { severityEqualFold: 'medium', findingStatusNameIn: ['Open', 'In Progress', 'Triaged'] }, first: 1 }),
+    queryFn: async () =>
+      client.request<FindingsWithFilterQuery>(GET_ALL_FINDINGS, { where: { securityLevelIn: [FindingSecurityLevel.MEDIUM], findingStatusNameIn: ['Open', 'In Progress', 'Triaged'] }, first: 1 }),
   })
 
   const low = useQuery<FindingsWithFilterQuery, unknown>({
     queryKey: ['findings', 'severity-count', 'low'],
-    queryFn: async () => client.request<FindingsWithFilterQuery>(GET_ALL_FINDINGS, { where: { severityEqualFold: 'low', findingStatusNameIn: ['Open', 'In Progress', 'Triaged'] }, first: 1 }),
+    queryFn: async () =>
+      client.request<FindingsWithFilterQuery>(GET_ALL_FINDINGS, { where: { securityLevelIn: [FindingSecurityLevel.LOW], findingStatusNameIn: ['Open', 'In Progress', 'Triaged'] }, first: 1 }),
   })
 
   return {
