@@ -3,7 +3,7 @@
 import React, { useCallback } from 'react'
 import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
-
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { type AssetsNodeNonNull, useAsset, useUpdateAsset, useCreateAsset, useBulkDeleteAsset, useCreateBulkCSVAsset, useBulkEditAsset, useGetAssetAssociations } from '@/lib/graphql-hooks/asset'
 import { useSearchParams } from 'next/navigation'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
@@ -92,27 +92,24 @@ const AssetPage: React.FC = () => {
   const bulkEditMutation = baseBulkEditMutation
 
   const { enumOptions: accessModelOptions, onCreateOption: createAccessModel } = useCreatableEnumOptions({
-    objectType: 'asset',
     field: 'accessModel',
   })
 
   const { enumOptions: assetDataClassificationOptions, onCreateOption: createDataClassification } = useCreatableEnumOptions({
-    objectType: 'asset',
+    objectType: ObjectTypes.ASSET.toLowerCase(),
     field: 'dataClassification',
   })
 
   const { enumOptions: assetSubtypeOptions, onCreateOption: createSubtype } = useCreatableEnumOptions({
-    objectType: 'asset',
+    objectType: ObjectTypes.ASSET.toLowerCase(),
     field: 'subtype',
   })
 
   const { enumOptions: criticalityOptions, onCreateOption: createCriticality } = useCreatableEnumOptions({
-    objectType: 'asset',
     field: 'criticality',
   })
 
   const { enumOptions: encryptionStatusOptions, onCreateOption: createEncryptionStatus } = useCreatableEnumOptions({
-    objectType: 'asset',
     field: 'encryptionStatus',
   })
 
@@ -135,7 +132,6 @@ const AssetPage: React.FC = () => {
   })
 
   const { enumOptions: securityTierOptions, onCreateOption: createSecurityTier } = useCreatableEnumOptions({
-    objectType: 'asset',
     field: 'securityTier',
   })
 
