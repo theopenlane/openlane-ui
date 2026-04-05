@@ -2,6 +2,7 @@
 
 import React, { useMemo } from 'react'
 import { useSearchParams } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import useFormSchema from '../hooks/use-form-schema'
@@ -22,6 +23,7 @@ import TableComponent from './table'
 const PlatformPage: React.FC = () => {
   const { form } = useFormSchema()
   const plateEditorHelper = usePlateEditor()
+  const { data: session } = useSession()
 
   const searchParams = useSearchParams()
   const id = searchParams.get('id')
@@ -69,22 +71,34 @@ const PlatformPage: React.FC = () => {
     createMutation,
     deleteMutation,
     buildPayload: async (data) => {
-      const { businessOwner, technicalOwner, ...rest } = data
+      const { businessOwner, technicalOwner, platformOwner, entityIDs: _e, outOfScopeVendorIDs: _ov, assetIDs: _a, outOfScopeAssetIDs: _oa, ...rest } = data
       const [businessPurpose, dataFlowSummary, trustBoundaryDescription] = await Promise.all([
         rest.businessPurpose ? plateEditorHelper.convertToHtml(rest.businessPurpose as Value) : undefined,
         rest.dataFlowSummary ? plateEditorHelper.convertToHtml(rest.dataFlowSummary as Value) : undefined,
         rest.trustBoundaryDescription ? plateEditorHelper.convertToHtml(rest.trustBoundaryDescription as Value) : undefined,
       ])
       return {
-        ...rest,
+        name: rest.name,
+        status: rest.status,
+        scopeName: rest.scopeName,
+        environmentName: rest.environmentName,
+        containsPii: rest.containsPii,
         businessPurpose,
         dataFlowSummary,
         trustBoundaryDescription,
+        // Default to the current user when no owner explicitly selected — backend requires this for authorization
+        platformOwnerID: platformOwner?.type === 'user' ? platformOwner.value : isCreate ? (session?.user?.id ?? undefined) : undefined,
         ...buildResponsibilityPayload('businessOwner', businessOwner, { mode: isCreate ? 'create' : 'update' }),
         ...buildResponsibilityPayload('technicalOwner', technicalOwner, { mode: isCreate ? 'create' : 'update' }),
       } as CreatePlatformInput
     },
-    normalizeData: (data) => ({ ...data }) as Partial<EditPlatformFormData>,
+    normalizeData: (data) => {
+      const { platformOwnerID, ...rest } = data as Record<string, unknown>
+      return {
+        ...rest,
+        platformOwner: platformOwnerID ? { type: 'user' as const, value: platformOwnerID as string } : undefined,
+      } as Partial<EditPlatformFormData>
+    },
     getName: (data) => data?.name ?? '',
     renderFields: () => <div />,
   }
@@ -115,6 +129,7 @@ const PlatformPage: React.FC = () => {
     responsibilityFields: {
       businessOwner: { fieldBaseName: 'businessOwner' },
       technicalOwner: { fieldBaseName: 'technicalOwner' },
+      platformOwner: { fieldBaseName: 'platformOwner' },
     },
   }
 

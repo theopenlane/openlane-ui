@@ -45,7 +45,7 @@ export const createPlatformSteps = (): StepConfig[] => [
     id: 'ownership',
     label: 'Ownership',
     schema: z.object({
-      platformOwnerID: z.string().optional().nullable(),
+      platformOwner: responsibilityFieldSchema,
       businessOwner: responsibilityFieldSchema,
       technicalOwner: responsibilityFieldSchema,
     }),

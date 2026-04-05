@@ -47,7 +47,11 @@ export const getColumns = ({ userMap, selectedItems, setSelectedItems }: ColumnO
       cell: ({ cell }) => {
         const value = cell.getValue() as string
         if (!value) return ''
-        return <span className="line-clamp-2 text-sm">{value}</span>
+        const plain = value
+          .replace(/<[^>]*>/g, ' ')
+          .replace(/\s+/g, ' ')
+          .trim()
+        return <span className="line-clamp-2 text-sm">{plain}</span>
       },
     },
     {
