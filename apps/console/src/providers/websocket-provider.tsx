@@ -35,6 +35,7 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
   const [isConnected, setIsConnected] = useState(false)
   const [error, setError] = useState<unknown | null>(null)
   const [hasFatalError, setHasFatalError] = useState(false)
+  const [connectionResetKey, setConnectionResetKey] = useState(0)
 
   const clientRef = useRef<Client | null>(null)
   const lastTokenRef = useRef<string | null>(null)
@@ -55,10 +56,13 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
     setError(null)
     lastTokenRef.current = null
     disposeClient()
+    setConnectionResetKey((prev) => prev + 1)
   }, [disposeClient])
 
   useEffect(() => {
-    if (status !== 'authenticated' || !token || !websocketGQLUrl || hasFatalError) {
+    const tokenChanged = lastTokenRef.current !== null && lastTokenRef.current !== token
+
+    if (status !== 'authenticated' || !token || !websocketGQLUrl || (hasFatalError && !tokenChanged)) {
       console.log('[WS] skip init', {
         status,
         hasToken: Boolean(token),
@@ -66,6 +70,11 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
       })
       disposeClient()
       return
+    }
+
+    if (tokenChanged) {
+      setHasFatalError(false)
+      setError(null)
     }
 
     if (lastTokenRef.current === token && clientRef.current) {
@@ -80,7 +89,7 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
     const wsClient = createClient({
       url: websocketGQLUrl,
       lazy: true,
-      retryAttempts: 5,
+      retryAttempts: Number.MAX_SAFE_INTEGER,
       keepAlive: 20_000,
       connectionParams: async () => ({
         Authorization: `Bearer ${token}`,
@@ -121,7 +130,33 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
       unsubError()
       disposeClient()
     }
-  }, [token, status, hasFatalError, disposeClient])
+  }, [connectionResetKey, token, status, hasFatalError, disposeClient])
+
+  useEffect(() => {
+    if (status !== 'authenticated') {
+      return
+    }
+
+    const handleOnline = () => {
+      if (!isConnected) {
+        resetConnection()
+      }
+    }
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && !isConnected) {
+        resetConnection()
+      }
+    }
+
+    window.addEventListener('online', handleOnline)
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+
+    return () => {
+      window.removeEventListener('online', handleOnline)
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+    }
+  }, [isConnected, resetConnection, status])
 
   return (
     <WebSocketContext
