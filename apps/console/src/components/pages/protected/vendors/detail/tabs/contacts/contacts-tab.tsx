@@ -44,6 +44,8 @@ interface ContactsTabProps {
 
 type ViewMode = 'table' | 'card'
 
+const VIEW_MODE_STORAGE_KEY = 'view-mode:vendor-contacts'
+
 const bulkEditFieldSchema = z.object({
   title: z.string().optional(),
   company: z.string().optional(),
@@ -69,8 +71,15 @@ const DATA_COLUMNS: ColumnDef<ContactNode>[] = [
 const mappedColumns = getMappedColumns(DATA_COLUMNS)
 
 const ContactsTab: React.FC<ContactsTabProps> = ({ vendorId, canEdit: canEditVendor, vendorName }) => {
-  const [viewMode, setViewMode] = useState<ViewMode>('table')
-  const handleViewChange = (tab: 'table' | 'card') => setViewMode(tab)
+  const [viewMode, setViewMode] = useState<ViewMode>(() => {
+    if (typeof window === 'undefined') return 'table'
+    const stored = localStorage.getItem(VIEW_MODE_STORAGE_KEY)
+    return stored === 'card' ? 'card' : 'table'
+  })
+  const handleViewChange = (tab: 'table' | 'card') => {
+    setViewMode(tab)
+    localStorage.setItem(VIEW_MODE_STORAGE_KEY, tab)
+  }
   const [showAddDialog, setShowAddDialog] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
   const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(TableKeyEnum.VENDOR_CONTACTS, DEFAULT_PAGINATION))

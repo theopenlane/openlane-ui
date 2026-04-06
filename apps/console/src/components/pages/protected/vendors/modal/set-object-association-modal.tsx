@@ -36,6 +36,8 @@ const SetObjectAssociationVendorsDialog = ({ entityId }: TSetObjectAssociationDi
       campaignIDs: (associationsData.entity.campaigns?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
       identityHolderIDs: (associationsData.entity.identityHolders?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
       controlIDs: (associationsData.entity.controls?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+      subcontrolIDs: (associationsData.entity.subcontrols?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+      internalPolicyIDs: (associationsData.entity.internalPolicies?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
     }
   }, [associationsData])
 
@@ -94,7 +96,15 @@ const SetObjectAssociationVendorsDialog = ({ entityId }: TSetObjectAssociationDi
           key={objectAssociationKey}
           onIdChange={(updatedMap) => setAssociations(updatedMap)}
           initialData={initialData}
-          allowedObjectTypes={[ObjectTypeObjects.ASSET, ObjectTypeObjects.CAMPAIGN, ObjectTypeObjects.CONTROL, ObjectTypeObjects.IDENTITY_HOLDER, ObjectTypeObjects.SCAN]}
+          allowedObjectTypes={[
+            ObjectTypeObjects.ASSET,
+            ObjectTypeObjects.CAMPAIGN,
+            ObjectTypeObjects.CONTROL,
+            ObjectTypeObjects.SUB_CONTROL,
+            ObjectTypeObjects.IDENTITY_HOLDER,
+            ObjectTypeObjects.INTERNAL_POLICY,
+            ObjectTypeObjects.SCAN,
+          ]}
         />
         <DialogFooter>
           <SaveButton onClick={onSave} isSaving={isSaving} />

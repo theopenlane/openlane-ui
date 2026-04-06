@@ -18,6 +18,7 @@ import {
   type DeleteBulkFindingMutation,
   type DeleteBulkFindingMutationVariables,
   type GetFindingAssociationsQuery,
+  FindingSecurityLevel,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
 import { type TPagination } from '@repo/ui/pagination-types'
@@ -144,4 +145,40 @@ export const useGetFindingAssociations = (findingId?: string) => {
     queryFn: async () => client.request<GetFindingAssociationsQuery>(GET_FINDING_ASSOCIATIONS, { findingId: findingId as string }),
     enabled: !!findingId,
   })
+}
+
+export const useFindingSeverityCounts = () => {
+  const { client } = useGraphQLClient()
+
+  const critical = useQuery<FindingsWithFilterQuery, unknown>({
+    queryKey: ['findings', 'severity-count', 'critical'],
+    queryFn: async () =>
+      client.request<FindingsWithFilterQuery>(GET_ALL_FINDINGS, { where: { securityLevelIn: [FindingSecurityLevel.CRITICAL], findingStatusNameIn: ['Open', 'In Progress', 'Triaged'] }, first: 1 }),
+  })
+
+  const high = useQuery<FindingsWithFilterQuery, unknown>({
+    queryKey: ['findings', 'severity-count', 'high'],
+    queryFn: async () =>
+      client.request<FindingsWithFilterQuery>(GET_ALL_FINDINGS, { where: { securityLevelIn: [FindingSecurityLevel.HIGH], findingStatusNameIn: ['Open', 'In Progress', 'Triaged'] }, first: 1 }),
+  })
+
+  const medium = useQuery<FindingsWithFilterQuery, unknown>({
+    queryKey: ['findings', 'severity-count', 'medium'],
+    queryFn: async () =>
+      client.request<FindingsWithFilterQuery>(GET_ALL_FINDINGS, { where: { securityLevelIn: [FindingSecurityLevel.MEDIUM], findingStatusNameIn: ['Open', 'In Progress', 'Triaged'] }, first: 1 }),
+  })
+
+  const low = useQuery<FindingsWithFilterQuery, unknown>({
+    queryKey: ['findings', 'severity-count', 'low'],
+    queryFn: async () =>
+      client.request<FindingsWithFilterQuery>(GET_ALL_FINDINGS, { where: { securityLevelIn: [FindingSecurityLevel.LOW], findingStatusNameIn: ['Open', 'In Progress', 'Triaged'] }, first: 1 }),
+  })
+
+  return {
+    critical: critical.data?.findings?.totalCount ?? 0,
+    high: high.data?.findings?.totalCount ?? 0,
+    medium: medium.data?.findings?.totalCount ?? 0,
+    low: low.data?.findings?.totalCount ?? 0,
+    isLoading: critical.isLoading || high.isLoading || medium.isLoading || low.isLoading,
+  }
 }

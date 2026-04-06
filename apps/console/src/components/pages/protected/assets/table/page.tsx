@@ -3,7 +3,7 @@
 import React, { useCallback } from 'react'
 import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
-
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { type AssetsNodeNonNull, useAsset, useUpdateAsset, useCreateAsset, useBulkDeleteAsset, useCreateBulkCSVAsset, useBulkEditAsset, useGetAssetAssociations } from '@/lib/graphql-hooks/asset'
 import { useSearchParams } from 'next/navigation'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
@@ -41,6 +41,8 @@ const AssetPage: React.FC = () => {
       entityIDs: (asset.entities?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
       identityHolderIDs: (asset.identityHolders?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
       controlIDs: (asset.controls?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+      subcontrolIDs: (asset.subcontrols?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+      internalPolicyIDs: (asset.internalPolicies?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
     }
   }, [])
   const initialAssociationsRef = useInitialAssociations(associationsData, extractAssociations, id)
@@ -90,27 +92,24 @@ const AssetPage: React.FC = () => {
   const bulkEditMutation = baseBulkEditMutation
 
   const { enumOptions: accessModelOptions, onCreateOption: createAccessModel } = useCreatableEnumOptions({
-    objectType: 'asset',
     field: 'accessModel',
   })
 
   const { enumOptions: assetDataClassificationOptions, onCreateOption: createDataClassification } = useCreatableEnumOptions({
-    objectType: 'asset',
+    objectType: ObjectTypes.ASSET.toLowerCase(),
     field: 'dataClassification',
   })
 
   const { enumOptions: assetSubtypeOptions, onCreateOption: createSubtype } = useCreatableEnumOptions({
-    objectType: 'asset',
+    objectType: ObjectTypes.ASSET.toLowerCase(),
     field: 'subtype',
   })
 
   const { enumOptions: criticalityOptions, onCreateOption: createCriticality } = useCreatableEnumOptions({
-    objectType: 'asset',
     field: 'criticality',
   })
 
   const { enumOptions: encryptionStatusOptions, onCreateOption: createEncryptionStatus } = useCreatableEnumOptions({
-    objectType: 'asset',
     field: 'encryptionStatus',
   })
 
@@ -133,7 +132,6 @@ const AssetPage: React.FC = () => {
   })
 
   const { enumOptions: securityTierOptions, onCreateOption: createSecurityTier } = useCreatableEnumOptions({
-    objectType: 'asset',
     field: 'securityTier',
   })
 
@@ -173,9 +171,14 @@ const AssetPage: React.FC = () => {
     createMutation,
     deleteMutation,
     buildPayload: async (data) => {
-      const { controlIDs, scanIDs, entityIDs, identityHolderIDs, internalOwner, ...rest } = data
+      const { controlIDs, subcontrolIDs, internalPolicyIDs, scanIDs, entityIDs, identityHolderIDs, internalOwner, ...rest } = data
       const description = rest.description ? await plateEditorHelper.convertToHtml(rest.description as Value) : undefined
-      const associationPayload = buildAssociationPayload(ASSET_ASSOCIATION_CONFIG.associationKeys, { controlIDs, scanIDs, entityIDs, identityHolderIDs }, isCreate, initialAssociationsRef.current)
+      const associationPayload = buildAssociationPayload(
+        ASSET_ASSOCIATION_CONFIG.associationKeys,
+        { controlIDs, subcontrolIDs, internalPolicyIDs, scanIDs, entityIDs, identityHolderIDs },
+        isCreate,
+        initialAssociationsRef.current,
+      )
 
       return {
         ...rest,

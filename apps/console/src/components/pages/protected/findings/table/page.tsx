@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import { bulkEditFieldSchema } from '../hooks/use-form-schema'
 import { useCreateBulkCSVFinding, useBulkEditFinding, useBulkDeleteFinding } from '@/lib/graphql-hooks/finding'
 import { useSearchParams, useRouter } from 'next/navigation'
@@ -9,16 +9,18 @@ import { breadcrumbs, getFilterFields, visibilityFields } from './table-config'
 import { type FindingTablePageConfig, objectType, objectName, tableKey, exportType, orderFieldEnum, defaultSorting } from './types'
 import { getColumns } from './columns'
 import TableComponent from './table'
-import { type UpdateFindingInput } from '@repo/codegen/src/schema'
+import { type UpdateFindingInput, FindingSecurityLevel } from '@repo/codegen/src/schema'
 import { useFindingSheetConfig } from '../hooks/use-finding-sheet-config'
 import TaskDetailsSheet from '../../tasks/create-task/sidebar/task-details-sheet'
 import ViewFindingSheet from '../view-finding-sheet'
+import { FindingSeverityChart } from '../../vulnerabilities/table/severity-chart'
 
 const FindingPage: React.FC = () => {
   const router = useRouter()
   const searchParams = useSearchParams()
   const id = searchParams.get('id')
   const isCreate = searchParams.get('create') === 'true'
+  const [selectedSeverity, setSelectedSeverity] = useState<'critical' | 'high' | 'medium' | 'low' | null>(null)
 
   const { enumOpts, form, ...sheetConfig } = useFindingSheetConfig(null, isCreate)
 
@@ -37,6 +39,10 @@ const FindingPage: React.FC = () => {
     isPending: baseBulkCreateMutation.isPending,
     mutateAsync: async (params: { input: File }) => baseBulkCreateMutation.mutateAsync({ input: params.input }),
   }
+
+  const severityWhereFilter = selectedSeverity
+    ? { securityLevelIn: [FindingSecurityLevel[selectedSeverity.toUpperCase() as keyof typeof FindingSecurityLevel]], findingStatusNameIn: ['Open', 'In Progress', 'Triaged'] }
+    : undefined
 
   const tableConfig: FindingTablePageConfig = {
     objectType,
@@ -64,6 +70,12 @@ const FindingPage: React.FC = () => {
     },
     bulkEditFormSchema: bulkEditFieldSchema,
     enumOpts,
+    additionalWhereFilter: severityWhereFilter,
+    beforeTable: (
+      <>
+        <FindingSeverityChart selectedSeverity={selectedSeverity} onSeveritySelect={setSelectedSeverity} />
+      </>
+    ),
   }
 
   return (

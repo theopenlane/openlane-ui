@@ -54,10 +54,17 @@ const EvidenceRenewDialog: React.FC<TEvidenceRenewDialog> = ({ evidenceId, contr
 
   const onSubmitHandler = async (data: CreateEvidenceFormData) => {
     const collectionProcedure = data.collectionProcedure && typeof data.collectionProcedure !== 'string' ? await convertToHtml(data.collectionProcedure) : data.collectionProcedure
+    const creationDate = data.creationDate instanceof Date ? data.creationDate.toISOString() : data.creationDate
+    const renewalDate = data.renewalDate instanceof Date ? data.renewalDate.toISOString() : data.renewalDate
 
     try {
       await createEvidence({
-        input: { ...data, collectionProcedure },
+        input: {
+          ...data,
+          collectionProcedure,
+          creationDate,
+          renewalDate,
+        },
         evidenceFiles: evidenceFiles?.map((item) => item.file) || [],
       })
       setIsOpen(false)

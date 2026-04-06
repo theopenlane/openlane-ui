@@ -66,16 +66,16 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
         </CardHeader>
         <CardContent>
           <div className="mb-4 grid grid-cols-1 gap-2">
-            <TextField name="summary" label="Summary" {...sharedFieldProps} />
+            <TextField name="summary" label="Summary" multiline {...sharedFieldProps} />
           </div>
           <div className="mb-4 grid grid-cols-1 gap-2">
-            <TextField name="explanation" label="Explanation" {...sharedFieldProps} />
+            <TextField name="explanation" label="Explanation" multiline {...sharedFieldProps} />
           </div>
           <div className="mb-4 grid grid-cols-1 gap-2">
-            <TextField name="instructions" label="Instructions" {...sharedFieldProps} />
+            <TextField name="instructions" label="Instructions" multiline {...sharedFieldProps} />
           </div>
           <div className="grid grid-cols-1 gap-2">
-            <TextField name="intent" label="Intent" {...sharedFieldProps} />
+            <TextField name="intent" label="Intent" multiline {...sharedFieldProps} />
           </div>
         </CardContent>
       </Card>

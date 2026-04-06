@@ -49,7 +49,10 @@ export default function FrameworksPage() {
   const canEditTc = canEdit(tcPermission?.roles)
 
   const { compliances, isLoading: compliancesLoading, isError: compliancesError, isFetched } = useGetTrustCenterCompliances()
-  const where: StandardWhereInput = isChecked ? { hasTrustCenterCompliancesWith: [{ trustCenterID }] } : {}
+  const where: StandardWhereInput = {
+    shortNameNEQ: 'OTS',
+    ...(isChecked ? { hasTrustCenterCompliancesWith: [{ trustCenterID }] } : {}),
+  }
 
   const {
     standards,

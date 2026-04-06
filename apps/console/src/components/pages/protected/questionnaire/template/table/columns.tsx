@@ -6,6 +6,7 @@ import { Avatar } from '@/components/shared/avatar/avatar'
 import { Button } from '@repo/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { MoreHorizontal, Pencil, FilePlus, Trash2 } from 'lucide-react'
+import { TruncatedCell } from '@repo/ui/data-table'
 
 type Params = {
   userMap?: Record<string, User>
@@ -41,7 +42,7 @@ export const getTemplateColumns = (params?: Params) => {
       header: 'Description',
       size: 250,
       minSize: 100,
-      cell: ({ cell }) => <div className="truncate">{(cell.getValue() as string) || '-'}</div>,
+      cell: ({ cell }) => <TruncatedCell>{(cell.getValue() as string) || '-'}</TruncatedCell>,
     },
     {
       accessorKey: 'environmentName',

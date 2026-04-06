@@ -2,6 +2,7 @@
 
 import { FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
 import { Input } from '@repo/ui/input'
+import { Textarea } from '@repo/ui/textarea'
 import { type FieldValues, useFormContext } from 'react-hook-form'
 import { type InternalEditingType } from '../generic-sheet'
 import { formatDate, formatCurrency } from '@/utils/date'
@@ -31,6 +32,7 @@ interface TextFieldProps<TUpdateInput> {
   icon?: React.ReactNode
   layout?: 'vertical' | 'horizontal'
   labelClassName?: string
+  multiline?: boolean
 }
 
 export const TextField = <TUpdateInput,>({
@@ -53,6 +55,7 @@ export const TextField = <TUpdateInput,>({
   icon,
   layout = 'vertical',
   labelClassName,
+  multiline = false,
 }: TextFieldProps<TUpdateInput>) => {
   const { control, getValues, formState } = useFormContext()
 
@@ -84,6 +87,24 @@ export const TextField = <TUpdateInput,>({
     }
   }
 
+  const handleTextareaBlur = async () => {
+    if (isEditing) return
+
+    const newValue = getValues(name)
+    const oldValue = data?.[name] ?? initialValue ?? ''
+
+    if (!newValue || newValue === oldValue) {
+      setInternalEditing(null)
+      return
+    }
+
+    if (handleUpdate) {
+      await Promise.resolve(handleUpdate({ [name]: newValue } as unknown as TUpdateInput))
+    }
+
+    setInternalEditing(null)
+  }
+
   const handleClick = () => {
     if (!isEditing && isEditAllowed) {
       setInternalEditing(name)
@@ -109,7 +130,11 @@ export const TextField = <TUpdateInput,>({
           </div>
           <FormControl>
             {isFieldEditing ? (
-              <Input {...field} value={field.value ?? ''} type={type} prefix={prefix} placeholder={placeholder} onBlur={handleBlur} onKeyDown={handleKeyDown} autoFocus={internalEditing === name} />
+              multiline ? (
+                <Textarea {...field} value={field.value ?? ''} placeholder={placeholder} onBlur={handleTextareaBlur} autoFocus={internalEditing === name} rows={4} />
+              ) : (
+                <Input {...field} value={field.value ?? ''} type={type} prefix={prefix} placeholder={placeholder} onBlur={handleBlur} onKeyDown={handleKeyDown} autoFocus={internalEditing === name} />
+              )
             ) : (
               <div className={cn('text-sm py-2 rounded-md cursor-pointer px-1 w-full hover:bg-accent', layout === 'horizontal' && 'text-right')} onClick={handleClick}>
                 {type === 'date' ? (
