@@ -16,14 +16,22 @@ export const NotificationsProvider = ({ children }: { children: React.ReactNode 
   const { notifications, liveNotifications } = websocketNotifications
   const listenersRef = useRef<NewNotificationListener[]>([])
   const seenIdsRef = useRef<Set<string>>(new Set())
+  const hasInitializedLiveNotificationsRef = useRef(false)
 
   useEffect(() => {
     if (notifications.length === 0 && liveNotifications.length === 0) {
       seenIdsRef.current = new Set()
+      hasInitializedLiveNotificationsRef.current = false
     }
   }, [liveNotifications, notifications.length])
 
   useEffect(() => {
+    if (!hasInitializedLiveNotificationsRef.current) {
+      seenIdsRef.current = new Set(liveNotifications.map((notification) => notification.id))
+      hasInitializedLiveNotificationsRef.current = true
+      return
+    }
+
     liveNotifications.forEach((notification) => {
       if (!seenIdsRef.current.has(notification.id)) {
         seenIdsRef.current.add(notification.id)
