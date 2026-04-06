@@ -1,3 +1,5 @@
+import type { WebhookMethod } from '@/types/workflow'
+
 export enum WizardActionType {
   REQUEST_APPROVAL = 'REQUEST_APPROVAL',
   REQUEST_REVIEW = 'REQUEST_REVIEW',
@@ -14,10 +16,19 @@ export const ACTION_LABELS: Record<WizardActionType, string> = {
   [WizardActionType.UPDATE_FIELD]: 'Field update',
 }
 
-export const WEBHOOK_METHOD_OPTIONS = ['POST', 'PUT', 'PATCH', 'GET']
+export type {
+  ApprovalSubmissionMode,
+  ApprovalTiming,
+  Target,
+  WebhookMethod,
+  WorkflowAction,
+  WorkflowActionParams,
+  WorkflowActionType,
+  WorkflowCondition,
+  WorkflowDocument,
+  WorkflowNodeData,
+  WorkflowTrigger,
+  WorkflowTriggerOperation,
+} from '@/types/workflow'
 
-export type Target = {
-  type: 'USER' | 'GROUP' | 'ROLE' | 'RESOLVER'
-  id?: string
-  resolver_key?: string
-}
+export const WEBHOOK_METHOD_OPTIONS: WebhookMethod[] = ['POST', 'PUT', 'PATCH', 'GET']

@@ -1,16 +1,16 @@
-export type ApprovalTiming = 'PRE_COMMIT' | 'POST_COMMIT'
+import type { ApprovalTiming, WorkflowDocument } from '@/types/workflow'
 
-export const parseWorkflowDefinition = (value: unknown): Record<string, unknown> => {
+export const parseWorkflowDefinition = (value: unknown): WorkflowDocument => {
   if (!value) return {}
   if (typeof value === 'string') {
     try {
-      return JSON.parse(value) as Record<string, unknown>
+      return JSON.parse(value) as WorkflowDocument
     } catch {
       return {}
     }
   }
   if (typeof value === 'object') {
-    return value as Record<string, unknown>
+    return value as WorkflowDocument
   }
   return {}
 }

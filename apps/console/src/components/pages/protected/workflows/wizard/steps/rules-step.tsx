@@ -20,14 +20,14 @@ type RulesStepProps = {
 }
 
 export const RulesStep = ({ state }: RulesStepProps) => {
+  const { fieldScope, setFieldScope } = state
   const requiresSpecificFields = state.actionType === WizardActionType.REQUEST_APPROVAL && state.operation === 'UPDATE'
 
   useEffect(() => {
-    if (requiresSpecificFields && state.fieldScope === 'any') {
-      state.setFieldScope('specific')
+    if (requiresSpecificFields && fieldScope === 'any') {
+      setFieldScope('specific')
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [requiresSpecificFields, state.fieldScope, state.setFieldScope])
+  }, [requiresSpecificFields, fieldScope, setFieldScope])
 
   return (
     <div className="space-y-6">
@@ -95,7 +95,7 @@ export const RulesStep = ({ state }: RulesStepProps) => {
             <div className="flex flex-wrap gap-2">
               {state.hasEdgeOptions ? (
                 <Select value={state.edgeSelect} onValueChange={state.setEdgeSelect}>
-                  <SelectTrigger className="flex-1 min-w-[220px]">
+                  <SelectTrigger className="flex-1 min-w-55">
                     <SelectValue placeholder="Select an edge" />
                   </SelectTrigger>
                   <SelectContent>
@@ -107,7 +107,7 @@ export const RulesStep = ({ state }: RulesStepProps) => {
                   </SelectContent>
                 </Select>
               ) : (
-                <Input value={state.edgeInput} onChange={(e) => state.setEdgeInput(e.target.value)} placeholder="e.g., evidence, owner" className="flex-1 min-w-[200px]" />
+                <Input value={state.edgeInput} onChange={(e) => state.setEdgeInput(e.target.value)} placeholder="e.g., evidence, owner" className="flex-1 min-w-50" />
               )}
               <Button type="button" variant="outline" onClick={state.addEdge} disabled={state.hasEdgeOptions ? !state.edgeSelect : !state.edgeInput.trim()}>
                 Add edge

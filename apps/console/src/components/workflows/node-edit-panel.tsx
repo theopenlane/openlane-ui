@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
+import type { Node } from '@xyflow/react'
 import { PanelRightClose, Trash2 } from 'lucide-react'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { Button } from '@repo/ui/button'
@@ -18,52 +19,77 @@ import { CELConditionBuilder } from '@/components/workflows/cel-condition-builde
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
 import { TargetSelector } from '@/components/pages/protected/workflows/wizard/components/target-selector'
 import { buildTargetKey, normalizeTargets, getTargetLabel } from '@/components/pages/protected/workflows/wizard/utils'
-import type { Target } from '@/components/pages/protected/workflows/types'
+import type { Target, WorkflowAction, WorkflowActionParams, WorkflowActionType, WorkflowCondition, WorkflowNodeData, WorkflowTrigger, WorkflowTriggerOperation } from '@/types/workflow'
+
+type WorkflowEditorNode = Node<WorkflowNodeData, 'trigger' | 'condition' | 'action'>
+
+const isTriggerData = (data: WorkflowNodeData | null): data is WorkflowTrigger => data !== null && 'operation' in data && 'objectType' in data
+const isConditionData = (data: WorkflowNodeData | null): data is WorkflowCondition => data !== null && 'expression' in data && !('key' in data)
+const isActionData = (data: WorkflowNodeData | null): data is WorkflowAction => data !== null && 'key' in data && 'type' in data
 
 type NodeEditPanelProps = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  node: any | null
+  node: WorkflowEditorNode | null
   objectTypes: WorkflowObjectTypeMetadata[]
   onClose: () => void
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onUpdate: (nodeId: string, data: any) => void
+  onUpdate: (nodeId: string, data: WorkflowNodeData) => void
   onDelete: (nodeId: string) => void
 }
 
 export const NodeEditPanel = ({ node, objectTypes, onClose, onUpdate, onDelete }: NodeEditPanelProps) => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [localData, setLocalData] = useState<any>(null)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [originalData, setOriginalData] = useState<any>(null)
+  const [localData, setLocalData] = useState<WorkflowNodeData | null>(null)
+  const [originalData, setOriginalData] = useState<WorkflowNodeData | null>(null)
   const [paramsInput, setParamsInput] = useState('')
   const [paramsError, setParamsError] = useState<string | null>(null)
   const [edgeInput, setEdgeInput] = useState('')
   const [showCancelDialog, setShowCancelDialog] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const nodeType = node?.type
+  const actionData = isActionData(localData) ? localData : null
+  const triggerData = isTriggerData(localData) ? localData : null
+  const conditionData = isConditionData(localData) ? localData : null
 
   useEffect(() => {
-    if (node) {
-      const nextData = { ...node.data }
-      if (node.type === 'action') {
-        const params = { ...(nextData.params ?? {}) }
-        params.targets = normalizeTargets(params)
-        nextData.params = params
-      }
-      setLocalData(nextData)
-      setOriginalData(JSON.parse(JSON.stringify(nextData)))
+    if (!node) {
+      setLocalData(null)
+      setOriginalData(null)
+      setParamsInput('')
+      setParamsError(null)
       setEdgeInput('')
+      return
     }
+
+    if (isActionData(node.data)) {
+      const params = { ...(node.data.params ?? {}) }
+      params.targets = normalizeTargets(params)
+      const nextData: WorkflowAction = { ...node.data, params }
+      setLocalData(nextData)
+      setOriginalData(structuredClone(nextData))
+      if (nextData.type === 'REQUEST_APPROVAL' || nextData.type === 'REQUEST_REVIEW') {
+        setParamsInput('')
+      } else {
+        setParamsInput(JSON.stringify(nextData.params ?? {}, null, 2))
+      }
+    } else {
+      const nextData = { ...node.data }
+      setLocalData(nextData)
+      setOriginalData(structuredClone(nextData))
+      setParamsInput('')
+    }
+    setParamsError(null)
+    setEdgeInput('')
   }, [node])
 
   useEffect(() => {
-    if (!localData || node?.type !== 'action') return
-    if (localData.type === 'REQUEST_APPROVAL' || localData.type === 'REQUEST_REVIEW') return
+    const type = actionData?.type
+    if (!type || type === 'REQUEST_APPROVAL' || type === 'REQUEST_REVIEW') {
+      setParamsInput('')
+      setParamsError(null)
+      return
+    }
 
-    const serialized = JSON.stringify(localData.params ?? {}, null, 2)
-    setParamsInput(serialized)
+    setParamsInput(JSON.stringify(actionData.params ?? {}, null, 2))
     setParamsError(null)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [localData?.type, node?.type])
+  }, [actionData?.type, node?.id, actionData?.params])
 
   const isDirty = useMemo(() => {
     if (!localData || !originalData) return false
@@ -72,47 +98,68 @@ export const NodeEditPanel = ({ node, objectTypes, onClose, onUpdate, onDelete }
 
   const resolverKeys = useMemo(() => objectTypes[0]?.resolverKeys ?? [], [objectTypes])
 
-  const targets: Target[] = useMemo(() => {
-    if (!localData?.params?.targets) return []
-    return Array.isArray(localData.params.targets) ? localData.params.targets : []
-  }, [localData?.params?.targets])
+  // Plain consts: cheap derived values; the React Compiler memoizes them automatically when
+  // needed. Manual useMemo with optional-chained deps was fighting the compiler and caused it
+  // to skip optimizing the entire component (react-hooks/preserve-manual-memoization).
+  const targets: Target[] = Array.isArray(actionData?.params?.targets) ? actionData.params.targets : []
 
-  const triggerEdges = useMemo(() => {
-    if (!localData?.edges) return []
-    return Array.isArray(localData.edges) ? localData.edges : []
-  }, [localData?.edges])
+  const triggerEdges = Array.isArray(triggerData?.edges) ? triggerData.edges : []
 
-  const eligibleEdges = useMemo(() => {
-    if (!localData?.objectType) return []
-    return objectTypes.find((t) => t.type === localData.objectType)?.eligibleEdges ?? []
-  }, [localData?.objectType, objectTypes])
+  const eligibleEdges = triggerData?.objectType ? (objectTypes.find((t) => t.type === triggerData.objectType)?.eligibleEdges ?? []) : []
 
   const hasEligibleEdges = eligibleEdges.length > 0
 
-  const handleAddTarget = (target: Target) => {
-    const exists = targets.some((t) => buildTargetKey(t) === buildTargetKey(target))
-    if (exists) return
+  const updateTriggerData = <K extends keyof WorkflowTrigger>(field: K, value: WorkflowTrigger[K]) => {
+    if (!triggerData) return
+    setLocalData({ ...triggerData, [field]: value })
+  }
+
+  const updateConditionData = <K extends keyof WorkflowCondition>(field: K, value: WorkflowCondition[K]) => {
+    if (!conditionData) return
+    setLocalData({ ...conditionData, [field]: value })
+  }
+
+  const updateActionData = <K extends keyof WorkflowAction>(field: K, value: WorkflowAction[K]) => {
+    if (!actionData) return
+    setLocalData({ ...actionData, [field]: value })
+  }
+
+  const updateActionParam = <K extends keyof WorkflowActionParams>(field: K, value: WorkflowActionParams[K]) => {
+    if (!actionData) return
     setLocalData({
-      ...localData,
-      params: { ...(localData.params ?? {}), targets: [...targets, target] },
+      ...actionData,
+      params: { ...(actionData.params ?? {}), [field]: value },
     })
+  }
+
+  const handleAddTarget = (target: Target) => {
+    if (!actionData) return
+    const exists = targets.some((item) => buildTargetKey(item) === buildTargetKey(target))
+    if (exists) return
+    updateActionParam('targets', [...targets, target])
   }
 
   const handleRemoveTarget = (target: Target) => {
-    setLocalData({
-      ...localData,
-      params: { ...(localData.params ?? {}), targets: targets.filter((t) => buildTargetKey(t) !== buildTargetKey(target)) },
-    })
+    if (!actionData) return
+    updateActionParam(
+      'targets',
+      targets.filter((item) => buildTargetKey(item) !== buildTargetKey(target)),
+    )
   }
 
   const handleParamsChange = (value: string) => {
+    if (!actionData) return
     setParamsInput(value)
     try {
-      const parsed = value.trim() ? JSON.parse(value) : {}
+      const raw: unknown = value.trim() ? JSON.parse(value) : {}
+      if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+        setParamsError('Params must be a JSON object')
+        return
+      }
       setParamsError(null)
       setLocalData({
-        ...localData,
-        params: parsed,
+        ...actionData,
+        params: raw as WorkflowActionParams,
       })
     } catch {
       setParamsError('Invalid JSON')
@@ -140,22 +187,25 @@ export const NodeEditPanel = ({ node, objectTypes, onClose, onUpdate, onDelete }
     onClose()
   }
 
-  const nodeType = node?.type
   const canAddEdge = edgeInput.trim().length > 0 && !triggerEdges.includes(edgeInput.trim())
   const handleAddEdge = () => {
-    if (!canAddEdge) return
+    if (!triggerData || !canAddEdge) return
     const nextEdges = [...triggerEdges, edgeInput.trim()]
-    setLocalData({ ...localData, edges: nextEdges })
+    updateTriggerData('edges', nextEdges)
     setEdgeInput('')
   }
   const handleRemoveEdge = (edge: string) => {
-    setLocalData({ ...localData, edges: triggerEdges.filter((e: string) => e !== edge) })
+    if (!triggerData) return
+    updateTriggerData(
+      'edges',
+      triggerEdges.filter((currentEdge) => currentEdge !== edge),
+    )
   }
 
   return (
     <>
       <Sheet open={!!node} onOpenChange={(open) => !open && handleSheetClose()}>
-        <SheetContent className="w-[400px] sm:w-[540px] overflow-y-auto">
+        <SheetContent className="w-100 sm:w-135 overflow-y-auto">
           <SheetHeader>
             <SheetTitle className="sr-only">
               Edit {nodeType?.charAt(0).toUpperCase()}
@@ -191,11 +241,11 @@ export const NodeEditPanel = ({ node, objectTypes, onClose, onUpdate, onDelete }
           </SheetHeader>
           {localData && (
             <div className="mt-6 space-y-4">
-              {nodeType === 'trigger' && (
+              {triggerData && (
                 <>
                   <div className="space-y-2">
                     <Label>Operation</Label>
-                    <Select value={localData.operation} onValueChange={(val) => setLocalData({ ...localData, operation: val })}>
+                    <Select value={triggerData.operation} onValueChange={(val) => updateTriggerData('operation', val as WorkflowTriggerOperation)}>
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
@@ -211,7 +261,7 @@ export const NodeEditPanel = ({ node, objectTypes, onClose, onUpdate, onDelete }
 
                   <div className="space-y-2">
                     <Label>Object Type</Label>
-                    <Select value={localData.objectType} onValueChange={(val) => setLocalData({ ...localData, objectType: val })}>
+                    <Select value={triggerData.objectType} onValueChange={(val) => updateTriggerData('objectType', val)}>
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
@@ -227,20 +277,20 @@ export const NodeEditPanel = ({ node, objectTypes, onClose, onUpdate, onDelete }
 
                   <div className="space-y-2">
                     <Label>Tracked Fields</Label>
-                    {localData.objectType && objectTypes.find((t) => t.type === localData.objectType)?.eligibleFields.length ? (
+                    {triggerData.objectType && objectTypes.find((t) => t.type === triggerData.objectType)?.eligibleFields.length ? (
                       <div className="space-y-2 border rounded-md p-2 max-h-48 overflow-auto">
                         {objectTypes
-                          .find((t) => t.type === localData.objectType)
+                          .find((t) => t.type === triggerData.objectType)
                           ?.eligibleFields.map((field) => (
                             <div key={field.name} className="flex items-center space-x-2">
                               <input
                                 type="checkbox"
                                 id={`edit-field-${field.name}`}
-                                checked={localData.fields?.includes(field.name) || false}
+                                checked={triggerData.fields?.includes(field.name) || false}
                                 onChange={(e) => {
-                                  const currentFields = localData.fields || []
-                                  const newFields = e.target.checked ? [...currentFields, field.name] : currentFields.filter((f: string) => f !== field.name)
-                                  setLocalData({ ...localData, fields: newFields })
+                                  const currentFields = triggerData.fields ?? []
+                                  const newFields = e.target.checked ? [...currentFields, field.name] : currentFields.filter((currentField) => currentField !== field.name)
+                                  updateTriggerData('fields', newFields)
                                 }}
                                 className="h-4 w-4 rounded border-gray-300"
                               />
@@ -285,7 +335,7 @@ export const NodeEditPanel = ({ node, objectTypes, onClose, onUpdate, onDelete }
                     )}
                     {triggerEdges.length > 0 && (
                       <div className="flex flex-wrap gap-1 mt-2">
-                        {triggerEdges.map((edge: string) => (
+                        {triggerEdges.map((edge) => (
                           <Badge key={edge} variant="secondary" className="gap-1">
                             {toHumanLabel(edge)}
                             <button type="button" className="ml-1 cursor-pointer" onClick={() => handleRemoveEdge(edge)}>
@@ -300,43 +350,43 @@ export const NodeEditPanel = ({ node, objectTypes, onClose, onUpdate, onDelete }
 
                   <div className="space-y-2">
                     <Label>Description</Label>
-                    <Input value={localData.description || ''} onChange={(e) => setLocalData({ ...localData, description: e.target.value })} placeholder="When to trigger" />
+                    <Input value={triggerData.description || ''} onChange={(e) => updateTriggerData('description', e.target.value)} placeholder="When to trigger" />
                   </div>
 
                   <div className="space-y-2">
                     <CELConditionBuilder
-                      objectType={localData.objectType}
+                      objectType={triggerData.objectType}
                       objectTypes={objectTypes}
-                      initialExpression={localData.expression || 'true'}
-                      onChange={(expr) => setLocalData({ ...localData, expression: expr })}
+                      initialExpression={triggerData.expression || 'true'}
+                      onChange={(expr) => updateTriggerData('expression', expr)}
                     />
                   </div>
                 </>
               )}
 
-              {nodeType === 'condition' && (
+              {conditionData && (
                 <>
                   <div className="space-y-2">
-                    <CELConditionBuilder objectTypes={objectTypes} initialExpression={localData.expression || 'true'} onChange={(expr) => setLocalData({ ...localData, expression: expr })} />
+                    <CELConditionBuilder objectTypes={objectTypes} initialExpression={conditionData.expression || 'true'} onChange={(expr) => updateConditionData('expression', expr)} />
                   </div>
 
                   <div className="space-y-2">
                     <Label>Description</Label>
-                    <Input value={localData.description || ''} onChange={(e) => setLocalData({ ...localData, description: e.target.value })} placeholder="Explain this condition" />
+                    <Input value={conditionData.description || ''} onChange={(e) => updateConditionData('description', e.target.value)} placeholder="Explain this condition" />
                   </div>
                 </>
               )}
 
-              {nodeType === 'action' && (
+              {actionData && (
                 <>
                   <div className="space-y-2">
                     <Label>Action Key</Label>
-                    <Input value={localData.key || ''} onChange={(e) => setLocalData({ ...localData, key: e.target.value })} placeholder="approval" />
+                    <Input value={actionData.key || ''} onChange={(e) => updateActionData('key', e.target.value)} placeholder="approval" />
                   </div>
 
                   <div className="space-y-2">
                     <Label>Action Type</Label>
-                    <Select value={localData.type} onValueChange={(val) => setLocalData({ ...localData, type: val })}>
+                    <Select value={actionData.type} onValueChange={(val) => updateActionData('type', val as WorkflowActionType)}>
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
@@ -353,51 +403,24 @@ export const NodeEditPanel = ({ node, objectTypes, onClose, onUpdate, onDelete }
 
                   <div className="space-y-2">
                     <Label>Description</Label>
-                    <Input value={localData.description || ''} onChange={(e) => setLocalData({ ...localData, description: e.target.value })} placeholder="What this action does" />
+                    <Input value={actionData.description || ''} onChange={(e) => updateActionData('description', e.target.value)} placeholder="What this action does" />
                   </div>
 
-                  {(localData.type === 'REQUEST_APPROVAL' || localData.type === 'REQUEST_REVIEW') && (
+                  {(actionData.type === 'REQUEST_APPROVAL' || actionData.type === 'REQUEST_REVIEW') && (
                     <>
                       <div className="space-y-2">
-                        <Label>{localData.type === 'REQUEST_REVIEW' ? 'Review label' : 'Approval label'}</Label>
-                        <Input
-                          value={localData.params?.label || ''}
-                          onChange={(e) =>
-                            setLocalData({
-                              ...localData,
-                              params: { ...(localData.params ?? {}), label: e.target.value },
-                            })
-                          }
-                          placeholder="Approval label"
-                        />
+                        <Label>{actionData.type === 'REQUEST_REVIEW' ? 'Review label' : 'Approval label'}</Label>
+                        <Input value={actionData.params?.label || ''} onChange={(e) => updateActionParam('label', e.target.value)} placeholder="Approval label" />
                       </div>
 
                       <div className="flex items-center justify-between">
                         <Label>Required for completion</Label>
-                        <Switch
-                          checked={localData.params?.required ?? true}
-                          onCheckedChange={(checked) =>
-                            setLocalData({
-                              ...localData,
-                              params: { ...(localData.params ?? {}), required: checked },
-                            })
-                          }
-                        />
+                        <Switch checked={actionData.params?.required ?? true} onCheckedChange={(checked) => updateActionParam('required', checked)} />
                       </div>
 
                       <div className="space-y-2">
-                        <Label>{localData.type === 'REQUEST_REVIEW' ? 'Required reviews' : 'Required approvals'}</Label>
-                        <Input
-                          type="number"
-                          min="0"
-                          value={localData.params?.required_count ?? 1}
-                          onChange={(e) =>
-                            setLocalData({
-                              ...localData,
-                              params: { ...(localData.params ?? {}), required_count: parseInt(e.target.value, 10) || 0 },
-                            })
-                          }
-                        />
+                        <Label>{actionData.type === 'REQUEST_REVIEW' ? 'Required reviews' : 'Required approvals'}</Label>
+                        <Input type="number" min="0" value={actionData.params?.required_count ?? 1} onChange={(e) => updateActionParam('required_count', parseInt(e.target.value, 10) || 0)} />
                         <p className="text-xs text-muted-foreground">Use 0 to require all targets.</p>
                       </div>
 
@@ -405,7 +428,7 @@ export const NodeEditPanel = ({ node, objectTypes, onClose, onUpdate, onDelete }
                     </>
                   )}
 
-                  {localData.type !== 'REQUEST_APPROVAL' && localData.type !== 'REQUEST_REVIEW' && (
+                  {actionData.type !== 'REQUEST_APPROVAL' && actionData.type !== 'REQUEST_REVIEW' && (
                     <div className="space-y-2">
                       <Label>Action Parameters (JSON)</Label>
                       <Textarea value={paramsInput} onChange={(e) => handleParamsChange(e.target.value)} placeholder='{"key": "value"}' rows={6} />

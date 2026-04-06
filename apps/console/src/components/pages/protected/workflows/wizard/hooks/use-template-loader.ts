@@ -1,8 +1,7 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { getWorkflowTemplateById } from '@/lib/workflow-templates'
 import { WorkflowDefinitionWorkflowKind } from '@repo/codegen/src/schema'
 import { WizardActionType } from '../../types'
-import type { Target } from '../types'
 import { parseDefinitionJSON, normalizeApprovalTiming, isPlaceholderValue, sanitizeTargets } from '../utils'
 import type { WizardState } from './use-wizard-state'
 
@@ -15,6 +14,13 @@ type UseTemplateLoaderParams = {
 export const useTemplateLoader = ({ templateId, state, goToStep }: UseTemplateLoaderParams) => {
   const [templateLoaded, setTemplateLoaded] = useState(false)
 
+  const { schemaType, setOperationPicked, setActionType } = state
+
+  const stateRef = useRef(state)
+  useEffect(() => {
+    stateRef.current = state
+  }, [state])
+
   const template = useMemo(() => (templateId ? getWorkflowTemplateById(templateId) : undefined), [templateId])
 
   const templateSchemaType = useMemo(() => {
@@ -26,12 +32,11 @@ export const useTemplateLoader = ({ templateId, state, goToStep }: UseTemplateLo
   useEffect(() => {
     if (templateId) {
       if (!templateLoaded) return
-      if (templateSchemaType && state.schemaType === templateSchemaType) return
+      if (templateSchemaType && schemaType === templateSchemaType) return
     }
-    state.setOperationPicked(false)
-    state.setActionType(null)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.schemaType, templateId, templateLoaded, templateSchemaType])
+    setOperationPicked(false)
+    setActionType(null)
+  }, [schemaType, templateId, templateLoaded, templateSchemaType, setOperationPicked, setActionType])
 
   useEffect(() => {
     setTemplateLoaded(false)
@@ -40,89 +45,85 @@ export const useTemplateLoader = ({ templateId, state, goToStep }: UseTemplateLo
   useEffect(() => {
     if (!template || templateLoaded) return
 
+    const s = stateRef.current
     const document = parseDefinitionJSON(template.definitionJSON)
-    const trigger = Array.isArray(document?.triggers) && document.triggers.length > 0 ? document.triggers[0] : ({} as Record<string, unknown>)
-    const conditions = Array.isArray(document?.conditions) ? document.conditions : []
-    const action =
-      Array.isArray(document?.actions) && document.actions.length > 0
-        ? (document.actions[0] as Record<string, unknown>)
-        : document?.actions && typeof document.actions === 'object'
-          ? (document.actions as Record<string, unknown>)
-          : undefined
+    const trigger = document.triggers?.[0]
+    const conditions = document.conditions ?? []
+    const action = document.actions?.[0]
 
-    const schema = (document?.schemaType as string) || template.schemaType || ''
-    const normalizedOperation = ((trigger?.operation as string) || 'UPDATE').toUpperCase()
+    const schema = document.schemaType || template.schemaType || ''
+    const normalizedOperation = (trigger?.operation || 'UPDATE').toUpperCase()
 
-    state.setSchemaType(schema)
-    state.setOperation(normalizedOperation as 'CREATE' | 'UPDATE' | 'DELETE')
-    state.setOperationPicked(true)
+    s.setSchemaType(schema)
+    s.setOperation(normalizedOperation as 'CREATE' | 'UPDATE' | 'DELETE')
+    s.setOperationPicked(true)
 
-    const triggerFields = Array.isArray(trigger?.fields) ? (trigger.fields as string[]).filter(Boolean) : []
-    state.setFieldScope(triggerFields.length > 0 ? 'specific' : 'any')
-    state.setTrackedFields(triggerFields)
-    state.setEdges(Array.isArray(trigger?.edges) ? (trigger.edges as string[]).filter(Boolean) : [])
+    const triggerFields = trigger?.fields?.filter(Boolean) ?? []
+    s.setFieldScope(triggerFields.length > 0 ? 'specific' : 'any')
+    s.setTrackedFields(triggerFields)
+    s.setEdges(trigger?.edges?.filter(Boolean) ?? [])
 
     if (conditions.length > 0 && conditions[0]?.expression) {
-      state.setConditionEnabled(true)
-      state.setConditionUseCel(true)
-      state.setConditionExpression(conditions[0].expression)
+      s.setConditionEnabled(true)
+      s.setConditionUseCel(true)
+      s.setConditionExpression(conditions[0].expression)
     } else {
-      state.setConditionEnabled(false)
-      state.setConditionExpression('')
+      s.setConditionEnabled(false)
+      s.setConditionExpression('')
     }
 
     const resolvedKind =
       (document?.workflowKind as WorkflowDefinitionWorkflowKind) || (template.definitionJSON?.workflowKind as WorkflowDefinitionWorkflowKind) || WorkflowDefinitionWorkflowKind.APPROVAL
-    state.setWorkflowKind(resolvedKind)
-    state.setApprovalTiming(normalizeApprovalTiming(document?.approvalTiming))
+    s.setWorkflowKind(resolvedKind)
+    s.setApprovalTiming(normalizeApprovalTiming(document?.approvalTiming))
 
-    state.setName(document?.name ?? template.name ?? '')
-    state.setDescription(document?.description ?? template.description ?? '')
+    s.setName(document?.name ?? template.name ?? '')
+    s.setDescription(document?.description ?? template.description ?? '')
 
-    const actionTypeRaw = (action?.type as string) || ''
+    const actionTypeRaw = action?.type || ''
     const ACTION_TYPE_ALIASES: Record<string, string> = { APPROVAL: WizardActionType.REQUEST_APPROVAL, REVIEW: WizardActionType.REQUEST_REVIEW, FIELD_UPDATE: WizardActionType.UPDATE_FIELD }
     const actionTypeNormalized = ACTION_TYPE_ALIASES[actionTypeRaw] ?? actionTypeRaw
     let shouldJumpToConfigure = false
 
-    state.setActionType(actionTypeNormalized as WizardActionType)
+    s.setActionType(actionTypeNormalized as WizardActionType)
 
-    const actionParams = action?.params as Record<string, unknown> | undefined
+    const actionParams = action?.params
 
     switch (actionTypeNormalized) {
       case WizardActionType.REQUEST_APPROVAL:
       case WizardActionType.REQUEST_REVIEW: {
-        const rawTargets = Array.isArray(actionParams?.targets) ? (actionParams.targets as Target[]) : []
+        const rawTargets = actionParams?.targets ?? []
         const sanitizedTargets = sanitizeTargets(rawTargets)
-        state.setTargets(sanitizedTargets)
-        state.setApprovalLabel((actionParams?.label as string) ?? '')
-        state.setRequiredCount((actionParams?.required_count as number) ?? 1)
+        s.setTargets(sanitizedTargets)
+        s.setApprovalLabel(actionParams?.label ?? '')
+        s.setRequiredCount(actionParams?.required_count ?? 1)
         shouldJumpToConfigure = sanitizedTargets.length === 0
         break
       }
       case WizardActionType.NOTIFY: {
-        const rawTargets = Array.isArray(actionParams?.targets) ? (actionParams.targets as Target[]) : []
+        const rawTargets = actionParams?.targets ?? []
         const sanitizedTargets = sanitizeTargets(rawTargets)
-        state.setTargets(sanitizedTargets)
-        state.setNotificationTitle((actionParams?.title as string) ?? '')
-        state.setNotificationBody((actionParams?.body as string) ?? '')
-        state.setNotificationChannels((actionParams?.channels as string[]) ?? ['IN_APP'])
+        s.setTargets(sanitizedTargets)
+        s.setNotificationTitle(actionParams?.title ?? '')
+        s.setNotificationBody(actionParams?.body ?? '')
+        s.setNotificationChannels(actionParams?.channels ?? ['IN_APP'])
         shouldJumpToConfigure = sanitizedTargets.length === 0
         break
       }
       case WizardActionType.WEBHOOK: {
-        const urlValue = (actionParams?.url as string) ?? ''
-        state.setWebhookUrl(isPlaceholderValue(urlValue) ? '' : urlValue)
-        state.setWebhookMethod((actionParams?.method as string) ?? 'POST')
-        state.setWebhookPayload(actionParams?.payload ? JSON.stringify(actionParams.payload, null, 2) : '')
+        const urlValue = actionParams?.url ?? ''
+        s.setWebhookUrl(isPlaceholderValue(urlValue) ? '' : urlValue)
+        s.setWebhookMethod(actionParams?.method ?? 'POST')
+        s.setWebhookPayload(actionParams?.payload ? JSON.stringify(actionParams.payload, null, 2) : '')
         shouldJumpToConfigure = isPlaceholderValue(urlValue) || !urlValue
         break
       }
       case WizardActionType.UPDATE_FIELD: {
         const updates = (actionParams?.updates as Record<string, unknown>) ?? {}
         const [field, value] = Object.entries(updates)[0] ?? []
-        if (field) state.setFieldUpdateField(field)
+        if (field) s.setFieldUpdateField(field)
         if (value !== undefined) {
-          state.setFieldUpdateValue(typeof value === 'string' ? value : JSON.stringify(value))
+          s.setFieldUpdateValue(typeof value === 'string' ? value : JSON.stringify(value))
         }
         break
       }
@@ -130,7 +131,6 @@ export const useTemplateLoader = ({ templateId, state, goToStep }: UseTemplateLo
 
     setTemplateLoaded(true)
     requestAnimationFrame(() => goToStep(shouldJumpToConfigure ? 'configure' : 'review'))
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [template, templateLoaded, goToStep])
 
   return { template }

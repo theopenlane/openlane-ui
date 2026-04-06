@@ -11,9 +11,9 @@ import { Switch } from '@repo/ui/switch'
 import { Separator } from '@repo/ui/separator'
 import { TargetSelector } from '@/components/pages/protected/workflows/wizard/components/target-selector'
 import { getTargetLabel } from '@/components/pages/protected/workflows/wizard/utils'
-import type { Target } from '@/components/pages/protected/workflows/types'
+import type { Target, UpdateWorkflowAction, UpdateWorkflowActionParam, WebhookMethod, WorkflowAction, WorkflowActionType } from '@/types/workflow'
 
-const ACTION_TYPE_OPTIONS = [
+const ACTION_TYPE_OPTIONS: Array<{ label: string; value: WorkflowActionType }> = [
   { label: 'Request Approval', value: 'REQUEST_APPROVAL' },
   { label: 'Review', value: 'REQUEST_REVIEW' },
   { label: 'Notify', value: 'NOTIFY' },
@@ -21,22 +21,18 @@ const ACTION_TYPE_OPTIONS = [
   { label: 'Field Update', value: 'UPDATE_FIELD' },
 ]
 
-const WEBHOOK_METHOD_OPTIONS = ['POST', 'PUT', 'PATCH', 'GET']
+const WEBHOOK_METHOD_OPTIONS: WebhookMethod[] = ['POST', 'PUT', 'PATCH', 'GET']
 
 type ActionFormSectionProps = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  actions: any[]
+  actions: WorkflowAction[]
   eligibleFields: { name: string; label: string; type: string }[]
   resolverKeys: string[]
   actionParamsDrafts: Record<number, { value: string; error?: string }>
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  getApprovalTargets: (action: any) => Target[]
+  getApprovalTargets: (action: WorkflowAction) => Target[]
   onAddAction: () => void
   onRemoveAction: (index: number) => void
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onUpdateAction: (index: number, field: string, value: any) => void
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onUpdateActionParam: (index: number, paramField: string, value: any) => void
+  onUpdateAction: UpdateWorkflowAction
+  onUpdateActionParam: UpdateWorkflowActionParam
   onActionParamsChange: (index: number, value: string) => void
   onAddTarget: (index: number, target: Target) => void
   onRemoveTarget: (index: number, target: Target) => void
@@ -99,7 +95,7 @@ export const ActionFormSection = ({
 
                   <div className="space-y-2">
                     <Label>Action type *</Label>
-                    <Select value={action.type} onValueChange={(val) => onUpdateAction(index, 'type', val)}>
+                    <Select value={action.type} onValueChange={(val) => onUpdateAction(index, 'type', val as WorkflowActionType)}>
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
@@ -116,7 +112,7 @@ export const ActionFormSection = ({
 
                 <div className="space-y-2">
                   <Label>Description</Label>
-                  <Input value={action.description} onChange={(e) => onUpdateAction(index, 'description', e.target.value)} placeholder="What this action does" />
+                  <Input value={action.description ?? ''} onChange={(e) => onUpdateAction(index, 'description', e.target.value)} placeholder="What this action does" />
                 </div>
 
                 <div className="space-y-2">
@@ -151,8 +147,8 @@ export const ActionFormSection = ({
                                     id={`action-${index}-field-${field.name}`}
                                     checked={action.params?.fields?.includes(field.name) || false}
                                     onChange={(e) => {
-                                      const currentFields = action.params?.fields || []
-                                      const newFields = e.target.checked ? [...currentFields, field.name] : currentFields.filter((f: string) => f !== field.name)
+                                      const currentFields = action.params?.fields ?? []
+                                      const newFields = e.target.checked ? [...currentFields, field.name] : currentFields.filter((currentField) => currentField !== field.name)
                                       onUpdateActionParam(index, 'fields', newFields)
                                     }}
                                     className="h-4 w-4 rounded border-gray-300"
@@ -199,7 +195,7 @@ export const ActionFormSection = ({
                     <div className="grid gap-3 md:grid-cols-2">
                       <div className="space-y-2">
                         <Label>Method</Label>
-                        <Select value={action.params?.method || 'POST'} onValueChange={(val) => onUpdateActionParam(index, 'method', val)}>
+                        <Select value={action.params?.method || 'POST'} onValueChange={(val) => onUpdateActionParam(index, 'method', val as WebhookMethod)}>
                           <SelectTrigger>
                             <SelectValue placeholder="Select method" />
                           </SelectTrigger>

@@ -2,23 +2,19 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import type { WorkflowObjectTypeMetadata } from '@/lib/graphql-hooks/workflows'
-import type { Target } from '@/components/pages/protected/workflows/types'
+import type { Target, UpdateWorkflowAction, UpdateWorkflowActionParam, UpdateWorkflowCondition, UpdateWorkflowTrigger, WorkflowAction, WorkflowCondition, WorkflowTrigger } from '@/types/workflow'
 import { normalizeTargets } from '@/components/pages/protected/workflows/wizard/utils'
 import { TriggerFormSection } from '@/components/workflows/form-editor/trigger-form-section'
 import { ConditionFormSection } from '@/components/workflows/form-editor/condition-form-section'
 import { ActionFormSection } from '@/components/workflows/form-editor/action-form-section'
 
 type WorkflowFormEditorProps = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  triggers: any[]
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  conditions: any[]
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  actions: any[]
+  triggers: WorkflowTrigger[]
+  conditions: WorkflowCondition[]
+  actions: WorkflowAction[]
   objectTypes: WorkflowObjectTypeMetadata[]
   schemaType: string
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onUpdate: (nextTriggers: any[], nextConditions: any[], nextActions: any[]) => void
+  onUpdate: (nextTriggers: WorkflowTrigger[], nextConditions: WorkflowCondition[], nextActions: WorkflowAction[]) => void
 }
 
 export const WorkflowFormEditor = ({ triggers, conditions, actions, objectTypes, schemaType, onUpdate }: WorkflowFormEditorProps) => {
@@ -28,22 +24,20 @@ export const WorkflowFormEditor = ({ triggers, conditions, actions, objectTypes,
   const [edgeInputs, setEdgeInputs] = useState<Record<number, string>>({})
 
   useEffect(() => {
-    const nextDrafts: Record<number, { value: string; error?: string }> = {}
-    actions.forEach((action, index) => {
-      if (action.type === 'REQUEST_APPROVAL' || action.type === 'REQUEST_REVIEW') return
-      const value = JSON.stringify(action.params ?? {}, null, 2)
-      nextDrafts[index] = actionParamsDrafts[index] ?? { value }
+    setActionParamsDrafts((prev) => {
+      const nextDrafts: Record<number, { value: string; error?: string }> = {}
+      actions.forEach((action, index) => {
+        if (action.type === 'REQUEST_APPROVAL' || action.type === 'REQUEST_REVIEW') return
+        const value = JSON.stringify(action.params ?? {}, null, 2)
+        nextDrafts[index] = prev[index] ?? { value }
+      })
+      return nextDrafts
     })
-    setActionParamsDrafts(nextDrafts)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [actions])
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const updateTriggers = (nextTriggers: any[]) => onUpdate(nextTriggers, conditions, actions)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const updateConditions = (nextConditions: any[]) => onUpdate(triggers, nextConditions, actions)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const updateActions = (nextActions: any[]) => onUpdate(triggers, conditions, nextActions)
+  const updateTriggers = (nextTriggers: WorkflowTrigger[]) => onUpdate(nextTriggers, conditions, actions)
+  const updateConditions = (nextConditions: WorkflowCondition[]) => onUpdate(triggers, nextConditions, actions)
+  const updateActions = (nextActions: WorkflowAction[]) => onUpdate(triggers, conditions, nextActions)
 
   const addTrigger = () => {
     const defaultType = schemaType || objectTypes[0]?.type || 'Control'
@@ -52,8 +46,7 @@ export const WorkflowFormEditor = ({ triggers, conditions, actions, objectTypes,
 
   const removeTrigger = (index: number) => updateTriggers(triggers.filter((_, i) => i !== index))
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const updateTrigger = (index: number, field: string, value: any) => {
+  const updateTrigger: UpdateWorkflowTrigger = (index, field, value) => {
     const updated = [...triggers]
     updated[index] = { ...updated[index], [field]: value }
     updateTriggers(updated)
@@ -62,8 +55,7 @@ export const WorkflowFormEditor = ({ triggers, conditions, actions, objectTypes,
   const addCondition = () => updateConditions([...conditions, { expression: 'true', description: '' }])
   const removeCondition = (index: number) => updateConditions(conditions.filter((_, i) => i !== index))
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const updateCondition = (index: number, field: string, value: any) => {
+  const updateCondition: UpdateWorkflowCondition = (index, field, value) => {
     const updated = [...conditions]
     updated[index] = { ...updated[index], [field]: value }
     updateConditions(updated)
@@ -78,22 +70,19 @@ export const WorkflowFormEditor = ({ triggers, conditions, actions, objectTypes,
 
   const removeAction = (index: number) => updateActions(actions.filter((_, i) => i !== index))
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const updateAction = (index: number, field: string, value: any) => {
+  const updateAction: UpdateWorkflowAction = (index, field, value) => {
     const updated = [...actions]
     updated[index] = { ...updated[index], [field]: value }
     updateActions(updated)
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const updateActionParam = (index: number, paramField: string, value: any) => {
+  const updateActionParam: UpdateWorkflowActionParam = (index, paramField, value) => {
     const updated = [...actions]
     updated[index] = { ...updated[index], params: { ...(updated[index].params ?? {}), [paramField]: value } }
     updateActions(updated)
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const getApprovalTargets = (action: any) => normalizeTargets(action.params ?? {})
+  const getApprovalTargets = (action: WorkflowAction) => normalizeTargets(action.params)
 
   const handleAddTarget = (index: number, target: Target) => {
     const current = getApprovalTargets(actions[index])
@@ -146,7 +135,7 @@ export const WorkflowFormEditor = ({ triggers, conditions, actions, objectTypes,
     updateTrigger(
       index,
       'edges',
-      currentEdges.filter((e: string) => e !== edge),
+      currentEdges.filter((currentEdge) => currentEdge !== edge),
     )
   }
 

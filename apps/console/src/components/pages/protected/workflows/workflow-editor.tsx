@@ -17,30 +17,13 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useWorkflowMetadata } from '@/lib/graphql-hooks/workflows'
 import { useWorkflowDefinition, useCreateWorkflowDefinition, useUpdateWorkflowDefinition } from '@/lib/graphql-hooks/workflow-definition'
 import { getWorkflowTemplateById } from '@/lib/workflow-templates'
+import type { ApprovalTiming, WorkflowAction, WorkflowCondition, WorkflowDocument, WorkflowTrigger } from '@/types/workflow'
 import type { CreateWorkflowDefinitionInput, UpdateWorkflowDefinitionInput } from '@repo/codegen/src/schema'
 import { WorkflowDefinitionWorkflowKind } from '@repo/codegen/src/schema'
 
 const DEFAULT_VERSION = '1.0'
 const DEFAULT_APPROVAL_TIMING = 'PRE_COMMIT'
 const DEFAULT_APPROVAL_SUBMISSION_MODE = 'AUTO_SUBMIT'
-
-type ApprovalTiming = 'PRE_COMMIT' | 'POST_COMMIT'
-type ApprovalSubmissionMode = 'AUTO_SUBMIT' | 'MANUAL_SUBMIT'
-
-type WorkflowDocument = {
-  name?: string
-  description?: string
-  schemaType?: string
-  workflowKind?: string
-  approvalTiming?: ApprovalTiming
-  approvalSubmissionMode?: ApprovalSubmissionMode
-  version?: string
-  targets?: Record<string, unknown>
-  triggers?: Record<string, unknown>[]
-  conditions?: Record<string, unknown>[]
-  actions?: Record<string, unknown>[]
-  metadata?: Record<string, unknown>
-}
 
 const normalizeApprovalTiming = (value?: unknown): ApprovalTiming => {
   if (value === null || value === undefined) return DEFAULT_APPROVAL_TIMING
@@ -60,10 +43,10 @@ const parseDefinitionJSON = (value: unknown): WorkflowDocument => {
   return value as WorkflowDocument
 }
 
-const sanitizeActions = (actions: Record<string, unknown>[]) =>
+const sanitizeActions = (actions: WorkflowAction[]): WorkflowAction[] =>
   actions.map((action) => {
     if (!action) return action
-    const params = { ...((action.params as Record<string, unknown>) || {}) }
+    const params = { ...(action.params ?? {}) }
     if (action.type === 'REQUEST_APPROVAL' || action.type === 'REQUEST_REVIEW') {
       if (!Array.isArray(params.targets)) {
         params.targets = []
@@ -97,9 +80,9 @@ export default function WorkflowEditor() {
   const [draft, setDraft] = useState(true)
   const [isDefault, setIsDefault] = useState(false)
   const [cooldownSeconds, setCooldownSeconds] = useState(0)
-  const [triggers, setTriggers] = useState<Record<string, unknown>[]>([])
-  const [conditions, setConditions] = useState<Record<string, unknown>[]>([])
-  const [actions, setActions] = useState<Record<string, unknown>[]>([])
+  const [triggers, setTriggers] = useState<WorkflowTrigger[]>([])
+  const [conditions, setConditions] = useState<WorkflowCondition[]>([])
+  const [actions, setActions] = useState<WorkflowAction[]>([])
   const [editorMode, setEditorMode] = useState<'visual' | 'form'>(templateId ? 'form' : 'visual')
 
   useEffect(() => {
@@ -115,7 +98,7 @@ export default function WorkflowEditor() {
     setName(definition.workflowDefinition?.name ?? document.name ?? '')
     setDescription(definition.workflowDefinition?.description ?? document.description ?? '')
     setSchemaType(definition.workflowDefinition?.schemaType ?? document.schemaType ?? '')
-    setWorkflowKind((definition.workflowDefinition?.workflowKind ?? document.workflowKind ?? WorkflowDefinitionWorkflowKind.APPROVAL) as WorkflowDefinitionWorkflowKind)
+    setWorkflowKind(definition.workflowDefinition?.workflowKind ?? document.workflowKind ?? WorkflowDefinitionWorkflowKind.APPROVAL)
     setApprovalTiming(normalizeApprovalTiming(document?.approvalTiming))
     setActive(definition.workflowDefinition?.active ?? true)
     setDraft(definition.workflowDefinition?.draft ?? false)
@@ -142,7 +125,7 @@ export default function WorkflowEditor() {
     setName(document.name ?? template.name ?? '')
     setDescription(document.description ?? template.description ?? '')
     setSchemaType(document.schemaType ?? '')
-    setWorkflowKind((document.workflowKind ?? WorkflowDefinitionWorkflowKind.APPROVAL) as WorkflowDefinitionWorkflowKind)
+    setWorkflowKind(document.workflowKind ?? WorkflowDefinitionWorkflowKind.APPROVAL)
     setApprovalTiming(normalizeApprovalTiming(document?.approvalTiming))
     setTriggers(document.triggers ?? [])
     setConditions(document.conditions ?? [])

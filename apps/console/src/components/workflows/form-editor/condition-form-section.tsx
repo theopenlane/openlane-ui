@@ -7,16 +7,15 @@ import { Input } from '@repo/ui/input'
 import { Label } from '@repo/ui/label'
 import type { WorkflowObjectTypeMetadata } from '@/lib/graphql-hooks/workflows'
 import { CELConditionBuilder } from '@/components/workflows/cel-condition-builder'
+import type { UpdateWorkflowCondition, WorkflowCondition } from '@/types/workflow'
 
 type ConditionFormSectionProps = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  conditions: any[]
+  conditions: WorkflowCondition[]
   objectTypes: WorkflowObjectTypeMetadata[]
   schemaType: string
   onAddCondition: () => void
   onRemoveCondition: (index: number) => void
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onUpdateCondition: (index: number, field: string, value: any) => void
+  onUpdateCondition: UpdateWorkflowCondition
 }
 
 export const ConditionFormSection = ({ conditions, objectTypes, schemaType, onAddCondition, onRemoveCondition, onUpdateCondition }: ConditionFormSectionProps) => {

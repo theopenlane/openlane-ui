@@ -18,6 +18,7 @@ import {
   type OnNodesChange,
   type OnEdgesChange,
   type OnConnect,
+  type NodeMouseHandler,
   type ReactFlowInstance,
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
@@ -27,15 +28,22 @@ import { ActionNode } from '@/components/workflows/action-node'
 import { NodeEditPanel } from '@/components/workflows/node-edit-panel'
 import { NodePalette } from '@/components/workflows/node-palette'
 import type { WorkflowObjectTypeMetadata } from '@/lib/graphql-hooks/workflows'
+import type { WorkflowAction, WorkflowCondition, WorkflowNodeData, WorkflowTrigger } from '@/types/workflow'
 import { Undo2, Redo2 } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 
+type WorkflowEditorNode = Node<WorkflowNodeData, 'trigger' | 'condition' | 'action'>
+type WorkflowTriggerNode = Node<WorkflowTrigger, 'trigger'>
+type WorkflowConditionNode = Node<WorkflowCondition, 'condition'>
+type WorkflowActionNode = Node<WorkflowAction, 'action'>
+type WorkflowEditorHistoryEntry = { nodes: WorkflowEditorNode[]; edges: Edge[] }
+
 type WorkflowVisualEditorProps = {
-  triggers: Record<string, unknown>[]
-  conditions: Record<string, unknown>[]
-  actions: Record<string, unknown>[]
+  triggers: WorkflowTrigger[]
+  conditions: WorkflowCondition[]
+  actions: WorkflowAction[]
   objectTypes: WorkflowObjectTypeMetadata[]
-  onUpdate?: (triggers: Record<string, unknown>[], conditions: Record<string, unknown>[], actions: Record<string, unknown>[]) => void
+  onUpdate?: (triggers: WorkflowTrigger[], conditions: WorkflowCondition[], actions: WorkflowAction[]) => void
   readOnly?: boolean
 }
 
@@ -44,7 +52,11 @@ const NODE_GAP = 180
 const GROUP_GAP = 70
 const EDGE_TYPE = 'smoothstep'
 
-const getNextNodePosition = (type: 'trigger' | 'condition' | 'action', nodes: Node[]) => {
+const isTriggerNode = (node: WorkflowEditorNode): node is WorkflowTriggerNode => node.type === 'trigger'
+const isConditionNode = (node: WorkflowEditorNode): node is WorkflowConditionNode => node.type === 'condition'
+const isActionNode = (node: WorkflowEditorNode): node is WorkflowActionNode => node.type === 'action'
+
+const getNextNodePosition = (type: 'trigger' | 'condition' | 'action', nodes: WorkflowEditorNode[]) => {
   const triggerCount = nodes.filter((n) => n.type === 'trigger').length
   const conditionCount = nodes.filter((n) => n.type === 'condition').length
   const actionCount = nodes.filter((n) => n.type === 'action').length
@@ -73,8 +85,8 @@ const getNextNodePosition = (type: 'trigger' | 'condition' | 'action', nodes: No
   return { x: NODE_X, y: yOffset }
 }
 
-function workflowToNodes(triggers: Record<string, unknown>[], conditions: Record<string, unknown>[], actions: Record<string, unknown>[]): { nodes: Node[]; edges: Edge[] } {
-  const nodes: Node[] = []
+function workflowToNodes(triggers: WorkflowTrigger[], conditions: WorkflowCondition[], actions: WorkflowAction[]): { nodes: WorkflowEditorNode[]; edges: Edge[] } {
+  const nodes: WorkflowEditorNode[] = []
   const edges: Edge[] = []
   let yOffset = 30
 
@@ -171,19 +183,22 @@ function workflowToNodes(triggers: Record<string, unknown>[], conditions: Record
 
 export const WorkflowVisualEditor = ({ triggers, conditions, actions, objectTypes, onUpdate, readOnly = false }: WorkflowVisualEditorProps) => {
   const { nodes: initialNodes, edges: initialEdges } = useMemo(() => workflowToNodes(triggers, conditions, actions), [triggers, conditions, actions])
+  const incomingWorkflowSignature = useMemo(() => JSON.stringify({ triggers, conditions, actions }), [triggers, conditions, actions])
 
-  const [nodes, setNodes] = useNodesState(initialNodes)
+  const [nodes, setNodes] = useNodesState<WorkflowEditorNode>(initialNodes)
   const [edges, setEdges] = useEdgesState(initialEdges)
-  const [selectedNode, setSelectedNode] = useState<Node | null>(null)
-  const [history, setHistory] = useState<{ nodes: Node[]; edges: Edge[] }[]>([])
-  const [historyIndex, setHistoryIndex] = useState(-1)
+  const [selectedNode, setSelectedNode] = useState<WorkflowEditorNode | null>(null)
+  const [history, setHistory] = useState<WorkflowEditorHistoryEntry[]>(() => [{ nodes: initialNodes, edges: initialEdges }])
+  const [historyIndex, setHistoryIndex] = useState(0)
   const isInternalUpdateRef = useRef(false)
   const reactFlowWrapperRef = useRef<HTMLDivElement>(null)
-  const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null)
+  const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance<WorkflowEditorNode, Edge> | null>(null)
   const defaultObjectType = objectTypes[0]?.type ?? 'Control'
+  const lastLocalWorkflowSignatureRef = useRef(incomingWorkflowSignature)
+  const lastSyncedWorkflowSignatureRef = useRef(incomingWorkflowSignature)
 
   const saveHistory = useCallback(
-    (newNodes: Node[], newEdges: Edge[]) => {
+    (newNodes: WorkflowEditorNode[], newEdges: Edge[]) => {
       setHistory((prev) => {
         const newHistory = prev.slice(0, historyIndex + 1)
         newHistory.push({ nodes: newNodes, edges: newEdges })
@@ -194,7 +209,25 @@ export const WorkflowVisualEditor = ({ triggers, conditions, actions, objectType
     [historyIndex],
   )
 
-  const handleNodesChange: OnNodesChange = useCallback(
+  useEffect(() => {
+    if (incomingWorkflowSignature === lastSyncedWorkflowSignatureRef.current) return
+
+    if (incomingWorkflowSignature === lastLocalWorkflowSignatureRef.current) {
+      lastSyncedWorkflowSignatureRef.current = incomingWorkflowSignature
+      return
+    }
+
+    setNodes(initialNodes)
+    setEdges(initialEdges)
+    setSelectedNode(null)
+    setHistory([{ nodes: initialNodes, edges: initialEdges }])
+    setHistoryIndex(0)
+    isInternalUpdateRef.current = false
+    lastLocalWorkflowSignatureRef.current = incomingWorkflowSignature
+    lastSyncedWorkflowSignatureRef.current = incomingWorkflowSignature
+  }, [incomingWorkflowSignature, initialEdges, initialNodes, setEdges, setNodes])
+
+  const handleNodesChange: OnNodesChange<WorkflowEditorNode> = useCallback(
     (changes) => {
       isInternalUpdateRef.current = true
       setNodes((nds) => {
@@ -223,10 +256,15 @@ export const WorkflowVisualEditor = ({ triggers, conditions, actions, objectType
       return
     }
 
-    const newTriggers = nodes.filter((n) => n.type === 'trigger').map((n) => n.data)
-    const newConditions = nodes.filter((n) => n.type === 'condition').map((n) => n.data)
-    const newActions = nodes.filter((n) => n.type === 'action').map((n) => n.data)
+    const newTriggers = nodes.filter(isTriggerNode).map((node) => node.data)
+    const newConditions = nodes.filter(isConditionNode).map((node) => node.data)
+    const newActions = nodes.filter(isActionNode).map((node) => node.data)
 
+    lastLocalWorkflowSignatureRef.current = JSON.stringify({
+      triggers: newTriggers,
+      conditions: newConditions,
+      actions: newActions,
+    })
     onUpdate(newTriggers, newConditions, newActions)
     isInternalUpdateRef.current = false
   }, [nodes, onUpdate])
@@ -263,12 +301,12 @@ export const WorkflowVisualEditor = ({ triggers, conditions, actions, objectType
     [setEdges, nodes, saveHistory],
   )
 
-  const handleNodeClick = useCallback((_: React.MouseEvent, node: Node) => {
+  const handleNodeClick: NodeMouseHandler<WorkflowEditorNode> = useCallback((_, node) => {
     setSelectedNode(node)
   }, [])
 
   const handleNodeUpdate = useCallback(
-    (nodeId: string, data: Record<string, unknown>) => {
+    (nodeId: string, data: WorkflowNodeData) => {
       isInternalUpdateRef.current = true
       setNodes((nds) => {
         const newNodes = nds.map((node) => (node.id === nodeId ? { ...node, data } : node))
@@ -282,54 +320,60 @@ export const WorkflowVisualEditor = ({ triggers, conditions, actions, objectType
   const handleNodeDelete = useCallback(
     (nodeId: string) => {
       isInternalUpdateRef.current = true
-      setNodes((nds) => {
-        const newNodes = nds.filter((n) => n.id !== nodeId)
-        saveHistory(newNodes, edges)
-        return newNodes
-      })
-      setEdges((eds) => {
-        const newEdges = eds.filter((e) => e.source !== nodeId && e.target !== nodeId)
-        return newEdges
-      })
+      const newNodes = nodes.filter((node) => node.id !== nodeId)
+      const newEdges = edges.filter((edge) => edge.source !== nodeId && edge.target !== nodeId)
+      saveHistory(newNodes, newEdges)
+      setNodes(newNodes)
+      setEdges(newEdges)
     },
-    [setNodes, setEdges, edges, saveHistory],
+    [edges, nodes, saveHistory, setEdges, setNodes],
   )
 
   const handleAddNode = useCallback(
     (type: 'trigger' | 'condition' | 'action', position?: { x: number; y: number }) => {
       isInternalUpdateRef.current = true
-      const newNode: Node = {
-        id: `${type}-${Date.now()}`,
-        type,
-        position: position ?? getNextNodePosition(type, nodes),
-        data:
+      setNodes((nds) => {
+        const baseNode = {
+          id: `${type}-${Date.now()}`,
+          position: position ?? getNextNodePosition(type, nds),
+        }
+        const newNode: WorkflowEditorNode =
           type === 'trigger'
             ? {
-                operation: 'UPDATE',
-                objectType: defaultObjectType,
-                fields: [],
-                edges: [],
-                description: '',
-                expression: 'true',
+                ...baseNode,
+                type,
+                data: {
+                  operation: 'UPDATE',
+                  objectType: defaultObjectType,
+                  fields: [],
+                  edges: [],
+                  description: '',
+                  expression: 'true',
+                },
               }
             : type === 'condition'
-              ? { expression: 'true', description: '' }
+              ? {
+                  ...baseNode,
+                  type,
+                  data: { expression: 'true', description: '' },
+                }
               : {
-                  key: 'action',
-                  type: 'REQUEST_APPROVAL',
-                  description: '',
-                  params: { targets: [], required: true, required_count: 1, label: '' },
-                },
-      }
+                  ...baseNode,
+                  type,
+                  data: {
+                    key: 'action',
+                    type: 'REQUEST_APPROVAL',
+                    description: '',
+                    params: { targets: [], required: true, required_count: 1, label: '' },
+                  },
+                }
 
-      setNodes((nds) => {
         const newNodes = [...nds, newNode]
         saveHistory(newNodes, edges)
         return newNodes
       })
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [defaultObjectType, setNodes, nodes.length, edges, saveHistory],
+    [defaultObjectType, setNodes, edges, saveHistory],
   )
 
   const handleUndo = useCallback(() => {
@@ -393,7 +437,7 @@ export const WorkflowVisualEditor = ({ triggers, conditions, actions, objectType
           )}
 
           <div className="w-full h-full">
-            <ReactFlow
+            <ReactFlow<WorkflowEditorNode, Edge>
               nodes={nodes}
               edges={edges}
               onNodesChange={readOnly ? undefined : handleNodesChange}
@@ -411,7 +455,7 @@ export const WorkflowVisualEditor = ({ triggers, conditions, actions, objectType
               defaultEdgeOptions={{ type: EDGE_TYPE }}
               connectionLineType={ConnectionLineType.SmoothStep}
               attributionPosition="bottom-left"
-              onInit={setReactFlowInstance}
+              onInit={(instance) => setReactFlowInstance(instance)}
               onDragOver={readOnly ? undefined : onDragOver}
               onDrop={readOnly ? undefined : onDrop}
             >

@@ -10,17 +10,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@repo/ui/badge'
 import { TRIGGER_OPERATION_OPTIONS } from '@/lib/workflow-templates'
 import type { WorkflowObjectTypeMetadata } from '@/lib/graphql-hooks/workflows'
+import type { UpdateWorkflowTrigger, WorkflowTrigger, WorkflowTriggerOperation } from '@/types/workflow'
 
 type TriggerFormSectionProps = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  triggers: any[]
+  triggers: WorkflowTrigger[]
   objectTypes: WorkflowObjectTypeMetadata[]
   eligibleEdgesByType: Map<string, string[]>
   edgeInputs: Record<number, string>
   onAddTrigger: () => void
   onRemoveTrigger: (index: number) => void
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onUpdateTrigger: (index: number, field: string, value: any) => void
+  onUpdateTrigger: UpdateWorkflowTrigger
   onUpdateEdgeInput: (index: number, value: string) => void
   onAddEdge: (index: number) => void
   onRemoveEdge: (index: number, edge: string) => void
@@ -73,7 +72,7 @@ export const TriggerFormSection = ({
                 <div className="grid gap-3 md:grid-cols-2">
                   <div className="space-y-2">
                     <Label>Operation</Label>
-                    <Select value={trigger.operation} onValueChange={(val) => onUpdateTrigger(index, 'operation', val)}>
+                    <Select value={trigger.operation} onValueChange={(val) => onUpdateTrigger(index, 'operation', val as WorkflowTriggerOperation)}>
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
@@ -117,8 +116,8 @@ export const TriggerFormSection = ({
                               id={`trigger-${index}-field-${field.name}`}
                               checked={trigger.fields?.includes(field.name) || false}
                               onChange={(e) => {
-                                const currentFields = trigger.fields || []
-                                const newFields = e.target.checked ? [...currentFields, field.name] : currentFields.filter((f: string) => f !== field.name)
+                                const currentFields = trigger.fields ?? []
+                                const newFields = e.target.checked ? [...currentFields, field.name] : currentFields.filter((currentField) => currentField !== field.name)
                                 onUpdateTrigger(index, 'fields', newFields)
                               }}
                               className="h-4 w-4 rounded border-gray-300"
@@ -167,7 +166,7 @@ export const TriggerFormSection = ({
                   )}
                   {Array.isArray(trigger.edges) && trigger.edges.length > 0 && (
                     <div className="flex flex-wrap gap-1 mt-2">
-                      {trigger.edges.map((edge: string) => (
+                      {trigger.edges.map((edge) => (
                         <Badge key={edge} variant="secondary" className="gap-1">
                           {edge}
                           <X className="h-3 w-3 cursor-pointer" onClick={() => onRemoveEdge(index, edge)} />

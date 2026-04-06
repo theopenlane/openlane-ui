@@ -13,11 +13,16 @@ import { useApproveAssignment, useRejectAssignment, useRequestChangesAssignment,
 import { useNotification } from '@/hooks/useNotification'
 import { definitionHasApprovalAction, definitionHasApprovalTiming, resolveApprovalTiming } from '@/utils/workflow'
 import { toHumanLabel } from '@/utils/strings'
+import type { WorkflowAssignment, WorkflowInstance } from '@repo/codegen/src/schema'
 
 type ObjectWorkflowPanelProps = {
   objectId: string
   objectType: string
   objectLabel?: string
+}
+
+type PendingWorkflowAssignment = Omit<WorkflowAssignment, 'workflowInstance'> & {
+  workflowInstance: Pick<WorkflowInstance, 'id' | 'state' | 'context' | 'definitionSnapshot' | 'workflowDefinition'>
 }
 
 export const ObjectWorkflowPanel = ({ objectId, objectType, objectLabel }: ObjectWorkflowPanelProps) => {
@@ -46,8 +51,7 @@ export const ObjectWorkflowPanel = ({ objectId, objectType, objectLabel }: Objec
   const requestChangesMutation = useRequestChangesAssignment()
 
   const pendingAssignments = useMemo(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const assignments: any[] = []
+    const assignments: PendingWorkflowAssignment[] = []
     if (!instances || !Array.isArray(instances)) return assignments
 
     instances.forEach((instance) => {
@@ -60,6 +64,7 @@ export const ObjectWorkflowPanel = ({ objectId, objectType, objectLabel }: Objec
               id: instance.id,
               state: instance.state,
               context: instance.context,
+              definitionSnapshot: instance.definitionSnapshot,
               workflowDefinition: instance.workflowDefinition,
             },
           })
@@ -78,7 +83,7 @@ export const ObjectWorkflowPanel = ({ objectId, objectType, objectLabel }: Objec
     setShowChangeRequestForm(false)
   }
 
-  const parseInputsPayload = () => {
+  const parseInputsPayload = (): Record<string, unknown> | undefined | null => {
     if (!changeRequestInputs.trim()) return undefined
     try {
       const parsed = JSON.parse(changeRequestInputs)
@@ -129,7 +134,7 @@ export const ObjectWorkflowPanel = ({ objectId, objectType, objectLabel }: Objec
       await requestChangesMutation.mutateAsync({
         id: assignmentId,
         reason: changeRequestReason || undefined,
-        inputs: inputsPayload as Record<string, unknown> | undefined,
+        inputs: inputsPayload ?? undefined,
       })
       await refetch()
       successNotification({ title: 'Changes requested', description: 'The request was sent to the originator.' })

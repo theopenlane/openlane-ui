@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { WorkflowDefinitionWorkflowKind } from '@repo/codegen/src/schema'
 import { TRIGGER_OPERATION_OPTIONS, WORKFLOW_TEMPLATES } from '@/lib/workflow-templates'
 import type { WorkflowObjectTypeMetadata } from '@/lib/graphql-hooks/workflows'
@@ -218,7 +218,7 @@ export const useWizardState = ({ objectTypes, workflowDefinitionsNodes, userOpti
     })
   }
 
-  const buildWorkflowDocument = () => {
+  const buildWorkflowDocument = useCallback(() => {
     const triggerLabel = operationLabel || operation
     const trigger: Record<string, unknown> = {
       operation,
@@ -316,39 +316,35 @@ export const useWizardState = ({ objectTypes, workflowDefinitionsNodes, userOpti
         createdFrom: 'wizard',
       },
     }
-  }
+  }, [
+    actionType,
+    approvalLabel,
+    approvalTiming,
+    conditionExpressionFinal,
+    description,
+    edges,
+    fieldScope,
+    fieldUpdateField,
+    fieldUpdateValue,
+    name,
+    notificationBody,
+    notificationChannels,
+    notificationTitle,
+    objectLabel,
+    operation,
+    operationLabel,
+    requiredCount,
+    schemaType,
+    suggestedName,
+    targets,
+    trackedFields,
+    webhookMethod,
+    webhookPayload,
+    webhookUrl,
+    workflowKind,
+  ])
 
-  const workflowPreview = useMemo(
-    () => buildWorkflowDocument(),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [
-      actionType,
-      approvalTiming,
-      approvalLabel,
-      conditionExpressionFinal,
-      description,
-      edges,
-      fieldScope,
-      fieldUpdateField,
-      fieldUpdateValue,
-      name,
-      notificationBody,
-      notificationChannels,
-      notificationTitle,
-      objectLabel,
-      operation,
-      operationLabel,
-      parsedWebhookPayload,
-      requiredCount,
-      schemaType,
-      suggestedName,
-      targets,
-      trackedFields,
-      webhookMethod,
-      webhookUrl,
-      workflowKind,
-    ],
-  )
+  const workflowPreview = useMemo(() => buildWorkflowDocument(), [buildWorkflowDocument])
 
   const getValidationError = (stepId: string) => {
     if (stepId === 'flow') {

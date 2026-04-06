@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
 import { Label } from '@repo/ui/label'
@@ -55,17 +55,21 @@ export const CELConditionBuilder = ({ objectType, objectTypes, initialExpression
   const availableFields = selectedObjectType?.eligibleFields || []
   const { userOptions, isLoading: isLoadingUsers } = useUserSelect({})
 
+  const conditionsRef = useRef(conditions)
+  useEffect(() => {
+    conditionsRef.current = conditions
+  }, [conditions])
+
   useEffect(() => {
     const result = validateCELExpression(rawExpression)
     setValidationResult(result)
   }, [rawExpression])
 
   useEffect(() => {
-    if (initialExpression && initialExpression !== 'true' && conditions.length === 0) {
+    if (initialExpression && initialExpression !== 'true' && conditionsRef.current.length === 0) {
       setShowRawEditor(true)
       setRawExpression(initialExpression)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialExpression])
 
   const generateExpression = (conds: Condition[]): string => {
@@ -155,7 +159,7 @@ export const CELConditionBuilder = ({ objectType, objectTypes, initialExpression
           </Button>
         </div>
         <textarea
-          className={`w-full p-2 text-xs font-mono border rounded-md min-h-[100px] ${!validationResult.valid ? 'border-destructive' : ''}`}
+          className={`w-full p-2 text-xs font-mono border rounded-md min-h-25 ${!validationResult.valid ? 'border-destructive' : ''}`}
           value={rawExpression}
           onChange={(e) => setRawExpression(e.target.value)}
           placeholder="Enter CEL expression (e.g., object.status == 'active' && user_id != '')"
