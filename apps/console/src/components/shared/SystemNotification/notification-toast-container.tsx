@@ -6,6 +6,7 @@ import { Bell, X } from 'lucide-react'
 import { cn } from '@repo/ui/lib/utils'
 import { useNotificationsContext } from '@/providers/notifications-provider'
 import { type Notification } from '@/lib/graphql-hooks/websocket/use-websocket-notifications'
+import { getNotificationRedirectUrl, redirectToNotification } from './notification-redirect'
 import { useRouter } from 'next/navigation'
 
 const BATCH_WINDOW_MS = 1500
@@ -66,7 +67,7 @@ interface ToastItemProps {
 
 const SingleNotificationToast = ({ data, onOpenChange, onView }: ToastItemProps) => {
   const notification = data.notifications[0]
-  const hasUrl = !!notification?.data?.url
+  const hasUrl = !!(notification && getNotificationRedirectUrl(notification))
 
   return (
     <ToastPrimitives.Root
@@ -158,9 +159,9 @@ export const NotificationToastContainer = () => {
       const unread = notifications.filter((n) => !n.readAt)
       await Promise.all(unread.map((n) => markAsRead(n.id)))
 
-      const firstWithUrl = notifications.find((n) => n.data?.url)
-      if (firstWithUrl?.data?.url) {
-        router.push(firstWithUrl.data.url as string)
+      const firstWithUrl = notifications.find((notification) => getNotificationRedirectUrl(notification))
+      if (firstWithUrl) {
+        redirectToNotification(router, firstWithUrl)
       }
     },
     [markAsRead, router],
