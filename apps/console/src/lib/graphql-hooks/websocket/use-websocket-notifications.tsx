@@ -68,12 +68,14 @@ export function useWebsocketNotifications() {
   const { mutateAsync } = useMarkNotificationsAsRead()
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [liveNotifications, setLiveNotifications] = useState<Notification[]>([])
+  const [subscriptionStartedAt, setSubscriptionStartedAt] = useState<number | null>(null)
   const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     if (status !== 'authenticated') {
       setNotifications([])
       setLiveNotifications([])
+      setSubscriptionStartedAt(null)
     }
   }, [status])
 
@@ -83,6 +85,7 @@ export function useWebsocketNotifications() {
     }
 
     let isActive = true
+    setSubscriptionStartedAt(Date.now())
 
     const unsubscribe = wsClient.subscribe(
       {
@@ -186,5 +189,6 @@ export function useWebsocketNotifications() {
     markAsRead,
     markAllAsRead,
     isLoading: status === 'loading',
+    subscriptionStartedAt,
   }
 }
