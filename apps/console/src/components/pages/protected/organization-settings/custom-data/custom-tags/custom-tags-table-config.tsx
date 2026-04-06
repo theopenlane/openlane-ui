@@ -14,6 +14,7 @@ import { useUpdateTag } from '@/lib/graphql-hooks/tag-definition'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { formatDate, formatDateSince } from '@/utils/date'
 import { type TagDefinition, type User } from '@repo/codegen/src/schema'
+import { TruncatedCell } from '@repo/ui/data-table'
 
 type ColumnsParams = {
   tags: TagDefinition[]
@@ -82,7 +83,7 @@ export const useGetCustomTagColumns = ({ tags, selected, setSelected, onEdit, on
       {
         accessorKey: 'description',
         header: 'Description',
-        cell: ({ row }) => <div className="text-sm text-muted-foreground line-clamp-2">{row.original.description || '—'}</div>,
+        cell: ({ row }) => <TruncatedCell className="text-sm text-muted-foreground line-clamp-2 whitespace-normal">{row.original.description || '—'}</TruncatedCell>,
         size: 200,
       },
       {

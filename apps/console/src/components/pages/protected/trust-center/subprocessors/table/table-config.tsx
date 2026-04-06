@@ -139,7 +139,7 @@ export const getSubprocessorsColumns = ({ selectedRows, setSelectedRows, userMap
     {
       accessorKey: 'category',
       header: 'Category',
-      cell: ({ row }) => <TruncatedCell>{row.original.category || '—'}</TruncatedCell>,
+      cell: ({ row }) => row.original.category || '—',
       size: 180,
       maxSize: 200,
       minSize: 180,

@@ -5,6 +5,7 @@ import { createSelectColumn } from '@/components/shared/crud-base/columns/select
 import { UserCell } from '@/components/shared/crud-base/columns/user-cell'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { CustomEnumChipCell } from '@/components/shared/crud-base/columns/custom-enum-chip-cell'
+import { TruncatedCell } from '@repo/ui/data-table'
 
 export const getColumns = ({ userMap, selectedItems, setSelectedItems }: ColumnOptions): ColumnDef<RemediationsNodeNonNull>[] => {
   return [
@@ -12,7 +13,7 @@ export const getColumns = ({ userMap, selectedItems, setSelectedItems }: ColumnO
     { accessorKey: 'id', header: 'ID', size: 120, cell: ({ row }) => <div className="text-muted-foreground">{row.original.id}</div> },
     { accessorKey: 'displayID', header: 'Display ID', size: 140, cell: ({ cell }) => cell.getValue() || '' },
     { accessorKey: 'title', header: 'Title', size: 200, cell: ({ cell }) => cell.getValue() || '' },
-    { accessorKey: 'summary', header: 'Summary', size: 200 },
+    { accessorKey: 'summary', header: 'Summary', size: 200, cell: ({ row }) => <TruncatedCell>{row.original.summary || '-'}</TruncatedCell> },
     { accessorKey: 'state', header: 'State', size: 110 },
     { accessorKey: 'source', header: 'Source', size: 120 },
     { accessorKey: 'externalID', header: 'External ID', size: 150 },

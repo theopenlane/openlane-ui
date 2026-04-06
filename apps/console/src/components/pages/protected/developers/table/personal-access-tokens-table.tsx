@@ -8,7 +8,7 @@ import {
   OrderDirection,
   PersonalAccessTokenOrderField,
 } from '@repo/codegen/src/schema'
-import { DataTable, getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
+import { DataTable, getInitialSortConditions, getInitialPagination, TruncatedCell } from '@repo/ui/data-table'
 import { type ColumnDef } from '@tanstack/react-table'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { useGetApiTokens, useGetPersonalAccessTokens } from '@/lib/graphql-hooks/tokens'
@@ -173,6 +173,7 @@ export const PersonalAccessTokenTable = () => {
     {
       accessorKey: 'description',
       header: 'Description',
+      cell: ({ cell }) => <TruncatedCell>{(cell.getValue() as string) || '-'}</TruncatedCell>,
     },
     isApiTokenPage
       ? {
