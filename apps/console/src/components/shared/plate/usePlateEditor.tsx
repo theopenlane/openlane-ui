@@ -1,7 +1,8 @@
 'use client'
 import { BaseEditorKit } from '@repo/ui/components/editor/editor-base-kit.tsx'
 import { EditorStatic } from '@repo/ui/components/ui/editor-static.tsx'
-import { createSlateEditor, PlateStatic, serializeHtml, type Value } from 'platejs'
+import { createSlateEditor, type Value } from 'platejs'
+import { PlateStatic, serializeHtml } from 'platejs/static'
 import { isPlateValueEmpty } from './plate-utils'
 
 type Detected = 'markdown' | 'html' | 'slate-json' | 'text'

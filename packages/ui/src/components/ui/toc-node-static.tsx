@@ -1,10 +1,11 @@
 import * as React from 'react'
 
-import type { SlateEditor, SlateElementProps, TElement } from 'platejs'
+import type { SlateEditor, TElement } from 'platejs'
+import { NodeApi } from 'platejs'
+import { type SlateElementProps, SlateElement } from 'platejs/static'
 
 import { type Heading, BaseTocPlugin, isHeading } from '@platejs/toc'
 import { cva } from 'class-variance-authority'
-import { NodeApi, SlateElement } from 'platejs'
 
 import { Button } from '@repo/ui/components/ui/button.tsx'
 

@@ -1,8 +1,8 @@
 import * as React from 'react'
 
-import type { SlateElementProps, TCaptionElement, TResizableProps, TVideoElement } from 'platejs'
-
-import { NodeApi, SlateElement } from 'platejs'
+import type { TCaptionElement, TResizableProps, TVideoElement } from 'platejs'
+import { NodeApi } from 'platejs'
+import { type SlateElementProps, SlateElement } from 'platejs/static'
 
 export function VideoElementStatic(props: SlateElementProps<TVideoElement & TCaptionElement & TResizableProps>) {
   const { align = 'center', caption, url, width } = props.element

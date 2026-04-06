@@ -1,8 +1,8 @@
 import * as React from 'react'
 
-import type { SlateElementProps, TCaptionProps, TImageElement, TResizableProps } from 'platejs'
-
-import { NodeApi, SlateElement } from 'platejs'
+import type { TCaptionProps, TImageElement, TResizableProps } from 'platejs'
+import { NodeApi } from 'platejs'
+import { type SlateElementProps, SlateElement } from 'platejs/static'
 
 import { cn } from '@repo/ui/lib/utils'
 
