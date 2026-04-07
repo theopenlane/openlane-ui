@@ -8,7 +8,7 @@ import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
 
-import { EntityEntityStatus, EntityFrequency, type EntityQuery, type UpdateEntityInput, type CreateEntityInput, type GetEntityAssociationsQuery } from '@repo/codegen/src/schema'
+import { EntityEntityStatus, EntityFrequency, type EntityVendorTier, type EntityQuery, type UpdateEntityInput, type CreateEntityInput, type GetEntityAssociationsQuery } from '@repo/codegen/src/schema'
 import { normalizeEntityData, buildResponsibilityPayload } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 import {
   useUpdateEntity,
@@ -180,6 +180,7 @@ const VendorPage: React.FC = () => {
       return {
         ...rest,
         description,
+        tier: rest.tier as EntityVendorTier | undefined,
         ...associationPayload,
         ...(contactIDs && contactIDs.length > 0 ? { contactIDs } : {}),
         ...buildResponsibilityPayload('internalOwner', internalOwner, { mode: isCreate ? 'create' : 'update' }),
