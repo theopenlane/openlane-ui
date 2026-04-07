@@ -336,13 +336,16 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
     const associationInputs = getAssociationInput(initialAssociations, updatedAssociations)
 
-    const { programIDs: _programIDs, controlIDs: _controlIDs, subcontrolIDs: _subcontrolIDs, ...restFormData } = formData
-    const cleanFormData = form.formState.dirtyFields.renewalDate ? restFormData : Object.fromEntries(Object.entries(restFormData).filter(([key]) => key !== 'renewalDate'))
+    const { programIDs: _programIDs, controlIDs: _controlIDs, subcontrolIDs: _subcontrolIDs, creationDate, renewalDate, ...restFormData } = formData
+    const serializedDates = {
+      creationDate: creationDate?.toISOString(),
+      ...(form.formState.dirtyFields.renewalDate ? { renewalDate: renewalDate?.toISOString() } : {}),
+    }
+    const cleanFormData = { ...restFormData, ...serializedDates }
 
     try {
       const collectionProcedure = formData.collectionProcedure && typeof formData.collectionProcedure !== 'string' ? await convertToHtml(formData.collectionProcedure) : formData.collectionProcedure
       const creationDate = formData.creationDate instanceof Date ? formData.creationDate.toISOString() : formData.creationDate
-      const renewalDate = formData.renewalDate instanceof Date ? formData.renewalDate.toISOString() : formData.renewalDate
 
       await updateEvidence({
         updateEvidenceId: config.id,
@@ -351,7 +354,6 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
           ...associationInputs,
           collectionProcedure,
           creationDate,
-          renewalDate,
           clearURL: formData?.url === undefined,
         },
       })
@@ -414,10 +416,13 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
       return
     }
 
+    const fieldValue = form.getValues(editField)
+    const serializedValue = fieldValue instanceof Date ? fieldValue.toISOString() : fieldValue
+
     await updateEvidence({
       updateEvidenceId: config.id,
       input: {
-        [editField]: form.getValues(editField),
+        [editField]: serializedValue,
       },
     })
     setEditField(null)

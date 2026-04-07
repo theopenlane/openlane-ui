@@ -109,7 +109,6 @@ const SlideBarLayout: React.FC<TSlideBarLayoutProps> = ({
       </div>
 
       <div className="fixed flex items-center space-x-2 z-30" style={{ top: '5rem', right: `${FLOATING_MARGIN}px` }}>
-        {menu}
         <Button
           type="button"
           descriptiveTooltipText={open ? 'Close slide bar' : 'Open slide bar'}
@@ -119,6 +118,7 @@ const SlideBarLayout: React.FC<TSlideBarLayoutProps> = ({
           style={{ transform: !open && hasScrollbar && !collapsedButtonClassName ? `translateX(-${SCROLLBAR_OFFSET})` : 'translateX(0)' }}
           icon={open ? <PanelRightClose size={16} /> : <PanelRight size={16} />}
         />
+        {menu}
       </div>
       <div
         className="fixed right-0 mt-[4px] mb-[8px] rounded-md bottom-0 border-l shadow-xl transform transition-transform duration-300 z-20 bg-secondary"

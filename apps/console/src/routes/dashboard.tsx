@@ -285,6 +285,12 @@ export const topNavigationItems = (session: Session | null): (NavItem | Separato
           plan: PlanEnum.COMPLIANCE_MODULE,
           hidden: true,
         },
+        {
+          title: 'Campaigns',
+          href: '/automation/campaigns',
+          icon: Megaphone,
+          hidden: false,
+        },
       ],
     },
   ]

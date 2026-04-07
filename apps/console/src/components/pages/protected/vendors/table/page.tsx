@@ -182,6 +182,7 @@ const VendorPage: React.FC = () => {
       return {
         ...rest,
         description,
+        tier: rest.tier as EntityVendorTier | undefined,
         ...associationPayload,
         ...(contactIDs && contactIDs.length > 0 ? { contactIDs } : {}),
         ...buildResponsibilityPayload('internalOwner', internalOwner, { mode: isCreate ? 'create' : 'update' }),

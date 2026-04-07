@@ -145,5 +145,5 @@ export const useTemplateSelect = ({ where }: { where?: FilterTemplatesQueryVaria
     [templates],
   )
 
-  return { templateOptions, ...rest }
+  return { templateOptions, templates, ...rest }
 }

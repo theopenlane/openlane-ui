@@ -115,6 +115,7 @@ export const useVendorRiskScoresWithFilter = ({ where, orderBy, pagination, enab
   return { ...queryResult, vendorRiskScoresNodes }
 }
 
+
 export const useCreateVendorRiskScore = () => {
   const { client } = useGraphQLClient()
   const queryClient = useQueryClient()
@@ -125,6 +126,7 @@ export const useCreateVendorRiskScore = () => {
     },
   })
 }
+
 
 export const useUpdateVendorRiskScore = () => {
   const { client } = useGraphQLClient()
