@@ -1,7 +1,7 @@
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 import { SearchableSingleSelect } from '@/components/shared/searchableSingleSelect/searchable-single-select'
-import { type Group, type UpdateControlInput, type UpdateSubcontrolInput } from '@repo/codegen/src/schema'
+import { type Entity, type Group, type UpdateControlInput, type UpdateSubcontrolInput } from '@repo/codegen/src/schema'
 import { type Option } from '@repo/ui/multiple-selector'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { useFormContext, Controller } from 'react-hook-form'
@@ -20,12 +20,13 @@ export const AuthorityField = ({
   setEditingField,
   options,
   handleUpdate,
+  hideAvatar,
 }: {
   label: string
-  fieldKey: 'controlOwnerID' | 'delegateID'
+  fieldKey: 'controlOwnerID' | 'delegateID' | 'responsiblePartyID'
   icon: React.ReactNode
   tooltip: string
-  value: Group | undefined
+  value: Group | Entity | undefined | null
   editingKey: string
   isEditing: boolean
   isEditAllowed: boolean
@@ -33,6 +34,7 @@ export const AuthorityField = ({
   setEditingField: (field: string | null) => void
   options: Option[]
   handleUpdate?: (val: UpdateControlInput | UpdateSubcontrolInput) => void
+  hideAvatar?: boolean
 }) => {
   const { control, getValues } = useFormContext()
 
@@ -40,7 +42,7 @@ export const AuthorityField = ({
   const editing = isEditAllowed && (isEditing || editingField === editingKey)
 
   return (
-    <div className="grid grid-cols-[140px_1fr] items-start gap-x-3 border-b border-border pb-3">
+    <div className="grid grid-cols-[160px_1fr] items-start gap-x-3 border-b border-border pb-3">
       <div className="flex items-start gap-2">
         <div className="pt-0.5">{icon}</div>
         {tooltip ? (
@@ -92,13 +94,13 @@ export const AuthorityField = ({
             <Tooltip>
               <TooltipTrigger
                 type="button"
-                className={`w-[200px] ${isEditAllowed ? 'cursor-pointer ' : 'cursor-not-allowed'} bg-unset `}
+                className={`max-w-45 ${isEditAllowed ? 'cursor-pointer ' : 'cursor-not-allowed'} bg-unset `}
                 onDoubleClick={() => {
                   if (!isEditing && isEditAllowed) setEditingField(editingKey)
                 }}
               >
                 <div className="flex gap-2 items-center">
-                  <Avatar entity={value as Group} variant="small" />
+                  {!hideAvatar && <Avatar entity={value} variant="small" />}
                   <span className="truncate text-sm">{displayName}</span>
                 </div>
               </TooltipTrigger>

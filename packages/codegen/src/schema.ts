@@ -65766,6 +65766,7 @@ export type ControlDetailsFieldsFragment = {
     gravatarLogoURL?: string | null
     avatarFile?: { __typename?: 'File'; base64?: string | null } | null
   } | null
+  responsibleParty?: { __typename?: 'Entity'; id: string; displayName?: string | null; name?: string | null; logoFile?: { __typename?: 'File'; base64?: string | null } | null } | null
 }
 
 export type GetAllControlsQueryVariables = Exact<{
@@ -65943,6 +65944,7 @@ export type GetControlByIdQuery = {
       gravatarLogoURL?: string | null
       avatarFile?: { __typename?: 'File'; base64?: string | null } | null
     } | null
+    responsibleParty?: { __typename?: 'Entity'; id: string; displayName?: string | null; name?: string | null; logoFile?: { __typename?: 'File'; base64?: string | null } | null } | null
   }
 }
 
@@ -73353,6 +73355,7 @@ export type GetSubcontrolByIdQuery = {
       gravatarLogoURL?: string | null
       avatarFile?: { __typename?: 'File'; base64?: string | null } | null
     } | null
+    responsibleParty?: { __typename?: 'Entity'; id: string; displayName?: string | null; name?: string | null; logoFile?: { __typename?: 'File'; base64?: string | null } | null } | null
   }
 }
 
