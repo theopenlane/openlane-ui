@@ -89,7 +89,7 @@ const IntegrationDefinitionPage = ({ definitionId }: IntegrationDefinitionPagePr
 
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
-      { label: 'Organization Settings', href: '/organization-settings' },
+      { label: 'Organization Settings', href: '/organization-settings/general-settings' },
       { label: 'Integrations', href: '/organization-settings/integrations' },
       { label: provider.displayName, href: `/organization-settings/integrations/${definitionId}` },
     ])
