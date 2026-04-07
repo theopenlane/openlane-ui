@@ -196,7 +196,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditin
             <Tooltip>
               <TooltipTrigger asChild>
                 <div className="flex items-center gap-1">
-                  <span className="cursor-help text-sm">Procedure Type</span>
+                  <span className="cursor-help text-sm">Policy Type</span>
                   <HelpCircle size={12} className="text-muted-foreground" />
                 </div>
               </TooltipTrigger>
