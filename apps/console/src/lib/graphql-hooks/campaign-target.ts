@@ -3,6 +3,8 @@ import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
   type CampaignTargetsWithFilterQuery,
   type CampaignTargetsWithFilterQueryVariables,
+  type CampaignTargetStatsQuery,
+  type CampaignTargetStatsQueryVariables,
   type CreateCampaignTargetMutation,
   type CreateCampaignTargetMutationVariables,
   type UpdateCampaignTargetMutation,
@@ -14,7 +16,7 @@ import {
 } from '@repo/codegen/src/schema'
 
 import { type TPagination } from '@repo/ui/pagination-types'
-import { GET_ALL_CAMPAIGN_TARGETS, CREATE_CAMPAIGN_TARGET, UPDATE_CAMPAIGN_TARGET, DELETE_CAMPAIGN_TARGET, CAMPAIGN_TARGET } from '@repo/codegen/query/campaign-target'
+import { GET_ALL_CAMPAIGN_TARGETS, GET_CAMPAIGN_TARGET_STATS, CREATE_CAMPAIGN_TARGET, UPDATE_CAMPAIGN_TARGET, DELETE_CAMPAIGN_TARGET, CAMPAIGN_TARGET } from '@repo/codegen/query/campaign-target'
 
 type GetAllCampaignTargetsArgs = {
   where?: CampaignTargetsWithFilterQueryVariables['where']
@@ -43,6 +45,24 @@ export const useCampaignTargetsWithFilter = ({ where, orderBy, pagination, enabl
   const CampaignTargetsNodes: CampaignTargetsNodeNonNull[] = edges.filter((edge) => edge != null).map((edge) => edge?.node as CampaignTargetsNodeNonNull)
 
   return { ...queryResult, CampaignTargetsNodes }
+}
+
+export const useCampaignTargetStats = ({ where, enabled = true }: { where?: CampaignTargetStatsQueryVariables['where']; enabled?: boolean }) => {
+  const { client } = useGraphQLClient()
+  const queryResult = useQuery<CampaignTargetStatsQuery, unknown>({
+    queryKey: ['campaignTargetStats', where],
+    queryFn: async () => client.request<CampaignTargetStatsQuery>(GET_CAMPAIGN_TARGET_STATS, { where }),
+    enabled,
+  })
+
+  const edges = queryResult.data?.campaignTargets?.edges ?? []
+  const nodes = edges.filter((edge) => edge?.node != null).map((edge) => edge!.node!)
+
+  return {
+    ...queryResult,
+    totalCount: queryResult.data?.campaignTargets?.totalCount ?? 0,
+    nodes,
+  }
 }
 
 export const useCreateCampaignTarget = () => {

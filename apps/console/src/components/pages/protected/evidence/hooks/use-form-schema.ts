@@ -37,6 +37,9 @@ const commonFields = {
   procedureIDs: z.array(z.string()).optional().nullable(),
   riskIDs: z.array(z.string()).optional().nullable(),
   status: z.nativeEnum(EvidenceEvidenceStatus).optional() as z.ZodType<EvidenceEvidenceStatus | null | undefined>,
+  externalUUID: z.string().optional().nullable(),
+  scopeName: z.string().optional().nullable(),
+  environmentName: z.string().optional().nullable(),
 }
 
 const createFormSchema = z.object({
@@ -67,6 +70,9 @@ const useFormSchema = (isEditScreen?: boolean) => {
         evidenceFiles: [],
         source: '',
         fileIDs: [],
+        externalUUID: '',
+        scopeName: '',
+        environmentName: '',
         ...(isEditScreen ? {} : { renewalDate: addDays(new Date(), 365) }),
       },
     }),

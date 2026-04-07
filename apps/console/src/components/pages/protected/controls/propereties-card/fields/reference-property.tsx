@@ -64,7 +64,7 @@ export const ReferenceProperty = ({
   }
 
   return (
-    <div className="grid grid-cols-[140px_1fr] items-start gap-x-3 border-b border-border pb-3 last:border-b-0 text-sm">
+    <div className="grid grid-cols-[160px_1fr] items-start gap-x-3 border-b border-border pb-3 last:border-b-0 text-sm">
       <div className="flex items-start gap-2">
         {icon || <FolderIcon size={14} className="text-brand mt-0.5 shrink-0" />}
         <div>

@@ -2,12 +2,13 @@
 
 import React, { useCallback, useEffect, useState } from 'react'
 import { Card } from '@repo/ui/cardpanel'
-import { CircleUser, CircleArrowRight, Tag } from 'lucide-react'
+import { CircleUser, CircleArrowRight, Tag, Building2 } from 'lucide-react'
 import { ControlControlSource, type UpdateControlInput, type UpdateSubcontrolInput } from '@repo/codegen/src/schema'
 
-import { type Group } from '@repo/codegen/src/schema'
+import { type Entity, type Group } from '@repo/codegen/src/schema'
 import MultipleSelector, { type Option } from '@repo/ui/multiple-selector'
 import { useGetAllGroups } from '@/lib/graphql-hooks/group'
+import { useEntitiesWithFilter } from '@/lib/graphql-hooks/entity'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { usePathname } from 'next/navigation'
 import { Property } from './fields/property'
@@ -69,8 +70,14 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handle
 
   const [editingField, setEditingField] = useState<string | null>(null)
   const isGroupEditing = editingField === 'owner' || editingField === 'delegate'
+  const isResponsiblePartyEditing = editingField === 'responsibleParty'
   const { data: groupsData } = useGetAllGroups({ where: {}, enabled: isEditing || isGroupEditing })
   const groups = groupsData?.groups?.edges?.map((edge) => edge?.node) || []
+
+  const { entitiesNodes: vendors } = useEntitiesWithFilter({
+    where: { hasEntityTypeWith: [{ name: 'vendor' }] },
+    enabled: isEditing || isResponsiblePartyEditing,
+  })
 
   const { enumOptions, onCreateOption } = useCreatableEnumOptions({
     objectType: objectToSnakeCase(ObjectTypes.CONTROL),
@@ -130,6 +137,11 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handle
     value: g?.id || '',
   }))
 
+  const vendorOptions: Option[] = vendors.map((v) => ({
+    label: v.displayName || v.name || '',
+    value: v.id,
+  }))
+
   return (
     <Card className="p-4 bg-card rounded-xl shadow-xs">
       <h3 className="text-lg font-medium mb-4">Properties</h3>
@@ -162,6 +174,24 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handle
           handleUpdate={handleUpdateAdapter}
           tooltip="The group responsible for maintaining the control when the owner is unavailable, such as during a leave of absence"
         />
+
+        {isEditing || data?.responsibleParty ? (
+          <AuthorityField
+            label="Responsible Party"
+            fieldKey="responsiblePartyID"
+            icon={<Building2 size={16} className="text-brand" />}
+            value={data?.responsibleParty as Entity}
+            editingKey="responsibleParty"
+            isEditing={isEditing}
+            isEditAllowed={authorityEditAllowed}
+            editingField={editingField}
+            setEditingField={setEditingField}
+            options={vendorOptions}
+            handleUpdate={handleUpdateAdapter}
+            tooltip="External vendor responsible for the control"
+            hideAvatar
+          />
+        ) : null}
 
         {data && <Property value={data.referenceFramework || 'CUSTOM'} label="Framework"></Property>}
         {data?.__typename === 'Subcontrol' && <LinkedProperty label="Control" href={`/controls/${data.control.id}/`} value={data.control.refCode} icon={controlIconsMap.Control} />}

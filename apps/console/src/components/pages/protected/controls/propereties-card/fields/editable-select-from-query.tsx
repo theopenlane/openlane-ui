@@ -19,7 +19,7 @@ export const EditableSelectFromQuery = ({
   isEditAllowed,
   iconAndLabelVisible = true,
   hasGap = true,
-  gridColWidth = '140',
+  gridColWidth = '160',
   activeField,
   setActiveField,
   fieldId,

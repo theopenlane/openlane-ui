@@ -55,6 +55,10 @@ export const GET_ALL_TEMPLATES = gql`
           kind
           scopeName
           systemOwned
+          owner {
+            id
+            displayName
+          }
         }
       }
       pageInfo {
