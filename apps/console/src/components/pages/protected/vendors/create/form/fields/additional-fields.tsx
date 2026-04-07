@@ -237,9 +237,10 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
         </CardHeader>
         <CardContent>
           <div className="mb-2 grid grid-cols-1 md:grid-cols-2 gap-2">
-            <TextField
+            <SelectField
               name="tier"
               label="Tier"
+              options={enumOptions.tierOptions}
               tooltipContent="Categorize this vendor based on business criticality and data sensitivity (e.g., Tier 1 = mission-critical or sensitive data access)"
               {...sharedFieldProps}
             />
