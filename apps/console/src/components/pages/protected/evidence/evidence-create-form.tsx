@@ -399,7 +399,7 @@ const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSucces
                         <FormItem className="w-full">
                           <div className="flex items-center">
                             <FormLabel>External ID</FormLabel>
-                            <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Stable external identifier for deterministic OSCAL export and round-tripping.</p>} />
+                            <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Stable external identifier</p>} />
                           </div>
                           <FormControl>
                             <Input variant="medium" {...field} value={field.value ?? ''} className="w-full" />
