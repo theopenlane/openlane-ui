@@ -11,9 +11,12 @@ import {
   CircuitBoard,
   Download,
   Eye,
+  Fingerprint,
   InfoIcon,
   LinkIcon,
   Link,
+  Maximize2,
+  Radio,
   Tag,
   Trash2,
   UserRoundCheck,
@@ -72,6 +75,9 @@ import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { type CustomEvidenceControl } from './evidence-sheet-config'
 import { useEvidenceSuggestedControls } from './hooks/use-evidence-suggested-controls'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
+import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
+import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-enum-select/creatable-custom-type-enum-select'
+import { CustomTypeEnumValue } from '@/components/shared/custom-type-enum-chip/custom-type-enum-chip'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 import EvidenceCommentsCard from './evidence-comment-card'
 import AssociatedObjectsAccordion from '@/components/shared/object-association/associated-objects-accordion'
@@ -88,7 +94,7 @@ type TEvidenceDetailsSheet = {
   controlId?: string
 }
 
-type EditableFields = 'name' | 'description' | 'collectionProcedure' | 'source' | 'url' | 'status' | 'creationDate' | 'renewalDate' | 'tags'
+type EditableFields = 'name' | 'description' | 'collectionProcedure' | 'source' | 'url' | 'status' | 'creationDate' | 'renewalDate' | 'tags' | 'externalUUID' | 'scopeName' | 'environmentName'
 
 const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) => {
   const { convertToHtml, convertToReadOnly } = usePlateEditor()
@@ -141,6 +147,9 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
   const { data: permission } = useAccountRoles(ObjectTypes.EVIDENCE, data?.evidence.id)
 
   const editAllowed = canEdit(permission?.roles)
+
+  const { enumOptions: scopeOptions, onCreateOption: createScope } = useCreatableEnumOptions({ field: 'scope', isEditAllowed: editAllowed })
+  const { enumOptions: environmentOptions, onCreateOption: createEnvironment } = useCreatableEnumOptions({ field: 'environment', isEditAllowed: editAllowed })
 
   const evidence = data?.evidence
 
@@ -248,6 +257,9 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
         collectionProcedure: evidence?.collectionProcedure || '',
         source: evidence?.source ?? '',
         url: evidence?.url ?? '',
+        externalUUID: evidence?.externalUUID ?? '',
+        scopeName: evidence?.scopeName ?? '',
+        environmentName: evidence?.environmentName ?? '',
       })
 
       if (evidence?.tags) {
@@ -625,7 +637,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                     )}
                   />
                 ) : (
-                  <div className="mt-5">
+                  <div className="mt-5 mb-6">
                     <FormLabel className="font-bold">Collection Procedure</FormLabel>
                     <HoverPencilWrapper showPencil={false} pencilClass="!-right-5" className={`w-fit cursor-not-allowed`}>
                       <div>{evidence?.collectionProcedure ? <p>{convertToReadOnly(evidence.collectionProcedure)}</p> : <p className="text-gray-500">no collection procedure provided</p>}</div>
@@ -858,6 +870,128 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                                 onPencilClick={() => handleDoubleClick('renewalDate')}
                               >
                                 <p onDoubleClick={() => handleDoubleClick('renewalDate')}>{formatDate(evidence?.renewalDate) || <span className="text-gray-500">no date provided</span>}</p>
+                              </HoverPencilWrapper>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Scope */}
+                        <div className="flex justify-between items-center mb-2">
+                          <div className="flex items-center gap-2 text-sm w-[180px]">
+                            <Radio size={16} className="text-accent-secondary" />
+                            Scope
+                          </div>
+                          <div className="text-sm text-right w-[250px]">
+                            {isEditing || editField === 'scopeName' ? (
+                              <Controller
+                                name="scopeName"
+                                control={form.control}
+                                render={({ field }) => (
+                                  <CreatableCustomTypeEnumSelect
+                                    value={field.value ?? undefined}
+                                    options={scopeOptions}
+                                    onCreateOption={createScope}
+                                    placeholder="Select scope"
+                                    searchPlaceholder="Search scope..."
+                                    triggerClassName="w-[250px]"
+                                    onValueChange={async (val) => {
+                                      field.onChange(val)
+                                      await handleUpdateField()
+                                    }}
+                                  />
+                                )}
+                              />
+                            ) : (
+                              <HoverPencilWrapper
+                                pencilClass="!-right-5"
+                                showPencil={editAllowed}
+                                className={`w-[250px] ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+                                onPencilClick={() => editAllowed && handleDoubleClick('scopeName')}
+                              >
+                                <div className="flex justify-end items-center" onDoubleClick={() => editAllowed && handleDoubleClick('scopeName')}>
+                                  {evidence?.scopeName ? <CustomTypeEnumValue value={evidence.scopeName} options={scopeOptions} /> : <span className="text-gray-500">no scope provided</span>}
+                                </div>
+                              </HoverPencilWrapper>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Environment */}
+                        <div className="flex justify-between items-center mb-2">
+                          <div className="flex items-center gap-2 text-sm w-[180px]">
+                            <Maximize2 size={16} className="text-accent-secondary" />
+                            Environment
+                          </div>
+                          <div className="text-sm text-right w-[250px]">
+                            {isEditing || editField === 'environmentName' ? (
+                              <Controller
+                                name="environmentName"
+                                control={form.control}
+                                render={({ field }) => (
+                                  <CreatableCustomTypeEnumSelect
+                                    value={field.value ?? undefined}
+                                    options={environmentOptions}
+                                    onCreateOption={createEnvironment}
+                                    placeholder="Select environment"
+                                    searchPlaceholder="Search environment..."
+                                    triggerClassName="w-[250px]"
+                                    onValueChange={async (val) => {
+                                      field.onChange(val)
+                                      await handleUpdateField()
+                                    }}
+                                  />
+                                )}
+                              />
+                            ) : (
+                              <HoverPencilWrapper
+                                pencilClass="!-right-5"
+                                showPencil={editAllowed}
+                                className={`w-[250px] ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+                                onPencilClick={() => editAllowed && handleDoubleClick('environmentName')}
+                              >
+                                <div className="flex justify-end items-center" onDoubleClick={() => editAllowed && handleDoubleClick('environmentName')}>
+                                  {evidence?.environmentName ? (
+                                    <CustomTypeEnumValue value={evidence.environmentName} options={environmentOptions} />
+                                  ) : (
+                                    <span className="text-gray-500">no environment provided</span>
+                                  )}
+                                </div>
+                              </HoverPencilWrapper>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* External ID */}
+                        <div className="flex justify-between items-center mb-2">
+                          <div className="flex items-center gap-2 text-sm w-[180px]">
+                            <Fingerprint size={16} className="text-accent-secondary" />
+                            External ID
+                          </div>
+
+                          <div className="text-sm text-right w-[250px]">
+                            {isEditing || editField === 'externalUUID' ? (
+                              <InputRow className="w-full">
+                                <FormField
+                                  control={form.control}
+                                  name="externalUUID"
+                                  render={({ field }) => (
+                                    <FormItem className="w-full">
+                                      <FormControl>
+                                        <Input variant="medium" {...field} value={field.value ?? ''} className="w-[250px]" onBlur={handleUpdateField} onKeyDown={handleKeyDown} autoFocus />
+                                      </FormControl>
+                                      {form.formState.errors.externalUUID && <p className="text-red-500 text-sm">{form.formState.errors.externalUUID.message}</p>}
+                                    </FormItem>
+                                  )}
+                                />
+                              </InputRow>
+                            ) : (
+                              <HoverPencilWrapper
+                                showPencil={editAllowed}
+                                pencilClass="!-right-5"
+                                className={`text-sm text-right w-[250px] ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+                                onPencilClick={() => handleDoubleClick('externalUUID')}
+                              >
+                                <p onDoubleClick={() => handleDoubleClick('externalUUID')}>{evidence?.externalUUID || <span className="text-gray-500">no external id provided</span>}</p>
                               </HoverPencilWrapper>
                             )}
                           </div>
