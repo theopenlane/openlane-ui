@@ -51,6 +51,7 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
 
   const { standardOptions, isSuccess: isSuccessStandards } = useStandardsSelect({
     where: {
+      shortNameNEQ: 'OTS',
       hasControlsWith: [
         {
           hasOwnerWith: [{ id: currentOrgId }],
