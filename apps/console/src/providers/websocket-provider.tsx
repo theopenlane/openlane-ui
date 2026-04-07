@@ -89,7 +89,7 @@ export function WebSocketProvider({ children }: WebSocketProviderProps) {
     const wsClient = createClient({
       url: websocketGQLUrl,
       lazy: true,
-      retryAttempts: Number.MAX_SAFE_INTEGER,
+      retryAttempts: 10,
       keepAlive: 20_000,
       connectionParams: async () => ({
         Authorization: `Bearer ${token}`,
