@@ -89,7 +89,20 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
     enabled: !!where && isSuccessStandards,
   })
 
-  const hasNoControls = !data || data.length === 0 || data.every((entry) => entry.controls.length === 0)
+  const sortedData = useMemo(() => {
+    if (!data) return data
+    const sorted = data.map((entry) => ({
+      ...entry,
+      controls: [...entry.controls].sort((a, b) => a.refCode.localeCompare(b.refCode, undefined, { numeric: true })),
+    }))
+    return sorted.sort((a, b) => {
+      const minA = a.controls[0]?.refCode ?? ''
+      const minB = b.controls[0]?.refCode ?? ''
+      return minA.localeCompare(minB, undefined, { numeric: true })
+    })
+  }, [data])
+
+  const hasNoControls = !sortedData || sortedData.length === 0 || sortedData.every((entry) => entry.controls.length === 0)
 
   const groupControlsByStatus = (controls: { id: string; refCode: string; status?: string | null }[]): Record<ControlControlStatus, { id: string; refCode: string; status?: string | null }[]> => {
     return ControlStatusOrder.reduce(
@@ -102,9 +115,9 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
   }
 
   const toggleAll = () => {
-    if (!data) return
+    if (!sortedData) return
 
-    const allCategories = data.map((item) => item.category)
+    const allCategories = sortedData.map((item) => item.category)
     const hasAllExpanded = allCategories.every((cat) => expandedItems.includes(cat))
 
     setExpandedItems(hasAllExpanded ? [] : allCategories)
@@ -168,7 +181,7 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
           <h1 className="text-2xl tracking-[-0.056rem] text-header">Controls</h1>
           <TabSwitcher active={active} setActive={setActive} storageKey={TabSwitcherStorageKeys.CONTROL} />
           {!isLoading && !isFetching && !hasNoControls ? (
-            <Button type="button" className="h-7.5 !px-2" variant="outline" onClick={toggleAll}>
+            <Button type="button" className="h-7.5 px-2!" variant="outline" onClick={toggleAll}>
               <div className="flex">
                 <List size={16} />
                 <ChevronsDownUp size={16} />
@@ -180,7 +193,7 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
         <div className="flex items-center gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" icon={<SlidersHorizontal />} iconPosition="left" className={`h-7.5 !px-2 !pl-3 ${selectedStandards.length ? 'border border-primary' : ''}`}>
+              <Button variant="outline" icon={<SlidersHorizontal />} iconPosition="left" className={`h-7.5 px-2! pl-3! ${selectedStandards.length ? 'border border-primary' : ''}`}>
                 <span className="text-muted-foreground">Filter by:</span>
                 <span>Framework</span>
               </Button>
@@ -250,7 +263,7 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
           ) : null}
           {createAllowed && !hasNoControls && (
             <Link href="/controls/create-control" aria-label="Create Control">
-              <Button variant="primary" className="h-8 !px-2 !pl-3" icon={<SquarePlus />} iconPosition="left">
+              <Button variant="primary" className="h-8 px-2! pl-3!" icon={<SquarePlus />} iconPosition="left">
                 Create
               </Button>
             </Link>
@@ -285,7 +298,7 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
                     href={`${COMPLIANCE_MANAGEMENT_DOCS_URL}/controls/overview`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="ml-1 text-[var(--color-info)] underline underline-offset-4 hover:opacity-80"
+                    className="ml-1 text-(--color-info) underline underline-offset-4 hover:opacity-80"
                   >
                     See docs to learn more.
                   </a>
@@ -295,7 +308,7 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
           </div>
         ) : (
           <Accordion type="multiple" value={expandedItems} onValueChange={setExpandedItems}>
-            {data?.map(({ category, controls }) => {
+            {sortedData?.map(({ category, controls }) => {
               const controlsByStatus = groupControlsByStatus(controls)
               if (controls.length === 0) return null
               return (
@@ -303,7 +316,7 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
                   <div className="flex justify-between items-center">
                     <AccordionTrigger asChild className="bg-unset">
                       <button className="size-fit group flex items-center gap-2">
-                        <ChevronDown size={22} className="text-brand transform rotate-[-90deg] transition-transform group-data-[state=open]:rotate-0" />
+                        <ChevronDown size={22} className="text-brand transform -rotate-90 transition-transform group-data-[state=open]:rotate-0" />
                         <span className="text-xl">{category}</span>
                         <span className="p-1.5 border text-xs text-text-informational rounded-lg">
                           {controlsByStatus.APPROVED.length}/{controls.length}
