@@ -245,6 +245,14 @@ export const CONTROL_DETAILS_FIELDS_FRAGMENT = gql`
         base64
       }
     }
+    responsibleParty {
+      id
+      displayName
+      name
+      logoFile {
+        base64
+      }
+    }
   }
 `
 

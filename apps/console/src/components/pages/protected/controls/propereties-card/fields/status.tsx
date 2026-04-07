@@ -93,7 +93,7 @@ export const Status = ({
   )
 
   return (
-    <div className="grid grid-cols-[140px_1fr] items-start gap-x-3 border-b border-border pb-3 last:border-b-0">
+    <div className="grid grid-cols-[160px_1fr] items-start gap-x-3 border-b border-border pb-3 last:border-b-0">
       <div className="flex items-start gap-2">
         <div className="pt-0.5">{controlIconsMap.Status}</div>
         <div className="text-sm">Status</div>

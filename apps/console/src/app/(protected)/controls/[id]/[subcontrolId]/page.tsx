@@ -60,6 +60,7 @@ interface FormValues {
   descriptionJSON?: Value
   delegateID: string
   controlOwnerID: string
+  responsiblePartyID: string
   category?: string
   subcategory?: string
   status: SubcontrolControlStatus
@@ -79,6 +80,7 @@ const initialDataObj = {
   descriptionJSON: undefined,
   delegateID: '',
   controlOwnerID: '',
+  responsiblePartyID: '',
   category: '',
   subcategory: '',
   status: SubcontrolControlStatus.NOT_IMPLEMENTED,
@@ -291,6 +293,7 @@ const ControlDetailsPage: React.FC = () => {
         descriptionJSON: data.subcontrol?.descriptionJSON ? (data.subcontrol.descriptionJSON as Value) : undefined,
         delegateID: data?.subcontrol?.delegate?.id || '',
         controlOwnerID: data?.subcontrol?.controlOwner?.id || '',
+        responsiblePartyID: data?.subcontrol?.responsibleParty?.id || '',
         category: data?.subcontrol?.category || '',
         subcategory: data?.subcontrol?.subcategory || '',
         status: data?.subcontrol?.status || SubcontrolControlStatus.NOT_IMPLEMENTED,

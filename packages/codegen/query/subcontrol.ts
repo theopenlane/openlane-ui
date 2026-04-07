@@ -117,6 +117,14 @@ export const GET_SUBCONTROL_BY_ID = gql`
           base64
         }
       }
+      responsibleParty {
+        id
+        displayName
+        name
+        logoFile {
+          base64
+        }
+      }
     }
   }
 `

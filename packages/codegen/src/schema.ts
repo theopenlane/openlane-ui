@@ -65746,6 +65746,7 @@ export type ControlDetailsFieldsFragment = {
     gravatarLogoURL?: string | null
     avatarFile?: { __typename?: 'File'; base64?: string | null } | null
   } | null
+  responsibleParty?: { __typename?: 'Entity'; id: string; displayName?: string | null; name?: string | null; logoFile?: { __typename?: 'File'; base64?: string | null } | null } | null
 }
 
 export type GetAllControlsQueryVariables = Exact<{
@@ -65923,6 +65924,7 @@ export type GetControlByIdQuery = {
       gravatarLogoURL?: string | null
       avatarFile?: { __typename?: 'File'; base64?: string | null } | null
     } | null
+    responsibleParty?: { __typename?: 'Entity'; id: string; displayName?: string | null; name?: string | null; logoFile?: { __typename?: 'File'; base64?: string | null } | null } | null
   }
 }
 
@@ -73331,6 +73333,7 @@ export type GetSubcontrolByIdQuery = {
       gravatarLogoURL?: string | null
       avatarFile?: { __typename?: 'File'; base64?: string | null } | null
     } | null
+    responsibleParty?: { __typename?: 'Entity'; id: string; displayName?: string | null; name?: string | null; logoFile?: { __typename?: 'File'; base64?: string | null } | null } | null
   }
 }
 
@@ -75213,6 +75216,215 @@ export type DeleteUserMutationVariables = Exact<{
 }>
 
 export type DeleteUserMutation = { __typename?: 'Mutation'; deleteUser: { __typename?: 'UserDeletePayload'; deletedID: string } }
+
+export type VendorRiskScoresWithFilterQueryVariables = Exact<{
+  where?: InputMaybe<VendorRiskScoreWhereInput>
+  orderBy?: InputMaybe<Array<VendorRiskScoreOrder> | VendorRiskScoreOrder>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type VendorRiskScoresWithFilterQuery = {
+  __typename?: 'Query'
+  vendorRiskScores: {
+    __typename?: 'VendorRiskScoreConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'VendorRiskScoreEdge'
+      node?: {
+        __typename?: 'VendorRiskScore'
+        answer?: string | null
+        assessmentResponseID?: string | null
+        createdAt?: any | null
+        createdBy?: string | null
+        entityID: string
+        id: string
+        notes?: string | null
+        questionDescription?: string | null
+        questionKey: string
+        questionName: string
+        score: number
+        updatedAt?: any | null
+        updatedBy?: string | null
+        vendorScoringConfigID?: string | null
+      } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
+  }
+}
+
+export type VendorRiskScoreQueryVariables = Exact<{
+  vendorRiskScoreId: Scalars['ID']['input']
+}>
+
+export type VendorRiskScoreQuery = {
+  __typename?: 'Query'
+  vendorRiskScore: {
+    __typename?: 'VendorRiskScore'
+    answer?: string | null
+    assessmentResponseID?: string | null
+    createdAt?: any | null
+    createdBy?: string | null
+    entityID: string
+    id: string
+    notes?: string | null
+    questionDescription?: string | null
+    questionKey: string
+    questionName: string
+    score: number
+    updatedAt?: any | null
+    updatedBy?: string | null
+    vendorScoringConfigID?: string | null
+  }
+}
+
+export type CreateVendorRiskScoreMutationVariables = Exact<{
+  input: CreateVendorRiskScoreInput
+}>
+
+export type CreateVendorRiskScoreMutation = {
+  __typename?: 'Mutation'
+  createVendorRiskScore: { __typename?: 'VendorRiskScoreCreatePayload'; vendorRiskScore: { __typename?: 'VendorRiskScore'; id: string } }
+}
+
+export type UpdateVendorRiskScoreMutationVariables = Exact<{
+  updateVendorRiskScoreId: Scalars['ID']['input']
+  input: UpdateVendorRiskScoreInput
+}>
+
+export type UpdateVendorRiskScoreMutation = {
+  __typename?: 'Mutation'
+  updateVendorRiskScore: { __typename?: 'VendorRiskScoreUpdatePayload'; vendorRiskScore: { __typename?: 'VendorRiskScore'; id: string } }
+}
+
+export type DeleteVendorRiskScoreMutationVariables = Exact<{
+  deleteVendorRiskScoreId: Scalars['ID']['input']
+}>
+
+export type DeleteVendorRiskScoreMutation = { __typename?: 'Mutation'; deleteVendorRiskScore: { __typename?: 'VendorRiskScoreDeletePayload'; deletedID: string } }
+
+export type CreateBulkCsvVendorRiskScoreMutationVariables = Exact<{
+  input: Scalars['Upload']['input']
+}>
+
+export type CreateBulkCsvVendorRiskScoreMutation = {
+  __typename?: 'Mutation'
+  createBulkCSVVendorRiskScore: { __typename?: 'VendorRiskScoreBulkCreatePayload'; vendorRiskScores?: Array<{ __typename?: 'VendorRiskScore'; id: string }> | null }
+}
+
+export type DeleteBulkVendorRiskScoreMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+}>
+
+export type DeleteBulkVendorRiskScoreMutation = { __typename?: 'Mutation'; deleteBulkVendorRiskScore: { __typename?: 'VendorRiskScoreBulkDeletePayload'; deletedIDs: Array<string> } }
+
+export type UpdateBulkVendorRiskScoreMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+  input: UpdateVendorRiskScoreInput
+}>
+
+export type UpdateBulkVendorRiskScoreMutation = { __typename?: 'Mutation'; updateBulkVendorRiskScore: { __typename?: 'VendorRiskScoreBulkUpdatePayload'; updatedIDs?: Array<string> | null } }
+
+export type VendorScoringConfigsWithFilterQueryVariables = Exact<{
+  where?: InputMaybe<VendorScoringConfigWhereInput>
+  orderBy?: InputMaybe<Array<VendorScoringConfigOrder> | VendorScoringConfigOrder>
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type VendorScoringConfigsWithFilterQuery = {
+  __typename?: 'Query'
+  vendorScoringConfigs: {
+    __typename?: 'VendorScoringConfigConnection'
+    totalCount: number
+    edges?: Array<{
+      __typename?: 'VendorScoringConfigEdge'
+      node?: {
+        __typename?: 'VendorScoringConfig'
+        createdAt?: any | null
+        createdBy?: string | null
+        id: string
+        questions: any
+        riskThresholds: any
+        updatedAt?: any | null
+        updatedBy?: string | null
+      } | null
+    } | null> | null
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
+  }
+}
+
+export type VendorScoringConfigQueryVariables = Exact<{
+  vendorScoringConfigId: Scalars['ID']['input']
+}>
+
+export type VendorScoringConfigQuery = {
+  __typename?: 'Query'
+  vendorScoringConfig: {
+    __typename?: 'VendorScoringConfig'
+    createdAt?: any | null
+    createdBy?: string | null
+    id: string
+    questions: any
+    riskThresholds: any
+    updatedAt?: any | null
+    updatedBy?: string | null
+  }
+}
+
+export type CreateVendorScoringConfigMutationVariables = Exact<{
+  input: CreateVendorScoringConfigInput
+}>
+
+export type CreateVendorScoringConfigMutation = {
+  __typename?: 'Mutation'
+  createVendorScoringConfig: { __typename?: 'VendorScoringConfigCreatePayload'; vendorScoringConfig: { __typename?: 'VendorScoringConfig'; id: string } }
+}
+
+export type UpdateVendorScoringConfigMutationVariables = Exact<{
+  updateVendorScoringConfigId: Scalars['ID']['input']
+  input: UpdateVendorScoringConfigInput
+}>
+
+export type UpdateVendorScoringConfigMutation = {
+  __typename?: 'Mutation'
+  updateVendorScoringConfig: { __typename?: 'VendorScoringConfigUpdatePayload'; vendorScoringConfig: { __typename?: 'VendorScoringConfig'; id: string } }
+}
+
+export type DeleteVendorScoringConfigMutationVariables = Exact<{
+  deleteVendorScoringConfigId: Scalars['ID']['input']
+}>
+
+export type DeleteVendorScoringConfigMutation = { __typename?: 'Mutation'; deleteVendorScoringConfig: { __typename?: 'VendorScoringConfigDeletePayload'; deletedID: string } }
+
+export type CreateBulkCsvVendorScoringConfigMutationVariables = Exact<{
+  input: Scalars['Upload']['input']
+}>
+
+export type CreateBulkCsvVendorScoringConfigMutation = {
+  __typename?: 'Mutation'
+  createBulkCSVVendorScoringConfig: { __typename?: 'VendorScoringConfigBulkCreatePayload'; vendorScoringConfigs?: Array<{ __typename?: 'VendorScoringConfig'; id: string }> | null }
+}
+
+export type DeleteBulkVendorScoringConfigMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+}>
+
+export type DeleteBulkVendorScoringConfigMutation = { __typename?: 'Mutation'; deleteBulkVendorScoringConfig: { __typename?: 'VendorScoringConfigBulkDeletePayload'; deletedIDs: Array<string> } }
+
+export type UpdateBulkVendorScoringConfigMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+  input: UpdateVendorScoringConfigInput
+}>
+
+export type UpdateBulkVendorScoringConfigMutation = {
+  __typename?: 'Mutation'
+  updateBulkVendorScoringConfig: { __typename?: 'VendorScoringConfigBulkUpdatePayload'; updatedIDs?: Array<string> | null }
+}
 
 export type VulnerabilitiesWithFilterQueryVariables = Exact<{
   where?: InputMaybe<VulnerabilityWhereInput>
