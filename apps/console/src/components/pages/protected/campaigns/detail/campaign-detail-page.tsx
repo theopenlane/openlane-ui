@@ -2,6 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'next/navigation'
+import { FormProvider, useForm } from 'react-hook-form'
 import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
 import { Calendar, CheckCircle, FileText, Play, Trash2 } from 'lucide-react'
@@ -11,8 +12,8 @@ import { useCampaignTargetStats } from '@/lib/graphql-hooks/campaign-target'
 import { type CampaignTargetsNodeNonNull } from '@/lib/graphql-hooks/campaign-target'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { CampaignCampaignStatus } from '@repo/codegen/src/schema'
-import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { CampaignCampaignStatus, CampaignCampaignType, type UpdateCampaignInput } from '@repo/codegen/src/schema'
+import { getEnumLabel, enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import { formatDate } from '@/utils/date'
 import Skeleton from '@/components/shared/skeleton/skeleton'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar'
@@ -22,6 +23,20 @@ import { useRouter } from 'next/navigation'
 import { RecipientDetailPanel } from './recipient-detail-panel'
 import CampaignRunsTable from './campaign-runs-table'
 import RecipientsTable from './recipients-table'
+import { TextField } from '@/components/shared/crud-base/form-fields/text-field'
+import { SelectField } from '@/components/shared/crud-base/form-fields/select-field'
+import { DateField } from '@/components/shared/crud-base/form-fields/date-field'
+
+type CampaignFormData = {
+  name: string
+  description: string
+  campaignType: CampaignCampaignType | undefined
+  status: CampaignCampaignStatus | undefined
+  dueDate: string | undefined
+}
+
+const statusOptions = enumToOptions(CampaignCampaignStatus)
+const typeOptions = enumToOptions(CampaignCampaignType)
 
 const CampaignDetailPage: React.FC = () => {
   const params = useParams<{ id: string }>()
@@ -34,6 +49,7 @@ const CampaignDetailPage: React.FC = () => {
   const router = useRouter()
 
   const [selectedRecipient, setSelectedRecipient] = useState<CampaignTargetsNodeNonNull | null>(null)
+  const [internalEditing, setInternalEditing] = useState<string | null>(null)
 
   const { nodes: recipients, totalCount } = useCampaignTargetStats({
     where: { hasCampaignWith: [{ id: campaignId }] },
@@ -41,6 +57,28 @@ const CampaignDetailPage: React.FC = () => {
   })
 
   const campaign = data?.campaign
+
+  const form = useForm<CampaignFormData>({
+    defaultValues: {
+      name: '',
+      description: '',
+      campaignType: undefined,
+      status: undefined,
+      dueDate: undefined,
+    },
+  })
+
+  useEffect(() => {
+    if (campaign) {
+      form.reset({
+        name: campaign.name ?? '',
+        description: campaign.description ?? '',
+        campaignType: campaign.campaignType ?? undefined,
+        status: campaign.status ?? undefined,
+        dueDate: campaign.dueDate ?? undefined,
+      })
+    }
+  }, [campaign, form])
 
   useEffect(() => {
     setCrumbs([
@@ -65,6 +103,16 @@ const CampaignDetailPage: React.FC = () => {
     if (stats.total === 0) return 0
     return Math.round((stats.completed / stats.total) * 100)
   }, [stats])
+
+  const handleUpdateField = async (input: UpdateCampaignInput) => {
+    if (!campaignId) return
+    try {
+      await updateCampaign({ updateCampaignId: campaignId, input })
+      successNotification({ title: 'Campaign updated' })
+    } catch (error) {
+      errorNotification({ title: 'Error', description: parseErrorMessage(error) })
+    }
+  }
 
   const handleStartCampaign = async () => {
     if (!campaignId) return
@@ -109,6 +157,18 @@ const CampaignDetailPage: React.FC = () => {
     return <div className="p-8 text-center text-muted-foreground">Campaign not found</div>
   }
 
+  const sharedFieldProps = {
+    isEditing: false as const,
+    isEditAllowed: true,
+    isCreate: false as const,
+    data: campaign,
+    internalEditing,
+    setInternalEditing,
+    handleUpdate: handleUpdateField,
+    layout: 'horizontal' as const,
+    labelClassName: 'text-muted-foreground',
+  }
+
   const menuComponent = (
     <div className="flex items-center gap-2 ml-auto">
       <Menu
@@ -141,22 +201,9 @@ const CampaignDetailPage: React.FC = () => {
       <div className="rounded-md border border-border bg-card p-4">
         <h3 className="text-sm font-semibold mb-3">Properties</h3>
         <div className="flex flex-col gap-3">
-          <div>
-            <span className="text-xs text-muted-foreground">Status</span>
-            <div className="text-sm mt-1">
-              <Badge variant="outline">{getEnumLabel(campaign.status)}</Badge>
-            </div>
-          </div>
-          <div>
-            <span className="text-xs text-muted-foreground">Type</span>
-            <p className="text-sm mt-1">{getEnumLabel(campaign.campaignType) || '—'}</p>
-          </div>
-          {campaign.dueDate && (
-            <div>
-              <span className="text-xs text-muted-foreground">Due Date</span>
-              <p className="text-sm mt-1">{formatDate(campaign.dueDate as string)}</p>
-            </div>
-          )}
+          <SelectField name="status" label="Status" options={statusOptions} {...sharedFieldProps} />
+          <SelectField name="campaignType" label="Type" options={typeOptions} {...sharedFieldProps} />
+          <DateField name="dueDate" label="Due Date" {...sharedFieldProps} />
           {campaign.tags && campaign.tags.length > 0 && (
             <div>
               <span className="text-xs text-muted-foreground">Tags</span>
@@ -169,14 +216,14 @@ const CampaignDetailPage: React.FC = () => {
               </div>
             </div>
           )}
-          <div>
-            <span className="text-xs text-muted-foreground">Created</span>
-            <p className="text-sm mt-1">{campaign.createdAt ? formatDate(campaign.createdAt as string) : '—'}</p>
+          <div className="flex items-center justify-between gap-4">
+            <span className="text-base text-muted-foreground">Created</span>
+            <span className="text-sm py-2 px-1">{campaign.createdAt ? formatDate(campaign.createdAt as string) : '—'}</span>
           </div>
           {campaign.completedAt && (
-            <div>
-              <span className="text-xs text-muted-foreground">Completed</span>
-              <p className="text-sm mt-1">{formatDate(campaign.completedAt as string)}</p>
+            <div className="flex items-center justify-between gap-4">
+              <span className="text-base text-muted-foreground">Completed</span>
+              <span className="text-sm py-2 px-1">{formatDate(campaign.completedAt as string)}</span>
             </div>
           )}
         </div>
@@ -219,7 +266,9 @@ const CampaignDetailPage: React.FC = () => {
 
   const mainContent = (
     <div className="pr-4">
-      <h1 className="text-xl font-semibold mb-6">{campaign.name}</h1>
+      <div className="mb-6">
+        <TextField name="name" label="" isEditing={false} isEditAllowed={true} isCreate={false} data={campaign} internalEditing={internalEditing} setInternalEditing={setInternalEditing} handleUpdate={handleUpdateField} layout="vertical" className="text-xl font-semibold" />
+      </div>
 
       {/* Campaign Progress */}
       <div className="rounded-md border border-border bg-card p-4 mb-4 w-full">
@@ -276,7 +325,11 @@ const CampaignDetailPage: React.FC = () => {
     </div>
   )
 
-  return <SlideBarLayout sidebarTitle="Details" sidebarContent={sidebarContent} menu={menuComponent} minWidth={350}>{mainContent}</SlideBarLayout>
+  return (
+    <FormProvider {...form}>
+      <SlideBarLayout sidebarTitle="Details" sidebarContent={sidebarContent} menu={menuComponent} minWidth={350}>{mainContent}</SlideBarLayout>
+    </FormProvider>
+  )
 }
 
 export default CampaignDetailPage
