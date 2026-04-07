@@ -129,6 +129,15 @@ export const PLATFORM = gql`
       internalOwner
       internalOwnerGroupID
       internalOwnerUserID
+      internalOwnerUser {
+        id
+        displayName
+        email
+      }
+      internalOwnerGroup {
+        id
+        name
+      }
       metadata
       name
       physicalLocation
@@ -150,6 +159,15 @@ export const PLATFORM = gql`
       securityOwner
       securityOwnerGroupID
       securityOwnerUserID
+      securityOwnerUser {
+        id
+        displayName
+        email
+      }
+      securityOwnerGroup {
+        id
+        name
+      }
       securityTierID
       securityTierName
       sourceIdentifier
@@ -195,6 +213,9 @@ export const PLATFORM = gql`
             name
             displayName
             status
+            logoFile {
+              base64
+            }
           }
         }
       }
@@ -205,6 +226,9 @@ export const PLATFORM = gql`
             name
             displayName
             status
+            logoFile {
+              base64
+            }
           }
         }
       }

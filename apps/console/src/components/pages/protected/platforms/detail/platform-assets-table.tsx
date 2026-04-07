@@ -1,8 +1,9 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import { Badge } from '@repo/ui/badge'
 import { Laptop } from 'lucide-react'
+import ViewAssetSheet from '@/components/pages/protected/assets/view-asset-sheet'
 
 type AssetNode = {
   id: string
@@ -17,8 +18,8 @@ interface PlatformAssetsTableProps {
   canEdit: boolean
 }
 
-const AssetRow: React.FC<{ asset: AssetNode; outOfScope?: boolean }> = ({ asset, outOfScope }) => (
-  <div className={`flex items-center gap-3 px-4 py-2.5 border-b last:border-0 ${outOfScope ? 'opacity-60' : ''}`}>
+const AssetRow: React.FC<{ asset: AssetNode; outOfScope?: boolean; onClick: () => void }> = ({ asset, outOfScope, onClick }) => (
+  <div className={`flex items-center gap-3 px-4 py-2.5 border-b last:border-0 cursor-pointer hover:bg-muted/50 transition-colors ${outOfScope ? 'opacity-60' : ''}`} onClick={onClick}>
     <Laptop size={16} className="text-muted-foreground shrink-0" />
     <span className="text-sm font-medium flex-1">{asset.name ?? asset.id}</span>
     {!!asset.assetType && (
@@ -35,6 +36,7 @@ const AssetRow: React.FC<{ asset: AssetNode; outOfScope?: boolean }> = ({ asset,
 )
 
 const PlatformAssetsTable: React.FC<PlatformAssetsTableProps> = ({ inScopeAssets, outOfScopeAssets }) => {
+  const [selectedAssetId, setSelectedAssetId] = useState<string | null>(null)
   const hasAssets = inScopeAssets.length > 0 || outOfScopeAssets.length > 0
 
   if (!hasAssets) {
@@ -47,28 +49,32 @@ const PlatformAssetsTable: React.FC<PlatformAssetsTableProps> = ({ inScopeAssets
   }
 
   return (
-    <div className="space-y-4">
-      {inScopeAssets.length > 0 && (
-        <div className="rounded-md border">
-          <div className="px-4 py-2 bg-muted/30 border-b">
-            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">In Scope ({inScopeAssets.length})</span>
+    <>
+      <div className="space-y-4">
+        {inScopeAssets.length > 0 && (
+          <div className="rounded-md border">
+            <div className="px-4 py-2 bg-muted/30 border-b">
+              <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">In Scope ({inScopeAssets.length})</span>
+            </div>
+            {inScopeAssets.map((asset) => (
+              <AssetRow key={asset.id} asset={asset} onClick={() => setSelectedAssetId(asset.id)} />
+            ))}
           </div>
-          {inScopeAssets.map((asset) => (
-            <AssetRow key={asset.id} asset={asset} />
-          ))}
-        </div>
-      )}
-      {outOfScopeAssets.length > 0 && (
-        <div className="rounded-md border">
-          <div className="px-4 py-2 bg-muted/30 border-b">
-            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Out of Scope ({outOfScopeAssets.length})</span>
+        )}
+        {outOfScopeAssets.length > 0 && (
+          <div className="rounded-md border">
+            <div className="px-4 py-2 bg-muted/30 border-b">
+              <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Out of Scope ({outOfScopeAssets.length})</span>
+            </div>
+            {outOfScopeAssets.map((asset) => (
+              <AssetRow key={asset.id} asset={asset} outOfScope onClick={() => setSelectedAssetId(asset.id)} />
+            ))}
           </div>
-          {outOfScopeAssets.map((asset) => (
-            <AssetRow key={asset.id} asset={asset} outOfScope />
-          ))}
-        </div>
-      )}
-    </div>
+        )}
+      </div>
+
+      <ViewAssetSheet entityId={selectedAssetId} onClose={() => setSelectedAssetId(null)} />
+    </>
   )
 }
 

@@ -6,7 +6,9 @@ import { responsibilityFieldSchema } from '@/components/shared/crud-base/form-fi
 import { PlatformPlatformStatus } from '@repo/codegen/src/schema'
 import type { StepConfig } from '@/components/shared/crud-base/types'
 import StepBasicInfo from './step-basic-info'
+import StepBusinessPurpose from './step-business-purpose'
 import StepDataFlow from './step-data-flow'
+import StepTrustBoundary from './step-trust-boundary'
 import StepAuditScope from './step-audit-scope'
 import StepOwnership from './step-ownership'
 import StepLinkAssetsVendors from './step-link-assets-vendors'
@@ -18,18 +20,33 @@ export const createPlatformSteps = (): StepConfig[] => [
     schema: z.object({
       name: z.string().min(1, 'Name is required'),
       status: z.nativeEnum(PlatformPlatformStatus).optional(),
-      businessPurpose: z.string().optional(),
+      description: z.string().optional(),
     }),
     render: () => <StepBasicInfo />,
+  },
+  {
+    id: 'business-purpose',
+    label: 'Business Purpose',
+    schema: z.object({
+      businessPurpose: z.string().optional(),
+    }),
+    render: () => <StepBusinessPurpose />,
   },
   {
     id: 'data-flow',
     label: 'Data Flow',
     schema: z.object({
       dataFlowSummary: z.string().optional(),
-      trustBoundaryDescription: z.string().optional(),
     }),
     render: () => <StepDataFlow />,
+  },
+  {
+    id: 'trust-boundary',
+    label: 'Trust Boundary',
+    schema: z.object({
+      trustBoundaryDescription: z.string().optional(),
+    }),
+    render: () => <StepTrustBoundary />,
   },
   {
     id: 'audit-scope',

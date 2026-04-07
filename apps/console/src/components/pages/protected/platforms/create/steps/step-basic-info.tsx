@@ -3,13 +3,12 @@
 import React from 'react'
 import { useFormContext } from 'react-hook-form'
 import { Input } from '@repo/ui/input'
+import { Textarea } from '@repo/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
 import { PlatformPlatformStatus } from '@repo/codegen/src/schema'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import { type EditPlatformFormData } from '../../hooks/use-form-schema'
-import PlateEditor from '@/components/shared/plate/plate-editor'
-import { type Value } from 'platejs'
 
 const StepBasicInfo: React.FC = () => {
   const form = useFormContext<EditPlatformFormData>()
@@ -58,12 +57,12 @@ const StepBasicInfo: React.FC = () => {
 
       <FormField
         control={form.control}
-        name="businessPurpose"
+        name="description"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Business Purpose</FormLabel>
+            <FormLabel>Description</FormLabel>
             <FormControl>
-              <PlateEditor onChange={(val) => field.onChange(val)} initialValue={field.value as Value | string | undefined} placeholder="Describe the business purpose of this platform..." />
+              <Textarea placeholder="Briefly describe this platform..." {...field} />
             </FormControl>
           </FormItem>
         )}

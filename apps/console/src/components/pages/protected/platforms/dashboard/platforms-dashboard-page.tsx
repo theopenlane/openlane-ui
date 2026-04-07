@@ -15,22 +15,17 @@ import { StepDialog } from '@/components/shared/crud-base/step-dialog'
 import { createPlatformSteps } from '../create/steps/platform-create-steps'
 import useFormSchema, { type EditPlatformFormData } from '../hooks/use-form-schema'
 import { buildResponsibilityPayload } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
+import { toHumanLabel } from '@/utils/strings'
+import { CustomEnumChipCell } from '@/components/shared/crud-base/columns/custom-enum-chip-cell'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { type Value } from 'platejs'
 import { objectType } from '../table/types'
 import Skeleton from '@/components/shared/skeleton/skeleton'
 
-const STATUS_VARIANT: Record<PlatformPlatformStatus, 'default' | 'secondary' | 'destructive' | 'outline'> = {
-  [PlatformPlatformStatus.ACTIVE]: 'default',
+const STATUS_VARIANT: Record<PlatformPlatformStatus, 'green' | 'secondary'> = {
+  [PlatformPlatformStatus.ACTIVE]: 'green',
   [PlatformPlatformStatus.INACTIVE]: 'secondary',
-  [PlatformPlatformStatus.RETIRED]: 'destructive',
-}
-
-function stripHtml(html: string): string {
-  return html
-    .replace(/<[^>]*>/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim()
+  [PlatformPlatformStatus.RETIRED]: 'secondary',
 }
 
 const PlatformsDashboardPage: React.FC = () => {
@@ -44,8 +39,6 @@ const PlatformsDashboardPage: React.FC = () => {
   const { mutateAsync: createPlatform, isPending: isCreatePending } = useCreatePlatform()
   const { mutateAsync: updatePlatform, isPending: isUpdatePending } = useUpdatePlatform()
 
-  // Stores asset/vendor IDs between buildPayload and createMutation so we can
-  // do a follow-up update after creation (backend doesn't accept these in create)
   const pendingLinksRef = useRef<{
     assetIDs?: string[]
     entityIDs?: string[]
@@ -106,6 +99,7 @@ const PlatformsDashboardPage: React.FC = () => {
     ])
     return {
       name: rest.name,
+      description: rest.description || undefined,
       status: rest.status,
       scopeName: rest.scopeName,
       environmentName: rest.environmentName,
@@ -113,7 +107,6 @@ const PlatformsDashboardPage: React.FC = () => {
       businessPurpose,
       dataFlowSummary,
       trustBoundaryDescription,
-      // Default to the current user when no owner explicitly selected — backend requires this for authorization
       platformOwnerID: platformOwner?.type === 'user' ? platformOwner.value : (session?.user?.id ?? undefined),
       ...buildResponsibilityPayload('businessOwner', businessOwner, { mode: 'create' }),
       ...buildResponsibilityPayload('technicalOwner', technicalOwner, { mode: 'create' }),
@@ -149,7 +142,7 @@ const PlatformsDashboardPage: React.FC = () => {
 
       {hasNoPlatforms ? (
         <Callout variant="info" title="No platforms yet">
-          Platforms represent the managed infrastructure your organization relies on. Create your first platform to start tracking assets, vendors, and ownership.
+          Each platform represents a top-level system (e.g. a product or service) and defines its audit scope. Create your first platform to begin organizing assets, vendors, and ownership.
         </Callout>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -179,7 +172,7 @@ const PlatformsDashboardPage: React.FC = () => {
 }
 
 const PlatformCard: React.FC<{ platform: Platform }> = ({ platform }) => {
-  const businessPurposePreview = platform.businessPurpose ? stripHtml(platform.businessPurpose) : null
+  const plateEditorHelper = usePlateEditor()
 
   const ownerName = platform.platformOwner?.displayName ?? platform.businessOwnerUser?.displayName ?? platform.businessOwnerGroup?.name ?? platform.businessOwner ?? null
 
@@ -198,32 +191,25 @@ const PlatformCard: React.FC<{ platform: Platform }> = ({ platform }) => {
           </div>
         </div>
         {platform.status && (
-          <Badge variant={STATUS_VARIANT[platform.status as PlatformPlatformStatus] ?? 'outline'} className="shrink-0 text-xs">
-            {platform.status}
+          <Badge variant={STATUS_VARIANT[platform.status as PlatformPlatformStatus] ?? 'secondary'} className="shrink-0 text-xs">
+            {toHumanLabel(platform.status)}
           </Badge>
         )}
       </div>
 
-      {businessPurposePreview && (
+      {platform.businessPurpose && (
         <div className="px-5 pb-3">
-          <p className="text-sm text-muted-foreground line-clamp-2">{businessPurposePreview}</p>
+          <div className="text-sm text-muted-foreground line-clamp-2 prose prose-sm dark:prose-invert max-w-none">{plateEditorHelper.convertToReadOnly(platform.businessPurpose)}</div>
         </div>
       )}
 
       <CardContent className="px-5 pb-4 pt-0 space-y-3 mt-auto">
         <div className="flex flex-wrap gap-1.5">
-          {platform.environmentName && (
-            <Badge variant="secondary" className="text-xs">
-              {platform.environmentName}
-            </Badge>
-          )}
-          {platform.scopeName && (
-            <Badge variant="outline" className="text-xs">
-              {platform.scopeName}
-            </Badge>
-          )}
+          {platform.environmentName && <CustomEnumChipCell value={platform.environmentName} field="environment" />}
+          {platform.scopeName && <CustomEnumChipCell value={platform.scopeName} field="scope" />}
           {platform.containsPii && (
-            <Badge variant="destructive" className="text-xs">
+            <Badge variant="outline" className="flex items-center gap-1 text-xs">
+              <div className="shrink-0 w-2 h-2 rounded-full bg-red-500" />
               PII
             </Badge>
           )}
@@ -232,12 +218,12 @@ const PlatformCard: React.FC<{ platform: Platform }> = ({ platform }) => {
         {ownerName && (
           <div className="flex items-center gap-1 text-sm text-muted-foreground truncate">
             {ownerIcon}
-            <span className="truncate">{ownerName}</span>
+            <span className="truncate">Owner: {ownerName}</span>
           </div>
         )}
 
         <Link href={`/registry/platforms/${platform.id}`} className="block">
-          <Button variant="secondary" className="w-full" size="sm">
+          <Button variant="secondary" className="w-full" size="md">
             View Platform
           </Button>
         </Link>

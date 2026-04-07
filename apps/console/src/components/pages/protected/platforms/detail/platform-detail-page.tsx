@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { usePlatform, useUpdatePlatform, useDeletePlatform } from '@/lib/graphql-hooks/platform'
@@ -14,7 +14,8 @@ import { Button } from '@repo/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@repo/ui/cardpanel'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
-import { Pencil, Trash2, MoreHorizontal, NetworkIcon, Laptop, Building2, User, Users } from 'lucide-react'
+import { Form } from '@repo/ui/form'
+import { Trash2, PencilIcon, NetworkIcon, Laptop, Building2, User, Users, Copy, Check } from 'lucide-react'
 import Menu from '@/components/shared/menu/menu'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -26,19 +27,26 @@ import Skeleton from '@/components/shared/skeleton/skeleton'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import useFormSchema, { type EditPlatformFormData } from '../hooks/use-form-schema'
 import { buildResponsibilityPayload, normalizeResponsibilityField } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
+import { toHumanLabel } from '@/utils/strings'
+import { CustomEnumChipCell } from '@/components/shared/crud-base/columns/custom-enum-chip-cell'
 import { type Value } from 'platejs'
-import { StepDialog } from '@/components/shared/crud-base/step-dialog'
-import { createPlatformSteps } from '../create/steps/platform-create-steps'
+import StepBasicInfo from '../create/steps/step-basic-info'
+import StepDataFlow from '../create/steps/step-data-flow'
+import StepAuditScope from '../create/steps/step-audit-scope'
+import StepOwnership from '../create/steps/step-ownership'
+import StepLinkAssetsVendors from '../create/steps/step-link-assets-vendors'
 import { useQueryClient } from '@tanstack/react-query'
+import { SaveButton } from '@/components/shared/save-button/save-button'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 interface PlatformDetailPageProps {
   platformId: string
 }
 
-const STATUS_VARIANT: Record<PlatformPlatformStatus, 'default' | 'secondary' | 'destructive' | 'outline'> = {
-  [PlatformPlatformStatus.ACTIVE]: 'default',
+const STATUS_VARIANT: Record<PlatformPlatformStatus, 'green' | 'secondary'> = {
+  [PlatformPlatformStatus.ACTIVE]: 'green',
   [PlatformPlatformStatus.INACTIVE]: 'secondary',
-  [PlatformPlatformStatus.RETIRED]: 'destructive',
+  [PlatformPlatformStatus.RETIRED]: 'secondary',
 }
 
 const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId }) => {
@@ -55,7 +63,8 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId }) =
   const { mutateAsync: updatePlatformMutation, isPending: isUpdatePending } = useUpdatePlatform()
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
-  const [isEditOpen, setIsEditOpen] = useState(false)
+  const [isEditing, setIsEditing] = useState(false)
+  const [copiedEmail, setCopiedEmail] = useState<string | null>(null)
 
   const platform = data?.platform as Platform | undefined
   const canEditPlatform = canEdit(permission?.roles)
@@ -73,7 +82,7 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId }) =
   }, [setCrumbs, platform?.name, isLoading])
 
   useEffect(() => {
-    if (isEditOpen && platform) {
+    if (isEditing && platform) {
       form.reset({
         name: platform.name ?? '',
         status: platform.status,
@@ -94,30 +103,32 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId }) =
           group: platform.technicalOwnerGroup ? { id: platform.technicalOwnerGroup.id, displayName: platform.technicalOwnerGroup.name } : null,
           stringValue: platform.technicalOwner,
         }),
+        internalOwner: normalizeResponsibilityField({
+          user: platform.internalOwnerUser ? { id: platform.internalOwnerUser.id, displayName: platform.internalOwnerUser.displayName } : null,
+          group: platform.internalOwnerGroup ? { id: platform.internalOwnerGroup.id, displayName: platform.internalOwnerGroup.name } : null,
+          stringValue: platform.internalOwner,
+        }),
+        securityOwner: normalizeResponsibilityField({
+          user: platform.securityOwnerUser ? { id: platform.securityOwnerUser.id, displayName: platform.securityOwnerUser.displayName } : null,
+          group: platform.securityOwnerGroup ? { id: platform.securityOwnerGroup.id, displayName: platform.securityOwnerGroup.name } : null,
+          stringValue: platform.securityOwner,
+        }),
         assetIDs: (platform.assets?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
         outOfScopeAssetIDs: (platform.outOfScopeAssets?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
         entityIDs: (platform.entities?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
         outOfScopeVendorIDs: (platform.outOfScopeVendors?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
       })
     }
-  }, [isEditOpen, platform, form])
+  }, [isEditing, platform, form])
 
-  const editMutation = useMemo(
-    () => ({
-      mutateAsync: async (input: UpdatePlatformInput) => {
-        const result = await updatePlatformMutation({ updatePlatformId: platformId, input })
-        queryClient.invalidateQueries({ queryKey: ['platform', platformId] })
-        return result
-      },
-      isPending: isUpdatePending,
-    }),
-    [updatePlatformMutation, platformId, isUpdatePending, queryClient],
-  )
+  const handleCancel = () => {
+    setIsEditing(false)
+    form.reset()
+  }
 
-  const editBuildPayload = async (data: EditPlatformFormData): Promise<UpdatePlatformInput> => {
-    const { businessOwner, technicalOwner, platformOwner, entityIDs, outOfScopeVendorIDs, assetIDs, outOfScopeAssetIDs, ...rest } = data
+  const buildPayload = async (data: EditPlatformFormData): Promise<UpdatePlatformInput> => {
+    const { businessOwner, technicalOwner, platformOwner, internalOwner, securityOwner, entityIDs, outOfScopeVendorIDs, assetIDs, outOfScopeAssetIDs, ...rest } = data
 
-    // Compute diffs for relationship fields — update uses add*/remove* pattern
     const currentAssetIDs = new Set((platform?.assets?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [])
     const currentOutOfScopeAssetIDs = new Set((platform?.outOfScopeAssets?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [])
     const currentEntityIDs = new Set((platform?.entities?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [])
@@ -155,6 +166,8 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId }) =
       clearPlatformOwner: !platformOwner || platformOwner.type !== 'user' ? true : undefined,
       ...buildResponsibilityPayload('businessOwner', businessOwner, { mode: 'update' }),
       ...buildResponsibilityPayload('technicalOwner', technicalOwner, { mode: 'update' }),
+      ...buildResponsibilityPayload('internalOwner', internalOwner, { mode: 'update' }),
+      ...buildResponsibilityPayload('securityOwner', securityOwner, { mode: 'update' }),
       addAssetIDs: addAssetIDs.length ? addAssetIDs : undefined,
       removeAssetIDs: removeAssetIDs.length ? removeAssetIDs : undefined,
       addOutOfScopeAssetIDs: addOutOfScopeAssetIDs.length ? addOutOfScopeAssetIDs : undefined,
@@ -164,6 +177,18 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId }) =
       addOutOfScopeVendorIDs: addOutOfScopeVendorIDs.length ? addOutOfScopeVendorIDs : undefined,
       removeOutOfScopeVendorIDs: removeOutOfScopeVendorIDs.length ? removeOutOfScopeVendorIDs : undefined,
     } as UpdatePlatformInput
+  }
+
+  const onSubmit = async (data: EditPlatformFormData) => {
+    try {
+      const input = await buildPayload(data)
+      await updatePlatformMutation({ updatePlatformId: platformId, input })
+      queryClient.invalidateQueries({ queryKey: ['platform', platformId] })
+      successNotification({ title: 'Platform updated', description: 'The platform was successfully updated.' })
+      setIsEditing(false)
+    } catch (error) {
+      errorNotification({ title: 'Error', description: parseErrorMessage(error) })
+    }
   }
 
   const handleDelete = async () => {
@@ -202,6 +227,20 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId }) =
           {icon}
           <span>{name || email}</span>
           {name && email && <span className="text-muted-foreground text-xs">({email})</span>}
+          {email && (
+            <button
+              type="button"
+              onClick={() => {
+                navigator.clipboard.writeText(email)
+                setCopiedEmail(email)
+                setTimeout(() => setCopiedEmail(null), 2000)
+              }}
+              className="text-muted-foreground hover:text-foreground transition-colors"
+              aria-label="Copy email"
+            >
+              {copiedEmail === email ? <Check size={12} /> : <Copy size={12} />}
+            </button>
+          )}
         </div>
       </div>
     )
@@ -211,27 +250,71 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId }) =
     return plateEditorHelper.convertToReadOnly(html)
   }
 
-  const sidebarContent = (
+  const menuComponent = isEditing ? (
+    <div className="flex gap-2 justify-end">
+      <CancelButton onClick={handleCancel} />
+      <SaveButton disabled={isUpdatePending} isSaving={isUpdatePending} />
+    </div>
+  ) : (
+    <div className="flex items-center gap-2">
+      {(canEditPlatform || canDeletePlatform) && (
+        <Menu
+          content={
+            <>
+              {canEditPlatform && (
+                <Button type="button" size="sm" variant="transparent" className="flex justify-start space-x-2" onClick={() => setIsEditing(true)}>
+                  <PencilIcon size={16} strokeWidth={2} />
+                  <span>Edit</span>
+                </Button>
+              )}
+              {canDeletePlatform && (
+                <Button type="button" size="sm" variant="transparent" className="flex justify-start space-x-2" onClick={() => setIsDeleteDialogOpen(true)}>
+                  <Trash2 size={16} strokeWidth={2} />
+                  <span>Delete</span>
+                </Button>
+              )}
+            </>
+          }
+        />
+      )}
+    </div>
+  )
+
+  const ownershipSidebar = (
     <div className="space-y-4">
       <Card>
-        <CardHeader className="pb-3 p-0">
+        <CardHeader className="pb-0 p-0">
           <CardTitle className="text-sm font-medium">Ownership</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-2">
+        <CardContent className="space-y-2 pt-1">
           {platform.platformOwner && renderOwner('Platform Owner', <User size={14} className="text-muted-foreground" />, platform.platformOwner.displayName, platform.platformOwner.email)}
           {(platform.businessOwnerUser || platform.businessOwnerGroup || platform.businessOwner) &&
             renderOwner(
               'Business Owner',
               platform.businessOwnerGroup ? <Users size={14} className="text-muted-foreground" /> : <User size={14} className="text-muted-foreground" />,
-              platform.businessOwnerUser?.displayName ?? platform.businessOwnerGroup?.name ?? platform.businessOwner,
+              platform.businessOwnerUser?.displayName ?? platform.businessOwnerGroup?.displayName ?? platform.businessOwner,
               platform.businessOwnerUser?.email,
             )}
           {(platform.technicalOwnerUser || platform.technicalOwnerGroup || platform.technicalOwner) &&
             renderOwner(
               'Technical Owner',
               platform.technicalOwnerGroup ? <Users size={14} className="text-muted-foreground" /> : <User size={14} className="text-muted-foreground" />,
-              platform.technicalOwnerUser?.displayName ?? platform.technicalOwnerGroup?.name ?? platform.technicalOwner,
+              platform.technicalOwnerUser?.displayName ?? platform.technicalOwnerGroup?.displayName ?? platform.technicalOwner,
               platform.technicalOwnerUser?.email,
+            )}
+          {(platform.internalOwnerUser || platform.internalOwnerGroup || platform.internalOwner) &&
+            renderOwner(
+              'Internal Owner',
+              platform.internalOwnerGroup ? <Users size={14} className="text-muted-foreground" /> : <User size={14} className="text-muted-foreground" />,
+              platform.internalOwnerUser?.displayName ?? platform.internalOwnerGroup?.name ?? platform.internalOwner,
+              platform.internalOwnerUser?.email,
+            )}
+          {(platform.securityOwnerUser || platform.securityOwnerGroup || platform.securityOwner) &&
+            renderOwner(
+              'Security Owner',
+              platform.securityOwnerGroup ? <Users size={14} className="text-muted-foreground" /> : <User size={14} className="text-muted-foreground" />,
+              platform.securityOwnerUser?.displayName ?? platform.securityOwnerGroup?.name ?? platform.securityOwner,
+              platform.securityOwnerUser?.email,
             )}
           {!platform.platformOwner &&
             !platform.businessOwnerUser &&
@@ -239,7 +322,13 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId }) =
             !platform.businessOwner &&
             !platform.technicalOwner &&
             !platform.technicalOwnerUser &&
-            !platform.technicalOwnerGroup && <p className="text-sm text-muted-foreground">No owners assigned.</p>}
+            !platform.technicalOwnerGroup &&
+            !platform.internalOwner &&
+            !platform.internalOwnerUser &&
+            !platform.internalOwnerGroup &&
+            !platform.securityOwner &&
+            !platform.securityOwnerUser &&
+            !platform.securityOwnerGroup && <p className="text-sm text-muted-foreground">No owners assigned.</p>}
         </CardContent>
       </Card>
 
@@ -257,7 +346,32 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId }) =
     </div>
   )
 
-  const mainContent = (
+  const editFormContent = (
+    <div className="space-y-6 pb-10">
+      <div>
+        <h3 className="text-sm font-semibold mb-3">Basic Info</h3>
+        <StepBasicInfo />
+      </div>
+      <div>
+        <h3 className="text-sm font-semibold mb-3">Data Flow</h3>
+        <StepDataFlow />
+      </div>
+      <div>
+        <h3 className="text-sm font-semibold mb-3">Audit Scope</h3>
+        <StepAuditScope />
+      </div>
+      <div>
+        <h3 className="text-sm font-semibold mb-3">Ownership</h3>
+        <StepOwnership />
+      </div>
+      <div>
+        <h3 className="text-sm font-semibold mb-3">Assets &amp; Vendors</h3>
+        <StepLinkAssetsVendors />
+      </div>
+    </div>
+  )
+
+  const viewContent = (
     <div className="flex flex-col gap-6 pb-10">
       {/* Header */}
       <div className="flex items-start justify-between gap-4">
@@ -265,49 +379,17 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId }) =
           <div className="flex flex-col gap-1.5 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <h1 className="text-2xl font-semibold truncate">{platform.name}</h1>
-              {platform.status && <Badge variant={STATUS_VARIANT[platform.status as PlatformPlatformStatus] ?? 'outline'}>{platform.status}</Badge>}
-              {platform.scopeName && (
-                <Badge variant="outline" className="text-xs">
-                  {platform.scopeName}
-                </Badge>
-              )}
-              {platform.environmentName && (
-                <Badge variant="secondary" className="text-xs">
-                  {platform.environmentName}
-                </Badge>
-              )}
+              {platform.status && <Badge variant={STATUS_VARIANT[platform.status as PlatformPlatformStatus] ?? 'outline'}>{toHumanLabel(platform.status)}</Badge>}
+              {platform.scopeName && <CustomEnumChipCell value={platform.scopeName} field="scope" />}
+              {platform.environmentName && <CustomEnumChipCell value={platform.environmentName} field="environment" />}
               {platform.containsPii && (
-                <Badge variant="destructive" className="text-xs">
+                <Badge variant="outline" className="flex items-center gap-1 text-xs">
+                  <div className="shrink-0 w-2 h-2 rounded-full bg-red-500" />
                   Contains PII
                 </Badge>
               )}
             </div>
-            {platform.displayID && <span className="text-xs text-muted-foreground">{platform.displayID}</span>}
           </div>
-        </div>
-
-        <div className="flex items-center gap-2 shrink-0">
-          {canEditPlatform && (
-            <Button type="button" variant="secondary" className="h-8 px-3 gap-1.5" onClick={() => setIsEditOpen(true)}>
-              <Pencil size={14} />
-              Edit
-            </Button>
-          )}
-          {canDeletePlatform && (
-            <Menu
-              trigger={
-                <Button type="button" variant="secondary" className="h-8 px-2">
-                  <MoreHorizontal size={16} />
-                </Button>
-              }
-              content={
-                <button onClick={() => setIsDeleteDialogOpen(true)} className="flex items-center space-x-2 px-1 bg-transparent cursor-pointer text-destructive">
-                  <Trash2 size={16} strokeWidth={2} />
-                  <span>Delete</span>
-                </button>
-              }
-            />
-          )}
         </div>
       </div>
 
@@ -318,7 +400,7 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId }) =
               <CardHeader className="p-0">
                 <CardTitle className="text-sm font-medium text-muted-foreground">Business Purpose</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-0">
                 <div className="text-sm prose prose-sm dark:prose-invert max-w-none">{renderHtml(platform.businessPurpose)}</div>
               </CardContent>
             </Card>
@@ -328,7 +410,7 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId }) =
               <CardHeader className="p-0">
                 <CardTitle className="text-sm font-medium text-muted-foreground">Data Flow Summary</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-0">
                 <div className="text-sm prose prose-sm dark:prose-invert max-w-none">{renderHtml(platform.dataFlowSummary)}</div>
               </CardContent>
             </Card>
@@ -338,7 +420,7 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId }) =
               <CardHeader className="p-0">
                 <CardTitle className="text-sm font-medium text-muted-foreground">Trust Boundary</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-0">
                 <div className="text-sm prose prose-sm dark:prose-invert max-w-none">{renderHtml(platform.trustBoundaryDescription)}</div>
               </CardContent>
             </Card>
@@ -375,11 +457,26 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId }) =
     </div>
   )
 
+  const mainContent = isEditing ? editFormContent : viewContent
+
   return (
     <>
-      <SlideBarLayout sidebarTitle="Details" sidebarContent={sidebarContent} minWidth={380} collapsedContentClassName="pr-6" collapsedButtonClassName="-translate-x-4" hasScrollbar={hasScrollbar}>
-        {mainContent}
-      </SlideBarLayout>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+          <SlideBarLayout
+            sidebarTitle="Details"
+            sidebarContent={ownershipSidebar}
+            menu={menuComponent}
+            slideOpen={isEditing}
+            minWidth={420}
+            collapsedContentClassName="pr-6"
+            collapsedButtonClassName="-translate-x-4"
+            hasScrollbar={hasScrollbar}
+          >
+            {mainContent}
+          </SlideBarLayout>
+        </form>
+      </Form>
 
       <ConfirmationDialog
         open={isDeleteDialogOpen}
@@ -390,22 +487,6 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId }) =
           void handleDelete()
         }}
       />
-
-      {isEditOpen && (
-        <StepDialog<EditPlatformFormData, UpdatePlatformInput, unknown>
-          objectType={ObjectTypes.PLATFORM}
-          form={form}
-          steps={createPlatformSteps()}
-          title={`Edit ${platform.name}`}
-          dialogClassName="sm:max-w-2xl"
-          createMutation={editMutation as { mutateAsync: (input: UpdatePlatformInput) => Promise<unknown>; isPending: boolean }}
-          buildPayload={editBuildPayload}
-          onClose={() => {
-            setIsEditOpen(false)
-            form.reset()
-          }}
-        />
-      )}
     </>
   )
 }

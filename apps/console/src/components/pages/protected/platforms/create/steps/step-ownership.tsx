@@ -44,6 +44,30 @@ const StepOwnership: React.FC = () => {
         internalEditing={null}
         setInternalEditing={() => {}}
       />
+
+      <ResponsibilityField
+        name="internalOwner"
+        fieldBaseName="internalOwner"
+        label="Internal Owner"
+        tooltipContent="The internal owner responsible for this platform"
+        isEditing={true}
+        isEditAllowed={true}
+        isCreate={true}
+        internalEditing={null}
+        setInternalEditing={() => {}}
+      />
+
+      <ResponsibilityField
+        name="securityOwner"
+        fieldBaseName="securityOwner"
+        label="Security Owner"
+        tooltipContent="The security owner responsible for this platform"
+        isEditing={true}
+        isEditAllowed={true}
+        isCreate={true}
+        internalEditing={null}
+        setInternalEditing={() => {}}
+      />
     </div>
   )
 }

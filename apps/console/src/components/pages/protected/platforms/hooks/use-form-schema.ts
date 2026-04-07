@@ -8,6 +8,7 @@ import { responsibilityFieldSchema } from '@/components/shared/crud-base/form-fi
 
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
+  description: z.string().optional(),
   businessPurpose: z.custom<Value | string>().optional(),
   dataFlowSummary: z.custom<Value | string>().optional(),
   trustBoundaryDescription: z.custom<Value | string>().optional(),
@@ -18,6 +19,8 @@ const formSchema = z.object({
   platformOwner: responsibilityFieldSchema,
   businessOwner: responsibilityFieldSchema,
   technicalOwner: responsibilityFieldSchema,
+  internalOwner: responsibilityFieldSchema,
+  securityOwner: responsibilityFieldSchema,
   entityIDs: z.array(z.string()).optional(),
   outOfScopeVendorIDs: z.array(z.string()).optional(),
   assetIDs: z.array(z.string()).optional(),
