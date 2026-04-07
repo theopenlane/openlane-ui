@@ -127,6 +127,7 @@ const ViewProcedurePage: React.FC = () => {
         procedureKindName: procedure.procedureKindName ?? '',
         reviewDue: procedure.reviewDue ? new Date(procedure.reviewDue as string) : undefined,
         reviewFrequency: procedure.reviewFrequency ?? ProcedureFrequency.YEARLY,
+        revision: procedure.revision ?? '',
         approverID: procedure.approver?.id,
         delegateID: procedure.delegate?.id,
       })

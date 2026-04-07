@@ -5,7 +5,9 @@ import { type ProcedureByIdFragment, type ProcedureDocumentStatus, type UpdatePr
 import { Binoculars, Calendar, FileStack, ScrollText, HelpCircle } from 'lucide-react'
 import { Controller, type UseFormReturn } from 'react-hook-form'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
+import { Input } from '@repo/ui/input'
 import { FormControl, FormField, FormItem } from '@repo/ui/form'
+import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 import { formatDate } from '@/utils/date'
 import { DocumentIconMapper, ProcedureStatusOptions } from '@/components/shared/enum-mapper/policy-enum'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
@@ -30,7 +32,7 @@ type TPropertiesCardProps = {
 }
 
 const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEditing, editAllowed, handleUpdate, activeField, setActiveField }) => {
-  const [internalEditingField, setInternalEditingField] = useState<null | 'status' | 'procedureKindName' | 'reviewDue'>(null)
+  const [internalEditingField, setInternalEditingField] = useState<null | 'status' | 'procedureKindName' | 'reviewDue' | 'revision'>(null)
   const isControlled = activeField !== undefined && setActiveField !== undefined
   const editingField = isControlled ? activeField : internalEditingField
   const setEditingField = isControlled ? setActiveField : setInternalEditingField
@@ -41,7 +43,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEdi
     isEditAllowed: editAllowed,
   })
 
-  const handleUpdateIfChanged = (field: 'status' | 'procedureKindName', value: string, current: string | undefined | null) => {
+  const handleUpdateIfChanged = (field: 'status' | 'procedureKindName' | 'revision', value: string, current: string | undefined | null) => {
     if (isEditing) {
       return
     }
@@ -62,8 +64,8 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEdi
 
   useEscapeKey(() => {
     if (editingField) {
-      const value = procedure?.[editingField as 'status' | 'procedureKindName' | 'reviewDue']
-      form.setValue(editingField as 'status' | 'procedureKindName' | 'reviewDue', value || '')
+      const value = procedure?.[editingField as 'status' | 'procedureKindName' | 'reviewDue' | 'revision']
+      form.setValue(editingField as 'status' | 'procedureKindName' | 'reviewDue' | 'revision', value || '')
       setEditingField(null)
     }
   })
@@ -144,7 +146,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEdi
         </div>
       </div>
 
-      {/* Version (read-only) */}
+      {/* Version */}
       <div className="flex items-center gap-1 border-b border-border pb-3">
         <div className="flex gap-2 min-w-40 items-center">
           <FileStack size={16} className="text-brand" />
@@ -162,10 +164,52 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEdi
             </Tooltip>
           </TooltipProvider>
         </div>
-        <div className="min-w-40 cursor-not-allowed">
-          <div className="flex gap-2">
-            <span className="text-sm">{procedure?.revision ?? '0.0.0'}</span>
-          </div>
+        <div className="min-w-40 w-full">
+          {isEditing || editingField === 'revision' ? (
+            <Controller
+              name="revision"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      value={field.value ?? ''}
+                      autoFocus
+                      onBlur={() => {
+                        if (!form.formState.errors.revision) {
+                          handleUpdateIfChanged('revision', field.value ?? '', procedure?.revision)
+                        }
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          ;(e.target as HTMLInputElement).blur()
+                        }
+                      }}
+                      className="w-full"
+                    />
+                  </FormControl>
+                  {form.formState.errors.revision && <p className="text-red-500 text-sm">{form.formState.errors.revision.message}</p>}
+                </FormItem>
+              )}
+            />
+          ) : (
+            <HoverPencilWrapper
+              showPencil={editAllowed}
+              className={`${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'} truncate text-sm`}
+              onPencilClick={() => {
+                if (!isEditing && editAllowed) setEditingField('revision')
+              }}
+            >
+              <div
+                onDoubleClick={() => {
+                  if (!isEditing && editAllowed) setEditingField('revision')
+                }}
+              >
+                <span className="block min-h-6">{procedure?.revision ?? '0.0.0'}</span>
+              </div>
+            </HoverPencilWrapper>
+          )}
         </div>
       </div>
 
