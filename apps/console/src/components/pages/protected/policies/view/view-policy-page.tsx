@@ -190,19 +190,26 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
     }
 
     try {
+      const { revision, ...restData } = data
+      const input: UpdateInternalPolicyInput = {
+        ...restData,
+        detailsJSON: data.detailsJSON,
+        details: await plateEditorHelper.convertToHtml(data.detailsJSON as Value),
+        tags: data?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
+        approverID: data.approverID || undefined,
+        delegateID: data.delegateID || undefined,
+      }
+
+      if (revision && revision !== (policy?.revision ?? '')) {
+        input.revision = revision
+      }
+
       const formData: {
         updateInternalPolicyId: string
         input: UpdateInternalPolicyInput
       } = {
         updateInternalPolicyId: policy?.id,
-        input: {
-          ...data,
-          detailsJSON: data.detailsJSON,
-          details: await plateEditorHelper.convertToHtml(data.detailsJSON as Value),
-          tags: data?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
-          approverID: data.approverID || undefined,
-          delegateID: data.delegateID || undefined,
-        },
+        input,
       }
 
       await updatePolicy(formData)
