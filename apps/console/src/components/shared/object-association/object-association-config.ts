@@ -766,7 +766,7 @@ export const generateWhere = (selectedObject: ObjectTypeObjects | null, searchVa
     [ObjectTypeObjects.RISK]: 'detailsContainsFold',
     [ObjectTypeObjects.SCAN]: 'descriptionContainsFold',
     [ObjectTypeObjects.CAMPAIGN]: 'descriptionContainsFold',
-    [ObjectTypeObjects.ENTITY]: 'descriptionContainsFold',
+    [ObjectTypeObjects.ENTITY]: 'displayNameContainsFold',
     [ObjectTypeObjects.FINDING]: 'descriptionContainsFold',
     [ObjectTypeObjects.IDENTITY_HOLDER]: 'emailContainsFold',
     [ObjectTypeObjects.REMEDIATION]: 'summaryContainsFold',
