@@ -1,13 +1,15 @@
-'use client'
-
 import React from 'react'
-import { useParams } from 'next/navigation'
+import { type Metadata } from 'next'
 import ViewRisksPage from '@/components/pages/protected/risks/view/view-risks-page.tsx'
 
-const RiskDetailsPage: React.FC = () => {
-  const { id } = useParams()
+export const metadata: Metadata = {
+  title: 'Risk Details',
+}
 
-  return <ViewRisksPage riskId={id as string} />
+const RiskDetailsPage = async ({ params }: { params: Promise<{ id: string }> }) => {
+  const { id } = await params
+
+  return <ViewRisksPage riskId={id} />
 }
 
 export default RiskDetailsPage
