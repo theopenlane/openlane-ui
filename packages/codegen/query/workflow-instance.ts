@@ -6,35 +6,36 @@ export const GET_ALL_WORKFLOW_INSTANCES = gql`
       totalCount
       edges {
         node {
-          actionPlanID
-          campaignID
-          campaignTargetID
-          context
-          controlID
-          createdAt
-          createdBy
-          currentActionIndex
-          definitionSnapshot
-          displayID
-          evidenceID
           id
-          identityHolderID
-          internalPolicyID
-          lastEvaluatedAt
-          platformID
-          procedureID
-          subcontrolID
+          state
+          context
+          definitionSnapshot
+          createdAt
           updatedAt
-          updatedBy
-          workflowDefinitionID
           workflowProposalID
+          workflowDefinition {
+            id
+            name
+            schemaType
+            workflowKind
+            definitionJSON
+          }
+          workflowAssignments(first: 100) {
+            edges {
+              node {
+                id
+                status
+                assignmentKey
+                label
+                metadata
+                createdAt
+                decidedAt
+                actorUserID
+                actorGroupID
+              }
+            }
+          }
         }
-      }
-      pageInfo {
-        endCursor
-        startCursor
-        hasPreviousPage
-        hasNextPage
       }
     }
   }
