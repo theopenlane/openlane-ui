@@ -63,15 +63,30 @@ export const EmailBrandingPanel: React.FC<EmailBrandingPanelProps> = ({ open, on
     onClose()
   }
 
+  const isValidUrl = (url: string): boolean => {
+    try {
+      new URL(url)
+      return true
+    } catch {
+      return false
+    }
+  }
+
   const handleSave = async () => {
     if (!name.trim()) return
+
+    const trimmedLogoUrl = logoRemoteURL.trim()
+    if (trimmedLogoUrl && !isValidUrl(trimmedLogoUrl)) {
+      errorNotification({ title: 'Invalid URL', description: 'Please enter a valid logo URL (e.g. https://example.com/logo.png)' })
+      return
+    }
 
     try {
       const result = await createBranding({
         input: {
           name: name.trim(),
           brandName: brandName.trim() || undefined,
-          logoRemoteURL: logoRemoteURL.trim() || undefined,
+          logoRemoteURL: trimmedLogoUrl || undefined,
           isDefault,
           fontFamily,
           textColor,
@@ -175,7 +190,6 @@ export const EmailBrandingPanel: React.FC<EmailBrandingPanelProps> = ({ open, on
               </AccordionTrigger>
               <AccordionContent>
                 <div className="border-t border-border px-4 py-4 flex flex-col gap-6">
-                  <p className="text-sm text-muted-foreground">This is the description text for this section.</p>
 
                   {/* Text */}
                   <div className="flex flex-col gap-3">

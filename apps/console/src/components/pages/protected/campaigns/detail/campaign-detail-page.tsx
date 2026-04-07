@@ -7,14 +7,14 @@ import { Button } from '@repo/ui/button'
 import { Calendar, CheckCircle, FileText, Play, Trash2 } from 'lucide-react'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useCampaign, useUpdateCampaign } from '@/lib/graphql-hooks/campaign'
-import { useCampaignTargetsWithFilter, type CampaignTargetsNodeNonNull } from '@/lib/graphql-hooks/campaign-target'
+import { useCampaignTargetStats } from '@/lib/graphql-hooks/campaign-target'
+import { type CampaignTargetsNodeNonNull } from '@/lib/graphql-hooks/campaign-target'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { CampaignCampaignStatus } from '@repo/codegen/src/schema'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { formatDate } from '@/utils/date'
 import Skeleton from '@/components/shared/skeleton/skeleton'
-import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar'
 import Menu from '@/components/shared/menu/menu'
 import { useDeleteCampaign } from '@/lib/graphql-hooks/campaign'
@@ -35,9 +35,8 @@ const CampaignDetailPage: React.FC = () => {
 
   const [selectedRecipient, setSelectedRecipient] = useState<CampaignTargetsNodeNonNull | null>(null)
 
-  const { CampaignTargetsNodes: recipients } = useCampaignTargetsWithFilter({
+  const { nodes: recipients, totalCount } = useCampaignTargetStats({
     where: { hasCampaignWith: [{ id: campaignId }] },
-    pagination: DEFAULT_PAGINATION,
     enabled: !!campaignId,
   })
 
@@ -52,7 +51,7 @@ const CampaignDetailPage: React.FC = () => {
   }, [setCrumbs, campaign?.name, campaignId])
 
   const stats = useMemo(() => {
-    const total = recipients.length
+    const total = totalCount
     const sent = recipients.filter((r) => r.sentAt).length
     const completed = recipients.filter((r) => r.completedAt).length
     const inProgress = recipients.filter((r) => r.sentAt && !r.completedAt).length
@@ -60,7 +59,7 @@ const CampaignDetailPage: React.FC = () => {
     const dueDate = campaign?.dueDate ? new Date(campaign.dueDate as string) : null
     const overdue = dueDate && dueDate < now ? recipients.filter((r) => !r.completedAt).length : 0
     return { total, sent, completed, inProgress, overdue }
-  }, [recipients, campaign?.dueDate])
+  }, [recipients, totalCount, campaign?.dueDate])
 
   const progressPercent = useMemo(() => {
     if (stats.total === 0) return 0
@@ -186,9 +185,8 @@ const CampaignDetailPage: React.FC = () => {
       {/* Questionnaires */}
       <div className="rounded-md border border-border bg-card p-4">
         <h3 className="text-sm font-semibold mb-3">Questionnaires</h3>
-        {/* template field added to query but generated types are stale */}
         {(() => {
-          const tmpl = (campaign as unknown as { template?: { id: string; name: string; description?: string; updatedAt?: string; jsonconfig?: Record<string, unknown> } }).template
+          const tmpl = campaign.template
           if (!tmpl) return <p className="text-sm text-muted-foreground">No questionnaires linked to this campaign.</p>
           const questions = Array.isArray(tmpl.jsonconfig?.questions) ? tmpl.jsonconfig.questions : []
           return (

@@ -18,12 +18,12 @@ export const getCampaignColumns = ({ userMap, selectedCampaigns, setSelectedCamp
   return [
     createSelectColumn<CampaignsNodeNonNull>(selectedCampaigns, setSelectedCampaigns),
     {
-      accessorKey: 'id',
+      accessorKey: 'displayID',
       header: 'ID',
       size: 270,
       minSize: 270,
       maxSize: 270,
-      cell: ({ row }) => <div className="text-muted-foreground">{row.original.displayID}</div>,
+      cell: ({ cell }) => <div className="text-muted-foreground">{cell.getValue() as string}</div>,
     },
     {
       accessorKey: 'name',

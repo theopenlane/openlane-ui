@@ -84,17 +84,17 @@ const CampaignTableToolbar: React.FC<TCampaignTableToolbarProps> = (props) => {
       <div className="grow flex flex-row items-center gap-2 justify-end">
         {props.selectedCampaigns.length > 0 ? (
           <>
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => {
-                setIsBulkDeleteDialogOpen(true)
-              }}
-            >
-              {props.selectedCampaigns.length > 0 ? `Bulk Delete (${props.selectedCampaigns.length})` : 'Bulk Delete'}
-            </Button>
             {props.canEdit(props.permission?.roles) && (
               <>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => {
+                    setIsBulkDeleteDialogOpen(true)
+                  }}
+                >
+                  Bulk Delete ({props.selectedCampaigns.length})
+                </Button>
                 <ConfirmationDialog
                   open={isBulkDeleteDialogOpen}
                   onOpenChange={setIsBulkDeleteDialogOpen}
@@ -105,13 +105,13 @@ const CampaignTableToolbar: React.FC<TCampaignTableToolbarProps> = (props) => {
                   confirmationTextVariant="destructive"
                   showInput={false}
                 />
-                <CancelButton
-                  onClick={() => {
-                    props.handleClearSelectedCampaigns()
-                  }}
-                />
               </>
             )}
+            <CancelButton
+              onClick={() => {
+                props.handleClearSelectedCampaigns()
+              }}
+            />
           </>
         ) : (
           <>

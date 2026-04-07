@@ -120,13 +120,12 @@ export const CreateTemplateSheet: React.FC<CreateTemplateSheetProps> = ({ open, 
           bodyTemplate: bodyTemplate.trim() || undefined,
           textTemplate: textTemplate.trim() || undefined,
           templateContext: EmailTemplateTemplateContext.CAMPAIGN_RECIPIENT,
-          // emailBrandingIDs exists on backend schema but generated types have stale emailBrandingID
-          ...(emailBrandingID ? { emailBrandingIDs: [emailBrandingID] } : {}),
+          emailBrandingIDs: emailBrandingID ? [emailBrandingID] : undefined,
           jsonconfig: {
             tokens: variables.map((v) => v.replace(/[{}]/g, '')),
             addButtonLink: false,
           },
-        } as never,
+        },
       })
 
       const emailTemplate = result?.createEmailTemplate?.emailTemplate

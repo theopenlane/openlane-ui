@@ -250,7 +250,7 @@ export const topNavigationItems = (session: Session | null): (NavItem | Separato
           title: 'Campaigns',
           href: '/automation/campaigns',
           icon: Megaphone,
-          hidden: true,
+          hidden: false,
         },
       ],
     },

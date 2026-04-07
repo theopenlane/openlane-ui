@@ -35,6 +35,20 @@ export const GET_ALL_CAMPAIGN_TARGETS = gql`
   }
 `
 
+export const GET_CAMPAIGN_TARGET_STATS = gql`
+  query CampaignTargetStats($where: CampaignTargetWhereInput) {
+    campaignTargets(where: $where) {
+      totalCount
+      edges {
+        node {
+          sentAt
+          completedAt
+        }
+      }
+    }
+  }
+`
+
 export const CAMPAIGN_TARGET = gql`
   query CampaignTarget($campaignTargetId: ID!) {
     campaignTarget(id: $campaignTargetId) {
