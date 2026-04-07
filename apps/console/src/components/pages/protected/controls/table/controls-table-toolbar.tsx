@@ -78,6 +78,7 @@ const ControlsTableToolbar: React.FC<TProps> = ({
 
   const { standardOptions, isSuccess: isStandardSuccess } = useStandardsSelect({
     where: {
+      shortNameNEQ: 'OTS',
       hasControlsWith: [
         {
           hasOwnerWith: [

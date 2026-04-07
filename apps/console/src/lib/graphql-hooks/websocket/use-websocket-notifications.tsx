@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useWebSocketClient } from '@/providers/websocket-provider'
 import { useSession } from 'next-auth/react'
 import { type Notification, useMarkNotificationsAsRead } from '@/lib/graphql-hooks/notifications'
@@ -64,12 +64,11 @@ const updateReadState = (current: Notification[], ids: string[], readAt: string 
 
 export function useWebsocketNotifications() {
   const { status } = useSession()
-  const { client: wsClient, isConnected, resetConnection } = useWebSocketClient()
+  const { client: wsClient } = useWebSocketClient()
   const { mutateAsync } = useMarkNotificationsAsRead()
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [liveNotifications, setLiveNotifications] = useState<Notification[]>([])
   const [subscriptionStartedAt, setSubscriptionStartedAt] = useState<number | null>(null)
-  const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     if (status !== 'authenticated') {
@@ -106,14 +105,8 @@ export function useWebsocketNotifications() {
             return
           }
           console.error('Subscription error:', err)
-          resetConnection()
         },
-        complete: () => {
-          if (!isActive) {
-            return
-          }
-          resetConnection()
-        },
+        complete: () => {},
       },
     )
 
@@ -121,29 +114,7 @@ export function useWebsocketNotifications() {
       isActive = false
       unsubscribe()
     }
-  }, [resetConnection, wsClient, status])
-
-  useEffect(() => {
-    if (reconnectTimeoutRef.current) {
-      clearTimeout(reconnectTimeoutRef.current)
-      reconnectTimeoutRef.current = null
-    }
-
-    if (status !== 'authenticated' || !wsClient || isConnected) {
-      return
-    }
-
-    reconnectTimeoutRef.current = setTimeout(() => {
-      resetConnection()
-    }, 5000)
-
-    return () => {
-      if (reconnectTimeoutRef.current) {
-        clearTimeout(reconnectTimeoutRef.current)
-        reconnectTimeoutRef.current = null
-      }
-    }
-  }, [isConnected, resetConnection, status, wsClient])
+  }, [wsClient, status])
 
   const markAsRead = useCallback(
     async (id: string) => {

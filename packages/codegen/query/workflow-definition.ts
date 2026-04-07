@@ -20,6 +20,7 @@ export const GET_ALL_WORKFLOW_DEFINITIONS = gql`
           publishedAt
           revision
           schemaType
+          workflowKind
           systemOwned
           updatedAt
           updatedBy
@@ -53,6 +54,7 @@ export const WORKFLOW_DEFINITION = gql`
       revision
       schemaType
       systemOwned
+      workflowKind
       updatedAt
       updatedBy
     }
