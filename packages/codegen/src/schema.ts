@@ -68312,8 +68312,13 @@ export type GetIntegrationsQuery = {
         id: string
         name: string
         kind?: string | null
-        description?: string | null
+        definitionID?: string | null
+        definitionSlug?: string | null
+        family?: string | null
+        status: string
+        providerMetadataSnapshot?: any | null
         tags?: Array<string> | null
+        description?: string | null
         integrationType?: string | null
         environmentName?: string | null
         scopeName?: string | null

@@ -1,32 +1,21 @@
 'use client'
 
 import React, { useState } from 'react'
-import { MoreHorizontal } from 'lucide-react'
+import { Activity, Settings, UserIcon } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { Badge } from '@repo/ui/badge'
-import { Card, CardContent, CardFooter, CardHeader } from '@repo/ui/cardpanel'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
-import {
-  getInstalledIntegrationConfig,
-  HEALTH_CHECK_STALE_TIME_MS,
-  installedIntegrationDisplayName,
-  type IntegrationNode,
-  type IntegrationProvider,
-  parseIntegrationErrorMessage,
-  providerSupportsHealth,
-} from './config'
-import { useDisconnectIntegration } from '@/lib/graphql-hooks/integration'
+import { Card } from '@repo/ui/cardpanel'
+import { Separator } from '@repo/ui/separator'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
-import { useQuery } from '@tanstack/react-query'
-import { formatDate } from '@/utils/date'
-import IntegrationTagList from './integration-tag-list'
+import { type IntegrationMetadata, type IntegrationNode, type IntegrationProvider } from '@/lib/integrations/types'
+import { getInstalledIntegrationConfig, installedIntegrationDisplayName, providerSupportsHealth, resolveCredentialEntry } from '@/lib/integrations/utils'
+import { providerHasUserInputSchema } from '@/lib/integrations/flow'
+import { useDisconnectIntegration, useIntegrationHealth } from '@/lib/query-hooks/integrations'
+import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
+import { Avatar } from '@/components/shared/avatar/avatar'
+import { formatDate, formatTimeSince } from '@/utils/date'
 import IntegrationCardIcons from './integration-card-icons'
-import DocsLinkTooltip from './docs-link-tooltip'
-
-type HealthResponse = {
-  status?: string
-  summary?: string
-}
+import IntegrationConfigurationDialog from './integration-configuration-dialog'
 
 type InstalledIntegrationCardProps = {
   integration: IntegrationNode
@@ -34,99 +23,112 @@ type InstalledIntegrationCardProps = {
 }
 
 const InstalledIntegrationCard = ({ integration, providers }: InstalledIntegrationCardProps) => {
-  const disconnectMutation = useDisconnectIntegration()
   const [confirmOpen, setConfirmOpen] = useState(false)
+  const [configOpen, setConfigOpen] = useState(false)
 
-  const handleDisconnect = () => {
-    disconnectMutation.mutate({ id: integration.id })
-    setConfirmOpen(false)
-  }
-
+  const displayName = installedIntegrationDisplayName(integration, providers)
   const integrationConfig = getInstalledIntegrationConfig(integration, providers)
   const provider = integrationConfig?.provider
-  const displayName = installedIntegrationDisplayName(integration, providers)
   const supportsHealth = providerSupportsHealth(provider)
-  const tags = provider?.tags?.length ? provider.tags : integration.tags
-  const description = provider?.description || integration.description || 'Connect to keep your workflows connected and risks actionable.'
+  const hasUserInput = providerHasUserInputSchema(provider)
 
-  const healthQuery = useQuery<HealthResponse>({
-    queryKey: ['integrationHealth', provider?.name],
-    queryFn: async () => {
-      if (!provider) {
-        return {}
-      }
+  // The GraphQL query requests `metadata` but codegen maps it to `providerMetadataSnapshot`.
+  // At runtime the response key is `metadata`. A single cast bridges the mismatch until
+  // codegen is regenerated.
+  const meta = ((integration as Record<string, unknown>).metadata ?? undefined) as IntegrationMetadata | undefined
+  const externalName = meta?.externalName ?? ''
+  const externalId = meta?.externalId ?? ''
+  const credentialRefName = meta?.credentialRef ?? ''
+  const lastHealthCheck = meta?.lastSuccessfulHealthCheck ?? ''
+  const credentialEntry = resolveCredentialEntry(provider, credentialRefName)
 
-      const res = await fetch(`/api/integrations/health?provider=${encodeURIComponent(provider.name)}`)
-      if (!res.ok) {
-        throw new Error(await parseIntegrationErrorMessage(res))
-      }
-      return (await res.json()) as HealthResponse
-    },
-    enabled: Boolean(provider?.name && supportsHealth),
-    staleTime: HEALTH_CHECK_STALE_TIME_MS,
-    retry: false,
-    refetchOnWindowFocus: false,
-  })
+  const disconnectMutation = useDisconnectIntegration()
+  const healthQuery = useIntegrationHealth(integration.id, supportsHealth)
+  const healthStatus = resolveHealthStatus(healthQuery.isPending, healthQuery.isError, healthQuery.data)
 
-  const healthStatus = getHealthStatus(supportsHealth, healthQuery.isPending, healthQuery.isError, healthQuery.data)
+  const userIds = integration.createdBy ? [integration.createdBy] : []
+  const { users } = useGetOrgUserList({ where: { hasUserWith: [{ idIn: userIds }] } })
+  const createdByUser = users?.find((u) => u.id === integration.createdBy)
+
+  const handleDisconnect = () => {
+    setConfirmOpen(false)
+    disconnectMutation.mutate(integration.id)
+  }
 
   return (
     <>
-      <Card className="relative flex h-full min-h-[300px] flex-col overflow-visible transition-all duration-300 hover:scale-[1.03] hover:shadow-xl hover:-translate-y-1">
-        <CardHeader className="relative flex-row items-start gap-3 space-y-0 pb-3">
-          {integrationConfig?.docsUrl ? <DocsLinkTooltip href={integrationConfig.docsUrl} label={displayName} /> : null}
+      <Card className="p-6 gap-4 flex flex-col">
+        {/* Header row: icon + name + health badge */}
+        <div className="flex justify-between items-center">
+          <div className="font-medium flex items-center gap-3">
+            <IntegrationCardIcons providerName={provider?.slug ?? integration.definitionSlug ?? integration.kind ?? integration.name} logoUrl={provider?.logoUrl} />
+            {displayName}
+          </div>
+          <Badge variant={healthStatus.variant} title={healthStatus.summary}>
+            {healthStatus.label}
+          </Badge>
+        </div>
 
-          <div className="w-full">
-            <div className="flex gap-4">
-              <IntegrationCardIcons providerName={provider?.name ?? integration.kind ?? integration.name} />
+        {/* Installed to + last health check */}
+        <div className="flex flex-col gap-1">
+          {externalName || externalId ? (
+            <p className="text-sm text-muted-foreground">
+              Installed to: {externalName}
+              {externalId ? ` (${externalId})` : ''}
+            </p>
+          ) : null}
+          {lastHealthCheck ? <p className="text-xs text-muted-foreground">Last health check: {formatTimeSince(lastHealthCheck)}</p> : null}
+        </div>
 
-              <div className="flex min-w-0 flex-1 flex-col justify-center self-center">
-                <span className="truncate">{displayName}</span>
-              </div>
-            </div>
-
-            <div className="mt-2 flex min-h-[22px]">
-              <Badge variant={healthStatus.variant} title={healthStatus.summary}>
-                {healthStatus.label}
-              </Badge>
-            </div>
-
-            <div className="mt-3 border-t pt-3 mb-1">
-              <IntegrationTagList tags={tags ?? []} />
+        {/* Metrics row */}
+        <div className="flex items-center">
+          <div className="flex flex-col text-sm">
+            <span className="text-muted-foreground text-xs">CREDENTIAL</span>
+            <span>{credentialEntry?.name ?? '—'}</span>
+          </div>
+          <Separator vertical className="mx-4 w-fit" separatorClass="h-10" />
+          <div className="flex flex-col text-sm">
+            <span className="text-muted-foreground text-xs">INSTALLED BY</span>
+            <div className="flex gap-2 items-center">
+              {createdByUser ? (
+                <>
+                  <Avatar entity={createdByUser} variant="small" />
+                  <span>{createdByUser.displayName ?? 'Unknown'}</span>
+                </>
+              ) : integration.createdBy ? (
+                <>
+                  <UserIcon className="size-4 text-muted-foreground" />
+                  <span>Unknown</span>
+                </>
+              ) : (
+                <span className="text-muted-foreground">—</span>
+              )}
             </div>
           </div>
-        </CardHeader>
-
-        <CardContent className="flex min-h-[112px] flex-1 items-center pt-4 pb-2">
-          <div className="w-full">
-            <p className="line-clamp-3 text-sm text-muted-foreground">{description}</p>
-            {(integration.createdBy || integration.createdAt) && (
-              <p className="mt-2 text-xs text-muted-foreground line-clamp-1">
-                Configured
-                {integration.createdBy ? ` by ${integration.createdBy}` : ''}
-                {integration.createdAt ? ` on ${formatDate(integration.createdAt)}` : ''}
-              </p>
-            )}
-            {healthStatus.summary ? <p className="text-xs text-muted-foreground mt-2 line-clamp-1">{healthStatus.summary}</p> : null}
+          <Separator vertical className="mx-4 w-fit" separatorClass="h-10" />
+          <div className="flex flex-col text-sm">
+            <span className="text-muted-foreground text-xs">INSTALLED ON</span>
+            <span>{integration.createdAt ? formatDate(integration.createdAt) : '—'}</span>
           </div>
-        </CardContent>
+        </div>
 
-        <CardFooter className="mt-auto gap-2 pt-0">
-          <Button className="w-full" disabled>
-            Installed
+        {/* Stacked action buttons */}
+        <div className="flex flex-col gap-2">
+          <Button variant="secondary" icon={<Activity className="size-4" />} iconPosition="left" onClick={() => healthQuery.refetch()} disabled={healthQuery.isFetching}>
+            {healthQuery.isFetching ? 'Checking...' : 'Health Check'}
           </Button>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button className="-mr-2" variant="secondary">
-                <MoreHorizontal className="h-4 w-4 text-brand" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setConfirmOpen(true)}>Disconnect</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </CardFooter>
+          {hasUserInput ? (
+            <Button variant="secondary" icon={<Settings className="size-4" />} iconPosition="left" onClick={() => setConfigOpen(true)}>
+              Configure
+            </Button>
+          ) : null}
+          <Button variant="secondary" onClick={() => setConfirmOpen(true)} disabled={disconnectMutation.isPending}>
+            {disconnectMutation.isPending ? 'Disconnecting...' : 'Disconnect'}
+          </Button>
+        </div>
       </Card>
+
+      <IntegrationConfigurationDialog open={configOpen} onOpenChange={setConfigOpen} provider={provider} installationId={integration.id} credentialRef={credentialRefName || undefined} />
 
       <ConfirmationDialog
         open={confirmOpen}
@@ -143,32 +145,27 @@ const InstalledIntegrationCard = ({ integration, providers }: InstalledIntegrati
 
 export default InstalledIntegrationCard
 
-function getHealthStatus(
-  supportsHealth: boolean,
+function resolveHealthStatus(
   isLoading: boolean,
   isError: boolean,
-  data?: HealthResponse,
+  data?: { status?: string; summary?: string },
 ): {
   label: string
   summary?: string
-  variant: 'default' | 'secondary' | 'destructive' | 'outline'
+  variant: 'default' | 'secondary' | 'destructive' | 'outline' | 'green'
 } {
-  if (!supportsHealth) {
-    return { label: 'No Health Check', variant: 'outline' }
-  }
-
   if (isLoading) {
-    return { label: 'Checking Health', variant: 'secondary' }
+    return { label: 'Checking', variant: 'secondary' }
   }
 
   if (isError) {
     return { label: 'Needs Attention', summary: 'Health check failed.', variant: 'destructive' }
   }
 
-  const status = (data?.status ?? '').toLowerCase()
-  if (status === 'ok') {
-    return { label: 'Healthy', summary: data?.summary, variant: 'default' }
+  switch ((data?.status ?? '').toLowerCase()) {
+    case 'ok':
+      return { label: 'Healthy', summary: data?.summary, variant: 'green' }
+    default:
+      return { label: 'Unknown', variant: 'outline' }
   }
-
-  return { label: 'Needs Attention', summary: data?.summary || 'Health check did not report a successful state.', variant: 'destructive' }
 }
