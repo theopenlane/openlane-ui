@@ -8,6 +8,7 @@ import { TagsCell } from '@/components/shared/crud-base/columns/tags-cell'
 import { getMappedColumns } from '@/components/shared/crud-base/columns/get-mapped-columns'
 import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
 import type { FilterField } from '@/types'
+import { TruncatedCell } from '@repo/ui/data-table'
 
 const TIER_COLORS: Record<string, string> = {
   high: 'bg-red-500/16 text-red-400 border-red-500/24',
@@ -78,7 +79,7 @@ export const reviewHistoryColumns: ColumnDef<ReviewsNodeNonNull>[] = [
     accessorKey: 'summary',
     header: 'Notes',
     size: 300,
-    cell: ({ row }) => <span className="truncate">{row.original.summary ?? '—'}</span>,
+    cell: ({ row }) => <TruncatedCell>{row.original.summary ?? '—'}</TruncatedCell>,
   },
   {
     accessorKey: 'category',

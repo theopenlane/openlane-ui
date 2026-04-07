@@ -15,6 +15,7 @@ import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { createSelectColumn } from '@/components/shared/crud-base/columns/select-column'
 import { formatDate } from '@/utils/date.ts'
 import { CustomEnumChipCell } from '@/components/shared/crud-base/columns/custom-enum-chip-cell'
+import { TruncatedCell } from '@repo/ui/data-table'
 
 type TGetEvidenceColumnsProps = {
   userMap: Record<string, User>
@@ -60,9 +61,7 @@ export const useGetEvidenceColumns = ({ userMap, selectedEvidence, setSelectedEv
     {
       accessorKey: 'description',
       header: 'Description',
-      cell: ({ row }) => {
-        return <div className="font-bold">{row.original.description || '-'}</div>
-      },
+      cell: ({ row }) => <TruncatedCell className="font-bold">{row.original.description || '-'}</TruncatedCell>,
       minSize: 100,
       size: 400,
     },

@@ -8,6 +8,7 @@ import { BooleanCell } from '@/components/shared/crud-base/columns/boolean-cell'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { CustomEnumChipCell } from '@/components/shared/crud-base/columns/custom-enum-chip-cell'
 import ControlChip from '@/components/pages/protected/controls/map-controls/shared/control-chip'
+import { TruncatedCell } from '@repo/ui/data-table'
 
 export const getColumns = ({ userMap, selectedItems, setSelectedItems }: ColumnOptions): ColumnDef<ReviewsNodeNonNull>[] => {
   return [
@@ -23,7 +24,7 @@ export const getColumns = ({ userMap, selectedItems, setSelectedItems }: ColumnO
     { accessorKey: 'approvedAt', header: 'Approved At', size: 130, cell: ({ cell }) => <DateCell value={cell.getValue() as string} /> },
     { accessorKey: 'reportedAt', header: 'Reported At', size: 130, cell: ({ cell }) => <DateCell value={cell.getValue() as string} /> },
     { accessorKey: 'reviewedAt', header: 'Reviewed At', size: 130, cell: ({ cell }) => <DateCell value={cell.getValue() as string} /> },
-    { accessorKey: 'summary', header: 'Summary', size: 200 },
+    { accessorKey: 'summary', header: 'Summary', size: 200, cell: ({ row }) => <TruncatedCell>{row.original.summary || '-'}</TruncatedCell> },
     { accessorKey: 'environmentName', header: 'Environment', size: 120, cell: ({ cell }) => <CustomEnumChipCell value={cell.getValue() as string} field="environment" /> },
     { accessorKey: 'scopeName', header: 'Scope', size: 120, cell: ({ cell }) => <CustomEnumChipCell value={cell.getValue() as string} field="scope" /> },
     { accessorKey: 'externalID', header: 'External ID', size: 160 },

@@ -9,6 +9,7 @@ import { UserRoleIconMapper } from '@/components/shared/enum-mapper/user-role-en
 import { GlobeIcon, LockIcon, StarsIcon, Copy } from 'lucide-react'
 import React from 'react'
 import { Checkbox } from '@repo/ui/checkbox'
+import { TruncatedCell } from '@repo/ui/data-table'
 import { pageStyles } from '../page.styles'
 import { useCopyToClipboard } from '@uidotdev/usehooks'
 import { useNotification } from '@/hooks/useNotification'
@@ -187,6 +188,7 @@ export const groupTableForInvitesColumns = ({ allGroups, selectedGroups, setSele
     {
       header: 'Description',
       accessorKey: 'description',
+      cell: ({ row }) => <TruncatedCell>{(row.getValue('description') as string) || '-'}</TruncatedCell>,
     },
     {
       header: 'Visibility',

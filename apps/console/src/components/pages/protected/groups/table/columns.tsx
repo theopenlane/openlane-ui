@@ -7,6 +7,7 @@ import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 import { UserCell } from '@/components/shared/crud-base/columns/user-cell'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { toBase64DataUri } from '@/lib/image-utils'
+import { TruncatedCell } from '@repo/ui/data-table'
 
 type Params = {
   userMap?: Record<string, User>
@@ -71,7 +72,7 @@ export const getGroupTableColumns = ({ userMap }: Params) => {
       accessorKey: 'description',
       cell: ({ row }) => (
         <div>
-          <p>{row.getValue('description')}</p>
+          <TruncatedCell className="whitespace-normal line-clamp-2">{(row.getValue('description') as string) || '-'}</TruncatedCell>
           {!!row.original?.tags?.length && (
             <div className="mt-2 border-t border-dashed pt-2 flex flex-wrap gap-2">
               {row.original.tags.map((tag: string, i: number) => (
