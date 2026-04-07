@@ -28,6 +28,8 @@ import { type TUploadedFile } from './upload/types/TUploadedFile'
 import { useSearchParams } from 'next/navigation'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
+import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
+import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-enum-select/creatable-custom-type-enum-select'
 import PlateEditor from '@/components/shared/plate/plate-editor'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { EVIDENCE_ASSOCIATION_FIELDS } from './evidence-sheet-config'
@@ -52,6 +54,8 @@ const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSucces
   const queryClient = useQueryClient()
   const router = useRouter()
   const { tagOptions } = useGetTags()
+  const { enumOptions: scopeOptions, onCreateOption: createScope } = useCreatableEnumOptions({ field: 'scope' })
+  const { enumOptions: environmentOptions, onCreateOption: createEnvironment } = useCreatableEnumOptions({ field: 'environment' })
   const { convertToHtml } = usePlateEditor()
 
   const onSubmitHandler = async (data: CreateEvidenceFormData) => {
@@ -71,6 +75,9 @@ const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSucces
       subcontrolIDs: data.subcontrolIDs,
       ...(programId ? { programIDs: [programId] } : {}),
       ...(data.url ? { url: data.url } : {}),
+      ...(data.scopeName ? { scopeName: data.scopeName } : {}),
+      ...(data.environmentName ? { environmentName: data.environmentName } : {}),
+      ...(data.externalUUID ? { externalUUID: data.externalUUID } : {}),
       ...evidenceObjectTypes,
     }
 
@@ -320,6 +327,84 @@ const EvidenceCreateForm: React.FC<TProps> = ({ formData, onEvidenceCreateSucces
                             </p>
                           )}
                           {form.formState.errors.renewalDate && <p className="text-red-500 text-sm">{form.formState.errors.renewalDate.message}</p>}
+                        </FormItem>
+                      )}
+                    />
+                  </InputRow>
+
+                  {/* Scope */}
+                  <InputRow className="w-full">
+                    <FormField
+                      control={form.control}
+                      name="scopeName"
+                      render={({ field }) => (
+                        <FormItem className="w-full">
+                          <div className="flex items-center">
+                            <FormLabel>Scope</FormLabel>
+                            <SystemTooltip
+                              icon={<InfoIcon size={14} className="mx-1 mt-1" />}
+                              content={<p>The audit scope of the evidence, generally indicating the areas and processes covered.</p>}
+                            />
+                          </div>
+                          <FormControl>
+                            <CreatableCustomTypeEnumSelect
+                              value={field.value ?? undefined}
+                              options={scopeOptions}
+                              onCreateOption={createScope}
+                              placeholder="Select scope"
+                              searchPlaceholder="Search scope..."
+                              onValueChange={field.onChange}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                  </InputRow>
+
+                  {/* Environment */}
+                  <InputRow className="w-full">
+                    <FormField
+                      control={form.control}
+                      name="environmentName"
+                      render={({ field }) => (
+                        <FormItem className="w-full">
+                          <div className="flex items-center">
+                            <FormLabel>Environment</FormLabel>
+                            <SystemTooltip
+                              icon={<InfoIcon size={14} className="mx-1 mt-1" />}
+                              content={<p>The environment the evidence relates to in your organization, e.g. production, development, etc.</p>}
+                            />
+                          </div>
+                          <FormControl>
+                            <CreatableCustomTypeEnumSelect
+                              value={field.value ?? undefined}
+                              options={environmentOptions}
+                              onCreateOption={createEnvironment}
+                              placeholder="Select environment"
+                              searchPlaceholder="Search environment..."
+                              onValueChange={field.onChange}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                  </InputRow>
+
+                  {/* External ID */}
+                  <InputRow className="w-full">
+                    <FormField
+                      control={form.control}
+                      name="externalUUID"
+                      render={({ field }) => (
+                        <FormItem className="w-full">
+                          <div className="flex items-center">
+                            <FormLabel>External ID</FormLabel>
+                            <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>Stable external identifier for deterministic OSCAL export and round-tripping.</p>} />
+                          </div>
+                          <FormControl>
+                            <Input variant="medium" {...field} value={field.value ?? ''} className="w-full" />
+                          </FormControl>
+                          {form.formState.errors.externalUUID && <p className="text-red-500 text-sm">{form.formState.errors.externalUUID.message}</p>}
                         </FormItem>
                       )}
                     />
