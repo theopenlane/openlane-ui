@@ -7,6 +7,7 @@ export const GET_ALL_CAMPAIGNS = gql`
       edges {
         node {
           assessmentID
+          campaignType
           completedAt
           createdAt
           createdBy
@@ -37,6 +38,8 @@ export const GET_ALL_CAMPAIGNS = gql`
           recurrenceTimezone
           resendCount
           scheduledAt
+          status
+          tags
           templateID
           updatedAt
           updatedBy
@@ -57,6 +60,7 @@ export const CAMPAIGN = gql`
   query Campaign($campaignId: ID!) {
     campaign(id: $campaignId) {
       assessmentID
+      campaignType
       completedAt
       createdAt
       createdBy
@@ -87,6 +91,15 @@ export const CAMPAIGN = gql`
       recurrenceTimezone
       resendCount
       scheduledAt
+      status
+      tags
+      template {
+        id
+        name
+        description
+        updatedAt
+        jsonconfig
+      }
       templateID
       updatedAt
       updatedBy

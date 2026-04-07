@@ -1,3 +1,4 @@
+'use client'
 import React, { useEffect, useMemo, useState } from 'react'
 import { useDeleteRisk, useGetRiskById, useGetRiskDiscussionById, useUpdateRisk } from '@/lib/graphql-hooks/risk'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'

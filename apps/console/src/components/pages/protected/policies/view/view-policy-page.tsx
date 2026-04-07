@@ -45,6 +45,7 @@ import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import LinkedProcedures from './fields/linked-procedures'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { ObjectWorkflowPanel } from '@/components/workflows/object-workflow-panel'
 
 type TViewPolicyPage = {
   policyId: string
@@ -142,6 +143,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
         internalPolicyKindName: policy.internalPolicyKindName ?? '',
         reviewDue: policy.reviewDue ? new Date(policy.reviewDue as string) : undefined,
         reviewFrequency: policy.reviewFrequency ?? InternalPolicyFrequency.YEARLY,
+        revision: policy.revision ?? '',
         approverID: policy.approver?.id,
         delegateID: policy.delegate?.id,
       })
@@ -189,19 +191,26 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
     }
 
     try {
+      const { revision, ...restData } = data
+      const input: UpdateInternalPolicyInput = {
+        ...restData,
+        detailsJSON: data.detailsJSON,
+        details: await plateEditorHelper.convertToHtml(data.detailsJSON as Value),
+        tags: data?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
+        approverID: data.approverID || undefined,
+        delegateID: data.delegateID || undefined,
+      }
+
+      if (revision && revision !== (policy?.revision ?? '')) {
+        input.revision = revision
+      }
+
       const formData: {
         updateInternalPolicyId: string
         input: UpdateInternalPolicyInput
       } = {
         updateInternalPolicyId: policy?.id,
-        input: {
-          ...data,
-          detailsJSON: data.detailsJSON,
-          details: await plateEditorHelper.convertToHtml(data.detailsJSON as Value),
-          tags: data?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
-          approverID: data.approverID || undefined,
-          delegateID: data.delegateID || undefined,
-        },
+        input,
       }
 
       await updatePolicy(formData)

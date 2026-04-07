@@ -9,6 +9,7 @@ export const controlFormSchema = z.object({
   descriptionJSON: z.custom<Value>().optional(),
   controlOwnerID: z.string().optional(),
   delegateID: z.string().optional(),
+  responsiblePartyID: z.string().optional(),
   category: z.string().optional(),
   subcategory: z.string().optional(),
   status: z.nativeEnum(ControlControlStatus).optional(),

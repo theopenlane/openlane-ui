@@ -41,6 +41,7 @@ import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { ObjectWorkflowPanel } from '@/components/workflows/object-workflow-panel'
 
 const ViewProcedurePage: React.FC = () => {
   const { id } = useParams()
@@ -127,6 +128,7 @@ const ViewProcedurePage: React.FC = () => {
         procedureKindName: procedure.procedureKindName ?? '',
         reviewDue: procedure.reviewDue ? new Date(procedure.reviewDue as string) : undefined,
         reviewFrequency: procedure.reviewFrequency ?? ProcedureFrequency.YEARLY,
+        revision: procedure.revision ?? '',
         approverID: procedure.approver?.id,
         delegateID: procedure.delegate?.id,
       })
@@ -169,19 +171,26 @@ const ViewProcedurePage: React.FC = () => {
       return
     }
     try {
+      const { revision, ...restData } = data
+      const input: UpdateProcedureInput = {
+        ...restData,
+        detailsJSON: data.detailsJSON,
+        details: await plateEditorHelper.convertToHtml(data.detailsJSON as Value),
+        tags: data?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
+        approverID: data.approverID || undefined,
+        delegateID: data.delegateID || undefined,
+      }
+
+      if (revision && revision !== (procedure?.revision ?? '')) {
+        input.revision = revision
+      }
+
       const formData: {
         updateProcedureId: string
         input: UpdateProcedureInput
       } = {
         updateProcedureId: procedure?.id,
-        input: {
-          ...data,
-          detailsJSON: data.detailsJSON,
-          details: await plateEditorHelper.convertToHtml(data.detailsJSON as Value),
-          tags: data?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
-          approverID: data.approverID || undefined,
-          delegateID: data.delegateID || undefined,
-        },
+        input,
       }
 
       await updateProcedure(formData)

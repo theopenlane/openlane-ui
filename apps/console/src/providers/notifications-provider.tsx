@@ -1,6 +1,6 @@
 'use client'
 
-import React, { createContext, use, useEffect, useRef } from 'react'
+import React, { createContext, use, useCallback, useEffect, useRef } from 'react'
 import { useWebsocketNotifications, type Notification } from '@/lib/graphql-hooks/websocket/use-websocket-notifications'
 
 type NewNotificationListener = (notification: Notification) => void
@@ -13,28 +13,42 @@ const NotificationsContext = createContext<NotificationsContextValue | null>(nul
 
 export const NotificationsProvider = ({ children }: { children: React.ReactNode }) => {
   const websocketNotifications = useWebsocketNotifications()
-  const { notifications, subscriptionStartedAt } = websocketNotifications
+  const { notifications, liveNotifications, subscriptionStartedAt } = websocketNotifications
   const listenersRef = useRef<NewNotificationListener[]>([])
   const seenIdsRef = useRef<Set<string>>(new Set())
+  const hasInitializedLiveNotificationsRef = useRef(false)
 
   useEffect(() => {
-    notifications.forEach((n) => {
-      if (!seenIdsRef.current.has(n.id)) {
-        seenIdsRef.current.add(n.id)
-        const isNew = subscriptionStartedAt !== null && n.createdAt != null && new Date(n.createdAt).getTime() >= subscriptionStartedAt
+    if (notifications.length === 0 && liveNotifications.length === 0) {
+      seenIdsRef.current = new Set()
+      hasInitializedLiveNotificationsRef.current = false
+    }
+  }, [liveNotifications, notifications.length])
+
+  useEffect(() => {
+    if (!hasInitializedLiveNotificationsRef.current) {
+      seenIdsRef.current = new Set(liveNotifications.map((notification) => notification.id))
+      hasInitializedLiveNotificationsRef.current = true
+      return
+    }
+
+    liveNotifications.forEach((notification) => {
+      if (!seenIdsRef.current.has(notification.id)) {
+        seenIdsRef.current.add(notification.id)
+        const isNew = subscriptionStartedAt !== null && notification.createdAt != null && new Date(notification.createdAt).getTime() >= subscriptionStartedAt
         if (isNew) {
-          listenersRef.current.forEach((listener) => listener(n))
+          listenersRef.current.forEach((listener) => listener(notification))
         }
       }
     })
-  }, [notifications, subscriptionStartedAt])
+  }, [liveNotifications, subscriptionStartedAt])
 
-  const addNewNotificationListener = (listener: NewNotificationListener) => {
+  const addNewNotificationListener = useCallback((listener: NewNotificationListener) => {
     listenersRef.current.push(listener)
     return () => {
       listenersRef.current = listenersRef.current.filter((l) => l !== listener)
     }
-  }
+  }, [])
 
   return <NotificationsContext value={{ ...websocketNotifications, addNewNotificationListener }}>{children}</NotificationsContext>
 }

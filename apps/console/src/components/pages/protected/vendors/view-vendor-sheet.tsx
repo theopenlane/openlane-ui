@@ -6,7 +6,7 @@ import { SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { Button } from '@repo/ui/button'
 import { ExternalLink, PanelRightClose } from 'lucide-react'
 import { useEntity } from '@/lib/graphql-hooks/entity'
-import { EntityEntityStatus, EntityFrequency, type UpdateEntityInput } from '@repo/codegen/src/schema'
+import { EntityEntityStatus, EntityFrequency, EntityVendorTier, type UpdateEntityInput } from '@repo/codegen/src/schema'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { GenericDetailsSheet, type GenericDetailsSheetConfig, type RenderHeaderProps } from '@/components/shared/crud-base/generic-sheet'
 import { type EntitiesNodeNonNull } from '@/lib/graphql-hooks/entity'
@@ -44,6 +44,7 @@ const ViewVendorSheet: React.FC<Props> = ({ entityId, onClose }) => {
   const { enumOptions: scopeOptions, onCreateOption: createScope } = useCreatableEnumOptions({ field: 'scope' })
   const reviewFrequencyOptions = enumToOptions(EntityFrequency)
   const entityStatusOptions = enumToOptions(EntityEntityStatus)
+  const tierOptions = enumToOptions(EntityVendorTier)
   const { tagOptions } = useGetTags()
 
   const enumOpts = useMemo(
@@ -55,9 +56,10 @@ const ViewVendorSheet: React.FC<Props> = ({ entityId, onClose }) => {
       scopeOptions,
       reviewFrequencyOptions,
       entityStatusOptions,
+      tierOptions,
       tagOptions,
     }),
-    [relationshipStateOptions, securityQuestionnaireStatusOptions, sourceTypeOptions, environmentOptions, scopeOptions, reviewFrequencyOptions, entityStatusOptions, tagOptions],
+    [relationshipStateOptions, securityQuestionnaireStatusOptions, sourceTypeOptions, environmentOptions, scopeOptions, reviewFrequencyOptions, entityStatusOptions, tierOptions, tagOptions],
   )
 
   const enumCreateHandlers = useMemo(

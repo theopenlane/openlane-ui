@@ -2,15 +2,16 @@
 
 import React from 'react'
 import Image from 'next/image'
-import { getProviderIcon } from './config'
+import { getProviderIcon } from '@/lib/integrations/utils'
 
 type ProviderIconProps = {
   providerName: string
+  logoUrl?: string
   className?: string
 }
 
-const ProviderIcon = ({ providerName, className }: ProviderIconProps) => {
-  const iconSrc = getProviderIcon(providerName)
+const ProviderIcon = ({ providerName, logoUrl, className }: ProviderIconProps) => {
+  const iconSrc = logoUrl || getProviderIcon(providerName)
   if (!iconSrc) {
     return null
   }

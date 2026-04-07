@@ -10,9 +10,10 @@ import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
 import { AlertTriangle, Clock, ClipboardCheck, CalendarClock, SearchIcon } from 'lucide-react'
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuRadioGroup, DropdownMenuRadioItem } from '@repo/ui/dropdown-menu'
-import { EntityFrequency, type EntityQuery, type UpdateEntityInput } from '@repo/codegen/src/schema'
+import { EntityFrequency, EntityVendorTier, type EntityQuery, type UpdateEntityInput } from '@repo/codegen/src/schema'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import { useReviewsWithFilter } from '@/lib/graphql-hooks/review'
+import { SelectField } from '@/components/shared/crud-base/form-fields/select-field'
 import { TextField } from '@/components/shared/crud-base/form-fields/text-field'
 import ColumnVisibilityMenu, { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
@@ -38,6 +39,7 @@ const RiskReviewTab: React.FC<RiskReviewTabProps> = ({ vendor, handleUpdateField
 
   const debouncedSearch = useDebounce(searchTerm, 300)
   const searchFields = debouncedSearch ? { or: [{ titleContainsFold: debouncedSearch }, { summaryContainsFold: debouncedSearch }, { reporterContainsFold: debouncedSearch }] } : {}
+  const tierOptions = enumToOptions(EntityVendorTier)
 
   const { reviewsNodes, isLoading } = useReviewsWithFilter({
     where: { hasEntitiesWith: [{ id: vendor.id }], ...filterWhere, ...searchFields },
@@ -112,7 +114,7 @@ const RiskReviewTab: React.FC<RiskReviewTabProps> = ({ vendor, handleUpdateField
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <Card>
             <CardContent className="p-4">
-              <TextField name="tier" label="Risk Tier" {...sharedFieldProps} />
+              <SelectField name="tier" label="Risk Tier" options={tierOptions} {...sharedFieldProps} />
             </CardContent>
           </Card>
           <Card>

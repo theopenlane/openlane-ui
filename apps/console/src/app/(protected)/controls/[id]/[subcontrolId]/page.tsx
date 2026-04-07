@@ -50,6 +50,9 @@ import QuickActions from '@/components/pages/protected/controls/quick-actions/qu
 import TaskDetailsSheet from '@/components/pages/protected/tasks/create-task/sidebar/task-details-sheet'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { SaveButton } from '@/components/shared/save-button/save-button.tsx'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button.tsx'
+import { ObjectWorkflowPanel } from '@/components/workflows/object-workflow-panel'
 
 interface FormValues {
   refCode: string
@@ -57,6 +60,7 @@ interface FormValues {
   descriptionJSON?: Value
   delegateID: string
   controlOwnerID: string
+  responsiblePartyID: string
   category?: string
   subcategory?: string
   status: SubcontrolControlStatus
@@ -76,6 +80,7 @@ const initialDataObj = {
   descriptionJSON: undefined,
   delegateID: '',
   controlOwnerID: '',
+  responsiblePartyID: '',
   category: '',
   subcategory: '',
   status: SubcontrolControlStatus.NOT_IMPLEMENTED,
@@ -288,6 +293,7 @@ const ControlDetailsPage: React.FC = () => {
         descriptionJSON: data.subcontrol?.descriptionJSON ? (data.subcontrol.descriptionJSON as Value) : undefined,
         delegateID: data?.subcontrol?.delegate?.id || '',
         controlOwnerID: data?.subcontrol?.controlOwner?.id || '',
+        responsiblePartyID: data?.subcontrol?.responsibleParty?.id || '',
         category: data?.subcontrol?.category || '',
         subcategory: data?.subcontrol?.subcategory || '',
         status: data?.subcontrol?.status || SubcontrolControlStatus.NOT_IMPLEMENTED,
