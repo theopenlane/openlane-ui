@@ -2,9 +2,7 @@
   {
     "route": "/automation/assessments",
     "name": "Assessments",
-    "keywords": [
-      "questionnaires"
-    ]
+    "keywords": ["questionnaires"]
   },
   {
     "route": "/automation/assessments/questionnaire-editor",
@@ -38,9 +36,7 @@
   {
     "route": "/controls",
     "name": "Controls",
-    "keywords": [
-      "requirements"
-    ]
+    "keywords": ["requirements"]
   },
   {
     "route": "/controls/create-control",
@@ -53,37 +49,22 @@
   {
     "route": "/dashboard",
     "name": "Dashboard",
-    "keywords": [
-      "home"
-    ]
+    "keywords": ["home"]
   },
   {
     "route": "/developers/api-tokens",
     "name": "Developers",
-    "keywords": [
-      "api",
-      "api keys",
-      "auth",
-      "token"
-    ]
+    "keywords": ["api", "api keys", "auth", "token"]
   },
   {
     "route": "/developers/personal-access-tokens",
     "name": "Developers",
-    "keywords": [
-      "pat",
-      "personal access tokens",
-      "api",
-      "auth"
-    ]
+    "keywords": ["pat", "personal access tokens", "api", "auth"]
   },
   {
     "route": "/evidence",
     "name": "Evidence",
-    "keywords": [
-      "audit",
-      "files"
-    ]
+    "keywords": ["audit", "files"]
   },
   {
     "route": "/exposure/findings",
@@ -117,18 +98,12 @@
   {
     "route": "/organization-settings/authentication",
     "name": "Authentication",
-    "keywords": [
-      "auth"
-    ]
+    "keywords": ["auth"]
   },
   {
     "route": "/organization-settings/billing",
     "name": "Billing",
-    "keywords": [
-      "subscription",
-      "plan",
-      "payment method"
-    ]
+    "keywords": ["subscription", "plan", "payment method"]
   },
   {
     "route": "/organization-settings/custom-data",
@@ -146,11 +121,7 @@
   {
     "route": "/organization-settings/logs",
     "name": "Logs",
-    "keywords": [
-      "audit logs",
-      "activity",
-      "history"
-    ]
+    "keywords": ["audit logs", "activity", "history"]
   },
   {
     "route": "/organization-settings/subscribers",
@@ -160,10 +131,7 @@
   {
     "route": "/policies",
     "name": "Policies",
-    "keywords": [
-      "internal policies",
-      "documents"
-    ]
+    "keywords": ["internal policies", "documents"]
   },
   {
     "route": "/policies/create",
@@ -174,16 +142,46 @@
     "name": "Procedures"
   },
   {
+    "route": "/workflows",
+    "name": "Workflows",
+    "keywords": ["automation", "approvals", "workflow definitions"]
+  },
+  {
+    "route": "/workflows/templates",
+    "name": "Workflow Templates",
+    "keywords": ["automation", "templates", "workflow presets"]
+  },
+  {
+    "route": "/workflows/inbox",
+    "name": "Workflow Inbox",
+    "keywords": ["approvals", "inbox", "workflow assignments"]
+  },
+  {
+    "route": "/workflows/instances",
+    "name": "Workflow Instances",
+    "keywords": ["automation", "instances", "workflow runs"]
+  },
+  {
+    "route": "/workflows/wizard",
+    "name": "Workflow Wizard",
+    "keywords": ["automation", "wizard", "workflow builder"]
+  },
+  {
+    "route": "/workflows/editor",
+    "name": "Workflow Editor"
+  },
+  {
+    "route": "/workflows/definitions",
+    "name": "Workflow Definition"
+  },
+  {
     "route": "/procedures/create",
     "name": "Create Procedure"
   },
   {
     "route": "/programs",
     "name": "Programs",
-    "keywords": [
-      "audits",
-      "assessments"
-    ]
+    "keywords": ["audits", "assessments"]
   },
   {
     "route": "/programs/create",
@@ -236,11 +234,7 @@
   {
     "route": "/standards",
     "name": "Standards",
-    "keywords": [
-      "frameworks",
-      "regulations",
-      "compliance"
-    ]
+    "keywords": ["frameworks", "regulations", "compliance"]
   },
   {
     "route": "/trust-center/analytics",
@@ -305,11 +299,7 @@
   {
     "route": "/user-management/members",
     "name": "Members",
-    "keywords": [
-      "roles",
-      "invites",
-      "invitations"
-    ]
+    "keywords": ["roles", "invites", "invitations"]
   },
   {
     "route": "/user-settings",
@@ -318,15 +308,6 @@
   {
     "route": "/user-settings/profile",
     "name": "Profile",
-    "keywords": [
-      "account",
-      "default organization",
-      "preferences",
-      "passkey",
-      "2fa",
-      "mfa",
-      "two-factor authentication",
-      "avatar"
-    ]
+    "keywords": ["account", "default organization", "preferences", "passkey", "2fa", "mfa", "two-factor authentication", "avatar"]
   }
 ]
