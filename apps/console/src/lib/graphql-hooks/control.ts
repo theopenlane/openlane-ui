@@ -383,12 +383,24 @@ export function useAllControlsGroupedWithListFields({ where, enabled = true }: {
   }, [data?.pages])
 
   const groupedControls = useMemo(() => {
-    return allControls.reduce<Record<string, ControlListStandardFieldsFragment[]>>((acc, control) => {
+    const groups = allControls.reduce<Record<string, ControlListStandardFieldsFragment[]>>((acc, control) => {
       const category = control.category || 'Uncategorized'
       if (!acc[category]) acc[category] = []
       acc[category].push(control)
       return acc
     }, {})
+
+    for (const controls of Object.values(groups)) {
+      controls.sort((a, b) => a.refCode.localeCompare(b.refCode, undefined, { numeric: true }))
+    }
+
+    const sortedEntries = Object.entries(groups).sort(([, controlsA], [, controlsB]) => {
+      const minA = controlsA[0]?.refCode ?? ''
+      const minB = controlsB[0]?.refCode ?? ''
+      return minA.localeCompare(minB, undefined, { numeric: true })
+    })
+
+    return Object.fromEntries(sortedEntries)
   }, [allControls])
 
   const isLoadingAll = isLoading || isFetchingNextPage || hasNextPage || isFetching

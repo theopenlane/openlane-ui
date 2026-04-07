@@ -70,6 +70,10 @@ export const parseErrorMessage = (error: unknown): string => {
       return errorCodeMessages['ORG_ALREADY_EXISTS']
     }
 
+    if (message !== '' && code === 'VALIDATION_ERROR') {
+      return message
+    }
+
     return errorCodeMessages[code] ?? message ?? unknownMessage
   }
 

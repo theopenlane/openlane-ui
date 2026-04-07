@@ -26,13 +26,17 @@ type TrackRemediationFormProps = {
   onClose: () => void
   onPendingChange?: (isPending: boolean) => void
   defaultTitle?: string
+  defaultInstructions?: string
 }
 
-export const TrackRemediationForm: React.FC<TrackRemediationFormProps> = ({ entityId, entityType, onClose, onPendingChange, defaultTitle }) => {
+export const TrackRemediationForm: React.FC<TrackRemediationFormProps> = ({ entityId, entityType, onClose, onPendingChange, defaultTitle, defaultInstructions }) => {
   const { form } = useFormSchema()
   React.useEffect(() => {
     if (defaultTitle) {
       form.setValue('title', defaultTitle)
+    }
+    if (defaultInstructions) {
+      form.setValue('instructions', defaultInstructions)
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
   const { mutateAsync, isPending } = useCreateRemediation()
@@ -57,7 +61,6 @@ export const TrackRemediationForm: React.FC<TrackRemediationFormProps> = ({ enti
         ...data,
         ...(entityType === 'finding' ? { findingIDs: [entityId] } : { vulnerabilityIDs: [entityId] }),
       }
-      console.log('INPUT2', input)
       await mutateAsync({ input })
       queryClient.invalidateQueries({ queryKey: ['remediations'] })
       queryClient.invalidateQueries({ queryKey: [entityType === 'vulnerability' ? 'vulnerabilities' : 'findings', entityId, 'associations'] })

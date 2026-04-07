@@ -67,6 +67,9 @@ export function SetObjectAssociationDialog({ trigger, defaultSelectedObject, all
         riskIDs: (subcontrolAssociationsData.subcontrol.risks?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
         procedureIDs: (subcontrolAssociationsData.subcontrol.procedures?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
         internalPolicyIDs: (subcontrolAssociationsData.subcontrol.internalPolicies?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+        assetIDs: (subcontrolAssociationsData.subcontrol.assets?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+        entityIDs: (subcontrolAssociationsData.subcontrol.entities?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+        identityHolderIDs: (subcontrolAssociationsData.subcontrol.identityHolders?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
       }
     }
 
@@ -142,6 +145,8 @@ export function SetObjectAssociationDialog({ trigger, defaultSelectedObject, all
       const procedureAssociationsChanged = (added.procedureIDs?.length ?? 0) > 0 || (removed.procedureIDs?.length ?? 0) > 0
       const reviewAssociationsChanged = (added.reviewIDs?.length ?? 0) > 0 || (removed.reviewIDs?.length ?? 0) > 0
       const assetAssociationsChanged = (added.assetIDs?.length ?? 0) > 0 || (removed.assetIDs?.length ?? 0) > 0
+      const entityAssociationsChanged = (added.entityIDs?.length ?? 0) > 0 || (removed.entityIDs?.length ?? 0) > 0
+      const identityHolderAssociationsChanged = (added.identityHolderIDs?.length ?? 0) > 0 || (removed.identityHolderIDs?.length ?? 0) > 0
       const riskAssociationsChanged = (added.riskIDs?.length ?? 0) > 0 || (removed.riskIDs?.length ?? 0) > 0
       const scanAssociationsChanged = (added.scanIDs?.length ?? 0) > 0 || (removed.scanIDs?.length ?? 0) > 0
       const findingAssociationsChanged = (added.findingIDs?.length ?? 0) > 0 || (removed.findingIDs?.length ?? 0) > 0
@@ -174,6 +179,14 @@ export function SetObjectAssociationDialog({ trigger, defaultSelectedObject, all
 
       if (scanAssociationsChanged) {
         queryClient.invalidateQueries({ queryKey: ['scans'] })
+      }
+
+      if (entityAssociationsChanged) {
+        queryClient.invalidateQueries({ queryKey: ['entities'] })
+      }
+
+      if (identityHolderAssociationsChanged) {
+        queryClient.invalidateQueries({ queryKey: ['identityHolders'] })
       }
 
       if (findingAssociationsChanged || scanAssociationsChanged) {
@@ -220,11 +233,12 @@ export function SetObjectAssociationDialog({ trigger, defaultSelectedObject, all
           defaultSelectedObject={defaultSelectedObject}
           allowedObjectTypes={
             allowedObjectTypes || [
-              ...(isSubcontrol ? [] : [ObjectTypeObjects.ASSET]),
+              ObjectTypeObjects.ASSET,
               ...(isSubcontrol ? [] : [ObjectTypeObjects.CAMPAIGN]),
+              ObjectTypeObjects.ENTITY,
               ...(isSubcontrol ? [] : [ObjectTypeObjects.FINDING]),
+              ObjectTypeObjects.IDENTITY_HOLDER,
               ObjectTypeObjects.INTERNAL_POLICY,
-              ...(isSubcontrol ? [] : [ObjectTypeObjects.IDENTITY_HOLDER]),
               ObjectTypeObjects.PROCEDURE,
               ...(isSubcontrol ? [] : [ObjectTypeObjects.PROGRAM]),
               ...(isSubcontrol ? [] : [ObjectTypeObjects.REMEDIATION]),
@@ -232,7 +246,6 @@ export function SetObjectAssociationDialog({ trigger, defaultSelectedObject, all
               ObjectTypeObjects.RISK,
               ...(isSubcontrol ? [] : [ObjectTypeObjects.SCAN]),
               ObjectTypeObjects.TASK,
-              ...(isSubcontrol ? [] : [ObjectTypeObjects.ENTITY]),
             ]
           }
           initialData={initialData}

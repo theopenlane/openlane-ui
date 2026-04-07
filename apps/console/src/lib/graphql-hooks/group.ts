@@ -10,6 +10,7 @@ import {
   UPDATE_GROUP_MEMBERSHIP,
   DELETE_GROUP_MEMBERSHIP,
   GET_ALL_GROUPS_PAGINATED,
+  CREATE_CSV_BULK_GROUP,
 } from '@repo/codegen/query/group'
 
 import {
@@ -35,10 +36,13 @@ import {
   type GetAllGroupsPaginatedQueryVariables,
   type GetAllGroupsPaginatedQuery,
   type AllGroupsPaginatedFieldsFragment,
+  type CreateBulkCsvGroupMutation,
+  type CreateBulkCsvGroupMutationVariables,
 } from '@repo/codegen/src/schema'
 import { type TPagination } from '@repo/ui/pagination-types'
 import { useInfiniteQuery } from '@tanstack/react-query'
 import { useEffect, useMemo } from 'react'
+import { fetchGraphQLWithUpload } from '../fetchGraphql'
 
 type GroupsArgs = {
   where?: GetAllGroupsQueryVariables['where']
@@ -242,4 +246,14 @@ export function useAllGroupsGrouped({ where, enabled = true, orderBy }: { where?
     fetchNextPage,
     ...rest,
   }
+}
+
+export const useCreateBulkCSVGroup = () => {
+  const { queryClient } = useGraphQLClient()
+  return useMutation<CreateBulkCsvGroupMutation, unknown, CreateBulkCsvGroupMutationVariables>({
+    mutationFn: async (variables) => fetchGraphQLWithUpload({ query: CREATE_CSV_BULK_GROUP, variables }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['groups'] })
+    },
+  })
 }

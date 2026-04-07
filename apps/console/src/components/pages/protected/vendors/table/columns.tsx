@@ -11,6 +11,7 @@ import { createSelectColumn } from '@/components/shared/crud-base/columns/select
 import { CustomEnumChipCell } from '@/components/shared/crud-base/columns/custom-enum-chip-cell'
 import { ResponsibilityCell } from '@/components/shared/crud-base/columns/responsibility-cell'
 import { toBase64DataUri } from '@/lib/image-utils'
+import { TruncatedCell } from '@repo/ui/data-table'
 
 const renderVendorIdentityCell = (row: EntitiesNodeNonNull, label: string) => {
   const logo = row.logoFile?.base64 ? toBase64DataUri(row.logoFile.base64) : undefined
@@ -55,7 +56,7 @@ export const getColumns = ({ userMap, convertToReadOnly, selectedItems, setSelec
       cell: ({ cell }) => {
         const value = cell.getValue() as string
         if (!value) return ''
-        return value.includes('slate') ? convertToReadOnly?.(value) : value
+        return value.includes('slate') ? convertToReadOnly?.(value) : <TruncatedCell>{value}</TruncatedCell>
       },
     },
     { accessorKey: 'domains', header: 'Domains', size: 200, cell: ({ cell }) => (cell.getValue() as string[])?.join(', ') || '' },

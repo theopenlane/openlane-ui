@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState, useImperativeHandle, useCallback, type Ref } from 'react'
+import React, { useEffect, useImperativeHandle, useCallback, type Ref, useRef } from 'react'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import { type Value, type TElement, KEYS } from 'platejs'
@@ -60,8 +60,15 @@ const PlateEditor = ({ onChange, initialValue, variant = 'basic', styleVariant, 
     plugins: getPlugins(),
   })
 
-  const [plateEditor, setPlateEditor] = useState<ReturnType<typeof createPlateEditor> | null>(null)
-  const [initialValueSet, setInitialValueSet] = useState(false)
+  const plateEditor = React.useMemo(
+    () =>
+      createPlateEditor({
+        plugins: getPlugins(),
+      }),
+    [getPlugins],
+  )
+
+  const initialValueSetRef = useRef(false)
 
   function mapEntityDiscussions(
     entity: PolicyDiscussionFieldsFragment | ProcedureDiscussionFieldsFragment | RiskDiscussionFieldsFragment | SubcontrolDiscussionFieldsFragment | ControlDiscussionFieldsFragment,
@@ -158,36 +165,28 @@ const PlateEditor = ({ onChange, initialValue, variant = 'basic', styleVariant, 
   }))
 
   useEffect(() => {
-    const instance = createPlateEditor({
-      plugins: getPlugins(),
-    })
-    setPlateEditor(instance)
-  }, [getPlugins])
+    if (plateEditor && !initialValueSetRef.current) {
+      initialValueSetRef.current = true
 
-  useEffect(() => {
-    if (plateEditor && !initialValueSet) {
-      setInitialValueSet(true)
-
-      const fmt = detectFormat(initialValue)
       let slateNodes
-
-      switch (fmt) {
-        case 'markdown':
+      if (Array.isArray(initialValue)) {
+        slateNodes = initialValue
+      } else {
+        const fmt = detectFormat(initialValue)
+        if (fmt === 'html') {
+          slateNodes = plateEditor.api.html.deserialize({
+            element: initialValue || '',
+          }) as Value
+        } else {
+          // @ts-expect-error fix bad typing from platejs
           slateNodes = (plateEditor.api.markdown?.deserialize?.(initialValue || '') ?? []) as Value
-          break
-        default:
-          slateNodes = Array.isArray(initialValue)
-            ? initialValue
-            : (plateEditor.api.html.deserialize({
-                element: initialValue || '',
-              }) as Value)
+        }
       }
 
       if (Array.isArray(slateNodes) && slateNodes.length === 1 && typeof (slateNodes[0] as TElement).text === 'string' && !(slateNodes[0] as TElement).type) {
         if (slateNodes[0].text === '') {
           return
         }
-
         editor.tf.insertNodes(
           {
             children: slateNodes as Value,
@@ -200,7 +199,7 @@ const PlateEditor = ({ onChange, initialValue, variant = 'basic', styleVariant, 
         editor.tf.insertNodes(slateNodes, { at: [0], removeEmpty: true })
       }
     }
-  }, [editor, initialValue, plateEditor, initialValueSet])
+  }, [editor, initialValue, plateEditor])
 
   useEffect(() => {
     if (clearData) {

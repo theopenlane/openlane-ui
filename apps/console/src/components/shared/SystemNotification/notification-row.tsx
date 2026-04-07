@@ -4,6 +4,7 @@ import React from 'react'
 
 import { ShieldCheck, Fingerprint, AlertTriangle, FileCheck, NotebookPen, AlertCircleIcon, ListChecks, ScrollText } from 'lucide-react'
 import { type Notification } from '@/lib/graphql-hooks/websocket/use-websocket-notifications'
+import { redirectToNotification } from './notification-redirect'
 import { useRouter } from 'next/navigation'
 
 interface NotificationRowProps {
@@ -18,10 +19,7 @@ export function NotificationRow({ notification, onRead }: NotificationRowProps) 
     if (isUnread) {
       await onRead(notification.id)
     }
-    if (notification.data?.url) {
-      const url = notification.data.url.startsWith('/') ? notification.data.url : `/${notification.data.url}`
-      router.push(url)
-    }
+    redirectToNotification(router, notification)
   }
 
   return (
