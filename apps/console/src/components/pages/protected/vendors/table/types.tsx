@@ -42,6 +42,7 @@ type EntityEnumKeys =
   | 'reviewFrequencyOptions'
   | 'entityStatusOptions'
   | 'sourceTypeOptions'
+  | 'tierOptions'
 
 export type EnumOptions = EnumOptionsGeneric<EntityEnumKeys>
 

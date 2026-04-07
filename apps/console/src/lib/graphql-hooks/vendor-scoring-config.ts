@@ -1,18 +1,92 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
-import { VendorScoringConfigsWithFilterQuery, VendorScoringConfigsWithFilterQueryVariables, CreateVendorScoringConfigMutation, CreateVendorScoringConfigMutationVariables, UpdateVendorScoringConfigMutation, UpdateVendorScoringConfigMutationVariables, DeleteVendorScoringConfigMutation, DeleteVendorScoringConfigMutationVariables, VendorScoringConfigQuery, VendorScoringConfigQueryVariables, CreateBulkCsvVendorScoringConfigMutation, CreateBulkCsvVendorScoringConfigMutationVariables, UpdateBulkVendorScoringConfigMutation, UpdateBulkVendorScoringConfigMutationVariables, DeleteBulkVendorScoringConfigMutation, DeleteBulkVendorScoringConfigMutationVariables } from '@repo/codegen/src/schema'
+import {
+  type MutationCreateBulkCsvVendorScoringConfigArgs,
+  type MutationCreateVendorScoringConfigArgs,
+  type MutationDeleteBulkVendorScoringConfigArgs,
+  type MutationDeleteVendorScoringConfigArgs,
+  type MutationUpdateBulkVendorScoringConfigArgs,
+  type MutationUpdateVendorScoringConfigArgs,
+  type QueryVendorScoringConfigArgs,
+  type QueryVendorScoringConfigsArgs,
+  type VendorScoringConfig,
+  type VendorScoringConfigBulkCreatePayload,
+  type VendorScoringConfigBulkDeletePayload,
+  type VendorScoringConfigBulkUpdatePayload,
+  type VendorScoringConfigConnection,
+  type VendorScoringConfigCreatePayload,
+  type VendorScoringConfigDeletePayload,
+  type VendorScoringConfigUpdatePayload,
+} from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
-import { TPagination } from '@repo/ui/pagination-types'
-import { GET_ALL_VENDOR_SCORING_CONFIGS, CREATE_VENDOR_SCORING_CONFIG, UPDATE_VENDOR_SCORING_CONFIG, DELETE_VENDOR_SCORING_CONFIG, VENDOR_SCORING_CONFIG, CREATE_CSV_BULK_VENDOR_SCORING_CONFIG, BULK_EDIT_VENDOR_SCORING_CONFIG, BULK_DELETE_VENDOR_SCORING_CONFIG } from '@repo/codegen/query/vendor-scoring-config'
+import { type TPagination } from '@repo/ui/pagination-types'
+import {
+  GET_ALL_VENDOR_SCORING_CONFIGS,
+  CREATE_VENDOR_SCORING_CONFIG,
+  UPDATE_VENDOR_SCORING_CONFIG,
+  DELETE_VENDOR_SCORING_CONFIG,
+  VENDOR_SCORING_CONFIG,
+  CREATE_CSV_BULK_VENDOR_SCORING_CONFIG,
+  BULK_EDIT_VENDOR_SCORING_CONFIG,
+  BULK_DELETE_VENDOR_SCORING_CONFIG,
+} from '@repo/codegen/query/vendor-scoring-config'
 
+type VendorScoringConfigsWithFilterQuery = {
+  vendorScoringConfigs: VendorScoringConfigConnection
+}
 
-    type GetAllVendorScoringConfigsArgs = {
-      where?: VendorScoringConfigsWithFilterQueryVariables['where']
-      orderBy?: VendorScoringConfigsWithFilterQueryVariables['orderBy']
-      pagination?: TPagination
-      enabled?: boolean
-    }
-    
+type VendorScoringConfigsWithFilterQueryVariables = QueryVendorScoringConfigsArgs
+
+type CreateVendorScoringConfigMutation = {
+  createVendorScoringConfig: VendorScoringConfigCreatePayload
+}
+
+type CreateVendorScoringConfigMutationVariables = MutationCreateVendorScoringConfigArgs
+
+type UpdateVendorScoringConfigMutation = {
+  updateVendorScoringConfig: VendorScoringConfigUpdatePayload
+}
+
+type UpdateVendorScoringConfigMutationVariables = MutationUpdateVendorScoringConfigArgs
+
+type DeleteVendorScoringConfigMutation = {
+  deleteVendorScoringConfig: VendorScoringConfigDeletePayload
+}
+
+type DeleteVendorScoringConfigMutationVariables = MutationDeleteVendorScoringConfigArgs
+
+type VendorScoringConfigQuery = {
+  vendorScoringConfig: VendorScoringConfig
+}
+
+type VendorScoringConfigQueryVariables = {
+  vendorScoringConfigId: QueryVendorScoringConfigArgs['id']
+}
+
+type CreateBulkCsvVendorScoringConfigMutation = {
+  createBulkCSVVendorScoringConfig: VendorScoringConfigBulkCreatePayload
+}
+
+type CreateBulkCsvVendorScoringConfigMutationVariables = MutationCreateBulkCsvVendorScoringConfigArgs
+
+type UpdateBulkVendorScoringConfigMutation = {
+  updateBulkVendorScoringConfig: VendorScoringConfigBulkUpdatePayload
+}
+
+type UpdateBulkVendorScoringConfigMutationVariables = MutationUpdateBulkVendorScoringConfigArgs
+
+type DeleteBulkVendorScoringConfigMutation = {
+  deleteBulkVendorScoringConfig: VendorScoringConfigBulkDeletePayload
+}
+
+type DeleteBulkVendorScoringConfigMutationVariables = MutationDeleteBulkVendorScoringConfigArgs
+
+type GetAllVendorScoringConfigsArgs = {
+  where?: VendorScoringConfigsWithFilterQueryVariables['where']
+  orderBy?: VendorScoringConfigsWithFilterQueryVariables['orderBy']
+  pagination?: TPagination
+  enabled?: boolean
+}
 
 export type VendorScoringConfigsNode = NonNullable<NonNullable<NonNullable<VendorScoringConfigsWithFilterQuery['vendorScoringConfigs']>['edges']>[number]>['node']
 
@@ -31,11 +105,15 @@ export const useVendorScoringConfigsWithFilter = ({ where, orderBy, pagination, 
 
   const edges = queryResult.data?.vendorScoringConfigs?.edges ?? []
 
-  const vendorScoringConfigsNodes: VendorScoringConfigsNodeNonNull[] = edges.filter((edge) => edge != null).map((edge) => edge?.node as VendorScoringConfigsNodeNonNull)
+  const vendorScoringConfigsNodes: VendorScoringConfigsNodeNonNull[] = edges.reduce<VendorScoringConfigsNodeNonNull[]>((acc, edge) => {
+    if (edge?.node) {
+      acc.push(edge.node)
+    }
+    return acc
+  }, [])
 
   return { ...queryResult, vendorScoringConfigsNodes }
 }
-
 
 export const useCreateVendorScoringConfig = () => {
   const { client } = useGraphQLClient()
@@ -48,7 +126,6 @@ export const useCreateVendorScoringConfig = () => {
   })
 }
 
-
 export const useUpdateVendorScoringConfig = () => {
   const { client } = useGraphQLClient()
   const queryClient = useQueryClient()
@@ -60,7 +137,6 @@ export const useUpdateVendorScoringConfig = () => {
   })
 }
 
-
 export const useDeleteVendorScoringConfig = () => {
   const { client } = useGraphQLClient()
   const queryClient = useQueryClient()
@@ -71,7 +147,6 @@ export const useDeleteVendorScoringConfig = () => {
     },
   })
 }
-
 
 export const useVendorScoringConfig = (vendorScoringConfigId?: VendorScoringConfigQueryVariables['vendorScoringConfigId']) => {
   const { client } = useGraphQLClient()
@@ -85,7 +160,6 @@ export const useVendorScoringConfig = (vendorScoringConfigId?: VendorScoringConf
   })
 }
 
-
 export const useCreateBulkCSVVendorScoringConfig = () => {
   const { queryClient } = useGraphQLClient()
   return useMutation<CreateBulkCsvVendorScoringConfigMutation, unknown, CreateBulkCsvVendorScoringConfigMutationVariables>({
@@ -95,7 +169,6 @@ export const useCreateBulkCSVVendorScoringConfig = () => {
     },
   })
 }
-
 
 export const useBulkEditVendorScoringConfig = () => {
   const { client, queryClient } = useGraphQLClient()
@@ -107,7 +180,6 @@ export const useBulkEditVendorScoringConfig = () => {
   })
 }
 
-
 export const useBulkDeleteVendorScoringConfig = () => {
   const { client, queryClient } = useGraphQLClient()
   return useMutation<DeleteBulkVendorScoringConfigMutation, unknown, DeleteBulkVendorScoringConfigMutationVariables>({
@@ -117,4 +189,3 @@ export const useBulkDeleteVendorScoringConfig = () => {
     },
   })
 }
-
