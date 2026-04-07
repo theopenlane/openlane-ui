@@ -31,7 +31,9 @@ import { toHumanLabel } from '@/utils/strings'
 import { CustomEnumChipCell } from '@/components/shared/crud-base/columns/custom-enum-chip-cell'
 import { type Value } from 'platejs'
 import StepBasicInfo from '../create/steps/step-basic-info'
+import StepBusinessPurpose from '../create/steps/step-business-purpose'
 import StepDataFlow from '../create/steps/step-data-flow'
+import StepTrustBoundary from '../create/steps/step-trust-boundary'
 import StepAuditScope from '../create/steps/step-audit-scope'
 import StepOwnership from '../create/steps/step-ownership'
 import StepLinkAssetsVendors from '../create/steps/step-link-assets-vendors'
@@ -81,45 +83,49 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId }) =
     ])
   }, [setCrumbs, platform?.name, isLoading])
 
-  useEffect(() => {
-    if (isEditing && platform) {
-      form.reset({
-        name: platform.name ?? '',
-        status: platform.status,
-        businessPurpose: platform.businessPurpose ?? undefined,
-        dataFlowSummary: platform.dataFlowSummary ?? undefined,
-        trustBoundaryDescription: platform.trustBoundaryDescription ?? undefined,
-        scopeName: platform.scopeName,
-        environmentName: platform.environmentName,
-        containsPii: platform.containsPii ?? false,
-        platformOwner: platform.platformOwnerID ? { type: 'user' as const, value: platform.platformOwnerID, displayName: platform.platformOwner?.displayName ?? platform.platformOwnerID } : undefined,
-        businessOwner: normalizeResponsibilityField({
-          user: platform.businessOwnerUser ? { id: platform.businessOwnerUser.id, displayName: platform.businessOwnerUser.displayName } : null,
-          group: platform.businessOwnerGroup ? { id: platform.businessOwnerGroup.id, displayName: platform.businessOwnerGroup.name } : null,
-          stringValue: platform.businessOwner,
-        }),
-        technicalOwner: normalizeResponsibilityField({
-          user: platform.technicalOwnerUser ? { id: platform.technicalOwnerUser.id, displayName: platform.technicalOwnerUser.displayName } : null,
-          group: platform.technicalOwnerGroup ? { id: platform.technicalOwnerGroup.id, displayName: platform.technicalOwnerGroup.name } : null,
-          stringValue: platform.technicalOwner,
-        }),
-        internalOwner: normalizeResponsibilityField({
-          user: platform.internalOwnerUser ? { id: platform.internalOwnerUser.id, displayName: platform.internalOwnerUser.displayName } : null,
-          group: platform.internalOwnerGroup ? { id: platform.internalOwnerGroup.id, displayName: platform.internalOwnerGroup.name } : null,
-          stringValue: platform.internalOwner,
-        }),
-        securityOwner: normalizeResponsibilityField({
-          user: platform.securityOwnerUser ? { id: platform.securityOwnerUser.id, displayName: platform.securityOwnerUser.displayName } : null,
-          group: platform.securityOwnerGroup ? { id: platform.securityOwnerGroup.id, displayName: platform.securityOwnerGroup.name } : null,
-          stringValue: platform.securityOwner,
-        }),
-        assetIDs: (platform.assets?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-        outOfScopeAssetIDs: (platform.outOfScopeAssets?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-        entityIDs: (platform.entities?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-        outOfScopeVendorIDs: (platform.outOfScopeVendors?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
-      })
+  const buildEditFormValues = (platform: Platform) => ({
+    name: platform.name ?? '',
+    description: platform.description ?? '',
+    status: platform.status,
+    businessPurpose: platform.businessPurpose ?? undefined,
+    dataFlowSummary: platform.dataFlowSummary ?? undefined,
+    trustBoundaryDescription: platform.trustBoundaryDescription ?? undefined,
+    scopeName: platform.scopeName,
+    environmentName: platform.environmentName,
+    containsPii: platform.containsPii ?? false,
+    platformOwner: platform.platformOwnerID ? { type: 'user' as const, value: platform.platformOwnerID, displayName: platform.platformOwner?.displayName ?? platform.platformOwnerID } : undefined,
+    businessOwner: normalizeResponsibilityField({
+      user: platform.businessOwnerUser ? { id: platform.businessOwnerUser.id, displayName: platform.businessOwnerUser.displayName } : null,
+      group: platform.businessOwnerGroup ? { id: platform.businessOwnerGroup.id, displayName: platform.businessOwnerGroup.name } : null,
+      stringValue: platform.businessOwner,
+    }),
+    technicalOwner: normalizeResponsibilityField({
+      user: platform.technicalOwnerUser ? { id: platform.technicalOwnerUser.id, displayName: platform.technicalOwnerUser.displayName } : null,
+      group: platform.technicalOwnerGroup ? { id: platform.technicalOwnerGroup.id, displayName: platform.technicalOwnerGroup.name } : null,
+      stringValue: platform.technicalOwner,
+    }),
+    internalOwner: normalizeResponsibilityField({
+      user: platform.internalOwnerUser ? { id: platform.internalOwnerUser.id, displayName: platform.internalOwnerUser.displayName } : null,
+      group: platform.internalOwnerGroup ? { id: platform.internalOwnerGroup.id, displayName: platform.internalOwnerGroup.name } : null,
+      stringValue: platform.internalOwner,
+    }),
+    securityOwner: normalizeResponsibilityField({
+      user: platform.securityOwnerUser ? { id: platform.securityOwnerUser.id, displayName: platform.securityOwnerUser.displayName } : null,
+      group: platform.securityOwnerGroup ? { id: platform.securityOwnerGroup.id, displayName: platform.securityOwnerGroup.name } : null,
+      stringValue: platform.securityOwner,
+    }),
+    assetIDs: (platform.assets?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+    outOfScopeAssetIDs: (platform.outOfScopeAssets?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+    entityIDs: (platform.entities?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+    outOfScopeVendorIDs: (platform.outOfScopeVendors?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+  })
+
+  const handleEdit = () => {
+    if (platform) {
+      form.reset(buildEditFormValues(platform))
     }
-  }, [isEditing, platform, form])
+    setIsEditing(true)
+  }
 
   const handleCancel = () => {
     setIsEditing(false)
@@ -155,6 +161,7 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId }) =
     ])
     return {
       name: rest.name,
+      description: rest.description || undefined,
       status: rest.status,
       scopeName: rest.scopeName,
       environmentName: rest.environmentName,
@@ -262,7 +269,7 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId }) =
           content={
             <>
               {canEditPlatform && (
-                <Button type="button" size="sm" variant="transparent" className="flex justify-start space-x-2" onClick={() => setIsEditing(true)}>
+                <Button type="button" size="sm" variant="transparent" className="flex justify-start space-x-2" onClick={handleEdit}>
                   <PencilIcon size={16} strokeWidth={2} />
                   <span>Edit</span>
                 </Button>
@@ -353,8 +360,16 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId }) =
         <StepBasicInfo />
       </div>
       <div>
+        <h3 className="text-sm font-semibold mb-3">Business Purpose</h3>
+        <StepBusinessPurpose />
+      </div>
+      <div>
         <h3 className="text-sm font-semibold mb-3">Data Flow</h3>
         <StepDataFlow />
+      </div>
+      <div>
+        <h3 className="text-sm font-semibold mb-3">Trust Boundary</h3>
+        <StepTrustBoundary />
       </div>
       <div>
         <h3 className="text-sm font-semibold mb-3">Audit Scope</h3>
@@ -389,6 +404,7 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId }) =
                 </Badge>
               )}
             </div>
+            {platform.description && <p className="text-sm text-muted-foreground">{platform.description}</p>}
           </div>
         </div>
       </div>

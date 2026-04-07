@@ -12,8 +12,6 @@ const StepBusinessPurpose: React.FC = () => {
 
   return (
     <div className="space-y-4">
-      <p className="text-sm text-muted-foreground">All fields on this step are optional. Click Next to skip.</p>
-
       <FormField
         control={form.control}
         name="businessPurpose"

@@ -82,7 +82,7 @@ const PlatformsDashboardPage: React.FC = () => {
   )
 
   const buildPayload = async (data: EditPlatformFormData): Promise<CreatePlatformInput> => {
-    const { businessOwner, technicalOwner, platformOwner, entityIDs, outOfScopeVendorIDs, assetIDs, outOfScopeAssetIDs, ...rest } = data
+    const { businessOwner, technicalOwner, platformOwner, internalOwner, securityOwner, entityIDs, outOfScopeVendorIDs, assetIDs, outOfScopeAssetIDs, ...rest } = data
 
     // Stash relationship IDs — will be applied via follow-up update after creation
     pendingLinksRef.current = {
@@ -110,6 +110,8 @@ const PlatformsDashboardPage: React.FC = () => {
       platformOwnerID: platformOwner?.type === 'user' ? platformOwner.value : (session?.user?.id ?? undefined),
       ...buildResponsibilityPayload('businessOwner', businessOwner, { mode: 'create' }),
       ...buildResponsibilityPayload('technicalOwner', technicalOwner, { mode: 'create' }),
+      ...buildResponsibilityPayload('internalOwner', internalOwner, { mode: 'create' }),
+      ...buildResponsibilityPayload('securityOwner', securityOwner, { mode: 'create' }),
     } as CreatePlatformInput
   }
 
