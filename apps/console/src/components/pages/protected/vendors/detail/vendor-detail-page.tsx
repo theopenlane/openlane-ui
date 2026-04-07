@@ -74,7 +74,7 @@ const VendorDetailPage: React.FC<VendorDetailPageProps> = ({ vendorId }) => {
       { label: 'Home', href: '/dashboard' },
       { label: 'Registry', href: '/registry/vendors' },
       { label: 'Vendors', href: '/registry/vendors' },
-      { label: data?.entity?.name ?? '', isLoading },
+      { label: data?.entity?.displayName || data?.entity?.name || '', isLoading },
     ])
   }, [setCrumbs, data?.entity, isLoading])
 
@@ -269,7 +269,7 @@ const VendorDetailPage: React.FC<VendorDetailPageProps> = ({ vendorId }) => {
 
   return (
     <>
-      <title>{`${currentOrganization?.node?.displayName ?? 'Openlane'} | Vendors - ${vendor.name}`}</title>
+      <title>{`${currentOrganization?.node?.displayName ?? 'Openlane'} | Vendors - ${vendor.displayName || vendor.name}`}</title>
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <SlideBarLayout
