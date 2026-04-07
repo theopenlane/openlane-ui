@@ -82,10 +82,6 @@ const CampaignsPage: React.FC = () => {
     ])
   }, [setCrumbs])
 
-  useEffect(() => {
-    // Campaign detail is now handled by the [id] route page
-  }, [searchParams])
-
   const mappedColumns = useMemo(() => {
     const emptyUserMap = {}
     return getCampaignColumns({
@@ -95,7 +91,7 @@ const CampaignsPage: React.FC = () => {
     })
       .filter(
         (column): column is { accessorKey: string; header: string; meta: { exportPrefix?: string } } =>
-          'accessorKey' in column && typeof column.accessorKey === 'string' && typeof column.header === 'string',
+          'accessorKey' in column && true && typeof column.header === 'string',
       )
       .map((column) => ({
         accessorKey: column.accessorKey,
