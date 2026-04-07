@@ -4,7 +4,7 @@ import { fetchCSRFToken } from './auth/utils/secure-fetch'
 import { csrfCookieName, csrfHeader } from '@repo/dally/auth'
 import { getCookie } from './auth/utils/getCookie'
 
-export const fetchGraphQLWithUpload = async ({ query, variables = {} }: { query: string; variables?: Record<string, unknown> }) => {
+export const fetchGraphQLWithUpload = async <TVariables extends object>({ query, variables }: { query: string; variables?: TVariables }) => {
   const session = await getSession()
 
   const accessToken = await ensureAuth(session)
@@ -25,16 +25,17 @@ export const fetchGraphQLWithUpload = async ({ query, variables = {} }: { query:
   headers[csrfHeader] = csrfToken // Ensure CSRF token is in the headers
   headers['cookie'] = `${csrfCookieName}=${csrfToken}`
 
+  const normalizedVariables = variables ? { ...variables } : {}
   let body: BodyInit
   const formData = new FormData()
-  const updatedVariables = { ...variables }
+  const updatedVariables: Record<string, unknown> = { ...normalizedVariables }
 
   let hasFile = false
   const fileMap: Record<string, string[]> = {}
   let fileIndex = 0
 
   // Process variables and detect files
-  Object.entries(variables).forEach(([key, value]) => {
+  Object.entries(normalizedVariables).forEach(([key, value]) => {
     if (value instanceof File) {
       // Single file
       hasFile = true
@@ -61,7 +62,7 @@ export const fetchGraphQLWithUpload = async ({ query, variables = {} }: { query:
 
     // Append FILES LAST
     fileIndex = 0
-    Object.entries(variables).forEach(([, value]) => {
+    Object.entries(normalizedVariables).forEach(([, value]) => {
       if (value instanceof File) {
         formData.append(fileIndex.toString(), value)
         fileIndex++
@@ -76,7 +77,7 @@ export const fetchGraphQLWithUpload = async ({ query, variables = {} }: { query:
     body = formData
   } else {
     headers['Content-Type'] = 'application/json'
-    body = JSON.stringify({ query, variables })
+    body = JSON.stringify({ query, variables: normalizedVariables })
   }
 
   const response = await fetch(process.env.NEXT_PUBLIC_API_GQL_URL ?? '', {

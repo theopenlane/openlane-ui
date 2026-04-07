@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { type Value } from 'platejs'
-import { EntityEntityStatus, EntityFrequency } from '@repo/codegen/src/schema'
+import { EntityEntityStatus, EntityFrequency, EntityVendorTier } from '@repo/codegen/src/schema'
 import { responsibilityFieldSchema } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 
 const formSchema = z.object({
@@ -41,7 +41,7 @@ const formSchema = z.object({
   statusPageURL: z.string().optional(),
   reviewFrequency: z.nativeEnum(EntityFrequency).optional(),
   terminationNoticeDays: z.number().optional(),
-  tier: z.string().optional(),
+  tier: z.nativeEnum(EntityVendorTier).optional(),
   assetIDs: z.array(z.string()).optional(),
   internalPolicyIDs: z.array(z.string()).optional(),
   subcontrolIDs: z.array(z.string()).optional(),
@@ -72,7 +72,7 @@ export const bulkEditFieldSchema = z.object({
   scopeName: z.string().optional(),
   soc2PeriodEnd: z.string().optional(),
   spendCurrency: z.string().optional(),
-  tier: z.string().optional(),
+  tier: z.nativeEnum(EntityVendorTier).optional(),
 })
 
 export type EditVendorFormData = z.infer<typeof formSchema>
