@@ -18,6 +18,11 @@ const formSchema = z.object({
   }),
   procedureKindName: z.string().optional(),
   reviewDue: z.date().optional().nullable(),
+  revision: z
+    .string()
+    .trim()
+    .regex(/^v?\d+\.\d+\.\d+$/, { message: 'Must be a semver string (e.g. v1.0.0)' })
+    .optional(),
   tags: z.array(z.string().optional()),
   programIDs: z.array(z.any()).optional(),
   procedureIDs: z.array(z.any()).optional(),

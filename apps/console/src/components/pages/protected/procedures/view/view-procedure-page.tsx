@@ -128,6 +128,7 @@ const ViewProcedurePage: React.FC = () => {
         procedureKindName: procedure.procedureKindName ?? '',
         reviewDue: procedure.reviewDue ? new Date(procedure.reviewDue as string) : undefined,
         reviewFrequency: procedure.reviewFrequency ?? ProcedureFrequency.YEARLY,
+        revision: procedure.revision ?? '',
         approverID: procedure.approver?.id,
         delegateID: procedure.delegate?.id,
       })
@@ -170,19 +171,26 @@ const ViewProcedurePage: React.FC = () => {
       return
     }
     try {
+      const { revision, ...restData } = data
+      const input: UpdateProcedureInput = {
+        ...restData,
+        detailsJSON: data.detailsJSON,
+        details: await plateEditorHelper.convertToHtml(data.detailsJSON as Value),
+        tags: data?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
+        approverID: data.approverID || undefined,
+        delegateID: data.delegateID || undefined,
+      }
+
+      if (revision && revision !== (procedure?.revision ?? '')) {
+        input.revision = revision
+      }
+
       const formData: {
         updateProcedureId: string
         input: UpdateProcedureInput
       } = {
         updateProcedureId: procedure?.id,
-        input: {
-          ...data,
-          detailsJSON: data.detailsJSON,
-          details: await plateEditorHelper.convertToHtml(data.detailsJSON as Value),
-          tags: data?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
-          approverID: data.approverID || undefined,
-          delegateID: data.delegateID || undefined,
-        },
+        input,
       }
 
       await updateProcedure(formData)
