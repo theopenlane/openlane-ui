@@ -54,8 +54,8 @@ const ObjectAssociation = ({ onIdChange, allowedObjectTypes, initialData, refCod
   const whereFilter = generateWhere(selectedObject, debouncedSearchValue, currentOrg)
 
   const { data, isLoading, isFetching } = useQuery<QueryResponse>({
-    queryKey: [objectKey, 'objectAssociation', whereFilter, pagination.page, pagination.pageSize],
-    queryFn: async () => client.request(selectedQuery, { where: whereFilter, ...pagination?.query }),
+    queryKey: [objectKey, 'objectAssociation', whereFilter, selectedConfig?.defaultOrderBy, pagination.page, pagination.pageSize],
+    queryFn: async () => client.request(selectedQuery, { where: whereFilter, orderBy: selectedConfig?.defaultOrderBy, ...pagination?.query }),
     enabled: !!selectedQuery,
   })
 
