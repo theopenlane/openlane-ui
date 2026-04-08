@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation'
 import { Button } from '@repo/ui/button'
 import { Dialog, DialogContent, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import { useUpdateProgram } from '@/lib/graphql-hooks/program'
-import { DataTable, getInitialPagination } from '@repo/ui/data-table'
+import { DataTable, getInitialPagination, TruncatedCell } from '@repo/ui/data-table'
 import { type ColumnDef } from '@tanstack/react-table'
 import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
@@ -126,7 +126,7 @@ export const ProgramSettingsAssignGroupDialog = () => {
       {
         accessorKey: 'description',
         header: 'Description',
-        cell: ({ row }) => <div className="line-clamp-2 text-sm max-w-xs">{row.original.description}</div>,
+        cell: ({ row }) => <TruncatedCell className="line-clamp-2 text-sm max-w-xs whitespace-normal">{row.original.description || '-'}</TruncatedCell>,
       },
     ],
     [selectColumn, roleMap],

@@ -56,7 +56,7 @@ export const getColumns = ({ userMap, convertToReadOnly, selectedItems, setSelec
       cell: ({ cell }) => {
         const value = cell.getValue() as string
         if (!value) return ''
-        return value.includes('slate') ? convertToReadOnly?.(value) : <TruncatedCell>{value}</TruncatedCell>
+        return value.includes('slate') ? convertToReadOnly?.(value) || value : <TruncatedCell>{value}</TruncatedCell>
       },
     },
     { accessorKey: 'domains', header: 'Domains', size: 200, cell: ({ cell }) => (cell.getValue() as string[])?.join(', ') || '' },

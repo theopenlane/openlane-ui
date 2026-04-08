@@ -53,3 +53,6 @@ dist/
 **/next-env.d.ts
 .vercel
 .env*.local
+
+# codex empty file
+.codex

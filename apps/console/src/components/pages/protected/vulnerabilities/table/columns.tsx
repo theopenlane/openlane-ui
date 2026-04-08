@@ -12,6 +12,7 @@ import { Button } from '@repo/ui/button'
 import { MoreHorizontal, ShieldCheck, ListTodo } from 'lucide-react'
 import { getSeverityStyle } from '@/utils/severity'
 import React from 'react'
+import { TruncatedCell } from '@repo/ui/data-table'
 
 type VulnColumnOptions = ColumnOptions & {
   onTrackRemediation?: (row: VulnerabilitiesNodeNonNull) => void
@@ -73,7 +74,7 @@ export const getColumns = ({
     { accessorKey: 'scopeName', header: 'Scope', size: 120, cell: ({ cell }) => <CustomEnumChipCell value={cell.getValue() as string} field="scope" /> },
     { accessorKey: 'externalOwnerID', header: 'External Owner', size: 140 },
     { accessorKey: 'externalURI', header: 'External URI', size: 160 },
-    { accessorKey: 'summary', header: 'Summary', size: 200 },
+    { accessorKey: 'summary', header: 'Summary', size: 200, cell: ({ row }) => <TruncatedCell>{row.original.summary || '-'}</TruncatedCell> },
     { accessorKey: 'description', header: 'Description', size: 200, minSize: 150, cell: ({ cell }) => convertToReadOnly?.(cell.getValue() as string) || '' },
     { accessorKey: 'discoveredAt', header: 'Discovered At', size: 130, cell: ({ cell }) => <DateCell value={cell.getValue() as string} /> },
     { accessorKey: 'publishedAt', header: 'Published At', size: 130, cell: ({ cell }) => <DateCell value={cell.getValue() as string} /> },

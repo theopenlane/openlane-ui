@@ -16,6 +16,7 @@ import { formatDate, formatDateSince } from '@/utils/date'
 import { CustomTypeEnumOrderField, type User } from '@repo/codegen/src/schema'
 import { type CustomTypeEnumNodeNonNull, useUpdateCustomTypeEnum } from '@/lib/graphql-hooks/custom-type-enum'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
+import { TruncatedCell } from '@repo/ui/data-table'
 
 type SelectedEnum = { id: string; name: string }
 
@@ -148,7 +149,7 @@ export const useGetCustomEnumColumns = ({ selectedEnums, setSelectedEnums, onEdi
       {
         accessorKey: 'description',
         header: 'Description',
-        cell: ({ row }) => <div className="text-sm text-muted-foreground line-clamp-2">{row.original.description || '—'}</div>,
+        cell: ({ row }) => <TruncatedCell className="text-sm text-muted-foreground line-clamp-2 whitespace-normal">{row.original.description || '—'}</TruncatedCell>,
         size: 300,
       },
       {
