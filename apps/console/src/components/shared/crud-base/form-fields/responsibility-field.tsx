@@ -31,6 +31,7 @@ interface ResponsibilityFieldProps {
   icon?: React.ReactNode
   layout?: 'vertical' | 'horizontal'
   labelClassName?: string
+  userOnly?: boolean
 }
 
 export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
@@ -47,6 +48,7 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
   icon,
   layout = 'vertical',
   labelClassName,
+  userOnly = false,
 }) => {
   const { control } = useFormContext()
   const [open, setOpen] = useState(false)
@@ -196,7 +198,7 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
                               ))}
                             </CommandGroup>
                           )}
-                          {filteredGroups.length > 0 && (
+                          {!userOnly && filteredGroups.length > 0 && (
                             <CommandGroup heading="Groups">
                               {filteredGroups.map((option) => (
                                 <CommandItem
@@ -211,7 +213,7 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
                               ))}
                             </CommandGroup>
                           )}
-                          {searchText.trim() && !hasExactMatch && (
+                          {!userOnly && searchText.trim() && !hasExactMatch && (
                             <CommandGroup heading="Custom">
                               <CommandItem value={`custom-${searchText}`} onSelect={() => handleSelect({ type: 'string', value: searchText.trim(), displayName: searchText.trim() }, field)}>
                                 <Type className="mr-2 h-4 w-4" />

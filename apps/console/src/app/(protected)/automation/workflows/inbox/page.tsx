@@ -1,5 +1,5 @@
 import WorkflowInboxPage from '@/components/pages/protected/workflows/workflow-inbox-page'
-import { Metadata } from 'next'
+import { type Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Workflow Inbox',

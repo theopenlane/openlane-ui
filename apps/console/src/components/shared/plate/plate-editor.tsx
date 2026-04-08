@@ -165,7 +165,7 @@ const PlateEditor = ({ onChange, initialValue, variant = 'basic', styleVariant, 
   }))
 
   useEffect(() => {
-    if (plateEditor && !initialValueSetRef.current) {
+    if (plateEditor && !initialValueSetRef.current && initialValue) {
       initialValueSetRef.current = true
 
       let slateNodes

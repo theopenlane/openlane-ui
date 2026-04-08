@@ -20,6 +20,7 @@ export interface StepDialogConfig<TFormData extends FieldValues, TCreateInput, T
   form: UseFormReturn<TFormData>
   steps: StepConfig[]
   title?: string
+  dialogClassName?: string
 
   createMutation: {
     mutateAsync: (input: TCreateInput) => Promise<TCreateData>
@@ -31,7 +32,7 @@ export interface StepDialogConfig<TFormData extends FieldValues, TCreateInput, T
 }
 
 export function StepDialog<TFormData extends FieldValues, TCreateInput, TCreateData>(config: StepDialogConfig<TFormData, TCreateInput, TCreateData>) {
-  const { objectType, form, steps, title, createMutation, buildPayload, onClose } = config
+  const { objectType, form, steps, title, dialogClassName, createMutation, buildPayload, onClose } = config
   const queryClient = useQueryClient()
   const { successNotification, errorNotification } = useNotification()
 
@@ -99,7 +100,7 @@ export function StepDialog<TFormData extends FieldValues, TCreateInput, TCreateD
         if (!open) onClose()
       }}
     >
-      <DialogContent className="sm:max-w-150" onInteractOutside={(e) => e.preventDefault()} onEscapeKeyDown={(e) => e.preventDefault()}>
+      <DialogContent className={dialogClassName ?? 'sm:max-w-150'} onInteractOutside={(e) => e.preventDefault()} onEscapeKeyDown={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle>{dialogTitle}</DialogTitle>
         </DialogHeader>
@@ -107,7 +108,7 @@ export function StepDialog<TFormData extends FieldValues, TCreateInput, TCreateD
         <StepHeader stepper={stepper} />
 
         <FormProvider {...form}>
-          <div className="pt-2">{currentStepConfig?.render()}</div>
+          <div className="overflow-y-auto max-h-[60vh] pt-2">{currentStepConfig?.render()}</div>
         </FormProvider>
 
         <DialogFooter>
