@@ -23,13 +23,18 @@ import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 
 const { useStepper } = defineStepper({ id: 'flow', label: 'Flow' }, { id: 'rules', label: 'Refine' }, { id: 'configure', label: 'Configure' }, { id: 'review', label: 'Review' })
 
-const WorkflowWizardPage = () => {
+type WorkflowWizardPageProps = {
+  embedded?: boolean
+}
+
+const WorkflowWizardPage = ({ embedded = false }: WorkflowWizardPageProps) => {
   const stepper = useStepper()
   const { setCrumbs } = React.use(BreadcrumbContext)
 
   useEffect(() => {
+    if (embedded) return
     setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Automation', href: '/automation/workflows' }, { label: 'Workflows', href: '/automation/workflows' }, { label: 'Wizard' }])
-  }, [setCrumbs])
+  }, [setCrumbs, embedded])
   const router = useRouter()
   const searchParams = useSearchParams()
   const templateId = searchParams.get('template')
@@ -153,10 +158,12 @@ const WorkflowWizardPage = () => {
           review: () => <ReviewStep state={state} />,
         })}
 
-        <div className="flex items-center justify-between mt-8">
-          <Button type="button" variant="secondary" onClick={handleBack}>
-            Back
-          </Button>
+        <div className={`flex items-center mt-8 ${embedded && stepper.isFirst ? 'justify-end' : 'justify-between'}`}>
+          {!(embedded && stepper.isFirst) && (
+            <Button type="button" variant="secondary" onClick={handleBack}>
+              Back
+            </Button>
+          )}
           <Button type="button" variant="primary" onClick={handleNext} disabled={!canContinue || baseCreateMutation.isPending} loading={baseCreateMutation.isPending}>
             {stepper.isLast ? 'Create workflow' : 'Continue'}
           </Button>
