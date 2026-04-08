@@ -1,7 +1,7 @@
 'use client'
 
 import { memo } from 'react'
-import { Handle, Position, type Node, NodeProps } from '@xyflow/react'
+import { Handle, Position, type Node, type NodeProps } from '@xyflow/react'
 import { Card } from '@repo/ui/cardpanel'
 import { AlertCircle } from 'lucide-react'
 

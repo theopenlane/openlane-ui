@@ -1,5 +1,5 @@
 import WorkflowEditorPage from '@/components/pages/protected/workflows/workflow-editor-page'
-import { Metadata } from 'next'
+import { type Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Workflow Editor',

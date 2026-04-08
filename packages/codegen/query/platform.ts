@@ -11,6 +11,15 @@ export const GET_ALL_PLATFORMS = gql`
           businessOwner
           businessOwnerGroupID
           businessOwnerUserID
+          businessOwnerUser {
+            id
+            displayName
+            email
+          }
+          businessOwnerGroup {
+            id
+            name
+          }
           businessPurpose
           containsPii
           costCenter
@@ -52,9 +61,19 @@ export const GET_ALL_PLATFORMS = gql`
           securityTierID
           securityTierName
           sourceIdentifier
+          status
           technicalOwner
           technicalOwnerGroupID
           technicalOwnerUserID
+          technicalOwnerUser {
+            id
+            displayName
+            email
+          }
+          technicalOwnerGroup {
+            id
+            name
+          }
           trustBoundaryDescription
           updatedAt
           updatedBy
@@ -79,6 +98,15 @@ export const PLATFORM = gql`
       businessOwner
       businessOwnerGroupID
       businessOwnerUserID
+      businessOwnerUser {
+        id
+        displayName
+        email
+      }
+      businessOwnerGroup {
+        id
+        name
+      }
       businessPurpose
       containsPii
       costCenter
@@ -101,6 +129,15 @@ export const PLATFORM = gql`
       internalOwner
       internalOwnerGroupID
       internalOwnerUserID
+      internalOwnerUser {
+        id
+        displayName
+        email
+      }
+      internalOwnerGroup {
+        id
+        name
+      }
       metadata
       name
       physicalLocation
@@ -109,6 +146,11 @@ export const PLATFORM = gql`
       platformKindID
       platformKindName
       platformOwnerID
+      platformOwner {
+        id
+        displayName
+        email
+      }
       purchaseDate
       region
       scopeID
@@ -117,16 +159,79 @@ export const PLATFORM = gql`
       securityOwner
       securityOwnerGroupID
       securityOwnerUserID
+      securityOwnerUser {
+        id
+        displayName
+        email
+      }
+      securityOwnerGroup {
+        id
+        name
+      }
       securityTierID
       securityTierName
       sourceIdentifier
+      status
       technicalOwner
       technicalOwnerGroupID
       technicalOwnerUserID
+      technicalOwnerUser {
+        id
+        displayName
+        email
+      }
+      technicalOwnerGroup {
+        id
+        name
+      }
       trustBoundaryDescription
       updatedAt
       updatedBy
       workflowEligibleMarker
+      assets {
+        edges {
+          node {
+            id
+            name
+            assetType
+          }
+        }
+      }
+      outOfScopeAssets {
+        edges {
+          node {
+            id
+            name
+            assetType
+          }
+        }
+      }
+      entities {
+        edges {
+          node {
+            id
+            name
+            displayName
+            status
+            logoFile {
+              base64
+            }
+          }
+        }
+      }
+      outOfScopeVendors {
+        edges {
+          node {
+            id
+            name
+            displayName
+            status
+            logoFile {
+              base64
+            }
+          }
+        }
+      }
     }
   }
 `

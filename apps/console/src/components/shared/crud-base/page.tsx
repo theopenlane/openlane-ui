@@ -302,6 +302,7 @@ export function GenericTablePage<
           form={form}
           steps={createMode.steps}
           title={createMode.title}
+          dialogClassName={createMode.dialogClassName}
           createMutation={sheetConfig.createMutation}
           buildPayload={sheetConfig.buildPayload as (data: TFormData) => Promise<TCreateInput>}
           onClose={handleCloseSheet}
