@@ -17,6 +17,8 @@ import { useOrganization } from '@/hooks/useOrganization'
 import { type PanelKey, PRIMARY_EXPANDED_WIDTH, PRIMARY_WIDTH, SECONDARY_COLLAPSED_WIDTH, SECONDARY_EXPANDED_WIDTH } from '@/components/shared/sidebar/sidebar-nav/sidebar-nav'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { SheetNavigationProvider } from '@/providers/sheet-navigation-provider'
+import { DndProvider } from 'react-dnd'
+import { HTML5Backend } from 'react-dnd-html5-backend'
 
 export interface DashboardLayoutProps {
   children?: React.ReactNode
@@ -125,43 +127,45 @@ export function DashboardLayout({ children, error }: DashboardLayoutProps) {
   }
 
   return (
-    <SheetNavigationProvider>
-      <SessionExpiredModal open={showSessionExpiredModal} />
-      <Sidebar
-        navItems={navItems}
-        footerNavItems={footerNavItems}
-        openPanel={openPanel}
-        primaryExpanded={primaryExpanded}
-        secondaryExpanded={secondaryExpanded}
-        onPrimaryExpandToggle={() => {
-          const newState = !primaryExpanded
-          setPrimaryExpanded(newState)
-          if (typeof window !== 'undefined') {
-            localStorage.setItem('sidebar-primary-expanded', String(newState))
-          }
-        }}
-        onSecondaryExpandToggle={() => {
-          const newState = !secondaryExpanded
-          setSecondaryExpanded(newState)
-          if (typeof window !== 'undefined') {
-            localStorage.setItem('sidebar-secondary-expanded', String(newState))
-          }
-        }}
-        onToggle={handleOpenPanel}
-        isOrganizationSelected={isOrganizationSelected}
-      />
+    <DndProvider backend={HTML5Backend}>
+      <SheetNavigationProvider>
+        <SessionExpiredModal open={showSessionExpiredModal} />
+        <Sidebar
+          navItems={navItems}
+          footerNavItems={footerNavItems}
+          openPanel={openPanel}
+          primaryExpanded={primaryExpanded}
+          secondaryExpanded={secondaryExpanded}
+          onPrimaryExpandToggle={() => {
+            const newState = !primaryExpanded
+            setPrimaryExpanded(newState)
+            if (typeof window !== 'undefined') {
+              localStorage.setItem('sidebar-primary-expanded', String(newState))
+            }
+          }}
+          onSecondaryExpandToggle={() => {
+            const newState = !secondaryExpanded
+            setSecondaryExpanded(newState)
+            if (typeof window !== 'undefined') {
+              localStorage.setItem('sidebar-secondary-expanded', String(newState))
+            }
+          }}
+          onToggle={handleOpenPanel}
+          isOrganizationSelected={isOrganizationSelected}
+        />
 
-      <div className="flex flex-col h-screen overflow-hidden transition-all duration-200" style={{ marginLeft: contentMarginLeft, marginRight: '8px' }}>
-        <Header />
+        <div className="flex flex-col h-screen overflow-hidden transition-all duration-200" style={{ marginLeft: contentMarginLeft, marginRight: '8px' }}>
+          <Header />
 
-        <div className={base()}>
-          <main className={main()} data-scroll-container="main">
-            {error ?? children}
-          </main>
-          <ChatBot />
-          <CommandMenu items={navItems} />
+          <div className={base()}>
+            <main className={main()} data-scroll-container="main">
+              {error ?? children}
+            </main>
+            <ChatBot />
+            <CommandMenu items={navItems} />
+          </div>
         </div>
-      </div>
-    </SheetNavigationProvider>
+      </SheetNavigationProvider>
+    </DndProvider>
   )
 }
