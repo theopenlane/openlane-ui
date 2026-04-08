@@ -19,8 +19,6 @@ import { useDebounce } from '@uidotdev/usehooks'
 import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useSession } from 'next-auth/react'
-import { getInitialPagination } from '@repo/ui/data-table'
-import { TableKeyEnum } from '@repo/ui/table-key'
 
 const initialPagination = { ...DEFAULT_PAGINATION, pageSize: 5, query: { first: 5 } }
 
@@ -32,7 +30,7 @@ type Props = {
 export const BulkEditSingleObjectAssociation: React.FC<Props> = ({ objectType, onChange }) => {
   const { client } = useGraphQLClient()
   const [searchValue, setSearchValue] = useState('')
-  const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(TableKeyEnum.OBJECT_ASSOCIATION, initialPagination))
+  const [pagination, setPagination] = useState<TPagination>(initialPagination)
   const debouncedSearchValue = useDebounce(searchValue, 300)
 
   const config = OBJECT_QUERY_CONFIG[objectType]
@@ -42,8 +40,8 @@ export const BulkEditSingleObjectAssociation: React.FC<Props> = ({ objectType, o
   const whereFilter = generateWhere(objectType, debouncedSearchValue, currentOrg)
 
   const { data, isLoading, isFetching } = useQuery<QueryResponse>({
-    queryKey: [config.responseObjectKey, 'bulkEditAssociation', whereFilter, pagination.page, pagination.pageSize],
-    queryFn: async () => client.request(config.queryDocument, { where: whereFilter, ...pagination?.query }),
+    queryKey: [config.responseObjectKey, 'bulkEditAssociation', whereFilter, config.defaultOrderBy, pagination.page, pagination.pageSize],
+    queryFn: async () => client.request(config.queryDocument, { where: whereFilter, orderBy: config.defaultOrderBy, ...pagination?.query }),
   })
 
   const pageInfo = !isLoading && !isFetching ? getPagination(config.responseObjectKey, data).pageInfo : undefined
