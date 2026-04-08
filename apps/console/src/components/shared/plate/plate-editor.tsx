@@ -1,8 +1,6 @@
 'use client'
 
 import React, { useEffect, useImperativeHandle, useCallback, type Ref, useRef } from 'react'
-import { DndProvider } from 'react-dnd'
-import { HTML5Backend } from 'react-dnd-html5-backend'
 import { type Value, type TElement, KEYS } from 'platejs'
 import { EditorKitVariant, type TPlateEditorVariants } from '@repo/ui/components/editor/use-create-editor.ts'
 import { Editor, EditorContainer, type TPlateEditorStyleVariant } from '@repo/ui/components/ui/editor.tsx'
@@ -209,25 +207,23 @@ const PlateEditor = ({ onChange, initialValue, variant = 'basic', styleVariant, 
   }, [clearData, editor.transforms, onClear])
 
   return (
-    <DndProvider backend={HTML5Backend}>
-      <Plate
-        readOnly={readonly}
-        editor={editor}
-        onChange={(data) => {
-          onChange?.(data.value)
+    <Plate
+      readOnly={readonly}
+      editor={editor}
+      onChange={(data) => {
+        onChange?.(data.value)
+      }}
+    >
+      <EditorContainer
+        variant={readonly ? 'readonly' : styleVariant}
+        onClick={() => {
+          // @ts-expect-error fix bad typing from platejs
+          editor?.focus()
         }}
       >
-        <EditorContainer
-          variant={readonly ? 'readonly' : styleVariant}
-          onClick={() => {
-            // @ts-expect-error fix bad typing from platejs
-            editor?.focus()
-          }}
-        >
-          <Editor placeholder={placeholder ?? 'Type a paragraph'} variant={readonly ? 'readonly' : undefined} />
-        </EditorContainer>
-      </Plate>
-    </DndProvider>
+        <Editor placeholder={placeholder ?? 'Type a paragraph'} variant={readonly ? 'readonly' : undefined} />
+      </EditorContainer>
+    </Plate>
   )
 }
 
