@@ -81,7 +81,7 @@ export const useDeletePlatform = () => {
 export const usePlatform = (platformId?: PlatformQueryVariables['platformId']) => {
   const { client } = useGraphQLClient()
   return useQuery<PlatformQuery, unknown>({
-    queryKey: ['platforms', platformId],
+    queryKey: ['platform', platformId],
     queryFn: async (): Promise<PlatformQuery> => {
       const result = await client.request(PLATFORM, { platformId })
       return result as PlatformQuery
