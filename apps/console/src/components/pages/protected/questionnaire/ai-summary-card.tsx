@@ -50,32 +50,18 @@ export const AISummaryCard = ({ jsonconfig, responses }: AISummaryCardProps) => 
         answers: r.document?.data && typeof r.document.data === 'object' ? r.document.data : {},
       }))
 
-      console.log('[questionnaire-summary] request payload', { questions, responses: responseData })
-
       const res = await fetch('/api/questionnaire-summary', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ questions, responses: responseData }),
       })
 
-      const data = await res.json().catch(() => null)
+      if (!res.ok) throw new Error('Failed to generate summary')
 
-      if (!res.ok) {
-        console.error('[questionnaire-summary] request failed', {
-          status: res.status,
-          statusText: res.statusText,
-          body: data,
-        })
-        const serverMessage = data && typeof data === 'object' && 'error' in data ? String((data as { error: unknown }).error) : null
-        throw new Error(serverMessage ?? `Request failed with status ${res.status}`)
-      }
-
-      console.log('[questionnaire-summary] response', data)
+      const data = await res.json()
       setResult(data)
-    } catch (err) {
-      console.error('[questionnaire-summary] generate failed', err)
-      const message = err instanceof Error ? err.message : 'Failed to generate AI summary. Please try again.'
-      setError(message)
+    } catch {
+      setError('Failed to generate AI summary. Please try again.')
     } finally {
       setLoading(false)
     }
