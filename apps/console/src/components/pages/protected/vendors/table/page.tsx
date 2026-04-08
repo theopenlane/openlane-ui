@@ -206,7 +206,7 @@ const VendorPage: React.FC = () => {
     defaultSorting,
     defaultVisibility: visibilityFields,
     filterFields: getFilterFields(enumOpts),
-    searchFields: ['displayNameContainsFold', 'descriptionContainsFold'],
+    searchFields: ['displayNameContainsFold'],
     breadcrumbs,
     form,
     getColumns,
