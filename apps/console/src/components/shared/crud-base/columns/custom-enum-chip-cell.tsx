@@ -11,5 +11,6 @@ interface CustomEnumChipCellProps {
 
 export const CustomEnumChipCell = ({ value, objectType, field }: CustomEnumChipCellProps) => {
   const { enumOptions } = useCreatableEnumOptions({ objectType, field })
-  return <CustomTypeEnumValue value={value ?? undefined} options={enumOptions} placeholder="-" />
+  if (!value) return null
+  return <CustomTypeEnumValue value={value} options={enumOptions} />
 }

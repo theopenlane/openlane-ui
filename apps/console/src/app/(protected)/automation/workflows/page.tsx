@@ -1,5 +1,5 @@
 import WorkflowsPage from '@/components/pages/protected/workflows/workflows-page'
-import { Metadata } from 'next'
+import { type Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Workflows',

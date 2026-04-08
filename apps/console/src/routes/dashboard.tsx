@@ -49,6 +49,7 @@ import {
   Inbox,
   Activity,
   NotebookPen,
+  LayoutGrid,
 } from 'lucide-react'
 import { type NavHeading, type NavItem, type Separator } from '@/types'
 import { PlanEnum } from '@/lib/subscription-plan/plan-enum.ts'
@@ -113,9 +114,14 @@ export const topNavigationItems = (session: Session | null): (NavItem | Separato
       title: 'Registry',
       plan: PlanEnum.COMPLIANCE_MODULE,
       icon: LibraryBig,
-      href: '/registry',
+      href: '/registry/platforms',
       hidden: session?.user?.isOnboarding || billingExpired,
       children: [
+        {
+          title: 'Platforms',
+          href: '/registry/platforms',
+          icon: LayoutGrid,
+        },
         {
           title: 'Assets',
           href: '/registry/assets',
