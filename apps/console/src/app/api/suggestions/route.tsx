@@ -1,5 +1,5 @@
 import { auth } from '@/lib/auth/auth'
-import { type Tool, VertexAI } from '@google-cloud/vertexai'
+import { FinishReason, GoogleGenAI } from '@google/genai'
 import { type NextRequest, NextResponse } from 'next/server'
 import { VertexRagServiceClient } from '@google-cloud/aiplatform'
 import { Storage } from '@google-cloud/storage'
@@ -20,7 +20,7 @@ import {
 export const runtime = 'nodejs'
 export const maxDuration = 60
 
-let vertexAI: VertexAI | null = null
+let genAI: GoogleGenAI | null = null
 let storage: Storage | null = null
 let ragClient: VertexRagServiceClient | null = null
 
@@ -30,7 +30,8 @@ if (aiEnabled && googleProjectID && googleAPIKey) {
   const json = Buffer.from(b64, 'base64').toString('utf8')
   const creds = JSON.parse(json)
 
-  vertexAI = new VertexAI({
+  genAI = new GoogleGenAI({
+    vertexai: true,
     project: googleProjectID,
     location: googleAIRegion,
     googleAuthOptions: {
@@ -85,7 +86,7 @@ async function logQuestionToBucket(prompt: string, context: string, response?: s
 
 export async function POST(req: NextRequest) {
   // Return early if AI is not enabled
-  if (!aiEnabled || !vertexAI) {
+  if (!aiEnabled || !genAI) {
     return new Response(JSON.stringify({ error: 'AI suggestions are not enabled' }), { status: 503 })
   }
 
@@ -98,20 +99,9 @@ export async function POST(req: NextRequest) {
     let contextData = ''
 
     // Configure additional context for RAG if corpus ID is provided
-    const tools: Tool[] = []
     if (ragCorpusID) {
       contextData = await getContext(prompt)
     }
-
-    const model = vertexAI.getGenerativeModel({
-      model: geminiModelName,
-      generationConfig: {
-        temperature: temperature,
-        maxOutputTokens: maxOutputTokens,
-      },
-      systemInstruction: aiSystemInstruction + '\n' + controlSystemInstruction,
-      tools,
-    })
 
     const RULES = aiSystemInstruction ?? ''
 
@@ -125,20 +115,24 @@ export async function POST(req: NextRequest) {
       .join('\n\n')
 
     // get the response from the model
-    const result = await model.generateContent({
+    const response = await genAI.models.generateContent({
+      model: geminiModelName,
       contents: [
         {
           role: 'user',
           parts: [{ text: mergedUserText }],
         },
       ],
+      config: {
+        systemInstruction: aiSystemInstruction + '\n' + controlSystemInstruction,
+        temperature,
+        maxOutputTokens,
+      },
     })
 
-    const response = await result.response
+    const text = response.text ?? 'No response generated.'
 
-    const text = response.candidates?.[0]?.content?.parts?.[0]?.text ?? 'No response generated.'
-
-    if (response.candidates?.[0]?.finishReason !== 'STOP') {
+    if (response.candidates?.[0]?.finishReason !== FinishReason.STOP) {
       console.warn('response finished with reason:', response.candidates?.[0]?.finishReason)
     }
 

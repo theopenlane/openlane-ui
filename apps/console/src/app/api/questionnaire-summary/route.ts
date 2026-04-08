@@ -1,5 +1,5 @@
 import { auth } from '@/lib/auth/auth'
-import { VertexAI, type Part, type TextPart } from '@google-cloud/vertexai'
+import { GoogleGenAI } from '@google/genai'
 import { type NextRequest, NextResponse } from 'next/server'
 import { aiEnabled, googleAPIKey, googleAIRegion, googleProjectID, geminiModelName } from '@repo/dally/ai'
 import { z } from 'zod'
@@ -42,7 +42,7 @@ const summaryResponseSchema = z.object({
   }),
 })
 
-let vertexAIClient: VertexAI | null | undefined
+let genAIClient: GoogleGenAI | null | undefined
 
 const truncateText = (value: string, maxLength: number = MAX_STRING_LENGTH): string => {
   return value.length > maxLength ? `${value.slice(0, maxLength)}...` : value
@@ -77,19 +77,20 @@ const sanitizeValue = (value: unknown, depth = 0): unknown => {
   return truncateText(String(value))
 }
 
-const getVertexAI = (): VertexAI | null => {
-  if (vertexAIClient !== undefined) {
-    return vertexAIClient
+const getGenAI = (): GoogleGenAI | null => {
+  if (genAIClient !== undefined) {
+    return genAIClient
   }
 
   if (!aiEnabled || !googleProjectID || !googleAPIKey) {
-    vertexAIClient = null
-    return vertexAIClient
+    genAIClient = null
+    return genAIClient
   }
 
   try {
     const creds = JSON.parse(Buffer.from(googleAPIKey, 'base64').toString('utf8'))
-    vertexAIClient = new VertexAI({
+    genAIClient = new GoogleGenAI({
+      vertexai: true,
       project: googleProjectID,
       location: googleAIRegion,
       googleAuthOptions: {
@@ -98,10 +99,10 @@ const getVertexAI = (): VertexAI | null => {
     })
   } catch (error) {
     console.error('Questionnaire summary AI client initialization error:', error)
-    vertexAIClient = null
+    genAIClient = null
   }
 
-  return vertexAIClient
+  return genAIClient
 }
 
 const parseModelSummary = (rawText: string): SummaryResponse | null => {
@@ -130,19 +131,6 @@ const parseModelSummary = (rawText: string): SummaryResponse | null => {
   }
 
   return null
-}
-
-const extractResponseText = (parts: Part[] | undefined): string => {
-  if (!parts || parts.length === 0) return ''
-
-  const responseParts = parts.filter((part): part is TextPart => 'text' in part && typeof part.text === 'string' && !(part as unknown as Record<string, unknown>).thought)
-
-  if (responseParts.length === 0) {
-    const textParts = parts.filter((part): part is TextPart => 'text' in part && typeof part.text === 'string')
-    return textParts.length > 0 ? textParts[textParts.length - 1].text : ''
-  }
-
-  return responseParts.map((part) => part.text).join('')
 }
 
 const buildPrompt = (questions: z.infer<typeof requestSchema>['questions'], responses: z.infer<typeof requestSchema>['responses']): string => {
@@ -201,8 +189,8 @@ export async function POST(req: NextRequest) {
   const session = await auth()
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-  const vertexAI = getVertexAI()
-  if (!aiEnabled || !vertexAI) {
+  const genAI = getGenAI()
+  if (!aiEnabled || !genAI) {
     return NextResponse.json({ error: 'AI features are not enabled' }, { status: 503 })
   }
 
@@ -219,27 +207,23 @@ export async function POST(req: NextRequest) {
 
     const userPrompt = buildPrompt(parsedBody.data.questions, parsedBody.data.responses)
 
-    const model = vertexAI.getGenerativeModel({
+    const response = await genAI.models.generateContent({
       model: geminiModelName,
-      generationConfig: {
-        temperature: 0,
-        maxOutputTokens: 1024,
-        responseMimeType: 'application/json',
-      },
-      systemInstruction: SYSTEM_PROMPT,
-    })
-
-    const result = await model.generateContent({
       contents: [
         {
           role: 'user',
           parts: [{ text: userPrompt }],
         },
       ],
+      config: {
+        systemInstruction: SYSTEM_PROMPT,
+        temperature: 0,
+        maxOutputTokens: 1024,
+        responseMimeType: 'application/json',
+      },
     })
 
-    const response = await result.response
-    const text = extractResponseText(response.candidates?.[0]?.content?.parts)
+    const text = response.text ?? ''
     const summary = parseModelSummary(text)
 
     if (!summary) {
