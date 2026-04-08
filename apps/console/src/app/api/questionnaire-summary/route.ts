@@ -227,7 +227,26 @@ export async function POST(req: NextRequest) {
     const summary = parseModelSummary(text)
 
     if (!summary) {
-      return NextResponse.json({ error: 'Failed to parse summary output' }, { status: 502 })
+      const finishReason = response.candidates?.[0]?.finishReason ?? null
+      const candidatePartsText = response.candidates?.[0]?.content?.parts?.map((part) => ('text' in part ? part.text : '')).join('') ?? ''
+      console.error('Questionnaire summary parse failure:', {
+        textLength: text.length,
+        textPreview: text.slice(0, 2000),
+        candidatePartsLength: candidatePartsText.length,
+        candidatePartsPreview: candidatePartsText.slice(0, 2000),
+        hasCandidates: Array.isArray(response.candidates) && response.candidates.length > 0,
+        finishReason,
+      })
+      return NextResponse.json(
+        {
+          error: 'Failed to parse summary output',
+          rawTextPreview: text.slice(0, 2000),
+          rawTextLength: text.length,
+          candidatePartsPreview: candidatePartsText.slice(0, 2000),
+          finishReason,
+        },
+        { status: 502 },
+      )
     }
 
     return NextResponse.json(summary, {
@@ -239,7 +258,17 @@ export async function POST(req: NextRequest) {
     if (error instanceof Error && error.message === 'PROMPT_TOO_LARGE') {
       return NextResponse.json({ error: 'Questionnaire payload is too large to summarize' }, { status: 413 })
     }
-    console.error('Questionnaire summary API error:', error)
-    return NextResponse.json({ error: 'Failed to generate summary' }, { status: 500 })
+    console.error('Questionnaire summary API error:', {
+      message: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      error,
+    })
+    return NextResponse.json(
+      {
+        error: 'Failed to generate summary',
+        detail: error instanceof Error ? error.message : String(error),
+      },
+      { status: 500 },
+    )
   }
 }
