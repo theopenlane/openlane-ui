@@ -220,6 +220,7 @@ export async function POST(req: NextRequest) {
         temperature: 0,
         maxOutputTokens: 1024,
         responseMimeType: 'application/json',
+        thinkingConfig: { thinkingBudget: 0 },
       },
     })
 

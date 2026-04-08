@@ -127,6 +127,7 @@ export async function POST(req: NextRequest) {
         systemInstruction: aiSystemInstruction + '\n' + controlSystemInstruction,
         temperature,
         maxOutputTokens,
+        thinkingConfig: { thinkingBudget: 0 },
       },
     })
 
