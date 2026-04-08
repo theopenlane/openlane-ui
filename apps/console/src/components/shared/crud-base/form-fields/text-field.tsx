@@ -68,8 +68,7 @@ export const TextField = <TUpdateInput,>({
     const newValue = getValues(name)
     const oldValue = data?.[name] ?? initialValue ?? ''
 
-    // Only update if changed and not empty
-    if (!newValue || newValue === oldValue) {
+    if (newValue === oldValue) {
       setInternalEditing(null)
       return
     }
@@ -147,12 +146,12 @@ export const TextField = <TUpdateInput,>({
                   formatCurrency(value)
                 ) : type === 'link' ? (
                   value ? (
-                    <span className="inline-flex items-center gap-1">
-                      {normalizeUrl(value)}
-                      <a href={normalizeUrl(value)} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
-                        <ExternalLink className="w-4 h-4 ml-1" />
-                      </a>
-                    </span>
+                    <a href={normalizeUrl(value)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 min-w-0 max-w-full" onClick={(e) => e.stopPropagation()}>
+                      <span className="truncate" title={normalizeUrl(value)}>
+                        {normalizeUrl(value)}
+                      </span>
+                      <ExternalLink className="w-4 h-4 ml-1 shrink-0" />
+                    </a>
                   ) : (
                     <span className="text-muted-foreground italic">Not set</span>
                   )
