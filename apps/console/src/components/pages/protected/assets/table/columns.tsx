@@ -99,6 +99,15 @@ export const getColumns = ({ userMap, convertToReadOnly, selectedItems, setSelec
       size: 140,
       cell: ({ row }) => <TagsCell tags={row.original.tags} wrap={false} />,
     },
+    {
+      accessorKey: 'vendors',
+      header: 'Vendors',
+      size: 180,
+      cell: ({ row }) => {
+        const names = (row.original.entities?.edges ?? []).map((edge) => edge?.node?.displayName ?? edge?.node?.name ?? '').filter((name): name is string => Boolean(name))
+        return <TagsCell tags={names} wrap={false} />
+      },
+    },
     { accessorKey: 'updatedAt', header: 'Updated At', size: 130, cell: ({ cell }) => <DateCell value={cell.getValue() as string} variant="timesince" /> },
     {
       accessorKey: 'updatedBy',

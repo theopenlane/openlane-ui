@@ -52,6 +52,7 @@ type GenericTableToolbarProps<T extends { id: string }, TWhereInput, TUpdateInpu
   storageKey: TableKeyValue
   enumOpts?: EnumOptionsGeneric
   responsibilityFields?: ResponsibilityFieldsMap
+  bulkEditFieldLabels?: Record<string, string>
   createMode?: CreateMode
   additionalActiveFilterCount?: number
 }
@@ -133,6 +134,7 @@ function GenericTableToolbar<T extends { id: string }, TWhereInput, TUpdateInput
                     entityType={props.entityType}
                     displayName={props.displayName}
                     responsibilityFields={props.responsibilityFields}
+                    fieldLabels={props.bulkEditFieldLabels}
                   />
                 </>
               )}
