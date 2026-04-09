@@ -10,7 +10,13 @@ import { useGetAllGroups } from '@/lib/graphql-hooks/group'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { type EditRisksFormData } from '@/components/pages/protected/risks/view/hooks/use-form-schema'
 import { SearchableSingleSelect } from '@/components/shared/searchableSingleSelect/searchable-single-select'
+import { buildClearableUpdate } from '@/components/shared/searchableSingleSelect/clearable-update'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
+
+const RISK_AUTHORITY_CLEAR_KEYS: Partial<Record<keyof EditRisksFormData, 'clearStakeholder' | 'clearDelegate'>> = {
+  stakeholderID: 'clearStakeholder',
+  delegateID: 'clearDelegate',
+}
 
 type TAuthorityCardProps = {
   form: UseFormReturn<EditRisksFormData>
@@ -54,7 +60,12 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, stakeho
       }
       // only call handleUpdate if the value actually changed
       if (currentValue !== value) {
-        handleUpdate({ [field]: value })
+        const clearKey = RISK_AUTHORITY_CLEAR_KEYS[field]
+        if (clearKey) {
+          handleUpdate(buildClearableUpdate(field, value, clearKey) as UpdateRiskInput)
+        } else {
+          handleUpdate({ [field]: value })
+        }
       }
     }
 
@@ -82,6 +93,7 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, stakeho
                 options={options}
                 placeholder={`Select ${label.toLowerCase()}`}
                 autoFocus
+                clearable
                 onClose={() => setEditingField(null)}
                 onChange={(val) => {
                   field.onChange(val)

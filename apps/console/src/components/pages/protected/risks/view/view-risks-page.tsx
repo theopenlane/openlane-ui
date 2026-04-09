@@ -205,18 +205,31 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
     }
 
     try {
+      const { stakeholderID, delegateID, ...restValues } = values
+      const input: UpdateRiskInput = {
+        ...restValues,
+        detailsJSON: values.detailsJSON,
+        details: await plateEditorHelper.convertToHtml(values.detailsJSON as Value),
+        businessCosts: businessCostsField,
+        mitigation: mitigationField,
+        tags: values?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
+      }
+
+      if (stakeholderID) {
+        input.stakeholderID = stakeholderID
+      } else if (risk.stakeholder?.id) {
+        input.clearStakeholder = true
+      }
+
+      if (delegateID) {
+        input.delegateID = delegateID
+      } else if (risk.delegate?.id) {
+        input.clearDelegate = true
+      }
+
       await updateRisk({
         updateRiskId: risk.id,
-        input: {
-          ...values,
-          detailsJSON: values.detailsJSON,
-          details: await plateEditorHelper.convertToHtml(values.detailsJSON as Value),
-          businessCosts: businessCostsField,
-          mitigation: mitigationField,
-          tags: values?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
-          stakeholderID: values.stakeholderID || undefined,
-          delegateID: values.delegateID || undefined,
-        },
+        input,
       })
 
       successNotification({
