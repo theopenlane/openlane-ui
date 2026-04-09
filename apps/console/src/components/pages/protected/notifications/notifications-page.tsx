@@ -1,7 +1,8 @@
 'use client'
 
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import { useNotificationsContext } from '@/providers/notifications-provider'
+import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { NotificationNotificationTopic } from '@repo/codegen/src/schema'
 import { NotificationRow } from '@/components/shared/SystemNotification/notification-row'
 import { ExportRow } from '@/components/shared/SystemNotification/export-row'
@@ -45,11 +46,21 @@ const groupByDate = <T extends { createdAt?: string | null }>(items: T[]): { lab
   return Array.from(groups.entries()).map(([label, items]) => ({ label, items }))
 }
 
+const breadcrumbs = [
+  { label: 'Home', href: '/dashboard' },
+  { label: 'Notifications', href: '/notifications' },
+]
+
 const NotificationsPage = () => {
   const { notifications, markAsRead, markAllAsRead } = useNotificationsContext()
+  const { setCrumbs } = React.use(BreadcrumbContext)
   const [topicFilter, setTopicFilter] = useState<TopicFilter>('ALL')
   const [showUnreadOnly, setShowUnreadOnly] = useState(false)
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
+
+  useEffect(() => {
+    setCrumbs(breadcrumbs)
+  }, [setCrumbs])
 
   const exportIDs = notifications.flatMap((n) => {
     if (n.topic === NotificationNotificationTopic.EXPORT && n.data?.export_id) {
