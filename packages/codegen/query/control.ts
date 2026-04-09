@@ -46,6 +46,14 @@ export const CONTROL_LIST_FIELDS_FRAGMENT = gql`
         base64
       }
     }
+    responsibleParty {
+      id
+      displayName
+      name
+      logoFile {
+        base64
+      }
+    }
 
     controlImplementations {
       edges {

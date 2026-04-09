@@ -70,6 +70,7 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
     publicRepresentation: false,
     referenceFramework: false,
     delegate: false,
+    responsibleParty: false,
     createdBy: false,
     createdAt: false,
     updatedBy: false,
