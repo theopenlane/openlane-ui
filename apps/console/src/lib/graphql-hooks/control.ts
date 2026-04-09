@@ -85,6 +85,7 @@ import {
   type InsertControlPlateCommentMutationVariables,
   type GetControlDiscussionByIdQuery,
   type GetExistingControlsForOrganizationQuery,
+  type ControlControlStatus,
 } from '@repo/codegen/src/schema'
 import { type TPagination } from '@repo/ui/pagination-types'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql.ts'
@@ -595,17 +596,28 @@ export const useInsertControlPlateComment = () => {
   })
 }
 
-export const useGetExistingOrgControls = ({ refCodeIn, referenceFrameworkIn, enabled = true }: { refCodeIn: string[]; referenceFrameworkIn?: string[]; enabled?: boolean }) => {
+export const useGetExistingOrgControls = ({
+  refCodeIn,
+  referenceFrameworkIn,
+  status,
+  enabled = true,
+}: {
+  refCodeIn: string[]
+  referenceFrameworkIn?: string[]
+  status?: ControlControlStatus
+  enabled?: boolean
+}) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetExistingControlsForOrganizationQuery>({
-    queryKey: ['controls', 'existingOrg', refCodeIn, referenceFrameworkIn],
+    queryKey: ['controls', 'existingOrg', refCodeIn, referenceFrameworkIn, status],
     queryFn: () =>
       client.request(GET_EXISTING_CONTROLS_FOR_ORGANIZATION, {
         where: {
           refCodeIn,
           systemOwned: false,
           ...(referenceFrameworkIn?.length && { referenceFrameworkIn }),
+          ...(status && { status }),
         },
       }),
     enabled: enabled && refCodeIn.length > 0,

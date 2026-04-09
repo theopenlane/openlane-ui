@@ -15,17 +15,17 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { useGetTrustCenter } from '@/lib/graphql-hooks/trust-center'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { canEdit } from '@/lib/authz/utils'
-import { type ControlWhereInput, type ControlListStandardFieldsFragment, ControlTrustCenterControlVisibility, ControlControlImplementationStatus, ControlControlStatus } from '@repo/codegen/src/schema'
+import { type ControlWhereInput, type ControlListStandardFieldsFragment, ControlTrustCenterControlVisibility, ControlControlImplementationStatus } from '@repo/codegen/src/schema'
 import { useNavigationGuard } from 'next-navigation-guard'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { useAllControlsGroupedWithListFields, useBulkEditControl } from '@/lib/graphql-hooks/control'
-import { useGetMappedControls } from '@/lib/graphql-hooks/mapped-control'
 import { useDebounce } from '@uidotdev/usehooks'
 import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import { useGetStandards, useCloneControls } from '@/lib/graphql-hooks/standard'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { ControlCategoryIcon } from '@/components/shared/control-category-icon-mapper/control-category-icon-mapper'
+import { useRecommendedControls } from './hooks/use-recommended-controls'
 
 type FilterTab = 'all' | 'added' | 'not-added' | 'recommended'
 type DraftAction = 'add' | 'remove'
@@ -54,28 +54,7 @@ export default function ControlsPage() {
   const otsStandardID = otsStandardData?.standards?.edges?.[0]?.node?.id
   const { mutateAsync: cloneControls, isPending: isCloning } = useCloneControls()
 
-  const { data: recommendedMappedControls } = useGetMappedControls({
-    where: {
-      hasFromControlsWith: [{ referenceFramework: 'OTS' }],
-      hasToControlsWith: [{ status: ControlControlStatus.APPROVED }],
-    },
-  })
-
-  const recommendedRefCodes = useMemo(() => {
-    const refCodes = new Set<string>()
-    const edges = recommendedMappedControls?.mappedControls?.edges
-    if (!edges) return refCodes
-    for (const edge of edges) {
-      const fromControls = edge?.node?.fromControls?.edges
-      if (!fromControls) continue
-      for (const fromEdge of fromControls) {
-        if (fromEdge?.node?.refCode) {
-          refCodes.add(fromEdge.node.refCode)
-        }
-      }
-    }
-    return refCodes
-  }, [recommendedMappedControls])
+  const { recommendedRefCodes } = useRecommendedControls()
 
   const filterWhere = useMemo((): ControlWhereInput => {
     return {
