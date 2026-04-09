@@ -1,6 +1,6 @@
 'use client'
 
-import { ChevronDown } from 'lucide-react'
+import { ChevronDown, X } from 'lucide-react'
 import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
@@ -17,9 +17,21 @@ interface SearchableSingleSelectProps {
   autoFocus?: boolean
   onClose?: () => void
   className?: string
+  clearable?: boolean
+  clearLabel?: string
 }
 
-export const SearchableSingleSelect = ({ value, placeholder = 'Select an option...', options, onChange, autoFocus, onClose, className }: SearchableSingleSelectProps) => {
+export const SearchableSingleSelect = ({
+  value,
+  placeholder = 'Select an option...',
+  options,
+  onChange,
+  autoFocus,
+  onClose,
+  className,
+  clearable = false,
+  clearLabel = 'Unassigned',
+}: SearchableSingleSelectProps) => {
   const [open, setOpen] = useState(false)
   const triggerRef = useRef<HTMLDivElement>(null)
   const popoverRef = useRef<HTMLDivElement>(null)
@@ -47,6 +59,21 @@ export const SearchableSingleSelect = ({ value, placeholder = 'Select an option.
             <CommandList>
               <CommandEmpty>No results found.</CommandEmpty>
               <CommandGroup>
+                {clearable && (
+                  <CommandItem
+                    key="searchable-single-select-clear"
+                    value={clearLabel}
+                    onSelect={() => {
+                      onChange?.('')
+                      setOpen(false)
+                    }}
+                  >
+                    <span className="flex items-center gap-2 italic text-muted-foreground">
+                      <X size={14} />
+                      {clearLabel}
+                    </span>
+                  </CommandItem>
+                )}
                 {options.map((option, i) => (
                   <CommandItem
                     key={`option-${option.value}-${i}`}
