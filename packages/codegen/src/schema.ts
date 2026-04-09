@@ -66141,6 +66141,7 @@ export type ControlListFieldsFragment = {
     avatarFile?: { __typename?: 'File'; base64?: string | null } | null
   } | null
   delegate?: { __typename?: 'Group'; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
+  responsibleParty?: { __typename?: 'Entity'; id: string; displayName?: string | null; name?: string | null; logoFile?: { __typename?: 'File'; base64?: string | null } | null } | null
   controlImplementations: {
     __typename?: 'ControlImplementationConnection'
     edges?: Array<{ __typename?: 'ControlImplementationEdge'; node?: { __typename?: 'ControlImplementation'; details?: string | null } | null } | null> | null
@@ -66328,6 +66329,7 @@ export type GetAllControlsQuery = {
           avatarFile?: { __typename?: 'File'; base64?: string | null } | null
         } | null
         delegate?: { __typename?: 'Group'; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
+        responsibleParty?: { __typename?: 'Entity'; id: string; displayName?: string | null; name?: string | null; logoFile?: { __typename?: 'File'; base64?: string | null } | null } | null
         controlImplementations: {
           __typename?: 'ControlImplementationConnection'
           edges?: Array<{ __typename?: 'ControlImplementationEdge'; node?: { __typename?: 'ControlImplementation'; details?: string | null } | null } | null> | null

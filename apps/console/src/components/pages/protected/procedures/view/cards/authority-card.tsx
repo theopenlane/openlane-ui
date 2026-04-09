@@ -10,8 +10,14 @@ import { useGetAllGroups } from '@/lib/graphql-hooks/group'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { type EditProcedureMetadataFormData } from '../hooks/use-form-schema'
 import { SearchableSingleSelect } from '@/components/shared/searchableSingleSelect/searchable-single-select'
+import { buildClearableUpdate } from '@/components/shared/searchableSingleSelect/clearable-update'
 import { Card } from '@repo/ui/cardpanel'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
+
+const PROCEDURE_AUTHORITY_CLEAR_KEYS: Record<'approverID' | 'delegateID', 'clearApprover' | 'clearDelegate'> = {
+  approverID: 'clearApprover',
+  delegateID: 'clearDelegate',
+}
 
 type TAuthorityCardProps = {
   form: UseFormReturn<EditProcedureMetadataFormData>
@@ -43,7 +49,7 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, isCreat
     const currentValue = form.getValues(field)
 
     if (!isEditing && handleUpdate && currentValue !== value) {
-      handleUpdate({ [field]: value })
+      handleUpdate(buildClearableUpdate(field, value, PROCEDURE_AUTHORITY_CLEAR_KEYS[field]) as UpdateProcedureInput)
     }
 
     setEditingField(null)
@@ -86,6 +92,7 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, isCreat
                 options={options}
                 placeholder={`Select ${label.toLowerCase()}`}
                 autoFocus
+                clearable
                 onChange={(val) => {
                   handleSelect(fieldKey, val)
                   field.onChange(val)
