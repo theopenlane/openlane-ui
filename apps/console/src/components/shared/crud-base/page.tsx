@@ -356,7 +356,7 @@ export function GenericTablePage<
         searchTerm={searchQuery}
         setSearchTerm={(val) => {
           setSearchQuery(val)
-          setPagination(DEFAULT_PAGINATION)
+          setPagination((prev) => ({ ...prev, page: 1, query: { first: prev.pageSize } }))
         }}
         searching={searching}
         canEdit={canEdit}
