@@ -11,17 +11,9 @@ import { Bell, CheckCheck } from 'lucide-react'
 import { cn } from '@repo/ui/lib/utils'
 import { Button } from '@repo/ui/button'
 import { isToday, isYesterday, format, startOfDay } from 'date-fns'
+import { toHumanLabel } from '@/utils/strings'
 
 const PAGE_SIZE = 20
-
-const TOPIC_LABELS: Record<NotificationNotificationTopic, string> = {
-  [NotificationNotificationTopic.APPROVAL]: 'Approval',
-  [NotificationNotificationTopic.DOMAIN_SCAN]: 'Domain Scan',
-  [NotificationNotificationTopic.EXPORT]: 'Export',
-  [NotificationNotificationTopic.MENTION]: 'Mention',
-  [NotificationNotificationTopic.STANDARD_UPDATE]: 'Standard Update',
-  [NotificationNotificationTopic.TASK_ASSIGNMENT]: 'Task Assignment',
-}
 
 type TopicFilter = NotificationNotificationTopic | 'ALL'
 
@@ -132,7 +124,7 @@ const NotificationsPage = () => {
           <FilterItem label="All" active={topicFilter === 'ALL'} onClick={() => handleTopicChange('ALL')} />
 
           {Object.values(NotificationNotificationTopic).map((topic) => (
-            <FilterItem key={topic} label={TOPIC_LABELS[topic]} active={topicFilter === topic} onClick={() => handleTopicChange(topic)} />
+            <FilterItem key={topic} label={toHumanLabel(topic)} active={topicFilter === topic} onClick={() => handleTopicChange(topic)} />
           ))}
         </aside>
 
@@ -193,7 +185,7 @@ const EmptyState = ({ showUnreadOnly, topicFilter }: { showUnreadOnly: boolean; 
   const message = showUnreadOnly
     ? 'No unread notifications'
     : topicFilter !== 'ALL'
-      ? `No ${TOPIC_LABELS[topicFilter as NotificationNotificationTopic]?.toLowerCase()} notifications`
+      ? `No ${toHumanLabel(topicFilter as NotificationNotificationTopic)?.toLowerCase()} notifications`
       : 'All caught up!'
   const sub = showUnreadOnly ? "You're all caught up." : topicFilter !== 'ALL' ? 'Nothing here yet.' : 'No new notifications at the moment.'
 
