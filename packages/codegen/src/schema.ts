@@ -69821,7 +69821,6 @@ export type GetIntegrationsQuery = {
         createdAt?: any | null
         createdBy?: string | null
         environmentName?: string | null
-        integrationType?: string | null
         scopeName?: string | null
       } | null
     } | null> | null

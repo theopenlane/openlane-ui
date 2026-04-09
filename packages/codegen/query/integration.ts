@@ -19,7 +19,6 @@ export const GET_INTEGRATIONS = gql`
           createdAt
           createdBy
           environmentName
-          integrationType
           scopeName
         }
       }
