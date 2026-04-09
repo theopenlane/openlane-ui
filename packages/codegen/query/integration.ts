@@ -8,6 +8,7 @@ export const GET_INTEGRATIONS = gql`
           id
           name
           kind
+          integrationType
           definitionID
           definitionSlug
           family
@@ -18,7 +19,6 @@ export const GET_INTEGRATIONS = gql`
           createdAt
           createdBy
           environmentName
-          integrationType
           scopeName
         }
       }

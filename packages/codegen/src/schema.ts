@@ -69810,6 +69810,7 @@ export type GetIntegrationsQuery = {
         id: string
         name: string
         kind?: string | null
+        integrationType?: string | null
         definitionID?: string | null
         definitionSlug?: string | null
         family?: string | null
@@ -69820,7 +69821,6 @@ export type GetIntegrationsQuery = {
         createdAt?: any | null
         createdBy?: string | null
         environmentName?: string | null
-        integrationType?: string | null
         scopeName?: string | null
       } | null
     } | null> | null

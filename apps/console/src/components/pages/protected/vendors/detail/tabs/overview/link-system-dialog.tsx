@@ -6,7 +6,6 @@ import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@repo/ui/dialog'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { Input } from '@repo/ui/input'
 import { Textarea } from '@repo/ui/textarea'
 import { FormField, FormItem, FormLabel, FormControl, FormMessage, Form } from '@repo/ui/form'
 import { SaveButton } from '@/components/shared/save-button/save-button'
@@ -118,31 +117,14 @@ const LinkSystemDialog: React.FC<LinkSystemDialogProps> = ({ vendorId, linkedInt
             />
 
             <FormItem>
-              <FormLabel>Environment</FormLabel>
-              <Select value={selectedIntegration?.environmentName ?? ''} disabled>
+              <FormLabel>Connection Type</FormLabel>
+              <Select value={selectedIntegration?.integrationType ?? ''} disabled>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select an environment" />
+                  <SelectValue placeholder="Select a type" />
                 </SelectTrigger>
-                <SelectContent>{selectedIntegration?.environmentName && <SelectItem value={selectedIntegration.environmentName}>{selectedIntegration.environmentName}</SelectItem>}</SelectContent>
+                <SelectContent>{selectedIntegration?.integrationType && <SelectItem value={selectedIntegration.integrationType}>{selectedIntegration.integrationType}</SelectItem>}</SelectContent>
               </Select>
             </FormItem>
-
-            <div className="grid grid-cols-2 gap-4">
-              <FormItem>
-                <FormLabel>Connection Type</FormLabel>
-                <Select value={selectedIntegration?.integrationType ?? ''} disabled>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a type" />
-                  </SelectTrigger>
-                  <SelectContent>{selectedIntegration?.integrationType && <SelectItem value={selectedIntegration.integrationType}>{selectedIntegration.integrationType}</SelectItem>}</SelectContent>
-                </Select>
-              </FormItem>
-
-              <FormItem>
-                <FormLabel>Scope</FormLabel>
-                <Input value={selectedIntegration?.scopeName ?? ''} placeholder="e.g. Acme Corporation Inc." readOnly disabled />
-              </FormItem>
-            </div>
 
             <FormItem>
               <FormLabel>Notes</FormLabel>
