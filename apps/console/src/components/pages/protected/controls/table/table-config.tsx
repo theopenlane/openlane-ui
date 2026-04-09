@@ -1,5 +1,5 @@
 import { type FilterField } from '@/types'
-import { type ControlControlStatus, type ControlListFieldsFragment, ControlOrderField, type Group, type User } from '@repo/codegen/src/schema.ts'
+import { type ControlControlStatus, type ControlListFieldsFragment, ControlOrderField, type Entity, type Group, type User } from '@repo/codegen/src/schema.ts'
 import { type ColumnDef, type Row } from '@tanstack/react-table'
 import SubcontrolCell from './subcontrol-cell'
 import { Avatar } from '@/components/shared/avatar/avatar'
@@ -318,6 +318,24 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
         const delegate = row.original.delegate
         const controlId = row.original.id
         return <DelegateCell delegate={delegate as Group | null} controlId={controlId} />
+      },
+    },
+    {
+      header: 'Responsible Party',
+      accessorKey: 'responsibleParty',
+      meta: {
+        exportPrefix: 'responsibleParty.displayName',
+      },
+      size: 200,
+      cell: ({ row }) => {
+        const responsibleParty = row.original.responsibleParty
+        if (!responsibleParty) return <div>-</div>
+        return (
+          <div className="flex items-center gap-2">
+            <Avatar entity={responsibleParty as Entity} />
+            {responsibleParty.displayName || responsibleParty.name || '-'}
+          </div>
+        )
       },
     },
     {

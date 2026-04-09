@@ -8,6 +8,7 @@ import { NotificationNotificationTopic } from '@repo/codegen/src/schema'
 import { useGetAllExports } from '@/lib/graphql-hooks/export'
 import { ExportRow } from './export-row'
 import useClickOutside from '@/hooks/useClickOutside'
+import Link from 'next/link'
 
 interface SystemNotificationTrackerProps {
   open: boolean
@@ -94,6 +95,12 @@ export default function SystemNotificationTracker({ open, onOpenChange }: System
                       </>
                     )}
                   </div>
+                </div>
+
+                <div className="border-t p-3 flex justify-center">
+                  <Link href="/notifications" onClick={() => onOpenChange(false)} className="text-xs font-medium text-muted-foreground hover:text-primary transition-colors">
+                    View All
+                  </Link>
                 </div>
               </div>
             </div>,

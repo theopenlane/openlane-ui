@@ -8,6 +8,7 @@ export const GET_INTEGRATIONS = gql`
           id
           name
           kind
+          integrationType
           definitionID
           definitionSlug
           family

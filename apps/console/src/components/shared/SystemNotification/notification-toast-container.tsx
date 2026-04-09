@@ -93,15 +93,18 @@ const SingleNotificationToast = ({ data, onOpenChange, onView }: ToastItemProps)
   )
 }
 
-const BatchNotificationToast = ({ data, onOpenChange }: Omit<ToastItemProps, 'onView'>) => {
+const BatchNotificationToast = ({ data, onOpenChange, onView }: ToastItemProps) => {
   const count = data.notifications.length
 
   return (
-    <ToastPrimitives.Root open={data.open} onOpenChange={onOpenChange} duration={TOAST_DURATION_MS} className={toastRootClass}>
+    <ToastPrimitives.Root open={data.open} onOpenChange={onOpenChange} duration={TOAST_DURATION_MS} className={toastRootClass} onClick={() => onView(data.notifications)} style={{ cursor: 'pointer' }}>
       <BellIconContainer />
       <div className="min-w-0 flex-1">
         <ToastPrimitives.Title className="text-sm font-semibold text-foreground">{count} new notifications</ToastPrimitives.Title>
-        <ToastPrimitives.Description className="text-xs text-muted-foreground mt-0.5">Open notifications to view them</ToastPrimitives.Description>
+        <ToastPrimitives.Description className="text-xs text-muted-foreground mt-0.5">Click to view all notifications</ToastPrimitives.Description>
+        <p className="mt-1.5 text-xs font-medium" style={{ color: BELL_COLOR }}>
+          View All →
+        </p>
       </div>
       <DismissButton />
     </ToastPrimitives.Root>
@@ -159,6 +162,11 @@ export const NotificationToastContainer = () => {
       const unread = notifications.filter((n) => !n.readAt)
       await Promise.all(unread.map((n) => markAsRead(n.id)))
 
+      if (notifications.length > 1) {
+        router.push('/notifications')
+        return
+      }
+
       const firstWithUrl = notifications.find((notification) => getNotificationRedirectUrl(notification))
       if (firstWithUrl) {
         redirectToNotification(router, firstWithUrl)
@@ -173,7 +181,7 @@ export const NotificationToastContainer = () => {
         toast.notifications.length === 1 ? (
           <SingleNotificationToast key={toast.id} data={toast} onOpenChange={(open) => handleOpenChange(toast.id, open)} onView={handleView} />
         ) : (
-          <BatchNotificationToast key={toast.id} data={toast} onOpenChange={(open) => handleOpenChange(toast.id, open)} />
+          <BatchNotificationToast key={toast.id} data={toast} onOpenChange={(open) => handleOpenChange(toast.id, open)} onView={handleView} />
         ),
       )}
       <ToastPrimitives.Viewport className="fixed bottom-0 right-0 z-100 flex max-h-screen w-full flex-col-reverse gap-2 p-4 sm:max-w-105 focus:outline-none" />
