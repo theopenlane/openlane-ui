@@ -12,6 +12,7 @@ import { CustomEnumChipCell } from '@/components/shared/crud-base/columns/custom
 import { ResponsibilityCell } from '@/components/shared/crud-base/columns/responsibility-cell'
 import { toBase64DataUri } from '@/lib/image-utils'
 import { TruncatedCell } from '@repo/ui/data-table'
+import { toHumanLabel } from '@/utils/strings'
 
 const renderVendorIdentityCell = (row: EntitiesNodeNonNull, label: string) => {
   const logo = row.logoFile?.base64 ? toBase64DataUri(row.logoFile.base64) : undefined
@@ -166,7 +167,7 @@ export const getColumns = ({ userMap, convertToReadOnly, selectedItems, setSelec
       },
     },
     { accessorKey: 'terminationNoticeDays', header: 'Termination Notice Days', size: 100 },
-    { accessorKey: 'tier', header: 'Tier', size: 100 },
+    { accessorKey: 'tier', header: 'Tier', size: 100, cell: ({ cell }) => toHumanLabel(cell.getValue() as string) },
     { accessorKey: 'createdAt', header: 'Created At', size: 130, cell: ({ cell }) => formatDate(cell.getValue() as string) },
     {
       accessorKey: 'createdBy',
