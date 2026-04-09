@@ -1,11 +1,18 @@
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 import { SearchableSingleSelect } from '@/components/shared/searchableSingleSelect/searchable-single-select'
+import { buildClearableUpdate } from '@/components/shared/searchableSingleSelect/clearable-update'
 import { type Entity, type Group, type UpdateControlInput, type UpdateSubcontrolInput } from '@repo/codegen/src/schema'
 import { type Option } from '@repo/ui/multiple-selector'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { useFormContext, Controller } from 'react-hook-form'
 import { HelpCircle } from 'lucide-react'
+
+const CONTROL_AUTHORITY_CLEAR_KEYS: Record<'controlOwnerID' | 'delegateID' | 'responsiblePartyID', 'clearControlOwner' | 'clearDelegate' | 'clearResponsibleParty'> = {
+  controlOwnerID: 'clearControlOwner',
+  delegateID: 'clearDelegate',
+  responsiblePartyID: 'clearResponsibleParty',
+}
 
 export const AuthorityField = ({
   label,
@@ -36,7 +43,7 @@ export const AuthorityField = ({
   handleUpdate?: (val: UpdateControlInput | UpdateSubcontrolInput) => void
   hideAvatar?: boolean
 }) => {
-  const { control, getValues } = useFormContext()
+  const { control } = useFormContext()
 
   const displayName = value?.displayName || `No ${label}`
   const editing = isEditAllowed && (isEditing || editingField === editingKey)
@@ -70,11 +77,12 @@ export const AuthorityField = ({
           name={fieldKey}
           render={({ field }) => (
             <SearchableSingleSelect
-              value={getValues(fieldKey) || value?.id}
+              value={field.value ?? value?.id}
               options={options}
               placeholder={`Select ${label.toLowerCase()}`}
+              clearable
               onChange={(val) => {
-                if (!isEditing) handleUpdate?.({ [fieldKey]: val })
+                if (!isEditing) handleUpdate?.(buildClearableUpdate(fieldKey, val, CONTROL_AUTHORITY_CLEAR_KEYS[fieldKey]) as UpdateControlInput | UpdateSubcontrolInput)
                 setEditingField(null)
                 field.onChange(val)
               }}

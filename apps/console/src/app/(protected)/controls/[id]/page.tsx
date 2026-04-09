@@ -184,7 +184,20 @@ const ControlDetailsPage: React.FC = () => {
         delete changedFields.description
       }
 
-      const input: UpdateControlInput = Object.fromEntries(Object.entries(changedFields).map(([key, value]) => [key, value || undefined])) as UpdateControlInput
+      const PERSON_FIELD_CLEAR_KEYS: Record<string, string> = {
+        delegateID: 'clearDelegate',
+        controlOwnerID: 'clearControlOwner',
+        responsiblePartyID: 'clearResponsibleParty',
+      }
+
+      const input = Object.entries(changedFields).reduce<Record<string, unknown>>((acc, [key, value]) => {
+        if (key in PERSON_FIELD_CLEAR_KEYS && !value) {
+          acc[PERSON_FIELD_CLEAR_KEYS[key]] = true
+        } else {
+          acc[key] = value || undefined
+        }
+        return acc
+      }, {}) as UpdateControlInput
 
       if (Object.keys(input).length === 0) {
         setIsEditing(false)

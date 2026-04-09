@@ -10,8 +10,14 @@ import { useGetAllGroups } from '@/lib/graphql-hooks/group'
 import { type EditPolicyMetadataFormData } from '@/components/pages/protected/policies/view/hooks/use-form-schema.ts'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { SearchableSingleSelect } from '@/components/shared/searchableSingleSelect/searchable-single-select'
+import { buildClearableUpdate } from '@/components/shared/searchableSingleSelect/clearable-update'
 import { Card } from '@repo/ui/cardpanel'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
+
+const POLICY_AUTHORITY_CLEAR_KEYS: Record<'approverID' | 'delegateID', 'clearApprover' | 'clearDelegate'> = {
+  approverID: 'clearApprover',
+  delegateID: 'clearDelegate',
+}
 
 type TAuthorityCardProps = {
   form: UseFormReturn<EditPolicyMetadataFormData>
@@ -44,7 +50,7 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, isCreat
     const currentValue = form.getValues(field)
 
     if (!isEditing && handleUpdate && currentValue !== value) {
-      handleUpdate({ [field]: value })
+      handleUpdate(buildClearableUpdate(field, value, POLICY_AUTHORITY_CLEAR_KEYS[field]) as UpdateInternalPolicyInput)
     }
 
     setEditingField(null)
@@ -87,6 +93,7 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, isCreat
                 options={options}
                 placeholder={`Select ${label.toLowerCase()}`}
                 autoFocus
+                clearable
                 onClose={() => setEditingField(null)}
                 onChange={(val) => {
                   handleSelect(fieldKey, val)

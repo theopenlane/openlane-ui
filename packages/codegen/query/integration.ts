@@ -18,6 +18,9 @@ export const GET_INTEGRATIONS = gql`
           metadata
           createdAt
           createdBy
+          environmentName
+          integrationType
+          scopeName
         }
       }
     }
