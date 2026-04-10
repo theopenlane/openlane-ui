@@ -6,10 +6,10 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { CampaignCampaignType } from '@repo/codegen/src/schema'
 
 const campaignFormSchema = z.object({
-  name: z.string().min(1, { message: 'Campaign name is required' }),
+  name: z.string().optional(),
   description: z.string().optional(),
   campaignType: z.nativeEnum(CampaignCampaignType).optional(),
-  questionnaireTemplateID: z.string().min(1, { message: 'Please select a questionnaire' }),
+  questionnaireTemplateID: z.string().optional(),
   templateID: z.string(),
   emailBrandingID: z.string().optional(),
   sendImmediately: z.boolean(),

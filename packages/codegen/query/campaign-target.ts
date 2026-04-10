@@ -83,6 +83,16 @@ export const CREATE_CAMPAIGN_TARGET = gql`
   }
 `
 
+export const CREATE_BULK_CAMPAIGN_TARGET = gql`
+  mutation CreateBulkCampaignTarget($input: [CreateCampaignTargetInput!]) {
+    createBulkCampaignTarget(input: $input) {
+      campaignTargets {
+        id
+      }
+    }
+  }
+`
+
 export const UPDATE_CAMPAIGN_TARGET = gql`
   mutation UpdateCampaignTarget($updateCampaignTargetId: ID!, $input: UpdateCampaignTargetInput!) {
     updateCampaignTarget(id: $updateCampaignTargetId, input: $input) {

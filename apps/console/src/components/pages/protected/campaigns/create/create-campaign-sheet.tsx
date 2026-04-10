@@ -4,13 +4,13 @@ import React, { useCallback, useMemo, useState } from 'react'
 import { Form } from '@repo/ui/form'
 import { StepperSheet, type StepperStep } from '@/components/shared/stepper-sheet/stepper-sheet'
 import { QuestionnaireStep } from './steps/questionnaire-step'
-import { TargetsStep, type CampaignTargetEntry } from './steps/targets-step'
+import { TargetsStep, type CampaignTargetEntry, type TargetTab } from './steps/targets-step'
 import { PreviewStep } from './steps/preview-step'
 import { ScheduleStep } from './steps/schedule-step'
 import { EmailBrandingPanel } from './email-branding-panel'
 import { CreateTemplateSheet } from './create-template-sheet'
 import { useCreateCampaign } from '@/lib/graphql-hooks/campaign'
-import { useCreateCampaignTarget } from '@/lib/graphql-hooks/campaign-target'
+import { useCreateBulkCampaignTarget } from '@/lib/graphql-hooks/campaign-target'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { CampaignCampaignStatus } from '@repo/codegen/src/schema'
@@ -29,15 +29,17 @@ export const CreateCampaignSheet: React.FC<CreateCampaignSheetProps> = ({ open, 
 
   const [targets, setTargets] = useState<CampaignTargetEntry[]>([])
   const [uploadedFile, setUploadedFile] = useState<File | null>(null)
+  const [activeTargetTab, setActiveTargetTab] = useState<TargetTab>('csv')
 
   const { mutateAsync: createCampaign, isPending: isCreating } = useCreateCampaign()
-  const { mutateAsync: createTarget } = useCreateCampaignTarget()
+  const { mutateAsync: createBulkTarget } = useCreateBulkCampaignTarget()
   const { successNotification, errorNotification } = useNotification()
 
   const resetAll = useCallback(() => {
     setCurrentStep(0)
     setTargets([])
     setUploadedFile(null)
+    setActiveTargetTab('csv')
     setShowEmailBranding(false)
     setShowCreateTemplate(false)
     form.reset()
@@ -50,22 +52,20 @@ export const CreateCampaignSheet: React.FC<CreateCampaignSheetProps> = ({ open, 
 
   const createTargetsForCampaign = useCallback(
     async (campaignId: string) => {
-      const manualTargets = targets.filter((t) => t.email.trim())
-      if (manualTargets.length === 0) return
+      const validTargets = targets.filter((t) => t.email.trim())
+      if (validTargets.length === 0) return
 
-      await Promise.all(
-        manualTargets.map((target) =>
-          createTarget({
-            input: {
-              campaignID: campaignId,
-              email: target.email.trim(),
-              fullName: target.fullName.trim() || undefined,
-            },
-          }),
-        ),
-      )
+      await createBulkTarget({
+        input: validTargets.map((target) => ({
+          campaignID: campaignId,
+          email: target.email.trim(),
+          fullName: target.fullName.trim() || undefined,
+          contactID: target.contactID || undefined,
+          userID: target.userID || undefined,
+        })),
+      })
     },
-    [targets, createTarget],
+    [targets, createBulkTarget],
   )
 
   const submitCampaign = useCallback(
@@ -117,22 +117,8 @@ export const CreateCampaignSheet: React.FC<CreateCampaignSheetProps> = ({ open, 
   const handleLaunch = useCallback(async () => {
     const data = form.getValues()
 
-    if (!data.questionnaireTemplateID) {
-      errorNotification({ title: 'Validation Error', description: 'Please select a questionnaire' })
-      setCurrentStep(0)
-      return
-    }
-
-    if (!data.name?.trim()) {
-      errorNotification({ title: 'Validation Error', description: 'Campaign name is required' })
-      setCurrentStep(0)
-      return
-    }
-
     await submitCampaign(data, CampaignCampaignStatus.ACTIVE)
   }, [form, submitCampaign, errorNotification])
-
-  const questionnaireTemplateID = form.watch('questionnaireTemplateID')
 
   const handleCreateTemplate = useCallback(() => {
     setShowCreateTemplate(true)
@@ -167,7 +153,7 @@ export const CreateCampaignSheet: React.FC<CreateCampaignSheetProps> = ({ open, 
       {
         title: 'Targets',
         description: 'Choose who will receive this campaign',
-        content: <TargetsStep targets={targets} onTargetsChange={setTargets} uploadedFile={uploadedFile} onFileUpload={setUploadedFile} />,
+        content: <TargetsStep targets={targets} onTargetsChange={setTargets} uploadedFile={uploadedFile} onFileUpload={setUploadedFile} activeTab={activeTargetTab} onActiveTabChange={setActiveTargetTab} />,
       },
       {
         title: 'Template',
@@ -202,7 +188,7 @@ export const CreateCampaignSheet: React.FC<CreateCampaignSheetProps> = ({ open, 
           isSaving={isCreating}
           isCompleting={isCreating}
           isDirty={form.formState.isDirty || targets.length > 0 || uploadedFile !== null}
-          canProceed={currentStep !== 0 || !!questionnaireTemplateID}
+          canProceed
         />
       </Form>
       <EmailBrandingPanel open={showEmailBranding} onClose={() => setShowEmailBranding(false)} onSave={handleEmailBrandingSave} />
