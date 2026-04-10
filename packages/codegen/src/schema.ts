@@ -65366,6 +65366,10 @@ export type AssetsWithFilterQuery = {
         website?: string | null
         internalOwnerGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
         internalOwnerUser?: { __typename?: 'User'; id: string; displayName: string } | null
+        entities: {
+          __typename?: 'EntityConnection'
+          edges?: Array<{ __typename?: 'EntityEdge'; node?: { __typename?: 'Entity'; id: string; name?: string | null; displayName?: string | null } | null } | null> | null
+        }
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
@@ -65412,6 +65416,10 @@ export type AssetQuery = {
     website?: string | null
     internalOwnerGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
     internalOwnerUser?: { __typename?: 'User'; id: string; displayName: string } | null
+    entities: {
+      __typename?: 'EntityConnection'
+      edges?: Array<{ __typename?: 'EntityEdge'; node?: { __typename?: 'Entity'; id: string; name?: string | null; displayName?: string | null } | null } | null> | null
+    }
   }
 }
 

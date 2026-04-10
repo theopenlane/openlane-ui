@@ -13,6 +13,7 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useNotification } from '@/hooks/useNotification'
 import { ClientError } from 'graphql-request'
 import { Input } from '@repo/ui/input'
+import MultipleSelector, { type Option } from '@repo/ui/multiple-selector'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
@@ -42,11 +43,12 @@ interface GenericBulkEditDialogProps<T extends { id: string }, TUpdateInput> {
   onOpenChange?: (open: boolean) => void
   enumOpts?: EnumOptionsGeneric
   responsibilityFields?: ResponsibilityFieldsMap
+  fieldLabels?: Record<string, string>
 }
 
 const fieldItemSchema = z.object({
   fieldKey: z.string().optional(),
-  selectedValue: z.union([z.string(), z.boolean()]).optional(),
+  selectedValue: z.union([z.string(), z.boolean(), z.array(z.string())]).optional(),
   selectedDate: z.date().nullable().optional(),
   selectedResponsibility: z.any().optional(),
 })
@@ -58,7 +60,7 @@ const bulkEditSchema = z.object({
 interface BulkEditFormValues {
   fieldsArray: Array<{
     fieldKey?: string
-    selectedValue?: string | boolean
+    selectedValue?: string | boolean | string[]
     selectedDate?: Date | null
     selectedResponsibility?: ResponsibilitySelection
   }>
@@ -77,7 +79,9 @@ export function GenericBulkEditDialog<T extends { id: string }, TUpdateInput>({
   onOpenChange,
   enumOpts,
   responsibilityFields,
+  fieldLabels,
 }: GenericBulkEditDialogProps<T, TUpdateInput>) {
+  const getFieldLabel = (key: string) => fieldLabels?.[key] ?? toHumanLabel(key)
   const [open, setOpen] = useState(openProp ?? false)
   const { errorNotification, successNotification } = useNotification()
   const entityLabel = displayName ?? toHumanLabel(entityType as string)
@@ -103,7 +107,9 @@ export function GenericBulkEditDialog<T extends { id: string }, TUpdateInput>({
   const hasFieldsToUpdate = watchedFields.some(
     (field) =>
       field.fieldKey &&
-      ((field.selectedValue !== undefined && field.selectedValue !== '') || (field.selectedDate !== undefined && field.selectedDate !== null) || field.selectedResponsibility !== undefined),
+      ((field.selectedValue !== undefined && field.selectedValue !== '' && (!Array.isArray(field.selectedValue) || field.selectedValue.length > 0)) ||
+        (field.selectedDate !== undefined && field.selectedDate !== null) ||
+        field.selectedResponsibility !== undefined),
   )
 
   const { fields, append, update, replace, remove } = useFieldArray({
@@ -160,6 +166,7 @@ export function GenericBulkEditDialog<T extends { id: string }, TUpdateInput>({
       }
 
       if (field.selectedValue !== undefined && field.selectedValue !== '') {
+        if (Array.isArray(field.selectedValue) && field.selectedValue.length === 0) return
         input[key as keyof TUpdateInput] = field.selectedValue as TUpdateInput[keyof TUpdateInput]
       }
       if (field.selectedDate) {
@@ -194,7 +201,7 @@ export function GenericBulkEditDialog<T extends { id: string }, TUpdateInput>({
           </Button>
         </DialogTrigger>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <DialogContent onOpenAutoFocus={(e) => e.preventDefault()} className="max-w-145">
+          <DialogContent onOpenAutoFocus={(e) => e.preventDefault()} className="max-w-145 overflow-visible">
             <DialogHeader>
               <DialogTitle>Bulk edit {entityLabel?.toLowerCase()}</DialogTitle>
             </DialogHeader>
@@ -234,7 +241,7 @@ export function GenericBulkEditDialog<T extends { id: string }, TUpdateInput>({
                         <SelectContent>
                           {fieldKeys.map((key) => (
                             <SelectItem key={key} value={key} disabled={fields.some((f, i) => watchedFields[i]?.fieldKey === key && i !== index)}>
-                              {toHumanLabel(key)}
+                              {getFieldLabel(key)}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -245,6 +252,24 @@ export function GenericBulkEditDialog<T extends { id: string }, TUpdateInput>({
                         control={control}
                         name={`fieldsArray.${index}.selectedResponsibility`}
                         render={({ field }) => <BulkResponsibilityPicker value={field.value as ResponsibilitySelection} onChange={field.onChange} />}
+                      />
+                    ) : fieldKey && innerZodType instanceof z.ZodArray && selectOptions ? (
+                      <Controller
+                        control={control}
+                        name={`fieldsArray.${index}.selectedValue`}
+                        render={({ field }) => {
+                          const selectedIds = Array.isArray(field.value) ? (field.value as string[]) : []
+                          const value: Option[] = selectedIds.map((id) => selectOptions.find((o) => o.value === id) ?? { value: id, label: id })
+                          return (
+                            <MultipleSelector
+                              commandProps={{ className: 'w-60' }}
+                              options={selectOptions}
+                              value={value}
+                              placeholder={`Select ${getFieldLabel(fieldKey).toLowerCase()}...`}
+                              onChange={(opts) => field.onChange(opts.map((o) => o.value))}
+                            />
+                          )
+                        }}
                       />
                     ) : fieldKey && selectOptions ? (
                       <Controller
@@ -304,7 +329,7 @@ export function GenericBulkEditDialog<T extends { id: string }, TUpdateInput>({
                         control={control}
                         name={`fieldsArray.${index}.selectedValue`}
                         render={({ field }) => (
-                          <Input {...field} variant="medium" placeholder={toHumanLabel(fieldKey || '')} className="w-full" value={field.value === undefined ? '' : String(field.value)} />
+                          <Input {...field} variant="medium" placeholder={getFieldLabel(fieldKey || '')} className="w-full" value={field.value === undefined ? '' : String(field.value)} />
                         )}
                       />
                     ) : null}
