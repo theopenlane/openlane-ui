@@ -1,5 +1,3 @@
-'use client'
-
 import { useCallback, useMemo, useState } from 'react'
 import { type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
 import { getAssociationDiffs, getAssociationInput } from '@/components/shared/object-association/utils'
