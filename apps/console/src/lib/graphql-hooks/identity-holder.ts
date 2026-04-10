@@ -22,6 +22,7 @@ import {
   type UpdateIdentityHolderWithFilesMutationVariables,
   type CreateIdentityHolderWithFilesMutationVariables,
   type FileOrder,
+  type FileWhereInput,
   type InputMaybe,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
@@ -158,17 +159,19 @@ type IdentityHolderFilesPaginationArgs = {
   identityHolderId?: string | null
   orderBy?: InputMaybe<Array<FileOrder> | FileOrder>
   pagination?: TPagination
+  where?: FileWhereInput
 }
 
-export const useGetIdentityHolderFilesPaginated = ({ identityHolderId, orderBy, pagination }: IdentityHolderFilesPaginationArgs) => {
+export const useGetIdentityHolderFilesPaginated = ({ identityHolderId, orderBy, pagination, where }: IdentityHolderFilesPaginationArgs) => {
   const { client } = useGraphQLClient()
 
   const queryResult = useQuery<GetIdentityHolderFilesPaginatedQuery, unknown>({
-    queryKey: ['identityHolderFiles', identityHolderId, orderBy, pagination?.page, pagination?.pageSize],
+    queryKey: ['identityHolderFiles', identityHolderId, orderBy, pagination?.page, pagination?.pageSize, where],
     queryFn: async () =>
       client.request(GET_IDENTITY_HOLDER_FILES_PAGINATED, {
         identityHolderId,
         orderBy,
+        where,
         ...pagination?.query,
       }),
     enabled: !!identityHolderId,

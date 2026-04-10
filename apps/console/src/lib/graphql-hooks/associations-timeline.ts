@@ -5,6 +5,7 @@ import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { GET_FINDING_ASSOCIATIONS_TIMELINE } from '@repo/codegen/query/finding'
 import { GET_RISK_ASSOCIATIONS_TIMELINE } from '@repo/codegen/query/risk'
 import { GET_VULNERABILITY_ASSOCIATIONS_TIMELINE } from '@repo/codegen/query/vulnerability'
+import { GET_IDENTITY_HOLDER_ASSOCIATIONS_TIMELINE } from '@repo/codegen/query/identity-holder'
 import {
   type GetFindingAssociationsTimelineQuery,
   type GetFindingAssociationsTimelineQueryVariables,
@@ -12,6 +13,8 @@ import {
   type GetRiskAssociationsTimelineQueryVariables,
   type GetVulnerabilityAssociationsTimelineQuery,
   type GetVulnerabilityAssociationsTimelineQueryVariables,
+  type GetIdentityHolderAssociationsTimelineQuery,
+  type GetIdentityHolderAssociationsTimelineQueryVariables,
 } from '@repo/codegen/src/schema'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 
@@ -152,5 +155,32 @@ export const extractVulnerabilityTimelineNodes = (data: GetVulnerabilityAssociat
     ...extractNodes(v.assets as Connection, 'Asset'),
     ...extractNodes(v.scans as Connection, 'Scan', { scansAreSource: true }),
     ...extractNodes(v.remediations as Connection, 'Remediation'),
+  ].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+}
+
+export const useIdentityHolderTimeline = (identityHolderId?: string) => {
+  const { client } = useGraphQLClient()
+  return useQuery<GetIdentityHolderAssociationsTimelineQuery>({
+    queryKey: ['identityHolderTimeline', identityHolderId],
+    enabled: !!identityHolderId,
+    staleTime: 0,
+    queryFn: async () =>
+      client.request<GetIdentityHolderAssociationsTimelineQuery, GetIdentityHolderAssociationsTimelineQueryVariables>(GET_IDENTITY_HOLDER_ASSOCIATIONS_TIMELINE, {
+        identityHolderId: identityHolderId as string,
+      }),
+  })
+}
+
+export const extractIdentityHolderTimelineNodes = (data: GetIdentityHolderAssociationsTimelineQuery | undefined): TimelineNode[] => {
+  if (!data) return []
+  const ih = data.identityHolder
+  return [
+    ...extractNodes(ih.assets as Connection, 'Asset'),
+    ...extractNodes(ih.entities as Connection, 'Entity'),
+    ...extractNodes(ih.controls as Connection, 'Control'),
+    ...extractNodes(ih.subcontrols as Connection, 'Subcontrol'),
+    ...extractNodes(ih.campaigns as Connection, 'Campaign'),
+    ...extractNodes(ih.tasks as Connection, 'Task'),
+    ...extractNodes(ih.internalPolicies as Connection, 'Policy'),
   ].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
 }
