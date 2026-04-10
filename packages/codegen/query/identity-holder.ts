@@ -164,9 +164,9 @@ export const BULK_EDIT_IDENTITY_HOLDER = gql`
 `
 
 export const GET_IDENTITY_HOLDER_FILES_PAGINATED = gql`
-  query GetIdentityHolderFilesPaginated($identityHolderId: ID!, $after: Cursor, $first: Int, $before: Cursor, $last: Int, $orderBy: [FileOrder!]) {
+  query GetIdentityHolderFilesPaginated($identityHolderId: ID!, $after: Cursor, $first: Int, $before: Cursor, $last: Int, $orderBy: [FileOrder!], $where: FileWhereInput) {
     identityHolder(id: $identityHolderId) {
-      files(after: $after, first: $first, before: $before, last: $last, orderBy: $orderBy) {
+      files(after: $after, first: $first, before: $before, last: $last, orderBy: $orderBy, where: $where) {
         pageInfo {
           endCursor
           hasNextPage
@@ -179,6 +179,8 @@ export const GET_IDENTITY_HOLDER_FILES_PAGINATED = gql`
             providedFileName
             providedFileSize
             providedFileExtension
+            categoryType
+            createdAt
             id
             uri
             presignedURL
@@ -283,6 +285,83 @@ export const GET_IDENTITY_HOLDER_ASSOCIATIONS = gql`
           }
         }
         totalCount
+      }
+    }
+  }
+`
+
+export const GET_IDENTITY_HOLDER_ASSOCIATIONS_TIMELINE = gql`
+  query GetIdentityHolderAssociationsTimeline($identityHolderId: ID!) {
+    identityHolder(id: $identityHolderId) {
+      assets {
+        edges {
+          node {
+            id
+            name
+            displayName
+            createdAt
+          }
+        }
+      }
+      entities {
+        edges {
+          node {
+            id
+            name
+            displayName
+            createdAt
+          }
+        }
+      }
+      campaigns {
+        edges {
+          node {
+            id
+            name
+            displayID
+            createdAt
+          }
+        }
+      }
+      tasks {
+        edges {
+          node {
+            id
+            title
+            displayID
+            createdAt
+          }
+        }
+      }
+      controls {
+        edges {
+          node {
+            id
+            displayID
+            refCode
+            createdAt
+          }
+        }
+      }
+      subcontrols {
+        edges {
+          node {
+            id
+            displayID
+            refCode
+            createdAt
+          }
+        }
+      }
+      internalPolicies {
+        edges {
+          node {
+            id
+            name
+            displayID
+            createdAt
+          }
+        }
       }
     }
   }

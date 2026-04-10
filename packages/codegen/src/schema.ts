@@ -69774,6 +69774,7 @@ export type GetIdentityHolderFilesPaginatedQueryVariables = Exact<{
   before?: InputMaybe<Scalars['Cursor']['input']>
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<FileOrder> | FileOrder>
+  where?: InputMaybe<FileWhereInput>
 }>
 
 export type GetIdentityHolderFilesPaginatedQuery = {
@@ -69786,7 +69787,17 @@ export type GetIdentityHolderFilesPaginatedQuery = {
       pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
       edges?: Array<{
         __typename?: 'FileEdge'
-        node?: { __typename?: 'File'; providedFileName: string; providedFileSize?: number | null; providedFileExtension: string; id: string; uri?: string | null; presignedURL?: string | null } | null
+        node?: {
+          __typename?: 'File'
+          providedFileName: string
+          providedFileSize?: number | null
+          providedFileExtension: string
+          categoryType?: string | null
+          createdAt?: any | null
+          id: string
+          uri?: string | null
+          presignedURL?: string | null
+        } | null
       } | null> | null
     }
   }
@@ -69855,6 +69866,45 @@ export type GetIdentityHolderAssociationsQuery = {
       __typename?: 'SubcontrolConnection'
       totalCount: number
       edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string; displayID: string } | null } | null> | null
+    }
+  }
+}
+
+export type GetIdentityHolderAssociationsTimelineQueryVariables = Exact<{
+  identityHolderId: Scalars['ID']['input']
+}>
+
+export type GetIdentityHolderAssociationsTimelineQuery = {
+  __typename?: 'Query'
+  identityHolder: {
+    __typename?: 'IdentityHolder'
+    assets: {
+      __typename?: 'AssetConnection'
+      edges?: Array<{ __typename?: 'AssetEdge'; node?: { __typename?: 'Asset'; id: string; name: string; displayName?: string | null; createdAt?: any | null } | null } | null> | null
+    }
+    entities: {
+      __typename?: 'EntityConnection'
+      edges?: Array<{ __typename?: 'EntityEdge'; node?: { __typename?: 'Entity'; id: string; name?: string | null; displayName?: string | null; createdAt?: any | null } | null } | null> | null
+    }
+    campaigns: {
+      __typename?: 'CampaignConnection'
+      edges?: Array<{ __typename?: 'CampaignEdge'; node?: { __typename?: 'Campaign'; id: string; name: string; displayID: string; createdAt?: any | null } | null } | null> | null
+    }
+    tasks: {
+      __typename?: 'TaskConnection'
+      edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; title: string; displayID: string; createdAt?: any | null } | null } | null> | null
+    }
+    controls: {
+      __typename?: 'ControlConnection'
+      edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; displayID: string; refCode: string; createdAt?: any | null } | null } | null> | null
+    }
+    subcontrols: {
+      __typename?: 'SubcontrolConnection'
+      edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; displayID: string; refCode: string; createdAt?: any | null } | null } | null> | null
+    }
+    internalPolicies: {
+      __typename?: 'InternalPolicyConnection'
+      edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string; displayID: string; createdAt?: any | null } | null } | null> | null
     }
   }
 }
