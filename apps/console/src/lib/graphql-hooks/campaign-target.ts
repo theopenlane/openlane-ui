@@ -13,10 +13,12 @@ import {
   type DeleteCampaignTargetMutationVariables,
   type CampaignTargetQuery,
   type CampaignTargetQueryVariables,
+  type CampaignTargetBulkCreatePayload,
+  type CreateCampaignTargetInput,
 } from '@repo/codegen/src/schema'
 
 import { type TPagination } from '@repo/ui/pagination-types'
-import { GET_ALL_CAMPAIGN_TARGETS, GET_CAMPAIGN_TARGET_STATS, CREATE_CAMPAIGN_TARGET, UPDATE_CAMPAIGN_TARGET, DELETE_CAMPAIGN_TARGET, CAMPAIGN_TARGET } from '@repo/codegen/query/campaign-target'
+import { GET_ALL_CAMPAIGN_TARGETS, GET_CAMPAIGN_TARGET_STATS, CREATE_CAMPAIGN_TARGET, CREATE_BULK_CAMPAIGN_TARGET, UPDATE_CAMPAIGN_TARGET, DELETE_CAMPAIGN_TARGET, CAMPAIGN_TARGET } from '@repo/codegen/query/campaign-target'
 
 type GetAllCampaignTargetsArgs = {
   where?: CampaignTargetsWithFilterQueryVariables['where']
@@ -70,6 +72,20 @@ export const useCreateCampaignTarget = () => {
   const queryClient = useQueryClient()
   return useMutation<CreateCampaignTargetMutation, unknown, CreateCampaignTargetMutationVariables>({
     mutationFn: async (variables) => client.request(CREATE_CAMPAIGN_TARGET, variables),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['campaignTargets'] })
+    },
+  })
+}
+
+type CreateBulkCampaignTargetMutation = { createBulkCampaignTarget: CampaignTargetBulkCreatePayload }
+type CreateBulkCampaignTargetMutationVariables = { input: CreateCampaignTargetInput[] }
+
+export const useCreateBulkCampaignTarget = () => {
+  const { client } = useGraphQLClient()
+  const queryClient = useQueryClient()
+  return useMutation<CreateBulkCampaignTargetMutation, unknown, CreateBulkCampaignTargetMutationVariables>({
+    mutationFn: async (variables) => client.request(CREATE_BULK_CAMPAIGN_TARGET, variables),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['campaignTargets'] })
     },
