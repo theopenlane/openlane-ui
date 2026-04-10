@@ -23,6 +23,8 @@ import { type Platform, PlatformPlatformStatus, type UpdatePlatformInput } from 
 import PlatformAssetsTable from './platform-assets-table'
 import PlatformVendorsTable from './platform-vendors-table'
 import PlatformGraph from './platform-graph'
+import { CollapsibleHtml } from './collapsible-html'
+import { PlatformDiagramsSection } from './platform-diagrams-section'
 import Skeleton from '@/components/shared/skeleton/skeleton'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import useFormSchema, { type EditPlatformFormData } from '../hooks/use-form-schema'
@@ -225,6 +227,16 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId }) =
   const inScopeVendors = platform.entities?.edges?.map((e) => e?.node).filter((n): n is NonNullable<typeof n> => n != null) ?? []
   const outOfScopeVendors = platform.outOfScopeVendors?.edges?.map((e) => e?.node).filter((n): n is NonNullable<typeof n> => n != null) ?? []
 
+  const todiagram =
+    <T extends string>(type: T) =>
+    (f: { id: string; providedFileName: string; presignedURL?: string | null }) => ({ id: f.id, type, name: f.providedFileName, url: f.presignedURL ?? '' })
+
+  const diagrams = [
+    ...(platform.architectureDiagrams?.edges?.map((e) => e?.node).filter((n): n is NonNullable<typeof n> => n != null) ?? []).map(todiagram('architecture' as const)),
+    ...(platform.dataFlowDiagrams?.edges?.map((e) => e?.node).filter((n): n is NonNullable<typeof n> => n != null) ?? []).map(todiagram('data-flow' as const)),
+    ...(platform.trustBoundaryDiagrams?.edges?.map((e) => e?.node).filter((n): n is NonNullable<typeof n> => n != null) ?? []).map(todiagram('trust-boundary' as const)),
+  ]
+
   const renderOwner = (label: string, icon: React.ReactNode, name?: string | null, email?: string | null) => {
     if (!name && !email) return null
     return (
@@ -417,7 +429,9 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId }) =
                 <CardTitle className="text-sm font-medium text-muted-foreground">Business Purpose</CardTitle>
               </CardHeader>
               <CardContent className="pt-0">
-                <div className="text-sm prose prose-sm dark:prose-invert max-w-none">{renderHtml(platform.businessPurpose)}</div>
+                <CollapsibleHtml>
+                  <div className="text-sm prose prose-sm dark:prose-invert max-w-none">{renderHtml(platform.businessPurpose)}</div>
+                </CollapsibleHtml>
               </CardContent>
             </Card>
           )}
@@ -427,7 +441,9 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId }) =
                 <CardTitle className="text-sm font-medium text-muted-foreground">Data Flow Summary</CardTitle>
               </CardHeader>
               <CardContent className="pt-0">
-                <div className="text-sm prose prose-sm dark:prose-invert max-w-none">{renderHtml(platform.dataFlowSummary)}</div>
+                <CollapsibleHtml>
+                  <div className="text-sm prose prose-sm dark:prose-invert max-w-none">{renderHtml(platform.dataFlowSummary)}</div>
+                </CollapsibleHtml>
               </CardContent>
             </Card>
           )}
@@ -437,12 +453,16 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId }) =
                 <CardTitle className="text-sm font-medium text-muted-foreground">Trust Boundary</CardTitle>
               </CardHeader>
               <CardContent className="pt-0">
-                <div className="text-sm prose prose-sm dark:prose-invert max-w-none">{renderHtml(platform.trustBoundaryDescription)}</div>
+                <CollapsibleHtml>
+                  <div className="text-sm prose prose-sm dark:prose-invert max-w-none">{renderHtml(platform.trustBoundaryDescription)}</div>
+                </CollapsibleHtml>
               </CardContent>
             </Card>
           )}
         </div>
       )}
+
+      <PlatformDiagramsSection platformId={platformId} canEdit={canEditPlatform} diagrams={diagrams} />
 
       <Tabs defaultValue="assets">
         <TabsList>

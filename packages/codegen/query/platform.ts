@@ -232,6 +232,33 @@ export const PLATFORM = gql`
           }
         }
       }
+      architectureDiagrams {
+        edges {
+          node {
+            id
+            providedFileName
+            presignedURL
+          }
+        }
+      }
+      dataFlowDiagrams {
+        edges {
+          node {
+            id
+            providedFileName
+            presignedURL
+          }
+        }
+      }
+      trustBoundaryDiagrams {
+        edges {
+          node {
+            id
+            providedFileName
+            presignedURL
+          }
+        }
+      }
     }
   }
 `
@@ -247,8 +274,8 @@ export const CREATE_PLATFORM = gql`
 `
 
 export const UPDATE_PLATFORM = gql`
-  mutation UpdatePlatform($updatePlatformId: ID!, $input: UpdatePlatformInput!) {
-    updatePlatform(id: $updatePlatformId, input: $input) {
+  mutation UpdatePlatform($updatePlatformId: ID!, $input: UpdatePlatformInput!, $architectureDiagrams: [Upload!], $dataFlowDiagrams: [Upload!], $trustBoundaryDiagrams: [Upload!]) {
+    updatePlatform(id: $updatePlatformId, input: $input, architectureDiagrams: $architectureDiagrams, dataFlowDiagrams: $dataFlowDiagrams, trustBoundaryDiagrams: $trustBoundaryDiagrams) {
       platform {
         id
       }
