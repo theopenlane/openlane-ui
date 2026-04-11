@@ -15,7 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@repo/ui/cardpanel'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { Form } from '@repo/ui/form'
-import { Trash2, PencilIcon, NetworkIcon, Laptop, Building2, User, Users, Copy, Check } from 'lucide-react'
+import { Trash2, PencilIcon, NetworkIcon, Laptop, Building2, User, Users, Copy, Check, SquarePlus } from 'lucide-react'
 import Menu from '@/components/shared/menu/menu'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -45,6 +45,7 @@ import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-butto
 
 interface PlatformDetailPageProps {
   platformId: string
+  onCreatePlatform?: () => void
 }
 
 const STATUS_VARIANT: Record<PlatformPlatformStatus, 'green' | 'secondary'> = {
@@ -53,7 +54,7 @@ const STATUS_VARIANT: Record<PlatformPlatformStatus, 'green' | 'secondary'> = {
   [PlatformPlatformStatus.RETIRED]: 'secondary',
 }
 
-const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId }) => {
+const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId, onCreatePlatform }) => {
   const router = useRouter()
   const { setCrumbs } = React.use(BreadcrumbContext)
   const { successNotification, errorNotification } = useNotification()
@@ -295,6 +296,11 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId }) =
             </>
           }
         />
+      )}
+      {onCreatePlatform && (
+        <Button icon={<SquarePlus />} iconPosition="left" onClick={onCreatePlatform}>
+          Create Platform
+        </Button>
       )}
     </div>
   )
