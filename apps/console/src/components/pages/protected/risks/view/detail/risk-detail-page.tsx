@@ -33,6 +33,7 @@ import { Badge } from '@repo/ui/badge'
 import RiskLabel from '../../risk-label'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { type Value } from 'platejs'
+import TaskDetailsSheet from '../../../tasks/create-task/sidebar/task-details-sheet'
 
 interface RiskDetailPageProps {
   riskId: string
@@ -326,6 +327,7 @@ const RiskDetailPage: React.FC<RiskDetailPageProps> = ({ riskId }) => {
 
       <EvidenceDetailsSheet />
       <AssetDetailsSheet queryParamKey="assetId" />
+      <TaskDetailsSheet queryParamKey="taskId" />
     </>
   )
 }
