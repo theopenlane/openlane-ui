@@ -77,8 +77,6 @@ const CreateReviewSheet: React.FC<CreateReviewSheetProps> = ({ entityId, riskId,
       const mergedEntityIDs = [...new Set([...(entityIDs ?? []), entityId].filter((id): id is string => id !== undefined))]
       const mergedRiskIDs = [...new Set([...(riskIDs ?? []), riskId].filter((id): id is string => id !== undefined))]
 
-      console.log('Merged Entity IDs:', mergedEntityIDs) // Debug log
-      console.log('Merged Risk IDs:', mergedRiskIDs) // Debug log
 
       const associationPayload = buildAssociationPayload(
         REVIEW_ASSOCIATION_CONFIG.associationKeys,
