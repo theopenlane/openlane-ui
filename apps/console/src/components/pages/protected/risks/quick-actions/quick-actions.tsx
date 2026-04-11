@@ -60,7 +60,7 @@ const RiskQuickActions: React.FC<RiskQuickActionsProps> = (props) => {
         onClick: () => {
           setValue('status', RiskRiskStatus.CLOSED)
           setValue('riskDecision', RiskRiskDecision.MITIGATE)
-          props.handleUpdate({ status: RiskRiskStatus.CLOSED, riskDecision: RiskRiskDecision.MITIGATE })
+          props.handleUpdate({ status: RiskRiskStatus.MITIGATED, riskDecision: RiskRiskDecision.MITIGATE })
         },
       },
       {
