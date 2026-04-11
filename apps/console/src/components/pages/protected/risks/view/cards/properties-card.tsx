@@ -117,7 +117,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, risk, isCreate, 
     return (
       <div>
         <div className="flex flex-col gap-4">
-          '{renderRiskLabelField('status', 'Status')}
+          {renderRiskLabelField('status', 'Status')}
           {renderRiskLabelField('riskKindName', 'Type')}
           {renderRiskLabelField('riskCategoryName', 'Category')}
           {renderRiskLabelField('score', 'Score')}
