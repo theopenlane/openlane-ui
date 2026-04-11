@@ -124,6 +124,7 @@ export interface GenericTablePageConfig<TEntity extends { id: string }, TFormDat
   onBulkCreate?: (file: File) => Promise<void>
   onBulkEdit?: (ids: string[], data: TUpdateInput) => Promise<void>
   bulkEditFormSchema?: ZodObject<ZodRawShape>
+  bulkEditFieldLabels?: Record<string, string>
   enumOpts?: EnumOptionsGeneric
   responsibilityFields?: ResponsibilityFieldsMap
   beforeTable?: React.ReactNode
@@ -367,6 +368,7 @@ export function GenericTablePage<
         onBulkCreate={onBulkCreate}
         onBulkEdit={onBulkEdit as unknown as (ids: string[], data: TUpdateInput) => Promise<void>}
         bulkEditFormSchema={config.bulkEditFormSchema}
+        bulkEditFieldLabels={config.bulkEditFieldLabels}
         enumOpts={config.enumOpts}
         storageKey={tableKey}
         responsibilityFields={config.responsibilityFields}

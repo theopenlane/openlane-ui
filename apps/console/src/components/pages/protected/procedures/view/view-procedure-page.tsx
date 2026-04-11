@@ -121,6 +121,7 @@ const ViewProcedurePage: React.FC = () => {
       form.reset({
         name: procedure.name,
         details: procedure?.details ?? '',
+        detailsJSON: procedure?.detailsJSON ? (procedure.detailsJSON as Value) : undefined,
         tags: procedure.tags ?? [],
         approvalRequired: procedure?.approvalRequired ?? true,
         status: procedure.status ?? ProcedureDocumentStatus.DRAFT,
@@ -170,12 +171,15 @@ const ViewProcedurePage: React.FC = () => {
       return
     }
     try {
-      const { revision, approverID, delegateID, ...restData } = data
+      const { revision, approverID, delegateID, details, detailsJSON, ...restData } = data
       const input: UpdateProcedureInput = {
         ...restData,
-        detailsJSON: data.detailsJSON,
-        details: await plateEditorHelper.convertToHtml(data.detailsJSON as Value),
         tags: data?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
+      }
+
+      if (detailsJSON !== undefined) {
+        input.detailsJSON = detailsJSON
+        input.details = await plateEditorHelper.convertToHtml(detailsJSON as Value)
       }
 
       if (approverID) {

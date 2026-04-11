@@ -154,6 +154,7 @@ export const visibilityFields = {
   sourceIdentifier: false,
   sourceType: false,
   tags: false,
+  vendors: false,
   updatedAt: true,
   updatedBy: false,
   website: false,
