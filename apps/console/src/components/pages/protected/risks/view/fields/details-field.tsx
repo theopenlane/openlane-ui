@@ -1,19 +1,18 @@
 'use client'
 
-import { Controller, type UseFormReturn } from 'react-hook-form'
+import { Controller, useFormContext } from 'react-hook-form'
 import PlateEditor from '@/components/shared/plate/plate-editor'
 import React from 'react'
-import { type RiskDiscussionFieldsFragment, type RiskFieldsFragment } from '@repo/codegen/src/schema'
-import { Card } from '@repo/ui/cardpanel'
-import { type EditRisksFormData } from '@/components/pages/protected/risks/view/hooks/use-form-schema'
+import { type RiskDiscussionFieldsFragment } from '@repo/codegen/src/schema'
 import { type Value } from 'platejs'
 import { useSession } from 'next-auth/react'
 import { useGetCurrentUser } from '@/lib/graphql-hooks/user.ts'
+import { SystemTooltip } from '@repo/ui/system-tooltip'
+import { InfoIcon } from 'lucide-react'
 
 type TDetailsFieldProps = {
   isEditing: boolean
-  form: UseFormReturn<EditRisksFormData>
-  risk?: RiskFieldsFragment
+  initialValue?: string | Value
   isEditAllowed?: boolean
   clearData?: boolean
   onCleared?: () => void
@@ -21,50 +20,53 @@ type TDetailsFieldProps = {
   isCreate?: boolean
 }
 
-const DetailsField: React.FC<TDetailsFieldProps> = ({ isEditing, form, risk, isEditAllowed = true, clearData, onCleared, discussionData, isCreate }) => {
+const DetailsField: React.FC<TDetailsFieldProps> = ({ isEditing, initialValue, isEditAllowed = true, clearData, onCleared, discussionData, isCreate }) => {
+  const { control } = useFormContext()
   const { data: sessionData } = useSession()
   const userId = sessionData?.user.userId
   const { data: userData } = useGetCurrentUser(userId)
-  const { control } = form
+
+  const label = (
+    <label htmlFor="details" className="block text-lg my-1">
+      <div className="flex items-center">
+        <span className="mr-1 font-semibold">Details</span>
+        <SystemTooltip
+          icon={<InfoIcon size={14} className="text-muted-foreground" />}
+          content="Detailed information about the risk, including context, potential impact, and any relevant background. This helps in understanding the risk comprehensively and making informed decisions."
+        />
+      </div>
+    </label>
+  )
 
   return isEditAllowed && isEditing ? (
     <div className="w-full">
-      <label htmlFor="risk" className="block text-sm font-medium text-muted-foreground mb-1">
-        Details
-      </label>
+      {label}
       <Controller
         control={control}
-        name="detailsJSON"
+        name="details"
         render={({ field }) => (
           <PlateEditor
             userData={userData}
-            initialValue={risk?.detailsJSON ? (risk?.detailsJSON as Value) : (risk?.details ?? undefined)}
             clearData={clearData}
             entity={discussionData}
             onClear={() => onCleared?.()}
-            onChange={field.onChange}
+            initialValue={initialValue}
+            onChange={(val) => {
+              field.onChange(val)
+            }}
             isCreate={isCreate}
-            placeholder="Write your risk description"
+            placeholder="Write detailed information about the risk"
           />
         )}
       />
     </div>
   ) : (
-    <Card className="p-4">
-      <label htmlFor="risk" className="block text-lg font-medium text-muted-foreground mb-1">
-        Details
-      </label>
-      <div className="!mt-4 bg-none max-h-[55vh] overflow-auto">
-        <PlateEditor
-          key={JSON.stringify(risk?.detailsJSON ?? risk?.details)}
-          userData={userData}
-          initialValue={risk?.detailsJSON ? (risk?.detailsJSON as Value) : (risk?.details ?? undefined)}
-          entity={discussionData}
-          readonly={true}
-          variant="readonly"
-        />
+    <div className="w-full">
+      {label}
+      <div className={'min-h-5'}>
+        <PlateEditor placeholder="No details set" key={JSON.stringify(initialValue)} userData={userData} initialValue={initialValue} readonly={true} variant="readonly" toolbarClassName="hidden" />
       </div>
-    </Card>
+    </div>
   )
 }
 

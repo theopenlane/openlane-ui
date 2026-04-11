@@ -4,7 +4,7 @@ import React, { useCallback } from 'react'
 import { SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { ExternalLink, PanelRightClose } from 'lucide-react'
 import useFormSchema, { type EditRisksFormData } from './view/hooks/use-form-schema'
-import { type RiskFieldsFragment, type UpdateRiskInput, type CreateRiskInput, RiskRiskImpact, RiskRiskLikelihood, RiskRiskStatus } from '@repo/codegen/src/schema'
+import { type RiskFieldsFragment, type UpdateRiskInput, type CreateRiskInput, RiskRiskLikelihood, RiskRiskStatus } from '@repo/codegen/src/schema'
 import { useGetRiskById } from '@/lib/graphql-hooks/risk'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
@@ -36,7 +36,7 @@ const ViewRiskSheet: React.FC<Props> = ({ entityId, onClose }) => {
       riskKindName: d.riskKindName ?? undefined,
       riskCategoryName: d.riskCategoryName ?? undefined,
       score: d.score ?? 0,
-      impact: d.impact ?? RiskRiskImpact.LOW,
+      impact: d.impact ?? undefined,
       likelihood: d.likelihood ?? RiskRiskLikelihood.UNLIKELY,
       status: d.status ?? RiskRiskStatus.IDENTIFIED,
       details: d.details ?? '',
@@ -44,8 +44,11 @@ const ViewRiskSheet: React.FC<Props> = ({ entityId, onClose }) => {
       mitigation: d.mitigation ?? '',
       businessCosts: d.businessCosts ?? '',
       tags: d.tags || [],
-      stakeholderID: d.stakeholder?.id,
-      delegateID: d.delegate?.id,
+      residualScore: d.residualScore ?? 0,
+      reviewFrequency: d.reviewFrequency ?? '',
+      nextReviewDueAt: d.nextReviewDueAt ?? '',
+      riskDecision: d.riskDecision ?? '',
+      mitigatedAt: d.mitigatedAt ?? '',
     }),
     [],
   )
@@ -69,8 +72,6 @@ const ViewRiskSheet: React.FC<Props> = ({ entityId, onClose }) => {
         businessCosts,
         mitigation,
         tags: values.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
-        stakeholderID: values.stakeholderID || undefined,
-        delegateID: values.delegateID || undefined,
       }
     },
     [plateEditorHelper],
@@ -114,7 +115,7 @@ const ViewRiskSheet: React.FC<Props> = ({ entityId, onClose }) => {
             {!isEditing && !isCreate && isStatusForPastDue && <PastDueBadge severity={risk?.impact} createdAt={risk?.createdAt} />}
           </div>
           <PropertiesCard form={form} risk={risk} isEditing={isEditing} isEditAllowed={isEditAllowed} handleUpdate={(val) => handleUpdateField(val)} isCreate={isCreate} />
-          <DetailsField isEditing={isEditing} isEditAllowed={isEditAllowed} form={form} risk={risk} isCreate={isCreate} />
+          <DetailsField isEditing={isEditing} initialValue={risk?.details || ''} isEditAllowed={isEditAllowed} isCreate={isCreate} />
         </div>
       )
     },

@@ -11,7 +11,8 @@ import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useReviewsWithFilter, type ReviewsNodeNonNull } from '@/lib/graphql-hooks/review'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
 import { getColumns } from '@/components/pages/protected/reviews/table/columns'
-import { buildAssociationFilter, mergeWhere, SearchFilterBar } from '@/components/pages/protected/controls/tabs/shared/documentation-shared'
+import { buildAssociationFilter } from '@/components/pages/protected/controls/tabs/shared/documentation-shared'
+import { mergeWhere, SearchFilterBar } from '@/components/shared/crud-base/tabs/shared'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 
 type ReviewsTableProps = {

@@ -4,11 +4,12 @@ import React, { useMemo } from 'react'
 import PoliciesTable from './policies-table'
 import ProceduresTable from './procedures-table'
 import { useDocumentationPolicies, useDocumentationProcedures } from '@/lib/graphql-hooks/documentation'
-import { buildAssociationFilter, mergeWhere } from '@/components/pages/protected/controls/tabs/shared/documentation-shared'
+import { buildAssociationFilter } from '@/components/pages/protected/controls/tabs/shared/documentation-shared'
+import { mergeWhere } from '@/components/shared/crud-base/tabs/shared'
 import { InternalPolicyDocumentStatus, ProcedureDocumentStatus, type InternalPolicyWhereInput, type ProcedureWhereInput } from '@repo/codegen/src/schema'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { TableSkeleton } from '@/components/shared/skeleton/table-skeleton'
-import EmptyTabState from '@/components/pages/protected/controls/tabs/shared/empty-tab-state'
+import EmptyTabState from '@/components/shared/crud-base/tabs/empty-tab-state'
 
 type DocumentationTabProps = {
   controlId?: string

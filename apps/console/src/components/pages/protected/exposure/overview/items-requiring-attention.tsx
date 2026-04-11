@@ -10,7 +10,7 @@ import Skeleton from '@/components/shared/skeleton/skeleton'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@repo/ui/dialog'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import { useGetFindingAssociations } from '@/lib/graphql-hooks/finding'
-import { useGetRiskById } from '@/lib/graphql-hooks/risk'
+import { useGetRiskAssociations } from '@/lib/graphql-hooks/risk'
 import { useSlaDefinitionsWithFilter } from '@/lib/graphql-hooks/sla-definition'
 
 import ObjectAssociationSwitch from '@/components/shared/object-association/object-association-switch'
@@ -48,7 +48,7 @@ const TYPE_NODE_ENUM: Record<AttentionItem['type'], ObjectAssociationNodeEnum> =
 
 const AssociationGraphContent = ({ item }: { item: AttentionItem }) => {
   const { data: findingData } = useGetFindingAssociations(item.type === ObjectTypes.FINDING ? item.id : undefined)
-  const { data: riskData } = useGetRiskById(item.type === ObjectTypes.RISK ? item.id : null)
+  const { data: riskData } = useGetRiskAssociations(item.type === ObjectTypes.RISK ? item.id : undefined)
   const { data: vulnData } = useVulnerabilityTimeline(item.type === ObjectTypes.VULNERABILITY ? item.id : undefined)
 
   const sections: Section = useMemo(() => {

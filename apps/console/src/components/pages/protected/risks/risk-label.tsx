@@ -25,9 +25,24 @@ interface RiskLabelProps {
   onMouseUp?: (value: string | number) => void
   onClose?: () => void
   selectFieldClassname?: string | undefined
+  showIcon?: boolean
 }
 
-export const RiskLabel = ({ fieldName, score, impact, likelihood, riskCategoryName, riskKindName, status, isEditing, onChange, onMouseUp, onClose, selectFieldClassname }: RiskLabelProps) => {
+export const RiskLabel = ({
+  fieldName,
+  score,
+  impact,
+  likelihood,
+  riskCategoryName,
+  riskKindName,
+  status,
+  isEditing,
+  onChange,
+  onMouseUp,
+  onClose,
+  selectFieldClassname,
+  showIcon = true,
+}: RiskLabelProps) => {
   const triggerRef = useRef<HTMLDivElement>(null)
   const popoverRef = useRef<HTMLDivElement>(null)
 
@@ -69,12 +84,12 @@ export const RiskLabel = ({ fieldName, score, impact, likelihood, riskCategoryNa
       )
     }
 
-    if (impact) {
+    if (fieldName === 'impact') {
       return (
         <div ref={triggerRef}>
           <Select value={impact} onValueChange={(val) => onChange?.(val)}>
             <SelectTrigger className={cn('w-30', selectFieldClassname)}>
-              <SelectValue placeholder="Select impact" />
+              <SelectValue className="text-muted-foreground" placeholder="Select impact" />
             </SelectTrigger>
             <SelectContent ref={popoverRef}>
               <SelectItem value={RiskRiskImpact.LOW}>{getEnumLabel(RiskRiskImpact.LOW)}</SelectItem>
@@ -87,11 +102,11 @@ export const RiskLabel = ({ fieldName, score, impact, likelihood, riskCategoryNa
       )
     }
 
-    if (likelihood) {
+    if (fieldName === 'likelihood') {
       return (
         <Select value={likelihood} onValueChange={(val) => onChange?.(val)}>
           <SelectTrigger className={cn('w-35', selectFieldClassname)}>
-            <SelectValue placeholder="Select likelihood" />
+            <SelectValue className="text-muted-foreground" placeholder="Select likelihood" />
           </SelectTrigger>
           <SelectContent ref={popoverRef}>
             <SelectItem value={RiskRiskLikelihood.UNLIKELY}>{getEnumLabel(RiskRiskLikelihood.UNLIKELY)}</SelectItem>
@@ -102,11 +117,11 @@ export const RiskLabel = ({ fieldName, score, impact, likelihood, riskCategoryNa
       )
     }
 
-    if (status) {
+    if (fieldName === 'status') {
       return (
         <Select value={status} onValueChange={(v) => onChange?.(v)}>
           <SelectTrigger className={cn('w-35', selectFieldClassname)}>
-            <SelectValue placeholder="Select status" />
+            <SelectValue className="text-muted-foreground" placeholder="Select status" />
           </SelectTrigger>
 
           <SelectContent ref={popoverRef}>
@@ -129,7 +144,7 @@ export const RiskLabel = ({ fieldName, score, impact, likelihood, riskCategoryNa
           options={riskKindOptions ?? []}
           onValueChange={(val) => onChange?.(val)}
           onCreateOption={createRiskKind}
-          placeholder="Select risk type"
+          placeholder="Select type"
           searchPlaceholder="Search risk type..."
           triggerClassName={cn('w-40', selectFieldClassname)}
           contentRef={popoverRef}
@@ -161,28 +176,28 @@ export const RiskLabel = ({ fieldName, score, impact, likelihood, riskCategoryNa
     if (score < 5) {
       return (
         <div className="text-green-500 flex gap-2 items-center text-sm">
-          <SquareArrowDown size={16} strokeWidth={1.5} />
+          {showIcon && <SquareArrowDown size={16} strokeWidth={1.5} />}
           {score}
         </div>
       )
     } else if (score < 10) {
       return (
         <div className="text-yellow-500 flex gap-2 items-center text-sm">
-          <SquareArrowRight size={16} strokeWidth={1.5} />
+          {showIcon && <SquareArrowRight size={16} strokeWidth={1.5} />}
           {score}
         </div>
       )
     } else if (score < 15) {
       return (
         <div className="text-orange-500 flex gap-2 items-center text-sm">
-          <SquareArrowUpRight size={16} strokeWidth={1.5} />
+          {showIcon && <SquareArrowUpRight size={16} strokeWidth={1.5} />}
           {score}
         </div>
       )
     } else {
       return (
         <div className="text-red-500 flex gap-2 items-center text-sm">
-          <SquareArrowUp size={16} strokeWidth={1.5} />
+          {showIcon && <SquareArrowUp size={16} strokeWidth={1.5} />}
           {score}
         </div>
       )
@@ -194,28 +209,28 @@ export const RiskLabel = ({ fieldName, score, impact, likelihood, riskCategoryNa
       case RiskRiskImpact.LOW:
         return (
           <div className="text-green-500 flex gap-2 items-center text-sm">
-            <SquareArrowDown size={16} strokeWidth={1.5} />
+            {showIcon && <SquareArrowDown size={16} strokeWidth={1.5} />}
             Low
           </div>
         )
       case RiskRiskImpact.MODERATE:
         return (
           <div className="text-yellow-500 flex gap-2 items-center text-sm">
-            <SquareArrowRight size={16} strokeWidth={1.5} />
+            {showIcon && <SquareArrowRight size={16} strokeWidth={1.5} />}
             Medium
           </div>
         )
       case RiskRiskImpact.HIGH:
         return (
           <div className="text-orange-500 flex gap-2 items-center text-sm">
-            <SquareArrowUpRight size={16} strokeWidth={1.5} />
+            {showIcon && <SquareArrowUpRight size={16} strokeWidth={1.5} />}
             High
           </div>
         )
       case RiskRiskImpact.CRITICAL:
         return (
           <div className="text-red-500 flex gap-2 items-center text-sm">
-            <SquareArrowUp size={16} strokeWidth={1.5} />
+            {showIcon && <SquareArrowUp size={16} strokeWidth={1.5} />}
             Critical
           </div>
         )
@@ -227,21 +242,21 @@ export const RiskLabel = ({ fieldName, score, impact, likelihood, riskCategoryNa
       case RiskRiskLikelihood.UNLIKELY:
         return (
           <div className="text-green-500 flex gap-2 items-center text-sm">
-            <SquareArrowDown size={16} strokeWidth={1.5} />
+            {showIcon && <SquareArrowDown size={16} strokeWidth={1.5} />}
             Unlikely
           </div>
         )
       case RiskRiskLikelihood.LIKELY:
         return (
           <div className="text-yellow-500 flex gap-2 items-center text-sm">
-            <SquareArrowRight size={16} strokeWidth={1.5} />
+            {showIcon && <SquareArrowRight size={16} strokeWidth={1.5} />}
             Likely
           </div>
         )
       case RiskRiskLikelihood.HIGHLY_LIKELY:
         return (
           <div className="text-red-500 flex gap-2 items-center text-sm">
-            <SquareArrowUp size={16} strokeWidth={1.5} />
+            {showIcon && <SquareArrowUp size={16} strokeWidth={1.5} />}
             Highly likely
           </div>
         )
