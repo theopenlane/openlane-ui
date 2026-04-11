@@ -21,7 +21,6 @@ interface CreateReviewSheetProps {
 }
 
 const CreateReviewSheet: React.FC<CreateReviewSheetProps> = ({ entityId, riskId, onClose }) => {
-  console.log('CreateReviewSheet props:', { entityId, riskId }) // Debug log to check props
   const { form } = useFormSchema()
   const plateEditorHelper = usePlateEditor()
   const stagedFilesRef = useRef<File[]>([])
