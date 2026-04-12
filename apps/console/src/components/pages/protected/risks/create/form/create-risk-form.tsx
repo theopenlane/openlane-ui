@@ -36,7 +36,8 @@ const CreateRiskForm: React.FC = () => {
 
     const businessCostsField = rest.businessCosts ? await plateEditorHelper.convertToHtml(rest.businessCosts as Value) : undefined
 
-    const details = rest.details ? await plateEditorHelper.convertToHtml(rest.details as Value) : undefined
+    const detailsJSON = values.detailsJSON ? (values.detailsJSON as Value) : undefined
+    const details = values.detailsJSON ? await plateEditorHelper.convertToHtml(values.detailsJSON as Value) : undefined
 
     try {
       const createdRisk = await createRisk({
@@ -44,7 +45,7 @@ const CreateRiskForm: React.FC = () => {
           ...rest,
           mitigation: undefined,
           details: details,
-          detailsJSON: rest.details ? values.detailsJSON : undefined,
+          detailsJSON: detailsJSON,
           businessCosts: businessCostsField,
           tags: values?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
           reviewFrequency: (values.reviewFrequency as RiskFrequency) || RiskFrequency.YEARLY,

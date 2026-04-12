@@ -59,7 +59,7 @@ const RiskDetailHeader: React.FC<RiskDetailHeaderProps> = ({ risk, isEditing, ca
         autoFocus
         value={localValue}
         onChange={(e) => setLocalValue(e.target.value)}
-        className={'text-2xl font-semibold h-auto py-1 min-w-200'}
+        className={'text-2xl font-semibold h-auto py-1 min-w-180'}
         onBlur={() => handleBlur(field)}
         onKeyDown={(e) => {
           if (e.key === 'Enter') e.currentTarget.blur()
@@ -69,7 +69,11 @@ const RiskDetailHeader: React.FC<RiskDetailHeaderProps> = ({ risk, isEditing, ca
     )
   }
 
-  const sevColor = (sev: string) => `var(--color-severity-${sev.toLowerCase()})`
+  const sevColor = (sev: string) => {
+    if (sev.toLowerCase() === 'moderate') return 'var(--color-severity-medium)'
+
+    return `var(--color-severity-${sev.toLowerCase()})`
+  }
   return (
     <>
       <div className="flex justify-between items-start gap-4">
@@ -79,7 +83,7 @@ const RiskDetailHeader: React.FC<RiskDetailHeaderProps> = ({ risk, isEditing, ca
           </div>
           <div className="flex flex-col gap-1">
             {isEditing ? (
-              <Input {...register('name')} className="text-2xl font-semibold h-auto py-1 min-w-200" />
+              <Input {...register('name')} className="text-2xl font-semibold h-auto py-1 min-w-180" />
             ) : inlineEditing === 'name' ? (
               renderInlineField('name')
             ) : (

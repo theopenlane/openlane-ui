@@ -539,7 +539,6 @@
   --color-severity-critical: var(--color-danger);
   --color-severity-high: var(--color-warning);
   --color-severity-medium: var(--color-moderate);
-  --color-severity-moderate: var(--color-moderate);
   --color-severity-low: var(--color-info);
 
   /* Task */

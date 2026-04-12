@@ -10,8 +10,8 @@ import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
 import { AlertTriangle, Clock, ClipboardCheck, CalendarClock, SearchIcon, CircleHelp } from 'lucide-react'
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuRadioGroup, DropdownMenuRadioItem } from '@repo/ui/dropdown-menu'
-import { type GetRiskByIdQuery, RiskFrequency, type UpdateRiskInput } from '@repo/codegen/src/schema'
-import { enumToOptions, getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { type GetRiskByIdQuery, RiskFrequency, type RiskRiskLikelihood, type UpdateRiskInput } from '@repo/codegen/src/schema'
+import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import { useReviewsWithFilter } from '@/lib/graphql-hooks/review'
 import { TextField } from '@/components/shared/crud-base/form-fields/text-field'
 import ColumnVisibilityMenu, { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu'
@@ -22,6 +22,7 @@ import CreateReviewSheet from '@/components/pages/protected/reviews/common/creat
 import ReviewDetailSheet from '@/components/pages/protected/reviews/common/review-detail-sheet'
 import { SelectField } from '@/components/shared/crud-base/form-fields/select-field'
 import { RiskLikelihoodOptions } from '@/components/shared/enum-mapper/risk-enum'
+import { riskLikelihoodStyle } from '../../../../risk-label'
 
 const iconClass = 'h-4 w-4 text-muted-foreground'
 
@@ -124,7 +125,7 @@ const RiskReviewTab: React.FC<RiskReviewTabProps> = ({ risk, handleUpdateField, 
                 useCustomDisplay={false}
                 renderValue={(value) => (
                   <div className="flex items-center space-x-2 text-sm">
-                    <span>{getEnumLabel(value)}</span>
+                    <span>{riskLikelihoodStyle(value as RiskRiskLikelihood, true)}</span>
                   </div>
                 )}
                 {...sharedFieldProps}

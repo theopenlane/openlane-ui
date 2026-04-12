@@ -89,6 +89,7 @@ const RiskDetailPage: React.FC<RiskDetailPageProps> = ({ riskId }) => {
         impact: data.risk.impact ?? RiskRiskImpact.LOW,
         likelihood: data.risk.likelihood ?? RiskRiskLikelihood.UNLIKELY,
         status: data.risk.status ?? RiskRiskStatus.OPEN,
+        dueDate: data.risk.dueDate ?? '',
         details: data.risk.details ?? undefined,
         detailsJSON: data.risk.detailsJSON ?? undefined,
         mitigation: data.risk.mitigation ?? undefined,
@@ -119,7 +120,8 @@ const RiskDetailPage: React.FC<RiskDetailPageProps> = ({ riskId }) => {
         return acc
       }, {})
 
-      const details = changedFields.details ? await plateEditorHelper.convertToHtml(changedFields.details as Value) : undefined
+      const detailsJSON = values.detailsJSON ? (values.detailsJSON as Value) : undefined
+      const details = changedFields.detailsJSON ? await plateEditorHelper.convertToHtml(changedFields.detailsJSON as Value) : undefined
       const businessCosts = changedFields.businessCosts ? await plateEditorHelper.convertToHtml(changedFields.businessCosts as Value) : undefined
       const mitigation = changedFields.mitigation ? await plateEditorHelper.convertToHtml(changedFields.mitigation as Value) : undefined
 
@@ -128,7 +130,7 @@ const RiskDetailPage: React.FC<RiskDetailPageProps> = ({ riskId }) => {
         details,
         businessCosts,
         mitigation,
-        detailsJSON: values.details ? values.detailsJSON : undefined,
+        detailsJSON: detailsJSON,
       } as UpdateRiskInput
 
       if (Object.keys(input).length === 0) {

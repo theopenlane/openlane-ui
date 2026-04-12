@@ -4,7 +4,7 @@ import React, { useMemo, useRef, useState } from 'react'
 import { useFormContext, Controller } from 'react-hook-form'
 import { Card } from '@repo/ui/cardpanel'
 import MultipleSelector, { type Option } from '@repo/ui/multiple-selector'
-import { type UpdateRiskInput, type GetRiskByIdQuery, RiskRiskStatus, RiskFrequency, RiskRiskDecision } from '@repo/codegen/src/schema'
+import { type UpdateRiskInput, type GetRiskByIdQuery, RiskRiskStatus, RiskFrequency, RiskRiskDecision, type RiskRiskLikelihood } from '@repo/codegen/src/schema'
 import { ResponsibilityField } from '@/components/shared/crud-base/form-fields/responsibility-field'
 import { SelectField } from '@/components/shared/crud-base/form-fields/select-field'
 import { TextField } from '@/components/shared/crud-base/form-fields/text-field'
@@ -20,6 +20,7 @@ import { UserRound, UserRoundCheck, Binoculars, Maximize2, Radio, CalendarDays, 
 import { RiskIconMapper, RiskLikelihoodOptions } from '@/components/shared/enum-mapper/risk-enum'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { CheckboxField } from '@/components/shared/crud-base/form-fields/checkbox-field'
+import { riskDecisionStyle, riskLikelihoodStyle } from '../../risk-label'
 
 const iconClass = 'h-4 w-4 text-muted-foreground'
 
@@ -138,7 +139,7 @@ const RiskPropertiesSidebar: React.FC<RiskPropertiesSidebarProps> = ({ data, isE
             icon={<CircleHelp className={iconClass} />}
             renderValue={(value) => (
               <div className="flex items-center space-x-2 text-sm">
-                <span>{getEnumLabel(value)}</span>
+                <span>{riskLikelihoodStyle(value as RiskRiskLikelihood, true)}</span>
               </div>
             )}
           />
@@ -152,7 +153,7 @@ const RiskPropertiesSidebar: React.FC<RiskPropertiesSidebarProps> = ({ data, isE
               useCustomDisplay={false}
               renderValue={(value) => (
                 <div className="flex items-center space-x-2 text-sm">
-                  <span>{getEnumLabel(value)}</span>
+                  <span>{riskDecisionStyle(value as RiskRiskDecision, true)}</span>
                 </div>
               )}
               {...sharedFieldProps}
@@ -178,6 +179,10 @@ const RiskPropertiesSidebar: React.FC<RiskPropertiesSidebarProps> = ({ data, isE
             )}
             {...sharedFieldProps}
           />
+
+          {data?.status === RiskRiskStatus.OPEN || data?.status === RiskRiskStatus.IDENTIFIED || data?.status === RiskRiskStatus.IN_PROGRESS ? (
+            <TextField name="dueDate" label="Due Date" icon={<CalendarDays className={iconClass} />} type="date" {...sharedFieldProps} />
+          ) : null}
 
           {isEditing && (
             <>

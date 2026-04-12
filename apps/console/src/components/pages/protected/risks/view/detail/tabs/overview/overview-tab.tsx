@@ -15,7 +15,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ risk, isEditing, canEdit }) =
   const { data: discussionData } = useGetRiskDiscussionById(risk.id)
   return (
     <div className="space-y-6">
-      <DetailsField isEditing={isEditing} initialValue={risk.details || ''} isEditAllowed={canEdit} discussionData={discussionData?.risk} />
+      <DetailsField isEditing={isEditing} initialValue={risk.detailsJSON || risk.details || ''} isEditAllowed={canEdit} discussionData={discussionData?.risk} />
       <BusinessCostField isEditing={isEditing} initialValue={risk.businessCosts || ''} isEditAllowed={canEdit} />
     </div>
   )

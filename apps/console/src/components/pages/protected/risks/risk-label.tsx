@@ -1,9 +1,9 @@
-import { SquareArrowDown, SquareArrowRight, SquareArrowUpRight, SquareArrowUp } from 'lucide-react'
+import { SquareArrowDown, SquareArrowRight, SquareArrowUpRight, SquareArrowUp, ArrowRightLeft, Wrench, ShieldCheck, Ban } from 'lucide-react'
 
-import { RiskRiskImpact, RiskRiskLikelihood, RiskRiskStatus } from '@repo/codegen/src/schema'
+import { RiskRiskDecision, RiskRiskImpact, RiskRiskLikelihood, RiskRiskStatus } from '@repo/codegen/src/schema'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { RiskIconMapper } from '@/components/shared/enum-mapper/risk-enum'
-import { useRef } from 'react'
+import React, { useRef } from 'react'
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { type EditRisksFormData } from './view/hooks/use-form-schema'
@@ -171,96 +171,16 @@ export const RiskLabel = ({
   }
 
   // Non-editing display below
-
   if (typeof score === 'number') {
-    if (score < 5) {
-      return (
-        <div className="text-green-500 flex gap-2 items-center text-sm">
-          {showIcon && <SquareArrowDown size={16} strokeWidth={1.5} />}
-          {score}
-        </div>
-      )
-    } else if (score < 10) {
-      return (
-        <div className="text-yellow-500 flex gap-2 items-center text-sm">
-          {showIcon && <SquareArrowRight size={16} strokeWidth={1.5} />}
-          {score}
-        </div>
-      )
-    } else if (score < 15) {
-      return (
-        <div className="text-orange-500 flex gap-2 items-center text-sm">
-          {showIcon && <SquareArrowUpRight size={16} strokeWidth={1.5} />}
-          {score}
-        </div>
-      )
-    } else {
-      return (
-        <div className="text-red-500 flex gap-2 items-center text-sm">
-          {showIcon && <SquareArrowUp size={16} strokeWidth={1.5} />}
-          {score}
-        </div>
-      )
-    }
+    return riskScoreStyle(score, showIcon)
   }
 
   if (impact) {
-    switch (impact) {
-      case RiskRiskImpact.LOW:
-        return (
-          <div className="text-green-500 flex gap-2 items-center text-sm">
-            {showIcon && <SquareArrowDown size={16} strokeWidth={1.5} />}
-            Low
-          </div>
-        )
-      case RiskRiskImpact.MODERATE:
-        return (
-          <div className="text-yellow-500 flex gap-2 items-center text-sm">
-            {showIcon && <SquareArrowRight size={16} strokeWidth={1.5} />}
-            Medium
-          </div>
-        )
-      case RiskRiskImpact.HIGH:
-        return (
-          <div className="text-orange-500 flex gap-2 items-center text-sm">
-            {showIcon && <SquareArrowUpRight size={16} strokeWidth={1.5} />}
-            High
-          </div>
-        )
-      case RiskRiskImpact.CRITICAL:
-        return (
-          <div className="text-red-500 flex gap-2 items-center text-sm">
-            {showIcon && <SquareArrowUp size={16} strokeWidth={1.5} />}
-            Critical
-          </div>
-        )
-    }
+    return riskImpactStyle(impact, showIcon)
   }
 
   if (likelihood) {
-    switch (likelihood) {
-      case RiskRiskLikelihood.UNLIKELY:
-        return (
-          <div className="text-green-500 flex gap-2 items-center text-sm">
-            {showIcon && <SquareArrowDown size={16} strokeWidth={1.5} />}
-            Unlikely
-          </div>
-        )
-      case RiskRiskLikelihood.LIKELY:
-        return (
-          <div className="text-yellow-500 flex gap-2 items-center text-sm">
-            {showIcon && <SquareArrowRight size={16} strokeWidth={1.5} />}
-            Likely
-          </div>
-        )
-      case RiskRiskLikelihood.HIGHLY_LIKELY:
-        return (
-          <div className="text-red-500 flex gap-2 items-center text-sm">
-            {showIcon && <SquareArrowUp size={16} strokeWidth={1.5} />}
-            Highly likely
-          </div>
-        )
-    }
+    return riskLikelihoodStyle(likelihood, showIcon)
   }
 
   if (status) {
@@ -292,3 +212,137 @@ export const RiskLabel = ({
 }
 
 export default RiskLabel
+
+export function riskLikelihoodStyle(likelihood: RiskRiskLikelihood, showIcon: boolean): React.ReactNode {
+  switch (likelihood) {
+    case RiskRiskLikelihood.UNLIKELY:
+      return (
+        <div className="flex gap-2 items-center text-sm">
+          {showIcon && <SquareArrowDown size={16} strokeWidth={1.5} className="text-green-500" />}
+          Unlikely
+        </div>
+      )
+    case RiskRiskLikelihood.LIKELY:
+      return (
+        <div className="flex gap-2 items-center text-sm">
+          {showIcon && <SquareArrowRight size={16} strokeWidth={1.5} className="text-yellow-500" />}
+          Likely
+        </div>
+      )
+    case RiskRiskLikelihood.HIGHLY_LIKELY:
+      return (
+        <div className="flex gap-2 items-center text-sm">
+          {showIcon && <SquareArrowUp size={16} strokeWidth={1.5} className="text-red-500" />}
+          Highly likely
+        </div>
+      )
+    default:
+      return null
+  }
+}
+
+export function riskImpactStyle(impact: RiskRiskImpact, showIcon: boolean): React.ReactNode {
+  switch (impact) {
+    case RiskRiskImpact.LOW:
+      return (
+        <div className="flex gap-2 items-center text-sm">
+          {showIcon && <SquareArrowDown size={16} strokeWidth={1.5} className="text-green-500" />}
+          Low
+        </div>
+      )
+    case RiskRiskImpact.MODERATE:
+      return (
+        <div className="flex gap-2 items-center text-sm">
+          {showIcon && <SquareArrowRight size={16} strokeWidth={1.5} className="text-yellow-500" />}
+          Moderate
+        </div>
+      )
+    case RiskRiskImpact.HIGH:
+      return (
+        <div className="flex gap-2 items-center text-sm">
+          {showIcon && <SquareArrowUpRight size={16} strokeWidth={1.5} className="text-orange-500" />}
+          High
+        </div>
+      )
+    case RiskRiskImpact.CRITICAL:
+      return (
+        <div className="flex gap-2 items-center text-sm">
+          {showIcon && <SquareArrowUp size={16} strokeWidth={1.5} className="text-red-500" />}
+          Critical
+        </div>
+      )
+    default:
+      return null
+  }
+}
+
+export function riskScoreStyle(score: number, showIcon: boolean): React.ReactNode {
+  if (score < 5) {
+    return (
+      <div className="flex gap-2 items-center text-sm">
+        {showIcon && <SquareArrowDown size={16} strokeWidth={1.5} className="text-green-500" />}
+        {score}
+      </div>
+    )
+  }
+
+  if (score < 10) {
+    return (
+      <div className="flex gap-2 items-center text-sm">
+        {showIcon && <SquareArrowRight size={16} strokeWidth={1.5} className="text-yellow-500" />}
+        {score}
+      </div>
+    )
+  }
+
+  if (score < 15) {
+    return (
+      <div className="flex gap-2 items-center text-sm">
+        {showIcon && <SquareArrowUpRight size={16} strokeWidth={1.5} className="text-orange-500" />}
+        {score}
+      </div>
+    )
+  }
+
+  return (
+    <div className="flex gap-2 items-center text-sm">
+      {showIcon && <SquareArrowUp size={16} strokeWidth={1.5} className="text-red-500" />}
+      {score}
+    </div>
+  )
+}
+
+export function riskDecisionStyle(decision: RiskRiskDecision, showIcon: boolean): React.ReactNode {
+  switch (decision) {
+    case RiskRiskDecision.ACCEPT:
+      return (
+        <div className=" flex gap-2 items-center text-sm">
+          {showIcon && <ShieldCheck size={16} strokeWidth={1.5} className="text-green-500" />}
+          Accept
+        </div>
+      )
+    case RiskRiskDecision.AVOID:
+      return (
+        <div className=" flex gap-2 items-center text-sm">
+          {showIcon && <Ban size={16} strokeWidth={1.5} className="text-red-500" />}
+          Avoid
+        </div>
+      )
+    case RiskRiskDecision.MITIGATE:
+      return (
+        <div className="flex gap-2 items-center text-sm">
+          {showIcon && <Wrench size={16} strokeWidth={1.5} className="text-blue-500" />}
+          Mitigate
+        </div>
+      )
+    case RiskRiskDecision.TRANSFER:
+      return (
+        <div className="flex gap-2 items-center text-sm">
+          {showIcon && <ArrowRightLeft size={16} strokeWidth={1.5} className="text-purple-500" />}
+          Transfer
+        </div>
+      )
+    default:
+      return <div className="flex gap-2 items-center text-sm">-</div>
+  }
+}
