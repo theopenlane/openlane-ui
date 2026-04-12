@@ -43,7 +43,7 @@ const DetailsField: React.FC<TDetailsFieldProps> = ({ isEditing, initialValue, i
       {label}
       <Controller
         control={control}
-        name="details"
+        name="detailsJSON"
         render={({ field }) => (
           <PlateEditor
             userData={userData}

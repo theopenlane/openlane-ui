@@ -205,6 +205,7 @@ const RiskDetailPage: React.FC<RiskDetailPageProps> = ({ riskId }) => {
       remediations: associationsData.risk.remediations,
       entities: associationsData.risk.entities,
       programs: associationsData.risk.programs,
+      procedures: associationsData.risk.procedures,
       tasks: associationsData.risk.tasks,
     }
   }, [associationsData?.risk])

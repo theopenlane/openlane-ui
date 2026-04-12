@@ -44,6 +44,8 @@ const RiskPropertiesSidebar: React.FC<RiskPropertiesSidebarProps> = ({ data, isE
     return (tags ?? []).filter((item: string | undefined): item is string => typeof item === 'string').map((item: string) => ({ value: item, label: item }))
   }, [tags])
 
+  const reviewRequired = watch('reviewRequired')
+
   const triggerRef = useRef<HTMLDivElement>(null)
   const popoverRef = useRef<HTMLDivElement>(null)
 
@@ -186,7 +188,7 @@ const RiskPropertiesSidebar: React.FC<RiskPropertiesSidebarProps> = ({ data, isE
             </>
           )}
 
-          {data?.reviewRequired && (
+          {reviewRequired && (
             <>
               <SelectField name="reviewFrequency" label="Frequency" icon={<RefreshCw className={iconClass} />} options={reviewFrequencyOptions} {...sharedFieldProps} />
 
@@ -194,7 +196,7 @@ const RiskPropertiesSidebar: React.FC<RiskPropertiesSidebarProps> = ({ data, isE
             </>
           )}
 
-          {!isEditing && data?.reviewRequired && (
+          {!isEditing && reviewRequired && (
             <>
               <div className="flex items-center justify-between gap-4">
                 <div className="flex items-center gap-2 shrink-0">

@@ -115,7 +115,7 @@ const ViewRiskSheet: React.FC<Props> = ({ entityId, onClose }) => {
             {!isEditing && !isCreate && isStatusForPastDue && <PastDueBadge severity={risk?.impact} createdAt={risk?.createdAt} />}
           </div>
           <PropertiesCard form={form} risk={risk} isEditing={isEditing} isEditAllowed={isEditAllowed} handleUpdate={(val) => handleUpdateField(val)} isCreate={isCreate} />
-          <DetailsField isEditing={isEditing} initialValue={risk?.details || ''} isEditAllowed={isEditAllowed} isCreate={isCreate} />
+          <DetailsField isEditing={isEditing} initialValue={risk?.detailsJSON || risk?.details || ''} isEditAllowed={isEditAllowed} isCreate={isCreate} />
         </div>
       )
     },
