@@ -21,6 +21,7 @@ import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { type Value } from 'platejs'
 import { objectType } from '../table/types'
 import Skeleton from '@/components/shared/skeleton/skeleton'
+import PlatformDetailPage from '../detail/platform-detail-page'
 
 const STATUS_VARIANT: Record<PlatformPlatformStatus, 'green' | 'secondary'> = {
   [PlatformPlatformStatus.ACTIVE]: 'green',
@@ -84,7 +85,6 @@ const PlatformsDashboardPage: React.FC = () => {
   const buildPayload = async (data: EditPlatformFormData): Promise<CreatePlatformInput> => {
     const { businessOwner, technicalOwner, platformOwner, internalOwner, securityOwner, entityIDs, outOfScopeVendorIDs, assetIDs, outOfScopeAssetIDs, ...rest } = data
 
-    // Stash relationship IDs — will be applied via follow-up update after creation
     pendingLinksRef.current = {
       assetIDs: assetIDs?.length ? assetIDs : undefined,
       entityIDs: entityIDs?.length ? entityIDs : undefined,
@@ -132,6 +132,33 @@ const PlatformsDashboardPage: React.FC = () => {
   }
 
   const hasNoPlatforms = isSuccess && !platformsNodes.length
+  const hasSinglePlatform = isSuccess && platformsNodes.length === 1
+
+  if (hasSinglePlatform) {
+    const singlePlatform = platformsNodes[0]
+    if (!singlePlatform) return null
+    return (
+      <>
+        <PlatformDetailPage platformId={singlePlatform.id} onCreatePlatform={() => setShowCreate(true)} />
+
+        {showCreate && (
+          <StepDialog<EditPlatformFormData, CreatePlatformInput, unknown>
+            objectType={objectType}
+            form={form}
+            steps={createPlatformSteps()}
+            title="Create Platform"
+            dialogClassName="sm:max-w-2xl"
+            createMutation={createMutation as { mutateAsync: (input: CreatePlatformInput) => Promise<unknown>; isPending: boolean }}
+            buildPayload={buildPayload}
+            onClose={() => {
+              setShowCreate(false)
+              form.reset()
+            }}
+          />
+        )}
+      </>
+    )
+  }
 
   return (
     <div className="p-6 space-y-6">

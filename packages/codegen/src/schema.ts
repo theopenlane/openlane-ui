@@ -71665,6 +71665,18 @@ export type PlatformQuery = {
         } | null
       } | null> | null
     }
+    architectureDiagrams: {
+      __typename?: 'FileConnection'
+      edges?: Array<{ __typename?: 'FileEdge'; node?: { __typename?: 'File'; id: string; providedFileName: string; presignedURL?: string | null } | null } | null> | null
+    }
+    dataFlowDiagrams: {
+      __typename?: 'FileConnection'
+      edges?: Array<{ __typename?: 'FileEdge'; node?: { __typename?: 'File'; id: string; providedFileName: string; presignedURL?: string | null } | null } | null> | null
+    }
+    trustBoundaryDiagrams: {
+      __typename?: 'FileConnection'
+      edges?: Array<{ __typename?: 'FileEdge'; node?: { __typename?: 'File'; id: string; providedFileName: string; base64?: string | null } | null } | null> | null
+    }
   }
 }
 
@@ -71677,6 +71689,9 @@ export type CreatePlatformMutation = { __typename?: 'Mutation'; createPlatform: 
 export type UpdatePlatformMutationVariables = Exact<{
   updatePlatformId: Scalars['ID']['input']
   input: UpdatePlatformInput
+  architectureDiagrams?: InputMaybe<Array<Scalars['Upload']['input']> | Scalars['Upload']['input']>
+  dataFlowDiagrams?: InputMaybe<Array<Scalars['Upload']['input']> | Scalars['Upload']['input']>
+  trustBoundaryDiagrams?: InputMaybe<Array<Scalars['Upload']['input']> | Scalars['Upload']['input']>
 }>
 
 export type UpdatePlatformMutation = { __typename?: 'Mutation'; updatePlatform: { __typename?: 'PlatformUpdatePayload'; platform: { __typename?: 'Platform'; id: string } } }
