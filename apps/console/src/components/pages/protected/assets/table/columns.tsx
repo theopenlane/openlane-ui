@@ -41,7 +41,7 @@ export const getColumns = ({ userMap, convertToReadOnly, selectedItems, setSelec
       accessorKey: 'createdBy',
       header: 'Created By',
       size: 160,
-      cell: ({ row }) => <UserCell user={userMap[row.original.createdBy ?? '']} />,
+      cell: ({ row }) => <UserCell user={userMap[row.original.createdBy ?? '']} fallback={row.original.createdBy ?? undefined} />,
     },
     { accessorKey: 'criticalityName', header: 'Criticality', size: 120, cell: ({ cell }) => <CustomEnumChipCell value={cell.getValue() as string} objectType="asset" field="criticality" /> },
     {
@@ -113,8 +113,14 @@ export const getColumns = ({ userMap, convertToReadOnly, selectedItems, setSelec
       accessorKey: 'updatedBy',
       header: 'Updated By',
       size: 160,
-      cell: ({ row }) => <UserCell user={userMap[row.original.updatedBy ?? '']} />,
+      cell: ({ row }) => <UserCell user={userMap[row.original.updatedBy ?? '']} fallback={row.original.updatedBy ?? undefined} />,
     },
     { accessorKey: 'website', header: 'Website', size: 120 },
+    {
+      accessorKey: 'categories',
+      header: 'Categories',
+      size: 160,
+      cell: ({ row }) => <TagsCell tags={row.original.categories as string[] | null | undefined} wrap={false} />,
+    },
   ]
 }

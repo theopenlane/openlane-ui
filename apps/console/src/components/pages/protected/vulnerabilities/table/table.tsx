@@ -66,12 +66,14 @@ const TableComponent = ({
 
   const { convertToReadOnly } = usePlateEditor()
 
+  const isUlid = (value: string) => /^[0-9A-Z]{26}$/i.test(value)
+
   const userIds = useMemo(() => {
     if (!items) return []
     const ids = new Set<string>()
     items.forEach((item) => {
-      if (item.createdBy) ids.add(item.createdBy)
-      if (item.updatedBy) ids.add(item.updatedBy)
+      if (item.createdBy && isUlid(item.createdBy)) ids.add(item.createdBy)
+      if (item.updatedBy && isUlid(item.updatedBy)) ids.add(item.updatedBy)
     })
     return Array.from(ids)
   }, [items])
