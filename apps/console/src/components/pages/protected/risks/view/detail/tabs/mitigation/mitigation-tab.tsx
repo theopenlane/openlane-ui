@@ -19,7 +19,7 @@ const MitigationTab: React.FC<MitigationTabProps> = ({ isEditing, risk, editAllo
       {risk?.id && (
         <div className="space-y-3">
           <h3 className="text-lg font-semibold">Action Plans</h3>
-          <ActionPlansTable additionalWhereFilter={{ hasRisksWith: [{ id: risk.id }] }} createInitialPayload={{ riskIDs: [risk.id] }} />
+          <ActionPlansTable additionalWhereFilter={{ hasRisksWith: [{ id: risk.id }] }} createInitialPayload={{ riskIDs: [risk.id] }} hideCreate hideBreadcrumbs />
         </div>
       )}
     </div>

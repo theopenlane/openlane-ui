@@ -89,6 +89,7 @@ const RiskDetailPage: React.FC<RiskDetailPageProps> = ({ riskId }) => {
         impact: data.risk.impact ?? RiskRiskImpact.LOW,
         likelihood: data.risk.likelihood ?? RiskRiskLikelihood.UNLIKELY,
         status: data.risk.status ?? RiskRiskStatus.OPEN,
+        dueDate: data.risk.dueDate ?? '',
         details: data.risk.details ?? undefined,
         detailsJSON: data.risk.detailsJSON ?? undefined,
         mitigation: data.risk.mitigation ?? undefined,

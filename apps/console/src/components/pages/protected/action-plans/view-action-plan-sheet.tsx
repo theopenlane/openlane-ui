@@ -7,6 +7,8 @@ import { GenericDetailsSheet } from '@/components/shared/crud-base/generic-sheet
 import { getFieldsToRender } from './table/table-config'
 import { type ActionPlanSheetConfig, type ActionPlanFieldProps, objectType } from './table/types'
 import { type CreateActionPlanInput, type UpdateActionPlanInput } from '@repo/codegen/src/schema'
+import usePlateEditor from '@/components/shared/plate/usePlateEditor'
+import { type Value } from 'platejs'
 
 type Props = {
   entityId: string | null
@@ -16,6 +18,7 @@ type Props = {
 
 const ViewActionPlanSheet: React.FC<Props> = ({ entityId, onClose, createInitialPayload }) => {
   const { form } = useFormSchema()
+  const plateEditorHelper = usePlateEditor()
   const { data, isLoading } = useActionPlan(entityId || undefined)
 
   const baseUpdateMutation = useUpdateActionPlan()
@@ -56,10 +59,12 @@ const ViewActionPlanSheet: React.FC<Props> = ({ entityId, onClose, createInitial
     deleteMutation,
     onClose,
     buildPayload: async (formData) => {
+      const description = formData.descriptionJSON ? await plateEditorHelper.convertToHtml(formData.descriptionJSON as Value) : undefined
+      const payload = { ...formData, description, descriptionJSON: undefined }
       if (!entityId && createInitialPayload) {
-        return { ...createInitialPayload, ...formData }
+        return { ...createInitialPayload, ...payload }
       }
-      return { ...formData }
+      return { ...payload }
     },
     getName,
     renderFields: (props: ActionPlanFieldProps) => getFieldsToRender(props),

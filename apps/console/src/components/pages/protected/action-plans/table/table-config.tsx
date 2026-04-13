@@ -59,7 +59,7 @@ export const ACTION_PLANS_SORT_FIELDS = enumToSortFields(ActionPlanOrderField)
 export const visibilityFields = {
   id: false,
   name: true,
-  title: true,
+  title: false,
   summary: false,
   status: true,
   priority: true,
@@ -69,7 +69,7 @@ export const visibilityFields = {
   completedAt: false,
   createdAt: false,
   createdBy: false,
-  updatedAt: true,
+  updatedAt: false,
   updatedBy: false,
 }
 

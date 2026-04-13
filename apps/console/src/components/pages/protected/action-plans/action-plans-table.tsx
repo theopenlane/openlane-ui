@@ -18,14 +18,19 @@ import { getColumns } from './table/columns'
 import TableComponent from './table/table'
 import { type CreateActionPlanInput, type UpdateActionPlanInput, type ActionPlanWhereInput } from '@repo/codegen/src/schema'
 import { useSearchParams } from 'next/navigation'
+import usePlateEditor from '@/components/shared/plate/usePlateEditor'
+import { type Value } from 'platejs'
 
 type Props = {
   additionalWhereFilter?: Partial<ActionPlanWhereInput>
   createInitialPayload?: Partial<CreateActionPlanInput>
+  hideCreate?: boolean
+  hideBreadcrumbs?: boolean
 }
 
-const ActionPlansTable: React.FC<Props> = ({ additionalWhereFilter, createInitialPayload }) => {
+const ActionPlansTable: React.FC<Props> = ({ additionalWhereFilter, createInitialPayload, hideCreate, hideBreadcrumbs }) => {
   const { form } = useFormSchema()
+  const plateEditorHelper = usePlateEditor()
 
   const searchParams = useSearchParams()
   const id = searchParams.get('id')
@@ -66,10 +71,12 @@ const ActionPlansTable: React.FC<Props> = ({ additionalWhereFilter, createInitia
     data: id ? data?.actionPlan : undefined,
     isFetching: isLoading,
     buildPayload: async (formData) => {
+      const description = formData.descriptionJSON ? await plateEditorHelper.convertToHtml(formData.descriptionJSON as Value) : undefined
+      const payload = { ...formData, description, descriptionJSON: undefined }
       if (isCreate && createInitialPayload) {
-        return { ...createInitialPayload, ...formData }
+        return { ...createInitialPayload, ...payload }
       }
-      return { ...formData }
+      return { ...payload }
     },
     getName,
     updateMutation,
@@ -93,6 +100,8 @@ const ActionPlansTable: React.FC<Props> = ({ additionalWhereFilter, createInitia
     TableComponent,
     sheetConfig,
     additionalWhereFilter,
+    hideCreate,
+    hideBreadcrumbs,
     onBulkDelete: async (ids: string[]) => {
       await baseBulkDeleteMutation.mutateAsync({ ids })
     },

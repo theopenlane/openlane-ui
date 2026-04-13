@@ -180,6 +180,10 @@ const RiskPropertiesSidebar: React.FC<RiskPropertiesSidebarProps> = ({ data, isE
             {...sharedFieldProps}
           />
 
+          {data?.status === RiskRiskStatus.OPEN || data?.status === RiskRiskStatus.IDENTIFIED || data?.status === RiskRiskStatus.IN_PROGRESS ? (
+            <TextField name="dueDate" label="Due Date" icon={<CalendarDays className={iconClass} />} type="date" {...sharedFieldProps} />
+          ) : null}
+
           {isEditing && (
             <>
               <div className="flex items-center gap-2 shrink-0 mb-4 mt-2">

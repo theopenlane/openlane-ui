@@ -3,12 +3,13 @@ import { z } from 'zod'
 import { useForm, type Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ActionPlanDocumentStatus, ActionPlanPriority, ActionPlanFrequency } from '@repo/codegen/src/schema'
+import { type Value } from 'platejs'
 
 const formSchema = z.object({
   name: z.string().min(1, 'Name is required'),
-  title: z.string().optional(),
-  description: z.string().optional(),
-  summary: z.string().optional(),
+  title: z.string().min(1, 'Title is required'),
+  description: z.custom<Value | string>().optional(),
+  descriptionJSON: z.custom<Value>().optional(),
   source: z.string().optional(),
   status: z.nativeEnum(ActionPlanDocumentStatus).optional().nullable(),
   priority: z.nativeEnum(ActionPlanPriority).optional().nullable(),
