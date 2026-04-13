@@ -11,10 +11,25 @@ import {
   type DeletePlatformMutationVariables,
   type PlatformQuery,
   type PlatformQueryVariables,
+  type UpdatePlatformInput,
 } from '@repo/codegen/src/schema'
 
 import { type TPagination } from '@repo/ui/pagination-types'
 import { GET_ALL_PLATFORMS, CREATE_PLATFORM, UPDATE_PLATFORM, DELETE_PLATFORM, PLATFORM } from '@repo/codegen/query/platform'
+import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
+import type { DiagramType } from '@/components/pages/protected/platforms/detail/platform-diagrams-section'
+
+const DIAGRAM_TOP_LEVEL_KEY: Record<DiagramType, string> = {
+  architecture: 'architectureDiagrams',
+  'data-flow': 'dataFlowDiagrams',
+  'trust-boundary': 'trustBoundaryDiagrams',
+}
+
+const DIAGRAM_REMOVE_KEY: Record<DiagramType, keyof UpdatePlatformInput> = {
+  architecture: 'removeArchitectureDiagramIDs',
+  'data-flow': 'removeDataFlowDiagramIDs',
+  'trust-boundary': 'removeTrustBoundaryDiagramIDs',
+}
 
 type GetAllPlatformsArgs = {
   where?: PlatformsWithFilterQueryVariables['where']
@@ -87,5 +102,33 @@ export const usePlatform = (platformId?: PlatformQueryVariables['platformId']) =
       return result as PlatformQuery
     },
     enabled: !!platformId,
+  })
+}
+
+export const useUploadPlatformDiagram = (platformId: string) => {
+  const { queryClient } = useGraphQLClient()
+  return useMutation<UpdatePlatformMutation, unknown, { file: File; diagramType: DiagramType }>({
+    mutationFn: ({ file, diagramType }) =>
+      fetchGraphQLWithUpload({
+        query: UPDATE_PLATFORM,
+        variables: {
+          updatePlatformId: platformId,
+          input: {},
+          [DIAGRAM_TOP_LEVEL_KEY[diagramType]]: [file],
+        },
+      }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['platform', platformId] }),
+  })
+}
+
+export const useRemovePlatformDiagram = (platformId: string) => {
+  const { client, queryClient } = useGraphQLClient()
+  return useMutation<UpdatePlatformMutation, unknown, { fileId: string; diagramType: DiagramType }>({
+    mutationFn: ({ fileId, diagramType }) =>
+      client.request<UpdatePlatformMutation, UpdatePlatformMutationVariables>(UPDATE_PLATFORM, {
+        updatePlatformId: platformId,
+        input: { [DIAGRAM_REMOVE_KEY[diagramType]]: [fileId] },
+      }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['platform', platformId] }),
   })
 }
