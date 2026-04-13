@@ -12,7 +12,7 @@ import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useScansWithFilter, type ScansNodeNonNull } from '@/lib/graphql-hooks/scan'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
 import { getColumns } from '@/components/pages/protected/scans/table/columns'
-import { SearchFilterBar } from '@/components/pages/protected/controls/tabs/shared/documentation-shared'
+import { SearchFilterBar } from '@/components/shared/crud-base/tabs/shared'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 
 type ScansTableProps = {

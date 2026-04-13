@@ -26,7 +26,7 @@ export const CustomTypeEnumValue = ({ value, options, placeholder }: CustomTypeE
   const option = options.find((o) => o.value === value)
 
   if (!option) {
-    return <span>{placeholder}</span>
+    return <span className="text-muted-foreground">{placeholder}</span>
   }
 
   return <CustomTypeEnumOptionChip option={option} />

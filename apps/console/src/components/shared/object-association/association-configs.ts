@@ -294,8 +294,9 @@ const reviewInitialDataKeys = {
   taskIDs: 'tasks',
   assetIDs: 'assets',
   programIDs: 'programs',
+  riskIDs: 'risks',
 }
-const reviewAssociationKeys = ['controlIDs', 'subcontrolIDs', 'remediationIDs', 'entityIDs', 'taskIDs', 'assetIDs', 'programIDs']
+const reviewAssociationKeys = ['controlIDs', 'subcontrolIDs', 'remediationIDs', 'entityIDs', 'taskIDs', 'assetIDs', 'programIDs', 'riskIDs']
 
 export const REVIEW_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
   entityType: 'review',
@@ -317,6 +318,12 @@ export const REVIEW_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
     { key: 'tasks', nameExtractor: (n) => n.title ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ title: n.title }) },
     { key: 'assets', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayName ?? '' },
     { key: 'programs', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
+    {
+      key: 'risks',
+      nameExtractor: (n) => n.name ?? '',
+      displayIdExtractor: (n) => n.displayID ?? '',
+      extraFields: (n) => ({ description: n.description }),
+    },
   ],
   dialogConfig: {
     dataRootField: 'review',

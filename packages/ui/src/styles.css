@@ -374,6 +374,7 @@
   --color-success: #21c55d;
   --color-info: #6392ff;
   --color-warning: #ff842c;
+  --color-moderate: #ca8a04;
   --color-danger: #f45b50;
   --color-suggestion: #ff842c;
 
@@ -537,7 +538,7 @@
   /* Severity */
   --color-severity-critical: var(--color-danger);
   --color-severity-high: var(--color-warning);
-  --color-severity-medium: #ca8a04;
+  --color-severity-medium: var(--color-moderate);
   --color-severity-low: var(--color-info);
 
   /* Task */

@@ -3,7 +3,7 @@
 import { DataTable } from '@repo/ui/data-table'
 import React, { useEffect, useMemo } from 'react'
 import { type EntityWhereInput, type Entity, type EntityOrderField } from '@repo/codegen/src/schema'
-import { type EntitiesNodeNonNull, useEntitiesWithFilter } from '@/lib/graphql-hooks/entity'
+import { type EntitiesNodeNonNull, useVendorsWithFilter } from '@/lib/graphql-hooks/entity'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
@@ -31,11 +31,6 @@ const TableComponent = ({
 }: TTableProps<EntityWhereInput>) => {
   const { replace } = useSmartRouter()
 
-  const vendorWhereFilter: EntityWhereInput = {
-    ...whereFilter,
-    hasEntityTypeWith: [{ name: 'vendor' }],
-  }
-
   const orderBy = useMemo(() => {
     if (!orderByFilter) return undefined
     return orderByFilter.map(({ field, direction }) => ({
@@ -45,13 +40,13 @@ const TableComponent = ({
   }, [orderByFilter])
 
   const {
-    entitiesNodes: items,
+    vendorNodes: items,
     isLoading: fetching,
     data,
     isFetching,
     isError,
-  } = useEntitiesWithFilter({
-    where: vendorWhereFilter,
+  } = useVendorsWithFilter({
+    where: whereFilter,
     orderBy: orderBy,
     pagination,
     enabled: true,

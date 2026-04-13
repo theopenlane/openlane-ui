@@ -271,6 +271,16 @@ export const GET_REVIEW_ASSOCIATIONS = gql`
         }
         totalCount
       }
+      risks {
+        edges {
+          node {
+            id
+            name
+            displayID
+          }
+        }
+        totalCount
+      }
     }
   }
 `

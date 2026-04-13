@@ -12,7 +12,8 @@ import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useFindingsWithFilter, type FindingsNodeNonNull } from '@/lib/graphql-hooks/finding'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
 import { getColumns } from '@/components/pages/protected/findings/table/columns'
-import { buildAssociationFilter, mergeWhere, SearchFilterBar } from '@/components/pages/protected/controls/tabs/shared/documentation-shared'
+import { buildAssociationFilter } from '@/components/pages/protected/controls/tabs/shared/documentation-shared'
+import { mergeWhere, SearchFilterBar } from '@/components/shared/crud-base/tabs/shared'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 
 type FindingsTableProps = {

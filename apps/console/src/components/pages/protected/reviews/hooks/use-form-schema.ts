@@ -30,6 +30,7 @@ const formSchema = z.object({
   taskIDs: z.array(z.string()).optional(),
   assetIDs: z.array(z.string()).optional(),
   programIDs: z.array(z.string()).optional(),
+  riskIDs: z.array(z.string()).optional(),
 })
 
 export const bulkEditFieldSchema = z.object({

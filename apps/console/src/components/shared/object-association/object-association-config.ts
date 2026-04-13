@@ -18,6 +18,7 @@ import { GET_ALL_RISKS } from '@repo/codegen/query/risk'
 import { GET_ALL_SCANS } from '@repo/codegen/query/scan'
 import { GET_ALL_SUBCONTROLS } from '@repo/codegen/query/subcontrol'
 import { TASKS_WITH_FILTER } from '@repo/codegen/query/task'
+import { GET_ALL_ACTION_PLANS } from '@repo/codegen/query/action-plan'
 
 import {
   type Asset,
@@ -62,6 +63,7 @@ import {
   SubcontrolOrderField,
   TaskOrderField,
   VulnerabilityOrderField,
+  ActionPlanOrderField,
 } from '@repo/codegen/src/schema'
 import { type useQueryClient } from '@tanstack/react-query'
 import { type RequestDocument } from 'graphql-request'
@@ -89,6 +91,8 @@ import {
   type VulnerabilitiesWithFilterQuery,
 } from '@repo/codegen/src/schema'
 import type {
+  ActionPlansWithFilterQuery,
+  RiskEdge,
   UpdateAssetInput,
   UpdateControlInput,
   UpdateEntityInput,
@@ -104,6 +108,7 @@ import type {
 } from '@repo/codegen/src/schema'
 
 export type QueryResponse =
+  | ActionPlansWithFilterQuery
   | GetAllControlsQuery
   | GetAllControlImplementationsQuery
   | GetAllSubcontrolsQuery
@@ -126,6 +131,7 @@ export type QueryResponse =
   | VulnerabilitiesWithFilterQuery
 
 type QueryResponseMapKey =
+  | 'actionPlans'
   | 'controls'
   | 'controlImplementations'
   | 'subcontrols'
@@ -148,6 +154,9 @@ type QueryResponseMapKey =
   | 'vulnerabilities'
 
 export type AllObjectQueriesData = {
+  actionPlans?: {
+    edges?: Array<{ node: { id: string; title: string; displayID: string } }>
+  }
   controls?: {
     edges?: Array<{ node: Control }>
     pageInfo?: PageInfo
@@ -199,7 +208,7 @@ export type AllObjectQueriesData = {
     totalCount?: number
   }
   risks?: {
-    edges?: Array<{ node: TaskEdge }>
+    edges?: Array<{ node: RiskEdge }>
     pageInfo?: PageInfo
     totalCount?: number
   }
@@ -253,6 +262,7 @@ export type AllObjectQueriesData = {
 export type AllObjectQueriesDataKey = keyof AllObjectQueriesData
 
 export enum ObjectTypeObjects {
+  ACTION_PLAN = 'Action Plan',
   CONTROL = 'Control',
   CONTROL_IMPLEMENTATION = 'Control Implementation',
   SUB_CONTROL = 'Subcontrol',
@@ -284,6 +294,13 @@ type ObjectQueryConfig = {
 }
 
 export const OBJECT_QUERY_CONFIG: Record<ObjectTypeObjects, ObjectQueryConfig> = {
+  [ObjectTypeObjects.ACTION_PLAN]: {
+    responseObjectKey: 'actionPlans',
+    inputName: 'actionPlanIDs',
+    placeholder: 'Search action plans',
+    queryDocument: GET_ALL_ACTION_PLANS,
+    defaultOrderBy: [{ field: ActionPlanOrderField.title, direction: OrderDirection.ASC }],
+  },
   [ObjectTypeObjects.CONTROL]: {
     responseObjectKey: 'controls',
     inputName: 'controlIDs',
@@ -441,6 +458,10 @@ export function getPagination(objectKey: QueryResponseMapKey | undefined, data: 
   if (!objectKey || !data) return {}
 
   switch (objectKey) {
+    case 'actionPlans': {
+      const typed = data as ActionPlansWithFilterQuery
+      return { pageInfo: typed.actionPlans?.pageInfo, totalCount: typed.actionPlans?.totalCount }
+    }
     case 'controls': {
       const typed = data as GetAllControlsQuery
       return { pageInfo: typed.controls.pageInfo, totalCount: typed.controls.totalCount }
@@ -540,6 +561,15 @@ export function extractTableRows(objectKey: QueryResponseMapKey | undefined, dat
   const selectedInputName = inputName || ''
 
   switch (objectKey) {
+    case 'actionPlans': {
+      const items = (data as ActionPlansWithFilterQuery).actionPlans?.edges ?? []
+      return items.map((item) => ({
+        id: item?.node?.id || '',
+        name: item?.node?.title ?? '',
+        inputName: selectedInputName,
+      }))
+    }
+
     case 'controls': {
       const items = (data as GetAllControlsQuery).controls?.edges ?? []
       return items.map((item) => ({
@@ -751,6 +781,7 @@ export const generateWhere = (selectedObject: ObjectTypeObjects | null, searchVa
   if (!selectedObject) return {}
 
   const mandatoryFilterMap: Partial<Record<ObjectTypeObjects, Record<string, unknown>>> = {
+    [ObjectTypeObjects.ACTION_PLAN]: { ownerID: ownerID },
     [ObjectTypeObjects.CONTROL]: { systemOwned: false, isTrustCenterControl: false },
     [ObjectTypeObjects.CONTROL_IMPLEMENTATION]: {},
     [ObjectTypeObjects.SUB_CONTROL]: { systemOwned: false },
@@ -774,6 +805,7 @@ export const generateWhere = (selectedObject: ObjectTypeObjects | null, searchVa
   }
 
   const searchAttributeMap: Partial<Record<ObjectTypeObjects, string>> = {
+    [ObjectTypeObjects.ACTION_PLAN]: 'titleContainsFold',
     [ObjectTypeObjects.CONTROL]: 'refCodeContainsFold',
     [ObjectTypeObjects.CONTROL_IMPLEMENTATION]: 'detailsContainsFold',
     [ObjectTypeObjects.SUB_CONTROL]: 'refCodeContainsFold',
@@ -797,6 +829,7 @@ export const generateWhere = (selectedObject: ObjectTypeObjects | null, searchVa
   }
 
   const secondarySearchMap: Partial<Record<ObjectTypeObjects, string>> = {
+    [ObjectTypeObjects.ACTION_PLAN]: 'descriptionContainsFold',
     [ObjectTypeObjects.CONTROL]: 'descriptionContainsFold',
     [ObjectTypeObjects.CONTROL_IMPLEMENTATION]: 'statusContainsFold',
     [ObjectTypeObjects.SUB_CONTROL]: 'descriptionContainsFold',
@@ -871,6 +904,7 @@ export const ASSOCIATION_SECTION_CONFIG = {
   remediations: { dataField: 'remediations', inputName: 'remediationIDs' },
   reviews: { dataField: 'reviews', inputName: 'reviewIDs' },
   vulnerabilities: { dataField: 'vulnerabilities', inputName: 'vulnerabilityIDs' },
+  actionPlans: { dataField: 'actionPlans', inputName: 'actionPlanIDs' },
 } as const satisfies Record<string, TAssociationSectionDefinition>
 
 export type AssociationSectionKey = keyof typeof ASSOCIATION_SECTION_CONFIG
@@ -917,6 +951,7 @@ export const ASSOCIATION_SECTION_QUERY_KEY = {
   remediations: ['remediations'],
   reviews: ['reviews'],
   vulnerabilities: ['vulnerabilities'],
+  actionPlans: ['actionPlans'],
 } as const satisfies Record<AssociationSectionKey, readonly [string]>
 
 const createAssociationRemovalConfig =
@@ -960,7 +995,7 @@ const CONTROL_ASSOCIATION_SECTIONS = [
 const SUBCONTROL_ASSOCIATION_SECTIONS = ['policies', 'procedures', 'tasks', 'risks', 'assets', 'entities', 'identityHolders'] as const
 const POLICY_ASSOCIATION_SECTIONS = ['procedures', 'controls', 'subcontrols', 'controlObjectives', 'tasks', 'programs', 'risks', 'assets', 'entities', 'identityHolders'] as const
 const PROCEDURE_ASSOCIATION_SECTIONS = ['policies', 'controls', 'subcontrols', 'risks', 'tasks', 'programs'] as const
-const RISK_ASSOCIATION_SECTIONS = ['controls', 'procedures', 'subcontrols', 'programs', 'tasks', 'policies', 'assets', 'entities', 'scans'] as const
+const RISK_ASSOCIATION_SECTIONS = ['controls', 'procedures', 'subcontrols', 'programs', 'tasks', 'policies', 'assets', 'entities', 'scans', 'remediations', 'reviews', 'actionPlans'] as const
 const ASSET_ASSOCIATION_SECTIONS = ['scans', 'entities', 'identityHolders', 'controls', 'subcontrols', 'policies'] as const
 const ENTITY_ASSOCIATION_SECTIONS = ['assets', 'scans', 'campaigns', 'identityHolders', 'controls', 'subcontrols', 'policies'] as const
 const IDENTITY_HOLDER_ASSOCIATION_SECTIONS = ['assets', 'controls', 'subcontrols', 'entities', 'campaigns', 'policies', 'tasks'] as const
@@ -982,4 +1017,7 @@ export const ASSOCIATION_REMOVAL_CONFIG = {
   review: createAssociationRemovalConfig<UpdateReviewInput>()(REVIEW_ASSOCIATION_SECTIONS),
   remediation: createAssociationRemovalConfig<UpdateRemediationInput>()(REMEDIATION_ASSOCIATION_SECTIONS),
   vulnerability: createAssociationRemovalConfig<UpdateVulnerabilityInput>()(VULNERABILITY_ASSOCIATION_SECTIONS),
+  assets: createAssociationRemovalConfig<UpdateAssetInput>()(ASSET_ASSOCIATION_SECTIONS),
+  reviews: createAssociationRemovalConfig<UpdateReviewInput>()(REVIEW_ASSOCIATION_SECTIONS),
+  remediations: createAssociationRemovalConfig<UpdateRemediationInput>()(REMEDIATION_ASSOCIATION_SECTIONS),
 } as const
