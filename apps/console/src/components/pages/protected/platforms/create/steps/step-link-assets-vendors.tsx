@@ -9,7 +9,7 @@ import { Badge } from '@repo/ui/badge'
 import { Check, Laptop, Building2, X } from 'lucide-react'
 import { cn } from '@repo/ui/lib/utils'
 import { useAssetsWithFilter } from '@/lib/graphql-hooks/asset'
-import { useEntitiesWithFilter } from '@/lib/graphql-hooks/entity'
+import { useVendorsWithFilter } from '@/lib/graphql-hooks/entity'
 import { type EditPlatformFormData } from '../../hooks/use-form-schema'
 
 type ItemInfo = { id: string; name: string }
@@ -128,8 +128,7 @@ const MultiSelectField: React.FC<MultiSelectProps> = ({ fieldName, label, placeh
 
 const StepLinkAssetsVendors: React.FC = () => {
   const { assetsNodes, isLoading: assetsLoading } = useAssetsWithFilter({ enabled: true })
-  const { entitiesNodes: vendorNodes, isLoading: vendorsLoading } = useEntitiesWithFilter({
-    where: { hasEntityTypeWith: [{ name: 'vendor' }] },
+  const { vendorNodes, isLoading: vendorsLoading } = useVendorsWithFilter({
     enabled: true,
   })
 
