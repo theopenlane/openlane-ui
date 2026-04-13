@@ -61,7 +61,16 @@ const SetObjectAssociationPoliciesDialog = ({ policyId, fromTable = false, onClo
 
   const successMessage = useMemo(() => ({ title: 'Policy Updated', description: 'Policy has been successfully updated' }), [])
 
-  const { open, setOpen, hasChanges, handleDialogChange: baseHandleDialogChange, handleIdChange, handleSave, associationsState, refCodeAssociationsState } = useAssociationDialog({
+  const {
+    open,
+    setOpen,
+    hasChanges,
+    handleDialogChange: baseHandleDialogChange,
+    handleIdChange,
+    handleSave,
+    associationsState,
+    refCodeAssociationsState,
+  } = useAssociationDialog({
     associationsState: usePolicy((state) => state.associations),
     initialAssociationsState: usePolicy((state) => state.initialAssociations),
     refCodeAssociationsState: usePolicy((state) => state.associationRefCodes),

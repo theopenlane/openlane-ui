@@ -223,10 +223,6 @@ export const QuestionnairesTable = () => {
     exportToCSV(assessments, exportableColumns, 'questionnaires_list')
   }
 
-  const handleRowClick = (row: Assessment) => {
-    router.push(`/automation/assessments/${row.id}`)
-  }
-
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
@@ -278,7 +274,7 @@ export const QuestionnairesTable = () => {
           pagination={pagination}
           onPaginationChange={setPagination}
           paginationMeta={paginationMeta}
-          onRowClick={handleRowClick}
+          rowHref={(row) => `/automation/assessments/${row.id}`}
           columnVisibility={columnVisibility}
           setColumnVisibility={setColumnVisibility}
           defaultSorting={defaultSorting}

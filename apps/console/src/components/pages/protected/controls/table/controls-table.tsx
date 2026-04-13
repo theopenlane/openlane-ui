@@ -4,17 +4,8 @@ import React, { use, useEffect, useMemo, useState } from 'react'
 import { useGetAllControls } from '@/lib/graphql-hooks/control'
 import { DataTable, getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
 import { type ColumnDef } from '@tanstack/table-core'
-import {
-  ControlControlStatus,
-  type ControlListFieldsFragment,
-  ControlOrderField,
-  type ControlWhereInput,
-  ExportExportFormat,
-  ExportExportType,
-  type GetAllControlsQueryVariables,
-  OrderDirection,
-} from '@repo/codegen/src/schema'
-import { useRouter } from 'next/navigation'
+import { ControlControlStatus, ControlOrderField, type ControlWhereInput, ExportExportFormat, ExportExportType, type GetAllControlsQueryVariables, OrderDirection } from '@repo/codegen/src/schema'
+
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
@@ -44,7 +35,6 @@ type TControlsTableProps = {
 }
 
 const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => {
-  const { push } = useRouter()
   const { convertToReadOnly } = usePlateEditor()
   const [filters, setFilters] = useState<ControlWhereInput>({})
   const { setCrumbs } = use(BreadcrumbContext)
@@ -218,10 +208,6 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
     return 'accessorKey' in col && typeof col.accessorKey === 'string' && typeof col.header === 'string' && columnVisibility[col.accessorKey] !== false
   }
 
-  const handleRowClick = (row: ControlListFieldsFragment) => {
-    push(`/controls/${row.id}`)
-  }
-
   const handleExportFile = async () => {
     if (!controls || controls.length === 0) {
       return
@@ -269,7 +255,7 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
         columns={columns}
         data={controls}
         defaultSorting={defaultSorting}
-        onRowClick={handleRowClick}
+        rowHref={(row) => `/controls/${row.id}`}
         pagination={pagination}
         onPaginationChange={(pagination: TPagination) => setPagination(pagination)}
         paginationMeta={paginationMeta}

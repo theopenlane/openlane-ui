@@ -26,6 +26,7 @@ const TableComponent = ({
   canEdit,
   permission,
   defaultSorting,
+  rowHref,
 }: TTableProps<ContactWhereInput>) => {
   const { replace } = useSmartRouter()
 
@@ -114,6 +115,7 @@ const TableComponent = ({
       onRowClick={(item) => {
         replace({ id: item.id })
       }}
+      rowHref={rowHref}
       pagination={pagination}
       onPaginationChange={onPaginationChange}
       paginationMeta={{

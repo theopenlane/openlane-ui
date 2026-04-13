@@ -27,6 +27,7 @@ const TableComponent = ({
   permission,
   defaultSorting,
   onRowClick,
+  rowHref,
 }: TTableProps<PlatformWhereInput>) => {
   const { replace } = useSmartRouter()
 
@@ -122,6 +123,7 @@ const TableComponent = ({
           replace({ id: item.id })
         }
       }}
+      rowHref={rowHref}
       pagination={pagination}
       onPaginationChange={onPaginationChange}
       paginationMeta={{

@@ -28,6 +28,7 @@ const TableComponent = ({
   permission,
   defaultSorting,
   onRowClick,
+  rowHref,
 }: TTableProps<WorkflowDefinitionWhereInput>) => {
   const router = useRouter()
   const { successNotification, errorNotification } = useNotification()
@@ -114,6 +115,7 @@ const TableComponent = ({
         loading={fetching}
         defaultSorting={defaultSorting}
         onRowClick={onRowClick}
+        rowHref={rowHref}
         pagination={pagination}
         onPaginationChange={onPaginationChange}
         paginationMeta={{
