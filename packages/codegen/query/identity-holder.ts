@@ -211,6 +211,27 @@ export const CREATE_IDENTITY_HOLDER_WITH_FILES = gql`
   }
 `
 
+export const GET_IDENTITY_HOLDER_DIRECTORY_ACCOUNTS = gql`
+  query GetIdentityHolderDirectoryAccounts($identityHolderId: ID!) {
+    identityHolder(id: $identityHolderId) {
+      directoryAccounts {
+        edges {
+          node {
+            id
+            accountType
+            status
+            primarySource
+            mfaState
+            integration {
+              name
+            }
+          }
+        }
+      }
+    }
+  }
+`
+
 export const GET_IDENTITY_HOLDER_ASSOCIATIONS = gql`
   query GetIdentityHolderAssociations($identityHolderId: ID!) {
     identityHolder(id: $identityHolderId) {

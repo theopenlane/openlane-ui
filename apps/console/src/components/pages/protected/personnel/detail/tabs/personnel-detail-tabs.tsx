@@ -8,13 +8,14 @@ import OverviewTab from './overview/overview-tab'
 import DocumentsTab from './documents/documents-tab'
 import AssessmentsTab from './assessments/assessments-tab'
 import HistoryTab from './history/history-tab'
+import LinkedAccountsTab from './linked-accounts/linked-accounts-tab'
 import type { IdentityHolderQuery, UpdateIdentityHolderInput } from '@repo/codegen/src/schema'
 
-type PersonnelTabValue = 'overview' | 'documents' | 'assessments' | 'history'
+type PersonnelTabValue = 'overview' | 'documents' | 'linked-accounts' | 'assessments' | 'history'
 
 const DEFAULT_TAB: PersonnelTabValue = 'overview'
 const TAB_QUERY_PARAM = 'tab'
-const ALL_TABS: PersonnelTabValue[] = ['overview', 'documents', 'assessments', 'history']
+const ALL_TABS: PersonnelTabValue[] = ['overview', 'documents', 'linked-accounts', 'assessments', 'history']
 
 interface PersonnelDetailTabsProps {
   personnel: IdentityHolderQuery['identityHolder']
@@ -71,6 +72,7 @@ const PersonnelDetailTabs: React.FC<PersonnelDetailTabsProps> = ({ personnel, is
               Overview
             </TabsTrigger>
             <TabsTrigger value="documents">Documents</TabsTrigger>
+            <TabsTrigger value="linked-accounts">Linked Accounts</TabsTrigger>
             <TabsTrigger value="assessments">Assessments</TabsTrigger>
             <TabsTrigger value="history">History</TabsTrigger>
           </TabsList>
@@ -83,6 +85,10 @@ const PersonnelDetailTabs: React.FC<PersonnelDetailTabsProps> = ({ personnel, is
 
       <TabsContent value="documents" className="space-y-6">
         <DocumentsTab personnelId={personnel.id} canEdit={canEditPersonnel} />
+      </TabsContent>
+
+      <TabsContent value="linked-accounts" className="space-y-6">
+        <LinkedAccountsTab personnelId={personnel.id} />
       </TabsContent>
 
       <TabsContent value="assessments" className="space-y-6">

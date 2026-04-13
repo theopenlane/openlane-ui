@@ -69824,6 +69824,32 @@ export type CreateIdentityHolderWithFilesMutation = {
   createIdentityHolder: { __typename?: 'IdentityHolderCreatePayload'; identityHolder: { __typename?: 'IdentityHolder'; id: string } }
 }
 
+export type GetIdentityHolderDirectoryAccountsQueryVariables = Exact<{
+  identityHolderId: Scalars['ID']['input']
+}>
+
+export type GetIdentityHolderDirectoryAccountsQuery = {
+  __typename?: 'Query'
+  identityHolder: {
+    __typename?: 'IdentityHolder'
+    directoryAccounts: {
+      __typename?: 'DirectoryAccountConnection'
+      edges?: Array<{
+        __typename?: 'DirectoryAccountEdge'
+        node?: {
+          __typename?: 'DirectoryAccount'
+          id: string
+          accountType?: DirectoryAccountDirectoryAccountType | null
+          status: DirectoryAccountDirectoryAccountStatus
+          primarySource: boolean
+          mfaState: DirectoryAccountDirectoryAccountMfaState
+          integration?: { __typename?: 'Integration'; name: string } | null
+        } | null
+      } | null> | null
+    }
+  }
+}
+
 export type GetIdentityHolderAssociationsQueryVariables = Exact<{
   identityHolderId: Scalars['ID']['input']
 }>
