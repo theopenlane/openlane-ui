@@ -18,6 +18,7 @@ import {
   type DeleteBulkIdentityHolderMutation,
   type DeleteBulkIdentityHolderMutationVariables,
   type GetIdentityHolderAssociationsQuery,
+  type GetIdentityHolderDirectoryAccountsQuery,
   type GetIdentityHolderFilesPaginatedQuery,
   type UpdateIdentityHolderWithFilesMutationVariables,
   type CreateIdentityHolderWithFilesMutationVariables,
@@ -37,6 +38,7 @@ import {
   BULK_EDIT_IDENTITY_HOLDER,
   BULK_DELETE_IDENTITY_HOLDER,
   GET_IDENTITY_HOLDER_ASSOCIATIONS,
+  GET_IDENTITY_HOLDER_DIRECTORY_ACCOUNTS,
   GET_IDENTITY_HOLDER_FILES_PAGINATED,
   UPDATE_IDENTITY_HOLDER_WITH_FILES,
   CREATE_IDENTITY_HOLDER_WITH_FILES,
@@ -200,6 +202,20 @@ export const useUploadIdentityHolderFiles = () => {
       queryClient.invalidateQueries({ queryKey: ['identityHolders'] })
     },
   })
+}
+
+export const useGetIdentityHolderDirectoryAccounts = (identityHolderId?: string) => {
+  const { client } = useGraphQLClient()
+  const queryResult = useQuery<GetIdentityHolderDirectoryAccountsQuery, unknown>({
+    queryKey: ['identityHolders', identityHolderId, 'directoryAccounts'],
+    queryFn: async () => client.request<GetIdentityHolderDirectoryAccountsQuery>(GET_IDENTITY_HOLDER_DIRECTORY_ACCOUNTS, { identityHolderId: identityHolderId as string }),
+    enabled: !!identityHolderId,
+  })
+
+  const edges = queryResult.data?.identityHolder?.directoryAccounts?.edges ?? []
+  const directoryAccounts = edges.filter((edge): edge is NonNullable<typeof edge> & { node: NonNullable<NonNullable<typeof edge>['node']> } => edge?.node != null).map((edge) => edge.node)
+
+  return { ...queryResult, directoryAccounts }
 }
 
 export const useCreateIdentityHolderWithFiles = () => {

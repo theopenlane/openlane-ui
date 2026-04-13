@@ -8694,6 +8694,8 @@ export interface CreateIdentityHolderInput {
   editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the email address of the identity holder */
   email: Scalars['String']['input']
+  /** alternate email address for the identity holder in an array */
+  emailAliases?: InputMaybe<Array<Scalars['String']['input']>>
   employerID?: InputMaybe<Scalars['ID']['input']>
   /** the end date for the identity holder, if applicable */
   endDate?: InputMaybe<Scalars['DateTime']['input']>
@@ -9831,6 +9833,8 @@ export interface CreateReviewInput {
   source?: InputMaybe<Scalars['String']['input']>
   /** state of the review */
   state?: InputMaybe<Scalars['String']['input']>
+  /** status of the review */
+  status?: InputMaybe<ReviewReviewStatus>
   subcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** summary text for the review */
   summary?: InputMaybe<Scalars['String']['input']>
@@ -9865,6 +9869,8 @@ export interface CreateRiskInput {
   /** structured details of the risk in JSON format */
   detailsJSON?: InputMaybe<Array<Scalars['Any']['input']>>
   discussionIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** the time when the risk is due to be resolved by, based on the sla config but can be manually updated */
+  dueDate?: InputMaybe<Scalars['DateTime']['input']>
   editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   entityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   environmentID?: InputMaybe<Scalars['ID']['input']>
@@ -22861,6 +22867,8 @@ export interface IdentityHolder extends Node {
   editors: GroupConnection
   /** the email address of the identity holder */
   email: Scalars['String']['output']
+  /** alternate email address for the identity holder in an array */
+  emailAliases?: Maybe<Array<Scalars['String']['output']>>
   employer?: Maybe<Entity>
   /** the external entity this identity holder is affiliated with */
   employerEntityID?: Maybe<Scalars['ID']['output']>
@@ -23317,6 +23325,8 @@ export interface IdentityHolderWhereInput {
   displayIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   /** email field predicates */
   email?: InputMaybe<Scalars['String']['input']>
+  /** Filter for emailAliasesHas to contain a specific value */
+  emailAliasesHas?: InputMaybe<Scalars['String']['input']>
   emailContains?: InputMaybe<Scalars['String']['input']>
   emailContainsFold?: InputMaybe<Scalars['String']['input']>
   emailEqualFold?: InputMaybe<Scalars['String']['input']>
@@ -42344,6 +42354,8 @@ export interface Review extends Node {
   source?: Maybe<Scalars['String']['output']>
   /** state of the review */
   state?: Maybe<Scalars['String']['output']>
+  /** status of the review */
+  status?: Maybe<ReviewReviewStatus>
   subcontrols: SubcontrolConnection
   /** summary text for the review */
   summary?: Maybe<Scalars['String']['output']>
@@ -42597,6 +42609,15 @@ export enum ReviewOrderField {
   state = 'state',
   title = 'title',
   updated_at = 'updated_at',
+}
+
+/** ReviewReviewStatus is enum for the field status */
+export enum ReviewReviewStatus {
+  COMPLETED = 'COMPLETED',
+  IN_PROGRESS = 'IN_PROGRESS',
+  IN_REVIEW = 'IN_REVIEW',
+  OPEN = 'OPEN',
+  WONT_DO = 'WONT_DO',
 }
 
 /** Return response for updateReview mutation */
@@ -43012,6 +43033,13 @@ export interface ReviewWhereInput {
   stateNEQ?: InputMaybe<Scalars['String']['input']>
   stateNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   stateNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** status field predicates */
+  status?: InputMaybe<ReviewReviewStatus>
+  statusIn?: InputMaybe<Array<ReviewReviewStatus>>
+  statusIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  statusNEQ?: InputMaybe<ReviewReviewStatus>
+  statusNotIn?: InputMaybe<Array<ReviewReviewStatus>>
+  statusNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** summary field predicates */
   summary?: InputMaybe<Scalars['String']['input']>
   summaryContains?: InputMaybe<Scalars['String']['input']>
@@ -43118,6 +43146,8 @@ export interface Risk extends Node {
   discussions: DiscussionConnection
   /** a shortened prefixed id field to use as a human readable identifier */
   displayID: Scalars['String']['output']
+  /** the time when the risk is due to be resolved by, based on the sla config but can be manually updated */
+  dueDate?: Maybe<Scalars['DateTime']['output']>
   editors: GroupConnection
   entities: EntityConnection
   environment?: Maybe<CustomTypeEnum>
@@ -43442,6 +43472,7 @@ export enum RiskOrderField {
   STATUS = 'STATUS',
   business_costs = 'business_costs',
   created_at = 'created_at',
+  due_date = 'due_date',
   external_id = 'external_id',
   last_reviewed_at = 'last_reviewed_at',
   mitigated_at = 'mitigated_at',
@@ -43595,6 +43626,17 @@ export interface RiskWhereInput {
   displayIDLTE?: InputMaybe<Scalars['String']['input']>
   displayIDNEQ?: InputMaybe<Scalars['String']['input']>
   displayIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** due_date field predicates */
+  dueDate?: InputMaybe<Scalars['DateTime']['input']>
+  dueDateGT?: InputMaybe<Scalars['DateTime']['input']>
+  dueDateGTE?: InputMaybe<Scalars['DateTime']['input']>
+  dueDateIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  dueDateIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  dueDateLT?: InputMaybe<Scalars['DateTime']['input']>
+  dueDateLTE?: InputMaybe<Scalars['DateTime']['input']>
+  dueDateNEQ?: InputMaybe<Scalars['DateTime']['input']>
+  dueDateNotIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  dueDateNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** environment_id field predicates */
   environmentID?: InputMaybe<Scalars['ID']['input']>
   environmentIDContains?: InputMaybe<Scalars['ID']['input']>
@@ -55721,6 +55763,7 @@ export interface UpdateIdentityHolderInput {
   addWorkflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** alternate email address for the identity holder */
   alternateEmail?: InputMaybe<Scalars['String']['input']>
+  appendEmailAliases?: InputMaybe<Array<Scalars['String']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   clearAccessPlatforms?: InputMaybe<Scalars['Boolean']['input']>
   clearAlternateEmail?: InputMaybe<Scalars['Boolean']['input']>
@@ -55733,6 +55776,7 @@ export interface UpdateIdentityHolderInput {
   clearDepartment?: InputMaybe<Scalars['Boolean']['input']>
   clearDirectoryAccounts?: InputMaybe<Scalars['Boolean']['input']>
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
+  clearEmailAliases?: InputMaybe<Scalars['Boolean']['input']>
   clearEmployer?: InputMaybe<Scalars['Boolean']['input']>
   clearEndDate?: InputMaybe<Scalars['Boolean']['input']>
   clearEntities?: InputMaybe<Scalars['Boolean']['input']>
@@ -55768,6 +55812,8 @@ export interface UpdateIdentityHolderInput {
   department?: InputMaybe<Scalars['String']['input']>
   /** the email address of the identity holder */
   email?: InputMaybe<Scalars['String']['input']>
+  /** alternate email address for the identity holder in an array */
+  emailAliases?: InputMaybe<Array<Scalars['String']['input']>>
   employerID?: InputMaybe<Scalars['ID']['input']>
   /** the end date for the identity holder, if applicable */
   endDate?: InputMaybe<Scalars['DateTime']['input']>
@@ -57583,6 +57629,7 @@ export interface UpdateReviewInput {
   clearScopeName?: InputMaybe<Scalars['Boolean']['input']>
   clearSource?: InputMaybe<Scalars['Boolean']['input']>
   clearState?: InputMaybe<Scalars['Boolean']['input']>
+  clearStatus?: InputMaybe<Scalars['Boolean']['input']>
   clearSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
   clearSummary?: InputMaybe<Scalars['Boolean']['input']>
   clearSystemInternalID?: InputMaybe<Scalars['Boolean']['input']>
@@ -57639,6 +57686,8 @@ export interface UpdateReviewInput {
   source?: InputMaybe<Scalars['String']['input']>
   /** state of the review */
   state?: InputMaybe<Scalars['String']['input']>
+  /** status of the review */
+  status?: InputMaybe<ReviewReviewStatus>
   /** summary text for the review */
   summary?: InputMaybe<Scalars['String']['input']>
   /** an internal identifier for the mapping, this field is only available to system admins */
@@ -57693,6 +57742,7 @@ export interface UpdateRiskInput {
   clearDetails?: InputMaybe<Scalars['Boolean']['input']>
   clearDetailsJSON?: InputMaybe<Scalars['Boolean']['input']>
   clearDiscussions?: InputMaybe<Scalars['Boolean']['input']>
+  clearDueDate?: InputMaybe<Scalars['Boolean']['input']>
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearEntities?: InputMaybe<Scalars['Boolean']['input']>
   clearEnvironment?: InputMaybe<Scalars['Boolean']['input']>
@@ -57739,6 +57789,8 @@ export interface UpdateRiskInput {
   details?: InputMaybe<Scalars['String']['input']>
   /** structured details of the risk in JSON format */
   detailsJSON?: InputMaybe<Array<Scalars['Any']['input']>>
+  /** the time when the risk is due to be resolved by, based on the sla config but can be manually updated */
+  dueDate?: InputMaybe<Scalars['DateTime']['input']>
   environmentID?: InputMaybe<Scalars['ID']['input']>
   /** the environment of the risk */
   environmentName?: InputMaybe<Scalars['String']['input']>
@@ -69758,6 +69810,32 @@ export type CreateIdentityHolderWithFilesMutationVariables = Exact<{
 export type CreateIdentityHolderWithFilesMutation = {
   __typename?: 'Mutation'
   createIdentityHolder: { __typename?: 'IdentityHolderCreatePayload'; identityHolder: { __typename?: 'IdentityHolder'; id: string } }
+}
+
+export type GetIdentityHolderDirectoryAccountsQueryVariables = Exact<{
+  identityHolderId: Scalars['ID']['input']
+}>
+
+export type GetIdentityHolderDirectoryAccountsQuery = {
+  __typename?: 'Query'
+  identityHolder: {
+    __typename?: 'IdentityHolder'
+    directoryAccounts: {
+      __typename?: 'DirectoryAccountConnection'
+      edges?: Array<{
+        __typename?: 'DirectoryAccountEdge'
+        node?: {
+          __typename?: 'DirectoryAccount'
+          id: string
+          accountType?: DirectoryAccountDirectoryAccountType | null
+          status: DirectoryAccountDirectoryAccountStatus
+          primarySource: boolean
+          mfaState: DirectoryAccountDirectoryAccountMfaState
+          integration?: { __typename?: 'Integration'; name: string } | null
+        } | null
+      } | null> | null
+    }
+  }
 }
 
 export type GetIdentityHolderAssociationsQueryVariables = Exact<{
