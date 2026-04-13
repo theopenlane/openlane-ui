@@ -255,7 +255,7 @@ export const PLATFORM = gql`
           node {
             id
             providedFileName
-            presignedURL
+            base64
           }
         }
       }
