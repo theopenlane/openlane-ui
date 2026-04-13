@@ -72867,7 +72867,6 @@ export type RiskFieldsFragment = {
   name: string
   details?: string | null
   detailsJSON?: Array<any> | null
-  dueDate?: string | null
   tags?: Array<string> | null
   riskCategoryName?: string | null
   riskKindName?: string | null
@@ -72910,7 +72909,6 @@ export type RiskTableFieldsFragment = {
   id: string
   displayID: string
   name: string
-  dueDate?: string | null
   riskCategoryName?: string | null
   riskKindName?: string | null
   score?: number | null
@@ -72957,7 +72955,6 @@ export type GetRiskByIdQuery = {
     name: string
     details?: string | null
     detailsJSON?: Array<any> | null
-    dueDate?: string | null
     tags?: Array<string> | null
     riskCategoryName?: string | null
     riskKindName?: string | null
@@ -73018,7 +73015,6 @@ export type GetAllRisksQuery = {
         id: string
         displayID: string
         name: string
-        dueDate?: string | null
         riskCategoryName?: string | null
         riskKindName?: string | null
         score?: number | null

@@ -29,7 +29,6 @@ const formSchema = z.object({
   mitigatedAt: z.string().optional(),
   environmentName: z.string().optional(),
   scopeName: z.string().optional(),
-  dueDate: z.string().optional(),
 })
 
 export type EditRisksFormData = z.infer<typeof formSchema>
