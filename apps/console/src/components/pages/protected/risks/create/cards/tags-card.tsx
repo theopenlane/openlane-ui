@@ -23,8 +23,9 @@ const TagsCard: React.FC<TTagsCardProps> = ({ form }) => {
   const canCreateTags = canEdit(permission?.roles)
 
   useEffect(() => {
-    if (form.getValues('tags')) {
-      const tags = form.getValues('tags').map((item) => {
+    const tagsValue = form.getValues('tags')
+    if (tagsValue) {
+      const tags = tagsValue.map((item) => {
         return {
           value: item,
           label: item,

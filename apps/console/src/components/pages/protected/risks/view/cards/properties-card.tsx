@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { type RiskFieldsFragment, type RiskRiskImpact, type RiskRiskLikelihood, type RiskRiskStatus, type UpdateRiskInput } from '@repo/codegen/src/schema'
+import { type RiskFieldsFragment, type RiskRiskLikelihood, type RiskRiskStatus, type UpdateRiskInput } from '@repo/codegen/src/schema'
 import { Binoculars, Circle, CircleAlert, CircleHelp, Folder, Gauge, Tag } from 'lucide-react'
 import { Controller, type UseFormReturn } from 'react-hook-form'
 import { type EditRisksFormData } from '@/components/pages/protected/risks/view/hooks/use-form-schema'
@@ -51,12 +51,12 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, risk, isCreate, 
     }
   })
 
-  const renderRiskLabelField = <T extends 'score' | 'impact' | 'likelihood' | 'status' | 'riskKindName' | 'riskCategoryName'>(fieldName: T, label: string) => {
+  const renderRiskLabelField = <T extends 'score' | 'likelihood' | 'status' | 'riskKindName' | 'riskCategoryName'>(fieldName: T, label: string, isLast?: boolean) => {
     const isFieldEditing = isEditing || editingField === fieldName
     const showPencil = editingField !== fieldName && !isEditing
 
     return (
-      <FieldRow label={label} onDoubleClick={() => toggleEditing(fieldName)} isEditAllowed={isEditAllowed} showPencil={showPencil}>
+      <FieldRow label={label} onDoubleClick={() => toggleEditing(fieldName)} isEditAllowed={isEditAllowed} showPencil={showPencil} isLast={isLast}>
         <Controller
           name={fieldName as keyof EditRisksFormData}
           control={control}
@@ -68,7 +68,6 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, risk, isCreate, 
                   fieldName={fieldName}
                   isEditing={isFieldEditing}
                   score={fieldName === 'score' ? (field.value as number) : undefined}
-                  impact={fieldName === 'impact' ? (field.value as RiskRiskImpact) : undefined}
                   likelihood={fieldName === 'likelihood' ? (field.value as RiskRiskLikelihood) : undefined}
                   status={fieldName === 'status' ? (field.value as RiskRiskStatus) : undefined}
                   riskKindName={fieldName === 'riskKindName' ? (field.value as string) : undefined}
@@ -118,26 +117,30 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, risk, isCreate, 
     return (
       <div>
         <div className="flex flex-col gap-4">
+          {renderRiskLabelField('status', 'Status')}
           {renderRiskLabelField('riskKindName', 'Type')}
           {renderRiskLabelField('riskCategoryName', 'Category')}
           {renderRiskLabelField('score', 'Score')}
-          {renderRiskLabelField('impact', 'Impact')}
           {renderRiskLabelField('likelihood', 'Likelihood')}
-          {renderRiskLabelField('status', 'Status')}
         </div>
       </div>
     )
   }
 
   return (
-    <Card className="flex flex-col gap-1 p-4">
-      <div className="m-1">{renderRiskLabelField('riskKindName', 'Type')}</div>
-      <div className="m-1">{renderRiskLabelField('riskCategoryName', 'Category')}</div>
-      <div className="m-1">{renderRiskLabelField('score', 'Score')}</div>
-      <div className="m-1">{renderRiskLabelField('impact', 'Impact')}</div>
-      <div className="m-1">{renderRiskLabelField('likelihood', 'Likelihood')}</div>
-      <div className="m-1">{renderRiskLabelField('status', 'Status')}</div>
-    </Card>
+    <>
+      <Card className="flex flex-col gap-1 p-4">
+        <h3 className="text-lg font-medium mb-2">Details</h3>
+        <div className="m-1">{renderRiskLabelField('status', 'Status')}</div>
+        <div className="m-1">{renderRiskLabelField('riskKindName', 'Type')}</div>
+        <div className="m-1">{renderRiskLabelField('riskCategoryName', 'Category', true)}</div>
+      </Card>
+      <Card className="flex flex-col gap-1 p-4">
+        <h3 className="text-lg font-medium mb-2">Impact</h3>
+        <div className="m-1">{renderRiskLabelField('score', 'Score')}</div>
+        <div className="m-1">{renderRiskLabelField('likelihood', 'Likelihood', true)}</div>
+      </Card>
+    </>
   )
 }
 
@@ -149,12 +152,14 @@ const FieldRow = ({
   onDoubleClick,
   isEditAllowed,
   showPencil,
+  isLast = false,
 }: {
   label: string
   children?: React.ReactNode
   onDoubleClick?: () => void
   isEditAllowed?: boolean
   showPencil: boolean
+  isLast?: boolean
 }) => {
   const getFieldIcon = (label: string) => {
     switch (label.toLowerCase()) {
@@ -162,6 +167,8 @@ const FieldRow = ({
       case 'category':
         return <Folder size={16} className="text-brand" />
       case 'score':
+        return <Gauge size={16} className="text-brand" />
+      case 'residual score':
         return <Gauge size={16} className="text-brand" />
       case 'impact':
         return <CircleAlert size={16} className="text-brand" />
@@ -177,7 +184,7 @@ const FieldRow = ({
   }
 
   return (
-    <div className="flex items-center gap-4 border-b border-border pb-3">
+    <div className={`flex items-center gap-4 ${!isLast ? 'border-b border-border pb-3' : ''} ${label.toLowerCase() === 'score' || label.toLowerCase() === 'residual score' ? 'mt-2 pb-6' : ''}`}>
       <div className="flex gap-2 w-32 shrink-0 items-center">
         {getFieldIcon(label)}
         <span className="text-sm">{label}</span>

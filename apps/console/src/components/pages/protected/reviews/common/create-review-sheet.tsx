@@ -2,32 +2,32 @@
 
 import React, { useRef } from 'react'
 import useFormSchema, { type ReviewFormData } from '@/components/pages/protected/reviews/hooks/use-form-schema'
-import { type ReviewsNodeNonNull, useReview, useUpdateReview, useCreateReview, useBulkDeleteReview } from '@/lib/graphql-hooks/review'
+import { type ReviewsNodeNonNull, useUpdateReview, useCreateReview } from '@/lib/graphql-hooks/review'
 import { GenericDetailsSheet } from '@/components/shared/crud-base/generic-sheet'
 import { getFieldsToRender } from '@/components/pages/protected/reviews/table/table-config'
 import { type ReviewSheetConfig, type ReviewFieldProps, objectType } from '@/components/pages/protected/reviews/table/types'
 import { type CreateReviewInput, type UpdateReviewInput } from '@repo/codegen/src/schema'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
+import { buildAssociationPayload } from '@/components/shared/object-association/utils'
+import { REVIEW_ASSOCIATION_CONFIG } from '@/components/shared/object-association/association-configs'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { buildPayload } from '@/components/pages/protected/reviews/create/utils'
 
-interface ReviewDetailSheetProps {
-  reviewId: string
+interface CreateReviewSheetProps {
+  entityId?: string
+  riskId?: string
   onClose: () => void
 }
 
-const ReviewDetailSheet: React.FC<ReviewDetailSheetProps> = ({ reviewId, onClose }) => {
+const CreateReviewSheet: React.FC<CreateReviewSheetProps> = ({ entityId, riskId, onClose }) => {
   const { form } = useFormSchema()
   const plateEditorHelper = usePlateEditor()
   const stagedFilesRef = useRef<File[]>([])
   const existingFileIdsRef = useRef<string[]>([])
 
-  const { data, isFetching } = useReview(reviewId)
-
   const baseUpdateMutation = useUpdateReview()
   const baseCreateMutation = useCreateReview()
-  const baseDeleteMutation = useBulkDeleteReview()
 
   const updateMutation = {
     isPending: baseUpdateMutation.isPending,
@@ -46,14 +46,6 @@ const ReviewDetailSheet: React.FC<ReviewDetailSheetProps> = ({ reviewId, onClose
     },
   }
 
-  const deleteMutation = {
-    isPending: baseDeleteMutation.isPending,
-    mutateAsync: async (params: { ids: string[] }) => {
-      const result = await baseDeleteMutation.mutateAsync({ ids: params.ids })
-      return result.deleteBulkReview.deletedIDs
-    },
-  }
-
   const { enumOptions: environmentOptions } = useGetCustomTypeEnums({ where: { field: 'environment' } })
   const { enumOptions: scopeOptions } = useGetCustomTypeEnums({ where: { field: 'scope' } })
   const tagOptions = useGetTags()
@@ -62,28 +54,39 @@ const ReviewDetailSheet: React.FC<ReviewDetailSheetProps> = ({ reviewId, onClose
 
   const getName = (d: ReviewsNodeNonNull) => d?.title
 
+  const handleClose = () => {
+    form.reset()
+
+    onClose()
+  }
+
   const sheetConfig: ReviewSheetConfig = {
     objectType,
     form,
-    entityId: reviewId,
-    isCreateMode: false,
-    data: data?.review as ReviewsNodeNonNull | undefined,
-    isFetching,
+    entityId,
+    isCreateMode: true,
+    data: undefined,
+    isFetching: false,
     updateMutation,
     createMutation,
-    deleteMutation,
     buildPayload: async (formData) => {
-      const {
-        controlIDs: _controlIDs,
-        subcontrolIDs: _subcontrolIDs,
-        remediationIDs: _remediationIDs,
-        entityIDs: _entityIDs,
-        taskIDs: _taskIDs,
-        assetIDs: _assetIDs,
-        programIDs: _programIDs,
-        ...rest
-      } = formData
-      return await buildPayload(rest as ReviewFormData, plateEditorHelper)
+      const { controlIDs, subcontrolIDs, remediationIDs, entityIDs, riskIDs, taskIDs, assetIDs, programIDs, ...rest } = formData
+      const payload = await buildPayload(rest as ReviewFormData, plateEditorHelper)
+
+      const mergedEntityIDs = [...new Set([...(entityIDs ?? []), entityId].filter((id): id is string => id !== undefined))]
+      const mergedRiskIDs = [...new Set([...(riskIDs ?? []), riskId].filter((id): id is string => id !== undefined))]
+
+
+      const associationPayload = buildAssociationPayload(
+        REVIEW_ASSOCIATION_CONFIG.associationKeys,
+        { controlIDs, subcontrolIDs, remediationIDs, entityIDs: mergedEntityIDs, riskIDs: mergedRiskIDs, taskIDs, assetIDs, programIDs },
+        true,
+        {},
+      )
+      return {
+        ...payload,
+        ...associationPayload,
+      }
     },
     getName,
     renderFields: (props: ReviewFieldProps) =>
@@ -99,7 +102,7 @@ const ReviewDetailSheet: React.FC<ReviewDetailSheetProps> = ({ reviewId, onClose
       ),
   }
 
-  return <GenericDetailsSheet onClose={onClose} {...sheetConfig} />
+  return <GenericDetailsSheet onClose={handleClose} {...sheetConfig} />
 }
 
-export default ReviewDetailSheet
+export default CreateReviewSheet

@@ -17,6 +17,8 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@repo/ui/button'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { Switch } from '@repo/ui/switch'
+import { RiskFrequency, type RiskRiskDecision } from '@repo/codegen/src/schema'
+import { buildResponsibilityPayload } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 
 const CreateRiskForm: React.FC = () => {
   const { mutateAsync: createRisk, isPending } = useCreateRisk()
@@ -30,24 +32,27 @@ const CreateRiskForm: React.FC = () => {
   const [clearData, setClearData] = useState<boolean>(false)
 
   const onSubmitHandler = async (values: CreateRisksFormData) => {
-    let businessCostsField = values?.businessCosts
+    const { stakeholder, delegate, ...rest } = values
 
-    if (businessCostsField) {
-      businessCostsField = await plateEditorHelper.convertToHtml(businessCostsField as Value)
-    }
+    const businessCostsField = rest.businessCosts ? await plateEditorHelper.convertToHtml(rest.businessCosts as Value) : undefined
+
+    const detailsJSON = values.detailsJSON ? (values.detailsJSON as Value) : undefined
+    const details = values.detailsJSON ? await plateEditorHelper.convertToHtml(values.detailsJSON as Value) : undefined
 
     try {
       const createdRisk = await createRisk({
         input: {
-          ...values,
+          ...rest,
           mitigation: undefined,
-          details: await plateEditorHelper.convertToHtml(values.detailsJSON as Value),
-          detailsJSON: values.detailsJSON,
+          details: details,
+          detailsJSON: detailsJSON,
           businessCosts: businessCostsField,
           tags: values?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
-          stakeholderID: values.stakeholderID || undefined,
-          delegateID: values.delegateID || undefined,
+          reviewFrequency: (values.reviewFrequency as RiskFrequency) || RiskFrequency.YEARLY,
+          riskDecision: (values.riskDecision as RiskRiskDecision) || undefined,
           ...associationsState,
+          ...buildResponsibilityPayload('stakeholder', stakeholder),
+          ...buildResponsibilityPayload('delegate', delegate),
         },
       })
 
@@ -60,8 +65,8 @@ const CreateRiskForm: React.FC = () => {
         form.reset({
           name: '',
           businessCosts: values.businessCosts,
-          stakeholderID: values.stakeholderID,
-          delegateID: values.delegateID,
+          stakeholder: stakeholder ? { ...stakeholder, noClearOtherFields: true } : undefined,
+          delegate: delegate ? { ...delegate, noClearOtherFields: true } : undefined,
           tags: values.tags ?? [],
           score: values.score,
           status: values.status,
@@ -85,11 +90,11 @@ const CreateRiskForm: React.FC = () => {
   return (
     <>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmitHandler)} className="grid grid-cols-1 lg:grid-cols-[1fr_336px] gap-6">
+        <form onSubmit={form.handleSubmit(onSubmitHandler)} className="grid grid-cols-1 lg:grid-cols-[1fr_390px] gap-6">
           <div className="space-y-6 w-full max-w-full overflow-hidden">
             <TitleField isEditing={true} form={form} />
-            <DetailsField isEditing={true} form={form} clearData={clearData} onCleared={() => setClearData(false)} isCreate={true} />
-            <BusinessCostField isEditing={true} form={form} />
+            <DetailsField isEditing={true} clearData={clearData} onCleared={() => setClearData(false)} isCreate={true} />
+            <BusinessCostField isEditing={true} clearData={clearData} onCleared={() => setClearData(false)} isCreate={true} />
             <div className="flex justify-between items-center">
               <Button variant="primary" type="submit" disabled={isPending}>
                 {isPending ? 'Creating risk' : 'Create risk'}
@@ -101,7 +106,7 @@ const CreateRiskForm: React.FC = () => {
             </div>
           </div>
           <div className="space-y-4">
-            <AuthorityCard form={form} />
+            <AuthorityCard />
             <PropertiesCard form={form} isEditing={true} isCreate={true} />
             <AssociationCard />
             <TagsCard form={form} />

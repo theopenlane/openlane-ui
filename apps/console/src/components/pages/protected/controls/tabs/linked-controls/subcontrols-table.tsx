@@ -10,7 +10,7 @@ import { useAccountRoles, useOrganizationRoles } from '@/lib/query-hooks/permiss
 import { DataTable } from '@repo/ui/data-table'
 import type { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
-import { SearchFilterBar } from '@/components/pages/protected/controls/tabs/shared/documentation-shared'
+import { SearchFilterBar } from '@/components/shared/crud-base/tabs/shared'
 import type { FilterField, WhereCondition } from '@/types'
 import { useDebounce } from '@uidotdev/usehooks'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'

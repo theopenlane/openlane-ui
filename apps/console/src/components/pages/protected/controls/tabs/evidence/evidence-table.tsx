@@ -12,7 +12,7 @@ import { type CustomEvidenceControl } from '@/components/pages/protected/evidenc
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useGetEvidenceListLight } from '@/lib/graphql-hooks/evidence'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
-import { SearchFilterBar, mergeWhere } from '@/components/pages/protected/controls/tabs/shared/documentation-shared'
+import { SearchFilterBar, mergeWhere } from '@/components/shared/crud-base/tabs/shared'
 import { type EvidenceOrder, EvidenceOrderField, type EvidenceWhereInput, OrderDirection } from '@repo/codegen/src/schema'
 import type { ApiToken, User } from '@repo/codegen/src/schema'
 import type { FilterField, WhereCondition } from '@/types'

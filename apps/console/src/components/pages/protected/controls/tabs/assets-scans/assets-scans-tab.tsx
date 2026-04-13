@@ -8,7 +8,7 @@ import { useScansWithFilter } from '@/lib/graphql-hooks/scan'
 import type { AssetWhereInput, ScanWhereInput } from '@repo/codegen/src/schema'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { TableSkeleton } from '@/components/shared/skeleton/table-skeleton'
-import EmptyTabState from '@/components/pages/protected/controls/tabs/shared/empty-tab-state'
+import EmptyTabState from '@/components/shared/crud-base/tabs/empty-tab-state'
 
 type AssetsScansTabProps = {
   controlId?: string

@@ -1,44 +1,69 @@
 'use client'
 
-import { Controller, type UseFormReturn } from 'react-hook-form'
+import { Controller, useFormContext } from 'react-hook-form'
 import PlateEditor from '@/components/shared/plate/plate-editor'
 import React from 'react'
-import usePlateEditor from '@/components/shared/plate/usePlateEditor'
-import { type RiskFieldsFragment } from '@repo/codegen/src/schema'
-import { Card } from '@repo/ui/cardpanel'
-import { type EditRisksFormData } from '@/components/pages/protected/risks/view/hooks/use-form-schema'
+import { type Value } from 'platejs'
+import { useSession } from 'next-auth/react'
+import { useGetCurrentUser } from '@/lib/graphql-hooks/user.ts'
+import { SystemTooltip } from '@repo/ui/system-tooltip'
+import { InfoIcon } from 'lucide-react'
 
 type TMitigationFieldProps = {
   isEditing: boolean
-  form: UseFormReturn<EditRisksFormData>
-  risk?: RiskFieldsFragment
+  initialValue?: string | Value
   isEditAllowed?: boolean
+  isCreate?: boolean
+  clearData?: boolean
+  onCleared?: () => void
 }
 
-const MitigationField: React.FC<TMitigationFieldProps> = ({ isEditing, form, risk, isEditAllowed = true }) => {
-  const plateEditorHelper = usePlateEditor()
-  const { control } = form
+const MitigationField: React.FC<TMitigationFieldProps> = ({ isEditing, initialValue, isEditAllowed = true, isCreate, clearData, onCleared }) => {
+  const { control } = useFormContext()
+  const { data: sessionData } = useSession()
+  const userId = sessionData?.user.userId
+  const { data: userData } = useGetCurrentUser(userId)
 
-  const shouldEdit = isEditing && isEditAllowed
+  const label = (
+    <label htmlFor="mitigation" className="block text-lg my-1">
+      <div className="flex items-center">
+        <span className="mr-1 font-semibold">Mitigation</span>
+        <SystemTooltip
+          icon={<InfoIcon size={14} className="text-muted-foreground" />}
+          content="The actions or strategies implemented to reduce the impact or likelihood of this risk. Effective mitigation helps minimize potential losses and ensures business continuity."
+        />
+      </div>
+    </label>
+  )
 
-  return shouldEdit ? (
+  return isEditAllowed && isEditing ? (
     <div className="w-full">
-      <label htmlFor="mitigation" className="block text-sm font-medium text-muted-foreground mb-1">
-        Mitigation
-      </label>
+      {label}
       <Controller
         control={control}
         name="mitigation"
-        render={({ field }) => <PlateEditor initialValue={field.value as string} onChange={field.onChange} placeholder="Write your mitigation description" />}
+        render={({ field }) => (
+          <PlateEditor
+            userData={userData}
+            clearData={clearData}
+            initialValue={initialValue}
+            onClear={() => onCleared?.()}
+            onChange={(val) => {
+              field.onChange(val)
+            }}
+            isCreate={isCreate}
+            placeholder="Write the actions or strategies implemented to reduce the impact or likelihood of this risk"
+          />
+        )}
       />
     </div>
   ) : (
-    <Card className="p-4">
-      <label htmlFor="mitigation" className="block text-lg font-medium text-muted-foreground mb-1">
-        Mitigation
-      </label>
-      <div className="!mt-4 bg-none max-h-[55vh] overflow-auto">{risk?.mitigation && plateEditorHelper.convertToReadOnly(risk.mitigation as string)}</div>
-    </Card>
+    <div className="w-full">
+      {label}
+      <div className={'min-h-5'}>
+        <PlateEditor placeholder="No mitigation set" key={JSON.stringify(initialValue)} userData={userData} initialValue={initialValue} readonly={true} variant="readonly" toolbarClassName="hidden" />
+      </div>
+    </div>
   )
 }
 
