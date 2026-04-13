@@ -7,15 +7,25 @@ const RISK_FIELDS = gql`
     name
     details
     detailsJSON
+    dueDate
     tags
     riskCategoryName
     riskKindName
     score
     status
     businessCosts
+    lastReviewedAt
     likelihood
     impact
+    mitigatedAt
     mitigation
+    nextReviewDueAt
+    residualScore
+    reviewFrequency
+    environmentName
+    scopeName
+    reviewRequired
+    riskDecision
     stakeholder {
       id
       displayName
@@ -34,99 +44,6 @@ const RISK_FIELDS = gql`
         base64
       }
     }
-    procedures {
-      totalCount
-      edges {
-        node {
-          id
-          name
-          displayID
-          summary
-        }
-      }
-    }
-    controls {
-      totalCount
-      edges {
-        node {
-          id
-          displayID
-          refCode
-        }
-      }
-    }
-    subcontrols {
-      totalCount
-      edges {
-        node {
-          id
-          displayID
-          refCode
-          controlId: controlID
-        }
-      }
-    }
-    programs {
-      totalCount
-      edges {
-        node {
-          id
-          displayID
-          name
-          description
-        }
-      }
-    }
-    tasks {
-      totalCount
-      edges {
-        node {
-          id
-          displayID
-          title
-          details
-        }
-      }
-    }
-    internalPolicies {
-      totalCount
-      edges {
-        node {
-          id
-          displayID
-          name
-        }
-      }
-    }
-    assets {
-      totalCount
-      edges {
-        node {
-          id
-          name
-          displayName
-        }
-      }
-    }
-    entities {
-      totalCount
-      edges {
-        node {
-          id
-          name
-          displayName
-        }
-      }
-    }
-    scans {
-      totalCount
-      edges {
-        node {
-          id
-          target
-        }
-      }
-    }
     createdAt
   }
 `
@@ -136,6 +53,7 @@ const RISK_TABLE_FIELDS = gql`
     id
     displayID
     name
+    dueDate
     riskCategoryName
     riskKindName
     score
@@ -151,12 +69,21 @@ const RISK_TABLE_FIELDS = gql`
     }
     details
     impact
+    lastReviewedAt
     likelihood
     mitigation
+    mitigatedAt
     updatedAt
     updatedBy
     createdAt
     createdBy
+    nextReviewDueAt
+    residualScore
+    reviewFrequency
+    reviewRequired
+    riskDecision
+    environmentName
+    scopeName
     stakeholder {
       id
       displayName
@@ -410,6 +337,151 @@ export const GET_RISK_ASSOCIATIONS_TIMELINE = gql`
             target
             createdAt
             createdBy
+          }
+        }
+      }
+      reviews {
+        edges {
+          node {
+            id
+            title
+            createdAt
+            createdBy
+          }
+        }
+      }
+      actionPlans {
+        edges {
+          node {
+            id
+            name
+            createdAt
+            createdBy
+          }
+        }
+      }
+    }
+  }
+`
+
+export const GET_RISK_ASSOCIATIONS = gql`
+  query GetRiskAssociations($riskId: ID!) {
+    risk(id: $riskId) {
+      controls {
+        totalCount
+        edges {
+          node {
+            id
+            displayID
+            refCode
+          }
+        }
+      }
+      subcontrols {
+        totalCount
+        edges {
+          node {
+            id
+            displayID
+            refCode
+            controlId: controlID
+          }
+        }
+      }
+      programs {
+        totalCount
+        edges {
+          node {
+            id
+            displayID
+            name
+            description
+          }
+        }
+      }
+      tasks {
+        totalCount
+        edges {
+          node {
+            id
+            displayID
+            title
+            details
+          }
+        }
+      }
+      internalPolicies {
+        totalCount
+        edges {
+          node {
+            id
+            displayID
+            name
+          }
+        }
+      }
+      procedures {
+        edges {
+          node {
+            id
+            name
+            displayID
+            createdAt
+          }
+        }
+      }
+      assets {
+        totalCount
+        edges {
+          node {
+            id
+            name
+            displayName
+          }
+        }
+      }
+      entities {
+        totalCount
+        edges {
+          node {
+            id
+            name
+            displayName
+          }
+        }
+      }
+      scans {
+        totalCount
+        edges {
+          node {
+            id
+            target
+          }
+        }
+      }
+      reviews {
+        edges {
+          node {
+            id
+            title
+          }
+        }
+      }
+      actionPlans {
+        edges {
+          node {
+            id
+            name
+            status
+          }
+        }
+      }
+      remediations {
+        edges {
+          node {
+            id
+            title
+            displayID
           }
         }
       }

@@ -18,9 +18,9 @@ import { TextField } from '@/components/shared/crud-base/form-fields/text-field'
 import ColumnVisibilityMenu, { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import type { WhereCondition } from '@/types'
-import { reviewHistoryColumns, isHighRiskTier, mappedReviewColumns, DEFAULT_VISIBILITY, REVIEW_FILTER_FIELDS } from './risk-review-config'
-import CreateReviewSheet from './create-review-sheet'
-import ReviewDetailSheet from './review-detail-sheet'
+import { reviewHistoryColumns, isHighRiskTier, mappedReviewColumns, DEFAULT_VISIBILITY, REVIEW_FILTER_FIELDS } from '@/components/pages/protected/reviews/common/risk-review-config'
+import CreateReviewSheet from '@/components/pages/protected/reviews/common/create-review-sheet'
+import ReviewDetailSheet from '@/components/pages/protected/reviews/common/review-detail-sheet'
 
 interface RiskReviewTabProps {
   vendor: EntityQuery['entity']

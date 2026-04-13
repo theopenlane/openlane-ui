@@ -4,7 +4,7 @@ import { FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
 import { useFormContext } from 'react-hook-form'
 import { type InternalEditingType } from '../generic-sheet'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
-import { InfoIcon, User, Users, Type, Check, X } from 'lucide-react'
+import { InfoIcon, User, Users, Type, Check, X, ChevronDown } from 'lucide-react'
 import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
 import { useMemo, useRef, useState } from 'react'
@@ -32,6 +32,7 @@ interface ResponsibilityFieldProps {
   layout?: 'vertical' | 'horizontal'
   labelClassName?: string
   userOnly?: boolean
+  groupOnly?: boolean
 }
 
 export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
@@ -49,6 +50,7 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
   layout = 'vertical',
   labelClassName,
   userOnly = false,
+  groupOnly = false,
 }) => {
   const { control } = useFormContext()
   const [open, setOpen] = useState(false)
@@ -96,12 +98,17 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
       return
     }
 
-    field.onChange(selection)
+    let selectionToUse = selection
+    if (groupOnly && selection?.type === 'group') {
+      selectionToUse = { ...selection, noClearOtherFields: true }
+    }
+
+    field.onChange(selectionToUse)
     setOpen(false)
     setSearchText('')
 
     if (!isEditing && !isCreate && handleUpdate) {
-      const payload = buildResponsibilityInlineUpdate(fieldBaseName, selection)
+      const payload = buildResponsibilityInlineUpdate(fieldBaseName, selectionToUse)
       await handleUpdate(payload)
     }
 
@@ -121,6 +128,14 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
       default:
         return null
     }
+  }
+
+  const placeholderText = (name?: string) => {
+    if (name) {
+      return `Select ${name.toLowerCase()}...`
+    }
+
+    return 'Select owner...'
   }
 
   const normalizedSearchText = searchText.toLowerCase()
@@ -153,15 +168,16 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
                 <div ref={triggerRef} className="w-full">
                   <Popover open={open} onOpenChange={setOpen}>
                     <PopoverTrigger asChild>
-                      <div className="flex w-full items-center gap-2 rounded-md border bg-input px-3 py-2 text-sm cursor-pointer h-10" onClick={() => setOpen(true)}>
+                      <div className="flex w-full justify-between items-center gap-2 rounded-md border bg-input px-3 py-2 text-sm cursor-pointer h-10" onClick={() => setOpen(true)}>
                         {currentValue ? (
                           <>
                             {getTypeIcon(currentValue.type)}
                             <span className="truncate">{currentValue.displayName || currentValue.value}</span>
                           </>
                         ) : (
-                          <span className="text-muted-foreground">Select owner...</span>
+                          <span className="text-muted-foreground">{placeholderText(name)}</span>
                         )}
+                        <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                       </div>
                     </PopoverTrigger>
                     <PopoverContent
@@ -172,10 +188,12 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
                       sideOffset={4}
                     >
                       <Command shouldFilter={false}>
-                        <CommandInput placeholder="Search users, groups, or type a name..." value={searchText} onValueChange={setSearchText} />
+                        {groupOnly && <CommandInput placeholder="Search groups..." value={searchText} onValueChange={setSearchText} />}
+                        {userOnly && <CommandInput placeholder="Search users..." value={searchText} onValueChange={setSearchText} />}
+                        {!groupOnly && !userOnly && <CommandInput placeholder="Search users, groups, or type a name..." value={searchText} onValueChange={setSearchText} />}
                         <CommandList className="max-h-[min(300px,var(--radix-popover-content-available-height,300px))]">
                           <CommandEmpty>No results found.</CommandEmpty>
-                          {currentValue && (
+                          {currentValue && !groupOnly && !userOnly && (
                             <CommandGroup heading="Actions">
                               <CommandItem value="clear-selection" onSelect={() => handleSelect(null, field)}>
                                 <X className="mr-2 h-4 w-4" />
@@ -183,7 +201,15 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
                               </CommandItem>
                             </CommandGroup>
                           )}
-                          {filteredUsers.length > 0 && (
+                          {currentValue && (groupOnly || userOnly) && (
+                            <CommandGroup heading="Actions">
+                              <CommandItem value="clear-selection" onSelect={() => handleSelect({ type: groupOnly ? 'group' : 'user', value: '', displayName: '' }, field)}>
+                                <X className="mr-2 h-4 w-4" />
+                                <span>Clear selection</span>
+                              </CommandItem>
+                            </CommandGroup>
+                          )}
+                          {!groupOnly && filteredUsers.length > 0 && (
                             <CommandGroup heading="Users">
                               {filteredUsers.map((option) => (
                                 <CommandItem
@@ -213,7 +239,7 @@ export const ResponsibilityField: React.FC<ResponsibilityFieldProps> = ({
                               ))}
                             </CommandGroup>
                           )}
-                          {!userOnly && searchText.trim() && !hasExactMatch && (
+                          {!userOnly && !groupOnly && searchText.trim() && !hasExactMatch && (
                             <CommandGroup heading="Custom">
                               <CommandItem value={`custom-${searchText}`} onSelect={() => handleSelect({ type: 'string', value: searchText.trim(), displayName: searchText.trim() }, field)}>
                                 <Type className="mr-2 h-4 w-4" />

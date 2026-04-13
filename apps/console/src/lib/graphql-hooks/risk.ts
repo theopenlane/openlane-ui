@@ -14,6 +14,7 @@ import {
   UPDATE_RISK,
   INSERT_RISK_COMMENT,
   UPDATE_RISK_COMMENT,
+  GET_RISK_ASSOCIATIONS,
 } from '@repo/codegen/query/risk'
 
 import {
@@ -42,6 +43,7 @@ import {
   type UpdateRiskMutationVariables,
   type UpdateRiskCommentMutation,
   type UpdateRiskCommentMutationVariables,
+  type GetRiskAssociationsQuery,
 } from '@repo/codegen/src/schema'
 import { type TPagination } from '@repo/ui/pagination-types'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql.ts'
@@ -228,5 +230,14 @@ export const useUpdateRiskComment = () => {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['riskComments', data.updateRiskComment.risk.id] })
     },
+  })
+}
+
+export const useGetRiskAssociations = (riskId?: string) => {
+  const { client } = useGraphQLClient()
+  return useQuery<GetRiskAssociationsQuery, unknown>({
+    queryKey: ['risks', riskId, 'associations'],
+    queryFn: async () => client.request<GetRiskAssociationsQuery>(GET_RISK_ASSOCIATIONS, { riskId: riskId as string }),
+    enabled: !!riskId,
   })
 }

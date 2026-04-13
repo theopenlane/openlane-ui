@@ -13,7 +13,8 @@ import { InternalPolicyDocumentStatus, InternalPolicyOrderField, OrderDirection 
 import type { GetInternalPoliciesListQueryVariables, InternalPolicyWhereInput } from '@repo/codegen/src/schema'
 import type { WhereCondition } from '@/types'
 import type { TPagination } from '@repo/ui/pagination-types'
-import { AssociationSection, SearchFilterBar, buildAssociationFilter, mergeWhere } from '@/components/pages/protected/controls/tabs/shared/documentation-shared'
+import { mergeWhere, SearchFilterBar, AssociationSection, type AssociationRow } from '@/components/shared/crud-base/tabs/shared'
+import { buildAssociationFilter } from '@/components/pages/protected/controls/tabs/shared/documentation-shared'
 import { type ColumnDef } from '@tanstack/react-table'
 import { DocumentStatusBadge, DocumentStatusTooltips } from '@/components/shared/enum-mapper/policy-enum'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
@@ -24,7 +25,6 @@ import { formatTimeSince } from '@/utils/date'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
 import { useGetApiTokensByIds } from '@/lib/graphql-hooks/tokens'
 import type { ApiToken, User } from '@repo/codegen/src/schema'
-import type { AssociationRow } from '@/components/pages/protected/controls/tabs/shared/documentation-shared'
 
 type PoliciesTableProps = {
   controlId?: string
