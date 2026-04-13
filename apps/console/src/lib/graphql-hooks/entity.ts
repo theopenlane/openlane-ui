@@ -71,6 +71,12 @@ export const useEntitiesWithFilter = ({ where, orderBy, pagination, enabled = tr
   return { ...queryResult, entitiesNodes }
 }
 
+export const useVendorsWithFilter = ({ where, orderBy, pagination, enabled }: GetAllEntitiesArgs = {}) => {
+  const vendorWhere = { ...where, hasEntityTypeWith: [{ name: 'vendor' }] }
+  const { entitiesNodes, ...rest } = useEntitiesWithFilter({ where: vendorWhere, orderBy, pagination, enabled })
+  return { ...rest, vendorNodes: entitiesNodes }
+}
+
 export const useCreateEntity = () => {
   const { client } = useGraphQLClient()
   const queryClient = useQueryClient()

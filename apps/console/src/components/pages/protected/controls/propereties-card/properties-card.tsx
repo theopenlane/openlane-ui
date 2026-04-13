@@ -8,7 +8,7 @@ import { ControlControlSource, type UpdateControlInput, type UpdateSubcontrolInp
 import { type Entity, type Group } from '@repo/codegen/src/schema'
 import MultipleSelector, { type Option } from '@repo/ui/multiple-selector'
 import { useGetAllGroups } from '@/lib/graphql-hooks/group'
-import { useEntitiesWithFilter } from '@/lib/graphql-hooks/entity'
+import { useVendorsWithFilter } from '@/lib/graphql-hooks/entity'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { usePathname } from 'next/navigation'
 import { Property } from './fields/property'
@@ -74,8 +74,7 @@ const PropertiesCard: React.FC<PropertiesCardProps> = ({ data, isEditing, handle
   const { data: groupsData } = useGetAllGroups({ where: {}, enabled: isEditing || isGroupEditing })
   const groups = groupsData?.groups?.edges?.map((edge) => edge?.node) || []
 
-  const { entitiesNodes: vendors } = useEntitiesWithFilter({
-    where: { hasEntityTypeWith: [{ name: 'vendor' }] },
+  const { vendorNodes: vendors } = useVendorsWithFilter({
     enabled: isEditing || isResponsiblePartyEditing,
   })
 

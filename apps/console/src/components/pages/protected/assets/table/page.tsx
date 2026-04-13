@@ -5,7 +5,7 @@ import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { type AssetsNodeNonNull, useAsset, useUpdateAsset, useCreateAsset, useBulkDeleteAsset, useCreateBulkCSVAsset, useBulkEditAsset, useGetAssetAssociations } from '@/lib/graphql-hooks/asset'
-import { useEntitiesWithFilter } from '@/lib/graphql-hooks/entity'
+import { useVendorsWithFilter } from '@/lib/graphql-hooks/entity'
 import { useSearchParams } from 'next/navigation'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
 import { breadcrumbs, getFieldsToRender, getFilterFields, visibilityFields } from './table-config'
@@ -138,9 +138,7 @@ const AssetPage: React.FC = () => {
 
   const tagOptions = useGetTags()
 
-  const { entitiesNodes: vendorNodes } = useEntitiesWithFilter({
-    where: { hasEntityTypeWith: [{ name: 'vendor' }] },
-  })
+  const { vendorNodes } = useVendorsWithFilter({})
   const vendorIDsOptions = useMemo(() => vendorNodes.map((v) => ({ value: v.id, label: v.displayName ?? v.name ?? v.id })), [vendorNodes])
 
   const enumOpts = {
