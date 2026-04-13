@@ -37,6 +37,7 @@ import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-butto
 import { useAssociationRemoval } from '@/hooks/useAssociationRemoval'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import PastDueBadge from '@/components/shared/past-due-badge/past-due-badge'
+import ActionPlansTable from '@/components/pages/protected/action-plans/action-plans-table'
 
 type TRisksPageProps = {
   riskId: string
@@ -355,6 +356,7 @@ const ViewRisksPage: React.FC<TRisksPageProps> = ({ riskId }) => {
       <DetailsField isEditing={isEditing} form={form} risk={risk} isEditAllowed={editAllowed} discussionData={discussionData?.risk} />
       <BusinessCostField isEditing={isEditing} form={form} risk={risk} isEditAllowed={editAllowed} />
       <MitigationField isEditing={isEditing} form={form} risk={risk} isEditAllowed={editAllowed} />
+      <ActionPlansTable additionalWhereFilter={{ hasRisksWith: [{ id: riskId }] }} createInitialPayload={{ riskIDs: [riskId] }} />
     </div>
   )
 

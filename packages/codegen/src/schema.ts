@@ -64922,11 +64922,13 @@ export type ActionPlansWithFilterQuery = {
         id: string
         metadata?: any | null
         name: string
+        priority?: ActionPlanPriority | null
         rawPayload?: any | null
         requiresApproval: boolean
         reviewDue?: any | null
         revision?: string | null
         source?: string | null
+        status?: ActionPlanDocumentStatus | null
         summary?: string | null
         systemOwned?: boolean | null
         title: string
@@ -64967,11 +64969,13 @@ export type ActionPlanQuery = {
     id: string
     metadata?: any | null
     name: string
+    priority?: ActionPlanPriority | null
     rawPayload?: any | null
     requiresApproval: boolean
     reviewDue?: any | null
     revision?: string | null
     source?: string | null
+    status?: ActionPlanDocumentStatus | null
     summary?: string | null
     systemOwned?: boolean | null
     title: string
