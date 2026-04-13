@@ -12,6 +12,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { ASSETS_SORT_FIELDS } from './table-config'
 import { type TTableProps } from '@/components/shared/crud-base/page'
 import { objectName, tableKey } from './types'
+import { isUlid } from '@/lib/validators'
 
 const TableComponent = ({
   onSortChange,
@@ -53,7 +54,6 @@ const TableComponent = ({
 
   const { convertToReadOnly } = usePlateEditor()
   const { errorNotification } = useNotification()
-  const isUlid = (value: string) => /^[0-9A-Z]{26}$/i.test(value)
 
   const userIds = useMemo(() => {
     if (!items) return []

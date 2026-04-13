@@ -12,6 +12,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { VULNERABILITIES_SORT_FIELDS } from './table-config'
 import { type TTableProps } from '@/components/shared/crud-base/page'
 import { objectName, tableKey } from './types'
+import { isUlid } from '@/lib/validators'
 import { useSession } from 'next-auth/react'
 import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/create-task-dialog'
 import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
@@ -65,8 +66,6 @@ const TableComponent = ({
   })
 
   const { convertToReadOnly } = usePlateEditor()
-
-  const isUlid = (value: string) => /^[0-9A-Z]{26}$/i.test(value)
 
   const userIds = useMemo(() => {
     if (!items) return []
