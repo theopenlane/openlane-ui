@@ -25,7 +25,7 @@ import Menu from '@/components/shared/menu/menu'
 import { getMappedColumns } from '@/components/shared/crud-base/columns/get-mapped-columns'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { Check, X, Download, DownloadIcon, Upload, SearchIcon, Eye, Trash2 } from 'lucide-react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { useQueryClient } from '@tanstack/react-query'
 import MarkAsEvidenceDialog from './mark-as-evidence-dialog'
 import UnmarkEvidenceDialog from '@/components/pages/protected/vendors/detail/tabs/documents/unmark-evidence-dialog'
@@ -38,6 +38,7 @@ interface DocumentsTabProps {
 const DocumentsTab: React.FC<DocumentsTabProps> = ({ personnelId, canEdit }) => {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const pathname = usePathname()
   const queryClient = useQueryClient()
   const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(TableKeyEnum.IDENTITY_HOLDER_FILES, DEFAULT_PAGINATION))
   const defaultSorting = getInitialSortConditions(TableKeyEnum.IDENTITY_HOLDER_FILES, FileOrderField, [
@@ -155,7 +156,7 @@ const DocumentsTab: React.FC<DocumentsTabProps> = ({ personnelId, canEdit }) => 
     if (!evidenceId) return
     const params = new URLSearchParams(searchParams.toString())
     params.set('id', evidenceId)
-    router.push(`${window.location.pathname}?${params.toString()}`)
+    router.push(`${pathname}?${params.toString()}`)
   }
 
   const columns: ColumnDef<TFile>[] = [

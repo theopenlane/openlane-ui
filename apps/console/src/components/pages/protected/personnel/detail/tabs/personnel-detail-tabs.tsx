@@ -96,7 +96,7 @@ const PersonnelDetailTabs: React.FC<PersonnelDetailTabsProps> = ({ personnel, is
       </TabsContent>
 
       <TabsContent value="history" className="space-y-6">
-        <HistoryTab personnelId={personnel.id} />
+        <HistoryTab personnel={personnel} />
       </TabsContent>
     </Tabs>
   )

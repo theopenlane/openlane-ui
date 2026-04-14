@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@repo/ui/cardpanel'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@repo/ui/cardpanel'
 import { TextField } from '@/components/shared/crud-base/form-fields/text-field'
 import { SelectField } from '@/components/shared/crud-base/form-fields/select-field'
 import { CheckboxField } from '@/components/shared/crud-base/form-fields/checkbox-field'
@@ -10,7 +10,11 @@ import { useNotification } from '@/hooks/useNotification'
 import { enumToOptions, getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { PersonnelStatusIconMapper } from '@/components/shared/enum-mapper/personnel-enum'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
+import { formatPhoneNumber } from '@/utils/strings'
 import { IdentityHolderUserStatus, IdentityHolderIdentityHolderType, type IdentityHolderQuery, type UpdateIdentityHolderInput } from '@repo/codegen/src/schema'
+
+const cardHeaderClassName = 'pb-0'
+const cardTitleClassName = 'text-lg p-0'
 
 const identityHolderTypeOptions = enumToOptions(IdentityHolderIdentityHolderType)
 const statusOptions = enumToOptions(IdentityHolderUserStatus)
@@ -23,28 +27,22 @@ interface OverviewTabProps {
 }
 
 const CopyButton: React.FC<{ value: string }> = ({ value }) => {
-  const { successNotification } = useNotification()
+  const { successNotification, errorNotification } = useNotification()
 
-  const handleCopy = (e: React.MouseEvent) => {
+  const handleCopy = async (e: React.MouseEvent) => {
     e.stopPropagation()
-    navigator.clipboard.writeText(value)
-    successNotification({ title: 'Copied', description: `"${value}" copied to clipboard.` })
+    try {
+      await navigator.clipboard.writeText(value)
+      successNotification({ title: 'Copied', description: `"${value}" copied to clipboard.` })
+    } catch {
+      errorNotification({ title: 'Copy failed', description: 'Clipboard access is not available in this context.' })
+    }
   }
 
   return (
     <button type="button" onClick={handleCopy} className="text-muted-foreground hover:text-foreground transition-colors">
       <Copy size={13} />
     </button>
-  )
-}
-
-const CopyableValue: React.FC<{ value?: string | null; placeholder?: string }> = ({ value, placeholder = 'Not set' }) => {
-  if (!value) return <span className="text-muted-foreground text-sm italic">{placeholder}</span>
-  return (
-    <div className="flex items-center gap-2">
-      <span className="text-sm">{value}</span>
-      <CopyButton value={value} />
-    </div>
   )
 }
 
@@ -68,57 +66,73 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ personnel, isEditing, canEdit
   return (
     <div className="space-y-6">
       <Card>
-        <CardHeader>
-          <CardTitle>Contact Information</CardTitle>
+        <CardHeader className={cardHeaderClassName}>
+          <CardTitle className={cardTitleClassName}>Contact Information</CardTitle>
+          <CardDescription className="p-0">Email addresses and phone number for this personnel record</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 gap-x-8 gap-y-4">
-            <div className="flex flex-col gap-1">
-              <span className="text-sm text-muted-foreground">Email</span>
-              {isEditing || internalEditing === 'email' ? <TextField name="email" label="" {...sharedFieldProps} layout="vertical" /> : <CopyableValue value={personnel.email} />}
-            </div>
-            <div className="flex flex-col gap-1">
-              <span className="text-sm text-muted-foreground">Alternate Email</span>
-              {isEditing || internalEditing === 'alternateEmail' ? (
-                <TextField name="alternateEmail" label="" {...sharedFieldProps} layout="vertical" />
-              ) : (
-                <CopyableValue value={personnel.alternateEmail} />
-              )}
-            </div>
-            <div className="flex flex-col gap-1">
-              <span className="text-sm text-muted-foreground">Phone Number</span>
-              {isEditing || internalEditing === 'phoneNumber' ? <TextField name="phoneNumber" label="" {...sharedFieldProps} layout="vertical" /> : <CopyableValue value={personnel.phoneNumber} />}
-            </div>
+            <TextField
+              name="email"
+              label="Email"
+              type="email"
+              tooltipContent="The primary email address for this person"
+              displaySuffix={personnel.email ? <CopyButton value={personnel.email} /> : undefined}
+              {...sharedFieldProps}
+              layout="vertical"
+            />
+            <TextField
+              name="alternateEmail"
+              label="Alternate Email"
+              type="email"
+              tooltipContent="An alternate email address for this person"
+              displaySuffix={personnel.alternateEmail ? <CopyButton value={personnel.alternateEmail} /> : undefined}
+              {...sharedFieldProps}
+              layout="vertical"
+            />
+            <TextField
+              name="phoneNumber"
+              label="Phone Number"
+              type="tel"
+              tooltipContent="The phone number for this person"
+              displaySuffix={personnel.phoneNumber ? <CopyButton value={personnel.phoneNumber} /> : undefined}
+              formatDisplayValue={formatPhoneNumber}
+              {...sharedFieldProps}
+              layout="vertical"
+            />
           </div>
         </CardContent>
       </Card>
 
       <Card>
-        <CardHeader>
-          <CardTitle>Employment</CardTitle>
+        <CardHeader className={cardHeaderClassName}>
+          <CardTitle className={cardTitleClassName}>Employment</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 gap-x-8 gap-y-4">
-            <TextField name="title" label="Title" {...sharedFieldProps} />
-            <TextField name="department" label="Department" {...sharedFieldProps} />
-            <TextField name="team" label="Team" {...sharedFieldProps} />
-            <TextField name="location" label="Location" {...sharedFieldProps} />
+            <TextField name="title" label="Title" tooltipContent="The job title of this person" {...sharedFieldProps} />
+            <TextField name="department" label="Department" tooltipContent="The department this person belongs to" {...sharedFieldProps} />
+            <TextField name="team" label="Team" tooltipContent="The team this person is part of" {...sharedFieldProps} />
+            <TextField name="location" label="Location" tooltipContent="The physical location or office of this person" {...sharedFieldProps} />
+            <TextField name="startDate" label="Start Date" type="date" tooltipContent="The date this person started" {...sharedFieldProps} />
+            <TextField name="endDate" label="End Date" type="date" tooltipContent="The date this person ended or is expected to end" {...sharedFieldProps} />
           </div>
         </CardContent>
       </Card>
 
       <Card>
-        <CardHeader>
-          <CardTitle>Classification</CardTitle>
+        <CardHeader className={cardHeaderClassName}>
+          <CardTitle className={cardTitleClassName}>Classification</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 gap-x-8 gap-y-4">
-            <SelectField name="identityHolderType" label="Type" options={identityHolderTypeOptions} {...sharedFieldProps} />
+            <SelectField name="identityHolderType" label="Type" options={identityHolderTypeOptions} tooltipContent="The type of personnel, e.g. Employee or Contractor" {...sharedFieldProps} />
             <SelectField
               name="status"
               label="Status"
               options={statusOptions}
               useCustomDisplay={false}
+              tooltipContent="The current status of this person"
               renderValue={(value) => (
                 <div className="flex items-center space-x-2 text-sm">
                   {PersonnelStatusIconMapper[value as IdentityHolderUserStatus]}
@@ -127,32 +141,34 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ personnel, isEditing, canEdit
               )}
               {...sharedFieldProps}
             />
-            <CheckboxField name="isActive" label="Active" {...sharedFieldProps} />
-            <CheckboxField name="isOpenlaneUser" label="Openlane User" {...sharedFieldProps} />
+            <CheckboxField name="isActive" label="Active" tooltipContent="Whether this person is currently active" {...sharedFieldProps} />
+            <CheckboxField name="isOpenlaneUser" label="Openlane User" tooltipContent="Whether this person has an Openlane user account" {...sharedFieldProps} />
           </div>
         </CardContent>
       </Card>
 
       <Card>
-        <CardHeader>
-          <CardTitle>Dates</CardTitle>
+        <CardHeader className={cardHeaderClassName}>
+          <CardTitle className={cardTitleClassName}>Audit Scope</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 gap-x-8 gap-y-4">
-            <TextField name="startDate" label="Start Date" type="date" {...sharedFieldProps} />
-            <TextField name="endDate" label="End Date" type="date" {...sharedFieldProps} />
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Audit Scope</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 gap-x-8 gap-y-4">
-            <SelectField name="environmentName" label="Environment" options={environmentOptions} onCreateOption={createEnvironment} {...sharedFieldProps} />
-            <SelectField name="scopeName" label="Scope" options={scopeOptions} onCreateOption={createScope} {...sharedFieldProps} />
+            <SelectField
+              name="environmentName"
+              label="Environment"
+              options={environmentOptions}
+              onCreateOption={createEnvironment}
+              tooltipContent="The environment in which this person operates, e.g. production, development"
+              {...sharedFieldProps}
+            />
+            <SelectField
+              name="scopeName"
+              label="Scope"
+              options={scopeOptions}
+              onCreateOption={createScope}
+              tooltipContent="The audit scope for this person, indicating covered areas and processes"
+              {...sharedFieldProps}
+            />
           </div>
         </CardContent>
       </Card>

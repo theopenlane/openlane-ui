@@ -23,6 +23,22 @@ export function toHumanLabel(input: string): string {
   return label.replace(/\b\w/g, (char) => char.toUpperCase())
 }
 
+export function formatPhoneNumber(value?: string | null): string {
+  if (!value) return ''
+
+  const digits = value.replace(/\D/g, '')
+
+  if (digits.length === 10) {
+    return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`
+  }
+
+  if (digits.length === 11 && digits.startsWith('1')) {
+    return `+1 (${digits.slice(1, 4)}) ${digits.slice(4, 7)}-${digits.slice(7)}`
+  }
+
+  return value
+}
+
 // if you change this, update packages/codegen/plugins/lib.js:pluralizeTypeName also
 export function pluralizeTypeName(name: string): string {
   const lc = name.charAt(0).toLowerCase() + name.slice(1)

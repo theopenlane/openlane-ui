@@ -26,6 +26,7 @@ export type TimelineNode = {
   source?: string | null
   href?: string
   role?: 'source' | 'linked'
+  subtext?: string
 }
 
 type EdgeNode = {
@@ -172,8 +173,8 @@ export const useIdentityHolderTimeline = (identityHolderId?: string) => {
 }
 
 export const extractIdentityHolderTimelineNodes = (data: GetIdentityHolderAssociationsTimelineQuery | undefined): TimelineNode[] => {
-  if (!data) return []
-  const ih = data.identityHolder
+  const ih = data?.identityHolder
+  if (!ih) return []
   return [
     ...extractNodes(ih.assets as Connection, 'Asset'),
     ...extractNodes(ih.entities as Connection, 'Entity'),

@@ -8,6 +8,7 @@ import { type IdentityHolderQuery, type UpdateIdentityHolderInput, type Identity
 import { type InternalEditingType } from '@/components/shared/crud-base/generic-sheet'
 import { PersonnelStatusIconMapper } from '@/components/shared/enum-mapper/personnel-enum'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { formatPhoneNumber } from '@/utils/strings'
 import { type EnumOptions, type EnumCreateHandlers } from '../../../table/types'
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@repo/ui/cardpanel'
 
@@ -46,7 +47,6 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* Contact Information */}
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-md p-0">Contact Information</CardTitle>
@@ -56,16 +56,15 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
           <div className="mb-2 grid grid-cols-1 md:grid-cols-2 gap-2">
             <TextField name="email" label="Email" type="email" tooltipContent="The primary email address for this person" {...sharedFieldProps} />
             <TextField name="alternateEmail" label="Alternate Email" type="email" tooltipContent="An alternate email address for this person" {...sharedFieldProps} />
-            <TextField name="phoneNumber" label="Phone Number" tooltipContent="The phone number for this person" {...sharedFieldProps} />
+            <TextField name="phoneNumber" label="Phone Number" type="tel" tooltipContent="The phone number for this person" formatDisplayValue={formatPhoneNumber} {...sharedFieldProps} />
           </div>
         </CardContent>
       </Card>
 
-      {/* Employment */}
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-md p-0">Employment</CardTitle>
-          <CardDescription className="p-0">Job title, department, team, and location details</CardDescription>
+          <CardDescription className="p-0">Job title, department, team, location, and employment date details</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="mb-2 grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -73,11 +72,12 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
             <TextField name="department" label="Department" tooltipContent="The department this person belongs to" {...sharedFieldProps} />
             <TextField name="team" label="Team" tooltipContent="The team this person is part of" {...sharedFieldProps} />
             <TextField name="location" label="Location" tooltipContent="The physical location or office of this person" {...sharedFieldProps} />
+            <TextField name="startDate" label="Start Date" type="date" tooltipContent="The date this person started" {...sharedFieldProps} />
+            <TextField name="endDate" label="End Date" type="date" tooltipContent="The date this person ended or is expected to end" {...sharedFieldProps} />
           </div>
         </CardContent>
       </Card>
 
-      {/* Classification */}
       <Card>
         <CardHeader className="pb-0">
           <CardTitle className="text-md p-0">Classification</CardTitle>
@@ -112,21 +112,6 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
         </CardContent>
       </Card>
 
-      {/* Dates */}
-      <Card>
-        <CardHeader className="pb-0">
-          <CardTitle className="text-md p-0">Dates</CardTitle>
-          <CardDescription className="p-0">Employment start and end dates</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="mb-2 grid grid-cols-1 md:grid-cols-2 gap-2">
-            <TextField name="startDate" label="Start Date" type="date" tooltipContent="The date this person started" {...sharedFieldProps} />
-            <TextField name="endDate" label="End Date" type="date" tooltipContent="The date this person ended or is expected to end" {...sharedFieldProps} />
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Audit Scope */}
       <Card>
         <CardHeader className="pb-0">
           <CardTitle className="text-md p-0">Audit Scope</CardTitle>
@@ -154,7 +139,6 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
         </CardContent>
       </Card>
 
-      {/* Ownership */}
       <Card>
         <CardHeader className="pb-0">
           <CardTitle className="text-md p-0">Ownership</CardTitle>
@@ -178,7 +162,6 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
         </CardContent>
       </Card>
 
-      {/* External References */}
       <Card>
         <CardHeader className="pb-0">
           <CardTitle className="text-md p-0">External References</CardTitle>

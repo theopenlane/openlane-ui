@@ -4,12 +4,9 @@ import React, { useMemo, useRef, useState } from 'react'
 import { useFormContext, Controller } from 'react-hook-form'
 import { Card } from '@repo/ui/cardpanel'
 import MultipleSelector, { type Option } from '@repo/ui/multiple-selector'
-import { type UpdateIdentityHolderInput, type IdentityHolderQuery, IdentityHolderUserStatus } from '@repo/codegen/src/schema'
+import { type UpdateIdentityHolderInput, type IdentityHolderQuery } from '@repo/codegen/src/schema'
 import { ResponsibilityField } from '@/components/shared/crud-base/form-fields/responsibility-field'
-import { SelectField } from '@/components/shared/crud-base/form-fields/select-field'
 import { TextField } from '@/components/shared/crud-base/form-fields/text-field'
-import { enumToOptions, getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
-import { PersonnelStatusIconMapper } from '@/components/shared/enum-mapper/personnel-enum'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import { formatDate } from '@/utils/date'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
@@ -19,7 +16,6 @@ import { type EditPersonnelFormData } from '../hooks/use-form-schema'
 import { UserRound, CalendarDays, Tag, Hash, KeyRound } from 'lucide-react'
 
 const iconClass = 'h-4 w-4 text-muted-foreground'
-const statusOptions = enumToOptions(IdentityHolderUserStatus)
 
 interface PersonnelPropertiesSidebarProps {
   data: IdentityHolderQuery['identityHolder']
@@ -96,9 +92,9 @@ const PersonnelPropertiesSidebar: React.FC<PersonnelPropertiesSidebarProps> = ({
     <Card className="p-4 bg-card rounded-xl shadow-xs">
       <h3 className="text-lg font-medium mb-4">Properties</h3>
       <div className="flex flex-col gap-3">
-        <TextField name="externalUserID" label="External User ID" icon={<Hash className={iconClass} />} {...sharedFieldProps} />
+        <TextField name="externalUserID" label="External User ID" icon={<Hash className={iconClass} />} tooltipContent="The user ID in an external system" {...sharedFieldProps} />
 
-        <TextField name="externalReferenceID" label="External Ref ID" icon={<KeyRound className={iconClass} />} {...sharedFieldProps} />
+        <TextField name="externalReferenceID" label="External Ref ID" icon={<KeyRound className={iconClass} />} tooltipContent="A reference ID from an external system" {...sharedFieldProps} />
 
         <ResponsibilityField
           name="internalOwner"
@@ -107,26 +103,13 @@ const PersonnelPropertiesSidebar: React.FC<PersonnelPropertiesSidebarProps> = ({
           icon={<UserRound className={iconClass} />}
           layout="horizontal"
           labelClassName="text-muted-foreground"
+          tooltipContent="The internal owner responsible for this personnel record"
           isEditing={isEditing}
           isEditAllowed={canEditPersonnel}
           isCreate={false}
           internalEditing={internalEditing}
           setInternalEditing={setInternalEditing}
           handleUpdate={(input) => handleUpdate(input as UpdateIdentityHolderInput)}
-        />
-
-        <SelectField
-          name="status"
-          label="Status"
-          options={statusOptions}
-          useCustomDisplay={false}
-          renderValue={(value) => (
-            <div className="flex items-center space-x-2 text-sm">
-              {PersonnelStatusIconMapper[value as IdentityHolderUserStatus]}
-              <span>{getEnumLabel(value)}</span>
-            </div>
-          )}
-          {...sharedFieldProps}
         />
 
         <div className="flex items-center justify-between gap-4">

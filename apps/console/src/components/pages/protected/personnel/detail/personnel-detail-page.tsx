@@ -75,7 +75,7 @@ const PersonnelDetailPage: React.FC<PersonnelDetailPageProps> = ({ personnelId }
   }, [setCrumbs, data?.identityHolder, isLoading])
 
   useEffect(() => {
-    if (data?.identityHolder) {
+    if (data?.identityHolder && !isDirty) {
       const normalized = normalizeData(data.identityHolder)
       const newValues: Partial<EditPersonnelFormData> = {
         fullName: data.identityHolder.fullName ?? '',
@@ -102,7 +102,7 @@ const PersonnelDetailPage: React.FC<PersonnelDetailPageProps> = ({ personnelId }
       form.reset(newValues)
       setInitialValues(newValues)
     }
-  }, [data?.identityHolder, form])
+  }, [data?.identityHolder, form, isDirty])
 
   const onSubmit = async (values: EditPersonnelFormData) => {
     try {
@@ -126,6 +126,9 @@ const PersonnelDetailPage: React.FC<PersonnelDetailPageProps> = ({ personnelId }
       }
 
       await updateIdentityHolder({ updateIdentityHolderId: personnelId, input })
+
+      form.reset(values)
+      setInitialValues(values)
 
       successNotification({
         title: 'Personnel updated',
@@ -152,6 +155,7 @@ const PersonnelDetailPage: React.FC<PersonnelDetailPageProps> = ({ personnelId }
   const handleUpdateField = async (input: UpdateIdentityHolderInput, options?: { throwOnError?: boolean }) => {
     try {
       await updateIdentityHolder({ updateIdentityHolderId: personnelId, input })
+      form.reset(form.getValues())
       successNotification({
         title: 'Personnel updated',
         description: 'The personnel record was successfully updated.',

@@ -11,6 +11,7 @@ import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { createSelectColumn } from '@/components/shared/crud-base/columns/select-column'
 import { CustomEnumChipCell } from '@/components/shared/crud-base/columns/custom-enum-chip-cell'
 import { ResponsibilityCell } from '@/components/shared/crud-base/columns/responsibility-cell'
+import { formatPhoneNumber } from '@/utils/strings'
 
 export const getColumns = ({ userMap, selectedItems, setSelectedItems }: ColumnOptions): ColumnDef<IdentityHoldersNodeNonNull>[] => {
   return [
@@ -24,7 +25,7 @@ export const getColumns = ({ userMap, selectedItems, setSelectedItems }: ColumnO
     { accessorKey: 'department', header: 'Department', size: 150 },
     { accessorKey: 'team', header: 'Team', size: 120 },
     { accessorKey: 'location', header: 'Location', size: 150 },
-    { accessorKey: 'phoneNumber', header: 'Phone Number', size: 150 },
+    { accessorKey: 'phoneNumber', header: 'Phone Number', size: 150, cell: ({ row }) => formatPhoneNumber(row.original.phoneNumber) || '-' },
     {
       accessorKey: 'status',
       header: 'Status',
