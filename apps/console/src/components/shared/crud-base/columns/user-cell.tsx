@@ -3,11 +3,15 @@ import { Avatar } from '@/components/shared/avatar/avatar'
 
 type UserCellProps = {
   user: User | undefined
+  fallback?: string
   className?: string
 }
 
-export function UserCell({ user, className = 'h-6 w-6' }: UserCellProps) {
+export function UserCell({ user, fallback, className = 'h-6 w-6' }: UserCellProps) {
   if (!user) {
+    if (fallback) {
+      return <span className="text-muted-foreground">{fallback}</span>
+    }
     return <span className="text-muted-foreground italic">Deleted user</span>
   }
 

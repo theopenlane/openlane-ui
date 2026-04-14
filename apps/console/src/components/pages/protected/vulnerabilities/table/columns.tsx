@@ -84,14 +84,14 @@ export const getColumns = ({
       accessorKey: 'createdBy',
       header: 'Created By',
       size: 160,
-      cell: ({ row }) => <UserCell user={userMap[row.original.createdBy ?? '']} />,
+      cell: ({ row }) => <UserCell user={userMap[row.original.createdBy ?? '']} fallback={row.original.createdBy ?? undefined} />,
     },
     { accessorKey: 'updatedAt', header: 'Updated At', size: 130, cell: ({ cell }) => <DateCell value={cell.getValue() as string} variant="timesince" /> },
     {
       accessorKey: 'updatedBy',
       header: 'Updated By',
       size: 160,
-      cell: ({ row }) => <UserCell user={userMap[row.original.updatedBy ?? '']} />,
+      cell: ({ row }) => <UserCell user={userMap[row.original.updatedBy ?? '']} fallback={row.original.updatedBy ?? undefined} />,
     },
     {
       accessorKey: 'tags',

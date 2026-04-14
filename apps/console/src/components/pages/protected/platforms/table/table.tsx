@@ -11,6 +11,7 @@ import { PLATFORMS_SORT_FIELDS } from './table-config'
 import { getColumns } from './columns'
 import { type TTableProps } from '@/components/shared/crud-base/page'
 import { objectName, tableKey } from './types'
+import { isUlid } from '@/lib/validators'
 
 const TableComponent = ({
   onSortChange,
@@ -58,8 +59,8 @@ const TableComponent = ({
     if (!items) return []
     const ids = new Set<string>()
     items.forEach((item) => {
-      if (item.createdBy) ids.add(item.createdBy)
-      if (item.updatedBy) ids.add(item.updatedBy)
+      if (item.createdBy && isUlid(item.createdBy)) ids.add(item.createdBy)
+      if (item.updatedBy && isUlid(item.updatedBy)) ids.add(item.updatedBy)
       const full = item as unknown as PlatformFull
       if (full.businessOwnerUser?.id) ids.add(full.businessOwnerUser.id)
       if (full.technicalOwnerUser?.id) ids.add(full.technicalOwnerUser.id)
