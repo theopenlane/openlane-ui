@@ -1,9 +1,11 @@
 'use client'
 
 import React, { useCallback } from 'react'
-import { type UseFormReturn } from 'react-hook-form'
+import { type UseFormReturn, useWatch } from 'react-hook-form'
+import { X } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
+import { Input } from '@repo/ui/input'
 import { useTemplateSelect } from '@/lib/graphql-hooks/template'
 import { TemplateTemplateKind } from '@repo/codegen/src/schema'
 import { type CampaignFormData } from '../hooks/use-campaign-form-schema'
@@ -14,6 +16,8 @@ interface QuestionnaireStepProps {
 
 export const QuestionnaireStep: React.FC<QuestionnaireStepProps> = ({ form }) => {
   const { templateOptions, templates, isLoading } = useTemplateSelect({ where: { kind: TemplateTemplateKind.QUESTIONNAIRE } })
+  const questionnaireId = useWatch({ control: form.control, name: 'questionnaireTemplateID' })
+  const hasQuestionnaire = !!questionnaireId
 
   const populateFromQuestionnaire = useCallback(
     (val: string) => {
@@ -29,8 +33,35 @@ export const QuestionnaireStep: React.FC<QuestionnaireStepProps> = ({ form }) =>
     [form, templates],
   )
 
+  const handleClear = useCallback(
+    (e: React.PointerEvent | React.MouseEvent) => {
+      e.preventDefault()
+      e.stopPropagation()
+      form.setValue('questionnaireTemplateID', '', { shouldDirty: true })
+      populateFromQuestionnaire('')
+    },
+    [form, populateFromQuestionnaire],
+  )
+
   return (
     <div className="flex flex-col gap-4">
+      <FormField
+        control={form.control}
+        name="name"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel className="pb-1 block">Campaign Name</FormLabel>
+            <FormControl>
+              <Input
+                {...field}
+                value={field.value ?? ''}
+                disabled={hasQuestionnaire}
+                placeholder={hasQuestionnaire ? 'Using questionnaire name' : 'Enter a campaign name'}
+              />
+            </FormControl>
+          </FormItem>
+        )}
+      />
       <FormField
         control={form.control}
         name="questionnaireTemplateID"
@@ -38,6 +69,7 @@ export const QuestionnaireStep: React.FC<QuestionnaireStepProps> = ({ form }) =>
           <FormItem>
             <FormLabel className="pb-1 block">Questionnaire</FormLabel>
             <Select
+              key={field.value || 'empty'}
               value={field.value || undefined}
               onValueChange={(val) => {
                 field.onChange(val)
@@ -45,8 +77,19 @@ export const QuestionnaireStep: React.FC<QuestionnaireStepProps> = ({ form }) =>
               }}
             >
               <FormControl>
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="w-full pr-2">
                   <SelectValue placeholder="Select one from the list" />
+                  {field.value ? (
+                    <span
+                      role="button"
+                      aria-label="Clear questionnaire"
+                      className="ml-auto mr-1 inline-flex items-center justify-center p-0.5 text-muted-foreground"
+                      onPointerDown={handleClear}
+                      onClick={handleClear}
+                    >
+                      <X size={14} />
+                    </span>
+                  ) : null}
                 </SelectTrigger>
               </FormControl>
               <SelectContent>
