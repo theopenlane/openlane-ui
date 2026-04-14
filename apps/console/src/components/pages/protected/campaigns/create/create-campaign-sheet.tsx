@@ -147,7 +147,7 @@ export const CreateCampaignSheet: React.FC<CreateCampaignSheetProps> = ({ open, 
     () => [
       {
         title: 'Questionnaire',
-        description: 'Choose a questionnaire to get started with your campaign',
+        description: 'Name your campaign and optionally attach a questionnaire',
         content: <QuestionnaireStep form={form} />,
       },
       {
