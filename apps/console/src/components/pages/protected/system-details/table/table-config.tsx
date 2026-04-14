@@ -38,12 +38,15 @@ export const SYSTEM_DETAILS_SORT_FIELDS = enumToSortFields(SystemDetailOrderFiel
 export const visibilityFields = {
   id: false,
   displayID: false,
+  version: false,
   authorizationBoundary: false,
-  oscalMetadataJSON: false,
   revisionHistory: false,
+  program: false,
+  tags: false,
+  lastReviewed: false,
+  createdAt: false,
   createdBy: false,
   updatedBy: false,
-  lastReviewed: false,
 }
 
 export const getFieldsToRender = (props: SystemDetailFieldProps, enumOptions: EnumOptions) => {
@@ -74,11 +77,13 @@ export const getFieldsToRender = (props: SystemDetailFieldProps, enumOptions: En
       <AdditionalFields
         isEditing={props.isEditing}
         isEditAllowed={props.isEditAllowed}
+        isCreate={props.isCreate}
         data={props.data as SystemDetailQuery['systemDetail'] | undefined}
         internalEditing={props.internalEditing}
         setInternalEditing={props.setInternalEditing}
         handleUpdateField={props.handleUpdateField as ((input: UpdateSystemDetailInput) => Promise<void>) | undefined}
         enumOptions={enumOptions}
+        isFormInitialized={props.isFormInitialized}
       />
     </div>
   )

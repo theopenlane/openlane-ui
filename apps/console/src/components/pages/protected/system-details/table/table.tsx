@@ -8,6 +8,7 @@ import { type SystemDetailsNodeNonNull, useSystemDetailsWithFilter } from '@/lib
 import { useNotification } from '@/hooks/useNotification'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 import { type TTableProps } from '@/components/shared/crud-base/page'
+import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { getColumns } from './columns'
 import { SYSTEM_DETAILS_SORT_FIELDS } from './table-config'
 import { objectName, tableKey } from './types'
@@ -112,7 +113,9 @@ const TableComponent = ({
     return map
   }, [users])
 
-  const columns = useMemo(() => getColumns({ userMap, selectedItems, setSelectedItems }), [userMap, selectedItems, setSelectedItems])
+  const { convertToReadOnly } = usePlateEditor()
+
+  const columns = useMemo(() => getColumns({ userMap, convertToReadOnly, selectedItems, setSelectedItems }), [userMap, convertToReadOnly, selectedItems, setSelectedItems])
 
   return (
     <DataTable<SystemDetailsNodeNonNull, SystemDetail>

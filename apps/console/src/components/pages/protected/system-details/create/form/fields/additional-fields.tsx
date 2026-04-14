@@ -7,18 +7,7 @@ import { TextField } from '@/components/shared/crud-base/form-fields/text-field'
 import { type InternalEditingType } from '@/components/shared/crud-base/generic-sheet'
 import { type SystemDetailQuery, type UpdateSystemDetailInput } from '@repo/codegen/src/schema'
 import { type EnumOptions } from '../../../table/types'
-
-const formatJsonValue = (value?: string | Record<string, unknown> | Array<unknown> | null) => {
-  if (!value) {
-    return ''
-  }
-
-  if (typeof value === 'string') {
-    return value
-  }
-
-  return JSON.stringify(value, null, 2)
-}
+import RichTextField from './rich-text-field'
 
 interface AdditionalFieldsProps {
   isEditing: boolean
@@ -29,39 +18,79 @@ interface AdditionalFieldsProps {
   setInternalEditing: InternalEditingType
   handleUpdateField?: (input: UpdateSystemDetailInput) => Promise<void>
   enumOptions: EnumOptions
+  isFormInitialized?: boolean
 }
 
-export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, isEditAllowed, isCreate = false, data, internalEditing, setInternalEditing, handleUpdateField, enumOptions }) => {
-  const formattedData = data
-    ? {
-        ...data,
-        oscalMetadataJSON: formatJsonValue(data.oscalMetadataJSON as string | Record<string, unknown> | Array<unknown> | null | undefined),
-        revisionHistory: formatJsonValue(data.revisionHistory as string | Record<string, unknown> | Array<unknown> | null | undefined),
-      }
-    : data
-
+export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
+  isEditing,
+  isEditAllowed,
+  isCreate = false,
+  data,
+  internalEditing,
+  setInternalEditing,
+  handleUpdateField,
+  enumOptions,
+  isFormInitialized,
+}) => {
   const sharedFieldProps = {
     isEditing,
     isEditAllowed,
     isCreate,
-    data: formattedData,
+    data,
     internalEditing,
     setInternalEditing,
     handleUpdate: handleUpdateField,
   }
 
+  const revisionHistoryInitialValue = Array.isArray(data?.revisionHistory) ? (data?.revisionHistory?.[0] as string | undefined) : undefined
+
   return (
     <div className="space-y-6">
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-md p-0">Basic Information</CardTitle>
-          <CardDescription className="p-0">Describe the system and track the version currently in scope</CardDescription>
+          <CardTitle className="text-md p-0">Description</CardTitle>
+          <CardDescription className="p-0">Overview of the system detail record</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-2">
-            <TextField name="description" label="Description" multiline tooltipContent="Overview of the system detail record" {...sharedFieldProps} />
-            <TextField name="version" label="Version" tooltipContent="Version or release identifier for this system" {...sharedFieldProps} />
-          </div>
+          <RichTextField
+            name="description"
+            label="Description"
+            tooltip="Overview of the system detail record"
+            placeholder="Write a description for this system"
+            isEditing={isEditing}
+            isCreate={isCreate}
+            initialValue={data?.description}
+            isFormInitialized={isFormInitialized}
+          />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-md p-0">Authorization Boundary</CardTitle>
+          <CardDescription className="p-0">Boundary definition for the system</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <TextField name="authorizationBoundary" label="Authorization Boundary" multiline tooltipContent="Boundary definition for the system" {...sharedFieldProps} />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-md p-0">Revision History</CardTitle>
+          <CardDescription className="p-0">Revision history for this system</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <RichTextField
+            name="revisionHistory"
+            label="Revision History"
+            tooltip="Revision history for this system"
+            placeholder="Document the revision history for this system"
+            isEditing={isEditing}
+            isCreate={isCreate}
+            initialValue={revisionHistoryInitialValue}
+            isFormInitialized={isFormInitialized}
+          />
         </CardContent>
       </Card>
 
@@ -87,34 +116,6 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({ isEditing, i
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             <SelectField name="platformID" label="Platform" options={enumOptions.platformOptions} useCustomDisplay={false} {...sharedFieldProps} />
             <SelectField name="programID" label="Program" options={enumOptions.programOptions} useCustomDisplay={false} {...sharedFieldProps} />
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="text-md p-0">OSCAL Data</CardTitle>
-          <CardDescription className="p-0">Store the system boundary and structured OSCAL metadata</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <TextField name="authorizationBoundary" label="Authorization Boundary" multiline tooltipContent="Boundary definition for the system" {...sharedFieldProps} />
-            <TextField
-              name="oscalMetadataJSON"
-              label="OSCAL Metadata JSON"
-              multiline
-              tooltipContent="Valid JSON describing OSCAL metadata for this system"
-              {...sharedFieldProps}
-              isEditAllowed={isEditing ? isEditAllowed : false}
-            />
-            <TextField
-              name="revisionHistory"
-              label="Revision History"
-              multiline
-              tooltipContent="Valid JSON describing revision history for this system"
-              {...sharedFieldProps}
-              isEditAllowed={isEditing ? isEditAllowed : false}
-            />
           </div>
         </CardContent>
       </Card>

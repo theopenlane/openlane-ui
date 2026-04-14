@@ -2,8 +2,10 @@
 
 import React from 'react'
 import { useSearchParams } from 'next/navigation'
+import { type Value } from 'platejs'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
+import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { breadcrumbs, getFieldsToRender, getFilterFields, visibilityFields } from './table-config'
 import { getColumns } from './columns'
 import TableComponent from './table'
@@ -23,35 +25,17 @@ import {
 } from '@/lib/graphql-hooks/system-detail'
 import { defaultSorting, exportType, objectName, objectType, orderFieldEnum, tableKey, type SystemDetailFieldProps, type SystemDetailSheetConfig, type SystemDetailTablePageConfig } from './types'
 
-const formatJsonValue = (value?: string | Record<string, unknown> | Array<unknown> | null) => {
-  if (!value) {
-    return ''
-  }
-
-  if (typeof value === 'string') {
-    return value
-  }
-
-  return JSON.stringify(value, null, 2)
-}
-
-const parseOptionalJson = (value: string | undefined, emptyValue: null | undefined) => {
-  if (!value?.trim()) {
-    return emptyValue
-  }
-
-  return JSON.parse(value)
-}
-
 const normalizeData = (data: SystemDetailQuery['systemDetail']) => {
   if (!data) {
     return {}
   }
 
+  const normalized = Object.fromEntries(Object.entries(data).map(([key, value]) => [key, value === null ? undefined : value]))
+  const revisionHistory = Array.isArray(data.revisionHistory) ? (data.revisionHistory[0] as string | undefined) : undefined
+
   return {
-    ...Object.fromEntries(Object.entries(data).map(([key, value]) => [key, value === null ? undefined : value])),
-    oscalMetadataJSON: formatJsonValue(data.oscalMetadataJSON as string | Record<string, unknown> | Array<unknown> | null | undefined),
-    revisionHistory: formatJsonValue(data.revisionHistory as string | Record<string, unknown> | Array<unknown> | null | undefined),
+    ...normalized,
+    revisionHistory,
   }
 }
 
@@ -81,6 +65,7 @@ const SystemDetailPage: React.FC = () => {
   const id = searchParams.get('id')
   const isCreate = searchParams.get('create') === 'true'
   const { data, isLoading } = useSystemDetail(id || undefined)
+  const plateEditorHelper = usePlateEditor()
 
   const getName = (systemDetail: SystemDetailsNodeNonNull) => {
     return systemDetail?.systemName
@@ -148,14 +133,17 @@ const SystemDetailPage: React.FC = () => {
     deleteMutation,
     buildPayload: async (formData) => {
       const emptyValue = isCreate ? undefined : null
+      const description = formData.description ? await plateEditorHelper.convertToHtml(formData.description as Value) : emptyValue
+      const revisionHistoryHtml = formData.revisionHistory ? await plateEditorHelper.convertToHtml(formData.revisionHistory as Value) : ''
+      const revisionHistory = revisionHistoryHtml ? [revisionHistoryHtml] : emptyValue
 
       return {
         ...formData,
+        description,
+        revisionHistory,
         lastReviewed: normalizeDateValue(formData.lastReviewed, emptyValue),
         platformID: normalizeOptionalId(formData.platformID, emptyValue),
         programID: normalizeOptionalId(formData.programID, emptyValue),
-        oscalMetadataJSON: parseOptionalJson(formData.oscalMetadataJSON, emptyValue),
-        revisionHistory: parseOptionalJson(formData.revisionHistory, emptyValue),
       }
     },
     normalizeData,
