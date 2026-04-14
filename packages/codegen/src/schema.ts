@@ -74505,10 +74505,15 @@ export type SystemDetailsWithFilterQuery = {
         oscalMetadataJSON?: any | null
         platformID?: string | null
         programID?: string | null
+        revisionHistory?: Array<any> | null
+        sensitivityLevel?: SystemDetailSystemSensitivityLevel | null
         systemName: string
+        tags?: Array<string> | null
         updatedAt?: any | null
         updatedBy?: string | null
         version?: string | null
+        platform?: { __typename?: 'Platform'; id: string; name: string } | null
+        program?: { __typename?: 'Program'; id: string; name: string } | null
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
@@ -74533,10 +74538,15 @@ export type SystemDetailQuery = {
     oscalMetadataJSON?: any | null
     platformID?: string | null
     programID?: string | null
+    revisionHistory?: Array<any> | null
+    sensitivityLevel?: SystemDetailSystemSensitivityLevel | null
     systemName: string
+    tags?: Array<string> | null
     updatedAt?: any | null
     updatedBy?: string | null
     version?: string | null
+    platform?: { __typename?: 'Platform'; id: string; name: string } | null
+    program?: { __typename?: 'Program'; id: string; name: string } | null
   }
 }
 

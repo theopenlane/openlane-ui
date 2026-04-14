@@ -123,6 +123,11 @@ export const topNavigationItems = (session: Session | null): (NavItem | Separato
           icon: LayoutGrid,
         },
         {
+          title: 'System Details',
+          href: '/registry/system-details',
+          icon: ServerCog,
+        },
+        {
           title: 'Assets',
           href: '/registry/assets',
           icon: Laptop,
