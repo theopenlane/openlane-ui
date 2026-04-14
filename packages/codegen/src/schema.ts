@@ -65416,13 +65416,8 @@ export type AssetsWithFilterQuery = {
         sourceType: AssetSourceType
         tags?: Array<string> | null
         website?: string | null
-        categories?: Array<string> | null
         internalOwnerGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
         internalOwnerUser?: { __typename?: 'User'; id: string; displayName: string } | null
-        entities: {
-          __typename?: 'EntityConnection'
-          edges?: Array<{ __typename?: 'EntityEdge'; node?: { __typename?: 'Entity'; id: string; name?: string | null; displayName?: string | null } | null } | null> | null
-        }
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
@@ -65467,13 +65462,8 @@ export type AssetQuery = {
     sourceType: AssetSourceType
     tags?: Array<string> | null
     website?: string | null
-    categories?: Array<string> | null
     internalOwnerGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
     internalOwnerUser?: { __typename?: 'User'; id: string; displayName: string } | null
-    entities: {
-      __typename?: 'EntityConnection'
-      edges?: Array<{ __typename?: 'EntityEdge'; node?: { __typename?: 'Entity'; id: string; name?: string | null; displayName?: string | null } | null } | null> | null
-    }
   }
 }
 
@@ -66204,7 +66194,6 @@ export type ControlListFieldsFragment = {
     avatarFile?: { __typename?: 'File'; base64?: string | null } | null
   } | null
   delegate?: { __typename?: 'Group'; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
-  responsibleParty?: { __typename?: 'Entity'; id: string; displayName?: string | null; name?: string | null; logoFile?: { __typename?: 'File'; base64?: string | null } | null } | null
   controlImplementations: {
     __typename?: 'ControlImplementationConnection'
     edges?: Array<{ __typename?: 'ControlImplementationEdge'; node?: { __typename?: 'ControlImplementation'; details?: string | null } | null } | null> | null
@@ -66392,7 +66381,6 @@ export type GetAllControlsQuery = {
           avatarFile?: { __typename?: 'File'; base64?: string | null } | null
         } | null
         delegate?: { __typename?: 'Group'; displayName: string; logoURL?: string | null; gravatarLogoURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
-        responsibleParty?: { __typename?: 'Entity'; id: string; displayName?: string | null; name?: string | null; logoFile?: { __typename?: 'File'; base64?: string | null } | null } | null
         controlImplementations: {
           __typename?: 'ControlImplementationConnection'
           edges?: Array<{ __typename?: 'ControlImplementationEdge'; node?: { __typename?: 'ControlImplementation'; details?: string | null } | null } | null> | null
@@ -69080,7 +69068,6 @@ export type FindingsWithFilterQuery = {
         assessmentID?: string | null
         blocksProduction?: boolean | null
         category?: string | null
-        categories?: Array<string> | null
         createdAt?: any | null
         createdBy?: string | null
         description?: string | null
@@ -69145,7 +69132,6 @@ export type FindingQuery = {
     assessmentID?: string | null
     blocksProduction?: boolean | null
     category?: string | null
-    categories?: Array<string> | null
     createdAt?: any | null
     createdBy?: string | null
     description?: string | null
@@ -69883,7 +69869,6 @@ export type GetIntegrationsQuery = {
         id: string
         name: string
         kind?: string | null
-        integrationType?: string | null
         definitionID?: string | null
         definitionSlug?: string | null
         family?: string | null
@@ -69893,8 +69878,6 @@ export type GetIntegrationsQuery = {
         metadata?: any | null
         createdAt?: any | null
         createdBy?: string | null
-        environmentName?: string | null
-        scopeName?: string | null
       } | null
     } | null> | null
   }
@@ -71678,18 +71661,6 @@ export type PlatformQuery = {
         } | null
       } | null> | null
     }
-    architectureDiagrams: {
-      __typename?: 'FileConnection'
-      edges?: Array<{ __typename?: 'FileEdge'; node?: { __typename?: 'File'; id: string; providedFileName: string; presignedURL?: string | null } | null } | null> | null
-    }
-    dataFlowDiagrams: {
-      __typename?: 'FileConnection'
-      edges?: Array<{ __typename?: 'FileEdge'; node?: { __typename?: 'File'; id: string; providedFileName: string; presignedURL?: string | null } | null } | null> | null
-    }
-    trustBoundaryDiagrams: {
-      __typename?: 'FileConnection'
-      edges?: Array<{ __typename?: 'FileEdge'; node?: { __typename?: 'File'; id: string; providedFileName: string; base64?: string | null } | null } | null> | null
-    }
   }
 }
 
@@ -71702,9 +71673,6 @@ export type CreatePlatformMutation = { __typename?: 'Mutation'; createPlatform: 
 export type UpdatePlatformMutationVariables = Exact<{
   updatePlatformId: Scalars['ID']['input']
   input: UpdatePlatformInput
-  architectureDiagrams?: InputMaybe<Array<Scalars['Upload']['input']> | Scalars['Upload']['input']>
-  dataFlowDiagrams?: InputMaybe<Array<Scalars['Upload']['input']> | Scalars['Upload']['input']>
-  trustBoundaryDiagrams?: InputMaybe<Array<Scalars['Upload']['input']> | Scalars['Upload']['input']>
 }>
 
 export type UpdatePlatformMutation = { __typename?: 'Mutation'; updatePlatform: { __typename?: 'PlatformUpdatePayload'; platform: { __typename?: 'Platform'; id: string } } }
@@ -72851,11 +72819,6 @@ export type GetReviewAssociationsQuery = {
       totalCount: number
       edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; name: string; displayID: string } | null } | null> | null
     }
-    risks: {
-      __typename?: 'RiskConnection'
-      totalCount: number
-      edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string; displayID: string } | null } | null> | null
-    }
   }
 }
 
@@ -72891,25 +72854,15 @@ export type RiskFieldsFragment = {
   name: string
   details?: string | null
   detailsJSON?: Array<any> | null
-  dueDate?: string | null
   tags?: Array<string> | null
   riskCategoryName?: string | null
   riskKindName?: string | null
   score?: number | null
   status?: RiskRiskStatus | null
   businessCosts?: string | null
-  lastReviewedAt?: string | null
   likelihood?: RiskRiskLikelihood | null
   impact?: RiskRiskImpact | null
-  mitigatedAt?: string | null
   mitigation?: string | null
-  nextReviewDueAt?: string | null
-  residualScore?: number | null
-  reviewFrequency?: RiskFrequency | null
-  environmentName?: string | null
-  scopeName?: string | null
-  reviewRequired?: boolean | null
-  riskDecision?: RiskRiskDecision | null
   createdAt?: any | null
   stakeholder?: {
     __typename?: 'Group'
@@ -72927,6 +72880,47 @@ export type RiskFieldsFragment = {
     logoURL?: string | null
     avatarFile?: { __typename?: 'File'; base64?: string | null } | null
   } | null
+  procedures: {
+    __typename?: 'ProcedureConnection'
+    totalCount: number
+    edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string; displayID: string; summary?: string | null } | null } | null> | null
+  }
+  controls: {
+    __typename?: 'ControlConnection'
+    totalCount: number
+    edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; displayID: string; refCode: string } | null } | null> | null
+  }
+  subcontrols: {
+    __typename?: 'SubcontrolConnection'
+    totalCount: number
+    edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; displayID: string; refCode: string; controlId: string } | null } | null> | null
+  }
+  programs: {
+    __typename?: 'ProgramConnection'
+    totalCount: number
+    edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; displayID: string; name: string; description?: string | null } | null } | null> | null
+  }
+  tasks: {
+    __typename?: 'TaskConnection'
+    totalCount: number
+    edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; displayID: string; title: string; details?: string | null } | null } | null> | null
+  }
+  internalPolicies: {
+    __typename?: 'InternalPolicyConnection'
+    totalCount: number
+    edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; displayID: string; name: string } | null } | null> | null
+  }
+  assets: {
+    __typename?: 'AssetConnection'
+    totalCount: number
+    edges?: Array<{ __typename?: 'AssetEdge'; node?: { __typename?: 'Asset'; id: string; name: string; displayName?: string | null } | null } | null> | null
+  }
+  entities: {
+    __typename?: 'EntityConnection'
+    totalCount: number
+    edges?: Array<{ __typename?: 'EntityEdge'; node?: { __typename?: 'Entity'; id: string; name?: string | null; displayName?: string | null } | null } | null> | null
+  }
+  scans: { __typename?: 'ScanConnection'; totalCount: number; edges?: Array<{ __typename?: 'ScanEdge'; node?: { __typename?: 'Scan'; id: string; target: string } | null } | null> | null }
 }
 
 export type RiskTableFieldsFragment = {
@@ -72934,7 +72928,6 @@ export type RiskTableFieldsFragment = {
   id: string
   displayID: string
   name: string
-  dueDate?: string | null
   riskCategoryName?: string | null
   riskKindName?: string | null
   score?: number | null
@@ -72942,21 +72935,12 @@ export type RiskTableFieldsFragment = {
   businessCosts?: string | null
   details?: string | null
   impact?: RiskRiskImpact | null
-  lastReviewedAt?: string | null
   likelihood?: RiskRiskLikelihood | null
   mitigation?: string | null
-  mitigatedAt?: string | null
   updatedAt?: any | null
   updatedBy?: string | null
   createdAt?: any | null
   createdBy?: string | null
-  nextReviewDueAt?: string | null
-  residualScore?: number | null
-  reviewFrequency?: RiskFrequency | null
-  reviewRequired?: boolean | null
-  riskDecision?: RiskRiskDecision | null
-  environmentName?: string | null
-  scopeName?: string | null
   delegate?: { __typename?: 'Group'; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
   stakeholder?: {
     __typename?: 'Group'
@@ -72981,25 +72965,15 @@ export type GetRiskByIdQuery = {
     name: string
     details?: string | null
     detailsJSON?: Array<any> | null
-    dueDate?: string | null
     tags?: Array<string> | null
     riskCategoryName?: string | null
     riskKindName?: string | null
     score?: number | null
     status?: RiskRiskStatus | null
     businessCosts?: string | null
-    lastReviewedAt?: string | null
     likelihood?: RiskRiskLikelihood | null
     impact?: RiskRiskImpact | null
-    mitigatedAt?: string | null
     mitigation?: string | null
-    nextReviewDueAt?: string | null
-    residualScore?: number | null
-    reviewFrequency?: RiskFrequency | null
-    environmentName?: string | null
-    scopeName?: string | null
-    reviewRequired?: boolean | null
-    riskDecision?: RiskRiskDecision | null
     createdAt?: any | null
     stakeholder?: {
       __typename?: 'Group'
@@ -73017,6 +72991,47 @@ export type GetRiskByIdQuery = {
       logoURL?: string | null
       avatarFile?: { __typename?: 'File'; base64?: string | null } | null
     } | null
+    procedures: {
+      __typename?: 'ProcedureConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string; displayID: string; summary?: string | null } | null } | null> | null
+    }
+    controls: {
+      __typename?: 'ControlConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; displayID: string; refCode: string } | null } | null> | null
+    }
+    subcontrols: {
+      __typename?: 'SubcontrolConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; displayID: string; refCode: string; controlId: string } | null } | null> | null
+    }
+    programs: {
+      __typename?: 'ProgramConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; displayID: string; name: string; description?: string | null } | null } | null> | null
+    }
+    tasks: {
+      __typename?: 'TaskConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; displayID: string; title: string; details?: string | null } | null } | null> | null
+    }
+    internalPolicies: {
+      __typename?: 'InternalPolicyConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; displayID: string; name: string } | null } | null> | null
+    }
+    assets: {
+      __typename?: 'AssetConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'AssetEdge'; node?: { __typename?: 'Asset'; id: string; name: string; displayName?: string | null } | null } | null> | null
+    }
+    entities: {
+      __typename?: 'EntityConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'EntityEdge'; node?: { __typename?: 'Entity'; id: string; name?: string | null; displayName?: string | null } | null } | null> | null
+    }
+    scans: { __typename?: 'ScanConnection'; totalCount: number; edges?: Array<{ __typename?: 'ScanEdge'; node?: { __typename?: 'Scan'; id: string; target: string } | null } | null> | null }
   }
 }
 
@@ -73042,7 +73057,6 @@ export type GetAllRisksQuery = {
         id: string
         displayID: string
         name: string
-        dueDate?: string | null
         riskCategoryName?: string | null
         riskKindName?: string | null
         score?: number | null
@@ -73050,21 +73064,12 @@ export type GetAllRisksQuery = {
         businessCosts?: string | null
         details?: string | null
         impact?: RiskRiskImpact | null
-        lastReviewedAt?: string | null
         likelihood?: RiskRiskLikelihood | null
         mitigation?: string | null
-        mitigatedAt?: string | null
         updatedAt?: any | null
         updatedBy?: string | null
         createdAt?: any | null
         createdBy?: string | null
-        nextReviewDueAt?: string | null
-        residualScore?: number | null
-        reviewFrequency?: RiskFrequency | null
-        reviewRequired?: boolean | null
-        riskDecision?: RiskRiskDecision | null
-        environmentName?: string | null
-        scopeName?: string | null
         delegate?: { __typename?: 'Group'; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
         stakeholder?: {
           __typename?: 'Group'
@@ -73275,74 +73280,6 @@ export type GetRiskAssociationsTimelineQuery = {
     scans: {
       __typename?: 'ScanConnection'
       edges?: Array<{ __typename?: 'ScanEdge'; node?: { __typename?: 'Scan'; id: string; target: string; createdAt?: any | null; createdBy?: string | null } | null } | null> | null
-    }
-    reviews: {
-      __typename?: 'ReviewConnection'
-      edges?: Array<{ __typename?: 'ReviewEdge'; node?: { __typename?: 'Review'; id: string; title: string; createdAt?: any | null; createdBy?: string | null } | null } | null> | null
-    }
-    actionPlans: {
-      __typename?: 'ActionPlanConnection'
-      edges?: Array<{ __typename?: 'ActionPlanEdge'; node?: { __typename?: 'ActionPlan'; id: string; name: string; createdAt?: any | null; createdBy?: string | null } | null } | null> | null
-    }
-  }
-}
-
-export type GetRiskAssociationsQueryVariables = Exact<{
-  riskId: Scalars['ID']['input']
-}>
-
-export type GetRiskAssociationsQuery = {
-  __typename?: 'Query'
-  risk: {
-    __typename?: 'Risk'
-    controls: {
-      __typename?: 'ControlConnection'
-      totalCount: number
-      edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; displayID: string; refCode: string } | null } | null> | null
-    }
-    subcontrols: {
-      __typename?: 'SubcontrolConnection'
-      totalCount: number
-      edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; displayID: string; refCode: string; controlId: string } | null } | null> | null
-    }
-    programs: {
-      __typename?: 'ProgramConnection'
-      totalCount: number
-      edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; displayID: string; name: string; description?: string | null } | null } | null> | null
-    }
-    tasks: {
-      __typename?: 'TaskConnection'
-      totalCount: number
-      edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; displayID: string; title: string; details?: string | null } | null } | null> | null
-    }
-    internalPolicies: {
-      __typename?: 'InternalPolicyConnection'
-      totalCount: number
-      edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; displayID: string; name: string } | null } | null> | null
-    }
-    procedures: {
-      __typename?: 'ProcedureConnection'
-      edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string; displayID: string; createdAt?: any | null } | null } | null> | null
-    }
-    assets: {
-      __typename?: 'AssetConnection'
-      totalCount: number
-      edges?: Array<{ __typename?: 'AssetEdge'; node?: { __typename?: 'Asset'; id: string; name: string; displayName?: string | null } | null } | null> | null
-    }
-    entities: {
-      __typename?: 'EntityConnection'
-      totalCount: number
-      edges?: Array<{ __typename?: 'EntityEdge'; node?: { __typename?: 'Entity'; id: string; name?: string | null; displayName?: string | null } | null } | null> | null
-    }
-    scans: { __typename?: 'ScanConnection'; totalCount: number; edges?: Array<{ __typename?: 'ScanEdge'; node?: { __typename?: 'Scan'; id: string; target: string } | null } | null> | null }
-    reviews: { __typename?: 'ReviewConnection'; edges?: Array<{ __typename?: 'ReviewEdge'; node?: { __typename?: 'Review'; id: string; title: string } | null } | null> | null }
-    actionPlans: {
-      __typename?: 'ActionPlanConnection'
-      edges?: Array<{ __typename?: 'ActionPlanEdge'; node?: { __typename?: 'ActionPlan'; id: string; name: string; status?: ActionPlanDocumentStatus | null } | null } | null> | null
-    }
-    remediations: {
-      __typename?: 'RemediationConnection'
-      edges?: Array<{ __typename?: 'RemediationEdge'; node?: { __typename?: 'Remediation'; id: string; title?: string | null; displayID: string } | null } | null> | null
     }
   }
 }
