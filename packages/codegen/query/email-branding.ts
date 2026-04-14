@@ -12,6 +12,7 @@ export const GET_ALL_EMAIL_BRANDINGS = gql`
           buttonTextColor
           createdAt
           createdBy
+          fontFamily
           id
           isDefault
           linkColor
@@ -43,6 +44,7 @@ export const EMAIL_BRANDING = gql`
       buttonTextColor
       createdAt
       createdBy
+      fontFamily
       id
       isDefault
       linkColor
