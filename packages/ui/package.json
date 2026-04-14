@@ -19,6 +19,7 @@
     "./cardpanel": "./src/cardpanel/card.tsx",
     "./confirmation-dialog": "./src/confirmation-dialog/confirmation-dialog.tsx",
     "./checkbox": "./src/checkbox/checkbox.tsx",
+    "./code-block": "./src/code-block/code-block.tsx",
     "./command": "./src/command.tsx",
     "./data-table": "./src/data-table/data-table.tsx",
     "./table-key": "./src/data-table/table-key.ts",

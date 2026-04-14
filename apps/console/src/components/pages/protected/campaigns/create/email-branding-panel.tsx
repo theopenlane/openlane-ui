@@ -14,6 +14,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { EmailBrandingFont } from '@repo/codegen/src/schema'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { DEFAULT_EMAIL_BRANDING } from '@/constants/email-branding'
 
 interface EmailBrandingPanelProps {
   open: boolean
@@ -31,14 +32,14 @@ export const EmailBrandingPanel: React.FC<EmailBrandingPanelProps> = ({ open, on
   const [brandName, setBrandName] = useState('')
   const [logoRemoteURL, setLogoRemoteURL] = useState('')
   const [isDefault, setIsDefault] = useState(false)
-  const [fontFamily, setFontFamily] = useState<EmailBrandingFont>(EmailBrandingFont.HELVETICA)
-  const [textColor, setTextColor] = useState('#FFFFFF')
-  const [backgroundColor, setBackgroundColor] = useState('#09151D')
-  const [primaryColor, setPrimaryColor] = useState('#162431')
-  const [secondaryColor, setSecondaryColor] = useState('#9AA5B0')
-  const [linkColor, setLinkColor] = useState('#60E8C9')
-  const [buttonColor, setButtonColor] = useState('#60E8C9')
-  const [buttonTextColor, setButtonTextColor] = useState('#052E2A')
+  const [fontFamily, setFontFamily] = useState<EmailBrandingFont>(DEFAULT_EMAIL_BRANDING.fontFamily)
+  const [textColor, setTextColor] = useState<string>(DEFAULT_EMAIL_BRANDING.textColor)
+  const [backgroundColor, setBackgroundColor] = useState<string>(DEFAULT_EMAIL_BRANDING.backgroundColor)
+  const [primaryColor, setPrimaryColor] = useState<string>(DEFAULT_EMAIL_BRANDING.primaryColor)
+  const [secondaryColor, setSecondaryColor] = useState<string>(DEFAULT_EMAIL_BRANDING.secondaryColor)
+  const [linkColor, setLinkColor] = useState<string>(DEFAULT_EMAIL_BRANDING.linkColor)
+  const [buttonColor, setButtonColor] = useState<string>(DEFAULT_EMAIL_BRANDING.buttonColor)
+  const [buttonTextColor, setButtonTextColor] = useState<string>(DEFAULT_EMAIL_BRANDING.buttonTextColor)
 
   const { mutateAsync: createBranding, isPending } = useCreateEmailBranding()
   const { successNotification, errorNotification } = useNotification()
@@ -48,14 +49,14 @@ export const EmailBrandingPanel: React.FC<EmailBrandingPanelProps> = ({ open, on
     setBrandName('')
     setLogoRemoteURL('')
     setIsDefault(false)
-    setFontFamily(EmailBrandingFont.HELVETICA)
-    setTextColor('#FFFFFF')
-    setBackgroundColor('#09151D')
-    setPrimaryColor('#162431')
-    setSecondaryColor('#9AA5B0')
-    setLinkColor('#60E8C9')
-    setButtonColor('#60E8C9')
-    setButtonTextColor('#052E2A')
+    setFontFamily(DEFAULT_EMAIL_BRANDING.fontFamily)
+    setTextColor(DEFAULT_EMAIL_BRANDING.textColor)
+    setBackgroundColor(DEFAULT_EMAIL_BRANDING.backgroundColor)
+    setPrimaryColor(DEFAULT_EMAIL_BRANDING.primaryColor)
+    setSecondaryColor(DEFAULT_EMAIL_BRANDING.secondaryColor)
+    setLinkColor(DEFAULT_EMAIL_BRANDING.linkColor)
+    setButtonColor(DEFAULT_EMAIL_BRANDING.buttonColor)
+    setButtonTextColor(DEFAULT_EMAIL_BRANDING.buttonTextColor)
   }
 
   const handleClose = () => {

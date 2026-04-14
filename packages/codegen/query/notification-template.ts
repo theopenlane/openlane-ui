@@ -23,6 +23,9 @@ export const GET_ALL_NOTIFICATION_TEMPLATES = gql`
           subjectTemplate
           systemOwned
           titleTemplate
+          channel
+          destinations
+          format
           topicPattern
           uischema
           updatedAt
@@ -61,6 +64,9 @@ export const NOTIFICATION_TEMPLATE = gql`
       subjectTemplate
       systemOwned
       titleTemplate
+      channel
+      destinations
+      format
       topicPattern
       uischema
       updatedAt

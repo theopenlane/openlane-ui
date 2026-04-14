@@ -67768,6 +67768,7 @@ export type EmailBrandingsWithFilterQuery = {
         buttonTextColor?: string | null
         createdAt?: any | null
         createdBy?: string | null
+        fontFamily?: EmailBrandingFont | null
         id: string
         isDefault?: boolean | null
         linkColor?: string | null
@@ -67798,6 +67799,7 @@ export type EmailBrandingQuery = {
     buttonTextColor?: string | null
     createdAt?: any | null
     createdBy?: string | null
+    fontFamily?: EmailBrandingFont | null
     id: string
     isDefault?: boolean | null
     linkColor?: string | null
@@ -67875,6 +67877,7 @@ export type EmailTemplatesWithFilterQuery = {
         createdAt?: any | null
         createdBy?: string | null
         description?: string | null
+        format: EmailTemplateNotificationTemplateFormat
         id: string
         integrationID?: string | null
         jsonconfig?: any | null
@@ -67893,6 +67896,7 @@ export type EmailTemplatesWithFilterQuery = {
         workflowDefinitionID?: string | null
         workflowInstanceID?: string | null
         emailBranding?: Array<{ __typename?: 'EmailBranding'; id: string }> | null
+        campaigns: { __typename?: 'CampaignConnection'; totalCount: number }
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
@@ -67912,6 +67916,7 @@ export type EmailTemplateQuery = {
     createdAt?: any | null
     createdBy?: string | null
     description?: string | null
+    format: EmailTemplateNotificationTemplateFormat
     id: string
     integrationID?: string | null
     jsonconfig?: any | null
@@ -71117,6 +71122,9 @@ export type NotificationTemplatesWithFilterQuery = {
         subjectTemplate?: string | null
         systemOwned?: boolean | null
         titleTemplate?: string | null
+        channel: NotificationTemplateChannel
+        destinations?: Array<string> | null
+        format: NotificationTemplateNotificationTemplateFormat
         topicPattern: string
         uischema?: any | null
         updatedAt?: any | null
@@ -71154,6 +71162,9 @@ export type NotificationTemplateQuery = {
     subjectTemplate?: string | null
     systemOwned?: boolean | null
     titleTemplate?: string | null
+    channel: NotificationTemplateChannel
+    destinations?: Array<string> | null
+    format: NotificationTemplateNotificationTemplateFormat
     topicPattern: string
     uischema?: any | null
     updatedAt?: any | null

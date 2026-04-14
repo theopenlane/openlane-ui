@@ -297,6 +297,12 @@ export const topNavigationItems = (session: Session | null): (NavItem | Separato
           hidden: true,
         },
         {
+          title: 'Communications',
+          href: '/automation/communications',
+          icon: MailCheck,
+          hidden: true,
+        },
+        {
           title: 'Campaigns',
           href: '/automation/campaigns',
           icon: Megaphone,
