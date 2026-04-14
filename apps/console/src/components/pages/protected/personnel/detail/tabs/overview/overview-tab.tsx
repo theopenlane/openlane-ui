@@ -107,6 +107,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ personnel, isEditing, canEdit
       <Card>
         <CardHeader className={cardHeaderClassName}>
           <CardTitle className={cardTitleClassName}>Employment</CardTitle>
+          <CardDescription className="p-0">Job title, department, team, location, and employment date details</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 gap-x-8 gap-y-4">
@@ -123,6 +124,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ personnel, isEditing, canEdit
       <Card>
         <CardHeader className={cardHeaderClassName}>
           <CardTitle className={cardTitleClassName}>Classification</CardTitle>
+          <CardDescription className="p-0">Personnel type, status, and system access details</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 gap-x-8 gap-y-4">
@@ -150,6 +152,7 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ personnel, isEditing, canEdit
       <Card>
         <CardHeader className={cardHeaderClassName}>
           <CardTitle className={cardTitleClassName}>Audit Scope</CardTitle>
+          <CardDescription className="p-0">Environment and scope classification for audit purposes</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 gap-x-8 gap-y-4">

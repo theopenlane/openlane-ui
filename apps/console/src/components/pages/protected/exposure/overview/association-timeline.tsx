@@ -37,9 +37,10 @@ const formatDate = (iso: string): string => {
 type Props = {
   nodes: TimelineNode[]
   isLoading?: boolean
+  suppressLinkedDateFallback?: boolean
 }
 
-const AssociationTimeline = ({ nodes, isLoading }: Props) => {
+const AssociationTimeline = ({ nodes, isLoading, suppressLinkedDateFallback = false }: Props) => {
   if (isLoading) {
     return (
       <div className="space-y-3 py-2">
@@ -102,11 +103,21 @@ const AssociationTimeline = ({ nodes, isLoading }: Props) => {
               )
             }
             if (node.source) {
+              if (suppressLinkedDateFallback) {
+                return (
+                  <>
+                    created by <span className="font-medium text-foreground/70">{node.source}</span>
+                  </>
+                )
+              }
               return (
                 <>
                   created by <span className="font-medium text-foreground/70">{node.source}</span> on {date}
                 </>
               )
+            }
+            if (suppressLinkedDateFallback) {
+              return <>linked</>
             }
             return <>linked {date}</>
           })()
