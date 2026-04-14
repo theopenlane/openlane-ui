@@ -194,7 +194,7 @@ const AIChat: React.FC<AIChatProps> = ({ open, onOpenChange, providedContext, co
                 <div key={index} className={`flex gap-3 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                   <div className={`max-w-[80%] rounded-lg p-3 ${message.role === 'user' ? 'bg-primary text-chat-user-text' : 'bg-muted text-chat-assistant-text'}`}>
                     <div className="flex items-start justify-between gap-2">
-                      <div className="flex-1 whitespace-pre-wrap break-words text-sm">
+                      <div className="flex-1 min-w-0 whitespace-pre-wrap break-words text-sm">
                         {message.role === 'assistant' ? (
                           <>
                             <span className="font-semibold mr-2">Lane:</span>
