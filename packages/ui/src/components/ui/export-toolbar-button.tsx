@@ -16,10 +16,9 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem,
 import { BaseEditorKit } from '@repo/ui/components/editor/editor-base-kit.tsx'
 
 import { EditorStatic } from './editor-static'
-import { ToolbarButton } from './toolbar'
+import { ToolbarButton } from '../ui/toolbar'
 import { DocxExportKit } from '@repo/ui/components/editor/plugins/docx-export-kit.tsx'
 import { DocxKit } from '../editor/plugins/docx-kit'
-import { BasicKit, EditorKit } from '../editor/use-create-editor'
 
 const siteUrl = 'https://platejs.org'
 
@@ -150,7 +149,7 @@ export function ExportToolbarButton({ title = 'document', ...props }: DropdownMe
     const cleanedChildren = splitParagraphNewlinesForExport(editor.children)
 
     await exportEditorToDocx(cleanedChildren, getExportFilename(title, 'docx'), {
-      editorPlugins: [...BaseEditorKit],
+      editorPlugins: [...BaseEditorKit, ...DocxKit, ...DocxExportKit],
       editorStaticComponent: EditorStatic,
       title: title,
     })

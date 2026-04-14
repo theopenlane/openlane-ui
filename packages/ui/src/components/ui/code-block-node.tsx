@@ -28,14 +28,14 @@ export function CodeBlockElement(props: PlateElementProps<TCodeBlockElement>) {
 
         <div className="absolute top-1 right-1 z-10 flex select-none gap-0.5" contentEditable={false}>
           {isLangSupported(element.lang) && (
-            <Button variant="outline" className="size-6 text-xs" onClick={() => formatCodeBlock(editor, { element })} title="Format code">
+            <Button size="icon" variant="outline" className="size-6 text-xs" onClick={() => formatCodeBlock(editor, { element })} title="Format code">
               <BracesIcon className="!size-3.5 text-muted-foreground" />
             </Button>
           )}
 
           <CodeBlockCombobox />
 
-          <CopyButton variant="outline" className="size-6 gap-1 text-muted-foreground text-xs" value={() => NodeApi.string(element)} />
+          <CopyButton size="icon" variant="outline" className="size-6 gap-1 text-muted-foreground text-xs" value={() => NodeApi.string(element)} />
         </div>
       </div>
     </PlateElement>
