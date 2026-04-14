@@ -2,7 +2,7 @@
 
 import React, { useMemo, useState } from 'react'
 import { Button } from '@repo/ui/button'
-import { CheckCircle2, UserRoundSearch, SlidersHorizontal, CheckCheck } from 'lucide-react'
+import { CheckCircle2, UserRoundSearch, SlidersHorizontal, CheckCheck, ListCheck } from 'lucide-react'
 import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/create-task-dialog.tsx'
 import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config.ts'
 import Link from 'next/link'
@@ -13,6 +13,7 @@ import { RiskRiskDecision, RiskRiskStatus, type UpdateRiskInput } from '@repo/co
 import { useFormContext } from 'react-hook-form'
 import { type EditRisksFormData } from '../view/hooks/use-form-schema'
 import { RiskDecisionDialog } from './decision-dialog'
+import { useSmartRouter } from '@/hooks/useSmartRouter'
 
 const EDIT_RESTRICTED_IDS = new Set(['mark-as-remediated', 'add-review', 'set-risk-decision', 'add-action-plan'])
 
@@ -25,6 +26,7 @@ type RiskQuickActionsProps = {
 const RiskQuickActions: React.FC<RiskQuickActionsProps> = (props) => {
   const [isCreateReviewOpen, setIsCreateReviewOpen] = useState(false)
   const [isDecisionDialogOpen, setIsDecisionDialogOpen] = useState(false)
+  const { replace } = useSmartRouter()
 
   const { setValue } = useFormContext<EditRisksFormData>()
 
@@ -34,13 +36,12 @@ const RiskQuickActions: React.FC<RiskQuickActionsProps> = (props) => {
 
   const actions = useMemo<QuickActionItem[]>(() => {
     const baseActions: QuickActionItem[] = [
-      // TOOD: Implement action plan creation flow before enabling this action
-      // {
-      //   id: 'add-action-plan',
-      //   label: 'Create Action Plan',
-      //   icon: <ListCheck size={16} />,
-      //   // onClick: () => showActionPlanCreateSheet(true),
-      // },
+      {
+        id: 'add-action-plan',
+        label: 'Create Action Plan',
+        icon: <ListCheck size={16} />,
+        onClick: () => replace({ tab: 'mitigation', create: 'true' }),
+      },
       {
         id: 'add-review',
         label: 'Start Review',
@@ -71,7 +72,7 @@ const RiskQuickActions: React.FC<RiskQuickActionsProps> = (props) => {
     ]
 
     return [...baseActions]
-  }, [setIsCreateReviewOpen, setIsDecisionDialogOpen, setValue, props])
+  }, [setIsCreateReviewOpen, setIsDecisionDialogOpen, setValue, props, replace])
 
   const filteredActions = useMemo(() => {
     if (props.canEdit) return actions

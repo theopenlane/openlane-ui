@@ -25,11 +25,13 @@ export const GET_ALL_ACTION_PLANS = gql`
           id
           metadata
           name
+          priority
           rawPayload
           requiresApproval
           reviewDue
           revision
           source
+          status
           summary
           systemOwned
           title
@@ -71,11 +73,13 @@ export const ACTION_PLAN = gql`
       id
       metadata
       name
+      priority
       rawPayload
       requiresApproval
       reviewDue
       revision
       source
+      status
       summary
       systemOwned
       title

@@ -3,6 +3,7 @@
 import React from 'react'
 import type { GetRiskAssociationsQuery, GetRiskByIdQuery } from '@repo/codegen/src/schema'
 import MitigationField from '../../../fields/mitigation-field'
+import ActionPlansTable from '@/components/pages/protected/action-plans/action-plans-table'
 
 interface MitigationTabProps {
   associations?: GetRiskAssociationsQuery
@@ -11,35 +12,16 @@ interface MitigationTabProps {
   editAllowed?: boolean
 }
 
-const MitigationTab: React.FC<MitigationTabProps> = ({ associations, isEditing, risk, editAllowed }) => {
-  const actionPlans = associations?.risk?.actionPlans?.edges?.map((e) => e?.node).filter(Boolean) ?? []
-
-  if (actionPlans.length === 0) {
-    return (
-      <>
-        <MitigationField isEditing={isEditing} initialValue={risk?.mitigation || ''} isEditAllowed={editAllowed} />
-        {/* <Card>
-          <CardContent className="py-8 text-center text-muted-foreground">
-            <p>No action plans associated with this risk.</p>
-          </CardContent>
-        </Card> */}
-      </>
-    )
-  }
-
+const MitigationTab: React.FC<MitigationTabProps> = ({ isEditing, risk, editAllowed }) => {
   return (
-    <div className="space-y-3">
+    <div className="space-y-6">
       <MitigationField isEditing={isEditing} initialValue={risk?.mitigation || ''} isEditAllowed={editAllowed} />
-      {/* {actionPlans.map((actionPlan) => (
-        <Card key={actionPlan?.id}>
-          <CardHeader className="pb-2">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-sm">{actionPlan?.name}</CardTitle>
-              {actionPlan?.status && <Badge variant="outline">{actionPlan.status}</Badge>}
-            </div>
-          </CardHeader>
-        </Card>
-      ))} */}
+      {risk?.id && (
+        <div className="space-y-3">
+          <h3 className="text-lg font-semibold">Action Plans</h3>
+          <ActionPlansTable additionalWhereFilter={{ hasRisksWith: [{ id: risk.id }] }} createInitialPayload={{ riskIDs: [risk.id] }} hideCreate hideBreadcrumbs />
+        </div>
+      )}
     </div>
   )
 }
