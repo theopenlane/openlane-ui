@@ -64974,11 +64974,13 @@ export type ActionPlansWithFilterQuery = {
         id: string
         metadata?: any | null
         name: string
+        priority?: ActionPlanPriority | null
         rawPayload?: any | null
         requiresApproval: boolean
         reviewDue?: any | null
         revision?: string | null
         source?: string | null
+        status?: ActionPlanDocumentStatus | null
         summary?: string | null
         systemOwned?: boolean | null
         title: string
@@ -65019,11 +65021,13 @@ export type ActionPlanQuery = {
     id: string
     metadata?: any | null
     name: string
+    priority?: ActionPlanPriority | null
     rawPayload?: any | null
     requiresApproval: boolean
     reviewDue?: any | null
     revision?: string | null
     source?: string | null
+    status?: ActionPlanDocumentStatus | null
     summary?: string | null
     systemOwned?: boolean | null
     title: string
@@ -72891,7 +72895,6 @@ export type RiskFieldsFragment = {
   name: string
   details?: string | null
   detailsJSON?: Array<any> | null
-  dueDate?: string | null
   tags?: Array<string> | null
   riskCategoryName?: string | null
   riskKindName?: string | null
@@ -72910,6 +72913,7 @@ export type RiskFieldsFragment = {
   scopeName?: string | null
   reviewRequired?: boolean | null
   riskDecision?: RiskRiskDecision | null
+  dueDate?: string | null
   createdAt?: any | null
   stakeholder?: {
     __typename?: 'Group'
@@ -72934,7 +72938,6 @@ export type RiskTableFieldsFragment = {
   id: string
   displayID: string
   name: string
-  dueDate?: string | null
   riskCategoryName?: string | null
   riskKindName?: string | null
   score?: number | null
@@ -72981,7 +72984,6 @@ export type GetRiskByIdQuery = {
     name: string
     details?: string | null
     detailsJSON?: Array<any> | null
-    dueDate?: string | null
     tags?: Array<string> | null
     riskCategoryName?: string | null
     riskKindName?: string | null
@@ -73000,6 +73002,7 @@ export type GetRiskByIdQuery = {
     scopeName?: string | null
     reviewRequired?: boolean | null
     riskDecision?: RiskRiskDecision | null
+    dueDate?: string | null
     createdAt?: any | null
     stakeholder?: {
       __typename?: 'Group'
@@ -73042,7 +73045,6 @@ export type GetAllRisksQuery = {
         id: string
         displayID: string
         name: string
-        dueDate?: string | null
         riskCategoryName?: string | null
         riskKindName?: string | null
         score?: number | null

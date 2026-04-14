@@ -66,6 +66,7 @@ const SetObjectAssociationRisksDialog = ({ riskId }: TSetObjectAssociationDialog
           initialData={associationsState}
           refCodeInitialData={refCodeAssociationsState}
           allowedObjectTypes={[
+            ObjectTypeObjects.ACTION_PLAN,
             ObjectTypeObjects.ASSET,
             ObjectTypeObjects.CONTROL,
             ObjectTypeObjects.ENTITY,

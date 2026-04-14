@@ -110,6 +110,7 @@ export interface GenericTablePageConfig<TEntity extends { id: string }, TFormDat
     enumOpts?: EnumOptionsGeneric
     responsibilityFields?: ResponsibilityFieldsMap
     createMode?: CreateMode
+    hideCreate?: boolean
     additionalActiveFilterCount?: number
   }>
 
@@ -130,6 +131,8 @@ export interface GenericTablePageConfig<TEntity extends { id: string }, TFormDat
   responsibilityFields?: ResponsibilityFieldsMap
   beforeTable?: React.ReactNode
   additionalWhereFilter?: Partial<TWhereInput>
+  hideCreate?: boolean
+  hideBreadcrumbs?: boolean
 }
 
 export function GenericTablePage<
@@ -224,8 +227,10 @@ export function GenericTablePage<
   }, [orderBy])
 
   useEffect(() => {
-    setCrumbs(breadcrumbs)
-  }, [setCrumbs, breadcrumbs])
+    if (!config.hideBreadcrumbs) {
+      setCrumbs(breadcrumbs)
+    }
+  }, [setCrumbs, breadcrumbs, config.hideBreadcrumbs])
 
   const emptyUserMap = {}
 
@@ -374,6 +379,7 @@ export function GenericTablePage<
         storageKey={tableKey}
         responsibilityFields={config.responsibilityFields}
         createMode={createMode}
+        hideCreate={config.hideCreate}
         additionalActiveFilterCount={additionalWhereFilter ? Object.values(additionalWhereFilter).filter((v) => v != null).length : 0}
       />
 
