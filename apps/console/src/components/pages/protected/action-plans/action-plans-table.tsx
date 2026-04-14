@@ -16,10 +16,11 @@ import { breadcrumbs, getFieldsToRender, getFilterFields, visibilityFields } fro
 import { type ActionPlanSheetConfig, type ActionPlanTablePageConfig, type ActionPlanFieldProps, objectType, objectName, tableKey, orderFieldEnum, defaultSorting } from './table/types'
 import { getColumns } from './table/columns'
 import TableComponent from './table/table'
-import { type CreateActionPlanInput, type UpdateActionPlanInput, type ActionPlanWhereInput } from '@repo/codegen/src/schema'
+import { type CreateActionPlanInput, type UpdateActionPlanInput, type ActionPlanWhereInput, ActionPlanDocumentStatus, ActionPlanPriority } from '@repo/codegen/src/schema'
 import { useSearchParams } from 'next/navigation'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { type Value } from 'platejs'
+import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 
 type Props = {
   additionalWhereFilter?: Partial<ActionPlanWhereInput>
@@ -112,6 +113,10 @@ const ActionPlansTable: React.FC<Props> = ({ additionalWhereFilter, createInitia
       await baseBulkEditMutation.mutateAsync({ ids, input })
     },
     bulkEditFormSchema: bulkEditFieldSchema,
+    enumOpts: {
+      statusOptions: enumToOptions(ActionPlanDocumentStatus),
+      priorityOptions: enumToOptions(ActionPlanPriority),
+    },
   }
 
   return <GenericTablePage {...tableConfig} />

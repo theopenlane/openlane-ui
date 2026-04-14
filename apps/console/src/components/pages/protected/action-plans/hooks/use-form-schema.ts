@@ -11,9 +11,9 @@ const formSchema = z.object({
   description: z.custom<Value | string>().optional(),
   descriptionJSON: z.custom<Value>().optional(),
   source: z.string().optional(),
-  status: z.nativeEnum(ActionPlanDocumentStatus).optional().nullable(),
-  priority: z.nativeEnum(ActionPlanPriority).optional().nullable(),
-  reviewFrequency: z.nativeEnum(ActionPlanFrequency).optional().nullable(),
+  status: z.preprocess((v) => (v === '' ? null : v), z.nativeEnum(ActionPlanDocumentStatus).optional().nullable()),
+  priority: z.preprocess((v) => (v === '' ? null : v), z.nativeEnum(ActionPlanPriority).optional().nullable()),
+  reviewFrequency: z.preprocess((v) => (v === '' ? null : v), z.nativeEnum(ActionPlanFrequency).optional().nullable()),
   dueDate: z.union([z.string(), z.date()]).optional().nullable(),
   reviewDue: z.union([z.string(), z.date()]).optional().nullable(),
 })
