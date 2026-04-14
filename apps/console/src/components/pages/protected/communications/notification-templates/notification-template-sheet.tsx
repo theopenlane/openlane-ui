@@ -1,12 +1,16 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
+import DOMPurify from 'dompurify'
+import ReactMarkdown from 'react-markdown'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
 import { Textarea } from '@repo/ui/textarea'
 import { Switch } from '@repo/ui/switch'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
+import { CodeBlock } from '@repo/ui/code-block'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
 import { ChevronDown, SaveIcon, X } from 'lucide-react'
 import { useCreateNotificationTemplate, useUpdateNotificationTemplate, useNotificationTemplate } from '@/lib/graphql-hooks/notification-template'
@@ -47,6 +51,32 @@ export const NotificationTemplateSheet: React.FC<NotificationTemplateSheetProps>
   const { emailTemplatesNodes } = useEmailTemplatesWithFilter({ where: {}, enabled: open })
 
   const isPending = isCreating || isUpdating
+
+  const sanitizedBody = useMemo(() => DOMPurify.sanitize(bodyTemplate || '<em>No body content</em>'), [bodyTemplate])
+
+  const bodyPlaceholder = useMemo(() => {
+    switch (format) {
+      case NotificationTemplateNotificationTemplateFormat.HTML:
+        return '<p>Write your HTML notification body here...</p>'
+      case NotificationTemplateNotificationTemplateFormat.JSON:
+        return '{\n  "title": "Hello",\n  "body": "Write your JSON notification body here..."\n}'
+      case NotificationTemplateNotificationTemplateFormat.MARKDOWN:
+        return '# Hello\n\nWrite your **markdown** notification body here...'
+      case NotificationTemplateNotificationTemplateFormat.TEXT:
+      default:
+        return 'Write your notification body content here...'
+    }
+  }, [format])
+
+  const formattedJsonBody = useMemo(() => {
+    if (format !== NotificationTemplateNotificationTemplateFormat.JSON) return null
+    if (!bodyTemplate.trim()) return { value: '(No body content)', error: false }
+    try {
+      return { value: JSON.stringify(JSON.parse(bodyTemplate), null, 2), error: false }
+    } catch {
+      return { value: bodyTemplate, error: true }
+    }
+  }, [format, bodyTemplate])
 
   const resetForm = () => {
     setActive(true)
@@ -301,7 +331,61 @@ export const NotificationTemplateSheet: React.FC<NotificationTemplateSheetProps>
 
                     <div className="flex flex-col gap-1.5">
                       <label className="text-sm font-medium">Body Template</label>
-                      <Textarea value={bodyTemplate} onChange={(e) => setBodyTemplate(e.target.value)} placeholder="Write your notification body content here..." rows={8} className="font-mono text-sm" disabled={readOnly} />
+                      <Tabs defaultValue="customize" variant="underline">
+                        <TabsList className="mb-2">
+                          <TabsTrigger value="customize">Customize</TabsTrigger>
+                          <TabsTrigger value="preview">Preview</TabsTrigger>
+                        </TabsList>
+                        <TabsContent value="customize">
+                          <Textarea
+                            value={bodyTemplate}
+                            onChange={(e) => setBodyTemplate(e.target.value)}
+                            placeholder={bodyPlaceholder}
+                            rows={format === NotificationTemplateNotificationTemplateFormat.JSON ? 12 : 8}
+                            className="font-mono text-sm"
+                            disabled={readOnly}
+                          />
+                        </TabsContent>
+                        <TabsContent value="preview">
+                          {format === NotificationTemplateNotificationTemplateFormat.HTML && (
+                            <Tabs defaultValue="rendered" variant="underline">
+                              <TabsList className="mb-2">
+                                <TabsTrigger value="rendered">Rendered</TabsTrigger>
+                                <TabsTrigger value="source">Source</TabsTrigger>
+                              </TabsList>
+                              <TabsContent value="rendered">
+                                <div className="prose prose-sm dark:prose-invert max-w-none text-sm" dangerouslySetInnerHTML={{ __html: sanitizedBody }} />
+                              </TabsContent>
+                              <TabsContent value="source">
+                                <CodeBlock code={bodyTemplate || ''} language="html" />
+                              </TabsContent>
+                            </Tabs>
+                          )}
+                          {format === NotificationTemplateNotificationTemplateFormat.MARKDOWN && (
+                            <Tabs defaultValue="rendered" variant="underline">
+                              <TabsList className="mb-2">
+                                <TabsTrigger value="rendered">Rendered</TabsTrigger>
+                                <TabsTrigger value="source">Source</TabsTrigger>
+                              </TabsList>
+                              <TabsContent value="rendered">
+                                <div className="prose prose-sm dark:prose-invert max-w-none text-sm">
+                                  <ReactMarkdown>{bodyTemplate || '_No body content_'}</ReactMarkdown>
+                                </div>
+                              </TabsContent>
+                              <TabsContent value="source">
+                                <CodeBlock code={bodyTemplate || ''} language="markdown" />
+                              </TabsContent>
+                            </Tabs>
+                          )}
+                          {format === NotificationTemplateNotificationTemplateFormat.JSON && (
+                            <>
+                              {formattedJsonBody?.error && <p className="text-xs text-destructive mb-1">Invalid JSON</p>}
+                              <CodeBlock code={formattedJsonBody?.value ?? ''} language="json" />
+                            </>
+                          )}
+                          {format === NotificationTemplateNotificationTemplateFormat.TEXT && <CodeBlock code={bodyTemplate || '(No body content)'} language="text" />}
+                        </TabsContent>
+                      </Tabs>
                     </div>
                   </div>
                 </AccordionContent>
