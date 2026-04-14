@@ -76,7 +76,7 @@ export const CreateCampaignSheet: React.FC<CreateCampaignSheetProps> = ({ open, 
 
         const result = await createCampaign({
           input: {
-            name: data.name,
+            name: data.name ?? '',
             description: data.description || undefined,
             campaignType: data.campaignType || undefined,
             status,
