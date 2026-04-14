@@ -65646,6 +65646,15 @@ export type CreateCampaignTargetMutation = {
   createCampaignTarget: { __typename?: 'CampaignTargetCreatePayload'; campaignTarget: { __typename?: 'CampaignTarget'; id: string } }
 }
 
+export type CreateBulkCampaignTargetMutationVariables = Exact<{
+  input?: InputMaybe<Array<CreateCampaignTargetInput> | CreateCampaignTargetInput>
+}>
+
+export type CreateBulkCampaignTargetMutation = {
+  __typename?: 'Mutation'
+  createBulkCampaignTarget: { __typename?: 'CampaignTargetBulkCreatePayload'; campaignTargets?: Array<{ __typename?: 'CampaignTarget'; id: string }> | null }
+}
+
 export type UpdateCampaignTargetMutationVariables = Exact<{
   updateCampaignTargetId: Scalars['ID']['input']
   input: UpdateCampaignTargetInput
