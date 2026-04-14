@@ -49,10 +49,7 @@ export function resolveIntegrationRedirectURL(response: StartIntegrationResponse
 }
 
 export function openIntegrationRedirect(url: string) {
-  const popup = window.open(url, '_blank', 'noopener,noreferrer')
-  if (!popup) {
-    window.location.assign(url)
-  }
+  window.location.assign(url)
 }
 
 export type ConnectViaAuthOptions = StartIntegrationOptions & {
