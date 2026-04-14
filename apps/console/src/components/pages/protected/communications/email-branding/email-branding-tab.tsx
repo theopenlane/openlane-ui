@@ -16,6 +16,7 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { EmailBrandingFont } from '@repo/codegen/src/schema'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { formatDate } from '@/utils/date'
+import { DEFAULT_EMAIL_BRANDING } from '@/constants/email-branding'
 
 const FONT_OPTIONS = Object.values(EmailBrandingFont).map((value) => ({
   label: getEnumLabel(value),
@@ -31,14 +32,14 @@ export const EmailBrandingTab: React.FC = () => {
   const [brandName, setBrandName] = useState('')
   const [logoRemoteURL, setLogoRemoteURL] = useState('')
   const [isDefault, setIsDefault] = useState(false)
-  const [fontFamily, setFontFamily] = useState<EmailBrandingFont>(EmailBrandingFont.HELVETICA)
-  const [textColor, setTextColor] = useState('#FFFFFF')
-  const [backgroundColor, setBackgroundColor] = useState('#09151D')
-  const [primaryColor, setPrimaryColor] = useState('#162431')
-  const [secondaryColor, setSecondaryColor] = useState('#9AA5B0')
-  const [linkColor, setLinkColor] = useState('#60E8C9')
-  const [buttonColor, setButtonColor] = useState('#60E8C9')
-  const [buttonTextColor, setButtonTextColor] = useState('#052E2A')
+  const [fontFamily, setFontFamily] = useState<EmailBrandingFont>(DEFAULT_EMAIL_BRANDING.fontFamily)
+  const [textColor, setTextColor] = useState<string>(DEFAULT_EMAIL_BRANDING.textColor)
+  const [backgroundColor, setBackgroundColor] = useState<string>(DEFAULT_EMAIL_BRANDING.backgroundColor)
+  const [primaryColor, setPrimaryColor] = useState<string>(DEFAULT_EMAIL_BRANDING.primaryColor)
+  const [secondaryColor, setSecondaryColor] = useState<string>(DEFAULT_EMAIL_BRANDING.secondaryColor)
+  const [linkColor, setLinkColor] = useState<string>(DEFAULT_EMAIL_BRANDING.linkColor)
+  const [buttonColor, setButtonColor] = useState<string>(DEFAULT_EMAIL_BRANDING.buttonColor)
+  const [buttonTextColor, setButtonTextColor] = useState<string>(DEFAULT_EMAIL_BRANDING.buttonTextColor)
 
   const { emailBrandingsNodes, isLoading } = useEmailBrandingsWithFilter({ where: {} })
   const { mutateAsync: createBranding, isPending: isSavingCreate } = useCreateEmailBranding()
@@ -80,14 +81,14 @@ export const EmailBrandingTab: React.FC = () => {
       setBrandName(branding.brandName ?? '')
       setLogoRemoteURL(branding.logoRemoteURL ?? '')
       setIsDefault(branding.isDefault ?? false)
-      setFontFamily((branding as { fontFamily?: EmailBrandingFont }).fontFamily ?? EmailBrandingFont.HELVETICA)
-      setTextColor(branding.textColor ?? '#FFFFFF')
-      setBackgroundColor(branding.backgroundColor ?? '#09151D')
-      setPrimaryColor(branding.primaryColor ?? '#162431')
-      setSecondaryColor(branding.secondaryColor ?? '#9AA5B0')
-      setLinkColor(branding.linkColor ?? '#60E8C9')
-      setButtonColor(branding.buttonColor ?? '#60E8C9')
-      setButtonTextColor(branding.buttonTextColor ?? '#052E2A')
+      setFontFamily((branding as { fontFamily?: EmailBrandingFont }).fontFamily ?? DEFAULT_EMAIL_BRANDING.fontFamily)
+      setTextColor(branding.textColor ?? DEFAULT_EMAIL_BRANDING.textColor)
+      setBackgroundColor(branding.backgroundColor ?? DEFAULT_EMAIL_BRANDING.backgroundColor)
+      setPrimaryColor(branding.primaryColor ?? DEFAULT_EMAIL_BRANDING.primaryColor)
+      setSecondaryColor(branding.secondaryColor ?? DEFAULT_EMAIL_BRANDING.secondaryColor)
+      setLinkColor(branding.linkColor ?? DEFAULT_EMAIL_BRANDING.linkColor)
+      setButtonColor(branding.buttonColor ?? DEFAULT_EMAIL_BRANDING.buttonColor)
+      setButtonTextColor(branding.buttonTextColor ?? DEFAULT_EMAIL_BRANDING.buttonTextColor)
     },
     [emailBrandingsNodes],
   )
@@ -105,14 +106,14 @@ export const EmailBrandingTab: React.FC = () => {
     setBrandName('')
     setLogoRemoteURL('')
     setIsDefault(false)
-    setFontFamily(EmailBrandingFont.HELVETICA)
-    setTextColor('#FFFFFF')
-    setBackgroundColor('#09151D')
-    setPrimaryColor('#162431')
-    setSecondaryColor('#9AA5B0')
-    setLinkColor('#60E8C9')
-    setButtonColor('#60E8C9')
-    setButtonTextColor('#052E2A')
+    setFontFamily(DEFAULT_EMAIL_BRANDING.fontFamily)
+    setTextColor(DEFAULT_EMAIL_BRANDING.textColor)
+    setBackgroundColor(DEFAULT_EMAIL_BRANDING.backgroundColor)
+    setPrimaryColor(DEFAULT_EMAIL_BRANDING.primaryColor)
+    setSecondaryColor(DEFAULT_EMAIL_BRANDING.secondaryColor)
+    setLinkColor(DEFAULT_EMAIL_BRANDING.linkColor)
+    setButtonColor(DEFAULT_EMAIL_BRANDING.buttonColor)
+    setButtonTextColor(DEFAULT_EMAIL_BRANDING.buttonTextColor)
   }
 
   const isValidUrl = (url: string): boolean => {
