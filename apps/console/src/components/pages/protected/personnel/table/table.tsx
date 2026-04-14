@@ -111,7 +111,7 @@ const TableComponent = ({
       data={items}
       loading={fetching || fetchingUsers}
       defaultSorting={defaultSorting}
-      rowHref={(item) => `/registry/personnel/${item.id}`}
+      rowHref={(item) => `/registry/personnel?id=${item.id}`}
       pagination={pagination}
       onPaginationChange={onPaginationChange}
       paginationMeta={{
