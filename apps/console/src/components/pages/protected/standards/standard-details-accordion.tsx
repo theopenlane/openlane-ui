@@ -4,7 +4,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@r
 import { Button } from '@repo/ui/button'
 import { ChevronDown, ChevronRight, ChevronsDownUp, List, SearchIcon } from 'lucide-react'
 import { Input } from '@repo/ui/input'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams } from 'next/navigation'
 import { useDebounce } from '@uidotdev/usehooks'
 import { type ControlListStandardFieldsFragment, type ControlWhereInput } from '@repo/codegen/src/schema'
 import { canEdit } from '@/lib/authz/utils.ts'
@@ -56,7 +56,6 @@ const StandardDetailsAccordion: React.FC<TStandardDetailsAccordionProps> = ({
 
   const [openSections, setOpenSections] = useState<string[]>([])
   const [searchQuery, setSearchQuery] = useState<string>('')
-  const { push } = useRouter()
   const debouncedSearchQuery = useDebounce(searchQuery, 300)
   const where = generateWhere(id, debouncedSearchQuery)
   const hasFilters = Object.keys(where).length > 0
@@ -164,10 +163,6 @@ const StandardDetailsAccordion: React.FC<TStandardDetailsAccordionProps> = ({
     }))
   }
 
-  const handleRowClick = (row: ControlListStandardFieldsFragment) => {
-    push(`/standards/${id}?controlId=${row.id}`)
-  }
-
   return (
     <div className="relative">
       <Accordion type="multiple" value={openSections} onValueChange={setOpenSections} className="w-full">
@@ -225,7 +220,7 @@ const StandardDetailsAccordion: React.FC<TStandardDetailsAccordionProps> = ({
                     paginationMeta={{
                       totalCount: controls.length,
                     }}
-                    onRowClick={handleRowClick}
+                    rowHref={(row) => `/standards/${id}?controlId=${row.id}`}
                     pagination={paginations[category] ?? DEFAULT_PAGINATION}
                     columnVisibility={columnVisibility}
                     onPaginationChange={(newPagination) => handlePaginationChange(category, newPagination)}

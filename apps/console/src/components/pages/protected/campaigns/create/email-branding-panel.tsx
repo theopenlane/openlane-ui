@@ -190,7 +190,6 @@ export const EmailBrandingPanel: React.FC<EmailBrandingPanelProps> = ({ open, on
               </AccordionTrigger>
               <AccordionContent>
                 <div className="border-t border-border px-4 py-4 flex flex-col gap-6">
-
                   {/* Text */}
                   <div className="flex flex-col gap-3">
                     <span className="text-sm font-semibold text-muted-foreground">Text</span>

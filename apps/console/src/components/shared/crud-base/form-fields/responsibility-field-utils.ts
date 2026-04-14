@@ -6,6 +6,7 @@ export const responsibilityFieldSchema = z
     type: z.enum(['user', 'group', 'string']),
     value: z.string(),
     displayName: z.string().optional(),
+    noClearOtherFields: z.boolean().optional(), // for types that are update but do not have other fields to clear, like delegate in risks
   })
   .refine((data) => data.type !== 'string' || isValidEmail(data.value), {
     message: 'Must be a valid email address',
@@ -104,6 +105,17 @@ export function buildResponsibilityPayload(
       }
     }
 
+    // clear just the single field, used by group and user only fields
+    if (selection.value === '') {
+      return {
+        [clearString]: true,
+      }
+    }
+
+    if (selection.noClearOtherFields) {
+      return { [`${fieldBaseName}ID`]: selection.value }
+    }
+
     switch (selection.type) {
       case 'user':
         return {
@@ -130,6 +142,10 @@ export function buildResponsibilityPayload(
 
   if (!selection) {
     return {}
+  }
+
+  if (selection.noClearOtherFields) {
+    return { [`${fieldBaseName}ID`]: selection.value }
   }
 
   switch (selection.type) {

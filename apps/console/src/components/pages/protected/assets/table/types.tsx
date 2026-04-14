@@ -1,4 +1,4 @@
-import { type GenericTablePageConfig, type EnumOptionsGeneric } from '@/components/shared/crud-base/page'
+import { type GenericTablePageConfig, type EnumOptionsGeneric, type CustomEnumOption } from '@/components/shared/crud-base/page'
 import { type GenericDetailsSheetConfig, type RenderFieldsProps } from '@/components/shared/crud-base/generic-sheet'
 
 import {
@@ -45,7 +45,9 @@ type AssetEnumKeys =
   | 'scopeOptions'
   | 'securityTierOptions'
 
-export type EnumOptions = EnumOptionsGeneric<AssetEnumKeys>
+export type EnumOptions = EnumOptionsGeneric<AssetEnumKeys> & {
+  vendorIDsOptions?: CustomEnumOption[]
+}
 
 export type AssetTablePageConfig = GenericTablePageConfig<TData, TFormData, TUpdateInput, TUpdateData, TCreateInput, TCreateData, TWhereInput, TOrderField>
 

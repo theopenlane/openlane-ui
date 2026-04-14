@@ -1,13 +1,11 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
 import { DataTable, getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
 import React, { use, useEffect, useMemo, useState } from 'react'
 import {
   ExportExportFormat,
   ExportExportType,
   type GetInternalPoliciesListQueryVariables,
-  type InternalPolicy,
   InternalPolicyDocumentStatus,
   InternalPolicyOrderField,
   type InternalPolicyWhereInput,
@@ -37,7 +35,6 @@ import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { objectToSnakeCase } from '@/utils/strings'
 
 export const PoliciesTable = () => {
-  const router = useRouter()
   const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(TableKeyEnum.INTERNAL_POLICY, DEFAULT_PAGINATION))
   const [filters, setFilters] = useState<InternalPolicyWhereInput | null>(null)
   const [searchTerm, setSearchTerm] = useStorageSearch(ObjectTypes.INTERNAL_POLICY)
@@ -160,10 +157,6 @@ export const PoliciesTable = () => {
 
   const { columns, mappedColumns } = useMemo(() => getPoliciesColumns({ users, tokens, selectedPolicies, setSelectedPolicies, enumOptions }), [users, tokens, selectedPolicies, enumOptions])
 
-  const handleRowClick = (rowData: InternalPolicy) => {
-    router.push(`/policies/${rowData.id}/view`)
-  }
-
   function isVisibleColumn<T>(col: ColumnDef<T>): col is ColumnDef<T> & { accessorKey: string; header: string } {
     return 'accessorKey' in col && typeof col.accessorKey === 'string' && typeof col.header === 'string' && columnVisibility[col.accessorKey] !== false
   }
@@ -239,7 +232,7 @@ export const PoliciesTable = () => {
         defaultSorting={defaultSorting}
         columns={columns}
         data={policies}
-        onRowClick={handleRowClick}
+        rowHref={(row) => `/policies/${row.id}/view`}
         loading={fetching}
         pagination={pagination}
         onPaginationChange={(pagination: TPagination) => setPagination(pagination)}

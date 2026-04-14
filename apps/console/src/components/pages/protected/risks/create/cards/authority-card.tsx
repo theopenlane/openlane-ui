@@ -3,52 +3,52 @@
 import React from 'react'
 import { Card } from '@repo/ui/cardpanel'
 import { Stamp, CircleArrowRight } from 'lucide-react'
-import { Controller, type UseFormReturn } from 'react-hook-form'
-import { type Option } from '@repo/ui/multiple-selector'
-import { useGetAllGroups } from '@/lib/graphql-hooks/group'
-import { type CreateRisksFormData } from '@/components/pages/protected/risks/view/hooks/use-form-schema.ts'
-import { SearchableSingleSelect } from '@/components/shared/searchableSingleSelect/searchable-single-select'
+import { ResponsibilityField } from '@/components/shared/crud-base/form-fields/responsibility-field'
 
 type TAuthorityCardProps = {
-  form: UseFormReturn<CreateRisksFormData>
   inputClassName?: string
 }
 
-const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, inputClassName }) => {
-  const { data } = useGetAllGroups({ where: {}, enabled: true })
-  const groups = data?.groups?.edges?.map((edge) => edge?.node) || []
-
-  const options: Option[] = groups.map((g) => ({
-    label: g?.displayName || g?.name || '',
-    value: g?.id || '',
-  }))
+const AuthorityCard: React.FC<TAuthorityCardProps> = ({ inputClassName }) => {
   return (
-    <Card className="p-4">
+    <Card className="flex flex-col gap-1 p-4">
       <h3 className="text-lg font-medium mb-2">Authority</h3>
-      <div className="grid grid-cols-[min-content_250px] gap-y-4 gap-x-8 items-center">
+      <div className="grid grid-cols-[min-content_250px] gap-y-4 gap-x-6 items-center">
         {/* Stakeholder */}
-        <div className={`flex gap-2 items-center ${inputClassName ?? ''}`}>
+        <div className={`flex gap-2 items-center w-32 shrink-0 ${inputClassName ?? ''}`}>
           <Stamp size={16} className="text-brand" />
-          <span>Stakeholder</span>
+          <span className="text-sm">Stakeholder</span>
         </div>
-        <div className="w-40 min-w-0">
-          <Controller
-            name="stakeholderID"
-            control={form.control}
-            render={({ field }) => <SearchableSingleSelect className="w-full" value={field.value} options={options} placeholder="Select stakeholder" onChange={(val) => field.onChange(val)} />}
+        <div className="w-50 min-w-0">
+          <ResponsibilityField
+            name="stakeholder"
+            fieldBaseName="stakeholder"
+            label=""
+            isCreate={true}
+            internalEditing={null}
+            setInternalEditing={() => {}}
+            isEditing={false}
+            isEditAllowed={true}
+            groupOnly={true}
           />
         </div>
 
         {/* Delegate */}
-        <div className={`flex gap-2 items-center ${inputClassName ?? ''}`}>
+        <div className={`flex gap-2 items-center w-32 shrink-0 ${inputClassName ?? ''}`}>
           <CircleArrowRight size={16} className="text-brand" />
-          <span>Delegate</span>
+          <span className="text-sm">Delegate</span>
         </div>
-        <div className="w-40 min-w-0">
-          <Controller
-            name="delegateID"
-            control={form.control}
-            render={({ field }) => <SearchableSingleSelect className="w-full" value={field.value} options={options} placeholder="Select delegate" onChange={(val) => field.onChange(val)} />}
+        <div className="w-50 min-w-0">
+          <ResponsibilityField
+            name="delegate"
+            fieldBaseName="delegate"
+            label=""
+            groupOnly={true}
+            isCreate={true}
+            internalEditing={null}
+            setInternalEditing={() => {}}
+            isEditing={false}
+            isEditAllowed={true}
           />
         </div>
       </div>

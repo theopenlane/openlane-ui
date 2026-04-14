@@ -12,7 +12,7 @@ import type { LinkedControlDetails } from './types'
 import { useGetSubcontrolsPaginated } from '@/lib/graphql-hooks/subcontrol'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { TableSkeleton } from '@/components/shared/skeleton/table-skeleton'
-import EmptyTabState from '@/components/pages/protected/controls/tabs/shared/empty-tab-state'
+import EmptyTabState from '@/components/shared/crud-base/tabs/empty-tab-state'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 
 export type LinkedControlsTabProps = {

@@ -44,6 +44,16 @@ export const GET_ALL_ASSETS = gql`
           sourceType
           tags
           website
+          categories
+          entities {
+            edges {
+              node {
+                id
+                name
+                displayName
+              }
+            }
+          }
         }
       }
       pageInfo {
@@ -97,6 +107,16 @@ export const ASSET = gql`
       sourceType
       tags
       website
+      categories
+      entities {
+        edges {
+          node {
+            id
+            name
+            displayName
+          }
+        }
+      }
     }
   }
 `

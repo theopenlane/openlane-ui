@@ -6,10 +6,10 @@ import { CampaignOrderField, OrderDirection, type CampaignWhereInput, type Campa
 import { getCampaignColumns } from '@/components/pages/protected/campaigns/table/columns'
 import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
-import { type ColumnDef, type VisibilityState } from '@tanstack/react-table'
+import { type VisibilityState } from '@tanstack/react-table'
 import CampaignsTable from '@/components/pages/protected/campaigns/table/campaigns-table'
 import { useDebounce } from '@uidotdev/usehooks'
-import { useSearchParams } from 'next/navigation'
+
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { canEdit } from '@/lib/authz/utils'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
@@ -19,7 +19,7 @@ import { getInitialSortConditions, getInitialPagination } from '@repo/ui/data-ta
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { useStorageSearch } from '@/hooks/useStorageSearch'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
-import { type CampaignsNodeNonNull } from '@/lib/graphql-hooks/campaign'
+
 import { CreateCampaignSheet } from '@/components/pages/protected/campaigns/create/create-campaign-sheet'
 
 const CampaignsPage: React.FC = () => {
@@ -27,7 +27,6 @@ const CampaignsPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useStorageSearch(ObjectTypes.CAMPAIGN)
   const [filters, setFilters] = useState<CampaignWhereInput | null>(null)
   const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(TableKeyEnum.CAMPAIGN, DEFAULT_PAGINATION))
-  const searchParams = useSearchParams()
   const { setCrumbs } = React.use(BreadcrumbContext)
   const { data: permission } = useOrganizationRoles()
 
@@ -89,20 +88,13 @@ const CampaignsPage: React.FC = () => {
       selectedCampaigns,
       setSelectedCampaigns,
     })
-      .filter(
-        (column): column is { accessorKey: string; header: string; meta: { exportPrefix?: string } } =>
-          'accessorKey' in column && true && typeof column.header === 'string',
-      )
+      .filter((column): column is { accessorKey: string; header: string; meta: { exportPrefix?: string } } => 'accessorKey' in column && true && typeof column.header === 'string')
       .map((column) => ({
         accessorKey: column.accessorKey,
         header: column.header,
         meta: column.meta,
       }))
   }, [selectedCampaigns, setSelectedCampaigns])
-
-  function isVisibleColumn<T>(col: ColumnDef<T>): col is ColumnDef<T> & { accessorKey: string; header: string } {
-    return 'accessorKey' in col && typeof col.accessorKey === 'string' && typeof col.header === 'string' && columnVisibility[col.accessorKey] !== false
-  }
 
   const handleExport = async () => {
     if (!hasCampaigns) {

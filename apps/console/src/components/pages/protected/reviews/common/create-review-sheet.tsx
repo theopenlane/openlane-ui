@@ -15,11 +15,12 @@ import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { buildPayload } from '@/components/pages/protected/reviews/create/utils'
 
 interface CreateReviewSheetProps {
-  entityId: string
+  entityId?: string
+  riskId?: string
   onClose: () => void
 }
 
-const CreateReviewSheet: React.FC<CreateReviewSheetProps> = ({ entityId, onClose }) => {
+const CreateReviewSheet: React.FC<CreateReviewSheetProps> = ({ entityId, riskId, onClose }) => {
   const { form } = useFormSchema()
   const plateEditorHelper = usePlateEditor()
   const stagedFilesRef = useRef<File[]>([])
@@ -55,25 +56,29 @@ const CreateReviewSheet: React.FC<CreateReviewSheetProps> = ({ entityId, onClose
 
   const handleClose = () => {
     form.reset()
+
     onClose()
   }
 
   const sheetConfig: ReviewSheetConfig = {
     objectType,
     form,
-    entityId: null,
+    entityId,
     isCreateMode: true,
     data: undefined,
     isFetching: false,
     updateMutation,
     createMutation,
     buildPayload: async (formData) => {
-      const { controlIDs, subcontrolIDs, remediationIDs, entityIDs, taskIDs, assetIDs, programIDs, ...rest } = formData
+      const { controlIDs, subcontrolIDs, remediationIDs, entityIDs, riskIDs, taskIDs, assetIDs, programIDs, ...rest } = formData
       const payload = await buildPayload(rest as ReviewFormData, plateEditorHelper)
-      const mergedEntityIDs = [...new Set([...(entityIDs ?? []), entityId])]
+
+      const mergedEntityIDs = [...new Set([...(entityIDs ?? []), entityId].filter((id): id is string => id !== undefined))]
+      const mergedRiskIDs = [...new Set([...(riskIDs ?? []), riskId].filter((id): id is string => id !== undefined))]
+
       const associationPayload = buildAssociationPayload(
         REVIEW_ASSOCIATION_CONFIG.associationKeys,
-        { controlIDs, subcontrolIDs, remediationIDs, entityIDs: mergedEntityIDs, taskIDs, assetIDs, programIDs },
+        { controlIDs, subcontrolIDs, remediationIDs, entityIDs: mergedEntityIDs, riskIDs: mergedRiskIDs, taskIDs, assetIDs, programIDs },
         true,
         {},
       )

@@ -14,8 +14,8 @@ import { buildClearableUpdate } from '@/components/shared/searchableSingleSelect
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 
 const RISK_AUTHORITY_CLEAR_KEYS: Partial<Record<keyof EditRisksFormData, 'clearStakeholder' | 'clearDelegate'>> = {
-  stakeholderID: 'clearStakeholder',
-  delegateID: 'clearDelegate',
+  stakeholder: 'clearStakeholder',
+  delegate: 'clearDelegate',
 }
 
 type TAuthorityCardProps = {
@@ -49,10 +49,10 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, stakeho
     if (!isEditing && handleUpdate && risk) {
       let currentValue: string | null
       switch (field) {
-        case 'stakeholderID':
+        case 'stakeholder':
           currentValue = risk.stakeholder?.id ?? null
           break
-        case 'delegateID':
+        case 'delegate':
           currentValue = risk.delegate?.id ?? null
           break
         default:
@@ -64,7 +64,7 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, stakeho
         if (clearKey) {
           handleUpdate(buildClearableUpdate(field, value, clearKey) as UpdateRiskInput)
         } else {
-          handleUpdate({ [field]: value })
+          handleUpdate({ [field]: value } as UpdateRiskInput)
         }
       }
     }
@@ -137,8 +137,8 @@ const AuthorityCard: React.FC<TAuthorityCardProps> = ({ form, isEditing, stakeho
     <div>
       <h3 className="text-lg font-medium mb-2">Properties</h3>
       <div className="flex flex-col gap-4">
-        {renderField('stakeholderID', 'Stakeholder', <Stamp size={16} className="text-brand" />, stakeholder as Group, 'stakeholder')}
-        {renderField('delegateID', 'Delegate', <CircleArrowRight size={16} className="text-brand" />, delegate as Group, 'delegate')}
+        {renderField('stakeholder', 'Stakeholder', <Stamp size={16} className="text-brand" />, stakeholder as Group, 'stakeholder')}
+        {renderField('delegate', 'Delegate', <CircleArrowRight size={16} className="text-brand" />, delegate as Group, 'delegate')}
       </div>
     </div>
   )

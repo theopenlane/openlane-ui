@@ -136,6 +136,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
       form.reset({
         name: policy.name,
         details: policy?.details ?? '',
+        detailsJSON: policy?.detailsJSON ? (policy.detailsJSON as Value) : undefined,
         tags: policy.tags ?? [],
         approvalRequired: policy?.approvalRequired ?? true,
         status: policy.status ?? InternalPolicyDocumentStatus.DRAFT,
@@ -190,12 +191,15 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
     }
 
     try {
-      const { revision, approverID, delegateID, ...restData } = data
+      const { revision, approverID, delegateID, details, detailsJSON, ...restData } = data
       const input: UpdateInternalPolicyInput = {
         ...restData,
-        detailsJSON: data.detailsJSON,
-        details: await plateEditorHelper.convertToHtml(data.detailsJSON as Value),
         tags: data?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
+      }
+
+      if (detailsJSON !== undefined) {
+        input.detailsJSON = detailsJSON
+        input.details = await plateEditorHelper.convertToHtml(detailsJSON as Value)
       }
 
       if (approverID) {

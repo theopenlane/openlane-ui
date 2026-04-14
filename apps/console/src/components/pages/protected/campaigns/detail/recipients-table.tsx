@@ -5,11 +5,11 @@ import { useDebounce } from '@uidotdev/usehooks'
 import { type ColumnDef } from '@tanstack/react-table'
 import { DataTable } from '@repo/ui/data-table'
 import { TableKeyEnum } from '@repo/ui/table-key'
+import { SearchFilterBar } from '@/components/shared/crud-base/tabs/shared'
 import type { TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useCampaignTargetsWithFilter, type CampaignTargetsNodeNonNull } from '@/lib/graphql-hooks/campaign-target'
 import { formatDate } from '@/utils/date'
-import { SearchFilterBar } from '@/components/pages/protected/controls/tabs/shared/documentation-shared'
 
 type RecipientsTableProps = {
   campaignId: string
@@ -35,7 +35,12 @@ const RecipientsTable: React.FC<RecipientsTableProps> = ({ campaignId, onRecipie
     return base
   }, [campaignId, debouncedSearch])
 
-  const { CampaignTargetsNodes: recipients, data, isLoading, isFetching } = useCampaignTargetsWithFilter({
+  const {
+    CampaignTargetsNodes: recipients,
+    data,
+    isLoading,
+    isFetching,
+  } = useCampaignTargetsWithFilter({
     where,
     pagination,
     enabled: !!campaignId,

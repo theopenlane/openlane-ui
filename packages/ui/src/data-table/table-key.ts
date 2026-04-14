@@ -82,6 +82,7 @@ export enum AdditionalTableKeyEnum {
   CAMPAIGN_RUNS = 'campaign-runs',
   CAMPAIGN_RECIPIENTS = 'campaign-recipients',
   VENDOR_REVIEWS = 'vendor-reviews',
+  RISK_REVIEWS = 'risk-reviews',
 }
 
 export const TableKey = Object.freeze({

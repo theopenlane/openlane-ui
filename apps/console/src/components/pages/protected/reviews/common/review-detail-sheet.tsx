@@ -81,6 +81,7 @@ const ReviewDetailSheet: React.FC<ReviewDetailSheetProps> = ({ reviewId, onClose
         taskIDs: _taskIDs,
         assetIDs: _assetIDs,
         programIDs: _programIDs,
+        riskIDs: _riskIDs,
         ...rest
       } = formData
       return await buildPayload(rest as ReviewFormData, plateEditorHelper)

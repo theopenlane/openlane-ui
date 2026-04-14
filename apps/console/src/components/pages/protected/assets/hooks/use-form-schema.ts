@@ -62,6 +62,7 @@ export const bulkEditFieldSchema = z.object({
   securityTierName: z.string().optional(),
   sourceIdentifier: z.string().optional(),
   sourceType: z.nativeEnum(AssetSourceType).optional(),
+  vendorIDs: z.array(z.string()).optional(),
 })
 
 export type AssetFormData = z.infer<typeof formSchema>

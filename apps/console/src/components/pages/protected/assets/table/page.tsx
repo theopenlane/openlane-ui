@@ -1,10 +1,11 @@
 'use client'
 
-import React, { useCallback } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import useFormSchema, { bulkEditFieldSchema } from '../hooks/use-form-schema'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { type AssetsNodeNonNull, useAsset, useUpdateAsset, useCreateAsset, useBulkDeleteAsset, useCreateBulkCSVAsset, useBulkEditAsset, useGetAssetAssociations } from '@/lib/graphql-hooks/asset'
+import { useVendorsWithFilter } from '@/lib/graphql-hooks/entity'
 import { useSearchParams } from 'next/navigation'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
 import { breadcrumbs, getFieldsToRender, getFilterFields, visibilityFields } from './table-config'
@@ -137,6 +138,9 @@ const AssetPage: React.FC = () => {
 
   const tagOptions = useGetTags()
 
+  const { vendorNodes } = useVendorsWithFilter({})
+  const vendorIDsOptions = useMemo(() => vendorNodes.map((v) => ({ value: v.id, label: v.displayName ?? v.name ?? v.id })), [vendorNodes])
+
   const enumOpts = {
     assetTypeOptions,
     accessModelOptions,
@@ -149,6 +153,7 @@ const AssetPage: React.FC = () => {
     scopeOptions,
     securityTierOptions,
     tagOptions: tagOptions.tagOptions,
+    vendorIDsOptions,
   }
 
   const enumCreateHandlers = {
@@ -213,10 +218,16 @@ const AssetPage: React.FC = () => {
     onBulkCreate: async (file: File) => {
       await bulkCreateMutation.mutateAsync({ input: file })
     },
-    onBulkEdit: async (ids: string[], input: UpdateAssetInput) => {
-      await bulkEditMutation.mutateAsync({ ids, input })
+    onBulkEdit: async (ids: string[], input: UpdateAssetInput & { vendorIDs?: string[] }) => {
+      const { vendorIDs, ...rest } = input
+      const payload: UpdateAssetInput = {
+        ...rest,
+        ...(vendorIDs && vendorIDs.length > 0 ? { addEntityIDs: vendorIDs } : {}),
+      }
+      await bulkEditMutation.mutateAsync({ ids, input: payload })
     },
     bulkEditFormSchema: bulkEditFieldSchema,
+    bulkEditFieldLabels: { vendorIDs: 'Vendors' },
     enumOpts,
     responsibilityFields: {
       internalOwner: { fieldBaseName: 'internalOwner' },

@@ -50,7 +50,6 @@ import {
   Activity,
   NotebookPen,
   LayoutGrid,
-  Bell,
 } from 'lucide-react'
 import { type NavHeading, type NavItem, type Separator } from '@/types'
 import { PlanEnum } from '@/lib/subscription-plan/plan-enum.ts'
@@ -69,12 +68,6 @@ export const topNavigationItems = (session: Session | null): (NavItem | Separato
       title: 'Home',
       href: '/dashboard',
       icon: House,
-      hidden: session?.user?.isOnboarding || billingExpired,
-    },
-    {
-      title: 'Notifications',
-      href: '/notifications',
-      icon: Bell,
       hidden: session?.user?.isOnboarding || billingExpired,
     },
     {

@@ -8694,6 +8694,8 @@ export interface CreateIdentityHolderInput {
   editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the email address of the identity holder */
   email: Scalars['String']['input']
+  /** alternate email address for the identity holder in an array */
+  emailAliases?: InputMaybe<Array<Scalars['String']['input']>>
   employerID?: InputMaybe<Scalars['ID']['input']>
   /** the end date for the identity holder, if applicable */
   endDate?: InputMaybe<Scalars['DateTime']['input']>
@@ -9831,6 +9833,8 @@ export interface CreateReviewInput {
   source?: InputMaybe<Scalars['String']['input']>
   /** state of the review */
   state?: InputMaybe<Scalars['String']['input']>
+  /** status of the review */
+  status?: InputMaybe<ReviewReviewStatus>
   subcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** summary text for the review */
   summary?: InputMaybe<Scalars['String']['input']>
@@ -9865,6 +9869,8 @@ export interface CreateRiskInput {
   /** structured details of the risk in JSON format */
   detailsJSON?: InputMaybe<Array<Scalars['Any']['input']>>
   discussionIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** the time when the risk is due to be resolved by, based on the sla config but can be manually updated */
+  dueDate?: InputMaybe<Scalars['DateTime']['input']>
   editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   entityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   environmentID?: InputMaybe<Scalars['ID']['input']>
@@ -22861,6 +22867,8 @@ export interface IdentityHolder extends Node {
   editors: GroupConnection
   /** the email address of the identity holder */
   email: Scalars['String']['output']
+  /** alternate email address for the identity holder in an array */
+  emailAliases?: Maybe<Array<Scalars['String']['output']>>
   employer?: Maybe<Entity>
   /** the external entity this identity holder is affiliated with */
   employerEntityID?: Maybe<Scalars['ID']['output']>
@@ -23317,6 +23325,8 @@ export interface IdentityHolderWhereInput {
   displayIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   /** email field predicates */
   email?: InputMaybe<Scalars['String']['input']>
+  /** Filter for emailAliasesHas to contain a specific value */
+  emailAliasesHas?: InputMaybe<Scalars['String']['input']>
   emailContains?: InputMaybe<Scalars['String']['input']>
   emailContainsFold?: InputMaybe<Scalars['String']['input']>
   emailEqualFold?: InputMaybe<Scalars['String']['input']>
@@ -42344,6 +42354,8 @@ export interface Review extends Node {
   source?: Maybe<Scalars['String']['output']>
   /** state of the review */
   state?: Maybe<Scalars['String']['output']>
+  /** status of the review */
+  status?: Maybe<ReviewReviewStatus>
   subcontrols: SubcontrolConnection
   /** summary text for the review */
   summary?: Maybe<Scalars['String']['output']>
@@ -42597,6 +42609,15 @@ export enum ReviewOrderField {
   state = 'state',
   title = 'title',
   updated_at = 'updated_at',
+}
+
+/** ReviewReviewStatus is enum for the field status */
+export enum ReviewReviewStatus {
+  COMPLETED = 'COMPLETED',
+  IN_PROGRESS = 'IN_PROGRESS',
+  IN_REVIEW = 'IN_REVIEW',
+  OPEN = 'OPEN',
+  WONT_DO = 'WONT_DO',
 }
 
 /** Return response for updateReview mutation */
@@ -43012,6 +43033,13 @@ export interface ReviewWhereInput {
   stateNEQ?: InputMaybe<Scalars['String']['input']>
   stateNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   stateNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** status field predicates */
+  status?: InputMaybe<ReviewReviewStatus>
+  statusIn?: InputMaybe<Array<ReviewReviewStatus>>
+  statusIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  statusNEQ?: InputMaybe<ReviewReviewStatus>
+  statusNotIn?: InputMaybe<Array<ReviewReviewStatus>>
+  statusNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** summary field predicates */
   summary?: InputMaybe<Scalars['String']['input']>
   summaryContains?: InputMaybe<Scalars['String']['input']>
@@ -43118,6 +43146,8 @@ export interface Risk extends Node {
   discussions: DiscussionConnection
   /** a shortened prefixed id field to use as a human readable identifier */
   displayID: Scalars['String']['output']
+  /** the time when the risk is due to be resolved by, based on the sla config but can be manually updated */
+  dueDate?: Maybe<Scalars['DateTime']['output']>
   editors: GroupConnection
   entities: EntityConnection
   environment?: Maybe<CustomTypeEnum>
@@ -43442,6 +43472,7 @@ export enum RiskOrderField {
   STATUS = 'STATUS',
   business_costs = 'business_costs',
   created_at = 'created_at',
+  due_date = 'due_date',
   external_id = 'external_id',
   last_reviewed_at = 'last_reviewed_at',
   mitigated_at = 'mitigated_at',
@@ -43595,6 +43626,17 @@ export interface RiskWhereInput {
   displayIDLTE?: InputMaybe<Scalars['String']['input']>
   displayIDNEQ?: InputMaybe<Scalars['String']['input']>
   displayIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** due_date field predicates */
+  dueDate?: InputMaybe<Scalars['DateTime']['input']>
+  dueDateGT?: InputMaybe<Scalars['DateTime']['input']>
+  dueDateGTE?: InputMaybe<Scalars['DateTime']['input']>
+  dueDateIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  dueDateIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  dueDateLT?: InputMaybe<Scalars['DateTime']['input']>
+  dueDateLTE?: InputMaybe<Scalars['DateTime']['input']>
+  dueDateNEQ?: InputMaybe<Scalars['DateTime']['input']>
+  dueDateNotIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  dueDateNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** environment_id field predicates */
   environmentID?: InputMaybe<Scalars['ID']['input']>
   environmentIDContains?: InputMaybe<Scalars['ID']['input']>
@@ -55721,6 +55763,7 @@ export interface UpdateIdentityHolderInput {
   addWorkflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** alternate email address for the identity holder */
   alternateEmail?: InputMaybe<Scalars['String']['input']>
+  appendEmailAliases?: InputMaybe<Array<Scalars['String']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   clearAccessPlatforms?: InputMaybe<Scalars['Boolean']['input']>
   clearAlternateEmail?: InputMaybe<Scalars['Boolean']['input']>
@@ -55733,6 +55776,7 @@ export interface UpdateIdentityHolderInput {
   clearDepartment?: InputMaybe<Scalars['Boolean']['input']>
   clearDirectoryAccounts?: InputMaybe<Scalars['Boolean']['input']>
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
+  clearEmailAliases?: InputMaybe<Scalars['Boolean']['input']>
   clearEmployer?: InputMaybe<Scalars['Boolean']['input']>
   clearEndDate?: InputMaybe<Scalars['Boolean']['input']>
   clearEntities?: InputMaybe<Scalars['Boolean']['input']>
@@ -55768,6 +55812,8 @@ export interface UpdateIdentityHolderInput {
   department?: InputMaybe<Scalars['String']['input']>
   /** the email address of the identity holder */
   email?: InputMaybe<Scalars['String']['input']>
+  /** alternate email address for the identity holder in an array */
+  emailAliases?: InputMaybe<Array<Scalars['String']['input']>>
   employerID?: InputMaybe<Scalars['ID']['input']>
   /** the end date for the identity holder, if applicable */
   endDate?: InputMaybe<Scalars['DateTime']['input']>
@@ -57583,6 +57629,7 @@ export interface UpdateReviewInput {
   clearScopeName?: InputMaybe<Scalars['Boolean']['input']>
   clearSource?: InputMaybe<Scalars['Boolean']['input']>
   clearState?: InputMaybe<Scalars['Boolean']['input']>
+  clearStatus?: InputMaybe<Scalars['Boolean']['input']>
   clearSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
   clearSummary?: InputMaybe<Scalars['Boolean']['input']>
   clearSystemInternalID?: InputMaybe<Scalars['Boolean']['input']>
@@ -57639,6 +57686,8 @@ export interface UpdateReviewInput {
   source?: InputMaybe<Scalars['String']['input']>
   /** state of the review */
   state?: InputMaybe<Scalars['String']['input']>
+  /** status of the review */
+  status?: InputMaybe<ReviewReviewStatus>
   /** summary text for the review */
   summary?: InputMaybe<Scalars['String']['input']>
   /** an internal identifier for the mapping, this field is only available to system admins */
@@ -57693,6 +57742,7 @@ export interface UpdateRiskInput {
   clearDetails?: InputMaybe<Scalars['Boolean']['input']>
   clearDetailsJSON?: InputMaybe<Scalars['Boolean']['input']>
   clearDiscussions?: InputMaybe<Scalars['Boolean']['input']>
+  clearDueDate?: InputMaybe<Scalars['Boolean']['input']>
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearEntities?: InputMaybe<Scalars['Boolean']['input']>
   clearEnvironment?: InputMaybe<Scalars['Boolean']['input']>
@@ -57739,6 +57789,8 @@ export interface UpdateRiskInput {
   details?: InputMaybe<Scalars['String']['input']>
   /** structured details of the risk in JSON format */
   detailsJSON?: InputMaybe<Array<Scalars['Any']['input']>>
+  /** the time when the risk is due to be resolved by, based on the sla config but can be manually updated */
+  dueDate?: InputMaybe<Scalars['DateTime']['input']>
   environmentID?: InputMaybe<Scalars['ID']['input']>
   /** the environment of the risk */
   environmentName?: InputMaybe<Scalars['String']['input']>
@@ -65364,8 +65416,13 @@ export type AssetsWithFilterQuery = {
         sourceType: AssetSourceType
         tags?: Array<string> | null
         website?: string | null
+        categories?: Array<string> | null
         internalOwnerGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
         internalOwnerUser?: { __typename?: 'User'; id: string; displayName: string } | null
+        entities: {
+          __typename?: 'EntityConnection'
+          edges?: Array<{ __typename?: 'EntityEdge'; node?: { __typename?: 'Entity'; id: string; name?: string | null; displayName?: string | null } | null } | null> | null
+        }
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
@@ -65410,8 +65467,13 @@ export type AssetQuery = {
     sourceType: AssetSourceType
     tags?: Array<string> | null
     website?: string | null
+    categories?: Array<string> | null
     internalOwnerGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
     internalOwnerUser?: { __typename?: 'User'; id: string; displayName: string } | null
+    entities: {
+      __typename?: 'EntityConnection'
+      edges?: Array<{ __typename?: 'EntityEdge'; node?: { __typename?: 'Entity'; id: string; name?: string | null; displayName?: string | null } | null } | null> | null
+    }
   }
 }
 
@@ -69009,6 +69071,7 @@ export type FindingsWithFilterQuery = {
         assessmentID?: string | null
         blocksProduction?: boolean | null
         category?: string | null
+        categories?: Array<string> | null
         createdAt?: any | null
         createdBy?: string | null
         description?: string | null
@@ -69073,6 +69136,7 @@ export type FindingQuery = {
     assessmentID?: string | null
     blocksProduction?: boolean | null
     category?: string | null
+    categories?: Array<string> | null
     createdAt?: any | null
     createdBy?: string | null
     description?: string | null
@@ -71605,6 +71669,18 @@ export type PlatformQuery = {
         } | null
       } | null> | null
     }
+    architectureDiagrams: {
+      __typename?: 'FileConnection'
+      edges?: Array<{ __typename?: 'FileEdge'; node?: { __typename?: 'File'; id: string; providedFileName: string; presignedURL?: string | null } | null } | null> | null
+    }
+    dataFlowDiagrams: {
+      __typename?: 'FileConnection'
+      edges?: Array<{ __typename?: 'FileEdge'; node?: { __typename?: 'File'; id: string; providedFileName: string; presignedURL?: string | null } | null } | null> | null
+    }
+    trustBoundaryDiagrams: {
+      __typename?: 'FileConnection'
+      edges?: Array<{ __typename?: 'FileEdge'; node?: { __typename?: 'File'; id: string; providedFileName: string; base64?: string | null } | null } | null> | null
+    }
   }
 }
 
@@ -71617,6 +71693,9 @@ export type CreatePlatformMutation = { __typename?: 'Mutation'; createPlatform: 
 export type UpdatePlatformMutationVariables = Exact<{
   updatePlatformId: Scalars['ID']['input']
   input: UpdatePlatformInput
+  architectureDiagrams?: InputMaybe<Array<Scalars['Upload']['input']> | Scalars['Upload']['input']>
+  dataFlowDiagrams?: InputMaybe<Array<Scalars['Upload']['input']> | Scalars['Upload']['input']>
+  trustBoundaryDiagrams?: InputMaybe<Array<Scalars['Upload']['input']> | Scalars['Upload']['input']>
 }>
 
 export type UpdatePlatformMutation = { __typename?: 'Mutation'; updatePlatform: { __typename?: 'PlatformUpdatePayload'; platform: { __typename?: 'Platform'; id: string } } }
@@ -72763,6 +72842,11 @@ export type GetReviewAssociationsQuery = {
       totalCount: number
       edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; name: string; displayID: string } | null } | null> | null
     }
+    risks: {
+      __typename?: 'RiskConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'RiskEdge'; node?: { __typename?: 'Risk'; id: string; name: string; displayID: string } | null } | null> | null
+    }
   }
 }
 
@@ -72798,15 +72882,25 @@ export type RiskFieldsFragment = {
   name: string
   details?: string | null
   detailsJSON?: Array<any> | null
+  dueDate?: string | null
   tags?: Array<string> | null
   riskCategoryName?: string | null
   riskKindName?: string | null
   score?: number | null
   status?: RiskRiskStatus | null
   businessCosts?: string | null
+  lastReviewedAt?: string | null
   likelihood?: RiskRiskLikelihood | null
   impact?: RiskRiskImpact | null
+  mitigatedAt?: string | null
   mitigation?: string | null
+  nextReviewDueAt?: string | null
+  residualScore?: number | null
+  reviewFrequency?: RiskFrequency | null
+  environmentName?: string | null
+  scopeName?: string | null
+  reviewRequired?: boolean | null
+  riskDecision?: RiskRiskDecision | null
   createdAt?: any | null
   stakeholder?: {
     __typename?: 'Group'
@@ -72824,47 +72918,6 @@ export type RiskFieldsFragment = {
     logoURL?: string | null
     avatarFile?: { __typename?: 'File'; base64?: string | null } | null
   } | null
-  procedures: {
-    __typename?: 'ProcedureConnection'
-    totalCount: number
-    edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string; displayID: string; summary?: string | null } | null } | null> | null
-  }
-  controls: {
-    __typename?: 'ControlConnection'
-    totalCount: number
-    edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; displayID: string; refCode: string } | null } | null> | null
-  }
-  subcontrols: {
-    __typename?: 'SubcontrolConnection'
-    totalCount: number
-    edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; displayID: string; refCode: string; controlId: string } | null } | null> | null
-  }
-  programs: {
-    __typename?: 'ProgramConnection'
-    totalCount: number
-    edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; displayID: string; name: string; description?: string | null } | null } | null> | null
-  }
-  tasks: {
-    __typename?: 'TaskConnection'
-    totalCount: number
-    edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; displayID: string; title: string; details?: string | null } | null } | null> | null
-  }
-  internalPolicies: {
-    __typename?: 'InternalPolicyConnection'
-    totalCount: number
-    edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; displayID: string; name: string } | null } | null> | null
-  }
-  assets: {
-    __typename?: 'AssetConnection'
-    totalCount: number
-    edges?: Array<{ __typename?: 'AssetEdge'; node?: { __typename?: 'Asset'; id: string; name: string; displayName?: string | null } | null } | null> | null
-  }
-  entities: {
-    __typename?: 'EntityConnection'
-    totalCount: number
-    edges?: Array<{ __typename?: 'EntityEdge'; node?: { __typename?: 'Entity'; id: string; name?: string | null; displayName?: string | null } | null } | null> | null
-  }
-  scans: { __typename?: 'ScanConnection'; totalCount: number; edges?: Array<{ __typename?: 'ScanEdge'; node?: { __typename?: 'Scan'; id: string; target: string } | null } | null> | null }
 }
 
 export type RiskTableFieldsFragment = {
@@ -72872,6 +72925,7 @@ export type RiskTableFieldsFragment = {
   id: string
   displayID: string
   name: string
+  dueDate?: string | null
   riskCategoryName?: string | null
   riskKindName?: string | null
   score?: number | null
@@ -72879,12 +72933,21 @@ export type RiskTableFieldsFragment = {
   businessCosts?: string | null
   details?: string | null
   impact?: RiskRiskImpact | null
+  lastReviewedAt?: string | null
   likelihood?: RiskRiskLikelihood | null
   mitigation?: string | null
+  mitigatedAt?: string | null
   updatedAt?: any | null
   updatedBy?: string | null
   createdAt?: any | null
   createdBy?: string | null
+  nextReviewDueAt?: string | null
+  residualScore?: number | null
+  reviewFrequency?: RiskFrequency | null
+  reviewRequired?: boolean | null
+  riskDecision?: RiskRiskDecision | null
+  environmentName?: string | null
+  scopeName?: string | null
   delegate?: { __typename?: 'Group'; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
   stakeholder?: {
     __typename?: 'Group'
@@ -72909,15 +72972,25 @@ export type GetRiskByIdQuery = {
     name: string
     details?: string | null
     detailsJSON?: Array<any> | null
+    dueDate?: string | null
     tags?: Array<string> | null
     riskCategoryName?: string | null
     riskKindName?: string | null
     score?: number | null
     status?: RiskRiskStatus | null
     businessCosts?: string | null
+    lastReviewedAt?: string | null
     likelihood?: RiskRiskLikelihood | null
     impact?: RiskRiskImpact | null
+    mitigatedAt?: string | null
     mitigation?: string | null
+    nextReviewDueAt?: string | null
+    residualScore?: number | null
+    reviewFrequency?: RiskFrequency | null
+    environmentName?: string | null
+    scopeName?: string | null
+    reviewRequired?: boolean | null
+    riskDecision?: RiskRiskDecision | null
     createdAt?: any | null
     stakeholder?: {
       __typename?: 'Group'
@@ -72935,47 +73008,6 @@ export type GetRiskByIdQuery = {
       logoURL?: string | null
       avatarFile?: { __typename?: 'File'; base64?: string | null } | null
     } | null
-    procedures: {
-      __typename?: 'ProcedureConnection'
-      totalCount: number
-      edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string; displayID: string; summary?: string | null } | null } | null> | null
-    }
-    controls: {
-      __typename?: 'ControlConnection'
-      totalCount: number
-      edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; displayID: string; refCode: string } | null } | null> | null
-    }
-    subcontrols: {
-      __typename?: 'SubcontrolConnection'
-      totalCount: number
-      edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; displayID: string; refCode: string; controlId: string } | null } | null> | null
-    }
-    programs: {
-      __typename?: 'ProgramConnection'
-      totalCount: number
-      edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; displayID: string; name: string; description?: string | null } | null } | null> | null
-    }
-    tasks: {
-      __typename?: 'TaskConnection'
-      totalCount: number
-      edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; displayID: string; title: string; details?: string | null } | null } | null> | null
-    }
-    internalPolicies: {
-      __typename?: 'InternalPolicyConnection'
-      totalCount: number
-      edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; displayID: string; name: string } | null } | null> | null
-    }
-    assets: {
-      __typename?: 'AssetConnection'
-      totalCount: number
-      edges?: Array<{ __typename?: 'AssetEdge'; node?: { __typename?: 'Asset'; id: string; name: string; displayName?: string | null } | null } | null> | null
-    }
-    entities: {
-      __typename?: 'EntityConnection'
-      totalCount: number
-      edges?: Array<{ __typename?: 'EntityEdge'; node?: { __typename?: 'Entity'; id: string; name?: string | null; displayName?: string | null } | null } | null> | null
-    }
-    scans: { __typename?: 'ScanConnection'; totalCount: number; edges?: Array<{ __typename?: 'ScanEdge'; node?: { __typename?: 'Scan'; id: string; target: string } | null } | null> | null }
   }
 }
 
@@ -73001,6 +73033,7 @@ export type GetAllRisksQuery = {
         id: string
         displayID: string
         name: string
+        dueDate?: string | null
         riskCategoryName?: string | null
         riskKindName?: string | null
         score?: number | null
@@ -73008,12 +73041,21 @@ export type GetAllRisksQuery = {
         businessCosts?: string | null
         details?: string | null
         impact?: RiskRiskImpact | null
+        lastReviewedAt?: string | null
         likelihood?: RiskRiskLikelihood | null
         mitigation?: string | null
+        mitigatedAt?: string | null
         updatedAt?: any | null
         updatedBy?: string | null
         createdAt?: any | null
         createdBy?: string | null
+        nextReviewDueAt?: string | null
+        residualScore?: number | null
+        reviewFrequency?: RiskFrequency | null
+        reviewRequired?: boolean | null
+        riskDecision?: RiskRiskDecision | null
+        environmentName?: string | null
+        scopeName?: string | null
         delegate?: { __typename?: 'Group'; displayName: string; gravatarLogoURL?: string | null; logoURL?: string | null; avatarFile?: { __typename?: 'File'; base64?: string | null } | null } | null
         stakeholder?: {
           __typename?: 'Group'
@@ -73224,6 +73266,74 @@ export type GetRiskAssociationsTimelineQuery = {
     scans: {
       __typename?: 'ScanConnection'
       edges?: Array<{ __typename?: 'ScanEdge'; node?: { __typename?: 'Scan'; id: string; target: string; createdAt?: any | null; createdBy?: string | null } | null } | null> | null
+    }
+    reviews: {
+      __typename?: 'ReviewConnection'
+      edges?: Array<{ __typename?: 'ReviewEdge'; node?: { __typename?: 'Review'; id: string; title: string; createdAt?: any | null; createdBy?: string | null } | null } | null> | null
+    }
+    actionPlans: {
+      __typename?: 'ActionPlanConnection'
+      edges?: Array<{ __typename?: 'ActionPlanEdge'; node?: { __typename?: 'ActionPlan'; id: string; name: string; createdAt?: any | null; createdBy?: string | null } | null } | null> | null
+    }
+  }
+}
+
+export type GetRiskAssociationsQueryVariables = Exact<{
+  riskId: Scalars['ID']['input']
+}>
+
+export type GetRiskAssociationsQuery = {
+  __typename?: 'Query'
+  risk: {
+    __typename?: 'Risk'
+    controls: {
+      __typename?: 'ControlConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; displayID: string; refCode: string } | null } | null> | null
+    }
+    subcontrols: {
+      __typename?: 'SubcontrolConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; displayID: string; refCode: string; controlId: string } | null } | null> | null
+    }
+    programs: {
+      __typename?: 'ProgramConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'ProgramEdge'; node?: { __typename?: 'Program'; id: string; displayID: string; name: string; description?: string | null } | null } | null> | null
+    }
+    tasks: {
+      __typename?: 'TaskConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; displayID: string; title: string; details?: string | null } | null } | null> | null
+    }
+    internalPolicies: {
+      __typename?: 'InternalPolicyConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; displayID: string; name: string } | null } | null> | null
+    }
+    procedures: {
+      __typename?: 'ProcedureConnection'
+      edges?: Array<{ __typename?: 'ProcedureEdge'; node?: { __typename?: 'Procedure'; id: string; name: string; displayID: string; createdAt?: any | null } | null } | null> | null
+    }
+    assets: {
+      __typename?: 'AssetConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'AssetEdge'; node?: { __typename?: 'Asset'; id: string; name: string; displayName?: string | null } | null } | null> | null
+    }
+    entities: {
+      __typename?: 'EntityConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'EntityEdge'; node?: { __typename?: 'Entity'; id: string; name?: string | null; displayName?: string | null } | null } | null> | null
+    }
+    scans: { __typename?: 'ScanConnection'; totalCount: number; edges?: Array<{ __typename?: 'ScanEdge'; node?: { __typename?: 'Scan'; id: string; target: string } | null } | null> | null }
+    reviews: { __typename?: 'ReviewConnection'; edges?: Array<{ __typename?: 'ReviewEdge'; node?: { __typename?: 'Review'; id: string; title: string } | null } | null> | null }
+    actionPlans: {
+      __typename?: 'ActionPlanConnection'
+      edges?: Array<{ __typename?: 'ActionPlanEdge'; node?: { __typename?: 'ActionPlan'; id: string; name: string; status?: ActionPlanDocumentStatus | null } | null } | null> | null
+    }
+    remediations: {
+      __typename?: 'RemediationConnection'
+      edges?: Array<{ __typename?: 'RemediationEdge'; node?: { __typename?: 'Remediation'; id: string; title?: string | null; displayID: string } | null } | null> | null
     }
   }
 }

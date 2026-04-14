@@ -3,6 +3,7 @@ import { type FindingsNodeNonNull } from '@/lib/graphql-hooks/finding'
 import { type ColumnOptions } from '@/components/shared/crud-base/page'
 import { createSelectColumn } from '@/components/shared/crud-base/columns/select-column'
 import { UserCell } from '@/components/shared/crud-base/columns/user-cell'
+import { TagsCell } from '@/components/shared/crud-base/columns/tags-cell'
 import { BooleanCell } from '@/components/shared/crud-base/columns/boolean-cell'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { CustomEnumChipCell } from '@/components/shared/crud-base/columns/custom-enum-chip-cell'
@@ -68,14 +69,20 @@ export const getColumns = ({ userMap, selectedItems, setSelectedItems, onTrackRe
       accessorKey: 'createdBy',
       header: 'Created By',
       size: 160,
-      cell: ({ row }) => <UserCell user={userMap[row.original.createdBy ?? '']} />,
+      cell: ({ row }) => <UserCell user={userMap[row.original.createdBy ?? '']} fallback={row.original.createdBy ?? undefined} />,
     },
     { accessorKey: 'updatedAt', header: 'Updated At', size: 130, cell: ({ cell }) => <DateCell value={cell.getValue() as string} variant="timesince" /> },
     {
       accessorKey: 'updatedBy',
       header: 'Updated By',
       size: 160,
-      cell: ({ row }) => <UserCell user={userMap[row.original.updatedBy ?? '']} />,
+      cell: ({ row }) => <UserCell user={userMap[row.original.updatedBy ?? '']} fallback={row.original.updatedBy ?? undefined} />,
+    },
+    {
+      accessorKey: 'categories',
+      header: 'Categories',
+      size: 160,
+      cell: ({ row }) => <TagsCell tags={row.original.categories as string[] | null | undefined} wrap={false} />,
     },
   ]
 

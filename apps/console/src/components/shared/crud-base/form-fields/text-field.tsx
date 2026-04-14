@@ -11,6 +11,7 @@ import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { InfoIcon } from 'lucide-react'
 import { normalizeUrl } from '@/utils/normalizeUrl'
 import { cn } from '@repo/ui/lib/utils'
+import { useRef } from 'react'
 
 interface TextFieldProps<TUpdateInput> {
   name: string
@@ -20,7 +21,7 @@ interface TextFieldProps<TUpdateInput> {
   isCreate?: boolean
   data?: FieldValues | undefined
   placeholder?: string
-  type?: string
+  type?: string | 'text' | 'date' | 'currency' | 'link' | 'number'
   prefix?: string
   internalEditing: string | null
   setInternalEditing: InternalEditingType
@@ -116,6 +117,8 @@ export const TextField = <TUpdateInput,>({
     prefix = 'https://'
   }
 
+  const popoverRef = useRef<HTMLDivElement>(null)
+
   return (
     <FormField
       control={control}
@@ -129,10 +132,33 @@ export const TextField = <TUpdateInput,>({
           </div>
           <FormControl>
             {isFieldEditing ? (
-              multiline ? (
+              type === 'number' ? (
+                <div ref={popoverRef} className="w-full flex items-center gap-4 p-2">
+                  <input
+                    type="range"
+                    min={0}
+                    max={20}
+                    value={typeof field.value === 'number' ? field.value : 0}
+                    onChange={(e) => field.onChange(Number(e.target.value))}
+                    onBlur={handleBlur}
+                    className="w-full h-2 bg-input-slider rounded-lg appearance-none cursor-pointer "
+                  />
+                  <span className="text-sm w-8 text-right gap-4">{typeof field.value === 'number' ? field.value : 0}</span>
+                </div>
+              ) : multiline ? (
                 <Textarea {...field} value={field.value ?? ''} placeholder={placeholder} onBlur={handleTextareaBlur} autoFocus={internalEditing === name} rows={4} />
               ) : (
-                <Input {...field} value={field.value ?? ''} type={type} prefix={prefix} placeholder={placeholder} onBlur={handleBlur} onKeyDown={handleKeyDown} autoFocus={internalEditing === name} />
+                <Input
+                  className="w-full"
+                  {...field}
+                  value={field.value ?? ''}
+                  type={type}
+                  prefix={prefix}
+                  placeholder={placeholder}
+                  onBlur={handleBlur}
+                  onKeyDown={handleKeyDown}
+                  autoFocus={internalEditing === name}
+                />
               )
             ) : (
               <div className={cn('text-sm py-2 rounded-md cursor-pointer px-1 w-full hover:bg-accent', layout === 'horizontal' && 'text-right')} onClick={handleClick}>
@@ -155,6 +181,17 @@ export const TextField = <TUpdateInput,>({
                   ) : (
                     <span className="text-muted-foreground italic">Not set</span>
                   )
+                ) : type === 'number' ? (
+                  <div ref={popoverRef} className="w-full flex items-center gap-4">
+                    <input
+                      type="range"
+                      min={0}
+                      max={20}
+                      value={typeof field.value === 'number' ? field.value : Number(field.value) || 0}
+                      className="w-full h-2 bg-input-slider rounded-lg appearance-none cursor-pointer "
+                    />
+                    <span className="text-sm w-8 text-right gap-4">{typeof field.value === 'number' ? field.value : 0}</span>
+                  </div>
                 ) : (
                   value || <span className="text-muted-foreground italic">Not set</span>
                 )}

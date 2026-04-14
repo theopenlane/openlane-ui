@@ -2,18 +2,16 @@
 
 import ObjectAssociation from '@/components/shared/object-association/object-association'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useMemo } from 'react'
 import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
 import { type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
 import { usePolicy } from '@/components/pages/protected/policies/create/hooks/use-policy.tsx'
-import { type UpdateInternalPolicyInput } from '@repo/codegen/src/schema.ts'
 import { useQueryClient } from '@tanstack/react-query'
 import { useUpdateInternalPolicy } from '@/lib/graphql-hooks/internal-policy'
-import { useNotification } from '@/hooks/useNotification.tsx'
-import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import AddAssociationPlusBtn from '@/components/shared/object-association/add-association-plus-btn.tsx'
+import { useAssociationDialog } from '@/components/shared/object-association/hooks/use-association-dialog'
 
 type TSetObjectAssociationDialogProps = {
   policyId?: string
@@ -24,18 +22,6 @@ type TSetObjectAssociationDialogProps = {
 const SetObjectAssociationPoliciesDialog = ({ policyId, fromTable = false, onClose }: TSetObjectAssociationDialogProps) => {
   const policyState = usePolicy()
   const queryClient = useQueryClient()
-  const associationsState = usePolicy((state) => state.associations)
-  const initialAssociationsState = usePolicy((state) => state.initialAssociations)
-  const refCodeAssociationsState = usePolicy((state) => state.associationRefCodes)
-  const { successNotification, errorNotification } = useNotification()
-  const [associations, setAssociations] = useState<{
-    associations: TObjectAssociationMap
-    refCodes: TObjectAssociationMap
-  }>({
-    associations: {},
-    refCodes: {},
-  })
-  const [open, setOpen] = useState(false)
   const { mutateAsync: updatePolicy, isPending: isSaving } = useUpdateInternalPolicy()
 
   const allowedObjectTypes = fromTable
@@ -53,117 +39,62 @@ const SetObjectAssociationPoliciesDialog = ({ policyId, fromTable = false, onClo
         ObjectTypeObjects.TASK,
       ]
 
-  const handleSave = () => {
-    policyState.setInitialAssociations(associations.associations)
-    policyState.setAssociations(associations.associations)
-    policyState.setAssociationRefCodes(associations.refCodes)
-    if (policyId) {
-      onSubmitHandler(associations.associations)
-    } else {
-      setOpen(false)
-    }
-  }
-
-  function getAssociationDiffs(initial: TObjectAssociationMap, current: TObjectAssociationMap): { added: TObjectAssociationMap; removed: TObjectAssociationMap } {
-    const added: TObjectAssociationMap = {}
-    const removed: TObjectAssociationMap = {}
-
-    const allKeys = new Set([...Object.keys(initial), ...Object.keys(current)])
-
-    for (const key of allKeys) {
-      const initialSet = new Set(initial[key] ?? [])
-      const currentSet = new Set(current[key] ?? [])
-
-      const addedItems = [...currentSet].filter((id) => !initialSet.has(id))
-      const removedItems = [...initialSet].filter((id) => !currentSet.has(id))
-
-      if (addedItems.length > 0) {
-        added[key] = addedItems
-      }
-      if (removedItems.length > 0) {
-        removed[key] = removedItems
-      }
-    }
-
-    return { added, removed }
-  }
-
-  const onSubmitHandler = async (associations: TObjectAssociationMap) => {
-    try {
-      const { added, removed } = getAssociationDiffs(initialAssociationsState, associations)
-
-      const buildMutationKey = (prefix: string, key: string) => `${prefix}${key.charAt(0).toUpperCase()}${key.slice(1)}`
-
-      const associationInputs = {
-        ...Object.entries(added).reduce(
-          (acc, [key, ids]) => {
-            if (ids && ids.length > 0) {
-              acc[buildMutationKey('add', key)] = ids
-            }
-            return acc
-          },
-          {} as Record<string, string[]>,
-        ),
-
-        ...Object.entries(removed).reduce(
-          (acc, [key, ids]) => {
-            if (ids && ids.length > 0) {
-              acc[buildMutationKey('remove', key)] = ids
-            }
-            return acc
-          },
-          {} as Record<string, string[]>,
-        ),
-      }
-
-      const formData: {
-        updateInternalPolicyId: string
-        input: UpdateInternalPolicyInput
-      } = {
+  const onSave = useCallback(
+    async (associationInputs: Record<string, string[]>) => {
+      await updatePolicy({
         updateInternalPolicyId: policyId ?? '',
-        input: {
-          ...associationInputs,
-        },
-      }
-
-      await updatePolicy(formData)
-
-      successNotification({
-        title: 'Policy Updated',
-        description: 'Policy has been successfully updated',
+        input: { ...associationInputs },
       })
-
       queryClient.invalidateQueries({ queryKey: ['internalPolicies'] })
-      setOpen(false)
-    } catch (error) {
-      const errorMessage = parseErrorMessage(error)
-      errorNotification({
-        title: 'Error',
-        description: errorMessage,
-      })
-    }
-  }
+    },
+    [updatePolicy, policyId, queryClient],
+  )
 
-  const handleDialogChange = (isOpen: boolean) => {
-    if (!isOpen) {
-      setAssociations({
-        associations: {},
-        refCodes: {},
-      })
-      onClose?.()
-    }
-    setOpen(isOpen)
-  }
+  const onStateSave = useCallback(
+    (associations: TObjectAssociationMap, refCodes: TObjectAssociationMap) => {
+      policyState.setInitialAssociations(associations)
+      policyState.setAssociations(associations)
+      policyState.setAssociationRefCodes(refCodes)
+    },
+    [policyState],
+  )
 
-  const handleIdChange = useCallback((updatedMap: TObjectAssociationMap, refCodes: TObjectAssociationMap) => {
-    setAssociations({ associations: updatedMap, refCodes })
-  }, [])
+  const successMessage = useMemo(() => ({ title: 'Policy Updated', description: 'Policy has been successfully updated' }), [])
+
+  const {
+    open,
+    setOpen,
+    hasChanges,
+    handleDialogChange: baseHandleDialogChange,
+    handleIdChange,
+    handleSave,
+    associationsState,
+    refCodeAssociationsState,
+  } = useAssociationDialog({
+    associationsState: usePolicy((state) => state.associations),
+    initialAssociationsState: usePolicy((state) => state.initialAssociations),
+    refCodeAssociationsState: usePolicy((state) => state.associationRefCodes),
+    entityId: policyId,
+    onSave,
+    onStateSave,
+    successMessage,
+  })
+
+  const handleDialogChange = useCallback(
+    (isOpen: boolean) => {
+      baseHandleDialogChange(isOpen)
+      if (!isOpen) {
+        onClose?.()
+      }
+    },
+    [baseHandleDialogChange, onClose],
+  )
 
   useEffect(() => {
     if (!!policyId && !!fromTable) {
       setOpen(true)
     }
-  }, [fromTable, policyId])
+  }, [fromTable, policyId, setOpen])
 
   return (
     <Dialog open={open} onOpenChange={handleDialogChange}>
@@ -184,8 +115,8 @@ const SetObjectAssociationPoliciesDialog = ({ policyId, fromTable = false, onClo
           defaultSelectedObject={fromTable ? ObjectTypeObjects.PROCEDURE : undefined}
         />
         <DialogFooter>
-          <SaveButton onClick={handleSave} isSaving={isSaving} />
-          <CancelButton disabled={isSaving} onClick={() => setOpen(false)}></CancelButton>
+          <SaveButton onClick={handleSave} isSaving={isSaving} disabled={isSaving || !hasChanges} />
+          <CancelButton disabled={isSaving} onClick={() => handleDialogChange(false)}></CancelButton>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -9,7 +9,7 @@ import { buildAssociationFilter } from '@/components/pages/protected/controls/ta
 import type { FindingWhereInput, RiskWhereInput } from '@repo/codegen/src/schema'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { TableSkeleton } from '@/components/shared/skeleton/table-skeleton'
-import EmptyTabState from '@/components/pages/protected/controls/tabs/shared/empty-tab-state'
+import EmptyTabState from '@/components/shared/crud-base/tabs/empty-tab-state'
 
 type FindingsRisksTabProps = {
   controlId?: string

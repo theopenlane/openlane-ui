@@ -10,7 +10,6 @@ import {
   type Maybe,
   OrderDirection,
   type OrgMembershipWhereInput,
-  type Procedure,
   ProcedureDocumentStatus,
   ProcedureOrderField,
   type ProcedureWhereInput,
@@ -155,10 +154,6 @@ export const ProceduresTable = () => {
     router.push(`/procedures/create`)
   }
 
-  const handleRowClick = (rowData: Procedure) => {
-    router.push(`/procedures/${rowData.id}/view`)
-  }
-
   function isVisibleColumn<T>(col: ColumnDef<T>): col is ColumnDef<T> & { accessorKey: string; header: string } {
     return 'accessorKey' in col && typeof col.accessorKey === 'string' && typeof col.header === 'string' && columnVisibility[col.accessorKey] !== false
   }
@@ -242,7 +237,7 @@ export const ProceduresTable = () => {
         onSortChange={setOrderBy}
         columns={columns}
         data={procedures}
-        onRowClick={handleRowClick}
+        rowHref={(row) => `/procedures/${row.id}/view`}
         loading={fetching}
         pagination={pagination}
         onPaginationChange={(pagination: TPagination) => setPagination(pagination)}

@@ -9,14 +9,14 @@ import { useDocumentationTasks } from '@/lib/graphql-hooks/documentation'
 import type { TaskOrder, TaskWhereInput } from '@repo/codegen/src/schema'
 import { OrderDirection, TaskOrderField, TaskTaskStatus } from '@repo/codegen/src/schema'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
-import { mergeWhere, SearchFilterBar } from '@/components/pages/protected/controls/tabs/shared/documentation-shared'
+import { mergeWhere, SearchFilterBar } from '@/components/shared/crud-base/tabs/shared'
 import type { TPagination } from '@repo/ui/pagination-types'
 import type { FilterField, WhereCondition } from '@/types'
 import type { TOrgMembers } from '@/components/pages/protected/tasks/hooks/useTaskStore'
 import { useSession } from 'next-auth/react'
-import { getActivityTaskColumns, getActivityTaskFilterFields, type ActivityTaskRow } from './activity-tasks-config'
+import { getActivityTaskColumns, getActivityTaskFilterFields, type ActivityTaskRow } from '@/components/shared/crud-base/tabs/activity-tasks-config'
 import { TableSkeleton } from '@/components/shared/skeleton/table-skeleton'
-import EmptyTabState from '@/components/pages/protected/controls/tabs/shared/empty-tab-state'
+import EmptyTabState from '@/components/shared/crud-base/tabs/empty-tab-state'
 
 type ActivityTasksSectionProps = {
   controlId?: string

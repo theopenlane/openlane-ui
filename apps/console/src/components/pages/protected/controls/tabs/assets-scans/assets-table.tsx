@@ -12,7 +12,7 @@ import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useAssetsWithFilter, type AssetsNodeNonNull } from '@/lib/graphql-hooks/asset'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
 import { getColumns } from '@/components/pages/protected/assets/table/columns'
-import { SearchFilterBar } from '@/components/pages/protected/controls/tabs/shared/documentation-shared'
+import { SearchFilterBar } from '@/components/shared/crud-base/tabs/shared'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
 
 type AssetsTableProps = {

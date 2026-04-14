@@ -12,7 +12,8 @@ import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useRisks } from '@/lib/graphql-hooks/risk'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
 import { getRiskColumns } from '@/components/pages/protected/risks/table/columns'
-import { buildAssociationFilter, mergeWhere, SearchFilterBar } from '@/components/pages/protected/controls/tabs/shared/documentation-shared'
+import { buildAssociationFilter } from '@/components/pages/protected/controls/tabs/shared/documentation-shared'
+import { mergeWhere, SearchFilterBar } from '@/components/shared/crud-base/tabs/shared'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 
 type RisksTableProps = {

@@ -1,7 +1,7 @@
 'use client'
 
 import { type Ref, useMemo, useState } from 'react'
-import { Check, ChevronsUpDown, Plus } from 'lucide-react'
+import { Check, ChevronDown, Plus } from 'lucide-react'
 import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
 import { cn } from '@repo/ui/lib/utils'
@@ -100,7 +100,7 @@ export const CreatableCustomTypeEnumSelect = ({
           )}
         >
           {useCustomDisplay ? <CustomTypeEnumValue value={value} options={allOptions} placeholder={placeholder} /> : <span>{allOptions.find((opt) => opt.value === value)?.label || placeholder}</span>}
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </button>
       </PopoverTrigger>
       <PopoverContent ref={contentRef} className={cn('min-w-(--radix-popover-trigger-width) w-auto p-0', contentClassName)} align="start">
@@ -112,7 +112,7 @@ export const CreatableCustomTypeEnumSelect = ({
             }
           }}
         >
-          <CommandInput placeholder={searchPlaceholder} value={searchValue} onValueChange={setSearchValue} />
+          <CommandInput className="text-muted-foreground" placeholder={searchPlaceholder} value={searchValue} onValueChange={setSearchValue} />
           <CommandList>
             <CommandEmpty className="p-0">
               {showCreateOption && (
