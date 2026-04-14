@@ -2,6 +2,7 @@
 
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 import DOMPurify from 'dompurify'
+import ReactMarkdown from 'react-markdown'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
@@ -18,6 +19,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { EmailTemplateNotificationTemplateFormat, EmailTemplateTemplateContext } from '@repo/codegen/src/schema'
 import { EmailBrandingPanel } from '@/components/pages/protected/campaigns/create/email-branding-panel'
+import { CodeBlock } from '@repo/ui/code-block'
 
 interface EmailTemplateSheetProps {
   open: boolean
@@ -49,6 +51,30 @@ export const EmailTemplateSheet: React.FC<EmailTemplateSheetProps> = ({ open, te
 
   const bodyRef = useRef<HTMLTextAreaElement>(null)
   const sanitizedBody = useMemo(() => DOMPurify.sanitize(bodyTemplate || '<em>No body content</em>'), [bodyTemplate])
+
+  const bodyPlaceholder = useMemo(() => {
+    switch (format) {
+      case EmailTemplateNotificationTemplateFormat.HTML:
+        return '<p>Write your HTML email body here...</p>'
+      case EmailTemplateNotificationTemplateFormat.JSON:
+        return '{\n  "title": "Hello",\n  "body": "Write your JSON email body here..."\n}'
+      case EmailTemplateNotificationTemplateFormat.MARKDOWN:
+        return '# Hello\n\nWrite your **markdown** email body here...'
+      case EmailTemplateNotificationTemplateFormat.TEXT:
+      default:
+        return 'Write your email body content here...'
+    }
+  }, [format])
+
+  const formattedJsonBody = useMemo(() => {
+    if (format !== EmailTemplateNotificationTemplateFormat.JSON) return null
+    if (!bodyTemplate.trim()) return { value: '(No body content)', error: false }
+    try {
+      return { value: JSON.stringify(JSON.parse(bodyTemplate), null, 2), error: false }
+    } catch {
+      return { value: bodyTemplate, error: true }
+    }
+  }, [format, bodyTemplate])
 
   const { data: templateData, isLoading: isLoadingTemplate } = useEmailTemplate(isEditMode ? templateId : undefined)
   const { mutateAsync: createEmailTemplate, isPending: isCreating } = useCreateEmailTemplate()
@@ -335,7 +361,15 @@ export const EmailTemplateSheet: React.FC<EmailTemplateSheetProps> = ({ open, te
 
                         <div className="flex flex-col gap-1.5">
                           <label className="text-sm font-medium">Body Template</label>
-                          <Textarea ref={bodyRef} value={bodyTemplate} onChange={(e) => setBodyTemplate(e.target.value)} placeholder="Write your email body content here..." rows={6} disabled={readOnly} />
+                          <Textarea
+                            ref={bodyRef}
+                            value={bodyTemplate}
+                            onChange={(e) => setBodyTemplate(e.target.value)}
+                            placeholder={bodyPlaceholder}
+                            rows={format === EmailTemplateNotificationTemplateFormat.JSON ? 10 : 6}
+                            className={format === EmailTemplateNotificationTemplateFormat.HTML ? undefined : 'font-mono text-sm'}
+                            disabled={readOnly}
+                          />
                         </div>
 
                         {!readOnly && (
@@ -384,11 +418,43 @@ export const EmailTemplateSheet: React.FC<EmailTemplateSheetProps> = ({ open, te
                           )}
                           <div>
                             <p className="text-xs text-muted-foreground mb-1">Body</p>
-                            {format === EmailTemplateNotificationTemplateFormat.HTML ? (
-                              <div className="prose prose-sm dark:prose-invert max-w-none text-sm" dangerouslySetInnerHTML={{ __html: sanitizedBody }} />
-                            ) : (
-                              <pre className="text-sm whitespace-pre-wrap">{bodyTemplate || '(No body content)'}</pre>
+                            {format === EmailTemplateNotificationTemplateFormat.HTML && (
+                              <Tabs defaultValue="rendered" variant="underline">
+                                <TabsList className="mb-2">
+                                  <TabsTrigger value="rendered">Rendered</TabsTrigger>
+                                  <TabsTrigger value="source">Source</TabsTrigger>
+                                </TabsList>
+                                <TabsContent value="rendered">
+                                  <div className="prose prose-sm dark:prose-invert max-w-none text-sm" dangerouslySetInnerHTML={{ __html: sanitizedBody }} />
+                                </TabsContent>
+                                <TabsContent value="source">
+                                  <CodeBlock code={bodyTemplate || ''} language="html" />
+                                </TabsContent>
+                              </Tabs>
                             )}
+                            {format === EmailTemplateNotificationTemplateFormat.MARKDOWN && (
+                              <Tabs defaultValue="rendered" variant="underline">
+                                <TabsList className="mb-2">
+                                  <TabsTrigger value="rendered">Rendered</TabsTrigger>
+                                  <TabsTrigger value="source">Source</TabsTrigger>
+                                </TabsList>
+                                <TabsContent value="rendered">
+                                  <div className="prose prose-sm dark:prose-invert max-w-none text-sm">
+                                    <ReactMarkdown>{bodyTemplate || '_No body content_'}</ReactMarkdown>
+                                  </div>
+                                </TabsContent>
+                                <TabsContent value="source">
+                                  <CodeBlock code={bodyTemplate || ''} language="markdown" />
+                                </TabsContent>
+                              </Tabs>
+                            )}
+                            {format === EmailTemplateNotificationTemplateFormat.JSON && (
+                              <>
+                                {formattedJsonBody?.error && <p className="text-xs text-destructive mb-1">Invalid JSON</p>}
+                                <CodeBlock code={formattedJsonBody?.value ?? ''} language="json" />
+                              </>
+                            )}
+                            {format === EmailTemplateNotificationTemplateFormat.TEXT && <CodeBlock code={bodyTemplate || '(No body content)'} language="text" />}
                           </div>
                         </div>
                       </TabsContent>
