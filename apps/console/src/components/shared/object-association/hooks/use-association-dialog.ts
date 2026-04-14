@@ -14,15 +14,7 @@ type UseAssociationDialogOptions = {
   successMessage: { title: string; description: string }
 }
 
-export const useAssociationDialog = ({
-  associationsState,
-  initialAssociationsState,
-  refCodeAssociationsState,
-  entityId,
-  onSave,
-  onStateSave,
-  successMessage,
-}: UseAssociationDialogOptions) => {
+export const useAssociationDialog = ({ associationsState, initialAssociationsState, refCodeAssociationsState, entityId, onSave, onStateSave, successMessage }: UseAssociationDialogOptions) => {
   const { successNotification, errorNotification } = useNotification()
   const [associations, setAssociations] = useState<{
     associations: TObjectAssociationMap

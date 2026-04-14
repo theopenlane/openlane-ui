@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { getRiskColumns } from '@/components/pages/protected/risks/table/columns.tsx'
 import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination.ts'
-import { ExportExportFormat, ExportExportType, type GetAllRisksQueryVariables, OrderDirection, RiskOrderField, type RiskTableFieldsFragment, type RiskWhereInput } from '@repo/codegen/src/schema.ts'
+import { ExportExportFormat, ExportExportType, type GetAllRisksQueryVariables, OrderDirection, RiskOrderField, type RiskWhereInput } from '@repo/codegen/src/schema.ts'
 import { type ColumnDef, type VisibilityState } from '@tanstack/react-table'
 import { useDebounce } from '@uidotdev/usehooks'
 import { useRisks } from '@/lib/graphql-hooks/risk'
@@ -144,10 +144,6 @@ const RiskTable: React.FC = () => {
     }
   }, [isError, errorNotification])
 
-  const handleRowClick = (rowData: RiskTableFieldsFragment) => {
-    router.push(`/exposure/risks/${rowData.id}`)
-  }
-
   const handleCreateNew = async () => {
     router.push(`/exposure/risks/create`)
   }
@@ -202,7 +198,7 @@ const RiskTable: React.FC = () => {
         onSortChange={setOrderBy}
         columns={columns}
         data={risks || []}
-        onRowClick={handleRowClick}
+        rowHref={(row) => `/exposure/risks/${row.id}`}
         loading={fetchingUsers || (!risks && !isError)}
         pagination={pagination}
         onPaginationChange={setPagination}

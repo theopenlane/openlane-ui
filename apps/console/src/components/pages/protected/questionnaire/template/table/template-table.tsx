@@ -172,10 +172,6 @@ export const TemplatesTable = () => {
     exportToCSV(templates, exportableColumns, 'templates_list')
   }
 
-  const handleRowClick = (row: Template) => {
-    router.push(`/automation/assessments/templates/template-viewer?id=${row.id}`)
-  }
-
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
@@ -220,7 +216,7 @@ export const TemplatesTable = () => {
           pagination={pagination}
           onPaginationChange={setPagination}
           paginationMeta={paginationMeta}
-          onRowClick={handleRowClick}
+          rowHref={(row) => `/automation/assessments/templates/template-viewer?id=${row.id}`}
           columnVisibility={columnVisibility}
           setColumnVisibility={setColumnVisibility}
           defaultSorting={defaultSorting}

@@ -33,6 +33,7 @@ const TableComponent = ({
   canEdit,
   permission,
   defaultSorting,
+  rowHref,
 }: TTableProps<FindingWhereInput>) => {
   const { replace } = useSmartRouter()
   const sheetNav = useSheetNavigation()
@@ -162,6 +163,7 @@ const TableComponent = ({
         onRowClick={(item) => {
           replace({ id: item.id })
         }}
+        rowHref={rowHref}
         pagination={pagination}
         onPaginationChange={onPaginationChange}
         paginationMeta={{

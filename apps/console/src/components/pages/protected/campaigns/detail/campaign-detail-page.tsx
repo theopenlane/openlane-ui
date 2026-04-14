@@ -13,7 +13,7 @@ import { type CampaignTargetsNodeNonNull } from '@/lib/graphql-hooks/campaign-ta
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { CampaignCampaignStatus, CampaignCampaignType, type UpdateCampaignInput } from '@repo/codegen/src/schema'
-import { getEnumLabel, enumToOptions } from '@/components/shared/enum-mapper/common-enum'
+import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import { formatDate } from '@/utils/date'
 import Skeleton from '@/components/shared/skeleton/skeleton'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar'
@@ -97,7 +97,7 @@ const CampaignDetailPage: React.FC = () => {
     const dueDate = campaign?.dueDate ? new Date(campaign.dueDate as string) : null
     const overdue = dueDate && dueDate < now ? recipients.filter((r) => !r.completedAt).length : 0
     return { total, sent, completed, inProgress, overdue }
-  }, [recipients, totalCount, campaign?.dueDate])
+  }, [recipients, totalCount, campaign])
 
   const progressPercent = useMemo(() => {
     if (stats.total === 0) return 0
@@ -174,13 +174,22 @@ const CampaignDetailPage: React.FC = () => {
       <Menu
         closeOnSelect
         content={(close) => (
-          <Button variant="destructive" icon={<Trash2 size={14} />} iconPosition="left" className="w-full justify-start" onClick={() => { handleDeleteCampaign(); close() }}>
+          <Button
+            variant="destructive"
+            icon={<Trash2 size={14} />}
+            iconPosition="left"
+            className="w-full justify-start"
+            onClick={() => {
+              handleDeleteCampaign()
+              close()
+            }}
+          >
             Delete Campaign
           </Button>
         )}
       />
-      {campaign.status !== CampaignCampaignStatus.COMPLETED && (
-        campaign.status === CampaignCampaignStatus.ACTIVE ? (
+      {campaign.status !== CampaignCampaignStatus.COMPLETED &&
+        (campaign.status === CampaignCampaignStatus.ACTIVE ? (
           <Button variant="primary" icon={<CheckCircle size={14} />} iconPosition="left" onClick={handleCompleteCampaign} disabled={isUpdating} className="h-8">
             Complete Campaign
           </Button>
@@ -188,8 +197,7 @@ const CampaignDetailPage: React.FC = () => {
           <Button variant="primary" icon={<Play size={14} />} iconPosition="left" onClick={handleStartCampaign} disabled={isUpdating} className="h-8">
             Start Campaign
           </Button>
-        )
-      )}
+        ))}
     </div>
   )
 
@@ -254,7 +262,9 @@ const CampaignDetailPage: React.FC = () => {
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground">Questions</p>
-                  <p className="text-sm">{questions.length} question{questions.length !== 1 ? 's' : ''}</p>
+                  <p className="text-sm">
+                    {questions.length} question{questions.length !== 1 ? 's' : ''}
+                  </p>
                 </div>
               </div>
             </div>
@@ -267,7 +277,19 @@ const CampaignDetailPage: React.FC = () => {
   const mainContent = (
     <div className="pr-4">
       <div className="mb-6">
-        <TextField name="name" label="" isEditing={false} isEditAllowed={true} isCreate={false} data={campaign} internalEditing={internalEditing} setInternalEditing={setInternalEditing} handleUpdate={handleUpdateField} layout="vertical" className="text-xl font-semibold" />
+        <TextField
+          name="name"
+          label=""
+          isEditing={false}
+          isEditAllowed={true}
+          isCreate={false}
+          data={campaign}
+          internalEditing={internalEditing}
+          setInternalEditing={setInternalEditing}
+          handleUpdate={handleUpdateField}
+          layout="vertical"
+          className="text-xl font-semibold"
+        />
       </div>
 
       {/* Campaign Progress */}
@@ -327,7 +349,9 @@ const CampaignDetailPage: React.FC = () => {
 
   return (
     <FormProvider {...form}>
-      <SlideBarLayout sidebarTitle="Details" sidebarContent={sidebarContent} menu={menuComponent} minWidth={350}>{mainContent}</SlideBarLayout>
+      <SlideBarLayout sidebarTitle="Details" sidebarContent={sidebarContent} menu={menuComponent} minWidth={350}>
+        {mainContent}
+      </SlideBarLayout>
     </FormProvider>
   )
 }

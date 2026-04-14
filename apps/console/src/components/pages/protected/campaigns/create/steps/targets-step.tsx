@@ -58,7 +58,13 @@ export const TargetsStep: React.FC<TargetsStepProps> = ({ targets, onTargetsChan
               </Button>
             </div>
           ) : (
-            <FileUpload onFileUpload={handleFileUpload} maxFileSizeInMb={3} acceptedFileTypes={['text/csv', 'application/vnd.ms-excel']} acceptedFileTypesShort={['.csv', '.xls']} multipleFiles={false} />
+            <FileUpload
+              onFileUpload={handleFileUpload}
+              maxFileSizeInMb={3}
+              acceptedFileTypes={['text/csv', 'application/vnd.ms-excel']}
+              acceptedFileTypesShort={['.csv', '.xls']}
+              multipleFiles={false}
+            />
           )}
         </div>
       </TabsContent>
