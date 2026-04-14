@@ -93,7 +93,7 @@ const IntegrationConfigurationDialog = ({ open, onOpenChange, provider, installa
 
         successNotification({
           title: `Continue connecting ${provider.displayName}`,
-          description: 'Finish setup in the opened tab.',
+          description: `Redirecting to ${provider.displayName} to finish setup.`,
         })
 
         onOpenChange(false)
