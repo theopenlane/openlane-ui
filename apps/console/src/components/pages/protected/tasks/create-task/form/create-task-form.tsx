@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { InfoIcon } from 'lucide-react'
 import useFormSchema, { type CreateTaskFormData } from '../../hooks/use-form-schema'
@@ -44,46 +44,35 @@ type TProps = {
 const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
   const plateEditorHelper = usePlateEditor()
   const { formInput } = dialogStyles()
-  const [tagValues, setTagValues] = useState<Option[]>([])
   const { form } = useFormSchema(props.initialValues)
   const { data: session } = useSession()
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: createTask, isPending: isSubmitting } = useCreateTask()
   const { data: membersData } = useGetSingleOrganizationMembers({ organizationId: session?.user.activeOrganizationId })
-  const [associations, setAssociations] = useState<TObjectAssociationMap>(props.initialData ?? {})
-  const [associationResetTrigger, setAssociationResetTrigger] = useState(0)
-  const wasOpenRef = useRef(false)
+
   const { tagOptions } = useGetTags()
+
+  const initialAssociations = React.useMemo(() => props.initialData ?? {}, [props.initialData])
+  const [associations, setAssociations] = useState<TObjectAssociationMap>(initialAssociations)
+  const [associationResetTrigger, setAssociationResetTrigger] = useState(0)
 
   const { enumOptions: taskKindOptions, onCreateOption: createTaskKind } = useCreatableEnumOptions({
     objectType: 'task',
     field: 'kind',
   })
 
+  const tagValues: Option[] = React.useMemo(() => {
+    if (!props.isOpen || !props.initialValues) return []
+    return (props.initialValues.tags ?? []).map((tag) => ({ value: tag, label: tag }))
+  }, [props.initialValues, props.isOpen])
+
   useEffect(() => {
     if (!props.isOpen || !props.initialValues) return
-
-    const nextTags = props.initialValues.tags ?? []
-    form.reset({
-      title: '',
-      tags: [],
-      ...props.initialValues,
-    })
-    setTagValues(nextTags.map((tag) => ({ value: tag, label: tag })))
 
     if (props.initialValues.details) {
       form.setValue('details', props.initialValues.details)
     }
   }, [form, props.initialValues, props.isOpen])
-
-  useEffect(() => {
-    const isOpening = !wasOpenRef.current && Boolean(props.isOpen)
-    if (isOpening) {
-      setAssociations(props.initialData ?? {})
-      setAssociationResetTrigger((prev) => prev + 1)
-    }
-    wasOpenRef.current = Boolean(props.isOpen)
-  }, [props.initialData, props.isOpen])
 
   const membersOptions = membersData?.organization?.members?.edges?.map((member) => ({
     value: member?.node?.user?.id,
@@ -93,10 +82,10 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
 
   const onSubmitHandler = async (data: CreateTaskFormData) => {
     try {
-      let detailsField = data?.details
+      let detailsField: string = ''
 
-      if (detailsField) {
-        detailsField = await plateEditorHelper.convertToHtml(detailsField as Value)
+      if (data?.details) {
+        detailsField = await plateEditorHelper.convertToHtml(data.details as Value)
       }
 
       const formData: { input: CreateTaskInput } = {
@@ -240,14 +229,6 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
                                 onChange={(selectedOptions) => {
                                   const options = selectedOptions.map((option) => option.value)
                                   field.onChange(options)
-                                  setTagValues(
-                                    selectedOptions.map((item) => {
-                                      return {
-                                        value: item.value,
-                                        label: item.label,
-                                      }
-                                    }),
-                                  )
                                 }}
                                 className="w-full"
                               />
@@ -329,8 +310,8 @@ const CreateTaskForm: React.FC<TProps> = (props: TProps) => {
                       key={associationResetTrigger}
                       defaultSelectedObject={props.defaultSelectedObject}
                       allowedObjectTypes={props.allowedObjectTypes}
-                      initialData={props.initialData}
-                      onIdChange={(updatedMap) => setAssociations(updatedMap)}
+                      initialData={initialAssociations}
+                      onIdChange={setAssociations}
                     />
                   </Panel>
                 </div>

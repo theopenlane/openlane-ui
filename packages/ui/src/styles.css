@@ -1,5 +1,9 @@
 @import 'tailwindcss';
+
+@plugin 'tailwind-scrollbar-hide';
 @import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
 @source "../../../packages/ui/src/**/*.{js,ts,jsx,tsx}";
 @source inline("border-controls border-subcontrols border-controlObjectives border-policies border-procedures border-programs border-tasks border-risks border-evidences border-groups border-scans border-campaigns border-assets border-entities border-identityHolders border-reviews border-findings border-remediations");
 
@@ -394,6 +398,7 @@
   --color-evidence-icon: #06b6d4;
   --color-homepage-action-icon: #60e8c9;
   --color-homepage-docs: #162431;
+  --highlight: oklch(0.852 0.199 91.936);
 }
 
 /* ─────────────────────────────────────────────────────────
@@ -727,6 +732,7 @@
   --color-notifications-questionnaires: #38bdf8;
   --color-notifications-evidence: #38bdf8;
   --color-notifications-policies: #67e8f9;
+  --color-highlight: var(--highlight);
 }
 
 /* ─────────────────────────────────────────────────────────
@@ -863,4 +869,8 @@
 }
 .animate-custom-pulse {
   animation: custom-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+:root {
+  --highlight: oklch(0.852 0.199 91.936);
 }

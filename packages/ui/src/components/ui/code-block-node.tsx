@@ -8,9 +8,9 @@ import { type TCodeBlockElement, type TCodeSyntaxLeaf, NodeApi } from 'platejs'
 import { type PlateElementProps, type PlateLeafProps, PlateElement, PlateLeaf } from 'platejs/react'
 import { useEditorRef, useElement, useReadOnly } from 'platejs/react'
 
-import { Button } from '@repo/ui/components/ui/button.tsx'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
-import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/components/ui/popover.tsx'
+import { Button } from '@repo/ui/button'
+import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
 import { cn } from '@repo/ui/lib/utils'
 
 export function CodeBlockElement(props: PlateElementProps<TCodeBlockElement>) {
@@ -26,16 +26,16 @@ export function CodeBlockElement(props: PlateElementProps<TCodeBlockElement>) {
           <code>{props.children}</code>
         </pre>
 
-        <div className="absolute top-1 right-1 z-10 flex gap-0.5 select-none" contentEditable={false}>
+        <div className="absolute top-1 right-1 z-10 flex select-none gap-0.5" contentEditable={false}>
           {isLangSupported(element.lang) && (
-            <Button size="icon" variant="ghost" className="size-6 text-xs" onClick={() => formatCodeBlock(editor, { element })} title="Format code">
+            <Button variant="outline" className="size-6 text-xs" onClick={() => formatCodeBlock(editor, { element })} title="Format code">
               <BracesIcon className="!size-3.5 text-muted-foreground" />
             </Button>
           )}
 
           <CodeBlockCombobox />
 
-          <CopyButton size="icon" variant="ghost" className="size-6 gap-1 text-xs text-muted-foreground" value={() => NodeApi.string(element)} />
+          <CopyButton variant="outline" className="size-6 gap-1 text-muted-foreground text-xs" value={() => NodeApi.string(element)} />
         </div>
       </div>
     </PlateElement>
@@ -57,7 +57,7 @@ function CodeBlockCombobox() {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button size="sm" variant="ghost" className="h-6 justify-between gap-1 px-2 text-xs text-muted-foreground select-none" aria-expanded={open} role="combobox">
+        <Button size="sm" variant="outline" className="h-6 select-none justify-between gap-1 px-2 text-muted-foreground text-xs" aria-expanded={open} role="combobox">
           {languages.find((language) => language.value === value)?.label ?? 'Plain Text'}
         </Button>
       </PopoverTrigger>
