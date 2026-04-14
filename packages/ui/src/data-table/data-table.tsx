@@ -1,5 +1,6 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
 import {
   Column,
   ColumnDef,
@@ -66,6 +67,7 @@ interface BaseDataTableProps<TData, TValue> {
   noResultsText?: string
   noDataMarkup?: ReactElement
   onRowClick?: (rowData: TData) => void
+  rowHref?: (rowData: TData) => string
   sortFields?: { key: string; label: string }[]
   onSortChange?: (sortCondition: any[]) => void
   pagination?: TPagination | null
@@ -288,6 +290,7 @@ export function DataTable<TData, TValue>({
   noResultsText = 'No results',
   noDataMarkup,
   onRowClick,
+  rowHref,
   sortFields,
   onSortChange,
   pagination,
@@ -687,9 +690,9 @@ export function DataTable<TData, TValue>({
                   ))}
                 </TableHeader>
                 {columnSizingInfo.isResizingColumn ? (
-                  <MemoizedDataTableBody table={table} onRowClick={onRowClick} loading={loading} noDataMarkup={noDataMarkup} noResultsText={noResultsText} />
+                  <MemoizedDataTableBody table={table} onRowClick={onRowClick} rowHref={rowHref} loading={loading} noDataMarkup={noDataMarkup} noResultsText={noResultsText} />
                 ) : (
-                  <DataTableBodyContent table={table} onRowClick={onRowClick} loading={loading} noDataMarkup={noDataMarkup} noResultsText={noResultsText} />
+                  <DataTableBodyContent table={table} onRowClick={onRowClick} rowHref={rowHref} loading={loading} noDataMarkup={noDataMarkup} noResultsText={noResultsText} />
                 )}
               </Table>
             </DndContext>
@@ -716,13 +719,44 @@ interface NoDataProps<TData, TValue> {
 type DataRowProps<TData, TValue> = {
   row: Row<TData>
   onRowClick?: (rowData: TData) => void
+  rowHref?: (rowData: TData) => string
   cssVarKey: (id: string) => string
   columns: ColumnDef<TData, TValue>[]
 }
 
-const DataRow = memo(function DataRow<TData, TValue>({ row, onRowClick, cssVarKey }: DataRowProps<TData, TValue>) {
+const DataRow = memo(function DataRow<TData, TValue>({ row, onRowClick, rowHref, cssVarKey }: DataRowProps<TData, TValue>) {
+  const router = useRouter()
+  const href = rowHref?.(row.original)
+  const isClickable = !!(onRowClick || href)
+
+  const handleClick = (e: React.MouseEvent) => {
+    if (href && (e.metaKey || e.ctrlKey)) {
+      e.preventDefault()
+      window.open(href, '_blank', 'noopener')
+      return
+    }
+    if (onRowClick) {
+      onRowClick(row.original)
+    } else if (href) {
+      router.push(href)
+    }
+  }
+
+  const handleAuxClick = (e: React.MouseEvent) => {
+    if (href && e.button === 1) {
+      e.preventDefault()
+      window.open(href, '_blank', 'noopener')
+    }
+  }
+
   return (
-    <TableRow variant="data" onClick={() => onRowClick?.(row.original)} className={`hover:bg-table-row-bg-hover ${onRowClick ? 'cursor-pointer' : ''}`} data-state={row.getIsSelected() && 'selected'}>
+    <TableRow
+      variant="data"
+      onClick={isClickable ? handleClick : undefined}
+      onAuxClick={href ? handleAuxClick : undefined}
+      className={`hover:bg-table-row-bg-hover ${isClickable ? 'cursor-pointer' : ''}`}
+      data-state={row.getIsSelected() && 'selected'}
+    >
       {row.getVisibleCells().map((cell) => {
         const widthVar = `var(--col-${cssVarKey(cell.column.id)})`
         const content = flexRender(cell.column.columnDef.cell, cell.getContext())
@@ -772,17 +806,18 @@ const NoData = <TData, TValue>({ loading, columns, noDataMarkup, noResultsText }
 interface DataTableBodyContentProps<TData> {
   table: TanstackTable<TData>
   onRowClick?: (rowData: TData) => void
+  rowHref?: (rowData: TData) => string
   loading: boolean
   noDataMarkup?: ReactElement
   noResultsText: string
 }
 
-function DataTableBodyContent<TData>({ table, onRowClick, loading, noDataMarkup, noResultsText }: DataTableBodyContentProps<TData>) {
+function DataTableBodyContent<TData>({ table, onRowClick, rowHref, loading, noDataMarkup, noResultsText }: DataTableBodyContentProps<TData>) {
   const columnOrderKey = table.getState().columnOrder.join(',')
   return (
     <TableBody variant="data">
       {table.getRowModel().rows?.length ? (
-        table.getRowModel().rows.map((row) => <DataRow key={`${row.id}-${columnOrderKey}`} row={row} onRowClick={onRowClick} cssVarKey={cssVarKey} columns={table.options.columns} />)
+        table.getRowModel().rows.map((row) => <DataRow key={`${row.id}-${columnOrderKey}`} row={row} onRowClick={onRowClick} rowHref={rowHref} cssVarKey={cssVarKey} columns={table.options.columns} />)
       ) : (
         <NoData loading={loading} columns={table.getAllLeafColumns()} noDataMarkup={noDataMarkup} noResultsText={noResultsText} />
       )}

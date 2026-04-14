@@ -59,6 +59,7 @@ export interface TTableProps<TWhereInput> {
   permission: TPermissionData | undefined
   defaultSorting: SortCondition<string>[]
   onRowClick?: (item: { id: string }) => void
+  rowHref?: (item: { id: string }) => string
 }
 
 export interface GenericTablePageConfig<TEntity extends { id: string }, TFormData extends FieldValues, TUpdateInput, TUpdateData, TCreateInput, TCreateData, TWhereInput, TOrderField extends string> {
@@ -289,13 +290,13 @@ export function GenericTablePage<
   const resolvedViewMode = viewEditMode?.type ?? 'slideout'
   const resolvedCreateMode = createMode?.type ?? 'slideout'
 
-  const onRowClick = useMemo(() => {
+  const rowHref = useMemo(() => {
     if (resolvedViewMode === 'full-page' && viewEditMode?.type === 'full-page') {
       const route = viewEditMode.route
-      return (item: { id: string }) => router.push(`${route}/${item.id}`)
+      return (item: { id: string }) => `${route}/${item.id}`
     }
     return undefined
-  }, [resolvedViewMode, viewEditMode, router])
+  }, [resolvedViewMode, viewEditMode])
 
   const renderDetailView = () => {
     // Handle step-dialog create mode
@@ -395,7 +396,7 @@ export function GenericTablePage<
         canEdit={canEdit}
         defaultSorting={defaultSorting}
         permission={permission}
-        onRowClick={onRowClick}
+        rowHref={rowHref}
       />
 
       {renderDetailView()}

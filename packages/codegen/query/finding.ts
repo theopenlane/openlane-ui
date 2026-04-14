@@ -9,6 +9,7 @@ export const GET_ALL_FINDINGS = gql`
           assessmentID
           blocksProduction
           category
+          categories
           createdAt
           createdBy
           description
@@ -77,6 +78,7 @@ export const FINDING = gql`
       assessmentID
       blocksProduction
       category
+      categories
       createdAt
       createdBy
       description

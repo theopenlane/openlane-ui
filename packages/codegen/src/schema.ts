@@ -65420,6 +65420,7 @@ export type AssetsWithFilterQuery = {
         sourceType: AssetSourceType
         tags?: Array<string> | null
         website?: string | null
+        categories?: Array<string> | null
         internalOwnerGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
         internalOwnerUser?: { __typename?: 'User'; id: string; displayName: string } | null
         entities: {
@@ -65470,6 +65471,7 @@ export type AssetQuery = {
     sourceType: AssetSourceType
     tags?: Array<string> | null
     website?: string | null
+    categories?: Array<string> | null
     internalOwnerGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
     internalOwnerUser?: { __typename?: 'User'; id: string; displayName: string } | null
     entities: {
@@ -69073,6 +69075,7 @@ export type FindingsWithFilterQuery = {
         assessmentID?: string | null
         blocksProduction?: boolean | null
         category?: string | null
+        categories?: Array<string> | null
         createdAt?: any | null
         createdBy?: string | null
         description?: string | null
@@ -69137,6 +69140,7 @@ export type FindingQuery = {
     assessmentID?: string | null
     blocksProduction?: boolean | null
     category?: string | null
+    categories?: Array<string> | null
     createdAt?: any | null
     createdBy?: string | null
     description?: string | null

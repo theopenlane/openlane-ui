@@ -32,11 +32,18 @@ const SidebarChildLink: React.FC<{ child: NavItem; pathname: string; secondaryEx
 
   const linkContent = (
     <Link
+      href={child.href ?? '#'}
       onClick={(e) => {
+        if (e.metaKey || e.ctrlKey) return
         e.preventDefault()
         router.push(child.href ?? '#')
       }}
-      href={child.href ?? '#'}
+      onAuxClick={(e) => {
+        if (e.button === 1) {
+          e.preventDefault()
+          window.open(child.href ?? '#', '_blank', 'noopener')
+        }
+      }}
       className={`flex items-center gap-2 mb-2 h-8 rounded-md hover:bg-card text-muted-foreground transition-colors duration-500 ${isActive ? 'bg-card text-paragraph' : ''} ${
         secondaryExpanded ? 'px-2.5' : 'justify-center'
       }`}
@@ -112,11 +119,6 @@ export default function SideNav({
     }
   }, [featureEnabled, modules, navItems, onToggleAction, openPanel])
 
-  const handleNavigate = (href: string) => {
-    router.push(href)
-    onToggleAction(null)
-  }
-
   const handleTogglePanel = (item: NavItem) => {
     const panelKey = item?.title?.toLowerCase() as PanelKey
     const children = item.children ?? []
@@ -176,14 +178,39 @@ export default function SideNav({
 
             {featureEnabled === 'true' && item?.plan && !featureUtil.hasModule(modules, item?.plan) && <Lock className="absolute bottom-6 right-[5px] w-3 h-3 z-90 text-gray-400" />}
 
-            <Button
-              variant="sidebar"
-              onClick={() => (isExpandable ? handleTogglePanel(item) : handleNavigate(url))}
-              className={`relative flex px-2 justify-start gap-1 h-8 ${isActive ? 'is-active' : ''} ${primaryExpanded ? 'w-full mx-2' : 'w-8 justify-center'}`}
-            >
-              <Icon className={`${primaryExpanded ? 'w-4 h-4' : '!w-5 !h-5'}`} />
-              {primaryExpanded && <span className="text-sm font-normal leading-5">{item.title}</span>}
-            </Button>
+            {isExpandable ? (
+              <Button
+                variant="sidebar"
+                onClick={() => handleTogglePanel(item)}
+                className={`relative flex px-2 justify-start gap-1 h-8 ${isActive ? 'is-active' : ''} ${primaryExpanded ? 'w-full mx-2' : 'w-8 justify-center'}`}
+              >
+                <Icon className={`shrink-0 ${primaryExpanded ? 'w-4 h-4' : '!w-5 !h-5'}`} />
+                {primaryExpanded && <span className="text-sm font-normal leading-5">{item.title}</span>}
+              </Button>
+            ) : (
+              <Link
+                href={url}
+                onClick={(e) => {
+                  if (e.metaKey || e.ctrlKey) {
+                    onToggleAction(null)
+                    return
+                  }
+                  e.preventDefault()
+                  onToggleAction(null)
+                  router.push(url)
+                }}
+                onAuxClick={(e) => {
+                  if (e.button === 1) {
+                    e.preventDefault()
+                    window.open(url, '_blank', 'noopener')
+                  }
+                }}
+                className={`relative flex items-center px-2 gap-2 h-8 bg-transparent border border-transparent rounded-[6px] text-muted-foreground transition-all duration-500 ease-in-out hover:bg-nav hover:border-border hover:text-text-paragraph [&.is-active]:bg-nav [&.is-active]:border-border [&.is-active]:text-text-paragraph ${isActive ? 'is-active' : ''} ${primaryExpanded ? 'w-full mx-2 justify-start' : 'w-8 justify-center'}`}
+              >
+                <Icon className={`shrink-0 ${primaryExpanded ? 'w-4 h-4' : '!w-5 !h-5'}`} />
+                {primaryExpanded && <span className="text-sm font-normal leading-5">{item.title}</span>}
+              </Link>
+            )}
           </div>
         )
 

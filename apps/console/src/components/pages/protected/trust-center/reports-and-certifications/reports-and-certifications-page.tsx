@@ -11,7 +11,7 @@ import { useGetTrustCenterNDAFiles } from '@/lib/graphql-hooks/trust-center-nda-
 import { CreateDocumentSheet } from './sheet/create-document.sheet'
 import { TrustCenterDocWatermarkStatus, type TrustCenterDocWhereInput } from '@repo/codegen/src/schema'
 import { Panel, PanelHeader } from '@repo/ui/panel'
-import { useRouter } from 'next/navigation'
+
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import DocumentsTableToolbar from './table/documents-table-toolbar'
 import { getTrustCenterDocColumns } from './table/table-config'
@@ -27,7 +27,7 @@ const ReportsAndCertificationsPage = () => {
   const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(TableKeyEnum.TRUST_CENTER_REPORTS_AND_CERTS, DEFAULT_PAGINATION))
   const [filters, setFilters] = useState<TrustCenterDocWhereInput | null>(null)
   const [selectedDocs, setSelectedDocs] = useState<{ id: string }[]>([])
-  const router = useRouter()
+
   const { setCrumbs } = use(BreadcrumbContext)
   const whereFilter = useMemo(() => {
     const base: TrustCenterDocWhereInput = {}
@@ -153,9 +153,7 @@ const ReportsAndCertificationsPage = () => {
           paginationMeta={paginationMeta}
           loading={isLoading}
           columnVisibility={columnVisibility}
-          onRowClick={(row) => {
-            router.push(`/trust-center/reports-and-certifications?id=${row.id}`)
-          }}
+          rowHref={(row) => `/trust-center/reports-and-certifications?id=${row.id}`}
           tableKey={TableKeyEnum.TRUST_CENTER_REPORTS_AND_CERTS}
         />
       </div>
