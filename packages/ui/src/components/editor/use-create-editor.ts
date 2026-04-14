@@ -40,6 +40,7 @@ import { BasicFloatingToolbarKit } from '@repo/ui/components/editor/plugins/basi
 import { MinimalisticFixedToolbarKit } from '@repo/ui/components/editor/plugins/minimalistic-fixed-toolbar-kit.tsx'
 import { MinimalisticFloatingToolbarKit } from '@repo/ui/components/editor/plugins/minimalistic-floating-toolbar-kit.tsx'
 import { createReadOnlyToolbarKit } from './plugins/read-only-toolbar-kit.tsx'
+import { DocxExportKit } from './plugins/docx-export-kit.tsx'
 
 export const EditorKit = [
   /*
@@ -81,6 +82,7 @@ export const EditorKit = [
   TrailingBlockPlugin,
   // Parsers
   ...DocxKit,
+  ...DocxExportKit,
   ...MarkdownKit,
   // UI
   ...BlockPlaceholderKit,

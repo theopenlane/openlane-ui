@@ -14,7 +14,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { cn } from '@repo/ui/lib/utils'
 
-import { ToolbarButton, ToolbarMenuGroup } from './toolbar'
+import { ToolbarButton, ToolbarMenuGroup } from '../ui/toolbar'
 
 export function FontColorToolbarButton({
   children,

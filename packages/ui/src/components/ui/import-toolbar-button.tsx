@@ -6,13 +6,15 @@ import type { DropdownMenuProps } from '@radix-ui/react-dropdown-menu'
 
 import { MarkdownPlugin } from '@platejs/markdown'
 import { ArrowUpToLineIcon } from 'lucide-react'
-import { getEditorDOMFromHtmlString } from 'platejs'
+import { getEditorDOMFromHtmlString } from 'platejs/static'
 import { useEditorRef } from 'platejs/react'
 import { useFilePicker } from 'use-file-picker'
 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/components/ui/dropdown-menu.tsx'
 
 import { ToolbarButton } from './toolbar'
+import { importDocx } from '@platejs/docx-io'
+import { useNotification } from '../../../hooks/use-notification'
 
 type ImportType = 'html' | 'markdown'
 
@@ -61,6 +63,27 @@ export function ImportToolbarButton(props: DropdownMenuProps) {
     },
   })
 
+  const { openFilePicker: openDocxFilePicker } = useFilePicker({
+    accept: ['application/vnd.openxmlformats-officedocument.wordprocessingml.document'],
+    multiple: false,
+    onFilesSuccessfullySelected: async ({ plainFiles }: any) => {
+      const text = await plainFiles[0].text()
+
+      const arrayBuffer = await plainFiles[0].arrayBuffer()
+      const result = await importDocx(editor, arrayBuffer)
+
+      editor.tf.insertNodes(result.nodes)
+
+      if (result.warnings.length > 0) {
+        useNotification().warningNotification({
+          title: 'Import Warnings',
+          description: result.warnings.join('\n'),
+          duration: 5000,
+        })
+      }
+    },
+  })
+
   return (
     <DropdownMenu open={open} onOpenChange={setOpen} modal={false} {...props}>
       <DropdownMenuTrigger asChild>
@@ -85,6 +108,13 @@ export function ImportToolbarButton(props: DropdownMenuProps) {
             }}
           >
             Import from Markdown
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onSelect={() => {
+              openDocxFilePicker()
+            }}
+          >
+            Import from Word
           </DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>

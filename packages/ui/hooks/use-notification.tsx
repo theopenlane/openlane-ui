@@ -1,0 +1,80 @@
+import { useToast } from '@repo/ui/use-toast'
+import type React from 'react'
+import { useCallback } from 'react'
+
+const defaultDuration = 5000
+
+type TSuccessProps = {
+  title?: string
+  description?: string | React.ReactNode
+  variant?: 'default' | 'info' | 'info2' | 'warning' | 'error' | 'success'
+  duration?: number
+}
+
+export type TErrorProps = {
+  title?: string
+  description?: string
+  variant?: 'default' | 'info' | 'info2' | 'warning' | 'error' | 'success'
+  duration?: number
+}
+
+export function useNotification() {
+  const { toast } = useToast()
+
+  const handleShowNotification = useCallback(
+    (title?: string, description?: string | React.ReactNode, variant: 'default' | 'info' | 'info2' | 'warning' | 'error' | 'success' = 'default', duration?: number) => {
+      toast({
+        variant,
+        duration,
+        ...(title ? { title } : {}),
+        ...(description ? { description } : {}),
+      })
+    },
+    [toast],
+  )
+
+  const handleSuccess = useCallback(
+    (props: TSuccessProps) => {
+      handleShowNotification(props.title ?? undefined, props.description ?? undefined, 'success', props.duration ?? defaultDuration)
+    },
+    [handleShowNotification],
+  )
+
+  const handleWarning = useCallback(
+    (props: TSuccessProps) => {
+      handleShowNotification(props.title ?? undefined, props.description ?? undefined, 'warning', props.duration ?? defaultDuration)
+    },
+    [handleShowNotification],
+  )
+
+  const handleInfo = useCallback(
+    (props: TSuccessProps) => {
+      handleShowNotification(props.title ?? undefined, props.description ?? undefined, 'info', props.duration ?? defaultDuration)
+    },
+    [handleShowNotification],
+  )
+
+  const handleInfo2 = useCallback(
+    (props: TSuccessProps) => {
+      handleShowNotification(props.title ?? undefined, props.description ?? undefined, 'info2', props.duration ?? defaultDuration)
+    },
+    [handleShowNotification],
+  )
+
+  const handleError = useCallback(
+    (props: TErrorProps) => {
+      let description = props.description ?? 'an unexpected error occurred'
+
+      handleShowNotification(props.title, description, 'error', props.duration ?? defaultDuration)
+    },
+    [handleShowNotification],
+  )
+
+  return {
+    successNotification: handleSuccess,
+    errorNotification: handleError,
+    warningNotification: handleWarning,
+    infoNotification: handleInfo,
+    info2Notification: handleInfo2,
+  }
+}

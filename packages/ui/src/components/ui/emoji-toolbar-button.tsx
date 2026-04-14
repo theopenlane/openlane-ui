@@ -1,4 +1,5 @@
 'use client'
+/* eslint-disable react-hooks/refs */
 
 import * as React from 'react'
 
@@ -9,10 +10,10 @@ import { type EmojiDropdownMenuOptions, type UseEmojiPickerType, useEmojiDropdow
 import * as Popover from '@radix-ui/react-popover'
 import { AppleIcon, ClockIcon, CompassIcon, FlagIcon, LeafIcon, LightbulbIcon, MusicIcon, SearchIcon, SmileIcon, StarIcon, XIcon } from 'lucide-react'
 
-import { Button } from '@repo/ui/components/ui/button.tsx'
+import { Button } from '@repo/ui/button'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { cn } from '@repo/ui/lib/utils'
-import { ToolbarButton } from './toolbar'
+import { ToolbarButton } from '../ui/toolbar'
 
 export function EmojiToolbarButton({
   options,
@@ -151,55 +152,53 @@ function EmojiPickerContent({
 }: Pick<UseEmojiPickerType, 'emojiLibrary' | 'i18n' | 'isSearching' | 'onMouseOver' | 'onSelectEmoji' | 'refs' | 'searchResult' | 'settings' | 'visibleCategories'>) {
   const getRowWidth = settings.perLine.value * settings.buttonSize.value
 
-  const isCategoryVisible = React.useCallback(
-    (categoryId: any) => {
-      return visibleCategories.has(categoryId) ? visibleCategories.get(categoryId) : false
-    },
-    [visibleCategories],
+  const isCategoryVisible = React.useCallback((categoryId: any) => (visibleCategories.has(categoryId) ? visibleCategories.get(categoryId) : false), [visibleCategories])
+
+  const EmojiList = React.useCallback(
+    () =>
+      emojiLibrary
+        .getGrid()
+        .sections()
+        .map(({ id: categoryId }) => {
+          const section = emojiLibrary.getGrid().section(categoryId)
+          const { buttonSize } = settings
+
+          return (
+            <div key={categoryId} ref={section.root} style={{ width: getRowWidth }} data-id={categoryId}>
+              <div className="-top-px sticky z-1 bg-popover/90 p-1 py-2 font-semibold text-sm backdrop-blur-xs">{i18n.categories[categoryId]}</div>
+              <div className="relative flex flex-wrap" style={{ height: section.getRows().length * buttonSize.value }}>
+                {isCategoryVisible(categoryId) &&
+                  section.getRows().map((row: GridRow) => <RowOfButtons key={row.id} onMouseOver={onMouseOver} onSelectEmoji={onSelectEmoji} emojiLibrary={emojiLibrary} row={row} />)}
+              </div>
+            </div>
+          )
+        }),
+    [emojiLibrary, getRowWidth, i18n.categories, isCategoryVisible, onSelectEmoji, onMouseOver, settings],
   )
 
-  const EmojiList = React.useCallback(() => {
-    return emojiLibrary
-      .getGrid()
-      .sections()
-      .map(({ id: categoryId }) => {
-        const section = emojiLibrary.getGrid().section(categoryId)
-        const { buttonSize } = settings
-
-        return (
-          <div key={categoryId} ref={section.root} style={{ width: getRowWidth }} data-id={categoryId}>
-            <div className="sticky -top-px z-1 bg-popover/90 p-1 py-2 text-sm font-semibold backdrop-blur-xs">{i18n.categories[categoryId]}</div>
-            <div className="relative flex flex-wrap" style={{ height: section.getRows().length * buttonSize.value }}>
-              {isCategoryVisible(categoryId) &&
-                section.getRows().map((row: GridRow) => <RowOfButtons key={row.id} onMouseOver={onMouseOver} onSelectEmoji={onSelectEmoji} emojiLibrary={emojiLibrary} row={row} />)}
-            </div>
-          </div>
-        )
-      })
-  }, [emojiLibrary, getRowWidth, i18n.categories, isCategoryVisible, onSelectEmoji, onMouseOver, settings])
-
-  const SearchList = React.useCallback(() => {
-    return (
+  const SearchList = React.useCallback(
+    () => (
       <div style={{ width: getRowWidth }} data-id="search">
-        <div className="sticky -top-px z-1 bg-popover/90 p-1 py-2 text-sm font-semibold backdrop-blur-xs">{i18n.searchResult}</div>
+        <div className="-top-px sticky z-1 bg-popover/90 p-1 py-2 font-semibold text-card-foreground text-sm backdrop-blur-xs">{i18n.searchResult}</div>
         <div className="relative flex flex-wrap">
           {searchResult.map((emoji: Emoji, index: number) => (
             <EmojiButton key={emoji.id} onMouseOver={onMouseOver} onSelect={onSelectEmoji} emoji={emojiLibrary.getEmoji(emoji.id)} index={index} />
           ))}
         </div>
       </div>
-    )
-  }, [emojiLibrary, getRowWidth, i18n.searchResult, searchResult, onSelectEmoji, onMouseOver])
+    ),
+    [emojiLibrary, getRowWidth, i18n.searchResult, searchResult, onSelectEmoji, onMouseOver],
+  )
 
   return (
     <div
       ref={refs.current.contentRoot}
       className={cn(
-        'h-full min-h-[50%] overflow-x-hidden overflow-y-auto px-2',
+        'h-full min-h-[50%] overflow-y-auto overflow-x-hidden px-2',
         '[&::-webkit-scrollbar]:w-4',
         '[&::-webkit-scrollbar-button]:hidden [&::-webkit-scrollbar-button]:size-0',
-        '[&::-webkit-scrollbar-thumb]:min-h-11 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-muted [&::-webkit-scrollbar-thumb]:bg-muted-foreground/25',
-        '[&::-webkit-scrollbar-thumb]:border-4 [&::-webkit-scrollbar-thumb]:border-solid [&::-webkit-scrollbar-thumb]:border-popover [&::-webkit-scrollbar-thumb]:bg-clip-padding',
+        '[&::-webkit-scrollbar-thumb]:min-h-11 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-muted [&::-webkit-scrollbar-thumb]:hover:bg-muted-foreground/25',
+        '[&::-webkit-scrollbar-thumb]:border-4 [&::-webkit-scrollbar-thumb]:border-popover [&::-webkit-scrollbar-thumb]:border-solid [&::-webkit-scrollbar-thumb]:bg-clip-padding',
       )}
       data-id="scroll"
     >
@@ -222,7 +221,7 @@ function EmojiPickerSearchBar({
     <div className="flex items-center px-2">
       <div className="relative flex grow items-center">
         <input
-          className="block w-full appearance-none rounded-full border-0 bg-muted px-10 py-2 text-sm outline-hidden placeholder:text-muted-foreground focus-visible:outline-hidden"
+          className="block w-full appearance-none rounded-full border-0 bg-muted px-10 py-2 text-sm outline-none placeholder:text-muted-foreground focus-visible:outline-none"
           value={searchValue}
           onChange={(event) => setSearch(event.target.value)}
           placeholder={i18n.search}
@@ -240,13 +239,13 @@ function EmojiPickerSearchBar({
 function EmojiPickerSearchAndClear({ clearSearch, i18n, searchValue }: Pick<UseEmojiPickerType, 'clearSearch' | 'i18n' | 'searchValue'>) {
   return (
     <div className="flex items-center text-foreground">
-      <div className={cn('absolute top-1/2 left-2.5 z-10 flex size-5 -translate-y-1/2 items-center justify-center text-foreground')}>{emojiSearchIcons.loupe}</div>
+      <div className={cn('-translate-y-1/2 absolute top-1/2 left-2.5 z-10 flex size-5 items-center justify-center text-foreground')}>{emojiSearchIcons.loupe}</div>
       {searchValue && (
         <Button
-          size="icon"
-          variant="ghost"
+          size="sm"
+          variant="outline"
           className={cn(
-            'absolute top-1/2 right-0.5 flex size-8 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border-none bg-transparent text-popover-foreground hover:bg-transparent',
+            '-translate-y-1/2 absolute top-1/2 right-0.5 flex size-8 cursor-pointer items-center justify-center rounded-full border-none bg-transparent text-popover-foreground hover:bg-transparent',
           )}
           onClick={clearSearch}
           title={i18n.clear}
@@ -262,10 +261,10 @@ function EmojiPickerSearchAndClear({ clearSearch, i18n, searchValue }: Pick<UseE
 
 function EmojiPreview({ emoji }: Pick<UseEmojiPickerType, 'emoji'>) {
   return (
-    <div className="flex h-14 max-h-14 min-h-14 items-center border-t border-muted p-2">
+    <div className="flex h-14 max-h-14 min-h-14 items-center border-muted border-t p-2">
       <div className="flex items-center justify-center text-2xl">{emoji?.skins[0].native}</div>
       <div className="overflow-hidden pl-2">
-        <div className="truncate text-sm font-semibold">{emoji?.name}</div>
+        <div className="truncate font-semibold text-sm">{emoji?.name}</div>
         <div className="truncate text-sm">{`:${emoji?.id}:`}</div>
       </div>
     </div>
@@ -274,10 +273,10 @@ function EmojiPreview({ emoji }: Pick<UseEmojiPickerType, 'emoji'>) {
 
 function NoEmoji({ i18n }: Pick<UseEmojiPickerType, 'i18n'>) {
   return (
-    <div className="flex h-14 max-h-14 min-h-14 items-center border-t border-muted p-2">
+    <div className="flex h-14 max-h-14 min-h-14 items-center border-muted border-t p-2">
       <div className="flex items-center justify-center text-2xl">😢</div>
       <div className="overflow-hidden pl-2">
-        <div className="truncate text-sm font-bold">{i18n.searchNoResultsTitle}</div>
+        <div className="truncate font-bold text-sm">{i18n.searchNoResultsTitle}</div>
         <div className="truncate text-sm">{i18n.searchNoResultsSubtitle}</div>
       </div>
     </div>
@@ -286,10 +285,10 @@ function NoEmoji({ i18n }: Pick<UseEmojiPickerType, 'i18n'>) {
 
 function PickAnEmoji({ i18n }: Pick<UseEmojiPickerType, 'i18n'>) {
   return (
-    <div className="flex h-14 max-h-14 min-h-14 items-center border-t border-muted p-2">
+    <div className="flex h-14 max-h-14 min-h-14 items-center border-muted border-t p-2">
       <div className="flex items-center justify-center text-2xl">☝️</div>
       <div className="overflow-hidden pl-2">
-        <div className="truncate text-sm font-semibold">{i18n.pick}</div>
+        <div className="truncate font-semibold text-sm">{i18n.pick}</div>
       </div>
     </div>
   )
@@ -320,7 +319,7 @@ function EmojiPickerNavigation({
 } & Pick<UseEmojiPickerType, 'emojiLibrary' | 'focusedCategory' | 'i18n' | 'icons'>) {
   return (
     <TooltipProvider delayDuration={500}>
-      <nav id="emoji-nav" className="mb-2.5 border-0 border-b border-solid border-b-border p-1.5">
+      <nav id="emoji-nav" className="mb-2.5 border-0 border-b border-b-border border-solid p-1.5">
         <div className="relative flex items-center justify-evenly">
           {emojiLibrary
             .getGrid()
@@ -330,9 +329,9 @@ function EmojiPickerNavigation({
                 <TooltipTrigger asChild>
                   <Button
                     size="sm"
-                    variant="ghost"
+                    variant="outline"
                     className={cn(
-                      'h-fit rounded-full fill-current p-1.5 text-muted-foreground  hover:text-muted-foreground',
+                      'h-fit rounded-full fill-current p-1.5 text-muted-foreground hover:bg-muted hover:text-muted-foreground',
                       id === focusedCategory && 'pointer-events-none bg-accent fill-current text-accent-foreground',
                     )}
                     onClick={() => {

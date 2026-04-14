@@ -4,30 +4,32 @@ import * as React from 'react'
 
 import type { DropdownMenuProps } from '@radix-ui/react-dropdown-menu'
 
+import { exportEditorToDocx, exportToDocx } from '@platejs/docx-io'
 import { MarkdownPlugin } from '@platejs/markdown'
 import { ArrowDownToLineIcon } from 'lucide-react'
-import { createSlateEditor, serializeHtml } from 'platejs'
+import { createSlateEditor } from 'platejs'
 import { useEditorRef } from 'platejs/react'
+import { serializeHtml } from 'platejs/static'
+import { splitParagraphNewlinesForExport } from './export-docx-helper'
 
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/components/ui/dropdown-menu.tsx'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { BaseEditorKit } from '@repo/ui/components/editor/editor-base-kit.tsx'
 
 import { EditorStatic } from './editor-static'
-import { ToolbarButton } from './toolbar'
-import { pdf } from '@react-pdf/renderer'
-import { PlatePdfDocument } from '../editor/plugins/plate-pdf'
-import { exportPlateValueToDocx } from '../editor/plugins/plate-docx'
+import { ToolbarButton } from '../ui/toolbar'
+import { DocxExportKit } from '@repo/ui/components/editor/plugins/docx-export-kit.tsx'
+import { DocxKit } from '../editor/plugins/docx-kit'
 
 const siteUrl = 'https://platejs.org'
+
+const getExportFilename = (title: string, ext: string) => {
+  const date = new Date().toISOString().slice(0, 10)
+  return `${title}-${date}.${ext}`
+}
 
 export function ExportToolbarButton({ title = 'document', ...props }: DropdownMenuProps & { title?: string }) {
   const editor = useEditorRef()
   const [open, setOpen] = React.useState(false)
-
-  const getExportFilename = (ext: string) => {
-    const date = new Date().toISOString().slice(0, 10)
-    return `${title}-${date}.${ext}`
-  }
 
   const getCanvas = async () => {
     const { default: html2canvas } = await import('html2canvas-pro')
@@ -69,25 +71,27 @@ export function ExportToolbarButton({ title = 'document', ...props }: DropdownMe
   }
 
   const exportToPdf = async () => {
-    const fileName = getExportFilename('pdf')
+    const canvas = await getCanvas()
 
-    const instance = pdf(<PlatePdfDocument value={editor.children} title={title} />)
-    const blob = await instance.toBlob()
+    const PDFLib = await import('pdf-lib')
+    const pdfDoc = await PDFLib.PDFDocument.create()
+    const page = pdfDoc.addPage([canvas.width, canvas.height])
+    const imageEmbed = await pdfDoc.embedPng(canvas.toDataURL('PNG'))
+    const { height, width } = imageEmbed.scale(1)
+    page.drawImage(imageEmbed, {
+      height,
+      width,
+      x: 0,
+      y: 0,
+    })
+    const pdfBase64 = await pdfDoc.saveAsBase64({ dataUri: true })
 
-    const url = URL.createObjectURL(blob)
-
-    downloadFile(url, fileName)
-  }
-
-  const exportToDocx = async () => {
-    const filename = getExportFilename('docx')
-
-    return exportPlateValueToDocx(editor.children as any[], { fileName: filename, title })
+    await downloadFile(pdfBase64, getExportFilename(title, 'pdf'))
   }
 
   const exportToImage = async () => {
     const canvas = await getCanvas()
-    await downloadFile(canvas.toDataURL('image/png'), getExportFilename('png'))
+    await downloadFile(canvas.toDataURL('image/png'), getExportFilename(title, 'png'))
   }
 
   const exportToHtml = async () => {
@@ -132,13 +136,25 @@ export function ExportToolbarButton({ title = 'document', ...props }: DropdownMe
 
     const url = `data:text/html;charset=utf-8,${encodeURIComponent(html)}`
 
-    await downloadFile(url, getExportFilename('html'))
+    await downloadFile(url, getExportFilename(title, 'html'))
   }
 
   const exportToMarkdown = async () => {
     const md = editor.getApi(MarkdownPlugin).markdown.serialize()
     const url = `data:text/markdown;charset=utf-8,${encodeURIComponent(md)}`
-    await downloadFile(url, getExportFilename('md'))
+    await downloadFile(url, getExportFilename(title, 'md'))
+  }
+
+  const exportToWord = async () => {
+    const cleanedChildren = splitParagraphNewlinesForExport(editor.children)
+
+    await exportEditorToDocx(cleanedChildren, getExportFilename(title, 'docx'), {
+      editorPlugins: [...BaseEditorKit, ...DocxKit, ...DocxExportKit],
+      editorStaticComponent: EditorStatic,
+      title: title,
+    })
+
+    console.log('Exported Word document')
   }
 
   return (
@@ -153,9 +169,9 @@ export function ExportToolbarButton({ title = 'document', ...props }: DropdownMe
         <DropdownMenuGroup>
           <DropdownMenuItem onSelect={exportToHtml}>Export as HTML</DropdownMenuItem>
           <DropdownMenuItem onSelect={exportToPdf}>Export as PDF</DropdownMenuItem>
-          <DropdownMenuItem onSelect={exportToDocx}>Export as DOCX</DropdownMenuItem>
           <DropdownMenuItem onSelect={exportToImage}>Export as Image</DropdownMenuItem>
           <DropdownMenuItem onSelect={exportToMarkdown}>Export as Markdown</DropdownMenuItem>
+          <DropdownMenuItem onSelect={exportToWord}>Export as Word</DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>
     </DropdownMenu>
