@@ -23,12 +23,12 @@ const AllowedDomains = () => {
   const { successNotification, errorNotification } = useNotification()
   const [newDomain, setNewDomain] = useState('')
   const [inputError, setInputError] = useState<string | null>(null)
-  const [allowAutoJoin, setAllowAutoJoin] = useState(false)
   const queryClient = useQueryClient()
   const { setCrumbs } = use(BreadcrumbContext)
 
   const settingId = data?.organization?.setting?.id
   const domains = data?.organization?.setting?.allowedEmailDomains ?? []
+  const allowAutoJoin = !!data?.organization?.setting?.allowMatchingDomainsAutojoin
 
   const updateSetting = async (input: UpdateOrganizationSettingInput, successMsg = 'Settings saved successfully.') => {
     if (!settingId) return
@@ -68,18 +68,13 @@ const AllowedDomains = () => {
   }
 
   const onSwitchChange = async (checked: boolean) => {
-    setAllowAutoJoin(checked)
     await updateSetting({ allowMatchingDomainsAutojoin: checked }, 'Auto-join setting updated successfully.')
   }
 
   useEffect(() => {
-    setAllowAutoJoin(!!data?.organization?.setting?.allowMatchingDomainsAutojoin)
-  }, [data])
-
-  useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
-      { label: 'Organization Settings', href: '/organization-settings' },
+      { label: 'Organization Settings', href: '/organization-settings/general-settings' },
       { label: 'Authentication', href: '/authentication' },
     ])
   }, [setCrumbs])
