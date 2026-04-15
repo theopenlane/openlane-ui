@@ -10,6 +10,7 @@ import { PersonnelStatusIconMapper } from '@/components/shared/enum-mapper/perso
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { formatPhoneNumber } from '@/utils/strings'
 import { type EnumOptions, type EnumCreateHandlers } from '../../../table/types'
+import { EmailAliasesField } from '../../../email-aliases-field'
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@repo/ui/cardpanel'
 
 interface AdditionalFieldsProps {
@@ -55,7 +56,14 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
         <CardContent>
           <div className="mb-2 grid grid-cols-1 md:grid-cols-2 gap-2">
             <TextField name="email" label="Email" type="email" tooltipContent="The primary email address for this person" {...sharedFieldProps} />
-            <TextField name="alternateEmail" label="Alternate Email" type="email" tooltipContent="An alternate email address for this person" {...sharedFieldProps} />
+            <EmailAliasesField
+              isEditing={isEditing}
+              isEditAllowed={isEditAllowed}
+              isCreate={isCreate}
+              internalEditing={internalEditing}
+              setInternalEditing={setInternalEditing}
+              handleUpdate={handleUpdateField}
+            />
             <TextField name="phoneNumber" label="Phone Number" type="tel" tooltipContent="The phone number for this person" formatDisplayValue={formatPhoneNumber} {...sharedFieldProps} />
           </div>
         </CardContent>

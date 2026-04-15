@@ -8278,6 +8278,8 @@ export interface CreateEvidenceInput {
   programIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the date the evidence should be renewed, defaults to a year from entry date */
   renewalDate?: InputMaybe<Scalars['DateTime']['input']>
+  /** the cadence for reviewing the evidence */
+  reviewFrequency?: InputMaybe<EvidenceFrequency>
   scanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   scopeID?: InputMaybe<Scalars['ID']['input']>
   /** the scope of the evidence */
@@ -18051,6 +18053,8 @@ export interface Evidence extends Node {
   programs: ProgramConnection
   /** the date the evidence should be renewed, defaults to a year from entry date */
   renewalDate?: Maybe<Scalars['DateTime']['output']>
+  /** the cadence for reviewing the evidence */
+  reviewFrequency?: Maybe<EvidenceFrequency>
   scans: ScanConnection
   scope?: Maybe<CustomTypeEnum>
   /** the scope of the evidence */
@@ -18255,6 +18259,15 @@ export enum EvidenceEvidenceStatus {
   SUBMITTED = 'SUBMITTED',
 }
 
+/** EvidenceFrequency is enum for the field review_frequency */
+export enum EvidenceFrequency {
+  BIANNUALLY = 'BIANNUALLY',
+  MONTHLY = 'MONTHLY',
+  NONE = 'NONE',
+  QUARTERLY = 'QUARTERLY',
+  YEARLY = 'YEARLY',
+}
+
 /** Ordering options for Evidence connections */
 export interface EvidenceOrder {
   /** The ordering direction. */
@@ -18265,6 +18278,7 @@ export interface EvidenceOrder {
 
 /** Properties by which Evidence connections can be ordered. */
 export enum EvidenceOrderField {
+  REVIEW_FREQUENCY = 'REVIEW_FREQUENCY',
   STATUS = 'STATUS',
   created_at = 'created_at',
   creation_date = 'creation_date',
@@ -18517,6 +18531,13 @@ export interface EvidenceWhereInput {
   renewalDateNEQ?: InputMaybe<Scalars['DateTime']['input']>
   renewalDateNotIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
   renewalDateNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** review_frequency field predicates */
+  reviewFrequency?: InputMaybe<EvidenceFrequency>
+  reviewFrequencyIn?: InputMaybe<Array<EvidenceFrequency>>
+  reviewFrequencyIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  reviewFrequencyNEQ?: InputMaybe<EvidenceFrequency>
+  reviewFrequencyNotIn?: InputMaybe<Array<EvidenceFrequency>>
+  reviewFrequencyNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** scope_id field predicates */
   scopeID?: InputMaybe<Scalars['ID']['input']>
   scopeIDContains?: InputMaybe<Scalars['ID']['input']>
@@ -55038,6 +55059,7 @@ export interface UpdateEvidenceInput {
   clearPlatforms?: InputMaybe<Scalars['Boolean']['input']>
   clearPrograms?: InputMaybe<Scalars['Boolean']['input']>
   clearRenewalDate?: InputMaybe<Scalars['Boolean']['input']>
+  clearReviewFrequency?: InputMaybe<Scalars['Boolean']['input']>
   clearScans?: InputMaybe<Scalars['Boolean']['input']>
   clearScope?: InputMaybe<Scalars['Boolean']['input']>
   clearScopeName?: InputMaybe<Scalars['Boolean']['input']>
@@ -55078,6 +55100,8 @@ export interface UpdateEvidenceInput {
   removeWorkflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the date the evidence should be renewed, defaults to a year from entry date */
   renewalDate?: InputMaybe<Scalars['DateTime']['input']>
+  /** the cadence for reviewing the evidence */
+  reviewFrequency?: InputMaybe<EvidenceFrequency>
   scopeID?: InputMaybe<Scalars['ID']['input']>
   /** the scope of the evidence */
   scopeName?: InputMaybe<Scalars['String']['input']>
@@ -69631,7 +69655,7 @@ export type IdentityHoldersWithFilterQuery = {
       __typename?: 'IdentityHolderEdge'
       node?: {
         __typename?: 'IdentityHolder'
-        alternateEmail?: string | null
+        emailAliases?: Array<string> | null
         createdAt?: any | null
         createdBy?: string | null
         department?: string | null
@@ -69681,7 +69705,7 @@ export type IdentityHolderQuery = {
   __typename?: 'Query'
   identityHolder: {
     __typename?: 'IdentityHolder'
-    alternateEmail?: string | null
+    emailAliases?: Array<string> | null
     createdAt?: any | null
     createdBy?: string | null
     department?: string | null

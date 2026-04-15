@@ -12,6 +12,7 @@ import { PersonnelStatusIconMapper } from '@/components/shared/enum-mapper/perso
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { formatPhoneNumber } from '@/utils/strings'
 import { IdentityHolderUserStatus, IdentityHolderIdentityHolderType, type IdentityHolderQuery, type UpdateIdentityHolderInput } from '@repo/codegen/src/schema'
+import { EmailAliasesField } from '../../../email-aliases-field'
 
 const cardHeaderClassName = 'pb-0'
 const cardTitleClassName = 'text-lg p-0'
@@ -81,14 +82,13 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ personnel, isEditing, canEdit
               {...sharedFieldProps}
               layout="vertical"
             />
-            <TextField
-              name="alternateEmail"
-              label="Alternate Email"
-              type="email"
-              tooltipContent="An alternate email address for this person"
-              displaySuffix={personnel.alternateEmail ? <CopyButton value={personnel.alternateEmail} /> : undefined}
-              {...sharedFieldProps}
-              layout="vertical"
+            <EmailAliasesField
+              isEditing={isEditing}
+              isEditAllowed={canEditPersonnel}
+              internalEditing={internalEditing}
+              setInternalEditing={setInternalEditing}
+              handleUpdate={handleUpdateField}
+              labelClassName="text-muted-foreground"
             />
             <TextField
               name="phoneNumber"

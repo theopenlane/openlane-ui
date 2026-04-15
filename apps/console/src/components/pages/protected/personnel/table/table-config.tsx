@@ -81,7 +81,7 @@ export const PERSONNEL_SORT_FIELDS = enumToSortFields(IdentityHolderOrderField)
 export const visibilityFields = {
   id: false,
   displayID: false,
-  alternateEmail: false,
+  emailAliases: false,
   title: false,
   team: false,
   location: false,

@@ -26,6 +26,7 @@ const RISK_FIELDS = gql`
     scopeName
     reviewRequired
     riskDecision
+    dueDate
     stakeholder {
       id
       displayName
