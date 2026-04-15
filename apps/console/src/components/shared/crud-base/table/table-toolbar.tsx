@@ -54,6 +54,7 @@ type GenericTableToolbarProps<T extends { id: string }, TWhereInput, TUpdateInpu
   responsibilityFields?: ResponsibilityFieldsMap
   bulkEditFieldLabels?: Record<string, string>
   createMode?: CreateMode
+  hideCreate?: boolean
   additionalActiveFilterCount?: number
 }
 
@@ -205,7 +206,7 @@ function GenericTableToolbar<T extends { id: string }, TWhereInput, TUpdateInput
                   additionalActiveFilterCount={props.additionalActiveFilterCount}
                 />
               )}
-              {props.canEdit(props.permission?.roles) && (
+              {!props.hideCreate && props.canEdit(props.permission?.roles) && (
                 <Button icon={<PlusCircle />} iconPosition="left" onClick={openCreateSheet}>
                   Create
                 </Button>

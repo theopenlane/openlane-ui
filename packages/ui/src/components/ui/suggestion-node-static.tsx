@@ -1,9 +1,9 @@
 import * as React from 'react'
 
-import type { SlateLeafProps, TSuggestionText } from 'platejs'
+import type { TSuggestionText } from 'platejs'
 
 import { BaseSuggestionPlugin } from '@platejs/suggestion'
-import { SlateLeaf } from 'platejs'
+import { SlateLeaf, SlateLeafProps } from 'platejs/static'
 
 import { cn } from '@repo/ui/lib/utils'
 

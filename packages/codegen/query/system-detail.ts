@@ -14,9 +14,20 @@ export const GET_ALL_SYSTEM_DETAILS = gql`
           id
           lastReviewed
           oscalMetadataJSON
+          platform {
+            id
+            name
+          }
           platformID
+          program {
+            id
+            name
+          }
           programID
+          revisionHistory
+          sensitivityLevel
           systemName
+          tags
           updatedAt
           updatedBy
           version
@@ -43,9 +54,20 @@ export const SYSTEM_DETAIL = gql`
       id
       lastReviewed
       oscalMetadataJSON
+      platform {
+        id
+        name
+      }
       platformID
+      program {
+        id
+        name
+      }
       programID
+      revisionHistory
+      sensitivityLevel
       systemName
+      tags
       updatedAt
       updatedBy
       version

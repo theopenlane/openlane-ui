@@ -1,9 +1,9 @@
 import * as React from 'react'
 
-import type { SlateElementProps, TTableCellElement, TTableElement } from 'platejs'
+import type { TTableCellElement, TTableElement } from 'platejs'
 
 import { BaseTablePlugin } from '@platejs/table'
-import { SlateElement } from 'platejs'
+import { SlateElement, type SlateElementProps } from 'platejs/static'
 
 import { cn } from '@repo/ui/lib/utils'
 

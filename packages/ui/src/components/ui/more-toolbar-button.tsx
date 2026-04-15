@@ -10,7 +10,7 @@ import { useEditorRef } from 'platejs/react'
 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/components/ui/dropdown-menu.tsx'
 
-import { ToolbarButton } from './toolbar'
+import { ToolbarButton } from '../ui/toolbar'
 
 export function MoreToolbarButton(props: DropdownMenuProps) {
   const editor = useEditorRef()

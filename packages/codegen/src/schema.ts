@@ -64998,11 +64998,13 @@ export type ActionPlansWithFilterQuery = {
         id: string
         metadata?: any | null
         name: string
+        priority?: ActionPlanPriority | null
         rawPayload?: any | null
         requiresApproval: boolean
         reviewDue?: any | null
         revision?: string | null
         source?: string | null
+        status?: ActionPlanDocumentStatus | null
         summary?: string | null
         systemOwned?: boolean | null
         title: string
@@ -65043,11 +65045,13 @@ export type ActionPlanQuery = {
     id: string
     metadata?: any | null
     name: string
+    priority?: ActionPlanPriority | null
     rawPayload?: any | null
     requiresApproval: boolean
     reviewDue?: any | null
     revision?: string | null
     source?: string | null
+    status?: ActionPlanDocumentStatus | null
     summary?: string | null
     systemOwned?: boolean | null
     title: string
@@ -65668,6 +65672,15 @@ export type CreateCampaignTargetMutationVariables = Exact<{
 export type CreateCampaignTargetMutation = {
   __typename?: 'Mutation'
   createCampaignTarget: { __typename?: 'CampaignTargetCreatePayload'; campaignTarget: { __typename?: 'CampaignTarget'; id: string } }
+}
+
+export type CreateBulkCampaignTargetMutationVariables = Exact<{
+  input?: InputMaybe<Array<CreateCampaignTargetInput> | CreateCampaignTargetInput>
+}>
+
+export type CreateBulkCampaignTargetMutation = {
+  __typename?: 'Mutation'
+  createBulkCampaignTarget: { __typename?: 'CampaignTargetBulkCreatePayload'; campaignTargets?: Array<{ __typename?: 'CampaignTarget'; id: string }> | null }
 }
 
 export type UpdateCampaignTargetMutationVariables = Exact<{
@@ -67779,6 +67792,7 @@ export type EmailBrandingsWithFilterQuery = {
         buttonTextColor?: string | null
         createdAt?: any | null
         createdBy?: string | null
+        fontFamily?: EmailBrandingFont | null
         id: string
         isDefault?: boolean | null
         linkColor?: string | null
@@ -67809,6 +67823,7 @@ export type EmailBrandingQuery = {
     buttonTextColor?: string | null
     createdAt?: any | null
     createdBy?: string | null
+    fontFamily?: EmailBrandingFont | null
     id: string
     isDefault?: boolean | null
     linkColor?: string | null
@@ -67886,6 +67901,7 @@ export type EmailTemplatesWithFilterQuery = {
         createdAt?: any | null
         createdBy?: string | null
         description?: string | null
+        format: EmailTemplateNotificationTemplateFormat
         id: string
         integrationID?: string | null
         jsonconfig?: any | null
@@ -67904,6 +67920,7 @@ export type EmailTemplatesWithFilterQuery = {
         workflowDefinitionID?: string | null
         workflowInstanceID?: string | null
         emailBranding?: Array<{ __typename?: 'EmailBranding'; id: string }> | null
+        campaigns: { __typename?: 'CampaignConnection'; totalCount: number }
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
@@ -67923,6 +67940,7 @@ export type EmailTemplateQuery = {
     createdAt?: any | null
     createdBy?: string | null
     description?: string | null
+    format: EmailTemplateNotificationTemplateFormat
     id: string
     integrationID?: string | null
     jsonconfig?: any | null
@@ -71191,6 +71209,9 @@ export type NotificationTemplatesWithFilterQuery = {
         subjectTemplate?: string | null
         systemOwned?: boolean | null
         titleTemplate?: string | null
+        channel: NotificationTemplateChannel
+        destinations?: Array<string> | null
+        format: NotificationTemplateNotificationTemplateFormat
         topicPattern: string
         uischema?: any | null
         updatedAt?: any | null
@@ -71228,6 +71249,9 @@ export type NotificationTemplateQuery = {
     subjectTemplate?: string | null
     systemOwned?: boolean | null
     titleTemplate?: string | null
+    channel: NotificationTemplateChannel
+    destinations?: Array<string> | null
+    format: NotificationTemplateNotificationTemplateFormat
     topicPattern: string
     uischema?: any | null
     updatedAt?: any | null
@@ -72969,7 +72993,6 @@ export type RiskFieldsFragment = {
   name: string
   details?: string | null
   detailsJSON?: Array<any> | null
-  dueDate?: string | null
   tags?: Array<string> | null
   riskCategoryName?: string | null
   riskKindName?: string | null
@@ -72988,6 +73011,7 @@ export type RiskFieldsFragment = {
   scopeName?: string | null
   reviewRequired?: boolean | null
   riskDecision?: RiskRiskDecision | null
+  dueDate?: string | null
   createdAt?: any | null
   stakeholder?: {
     __typename?: 'Group'
@@ -73012,7 +73036,6 @@ export type RiskTableFieldsFragment = {
   id: string
   displayID: string
   name: string
-  dueDate?: string | null
   riskCategoryName?: string | null
   riskKindName?: string | null
   score?: number | null
@@ -73059,7 +73082,6 @@ export type GetRiskByIdQuery = {
     name: string
     details?: string | null
     detailsJSON?: Array<any> | null
-    dueDate?: string | null
     tags?: Array<string> | null
     riskCategoryName?: string | null
     riskKindName?: string | null
@@ -73078,6 +73100,7 @@ export type GetRiskByIdQuery = {
     scopeName?: string | null
     reviewRequired?: boolean | null
     riskDecision?: RiskRiskDecision | null
+    dueDate?: string | null
     createdAt?: any | null
     stakeholder?: {
       __typename?: 'Group'
@@ -73120,7 +73143,6 @@ export type GetAllRisksQuery = {
         id: string
         displayID: string
         name: string
-        dueDate?: string | null
         riskCategoryName?: string | null
         riskKindName?: string | null
         score?: number | null
@@ -74581,10 +74603,15 @@ export type SystemDetailsWithFilterQuery = {
         oscalMetadataJSON?: any | null
         platformID?: string | null
         programID?: string | null
+        revisionHistory?: Array<any> | null
+        sensitivityLevel?: SystemDetailSystemSensitivityLevel | null
         systemName: string
+        tags?: Array<string> | null
         updatedAt?: any | null
         updatedBy?: string | null
         version?: string | null
+        platform?: { __typename?: 'Platform'; id: string; name: string } | null
+        program?: { __typename?: 'Program'; id: string; name: string } | null
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
@@ -74609,10 +74636,15 @@ export type SystemDetailQuery = {
     oscalMetadataJSON?: any | null
     platformID?: string | null
     programID?: string | null
+    revisionHistory?: Array<any> | null
+    sensitivityLevel?: SystemDetailSystemSensitivityLevel | null
     systemName: string
+    tags?: Array<string> | null
     updatedAt?: any | null
     updatedBy?: string | null
     version?: string | null
+    platform?: { __typename?: 'Platform'; id: string; name: string } | null
+    program?: { __typename?: 'Program'; id: string; name: string } | null
   }
 }
 
