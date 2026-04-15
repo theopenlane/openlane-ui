@@ -4,6 +4,7 @@ import {
   BinocularsIcon,
   BookMarked,
   Circle,
+  Clock,
   FileBadge2,
   FilePenLine,
   FolderIcon,
@@ -45,7 +46,8 @@ export const ControlImplementationIconMap: Record<ControlImplementationDocumentS
   [ControlImplementationDocumentStatus.DRAFT]: <FilePenLine size={16} />,
   [ControlImplementationDocumentStatus.APPROVED]: <ThumbsUp size={16} />,
   [ControlImplementationDocumentStatus.ARCHIVED]: <Archive size={16} />,
-  [ControlImplementationDocumentStatus.NEEDS_APPROVAL]: <ScanEye size={16} />, // Use distinct icon
+  [ControlImplementationDocumentStatus.NEEDS_APPROVAL]: <ScanEye size={16} />,
+  [ControlImplementationDocumentStatus.PENDING]: <Clock size={16} />,
   [ControlImplementationDocumentStatus.PUBLISHED]: <Archive size={16} />,
 }
 
