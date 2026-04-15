@@ -7,7 +7,6 @@ const RISK_FIELDS = gql`
     name
     details
     detailsJSON
-    dueDate
     tags
     riskCategoryName
     riskKindName
@@ -53,7 +52,6 @@ const RISK_TABLE_FIELDS = gql`
     id
     displayID
     name
-    dueDate
     riskCategoryName
     riskKindName
     score

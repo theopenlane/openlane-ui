@@ -1,8 +1,9 @@
 'use client'
 
-import { withAIBatch } from '@platejs/ai'
-import { AIChatPlugin, AIPlugin, applyAISuggestions, streamInsertChunk, useChatChunk } from '@platejs/ai/react'
-import { getPluginType, KEYS } from 'platejs'
+import cloneDeep from 'lodash/cloneDeep.js'
+import { BaseAIPlugin, withAIBatch } from '@platejs/ai'
+import { AIChatPlugin, AIPlugin, applyAISuggestions, getInsertPreviewStart, streamInsertChunk, useChatChunk } from '@platejs/ai/react'
+import { ElementApi, getPluginType, KEYS, PathApi } from 'platejs'
 import { usePluginOption } from 'platejs/react'
 
 import { AILoadingBar, AIMenu } from '@repo/ui/components/ui/ai-menu.tsx'
@@ -35,18 +36,20 @@ export const aiChatPlugin = AIChatPlugin.extend({
     useChatChunk({
       onChunk: ({ chunk, isFirst, nodes, text: content }) => {
         if (isFirst && mode === 'insert') {
+          const { startBlock, startInEmptyParagraph } = getInsertPreviewStart(editor)
+
+          editor.getTransforms(BaseAIPlugin).ai.beginPreview({
+            originalBlocks: startInEmptyParagraph && startBlock && ElementApi.isElement(startBlock) ? [cloneDeep(startBlock)] : [],
+          })
+
           editor.tf.withoutSaving(() => {
-            const path = editor.selection?.anchor?.path
-            editor.tf.deleteFragment()
             editor.tf.insertNodes(
               {
                 children: [{ text: '' }],
-                anchor: true,
                 type: getPluginType(editor, KEYS.aiChat),
               },
               {
-                at: path,
-                select: true,
+                at: PathApi.next(editor.selection!.focus.path.slice(0, 1)),
               },
             )
           })
@@ -54,20 +57,17 @@ export const aiChatPlugin = AIChatPlugin.extend({
         }
 
         if (mode === 'insert' && nodes.length > 0) {
-          withAIBatch(
-            editor,
-            () => {
-              if (!getOption('streaming')) return
-              editor.tf.withScrolling(() => {
-                streamInsertChunk(editor, chunk, {
-                  textProps: {
-                    [getPluginType(editor, KEYS.ai)]: true,
-                  },
-                })
+          editor.tf.withoutSaving(() => {
+            if (!getOption('streaming')) return
+
+            editor.tf.withScrolling(() => {
+              streamInsertChunk(editor, chunk, {
+                textProps: {
+                  [getPluginType(editor, KEYS.ai)]: true,
+                },
               })
-            },
-            { split: isFirst },
-          )
+            })
+          })
         }
 
         if (toolName === 'edit' && mode === 'chat') {

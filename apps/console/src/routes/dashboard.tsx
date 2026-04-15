@@ -123,6 +123,11 @@ export const topNavigationItems = (session: Session | null): (NavItem | Separato
           icon: LayoutGrid,
         },
         {
+          title: 'System Details',
+          href: '/registry/system-details',
+          icon: ServerCog,
+        },
+        {
           title: 'Assets',
           href: '/registry/assets',
           icon: Laptop,
@@ -289,6 +294,12 @@ export const topNavigationItems = (session: Session | null): (NavItem | Separato
           href: '/automation/workflows/wizard',
           icon: Sparkles,
           plan: PlanEnum.COMPLIANCE_MODULE,
+          hidden: true,
+        },
+        {
+          title: 'Communications',
+          href: '/automation/communications',
+          icon: MailCheck,
           hidden: true,
         },
         {

@@ -57,7 +57,12 @@ export const useActionPlansWithFilter = ({ where, orderBy, pagination, enabled =
 
   const actionPlansNodes: ActionPlansNodeNonNull[] = edges.filter((edge) => edge != null).map((edge) => edge?.node as ActionPlansNodeNonNull)
 
-  return { ...queryResult, actionPlansNodes }
+  const paginationMeta = {
+    totalCount: queryResult.data?.actionPlans?.totalCount ?? 0,
+    pageInfo: queryResult.data?.actionPlans?.pageInfo,
+  }
+
+  return { ...queryResult, actionPlansNodes, paginationMeta }
 }
 
 export const useCreateActionPlan = () => {

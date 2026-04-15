@@ -98,7 +98,7 @@ export function useIntegrationConnect({ provider, credentialSchema, userInputSch
 
           successNotification({
             title: `Continue connecting ${provider.displayName}`,
-            description: 'Finish setup in the opened tab. This page will refresh automatically after the integration is connected.',
+            description: `Redirecting to ${provider.displayName} to finish setup.`,
           })
           return
         }

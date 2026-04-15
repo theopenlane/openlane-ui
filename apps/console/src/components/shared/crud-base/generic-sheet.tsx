@@ -207,7 +207,6 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
     if (!buildPayload) return
     try {
       const payload = await buildPayload(formData)
-      console.log(payload)
 
       if (isCreate && createMutation) {
         await createMutation.mutateAsync(payload as TCreateInput)
@@ -349,7 +348,14 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
           ) : (
             <>
               <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} id={formId} className="space-y-6 mt-4">
+                <form
+                  onSubmit={(e) => {
+                    e.stopPropagation()
+                    form.handleSubmit(onSubmit)(e)
+                  }}
+                  id={formId}
+                  className="space-y-6 mt-4"
+                >
                   {renderFields
                     ? renderFields({
                         isEditing,

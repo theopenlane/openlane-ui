@@ -910,6 +910,7 @@ export const ASSOCIATION_SECTION_CONFIG = {
 export type AssociationSectionKey = keyof typeof ASSOCIATION_SECTION_CONFIG
 
 const SECTION_DISPLAY_NAMES_OVERRIDES: Partial<Record<AssociationSectionKey, string>> = {
+  actionPlans: 'Action Plans',
   controlImplementations: 'Control Implementations',
   controlObjectives: 'Control Objectives',
   entities: 'Vendors',

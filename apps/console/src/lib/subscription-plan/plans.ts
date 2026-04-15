@@ -31,6 +31,7 @@ export const featureUtil = {
     FeatureEnum.PERSONNEL,
     FeatureEnum.VENDORS,
     FeatureEnum.CONTACTS,
+    FeatureEnum.SYSTEM_DETAILS,
   ],
   trustCenterModule: () => [...featureUtil.baseModule(), FeatureEnum.TRUST_CENTER],
   entityManagementModule: () => [...featureUtil.baseModule()],

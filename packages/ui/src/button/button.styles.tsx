@@ -104,6 +104,11 @@ export const buttonStyles = tv({
       sm: 'h-auto p-0 text-sm px-2',
       md: 'h-8 px-2 text-sm',
       lg: 'h-16 px-8 text-lg',
+      xs: "h-6 gap-1 rounded-md px-2 text-xs has-[>svg]:px-1.5 [&_svg:not([class*='size-'])]:size-3",
+      icon: 'size-9',
+      'icon-xs': "size-6 rounded-md [&_svg:not([class*='size-'])]:size-3",
+      'icon-sm': 'size-8',
+      'icon-lg': 'size-10',
     },
     full: {
       true: {
