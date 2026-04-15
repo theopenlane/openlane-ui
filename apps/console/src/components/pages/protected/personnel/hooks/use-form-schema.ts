@@ -8,7 +8,7 @@ import { responsibilityFieldSchema } from '@/components/shared/crud-base/form-fi
 const formSchema = z.object({
   fullName: z.string().min(1, 'Full name is required'),
   email: z.string().email('Valid email is required'),
-  alternateEmail: z.string().email().optional().or(z.literal('')),
+  emailAliases: z.array(z.string().email('Valid email is required')).optional(),
   title: z.string().optional(),
   department: z.string().optional(),
   team: z.string().optional(),

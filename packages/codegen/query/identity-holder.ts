@@ -6,7 +6,7 @@ export const GET_ALL_IDENTITY_HOLDERS = gql`
       totalCount
       edges {
         node {
-          alternateEmail
+          emailAliases
           createdAt
           createdBy
           department
@@ -63,7 +63,7 @@ export const GET_ALL_IDENTITY_HOLDERS = gql`
 export const IDENTITY_HOLDER = gql`
   query IdentityHolder($identityHolderId: ID!) {
     identityHolder(id: $identityHolderId) {
-      alternateEmail
+      emailAliases
       createdAt
       createdBy
       department

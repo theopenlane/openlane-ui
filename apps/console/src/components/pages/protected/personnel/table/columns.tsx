@@ -12,6 +12,7 @@ import { createSelectColumn } from '@/components/shared/crud-base/columns/select
 import { CustomEnumChipCell } from '@/components/shared/crud-base/columns/custom-enum-chip-cell'
 import { ResponsibilityCell } from '@/components/shared/crud-base/columns/responsibility-cell'
 import { formatPhoneNumber } from '@/utils/strings'
+import { EmailAliasesCell } from './email-aliases-cell'
 
 export const getColumns = ({ userMap, selectedItems, setSelectedItems }: ColumnOptions): ColumnDef<IdentityHoldersNodeNonNull>[] => {
   return [
@@ -20,7 +21,12 @@ export const getColumns = ({ userMap, selectedItems, setSelectedItems }: ColumnO
     { accessorKey: 'displayID', header: 'Display ID', size: 120 },
     { accessorKey: 'fullName', header: 'Full Name', size: 150, cell: ({ cell }) => cell.getValue() || '' },
     { accessorKey: 'email', header: 'Email', size: 200 },
-    { accessorKey: 'alternateEmail', header: 'Alternate Email', size: 200 },
+    {
+      accessorKey: 'emailAliases',
+      header: 'Email Aliases',
+      size: 240,
+      cell: ({ cell }) => <EmailAliasesCell emails={cell.getValue() as string[] | null | undefined} />,
+    },
     { accessorKey: 'title', header: 'Title', size: 150 },
     { accessorKey: 'department', header: 'Department', size: 150 },
     { accessorKey: 'team', header: 'Team', size: 120 },

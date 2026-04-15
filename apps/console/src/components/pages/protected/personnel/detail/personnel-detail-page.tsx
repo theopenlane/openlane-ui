@@ -80,7 +80,7 @@ const PersonnelDetailPage: React.FC<PersonnelDetailPageProps> = ({ personnelId }
       const newValues: Partial<EditPersonnelFormData> = {
         fullName: data.identityHolder.fullName ?? '',
         email: data.identityHolder.email ?? '',
-        alternateEmail: data.identityHolder.alternateEmail ?? undefined,
+        emailAliases: data.identityHolder.emailAliases ?? undefined,
         title: data.identityHolder.title ?? undefined,
         department: data.identityHolder.department ?? undefined,
         team: data.identityHolder.team ?? undefined,
