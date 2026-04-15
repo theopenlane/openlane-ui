@@ -7,15 +7,18 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@repo/ui/dialog'
 import { FormField, FormItem, FormLabel, FormControl, Form } from '@repo/ui/form'
 import { Input } from '@repo/ui/input'
+import { Button } from '@repo/ui/button'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { useNotification } from '@/hooks/useNotification'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { useCreateEvidence } from '@/lib/graphql-hooks/evidence'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import ObjectAssociation from '@/components/shared/object-association/object-association'
 import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
 import { type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
+import { type DiagramType } from './platform-diagrams-section'
+import { toHumanLabel } from '@/utils/strings'
 
 const markAsEvidenceSchema = z.object({
   name: z.string().min(1, 'Evidence name is required'),
@@ -28,12 +31,15 @@ const ALLOWED_OBJECT_TYPES = [ObjectTypeObjects.CONTROL, ObjectTypeObjects.SUB_C
 interface MarkAsDiagramEvidenceDialogProps {
   fileId: string
   fileName: string
+  diagramType: DiagramType
+  platformId: string
+  platformName: string
   onClose: () => void
 }
 
-const MarkAsDiagramEvidenceDialog: React.FC<MarkAsDiagramEvidenceDialogProps> = ({ fileId, fileName, onClose }) => {
+const MarkAsDiagramEvidenceDialog: React.FC<MarkAsDiagramEvidenceDialogProps> = ({ fileId, fileName, diagramType, platformId, platformName, onClose }) => {
   const router = useRouter()
-  const searchParams = useSearchParams()
+  const pathname = usePathname()
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: createEvidence, isPending } = useCreateEvidence()
   const [selectedIds, setSelectedIds] = useState<TObjectAssociationMap>({})
@@ -50,9 +56,7 @@ const MarkAsDiagramEvidenceDialog: React.FC<MarkAsDiagramEvidenceDialogProps> = 
   }, [])
 
   const openEvidence = (evidenceId: string) => {
-    const params = new URLSearchParams(searchParams.toString())
-    params.set('id', evidenceId)
-    router.push(`${window.location.pathname}?${params.toString()}`)
+    router.push(`${pathname}?id=${evidenceId}`)
   }
 
   const handleSubmit = async (data: MarkAsEvidenceFormData) => {
@@ -63,8 +67,10 @@ const MarkAsDiagramEvidenceDialog: React.FC<MarkAsDiagramEvidenceDialogProps> = 
       const result = await createEvidence({
         input: {
           name: data.name,
+          description: `${toHumanLabel(diagramType)} Diagram for the ${platformName} platform`,
           source: 'Platform Diagrams',
           fileIDs: [fileId],
+          platformIDs: [platformId],
           ...(controlIDs.length > 0 ? { controlIDs } : {}),
           ...(subcontrolIDs.length > 0 ? { subcontrolIDs } : {}),
         },
@@ -76,9 +82,9 @@ const MarkAsDiagramEvidenceDialog: React.FC<MarkAsDiagramEvidenceDialogProps> = 
         description: (
           <span>
             &quot;{data.name}&quot; has been created as evidence.{' '}
-            <button type="button" className="underline font-medium cursor-pointer bg-transparent border-0 p-0" onClick={() => openEvidence(evidenceId)}>
+            <Button type="button" variant="transparent" className="h-auto p-0 underline cursor-pointer font-medium" onClick={() => openEvidence(evidenceId)}>
               View evidence
-            </button>
+            </Button>
           </span>
         ),
       })

@@ -256,11 +256,12 @@ const DiagramCard: React.FC<DiagramCardProps> = ({ diagram, canEdit, hasEvidence
 
 interface PlatformDiagramsSectionProps {
   platformId: string
+  platformName: string
   canEdit: boolean
   diagrams: PlatformDiagram[]
 }
 
-const PlatformDiagramsSection: React.FC<PlatformDiagramsSectionProps> = ({ platformId, canEdit, diagrams }) => {
+const PlatformDiagramsSection: React.FC<PlatformDiagramsSectionProps> = ({ platformId, platformName, canEdit, diagrams }) => {
   const { successNotification, errorNotification } = useNotification()
   const [addOpen, setAddOpen] = useState(false)
   const [expandedDiagram, setExpandedDiagram] = useState<PlatformDiagram | null>(null)
@@ -341,7 +342,16 @@ const PlatformDiagramsSection: React.FC<PlatformDiagramsSectionProps> = ({ platf
 
       <AddDiagramDialog open={addOpen} onOpenChange={setAddOpen} onAdd={handleAdd} isUploading={isUploading} />
       <ExpandDiagramDialog diagram={expandedDiagram} onClose={() => setExpandedDiagram(null)} />
-      {markEvidenceDiagram && <MarkAsDiagramEvidenceDialog fileId={markEvidenceDiagram.id} fileName={markEvidenceDiagram.name} onClose={() => setMarkEvidenceDiagram(null)} />}
+      {markEvidenceDiagram && (
+        <MarkAsDiagramEvidenceDialog
+          fileId={markEvidenceDiagram.id}
+          fileName={markEvidenceDiagram.name}
+          diagramType={markEvidenceDiagram.type}
+          platformId={platformId}
+          platformName={platformName}
+          onClose={() => setMarkEvidenceDiagram(null)}
+        />
+      )}
       {unmarkEvidenceDiagram && <UnmarkDiagramEvidenceDialog fileId={unmarkEvidenceDiagram.id} fileName={unmarkEvidenceDiagram.name} onClose={() => setUnmarkEvidenceDiagram(null)} />}
     </div>
   )

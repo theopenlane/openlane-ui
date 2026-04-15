@@ -42,6 +42,7 @@ import StepLinkAssetsVendors from '../create/steps/step-link-assets-vendors'
 import { useQueryClient } from '@tanstack/react-query'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import EvidenceDetailsSheet from '@/components/pages/protected/evidence/evidence-details-sheet'
 
 interface PlatformDetailPageProps {
   platformId: string
@@ -468,7 +469,7 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId, onC
         </div>
       )}
 
-      <PlatformDiagramsSection platformId={platformId} canEdit={canEditPlatform} diagrams={diagrams} />
+      <PlatformDiagramsSection platformId={platformId} platformName={platform.name} canEdit={canEditPlatform} diagrams={diagrams} />
 
       <Tabs defaultValue="assets">
         <TabsList>
@@ -529,6 +530,8 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId, onC
           void handleDelete()
         }}
       />
+
+      <EvidenceDetailsSheet />
     </>
   )
 }
