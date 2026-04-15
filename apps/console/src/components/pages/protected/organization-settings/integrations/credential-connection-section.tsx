@@ -5,6 +5,7 @@ import { FormProvider, type UseFormReturn } from 'react-hook-form'
 import { Button } from '@repo/ui/button'
 import { Card } from '@repo/ui/cardpanel'
 import { Separator } from '@repo/ui/separator'
+import { getProviderHelperContent } from '@/lib/integrations/provider-helper-content'
 import { type IntegrationProvider } from '@/lib/integrations/types'
 import { type FormValues, type SchemaSection } from '@/lib/integrations/schema'
 import { resolveConnectionEntry, resolveSchemaRoot } from '@/lib/integrations/utils'
@@ -39,6 +40,7 @@ const CredentialConnectionSection = ({
 }: CredentialConnectionSectionProps) => {
   const credentialEntries = provider.credentialSchemas ?? []
   const hasUserInputFields = userInputSections.length > 0
+  const providerHelper = getProviderHelperContent(provider)
 
   if (credentialEntries.length === 0) {
     return null
@@ -72,6 +74,7 @@ const CredentialConnectionSection = ({
 
                       {isSelected ? (
                         <div className="mt-4 pt-3 border-t">
+                          {providerHelper ? <div className="mb-3">{providerHelper}</div> : null}
                           <div className="flex">
                             <div className="flex flex-1 flex-col min-w-0">
                               <h4 className="text-xs font-medium text-foreground mb-2">CREDENTIALS</h4>
