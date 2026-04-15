@@ -72951,6 +72951,7 @@ export type RiskFieldsFragment = {
   environmentName?: string | null
   scopeName?: string | null
   reviewRequired?: boolean | null
+  dueDate?: string | null
   riskDecision?: RiskRiskDecision | null
   createdAt?: any | null
   stakeholder?: {
@@ -73039,6 +73040,7 @@ export type GetRiskByIdQuery = {
     environmentName?: string | null
     scopeName?: string | null
     reviewRequired?: boolean | null
+    dueDate?: string | null
     riskDecision?: RiskRiskDecision | null
     createdAt?: any | null
     stakeholder?: {
