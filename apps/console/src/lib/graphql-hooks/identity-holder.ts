@@ -18,10 +18,12 @@ import {
   type DeleteBulkIdentityHolderMutation,
   type DeleteBulkIdentityHolderMutationVariables,
   type GetIdentityHolderAssociationsQuery,
+  type GetIdentityHolderDirectoryAccountsQuery,
   type GetIdentityHolderFilesPaginatedQuery,
   type UpdateIdentityHolderWithFilesMutationVariables,
   type CreateIdentityHolderWithFilesMutationVariables,
   type FileOrder,
+  type FileWhereInput,
   type InputMaybe,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql'
@@ -36,6 +38,7 @@ import {
   BULK_EDIT_IDENTITY_HOLDER,
   BULK_DELETE_IDENTITY_HOLDER,
   GET_IDENTITY_HOLDER_ASSOCIATIONS,
+  GET_IDENTITY_HOLDER_DIRECTORY_ACCOUNTS,
   GET_IDENTITY_HOLDER_FILES_PAGINATED,
   UPDATE_IDENTITY_HOLDER_WITH_FILES,
   CREATE_IDENTITY_HOLDER_WITH_FILES,
@@ -158,17 +161,19 @@ type IdentityHolderFilesPaginationArgs = {
   identityHolderId?: string | null
   orderBy?: InputMaybe<Array<FileOrder> | FileOrder>
   pagination?: TPagination
+  where?: FileWhereInput
 }
 
-export const useGetIdentityHolderFilesPaginated = ({ identityHolderId, orderBy, pagination }: IdentityHolderFilesPaginationArgs) => {
+export const useGetIdentityHolderFilesPaginated = ({ identityHolderId, orderBy, pagination, where }: IdentityHolderFilesPaginationArgs) => {
   const { client } = useGraphQLClient()
 
   const queryResult = useQuery<GetIdentityHolderFilesPaginatedQuery, unknown>({
-    queryKey: ['identityHolderFiles', identityHolderId, orderBy, pagination?.page, pagination?.pageSize],
+    queryKey: ['identityHolderFiles', identityHolderId, orderBy, pagination?.page, pagination?.pageSize, where],
     queryFn: async () =>
       client.request(GET_IDENTITY_HOLDER_FILES_PAGINATED, {
         identityHolderId,
         orderBy,
+        where,
         ...pagination?.query,
       }),
     enabled: !!identityHolderId,
@@ -197,6 +202,20 @@ export const useUploadIdentityHolderFiles = () => {
       queryClient.invalidateQueries({ queryKey: ['identityHolders'] })
     },
   })
+}
+
+export const useGetIdentityHolderDirectoryAccounts = (identityHolderId?: string) => {
+  const { client } = useGraphQLClient()
+  const queryResult = useQuery<GetIdentityHolderDirectoryAccountsQuery, unknown>({
+    queryKey: ['identityHolders', identityHolderId, 'directoryAccounts'],
+    queryFn: async () => client.request<GetIdentityHolderDirectoryAccountsQuery>(GET_IDENTITY_HOLDER_DIRECTORY_ACCOUNTS, { identityHolderId: identityHolderId as string }),
+    enabled: !!identityHolderId,
+  })
+
+  const edges = queryResult.data?.identityHolder?.directoryAccounts?.edges ?? []
+  const directoryAccounts = edges.filter((edge): edge is NonNullable<typeof edge> & { node: NonNullable<NonNullable<typeof edge>['node']> } => edge?.node != null).map((edge) => edge.node)
+
+  return { ...queryResult, directoryAccounts }
 }
 
 export const useCreateIdentityHolderWithFiles = () => {

@@ -5,13 +5,13 @@ import React, { useEffect, useMemo } from 'react'
 import { type IdentityHolderWhereInput, type IdentityHolder, type IdentityHolderOrderField } from '@repo/codegen/src/schema'
 import { type IdentityHoldersNodeNonNull, useIdentityHoldersWithFilter } from '@/lib/graphql-hooks/identity-holder'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
-
 import { useNotification } from '@/hooks/useNotification'
 import { PERSONNEL_SORT_FIELDS } from './table-config'
 import { getColumns } from './columns'
 import { type TTableProps } from '@/components/shared/crud-base/page'
 import { objectName, tableKey } from './types'
 import { isUlid } from '@/lib/validators'
+import { useRouter } from 'next/navigation'
 
 const TableComponent = ({
   onSortChange,
@@ -28,6 +28,8 @@ const TableComponent = ({
   permission,
   defaultSorting,
 }: TTableProps<IdentityHolderWhereInput>) => {
+  const { push } = useRouter()
+
   const orderBy = useMemo(() => {
     if (!orderByFilter) return undefined
     return orderByFilter.map(({ field, direction }) => ({
@@ -111,7 +113,9 @@ const TableComponent = ({
       data={items}
       loading={fetching || fetchingUsers}
       defaultSorting={defaultSorting}
-      rowHref={(item) => `/registry/personnel?id=${item.id}`}
+      onRowClick={(item) => {
+        push(`/registry/personnel/${item.id}`)
+      }}
       pagination={pagination}
       onPaginationChange={onPaginationChange}
       paginationMeta={{

@@ -26,6 +26,7 @@ const RISK_FIELDS = gql`
     reviewRequired
     dueDate
     riskDecision
+    dueDate
     stakeholder {
       id
       displayName

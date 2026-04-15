@@ -6,12 +6,23 @@ import { type TimelineNode } from '@/lib/graphql-hooks/associations-timeline'
 import { format } from 'date-fns'
 import { Clock } from 'lucide-react'
 import Skeleton from '@/components/shared/skeleton/skeleton'
+import { pluralizeTypeName } from '@/utils/strings'
+
+const getTimelineColorVar = (type: string) => {
+  const normalized = type.toLowerCase().replace(/\s+/g, '-')
+
+  if (normalized === 'personnel') {
+    return '--color-personnel-active'
+  }
+
+  return `--color-${pluralizeTypeName(normalized)}`
+}
 
 const getChipStyle = (type: string): React.CSSProperties => {
-  const cssVar = `--color-${type.toLowerCase()}s`
+  const cssVar = getTimelineColorVar(type)
   return {
-    color: `var(${cssVar})`,
-    backgroundColor: `color-mix(in srgb, var(${cssVar}) 15%, transparent)`,
+    color: `var(${cssVar}, var(--foreground))`,
+    backgroundColor: `color-mix(in srgb, var(${cssVar}, var(--foreground)) 15%, transparent)`,
   }
 }
 
@@ -26,9 +37,10 @@ const formatDate = (iso: string): string => {
 type Props = {
   nodes: TimelineNode[]
   isLoading?: boolean
+  suppressLinkedDateFallback?: boolean
 }
 
-const AssociationTimeline = ({ nodes, isLoading }: Props) => {
+const AssociationTimeline = ({ nodes, isLoading, suppressLinkedDateFallback = false }: Props) => {
   if (isLoading) {
     return (
       <div className="space-y-3 py-2">
@@ -73,6 +85,9 @@ const AssociationTimeline = ({ nodes, isLoading }: Props) => {
           )
 
           const subtextEl = (() => {
+            if (node.subtext) {
+              return <>{node.subtext}</>
+            }
             if (isSource) {
               return (
                 <>
@@ -88,11 +103,21 @@ const AssociationTimeline = ({ nodes, isLoading }: Props) => {
               )
             }
             if (node.source) {
+              if (suppressLinkedDateFallback) {
+                return (
+                  <>
+                    created by <span className="font-medium text-foreground/70">{node.source}</span>
+                  </>
+                )
+              }
               return (
                 <>
                   created by <span className="font-medium text-foreground/70">{node.source}</span> on {date}
                 </>
               )
+            }
+            if (suppressLinkedDateFallback) {
+              return <>linked</>
             }
             return <>linked {date}</>
           })()

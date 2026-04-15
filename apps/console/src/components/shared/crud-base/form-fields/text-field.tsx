@@ -34,6 +34,8 @@ interface TextFieldProps<TUpdateInput> {
   layout?: 'vertical' | 'horizontal'
   labelClassName?: string
   multiline?: boolean
+  displaySuffix?: React.ReactNode
+  formatDisplayValue?: (value: string) => React.ReactNode
 }
 
 export const TextField = <TUpdateInput,>({
@@ -57,6 +59,8 @@ export const TextField = <TUpdateInput,>({
   layout = 'vertical',
   labelClassName,
   multiline = false,
+  displaySuffix,
+  formatDisplayValue,
 }: TextFieldProps<TUpdateInput>) => {
   const { control, getValues, formState } = useFormContext()
 
@@ -119,6 +123,41 @@ export const TextField = <TUpdateInput,>({
 
   const popoverRef = useRef<HTMLDivElement>(null)
 
+  const notSet = <span className="text-muted-foreground italic">Not set</span>
+
+  const renderDisplayValue = () => {
+    if (type === 'date') {
+      return value ? formatDate(value) : notSet
+    }
+
+    if (type === 'currency') {
+      return formatCurrency(value)
+    }
+
+    if (type === 'link') {
+      return value ? (
+        <a href={normalizeUrl(value)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 min-w-0 max-w-full" onClick={(e) => e.stopPropagation()}>
+          <span className="truncate" title={normalizeUrl(value)}>
+            {normalizeUrl(value)}
+          </span>
+          <ExternalLink className="w-4 h-4 ml-1 shrink-0" />
+        </a>
+      ) : (
+        notSet
+      )
+    }
+
+    if (!value) {
+      return notSet
+    }
+
+    if (typeof value === 'string' && formatDisplayValue) {
+      return formatDisplayValue(value)
+    }
+
+    return value
+  }
+
   return (
     <FormField
       control={control}
@@ -162,26 +201,7 @@ export const TextField = <TUpdateInput,>({
               )
             ) : (
               <div className={cn('text-sm py-2 rounded-md cursor-pointer px-1 w-full hover:bg-accent', layout === 'horizontal' && 'text-right')} onClick={handleClick}>
-                {type === 'date' ? (
-                  value ? (
-                    formatDate(value)
-                  ) : (
-                    <span className="text-muted-foreground italic">Not set</span>
-                  )
-                ) : type === 'currency' ? (
-                  formatCurrency(value)
-                ) : type === 'link' ? (
-                  value ? (
-                    <a href={normalizeUrl(value)} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 min-w-0 max-w-full" onClick={(e) => e.stopPropagation()}>
-                      <span className="truncate" title={normalizeUrl(value)}>
-                        {normalizeUrl(value)}
-                      </span>
-                      <ExternalLink className="w-4 h-4 ml-1 shrink-0" />
-                    </a>
-                  ) : (
-                    <span className="text-muted-foreground italic">Not set</span>
-                  )
-                ) : type === 'number' ? (
+                {type === 'number' ? (
                   <div ref={popoverRef} className="w-full flex items-center gap-4">
                     <input
                       type="range"
@@ -192,8 +212,15 @@ export const TextField = <TUpdateInput,>({
                     />
                     <span className="text-sm w-8 text-right gap-4">{typeof field.value === 'number' ? field.value : 0}</span>
                   </div>
+                ) : displaySuffix ? (
+                  <div className="flex items-center justify-between gap-2 w-full">
+                    <div className={cn('min-w-0', layout === 'horizontal' && 'text-right')}>{renderDisplayValue()}</div>
+                    <div className="shrink-0" onClick={(e) => e.stopPropagation()}>
+                      {displaySuffix}
+                    </div>
+                  </div>
                 ) : (
-                  value || <span className="text-muted-foreground italic">Not set</span>
+                  renderDisplayValue()
                 )}
               </div>
             )}

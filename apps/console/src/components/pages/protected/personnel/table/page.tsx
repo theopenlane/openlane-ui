@@ -199,6 +199,7 @@ const PersonnelPage: React.FC = () => {
     getColumns,
     TableComponent,
     sheetConfig,
+    viewEditMode: { type: 'full-page', route: '/registry/personnel' },
     onBulkDelete: async (ids: string[]) => {
       await deleteMutation.mutateAsync({ ids })
     },

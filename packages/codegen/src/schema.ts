@@ -69677,7 +69677,7 @@ export type IdentityHoldersWithFilterQuery = {
       __typename?: 'IdentityHolderEdge'
       node?: {
         __typename?: 'IdentityHolder'
-        alternateEmail?: string | null
+        emailAliases?: Array<string> | null
         createdAt?: any | null
         createdBy?: string | null
         department?: string | null
@@ -69727,7 +69727,7 @@ export type IdentityHolderQuery = {
   __typename?: 'Query'
   identityHolder: {
     __typename?: 'IdentityHolder'
-    alternateEmail?: string | null
+    emailAliases?: Array<string> | null
     createdAt?: any | null
     createdBy?: string | null
     department?: string | null
@@ -69820,6 +69820,7 @@ export type GetIdentityHolderFilesPaginatedQueryVariables = Exact<{
   before?: InputMaybe<Scalars['Cursor']['input']>
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<FileOrder> | FileOrder>
+  where?: InputMaybe<FileWhereInput>
 }>
 
 export type GetIdentityHolderFilesPaginatedQuery = {
@@ -69832,7 +69833,17 @@ export type GetIdentityHolderFilesPaginatedQuery = {
       pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
       edges?: Array<{
         __typename?: 'FileEdge'
-        node?: { __typename?: 'File'; providedFileName: string; providedFileSize?: number | null; providedFileExtension: string; id: string; uri?: string | null; presignedURL?: string | null } | null
+        node?: {
+          __typename?: 'File'
+          providedFileName: string
+          providedFileSize?: number | null
+          providedFileExtension: string
+          categoryType?: string | null
+          createdAt?: any | null
+          id: string
+          uri?: string | null
+          presignedURL?: string | null
+        } | null
       } | null> | null
     }
   }
@@ -69857,6 +69868,32 @@ export type CreateIdentityHolderWithFilesMutationVariables = Exact<{
 export type CreateIdentityHolderWithFilesMutation = {
   __typename?: 'Mutation'
   createIdentityHolder: { __typename?: 'IdentityHolderCreatePayload'; identityHolder: { __typename?: 'IdentityHolder'; id: string } }
+}
+
+export type GetIdentityHolderDirectoryAccountsQueryVariables = Exact<{
+  identityHolderId: Scalars['ID']['input']
+}>
+
+export type GetIdentityHolderDirectoryAccountsQuery = {
+  __typename?: 'Query'
+  identityHolder: {
+    __typename?: 'IdentityHolder'
+    directoryAccounts: {
+      __typename?: 'DirectoryAccountConnection'
+      edges?: Array<{
+        __typename?: 'DirectoryAccountEdge'
+        node?: {
+          __typename?: 'DirectoryAccount'
+          id: string
+          accountType?: DirectoryAccountDirectoryAccountType | null
+          status: DirectoryAccountDirectoryAccountStatus
+          primarySource: boolean
+          mfaState: DirectoryAccountDirectoryAccountMfaState
+          integration?: { __typename?: 'Integration'; name: string } | null
+        } | null
+      } | null> | null
+    }
+  }
 }
 
 export type GetIdentityHolderAssociationsQueryVariables = Exact<{
@@ -69902,6 +69939,32 @@ export type GetIdentityHolderAssociationsQuery = {
       totalCount: number
       edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string; displayID: string } | null } | null> | null
     }
+  }
+}
+
+export type GetIdentityHolderAssociationsTimelineQueryVariables = Exact<{
+  identityHolderId: Scalars['ID']['input']
+}>
+
+export type GetIdentityHolderAssociationsTimelineQuery = {
+  __typename?: 'Query'
+  identityHolder: {
+    __typename?: 'IdentityHolder'
+    assessmentResponses: {
+      __typename?: 'AssessmentResponseConnection'
+      edges?: Array<{
+        __typename?: 'AssessmentResponseEdge'
+        node?: { __typename?: 'AssessmentResponse'; id: string; createdAt?: any | null; completedAt?: any | null; assessment: { __typename?: 'Assessment'; id: string; name: string } } | null
+      } | null> | null
+    }
+    directoryAccounts: {
+      __typename?: 'DirectoryAccountConnection'
+      edges?: Array<{
+        __typename?: 'DirectoryAccountEdge'
+        node?: { __typename?: 'DirectoryAccount'; id: string; createdAt?: any | null; directoryName?: string | null; displayName?: string | null; canonicalEmail?: string | null } | null
+      } | null> | null
+    }
+    user?: { __typename?: 'User'; id: string; createdAt?: any | null; displayName: string; email: string } | null
   }
 }
 
