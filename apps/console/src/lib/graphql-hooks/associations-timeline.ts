@@ -16,7 +16,7 @@ import {
   type GetIdentityHolderAssociationsTimelineQuery,
   type GetIdentityHolderAssociationsTimelineQueryVariables,
 } from '@repo/codegen/src/schema'
-import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { ObjectNames, ObjectTypes } from '@repo/codegen/src/type-names'
 
 export type TimelineNode = {
   id: string
@@ -175,13 +175,42 @@ export const useIdentityHolderTimeline = (identityHolderId?: string) => {
 export const extractIdentityHolderTimelineNodes = (data: GetIdentityHolderAssociationsTimelineQuery | undefined): TimelineNode[] => {
   const ih = data?.identityHolder
   if (!ih) return []
-  return [
-    ...extractNodes(ih.assets as Connection, 'Asset'),
-    ...extractNodes(ih.entities as Connection, 'Entity'),
-    ...extractNodes(ih.controls as Connection, 'Control'),
-    ...extractNodes(ih.subcontrols as Connection, 'Subcontrol'),
-    ...extractNodes(ih.campaigns as Connection, 'Campaign'),
-    ...extractNodes(ih.tasks as Connection, 'Task'),
-    ...extractNodes(ih.internalPolicies as Connection, 'Policy'),
-  ].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+
+  const nodes: TimelineNode[] = []
+
+  for (const edge of ih.assessmentResponses?.edges ?? []) {
+    const n = edge?.node
+    if (!n?.createdAt) continue
+    nodes.push({
+      id: n.id,
+      name: n.assessment?.name ?? 'Assessment',
+      type: ObjectNames.ASSESSMENT_RESPONSE,
+      createdAt: n.completedAt ?? n.createdAt,
+      subtext: n.completedAt ? 'filled out questionnaire' : 'assigned questionnaire',
+    })
+  }
+
+  for (const edge of ih.directoryAccounts?.edges ?? []) {
+    const n = edge?.node
+    if (!n?.createdAt) continue
+    nodes.push({
+      id: n.id,
+      name: n.displayName ?? n.canonicalEmail ?? n.directoryName ?? n.id,
+      type: ObjectNames.DIRECTORY_ACCOUNT,
+      createdAt: n.createdAt,
+      subtext: n.directoryName ? `found via ${n.directoryName}` : 'found via integration',
+    })
+  }
+
+  if (ih.user?.createdAt) {
+    nodes.push({
+      id: ih.user.id,
+      name: ih.user.displayName ?? ih.user.email ?? 'Openlane user',
+      type: ObjectNames.USER,
+      createdAt: ih.user.createdAt,
+      subtext: 'added to Openlane',
+    })
+  }
+
+  return nodes.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
 }

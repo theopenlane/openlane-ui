@@ -69904,34 +69904,21 @@ export type GetIdentityHolderAssociationsTimelineQuery = {
   __typename?: 'Query'
   identityHolder: {
     __typename?: 'IdentityHolder'
-    assets: {
-      __typename?: 'AssetConnection'
-      edges?: Array<{ __typename?: 'AssetEdge'; node?: { __typename?: 'Asset'; id: string; name: string; displayName?: string | null; createdAt?: any | null } | null } | null> | null
+    assessmentResponses: {
+      __typename?: 'AssessmentResponseConnection'
+      edges?: Array<{
+        __typename?: 'AssessmentResponseEdge'
+        node?: { __typename?: 'AssessmentResponse'; id: string; createdAt?: any | null; completedAt?: any | null; assessment: { __typename?: 'Assessment'; id: string; name: string } } | null
+      } | null> | null
     }
-    entities: {
-      __typename?: 'EntityConnection'
-      edges?: Array<{ __typename?: 'EntityEdge'; node?: { __typename?: 'Entity'; id: string; name?: string | null; displayName?: string | null; createdAt?: any | null } | null } | null> | null
+    directoryAccounts: {
+      __typename?: 'DirectoryAccountConnection'
+      edges?: Array<{
+        __typename?: 'DirectoryAccountEdge'
+        node?: { __typename?: 'DirectoryAccount'; id: string; createdAt?: any | null; directoryName?: string | null; displayName?: string | null; canonicalEmail?: string | null } | null
+      } | null> | null
     }
-    campaigns: {
-      __typename?: 'CampaignConnection'
-      edges?: Array<{ __typename?: 'CampaignEdge'; node?: { __typename?: 'Campaign'; id: string; name: string; displayID: string; createdAt?: any | null } | null } | null> | null
-    }
-    tasks: {
-      __typename?: 'TaskConnection'
-      edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string; title: string; displayID: string; createdAt?: any | null } | null } | null> | null
-    }
-    controls: {
-      __typename?: 'ControlConnection'
-      edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string; displayID: string; refCode: string; createdAt?: any | null } | null } | null> | null
-    }
-    subcontrols: {
-      __typename?: 'SubcontrolConnection'
-      edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; displayID: string; refCode: string; createdAt?: any | null } | null } | null> | null
-    }
-    internalPolicies: {
-      __typename?: 'InternalPolicyConnection'
-      edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string; displayID: string; createdAt?: any | null } | null } | null> | null
-    }
+    user?: { __typename?: 'User'; id: string; createdAt?: any | null; displayName: string; email: string } | null
   }
 }
 

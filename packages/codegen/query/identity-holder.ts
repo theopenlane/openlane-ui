@@ -314,75 +314,35 @@ export const GET_IDENTITY_HOLDER_ASSOCIATIONS = gql`
 export const GET_IDENTITY_HOLDER_ASSOCIATIONS_TIMELINE = gql`
   query GetIdentityHolderAssociationsTimeline($identityHolderId: ID!) {
     identityHolder(id: $identityHolderId) {
-      assets {
+      assessmentResponses {
         edges {
           node {
             id
-            name
+            createdAt
+            completedAt
+            assessment {
+              id
+              name
+            }
+          }
+        }
+      }
+      directoryAccounts {
+        edges {
+          node {
+            id
+            createdAt
+            directoryName
             displayName
-            createdAt
+            canonicalEmail
           }
         }
       }
-      entities {
-        edges {
-          node {
-            id
-            name
-            displayName
-            createdAt
-          }
-        }
-      }
-      campaigns {
-        edges {
-          node {
-            id
-            name
-            displayID
-            createdAt
-          }
-        }
-      }
-      tasks {
-        edges {
-          node {
-            id
-            title
-            displayID
-            createdAt
-          }
-        }
-      }
-      controls {
-        edges {
-          node {
-            id
-            displayID
-            refCode
-            createdAt
-          }
-        }
-      }
-      subcontrols {
-        edges {
-          node {
-            id
-            displayID
-            refCode
-            createdAt
-          }
-        }
-      }
-      internalPolicies {
-        edges {
-          node {
-            id
-            name
-            displayID
-            createdAt
-          }
-        }
+      user {
+        id
+        createdAt
+        displayName
+        email
       }
     }
   }
