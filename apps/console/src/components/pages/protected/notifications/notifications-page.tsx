@@ -7,7 +7,7 @@ import { NotificationNotificationTopic } from '@repo/codegen/src/schema'
 import { NotificationRow } from '@/components/shared/SystemNotification/notification-row'
 import { ExportRow } from '@/components/shared/SystemNotification/export-row'
 import { useGetAllExports } from '@/lib/graphql-hooks/export'
-import { Bell, CheckCheck } from 'lucide-react'
+import { Bell, CheckCheck, Inbox, Stamp, Radar, FileDown, AtSign, FolderSync, ClipboardList, type LucideIcon } from 'lucide-react'
 import { cn } from '@repo/ui/lib/utils'
 import { Button } from '@repo/ui/button'
 import { isToday, isYesterday, format, startOfDay } from 'date-fns'
@@ -16,6 +16,16 @@ import { toHumanLabel } from '@/utils/strings'
 const PAGE_SIZE = 20
 
 type TopicFilter = NotificationNotificationTopic | 'ALL'
+
+const topicIcons: Record<TopicFilter, LucideIcon> = {
+  ALL: Inbox,
+  [NotificationNotificationTopic.APPROVAL]: Stamp,
+  [NotificationNotificationTopic.DOMAIN_SCAN]: Radar,
+  [NotificationNotificationTopic.EXPORT]: FileDown,
+  [NotificationNotificationTopic.MENTION]: AtSign,
+  [NotificationNotificationTopic.STANDARD_UPDATE]: FolderSync,
+  [NotificationNotificationTopic.TASK_ASSIGNMENT]: ClipboardList,
+}
 
 const getDateGroupLabel = (dateStr: string | null | undefined): string => {
   if (!dateStr) return 'Earlier'
@@ -121,10 +131,10 @@ const NotificationsPage = () => {
         <aside className="w-44 shrink-0 flex flex-col gap-1">
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-2 mb-1">Filters</p>
 
-          <FilterItem label="All" active={topicFilter === 'ALL'} onClick={() => handleTopicChange('ALL')} />
+          <FilterItem label="All" icon={topicIcons.ALL} active={topicFilter === 'ALL'} onClick={() => handleTopicChange('ALL')} />
 
           {Object.values(NotificationNotificationTopic).map((topic) => (
-            <FilterItem key={topic} label={toHumanLabel(topic)} active={topicFilter === topic} onClick={() => handleTopicChange(topic)} />
+            <FilterItem key={topic} label={toHumanLabel(topic)} icon={topicIcons[topic]} active={topicFilter === topic} onClick={() => handleTopicChange(topic)} />
           ))}
         </aside>
 
@@ -164,11 +174,12 @@ const NotificationsPage = () => {
 export default NotificationsPage
 interface FilterItemProps {
   label: string
+  icon: LucideIcon
   active: boolean
   onClick: () => void
 }
 
-const FilterItem = ({ label, active, onClick }: FilterItemProps) => (
+const FilterItem = ({ label, icon: Icon, active, onClick }: FilterItemProps) => (
   <button
     onClick={onClick}
     className={cn(
@@ -176,7 +187,7 @@ const FilterItem = ({ label, active, onClick }: FilterItemProps) => (
       active ? 'text-foreground' : 'text-muted-foreground hover:text-foreground hover:bg-accent/40',
     )}
   >
-    <span className={cn('h-1.5 w-1.5 rounded-full shrink-0', active ? 'bg-primary' : 'bg-transparent border border-muted-foreground/40')} />
+    <Icon className="h-4 w-4 shrink-0" />
     {label}
   </button>
 )
