@@ -17,6 +17,7 @@ import { formatDate } from '@/utils/date'
 
 interface AssessmentsTabProps {
   personnelId: string
+  personnelEmail: string
 }
 
 type AssessmentResponseRow = Pick<AssessmentResponse, 'id' | 'assessmentID' | 'email' | 'assignedAt' | 'dueDate' | 'completedAt' | 'createdAt' | 'isDraft' | 'startedAt'>
@@ -44,7 +45,7 @@ const getStatusBadge = (row: AssessmentResponseRow) => {
 
 const SORT_FIELDS = [{ label: 'Created At', key: AssessmentResponseOrderField.created_at }]
 
-const AssessmentsTab: React.FC<AssessmentsTabProps> = ({ personnelId }) => {
+const AssessmentsTab: React.FC<AssessmentsTabProps> = ({ personnelId, personnelEmail }) => {
   const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(TableKeyEnum.ASSESSMENT_RESPONSE, DEFAULT_PAGINATION))
   const defaultSorting = getInitialSortConditions(TableKeyEnum.ASSESSMENT_RESPONSE, AssessmentResponseOrderField, [
     {
@@ -57,7 +58,9 @@ const AssessmentsTab: React.FC<AssessmentsTabProps> = ({ personnelId }) => {
   const [selectedResponseId, setSelectedResponseId] = useState<string | null>(null)
 
   const { data, isLoading, AssessmentResponses } = useAssessmentResponsesWithFilter({
-    where: { hasIdentityHolderWith: [{ id: personnelId }] },
+    where: {
+      or: [{ hasIdentityHolderWith: [{ id: personnelId }] }, { emailEqualFold: personnelEmail }],
+    },
     orderBy,
     pagination,
   })
