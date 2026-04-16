@@ -47,13 +47,13 @@
     "core-js"
   ],
   "resolutions": {
-    "react": "19.2.4",
+    "react": "19.2.5",
     "gaxios": "^7.0.0",
     "node-fetch": "^3.3.2"
   },
   "peerDependencies": {
-    "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react": "19.2.5",
+    "react-dom": "19.2.5"
   },
   "dependencies": {
     "@emoji-mart/data": "^1.2.1",
