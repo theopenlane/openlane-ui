@@ -238,9 +238,11 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
   useEffect(() => {
     if (initialAssociationsControlsAndPrograms.controls) {
+      // eslint-disable-next-line @eslint-react/set-state-in-effect
       setEvidenceControls(initialAssociationsControlsAndPrograms.controls)
     }
     if (initialAssociationsControlsAndPrograms.subcontrols) {
+      // eslint-disable-next-line @eslint-react/set-state-in-effect
       setEvidenceSubcontrols(initialAssociationsControlsAndPrograms.subcontrols)
     }
   }, [initialAssociationsControlsAndPrograms])
@@ -269,6 +271,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
             label: item,
           }
         })
+        // eslint-disable-next-line @eslint-react/set-state-in-effect
         setTagValues(tags)
       }
     }
@@ -281,6 +284,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
       form.setValue('programIDs', initialAssociations.programIDs ? initialAssociations.programIDs : [])
       form.setValue('subcontrolIDs', initialAssociations.subcontrolIDs ? initialAssociations.subcontrolIDs : [])
 
+      // eslint-disable-next-line @eslint-react/set-state-in-effect
       setAssociationProgramsRefMap(initialAssociationsControlsAndPrograms.programDisplayIDs ? initialAssociationsControlsAndPrograms.programDisplayIDs : [])
     }
   }, [form, initialAssociations, initialAssociationsControlsAndPrograms])
@@ -475,6 +479,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
   useEffect(() => {
     if (isEditPreset) {
+      // eslint-disable-next-line @eslint-react/set-state-in-effect
       setIsEditing(true)
       setIsEditPreset(false)
       // eslint-disable-next-line @eslint-react/web-api/no-leaked-timeout
@@ -490,7 +495,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
     if (evidence?.tags?.length === 0) {
       return <span className="text-gray-500">no tags provided</span>
     }
-    return <div className="flex justify-end flex-wrap gap-2">{evidence?.tags?.map((tag?: string) => tag && <TagChip key={tag} tag={tag} />)} </div>
+    return <div className="flex justify-start flex-wrap gap-2">{evidence?.tags?.map((tag?: string) => tag && <TagChip key={tag} tag={tag} />)} </div>
   }
 
   const handleSavePrograms = (newIds: string[], newRefCodes: string[]) => {
@@ -660,12 +665,12 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                       <div className="space-y-4">
                         {/* Source */}
                         <div className="flex justify-between items-center mb-2">
-                          <div className="flex items-center gap-2 text-sm w-[180px]">
+                          <div className="flex items-center gap-2 text-sm w-45">
                             <CircuitBoard size={16} className="text-accent-secondary" />
                             Source
                           </div>
 
-                          <div className="text-sm text-right w-[250px]">
+                          <div className="text-sm text-right w-62.5">
                             {isEditing || editField === 'source' ? (
                               <InputRow className="w-full">
                                 <FormField
@@ -674,7 +679,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                                   render={({ field }) => (
                                     <FormItem className="w-full">
                                       <FormControl>
-                                        <Input variant="medium" {...field} className="w-[250px]" onBlur={handleUpdateField} onKeyDown={handleKeyDown} autoFocus />
+                                        <Input variant="medium" {...field} className="w-62.5" onBlur={handleUpdateField} onKeyDown={handleKeyDown} autoFocus />
                                       </FormControl>
                                       {form.formState.errors.source && <p className="text-red-500 text-sm">{form.formState.errors.source.message}</p>}
                                     </FormItem>
@@ -685,7 +690,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                               <HoverPencilWrapper
                                 showPencil={editAllowed}
                                 pencilClass="!-right-5"
-                                className={`text-sm text-right w-[250px] ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+                                className={`text-sm text-right w-62.5 ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
                                 onPencilClick={() => handleDoubleClick('source')}
                               >
                                 <p onDoubleClick={() => handleDoubleClick('source')}>{evidence?.source || <span className="text-gray-500">no source provided</span>}</p>
@@ -696,12 +701,12 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
                         {/* URL */}
                         <div className="flex justify-between items-center mb-2">
-                          <div className="flex items-center gap-2 text-sm w-[180px]">
+                          <div className="flex items-center gap-2 text-sm w-45">
                             <LinkIcon size={16} className="text-accent-secondary" />
                             URL
                           </div>
 
-                          <div className="text-sm text-right w-[250px]">
+                          <div className="text-sm text-right w-62.5">
                             {isEditing || editField === 'url' ? (
                               <InputRow className="w-full">
                                 <FormField
@@ -710,7 +715,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                                   render={({ field }) => (
                                     <FormItem className="w-full">
                                       <FormControl>
-                                        <Input variant="medium" {...field} className="w-[250px]" onBlur={handleUpdateField} onKeyDown={handleKeyDown} autoFocus />
+                                        <Input variant="medium" {...field} className="w-62.5" onBlur={handleUpdateField} onKeyDown={handleKeyDown} autoFocus />
                                       </FormControl>
                                       {form.formState.errors.url && <p className="text-red-500 text-sm">{form.formState.errors.url.message}</p>}
                                     </FormItem>
@@ -721,7 +726,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                               <HoverPencilWrapper
                                 showPencil={editAllowed}
                                 pencilClass="!-right-5"
-                                className={`w-[250px] ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+                                className={`w-62.5 ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
                                 onPencilClick={() => handleDoubleClick('url')}
                               >
                                 <TooltipProvider>
@@ -749,11 +754,11 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
                         {/* Status */}
                         <div className="flex justify-between items-center mb-2">
-                          <div className="flex items-center gap-2 text-sm w-[180px]">
+                          <div className="flex items-center gap-2 text-sm w-45">
                             <Binoculars size={16} className="text-accent-secondary" />
                             Status
                           </div>
-                          <div ref={triggerRef} className="text-sm text-right w-[250px]">
+                          <div ref={triggerRef} className="text-sm text-right w-62.5">
                             {isEditing || editField === 'status' ? (
                               <Controller
                                 name="status"
@@ -767,7 +772,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                                         handleUpdateField()
                                       }}
                                     >
-                                      <SelectTrigger className="w-[250px]">{getEnumLabel(field.value as EvidenceEvidenceStatus) || 'Select'}</SelectTrigger>
+                                      <SelectTrigger className="w-62.5">{getEnumLabel(field.value as EvidenceEvidenceStatus) || 'Select'}</SelectTrigger>
                                       <SelectContent ref={popoverRef}>
                                         {statusOptions.map((option) => (
                                           <SelectItem key={option.value} value={option.value}>
@@ -784,10 +789,10 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                               <HoverPencilWrapper
                                 pencilClass="!-right-5"
                                 showPencil={editAllowed}
-                                className={` space-x-2 w-[250px] ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+                                className={` space-x-2 w-62.5 ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
                                 onPencilClick={() => editAllowed && handleDoubleClick('status')}
                               >
-                                <div className="flex justify-end items-center " onDoubleClick={() => editAllowed && handleDoubleClick('status')}>
+                                <div className="flex justify-end items-center gap-2" onDoubleClick={() => editAllowed && handleDoubleClick('status')}>
                                   {EvidenceIconMapper[evidence?.status as EvidenceEvidenceStatus]}
                                   <p>{getEnumLabel(evidence?.status as EvidenceEvidenceStatus)}</p>
                                 </div>
@@ -798,18 +803,18 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
                         {/* Creation Date */}
                         <div className="flex justify-between items-center mb-2">
-                          <div className="flex items-center gap-2 text-sm w-[180px]">
+                          <div className="flex items-center gap-2 text-sm w-45">
                             <Calendar size={16} className="text-accent-secondary" />
                             Creation Date
                           </div>
 
-                          <div ref={triggerRef} className="text-sm text-right w-[250px]">
+                          <div ref={triggerRef} className="text-sm text-right w-62.5">
                             {isEditing || editField === 'creationDate' ? (
                               <FormField
                                 control={form.control}
                                 name="creationDate"
                                 render={({ field }) => (
-                                  <FormItem ref={popoverRef} className="w-[250px]">
+                                  <FormItem ref={popoverRef} className="w-62.5">
                                     <CalendarPopover
                                       field={field}
                                       defaultToday
@@ -827,7 +832,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                               <HoverPencilWrapper
                                 showPencil={editAllowed}
                                 pencilClass="!-right-5"
-                                className={`text-sm text-right w-[250px] ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+                                className={`text-sm text-right w-62.5 ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
                                 onPencilClick={() => handleDoubleClick('creationDate')}
                               >
                                 <p onDoubleClick={() => handleDoubleClick('creationDate')}>{formatDate(evidence?.creationDate) || <span className="text-gray-500">no date provided</span>}</p>
@@ -838,18 +843,18 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
                         {/* Renewal Date */}
                         <div className="flex justify-between items-center mb-2">
-                          <div className="flex items-center gap-2 text-sm w-[180px]">
+                          <div className="flex items-center gap-2 text-sm w-45">
                             <Calendar size={16} className="text-accent-secondary" />
                             Renewal Date
                           </div>
 
-                          <div ref={triggerRef} className="text-sm text-right w-[250px]">
+                          <div ref={triggerRef} className="text-sm text-right w-62.5">
                             {isEditing || editField === 'renewalDate' ? (
                               <FormField
                                 control={form.control}
                                 name="renewalDate"
                                 render={({ field }) => (
-                                  <FormItem ref={popoverRef} className="w-[250px]">
+                                  <FormItem ref={popoverRef} className="w-62.5">
                                     <CalendarPopover
                                       field={field}
                                       defaultAddDays={365}
@@ -866,7 +871,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                               <HoverPencilWrapper
                                 showPencil={editAllowed}
                                 pencilClass="!-right-5"
-                                className={`text-sm text-right w-[250px] ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+                                className={`text-sm text-right w-62.5 ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
                                 onPencilClick={() => handleDoubleClick('renewalDate')}
                               >
                                 <p onDoubleClick={() => handleDoubleClick('renewalDate')}>{formatDate(evidence?.renewalDate) || <span className="text-gray-500">no date provided</span>}</p>
@@ -877,11 +882,11 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
                         {/* Scope */}
                         <div className="flex justify-between items-center mb-2">
-                          <div className="flex items-center gap-2 text-sm w-[180px]">
+                          <div className="flex items-center gap-2 text-sm w-45">
                             <Radio size={16} className="text-accent-secondary" />
                             Scope
                           </div>
-                          <div className="text-sm text-right w-[250px]">
+                          <div className="text-sm text-right w-62.5">
                             {isEditing || editField === 'scopeName' ? (
                               <Controller
                                 name="scopeName"
@@ -905,7 +910,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                               <HoverPencilWrapper
                                 pencilClass="!-right-5"
                                 showPencil={editAllowed}
-                                className={`w-[250px] ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+                                className={`w-62.5 ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
                                 onPencilClick={() => editAllowed && handleDoubleClick('scopeName')}
                               >
                                 <div className="flex justify-end items-center" onDoubleClick={() => editAllowed && handleDoubleClick('scopeName')}>
@@ -918,11 +923,11 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
                         {/* Environment */}
                         <div className="flex justify-between items-center mb-2">
-                          <div className="flex items-center gap-2 text-sm w-[180px]">
+                          <div className="flex items-center gap-2 text-sm w-45">
                             <Maximize2 size={16} className="text-accent-secondary" />
                             Environment
                           </div>
-                          <div className="text-sm text-right w-[250px]">
+                          <div className="text-sm text-right w-62.5">
                             {isEditing || editField === 'environmentName' ? (
                               <Controller
                                 name="environmentName"
@@ -946,7 +951,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                               <HoverPencilWrapper
                                 pencilClass="!-right-5"
                                 showPencil={editAllowed}
-                                className={`w-[250px] ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+                                className={`w-62.5 ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
                                 onPencilClick={() => editAllowed && handleDoubleClick('environmentName')}
                               >
                                 <div className="flex justify-end items-center" onDoubleClick={() => editAllowed && handleDoubleClick('environmentName')}>
@@ -963,12 +968,12 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
                         {/* External ID */}
                         <div className="flex justify-between items-center mb-2">
-                          <div className="flex items-center gap-2 text-sm w-[180px]">
+                          <div className="flex items-center gap-2 text-sm w-45">
                             <Fingerprint size={16} className="text-accent-secondary" />
                             External ID
                           </div>
 
-                          <div className="text-sm text-right w-[250px]">
+                          <div className="text-sm text-right w-62.5">
                             {isEditing || editField === 'externalUUID' ? (
                               <InputRow className="w-full">
                                 <FormField
@@ -977,7 +982,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                                   render={({ field }) => (
                                     <FormItem className="w-full">
                                       <FormControl>
-                                        <Input variant="medium" {...field} value={field.value ?? ''} className="w-[250px]" onBlur={handleUpdateField} onKeyDown={handleKeyDown} autoFocus />
+                                        <Input variant="medium" {...field} value={field.value ?? ''} className="w-62.5" onBlur={handleUpdateField} onKeyDown={handleKeyDown} autoFocus />
                                       </FormControl>
                                       {form.formState.errors.externalUUID && <p className="text-red-500 text-sm">{form.formState.errors.externalUUID.message}</p>}
                                     </FormItem>
@@ -988,7 +993,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                               <HoverPencilWrapper
                                 showPencil={editAllowed}
                                 pencilClass="!-right-5"
-                                className={`text-sm text-right w-[250px] ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+                                className={`text-sm text-right w-62.5 ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
                                 onPencilClick={() => handleDoubleClick('externalUUID')}
                               >
                                 <p onDoubleClick={() => handleDoubleClick('externalUUID')}>{evidence?.externalUUID || <span className="text-gray-500">no external id provided</span>}</p>
@@ -999,11 +1004,11 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
                         {/* Tags */}
                         <div className="flex justify-between items-center">
-                          <div className="flex items-center gap-2 text-sm w-[180px]">
+                          <div className="flex items-center gap-2 text-sm w-45">
                             <Tag size={16} className="text-accent-secondary" />
                             Tags
                           </div>
-                          <div ref={triggerRef} className="text-sm text-right w-[250px]">
+                          <div ref={triggerRef} className="text-sm text-right w-62.5">
                             {isEditing || editField === 'tags' ? (
                               <Controller
                                 name="tags"
@@ -1013,7 +1018,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                                     <MultipleSelector
                                       placeholder="Add tag..."
                                       creatable
-                                      className="w-[250px]"
+                                      className="w-62.5"
                                       commandProps={{ className: 'w-full' }}
                                       value={tagValues}
                                       hideClearAllButton
@@ -1037,7 +1042,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                               <HoverPencilWrapper
                                 pencilClass="!-right-5"
                                 showPencil={editAllowed}
-                                className={`w-[250px]  ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+                                className={`w-62.5  ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
                                 onPencilClick={() => editAllowed && handleDoubleClick('tags')}
                               >
                                 <div className="" onDoubleClick={() => editAllowed && handleDoubleClick('tags')}>
@@ -1057,7 +1062,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                         <CardContent className={content()}>
                           <div className="space-y-4">
                             <div className="flex justify-between items-center">
-                              <div className="flex items-center gap-2 text-sm w-[180px]">
+                              <div className="flex items-center gap-2 text-sm w-45">
                                 <CalendarCheck2 size={16} className="text-accent-secondary" />
                                 Created At
                               </div>
@@ -1067,7 +1072,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                             </div>
 
                             <div className="flex justify-between items-center">
-                              <div className="flex items-center gap-2 text-sm w-[180px]">
+                              <div className="flex items-center gap-2 text-sm w-45">
                                 <UserRoundCheck size={16} className="text-accent-secondary" />
                                 Created By
                               </div>
@@ -1080,7 +1085,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                             </div>
 
                             <div className="flex justify-between items-center">
-                              <div className="flex items-center gap-2 text-sm w-[180px]">
+                              <div className="flex items-center gap-2 text-sm w-45">
                                 <CalendarClock size={16} className="text-accent-secondary" />
                                 Updated At
                               </div>
@@ -1090,7 +1095,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                             </div>
 
                             <div className="flex justify-between items-center">
-                              <div className="flex items-center gap-2 text-sm w-[180px]">
+                              <div className="flex items-center gap-2 text-sm w-45">
                                 <UserRoundPen size={16} className="text-accent-secondary" />
                                 Updated By
                               </div>
@@ -1103,11 +1108,11 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                             </div>
                             {evidence?.url && (
                               <div className="flex justify-between items-center">
-                                <div className="flex items-center gap-2 text-sm w-[180px]">
+                                <div className="flex items-center gap-2 text-sm w-45">
                                   <Link size={16} className="text-accent-secondary" />
                                   URL
                                 </div>
-                                <div className="text-sm text-left w-[200px] cursor-not-allowed">
+                                <div className="text-sm text-left w-50 cursor-not-allowed">
                                   <div className="flex items-center gap-4 cursor-pointer">
                                     <p className="flex items-center gap-1">
                                       <Eye size={16} />
@@ -1147,7 +1152,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                             <div className="flex items-center gap-2 cursor-pointer group">
                               <ChevronDown size={22} className="text-brand transform -rotate-90 transition-transform group-data-[state=open]:rotate-0" />
                               <span className="text-sm font-medium">Linked Control(s)</span>
-                              <span className="rounded-full border border-border text-xs text-muted-foreground flex justify-center items-center h-[26px] w-[26px]">
+                              <span className="rounded-full border border-border text-xs text-muted-foreground flex justify-center items-center h-6.5 w-6.5">
                                 {(form.getValues('subcontrolIDs')?.length || 0) + (form.getValues('controlIDs')?.length || 0)}
                               </span>
                             </div>
@@ -1199,7 +1204,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                             <div className="flex items-center gap-2 cursor-pointer group">
                               <ChevronDown size={22} className="text-brand transform -rotate-90 transition-transform group-data-[state=open]:rotate-0" />
                               <span className="text-sm font-medium">Linked Program(s)</span>
-                              <span className="rounded-full border border-border text-xs text-muted-foreground flex justify-center items-center h-[26px] w-[26px]">
+                              <span className="rounded-full border border-border text-xs text-muted-foreground flex justify-center items-center h-6.5 w-6.5">
                                 {form.getValues('programIDs')?.length || 0}
                               </span>
                             </div>
