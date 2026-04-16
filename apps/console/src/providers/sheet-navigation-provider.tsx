@@ -14,6 +14,7 @@ import ControlObjectiveDetailsSheet from '@/components/pages/protected/controls/
 import ControlImplementationDetailsSheet from '@/components/pages/protected/controls/tabs/implementation/control-implementation-components/control-implementation-details-sheet'
 import TaskDetailsSheet from '@/components/pages/protected/tasks/create-task/sidebar/task-details-sheet'
 import ViewVendorSheet from '@/components/pages/protected/vendors/view-vendor-sheet'
+import ViewPersonnelSheet from '@/components/pages/protected/personnel/view-personnel-sheet'
 
 export const FULL_PAGE_KINDS = new Set<string>([ObjectAssociationNodeEnum.CONTROL, ObjectAssociationNodeEnum.SUBCONTROL])
 
@@ -30,6 +31,7 @@ export const SHEET_KINDS = new Set<string>([
   ObjectAssociationNodeEnum.CONTROL_IMPLEMENTATION,
   ObjectAssociationNodeEnum.TASK,
   ObjectAssociationNodeEnum.ENTITY,
+  ObjectAssociationNodeEnum.IDENTITY_HOLDER,
 ])
 
 type SheetNavigationContextValue = {
@@ -71,6 +73,8 @@ const renderSheet = (activeSheet: ActiveSheet, onClose: () => void) => {
       return <TaskDetailsSheet entityId={id} onClose={onClose} />
     case ObjectAssociationNodeEnum.ENTITY:
       return <ViewVendorSheet entityId={id} onClose={onClose} />
+    case ObjectAssociationNodeEnum.IDENTITY_HOLDER:
+      return <ViewPersonnelSheet identityHolderId={id} onClose={onClose} />
     default:
       return null
   }

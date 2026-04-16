@@ -46,4 +46,5 @@ export enum ObjectAssociationNodeEnum {
   ASSET = 'assets',
   TASK = 'tasks',
   ENTITY = 'entities',
+  IDENTITY_HOLDER = 'identityHolders',
 }

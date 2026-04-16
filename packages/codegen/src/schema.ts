@@ -706,6 +706,7 @@ export enum ActionPlanDocumentStatus {
   ARCHIVED = 'ARCHIVED',
   DRAFT = 'DRAFT',
   NEEDS_APPROVAL = 'NEEDS_APPROVAL',
+  PENDING = 'PENDING',
   PUBLISHED = 'PUBLISHED',
 }
 
@@ -5545,6 +5546,7 @@ export enum ControlImplementationDocumentStatus {
   ARCHIVED = 'ARCHIVED',
   DRAFT = 'DRAFT',
   NEEDS_APPROVAL = 'NEEDS_APPROVAL',
+  PENDING = 'PENDING',
   PUBLISHED = 'PUBLISHED',
 }
 
@@ -8278,6 +8280,8 @@ export interface CreateEvidenceInput {
   programIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the date the evidence should be renewed, defaults to a year from entry date */
   renewalDate?: InputMaybe<Scalars['DateTime']['input']>
+  /** the cadence for reviewing the evidence */
+  reviewFrequency?: InputMaybe<EvidenceFrequency>
   scanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   scopeID?: InputMaybe<Scalars['ID']['input']>
   /** the scope of the evidence */
@@ -18051,6 +18055,8 @@ export interface Evidence extends Node {
   programs: ProgramConnection
   /** the date the evidence should be renewed, defaults to a year from entry date */
   renewalDate?: Maybe<Scalars['DateTime']['output']>
+  /** the cadence for reviewing the evidence */
+  reviewFrequency?: Maybe<EvidenceFrequency>
   scans: ScanConnection
   scope?: Maybe<CustomTypeEnum>
   /** the scope of the evidence */
@@ -18255,6 +18261,15 @@ export enum EvidenceEvidenceStatus {
   SUBMITTED = 'SUBMITTED',
 }
 
+/** EvidenceFrequency is enum for the field review_frequency */
+export enum EvidenceFrequency {
+  BIANNUALLY = 'BIANNUALLY',
+  MONTHLY = 'MONTHLY',
+  NONE = 'NONE',
+  QUARTERLY = 'QUARTERLY',
+  YEARLY = 'YEARLY',
+}
+
 /** Ordering options for Evidence connections */
 export interface EvidenceOrder {
   /** The ordering direction. */
@@ -18265,6 +18280,7 @@ export interface EvidenceOrder {
 
 /** Properties by which Evidence connections can be ordered. */
 export enum EvidenceOrderField {
+  REVIEW_FREQUENCY = 'REVIEW_FREQUENCY',
   STATUS = 'STATUS',
   created_at = 'created_at',
   creation_date = 'creation_date',
@@ -18517,6 +18533,13 @@ export interface EvidenceWhereInput {
   renewalDateNEQ?: InputMaybe<Scalars['DateTime']['input']>
   renewalDateNotIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
   renewalDateNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** review_frequency field predicates */
+  reviewFrequency?: InputMaybe<EvidenceFrequency>
+  reviewFrequencyIn?: InputMaybe<Array<EvidenceFrequency>>
+  reviewFrequencyIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  reviewFrequencyNEQ?: InputMaybe<EvidenceFrequency>
+  reviewFrequencyNotIn?: InputMaybe<Array<EvidenceFrequency>>
+  reviewFrequencyNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** scope_id field predicates */
   scopeID?: InputMaybe<Scalars['ID']['input']>
   scopeIDContains?: InputMaybe<Scalars['ID']['input']>
@@ -24789,6 +24812,7 @@ export enum InternalPolicyDocumentStatus {
   ARCHIVED = 'ARCHIVED',
   DRAFT = 'DRAFT',
   NEEDS_APPROVAL = 'NEEDS_APPROVAL',
+  PENDING = 'PENDING',
   PUBLISHED = 'PUBLISHED',
 }
 
@@ -37953,6 +37977,7 @@ export enum ProcedureDocumentStatus {
   ARCHIVED = 'ARCHIVED',
   DRAFT = 'DRAFT',
   NEEDS_APPROVAL = 'NEEDS_APPROVAL',
+  PENDING = 'PENDING',
   PUBLISHED = 'PUBLISHED',
 }
 
@@ -55038,6 +55063,7 @@ export interface UpdateEvidenceInput {
   clearPlatforms?: InputMaybe<Scalars['Boolean']['input']>
   clearPrograms?: InputMaybe<Scalars['Boolean']['input']>
   clearRenewalDate?: InputMaybe<Scalars['Boolean']['input']>
+  clearReviewFrequency?: InputMaybe<Scalars['Boolean']['input']>
   clearScans?: InputMaybe<Scalars['Boolean']['input']>
   clearScope?: InputMaybe<Scalars['Boolean']['input']>
   clearScopeName?: InputMaybe<Scalars['Boolean']['input']>
@@ -55078,6 +55104,8 @@ export interface UpdateEvidenceInput {
   removeWorkflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the date the evidence should be renewed, defaults to a year from entry date */
   renewalDate?: InputMaybe<Scalars['DateTime']['input']>
+  /** the cadence for reviewing the evidence */
+  reviewFrequency?: InputMaybe<EvidenceFrequency>
   scopeID?: InputMaybe<Scalars['ID']['input']>
   /** the scope of the evidence */
   scopeName?: InputMaybe<Scalars['String']['input']>
@@ -69649,7 +69677,7 @@ export type IdentityHoldersWithFilterQuery = {
       __typename?: 'IdentityHolderEdge'
       node?: {
         __typename?: 'IdentityHolder'
-        alternateEmail?: string | null
+        emailAliases?: Array<string> | null
         createdAt?: any | null
         createdBy?: string | null
         department?: string | null
@@ -69699,7 +69727,7 @@ export type IdentityHolderQuery = {
   __typename?: 'Query'
   identityHolder: {
     __typename?: 'IdentityHolder'
-    alternateEmail?: string | null
+    emailAliases?: Array<string> | null
     createdAt?: any | null
     createdBy?: string | null
     department?: string | null
@@ -69792,6 +69820,7 @@ export type GetIdentityHolderFilesPaginatedQueryVariables = Exact<{
   before?: InputMaybe<Scalars['Cursor']['input']>
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<FileOrder> | FileOrder>
+  where?: InputMaybe<FileWhereInput>
 }>
 
 export type GetIdentityHolderFilesPaginatedQuery = {
@@ -69804,7 +69833,17 @@ export type GetIdentityHolderFilesPaginatedQuery = {
       pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
       edges?: Array<{
         __typename?: 'FileEdge'
-        node?: { __typename?: 'File'; providedFileName: string; providedFileSize?: number | null; providedFileExtension: string; id: string; uri?: string | null; presignedURL?: string | null } | null
+        node?: {
+          __typename?: 'File'
+          providedFileName: string
+          providedFileSize?: number | null
+          providedFileExtension: string
+          categoryType?: string | null
+          createdAt?: any | null
+          id: string
+          uri?: string | null
+          presignedURL?: string | null
+        } | null
       } | null> | null
     }
   }
@@ -69829,6 +69868,32 @@ export type CreateIdentityHolderWithFilesMutationVariables = Exact<{
 export type CreateIdentityHolderWithFilesMutation = {
   __typename?: 'Mutation'
   createIdentityHolder: { __typename?: 'IdentityHolderCreatePayload'; identityHolder: { __typename?: 'IdentityHolder'; id: string } }
+}
+
+export type GetIdentityHolderDirectoryAccountsQueryVariables = Exact<{
+  identityHolderId: Scalars['ID']['input']
+}>
+
+export type GetIdentityHolderDirectoryAccountsQuery = {
+  __typename?: 'Query'
+  identityHolder: {
+    __typename?: 'IdentityHolder'
+    directoryAccounts: {
+      __typename?: 'DirectoryAccountConnection'
+      edges?: Array<{
+        __typename?: 'DirectoryAccountEdge'
+        node?: {
+          __typename?: 'DirectoryAccount'
+          id: string
+          accountType?: DirectoryAccountDirectoryAccountType | null
+          status: DirectoryAccountDirectoryAccountStatus
+          primarySource: boolean
+          mfaState: DirectoryAccountDirectoryAccountMfaState
+          integration?: { __typename?: 'Integration'; name: string } | null
+        } | null
+      } | null> | null
+    }
+  }
 }
 
 export type GetIdentityHolderAssociationsQueryVariables = Exact<{
@@ -69874,6 +69939,32 @@ export type GetIdentityHolderAssociationsQuery = {
       totalCount: number
       edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string; refCode: string; displayID: string } | null } | null> | null
     }
+  }
+}
+
+export type GetIdentityHolderAssociationsTimelineQueryVariables = Exact<{
+  identityHolderId: Scalars['ID']['input']
+}>
+
+export type GetIdentityHolderAssociationsTimelineQuery = {
+  __typename?: 'Query'
+  identityHolder: {
+    __typename?: 'IdentityHolder'
+    assessmentResponses: {
+      __typename?: 'AssessmentResponseConnection'
+      edges?: Array<{
+        __typename?: 'AssessmentResponseEdge'
+        node?: { __typename?: 'AssessmentResponse'; id: string; createdAt?: any | null; completedAt?: any | null; assessment: { __typename?: 'Assessment'; id: string; name: string } } | null
+      } | null> | null
+    }
+    directoryAccounts: {
+      __typename?: 'DirectoryAccountConnection'
+      edges?: Array<{
+        __typename?: 'DirectoryAccountEdge'
+        node?: { __typename?: 'DirectoryAccount'; id: string; createdAt?: any | null; directoryName?: string | null; displayName?: string | null; canonicalEmail?: string | null } | null
+      } | null> | null
+    }
+    user?: { __typename?: 'User'; id: string; createdAt?: any | null; displayName: string; email: string } | null
   }
 }
 
@@ -72923,8 +73014,8 @@ export type RiskFieldsFragment = {
   environmentName?: string | null
   scopeName?: string | null
   reviewRequired?: boolean | null
-  riskDecision?: RiskRiskDecision | null
   dueDate?: string | null
+  riskDecision?: RiskRiskDecision | null
   createdAt?: any | null
   stakeholder?: {
     __typename?: 'Group'
@@ -73012,8 +73103,8 @@ export type GetRiskByIdQuery = {
     environmentName?: string | null
     scopeName?: string | null
     reviewRequired?: boolean | null
-    riskDecision?: RiskRiskDecision | null
     dueDate?: string | null
+    riskDecision?: RiskRiskDecision | null
     createdAt?: any | null
     stakeholder?: {
       __typename?: 'Group'

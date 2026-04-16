@@ -6,6 +6,7 @@ import { Button } from '@repo/ui/button'
 import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification'
+import { getProviderHelperContent } from '@/lib/integrations/provider-helper-content'
 import { type IntegrationProvider } from '@/lib/integrations/types'
 import { resolveConnectionEntry, resolveCredentialEntry, resolveSchemaRoot } from '@/lib/integrations/utils'
 import { connectViaAuth, saveIntegrationConfiguration } from '@/lib/integrations/flow'
@@ -28,6 +29,7 @@ const IntegrationConfigurationDialog = ({ open, onOpenChange, provider, installa
   const activeCredentialEntry = useMemo(() => resolveCredentialEntry(provider, credentialRef), [provider, credentialRef])
 
   const activeCredentialRef = credentialRef ?? activeCredentialEntry?.ref
+  const providerHelper = getProviderHelperContent(provider)
 
   const credentialSchema = useMemo(() => resolveSchemaRoot(activeCredentialEntry?.schema), [activeCredentialEntry?.schema])
   const userInputSchema = useMemo(() => resolveSchemaRoot(provider?.userInputSchema), [provider?.userInputSchema])
@@ -139,6 +141,7 @@ const IntegrationConfigurationDialog = ({ open, onOpenChange, provider, installa
         <FormProvider {...formMethods}>
           <form onSubmit={handleSubmit(onSubmit)} className="flex flex-1 flex-col overflow-hidden">
             <div className="flex-1 space-y-6 overflow-y-auto px-6 py-5">
+              {providerHelper}
               {sections.length === 0 ? <p className="text-sm text-muted-foreground">No additional input is required for this integration.</p> : null}
               <IntegrationSchemaSections sections={sections} />
             </div>

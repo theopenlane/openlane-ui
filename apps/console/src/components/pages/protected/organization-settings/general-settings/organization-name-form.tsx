@@ -46,7 +46,7 @@ const OrganizationNameForm = () => {
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
-      { label: 'Organization Settings', href: '/organization-settings' },
+      { label: 'Organization Settings', href: '/organization-settings/general-settings' },
       { label: 'General Settings', href: '/organization-settings/general-settings' },
     ])
   }, [setCrumbs])

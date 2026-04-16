@@ -10,7 +10,7 @@ const SubscribersPage: React.FC = () => {
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
-      { label: 'Organization Settings', href: '/organization-settings' },
+      { label: 'Organization Settings', href: '/organization-settings/general-settings' },
       { label: 'Subscribers', href: '/subscribers' },
     ])
   }, [setCrumbs])

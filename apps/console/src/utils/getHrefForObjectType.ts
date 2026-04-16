@@ -32,7 +32,7 @@ const SIMPLE_ROUTES: Record<string, (id: string) => string> = {
   evidences: (id) => `/evidence?id=${id}`,
   assets: (id) => `/registry/assets?id=${id}`,
   entities: (id) => `/registry/vendors?id=${id}`,
-  identityHolders: (id) => `/registry/personnel?id=${id}`,
+  identityHolders: (id) => `/registry/personnel/${id}`,
   scans: (id) => `/exposure/scans?id=${id}`,
   campaigns: (id) => `/automation/campaigns?id=${id}`,
   findings: (id) => `/exposure/findings?id=${id}`,

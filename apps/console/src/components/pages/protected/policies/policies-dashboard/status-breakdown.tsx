@@ -2,7 +2,7 @@
 
 import React, { useMemo, useState } from 'react'
 import { DonutChart } from '@repo/ui/donut-chart'
-import { FileCheck2, FilePen, ScanEye, Stamp } from 'lucide-react'
+import { FileCheck2, FilePen, ScanEye, Stamp, Wrench } from 'lucide-react'
 import { wherePoliciesDashboard } from './dashboard-config'
 import { useInternalPoliciesDashboard } from '@/lib/graphql-hooks/internal-policy'
 import { InternalPolicyDocumentStatus } from '@repo/codegen/src/schema'
@@ -32,6 +32,7 @@ export default function StatusBreakdown({ onStatusClick }: Props) {
       [InternalPolicyDocumentStatus.NEEDS_APPROVAL]: 0,
       [InternalPolicyDocumentStatus.APPROVED]: 0,
       [InternalPolicyDocumentStatus.ARCHIVED]: 0,
+      [InternalPolicyDocumentStatus.PENDING]: 0,
     }
 
     for (const p of policies) {
@@ -47,6 +48,7 @@ export default function StatusBreakdown({ onStatusClick }: Props) {
       NEEDS_APPROVAL: [],
       APPROVED: [],
       ARCHIVED: [],
+      PENDING: [],
     }
 
     for (const p of policies) {
@@ -61,6 +63,7 @@ export default function StatusBreakdown({ onStatusClick }: Props) {
     { name: 'Draft', value: statusCounts[InternalPolicyDocumentStatus.DRAFT] },
     { name: 'Review', value: statusCounts[InternalPolicyDocumentStatus.NEEDS_APPROVAL] },
     { name: 'Approved', value: statusCounts[InternalPolicyDocumentStatus.APPROVED] },
+    { name: 'Pending', value: statusCounts[InternalPolicyDocumentStatus.PENDING] },
   ]
 
   const donutChartColors = ['#107565', '#EAB308', '#017BFE', '#4ADE80']
@@ -70,6 +73,7 @@ export default function StatusBreakdown({ onStatusClick }: Props) {
     { label: 'Draft', key: InternalPolicyDocumentStatus.DRAFT, color: '#EAB308', icon: FilePen },
     { label: 'Review', key: InternalPolicyDocumentStatus.NEEDS_APPROVAL, color: '#017BFE', icon: ScanEye },
     { label: 'Approved', key: InternalPolicyDocumentStatus.APPROVED, color: '#4ADE80', icon: Stamp },
+    { label: 'Pending', key: InternalPolicyDocumentStatus.PENDING, color: '#f2fa15', icon: Wrench },
   ]
 
   function handleStatusClick(status: InternalPolicyDocumentStatus) {
