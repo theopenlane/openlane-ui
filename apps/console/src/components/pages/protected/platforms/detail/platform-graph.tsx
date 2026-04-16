@@ -5,7 +5,6 @@ import ForceGraph, { type ForceGraphMethods, type NodeObject } from 'react-force
 import { useTheme } from 'next-themes'
 import { Maximize2, Minimize2 } from 'lucide-react'
 import ReactDOM from 'react-dom'
-
 import { type Asset, type Entity } from '@repo/codegen/src/schema'
 
 type AssetNode = Pick<Asset, 'id' | 'name' | 'assetType'>
@@ -123,6 +122,7 @@ const PlatformGraph: React.FC<PlatformGraphProps> = ({ platform, inScopeAssets, 
     if (!container) return
     const update = () => {
       const { width, height } = container.getBoundingClientRect()
+      // eslint-disable-next-line @eslint-react/set-state-in-effect
       if (width > 0 && height > 0) setDimensions({ width, height })
     }
     update()
@@ -288,7 +288,7 @@ const PlatformGraph: React.FC<PlatformGraphProps> = ({ platform, inScopeAssets, 
 
       {fullscreen &&
         ReactDOM.createPortal(
-          <div className="fixed inset-0 z-[10000] flex flex-col bg-background">
+          <div className="fixed inset-0 z-10000 flex flex-col bg-background">
             <div className="flex items-center justify-between px-4 py-3 border-b">
               <span className="text-sm font-medium">{platform.name} — Graph</span>
               <button onClick={() => setFullscreen(false)} className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-muted transition-colors">
