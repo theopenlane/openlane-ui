@@ -92,7 +92,7 @@ const PersonnelDetailTabs: React.FC<PersonnelDetailTabsProps> = ({ personnel, is
       </TabsContent>
 
       <TabsContent value="assessments" className="space-y-6">
-        <AssessmentsTab personnelId={personnel.id} />
+        <AssessmentsTab personnelId={personnel.id} personnelEmail={personnel.email} />
       </TabsContent>
 
       <TabsContent value="history" className="space-y-6">
