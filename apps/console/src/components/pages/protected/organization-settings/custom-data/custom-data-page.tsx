@@ -15,7 +15,11 @@ const CustomDataPage = () => {
   const activeTab = searchParams.get('tab') || 'tags'
 
   useEffect(() => {
-    setCrumbs([{ label: 'Home', href: '/dashboard' }, { label: 'Organization Settings' }, { label: 'Custom Tags', href: '/organization-settings/custom-data' }])
+    setCrumbs([
+      { label: 'Home', href: '/dashboard' },
+      { label: 'Organization Settings', href: '/organization-settings/general-settings' },
+      { label: 'Custom Tags', href: '/organization-settings/custom-data' },
+    ])
   }, [setCrumbs])
 
   const handleTabChange = (value: string) => {

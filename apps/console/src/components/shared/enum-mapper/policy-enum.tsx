@@ -1,4 +1,4 @@
-import { Archive, CalendarClock, CircleDot, FileCheck2, FilePen, GitFork, Link, MessageCircle, ScanEye, Settings2, ShieldCheck, Stamp, Tag, UsersRound, type LucideIcon } from 'lucide-react'
+import { Archive, CalendarClock, CircleDot, FileCheck2, FilePen, GitFork, Link, MessageCircle, ScanEye, Settings2, ShieldCheck, Stamp, Tag, UsersRound, Wrench, type LucideIcon } from 'lucide-react'
 import { InternalPolicyDocumentStatus, ProcedureDocumentStatus } from '@repo/codegen/src/schema.ts'
 import { Badge } from '@repo/ui/badge'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
@@ -9,6 +9,7 @@ export const DocumentIconMapper: Record<InternalPolicyDocumentStatus | Procedure
   [InternalPolicyDocumentStatus.NEEDS_APPROVAL]: <ScanEye height={16} width={16} className="text-needs-approval" />,
   [InternalPolicyDocumentStatus.PUBLISHED]: <FileCheck2 height={16} width={16} className="text-published" />,
   [InternalPolicyDocumentStatus.ARCHIVED]: <Archive height={16} width={16} className="text-archived" />,
+  [InternalPolicyDocumentStatus.PENDING]: <Wrench height={16} width={16} className="text-pending" />,
 }
 
 const DocumentStatusColorMapper: Record<InternalPolicyDocumentStatus | ProcedureDocumentStatus, string> = {
@@ -17,6 +18,7 @@ const DocumentStatusColorMapper: Record<InternalPolicyDocumentStatus | Procedure
   [InternalPolicyDocumentStatus.NEEDS_APPROVAL]: 'text-document-needs-approval bg-document-needs-approval-muted border-document-needs-approval-border',
   [InternalPolicyDocumentStatus.PUBLISHED]: 'text-document-published bg-document-published-muted border-document-published-border',
   [InternalPolicyDocumentStatus.ARCHIVED]: 'text-document-archived bg-document-archived-muted border-document-archived-border',
+  [InternalPolicyDocumentStatus.PENDING]: 'text-document-pending bg-document-pending-muted border-document-pending-border',
 }
 
 export function DocumentStatusBadge({ status }: { status: InternalPolicyDocumentStatus | ProcedureDocumentStatus }) {
@@ -33,6 +35,7 @@ export const DocumentStatusTooltips: Record<InternalPolicyDocumentStatus | Proce
   [InternalPolicyDocumentStatus.NEEDS_APPROVAL]: 'The document needs approval from the approver group.',
   [InternalPolicyDocumentStatus.PUBLISHED]: 'The document has been published and the active version used within the organization.',
   [InternalPolicyDocumentStatus.ARCHIVED]: 'The document has been archived and is no longer available.',
+  [InternalPolicyDocumentStatus.PENDING]: 'The document is pending updates and will require approval afterwards.',
 }
 
 export enum PoliciesProceduresFilterIconName {

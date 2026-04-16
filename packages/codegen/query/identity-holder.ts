@@ -6,7 +6,7 @@ export const GET_ALL_IDENTITY_HOLDERS = gql`
       totalCount
       edges {
         node {
-          alternateEmail
+          emailAliases
           createdAt
           createdBy
           department
@@ -63,7 +63,7 @@ export const GET_ALL_IDENTITY_HOLDERS = gql`
 export const IDENTITY_HOLDER = gql`
   query IdentityHolder($identityHolderId: ID!) {
     identityHolder(id: $identityHolderId) {
-      alternateEmail
+      emailAliases
       createdAt
       createdBy
       department
@@ -164,9 +164,9 @@ export const BULK_EDIT_IDENTITY_HOLDER = gql`
 `
 
 export const GET_IDENTITY_HOLDER_FILES_PAGINATED = gql`
-  query GetIdentityHolderFilesPaginated($identityHolderId: ID!, $after: Cursor, $first: Int, $before: Cursor, $last: Int, $orderBy: [FileOrder!]) {
+  query GetIdentityHolderFilesPaginated($identityHolderId: ID!, $after: Cursor, $first: Int, $before: Cursor, $last: Int, $orderBy: [FileOrder!], $where: FileWhereInput) {
     identityHolder(id: $identityHolderId) {
-      files(after: $after, first: $first, before: $before, last: $last, orderBy: $orderBy) {
+      files(after: $after, first: $first, before: $before, last: $last, orderBy: $orderBy, where: $where) {
         pageInfo {
           endCursor
           hasNextPage
@@ -179,6 +179,8 @@ export const GET_IDENTITY_HOLDER_FILES_PAGINATED = gql`
             providedFileName
             providedFileSize
             providedFileExtension
+            categoryType
+            createdAt
             id
             uri
             presignedURL
@@ -204,6 +206,27 @@ export const CREATE_IDENTITY_HOLDER_WITH_FILES = gql`
     createIdentityHolder(input: $input, identityHolderFiles: $identityHolderFiles) {
       identityHolder {
         id
+      }
+    }
+  }
+`
+
+export const GET_IDENTITY_HOLDER_DIRECTORY_ACCOUNTS = gql`
+  query GetIdentityHolderDirectoryAccounts($identityHolderId: ID!) {
+    identityHolder(id: $identityHolderId) {
+      directoryAccounts {
+        edges {
+          node {
+            id
+            accountType
+            status
+            primarySource
+            mfaState
+            integration {
+              name
+            }
+          }
+        }
       }
     }
   }
@@ -283,6 +306,43 @@ export const GET_IDENTITY_HOLDER_ASSOCIATIONS = gql`
           }
         }
         totalCount
+      }
+    }
+  }
+`
+
+export const GET_IDENTITY_HOLDER_ASSOCIATIONS_TIMELINE = gql`
+  query GetIdentityHolderAssociationsTimeline($identityHolderId: ID!) {
+    identityHolder(id: $identityHolderId) {
+      assessmentResponses {
+        edges {
+          node {
+            id
+            createdAt
+            completedAt
+            assessment {
+              id
+              name
+            }
+          }
+        }
+      }
+      directoryAccounts {
+        edges {
+          node {
+            id
+            createdAt
+            directoryName
+            displayName
+            canonicalEmail
+          }
+        }
+      }
+      user {
+        id
+        createdAt
+        displayName
+        email
       }
     }
   }
