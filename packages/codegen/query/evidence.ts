@@ -68,6 +68,7 @@ const EVIDENCE_FIELDS = gql`
     id
     name
     renewalDate
+    reviewFrequency
     externalUUID
     scopeName
     environmentName
@@ -184,6 +185,7 @@ export const GET_RENEW_EVIDENCE = gql`
       id
       name
       renewalDate
+      reviewFrequency
       externalUUID
       scopeName
       environmentName

@@ -2,7 +2,7 @@
 import { z } from 'zod'
 import { useForm, type UseFormReturn } from 'react-hook-form'
 import { addDays } from 'date-fns'
-import { EvidenceEvidenceStatus } from '@repo/codegen/src/schema.ts'
+import { EvidenceEvidenceStatus, EvidenceFrequency } from '@repo/codegen/src/schema.ts'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { type Value } from 'platejs'
 import type { TUploadedFile } from '../upload/types/TUploadedFile'
@@ -37,6 +37,7 @@ const commonFields = {
   procedureIDs: z.array(z.string()).optional().nullable(),
   riskIDs: z.array(z.string()).optional().nullable(),
   status: z.nativeEnum(EvidenceEvidenceStatus).optional() as z.ZodType<EvidenceEvidenceStatus | null | undefined>,
+  reviewFrequency: z.nativeEnum(EvidenceFrequency).optional() as z.ZodType<EvidenceFrequency | null | undefined>,
   externalUUID: z.string().optional().nullable(),
   scopeName: z.string().optional().nullable(),
   environmentName: z.string().optional().nullable(),
@@ -73,7 +74,7 @@ const useFormSchema = (isEditScreen?: boolean) => {
         externalUUID: '',
         scopeName: '',
         environmentName: '',
-        ...(isEditScreen ? {} : { renewalDate: addDays(new Date(), 365) }),
+        ...(isEditScreen ? {} : { renewalDate: addDays(new Date(), 365), reviewFrequency: EvidenceFrequency.YEARLY }),
       },
     }),
   }
