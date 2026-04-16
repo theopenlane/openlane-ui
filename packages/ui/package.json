@@ -166,7 +166,7 @@
     "cmdk": "^1.1.1",
     "country-data-list": "^1.5.5",
     "date-fns": "^4.1.0",
-    "dedent": "1.0.0",
+    "dedent": "1.7.2",
     "emblor": "^1.4.7",
     "html2canvas": "^1.4.1",
     "html2canvas-pro": "^1.5.11",
