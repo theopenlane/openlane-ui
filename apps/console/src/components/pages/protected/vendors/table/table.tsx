@@ -5,7 +5,6 @@ import React, { useEffect, useMemo } from 'react'
 import { type EntityWhereInput, type Entity, type EntityOrderField } from '@repo/codegen/src/schema'
 import { type EntitiesNodeNonNull, useVendorsWithFilter } from '@/lib/graphql-hooks/entity'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
-import { useSmartRouter } from '@/hooks/useSmartRouter'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { useNotification } from '@/hooks/useNotification'
 import { VENDORS_SORT_FIELDS } from './table-config'
@@ -28,11 +27,7 @@ const TableComponent = ({
   canEdit,
   permission,
   defaultSorting,
-  onRowClick,
-  rowHref,
 }: TTableProps<EntityWhereInput>) => {
-  const { replace } = useSmartRouter()
-
   const orderBy = useMemo(() => {
     if (!orderByFilter) return undefined
     return orderByFilter.map(({ field, direction }) => ({
@@ -118,14 +113,7 @@ const TableComponent = ({
       data={items}
       loading={fetching || fetchingUsers}
       defaultSorting={defaultSorting}
-      onRowClick={(item) => {
-        if (onRowClick) {
-          onRowClick(item)
-        } else {
-          replace({ id: item.id })
-        }
-      }}
-      rowHref={rowHref}
+      rowHref={(row) => `/registry/vendors/${row.id}`}
       pagination={pagination}
       onPaginationChange={onPaginationChange}
       paginationMeta={{
