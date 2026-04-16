@@ -146,7 +146,7 @@ export const ObjectAssociationMap = {
     label: 'Action Plans',
     color: '--color-actionPlans',
     svg: `
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-list-check h-5 w-5 text-brand-950" aria-hidden="true"><path d="M11 18H3"/><path d="m15 18 2 2 4-4"/><path d="M16 12H3"/><path d="M16 6H3"/></svg>
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chart-no-axes-gantt-icon lucide-chart-no-axes-gantt h-5 w-5 text-brand-950" aria-hidden="true"><path d="M6 5h12"/><path d="M4 12h10"/><path d="M12 19h8"/></svg>
     `,
   },
 } as const
