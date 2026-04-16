@@ -1,5 +1,6 @@
 import { z } from 'zod'
-import { type Group } from '@repo/codegen/src/schema'
+import { EvidenceFrequency, type Group } from '@repo/codegen/src/schema'
+import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { type Option } from '@repo/ui/multiple-selector'
 import { InternalPolicyStatusOptions, ProcedureStatusOptions } from '@/components/shared/enum-mapper/policy-enum'
 import { ControlStatusOptions } from '@/components/shared/enum-mapper/control-enum'
@@ -109,6 +110,7 @@ export enum SelectOptionBulkEditEvidence {
   Status = 'Status',
   Tags = 'Tags',
   Source = 'Source',
+  RenewalFrequency = 'Renewal Frequency',
 }
 
 export enum SelectOptionBulkEditAssets {
@@ -502,6 +504,13 @@ export const getAllSelectOptionsForBulkEditEvidence = (): SelectOptionSelectedOb
       name: 'source',
       inputType: InputType.Input,
       placeholder: 'Input source',
+    },
+    {
+      selectOptionEnum: SelectOptionBulkEditEvidence.RenewalFrequency,
+      name: 'reviewFrequency',
+      placeholder: 'Select renewal frequency',
+      inputType: InputType.Select,
+      options: Object.values(EvidenceFrequency).map((v) => ({ label: getEnumLabel(v), value: v })),
     },
     {
       selectOptionEnum: SelectOptionBulkEditEvidence.Tags,

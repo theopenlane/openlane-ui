@@ -17,6 +17,7 @@ import {
   Link,
   Maximize2,
   Radio,
+  RefreshCw,
   Tag,
   Trash2,
   UserRoundCheck,
@@ -38,7 +39,7 @@ import { useControlEvidenceStore } from '@/components/pages/protected/controls/h
 import { useDeleteEvidence, useGetEvidenceById, useUpdateEvidence } from '@/lib/graphql-hooks/evidence.ts'
 import { formatDate } from '@/utils/date.ts'
 import { Avatar } from '@/components/shared/avatar/avatar.tsx'
-import { type Control, EvidenceEvidenceStatus, type Subcontrol } from '@repo/codegen/src/schema.ts'
+import { type Control, EvidenceEvidenceStatus, EvidenceFrequency, type Subcontrol } from '@repo/codegen/src/schema.ts'
 import useFormSchema, { type EditEvidenceFormData } from '@/components/pages/protected/evidence/hooks/use-form-schema.ts'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { Controller } from 'react-hook-form'
@@ -94,7 +95,20 @@ type TEvidenceDetailsSheet = {
   controlId?: string
 }
 
-type EditableFields = 'name' | 'description' | 'collectionProcedure' | 'source' | 'url' | 'status' | 'creationDate' | 'renewalDate' | 'tags' | 'externalUUID' | 'scopeName' | 'environmentName'
+type EditableFields =
+  | 'name'
+  | 'description'
+  | 'collectionProcedure'
+  | 'source'
+  | 'url'
+  | 'status'
+  | 'reviewFrequency'
+  | 'creationDate'
+  | 'renewalDate'
+  | 'tags'
+  | 'externalUUID'
+  | 'scopeName'
+  | 'environmentName'
 
 const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) => {
   const { convertToHtml, convertToReadOnly } = usePlateEditor()
@@ -255,6 +269,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
         renewalDate: evidence.renewalDate ? new Date(evidence.renewalDate) : null,
         creationDate: evidence.creationDate ? new Date(evidence.creationDate) : null,
         status: evidence?.status ? Object.values(EvidenceEvidenceStatus).find((type) => type === evidence?.status) : undefined,
+        reviewFrequency: evidence?.reviewFrequency ?? undefined,
         tags: evidence?.tags ?? [],
         collectionProcedure: evidence?.collectionProcedure || '',
         source: evidence?.source ?? '',
@@ -473,7 +488,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
     },
     {
       refs: { triggerRef, popoverRef },
-      enabled: !!editField && ['tags', 'renewalDate', 'creationDate', 'status'].includes(editField),
+      enabled: !!editField && ['tags', 'renewalDate', 'creationDate', 'status', 'reviewFrequency'].includes(editField),
     },
   )
 
@@ -880,6 +895,54 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                           </div>
                         </div>
 
+                        {/* Renewal Frequency */}
+                        <div className="flex justify-between items-center mb-2">
+                          <div className="flex items-center gap-2 text-sm w-45">
+                            <RefreshCw size={16} className="text-accent-secondary" />
+                            Renewal Frequency
+                          </div>
+                          <div ref={triggerRef} className="text-sm text-right w-62.5">
+                            {isEditing || editField === 'reviewFrequency' ? (
+                              <Controller
+                                name="reviewFrequency"
+                                control={form.control}
+                                render={({ field }) => (
+                                  <>
+                                    <Select
+                                      value={field.value ?? undefined}
+                                      onValueChange={(value) => {
+                                        field.onChange(value as EvidenceFrequency)
+                                        handleUpdateField()
+                                      }}
+                                    >
+                                      <SelectTrigger className="w-62.5">{getEnumLabel(field.value as EvidenceFrequency) || 'Select'}</SelectTrigger>
+                                      <SelectContent ref={popoverRef}>
+                                        {Object.values(EvidenceFrequency).map((frequency) => (
+                                          <SelectItem key={frequency} value={frequency}>
+                                            {getEnumLabel(frequency)}
+                                          </SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                    {form.formState.errors.reviewFrequency && <p className="text-red-500 text-sm">{form.formState.errors.reviewFrequency.message}</p>}
+                                  </>
+                                )}
+                              />
+                            ) : (
+                              <HoverPencilWrapper
+                                pencilClass="!-right-5"
+                                showPencil={editAllowed}
+                                className={`space-x-2 w-62.5 ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+                                onPencilClick={() => editAllowed && handleDoubleClick('reviewFrequency')}
+                              >
+                                <div className="flex justify-end items-center gap-2" onDoubleClick={() => editAllowed && handleDoubleClick('reviewFrequency')}>
+                                  <p>{evidence?.reviewFrequency ? getEnumLabel(evidence.reviewFrequency) : <span className="text-gray-500">no frequency set</span>}</p>
+                                </div>
+                              </HoverPencilWrapper>
+                            )}
+                          </div>
+                        </div>
+
                         {/* Scope */}
                         <div className="flex justify-between items-center mb-2">
                           <div className="flex items-center gap-2 text-sm w-45">
@@ -1271,6 +1334,7 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
               renewalDate: evidence?.renewalDate ? new Date(evidence.renewalDate) : null,
               creationDate: evidence?.creationDate ? new Date(evidence.creationDate) : null,
               status: evidence?.status ?? undefined,
+              reviewFrequency: evidence?.reviewFrequency ?? undefined,
               tags: evidence?.tags ?? [],
               collectionProcedure: evidence?.collectionProcedure ?? '',
               source: evidence?.source ?? '',
