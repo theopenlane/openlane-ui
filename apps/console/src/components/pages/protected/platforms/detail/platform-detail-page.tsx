@@ -15,6 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@repo/ui/cardpanel'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { Form } from '@repo/ui/form'
+import { Switch } from '@repo/ui/switch'
 import { Trash2, PencilIcon, NetworkIcon, Laptop, Building2, User, Users, Copy, Check, SquarePlus } from 'lucide-react'
 import Menu from '@/components/shared/menu/menu'
 import SlideBarLayout from '@/components/shared/slide-bar/slide-bar'
@@ -71,6 +72,7 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId, onC
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [copiedEmail, setCopiedEmail] = useState<string | null>(null)
+  const [hideOutOfScope, setHideOutOfScope] = useState(true)
 
   const platform = data?.platform as Platform | undefined
   const canEditPlatform = canEdit(permission?.roles)
@@ -360,13 +362,29 @@ const PlatformDetailPage: React.FC<PlatformDetailPageProps> = ({ platformId, onC
 
       <Card>
         <CardHeader className="pb-3 p-0">
-          <CardTitle className="text-sm font-medium flex items-center gap-1.5">
-            <NetworkIcon size={14} />
-            Graph
-          </CardTitle>
+          <div className="flex items-center justify-between mr-2">
+            <CardTitle className="text-sm font-medium flex items-center gap-1.5">
+              <NetworkIcon size={14} />
+              Graph
+            </CardTitle>
+            {(outOfScopeAssets.length > 0 || outOfScopeVendors.length > 0) && (
+              <div className="flex items-center gap-1.5">
+                <label htmlFor="scope-toggle" className="text-xs text-muted-foreground cursor-pointer select-none whitespace-nowrap">
+                  In-scope only
+                </label>
+                <Switch id="scope-toggle" checked={hideOutOfScope} onCheckedChange={setHideOutOfScope} className="scale-75" />
+              </div>
+            )}
+          </div>
         </CardHeader>
         <CardContent className="p-0">
-          <PlatformGraph platform={platform} inScopeAssets={inScopeAssets} outOfScopeAssets={outOfScopeAssets} inScopeVendors={inScopeVendors} outOfScopeVendors={outOfScopeVendors} />
+          <PlatformGraph
+            platform={platform}
+            inScopeAssets={inScopeAssets}
+            outOfScopeAssets={hideOutOfScope ? [] : outOfScopeAssets}
+            inScopeVendors={inScopeVendors}
+            outOfScopeVendors={hideOutOfScope ? [] : outOfScopeVendors}
+          />
         </CardContent>
       </Card>
     </div>
