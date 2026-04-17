@@ -3,16 +3,15 @@ import { DirectoryMembershipDirectoryMembershipRole } from '@repo/codegen/src/sc
 export type GroupedMembership = {
   id: string
   groupName: string
+  role: string
   addedAt: string | null
   removedAt: string | null
 }
 
-export type MembershipRoleBucket = {
+export type MembershipList = {
   items: GroupedMembership[]
   totalCount: number
 }
-
-export type MembershipsByRole = Record<DirectoryMembershipDirectoryMembershipRole, MembershipRoleBucket>
 
 type MembershipEdgeNode = {
   id: string
@@ -35,8 +34,6 @@ type RoleConnections = {
   member?: MembershipConnection | null
 }
 
-const emptyBucket = (): MembershipRoleBucket => ({ items: [], totalCount: 0 })
-
 const compareMemberships = (a: GroupedMembership, b: GroupedMembership): number => {
   const aActive = a.removedAt === null
   const bActive = b.removedAt === null
@@ -48,36 +45,28 @@ const compareMemberships = (a: GroupedMembership, b: GroupedMembership): number 
   return b.groupName.localeCompare(a.groupName)
 }
 
-const connectionToBucket = (connection: MembershipConnection | null | undefined): MembershipRoleBucket => {
-  if (!connection) return emptyBucket()
-  const items: GroupedMembership[] = []
+const pushConnectionItems = (target: GroupedMembership[], connection: MembershipConnection | null | undefined, role: string): number => {
+  if (!connection) return 0
   for (const edge of connection.edges ?? []) {
     const node = edge?.node
     if (!node) continue
-    items.push({
+    target.push({
       id: node.id,
       groupName: node.directoryGroup?.displayName ?? '—',
+      role,
       addedAt: node.addedAt ?? node.createdAt ?? null,
       removedAt: node.removedAt ?? null,
     })
   }
-  items.sort(compareMemberships)
-  return { items, totalCount: connection.totalCount }
+  return connection.totalCount
 }
 
-export const buildMembershipsByRole = (connections: RoleConnections): MembershipsByRole => ({
-  [DirectoryMembershipDirectoryMembershipRole.OWNER]: connectionToBucket(connections.owner),
-  [DirectoryMembershipDirectoryMembershipRole.MANAGER]: connectionToBucket(connections.manager),
-  [DirectoryMembershipDirectoryMembershipRole.MEMBER]: connectionToBucket(connections.member),
-})
-
-export const totalMembershipCount = (memberships: MembershipsByRole): number =>
-  memberships[DirectoryMembershipDirectoryMembershipRole.OWNER].totalCount +
-  memberships[DirectoryMembershipDirectoryMembershipRole.MANAGER].totalCount +
-  memberships[DirectoryMembershipDirectoryMembershipRole.MEMBER].totalCount
-
-export const ROLE_ORDER: ReadonlyArray<{ key: DirectoryMembershipDirectoryMembershipRole; label: string }> = [
-  { key: DirectoryMembershipDirectoryMembershipRole.OWNER, label: 'Owners' },
-  { key: DirectoryMembershipDirectoryMembershipRole.MANAGER, label: 'Managers' },
-  { key: DirectoryMembershipDirectoryMembershipRole.MEMBER, label: 'Members' },
-]
+export const buildMembershipList = (connections: RoleConnections): MembershipList => {
+  const items: GroupedMembership[] = []
+  let totalCount = 0
+  totalCount += pushConnectionItems(items, connections.owner, DirectoryMembershipDirectoryMembershipRole.OWNER)
+  totalCount += pushConnectionItems(items, connections.manager, DirectoryMembershipDirectoryMembershipRole.MANAGER)
+  totalCount += pushConnectionItems(items, connections.member, DirectoryMembershipDirectoryMembershipRole.MEMBER)
+  items.sort(compareMemberships)
+  return { items, totalCount }
+}

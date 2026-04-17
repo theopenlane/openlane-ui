@@ -13,8 +13,8 @@ import ColumnVisibilityMenu, { getInitialVisibility } from '@/components/shared/
 import { getMappedColumns } from '@/components/shared/crud-base/columns/get-mapped-columns'
 import { Badge } from '@repo/ui/badge'
 import { Check, ChevronDown, ChevronRight, X } from 'lucide-react'
-import { buildMembershipsByRole, totalMembershipCount, type MembershipsByRole } from '@/lib/directory-memberships/group-memberships'
-import { MembershipRoleSections } from '@/components/shared/directory-memberships/membership-role-section'
+import { buildMembershipList, type MembershipList } from '@/lib/directory-memberships/group-memberships'
+import { MembershipList as MembershipListTable } from '@/components/shared/directory-memberships/membership-list'
 
 interface LinkedAccountsTabProps {
   personnelId: string
@@ -27,8 +27,7 @@ type DirectoryAccountRow = {
   status: string
   mfaState: string
   primarySource: boolean
-  memberships: MembershipsByRole
-  membershipCount: number
+  memberships: MembershipList
 }
 
 const getMfaBadge = (mfaState: string) => {
@@ -62,16 +61,17 @@ const getStatusBadge = (status: string) => {
 }
 
 const renderExpandedRow = (row: Row<DirectoryAccountRow>) => {
-  if (row.original.membershipCount === 0) {
+  const total = row.original.memberships.totalCount
+  if (total === 0) {
     return <div className="border-t border-border px-6 py-5 text-sm italic text-muted-foreground">No group memberships.</div>
   }
   return (
-    <div className="border-t border-border px-6 py-5 ">
+    <div className="border-t border-border px-6 py-5">
       <div className="mb-4 flex items-baseline gap-2">
         <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Access</h3>
-        <span className="text-xs text-muted-foreground">({row.original.membershipCount} total)</span>
+        <span className="text-xs text-muted-foreground">({total} total)</span>
       </div>
-      <MembershipRoleSections memberships={row.original.memberships} />
+      <MembershipListTable memberships={row.original.memberships} />
     </div>
   )
 }
@@ -148,7 +148,7 @@ const columns: ColumnDef<DirectoryAccountRow>[] = [
     header: 'Access',
     size: 100,
     cell: ({ row }) => {
-      const count = row.original.membershipCount
+      const count = row.original.memberships.totalCount
       if (count === 0) return <span className="text-muted-foreground">—</span>
       return <Badge variant="outline">{count}</Badge>
     },
@@ -181,23 +181,19 @@ const LinkedAccountsTab: React.FC<LinkedAccountsTabProps> = ({ personnelId }) =>
 
   const rows: DirectoryAccountRow[] = useMemo(
     () =>
-      directoryAccounts.map((account) => {
-        const memberships = buildMembershipsByRole({
+      directoryAccounts.map((account) => ({
+        id: account.id,
+        directory: account.integration?.name ?? '-',
+        accountType: account.accountType ?? '',
+        status: account.status,
+        mfaState: account.mfaState,
+        primarySource: account.primarySource,
+        memberships: buildMembershipList({
           owner: account.ownerMemberships,
           manager: account.managerMemberships,
           member: account.memberMemberships,
-        })
-        return {
-          id: account.id,
-          directory: account.integration?.name ?? '-',
-          accountType: account.accountType ?? '',
-          status: account.status,
-          mfaState: account.mfaState,
-          primarySource: account.primarySource,
-          memberships,
-          membershipCount: totalMembershipCount(memberships),
-        }
-      }),
+        }),
+      })),
     [directoryAccounts],
   )
 
