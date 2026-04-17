@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useRef, useMemo, useState, useCallback } from 'react'
+import React, { useEffect, useRef, useMemo, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@repo/ui/button'
 import {
@@ -100,7 +100,6 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
   const { convertToHtml, convertToReadOnly } = usePlateEditor()
   const objectAssociationRef = React.useRef<HTMLDivElement | null>(null)
   const [isEditing, setIsEditing] = useState(false)
-  const [tagValues, setTagValues] = useState<Option[]>([])
 
   const queryClient = useQueryClient()
   const [deleteDialogIsOpen, setDeleteDialogIsOpen] = useState(false)
@@ -236,16 +235,18 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
 
   const hasAssociatedObjects = Object.keys(associatedObjectSections).length > 0
 
-  useEffect(() => {
+  // Render-time state adjustment: sync derived data to state when evidence changes
+  const [prevAssocData, setPrevAssocData] = useState(initialAssociationsControlsAndPrograms)
+  if (initialAssociationsControlsAndPrograms !== prevAssocData) {
+    setPrevAssocData(initialAssociationsControlsAndPrograms)
     if (initialAssociationsControlsAndPrograms.controls) {
-      // eslint-disable-next-line @eslint-react/set-state-in-effect
       setEvidenceControls(initialAssociationsControlsAndPrograms.controls)
     }
     if (initialAssociationsControlsAndPrograms.subcontrols) {
-      // eslint-disable-next-line @eslint-react/set-state-in-effect
       setEvidenceSubcontrols(initialAssociationsControlsAndPrograms.subcontrols)
     }
-  }, [initialAssociationsControlsAndPrograms])
+    setAssociationProgramsRefMap(initialAssociationsControlsAndPrograms.programDisplayIDs ?? [])
+  }
 
   useEffect(() => {
     if (evidence) {
@@ -262,38 +263,19 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
         externalUUID: evidence?.externalUUID ?? '',
         scopeName: evidence?.scopeName ?? '',
         environmentName: evidence?.environmentName ?? '',
+        controlIDs: initialAssociations.controlIDs ?? [],
+        programIDs: initialAssociations.programIDs ?? [],
+        subcontrolIDs: initialAssociations.subcontrolIDs ?? [],
       })
-
-      if (evidence?.tags) {
-        const tags = evidence.tags.map((item) => {
-          return {
-            value: item,
-            label: item,
-          }
-        })
-        // eslint-disable-next-line @eslint-react/set-state-in-effect
-        setTagValues(tags)
-      }
     }
-  }, [evidence, form])
-
-  // eslint-disable-next-line react-hooks/preserve-manual-memoization
-  const handleInitialValue = useCallback(() => {
-    if (initialAssociations && initialAssociationsControlsAndPrograms) {
-      form.setValue('controlIDs', initialAssociations.controlIDs ? initialAssociations.controlIDs : [])
-      form.setValue('programIDs', initialAssociations.programIDs ? initialAssociations.programIDs : [])
-      form.setValue('subcontrolIDs', initialAssociations.subcontrolIDs ? initialAssociations.subcontrolIDs : [])
-
-      // eslint-disable-next-line @eslint-react/set-state-in-effect
-      setAssociationProgramsRefMap(initialAssociationsControlsAndPrograms.programDisplayIDs ? initialAssociationsControlsAndPrograms.programDisplayIDs : [])
-    }
-  }, [form, initialAssociations, initialAssociationsControlsAndPrograms])
-
-  useEffect(() => {
-    handleInitialValue()
-  }, [handleInitialValue])
+  }, [evidence, form, initialAssociations])
 
   const programIDs = form.watch('programIDs')
+  const watchedTags = form.watch('tags')
+
+  const tagValues = useMemo<Option[]>(() => {
+    return (watchedTags ?? []).map((item) => ({ value: item, label: item }))
+  }, [watchedTags])
 
   const programsAccordionValue = (programIDs?.length || 0) > 0 ? 'ProgramsAccordion' : undefined
 
@@ -477,19 +459,23 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
     },
   )
 
+  const [scrollTrigger, setScrollTrigger] = useState(0)
+  if (isEditPreset) {
+    setIsEditing(true)
+    setIsEditPreset(false)
+    setScrollTrigger((prev) => prev + 1)
+  }
+
   useEffect(() => {
-    if (isEditPreset) {
-      // eslint-disable-next-line @eslint-react/set-state-in-effect
-      setIsEditing(true)
-      setIsEditPreset(false)
-      // eslint-disable-next-line @eslint-react/web-api/no-leaked-timeout
-      setTimeout(() => {
+    if (scrollTrigger > 0) {
+      const timeout = setTimeout(() => {
         requestAnimationFrame(() => {
           objectAssociationRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
         })
       }, 500)
+      return () => clearTimeout(timeout)
     }
-  }, [isEditPreset, setIsEditPreset, setIsEditing])
+  }, [scrollTrigger])
 
   const handleTags = () => {
     if (evidence?.tags?.length === 0) {
@@ -1026,12 +1012,6 @@ const EvidenceDetailsSheet: React.FC<TEvidenceDetailsSheet> = ({ controlId }) =>
                                       onChange={(selectedOptions) => {
                                         const options = selectedOptions.map((option) => option.value)
                                         field.onChange(options)
-                                        setTagValues(
-                                          selectedOptions.map((item) => ({
-                                            value: item.value,
-                                            label: item.label,
-                                          })),
-                                        )
                                       }}
                                     />
                                     {form.formState.errors.tags && <p className="text-red-500 text-sm">{form.formState.errors.tags.message}</p>}
