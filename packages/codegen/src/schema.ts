@@ -69662,6 +69662,22 @@ export type CreateBulkCsvGroupMutationVariables = Exact<{
 
 export type CreateBulkCsvGroupMutation = { __typename?: 'Mutation'; createBulkCSVGroup: { __typename?: 'GroupBulkCreatePayload'; groups?: Array<{ __typename?: 'Group'; id: string }> | null } }
 
+export type DirectoryMembershipRoleConnectionFragment = {
+  __typename?: 'DirectoryMembershipConnection'
+  totalCount: number
+  edges?: Array<{
+    __typename?: 'DirectoryMembershipEdge'
+    node?: {
+      __typename?: 'DirectoryMembership'
+      id: string
+      addedAt?: any | null
+      removedAt?: any | null
+      createdAt?: any | null
+      directoryGroup: { __typename?: 'DirectoryGroup'; displayName?: string | null }
+    } | null
+  } | null> | null
+}
+
 export type IdentityHoldersWithFilterQueryVariables = Exact<{
   where?: InputMaybe<IdentityHolderWhereInput>
   orderBy?: InputMaybe<Array<IdentityHolderOrder> | IdentityHolderOrder>
@@ -69875,6 +69891,7 @@ export type CreateIdentityHolderWithFilesMutation = {
 
 export type GetIdentityHolderDirectoryAccountsQueryVariables = Exact<{
   identityHolderId: Scalars['ID']['input']
+  where?: InputMaybe<DirectoryAccountWhereInput>
 }>
 
 export type GetIdentityHolderDirectoryAccountsQuery = {
@@ -69903,6 +69920,7 @@ export type GetIdentityHolderDirectoryAccountsQuery = {
                 id: string
                 addedAt?: any | null
                 removedAt?: any | null
+                createdAt?: any | null
                 directoryGroup: { __typename?: 'DirectoryGroup'; displayName?: string | null }
               } | null
             } | null> | null
@@ -69917,6 +69935,7 @@ export type GetIdentityHolderDirectoryAccountsQuery = {
                 id: string
                 addedAt?: any | null
                 removedAt?: any | null
+                createdAt?: any | null
                 directoryGroup: { __typename?: 'DirectoryGroup'; displayName?: string | null }
               } | null
             } | null> | null
@@ -69931,6 +69950,7 @@ export type GetIdentityHolderDirectoryAccountsQuery = {
                 id: string
                 addedAt?: any | null
                 removedAt?: any | null
+                createdAt?: any | null
                 directoryGroup: { __typename?: 'DirectoryGroup'; displayName?: string | null }
               } | null
             } | null> | null
@@ -70024,6 +70044,7 @@ export type GetIdentityHolderAssociationsTimelineQuery = {
                 id: string
                 addedAt?: any | null
                 removedAt?: any | null
+                createdAt?: any | null
                 directoryGroup: { __typename?: 'DirectoryGroup'; displayName?: string | null }
               } | null
             } | null> | null
@@ -70038,6 +70059,7 @@ export type GetIdentityHolderAssociationsTimelineQuery = {
                 id: string
                 addedAt?: any | null
                 removedAt?: any | null
+                createdAt?: any | null
                 directoryGroup: { __typename?: 'DirectoryGroup'; displayName?: string | null }
               } | null
             } | null> | null
@@ -70052,6 +70074,7 @@ export type GetIdentityHolderAssociationsTimelineQuery = {
                 id: string
                 addedAt?: any | null
                 removedAt?: any | null
+                createdAt?: any | null
                 directoryGroup: { __typename?: 'DirectoryGroup'; displayName?: string | null }
               } | null
             } | null> | null

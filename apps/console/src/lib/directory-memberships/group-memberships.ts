@@ -18,12 +18,13 @@ type MembershipEdgeNode = {
   id: string
   addedAt?: string | null
   removedAt?: string | null
+  createdAt?: string | null
   directoryGroup: { displayName?: string | null }
 }
 
 type MembershipEdge = { node?: MembershipEdgeNode | null } | null
 
-export type MembershipConnection = {
+type MembershipConnection = {
   totalCount: number
   edges?: ReadonlyArray<MembershipEdge> | null
 }
@@ -40,8 +41,8 @@ const compareMemberships = (a: GroupedMembership, b: GroupedMembership): number 
   const aActive = a.removedAt === null
   const bActive = b.removedAt === null
   if (aActive !== bActive) return aActive ? -1 : 1
-  if (!aActive && !bActive) {
-    const diff = new Date(b.removedAt as string).getTime() - new Date(a.removedAt as string).getTime()
+  if (a.removedAt && b.removedAt) {
+    const diff = new Date(b.removedAt).getTime() - new Date(a.removedAt).getTime()
     if (diff !== 0) return diff
   }
   return b.groupName.localeCompare(a.groupName)
@@ -56,7 +57,7 @@ const connectionToBucket = (connection: MembershipConnection | null | undefined)
     items.push({
       id: node.id,
       groupName: node.directoryGroup?.displayName ?? '—',
-      addedAt: node.addedAt ?? null,
+      addedAt: node.addedAt ?? node.createdAt ?? null,
       removedAt: node.removedAt ?? null,
     })
   }

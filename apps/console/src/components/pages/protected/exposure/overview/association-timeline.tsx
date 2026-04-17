@@ -1,12 +1,10 @@
 'use client'
 
-import React, { useState } from 'react'
+import React from 'react'
 import Link from 'next/link'
 import { type TimelineNode } from '@/lib/graphql-hooks/associations-timeline'
-import { totalMembershipCount } from '@/lib/directory-memberships/group-memberships'
-import { MembershipRoleSections } from '@/lib/directory-memberships/membership-role-section'
 import { formatDate } from '@/utils/date'
-import { ChevronDown, ChevronRight, Clock } from 'lucide-react'
+import { Clock } from 'lucide-react'
 import Skeleton from '@/components/shared/skeleton/skeleton'
 import { pluralizeTypeName } from '@/utils/strings'
 
@@ -35,14 +33,9 @@ type Props = {
 }
 
 const TimelineRow = ({ node, suppressLinkedDateFallback }: { node: TimelineNode; suppressLinkedDateFallback: boolean }) => {
-  const [expanded, setExpanded] = useState(false)
   const chipStyle = getChipStyle(node.type)
   const date = formatDate(node.createdAt)
   const isSource = node.role === 'source'
-
-  const memberships = node.memberships
-  const membershipCount = memberships ? totalMembershipCount(memberships) : 0
-  const canExpand = membershipCount > 0
 
   const nameEl = node.href ? (
     <Link href={node.href} className="text-sm font-medium truncate hover:underline">
@@ -100,25 +93,7 @@ const TimelineRow = ({ node, suppressLinkedDateFallback }: { node: TimelineNode;
           </span>
           {nameEl}
         </div>
-        <div className="flex items-center gap-1.5 mt-0.5">
-          <p className="text-xs text-muted-foreground">{subtextEl}</p>
-          {canExpand && (
-            <button
-              type="button"
-              onClick={() => setExpanded((prev) => !prev)}
-              className="inline-flex items-center gap-0.5 text-xs text-muted-foreground hover:text-foreground"
-              aria-expanded={expanded}
-            >
-              {expanded ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
-              {membershipCount} Access
-            </button>
-          )}
-        </div>
-        {canExpand && expanded && memberships && (
-          <div className="mt-2 rounded-md border border-border/50 bg-muted/30 p-2 space-y-2">
-            <MembershipRoleSections memberships={memberships} />
-          </div>
-        )}
+        <p className="text-xs text-muted-foreground mt-0.5">{subtextEl}</p>
       </div>
     </div>
   )

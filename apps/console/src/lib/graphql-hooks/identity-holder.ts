@@ -17,8 +17,10 @@ import {
   type UpdateBulkIdentityHolderMutationVariables,
   type DeleteBulkIdentityHolderMutation,
   type DeleteBulkIdentityHolderMutationVariables,
+  type DirectoryAccountWhereInput,
   type GetIdentityHolderAssociationsQuery,
   type GetIdentityHolderDirectoryAccountsQuery,
+  type GetIdentityHolderDirectoryAccountsQueryVariables,
   type GetIdentityHolderFilesPaginatedQuery,
   type UpdateIdentityHolderWithFilesMutationVariables,
   type CreateIdentityHolderWithFilesMutationVariables,
@@ -204,11 +206,15 @@ export const useUploadIdentityHolderFiles = () => {
   })
 }
 
-export const useGetIdentityHolderDirectoryAccounts = (identityHolderId?: string) => {
+export const useGetIdentityHolderDirectoryAccounts = (identityHolderId?: string, where?: DirectoryAccountWhereInput) => {
   const { client } = useGraphQLClient()
   const queryResult = useQuery<GetIdentityHolderDirectoryAccountsQuery, unknown>({
-    queryKey: ['identityHolders', identityHolderId, 'directoryAccounts'],
-    queryFn: async () => client.request<GetIdentityHolderDirectoryAccountsQuery>(GET_IDENTITY_HOLDER_DIRECTORY_ACCOUNTS, { identityHolderId: identityHolderId as string }),
+    queryKey: ['identityHolders', identityHolderId, 'directoryAccounts', where],
+    queryFn: async () =>
+      client.request<GetIdentityHolderDirectoryAccountsQuery, GetIdentityHolderDirectoryAccountsQueryVariables>(GET_IDENTITY_HOLDER_DIRECTORY_ACCOUNTS, {
+        identityHolderId: identityHolderId as string,
+        where,
+      }),
     enabled: !!identityHolderId,
   })
 

@@ -17,7 +17,7 @@ import {
   type GetIdentityHolderAssociationsTimelineQueryVariables,
 } from '@repo/codegen/src/schema'
 import { ObjectNames, ObjectTypes } from '@repo/codegen/src/type-names'
-import { buildMembershipsByRole, type MembershipsByRole } from '@/lib/directory-memberships/group-memberships'
+import { DirectoryMembershipDirectoryMembershipRole } from '@repo/codegen/src/schema'
 
 export type TimelineNode = {
   id: string
@@ -28,7 +28,6 @@ export type TimelineNode = {
   href?: string
   role?: 'source' | 'linked'
   subtext?: string
-  memberships?: MembershipsByRole
 }
 
 type EdgeNode = {
@@ -202,12 +201,43 @@ export const extractIdentityHolderTimelineNodes = (data: GetIdentityHolderAssoci
       type: ObjectNames.DIRECTORY_ACCOUNT,
       createdAt: n.createdAt,
       subtext: integrationName ? `found via ${integrationName}` : 'found via integration',
-      memberships: buildMembershipsByRole({
-        owner: n.ownerMemberships,
-        manager: n.managerMemberships,
-        member: n.memberMemberships,
-      }),
     })
+
+    const roleConnections = [
+      { role: DirectoryMembershipDirectoryMembershipRole.OWNER, connection: n.ownerMemberships },
+      { role: DirectoryMembershipDirectoryMembershipRole.MANAGER, connection: n.managerMemberships },
+      { role: DirectoryMembershipDirectoryMembershipRole.MEMBER, connection: n.memberMemberships },
+    ] as const
+
+    for (const { role, connection } of roleConnections) {
+      for (const membershipEdge of connection?.edges ?? []) {
+        const m = membershipEdge?.node
+        if (!m) continue
+        const groupName = m.directoryGroup?.displayName ?? 'group'
+        const addedAt = m.addedAt ?? m.createdAt ?? null
+        const roleLabel = role.toLowerCase()
+        const sourceLabel = integrationName ? `${roleLabel} in ${integrationName}` : roleLabel
+
+        if (addedAt) {
+          nodes.push({
+            id: `${m.id}-added`,
+            name: groupName,
+            type: ObjectNames.DIRECTORY_GROUP,
+            createdAt: addedAt,
+            subtext: `added as ${sourceLabel}`,
+          })
+        }
+        if (m.removedAt) {
+          nodes.push({
+            id: `${m.id}-removed`,
+            name: groupName,
+            type: ObjectNames.DIRECTORY_GROUP,
+            createdAt: m.removedAt,
+            subtext: `removed as ${sourceLabel}`,
+          })
+        }
+      }
+    }
   }
 
   if (ih.user?.createdAt) {

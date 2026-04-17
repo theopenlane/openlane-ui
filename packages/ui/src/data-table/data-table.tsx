@@ -738,6 +738,7 @@ interface NoDataProps<TData, TValue> {
 
 type DataRowProps<TData, TValue> = {
   row: Row<TData>
+  isExpanded?: boolean
   onRowClick?: (rowData: TData) => void
   rowHref?: (rowData: TData) => string
   cssVarKey: (id: string) => string
@@ -745,7 +746,7 @@ type DataRowProps<TData, TValue> = {
   renderExpandedRow?: (row: Row<TData>) => React.ReactNode
 }
 
-const DataRow = memo(function DataRow<TData, TValue>({ row, onRowClick, rowHref, cssVarKey, renderExpandedRow }: DataRowProps<TData, TValue>) {
+const DataRow = memo(function DataRow<TData, TValue>({ row, isExpanded = false, onRowClick, rowHref, cssVarKey, renderExpandedRow }: DataRowProps<TData, TValue>) {
   const router = useRouter()
   const href = rowHref?.(row.original)
   const isClickable = !!(onRowClick || href)
@@ -771,7 +772,6 @@ const DataRow = memo(function DataRow<TData, TValue>({ row, onRowClick, rowHref,
   }
 
   const visibleCells = row.getVisibleCells()
-  const isExpanded = row.getIsExpanded()
 
   return (
     <>
@@ -779,7 +779,7 @@ const DataRow = memo(function DataRow<TData, TValue>({ row, onRowClick, rowHref,
         variant="data"
         onClick={isClickable ? handleClick : undefined}
         onAuxClick={href ? handleAuxClick : undefined}
-        className={`hover:bg-table-row-bg-hover ${isClickable ? 'cursor-pointer' : ''}`}
+        className={cn('even:bg-transparent!', row.index % 2 === 1 && 'bg-table-secondary', 'hover:bg-table-row-bg-hover', isClickable && 'cursor-pointer')}
         data-state={row.getIsSelected() && 'selected'}
       >
         {visibleCells.map((cell) => {
@@ -798,7 +798,7 @@ const DataRow = memo(function DataRow<TData, TValue>({ row, onRowClick, rowHref,
         })}
       </TableRow>
       {renderExpandedRow && isExpanded && (
-        <TableRow variant="data" data-expanded-row="true">
+        <TableRow variant="data" data-expanded-row="true" className="bg-transparent! hover:bg-transparent! even:bg-transparent!">
           <TableCell variant="data" colSpan={visibleCells.length || 1} className="p-0">
             {renderExpandedRow(row)}
           </TableCell>
@@ -806,19 +806,7 @@ const DataRow = memo(function DataRow<TData, TValue>({ row, onRowClick, rowHref,
       )}
     </>
   )
-}, dataRowPropsEqual) as <TData, TValue>(props: DataRowProps<TData, TValue>) => React.ReactElement
-
-function dataRowPropsEqual<TData, TValue>(prev: DataRowProps<TData, TValue>, next: DataRowProps<TData, TValue>): boolean {
-  return (
-    prev.row === next.row &&
-    prev.row.getIsExpanded() === next.row.getIsExpanded() &&
-    prev.onRowClick === next.onRowClick &&
-    prev.rowHref === next.rowHref &&
-    prev.cssVarKey === next.cssVarKey &&
-    prev.columns === next.columns &&
-    prev.renderExpandedRow === next.renderExpandedRow
-  )
-}
+}) as <TData, TValue>(props: DataRowProps<TData, TValue>) => React.ReactElement
 
 const NoData = <TData, TValue>({ loading, columns, noDataMarkup, noResultsText }: NoDataProps<TData, TValue>) => {
   const visibleCols = columns.filter((col) => col.getIsVisible())
@@ -869,6 +857,7 @@ function DataTableBodyContent<TData>({ table, onRowClick, rowHref, loading, noDa
             <DataRow
               key={`${row.id}-${columnOrderKey}`}
               row={row}
+              isExpanded={row.getIsExpanded()}
               onRowClick={onRowClick}
               rowHref={rowHref}
               cssVarKey={cssVarKey}

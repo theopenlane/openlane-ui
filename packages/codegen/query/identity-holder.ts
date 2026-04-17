@@ -1,5 +1,22 @@
 import { gql } from 'graphql-request'
 
+const DIRECTORY_MEMBERSHIP_ROLE_CONNECTION = gql`
+  fragment DirectoryMembershipRoleConnection on DirectoryMembershipConnection {
+    totalCount
+    edges {
+      node {
+        id
+        addedAt
+        removedAt
+        createdAt
+        directoryGroup {
+          displayName
+        }
+      }
+    }
+  }
+`
+
 export const GET_ALL_IDENTITY_HOLDERS = gql`
   query IdentityHoldersWithFilter($where: IdentityHolderWhereInput, $orderBy: [IdentityHolderOrder!], $first: Int, $after: Cursor, $last: Int, $before: Cursor) {
     identityHolders(where: $where, orderBy: $orderBy, first: $first, after: $after, last: $last, before: $before) {
@@ -212,9 +229,9 @@ export const CREATE_IDENTITY_HOLDER_WITH_FILES = gql`
 `
 
 export const GET_IDENTITY_HOLDER_DIRECTORY_ACCOUNTS = gql`
-  query GetIdentityHolderDirectoryAccounts($identityHolderId: ID!) {
+  query GetIdentityHolderDirectoryAccounts($identityHolderId: ID!, $where: DirectoryAccountWhereInput) {
     identityHolder(id: $identityHolderId) {
-      directoryAccounts {
+      directoryAccounts(where: $where) {
         edges {
           node {
             id
@@ -225,50 +242,21 @@ export const GET_IDENTITY_HOLDER_DIRECTORY_ACCOUNTS = gql`
             integration {
               name
             }
-            ownerMemberships: memberships(where: { role: OWNER }, first: 100) {
-              totalCount
-              edges {
-                node {
-                  id
-                  addedAt
-                  removedAt
-                  directoryGroup {
-                    displayName
-                  }
-                }
-              }
+            ownerMemberships: memberships(where: { role: OWNER }, first: 100, orderBy: [{ field: created_at, direction: DESC }]) {
+              ...DirectoryMembershipRoleConnection
             }
-            managerMemberships: memberships(where: { role: MANAGER }, first: 100) {
-              totalCount
-              edges {
-                node {
-                  id
-                  addedAt
-                  removedAt
-                  directoryGroup {
-                    displayName
-                  }
-                }
-              }
+            managerMemberships: memberships(where: { role: MANAGER }, first: 100, orderBy: [{ field: created_at, direction: DESC }]) {
+              ...DirectoryMembershipRoleConnection
             }
-            memberMemberships: memberships(where: { role: MEMBER }, first: 100) {
-              totalCount
-              edges {
-                node {
-                  id
-                  addedAt
-                  removedAt
-                  directoryGroup {
-                    displayName
-                  }
-                }
-              }
+            memberMemberships: memberships(where: { role: MEMBER }, first: 100, orderBy: [{ field: created_at, direction: DESC }]) {
+              ...DirectoryMembershipRoleConnection
             }
           }
         }
       }
     }
   }
+  ${DIRECTORY_MEMBERSHIP_ROLE_CONNECTION}
 `
 
 export const GET_IDENTITY_HOLDER_ASSOCIATIONS = gql`
@@ -377,44 +365,14 @@ export const GET_IDENTITY_HOLDER_ASSOCIATIONS_TIMELINE = gql`
             integration {
               name
             }
-            ownerMemberships: memberships(where: { role: OWNER }, first: 100) {
-              totalCount
-              edges {
-                node {
-                  id
-                  addedAt
-                  removedAt
-                  directoryGroup {
-                    displayName
-                  }
-                }
-              }
+            ownerMemberships: memberships(where: { role: OWNER }, first: 25, orderBy: [{ field: created_at, direction: DESC }]) {
+              ...DirectoryMembershipRoleConnection
             }
-            managerMemberships: memberships(where: { role: MANAGER }, first: 100) {
-              totalCount
-              edges {
-                node {
-                  id
-                  addedAt
-                  removedAt
-                  directoryGroup {
-                    displayName
-                  }
-                }
-              }
+            managerMemberships: memberships(where: { role: MANAGER }, first: 25, orderBy: [{ field: created_at, direction: DESC }]) {
+              ...DirectoryMembershipRoleConnection
             }
-            memberMemberships: memberships(where: { role: MEMBER }, first: 100) {
-              totalCount
-              edges {
-                node {
-                  id
-                  addedAt
-                  removedAt
-                  directoryGroup {
-                    displayName
-                  }
-                }
-              }
+            memberMemberships: memberships(where: { role: MEMBER }, first: 25, orderBy: [{ field: created_at, direction: DESC }]) {
+              ...DirectoryMembershipRoleConnection
             }
           }
         }
@@ -427,4 +385,5 @@ export const GET_IDENTITY_HOLDER_ASSOCIATIONS_TIMELINE = gql`
       }
     }
   }
+  ${DIRECTORY_MEMBERSHIP_ROLE_CONNECTION}
 `
