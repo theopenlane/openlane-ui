@@ -70273,6 +70273,7 @@ export type IdentityHolderQuery = {
   __typename?: 'Query'
   identityHolder: {
     __typename?: 'IdentityHolder'
+    avatarRemoteURL?: string | null
     emailAliases?: Array<string> | null
     createdAt?: any | null
     createdBy?: string | null
