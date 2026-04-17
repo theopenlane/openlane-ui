@@ -225,6 +225,45 @@ export const GET_IDENTITY_HOLDER_DIRECTORY_ACCOUNTS = gql`
             integration {
               name
             }
+            ownerMemberships: memberships(where: { role: OWNER }, first: 100) {
+              totalCount
+              edges {
+                node {
+                  id
+                  addedAt
+                  removedAt
+                  directoryGroup {
+                    displayName
+                  }
+                }
+              }
+            }
+            managerMemberships: memberships(where: { role: MANAGER }, first: 100) {
+              totalCount
+              edges {
+                node {
+                  id
+                  addedAt
+                  removedAt
+                  directoryGroup {
+                    displayName
+                  }
+                }
+              }
+            }
+            memberMemberships: memberships(where: { role: MEMBER }, first: 100) {
+              totalCount
+              edges {
+                node {
+                  id
+                  addedAt
+                  removedAt
+                  directoryGroup {
+                    displayName
+                  }
+                }
+              }
+            }
           }
         }
       }
@@ -335,6 +374,48 @@ export const GET_IDENTITY_HOLDER_ASSOCIATIONS_TIMELINE = gql`
             directoryName
             displayName
             canonicalEmail
+            integration {
+              name
+            }
+            ownerMemberships: memberships(where: { role: OWNER }, first: 100) {
+              totalCount
+              edges {
+                node {
+                  id
+                  addedAt
+                  removedAt
+                  directoryGroup {
+                    displayName
+                  }
+                }
+              }
+            }
+            managerMemberships: memberships(where: { role: MANAGER }, first: 100) {
+              totalCount
+              edges {
+                node {
+                  id
+                  addedAt
+                  removedAt
+                  directoryGroup {
+                    displayName
+                  }
+                }
+              }
+            }
+            memberMemberships: memberships(where: { role: MEMBER }, first: 100) {
+              totalCount
+              edges {
+                node {
+                  id
+                  addedAt
+                  removedAt
+                  directoryGroup {
+                    displayName
+                  }
+                }
+              }
+            }
           }
         }
       }

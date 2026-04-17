@@ -17,6 +17,7 @@ import {
   type GetIdentityHolderAssociationsTimelineQueryVariables,
 } from '@repo/codegen/src/schema'
 import { ObjectNames, ObjectTypes } from '@repo/codegen/src/type-names'
+import { buildMembershipsByRole, type MembershipsByRole } from '@/lib/directory-memberships/group-memberships'
 
 export type TimelineNode = {
   id: string
@@ -27,6 +28,7 @@ export type TimelineNode = {
   href?: string
   role?: 'source' | 'linked'
   subtext?: string
+  memberships?: MembershipsByRole
 }
 
 type EdgeNode = {
@@ -193,12 +195,18 @@ export const extractIdentityHolderTimelineNodes = (data: GetIdentityHolderAssoci
   for (const edge of ih.directoryAccounts?.edges ?? []) {
     const n = edge?.node
     if (!n?.createdAt) continue
+    const integrationName = n.integration?.name ?? n.directoryName ?? null
     nodes.push({
       id: n.id,
-      name: n.displayName ?? n.canonicalEmail ?? n.directoryName ?? n.id,
+      name: n.displayName ?? n.canonicalEmail ?? integrationName ?? n.id,
       type: ObjectNames.DIRECTORY_ACCOUNT,
       createdAt: n.createdAt,
-      subtext: n.directoryName ? `found via ${n.directoryName}` : 'found via integration',
+      subtext: integrationName ? `found via ${integrationName}` : 'found via integration',
+      memberships: buildMembershipsByRole({
+        owner: n.ownerMemberships,
+        manager: n.managerMemberships,
+        member: n.memberMemberships,
+      }),
     })
   }
 

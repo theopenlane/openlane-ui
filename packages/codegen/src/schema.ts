@@ -69893,6 +69893,48 @@ export type GetIdentityHolderDirectoryAccountsQuery = {
           primarySource: boolean
           mfaState: DirectoryAccountDirectoryAccountMfaState
           integration?: { __typename?: 'Integration'; name: string } | null
+          ownerMemberships: {
+            __typename?: 'DirectoryMembershipConnection'
+            totalCount: number
+            edges?: Array<{
+              __typename?: 'DirectoryMembershipEdge'
+              node?: {
+                __typename?: 'DirectoryMembership'
+                id: string
+                addedAt?: any | null
+                removedAt?: any | null
+                directoryGroup: { __typename?: 'DirectoryGroup'; displayName?: string | null }
+              } | null
+            } | null> | null
+          }
+          managerMemberships: {
+            __typename?: 'DirectoryMembershipConnection'
+            totalCount: number
+            edges?: Array<{
+              __typename?: 'DirectoryMembershipEdge'
+              node?: {
+                __typename?: 'DirectoryMembership'
+                id: string
+                addedAt?: any | null
+                removedAt?: any | null
+                directoryGroup: { __typename?: 'DirectoryGroup'; displayName?: string | null }
+              } | null
+            } | null> | null
+          }
+          memberMemberships: {
+            __typename?: 'DirectoryMembershipConnection'
+            totalCount: number
+            edges?: Array<{
+              __typename?: 'DirectoryMembershipEdge'
+              node?: {
+                __typename?: 'DirectoryMembership'
+                id: string
+                addedAt?: any | null
+                removedAt?: any | null
+                directoryGroup: { __typename?: 'DirectoryGroup'; displayName?: string | null }
+              } | null
+            } | null> | null
+          }
         } | null
       } | null> | null
     }
@@ -69964,7 +70006,57 @@ export type GetIdentityHolderAssociationsTimelineQuery = {
       __typename?: 'DirectoryAccountConnection'
       edges?: Array<{
         __typename?: 'DirectoryAccountEdge'
-        node?: { __typename?: 'DirectoryAccount'; id: string; createdAt?: any | null; directoryName?: string | null; displayName?: string | null; canonicalEmail?: string | null } | null
+        node?: {
+          __typename?: 'DirectoryAccount'
+          id: string
+          createdAt?: any | null
+          directoryName?: string | null
+          displayName?: string | null
+          canonicalEmail?: string | null
+          integration?: { __typename?: 'Integration'; name: string } | null
+          ownerMemberships: {
+            __typename?: 'DirectoryMembershipConnection'
+            totalCount: number
+            edges?: Array<{
+              __typename?: 'DirectoryMembershipEdge'
+              node?: {
+                __typename?: 'DirectoryMembership'
+                id: string
+                addedAt?: any | null
+                removedAt?: any | null
+                directoryGroup: { __typename?: 'DirectoryGroup'; displayName?: string | null }
+              } | null
+            } | null> | null
+          }
+          managerMemberships: {
+            __typename?: 'DirectoryMembershipConnection'
+            totalCount: number
+            edges?: Array<{
+              __typename?: 'DirectoryMembershipEdge'
+              node?: {
+                __typename?: 'DirectoryMembership'
+                id: string
+                addedAt?: any | null
+                removedAt?: any | null
+                directoryGroup: { __typename?: 'DirectoryGroup'; displayName?: string | null }
+              } | null
+            } | null> | null
+          }
+          memberMemberships: {
+            __typename?: 'DirectoryMembershipConnection'
+            totalCount: number
+            edges?: Array<{
+              __typename?: 'DirectoryMembershipEdge'
+              node?: {
+                __typename?: 'DirectoryMembership'
+                id: string
+                addedAt?: any | null
+                removedAt?: any | null
+                directoryGroup: { __typename?: 'DirectoryGroup'; displayName?: string | null }
+              } | null
+            } | null> | null
+          }
+        } | null
       } | null> | null
     }
     user?: { __typename?: 'User'; id: string; createdAt?: any | null; displayName: string; email: string } | null

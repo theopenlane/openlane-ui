@@ -10,6 +10,7 @@ import {
   ColumnSizingState,
   flexRender,
   getCoreRowModel,
+  getExpandedRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
@@ -79,6 +80,7 @@ interface BaseDataTableProps<TData, TValue> {
   footer?: ReactElement | null
   tableKey: TableKeyValue | undefined
   defaultSorting?: { field: string; direction?: OrderDirection }[] | undefined
+  renderExpandedRow?: (row: Row<TData>) => React.ReactNode
 }
 
 type DataTableProps<TData, TValue> = BaseDataTableProps<TData, TValue> & TStickyOption
@@ -304,6 +306,7 @@ export function DataTable<TData, TValue>({
   defaultSorting,
   stickyHeader = false,
   stickyDialogHeader = false,
+  renderExpandedRow,
 }: DataTableProps<TData, TValue>) {
   const [sortConditions, setSortConditions] = useState<{ field: string; direction?: OrderDirection }[]>(defaultSorting ?? [])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
@@ -453,6 +456,7 @@ export function DataTable<TData, TValue>({
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    ...(renderExpandedRow ? { getExpandedRowModel: getExpandedRowModel() } : {}),
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
@@ -690,9 +694,25 @@ export function DataTable<TData, TValue>({
                   ))}
                 </TableHeader>
                 {columnSizingInfo.isResizingColumn ? (
-                  <MemoizedDataTableBody table={table} onRowClick={onRowClick} rowHref={rowHref} loading={loading} noDataMarkup={noDataMarkup} noResultsText={noResultsText} />
+                  <MemoizedDataTableBody
+                    table={table}
+                    onRowClick={onRowClick}
+                    rowHref={rowHref}
+                    loading={loading}
+                    noDataMarkup={noDataMarkup}
+                    noResultsText={noResultsText}
+                    renderExpandedRow={renderExpandedRow}
+                  />
                 ) : (
-                  <DataTableBodyContent table={table} onRowClick={onRowClick} rowHref={rowHref} loading={loading} noDataMarkup={noDataMarkup} noResultsText={noResultsText} />
+                  <DataTableBodyContent
+                    table={table}
+                    onRowClick={onRowClick}
+                    rowHref={rowHref}
+                    loading={loading}
+                    noDataMarkup={noDataMarkup}
+                    noResultsText={noResultsText}
+                    renderExpandedRow={renderExpandedRow}
+                  />
                 )}
               </Table>
             </DndContext>
@@ -722,9 +742,10 @@ type DataRowProps<TData, TValue> = {
   rowHref?: (rowData: TData) => string
   cssVarKey: (id: string) => string
   columns: ColumnDef<TData, TValue>[]
+  renderExpandedRow?: (row: Row<TData>) => React.ReactNode
 }
 
-const DataRow = memo(function DataRow<TData, TValue>({ row, onRowClick, rowHref, cssVarKey }: DataRowProps<TData, TValue>) {
+const DataRow = memo(function DataRow<TData, TValue>({ row, onRowClick, rowHref, cssVarKey, renderExpandedRow }: DataRowProps<TData, TValue>) {
   const router = useRouter()
   const href = rowHref?.(row.original)
   const isClickable = !!(onRowClick || href)
@@ -749,31 +770,55 @@ const DataRow = memo(function DataRow<TData, TValue>({ row, onRowClick, rowHref,
     }
   }
 
+  const visibleCells = row.getVisibleCells()
+  const isExpanded = row.getIsExpanded()
+
   return (
-    <TableRow
-      variant="data"
-      onClick={isClickable ? handleClick : undefined}
-      onAuxClick={href ? handleAuxClick : undefined}
-      className={`hover:bg-table-row-bg-hover ${isClickable ? 'cursor-pointer' : ''}`}
-      data-state={row.getIsSelected() && 'selected'}
-    >
-      {row.getVisibleCells().map((cell) => {
-        const widthVar = `var(--col-${cssVarKey(cell.column.id)})`
-        const content = flexRender(cell.column.columnDef.cell, cell.getContext())
-        return (
-          <TableCell
-            variant="data"
-            key={cell.id}
-            className={cn('truncate', (cell.column.columnDef.meta as CustomColumnDef<TData, TValue>['meta'])?.className)}
-            style={{ width: widthVar, minWidth: widthVar, maxWidth: widthVar }}
-          >
-            {content}
+    <>
+      <TableRow
+        variant="data"
+        onClick={isClickable ? handleClick : undefined}
+        onAuxClick={href ? handleAuxClick : undefined}
+        className={`hover:bg-table-row-bg-hover ${isClickable ? 'cursor-pointer' : ''}`}
+        data-state={row.getIsSelected() && 'selected'}
+      >
+        {visibleCells.map((cell) => {
+          const widthVar = `var(--col-${cssVarKey(cell.column.id)})`
+          const content = flexRender(cell.column.columnDef.cell, cell.getContext())
+          return (
+            <TableCell
+              variant="data"
+              key={cell.id}
+              className={cn('truncate', (cell.column.columnDef.meta as CustomColumnDef<TData, TValue>['meta'])?.className)}
+              style={{ width: widthVar, minWidth: widthVar, maxWidth: widthVar }}
+            >
+              {content}
+            </TableCell>
+          )
+        })}
+      </TableRow>
+      {renderExpandedRow && isExpanded && (
+        <TableRow variant="data" data-expanded-row="true">
+          <TableCell variant="data" colSpan={visibleCells.length || 1} className="p-0">
+            {renderExpandedRow(row)}
           </TableCell>
-        )
-      })}
-    </TableRow>
+        </TableRow>
+      )}
+    </>
   )
-}) as <TData, TValue>(props: DataRowProps<TData, TValue>) => React.ReactElement
+}, dataRowPropsEqual) as <TData, TValue>(props: DataRowProps<TData, TValue>) => React.ReactElement
+
+function dataRowPropsEqual<TData, TValue>(prev: DataRowProps<TData, TValue>, next: DataRowProps<TData, TValue>): boolean {
+  return (
+    prev.row === next.row &&
+    prev.row.getIsExpanded() === next.row.getIsExpanded() &&
+    prev.onRowClick === next.onRowClick &&
+    prev.rowHref === next.rowHref &&
+    prev.cssVarKey === next.cssVarKey &&
+    prev.columns === next.columns &&
+    prev.renderExpandedRow === next.renderExpandedRow
+  )
+}
 
 const NoData = <TData, TValue>({ loading, columns, noDataMarkup, noResultsText }: NoDataProps<TData, TValue>) => {
   const visibleCols = columns.filter((col) => col.getIsVisible())
@@ -810,14 +855,27 @@ interface DataTableBodyContentProps<TData> {
   loading: boolean
   noDataMarkup?: ReactElement
   noResultsText: string
+  renderExpandedRow?: (row: Row<TData>) => React.ReactNode
 }
 
-function DataTableBodyContent<TData>({ table, onRowClick, rowHref, loading, noDataMarkup, noResultsText }: DataTableBodyContentProps<TData>) {
+function DataTableBodyContent<TData>({ table, onRowClick, rowHref, loading, noDataMarkup, noResultsText, renderExpandedRow }: DataTableBodyContentProps<TData>) {
   const columnOrderKey = table.getState().columnOrder.join(',')
   return (
     <TableBody variant="data">
       {table.getRowModel().rows?.length ? (
-        table.getRowModel().rows.map((row) => <DataRow key={`${row.id}-${columnOrderKey}`} row={row} onRowClick={onRowClick} rowHref={rowHref} cssVarKey={cssVarKey} columns={table.options.columns} />)
+        table
+          .getRowModel()
+          .rows.map((row) => (
+            <DataRow
+              key={`${row.id}-${columnOrderKey}`}
+              row={row}
+              onRowClick={onRowClick}
+              rowHref={rowHref}
+              cssVarKey={cssVarKey}
+              columns={table.options.columns}
+              renderExpandedRow={renderExpandedRow}
+            />
+          ))
       ) : (
         <NoData loading={loading} columns={table.getAllLeafColumns()} noDataMarkup={noDataMarkup} noResultsText={noResultsText} />
       )}
@@ -826,5 +884,5 @@ function DataTableBodyContent<TData>({ table, onRowClick, rowHref, loading, noDa
 }
 
 const MemoizedDataTableBody = memo(DataTableBodyContent, (prev, next) => {
-  return prev.table.options.data === next.table.options.data && prev.table.getState().columnOrder === next.table.getState().columnOrder
+  return prev.table.options.data === next.table.options.data && prev.table.getState().columnOrder === next.table.getState().columnOrder && prev.renderExpandedRow === next.renderExpandedRow
 }) as typeof DataTableBodyContent

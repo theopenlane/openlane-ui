@@ -1,10 +1,12 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import Link from 'next/link'
 import { type TimelineNode } from '@/lib/graphql-hooks/associations-timeline'
-import { format } from 'date-fns'
-import { Clock } from 'lucide-react'
+import { totalMembershipCount } from '@/lib/directory-memberships/group-memberships'
+import { MembershipRoleSections } from '@/lib/directory-memberships/membership-role-section'
+import { formatDate } from '@/utils/date'
+import { ChevronDown, ChevronRight, Clock } from 'lucide-react'
 import Skeleton from '@/components/shared/skeleton/skeleton'
 import { pluralizeTypeName } from '@/utils/strings'
 
@@ -26,18 +28,100 @@ const getChipStyle = (type: string): React.CSSProperties => {
   }
 }
 
-const formatDate = (iso: string): string => {
-  try {
-    return format(new Date(iso), 'MMMM d, yyyy')
-  } catch {
-    return iso
-  }
-}
-
 type Props = {
   nodes: TimelineNode[]
   isLoading?: boolean
   suppressLinkedDateFallback?: boolean
+}
+
+const TimelineRow = ({ node, suppressLinkedDateFallback }: { node: TimelineNode; suppressLinkedDateFallback: boolean }) => {
+  const [expanded, setExpanded] = useState(false)
+  const chipStyle = getChipStyle(node.type)
+  const date = formatDate(node.createdAt)
+  const isSource = node.role === 'source'
+
+  const memberships = node.memberships
+  const membershipCount = memberships ? totalMembershipCount(memberships) : 0
+  const canExpand = membershipCount > 0
+
+  const nameEl = node.href ? (
+    <Link href={node.href} className="text-sm font-medium truncate hover:underline">
+      {node.name}
+    </Link>
+  ) : (
+    <span className="text-sm font-medium truncate">{node.name}</span>
+  )
+
+  const subtextEl = (() => {
+    if (node.subtext) {
+      return <>{node.subtext}</>
+    }
+    if (isSource) {
+      return (
+        <>
+          source
+          {node.source && (
+            <>
+              {' '}
+              via <span className="font-medium text-foreground/70">{node.source}</span>
+            </>
+          )}{' '}
+          on {date}
+        </>
+      )
+    }
+    if (node.source) {
+      if (suppressLinkedDateFallback) {
+        return (
+          <>
+            created by <span className="font-medium text-foreground/70">{node.source}</span>
+          </>
+        )
+      }
+      return (
+        <>
+          created by <span className="font-medium text-foreground/70">{node.source}</span> on {date}
+        </>
+      )
+    }
+    if (suppressLinkedDateFallback) {
+      return <>linked</>
+    }
+    return <>linked {date}</>
+  })()
+
+  return (
+    <div className="flex gap-3 relative">
+      <div className={`mt-1.5 w-3.5 h-3.5 rounded-full border-2 shrink-0 z-10 ${isSource ? 'border-cyan-500 bg-cyan-500/20' : 'border-border bg-background'}`} />
+      <div className="flex-1 min-w-0 pb-1">
+        <div className="flex flex-wrap items-center gap-1.5 leading-snug">
+          <span className="inline-flex items-center text-[11px] font-medium px-1.5 py-0.5 rounded" style={chipStyle}>
+            {node.type}
+          </span>
+          {nameEl}
+        </div>
+        <div className="flex items-center gap-1.5 mt-0.5">
+          <p className="text-xs text-muted-foreground">{subtextEl}</p>
+          {canExpand && (
+            <button
+              type="button"
+              onClick={() => setExpanded((prev) => !prev)}
+              className="inline-flex items-center gap-0.5 text-xs text-muted-foreground hover:text-foreground"
+              aria-expanded={expanded}
+            >
+              {expanded ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
+              {membershipCount} Access
+            </button>
+          )}
+        </div>
+        {canExpand && expanded && memberships && (
+          <div className="mt-2 rounded-md border border-border/50 bg-muted/30 p-2 space-y-2">
+            <MembershipRoleSections memberships={memberships} />
+          </div>
+        )}
+      </div>
+    </div>
+  )
 }
 
 const AssociationTimeline = ({ nodes, isLoading, suppressLinkedDateFallback = false }: Props) => {
@@ -71,72 +155,9 @@ const AssociationTimeline = ({ nodes, isLoading, suppressLinkedDateFallback = fa
       <div className="absolute left-1.75 top-3 bottom-3 w-px bg-border" />
 
       <div className="space-y-4">
-        {nodes.map((node) => {
-          const chipStyle = getChipStyle(node.type)
-          const date = formatDate(node.createdAt)
-          const isSource = node.role === 'source'
-
-          const nameEl = node.href ? (
-            <Link href={node.href} className="text-sm font-medium truncate hover:underline">
-              {node.name}
-            </Link>
-          ) : (
-            <span className="text-sm font-medium truncate">{node.name}</span>
-          )
-
-          const subtextEl = (() => {
-            if (node.subtext) {
-              return <>{node.subtext}</>
-            }
-            if (isSource) {
-              return (
-                <>
-                  source
-                  {node.source && (
-                    <>
-                      {' '}
-                      via <span className="font-medium text-foreground/70">{node.source}</span>
-                    </>
-                  )}{' '}
-                  on {date}
-                </>
-              )
-            }
-            if (node.source) {
-              if (suppressLinkedDateFallback) {
-                return (
-                  <>
-                    created by <span className="font-medium text-foreground/70">{node.source}</span>
-                  </>
-                )
-              }
-              return (
-                <>
-                  created by <span className="font-medium text-foreground/70">{node.source}</span> on {date}
-                </>
-              )
-            }
-            if (suppressLinkedDateFallback) {
-              return <>linked</>
-            }
-            return <>linked {date}</>
-          })()
-
-          return (
-            <div key={`${node.type}-${node.id}`} className="flex gap-3 relative">
-              <div className={`mt-1.5 w-3.5 h-3.5 rounded-full border-2 shrink-0 z-10 ${isSource ? 'border-cyan-500 bg-cyan-500/20' : 'border-border bg-background'}`} />
-              <div className="flex-1 min-w-0 pb-1">
-                <div className="flex flex-wrap items-center gap-1.5 leading-snug">
-                  <span className="inline-flex items-center text-[11px] font-medium px-1.5 py-0.5 rounded" style={chipStyle}>
-                    {node.type}
-                  </span>
-                  {nameEl}
-                </div>
-                <p className="text-xs text-muted-foreground mt-0.5">{subtextEl}</p>
-              </div>
-            </div>
-          )
-        })}
+        {nodes.map((node) => (
+          <TimelineRow key={`${node.type}-${node.id}`} node={node} suppressLinkedDateFallback={suppressLinkedDateFallback} />
+        ))}
       </div>
     </div>
   )
