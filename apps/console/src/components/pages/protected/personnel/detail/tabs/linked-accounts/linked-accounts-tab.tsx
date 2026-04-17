@@ -188,11 +188,7 @@ const LinkedAccountsTab: React.FC<LinkedAccountsTabProps> = ({ personnelId }) =>
         status: account.status,
         mfaState: account.mfaState,
         primarySource: account.primarySource,
-        memberships: buildMembershipList({
-          owner: account.ownerMemberships,
-          manager: account.managerMemberships,
-          member: account.memberMemberships,
-        }),
+        memberships: buildMembershipList(account.memberships),
       })),
     [directoryAccounts],
   )

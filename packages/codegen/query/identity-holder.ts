@@ -1,11 +1,12 @@
 import { gql } from 'graphql-request'
 
-const DIRECTORY_MEMBERSHIP_ROLE_CONNECTION = gql`
-  fragment DirectoryMembershipRoleConnection on DirectoryMembershipConnection {
+const DIRECTORY_MEMBERSHIP_CONNECTION_FIELDS = gql`
+  fragment DirectoryMembershipConnectionFields on DirectoryMembershipConnection {
     totalCount
     edges {
       node {
         id
+        role
         addedAt
         removedAt
         createdAt
@@ -242,21 +243,15 @@ export const GET_IDENTITY_HOLDER_DIRECTORY_ACCOUNTS = gql`
             integration {
               name
             }
-            ownerMemberships: memberships(where: { role: OWNER }, first: 100, orderBy: [{ field: created_at, direction: DESC }]) {
-              ...DirectoryMembershipRoleConnection
-            }
-            managerMemberships: memberships(where: { role: MANAGER }, first: 100, orderBy: [{ field: created_at, direction: DESC }]) {
-              ...DirectoryMembershipRoleConnection
-            }
-            memberMemberships: memberships(where: { role: MEMBER }, first: 100, orderBy: [{ field: created_at, direction: DESC }]) {
-              ...DirectoryMembershipRoleConnection
+            memberships(first: 100, orderBy: [{ field: created_at, direction: DESC }]) {
+              ...DirectoryMembershipConnectionFields
             }
           }
         }
       }
     }
   }
-  ${DIRECTORY_MEMBERSHIP_ROLE_CONNECTION}
+  ${DIRECTORY_MEMBERSHIP_CONNECTION_FIELDS}
 `
 
 export const GET_IDENTITY_HOLDER_ASSOCIATIONS = gql`
@@ -365,14 +360,8 @@ export const GET_IDENTITY_HOLDER_ASSOCIATIONS_TIMELINE = gql`
             integration {
               name
             }
-            ownerMemberships: memberships(where: { role: OWNER }, first: 25, orderBy: [{ field: created_at, direction: DESC }]) {
-              ...DirectoryMembershipRoleConnection
-            }
-            managerMemberships: memberships(where: { role: MANAGER }, first: 25, orderBy: [{ field: created_at, direction: DESC }]) {
-              ...DirectoryMembershipRoleConnection
-            }
-            memberMemberships: memberships(where: { role: MEMBER }, first: 25, orderBy: [{ field: created_at, direction: DESC }]) {
-              ...DirectoryMembershipRoleConnection
+            memberships(first: 75, orderBy: [{ field: created_at, direction: DESC }]) {
+              ...DirectoryMembershipConnectionFields
             }
           }
         }
@@ -385,5 +374,5 @@ export const GET_IDENTITY_HOLDER_ASSOCIATIONS_TIMELINE = gql`
       }
     }
   }
-  ${DIRECTORY_MEMBERSHIP_ROLE_CONNECTION}
+  ${DIRECTORY_MEMBERSHIP_CONNECTION_FIELDS}
 `

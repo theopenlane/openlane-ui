@@ -1,5 +1,3 @@
-import { DirectoryMembershipDirectoryMembershipRole } from '@repo/codegen/src/schema'
-
 export type GroupedMembership = {
   id: string
   groupName: string
@@ -15,6 +13,7 @@ export type MembershipList = {
 
 type MembershipEdgeNode = {
   id: string
+  role?: string | null
   addedAt?: string | null
   removedAt?: string | null
   createdAt?: string | null
@@ -23,15 +22,9 @@ type MembershipEdgeNode = {
 
 type MembershipEdge = { node?: MembershipEdgeNode | null } | null
 
-type MembershipConnection = {
+export type MembershipConnection = {
   totalCount: number
   edges?: ReadonlyArray<MembershipEdge> | null
-}
-
-type RoleConnections = {
-  owner?: MembershipConnection | null
-  manager?: MembershipConnection | null
-  member?: MembershipConnection | null
 }
 
 const compareMemberships = (a: GroupedMembership, b: GroupedMembership): number => {
@@ -45,28 +38,20 @@ const compareMemberships = (a: GroupedMembership, b: GroupedMembership): number 
   return b.groupName.localeCompare(a.groupName)
 }
 
-const pushConnectionItems = (target: GroupedMembership[], connection: MembershipConnection | null | undefined, role: string): number => {
-  if (!connection) return 0
+export const buildMembershipList = (connection: MembershipConnection | null | undefined): MembershipList => {
+  const items: GroupedMembership[] = []
+  if (!connection) return { items, totalCount: 0 }
   for (const edge of connection.edges ?? []) {
     const node = edge?.node
     if (!node) continue
-    target.push({
+    items.push({
       id: node.id,
       groupName: node.directoryGroup?.displayName ?? '—',
-      role,
+      role: node.role ?? '',
       addedAt: node.addedAt ?? node.createdAt ?? null,
       removedAt: node.removedAt ?? null,
     })
   }
-  return connection.totalCount
-}
-
-export const buildMembershipList = (connections: RoleConnections): MembershipList => {
-  const items: GroupedMembership[] = []
-  let totalCount = 0
-  totalCount += pushConnectionItems(items, connections.owner, DirectoryMembershipDirectoryMembershipRole.OWNER)
-  totalCount += pushConnectionItems(items, connections.manager, DirectoryMembershipDirectoryMembershipRole.MANAGER)
-  totalCount += pushConnectionItems(items, connections.member, DirectoryMembershipDirectoryMembershipRole.MEMBER)
   items.sort(compareMemberships)
-  return { items, totalCount }
+  return { items, totalCount: connection.totalCount }
 }

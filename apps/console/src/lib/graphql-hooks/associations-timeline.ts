@@ -17,7 +17,6 @@ import {
   type GetIdentityHolderAssociationsTimelineQueryVariables,
 } from '@repo/codegen/src/schema'
 import { ObjectNames, ObjectTypes } from '@repo/codegen/src/type-names'
-import { DirectoryMembershipDirectoryMembershipRole } from '@repo/codegen/src/schema'
 import { formatDate } from '@/utils/date'
 
 export type TimelineNode = {
@@ -196,17 +195,11 @@ export const extractIdentityHolderTimelineNodes = (data: GetIdentityHolderAssoci
     const n = edge?.node
     if (!n) continue
     const integrationName = n.integration?.name ?? n.directoryName ?? null
-
-    const roleConnections = [
-      { role: DirectoryMembershipDirectoryMembershipRole.OWNER, connection: n.ownerMemberships },
-      { role: DirectoryMembershipDirectoryMembershipRole.MANAGER, connection: n.managerMemberships },
-      { role: DirectoryMembershipDirectoryMembershipRole.MEMBER, connection: n.memberMemberships },
-    ] as const
+    const membershipEdges = n.memberships?.edges ?? []
 
     const accountCreatedAt =
       n.createdAt ??
-      roleConnections
-        .flatMap(({ connection }) => connection?.edges ?? [])
+      membershipEdges
         .map((e) => e?.node?.addedAt ?? e?.node?.createdAt ?? null)
         .filter((t): t is string => t !== null)
         .sort()[0] ??
@@ -222,33 +215,31 @@ export const extractIdentityHolderTimelineNodes = (data: GetIdentityHolderAssoci
       })
     }
 
-    for (const { role, connection } of roleConnections) {
-      for (const membershipEdge of connection?.edges ?? []) {
-        const m = membershipEdge?.node
-        if (!m) continue
-        const groupName = m.directoryGroup?.displayName ?? 'group'
-        const addedAt = m.addedAt ?? m.createdAt ?? null
-        const roleLabel = role.toLowerCase()
-        const sourceLabel = integrationName ? `${roleLabel} in ${integrationName}` : roleLabel
+    for (const membershipEdge of membershipEdges) {
+      const m = membershipEdge?.node
+      if (!m) continue
+      const groupName = m.directoryGroup?.displayName ?? 'group'
+      const addedAt = m.addedAt ?? m.createdAt ?? null
+      const roleLabel = m.role ? m.role.toLowerCase() : 'member'
+      const sourceLabel = integrationName ? `${roleLabel} in ${integrationName}` : roleLabel
 
-        if (addedAt) {
-          nodes.push({
-            id: `${m.id}-added`,
-            name: groupName,
-            type: ObjectNames.DIRECTORY_GROUP,
-            createdAt: addedAt,
-            subtext: `added as ${sourceLabel} on ${formatDate(addedAt)}`,
-          })
-        }
-        if (m.removedAt) {
-          nodes.push({
-            id: `${m.id}-removed`,
-            name: groupName,
-            type: ObjectNames.DIRECTORY_GROUP,
-            createdAt: m.removedAt,
-            subtext: `removed as ${sourceLabel} on ${formatDate(m.removedAt)}`,
-          })
-        }
+      if (addedAt) {
+        nodes.push({
+          id: `${m.id}-added`,
+          name: groupName,
+          type: ObjectNames.DIRECTORY_GROUP,
+          createdAt: addedAt,
+          subtext: `added as ${sourceLabel} on ${formatDate(addedAt)}`,
+        })
+      }
+      if (m.removedAt) {
+        nodes.push({
+          id: `${m.id}-removed`,
+          name: groupName,
+          type: ObjectNames.DIRECTORY_GROUP,
+          createdAt: m.removedAt,
+          subtext: `removed as ${sourceLabel} on ${formatDate(m.removedAt)}`,
+        })
       }
     }
   }
