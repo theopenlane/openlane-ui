@@ -126,7 +126,7 @@ const AssociationTimeline = ({ nodes, isLoading, suppressLinkedDateFallback = fa
   }
 
   return (
-    <div className="relative max-h-80 overflow-y-auto py-2 pr-1">
+    <div className="relative overflow-y-auto py-2 pr-1">
       <div className="absolute left-1.75 top-3 bottom-3 w-px bg-border" />
 
       <div className="space-y-4">
