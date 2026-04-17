@@ -1,18 +1,22 @@
 'use client'
 
-import React, { useCallback, useState } from 'react'
-import { Download, Expand, ImagePlus, Trash2, X } from 'lucide-react'
+import React, { useCallback, useMemo, useState } from 'react'
+import { Download, Expand, Fingerprint, ImagePlus, Trash2, X } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@repo/ui/dialog'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { Badge } from '@repo/ui/badge'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { useDropzone } from 'react-dropzone'
 import { cn } from '@repo/ui/lib/utils'
 import { useNotification } from '@/hooks/useNotification'
 import { toHumanLabel } from '@/utils/strings'
 import { useUploadPlatformDiagram, useRemovePlatformDiagram } from '@/lib/graphql-hooks/platform'
+import { useGetEvidencesWithFileIds } from '@/lib/graphql-hooks/evidence'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { fileDownload } from '@/components/shared/lib/export'
+import MarkAsDiagramEvidenceDialog from './mark-as-diagram-evidence-dialog'
+import UnmarkDiagramEvidenceDialog from './unmark-diagram-evidence-dialog'
 
 export type DiagramType = 'architecture' | 'trust-boundary' | 'data-flow'
 
@@ -179,11 +183,14 @@ const ExpandDiagramDialog: React.FC<ExpandDiagramDialogProps> = ({ diagram, onCl
 interface DiagramCardProps {
   diagram: PlatformDiagram
   canEdit: boolean
+  hasEvidence: boolean
   onExpand: () => void
   onDelete: () => void
+  onMarkEvidence: () => void
+  onUnmarkEvidence: () => void
 }
 
-const DiagramCard: React.FC<DiagramCardProps> = ({ diagram, canEdit, onExpand, onDelete }) => {
+const DiagramCard: React.FC<DiagramCardProps> = ({ diagram, canEdit, hasEvidence, onExpand, onDelete, onMarkEvidence, onUnmarkEvidence }) => {
   const { errorNotification } = useNotification()
 
   return (
@@ -216,6 +223,21 @@ const DiagramCard: React.FC<DiagramCardProps> = ({ diagram, canEdit, onExpand, o
           >
             <Download size={13} />
           </button>
+          <TooltipProvider disableHoverableContent>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  className={cn('h-7 w-7 flex items-center justify-center rounded hover:bg-muted transition-colors', hasEvidence ? 'text-primary' : 'text-muted-foreground hover:text-foreground')}
+                  onClick={hasEvidence ? onUnmarkEvidence : onMarkEvidence}
+                  aria-label={hasEvidence ? 'Remove evidence' : 'Mark as evidence'}
+                >
+                  <Fingerprint size={13} />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">{hasEvidence ? 'Remove evidence' : 'Mark as evidence'}</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
           {canEdit && (
             <button
               type="button"
@@ -234,17 +256,36 @@ const DiagramCard: React.FC<DiagramCardProps> = ({ diagram, canEdit, onExpand, o
 
 interface PlatformDiagramsSectionProps {
   platformId: string
+  platformName: string
   canEdit: boolean
   diagrams: PlatformDiagram[]
 }
 
-const PlatformDiagramsSection: React.FC<PlatformDiagramsSectionProps> = ({ platformId, canEdit, diagrams }) => {
+const PlatformDiagramsSection: React.FC<PlatformDiagramsSectionProps> = ({ platformId, platformName, canEdit, diagrams }) => {
   const { successNotification, errorNotification } = useNotification()
   const [addOpen, setAddOpen] = useState(false)
   const [expandedDiagram, setExpandedDiagram] = useState<PlatformDiagram | null>(null)
+  const [markEvidenceDiagram, setMarkEvidenceDiagram] = useState<PlatformDiagram | null>(null)
+  const [unmarkEvidenceDiagram, setUnmarkEvidenceDiagram] = useState<PlatformDiagram | null>(null)
 
   const { mutateAsync: uploadDiagram, isPending: isUploading } = useUploadPlatformDiagram(platformId)
   const { mutateAsync: removeDiagram } = useRemovePlatformDiagram(platformId)
+
+  const diagramFileIds = useMemo(() => diagrams.map((d) => d.id), [diagrams])
+  const { data: evidencesData } = useGetEvidencesWithFileIds(diagramFileIds)
+
+  const fileToEvidenceMap = useMemo(() => {
+    const map = new Map<string, string>()
+    for (const edge of evidencesData?.evidences?.edges ?? []) {
+      const evidenceId = edge?.node?.id
+      if (!evidenceId) continue
+      for (const fileEdge of edge?.node?.files?.edges ?? []) {
+        const fileId = fileEdge?.node?.id
+        if (fileId) map.set(fileId, evidenceId)
+      }
+    }
+    return map
+  }, [evidencesData])
 
   const handleAdd = async (file: File, diagramType: DiagramType) => {
     try {
@@ -285,13 +326,33 @@ const PlatformDiagramsSection: React.FC<PlatformDiagramsSectionProps> = ({ platf
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {diagrams.map((diagram) => (
-            <DiagramCard key={diagram.id} diagram={diagram} canEdit={canEdit} onExpand={() => setExpandedDiagram(diagram)} onDelete={() => handleDelete(diagram)} />
+            <DiagramCard
+              key={diagram.id}
+              diagram={diagram}
+              canEdit={canEdit}
+              hasEvidence={fileToEvidenceMap.has(diagram.id)}
+              onExpand={() => setExpandedDiagram(diagram)}
+              onDelete={() => handleDelete(diagram)}
+              onMarkEvidence={() => setMarkEvidenceDiagram(diagram)}
+              onUnmarkEvidence={() => setUnmarkEvidenceDiagram(diagram)}
+            />
           ))}
         </div>
       )}
 
       <AddDiagramDialog open={addOpen} onOpenChange={setAddOpen} onAdd={handleAdd} isUploading={isUploading} />
       <ExpandDiagramDialog diagram={expandedDiagram} onClose={() => setExpandedDiagram(null)} />
+      {markEvidenceDiagram && (
+        <MarkAsDiagramEvidenceDialog
+          fileId={markEvidenceDiagram.id}
+          fileName={markEvidenceDiagram.name}
+          diagramType={markEvidenceDiagram.type}
+          platformId={platformId}
+          platformName={platformName}
+          onClose={() => setMarkEvidenceDiagram(null)}
+        />
+      )}
+      {unmarkEvidenceDiagram && <UnmarkDiagramEvidenceDialog fileId={unmarkEvidenceDiagram.id} fileName={unmarkEvidenceDiagram.name} onClose={() => setUnmarkEvidenceDiagram(null)} />}
     </div>
   )
 }

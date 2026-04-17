@@ -40,7 +40,8 @@ import PlateEditor from '@/components/shared/plate/plate-editor'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { EvidenceEvidenceStatus } from '@repo/codegen/src/schema'
+import { EvidenceEvidenceStatus, EvidenceFrequency } from '@repo/codegen/src/schema'
+import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 
 type TEvidenceCreateSheetProps = {
   formData?: TFormEvidenceData
@@ -102,6 +103,7 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
       programIDs: programId ? [programId] : (data.programIDs ?? []),
       ...(data.url ? { url: data.url } : {}),
       ...(data.status ? { status: data.status } : {}),
+      ...(data.reviewFrequency ? { reviewFrequency: data.reviewFrequency } : {}),
     }
 
     const payload = {
@@ -493,6 +495,37 @@ const EvidenceCreateSheet: React.FC<TEvidenceCreateSheetProps> = ({
                               </p>
                             )}
                             {form.formState.errors.renewalDate && <p className="text-red-500 text-sm">{form.formState.errors.renewalDate.message}</p>}
+                          </FormItem>
+                        )}
+                      />
+                    </InputRow>
+
+                    {/* Renewal Frequency */}
+                    <InputRow className="w-full mt-4">
+                      <FormField
+                        control={form.control}
+                        name="reviewFrequency"
+                        render={({ field }) => (
+                          <FormItem className="w-full">
+                            <FormLabel className="mb-2 flex items-center">
+                              Renewal Frequency
+                              <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={<p>How often the evidence should be renewed.</p>} />
+                            </FormLabel>
+                            <FormControl>
+                              <Select value={field.value ?? undefined} onValueChange={(val) => field.onChange(val as EvidenceFrequency)}>
+                                <SelectTrigger className="w-full">
+                                  <SelectValue placeholder="Select renewal frequency..." />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {Object.values(EvidenceFrequency).map((frequency) => (
+                                    <SelectItem key={frequency} value={frequency}>
+                                      {getEnumLabel(frequency)}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </FormControl>
+                            {form.formState.errors.reviewFrequency && <p className="text-red-500 text-sm">{form.formState.errors.reviewFrequency.message}</p>}
                           </FormItem>
                         )}
                       />

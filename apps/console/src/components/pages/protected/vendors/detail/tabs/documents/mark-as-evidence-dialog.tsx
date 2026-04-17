@@ -11,7 +11,7 @@ import { Checkbox } from '@repo/ui/checkbox'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { useNotification } from '@/hooks/useNotification'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { useCreateEvidence } from '@/lib/graphql-hooks/evidence'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useGetEntityAssociations } from '@/lib/graphql-hooks/entity'
@@ -36,7 +36,6 @@ interface MarkAsEvidenceDialogProps {
 
 const MarkAsEvidenceDialog: React.FC<MarkAsEvidenceDialogProps> = ({ fileId, fileName, vendorId, onClose }) => {
   const router = useRouter()
-  const searchParams = useSearchParams()
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: createEvidence, isPending } = useCreateEvidence()
   const [selectedIds, setSelectedIds] = useState<TObjectAssociationMap>({})
@@ -66,9 +65,7 @@ const MarkAsEvidenceDialog: React.FC<MarkAsEvidenceDialogProps> = ({ fileId, fil
   }, [])
 
   const openEvidence = (evidenceId: string) => {
-    const params = new URLSearchParams(searchParams.toString())
-    params.set('id', evidenceId)
-    router.push(`${window.location.pathname}?${params.toString()}`)
+    router.push(`/evidence?id=${evidenceId}`)
   }
 
   const handleSubmit = async (data: MarkAsEvidenceFormData) => {
