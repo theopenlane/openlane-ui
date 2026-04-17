@@ -1,5 +1,23 @@
 import { gql } from 'graphql-request'
 
+const DIRECTORY_MEMBERSHIP_CONNECTION_FIELDS = gql`
+  fragment DirectoryMembershipConnectionFields on DirectoryMembershipConnection {
+    totalCount
+    edges {
+      node {
+        id
+        role
+        addedAt
+        removedAt
+        createdAt
+        directoryGroup {
+          displayName
+        }
+      }
+    }
+  }
+`
+
 export const GET_ALL_IDENTITY_HOLDERS = gql`
   query IdentityHoldersWithFilter($where: IdentityHolderWhereInput, $orderBy: [IdentityHolderOrder!], $first: Int, $after: Cursor, $last: Int, $before: Cursor) {
     identityHolders(where: $where, orderBy: $orderBy, first: $first, after: $after, last: $last, before: $before) {
@@ -212,9 +230,9 @@ export const CREATE_IDENTITY_HOLDER_WITH_FILES = gql`
 `
 
 export const GET_IDENTITY_HOLDER_DIRECTORY_ACCOUNTS = gql`
-  query GetIdentityHolderDirectoryAccounts($identityHolderId: ID!) {
+  query GetIdentityHolderDirectoryAccounts($identityHolderId: ID!, $where: DirectoryAccountWhereInput) {
     identityHolder(id: $identityHolderId) {
-      directoryAccounts {
+      directoryAccounts(where: $where) {
         edges {
           node {
             id
@@ -225,11 +243,15 @@ export const GET_IDENTITY_HOLDER_DIRECTORY_ACCOUNTS = gql`
             integration {
               name
             }
+            memberships(first: 100, orderBy: [{ field: created_at, direction: DESC }]) {
+              ...DirectoryMembershipConnectionFields
+            }
           }
         }
       }
     }
   }
+  ${DIRECTORY_MEMBERSHIP_CONNECTION_FIELDS}
 `
 
 export const GET_IDENTITY_HOLDER_ASSOCIATIONS = gql`
@@ -335,6 +357,12 @@ export const GET_IDENTITY_HOLDER_ASSOCIATIONS_TIMELINE = gql`
             directoryName
             displayName
             canonicalEmail
+            integration {
+              name
+            }
+            memberships(first: 75, orderBy: [{ field: created_at, direction: DESC }]) {
+              ...DirectoryMembershipConnectionFields
+            }
           }
         }
       }
@@ -346,4 +374,5 @@ export const GET_IDENTITY_HOLDER_ASSOCIATIONS_TIMELINE = gql`
       }
     }
   }
+  ${DIRECTORY_MEMBERSHIP_CONNECTION_FIELDS}
 `

@@ -11,8 +11,7 @@ import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { Badge } from '@repo/ui/badge'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
-import { X } from 'lucide-react'
-import { Button } from '@repo/ui/button'
+import { PanelRightClose } from 'lucide-react'
 import { formatDate } from '@/utils/date'
 
 interface AssessmentsTabProps {
@@ -128,11 +127,12 @@ const AssessmentsTab: React.FC<AssessmentsTabProps> = ({ personnelId, personnelE
 
       <Sheet open={!!selectedResponseId} onOpenChange={(open) => !open && setSelectedResponseId(null)}>
         <SheetContent className="sm:max-w-lg overflow-y-auto">
-          <SheetHeader className="flex flex-row items-center justify-between">
-            <SheetTitle>Assessment Response</SheetTitle>
-            <Button type="button" variant="outline" size="sm" onClick={() => setSelectedResponseId(null)}>
-              <X size={16} />
-            </Button>
+          <SheetHeader>
+            <SheetTitle className="sr-only">Assessment Response</SheetTitle>
+            <div className="flex items-center gap-2">
+              <PanelRightClose aria-label="Close detail sheet" size={16} className="cursor-pointer" onClick={() => setSelectedResponseId(null)} />
+              <span className="text-lg">Assessment Response</span>
+            </div>
           </SheetHeader>
 
           {isDetailLoading ? (
