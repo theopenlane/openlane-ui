@@ -10,13 +10,13 @@
     "typescript": "5.9.3"
   },
   "devDependencies": {
-    "@graphql-codegen/add": "6.0.0",
-    "@graphql-codegen/cli": "6.2.1",
-    "@graphql-codegen/introspection": "5.0.1",
-    "@graphql-codegen/typescript": "5.0.9",
-    "@graphql-codegen/typescript-document-nodes": "5.0.9",
-    "@graphql-codegen/typescript-operations": "5.0.9",
-    "@graphql-codegen/typescript-resolvers": "5.1.7"
+    "@graphql-codegen/add": "6.0.1",
+    "@graphql-codegen/cli": "6.3.1",
+    "@graphql-codegen/introspection": "5.0.2",
+    "@graphql-codegen/typescript": "5.0.10",
+    "@graphql-codegen/typescript-document-nodes": "5.0.10",
+    "@graphql-codegen/typescript-operations": "5.1.0",
+    "@graphql-codegen/typescript-resolvers": "5.1.8"
   },
   "scripts": {
     "codegen": "graphql-codegen --config graphql-codegen.yml"
