@@ -7,6 +7,7 @@ import { Editor, EditorContainer, type TPlateEditorStyleVariant } from '@repo/ui
 import { createPlateEditor, Plate, type PlatePlugin, usePlateEditor } from 'platejs/react'
 import { detectFormat } from './usePlateEditor'
 import { type CommentEntityType, discussionPlugin, type TDiscussion } from '@repo/ui/components/editor/plugins/discussion-kit.tsx'
+import { parseCommentTextToChildren } from '@repo/ui/components/editor/plugins/mention-serialize.ts'
 import {
   type ControlDiscussionFieldsFragment,
   type GetUserProfileQuery,
@@ -88,7 +89,7 @@ const PlateEditor = ({ onChange, initialValue, variant = 'basic', styleVariant, 
                   contentRich: [
                     {
                       type: 'p',
-                      children: [{ text: c.text, comment: true, [`comment_${d.externalID}`]: true }],
+                      children: parseCommentTextToChildren(c.text ?? '', { comment: true, [`comment_${d.externalID}`]: true }),
                       id: c.noteRef,
                     },
                   ],
