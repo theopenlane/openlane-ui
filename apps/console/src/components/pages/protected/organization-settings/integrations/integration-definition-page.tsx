@@ -51,7 +51,7 @@ const IntegrationDefinitionPage = ({ definitionId }: IntegrationDefinitionPagePr
   const visibleOperations = useMemo(() => (provider?.operations ?? []).filter((op) => op.name !== HEALTH_CHECK_OPERATION_NAME), [provider?.operations])
 
   const credentialEntries = useMemo(() => provider?.credentialSchemas ?? [], [provider?.credentialSchemas])
-  const [selectedCredentialIndex, setSelectedCredentialIndex] = useState(0)
+  const [selectedCredentialIndex, setSelectedCredentialIndex] = useState(() => (credentialEntries.length === 1 ? 0 : -1))
   const selectedCredential = credentialEntries[selectedCredentialIndex]
   const credentialSchema = useMemo(() => resolveSchemaRoot(selectedCredential?.schema), [selectedCredential?.schema])
   const userInputSchema = useMemo(() => resolveSchemaRoot(provider?.userInputSchema), [provider?.userInputSchema])

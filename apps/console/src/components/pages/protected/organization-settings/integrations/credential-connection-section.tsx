@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+import { ChevronDown, ChevronUp } from 'lucide-react'
 import { FormProvider, type UseFormReturn } from 'react-hook-form'
 import { Button } from '@repo/ui/button'
 import { Card } from '@repo/ui/cardpanel'
@@ -64,16 +65,19 @@ const CredentialConnectionSection = ({
               return (
                 <Card
                   key={entry.ref}
-                  className={`p-4 cursor-pointer transition-all duration-200 hover:-translate-y-1 hover:border-primary ${isSelected ? 'border-primary' : 'opacity-60'}`}
-                  onClick={() => onSelectCredential(index)}
+                  className={`p-4 cursor-pointer transition-all duration-200 hover:-translate-y-1 hover:border-primary ${isSelected ? 'border-primary' : selectedCredentialIndex === -1 ? '' : 'opacity-60'}`}
+                  onClick={() => onSelectCredential(isSelected ? -1 : index)}
                 >
                   <div>
                     <div className="min-w-0">
-                      <span className="text-sm font-medium">{entry.name ?? entry.ref}</span>
+                      <div className="flex items-center gap-2">
+                        {isSelected ? <ChevronUp className="h-4 w-4 shrink-0 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />}
+                        <span className="text-sm font-medium">{entry.name ?? entry.ref}</span>
+                      </div>
                       {connection?.description || entry.description ? <p className="mt-0.5 text-xs text-muted-foreground">{connection?.description || entry.description}</p> : null}
 
                       {isSelected ? (
-                        <div className="mt-4 pt-3 border-t">
+                        <div className="mt-4 pt-3 border-t" onClick={(e) => e.stopPropagation()}>
                           {providerHelper ? <div className="mb-3">{providerHelper}</div> : null}
                           <div className="flex">
                             <div className="flex flex-1 flex-col min-w-0">
