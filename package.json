@@ -22,7 +22,7 @@
     "apps/console/**/*.{js,jsx,ts,tsx}": "eslint --no-warn-ignored --max-warnings=0 --fix"
   },
   "devDependencies": {
-    "@eslint-react/eslint-plugin": "^3.0.0",
+    "@eslint-react/eslint-plugin": "^4.0.0",
     "@graphql-codegen/typescript-react-query": "^7.0.0",
     "@types/dompurify": "^3.2.0",
     "dompurify": "^3.3.3",
