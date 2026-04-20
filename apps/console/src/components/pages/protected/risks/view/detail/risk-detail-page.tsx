@@ -1,8 +1,8 @@
 'use client'
 
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { FormProvider, useForm } from 'react-hook-form'
+import { Controller, FormProvider, useForm } from 'react-hook-form'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNavigationGuard } from 'next-navigation-guard'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
@@ -30,6 +30,7 @@ import type { EditRisksFormData } from '../hooks/use-form-schema'
 import RiskDetailTabs from './tabs/risk-detail-tabs'
 import QuickActions from '@/components/pages/protected/risks/quick-actions/quick-actions.tsx'
 import { Badge } from '@repo/ui/badge'
+import { cn } from '@repo/ui/lib/utils'
 import RiskLabel from '../../risk-label'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { type Value } from 'platejs'
@@ -40,6 +41,7 @@ interface RiskDetailPageProps {
 }
 
 type RiskFormValues = EditRisksFormData
+type InlineEditField = 'status' | 'riskKindName' | 'riskCategoryName'
 
 const RiskDetailPage: React.FC<RiskDetailPageProps> = ({ riskId }) => {
   const router = useRouter()
@@ -57,6 +59,7 @@ const RiskDetailPage: React.FC<RiskDetailPageProps> = ({ riskId }) => {
   const [isEditing, setIsEditing] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [initialValues, setInitialValues] = useState<Partial<RiskFormValues>>({})
+  const [inlineEditField, setInlineEditField] = useState<InlineEditField | null>(null)
 
   const plateEditorHelper = usePlateEditor()
 
@@ -69,6 +72,9 @@ const RiskDetailPage: React.FC<RiskDetailPageProps> = ({ riskId }) => {
   const { isDirty } = form.formState
   const navGuard = useNavigationGuard({ enabled: isDirty })
 
+  const isEditingRef = useRef(isEditing)
+  isEditingRef.current = isEditing
+
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
@@ -79,7 +85,7 @@ const RiskDetailPage: React.FC<RiskDetailPageProps> = ({ riskId }) => {
   }, [setCrumbs, data?.risk, isLoading])
 
   useEffect(() => {
-    if (data?.risk) {
+    if (data?.risk && !isEditingRef.current) {
       const newValues: Partial<RiskFormValues> = {
         name: data.risk.name ?? '',
         riskKindName: data.risk.riskKindName ?? '',
@@ -133,7 +139,7 @@ const RiskDetailPage: React.FC<RiskDetailPageProps> = ({ riskId }) => {
         detailsJSON: detailsJSON,
       } as UpdateRiskInput
 
-      if (Object.keys(input).length === 0) {
+      if (Object.keys(changedFields).length === 0) {
         setIsEditing(false)
         return
       }
@@ -234,6 +240,57 @@ const RiskDetailPage: React.FC<RiskDetailPageProps> = ({ riskId }) => {
   const risk = data?.risk
   const canEditRisk = canEdit(permission?.roles)
 
+  const canInlineEdit = (field: InlineEditField) => !isEditing && canEditRisk && inlineEditField !== field
+
+  const renderInlineBadge = ({
+    field,
+    label,
+    variant,
+    badgeClassName,
+    showIcon,
+    labelProps,
+  }: {
+    field: InlineEditField
+    label: string
+    variant: 'outline' | 'secondary'
+    badgeClassName?: string
+    showIcon: boolean
+    labelProps: (value: string | undefined) => { status?: RiskRiskStatus; riskKindName?: string; riskCategoryName?: string }
+  }) => (
+    <div>
+      <p className="text-sm text-muted-foreground mb-2">{label}</p>
+      <Badge
+        variant={variant}
+        className={cn('shrink-0', badgeClassName, canInlineEdit(field) && 'cursor-pointer')}
+        onClick={() => {
+          if (canInlineEdit(field)) setInlineEditField(field)
+        }}
+      >
+        <Controller
+          name={field}
+          control={form.control}
+          render={({ field: ctrl }) => (
+            <RiskLabel
+              fieldName={field}
+              {...labelProps(ctrl.value as string | undefined)}
+              isEditing={isEditing || inlineEditField === field}
+              showIcon={showIcon}
+              onChange={(val) => {
+                const next = String(val)
+                ctrl.onChange(next)
+                if (!isEditing) {
+                  handleUpdateField({ [field]: next } as UpdateRiskInput)
+                  setInlineEditField(null)
+                }
+              }}
+              onClose={() => setInlineEditField(null)}
+            />
+          )}
+        />
+      </Badge>
+    </div>
+  )
+
   if (isLoading) {
     return null
   }
@@ -256,30 +313,33 @@ const RiskDetailPage: React.FC<RiskDetailPageProps> = ({ riskId }) => {
       />
 
       <div className="grid gap-4 sm:grid-cols-[160px_160px_1fr]">
-        {risk.status && (
-          <div>
-            <p className="text-sm text-muted-foreground mb-2">Status</p>
-            <Badge variant={'outline'} className="shrink-0">
-              <RiskLabel fieldName="status" status={risk.status} isEditing={isEditing} showIcon={true} />
-            </Badge>
-          </div>
-        )}
-        {risk.riskKindName && (
-          <div>
-            <p className="text-sm text-muted-foreground mb-2">Kind</p>
-            <Badge variant={'secondary'} className="shrink-0 ml-[-10px]">
-              <RiskLabel fieldName="riskKindName" riskKindName={risk.riskKindName} isEditing={isEditing} showIcon={false} />
-            </Badge>
-          </div>
-        )}
-        {risk.riskCategoryName && (
-          <div>
-            <p className="text-sm text-muted-foreground mb-2">Category</p>
-            <Badge variant={'secondary'} className="shrink-0 ml-[-10px]">
-              <RiskLabel fieldName="riskCategoryName" riskCategoryName={risk.riskCategoryName} isEditing={isEditing} showIcon={false} />
-            </Badge>
-          </div>
-        )}
+        {risk.status &&
+          renderInlineBadge({
+            field: 'status',
+            label: 'Status',
+            variant: 'outline',
+            badgeClassName: 'border-0',
+            showIcon: true,
+            labelProps: (value) => ({ status: (value as RiskRiskStatus | undefined) ?? risk.status ?? undefined }),
+          })}
+        {(isEditing || inlineEditField === 'riskKindName' || risk.riskKindName) &&
+          renderInlineBadge({
+            field: 'riskKindName',
+            label: 'Kind',
+            variant: 'secondary',
+            badgeClassName: 'ml-[-10px]',
+            showIcon: false,
+            labelProps: (value) => ({ riskKindName: value || undefined }),
+          })}
+        {(isEditing || inlineEditField === 'riskCategoryName' || risk.riskCategoryName) &&
+          renderInlineBadge({
+            field: 'riskCategoryName',
+            label: 'Category',
+            variant: 'secondary',
+            badgeClassName: 'ml-[-10px]',
+            showIcon: false,
+            labelProps: (value) => ({ riskCategoryName: value || undefined }),
+          })}
       </div>
 
       <QuickActions riskId={riskId} handleUpdate={handleUpdateField} canEdit={canEdit(permission?.roles)} />

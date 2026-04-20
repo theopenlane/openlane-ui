@@ -13,6 +13,7 @@ import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import type { TAccessRole } from '@/types/authz'
 import { type GetRiskByIdQuery, type UpdateRiskInput } from '@repo/codegen/src/schema'
+import { cn } from '@repo/ui/lib/utils'
 
 interface RiskDetailHeaderProps {
   risk: GetRiskByIdQuery['risk']
@@ -89,7 +90,7 @@ const RiskDetailHeader: React.FC<RiskDetailHeaderProps> = ({ risk, isEditing, ca
             ) : (
               <div className="flex items-center gap-2 min-w-0 flex-wrap">
                 <HoverPencilWrapper showPencil={canEditRisk} onPencilClick={() => startEditing('name')} className="min-w-0">
-                  <h1 className="text-2xl font-semibold break-words" onDoubleClick={() => startEditing('name')}>
+                  <h1 className={cn('text-2xl font-semibold break-words', canEditRisk && 'cursor-pointer')} onClick={() => startEditing('name')}>
                     {risk.name}
                   </h1>
                 </HoverPencilWrapper>
