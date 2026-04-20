@@ -240,9 +240,7 @@ export const GET_IDENTITY_HOLDER_DIRECTORY_ACCOUNTS = gql`
             status
             primarySource
             mfaState
-            integration {
-              name
-            }
+            directoryName
             memberships(first: 100, orderBy: [{ field: created_at, direction: DESC }]) {
               ...DirectoryMembershipConnectionFields
             }
@@ -357,9 +355,6 @@ export const GET_IDENTITY_HOLDER_ASSOCIATIONS_TIMELINE = gql`
             directoryName
             displayName
             canonicalEmail
-            integration {
-              name
-            }
             memberships(first: 75, orderBy: [{ field: created_at, direction: DESC }]) {
               ...DirectoryMembershipConnectionFields
             }

@@ -70119,7 +70119,7 @@ export type GetIdentityHolderDirectoryAccountsQuery = {
           status: DirectoryAccountDirectoryAccountStatus
           primarySource: boolean
           mfaState: DirectoryAccountDirectoryAccountMfaState
-          integration?: { __typename?: 'Integration'; name: string } | null
+          directoryName?: string | null
           memberships: {
             __typename?: 'DirectoryMembershipConnection'
             totalCount: number
@@ -70214,7 +70214,6 @@ export type GetIdentityHolderAssociationsTimelineQuery = {
           directoryName?: string | null
           displayName?: string | null
           canonicalEmail?: string | null
-          integration?: { __typename?: 'Integration'; name: string } | null
           memberships: {
             __typename?: 'DirectoryMembershipConnection'
             totalCount: number

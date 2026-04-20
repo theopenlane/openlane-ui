@@ -166,12 +166,7 @@ const LinkedAccountsTab: React.FC<LinkedAccountsTabProps> = ({ personnelId }) =>
     () =>
       debouncedSearch
         ? {
-            or: [
-              { directoryNameContainsFold: debouncedSearch },
-              { displayNameContainsFold: debouncedSearch },
-              { canonicalEmailContainsFold: debouncedSearch },
-              { hasIntegrationWith: [{ nameContainsFold: debouncedSearch }] },
-            ],
+            or: [{ directoryNameContainsFold: debouncedSearch }, { displayNameContainsFold: debouncedSearch }, { canonicalEmailContainsFold: debouncedSearch }],
           }
         : undefined,
     [debouncedSearch],
@@ -183,7 +178,7 @@ const LinkedAccountsTab: React.FC<LinkedAccountsTabProps> = ({ personnelId }) =>
     () =>
       directoryAccounts.map((account) => ({
         id: account.id,
-        directory: account.integration?.name ?? '-',
+        directory: account.directoryName ?? '-',
         accountType: account.accountType ?? '',
         status: account.status,
         mfaState: account.mfaState,
