@@ -26,11 +26,13 @@
   },
   {
     "route": "/automation/campaigns",
-    "name": "Campaigns"
+    "name": "Campaigns",
+    "hidden": true
   },
   {
     "route": "/automation/communications",
-    "name": "Communications"
+    "name": "Communications",
+    "hidden": true
   },
   {
     "route": "/automation/exposure",
@@ -43,27 +45,33 @@
   },
   {
     "route": "/automation/workflows",
-    "name": "Workflows"
+    "name": "Workflows",
+    "hidden": true
   },
   {
     "route": "/automation/workflows/editor",
-    "name": "Editor"
+    "name": "Editor",
+    "hidden": true
   },
   {
     "route": "/automation/workflows/inbox",
-    "name": "Inbox"
+    "name": "Inbox",
+    "hidden": true
   },
   {
     "route": "/automation/workflows/instances",
-    "name": "Instances"
+    "name": "Instances",
+    "hidden": true
   },
   {
     "route": "/automation/workflows/templates",
-    "name": "Templates"
+    "name": "Templates",
+    "hidden": true
   },
   {
     "route": "/automation/workflows/wizard",
-    "name": "Wizard"
+    "name": "Wizard",
+    "hidden": true
   },
   {
     "route": "/controls",
