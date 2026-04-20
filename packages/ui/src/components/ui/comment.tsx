@@ -16,6 +16,8 @@ import { Button } from '@repo/ui/components/ui/button.tsx'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/components/ui/dropdown-menu.tsx'
 import { cn } from '@repo/ui/lib/utils'
 import { BasicMarksKit } from '@repo/ui/components/editor/plugins/basic-marks-kit.tsx'
+import { MentionKit } from '@repo/ui/components/editor/plugins/mention-kit.tsx'
+import { serializeCommentValue } from '@repo/ui/components/editor/plugins/mention-serialize.ts'
 import { type TDiscussion, discussionPlugin, CommentEntityType } from '@repo/ui/components/editor/plugins/discussion-kit.tsx'
 
 import { Editor, EditorContainer } from './editor'
@@ -120,7 +122,7 @@ export function Comment(props: {
   }
 
   const updateComment = async (input: { id: string; contentRich: Value; discussionId: string; isEdited: boolean }) => {
-    const text = NodeApi.string({ children: input.contentRich, type: KEYS.p })
+    const text = serializeCommentValue(input.contentRich)
 
     const commentIdKeyMap = {
       [ObjectTypes.CONTROL]: 'updateControlCommentId',
@@ -452,7 +454,7 @@ const useCommentEditor = (options: Omit<CreatePlateEditorOptions, 'plugins'> = {
   const commentEditor = usePlateEditor(
     {
       id: 'comment',
-      plugins: BasicMarksKit,
+      plugins: [...BasicMarksKit, ...MentionKit],
       value: [],
       ...options,
     },
@@ -622,7 +624,7 @@ export function CommentCreateForm({
       Risk: 'updateRiskId',
     }
 
-    const text = NodeApi.string({ children: commentValue, type: KEYS.p })
+    const text = serializeCommentValue(commentValue)
 
     commentEditor.tf.reset()
 
@@ -818,10 +820,11 @@ export function CommentCreateForm({
               variant="comment"
               className="min-h-[25px] grow pt-0.5 pr-8"
               onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault()
-                  void onAddComment()
-                }
+                if (e.key !== 'Enter' || e.shiftKey) return
+                const inMentionInput = commentEditor.api.some({ match: { type: KEYS.mentionInput } })
+                if (inMentionInput) return
+                e.preventDefault()
+                void onAddComment()
               }}
               placeholder="Reply..."
               autoComplete="off"
