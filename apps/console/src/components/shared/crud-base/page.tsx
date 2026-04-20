@@ -12,6 +12,7 @@ import { canEdit } from '@/lib/authz/utils.ts'
 import useFileExport from '@/components/shared/export/use-file-export.ts'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
+import { type TFilterState } from '@/components/shared/table-filter/filter-storage'
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
 import { getInitialSortConditions, getInitialPagination, type SortCondition } from '@repo/ui/data-table'
 import { useStorageSearch } from '@/hooks/useStorageSearch'
@@ -112,6 +113,7 @@ export interface GenericTablePageConfig<TEntity extends { id: string }, TFormDat
     createMode?: CreateMode
     hideCreate?: boolean
     additionalActiveFilterCount?: number
+    defaultFilterValues?: TFilterState
   }>
 
   // Sheet configuration
@@ -131,6 +133,7 @@ export interface GenericTablePageConfig<TEntity extends { id: string }, TFormDat
   responsibilityFields?: ResponsibilityFieldsMap
   beforeTable?: React.ReactNode
   additionalWhereFilter?: Partial<TWhereInput>
+  defaultFilterValues?: TFilterState
   hideCreate?: boolean
   hideBreadcrumbs?: boolean
 }
@@ -168,7 +171,7 @@ export function GenericTablePage<
     onBulkEdit,
   } = config
 
-  const { beforeTable, additionalWhereFilter } = config
+  const { beforeTable, additionalWhereFilter, defaultFilterValues } = config
 
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -381,6 +384,7 @@ export function GenericTablePage<
         createMode={createMode}
         hideCreate={config.hideCreate}
         additionalActiveFilterCount={additionalWhereFilter ? Object.values(additionalWhereFilter).filter((v) => v != null).length : 0}
+        defaultFilterValues={defaultFilterValues}
       />
 
       <TableComponent

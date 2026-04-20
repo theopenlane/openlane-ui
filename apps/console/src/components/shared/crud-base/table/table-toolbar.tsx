@@ -21,6 +21,7 @@ import { type TableKeyValue } from '@repo/ui/table-key'
 import { TableFilter } from '../../table-filter/table-filter'
 import { type FilterField } from '@/types'
 import type { WhereCondition } from '@/types'
+import { type TFilterState } from '../../table-filter/filter-storage'
 import { GenericBulkEditDialog, type ResponsibilityFieldsMap } from '../dialog/bulk-edit'
 import { type EnumOptionsGeneric } from '../page'
 import type { CreateMode } from '../types'
@@ -56,6 +57,7 @@ type GenericTableToolbarProps<T extends { id: string }, TWhereInput, TUpdateInpu
   createMode?: CreateMode
   hideCreate?: boolean
   additionalActiveFilterCount?: number
+  defaultFilterValues?: TFilterState
 }
 
 function GenericTableToolbar<T extends { id: string }, TWhereInput, TUpdateInput>(props: GenericTableToolbarProps<T, TWhereInput, TUpdateInput>) {
@@ -204,6 +206,7 @@ function GenericTableToolbar<T extends { id: string }, TWhereInput, TUpdateInput
                   onFilterChange={props.onFilterChange as (whereCondition: WhereCondition) => void}
                   pageKey={props.storageKey}
                   additionalActiveFilterCount={props.additionalActiveFilterCount}
+                  defaultFilterValues={props.defaultFilterValues}
                 />
               )}
               {!props.hideCreate && props.canEdit(props.permission?.roles) && (

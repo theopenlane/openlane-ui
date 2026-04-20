@@ -15,6 +15,8 @@ import TaskDetailsSheet from '../../tasks/create-task/sidebar/task-details-sheet
 import ViewFindingSheet from '../view-finding-sheet'
 import { FindingSeverityChart } from '../../vulnerabilities/table/severity-chart'
 
+const DEFAULT_FILTER_VALUES = { open: true }
+
 const FindingPage: React.FC = () => {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -71,6 +73,7 @@ const FindingPage: React.FC = () => {
     bulkEditFormSchema: bulkEditFieldSchema,
     enumOpts,
     additionalWhereFilter: severityWhereFilter,
+    defaultFilterValues: DEFAULT_FILTER_VALUES,
     beforeTable: (
       <>
         <FindingSeverityChart selectedSeverity={selectedSeverity} onSeveritySelect={setSelectedSeverity} />

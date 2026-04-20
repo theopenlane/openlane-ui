@@ -31,6 +31,8 @@ import TaskDetailsSheet from '../../tasks/create-task/sidebar/task-details-sheet
 import ViewVulnerabilitySheet from '../view-vulnerability-sheet'
 import type { Value } from 'platejs'
 
+const DEFAULT_FILTER_VALUES = { open: true }
+
 const VulnerabilityPage: React.FC = () => {
   const { form } = useFormSchema()
   const [selectedSeverity, setSelectedSeverity] = useState<'critical' | 'high' | 'medium' | 'low' | null>(null)
@@ -193,6 +195,7 @@ const VulnerabilityPage: React.FC = () => {
     bulkEditFormSchema: bulkEditFieldSchema,
     enumOpts,
     additionalWhereFilter: severityWhereFilter,
+    defaultFilterValues: DEFAULT_FILTER_VALUES,
     beforeTable: (
       <>
         {/* TODO: Uncomment when integrations page is released
