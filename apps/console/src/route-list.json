@@ -25,6 +25,16 @@
     "name": "Template Viewer"
   },
   {
+    "route": "/automation/campaigns",
+    "name": "Campaigns",
+    "hidden": true
+  },
+  {
+    "route": "/automation/communications",
+    "name": "Communications",
+    "hidden": true
+  },
+  {
     "route": "/automation/exposure",
     "name": "Exposure",
     "hidden": true
@@ -32,6 +42,36 @@
   {
     "route": "/automation/tasks",
     "name": "Tasks"
+  },
+  {
+    "route": "/automation/workflows",
+    "name": "Workflows",
+    "hidden": true
+  },
+  {
+    "route": "/automation/workflows/editor",
+    "name": "Editor",
+    "hidden": true
+  },
+  {
+    "route": "/automation/workflows/inbox",
+    "name": "Inbox",
+    "hidden": true
+  },
+  {
+    "route": "/automation/workflows/instances",
+    "name": "Instances",
+    "hidden": true
+  },
+  {
+    "route": "/automation/workflows/templates",
+    "name": "Templates",
+    "hidden": true
+  },
+  {
+    "route": "/automation/workflows/wizard",
+    "name": "Wizard",
+    "hidden": true
   },
   {
     "route": "/controls",
@@ -67,12 +107,32 @@
     "keywords": ["audit", "files"]
   },
   {
+    "route": "/exposure",
+    "name": "Exposure"
+  },
+  {
     "route": "/exposure/findings",
     "name": "Findings"
   },
   {
+    "route": "/exposure/overview",
+    "name": "Overview"
+  },
+  {
     "route": "/exposure/remediations",
     "name": "Remediations"
+  },
+  {
+    "route": "/exposure/reviews",
+    "name": "Reviews"
+  },
+  {
+    "route": "/exposure/risks",
+    "name": "Risks"
+  },
+  {
+    "route": "/exposure/risks/create",
+    "name": "Create Risk"
   },
   {
     "route": "/exposure/scans",
@@ -81,6 +141,10 @@
   {
     "route": "/exposure/vulnerabilities",
     "name": "Vulnerabilities"
+  },
+  {
+    "route": "/notifications",
+    "name": "Notifications"
   },
   {
     "route": "/onboarding",
@@ -142,39 +206,6 @@
     "name": "Procedures"
   },
   {
-    "route": "/workflows",
-    "name": "Workflows",
-    "keywords": ["automation", "approvals", "workflow definitions"]
-  },
-  {
-    "route": "/workflows/templates",
-    "name": "Workflow Templates",
-    "keywords": ["automation", "templates", "workflow presets"]
-  },
-  {
-    "route": "/workflows/inbox",
-    "name": "Workflow Inbox",
-    "keywords": ["approvals", "inbox", "workflow assignments"]
-  },
-  {
-    "route": "/workflows/instances",
-    "name": "Workflow Instances",
-    "keywords": ["automation", "instances", "workflow runs"]
-  },
-  {
-    "route": "/workflows/wizard",
-    "name": "Workflow Wizard",
-    "keywords": ["automation", "wizard", "workflow builder"]
-  },
-  {
-    "route": "/workflows/editor",
-    "name": "Workflow Editor"
-  },
-  {
-    "route": "/workflows/definitions",
-    "name": "Workflow Definition"
-  },
-  {
     "route": "/procedures/create",
     "name": "Create Procedure"
   },
@@ -212,8 +243,20 @@
     "name": "Assets"
   },
   {
+    "route": "/registry/contacts",
+    "name": "Contacts"
+  },
+  {
     "route": "/registry/personnel",
     "name": "Personnel"
+  },
+  {
+    "route": "/registry/platforms",
+    "name": "Platforms"
+  },
+  {
+    "route": "/registry/system-details",
+    "name": "System Details"
   },
   {
     "route": "/registry/vendors",
@@ -222,14 +265,6 @@
   {
     "route": "/registry/vulnerabilities",
     "name": "Vulnerabilities"
-  },
-  {
-    "route": "/exposure/risks",
-    "name": "Risks"
-  },
-  {
-    "route": "/exposure/risks/create",
-    "name": "Create Risk"
   },
   {
     "route": "/standards",
@@ -244,6 +279,10 @@
     "route": "/trust-center/branding",
     "name": "Branding",
     "hidden": true
+  },
+  {
+    "route": "/trust-center/controls",
+    "name": "Controls"
   },
   {
     "route": "/trust-center/customer-logos",
