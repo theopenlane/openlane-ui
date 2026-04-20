@@ -99,6 +99,8 @@ export const BULK_DELETE_TRUST_CENTER_FAQ = gql`
   mutation DeleteBulkTrustCenterFAQ($ids: [ID!]!) {
     deleteBulkTrustCenterFAQ(ids: $ids) {
       deletedIDs
+      notDeletedIDs
+      error
     }
   }
 `

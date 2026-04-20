@@ -117,6 +117,8 @@ export const BULK_DELETE_SYSTEM_DETAIL = gql`
   mutation DeleteBulkSystemDetail($ids: [ID!]!) {
     deleteBulkSystemDetail(ids: $ids) {
       deletedIDs
+      notDeletedIDs
+      error
     }
   }
 `

@@ -16,6 +16,9 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { BulkEditTrustCenterDocsDialog } from './bulk-edit-trust-center-dialog'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import ApplyWatermarkSheet from './apply-watermark-sheet'
+import { useNotification } from '@/hooks/useNotification'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { getBulkActionFailureDescription } from '@/components/shared/crud-base/bulk-action-feedback'
 
 type TProps = {
   searching?: boolean
@@ -37,6 +40,7 @@ const DocumentsTableToolbar: React.FC<TProps> = ({ searching, searchTerm, setSea
   const searchParams = useSearchParams()
   const { data } = useGetTrustCenter()
   const { mutate: deleteDocs, isPending: isDeleting } = useBulkDeleteTrustCenterDocs()
+  const { errorNotification } = useNotification()
   const [isConfirmOpen, setIsConfirmOpen] = useState(false)
 
   const handleCreateClick = () => {
@@ -58,12 +62,26 @@ const DocumentsTableToolbar: React.FC<TProps> = ({ searching, searchTerm, setSea
     deleteDocs(
       { ids },
       {
-        onSuccess: () => {
+        onSuccess: (result) => {
+          if (result.deleteBulkTrustCenterDoc.notDeletedIDs.length > 0 || result.deleteBulkTrustCenterDoc.error) {
+            const failedCount = result.deleteBulkTrustCenterDoc.notDeletedIDs.length
+
+            errorNotification({
+              title: 'Delete Failed',
+              description: getBulkActionFailureDescription({ failedCount, singular: 'document', fallback: result.deleteBulkTrustCenterDoc.error ?? 'Some documents were not deleted.' }),
+            })
+            setIsConfirmOpen(false)
+            return
+          }
+
           setSelectedDocs([])
           setIsConfirmOpen(false)
         },
         onError: (err) => {
-          console.error('Bulk delete failed:', err)
+          errorNotification({
+            title: 'Delete Failed',
+            description: parseErrorMessage(err),
+          })
           setIsConfirmOpen(false)
         },
       },

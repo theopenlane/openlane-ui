@@ -21,6 +21,7 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { getBulkActionFailureDescription } from '@/components/shared/crud-base/bulk-action-feedback'
 
 type TProceduresTableToolbarProps = {
   className?: string
@@ -77,7 +78,18 @@ const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({
     }
 
     try {
-      await bulkDeleteProcedures({ ids: selectedProcedures.map((procedure) => procedure.id) })
+      const result = await bulkDeleteProcedures({ ids: selectedProcedures.map((procedure) => procedure.id) })
+
+      if (result.deleteBulkProcedure.notDeletedIDs.length > 0 || result.deleteBulkProcedure.error) {
+        const failedCount = result.deleteBulkProcedure.notDeletedIDs.length
+
+        errorNotification({
+          title: 'Some procedures were not deleted.',
+          description: getBulkActionFailureDescription({ failedCount, singular: 'item', fallback: result.deleteBulkProcedure.error ?? 'Some procedures were not deleted.' }),
+        })
+        return
+      }
+
       successNotification({
         title: 'Selected procedures have been successfully deleted.',
       })

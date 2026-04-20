@@ -169,6 +169,8 @@ export const BULK_DELETE_TASK = gql`
   mutation DeleteBulkTask($ids: [ID!]!) {
     deleteBulkTask(ids: $ids) {
       deletedIDs
+      notDeletedIDs
+      error
     }
   }
 `

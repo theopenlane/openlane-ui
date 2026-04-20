@@ -99,6 +99,8 @@ export const BULK_DELETE_TRUST_CENTER_DOC = gql`
   mutation BulkDeleteTrustCenterDoc($ids: [ID!]!) {
     deleteBulkTrustCenterDoc(ids: $ids) {
       deletedIDs
+      notDeletedIDs
+      error
     }
   }
 `

@@ -16,6 +16,7 @@ import { GenericDetailsSheetSkeleton } from './skeleton/details-sheet-skeleton'
 import { pluralizeTypeName, toHumanLabel } from '@/utils/strings'
 import type { TabConfig } from './types'
 import type { RenderFieldsProps, RenderHeaderProps, GenericDetailsSheetConfig } from './generic-sheet'
+import { getBulkActionFailureDescription } from './bulk-action-feedback'
 
 export interface TabbedDetailViewConfig<TFormData extends FieldValues, TData, TUpdateInput, TUpdateData, TCreateInput, TCreateData> extends Omit<
   GenericDetailsSheetConfig<TFormData, TData, TUpdateInput, TUpdateData, TCreateInput, TCreateData>,
@@ -149,7 +150,21 @@ export function TabbedDetailView<TFormData extends FieldValues, TData, TUpdateIn
     if (!deleteMutation) return
 
     try {
-      await deleteMutation.mutateAsync({ ids: [entityId] })
+      const result = await deleteMutation.mutateAsync({ ids: [entityId] })
+
+      if (result.notDeletedIDs.length > 0 || result.error) {
+        errorNotification({
+          title: 'Error',
+          description: getBulkActionFailureDescription({
+            failedCount: result.notDeletedIDs.length,
+            singular: objectTypeName.toLowerCase(),
+            verb: 'could not be deleted',
+            fallback: result.error ?? `The ${objectTypeName.toLowerCase()} could not be deleted.`,
+          }),
+        })
+        return
+      }
+
       queryClient.invalidateQueries({ queryKey })
       successNotification({
         title: `${objectTypeName} Deleted`,

@@ -49,7 +49,7 @@ const ControlImplementationDetailsSheet: React.FC<Props> = ({ queryParamKey = 'c
     isPending: baseDeleteMutation.isPending,
     mutateAsync: async ({ ids }: { ids: string[] }) => {
       await Promise.all(ids.map((id) => baseDeleteMutation.mutateAsync({ deleteControlImplementationId: id })))
-      return ids
+      return { deletedIDs: ids, notDeletedIDs: [] }
     },
   }
 

@@ -737,6 +737,8 @@ export const BULK_DELETE_CONTROL = gql`
   mutation DeleteBulkControl($ids: [ID!]!) {
     deleteBulkControl(ids: $ids) {
       deletedIDs
+      notDeletedIDs
+      error
     }
   }
 `

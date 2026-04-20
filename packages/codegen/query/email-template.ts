@@ -122,6 +122,8 @@ export const BULK_DELETE_EMAIL_TEMPLATE = gql`
   mutation DeleteBulkEmailTemplate($ids: [ID!]!) {
     deleteBulkEmailTemplate(ids: $ids) {
       deletedIDs
+      notDeletedIDs
+      error
     }
   }
 `

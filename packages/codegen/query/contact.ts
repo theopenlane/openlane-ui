@@ -111,6 +111,8 @@ export const BULK_DELETE_CONTACT = gql`
   mutation DeleteBulkContact($ids: [ID!]!) {
     deleteBulkContact(ids: $ids) {
       deletedIDs
+      notDeletedIDs
+      error
     }
   }
 `

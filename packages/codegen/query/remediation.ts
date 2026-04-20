@@ -127,6 +127,8 @@ export const BULK_DELETE_REMEDIATION = gql`
   mutation DeleteBulkRemediation($ids: [ID!]!) {
     deleteBulkRemediation(ids: $ids) {
       deletedIDs
+      notDeletedIDs
+      error
     }
   }
 `

@@ -86,7 +86,7 @@ const VulnerabilityPage: React.FC = () => {
     isPending: baseBulkDeleteMutation.isPending,
     mutateAsync: async (params: { ids: string[] }) => {
       const result = await baseBulkDeleteMutation.mutateAsync({ ids: params.ids })
-      return result.deleteBulkVulnerability.deletedIDs
+      return result.deleteBulkVulnerability
     },
   }
 
@@ -182,7 +182,8 @@ const VulnerabilityPage: React.FC = () => {
     TableComponent,
     sheetConfig,
     onBulkDelete: async (ids: string[]) => {
-      await baseBulkDeleteMutation.mutateAsync({ ids })
+      const result = await baseBulkDeleteMutation.mutateAsync({ ids })
+      return result.deleteBulkVulnerability
     },
     onBulkCreate: async (file: File) => {
       await bulkCreateMutation.mutateAsync({ input: file })

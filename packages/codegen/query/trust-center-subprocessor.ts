@@ -60,6 +60,8 @@ export const DELETE_BULK_TRUST_CENTER_SUBPROCESSORS = gql`
   mutation DeleteBulkTrustCenterSubprocessors($ids: [ID!]!) {
     deleteBulkTrustCenterSubprocessor(ids: $ids) {
       deletedIDs
+      notDeletedIDs
+      error
     }
   }
 `

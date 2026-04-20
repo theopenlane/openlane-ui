@@ -16,6 +16,7 @@ import { StandardsIconMapper } from '@/components/shared/standards-icon-mapper/s
 import { BookUp2, PencilIcon, SquarePlus, Trash2 } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { getBulkActionFailureDescription } from '@/components/shared/crud-base/bulk-action-feedback'
 import Image from 'next/image'
 import { toBase64DataUri } from '@/lib/image-utils'
 import { StandardDialog } from './create-framework-dialog/create-framework-dialog'
@@ -138,7 +139,17 @@ export default function FrameworksPage() {
       }
 
       if (deleteComplianceIDs.length) {
-        await deleteBulkCompliance({ ids: deleteComplianceIDs })
+        const result = await deleteBulkCompliance({ ids: deleteComplianceIDs })
+
+        if (result.deleteBulkTrustCenterCompliance.notDeletedIDs.length > 0 || result.deleteBulkTrustCenterCompliance.error) {
+          const failedCount = result.deleteBulkTrustCenterCompliance.notDeletedIDs.length
+
+          errorNotification({
+            title: 'Error publishing',
+            description: getBulkActionFailureDescription({ failedCount, singular: 'framework', fallback: result.deleteBulkTrustCenterCompliance.error ?? 'Some frameworks were not updated.' }),
+          })
+          return
+        }
       }
 
       successNotification({

@@ -62,7 +62,7 @@ const ActionPlansTable: React.FC<Props> = ({ additionalWhereFilter, createInitia
     isPending: baseBulkDeleteMutation.isPending,
     mutateAsync: async (params: { ids: string[] }) => {
       const result = await baseBulkDeleteMutation.mutateAsync({ ids: params.ids })
-      return result.deleteBulkActionPlan.deletedIDs
+      return result.deleteBulkActionPlan
     },
   }
 
@@ -104,7 +104,8 @@ const ActionPlansTable: React.FC<Props> = ({ additionalWhereFilter, createInitia
     hideCreate,
     hideBreadcrumbs,
     onBulkDelete: async (ids: string[]) => {
-      await baseBulkDeleteMutation.mutateAsync({ ids })
+      const result = await baseBulkDeleteMutation.mutateAsync({ ids })
+      return result.deleteBulkActionPlan
     },
     onBulkCreate: async (file: File) => {
       await baseBulkCreateMutation.mutateAsync({ input: file })

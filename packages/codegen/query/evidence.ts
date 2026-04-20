@@ -557,6 +557,8 @@ export const BULK_DELETE_EVIDENCE = gql`
   mutation DeleteBulkEvidence($ids: [ID!]!) {
     deleteBulkEvidence(ids: $ids) {
       deletedIDs
+      notDeletedIDs
+      error
     }
   }
 `

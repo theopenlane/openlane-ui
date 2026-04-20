@@ -50,7 +50,7 @@ const ReviewDetailSheet: React.FC<ReviewDetailSheetProps> = ({ reviewId, onClose
     isPending: baseDeleteMutation.isPending,
     mutateAsync: async (params: { ids: string[] }) => {
       const result = await baseDeleteMutation.mutateAsync({ ids: params.ids })
-      return result.deleteBulkReview.deletedIDs
+      return result.deleteBulkReview
     },
   }
 

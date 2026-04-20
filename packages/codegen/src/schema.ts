@@ -146,6 +146,10 @@ export interface ApiTokenBulkDeletePayload {
   __typename?: 'APITokenBulkDeletePayload'
   /** Deleted apiToken IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+  /** Error message when the bulk delete did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not deleted */
+  notDeletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** Return response for updateBulkAPIToken mutation */
@@ -666,6 +670,10 @@ export interface ActionPlanBulkDeletePayload {
   __typename?: 'ActionPlanBulkDeletePayload'
   /** Deleted actionPlan IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+  /** Error message when the bulk delete did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not deleted */
+  notDeletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** Return response for updateBulkActionPlan mutation */
@@ -1354,6 +1362,10 @@ export interface AssessmentBulkDeletePayload {
   __typename?: 'AssessmentBulkDeletePayload'
   /** Deleted assessment IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+  /** Error message when the bulk delete did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not deleted */
+  notDeletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** A connection to a list of items. */
@@ -2293,6 +2305,10 @@ export interface AssetBulkDeletePayload {
   __typename?: 'AssetBulkDeletePayload'
   /** Deleted asset IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+  /** Error message when the bulk delete did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not deleted */
+  notDeletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** Return response for updateBulkAsset mutation */
@@ -4478,6 +4494,10 @@ export interface ContactBulkDeletePayload {
   __typename?: 'ContactBulkDeletePayload'
   /** Deleted contact IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+  /** Error message when the bulk delete did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not deleted */
+  notDeletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** Return response for updateBulkContact mutation */
@@ -5227,6 +5247,10 @@ export interface ControlBulkDeletePayload {
   __typename?: 'ControlBulkDeletePayload'
   /** Deleted control IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+  /** Error message when the bulk delete did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not deleted */
+  notDeletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** Return response for updateBulkControl mutation */
@@ -5506,6 +5530,10 @@ export interface ControlImplementationBulkDeletePayload {
   __typename?: 'ControlImplementationBulkDeletePayload'
   /** Deleted controlImplementation IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+  /** Error message when the bulk delete did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not deleted */
+  notDeletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** Return response for updateBulkControlImplementation mutation */
@@ -5959,6 +5987,10 @@ export interface ControlObjectiveBulkDeletePayload {
   __typename?: 'ControlObjectiveBulkDeletePayload'
   /** Deleted controlObjective IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+  /** Error message when the bulk delete did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not deleted */
+  notDeletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** Return response for updateBulkControlObjective mutation */
@@ -11033,6 +11065,10 @@ export interface CustomDomainBulkDeletePayload {
   __typename?: 'CustomDomainBulkDeletePayload'
   /** Deleted customDomain IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+  /** Error message when the bulk delete did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not deleted */
+  notDeletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** Return response for updateBulkCustomDomain mutation */
@@ -11818,6 +11854,10 @@ export interface DnsVerificationBulkDeletePayload {
   __typename?: 'DNSVerificationBulkDeletePayload'
   /** Deleted dnsVerification IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+  /** Error message when the bulk delete did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not deleted */
+  notDeletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** Return response for updateBulkDNSVerification mutation */
@@ -14767,6 +14807,10 @@ export interface DocumentDataBulkDeletePayload {
   __typename?: 'DocumentDataBulkDeletePayload'
   /** Deleted documentData IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+  /** Error message when the bulk delete did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not deleted */
+  notDeletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** Return response for updateBulkDocumentData mutation */
@@ -15124,6 +15168,10 @@ export interface EmailBrandingBulkDeletePayload {
   __typename?: 'EmailBrandingBulkDeletePayload'
   /** Deleted emailBranding IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+  /** Error message when the bulk delete did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not deleted */
+  notDeletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** Return response for updateBulkEmailBranding mutation */
@@ -15623,6 +15671,10 @@ export interface EmailTemplateBulkDeletePayload {
   __typename?: 'EmailTemplateBulkDeletePayload'
   /** Deleted emailTemplate IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+  /** Error message when the bulk delete did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not deleted */
+  notDeletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** Return response for updateBulkEmailTemplate mutation */
@@ -16458,6 +16510,10 @@ export interface EntityBulkDeletePayload {
   __typename?: 'EntityBulkDeletePayload'
   /** Deleted entity IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+  /** Error message when the bulk delete did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not deleted */
+  notDeletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** Return response for updateBulkEntity mutation */
@@ -16613,6 +16669,10 @@ export interface EntityTypeBulkDeletePayload {
   __typename?: 'EntityTypeBulkDeletePayload'
   /** Deleted entityType IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+  /** Error message when the bulk delete did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not deleted */
+  notDeletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** Return response for updateBulkEntityType mutation */
@@ -17823,6 +17883,10 @@ export interface EventBulkDeletePayload {
   __typename?: 'EventBulkDeletePayload'
   /** Deleted event IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+  /** Error message when the bulk delete did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not deleted */
+  notDeletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** Return response for updateBulkEvent mutation */
@@ -18238,6 +18302,10 @@ export interface EvidenceBulkDeletePayload {
   __typename?: 'EvidenceBulkDeletePayload'
   /** Deleted evidence IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+  /** Error message when the bulk delete did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not deleted */
+  notDeletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** Return response for updateBulkEvidence mutation */
@@ -18744,6 +18812,10 @@ export interface ExportBulkDeletePayload {
   __typename?: 'ExportBulkDeletePayload'
   /** Deleted export IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+  /** Error message when the bulk delete did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not deleted */
+  notDeletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** A connection to a list of items. */
@@ -20075,6 +20147,10 @@ export interface FindingBulkDeletePayload {
   __typename?: 'FindingBulkDeletePayload'
   /** Deleted finding IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+  /** Error message when the bulk delete did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not deleted */
+  notDeletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** Return response for updateBulkFinding mutation */
@@ -21626,6 +21702,10 @@ export interface GroupBulkDeletePayload {
   __typename?: 'GroupBulkDeletePayload'
   /** Deleted group IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+  /** Error message when the bulk delete did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not deleted */
+  notDeletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** Return response for updateBulkGroup mutation */
@@ -21716,6 +21796,10 @@ export interface GroupMembershipBulkDeletePayload {
   __typename?: 'GroupMembershipBulkDeletePayload'
   /** Deleted groupMembership IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+  /** Error message when the bulk delete did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not deleted */
+  notDeletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** Return response for updateBulkGroupMembership mutation */
@@ -22026,6 +22110,10 @@ export interface GroupSettingBulkDeletePayload {
   __typename?: 'GroupSettingBulkDeletePayload'
   /** Deleted groupSetting IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+  /** Error message when the bulk delete did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not deleted */
+  notDeletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** Return response for updateBulkGroupSetting mutation */
@@ -22692,6 +22780,10 @@ export interface HushBulkDeletePayload {
   __typename?: 'HushBulkDeletePayload'
   /** Deleted hush IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+  /** Error message when the bulk delete did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not deleted */
+  notDeletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** Return response for updateBulkHush mutation */
@@ -23273,6 +23365,10 @@ export interface IdentityHolderBulkDeletePayload {
   __typename?: 'IdentityHolderBulkDeletePayload'
   /** Deleted identityHolder IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+  /** Error message when the bulk delete did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not deleted */
+  notDeletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** Return response for updateBulkIdentityHolder mutation */
@@ -24894,6 +24990,10 @@ export interface InternalPolicyBulkDeletePayload {
   __typename?: 'InternalPolicyBulkDeletePayload'
   /** Deleted internalPolicy IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+  /** Error message when the bulk delete did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not deleted */
+  notDeletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** Return response for updateBulkInternalPolicy mutation */
@@ -25529,6 +25629,10 @@ export interface InviteBulkDeletePayload {
   __typename?: 'InviteBulkDeletePayload'
   /** Deleted invite IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+  /** Error message when the bulk delete did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not deleted */
+  notDeletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** Return response for updateBulkInvite mutation */
@@ -26903,6 +27007,10 @@ export interface JobTemplateBulkDeletePayload {
   __typename?: 'JobTemplateBulkDeletePayload'
   /** Deleted jobTemplate IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+  /** Error message when the bulk delete did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not deleted */
+  notDeletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** Return response for updateBulkJobTemplate mutation */
@@ -27209,6 +27317,10 @@ export interface MappableDomainBulkDeletePayload {
   __typename?: 'MappableDomainBulkDeletePayload'
   /** Deleted mappableDomain IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+  /** Error message when the bulk delete did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not deleted */
+  notDeletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** Return response for updateBulkMappableDomain mutation */
@@ -27484,6 +27596,10 @@ export interface MappedControlBulkDeletePayload {
   __typename?: 'MappedControlBulkDeletePayload'
   /** Deleted mappedControl IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+  /** Error message when the bulk delete did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not deleted */
+  notDeletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** Return response for updateBulkMappedControl mutation */
@@ -31826,6 +31942,10 @@ export interface NarrativeBulkDeletePayload {
   __typename?: 'NarrativeBulkDeletePayload'
   /** Deleted narrative IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+  /** Error message when the bulk delete did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not deleted */
+  notDeletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** Return response for updateBulkNarrative mutation */
@@ -32596,6 +32716,10 @@ export interface NotificationPreferenceBulkDeletePayload {
   __typename?: 'NotificationPreferenceBulkDeletePayload'
   /** Deleted notificationPreference IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+  /** Error message when the bulk delete did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not deleted */
+  notDeletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** Return response for updateBulkNotificationPreference mutation */
@@ -33076,6 +33200,10 @@ export interface NotificationTemplateBulkDeletePayload {
   __typename?: 'NotificationTemplateBulkDeletePayload'
   /** Deleted notificationTemplate IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+  /** Error message when the bulk delete did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not deleted */
+  notDeletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** Return response for updateBulkNotificationTemplate mutation */
@@ -33674,6 +33802,10 @@ export interface OrgMembershipBulkDeletePayload {
   __typename?: 'OrgMembershipBulkDeletePayload'
   /** Deleted orgMembership IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+  /** Error message when the bulk delete did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not deleted */
+  notDeletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** Return response for updateBulkOrgMembership mutation */
@@ -35253,6 +35385,10 @@ export interface OrganizationSettingBulkDeletePayload {
   __typename?: 'OrganizationSettingBulkDeletePayload'
   /** Deleted organizationSetting IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+  /** Error message when the bulk delete did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not deleted */
+  notDeletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** Return response for updateBulkOrganizationSetting mutation */
@@ -38126,6 +38262,10 @@ export interface ProcedureBulkDeletePayload {
   __typename?: 'ProcedureBulkDeletePayload'
   /** Deleted export IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+  /** Error message when the bulk delete did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not deleted */
+  notDeletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** Return response for updateBulkProcedure mutation */
@@ -38903,6 +39043,10 @@ export interface ProgramBulkDeletePayload {
   __typename?: 'ProgramBulkDeletePayload'
   /** Deleted program IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+  /** Error message when the bulk delete did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not deleted */
+  notDeletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** Return response for updateBulkProgram mutation */
@@ -38974,6 +39118,10 @@ export interface ProgramMembershipBulkDeletePayload {
   __typename?: 'ProgramMembershipBulkDeletePayload'
   /** Deleted programMembership IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+  /** Error message when the bulk delete did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not deleted */
+  notDeletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** Return response for updateBulkProgramMembership mutation */
@@ -41845,6 +41993,10 @@ export interface RemediationBulkDeletePayload {
   __typename?: 'RemediationBulkDeletePayload'
   /** Deleted remediation IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+  /** Error message when the bulk delete did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not deleted */
+  notDeletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** Return response for updateBulkRemediation mutation */
@@ -42764,6 +42916,10 @@ export interface ReviewBulkDeletePayload {
   __typename?: 'ReviewBulkDeletePayload'
   /** Deleted trustCenterNDARequest IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+  /** Error message when the bulk delete did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not deleted */
+  notDeletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** Return response for updateBulkReview mutation */
@@ -43619,6 +43775,10 @@ export interface RiskBulkDeletePayload {
   __typename?: 'RiskBulkDeletePayload'
   /** Deleted risk IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+  /** Error message when the bulk delete did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not deleted */
+  notDeletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** Return response for updateBulkRisk mutation */
@@ -44378,6 +44538,10 @@ export interface SlaDefinitionBulkDeletePayload {
   __typename?: 'SLADefinitionBulkDeletePayload'
   /** Deleted slaDefinition IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+  /** Error message when the bulk delete did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not deleted */
+  notDeletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** Return response for updateBulkSLADefinition mutation */
@@ -44807,6 +44971,10 @@ export interface ScanBulkDeletePayload {
   __typename?: 'ScanBulkDeletePayload'
   /** Deleted scan IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+  /** Error message when the bulk delete did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not deleted */
+  notDeletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** Return response for updateBulkScan mutation */
@@ -45388,6 +45556,10 @@ export interface ScheduledJobBulkDeletePayload {
   __typename?: 'ScheduledJobBulkDeletePayload'
   /** Deleted scheduledJob IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+  /** Error message when the bulk delete did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not deleted */
+  notDeletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** Return response for updateBulkScheduledJob mutation */
@@ -46763,6 +46935,10 @@ export interface SubcontrolBulkDeletePayload {
   __typename?: 'SubcontrolBulkDeletePayload'
   /** Deleted subcontrol IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+  /** Error message when the bulk delete did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not deleted */
+  notDeletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** Return response for updateBulkSubcontrol mutation */
@@ -47507,6 +47683,10 @@ export interface SubprocessorBulkDeletePayload {
   __typename?: 'SubprocessorBulkDeletePayload'
   /** Deleted subprocessor IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+  /** Error message when the bulk delete did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not deleted */
+  notDeletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** Return response for updateBulkSubprocessor mutation */
@@ -48090,6 +48270,10 @@ export interface SystemDetailBulkDeletePayload {
   __typename?: 'SystemDetailBulkDeletePayload'
   /** Deleted systemDetail IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+  /** Error message when the bulk delete did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not deleted */
+  notDeletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** Return response for updateBulkSystemDetail mutation */
@@ -49086,6 +49270,10 @@ export interface TaskBulkDeletePayload {
   __typename?: 'TaskBulkDeletePayload'
   /** Deleted task IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+  /** Error message when the bulk delete did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not deleted */
+  notDeletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** Return response for updateBulkTask mutation */
@@ -49695,6 +49883,10 @@ export interface TemplateBulkDeletePayload {
   __typename?: 'TemplateBulkDeletePayload'
   /** Deleted template IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+  /** Error message when the bulk delete did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not deleted */
+  notDeletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** Return response for updateBulkTemplate mutation */
@@ -50245,6 +50437,10 @@ export interface TrustCenterComplianceBulkDeletePayload {
   __typename?: 'TrustCenterComplianceBulkDeletePayload'
   /** Deleted trustCenterCompliance IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+  /** Error message when the bulk delete did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not deleted */
+  notDeletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** Return response for updateBulkTrustCenterCompliance mutation */
@@ -50525,6 +50721,10 @@ export interface TrustCenterDocBulkDeletePayload {
   __typename?: 'TrustCenterDocBulkDeletePayload'
   /** Deleted trustCenterDoc IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+  /** Error message when the bulk delete did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not deleted */
+  notDeletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** Return response for updateBulkTrustCenterDoc mutation */
@@ -51162,6 +51362,10 @@ export interface TrustCenterFaqBulkDeletePayload {
   __typename?: 'TrustCenterFAQBulkDeletePayload'
   /** Deleted trustCenterFAQ IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+  /** Error message when the bulk delete did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not deleted */
+  notDeletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** Return response for updateBulkTrustCenterFAQ mutation */
@@ -51497,6 +51701,10 @@ export interface TrustCenterNdaRequestBulkDeletePayload {
   __typename?: 'TrustCenterNDARequestBulkDeletePayload'
   /** Deleted trustCenterNDARequest IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+  /** Error message when the bulk delete did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not deleted */
+  notDeletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** A connection to a list of items. */
@@ -52506,6 +52714,10 @@ export interface TrustCenterSubprocessorBulkDeletePayload {
   __typename?: 'TrustCenterSubprocessorBulkDeletePayload'
   /** Deleted trustCenterSubprocessor IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+  /** Error message when the bulk delete did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not deleted */
+  notDeletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** Return response for updateBulkTrustCenterSubprocessor mutation */
@@ -60054,6 +60266,10 @@ export interface UserSettingBulkDeletePayload {
   __typename?: 'UserSettingBulkDeletePayload'
   /** Deleted userSetting IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+  /** Error message when the bulk delete did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not deleted */
+  notDeletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** Return response for updateBulkUserSetting mutation */
@@ -60732,6 +60948,10 @@ export interface VendorRiskScoreBulkDeletePayload {
   __typename?: 'VendorRiskScoreBulkDeletePayload'
   /** Deleted vendorRiskScore IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+  /** Error message when the bulk delete did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not deleted */
+  notDeletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** Return response for updateBulkVendorRiskScore mutation */
@@ -61140,6 +61360,10 @@ export interface VendorScoringConfigBulkDeletePayload {
   __typename?: 'VendorScoringConfigBulkDeletePayload'
   /** Deleted vendorScoringConfig IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+  /** Error message when the bulk delete did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not deleted */
+  notDeletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** Return response for updateBulkVendorScoringConfig mutation */
@@ -61629,6 +61853,10 @@ export interface VulnerabilityBulkDeletePayload {
   __typename?: 'VulnerabilityBulkDeletePayload'
   /** Deleted vulnerability IDs */
   deletedIDs: Array<Scalars['ID']['output']>
+  /** Error message when the bulk delete did not apply to every requested ID */
+  error?: Maybe<Scalars['String']['output']>
+  /** IDs that were not deleted */
+  notDeletedIDs: Array<Scalars['ID']['output']>
 }
 
 /** Return response for updateBulkVulnerability mutation */
@@ -65307,7 +65535,10 @@ export type DeleteBulkActionPlanMutationVariables = Exact<{
   ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
 }>
 
-export type DeleteBulkActionPlanMutation = { __typename?: 'Mutation'; deleteBulkActionPlan: { __typename?: 'ActionPlanBulkDeletePayload'; deletedIDs: Array<string> } }
+export type DeleteBulkActionPlanMutation = {
+  __typename?: 'Mutation'
+  deleteBulkActionPlan: { __typename?: 'ActionPlanBulkDeletePayload'; deletedIDs: Array<string>; notDeletedIDs: Array<string>; error?: string | null }
+}
 
 export type UpdateBulkActionPlanMutationVariables = Exact<{
   ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
@@ -65607,7 +65838,10 @@ export type DeleteBulkAssessmentMutationVariables = Exact<{
   ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
 }>
 
-export type DeleteBulkAssessmentMutation = { __typename?: 'Mutation'; deleteBulkAssessment: { __typename?: 'AssessmentBulkDeletePayload'; deletedIDs: Array<string> } }
+export type DeleteBulkAssessmentMutation = {
+  __typename?: 'Mutation'
+  deleteBulkAssessment: { __typename?: 'AssessmentBulkDeletePayload'; deletedIDs: Array<string>; notDeletedIDs: Array<string>; error?: string | null }
+}
 
 export type AssetsWithFilterQueryVariables = Exact<{
   where?: InputMaybe<AssetWhereInput>
@@ -65747,7 +65981,10 @@ export type DeleteBulkAssetMutationVariables = Exact<{
   ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
 }>
 
-export type DeleteBulkAssetMutation = { __typename?: 'Mutation'; deleteBulkAsset: { __typename?: 'AssetBulkDeletePayload'; deletedIDs: Array<string> } }
+export type DeleteBulkAssetMutation = {
+  __typename?: 'Mutation'
+  deleteBulkAsset: { __typename?: 'AssetBulkDeletePayload'; deletedIDs: Array<string>; notDeletedIDs: Array<string>; error?: string | null }
+}
 
 export type GetAssetAssociationsQueryVariables = Exact<{
   assetId: Scalars['ID']['input']
@@ -66162,7 +66399,10 @@ export type DeleteBulkContactMutationVariables = Exact<{
   ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
 }>
 
-export type DeleteBulkContactMutation = { __typename?: 'Mutation'; deleteBulkContact: { __typename?: 'ContactBulkDeletePayload'; deletedIDs: Array<string> } }
+export type DeleteBulkContactMutation = {
+  __typename?: 'Mutation'
+  deleteBulkContact: { __typename?: 'ContactBulkDeletePayload'; deletedIDs: Array<string>; notDeletedIDs: Array<string>; error?: string | null }
+}
 
 export type UpdateBulkContactMutationVariables = Exact<{
   ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
@@ -67127,7 +67367,10 @@ export type DeleteBulkControlMutationVariables = Exact<{
   ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
 }>
 
-export type DeleteBulkControlMutation = { __typename?: 'Mutation'; deleteBulkControl: { __typename?: 'ControlBulkDeletePayload'; deletedIDs: Array<string> } }
+export type DeleteBulkControlMutation = {
+  __typename?: 'Mutation'
+  deleteBulkControl: { __typename?: 'ControlBulkDeletePayload'; deletedIDs: Array<string>; notDeletedIDs: Array<string>; error?: string | null }
+}
 
 export type GetSuggestedControlsOrSubcontrolsQueryVariables = Exact<{
   where?: InputMaybe<MappedControlWhereInput>
@@ -68082,7 +68325,10 @@ export type DeleteBulkEmailBrandingMutationVariables = Exact<{
   ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
 }>
 
-export type DeleteBulkEmailBrandingMutation = { __typename?: 'Mutation'; deleteBulkEmailBranding: { __typename?: 'EmailBrandingBulkDeletePayload'; deletedIDs: Array<string> } }
+export type DeleteBulkEmailBrandingMutation = {
+  __typename?: 'Mutation'
+  deleteBulkEmailBranding: { __typename?: 'EmailBrandingBulkDeletePayload'; deletedIDs: Array<string>; notDeletedIDs: Array<string>; error?: string | null }
+}
 
 export type UpdateBulkEmailBrandingMutationVariables = Exact<{
   ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
@@ -68207,7 +68453,10 @@ export type DeleteBulkEmailTemplateMutationVariables = Exact<{
   ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
 }>
 
-export type DeleteBulkEmailTemplateMutation = { __typename?: 'Mutation'; deleteBulkEmailTemplate: { __typename?: 'EmailTemplateBulkDeletePayload'; deletedIDs: Array<string> } }
+export type DeleteBulkEmailTemplateMutation = {
+  __typename?: 'Mutation'
+  deleteBulkEmailTemplate: { __typename?: 'EmailTemplateBulkDeletePayload'; deletedIDs: Array<string>; notDeletedIDs: Array<string>; error?: string | null }
+}
 
 export type UpdateBulkEmailTemplateMutationVariables = Exact<{
   ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
@@ -68297,7 +68546,10 @@ export type DeleteBulkEntityTypeMutationVariables = Exact<{
   ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
 }>
 
-export type DeleteBulkEntityTypeMutation = { __typename?: 'Mutation'; deleteBulkEntityType: { __typename?: 'EntityTypeBulkDeletePayload'; deletedIDs: Array<string> } }
+export type DeleteBulkEntityTypeMutation = {
+  __typename?: 'Mutation'
+  deleteBulkEntityType: { __typename?: 'EntityTypeBulkDeletePayload'; deletedIDs: Array<string>; notDeletedIDs: Array<string>; error?: string | null }
+}
 
 export type UpdateBulkEntityTypeMutationVariables = Exact<{
   ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
@@ -68479,7 +68731,10 @@ export type DeleteBulkEntityMutationVariables = Exact<{
   ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
 }>
 
-export type DeleteBulkEntityMutation = { __typename?: 'Mutation'; deleteBulkEntity: { __typename?: 'EntityBulkDeletePayload'; deletedIDs: Array<string> } }
+export type DeleteBulkEntityMutation = {
+  __typename?: 'Mutation'
+  deleteBulkEntity: { __typename?: 'EntityBulkDeletePayload'; deletedIDs: Array<string>; notDeletedIDs: Array<string>; error?: string | null }
+}
 
 export type UpdateBulkEntityMutationVariables = Exact<{
   ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
@@ -69112,7 +69367,10 @@ export type DeleteBulkEvidenceMutationVariables = Exact<{
   ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
 }>
 
-export type DeleteBulkEvidenceMutation = { __typename?: 'Mutation'; deleteBulkEvidence: { __typename?: 'EvidenceBulkDeletePayload'; deletedIDs: Array<string> } }
+export type DeleteBulkEvidenceMutation = {
+  __typename?: 'Mutation'
+  deleteBulkEvidence: { __typename?: 'EvidenceBulkDeletePayload'; deletedIDs: Array<string>; notDeletedIDs: Array<string>; error?: string | null }
+}
 
 export type GetEvidencesWithFileIdsQueryVariables = Exact<{
   where?: InputMaybe<EvidenceWhereInput>
@@ -69477,7 +69735,10 @@ export type DeleteBulkFindingMutationVariables = Exact<{
   ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
 }>
 
-export type DeleteBulkFindingMutation = { __typename?: 'Mutation'; deleteBulkFinding: { __typename?: 'FindingBulkDeletePayload'; deletedIDs: Array<string> } }
+export type DeleteBulkFindingMutation = {
+  __typename?: 'Mutation'
+  deleteBulkFinding: { __typename?: 'FindingBulkDeletePayload'; deletedIDs: Array<string>; notDeletedIDs: Array<string>; error?: string | null }
+}
 
 export type GetFindingAssociationsQueryVariables = Exact<{
   findingId: Scalars['ID']['input']
@@ -69666,7 +69927,10 @@ export type DeleteBulkGroupSettingMutationVariables = Exact<{
   ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
 }>
 
-export type DeleteBulkGroupSettingMutation = { __typename?: 'Mutation'; deleteBulkGroupSetting: { __typename?: 'GroupSettingBulkDeletePayload'; deletedIDs: Array<string> } }
+export type DeleteBulkGroupSettingMutation = {
+  __typename?: 'Mutation'
+  deleteBulkGroupSetting: { __typename?: 'GroupSettingBulkDeletePayload'; deletedIDs: Array<string>; notDeletedIDs: Array<string>; error?: string | null }
+}
 
 export type UpdateBulkGroupSettingMutationVariables = Exact<{
   ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
@@ -70033,7 +70297,10 @@ export type DeleteBulkIdentityHolderMutationVariables = Exact<{
   ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
 }>
 
-export type DeleteBulkIdentityHolderMutation = { __typename?: 'Mutation'; deleteBulkIdentityHolder: { __typename?: 'IdentityHolderBulkDeletePayload'; deletedIDs: Array<string> } }
+export type DeleteBulkIdentityHolderMutation = {
+  __typename?: 'Mutation'
+  deleteBulkIdentityHolder: { __typename?: 'IdentityHolderBulkDeletePayload'; deletedIDs: Array<string>; notDeletedIDs: Array<string>; error?: string | null }
+}
 
 export type UpdateBulkIdentityHolderMutationVariables = Exact<{
   ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
@@ -70630,7 +70897,10 @@ export type DeleteBulkInternalPolicyMutationVariables = Exact<{
   ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
 }>
 
-export type DeleteBulkInternalPolicyMutation = { __typename?: 'Mutation'; deleteBulkInternalPolicy: { __typename?: 'InternalPolicyBulkDeletePayload'; deletedIDs: Array<string> } }
+export type DeleteBulkInternalPolicyMutation = {
+  __typename?: 'Mutation'
+  deleteBulkInternalPolicy: { __typename?: 'InternalPolicyBulkDeletePayload'; deletedIDs: Array<string>; notDeletedIDs: Array<string>; error?: string | null }
+}
 
 export type PolicyDiscussionFieldsFragment = {
   __typename: 'InternalPolicy'
@@ -71083,7 +71353,10 @@ export type DeleteBulkJobTemplateMutationVariables = Exact<{
   ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
 }>
 
-export type DeleteBulkJobTemplateMutation = { __typename?: 'Mutation'; deleteBulkJobTemplate: { __typename?: 'JobTemplateBulkDeletePayload'; deletedIDs: Array<string> } }
+export type DeleteBulkJobTemplateMutation = {
+  __typename?: 'Mutation'
+  deleteBulkJobTemplate: { __typename?: 'JobTemplateBulkDeletePayload'; deletedIDs: Array<string>; notDeletedIDs: Array<string>; error?: string | null }
+}
 
 export type UpdateBulkJobTemplateMutationVariables = Exact<{
   ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
@@ -71434,7 +71707,7 @@ export type DeleteBulkNotificationPreferenceMutationVariables = Exact<{
 
 export type DeleteBulkNotificationPreferenceMutation = {
   __typename?: 'Mutation'
-  deleteBulkNotificationPreference: { __typename?: 'NotificationPreferenceBulkDeletePayload'; deletedIDs: Array<string> }
+  deleteBulkNotificationPreference: { __typename?: 'NotificationPreferenceBulkDeletePayload'; deletedIDs: Array<string>; notDeletedIDs: Array<string>; error?: string | null }
 }
 
 export type UpdateBulkNotificationPreferenceMutationVariables = Exact<{
@@ -71572,7 +71845,10 @@ export type DeleteBulkNotificationTemplateMutationVariables = Exact<{
   ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
 }>
 
-export type DeleteBulkNotificationTemplateMutation = { __typename?: 'Mutation'; deleteBulkNotificationTemplate: { __typename?: 'NotificationTemplateBulkDeletePayload'; deletedIDs: Array<string> } }
+export type DeleteBulkNotificationTemplateMutation = {
+  __typename?: 'Mutation'
+  deleteBulkNotificationTemplate: { __typename?: 'NotificationTemplateBulkDeletePayload'; deletedIDs: Array<string>; notDeletedIDs: Array<string>; error?: string | null }
+}
 
 export type UpdateBulkNotificationTemplateMutationVariables = Exact<{
   ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
@@ -72371,7 +72647,10 @@ export type DeleteBulkProcedureMutationVariables = Exact<{
   ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
 }>
 
-export type DeleteBulkProcedureMutation = { __typename?: 'Mutation'; deleteBulkProcedure: { __typename?: 'ProcedureBulkDeletePayload'; deletedIDs: Array<string> } }
+export type DeleteBulkProcedureMutation = {
+  __typename?: 'Mutation'
+  deleteBulkProcedure: { __typename?: 'ProcedureBulkDeletePayload'; deletedIDs: Array<string>; notDeletedIDs: Array<string>; error?: string | null }
+}
 
 export type ProcedureDiscussionFieldsFragment = {
   __typename: 'Procedure'
@@ -72984,7 +73263,10 @@ export type DeleteBulkRemediationMutationVariables = Exact<{
   ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
 }>
 
-export type DeleteBulkRemediationMutation = { __typename?: 'Mutation'; deleteBulkRemediation: { __typename?: 'RemediationBulkDeletePayload'; deletedIDs: Array<string> } }
+export type DeleteBulkRemediationMutation = {
+  __typename?: 'Mutation'
+  deleteBulkRemediation: { __typename?: 'RemediationBulkDeletePayload'; deletedIDs: Array<string>; notDeletedIDs: Array<string>; error?: string | null }
+}
 
 export type GetRemediationAssociationsQueryVariables = Exact<{
   remediationId: Scalars['ID']['input']
@@ -73171,7 +73453,10 @@ export type DeleteBulkReviewMutationVariables = Exact<{
   ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
 }>
 
-export type DeleteBulkReviewMutation = { __typename?: 'Mutation'; deleteBulkReview: { __typename?: 'ReviewBulkDeletePayload'; deletedIDs: Array<string> } }
+export type DeleteBulkReviewMutation = {
+  __typename?: 'Mutation'
+  deleteBulkReview: { __typename?: 'ReviewBulkDeletePayload'; deletedIDs: Array<string>; notDeletedIDs: Array<string>; error?: string | null }
+}
 
 export type GetReviewAssociationsQueryVariables = Exact<{
   reviewId: Scalars['ID']['input']
@@ -73488,7 +73773,10 @@ export type DeleteBulkRiskMutationVariables = Exact<{
   ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
 }>
 
-export type DeleteBulkRiskMutation = { __typename?: 'Mutation'; deleteBulkRisk: { __typename?: 'RiskBulkDeletePayload'; deletedIDs: Array<string> } }
+export type DeleteBulkRiskMutation = {
+  __typename?: 'Mutation'
+  deleteBulkRisk: { __typename?: 'RiskBulkDeletePayload'; deletedIDs: Array<string>; notDeletedIDs: Array<string>; error?: string | null }
+}
 
 export type GetOpenRiskCountQueryVariables = Exact<{ [key: string]: never }>
 
@@ -73836,7 +74124,10 @@ export type DeleteBulkScanMutationVariables = Exact<{
   ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
 }>
 
-export type DeleteBulkScanMutation = { __typename?: 'Mutation'; deleteBulkScan: { __typename?: 'ScanBulkDeletePayload'; deletedIDs: Array<string> } }
+export type DeleteBulkScanMutation = {
+  __typename?: 'Mutation'
+  deleteBulkScan: { __typename?: 'ScanBulkDeletePayload'; deletedIDs: Array<string>; notDeletedIDs: Array<string>; error?: string | null }
+}
 
 export type UpdateBulkScanMutationVariables = Exact<{
   ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
@@ -74166,7 +74457,10 @@ export type DeleteBulkSlaDefinitionMutationVariables = Exact<{
   ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
 }>
 
-export type DeleteBulkSlaDefinitionMutation = { __typename?: 'Mutation'; deleteBulkSLADefinition: { __typename?: 'SLADefinitionBulkDeletePayload'; deletedIDs: Array<string> } }
+export type DeleteBulkSlaDefinitionMutation = {
+  __typename?: 'Mutation'
+  deleteBulkSLADefinition: { __typename?: 'SLADefinitionBulkDeletePayload'; deletedIDs: Array<string>; notDeletedIDs: Array<string>; error?: string | null }
+}
 
 export type UpdateBulkSlaDefinitionMutationVariables = Exact<{
   ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
@@ -74796,7 +75090,10 @@ export type DeleteBulkSubprocessorsMutationVariables = Exact<{
   ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
 }>
 
-export type DeleteBulkSubprocessorsMutation = { __typename?: 'Mutation'; deleteBulkSubprocessor: { __typename?: 'SubprocessorBulkDeletePayload'; deletedIDs: Array<string> } }
+export type DeleteBulkSubprocessorsMutation = {
+  __typename?: 'Mutation'
+  deleteBulkSubprocessor: { __typename?: 'SubprocessorBulkDeletePayload'; deletedIDs: Array<string>; notDeletedIDs: Array<string>; error?: string | null }
+}
 
 export type CreateSubscriberMutationVariables = Exact<{
   input: CreateSubscriberInput
@@ -74953,7 +75250,10 @@ export type DeleteBulkSystemDetailMutationVariables = Exact<{
   ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
 }>
 
-export type DeleteBulkSystemDetailMutation = { __typename?: 'Mutation'; deleteBulkSystemDetail: { __typename?: 'SystemDetailBulkDeletePayload'; deletedIDs: Array<string> } }
+export type DeleteBulkSystemDetailMutation = {
+  __typename?: 'Mutation'
+  deleteBulkSystemDetail: { __typename?: 'SystemDetailBulkDeletePayload'; deletedIDs: Array<string>; notDeletedIDs: Array<string>; error?: string | null }
+}
 
 export type UpdateBulkSystemDetailMutationVariables = Exact<{
   ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
@@ -75164,7 +75464,10 @@ export type DeleteBulkTaskMutationVariables = Exact<{
   ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
 }>
 
-export type DeleteBulkTaskMutation = { __typename?: 'Mutation'; deleteBulkTask: { __typename?: 'TaskBulkDeletePayload'; deletedIDs: Array<string> } }
+export type DeleteBulkTaskMutation = {
+  __typename?: 'Mutation'
+  deleteBulkTask: { __typename?: 'TaskBulkDeletePayload'; deletedIDs: Array<string>; notDeletedIDs: Array<string>; error?: string | null }
+}
 
 export type GetOverdueTaskCountQueryVariables = Exact<{
   now: Scalars['DateTime']['input']
@@ -75556,7 +75859,10 @@ export type DeleteBulkTrustCenterComplianceMutationVariables = Exact<{
   ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
 }>
 
-export type DeleteBulkTrustCenterComplianceMutation = { __typename?: 'Mutation'; deleteBulkTrustCenterCompliance: { __typename?: 'TrustCenterComplianceBulkDeletePayload'; deletedIDs: Array<string> } }
+export type DeleteBulkTrustCenterComplianceMutation = {
+  __typename?: 'Mutation'
+  deleteBulkTrustCenterCompliance: { __typename?: 'TrustCenterComplianceBulkDeletePayload'; deletedIDs: Array<string>; notDeletedIDs: Array<string>; error?: string | null }
+}
 
 export type UpdateTrustCenterComplianceMutationVariables = Exact<{
   updateTrustCenterComplianceId: Scalars['ID']['input']
@@ -75666,7 +75972,10 @@ export type BulkDeleteTrustCenterDocMutationVariables = Exact<{
   ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
 }>
 
-export type BulkDeleteTrustCenterDocMutation = { __typename?: 'Mutation'; deleteBulkTrustCenterDoc: { __typename?: 'TrustCenterDocBulkDeletePayload'; deletedIDs: Array<string> } }
+export type BulkDeleteTrustCenterDocMutation = {
+  __typename?: 'Mutation'
+  deleteBulkTrustCenterDoc: { __typename?: 'TrustCenterDocBulkDeletePayload'; deletedIDs: Array<string>; notDeletedIDs: Array<string>; error?: string | null }
+}
 
 export type BulkUpdateTrustCenterDocMutationVariables = Exact<{
   ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
@@ -75822,7 +76131,10 @@ export type DeleteBulkTrustCenterFaqMutationVariables = Exact<{
   ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
 }>
 
-export type DeleteBulkTrustCenterFaqMutation = { __typename?: 'Mutation'; deleteBulkTrustCenterFAQ: { __typename?: 'TrustCenterFAQBulkDeletePayload'; deletedIDs: Array<string> } }
+export type DeleteBulkTrustCenterFaqMutation = {
+  __typename?: 'Mutation'
+  deleteBulkTrustCenterFAQ: { __typename?: 'TrustCenterFAQBulkDeletePayload'; deletedIDs: Array<string>; notDeletedIDs: Array<string>; error?: string | null }
+}
 
 export type UpdateBulkTrustCenterFaqMutationVariables = Exact<{
   ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
@@ -75921,7 +76233,10 @@ export type DeleteBulkTrustCenterNdaRequestMutationVariables = Exact<{
   ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
 }>
 
-export type DeleteBulkTrustCenterNdaRequestMutation = { __typename?: 'Mutation'; deleteBulkTrustCenterNDARequest: { __typename?: 'TrustCenterNDARequestBulkDeletePayload'; deletedIDs: Array<string> } }
+export type DeleteBulkTrustCenterNdaRequestMutation = {
+  __typename?: 'Mutation'
+  deleteBulkTrustCenterNDARequest: { __typename?: 'TrustCenterNDARequestBulkDeletePayload'; deletedIDs: Array<string>; notDeletedIDs: Array<string>; error?: string | null }
+}
 
 export type GetTrustCenterSubprocessorsQueryVariables = Exact<{
   where?: InputMaybe<TrustCenterSubprocessorWhereInput>
@@ -75989,7 +76304,7 @@ export type DeleteBulkTrustCenterSubprocessorsMutationVariables = Exact<{
 
 export type DeleteBulkTrustCenterSubprocessorsMutation = {
   __typename?: 'Mutation'
-  deleteBulkTrustCenterSubprocessor: { __typename?: 'TrustCenterSubprocessorBulkDeletePayload'; deletedIDs: Array<string> }
+  deleteBulkTrustCenterSubprocessor: { __typename?: 'TrustCenterSubprocessorBulkDeletePayload'; deletedIDs: Array<string>; notDeletedIDs: Array<string>; error?: string | null }
 }
 
 export type DeleteTrustCenterSubprocessorMutationVariables = Exact<{
@@ -76391,7 +76706,10 @@ export type DeleteBulkVendorRiskScoreMutationVariables = Exact<{
   ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
 }>
 
-export type DeleteBulkVendorRiskScoreMutation = { __typename?: 'Mutation'; deleteBulkVendorRiskScore: { __typename?: 'VendorRiskScoreBulkDeletePayload'; deletedIDs: Array<string> } }
+export type DeleteBulkVendorRiskScoreMutation = {
+  __typename?: 'Mutation'
+  deleteBulkVendorRiskScore: { __typename?: 'VendorRiskScoreBulkDeletePayload'; deletedIDs: Array<string>; notDeletedIDs: Array<string>; error?: string | null }
+}
 
 export type UpdateBulkVendorRiskScoreMutationVariables = Exact<{
   ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
@@ -76487,7 +76805,10 @@ export type DeleteBulkVendorScoringConfigMutationVariables = Exact<{
   ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
 }>
 
-export type DeleteBulkVendorScoringConfigMutation = { __typename?: 'Mutation'; deleteBulkVendorScoringConfig: { __typename?: 'VendorScoringConfigBulkDeletePayload'; deletedIDs: Array<string> } }
+export type DeleteBulkVendorScoringConfigMutation = {
+  __typename?: 'Mutation'
+  deleteBulkVendorScoringConfig: { __typename?: 'VendorScoringConfigBulkDeletePayload'; deletedIDs: Array<string>; notDeletedIDs: Array<string>; error?: string | null }
+}
 
 export type UpdateBulkVendorScoringConfigMutationVariables = Exact<{
   ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
@@ -76660,7 +76981,10 @@ export type DeleteBulkVulnerabilityMutationVariables = Exact<{
   ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
 }>
 
-export type DeleteBulkVulnerabilityMutation = { __typename?: 'Mutation'; deleteBulkVulnerability: { __typename?: 'VulnerabilityBulkDeletePayload'; deletedIDs: Array<string> } }
+export type DeleteBulkVulnerabilityMutation = {
+  __typename?: 'Mutation'
+  deleteBulkVulnerability: { __typename?: 'VulnerabilityBulkDeletePayload'; deletedIDs: Array<string>; notDeletedIDs: Array<string>; error?: string | null }
+}
 
 export type GetVulnerabilityAssociationsQueryVariables = Exact<{
   vulnerabilityId: Scalars['ID']['input']

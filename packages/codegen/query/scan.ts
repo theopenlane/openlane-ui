@@ -155,6 +155,8 @@ export const BULK_DELETE_SCAN = gql`
   mutation DeleteBulkScan($ids: [ID!]!) {
     deleteBulkScan(ids: $ids) {
       deletedIDs
+      notDeletedIDs
+      error
     }
   }
 `

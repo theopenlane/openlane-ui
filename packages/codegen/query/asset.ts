@@ -163,6 +163,8 @@ export const BULK_DELETE_ASSET = gql`
   mutation DeleteBulkAsset($ids: [ID!]!) {
     deleteBulkAsset(ids: $ids) {
       deletedIDs
+      notDeletedIDs
+      error
     }
   }
 `

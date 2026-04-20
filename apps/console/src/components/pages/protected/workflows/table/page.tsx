@@ -44,6 +44,8 @@ const WorkflowDefinitionsPage: React.FC = () => {
           for (const id of ids) {
             await deleteMutation.mutateAsync({ deleteWorkflowDefinitionId: id })
           }
+
+          return { deletedIDs: ids, notDeletedIDs: [] }
         } catch (error) {
           const errorMessage = parseErrorMessage(error)
           errorNotification({

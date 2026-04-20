@@ -314,6 +314,8 @@ export const BULK_DELETE_PROCEDURE = gql`
   mutation DeleteBulkProcedure($ids: [ID!]!) {
     deleteBulkProcedure(ids: $ids) {
       deletedIDs
+      notDeletedIDs
+      error
     }
   }
 `

@@ -26,6 +26,7 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { getBulkActionFailureDescription } from '@/components/shared/crud-base/bulk-action-feedback'
 
 type TTaskTableToolbarProps = {
   onFilterChange: (filters: TaskWhereInput) => void
@@ -130,7 +131,18 @@ const TaskTableToolbar: React.FC<TTaskTableToolbarProps> = (props: TTaskTableToo
     }
 
     try {
-      await bulkDeleteTasks({ ids: props.selectedTasks.map((task) => task.id) })
+      const result = await bulkDeleteTasks({ ids: props.selectedTasks.map((task) => task.id) })
+
+      if (result.deleteBulkTask.notDeletedIDs.length > 0 || result.deleteBulkTask.error) {
+        const failedCount = result.deleteBulkTask.notDeletedIDs.length
+
+        errorNotification({
+          title: 'Some tasks were not deleted.',
+          description: getBulkActionFailureDescription({ failedCount, singular: 'item', fallback: result.deleteBulkTask.error ?? 'Some tasks were not deleted.' }),
+        })
+        return
+      }
+
       successNotification({
         title: 'Selected tasks have been successfully deleted.',
       })

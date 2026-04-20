@@ -91,6 +91,8 @@ export const BULK_DELETE_JOB_TEMPLATE = gql`
   mutation DeleteBulkJobTemplate($ids: [ID!]!) {
     deleteBulkJobTemplate(ids: $ids) {
       deletedIDs
+      notDeletedIDs
+      error
     }
   }
 `

@@ -60,7 +60,8 @@ const FindingPage: React.FC = () => {
     TableComponent,
     sheetConfig,
     onBulkDelete: async (ids: string[]) => {
-      await baseBulkDeleteMutation.mutateAsync({ ids })
+      const result = await baseBulkDeleteMutation.mutateAsync({ ids })
+      return result.deleteBulkFinding
     },
     onBulkCreate: async (file: File) => {
       await bulkCreateMutation.mutateAsync({ input: file })

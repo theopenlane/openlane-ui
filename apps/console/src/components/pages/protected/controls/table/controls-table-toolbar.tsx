@@ -31,6 +31,7 @@ import { BulkCSVUpdateControlDialog } from '../bulk-csv-update-control-dialog'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import { TableKeyEnum } from '@repo/ui/table-key'
+import { getBulkActionFailureDescription } from '@/components/shared/crud-base/bulk-action-feedback'
 
 type TProps = {
   onFilterChange: (filters: ControlWhereInput) => void
@@ -121,7 +122,18 @@ const ControlsTableToolbar: React.FC<TProps> = ({
     }
 
     try {
-      await bulkDeleteControls({ ids: selectedControls.map((control) => control.id) })
+      const result = await bulkDeleteControls({ ids: selectedControls.map((control) => control.id) })
+
+      if (result.deleteBulkControl.notDeletedIDs.length > 0 || result.deleteBulkControl.error) {
+        const failedCount = result.deleteBulkControl.notDeletedIDs.length
+
+        errorNotification({
+          title: 'Some controls were not deleted.',
+          description: getBulkActionFailureDescription({ failedCount, singular: 'item', fallback: result.deleteBulkControl.error ?? 'Some controls were not deleted.' }),
+        })
+        return
+      }
+
       successNotification({
         title: 'Selected controls have been successfully deleted.',
       })

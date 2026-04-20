@@ -83,6 +83,8 @@ export const BULK_DELETE_SLA_DEFINITION = gql`
   mutation DeleteBulkSlaDefinition($ids: [ID!]!) {
     deleteBulkSLADefinition(ids: $ids) {
       deletedIDs
+      notDeletedIDs
+      error
     }
   }
 `

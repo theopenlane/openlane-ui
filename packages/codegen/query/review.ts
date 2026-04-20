@@ -173,6 +173,8 @@ export const BULK_DELETE_REVIEW = gql`
   mutation DeleteBulkReview($ids: [ID!]!) {
     deleteBulkReview(ids: $ids) {
       deletedIDs
+      notDeletedIDs
+      error
     }
   }
 `

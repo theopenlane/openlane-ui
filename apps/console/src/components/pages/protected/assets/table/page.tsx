@@ -78,7 +78,7 @@ const AssetPage: React.FC = () => {
     mutateAsync: async (params: { ids: string[] }) => {
       const result = await baseBulkDeleteMutation.mutateAsync({ ids: params.ids })
 
-      return result.deleteBulkAsset.deletedIDs
+      return result.deleteBulkAsset
     },
   }
 
@@ -213,7 +213,7 @@ const AssetPage: React.FC = () => {
     TableComponent,
     sheetConfig,
     onBulkDelete: async (ids: string[]) => {
-      await deleteMutation.mutateAsync({ ids })
+      return deleteMutation.mutateAsync({ ids })
     },
     onBulkCreate: async (file: File) => {
       await bulkCreateMutation.mutateAsync({ input: file })

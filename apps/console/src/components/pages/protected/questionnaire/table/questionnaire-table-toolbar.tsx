@@ -24,6 +24,7 @@ import { useDeleteBulkAssessment } from '@/lib/graphql-hooks/assessment'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import { useTemplateSelect } from '@/lib/graphql-hooks/template'
+import { getBulkActionFailureDescription } from '@/components/shared/crud-base/bulk-action-feedback'
 
 type TQuestionnaireTableToolbarProps = {
   creating: boolean
@@ -91,7 +92,18 @@ const QuestionnaireTableToolbar: React.FC<TQuestionnaireTableToolbarProps> = ({
     }
 
     try {
-      await bulkDeleteQuestionnaires({ ids: selectedQuestionnaires.map((questionnaire) => questionnaire.id) })
+      const result = await bulkDeleteQuestionnaires({ ids: selectedQuestionnaires.map((questionnaire) => questionnaire.id) })
+
+      if (result.deleteBulkAssessment.notDeletedIDs.length > 0 || result.deleteBulkAssessment.error) {
+        const failedCount = result.deleteBulkAssessment.notDeletedIDs.length
+
+        errorNotification({
+          title: 'Some questionnaires were not deleted.',
+          description: getBulkActionFailureDescription({ failedCount, singular: 'item', fallback: result.deleteBulkAssessment.error ?? 'Some questionnaires were not deleted.' }),
+        })
+        return
+      }
+
       successNotification({
         title: 'Selected questionnaires have been successfully deleted.',
       })

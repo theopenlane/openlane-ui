@@ -39,7 +39,7 @@ const ViewActionPlanSheet: React.FC<Props> = ({ entityId, onClose, createInitial
     isPending: baseBulkDeleteMutation.isPending,
     mutateAsync: async (params: { ids: string[] }) => {
       const result = await baseBulkDeleteMutation.mutateAsync({ ids: params.ids })
-      return result.deleteBulkActionPlan.deletedIDs
+      return result.deleteBulkActionPlan
     },
   }
 

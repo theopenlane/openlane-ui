@@ -47,7 +47,10 @@ const PlatformPage: React.FC = () => {
     isPending: baseDeleteMutation.isPending,
     mutateAsync: async (params: { ids: string[] }) => {
       const results = await Promise.all(params.ids.map((id) => baseDeleteMutation.mutateAsync({ deletePlatformId: id })))
-      return results.map((r) => r.deletePlatform.deletedID)
+      return {
+        deletedIDs: results.map((r) => r.deletePlatform.deletedID),
+        notDeletedIDs: [],
+      }
     },
   }
 
@@ -123,7 +126,7 @@ const PlatformPage: React.FC = () => {
     viewEditMode: { type: 'full-page', route: '/registry/platforms' },
     createMode: { type: 'step-dialog', steps: platformCreateSteps, title: 'Create Platform', dialogClassName: 'sm:max-w-2xl' },
     onBulkDelete: async (ids: string[]) => {
-      await deleteMutation.mutateAsync({ ids })
+      return deleteMutation.mutateAsync({ ids })
     },
     enumOpts,
     responsibilityFields: {

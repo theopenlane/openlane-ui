@@ -27,7 +27,7 @@ import { type TableKeyValue } from '@repo/ui/table-key'
 import { type TAccessRole, type TPermissionData } from '@/types/authz'
 import { type FilterField } from '@/types'
 import { type User } from '@repo/codegen/src/schema'
-import type { ViewEditMode, CreateMode } from './types'
+import type { BulkDeletePayload, ViewEditMode, CreateMode } from './types'
 
 type TOrderByInput = { field: string; direction?: OrderDirection }[] | undefined
 type TOrderFieldEnum<TField> = Record<string, TField> | TField[]
@@ -122,7 +122,7 @@ export interface GenericTablePageConfig<TEntity extends { id: string }, TFormDat
   createMode?: CreateMode
 
   // Bulk operations
-  onBulkDelete: (ids: string[]) => Promise<void>
+  onBulkDelete: (ids: string[]) => Promise<BulkDeletePayload>
   onBulkCreate?: (file: File) => Promise<void>
   onBulkEdit?: (ids: string[], data: TUpdateInput) => Promise<void>
   bulkEditFormSchema?: ZodObject<ZodRawShape>

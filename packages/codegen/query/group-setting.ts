@@ -83,6 +83,8 @@ export const BULK_DELETE_GROUP_SETTING = gql`
   mutation DeleteBulkGroupSetting($ids: [ID!]!) {
     deleteBulkGroupSetting(ids: $ids) {
       deletedIDs
+      notDeletedIDs
+      error
     }
   }
 `

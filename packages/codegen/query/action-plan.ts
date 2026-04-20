@@ -133,6 +133,8 @@ export const BULK_DELETE_ACTION_PLAN = gql`
   mutation DeleteBulkActionPlan($ids: [ID!]!) {
     deleteBulkActionPlan(ids: $ids) {
       deletedIDs
+      notDeletedIDs
+      error
     }
   }
 `

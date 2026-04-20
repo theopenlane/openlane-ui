@@ -214,6 +214,8 @@ ${fieldsGetList}
   mutation DeleteBulk${name}($ids: [ID!]!) {
     deleteBulk${gqlName}(ids: $ids) {
       deletedIDs
+      notDeletedIDs
+      error
     }
   }
 \``)

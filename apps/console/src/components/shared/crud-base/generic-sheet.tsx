@@ -16,6 +16,8 @@ import { getPermissionStrategy } from './utils'
 import { GenericSheetHeader } from './header'
 import { GenericDetailsSheetSkeleton } from './skeleton/details-sheet-skeleton'
 import { pluralizeTypeName } from '@/utils/strings'
+import type { BulkDeletePayload } from './types'
+import { getBulkActionFailureDescription } from './bulk-action-feedback'
 
 export interface InternalEditingType {
   (field: string | null): void
@@ -60,7 +62,7 @@ export interface GenericDetailsSheetConfig<TFormData extends FieldValues, TData,
   }
 
   deleteMutation?: {
-    mutateAsync: (params: { ids: string[] }) => Promise<string[]>
+    mutateAsync: (params: { ids: string[] }) => Promise<BulkDeletePayload>
     isPending: boolean
   }
 
@@ -242,7 +244,20 @@ export function GenericDetailsSheet<TFormData extends FieldValues, TData, TUpdat
     deleteMutation && isDeleteAllowed
       ? async (id: string) => {
           try {
-            await deleteMutation.mutateAsync({ ids: [id] })
+            const result = await deleteMutation.mutateAsync({ ids: [id] })
+
+            if (result.notDeletedIDs.length > 0 || result.error) {
+              errorNotification({
+                title: 'Error',
+                description: getBulkActionFailureDescription({
+                  failedCount: result.notDeletedIDs.length,
+                  singular: objectTypeName.toLowerCase(),
+                  verb: 'could not be deleted',
+                  fallback: result.error ?? `The ${objectTypeName.toLowerCase()} could not be deleted.`,
+                }),
+              })
+              return
+            }
 
             queryClient.invalidateQueries({ queryKey })
             successNotification({

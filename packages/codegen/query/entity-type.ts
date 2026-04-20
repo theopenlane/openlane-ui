@@ -81,6 +81,8 @@ export const BULK_DELETE_ENTITY_TYPE = gql`
   mutation DeleteBulkEntityType($ids: [ID!]!) {
     deleteBulkEntityType(ids: $ids) {
       deletedIDs
+      notDeletedIDs
+      error
     }
   }
 `

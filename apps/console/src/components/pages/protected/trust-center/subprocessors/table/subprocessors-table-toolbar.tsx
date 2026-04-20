@@ -18,6 +18,9 @@ import { useGetSubprocessors } from '@/lib/graphql-hooks/subprocessor'
 import { CreateSubprocessorSheet } from '../sheet/create-subprocessor-sheet'
 import { AddExistingDialog } from './add-existing-dialog'
 import Menu from '@/components/shared/menu/menu'
+import { useNotification } from '@/hooks/useNotification'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { getBulkActionFailureDescription } from '@/components/shared/crud-base/bulk-action-feedback'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 
 type TProps = {
@@ -52,6 +55,7 @@ const SubprocessorsTableToolbar: React.FC<TProps> = ({
   const [addExistingOpen, setAddExistingOpen] = useState(false)
 
   const { mutate: deleteRows, isPending: isDeleting } = useBulkDeleteTrustCenterSubprocessors()
+  const { errorNotification } = useNotification()
   const [filterFields, setFilterFields] = useState<FilterField[] | undefined>(undefined)
   const { enumOptions, isSuccess: isTypesSuccess } = useGetCustomTypeEnums({
     where: {
@@ -84,11 +88,30 @@ const SubprocessorsTableToolbar: React.FC<TProps> = ({
     deleteRows(
       { ids },
       {
-        onSuccess: () => {
+        onSuccess: (result) => {
+          if (result.deleteBulkTrustCenterSubprocessor.notDeletedIDs.length > 0 || result.deleteBulkTrustCenterSubprocessor.error) {
+            const failedCount = result.deleteBulkTrustCenterSubprocessor.notDeletedIDs.length
+
+            errorNotification({
+              title: 'Delete Failed',
+              description: getBulkActionFailureDescription({
+                failedCount,
+                singular: 'subprocessor',
+                fallback: result.deleteBulkTrustCenterSubprocessor.error ?? 'Some subprocessors were not deleted.',
+              }),
+            })
+            setIsConfirmOpen(false)
+            return
+          }
+
           setSelectedRows([])
           setIsConfirmOpen(false)
         },
-        onError: () => {
+        onError: (error) => {
+          errorNotification({
+            title: 'Delete Failed',
+            description: parseErrorMessage(error),
+          })
           setIsConfirmOpen(false)
         },
       },

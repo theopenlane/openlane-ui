@@ -48,7 +48,7 @@ const ContactPage: React.FC = () => {
     isPending: baseBulkDeleteMutation.isPending,
     mutateAsync: async (params: { ids: string[] }) => {
       const result = await baseBulkDeleteMutation.mutateAsync({ ids: params.ids })
-      return result.deleteBulkContact.deletedIDs
+      return result.deleteBulkContact
     },
   }
 
@@ -105,7 +105,7 @@ const ContactPage: React.FC = () => {
     TableComponent,
     sheetConfig,
     onBulkDelete: async (ids: string[]) => {
-      await deleteMutation.mutateAsync({ ids })
+      return deleteMutation.mutateAsync({ ids })
     },
     onBulkCreate: async (file: File) => {
       await bulkCreateMutation.mutateAsync({ input: file })
