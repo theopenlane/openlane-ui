@@ -27,7 +27,7 @@ export const CheckboxField = <TUpdateInput,>({
   label,
   isEditAllowed,
   isCreate = false,
-  isEditing: _isEditing,
+  isEditing,
   handleUpdate,
   internalEditing: _internalEditing,
   setInternalEditing: _setInternalEditing,
@@ -52,7 +52,7 @@ export const CheckboxField = <TUpdateInput,>({
               className="items-center"
               onCheckedChange={async (checked) => {
                 field.onChange(checked)
-                if (!isCreate && handleUpdate) {
+                if (!isCreate && !isEditing && handleUpdate) {
                   await Promise.resolve(handleUpdate({ [name]: checked } as TUpdateInput))
                 }
               }}

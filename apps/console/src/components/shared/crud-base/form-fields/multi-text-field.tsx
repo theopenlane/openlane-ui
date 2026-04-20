@@ -61,14 +61,14 @@ export const MultiStringField: React.FC<MultiStringFieldProps> = ({
           if (!trimmed || values.includes(trimmed)) return
           const newValues = [...values, trimmed]
           field.onChange(newValues)
-          if (handleUpdate) handleUpdate({ [name]: newValues })
+          if (!isEditing && !isCreate && handleUpdate) handleUpdate({ [name]: newValues })
           setInput('')
         }
 
         const handleRemove = (value: string) => {
           const newValues = values.filter((v) => v !== value)
           field.onChange(newValues)
-          if (handleUpdate) handleUpdate({ [name]: newValues })
+          if (!isEditing && !isCreate && handleUpdate) handleUpdate({ [name]: newValues })
         }
 
         return (

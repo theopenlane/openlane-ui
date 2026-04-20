@@ -79,7 +79,7 @@ export const SelectField = <TUpdateInput,>({
                   searchPlaceholder={`Search ${label.toLowerCase()}...`}
                   onValueChange={async (val) => {
                     field.onChange(val)
-                    if (handleUpdate) {
+                    if (!isEditing && !isCreate && handleUpdate) {
                       await Promise.resolve(handleUpdate({ [name]: val } as TUpdateInput))
                     }
                     setInternalEditing(null)
@@ -90,7 +90,7 @@ export const SelectField = <TUpdateInput,>({
                   value={field.value}
                   onValueChange={async (val) => {
                     field.onChange(val)
-                    if (handleUpdate) {
+                    if (!isEditing && !isCreate && handleUpdate) {
                       await Promise.resolve(handleUpdate({ [name]: val } as TUpdateInput))
                     }
                     setInternalEditing(null)
