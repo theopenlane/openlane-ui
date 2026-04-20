@@ -101,6 +101,7 @@ export const visibilityFields = {
   id: false,
   displayID: false,
   displayName: true,
+  description: false,
   category: true,
   severity: false,
   securityLevel: true,

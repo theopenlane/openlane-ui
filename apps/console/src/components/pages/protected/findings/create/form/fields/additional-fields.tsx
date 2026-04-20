@@ -52,6 +52,9 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
           <CardDescription className="p-0">Identifiers and classification for the finding</CardDescription>
         </CardHeader>
         <CardContent>
+          <div className="mb-4">
+            <TextField name="description" label="Description" multiline {...sharedFieldProps} />
+          </div>
           <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-2">
             <TextField name="externalID" label="External ID" {...sharedFieldProps} />
             <TextField name="category" label="Category" {...sharedFieldProps} />

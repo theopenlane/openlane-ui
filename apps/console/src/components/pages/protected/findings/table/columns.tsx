@@ -7,6 +7,7 @@ import { TagsCell } from '@/components/shared/crud-base/columns/tags-cell'
 import { BooleanCell } from '@/components/shared/crud-base/columns/boolean-cell'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { CustomEnumChipCell } from '@/components/shared/crud-base/columns/custom-enum-chip-cell'
+import { TruncatedCell } from '@repo/ui/data-table'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { Button } from '@repo/ui/button'
 import { MoreHorizontal, ShieldCheck, ListTodo } from 'lucide-react'
@@ -25,6 +26,17 @@ export const getColumns = ({ userMap, selectedItems, setSelectedItems, onTrackRe
     { accessorKey: 'id', header: 'ID', size: 120, cell: ({ row }) => <div className="text-muted-foreground">{row.original.id}</div> },
     { accessorKey: 'displayID', header: 'Display ID', size: 140, cell: ({ cell }) => cell.getValue() || '' },
     { accessorKey: 'displayName', header: 'Display Name', size: 180, cell: ({ cell }) => cell.getValue() || '' },
+    {
+      accessorKey: 'description',
+      header: 'Description',
+      size: 240,
+      minSize: 150,
+      cell: ({ cell }) => {
+        const value = (cell.getValue() as string) || ''
+        if (!value) return ''
+        return <TruncatedCell>{value}</TruncatedCell>
+      },
+    },
     { accessorKey: 'category', header: 'Category', size: 130 },
     { accessorKey: 'severity', header: 'Severity', size: 100 },
     {
