@@ -84,6 +84,7 @@ export const nextJsConfig = [
       'react-hooks/exhaustive-deps': 'error',
       'react-hooks/set-state-in-effect': 'off',
       '@eslint-react/hooks-extra/no-direct-set-state-in-use-effect': 'off',
+      '@eslint-react/set-state-in-effect': 'off',
       '@eslint-react/no-array-index-key': 'off',
       '@eslint-react/dom/no-dangerously-set-innerhtml': 'off',
       '@eslint-react/no-unnecessary-use-prefix': 'off',

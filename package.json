@@ -27,7 +27,7 @@
     "@types/dompurify": "^3.2.0",
     "dompurify": "^3.3.3",
     "dotenv-cli": "^11.0.0",
-    "eslint": "10.0.3",
+    "eslint": "10.2.1",
     "eslint-plugin-react-hooks": "^7.0.1",
     "husky": "^9.1.7",
     "lint-staged": "^16.3.2",
@@ -47,13 +47,13 @@
     "core-js"
   ],
   "resolutions": {
-    "react": "19.2.4",
+    "react": "19.2.5",
     "gaxios": "^7.0.0",
     "node-fetch": "^3.3.2"
   },
   "peerDependencies": {
-    "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react": "19.2.5",
+    "react-dom": "19.2.5"
   },
   "dependencies": {
     "@emoji-mart/data": "^1.2.1",
