@@ -194,7 +194,7 @@ export const extractIdentityHolderTimelineNodes = (data: GetIdentityHolderAssoci
   for (const edge of ih.directoryAccounts?.edges ?? []) {
     const n = edge?.node
     if (!n) continue
-    const integrationName = n.integration?.name ?? n.directoryName ?? null
+    const integrationName = n.directoryName ?? null
     const membershipEdges = n.memberships?.edges ?? []
 
     const accountCreatedAt =
