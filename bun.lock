@@ -68,7 +68,7 @@
         "@simplewebauthn/browser": "^13.2.2",
         "@simplewebauthn/server": "^13.2.2",
         "@simplewebauthn/types": "^12.0.0",
-        "@stepperize/react": "^5.0.0",
+        "@stepperize/react": "^6.0.0",
         "@tailwindcss/postcss": "^4.1.13",
         "@tanstack/react-query": "^5.66.9",
         "@types/d3-force": "^3.0.10",
@@ -299,7 +299,7 @@
         "@radix-ui/react-toolbar": "^1.1.11",
         "@radix-ui/react-tooltip": "^1.2.8",
         "@remixicon/react": "^4.6.0",
-        "@stepperize/react": "^5.0.0",
+        "@stepperize/react": "^6.0.0",
         "@tailwindcss/postcss": "^4.1.13",
         "@tailwindcss/typography": "^0.5.16",
         "@tanstack/react-table": "^8.20.6",
@@ -1576,9 +1576,9 @@
 
     "@standard-schema/utils": ["@standard-schema/utils@0.3.0", "", {}, "sha512-e7Mew686owMaPJVNNLs55PUvgz371nKgwsc4vxE49zsODpJEnxgxRo2y/OKrqueavXgZNMDVj3DdHFlaSAeU8g=="],
 
-    "@stepperize/core": ["@stepperize/core@1.2.7", "", { "peerDependencies": { "typescript": ">=5.0.2" } }, "sha512-XiUwLZ0XRAfaDK6AzWVgqvI/BcrylyplhUXKO8vzgRw0FTmyMKHAAbQLDvU//ZJAqnmG2cSLZDSkcwLxU5zSYA=="],
+    "@stepperize/core": ["@stepperize/core@2.1.0", "", { "peerDependencies": { "typescript": ">=5.0.2" } }, "sha512-edzIlkAUDrqan3G7XhY32PvciyQoJtyX3Fz8G1LBgSHIg2rMTBsZk8oz39NxT7XFxqibRXf2rvsH81iwg+Dd6w=="],
 
-    "@stepperize/react": ["@stepperize/react@5.1.9", "", { "dependencies": { "@stepperize/core": "1.2.7" }, "peerDependencies": { "react": "^17.0.0 || ^18.0.0 || ^19.0.0" } }, "sha512-yBgw1I5Tx6/qZB4xTdVBaPGfTqH5aYS1WFB5vtR8+fwPeqd3YNuOnQ1pJM6w/xV/gvryuy31hbFw080lZc+/hw=="],
+    "@stepperize/react": ["@stepperize/react@6.1.0", "", { "dependencies": { "@stepperize/core": "2.1.0" }, "peerDependencies": { "react": "^17.0.0 || ^18.0.0 || ^19.0.0" } }, "sha512-ywTt0OQDoBKcdzeBK9V1hTsMAQ+zAoIF/au9fcATspdGWfYr/z+mDGZm2cA2rzMJF79J+fUbjZPb+7Js4PtKBA=="],
 
     "@storybook/addon-a11y": ["@storybook/addon-a11y@10.2.19", "", { "dependencies": { "@storybook/global": "^5.0.0", "axe-core": "^4.2.0" }, "peerDependencies": { "storybook": "^10.2.19" } }, "sha512-SJGf1ghCoRVlwyiRwz5GiHuNvu7C5iCDNIRJW8WGOJlnoQa3rYaY7WJ/8a/eT9N8buIscL9AYWudhh5zsI1W3g=="],
 
