@@ -77,19 +77,19 @@ const RiskDetailHeader: React.FC<RiskDetailHeaderProps> = ({ risk, isEditing, ca
   return (
     <>
       <div className="flex justify-between items-start gap-4">
-        <div className="flex items-center gap-4">
+        <div className="flex items-start gap-4 min-w-0 flex-1">
           <div className="roup/logo relative flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-muted overflow-hidden border-0 p-0 cursor-pointer">
             <TriangleAlert size={24} className="text-muted-foreground" />
           </div>
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-1 min-w-0">
             {isEditing ? (
               <Input {...register('name')} className="text-2xl font-semibold h-auto py-1 min-w-180" />
             ) : inlineEditing === 'name' ? (
               renderInlineField('name')
             ) : (
-              <div className="flex items-center min-w-0">
+              <div className="flex items-center gap-2 min-w-0 flex-wrap">
                 <HoverPencilWrapper showPencil={canEditRisk} onPencilClick={() => startEditing('name')} className="min-w-0">
-                  <h1 className="text-2xl font-semibold truncate" onDoubleClick={() => startEditing('name')}>
+                  <h1 className="text-2xl font-semibold break-words" onDoubleClick={() => startEditing('name')}>
                     {risk.name}
                   </h1>
                 </HoverPencilWrapper>
