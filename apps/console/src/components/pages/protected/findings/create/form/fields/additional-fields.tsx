@@ -55,7 +55,8 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
     handleUpdate: handleUpdateField,
   }
 
-  const chipDisplayValue = (v: string) => (v ? <Badge variant="secondary">{getEnumLabel(v)}</Badge> : null)
+  const plainChipDisplay = (v: string) => (v ? <Badge variant="secondary">{v}</Badge> : null)
+  const enumChipDisplay = (v: string) => (v ? <Badge variant="secondary">{getEnumLabel(v)}</Badge> : null)
 
   const securityLevelRaw: string = data?.securityLevel && data.securityLevel !== FindingSecurityLevel.NONE ? String(data.securityLevel) : (data?.severity ?? '')
   const securityLevelDisplay = securityLevelRaw ? (
@@ -82,8 +83,8 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
             <TextField name="priority" label="Priority" {...sharedFieldProps} />
           </div>
           <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-2">
-            <TextField name="category" label="Category" formatDisplayValue={chipDisplayValue} {...sharedFieldProps} />
-            <TextField name="findingClass" label="Finding Class" formatDisplayValue={chipDisplayValue} {...sharedFieldProps} />
+            <TextField name="category" label="Category" formatDisplayValue={plainChipDisplay} {...sharedFieldProps} />
+            <TextField name="findingClass" label="Finding Class" formatDisplayValue={enumChipDisplay} {...sharedFieldProps} />
           </div>
           <div>
             <TextField name="description" label="Description" multiline {...sharedFieldProps} />

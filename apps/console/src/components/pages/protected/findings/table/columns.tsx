@@ -38,7 +38,7 @@ export const getColumns = ({ userMap, selectedItems, setSelectedItems, onTrackRe
         return <TruncatedCell>{value}</TruncatedCell>
       },
     },
-    { accessorKey: 'category', header: 'Category', size: 130, cell: ({ cell }) => getEnumLabel(cell.getValue() as string) },
+    { accessorKey: 'category', header: 'Category', size: 130 },
     { accessorKey: 'severity', header: 'Severity', size: 100 },
     {
       accessorKey: 'securityLevel',
