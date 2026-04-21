@@ -1,5 +1,7 @@
 'use client'
 
+import React from 'react'
+import Link from 'next/link'
 import { useQuery } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { GET_FINDING_ASSOCIATIONS_TIMELINE } from '@repo/codegen/query/finding'
@@ -27,7 +29,7 @@ export type TimelineNode = {
   source?: string | null
   href?: string
   role?: 'source' | 'linked'
-  subtext?: string
+  subtext?: React.ReactNode
 }
 
 type EdgeNode = {
@@ -195,6 +197,16 @@ export const extractIdentityHolderTimelineNodes = (data: GetIdentityHolderAssoci
     const n = edge?.node
     if (!n) continue
     const integrationName = n.directoryName ?? null
+    const integrationDefinitionId = n.integration?.definitionID ?? null
+    const integrationEl: React.ReactNode = integrationName ? (
+      integrationDefinitionId ? (
+        <Link href={`/organization-settings/integrations/${integrationDefinitionId}`} className="hover:underline">
+          {integrationName}
+        </Link>
+      ) : (
+        integrationName
+      )
+    ) : null
     const membershipEdges = n.memberships?.edges ?? []
 
     const accountCreatedAt =
@@ -211,7 +223,13 @@ export const extractIdentityHolderTimelineNodes = (data: GetIdentityHolderAssoci
         name: n.displayName ?? n.canonicalEmail ?? integrationName ?? n.id,
         type: ObjectNames.DIRECTORY_ACCOUNT,
         createdAt: accountCreatedAt,
-        subtext: integrationName ? `found via ${integrationName} on ${formatDate(accountCreatedAt)}` : `found via integration on ${formatDate(accountCreatedAt)}`,
+        subtext: integrationEl ? (
+          <>
+            found via {integrationEl} on {formatDate(accountCreatedAt)}
+          </>
+        ) : (
+          <>found via integration on {formatDate(accountCreatedAt)}</>
+        ),
       })
     }
 
@@ -221,7 +239,13 @@ export const extractIdentityHolderTimelineNodes = (data: GetIdentityHolderAssoci
       const groupName = m.directoryGroup?.displayName ?? 'group'
       const addedAt = m.addedAt ?? m.createdAt ?? null
       const roleLabel = m.role ? m.role.toLowerCase() : 'member'
-      const sourceLabel = integrationName ? `${roleLabel} in ${integrationName}` : roleLabel
+      const sourceEl: React.ReactNode = integrationEl ? (
+        <>
+          {roleLabel} in {integrationEl}
+        </>
+      ) : (
+        roleLabel
+      )
 
       if (addedAt) {
         nodes.push({
@@ -229,7 +253,11 @@ export const extractIdentityHolderTimelineNodes = (data: GetIdentityHolderAssoci
           name: groupName,
           type: ObjectNames.DIRECTORY_GROUP,
           createdAt: addedAt,
-          subtext: `added as ${sourceLabel} on ${formatDate(addedAt)}`,
+          subtext: (
+            <>
+              added as {sourceEl} on {formatDate(addedAt)}
+            </>
+          ),
         })
       }
       if (m.removedAt) {
@@ -238,7 +266,11 @@ export const extractIdentityHolderTimelineNodes = (data: GetIdentityHolderAssoci
           name: groupName,
           type: ObjectNames.DIRECTORY_GROUP,
           createdAt: m.removedAt,
-          subtext: `removed as ${sourceLabel} on ${formatDate(m.removedAt)}`,
+          subtext: (
+            <>
+              removed as {sourceEl} on {formatDate(m.removedAt)}
+            </>
+          ),
         })
       }
     }

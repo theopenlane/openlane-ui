@@ -133,7 +133,7 @@ export const EmailTemplateSheet: React.FC<EmailTemplateSheetProps> = ({ open, te
 
       setInitialized(true)
     }
-  }, [open, isEditMode, templateData, initialized])  
+  }, [open, isEditMode, templateData, initialized])
 
   const handleClose = () => {
     resetForm()

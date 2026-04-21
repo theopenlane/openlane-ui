@@ -175,10 +175,7 @@ export const EmailTemplatesTab: React.FC = () => {
             const authorName = author?.displayName ?? '—'
             const campaignsCount = template.campaigns?.totalCount ?? 0
             return (
-              <div
-                key={template.id}
-                className="flex items-start gap-4 rounded-lg border border-border bg-card p-4 transition-colors"
-              >
+              <div key={template.id} className="flex items-start gap-4 rounded-lg border border-border bg-card p-4 transition-colors">
                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-avatar-transparent">
                   <Mail size={16} className="text-white" />
                 </div>

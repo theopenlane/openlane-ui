@@ -127,7 +127,7 @@ export const NotificationTemplateSheet: React.FC<NotificationTemplateSheetProps>
 
       setInitialized(true)
     }
-  }, [open, isEditMode, templateData, initialized])  
+  }, [open, isEditMode, templateData, initialized])
 
   const handleClose = () => {
     resetForm()
@@ -204,7 +204,8 @@ export const NotificationTemplateSheet: React.FC<NotificationTemplateSheetProps>
             <SheetTitle className="sr-only">{readOnly ? 'Preview Notification Template' : isEditMode ? 'Edit Notification Template' : 'Create Notification Template'}</SheetTitle>
             <div className="flex flex-col gap-4">
               <div className="text-sm text-muted-foreground">
-                Communications / <span className="font-semibold text-foreground">{readOnly ? 'Preview Notification Template' : isEditMode ? 'Edit Notification Template' : 'Create Notification Template'}</span>
+                Communications /{' '}
+                <span className="font-semibold text-foreground">{readOnly ? 'Preview Notification Template' : isEditMode ? 'Edit Notification Template' : 'Create Notification Template'}</span>
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">

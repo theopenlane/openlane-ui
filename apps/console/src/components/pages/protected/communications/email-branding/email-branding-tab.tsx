@@ -203,7 +203,7 @@ export const EmailBrandingTab: React.FC = () => {
           <div className="flex items-center gap-2">
             {emailBrandingsNodes.length > 0 && (
               <Select
-                value={isCreating ? '__new__' : selectedBrandingId ?? ''}
+                value={isCreating ? '__new__' : (selectedBrandingId ?? '')}
                 onValueChange={(val) => {
                   if (val !== '__new__') selectBranding(val)
                 }}
@@ -251,7 +251,9 @@ export const EmailBrandingTab: React.FC = () => {
               <div className="flex flex-col gap-1">
                 <span className="text-sm font-semibold">Set As Default Branding</span>
                 <span className="text-xs text-muted-foreground">
-                  {isDefault ? 'This branding is the default — enabling this on the default will update all email templates that are currently using this default.' : 'Enable to set this as the default branding for all templates.'}
+                  {isDefault
+                    ? 'This branding is the default — enabling this on the default will update all email templates that are currently using this default.'
+                    : 'Enable to set this as the default branding for all templates.'}
                 </span>
               </div>
               <Switch checked={isDefault} onCheckedChange={setIsDefault} />
@@ -362,11 +364,11 @@ export const EmailBrandingTab: React.FC = () => {
                         </div>
                         <div className="flex flex-col gap-1">
                           <span className="text-muted-foreground">Created By</span>
-                          <p className="font-medium truncate">{selectedBranding.createdBy ? userMap[selectedBranding.createdBy]?.displayName ?? '—' : '—'}</p>
+                          <p className="font-medium truncate">{selectedBranding.createdBy ? (userMap[selectedBranding.createdBy]?.displayName ?? '—') : '—'}</p>
                         </div>
                         <div className="flex flex-col gap-1">
                           <span className="text-muted-foreground">Updated By</span>
-                          <p className="font-medium truncate">{selectedBranding.updatedBy ? userMap[selectedBranding.updatedBy]?.displayName ?? '—' : '—'}</p>
+                          <p className="font-medium truncate">{selectedBranding.updatedBy ? (userMap[selectedBranding.updatedBy]?.displayName ?? '—') : '—'}</p>
                         </div>
                       </div>
                     </div>
