@@ -2,12 +2,13 @@ import { type FilterField } from '@/types'
 import { ObjectNames } from '@repo/codegen/src/type-names'
 import React from 'react'
 import NameField from '../create/form/fields/name-field'
-import { type VulnerabilityQuery, VulnerabilityOrderField } from '@repo/codegen/src/schema'
+import { type VulnerabilityQuery, VulnerabilityOrderField, VulnerabilitySecurityLevel } from '@repo/codegen/src/schema'
 import DescriptionField from '../create/form/fields/description-field'
 import { AdditionalFields } from '../create/form/fields/additional-fields'
 import Properties from '../create/form/fields/properties'
 import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
 import { type VulnerabilityFieldProps, type EnumOptions, type EnumCreateHandlers } from './types'
+import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import { enumToSortFields } from '@/components/shared/crud-base/utils'
 import { VulnerabilityAssociationSection } from '../create/form/fields/association-section'
 import PastDueBadge from '@/components/shared/past-due-badge/past-due-badge'
@@ -22,15 +23,17 @@ export const breadcrumbs = [
 
 export const getFilterFields = (enumOptions: EnumOptions): FilterField[] => [
   {
-    key: 'severityContainsFold',
-    label: 'Severity',
-    type: 'text',
+    key: 'securityLevelIn',
+    label: 'Security Level',
+    type: 'multiselect',
+    options: enumToOptions(VulnerabilitySecurityLevel),
     icon: FilterIcons.Criticality,
   },
   {
-    key: 'vulnerabilityStatusNameContainsFold',
+    key: 'vulnerabilityStatusNameIn',
     label: 'Status',
-    type: 'text',
+    type: 'multiselect',
+    options: enumOptions.vulnerabilityStatusOptions,
     icon: FilterIcons.Status,
   },
   {
