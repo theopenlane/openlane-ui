@@ -69612,6 +69612,7 @@ export type FindingsWithFilterQuery = {
         rawPayload?: any | null
         recommendation?: string | null
         recommendedActions?: string | null
+        references?: Array<string> | null
         remediationSLA?: number | null
         reportedAt?: string | null
         resourceName?: string | null
@@ -69623,6 +69624,7 @@ export type FindingsWithFilterQuery = {
         source?: string | null
         sourceUpdatedAt?: string | null
         state?: string | null
+        stepsToReproduce?: Array<string> | null
         findingStatusName?: string | null
         systemOwned?: boolean | null
         targetDetails?: any | null
@@ -69677,6 +69679,7 @@ export type FindingQuery = {
     rawPayload?: any | null
     recommendation?: string | null
     recommendedActions?: string | null
+    references?: Array<string> | null
     remediationSLA?: number | null
     reportedAt?: string | null
     resourceName?: string | null
@@ -69688,6 +69691,7 @@ export type FindingQuery = {
     source?: string | null
     sourceUpdatedAt?: string | null
     state?: string | null
+    stepsToReproduce?: Array<string> | null
     findingStatusName?: string | null
     systemOwned?: boolean | null
     targetDetails?: any | null

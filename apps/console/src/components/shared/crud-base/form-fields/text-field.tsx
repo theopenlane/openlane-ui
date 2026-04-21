@@ -200,7 +200,10 @@ export const TextField = <TUpdateInput,>({
                 />
               )
             ) : (
-              <div className={cn('text-sm py-2 rounded-md cursor-pointer px-1 w-full hover:bg-accent', layout === 'horizontal' && 'text-right')} onClick={handleClick}>
+              <div
+                className={cn('text-sm py-2 rounded-md cursor-pointer px-1 w-full hover:bg-accent', layout === 'horizontal' && 'text-right', multiline && 'whitespace-pre-wrap')}
+                onClick={handleClick}
+              >
                 {type === 'number' ? (
                   <div ref={popoverRef} className="w-full flex items-center gap-4">
                     <input

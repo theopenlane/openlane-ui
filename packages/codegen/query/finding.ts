@@ -34,6 +34,7 @@ export const GET_ALL_FINDINGS = gql`
           rawPayload
           recommendation
           recommendedActions
+          references
           remediationSLA
           reportedAt
           resourceName
@@ -45,6 +46,7 @@ export const GET_ALL_FINDINGS = gql`
           source
           sourceUpdatedAt
           state
+          stepsToReproduce
           findingStatusName
           systemOwned
           targetDetails
@@ -103,6 +105,7 @@ export const FINDING = gql`
       rawPayload
       recommendation
       recommendedActions
+      references
       remediationSLA
       reportedAt
       resourceName
@@ -114,6 +117,7 @@ export const FINDING = gql`
       source
       sourceUpdatedAt
       state
+      stepsToReproduce
       findingStatusName
       systemOwned
       targetDetails
