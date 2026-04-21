@@ -5,6 +5,8 @@ import {
   type EntitiesWithFilterQueryVariables,
   type CreateEntityMutation,
   type CreateEntityMutationVariables,
+  type CreateEntityInput,
+  type EntityBulkCreatePayload,
   type UpdateEntityMutation,
   type UpdateEntityMutationVariables,
   type DeleteEntityMutation,
@@ -30,6 +32,7 @@ import { type TPagination } from '@repo/ui/pagination-types'
 import {
   GET_ALL_ENTITIES,
   CREATE_ENTITY,
+  CREATE_BULK_ENTITY,
   UPDATE_ENTITY,
   DELETE_ENTITY,
   ENTITY,
@@ -82,6 +85,26 @@ export const useCreateEntity = () => {
   const queryClient = useQueryClient()
   return useMutation<CreateEntityMutation, unknown, CreateEntityMutationVariables>({
     mutationFn: async (variables) => client.request(CREATE_ENTITY, variables),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['entities'] })
+    },
+  })
+}
+
+type CreateBulkEntityMutation = {
+  createBulkEntity: EntityBulkCreatePayload
+}
+
+type CreateBulkEntityMutationVariables = {
+  input?: CreateEntityInput[]
+  entityTypeName?: string
+}
+
+export const useCreateBulkEntity = () => {
+  const { client } = useGraphQLClient()
+  const queryClient = useQueryClient()
+  return useMutation<CreateBulkEntityMutation, unknown, CreateBulkEntityMutationVariables>({
+    mutationFn: async (variables) => client.request(CREATE_BULK_ENTITY, variables),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['entities'] })
     },

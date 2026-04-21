@@ -171,6 +171,16 @@ export const CREATE_CSV_BULK_FINDING = gql`
   }
 `
 
+export const CREATE_BULK_FINDING = gql`
+  mutation CreateBulkFinding($input: [CreateFindingInput!]) {
+    createBulkFinding(input: $input) {
+      findings {
+        id
+      }
+    }
+  }
+`
+
 export const BULK_DELETE_FINDING = gql`
   mutation DeleteBulkFinding($ids: [ID!]!) {
     deleteBulkFinding(ids: $ids) {

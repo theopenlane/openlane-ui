@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { defineStepper } from '@stepperize/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Button } from '@repo/ui/button'
@@ -11,6 +11,12 @@ import { PageHeading } from '@repo/ui/page-heading'
 import { Separator } from '@repo/ui/separator'
 import { StepHeader } from '@/components/shared/step-header/step-header'
 import { useNotificationsContext } from '@/providers/notifications-provider'
+import { useNotification } from '@/hooks/useNotification'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { useCreateBulkEntity, useVendorsWithFilter } from '@/lib/graphql-hooks/entity'
+import { useAssetsWithFilter, useCreateBulkAsset } from '@/lib/graphql-hooks/asset'
+import { useCreateBulkFinding } from '@/lib/graphql-hooks/finding'
+import { AssetAssetType, AssetSourceType, FindingSecurityLevel, type CreateAssetInput, type CreateEntityInput, type CreateFindingInput } from '@repo/codegen/src/schema'
 
 type Vendor = {
   id: string
@@ -31,6 +37,7 @@ type Finding = {
   title: string
   description?: string
   severity?: string
+  rawPayload?: DomainScanFindingPayload
 }
 
 type DomainScanVendorPayload = {
@@ -75,71 +82,121 @@ const { useStepper } = defineStepper(
 
 const unknownDomain = 'Unknown domain'
 
-const normalizeId = (value: string) =>
+// this converts the entity name to normalized values like what the backend stores.
+// we need this to prevent a user from adding the same entity twice as that would fail
+//
+//  Google Tag Manager -> google-tag-manager
+//  Node.js -> node-js
+const canocalizeEntityName = (value: string) =>
   value
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '')
 
-const getHostnameFromUrl = (value?: string) => {
-  if (!value) return unknownDomain
+const canocalizeLookupValue = (value?: string | null) => value?.trim().toLowerCase() || ''
+
+const sanitizeEntityName = (value: string) => {
+  return value.replace(/[^a-zA-Z0-9\s-]/g, '').trim() || canocalizeEntityName(value)
+}
+
+const vendorsFromNotification = (data?: DomainScanNotificationData): Vendor[] => {
+  const vendors = data?.vendors
+  if (!vendors || vendors.length === 0) return []
+
+  const mapByName = new Map<string, Vendor>()
+
+  const unknownVendor = 'Unknown vendor'
+
+  vendors.forEach((vendor) => {
+    const name = vendor.name || unknownVendor
+
+    const key = canocalizeLookupValue(name) || canocalizeLookupValue(sanitizeEntityName(name)) || canocalizeLookupValue(vendor.url) || 'vendor'
+
+    const existingVendor = mapByName.get(key)
+
+    if (!existingVendor) {
+      mapByName.set(key, {
+        id: canocalizeEntityName(name || vendor.url || 'vendor'),
+        name,
+        tags: vendor.categories?.length ? vendor.categories : [],
+        description: vendor.url,
+      })
+      return
+    }
+
+    existingVendor.tags = Array.from(new Set([...existingVendor.tags, ...(vendor.categories || [])]))
+    existingVendor.description = existingVendor.description || vendor.url
+  })
+
+  return Array.from(mapByName.values())
+}
+
+const extractHostFromURL = (value?: string) => {
+  if (!value) {
+    return unknownDomain
+  }
 
   try {
     return new URL(value).hostname.toLowerCase()
   } catch {
-    return (
-      value
-        .replace(/^https?:\/\//, '')
-        .split('/')[0]
-        ?.toLowerCase() || unknownDomain
-    )
+    return unknownDomain
   }
 }
 
-const deriveVendors = (data?: DomainScanNotificationData): Vendor[] => {
-  const vendors = data?.vendors
-  if (!vendors || vendors.length === 0) return []
+const domainsFromNotification = (data?: DomainScanNotificationData): { owned: DomainItem[]; external: DomainItem[]; hostname: string } => {
+  const hostname = extractHostFromURL(data?.url)
 
-  return vendors.map((vendor) => ({
-    id: normalizeId(vendor.name || vendor.url || 'vendor'),
-    name: vendor.name || 'Unknown vendor',
-    tags: vendor.categories?.length ? vendor.categories : [],
-    description: vendor.url,
-  }))
-}
-
-const deriveDomains = (data?: DomainScanNotificationData) => {
-  const hostname = getHostnameFromUrl(data?.url)
   const domains = Array.from(new Set((data?.assets?.dns_records || []).map((record) => record.domain?.toLowerCase()).filter(Boolean as unknown as (value: string | undefined) => value is string)))
 
   if (domains.length === 0) {
     return {
-      owned: hostname === unknownDomain ? [] : [{ id: normalizeId(hostname), name: hostname, primary: true }],
+      owned: hostname === unknownDomain ? [] : [{ id: canocalizeEntityName(hostname), name: hostname, primary: true }],
       external: [],
       hostname,
     }
   }
 
-  const owned = domains.filter((domain) => domain === hostname || domain.endsWith(`.${hostname}`)).map((domain) => ({ id: normalizeId(domain), name: domain, primary: domain === hostname }))
-  const external = domains.filter((domain) => !owned.some((item) => item.name === domain)).map((domain) => ({ id: normalizeId(domain), name: domain }))
+  const ownedDomains: DomainItem[] = domains
+    // endsWith is a quick way to find out if it is a subdomain
+    .filter((domain) => domain === hostname || domain.endsWith(`.${hostname}`))
+    .map((domain) => ({ id: canocalizeEntityName(domain), name: domain, primary: domain === hostname }))
+
+  const externalDomains: DomainItem[] = domains.filter((domain) => !ownedDomains.some((item) => item.name === domain)).map((domain) => ({ id: canocalizeEntityName(domain), name: domain }))
 
   return {
-    owned: owned.length > 0 ? owned : [{ id: normalizeId(hostname), name: hostname, primary: true }],
-    external,
+    owned: ownedDomains.length > 0 ? ownedDomains : [{ id: canocalizeEntityName(hostname), name: hostname, primary: true }],
+    external: externalDomains,
     hostname,
   }
 }
 
-const deriveFindings = (data?: DomainScanNotificationData): Finding[] => {
+const findingsFromNotification = (data?: DomainScanNotificationData): Finding[] => {
   const items = [...(data?.findings?.risks || []), ...(data?.findings?.security_violations || [])]
+
   if (items.length === 0) return []
 
   return items.map((finding, index) => ({
-    id: normalizeId(finding.id || finding.title || finding.name || `finding-${index + 1}`),
+    id: canocalizeEntityName(finding.id || finding.title || finding.name || `finding-${index + 1}`),
     title: finding.title || finding.name || `Finding ${index + 1}`,
     description: finding.description || finding.summary || finding.details,
     severity: finding.severity,
+    rawPayload: finding,
   }))
+}
+
+const severityToSecurityLevel = (severity?: string) => {
+  switch (severity?.toLowerCase()) {
+    case 'critical':
+      return FindingSecurityLevel.CRITICAL
+    case 'high':
+      return FindingSecurityLevel.HIGH
+    case 'medium':
+      return FindingSecurityLevel.MEDIUM
+    case 'low':
+      return FindingSecurityLevel.LOW
+    default:
+      return undefined
+  }
 }
 
 const SectionCard = ({ title, description, children, footer }: { title: string; description?: string; children: React.ReactNode; footer?: React.ReactNode }) => (
@@ -160,6 +217,7 @@ const SectionCard = ({ title, description, children, footer }: { title: string; 
 const SelectionRow = ({
   checked,
   onCheckedChange,
+  disabled,
   title,
   description,
   meta,
@@ -168,15 +226,16 @@ const SelectionRow = ({
 }: {
   checked: boolean
   onCheckedChange: (checked: boolean) => void
+  disabled?: boolean
   title: string
   description?: string
   meta?: string
   badges?: string[]
   trailing?: React.ReactNode
 }) => (
-  <div className="flex items-start gap-4 px-6 py-4">
+  <div className={`flex items-start gap-4 px-6 py-4 ${disabled ? 'opacity-60' : ''}`}>
     <div className="pt-1">
-      <Checkbox checked={checked} onCheckedChange={(value) => onCheckedChange(value === true)} />
+      <Checkbox checked={checked} disabled={disabled} onCheckedChange={(value) => onCheckedChange(value === true)} />
     </div>
     <div className="min-w-0 flex-1">
       <div className="flex flex-wrap items-center gap-2">
@@ -218,7 +277,27 @@ const toggleSetValue = (setState: React.Dispatch<React.SetStateAction<Set<string
   })
 }
 
-const VendorsStep = ({ vendors, selected, setSelected }: { vendors: Vendor[]; selected: Set<string>; setSelected: React.Dispatch<React.SetStateAction<Set<string>>> }) => (
+const checkSetsUnion = (left: Set<string>, right: Set<string>) => {
+  if (left.size !== right.size) return false
+
+  for (const value of left) {
+    if (!right.has(value)) return false
+  }
+
+  return true
+}
+
+const VendorsStep = ({
+  vendors,
+  selected,
+  setSelected,
+  existingIds,
+}: {
+  vendors: Vendor[]
+  selected: Set<string>
+  setSelected: React.Dispatch<React.SetStateAction<Set<string>>>
+  existingIds: Set<string>
+}) => (
   <SectionCard title="Review vendors" description="Grouped from detected technologies">
     {vendors.length === 0 ? (
       <EmptyState message="No vendors were detected in this notification." />
@@ -226,12 +305,13 @@ const VendorsStep = ({ vendors, selected, setSelected }: { vendors: Vendor[]; se
       vendors.map((vendor, index) => (
         <React.Fragment key={vendor.id}>
           <SelectionRow
-            checked={selected.has(vendor.id)}
+            checked={existingIds.has(vendor.id) || selected.has(vendor.id)}
             onCheckedChange={() => toggleSetValue(setSelected, vendor.id)}
+            disabled={existingIds.has(vendor.id)}
             title={vendor.name}
             badges={vendor.tags}
             description={vendor.description}
-            meta={vendor.confidence}
+            trailing={existingIds.has(vendor.id) ? <Badge variant="secondary">Already added</Badge> : vendor.confidence}
           />
           {index < vendors.length - 1 ? <Separator separatorClass="bg-border" /> : null}
         </React.Fragment>
@@ -245,11 +325,13 @@ const AssetsStep = ({
   external,
   selected,
   setSelected,
+  existingIds,
 }: {
   owned: DomainItem[]
   external: DomainItem[]
   selected: Set<string>
   setSelected: React.Dispatch<React.SetStateAction<Set<string>>>
+  existingIds: Set<string>
 }) => {
   const selectedExternalCount = external.filter((item) => selected.has(item.id)).length
 
@@ -262,10 +344,11 @@ const AssetsStep = ({
           owned.map((domain, index) => (
             <React.Fragment key={domain.id}>
               <SelectionRow
-                checked={selected.has(domain.id)}
+                checked={existingIds.has(domain.id) || selected.has(domain.id)}
                 onCheckedChange={() => toggleSetValue(setSelected, domain.id)}
+                disabled={existingIds.has(domain.id)}
                 title={domain.name}
-                trailing={domain.primary ? <Badge variant="secondary">Primary</Badge> : undefined}
+                trailing={existingIds.has(domain.id) ? <Badge variant="secondary">Already added</Badge> : domain.primary ? <Badge variant="secondary">Primary</Badge> : undefined}
               />
               {index < owned.length - 1 ? <Separator separatorClass="bg-border" /> : null}
             </React.Fragment>
@@ -283,7 +366,13 @@ const AssetsStep = ({
         ) : (
           external.map((domain, index) => (
             <React.Fragment key={domain.id}>
-              <SelectionRow checked={selected.has(domain.id)} onCheckedChange={() => toggleSetValue(setSelected, domain.id)} title={domain.name} />
+              <SelectionRow
+                checked={existingIds.has(domain.id) || selected.has(domain.id)}
+                onCheckedChange={() => toggleSetValue(setSelected, domain.id)}
+                disabled={existingIds.has(domain.id)}
+                title={domain.name}
+                trailing={existingIds.has(domain.id) ? <Badge variant="secondary">Already added</Badge> : undefined}
+              />
               {index < external.length - 1 ? <Separator separatorClass="bg-border" /> : null}
             </React.Fragment>
           ))
@@ -328,47 +417,214 @@ export default function DomainDiscoveryImportPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { notifications } = useNotificationsContext()
+  const { successNotification, errorNotification } = useNotification()
+  const { mutateAsync: createBulkEntity, isPending: isCreatingVendors } = useCreateBulkEntity()
+  const { mutateAsync: createBulkAsset, isPending: isCreatingAssets } = useCreateBulkAsset()
+  const { mutateAsync: createBulkFinding, isPending: isCreatingFindings } = useCreateBulkFinding()
   const stepper = useStepper()
   const notificationId = searchParams.get('id')
   const matchedNotification = notifications.find((notification) => notification.id === notificationId)
   const notificationData = matchedNotification?.data as DomainScanNotificationData | undefined
 
-  const vendors = useMemo(() => deriveVendors(notificationData), [notificationData])
-  const domains = useMemo(() => deriveDomains(notificationData), [notificationData])
-  const findings = useMemo(() => deriveFindings(notificationData), [notificationData])
+  const vendors = useMemo(() => vendorsFromNotification(notificationData), [notificationData])
+  const domains = useMemo(() => domainsFromNotification(notificationData), [notificationData])
+  const findings = useMemo(() => findingsFromNotification(notificationData), [notificationData])
+  const vendorLookupNames = useMemo(() => Array.from(new Set(vendors.flatMap((vendor) => [vendor.name, sanitizeEntityName(vendor.name)]).filter(Boolean))), [vendors])
+  const assetLookupNames = useMemo(() => Array.from(new Set([...domains.owned, ...domains.external].map((domain) => domain.name).filter(Boolean))), [domains])
 
-  const [selectedVendorIds, setSelectedVendorIds] = useState<Set<string>>(() => new Set(vendors.map((vendor) => vendor.id)))
-  const [selectedDomainIds, setSelectedDomainIds] = useState<Set<string>>(() => new Set(domains.owned.map((domain) => domain.id)))
+  // fetch existing domains and entities to make sure users do not try to bulk import existing ones which
+  // would lead to another failure ( duplicates )
+  const { vendorNodes } = useVendorsWithFilter({
+    where:
+      vendorLookupNames.length > 0
+        ? {
+            or: [{ displayNameIn: vendorLookupNames }, { nameIn: vendorLookupNames }],
+          }
+        : undefined,
+    enabled: vendorLookupNames.length > 0,
+  })
+
+  const { assetsNodes } = useAssetsWithFilter({
+    where:
+      assetLookupNames.length > 0
+        ? {
+            or: [{ identifierIn: assetLookupNames }, { displayNameIn: assetLookupNames }, { nameIn: assetLookupNames }],
+          }
+        : undefined,
+    enabled: assetLookupNames.length > 0,
+  })
+
+  const existingVendorLookup = useMemo(() => {
+    const values = new Set<string>()
+    vendorNodes.forEach((vendor) => {
+      values.add(canocalizeLookupValue(vendor.displayName))
+      values.add(canocalizeLookupValue(vendor.name))
+    })
+    values.delete('')
+    return values
+  }, [vendorNodes])
+
+  const existingAssetLookup = useMemo(() => {
+    const values = new Set<string>()
+    assetsNodes.forEach((asset) => {
+      values.add(canocalizeLookupValue(asset.identifier))
+      values.add(canocalizeLookupValue(asset.displayName))
+      values.add(canocalizeLookupValue(asset.name))
+    })
+    values.delete('')
+    return values
+  }, [assetsNodes])
+
+  const existingVendorIds = useMemo(
+    () =>
+      new Set(
+        vendors
+          .filter((vendor) => existingVendorLookup.has(canocalizeLookupValue(vendor.name)) || existingVendorLookup.has(canocalizeLookupValue(sanitizeEntityName(vendor.name))))
+          .map((vendor) => vendor.id),
+      ),
+    [existingVendorLookup, vendors],
+  )
+
+  const allDomains = useMemo(() => [...domains.owned, ...domains.external], [domains])
+  const selectionSeedKey = useMemo(
+    () =>
+      [
+        matchedNotification?.id || notificationId || '',
+        vendors.map((vendor) => vendor.id).join(','),
+        domains.owned.map((domain) => domain.id).join(','),
+        domains.external.map((domain) => domain.id).join(','),
+        findings.map((finding) => finding.id).join(','),
+      ].join('|'),
+    [domains.external, domains.owned, findings, matchedNotification?.id, notificationId, vendors],
+  )
+  const initializedSelectionKeyRef = useRef('')
+
+  const existingAssetIds = useMemo(
+    () => new Set(allDomains.filter((domain) => existingAssetLookup.has(canocalizeLookupValue(domain.name))).map((domain) => domain.id)),
+    [allDomains, existingAssetLookup],
+  )
+
+  const [selectedVendorIds, setSelectedVendorIds] = useState<Set<string>>(() => new Set())
+  const [selectedDomainIds, setSelectedDomainIds] = useState<Set<string>>(() => new Set())
   const [selectedFindingIds, setSelectedFindingIds] = useState<Set<string>>(() => new Set(findings.map((finding) => finding.id)))
 
   useEffect(() => {
-    setSelectedVendorIds(new Set(vendors.map((vendor) => vendor.id)))
-  }, [vendors])
-
-  useEffect(() => {
-    setSelectedDomainIds(new Set(domains.owned.map((domain) => domain.id)))
-  }, [domains])
-
-  useEffect(() => {
-    setSelectedFindingIds(new Set(findings.map((finding) => finding.id)))
-  }, [findings])
-
-  const selectedVendors = useMemo(() => vendors.filter((vendor) => selectedVendorIds.has(vendor.id)).map((vendor) => vendor.name), [selectedVendorIds, vendors])
-  const selectedDomains = useMemo(() => [...domains.owned, ...domains.external].filter((domain) => selectedDomainIds.has(domain.id)).map((domain) => domain.name), [selectedDomainIds, domains])
-  const selectedFindings = useMemo(() => findings.filter((finding) => selectedFindingIds.has(finding.id)).map((finding) => finding.title), [selectedFindingIds, findings])
-
-  const handleContinue = () => {
-    if (stepper.isLast) {
-      router.push('/notifications')
+    if (!selectionSeedKey || initializedSelectionKeyRef.current === selectionSeedKey) {
       return
     }
-    stepper.next()
+
+    initializedSelectionKeyRef.current = selectionSeedKey
+    setSelectedVendorIds(new Set(vendors.map((vendor) => vendor.id)))
+    setSelectedDomainIds(new Set(domains.owned.map((domain) => domain.id)))
+    setSelectedFindingIds(new Set(findings.map((finding) => finding.id)))
+  }, [domains.owned, findings, selectionSeedKey, vendors])
+
+  useEffect(() => {
+    setSelectedVendorIds((prev) => {
+      const next = new Set(Array.from(prev).filter((id) => !existingVendorIds.has(id)))
+      return checkSetsUnion(prev, next) ? prev : next
+    })
+  }, [existingVendorIds])
+
+  useEffect(() => {
+    setSelectedDomainIds((prev) => {
+      const next = new Set(Array.from(prev).filter((id) => !existingAssetIds.has(id)))
+      return checkSetsUnion(prev, next) ? prev : next
+    })
+  }, [existingAssetIds])
+
+  const selectedVendors = useMemo(() => vendors.filter((vendor) => selectedVendorIds.has(vendor.id)).map((vendor) => vendor.name), [selectedVendorIds, vendors])
+  const selectedDomains = useMemo(() => allDomains.filter((domain) => selectedDomainIds.has(domain.id)).map((domain) => domain.name), [allDomains, selectedDomainIds])
+  const selectedFindings = useMemo(() => findings.filter((finding) => selectedFindingIds.has(finding.id)).map((finding) => finding.title), [selectedFindingIds, findings])
+  const selectedVendorObjects = useMemo(() => vendors.filter((vendor) => selectedVendorIds.has(vendor.id) && !existingVendorIds.has(vendor.id)), [existingVendorIds, selectedVendorIds, vendors])
+  const selectedDomainObjects = useMemo(() => allDomains.filter((domain) => selectedDomainIds.has(domain.id) && !existingAssetIds.has(domain.id)), [allDomains, existingAssetIds, selectedDomainIds])
+  const selectedFindingObjects = useMemo(() => findings.filter((finding) => selectedFindingIds.has(finding.id)), [selectedFindingIds, findings])
+  const isImporting = isCreatingVendors || isCreatingAssets || isCreatingFindings
+  const hasImportableSelections = selectedVendorObjects.length > 0 || selectedDomainObjects.length > 0 || selectedFindingObjects.length > 0
+
+  const handleImport = async () => {
+    if (!notificationData) {
+      errorNotification({
+        title: 'Domain scan import unavailable',
+        description: 'This domain import is currently unavailable. Please refresh the page to recheck the notification',
+      })
+      return
+    }
+
+    const vendorInputs: CreateEntityInput[] = selectedVendorObjects.map((vendor) => ({
+      name: sanitizeEntityName(vendor.name),
+      displayName: vendor.name,
+      description: vendor.description,
+      links: vendor.description ? [vendor.description] : undefined,
+      providedServices: vendor.tags.length > 0 ? vendor.tags : undefined,
+      vendorMetadata: {
+        source: 'domain_scan',
+        scan_id: notificationData.scan_id,
+        detected_url: notificationData.url,
+      },
+    }))
+
+    const assetInputs: CreateAssetInput[] = selectedDomainObjects.map((domain) => ({
+      name: domain.name,
+      displayName: domain.name,
+      identifier: domain.name,
+      assetType: AssetAssetType.DOMAIN,
+      sourceType: AssetSourceType.DISCOVERED,
+      website: domain.primary && notificationData.url ? notificationData.url : undefined,
+      tags: domain.primary ? ['primary-domain'] : undefined,
+    }))
+
+    const findingInputs: CreateFindingInput[] = selectedFindingObjects.map((finding) => ({
+      displayName: finding.title,
+      description: finding.description,
+      source: 'Domain Scan',
+      open: true,
+      externalURI: notificationData.url,
+      assessmentID: notificationData.scan_id,
+      findingClass: 'DOMAIN_SCAN',
+      securityLevel: severityToSecurityLevel(finding.severity),
+      severity: finding.severity,
+      rawPayload: finding.rawPayload,
+      metadata: {
+        notification_id: matchedNotification?.id,
+        scan_id: notificationData.scan_id,
+      },
+    }))
+
+    try {
+      await Promise.all([
+        vendorInputs.length > 0 ? createBulkEntity({ input: vendorInputs, entityTypeName: 'vendor' }) : Promise.resolve(null),
+        assetInputs.length > 0 ? createBulkAsset({ input: assetInputs }) : Promise.resolve(null),
+        findingInputs.length > 0 ? createBulkFinding({ input: findingInputs }) : Promise.resolve(null),
+      ])
+
+      successNotification({
+        title: 'Bulk import completed',
+        description: `Created ${vendorInputs.length} vendors, ${assetInputs.length} assets, and ${findingInputs.length} findings.`,
+      })
+      router.push('/notifications')
+    } catch (error) {
+      errorNotification({
+        title: 'Import failed',
+        description: parseErrorMessage(error),
+      })
+    }
+  }
+
+  const handleNextButton = () => {
+    if (!stepper.isLast) {
+      stepper.next()
+      return
+    }
+
+    void handleImport()
   }
 
   const handleBack = () => {
     if (stepper.isFirst) {
       return
     }
+
     stepper.prev()
   }
 
@@ -383,8 +639,8 @@ export default function DomainDiscoveryImportPage() {
 
         <div className="py-6">
           {stepper.switch({
-            vendors: () => <VendorsStep vendors={vendors} selected={selectedVendorIds} setSelected={setSelectedVendorIds} />,
-            assets: () => <AssetsStep owned={domains.owned} external={domains.external} selected={selectedDomainIds} setSelected={setSelectedDomainIds} />,
+            vendors: () => <VendorsStep vendors={vendors} selected={selectedVendorIds} setSelected={setSelectedVendorIds} existingIds={existingVendorIds} />,
+            assets: () => <AssetsStep owned={domains.owned} external={domains.external} selected={selectedDomainIds} setSelected={setSelectedDomainIds} existingIds={existingAssetIds} />,
             findings: () => <FindingsStep findings={findings} selected={selectedFindingIds} setSelected={setSelectedFindingIds} />,
             confirm: () => <ConfirmStep vendors={selectedVendors} domains={selectedDomains} findings={selectedFindings} />,
           })}
@@ -401,7 +657,7 @@ export default function DomainDiscoveryImportPage() {
                 Back
               </Button>
             ) : null}
-            <Button variant="primary" onClick={handleContinue}>
+            <Button variant="primary" onClick={handleNextButton} loading={isImporting} disabled={isImporting || (stepper.isLast && !hasImportableSelections)}>
               {stepper.isLast ? 'Import' : 'Continue'}
             </Button>
           </div>
