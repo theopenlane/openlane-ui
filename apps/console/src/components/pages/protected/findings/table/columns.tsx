@@ -12,6 +12,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Button } from '@repo/ui/button'
 import { MoreHorizontal, ShieldCheck, ListTodo } from 'lucide-react'
 import { getSeverityStyle } from '@/utils/severity'
+import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import React from 'react'
 
 type FindingColumnOptions = ColumnOptions & {
@@ -37,7 +38,7 @@ export const getColumns = ({ userMap, selectedItems, setSelectedItems, onTrackRe
         return <TruncatedCell>{value}</TruncatedCell>
       },
     },
-    { accessorKey: 'category', header: 'Category', size: 130 },
+    { accessorKey: 'category', header: 'Category', size: 130, cell: ({ cell }) => getEnumLabel(cell.getValue() as string) },
     { accessorKey: 'severity', header: 'Severity', size: 100 },
     {
       accessorKey: 'securityLevel',
@@ -69,7 +70,7 @@ export const getColumns = ({ userMap, selectedItems, setSelectedItems, onTrackRe
     { accessorKey: 'externalOwnerID', header: 'External Owner', size: 140 },
     { accessorKey: 'externalURI', header: 'External URI', size: 160 },
     { accessorKey: 'source', header: 'Source', size: 120 },
-    { accessorKey: 'findingClass', header: 'Finding Class', size: 130 },
+    { accessorKey: 'findingClass', header: 'Finding Class', size: 130, cell: ({ cell }) => getEnumLabel(cell.getValue() as string) },
     { accessorKey: 'remediationSLA', header: 'Remediation SLA (days)', size: 160 },
     { accessorKey: 'environmentName', header: 'Environment', size: 120, cell: ({ cell }) => <CustomEnumChipCell value={cell.getValue() as string} field="environment" /> },
     { accessorKey: 'scopeName', header: 'Scope', size: 120, cell: ({ cell }) => <CustomEnumChipCell value={cell.getValue() as string} field="scope" /> },
