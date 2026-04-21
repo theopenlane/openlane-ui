@@ -55,7 +55,7 @@ const SubprocessorsTableToolbar: React.FC<TProps> = ({
   const [addExistingOpen, setAddExistingOpen] = useState(false)
 
   const { mutate: deleteRows, isPending: isDeleting } = useBulkDeleteTrustCenterSubprocessors()
-  const { errorNotification } = useNotification()
+  const { successNotification, errorNotification } = useNotification()
   const [filterFields, setFilterFields] = useState<FilterField[] | undefined>(undefined)
   const { enumOptions, isSuccess: isTypesSuccess } = useGetCustomTypeEnums({
     where: {
@@ -105,6 +105,10 @@ const SubprocessorsTableToolbar: React.FC<TProps> = ({
           }
 
           setSelectedRows([])
+          successNotification({
+            title: 'Deleted',
+            description: `Successfully deleted ${ids.length} subprocessor${ids.length === 1 ? '' : 's'}.`,
+          })
           setIsConfirmOpen(false)
         },
         onError: (error) => {
