@@ -169,6 +169,8 @@ export const BULK_DELETE_IDENTITY_HOLDER = gql`
   mutation DeleteBulkIdentityHolder($ids: [ID!]!) {
     deleteBulkIdentityHolder(ids: $ids) {
       deletedIDs
+      notDeletedIDs
+      error
     }
   }
 `

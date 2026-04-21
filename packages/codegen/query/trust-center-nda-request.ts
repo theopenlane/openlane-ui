@@ -92,6 +92,8 @@ export const DELETE_BULK_TRUST_CENTER_NDA_REQUEST = gql`
   mutation DeleteBulkTrustCenterNDARequest($ids: [ID!]!) {
     deleteBulkTrustCenterNDARequest(ids: $ids) {
       deletedIDs
+      notDeletedIDs
+      error
     }
   }
 `

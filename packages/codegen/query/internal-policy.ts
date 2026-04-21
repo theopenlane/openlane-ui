@@ -403,6 +403,8 @@ export const BULK_DELETE_POLICY = gql`
   mutation DeleteBulkInternalPolicy($ids: [ID!]!) {
     deleteBulkInternalPolicy(ids: $ids) {
       deletedIDs
+      notDeletedIDs
+      error
     }
   }
 `

@@ -61,7 +61,7 @@ const FindingDetailsSheet: React.FC<FindingDetailsSheetProps> = ({ queryParamKey
     isPending: baseBulkDeleteMutation.isPending,
     mutateAsync: async (params: { ids: string[] }) => {
       const result = await baseBulkDeleteMutation.mutateAsync({ ids: params.ids })
-      return result.deleteBulkFinding.deletedIDs
+      return result.deleteBulkFinding
     },
   }
 

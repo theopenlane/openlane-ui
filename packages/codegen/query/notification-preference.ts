@@ -109,6 +109,8 @@ export const BULK_DELETE_NOTIFICATION_PREFERENCE = gql`
   mutation DeleteBulkNotificationPreference($ids: [ID!]!) {
     deleteBulkNotificationPreference(ids: $ids) {
       deletedIDs
+      notDeletedIDs
+      error
     }
   }
 `

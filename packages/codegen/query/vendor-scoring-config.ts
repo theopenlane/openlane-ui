@@ -81,6 +81,8 @@ export const BULK_DELETE_VENDOR_SCORING_CONFIG = gql`
   mutation DeleteBulkVendorScoringConfig($ids: [ID!]!) {
     deleteBulkVendorScoringConfig(ids: $ids) {
       deletedIDs
+      notDeletedIDs
+      error
     }
   }
 `

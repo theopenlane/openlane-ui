@@ -54,6 +54,8 @@ export const DELETE_BULK_SUBPROCESSORS = gql`
   mutation DeleteBulkSubprocessors($ids: [ID!]!) {
     deleteBulkSubprocessor(ids: $ids) {
       deletedIDs
+      notDeletedIDs
+      error
     }
   }
 `

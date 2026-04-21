@@ -96,7 +96,7 @@ const PersonnelPage: React.FC = () => {
     mutateAsync: async (params: { ids: string[] }) => {
       const result = await baseBulkDeleteMutation.mutateAsync({ ids: params.ids })
 
-      return result.deleteBulkIdentityHolder.deletedIDs
+      return result.deleteBulkIdentityHolder
     },
   }
 
@@ -201,7 +201,7 @@ const PersonnelPage: React.FC = () => {
     sheetConfig,
     viewEditMode: { type: 'full-page', route: '/registry/personnel' },
     onBulkDelete: async (ids: string[]) => {
-      await deleteMutation.mutateAsync({ ids })
+      return deleteMutation.mutateAsync({ ids })
     },
     onBulkCreate: async (file: File) => {
       await bulkCreateMutation.mutateAsync({ input: file })

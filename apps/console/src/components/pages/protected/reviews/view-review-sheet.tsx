@@ -69,7 +69,7 @@ const ViewReviewSheet: React.FC<Props> = ({ entityId, onClose }) => {
     isPending: baseBulkDeleteMutation.isPending,
     mutateAsync: async (params: { ids: string[] }) => {
       const result = await baseBulkDeleteMutation.mutateAsync({ ids: params.ids })
-      return result.deleteBulkReview.deletedIDs
+      return result.deleteBulkReview
     },
   }
 

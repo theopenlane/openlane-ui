@@ -175,6 +175,8 @@ export const BULK_DELETE_FINDING = gql`
   mutation DeleteBulkFinding($ids: [ID!]!) {
     deleteBulkFinding(ids: $ids) {
       deletedIDs
+      notDeletedIDs
+      error
     }
   }
 `

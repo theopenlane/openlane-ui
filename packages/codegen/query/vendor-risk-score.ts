@@ -95,6 +95,8 @@ export const BULK_DELETE_VENDOR_RISK_SCORE = gql`
   mutation DeleteBulkVendorRiskScore($ids: [ID!]!) {
     deleteBulkVendorRiskScore(ids: $ids) {
       deletedIDs
+      notDeletedIDs
+      error
     }
   }
 `

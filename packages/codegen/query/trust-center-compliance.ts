@@ -33,6 +33,8 @@ export const DELETE_BULK_TRUST_CENTER_COMPLIANCE = gql`
   mutation DeleteBulkTrustCenterCompliance($ids: [ID!]!) {
     deleteBulkTrustCenterCompliance(ids: $ids) {
       deletedIDs
+      notDeletedIDs
+      error
     }
   }
 `

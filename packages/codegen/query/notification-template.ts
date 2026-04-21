@@ -119,6 +119,8 @@ export const BULK_DELETE_NOTIFICATION_TEMPLATE = gql`
   mutation DeleteBulkNotificationTemplate($ids: [ID!]!) {
     deleteBulkNotificationTemplate(ids: $ids) {
       deletedIDs
+      notDeletedIDs
+      error
     }
   }
 `

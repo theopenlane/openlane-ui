@@ -13,6 +13,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useDebounce } from '@uidotdev/usehooks'
+import { getBulkActionFailureDescription } from '@/components/shared/crud-base/bulk-action-feedback'
 
 type NdaRequestsTableProps = {
   requireApproval: boolean
@@ -192,7 +193,18 @@ const NdaRequestsTable = ({ requireApproval }: NdaRequestsTableProps) => {
     if (selectedRows.length === 0) return
     setRevokeLoading(true)
     try {
-      await bulkDeleteNdaRequests({ ids: selectedRows.map((r) => r.id) })
+      const result = await bulkDeleteNdaRequests({ ids: selectedRows.map((r) => r.id) })
+
+      if (result.deleteBulkTrustCenterNDARequest.notDeletedIDs.length > 0 || result.deleteBulkTrustCenterNDARequest.error) {
+        const failedCount = result.deleteBulkTrustCenterNDARequest.notDeletedIDs.length
+
+        errorNotification({
+          title: 'Revoke Failed',
+          description: getBulkActionFailureDescription({ failedCount, singular: 'NDA request', fallback: result.deleteBulkTrustCenterNDARequest.error ?? 'Some NDA requests could not be revoked.' }),
+        })
+        return
+      }
+
       successNotification({
         title: 'Access Revoked',
         description: `Successfully revoked access for ${selectedRows.length} NDA request${selectedRows.length === 1 ? '' : 's'}.`,

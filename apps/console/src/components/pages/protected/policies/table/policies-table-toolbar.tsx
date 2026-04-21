@@ -21,6 +21,7 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useBulkDeletePolicy } from '@/lib/graphql-hooks/internal-policy'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { getBulkActionFailureDescription } from '@/components/shared/crud-base/bulk-action-feedback'
 
 type TPoliciesTableToolbarProps = {
   className?: string
@@ -75,7 +76,18 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
     }
 
     try {
-      await bulkDeletePolicies({ ids: selectedPolicies.map((policy) => policy.id) })
+      const result = await bulkDeletePolicies({ ids: selectedPolicies.map((policy) => policy.id) })
+
+      if (result.deleteBulkInternalPolicy.notDeletedIDs.length > 0 || result.deleteBulkInternalPolicy.error) {
+        const failedCount = result.deleteBulkInternalPolicy.notDeletedIDs.length
+
+        errorNotification({
+          title: 'Some policies were not deleted.',
+          description: getBulkActionFailureDescription({ failedCount, singular: 'item', fallback: result.deleteBulkInternalPolicy.error ?? 'Some policies were not deleted.' }),
+        })
+        return
+      }
+
       successNotification({
         title: 'Selected policies have been successfully deleted.',
       })

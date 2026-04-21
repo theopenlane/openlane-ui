@@ -97,7 +97,7 @@ const VendorPage: React.FC = () => {
     mutateAsync: async (params: { ids: string[] }) => {
       const result = await baseBulkDeleteMutation.mutateAsync({ ids: params.ids })
 
-      return result.deleteBulkEntity.deletedIDs
+      return result.deleteBulkEntity
     },
   }
 
@@ -215,7 +215,7 @@ const VendorPage: React.FC = () => {
     viewEditMode: { type: 'full-page', route: '/registry/vendors' },
     createMode: { type: 'step-dialog', steps: vendorCreateSteps, title: 'Create Vendor' },
     onBulkDelete: async (ids: string[]) => {
-      await deleteMutation.mutateAsync({ ids })
+      return deleteMutation.mutateAsync({ ids })
     },
     onBulkCreate: async (file: File) => {
       await bulkCreateMutation.mutateAsync({ input: file })

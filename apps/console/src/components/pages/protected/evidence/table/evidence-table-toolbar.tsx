@@ -21,6 +21,7 @@ import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-butto
 import { useOrganization } from '@/hooks/useOrganization'
 import { useStandardsSelect } from '@/lib/graphql-hooks/standard'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
+import { getBulkActionFailureDescription } from '@/components/shared/crud-base/bulk-action-feedback'
 
 type TEvidenceTableToolbarProps = {
   className?: string
@@ -83,7 +84,18 @@ const EvidenceTableToolbar: React.FC<TEvidenceTableToolbarProps> = ({
     }
 
     try {
-      await bulkDeleteEvidence({ ids: selectedEvidence.map((evidence) => evidence.id) })
+      const result = await bulkDeleteEvidence({ ids: selectedEvidence.map((evidence) => evidence.id) })
+
+      if (result.deleteBulkEvidence.notDeletedIDs.length > 0 || result.deleteBulkEvidence.error) {
+        const failedCount = result.deleteBulkEvidence.notDeletedIDs.length
+
+        errorNotification({
+          title: 'Some evidence items were not deleted.',
+          description: getBulkActionFailureDescription({ failedCount, singular: 'item', fallback: result.deleteBulkEvidence.error ?? 'Some evidence items were not deleted.' }),
+        })
+        return
+      }
+
       successNotification({
         title: 'Selected evidence have been successfully deleted.',
       })

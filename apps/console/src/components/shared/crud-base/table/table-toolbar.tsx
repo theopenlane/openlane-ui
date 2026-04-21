@@ -23,7 +23,8 @@ import { type FilterField } from '@/types'
 import type { WhereCondition } from '@/types'
 import { GenericBulkEditDialog, type ResponsibilityFieldsMap } from '../dialog/bulk-edit'
 import { type EnumOptionsGeneric } from '../page'
-import type { CreateMode } from '../types'
+import type { BulkDeletePayload, CreateMode } from '../types'
+import { getBulkActionFailureDescription } from '../bulk-action-feedback'
 
 type GenericTableToolbarProps<T extends { id: string }, TWhereInput, TUpdateInput> = {
   entityType: ObjectTypes
@@ -45,7 +46,7 @@ type GenericTableToolbarProps<T extends { id: string }, TWhereInput, TUpdateInpu
   handleClearSelected: () => void
   selectedItems: T[]
   setSelectedItems: React.Dispatch<React.SetStateAction<T[]>>
-  onBulkDelete?: (ids: string[]) => Promise<void>
+  onBulkDelete?: (ids: string[]) => Promise<BulkDeletePayload>
   onBulkCreate?: (file: File) => Promise<void>
   onBulkEdit?: (ids: string[], data: TUpdateInput) => Promise<void>
   bulkEditFormSchema?: ZodObject<ZodRawShape>
@@ -87,7 +88,19 @@ function GenericTableToolbar<T extends { id: string }, TWhereInput, TUpdateInput
     }
 
     try {
-      await props.onBulkDelete?.(props.selectedItems.map((item) => item.id))
+      const result = await props.onBulkDelete?.(props.selectedItems.map((item) => item.id))
+      if (!result) return
+
+      if (result.notDeletedIDs.length > 0 || result.error) {
+        const failedCount = result.notDeletedIDs.length
+
+        errorNotification({
+          title: `Some ${entityLabelPlural.toLowerCase()} were not deleted.`,
+          description: getBulkActionFailureDescription({ failedCount, singular: 'item', fallback: result.error ?? `Some ${entityLabelPlural.toLowerCase()} were not deleted.` }),
+        })
+        return
+      }
+
       successNotification({
         title: `Selected ${entityLabelPlural.toLowerCase()} have been successfully deleted.`,
       })

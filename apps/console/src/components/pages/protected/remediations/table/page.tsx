@@ -71,7 +71,7 @@ const RemediationPage: React.FC = () => {
     isPending: baseBulkDeleteMutation.isPending,
     mutateAsync: async (params: { ids: string[] }) => {
       const result = await baseBulkDeleteMutation.mutateAsync({ ids: params.ids })
-      return result.deleteBulkRemediation.deletedIDs
+      return result.deleteBulkRemediation
     },
   }
 
@@ -142,7 +142,8 @@ const RemediationPage: React.FC = () => {
     TableComponent,
     sheetConfig,
     onBulkDelete: async (ids: string[]) => {
-      await baseBulkDeleteMutation.mutateAsync({ ids })
+      const result = await baseBulkDeleteMutation.mutateAsync({ ids })
+      return result.deleteBulkRemediation
     },
     onBulkCreate: async (file: File) => {
       await bulkCreateMutation.mutateAsync({ input: file })

@@ -101,6 +101,8 @@ export const BULK_DELETE_EMAIL_BRANDING = gql`
   mutation DeleteBulkEmailBranding($ids: [ID!]!) {
     deleteBulkEmailBranding(ids: $ids) {
       deletedIDs
+      notDeletedIDs
+      error
     }
   }
 `

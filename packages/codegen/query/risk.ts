@@ -175,6 +175,8 @@ export const BULK_DELETE_RISK = gql`
   mutation DeleteBulkRisk($ids: [ID!]!) {
     deleteBulkRisk(ids: $ids) {
       deletedIDs
+      notDeletedIDs
+      error
     }
   }
 `

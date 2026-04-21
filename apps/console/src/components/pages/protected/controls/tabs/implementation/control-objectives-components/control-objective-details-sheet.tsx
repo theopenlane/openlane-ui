@@ -50,7 +50,7 @@ const ControlObjectiveDetailsSheet: React.FC<Props> = ({ queryParamKey = 'contro
     isPending: baseDeleteMutation.isPending,
     mutateAsync: async ({ ids }: { ids: string[] }) => {
       await Promise.all(ids.map((id) => baseDeleteMutation.mutateAsync({ deleteControlObjectiveId: id })))
-      return ids
+      return { deletedIDs: ids, notDeletedIDs: [] }
     },
   }
 

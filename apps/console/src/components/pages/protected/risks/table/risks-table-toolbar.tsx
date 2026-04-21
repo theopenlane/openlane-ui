@@ -23,6 +23,7 @@ import { TableKeyEnum } from '@repo/ui/table-key'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
+import { getBulkActionFailureDescription } from '@/components/shared/crud-base/bulk-action-feedback'
 
 type TProps = {
   onFilterChange: (filters: RiskWhereInput) => void
@@ -101,7 +102,18 @@ const RisksTableToolbar: React.FC<TProps> = ({
       return
     }
     try {
-      await bulkDeleteRisks({ ids: selectedRisks.map((risk) => risk.id) })
+      const result = await bulkDeleteRisks({ ids: selectedRisks.map((risk) => risk.id) })
+
+      if (result.deleteBulkRisk.notDeletedIDs.length > 0 || result.deleteBulkRisk.error) {
+        const failedCount = result.deleteBulkRisk.notDeletedIDs.length
+
+        errorNotification({
+          title: 'Some risks were not deleted.',
+          description: getBulkActionFailureDescription({ failedCount, singular: 'item', fallback: result.deleteBulkRisk.error ?? 'Some risks were not deleted.' }),
+        })
+        return
+      }
+
       successNotification({
         title: 'Selected risks have been successfully deleted.',
       })
