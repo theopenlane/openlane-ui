@@ -1,20 +1,26 @@
 'use client'
 
 import React, { useState, useMemo } from 'react'
+import { useRouter } from 'next/navigation'
 import { type ColumnDef, type Row, type VisibilityState } from '@tanstack/react-table'
 import { DataTable } from '@repo/ui/data-table'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { useGetIdentityHolderDirectoryAccounts } from '@/lib/graphql-hooks/identity-holder'
-import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { enumToOptions, getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { Input } from '@repo/ui/input'
-import { SearchIcon } from 'lucide-react'
+import { SearchIcon, Settings } from 'lucide-react'
 import { useDebounce } from '@uidotdev/usehooks'
 import ColumnVisibilityMenu, { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { getMappedColumns } from '@/components/shared/crud-base/columns/get-mapped-columns'
+import { createRowActionsColumn } from '@/components/shared/crud-base/columns/row-actions-column'
+import { TableFilter } from '@/components/shared/table-filter/table-filter'
+import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
 import { Badge } from '@repo/ui/badge'
 import { Check, ChevronDown, ChevronRight, X } from 'lucide-react'
 import { buildMembershipList, type MembershipList } from '@/lib/directory-memberships/group-memberships'
 import { MembershipList as MembershipListTable } from '@/components/shared/directory-memberships/membership-list'
+import { DirectoryMembershipDirectoryMembershipRole, type DirectoryMembershipWhereInput } from '@repo/codegen/src/schema'
+import type { FilterField, WhereCondition } from '@/types'
 
 interface LinkedAccountsTabProps {
   personnelId: string
@@ -27,8 +33,21 @@ type DirectoryAccountRow = {
   status: string
   mfaState: string
   primarySource: boolean
+  integrationDefinitionId: string | null
   memberships: MembershipList
 }
+
+const roleOptions = enumToOptions(DirectoryMembershipDirectoryMembershipRole)
+
+const MEMBERSHIP_FILTER_FIELDS: FilterField[] = [
+  {
+    key: 'roleIn',
+    label: 'Role',
+    type: 'multiselect',
+    icon: FilterIcons.Access,
+    options: roleOptions,
+  },
+]
 
 const getMfaBadge = (mfaState: string) => {
   switch (mfaState) {
@@ -76,7 +95,7 @@ const renderExpandedRow = (row: Row<DirectoryAccountRow>) => {
   )
 }
 
-const columns: ColumnDef<DirectoryAccountRow>[] = [
+const DATA_COLUMNS: ColumnDef<DirectoryAccountRow>[] = [
   {
     id: 'expander',
     header: () => null,
@@ -155,11 +174,11 @@ const columns: ColumnDef<DirectoryAccountRow>[] = [
   },
 ]
 
-const mappedColumns = getMappedColumns(columns)
-
 const LinkedAccountsTab: React.FC<LinkedAccountsTabProps> = ({ personnelId }) => {
+  const router = useRouter()
   const [searchTerm, setSearchTerm] = useState('')
   const debouncedSearch = useDebounce(searchTerm, 300)
+  const [membershipFilter, setMembershipFilter] = useState<WhereCondition>({})
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.PERSONNEL_LINKED_ACCOUNTS, {}))
 
   const where = useMemo(
@@ -172,7 +191,32 @@ const LinkedAccountsTab: React.FC<LinkedAccountsTabProps> = ({ personnelId }) =>
     [debouncedSearch],
   )
 
-  const { directoryAccounts, isLoading } = useGetIdentityHolderDirectoryAccounts(personnelId, where)
+  const membershipWhere: DirectoryMembershipWhereInput | undefined = Object.keys(membershipFilter).length === 0 ? undefined : (membershipFilter as DirectoryMembershipWhereInput)
+
+  const { directoryAccounts, isLoading } = useGetIdentityHolderDirectoryAccounts(personnelId, where, membershipWhere)
+
+  const columns = useMemo<ColumnDef<DirectoryAccountRow>[]>(
+    () => [
+      ...DATA_COLUMNS,
+      createRowActionsColumn<DirectoryAccountRow>({
+        actions: [
+          {
+            label: 'Configure integration',
+            icon: <Settings size={16} />,
+            onClick: (row) => {
+              if (row.integrationDefinitionId) {
+                router.push(`/organization-settings/integrations/${row.integrationDefinitionId}`)
+              }
+            },
+            disabled: (row) => !row.integrationDefinitionId,
+          },
+        ],
+      }),
+    ],
+    [router],
+  )
+
+  const mappedColumns = useMemo(() => getMappedColumns(columns), [columns])
 
   const rows: DirectoryAccountRow[] = useMemo(
     () =>
@@ -183,6 +227,7 @@ const LinkedAccountsTab: React.FC<LinkedAccountsTabProps> = ({ personnelId }) =>
         status: account.status,
         mfaState: account.mfaState,
         primarySource: account.primarySource,
+        integrationDefinitionId: account.integration?.definitionID ?? null,
         memberships: buildMembershipList(account.memberships),
       })),
     [directoryAccounts],
@@ -194,6 +239,7 @@ const LinkedAccountsTab: React.FC<LinkedAccountsTabProps> = ({ personnelId }) =>
         <Input icon={<SearchIcon size={16} />} placeholder="Search..." value={searchTerm} onChange={(e) => setSearchTerm(e.currentTarget.value)} variant="searchTable" />
         <div className="grow flex flex-row items-center gap-2 justify-end">
           <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.PERSONNEL_LINKED_ACCOUNTS} />
+          <TableFilter filterFields={MEMBERSHIP_FILTER_FIELDS} onFilterChange={setMembershipFilter} pageKey={TableKeyEnum.PERSONNEL_LINKED_ACCOUNTS} />
         </div>
       </div>
 

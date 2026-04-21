@@ -52,12 +52,7 @@ export const QuestionnaireStep: React.FC<QuestionnaireStepProps> = ({ form }) =>
           <FormItem>
             <FormLabel className="pb-1 block">Campaign Name</FormLabel>
             <FormControl>
-              <Input
-                {...field}
-                value={field.value ?? ''}
-                disabled={hasQuestionnaire}
-                placeholder={hasQuestionnaire ? 'Using questionnaire name' : 'Enter a campaign name'}
-              />
+              <Input {...field} value={field.value ?? ''} disabled={hasQuestionnaire} placeholder={hasQuestionnaire ? 'Using questionnaire name' : 'Enter a campaign name'} />
             </FormControl>
           </FormItem>
         )}

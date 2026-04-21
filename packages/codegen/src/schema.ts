@@ -70369,6 +70369,7 @@ export type CreateIdentityHolderWithFilesMutation = {
 export type GetIdentityHolderDirectoryAccountsQueryVariables = Exact<{
   identityHolderId: Scalars['ID']['input']
   where?: InputMaybe<DirectoryAccountWhereInput>
+  membershipWhere?: InputMaybe<DirectoryMembershipWhereInput>
 }>
 
 export type GetIdentityHolderDirectoryAccountsQuery = {
@@ -70387,6 +70388,7 @@ export type GetIdentityHolderDirectoryAccountsQuery = {
           primarySource: boolean
           mfaState: DirectoryAccountDirectoryAccountMfaState
           directoryName?: string | null
+          integration?: { __typename?: 'Integration'; definitionID?: string | null } | null
           memberships: {
             __typename?: 'DirectoryMembershipConnection'
             totalCount: number
@@ -70481,6 +70483,7 @@ export type GetIdentityHolderAssociationsTimelineQuery = {
           directoryName?: string | null
           displayName?: string | null
           canonicalEmail?: string | null
+          integration?: { __typename?: 'Integration'; definitionID?: string | null } | null
           memberships: {
             __typename?: 'DirectoryMembershipConnection'
             totalCount: number

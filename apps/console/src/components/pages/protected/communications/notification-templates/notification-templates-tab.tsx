@@ -10,12 +10,7 @@ import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { TableKeyEnum } from '@repo/ui/table-key'
-import {
-  useNotificationTemplatesWithFilter,
-  useDeleteNotificationTemplate,
-  useUpdateNotificationTemplate,
-  useCreateNotificationTemplate,
-} from '@/lib/graphql-hooks/notification-template'
+import { useNotificationTemplatesWithFilter, useDeleteNotificationTemplate, useUpdateNotificationTemplate, useCreateNotificationTemplate } from '@/lib/graphql-hooks/notification-template'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
 import { useGetIntegrations } from '@/lib/graphql-hooks/integration'
 import { useWorkflowDefinitionsWithFilter } from '@/lib/graphql-hooks/workflow-definition'
@@ -63,10 +58,7 @@ export const NotificationTemplatesTab: React.FC = () => {
 
   const { notificationTemplatesNodes, isLoading } = useNotificationTemplatesWithFilter({ where })
 
-  const userIds = useMemo(
-    () => Array.from(new Set(notificationTemplatesNodes.map((t) => t.createdBy).filter((id): id is string => !!id))),
-    [notificationTemplatesNodes],
-  )
+  const userIds = useMemo(() => Array.from(new Set(notificationTemplatesNodes.map((t) => t.createdBy).filter((id): id is string => !!id))), [notificationTemplatesNodes])
 
   const { users } = useGetOrgUserList({
     where: { hasUserWith: [{ idIn: userIds }] },
@@ -83,10 +75,7 @@ export const NotificationTemplatesTab: React.FC = () => {
   )
 
   const { workflowDefinitionsNodes } = useWorkflowDefinitionsWithFilter({ where: {} })
-  const workflowOptions = useMemo(
-    () => workflowDefinitionsNodes.map((w) => ({ value: w.id, label: w.name ?? w.id })),
-    [workflowDefinitionsNodes],
-  )
+  const workflowOptions = useMemo(() => workflowDefinitionsNodes.map((w) => ({ value: w.id, label: w.name ?? w.id })), [workflowDefinitionsNodes])
 
   const filterFields: FilterField[] = useMemo(
     () => [

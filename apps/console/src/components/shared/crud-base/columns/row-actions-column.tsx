@@ -10,7 +10,7 @@ type RowAction<T> = {
   label: string
   icon?: React.ReactNode
   onClick: (row: T) => void
-  disabled?: boolean
+  disabled?: boolean | ((row: T) => boolean)
 }
 
 type RowActionsColumnOptions<T> = {
@@ -31,12 +31,15 @@ export function createRowActionsColumn<T>({ actions }: RowActionsColumnOptions<T
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="min-w-48">
-            {actions.map((action) => (
-              <DropdownMenuItem key={action.label} onClick={() => action.onClick(row.original)} disabled={action.disabled}>
-                {action.icon}
-                {action.label}
-              </DropdownMenuItem>
-            ))}
+            {actions.map((action) => {
+              const disabled = typeof action.disabled === 'function' ? action.disabled(row.original) : action.disabled
+              return (
+                <DropdownMenuItem key={action.label} onClick={() => action.onClick(row.original)} disabled={disabled}>
+                  {action.icon}
+                  {action.label}
+                </DropdownMenuItem>
+              )
+            })}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

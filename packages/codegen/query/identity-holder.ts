@@ -232,7 +232,7 @@ export const CREATE_IDENTITY_HOLDER_WITH_FILES = gql`
 `
 
 export const GET_IDENTITY_HOLDER_DIRECTORY_ACCOUNTS = gql`
-  query GetIdentityHolderDirectoryAccounts($identityHolderId: ID!, $where: DirectoryAccountWhereInput) {
+  query GetIdentityHolderDirectoryAccounts($identityHolderId: ID!, $where: DirectoryAccountWhereInput, $membershipWhere: DirectoryMembershipWhereInput) {
     identityHolder(id: $identityHolderId) {
       directoryAccounts(where: $where) {
         edges {
@@ -243,7 +243,10 @@ export const GET_IDENTITY_HOLDER_DIRECTORY_ACCOUNTS = gql`
             primarySource
             mfaState
             directoryName
-            memberships(first: 100, orderBy: [{ field: created_at, direction: DESC }]) {
+            integration {
+              definitionID
+            }
+            memberships(first: 100, where: $membershipWhere, orderBy: [{ field: created_at, direction: DESC }]) {
               ...DirectoryMembershipConnectionFields
             }
           }
@@ -357,6 +360,9 @@ export const GET_IDENTITY_HOLDER_ASSOCIATIONS_TIMELINE = gql`
             directoryName
             displayName
             canonicalEmail
+            integration {
+              definitionID
+            }
             memberships(first: 75, orderBy: [{ field: created_at, direction: DESC }]) {
               ...DirectoryMembershipConnectionFields
             }

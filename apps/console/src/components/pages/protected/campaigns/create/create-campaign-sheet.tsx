@@ -153,7 +153,9 @@ export const CreateCampaignSheet: React.FC<CreateCampaignSheetProps> = ({ open, 
       {
         title: 'Targets',
         description: 'Choose who will receive this campaign',
-        content: <TargetsStep targets={targets} onTargetsChange={setTargets} uploadedFile={uploadedFile} onFileUpload={setUploadedFile} activeTab={activeTargetTab} onActiveTabChange={setActiveTargetTab} />,
+        content: (
+          <TargetsStep targets={targets} onTargetsChange={setTargets} uploadedFile={uploadedFile} onFileUpload={setUploadedFile} activeTab={activeTargetTab} onActiveTabChange={setActiveTargetTab} />
+        ),
       },
       {
         title: 'Template',

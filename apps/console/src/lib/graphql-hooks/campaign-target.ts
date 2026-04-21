@@ -18,7 +18,15 @@ import {
 } from '@repo/codegen/src/schema'
 
 import { type TPagination } from '@repo/ui/pagination-types'
-import { GET_ALL_CAMPAIGN_TARGETS, GET_CAMPAIGN_TARGET_STATS, CREATE_CAMPAIGN_TARGET, CREATE_BULK_CAMPAIGN_TARGET, UPDATE_CAMPAIGN_TARGET, DELETE_CAMPAIGN_TARGET, CAMPAIGN_TARGET } from '@repo/codegen/query/campaign-target'
+import {
+  GET_ALL_CAMPAIGN_TARGETS,
+  GET_CAMPAIGN_TARGET_STATS,
+  CREATE_CAMPAIGN_TARGET,
+  CREATE_BULK_CAMPAIGN_TARGET,
+  UPDATE_CAMPAIGN_TARGET,
+  DELETE_CAMPAIGN_TARGET,
+  CAMPAIGN_TARGET,
+} from '@repo/codegen/query/campaign-target'
 
 type GetAllCampaignTargetsArgs = {
   where?: CampaignTargetsWithFilterQueryVariables['where']

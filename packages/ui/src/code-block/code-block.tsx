@@ -75,11 +75,7 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({ code, language = 'text', t
         {copied ? <Check size={14} className="text-green-500" /> : <Copy size={14} />}
       </button>
       <pre className={cn('overflow-x-auto p-4 text-xs leading-relaxed', showLineNumbers && 'line-numbers')}>
-        <code
-          ref={codeRef}
-          className={cn('font-mono', `language-${prismLang}`)}
-          {...(highlighted ? { dangerouslySetInnerHTML: { __html: highlighted } } : {})}
-        >
+        <code ref={codeRef} className={cn('font-mono', `language-${prismLang}`)} {...(highlighted ? { dangerouslySetInnerHTML: { __html: highlighted } } : {})}>
           {highlighted ? null : code}
         </code>
       </pre>
