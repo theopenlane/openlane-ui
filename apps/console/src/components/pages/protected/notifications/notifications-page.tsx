@@ -16,6 +16,19 @@ import { toHumanLabel } from '@/utils/strings'
 const PAGE_SIZE = 20
 
 type TopicFilter = NotificationNotificationTopic | 'ALL'
+const enumTopics = new Set(Object.values(NotificationNotificationTopic))
+
+const getEffectiveTopic = (topic?: NotificationNotificationTopic | null, objectType?: string | null) => {
+  if (topic && enumTopics.has(topic)) {
+    return topic
+  }
+
+  if (objectType === 'DOMAIN_SCAN') {
+    return NotificationNotificationTopic.DOMAIN_SCAN
+  }
+
+  return undefined
+}
 
 const topicIcons: Record<TopicFilter, LucideIcon> = {
   ALL: Inbox,
@@ -77,7 +90,8 @@ const NotificationsPage = () => {
     const sorted = [...notifications].sort((a, b) => new Date(b.createdAt ?? 0).getTime() - new Date(a.createdAt ?? 0).getTime())
     return sorted.filter((n) => {
       if (showUnreadOnly && n.readAt) return false
-      if (topicFilter !== 'ALL' && n.topic !== topicFilter) return false
+      const notificationTopic = getEffectiveTopic(n.topic, n.objectType)
+      if (topicFilter !== 'ALL' && notificationTopic !== topicFilter) return false
       return true
     })
   }, [notifications, topicFilter, showUnreadOnly])
