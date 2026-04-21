@@ -356,7 +356,7 @@ const TargetDetailsCard: React.FC<{ value: Record<string, unknown> }> = ({ value
       </CardHeader>
       <CardContent>
         {view === 'json' ? (
-          <pre className="text-xs overflow-auto max-h-[480px] bg-muted rounded p-3 whitespace-pre-wrap break-all">{JSON.stringify(value, null, 2)}</pre>
+          <pre className="text-xs overflow-auto max-h-120 bg-muted rounded p-3 whitespace-pre-wrap break-all">{JSON.stringify(value, null, 2)}</pre>
         ) : (
           <TargetDetailsFields value={value} />
         )}
