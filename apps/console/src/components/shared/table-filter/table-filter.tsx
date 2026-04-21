@@ -12,7 +12,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@repo/ui
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
 import { type TableKeyValue } from '@repo/ui/table-key'
 import { Separator as Hr } from '@repo/ui/separator'
-import { saveFilters, loadFilters, clearFilters, type TFilterState, type TFilterValue, saveQuickFilters, loadQuickFilter, clearQuickFilters } from '@/components/shared/table-filter/filter-storage.ts'
+import { saveFilters, loadFilters, type TFilterState, type TFilterValue, saveQuickFilters, loadQuickFilter, clearQuickFilters } from '@/components/shared/table-filter/filter-storage.ts'
 import Slider from '../slider/slider'
 import { Checkbox } from '@repo/ui/checkbox'
 import { getActiveFilterCount, getQuickFiltersWhereCondition, getWhereCondition, type TQuickFilter } from '@/components/shared/table-filter/table-filter-helper.ts'
@@ -25,11 +25,19 @@ type TTableFilterProps = {
   onFilterChange?: (whereCondition: WhereCondition) => void
   quickFilters?: TQuickFilter[]
   additionalActiveFilterCount?: number
+  defaultFilterValues?: TFilterState
 }
 
 const EMPTY_QUICK_FILTERS: TQuickFilter[] = []
 
-const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields: filterFieldsProp, pageKey, onFilterChange, quickFilters = EMPTY_QUICK_FILTERS, additionalActiveFilterCount = 0 }) => {
+const TableFilterComponent: React.FC<TTableFilterProps> = ({
+  filterFields: filterFieldsProp,
+  pageKey,
+  onFilterChange,
+  quickFilters = EMPTY_QUICK_FILTERS,
+  additionalActiveFilterCount = 0,
+  defaultFilterValues,
+}) => {
   const [filterFields, setFilterFields] = useState(filterFieldsProp)
   useEffect(() => {
     setFilterFields((prev) => {
@@ -80,10 +88,16 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields: filte
         return isSame ? prev : saved
       })
       onFilterChange?.(buildWhereCondition(saved, filterFields))
+    } else if (defaultFilterValues && Object.keys(defaultFilterValues).length > 0) {
+      setValues((prev) => {
+        const isSame = JSON.stringify(prev) === JSON.stringify(defaultFilterValues)
+        return isSame ? prev : defaultFilterValues
+      })
+      onFilterChange?.(buildWhereCondition(defaultFilterValues, filterFields))
     } else {
       onFilterChange?.({})
     }
-  }, [pageKey, filterFields, quickFilters, onFilterChange, buildWhereCondition, buildQuickFilterWhereCondition, storageEnabled])
+  }, [pageKey, filterFields, quickFilters, onFilterChange, buildWhereCondition, buildQuickFilterWhereCondition, storageEnabled, defaultFilterValues])
 
   useEffect(() => {
     if (!storageEnabled || !pageKey) return
@@ -120,7 +134,7 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({ filterFields: filte
     (clearStorage: boolean = true) => {
       setValues({})
       if (clearStorage && storageEnabled && pageKey) {
-        clearFilters(pageKey)
+        saveFilters(pageKey, {})
       }
     },
     [pageKey, storageEnabled],

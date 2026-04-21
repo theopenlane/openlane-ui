@@ -113,9 +113,6 @@ export function loadFilters(pageKey: TableKeyValue, filterFields?: FilterField[]
   }
 }
 
-export function clearFilters(pageKey: TableKeyValue): void {
-  localStorage.removeItem(storageFilterKey(pageKey))
-}
 const validateValues = (values: TFilterState, filterFields: FilterField[]): TFilterState => {
   const result: TFilterState = {}
 
