@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { SimpleForm } from '@repo/ui/simple-form'
 import { Button } from '@repo/ui/button'
-import { ArrowRightCircle, Github } from 'lucide-react'
+import { ArrowRightCircle } from 'lucide-react'
 import { registerUser, type RegisterUser } from '@/lib/user'
 import { GoogleIcon } from '@repo/ui/icons/google'
 import { signIn } from 'next-auth/react'
@@ -16,6 +16,7 @@ import { allowedLoginDomains, recaptchaSiteKey } from '@repo/dally/auth'
 import { loginStyles } from '../login/login.styles'
 import { OPENLANE_WEBSITE_URL } from '@/constants'
 import { cn } from '@repo/ui/lib/utils'
+import Github from '@/assets/Github'
 
 export const SignupPage = () => {
   const searchParams = useSearchParams()
@@ -60,7 +61,7 @@ export const SignupPage = () => {
           <p className="text-sm font-normal">Google</p>
         </Button>
 
-        <Button className="!px-3.5 w-full" variant="secondary" size="md" icon={<Github className="text-input-text" />} iconPosition="left" onClick={github}>
+        <Button className="!px-3.5 w-full" variant="secondary" size="md" icon={<Github />} iconPosition="left" onClick={github}>
           <p className="text-sm font-normal">GitHub</p>
         </Button>
       </div>

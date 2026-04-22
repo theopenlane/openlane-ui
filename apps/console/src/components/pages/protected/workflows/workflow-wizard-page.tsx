@@ -52,28 +52,28 @@ const WorkflowWizardPage = ({ embedded = false }: WorkflowWizardPageProps) => {
     groupOptions,
   })
 
-  useTemplateLoader({ templateId, state, goToStep: (id) => stepper.goTo(id as 'flow' | 'rules' | 'configure' | 'review') })
+  useTemplateLoader({ templateId, state, goToStep: (id) => stepper.navigation.goTo(id as 'flow' | 'rules' | 'configure' | 'review') })
 
-  const currentStepError = state.getValidationError(stepper.current.id)
+  const currentStepError = state.getValidationError(stepper.state.current.data.id)
   const canContinue = !currentStepError
 
   const handleBack = () => {
-    if (stepper.isFirst) {
+    if (stepper.state.isFirst) {
       router.push('/automation/workflows')
       return
     }
-    stepper.prev()
+    stepper.navigation.prev()
   }
 
   const handleNext = async () => {
-    const error = state.getValidationError(stepper.current.id)
+    const error = state.getValidationError(stepper.state.current.data.id)
     if (error) {
       errorNotification({ title: 'Missing details', description: error })
       return
     }
 
-    if (!stepper.isLast) {
-      stepper.next()
+    if (!stepper.state.isLast) {
+      stepper.navigation.next()
       return
     }
 
@@ -81,7 +81,7 @@ const WorkflowWizardPage = ({ embedded = false }: WorkflowWizardPageProps) => {
       const stepError = state.getValidationError(step)
       if (stepError) {
         errorNotification({ title: 'Missing details', description: stepError })
-        stepper.goTo(step)
+        stepper.navigation.goTo(step)
         return
       }
     }
@@ -151,21 +151,21 @@ const WorkflowWizardPage = ({ embedded = false }: WorkflowWizardPageProps) => {
         </div>
         <Separator className="mt-2 mb-4" />
 
-        {stepper.switch({
+        {stepper.flow.switch({
           flow: () => <FlowStep state={state} isLoadingMetadata={isLoadingMetadata} />,
           rules: () => <RulesStep state={state} />,
           configure: () => <ConfigureStep state={state} />,
           review: () => <ReviewStep state={state} />,
         })}
 
-        <div className={`flex items-center mt-8 ${embedded && stepper.isFirst ? 'justify-end' : 'justify-between'}`}>
-          {!(embedded && stepper.isFirst) && (
+        <div className={`flex items-center mt-8 ${embedded && stepper.state.isFirst ? 'justify-end' : 'justify-between'}`}>
+          {!(embedded && stepper.state.isFirst) && (
             <Button type="button" variant="secondary" onClick={handleBack}>
               Back
             </Button>
           )}
           <Button type="button" variant="primary" onClick={handleNext} disabled={!canContinue || baseCreateMutation.isPending} loading={baseCreateMutation.isPending}>
-            {stepper.isLast ? 'Create workflow' : 'Continue'}
+            {stepper.state.isLast ? 'Create workflow' : 'Continue'}
           </Button>
         </div>
       </div>

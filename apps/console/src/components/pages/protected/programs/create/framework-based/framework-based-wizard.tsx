@@ -52,11 +52,11 @@ export default function FrameworkBasedWizard() {
 
   const handleNext = async (e?: React.FormEvent<HTMLFormElement>) => {
     e?.preventDefault()
-    if (!stepper.isLast) {
+    if (!stepper.state.isLast) {
       let isValid: boolean
-      if (stepper.current.id === '0') {
+      if (stepper.state.current.data.id === '0') {
         isValid = await methods.trigger(['framework', 'standardID', 'name'])
-      } else if (stepper.current.id === '1') {
+      } else if (stepper.state.current.data.id === '1') {
         isValid = await methods.trigger('categories')
       } else {
         isValid = await methods.trigger(['programAdmins', 'programMembers', 'viewerIDs', 'editorIDs'])
@@ -64,13 +64,13 @@ export default function FrameworkBasedWizard() {
 
       if (!isValid) return
 
-      let nextStepIndex = stepper.all.findIndex((s) => s.id === stepper.current.id) + 1
-      while (disabledIDs.includes(stepper.all[nextStepIndex]?.id)) {
+      let nextStepIndex = stepper.state.all.findIndex((s) => s.id === stepper.state.current.data.id) + 1
+      while (disabledIDs.includes(stepper.state.all[nextStepIndex]?.id)) {
         nextStepIndex++
       }
 
-      const nextStep = stepper.all[nextStepIndex]
-      if (nextStep) stepper.goTo(nextStep.id)
+      const nextStep = stepper.state.all[nextStepIndex]
+      if (nextStep) stepper.navigation.goTo(nextStep.id)
     } else {
       const validAll = await validateFullAndNotify(methods, errorNotification)
       if (!validAll) return
@@ -79,16 +79,16 @@ export default function FrameworkBasedWizard() {
   }
 
   const handleBack = () => {
-    if (stepper.isFirst) {
+    if (stepper.state.isFirst) {
       setShowExitConfirm(true)
     } else {
-      let prevStepIndex = stepper.all.findIndex((s) => s.id === stepper.current.id) - 1
-      while (disabledIDs.includes(stepper.all[prevStepIndex]?.id)) {
+      let prevStepIndex = stepper.state.all.findIndex((s) => s.id === stepper.state.current.data.id) - 1
+      while (disabledIDs.includes(stepper.state.all[prevStepIndex]?.id)) {
         prevStepIndex--
       }
 
-      const prevStep = stepper.all[prevStepIndex]
-      if (prevStep) stepper.goTo(prevStep.id)
+      const prevStep = stepper.state.all[prevStepIndex]
+      if (prevStep) stepper.navigation.goTo(prevStep.id)
     }
   }
 
@@ -146,7 +146,7 @@ export default function FrameworkBasedWizard() {
         <FormProvider {...methods}>
           <form onSubmit={handleNext}>
             <div className="py-6">
-              {stepper.switch({
+              {stepper.flow.switch({
                 0: () => <SelectFrameworkStep required />,
                 1: () => <SelectCategoryStep />,
                 2: () => <TeamSetupStep />,
@@ -157,7 +157,7 @@ export default function FrameworkBasedWizard() {
                   Back
                 </Button>
                 <Button variant="primary" type="button" onClick={() => handleNext()} disabled={isPending} loading={isPending}>
-                  {stepper.isLast ? 'Create' : 'Continue'}
+                  {stepper.state.isLast ? 'Create' : 'Continue'}
                 </Button>
               </div>
             </div>

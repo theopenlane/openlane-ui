@@ -18,7 +18,8 @@
     "resolveJsonModule": true,
     "strict": true,
     "target": "es5",
-    "downlevelIteration": true
+    "downlevelIteration": true,
+    "ignoreDeprecations": "6.0"
   },
   "include": ["src", "next-env.d.ts"],
   "exclude": ["node_modules"]

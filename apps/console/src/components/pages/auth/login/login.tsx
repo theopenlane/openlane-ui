@@ -3,7 +3,7 @@
 import { type LoginUser } from '@repo/dally/user'
 import { Button } from '@repo/ui/button'
 import SimpleForm from '@repo/ui/simple-form'
-import { ArrowRightCircle, Github, KeyRoundIcon } from 'lucide-react'
+import { ArrowRightCircle, KeyRoundIcon } from 'lucide-react'
 import { signIn, type SignInResponse } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -22,6 +22,7 @@ import { isValidEmail } from '@/lib/validators'
 import { OPENLANE_WEBSITE_URL } from '@/constants'
 import { cn } from '@repo/ui/lib/utils'
 import { sanitizeLoginRedirect } from '@/lib/auth/utils/redirect'
+import Github from '@/assets/Github'
 
 export const LoginPage = () => {
   const { separator, buttons, form, input } = loginStyles()
