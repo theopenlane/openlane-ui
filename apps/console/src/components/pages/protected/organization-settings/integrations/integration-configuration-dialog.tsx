@@ -18,10 +18,11 @@ type Props = {
   provider?: IntegrationProvider
   installationId?: string
   credentialRef?: string
+  existingUserInput?: Record<string, unknown>
   onAuthFlowStarted?: (provider: IntegrationProvider) => void
 }
 
-const IntegrationConfigurationDialog = ({ open, onOpenChange, provider, installationId, credentialRef, onAuthFlowStarted }: Props) => {
+const IntegrationConfigurationDialog = ({ open, onOpenChange, provider, installationId, credentialRef, existingUserInput, onAuthFlowStarted }: Props) => {
   const { successNotification, errorNotification } = useNotification()
   const queryClient = useQueryClient()
   const isExistingInstallation = Boolean(installationId)
@@ -46,6 +47,7 @@ const IntegrationConfigurationDialog = ({ open, onOpenChange, provider, installa
     credentialSchema,
     userInputSchema,
     userInputSectionMeta,
+    existingUserInput,
   })
 
   const disabledConfigKeys = useMemo(() => disabledOperationConfigKeys(provider), [provider])

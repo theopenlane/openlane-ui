@@ -131,7 +131,14 @@ const InstalledIntegrationCard = ({ integration, providers }: InstalledIntegrati
         </div>
       </Card>
 
-      <IntegrationConfigurationDialog open={configOpen} onOpenChange={setConfigOpen} provider={provider} installationId={integration.id} credentialRef={credentialRefName || undefined} />
+      <IntegrationConfigurationDialog
+        open={configOpen}
+        onOpenChange={setConfigOpen}
+        provider={provider}
+        installationId={integration.id}
+        credentialRef={credentialRefName || undefined}
+        existingUserInput={{ primaryDirectory: integration.primaryDirectory }}
+      />
 
       <ConfirmationDialog
         open={confirmOpen}
