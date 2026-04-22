@@ -188,7 +188,7 @@
     "react-hook-form": "^7.71.1",
     "react-lite-youtube-embed": "^3.5.1",
     "react-player": "3.4.0",
-    "react-resizable-panels": "^2.1.7",
+    "react-resizable-panels": "^4.0.0",
     "react-textarea-autosize": "^8.5.9",
     "react-tweet": "^3.2.2",
     "recharts": "^3.2.0",
