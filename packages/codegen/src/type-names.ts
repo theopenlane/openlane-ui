@@ -45,6 +45,7 @@ import { GET_ALL_ASSESSMENTS } from '@repo/codegen/query/assessment'
 import { GET_ALL_ASSETS } from '@repo/codegen/query/asset'
 import { GET_ALL_CAMPAIGNS } from '@repo/codegen/query/campaign'
 import { GET_ALL_CONTROLS } from '@repo/codegen/query/control'
+import { GET_ALL_CONTROL_HEALTHS } from '@repo/codegen/query/control-health'
 import { GET_ALL_CONTROL_IMPLEMENTATIONS } from '@repo/codegen/query/control-implementation'
 import { GET_ALL_CONTROL_OBJECTIVES } from '@repo/codegen/query/control-objective'
 import { GET_ALL_EMAIL_BRANDINGS } from '@repo/codegen/query/email-branding'
@@ -86,6 +87,7 @@ export enum ObjectTypes {
   CAMPAIGN_TARGET = 'CampaignTarget',
   CONTACT = 'Contact',
   CONTROL = 'Control',
+  CONTROL_HEALTH = 'ControlHealth',
   CONTROL_IMPLEMENTATION = 'ControlImplementation',
   CONTROL_OBJECTIVE = 'ControlObjective',
   CUSTOM_DOMAIN = 'CustomDomain',
@@ -188,6 +190,7 @@ export enum ObjectNames {
   CAMPAIGN_TARGET = 'Campaign Target',
   CONTACT = 'Contact',
   CONTROL = 'Control',
+  CONTROL_HEALTH = 'Control Health',
   CONTROL_IMPLEMENTATION = 'Control Implementation',
   CONTROL_OBJECTIVE = 'Control Objective',
   CUSTOM_DOMAIN = 'Custom Domain',
@@ -286,6 +289,7 @@ export enum TypesWithPermissions {
   ASSET = 'Asset',
   CAMPAIGN = 'Campaign',
   CONTROL = 'Control',
+  CONTROL_HEALTH = 'ControlHealth',
   CONTROL_IMPLEMENTATION = 'ControlImplementation',
   CONTROL_OBJECTIVE = 'ControlObjective',
   EMAIL_BRANDING = 'EmailBranding',
@@ -340,6 +344,11 @@ export type PermissionsAllQueriesData = {
   }
   controls?: {
     edges?: Array<{ node: Control }>
+    pageInfo?: PageInfo
+    totalCount?: number
+  }
+  controlHealths?: {
+    edges?: Array<{ node: ControlHealth }>
     pageInfo?: PageInfo
     totalCount?: number
   }

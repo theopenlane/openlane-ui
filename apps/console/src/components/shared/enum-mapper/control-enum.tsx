@@ -3,6 +3,7 @@ import {
   ArrowUpFromDot,
   BinocularsIcon,
   BookMarked,
+  CaseSensitive,
   Circle,
   Clock,
   FileBadge2,
@@ -127,4 +128,5 @@ export const controlIconsMap: Record<string, React.ReactNode> = {
   Type: <Shapes size={16} className="text-brand" />,
   ID: <IdCard size={16} className="text-brand" />,
   Reference: <BookMarked size={16} className="text-brand" />,
+  Alias: <CaseSensitive size={16} className="text-brand" />,
 }

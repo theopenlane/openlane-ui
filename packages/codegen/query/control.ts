@@ -261,6 +261,8 @@ export const CONTROL_DETAILS_FIELDS_FRAGMENT = gql`
         base64
       }
     }
+    externalUUID
+    aliases
   }
 `
 

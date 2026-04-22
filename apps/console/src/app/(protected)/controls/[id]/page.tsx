@@ -46,6 +46,7 @@ import FindingDetailsSheet from '@/components/pages/protected/controls/tabs/find
 import ReviewDetailsSheet from '@/components/pages/protected/controls/tabs/reviews/review-details-sheet'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import ControlHealthBadge from '@/components/pages/protected/controls/shared/control-health-badge'
 
 interface FormValues {
   refCode: string
@@ -378,7 +379,7 @@ const ControlDetailsPage: React.FC = () => {
         systemCreated={!initialValues.descriptionJSON && !!initialValues.description}
       />
 
-      <div className="grid gap-4 sm:grid-cols-[160px_1fr]">
+      <div className="grid gap-4 sm:grid-cols-[160px_160px_1fr]">
         <div>
           <p className="text-sm text-muted-foreground mb-2">Framework</p>
           <StandardChip referenceFramework={control.referenceFramework ?? ''} />
@@ -387,6 +388,7 @@ const ControlDetailsPage: React.FC = () => {
           <p className="text-sm text-muted-foreground mb-2">Source</p>
           <Badge variant="document">{getEnumLabel(control.source ?? 'custom')}</Badge>
         </div>
+        <ControlHealthBadge externalUUID={control.externalUUID} />
       </div>
 
       <QuickActions kind="control" controlId={id} control={control} canEdit={canEdit(permission?.roles)} />
