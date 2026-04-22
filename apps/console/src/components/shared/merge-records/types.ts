@@ -40,6 +40,24 @@ export type MergeDeleteMutation = {
   isPending: boolean
 }
 
+export type MergeEmailAliasFoldConfig<TRecord> = {
+  emailKey: Extract<keyof TRecord, string>
+  aliasesKey: Extract<keyof TRecord, string>
+  defaultOn: boolean
+  label: string
+}
+
+export type MergeEdgeTransferCount = {
+  label: string
+  count: number
+}
+
+export type MergePreSaveExtrasResult<TUpdateInput> = {
+  data: Partial<TUpdateInput> | null
+  counts: MergeEdgeTransferCount[]
+  isLoading: boolean
+}
+
 export type MergeConfig<TRecord, TUpdateInput> = {
   entityType: string
   labelSingular: string
@@ -52,4 +70,6 @@ export type MergeConfig<TRecord, TUpdateInput> = {
   useSearchRecords: (search: string, excludeId: string) => MergeSearchHookResult
   invalidateKeys?: unknown[][]
   getDisplayName?: (record: TRecord) => string
+  emailAliasFold?: MergeEmailAliasFoldConfig<TRecord>
+  usePreSaveInputExtras?: (args: { primaryId: string; secondaryId: string | null; primary: TRecord | null | undefined }) => MergePreSaveExtrasResult<TUpdateInput>
 }

@@ -13,7 +13,7 @@ import { MergeFieldRow } from './merge-field-row'
 import { MergeFinalPreview } from './merge-final-preview'
 import { MergeConfirmDialog } from './merge-confirm-dialog'
 import { useMergeResolution } from './use-merge-resolution'
-import type { MergeConfig } from './types'
+import type { MergeConfig, MergePreSaveExtrasResult } from './types'
 
 type Props<TRecord, TUpdateInput> = {
   open: boolean
@@ -35,7 +35,10 @@ export const MergeRecordsSheet = <TRecord, TUpdateInput>({ open, onOpenChange, c
   const update = config.useUpdate()
   const del = config.useDelete()
 
-  const { visibleFields, resolvedFields, resolvedRecord, setSource, setArrayStrategy } = useMergeResolution({ config, primary, secondary })
+  const { visibleFields, resolvedFields, resolvedRecord, setSource, setArrayStrategy, emailAliasFold } = useMergeResolution({ config, primary, secondary })
+
+  const emptyExtras = useMemo<MergePreSaveExtrasResult<TUpdateInput>>(() => ({ data: null, counts: [], isLoading: false }), [])
+  const extras = config.usePreSaveInputExtras ? config.usePreSaveInputExtras({ primaryId, secondaryId: open ? secondaryId : null, primary }) : emptyExtras
 
   const queryClient = useQueryClient()
   const { successNotification, errorNotification, warningNotification } = useNotification()
@@ -63,13 +66,14 @@ export const MergeRecordsSheet = <TRecord, TUpdateInput>({ open, onOpenChange, c
     onOpenChange(false)
   }
 
-  const canMerge = !!primary && !!secondary && secondaryId !== primaryId
+  const canMerge = !!primary && !!secondary && secondaryId !== primaryId && !extras.isLoading
 
   const runMerge = async () => {
     if (!secondaryId || !canMerge) return
     setIsMerging(true)
     try {
-      const input = config.toUpdateInput(resolvedRecord)
+      const baseInput = config.toUpdateInput(resolvedRecord)
+      const input = { ...baseInput, ...(extras.data ?? {}) } as TUpdateInput
       await update.mutateAsync({ id: primaryId, input })
     } catch (error) {
       setIsMerging(false)
@@ -175,17 +179,53 @@ export const MergeRecordsSheet = <TRecord, TUpdateInput>({ open, onOpenChange, c
                     <p className="text-sm text-muted-foreground">No differing fields. Merging will simply delete the secondary record.</p>
                   ) : (
                     <div className="space-y-3">
-                      {visibleFields.map((rf) => (
-                        <MergeFieldRow
-                          key={rf.field.key}
-                          resolved={rf}
-                          onPickSource={(source) => setSource(rf.field.key, source)}
-                          onToggleArrayStrategy={(strategy) => setArrayStrategy(rf.field.key, strategy)}
-                        />
-                      ))}
+                      {visibleFields.map((rf) => {
+                        const isEmailRow = emailAliasFold.available && rf.field.key === emailAliasFold.emailKey
+                        return (
+                          <MergeFieldRow
+                            key={rf.field.key}
+                            resolved={rf}
+                            onPickSource={(source) => setSource(rf.field.key, source)}
+                            onToggleArrayStrategy={(strategy) => setArrayStrategy(rf.field.key, strategy)}
+                            aliasFoldToggle={
+                              isEmailRow && emailAliasFold.label
+                                ? {
+                                    label: emailAliasFold.label,
+                                    enabled: emailAliasFold.enabled,
+                                    onToggle: emailAliasFold.setEnabled,
+                                  }
+                                : undefined
+                            }
+                          />
+                        )
+                      })}
                     </div>
                   )}
                 </section>
+
+                {config.usePreSaveInputExtras && (
+                  <section className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-sm font-semibold">Linked records being transferred</h3>
+                      {extras.isLoading && <Loader2 size={14} className="animate-spin text-muted-foreground" />}
+                    </div>
+                    <div className="rounded-md border p-3 bg-muted/20">
+                      {extras.isLoading ? (
+                        <p className="text-xs text-muted-foreground">Loading linked records from secondary…</p>
+                      ) : extras.counts.length === 0 ? (
+                        <p className="text-xs text-muted-foreground">No linked records on the secondary. Nothing else to transfer.</p>
+                      ) : (
+                        <div className="flex flex-wrap gap-2">
+                          {extras.counts.map((c) => (
+                            <Badge key={c.label} variant="outline" className="text-xs">
+                              {c.count} {c.label.toLowerCase()}
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </section>
+                )}
 
                 <section className="space-y-3">
                   <h3 className="text-sm font-semibold">Final record</h3>

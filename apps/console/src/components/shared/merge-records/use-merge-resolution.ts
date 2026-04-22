@@ -1,4 +1,4 @@
-import { useMemo, useState, useCallback } from 'react'
+import { useMemo, useState, useCallback, useEffect } from 'react'
 import type { MergeConfig, MergeFieldConfig, MergeSource, MergeArrayStrategy } from './types'
 
 export const isEmptyValue = (value: unknown): boolean => {
@@ -58,6 +58,8 @@ export type ResolvedField<TRecord> = {
   chosenSource: MergeSource
   arrayStrategy?: MergeArrayStrategy
   resolvedValue: unknown
+  aliasFoldApplied?: boolean
+  aliasFoldEmail?: string | null
 }
 
 type Overrides = {
@@ -77,10 +79,24 @@ export type UseMergeResolutionResult<TRecord> = {
   resolvedRecord: Partial<TRecord>
   setSource: (fieldKey: string, source: MergeSource) => void
   setArrayStrategy: (fieldKey: string, strategy: MergeArrayStrategy) => void
+  emailAliasFold: {
+    enabled: boolean
+    available: boolean
+    emailKey: string | null
+    aliasesKey: string | null
+    label: string | null
+    setEnabled: (next: boolean) => void
+  }
 }
 
 export const useMergeResolution = <TRecord, TUpdateInput>({ config, primary, secondary }: UseMergeResolutionArgs<TRecord, TUpdateInput>): UseMergeResolutionResult<TRecord> => {
   const [overrides, setOverrides] = useState<Overrides>({ sources: {}, arrayStrategies: {} })
+  const [aliasFoldEnabled, setAliasFoldEnabled] = useState<boolean>(config.emailAliasFold?.defaultOn ?? false)
+
+  useEffect(() => {
+    setAliasFoldEnabled(config.emailAliasFold?.defaultOn ?? false)
+    setOverrides({ sources: {}, arrayStrategies: {} })
+  }, [config.emailAliasFold?.defaultOn, primary, secondary])
 
   const setSource = useCallback((fieldKey: string, source: MergeSource) => {
     setOverrides((prev) => ({ ...prev, sources: { ...prev.sources, [fieldKey]: source } }))
@@ -93,7 +109,7 @@ export const useMergeResolution = <TRecord, TUpdateInput>({ config, primary, sec
   const resolvedFields = useMemo<ResolvedField<TRecord>[]>(() => {
     if (!primary || !secondary) return []
 
-    return config.fields.map((field) => {
+    const base: ResolvedField<TRecord>[] = config.fields.map((field) => {
       const primaryValue = (primary as Record<string, unknown>)[field.key]
       const secondaryValue = (secondary as Record<string, unknown>)[field.key]
       const pEmpty = isEmptyValue(primaryValue)
@@ -180,7 +196,49 @@ export const useMergeResolution = <TRecord, TUpdateInput>({ config, primary, sec
         resolvedValue: chosenSource === 'primary' ? primaryValue : secondaryValue,
       }
     })
-  }, [config.fields, primary, secondary, overrides])
+
+    const fold = config.emailAliasFold
+    if (!fold || !aliasFoldEnabled) return base
+
+    const emailField = base.find((r) => r.field.key === fold.emailKey)
+    const aliasesIdx = base.findIndex((r) => r.field.key === fold.aliasesKey)
+    if (!emailField || aliasesIdx === -1) return base
+
+    const secondaryEmailRaw = (secondary as Record<string, unknown>)[fold.emailKey]
+    const secondaryEmail = typeof secondaryEmailRaw === 'string' && secondaryEmailRaw.trim() !== '' ? secondaryEmailRaw.trim() : null
+
+    const resolvedEmailRaw = emailField.resolvedValue
+    const resolvedEmail = typeof resolvedEmailRaw === 'string' ? resolvedEmailRaw.trim() : ''
+
+    const primaryAliases = Array.isArray((primary as Record<string, unknown>)[fold.aliasesKey]) ? ((primary as Record<string, unknown>)[fold.aliasesKey] as unknown[]).map(String) : []
+    const secondaryAliases = Array.isArray((secondary as Record<string, unknown>)[fold.aliasesKey]) ? ((secondary as Record<string, unknown>)[fold.aliasesKey] as unknown[]).map(String) : []
+
+    const pool = [...(secondaryEmail ? [secondaryEmail] : []), ...primaryAliases, ...secondaryAliases]
+    const out: string[] = []
+    const seen = new Set<string>()
+    for (const v of pool) {
+      if (v === resolvedEmail) continue
+      if (!seen.has(v)) {
+        seen.add(v)
+        out.push(v)
+      }
+    }
+
+    const existing = base[aliasesIdx]
+    const foldedAliases: ResolvedField<TRecord> = {
+      ...existing,
+      kind: 'merged-array',
+      chosenSource: existing.chosenSource,
+      arrayStrategy: 'union',
+      resolvedValue: out,
+      aliasFoldApplied: true,
+      aliasFoldEmail: secondaryEmail,
+    }
+
+    const next = [...base]
+    next[aliasesIdx] = foldedAliases
+    return next
+  }, [config.fields, config.emailAliasFold, aliasFoldEnabled, primary, secondary, overrides])
 
   const visibleFields = useMemo(() => resolvedFields.filter((f) => f.kind !== 'hidden'), [resolvedFields])
 
@@ -199,5 +257,13 @@ export const useMergeResolution = <TRecord, TUpdateInput>({ config, primary, sec
     resolvedRecord,
     setSource,
     setArrayStrategy,
+    emailAliasFold: {
+      enabled: aliasFoldEnabled,
+      available: !!config.emailAliasFold,
+      emailKey: config.emailAliasFold?.emailKey ?? null,
+      aliasesKey: config.emailAliasFold?.aliasesKey ?? null,
+      label: config.emailAliasFold?.label ?? null,
+      setEnabled: setAliasFoldEnabled,
+    },
   }
 }

@@ -1,10 +1,10 @@
 'use client'
 
 import { useMemo } from 'react'
-import { useIdentityHolder, useUpdateIdentityHolder, useDeleteIdentityHolder, useIdentityHoldersWithFilter } from '@/lib/graphql-hooks/identity-holder'
+import { useIdentityHolder, useUpdateIdentityHolder, useDeleteIdentityHolder, useIdentityHoldersWithFilter, useGetIdentityHolderEdgesForMerge } from '@/lib/graphql-hooks/identity-holder'
 import { IdentityHolderIdentityHolderType, IdentityHolderUserStatus, type IdentityHolderQuery, type UpdateIdentityHolderInput } from '@repo/codegen/src/schema'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
-import type { MergeConfig, MergeFieldConfig } from '../types'
+import type { MergeConfig, MergeEdgeTransferCount, MergeFieldConfig, MergePreSaveExtrasResult } from '../types'
 
 type Personnel = NonNullable<IdentityHolderQuery['identityHolder']>
 
@@ -80,6 +80,68 @@ const useSearchPersonnel = (search: string, excludeId: string) => {
   return { options, isLoading }
 }
 
+type EdgeConnection = { edges?: Array<{ node?: { id: string } | null } | null> | null }
+
+type EdgeTransferSpec = {
+  sourceKey: keyof NonNullable<NonNullable<ReturnType<typeof useGetIdentityHolderEdgesForMerge>['data']>['identityHolder']>
+  addKey: keyof UpdateIdentityHolderInput
+  label: string
+}
+
+const EDGE_TRANSFER_SPECS: EdgeTransferSpec[] = [
+  { sourceKey: 'directoryAccounts', addKey: 'addDirectoryAccountIDs', label: 'Directory accounts' },
+  { sourceKey: 'assessmentResponses', addKey: 'addAssessmentResponseIDs', label: 'Assessment responses' },
+  { sourceKey: 'assets', addKey: 'addAssetIDs', label: 'Assets' },
+  { sourceKey: 'entities', addKey: 'addEntityIDs', label: 'Entities' },
+  { sourceKey: 'campaigns', addKey: 'addCampaignIDs', label: 'Campaigns' },
+  { sourceKey: 'tasks', addKey: 'addTaskIDs', label: 'Tasks' },
+  { sourceKey: 'controls', addKey: 'addControlIDs', label: 'Controls' },
+  { sourceKey: 'internalPolicies', addKey: 'addInternalPolicyIDs', label: 'Internal policies' },
+  { sourceKey: 'subcontrols', addKey: 'addSubcontrolIDs', label: 'Subcontrols' },
+  { sourceKey: 'findings', addKey: 'addFindingIDs', label: 'Findings' },
+  { sourceKey: 'files', addKey: 'addFileIDs', label: 'Files' },
+]
+
+const collectEdgeIds = (edges: EdgeConnection['edges']): string[] => (edges ?? []).map((e) => e?.node?.id).filter((id): id is string => typeof id === 'string')
+
+const usePersonnelPreSaveExtras = ({
+  secondaryId,
+  primary,
+}: {
+  primaryId: string
+  secondaryId: string | null
+  primary: Personnel | null | undefined
+}): MergePreSaveExtrasResult<UpdateIdentityHolderInput> => {
+  const { data, isLoading } = useGetIdentityHolderEdgesForMerge(secondaryId)
+
+  return useMemo(() => {
+    if (!secondaryId || !data?.identityHolder) {
+      return { data: null, counts: [], isLoading }
+    }
+
+    const holder = data.identityHolder
+    const extras: Partial<UpdateIdentityHolderInput> = {}
+    const counts: MergeEdgeTransferCount[] = []
+
+    for (const spec of EDGE_TRANSFER_SPECS) {
+      const connection = holder[spec.sourceKey] as EdgeConnection | null | undefined
+      const ids = collectEdgeIds(connection?.edges)
+      if (ids.length) {
+        ;(extras as Record<string, unknown>)[spec.addKey] = ids
+        counts.push({ label: spec.label, count: ids.length })
+      }
+    }
+
+    const primaryUserID = primary?.userID ?? null
+    if (!primaryUserID && holder.userID) {
+      extras.userID = holder.userID
+      counts.push({ label: 'User link', count: 1 })
+    }
+
+    return { data: extras, counts, isLoading }
+  }, [data, isLoading, primary?.userID, secondaryId])
+}
+
 export const personnelMergeConfig: MergeConfig<Personnel, UpdateIdentityHolderInput> = {
   entityType: 'IdentityHolder',
   labelSingular: 'personnel record',
@@ -92,4 +154,11 @@ export const personnelMergeConfig: MergeConfig<Personnel, UpdateIdentityHolderIn
   toUpdateInput: (resolved) => ({ ...resolved }) as UpdateIdentityHolderInput,
   invalidateKeys: [['identityHolders']],
   getDisplayName: (record) => record.fullName ?? record.email ?? record.id,
+  emailAliasFold: {
+    emailKey: 'email',
+    aliasesKey: 'emailAliases',
+    defaultOn: true,
+    label: 'Add secondary email to aliases',
+  },
+  usePreSaveInputExtras: usePersonnelPreSaveExtras,
 }

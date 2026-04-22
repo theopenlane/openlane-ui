@@ -3,19 +3,27 @@
 import React from 'react'
 import { cn } from '@repo/ui/lib/utils'
 import { Badge } from '@repo/ui/badge'
+import { Checkbox } from '@repo/ui/checkbox'
 import { Check } from 'lucide-react'
 import { MergeValueDisplay } from './merge-value-display'
 import type { MergeSource, MergeArrayStrategy } from './types'
 import type { ResolvedField } from './use-merge-resolution'
 
+type AliasFoldToggle = {
+  label: string
+  enabled: boolean
+  onToggle: (next: boolean) => void
+}
+
 type Props<TRecord> = {
   resolved: ResolvedField<TRecord>
   onPickSource: (source: MergeSource) => void
   onToggleArrayStrategy?: (strategy: MergeArrayStrategy) => void
+  aliasFoldToggle?: AliasFoldToggle
 }
 
-export const MergeFieldRow = <TRecord,>({ resolved, onPickSource, onToggleArrayStrategy }: Props<TRecord>) => {
-  const { field, kind, primaryValue, secondaryValue, chosenSource, arrayStrategy } = resolved
+export const MergeFieldRow = <TRecord,>({ resolved, onPickSource, onToggleArrayStrategy, aliasFoldToggle }: Props<TRecord>) => {
+  const { field, kind, primaryValue, secondaryValue, chosenSource, arrayStrategy, aliasFoldApplied, aliasFoldEmail } = resolved
 
   const isMergedArray = kind === 'merged-array' && arrayStrategy === 'union'
   const isMergedMap = kind === 'merged-map'
@@ -48,24 +56,32 @@ export const MergeFieldRow = <TRecord,>({ resolved, onPickSource, onToggleArrayS
             </Badge>
           )}
         </div>
-        {kind === 'merged-array' && onToggleArrayStrategy && (
-          <div className="flex items-center gap-1 text-xs">
-            <button
-              type="button"
-              onClick={() => onToggleArrayStrategy('union')}
-              className={cn('px-2 py-0.5 rounded border', arrayStrategy === 'union' ? 'bg-primary text-primary-foreground border-primary' : 'border-muted-foreground/30')}
-            >
-              Union
-            </button>
-            <button
-              type="button"
-              onClick={() => onToggleArrayStrategy('choose')}
-              className={cn('px-2 py-0.5 rounded border', arrayStrategy === 'choose' ? 'bg-primary text-primary-foreground border-primary' : 'border-muted-foreground/30')}
-            >
-              Choose one
-            </button>
-          </div>
-        )}
+        <div className="flex items-center gap-2">
+          {aliasFoldToggle && (
+            <label className="flex items-center gap-1.5 text-xs cursor-pointer select-none">
+              <Checkbox checked={aliasFoldToggle.enabled} onCheckedChange={(next) => aliasFoldToggle.onToggle(next === true)} />
+              <span>{aliasFoldToggle.label}</span>
+            </label>
+          )}
+          {kind === 'merged-array' && onToggleArrayStrategy && !aliasFoldApplied && (
+            <div className="flex items-center gap-1 text-xs">
+              <button
+                type="button"
+                onClick={() => onToggleArrayStrategy('union')}
+                className={cn('px-2 py-0.5 rounded border', arrayStrategy === 'union' ? 'bg-primary text-primary-foreground border-primary' : 'border-muted-foreground/30')}
+              >
+                Union
+              </button>
+              <button
+                type="button"
+                onClick={() => onToggleArrayStrategy('choose')}
+                className={cn('px-2 py-0.5 rounded border', arrayStrategy === 'choose' ? 'bg-primary text-primary-foreground border-primary' : 'border-muted-foreground/30')}
+              >
+                Choose one
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       {isMergedMap ? (
@@ -76,6 +92,11 @@ export const MergeFieldRow = <TRecord,>({ resolved, onPickSource, onToggleArrayS
       ) : isMergedArray ? (
         <div className="space-y-2">
           <MergeValueDisplay field={field} value={resolved.resolvedValue} />
+          {aliasFoldApplied && aliasFoldEmail && (
+            <p className="text-xs text-muted-foreground">
+              Includes secondary email: <span className="font-medium">{aliasFoldEmail}</span>. The primary email is excluded from aliases.
+            </p>
+          )}
           <div className="grid grid-cols-2 gap-3 text-xs text-muted-foreground">
             <div>
               <div className="mb-1">Primary</div>
