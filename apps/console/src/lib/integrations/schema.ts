@@ -61,12 +61,26 @@ export function buildSections(
   return sections
 }
 
-export function buildInitialValues(sections: SchemaSection[]): FormValues {
+export function buildInitialValues(sections: SchemaSection[], existingValuesByPrefix: Record<string, Record<string, unknown> | undefined> = {}): FormValues {
   const values: FormValues = {}
 
   for (const section of sections) {
+    const existing = existingValuesByPrefix[section.prefix]
     for (const { fieldKey, property } of getResolvedSchemaFields(section.schema)) {
       const fieldName = `${section.prefix}${fieldKey}`
+      const existingValue = existing?.[fieldKey]
+
+      if (existingValue !== undefined && existingValue !== null) {
+        if (property.type === 'array' && Array.isArray(existingValue)) {
+          values[fieldName] = existingValue.join('\n')
+        } else if (property.type === 'boolean') {
+          values[fieldName] = Boolean(existingValue)
+        } else {
+          values[fieldName] = String(existingValue)
+        }
+        continue
+      }
+
       if (property.default !== undefined) {
         if (property.type === 'array' && Array.isArray(property.default)) {
           values[fieldName] = property.default.join('\n')

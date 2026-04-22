@@ -13,6 +13,8 @@ import { type IntegrationSchemaNode, type IntegrationSchemaProperty } from '@/li
 import {
   type FormValues,
   type SchemaSection,
+  CREDENTIALS_PREFIX,
+  USER_INPUT_PREFIX,
   buildInitialValues,
   buildSections,
   buildZodSchema,
@@ -37,6 +39,8 @@ type UseIntegrationSchemaFormOptions = {
   userInputSchema?: IntegrationSchemaNode
   credentialSectionMeta?: { title: string; description: string }
   userInputSectionMeta?: { title: string; description: string }
+  existingCredential?: Record<string, unknown>
+  existingUserInput?: Record<string, unknown>
 }
 
 export const SchemaField = ({ fieldKey, fieldName, property, required }: SchemaFieldProps) => {
@@ -154,12 +158,19 @@ export function IntegrationSchemaSections({ sections, hideDescriptions, spacing 
   )
 }
 
-export function useIntegrationSchemaForm({ credentialSchema, userInputSchema, credentialSectionMeta, userInputSectionMeta }: UseIntegrationSchemaFormOptions) {
+export function useIntegrationSchemaForm({ credentialSchema, userInputSchema, credentialSectionMeta, userInputSectionMeta, existingCredential, existingUserInput }: UseIntegrationSchemaFormOptions) {
   const sections = useMemo(
     () => buildSections(credentialSchema, userInputSchema, credentialSectionMeta, userInputSectionMeta),
     [credentialSchema, credentialSectionMeta, userInputSchema, userInputSectionMeta],
   )
-  const initialValues = useMemo(() => buildInitialValues(sections), [sections])
+  const initialValues = useMemo(
+    () =>
+      buildInitialValues(sections, {
+        [CREDENTIALS_PREFIX]: existingCredential,
+        [USER_INPUT_PREFIX]: existingUserInput,
+      }),
+    [sections, existingCredential, existingUserInput],
+  )
   const zodSchema = useMemo(() => buildZodSchema(sections), [sections])
 
   const formMethods = useForm<FormValues>({
