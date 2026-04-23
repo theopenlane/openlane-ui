@@ -198,6 +198,16 @@ export const CREATE_CSV_BULK_ENTITY = gql`
   }
 `
 
+export const CREATE_BULK_ENTITY = gql`
+  mutation CreateBulkEntity($input: [CreateEntityInput!], $entityTypeName: String) {
+    createBulkEntity(input: $input, entityTypeName: $entityTypeName) {
+      entities {
+        id
+      }
+    }
+  }
+`
+
 export const BULK_DELETE_ENTITY = gql`
   mutation DeleteBulkEntity($ids: [ID!]!) {
     deleteBulkEntity(ids: $ids) {

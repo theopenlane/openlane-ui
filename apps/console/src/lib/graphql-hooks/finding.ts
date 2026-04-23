@@ -3,6 +3,8 @@ import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
   type FindingsWithFilterQuery,
   type FindingsWithFilterQueryVariables,
+  type FindingBulkCreatePayload,
+  type CreateFindingInput,
   type CreateFindingMutation,
   type CreateFindingMutationVariables,
   type UpdateFindingMutation,
@@ -25,6 +27,7 @@ import { type TPagination } from '@repo/ui/pagination-types'
 import {
   GET_ALL_FINDINGS,
   CREATE_FINDING,
+  CREATE_BULK_FINDING,
   UPDATE_FINDING,
   DELETE_FINDING,
   FINDING,
@@ -68,6 +71,25 @@ export const useCreateFinding = () => {
   const queryClient = useQueryClient()
   return useMutation<CreateFindingMutation, unknown, CreateFindingMutationVariables>({
     mutationFn: async (variables) => client.request(CREATE_FINDING, variables),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['findings'] })
+    },
+  })
+}
+
+type CreateBulkFindingMutation = {
+  createBulkFinding: FindingBulkCreatePayload
+}
+
+type CreateBulkFindingMutationVariables = {
+  input?: CreateFindingInput[]
+}
+
+export const useCreateBulkFinding = () => {
+  const { client } = useGraphQLClient()
+  const queryClient = useQueryClient()
+  return useMutation<CreateBulkFindingMutation, unknown, CreateBulkFindingMutationVariables>({
+    mutationFn: async (variables) => client.request(CREATE_BULK_FINDING, variables),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['findings'] })
     },
