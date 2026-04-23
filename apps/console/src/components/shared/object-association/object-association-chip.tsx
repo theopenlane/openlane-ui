@@ -5,9 +5,7 @@ import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import ObjectsChip from '../objects-chip/objects-chip'
 import { useSheetNavigation, SHEET_KINDS, FULL_PAGE_KINDS } from '@/providers/sheet-navigation-provider'
 import { useRouter } from 'next/navigation'
-import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
-import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types'
-import { getAssociationDescription, getAssociationDisplayName } from '@/components/shared/object-association/utils'
+import { getAssociationDisplayModel } from '@/components/shared/object-association/utils'
 
 export interface ObjectChipProps {
   object: {
@@ -35,13 +33,7 @@ const ObjectAssociationChip: React.FC<ObjectChipProps> = ({ object, kind, remova
   const { convertToReadOnly } = usePlateEditor()
   const router = useRouter()
 
-  const isPersonnel = kind === ObjectAssociationNodeEnum.IDENTITY_HOLDER
-  const displayText = getAssociationDisplayName(object, isPersonnel)
-
-  const description = getAssociationDescription(object)
-  const typeLabel = isPersonnel ? getEnumLabel(object.identityHolderType ?? '') || '—' : ''
-  const detailLabel = isPersonnel ? 'Title' : 'Description'
-  const detailContent = isPersonnel ? object.title || 'No title available' : description ? convertToReadOnly(description) : 'No description available'
+  const display = getAssociationDisplayModel(object, kind)
 
   const objectKind = kind || ''
   const sheetNavigation = useSheetNavigation()
@@ -68,7 +60,7 @@ const ObjectAssociationChip: React.FC<ObjectChipProps> = ({ object, kind, remova
             handleNavigate()
           }}
         >
-          <ObjectsChip name={displayText} objectType={objectKind} removable={removable} onRemove={onRemove ? () => onRemove() : undefined} onClick={handleNavigate} />
+          <ObjectsChip name={display.name} objectType={objectKind} removable={removable} onRemove={onRemove ? () => onRemove() : undefined} onClick={handleNavigate} />
         </TooltipTrigger>
 
         <TooltipContent side="top" className="p-3 rounded-md shadow-lg text-xs min-w-60">
@@ -80,19 +72,19 @@ const ObjectAssociationChip: React.FC<ObjectChipProps> = ({ object, kind, remova
               </div>
               <div className="w-full border-b pb-2">
                 <span className="text-brand pl-3 cursor-pointer hover:underline inline-flex items-center gap-1" onClick={handleNavigate}>
-                  {displayText}
+                  {display.name}
                   <ExternalLink size={12} />
                 </span>
               </div>
 
-              {isPersonnel && (
+              {display.showType && (
                 <>
                   <div className="flex items-center gap-1 border-b pb-2 pt-2">
                     <Info size={12} />
                     <span className="font-medium">Type</span>
                   </div>
                   <div className="w-full border-b pb-2 pt-2">
-                    <span className="pl-3 wrap-break-word">{typeLabel}</span>
+                    <span className="pl-3 wrap-break-word">{display.typeLabel}</span>
                   </div>
                 </>
               )}
@@ -101,9 +93,9 @@ const ObjectAssociationChip: React.FC<ObjectChipProps> = ({ object, kind, remova
             <div className="flex flex-col pt-2">
               <div className="flex items-center gap-1">
                 <PencilLine size={12} />
-                <span className="font-medium">{detailLabel}</span>
+                <span className="font-medium">{display.detailLabel}</span>
               </div>
-              <div className="max-w-xs text-justify line-clamp-4">{detailContent}</div>
+              <div className="max-w-xs text-justify line-clamp-4">{display.detailContentIsRichText ? convertToReadOnly(display.detailContent) : display.detailContent}</div>
             </div>
           </div>
         </TooltipContent>

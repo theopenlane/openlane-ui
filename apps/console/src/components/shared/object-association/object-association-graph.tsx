@@ -13,9 +13,7 @@ import { useSheetNavigation, SHEET_KINDS, FULL_PAGE_KINDS } from '@/providers/sh
 import { useRouter } from 'next/navigation'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
-import { toHumanLabel } from '@/utils/strings'
-import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
-import { getAssociationDescription, getAssociationDisplayName } from '@/components/shared/object-association/utils'
+import { getAssociationDescription, getAssociationDisplayModel, getAssociationDisplayName } from '@/components/shared/object-association/utils'
 
 interface IGraphNode {
   id: string
@@ -62,14 +60,7 @@ const LABEL_PADDING = 4
 
 const CustomTooltipContent = ({ node, interactive }: { node: TBaseAssociatedNode & { link: string }; interactive?: boolean }) => {
   const { convertToReadOnly } = usePlateEditor()
-  const isPersonnel = node.__typename === ObjectTypes.IDENTITY_HOLDER
-
-  const name = getAssociationDisplayName(node, isPersonnel)
-  const typeLabel = (isPersonnel && getEnumLabel(node.identityHolderType ?? '')) || toHumanLabel(node.__typename ?? '')
-
-  const description = getAssociationDescription(node)
-  const detailLabel = isPersonnel ? 'Title' : 'Description'
-  const detailContent = isPersonnel ? node.title || 'No title available' : description ? convertToReadOnly(description) : 'No description available'
+  const display = getAssociationDisplayModel(node, node.__typename)
 
   return (
     <div>
@@ -80,26 +71,28 @@ const CustomTooltipContent = ({ node, interactive }: { node: TBaseAssociatedNode
         </div>
         {interactive ? (
           <span className="cursor-pointer wrap-break-word text-brand hover:underline inline-flex items-center gap-1" onClick={() => window.open(node.link, '_blank')}>
-            {name}
+            {display.name}
             <ExternalLink size={12} />
           </span>
         ) : (
-          <span className="wrap-break-word">{name}</span>
+          <span className="wrap-break-word">{display.name}</span>
         )}
       </div>
-      <div className="grid grid-cols-[max-content_1fr] gap-x-4 items-center border-b pb-2 pt-2">
-        <div className="flex items-center gap-1">
-          <Info size={12} />
-          <span className="font-medium">Type</span>
+      {display.showType && (
+        <div className="grid grid-cols-[max-content_1fr] gap-x-4 items-center border-b pb-2 pt-2">
+          <div className="flex items-center gap-1">
+            <Info size={12} />
+            <span className="font-medium">Type</span>
+          </div>
+          <span className="wrap-break-word">{display.typeLabel}</span>
         </div>
-        <span className="wrap-break-word">{typeLabel}</span>
-      </div>
+      )}
       <div className="flex flex-col pt-2">
         <div className="flex items-center gap-1">
           <PencilLine size={12} />
-          <span className="font-medium">{detailLabel}</span>
+          <span className="font-medium">{display.detailLabel}</span>
         </div>
-        <div className="line-clamp-4 text-justify">{detailContent}</div>
+        <div className="line-clamp-4 text-justify">{display.detailContentIsRichText ? convertToReadOnly(display.detailContent) : display.detailContent}</div>
       </div>
     </div>
   )
@@ -246,7 +239,7 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({
   }, [sections, controlId])
 
   const { graphData, colorMap, centerNodeMeta } = useMemo(() => {
-    const displayText = centerNode.node.refCode || centerNode.node.name || centerNode.node.fullName || centerNode.node.title || ''
+    const displayText = getAssociationDisplayName(centerNode.node, centerNode.type)
     const nodes: IGraphNode[] = [{ id: centerNode.node.id, name: displayText, type: centerNode.type, isCenter: true }]
     const links: TGraphLink[] = []
     const colorMap: Record<string, string> = {}

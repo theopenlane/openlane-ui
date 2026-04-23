@@ -1,11 +1,79 @@
-import { type TBaseAssociatedNode } from '@/components/shared/object-association/types/object-association-types.ts'
+import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { ObjectAssociationNodeEnum, type TBaseAssociatedNode } from '@/components/shared/object-association/types/object-association-types.ts'
 import { type TAssociationMutationKey, type TAssociationUpdateInput, type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap.ts'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
+
+export type TAssociationDisplayModel = {
+  name: string
+  typeLabel: string
+  showType: boolean
+  detailLabel: string
+  detailContent: string
+  detailContentIsRichText: boolean
+}
+
+type TAssociationDisplayConfig = {
+  getName?: (node: TBaseAssociatedNode) => string
+  getTypeLabel?: (node: TBaseAssociatedNode) => string
+  getDetailLabel?: () => string
+  getDetailContent?: (node: TBaseAssociatedNode) => string
+  getDetailContentIsRichText?: (node: TBaseAssociatedNode) => boolean
+}
 
 export const getAssociationDescription = (node: Pick<TBaseAssociatedNode, 'summary' | 'details' | 'description' | 'desiredOutcome'>): string =>
   node.summary || node.details || node.description || node.desiredOutcome || ''
 
-export const getAssociationDisplayName = (node: TBaseAssociatedNode, isPersonnel: boolean): string =>
-  isPersonnel ? node.fullName || node.displayName || node.name || node.displayID || '' : node.refCode || node.displayName || node.name || node.title || ''
+const DEFAULT_ASSOCIATION_DISPLAY_CONFIG: TAssociationDisplayConfig = {
+  getName: (node) => node.refCode || node.displayName || node.name || node.title || '',
+  getDetailLabel: () => 'Description',
+  getDetailContent: (node) => getAssociationDescription(node) || 'No description available',
+  getDetailContentIsRichText: (node) => !!getAssociationDescription(node),
+}
+
+const IDENTITY_HOLDER_DISPLAY_CONFIG: TAssociationDisplayConfig = {
+  getName: (node) => node.fullName || node.displayName || node.name || node.displayID || '',
+  getTypeLabel: (node) => getEnumLabel(node.identityHolderType ?? '') || '—',
+  getDetailLabel: () => 'Title',
+  getDetailContent: (node) => node.title || 'No title available',
+  getDetailContentIsRichText: () => false,
+}
+
+const ASSOCIATION_DISPLAY_CONFIG: Record<string, TAssociationDisplayConfig> = {
+  [ObjectAssociationNodeEnum.IDENTITY_HOLDER]: IDENTITY_HOLDER_DISPLAY_CONFIG,
+  [ObjectTypes.IDENTITY_HOLDER]: IDENTITY_HOLDER_DISPLAY_CONFIG,
+}
+
+const getAssociationDisplayConfig = (node: Pick<TBaseAssociatedNode, '__typename'>, associationKind?: string): TAssociationDisplayConfig => {
+  if (associationKind && ASSOCIATION_DISPLAY_CONFIG[associationKind]) {
+    return ASSOCIATION_DISPLAY_CONFIG[associationKind]
+  }
+
+  if (node.__typename && ASSOCIATION_DISPLAY_CONFIG[node.__typename]) {
+    return ASSOCIATION_DISPLAY_CONFIG[node.__typename]
+  }
+
+  return DEFAULT_ASSOCIATION_DISPLAY_CONFIG
+}
+
+export const getAssociationDisplayName = (node: TBaseAssociatedNode, associationKind?: string): string => {
+  const config = getAssociationDisplayConfig(node, associationKind)
+
+  return config.getName?.(node) || DEFAULT_ASSOCIATION_DISPLAY_CONFIG.getName?.(node) || ''
+}
+
+export const getAssociationDisplayModel = (node: TBaseAssociatedNode, associationKind?: string): TAssociationDisplayModel => {
+  const config = getAssociationDisplayConfig(node, associationKind)
+  const typeLabel = config.getTypeLabel?.(node) || ''
+
+  return {
+    name: getAssociationDisplayName(node, associationKind),
+    typeLabel,
+    showType: !!typeLabel,
+    detailLabel: config.getDetailLabel?.() || DEFAULT_ASSOCIATION_DISPLAY_CONFIG.getDetailLabel?.() || 'Description',
+    detailContent: config.getDetailContent?.(node) || DEFAULT_ASSOCIATION_DISPLAY_CONFIG.getDetailContent?.(node) || '',
+    detailContentIsRichText: config.getDetailContentIsRichText?.(node) ?? DEFAULT_ASSOCIATION_DISPLAY_CONFIG.getDetailContentIsRichText?.(node) ?? false,
+  }
+}
 
 export const buildMutationKey = <TPrefix extends 'add' | 'remove', TFieldKey extends string>(prefix: TPrefix, key: TFieldKey): TAssociationMutationKey<TPrefix, TFieldKey> => {
   return `${prefix}${key.charAt(0).toUpperCase()}${key.slice(1)}` as TAssociationMutationKey<TPrefix, TFieldKey>
