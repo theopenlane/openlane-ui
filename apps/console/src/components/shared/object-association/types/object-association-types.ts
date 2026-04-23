@@ -10,6 +10,7 @@ export type TBaseAssociatedNode = {
   desiredOutcome?: string | null
   details?: string | null
   refCode?: string | null
+  identityHolderType?: string | null
   __typename?: string
 }
 

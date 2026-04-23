@@ -14,6 +14,8 @@ import { useRouter } from 'next/navigation'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { toHumanLabel } from '@/utils/strings'
+import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { getAssociationDescription, getAssociationDisplayName } from '@/components/shared/object-association/utils'
 
 interface IGraphNode {
   id: string
@@ -60,8 +62,15 @@ const LABEL_PADDING = 4
 
 const CustomTooltipContent = ({ node, interactive }: { node: TBaseAssociatedNode & { link: string }; interactive?: boolean }) => {
   const { convertToReadOnly } = usePlateEditor()
-  const displayText = node.refCode || node.displayName || node.name || node.title || ''
-  const displayDescription = node.summary || node.details || node.description || node.desiredOutcome || ''
+  const isPersonnel = node.__typename === ObjectTypes.IDENTITY_HOLDER
+
+  const name = getAssociationDisplayName(node, isPersonnel)
+  const typeLabel = (isPersonnel && getEnumLabel(node.identityHolderType ?? '')) || toHumanLabel(node.__typename ?? '')
+
+  const description = getAssociationDescription(node)
+  const detailLabel = isPersonnel ? 'Title' : 'Description'
+  const detailContent = isPersonnel ? node.title || 'No title available' : description ? convertToReadOnly(description) : 'No description available'
+
   return (
     <div>
       <div className="grid grid-cols-[max-content_1fr] gap-x-4 items-center border-b pb-2">
@@ -71,11 +80,11 @@ const CustomTooltipContent = ({ node, interactive }: { node: TBaseAssociatedNode
         </div>
         {interactive ? (
           <span className="cursor-pointer wrap-break-word text-brand hover:underline inline-flex items-center gap-1" onClick={() => window.open(node.link, '_blank')}>
-            {displayText}
+            {name}
             <ExternalLink size={12} />
           </span>
         ) : (
-          <span className="wrap-break-word">{displayText}</span>
+          <span className="wrap-break-word">{name}</span>
         )}
       </div>
       <div className="grid grid-cols-[max-content_1fr] gap-x-4 items-center border-b pb-2 pt-2">
@@ -83,14 +92,14 @@ const CustomTooltipContent = ({ node, interactive }: { node: TBaseAssociatedNode
           <Info size={12} />
           <span className="font-medium">Type</span>
         </div>
-        <span className="cursor-pointer wrap-break-word">{toHumanLabel(node.__typename || '')}</span>
+        <span className="wrap-break-word">{typeLabel}</span>
       </div>
       <div className="flex flex-col pt-2">
         <div className="flex items-center gap-1">
           <PencilLine size={12} />
-          <span className="font-medium">Description</span>
+          <span className="font-medium">{detailLabel}</span>
         </div>
-        <div className="line-clamp-4 text-justify">{displayDescription ? convertToReadOnly(displayDescription) : 'No description available'}</div>
+        <div className="line-clamp-4 text-justify">{detailContent}</div>
       </div>
     </div>
   )
@@ -179,6 +188,8 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({
         return ObjectTypes.PROGRAM
       case 'controlObjectives':
         return ObjectTypes.CONTROL_OBJECTIVE
+      case 'identityHolders':
+        return ObjectTypes.IDENTITY_HOLDER
       default:
         return 'Unknown'
     }
@@ -204,7 +215,7 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({
           items: nodes.map((node) => ({
             ...node,
             displayName: node.displayName || node.fullName,
-            description: node.summary || node.details || node.description || node.desiredOutcome || '',
+            description: getAssociationDescription(node),
             displayID: node.displayID || node.id,
             link:
               sectionType === 'subcontrols' && controlId ? getHrefForObjectType(sectionType, { ...node, controlId } as NormalizedObject) : getHrefForObjectType(sectionType, node as NormalizedObject),
@@ -235,7 +246,7 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({
   }, [sections, controlId])
 
   const { graphData, colorMap, centerNodeMeta } = useMemo(() => {
-    const displayText = centerNode.node.refCode || centerNode.node.name || centerNode.node.title || ''
+    const displayText = centerNode.node.refCode || centerNode.node.name || centerNode.node.fullName || centerNode.node.title || ''
     const nodes: IGraphNode[] = [{ id: centerNode.node.id, name: displayText, type: centerNode.type, isCenter: true }]
     const links: TGraphLink[] = []
     const colorMap: Record<string, string> = {}
@@ -243,7 +254,7 @@ const ObjectAssociationGraph: React.FC<TObjectAssociationGraphProps> = ({
     const centerMeta: TBaseAssociatedNode & { link: string } = {
       ...centerNode.node,
       refCode: displayText,
-      description: centerNode.node.summary || centerNode.node.details || centerNode.node.description || centerNode.node.desiredOutcome || '',
+      description: getAssociationDescription(centerNode.node),
       displayID: centerNode.node.displayID || centerNode.node.id,
       link: getHrefForObjectType(centerNode.type, centerNode.node as NormalizedObject),
       __typename: getType(centerNode.type),

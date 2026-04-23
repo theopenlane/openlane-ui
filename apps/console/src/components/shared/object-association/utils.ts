@@ -1,4 +1,11 @@
+import { type TBaseAssociatedNode } from '@/components/shared/object-association/types/object-association-types.ts'
 import { type TAssociationMutationKey, type TAssociationUpdateInput, type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap.ts'
+
+export const getAssociationDescription = (node: Pick<TBaseAssociatedNode, 'summary' | 'details' | 'description' | 'desiredOutcome'>): string =>
+  node.summary || node.details || node.description || node.desiredOutcome || ''
+
+export const getAssociationDisplayName = (node: TBaseAssociatedNode, isPersonnel: boolean): string =>
+  isPersonnel ? node.fullName || node.displayName || node.name || node.displayID || '' : node.refCode || node.displayName || node.name || node.title || ''
 
 export const buildMutationKey = <TPrefix extends 'add' | 'remove', TFieldKey extends string>(prefix: TPrefix, key: TFieldKey): TAssociationMutationKey<TPrefix, TFieldKey> => {
   return `${prefix}${key.charAt(0).toUpperCase()}${key.slice(1)}` as TAssociationMutationKey<TPrefix, TFieldKey>

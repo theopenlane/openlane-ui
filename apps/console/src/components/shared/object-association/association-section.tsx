@@ -26,7 +26,7 @@ export type AssociationNode = {
   displayID?: string
   fullName?: string
   target?: string
-  title?: string
+  title?: string | null
   refCode?: string
   description?: string | null
   summary?: string | null

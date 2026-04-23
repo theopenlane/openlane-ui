@@ -287,6 +287,8 @@ export const GET_INTERNAL_POLICY_ASSOCIATIONS_BY_ID = gql`
             id
             fullName
             displayID
+            identityHolderType
+            title
           }
         }
         totalCount

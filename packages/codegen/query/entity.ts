@@ -305,6 +305,8 @@ export const GET_ENTITY_ASSOCIATIONS = gql`
             id
             fullName
             displayID
+            identityHolderType
+            title
           }
         }
         totalCount

@@ -197,6 +197,8 @@ export const GET_ASSET_ASSOCIATIONS = gql`
             id
             fullName
             displayID
+            identityHolderType
+            title
           }
         }
         totalCount
