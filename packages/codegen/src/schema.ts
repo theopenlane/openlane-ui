@@ -65977,6 +65977,12 @@ export type CreateBulkCsvAssetMutationVariables = Exact<{
 
 export type CreateBulkCsvAssetMutation = { __typename?: 'Mutation'; createBulkCSVAsset: { __typename?: 'AssetBulkCreatePayload'; assets?: Array<{ __typename?: 'Asset'; id: string }> | null } }
 
+export type CreateBulkAssetMutationVariables = Exact<{
+  input?: InputMaybe<Array<CreateAssetInput> | CreateAssetInput>
+}>
+
+export type CreateBulkAssetMutation = { __typename?: 'Mutation'; createBulkAsset: { __typename?: 'AssetBulkCreatePayload'; assets?: Array<{ __typename?: 'Asset'; id: string }> | null } }
+
 export type DeleteBulkAssetMutationVariables = Exact<{
   ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
 }>
@@ -68733,6 +68739,13 @@ export type CreateBulkCsvEntityMutationVariables = Exact<{
 
 export type CreateBulkCsvEntityMutation = { __typename?: 'Mutation'; createBulkCSVEntity: { __typename?: 'EntityBulkCreatePayload'; entities?: Array<{ __typename?: 'Entity'; id: string }> | null } }
 
+export type CreateBulkEntityMutationVariables = Exact<{
+  input?: InputMaybe<Array<CreateEntityInput> | CreateEntityInput>
+  entityTypeName?: InputMaybe<Scalars['String']['input']>
+}>
+
+export type CreateBulkEntityMutation = { __typename?: 'Mutation'; createBulkEntity: { __typename?: 'EntityBulkCreatePayload'; entities?: Array<{ __typename?: 'Entity'; id: string }> | null } }
+
 export type DeleteBulkEntityMutationVariables = Exact<{
   ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
 }>
@@ -69743,6 +69756,12 @@ export type CreateBulkCsvFindingMutation = {
   __typename?: 'Mutation'
   createBulkCSVFinding: { __typename?: 'FindingBulkCreatePayload'; findings?: Array<{ __typename?: 'Finding'; id: string }> | null }
 }
+
+export type CreateBulkFindingMutationVariables = Exact<{
+  input?: InputMaybe<Array<CreateFindingInput> | CreateFindingInput>
+}>
+
+export type CreateBulkFindingMutation = { __typename?: 'Mutation'; createBulkFinding: { __typename?: 'FindingBulkCreatePayload'; findings?: Array<{ __typename?: 'Finding'; id: string }> | null } }
 
 export type DeleteBulkFindingMutationVariables = Exact<{
   ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
