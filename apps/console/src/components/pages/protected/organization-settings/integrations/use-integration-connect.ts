@@ -42,11 +42,6 @@ export function useIntegrationConnect({ provider, credentialSchema, userInputSch
         credentialRef,
         onRedirect,
       })
-
-      successNotification({
-        title: `Continue connecting ${provider.displayName}`,
-        description: 'Finish setup in the opened tab. This page will refresh automatically after the integration is connected.',
-      })
     } catch (error) {
       errorNotification({
         title: `Failed to connect ${provider.displayName}`,
@@ -55,7 +50,7 @@ export function useIntegrationConnect({ provider, credentialSchema, userInputSch
     } finally {
       setIsConnecting(false)
     }
-  }, [provider, credentialRef, onRedirect, successNotification, errorNotification])
+  }, [provider, credentialRef, onRedirect, errorNotification])
 
   const handleSubmit = useCallback(
     async (formValues: Record<string, unknown>) => {

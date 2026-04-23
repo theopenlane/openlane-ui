@@ -51,9 +51,16 @@ const IntegrationDefinitionPage = ({ definitionId }: IntegrationDefinitionPagePr
   const visibleOperations = useMemo(() => (provider?.operations ?? []).filter((op) => op.name !== HEALTH_CHECK_OPERATION_NAME), [provider?.operations])
 
   const credentialEntries = useMemo(() => provider?.credentialSchemas ?? [], [provider?.credentialSchemas])
-  const [selectedCredentialIndex, setSelectedCredentialIndex] = useState(() => (credentialEntries.length === 1 ? 0 : -1))
+  const [selectedCredentialIndex, setSelectedCredentialIndex] = useState(-1)
   // Tracks which schema to use — only updates when a credential is actively selected, not when the accordion closes
-  const [schemaCredentialIndex, setSchemaCredentialIndex] = useState(() => (credentialEntries.length === 1 ? 0 : -1))
+  const [schemaCredentialIndex, setSchemaCredentialIndex] = useState(-1)
+
+  useEffect(() => {
+    if (credentialEntries.length === 1) {
+      setSelectedCredentialIndex(0)
+      setSchemaCredentialIndex(0)
+    }
+  }, [credentialEntries.length])
 
   const handleSelectCredential = (index: number) => {
     setSelectedCredentialIndex(index)

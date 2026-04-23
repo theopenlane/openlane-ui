@@ -49,6 +49,7 @@ export type IntegrationSchemaProperty = IntegrationSchemaNode & {
   secret?: boolean
   readOnly?: boolean
   readonly?: boolean
+  generate?: boolean
   items?: IntegrationSchemaNode
   const?: unknown
 }
@@ -56,6 +57,7 @@ export type IntegrationSchemaProperty = IntegrationSchemaNode & {
 export type IntegrationOperationMetadata = {
   name: string
   description?: string
+  requiredPermissions?: string[]
   configSchema?: IntegrationSchemaNode
 }
 
@@ -63,6 +65,7 @@ export type IntegrationCredentialEntry = {
   ref: string
   name?: string
   description?: string
+  recommended?: boolean
   schema?: IntegrationSchemaNode
 }
 

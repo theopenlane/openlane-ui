@@ -1,7 +1,32 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import { type IntegrationOperationMetadata } from '@/lib/integrations/types'
+
+const PERMISSIONS_PREVIEW_COUNT = 3
+
+const PermissionsList = ({ permissions }: { permissions: string[] }) => {
+  const [expanded, setExpanded] = useState(false)
+  const visible = expanded ? permissions : permissions.slice(0, PERMISSIONS_PREVIEW_COUNT)
+  const hidden = permissions.length - PERMISSIONS_PREVIEW_COUNT
+
+  return (
+    <ul className="space-y-1">
+      {visible.map((perm) => (
+        <li key={perm}>
+          <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">{perm}</code>
+        </li>
+      ))}
+      {hidden > 0 && (
+        <li>
+          <button type="button" onClick={() => setExpanded((prev) => !prev)} className="text-xs hover:underline">
+            {expanded ? 'see less' : `...${hidden} more`}
+          </button>
+        </li>
+      )}
+    </ul>
+  )
+}
 
 type OperationsTableProps = {
   operations: IntegrationOperationMetadata[]
@@ -11,6 +36,8 @@ const OperationsTable = ({ operations }: OperationsTableProps) => {
   if (operations.length === 0) {
     return null
   }
+
+  const hasPermissions = operations.some((op) => op.requiredPermissions && op.requiredPermissions.length > 0)
 
   return (
     <section className="mb-8">
@@ -27,13 +54,19 @@ const OperationsTable = ({ operations }: OperationsTableProps) => {
             <tr className="border-b bg-muted/50">
               <th className="px-4 py-2 text-left font-medium">Operation</th>
               <th className="px-4 py-2 text-left font-medium">Description</th>
+              {hasPermissions ? <th className="px-4 py-2 text-left font-medium">Required Permissions</th> : null}
             </tr>
           </thead>
           <tbody>
             {operations.map((op) => (
               <tr key={op.name} className="border-b last:border-0">
-                <td className="px-4 py-2 font-mono text-xs">{op.name}</td>
-                <td className="px-4 py-2 text-muted-foreground">{op.description ?? ''}</td>
+                <td className="px-4 py-2 font-mono text-xs align-top">{op.name}</td>
+                <td className="px-4 py-2 text-muted-foreground align-top">{op.description ?? ''}</td>
+                {hasPermissions ? (
+                  <td className="px-4 py-2 align-top">
+                    {op.requiredPermissions && op.requiredPermissions.length > 0 ? <PermissionsList permissions={op.requiredPermissions} /> : <span className="text-muted-foreground">—</span>}
+                  </td>
+                ) : null}
               </tr>
             ))}
           </tbody>

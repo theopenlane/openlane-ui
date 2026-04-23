@@ -3,6 +3,7 @@
 import React from 'react'
 import { ChevronDown, ChevronUp } from 'lucide-react'
 import { FormProvider, type UseFormReturn } from 'react-hook-form'
+import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
 import { Card } from '@repo/ui/cardpanel'
 import { Separator } from '@repo/ui/separator'
@@ -73,8 +74,9 @@ const CredentialConnectionSection = ({
                       <div className="flex items-center gap-2">
                         {isSelected ? <ChevronUp className="h-4 w-4 shrink-0 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />}
                         <span className="text-sm font-medium">{entry.name ?? entry.ref}</span>
+                        {entry.recommended ? <Badge variant="green">Recommended</Badge> : null}
                       </div>
-                      {connection?.description || entry.description ? <p className="mt-0.5 text-xs text-muted-foreground">{connection?.description || entry.description}</p> : null}
+                      {connection?.description || entry.description ? <p className="ml-5 mt-0.5 text-xs text-muted-foreground">{connection?.description || entry.description}</p> : null}
 
                       {isSelected ? (
                         <div className="mt-4 pt-3 border-t" onClick={(e) => e.stopPropagation()}>
