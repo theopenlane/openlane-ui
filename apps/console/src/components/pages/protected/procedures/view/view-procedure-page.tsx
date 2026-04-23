@@ -69,7 +69,7 @@ const ViewProcedurePage: React.FC = () => {
   const { data: assocData } = useGetProcedureAssociationsById(procedureId, !isDeleting)
 
   const memoizedSections = useMemo(() => {
-    if (!assocData) return {}
+    if (!assocData?.procedure) return {}
     return {
       policies: assocData.procedure.internalPolicies,
       controls: assocData.procedure.controls,

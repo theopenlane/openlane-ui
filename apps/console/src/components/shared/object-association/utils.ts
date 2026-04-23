@@ -2,7 +2,7 @@ import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { ObjectAssociationNodeEnum, type TBaseAssociatedNode } from '@/components/shared/object-association/types/object-association-types.ts'
 import { type TAssociationMutationKey, type TAssociationUpdateInput, type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap.ts'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
-import type { AssociationEntityConfig, AssociationsData, AssociationsRoot } from '@/components/shared/object-association/association-section'
+import type { AssociationsData, AssociationsRoot } from '@/components/shared/object-association/association-section'
 
 export type TAssociationDisplayModel = {
   name: string
@@ -76,15 +76,26 @@ export const getAssociationDisplayModel = (node: TBaseAssociatedNode, associatio
   }
 }
 
-export const buildInitialAssociationIds = <TConfig extends AssociationEntityConfig>(
-  config: TConfig,
-  associationsData: AssociationsData<TConfig['dataRootField']> | undefined,
-): TObjectAssociationMap<Extract<keyof TConfig['initialDataKeys'], string>> => {
-  type TFieldKey = Extract<keyof TConfig['initialDataKeys'], string>
+export const asAssociationsData = <TRootField extends string = string, TSectionKey extends string = string>(data: object | undefined): AssociationsData<TRootField, TSectionKey> | undefined =>
+  data as AssociationsData<TRootField, TSectionKey> | undefined
+
+export const buildRelatedInvalidateKeys = (initialDataKeys: Record<string, string>): readonly (readonly unknown[])[] => Object.values(initialDataKeys).map((k) => [k] as const)
+
+type InitialIdsConfig<TRootField extends string, TFieldKey extends string> = {
+  dataRootField: TRootField
+  initialDataKeys: Record<TFieldKey, string>
+}
+
+export type AssociationInitialIds<TConfig extends InitialIdsConfig<string, string>> = TObjectAssociationMap<Extract<keyof TConfig['initialDataKeys'], string>>
+
+export const buildInitialAssociationIds = <TRootField extends string, TFieldKey extends string>(
+  config: InitialIdsConfig<TRootField, TFieldKey>,
+  associationsData: AssociationsData<TRootField> | undefined,
+): TObjectAssociationMap<TFieldKey> => {
   const result: TObjectAssociationMap<TFieldKey> = {}
   if (!associationsData) return result
 
-  const root = associationsData[config.dataRootField as TConfig['dataRootField']] as AssociationsRoot | undefined
+  const root = associationsData[config.dataRootField] as AssociationsRoot | undefined
   if (!root) return result
 
   for (const [inputName, edgesField] of Object.entries(config.initialDataKeys) as [TFieldKey, string][]) {

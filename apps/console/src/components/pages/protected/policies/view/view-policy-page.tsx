@@ -78,7 +78,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
   const procedures = assocData?.internalPolicy?.procedures?.edges ?? []
 
   const memoizedSections = useMemo(() => {
-    if (!assocData) return {}
+    if (!assocData?.internalPolicy) return {}
     return {
       procedures: assocData.internalPolicy.procedures,
       controls: assocData.internalPolicy.controls,

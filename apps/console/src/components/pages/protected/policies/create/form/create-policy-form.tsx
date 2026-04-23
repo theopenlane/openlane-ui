@@ -14,8 +14,7 @@ import { useRouter } from 'next/navigation'
 import { useQueryClient } from '@tanstack/react-query'
 import useFormSchema, { type CreatePolicyFormData, type EditPolicyFormData } from '../hooks/use-form-schema'
 import { POLICY_ASSOCIATION_CONFIG } from '@/components/shared/object-association/association-configs'
-import { buildAssociationPayload, buildInitialAssociationIds } from '@/components/shared/object-association/utils'
-import { type AssociationsData } from '@/components/shared/object-association/association-section'
+import { type AssociationInitialIds, asAssociationsData, buildAssociationPayload, buildInitialAssociationIds } from '@/components/shared/object-association/utils'
 import { PolicyAssociationSection } from '@/components/pages/protected/policies/create/form/fields/association-section'
 import StatusCard from '@/components/pages/protected/policies/create/cards/status-card.tsx'
 import TagsCard from '@/components/pages/protected/policies/create/cards/tags-card.tsx'
@@ -53,7 +52,8 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
   const { successNotification, errorNotification } = useNotification()
   const [metadata, setMetadata] = useState<TMetadata>()
   const isEditable = !!policy
-  const [initialAssociations, setInitialAssociations] = useState<ReturnType<typeof buildInitialAssociationIds<typeof POLICY_ASSOCIATION_CONFIG>>>({})
+  const [initialAssociations, setInitialAssociations] = useState<AssociationInitialIds<typeof POLICY_ASSOCIATION_CONFIG>>({})
+  const didInitRef = useRef(false)
   const { currentOrgId, getOrganizationByID } = useOrganization()
   const currentOrganization = getOrganizationByID(currentOrgId ?? '')
   const { data: assocData } = useGetInternalPolicyAssociationsById(policy?.id || null)
@@ -73,10 +73,15 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
     form,
   })
 
-  const policyAssociations = useMemo(() => buildInitialAssociationIds(POLICY_ASSOCIATION_CONFIG, assocData as AssociationsData | undefined), [assocData])
+  const policyAssociations = useMemo(() => buildInitialAssociationIds(POLICY_ASSOCIATION_CONFIG, asAssociationsData(assocData)), [assocData])
 
   useEffect(() => {
     if (!policy) return
+
+    if (didInitRef.current) {
+      setInitialAssociations(policyAssociations)
+      return
+    }
 
     form.reset({
       tags: policy.tags ?? [],
@@ -97,6 +102,7 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
     })
 
     setInitialAssociations(policyAssociations)
+    didInitRef.current = true
   }, [policy, form, policyAssociations])
 
   const onCreateHandler = async (data: CreatePolicyFormData) => {
@@ -140,8 +146,7 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
       return
     }
     try {
-      const associationKeys = POLICY_ASSOCIATION_CONFIG.associationKeys as readonly (keyof typeof POLICY_ASSOCIATION_CONFIG.initialDataKeys)[]
-      const associationInputs = buildAssociationPayload(associationKeys, data, false, initialAssociations)
+      const associationInputs = buildAssociationPayload(POLICY_ASSOCIATION_CONFIG.associationKeys, data, false, initialAssociations)
       const mutationData = Object.fromEntries(Object.entries(data).filter(([key]) => !(key in POLICY_ASSOCIATION_CONFIG.initialDataKeys)))
 
       const formData: {

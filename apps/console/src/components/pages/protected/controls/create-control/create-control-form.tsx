@@ -45,6 +45,8 @@ import { Loading } from '@/components/shared/loading/loading'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { ControlAssociationSection } from './fields/control-association-section'
 import { SubcontrolAssociationSection } from './fields/subcontrol-association-section'
+import { CONTROL_ASSOCIATION_CONFIG, SUBCONTROL_ASSOCIATION_CONFIG } from '@/components/shared/object-association/association-configs'
+import { buildAssociationPayload } from '@/components/shared/object-association/utils'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import RelatedControls from './related-controls'
 import { useSession } from 'next-auth/react'
@@ -132,8 +134,15 @@ export default function CreateControlForm() {
     try {
       let newId: string | undefined
 
+      const allAssociationKeys = new Set<string>([...CONTROL_ASSOCIATION_CONFIG.associationKeys, ...SUBCONTROL_ASSOCIATION_CONFIG.associationKeys])
+      const associationInputs = isCreateSubcontrol
+        ? buildAssociationPayload(SUBCONTROL_ASSOCIATION_CONFIG.associationKeys, data, true, {})
+        : buildAssociationPayload(CONTROL_ASSOCIATION_CONFIG.associationKeys, data, true, {})
+      const nonAssociationData = Object.fromEntries(Object.entries(data).filter(([key]) => !allAssociationKeys.has(key)))
+
       const commonInput = {
-        ...data,
+        ...nonAssociationData,
+        ...associationInputs,
         description: await convertToHtml(data.descriptionJSON as Value),
         descriptionJSON: data.descriptionJSON,
         referenceID: data.referenceID || undefined,

@@ -3,7 +3,7 @@ import { Input, InputRow } from '@repo/ui/input'
 import { Form, FormControl, FormField, FormItem, FormLabel } from '@repo/ui/form'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { Info, InfoIcon } from 'lucide-react'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import PlateEditor from '@/components/shared/plate/plate-editor.tsx'
 import { type Value } from 'platejs'
 import { Alert, AlertDescription, AlertTitle } from '@repo/ui/alert'
@@ -13,8 +13,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { useQueryClient } from '@tanstack/react-query'
 import useFormSchema, { type CreateProcedureFormData } from '../hooks/use-form-schema'
 import { PROCEDURE_ASSOCIATION_CONFIG } from '@/components/shared/object-association/association-configs'
-import { buildAssociationPayload, buildInitialAssociationIds } from '@/components/shared/object-association/utils'
-import { type AssociationsData } from '@/components/shared/object-association/association-section'
+import { type AssociationInitialIds, asAssociationsData, buildAssociationPayload, buildInitialAssociationIds } from '@/components/shared/object-association/utils'
 import { ProcedureAssociationSection } from '@/components/pages/protected/procedures/create/form/fields/association-section'
 import StatusCard from '@/components/pages/protected/procedures/create/cards/status-card.tsx'
 import TagsCard from '@/components/pages/protected/procedures/create/cards/tags-card.tsx'
@@ -56,7 +55,8 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
   const { successNotification, errorNotification } = useNotification()
   const [metadata, setMetadata] = useState<TMetadata>()
   const isEditable = !!procedure
-  const [initialAssociations, setInitialAssociations] = useState<ReturnType<typeof buildInitialAssociationIds<typeof PROCEDURE_ASSOCIATION_CONFIG>>>({})
+  const [initialAssociations, setInitialAssociations] = useState<AssociationInitialIds<typeof PROCEDURE_ASSOCIATION_CONFIG>>({})
+  const didInitRef = useRef(false)
   const searchParams = useSearchParams()
   const policyId = searchParams.get('policyId')
   const { data } = useGetInternalPolicyDetailsById(policyId)
@@ -86,10 +86,15 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
     ])
   }, [setCrumbs])
 
-  const procedureAssociations = useMemo(() => buildInitialAssociationIds(PROCEDURE_ASSOCIATION_CONFIG, assocData as AssociationsData | undefined), [assocData])
+  const procedureAssociations = useMemo(() => buildInitialAssociationIds(PROCEDURE_ASSOCIATION_CONFIG, asAssociationsData(assocData)), [assocData])
 
   useEffect(() => {
     if (!procedure) return
+
+    if (didInitRef.current) {
+      setInitialAssociations(procedureAssociations)
+      return
+    }
 
     form.reset({
       tags: procedure.tags ?? [],
@@ -110,6 +115,7 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
     })
 
     setInitialAssociations(procedureAssociations)
+    didInitRef.current = true
   }, [form, procedure, procedureAssociations])
 
   useEffect(() => {
@@ -123,9 +129,13 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
 
   const onCreateHandler = async (data: CreateProcedureFormData) => {
     try {
+      const associationInputs = buildAssociationPayload(PROCEDURE_ASSOCIATION_CONFIG.associationKeys, data, true, {})
+      const { internalPolicyIDs: _ip, controlIDs: _c, subcontrolIDs: _sc, programIDs: _p, taskIDs: _t, riskIDs: _r, ...nonAssociationData } = data
+
       const formData: { input: CreateProcedureInput } = {
         input: {
-          ...data,
+          ...nonAssociationData,
+          ...associationInputs,
           detailsJSON: data.detailsJSON,
           details: await plateEditorHelper.convertToHtml(data.detailsJSON as Value),
           tags: data?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
@@ -162,8 +172,7 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
         return
       }
 
-      const associationKeys = PROCEDURE_ASSOCIATION_CONFIG.associationKeys as readonly (keyof typeof PROCEDURE_ASSOCIATION_CONFIG.initialDataKeys)[]
-      const associationInputs = buildAssociationPayload(associationKeys, data, false, initialAssociations)
+      const associationInputs = buildAssociationPayload(PROCEDURE_ASSOCIATION_CONFIG.associationKeys, data, false, initialAssociations)
       const mutationData = Object.fromEntries(Object.entries(data).filter(([key]) => !(key in PROCEDURE_ASSOCIATION_CONFIG.initialDataKeys)))
 
       const formData: {

@@ -144,7 +144,7 @@ const VulnerabilityPage: React.FC = () => {
     updateMutation,
     createMutation,
     deleteMutation,
-    buildPayload: async (data) => {
+    buildPayload: async (data): Promise<CreateVulnerabilityInput | UpdateVulnerabilityInput> => {
       const { controlIDs, subcontrolIDs, findingIDs, remediationIDs, reviewIDs, assetIDs, taskIDs, ...rest } = data
       const associationPayload = buildAssociationPayload(
         VULNERABILITY_ASSOCIATION_CONFIG.associationKeys,
@@ -158,7 +158,7 @@ const VulnerabilityPage: React.FC = () => {
       return {
         ...cleaned,
         ...associationPayload,
-      }
+      } as CreateVulnerabilityInput | UpdateVulnerabilityInput
     },
     getName,
     renderFields: (props: VulnerabilityFieldProps) => getFieldsToRender(props, enumOpts, enumCreateHandlers),

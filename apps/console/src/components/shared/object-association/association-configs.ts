@@ -1,5 +1,6 @@
 import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
 import type { AssociationEntityConfig } from '@/components/shared/object-association/association-section'
+import { buildRelatedInvalidateKeys } from '@/components/shared/object-association/utils'
 
 const buildAssociationEntityConfig = <const TConfig extends AssociationEntityConfig>(config: TConfig): TConfig => config
 
@@ -19,7 +20,7 @@ const assetInitialDataKeys = {
   subcontrolIDs: 'subcontrols',
   internalPolicyIDs: 'internalPolicies',
 }
-const assetAssociationKeys = ['controlIDs', 'subcontrolIDs', 'internalPolicyIDs', 'scanIDs', 'entityIDs', 'identityHolderIDs']
+const assetAssociationKeys = ['controlIDs', 'subcontrolIDs', 'internalPolicyIDs', 'scanIDs', 'entityIDs', 'identityHolderIDs'] as const satisfies readonly (keyof typeof assetInitialDataKeys)[]
 
 export const ASSET_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
   entityType: 'asset',
@@ -66,7 +67,7 @@ const entityInitialDataKeys = {
   internalPolicyIDs: 'internalPolicies',
   subcontrolIDs: 'subcontrols',
 }
-const entityAssociationKeys = ['assetIDs', 'internalPolicyIDs', 'subcontrolIDs', 'scanIDs', 'campaignIDs', 'identityHolderIDs']
+const entityAssociationKeys = ['assetIDs', 'internalPolicyIDs', 'subcontrolIDs', 'scanIDs', 'campaignIDs', 'identityHolderIDs'] as const satisfies readonly (keyof typeof entityInitialDataKeys)[]
 
 export const ENTITY_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
   entityType: 'entity',
@@ -89,7 +90,7 @@ export const ENTITY_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
     successMessage: 'Vendor updated',
     allowedObjectTypes: entityAllowedObjectTypes,
     initialDataKeys: entityInitialDataKeys,
-    relatedInvalidateQueryKeys: [['assets'], ['scans'], ['campaigns'], ['identityHolders'], ['internalPolicies'], ['subcontrols'], ['controls']],
+    relatedInvalidateQueryKeys: buildRelatedInvalidateKeys(entityInitialDataKeys),
   },
 })
 
@@ -111,7 +112,15 @@ const identityHolderInitialDataKeys = {
   internalPolicyIDs: 'internalPolicies',
   taskIDs: 'tasks',
 }
-const identityHolderAssociationKeys = ['assetIDs', 'controlIDs', 'subcontrolIDs', 'entityIDs', 'campaignIDs', 'internalPolicyIDs', 'taskIDs']
+const identityHolderAssociationKeys = [
+  'assetIDs',
+  'controlIDs',
+  'subcontrolIDs',
+  'entityIDs',
+  'campaignIDs',
+  'internalPolicyIDs',
+  'taskIDs',
+] as const satisfies readonly (keyof typeof identityHolderInitialDataKeys)[]
 
 export const IDENTITY_HOLDER_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
   entityType: 'identityHolder',
@@ -140,7 +149,7 @@ export const IDENTITY_HOLDER_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
     successMessage: 'Personnel updated',
     allowedObjectTypes: identityHolderAllowedObjectTypes,
     initialDataKeys: identityHolderInitialDataKeys,
-    relatedInvalidateQueryKeys: [['assets'], ['controls'], ['subcontrols'], ['entities'], ['campaigns'], ['internalPolicies'], ['tasks']],
+    relatedInvalidateQueryKeys: buildRelatedInvalidateKeys(identityHolderInitialDataKeys),
   },
 })
 
@@ -168,7 +177,18 @@ const findingInitialDataKeys = {
   reviewIDs: 'reviews',
   vulnerabilityIDs: 'vulnerabilities',
 }
-const findingAssociationKeys = ['controlIDs', 'subcontrolIDs', 'riskIDs', 'programIDs', 'taskIDs', 'assetIDs', 'scanIDs', 'remediationIDs', 'reviewIDs', 'vulnerabilityIDs']
+const findingAssociationKeys = [
+  'controlIDs',
+  'subcontrolIDs',
+  'riskIDs',
+  'programIDs',
+  'taskIDs',
+  'assetIDs',
+  'scanIDs',
+  'remediationIDs',
+  'reviewIDs',
+  'vulnerabilityIDs',
+] as const satisfies readonly (keyof typeof findingInitialDataKeys)[]
 
 export const FINDING_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
   entityType: 'finding',
@@ -210,7 +230,7 @@ const remediationInitialDataKeys = {
   findingIDs: 'findings',
   vulnerabilityIDs: 'vulnerabilities',
 }
-const remediationAssociationKeys = ['controlIDs', 'subcontrolIDs', 'findingIDs', 'vulnerabilityIDs']
+const remediationAssociationKeys = ['controlIDs', 'subcontrolIDs', 'findingIDs', 'vulnerabilityIDs'] as const satisfies readonly (keyof typeof remediationInitialDataKeys)[]
 
 export const REMEDIATION_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
   entityType: 'remediation',
@@ -252,7 +272,15 @@ const vulnerabilityInitialDataKeys = {
   assetIDs: 'assets',
   taskIDs: 'tasks',
 }
-const vulnerabilityAssociationKeys = ['controlIDs', 'subcontrolIDs', 'findingIDs', 'remediationIDs', 'reviewIDs', 'assetIDs', 'taskIDs']
+const vulnerabilityAssociationKeys = [
+  'controlIDs',
+  'subcontrolIDs',
+  'findingIDs',
+  'remediationIDs',
+  'reviewIDs',
+  'assetIDs',
+  'taskIDs',
+] as const satisfies readonly (keyof typeof vulnerabilityInitialDataKeys)[]
 
 export const VULNERABILITY_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
   entityType: 'vulnerability',
@@ -298,7 +326,16 @@ const reviewInitialDataKeys = {
   programIDs: 'programs',
   riskIDs: 'risks',
 }
-const reviewAssociationKeys = ['controlIDs', 'subcontrolIDs', 'remediationIDs', 'entityIDs', 'taskIDs', 'assetIDs', 'programIDs', 'riskIDs']
+const reviewAssociationKeys = [
+  'controlIDs',
+  'subcontrolIDs',
+  'remediationIDs',
+  'entityIDs',
+  'taskIDs',
+  'assetIDs',
+  'programIDs',
+  'riskIDs',
+] as const satisfies readonly (keyof typeof reviewInitialDataKeys)[]
 
 export const REVIEW_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
   entityType: 'review',
@@ -380,7 +417,7 @@ const controlAssociationKeys = [
   'remediationIDs',
   'reviewIDs',
   'findingIDs',
-]
+] as const satisfies readonly (keyof typeof controlInitialDataKeys)[]
 
 export const CONTROL_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
   entityType: 'control',
@@ -410,21 +447,7 @@ export const CONTROL_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
     successMessage: 'Control updated',
     allowedObjectTypes: controlAllowedObjectTypes,
     initialDataKeys: controlInitialDataKeys,
-    relatedInvalidateQueryKeys: [
-      ['internalPolicies'],
-      ['procedures'],
-      ['tasks'],
-      ['programs'],
-      ['risks'],
-      ['assets'],
-      ['scans'],
-      ['entities'],
-      ['identityHolders'],
-      ['campaigns'],
-      ['remediations'],
-      ['reviews'],
-      ['findings'],
-    ],
+    relatedInvalidateQueryKeys: buildRelatedInvalidateKeys(controlInitialDataKeys),
   },
 })
 
@@ -446,7 +469,15 @@ const subcontrolInitialDataKeys = {
   entityIDs: 'entities',
   identityHolderIDs: 'identityHolders',
 }
-const subcontrolAssociationKeys = ['internalPolicyIDs', 'procedureIDs', 'taskIDs', 'riskIDs', 'assetIDs', 'entityIDs', 'identityHolderIDs']
+const subcontrolAssociationKeys = [
+  'internalPolicyIDs',
+  'procedureIDs',
+  'taskIDs',
+  'riskIDs',
+  'assetIDs',
+  'entityIDs',
+  'identityHolderIDs',
+] as const satisfies readonly (keyof typeof subcontrolInitialDataKeys)[]
 
 export const SUBCONTROL_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
   entityType: 'subcontrol',
@@ -470,7 +501,7 @@ export const SUBCONTROL_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
     successMessage: 'Subcontrol updated',
     allowedObjectTypes: subcontrolAllowedObjectTypes,
     initialDataKeys: subcontrolInitialDataKeys,
-    relatedInvalidateQueryKeys: [['internalPolicies'], ['procedures'], ['tasks'], ['risks'], ['assets'], ['entities'], ['identityHolders']],
+    relatedInvalidateQueryKeys: buildRelatedInvalidateKeys(subcontrolInitialDataKeys),
   },
 })
 
@@ -498,7 +529,18 @@ const policyInitialDataKeys = {
   entityIDs: 'entities',
   identityHolderIDs: 'identityHolders',
 }
-const policyAssociationKeys = ['procedureIDs', 'controlIDs', 'subcontrolIDs', 'programIDs', 'taskIDs', 'controlObjectiveIDs', 'riskIDs', 'assetIDs', 'entityIDs', 'identityHolderIDs']
+const policyAssociationKeys = [
+  'procedureIDs',
+  'controlIDs',
+  'subcontrolIDs',
+  'programIDs',
+  'taskIDs',
+  'controlObjectiveIDs',
+  'riskIDs',
+  'assetIDs',
+  'entityIDs',
+  'identityHolderIDs',
+] as const satisfies readonly (keyof typeof policyInitialDataKeys)[]
 
 export const POLICY_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
   entityType: 'policy',
@@ -525,7 +567,7 @@ export const POLICY_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
     successMessage: 'Policy updated',
     allowedObjectTypes: policyAllowedObjectTypes,
     initialDataKeys: policyInitialDataKeys,
-    relatedInvalidateQueryKeys: [['procedures'], ['controls'], ['subcontrols'], ['programs'], ['tasks'], ['controlObjectives'], ['risks'], ['assets'], ['entities'], ['identityHolders']],
+    relatedInvalidateQueryKeys: buildRelatedInvalidateKeys(policyInitialDataKeys),
   },
 })
 
@@ -545,7 +587,7 @@ const procedureInitialDataKeys = {
   taskIDs: 'tasks',
   riskIDs: 'risks',
 }
-const procedureAssociationKeys = ['internalPolicyIDs', 'controlIDs', 'subcontrolIDs', 'programIDs', 'taskIDs', 'riskIDs']
+const procedureAssociationKeys = ['internalPolicyIDs', 'controlIDs', 'subcontrolIDs', 'programIDs', 'taskIDs', 'riskIDs'] as const satisfies readonly (keyof typeof procedureInitialDataKeys)[]
 
 export const PROCEDURE_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
   entityType: 'procedure',
@@ -568,7 +610,7 @@ export const PROCEDURE_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
     successMessage: 'Procedure updated',
     allowedObjectTypes: procedureAllowedObjectTypes,
     initialDataKeys: procedureInitialDataKeys,
-    relatedInvalidateQueryKeys: [['internalPolicies'], ['controls'], ['subcontrols'], ['programs'], ['tasks'], ['risks']],
+    relatedInvalidateQueryKeys: buildRelatedInvalidateKeys(procedureInitialDataKeys),
   },
 })
 
@@ -596,7 +638,18 @@ const riskInitialDataKeys = {
   scanIDs: 'scans',
   actionPlanIDs: 'actionPlans',
 }
-const riskAssociationKeys = ['controlIDs', 'subcontrolIDs', 'programIDs', 'taskIDs', 'internalPolicyIDs', 'procedureIDs', 'assetIDs', 'entityIDs', 'scanIDs', 'actionPlanIDs']
+const riskAssociationKeys = [
+  'controlIDs',
+  'subcontrolIDs',
+  'programIDs',
+  'taskIDs',
+  'internalPolicyIDs',
+  'procedureIDs',
+  'assetIDs',
+  'entityIDs',
+  'scanIDs',
+  'actionPlanIDs',
+] as const satisfies readonly (keyof typeof riskInitialDataKeys)[]
 
 export const RISK_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
   entityType: 'risk',
@@ -623,6 +676,6 @@ export const RISK_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
     successMessage: 'Risk updated',
     allowedObjectTypes: riskAllowedObjectTypes,
     initialDataKeys: riskInitialDataKeys,
-    relatedInvalidateQueryKeys: [['controls'], ['subcontrols'], ['programs'], ['tasks'], ['internalPolicies'], ['procedures'], ['assets'], ['entities'], ['scans'], ['actionPlans']],
+    relatedInvalidateQueryKeys: buildRelatedInvalidateKeys(riskInitialDataKeys),
   },
 })

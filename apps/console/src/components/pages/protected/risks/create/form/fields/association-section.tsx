@@ -1,8 +1,9 @@
 import { useCallback } from 'react'
 import { useGetRiskAssociations, useUpdateRisk } from '@/lib/graphql-hooks/risk'
 import type { UpdateRiskInput } from '@repo/codegen/src/schema'
-import { AssociationSection, type BaseAssociationSectionProps, type AssociationsData } from '@/components/shared/object-association/association-section'
+import { AssociationSection, type BaseAssociationSectionProps } from '@/components/shared/object-association/association-section'
 import { RISK_ASSOCIATION_CONFIG } from '@/components/shared/object-association/association-configs'
+import { asAssociationsData } from '@/components/shared/object-association/utils'
 
 export const RiskAssociationSection = (props: BaseAssociationSectionProps) => {
   const riskId = props.data?.id
@@ -17,5 +18,5 @@ export const RiskAssociationSection = (props: BaseAssociationSectionProps) => {
     [updateRisk, riskId],
   )
 
-  return <AssociationSection {...props} config={RISK_ASSOCIATION_CONFIG} associationsData={associationsData as AssociationsData | undefined} onUpdateEntity={handleUpdateRisk} />
+  return <AssociationSection {...props} config={RISK_ASSOCIATION_CONFIG} associationsData={asAssociationsData(associationsData)} onUpdateEntity={handleUpdateRisk} />
 }

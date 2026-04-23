@@ -1,8 +1,9 @@
 import { useCallback } from 'react'
 import { useGetProcedureAssociationsById, useUpdateProcedure } from '@/lib/graphql-hooks/procedure'
 import type { UpdateProcedureInput } from '@repo/codegen/src/schema'
-import { AssociationSection, type BaseAssociationSectionProps, type AssociationsData } from '@/components/shared/object-association/association-section'
+import { AssociationSection, type BaseAssociationSectionProps } from '@/components/shared/object-association/association-section'
 import { PROCEDURE_ASSOCIATION_CONFIG } from '@/components/shared/object-association/association-configs'
+import { asAssociationsData } from '@/components/shared/object-association/utils'
 
 export const ProcedureAssociationSection = (props: BaseAssociationSectionProps) => {
   const procedureId = props.data?.id
@@ -17,5 +18,5 @@ export const ProcedureAssociationSection = (props: BaseAssociationSectionProps) 
     [updateProcedure, procedureId],
   )
 
-  return <AssociationSection {...props} config={PROCEDURE_ASSOCIATION_CONFIG} associationsData={associationsData as AssociationsData | undefined} onUpdateEntity={handleUpdateProcedure} />
+  return <AssociationSection {...props} config={PROCEDURE_ASSOCIATION_CONFIG} associationsData={asAssociationsData(associationsData)} onUpdateEntity={handleUpdateProcedure} />
 }

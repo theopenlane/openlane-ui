@@ -1,10 +1,10 @@
 import { useCallback, type ReactNode } from 'react'
 import type { UpdateRiskInput } from '@repo/codegen/src/schema'
 import { SetAssociationDialog } from '@/components/shared/object-association/set-association-dialog'
-import { type AssociationsData } from '@/components/shared/object-association/association-section'
 import { RISK_ASSOCIATION_CONFIG } from '@/components/shared/object-association/association-configs'
 import { type ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
 import { useGetRiskAssociations, useUpdateRisk } from '@/lib/graphql-hooks/risk'
+import { asAssociationsData } from '@/components/shared/object-association/utils'
 
 type SetRiskAssociationDialogProps = {
   riskId: string
@@ -29,7 +29,7 @@ export const SetRiskAssociationDialog = ({ riskId, trigger, defaultSelectedObjec
   return (
     <SetAssociationDialog
       config={RISK_ASSOCIATION_CONFIG.dialogConfig}
-      associationsData={data as AssociationsData | undefined}
+      associationsData={asAssociationsData(data)}
       onUpdate={handleUpdate}
       trigger={trigger}
       defaultSelectedObject={defaultSelectedObject}

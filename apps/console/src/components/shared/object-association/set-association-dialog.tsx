@@ -11,7 +11,7 @@ import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { useQueryClient } from '@tanstack/react-query'
 import AddAssociationPlusBtn from '@/components/shared/object-association/add-association-plus-btn.tsx'
-import { getAssociationInput } from '@/components/shared/object-association/utils'
+import { buildInitialAssociationIds, getAssociationInput } from '@/components/shared/object-association/utils'
 import type { AssociationsData } from '@/components/shared/object-association/association-section'
 
 export type SetAssociationDialogConfig<TRootField extends string = string, TSectionKey extends string = string, TFieldKey extends string = string> = {
@@ -56,22 +56,7 @@ export function SetAssociationDialog<TRootField extends string, TSectionKey exte
 
   const { errorNotification, successNotification } = useNotification()
 
-  const initialData: TObjectAssociationMap<TFieldKey> = useMemo(() => {
-    if (!associationsData) return {}
-    const root = associationsData[config.dataRootField as TRootField]
-    if (!root) return {}
-
-    const result: TObjectAssociationMap<TFieldKey> = {}
-    for (const [inputName, edgesField] of Object.entries(config.initialDataKeys) as [TFieldKey, TSectionKey][]) {
-      const connection = root[edgesField]
-      result[inputName] =
-        connection?.edges?.flatMap((edge) => {
-          const id = edge?.node?.id
-          return id ? [id] : []
-        }) ?? []
-    }
-    return result
-  }, [associationsData, config.dataRootField, config.initialDataKeys])
+  const initialData: TObjectAssociationMap<TFieldKey> = useMemo(() => buildInitialAssociationIds<TRootField, TFieldKey>(config, associationsData), [config, associationsData])
 
   const initialDataRef = useRef(initialData)
   useEffect(() => {
@@ -86,7 +71,7 @@ export function SetAssociationDialog<TRootField extends string, TSectionKey exte
     [isControlled, onOpenChange],
   )
 
-  const wasOpenRef = useRef(open)
+  const wasOpenRef = useRef(false)
   useEffect(() => {
     if (open && !wasOpenRef.current) {
       setObjectAssociationKey((prev) => prev + 1)
@@ -96,6 +81,10 @@ export function SetAssociationDialog<TRootField extends string, TSectionKey exte
     }
     wasOpenRef.current = open
   }, [open])
+
+  useEffect(() => {
+    if (open) setAssociations(initialData)
+  }, [initialData, open])
 
   const onSave = async () => {
     setIsSaving(true)

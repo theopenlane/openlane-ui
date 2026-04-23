@@ -32,21 +32,24 @@ const ObjectAssociationSwitch: React.FC<TObjectAssociationSwitchProps> = ({ sect
       return
     }
 
+    const nodeId = centerNode?.node?.id
+    if (!nodeId) return null
+
     switch (centerNode.type) {
       case ObjectAssociationNodeEnum.CONTROL:
-        return <SetControlAssociationDialog controlId={centerNode?.node.id} />
+        return <SetControlAssociationDialog controlId={nodeId} />
       case ObjectAssociationNodeEnum.SUBCONTROL:
-        return <SetControlAssociationDialog subcontrolId={centerNode?.node.id} />
+        return <SetControlAssociationDialog subcontrolId={nodeId} />
       case ObjectAssociationNodeEnum.POLICY:
-        return <SetPolicyAssociationDialog policyId={centerNode?.node.id} />
+        return <SetPolicyAssociationDialog policyId={nodeId} />
       case ObjectAssociationNodeEnum.PROCEDURE:
-        return <SetProcedureAssociationDialog procedureId={centerNode?.node.id} />
+        return <SetProcedureAssociationDialog procedureId={nodeId} />
       case ObjectAssociationNodeEnum.RISKS:
-        return <SetRiskAssociationDialog riskId={centerNode?.node.id} />
+        return <SetRiskAssociationDialog riskId={nodeId} />
       case ObjectAssociationNodeEnum.ENTITY:
-        return <SetVendorAssociationDialog entityId={centerNode?.node.id} />
+        return <SetVendorAssociationDialog entityId={nodeId} />
       case ObjectAssociationNodeEnum.IDENTITY_HOLDER:
-        return <SetPersonnelAssociationDialog identityHolderId={centerNode?.node.id} />
+        return <SetPersonnelAssociationDialog identityHolderId={nodeId} />
       case ObjectAssociationNodeEnum.VULNERABILITY:
       case ObjectAssociationNodeEnum.FINDING:
       case ObjectAssociationNodeEnum.SCAN:

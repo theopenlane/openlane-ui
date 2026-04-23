@@ -59,13 +59,13 @@ const CreateRiskForm: React.FC = () => {
       })
       if (createMultiple) {
         setClearData(true)
-        const { name: _name, businessCosts: _bc, details: _d, detailsJSON: _dj, ...preserved } = values
+        const { name: _name, businessCosts: _businessCosts, details: _details, detailsJSON: _detailsJSON, stakeholder: _stakeholder, delegate: _delegate, ...preserved } = values
         form.reset({
+          ...preserved,
           name: '',
           businessCosts: values.businessCosts,
           stakeholder: stakeholder ? { ...stakeholder, noClearOtherFields: true } : undefined,
           delegate: delegate ? { ...delegate, noClearOtherFields: true } : undefined,
-          ...preserved,
         })
       } else {
         router.push(`/exposure/risks/${createdRisk.createRisk.risk.id}`)

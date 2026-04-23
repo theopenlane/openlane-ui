@@ -4,19 +4,22 @@ import { useCallback, type ReactNode } from 'react'
 import { useParams } from 'next/navigation'
 import type { UpdateControlInput, UpdateSubcontrolInput } from '@repo/codegen/src/schema'
 import { SetAssociationDialog } from '@/components/shared/object-association/set-association-dialog'
-import { type AssociationsData } from '@/components/shared/object-association/association-section'
 import { CONTROL_ASSOCIATION_CONFIG, SUBCONTROL_ASSOCIATION_CONFIG } from '@/components/shared/object-association/association-configs'
 import { type ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
 import { useGetControlAssociationsById, useUpdateControl } from '@/lib/graphql-hooks/control'
 import { useGetSubcontrolAssociationsById, useUpdateSubcontrol } from '@/lib/graphql-hooks/subcontrol'
+import { asAssociationsData } from '@/components/shared/object-association/utils'
 
-type SetControlAssociationDialogProps = {
-  controlId?: string
-  subcontrolId?: string
+type SharedDialogProps = {
   trigger?: ReactNode
   defaultSelectedObject?: ObjectTypeObjects
   allowedObjectTypes?: readonly ObjectTypeObjects[]
 }
+
+type SetControlAssociationDialogProps =
+  | (SharedDialogProps & { controlId: string; subcontrolId?: never })
+  | (SharedDialogProps & { subcontrolId: string; controlId?: never })
+  | (SharedDialogProps & { controlId?: undefined; subcontrolId?: undefined })
 
 const ControlAssociationDialog = ({
   controlId,
@@ -42,7 +45,7 @@ const ControlAssociationDialog = ({
   return (
     <SetAssociationDialog
       config={CONTROL_ASSOCIATION_CONFIG.dialogConfig}
-      associationsData={data as AssociationsData | undefined}
+      associationsData={asAssociationsData(data)}
       onUpdate={handleUpdate}
       trigger={trigger}
       defaultSelectedObject={defaultSelectedObject}
@@ -75,7 +78,7 @@ const SubcontrolAssociationDialog = ({
   return (
     <SetAssociationDialog
       config={SUBCONTROL_ASSOCIATION_CONFIG.dialogConfig}
-      associationsData={data as AssociationsData | undefined}
+      associationsData={asAssociationsData(data)}
       onUpdate={handleUpdate}
       trigger={trigger}
       defaultSelectedObject={defaultSelectedObject}
@@ -84,7 +87,10 @@ const SubcontrolAssociationDialog = ({
   )
 }
 
-export const SetControlAssociationDialog = ({ controlId, subcontrolId, trigger, defaultSelectedObject, allowedObjectTypes }: SetControlAssociationDialogProps) => {
+export const SetControlAssociationDialog = (props: SetControlAssociationDialogProps) => {
+  const { trigger, defaultSelectedObject, allowedObjectTypes } = props
+  const controlId = 'controlId' in props ? props.controlId : undefined
+  const subcontrolId = 'subcontrolId' in props ? props.subcontrolId : undefined
   const params = useParams<{ id?: string; subcontrolId?: string }>()
   const resolvedSubcontrolId = subcontrolId ?? params?.subcontrolId
   const resolvedControlId = controlId ?? params?.id

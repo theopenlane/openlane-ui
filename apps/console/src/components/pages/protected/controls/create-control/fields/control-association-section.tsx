@@ -1,8 +1,9 @@
 import { useCallback } from 'react'
 import { useGetControlAssociationsById, useUpdateControl } from '@/lib/graphql-hooks/control'
 import type { UpdateControlInput } from '@repo/codegen/src/schema'
-import { AssociationSection, type BaseAssociationSectionProps, type AssociationsData } from '@/components/shared/object-association/association-section'
+import { AssociationSection, type BaseAssociationSectionProps } from '@/components/shared/object-association/association-section'
 import { CONTROL_ASSOCIATION_CONFIG } from '@/components/shared/object-association/association-configs'
+import { asAssociationsData } from '@/components/shared/object-association/utils'
 
 export const ControlAssociationSection = (props: BaseAssociationSectionProps) => {
   const controlId = props.data?.id
@@ -17,5 +18,5 @@ export const ControlAssociationSection = (props: BaseAssociationSectionProps) =>
     [updateControl, controlId],
   )
 
-  return <AssociationSection {...props} config={CONTROL_ASSOCIATION_CONFIG} associationsData={associationsData as AssociationsData | undefined} onUpdateEntity={handleUpdateControl} />
+  return <AssociationSection {...props} config={CONTROL_ASSOCIATION_CONFIG} associationsData={asAssociationsData(associationsData)} onUpdateEntity={handleUpdateControl} />
 }
