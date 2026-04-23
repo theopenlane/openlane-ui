@@ -218,7 +218,7 @@
     "tailwind-variants": "^3.0.0",
     "tailwindcss": "^4.1.13",
     "tsup": "latest",
-    "typescript": "^5"
+    "typescript": "^6.0.0"
   },
   "overrides": {
     "@types/react": "19.2.14",
