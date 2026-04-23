@@ -39,23 +39,25 @@ export function useUploadFile({ onUploadComplete, onUploadError, ...props }: Use
 
       return uploadedFile
     } catch (error) {
-      const errorMessage = getErrorMessage(error)
-
-      const message = errorMessage.length > 0 ? errorMessage : 'Something went wrong, please try again later.'
-
-      toast.error(message)
-
       onUploadError?.(error)
 
-      // Mock upload for unauthenticated users
-      // toast.info('User not logged in. Mocking upload process.');
+      // Mock upload for unauthenticated users.
+      // Use a base64 data URL so the file survives page reloads when persisted
+      // as part of rich-text content; blob: URLs would be revoked with the session.
+      const dataUrl = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onload = () => resolve(reader.result as string)
+        reader.onerror = () => reject(reader.error)
+        reader.readAsDataURL(file)
+      })
+
       const mockUploadedFile = {
         key: 'mock-key-0',
         appUrl: `https://mock-app-url.com/${file.name}`,
         name: file.name,
         size: file.size,
         type: file.type,
-        url: URL.createObjectURL(file),
+        url: dataUrl,
       } as UploadedFile
 
       // Simulate upload progress
