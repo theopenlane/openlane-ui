@@ -7,12 +7,11 @@ import PropertiesCard from '@/components/pages/protected/risks/view/cards/proper
 import { type Value } from 'platejs'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import BusinessCostField from '@/components/pages/protected/risks/view/fields/business-cost-field.tsx'
-import { useRisk } from '@/components/pages/protected/risks/create/hooks/use-risk.tsx'
 import TitleField from '../../view/fields/title-field'
 import DetailsField from '@/components/pages/protected/risks/view/fields/details-field.tsx'
 import AuthorityCard from '../cards/authority-card'
 import TagsCard from '@/components/pages/protected/risks/create/cards/tags-card.tsx'
-import AssociationCard from '@/components/pages/protected/risks/create/cards/association-card.tsx'
+import { RiskAssociationSection } from '@/components/pages/protected/risks/create/form/fields/association-section'
 import { useRouter } from 'next/navigation'
 import { Button } from '@repo/ui/button'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -24,7 +23,6 @@ const CreateRiskForm: React.FC = () => {
   const { mutateAsync: createRisk, isPending } = useCreateRisk()
   const router = useRouter()
   const plateEditorHelper = usePlateEditor()
-  const associationsState = useRisk((state) => state.associations)
 
   const { successNotification, errorNotification } = useNotification()
   const { form } = useFormSchema()
@@ -50,7 +48,6 @@ const CreateRiskForm: React.FC = () => {
           tags: values?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
           reviewFrequency: (values.reviewFrequency as RiskFrequency) || RiskFrequency.YEARLY,
           riskDecision: (values.riskDecision as RiskRiskDecision) || undefined,
-          ...associationsState,
           ...buildResponsibilityPayload('stakeholder', stakeholder),
           ...buildResponsibilityPayload('delegate', delegate),
         },
@@ -62,18 +59,13 @@ const CreateRiskForm: React.FC = () => {
       })
       if (createMultiple) {
         setClearData(true)
+        const { name: _name, businessCosts: _bc, details: _d, detailsJSON: _dj, ...preserved } = values
         form.reset({
           name: '',
           businessCosts: values.businessCosts,
           stakeholder: stakeholder ? { ...stakeholder, noClearOtherFields: true } : undefined,
           delegate: delegate ? { ...delegate, noClearOtherFields: true } : undefined,
-          tags: values.tags ?? [],
-          score: values.score,
-          status: values.status,
-          likelihood: values.likelihood,
-          riskKindName: values.riskKindName,
-          riskCategoryName: values.riskCategoryName,
-          ...associationsState,
+          ...preserved,
         })
       } else {
         router.push(`/exposure/risks/${createdRisk.createRisk.risk.id}`)
@@ -95,6 +87,7 @@ const CreateRiskForm: React.FC = () => {
             <TitleField isEditing={true} form={form} />
             <DetailsField isEditing={true} clearData={clearData} onCleared={() => setClearData(false)} isCreate={true} />
             <BusinessCostField isEditing={true} clearData={clearData} onCleared={() => setClearData(false)} isCreate={true} />
+            <RiskAssociationSection isEditing={false} isCreate={true} isEditAllowed={true} />
             <div className="flex justify-between items-center">
               <Button variant="primary" type="submit" disabled={isPending}>
                 {isPending ? 'Creating risk' : 'Create risk'}
@@ -108,7 +101,6 @@ const CreateRiskForm: React.FC = () => {
           <div className="space-y-4">
             <AuthorityCard />
             <PropertiesCard form={form} isEditing={true} isCreate={true} />
-            <AssociationCard />
             <TagsCard form={form} />
           </div>
         </form>

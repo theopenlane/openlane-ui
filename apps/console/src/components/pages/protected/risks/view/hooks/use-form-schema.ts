@@ -30,6 +30,16 @@ const formSchema = z.object({
   mitigatedAt: z.string().optional(),
   environmentName: z.string().optional(),
   scopeName: z.string().optional(),
+  controlIDs: z.array(z.string()).optional(),
+  subcontrolIDs: z.array(z.string()).optional(),
+  programIDs: z.array(z.string()).optional(),
+  taskIDs: z.array(z.string()).optional(),
+  internalPolicyIDs: z.array(z.string()).optional(),
+  procedureIDs: z.array(z.string()).optional(),
+  assetIDs: z.array(z.string()).optional(),
+  entityIDs: z.array(z.string()).optional(),
+  scanIDs: z.array(z.string()).optional(),
+  actionPlanIDs: z.array(z.string()).optional(),
 })
 
 export type EditRisksFormData = z.infer<typeof formSchema>

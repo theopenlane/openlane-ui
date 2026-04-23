@@ -2,6 +2,7 @@ import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { ObjectAssociationNodeEnum, type TBaseAssociatedNode } from '@/components/shared/object-association/types/object-association-types.ts'
 import { type TAssociationMutationKey, type TAssociationUpdateInput, type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap.ts'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import type { AssociationEntityConfig, AssociationsData, AssociationsRoot } from '@/components/shared/object-association/association-section'
 
 export type TAssociationDisplayModel = {
   name: string
@@ -73,6 +74,24 @@ export const getAssociationDisplayModel = (node: TBaseAssociatedNode, associatio
     detailContent: config.getDetailContent?.(node) || DEFAULT_ASSOCIATION_DISPLAY_CONFIG.getDetailContent?.(node) || '',
     detailContentIsRichText: config.getDetailContentIsRichText?.(node) ?? DEFAULT_ASSOCIATION_DISPLAY_CONFIG.getDetailContentIsRichText?.(node) ?? false,
   }
+}
+
+export const buildInitialAssociationIds = <TConfig extends AssociationEntityConfig>(
+  config: TConfig,
+  associationsData: AssociationsData<TConfig['dataRootField']> | undefined,
+): TObjectAssociationMap<Extract<keyof TConfig['initialDataKeys'], string>> => {
+  type TFieldKey = Extract<keyof TConfig['initialDataKeys'], string>
+  const result: TObjectAssociationMap<TFieldKey> = {}
+  if (!associationsData) return result
+
+  const root = associationsData[config.dataRootField as TConfig['dataRootField']] as AssociationsRoot | undefined
+  if (!root) return result
+
+  for (const [inputName, edgesField] of Object.entries(config.initialDataKeys) as [TFieldKey, string][]) {
+    const connection = root[edgesField]
+    result[inputName] = connection?.edges?.flatMap((edge) => (edge?.node?.id ? [edge.node.id] : [])) ?? []
+  }
+  return result
 }
 
 export const buildMutationKey = <TPrefix extends 'add' | 'remove', TFieldKey extends string>(prefix: TPrefix, key: TFieldKey): TAssociationMutationKey<TPrefix, TFieldKey> => {

@@ -11,6 +11,7 @@ import { Panel, PanelHeader } from '@repo/ui/panel'
 import ObjectAssociation from '@/components/shared/object-association/object-association'
 import { type TAssociationUpdateInput, type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
 import { SetAssociationDialog, type SetAssociationDialogConfig } from '@/components/shared/object-association/set-association-dialog'
+import { buildInitialAssociationIds } from '@/components/shared/object-association/utils'
 
 export type BaseAssociationSectionProps = {
   data?: { id: string }
@@ -104,23 +105,7 @@ export const AssociationSection = <TConfig extends AssociationEntityConfig>({
   const queryClient = useQueryClient()
   const setAssociationValue = form.setValue as (name: string, value: string[], options?: { shouldDirty?: boolean }) => void
 
-  const initialData: TObjectAssociationMap<TFieldKey> = useMemo(() => {
-    if (!associationsData) return {}
-    const dataRootField = config.dataRootField as TRootField
-    const root = associationsData[dataRootField] as AssociationsRoot<TSectionKey> | undefined
-    if (!root) return {}
-
-    const result: TObjectAssociationMap<TFieldKey> = {}
-    for (const [inputName, edgesField] of Object.entries(config.initialDataKeys) as [TFieldKey, TSectionKey][]) {
-      const connection = root[edgesField]
-      result[inputName] =
-        connection?.edges?.flatMap((edge) => {
-          const id = edge?.node?.id
-          return id ? [id] : []
-        }) ?? []
-    }
-    return result
-  }, [associationsData, config.dataRootField, config.initialDataKeys])
+  const initialData = useMemo(() => buildInitialAssociationIds(config, associationsData) as TObjectAssociationMap<TFieldKey>, [config, associationsData])
 
   useEffect(() => {
     if (isEditing || isCreate) return

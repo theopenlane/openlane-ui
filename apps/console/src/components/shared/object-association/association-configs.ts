@@ -89,6 +89,7 @@ export const ENTITY_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
     successMessage: 'Vendor updated',
     allowedObjectTypes: entityAllowedObjectTypes,
     initialDataKeys: entityInitialDataKeys,
+    relatedInvalidateQueryKeys: [['assets'], ['scans'], ['campaigns'], ['identityHolders'], ['internalPolicies'], ['subcontrols'], ['controls']],
   },
 })
 
@@ -139,6 +140,7 @@ export const IDENTITY_HOLDER_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
     successMessage: 'Personnel updated',
     allowedObjectTypes: identityHolderAllowedObjectTypes,
     initialDataKeys: identityHolderInitialDataKeys,
+    relatedInvalidateQueryKeys: [['assets'], ['controls'], ['subcontrols'], ['entities'], ['campaigns'], ['internalPolicies'], ['tasks']],
   },
 })
 
@@ -331,5 +333,296 @@ export const REVIEW_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
     successMessage: 'Review updated',
     allowedObjectTypes: reviewAllowedObjectTypes,
     initialDataKeys: reviewInitialDataKeys,
+  },
+})
+
+const controlAllowedObjectTypes = [
+  ObjectTypeObjects.ASSET,
+  ObjectTypeObjects.CAMPAIGN,
+  ObjectTypeObjects.ENTITY,
+  ObjectTypeObjects.FINDING,
+  ObjectTypeObjects.IDENTITY_HOLDER,
+  ObjectTypeObjects.INTERNAL_POLICY,
+  ObjectTypeObjects.PROCEDURE,
+  ObjectTypeObjects.PROGRAM,
+  ObjectTypeObjects.REMEDIATION,
+  ObjectTypeObjects.REVIEW,
+  ObjectTypeObjects.RISK,
+  ObjectTypeObjects.SCAN,
+  ObjectTypeObjects.TASK,
+]
+const controlInitialDataKeys = {
+  internalPolicyIDs: 'internalPolicies',
+  procedureIDs: 'procedures',
+  taskIDs: 'tasks',
+  programIDs: 'programs',
+  riskIDs: 'risks',
+  assetIDs: 'assets',
+  scanIDs: 'scans',
+  entityIDs: 'entities',
+  identityHolderIDs: 'identityHolders',
+  campaignIDs: 'campaigns',
+  remediationIDs: 'remediations',
+  reviewIDs: 'reviews',
+  findingIDs: 'findings',
+}
+const controlAssociationKeys = [
+  'internalPolicyIDs',
+  'procedureIDs',
+  'taskIDs',
+  'programIDs',
+  'riskIDs',
+  'assetIDs',
+  'scanIDs',
+  'entityIDs',
+  'identityHolderIDs',
+  'campaignIDs',
+  'remediationIDs',
+  'reviewIDs',
+  'findingIDs',
+]
+
+export const CONTROL_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
+  entityType: 'control',
+  dataRootField: 'control',
+  queryKeyPrefix: 'controls',
+  allowedObjectTypes: controlAllowedObjectTypes,
+  initialDataKeys: controlInitialDataKeys,
+  associationKeys: controlAssociationKeys,
+  sectionMappings: [
+    { key: 'internalPolicies', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ summary: n.summary }) },
+    { key: 'procedures', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ summary: n.summary }) },
+    { key: 'tasks', nameExtractor: (n) => n.title ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ title: n.title, details: n.details }) },
+    { key: 'programs', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ description: n.description }) },
+    { key: 'risks', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ details: n.details }) },
+    { key: 'assets', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayName ?? '' },
+    { key: 'scans', nameExtractor: (n) => n.target ?? '', displayIdExtractor: () => '' },
+    { key: 'entities', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayName ?? '' },
+    { key: 'identityHolders', nameExtractor: (n) => n.fullName ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
+    { key: 'campaigns', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
+    { key: 'remediations', nameExtractor: (n) => n.title ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
+    { key: 'reviews', nameExtractor: (n) => n.title ?? '', displayIdExtractor: () => '' },
+    { key: 'findings', nameExtractor: (n) => n.displayName ?? n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
+  ],
+  dialogConfig: {
+    dataRootField: 'control',
+    invalidateQueryKey: 'controls',
+    successMessage: 'Control updated',
+    allowedObjectTypes: controlAllowedObjectTypes,
+    initialDataKeys: controlInitialDataKeys,
+    relatedInvalidateQueryKeys: [
+      ['internalPolicies'],
+      ['procedures'],
+      ['tasks'],
+      ['programs'],
+      ['risks'],
+      ['assets'],
+      ['scans'],
+      ['entities'],
+      ['identityHolders'],
+      ['campaigns'],
+      ['remediations'],
+      ['reviews'],
+      ['findings'],
+    ],
+  },
+})
+
+const subcontrolAllowedObjectTypes = [
+  ObjectTypeObjects.ASSET,
+  ObjectTypeObjects.ENTITY,
+  ObjectTypeObjects.IDENTITY_HOLDER,
+  ObjectTypeObjects.INTERNAL_POLICY,
+  ObjectTypeObjects.PROCEDURE,
+  ObjectTypeObjects.RISK,
+  ObjectTypeObjects.TASK,
+]
+const subcontrolInitialDataKeys = {
+  internalPolicyIDs: 'internalPolicies',
+  procedureIDs: 'procedures',
+  taskIDs: 'tasks',
+  riskIDs: 'risks',
+  assetIDs: 'assets',
+  entityIDs: 'entities',
+  identityHolderIDs: 'identityHolders',
+}
+const subcontrolAssociationKeys = ['internalPolicyIDs', 'procedureIDs', 'taskIDs', 'riskIDs', 'assetIDs', 'entityIDs', 'identityHolderIDs']
+
+export const SUBCONTROL_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
+  entityType: 'subcontrol',
+  dataRootField: 'subcontrol',
+  queryKeyPrefix: 'subcontrols',
+  allowedObjectTypes: subcontrolAllowedObjectTypes,
+  initialDataKeys: subcontrolInitialDataKeys,
+  associationKeys: subcontrolAssociationKeys,
+  sectionMappings: [
+    { key: 'internalPolicies', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
+    { key: 'procedures', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
+    { key: 'tasks', nameExtractor: (n) => n.title ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ title: n.title, details: n.details }) },
+    { key: 'risks', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ details: n.details }) },
+    { key: 'assets', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayName ?? '' },
+    { key: 'entities', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayName ?? '' },
+    { key: 'identityHolders', nameExtractor: (n) => n.fullName ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
+  ],
+  dialogConfig: {
+    dataRootField: 'subcontrol',
+    invalidateQueryKey: 'subcontrols',
+    successMessage: 'Subcontrol updated',
+    allowedObjectTypes: subcontrolAllowedObjectTypes,
+    initialDataKeys: subcontrolInitialDataKeys,
+    relatedInvalidateQueryKeys: [['internalPolicies'], ['procedures'], ['tasks'], ['risks'], ['assets'], ['entities'], ['identityHolders']],
+  },
+})
+
+const policyAllowedObjectTypes = [
+  ObjectTypeObjects.ASSET,
+  ObjectTypeObjects.CONTROL,
+  ObjectTypeObjects.CONTROL_OBJECTIVE,
+  ObjectTypeObjects.ENTITY,
+  ObjectTypeObjects.IDENTITY_HOLDER,
+  ObjectTypeObjects.PROCEDURE,
+  ObjectTypeObjects.PROGRAM,
+  ObjectTypeObjects.RISK,
+  ObjectTypeObjects.SUB_CONTROL,
+  ObjectTypeObjects.TASK,
+]
+const policyInitialDataKeys = {
+  procedureIDs: 'procedures',
+  controlIDs: 'controls',
+  subcontrolIDs: 'subcontrols',
+  programIDs: 'programs',
+  taskIDs: 'tasks',
+  controlObjectiveIDs: 'controlObjectives',
+  riskIDs: 'risks',
+  assetIDs: 'assets',
+  entityIDs: 'entities',
+  identityHolderIDs: 'identityHolders',
+}
+const policyAssociationKeys = ['procedureIDs', 'controlIDs', 'subcontrolIDs', 'programIDs', 'taskIDs', 'controlObjectiveIDs', 'riskIDs', 'assetIDs', 'entityIDs', 'identityHolderIDs']
+
+export const POLICY_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
+  entityType: 'policy',
+  dataRootField: 'internalPolicy',
+  queryKeyPrefix: 'internalPolicies',
+  allowedObjectTypes: policyAllowedObjectTypes,
+  initialDataKeys: policyInitialDataKeys,
+  associationKeys: policyAssociationKeys,
+  sectionMappings: [
+    { key: 'procedures', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ summary: n.summary }) },
+    { key: 'controls', nameExtractor: (n) => n.refCode ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ description: n.description }) },
+    { key: 'subcontrols', nameExtractor: (n) => n.refCode ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ description: n.description }) },
+    { key: 'programs', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ description: n.description }) },
+    { key: 'tasks', nameExtractor: (n) => n.title ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ title: n.title, details: n.details }) },
+    { key: 'controlObjectives', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
+    { key: 'risks', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
+    { key: 'assets', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayName ?? '' },
+    { key: 'entities', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayName ?? '' },
+    { key: 'identityHolders', nameExtractor: (n) => n.fullName ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
+  ],
+  dialogConfig: {
+    dataRootField: 'internalPolicy',
+    invalidateQueryKey: 'internalPolicies',
+    successMessage: 'Policy updated',
+    allowedObjectTypes: policyAllowedObjectTypes,
+    initialDataKeys: policyInitialDataKeys,
+    relatedInvalidateQueryKeys: [['procedures'], ['controls'], ['subcontrols'], ['programs'], ['tasks'], ['controlObjectives'], ['risks'], ['assets'], ['entities'], ['identityHolders']],
+  },
+})
+
+const procedureAllowedObjectTypes = [
+  ObjectTypeObjects.CONTROL,
+  ObjectTypeObjects.INTERNAL_POLICY,
+  ObjectTypeObjects.PROGRAM,
+  ObjectTypeObjects.RISK,
+  ObjectTypeObjects.SUB_CONTROL,
+  ObjectTypeObjects.TASK,
+]
+const procedureInitialDataKeys = {
+  internalPolicyIDs: 'internalPolicies',
+  controlIDs: 'controls',
+  subcontrolIDs: 'subcontrols',
+  programIDs: 'programs',
+  taskIDs: 'tasks',
+  riskIDs: 'risks',
+}
+const procedureAssociationKeys = ['internalPolicyIDs', 'controlIDs', 'subcontrolIDs', 'programIDs', 'taskIDs', 'riskIDs']
+
+export const PROCEDURE_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
+  entityType: 'procedure',
+  dataRootField: 'procedure',
+  queryKeyPrefix: 'procedures',
+  allowedObjectTypes: procedureAllowedObjectTypes,
+  initialDataKeys: procedureInitialDataKeys,
+  associationKeys: procedureAssociationKeys,
+  sectionMappings: [
+    { key: 'internalPolicies', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ summary: n.summary }) },
+    { key: 'controls', nameExtractor: (n) => n.refCode ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ description: n.description }) },
+    { key: 'subcontrols', nameExtractor: (n) => n.refCode ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ description: n.description }) },
+    { key: 'programs', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ description: n.description }) },
+    { key: 'tasks', nameExtractor: (n) => n.title ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ title: n.title, details: n.details }) },
+    { key: 'risks', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ details: n.details }) },
+  ],
+  dialogConfig: {
+    dataRootField: 'procedure',
+    invalidateQueryKey: 'procedures',
+    successMessage: 'Procedure updated',
+    allowedObjectTypes: procedureAllowedObjectTypes,
+    initialDataKeys: procedureInitialDataKeys,
+    relatedInvalidateQueryKeys: [['internalPolicies'], ['controls'], ['subcontrols'], ['programs'], ['tasks'], ['risks']],
+  },
+})
+
+const riskAllowedObjectTypes = [
+  ObjectTypeObjects.ACTION_PLAN,
+  ObjectTypeObjects.ASSET,
+  ObjectTypeObjects.CONTROL,
+  ObjectTypeObjects.ENTITY,
+  ObjectTypeObjects.INTERNAL_POLICY,
+  ObjectTypeObjects.PROCEDURE,
+  ObjectTypeObjects.PROGRAM,
+  ObjectTypeObjects.SCAN,
+  ObjectTypeObjects.SUB_CONTROL,
+  ObjectTypeObjects.TASK,
+]
+const riskInitialDataKeys = {
+  controlIDs: 'controls',
+  subcontrolIDs: 'subcontrols',
+  programIDs: 'programs',
+  taskIDs: 'tasks',
+  internalPolicyIDs: 'internalPolicies',
+  procedureIDs: 'procedures',
+  assetIDs: 'assets',
+  entityIDs: 'entities',
+  scanIDs: 'scans',
+  actionPlanIDs: 'actionPlans',
+}
+const riskAssociationKeys = ['controlIDs', 'subcontrolIDs', 'programIDs', 'taskIDs', 'internalPolicyIDs', 'procedureIDs', 'assetIDs', 'entityIDs', 'scanIDs', 'actionPlanIDs']
+
+export const RISK_ASSOCIATION_CONFIG = buildAssociationEntityConfig({
+  entityType: 'risk',
+  dataRootField: 'risk',
+  queryKeyPrefix: 'risks',
+  allowedObjectTypes: riskAllowedObjectTypes,
+  initialDataKeys: riskInitialDataKeys,
+  associationKeys: riskAssociationKeys,
+  sectionMappings: [
+    { key: 'controls', nameExtractor: (n) => n.refCode ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ description: n.description }) },
+    { key: 'subcontrols', nameExtractor: (n) => n.refCode ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ description: n.description }) },
+    { key: 'programs', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ description: n.description }) },
+    { key: 'tasks', nameExtractor: (n) => n.title ?? '', displayIdExtractor: (n) => n.displayID ?? '', extraFields: (n) => ({ title: n.title, details: n.details }) },
+    { key: 'internalPolicies', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
+    { key: 'procedures', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayID ?? '' },
+    { key: 'assets', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayName ?? '' },
+    { key: 'entities', nameExtractor: (n) => n.name ?? '', displayIdExtractor: (n) => n.displayName ?? '' },
+    { key: 'scans', nameExtractor: (n) => n.target ?? '', displayIdExtractor: () => '' },
+    { key: 'actionPlans', nameExtractor: (n) => n.name ?? '', displayIdExtractor: () => '' },
+  ],
+  dialogConfig: {
+    dataRootField: 'risk',
+    invalidateQueryKey: 'risks',
+    successMessage: 'Risk updated',
+    allowedObjectTypes: riskAllowedObjectTypes,
+    initialDataKeys: riskInitialDataKeys,
+    relatedInvalidateQueryKeys: [['controls'], ['subcontrols'], ['programs'], ['tasks'], ['internalPolicies'], ['procedures'], ['assets'], ['entities'], ['scans'], ['actionPlans']],
   },
 })

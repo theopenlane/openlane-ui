@@ -23,6 +23,20 @@ export const controlFormSchema = z.object({
   desiredOutcome: z.any(),
   details: z.any(),
   publicRepresentation: z.any().optional(),
+  internalPolicyIDs: z.array(z.string()).optional(),
+  procedureIDs: z.array(z.string()).optional(),
+  taskIDs: z.array(z.string()).optional(),
+  programIDs: z.array(z.string()).optional(),
+  riskIDs: z.array(z.string()).optional(),
+  assetIDs: z.array(z.string()).optional(),
+  scanIDs: z.array(z.string()).optional(),
+  entityIDs: z.array(z.string()).optional(),
+  identityHolderIDs: z.array(z.string()).optional(),
+  campaignIDs: z.array(z.string()).optional(),
+  remediationIDs: z.array(z.string()).optional(),
+  reviewIDs: z.array(z.string()).optional(),
+  findingIDs: z.array(z.string()).optional(),
+  subcontrolIDs: z.array(z.string()).optional(),
 })
 
 export const createControlFormSchema = (isCreateSubcontrol: boolean) =>
