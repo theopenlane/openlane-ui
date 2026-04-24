@@ -253,7 +253,6 @@ export function Comment(props: {
               }}
               onRemoveComment={() => {
                 if (discussionLength === 1) {
-                  tf.comment.unsetMark({ id: comment.discussionId })
                   removeDiscussion(comment.discussionId)
                 }
               }}
@@ -376,6 +375,7 @@ function CommentMoreDropdown(props: {
   const entityUpdate = getEntityUpdater(entityType)
 
   const editor = useEditorRef()
+  const { tf: commentTf } = useEditorPlugin(CommentPlugin)
 
   const selectedEditCommentRef = React.useRef<boolean>(false)
 
@@ -390,7 +390,20 @@ function CommentMoreDropdown(props: {
       Risk: 'updateRiskId',
     }
 
-    const input: EntityInput<typeof entityType> = { deleteComment: comment.id }
+    const targetDiscussion = discussions.find((d) => d.id === comment.discussionId)
+    const isLastInThread = targetDiscussion?.comments.length === 1
+
+    if (isLastInThread) {
+      commentTf.comment.unsetMark({ id: comment.discussionId })
+    }
+
+    const cleanedJsonPatch = isLastInThread
+      ? entityType === ObjectTypes.CONTROL || entityType === ObjectTypes.SUBCONTROL
+        ? { descriptionJSON: editor.children }
+        : { detailsJSON: editor.children }
+      : {}
+
+    const input: EntityInput<typeof entityType> = { deleteComment: comment.id, ...cleanedJsonPatch }
 
     await entityUpdate({
       [entityIdKeyMap[entityType]]: entityId,
@@ -420,7 +433,7 @@ function CommentMoreDropdown(props: {
 
     editor.setOption(discussionPlugin, 'discussions', updatedDiscussions)
     onRemoveComment?.()
-  }, [comment.discussionId, comment.id, editor, entityId, entityType, entityUpdate, onRemoveComment])
+  }, [comment.discussionId, comment.id, commentTf, discussions, editor, entityId, entityType, entityUpdate, onRemoveComment])
 
   const onEditComment = React.useCallback(() => {
     selectedEditCommentRef.current = true
