@@ -63,38 +63,45 @@ export function buildSections(
   return sections
 }
 
-export function buildInitialValues(sections: SchemaSection[]): FormValues {
+export function buildInitialValues(sections: SchemaSection[], existingValuesByPrefix: Record<string, Record<string, unknown> | undefined> = {}): FormValues {
   const values: FormValues = {}
 
   for (const section of sections) {
+    const existing = existingValuesByPrefix[section.prefix]
     for (const { fieldKey, property } of getResolvedSchemaFields(section.schema)) {
       const fieldName = `${section.prefix}${fieldKey}`
+      const existingValue = existing?.[fieldKey]
+
+      if (existingValue !== undefined && existingValue !== null) {
+        values[fieldName] = coerceSchemaValue(property, existingValue)
+        continue
+      }
+
       if (property.generate === true) {
         values[fieldName] = `openlane-${crypto.randomUUID()}`
         continue
       }
 
       if (property.default !== undefined) {
-        if (property.type === 'array' && Array.isArray(property.default)) {
-          values[fieldName] = property.default.join('\n')
-        } else if (property.type === 'boolean') {
-          values[fieldName] = Boolean(property.default)
-        } else {
-          values[fieldName] = String(property.default)
-        }
+        values[fieldName] = coerceSchemaValue(property, property.default)
         continue
       }
 
-      if (property.type === 'boolean') {
-        values[fieldName] = false
-        continue
-      }
-
-      values[fieldName] = ''
+      values[fieldName] = property.type === 'boolean' ? false : ''
     }
   }
 
   return values
+}
+
+function coerceSchemaValue(property: IntegrationSchemaProperty, rawValue: unknown): unknown {
+  if (property.type === 'array' && Array.isArray(rawValue)) {
+    return rawValue.join('\n')
+  }
+  if (property.type === 'boolean') {
+    return Boolean(rawValue)
+  }
+  return String(rawValue)
 }
 
 export function buildZodSchema(sections: SchemaSection[]): z.ZodObject<Record<string, z.ZodTypeAny>> {

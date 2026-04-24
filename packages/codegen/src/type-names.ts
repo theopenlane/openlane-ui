@@ -5,7 +5,6 @@ import {
   Assessment,
   Asset,
   Campaign,
-  CheckResult,
   Control,
   ControlImplementation,
   ControlObjective,
@@ -45,7 +44,6 @@ import { GET_ALL_ACTION_PLANS } from '@repo/codegen/query/action-plan'
 import { GET_ALL_ASSESSMENTS } from '@repo/codegen/query/assessment'
 import { GET_ALL_ASSETS } from '@repo/codegen/query/asset'
 import { GET_ALL_CAMPAIGNS } from '@repo/codegen/query/campaign'
-import { GET_ALL_CHECK_RESULTS } from '@repo/codegen/query/check-result'
 import { GET_ALL_CONTROLS } from '@repo/codegen/query/control'
 import { GET_ALL_CONTROL_IMPLEMENTATIONS } from '@repo/codegen/query/control-implementation'
 import { GET_ALL_CONTROL_OBJECTIVES } from '@repo/codegen/query/control-objective'
@@ -86,7 +84,6 @@ export enum ObjectTypes {
   ASSET = 'Asset',
   CAMPAIGN = 'Campaign',
   CAMPAIGN_TARGET = 'CampaignTarget',
-  CHECK_RESULT = 'CheckResult',
   CONTACT = 'Contact',
   CONTROL = 'Control',
   CONTROL_IMPLEMENTATION = 'ControlImplementation',
@@ -189,7 +186,6 @@ export enum ObjectNames {
   ASSET = 'Asset',
   CAMPAIGN = 'Campaign',
   CAMPAIGN_TARGET = 'Campaign Target',
-  CHECK_RESULT = 'Check Result',
   CONTACT = 'Contact',
   CONTROL = 'Control',
   CONTROL_IMPLEMENTATION = 'Control Implementation',
@@ -289,7 +285,6 @@ export enum TypesWithPermissions {
   ASSESSMENT = 'Assessment',
   ASSET = 'Asset',
   CAMPAIGN = 'Campaign',
-  CHECK_RESULT = 'CheckResult',
   CONTROL = 'Control',
   CONTROL_IMPLEMENTATION = 'ControlImplementation',
   CONTROL_OBJECTIVE = 'ControlObjective',
@@ -340,11 +335,6 @@ export type PermissionsAllQueriesData = {
   }
   campaigns?: {
     edges?: Array<{ node: Campaign }>
-    pageInfo?: PageInfo
-    totalCount?: number
-  }
-  checkResults?: {
-    edges?: Array<{ node: CheckResult }>
     pageInfo?: PageInfo
     totalCount?: number
   }
@@ -547,16 +537,6 @@ export const OBJECT_TYPE_PERMISSIONS_CONFIG: Record<TypesWithPermissions, Object
     roleOptions: ['View', 'Edit', 'Blocked'],
     responseObjectKey: 'campaigns',
     queryDocument: GET_ALL_CAMPAIGNS,
-    objectName: 'name',
-    searchAttribute: 'nameContainsFold',
-    inputPlaceholder: 'name',
-    excludeViewersInFilter: false,
-    extraTableColumns: undefined,
-  },
-  [TypesWithPermissions.CHECK_RESULT]: {
-    roleOptions: ['View', 'Edit', 'Blocked'],
-    responseObjectKey: 'checkResults',
-    queryDocument: GET_ALL_CHECK_RESULTS,
     objectName: 'name',
     searchAttribute: 'nameContainsFold',
     inputPlaceholder: 'name',

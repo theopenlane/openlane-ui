@@ -9,6 +9,10 @@ export type IntegrationMetadata = {
   lastSuccessfulHealthCheck?: string
 }
 
+export type IntegrationConfigValue = {
+  clientConfig?: Record<string, unknown>
+}
+
 type IntegrationEdges = NonNullable<NonNullable<GetIntegrationsQuery['integrations']>['edges']>
 
 type IntegrationEdge = NonNullable<IntegrationEdges[number]>

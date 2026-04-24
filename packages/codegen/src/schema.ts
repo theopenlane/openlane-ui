@@ -51,6 +51,10 @@ export interface Scalars {
   ExportMetadata: { input: any; output: any }
   /** The `ImplementationGuidance` scalar type that represents steps to take to implement a control; they can come directly from the control source or pulled from external sources */
   ImplementationGuidance: { input: any; output: any }
+  /** IntegrationConfig holds the runtime configuration for operations, scheduling, and mappings */
+  IntegrationConfig: { input: any; output: any }
+  /** IntegrationInstallationMetadata holds the stable, non-secret installation identity metadata for the provider */
+  IntegrationInstallationMetadata: { input: any; output: any }
   /** A valid JSON string. */
   JSON: { input: any; output: any }
   /** JobCadence is when a job should be scheduled to run */
@@ -4351,364 +4355,6 @@ export interface CampaignWhereInput {
   workflowEligibleMarkerNotNil?: InputMaybe<Scalars['Boolean']['input']>
 }
 
-export interface CheckResult extends Node {
-  __typename?: 'CheckResult'
-  blockedGroups: GroupConnection
-  controls: ControlConnection
-  createdAt?: Maybe<Scalars['Time']['output']>
-  createdBy?: Maybe<Scalars['String']['output']>
-  /** optional details of the result */
-  details?: Maybe<Scalars['String']['output']>
-  editors: GroupConnection
-  /** link to the result in the source system */
-  externalURI?: Maybe<Scalars['String']['output']>
-  findings: FindingConnection
-  id: Scalars['ID']['output']
-  /** integration that owns this control health */
-  integration?: Maybe<Integration>
-  /** integration that owns this directory group */
-  integrationID?: Maybe<Scalars['ID']['output']>
-  /** timestamp the result was last updated */
-  lastObservedAt?: Maybe<Scalars['DateTime']['output']>
-  /** external parent reference id for the aggregate rule, e.g. in aws config this is the config rule name */
-  parentExternalID?: Maybe<Scalars['String']['output']>
-  /** source that set the check result */
-  source: Scalars['String']['output']
-  /** current status of the control */
-  status: CheckResultCheckStatus
-  /** tags associated with the object */
-  tags?: Maybe<Array<Scalars['String']['output']>>
-  updatedAt?: Maybe<Scalars['Time']['output']>
-  updatedBy?: Maybe<Scalars['String']['output']>
-  viewers: GroupConnection
-}
-
-export interface CheckResultBlockedGroupsArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  orderBy?: InputMaybe<Array<GroupOrder>>
-  where?: InputMaybe<GroupWhereInput>
-}
-
-export interface CheckResultControlsArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  orderBy?: InputMaybe<Array<ControlOrder>>
-  where?: InputMaybe<ControlWhereInput>
-}
-
-export interface CheckResultEditorsArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  orderBy?: InputMaybe<Array<GroupOrder>>
-  where?: InputMaybe<GroupWhereInput>
-}
-
-export interface CheckResultFindingsArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  orderBy?: InputMaybe<Array<FindingOrder>>
-  where?: InputMaybe<FindingWhereInput>
-}
-
-export interface CheckResultViewersArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  orderBy?: InputMaybe<Array<GroupOrder>>
-  where?: InputMaybe<GroupWhereInput>
-}
-
-/** Return response for createBulkCheckResult mutation */
-export interface CheckResultBulkCreatePayload {
-  __typename?: 'CheckResultBulkCreatePayload'
-  /** Created checkResults */
-  checkResults?: Maybe<Array<CheckResult>>
-}
-
-/** Return response for deleteBulkCheckResult mutation */
-export interface CheckResultBulkDeletePayload {
-  __typename?: 'CheckResultBulkDeletePayload'
-  /** Deleted checkResult IDs */
-  deletedIDs: Array<Scalars['ID']['output']>
-  /** Error returned when the bulk delete is only partially applied */
-  error?: Maybe<Scalars['String']['output']>
-  /** IDs of checkResults that were not deleted */
-  notDeletedIDs?: Maybe<Array<Scalars['ID']['output']>>
-}
-
-/** Return response for updateBulkCheckResult mutation */
-export interface CheckResultBulkUpdatePayload {
-  __typename?: 'CheckResultBulkUpdatePayload'
-  /** Updated checkResults */
-  checkResults?: Maybe<Array<CheckResult>>
-  /** IDs of the updated checkResults */
-  updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
-}
-
-/** CheckResultCheckStatus is enum for the field status */
-export enum CheckResultCheckStatus {
-  FAIL = 'FAIL',
-  PASS = 'PASS',
-  UNKNOWN = 'UNKNOWN',
-}
-
-/** A connection to a list of items. */
-export interface CheckResultConnection {
-  __typename?: 'CheckResultConnection'
-  /** A list of edges. */
-  edges?: Maybe<Array<Maybe<CheckResultEdge>>>
-  /** Information to aid in pagination. */
-  pageInfo: PageInfo
-  /** Identifies the total count of items in the connection. */
-  totalCount: Scalars['Int']['output']
-}
-
-/** Return response for createCheckResult mutation */
-export interface CheckResultCreatePayload {
-  __typename?: 'CheckResultCreatePayload'
-  /** Created checkResult */
-  checkResult: CheckResult
-}
-
-/** Return response for deleteCheckResult mutation */
-export interface CheckResultDeletePayload {
-  __typename?: 'CheckResultDeletePayload'
-  /** Deleted checkResult ID */
-  deletedID: Scalars['ID']['output']
-}
-
-/** An edge in a connection. */
-export interface CheckResultEdge {
-  __typename?: 'CheckResultEdge'
-  /** A cursor for use in pagination. */
-  cursor: Scalars['Cursor']['output']
-  /** The item at the end of the edge. */
-  node?: Maybe<CheckResult>
-}
-
-/** Ordering options for CheckResult connections */
-export interface CheckResultOrder {
-  /** The ordering direction. */
-  direction?: OrderDirection
-  /** The field by which to order CheckResults. */
-  field: CheckResultOrderField
-}
-
-/** Properties by which CheckResult connections can be ordered. */
-export enum CheckResultOrderField {
-  STATUS = 'STATUS',
-  created_at = 'created_at',
-  observed_at = 'observed_at',
-  source = 'source',
-  updated_at = 'updated_at',
-}
-
-/** Return response for updateCheckResult mutation */
-export interface CheckResultUpdatePayload {
-  __typename?: 'CheckResultUpdatePayload'
-  /** Updated checkResult */
-  checkResult: CheckResult
-}
-
-/**
- * CheckResultWhereInput is used for filtering CheckResult objects.
- * Input was generated by ent.
- */
-export interface CheckResultWhereInput {
-  and?: InputMaybe<Array<CheckResultWhereInput>>
-  /** created_at field predicates */
-  createdAt?: InputMaybe<Scalars['Time']['input']>
-  createdAtGT?: InputMaybe<Scalars['Time']['input']>
-  createdAtGTE?: InputMaybe<Scalars['Time']['input']>
-  createdAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  createdAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  createdAtLT?: InputMaybe<Scalars['Time']['input']>
-  createdAtLTE?: InputMaybe<Scalars['Time']['input']>
-  createdAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  createdAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  createdAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** created_by field predicates */
-  createdBy?: InputMaybe<Scalars['String']['input']>
-  createdByContains?: InputMaybe<Scalars['String']['input']>
-  createdByContainsFold?: InputMaybe<Scalars['String']['input']>
-  createdByEqualFold?: InputMaybe<Scalars['String']['input']>
-  createdByGT?: InputMaybe<Scalars['String']['input']>
-  createdByGTE?: InputMaybe<Scalars['String']['input']>
-  createdByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  createdByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  createdByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  createdByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  createdByLT?: InputMaybe<Scalars['String']['input']>
-  createdByLTE?: InputMaybe<Scalars['String']['input']>
-  createdByNEQ?: InputMaybe<Scalars['String']['input']>
-  createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** details field predicates */
-  details?: InputMaybe<Scalars['String']['input']>
-  detailsContains?: InputMaybe<Scalars['String']['input']>
-  detailsContainsFold?: InputMaybe<Scalars['String']['input']>
-  detailsEqualFold?: InputMaybe<Scalars['String']['input']>
-  detailsGT?: InputMaybe<Scalars['String']['input']>
-  detailsGTE?: InputMaybe<Scalars['String']['input']>
-  detailsHasPrefix?: InputMaybe<Scalars['String']['input']>
-  detailsHasSuffix?: InputMaybe<Scalars['String']['input']>
-  detailsIn?: InputMaybe<Array<Scalars['String']['input']>>
-  detailsIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  detailsLT?: InputMaybe<Scalars['String']['input']>
-  detailsLTE?: InputMaybe<Scalars['String']['input']>
-  detailsNEQ?: InputMaybe<Scalars['String']['input']>
-  detailsNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  detailsNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** external_uri field predicates */
-  externalURI?: InputMaybe<Scalars['String']['input']>
-  externalURIContains?: InputMaybe<Scalars['String']['input']>
-  externalURIContainsFold?: InputMaybe<Scalars['String']['input']>
-  externalURIEqualFold?: InputMaybe<Scalars['String']['input']>
-  externalURIGT?: InputMaybe<Scalars['String']['input']>
-  externalURIGTE?: InputMaybe<Scalars['String']['input']>
-  externalURIHasPrefix?: InputMaybe<Scalars['String']['input']>
-  externalURIHasSuffix?: InputMaybe<Scalars['String']['input']>
-  externalURIIn?: InputMaybe<Array<Scalars['String']['input']>>
-  externalURIIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  externalURILT?: InputMaybe<Scalars['String']['input']>
-  externalURILTE?: InputMaybe<Scalars['String']['input']>
-  externalURINEQ?: InputMaybe<Scalars['String']['input']>
-  externalURINotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  externalURINotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** blocked_groups edge predicates */
-  hasBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
-  hasBlockedGroupsWith?: InputMaybe<Array<GroupWhereInput>>
-  /** controls edge predicates */
-  hasControls?: InputMaybe<Scalars['Boolean']['input']>
-  hasControlsWith?: InputMaybe<Array<ControlWhereInput>>
-  /** editors edge predicates */
-  hasEditors?: InputMaybe<Scalars['Boolean']['input']>
-  hasEditorsWith?: InputMaybe<Array<GroupWhereInput>>
-  /** findings edge predicates */
-  hasFindings?: InputMaybe<Scalars['Boolean']['input']>
-  hasFindingsWith?: InputMaybe<Array<FindingWhereInput>>
-  /** integration edge predicates */
-  hasIntegration?: InputMaybe<Scalars['Boolean']['input']>
-  hasIntegrationWith?: InputMaybe<Array<IntegrationWhereInput>>
-  /** viewers edge predicates */
-  hasViewers?: InputMaybe<Scalars['Boolean']['input']>
-  hasViewersWith?: InputMaybe<Array<GroupWhereInput>>
-  /** id field predicates */
-  id?: InputMaybe<Scalars['ID']['input']>
-  idContainsFold?: InputMaybe<Scalars['ID']['input']>
-  idEqualFold?: InputMaybe<Scalars['ID']['input']>
-  idGT?: InputMaybe<Scalars['ID']['input']>
-  idGTE?: InputMaybe<Scalars['ID']['input']>
-  idIn?: InputMaybe<Array<Scalars['ID']['input']>>
-  idLT?: InputMaybe<Scalars['ID']['input']>
-  idLTE?: InputMaybe<Scalars['ID']['input']>
-  idNEQ?: InputMaybe<Scalars['ID']['input']>
-  idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
-  /** integration_id field predicates */
-  integrationID?: InputMaybe<Scalars['ID']['input']>
-  integrationIDContains?: InputMaybe<Scalars['ID']['input']>
-  integrationIDContainsFold?: InputMaybe<Scalars['ID']['input']>
-  integrationIDEqualFold?: InputMaybe<Scalars['ID']['input']>
-  integrationIDGT?: InputMaybe<Scalars['ID']['input']>
-  integrationIDGTE?: InputMaybe<Scalars['ID']['input']>
-  integrationIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
-  integrationIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
-  integrationIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
-  integrationIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  integrationIDLT?: InputMaybe<Scalars['ID']['input']>
-  integrationIDLTE?: InputMaybe<Scalars['ID']['input']>
-  integrationIDNEQ?: InputMaybe<Scalars['ID']['input']>
-  integrationIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
-  integrationIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** last_observed_at field predicates */
-  lastObservedAt?: InputMaybe<Scalars['DateTime']['input']>
-  lastObservedAtGT?: InputMaybe<Scalars['DateTime']['input']>
-  lastObservedAtGTE?: InputMaybe<Scalars['DateTime']['input']>
-  lastObservedAtIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
-  lastObservedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  lastObservedAtLT?: InputMaybe<Scalars['DateTime']['input']>
-  lastObservedAtLTE?: InputMaybe<Scalars['DateTime']['input']>
-  lastObservedAtNEQ?: InputMaybe<Scalars['DateTime']['input']>
-  lastObservedAtNotIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
-  lastObservedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  not?: InputMaybe<CheckResultWhereInput>
-  or?: InputMaybe<Array<CheckResultWhereInput>>
-  /** parent_external_id field predicates */
-  parentExternalID?: InputMaybe<Scalars['String']['input']>
-  parentExternalIDContains?: InputMaybe<Scalars['String']['input']>
-  parentExternalIDContainsFold?: InputMaybe<Scalars['String']['input']>
-  parentExternalIDEqualFold?: InputMaybe<Scalars['String']['input']>
-  parentExternalIDGT?: InputMaybe<Scalars['String']['input']>
-  parentExternalIDGTE?: InputMaybe<Scalars['String']['input']>
-  parentExternalIDHasPrefix?: InputMaybe<Scalars['String']['input']>
-  parentExternalIDHasSuffix?: InputMaybe<Scalars['String']['input']>
-  parentExternalIDIn?: InputMaybe<Array<Scalars['String']['input']>>
-  parentExternalIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  parentExternalIDLT?: InputMaybe<Scalars['String']['input']>
-  parentExternalIDLTE?: InputMaybe<Scalars['String']['input']>
-  parentExternalIDNEQ?: InputMaybe<Scalars['String']['input']>
-  parentExternalIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  parentExternalIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** source field predicates */
-  source?: InputMaybe<Scalars['String']['input']>
-  sourceContains?: InputMaybe<Scalars['String']['input']>
-  sourceContainsFold?: InputMaybe<Scalars['String']['input']>
-  sourceEqualFold?: InputMaybe<Scalars['String']['input']>
-  sourceGT?: InputMaybe<Scalars['String']['input']>
-  sourceGTE?: InputMaybe<Scalars['String']['input']>
-  sourceHasPrefix?: InputMaybe<Scalars['String']['input']>
-  sourceHasSuffix?: InputMaybe<Scalars['String']['input']>
-  sourceIn?: InputMaybe<Array<Scalars['String']['input']>>
-  sourceLT?: InputMaybe<Scalars['String']['input']>
-  sourceLTE?: InputMaybe<Scalars['String']['input']>
-  sourceNEQ?: InputMaybe<Scalars['String']['input']>
-  sourceNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  /** status field predicates */
-  status?: InputMaybe<CheckResultCheckStatus>
-  statusIn?: InputMaybe<Array<CheckResultCheckStatus>>
-  statusNEQ?: InputMaybe<CheckResultCheckStatus>
-  statusNotIn?: InputMaybe<Array<CheckResultCheckStatus>>
-  /** Filter for tagsHas to contain a specific value */
-  tagsHas?: InputMaybe<Scalars['String']['input']>
-  /** updated_at field predicates */
-  updatedAt?: InputMaybe<Scalars['Time']['input']>
-  updatedAtGT?: InputMaybe<Scalars['Time']['input']>
-  updatedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  updatedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  updatedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  updatedAtLT?: InputMaybe<Scalars['Time']['input']>
-  updatedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  updatedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  updatedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  updatedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** updated_by field predicates */
-  updatedBy?: InputMaybe<Scalars['String']['input']>
-  updatedByContains?: InputMaybe<Scalars['String']['input']>
-  updatedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  updatedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  updatedByGT?: InputMaybe<Scalars['String']['input']>
-  updatedByGTE?: InputMaybe<Scalars['String']['input']>
-  updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  updatedByLT?: InputMaybe<Scalars['String']['input']>
-  updatedByLTE?: InputMaybe<Scalars['String']['input']>
-  updatedByNEQ?: InputMaybe<Scalars['String']['input']>
-  updatedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-}
-
 /**
  * CloneControlInput is used to clone controls and their subcontrols
  * under an organization (ownerID)
@@ -5211,7 +4857,6 @@ export interface Control extends Node {
   category?: Maybe<Scalars['String']['output']>
   /** category id of the control */
   categoryID?: Maybe<Scalars['String']['output']>
-  checkResults: CheckResultConnection
   comments: NoteConnection
   controlImplementations: ControlImplementationConnection
   controlKind?: Maybe<CustomTypeEnum>
@@ -5375,15 +5020,6 @@ export interface ControlCampaignsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<CampaignOrder>>
   where?: InputMaybe<CampaignWhereInput>
-}
-
-export interface ControlCheckResultsArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  orderBy?: InputMaybe<Array<CheckResultOrder>>
-  where?: InputMaybe<CheckResultWhereInput>
 }
 
 export interface ControlCommentsArgs {
@@ -7014,9 +6650,6 @@ export interface ControlWhereInput {
   /** campaigns edge predicates */
   hasCampaigns?: InputMaybe<Scalars['Boolean']['input']>
   hasCampaignsWith?: InputMaybe<Array<CampaignWhereInput>>
-  /** check_results edge predicates */
-  hasCheckResults?: InputMaybe<Scalars['Boolean']['input']>
-  hasCheckResultsWith?: InputMaybe<Array<CheckResultWhereInput>>
   /** comments edge predicates */
   hasComments?: InputMaybe<Scalars['Boolean']['input']>
   hasCommentsWith?: InputMaybe<Array<NoteWhereInput>>
@@ -7826,33 +7459,6 @@ export interface CreateCampaignWithTargetsInput {
 }
 
 /**
- * CreateCheckResultInput is used for create CheckResult object.
- * Input was generated by ent.
- */
-export interface CreateCheckResultInput {
-  blockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  controlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  /** optional details of the result */
-  details?: InputMaybe<Scalars['String']['input']>
-  editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  /** link to the result in the source system */
-  externalURI?: InputMaybe<Scalars['String']['input']>
-  findingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  integrationID?: InputMaybe<Scalars['ID']['input']>
-  /** timestamp the result was last updated */
-  lastObservedAt?: InputMaybe<Scalars['DateTime']['input']>
-  /** external parent reference id for the aggregate rule, e.g. in aws config this is the config rule name */
-  parentExternalID?: InputMaybe<Scalars['String']['input']>
-  /** source that set the check result */
-  source: Scalars['String']['input']
-  /** current status of the control */
-  status?: InputMaybe<CheckResultCheckStatus>
-  /** tags associated with the object */
-  tags?: InputMaybe<Array<Scalars['String']['input']>>
-  viewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-}
-
-/**
  * CreateContactInput is used for create Contact object.
  * Input was generated by ent.
  */
@@ -7939,7 +7545,6 @@ export interface CreateControlInput {
   category?: InputMaybe<Scalars['String']['input']>
   /** category id of the control */
   categoryID?: InputMaybe<Scalars['String']['input']>
-  checkResultIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   commentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   controlImplementationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   controlKindID?: InputMaybe<Scalars['ID']['input']>
@@ -8261,8 +7866,6 @@ export interface CreateDirectoryGroupInput {
   description?: InputMaybe<Scalars['String']['input']>
   /** stable external workspace, tenant, or installation identifier used to correlate groups across multiple integrations pointed at the same directory instance */
   directoryInstanceID?: InputMaybe<Scalars['String']['input']>
-  /** directory source label set by the integration (e.g. googleworkspace, github, slack) */
-  directoryName?: InputMaybe<Scalars['String']['input']>
   directorySyncRunID: Scalars['ID']['input']
   /** directory supplied display name */
   displayName?: InputMaybe<Scalars['String']['input']>
@@ -8317,8 +7920,6 @@ export interface CreateDirectoryMembershipInput {
   directoryGroupID: Scalars['ID']['input']
   /** stable external workspace, tenant, or installation identifier used to correlate memberships across multiple integrations pointed at the same directory instance */
   directoryInstanceID?: InputMaybe<Scalars['String']['input']>
-  /** directory source label set by the integration (e.g. googleworkspace, github, slack) */
-  directoryName?: InputMaybe<Scalars['String']['input']>
   directorySyncRunID: Scalars['ID']['input']
   environmentID?: InputMaybe<Scalars['ID']['input']>
   /** the environment of the directory_membership */
@@ -8876,7 +8477,6 @@ export interface CreateFindingInput {
   categories?: InputMaybe<Array<Scalars['String']['input']>>
   /** primary category of the finding */
   category?: InputMaybe<Scalars['String']['input']>
-  checkResultIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   commentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   controlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** long form description of the finding */
@@ -11310,8 +10910,6 @@ export interface CreateVulnerabilityInput {
   findingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** earliest version that fixes the vulnerability */
   firstPatchedVersion?: InputMaybe<Scalars['String']['input']>
-  /** indicates if there is a fix available for the vulnerability */
-  fixAvailable?: InputMaybe<Scalars['Boolean']['input']>
   /** timestamp when the vulnerability was marked as fixed */
   fixedAt?: InputMaybe<Scalars['DateTime']['input']>
   /** impact score or rating for the vulnerability */
@@ -13478,8 +13076,6 @@ export interface DirectoryGroup extends Node {
   description?: Maybe<Scalars['String']['output']>
   /** stable external workspace, tenant, or installation identifier used to correlate groups across multiple integrations pointed at the same directory instance */
   directoryInstanceID?: Maybe<Scalars['String']['output']>
-  /** directory source label set by the integration (e.g. googleworkspace, github, slack) */
-  directoryName?: Maybe<Scalars['String']['output']>
   /** sync run that produced this snapshot */
   directorySyncRun: DirectorySyncRun
   /** sync run that produced this snapshot */
@@ -13641,7 +13237,6 @@ export interface DirectoryGroupOrder {
 export enum DirectoryGroupOrderField {
   created_at = 'created_at',
   directory_instance_id = 'directory_instance_id',
-  directory_name = 'directory_name',
   display_name = 'display_name',
   email = 'email',
   external_id = 'external_id',
@@ -13720,22 +13315,6 @@ export interface DirectoryGroupWhereInput {
   directoryInstanceIDNEQ?: InputMaybe<Scalars['String']['input']>
   directoryInstanceIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   directoryInstanceIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** directory_name field predicates */
-  directoryName?: InputMaybe<Scalars['String']['input']>
-  directoryNameContains?: InputMaybe<Scalars['String']['input']>
-  directoryNameContainsFold?: InputMaybe<Scalars['String']['input']>
-  directoryNameEqualFold?: InputMaybe<Scalars['String']['input']>
-  directoryNameGT?: InputMaybe<Scalars['String']['input']>
-  directoryNameGTE?: InputMaybe<Scalars['String']['input']>
-  directoryNameHasPrefix?: InputMaybe<Scalars['String']['input']>
-  directoryNameHasSuffix?: InputMaybe<Scalars['String']['input']>
-  directoryNameIn?: InputMaybe<Array<Scalars['String']['input']>>
-  directoryNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  directoryNameLT?: InputMaybe<Scalars['String']['input']>
-  directoryNameLTE?: InputMaybe<Scalars['String']['input']>
-  directoryNameNEQ?: InputMaybe<Scalars['String']['input']>
-  directoryNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  directoryNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** directory_sync_run_id field predicates */
   directorySyncRunID?: InputMaybe<Scalars['ID']['input']>
   directorySyncRunIDContains?: InputMaybe<Scalars['ID']['input']>
@@ -14098,8 +13677,6 @@ export interface DirectoryMembership extends Node {
   directoryGroupID: Scalars['ID']['output']
   /** stable external workspace, tenant, or installation identifier used to correlate memberships across multiple integrations pointed at the same directory instance */
   directoryInstanceID?: Maybe<Scalars['String']['output']>
-  /** directory source label set by the integration (e.g. googleworkspace, github, slack) */
-  directoryName?: Maybe<Scalars['String']['output']>
   /** sync run that produced this snapshot */
   directorySyncRun: DirectorySyncRun
   /** sync run that produced this snapshot */
@@ -14227,7 +13804,6 @@ export interface DirectoryMembershipOrder {
 /** Properties by which DirectoryMembership connections can be ordered. */
 export enum DirectoryMembershipOrderField {
   created_at = 'created_at',
-  directory_name = 'directory_name',
   updated_at = 'updated_at',
 }
 
@@ -14298,22 +13874,6 @@ export interface DirectoryMembershipWhereInput {
   directoryInstanceIDNEQ?: InputMaybe<Scalars['String']['input']>
   directoryInstanceIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   directoryInstanceIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** directory_name field predicates */
-  directoryName?: InputMaybe<Scalars['String']['input']>
-  directoryNameContains?: InputMaybe<Scalars['String']['input']>
-  directoryNameContainsFold?: InputMaybe<Scalars['String']['input']>
-  directoryNameEqualFold?: InputMaybe<Scalars['String']['input']>
-  directoryNameGT?: InputMaybe<Scalars['String']['input']>
-  directoryNameGTE?: InputMaybe<Scalars['String']['input']>
-  directoryNameHasPrefix?: InputMaybe<Scalars['String']['input']>
-  directoryNameHasSuffix?: InputMaybe<Scalars['String']['input']>
-  directoryNameIn?: InputMaybe<Array<Scalars['String']['input']>>
-  directoryNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  directoryNameLT?: InputMaybe<Scalars['String']['input']>
-  directoryNameLTE?: InputMaybe<Scalars['String']['input']>
-  directoryNameNEQ?: InputMaybe<Scalars['String']['input']>
-  directoryNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  directoryNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** display_id field predicates */
   displayID?: InputMaybe<Scalars['String']['input']>
   displayIDContains?: InputMaybe<Scalars['String']['input']>
@@ -19323,7 +18883,6 @@ export enum ExportExportType {
   ASSESSMENT = 'ASSESSMENT',
   ASSET = 'ASSET',
   CAMPAIGN = 'CAMPAIGN',
-  CHECK_RESULT = 'CHECK_RESULT',
   CONTACT = 'CONTACT',
   CONTROL = 'CONTROL',
   DIRECTORY_MEMBERSHIP = 'DIRECTORY_MEMBERSHIP',
@@ -20262,7 +19821,6 @@ export interface Finding extends Node {
   categories?: Maybe<Array<Scalars['String']['output']>>
   /** primary category of the finding */
   category?: Maybe<Scalars['String']['output']>
-  checkResults: CheckResultConnection
   comments: NoteConnection
   controlMappings: FindingControlConnection
   controls: ControlConnection
@@ -20408,15 +19966,6 @@ export interface FindingBlockedGroupsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<GroupOrder>>
   where?: InputMaybe<GroupWhereInput>
-}
-
-export interface FindingCheckResultsArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  orderBy?: InputMaybe<Array<CheckResultOrder>>
-  where?: InputMaybe<CheckResultWhereInput>
 }
 
 export interface FindingCommentsArgs {
@@ -20905,10 +20454,8 @@ export interface FindingOrder {
 export enum FindingOrderField {
   category = 'category',
   created_at = 'created_at',
-  event_time = 'event_time',
   external_id = 'external_id',
   external_owner_id = 'external_owner_id',
-  reported_at = 'reported_at',
   security_level = 'security_level',
   severity = 'severity',
   updated_at = 'updated_at',
@@ -21207,9 +20754,6 @@ export interface FindingWhereInput {
   /** blocked_groups edge predicates */
   hasBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   hasBlockedGroupsWith?: InputMaybe<Array<GroupWhereInput>>
-  /** check_results edge predicates */
-  hasCheckResults?: InputMaybe<Scalars['Boolean']['input']>
-  hasCheckResultsWith?: InputMaybe<Array<CheckResultWhereInput>>
   /** comments edge predicates */
   hasComments?: InputMaybe<Scalars['Boolean']['input']>
   hasCommentsWith?: InputMaybe<Array<NoteWhereInput>>
@@ -24483,7 +24027,8 @@ export interface Integration extends Node {
   __typename?: 'Integration'
   actionPlans: ActionPlanConnection
   assets: AssetConnection
-  checkResults: CheckResultConnection
+  /** runtime configuration for operations, scheduling, and mappings */
+  config?: Maybe<Scalars['IntegrationConfig']['output']>
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
   /** the canonical definition identifier for the installation */
@@ -24511,6 +24056,8 @@ export interface Integration extends Node {
   files: FileConnection
   findings: FindingConnection
   id: Scalars['ID']['output']
+  /** stable, non-secret installation identity metadata for the provider */
+  installationMetadata?: Maybe<Scalars['IntegrationInstallationMetadata']['output']>
   /** the type of integration, such as communicattion, storage, SCM, etc. */
   integrationType?: Maybe<Scalars['String']['output']>
   /** internal notes about the object creation, this field is only available to system admins */
@@ -24572,15 +24119,6 @@ export interface IntegrationAssetsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<AssetOrder>>
   where?: InputMaybe<AssetWhereInput>
-}
-
-export interface IntegrationCheckResultsArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  orderBy?: InputMaybe<Array<CheckResultOrder>>
-  where?: InputMaybe<CheckResultWhereInput>
 }
 
 export interface IntegrationDirectoryAccountsArgs {
@@ -24911,9 +24449,6 @@ export interface IntegrationWhereInput {
   /** assets edge predicates */
   hasAssets?: InputMaybe<Scalars['Boolean']['input']>
   hasAssetsWith?: InputMaybe<Array<AssetWhereInput>>
-  /** check_results edge predicates */
-  hasCheckResults?: InputMaybe<Scalars['Boolean']['input']>
-  hasCheckResultsWith?: InputMaybe<Array<CheckResultWhereInput>>
   /** directory_accounts edge predicates */
   hasDirectoryAccounts?: InputMaybe<Scalars['Boolean']['input']>
   hasDirectoryAccountsWith?: InputMaybe<Array<DirectoryAccountWhereInput>>
@@ -28389,8 +27924,6 @@ export interface Mutation {
   createBulkCSVCampaign: CampaignBulkCreatePayload
   /** Create multiple new campaignTargets via file upload */
   createBulkCSVCampaignTarget: CampaignTargetBulkCreatePayload
-  /** Create multiple new checkResults via file upload */
-  createBulkCSVCheckResult: CheckResultBulkCreatePayload
   /** Create multiple new contacts via file upload */
   createBulkCSVContact: ContactBulkCreatePayload
   /** Create multiple new controls via file upload */
@@ -28523,8 +28056,6 @@ export interface Mutation {
   createBulkCampaign: CampaignBulkCreatePayload
   /** Create multiple new campaignTargets */
   createBulkCampaignTarget: CampaignTargetBulkCreatePayload
-  /** Create multiple new checkResults */
-  createBulkCheckResult: CheckResultBulkCreatePayload
   /** Create multiple new contacts */
   createBulkContact: ContactBulkCreatePayload
   /** Create multiple new controls */
@@ -28661,8 +28192,6 @@ export interface Mutation {
   createCampaignWithTargets: CampaignCreateWithTargetsPayload
   /** Create a new campaign with associated targets via file upload */
   createCampaignWithTargetsCSV: CampaignCreateWithTargetsPayload
-  /** Create a new checkResult */
-  createCheckResult: CheckResultCreatePayload
   /** Create a new contact */
   createContact: ContactCreatePayload
   /** Create a new control */
@@ -28865,8 +28394,6 @@ export interface Mutation {
   deleteBulkAssessment: AssessmentBulkDeletePayload
   /** Delete multiple assets */
   deleteBulkAsset: AssetBulkDeletePayload
-  /** Delete multiple checkResults */
-  deleteBulkCheckResult: CheckResultBulkDeletePayload
   /** Delete multiple contacts */
   deleteBulkContact: ContactBulkDeletePayload
   /** Delete multiple controls */
@@ -28977,8 +28504,6 @@ export interface Mutation {
   deleteCampaign: CampaignDeletePayload
   /** Delete an existing campaignTarget */
   deleteCampaignTarget: CampaignTargetDeletePayload
-  /** Delete an existing checkResult */
-  deleteCheckResult: CheckResultDeletePayload
   /** Delete an existing contact */
   deleteContact: ContactDeletePayload
   /** Delete an existing control */
@@ -29189,8 +28714,6 @@ export interface Mutation {
   updateBulkCSVActionPlan: ActionPlanBulkUpdatePayload
   /** Update multiple existing assets via file upload */
   updateBulkCSVAsset: AssetBulkUpdatePayload
-  /** Update multiple existing checkResults via file upload */
-  updateBulkCSVCheckResult: CheckResultBulkUpdatePayload
   /** Update multiple existing contacts via file upload */
   updateBulkCSVContact: ContactBulkUpdatePayload
   /** Update multiple existing controls with a CSV upload, must include the ID or refCode and referenceFramework */
@@ -29293,8 +28816,6 @@ export interface Mutation {
   updateBulkCSVVendorScoringConfig: VendorScoringConfigBulkUpdatePayload
   /** Update multiple existing vulnerabilities via file upload */
   updateBulkCSVVulnerability: VulnerabilityBulkUpdatePayload
-  /** Update multiple existing checkResults */
-  updateBulkCheckResult: CheckResultBulkUpdatePayload
   /** Update multiple existing contacts */
   updateBulkContact: ContactBulkUpdatePayload
   /** Update multiple existing controls */
@@ -29401,8 +28922,6 @@ export interface Mutation {
   updateCampaign: CampaignUpdatePayload
   /** Update an existing campaignTarget */
   updateCampaignTarget: CampaignTargetUpdatePayload
-  /** Update an existing checkResult */
-  updateCheckResult: CheckResultUpdatePayload
   /** Update an existing contact */
   updateContact: ContactUpdatePayload
   /** Update an existing control */
@@ -29669,10 +29188,6 @@ export interface MutationCreateBulkCsvCampaignTargetArgs {
   input: Scalars['Upload']['input']
 }
 
-export interface MutationCreateBulkCsvCheckResultArgs {
-  input: Scalars['Upload']['input']
-}
-
 export interface MutationCreateBulkCsvContactArgs {
   input: Scalars['Upload']['input']
 }
@@ -29936,10 +29451,6 @@ export interface MutationCreateBulkCampaignArgs {
 
 export interface MutationCreateBulkCampaignTargetArgs {
   input?: InputMaybe<Array<CreateCampaignTargetInput>>
-}
-
-export interface MutationCreateBulkCheckResultArgs {
-  input?: InputMaybe<Array<CreateCheckResultInput>>
 }
 
 export interface MutationCreateBulkContactArgs {
@@ -30214,10 +29725,6 @@ export interface MutationCreateCampaignWithTargetsArgs {
 export interface MutationCreateCampaignWithTargetsCsvArgs {
   campaign: CreateCampaignInput
   targets: Scalars['Upload']['input']
-}
-
-export interface MutationCreateCheckResultArgs {
-  input: CreateCheckResultInput
 }
 
 export interface MutationCreateContactArgs {
@@ -30686,10 +30193,6 @@ export interface MutationDeleteBulkAssetArgs {
   ids: Array<Scalars['ID']['input']>
 }
 
-export interface MutationDeleteBulkCheckResultArgs {
-  ids: Array<Scalars['ID']['input']>
-}
-
 export interface MutationDeleteBulkContactArgs {
   ids: Array<Scalars['ID']['input']>
 }
@@ -30907,10 +30410,6 @@ export interface MutationDeleteCampaignArgs {
 }
 
 export interface MutationDeleteCampaignTargetArgs {
-  id: Scalars['ID']['input']
-}
-
-export interface MutationDeleteCheckResultArgs {
   id: Scalars['ID']['input']
 }
 
@@ -31344,10 +30843,6 @@ export interface MutationUpdateBulkCsvAssetArgs {
   input: Scalars['Upload']['input']
 }
 
-export interface MutationUpdateBulkCsvCheckResultArgs {
-  input: Scalars['Upload']['input']
-}
-
 export interface MutationUpdateBulkCsvContactArgs {
   input: Scalars['Upload']['input']
 }
@@ -31550,11 +31045,6 @@ export interface MutationUpdateBulkCsvVendorScoringConfigArgs {
 
 export interface MutationUpdateBulkCsvVulnerabilityArgs {
   input: Scalars['Upload']['input']
-}
-
-export interface MutationUpdateBulkCheckResultArgs {
-  ids: Array<Scalars['ID']['input']>
-  input: UpdateCheckResultInput
 }
 
 export interface MutationUpdateBulkContactArgs {
@@ -31820,11 +31310,6 @@ export interface MutationUpdateCampaignArgs {
 export interface MutationUpdateCampaignTargetArgs {
   id: Scalars['ID']['input']
   input: UpdateCampaignTargetInput
-}
-
-export interface MutationUpdateCheckResultArgs {
-  id: Scalars['ID']['input']
-  input: UpdateCheckResultInput
 }
 
 export interface MutationUpdateContactArgs {
@@ -35873,8 +35358,6 @@ export interface OrganizationSetting extends Node {
   organizationID?: Maybe<Scalars['ID']['output']>
   /** whether or not a payment method has been added to the account */
   paymentMethodAdded: Scalars['Boolean']['output']
-  /** when will this organization be deleted? usually this is after org has not added a payment method afte n period */
-  pendingDeletionAt?: Maybe<Scalars['DateTime']['output']>
   /** the x509 certificate used to validate SAML responses */
   samlCert?: Maybe<Scalars['String']['output']>
   /** the SAML issuer */
@@ -36248,20 +35731,6 @@ export interface OrganizationSettingWhereInput {
   organizationIDNEQ?: InputMaybe<Scalars['ID']['input']>
   organizationIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   organizationIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** payment_method_added field predicates */
-  paymentMethodAdded?: InputMaybe<Scalars['Boolean']['input']>
-  paymentMethodAddedNEQ?: InputMaybe<Scalars['Boolean']['input']>
-  /** pending_deletion_at field predicates */
-  pendingDeletionAt?: InputMaybe<Scalars['DateTime']['input']>
-  pendingDeletionAtGT?: InputMaybe<Scalars['DateTime']['input']>
-  pendingDeletionAtGTE?: InputMaybe<Scalars['DateTime']['input']>
-  pendingDeletionAtIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
-  pendingDeletionAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  pendingDeletionAtLT?: InputMaybe<Scalars['DateTime']['input']>
-  pendingDeletionAtLTE?: InputMaybe<Scalars['DateTime']['input']>
-  pendingDeletionAtNEQ?: InputMaybe<Scalars['DateTime']['input']>
-  pendingDeletionAtNotIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
-  pendingDeletionAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** saml_cert field predicates */
   samlCert?: InputMaybe<Scalars['String']['input']>
   samlCertContains?: InputMaybe<Scalars['String']['input']>
@@ -40251,9 +39720,6 @@ export interface Query {
   campaignTargetSearch?: Maybe<CampaignTargetConnection>
   campaignTargets: CampaignTargetConnection
   campaigns: CampaignConnection
-  /** Look up checkResult by ID */
-  checkResult: CheckResult
-  checkResults: CheckResultConnection
   /** Look up contact by ID */
   contact: Contact
   /** Search across Contact objects */
@@ -40759,19 +40225,6 @@ export interface QueryCampaignsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<CampaignOrder>>
   where?: InputMaybe<CampaignWhereInput>
-}
-
-export interface QueryCheckResultArgs {
-  id: Scalars['ID']['input']
-}
-
-export interface QueryCheckResultsArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  orderBy?: InputMaybe<Array<CheckResultOrder>>
-  where?: InputMaybe<CheckResultWhereInput>
 }
 
 export interface QueryContactArgs {
@@ -54668,48 +54121,6 @@ export interface UpdateCampaignTargetInput {
 }
 
 /**
- * UpdateCheckResultInput is used for update CheckResult object.
- * Input was generated by ent.
- */
-export interface UpdateCheckResultInput {
-  addBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  addControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  addEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  addFindingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  addViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  appendTags?: InputMaybe<Array<Scalars['String']['input']>>
-  clearBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
-  clearControls?: InputMaybe<Scalars['Boolean']['input']>
-  clearDetails?: InputMaybe<Scalars['Boolean']['input']>
-  clearEditors?: InputMaybe<Scalars['Boolean']['input']>
-  clearExternalURI?: InputMaybe<Scalars['Boolean']['input']>
-  clearFindings?: InputMaybe<Scalars['Boolean']['input']>
-  clearLastObservedAt?: InputMaybe<Scalars['Boolean']['input']>
-  clearParentExternalID?: InputMaybe<Scalars['Boolean']['input']>
-  clearTags?: InputMaybe<Scalars['Boolean']['input']>
-  clearViewers?: InputMaybe<Scalars['Boolean']['input']>
-  /** optional details of the result */
-  details?: InputMaybe<Scalars['String']['input']>
-  /** link to the result in the source system */
-  externalURI?: InputMaybe<Scalars['String']['input']>
-  /** timestamp the result was last updated */
-  lastObservedAt?: InputMaybe<Scalars['DateTime']['input']>
-  /** external parent reference id for the aggregate rule, e.g. in aws config this is the config rule name */
-  parentExternalID?: InputMaybe<Scalars['String']['input']>
-  removeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  removeControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  removeEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  removeFindingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  removeViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  /** source that set the check result */
-  source?: InputMaybe<Scalars['String']['input']>
-  /** current status of the control */
-  status?: InputMaybe<CheckResultCheckStatus>
-  /** tags associated with the object */
-  tags?: InputMaybe<Array<Scalars['String']['input']>>
-}
-
-/**
  * UpdateContactInput is used for update Contact object.
  * Input was generated by ent.
  */
@@ -54826,7 +54237,6 @@ export interface UpdateControlInput {
   addAssetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addCampaignIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  addCheckResultIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addComment?: InputMaybe<CreateNoteInput>
   addCommentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlImplementationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -54885,7 +54295,6 @@ export interface UpdateControlInput {
   clearCampaigns?: InputMaybe<Scalars['Boolean']['input']>
   clearCategory?: InputMaybe<Scalars['Boolean']['input']>
   clearCategoryID?: InputMaybe<Scalars['Boolean']['input']>
-  clearCheckResults?: InputMaybe<Scalars['Boolean']['input']>
   clearComments?: InputMaybe<Scalars['Boolean']['input']>
   clearControlImplementations?: InputMaybe<Scalars['Boolean']['input']>
   clearControlKind?: InputMaybe<Scalars['Boolean']['input']>
@@ -54989,7 +54398,6 @@ export interface UpdateControlInput {
   removeAssetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeCampaignIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  removeCheckResultIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeCommentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlImplementationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlObjectiveIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -55366,7 +54774,6 @@ export interface UpdateDirectoryGroupInput {
   clearAddedAt?: InputMaybe<Scalars['Boolean']['input']>
   clearDescription?: InputMaybe<Scalars['Boolean']['input']>
   clearDirectoryInstanceID?: InputMaybe<Scalars['Boolean']['input']>
-  clearDirectoryName?: InputMaybe<Scalars['Boolean']['input']>
   clearDisplayName?: InputMaybe<Scalars['Boolean']['input']>
   clearEmail?: InputMaybe<Scalars['Boolean']['input']>
   clearEnvironment?: InputMaybe<Scalars['Boolean']['input']>
@@ -55388,8 +54795,6 @@ export interface UpdateDirectoryGroupInput {
   description?: InputMaybe<Scalars['String']['input']>
   /** stable external workspace, tenant, or installation identifier used to correlate groups across multiple integrations pointed at the same directory instance */
   directoryInstanceID?: InputMaybe<Scalars['String']['input']>
-  /** directory source label set by the integration (e.g. googleworkspace, github, slack) */
-  directoryName?: InputMaybe<Scalars['String']['input']>
   /** directory supplied display name */
   displayName?: InputMaybe<Scalars['String']['input']>
   /** primary group email address, when applicable */
@@ -55437,7 +54842,6 @@ export interface UpdateDirectoryMembershipInput {
   addedAt?: InputMaybe<Scalars['Time']['input']>
   clearAddedAt?: InputMaybe<Scalars['Boolean']['input']>
   clearDirectoryInstanceID?: InputMaybe<Scalars['Boolean']['input']>
-  clearDirectoryName?: InputMaybe<Scalars['Boolean']['input']>
   clearEnvironment?: InputMaybe<Scalars['Boolean']['input']>
   clearEnvironmentName?: InputMaybe<Scalars['Boolean']['input']>
   clearEvents?: InputMaybe<Scalars['Boolean']['input']>
@@ -55454,8 +54858,6 @@ export interface UpdateDirectoryMembershipInput {
   clearWorkflowObjectRefs?: InputMaybe<Scalars['Boolean']['input']>
   /** stable external workspace, tenant, or installation identifier used to correlate memberships across multiple integrations pointed at the same directory instance */
   directoryInstanceID?: InputMaybe<Scalars['String']['input']>
-  /** directory source label set by the integration (e.g. googleworkspace, github, slack) */
-  directoryName?: InputMaybe<Scalars['String']['input']>
   environmentID?: InputMaybe<Scalars['ID']['input']>
   /** the environment of the directory_membership */
   environmentName?: InputMaybe<Scalars['String']['input']>
@@ -56328,7 +55730,6 @@ export interface UpdateFindingInput {
   addActionPlanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addAssetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  addCheckResultIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addCommentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addDirectoryAccountIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -56367,7 +55768,6 @@ export interface UpdateFindingInput {
   clearBlocksProduction?: InputMaybe<Scalars['Boolean']['input']>
   clearCategories?: InputMaybe<Scalars['Boolean']['input']>
   clearCategory?: InputMaybe<Scalars['Boolean']['input']>
-  clearCheckResults?: InputMaybe<Scalars['Boolean']['input']>
   clearComments?: InputMaybe<Scalars['Boolean']['input']>
   clearControls?: InputMaybe<Scalars['Boolean']['input']>
   clearDescription?: InputMaybe<Scalars['Boolean']['input']>
@@ -56478,7 +55878,6 @@ export interface UpdateFindingInput {
   removeActionPlanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeAssetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  removeCheckResultIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeCommentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeDirectoryAccountIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -57940,7 +57339,6 @@ export interface UpdateOrganizationSettingInput {
   clearMultifactorAuthEnforced?: InputMaybe<Scalars['Boolean']['input']>
   clearOidcDiscoveryEndpoint?: InputMaybe<Scalars['Boolean']['input']>
   clearOrganization?: InputMaybe<Scalars['Boolean']['input']>
-  clearPendingDeletionAt?: InputMaybe<Scalars['Boolean']['input']>
   clearSamlCert?: InputMaybe<Scalars['Boolean']['input']>
   clearSamlIssuer?: InputMaybe<Scalars['Boolean']['input']>
   clearSamlSigninURL?: InputMaybe<Scalars['Boolean']['input']>
@@ -57969,8 +57367,6 @@ export interface UpdateOrganizationSettingInput {
   /** OIDC discovery URL for the SSO provider */
   oidcDiscoveryEndpoint?: InputMaybe<Scalars['String']['input']>
   organizationID?: InputMaybe<Scalars['ID']['input']>
-  /** when will this organization be deleted? usually this is after org has not added a payment method afte n period */
-  pendingDeletionAt?: InputMaybe<Scalars['DateTime']['input']>
   removeFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the x509 certificate used to validate SAML responses */
   samlCert?: InputMaybe<Scalars['String']['input']>
@@ -60298,7 +59694,6 @@ export interface UpdateVulnerabilityInput {
   clearFiles?: InputMaybe<Scalars['Boolean']['input']>
   clearFindings?: InputMaybe<Scalars['Boolean']['input']>
   clearFirstPatchedVersion?: InputMaybe<Scalars['Boolean']['input']>
-  clearFixAvailable?: InputMaybe<Scalars['Boolean']['input']>
   clearFixedAt?: InputMaybe<Scalars['Boolean']['input']>
   clearImpact?: InputMaybe<Scalars['Boolean']['input']>
   clearImpacts?: InputMaybe<Scalars['Boolean']['input']>
@@ -60369,8 +59764,6 @@ export interface UpdateVulnerabilityInput {
   externalURI?: InputMaybe<Scalars['String']['input']>
   /** earliest version that fixes the vulnerability */
   firstPatchedVersion?: InputMaybe<Scalars['String']['input']>
-  /** indicates if there is a fix available for the vulnerability */
-  fixAvailable?: InputMaybe<Scalars['Boolean']['input']>
   /** timestamp when the vulnerability was marked as fixed */
   fixedAt?: InputMaybe<Scalars['DateTime']['input']>
   /** impact score or rating for the vulnerability */
@@ -62211,8 +61604,6 @@ export interface Vulnerability extends Node {
   findings: FindingConnection
   /** earliest version that fixes the vulnerability */
   firstPatchedVersion?: Maybe<Scalars['String']['output']>
-  /** indicates if there is a fix available for the vulnerability */
-  fixAvailable?: Maybe<Scalars['Boolean']['output']>
   /** timestamp when the vulnerability was marked as fixed */
   fixedAt?: Maybe<Scalars['DateTime']['output']>
   id: Scalars['ID']['output']
@@ -62890,11 +62281,6 @@ export interface VulnerabilityWhereInput {
   firstPatchedVersionNEQ?: InputMaybe<Scalars['String']['input']>
   firstPatchedVersionNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   firstPatchedVersionNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** fix_available field predicates */
-  fixAvailable?: InputMaybe<Scalars['Boolean']['input']>
-  fixAvailableIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  fixAvailableNEQ?: InputMaybe<Scalars['Boolean']['input']>
-  fixAvailableNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** fixed_at field predicates */
   fixedAt?: InputMaybe<Scalars['DateTime']['input']>
   fixedAtGT?: InputMaybe<Scalars['DateTime']['input']>
@@ -66599,12 +65985,6 @@ export type CreateBulkCsvAssetMutationVariables = Exact<{
 
 export type CreateBulkCsvAssetMutation = { __typename?: 'Mutation'; createBulkCSVAsset: { __typename?: 'AssetBulkCreatePayload'; assets?: Array<{ __typename?: 'Asset'; id: string }> | null } }
 
-export type CreateBulkAssetMutationVariables = Exact<{
-  input?: InputMaybe<Array<CreateAssetInput> | CreateAssetInput>
-}>
-
-export type CreateBulkAssetMutation = { __typename?: 'Mutation'; createBulkAsset: { __typename?: 'AssetBulkCreatePayload'; assets?: Array<{ __typename?: 'Asset'; id: string }> | null } }
-
 export type DeleteBulkAssetMutationVariables = Exact<{
   ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
 }>
@@ -66631,10 +66011,7 @@ export type GetAssetAssociationsQuery = {
     identityHolders: {
       __typename?: 'IdentityHolderConnection'
       totalCount: number
-      edges?: Array<{
-        __typename?: 'IdentityHolderEdge'
-        node?: { __typename?: 'IdentityHolder'; id: string; fullName: string; displayID: string; identityHolderType: IdentityHolderIdentityHolderType; title?: string | null } | null
-      } | null> | null
+      edges?: Array<{ __typename?: 'IdentityHolderEdge'; node?: { __typename?: 'IdentityHolder'; id: string; fullName: string; displayID: string } | null } | null> | null
     }
     controls: {
       __typename?: 'ControlConnection'
@@ -66910,107 +66287,6 @@ export type DeleteCampaignMutationVariables = Exact<{
 }>
 
 export type DeleteCampaignMutation = { __typename?: 'Mutation'; deleteCampaign: { __typename?: 'CampaignDeletePayload'; deletedID: string } }
-
-export type CheckResultsWithFilterQueryVariables = Exact<{
-  where?: InputMaybe<CheckResultWhereInput>
-  orderBy?: InputMaybe<Array<CheckResultOrder> | CheckResultOrder>
-  first?: InputMaybe<Scalars['Int']['input']>
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-}>
-
-export type CheckResultsWithFilterQuery = {
-  __typename?: 'Query'
-  checkResults: {
-    __typename?: 'CheckResultConnection'
-    totalCount: number
-    edges?: Array<{
-      __typename?: 'CheckResultEdge'
-      node?: {
-        __typename?: 'CheckResult'
-        createdAt?: any | null
-        createdBy?: string | null
-        details?: string | null
-        externalURI?: string | null
-        id: string
-        integrationID?: string | null
-        lastObservedAt?: string | null
-        parentExternalID?: string | null
-        source: string
-        updatedAt?: any | null
-        updatedBy?: string | null
-      } | null
-    } | null> | null
-    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
-  }
-}
-
-export type CheckResultQueryVariables = Exact<{
-  checkResultId: Scalars['ID']['input']
-}>
-
-export type CheckResultQuery = {
-  __typename?: 'Query'
-  checkResult: {
-    __typename?: 'CheckResult'
-    createdAt?: any | null
-    createdBy?: string | null
-    details?: string | null
-    externalURI?: string | null
-    id: string
-    integrationID?: string | null
-    lastObservedAt?: string | null
-    parentExternalID?: string | null
-    source: string
-    updatedAt?: any | null
-    updatedBy?: string | null
-  }
-}
-
-export type CreateCheckResultMutationVariables = Exact<{
-  input: CreateCheckResultInput
-}>
-
-export type CreateCheckResultMutation = { __typename?: 'Mutation'; createCheckResult: { __typename?: 'CheckResultCreatePayload'; checkResult: { __typename?: 'CheckResult'; id: string } } }
-
-export type UpdateCheckResultMutationVariables = Exact<{
-  updateCheckResultId: Scalars['ID']['input']
-  input: UpdateCheckResultInput
-}>
-
-export type UpdateCheckResultMutation = { __typename?: 'Mutation'; updateCheckResult: { __typename?: 'CheckResultUpdatePayload'; checkResult: { __typename?: 'CheckResult'; id: string } } }
-
-export type DeleteCheckResultMutationVariables = Exact<{
-  deleteCheckResultId: Scalars['ID']['input']
-}>
-
-export type DeleteCheckResultMutation = { __typename?: 'Mutation'; deleteCheckResult: { __typename?: 'CheckResultDeletePayload'; deletedID: string } }
-
-export type CreateBulkCsvCheckResultMutationVariables = Exact<{
-  input: Scalars['Upload']['input']
-}>
-
-export type CreateBulkCsvCheckResultMutation = {
-  __typename?: 'Mutation'
-  createBulkCSVCheckResult: { __typename?: 'CheckResultBulkCreatePayload'; checkResults?: Array<{ __typename?: 'CheckResult'; id: string }> | null }
-}
-
-export type DeleteBulkCheckResultMutationVariables = Exact<{
-  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
-}>
-
-export type DeleteBulkCheckResultMutation = {
-  __typename?: 'Mutation'
-  deleteBulkCheckResult: { __typename?: 'CheckResultBulkDeletePayload'; deletedIDs: Array<string>; notDeletedIDs?: Array<string> | null; error?: string | null }
-}
-
-export type UpdateBulkCheckResultMutationVariables = Exact<{
-  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
-  input: UpdateCheckResultInput
-}>
-
-export type UpdateBulkCheckResultMutation = { __typename?: 'Mutation'; updateBulkCheckResult: { __typename?: 'CheckResultBulkUpdatePayload'; updatedIDs?: Array<string> | null } }
 
 export type GetContactsQueryVariables = Exact<{
   where?: InputMaybe<ContactWhereInput>
@@ -67493,8 +66769,6 @@ export type ControlDetailsFieldsFragment = {
   referenceID?: string | null
   referenceFramework?: string | null
   title?: string | null
-  externalUUID?: string | null
-  aliases?: Array<string> | null
   controlObjectives: {
     __typename?: 'ControlObjectiveConnection'
     edges?: Array<{
@@ -67674,8 +66948,6 @@ export type GetControlByIdQuery = {
     referenceID?: string | null
     referenceFramework?: string | null
     title?: string | null
-    externalUUID?: string | null
-    aliases?: Array<string> | null
     controlObjectives: {
       __typename?: 'ControlObjectiveConnection'
       edges?: Array<{
@@ -67816,10 +67088,7 @@ export type GetControlAssociationsByIdQuery = {
     identityHolders: {
       __typename?: 'IdentityHolderConnection'
       totalCount: number
-      edges?: Array<{
-        __typename?: 'IdentityHolderEdge'
-        node?: { __typename?: 'IdentityHolder'; id: string; fullName: string; displayID: string; identityHolderType: IdentityHolderIdentityHolderType; title?: string | null } | null
-      } | null> | null
+      edges?: Array<{ __typename?: 'IdentityHolderEdge'; node?: { __typename?: 'IdentityHolder'; id: string; fullName: string; displayID: string } | null } | null> | null
     }
     campaigns: {
       __typename?: 'CampaignConnection'
@@ -68175,7 +67444,6 @@ export type ControlDiscussionFieldsFragment = {
         id: string
         externalID?: string | null
         createdAt?: any | null
-        isResolved: boolean
         comments: {
           __typename?: 'NoteConnection'
           edges?: Array<{
@@ -68220,7 +67488,6 @@ export type GetControlDiscussionByIdQuery = {
           id: string
           externalID?: string | null
           createdAt?: any | null
-          isResolved: boolean
           comments: {
             __typename?: 'NoteConnection'
             edges?: Array<{
@@ -69433,10 +68700,6 @@ export type EntityQuery = {
     updatedAt?: any | null
     updatedBy?: string | null
     vendorMetadata?: any | null
-    integrations: {
-      __typename?: 'IntegrationConnection'
-      edges?: Array<{ __typename?: 'IntegrationEdge'; node?: { __typename?: 'Integration'; id: string; definitionID?: string | null; name: string } | null } | null> | null
-    }
     internalOwnerGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
     internalOwnerUser?: { __typename?: 'User'; id: string; displayName: string } | null
     logoFile?: { __typename?: 'File'; base64?: string | null } | null
@@ -69471,13 +68734,6 @@ export type CreateBulkCsvEntityMutationVariables = Exact<{
 }>
 
 export type CreateBulkCsvEntityMutation = { __typename?: 'Mutation'; createBulkCSVEntity: { __typename?: 'EntityBulkCreatePayload'; entities?: Array<{ __typename?: 'Entity'; id: string }> | null } }
-
-export type CreateBulkEntityMutationVariables = Exact<{
-  input?: InputMaybe<Array<CreateEntityInput> | CreateEntityInput>
-  entityTypeName?: InputMaybe<Scalars['String']['input']>
-}>
-
-export type CreateBulkEntityMutation = { __typename?: 'Mutation'; createBulkEntity: { __typename?: 'EntityBulkCreatePayload'; entities?: Array<{ __typename?: 'Entity'; id: string }> | null } }
 
 export type DeleteBulkEntityMutationVariables = Exact<{
   ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
@@ -69574,10 +68830,7 @@ export type GetEntityAssociationsQuery = {
     identityHolders: {
       __typename?: 'IdentityHolderConnection'
       totalCount: number
-      edges?: Array<{
-        __typename?: 'IdentityHolderEdge'
-        node?: { __typename?: 'IdentityHolder'; id: string; fullName: string; displayID: string; identityHolderType: IdentityHolderIdentityHolderType; title?: string | null } | null
-      } | null> | null
+      edges?: Array<{ __typename?: 'IdentityHolderEdge'; node?: { __typename?: 'IdentityHolder'; id: string; fullName: string; displayID: string } | null } | null> | null
     }
     integrations: {
       __typename?: 'IntegrationConnection'
@@ -70454,7 +69707,6 @@ export type FindingQuery = {
     updatedBy?: string | null
     validated?: boolean | null
     vector?: string | null
-    integrations: { __typename?: 'IntegrationConnection'; totalCount: number }
     remediations: {
       __typename?: 'RemediationConnection'
       totalCount: number
@@ -70490,12 +69742,6 @@ export type CreateBulkCsvFindingMutation = {
   __typename?: 'Mutation'
   createBulkCSVFinding: { __typename?: 'FindingBulkCreatePayload'; findings?: Array<{ __typename?: 'Finding'; id: string }> | null }
 }
-
-export type CreateBulkFindingMutationVariables = Exact<{
-  input?: InputMaybe<Array<CreateFindingInput> | CreateFindingInput>
-}>
-
-export type CreateBulkFindingMutation = { __typename?: 'Mutation'; createBulkFinding: { __typename?: 'FindingBulkCreatePayload'; findings?: Array<{ __typename?: 'Finding'; id: string }> | null } }
 
 export type DeleteBulkFindingMutationVariables = Exact<{
   ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
@@ -70986,7 +70232,6 @@ export type IdentityHolderQuery = {
   __typename?: 'Query'
   identityHolder: {
     __typename?: 'IdentityHolder'
-    avatarRemoteURL?: string | null
     emailAliases?: Array<string> | null
     createdAt?: any | null
     createdBy?: string | null
@@ -71297,6 +70542,9 @@ export type GetIntegrationsQuery = {
         tags?: Array<string> | null
         description?: string | null
         metadata?: any | null
+        config?: any | null
+        installationMetadata?: any | null
+        primaryDirectory: boolean
         createdAt?: any | null
         createdBy?: string | null
         environmentName?: string | null
@@ -71565,10 +70813,7 @@ export type GetInternalPolicyAssociationsByIdQuery = {
     identityHolders: {
       __typename?: 'IdentityHolderConnection'
       totalCount: number
-      edges?: Array<{
-        __typename?: 'IdentityHolderEdge'
-        node?: { __typename?: 'IdentityHolder'; id: string; fullName: string; displayID: string; identityHolderType: IdentityHolderIdentityHolderType; title?: string | null } | null
-      } | null> | null
+      edges?: Array<{ __typename?: 'IdentityHolderEdge'; node?: { __typename?: 'IdentityHolder'; id: string; fullName: string; displayID: string } | null } | null> | null
     }
   }
 }
@@ -71688,7 +70933,6 @@ export type PolicyDiscussionFieldsFragment = {
         id: string
         externalID?: string | null
         createdAt?: any | null
-        isResolved: boolean
         comments: {
           __typename?: 'NoteConnection'
           edges?: Array<{
@@ -71732,7 +70976,6 @@ export type GetPolicyDiscussionByIdQuery = {
           id: string
           externalID?: string | null
           createdAt?: any | null
-          isResolved: boolean
           comments: {
             __typename?: 'NoteConnection'
             edges?: Array<{
@@ -73440,7 +72683,6 @@ export type ProcedureDiscussionFieldsFragment = {
         id: string
         externalID?: string | null
         createdAt?: any | null
-        isResolved: boolean
         comments: {
           __typename?: 'NoteConnection'
           edges?: Array<{
@@ -73484,7 +72726,6 @@ export type GetProcedureDiscussionByIdQuery = {
           id: string
           externalID?: string | null
           createdAt?: any | null
-          isResolved: boolean
           comments: {
             __typename?: 'NoteConnection'
             edges?: Array<{
@@ -74572,7 +73813,6 @@ export type RiskDiscussionFieldsFragment = {
         id: string
         externalID?: string | null
         createdAt?: any | null
-        isResolved: boolean
         comments: {
           __typename?: 'NoteConnection'
           edges?: Array<{
@@ -74616,7 +73856,6 @@ export type GetRiskDiscussionByIdQuery = {
           id: string
           externalID?: string | null
           createdAt?: any | null
-          isResolved: boolean
           comments: {
             __typename?: 'NoteConnection'
             edges?: Array<{
@@ -75541,10 +74780,7 @@ export type GetSubcontrolAssociationsByIdQuery = {
     identityHolders: {
       __typename?: 'IdentityHolderConnection'
       totalCount: number
-      edges?: Array<{
-        __typename?: 'IdentityHolderEdge'
-        node?: { __typename?: 'IdentityHolder'; id: string; fullName: string; displayID: string; identityHolderType: IdentityHolderIdentityHolderType; title?: string | null } | null
-      } | null> | null
+      edges?: Array<{ __typename?: 'IdentityHolderEdge'; node?: { __typename?: 'IdentityHolder'; id: string; fullName: string; displayID: string } | null } | null> | null
     }
   }
 }
@@ -75718,7 +74954,6 @@ export type SubcontrolDiscussionFieldsFragment = {
         id: string
         externalID?: string | null
         createdAt?: any | null
-        isResolved: boolean
         comments: {
           __typename?: 'NoteConnection'
           edges?: Array<{
@@ -75763,7 +74998,6 @@ export type GetSubcontrolDiscussionByIdQuery = {
           id: string
           externalID?: string | null
           createdAt?: any | null
-          isResolved: boolean
           comments: {
             __typename?: 'NoteConnection'
             edges?: Array<{
@@ -77698,13 +76932,10 @@ export type VulnerabilityQuery = {
     externalID: string
     externalOwnerID?: string | null
     externalURI?: string | null
-    firstPatchedVersion?: string | null
     id: string
     impact?: number | null
     metadata?: any | null
     open?: boolean | null
-    packageEcosystem?: string | null
-    packageName?: string | null
     priority?: string | null
     production?: boolean | null
     public?: boolean | null
@@ -77728,8 +76959,6 @@ export type VulnerabilityQuery = {
     validated?: boolean | null
     vector?: string | null
     vulnerabilityStatusName?: string | null
-    vulnerableVersionRange?: string | null
-    integrations: { __typename?: 'IntegrationConnection'; totalCount: number }
     remediations: {
       __typename?: 'RemediationConnection'
       totalCount: number
