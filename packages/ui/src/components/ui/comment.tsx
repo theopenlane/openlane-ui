@@ -390,10 +390,7 @@ function CommentMoreDropdown(props: {
       Risk: 'updateRiskId',
     }
 
-    const discussion = discussions.find((d) => d.id === comment.discussionId)
-    const deleteDiscussion = discussion && discussion.comments.length === 1 ? discussion.systemId : undefined
-
-    const input: EntityInput<typeof entityType> = deleteDiscussion ? { deleteComment: comment.id, deleteDiscussion } : { deleteComment: comment.id }
+    const input: EntityInput<typeof entityType> = { deleteComment: comment.id }
 
     await entityUpdate({
       [entityIdKeyMap[entityType]]: entityId,
@@ -423,7 +420,7 @@ function CommentMoreDropdown(props: {
 
     editor.setOption(discussionPlugin, 'discussions', updatedDiscussions)
     onRemoveComment?.()
-  }, [comment.discussionId, comment.id, discussions, editor, entityId, entityType, entityUpdate, onRemoveComment])
+  }, [comment.discussionId, comment.id, editor, entityId, entityType, entityUpdate, onRemoveComment])
 
   const onEditComment = React.useCallback(() => {
     selectedEditCommentRef.current = true
