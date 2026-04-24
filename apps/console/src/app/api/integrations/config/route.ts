@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
         Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
-        installationId: payload.installationId,
+        integrationId: payload.installationId,
         credentialRef: payload.credentialRef,
         body: payload.body ?? {},
         userInput: payload.userInput ?? {},

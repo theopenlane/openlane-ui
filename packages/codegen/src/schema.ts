@@ -51,6 +51,10 @@ export interface Scalars {
   ExportMetadata: { input: any; output: any }
   /** The `ImplementationGuidance` scalar type that represents steps to take to implement a control; they can come directly from the control source or pulled from external sources */
   ImplementationGuidance: { input: any; output: any }
+  /** IntegrationConfig holds the runtime configuration for operations, scheduling, and mappings */
+  IntegrationConfig: { input: any; output: any }
+  /** IntegrationInstallationMetadata holds the stable, non-secret installation identity metadata for the provider */
+  IntegrationInstallationMetadata: { input: any; output: any }
   /** A valid JSON string. */
   JSON: { input: any; output: any }
   /** JobCadence is when a job should be scheduled to run */
@@ -24023,6 +24027,8 @@ export interface Integration extends Node {
   __typename?: 'Integration'
   actionPlans: ActionPlanConnection
   assets: AssetConnection
+  /** runtime configuration for operations, scheduling, and mappings */
+  config?: Maybe<Scalars['IntegrationConfig']['output']>
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
   /** the canonical definition identifier for the installation */
@@ -24050,6 +24056,8 @@ export interface Integration extends Node {
   files: FileConnection
   findings: FindingConnection
   id: Scalars['ID']['output']
+  /** stable, non-secret installation identity metadata for the provider */
+  installationMetadata?: Maybe<Scalars['IntegrationInstallationMetadata']['output']>
   /** the type of integration, such as communicattion, storage, SCM, etc. */
   integrationType?: Maybe<Scalars['String']['output']>
   /** internal notes about the object creation, this field is only available to system admins */
@@ -70553,6 +70561,9 @@ export type GetIntegrationsQuery = {
         tags?: Array<string> | null
         description?: string | null
         metadata?: any | null
+        config?: any | null
+        installationMetadata?: any | null
+        primaryDirectory: boolean
         createdAt?: any | null
         createdBy?: string | null
         environmentName?: string | null
