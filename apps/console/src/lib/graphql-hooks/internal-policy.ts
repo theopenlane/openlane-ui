@@ -51,6 +51,7 @@ import {
 import { type TPagination } from '@repo/ui/pagination-types'
 import { fetchGraphQLWithUpload } from '@/lib/fetchGraphql.ts'
 import { useSession } from 'next-auth/react'
+import { subDays } from 'date-fns'
 import { wherePoliciesDashboard } from '@/components/pages/protected/policies/policies-dashboard/dashboard-config.ts'
 
 type UseInternalPoliciesArgs = {
@@ -160,11 +161,15 @@ export const useCreateInternalPolicy = () => {
 }
 
 export const useUpdateInternalPolicy = () => {
-  const { client } = useGraphQLClient()
+  const { client, queryClient } = useGraphQLClient()
 
   return useMutation<UpdateInternalPolicyMutation, unknown, UpdateInternalPolicyMutationVariables>({
     mutationFn: async (variables) => {
       return client.request(UPDATE_INTERNAL_POLICY, variables)
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['policyDiscussion'] })
+      queryClient.invalidateQueries({ queryKey: ['internalPolicies'] })
     },
   })
 }
@@ -244,19 +249,18 @@ export const usePolicySuggestedActions = () => {
   const { data: session } = useSession()
 
   const currentUserId = session?.user?.userId
-  const now = new Date()
-  const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString()
-  const commentsSince = sevenDaysAgo
 
   return useQuery<PolicySuggestedActionsQuery>({
     queryKey: ['internalPolicies', 'suggested-actions', currentUserId],
-    queryFn: async () =>
-      client.request(GET_POLICY_SUGGESTED_ACTIONS, {
+    queryFn: async () => {
+      const sevenDaysAgo = subDays(new Date(), 7).toISOString()
+      return client.request(GET_POLICY_SUGGESTED_ACTIONS, {
         currentUserIdID: currentUserId,
         currentUserIdString: currentUserId,
         sevenDaysAgo,
-        commentsSince,
-      }),
+        commentsSince: sevenDaysAgo,
+      })
+    },
     enabled: !!currentUserId,
     refetchOnWindowFocus: false,
   })
@@ -273,13 +277,11 @@ export const useBulkDeletePolicy = () => {
   })
 }
 
-export const POLICY_DISCUSSION_QUERY_KEY = 'policyDiscussion'
-
 export const useGetPolicyDiscussionById = (policyId?: string | null) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetPolicyDiscussionByIdQuery, unknown>({
-    queryKey: [POLICY_DISCUSSION_QUERY_KEY, policyId],
+    queryKey: ['policyDiscussion', policyId],
     queryFn: async () => client.request(GET_POLICY_DISCUSSION_BY_ID, { policyId }),
     enabled: !!policyId,
   })

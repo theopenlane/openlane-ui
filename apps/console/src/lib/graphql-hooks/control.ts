@@ -157,6 +157,7 @@ export const useUpdateControl = () => {
   return useMutation<UpdateControlMutation, unknown, UpdateControlMutationVariables>({
     mutationFn: async (variables) => client.request(UPDATE_CONTROL, variables),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['controlsDiscussion'] })
       queryClient.invalidateQueries({ queryKey: ['controls'] })
       queryClient.invalidateQueries({ queryKey: ['mappedControls'] })
     },
@@ -585,13 +586,11 @@ export const useGetControlNotImplementedCount = () => {
   }
 }
 
-export const CONTROL_DISCUSSION_QUERY_KEY = 'controlsDiscussion'
-
 export const useGetControlDiscussionById = (controlId?: string | null) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetControlDiscussionByIdQuery, unknown>({
-    queryKey: [CONTROL_DISCUSSION_QUERY_KEY, controlId],
+    queryKey: ['controlsDiscussion', controlId],
     queryFn: async () => client.request(GET_CONTROL_DISCUSSION_BY_ID, { controlId }),
     enabled: !!controlId,
   })

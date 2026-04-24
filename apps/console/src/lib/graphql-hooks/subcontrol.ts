@@ -153,6 +153,7 @@ export const useUpdateSubcontrol = () => {
   return useMutation<UpdateSubcontrolMutation, unknown, UpdateSubcontrolMutationVariables>({
     mutationFn: async (variables) => client.request(UPDATE_SUBCONTROL, variables),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['subcontrolsDiscussion'] })
       queryClient.invalidateQueries({ queryKey: ['subcontrols'] })
       queryClient.invalidateQueries({ queryKey: ['mappedControls'] })
     },
@@ -311,13 +312,11 @@ export const useUpdateSubcontrolComment = () => {
   })
 }
 
-export const SUBCONTROL_DISCUSSION_QUERY_KEY = 'subcontrolsDiscussion'
-
 export const useGetSubcontrolDiscussionById = (subcontrolId?: string | null) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetSubcontrolDiscussionByIdQuery, unknown>({
-    queryKey: [SUBCONTROL_DISCUSSION_QUERY_KEY, subcontrolId],
+    queryKey: ['subcontrolsDiscussion', subcontrolId],
     queryFn: async () => client.request(GET_SUBCONTROL_DISCUSSION_BY_ID, { subcontrolId }),
     enabled: !!subcontrolId,
   })
