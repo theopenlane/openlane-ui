@@ -3,7 +3,6 @@ import { ObjectNames } from '@repo/codegen/src/type-names'
 import React from 'react'
 import NameField from '../create/form/fields/name-field'
 import { type VulnerabilityQuery, VulnerabilityOrderField, VulnerabilitySecurityLevel } from '@repo/codegen/src/schema'
-import DescriptionField from '../create/form/fields/description-field'
 import { AdditionalFields } from '../create/form/fields/additional-fields'
 import Properties from '../create/form/fields/properties'
 import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
@@ -187,13 +186,6 @@ export const getFieldsToRender = (props: VulnerabilityFieldProps, enumOptions: E
           />
         </div>
       </div>
-      <DescriptionField
-        key={props.isCreate ? 'create-description' : `${(props.data as VulnerabilityQuery['vulnerability'])?.id}-description`}
-        isEditing={props.isEditing}
-        isCreate={props.isCreate}
-        initialValue={props.isCreate ? '' : ((props.data as VulnerabilityQuery['vulnerability'])?.description ?? '')}
-        isFormInitialized={props.isFormInitialized}
-      />
       <AdditionalFields
         isEditing={props.isEditing}
         isEditAllowed={props.isEditAllowed}

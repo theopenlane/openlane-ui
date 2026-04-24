@@ -2,12 +2,11 @@
 import { z } from 'zod'
 import { useForm, type Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { type Value } from 'platejs'
 
 const formSchema = z.object({
   displayName: z.string().optional(),
   externalID: z.string().min(1, 'External ID is required'),
-  description: z.custom<Value | string>().optional(),
+  description: z.string().optional(),
   tags: z.array(z.string()).optional(),
   summary: z.string().optional(),
   category: z.string().optional(),

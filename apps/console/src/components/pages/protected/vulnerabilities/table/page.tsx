@@ -20,7 +20,6 @@ import { breadcrumbs, getFieldsToRender, getFilterFields, visibilityFields } fro
 import { type VulnerabilitySheetConfig, type VulnerabilityTablePageConfig, type VulnerabilityFieldProps, objectType, objectName, tableKey, exportType, orderFieldEnum, defaultSorting } from './types'
 import { getColumns } from './columns'
 import TableComponent from './table'
-import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { type CreateVulnerabilityInput, type UpdateVulnerabilityInput, type GetVulnerabilityAssociationsQuery, VulnerabilitySecurityLevel } from '@repo/codegen/src/schema'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
@@ -29,7 +28,6 @@ import { useInitialAssociations } from '@/hooks/useInitialAssociations'
 import { VULNERABILITY_ASSOCIATION_CONFIG } from '@/components/shared/object-association/association-configs'
 import TaskDetailsSheet from '../../tasks/create-task/sidebar/task-details-sheet'
 import ViewVulnerabilitySheet from '../view-vulnerability-sheet'
-import type { Value } from 'platejs'
 
 const DEFAULT_FILTER_VALUES = { open: true }
 
@@ -44,8 +42,6 @@ const VulnerabilityPage: React.FC = () => {
 
   const { data, isLoading } = useVulnerability(id || undefined)
   const { data: associationsData } = useGetVulnerabilityAssociations(id || undefined)
-
-  const plateEditorHelper = usePlateEditor()
 
   const extractAssociations = useCallback((assocData: GetVulnerabilityAssociationsQuery) => {
     const vulnerability = assocData.vulnerability
@@ -153,8 +149,7 @@ const VulnerabilityPage: React.FC = () => {
         initialAssociationsRef.current,
       )
 
-      const description = rest.description ? await plateEditorHelper.convertToHtml(rest.description as Value) : undefined
-      const cleaned = Object.fromEntries(Object.entries({ ...rest, description }).filter(([, v]) => v !== '' && v !== undefined))
+      const cleaned = Object.fromEntries(Object.entries(rest).filter(([, v]) => v !== '' && v !== undefined))
       return {
         ...cleaned,
         ...associationPayload,

@@ -20,15 +20,7 @@ type VulnColumnOptions = ColumnOptions & {
   onCreateTask?: (row: VulnerabilitiesNodeNonNull) => void
 }
 
-export const getColumns = ({
-  userMap,
-  convertToReadOnly,
-  selectedItems,
-  setSelectedItems,
-  onTrackRemediation,
-  onOpenRemediation,
-  onCreateTask,
-}: VulnColumnOptions): ColumnDef<VulnerabilitiesNodeNonNull>[] => {
+export const getColumns = ({ userMap, selectedItems, setSelectedItems, onTrackRemediation, onOpenRemediation, onCreateTask }: VulnColumnOptions): ColumnDef<VulnerabilitiesNodeNonNull>[] => {
   const columns: ColumnDef<VulnerabilitiesNodeNonNull>[] = [
     createSelectColumn<VulnerabilitiesNodeNonNull>(selectedItems, setSelectedItems),
     { accessorKey: 'id', header: 'ID', size: 120, cell: ({ row }) => <div className="text-muted-foreground">{row.original.id}</div> },
@@ -75,7 +67,17 @@ export const getColumns = ({
     { accessorKey: 'externalOwnerID', header: 'External Owner', size: 140 },
     { accessorKey: 'externalURI', header: 'External URI', size: 160 },
     { accessorKey: 'summary', header: 'Summary', size: 200, cell: ({ row }) => <TruncatedCell>{row.original.summary || '-'}</TruncatedCell> },
-    { accessorKey: 'description', header: 'Description', size: 200, minSize: 150, cell: ({ cell }) => convertToReadOnly?.(cell.getValue() as string) || '' },
+    {
+      accessorKey: 'description',
+      header: 'Description',
+      size: 200,
+      minSize: 150,
+      cell: ({ cell }) => {
+        const value = (cell.getValue() as string) || ''
+        if (!value) return ''
+        return <TruncatedCell>{value}</TruncatedCell>
+      },
+    },
     { accessorKey: 'discoveredAt', header: 'Discovered At', size: 130, cell: ({ cell }) => <DateCell value={cell.getValue() as string} /> },
     { accessorKey: 'publishedAt', header: 'Published At', size: 130, cell: ({ cell }) => <DateCell value={cell.getValue() as string} /> },
     { accessorKey: 'sourceUpdatedAt', header: 'Source Updated At', size: 140, cell: ({ cell }) => <DateCell value={cell.getValue() as string} /> },
