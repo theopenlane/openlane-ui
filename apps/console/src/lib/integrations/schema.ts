@@ -61,33 +61,36 @@ export function buildSections(
   return sections
 }
 
-export function buildInitialValues(sections: SchemaSection[]): FormValues {
+export function buildInitialValues(sections: SchemaSection[], existingValuesByPrefix: Record<string, Record<string, unknown> | undefined> = {}): FormValues {
   const values: FormValues = {}
 
   for (const section of sections) {
+    const existing = existingValuesByPrefix[section.prefix]
     for (const { fieldKey, property } of getResolvedSchemaFields(section.schema)) {
       const fieldName = `${section.prefix}${fieldKey}`
-      if (property.default !== undefined) {
-        if (property.type === 'array' && Array.isArray(property.default)) {
-          values[fieldName] = property.default.join('\n')
-        } else if (property.type === 'boolean') {
-          values[fieldName] = Boolean(property.default)
-        } else {
-          values[fieldName] = String(property.default)
-        }
+      const existingValue = existing?.[fieldKey]
+      const source = existingValue !== undefined && existingValue !== null ? existingValue : property.default
+
+      if (source !== undefined) {
+        values[fieldName] = coerceSchemaValue(property, source)
         continue
       }
 
-      if (property.type === 'boolean') {
-        values[fieldName] = false
-        continue
-      }
-
-      values[fieldName] = ''
+      values[fieldName] = property.type === 'boolean' ? false : ''
     }
   }
 
   return values
+}
+
+function coerceSchemaValue(property: IntegrationSchemaProperty, rawValue: unknown): unknown {
+  if (property.type === 'array' && Array.isArray(rawValue)) {
+    return rawValue.join('\n')
+  }
+  if (property.type === 'boolean') {
+    return Boolean(rawValue)
+  }
+  return String(rawValue)
 }
 
 export function buildZodSchema(sections: SchemaSection[]): z.ZodObject<Record<string, z.ZodTypeAny>> {

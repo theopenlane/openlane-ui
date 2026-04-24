@@ -7,7 +7,7 @@ import { Badge } from '@repo/ui/badge'
 import { Card } from '@repo/ui/cardpanel'
 import { Separator } from '@repo/ui/separator'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
-import { type IntegrationMetadata, type IntegrationNode, type IntegrationProvider } from '@/lib/integrations/types'
+import { type IntegrationConfigValue, type IntegrationMetadata, type IntegrationNode, type IntegrationProvider } from '@/lib/integrations/types'
 import { getInstalledIntegrationConfig, installedIntegrationDisplayName, providerSupportsHealth, resolveCredentialEntry } from '@/lib/integrations/utils'
 import { providerHasUserInputSchema } from '@/lib/integrations/flow'
 import { useDisconnectIntegration, useIntegrationHealth } from '@/lib/query-hooks/integrations'
@@ -36,6 +36,7 @@ const InstalledIntegrationCard = ({ integration, providers }: InstalledIntegrati
   // At runtime the response key is `metadata`. A single cast bridges the mismatch until
   // codegen is regenerated.
   const meta = ((integration as Record<string, unknown>).metadata ?? undefined) as IntegrationMetadata | undefined
+  const existingConfig = (integration as Record<string, unknown>).config as IntegrationConfigValue | undefined
   const externalName = meta?.externalName ?? ''
   const externalId = meta?.externalId ?? ''
   const credentialRefName = meta?.credentialRef ?? ''
@@ -128,7 +129,14 @@ const InstalledIntegrationCard = ({ integration, providers }: InstalledIntegrati
         </div>
       </Card>
 
-      <IntegrationConfigurationDialog open={configOpen} onOpenChange={setConfigOpen} provider={provider} installationId={integration.id} credentialRef={credentialRefName || undefined} />
+      <IntegrationConfigurationDialog
+        open={configOpen}
+        onOpenChange={setConfigOpen}
+        provider={provider}
+        installationId={integration.id}
+        credentialRef={credentialRefName || undefined}
+        existingUserInput={existingConfig?.clientConfig}
+      />
 
       <ConfirmationDialog
         open={confirmOpen}

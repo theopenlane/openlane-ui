@@ -16,6 +16,9 @@ export const GET_INTEGRATIONS = gql`
           tags
           description
           metadata
+          config
+          installationMetadata
+          primaryDirectory
           createdAt
           createdBy
           environmentName
