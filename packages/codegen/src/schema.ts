@@ -70553,6 +70553,7 @@ export type GetIntegrationsQuery = {
         tags?: Array<string> | null
         description?: string | null
         metadata?: any | null
+        primaryDirectory: boolean
         createdAt?: any | null
         createdBy?: string | null
         environmentName?: string | null

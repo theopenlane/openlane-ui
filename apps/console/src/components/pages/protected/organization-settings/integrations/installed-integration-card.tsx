@@ -64,9 +64,12 @@ const InstalledIntegrationCard = ({ integration, providers }: InstalledIntegrati
             <IntegrationCardIcons providerName={provider?.slug ?? integration.definitionSlug ?? integration.kind ?? integration.name} logoUrl={provider?.logoUrl} />
             {displayName}
           </div>
-          <Badge variant={healthStatus.variant} title={healthStatus.summary}>
-            {healthStatus.label}
-          </Badge>
+          <div className="flex items-center gap-2">
+            {integration.primaryDirectory ? <Badge variant="blue">Primary Directory</Badge> : null}
+            <Badge variant={healthStatus.variant} title={healthStatus.summary}>
+              {healthStatus.label}
+            </Badge>
+          </div>
         </div>
 
         {/* Installed to + last health check */}
