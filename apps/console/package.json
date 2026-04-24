@@ -66,7 +66,7 @@
     "react-force-graph-2d": "^1.28.0",
     "react-pdf": "^10.2.0",
     "remark-gfm": "^4.0.1",
-    "stripe": "^18.5.0",
+    "stripe": "^22.0.0",
     "survey-core": "^2.3.15",
     "survey-creator-core": "^2.3.15",
     "survey-creator-react": "^2.3.15",
