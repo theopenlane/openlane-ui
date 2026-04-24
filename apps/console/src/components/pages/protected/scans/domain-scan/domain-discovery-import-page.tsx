@@ -630,8 +630,8 @@ export default function DomainDiscoveryImportPage() {
 
   return (
     <div className="mx-auto max-w-6xl px-6 py-4">
-      <PageHeading eyebrow="Exposure" heading="Domain scan import" />
-      <p className="mt-2 text-sm text-muted-foreground">Review the scanned output for `{domains.hostname}` and choose what should be imported.</p>
+      <PageHeading eyebrow="Discovery" heading="Domain Discovery Results" />
+      <p className="mt-2 text-sm text-muted-foreground">Vendors, assets, and findings discovered for {domains.hostname} are listed below. Select what to bring into your organization.</p>
 
       <div className="py-6">
         <StepHeader stepper={stepper} className="mb-6" />
