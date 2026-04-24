@@ -21,12 +21,15 @@ import { serializeCommentValue } from '@repo/ui/components/editor/plugins/mentio
 import { type TDiscussion, discussionPlugin, CommentEntityType } from '@repo/ui/components/editor/plugins/discussion-kit.tsx'
 
 import { Editor, EditorContainer } from './editor'
-import { POLICY_DISCUSSION_QUERY_KEY, useInsertPolicyComment, useUpdateInternalPolicy, useUpdatePolicyComment } from 'console/src/lib/graphql-hooks/internal-policy'
+import { useInsertPolicyComment, useUpdateInternalPolicy, useUpdatePolicyComment } from 'console/src/lib/graphql-hooks/internal-policy'
 import type { UpdateControlInput, UpdateInternalPolicyInput, UpdateNoteInput, UpdateProcedureInput, UpdateRiskInput, UpdateSubcontrolInput } from '@repo/codegen/src/schema.ts'
-import { PROCEDURE_DISCUSSION_QUERY_KEY, useInsertProcedureComment, useUpdateProcedure, useUpdateProcedureComment } from 'console/src/lib/graphql-hooks/procedure'
-import { CONTROL_DISCUSSION_QUERY_KEY, useInsertControlPlateComment, useUpdateControl, useUpdateControlComment } from 'console/src/lib/graphql-hooks/control'
-import { SUBCONTROL_DISCUSSION_QUERY_KEY, useInsertSubcontrolPlateComment, useUpdateSubcontrol, useUpdateSubcontrolComment } from 'console/src/lib/graphql-hooks/subcontrol'
-import { RISK_DISCUSSION_QUERY_KEY, useInsertRiskComment, useUpdateRisk, useUpdateRiskComment } from 'console/src/lib/graphql-hooks/risk'
+import { useInsertProcedureComment, useUpdateProcedure, useUpdateProcedureComment } from 'console/src/lib/graphql-hooks/procedure'
+import { useInsertControlPlateComment, useUpdateControl, useUpdateControlComment } from 'console/src/lib/graphql-hooks/control'
+import { useInsertSubcontrolPlateComment, useUpdateSubcontrol, useUpdateSubcontrolComment } from 'console/src/lib/graphql-hooks/subcontrol'
+import { useInsertRiskComment, useUpdateRisk, useUpdateRiskComment } from 'console/src/lib/graphql-hooks/risk'
+import { useUpdateDiscussion } from 'console/src/lib/graphql-hooks/discussion'
+import { useNotification } from 'console/src/hooks/useNotification'
+import { parseErrorMessage } from 'console/src/utils/graphQlErrorMatcher'
 import { useQueryClient } from '@tanstack/react-query'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 
@@ -59,6 +62,8 @@ export function Comment(props: {
   const { mutateAsync: updatePolicyComment } = useUpdatePolicyComment()
   const { mutateAsync: updateProcedureComment } = useUpdateProcedureComment()
   const { mutateAsync: updateRiskComment } = useUpdateRiskComment()
+  const { mutateAsync: updateDiscussion } = useUpdateDiscussion()
+  const { errorNotification } = useNotification()
 
   const entityType = usePluginOption(discussionPlugin, 'entityType') as CommentEntityType
 
@@ -103,7 +108,17 @@ export function Comment(props: {
   const entityUpdate = getEntityUpdater(entityType)
 
   const resolveDiscussion = async (id: string) => {
-    // NOTE: backend does not support resolving discussions; keep this local-only
+    const current = editor.getOption(discussionPlugin, 'discussions')
+    const target = current.find((d) => d.id === id)
+    if (!target?.systemId) return
+
+    try {
+      await updateDiscussion({ updateDiscussionId: target.systemId, input: { isResolved: true } })
+    } catch (error) {
+      errorNotification({ title: 'Failed to resolve comment', description: parseErrorMessage(error) })
+      return
+    }
+
     const updatedDiscussions = editor.getOption(discussionPlugin, 'discussions').map((discussion) => {
       if (discussion.id === id) {
         return { ...discussion, isResolved: true }
@@ -114,8 +129,7 @@ export function Comment(props: {
     editor.setOption(discussionPlugin, 'discussions', updatedDiscussions)
   }
 
-  const removeDiscussion = async (id: string) => {
-    // NOTE: backend does not support deleting discussions specifically by ID; keeping this local-only
+  const removeDiscussion = (id: string) => {
     const updatedDiscussions = editor.getOption(discussionPlugin, 'discussions').filter((discussion) => discussion.id !== id)
 
     editor.setOption(discussionPlugin, 'discussions', updatedDiscussions)
@@ -240,7 +254,7 @@ export function Comment(props: {
               onRemoveComment={() => {
                 if (discussionLength === 1) {
                   tf.comment.unsetMark({ id: comment.discussionId })
-                  void removeDiscussion(comment.discussionId)
+                  removeDiscussion(comment.discussionId)
                 }
               }}
               comment={comment}
@@ -319,6 +333,7 @@ function CommentMoreDropdown(props: {
   const { mutateAsync: updateRisk } = useUpdateRisk()
   const entityId = usePluginOption(discussionPlugin, 'entityId') as string
   const entityType = usePluginOption(discussionPlugin, 'entityType') as CommentEntityType
+  const discussions = usePluginOption(discussionPlugin, 'discussions')
 
   type EntityInputMap = {
     Control: UpdateControlInput
@@ -375,9 +390,10 @@ function CommentMoreDropdown(props: {
       Risk: 'updateRiskId',
     }
 
-    const input: EntityInput<typeof entityType> = {
-      deleteComment: comment.id,
-    }
+    const discussion = discussions.find((d) => d.id === comment.discussionId)
+    const deleteDiscussion = discussion && discussion.comments.length === 1 ? discussion.systemId : undefined
+
+    const input: EntityInput<typeof entityType> = deleteDiscussion ? { deleteComment: comment.id, deleteDiscussion } : { deleteComment: comment.id }
 
     await entityUpdate({
       [entityIdKeyMap[entityType]]: entityId,
@@ -407,7 +423,7 @@ function CommentMoreDropdown(props: {
 
     editor.setOption(discussionPlugin, 'discussions', updatedDiscussions)
     onRemoveComment?.()
-  }, [comment.discussionId, comment.id, editor, onRemoveComment])
+  }, [comment.discussionId, comment.id, discussions, editor, entityId, entityType, entityUpdate, onRemoveComment])
 
   const onEditComment = React.useCallback(() => {
     selectedEditCommentRef.current = true
@@ -577,23 +593,23 @@ export function CommentCreateForm({
 
     switch (entityType) {
       case ObjectTypes.CONTROL:
-        entityUpdateKey = CONTROL_DISCUSSION_QUERY_KEY
+        entityUpdateKey = 'controlsDiscussion'
         entityDiscussionKey = 'controls'
         break
       case ObjectTypes.RISK:
-        entityUpdateKey = RISK_DISCUSSION_QUERY_KEY
+        entityUpdateKey = 'risksDiscussion'
         entityDiscussionKey = 'risks'
         break
       case ObjectTypes.INTERNAL_POLICY:
-        entityUpdateKey = POLICY_DISCUSSION_QUERY_KEY
+        entityUpdateKey = 'policyDiscussion'
         entityDiscussionKey = 'internalPolicies'
         break
       case ObjectTypes.SUBCONTROL:
-        entityUpdateKey = SUBCONTROL_DISCUSSION_QUERY_KEY
+        entityUpdateKey = 'subcontrolsDiscussion'
         entityDiscussionKey = 'subcontrols'
         break
       case ObjectTypes.PROCEDURE:
-        entityUpdateKey = PROCEDURE_DISCUSSION_QUERY_KEY
+        entityUpdateKey = 'procedureDiscussion'
         entityDiscussionKey = 'procedures'
         break
       default:

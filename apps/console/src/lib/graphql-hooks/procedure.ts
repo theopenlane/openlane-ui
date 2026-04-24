@@ -140,10 +140,14 @@ export const useCreateProcedure = () => {
 }
 
 export const useUpdateProcedure = () => {
-  const { client } = useGraphQLClient()
+  const { client, queryClient } = useGraphQLClient()
 
   return useMutation<UpdateProcedureMutation, unknown, UpdateProcedureMutationVariables>({
     mutationFn: (variables) => client.request(UPDATE_PROCEDURE, variables),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['procedureDiscussion'] })
+      queryClient.invalidateQueries({ queryKey: ['procedures'] })
+    },
   })
 }
 
@@ -200,13 +204,11 @@ export const useBulkDeleteProcedures = () => {
   })
 }
 
-export const PROCEDURE_DISCUSSION_QUERY_KEY = 'procedureDiscussion'
-
 export const useGetProcedureDiscussionById = (procedureId?: string | null) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetProcedureDiscussionByIdQuery, unknown>({
-    queryKey: [PROCEDURE_DISCUSSION_QUERY_KEY, procedureId],
+    queryKey: ['procedureDiscussion', procedureId],
     queryFn: async () => client.request(GET_PROCEDURE_DISCUSSION_BY_ID, { procedureId }),
     enabled: !!procedureId,
   })

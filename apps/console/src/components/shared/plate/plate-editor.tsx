@@ -105,7 +105,7 @@ const PlateEditor = ({ onChange, initialValue, variant = 'basic', styleVariant, 
             id: d.externalID,
             systemId: d.id,
             createdAt: new Date(d.createdAt ?? Date.now()),
-            isResolved: false,
+            isResolved: d.isResolved ?? false,
             userId: comments[0]?.userId ?? 'unknown',
             comments,
           } as TDiscussion

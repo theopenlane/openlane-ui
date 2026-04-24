@@ -200,6 +200,7 @@ export const RISK_DISCUSSION_FIELDS_FRAGMENT = gql`
           id
           externalID
           createdAt
+          isResolved
           comments {
             edges {
               node {

@@ -67442,6 +67442,7 @@ export type ControlDiscussionFieldsFragment = {
         id: string
         externalID?: string | null
         createdAt?: any | null
+        isResolved: boolean
         comments: {
           __typename?: 'NoteConnection'
           edges?: Array<{
@@ -67486,6 +67487,7 @@ export type GetControlDiscussionByIdQuery = {
           id: string
           externalID?: string | null
           createdAt?: any | null
+          isResolved: boolean
           comments: {
             __typename?: 'NoteConnection'
             edges?: Array<{
@@ -70941,6 +70943,7 @@ export type PolicyDiscussionFieldsFragment = {
         id: string
         externalID?: string | null
         createdAt?: any | null
+        isResolved: boolean
         comments: {
           __typename?: 'NoteConnection'
           edges?: Array<{
@@ -70984,6 +70987,7 @@ export type GetPolicyDiscussionByIdQuery = {
           id: string
           externalID?: string | null
           createdAt?: any | null
+          isResolved: boolean
           comments: {
             __typename?: 'NoteConnection'
             edges?: Array<{
@@ -72691,6 +72695,7 @@ export type ProcedureDiscussionFieldsFragment = {
         id: string
         externalID?: string | null
         createdAt?: any | null
+        isResolved: boolean
         comments: {
           __typename?: 'NoteConnection'
           edges?: Array<{
@@ -72734,6 +72739,7 @@ export type GetProcedureDiscussionByIdQuery = {
           id: string
           externalID?: string | null
           createdAt?: any | null
+          isResolved: boolean
           comments: {
             __typename?: 'NoteConnection'
             edges?: Array<{
@@ -73821,6 +73827,7 @@ export type RiskDiscussionFieldsFragment = {
         id: string
         externalID?: string | null
         createdAt?: any | null
+        isResolved: boolean
         comments: {
           __typename?: 'NoteConnection'
           edges?: Array<{
@@ -73864,6 +73871,7 @@ export type GetRiskDiscussionByIdQuery = {
           id: string
           externalID?: string | null
           createdAt?: any | null
+          isResolved: boolean
           comments: {
             __typename?: 'NoteConnection'
             edges?: Array<{
@@ -74962,6 +74970,7 @@ export type SubcontrolDiscussionFieldsFragment = {
         id: string
         externalID?: string | null
         createdAt?: any | null
+        isResolved: boolean
         comments: {
           __typename?: 'NoteConnection'
           edges?: Array<{
@@ -75006,6 +75015,7 @@ export type GetSubcontrolDiscussionByIdQuery = {
           id: string
           externalID?: string | null
           createdAt?: any | null
+          isResolved: boolean
           comments: {
             __typename?: 'NoteConnection'
             edges?: Array<{

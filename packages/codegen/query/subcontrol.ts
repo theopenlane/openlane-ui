@@ -401,6 +401,7 @@ export const SUBCONTROL_DISCUSSION_FIELDS_FRAGMENT = gql`
           id
           externalID
           createdAt
+          isResolved
           comments {
             edges {
               node {
