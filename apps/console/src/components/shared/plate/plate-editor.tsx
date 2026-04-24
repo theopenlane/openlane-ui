@@ -94,7 +94,7 @@ const PlateEditor = ({ onChange, initialValue, variant = 'basic', styleVariant, 
                     },
                   ],
                   createdAt: new Date(c.createdAt ?? Date.now()),
-                  discussionId: d.id,
+                  discussionId: d.externalID,
                   isEdited: c.isEdited,
                   userId: c.createdBy ?? 'unknown',
                 } as TComment
