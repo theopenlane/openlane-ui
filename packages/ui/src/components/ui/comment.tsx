@@ -333,6 +333,7 @@ function CommentMoreDropdown(props: {
   const { mutateAsync: updateRisk } = useUpdateRisk()
   const entityId = usePluginOption(discussionPlugin, 'entityId') as string
   const entityType = usePluginOption(discussionPlugin, 'entityType') as CommentEntityType
+  const discussions = usePluginOption(discussionPlugin, 'discussions')
 
   type EntityInputMap = {
     Control: UpdateControlInput
