@@ -2,10 +2,11 @@ import { type FilterField } from '@/types'
 import { ObjectNames } from '@repo/codegen/src/type-names'
 import React from 'react'
 import NameField from '../create/form/fields/name-field'
-import { type FindingQuery, FindingOrderField } from '@repo/codegen/src/schema'
+import { type FindingQuery, FindingOrderField, FindingSecurityLevel } from '@repo/codegen/src/schema'
 import { AdditionalFields } from '../create/form/fields/additional-fields'
 import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
 import { type FindingFieldProps, type EnumOptions, type EnumCreateHandlers } from './types'
+import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import { enumToSortFields } from '@/components/shared/crud-base/utils'
 import { FindingAssociationSection } from '../create/form/fields/association-section'
 import PastDueBadge from '@/components/shared/past-due-badge/past-due-badge'
@@ -26,15 +27,17 @@ export const getFilterFields = (enumOptions: EnumOptions): FilterField[] => [
     icon: FilterIcons.Category,
   },
   {
-    key: 'severityContainsFold',
+    key: 'securityLevelIn',
     label: 'Severity',
-    type: 'text',
+    type: 'multiselect',
+    options: enumToOptions(FindingSecurityLevel),
     icon: FilterIcons.Criticality,
   },
   {
-    key: 'findingStatusNameContainsFold',
+    key: 'findingStatusNameIn',
     label: 'Status',
-    type: 'text',
+    type: 'multiselect',
+    options: enumOptions.findingStatusOptions,
     icon: FilterIcons.Status,
   },
   {
