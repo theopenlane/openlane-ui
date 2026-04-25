@@ -66009,7 +66009,10 @@ export type GetAssetAssociationsQuery = {
     identityHolders: {
       __typename?: 'IdentityHolderConnection'
       totalCount: number
-      edges?: Array<{ __typename?: 'IdentityHolderEdge'; node?: { __typename?: 'IdentityHolder'; id: string; fullName: string; displayID: string } | null } | null> | null
+      edges?: Array<{
+        __typename?: 'IdentityHolderEdge'
+        node?: { __typename?: 'IdentityHolder'; id: string; fullName: string; displayID: string; identityHolderType: IdentityHolderIdentityHolderType; title?: string | null } | null
+      } | null> | null
     }
     controls: {
       __typename?: 'ControlConnection'
@@ -67086,7 +67089,10 @@ export type GetControlAssociationsByIdQuery = {
     identityHolders: {
       __typename?: 'IdentityHolderConnection'
       totalCount: number
-      edges?: Array<{ __typename?: 'IdentityHolderEdge'; node?: { __typename?: 'IdentityHolder'; id: string; fullName: string; displayID: string } | null } | null> | null
+      edges?: Array<{
+        __typename?: 'IdentityHolderEdge'
+        node?: { __typename?: 'IdentityHolder'; id: string; fullName: string; displayID: string; identityHolderType: IdentityHolderIdentityHolderType; title?: string | null } | null
+      } | null> | null
     }
     campaigns: {
       __typename?: 'CampaignConnection'
@@ -68837,7 +68843,10 @@ export type GetEntityAssociationsQuery = {
     identityHolders: {
       __typename?: 'IdentityHolderConnection'
       totalCount: number
-      edges?: Array<{ __typename?: 'IdentityHolderEdge'; node?: { __typename?: 'IdentityHolder'; id: string; fullName: string; displayID: string } | null } | null> | null
+      edges?: Array<{
+        __typename?: 'IdentityHolderEdge'
+        node?: { __typename?: 'IdentityHolder'; id: string; fullName: string; displayID: string; identityHolderType: IdentityHolderIdentityHolderType; title?: string | null } | null
+      } | null> | null
     }
     integrations: {
       __typename?: 'IntegrationConnection'
@@ -70824,7 +70833,10 @@ export type GetInternalPolicyAssociationsByIdQuery = {
     identityHolders: {
       __typename?: 'IdentityHolderConnection'
       totalCount: number
-      edges?: Array<{ __typename?: 'IdentityHolderEdge'; node?: { __typename?: 'IdentityHolder'; id: string; fullName: string; displayID: string } | null } | null> | null
+      edges?: Array<{
+        __typename?: 'IdentityHolderEdge'
+        node?: { __typename?: 'IdentityHolder'; id: string; fullName: string; displayID: string; identityHolderType: IdentityHolderIdentityHolderType; title?: string | null } | null
+      } | null> | null
     }
   }
 }
@@ -74797,7 +74809,10 @@ export type GetSubcontrolAssociationsByIdQuery = {
     identityHolders: {
       __typename?: 'IdentityHolderConnection'
       totalCount: number
-      edges?: Array<{ __typename?: 'IdentityHolderEdge'; node?: { __typename?: 'IdentityHolder'; id: string; fullName: string; displayID: string } | null } | null> | null
+      edges?: Array<{
+        __typename?: 'IdentityHolderEdge'
+        node?: { __typename?: 'IdentityHolder'; id: string; fullName: string; displayID: string; identityHolderType: IdentityHolderIdentityHolderType; title?: string | null } | null
+      } | null> | null
     }
   }
 }

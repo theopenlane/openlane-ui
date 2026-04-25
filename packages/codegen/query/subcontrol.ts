@@ -222,6 +222,8 @@ export const GET_SUBCONTROL_ASSOCIATIONS_BY_ID = gql`
             id
             fullName
             displayID
+            identityHolderType
+            title
           }
         }
         totalCount

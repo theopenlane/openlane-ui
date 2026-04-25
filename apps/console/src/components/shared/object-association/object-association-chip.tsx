@@ -1,10 +1,11 @@
 import React, { useState } from 'react'
-import { ExternalLink, PencilLine, SlidersHorizontal } from 'lucide-react'
+import { ExternalLink, Info, PencilLine, SlidersHorizontal } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import ObjectsChip from '../objects-chip/objects-chip'
 import { useSheetNavigation, SHEET_KINDS, FULL_PAGE_KINDS } from '@/providers/sheet-navigation-provider'
 import { useRouter } from 'next/navigation'
+import { getAssociationDisplayModel } from '@/components/shared/object-association/utils'
 
 export interface ObjectChipProps {
   object: {
@@ -12,11 +13,13 @@ export interface ObjectChipProps {
     refCode?: string | null
     displayName?: string | null
     name?: string | null
+    fullName?: string | null
     title?: string | null
     description?: string | null
     desiredOutcome?: string | null
     details?: string | null
     summary?: string | null
+    identityHolderType?: string | null
     link: string
   }
   kind?: string
@@ -30,8 +33,8 @@ const ObjectAssociationChip: React.FC<ObjectChipProps> = ({ object, kind, remova
   const { convertToReadOnly } = usePlateEditor()
   const router = useRouter()
 
-  const displayText = object.refCode || object.displayName || object.name || object.title || ''
-  const displayDescription = object.summary || object.details || object.description || object.desiredOutcome || ''
+  const display = getAssociationDisplayModel(object, kind)
+
   const objectKind = kind || ''
   const sheetNavigation = useSheetNavigation()
 
@@ -57,7 +60,7 @@ const ObjectAssociationChip: React.FC<ObjectChipProps> = ({ object, kind, remova
             handleNavigate()
           }}
         >
-          <ObjectsChip name={displayText} objectType={objectKind} removable={removable} onRemove={onRemove ? () => onRemove() : undefined} onClick={handleNavigate} />
+          <ObjectsChip name={display.name} objectType={objectKind} removable={removable} onRemove={onRemove ? () => onRemove() : undefined} onClick={handleNavigate} />
         </TooltipTrigger>
 
         <TooltipContent side="top" className="p-3 rounded-md shadow-lg text-xs min-w-60">
@@ -69,18 +72,30 @@ const ObjectAssociationChip: React.FC<ObjectChipProps> = ({ object, kind, remova
               </div>
               <div className="w-full border-b pb-2">
                 <span className="text-brand pl-3 cursor-pointer hover:underline inline-flex items-center gap-1" onClick={handleNavigate}>
-                  {displayText}
+                  {display.name}
                   <ExternalLink size={12} />
                 </span>
               </div>
+
+              {display.showType && (
+                <>
+                  <div className="flex items-center gap-1 border-b pb-2 pt-2">
+                    <Info size={12} />
+                    <span className="font-medium">Type</span>
+                  </div>
+                  <div className="w-full border-b pb-2 pt-2">
+                    <span className="pl-3 wrap-break-word">{display.typeLabel}</span>
+                  </div>
+                </>
+              )}
             </div>
 
             <div className="flex flex-col pt-2">
               <div className="flex items-center gap-1">
                 <PencilLine size={12} />
-                <span className="font-medium">Description</span>
+                <span className="font-medium">{display.detailLabel}</span>
               </div>
-              <div className="max-w-xs text-justify line-clamp-4">{displayDescription ? convertToReadOnly(displayDescription) : 'No description available'}</div>
+              <div className="max-w-xs text-justify line-clamp-4">{display.detailContentIsRichText ? convertToReadOnly(display.detailContent) : display.detailContent}</div>
             </div>
           </div>
         </TooltipContent>

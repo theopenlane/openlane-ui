@@ -62,6 +62,7 @@ const AssociatedObjectsAccordion: React.FC<AssociatedObjectsAccordionProps> = ({
       description?: string | null
       desiredOutcome?: string | null
       summary?: string | null
+      identityHolderType?: string | null
     }[],
   ) => (
     <div className="flex gap-2 flex-wrap">
@@ -76,11 +77,13 @@ const AssociatedObjectsAccordion: React.FC<AssociatedObjectsAccordionProps> = ({
                 refCode: row?.refCode,
                 displayName: row?.displayName || row?.fullName,
                 name: row?.name,
+                fullName: row?.fullName,
                 title: row?.title,
                 details: row?.details,
                 summary: row?.summary,
                 description: row?.description,
                 desiredOutcome: row?.desiredOutcome,
+                identityHolderType: row?.identityHolderType,
                 link: getHrefForObjectType(kind, row as NormalizedObject),
               }}
               removable={removable}
