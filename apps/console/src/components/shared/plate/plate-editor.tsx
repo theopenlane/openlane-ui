@@ -57,6 +57,7 @@ const PlateEditor = ({ onChange, initialValue, variant = 'basic', styleVariant, 
 
   const editor = usePlateEditor({
     plugins: getPlugins(),
+    value: Array.isArray(initialValue) ? initialValue : undefined,
   })
 
   const plateEditor = React.useMemo(
@@ -167,19 +168,19 @@ const PlateEditor = ({ onChange, initialValue, variant = 'basic', styleVariant, 
     if (plateEditor && !initialValueSetRef.current && initialValue) {
       initialValueSetRef.current = true
 
-      let slateNodes
       if (Array.isArray(initialValue)) {
-        slateNodes = initialValue
+        return
+      }
+
+      let slateNodes
+      const fmt = detectFormat(initialValue)
+      if (fmt === 'html') {
+        slateNodes = plateEditor.api.html.deserialize({
+          element: initialValue || '',
+        }) as Value
       } else {
-        const fmt = detectFormat(initialValue)
-        if (fmt === 'html') {
-          slateNodes = plateEditor.api.html.deserialize({
-            element: initialValue || '',
-          }) as Value
-        } else {
-          // @ts-expect-error fix bad typing from platejs
-          slateNodes = (plateEditor.api.markdown?.deserialize?.(initialValue || '') ?? []) as Value
-        }
+        // @ts-expect-error fix bad typing from platejs
+        slateNodes = (plateEditor.api.markdown?.deserialize?.(initialValue || '') ?? []) as Value
       }
 
       if (Array.isArray(slateNodes) && slateNodes.length === 1 && typeof (slateNodes[0] as TElement).text === 'string' && !(slateNodes[0] as TElement).type) {

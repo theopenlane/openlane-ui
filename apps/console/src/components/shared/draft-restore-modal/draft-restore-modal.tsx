@@ -1,5 +1,6 @@
 'use client'
 
+import { useMemo } from 'react'
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@repo/ui/dialog'
 import { Button } from '@repo/ui/button'
 import { FileClock } from 'lucide-react'
@@ -14,11 +15,10 @@ type DraftRestoreModalProps = {
 }
 
 const DraftRestoreModal = ({ open, savedAt, entityLabel, onResume, onDiscard }: DraftRestoreModalProps) => {
-  const savedAtIso = new Date(savedAt).toISOString()
-
+  const savedAtIso = useMemo(() => new Date(savedAt).toISOString(), [savedAt])
   return (
     <Dialog open={open}>
-      <DialogContent className="size-fit max-w-md" isClosable={false}>
+      <DialogContent className="size-fit max-w-md" showCloseButton={false}>
         <DialogHeader>
           <div className="flex items-center gap-3">
             <FileClock className="h-6 w-6" strokeWidth={1.5} />
@@ -30,9 +30,7 @@ const DraftRestoreModal = ({ open, savedAt, entityLabel, onResume, onDiscard }: 
           <Button variant="outline" onClick={onDiscard}>
             Discard
           </Button>
-          <Button variant="filled" onClick={onResume}>
-            Resume
-          </Button>
+          <Button onClick={onResume}>Resume</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

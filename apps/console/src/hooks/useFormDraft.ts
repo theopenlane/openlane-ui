@@ -64,7 +64,9 @@ export function useFormDraft<TForm extends FieldValues, TStore = unknown>(opts: 
   // arrow-function props would invalidate persist's deps and re-subscribe
   // form.watch / store.subscribe on every render.
   const callbacksRef = useRef(opts)
-  callbacksRef.current = opts
+  useEffect(() => {
+    callbacksRef.current = opts
+  })
 
   const [pendingDraft, setPendingDraft] = useState<FormDraftPayload<TForm, TStore> | null>(null)
   const [decisionMade, setDecisionMade] = useState(false)
@@ -123,17 +125,15 @@ export function useFormDraft<TForm extends FieldValues, TStore = unknown>(opts: 
   }, [])
 
   const restore = useCallback(() => {
-    setPendingDraft((current) => {
-      if (!current) return null
-      form.reset(current.formValues)
-      if (current.storeSnapshot) {
-        callbacksRef.current.applyStoreSnapshot?.(current.storeSnapshot)
-      }
-      return null
-    })
+    if (!pendingDraft) return
+    form.reset(pendingDraft.formValues)
+    if (pendingDraft.storeSnapshot) {
+      callbacksRef.current.applyStoreSnapshot?.(pendingDraft.storeSnapshot)
+    }
+    setPendingDraft(null)
     setEditorKey((k) => k + 1)
     setDecisionMade(true)
-  }, [form])
+  }, [form, pendingDraft])
 
   const discard = useCallback(() => {
     safeRemove(storageKey)
