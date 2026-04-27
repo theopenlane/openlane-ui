@@ -1,12 +1,13 @@
 'use client'
 
 import { DataTable } from '@repo/ui/data-table'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { type FindingWhereInput, type Finding, type FindingOrderField, TaskTaskStatus } from '@repo/codegen/src/schema'
 import { getColumns } from '@/components/pages/protected/findings/table/columns.tsx'
 import { type FindingsNodeNonNull, useFindingsWithFilter } from '@/lib/graphql-hooks/finding'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
+import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { useNotification } from '@/hooks/useNotification'
 import { FINDINGS_SORT_FIELDS } from './table-config'
 import { type TTableProps } from '@/components/shared/crud-base/page'
@@ -41,6 +42,7 @@ const TableComponent = ({
   const queryClient = useQueryClient()
   const { data: session } = useSession()
   const { errorNotification } = useNotification()
+  const { convertToReadOnly } = usePlateEditor()
   const [createTaskRow, setCreateTaskRow] = useState<FindingsNodeNonNull | null>(null)
   const [trackRemediationRow, setTrackRemediationRow] = useState<FindingsNodeNonNull | null>(null)
 
@@ -119,21 +121,24 @@ const TableComponent = ({
     setTrackRemediationRow(row)
   }
 
-  const handleOpenRemediation = (row: FindingsNodeNonNull) => {
-    const remediationId = row.remediations?.edges?.[0]?.node?.id
-    if (remediationId) {
-      sheetNav?.openSheet(remediationId, ObjectAssociationNodeEnum.REMEDIATION)
-    }
-  }
+  const handleOpenRemediation = useCallback(
+    (row: FindingsNodeNonNull) => {
+      const remediationId = row.remediations?.edges?.[0]?.node?.id
+      if (remediationId) {
+        sheetNav?.openSheet(remediationId, ObjectAssociationNodeEnum.REMEDIATION)
+      }
+    },
+    [sheetNav],
+  )
 
   const handleCreateTask = (row: FindingsNodeNonNull) => {
     setCreateTaskRow(row)
   }
 
   const columns = useMemo(
-    () => getColumns({ userMap, selectedItems, setSelectedItems, onTrackRemediation: handleTrackRemediation, onOpenRemediation: handleOpenRemediation, onCreateTask: handleCreateTask }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [userMap, selectedItems, setSelectedItems],
+    () =>
+      getColumns({ userMap, convertToReadOnly, selectedItems, setSelectedItems, onTrackRemediation: handleTrackRemediation, onOpenRemediation: handleOpenRemediation, onCreateTask: handleCreateTask }),
+    [userMap, convertToReadOnly, selectedItems, setSelectedItems, handleOpenRemediation],
   )
 
   const createTaskInitialValues = useMemo(() => {
