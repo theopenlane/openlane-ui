@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useMemo, useState, useCallback } from 'react'
+import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react'
 import { ExportExportFormat, type ExportExportType, OrderDirection } from '@repo/codegen/src/schema'
 import { type ZodObject, type ZodRawShape } from 'zod'
 import { type TPagination } from '@repo/ui/pagination-types'
@@ -228,6 +228,16 @@ export function GenericTablePage<
   const orderByFilter = useMemo(() => {
     return orderBy || undefined
   }, [orderBy])
+
+  const filterFingerprint = useMemo(() => JSON.stringify({ filters, debouncedSearch, additionalWhereFilter: additionalWhereFilter ?? null }), [filters, debouncedSearch, additionalWhereFilter])
+  const isFirstFilterRenderRef = useRef(true)
+  useEffect(() => {
+    if (isFirstFilterRenderRef.current) {
+      isFirstFilterRenderRef.current = false
+      return
+    }
+    setPagination((prev) => (prev.page === 1 ? prev : { ...prev, page: 1, query: { first: prev.pageSize } }))
+  }, [filterFingerprint])
 
   useEffect(() => {
     if (!config.hideBreadcrumbs) {
