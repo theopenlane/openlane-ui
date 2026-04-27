@@ -87,9 +87,6 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
             <TextField name="category" label="Category" formatDisplayValue={plainChipDisplay} {...sharedFieldProps} />
             <TextField name="findingClass" label="Finding Class" formatDisplayValue={enumChipDisplay} {...sharedFieldProps} />
           </div>
-          <div>
-            <TextField name="description" label="Description" multiline {...sharedFieldProps} />
-          </div>
         </CardContent>
       </Card>
 

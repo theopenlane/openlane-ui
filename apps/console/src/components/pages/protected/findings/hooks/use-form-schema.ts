@@ -2,6 +2,7 @@
 import { z } from 'zod'
 import { useForm, type Resolver } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { type Value } from 'platejs'
 
 const numericField = z.preprocess((val) => {
   if (val === '' || val === undefined || val === null) return undefined
@@ -10,7 +11,7 @@ const numericField = z.preprocess((val) => {
 
 const formSchema = z.object({
   displayName: z.string().optional(),
-  description: z.string().optional(),
+  description: z.custom<Value | string>().optional(),
   category: z.string().optional(),
   severity: z.string().optional(),
   findingStatusName: z.string().optional().nullable(),

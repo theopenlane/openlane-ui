@@ -2,6 +2,7 @@ import { type FilterField } from '@/types'
 import { ObjectNames } from '@repo/codegen/src/type-names'
 import React from 'react'
 import NameField from '../create/form/fields/name-field'
+import DescriptionField from '../create/form/fields/description-field'
 import { type FindingQuery, FindingOrderField, FindingSecurityLevel } from '@repo/codegen/src/schema'
 import { AdditionalFields } from '../create/form/fields/additional-fields'
 import { FilterIcons } from '@/components/shared/enum-mapper/filter-icons'
@@ -155,6 +156,13 @@ export const getFieldsToRender = (props: FindingFieldProps, enumOptions: EnumOpt
           badge={showBadge ? <PastDueBadge severity={findingData?.securityLevel} createdAt={findingData?.createdAt} /> : undefined}
         />
       </div>
+      <DescriptionField
+        key={props.isCreate ? 'create-description' : `${findingData?.id}-description`}
+        isEditing={props.isEditing}
+        isCreate={props.isCreate}
+        initialValue={props.isCreate ? '' : (findingData?.description ?? '')}
+        isFormInitialized={props.isFormInitialized}
+      />
       <AdditionalFields
         isEditing={props.isEditing}
         isEditAllowed={props.isEditAllowed}
