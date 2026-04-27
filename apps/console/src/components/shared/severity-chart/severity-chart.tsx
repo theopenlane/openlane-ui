@@ -26,8 +26,8 @@ const LABELS: Record<Props['variant'], string> = {
 }
 
 const SeverityChart: React.FC<Props> = ({ variant, selectedSeverity, onSeveritySelect }) => {
-  const vulnCounts = useVulnerabilitySeverityCounts()
-  const findingCounts = useFindingSeverityCounts()
+  const vulnCounts = useVulnerabilitySeverityCounts(variant === 'vulnerability')
+  const findingCounts = useFindingSeverityCounts(variant === 'finding')
   const counts = variant === 'finding' ? findingCounts : vulnCounts
   const total = counts.critical + counts.high + counts.medium + counts.low
 
