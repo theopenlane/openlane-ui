@@ -13,7 +13,7 @@ import { type UpdateFindingInput, FindingSecurityLevel } from '@repo/codegen/src
 import { useFindingSheetConfig } from '../hooks/use-finding-sheet-config'
 import TaskDetailsSheet from '../../tasks/create-task/sidebar/task-details-sheet'
 import ViewFindingSheet from '../view-finding-sheet'
-import { FindingSeverityChart } from '../../vulnerabilities/table/severity-chart'
+import { FindingSeverityChart } from '@/components/shared/severity-chart/severity-chart'
 
 const DEFAULT_FILTER_VALUES = { open: true }
 

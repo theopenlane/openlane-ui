@@ -13,7 +13,7 @@ import {
   useBulkDeleteVulnerability,
   useGetVulnerabilityAssociations,
 } from '@/lib/graphql-hooks/vulnerability'
-import VulnerabilitySeverityChart from './severity-chart'
+import VulnerabilitySeverityChart from '@/components/shared/severity-chart/severity-chart'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { GenericTablePage } from '@/components/shared/crud-base/page'
 import { breadcrumbs, getFieldsToRender, getFilterFields, visibilityFields } from './table-config'
