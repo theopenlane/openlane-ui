@@ -35350,6 +35350,8 @@ export interface OrganizationSetting extends Node {
   organizationID?: Maybe<Scalars['ID']['output']>
   /** whether or not a payment method has been added to the account */
   paymentMethodAdded: Scalars['Boolean']['output']
+  /** when will this organization be deleted? usually this is after org has not added a payment method afte n period */
+  pendingDeletionAt?: Maybe<Scalars['DateTime']['output']>
   /** the x509 certificate used to validate SAML responses */
   samlCert?: Maybe<Scalars['String']['output']>
   /** the SAML issuer */
@@ -35723,6 +35725,20 @@ export interface OrganizationSettingWhereInput {
   organizationIDNEQ?: InputMaybe<Scalars['ID']['input']>
   organizationIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   organizationIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** payment_method_added field predicates */
+  paymentMethodAdded?: InputMaybe<Scalars['Boolean']['input']>
+  paymentMethodAddedNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  /** pending_deletion_at field predicates */
+  pendingDeletionAt?: InputMaybe<Scalars['DateTime']['input']>
+  pendingDeletionAtGT?: InputMaybe<Scalars['DateTime']['input']>
+  pendingDeletionAtGTE?: InputMaybe<Scalars['DateTime']['input']>
+  pendingDeletionAtIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  pendingDeletionAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  pendingDeletionAtLT?: InputMaybe<Scalars['DateTime']['input']>
+  pendingDeletionAtLTE?: InputMaybe<Scalars['DateTime']['input']>
+  pendingDeletionAtNEQ?: InputMaybe<Scalars['DateTime']['input']>
+  pendingDeletionAtNotIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
+  pendingDeletionAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** saml_cert field predicates */
   samlCert?: InputMaybe<Scalars['String']['input']>
   samlCertContains?: InputMaybe<Scalars['String']['input']>
@@ -57331,6 +57347,7 @@ export interface UpdateOrganizationSettingInput {
   clearMultifactorAuthEnforced?: InputMaybe<Scalars['Boolean']['input']>
   clearOidcDiscoveryEndpoint?: InputMaybe<Scalars['Boolean']['input']>
   clearOrganization?: InputMaybe<Scalars['Boolean']['input']>
+  clearPendingDeletionAt?: InputMaybe<Scalars['Boolean']['input']>
   clearSamlCert?: InputMaybe<Scalars['Boolean']['input']>
   clearSamlIssuer?: InputMaybe<Scalars['Boolean']['input']>
   clearSamlSigninURL?: InputMaybe<Scalars['Boolean']['input']>
@@ -57359,6 +57376,8 @@ export interface UpdateOrganizationSettingInput {
   /** OIDC discovery URL for the SSO provider */
   oidcDiscoveryEndpoint?: InputMaybe<Scalars['String']['input']>
   organizationID?: InputMaybe<Scalars['ID']['input']>
+  /** when will this organization be deleted? usually this is after org has not added a payment method afte n period */
+  pendingDeletionAt?: InputMaybe<Scalars['DateTime']['input']>
   removeFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the x509 certificate used to validate SAML responses */
   samlCert?: InputMaybe<Scalars['String']['input']>
@@ -76966,10 +76985,13 @@ export type VulnerabilityQuery = {
     externalID: string
     externalOwnerID?: string | null
     externalURI?: string | null
+    firstPatchedVersion?: string | null
     id: string
     impact?: number | null
     metadata?: any | null
     open?: boolean | null
+    packageEcosystem?: string | null
+    packageName?: string | null
     priority?: string | null
     production?: boolean | null
     public?: boolean | null
@@ -76993,6 +77015,7 @@ export type VulnerabilityQuery = {
     validated?: boolean | null
     vector?: string | null
     vulnerabilityStatusName?: string | null
+    vulnerableVersionRange?: string | null
     remediations: {
       __typename?: 'RemediationConnection'
       totalCount: number
