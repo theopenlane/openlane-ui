@@ -22,21 +22,21 @@
     "apps/console/**/*.{js,jsx,ts,tsx}": "eslint --no-warn-ignored --max-warnings=0 --fix"
   },
   "devDependencies": {
-    "@eslint-react/eslint-plugin": "^3.0.0",
-    "@graphql-codegen/typescript-react-query": "^7.0.0",
+    "@eslint-react/eslint-plugin": "^4.2.3",
+    "@graphql-codegen/typescript-react-query": "^7.0.1",
     "@types/dompurify": "^3.2.0",
-    "dompurify": "^3.3.3",
+    "dompurify": "^3.4.1",
     "dotenv-cli": "^11.0.0",
     "eslint": "10.2.1",
-    "eslint-plugin-react-hooks": "^7.0.1",
+    "eslint-plugin-react-hooks": "^7.1.1",
     "husky": "^9.1.7",
-    "lint-staged": "^16.3.2",
-    "prettier": "^3.5.3",
+    "lint-staged": "^16.4.0",
+    "prettier": "^3.8.3",
     "prettier-plugin-tailwindcss": "latest",
     "turbo": "^2.9.6"
   },
   "engines": {
-    "node": "24.14.x"
+    "node": "24.15.x"
   },
   "packageManager": "bun@1.2.16",
   "workspaces": [
@@ -58,18 +58,18 @@
   "dependencies": {
     "@emoji-mart/data": "^1.2.1",
     "@emoji-mart/react": "^1.1.1",
-    "@google-cloud/aiplatform": "^6.0.0",
-    "@google-cloud/storage": "^7.18.0",
-    "@google/genai": "^1.48.0",
+    "@google-cloud/aiplatform": "^6.6.0",
+    "@google-cloud/storage": "^7.19.0",
+    "@google/genai": "^1.50.1",
     "@platejs/docx-io": "^52.3.10",
-    "@radix-ui/react-icons": "^1.3.0",
-    "@react-pdf/renderer": "^4.3.2",
-    "@turbo/codemod": "^2.5.4",
+    "@radix-ui/react-icons": "^1.3.2",
+    "@react-pdf/renderer": "^4.5.1",
+    "@turbo/codemod": "^2.9.6",
     "@types/file-saver": "^2.0.7",
-    "@xyflow/react": "^12.10.1",
-    "docx": "^9.5.1",
+    "@xyflow/react": "^12.10.2",
+    "docx": "^9.6.1",
     "emoji-mart": "^5.6.0",
     "file-saver": "^2.0.5",
-    "google-auth-library": "^10.5.0"
+    "google-auth-library": "^10.6.2"
   }
 }

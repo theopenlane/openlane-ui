@@ -85,18 +85,18 @@ export default function AdvancedSetupWizard() {
   const disabledIDs = framework === 'SOC 2' ? [] : ['2']
 
   const handleNext = async () => {
-    if (!stepper.isLast) {
-      const valid = await validateStepAndNotify(form, stepper.current.id, errorNotification)
+    if (!stepper.state.isLast) {
+      const valid = await validateStepAndNotify(form, stepper.state.current.data.id, errorNotification)
       if (!valid) return
 
-      let nextStepIndex = stepper.all.findIndex((s) => s.id === stepper.current.id) + 1
-      while (disabledIDs.includes(stepper.all[nextStepIndex]?.id)) {
+      let nextStepIndex = stepper.state.all.findIndex((s) => s.id === stepper.state.current.data.id) + 1
+      while (disabledIDs.includes(stepper.state.all[nextStepIndex]?.id)) {
         nextStepIndex++
       }
 
-      const nextStep = stepper.all[nextStepIndex]
+      const nextStep = stepper.state.all[nextStepIndex]
       if (nextStep) {
-        stepper.goTo(nextStep.id)
+        stepper.navigation.goTo(nextStep.id)
       }
     } else {
       const validAll = await validateFullAndNotify(form, errorNotification)
@@ -106,20 +106,20 @@ export default function AdvancedSetupWizard() {
   }
 
   const handleBack = () => {
-    if (stepper.isFirst) {
+    if (stepper.state.isFirst) {
       setShowExitConfirm(true)
     } else {
-      stepper.prev()
+      stepper.navigation.prev()
     }
 
-    let prevStepIndex = stepper.all.findIndex((s) => s.id === stepper.current.id) - 1
-    while (disabledIDs.includes(stepper.all[prevStepIndex]?.id)) {
+    let prevStepIndex = stepper.state.all.findIndex((s) => s.id === stepper.state.current.data.id) - 1
+    while (disabledIDs.includes(stepper.state.all[prevStepIndex]?.id)) {
       prevStepIndex--
     }
 
-    const prevStep = stepper.all[prevStepIndex]
+    const prevStep = stepper.state.all[prevStepIndex]
     if (prevStep) {
-      stepper.goTo(prevStep.id)
+      stepper.navigation.goTo(prevStep.id)
     }
   }
 
@@ -189,7 +189,7 @@ export default function AdvancedSetupWizard() {
     }
   }
 
-  const currentIndex = stepper.all.findIndex((item: Step) => item.id === stepper.current.id)
+  const currentIndex = stepper.state.all.findIndex((item: Step) => item.id === stepper.state.current.data.id)
 
   useEffect(() => {
     setSummaryData(form.getValues() as WizardValues)
@@ -210,10 +210,10 @@ export default function AdvancedSetupWizard() {
       <div className="max-w-6xl mx-auto px-6 py-2">
         <StepHeader stepper={stepper} disabledIDs={disabledIDs} className="mb-6" />
         <Separator separatorClass="bg-card" />
-        <FormProvider key={stepper.current.id} {...form}>
+        <FormProvider key={stepper.state.current.data.id} {...form}>
           <div className="py-6 flex gap-16">
             <div className="flex flex-col flex-1">
-              {stepper.switch({
+              {stepper.flow.switch({
                 0: () => <AdvancedSetupStep1 />,
                 1: () => <AdvancedSetupStep2 />,
                 2: () => <SelectCategoryStep />,
@@ -227,12 +227,12 @@ export default function AdvancedSetupWizard() {
                   Back
                 </Button>
                 <Button variant="primary" onClick={handleNext} disabled={isPending} loading={isPending}>
-                  {stepper.isLast ? 'Create' : 'Continue'}
+                  {stepper.state.isLast ? 'Create' : 'Continue'}
                 </Button>
               </div>
             </div>
             <div className="flex flex-col items-center">
-              {stepper.current.id === '4' && (
+              {stepper.state.current.data.id === '4' && (
                 <div className="w-full flex justify-end">
                   <Button variant="secondary" type="button" onClick={() => setIsMemberSheetOpen(true)} iconPosition="left">
                     Invite member

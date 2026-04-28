@@ -83,6 +83,7 @@ export const nextJsConfig = [
       // React quality
       'react-hooks/exhaustive-deps': 'error',
       'react-hooks/set-state-in-effect': 'off',
+      'react-hooks/incompatible-library': 'off',
       '@eslint-react/hooks-extra/no-direct-set-state-in-use-effect': 'off',
       '@eslint-react/set-state-in-effect': 'off',
       '@eslint-react/no-array-index-key': 'off',
