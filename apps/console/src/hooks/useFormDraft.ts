@@ -75,6 +75,7 @@ export function useFormDraft<TForm extends FieldValues, TStore = unknown>(opts: 
 
   useEffect(() => {
     if (!enabled) {
+      setPendingDraft(null)
       setDecisionMade(true)
       return
     }
@@ -82,6 +83,7 @@ export function useFormDraft<TForm extends FieldValues, TStore = unknown>(opts: 
     if (draft) {
       setPendingDraft(draft)
     } else {
+      setPendingDraft(null)
       setDecisionMade(true)
     }
   }, [storageKey, enabled])
