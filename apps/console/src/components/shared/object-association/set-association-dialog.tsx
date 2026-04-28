@@ -58,11 +58,6 @@ export function SetAssociationDialog<TRootField extends string, TSectionKey exte
 
   const initialData: TObjectAssociationMap<TFieldKey> = useMemo(() => buildInitialAssociationIds<TRootField, TFieldKey>(config, associationsData), [config, associationsData])
 
-  const initialDataRef = useRef(initialData)
-  useEffect(() => {
-    initialDataRef.current = initialData
-  }, [initialData])
-
   const handleOpenChange = useCallback(
     (next: boolean) => {
       if (!isControlled) setUncontrolledOpen(next)
@@ -72,24 +67,30 @@ export function SetAssociationDialog<TRootField extends string, TSectionKey exte
   )
 
   const wasOpenRef = useRef(false)
+  const initialDataAppliedRef = useRef(false)
   useEffect(() => {
     if (open && !wasOpenRef.current) {
       setObjectAssociationKey((prev) => prev + 1)
-      setAssociations(initialDataRef.current)
+      setAssociations(initialData)
+      initialDataAppliedRef.current = Object.keys(initialData).length > 0
     } else if (!open && wasOpenRef.current) {
       setAssociations({})
+      initialDataAppliedRef.current = false
+    } else if (open && !initialDataAppliedRef.current && Object.keys(initialData).length > 0) {
+      setAssociations(initialData)
+      initialDataAppliedRef.current = true
     }
     wasOpenRef.current = open
-  }, [open])
-
-  useEffect(() => {
-    if (open) setAssociations(initialData)
-  }, [initialData, open])
+  }, [open, initialData])
 
   const onSave = async () => {
     setIsSaving(true)
     try {
       const associationInputs = getAssociationInput(initialData, associations)
+      if (Object.keys(associationInputs).length === 0) {
+        handleOpenChange(false)
+        return
+      }
       await onUpdate(associationInputs)
 
       queryClient.invalidateQueries({ queryKey: [config.invalidateQueryKey] })
