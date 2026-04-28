@@ -169,27 +169,31 @@ export const useGetFindingAssociations = (findingId?: string) => {
   })
 }
 
-export const useFindingSeverityCounts = () => {
+export const useFindingSeverityCounts = (enabled: boolean = true) => {
   const { client } = useGraphQLClient()
 
   const critical = useQuery<FindingsWithFilterQuery, unknown>({
     queryKey: ['findings', 'severity-count', 'critical'],
     queryFn: async () => client.request<FindingsWithFilterQuery>(GET_ALL_FINDINGS, { where: { securityLevelIn: [FindingSecurityLevel.CRITICAL], open: true }, first: 1 }),
+    enabled,
   })
 
   const high = useQuery<FindingsWithFilterQuery, unknown>({
     queryKey: ['findings', 'severity-count', 'high'],
     queryFn: async () => client.request<FindingsWithFilterQuery>(GET_ALL_FINDINGS, { where: { securityLevelIn: [FindingSecurityLevel.HIGH], open: true }, first: 1 }),
+    enabled,
   })
 
   const medium = useQuery<FindingsWithFilterQuery, unknown>({
     queryKey: ['findings', 'severity-count', 'medium'],
     queryFn: async () => client.request<FindingsWithFilterQuery>(GET_ALL_FINDINGS, { where: { securityLevelIn: [FindingSecurityLevel.MEDIUM], open: true }, first: 1 }),
+    enabled,
   })
 
   const low = useQuery<FindingsWithFilterQuery, unknown>({
     queryKey: ['findings', 'severity-count', 'low'],
     queryFn: async () => client.request<FindingsWithFilterQuery>(GET_ALL_FINDINGS, { where: { securityLevelIn: [FindingSecurityLevel.LOW], open: true }, first: 1 }),
+    enabled,
   })
 
   return {

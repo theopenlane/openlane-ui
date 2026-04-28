@@ -19,6 +19,7 @@ import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { formatDateTime } from '@/utils/date'
 import { normalizeUrl } from '@/utils/normalizeUrl'
 import { getSeverityStyle } from '@/utils/severity'
+import { toUpperSnakeCase } from '@/utils/strings'
 
 interface AdditionalFieldsProps {
   isEditing: boolean
@@ -85,9 +86,6 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
           <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-2">
             <TextField name="category" label="Category" formatDisplayValue={plainChipDisplay} {...sharedFieldProps} />
             <TextField name="findingClass" label="Finding Class" formatDisplayValue={enumChipDisplay} {...sharedFieldProps} />
-          </div>
-          <div>
-            <TextField name="description" label="Description" multiline {...sharedFieldProps} />
           </div>
         </CardContent>
       </Card>
@@ -404,7 +402,7 @@ const TargetDetailsFields: React.FC<{ value: Record<string, unknown> }> = ({ val
     <div className="space-y-4">
       {entries.map(([key, val]) => (
         <div key={key}>
-          <div className="text-xs uppercase text-muted-foreground tracking-wide mb-2">{key}</div>
+          <div className="text-xs text-muted-foreground tracking-wide mb-2">{toUpperSnakeCase(key)}</div>
           <TargetNode value={val} />
         </div>
       ))}

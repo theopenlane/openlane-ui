@@ -6,6 +6,15 @@ export function objectToSnakeCase(object: string | undefined): string {
     .toLowerCase()
 }
 
+export const toUpperSnakeCase = (input: string): string => {
+  if (!input) return ''
+  return input
+    .replace(/([A-Z]+)([A-Z][a-z])/g, '$1_$2')
+    .replace(/([a-z\d])([A-Z])/g, '$1_$2')
+    .replace(/[\s-]+/g, '_')
+    .toUpperCase()
+}
+
 export function toHumanLabel(input: string): string {
   if (!input) return ''
 
