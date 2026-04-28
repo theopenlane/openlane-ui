@@ -29,6 +29,10 @@ import { useSession } from 'next-auth/react'
 import { useGetCurrentUser } from '@/lib/graphql-hooks/user.ts'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { SaveButton } from '@/components/shared/save-button/save-button.tsx'
+import { useFormDraft, type AssociationDraftStore } from '@/hooks/useFormDraft.ts'
+import DraftRestoreModal from '@/components/shared/draft-restore-modal/draft-restore-modal.tsx'
+
+const PROCEDURE_DRAFT_KEY = 'draft:procedure-create'
 
 type TCreateProcedureFormProps = {
   procedure?: ProcedureByIdFragment
@@ -72,6 +76,21 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
   const plateEditorHelper = usePlateEditor()
 
   const isProcedureCreate = path === '/procedures/create'
+
+  const { pendingDraft, restore, discard, clearDraft, editorKey } = useFormDraft<CreateProcedureFormData, AssociationDraftStore>({
+    storageKey: PROCEDURE_DRAFT_KEY,
+    enabled: !isEditable,
+    form,
+    subscribeStore: (listener) => useProcedure.subscribe(listener),
+    getStoreSnapshot: () => ({
+      associations: useProcedure.getState().associations,
+      associationRefCodes: useProcedure.getState().associationRefCodes,
+    }),
+    applyStoreSnapshot: (snap) => {
+      useProcedure.getState().setAssociations(snap.associations ?? {})
+      useProcedure.getState().setAssociationRefCodes(snap.associationRefCodes ?? {})
+    },
+  })
 
   useEffect(() => {
     setCrumbs([
@@ -163,6 +182,8 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
         title: 'Procedure Created',
         description: 'Procedure has been successfully created',
       })
+
+      clearDraft()
 
       if (createMultiple) {
         setClearData(true)
@@ -288,6 +309,7 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
   return (
     <>
       {isEditable && <title>{`${currentOrganization?.node?.displayName}: Procedures - ${procedure?.name}`}</title>}
+      {pendingDraft && <DraftRestoreModal open savedAt={pendingDraft.savedAt} entityLabel="procedure" onResume={restore} onDiscard={discard} />}
       <Form {...form}>
         <form onSubmit={form.handleSubmit(isEditable ? onSaveHandler : onCreateHandler)} className="flex flex-col lg:flex-row gap-6 w-full">
           <div className="flex-1 space-y-6 min-w-0">
@@ -348,13 +370,14 @@ const CreateProcedureForm: React.FC<TCreateProcedureFormProps> = ({ procedure })
                       content={<p>Outline the task requirements and specific instructions for the assignee to ensure successful completion.</p>}
                     />
                     <PlateEditor
+                      key={editorKey}
                       onChange={handleDetailsChange}
                       userData={userData}
                       entity={discussionData?.procedure}
                       clearData={clearData}
                       onClear={() => setClearData(false)}
                       isCreate={!procedure?.id}
-                      initialValue={procedure?.detailsJSON ?? procedure?.details ?? (form.getValues('details') as string) ?? undefined}
+                      initialValue={procedure?.detailsJSON ?? procedure?.details ?? form.getValues('detailsJSON') ?? (form.getValues('details') as string) ?? undefined}
                     />
                     {form.formState.errors.details && <p className="text-red-500 text-sm">{form.formState.errors?.details?.message}</p>}
                   </FormItem>

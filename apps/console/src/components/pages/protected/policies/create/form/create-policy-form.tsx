@@ -27,6 +27,10 @@ import { useGetCurrentUser } from '@/lib/graphql-hooks/user.ts'
 import { useSession } from 'next-auth/react'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
 import { SaveButton } from '@/components/shared/save-button/save-button'
+import { useFormDraft, type AssociationDraftStore } from '@/hooks/useFormDraft.ts'
+import DraftRestoreModal from '@/components/shared/draft-restore-modal/draft-restore-modal.tsx'
+
+const POLICY_DRAFT_KEY = 'draft:policy-create'
 
 type TCreatePolicyFormProps = {
   policy?: InternalPolicyByIdFragment
@@ -66,6 +70,21 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
   const userId = sessionData?.user.userId
   const { data: userData } = useGetCurrentUser(userId)
   const plateEditorHelper = usePlateEditor()
+
+  const { pendingDraft, restore, discard, clearDraft, editorKey } = useFormDraft<CreatePolicyFormData, AssociationDraftStore>({
+    storageKey: POLICY_DRAFT_KEY,
+    enabled: !isEditable,
+    form,
+    subscribeStore: (listener) => usePolicy.subscribe(listener),
+    getStoreSnapshot: () => ({
+      associations: usePolicy.getState().associations,
+      associationRefCodes: usePolicy.getState().associationRefCodes,
+    }),
+    applyStoreSnapshot: (snap) => {
+      usePolicy.getState().setAssociations(snap.associations ?? {})
+      usePolicy.getState().setAssociationRefCodes(snap.associationRefCodes ?? {})
+    },
+  })
 
   useEffect(() => {
     if (policy && assocData) {
@@ -136,6 +155,8 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
         title: 'Policy Created',
         description: 'Policy has been successfully created',
       })
+
+      clearDraft()
 
       if (createMultiple) {
         setClearData(true)
@@ -259,6 +280,7 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
   return (
     <>
       <title>{`${currentOrganization?.node?.displayName ?? 'Openlane'} | Internal Policies - ${policy?.name}`}</title>
+      {pendingDraft && <DraftRestoreModal open savedAt={pendingDraft.savedAt} entityLabel="policy" onResume={restore} onDiscard={discard} />}
       <Form {...form}>
         <form onSubmit={form.handleSubmit(isEditable ? onSaveHandler : onCreateHandler)} className="flex flex-col lg:flex-row gap-6 w-full">
           <div className="flex-1 space-y-6 min-w-0">
@@ -314,6 +336,7 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
                       />
                     </div>
                     <PlateEditor
+                      key={editorKey}
                       ref={editorRef}
                       onChange={handleDetailsChange}
                       userData={userData}
@@ -321,7 +344,7 @@ const CreatePolicyForm: React.FC<TCreatePolicyFormProps> = ({ policy }) => {
                       clearData={clearData}
                       isCreate={!policy?.id}
                       onClear={() => setClearData(false)}
-                      initialValue={policy?.detailsJSON ?? policy?.details ?? (form.getValues('details') as string) ?? undefined}
+                      initialValue={policy?.detailsJSON ?? policy?.details ?? form.getValues('detailsJSON') ?? (form.getValues('details') as string) ?? undefined}
                     />
                     {form.formState.errors.details && <p className="text-red-500 text-sm">{form.formState.errors?.details?.message}</p>}
                   </FormItem>
