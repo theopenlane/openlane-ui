@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useMemo } from 'react'
 import { ChevronDown, ChevronUp } from 'lucide-react'
 import { FormProvider, type UseFormReturn } from 'react-hook-form'
 import { Badge } from '@repo/ui/badge'
@@ -10,7 +10,7 @@ import { Separator } from '@repo/ui/separator'
 import { getProviderHelperContent } from '@/lib/integrations/provider-helper-content'
 import { type IntegrationProvider } from '@/lib/integrations/types'
 import { type FormValues, type SchemaSection } from '@/lib/integrations/schema'
-import { resolveConnectionEntry, resolveSchemaRoot } from '@/lib/integrations/utils'
+import { disabledOperationConfigKeys, resolveConnectionEntry, resolveSchemaRoot } from '@/lib/integrations/utils'
 import { IntegrationSchemaSections } from './schema-form'
 
 type CredentialConnectionSectionProps = {
@@ -43,6 +43,8 @@ const CredentialConnectionSection = ({
   const credentialEntries = provider.credentialSchemas ?? []
   const hasUserInputFields = userInputSections.length > 0
   const providerHelper = getProviderHelperContent(provider)
+
+  const disabledConfigKeys = useMemo(() => disabledOperationConfigKeys(provider), [provider])
 
   if (credentialEntries.length === 0) {
     return null
@@ -85,7 +87,7 @@ const CredentialConnectionSection = ({
                             <div className="flex flex-1 flex-col min-w-0">
                               <h4 className="text-xs font-medium text-foreground mb-2">CREDENTIALS</h4>
                               {hasFields ? (
-                                <IntegrationSchemaSections sections={credentialSections} />
+                                <IntegrationSchemaSections sections={credentialSections} hideFieldKeys={disabledConfigKeys} />
                               ) : isAuth ? (
                                 <p className="text-xs text-muted-foreground">No credentials to manage - you will be redirected to authorize access</p>
                               ) : (
@@ -110,7 +112,7 @@ const CredentialConnectionSection = ({
                                 <Separator vertical className="mx-6 w-fit self-stretch" separatorClass="h-full" />
                                 <div className="flex-1 min-w-0">
                                   <h4 className="text-xs font-medium text-foreground mb-2">CONFIGURATION</h4>
-                                  <IntegrationSchemaSections sections={userInputSections} />
+                                  <IntegrationSchemaSections sections={userInputSections} hideFieldKeys={disabledConfigKeys} />
                                 </div>
                               </>
                             ) : null}

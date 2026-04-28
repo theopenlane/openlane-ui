@@ -185,7 +185,8 @@
   {
     "route": "/organization-settings/logs",
     "name": "Logs",
-    "keywords": ["audit logs", "activity", "history"]
+    "keywords": ["audit logs", "activity", "history"],
+    "hidden": true
   },
   {
     "route": "/organization-settings/subscribers",

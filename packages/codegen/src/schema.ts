@@ -4854,7 +4854,6 @@ export interface Control extends Node {
   /** category id of the control */
   categoryID?: Maybe<Scalars['String']['output']>
   comments: NoteConnection
-  controlHealths: ControlHealthConnection
   controlImplementations: ControlImplementationConnection
   controlKind?: Maybe<CustomTypeEnum>
   /** the kind of the control */
@@ -5026,15 +5025,6 @@ export interface ControlCommentsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<NoteOrder>>
   where?: InputMaybe<NoteWhereInput>
-}
-
-export interface ControlControlHealthsArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  orderBy?: InputMaybe<Array<ControlHealthOrder>>
-  where?: InputMaybe<ControlHealthWhereInput>
 }
 
 export interface ControlControlImplementationsArgs {
@@ -5434,364 +5424,6 @@ export interface ControlGroupEdge {
   __typename?: 'ControlGroupEdge'
   node: ControlGroup
   pageInfo: PageInfo
-}
-
-export interface ControlHealth extends Node {
-  __typename?: 'ControlHealth'
-  blockedGroups: GroupConnection
-  /** current status of the control */
-  checkStatus: ControlHealthControlCheckStatus
-  controls: ControlConnection
-  createdAt?: Maybe<Scalars['Time']['output']>
-  createdBy?: Maybe<Scalars['String']['output']>
-  /** optional details of the result */
-  details?: Maybe<Scalars['String']['output']>
-  editors: GroupConnection
-  /** link to the result in the source system */
-  externalURI?: Maybe<Scalars['String']['output']>
-  findings: FindingConnection
-  id: Scalars['ID']['output']
-  /** integration that owns this control health */
-  integration?: Maybe<Integration>
-  /** integration that owns this directory group */
-  integrationID?: Maybe<Scalars['ID']['output']>
-  /** timestamp the result was last updated */
-  lastObservedAt?: Maybe<Scalars['DateTime']['output']>
-  /** external parent reference id for the aggregate rule, e.g. in aws config this is the config rule name */
-  parentExternalID?: Maybe<Scalars['String']['output']>
-  /** source that set the health result */
-  source: Scalars['String']['output']
-  /** tags associated with the object */
-  tags?: Maybe<Array<Scalars['String']['output']>>
-  updatedAt?: Maybe<Scalars['Time']['output']>
-  updatedBy?: Maybe<Scalars['String']['output']>
-  viewers: GroupConnection
-}
-
-export interface ControlHealthBlockedGroupsArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  orderBy?: InputMaybe<Array<GroupOrder>>
-  where?: InputMaybe<GroupWhereInput>
-}
-
-export interface ControlHealthControlsArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  orderBy?: InputMaybe<Array<ControlOrder>>
-  where?: InputMaybe<ControlWhereInput>
-}
-
-export interface ControlHealthEditorsArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  orderBy?: InputMaybe<Array<GroupOrder>>
-  where?: InputMaybe<GroupWhereInput>
-}
-
-export interface ControlHealthFindingsArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  orderBy?: InputMaybe<Array<FindingOrder>>
-  where?: InputMaybe<FindingWhereInput>
-}
-
-export interface ControlHealthViewersArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  orderBy?: InputMaybe<Array<GroupOrder>>
-  where?: InputMaybe<GroupWhereInput>
-}
-
-/** Return response for createBulkControlHealth mutation */
-export interface ControlHealthBulkCreatePayload {
-  __typename?: 'ControlHealthBulkCreatePayload'
-  /** Created controlHealths */
-  controlHealths?: Maybe<Array<ControlHealth>>
-}
-
-/** Return response for deleteBulkControlHealth mutation */
-export interface ControlHealthBulkDeletePayload {
-  __typename?: 'ControlHealthBulkDeletePayload'
-  /** Deleted controlHealth IDs */
-  deletedIDs: Array<Scalars['ID']['output']>
-  /** Error message when the bulk delete did not apply to every requested ID */
-  error?: Maybe<Scalars['String']['output']>
-  /** IDs that were not deleted */
-  notDeletedIDs: Array<Scalars['ID']['output']>
-}
-
-/** Return response for updateBulkControlHealth mutation */
-export interface ControlHealthBulkUpdatePayload {
-  __typename?: 'ControlHealthBulkUpdatePayload'
-  /** Updated controlHealths */
-  controlHealths?: Maybe<Array<ControlHealth>>
-  /** IDs of the updated controlHealths */
-  updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
-}
-
-/** A connection to a list of items. */
-export interface ControlHealthConnection {
-  __typename?: 'ControlHealthConnection'
-  /** A list of edges. */
-  edges?: Maybe<Array<Maybe<ControlHealthEdge>>>
-  /** Information to aid in pagination. */
-  pageInfo: PageInfo
-  /** Identifies the total count of items in the connection. */
-  totalCount: Scalars['Int']['output']
-}
-
-/** ControlHealthControlCheckStatus is enum for the field check_status */
-export enum ControlHealthControlCheckStatus {
-  COMPLIANT = 'COMPLIANT',
-  NOT_COMPLIANT = 'NOT_COMPLIANT',
-  UNKNOWN = 'UNKNOWN',
-}
-
-/** Return response for createControlHealth mutation */
-export interface ControlHealthCreatePayload {
-  __typename?: 'ControlHealthCreatePayload'
-  /** Created controlHealth */
-  controlHealth: ControlHealth
-}
-
-/** Return response for deleteControlHealth mutation */
-export interface ControlHealthDeletePayload {
-  __typename?: 'ControlHealthDeletePayload'
-  /** Deleted controlHealth ID */
-  deletedID: Scalars['ID']['output']
-}
-
-/** An edge in a connection. */
-export interface ControlHealthEdge {
-  __typename?: 'ControlHealthEdge'
-  /** A cursor for use in pagination. */
-  cursor: Scalars['Cursor']['output']
-  /** The item at the end of the edge. */
-  node?: Maybe<ControlHealth>
-}
-
-/** Ordering options for ControlHealth connections */
-export interface ControlHealthOrder {
-  /** The ordering direction. */
-  direction?: OrderDirection
-  /** The field by which to order ControlHealths. */
-  field: ControlHealthOrderField
-}
-
-/** Properties by which ControlHealth connections can be ordered. */
-export enum ControlHealthOrderField {
-  CHECK_STATUS = 'CHECK_STATUS',
-  created_at = 'created_at',
-  observed_at = 'observed_at',
-  source = 'source',
-  updated_at = 'updated_at',
-}
-
-/** Return response for updateControlHealth mutation */
-export interface ControlHealthUpdatePayload {
-  __typename?: 'ControlHealthUpdatePayload'
-  /** Updated controlHealth */
-  controlHealth: ControlHealth
-}
-
-/**
- * ControlHealthWhereInput is used for filtering ControlHealth objects.
- * Input was generated by ent.
- */
-export interface ControlHealthWhereInput {
-  and?: InputMaybe<Array<ControlHealthWhereInput>>
-  /** check_status field predicates */
-  checkStatus?: InputMaybe<ControlHealthControlCheckStatus>
-  checkStatusIn?: InputMaybe<Array<ControlHealthControlCheckStatus>>
-  checkStatusNEQ?: InputMaybe<ControlHealthControlCheckStatus>
-  checkStatusNotIn?: InputMaybe<Array<ControlHealthControlCheckStatus>>
-  /** created_at field predicates */
-  createdAt?: InputMaybe<Scalars['Time']['input']>
-  createdAtGT?: InputMaybe<Scalars['Time']['input']>
-  createdAtGTE?: InputMaybe<Scalars['Time']['input']>
-  createdAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  createdAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  createdAtLT?: InputMaybe<Scalars['Time']['input']>
-  createdAtLTE?: InputMaybe<Scalars['Time']['input']>
-  createdAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  createdAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  createdAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** created_by field predicates */
-  createdBy?: InputMaybe<Scalars['String']['input']>
-  createdByContains?: InputMaybe<Scalars['String']['input']>
-  createdByContainsFold?: InputMaybe<Scalars['String']['input']>
-  createdByEqualFold?: InputMaybe<Scalars['String']['input']>
-  createdByGT?: InputMaybe<Scalars['String']['input']>
-  createdByGTE?: InputMaybe<Scalars['String']['input']>
-  createdByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  createdByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  createdByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  createdByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  createdByLT?: InputMaybe<Scalars['String']['input']>
-  createdByLTE?: InputMaybe<Scalars['String']['input']>
-  createdByNEQ?: InputMaybe<Scalars['String']['input']>
-  createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** details field predicates */
-  details?: InputMaybe<Scalars['String']['input']>
-  detailsContains?: InputMaybe<Scalars['String']['input']>
-  detailsContainsFold?: InputMaybe<Scalars['String']['input']>
-  detailsEqualFold?: InputMaybe<Scalars['String']['input']>
-  detailsGT?: InputMaybe<Scalars['String']['input']>
-  detailsGTE?: InputMaybe<Scalars['String']['input']>
-  detailsHasPrefix?: InputMaybe<Scalars['String']['input']>
-  detailsHasSuffix?: InputMaybe<Scalars['String']['input']>
-  detailsIn?: InputMaybe<Array<Scalars['String']['input']>>
-  detailsIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  detailsLT?: InputMaybe<Scalars['String']['input']>
-  detailsLTE?: InputMaybe<Scalars['String']['input']>
-  detailsNEQ?: InputMaybe<Scalars['String']['input']>
-  detailsNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  detailsNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** external_uri field predicates */
-  externalURI?: InputMaybe<Scalars['String']['input']>
-  externalURIContains?: InputMaybe<Scalars['String']['input']>
-  externalURIContainsFold?: InputMaybe<Scalars['String']['input']>
-  externalURIEqualFold?: InputMaybe<Scalars['String']['input']>
-  externalURIGT?: InputMaybe<Scalars['String']['input']>
-  externalURIGTE?: InputMaybe<Scalars['String']['input']>
-  externalURIHasPrefix?: InputMaybe<Scalars['String']['input']>
-  externalURIHasSuffix?: InputMaybe<Scalars['String']['input']>
-  externalURIIn?: InputMaybe<Array<Scalars['String']['input']>>
-  externalURIIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  externalURILT?: InputMaybe<Scalars['String']['input']>
-  externalURILTE?: InputMaybe<Scalars['String']['input']>
-  externalURINEQ?: InputMaybe<Scalars['String']['input']>
-  externalURINotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  externalURINotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** blocked_groups edge predicates */
-  hasBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
-  hasBlockedGroupsWith?: InputMaybe<Array<GroupWhereInput>>
-  /** controls edge predicates */
-  hasControls?: InputMaybe<Scalars['Boolean']['input']>
-  hasControlsWith?: InputMaybe<Array<ControlWhereInput>>
-  /** editors edge predicates */
-  hasEditors?: InputMaybe<Scalars['Boolean']['input']>
-  hasEditorsWith?: InputMaybe<Array<GroupWhereInput>>
-  /** findings edge predicates */
-  hasFindings?: InputMaybe<Scalars['Boolean']['input']>
-  hasFindingsWith?: InputMaybe<Array<FindingWhereInput>>
-  /** integration edge predicates */
-  hasIntegration?: InputMaybe<Scalars['Boolean']['input']>
-  hasIntegrationWith?: InputMaybe<Array<IntegrationWhereInput>>
-  /** viewers edge predicates */
-  hasViewers?: InputMaybe<Scalars['Boolean']['input']>
-  hasViewersWith?: InputMaybe<Array<GroupWhereInput>>
-  /** id field predicates */
-  id?: InputMaybe<Scalars['ID']['input']>
-  idContainsFold?: InputMaybe<Scalars['ID']['input']>
-  idEqualFold?: InputMaybe<Scalars['ID']['input']>
-  idGT?: InputMaybe<Scalars['ID']['input']>
-  idGTE?: InputMaybe<Scalars['ID']['input']>
-  idIn?: InputMaybe<Array<Scalars['ID']['input']>>
-  idLT?: InputMaybe<Scalars['ID']['input']>
-  idLTE?: InputMaybe<Scalars['ID']['input']>
-  idNEQ?: InputMaybe<Scalars['ID']['input']>
-  idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
-  /** integration_id field predicates */
-  integrationID?: InputMaybe<Scalars['ID']['input']>
-  integrationIDContains?: InputMaybe<Scalars['ID']['input']>
-  integrationIDContainsFold?: InputMaybe<Scalars['ID']['input']>
-  integrationIDEqualFold?: InputMaybe<Scalars['ID']['input']>
-  integrationIDGT?: InputMaybe<Scalars['ID']['input']>
-  integrationIDGTE?: InputMaybe<Scalars['ID']['input']>
-  integrationIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
-  integrationIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
-  integrationIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
-  integrationIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  integrationIDLT?: InputMaybe<Scalars['ID']['input']>
-  integrationIDLTE?: InputMaybe<Scalars['ID']['input']>
-  integrationIDNEQ?: InputMaybe<Scalars['ID']['input']>
-  integrationIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
-  integrationIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** last_observed_at field predicates */
-  lastObservedAt?: InputMaybe<Scalars['DateTime']['input']>
-  lastObservedAtGT?: InputMaybe<Scalars['DateTime']['input']>
-  lastObservedAtGTE?: InputMaybe<Scalars['DateTime']['input']>
-  lastObservedAtIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
-  lastObservedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  lastObservedAtLT?: InputMaybe<Scalars['DateTime']['input']>
-  lastObservedAtLTE?: InputMaybe<Scalars['DateTime']['input']>
-  lastObservedAtNEQ?: InputMaybe<Scalars['DateTime']['input']>
-  lastObservedAtNotIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
-  lastObservedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  not?: InputMaybe<ControlHealthWhereInput>
-  or?: InputMaybe<Array<ControlHealthWhereInput>>
-  /** parent_external_id field predicates */
-  parentExternalID?: InputMaybe<Scalars['String']['input']>
-  parentExternalIDContains?: InputMaybe<Scalars['String']['input']>
-  parentExternalIDContainsFold?: InputMaybe<Scalars['String']['input']>
-  parentExternalIDEqualFold?: InputMaybe<Scalars['String']['input']>
-  parentExternalIDGT?: InputMaybe<Scalars['String']['input']>
-  parentExternalIDGTE?: InputMaybe<Scalars['String']['input']>
-  parentExternalIDHasPrefix?: InputMaybe<Scalars['String']['input']>
-  parentExternalIDHasSuffix?: InputMaybe<Scalars['String']['input']>
-  parentExternalIDIn?: InputMaybe<Array<Scalars['String']['input']>>
-  parentExternalIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  parentExternalIDLT?: InputMaybe<Scalars['String']['input']>
-  parentExternalIDLTE?: InputMaybe<Scalars['String']['input']>
-  parentExternalIDNEQ?: InputMaybe<Scalars['String']['input']>
-  parentExternalIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  parentExternalIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** source field predicates */
-  source?: InputMaybe<Scalars['String']['input']>
-  sourceContains?: InputMaybe<Scalars['String']['input']>
-  sourceContainsFold?: InputMaybe<Scalars['String']['input']>
-  sourceEqualFold?: InputMaybe<Scalars['String']['input']>
-  sourceGT?: InputMaybe<Scalars['String']['input']>
-  sourceGTE?: InputMaybe<Scalars['String']['input']>
-  sourceHasPrefix?: InputMaybe<Scalars['String']['input']>
-  sourceHasSuffix?: InputMaybe<Scalars['String']['input']>
-  sourceIn?: InputMaybe<Array<Scalars['String']['input']>>
-  sourceLT?: InputMaybe<Scalars['String']['input']>
-  sourceLTE?: InputMaybe<Scalars['String']['input']>
-  sourceNEQ?: InputMaybe<Scalars['String']['input']>
-  sourceNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  /** Filter for tagsHas to contain a specific value */
-  tagsHas?: InputMaybe<Scalars['String']['input']>
-  /** updated_at field predicates */
-  updatedAt?: InputMaybe<Scalars['Time']['input']>
-  updatedAtGT?: InputMaybe<Scalars['Time']['input']>
-  updatedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  updatedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  updatedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  updatedAtLT?: InputMaybe<Scalars['Time']['input']>
-  updatedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  updatedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  updatedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  updatedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** updated_by field predicates */
-  updatedBy?: InputMaybe<Scalars['String']['input']>
-  updatedByContains?: InputMaybe<Scalars['String']['input']>
-  updatedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  updatedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  updatedByGT?: InputMaybe<Scalars['String']['input']>
-  updatedByGTE?: InputMaybe<Scalars['String']['input']>
-  updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  updatedByLT?: InputMaybe<Scalars['String']['input']>
-  updatedByLTE?: InputMaybe<Scalars['String']['input']>
-  updatedByNEQ?: InputMaybe<Scalars['String']['input']>
-  updatedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
 }
 
 export interface ControlImplementation extends Node {
@@ -7017,9 +6649,6 @@ export interface ControlWhereInput {
   /** comments edge predicates */
   hasComments?: InputMaybe<Scalars['Boolean']['input']>
   hasCommentsWith?: InputMaybe<Array<NoteWhereInput>>
-  /** control_healths edge predicates */
-  hasControlHealths?: InputMaybe<Scalars['Boolean']['input']>
-  hasControlHealthsWith?: InputMaybe<Array<ControlHealthWhereInput>>
   /** control_implementations edge predicates */
   hasControlImplementations?: InputMaybe<Scalars['Boolean']['input']>
   hasControlImplementationsWith?: InputMaybe<Array<ControlImplementationWhereInput>>
@@ -7860,33 +7489,6 @@ export interface CreateContactInput {
 }
 
 /**
- * CreateControlHealthInput is used for create ControlHealth object.
- * Input was generated by ent.
- */
-export interface CreateControlHealthInput {
-  blockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  /** current status of the control */
-  checkStatus?: InputMaybe<ControlHealthControlCheckStatus>
-  controlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  /** optional details of the result */
-  details?: InputMaybe<Scalars['String']['input']>
-  editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  /** link to the result in the source system */
-  externalURI?: InputMaybe<Scalars['String']['input']>
-  findingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  integrationID?: InputMaybe<Scalars['ID']['input']>
-  /** timestamp the result was last updated */
-  lastObservedAt?: InputMaybe<Scalars['DateTime']['input']>
-  /** external parent reference id for the aggregate rule, e.g. in aws config this is the config rule name */
-  parentExternalID?: InputMaybe<Scalars['String']['input']>
-  /** source that set the health result */
-  source: Scalars['String']['input']
-  /** tags associated with the object */
-  tags?: InputMaybe<Array<Scalars['String']['input']>>
-  viewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-}
-
-/**
  * CreateControlImplementationInput is used for create ControlImplementation object.
  * Input was generated by ent.
  */
@@ -7940,7 +7542,6 @@ export interface CreateControlInput {
   /** category id of the control */
   categoryID?: InputMaybe<Scalars['String']['input']>
   commentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  controlHealthIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   controlImplementationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   controlKindID?: InputMaybe<Scalars['ID']['input']>
   /** the kind of the control */
@@ -8873,7 +8474,6 @@ export interface CreateFindingInput {
   /** primary category of the finding */
   category?: InputMaybe<Scalars['String']['input']>
   commentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  controlHealthIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   controlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** long form description of the finding */
   description?: InputMaybe<Scalars['String']['input']>
@@ -11306,8 +10906,6 @@ export interface CreateVulnerabilityInput {
   findingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** earliest version that fixes the vulnerability */
   firstPatchedVersion?: InputMaybe<Scalars['String']['input']>
-  /** indicates if there is a fix available for the vulnerability */
-  fixAvailable?: InputMaybe<Scalars['Boolean']['input']>
   /** timestamp when the vulnerability was marked as fixed */
   fixedAt?: InputMaybe<Scalars['DateTime']['input']>
   /** impact score or rating for the vulnerability */
@@ -19283,7 +18881,6 @@ export enum ExportExportType {
   CAMPAIGN = 'CAMPAIGN',
   CONTACT = 'CONTACT',
   CONTROL = 'CONTROL',
-  CONTROL_HEALTH = 'CONTROL_HEALTH',
   DIRECTORY_MEMBERSHIP = 'DIRECTORY_MEMBERSHIP',
   ENTITY = 'ENTITY',
   EVIDENCE = 'EVIDENCE',
@@ -20221,7 +19818,6 @@ export interface Finding extends Node {
   /** primary category of the finding */
   category?: Maybe<Scalars['String']['output']>
   comments: NoteConnection
-  controlHealths: ControlHealthConnection
   controlMappings: FindingControlConnection
   controls: ControlConnection
   createdAt?: Maybe<Scalars['Time']['output']>
@@ -20375,15 +19971,6 @@ export interface FindingCommentsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<NoteOrder>>
   where?: InputMaybe<NoteWhereInput>
-}
-
-export interface FindingControlHealthsArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  orderBy?: InputMaybe<Array<ControlHealthOrder>>
-  where?: InputMaybe<ControlHealthWhereInput>
 }
 
 export interface FindingControlMappingsArgs {
@@ -20863,10 +20450,8 @@ export interface FindingOrder {
 export enum FindingOrderField {
   category = 'category',
   created_at = 'created_at',
-  event_time = 'event_time',
   external_id = 'external_id',
   external_owner_id = 'external_owner_id',
-  reported_at = 'reported_at',
   security_level = 'security_level',
   severity = 'severity',
   updated_at = 'updated_at',
@@ -21168,9 +20753,6 @@ export interface FindingWhereInput {
   /** comments edge predicates */
   hasComments?: InputMaybe<Scalars['Boolean']['input']>
   hasCommentsWith?: InputMaybe<Array<NoteWhereInput>>
-  /** control_healths edge predicates */
-  hasControlHealths?: InputMaybe<Scalars['Boolean']['input']>
-  hasControlHealthsWith?: InputMaybe<Array<ControlHealthWhereInput>>
   /** control_mappings edge predicates */
   hasControlMappings?: InputMaybe<Scalars['Boolean']['input']>
   hasControlMappingsWith?: InputMaybe<Array<FindingControlWhereInput>>
@@ -24441,7 +24023,6 @@ export interface Integration extends Node {
   __typename?: 'Integration'
   actionPlans: ActionPlanConnection
   assets: AssetConnection
-  controlHealths: ControlHealthConnection
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
   /** the canonical definition identifier for the installation */
@@ -24530,15 +24111,6 @@ export interface IntegrationAssetsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<AssetOrder>>
   where?: InputMaybe<AssetWhereInput>
-}
-
-export interface IntegrationControlHealthsArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  orderBy?: InputMaybe<Array<ControlHealthOrder>>
-  where?: InputMaybe<ControlHealthWhereInput>
 }
 
 export interface IntegrationDirectoryAccountsArgs {
@@ -24869,9 +24441,6 @@ export interface IntegrationWhereInput {
   /** assets edge predicates */
   hasAssets?: InputMaybe<Scalars['Boolean']['input']>
   hasAssetsWith?: InputMaybe<Array<AssetWhereInput>>
-  /** control_healths edge predicates */
-  hasControlHealths?: InputMaybe<Scalars['Boolean']['input']>
-  hasControlHealthsWith?: InputMaybe<Array<ControlHealthWhereInput>>
   /** directory_accounts edge predicates */
   hasDirectoryAccounts?: InputMaybe<Scalars['Boolean']['input']>
   hasDirectoryAccountsWith?: InputMaybe<Array<DirectoryAccountWhereInput>>
@@ -28351,8 +27920,6 @@ export interface Mutation {
   createBulkCSVContact: ContactBulkCreatePayload
   /** Create multiple new controls via file upload */
   createBulkCSVControl: ControlBulkCreatePayload
-  /** Create multiple new controlHealths via file upload */
-  createBulkCSVControlHealth: ControlHealthBulkCreatePayload
   /** Create multiple new controlImplementations via file upload */
   createBulkCSVControlImplementation: ControlImplementationBulkCreatePayload
   /** Create multiple new controlObjectives via file upload */
@@ -28485,8 +28052,6 @@ export interface Mutation {
   createBulkContact: ContactBulkCreatePayload
   /** Create multiple new controls */
   createBulkControl: ControlBulkCreatePayload
-  /** Create multiple new controlHealths */
-  createBulkControlHealth: ControlHealthBulkCreatePayload
   /** Create multiple new controlImplementations */
   createBulkControlImplementation: ControlImplementationBulkCreatePayload
   /** Create multiple new controlObjectives */
@@ -28623,8 +28188,6 @@ export interface Mutation {
   createContact: ContactCreatePayload
   /** Create a new control */
   createControl: ControlCreatePayload
-  /** Create a new controlHealth */
-  createControlHealth: ControlHealthCreatePayload
   /** Create a new controlImplementation */
   createControlImplementation: ControlImplementationCreatePayload
   /** Create a new controlObjective */
@@ -28827,8 +28390,6 @@ export interface Mutation {
   deleteBulkContact: ContactBulkDeletePayload
   /** Delete multiple controls */
   deleteBulkControl: ControlBulkDeletePayload
-  /** Delete multiple controlHealths */
-  deleteBulkControlHealth: ControlHealthBulkDeletePayload
   /** Delete multiple controlImplementations */
   deleteBulkControlImplementation: ControlImplementationBulkDeletePayload
   /** Delete multiple controlObjectives */
@@ -28939,8 +28500,6 @@ export interface Mutation {
   deleteContact: ContactDeletePayload
   /** Delete an existing control */
   deleteControl: ControlDeletePayload
-  /** Delete an existing controlHealth */
-  deleteControlHealth: ControlHealthDeletePayload
   /** Delete an existing controlImplementation */
   deleteControlImplementation: ControlImplementationDeletePayload
   /** Delete an existing controlObjective */
@@ -29151,8 +28710,6 @@ export interface Mutation {
   updateBulkCSVContact: ContactBulkUpdatePayload
   /** Update multiple existing controls with a CSV upload, must include the ID or refCode and referenceFramework */
   updateBulkCSVControl: ControlBulkUpdatePayload
-  /** Update multiple existing controlHealths via file upload */
-  updateBulkCSVControlHealth: ControlHealthBulkUpdatePayload
   /** Update multiple existing controlImplementations via file upload */
   updateBulkCSVControlImplementation: ControlImplementationBulkUpdatePayload
   /** Update multiple existing controlObjectives via file upload */
@@ -29255,8 +28812,6 @@ export interface Mutation {
   updateBulkContact: ContactBulkUpdatePayload
   /** Update multiple existing controls */
   updateBulkControl: ControlBulkUpdatePayload
-  /** Update multiple existing controlHealths */
-  updateBulkControlHealth: ControlHealthBulkUpdatePayload
   /** Update multiple existing controlImplementations */
   updateBulkControlImplementation: ControlImplementationBulkUpdatePayload
   /** Update multiple existing controlObjectives */
@@ -29365,8 +28920,6 @@ export interface Mutation {
   updateControl: ControlUpdatePayload
   /** Update an existing control comment */
   updateControlComment: ControlUpdatePayload
-  /** Update an existing controlHealth */
-  updateControlHealth: ControlHealthUpdatePayload
   /** Update an existing controlImplementation */
   updateControlImplementation: ControlImplementationUpdatePayload
   /** Update an existing controlObjective */
@@ -29635,10 +29188,6 @@ export interface MutationCreateBulkCsvControlArgs {
   input: Scalars['Upload']['input']
 }
 
-export interface MutationCreateBulkCsvControlHealthArgs {
-  input: Scalars['Upload']['input']
-}
-
 export interface MutationCreateBulkCsvControlImplementationArgs {
   input: Scalars['Upload']['input']
 }
@@ -29902,10 +29451,6 @@ export interface MutationCreateBulkContactArgs {
 
 export interface MutationCreateBulkControlArgs {
   input?: InputMaybe<Array<CreateControlInput>>
-}
-
-export interface MutationCreateBulkControlHealthArgs {
-  input?: InputMaybe<Array<CreateControlHealthInput>>
 }
 
 export interface MutationCreateBulkControlImplementationArgs {
@@ -30180,10 +29725,6 @@ export interface MutationCreateContactArgs {
 
 export interface MutationCreateControlArgs {
   input: CreateControlInput
-}
-
-export interface MutationCreateControlHealthArgs {
-  input: CreateControlHealthInput
 }
 
 export interface MutationCreateControlImplementationArgs {
@@ -30652,10 +30193,6 @@ export interface MutationDeleteBulkControlArgs {
   ids: Array<Scalars['ID']['input']>
 }
 
-export interface MutationDeleteBulkControlHealthArgs {
-  ids: Array<Scalars['ID']['input']>
-}
-
 export interface MutationDeleteBulkControlImplementationArgs {
   ids: Array<Scalars['ID']['input']>
 }
@@ -30873,10 +30410,6 @@ export interface MutationDeleteContactArgs {
 }
 
 export interface MutationDeleteControlArgs {
-  id: Scalars['ID']['input']
-}
-
-export interface MutationDeleteControlHealthArgs {
   id: Scalars['ID']['input']
 }
 
@@ -31310,10 +30843,6 @@ export interface MutationUpdateBulkCsvControlArgs {
   input: Scalars['Upload']['input']
 }
 
-export interface MutationUpdateBulkCsvControlHealthArgs {
-  input: Scalars['Upload']['input']
-}
-
 export interface MutationUpdateBulkCsvControlImplementationArgs {
   input: Scalars['Upload']['input']
 }
@@ -31518,11 +31047,6 @@ export interface MutationUpdateBulkContactArgs {
 export interface MutationUpdateBulkControlArgs {
   ids: Array<Scalars['ID']['input']>
   input: UpdateControlInput
-}
-
-export interface MutationUpdateBulkControlHealthArgs {
-  ids: Array<Scalars['ID']['input']>
-  input: UpdateControlHealthInput
 }
 
 export interface MutationUpdateBulkControlImplementationArgs {
@@ -31795,11 +31319,6 @@ export interface MutationUpdateControlCommentArgs {
   input: UpdateNoteInput
   noteFiles?: InputMaybe<Array<Scalars['Upload']['input']>>
   noteFilesMetadata?: InputMaybe<Array<FileMetadataInput>>
-}
-
-export interface MutationUpdateControlHealthArgs {
-  id: Scalars['ID']['input']
-  input: UpdateControlHealthInput
 }
 
 export interface MutationUpdateControlImplementationArgs {
@@ -40222,9 +39741,6 @@ export interface Query {
   controlCategoriesByFramework?: Maybe<Array<ControlCategoryEdge>>
   /** Compare a system-owned control between two framework revisions to see which fields changed */
   controlDiff: ControlDiffPayload
-  /** Look up controlHealth by ID */
-  controlHealth: ControlHealth
-  controlHealths: ControlHealthConnection
   /** Look up controlImplementation by ID */
   controlImplementation: ControlImplementation
   controlImplementations: ControlImplementationConnection
@@ -40751,19 +40267,6 @@ export interface QueryControlCategoriesByFrameworkArgs {
 
 export interface QueryControlDiffArgs {
   input: ControlDiffInput
-}
-
-export interface QueryControlHealthArgs {
-  id: Scalars['ID']['input']
-}
-
-export interface QueryControlHealthsArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  orderBy?: InputMaybe<Array<ControlHealthOrder>>
-  where?: InputMaybe<ControlHealthWhereInput>
 }
 
 export interface QueryControlImplementationArgs {
@@ -54680,48 +54183,6 @@ export interface UpdateContactInput {
 }
 
 /**
- * UpdateControlHealthInput is used for update ControlHealth object.
- * Input was generated by ent.
- */
-export interface UpdateControlHealthInput {
-  addBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  addControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  addEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  addFindingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  addViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  appendTags?: InputMaybe<Array<Scalars['String']['input']>>
-  /** current status of the control */
-  checkStatus?: InputMaybe<ControlHealthControlCheckStatus>
-  clearBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
-  clearControls?: InputMaybe<Scalars['Boolean']['input']>
-  clearDetails?: InputMaybe<Scalars['Boolean']['input']>
-  clearEditors?: InputMaybe<Scalars['Boolean']['input']>
-  clearExternalURI?: InputMaybe<Scalars['Boolean']['input']>
-  clearFindings?: InputMaybe<Scalars['Boolean']['input']>
-  clearLastObservedAt?: InputMaybe<Scalars['Boolean']['input']>
-  clearParentExternalID?: InputMaybe<Scalars['Boolean']['input']>
-  clearTags?: InputMaybe<Scalars['Boolean']['input']>
-  clearViewers?: InputMaybe<Scalars['Boolean']['input']>
-  /** optional details of the result */
-  details?: InputMaybe<Scalars['String']['input']>
-  /** link to the result in the source system */
-  externalURI?: InputMaybe<Scalars['String']['input']>
-  /** timestamp the result was last updated */
-  lastObservedAt?: InputMaybe<Scalars['DateTime']['input']>
-  /** external parent reference id for the aggregate rule, e.g. in aws config this is the config rule name */
-  parentExternalID?: InputMaybe<Scalars['String']['input']>
-  removeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  removeControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  removeEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  removeFindingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  removeViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  /** source that set the health result */
-  source?: InputMaybe<Scalars['String']['input']>
-  /** tags associated with the object */
-  tags?: InputMaybe<Array<Scalars['String']['input']>>
-}
-
-/**
  * UpdateControlImplementationInput is used for update ControlImplementation object.
  * Input was generated by ent.
  */
@@ -54786,7 +54247,6 @@ export interface UpdateControlInput {
   addCampaignIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addComment?: InputMaybe<CreateNoteInput>
   addCommentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  addControlHealthIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlImplementationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlObjectiveIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addDiscussion?: InputMaybe<CreateDiscussionInput>
@@ -54844,7 +54304,6 @@ export interface UpdateControlInput {
   clearCategory?: InputMaybe<Scalars['Boolean']['input']>
   clearCategoryID?: InputMaybe<Scalars['Boolean']['input']>
   clearComments?: InputMaybe<Scalars['Boolean']['input']>
-  clearControlHealths?: InputMaybe<Scalars['Boolean']['input']>
   clearControlImplementations?: InputMaybe<Scalars['Boolean']['input']>
   clearControlKind?: InputMaybe<Scalars['Boolean']['input']>
   clearControlKindName?: InputMaybe<Scalars['Boolean']['input']>
@@ -54948,7 +54407,6 @@ export interface UpdateControlInput {
   removeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeCampaignIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeCommentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  removeControlHealthIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlImplementationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlObjectiveIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeDiscussionIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -56281,7 +55739,6 @@ export interface UpdateFindingInput {
   addAssetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addCommentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  addControlHealthIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addDirectoryAccountIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -56320,7 +55777,6 @@ export interface UpdateFindingInput {
   clearCategories?: InputMaybe<Scalars['Boolean']['input']>
   clearCategory?: InputMaybe<Scalars['Boolean']['input']>
   clearComments?: InputMaybe<Scalars['Boolean']['input']>
-  clearControlHealths?: InputMaybe<Scalars['Boolean']['input']>
   clearControls?: InputMaybe<Scalars['Boolean']['input']>
   clearDescription?: InputMaybe<Scalars['Boolean']['input']>
   clearDirectoryAccounts?: InputMaybe<Scalars['Boolean']['input']>
@@ -56431,7 +55887,6 @@ export interface UpdateFindingInput {
   removeAssetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeCommentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  removeControlHealthIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeDirectoryAccountIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -60250,7 +59705,6 @@ export interface UpdateVulnerabilityInput {
   clearFiles?: InputMaybe<Scalars['Boolean']['input']>
   clearFindings?: InputMaybe<Scalars['Boolean']['input']>
   clearFirstPatchedVersion?: InputMaybe<Scalars['Boolean']['input']>
-  clearFixAvailable?: InputMaybe<Scalars['Boolean']['input']>
   clearFixedAt?: InputMaybe<Scalars['Boolean']['input']>
   clearImpact?: InputMaybe<Scalars['Boolean']['input']>
   clearImpacts?: InputMaybe<Scalars['Boolean']['input']>
@@ -60321,8 +59775,6 @@ export interface UpdateVulnerabilityInput {
   externalURI?: InputMaybe<Scalars['String']['input']>
   /** earliest version that fixes the vulnerability */
   firstPatchedVersion?: InputMaybe<Scalars['String']['input']>
-  /** indicates if there is a fix available for the vulnerability */
-  fixAvailable?: InputMaybe<Scalars['Boolean']['input']>
   /** timestamp when the vulnerability was marked as fixed */
   fixedAt?: InputMaybe<Scalars['DateTime']['input']>
   /** impact score or rating for the vulnerability */
@@ -62163,8 +61615,6 @@ export interface Vulnerability extends Node {
   findings: FindingConnection
   /** earliest version that fixes the vulnerability */
   firstPatchedVersion?: Maybe<Scalars['String']['output']>
-  /** indicates if there is a fix available for the vulnerability */
-  fixAvailable?: Maybe<Scalars['Boolean']['output']>
   /** timestamp when the vulnerability was marked as fixed */
   fixedAt?: Maybe<Scalars['DateTime']['output']>
   id: Scalars['ID']['output']
@@ -62842,11 +62292,6 @@ export interface VulnerabilityWhereInput {
   firstPatchedVersionNEQ?: InputMaybe<Scalars['String']['input']>
   firstPatchedVersionNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   firstPatchedVersionNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** fix_available field predicates */
-  fixAvailable?: InputMaybe<Scalars['Boolean']['input']>
-  fixAvailableIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  fixAvailableNEQ?: InputMaybe<Scalars['Boolean']['input']>
-  fixAvailableNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** fixed_at field predicates */
   fixedAt?: InputMaybe<Scalars['DateTime']['input']>
   fixedAtGT?: InputMaybe<Scalars['DateTime']['input']>
@@ -66994,104 +66439,6 @@ export type UpdateBulkContactMutationVariables = Exact<{
 
 export type UpdateBulkContactMutation = { __typename?: 'Mutation'; updateBulkContact: { __typename?: 'ContactBulkUpdatePayload'; updatedIDs?: Array<string> | null } }
 
-export type ControlHealthsWithFilterQueryVariables = Exact<{
-  where?: InputMaybe<ControlHealthWhereInput>
-  orderBy?: InputMaybe<Array<ControlHealthOrder> | ControlHealthOrder>
-  first?: InputMaybe<Scalars['Int']['input']>
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-}>
-
-export type ControlHealthsWithFilterQuery = {
-  __typename?: 'Query'
-  controlHealths: {
-    __typename?: 'ControlHealthConnection'
-    totalCount: number
-    edges?: Array<{
-      __typename?: 'ControlHealthEdge'
-      node?: {
-        __typename?: 'ControlHealth'
-        checkStatus: ControlHealthControlCheckStatus
-        createdAt?: any | null
-        createdBy?: string | null
-        details?: string | null
-        externalURI?: string | null
-        id: string
-        lastObservedAt?: string | null
-        source: string
-        updatedAt?: any | null
-        updatedBy?: string | null
-      } | null
-    } | null> | null
-    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
-  }
-}
-
-export type ControlHealthQueryVariables = Exact<{
-  controlHealthId: Scalars['ID']['input']
-}>
-
-export type ControlHealthQuery = {
-  __typename?: 'Query'
-  controlHealth: {
-    __typename?: 'ControlHealth'
-    createdAt?: any | null
-    createdBy?: string | null
-    details?: string | null
-    externalURI?: string | null
-    id: string
-    lastObservedAt?: string | null
-    source: string
-    updatedAt?: any | null
-    updatedBy?: string | null
-  }
-}
-
-export type CreateControlHealthMutationVariables = Exact<{
-  input: CreateControlHealthInput
-}>
-
-export type CreateControlHealthMutation = { __typename?: 'Mutation'; createControlHealth: { __typename?: 'ControlHealthCreatePayload'; controlHealth: { __typename?: 'ControlHealth'; id: string } } }
-
-export type UpdateControlHealthMutationVariables = Exact<{
-  updateControlHealthId: Scalars['ID']['input']
-  input: UpdateControlHealthInput
-}>
-
-export type UpdateControlHealthMutation = { __typename?: 'Mutation'; updateControlHealth: { __typename?: 'ControlHealthUpdatePayload'; controlHealth: { __typename?: 'ControlHealth'; id: string } } }
-
-export type DeleteControlHealthMutationVariables = Exact<{
-  deleteControlHealthId: Scalars['ID']['input']
-}>
-
-export type DeleteControlHealthMutation = { __typename?: 'Mutation'; deleteControlHealth: { __typename?: 'ControlHealthDeletePayload'; deletedID: string } }
-
-export type CreateBulkCsvControlHealthMutationVariables = Exact<{
-  input: Scalars['Upload']['input']
-}>
-
-export type CreateBulkCsvControlHealthMutation = {
-  __typename?: 'Mutation'
-  createBulkCSVControlHealth: { __typename?: 'ControlHealthBulkCreatePayload'; controlHealths?: Array<{ __typename?: 'ControlHealth'; id: string }> | null }
-}
-
-export type DeleteBulkControlHealthMutationVariables = Exact<{
-  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
-}>
-
-export type DeleteBulkControlHealthMutation = {
-  __typename?: 'Mutation'
-  deleteBulkControlHealth: { __typename?: 'ControlHealthBulkDeletePayload'; deletedIDs: Array<string>; notDeletedIDs: Array<string>; error?: string | null }
-}
-
-export type UpdateBulkControlHealthMutationVariables = Exact<{
-  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
-  input: UpdateControlHealthInput
-}>
-
-export type UpdateBulkControlHealthMutation = { __typename?: 'Mutation'; updateBulkControlHealth: { __typename?: 'ControlHealthBulkUpdatePayload'; updatedIDs?: Array<string> | null } }
-
 export type ControlImplementationFieldsFragment = {
   __typename?: 'ControlImplementation'
   id: string
@@ -69382,6 +68729,10 @@ export type EntityQuery = {
     updatedAt?: any | null
     updatedBy?: string | null
     vendorMetadata?: any | null
+    integrations: {
+      __typename?: 'IntegrationConnection'
+      edges?: Array<{ __typename?: 'IntegrationEdge'; node?: { __typename?: 'Integration'; id: string; definitionID?: string | null; name: string } | null } | null> | null
+    }
     internalOwnerGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
     internalOwnerUser?: { __typename?: 'User'; id: string; displayName: string } | null
     logoFile?: { __typename?: 'File'; base64?: string | null } | null

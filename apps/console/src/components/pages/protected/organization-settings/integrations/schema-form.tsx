@@ -182,11 +182,22 @@ function buildFieldEntries(fields: ResolvedSchemaField[]): FieldEntry[] {
   return entries
 }
 
-export function IntegrationSchemaSections({ sections, hideDescriptions, spacing = 'space-y-2' }: { sections: SchemaSection[]; hideDescriptions?: boolean; spacing?: string }) {
+export function IntegrationSchemaSections({
+  sections,
+  hideDescriptions,
+  spacing = 'space-y-2',
+  hideFieldKeys,
+}: {
+  sections: SchemaSection[]
+  hideDescriptions?: boolean
+  spacing?: string
+  hideFieldKeys?: Set<string>
+}) {
   return (
     <>
       {sections.map((section) => {
-        const fields = getResolvedSchemaFields(section.schema)
+        const allFields = getResolvedSchemaFields(section.schema)
+        const fields = hideFieldKeys ? allFields.filter((f) => !hideFieldKeys.has(f.nestedPath[0])) : allFields
         if (fields.length === 0) {
           return null
         }

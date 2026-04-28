@@ -58,6 +58,7 @@ export type IntegrationOperationMetadata = {
   name: string
   description?: string
   requiredPermissions?: string[]
+  disabledForAll: boolean
   configSchema?: IntegrationSchemaNode
 }
 

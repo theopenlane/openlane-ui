@@ -2,7 +2,7 @@ import React from 'react'
 import { Badge } from '@repo/ui/badge'
 import IntegrationTagPill from './integration-tag-pill'
 
-const MAX_VISIBLE_TAGS = 3
+const MAX_VISIBLE_TAGS = 5
 
 type IntegrationTagListProps = {
   tags: string[]

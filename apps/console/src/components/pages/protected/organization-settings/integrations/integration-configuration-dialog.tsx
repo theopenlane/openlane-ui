@@ -8,7 +8,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification'
 import { getProviderHelperContent } from '@/lib/integrations/provider-helper-content'
 import { type IntegrationProvider } from '@/lib/integrations/types'
-import { resolveConnectionEntry, resolveCredentialEntry, resolveSchemaRoot } from '@/lib/integrations/utils'
+import { disabledOperationConfigKeys, resolveConnectionEntry, resolveCredentialEntry, resolveSchemaRoot } from '@/lib/integrations/utils'
 import { connectViaAuth, saveIntegrationConfiguration } from '@/lib/integrations/flow'
 import { IntegrationSchemaSections, normalizeIntegrationFormPayloads, useIntegrationSchemaForm } from './schema-form'
 
@@ -47,6 +47,8 @@ const IntegrationConfigurationDialog = ({ open, onOpenChange, provider, installa
     userInputSchema,
     userInputSectionMeta,
   })
+
+  const disabledConfigKeys = useMemo(() => disabledOperationConfigKeys(provider), [provider])
 
   const {
     handleSubmit,
@@ -143,7 +145,7 @@ const IntegrationConfigurationDialog = ({ open, onOpenChange, provider, installa
             <div className="flex-1 space-y-6 overflow-y-auto px-6 py-5">
               {providerHelper}
               {sections.length === 0 ? <p className="text-sm text-muted-foreground">No additional input is required for this integration.</p> : null}
-              <IntegrationSchemaSections sections={sections} />
+              <IntegrationSchemaSections sections={sections} hideFieldKeys={disabledConfigKeys} />
             </div>
 
             <SheetFooter className="border-t px-6 py-4 sm:flex-row sm:justify-end">

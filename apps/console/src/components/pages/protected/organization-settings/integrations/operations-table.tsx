@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
+import { Badge } from '@repo/ui/badge'
 import { type IntegrationOperationMetadata } from '@/lib/integrations/types'
 
 const PERMISSIONS_PREVIEW_COUNT = 3
@@ -61,7 +62,16 @@ const OperationsTable = ({ operations }: OperationsTableProps) => {
             {operations.map((op) => (
               <tr key={op.name} className="border-b last:border-0">
                 <td className="px-4 py-2 font-mono text-xs align-top">{op.name}</td>
-                <td className="px-4 py-2 text-muted-foreground align-top">{op.description ?? ''}</td>
+                <td className="px-4 py-2 text-muted-foreground align-top">
+                  <div className="flex items-center gap-2">
+                    <span>{op.description ?? ''}</span>
+                    {op.disabledForAll ? (
+                      <Badge variant="blue" className="text-[10px]">
+                        Coming Soon
+                      </Badge>
+                    ) : null}
+                  </div>
+                </td>
                 {hasPermissions ? (
                   <td className="px-4 py-2 align-top">
                     {op.requiredPermissions && op.requiredPermissions.length > 0 ? <PermissionsList permissions={op.requiredPermissions} /> : <span className="text-muted-foreground">—</span>}
