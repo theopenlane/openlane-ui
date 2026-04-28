@@ -237,7 +237,7 @@ export const extractIdentityHolderTimelineNodes = (data: GetIdentityHolderAssoci
       const m = membershipEdge?.node
       if (!m) continue
       const groupName = m.directoryGroup?.displayName ?? 'group'
-      const addedAt = m.addedAt ?? m.createdAt ?? null
+      const addedAt = m.addedAt
       const roleLabel = m.role ? m.role.toLowerCase() : 'member'
       const sourceEl: React.ReactNode = integrationEl ? (
         <>

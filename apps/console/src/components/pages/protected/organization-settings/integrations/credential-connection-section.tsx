@@ -1,15 +1,18 @@
 'use client'
 
-import React from 'react'
+import React, { useMemo } from 'react'
+import { ChevronDown, ChevronUp } from 'lucide-react'
 import { FormProvider, type UseFormReturn } from 'react-hook-form'
+import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
 import { Card } from '@repo/ui/cardpanel'
 import { Separator } from '@repo/ui/separator'
 import { getProviderHelperContent } from '@/lib/integrations/provider-helper-content'
 import { type IntegrationProvider } from '@/lib/integrations/types'
 import { type FormValues, type SchemaSection } from '@/lib/integrations/schema'
-import { resolveConnectionEntry, resolveSchemaRoot } from '@/lib/integrations/utils'
+import { disabledOperationConfigKeys, resolveConnectionEntry, resolveSchemaRoot } from '@/lib/integrations/utils'
 import { IntegrationSchemaSections } from './schema-form'
+import ConnectionMetaSection from './connection-meta-section'
 
 type CredentialConnectionSectionProps = {
   provider: IntegrationProvider
@@ -42,6 +45,8 @@ const CredentialConnectionSection = ({
   const hasUserInputFields = userInputSections.length > 0
   const providerHelper = getProviderHelperContent(provider)
 
+  const disabledConfigKeys = useMemo(() => disabledOperationConfigKeys(provider), [provider])
+
   if (credentialEntries.length === 0) {
     return null
   }
@@ -64,30 +69,35 @@ const CredentialConnectionSection = ({
               return (
                 <Card
                   key={entry.ref}
-                  className={`p-4 cursor-pointer transition-all duration-200 hover:-translate-y-1 hover:border-primary ${isSelected ? 'border-primary' : 'opacity-60'}`}
-                  onClick={() => onSelectCredential(index)}
+                  className={`p-4 cursor-pointer transition-all duration-200 hover:-translate-y-1 hover:border-primary ${isSelected ? 'border-primary' : selectedCredentialIndex === -1 ? '' : 'opacity-60'}`}
+                  onClick={() => onSelectCredential(isSelected ? -1 : index)}
                 >
                   <div>
                     <div className="min-w-0">
-                      <span className="text-sm font-medium">{entry.name ?? entry.ref}</span>
-                      {connection?.description || entry.description ? <p className="mt-0.5 text-xs text-muted-foreground">{connection?.description || entry.description}</p> : null}
+                      <div className="flex items-center gap-2">
+                        {isSelected ? <ChevronUp className="h-4 w-4 shrink-0 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />}
+                        <span className="text-sm font-medium">{entry.name ?? entry.ref}</span>
+                        {entry.recommended ? <Badge variant="green">Recommended</Badge> : null}
+                      </div>
+                      {connection?.description || entry.description ? <p className="ml-5 mt-0.5 text-xs text-muted-foreground">{connection?.description || entry.description}</p> : null}
 
                       {isSelected ? (
-                        <div className="mt-4 pt-3 border-t">
+                        <div className="mt-4 pt-3 border-t" onClick={(e) => e.stopPropagation()}>
                           {providerHelper ? <div className="mb-3">{providerHelper}</div> : null}
                           <div className="flex">
                             <div className="flex flex-1 flex-col min-w-0">
                               <h4 className="text-xs font-medium text-foreground mb-2">CREDENTIALS</h4>
+                              {connection?.meta && Object.keys(connection.meta).length > 0 ? <ConnectionMetaSection meta={connection.meta} /> : null}
                               {hasFields ? (
-                                <IntegrationSchemaSections sections={credentialSections} />
+                                <IntegrationSchemaSections sections={credentialSections} hideFieldKeys={disabledConfigKeys} />
                               ) : isAuth ? (
                                 <p className="text-xs text-muted-foreground">No credentials to manage - you will be redirected to authorize access</p>
                               ) : (
                                 <p className="text-xs text-muted-foreground">No credential fields required</p>
                               )}
 
-                              <div className="mt-auto pt-3">
-                                {isAuth && !hasFields ? (
+                              <div className="mt-3">
+                                {isAuth && !hasFields && !hasUserInputFields ? (
                                   <Button type="button" onClick={onAuthConnect} disabled={isConnecting || !provider.active}>
                                     {isConnecting ? 'Initializing...' : 'Connect'}
                                   </Button>
@@ -104,7 +114,7 @@ const CredentialConnectionSection = ({
                                 <Separator vertical className="mx-6 w-fit self-stretch" separatorClass="h-full" />
                                 <div className="flex-1 min-w-0">
                                   <h4 className="text-xs font-medium text-foreground mb-2">CONFIGURATION</h4>
-                                  <IntegrationSchemaSections sections={userInputSections} />
+                                  <IntegrationSchemaSections sections={userInputSections} hideFieldKeys={disabledConfigKeys} />
                                 </div>
                               </>
                             ) : null}

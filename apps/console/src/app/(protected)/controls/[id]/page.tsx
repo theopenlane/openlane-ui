@@ -378,7 +378,7 @@ const ControlDetailsPage: React.FC = () => {
         systemCreated={!initialValues.descriptionJSON && !!initialValues.description}
       />
 
-      <div className="grid gap-4 sm:grid-cols-[160px_1fr]">
+      <div className="grid gap-4 sm:grid-cols-[160px_160px_1fr]">
         <div>
           <p className="text-sm text-muted-foreground mb-2">Framework</p>
           <StandardChip referenceFramework={control.referenceFramework ?? ''} />

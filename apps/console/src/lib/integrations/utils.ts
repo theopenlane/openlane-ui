@@ -12,18 +12,18 @@ import {
 const FINALIZED_INTEGRATION_STATUSES = new Set(['CONNECTED', 'DISABLED', 'ERRORED'])
 
 const PROVIDER_ICON_MAP: Record<string, string> = {
-  aws: '/icons/brand/integrations/aws.svg',
-  azure: '/icons/brand/integrations/azure.png',
-  buildkite: '/icons/brand/integrations/buildkite.png',
-  cloudflare: '/icons/brand/integrations/cloudflare.png',
-  gcp: '/icons/brand/integrations/google.png',
-  github: '/icons/brand/integrations/github.png',
-  google: '/icons/brand/integrations/google.png',
-  microsoft: '/icons/brand/integrations/microsoft_teams.png',
-  okta: '/icons/brand/integrations/okta.png',
+  'Amazon Web Services': '/icons/brand/integrations/aws.jpg',
+  Azure: '/icons/brand/integrations/microsoft_azure.png',
+  Buildkite: '/icons/brand/integrations/buildkite.png',
+  Cloudflare: '/icons/brand/integrations/cloudflare.png',
+  'Google Cloud': '/icons/brand/integrations/googlecloud.png',
+  GitHub: '/icons/brand/integrations/gh.png',
+  'Google Workspace': '/icons/brand/integrations/google_workspace.png',
+  Microsoft: '/icons/brand/integrations/microsoft_teams.png',
+  Okta: '/icons/brand/integrations/okta.png',
   scim: '/icons/brand/integrations/scim.png',
-  slack: '/icons/brand/integrations/slack.png',
-  vercel: '/icons/brand/integrations/vercel.png',
+  Slack: '/icons/brand/integrations/slack.png',
+  Vercel: '/icons/brand/integrations/vercel.png',
 }
 
 type FinalizedIntegrationFields = Pick<IntegrationNode, 'definitionID' | 'definitionSlug' | 'family' | 'kind' | 'name' | 'status'>
@@ -67,7 +67,7 @@ export function normalizeIntegrationToken(value?: string | null): string {
 }
 
 export function getProviderIcon(name: string): string | undefined {
-  return PROVIDER_ICON_MAP[normalizeIntegrationToken(name)]
+  return PROVIDER_ICON_MAP[name]
 }
 
 export function toAvailableIntegration(provider: IntegrationProvider): AvailableIntegrationNode {
@@ -258,6 +258,10 @@ export function resolveConnectionEntry(provider?: IntegrationProvider, credentia
 
 export function providerSupportsHealth(provider?: IntegrationProvider): boolean {
   return Boolean(provider?.operations?.some((operation) => operation.name === HEALTH_CHECK_OPERATION_NAME))
+}
+
+export function disabledOperationConfigKeys(provider?: IntegrationProvider): Set<string> {
+  return new Set((provider?.operations ?? []).filter((op) => op.disabledForAll).map((op) => op.name.charAt(0).toLowerCase() + op.name.slice(1)))
 }
 
 export async function parseIntegrationErrorMessage(response: Response): Promise<string> {

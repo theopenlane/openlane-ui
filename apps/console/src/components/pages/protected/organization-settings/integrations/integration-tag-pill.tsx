@@ -6,10 +6,12 @@ type IntegrationTagPillProps = {
 }
 
 const TAG_COLORS: Record<string, string> = {
-  'directory-sync': 'bg-primary/10 border-primary/20',
+  directory: 'bg-primary/10 border-primary/20',
   messaging: 'bg-[hsl(207,100%,33%)]/10 border-[hsl(207,100%,33%)]/20',
   vulnerabilities: 'bg-[hsl(43,89%,66%)]/10 border-[hsl(43,89%,66%)]/20',
-  assets: 'bg-muted-foreground/10 border-muted-foreground/20',
+  findings: 'bg-[hsl(15,89%,66%)]/10 border-[hsl(15,89%,66%)]/20',
+  risks: 'bg-[hsl(15,98%,45%)]/10 border-[hsl(15,98%,45%)]/20',
+  assets: 'bg-[hsl(190,98%,45%)]/10 border-[hsl(190,98%,45%)]/20',
 }
 
 const IntegrationTagPill = ({ tag }: IntegrationTagPillProps) => {

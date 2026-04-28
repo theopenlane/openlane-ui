@@ -87,7 +87,7 @@ interface FormMessageProps extends React.HTMLAttributes<HTMLDivElement> {
   reserveSpace?: boolean
 }
 
-const FormMessage = ({ className, children, reserveSpace = true, ref, ...props }: FormMessageProps & { ref?: React.Ref<HTMLDivElement> }) => {
+const FormMessage = ({ className, children, reserveSpace = false, ref, ...props }: FormMessageProps & { ref?: React.Ref<HTMLDivElement> }) => {
   const { error, formMessageId } = useFormField()
 
   let body: React.ReactNode = null

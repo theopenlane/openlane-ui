@@ -5,7 +5,7 @@ import { useFormContext } from 'react-hook-form'
 import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
 import { Badge } from '@repo/ui/badge'
-import { MoreHorizontal, Trash2, Building2, PencilIcon } from 'lucide-react'
+import { MoreHorizontal, Trash2, Building2, PencilIcon, CogIcon, CheckIcon } from 'lucide-react'
 import { canDelete } from '@/lib/authz/utils'
 import { HoverPencilWrapper } from '@/components/shared/hover-pencil-wrapper/hover-pencil-wrapper'
 import Menu from '@/components/shared/menu/menu'
@@ -17,6 +17,7 @@ import { useNotification } from '@/hooks/useNotification'
 import type { TAccessRole } from '@/types/authz'
 import type { EntityQuery, UpdateEntityInput } from '@repo/codegen/src/schema'
 import { toBase64DataUri } from '@/lib/image-utils'
+import Link from 'next/link'
 
 interface VendorDetailHeaderProps {
   vendor: EntityQuery['entity']
@@ -38,6 +39,8 @@ const VendorDetailHeader: React.FC<VendorDetailHeaderProps> = ({ vendor, isEditi
   const [logoDialogOpen, setLogoDialogOpen] = useState(false)
   const { mutateAsync: updateLogo, isPending: isLogoUploading } = useUpdateEntityLogo()
   const { successNotification, errorNotification } = useNotification()
+  const hasIntegration = (vendor.integrations.edges?.length || 0) > 0 && vendor?.integrations?.edges?.[0]?.node != null
+  const integrationDefId = hasIntegration ? vendor?.integrations?.edges?.[0]?.node?.definitionID : ''
 
   const logoUrl = vendor.logoFile?.base64 ? toBase64DataUri(vendor.logoFile.base64) : undefined
 
@@ -128,6 +131,12 @@ const VendorDetailHeader: React.FC<VendorDetailHeaderProps> = ({ vendor, isEditi
                     Approved
                   </Badge>
                 )}
+                {hasIntegration && (
+                  <Badge variant="green" className="shrink-0 flex items-center gap-1">
+                    <CheckIcon size={11} strokeWidth={2.5} />
+                    Integration
+                  </Badge>
+                )}
               </div>
             )}
             {isEditing ? (
@@ -165,10 +174,18 @@ const VendorDetailHeader: React.FC<VendorDetailHeaderProps> = ({ vendor, isEditi
                     </Button>
                   }
                   content={
-                    <button onClick={onDeleteClick} className="flex items-center space-x-2 px-1 bg-transparent cursor-pointer text-destructive">
-                      <Trash2 size={16} strokeWidth={2} />
-                      <span>Delete</span>
-                    </button>
+                    <>
+                      {hasIntegration && integrationDefId !== '' && (
+                        <Link href={`/organization-settings/integrations/${integrationDefId}`} className="flex items-center space-x-2 px-1 cursor-pointer">
+                          <CogIcon size={16} strokeWidth={2} />
+                          <span>Configure Integration</span>
+                        </Link>
+                      )}
+                      <button onClick={onDeleteClick} className="flex items-center space-x-2 px-1 bg-transparent cursor-pointer text-destructive">
+                        <Trash2 size={16} strokeWidth={2} />
+                        <span>Delete</span>
+                      </button>
+                    </>
                   }
                 />
               )}

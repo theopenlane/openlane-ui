@@ -81,6 +81,7 @@ export const GET_ALL_IDENTITY_HOLDERS = gql`
 export const IDENTITY_HOLDER = gql`
   query IdentityHolder($identityHolderId: ID!) {
     identityHolder(id: $identityHolderId) {
+      avatarRemoteURL
       emailAliases
       createdAt
       createdBy

@@ -66789,6 +66789,8 @@ export type ControlDetailsFieldsFragment = {
   referenceID?: string | null
   referenceFramework?: string | null
   title?: string | null
+  externalUUID?: string | null
+  aliases?: Array<string> | null
   controlObjectives: {
     __typename?: 'ControlObjectiveConnection'
     edges?: Array<{
@@ -66968,6 +66970,8 @@ export type GetControlByIdQuery = {
     referenceID?: string | null
     referenceFramework?: string | null
     title?: string | null
+    externalUUID?: string | null
+    aliases?: Array<string> | null
     controlObjectives: {
       __typename?: 'ControlObjectiveConnection'
       edges?: Array<{
@@ -68725,6 +68729,10 @@ export type EntityQuery = {
     updatedAt?: any | null
     updatedBy?: string | null
     vendorMetadata?: any | null
+    integrations: {
+      __typename?: 'IntegrationConnection'
+      edges?: Array<{ __typename?: 'IntegrationEdge'; node?: { __typename?: 'Integration'; id: string; definitionID?: string | null; name: string } | null } | null> | null
+    }
     internalOwnerGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
     internalOwnerUser?: { __typename?: 'User'; id: string; displayName: string } | null
     logoFile?: { __typename?: 'File'; base64?: string | null } | null
@@ -70273,6 +70281,7 @@ export type IdentityHolderQuery = {
   __typename?: 'Query'
   identityHolder: {
     __typename?: 'IdentityHolder'
+    avatarRemoteURL?: string | null
     emailAliases?: Array<string> | null
     createdAt?: any | null
     createdBy?: string | null

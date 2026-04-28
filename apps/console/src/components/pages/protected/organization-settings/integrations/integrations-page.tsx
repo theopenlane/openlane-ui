@@ -21,6 +21,7 @@ const IntegrationsPage = () => {
   const queryClient = useQueryClient()
   const [activeTab, setActiveTab] = useState<IntegrationTab>(() => (searchParams.get('status') === 'success' ? 'Installed' : 'All'))
   const [searchQuery, setSearchQuery] = useState('')
+  const [selectedTags, setSelectedTags] = useState<string[]>([])
   const { data, isLoading: integrationsLoading } = useGetIntegrations({ where: {} })
   const { data: providersData, isLoading: providersLoading } = useIntegrationProviders()
   const { setCrumbs } = use(BreadcrumbContext)
@@ -99,6 +100,16 @@ const IntegrationsPage = () => {
     [providers, installedProviderCounts],
   )
 
+  const allTags = useMemo(() => {
+    const tags = new Set<string>()
+    for (const integration of availableIntegrations) {
+      for (const tag of integration.tags) {
+        tags.add(tag)
+      }
+    }
+    return Array.from(tags).sort()
+  }, [availableIntegrations])
+
   const { allCount, comingSoonCount } = useMemo(() => {
     const active = availableIntegrations.filter((ai) => ai.provider.active).length
     const upcoming = availableIntegrations.filter((ai) => !ai.provider.active).length
@@ -125,8 +136,18 @@ const IntegrationsPage = () => {
             installedCount={installedCount}
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
+            allTags={allTags}
+            selectedTags={selectedTags}
+            setSelectedTags={setSelectedTags}
           />
-          <IntegrationsGrid installedIntegrations={installedIntegrations} availableIntegrations={availableIntegrations} activeTab={activeTab} providers={providers} searchQuery={searchQuery} />
+          <IntegrationsGrid
+            installedIntegrations={installedIntegrations}
+            availableIntegrations={availableIntegrations}
+            activeTab={activeTab}
+            providers={providers}
+            searchQuery={searchQuery}
+            selectedTags={selectedTags}
+          />
         </>
       )}
     </div>

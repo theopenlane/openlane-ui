@@ -20,10 +20,11 @@ type UseIntegrationConnectOptions = {
   credentialRef: string | undefined
   initialValues: Record<string, unknown>
   reset: (values: Record<string, unknown>) => void
+  onSuccess?: () => void
   onRedirect: () => void
 }
 
-export function useIntegrationConnect({ provider, credentialSchema, userInputSchema, credentialRef, initialValues, reset, onRedirect }: UseIntegrationConnectOptions) {
+export function useIntegrationConnect({ provider, credentialSchema, userInputSchema, credentialRef, initialValues, reset, onSuccess, onRedirect }: UseIntegrationConnectOptions) {
   const queryClient = useQueryClient()
   const { successNotification, errorNotification } = useNotification()
   const [isConnecting, setIsConnecting] = useState(false)
@@ -41,11 +42,6 @@ export function useIntegrationConnect({ provider, credentialSchema, userInputSch
         credentialRef,
         onRedirect,
       })
-
-      successNotification({
-        title: `Continue connecting ${provider.displayName}`,
-        description: 'Finish setup in the opened tab. This page will refresh automatically after the integration is connected.',
-      })
     } catch (error) {
       errorNotification({
         title: `Failed to connect ${provider.displayName}`,
@@ -54,7 +50,7 @@ export function useIntegrationConnect({ provider, credentialSchema, userInputSch
     } finally {
       setIsConnecting(false)
     }
-  }, [provider, credentialRef, onRedirect, successNotification, errorNotification])
+  }, [provider, credentialRef, onRedirect, errorNotification])
 
   const handleSubmit = useCallback(
     async (formValues: Record<string, unknown>) => {
@@ -119,6 +115,7 @@ export function useIntegrationConnect({ provider, credentialSchema, userInputSch
 
         queryClient.invalidateQueries({ queryKey: ['integrations'] })
         reset(initialValues)
+        onSuccess?.()
 
         successNotification({
           title: `${provider.displayName} configured`,
@@ -131,7 +128,7 @@ export function useIntegrationConnect({ provider, credentialSchema, userInputSch
         })
       }
     },
-    [provider, credentialSchema, userInputSchema, credentialRef, initialValues, onRedirect, reset, queryClient, handleAuthConnect, successNotification, errorNotification],
+    [provider, credentialSchema, userInputSchema, credentialRef, initialValues, onSuccess, onRedirect, reset, queryClient, handleAuthConnect, successNotification, errorNotification],
   )
 
   return {

@@ -51,8 +51,25 @@ const IntegrationDefinitionPage = ({ definitionId }: IntegrationDefinitionPagePr
   const visibleOperations = useMemo(() => (provider?.operations ?? []).filter((op) => op.name !== HEALTH_CHECK_OPERATION_NAME), [provider?.operations])
 
   const credentialEntries = useMemo(() => provider?.credentialSchemas ?? [], [provider?.credentialSchemas])
-  const [selectedCredentialIndex, setSelectedCredentialIndex] = useState(0)
-  const selectedCredential = credentialEntries[selectedCredentialIndex]
+  const [selectedCredentialIndex, setSelectedCredentialIndex] = useState(-1)
+  // Tracks which schema to use — only updates when a credential is actively selected, not when the accordion closes
+  const [schemaCredentialIndex, setSchemaCredentialIndex] = useState(-1)
+
+  useEffect(() => {
+    if (credentialEntries.length === 1) {
+      setSelectedCredentialIndex(0)
+      setSchemaCredentialIndex(0)
+    }
+  }, [credentialEntries.length])
+
+  const handleSelectCredential = (index: number) => {
+    setSelectedCredentialIndex(index)
+    if (index >= 0) {
+      setSchemaCredentialIndex(index)
+    }
+  }
+
+  const selectedCredential = credentialEntries[schemaCredentialIndex]
   const credentialSchema = useMemo(() => resolveSchemaRoot(selectedCredential?.schema), [selectedCredential?.schema])
   const userInputSchema = useMemo(() => resolveSchemaRoot(provider?.userInputSchema), [provider?.userInputSchema])
   const { formMethods, initialValues, sections } = useIntegrationSchemaForm({
@@ -75,6 +92,7 @@ const IntegrationDefinitionPage = ({ definitionId }: IntegrationDefinitionPagePr
     credentialRef: selectedCredential?.ref,
     initialValues,
     reset,
+    onSuccess: () => setSelectedCredentialIndex(-1),
     onRedirect: () => {
       if (provider) {
         startPolling(provider, installedInstances.length)
@@ -173,7 +191,7 @@ const IntegrationDefinitionPage = ({ definitionId }: IntegrationDefinitionPagePr
         userInputSections={userInputSections}
         isSubmitting={isSubmitting}
         selectedCredentialIndex={selectedCredentialIndex}
-        onSelectCredential={setSelectedCredentialIndex}
+        onSelectCredential={handleSelectCredential}
       />
     </div>
   )

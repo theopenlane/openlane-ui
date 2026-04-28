@@ -14,6 +14,8 @@ export type SchemaSection = {
 
 export type ResolvedSchemaField = {
   fieldKey: string
+  nestedPath: string[]
+  groupLabel?: string
   property: IntegrationSchemaProperty
   required: boolean
 }
@@ -67,6 +69,11 @@ export function buildInitialValues(sections: SchemaSection[]): FormValues {
   for (const section of sections) {
     for (const { fieldKey, property } of getResolvedSchemaFields(section.schema)) {
       const fieldName = `${section.prefix}${fieldKey}`
+      if (property.generate === true) {
+        values[fieldName] = `openlane-${crypto.randomUUID()}`
+        continue
+      }
+
       if (property.default !== undefined) {
         if (property.type === 'array' && Array.isArray(property.default)) {
           values[fieldName] = property.default.join('\n')
@@ -124,12 +131,12 @@ export function normalizeSectionPayload(schema: IntegrationSchemaNode | undefine
   const payload: Record<string, unknown> = {}
   const missingRequired: string[] = []
 
-  for (const { fieldKey, property, required } of getResolvedSchemaFields(schema)) {
+  for (const { fieldKey, nestedPath, property, required } of getResolvedSchemaFields(schema)) {
     const rawValue = values[`${prefix}${fieldKey}`]
 
     switch (property.type) {
       case 'boolean':
-        payload[fieldKey] = Boolean(rawValue)
+        setNestedValue(payload, nestedPath, Boolean(rawValue))
         continue
       case 'array': {
         const list = String(rawValue ?? '')
@@ -138,7 +145,7 @@ export function normalizeSectionPayload(schema: IntegrationSchemaNode | undefine
           .filter(Boolean)
 
         if (list.length > 0) {
-          payload[fieldKey] = list
+          setNestedValue(payload, nestedPath, list)
         } else if (required) {
           missingRequired.push(property.title || fieldKey)
         }
@@ -147,7 +154,7 @@ export function normalizeSectionPayload(schema: IntegrationSchemaNode | undefine
       case 'integer': {
         const parsed = Number.parseInt(String(rawValue ?? ''), 10)
         if (!Number.isNaN(parsed)) {
-          payload[fieldKey] = parsed
+          setNestedValue(payload, nestedPath, parsed)
         } else if (required) {
           missingRequired.push(property.title || fieldKey)
         }
@@ -156,7 +163,7 @@ export function normalizeSectionPayload(schema: IntegrationSchemaNode | undefine
       case 'number': {
         const parsed = Number.parseFloat(String(rawValue ?? ''))
         if (!Number.isNaN(parsed)) {
-          payload[fieldKey] = parsed
+          setNestedValue(payload, nestedPath, parsed)
         } else if (required) {
           missingRequired.push(property.title || fieldKey)
         }
@@ -165,7 +172,7 @@ export function normalizeSectionPayload(schema: IntegrationSchemaNode | undefine
       default: {
         const trimmed = String(rawValue ?? '').trim()
         if (trimmed.length > 0) {
-          payload[fieldKey] = trimmed
+          setNestedValue(payload, nestedPath, trimmed)
         } else if (required) {
           missingRequired.push(property.title || fieldKey)
         }
@@ -191,8 +198,12 @@ export function isSensitiveField(fieldKey: string, property: IntegrationSchemaPr
 }
 
 export function getResolvedSchemaFields(schema?: IntegrationSchemaNode): ResolvedSchemaField[] {
-  const requiredFields = collectRequiredSchemaFields(schema)
   const registry = schema?.$defs ?? schema?.definitions ?? {}
+  return resolveFields(schema, registry, [], undefined)
+}
+
+function resolveFields(schema: IntegrationSchemaNode | undefined, registry: Record<string, IntegrationSchemaNode>, parentPath: string[], groupLabel: string | undefined): ResolvedSchemaField[] {
+  const requiredFields = collectRequiredSchemaFields(schema)
 
   return Object.entries(schema?.properties ?? {}).flatMap(([fieldKey, rawProperty]) => {
     const property = resolveSchemaNode(rawProperty, registry) as IntegrationSchemaProperty | undefined
@@ -201,13 +212,14 @@ export function getResolvedSchemaFields(schema?: IntegrationSchemaNode): Resolve
       return []
     }
 
-    return [
-      {
-        fieldKey,
-        property,
-        required: requiredFields.has(fieldKey),
-      },
-    ]
+    const currentPath = [...parentPath, fieldKey]
+
+    if (property.properties) {
+      const nestedGroupLabel = property.title?.trim() || toHumanLabel(fieldKey)
+      return resolveFields(property, registry, currentPath, nestedGroupLabel)
+    }
+
+    return [{ fieldKey: currentPath.join('__'), nestedPath: currentPath, groupLabel, property, required: requiredFields.has(fieldKey) }]
   })
 }
 
@@ -323,6 +335,18 @@ function buildNumericSchema(label: string, property: IntegrationSchemaProperty, 
     },
     required ? schema : schema.optional(),
   )
+}
+
+function setNestedValue(obj: Record<string, unknown>, path: string[], value: unknown): void {
+  let current = obj
+  for (let i = 0; i < path.length - 1; i++) {
+    const key = path[i]
+    if (!current[key] || typeof current[key] !== 'object' || Array.isArray(current[key])) {
+      current[key] = {}
+    }
+    current = current[key] as Record<string, unknown>
+  }
+  current[path[path.length - 1]] = value
 }
 
 function safePattern(pattern?: string): RegExp | undefined {

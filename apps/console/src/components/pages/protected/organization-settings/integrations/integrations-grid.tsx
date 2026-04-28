@@ -17,6 +17,7 @@ type IntegrationsGridProps = {
   activeTab: IntegrationTab
   providers: IntegrationProvider[]
   searchQuery: string
+  selectedTags: string[]
 }
 
 const EmptyState = ({ message }: { message: string }) => (
@@ -27,7 +28,7 @@ const EmptyState = ({ message }: { message: string }) => (
   </div>
 )
 
-export function IntegrationsGrid({ installedIntegrations, availableIntegrations, activeTab, providers, searchQuery }: IntegrationsGridProps) {
+export function IntegrationsGrid({ installedIntegrations, availableIntegrations, activeTab, providers, searchQuery, selectedTags }: IntegrationsGridProps) {
   const normalizedQuery = searchQuery.trim().toLowerCase()
 
   const filteredAvailableIntegrations = availableIntegrations.filter((integration) => {
@@ -40,6 +41,10 @@ export function IntegrationsGrid({ installedIntegrations, availableIntegrations,
     }
 
     if (activeTab === 'Installed') {
+      return false
+    }
+
+    if (selectedTags.length > 0 && !selectedTags.some((tag) => integration.tags.includes(tag))) {
       return false
     }
 
@@ -67,24 +72,31 @@ export function IntegrationsGrid({ installedIntegrations, availableIntegrations,
       return false
     }
 
+    const integrationConfig = getInstalledIntegrationConfig(integration, providers)
+    const provider = integrationConfig?.provider
+    const tags = provider?.tags?.length ? provider.tags : (integration.tags ?? [])
+
+    if (selectedTags.length > 0 && !selectedTags.some((tag) => tags.includes(tag))) {
+      return false
+    }
+
     if (normalizedQuery === '') {
       return true
     }
 
-    const integrationConfig = getInstalledIntegrationConfig(integration, providers)
-    const provider = integrationConfig?.provider
-    const tags = provider?.tags?.length ? provider.tags : (integration.tags ?? [])
     return matchesSearch(
       [integration.name, integration.kind, provider?.id, provider?.slug, provider?.displayName, provider?.family, provider?.description || integration.description, ...tags],
       normalizedQuery,
     )
   })
 
+  const hasActiveFilter = normalizedQuery || selectedTags.length > 0
+
   if (activeTab === 'Installed' && filteredInstalledIntegrations.length === 0) {
-    return <EmptyState message={normalizedQuery ? 'No installed integrations match your search.' : 'No integrations installed.'} />
+    return <EmptyState message={hasActiveFilter ? 'No installed integrations match your search.' : 'No integrations installed.'} />
   }
 
-  if (activeTab !== 'Installed' && filteredAvailableIntegrations.length === 0 && normalizedQuery) {
+  if (activeTab !== 'Installed' && filteredAvailableIntegrations.length === 0 && hasActiveFilter) {
     return <EmptyState message="No integrations match your search." />
   }
 

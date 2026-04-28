@@ -40,7 +40,7 @@ export const getColumns = ({
     {
       accessorKey: 'securityLevel',
       header: 'Severity Level',
-      size: 120,
+      size: 150,
       cell: ({ cell }) => {
         const val = cell.getValue() as string | null | undefined
         if (!val) return ''

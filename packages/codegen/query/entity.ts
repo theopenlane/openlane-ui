@@ -111,6 +111,15 @@ export const ENTITY = gql`
       environmentName
       hasSoc2
       id
+      integrations {
+        edges {
+          node {
+            id
+            definitionID
+            name
+          }
+        }
+      }
       internalOwner
       internalOwnerGroup {
         id

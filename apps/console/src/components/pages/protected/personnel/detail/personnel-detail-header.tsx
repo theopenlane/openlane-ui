@@ -59,7 +59,12 @@ const PersonnelDetailHeader: React.FC<PersonnelDetailHeaderProps> = ({ personnel
     <div className="flex justify-between items-start gap-4">
       <div className="flex items-center gap-4">
         <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg bg-muted overflow-hidden">
-          <User size={24} className="text-muted-foreground" />
+          {personnel.avatarRemoteURL ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={personnel.avatarRemoteURL} referrerPolicy="no-referrer" alt={personnel.fullName ?? 'Personnel photo'} className="h-full w-full object-contain p-1" />
+          ) : (
+            <User size={24} className="text-muted-foreground" />
+          )}
         </div>
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-2 min-w-0">
