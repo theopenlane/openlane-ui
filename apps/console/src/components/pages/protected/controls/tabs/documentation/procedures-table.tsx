@@ -6,7 +6,7 @@ import { ViewProcedureSheet } from '@/components/pages/protected/procedures/view
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
 import { useProceduresFilters } from '@/components/pages/protected/procedures/table/table-config'
-import { SetObjectAssociationDialog } from '@/components/pages/protected/controls/set-object-association-modal'
+import { SetControlAssociationDialog } from '@/components/pages/protected/controls/set-control-association-dialog'
 import { useDocumentationProcedures } from '@/lib/graphql-hooks/documentation'
 import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
 import { OrderDirection, ProcedureDocumentStatus, ProcedureOrderField } from '@repo/codegen/src/schema'
@@ -215,7 +215,7 @@ const ProceduresTable: React.FC<ProceduresTableProps> = ({ controlId, subcontrol
             onFilterChange={setFilters}
             actionButtons={
               canEdit ? (
-                <SetObjectAssociationDialog
+                <SetControlAssociationDialog
                   defaultSelectedObject={ObjectTypeObjects.PROCEDURE}
                   allowedObjectTypes={[ObjectTypeObjects.PROCEDURE]}
                   trigger={

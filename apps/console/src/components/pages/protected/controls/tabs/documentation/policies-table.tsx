@@ -6,7 +6,7 @@ import { ViewPolicySheet } from '@/components/pages/protected/policies/view-poli
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
 import { usePoliciesFilters } from '@/components/pages/protected/policies/table/table-config'
-import { SetObjectAssociationDialog } from '@/components/pages/protected/controls/set-object-association-modal'
+import { SetControlAssociationDialog } from '@/components/pages/protected/controls/set-control-association-dialog'
 import { useDocumentationPolicies } from '@/lib/graphql-hooks/documentation'
 import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
 import { InternalPolicyDocumentStatus, InternalPolicyOrderField, OrderDirection } from '@repo/codegen/src/schema'
@@ -212,7 +212,7 @@ const PoliciesTable: React.FC<PoliciesTableProps> = ({ controlId, subcontrolIds,
             onFilterChange={setFilters}
             actionButtons={
               canEdit ? (
-                <SetObjectAssociationDialog
+                <SetControlAssociationDialog
                   defaultSelectedObject={ObjectTypeObjects.INTERNAL_POLICY}
                   allowedObjectTypes={[ObjectTypeObjects.INTERNAL_POLICY]}
                   trigger={

@@ -1,15 +1,15 @@
 import React, { useRef, useState } from 'react'
 import { ArrowLeft, ChevronsDownUp, ChevronsUpDown, Expand, LayoutList, List, Waypoints } from 'lucide-react'
 import ObjectAssociationGraph from '@/components/shared/object-association/object-association-graph.tsx'
-import { SetObjectAssociationDialog } from '@/components/pages/protected/controls/set-object-association-modal.tsx'
+import { SetControlAssociationDialog } from '@/components/pages/protected/controls/set-control-association-dialog'
 import { Button } from '@repo/ui/button'
 import { ObjectAssociationNodeEnum, type Section, type TCenterNode } from '@/components/shared/object-association/types/object-association-types.ts'
 import AssociatedObjectsAccordion from '@/components/shared/object-association/associated-objects-accordion.tsx'
-import SetObjectAssociationPoliciesDialog from '@/components/pages/protected/policies/modal/set-object-association-modal.tsx'
-import SetObjectAssociationProceduresDialog from '@/components/pages/protected/procedures/modal/set-object-association-modal.tsx'
-import SetObjectAssociationRisksDialog from '@/components/pages/protected/risks/modal/set-object-association-modal'
-import SetObjectAssociationVendorsDialog from '@/components/pages/protected/vendors/modal/set-object-association-modal'
-import SetObjectAssociationPersonnelDialog from '@/components/pages/protected/personnel/modal/set-object-association-modal'
+import { SetPolicyAssociationDialog } from '@/components/pages/protected/policies/set-policy-association-dialog'
+import { SetProcedureAssociationDialog } from '@/components/pages/protected/procedures/set-procedure-association-dialog'
+import { SetRiskAssociationDialog } from '@/components/pages/protected/risks/set-risk-association-dialog'
+import { SetVendorAssociationDialog } from '@/components/pages/protected/vendors/set-vendor-association-dialog'
+import { SetPersonnelAssociationDialog } from '@/components/pages/protected/personnel/set-personnel-association-dialog'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 
 type TObjectAssociationSwitchProps = {
@@ -32,20 +32,24 @@ const ObjectAssociationSwitch: React.FC<TObjectAssociationSwitchProps> = ({ sect
       return
     }
 
+    const nodeId = centerNode?.node?.id
+    if (!nodeId) return null
+
     switch (centerNode.type) {
       case ObjectAssociationNodeEnum.CONTROL:
+        return <SetControlAssociationDialog controlId={nodeId} />
       case ObjectAssociationNodeEnum.SUBCONTROL:
-        return <SetObjectAssociationDialog />
+        return <SetControlAssociationDialog subcontrolId={nodeId} />
       case ObjectAssociationNodeEnum.POLICY:
-        return <SetObjectAssociationPoliciesDialog policyId={centerNode?.node.id} />
+        return <SetPolicyAssociationDialog policyId={nodeId} />
       case ObjectAssociationNodeEnum.PROCEDURE:
-        return <SetObjectAssociationProceduresDialog procedureId={centerNode?.node.id} />
+        return <SetProcedureAssociationDialog procedureId={nodeId} />
       case ObjectAssociationNodeEnum.RISKS:
-        return <SetObjectAssociationRisksDialog riskId={centerNode?.node.id} />
+        return <SetRiskAssociationDialog riskId={nodeId} />
       case ObjectAssociationNodeEnum.ENTITY:
-        return <SetObjectAssociationVendorsDialog entityId={centerNode?.node.id} />
+        return <SetVendorAssociationDialog entityId={nodeId} />
       case ObjectAssociationNodeEnum.IDENTITY_HOLDER:
-        return <SetObjectAssociationPersonnelDialog identityHolderId={centerNode?.node.id} />
+        return <SetPersonnelAssociationDialog identityHolderId={nodeId} />
       case ObjectAssociationNodeEnum.VULNERABILITY:
       case ObjectAssociationNodeEnum.FINDING:
       case ObjectAssociationNodeEnum.SCAN:

@@ -43,10 +43,10 @@ import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import ProtectedArea from '@/components/shared/protected-area/protected-area'
 import { Loading } from '@/components/shared/loading/loading'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { Card } from '@repo/ui/cardpanel'
-import { type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
-import ObjectAssociation from '@/components/shared/object-association/object-association'
-import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
+import { ControlAssociationSection } from './fields/control-association-section'
+import { SubcontrolAssociationSection } from './fields/subcontrol-association-section'
+import { CONTROL_ASSOCIATION_CONFIG, SUBCONTROL_ASSOCIATION_CONFIG } from '@/components/shared/object-association/association-configs'
+import { buildAssociationPayload } from '@/components/shared/object-association/utils'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import RelatedControls from './related-controls'
 import { useSession } from 'next-auth/react'
@@ -77,7 +77,6 @@ export default function CreateControlForm() {
   const { data: permission, isLoading: permissionsLoading } = useOrganizationRoles()
   const createAllowed = canCreate(permission?.roles, isCreateSubcontrol ? AccessEnum.CanCreateSubcontrol : AccessEnum.CanCreateControl)
 
-  const [associations, setAssociations] = useState<TObjectAssociationMap>(() => ({}))
   const { mutateAsync: createControlImplementation } = useCreateControlImplementation()
   const { mutateAsync: createControlObjective } = useCreateControlObjective()
   const { mutateAsync: createMappedControl } = useCreateMappedControl()
@@ -135,13 +134,19 @@ export default function CreateControlForm() {
     try {
       let newId: string | undefined
 
+      const allAssociationKeys = new Set<string>([...CONTROL_ASSOCIATION_CONFIG.associationKeys, ...SUBCONTROL_ASSOCIATION_CONFIG.associationKeys])
+      const associationInputs = isCreateSubcontrol
+        ? buildAssociationPayload(SUBCONTROL_ASSOCIATION_CONFIG.associationKeys, data, true, {})
+        : buildAssociationPayload(CONTROL_ASSOCIATION_CONFIG.associationKeys, data, true, {})
+      const nonAssociationData = Object.fromEntries(Object.entries(data).filter(([key]) => !allAssociationKeys.has(key)))
+
       const commonInput = {
-        ...data,
+        ...nonAssociationData,
+        ...associationInputs,
         description: await convertToHtml(data.descriptionJSON as Value),
         descriptionJSON: data.descriptionJSON,
         referenceID: data.referenceID || undefined,
         auditorReferenceID: data.auditorReferenceID || undefined,
-        ...associations,
       }
 
       if (isCreateSubcontrol) {
@@ -462,41 +467,11 @@ export default function CreateControlForm() {
           <div className="w-[45%] flex flex-col gap-5">
             <PropertiesCard isEditing canEdit />
             <RelatedControls onSave={setMappedControls} mappedControls={mappedControls} />
-            <Card className="p-4">
-              <h3 className="text-lg font-medium mb-2">Create associations</h3>
-              <div className="flex flex-col gap-4"></div>
-              <ObjectAssociation
-                onIdChange={(updatedMap) => {
-                  setAssociations((prev) => {
-                    const prevKeys = Object.keys(prev)
-                    const updatedKeys = Object.keys(updatedMap)
-                    if (prevKeys.length === updatedKeys.length && prevKeys.every((k) => prev[k] === updatedMap[k])) {
-                      return prev
-                    }
-                    return updatedMap
-                  })
-                }}
-                initialData={associations}
-                allowedObjectTypes={
-                  isCreateSubcontrol
-                    ? [ObjectTypeObjects.INTERNAL_POLICY, ObjectTypeObjects.PROCEDURE, ObjectTypeObjects.RISK, ObjectTypeObjects.TASK]
-                    : [
-                        ObjectTypeObjects.ASSET,
-                        ObjectTypeObjects.CAMPAIGN,
-                        ObjectTypeObjects.INTERNAL_POLICY,
-                        ObjectTypeObjects.IDENTITY_HOLDER,
-                        ObjectTypeObjects.PROCEDURE,
-                        ObjectTypeObjects.PROGRAM,
-                        ObjectTypeObjects.REMEDIATION,
-                        ObjectTypeObjects.REVIEW,
-                        ObjectTypeObjects.RISK,
-                        ObjectTypeObjects.SCAN,
-                        ObjectTypeObjects.TASK,
-                        ObjectTypeObjects.ENTITY,
-                      ]
-                }
-              />
-            </Card>
+            {isCreateSubcontrol ? (
+              <SubcontrolAssociationSection isEditing={false} isCreate={true} isEditAllowed={true} />
+            ) : (
+              <ControlAssociationSection isEditing={false} isCreate={true} isEditAllowed={true} />
+            )}
           </div>
         </div>
       </form>

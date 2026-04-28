@@ -1,18 +1,17 @@
 'use client'
 
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { Button } from '@repo/ui/button'
 import { DataTable, getInitialPagination } from '@repo/ui/data-table'
 import { type ColumnDef } from '@tanstack/table-core'
-import { useGetInternalPolicyAssociationsById, useGetInternalPolicyDetailsById, useInternalPolicies } from '@/lib/graphql-hooks/internal-policy'
+import { useInternalPolicies } from '@/lib/graphql-hooks/internal-policy'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { type TPagination } from '@repo/ui/pagination-types'
 import { formatDate } from '@/utils/date'
 import { type InternalPolicyWhereInput } from '@repo/codegen/src/schema'
 import { wherePoliciesDashboard } from '../dashboard-config'
-import SetObjectAssociationPoliciesDialog from '../../modal/set-object-association-modal'
-import { usePolicy } from '../../create/hooks/use-policy'
-import { type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap'
+import { SetPolicyAssociationDialog } from '@/components/pages/protected/policies/set-policy-association-dialog'
+import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
 import Link from 'next/link'
 import { TableKeyEnum } from '@repo/ui/table-key'
 
@@ -31,14 +30,6 @@ export default function PoliciesWithoutProceduresTable() {
     }),
   )
   const [selectedPolicyId, setSelectedPolicyId] = useState<string | null>(null)
-
-  const setAssociations = usePolicy((state) => state.setAssociations)
-  const setAssociationRefCodes = usePolicy((state) => state.setAssociationRefCodes)
-
-  const { data: policyData } = useGetInternalPolicyDetailsById(selectedPolicyId)
-  const { data: assocData } = useGetInternalPolicyAssociationsById(selectedPolicyId)
-
-  const policy = policyData?.internalPolicy
 
   const where: InternalPolicyWhereInput = {
     ...wherePoliciesDashboard,
@@ -92,29 +83,6 @@ export default function PoliciesWithoutProceduresTable() {
     },
   ]
 
-  useEffect(() => {
-    if (policy && assocData) {
-      const policyAssociations: TObjectAssociationMap = {
-        controlIDs: (assocData?.internalPolicy.controls?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) || [],
-        procedureIDs: (assocData?.internalPolicy.procedures?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) || [],
-        programIDs: (assocData?.internalPolicy.programs?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) || [],
-        controlObjectiveIDs: (assocData?.internalPolicy.controlObjectives?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) || [],
-        taskIDs: (assocData?.internalPolicy.tasks?.edges?.map((item) => item?.node?.id).filter(Boolean) as string[]) || [],
-      }
-
-      const policyAssociationsRefCodes: TObjectAssociationMap = {
-        controlIDs: (assocData?.internalPolicy.controls?.edges?.map((item) => item?.node?.refCode).filter(Boolean) as string[]) || [],
-        procedureIDs: (assocData?.internalPolicy.procedures?.edges?.map((item) => item?.node?.displayID).filter(Boolean) as string[]) || [],
-        programIDs: (assocData?.internalPolicy.programs?.edges?.map((item) => item?.node?.displayID).filter(Boolean) as string[]) || [],
-        controlObjectiveIDs: (assocData?.internalPolicy.controlObjectives?.edges?.map((item) => item?.node?.displayID).filter(Boolean) as string[]) || [],
-        taskIDs: (assocData?.internalPolicy.tasks?.edges?.map((item) => item?.node?.displayID).filter(Boolean) as string[]) || [],
-      }
-
-      setAssociations(policyAssociations)
-      setAssociationRefCodes(policyAssociationsRefCodes)
-    }
-  }, [policy, setAssociations, setAssociationRefCodes, assocData])
-
   return (
     <div className="py-6 rounded-lg">
       <h2 className="text-lg font-semibold mb-4">Policies without procedures</h2>
@@ -133,7 +101,18 @@ export default function PoliciesWithoutProceduresTable() {
         tableKey={TableKeyEnum.POLICY_WITHOUT_PROCEDURE}
       />
 
-      {selectedPolicyId && <SetObjectAssociationPoliciesDialog fromTable policyId={selectedPolicyId} key={selectedPolicyId} onClose={() => setSelectedPolicyId(null)} />}
+      {selectedPolicyId && (
+        <SetPolicyAssociationDialog
+          key={selectedPolicyId}
+          policyId={selectedPolicyId}
+          defaultSelectedObject={ObjectTypeObjects.PROCEDURE}
+          allowedObjectTypes={[ObjectTypeObjects.PROCEDURE]}
+          open={true}
+          onOpenChange={(isOpen) => {
+            if (!isOpen) setSelectedPolicyId(null)
+          }}
+        />
+      )}
     </div>
   )
 }

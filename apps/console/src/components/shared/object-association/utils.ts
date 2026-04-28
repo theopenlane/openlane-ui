@@ -2,6 +2,7 @@ import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { ObjectAssociationNodeEnum, type TBaseAssociatedNode } from '@/components/shared/object-association/types/object-association-types.ts'
 import { type TAssociationMutationKey, type TAssociationUpdateInput, type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap.ts'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import type { AssociationsData, AssociationsRoot } from '@/components/shared/object-association/association-section'
 
 export type TAssociationDisplayModel = {
   name: string
@@ -73,6 +74,35 @@ export const getAssociationDisplayModel = (node: TBaseAssociatedNode, associatio
     detailContent: config.getDetailContent?.(node) || DEFAULT_ASSOCIATION_DISPLAY_CONFIG.getDetailContent?.(node) || '',
     detailContentIsRichText: config.getDetailContentIsRichText?.(node) ?? DEFAULT_ASSOCIATION_DISPLAY_CONFIG.getDetailContentIsRichText?.(node) ?? false,
   }
+}
+
+export const asAssociationsData = <TRootField extends string = string, TSectionKey extends string = string>(data: object | undefined): AssociationsData<TRootField, TSectionKey> | undefined =>
+  data as AssociationsData<TRootField, TSectionKey> | undefined
+
+export const buildRelatedInvalidateKeys = (initialDataKeys: Record<string, string>): readonly (readonly unknown[])[] => Object.values(initialDataKeys).map((k) => [k] as const)
+
+type InitialIdsConfig<TRootField extends string, TFieldKey extends string> = {
+  dataRootField: TRootField
+  initialDataKeys: Record<TFieldKey, string>
+}
+
+export type AssociationInitialIds<TConfig extends InitialIdsConfig<string, string>> = TObjectAssociationMap<Extract<keyof TConfig['initialDataKeys'], string>>
+
+export const buildInitialAssociationIds = <TRootField extends string, TFieldKey extends string>(
+  config: InitialIdsConfig<TRootField, TFieldKey>,
+  associationsData: AssociationsData<TRootField> | undefined,
+): TObjectAssociationMap<TFieldKey> => {
+  const result: TObjectAssociationMap<TFieldKey> = {}
+  if (!associationsData) return result
+
+  const root = associationsData[config.dataRootField] as AssociationsRoot | undefined
+  if (!root) return result
+
+  for (const [inputName, edgesField] of Object.entries(config.initialDataKeys) as [TFieldKey, string][]) {
+    const connection = root[edgesField]
+    result[inputName] = connection?.edges?.flatMap((edge) => (edge?.node?.id ? [edge.node.id] : [])) ?? []
+  }
+  return result
 }
 
 export const buildMutationKey = <TPrefix extends 'add' | 'remove', TFieldKey extends string>(prefix: TPrefix, key: TFieldKey): TAssociationMutationKey<TPrefix, TFieldKey> => {

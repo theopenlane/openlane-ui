@@ -18,10 +18,8 @@ import PropertiesCard from '@/components/pages/protected/policies/view/cards/pro
 import { InternalPolicyDocumentStatus, InternalPolicyFrequency, type UpdateInternalPolicyInput } from '@repo/codegen/src/schema.ts'
 import HistoricalCard from '@/components/pages/protected/policies/view/cards/historical-card.tsx'
 import TagsCard from '@/components/pages/protected/policies/view/cards/tags-card.tsx'
-import { type TObjectAssociationMap } from '@/components/shared/object-association/types/TObjectAssociationMap.ts'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNotification } from '@/hooks/useNotification.tsx'
-import { usePolicy } from '@/components/pages/protected/policies/create/hooks/use-policy.tsx'
 import { canDelete, canEdit } from '@/lib/authz/utils'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useRouter } from 'next/navigation'
@@ -54,7 +52,6 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
   const [isDeleting, setIsDeleting] = useState<boolean>(false)
   const { data, isLoading } = useGetInternalPolicyDetailsById(policyId, !isDeleting)
   const { mutateAsync: updatePolicy, isPending: isSaving } = useUpdateInternalPolicy()
-  const policyState = usePolicy()
   const policy = data?.internalPolicy
   const { form } = useFormSchema()
   const [isEditing, setIsEditing] = useState(false)
@@ -81,7 +78,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
   const procedures = assocData?.internalPolicy?.procedures?.edges ?? []
 
   const memoizedSections = useMemo(() => {
-    if (!assocData) return {}
+    if (!assocData?.internalPolicy) return {}
     return {
       procedures: assocData.internalPolicy.procedures,
       controls: assocData.internalPolicy.controls,
@@ -114,25 +111,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
   }, [setCrumbs, policy, isLoading])
 
   useEffect(() => {
-    if (policy && assocData && !dataInitialized) {
-      const policyAssociations: TObjectAssociationMap = {
-        controlIDs: assocData.internalPolicy?.controls?.edges?.map((item) => item?.node?.id).filter((id): id is string => typeof id === 'string') || [],
-        procedureIDs: assocData.internalPolicy?.procedures?.edges?.map((item) => item?.node?.id).filter((id): id is string => typeof id === 'string') || [],
-        programIDs: assocData.internalPolicy?.programs?.edges?.map((item) => item?.node?.id).filter((id): id is string => typeof id === 'string') || [],
-        controlObjectiveIDs: assocData.internalPolicy?.controlObjectives?.edges?.map((item) => item?.node?.id).filter((id): id is string => typeof id === 'string') || [],
-        taskIDs: assocData.internalPolicy?.tasks?.edges?.map((item) => item?.node?.id).filter((id): id is string => typeof id === 'string') || [],
-        riskIDs: assocData.internalPolicy?.risks?.edges?.map((item) => item?.node?.id).filter((id): id is string => typeof id === 'string') || [],
-      }
-
-      const policyAssociationsRefCodes: TObjectAssociationMap = {
-        controlIDs: assocData.internalPolicy?.controls?.edges?.map((item) => item?.node?.refCode).filter((id): id is string => typeof id === 'string') || [],
-        procedureIDs: assocData.internalPolicy?.procedures?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => typeof id === 'string') || [],
-        programIDs: assocData.internalPolicy?.programs?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => typeof id === 'string') || [],
-        controlObjectiveIDs: assocData.internalPolicy?.controlObjectives?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => typeof id === 'string') || [],
-        taskIDs: assocData.internalPolicy?.tasks?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => typeof id === 'string') || [],
-        riskIDs: assocData.internalPolicy?.risks?.edges?.map((item) => item?.node?.displayID).filter((id): id is string => typeof id === 'string') || [],
-      }
-
+    if (policy && !dataInitialized) {
       form.reset({
         name: policy.name,
         details: policy?.details ?? '',
@@ -148,16 +127,9 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
         delegateID: policy.delegate?.id,
       })
 
-      policyState.setInitialAssociations(policyAssociations)
-      policyState.setAssociations(policyAssociations)
-      policyState.setAssociationRefCodes(policyAssociationsRefCodes)
       setDataInitialized(true)
     }
-  }, [policy, form, policyState, dataInitialized, assocData])
-
-  const initialData: TObjectAssociationMap = {
-    ...(policyId ? { internalPolicyIDs: [policyId] } : {}),
-  }
+  }, [policy, form, dataInitialized])
 
   const handleCancel = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
@@ -191,7 +163,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
     }
 
     try {
-      const { revision, approverID, delegateID, details, detailsJSON, ...restData } = data
+      const { revision, approverID, delegateID, details: _details, detailsJSON, ...restData } = data
       const input: UpdateInternalPolicyInput = {
         ...restData,
         tags: data?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
@@ -308,7 +280,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
       ) : (
         <div className="flex gap-2 justify-end">
           <CreateItemsFromPolicyToolbar
-            initialData={initialData}
+            initialData={{ internalPolicyIDs: [policyId] }}
             handleCreateNewPolicy={handleCreateNewPolicy}
             handleCreateNewProcedure={handleCreateNewProcedure}
             objectAssociationsDisplayIDs={policy?.name ? [policy?.name] : []}
