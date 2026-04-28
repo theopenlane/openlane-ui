@@ -119,6 +119,8 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
     handleUpdate: handleUpdateField,
   }
 
+  const hasPackageDetails = Boolean(data?.packageName || data?.vulnerableVersionRange || data?.firstPatchedVersion || data?.packageEcosystem)
+
   return (
     <div className="space-y-6">
       <Card>
@@ -147,6 +149,25 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
           </div>
         </CardContent>
       </Card>
+
+      {hasPackageDetails && (
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-md p-0">Package Details</CardTitle>
+            <CardDescription className="p-0">Affected package and patched version information</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-2">
+              <TextField name="packageName" label="Package Name" {...sharedFieldProps} />
+              <TextField name="packageEcosystem" label="Package Ecosystem" {...sharedFieldProps} />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+              <TextField name="vulnerableVersionRange" label="Vulnerable Version Range" {...sharedFieldProps} />
+              <TextField name="firstPatchedVersion" label="First Patched Version" {...sharedFieldProps} />
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <Card>
         <CardHeader className="pb-2">
