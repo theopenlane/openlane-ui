@@ -96,8 +96,8 @@ const CredentialConnectionSection = ({
                                 <p className="text-xs text-muted-foreground">No credential fields required</p>
                               )}
 
-                              <div className="mt-auto pt-3">
-                                {isAuth && !hasFields ? (
+                              <div className="mt-3">
+                                {isAuth && !hasFields && !hasUserInputFields ? (
                                   <Button type="button" onClick={onAuthConnect} disabled={isConnecting || !provider.active}>
                                     {isConnecting ? 'Initializing...' : 'Connect'}
                                   </Button>
