@@ -12,6 +12,7 @@ import { type IntegrationProvider } from '@/lib/integrations/types'
 import { type FormValues, type SchemaSection } from '@/lib/integrations/schema'
 import { disabledOperationConfigKeys, resolveConnectionEntry, resolveSchemaRoot } from '@/lib/integrations/utils'
 import { IntegrationSchemaSections } from './schema-form'
+import ConnectionMetaSection from './connection-meta-section'
 
 type CredentialConnectionSectionProps = {
   provider: IntegrationProvider
@@ -86,6 +87,7 @@ const CredentialConnectionSection = ({
                           <div className="flex">
                             <div className="flex flex-1 flex-col min-w-0">
                               <h4 className="text-xs font-medium text-foreground mb-2">CREDENTIALS</h4>
+                              {connection?.meta && Object.keys(connection.meta).length > 0 ? <ConnectionMetaSection meta={connection.meta} /> : null}
                               {hasFields ? (
                                 <IntegrationSchemaSections sections={credentialSections} hideFieldKeys={disabledConfigKeys} />
                               ) : isAuth ? (

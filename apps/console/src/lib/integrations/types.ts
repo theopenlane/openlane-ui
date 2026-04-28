@@ -70,6 +70,11 @@ export type IntegrationCredentialEntry = {
   schema?: IntegrationSchemaNode
 }
 
+export type IntegrationMetaEntry = {
+  Value: string
+  AllowCopy?: boolean
+}
+
 export type IntegrationConnectionEntry = {
   credentialRef: string
   name?: string
@@ -77,6 +82,7 @@ export type IntegrationConnectionEntry = {
   credentialRefs?: string[]
   validationOperation?: string
   auth?: unknown
+  meta?: Record<string, IntegrationMetaEntry>
   disconnect?: {
     credentialRef?: string
     description?: string

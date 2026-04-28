@@ -17,7 +17,7 @@ import { useNotification } from '@/hooks/useNotification'
 import type { TAccessRole } from '@/types/authz'
 import type { EntityQuery, UpdateEntityInput } from '@repo/codegen/src/schema'
 import { toBase64DataUri } from '@/lib/image-utils'
-import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 
 interface VendorDetailHeaderProps {
   vendor: EntityQuery['entity']
@@ -39,7 +39,6 @@ const VendorDetailHeader: React.FC<VendorDetailHeaderProps> = ({ vendor, isEditi
   const [logoDialogOpen, setLogoDialogOpen] = useState(false)
   const { mutateAsync: updateLogo, isPending: isLogoUploading } = useUpdateEntityLogo()
   const { successNotification, errorNotification } = useNotification()
-  const router = useRouter()
   const hasIntegration = (vendor.integrations.edges?.length || 0) > 0 && vendor?.integrations?.edges?.[0]?.node != null
   const integrationDefId = hasIntegration ? vendor?.integrations?.edges?.[0]?.node?.definitionID : ''
 
@@ -177,10 +176,10 @@ const VendorDetailHeader: React.FC<VendorDetailHeaderProps> = ({ vendor, isEditi
                   content={
                     <>
                       {hasIntegration && integrationDefId !== '' && (
-                        <button onClick={() => router.push(`/organization-settings/integrations/${integrationDefId}`)} className="flex items-center space-x-2 px-1 bg-transparent cursor-pointer">
+                        <Link href={`/organization-settings/integrations/${integrationDefId}`} className="flex items-center space-x-2 px-1 cursor-pointer">
                           <CogIcon size={16} strokeWidth={2} />
                           <span>Configure Integration</span>
-                        </button>
+                        </Link>
                       )}
                       <button onClick={onDeleteClick} className="flex items-center space-x-2 px-1 bg-transparent cursor-pointer text-destructive">
                         <Trash2 size={16} strokeWidth={2} />

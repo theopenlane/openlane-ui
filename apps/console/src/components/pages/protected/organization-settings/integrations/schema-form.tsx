@@ -24,6 +24,7 @@ import {
   isSensitiveField,
   shouldRenderAsTextarea,
 } from '@/lib/integrations/schema'
+import { useNotification } from '@/hooks/useNotification'
 
 export { CREDENTIALS_PREFIX, normalizeIntegrationFormPayloads, USER_INPUT_PREFIX } from '@/lib/integrations/schema'
 export type { FormValues, NormalizedIntegrationFormPayloads, SchemaSection } from '@/lib/integrations/schema'
@@ -45,6 +46,7 @@ type UseIntegrationSchemaFormOptions = {
 export const SchemaField = ({ fieldKey, fieldName, property, required }: SchemaFieldProps) => {
   const { control } = useFormContext<FormValues>()
   const [copied, setCopied] = useState(false)
+  const { successNotification, errorNotification } = useNotification()
 
   const label = property.title?.trim() || toHumanLabel(fieldKey)
   const inputId = `integration-config-${fieldName}`
@@ -129,10 +131,15 @@ export const SchemaField = ({ fieldKey, fieldName, property, required }: SchemaF
                   type="button"
                   variant="outline"
                   size="icon"
-                  onClick={() => {
-                    navigator.clipboard.writeText(String(field.value ?? ''))
-                    setCopied(true)
-                    setTimeout(() => setCopied(false), 2000)
+                  onClick={async () => {
+                    try {
+                      await navigator.clipboard.writeText(String(field.value ?? ''))
+                      setCopied(true)
+                      setTimeout(() => setCopied(false), 2000)
+                      successNotification({ title: 'Copied', description: `External ID copied to clipboard` })
+                    } catch {
+                      errorNotification({ title: 'Copy failed', description: 'Clipboard access is not available in this context.' })
+                    }
                   }}
                   title="Copy to clipboard"
                 >
