@@ -357,6 +357,7 @@ export const bottomNavigationItems = (session: Session | null, orgPermission?: T
           title: 'Audit Logs',
           href: '/organization-settings/logs',
           icon: History,
+          hidden: true,
         },
         {
           title: 'Integrations',
