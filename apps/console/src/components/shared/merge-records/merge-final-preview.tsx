@@ -21,12 +21,13 @@ export const MergeFinalPreview = <TRecord,>({ resolvedFields }: Props<TRecord>) 
     <div className="grid grid-cols-1 gap-3">
       {previewFields.map((rf) => {
         const sourceBadge = rf.kind === 'merged-array' && rf.arrayStrategy === 'union' ? 'Merged' : rf.kind === 'merged-map' ? 'Merged' : rf.chosenSource === 'primary' ? 'Primary' : 'Secondary'
+        const sourceBadgeVariant = sourceBadge === 'Primary' ? 'green' : sourceBadge === 'Secondary' ? 'destructive' : 'blue'
         return (
           <div key={rf.field.key} className="flex items-start justify-between gap-4 border-b last:border-b-0 pb-2">
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2 mb-1">
                 <span className="text-xs font-medium text-muted-foreground">{rf.field.label}</span>
-                <Badge variant="outline" className="text-[10px]">
+                <Badge variant={sourceBadgeVariant} className="text-[10px]">
                   {sourceBadge}
                 </Badge>
               </div>

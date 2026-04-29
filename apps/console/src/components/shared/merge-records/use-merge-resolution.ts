@@ -69,6 +69,7 @@ type Overrides = {
 
 export type UseMergeResolutionArgs<TRecord, TUpdateInput> = {
   config: MergeConfig<TRecord, TUpdateInput>
+  fields: MergeFieldConfig<TRecord>[]
   primary: TRecord | null | undefined
   secondary: TRecord | null | undefined
 }
@@ -89,7 +90,7 @@ export type UseMergeResolutionResult<TRecord> = {
   }
 }
 
-export const useMergeResolution = <TRecord, TUpdateInput>({ config, primary, secondary }: UseMergeResolutionArgs<TRecord, TUpdateInput>): UseMergeResolutionResult<TRecord> => {
+export const useMergeResolution = <TRecord, TUpdateInput>({ config, fields, primary, secondary }: UseMergeResolutionArgs<TRecord, TUpdateInput>): UseMergeResolutionResult<TRecord> => {
   const [overrides, setOverrides] = useState<Overrides>({ sources: {}, arrayStrategies: {} })
   const [aliasFoldEnabled, setAliasFoldEnabled] = useState<boolean>(config.emailAliasFold?.defaultOn ?? false)
 
@@ -109,7 +110,7 @@ export const useMergeResolution = <TRecord, TUpdateInput>({ config, primary, sec
   const resolvedFields = useMemo<ResolvedField<TRecord>[]>(() => {
     if (!primary || !secondary) return []
 
-    const base: ResolvedField<TRecord>[] = config.fields.map((field) => {
+    const base: ResolvedField<TRecord>[] = fields.map((field) => {
       const primaryValue = (primary as Record<string, unknown>)[field.key]
       const secondaryValue = (secondary as Record<string, unknown>)[field.key]
       const pEmpty = isEmptyValue(primaryValue)
@@ -238,7 +239,7 @@ export const useMergeResolution = <TRecord, TUpdateInput>({ config, primary, sec
     const next = [...base]
     next[aliasesIdx] = foldedAliases
     return next
-  }, [config.fields, config.emailAliasFold, aliasFoldEnabled, primary, secondary, overrides])
+  }, [fields, config.emailAliasFold, aliasFoldEnabled, primary, secondary, overrides])
 
   const visibleFields = useMemo(() => resolvedFields.filter((f) => f.kind !== 'hidden'), [resolvedFields])
 

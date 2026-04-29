@@ -6,13 +6,13 @@ import { Button } from '@repo/ui/button'
 import { MergeRecordsSheet } from './merge-records-sheet'
 import type { MergeConfig } from './types'
 
-type Props<TRecord, TUpdateInput> = {
+type Props<TRecord extends object, TUpdateInput> = {
   primaryId: string
   config: MergeConfig<TRecord, TUpdateInput>
   onMergeComplete?: () => void
 }
 
-export const MergeMenuItem = <TRecord, TUpdateInput>({ primaryId, config, onMergeComplete }: Props<TRecord, TUpdateInput>) => {
+export const MergeMenuItem = <TRecord extends object, TUpdateInput>({ primaryId, config, onMergeComplete }: Props<TRecord, TUpdateInput>) => {
   const [open, setOpen] = useState(false)
   return (
     <>
@@ -25,7 +25,7 @@ export const MergeMenuItem = <TRecord, TUpdateInput>({ primaryId, config, onMerg
   )
 }
 
-export const MergeHeaderButton = <TRecord, TUpdateInput>({ primaryId, config, onMergeComplete }: Props<TRecord, TUpdateInput>) => {
+export const MergeHeaderButton = <TRecord extends object, TUpdateInput>({ primaryId, config, onMergeComplete }: Props<TRecord, TUpdateInput>) => {
   const [open, setOpen] = useState(false)
   return (
     <>

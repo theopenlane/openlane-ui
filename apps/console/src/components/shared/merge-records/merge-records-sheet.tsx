@@ -1,18 +1,18 @@
 'use client'
 
-import React, { useState, useMemo } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { Sheet, SheetContent, SheetTitle } from '@repo/ui/sheet'
 import { Button } from '@repo/ui/button'
 import { Badge } from '@repo/ui/badge'
-import { ArrowRightLeft, Loader2, X } from 'lucide-react'
+import { ArrowLeft, ArrowRightLeft, Loader2, X } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { SecondaryRecordPicker } from './secondary-record-picker'
 import { MergeFieldRow } from './merge-field-row'
 import { MergeFinalPreview } from './merge-final-preview'
-import { MergeConfirmDialog } from './merge-confirm-dialog'
 import { useMergeResolution } from './use-merge-resolution'
+import { buildMergeFields } from './build-fields'
 import type { MergeConfig, MergePreSaveExtrasResult } from './types'
 
 type Props<TRecord, TUpdateInput> = {
@@ -23,10 +23,10 @@ type Props<TRecord, TUpdateInput> = {
   onMergeComplete?: () => void
 }
 
-export const MergeRecordsSheet = <TRecord, TUpdateInput>({ open, onOpenChange, config, primaryId, onMergeComplete }: Props<TRecord, TUpdateInput>) => {
+export const MergeRecordsSheet = <TRecord extends object, TUpdateInput>({ open, onOpenChange, config, primaryId, onMergeComplete }: Props<TRecord, TUpdateInput>) => {
   const [secondaryId, setSecondaryId] = useState<string | null>(null)
   const [secondaryLabelCache, setSecondaryLabelCache] = useState<string>('')
-  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [step, setStep] = useState<'select' | 'preview'>('select')
   const [isMerging, setIsMerging] = useState(false)
 
   const { data: primary, isLoading: isPrimaryLoading } = config.useFetchRecord(open ? primaryId : null)
@@ -35,7 +35,9 @@ export const MergeRecordsSheet = <TRecord, TUpdateInput>({ open, onOpenChange, c
   const update = config.useUpdate()
   const del = config.useDelete()
 
-  const { visibleFields, resolvedFields, resolvedRecord, setSource, setArrayStrategy, emailAliasFold } = useMergeResolution({ config, primary, secondary })
+  const fields = useMemo(() => (primary ? buildMergeFields(primary, config.fieldOverrides, config.excludeFields) : []), [primary, config.fieldOverrides, config.excludeFields])
+
+  const { visibleFields, resolvedFields, resolvedRecord, setSource, setArrayStrategy, emailAliasFold } = useMergeResolution({ config, fields, primary, secondary })
 
   const emptyExtras = useMemo<MergePreSaveExtrasResult<TUpdateInput>>(() => ({ data: null, counts: [], isLoading: false }), [])
   const extras = config.usePreSaveInputExtras ? config.usePreSaveInputExtras({ primaryId, secondaryId: open ? secondaryId : null, primary }) : emptyExtras
@@ -58,6 +60,7 @@ export const MergeRecordsSheet = <TRecord, TUpdateInput>({ open, onOpenChange, c
   const handleReset = () => {
     setSecondaryId(null)
     setSecondaryLabelCache('')
+    setStep('select')
   }
 
   const handleClose = () => {
@@ -65,6 +68,14 @@ export const MergeRecordsSheet = <TRecord, TUpdateInput>({ open, onOpenChange, c
     handleReset()
     onOpenChange(false)
   }
+
+  useEffect(() => {
+    if (!open) setStep('select')
+  }, [open])
+
+  useEffect(() => {
+    if (!secondaryId) setStep('select')
+  }, [secondaryId])
 
   const canMerge = !!primary && !!secondary && secondaryId !== primaryId && !extras.isLoading
 
@@ -77,7 +88,6 @@ export const MergeRecordsSheet = <TRecord, TUpdateInput>({ open, onOpenChange, c
       await update.mutateAsync({ id: primaryId, input })
     } catch (error) {
       setIsMerging(false)
-      setConfirmOpen(false)
       errorNotification({ title: 'Merge failed', description: parseErrorMessage(error) })
       return
     }
@@ -102,7 +112,6 @@ export const MergeRecordsSheet = <TRecord, TUpdateInput>({ open, onOpenChange, c
     }
 
     setIsMerging(false)
-    setConfirmOpen(false)
     handleReset()
     onMergeComplete?.()
     onOpenChange(false)
@@ -166,7 +175,7 @@ export const MergeRecordsSheet = <TRecord, TUpdateInput>({ open, onOpenChange, c
               </div>
             )}
 
-            {!loadingBothSides && secondaryId && primary && secondary && (
+            {!loadingBothSides && secondaryId && primary && secondary && step === 'select' && (
               <>
                 <section className="space-y-3">
                   <div className="flex items-center justify-between">
@@ -226,37 +235,46 @@ export const MergeRecordsSheet = <TRecord, TUpdateInput>({ open, onOpenChange, c
                     </div>
                   </section>
                 )}
-
-                <section className="space-y-3">
-                  <h3 className="text-sm font-semibold">Final record</h3>
-                  <div className="rounded-md border p-4 bg-muted/20">
-                    <MergeFinalPreview resolvedFields={resolvedFields} />
-                  </div>
-                </section>
               </>
+            )}
+
+            {!loadingBothSides && secondaryId && primary && secondary && step === 'preview' && (
+              <section className="space-y-3">
+                <h3 className="text-sm font-semibold">Final record</h3>
+                <p className="text-xs text-muted-foreground">
+                  Review the merged record before confirming. The primary record will be updated and the secondary <b>{secondaryLabel}</b> will be permanently deleted.
+                </p>
+                <div className="rounded-md border p-4 bg-muted/20">
+                  <MergeFinalPreview resolvedFields={resolvedFields} />
+                </div>
+              </section>
             )}
           </div>
 
           <div className="sticky bottom-0 left-0 right-0 bg-background border-t px-4 py-3 flex items-center justify-end gap-2">
-            <Button type="button" variant="secondary" onClick={handleClose} disabled={isMerging}>
-              Cancel
-            </Button>
-            <Button type="button" variant="destructive" disabled={!canMerge || isMerging} onClick={() => setConfirmOpen(true)}>
-              {isMerging && <Loader2 size={14} className="mr-2 animate-spin" />}
-              Merge records
-            </Button>
+            {step === 'select' ? (
+              <>
+                <Button type="button" variant="secondary" onClick={handleClose} disabled={isMerging}>
+                  Cancel
+                </Button>
+                <Button type="button" disabled={!canMerge || isMerging} onClick={() => setStep('preview')}>
+                  Preview record
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button type="button" variant="secondary" onClick={() => setStep('select')} disabled={isMerging} icon={<ArrowLeft size={14} />} iconPosition="left">
+                  Back
+                </Button>
+                <Button type="button" variant="destructive" disabled={!canMerge || isMerging} onClick={runMerge}>
+                  {isMerging && <Loader2 size={14} className="mr-2 animate-spin" />}
+                  Confirm merge
+                </Button>
+              </>
+            )}
           </div>
         </SheetContent>
       </Sheet>
-
-      <MergeConfirmDialog
-        open={confirmOpen}
-        onOpenChange={(o) => !isMerging && setConfirmOpen(o)}
-        onConfirm={runMerge}
-        primaryLabel={primaryLabel}
-        secondaryLabel={secondaryLabel}
-        labelSingular={config.labelSingular}
-      />
     </>
   )
 }

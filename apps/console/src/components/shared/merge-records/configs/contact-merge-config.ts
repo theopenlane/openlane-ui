@@ -4,22 +4,16 @@ import { useMemo } from 'react'
 import { useContact, useUpdateContact, useDeleteContact, useContactsWithFilter } from '@/lib/graphql-hooks/contact'
 import { ContactUserStatus, type ContactQuery, type UpdateContactInput } from '@repo/codegen/src/schema'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
-import type { MergeConfig, MergeFieldConfig } from '../types'
+import type { MergeConfig, MergeFieldOverrides } from '../types'
 
 type Contact = NonNullable<ContactQuery['contact']>
 
 const statusOptions = Object.values(ContactUserStatus).map((v) => ({ value: v, label: getEnumLabel(v) }))
 
-const fields: MergeFieldConfig<Contact>[] = [
-  { key: 'fullName', label: 'Full name', type: 'text' },
-  { key: 'email', label: 'Email', type: 'text' },
-  { key: 'company', label: 'Company', type: 'text' },
-  { key: 'title', label: 'Title', type: 'text' },
-  { key: 'phoneNumber', label: 'Phone number', type: 'text' },
-  { key: 'address', label: 'Address', type: 'longText' },
-  { key: 'status', label: 'Status', type: 'enum', enumOptions: statusOptions },
-  { key: 'tags', label: 'Tags', type: 'tags' },
-]
+const fieldOverrides: MergeFieldOverrides<Contact> = {
+  address: { label: 'Address', type: 'longText' },
+  status: { label: 'Status', type: 'enum', enumOptions: statusOptions },
+}
 
 const useFetchContact = (id: string | null) => {
   const { data, isLoading, error } = useContact(id ?? undefined)
@@ -74,7 +68,7 @@ export const contactMergeConfig: MergeConfig<Contact, UpdateContactInput> = {
   entityType: 'Contact',
   labelSingular: 'contact',
   labelPlural: 'contacts',
-  fields,
+  fieldOverrides,
   useFetchRecord: useFetchContact,
   useUpdate: useUpdateContactMutation,
   useDelete: useDeleteContactMutation,

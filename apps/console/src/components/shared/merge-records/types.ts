@@ -17,6 +17,10 @@ export type MergeFieldConfig<TRecord> = {
   render?: (value: unknown) => React.ReactNode
 }
 
+export type MergeFieldOverride<TRecord> = Omit<MergeFieldConfig<TRecord>, 'key'>
+
+export type MergeFieldOverrides<TRecord> = Partial<Record<Extract<keyof TRecord, string>, MergeFieldOverride<TRecord>>>
+
 export type MergeSearchOption = { id: string; label: string; sublabel?: string }
 
 export type MergeSearchHookResult = {
@@ -62,7 +66,8 @@ export type MergeConfig<TRecord, TUpdateInput> = {
   entityType: string
   labelSingular: string
   labelPlural: string
-  fields: MergeFieldConfig<TRecord>[]
+  fieldOverrides?: MergeFieldOverrides<TRecord>
+  excludeFields?: ReadonlyArray<Extract<keyof TRecord, string>>
   useFetchRecord: (id: string | null) => MergeFetchHookResult<TRecord>
   useUpdate: () => MergeUpdateMutation<TUpdateInput>
   useDelete: () => MergeDeleteMutation

@@ -4,27 +4,38 @@ import { useMemo } from 'react'
 import { useEntity, useUpdateEntity, useDeleteEntity, useVendorsWithFilter } from '@/lib/graphql-hooks/entity'
 import { EntityEntityStatus, type EntityQuery, type UpdateEntityInput } from '@repo/codegen/src/schema'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
-import type { MergeConfig, MergeFieldConfig } from '../types'
+import type { MergeConfig, MergeFieldOverrides } from '../types'
 
 type Vendor = NonNullable<EntityQuery['entity']>
 
 const statusOptions = Object.values(EntityEntityStatus).map((v) => ({ value: v, label: getEnumLabel(v) }))
 
-const fields: MergeFieldConfig<Vendor>[] = [
-  { key: 'name', label: 'Name', type: 'text' },
-  { key: 'displayName', label: 'Display name', type: 'text' },
-  { key: 'description', label: 'Description', type: 'longText' },
-  { key: 'status', label: 'Status', type: 'enum', enumOptions: statusOptions },
-  { key: 'annualSpend', label: 'Annual spend', type: 'number' },
-  { key: 'billingModel', label: 'Billing model', type: 'text' },
-  { key: 'contractStartDate', label: 'Contract start', type: 'date' },
-  { key: 'contractEndDate', label: 'Contract end', type: 'date' },
-  { key: 'domains', label: 'Domains', type: 'tags' },
-  { key: 'mfaEnforced', label: 'MFA enforced', type: 'boolean' },
-  { key: 'mfaSupported', label: 'MFA supported', type: 'boolean' },
-  { key: 'hasSoc2', label: 'Has SOC2', type: 'boolean' },
-  { key: 'tags', label: 'Tags', type: 'tags' },
-]
+const fieldOverrides: MergeFieldOverrides<Vendor> = {
+  description: { label: 'Description', type: 'longText' },
+  status: { label: 'Status', type: 'enum', enumOptions: statusOptions },
+  contractStartDate: { label: 'Contract start', type: 'date' },
+  contractEndDate: { label: 'Contract end', type: 'date' },
+  mfaEnforced: { label: 'MFA enforced', type: 'boolean' },
+  mfaSupported: { label: 'MFA supported', type: 'boolean' },
+  hasSoc2: { label: 'Has SOC2', type: 'boolean' },
+  ssoEnforced: { label: 'SSO enforced', type: 'boolean' },
+  vendorMetadata: { label: 'Vendor metadata', type: 'map' },
+}
+
+const excludeFields = [
+  'internalOwner',
+  'internalOwnerGroup',
+  'internalOwnerUser',
+  'reviewedBy',
+  'reviewedByGroup',
+  'reviewedByUser',
+  'logoFile',
+  'logoFileID',
+  'entityTypeID',
+  'entityRelationshipStateID',
+  'entitySecurityQuestionnaireStatusID',
+  'entitySourceTypeID',
+] as const satisfies ReadonlyArray<Extract<keyof Vendor, string>>
 
 const useFetchVendor = (id: string | null) => {
   const { data, isLoading, error } = useEntity(id ?? undefined)
@@ -79,7 +90,8 @@ export const vendorMergeConfig: MergeConfig<Vendor, UpdateEntityInput> = {
   entityType: 'Entity',
   labelSingular: 'vendor',
   labelPlural: 'vendors',
-  fields,
+  fieldOverrides,
+  excludeFields,
   useFetchRecord: useFetchVendor,
   useUpdate: useUpdateVendor,
   useDelete: useDeleteVendor,

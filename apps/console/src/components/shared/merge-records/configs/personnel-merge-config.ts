@@ -4,32 +4,33 @@ import { useMemo } from 'react'
 import { useIdentityHolder, useUpdateIdentityHolder, useDeleteIdentityHolder, useIdentityHoldersWithFilter, useGetIdentityHolderEdgesForMerge } from '@/lib/graphql-hooks/identity-holder'
 import { IdentityHolderIdentityHolderType, IdentityHolderUserStatus, type IdentityHolderQuery, type UpdateIdentityHolderInput } from '@repo/codegen/src/schema'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
-import type { MergeConfig, MergeEdgeTransferCount, MergeFieldConfig, MergePreSaveExtrasResult } from '../types'
+import { IDENTITY_HOLDER_ASSOCIATION_CONFIG } from '@/components/shared/object-association/association-configs'
+import type { MergeConfig, MergeEdgeTransferCount, MergeFieldOverrides, MergePreSaveExtrasResult } from '../types'
 
 type Personnel = NonNullable<IdentityHolderQuery['identityHolder']>
 
 const statusOptions = Object.values(IdentityHolderUserStatus).map((v) => ({ value: v, label: getEnumLabel(v) }))
 const typeOptions = Object.values(IdentityHolderIdentityHolderType).map((v) => ({ value: v, label: getEnumLabel(v) }))
 
-const fields: MergeFieldConfig<Personnel>[] = [
-  { key: 'fullName', label: 'Full name', type: 'text' },
-  { key: 'email', label: 'Email', type: 'text' },
-  { key: 'emailAliases', label: 'Email aliases', type: 'tags' },
-  { key: 'identityHolderType', label: 'Type', type: 'enum', enumOptions: typeOptions },
-  { key: 'status', label: 'Status', type: 'enum', enumOptions: statusOptions },
-  { key: 'isActive', label: 'Active', type: 'boolean' },
-  { key: 'department', label: 'Department', type: 'text' },
-  { key: 'team', label: 'Team', type: 'text' },
-  { key: 'title', label: 'Title', type: 'text' },
-  { key: 'location', label: 'Location', type: 'text' },
-  { key: 'phoneNumber', label: 'Phone number', type: 'text' },
-  { key: 'startDate', label: 'Start date', type: 'date' },
-  { key: 'endDate', label: 'End date', type: 'date' },
-  { key: 'externalReferenceID', label: 'External reference ID', type: 'text' },
-  { key: 'externalUserID', label: 'External user ID', type: 'text' },
-  { key: 'tags', label: 'Tags', type: 'tags' },
-  { key: 'metadata', label: 'Metadata', type: 'map' },
-]
+const fieldOverrides: MergeFieldOverrides<Personnel> = {
+  identityHolderType: { label: 'Type', type: 'enum', enumOptions: typeOptions },
+  status: { label: 'Status', type: 'enum', enumOptions: statusOptions },
+  isActive: { label: 'Active', type: 'boolean' },
+  externalReferenceID: { label: 'External reference ID', type: 'text' },
+  externalUserID: { label: 'External user ID', type: 'text' },
+}
+
+const excludeFields = [
+  'internalOwner',
+  'internalOwnerGroup',
+  'internalOwnerUser',
+  'userID',
+  'employerEntityID',
+  'hasPendingWorkflow',
+  'hasWorkflowHistory',
+  'workflowEligibleMarker',
+  'avatarRemoteURL',
+] as const satisfies ReadonlyArray<Extract<keyof Personnel, string>>
 
 const useFetchPersonnel = (id: string | null) => {
   const { data, isLoading, error } = useIdentityHolder(id ?? undefined)
@@ -82,25 +83,39 @@ const useSearchPersonnel = (search: string, excludeId: string) => {
 
 type EdgeConnection = { edges?: Array<{ node?: { id: string } | null } | null> | null }
 
+type EdgeMergeData = NonNullable<NonNullable<ReturnType<typeof useGetIdentityHolderEdgesForMerge>['data']>['identityHolder']>
+
 type EdgeTransferSpec = {
-  sourceKey: keyof NonNullable<NonNullable<ReturnType<typeof useGetIdentityHolderEdgesForMerge>['data']>['identityHolder']>
+  sourceKey: keyof EdgeMergeData
   addKey: keyof UpdateIdentityHolderInput
   label: string
 }
 
-const EDGE_TRANSFER_SPECS: EdgeTransferSpec[] = [
+const ASSOCIATION_LABELS: Record<string, string> = {
+  assets: 'Assets',
+  entities: 'Entities',
+  campaigns: 'Campaigns',
+  tasks: 'Tasks',
+  controls: 'Controls',
+  internalPolicies: 'Internal policies',
+  subcontrols: 'Subcontrols',
+}
+
+const buildAssociationEdgeSpecs = (initialDataKeys: Record<string, string>): EdgeTransferSpec[] =>
+  Object.entries(initialDataKeys).map(([idKey, sourceKey]) => ({
+    sourceKey: sourceKey as EdgeTransferSpec['sourceKey'],
+    addKey: `add${idKey.charAt(0).toUpperCase()}${idKey.slice(1)}` as EdgeTransferSpec['addKey'],
+    label: ASSOCIATION_LABELS[sourceKey] ?? sourceKey,
+  }))
+
+const INTEGRATION_EDGE_SPECS: EdgeTransferSpec[] = [
   { sourceKey: 'directoryAccounts', addKey: 'addDirectoryAccountIDs', label: 'Directory accounts' },
   { sourceKey: 'assessmentResponses', addKey: 'addAssessmentResponseIDs', label: 'Assessment responses' },
-  { sourceKey: 'assets', addKey: 'addAssetIDs', label: 'Assets' },
-  { sourceKey: 'entities', addKey: 'addEntityIDs', label: 'Entities' },
-  { sourceKey: 'campaigns', addKey: 'addCampaignIDs', label: 'Campaigns' },
-  { sourceKey: 'tasks', addKey: 'addTaskIDs', label: 'Tasks' },
-  { sourceKey: 'controls', addKey: 'addControlIDs', label: 'Controls' },
-  { sourceKey: 'internalPolicies', addKey: 'addInternalPolicyIDs', label: 'Internal policies' },
-  { sourceKey: 'subcontrols', addKey: 'addSubcontrolIDs', label: 'Subcontrols' },
   { sourceKey: 'findings', addKey: 'addFindingIDs', label: 'Findings' },
   { sourceKey: 'files', addKey: 'addFileIDs', label: 'Files' },
 ]
+
+const EDGE_TRANSFER_SPECS: EdgeTransferSpec[] = [...buildAssociationEdgeSpecs(IDENTITY_HOLDER_ASSOCIATION_CONFIG.initialDataKeys), ...INTEGRATION_EDGE_SPECS]
 
 const collectEdgeIds = (edges: EdgeConnection['edges']): string[] => (edges ?? []).map((e) => e?.node?.id).filter((id): id is string => typeof id === 'string')
 
@@ -146,7 +161,8 @@ export const personnelMergeConfig: MergeConfig<Personnel, UpdateIdentityHolderIn
   entityType: 'IdentityHolder',
   labelSingular: 'personnel record',
   labelPlural: 'personnel records',
-  fields,
+  fieldOverrides,
+  excludeFields,
   useFetchRecord: useFetchPersonnel,
   useUpdate: useUpdatePersonnel,
   useDelete: useDeletePersonnel,
