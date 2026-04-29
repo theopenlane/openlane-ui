@@ -12,6 +12,7 @@ import { Input } from '@repo/ui/input'
 import { getSeverityStyle } from '@/utils/severity'
 
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@repo/ui/cardpanel'
+import { TruncatedCell } from '@repo/ui/data-table'
 
 interface AdditionalFieldsProps {
   isEditing: boolean
@@ -130,15 +131,14 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
         </CardHeader>
         <CardContent>
           <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-2">
-            <TextField name="externalID" label="External ID" {...sharedFieldProps} />
             <TextField name="cveID" label="CVE ID" {...sharedFieldProps} />
+            <TextField name="category" label="Category" {...sharedFieldProps} />
           </div>
           <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-2">
-            <TextField name="category" label="Category" {...sharedFieldProps} />
             <TextField name="source" label="Source" {...sharedFieldProps} />
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             <TextField name="priority" label="Priority" {...sharedFieldProps} />
+          </div>
+          <div className="grid grid-cols-1 gap-2">
             <SelectField
               name="vulnerabilityStatusName"
               label="Status"
@@ -227,7 +227,10 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
         </CardHeader>
         <CardContent>
           <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-2">
-            <TextField name="externalOwnerID" label="External Owner ID" {...sharedFieldProps} />
+            <TextField name="externalID" label="External ID" {...sharedFieldProps} formatDisplayValue={(v) => <TruncatedCell>{v}</TruncatedCell>} />
+            <TextField name="externalOwnerID" label="External Owner ID" {...sharedFieldProps} formatDisplayValue={(v) => <TruncatedCell>{v}</TruncatedCell>} />
+          </div>
+          <div className="grid grid-cols-1 gap-2">
             <TextField name="externalURI" label="External URI" type="link" {...sharedFieldProps} handleUpdate={handleExternalURIUpdate} />
           </div>
         </CardContent>
