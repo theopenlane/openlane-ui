@@ -100,6 +100,7 @@ const PersonnelDetailPage: React.FC<PersonnelDetailPageProps> = ({ personnelId }
         internalOwner: normalized.internalOwner as ResponsibilitySelection,
       }
       form.reset(newValues)
+      // eslint-disable-next-line @eslint-react/set-state-in-effect
       setInitialValues(newValues)
     }
   }, [data?.identityHolder, form, isDirty])
@@ -239,6 +240,10 @@ const PersonnelDetailPage: React.FC<PersonnelDetailPageProps> = ({ personnelId }
         onCancel={handleCancel}
         onDeleteClick={() => setIsDeleteDialogOpen(true)}
         handleUpdateField={handleUpdateField}
+        onMergeComplete={() => {
+          queryClient.invalidateQueries({ queryKey: ['identityHolders', personnelId] })
+          queryClient.invalidateQueries({ queryKey: ['identityHolders'] })
+        }}
       />
 
       <PersonnelDetailTabs personnel={personnel} isEditing={isEditing} canEdit={canEditPersonnel} handleUpdateField={handleUpdateField} />
