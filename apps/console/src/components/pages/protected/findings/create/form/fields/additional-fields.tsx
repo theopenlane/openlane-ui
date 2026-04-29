@@ -10,6 +10,7 @@ import { type UpdateFindingInput, FindingSecurityLevel } from '@repo/codegen/src
 import { type InternalEditingType } from '@/components/shared/crud-base/generic-sheet'
 import { type EnumOptions, type EnumCreateHandlers } from '../../../table/types'
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from '@repo/ui/cardpanel'
+import { TruncatedCell } from '@repo/ui/data-table'
 import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
 import { Textarea } from '@repo/ui/textarea'
@@ -229,8 +230,8 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
         </CardHeader>
         <CardContent>
           <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-2">
-            <TextField name="externalID" label="External ID" {...sharedFieldProps} />
-            <TextField name="externalOwnerID" label="External Owner ID" {...sharedFieldProps} />
+            <TextField name="externalID" label="External ID" {...sharedFieldProps} formatDisplayValue={(v) => <TruncatedCell>{v}</TruncatedCell>} />
+            <TextField name="externalOwnerID" label="External Owner ID" {...sharedFieldProps} formatDisplayValue={(v) => <TruncatedCell>{v}</TruncatedCell>} />
           </div>
           <div className="grid grid-cols-1 gap-2">
             <TextField name="externalURI" label="External URI" type="link" {...sharedFieldProps} />
