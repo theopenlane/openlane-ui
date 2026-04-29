@@ -71,6 +71,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
 
   const hasTargetDetails = isPopulatedObject(data?.targetDetails)
   const hasMetadata = Boolean(data?.source || data?.sourceUpdatedAt || data?.eventTime || data?.reportedAt)
+  const isExternalIDLocked = Boolean(data?.source)
 
   return (
     <div className="space-y-6">
@@ -230,7 +231,16 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
         </CardHeader>
         <CardContent>
           <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-2">
-            <TextField name="externalID" label="External ID" {...sharedFieldProps} formatDisplayValue={(v) => <TruncatedCell>{v}</TruncatedCell>} />
+            <TextField
+              name="externalID"
+              label="External ID"
+              {...sharedFieldProps}
+              isEditing={isExternalIDLocked ? false : sharedFieldProps.isEditing}
+              isEditAllowed={isExternalIDLocked ? false : sharedFieldProps.isEditAllowed}
+              handleUpdate={isExternalIDLocked ? undefined : sharedFieldProps.handleUpdate}
+              tooltipContent={isExternalIDLocked ? 'External ID is managed by the source integration and cannot be edited.' : undefined}
+              formatDisplayValue={(v) => <TruncatedCell>{v}</TruncatedCell>}
+            />
             <TextField name="externalOwnerID" label="External Owner ID" {...sharedFieldProps} formatDisplayValue={(v) => <TruncatedCell>{v}</TruncatedCell>} />
           </div>
           <div className="grid grid-cols-1 gap-2">
