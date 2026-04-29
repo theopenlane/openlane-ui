@@ -361,8 +361,7 @@ export const bottomNavigationItems = (session: Session | null, orgPermission?: T
         {
           title: 'Integrations',
           href: '/organization-settings/integrations',
-          // hidden: !canEdit,
-          hidden: true,
+          hidden: !canEdit,
           icon: Workflow,
         },
       ],
