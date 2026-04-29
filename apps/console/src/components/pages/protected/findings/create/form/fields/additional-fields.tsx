@@ -71,6 +71,16 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
 
   const hasTargetDetails = isPopulatedObject(data?.targetDetails)
   const hasMetadata = Boolean(data?.source || data?.sourceUpdatedAt || data?.eventTime || data?.reportedAt)
+  const isExternalRefLocked = (data?.integrations?.totalCount ?? 0) > 0
+  const externalRefLockedTooltip = 'This field is managed by the source integration and cannot be edited.'
+  const externalRefLockProps = isExternalRefLocked
+    ? {
+        isEditing: false,
+        isEditAllowed: false,
+        handleUpdate: undefined,
+        tooltipContent: externalRefLockedTooltip,
+      }
+    : null
 
   return (
     <div className="space-y-6">
@@ -230,11 +240,11 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
         </CardHeader>
         <CardContent>
           <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-2">
-            <TextField name="externalID" label="External ID" {...sharedFieldProps} formatDisplayValue={(v) => <TruncatedCell>{v}</TruncatedCell>} />
-            <TextField name="externalOwnerID" label="External Owner ID" {...sharedFieldProps} formatDisplayValue={(v) => <TruncatedCell>{v}</TruncatedCell>} />
+            <TextField name="externalID" label="External ID" {...sharedFieldProps} {...externalRefLockProps} formatDisplayValue={(v) => <TruncatedCell>{v}</TruncatedCell>} />
+            <TextField name="externalOwnerID" label="External Owner ID" {...sharedFieldProps} {...externalRefLockProps} formatDisplayValue={(v) => <TruncatedCell>{v}</TruncatedCell>} />
           </div>
           <div className="grid grid-cols-1 gap-2">
-            <TextField name="externalURI" label="External URI" type="link" {...sharedFieldProps} />
+            <TextField name="externalURI" label="External URI" type="link" {...sharedFieldProps} {...externalRefLockProps} />
           </div>
         </CardContent>
       </Card>

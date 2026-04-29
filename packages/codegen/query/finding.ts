@@ -96,6 +96,9 @@ export const FINDING = gql`
       findingClass
       id
       impact
+      integrations {
+        totalCount
+      }
       metadata
       numericSeverity
       open

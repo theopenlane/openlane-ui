@@ -11,6 +11,7 @@ import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import { enumToSortFields } from '@/components/shared/crud-base/utils'
 import { FindingAssociationSection } from '../create/form/fields/association-section'
 import PastDueBadge from '@/components/shared/past-due-badge/past-due-badge'
+import { Badge } from '@repo/ui/badge'
 
 export const formId = 'edit' + ObjectNames.FINDING
 
@@ -141,8 +142,22 @@ export const visibilityFields = {
 
 export const getFieldsToRender = (props: FindingFieldProps, enumOptions: EnumOptions, enumCreateHandlers?: EnumCreateHandlers, riskScoresAction?: React.ReactNode) => {
   const findingData = props.data as FindingQuery['finding']
-  const showBadge =
+  const showPastDue =
     !props.isCreate && !props.isEditing && (findingData?.findingStatusName === 'Open' || findingData?.findingStatusName === 'Triaged' || findingData?.findingStatusName === 'In Progress')
+  const sourceBadge =
+    !props.isCreate && findingData?.source ? (
+      <Badge variant="blue" className="ml-2">
+        {findingData.source}
+      </Badge>
+    ) : null
+  const pastDueBadge = showPastDue ? <PastDueBadge severity={findingData?.securityLevel} createdAt={findingData?.createdAt} /> : null
+  const headerBadges =
+    sourceBadge || pastDueBadge ? (
+      <>
+        {sourceBadge}
+        {pastDueBadge}
+      </>
+    ) : undefined
   return (
     <div className="mr-6">
       <div className="mb-6">
@@ -153,7 +168,7 @@ export const getFieldsToRender = (props: FindingFieldProps, enumOptions: EnumOpt
           internalEditing={props.internalEditing}
           setInternalEditing={props.setInternalEditing}
           handleUpdateField={props.handleUpdateField}
-          badge={showBadge ? <PastDueBadge severity={findingData?.securityLevel} createdAt={findingData?.createdAt} /> : undefined}
+          badge={headerBadges}
         />
       </div>
       <DescriptionField

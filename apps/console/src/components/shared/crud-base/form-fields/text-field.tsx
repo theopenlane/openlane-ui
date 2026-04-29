@@ -201,7 +201,12 @@ export const TextField = <TUpdateInput,>({
               )
             ) : (
               <div
-                className={cn('text-sm py-2 rounded-md cursor-pointer px-1 w-full hover:bg-accent', layout === 'horizontal' && 'text-right', multiline && 'whitespace-pre-wrap')}
+                className={cn(
+                  'text-sm py-2 rounded-md px-1 w-full',
+                  isEditAllowed ? 'cursor-pointer hover:bg-accent' : 'cursor-not-allowed',
+                  layout === 'horizontal' && 'text-right',
+                  multiline && 'whitespace-pre-wrap',
+                )}
                 onClick={handleClick}
               >
                 {type === 'number' ? (
