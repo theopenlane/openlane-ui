@@ -71,7 +71,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
 
   const hasTargetDetails = isPopulatedObject(data?.targetDetails)
   const hasMetadata = Boolean(data?.source || data?.sourceUpdatedAt || data?.eventTime || data?.reportedAt)
-  const isExternalRefLocked = Boolean(data?.source)
+  const isExternalRefLocked = (data?.integrations?.totalCount ?? 0) > 0
   const externalRefLockedTooltip = 'This field is managed by the source integration and cannot be edited.'
   const externalRefLockProps = isExternalRefLocked
     ? {

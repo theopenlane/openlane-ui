@@ -121,7 +121,7 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
   }
 
   const hasPackageDetails = Boolean(data?.packageName || data?.vulnerableVersionRange || data?.firstPatchedVersion || data?.packageEcosystem)
-  const isExternalRefLocked = Boolean(data?.source)
+  const isExternalRefLocked = (data?.integrations?.totalCount ?? 0) > 0
   const externalRefLockedTooltip = 'This field is managed by the source integration and cannot be edited.'
   const externalRefLockProps = isExternalRefLocked
     ? {
