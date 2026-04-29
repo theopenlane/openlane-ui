@@ -121,7 +121,16 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
   }
 
   const hasPackageDetails = Boolean(data?.packageName || data?.vulnerableVersionRange || data?.firstPatchedVersion || data?.packageEcosystem)
-  const isExternalIDLocked = Boolean(data?.source)
+  const isExternalRefLocked = Boolean(data?.source)
+  const externalRefLockedTooltip = 'This field is managed by the source integration and cannot be edited.'
+  const externalRefLockProps = isExternalRefLocked
+    ? {
+        isEditing: false,
+        isEditAllowed: false,
+        handleUpdate: undefined,
+        tooltipContent: externalRefLockedTooltip,
+      }
+    : null
 
   return (
     <div className="space-y-6">
@@ -228,20 +237,11 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
         </CardHeader>
         <CardContent>
           <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-2">
-            <TextField
-              name="externalID"
-              label="External ID"
-              {...sharedFieldProps}
-              isEditing={isExternalIDLocked ? false : sharedFieldProps.isEditing}
-              isEditAllowed={isExternalIDLocked ? false : sharedFieldProps.isEditAllowed}
-              handleUpdate={isExternalIDLocked ? undefined : sharedFieldProps.handleUpdate}
-              tooltipContent={isExternalIDLocked ? 'External ID is managed by the source integration and cannot be edited.' : undefined}
-              formatDisplayValue={(v) => <TruncatedCell>{v}</TruncatedCell>}
-            />
-            <TextField name="externalOwnerID" label="External Owner ID" {...sharedFieldProps} formatDisplayValue={(v) => <TruncatedCell>{v}</TruncatedCell>} />
+            <TextField name="externalID" label="External ID" {...sharedFieldProps} {...externalRefLockProps} formatDisplayValue={(v) => <TruncatedCell>{v}</TruncatedCell>} />
+            <TextField name="externalOwnerID" label="External Owner ID" {...sharedFieldProps} {...externalRefLockProps} formatDisplayValue={(v) => <TruncatedCell>{v}</TruncatedCell>} />
           </div>
           <div className="grid grid-cols-1 gap-2">
-            <TextField name="externalURI" label="External URI" type="link" {...sharedFieldProps} handleUpdate={handleExternalURIUpdate} />
+            <TextField name="externalURI" label="External URI" type="link" {...sharedFieldProps} handleUpdate={handleExternalURIUpdate} {...externalRefLockProps} />
           </div>
         </CardContent>
       </Card>
