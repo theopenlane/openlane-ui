@@ -72,7 +72,7 @@ const useSearchPersonnel = (search: string, excludeId: string) => {
     () =>
       identityHoldersNodes.map((n) => ({
         id: n.id,
-        label: n.fullName ?? n.email ?? n.id,
+        label: n.fullName || n.email || n.id,
         sublabel: n.email && n.fullName ? n.email : undefined,
       })),
     [identityHoldersNodes],
@@ -169,7 +169,7 @@ export const personnelMergeConfig: MergeConfig<Personnel, UpdateIdentityHolderIn
   useSearchRecords: useSearchPersonnel,
   toUpdateInput: (resolved) => ({ ...resolved }) as UpdateIdentityHolderInput,
   invalidateKeys: [['identityHolders']],
-  getDisplayName: (record) => record.fullName ?? record.email ?? record.id,
+  getDisplayName: (record) => record.fullName || record.email || record.id,
   emailAliasFold: {
     emailKey: 'email',
     aliasesKey: 'emailAliases',

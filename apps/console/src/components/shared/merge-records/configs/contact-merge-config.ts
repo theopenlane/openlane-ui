@@ -55,7 +55,7 @@ const useSearchContacts = (search: string, excludeId: string) => {
     () =>
       contactsNodes.map((n) => ({
         id: n.id,
-        label: n.fullName ?? n.email ?? n.id,
+        label: n.fullName || n.email || n.id,
         sublabel: n.email && n.fullName ? n.email : undefined,
       })),
     [contactsNodes],
@@ -75,5 +75,5 @@ export const contactMergeConfig: MergeConfig<Contact, UpdateContactInput> = {
   useSearchRecords: useSearchContacts,
   toUpdateInput: (resolved) => ({ ...resolved }) as UpdateContactInput,
   invalidateKeys: [['contacts']],
-  getDisplayName: (record) => record.fullName ?? record.email ?? record.id,
+  getDisplayName: (record) => record.fullName || record.email || record.id,
 }

@@ -77,7 +77,7 @@ const useSearchVendors = (search: string, excludeId: string) => {
     () =>
       vendorNodes.map((n) => ({
         id: n.id,
-        label: n.displayName ?? n.name ?? n.id,
+        label: n.displayName || n.name || n.id,
         sublabel: n.name && n.displayName && n.name !== n.displayName ? n.name : undefined,
       })),
     [vendorNodes],
@@ -98,5 +98,5 @@ export const vendorMergeConfig: MergeConfig<Vendor, UpdateEntityInput> = {
   useSearchRecords: useSearchVendors,
   toUpdateInput: (resolved) => ({ ...resolved }) as UpdateEntityInput,
   invalidateKeys: [['entities']],
-  getDisplayName: (record) => record.displayName ?? record.name ?? record.id,
+  getDisplayName: (record) => record.displayName || record.name || record.id,
 }

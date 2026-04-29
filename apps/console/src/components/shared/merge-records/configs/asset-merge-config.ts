@@ -67,7 +67,7 @@ const useSearchAssets = (search: string, excludeId: string) => {
     () =>
       assetsNodes.map((n) => ({
         id: n.id,
-        label: n.displayName ?? n.name ?? n.id,
+        label: n.displayName || n.name || n.id,
         sublabel: n.identifier ?? undefined,
       })),
     [assetsNodes],
@@ -88,5 +88,5 @@ export const assetMergeConfig: MergeConfig<Asset, UpdateAssetInput> = {
   useSearchRecords: useSearchAssets,
   toUpdateInput: (resolved) => ({ ...resolved }) as UpdateAssetInput,
   invalidateKeys: [['assets']],
-  getDisplayName: (record) => record.displayName ?? record.name ?? record.id,
+  getDisplayName: (record) => record.displayName || record.name || record.id,
 }
