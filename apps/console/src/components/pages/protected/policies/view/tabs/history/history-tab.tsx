@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { useNotification } from '@/hooks/useNotification.tsx'
 import { useGetInternalPolicyHistories, useUpdateInternalPolicy } from '@/lib/graphql-hooks/internal-policy'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
@@ -20,16 +20,30 @@ type HistoryTabProps = {
 }
 
 const HistoryTab: React.FC<HistoryTabProps> = ({ policyId, policy }) => {
-  const { data, isLoading } = useGetInternalPolicyHistories(policyId)
+  const { historyNodes: rawHistoryNodes, isLoading, hasNextPage, fetchNextPage, isFetchingNextPage } = useGetInternalPolicyHistories(policyId)
   const { mutateAsync: updatePolicy, isPending: isRestoring } = useUpdateInternalPolicy()
   const { successNotification, errorNotification } = useNotification()
 
   const [selectedHistoryId, setSelectedHistoryId] = useState<string | null>(null)
   const [restoreTargetId, setRestoreTargetId] = useState<string | null>(null)
 
-  const historyNodes = useMemo(() => {
-    return (data?.internalPolicyHistories?.edges ?? []).map((edge) => edge?.node).filter((n): n is NonNullable<typeof n> => n != null && n.revision !== policy.revision)
-  }, [data, policy.revision])
+  const historyNodes = useMemo(() => rawHistoryNodes.filter((n) => n.revision !== policy.revision), [rawHistoryNodes, policy.revision])
+
+  const sentinelRef = useRef<HTMLDivElement | null>(null)
+  useEffect(() => {
+    const el = sentinelRef.current
+    if (!el || !hasNextPage) return
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage()
+        }
+      },
+      { rootMargin: '200px' },
+    )
+    observer.observe(el)
+    return () => observer.unobserve(el)
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage])
 
   const userIds = useMemo(() => {
     const ids = new Set<string>()
@@ -111,26 +125,31 @@ const HistoryTab: React.FC<HistoryTabProps> = ({ policyId, policy }) => {
 
       <HistoryRow id={policyId} revision={policy.revision} occurredAt={policy.updatedAt} user={currentAuthor.user} token={currentAuthor.token} isCurrent />
 
-      {isLoading ? (
+      {isLoading && historyNodes.length === 0 ? (
         <p className="text-sm text-muted-foreground">Loading history…</p>
       ) : historyNodes.length === 0 ? (
         <p className="text-sm text-muted-foreground">No prior major or minor versions.</p>
       ) : (
-        historyNodes.map((node) => {
-          const author = lookupAuthor(node.createdBy ?? node.updatedBy)
-          return (
-            <HistoryRow
-              key={node.id}
-              id={node.id}
-              revision={node.revision}
-              occurredAt={node.historyTime}
-              user={author.user}
-              token={author.token}
-              onView={(id) => setSelectedHistoryId(id)}
-              onRestore={(id) => setRestoreTargetId(id)}
-            />
-          )
-        })
+        <>
+          {historyNodes.map((node) => {
+            const author = lookupAuthor(node.createdBy ?? node.updatedBy)
+            return (
+              <HistoryRow
+                key={node.id}
+                id={node.id}
+                revision={node.revision}
+                occurredAt={node.historyTime}
+                user={author.user}
+                token={author.token}
+                onView={(id) => setSelectedHistoryId(id)}
+                onRestore={(id) => setRestoreTargetId(id)}
+              />
+            )
+          })}
+          <div ref={sentinelRef} className="flex justify-center py-2 text-xs text-muted-foreground">
+            {isFetchingNextPage ? 'Loading more…' : !hasNextPage && historyNodes.length > 0 ? `${historyNodes.length} prior version${historyNodes.length === 1 ? '' : 's'}` : null}
+          </div>
+        </>
       )}
 
       <VersionSlideout historyId={selectedHistoryId} histories={historyNodes} currentPolicy={policy} onClose={() => setSelectedHistoryId(null)} onRestore={(id) => setRestoreTargetId(id)} />
