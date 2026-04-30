@@ -77173,6 +77173,7 @@ export type GetTrustCenterQuery = {
           ndaApprovalRequired?: boolean | null
           logoFile?: { __typename?: 'File'; id: string; base64?: string | null } | null
           faviconFile?: { __typename?: 'File'; id: string; base64?: string | null } | null
+          heroImageFile?: { __typename?: 'File'; id: string; base64?: string | null } | null
         } | null
         previewSetting?: {
           __typename?: 'TrustCenterSetting'
@@ -77197,6 +77198,7 @@ export type GetTrustCenterQuery = {
           updatedAt?: any | null
           logoFile?: { __typename?: 'File'; id: string; base64?: string | null } | null
           faviconFile?: { __typename?: 'File'; id: string; base64?: string | null } | null
+          heroImageFile?: { __typename?: 'File'; id: string; base64?: string | null } | null
         } | null
         watermarkConfig?: {
           __typename?: 'TrustCenterWatermarkConfig'
@@ -77219,6 +77221,7 @@ export type UpdateTrustCenterSettingMutationVariables = Exact<{
   input: UpdateTrustCenterSettingInput
   faviconFile?: InputMaybe<Scalars['Upload']['input']>
   logoFile?: InputMaybe<Scalars['Upload']['input']>
+  heroImageFile?: InputMaybe<Scalars['Upload']['input']>
 }>
 
 export type UpdateTrustCenterSettingMutation = {
@@ -77232,6 +77235,7 @@ export type UpdateTrustCenterSettingMutation = {
       faviconRemoteURL?: string | null
       faviconFile?: { __typename?: 'File'; id: string } | null
       logoFile?: { __typename?: 'File'; id: string } | null
+      heroImageFile?: { __typename?: 'File'; id: string } | null
     }
   }
 }
