@@ -255,6 +255,7 @@
         "@platejs/comment": "^52.3.10",
         "@platejs/core": "^52.3.10",
         "@platejs/date": "^52.3.10",
+        "@platejs/diff": "52.3.10",
         "@platejs/dnd": "^52.3.10",
         "@platejs/docx": "^52.3.10",
         "@platejs/docx-io": "^52.3.10",

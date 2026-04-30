@@ -1,5 +1,6 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
+import { useHistoryGraphQLClient } from '@/hooks/useHistoryGraphQLClient'
 import {
   GET_INTERNAL_POLICIES_LIST,
   GET_INTERNAL_POLICY_DETAILS_BY_ID,
@@ -18,6 +19,8 @@ import {
   UPDATE_POLICY_COMMENT,
   GET_POLICY_COMMENTS_BY_ID,
 } from '@repo/codegen/query/internal-policy'
+import { GET_INTERNAL_POLICY_HISTORIES } from '@repo/codegen/query-history/internal-policy'
+import { type GetInternalPolicyHistoriesQuery, type GetInternalPolicyHistoriesQueryVariables, InternalPolicyHistoryOrderField, OrderDirection } from '@repo/codegen/src/historyschema'
 import {
   type CreateBulkCsvInternalPolicyMutation,
   type CreateBulkCsvInternalPolicyMutationVariables,
@@ -170,6 +173,7 @@ export const useUpdateInternalPolicy = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['policyDiscussion'] })
       queryClient.invalidateQueries({ queryKey: ['internalPolicies'] })
+      queryClient.invalidateQueries({ queryKey: ['internalPolicyHistories'] })
     },
   })
 }
@@ -331,5 +335,24 @@ export const useGetPolicyCommentsById = (policyId: string | null | undefined) =>
     queryKey: ['policyComments', policyId],
     queryFn: async () => client.request(GET_POLICY_COMMENTS_BY_ID, { policyId }),
     enabled: !!policyId,
+  })
+}
+
+const HISTORY_ORDER_BY = { field: InternalPolicyHistoryOrderField.history_time, direction: OrderDirection.DESC }
+const HISTORY_PAGE_SIZE = 100
+
+export const useGetInternalPolicyHistories = (policyId: string | null | undefined, enabled = true) => {
+  const { client } = useHistoryGraphQLClient()
+  const where = { ref: policyId, revisionHasSuffix: '.0' }
+
+  return useQuery<GetInternalPolicyHistoriesQuery>({
+    queryKey: ['internalPolicyHistories', policyId, where, HISTORY_ORDER_BY, HISTORY_PAGE_SIZE],
+    queryFn: async () =>
+      client.request<GetInternalPolicyHistoriesQuery, GetInternalPolicyHistoriesQueryVariables>(GET_INTERNAL_POLICY_HISTORIES, {
+        where,
+        orderBy: HISTORY_ORDER_BY,
+        first: HISTORY_PAGE_SIZE,
+      }),
+    enabled: !!policyId && enabled,
   })
 }

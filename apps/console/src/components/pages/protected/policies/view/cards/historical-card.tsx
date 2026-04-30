@@ -1,12 +1,12 @@
 'use client'
 
 import React from 'react'
-import { type ApiToken, type InternalPolicyByIdFragment, type User } from '@repo/codegen/src/schema'
-import { CalendarCheck2, CalendarClock, KeyRound, UserRoundCheck, UserRoundPen } from 'lucide-react'
-import { Avatar } from '@/components/shared/avatar/avatar.tsx'
+import { type InternalPolicyByIdFragment } from '@repo/codegen/src/schema'
+import { CalendarCheck2, CalendarClock, UserRoundCheck, UserRoundPen } from 'lucide-react'
 import { formatTimeSince } from '@/utils/date'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
 import { useGetApiTokensByIds } from '@/lib/graphql-hooks/tokens.ts'
+import AuthorBadge from '@/components/shared/user-display/author-badge'
 
 type TPropertiesCardProps = {
   policy: InternalPolicyByIdFragment
@@ -27,19 +27,6 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ policy }) => {
   const createdByToken = tokens?.find((item) => item.id === policy?.createdBy)
   const createdByUser = users?.find((item) => item.id === policy?.createdBy)
 
-  const handleUserDisplay = (token?: ApiToken, user?: User) => {
-    if (!token && !user) {
-      return 'Deleted user'
-    }
-
-    return (
-      <>
-        {token ? <KeyRound size={16} /> : <Avatar entity={user} variant="small" />}
-        {token ? token.name : user?.displayName || '—'}
-      </>
-    )
-  }
-
   return (
     <div className="flex flex-col gap-4 pb-4">
       {/* Created By */}
@@ -50,7 +37,9 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ policy }) => {
         </div>
 
         <div className="w-full">
-          <div className="flex gap-2 cursor-not-allowed text-sm">{handleUserDisplay(createdByToken, createdByUser)}</div>
+          <div className="flex gap-2 cursor-not-allowed text-sm">
+            <AuthorBadge user={createdByUser} token={createdByToken} />
+          </div>
         </div>
       </div>
 
@@ -76,7 +65,9 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ policy }) => {
         </div>
 
         <div className="w-full">
-          <div className="flex gap-2 cursor-not-allowed text-sm">{handleUserDisplay(updatedByToken, updatedByUser)}</div>
+          <div className="flex gap-2 cursor-not-allowed text-sm">
+            <AuthorBadge user={updatedByUser} token={updatedByToken} />
+          </div>
         </div>
       </div>
 
