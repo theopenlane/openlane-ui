@@ -27,7 +27,7 @@ const RestoreDialog: React.FC<RestoreDialogProps> = ({ open, onOpenChange, revis
       title="Restore Policy Version"
       description={description}
       confirmationText={isPending ? 'Restoring…' : 'Restore version'}
-      confirmationTextVariant="filled"
+      confirmationTextVariant="primary"
       loading={isPending}
     />
   )

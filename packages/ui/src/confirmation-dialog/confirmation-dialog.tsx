@@ -21,7 +21,20 @@ type ConfirmationAlertProps = {
   title?: string
   description: React.ReactNode
   confirmationText?: string
-  confirmationTextVariant?: 'filled' | 'white' | 'success' | 'light' | 'outline' | 'outlineLight' | 'outlineInput' | 'outlineInputPadding' | 'redOutline' | 'destructive' | 'back' | undefined
+  confirmationTextVariant?:
+    | 'filled'
+    | 'white'
+    | 'success'
+    | 'light'
+    | 'outline'
+    | 'outlineLight'
+    | 'outlineInput'
+    | 'outlineInputPadding'
+    | 'redOutline'
+    | 'destructive'
+    | 'back'
+    | 'primary'
+    | undefined
   showInput?: boolean
   loading?: boolean
 }

@@ -13,9 +13,9 @@ type VersionDiffProps = {
 }
 
 const diffOperationColors: Record<DiffOperation['type'], string> = {
-  delete: 'bg-red-200',
-  insert: 'bg-green-200',
-  update: 'bg-blue-200',
+  delete: 'bg-red-200 text-red-950 dark:bg-red-500/30 dark:text-red-50',
+  insert: 'bg-green-200 text-green-950 dark:bg-green-500/30 dark:text-green-50',
+  update: 'bg-blue-200 text-blue-950 dark:bg-blue-500/30 dark:text-blue-50',
 }
 
 const describeUpdate = ({ newProperties, properties }: DiffUpdate): string => {
@@ -108,13 +108,13 @@ const VersionDiff: React.FC<VersionDiffProps> = ({ previous, current }) => {
     <div>
       <div className="mb-3 flex items-center gap-3 text-xs text-muted-foreground">
         <span className="inline-flex items-center gap-1">
-          <span className="inline-block h-3 w-3 rounded bg-green-200" /> added
+          <span className="inline-block h-3 w-3 rounded bg-green-200 dark:bg-green-500/30" /> added
         </span>
         <span className="inline-flex items-center gap-1">
-          <span className="inline-block h-3 w-3 rounded bg-red-200" /> removed
+          <span className="inline-block h-3 w-3 rounded bg-red-200 dark:bg-red-500/30" /> removed
         </span>
         <span className="inline-flex items-center gap-1">
-          <span className="inline-block h-3 w-3 rounded bg-blue-200" /> updated
+          <span className="inline-block h-3 w-3 rounded bg-blue-200 dark:bg-blue-500/30" /> updated
         </span>
       </div>
       <Plate readOnly editor={editor}>

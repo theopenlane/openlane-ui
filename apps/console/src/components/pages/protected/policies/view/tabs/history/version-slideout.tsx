@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useMemo, useState } from 'react'
+import { ChevronDown } from 'lucide-react'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { Button } from '@repo/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
@@ -13,6 +14,24 @@ import FieldsDiff from './fields-diff'
 import { type HistoryNode } from './types'
 import { toPlateValue } from './utils'
 import { stringToPlateValue } from '@/components/shared/plate/plate-utils'
+
+type CollapsibleSectionProps = {
+  label: string
+  children: React.ReactNode
+}
+
+const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({ label, children }) => {
+  const [open, setOpen] = useState(false)
+  return (
+    <div>
+      <button type="button" onClick={() => setOpen((v) => !v)} className="flex items-center gap-1 text-sm font-medium" aria-expanded={open}>
+        <ChevronDown className={`h-4 w-4 transition-transform ${open ? '' : '-rotate-90'}`} />
+        {label}
+      </button>
+      {open ? <div className="mt-2">{children}</div> : null}
+    </div>
+  )
+}
 
 type VersionSlideoutProps = {
   historyId: string | null
@@ -52,7 +71,9 @@ const VersionSlideout: React.FC<VersionSlideoutProps> = ({ historyId, histories,
                 </TabsList>
                 <TabsContent value="version">
                   <div className="flex flex-col gap-4">
-                    <FieldsSummary history={record} />
+                    <CollapsibleSection label="Metadata">
+                      <FieldsSummary history={record} />
+                    </CollapsibleSection>
                     <div>
                       <h4 className="mb-2 text-sm font-medium">Details</h4>
                       <VersionReadonly value={previousValue} detailsHtml={record.details ?? null} cacheKey={record.id} />
@@ -61,10 +82,9 @@ const VersionSlideout: React.FC<VersionSlideoutProps> = ({ historyId, histories,
                 </TabsContent>
                 <TabsContent value="diff">
                   <div className="flex flex-col gap-4">
-                    <div>
-                      <h4 className="mb-2 text-sm font-medium">Field changes</h4>
+                    <CollapsibleSection label="Field changes">
                       <FieldsDiff history={record} current={currentPolicy} />
-                    </div>
+                    </CollapsibleSection>
                     <div>
                       <h4 className="mb-2 text-sm font-medium">Details diff</h4>
                       <VersionDiff previous={previousValue} current={currentValue} />

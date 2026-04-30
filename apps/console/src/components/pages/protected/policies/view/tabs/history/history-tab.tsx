@@ -6,7 +6,6 @@ import { useGetInternalPolicyHistories, useUpdateInternalPolicy } from '@/lib/gr
 import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
 import { useGetApiTokensByIds } from '@/lib/graphql-hooks/tokens.ts'
 import { type InternalPolicyByIdFragment, InternalPolicyDocumentStatus, InternalPolicyFrequency, type UpdateInternalPolicyInput, type ApiToken, type User } from '@repo/codegen/src/schema'
-import { Button } from '@repo/ui/button'
 import HistoryRow from './history-row'
 import VersionSlideout from './version-slideout'
 import RestoreDialog from './restore-dialog'
@@ -133,12 +132,6 @@ const HistoryTab: React.FC<HistoryTabProps> = ({ policyId, policy }) => {
           )
         })
       )}
-
-      <div className="pt-2">
-        <Button type="button" variant="transparent" disabled aria-disabled>
-          View all versions including patches
-        </Button>
-      </div>
 
       <VersionSlideout historyId={selectedHistoryId} histories={historyNodes} currentPolicy={policy} onClose={() => setSelectedHistoryId(null)} onRestore={(id) => setRestoreTargetId(id)} />
 
