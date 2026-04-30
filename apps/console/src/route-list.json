@@ -179,8 +179,7 @@
   },
   {
     "route": "/organization-settings/integrations",
-    "name": "Integrations",
-    "hidden": true
+    "name": "Integrations"
   },
   {
     "route": "/organization-settings/logs",
