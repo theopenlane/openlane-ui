@@ -21,6 +21,8 @@ export const GET_INTEGRATIONS = gql`
           createdBy
           environmentName
           scopeName
+          credentials
+          config
         }
       }
     }

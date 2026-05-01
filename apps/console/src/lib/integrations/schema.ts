@@ -74,7 +74,7 @@ export function buildInitialValues(sections: SchemaSection[]): FormValues {
         continue
       }
 
-      if (property.default !== undefined) {
+      if (property.default != null) {
         if (property.type === 'array' && Array.isArray(property.default)) {
           values[fieldName] = property.default.join('\n')
         } else if (property.type === 'boolean') {
