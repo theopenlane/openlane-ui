@@ -8,7 +8,7 @@ import { Card } from '@repo/ui/cardpanel'
 import { Separator } from '@repo/ui/separator'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { type IntegrationMetadata, type IntegrationNode, type IntegrationProvider } from '@/lib/integrations/types'
-import { getInstalledIntegrationConfig, installedIntegrationDisplayName, providerSupportsHealth, resolveConnectionEntry, resolveCredentialEntry } from '@/lib/integrations/utils'
+import { getInstalledIntegrationConfig, installedIntegrationDisplayName, providerSupportsHealth, resolveConnectionEntry, resolveCredentialEntry, resolveManageUrl } from '@/lib/integrations/utils'
 import { providerHasUserInputSchema } from '@/lib/integrations/flow'
 import { useDisconnectIntegration, useIntegrationHealth } from '@/lib/query-hooks/integrations'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
@@ -42,12 +42,7 @@ const InstalledIntegrationCard = ({ integration, providers }: InstalledIntegrati
   const lastHealthCheck = meta?.lastSuccessfulHealthCheck ?? ''
   const credentialEntry = resolveCredentialEntry(provider, credentialRefName)
   const connectionEntry = resolveConnectionEntry(provider, credentialRefName || undefined)
-  const manageUrl =
-    connectionEntry?.auth != null && externalId
-      ? externalName
-        ? `https://github.com/organizations/${externalName}/settings/installations/${externalId}`
-        : `https://github.com/settings/installations/${externalId}`
-      : null
+  const manageUrl = resolveManageUrl(provider, connectionEntry, externalId, externalName)
 
   const disconnectMutation = useDisconnectIntegration()
   const healthQuery = useIntegrationHealth(integration.id, supportsHealth)
