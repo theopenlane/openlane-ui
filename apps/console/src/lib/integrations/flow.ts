@@ -122,7 +122,7 @@ function buildStartRequestBody(provider: IntegrationProvider, options?: StartInt
   }
 
   if (options?.installationId) {
-    body.installationId = options.installationId
+    body.integrationId = options.installationId
   }
 
   if (options?.userInput && Object.keys(options.userInput).length > 0) {

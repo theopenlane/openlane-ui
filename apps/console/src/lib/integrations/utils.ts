@@ -264,6 +264,21 @@ export function disabledOperationConfigKeys(provider?: IntegrationProvider): Set
   return new Set((provider?.operations ?? []).filter((op) => op.disabledForAll).map((op) => op.name.charAt(0).toLowerCase() + op.name.slice(1)))
 }
 
+export function resolveManageUrl(provider: IntegrationProvider | undefined, connectionEntry: ReturnType<typeof resolveConnectionEntry>, externalId: string, externalName: string): string | null {
+  if (!connectionEntry?.auth || !externalId) return null
+
+  const token = normalizeIntegrationToken(provider?.slug)
+
+  switch (token) {
+    case 'github':
+      return externalName ? `https://github.com/organizations/${externalName}/settings/installations/${externalId}` : `https://github.com/settings/installations/${externalId}`
+    case 'slack':
+      return `https://app.slack.com/apps-manage/${externalId}/integrations`
+    default:
+      return null
+  }
+}
+
 export async function parseIntegrationErrorMessage(response: Response): Promise<string> {
   const raw = await response.text().catch(() => '')
 
