@@ -77,4 +77,5 @@ export type MergeConfig<TRecord, TUpdateInput> = {
   getDisplayName?: (record: TRecord) => string
   emailAliasFold?: MergeEmailAliasFoldConfig<TRecord>
   usePreSaveInputExtras?: (args: { primaryId: string; secondaryId: string | null; primary: TRecord | null | undefined }) => MergePreSaveExtrasResult<TUpdateInput>
+  deleteSecondaryFirst?: boolean
 }

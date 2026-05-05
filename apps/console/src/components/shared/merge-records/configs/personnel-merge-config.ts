@@ -177,4 +177,5 @@ export const personnelMergeConfig: MergeConfig<Personnel, UpdateIdentityHolderIn
     label: 'Add secondary email to aliases',
   },
   usePreSaveInputExtras: usePersonnelPreSaveExtras,
+  deleteSecondaryFirst: true,
 }

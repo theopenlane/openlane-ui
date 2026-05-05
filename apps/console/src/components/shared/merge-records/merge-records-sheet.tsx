@@ -82,9 +82,51 @@ export const MergeRecordsSheet = <TRecord extends object, TUpdateInput>({ open, 
   const runMerge = async () => {
     if (!secondaryId || !canMerge) return
     setIsMerging(true)
+
+    const baseInput = config.toUpdateInput(resolvedRecord)
+    const input = { ...baseInput, ...(extras.data ?? {}) } as TUpdateInput
+
+    const invalidate = () => {
+      for (const key of config.invalidateKeys ?? []) {
+        queryClient.invalidateQueries({ queryKey: key })
+      }
+    }
+
+    const finishMerge = () => {
+      setIsMerging(false)
+      handleReset()
+      onMergeComplete?.()
+      onOpenChange(false)
+    }
+
+    if (config.deleteSecondaryFirst) {
+      try {
+        await del.mutateAsync(secondaryId)
+      } catch (error) {
+        setIsMerging(false)
+        errorNotification({ title: 'Merge failed', description: parseErrorMessage(error) })
+        return
+      }
+
+      try {
+        await update.mutateAsync({ id: primaryId, input })
+      } catch (error) {
+        invalidate()
+        warningNotification({
+          title: 'Merge incomplete',
+          description: `The secondary ${config.labelSingular} was deleted, but updating the primary failed: ${parseErrorMessage(error)}. Apply the changes manually.`,
+        })
+        finishMerge()
+        return
+      }
+
+      invalidate()
+      successNotification({ title: 'Merge complete', description: `The ${config.labelSingular} records were merged successfully.` })
+      finishMerge()
+      return
+    }
+
     try {
-      const baseInput = config.toUpdateInput(resolvedRecord)
-      const input = { ...baseInput, ...(extras.data ?? {}) } as TUpdateInput
       await update.mutateAsync({ id: primaryId, input })
     } catch (error) {
       setIsMerging(false)
@@ -103,18 +145,13 @@ export const MergeRecordsSheet = <TRecord extends object, TUpdateInput>({ open, 
       })
     }
 
-    for (const key of config.invalidateKeys ?? []) {
-      queryClient.invalidateQueries({ queryKey: key })
-    }
+    invalidate()
 
     if (!deleteFailed) {
       successNotification({ title: 'Merge complete', description: `The ${config.labelSingular} records were merged successfully.` })
     }
 
-    setIsMerging(false)
-    handleReset()
-    onMergeComplete?.()
-    onOpenChange(false)
+    finishMerge()
   }
 
   const loadingBothSides = isPrimaryLoading || (secondaryId !== null && isSecondaryLoading)
