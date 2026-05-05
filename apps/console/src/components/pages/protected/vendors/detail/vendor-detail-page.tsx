@@ -200,26 +200,32 @@ const VendorDetailPage: React.FC<VendorDetailPageProps> = ({ vendorId }) => {
 
   const queryClient = useQueryClient()
 
-  const memoizedSections = useMemo(() => {
-    if (!associationsData?.entity) return {}
-    return {
-      assets: associationsData.entity.assets,
-      scans: associationsData.entity.scans,
-      campaigns: associationsData.entity.campaigns,
-      identityHolders: associationsData.entity.identityHolders,
-      controls: associationsData.entity.controls,
-      subcontrols: associationsData.entity.subcontrols,
-      policies: associationsData.entity.internalPolicies,
-    }
-  }, [associationsData?.entity])
+  const memoizedSections = useMemo(
+    () =>
+      associationsData?.entity
+        ? {
+            assets: associationsData.entity.assets,
+            scans: associationsData.entity.scans,
+            campaigns: associationsData.entity.campaigns,
+            identityHolders: associationsData.entity.identityHolders,
+            controls: associationsData.entity.controls,
+            subcontrols: associationsData.entity.subcontrols,
+            policies: associationsData.entity.internalPolicies,
+          }
+        : {},
+    [associationsData],
+  )
 
-  const memoizedCenterNode = useMemo(() => {
-    if (!data?.entity) return null
-    return {
-      node: data.entity,
-      type: ObjectAssociationNodeEnum.ENTITY,
-    }
-  }, [data?.entity])
+  const memoizedCenterNode = useMemo(
+    () =>
+      data?.entity
+        ? {
+            node: data.entity,
+            type: ObjectAssociationNodeEnum.ENTITY,
+          }
+        : null,
+    [data],
+  )
 
   const handleRemoveAssociation = useAssociationRemoval({
     entityId: vendorId,

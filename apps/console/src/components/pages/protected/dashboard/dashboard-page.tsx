@@ -1,6 +1,5 @@
 'use client'
-import React, { useState, useMemo, useEffect } from 'react'
-import { useSearchParams } from 'next/navigation'
+import React, { useEffect } from 'react'
 import { useGetAllPrograms } from '@/lib/graphql-hooks/program'
 import { ProgramProgramStatus } from '@repo/codegen/src/schema'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
@@ -17,35 +16,13 @@ const DashboardPage: React.FC = () => {
   const { data: sessionData } = useSession()
   const userId = sessionData?.user?.userId
   const { data: userData } = useGetCurrentUser(userId)
-  const searchParams = useSearchParams()
-  const programId = searchParams.get('id')
-  const [, setSelectedProgram] = useState<string>('All programs')
   const { setCrumbs } = React.use(BreadcrumbContext)
 
-  const { data, isLoading } = useGetAllPrograms({
+  const { isLoading } = useGetAllPrograms({
     where: {
       statusNotIn: [ProgramProgramStatus.COMPLETED, ProgramProgramStatus.ARCHIVED],
     },
   })
-
-  const programMap = useMemo(() => {
-    const map: Record<string, string> = {}
-    data?.programs?.edges?.forEach((edge) => {
-      if (edge?.node) {
-        map[edge.node.id] = edge.node.name
-      }
-    })
-    return map
-  }, [data])
-
-  useEffect(() => {
-    if (!programId) {
-      setSelectedProgram('All programs')
-    } else {
-      const programName = programMap[programId] ?? 'Unknown Program'
-      setSelectedProgram(programName)
-    }
-  }, [searchParams, programMap, programId])
 
   useEffect(() => {
     setCrumbs([{ label: 'Home', href: '/dashboard' }])

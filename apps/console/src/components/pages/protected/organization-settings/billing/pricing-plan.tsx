@@ -1,5 +1,6 @@
 'use client'
 import React, { useEffect, useMemo } from 'react'
+import { fromUnixTime } from 'date-fns'
 
 import { useOrganization } from '@/hooks/useOrganization'
 import { useOpenlaneProductsQuery, usePaymentMethodsQuery, useSchedulesQuery, useUpdateScheduleMutation, useUpcomingInvoiceQuery } from '@/lib/query-hooks/stripe'
@@ -68,7 +69,7 @@ const PricingPlan = () => {
     return new Set(ending)
   }, [schedules])
 
-  const nextPhaseStart = schedules?.[0]?.phases?.[1]?.start_date ? new Date(schedules[0].phases[1].start_date * 1000) : null
+  const nextPhaseStart = useMemo(() => (schedules?.[0]?.phases?.[1]?.start_date ? fromUnixTime(schedules[0].phases[1].start_date) : null), [schedules])
   const isSubscriptionCanceled = schedules[0]?.end_behavior === 'cancel'
 
   const modules = Object.values(openlaneProducts?.modules || {})

@@ -73,7 +73,9 @@ const RiskDetailPage: React.FC<RiskDetailPageProps> = ({ riskId }) => {
   const navGuard = useNavigationGuard({ enabled: isDirty })
 
   const isEditingRef = useRef(isEditing)
-  isEditingRef.current = isEditing
+  useEffect(() => {
+    isEditingRef.current = isEditing
+  }, [isEditing])
 
   useEffect(() => {
     setCrumbs([
@@ -200,31 +202,37 @@ const RiskDetailPage: React.FC<RiskDetailPageProps> = ({ riskId }) => {
 
   const queryClient = useQueryClient()
 
-  const memoizedSections = useMemo(() => {
-    if (!associationsData?.risk) return {}
-    return {
-      assets: associationsData.risk.assets,
-      scans: associationsData.risk.scans,
-      controls: associationsData.risk.controls,
-      subcontrols: associationsData.risk.subcontrols,
-      policies: associationsData.risk.internalPolicies,
-      actionPlans: associationsData.risk.actionPlans,
-      reviews: associationsData.risk.reviews,
-      remediations: associationsData.risk.remediations,
-      entities: associationsData.risk.entities,
-      programs: associationsData.risk.programs,
-      procedures: associationsData.risk.procedures,
-      tasks: associationsData.risk.tasks,
-    }
-  }, [associationsData?.risk])
+  const memoizedSections = useMemo(
+    () =>
+      associationsData?.risk
+        ? {
+            assets: associationsData.risk.assets,
+            scans: associationsData.risk.scans,
+            controls: associationsData.risk.controls,
+            subcontrols: associationsData.risk.subcontrols,
+            policies: associationsData.risk.internalPolicies,
+            actionPlans: associationsData.risk.actionPlans,
+            reviews: associationsData.risk.reviews,
+            remediations: associationsData.risk.remediations,
+            entities: associationsData.risk.entities,
+            programs: associationsData.risk.programs,
+            procedures: associationsData.risk.procedures,
+            tasks: associationsData.risk.tasks,
+          }
+        : {},
+    [associationsData],
+  )
 
-  const memoizedCenterNode = useMemo(() => {
-    if (!data?.risk) return null
-    return {
-      node: data.risk,
-      type: ObjectAssociationNodeEnum.RISKS,
-    }
-  }, [data?.risk])
+  const memoizedCenterNode = useMemo(
+    () =>
+      data?.risk
+        ? {
+            node: data.risk,
+            type: ObjectAssociationNodeEnum.RISKS,
+          }
+        : null,
+    [data],
+  )
 
   const handleRemoveAssociation = useAssociationRemoval({
     entityId: riskId,

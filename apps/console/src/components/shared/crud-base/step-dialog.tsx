@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useRef } from 'react'
+import React, { useState } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@repo/ui/dialog'
 import { Button } from '@repo/ui/button'
 import { useNotification } from '@/hooks/useNotification'
@@ -36,11 +36,8 @@ export function StepDialog<TFormData extends FieldValues, TCreateInput, TCreateD
   const queryClient = useQueryClient()
   const { successNotification, errorNotification } = useNotification()
 
-  const stepperDefRef = useRef<ReturnType<typeof defineStepper> | null>(null)
-  if (!stepperDefRef.current) {
-    stepperDefRef.current = defineStepper(...steps.map((step) => ({ id: step.id })))
-  }
-  const stepper = stepperDefRef.current.useStepper()
+  const [stepperDef] = useState(() => defineStepper(...steps.map((step) => ({ id: step.id }))))
+  const stepper = stepperDef.useStepper()
 
   const objectTypeName = toHumanLabel(objectType)
   const queryKey = [pluralizeTypeName(objectType.toLowerCase())]

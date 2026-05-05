@@ -32,7 +32,7 @@ const StandardSelect = () => {
     },
   })
 
-  const currentYear = new Date().getFullYear()
+  const currentYear = useMemo(() => new Date().getFullYear(), [])
 
   return (
     <FormField

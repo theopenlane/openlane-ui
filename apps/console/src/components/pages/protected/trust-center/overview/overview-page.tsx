@@ -2,6 +2,7 @@
 import { useGetTrustCenter, useGetTrustCenterLastUpdated, useGetTrustCenterPosts } from '@/lib/graphql-hooks/trust-center'
 import { useGetTrustCenterDocs } from '@/lib/graphql-hooks/trust-center-doc'
 import { formatDate } from '@/utils/date'
+import { max, parseISO } from 'date-fns'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { PageHeading } from '@repo/ui/page-heading'
 import { Brush, Globe, Megaphone, Server, Upload } from 'lucide-react'
@@ -9,9 +10,11 @@ import { LivePreview, type LivePreviewTrustCenter } from './live-preview'
 import { useGetTrustCenterSubprocessors } from '@/lib/graphql-hooks/trust-center-subprocessor'
 import { useRouter } from 'next/navigation'
 import { SuggestedActionCard } from './suggested-action-card'
-import { use, useEffect } from 'react'
+import { use, useEffect, useMemo } from 'react'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import AnalyticsCards from './analytics-cards'
+
+const EPOCH_ISO = new Date(0).toISOString()
 
 const OverviewPage: React.FC = () => {
   const { setCrumbs } = use(BreadcrumbContext)
@@ -35,14 +38,14 @@ const OverviewPage: React.FC = () => {
     ...(lastUpdatedData?.trustCenter.posts?.edges ?? []).map((e) => e?.node?.updatedAt),
   ].filter(Boolean)
 
-  const mostRecentUpdatedAt = updatedAtValues.length > 0 ? new Date(Math.max(...updatedAtValues.map((d) => new Date(d).getTime()))).toISOString() : null
+  const mostRecentUpdatedAt = useMemo(() => (updatedAtValues.length > 0 ? max(updatedAtValues.map((d) => parseISO(d))).toISOString() : null), [updatedAtValues])
 
   const trustCenterLivePreview: LivePreviewTrustCenter | undefined = trustCenter
     ? {
         customDomain: {
           cnameRecord: trustCenter.customDomain?.cnameRecord ?? `https://trust.theopenlane.net/${trustCenter?.slug}`,
         },
-        updatedAt: mostRecentUpdatedAt ?? new Date(0).toISOString(),
+        updatedAt: mostRecentUpdatedAt ?? EPOCH_ISO,
       }
     : undefined
 

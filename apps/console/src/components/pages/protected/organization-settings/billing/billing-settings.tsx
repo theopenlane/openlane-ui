@@ -1,5 +1,6 @@
 'use client'
 import React, { useMemo, useState } from 'react'
+import { fromUnixTime, isPast } from 'date-fns'
 import BillingEmailDialog from './billing-email-dialog'
 import BillingContactDialog from './billing-contract-dialog'
 import { useOrganization } from '@/hooks/useOrganization'
@@ -36,8 +37,8 @@ const BillingSettings: React.FC = () => {
   const isCanceledBySchedule = schedule?.end_behavior === 'cancel'
   const { data: paymentData } = usePaymentMethodsQuery(stripeCustomerId)
   const isTrialing = !!schedule?.phases?.[0]?.trial
-  const endDate = schedule?.current_phase?.end_date ? new Date(schedule.current_phase.end_date * 1000) : null
-  const endDatePassed = endDate ? endDate < new Date() : false
+  const endDate = useMemo(() => (schedule?.current_phase?.end_date ? fromUnixTime(schedule.current_phase.end_date) : null), [schedule])
+  const endDatePassed = useMemo(() => (endDate ? isPast(endDate) : false), [endDate])
 
   const defaultCard = useMemo(() => {
     return paymentData?.defaultPaymentMethod?.card ? paymentData.defaultPaymentMethod.card : paymentData?.paymentMethods?.[0]?.card
@@ -204,8 +205,7 @@ const BillingSettings: React.FC = () => {
           !isCanceledBySchedule ? (
             <>
               <p>
-                Your subscription will be cancelled at the end of your current billing cycle on{' '}
-                <b>{schedule?.current_phase?.end_date ? formatDate(new Date(schedule.current_phase.end_date * 1000).toISOString()) : 'the end date'}</b>.
+                Your subscription will be cancelled at the end of your current billing cycle on <b>{endDate ? formatDate(endDate.toISOString()) : 'the end date'}</b>.
               </p>
               <p>Until then, you&apos;ll continue to have full access.</p>
             </>

@@ -11,7 +11,8 @@ import { useNotification } from '@/hooks/useNotification'
 import { useOrganization } from '@/hooks/useOrganization'
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@repo/ui/form'
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
+import { parseISO } from 'date-fns'
 import { z, type infer as zInfer } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { usePathname } from 'next/navigation'
@@ -85,6 +86,7 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
       noExpire: false,
     },
   })
+  const noExpireWatched = useWatch({ control: form.control, name: 'noExpire' })
 
   const handleCopyToken = () => {
     navigator.clipboard.writeText(token)
@@ -311,14 +313,14 @@ const PersonalApiKeyDialog = ({ triggerText }: PersonalApiKeyDialogProps) => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Expiration*</FormLabel>
-                    {!form.watch('noExpire') && (
+                    {!noExpireWatched && (
                       <>
                         <FormControl>
                           <Input
                             type="date"
-                            disabled={form.watch('noExpire')}
+                            disabled={noExpireWatched}
                             value={field.value ? field.value.toISOString().split('T')[0] : ''}
-                            onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : undefined)}
+                            onChange={(e) => field.onChange(e.target.value ? parseISO(e.target.value) : undefined)}
                           />
                         </FormControl>
                         <FormMessage reserveSpace={false} />

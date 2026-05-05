@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { SaveIcon, Trash2, X } from 'lucide-react'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { useCampaign, useUpdateCampaign, useDeleteCampaign } from '@/lib/graphql-hooks/campaign'
+import { formatDate } from '@/utils/date'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { CampaignCampaignStatus, CampaignCampaignType } from '@repo/codegen/src/schema'
@@ -198,25 +199,25 @@ export const CampaignDetailSheet: React.FC<CampaignDetailSheetProps> = ({ campai
                     {campaign.dueDate && (
                       <div>
                         <span className="text-xs text-muted-foreground">Due Date</span>
-                        <p className="text-sm">{new Date(campaign.dueDate as string).toLocaleDateString()}</p>
+                        <p className="text-sm">{formatDate(campaign.dueDate as string)}</p>
                       </div>
                     )}
                     {campaign.scheduledAt && (
                       <div>
                         <span className="text-xs text-muted-foreground">Scheduled At</span>
-                        <p className="text-sm">{new Date(campaign.scheduledAt as string).toLocaleDateString()}</p>
+                        <p className="text-sm">{formatDate(campaign.scheduledAt as string)}</p>
                       </div>
                     )}
                     {campaign.launchedAt && (
                       <div>
                         <span className="text-xs text-muted-foreground">Launched At</span>
-                        <p className="text-sm">{new Date(campaign.launchedAt as string).toLocaleDateString()}</p>
+                        <p className="text-sm">{formatDate(campaign.launchedAt as string)}</p>
                       </div>
                     )}
                     {campaign.completedAt && (
                       <div>
                         <span className="text-xs text-muted-foreground">Completed At</span>
-                        <p className="text-sm">{new Date(campaign.completedAt as string).toLocaleDateString()}</p>
+                        <p className="text-sm">{formatDate(campaign.completedAt as string)}</p>
                       </div>
                     )}
                   </div>

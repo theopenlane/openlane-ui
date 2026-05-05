@@ -1,3 +1,4 @@
+import { subDays } from 'date-fns'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
@@ -326,12 +327,6 @@ export const useGetEvidenceCountsByStatus = (programId?: string | null) => {
 export const useEvidenceTrend = (programId?: string | null, status?: EvidenceEvidenceStatus) => {
   const { client } = useGraphQLClient()
 
-  // Calculate date ranges for current week and previous week
-  const now = new Date()
-  const currentWeekStart = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString()
-  const previousWeekStart = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000).toISOString()
-  const previousWeekEnd = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString()
-
   return useQuery({
     queryKey: ['evidence-trend', programId, status],
     queryFn: async () => {
@@ -343,6 +338,12 @@ export const useEvidenceTrend = (programId?: string | null, status?: EvidenceEvi
           previousWeekCount: 0,
         }
       }
+
+      const now = new Date()
+      const sevenDaysAgo = subDays(now, 7).toISOString()
+      const currentWeekStart = sevenDaysAgo
+      const previousWeekStart = subDays(now, 14).toISOString()
+      const previousWeekEnd = sevenDaysAgo
 
       if (programId) {
         const variables = { programId, currentWeekStart, previousWeekStart, previousWeekEnd, status }

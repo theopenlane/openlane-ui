@@ -8,8 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { InfoIcon, X } from 'lucide-react'
 import { useSession } from 'next-auth/react'
-import React, { useEffect, useState } from 'react'
-import { useFormContext } from 'react-hook-form'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
+import { useFormContext, useWatch } from 'react-hook-form'
 import { z, type infer as zInfer } from 'zod'
 
 export const step1Schema = z.object({
@@ -55,7 +55,8 @@ export default function Step1() {
   const {
     register,
     formState: { errors },
-    watch,
+    control,
+    getValues,
     setValue,
   } = useFormContext<Step1Values>()
 
@@ -64,14 +65,22 @@ export default function Step1() {
   const [domainInput, setDomainInput] = useState('')
   const userDomain = sessionData?.user.email.split('@')[1]
 
-  const domains = watch('domains') || []
+  const watchedDomains = useWatch({ control, name: 'domains' })
+  const domains = useMemo(() => watchedDomains ?? [], [watchedDomains])
+  const companySize = useWatch({ control, name: 'companyDetails.size' })
+  const companySector = useWatch({ control, name: 'companyDetails.sector' })
 
+  // Auto-add the session email domain exactly once. Without the ref guard,
+  // removing the auto-added domain triggers the effect to re-add it.
+  const sessionDomainSeededRef = useRef(false)
   useEffect(() => {
-    const currentDomains = watch('domains') || []
-    if (userDomain && !currentDomains.includes(userDomain)) {
-      setValue('domains', [...currentDomains, userDomain])
+    if (sessionDomainSeededRef.current || !userDomain) return
+    sessionDomainSeededRef.current = true
+    const current = getValues('domains') ?? []
+    if (!current.includes(userDomain)) {
+      setValue('domains', [...current, userDomain])
     }
-  }, [userDomain, setValue, watch])
+  }, [userDomain, getValues, setValue])
 
   const addDomain = () => {
     if (!domainInput.trim()) return
@@ -154,7 +163,7 @@ export default function Step1() {
 
       <div className="space-y-2">
         <Label>Company Size</Label>
-        <Select onValueChange={(value) => setValue('companyDetails.size', value)} defaultValue={watch('companyDetails.size')}>
+        <Select onValueChange={(value) => setValue('companyDetails.size', value)} defaultValue={companySize}>
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Select company size" />
           </SelectTrigger>
@@ -171,7 +180,7 @@ export default function Step1() {
       {/* Company Sector */}
       <div className="space-y-2">
         <Label>Company Sector</Label>
-        <Select onValueChange={(value) => setValue('companyDetails.sector', value)} defaultValue={watch('companyDetails.sector')}>
+        <Select onValueChange={(value) => setValue('companyDetails.sector', value)} defaultValue={companySector}>
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Choose" />
           </SelectTrigger>
@@ -186,7 +195,7 @@ export default function Step1() {
       </div>
 
       {/* Custom input for "Other" sector */}
-      {watch('companyDetails.sector') === 'Other (Please Specify)' && (
+      {companySector === 'Other (Please Specify)' && (
         <div className="space-y-2">
           <Label htmlFor="otherSector">Please Specify</Label>
           <Input id="otherSector" placeholder="Enter your sector" {...register('companyDetails.otherSector')} />

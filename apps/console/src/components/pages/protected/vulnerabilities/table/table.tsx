@@ -133,12 +133,15 @@ const TableComponent = ({
     setCreateTaskRow(row)
   }
 
-  const columns = useMemo(
-    () =>
-      getColumns({ userMap, convertToReadOnly, selectedItems, setSelectedItems, onTrackRemediation: handleTrackRemediation, onOpenRemediation: handleOpenRemediation, onCreateTask: handleCreateTask }),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [userMap, convertToReadOnly, selectedItems, setSelectedItems],
-  )
+  const columns = getColumns({
+    userMap,
+    convertToReadOnly,
+    selectedItems,
+    setSelectedItems,
+    onTrackRemediation: handleTrackRemediation,
+    onOpenRemediation: handleOpenRemediation,
+    onCreateTask: handleCreateTask,
+  })
 
   const createTaskInitialValues = useMemo(() => {
     if (!createTaskRow) return undefined

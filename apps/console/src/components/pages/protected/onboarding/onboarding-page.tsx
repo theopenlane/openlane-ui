@@ -11,7 +11,6 @@ import { ArrowRight, ArrowLeft, PartyPopper, WindIcon } from 'lucide-react'
 import Step1, { step1Schema } from '@/components/pages/protected/onboarding/step-1'
 import Step2, { step2Schema } from '@/components/pages/protected/onboarding/step-2'
 import Step3, { step3Schema } from '@/components/pages/protected/onboarding/step-3'
-import { useRef } from 'react'
 import { useNotification } from '@/hooks/useNotification'
 import { useRouter } from 'next/navigation'
 import { switchOrganization, handleSSORedirect } from '@/lib/user'
@@ -39,35 +38,41 @@ export default function MultiStepForm() {
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const { successNotification, errorNotification } = useNotification()
 
-  const formDataRef = useRef<OnboardingFormInput>({
-    companyName: '',
-    domains: [],
-    companyDetails: {},
-    userDetails: {},
-    compliance: {},
-  })
-
   const methods = useForm<OnboardingFormInput, undefined, OnboardingFormData>({
     resolver: zodResolver(onboardingSchema),
-    defaultValues: formDataRef.current,
+    defaultValues: {
+      companyName: '',
+      domains: [],
+      companyDetails: {},
+      userDetails: {},
+      compliance: {
+        existing_policies_procedures: false,
+        completed_risk_assessment: false,
+        completed_gap_analysis: false,
+        existing_controls: false,
+      },
+      demo_requested: false,
+    },
     mode: 'onChange',
   })
 
   const onSubmit = async () => {
     setIsLoading(true)
     try {
-      if (formDataRef.current.companyDetails.sector === 'Other (Please Specify)') {
-        formDataRef.current.companyDetails.sector = formDataRef.current.companyDetails.otherSector || ''
-        formDataRef.current.companyDetails.otherSector = undefined
+      const values = methods.getValues()
+      const companyDetails = { ...(values.companyDetails ?? {}) }
+      if (companyDetails.sector === 'Other (Please Specify)') {
+        companyDetails.sector = companyDetails.otherSector || ''
+        companyDetails.otherSector = undefined
       }
 
       const fullData: CreateOnboardingInput = {
-        companyName: formDataRef.current.companyName || '',
-        domains: formDataRef.current.domains || [],
-        companyDetails: formDataRef.current.companyDetails || {},
-        userDetails: formDataRef.current.userDetails || {},
-        compliance: formDataRef.current.compliance || {},
-        demoRequested: formDataRef.current.demo_requested ?? false,
+        companyName: values.companyName || '',
+        domains: values.domains || [],
+        companyDetails,
+        userDetails: values.userDetails || {},
+        compliance: values.compliance || {},
+        demoRequested: values.demo_requested ?? false,
       }
 
       const response = await createOnboarding({
@@ -133,8 +138,6 @@ export default function MultiStepForm() {
     }
 
     if (!isValid) return
-
-    formDataRef.current = { ...formDataRef.current, ...methods.getValues() }
 
     if (!stepper.isLast) {
       stepper.next()

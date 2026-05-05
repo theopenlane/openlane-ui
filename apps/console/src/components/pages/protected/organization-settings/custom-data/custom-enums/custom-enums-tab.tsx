@@ -27,6 +27,16 @@ import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
 
 type SelectedEnum = { id: string; name: string }
 
+const SelectedFilterIcon = ({ filter }: { filter: string }) => {
+  const Icon = ENUM_GROUP_MAP[filter]?.icon || LayoutGrid
+  return (
+    <div className="flex items-center gap-2">
+      <Icon size={16} className="text-muted-foreground" />
+      <span>{filter.split('_').join(' ').toLowerCase()}</span>
+    </div>
+  )
+}
+
 const DEFAULT_ENUM_COLUMN_VISIBILITY: VisibilityState = {
   objectType: false,
   field: false,
@@ -135,13 +145,7 @@ const CustomEnumsTab: FC = () => {
             <Select value={filter} onValueChange={setFilter}>
               <SelectTrigger className="h-9 w-[300px] bg-card capitalize">
                 <SelectValue>
-                  <div className="flex items-center gap-2">
-                    {(() => {
-                      const Icon = ENUM_GROUP_MAP[filter]?.icon || LayoutGrid
-                      return <Icon size={16} className="text-muted-foreground" />
-                    })()}
-                    <span>{filter.split('_').join(' ').toLowerCase()}</span>
-                  </div>
+                  <SelectedFilterIcon filter={filter} />
                 </SelectValue>
               </SelectTrigger>
               <SelectContent>

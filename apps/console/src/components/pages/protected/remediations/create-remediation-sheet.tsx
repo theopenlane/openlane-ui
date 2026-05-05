@@ -23,7 +23,7 @@ const CreateRemediationSheet = ({ isOpen, onClose, initialData, defaultTitle, on
     if (isOpen) {
       form.reset({ title: defaultTitle ?? '' })
     }
-  }, [isOpen, defaultTitle]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [isOpen, defaultTitle, form])
 
   const baseCreateMutation = useCreateRemediation()
   const baseUpdateMutation = useUpdateRemediation()

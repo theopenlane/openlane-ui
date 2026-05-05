@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, use, useEffect, useReducer, useRef, useState } from 'react'
+import { useCallback, use, useEffect, useMemo, useReducer, useRef, useState } from 'react'
 import { SurveyCreatorComponent, SurveyCreator } from 'survey-creator-react'
 import { type ITheme, slk } from 'survey-core'
 import { editorLocalization } from 'survey-creator-core'
@@ -124,6 +124,7 @@ export default function CreateQuestionnaire(input: { templateId: string; existin
   const { assessmentType, responseDueDuration, isCustomDuration, customDueDate } = questionnaireEditorState
   const [creator] = useState(() => createSurveyCreator())
   const creatorRef = useRef<SurveyCreator | null>(null)
+  const today = useMemo(() => new Date(), [])
 
   useEffect(() => {
     creatorRef.current = creator
@@ -290,7 +291,7 @@ export default function CreateQuestionnaire(input: { templateId: string; existin
           {isCustomDuration && (
             <CalendarPopover
               defaultValue={customDueDate}
-              disabledFrom={new Date()}
+              disabledFrom={today}
               buttonClassName="w-[200px] flex justify-between items-center"
               onChange={(date) => {
                 if (date) {

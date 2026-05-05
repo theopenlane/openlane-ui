@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useRef, useState } from 'react'
+import React, { useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
@@ -35,7 +35,7 @@ const VendorDetailHeader: React.FC<VendorDetailHeaderProps> = ({ vendor, isEditi
   const { setValue, register } = useFormContext()
   const [inlineEditing, setInlineEditing] = useState<'name' | 'displayName' | null>(null)
   const [localValue, setLocalValue] = useState('')
-  const originalValueRef = useRef<string>('')
+  const [originalValue, setOriginalValue] = useState<string>('')
   const [logoDialogOpen, setLogoDialogOpen] = useState(false)
   const { mutateAsync: updateLogo, isPending: isLogoUploading } = useUpdateEntityLogo()
   const { successNotification, errorNotification } = useNotification()
@@ -55,7 +55,7 @@ const VendorDetailHeader: React.FC<VendorDetailHeaderProps> = ({ vendor, isEditi
   }
 
   const handleBlur = async (field: 'name' | 'displayName') => {
-    if (localValue !== originalValueRef.current) {
+    if (localValue !== originalValue) {
       setValue(field, localValue)
       await handleUpdateField({ [field]: localValue })
     }
@@ -63,14 +63,14 @@ const VendorDetailHeader: React.FC<VendorDetailHeaderProps> = ({ vendor, isEditi
   }
 
   const handleEscape = (field: 'name' | 'displayName') => {
-    setValue(field, originalValueRef.current)
+    setValue(field, originalValue)
     setInlineEditing(null)
   }
 
   const startEditing = (field: 'name' | 'displayName') => {
     if (!canEditVendor || isEditing) return
     const current = (field === 'name' ? vendor.name : vendor.displayName) ?? ''
-    originalValueRef.current = current
+    setOriginalValue(current)
     setLocalValue(current)
     setInlineEditing(field)
   }

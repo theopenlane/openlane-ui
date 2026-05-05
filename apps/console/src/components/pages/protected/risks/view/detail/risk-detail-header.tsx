@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useRef, useState } from 'react'
+import React, { useState } from 'react'
 import { useFormContext } from 'react-hook-form'
 import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
@@ -31,10 +31,10 @@ const RiskDetailHeader: React.FC<RiskDetailHeaderProps> = ({ risk, isEditing, ca
   const { setValue, register } = useFormContext()
   const [inlineEditing, setInlineEditing] = useState<'name' | null>(null)
   const [localValue, setLocalValue] = useState('')
-  const originalValueRef = useRef<string>('')
+  const [originalValue, setOriginalValue] = useState<string>('')
 
   const handleBlur = async (field: 'name') => {
-    if (localValue !== originalValueRef.current) {
+    if (localValue !== originalValue) {
       setValue(field, localValue)
       await handleUpdateField({ [field]: localValue })
     }
@@ -42,14 +42,14 @@ const RiskDetailHeader: React.FC<RiskDetailHeaderProps> = ({ risk, isEditing, ca
   }
 
   const handleEscape = (field: 'name') => {
-    setValue(field, originalValueRef.current)
+    setValue(field, originalValue)
     setInlineEditing(null)
   }
 
   const startEditing = (field: 'name') => {
     if (!canEditRisk || isEditing) return
     const current = field === 'name' ? risk.name : ''
-    originalValueRef.current = current
+    setOriginalValue(current)
     setLocalValue(current)
     setInlineEditing(field)
   }

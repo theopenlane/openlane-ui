@@ -39,7 +39,7 @@ export function useHasScrollbar(deps: unknown[] = []) {
         cancelAnimationFrame(rafId)
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- deps are forwarded from callers to re-run the scroll check when their data changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps, @eslint-react/exhaustive-deps
   }, deps)
 
   return hasScrollbar

@@ -184,26 +184,32 @@ const PersonnelDetailPage: React.FC<PersonnelDetailPageProps> = ({ personnelId }
 
   const queryClient = useQueryClient()
 
-  const memoizedSections = useMemo(() => {
-    if (!associationsData?.identityHolder) return {}
-    return {
-      assets: associationsData.identityHolder.assets,
-      entities: associationsData.identityHolder.entities,
-      campaigns: associationsData.identityHolder.campaigns,
-      tasks: associationsData.identityHolder.tasks,
-      controls: associationsData.identityHolder.controls,
-      subcontrols: associationsData.identityHolder.subcontrols,
-      policies: associationsData.identityHolder.internalPolicies,
-    }
-  }, [associationsData?.identityHolder])
+  const memoizedSections = useMemo(
+    () =>
+      associationsData?.identityHolder
+        ? {
+            assets: associationsData.identityHolder.assets,
+            entities: associationsData.identityHolder.entities,
+            campaigns: associationsData.identityHolder.campaigns,
+            tasks: associationsData.identityHolder.tasks,
+            controls: associationsData.identityHolder.controls,
+            subcontrols: associationsData.identityHolder.subcontrols,
+            policies: associationsData.identityHolder.internalPolicies,
+          }
+        : {},
+    [associationsData],
+  )
 
-  const memoizedCenterNode = useMemo(() => {
-    if (!data?.identityHolder) return null
-    return {
-      node: data.identityHolder,
-      type: ObjectAssociationNodeEnum.IDENTITY_HOLDER,
-    }
-  }, [data?.identityHolder])
+  const memoizedCenterNode = useMemo(
+    () =>
+      data?.identityHolder
+        ? {
+            node: data.identityHolder,
+            type: ObjectAssociationNodeEnum.IDENTITY_HOLDER,
+          }
+        : null,
+    [data],
+  )
 
   const handleRemoveAssociation = useAssociationRemoval({
     entityId: personnelId,

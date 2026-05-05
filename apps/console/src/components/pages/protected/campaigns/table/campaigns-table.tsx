@@ -64,11 +64,8 @@ const CampaignsTable = ({
   }, [campaigns])
 
   useEffect(() => {
-    if (onHasCampaignsChange) {
-      onHasCampaignsChange(hasCampaigns)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasCampaigns])
+    onHasCampaignsChange?.(hasCampaigns)
+  }, [hasCampaigns, onHasCampaignsChange])
 
   useEffect(() => {
     if (permission?.roles) {
@@ -77,8 +74,7 @@ const CampaignsTable = ({
         select: canEdit(permission.roles),
       }))
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [permission?.roles])
+  }, [permission?.roles, canEdit, setColumnVisibility])
 
   useEffect(() => {
     if (isError) {
@@ -87,8 +83,7 @@ const CampaignsTable = ({
         description: 'Failed to load campaigns',
       })
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isError])
+  }, [isError, errorNotification])
 
   const { users, isFetching: fetchingUsers } = useGetOrgUserList({
     where: { hasUserWith: [{ idIn: userIds }] },
