@@ -1,5 +1,7 @@
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMemo } from 'react'
+import { useInfiniteQuery, useMutation, useQuery, type InfiniteData } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
+import { useHistoryGraphQLClient } from '@/hooks/useHistoryGraphQLClient'
 import {
   GET_INTERNAL_POLICIES_LIST,
   GET_INTERNAL_POLICY_DETAILS_BY_ID,
@@ -18,6 +20,8 @@ import {
   UPDATE_POLICY_COMMENT,
   GET_POLICY_COMMENTS_BY_ID,
 } from '@repo/codegen/query/internal-policy'
+import { GET_INTERNAL_POLICY_HISTORIES } from '@repo/codegen/query-history/internal-policy'
+import { type GetInternalPolicyHistoriesQuery, type GetInternalPolicyHistoriesQueryVariables, InternalPolicyHistoryOrderField, OrderDirection } from '@repo/codegen/src/historyschema'
 import {
   type CreateBulkCsvInternalPolicyMutation,
   type CreateBulkCsvInternalPolicyMutationVariables,
@@ -170,6 +174,7 @@ export const useUpdateInternalPolicy = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['policyDiscussion'] })
       queryClient.invalidateQueries({ queryKey: ['internalPolicies'] })
+      queryClient.invalidateQueries({ queryKey: ['internalPolicyHistories'] })
     },
   })
 }
@@ -332,4 +337,48 @@ export const useGetPolicyCommentsById = (policyId: string | null | undefined) =>
     queryFn: async () => client.request(GET_POLICY_COMMENTS_BY_ID, { policyId }),
     enabled: !!policyId,
   })
+}
+
+const HISTORY_ORDER_BY = { field: InternalPolicyHistoryOrderField.history_time, direction: OrderDirection.DESC }
+const HISTORY_PAGE_SIZE = 20
+
+type HistoriesPage = GetInternalPolicyHistoriesQuery['internalPolicyHistories']
+type HistoryEdge = NonNullable<NonNullable<HistoriesPage['edges']>[number]>
+type HistoryNodeShape = NonNullable<HistoryEdge['node']>
+
+export const useGetInternalPolicyHistories = (policyId: string | null | undefined, enabled = true) => {
+  const { client } = useHistoryGraphQLClient()
+  const where = useMemo(() => ({ ref: policyId, revisionHasSuffix: '.0' }), [policyId])
+
+  const queryResult = useInfiniteQuery<GetInternalPolicyHistoriesQuery, Error, InfiniteData<GetInternalPolicyHistoriesQuery>, readonly unknown[], string | null>({
+    queryKey: ['internalPolicyHistories', policyId, where, HISTORY_ORDER_BY, HISTORY_PAGE_SIZE],
+    initialPageParam: null,
+    queryFn: ({ pageParam }) =>
+      client.request<GetInternalPolicyHistoriesQuery, GetInternalPolicyHistoriesQueryVariables>(GET_INTERNAL_POLICY_HISTORIES, {
+        where,
+        orderBy: HISTORY_ORDER_BY,
+        first: HISTORY_PAGE_SIZE,
+        after: pageParam ?? null,
+      }),
+    getNextPageParam: (last) => (last.internalPolicyHistories.pageInfo.hasNextPage ? (last.internalPolicyHistories.pageInfo.endCursor ?? null) : undefined),
+    enabled: !!policyId && enabled,
+  })
+
+  const historyNodes = useMemo<HistoryNodeShape[]>(() => {
+    const pages = queryResult.data?.pages ?? []
+    return pages.flatMap((p) => (p.internalPolicyHistories.edges ?? []).map((e) => e?.node).filter((n): n is HistoryNodeShape => n != null))
+  }, [queryResult.data])
+
+  const lastPage = queryResult.data?.pages.at(-1)
+  const paginationMeta = {
+    totalCount: lastPage?.internalPolicyHistories.totalCount ?? 0,
+    pageInfo: lastPage?.internalPolicyHistories.pageInfo,
+    isLoading: queryResult.isLoading || queryResult.isFetchingNextPage,
+  }
+
+  return {
+    ...queryResult,
+    historyNodes,
+    paginationMeta,
+  }
 }

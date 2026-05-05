@@ -21,23 +21,33 @@ type ConfirmationAlertProps = {
   title?: string
   description: React.ReactNode
   confirmationText?: string
-  confirmationTextVariant?: 'filled' | 'white' | 'success' | 'light' | 'outline' | 'outlineLight' | 'outlineInput' | 'outlineInputPadding' | 'redOutline' | 'destructive' | 'back' | undefined
+  confirmationTextVariant?:
+    | 'filled'
+    | 'white'
+    | 'success'
+    | 'light'
+    | 'outline'
+    | 'outlineLight'
+    | 'outlineInput'
+    | 'outlineInputPadding'
+    | 'redOutline'
+    | 'destructive'
+    | 'back'
+    | 'primary'
+    | undefined
   showInput?: boolean
+  loading?: boolean
 }
 
-export const ConfirmationDialog = ({ open, onOpenChange, onConfirm, title, description, confirmationText, confirmationTextVariant, showInput }: ConfirmationAlertProps) => {
+export const ConfirmationDialog = ({ open, onOpenChange, onConfirm, title, description, confirmationText, confirmationTextVariant, showInput, loading }: ConfirmationAlertProps) => {
   const [confirmationValue, setConfirmationValue] = useState('')
-  const isConfirmDisabled = showInput && confirmationValue.toUpperCase() !== 'DELETE'.toUpperCase()
+  const isConfirmDisabled = (showInput && confirmationValue.toUpperCase() !== 'DELETE'.toUpperCase()) || loading
 
   const handleOpenChange = (isOpen: boolean) => {
     onOpenChange(isOpen)
     if (!isOpen && showInput) {
       setConfirmationValue('')
     }
-  }
-
-  function setIsOpen(arg0: boolean) {
-    throw new Error('Function not implemented.')
   }
 
   return (

@@ -19,7 +19,7 @@ let lastAccessToken = ''
 let refreshAllowedAfter = Number.POSITIVE_INFINITY
 let csrfPromise: Promise<string> | null = null
 
-export function useGetGraphQLClient() {
+export function useFetchWithRetry() {
   const { update, data: session } = useSession()
 
   const fetchWithRetry = async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
@@ -134,6 +134,12 @@ export function useGetGraphQLClient() {
 
     return response
   }
+
+  return fetchWithRetry
+}
+
+export function useGetGraphQLClient() {
+  const fetchWithRetry = useFetchWithRetry()
 
   return new GraphQLClient(GRAPHQL_ENDPOINT, {
     fetch: fetchWithRetry,

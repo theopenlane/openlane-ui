@@ -48,6 +48,14 @@ generates:
       #      - typescript-validation-schema # A plugin for GraphQL Codegen to generate form validation schema (such as yup, zod) based on your GraphQL schema for use in a client application
       - add:
           content: '/* eslint-disable */'
+  ./src/historyschema.ts:
+    schema: https://raw.githubusercontent.com/theopenlane/core/main/internal/graphapi/historyschema/schema.graphql
+    documents: './query-history/**/*.ts'
+    plugins:
+      - typescript
+      - typescript-operations
+      - add:
+          content: '/* eslint-disable */'
 hooks:
   afterAllFileWrite:
     - node ./plugins/generate-type-constants.js
