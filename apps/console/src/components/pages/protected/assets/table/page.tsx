@@ -21,8 +21,6 @@ import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import { buildAssociationPayload } from '@/components/shared/object-association/utils'
 import { useInitialAssociations } from '@/hooks/useInitialAssociations'
 import { ASSET_ASSOCIATION_CONFIG } from '@/components/shared/object-association/association-configs'
-import { MergeHeaderButton } from '@/components/shared/merge-records/merge-menu-item'
-import { assetMergeConfig } from '@/components/shared/merge-records/configs/asset-merge-config'
 
 const normalizeData = (data: AssetQuery['asset']) =>
   normalizeEntityData(data, {
@@ -52,7 +50,7 @@ const AssetPage: React.FC = () => {
 
   const plateEditorHelper = usePlateEditor()
 
-  const getName = (data: AssetsNodeNonNull) => {
+  function getName(data: AssetsNodeNonNull) {
     return data?.name
   }
 
@@ -197,7 +195,6 @@ const AssetPage: React.FC = () => {
     normalizeData,
     getName,
     renderFields: (props: AssetFieldProps) => getFieldsToRender(props, enumOpts, enumCreateHandlers),
-    extraHeaderActions: id && !isCreate ? <MergeHeaderButton primaryId={id} config={assetMergeConfig} /> : undefined,
   }
 
   const tableConfig: AssetTablePageConfig = {

@@ -18,8 +18,6 @@ import type { TAccessRole } from '@/types/authz'
 import type { EntityQuery, UpdateEntityInput } from '@repo/codegen/src/schema'
 import { toBase64DataUri } from '@/lib/image-utils'
 import Link from 'next/link'
-import { MergeMenuItem } from '@/components/shared/merge-records/merge-menu-item'
-import { vendorMergeConfig } from '@/components/shared/merge-records/configs/vendor-merge-config'
 
 interface VendorDetailHeaderProps {
   vendor: EntityQuery['entity']
@@ -30,10 +28,9 @@ interface VendorDetailHeaderProps {
   onDeleteClick: () => void
   permissionRoles?: TAccessRole[]
   handleUpdateField: (input: UpdateEntityInput) => Promise<void>
-  onMergeComplete?: () => void
 }
 
-const VendorDetailHeader: React.FC<VendorDetailHeaderProps> = ({ vendor, isEditing, canEditVendor, onEdit, onCancel, onDeleteClick, permissionRoles, handleUpdateField, onMergeComplete }) => {
+const VendorDetailHeader: React.FC<VendorDetailHeaderProps> = ({ vendor, isEditing, canEditVendor, onEdit, onCancel, onDeleteClick, permissionRoles, handleUpdateField }) => {
   const canDeleteVendor = canDelete(permissionRoles)
   const { setValue, register } = useFormContext()
   const [inlineEditing, setInlineEditing] = useState<'name' | 'displayName' | null>(null)
@@ -169,7 +166,7 @@ const VendorDetailHeader: React.FC<VendorDetailHeaderProps> = ({ vendor, isEditi
                   Edit
                 </Button>
               )}
-              {(canEditVendor || canDeleteVendor) && (
+              {canDeleteVendor && (
                 <Menu
                   trigger={
                     <Button type="button" variant="secondary" className="h-8 px-2">
@@ -184,13 +181,10 @@ const VendorDetailHeader: React.FC<VendorDetailHeaderProps> = ({ vendor, isEditi
                           <span>Configure Integration</span>
                         </Link>
                       )}
-                      {canEditVendor && <MergeMenuItem primaryId={vendor.id} config={vendorMergeConfig} onMergeComplete={onMergeComplete} />}
-                      {canDeleteVendor && (
-                        <button onClick={onDeleteClick} className="flex items-center space-x-2 px-1 bg-transparent cursor-pointer text-destructive">
-                          <Trash2 size={16} strokeWidth={2} />
-                          <span>Delete</span>
-                        </button>
-                      )}
+                      <button onClick={onDeleteClick} className="flex items-center space-x-2 px-1 bg-transparent cursor-pointer text-destructive">
+                        <Trash2 size={16} strokeWidth={2} />
+                        <span>Delete</span>
+                      </button>
                     </>
                   }
                 />
