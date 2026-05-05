@@ -56,11 +56,11 @@ const IntegrationDefinitionPage = ({ definitionId }: IntegrationDefinitionPagePr
   const [schemaCredentialIndex, setSchemaCredentialIndex] = useState(-1)
 
   useEffect(() => {
-    if (credentialEntries.length === 1) {
+    if (credentialEntries.length === 1 && installedInstances.length === 0) {
       setSelectedCredentialIndex(0)
       setSchemaCredentialIndex(0)
     }
-  }, [credentialEntries.length])
+  }, [credentialEntries.length, installedInstances.length])
 
   const handleSelectCredential = (index: number) => {
     setSelectedCredentialIndex(index)

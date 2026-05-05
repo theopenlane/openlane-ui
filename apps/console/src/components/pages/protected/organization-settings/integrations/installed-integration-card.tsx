@@ -1,14 +1,14 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Activity, Settings, UserIcon } from 'lucide-react'
+import { Activity, ExternalLink, Settings, UserIcon } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { Badge } from '@repo/ui/badge'
 import { Card } from '@repo/ui/cardpanel'
 import { Separator } from '@repo/ui/separator'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { type IntegrationMetadata, type IntegrationNode, type IntegrationProvider } from '@/lib/integrations/types'
-import { getInstalledIntegrationConfig, installedIntegrationDisplayName, providerSupportsHealth, resolveCredentialEntry } from '@/lib/integrations/utils'
+import { getInstalledIntegrationConfig, installedIntegrationDisplayName, providerSupportsHealth, resolveConnectionEntry, resolveCredentialEntry, resolveManageUrl } from '@/lib/integrations/utils'
 import { providerHasUserInputSchema } from '@/lib/integrations/flow'
 import { useDisconnectIntegration, useIntegrationHealth } from '@/lib/query-hooks/integrations'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
@@ -41,6 +41,8 @@ const InstalledIntegrationCard = ({ integration, providers }: InstalledIntegrati
   const credentialRefName = meta?.credentialRef ?? ''
   const lastHealthCheck = meta?.lastSuccessfulHealthCheck ?? ''
   const credentialEntry = resolveCredentialEntry(provider, credentialRefName)
+  const connectionEntry = resolveConnectionEntry(provider, credentialRefName || undefined)
+  const manageUrl = resolveManageUrl(provider, connectionEntry, externalId, externalName)
 
   const disconnectMutation = useDisconnectIntegration()
   const healthQuery = useIntegrationHealth(integration.id, supportsHealth)
@@ -125,13 +127,26 @@ const InstalledIntegrationCard = ({ integration, providers }: InstalledIntegrati
               Configure
             </Button>
           ) : null}
+          {manageUrl ? (
+            <Button variant="secondary" icon={<ExternalLink className="size-4" />} iconPosition="left" onClick={() => window.open(manageUrl, '_blank', 'noreferrer')}>
+              Manage Installation
+            </Button>
+          ) : null}
           <Button variant="secondary" onClick={() => setConfirmOpen(true)} disabled={disconnectMutation.isPending}>
             {disconnectMutation.isPending ? 'Disconnecting...' : 'Disconnect'}
           </Button>
         </div>
       </Card>
 
-      <IntegrationConfigurationDialog open={configOpen} onOpenChange={setConfigOpen} provider={provider} installationId={integration.id} credentialRef={credentialRefName || undefined} />
+      <IntegrationConfigurationDialog
+        open={configOpen}
+        onOpenChange={setConfigOpen}
+        provider={provider}
+        installationId={integration.id}
+        credentialRef={credentialRefName || undefined}
+        config={integration.config ?? undefined}
+        credentials={integration.credentials ?? undefined}
+      />
 
       <ConfirmationDialog
         open={confirmOpen}

@@ -24,7 +24,10 @@ const PROVIDER_ICON_MAP: Record<string, string> = {
   scim: '/icons/brand/integrations/scim.png',
   Slack: '/icons/brand/integrations/slack.png',
   Vercel: '/icons/brand/integrations/vercel.png',
+  email: '/icons/brand/integrations/email_icon.png',
 }
+
+const fallbackIcon = '/icons/brand/integrations/default.png'
 
 type FinalizedIntegrationFields = Pick<IntegrationNode, 'definitionID' | 'definitionSlug' | 'family' | 'kind' | 'name' | 'status'>
 
@@ -66,8 +69,8 @@ export function normalizeIntegrationToken(value?: string | null): string {
   return value.toLowerCase().replace(/[^a-z0-9]+/g, '')
 }
 
-export function getProviderIcon(name: string): string | undefined {
-  return PROVIDER_ICON_MAP[name]
+export function getProviderIcon(name: string): string {
+  return PROVIDER_ICON_MAP[name] ?? fallbackIcon
 }
 
 export function toAvailableIntegration(provider: IntegrationProvider): AvailableIntegrationNode {
@@ -262,6 +265,21 @@ export function providerSupportsHealth(provider?: IntegrationProvider): boolean 
 
 export function disabledOperationConfigKeys(provider?: IntegrationProvider): Set<string> {
   return new Set((provider?.operations ?? []).filter((op) => op.disabledForAll).map((op) => op.name.charAt(0).toLowerCase() + op.name.slice(1)))
+}
+
+export function resolveManageUrl(provider: IntegrationProvider | undefined, connectionEntry: ReturnType<typeof resolveConnectionEntry>, externalId: string, externalName: string): string | null {
+  if (!connectionEntry?.auth || !externalId) return null
+
+  const token = normalizeIntegrationToken(provider?.slug)
+
+  switch (token) {
+    case 'github':
+      return externalName ? `https://github.com/organizations/${externalName}/settings/installations/${externalId}` : `https://github.com/settings/installations/${externalId}`
+    case 'slack':
+      return `https://app.slack.com/apps-manage/${externalId}/integrations`
+    default:
+      return null
+  }
 }
 
 export async function parseIntegrationErrorMessage(response: Response): Promise<string> {
