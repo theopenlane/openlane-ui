@@ -380,3 +380,89 @@ export const GET_IDENTITY_HOLDER_ASSOCIATIONS_TIMELINE = gql`
   }
   ${DIRECTORY_MEMBERSHIP_CONNECTION_FIELDS}
 `
+
+export const GET_IDENTITY_HOLDER_EDGES_FOR_MERGE = gql`
+  query GetIdentityHolderEdgesForMerge($identityHolderId: ID!) {
+    identityHolder(id: $identityHolderId) {
+      id
+      userID
+      directoryAccounts {
+        edges {
+          node {
+            id
+          }
+        }
+      }
+      assessmentResponses {
+        edges {
+          node {
+            id
+          }
+        }
+      }
+      assets {
+        edges {
+          node {
+            id
+          }
+        }
+      }
+      entities {
+        edges {
+          node {
+            id
+          }
+        }
+      }
+      campaigns {
+        edges {
+          node {
+            id
+          }
+        }
+      }
+      tasks {
+        edges {
+          node {
+            id
+          }
+        }
+      }
+      controls {
+        edges {
+          node {
+            id
+          }
+        }
+      }
+      internalPolicies {
+        edges {
+          node {
+            id
+          }
+        }
+      }
+      subcontrols {
+        edges {
+          node {
+            id
+          }
+        }
+      }
+      findings {
+        edges {
+          node {
+            id
+          }
+        }
+      }
+      files {
+        edges {
+          node {
+            id
+          }
+        }
+      }
+    }
+  }
+`

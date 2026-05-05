@@ -12,6 +12,8 @@ import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { IdentityHolderUserStatus, type IdentityHolderQuery, type UpdateIdentityHolderInput } from '@repo/codegen/src/schema'
 import { PersonnelStatusBadge } from '@/components/shared/enum-mapper/personnel-enum'
+import { MergeMenuItem } from '@/components/shared/merge-records/merge-menu-item'
+import { personnelMergeConfig } from '@/components/shared/merge-records/configs/personnel-merge-config'
 
 interface PersonnelDetailHeaderProps {
   personnel: IdentityHolderQuery['identityHolder']
@@ -22,9 +24,20 @@ interface PersonnelDetailHeaderProps {
   onCancel: (e: React.MouseEvent<HTMLButtonElement>) => void
   onDeleteClick: () => void
   handleUpdateField: (input: UpdateIdentityHolderInput) => Promise<void>
+  onMergeComplete?: () => void
 }
 
-const PersonnelDetailHeader: React.FC<PersonnelDetailHeaderProps> = ({ personnel, isEditing, canEditPersonnel, canDeletePersonnel, onEdit, onCancel, onDeleteClick, handleUpdateField }) => {
+const PersonnelDetailHeader: React.FC<PersonnelDetailHeaderProps> = ({
+  personnel,
+  isEditing,
+  canEditPersonnel,
+  canDeletePersonnel,
+  onEdit,
+  onCancel,
+  onDeleteClick,
+  handleUpdateField,
+  onMergeComplete,
+}) => {
   const { register } = useFormContext()
   const [inlineEditing, setInlineEditing] = useState<'fullName' | null>(null)
   const [localValue, setLocalValue] = useState('')
@@ -133,7 +146,7 @@ const PersonnelDetailHeader: React.FC<PersonnelDetailHeaderProps> = ({ personnel
                 Edit
               </Button>
             )}
-            {canDeletePersonnel && (
+            {(canEditPersonnel || canDeletePersonnel) && (
               <Menu
                 trigger={
                   <Button type="button" variant="secondary" className="h-8 px-2">
@@ -141,10 +154,15 @@ const PersonnelDetailHeader: React.FC<PersonnelDetailHeaderProps> = ({ personnel
                   </Button>
                 }
                 content={
-                  <button onClick={onDeleteClick} className="flex items-center space-x-2 px-1 bg-transparent cursor-pointer text-destructive">
-                    <Trash2 size={16} strokeWidth={2} />
-                    <span>Delete</span>
-                  </button>
+                  <>
+                    {canEditPersonnel && <MergeMenuItem primaryId={personnel.id} config={personnelMergeConfig} onMergeComplete={onMergeComplete} />}
+                    {canDeletePersonnel && (
+                      <button onClick={onDeleteClick} className="flex items-center space-x-2 px-1 bg-transparent cursor-pointer text-destructive">
+                        <Trash2 size={16} strokeWidth={2} />
+                        <span>Delete</span>
+                      </button>
+                    )}
+                  </>
                 }
               />
             )}
