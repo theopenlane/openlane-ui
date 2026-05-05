@@ -24484,8 +24484,10 @@ export interface Integration extends Node {
   actionPlans: ActionPlanConnection
   assets: AssetConnection
   checkResults: CheckResultConnection
+  config?: Maybe<Scalars['Map']['output']>
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
+  credentials?: Maybe<Scalars['Map']['output']>
   /** the canonical definition identifier for the installation */
   definitionID?: Maybe<Scalars['String']['output']>
   /** the human-readable definition slug recorded for this installation */
@@ -71332,6 +71334,8 @@ export type GetIntegrationsQuery = {
         createdBy?: string | null
         environmentName?: string | null
         scopeName?: string | null
+        credentials?: any | null
+        config?: any | null
       } | null
     } | null> | null
   }

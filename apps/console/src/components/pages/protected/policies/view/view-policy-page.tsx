@@ -43,6 +43,7 @@ import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import LinkedProcedures from './fields/linked-procedures'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import HistoryTab from './tabs/history/history-tab'
 
 type TViewPolicyPage = {
   policyId: string
@@ -72,7 +73,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
   const { data: assocData } = useGetInternalPolicyAssociationsById(policyId, !isDeleting)
   const { data: discussionData } = useGetPolicyDiscussionById(policyId)
   const plateEditorHelper = usePlateEditor()
-  const [activeTab, setActiveTab] = useState<'policy' | 'procedures'>('policy')
+  const [activeTab, setActiveTab] = useState<'policy' | 'procedures' | 'history'>('policy')
 
   const procedureCount = assocData?.internalPolicy?.procedures?.totalCount ?? 0
   const procedures = assocData?.internalPolicy?.procedures?.edges ?? []
@@ -333,7 +334,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
     <div className="p-2">
       <TitleField isEditing={isEditing} form={form} handleUpdate={handleUpdateField} initialData={policy.name} editAllowed={editAllowed} />
 
-      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'policy' | 'procedures')} variant="underline">
+      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'policy' | 'procedures' | 'history')} variant="underline">
         <TabsList className="relative flex justify-start w-full">
           <div className="absolute -bottom-0.5 left-1 right-0 h-px bg-border" />
           <TabsTrigger className="relative max-w-26 text-start" value="policy">
@@ -343,6 +344,9 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
             Procedures
             {procedureCount > 0 && <span className="inline-flex items-center justify-center min-w-5 h-5 text-xs rounded-full bg-card bg-rounded">{procedureCount}</span>}
           </TabsTrigger>
+          <TabsTrigger value="history" className="relative max-w-26 text-start">
+            History
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="policy">
@@ -351,6 +355,10 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
 
         <TabsContent value="procedures">
           <LinkedProcedures procedures={procedures} />
+        </TabsContent>
+
+        <TabsContent value="history">
+          <HistoryTab policyId={policyId} policy={policy} />
         </TabsContent>
       </Tabs>
     </div>

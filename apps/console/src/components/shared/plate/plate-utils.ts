@@ -1,4 +1,6 @@
-import { type Value } from 'platejs'
+import { createSlateEditor, type Value } from 'platejs'
+import { BaseEditorKit } from '@repo/ui/components/editor/editor-base-kit.tsx'
+import { detectFormat } from './usePlateEditor'
 
 /**
  * Checks if a PlateJS Value is effectively empty.
@@ -26,4 +28,12 @@ export const isPlateValueEmpty = (value: Value | string | undefined | null): boo
   if (typeof text !== 'string') return false
 
   return text.replace(/\uFEFF/g, '').trim().length === 0
+}
+
+export const stringToPlateValue = (input: string | null | undefined): Value | null => {
+  if (!input) return null
+  const editor = createSlateEditor({ plugins: BaseEditorKit })
+  const fmt = detectFormat(input)
+  const nodes = fmt === 'html' ? editor.api.html?.deserialize?.({ element: input }) : editor.api.markdown?.deserialize?.(input)
+  return Array.isArray(nodes) && nodes.length > 0 ? (nodes as Value) : null
 }

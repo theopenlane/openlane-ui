@@ -11,10 +11,14 @@ tasks:
     desc: run generate
     cmds:
       - bun run codegen --verbose
-      - bun run prettier --write src/schema.ts
+      - bun run prettier --write src/schema.ts src/historyschema.ts
 
   clean:
     # See https://github.com/dotansimha/graphql-code-generator-community/issues/501
     # TODO: find the right combination of deps to fix this
     desc: clean up badly generated code
-    cmd: sed -i.bak "s|'graphql-request/dist/types'|'graphql-request'|g" src/schema.ts && rm -f src/schema.ts.bak
+    cmds:
+      - |
+        for f in src/schema.ts src/historyschema.ts; do
+          sed -i.bak "s|'graphql-request/dist/types'|'graphql-request'|g" "$f" && rm -f "$f.bak"
+        done

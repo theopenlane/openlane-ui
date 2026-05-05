@@ -41,6 +41,7 @@ type UseIntegrationSchemaFormOptions = {
   userInputSchema?: IntegrationSchemaNode
   credentialSectionMeta?: { title: string; description: string }
   userInputSectionMeta?: { title: string; description: string }
+  existingUserInputValues?: Record<string, unknown>
 }
 
 export const SchemaField = ({ fieldKey, fieldName, property, required }: SchemaFieldProps) => {
