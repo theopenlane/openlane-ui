@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { FormProvider, useForm } from 'react-hook-form'
 import { useQueryClient } from '@tanstack/react-query'
@@ -19,6 +19,8 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { normalizeEntityData, buildResponsibilityPayload } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { type UpdateEntityInput, type EntityQuery } from '@repo/codegen/src/schema'
+import { type Value } from 'platejs'
+import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import ObjectAssociationSwitch from '@/components/shared/object-association/object-association-switch'
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types'
@@ -55,6 +57,7 @@ const VendorDetailPage: React.FC<VendorDetailPageProps> = ({ vendorId }) => {
   const { data: permission } = useAccountRoles(ObjectTypes.ENTITY, vendorId)
   const { mutateAsync: updateEntity } = useUpdateEntity()
   const { mutateAsync: deleteEntity } = useDeleteEntity()
+  const { convertToHtml } = usePlateEditor()
 
   const [isEditing, setIsEditing] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
@@ -133,9 +136,11 @@ const VendorDetailPage: React.FC<VendorDetailPageProps> = ({ vendorId }) => {
         return acc
       }, {})
 
-      const { internalOwner, reviewedBy, ...rest } = changedFields
+      const { internalOwner, reviewedBy, description, ...rest } = changedFields
+      const descriptionHtml = description !== undefined ? (Array.isArray(description) ? await convertToHtml(description as Value) : (description as string)) : undefined
       const input: UpdateEntityInput = {
         ...rest,
+        ...(description !== undefined ? { description: descriptionHtml } : {}),
         ...(internalOwner ? buildResponsibilityPayload('internalOwner', internalOwner as ResponsibilitySelection, { mode: 'update' }) : {}),
         ...(reviewedBy ? buildResponsibilityPayload('reviewedBy', reviewedBy as ResponsibilitySelection, { mode: 'update' }) : {}),
       } as UpdateEntityInput
@@ -200,26 +205,24 @@ const VendorDetailPage: React.FC<VendorDetailPageProps> = ({ vendorId }) => {
 
   const queryClient = useQueryClient()
 
-  const memoizedSections = useMemo(() => {
-    if (!associationsData?.entity) return {}
-    return {
-      assets: associationsData.entity.assets,
-      scans: associationsData.entity.scans,
-      campaigns: associationsData.entity.campaigns,
-      identityHolders: associationsData.entity.identityHolders,
-      controls: associationsData.entity.controls,
-      subcontrols: associationsData.entity.subcontrols,
-      policies: associationsData.entity.internalPolicies,
-    }
-  }, [associationsData?.entity])
+  const memoizedSections = associationsData?.entity
+    ? {
+        assets: associationsData.entity.assets,
+        scans: associationsData.entity.scans,
+        campaigns: associationsData.entity.campaigns,
+        identityHolders: associationsData.entity.identityHolders,
+        controls: associationsData.entity.controls,
+        subcontrols: associationsData.entity.subcontrols,
+        policies: associationsData.entity.internalPolicies,
+      }
+    : {}
 
-  const memoizedCenterNode = useMemo(() => {
-    if (!data?.entity) return null
-    return {
-      node: data.entity,
-      type: ObjectAssociationNodeEnum.ENTITY,
-    }
-  }, [data?.entity])
+  const memoizedCenterNode = data?.entity
+    ? {
+        node: data.entity,
+        type: ObjectAssociationNodeEnum.ENTITY,
+      }
+    : null
 
   const handleRemoveAssociation = useAssociationRemoval({
     entityId: vendorId,
