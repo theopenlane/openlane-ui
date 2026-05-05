@@ -24,7 +24,10 @@ const PROVIDER_ICON_MAP: Record<string, string> = {
   scim: '/icons/brand/integrations/scim.png',
   Slack: '/icons/brand/integrations/slack.png',
   Vercel: '/icons/brand/integrations/vercel.png',
+  email: '/icons/brand/integrations/email_icon.png',
 }
+
+const fallbackIcon = '/icons/brand/integrations/default.png'
 
 type FinalizedIntegrationFields = Pick<IntegrationNode, 'definitionID' | 'definitionSlug' | 'family' | 'kind' | 'name' | 'status'>
 
@@ -66,8 +69,8 @@ export function normalizeIntegrationToken(value?: string | null): string {
   return value.toLowerCase().replace(/[^a-z0-9]+/g, '')
 }
 
-export function getProviderIcon(name: string): string | undefined {
-  return PROVIDER_ICON_MAP[name]
+export function getProviderIcon(name: string): string {
+  return PROVIDER_ICON_MAP[name] ?? fallbackIcon
 }
 
 export function toAvailableIntegration(provider: IntegrationProvider): AvailableIntegrationNode {

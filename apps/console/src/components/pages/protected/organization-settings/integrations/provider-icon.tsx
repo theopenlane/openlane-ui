@@ -10,7 +10,7 @@ type ProviderIconProps = {
   className?: string
 }
 
-const ProviderIcon = ({ providerName, logoUrl, className }: ProviderIconProps) => {
+const ProviderIcon = ({ providerName, logoUrl, className = 'object-contain' }: ProviderIconProps) => {
   const iconSrc = logoUrl || getProviderIcon(providerName)
   if (!iconSrc) {
     return null

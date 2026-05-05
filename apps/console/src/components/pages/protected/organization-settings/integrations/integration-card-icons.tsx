@@ -17,8 +17,8 @@ const IntegrationCardIcons = ({ providerName, logoUrl }: IntegrationCardIconsPro
         <Logo asIcon width={16} />
       </div>
       <ArrowLeftRight size={8} />
-      <div className="w-[42px] h-[42px] border rounded-full flex items-center justify-center">
-        <ProviderIcon providerName={providerName} logoUrl={logoUrl} className="h-6 w-6 object-contain" />
+      <div className="relative w-[42px] h-[42px] border rounded-full flex items-center justify-center">
+        <ProviderIcon providerName={providerName} logoUrl={logoUrl} className="object-contain" />
       </div>
     </div>
   )
