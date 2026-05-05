@@ -1,9 +1,6 @@
 'use client'
 import React, { useEffect } from 'react'
-import { useGetAllPrograms } from '@/lib/graphql-hooks/program'
-import { ProgramProgramStatus } from '@repo/codegen/src/schema'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
-import Loading from '@/app/(protected)/dashboard/loading'
 import DashboardActions from '@/components/pages/protected/overview/DashboardActions.tsx'
 import DashboardComplianceOverview from '@/components/pages/protected/overview/DashboardComplianceOverview.tsx'
 import DashboardSuggestedActions from '@/components/pages/protected/overview/DashboardSuggestedActions.tsx'
@@ -18,17 +15,9 @@ const DashboardPage: React.FC = () => {
   const { data: userData } = useGetCurrentUser(userId)
   const { setCrumbs } = React.use(BreadcrumbContext)
 
-  const { isLoading } = useGetAllPrograms({
-    where: {
-      statusNotIn: [ProgramProgramStatus.COMPLETED, ProgramProgramStatus.ARCHIVED],
-    },
-  })
-
   useEffect(() => {
     setCrumbs([{ label: 'Home', href: '/dashboard' }])
   }, [setCrumbs])
-
-  if (isLoading) return <Loading />
 
   return (
     <>
