@@ -3,7 +3,7 @@ import { Input } from '@repo/ui/input'
 import { Label } from '@repo/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import React from 'react'
-import { useFormContext } from 'react-hook-form'
+import { useFormContext, useWatch } from 'react-hook-form'
 import { z, type infer as zInfer } from 'zod'
 
 export const step2Schema = z.object({
@@ -24,8 +24,9 @@ export default function Step2() {
     register,
     formState: { errors },
     setValue,
-    watch,
+    control,
   } = useFormContext<Step2Values>()
+  const department = useWatch({ control, name: 'userDetails.department' })
 
   return (
     <div className="space-y-6">
@@ -37,7 +38,7 @@ export default function Step2() {
       </div>
       <div className="space-y-2">
         <Label>Department</Label>
-        <Select onValueChange={(value) => setValue('userDetails.department', value)} defaultValue={watch('userDetails.department')}>
+        <Select onValueChange={(value) => setValue('userDetails.department', value)} defaultValue={department}>
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Select department" />
           </SelectTrigger>

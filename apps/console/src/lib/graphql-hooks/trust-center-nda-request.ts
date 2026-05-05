@@ -1,3 +1,4 @@
+import { subDays } from 'date-fns'
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
@@ -106,16 +107,15 @@ export const useUpdateTrustCenterNdaRequest = () => {
 export const useGetNDAStats = ({ ndaApprovalRequired, enabled = true }: { ndaApprovalRequired: boolean; enabled: boolean }) => {
   const { client } = useGraphQLClient()
 
-  const thirtyDaysAgo = new Date()
-  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
-
-  const variables: GetNdaRequestCountQueryVariables = {
-    where: ndaApprovalRequired ? { status: TrustCenterNdaRequestTrustCenterNdaRequestStatus.NEEDS_APPROVAL } : { createdAtGTE: thirtyDaysAgo.toISOString() },
-  }
-
   const queryResult = useQuery<GetNdaRequestCountQuery>({
     queryKey: ['ndaRequestsCount', ndaApprovalRequired],
-    queryFn: () => client.request<GetNdaRequestCountQuery>(GET_NDA_REQUESTS_COUNT, variables),
+    queryFn: () => {
+      const thirtyDaysAgoIso = subDays(new Date(), 30).toISOString()
+      const variables: GetNdaRequestCountQueryVariables = {
+        where: ndaApprovalRequired ? { status: TrustCenterNdaRequestTrustCenterNdaRequestStatus.NEEDS_APPROVAL } : { createdAtGTE: thirtyDaysAgoIso },
+      }
+      return client.request<GetNdaRequestCountQuery>(GET_NDA_REQUESTS_COUNT, variables)
+    },
     enabled,
   })
 

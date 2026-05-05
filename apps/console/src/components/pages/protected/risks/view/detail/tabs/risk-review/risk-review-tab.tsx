@@ -1,6 +1,7 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
+import { isPast, parseISO } from 'date-fns'
 import { useDebounce } from '@uidotdev/usehooks'
 import { type VisibilityState } from '@tanstack/react-table'
 import { DataTable } from '@repo/ui/data-table'
@@ -48,7 +49,7 @@ const RiskReviewTab: React.FC<RiskReviewTabProps> = ({ risk, handleUpdateField, 
     where: { hasRisksWith: [{ id: risk.id }], ...filterWhere, ...searchFields },
   })
 
-  const isOverdue = risk.nextReviewDueAt && new Date(risk.nextReviewDueAt) < new Date()
+  const isOverdue = useMemo(() => !!risk.nextReviewDueAt && isPast(parseISO(risk.nextReviewDueAt)), [risk.nextReviewDueAt])
   const isHighRisk = isHighRiskTier(risk.impact)
 
   const sharedFieldProps = {

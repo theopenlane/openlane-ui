@@ -38,7 +38,7 @@ export const TrackRemediationForm: React.FC<TrackRemediationFormProps> = ({ enti
     if (defaultInstructions) {
       form.setValue('instructions', defaultInstructions)
     }
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [defaultTitle, defaultInstructions, form])
   const { mutateAsync, isPending } = useCreateRemediation()
   const { successNotification, errorNotification } = useNotification()
   const queryClient = useQueryClient()

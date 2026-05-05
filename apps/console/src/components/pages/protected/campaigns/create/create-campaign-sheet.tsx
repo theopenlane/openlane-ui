@@ -118,7 +118,7 @@ export const CreateCampaignSheet: React.FC<CreateCampaignSheetProps> = ({ open, 
     const data = form.getValues()
 
     await submitCampaign(data, CampaignCampaignStatus.ACTIVE)
-  }, [form, submitCampaign, errorNotification])
+  }, [form, submitCampaign])
 
   const handleCreateTemplate = useCallback(() => {
     setShowCreateTemplate(true)
@@ -168,7 +168,7 @@ export const CreateCampaignSheet: React.FC<CreateCampaignSheetProps> = ({ open, 
         content: <ScheduleStep form={form} />,
       },
     ],
-    [form, targets, uploadedFile, handleCreateTemplate],
+    [form, targets, uploadedFile, activeTargetTab, handleCreateTemplate],
   )
 
   return (

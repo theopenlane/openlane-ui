@@ -1,11 +1,12 @@
 import React, { useEffect, useMemo, useState } from 'react'
+import { parseISO } from 'date-fns'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
 import { Checkbox } from '@repo/ui/checkbox'
 import { PencilIcon } from 'lucide-react'
 import { usePathname } from 'next/navigation'
-import { useForm, FormProvider } from 'react-hook-form'
+import { useForm, useWatch, FormProvider } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@repo/ui/form'
@@ -57,25 +58,28 @@ const PersonalAccessTokenEdit: React.FC<PersonalAccessTokenEditProps> = ({ token
 
   type FormData = z.infer<typeof formSchema>
 
-  const form = useForm<FormData>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
+  const defaultValues = useMemo(
+    () => ({
       description: tokenDescription || '',
       name: tokenName || '',
-      expiryDate: tokenExpiration ? new Date(tokenExpiration) : undefined,
+      expiryDate: tokenExpiration ? parseISO(tokenExpiration) : undefined,
       noExpire: false,
       organizationIDs: tokenAuthorizedOrganizations?.map((org) => org.id) || [],
-    },
+    }),
+    [tokenDescription, tokenName, tokenExpiration, tokenAuthorizedOrganizations],
+  )
+
+  const form = useForm<FormData>({
+    resolver: zodResolver(formSchema),
+    defaultValues,
   })
 
+  const noExpireWatched = useWatch({ control: form.control, name: 'noExpire' })
   useEffect(() => {
-    const subscription = form.watch((value, { name }) => {
-      if (name === 'noExpire' && value.noExpire) {
-        form.setValue('expiryDate', undefined)
-      }
-    })
-    return () => subscription.unsubscribe()
-  }, [form])
+    if (noExpireWatched) {
+      form.setValue('expiryDate', undefined)
+    }
+  }, [noExpireWatched, form])
 
   const initialOrganizations = useMemo(() => tokenAuthorizedOrganizations?.map((org) => org.id) || [], [tokenAuthorizedOrganizations])
 
@@ -227,15 +231,15 @@ const PersonalAccessTokenEdit: React.FC<PersonalAccessTokenEditProps> = ({ token
                   control={form.control}
                   render={({ field }) => (
                     <FormItem>
-                      {!form.watch('noExpire') && (
+                      {!noExpireWatched && (
                         <>
                           <FormLabel>Token expiration</FormLabel>
                           <FormControl>
                             <Input
                               type="date"
                               value={formatDateToLocal(field.value)}
-                              onChange={(e) => field.onChange(e.target.value ? new Date(e.target.value) : undefined)}
-                              disabled={form.watch('noExpire')}
+                              onChange={(e) => field.onChange(e.target.value ? parseISO(e.target.value) : undefined)}
+                              disabled={noExpireWatched}
                               className="mt-1"
                             />
                           </FormControl>

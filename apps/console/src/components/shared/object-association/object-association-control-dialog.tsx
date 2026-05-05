@@ -55,7 +55,7 @@ export const ControlSelectionDialog: React.FC<TControlSelectionDialogProps> = ({
       setInitialControlIDs(form.getValues('controlIDs') ?? [])
       setInitialSubcontrolIDs(form.getValues('subcontrolIDs') ?? [])
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps, @eslint-react/exhaustive-deps -- snapshot props only on open transition; tracking the snapshot sources would break the "initial state at open" semantics
   }, [open])
 
   const [pagination, setPagination] = useState<TPagination>(() =>

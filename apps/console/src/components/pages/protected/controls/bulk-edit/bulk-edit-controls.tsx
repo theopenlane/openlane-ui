@@ -221,25 +221,20 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
                           )}
                         </div>
                       )}
-                      {(() => {
-                        const selectedObject = item.selectedObject
-                        if (!selectedObject || selectedObject.inputType !== InputType.TypeAhead) return null
-
-                        return (
-                          <div className="flex flex-col items-center gap-2">
-                            <EditableSelectFromQuery
-                              iconAndLabelVisible={false}
-                              label={selectedObject.selectOptionEnum}
-                              name={selectedObject.name}
-                              isEditAllowed
-                              isEditing
-                              hasGap={false}
-                              gridColWidth="240"
-                              icon={selectedObject.selectOptionEnum === SelectOptionBulkEditControls.Category ? controlIconsMap.Category : controlIconsMap.SubCategory}
-                            />
-                          </div>
-                        )
-                      })()}
+                      {item.selectedObject && item.selectedObject.inputType === InputType.TypeAhead && (
+                        <div className="flex flex-col items-center gap-2">
+                          <EditableSelectFromQuery
+                            iconAndLabelVisible={false}
+                            label={item.selectedObject.selectOptionEnum}
+                            name={item.selectedObject.name}
+                            isEditAllowed
+                            isEditing
+                            hasGap={false}
+                            gridColWidth="240"
+                            icon={item.selectedObject.selectOptionEnum === SelectOptionBulkEditControls.Category ? controlIconsMap.Category : controlIconsMap.SubCategory}
+                          />
+                        </div>
+                      )}
                       {item.selectedObject && item.selectedObject.inputType === InputType.Tag && (
                         <BulkEditTagField control={form.control} name={`fieldsArray.${index}.selectedValue`} placeholder={item.selectedObject?.placeholder} />
                       )}

@@ -3,7 +3,7 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { Button } from '@repo/ui/button'
 import { Copy, PanelRightClose, Pencil, Save, Trash2 } from 'lucide-react'
-import { FormProvider, useForm } from 'react-hook-form'
+import { FormProvider, useForm, useWatch } from 'react-hook-form'
 import { z } from 'zod'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from '@repo/ui/sheet'
@@ -99,7 +99,7 @@ export const CreateDocumentSheet: React.FC = () => {
   })
 
   const { handleSubmit, reset, formState } = formMethods
-  const visibilityValue = formMethods.watch('visibility')
+  const visibilityValue = useWatch({ control: formMethods.control, name: 'visibility' })
   const { isSubmitting } = formState
 
   const handleOpenChange = (isOpen: boolean) => {

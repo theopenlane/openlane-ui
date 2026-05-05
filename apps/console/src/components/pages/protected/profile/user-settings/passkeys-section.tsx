@@ -1,6 +1,7 @@
 'use client'
 
 import { useTheme } from 'next-themes'
+import { formatDate } from '@/utils/date'
 import { useNotification } from '@/hooks/useNotification'
 import { setSessionCookie } from '@/lib/auth/utils/set-session-cookie'
 import { getPasskeyRegOptions, verifyRegistration } from '@/lib/user'
@@ -13,7 +14,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
 import { useDeletePasskey, useGetPasskeys } from '@/lib/graphql-hooks/passkey'
-import rawData from '@/lib/passkeys.json' assert { type: 'json' }
+import rawData from '@/lib/passkeys.json' with { type: 'json' }
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 type PasskeyEntry = {
@@ -184,7 +185,7 @@ const PasskeyItem = ({ passkey }: { passkey: Webauthn }) => {
         )}
         <div>
           <p className="font-medium">{passkeyData.name || 'Passkey device'}</p>
-          <p className="text-sm text-muted-foreground">Added on {new Date(passkey.createdAt).toLocaleDateString()}</p>
+          <p className="text-sm text-muted-foreground">Added on {formatDate(passkey.createdAt)}</p>
         </div>
       </div>
       <Dialog>

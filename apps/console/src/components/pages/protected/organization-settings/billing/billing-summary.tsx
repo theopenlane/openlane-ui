@@ -3,7 +3,7 @@ import { useGetOrganizationBilling } from '@/lib/graphql-hooks/organization'
 import { useOpenlaneProductsQuery, useSchedulesQuery, useSwitchIntervalMutation, useUpcomingInvoiceQuery } from '@/lib/query-hooks/stripe'
 import { type OrgSubscription } from '@repo/codegen/src/schema'
 import React, { useCallback, useMemo, useState } from 'react'
-import { formatDistanceToNowStrict, parseISO, isBefore } from 'date-fns'
+import { formatDistanceToNowStrict, parseISO, isPast } from 'date-fns'
 import { type Price, type SchedulePhase, type SchedulePhaseItem, type SubscriptionItem } from '@/types/stripe'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { useNotification } from '@/hooks/useNotification'
@@ -31,8 +31,7 @@ const BillingSummary = ({ stripeCustomerId, activePriceIds, nextPhaseStart }: Pr
   const { expiresAt, active, stripeSubscriptionStatus, trialExpiresAt } = subscription
   const { mutateAsync: switchInterval, isPending: updating } = useSwitchIntervalMutation()
   const [confirmSwitchOpen, setConfirmSwitchOpen] = useState(false)
-  const trialExpirationDate = trialExpiresAt ? parseISO(trialExpiresAt) : null
-  const trialEnded = trialExpirationDate ? isBefore(trialExpirationDate, new Date()) : false
+  const trialEnded = useMemo(() => (trialExpiresAt ? isPast(parseISO(trialExpiresAt)) : false), [trialExpiresAt])
   const { errorNotification, successNotification } = useNotification()
   const { data: openlaneProducts } = useOpenlaneProductsQuery()
 
@@ -64,7 +63,7 @@ const BillingSummary = ({ stripeCustomerId, activePriceIds, nextPhaseStart }: Pr
     }
   }
 
-  const buildSwaps = useCallback((modules: Product[], addons: Product[], currentInterval: 'month' | 'year') => {
+  const buildSwaps = (modules: Product[], addons: Product[], currentInterval: 'month' | 'year') => {
     const allProducts = [...modules, ...addons]
 
     return allProducts
@@ -77,12 +76,9 @@ const BillingSummary = ({ stripeCustomerId, activePriceIds, nextPhaseStart }: Pr
         return currentInterval === 'month' ? { from: monthly.price_id, to: yearly.price_id } : { from: yearly.price_id, to: monthly.price_id }
       })
       .filter((swap): swap is { from: string; to: string } => swap !== null)
-  }, [])
+  }
 
-  const swaps = useMemo(() => {
-    if (!currentInterval) return []
-    return buildSwaps(modules, addons, currentInterval as 'month' | 'year')
-  }, [modules, addons, currentInterval, buildSwaps])
+  const swaps = currentInterval ? buildSwaps(modules, addons, currentInterval as 'month' | 'year') : []
 
   const calcPhaseCost = (phase: SchedulePhase): number => {
     if (!phase?.items) return 0
@@ -150,7 +146,7 @@ const BillingSummary = ({ stripeCustomerId, activePriceIds, nextPhaseStart }: Pr
       if (!expiresAt && trialEnded) return 'Expired'
 
       const expirationDate = parseISO(expiresAt)
-      if (isBefore(expirationDate, new Date())) return 'Expired'
+      if (isPast(expirationDate)) return 'Expired'
 
       return `Expires in ${formatDistanceToNowStrict(expirationDate, { addSuffix: false })}`
     } catch {

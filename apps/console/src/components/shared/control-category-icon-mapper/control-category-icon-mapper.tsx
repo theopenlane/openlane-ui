@@ -1,3 +1,4 @@
+import { createElement } from 'react'
 import {
   type LucideIcon,
   Scale,
@@ -56,6 +57,5 @@ type ControlCategoryIconProps = {
 }
 
 export function ControlCategoryIcon({ category, size = 20, className }: ControlCategoryIconProps) {
-  const Icon = getControlCategoryIcon(category)
-  return <Icon size={size} className={className} />
+  return createElement(getControlCategoryIcon(category), { size, className })
 }

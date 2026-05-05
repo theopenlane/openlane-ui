@@ -35,12 +35,6 @@ export const PolicyTemplateBrowser = ({ isOpen, onClose, onFileSelect }: PolicyT
   const [previewContent, setPreviewContent] = useState<string>('')
   const [loadingPreview, setLoadingPreview] = useState(false)
 
-  useEffect(() => {
-    if (isOpen) {
-      fetchAllTemplates()
-    }
-  }, [isOpen])
-
   const fetchAllTemplates = async () => {
     setLoading(true)
     setError(null)
@@ -69,6 +63,12 @@ export const PolicyTemplateBrowser = ({ isOpen, onClose, onFileSelect }: PolicyT
       setLoading(false)
     }
   }
+
+  useEffect(() => {
+    if (isOpen) {
+      fetchAllTemplates()
+    }
+  }, [isOpen])
 
   const handlePreview = async (item: GitHubItem, e: React.MouseEvent) => {
     e.stopPropagation()

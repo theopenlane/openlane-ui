@@ -111,33 +111,39 @@ const ControlDetailsPage: React.FC = () => {
   const { data: associationsData } = useGetControlAssociationsById(id)
   const hasScrollbar = useHasScrollbar([isEditing, data?.control, associationsData?.control])
 
-  const memoizedSections = useMemo(() => {
-    if (!associationsData?.control || !data) return {}
-    return {
-      policies: associationsData.control.internalPolicies,
-      procedures: associationsData.control.procedures,
-      tasks: associationsData.control.tasks,
-      programs: associationsData.control.programs,
-      risks: associationsData.control.risks,
-      subcontrols: data.control.subcontrols,
-      assets: associationsData.control.assets,
-      scans: associationsData.control.scans,
-      entities: associationsData.control.entities,
-      identityHolders: associationsData.control.identityHolders,
-      campaigns: associationsData.control.campaigns,
-      remediations: associationsData.control.remediations,
-      reviews: associationsData.control.reviews,
-      findings: associationsData.control.findings,
-    }
-  }, [associationsData?.control, data])
+  const memoizedSections = useMemo(
+    () =>
+      associationsData?.control && data
+        ? {
+            policies: associationsData.control.internalPolicies,
+            procedures: associationsData.control.procedures,
+            tasks: associationsData.control.tasks,
+            programs: associationsData.control.programs,
+            risks: associationsData.control.risks,
+            subcontrols: data.control.subcontrols,
+            assets: associationsData.control.assets,
+            scans: associationsData.control.scans,
+            entities: associationsData.control.entities,
+            identityHolders: associationsData.control.identityHolders,
+            campaigns: associationsData.control.campaigns,
+            remediations: associationsData.control.remediations,
+            reviews: associationsData.control.reviews,
+            findings: associationsData.control.findings,
+          }
+        : {},
+    [associationsData, data],
+  )
 
-  const memoizedCenterNode = useMemo(() => {
-    if (!data?.control) return null
-    return {
-      node: data?.control,
-      type: ObjectAssociationNodeEnum.CONTROL,
-    }
-  }, [data?.control])
+  const memoizedCenterNode = useMemo(
+    () =>
+      data?.control
+        ? {
+            node: data.control,
+            type: ObjectAssociationNodeEnum.CONTROL,
+          }
+        : null,
+    [data],
+  )
 
   const form = useForm<FormValues>({
     defaultValues: initialDataObj,

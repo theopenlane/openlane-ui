@@ -8,6 +8,7 @@ const workspaceRoot = path.resolve(__dirname, '../..')
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  reactCompiler: true,
   transpilePackages: ['@repo/dally', '@repo/ui', '@repo/codegen', 'survey-core', 'survey-react-ui'],
   experimental: {
     webpackMemoryOptimizations: false,

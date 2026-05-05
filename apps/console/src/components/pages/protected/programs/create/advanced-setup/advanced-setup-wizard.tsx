@@ -2,7 +2,7 @@
 
 import React, { use, useEffect, useState } from 'react'
 import { defineStepper, type Step } from '@stepperize/react'
-import { useForm, FormProvider } from 'react-hook-form'
+import { useForm, useWatch, FormProvider } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter } from 'next/navigation'
 import { Button } from '@repo/ui/button'
@@ -80,7 +80,7 @@ export default function AdvancedSetupWizard() {
     },
   })
 
-  const framework = form.watch('framework')
+  const framework = useWatch({ control: form.control, name: 'framework' })
 
   const disabledIDs = framework === 'SOC 2' ? [] : ['2']
 

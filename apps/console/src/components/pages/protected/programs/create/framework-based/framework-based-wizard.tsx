@@ -1,6 +1,6 @@
 'use client'
 import { defineStepper } from '@stepperize/react'
-import { useForm, FormProvider } from 'react-hook-form'
+import { useForm, useWatch, FormProvider } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button } from '@repo/ui/button'
 import React, { use, useEffect, useState } from 'react'
@@ -47,7 +47,7 @@ export default function FrameworkBasedWizard() {
     },
   })
 
-  const framework = methods.watch('framework')
+  const framework = useWatch({ control: methods.control, name: 'framework' })
   const disabledIDs = framework === 'SOC 2' ? [] : ['1']
 
   const handleNext = async (e?: React.FormEvent<HTMLFormElement>) => {
