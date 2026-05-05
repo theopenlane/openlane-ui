@@ -1,4 +1,4 @@
-import { formatTimeSince } from '@/utils/date'
+import { formatDate } from '@/utils/date'
 
 export const norm = (v: unknown): unknown => (v === '' || v == null ? null : v)
 
@@ -11,7 +11,7 @@ export const fmtArr = (v: ReadonlyArray<string> | null | undefined): string => (
 export const fmtDate = (v: string | null | undefined): string => {
   if (!v) return '—'
   const d = new Date(v)
-  return Number.isNaN(d.getTime()) ? v : formatTimeSince(v)
+  return Number.isNaN(d.getTime()) ? v : formatDate(v)
 }
 
 export const fmtEnum = (v: string | null | undefined, label: (s: string | undefined) => string): string => {

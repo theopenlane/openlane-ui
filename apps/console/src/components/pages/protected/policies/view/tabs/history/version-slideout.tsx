@@ -95,7 +95,7 @@ const VersionSlideout: React.FC<VersionSlideoutProps> = ({ historyId, histories,
             </div>
 
             <div className="flex justify-end gap-2 border-t border-border p-3">
-              <Button type="button" variant="filled" onClick={() => onRestore(record.id)}>
+              <Button type="button" onClick={() => onRestore(record.id)}>
                 Restore this version
               </Button>
             </div>
