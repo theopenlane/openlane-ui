@@ -2,8 +2,9 @@
 
 import React, { useEffect, useRef, useState } from 'react'
 import { Controller, useFormContext } from 'react-hook-form'
+import { Input } from '@repo/ui/input'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
-import { Copy, InfoIcon, X } from 'lucide-react'
+import { Copy, InfoIcon } from 'lucide-react'
 import { cn } from '@repo/ui/lib/utils'
 import { useNotification } from '@/hooks/useNotification'
 import { type UpdateIdentityHolderInput } from '@repo/codegen/src/schema'
@@ -73,10 +74,10 @@ export const EmailAliasesField: React.FC<EmailAliasesFieldProps> = ({
   }
 
   return (
-    <div className="flex flex-col space-y-2" ref={containerRef}>
+    <div className="flex flex-col" ref={containerRef}>
       <div className="flex items-center gap-1">
-        <label className={cn('text-base font-sans leading-none', labelClassName)}>{label}</label>
-        <SystemTooltip icon={<InfoIcon size={14} className="mx-1 mt-1" />} content={tooltipContent} />
+        <label className={cn('text-sm', labelClassName)}>{label}</label>
+        <SystemTooltip icon={<InfoIcon size={14} className="mx-1" />} content={tooltipContent} />
       </div>
       <Controller
         control={control}
@@ -101,16 +102,16 @@ export const EmailAliasesField: React.FC<EmailAliasesFieldProps> = ({
 
           if (isFieldEditing) {
             return (
-              <div className="flex flex-wrap items-center gap-2 min-h-10 px-3 py-1.5 border border-border rounded-md bg-input">
+              <div className="flex flex-wrap items-center gap-2 py-2">
                 {values.map((value) => (
-                  <span key={value} className="flex items-center gap-1.5 bg-accent border border-border px-2 py-0.5 rounded-md text-sm">
+                  <span key={value} className="flex items-center gap-1 bg-muted px-2 py-1 rounded-md text-sm">
                     {value}
-                    <button type="button" onClick={() => removeAlias(value)} className="bg-transparent p-0 text-muted-foreground hover:text-destructive">
-                      <X size={12} />
+                    <button type="button" onClick={() => removeAlias(value)} className="ml-1 bg-transparent text-muted-foreground hover:text-foreground">
+                      ×
                     </button>
                   </span>
                 ))}
-                <input
+                <Input
                   type="email"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
@@ -122,7 +123,7 @@ export const EmailAliasesField: React.FC<EmailAliasesFieldProps> = ({
                   }}
                   placeholder="Add email and press Enter"
                   autoFocus={internalEditing === 'emailAliases'}
-                  className="flex-1 min-w-[160px] bg-transparent text-sm outline-none border-0 font-sans"
+                  className="flex-1 min-w-[160px] bg-transparent"
                 />
               </div>
             )

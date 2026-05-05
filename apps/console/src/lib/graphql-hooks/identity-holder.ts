@@ -22,8 +22,6 @@ import {
   type GetIdentityHolderAssociationsQuery,
   type GetIdentityHolderDirectoryAccountsQuery,
   type GetIdentityHolderDirectoryAccountsQueryVariables,
-  type GetIdentityHolderEdgesForMergeQuery,
-  type GetIdentityHolderEdgesForMergeQueryVariables,
   type GetIdentityHolderFilesPaginatedQuery,
   type UpdateIdentityHolderWithFilesMutationVariables,
   type CreateIdentityHolderWithFilesMutationVariables,
@@ -44,7 +42,6 @@ import {
   BULK_DELETE_IDENTITY_HOLDER,
   GET_IDENTITY_HOLDER_ASSOCIATIONS,
   GET_IDENTITY_HOLDER_DIRECTORY_ACCOUNTS,
-  GET_IDENTITY_HOLDER_EDGES_FOR_MERGE,
   GET_IDENTITY_HOLDER_FILES_PAGINATED,
   UPDATE_IDENTITY_HOLDER_WITH_FILES,
   CREATE_IDENTITY_HOLDER_WITH_FILES,
@@ -227,18 +224,6 @@ export const useGetIdentityHolderDirectoryAccounts = (identityHolderId?: string,
   const directoryAccounts = edges.filter((edge): edge is NonNullable<typeof edge> & { node: NonNullable<NonNullable<typeof edge>['node']> } => edge?.node != null).map((edge) => edge.node)
 
   return { ...queryResult, directoryAccounts }
-}
-
-export const useGetIdentityHolderEdgesForMerge = (identityHolderId?: string | null) => {
-  const { client } = useGraphQLClient()
-  return useQuery<GetIdentityHolderEdgesForMergeQuery, unknown>({
-    queryKey: ['identityHolders', identityHolderId, 'edgesForMerge'],
-    queryFn: async () =>
-      client.request<GetIdentityHolderEdgesForMergeQuery, GetIdentityHolderEdgesForMergeQueryVariables>(GET_IDENTITY_HOLDER_EDGES_FOR_MERGE, {
-        identityHolderId: identityHolderId as string,
-      }),
-    enabled: !!identityHolderId,
-  })
 }
 
 export const useCreateIdentityHolderWithFiles = () => {
