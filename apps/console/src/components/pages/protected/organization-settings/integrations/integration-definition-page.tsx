@@ -1,17 +1,21 @@
 'use client'
 
-import React, { use, useEffect, useMemo, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import React, { use, useCallback, useEffect, useMemo, useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { ArrowLeft, ExternalLink } from 'lucide-react'
 import { Badge } from '@repo/ui/badge'
 import { Card } from '@repo/ui/cardpanel'
 import { PageHeading } from '@repo/ui/page-heading'
 import { useGetIntegrations } from '@/lib/graphql-hooks/integration'
+import { useUpdateEntity } from '@/lib/graphql-hooks/entity'
 import { useIntegrationProviders } from '@/lib/query-hooks/integrations'
+import { useNotification } from '@/hooks/useNotification'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { Loading } from '@/components/shared/loading/loading'
 import { Button } from '@repo/ui/button'
 import { filterFinalizedIntegrationsForProvider, HEALTH_CHECK_OPERATION_NAME, resolveSchemaRoot } from '@/lib/integrations/utils'
+import { writePendingVendorIntegrationLink, clearPendingVendorIntegrationLink } from '@/lib/integrations/pending-vendor-link'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { CREDENTIALS_PREFIX, USER_INPUT_PREFIX, useIntegrationSchemaForm } from './schema-form'
 import InstalledIntegrationCard from './installed-integration-card'
 import IntegrationCardIcons from './integration-card-icons'
@@ -28,9 +32,13 @@ type IntegrationDefinitionPageProps = {
 
 const IntegrationDefinitionPage = ({ definitionId }: IntegrationDefinitionPageProps) => {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const vendorId = searchParams.get('vendorId') ?? undefined
   const { data, isLoading: integrationsLoading } = useGetIntegrations({ where: {} })
   const { data: providersData, isLoading: providersLoading } = useIntegrationProviders()
   const { setCrumbs } = use(BreadcrumbContext)
+  const { mutateAsync: updateEntity } = useUpdateEntity()
+  const { successNotification, errorNotification } = useNotification()
 
   const { startPolling } = useInstallationPolling()
 
@@ -85,6 +93,43 @@ const IntegrationDefinitionPage = ({ definitionId }: IntegrationDefinitionPagePr
     formState: { isSubmitting },
   } = formMethods
 
+  const handleConnectSuccess = useCallback(
+    async ({ installationId }: { installationId?: string }) => {
+      setSelectedCredentialIndex(-1)
+      if (!vendorId || !installationId) {
+        return
+      }
+      try {
+        await updateEntity({
+          updateEntityId: vendorId,
+          input: { addIntegrationIDs: [installationId] },
+        })
+        clearPendingVendorIntegrationLink()
+        successNotification({
+          title: 'Integration linked to vendor',
+          description: 'The new integration has been attached to the vendor record.',
+        })
+        router.push(`/registry/vendors/${vendorId}`)
+      } catch (error) {
+        errorNotification({
+          title: 'Integration created but failed to link to vendor',
+          description: parseErrorMessage(error),
+        })
+      }
+    },
+    [vendorId, updateEntity, successNotification, errorNotification, router],
+  )
+
+  const handleConnectRedirect = useCallback(() => {
+    if (!provider) {
+      return
+    }
+    if (vendorId) {
+      writePendingVendorIntegrationLink(vendorId, provider.id)
+    }
+    startPolling(provider, installedInstances.length)
+  }, [provider, vendorId, startPolling, installedInstances.length])
+
   const { isConnecting, webhookDetails, dismissWebhookDetails, handleAuthConnect, handleSubmit } = useIntegrationConnect({
     provider,
     credentialSchema,
@@ -92,12 +137,8 @@ const IntegrationDefinitionPage = ({ definitionId }: IntegrationDefinitionPagePr
     credentialRef: selectedCredential?.ref,
     initialValues,
     reset,
-    onSuccess: () => setSelectedCredentialIndex(-1),
-    onRedirect: () => {
-      if (provider) {
-        startPolling(provider, installedInstances.length)
-      }
-    },
+    onSuccess: handleConnectSuccess,
+    onRedirect: handleConnectRedirect,
   })
 
   useEffect(() => {

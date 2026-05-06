@@ -3,9 +3,12 @@ import { PageHeading } from '@repo/ui/page-heading'
 import React, { use, useEffect, useMemo, useRef, useState } from 'react'
 import IntegrationsToolbar from './integrations-toolbar'
 import { useGetIntegrations } from '@/lib/graphql-hooks/integration'
+import { useUpdateEntity } from '@/lib/graphql-hooks/entity'
 import { IntegrationsGrid } from './integrations-grid'
 import { type IntegrationTab } from '@/lib/integrations/types'
-import { integrationDefinitionID, isFinalizedIntegration, installedIntegrationDisplayName, toAvailableIntegration } from '@/lib/integrations/utils'
+import { integrationDefinitionID, isFinalizedIntegration, installedIntegrationDisplayName, latestFinalizedIntegrationForProvider, toAvailableIntegration } from '@/lib/integrations/utils'
+import { readPendingVendorIntegrationLink, clearPendingVendorIntegrationLink } from '@/lib/integrations/pending-vendor-link'
+import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useNotification } from '@/hooks/useNotification'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { canEdit } from '@/lib/authz/utils'
@@ -31,8 +34,11 @@ const IntegrationsPage = () => {
 
   const { successNotification, errorNotification } = useNotification()
   const router = useRouter()
+  const { mutateAsync: updateEntity } = useUpdateEntity()
 
   const handledRef = useRef(false)
+  const pendingLinkRef = useRef(readPendingVendorIntegrationLink())
+  const linkAttemptedRef = useRef(false)
 
   useEffect(() => {
     const provider = searchParams.get('provider')
@@ -48,6 +54,8 @@ const IntegrationsPage = () => {
       successNotification({ title: 'Integration Connected', description: message ?? (provider ? `Successfully connected ${provider}` : 'Successfully connected integration') })
     } else {
       errorNotification({ title: 'Integration Failed', description: message ?? (provider ? `Failed to connect ${provider}` : 'Failed to connect integration') })
+      clearPendingVendorIntegrationLink()
+      pendingLinkRef.current = null
     }
 
     router.replace('/organization-settings/integrations')
@@ -64,6 +72,49 @@ const IntegrationsPage = () => {
   const providers = useMemo(() => providersData?.providers ?? [], [providersData?.providers])
 
   const integrationRows = useMemo(() => (data?.integrations?.edges ?? []).flatMap((edge) => (edge?.node ? [edge.node] : [])), [data?.integrations?.edges])
+
+  useEffect(() => {
+    if (linkAttemptedRef.current) return
+    if (!handledRef.current) return
+    const stash = pendingLinkRef.current
+    if (!stash) return
+    if (providers.length === 0 || integrationRows.length === 0) return
+
+    const matchingProvider = providers.find((p) => p.id === stash.providerId)
+    if (!matchingProvider) return
+
+    const justCreated = latestFinalizedIntegrationForProvider(integrationRows, matchingProvider)
+    if (!justCreated) return
+
+    const createdAtMs = Date.parse(justCreated.createdAt ?? '')
+    if (!Number.isFinite(createdAtMs) || createdAtMs < stash.startedAt) return
+
+    linkAttemptedRef.current = true
+
+    const linkToVendor = async () => {
+      try {
+        await updateEntity({
+          updateEntityId: stash.vendorId,
+          input: { addIntegrationIDs: [justCreated.id] },
+        })
+        clearPendingVendorIntegrationLink()
+        pendingLinkRef.current = null
+        successNotification({
+          title: 'Integration linked to vendor',
+          description: 'The new integration has been attached to the vendor record.',
+        })
+        router.push(`/registry/vendors/${stash.vendorId}`)
+      } catch (error) {
+        clearPendingVendorIntegrationLink()
+        pendingLinkRef.current = null
+        errorNotification({
+          title: 'Integration created but failed to link to vendor',
+          description: parseErrorMessage(error),
+        })
+      }
+    }
+    void linkToVendor()
+  }, [providers, integrationRows, updateEntity, successNotification, errorNotification, router])
 
   const installedIntegrations = useMemo(
     () =>
