@@ -14,7 +14,6 @@ export const GET_ALL_CAMPAIGNS = gql`
           description
           displayID
           dueDate
-          emailBrandingID
           emailTemplateID
           entityID
           hasPendingWorkflow
@@ -67,7 +66,6 @@ export const CAMPAIGN = gql`
       description
       displayID
       dueDate
-      emailBrandingID
       emailTemplateID
       entityID
       hasPendingWorkflow

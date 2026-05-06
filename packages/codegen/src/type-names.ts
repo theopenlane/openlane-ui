@@ -9,7 +9,6 @@ import {
   Control,
   ControlImplementation,
   ControlObjective,
-  EmailBranding,
   EmailTemplate,
   Entity,
   Evidence,
@@ -49,7 +48,6 @@ import { GET_ALL_CHECK_RESULTS } from '@repo/codegen/query/check-result'
 import { GET_ALL_CONTROLS } from '@repo/codegen/query/control'
 import { GET_ALL_CONTROL_IMPLEMENTATIONS } from '@repo/codegen/query/control-implementation'
 import { GET_ALL_CONTROL_OBJECTIVES } from '@repo/codegen/query/control-objective'
-import { GET_ALL_EMAIL_BRANDINGS } from '@repo/codegen/query/email-branding'
 import { GET_ALL_EMAIL_TEMPLATES } from '@repo/codegen/query/email-template'
 import { GET_ALL_ENTITIES } from '@repo/codegen/query/entity'
 import { GET_ALL_FINDINGS } from '@repo/codegen/query/finding'
@@ -100,7 +98,6 @@ export enum ObjectTypes {
   DIRECTORY_SYNC_RUN = 'DirectorySyncRun',
   DISCUSSION = 'Discussion',
   DOCUMENT_DATA = 'DocumentData',
-  EMAIL_BRANDING = 'EmailBranding',
   EMAIL_TEMPLATE = 'EmailTemplate',
   ENTITY = 'Entity',
   ENTITY_TYPE = 'EntityType',
@@ -203,7 +200,6 @@ export enum ObjectNames {
   DIRECTORY_SYNC_RUN = 'Directory Sync Run',
   DISCUSSION = 'Discussion',
   DOCUMENT_DATA = 'Document Data',
-  EMAIL_BRANDING = 'Email Branding',
   EMAIL_TEMPLATE = 'Email Template',
   ENTITY = 'Entity',
   ENTITY_TYPE = 'Entity Type',
@@ -293,7 +289,6 @@ export enum TypesWithPermissions {
   CONTROL = 'Control',
   CONTROL_IMPLEMENTATION = 'ControlImplementation',
   CONTROL_OBJECTIVE = 'ControlObjective',
-  EMAIL_BRANDING = 'EmailBranding',
   EMAIL_TEMPLATE = 'EmailTemplate',
   ENTITY = 'Entity',
   FINDING = 'Finding',
@@ -360,11 +355,6 @@ export type PermissionsAllQueriesData = {
   }
   controlObjectives?: {
     edges?: Array<{ node: ControlObjective }>
-    pageInfo?: PageInfo
-    totalCount?: number
-  }
-  emailBrandings?: {
-    edges?: Array<{ node: EmailBranding }>
     pageInfo?: PageInfo
     totalCount?: number
   }
@@ -595,16 +585,6 @@ export const OBJECT_TYPE_PERMISSIONS_CONFIG: Record<TypesWithPermissions, Object
     roleOptions: ['View', 'Edit', 'Blocked'],
     responseObjectKey: 'controlObjectives',
     queryDocument: GET_ALL_CONTROL_OBJECTIVES,
-    objectName: 'name',
-    searchAttribute: 'nameContainsFold',
-    inputPlaceholder: 'name',
-    excludeViewersInFilter: false,
-    extraTableColumns: undefined,
-  },
-  [TypesWithPermissions.EMAIL_BRANDING]: {
-    roleOptions: ['View', 'Edit', 'Blocked'],
-    responseObjectKey: 'emailBrandings',
-    queryDocument: GET_ALL_EMAIL_BRANDINGS,
     objectName: 'name',
     searchAttribute: 'nameContainsFold',
     inputPlaceholder: 'name',

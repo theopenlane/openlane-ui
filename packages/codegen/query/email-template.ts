@@ -7,26 +7,17 @@ export const GET_ALL_EMAIL_TEMPLATES = gql`
       edges {
         node {
           active
-          bodyTemplate
           createdAt
           createdBy
           description
-          emailBranding {
-            id
-          }
           format
           id
           integrationID
-          jsonconfig
           key
           locale
           metadata
           name
-          preheaderTemplate
-          subjectTemplate
           systemOwned
-          textTemplate
-          uischema
           updatedAt
           updatedBy
           version
@@ -51,26 +42,17 @@ export const EMAIL_TEMPLATE = gql`
   query EmailTemplate($emailTemplateId: ID!) {
     emailTemplate(id: $emailTemplateId) {
       active
-      bodyTemplate
       createdAt
       createdBy
       description
-      emailBranding {
-        id
-      }
       format
       id
       integrationID
-      jsonconfig
       key
       locale
       metadata
       name
-      preheaderTemplate
-      subjectTemplate
       systemOwned
-      textTemplate
-      uischema
       updatedAt
       updatedBy
       version

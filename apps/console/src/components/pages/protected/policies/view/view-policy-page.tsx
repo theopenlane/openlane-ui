@@ -5,7 +5,7 @@ import {
   useGetPolicyDiscussionById,
   useUpdateInternalPolicy,
 } from '@/lib/graphql-hooks/internal-policy'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import useFormSchema, { type EditPolicyMetadataFormData } from '@/components/pages/protected/policies/view/hooks/use-form-schema.ts'
 import { Form } from '@repo/ui/form'
 import DetailsField from '@/components/pages/protected/policies/view/fields/details-field.tsx'
@@ -39,11 +39,13 @@ import { Card } from '@repo/ui/cardpanel'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { type Value } from 'platejs'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor.tsx'
+import { canonicalizeDetails } from '@/components/shared/plate/plate-utils'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import LinkedProcedures from './fields/linked-procedures'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import HistoryTab from './tabs/history/history-tab'
+import { VersionBump } from '@/lib/enums/revision-enum'
 
 type TViewPolicyPage = {
   policyId: string
@@ -69,6 +71,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
   const { currentOrgId, getOrganizationByID } = useOrganization()
   const currentOrganization = getOrganizationByID(currentOrgId ?? '')
   const [dataInitialized, setDataInitialized] = useState(false)
+  const initialDetailsCanonicalRef = useRef<string | null>(null)
   const [showPermissionsSheet, setShowPermissionsSheet] = useState(false)
   const { data: assocData } = useGetInternalPolicyAssociationsById(policyId, !isDeleting)
   const { data: discussionData } = useGetPolicyDiscussionById(policyId)
@@ -128,6 +131,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
         delegateID: policy.delegate?.id,
       })
 
+      initialDetailsCanonicalRef.current = policy.detailsJSON ? canonicalizeDetails(policy.detailsJSON) : null
       setDataInitialized(true)
     }
   }, [policy, form, dataInitialized])
@@ -158,65 +162,77 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
     }
   }
 
-  const onSubmitHandler = async (data: EditPolicyMetadataFormData) => {
-    if (!policy?.id) {
-      return
-    }
-
-    try {
-      const { revision, approverID, delegateID, details: _details, detailsJSON, ...restData } = data
-      const input: UpdateInternalPolicyInput = {
-        ...restData,
-        tags: data?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
+  const onSubmitHandler = useCallback(
+    async (data: EditPolicyMetadataFormData) => {
+      if (!policy?.id) {
+        return
       }
 
-      if (detailsJSON !== undefined) {
-        input.detailsJSON = detailsJSON
-        input.details = await plateEditorHelper.convertToHtml(detailsJSON as Value)
+      try {
+        const { revision, approverID, delegateID, details: _details, detailsJSON, ...restData } = data
+        const input: UpdateInternalPolicyInput = {
+          ...restData,
+          tags: data?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
+        }
+
+        if (detailsJSON !== undefined) {
+          input.detailsJSON = detailsJSON
+          input.details = await plateEditorHelper.convertToHtml(detailsJSON as Value)
+        }
+
+        if (approverID) {
+          input.approverID = approverID
+        } else if (policy.approver?.id) {
+          input.clearApprover = true
+        }
+
+        if (delegateID) {
+          input.delegateID = delegateID
+        } else if (policy.delegate?.id) {
+          input.clearDelegate = true
+        }
+
+        if (revision && revision !== (policy?.revision ?? '')) {
+          input.revision = revision
+        } else if (detailsJSON && initialDetailsCanonicalRef.current !== null && canonicalizeDetails(detailsJSON) !== initialDetailsCanonicalRef.current) {
+          input.RevisionBump = VersionBump.MINOR
+        }
+
+        const formData: {
+          updateInternalPolicyId: string
+          input: UpdateInternalPolicyInput
+        } = {
+          updateInternalPolicyId: policy?.id,
+          input,
+        }
+
+        await updatePolicy(formData)
+
+        successNotification({
+          title: 'Policy Updated',
+          description: 'Policy has been successfully updated',
+        })
+
+        setIsEditing(false)
+        queryClient.invalidateQueries({ queryKey: ['internalPolicies'] })
+        queryClient.invalidateQueries({ queryKey: ['policyDiscussion', policyId] })
+      } catch (error) {
+        const errorMessage = parseErrorMessage(error)
+        errorNotification({
+          title: 'Error',
+          description: errorMessage,
+        })
       }
+    },
+    [policy, plateEditorHelper, updatePolicy, successNotification, errorNotification, queryClient, policyId, initialDetailsCanonicalRef],
+  )
 
-      if (approverID) {
-        input.approverID = approverID
-      } else if (policy.approver?.id) {
-        input.clearApprover = true
-      }
-
-      if (delegateID) {
-        input.delegateID = delegateID
-      } else if (policy.delegate?.id) {
-        input.clearDelegate = true
-      }
-
-      if (revision && revision !== (policy?.revision ?? '')) {
-        input.revision = revision
-      }
-
-      const formData: {
-        updateInternalPolicyId: string
-        input: UpdateInternalPolicyInput
-      } = {
-        updateInternalPolicyId: policy?.id,
-        input,
-      }
-
-      await updatePolicy(formData)
-
-      successNotification({
-        title: 'Policy Updated',
-        description: 'Policy has been successfully updated',
-      })
-
-      setIsEditing(false)
-      queryClient.invalidateQueries({ queryKey: ['internalPolicies'] })
-      queryClient.invalidateQueries({ queryKey: ['policyDiscussion', policyId] })
-    } catch (error) {
-      const errorMessage = parseErrorMessage(error)
-      errorNotification({
-        title: 'Error',
-        description: errorMessage,
-      })
-    }
-  }
+  const handleFormSubmit = useCallback(
+    (e: React.FormEvent<HTMLFormElement>) => {
+      void form.handleSubmit(onSubmitHandler)(e)
+    },
+    [form, onSubmitHandler],
+  )
 
   const handleCreateNewPolicy = async () => {
     router.push(`/policies/create`)
@@ -391,7 +407,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
     <>
       <title>{`${currentOrganization?.node?.displayName ?? 'Openlane'} | Internal Policies - ${policy.name}`}</title>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmitHandler)}>
+        <form onSubmit={handleFormSubmit}>
           <SlideBarLayout sidebarTitle="Details" sidebarContent={sidebarContent} menu={menuComponent} slideOpen={isEditing} minWidth={430}>
             {mainContent}
           </SlideBarLayout>

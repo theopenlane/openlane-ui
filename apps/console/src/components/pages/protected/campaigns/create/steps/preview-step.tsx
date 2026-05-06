@@ -3,17 +3,15 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { type UseFormReturn } from 'react-hook-form'
 import { Button } from '@repo/ui/button'
-import { Palette, SquarePlus } from 'lucide-react'
+import { SquarePlus } from 'lucide-react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
 import { FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
-import { useEmailTemplatesWithFilter, useEmailTemplate } from '@/lib/graphql-hooks/email-template'
-import { Badge } from '@repo/ui/badge'
+import { useEmailTemplatesWithFilter } from '@/lib/graphql-hooks/email-template'
 import { type TPagination } from '@repo/ui/pagination-types'
 import { type CampaignFormData } from '../hooks/use-campaign-form-schema'
 
 interface PreviewStepProps {
   form: UseFormReturn<CampaignFormData>
-  onOpenEmailBranding: () => void
   onCreateTemplate: () => void
 }
 
@@ -23,9 +21,8 @@ const selectPagination: TPagination = {
   query: { first: 100 },
 }
 
-export const PreviewStep: React.FC<PreviewStepProps> = ({ form, onOpenEmailBranding, onCreateTemplate }) => {
+export const PreviewStep: React.FC<PreviewStepProps> = ({ form, onCreateTemplate }) => {
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>(form.getValues('templateID') || '')
-  const { data: templateData } = useEmailTemplate(selectedTemplateId || undefined)
   const { emailTemplatesNodes, isLoading } = useEmailTemplatesWithFilter({ where: {}, pagination: selectPagination })
 
   // Sync local state when templateID is set externally (e.g. via CreateTemplateSheet)
@@ -46,12 +43,6 @@ export const PreviewStep: React.FC<PreviewStepProps> = ({ form, onOpenEmailBrand
       })) ?? [],
     [emailTemplatesNodes],
   )
-
-  const emailTemplate = templateData?.emailTemplate
-  const subject = emailTemplate?.subjectTemplate ?? ''
-  const body = emailTemplate?.bodyTemplate ?? ''
-  const config = emailTemplate?.jsonconfig as Record<string, unknown> | undefined
-  const tokens = (config?.tokens as string[]) ?? []
 
   const handleTemplateChange = useCallback(
     (val: string) => {
@@ -106,13 +97,6 @@ export const PreviewStep: React.FC<PreviewStepProps> = ({ form, onOpenEmailBrand
         </Button>
       </div>
 
-      <div className="flex items-center justify-between rounded-md border border-border p-3">
-        <span className="text-sm text-muted-foreground">Customise email style</span>
-        <Button variant="primary" icon={<Palette size={16} />} iconPosition="left" onClick={onOpenEmailBranding} type="button">
-          Email Branding
-        </Button>
-      </div>
-
       {selectedTemplateId && (
         <div className="rounded-md border border-border overflow-hidden bg-input">
           <div className="p-4">
@@ -121,29 +105,8 @@ export const PreviewStep: React.FC<PreviewStepProps> = ({ form, onOpenEmailBrand
           </div>
           <div className="p-4 flex flex-col gap-3">
             <div className="rounded-md bg-card p-3 pb-1">
-              <p className="text-sm pb-2">
-                <span className="font-medium text-muted-foreground">Subject: </span>
-                <span className={!subject ? 'text-muted-foreground' : ''}>{subject || 'No subject configured'}</span>
-              </p>
-            </div>
-            <div className="rounded-md bg-card p-3 pb-1">
-              <p className="text-sm pb-2">
-                <span className="font-medium text-muted-foreground">Body: </span>
-                <span className={`whitespace-pre-wrap ${!body ? 'text-muted-foreground' : ''}`}>{body || 'No body configured'}</span>
-              </p>
-            </div>
-            <div className="rounded-md bg-card p-3 pb-1">
               <div className="text-sm pb-2 flex flex-wrap items-center gap-1.5">
-                <span className="font-medium text-muted-foreground">Tokens: </span>
-                {tokens.length > 0 ? (
-                  tokens.map((token) => (
-                    <Badge key={token} variant="outline" className="text-xs">
-                      {token}
-                    </Badge>
-                  ))
-                ) : (
-                  <span className="text-muted-foreground">No tokens configured</span>
-                )}
+                <span className="text-muted-foreground">Coming Soon</span>
               </div>
             </div>
           </div>

@@ -4,17 +4,16 @@ import { useCallback, useEffect } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { PageHeading } from '@repo/ui/page-heading'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
-import { Mail, Bell, Palette } from 'lucide-react'
+import { Mail, Bell } from 'lucide-react'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import React from 'react'
 import { EmailTemplatesTab } from './email-templates/email-templates-tab'
 import { NotificationTemplatesTab } from './notification-templates/notification-templates-tab'
-import { EmailBrandingTab } from './email-branding/email-branding-tab'
 
-type CommunicationsTabValue = 'email-templates' | 'notification-templates' | 'email-branding'
+type CommunicationsTabValue = 'email-templates' | 'notification-templates'
 const DEFAULT_TAB: CommunicationsTabValue = 'email-templates'
 const TAB_QUERY_PARAM = 'tab'
-const VALID_TABS: CommunicationsTabValue[] = ['email-templates', 'notification-templates', 'email-branding']
+const VALID_TABS: CommunicationsTabValue[] = ['email-templates', 'notification-templates']
 
 const CommunicationsPage: React.FC = () => {
   const router = useRouter()
@@ -69,10 +68,6 @@ const CommunicationsPage: React.FC = () => {
               <Bell className="mr-2 h-4 w-4" />
               <span>Notification Templates</span>
             </TabsTrigger>
-            <TabsTrigger value="email-branding" className="inline-flex flex-none items-center text-muted-foreground data-[state=active]:text-foreground">
-              <Palette className="mr-2 h-4 w-4" />
-              <span>Email Branding</span>
-            </TabsTrigger>
           </TabsList>
           <div className="pointer-events-none absolute inset-x-0 bottom-0.5 left-0.5 h-px shadow-[inset_0_-1px_0_0_var(--color-border)]" />
         </div>
@@ -81,9 +76,6 @@ const CommunicationsPage: React.FC = () => {
         </TabsContent>
         <TabsContent value="notification-templates" className="mt-6">
           <NotificationTemplatesTab />
-        </TabsContent>
-        <TabsContent value="email-branding" className="mt-6">
-          <EmailBrandingTab />
         </TabsContent>
       </Tabs>
     </>

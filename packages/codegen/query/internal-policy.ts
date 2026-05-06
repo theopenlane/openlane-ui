@@ -21,6 +21,7 @@ export const UPDATE_INTERNAL_POLICY = gql`
         name
         internalPolicyKindName
         details
+        revision
       }
     }
   }

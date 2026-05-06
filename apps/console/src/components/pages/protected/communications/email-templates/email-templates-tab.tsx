@@ -101,10 +101,6 @@ export const EmailTemplatesTab: React.FC = () => {
           locale: template.locale ?? 'en',
           format: template.format,
           active: false,
-          subjectTemplate: template.subjectTemplate ?? undefined,
-          preheaderTemplate: template.preheaderTemplate ?? undefined,
-          bodyTemplate: template.bodyTemplate ?? undefined,
-          textTemplate: template.textTemplate ?? undefined,
           templateContext: EmailTemplateTemplateContext.CAMPAIGN_RECIPIENT,
         },
       })
@@ -194,7 +190,6 @@ export const EmailTemplatesTab: React.FC = () => {
                       </Badge>
                     )}
                   </div>
-                  {template.subjectTemplate && <p className="text-xs text-muted-foreground truncate">Subject: {template.subjectTemplate}</p>}
                   <div className="flex flex-wrap items-center gap-x-2 text-xs text-muted-foreground">
                     <span>Created {formatDate(template.createdAt)}</span>
                     <span>·</span>
