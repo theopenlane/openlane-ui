@@ -5,12 +5,14 @@ import { Badge } from '@repo/ui/badge'
 import { Building2 } from 'lucide-react'
 import { toBase64DataUri } from '@/lib/image-utils'
 import ViewVendorSheet from '@/components/pages/protected/vendors/view-vendor-sheet'
+import { VendorStatusBadge } from '@/components/shared/enum-mapper/vendor-enum'
+import { type EntityEntityStatus } from '@repo/codegen/src/schema'
 
 type VendorNode = {
   id: string
   name?: string | null
   displayName?: string | null
-  status?: unknown
+  status?: EntityEntityStatus | null
   logoFile?: { base64?: string | null } | null
 }
 
@@ -36,11 +38,7 @@ const VendorRow: React.FC<{ vendor: VendorNode; outOfScope?: boolean; onClick: (
         )}
       </div>
       <span className="text-sm font-medium flex-1">{label}</span>
-      {!!vendor.status && (
-        <Badge variant="secondary" className="text-xs">
-          {String(vendor.status)}
-        </Badge>
-      )}
+      {vendor.status && <VendorStatusBadge status={vendor.status} />}
       {outOfScope && (
         <Badge variant="outline" className="text-xs text-muted-foreground">
           Out of scope
