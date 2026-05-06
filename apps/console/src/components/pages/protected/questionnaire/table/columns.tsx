@@ -12,8 +12,8 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/
 
 type Params = {
   userMap?: Record<string, User>
-  selectedQuestionnaires: { id: string }[]
-  setSelectedQuestionnaires: React.Dispatch<React.SetStateAction<{ id: string }[]>>
+  selectedQuestionnaires: Pick<Assessment, 'id' | 'templateID' | 'template'>[]
+  setSelectedQuestionnaires: React.Dispatch<React.SetStateAction<Pick<Assessment, 'id' | 'templateID' | 'template'>[]>>
   onSend?: (assessment: Assessment) => void
   onEdit?: (assessment: Assessment) => void
   onPreview?: (assessment: Assessment) => void
@@ -26,7 +26,7 @@ type Params = {
 
 export const getQuestionnaireColumns = (params?: Params) => {
   const userMap = params?.userMap || {}
-  const toggleSelection = (questionnaire: { id: string }) => {
+  const toggleSelection = (questionnaire: Pick<Assessment, 'id' | 'templateID' | 'template'>) => {
     params?.setSelectedQuestionnaires((prev) => {
       const exists = prev.some((c) => c.id === questionnaire.id)
       return exists ? prev.filter((c) => c.id !== questionnaire.id) : [...prev, questionnaire]
@@ -48,7 +48,7 @@ export const getQuestionnaireColumns = (params?: Params) => {
                 if (checked === 'indeterminate' || !setSelected) return
 
                 const newSelections = checked
-                  ? [...selected.filter((sq) => !currentPageQuestionnaires.some((c) => c.id === sq.id)), ...currentPageQuestionnaires.map((q) => ({ id: q.id }))]
+                  ? [...selected.filter((sq) => !currentPageQuestionnaires.some((c) => c.id === sq.id)), ...currentPageQuestionnaires]
                   : selected.filter((sq) => !currentPageQuestionnaires.some((c) => c.id === sq.id))
 
                 setSelected(newSelections)
@@ -63,7 +63,7 @@ export const getQuestionnaireColumns = (params?: Params) => {
 
         return (
           <div onClick={(e) => e.stopPropagation()}>
-            <Checkbox checked={isChecked} onCheckedChange={() => toggleSelection({ id })} />
+            <Checkbox checked={isChecked} onCheckedChange={() => toggleSelection(row.original)} />
           </div>
         )
       },
@@ -209,7 +209,8 @@ export const getQuestionnaireColumns = (params?: Params) => {
       header: '',
       cell: ({ row }) => {
         const canSend = !!params?.canSend
-        const canEditQuestionnaire = !!params?.canEdit
+        const canEditAssessment = !row.original.templateID || Object.entries(row.original.template?.transformConfiguration ?? {}).length === 0
+        const canEditQuestionnaire = !!params?.canEdit && canEditAssessment
         const canDeleteQuestionnaire = !!params?.canDelete
         const hasAnyAction = canSend || canEditQuestionnaire || canDeleteQuestionnaire || !!params?.onPreview || !!params?.onViewDetails
 

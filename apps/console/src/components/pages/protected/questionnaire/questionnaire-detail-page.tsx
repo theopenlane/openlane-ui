@@ -109,6 +109,18 @@ const QuestionnaireDetailPage = () => {
   const { mutateAsync: deleteAssessment } = useDeleteAssessment()
   const { data: permission } = useOrganizationRoles()
 
+  // assessments derived from a template and have some extra configuration
+  // are always going to be system level templates. They cannot be edited in anyway
+  //
+  // maybe sometime in the future we will allow for them to have their own mapping
+  const canEditAssessment = useMemo(() => {
+    if (!assessment?.templateID) {
+      return true
+    }
+
+    return Object.entries(assessment?.template?.transformConfiguration).length === 0
+  }, [assessment])
+
   const deliveryWhereFilter = useMemo(
     () =>
       whereGenerator<AssessmentResponseWhereInput>(deliveryFilters as AssessmentResponseWhereInput, (key, value) => {
@@ -322,7 +334,7 @@ const QuestionnaireDetailPage = () => {
                     <Eye size={16} strokeWidth={2} />
                     <span>Preview</span>
                   </Button>
-                  {canEdit(permission?.roles) && (
+                  {canEdit(permission?.roles) && canEditAssessment && (
                     <Button size="sm" variant="transparent" className="flex justify-start space-x-2" onClick={() => router.push(`/automation/assessments/questionnaire-editor?id=${id}`)}>
                       <Pencil size={16} strokeWidth={2} />
                       <span>Edit</span>

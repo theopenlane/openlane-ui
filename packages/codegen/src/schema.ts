@@ -70,6 +70,8 @@ export interface Scalars {
    * This scalar is used to track SSO verification times for organizations in the context of token authorization.
    */
   SSOAuthorizationMap: { input: any; output: any }
+  /** TemplateProjectionConfig describes how submitted template document data is projected into typed records. */
+  TemplateProjectionConfig: { input: any; output: any }
   /** The TestingProcedures scalar type that represents steps to take to test a control; they can come directly from the control source or pulled from external sources */
   TestingProcedures: { input: any; output: any }
   /** The builtin Time type */
@@ -10835,6 +10837,8 @@ export interface CreateTemplateInput {
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   /** the type of the template, either a provided template or an implementation (document) */
   templateType?: InputMaybe<TemplateDocumentType>
+  /** configuration for converting a submitted assesment into records for the organization */
+  transformConfiguration?: InputMaybe<Scalars['TemplateProjectionConfig']['input']>
   trustCenterID?: InputMaybe<Scalars['ID']['input']>
   /** the uischema for the template to render in the UI */
   uischema?: InputMaybe<Scalars['Map']['input']>
@@ -12666,7 +12670,7 @@ export interface DirectoryAccount extends Node {
   /** organizational unit or OU path the account lives under */
   organizationUnit?: Maybe<Scalars['String']['output']>
   owner?: Maybe<Organization>
-  /** the organization id that owns the object */
+  /** the ID of the organization owner of the object */
   ownerID?: Maybe<Scalars['ID']['output']>
   /** phone number for the identity holder */
   phoneNumber?: Maybe<Scalars['String']['output']>
@@ -24484,10 +24488,10 @@ export interface Integration extends Node {
   actionPlans: ActionPlanConnection
   assets: AssetConnection
   checkResults: CheckResultConnection
-  config?: Maybe<Scalars['Map']['output']>
+  config?: Maybe<Scalars['JSON']['output']>
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  credentials?: Maybe<Scalars['Map']['output']>
+  credentials?: Maybe<Scalars['JSON']['output']>
   /** the canonical definition identifier for the installation */
   definitionID?: Maybe<Scalars['String']['output']>
   /** the human-readable definition slug recorded for this installation */
@@ -35875,7 +35879,7 @@ export interface OrganizationSetting extends Node {
   organizationID?: Maybe<Scalars['ID']['output']>
   /** whether or not a payment method has been added to the account */
   paymentMethodAdded: Scalars['Boolean']['output']
-  /** when will this organization be deleted? usually this is after org has not added a payment method afte n period */
+  /** when will this organization be deleted? usually this is after org has not added a payment method after n period */
   pendingDeletionAt?: Maybe<Scalars['DateTime']['output']>
   /** the x509 certificate used to validate SAML responses */
   samlCert?: Maybe<Scalars['String']['output']>
@@ -50374,6 +50378,8 @@ export interface Template extends Node {
   tags?: Maybe<Array<Scalars['String']['output']>>
   /** the type of the template, either a provided template or an implementation (document) */
   templateType: TemplateDocumentType
+  /** configuration for converting a submitted assesment into records for the organization */
+  transformConfiguration?: Maybe<Scalars['TemplateProjectionConfig']['output']>
   trustCenter?: Maybe<TrustCenter>
   /** the id of the trust center this template is associated with */
   trustCenterID?: Maybe<Scalars['ID']['output']>
@@ -50516,6 +50522,7 @@ export enum TemplateOrderField {
 export enum TemplateTemplateKind {
   QUESTIONNAIRE = 'QUESTIONNAIRE',
   TRUSTCENTER_NDA = 'TRUSTCENTER_NDA',
+  VENDOR_INTAKE = 'VENDOR_INTAKE',
 }
 
 /** Return response for updateTemplate mutation */
@@ -55283,7 +55290,6 @@ export interface UpdateDirectoryAccountInput {
   clearLastSeenIP?: InputMaybe<Scalars['Boolean']['input']>
   clearMetadata?: InputMaybe<Scalars['Boolean']['input']>
   clearOrganizationUnit?: InputMaybe<Scalars['Boolean']['input']>
-  clearOwner?: InputMaybe<Scalars['Boolean']['input']>
   clearPhoneNumber?: InputMaybe<Scalars['Boolean']['input']>
   clearProfile?: InputMaybe<Scalars['Boolean']['input']>
   clearRemovedAt?: InputMaybe<Scalars['Boolean']['input']>
@@ -55327,7 +55333,6 @@ export interface UpdateDirectoryAccountInput {
   mfaState?: InputMaybe<DirectoryAccountDirectoryAccountMfaState>
   /** organizational unit or OU path the account lives under */
   organizationUnit?: InputMaybe<Scalars['String']['input']>
-  ownerID?: InputMaybe<Scalars['ID']['input']>
   /** phone number for the identity holder */
   phoneNumber?: InputMaybe<Scalars['String']['input']>
   /** indicates this directory account originates from the installation designated as the primary directory source for its owner organization */
@@ -57971,7 +57976,7 @@ export interface UpdateOrganizationSettingInput {
   /** OIDC discovery URL for the SSO provider */
   oidcDiscoveryEndpoint?: InputMaybe<Scalars['String']['input']>
   organizationID?: InputMaybe<Scalars['ID']['input']>
-  /** when will this organization be deleted? usually this is after org has not added a payment method afte n period */
+  /** when will this organization be deleted? usually this is after org has not added a payment method after n period */
   pendingDeletionAt?: InputMaybe<Scalars['DateTime']['input']>
   removeFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the x509 certificate used to validate SAML responses */
@@ -59635,6 +59640,7 @@ export interface UpdateTemplateInput {
   clearScopeName?: InputMaybe<Scalars['Boolean']['input']>
   clearSystemInternalID?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
+  clearTransformConfiguration?: InputMaybe<Scalars['Boolean']['input']>
   clearTrustCenter?: InputMaybe<Scalars['Boolean']['input']>
   clearUischema?: InputMaybe<Scalars['Boolean']['input']>
   /** the description of the template */
@@ -59664,6 +59670,8 @@ export interface UpdateTemplateInput {
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   /** the type of the template, either a provided template or an implementation (document) */
   templateType?: InputMaybe<TemplateDocumentType>
+  /** configuration for converting a submitted assesment into records for the organization */
+  transformConfiguration?: InputMaybe<Scalars['TemplateProjectionConfig']['input']>
   trustCenterID?: InputMaybe<Scalars['ID']['input']>
   /** the uischema for the template to render in the UI */
   uischema?: InputMaybe<Scalars['Map']['input']>
@@ -66316,6 +66324,7 @@ export type GetAssessmentQuery = {
     tags?: Array<string> | null
     createdAt?: any | null
     updatedAt?: any | null
+    template?: { __typename?: 'Template'; transformConfiguration?: any | null } | null
   }
 }
 
@@ -66413,6 +66422,7 @@ export type GetAssessmentDetailQuery = {
     tags?: Array<string> | null
     createdAt?: any | null
     updatedAt?: any | null
+    template?: { __typename?: 'Template'; transformConfiguration?: any | null } | null
     assessmentResponses: {
       __typename?: 'AssessmentResponseConnection'
       totalCount: number

@@ -122,6 +122,7 @@ export default function CreateQuestionnaire(input: { templateId: string; existin
 
   const [questionnaireEditorState, dispatchQuestionnaireEditorState] = useReducer(questionnaireEditorReducer, initialQuestionnaireEditorState)
   const { assessmentType, responseDueDuration, isCustomDuration, customDueDate } = questionnaireEditorState
+  const [calendarDisabledFromDate] = useState(() => new Date())
   const [creator] = useState(() => createSurveyCreator())
   const creatorRef = useRef<SurveyCreator | null>(null)
 
@@ -167,6 +168,17 @@ export default function CreateQuestionnaire(input: { templateId: string; existin
 
   const { mutateAsync: createAssessmentData } = useCreateAssessment()
   const { mutateAsync: updateAssessmentData } = useUpdateAssessment()
+
+  useEffect(() => {
+    if (!assessmentResult) {
+      return
+    }
+
+    if (Object.entries(assessmentResult.assessment?.template?.transformConfiguration ?? {}).length > 0) {
+      router.push('/automation/assessments')
+      return
+    }
+  }, [assessmentResult, router])
 
   const saveAssessment = useCallback(
     async (data: { title?: string; description?: string }) => {
@@ -290,7 +302,7 @@ export default function CreateQuestionnaire(input: { templateId: string; existin
           {isCustomDuration && (
             <CalendarPopover
               defaultValue={customDueDate}
-              disabledFrom={new Date()}
+              disabledFrom={calendarDisabledFromDate}
               buttonClassName="w-[200px] flex justify-between items-center"
               onChange={(date) => {
                 if (date) {
