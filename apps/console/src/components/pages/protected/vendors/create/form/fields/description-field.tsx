@@ -57,7 +57,7 @@ const DescriptionField: React.FC<DescriptionFieldProps> = ({ isEditing, isCreate
       </div>
       {initialValue ? (
         <div className="min-h-5 pb-4">
-          <PlateEditor toolbarClassName="-mt-20" key={JSON.stringify(initialValue)} initialValue={initialValue} readonly={true} variant="readonly" />
+          <PlateEditor toolbarClassName="hidden" key={JSON.stringify(initialValue)} initialValue={initialValue} readonly={true} variant="readonly" />
         </div>
       ) : (
         <p className="text-muted-foreground italic pb-4">No description set</p>
