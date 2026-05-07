@@ -197,6 +197,69 @@ export function matchIntegrationProvider(integration: IntegrationProviderMatchFi
   return matchProviderByTokens([integration.definitionSlug, integration.family, integration.kind, integration.name], providers)
 }
 
+const VENDOR_NAME_ALIASES: Record<string, string[]> = {
+  gcp: ['googlecloud'],
+  gcpscc: ['googlecloud'],
+}
+
+const VENDOR_MATCH_STOP_WORDS = new Set(['the', 'and', 'inc', 'llc', 'corp', 'ltd'])
+
+const tokenizeWords = (value?: string | null): string[] => {
+  if (!value) return []
+  return value
+    .split(/[^A-Za-z0-9]+/)
+    .map((word) => normalizeIntegrationToken(word))
+    .filter((word) => word.length >= 3 && !VENDOR_MATCH_STOP_WORDS.has(word))
+}
+
+export const matchProviderByVendorName = (vendorName: string | null | undefined, vendorDisplayName: string | null | undefined, providers: IntegrationProvider[]): IntegrationProvider | undefined => {
+  const wholeMatch = matchProviderByTokens([vendorName, vendorDisplayName], providers)
+  if (wholeMatch) {
+    return wholeMatch
+  }
+
+  const vendorWords = new Set([...tokenizeWords(vendorName), ...tokenizeWords(vendorDisplayName)])
+  if (vendorWords.size > 0) {
+    const wordHit = providers.find((provider) => {
+      const providerWords = new Set([
+        ...tokenizeWords(provider.id),
+        ...tokenizeWords(provider.slug),
+        ...tokenizeWords(provider.family),
+        ...tokenizeWords(provider.displayName),
+        ...(provider.tags ?? []).flatMap(tokenizeWords),
+      ])
+      for (const word of vendorWords) {
+        if (providerWords.has(word)) {
+          return true
+        }
+      }
+      return false
+    })
+    if (wordHit) {
+      return wordHit
+    }
+  }
+
+  const vendorTokens = [vendorName, vendorDisplayName].map((value) => normalizeIntegrationToken(value)).filter(Boolean)
+  for (const token of vendorTokens) {
+    const aliasTargets = VENDOR_NAME_ALIASES[token]
+    if (!aliasTargets) {
+      continue
+    }
+    const aliasHit = providers.find((provider) =>
+      [provider.id, provider.slug, provider.family, provider.displayName]
+        .map((value) => normalizeIntegrationToken(value))
+        .filter(Boolean)
+        .some((normalized) => aliasTargets.includes(normalized)),
+    )
+    if (aliasHit) {
+      return aliasHit
+    }
+  }
+
+  return undefined
+}
+
 export function resolveSchemaRoot(schema?: IntegrationSchemaNode): IntegrationSchemaNode | undefined {
   if (!schema) {
     return undefined

@@ -20,7 +20,7 @@ type UseIntegrationConnectOptions = {
   credentialRef: string | undefined
   initialValues: Record<string, unknown>
   reset: (values: Record<string, unknown>) => void
-  onSuccess?: () => void
+  onSuccess?: (result: { integrationId?: string }) => void | Promise<void>
   onRedirect: () => void
 }
 
@@ -115,7 +115,7 @@ export function useIntegrationConnect({ provider, credentialSchema, userInputSch
 
         queryClient.invalidateQueries({ queryKey: ['integrations'] })
         reset(initialValues)
-        onSuccess?.()
+        await onSuccess?.({ integrationId: configResult.integrationId })
 
         successNotification({
           title: `${provider.displayName} configured`,
