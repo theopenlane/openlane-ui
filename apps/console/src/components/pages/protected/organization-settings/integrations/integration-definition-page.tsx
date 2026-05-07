@@ -94,15 +94,15 @@ const IntegrationDefinitionPage = ({ definitionId }: IntegrationDefinitionPagePr
   } = formMethods
 
   const handleConnectSuccess = useCallback(
-    async ({ installationId }: { installationId?: string }) => {
+    async ({ integrationId }: { integrationId?: string }) => {
       setSelectedCredentialIndex(-1)
-      if (!vendorId || !installationId) {
+      if (!vendorId || !integrationId) {
         return
       }
       try {
         await updateEntity({
           updateEntityId: vendorId,
-          input: { addIntegrationIDs: [installationId] },
+          input: { addIntegrationIDs: [integrationId] },
         })
         clearPendingVendorIntegrationLink()
         successNotification({
