@@ -9,7 +9,7 @@ import { CreateDropdown } from '@/components/pages/protected/questionnaire/creat
 import Menu from '@/components/shared/menu/menu.tsx'
 import { type VisibilityState } from '@tanstack/react-table'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
-import { type AssessmentWhereInput, TemplateTemplateKind } from '@repo/codegen/src/schema'
+import { type Assessment, type AssessmentWhereInput, TemplateTemplateKind } from '@repo/codegen/src/schema'
 import { BulkCSVCreateTemplateDialog } from '../dialog/bulk-csv-create-template-dialog'
 import { canCreate } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
@@ -40,8 +40,8 @@ type TQuestionnaireTableToolbarProps = {
     header: string
   }[]
   exportEnabled: boolean
-  selectedQuestionnaires: { id: string }[]
-  setSelectedQuestionnaires: React.Dispatch<React.SetStateAction<{ id: string }[]>>
+  selectedQuestionnaires: Pick<Assessment, 'id' | 'templateID' | 'template'>[]
+  setSelectedQuestionnaires: React.Dispatch<React.SetStateAction<Pick<Assessment, 'id' | 'templateID' | 'template'>[]>>
   canEdit: (accessRole: TAccessRole[] | undefined) => boolean
   handleClearSelectedQuestionnaires: () => void
 }
@@ -64,7 +64,18 @@ const QuestionnaireTableToolbar: React.FC<TQuestionnaireTableToolbarProps> = ({
 }) => {
   const isSearching = useDebounce(searching, 200)
   const { data: permission } = useOrganizationRoles()
-  const canEditQuestionnaires = canEdit(permission?.roles)
+  const canEditSelectedQuestionnaires = useMemo(
+    () =>
+      selectedQuestionnaires.every((questionnaire) => {
+        if (!questionnaire.templateID) {
+          return true
+        }
+
+        return Object.entries(questionnaire.template?.transformConfiguration ?? {}).length === 0
+      }),
+    [selectedQuestionnaires],
+  )
+  const canEditQuestionnaires = canEdit(permission?.roles) && canEditSelectedQuestionnaires
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: bulkDeleteQuestionnaires } = useDeleteBulkAssessment()

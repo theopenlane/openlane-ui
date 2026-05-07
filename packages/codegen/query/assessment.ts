@@ -37,6 +37,9 @@ export const GET_ASSESSMENT = gql`
       tags
       createdAt
       updatedAt
+      template {
+        transformConfiguration
+      }
     }
   }
 `
@@ -53,6 +56,7 @@ export const GET_ALL_ASSESSMENTS = gql`
           template {
             id
             name
+            transformConfiguration
           }
           jsonconfig
           responseDueDuration
@@ -123,6 +127,9 @@ export const GET_ASSESSMENT_DETAIL = gql`
       tags
       createdAt
       updatedAt
+      template {
+        transformConfiguration
+      }
       assessmentResponses(where: $where, orderBy: $orderBy, first: $first, after: $after, last: $last, before: $before) {
         totalCount
         edges {

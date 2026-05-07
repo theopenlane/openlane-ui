@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import { PageHeading } from '@repo/ui/page-heading'
 import dynamic from 'next/dynamic'
 import { useSearchParams, useRouter } from 'next/navigation'
@@ -28,7 +28,6 @@ const QuestionnaireViewerPage: React.FC = () => {
   const existingId = searchParams.get('id') as string
 
   const { data: permission, isLoading } = useOrganizationRoles()
-  const editAllowed = canEdit(permission?.roles)
 
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: deleteAssessment } = useDeleteAssessment()
@@ -46,6 +45,16 @@ const QuestionnaireViewerPage: React.FC = () => {
   const handleEdit = () => {
     router.push(`/automation/assessments/questionnaire-editor?id=${existingId}`)
   }
+
+  const canEditAssessment = useMemo(() => {
+    if (!assessmentData?.assessment?.templateID) {
+      return true
+    }
+
+    return Object.entries(assessmentData?.assessment?.template?.transformConfiguration).length === 0
+  }, [assessmentData])
+
+  const editAllowed = canEdit(permission?.roles) && canEditAssessment
 
   const handleDelete = async () => {
     try {

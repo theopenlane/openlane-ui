@@ -38,7 +38,7 @@ export const TemplateList = ({ initialTemplateId, onCreateSuccess }: TemplateLis
 
   const whereFilter: TemplateWhereInput = {
     templateType: TemplateDocumentType.DOCUMENT,
-    kind: TemplateTemplateKind.QUESTIONNAIRE,
+    kindIn: [TemplateTemplateKind.QUESTIONNAIRE, TemplateTemplateKind.VENDOR_INTAKE],
   }
 
   const { templates, isLoading, isError } = useTemplates({ where: whereFilter })

@@ -70,6 +70,8 @@ export interface Scalars {
    * This scalar is used to track SSO verification times for organizations in the context of token authorization.
    */
   SSOAuthorizationMap: { input: any; output: any }
+  /** TemplateProjectionConfig describes how submitted template document data is projected into typed records. */
+  TemplateProjectionConfig: { input: any; output: any }
   /** The TestingProcedures scalar type that represents steps to take to test a control; they can come directly from the control source or pulled from external sources */
   TestingProcedures: { input: any; output: any }
   /** The builtin Time type */
@@ -10814,6 +10816,8 @@ export interface CreateTemplateInput {
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   /** the type of the template, either a provided template or an implementation (document) */
   templateType?: InputMaybe<TemplateDocumentType>
+  /** configuration for converting a submitted assesment into records for the organization */
+  transformConfiguration?: InputMaybe<Scalars['TemplateProjectionConfig']['input']>
   trustCenterID?: InputMaybe<Scalars['ID']['input']>
   /** the uischema for the template to render in the UI */
   uischema?: InputMaybe<Scalars['Map']['input']>
@@ -49848,6 +49852,8 @@ export interface Template extends Node {
   tags?: Maybe<Array<Scalars['String']['output']>>
   /** the type of the template, either a provided template or an implementation (document) */
   templateType: TemplateDocumentType
+  /** configuration for converting a submitted assesment into records for the organization */
+  transformConfiguration?: Maybe<Scalars['TemplateProjectionConfig']['output']>
   trustCenter?: Maybe<TrustCenter>
   /** the id of the trust center this template is associated with */
   trustCenterID?: Maybe<Scalars['ID']['output']>
@@ -50022,6 +50028,7 @@ export enum TemplateOrderField {
 export enum TemplateTemplateKind {
   QUESTIONNAIRE = 'QUESTIONNAIRE',
   TRUSTCENTER_NDA = 'TRUSTCENTER_NDA',
+  VENDOR_INTAKE = 'VENDOR_INTAKE',
 }
 
 /** Return response for updateTemplate mutation */
@@ -59090,6 +59097,7 @@ export interface UpdateTemplateInput {
   clearScopeName?: InputMaybe<Scalars['Boolean']['input']>
   clearSystemInternalID?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
+  clearTransformConfiguration?: InputMaybe<Scalars['Boolean']['input']>
   clearTrustCenter?: InputMaybe<Scalars['Boolean']['input']>
   clearUischema?: InputMaybe<Scalars['Boolean']['input']>
   /** the description of the template */
@@ -59119,6 +59127,8 @@ export interface UpdateTemplateInput {
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   /** the type of the template, either a provided template or an implementation (document) */
   templateType?: InputMaybe<TemplateDocumentType>
+  /** configuration for converting a submitted assesment into records for the organization */
+  transformConfiguration?: InputMaybe<Scalars['TemplateProjectionConfig']['input']>
   trustCenterID?: InputMaybe<Scalars['ID']['input']>
   /** the uischema for the template to render in the UI */
   uischema?: InputMaybe<Scalars['Map']['input']>
@@ -65771,6 +65781,7 @@ export type GetAssessmentQuery = {
     tags?: Array<string> | null
     createdAt?: any | null
     updatedAt?: any | null
+    template?: { __typename?: 'Template'; transformConfiguration?: any | null } | null
   }
 }
 
@@ -65868,6 +65879,7 @@ export type GetAssessmentDetailQuery = {
     tags?: Array<string> | null
     createdAt?: any | null
     updatedAt?: any | null
+    template?: { __typename?: 'Template'; transformConfiguration?: any | null } | null
     assessmentResponses: {
       __typename?: 'AssessmentResponseConnection'
       totalCount: number

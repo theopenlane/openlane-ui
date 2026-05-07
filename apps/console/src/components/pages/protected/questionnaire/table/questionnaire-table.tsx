@@ -31,7 +31,7 @@ export const QuestionnairesTable = () => {
   const [filters, setFilters] = useState<AssessmentWhereInput | null>(null)
   const { setCrumbs } = use(BreadcrumbContext)
   const { successNotification, errorNotification } = useNotification()
-  const [selectedQuestionnaires, setSelectedQuestionnaires] = useState<{ id: string }[]>([])
+  const [selectedQuestionnaires, setSelectedQuestionnaires] = useState<Pick<Assessment, 'id' | 'templateID' | 'template'>[]>([])
 
   const [deleteTarget, setDeleteTarget] = useState<Assessment | null>(null)
   const [sendTarget, setSendTarget] = useState<Assessment | null>(null)
