@@ -214,8 +214,9 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
         })
 
         setIsEditing(false)
-        queryClient.invalidateQueries({ queryKey: ['internalPolicies'] })
+        await queryClient.invalidateQueries({ queryKey: ['internalPolicies'] })
         queryClient.invalidateQueries({ queryKey: ['policyDiscussion', policyId] })
+        setDataInitialized(false)
       } catch (error) {
         const errorMessage = parseErrorMessage(error)
         errorNotification({
@@ -253,7 +254,8 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
         description: 'Policy has been successfully updated',
       })
 
-      queryClient.invalidateQueries({ queryKey: ['internalPolicies'] })
+      await queryClient.invalidateQueries({ queryKey: ['internalPolicies'] })
+      setDataInitialized(false)
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
       errorNotification({
