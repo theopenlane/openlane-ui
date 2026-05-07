@@ -122,6 +122,7 @@ const VendorDetailPage: React.FC<VendorDetailPageProps> = ({ vendorId }) => {
         reviewedBy: normalized.reviewedBy as ResponsibilitySelection,
       }
       form.reset(newValues)
+      // eslint-disable-next-line @eslint-react/set-state-in-effect
       setInitialValues(newValues)
     }
   }, [data?.entity, form])
@@ -257,6 +258,10 @@ const VendorDetailPage: React.FC<VendorDetailPageProps> = ({ vendorId }) => {
         onDeleteClick={() => setIsDeleteDialogOpen(true)}
         permissionRoles={permission?.roles}
         handleUpdateField={handleUpdateField}
+        onMergeComplete={() => {
+          queryClient.invalidateQueries({ queryKey: ['entities', vendorId] })
+          queryClient.invalidateQueries({ queryKey: ['entities'] })
+        }}
       />
 
       <VendorDetailTabs vendor={vendor} associations={associationsData} isEditing={isEditing} canEdit={canEditVendor} handleUpdateField={handleUpdateField} />

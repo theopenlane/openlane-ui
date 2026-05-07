@@ -13,6 +13,8 @@ import { getColumns } from './columns'
 import TableComponent from './table'
 import { ContactUserStatus, type CreateContactInput, type UpdateContactInput } from '@repo/codegen/src/schema'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
+import { MergeHeaderButton } from '@/components/shared/merge-records/merge-menu-item'
+import { contactMergeConfig } from '@/components/shared/merge-records/configs/contact-merge-config'
 
 const ContactPage: React.FC = () => {
   const { form } = useFormSchema()
@@ -87,6 +89,7 @@ const ContactPage: React.FC = () => {
     },
     getName,
     renderFields: (props: ContactFieldProps) => getFieldsToRender(props, enumOpts),
+    extraHeaderActions: id ? <MergeHeaderButton primaryId={id} config={contactMergeConfig} /> : undefined,
   }
 
   const tableConfig: ContactTablePageConfig = {

@@ -71276,6 +71276,36 @@ export type GetIdentityHolderAssociationsTimelineQuery = {
   }
 }
 
+export type GetIdentityHolderEdgesForMergeQueryVariables = Exact<{
+  identityHolderId: Scalars['ID']['input']
+}>
+
+export type GetIdentityHolderEdgesForMergeQuery = {
+  __typename?: 'Query'
+  identityHolder: {
+    __typename?: 'IdentityHolder'
+    id: string
+    userID?: string | null
+    directoryAccounts: {
+      __typename?: 'DirectoryAccountConnection'
+      edges?: Array<{ __typename?: 'DirectoryAccountEdge'; node?: { __typename?: 'DirectoryAccount'; id: string } | null } | null> | null
+    }
+    assessmentResponses: {
+      __typename?: 'AssessmentResponseConnection'
+      edges?: Array<{ __typename?: 'AssessmentResponseEdge'; node?: { __typename?: 'AssessmentResponse'; id: string } | null } | null> | null
+    }
+    assets: { __typename?: 'AssetConnection'; edges?: Array<{ __typename?: 'AssetEdge'; node?: { __typename?: 'Asset'; id: string } | null } | null> | null }
+    entities: { __typename?: 'EntityConnection'; edges?: Array<{ __typename?: 'EntityEdge'; node?: { __typename?: 'Entity'; id: string } | null } | null> | null }
+    campaigns: { __typename?: 'CampaignConnection'; edges?: Array<{ __typename?: 'CampaignEdge'; node?: { __typename?: 'Campaign'; id: string } | null } | null> | null }
+    tasks: { __typename?: 'TaskConnection'; edges?: Array<{ __typename?: 'TaskEdge'; node?: { __typename?: 'Task'; id: string } | null } | null> | null }
+    controls: { __typename?: 'ControlConnection'; edges?: Array<{ __typename?: 'ControlEdge'; node?: { __typename?: 'Control'; id: string } | null } | null> | null }
+    internalPolicies: { __typename?: 'InternalPolicyConnection'; edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string } | null } | null> | null }
+    subcontrols: { __typename?: 'SubcontrolConnection'; edges?: Array<{ __typename?: 'SubcontrolEdge'; node?: { __typename?: 'Subcontrol'; id: string } | null } | null> | null }
+    findings: { __typename?: 'FindingConnection'; edges?: Array<{ __typename?: 'FindingEdge'; node?: { __typename?: 'Finding'; id: string } | null } | null> | null }
+    files: { __typename?: 'FileConnection'; edges?: Array<{ __typename?: 'FileEdge'; node?: { __typename?: 'File'; id: string } | null } | null> | null }
+  }
+}
+
 export type GetIntegrationsQueryVariables = Exact<{
   where?: InputMaybe<IntegrationWhereInput>
 }>
