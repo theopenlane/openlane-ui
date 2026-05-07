@@ -36,7 +36,6 @@ const formSchema = z.object({
 })
 
 export type CreatePolicyFormData = z.infer<typeof formSchema>
-export type EditPolicyFormData = z.infer<typeof formSchema>
 
 const useFormSchema = () => {
   return {

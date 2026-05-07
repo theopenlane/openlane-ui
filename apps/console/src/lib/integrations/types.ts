@@ -162,7 +162,7 @@ export type StartIntegrationResponse = {
 }
 
 export type IntegrationConfigurationResult = {
-  installationId?: string
+  integrationId?: string
   healthStatus?: string
   healthSummary?: string
   installationMetadata?: Record<string, unknown>
