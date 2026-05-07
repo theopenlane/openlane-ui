@@ -1259,6 +1259,7 @@ export interface AddProgramMembershipInput {
 
 export interface Assessment extends Node {
   __typename?: 'Assessment'
+  accessURL?: Maybe<Scalars['String']['output']>
   assessmentResponses: AssessmentResponseConnection
   assessmentType: AssessmentAssessmentType
   blockedGroups: GroupConnection
@@ -1447,7 +1448,7 @@ export interface AssessmentResponse extends Node {
   /** when the assessment response is due */
   dueDate?: Maybe<Scalars['Time']['output']>
   /** the email address of the recipient */
-  email: Scalars['String']['output']
+  email?: Maybe<Scalars['String']['output']>
   /** the number of link clicks for the assessment email */
   emailClickCount?: Maybe<Scalars['Int']['output']>
   /** when a link in the assessment email was clicked by the recipient */
@@ -1704,10 +1705,12 @@ export interface AssessmentResponseWhereInput {
   emailHasPrefix?: InputMaybe<Scalars['String']['input']>
   emailHasSuffix?: InputMaybe<Scalars['String']['input']>
   emailIn?: InputMaybe<Array<Scalars['String']['input']>>
+  emailIsNil?: InputMaybe<Scalars['Boolean']['input']>
   emailLT?: InputMaybe<Scalars['String']['input']>
   emailLTE?: InputMaybe<Scalars['String']['input']>
   emailNEQ?: InputMaybe<Scalars['String']['input']>
   emailNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  emailNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** email_open_count field predicates */
   emailOpenCount?: InputMaybe<Scalars['Int']['input']>
   emailOpenCountGT?: InputMaybe<Scalars['Int']['input']>
@@ -7672,7 +7675,7 @@ export interface CreateAssessmentResponseInput {
   /** when the assessment response is due */
   dueDate?: InputMaybe<Scalars['Time']['input']>
   /** the email address of the recipient */
-  email: Scalars['String']['input']
+  email?: InputMaybe<Scalars['String']['input']>
   /** the number of link clicks for the assessment email */
   emailClickCount?: InputMaybe<Scalars['Int']['input']>
   /** when a link in the assessment email was clicked by the recipient */
@@ -65715,7 +65718,7 @@ export type AssessmentResponsesWithFilterQuery = {
         createdBy?: string | null
         documentDataID?: string | null
         dueDate?: any | null
-        email: string
+        email?: string | null
         emailClickCount?: number | null
         emailClickedAt?: any | null
         emailDeliveredAt?: any | null
@@ -65754,7 +65757,7 @@ export type AssessmentResponseQuery = {
     createdBy?: string | null
     documentDataID?: string | null
     dueDate?: any | null
-    email: string
+    email?: string | null
     emailClickCount?: number | null
     emailClickedAt?: any | null
     emailDeliveredAt?: any | null
@@ -65831,6 +65834,7 @@ export type GetAssessmentQuery = {
     uischema?: any | null
     templateID?: string | null
     responseDueDuration?: number | null
+    accessURL?: string | null
     tags?: Array<string> | null
     createdAt?: any | null
     updatedAt?: any | null
@@ -65930,6 +65934,7 @@ export type GetAssessmentDetailQuery = {
     uischema?: any | null
     templateID?: string | null
     responseDueDuration?: number | null
+    accessURL?: string | null
     tags?: Array<string> | null
     createdAt?: any | null
     updatedAt?: any | null
@@ -65942,7 +65947,7 @@ export type GetAssessmentDetailQuery = {
         node?: {
           __typename?: 'AssessmentResponse'
           id: string
-          email: string
+          email?: string | null
           dueDate?: any | null
           status: AssessmentResponseAssessmentResponseStatus
           sendAttempts: number
@@ -65953,6 +65958,7 @@ export type GetAssessmentDetailQuery = {
           isTest: boolean
           createdAt?: any | null
           document?: { __typename?: 'DocumentData'; id: string; data: any } | null
+          entity?: { __typename?: 'Entity'; displayName?: string | null } | null
         } | null
       } | null> | null
       pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }

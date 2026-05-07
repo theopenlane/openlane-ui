@@ -34,6 +34,7 @@ export const GET_ASSESSMENT = gql`
       uischema
       templateID
       responseDueDuration
+      accessURL
       tags
       createdAt
       updatedAt
@@ -122,6 +123,7 @@ export const GET_ASSESSMENT_DETAIL = gql`
       uischema
       templateID
       responseDueDuration
+      accessURL
       tags
       createdAt
       updatedAt
@@ -144,6 +146,9 @@ export const GET_ASSESSMENT_DETAIL = gql`
             document {
               id
               data
+            }
+            entity {
+              displayName
             }
           }
         }

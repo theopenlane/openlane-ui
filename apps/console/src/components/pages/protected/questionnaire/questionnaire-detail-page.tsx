@@ -6,7 +6,7 @@ import { PageHeading } from '@repo/ui/page-heading'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { Button } from '@repo/ui/button'
-import { Users, CheckCircle, Calendar, Send, FileText, Download, Eye, Pencil, Trash2 } from 'lucide-react'
+import { Users, CheckCircle, Calendar, Send, FileText, Download, Eye, Pencil, Trash2, Copy, ExternalLink } from 'lucide-react'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useAssessmentRecipientsTotalCount, useAssessmentResponsesTotalCount, useGetAssessmentDetail } from '@/lib/graphql-hooks/assessment'
 import { formatDate } from '@/utils/date'
@@ -161,6 +161,23 @@ const QuestionnaireDetailPage = () => {
     }
   }
 
+  const handleCopyAccessURL = () => {
+    if (!assessment?.accessURL) return
+
+    navigator.clipboard
+      .writeText(assessment.accessURL)
+      .then(() => {
+        successNotification({
+          title: 'Link copied to clipboard',
+        })
+      })
+      .catch(() => {
+        errorNotification({
+          title: 'Failed to copy link',
+        })
+      })
+  }
+
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
@@ -184,7 +201,7 @@ const QuestionnaireDetailPage = () => {
         .filter((r) => r != null)
         .map((r) => ({
           id: r.id,
-          email: r.email,
+          email: r.email || r.entity?.displayName || '',
           completedAt: r.completedAt,
           document: r.document,
         })),
@@ -213,11 +230,11 @@ const QuestionnaireDetailPage = () => {
       })
 
       const connection = response.assessment?.assessmentResponses
-      const nodes = (connection?.edges ?? []).map((edge) => edge?.node).filter((n) => n != null)
+      const nodes = (connection?.edges ?? []).map((edge) => edge?.node).filter((node): node is NonNullable<typeof node> => node != null)
 
       rows.push(
         ...nodes.map((node) => ({
-          email: node.email,
+          email: node.email || node.entity?.displayName || '',
           status: node.status,
           assignedAt: node.assignedAt,
           dueDate: node.dueDate,
@@ -346,6 +363,23 @@ const QuestionnaireDetailPage = () => {
         <StatCard icon={CheckCircle} label="Responses" value={completedResponses} isLoading={isResponsesCountLoading} />
         <StatCard icon={Calendar} label="Due Date" value={dueDate} isLoading={false} chip={isPastDue ? <PastDueBadge show /> : undefined} />
       </div>
+
+      {assessment.accessURL && (
+        <div className="mt-3 flex w-full max-w-[660px] items-center gap-3 rounded-md border bg-card px-3 py-2">
+          <span className="shrink-0 text-sm text-muted-foreground">Access URL</span>
+          <span className="min-w-0 flex-1 truncate rounded-md border bg-background px-3 py-2 text-sm" title={assessment.accessURL}>
+            {assessment.accessURL}
+          </span>
+          <Button type="button" variant="secondary" icon={<Copy size={14} />} iconPosition="left" onClick={handleCopyAccessURL}>
+            Copy
+          </Button>
+          <a href={assessment.accessURL} target="_blank" rel="noopener noreferrer" className="shrink-0">
+            <Button type="button" variant="secondary" icon={<ExternalLink size={14} />} iconPosition="left">
+              Open
+            </Button>
+          </a>
+        </div>
+      )}
 
       <div className="mt-6">
         <AISummaryCard jsonconfig={assessment.jsonconfig} responses={responseRows} />
