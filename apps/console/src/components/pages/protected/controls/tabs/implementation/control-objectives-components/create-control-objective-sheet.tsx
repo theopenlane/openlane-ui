@@ -4,7 +4,8 @@ import { Sheet, SheetContent } from '@repo/ui/sheet'
 import React, { useState } from 'react'
 import { CreateControlObjectiveForm } from './form/create-control-objective-form'
 import { ControlObjectiveControlSource, type ControlObjectiveFieldsFragment, ControlObjectiveObjectiveStatus } from '@repo/codegen/src/schema'
-import useFormSchema, { VersionBump } from './form/use-form-schema'
+import useFormSchema from './form/use-form-schema'
+import { VersionBump } from '@/lib/enums/revision-enum'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
 
 type CreateControlObjectiveSheetProps = {

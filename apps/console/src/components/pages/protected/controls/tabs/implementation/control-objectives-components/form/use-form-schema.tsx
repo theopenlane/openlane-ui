@@ -5,13 +5,6 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { ControlObjectiveControlSource, ControlObjectiveObjectiveStatus } from '@repo/codegen/src/schema'
 
-export enum VersionBump {
-  MAJOR = 'MAJOR',
-  MINOR = 'MINOR',
-  PATCH = 'PATCH',
-  DRAFT = 'DRAFT',
-}
-
 export const controlObjectiveSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   desiredOutcome: z.any().optional(),

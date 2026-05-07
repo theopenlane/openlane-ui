@@ -3164,9 +3164,8 @@ export interface Campaign extends Node {
   /** when responses are due for the campaign */
   dueDate?: Maybe<Scalars['DateTime']['output']>
   editors: GroupConnection
-  emailBranding?: Maybe<EmailBranding>
   /** the email branding associated with the campaign */
-  emailBrandingID?: Maybe<Scalars['ID']['output']>
+  emailBrandingID?: Maybe<Scalars['String']['output']>
   emailTemplate?: Maybe<EmailTemplate>
   /** the email template associated with the campaign */
   emailTemplateID?: Maybe<Scalars['ID']['output']>
@@ -3180,6 +3179,9 @@ export interface Campaign extends Node {
   hasWorkflowHistory: Scalars['Boolean']['output']
   id: Scalars['ID']['output']
   identityHolders: IdentityHolderConnection
+  integration?: Maybe<Integration>
+  /** the email integration used for campaign dispatch */
+  integrationID?: Maybe<Scalars['ID']['output']>
   /** the internal owner for the campaign when no user or group is linked */
   internalOwner?: Maybe<Scalars['String']['output']>
   internalOwnerGroup?: Maybe<Group>
@@ -3971,20 +3973,20 @@ export interface CampaignWhereInput {
   dueDateNotIn?: InputMaybe<Array<Scalars['DateTime']['input']>>
   dueDateNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** email_branding_id field predicates */
-  emailBrandingID?: InputMaybe<Scalars['ID']['input']>
-  emailBrandingIDContains?: InputMaybe<Scalars['ID']['input']>
-  emailBrandingIDContainsFold?: InputMaybe<Scalars['ID']['input']>
-  emailBrandingIDEqualFold?: InputMaybe<Scalars['ID']['input']>
-  emailBrandingIDGT?: InputMaybe<Scalars['ID']['input']>
-  emailBrandingIDGTE?: InputMaybe<Scalars['ID']['input']>
-  emailBrandingIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
-  emailBrandingIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
-  emailBrandingIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  emailBrandingID?: InputMaybe<Scalars['String']['input']>
+  emailBrandingIDContains?: InputMaybe<Scalars['String']['input']>
+  emailBrandingIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  emailBrandingIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  emailBrandingIDGT?: InputMaybe<Scalars['String']['input']>
+  emailBrandingIDGTE?: InputMaybe<Scalars['String']['input']>
+  emailBrandingIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  emailBrandingIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  emailBrandingIDIn?: InputMaybe<Array<Scalars['String']['input']>>
   emailBrandingIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  emailBrandingIDLT?: InputMaybe<Scalars['ID']['input']>
-  emailBrandingIDLTE?: InputMaybe<Scalars['ID']['input']>
-  emailBrandingIDNEQ?: InputMaybe<Scalars['ID']['input']>
-  emailBrandingIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  emailBrandingIDLT?: InputMaybe<Scalars['String']['input']>
+  emailBrandingIDLTE?: InputMaybe<Scalars['String']['input']>
+  emailBrandingIDNEQ?: InputMaybe<Scalars['String']['input']>
+  emailBrandingIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   emailBrandingIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** email_template_id field predicates */
   emailTemplateID?: InputMaybe<Scalars['ID']['input']>
@@ -4039,9 +4041,6 @@ export interface CampaignWhereInput {
   /** editors edge predicates */
   hasEditors?: InputMaybe<Scalars['Boolean']['input']>
   hasEditorsWith?: InputMaybe<Array<GroupWhereInput>>
-  /** email_branding edge predicates */
-  hasEmailBranding?: InputMaybe<Scalars['Boolean']['input']>
-  hasEmailBrandingWith?: InputMaybe<Array<EmailBrandingWhereInput>>
   /** email_template edge predicates */
   hasEmailTemplate?: InputMaybe<Scalars['Boolean']['input']>
   hasEmailTemplateWith?: InputMaybe<Array<EmailTemplateWhereInput>>
@@ -4054,6 +4053,9 @@ export interface CampaignWhereInput {
   /** identity_holders edge predicates */
   hasIdentityHolders?: InputMaybe<Scalars['Boolean']['input']>
   hasIdentityHoldersWith?: InputMaybe<Array<IdentityHolderWhereInput>>
+  /** integration edge predicates */
+  hasIntegration?: InputMaybe<Scalars['Boolean']['input']>
+  hasIntegrationWith?: InputMaybe<Array<IntegrationWhereInput>>
   /** internal_owner_group edge predicates */
   hasInternalOwnerGroup?: InputMaybe<Scalars['Boolean']['input']>
   hasInternalOwnerGroupWith?: InputMaybe<Array<GroupWhereInput>>
@@ -4086,6 +4088,22 @@ export interface CampaignWhereInput {
   idLTE?: InputMaybe<Scalars['ID']['input']>
   idNEQ?: InputMaybe<Scalars['ID']['input']>
   idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** integration_id field predicates */
+  integrationID?: InputMaybe<Scalars['ID']['input']>
+  integrationIDContains?: InputMaybe<Scalars['ID']['input']>
+  integrationIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  integrationIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  integrationIDGT?: InputMaybe<Scalars['ID']['input']>
+  integrationIDGTE?: InputMaybe<Scalars['ID']['input']>
+  integrationIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  integrationIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  integrationIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  integrationIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  integrationIDLT?: InputMaybe<Scalars['ID']['input']>
+  integrationIDLTE?: InputMaybe<Scalars['ID']['input']>
+  integrationIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  integrationIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  integrationIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** internal_owner field predicates */
   internalOwner?: InputMaybe<Scalars['String']['input']>
   internalOwnerContains?: InputMaybe<Scalars['String']['input']>
@@ -7736,11 +7754,13 @@ export interface CreateCampaignInput {
   /** when responses are due for the campaign */
   dueDate?: InputMaybe<Scalars['DateTime']['input']>
   editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  emailBrandingID?: InputMaybe<Scalars['ID']['input']>
+  /** the email branding associated with the campaign */
+  emailBrandingID?: InputMaybe<Scalars['String']['input']>
   emailTemplateID?: InputMaybe<Scalars['ID']['input']>
   entityID?: InputMaybe<Scalars['ID']['input']>
   groupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   identityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  integrationID?: InputMaybe<Scalars['ID']['input']>
   /** the internal owner for the campaign when no user or group is linked */
   internalOwner?: InputMaybe<Scalars['String']['input']>
   internalOwnerGroupID?: InputMaybe<Scalars['ID']['input']>
@@ -8428,45 +8448,6 @@ export interface CreateDocumentDataInput {
 }
 
 /**
- * CreateEmailBrandingInput is used for create EmailBranding object.
- * Input was generated by ent.
- */
-export interface CreateEmailBrandingInput {
-  /** background color for emails */
-  backgroundColor?: InputMaybe<Scalars['String']['input']>
-  blockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  /** brand name displayed in templates */
-  brandName?: InputMaybe<Scalars['String']['input']>
-  /** button background color for emails */
-  buttonColor?: InputMaybe<Scalars['String']['input']>
-  /** button text color for emails */
-  buttonTextColor?: InputMaybe<Scalars['String']['input']>
-  campaignIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  emailTemplateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  /** font family for emails */
-  fontFamily?: InputMaybe<EmailBrandingFont>
-  /** whether this is the default email branding for the organization */
-  isDefault?: InputMaybe<Scalars['Boolean']['input']>
-  /** link color for emails */
-  linkColor?: InputMaybe<Scalars['String']['input']>
-  /** URL of the brand logo for emails */
-  logoRemoteURL?: InputMaybe<Scalars['String']['input']>
-  /** friendly name for this email branding configuration */
-  name: Scalars['String']['input']
-  ownerID?: InputMaybe<Scalars['ID']['input']>
-  /** primary brand color for emails */
-  primaryColor?: InputMaybe<Scalars['String']['input']>
-  /** secondary brand color for emails */
-  secondaryColor?: InputMaybe<Scalars['String']['input']>
-  /** tags associated with the object */
-  tags?: InputMaybe<Array<Scalars['String']['input']>>
-  /** text color for emails */
-  textColor?: InputMaybe<Scalars['String']['input']>
-  viewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-}
-
-/**
  * CreateEmailTemplateInput is used for create EmailTemplate object.
  * Input was generated by ent.
  */
@@ -8482,7 +8463,6 @@ export interface CreateEmailTemplateInput {
   /** description of the template */
   description?: InputMaybe<Scalars['String']['input']>
   editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  emailBrandingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   fileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** template format for rendering */
   format?: InputMaybe<EmailTemplateNotificationTemplateFormat>
@@ -8510,7 +8490,7 @@ export interface CreateEmailTemplateInput {
   /** an internal identifier for the mapping, this field is only available to system admins */
   systemInternalID?: InputMaybe<Scalars['String']['input']>
   /** runtime data context defining available variable keys for this template */
-  templateContext: EmailTemplateTemplateContext
+  templateContext?: InputMaybe<EmailTemplateTemplateContext>
   /** plain text fallback template for the email */
   textTemplate?: InputMaybe<Scalars['String']['input']>
   /** uischema for a template builder */
@@ -9606,7 +9586,7 @@ export interface CreateNotificationTemplateInput {
   /** body template for the notification */
   bodyTemplate?: InputMaybe<Scalars['String']['input']>
   /** channel this template is intended for */
-  channel: NotificationTemplateChannel
+  channel?: InputMaybe<NotificationTemplateChannel>
   /** static variable values merged as base layer at render time; call-site data takes precedence */
   defaults?: InputMaybe<Scalars['Map']['input']>
   /** description of the template */
@@ -9721,7 +9701,6 @@ export interface CreateOrganizationInput {
   displayName?: InputMaybe<Scalars['String']['input']>
   dnsVerificationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   documentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  emailBrandingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   emailTemplateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   entityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   entityTypeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -12666,7 +12645,7 @@ export interface DirectoryAccount extends Node {
   /** organizational unit or OU path the account lives under */
   organizationUnit?: Maybe<Scalars['String']['output']>
   owner?: Maybe<Organization>
-  /** the organization id that owns the object */
+  /** the ID of the organization owner of the object */
   ownerID?: Maybe<Scalars['ID']['output']>
   /** phone number for the identity holder */
   phoneNumber?: Maybe<Scalars['String']['output']>
@@ -15512,482 +15491,11 @@ export interface DocumentDataWhereInput {
   updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
 }
 
-export interface EmailBranding extends Node {
-  __typename?: 'EmailBranding'
-  /** background color for emails */
-  backgroundColor?: Maybe<Scalars['String']['output']>
-  blockedGroups: GroupConnection
-  /** brand name displayed in templates */
-  brandName?: Maybe<Scalars['String']['output']>
-  /** button background color for emails */
-  buttonColor?: Maybe<Scalars['String']['output']>
-  /** button text color for emails */
-  buttonTextColor?: Maybe<Scalars['String']['output']>
-  campaigns: CampaignConnection
-  createdAt?: Maybe<Scalars['Time']['output']>
-  createdBy?: Maybe<Scalars['String']['output']>
-  editors: GroupConnection
-  emailTemplates: EmailTemplateConnection
-  /** font family for emails */
-  fontFamily?: Maybe<EmailBrandingFont>
-  id: Scalars['ID']['output']
-  /** whether this is the default email branding for the organization */
-  isDefault?: Maybe<Scalars['Boolean']['output']>
-  /** link color for emails */
-  linkColor?: Maybe<Scalars['String']['output']>
-  /** URL of the brand logo for emails */
-  logoRemoteURL?: Maybe<Scalars['String']['output']>
-  /** friendly name for this email branding configuration */
-  name: Scalars['String']['output']
-  owner?: Maybe<Organization>
-  /** the ID of the organization owner of the object */
-  ownerID?: Maybe<Scalars['ID']['output']>
-  /** primary brand color for emails */
-  primaryColor?: Maybe<Scalars['String']['output']>
-  /** secondary brand color for emails */
-  secondaryColor?: Maybe<Scalars['String']['output']>
-  /** tags associated with the object */
-  tags?: Maybe<Array<Scalars['String']['output']>>
-  /** text color for emails */
-  textColor?: Maybe<Scalars['String']['output']>
-  updatedAt?: Maybe<Scalars['Time']['output']>
-  updatedBy?: Maybe<Scalars['String']['output']>
-  viewers: GroupConnection
-}
-
-export interface EmailBrandingBlockedGroupsArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  orderBy?: InputMaybe<Array<GroupOrder>>
-  where?: InputMaybe<GroupWhereInput>
-}
-
-export interface EmailBrandingCampaignsArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  orderBy?: InputMaybe<Array<CampaignOrder>>
-  where?: InputMaybe<CampaignWhereInput>
-}
-
-export interface EmailBrandingEditorsArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  orderBy?: InputMaybe<Array<GroupOrder>>
-  where?: InputMaybe<GroupWhereInput>
-}
-
-export interface EmailBrandingEmailTemplatesArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  orderBy?: InputMaybe<Array<EmailTemplateOrder>>
-  where?: InputMaybe<EmailTemplateWhereInput>
-}
-
-export interface EmailBrandingViewersArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  orderBy?: InputMaybe<Array<GroupOrder>>
-  where?: InputMaybe<GroupWhereInput>
-}
-
-/** Return response for createBulkEmailBranding mutation */
-export interface EmailBrandingBulkCreatePayload {
-  __typename?: 'EmailBrandingBulkCreatePayload'
-  /** Created emailBrandings */
-  emailBrandings?: Maybe<Array<EmailBranding>>
-}
-
-/** Return response for deleteBulkEmailBranding mutation */
-export interface EmailBrandingBulkDeletePayload {
-  __typename?: 'EmailBrandingBulkDeletePayload'
-  /** Deleted emailBranding IDs */
-  deletedIDs: Array<Scalars['ID']['output']>
-  /** Error message when the bulk delete did not apply to every requested ID */
-  error?: Maybe<Scalars['String']['output']>
-  /** IDs that were not deleted */
-  notDeletedIDs: Array<Scalars['ID']['output']>
-}
-
-/** Return response for updateBulkEmailBranding mutation */
-export interface EmailBrandingBulkUpdatePayload {
-  __typename?: 'EmailBrandingBulkUpdatePayload'
-  /** Updated emailBrandings */
-  emailBrandings?: Maybe<Array<EmailBranding>>
-  /** IDs of the updated emailBrandings */
-  updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
-}
-
-/** A connection to a list of items. */
-export interface EmailBrandingConnection {
-  __typename?: 'EmailBrandingConnection'
-  /** A list of edges. */
-  edges?: Maybe<Array<Maybe<EmailBrandingEdge>>>
-  /** Information to aid in pagination. */
-  pageInfo: PageInfo
-  /** Identifies the total count of items in the connection. */
-  totalCount: Scalars['Int']['output']
-}
-
-/** Return response for createEmailBranding mutation */
-export interface EmailBrandingCreatePayload {
-  __typename?: 'EmailBrandingCreatePayload'
-  /** Created emailBranding */
-  emailBranding: EmailBranding
-}
-
-/** Return response for deleteEmailBranding mutation */
-export interface EmailBrandingDeletePayload {
-  __typename?: 'EmailBrandingDeletePayload'
-  /** Deleted emailBranding ID */
-  deletedID: Scalars['ID']['output']
-}
-
-/** An edge in a connection. */
-export interface EmailBrandingEdge {
-  __typename?: 'EmailBrandingEdge'
-  /** A cursor for use in pagination. */
-  cursor: Scalars['Cursor']['output']
-  /** The item at the end of the edge. */
-  node?: Maybe<EmailBranding>
-}
-
-/** EmailBrandingFont is enum for the field font_family */
-export enum EmailBrandingFont {
-  COURIER = 'COURIER',
-  COURIER_BOLD = 'COURIER_BOLD',
-  COURIER_BOLDOBLIQUE = 'COURIER_BOLDOBLIQUE',
-  COURIER_OBLIQUE = 'COURIER_OBLIQUE',
-  HELVETICA = 'HELVETICA',
-  HELVETICA_BOLD = 'HELVETICA_BOLD',
-  HELVETICA_BOLDOBLIQUE = 'HELVETICA_BOLDOBLIQUE',
-  HELVETICA_OBLIQUE = 'HELVETICA_OBLIQUE',
-  SYMBOL = 'SYMBOL',
-  TIMES_BOLD = 'TIMES_BOLD',
-  TIMES_BOLDITALIC = 'TIMES_BOLDITALIC',
-  TIMES_ITALIC = 'TIMES_ITALIC',
-  TIMES_ROMAN = 'TIMES_ROMAN',
-}
-
-/** Ordering options for EmailBranding connections */
-export interface EmailBrandingOrder {
-  /** The ordering direction. */
-  direction?: OrderDirection
-  /** The field by which to order EmailBrandings. */
-  field: EmailBrandingOrderField
-}
-
-/** Properties by which EmailBranding connections can be ordered. */
-export enum EmailBrandingOrderField {
-  created_at = 'created_at',
-  name = 'name',
-  updated_at = 'updated_at',
-}
-
-/** Return response for updateEmailBranding mutation */
-export interface EmailBrandingUpdatePayload {
-  __typename?: 'EmailBrandingUpdatePayload'
-  /** Updated emailBranding */
-  emailBranding: EmailBranding
-}
-
-/**
- * EmailBrandingWhereInput is used for filtering EmailBranding objects.
- * Input was generated by ent.
- */
-export interface EmailBrandingWhereInput {
-  and?: InputMaybe<Array<EmailBrandingWhereInput>>
-  /** background_color field predicates */
-  backgroundColor?: InputMaybe<Scalars['String']['input']>
-  backgroundColorContains?: InputMaybe<Scalars['String']['input']>
-  backgroundColorContainsFold?: InputMaybe<Scalars['String']['input']>
-  backgroundColorEqualFold?: InputMaybe<Scalars['String']['input']>
-  backgroundColorGT?: InputMaybe<Scalars['String']['input']>
-  backgroundColorGTE?: InputMaybe<Scalars['String']['input']>
-  backgroundColorHasPrefix?: InputMaybe<Scalars['String']['input']>
-  backgroundColorHasSuffix?: InputMaybe<Scalars['String']['input']>
-  backgroundColorIn?: InputMaybe<Array<Scalars['String']['input']>>
-  backgroundColorIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  backgroundColorLT?: InputMaybe<Scalars['String']['input']>
-  backgroundColorLTE?: InputMaybe<Scalars['String']['input']>
-  backgroundColorNEQ?: InputMaybe<Scalars['String']['input']>
-  backgroundColorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  backgroundColorNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** brand_name field predicates */
-  brandName?: InputMaybe<Scalars['String']['input']>
-  brandNameContains?: InputMaybe<Scalars['String']['input']>
-  brandNameContainsFold?: InputMaybe<Scalars['String']['input']>
-  brandNameEqualFold?: InputMaybe<Scalars['String']['input']>
-  brandNameGT?: InputMaybe<Scalars['String']['input']>
-  brandNameGTE?: InputMaybe<Scalars['String']['input']>
-  brandNameHasPrefix?: InputMaybe<Scalars['String']['input']>
-  brandNameHasSuffix?: InputMaybe<Scalars['String']['input']>
-  brandNameIn?: InputMaybe<Array<Scalars['String']['input']>>
-  brandNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  brandNameLT?: InputMaybe<Scalars['String']['input']>
-  brandNameLTE?: InputMaybe<Scalars['String']['input']>
-  brandNameNEQ?: InputMaybe<Scalars['String']['input']>
-  brandNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  brandNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** button_color field predicates */
-  buttonColor?: InputMaybe<Scalars['String']['input']>
-  buttonColorContains?: InputMaybe<Scalars['String']['input']>
-  buttonColorContainsFold?: InputMaybe<Scalars['String']['input']>
-  buttonColorEqualFold?: InputMaybe<Scalars['String']['input']>
-  buttonColorGT?: InputMaybe<Scalars['String']['input']>
-  buttonColorGTE?: InputMaybe<Scalars['String']['input']>
-  buttonColorHasPrefix?: InputMaybe<Scalars['String']['input']>
-  buttonColorHasSuffix?: InputMaybe<Scalars['String']['input']>
-  buttonColorIn?: InputMaybe<Array<Scalars['String']['input']>>
-  buttonColorIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  buttonColorLT?: InputMaybe<Scalars['String']['input']>
-  buttonColorLTE?: InputMaybe<Scalars['String']['input']>
-  buttonColorNEQ?: InputMaybe<Scalars['String']['input']>
-  buttonColorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  buttonColorNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** button_text_color field predicates */
-  buttonTextColor?: InputMaybe<Scalars['String']['input']>
-  buttonTextColorContains?: InputMaybe<Scalars['String']['input']>
-  buttonTextColorContainsFold?: InputMaybe<Scalars['String']['input']>
-  buttonTextColorEqualFold?: InputMaybe<Scalars['String']['input']>
-  buttonTextColorGT?: InputMaybe<Scalars['String']['input']>
-  buttonTextColorGTE?: InputMaybe<Scalars['String']['input']>
-  buttonTextColorHasPrefix?: InputMaybe<Scalars['String']['input']>
-  buttonTextColorHasSuffix?: InputMaybe<Scalars['String']['input']>
-  buttonTextColorIn?: InputMaybe<Array<Scalars['String']['input']>>
-  buttonTextColorIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  buttonTextColorLT?: InputMaybe<Scalars['String']['input']>
-  buttonTextColorLTE?: InputMaybe<Scalars['String']['input']>
-  buttonTextColorNEQ?: InputMaybe<Scalars['String']['input']>
-  buttonTextColorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  buttonTextColorNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** created_at field predicates */
-  createdAt?: InputMaybe<Scalars['Time']['input']>
-  createdAtGT?: InputMaybe<Scalars['Time']['input']>
-  createdAtGTE?: InputMaybe<Scalars['Time']['input']>
-  createdAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  createdAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  createdAtLT?: InputMaybe<Scalars['Time']['input']>
-  createdAtLTE?: InputMaybe<Scalars['Time']['input']>
-  createdAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  createdAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  createdAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** created_by field predicates */
-  createdBy?: InputMaybe<Scalars['String']['input']>
-  createdByContains?: InputMaybe<Scalars['String']['input']>
-  createdByContainsFold?: InputMaybe<Scalars['String']['input']>
-  createdByEqualFold?: InputMaybe<Scalars['String']['input']>
-  createdByGT?: InputMaybe<Scalars['String']['input']>
-  createdByGTE?: InputMaybe<Scalars['String']['input']>
-  createdByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  createdByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  createdByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  createdByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  createdByLT?: InputMaybe<Scalars['String']['input']>
-  createdByLTE?: InputMaybe<Scalars['String']['input']>
-  createdByNEQ?: InputMaybe<Scalars['String']['input']>
-  createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** font_family field predicates */
-  fontFamily?: InputMaybe<EmailBrandingFont>
-  fontFamilyIn?: InputMaybe<Array<EmailBrandingFont>>
-  fontFamilyIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  fontFamilyNEQ?: InputMaybe<EmailBrandingFont>
-  fontFamilyNotIn?: InputMaybe<Array<EmailBrandingFont>>
-  fontFamilyNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** blocked_groups edge predicates */
-  hasBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
-  hasBlockedGroupsWith?: InputMaybe<Array<GroupWhereInput>>
-  /** campaigns edge predicates */
-  hasCampaigns?: InputMaybe<Scalars['Boolean']['input']>
-  hasCampaignsWith?: InputMaybe<Array<CampaignWhereInput>>
-  /** editors edge predicates */
-  hasEditors?: InputMaybe<Scalars['Boolean']['input']>
-  hasEditorsWith?: InputMaybe<Array<GroupWhereInput>>
-  /** email_templates edge predicates */
-  hasEmailTemplates?: InputMaybe<Scalars['Boolean']['input']>
-  hasEmailTemplatesWith?: InputMaybe<Array<EmailTemplateWhereInput>>
-  /** owner edge predicates */
-  hasOwner?: InputMaybe<Scalars['Boolean']['input']>
-  hasOwnerWith?: InputMaybe<Array<OrganizationWhereInput>>
-  /** viewers edge predicates */
-  hasViewers?: InputMaybe<Scalars['Boolean']['input']>
-  hasViewersWith?: InputMaybe<Array<GroupWhereInput>>
-  /** id field predicates */
-  id?: InputMaybe<Scalars['ID']['input']>
-  idContainsFold?: InputMaybe<Scalars['ID']['input']>
-  idEqualFold?: InputMaybe<Scalars['ID']['input']>
-  idGT?: InputMaybe<Scalars['ID']['input']>
-  idGTE?: InputMaybe<Scalars['ID']['input']>
-  idIn?: InputMaybe<Array<Scalars['ID']['input']>>
-  idLT?: InputMaybe<Scalars['ID']['input']>
-  idLTE?: InputMaybe<Scalars['ID']['input']>
-  idNEQ?: InputMaybe<Scalars['ID']['input']>
-  idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
-  /** is_default field predicates */
-  isDefault?: InputMaybe<Scalars['Boolean']['input']>
-  isDefaultIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  isDefaultNEQ?: InputMaybe<Scalars['Boolean']['input']>
-  isDefaultNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** link_color field predicates */
-  linkColor?: InputMaybe<Scalars['String']['input']>
-  linkColorContains?: InputMaybe<Scalars['String']['input']>
-  linkColorContainsFold?: InputMaybe<Scalars['String']['input']>
-  linkColorEqualFold?: InputMaybe<Scalars['String']['input']>
-  linkColorGT?: InputMaybe<Scalars['String']['input']>
-  linkColorGTE?: InputMaybe<Scalars['String']['input']>
-  linkColorHasPrefix?: InputMaybe<Scalars['String']['input']>
-  linkColorHasSuffix?: InputMaybe<Scalars['String']['input']>
-  linkColorIn?: InputMaybe<Array<Scalars['String']['input']>>
-  linkColorIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  linkColorLT?: InputMaybe<Scalars['String']['input']>
-  linkColorLTE?: InputMaybe<Scalars['String']['input']>
-  linkColorNEQ?: InputMaybe<Scalars['String']['input']>
-  linkColorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  linkColorNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** logo_remote_url field predicates */
-  logoRemoteURL?: InputMaybe<Scalars['String']['input']>
-  logoRemoteURLContains?: InputMaybe<Scalars['String']['input']>
-  logoRemoteURLContainsFold?: InputMaybe<Scalars['String']['input']>
-  logoRemoteURLEqualFold?: InputMaybe<Scalars['String']['input']>
-  logoRemoteURLGT?: InputMaybe<Scalars['String']['input']>
-  logoRemoteURLGTE?: InputMaybe<Scalars['String']['input']>
-  logoRemoteURLHasPrefix?: InputMaybe<Scalars['String']['input']>
-  logoRemoteURLHasSuffix?: InputMaybe<Scalars['String']['input']>
-  logoRemoteURLIn?: InputMaybe<Array<Scalars['String']['input']>>
-  logoRemoteURLIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  logoRemoteURLLT?: InputMaybe<Scalars['String']['input']>
-  logoRemoteURLLTE?: InputMaybe<Scalars['String']['input']>
-  logoRemoteURLNEQ?: InputMaybe<Scalars['String']['input']>
-  logoRemoteURLNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  logoRemoteURLNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** name field predicates */
-  name?: InputMaybe<Scalars['String']['input']>
-  nameContains?: InputMaybe<Scalars['String']['input']>
-  nameContainsFold?: InputMaybe<Scalars['String']['input']>
-  nameEqualFold?: InputMaybe<Scalars['String']['input']>
-  nameGT?: InputMaybe<Scalars['String']['input']>
-  nameGTE?: InputMaybe<Scalars['String']['input']>
-  nameHasPrefix?: InputMaybe<Scalars['String']['input']>
-  nameHasSuffix?: InputMaybe<Scalars['String']['input']>
-  nameIn?: InputMaybe<Array<Scalars['String']['input']>>
-  nameLT?: InputMaybe<Scalars['String']['input']>
-  nameLTE?: InputMaybe<Scalars['String']['input']>
-  nameNEQ?: InputMaybe<Scalars['String']['input']>
-  nameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  not?: InputMaybe<EmailBrandingWhereInput>
-  or?: InputMaybe<Array<EmailBrandingWhereInput>>
-  /** owner_id field predicates */
-  ownerID?: InputMaybe<Scalars['ID']['input']>
-  ownerIDContains?: InputMaybe<Scalars['ID']['input']>
-  ownerIDContainsFold?: InputMaybe<Scalars['ID']['input']>
-  ownerIDEqualFold?: InputMaybe<Scalars['ID']['input']>
-  ownerIDGT?: InputMaybe<Scalars['ID']['input']>
-  ownerIDGTE?: InputMaybe<Scalars['ID']['input']>
-  ownerIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
-  ownerIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
-  ownerIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
-  ownerIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  ownerIDLT?: InputMaybe<Scalars['ID']['input']>
-  ownerIDLTE?: InputMaybe<Scalars['ID']['input']>
-  ownerIDNEQ?: InputMaybe<Scalars['ID']['input']>
-  ownerIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
-  ownerIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** primary_color field predicates */
-  primaryColor?: InputMaybe<Scalars['String']['input']>
-  primaryColorContains?: InputMaybe<Scalars['String']['input']>
-  primaryColorContainsFold?: InputMaybe<Scalars['String']['input']>
-  primaryColorEqualFold?: InputMaybe<Scalars['String']['input']>
-  primaryColorGT?: InputMaybe<Scalars['String']['input']>
-  primaryColorGTE?: InputMaybe<Scalars['String']['input']>
-  primaryColorHasPrefix?: InputMaybe<Scalars['String']['input']>
-  primaryColorHasSuffix?: InputMaybe<Scalars['String']['input']>
-  primaryColorIn?: InputMaybe<Array<Scalars['String']['input']>>
-  primaryColorIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  primaryColorLT?: InputMaybe<Scalars['String']['input']>
-  primaryColorLTE?: InputMaybe<Scalars['String']['input']>
-  primaryColorNEQ?: InputMaybe<Scalars['String']['input']>
-  primaryColorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  primaryColorNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** secondary_color field predicates */
-  secondaryColor?: InputMaybe<Scalars['String']['input']>
-  secondaryColorContains?: InputMaybe<Scalars['String']['input']>
-  secondaryColorContainsFold?: InputMaybe<Scalars['String']['input']>
-  secondaryColorEqualFold?: InputMaybe<Scalars['String']['input']>
-  secondaryColorGT?: InputMaybe<Scalars['String']['input']>
-  secondaryColorGTE?: InputMaybe<Scalars['String']['input']>
-  secondaryColorHasPrefix?: InputMaybe<Scalars['String']['input']>
-  secondaryColorHasSuffix?: InputMaybe<Scalars['String']['input']>
-  secondaryColorIn?: InputMaybe<Array<Scalars['String']['input']>>
-  secondaryColorIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  secondaryColorLT?: InputMaybe<Scalars['String']['input']>
-  secondaryColorLTE?: InputMaybe<Scalars['String']['input']>
-  secondaryColorNEQ?: InputMaybe<Scalars['String']['input']>
-  secondaryColorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  secondaryColorNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** Filter for tagsHas to contain a specific value */
-  tagsHas?: InputMaybe<Scalars['String']['input']>
-  /** text_color field predicates */
-  textColor?: InputMaybe<Scalars['String']['input']>
-  textColorContains?: InputMaybe<Scalars['String']['input']>
-  textColorContainsFold?: InputMaybe<Scalars['String']['input']>
-  textColorEqualFold?: InputMaybe<Scalars['String']['input']>
-  textColorGT?: InputMaybe<Scalars['String']['input']>
-  textColorGTE?: InputMaybe<Scalars['String']['input']>
-  textColorHasPrefix?: InputMaybe<Scalars['String']['input']>
-  textColorHasSuffix?: InputMaybe<Scalars['String']['input']>
-  textColorIn?: InputMaybe<Array<Scalars['String']['input']>>
-  textColorIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  textColorLT?: InputMaybe<Scalars['String']['input']>
-  textColorLTE?: InputMaybe<Scalars['String']['input']>
-  textColorNEQ?: InputMaybe<Scalars['String']['input']>
-  textColorNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  textColorNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** updated_at field predicates */
-  updatedAt?: InputMaybe<Scalars['Time']['input']>
-  updatedAtGT?: InputMaybe<Scalars['Time']['input']>
-  updatedAtGTE?: InputMaybe<Scalars['Time']['input']>
-  updatedAtIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  updatedAtIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  updatedAtLT?: InputMaybe<Scalars['Time']['input']>
-  updatedAtLTE?: InputMaybe<Scalars['Time']['input']>
-  updatedAtNEQ?: InputMaybe<Scalars['Time']['input']>
-  updatedAtNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
-  updatedAtNotNil?: InputMaybe<Scalars['Boolean']['input']>
-  /** updated_by field predicates */
-  updatedBy?: InputMaybe<Scalars['String']['input']>
-  updatedByContains?: InputMaybe<Scalars['String']['input']>
-  updatedByContainsFold?: InputMaybe<Scalars['String']['input']>
-  updatedByEqualFold?: InputMaybe<Scalars['String']['input']>
-  updatedByGT?: InputMaybe<Scalars['String']['input']>
-  updatedByGTE?: InputMaybe<Scalars['String']['input']>
-  updatedByHasPrefix?: InputMaybe<Scalars['String']['input']>
-  updatedByHasSuffix?: InputMaybe<Scalars['String']['input']>
-  updatedByIn?: InputMaybe<Array<Scalars['String']['input']>>
-  updatedByIsNil?: InputMaybe<Scalars['Boolean']['input']>
-  updatedByLT?: InputMaybe<Scalars['String']['input']>
-  updatedByLTE?: InputMaybe<Scalars['String']['input']>
-  updatedByNEQ?: InputMaybe<Scalars['String']['input']>
-  updatedByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
-  updatedByNotNil?: InputMaybe<Scalars['Boolean']['input']>
-}
-
 export interface EmailTemplate extends Node {
   __typename?: 'EmailTemplate'
   /** whether the template is active */
   active: Scalars['Boolean']['output']
   blockedGroups: GroupConnection
-  /** body template for the email */
-  bodyTemplate?: Maybe<Scalars['String']['output']>
   campaigns: CampaignConnection
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
@@ -15996,18 +15504,15 @@ export interface EmailTemplate extends Node {
   /** description of the template */
   description?: Maybe<Scalars['String']['output']>
   editors: GroupConnection
-  emailBranding?: Maybe<Array<EmailBranding>>
   files: FileConnection
   /** template format for rendering */
-  format: EmailTemplateNotificationTemplateFormat
+  format?: Maybe<EmailTemplateNotificationTemplateFormat>
   id: Scalars['ID']['output']
   integration?: Maybe<Integration>
   /** integration used to deliver emails for this template */
   integrationID?: Maybe<Scalars['ID']['output']>
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: Maybe<Scalars['String']['output']>
-  /** jsonschema for template data requirements */
-  jsonconfig?: Maybe<Scalars['Map']['output']>
   /** stable identifier for the template */
   key: Scalars['String']['output']
   /** locale for the template, e.g. en-US */
@@ -16020,22 +15525,14 @@ export interface EmailTemplate extends Node {
   owner?: Maybe<Organization>
   /** the ID of the organization owner of the object */
   ownerID?: Maybe<Scalars['ID']['output']>
-  /** preheader/preview text template for email notifications */
-  preheaderTemplate?: Maybe<Scalars['String']['output']>
   /** revision of the object as a semver (e.g. v1.0.0), by default any update will bump the patch version, unless the revision_bump field is set */
   revision?: Maybe<Scalars['String']['output']>
-  /** subject template for email notifications */
-  subjectTemplate?: Maybe<Scalars['String']['output']>
   /** an internal identifier for the mapping, this field is only available to system admins */
   systemInternalID?: Maybe<Scalars['String']['output']>
   /** indicates if the record is owned by the the openlane system and not by an organization */
   systemOwned?: Maybe<Scalars['Boolean']['output']>
   /** runtime data context defining available variable keys for this template */
-  templateContext: EmailTemplateTemplateContext
-  /** plain text fallback template for the email */
-  textTemplate?: Maybe<Scalars['String']['output']>
-  /** uischema for a template builder */
-  uischema?: Maybe<Scalars['Map']['output']>
+  templateContext?: Maybe<EmailTemplateTemplateContext>
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
   /** template version */
@@ -16128,6 +15625,40 @@ export interface EmailTemplateBulkUpdatePayload {
   emailTemplates?: Maybe<Array<EmailTemplate>>
   /** IDs of the updated emailTemplates */
   updatedIDs?: Maybe<Array<Scalars['ID']['output']>>
+}
+
+/**
+ * EmailTemplateCatalog contains the available customer-selectable email template types
+ * from the operation catalog.
+ */
+export interface EmailTemplateCatalog {
+  __typename?: 'EmailTemplateCatalog'
+  /** Available email template types. */
+  entries: Array<EmailTemplateCatalogEntry>
+}
+
+/**
+ * EmailTemplateCatalogEntry describes a single customer-selectable email template
+ * type from the operation catalog. The key is stored on the EmailTemplate record to
+ * link it back to the rendering pipeline at send time.
+ */
+export interface EmailTemplateCatalogEntry {
+  __typename?: 'EmailTemplateCatalogEntry'
+  /**
+   * JSON Schema describing the configurable fields for this template type.
+   * The UI uses this to render a dynamic form; the submitted values become
+   * the EmailTemplate defaults field.
+   */
+  configSchema: Scalars['Map']['output']
+  /** Human-readable description of the template type. */
+  description: Scalars['String']['output']
+  /** Rendered HTML preview of the template with default/example values. */
+  htmlPreview: Scalars['String']['output']
+  /**
+   * Stable catalog key stored on the EmailTemplate record to resolve the
+   * rendering pipeline at send time.
+   */
+  key: Scalars['String']['output']
 }
 
 /** A connection to a list of items. */
@@ -16279,8 +15810,10 @@ export interface EmailTemplateWhereInput {
   /** format field predicates */
   format?: InputMaybe<EmailTemplateNotificationTemplateFormat>
   formatIn?: InputMaybe<Array<EmailTemplateNotificationTemplateFormat>>
+  formatIsNil?: InputMaybe<Scalars['Boolean']['input']>
   formatNEQ?: InputMaybe<EmailTemplateNotificationTemplateFormat>
   formatNotIn?: InputMaybe<Array<EmailTemplateNotificationTemplateFormat>>
+  formatNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** blocked_groups edge predicates */
   hasBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
   hasBlockedGroupsWith?: InputMaybe<Array<GroupWhereInput>>
@@ -16290,9 +15823,6 @@ export interface EmailTemplateWhereInput {
   /** editors edge predicates */
   hasEditors?: InputMaybe<Scalars['Boolean']['input']>
   hasEditorsWith?: InputMaybe<Array<GroupWhereInput>>
-  /** email_branding edge predicates */
-  hasEmailBranding?: InputMaybe<Scalars['Boolean']['input']>
-  hasEmailBrandingWith?: InputMaybe<Array<EmailBrandingWhereInput>>
   /** files edge predicates */
   hasFiles?: InputMaybe<Scalars['Boolean']['input']>
   hasFilesWith?: InputMaybe<Array<FileWhereInput>>
@@ -16489,8 +16019,10 @@ export interface EmailTemplateWhereInput {
   /** template_context field predicates */
   templateContext?: InputMaybe<EmailTemplateTemplateContext>
   templateContextIn?: InputMaybe<Array<EmailTemplateTemplateContext>>
+  templateContextIsNil?: InputMaybe<Scalars['Boolean']['input']>
   templateContextNEQ?: InputMaybe<EmailTemplateTemplateContext>
   templateContextNotIn?: InputMaybe<Array<EmailTemplateTemplateContext>>
+  templateContextNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** text_template field predicates */
   textTemplate?: InputMaybe<Scalars['String']['input']>
   textTemplateContains?: InputMaybe<Scalars['String']['input']>
@@ -24483,11 +24015,14 @@ export interface Integration extends Node {
   __typename?: 'Integration'
   actionPlans: ActionPlanConnection
   assets: AssetConnection
+  /** designates this email integration as the one to use for campaign dispatch within its owner organization */
+  campaignEmail: Scalars['Boolean']['output']
+  campaigns: CampaignConnection
   checkResults: CheckResultConnection
-  config?: Maybe<Scalars['Map']['output']>
+  config?: Maybe<Scalars['JSON']['output']>
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
-  credentials?: Maybe<Scalars['Map']['output']>
+  credentials?: Maybe<Scalars['JSON']['output']>
   /** the canonical definition identifier for the installation */
   definitionID?: Maybe<Scalars['String']['output']>
   /** the human-readable definition slug recorded for this installation */
@@ -24574,6 +24109,15 @@ export interface IntegrationAssetsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<AssetOrder>>
   where?: InputMaybe<AssetWhereInput>
+}
+
+export interface IntegrationCampaignsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<CampaignOrder>>
+  where?: InputMaybe<CampaignWhereInput>
 }
 
 export interface IntegrationCheckResultsArgs {
@@ -24784,6 +24328,9 @@ export enum IntegrationOrderField {
  */
 export interface IntegrationWhereInput {
   and?: InputMaybe<Array<IntegrationWhereInput>>
+  /** campaign_email field predicates */
+  campaignEmail?: InputMaybe<Scalars['Boolean']['input']>
+  campaignEmailNEQ?: InputMaybe<Scalars['Boolean']['input']>
   /** created_at field predicates */
   createdAt?: InputMaybe<Scalars['Time']['input']>
   createdAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -24913,6 +24460,9 @@ export interface IntegrationWhereInput {
   /** assets edge predicates */
   hasAssets?: InputMaybe<Scalars['Boolean']['input']>
   hasAssetsWith?: InputMaybe<Array<AssetWhereInput>>
+  /** campaigns edge predicates */
+  hasCampaigns?: InputMaybe<Scalars['Boolean']['input']>
+  hasCampaignsWith?: InputMaybe<Array<CampaignWhereInput>>
   /** check_results edge predicates */
   hasCheckResults?: InputMaybe<Scalars['Boolean']['input']>
   hasCheckResultsWith?: InputMaybe<Array<CheckResultWhereInput>>
@@ -28419,8 +27969,6 @@ export interface Mutation {
   createBulkCSVDiscussion: DiscussionBulkCreatePayload
   /** Create multiple new documentData via file upload */
   createBulkCSVDocumentData: DocumentDataBulkCreatePayload
-  /** Create multiple new emailBrandings via file upload */
-  createBulkCSVEmailBranding: EmailBrandingBulkCreatePayload
   /** Create multiple new emailTemplates via file upload */
   createBulkCSVEmailTemplate: EmailTemplateBulkCreatePayload
   /** Create multiple new entities via file upload */
@@ -28553,8 +28101,6 @@ export interface Mutation {
   createBulkDiscussion: DiscussionBulkCreatePayload
   /** Create multiple new documentData */
   createBulkDocumentData: DocumentDataBulkCreatePayload
-  /** Create multiple new emailBrandings */
-  createBulkEmailBranding: EmailBrandingBulkCreatePayload
   /** Create multiple new emailTemplates */
   createBulkEmailTemplate: EmailTemplateBulkCreatePayload
   /** Create multiple new entities */
@@ -28695,8 +28241,6 @@ export interface Mutation {
   createDiscussion: DiscussionCreatePayload
   /** Create a new documentData */
   createDocumentData: DocumentDataCreatePayload
-  /** Create a new emailBranding */
-  createEmailBranding: EmailBrandingCreatePayload
   /** Create a new emailTemplate */
   createEmailTemplate: EmailTemplateCreatePayload
   /** Create a new entity */
@@ -28883,8 +28427,6 @@ export interface Mutation {
   deleteBulkDNSVerification: DnsVerificationBulkDeletePayload
   /** Delete multiple documentData */
   deleteBulkDocumentData: DocumentDataBulkDeletePayload
-  /** Delete multiple emailBrandings */
-  deleteBulkEmailBranding: EmailBrandingBulkDeletePayload
   /** Delete multiple emailTemplates */
   deleteBulkEmailTemplate: EmailTemplateBulkDeletePayload
   /** Delete multiple entities */
@@ -29007,8 +28549,6 @@ export interface Mutation {
   deleteDiscussion: DiscussionDeletePayload
   /** Delete an existing documentData */
   deleteDocumentData: DocumentDataDeletePayload
-  /** Delete an existing emailBranding */
-  deleteEmailBranding: EmailBrandingDeletePayload
   /** Delete an existing emailTemplate */
   deleteEmailTemplate: EmailTemplateDeletePayload
   /** Delete an existing entity */
@@ -29207,8 +28747,6 @@ export interface Mutation {
   updateBulkCSVDNSVerification: DnsVerificationBulkUpdatePayload
   /** Update multiple existing documentDatas via file upload */
   updateBulkCSVDocumentData: DocumentDataBulkUpdatePayload
-  /** Update multiple existing emailBrandings via file upload */
-  updateBulkCSVEmailBranding: EmailBrandingBulkUpdatePayload
   /** Update multiple existing emailTemplates via file upload */
   updateBulkCSVEmailTemplate: EmailTemplateBulkUpdatePayload
   /** Update multiple existing entitys via file upload */
@@ -29311,8 +28849,6 @@ export interface Mutation {
   updateBulkDNSVerification: DnsVerificationBulkUpdatePayload
   /** Update multiple existing documentDatas */
   updateBulkDocumentData: DocumentDataBulkUpdatePayload
-  /** Update multiple existing emailBrandings */
-  updateBulkEmailBranding: EmailBrandingBulkUpdatePayload
   /** Update multiple existing emailTemplates */
   updateBulkEmailTemplate: EmailTemplateBulkUpdatePayload
   /** Update multiple existing entitys */
@@ -29433,8 +28969,6 @@ export interface Mutation {
   updateDiscussion: DiscussionUpdatePayload
   /** Update an existing documentData */
   updateDocumentData: DocumentDataUpdatePayload
-  /** Update an existing emailBranding */
-  updateEmailBranding: EmailBrandingUpdatePayload
   /** Update an existing emailTemplate */
   updateEmailTemplate: EmailTemplateUpdatePayload
   /** Update an existing entity */
@@ -29727,10 +29261,6 @@ export interface MutationCreateBulkCsvDocumentDataArgs {
   input: Scalars['Upload']['input']
 }
 
-export interface MutationCreateBulkCsvEmailBrandingArgs {
-  input: Scalars['Upload']['input']
-}
-
 export interface MutationCreateBulkCsvEmailTemplateArgs {
   input: Scalars['Upload']['input']
 }
@@ -29994,10 +29524,6 @@ export interface MutationCreateBulkDiscussionArgs {
 
 export interface MutationCreateBulkDocumentDataArgs {
   input?: InputMaybe<Array<CreateDocumentDataInput>>
-}
-
-export interface MutationCreateBulkEmailBrandingArgs {
-  input?: InputMaybe<Array<CreateEmailBrandingInput>>
 }
 
 export interface MutationCreateBulkEmailTemplateArgs {
@@ -30280,10 +29806,6 @@ export interface MutationCreateDiscussionArgs {
 
 export interface MutationCreateDocumentDataArgs {
   input: CreateDocumentDataInput
-}
-
-export interface MutationCreateEmailBrandingArgs {
-  input: CreateEmailBrandingInput
 }
 
 export interface MutationCreateEmailTemplateArgs {
@@ -30720,10 +30242,6 @@ export interface MutationDeleteBulkDocumentDataArgs {
   ids: Array<Scalars['ID']['input']>
 }
 
-export interface MutationDeleteBulkEmailBrandingArgs {
-  ids: Array<Scalars['ID']['input']>
-}
-
 export interface MutationDeleteBulkEmailTemplateArgs {
   ids: Array<Scalars['ID']['input']>
 }
@@ -30965,10 +30483,6 @@ export interface MutationDeleteDiscussionArgs {
 }
 
 export interface MutationDeleteDocumentDataArgs {
-  id: Scalars['ID']['input']
-}
-
-export interface MutationDeleteEmailBrandingArgs {
   id: Scalars['ID']['input']
 }
 
@@ -31378,10 +30892,6 @@ export interface MutationUpdateBulkCsvDocumentDataArgs {
   input: Scalars['Upload']['input']
 }
 
-export interface MutationUpdateBulkCsvEmailBrandingArgs {
-  input: Scalars['Upload']['input']
-}
-
 export interface MutationUpdateBulkCsvEmailTemplateArgs {
   input: Scalars['Upload']['input']
 }
@@ -31592,11 +31102,6 @@ export interface MutationUpdateBulkDnsVerificationArgs {
 export interface MutationUpdateBulkDocumentDataArgs {
   ids: Array<Scalars['ID']['input']>
   input: UpdateDocumentDataInput
-}
-
-export interface MutationUpdateBulkEmailBrandingArgs {
-  ids: Array<Scalars['ID']['input']>
-  input: UpdateEmailBrandingInput
 }
 
 export interface MutationUpdateBulkEmailTemplateArgs {
@@ -31901,11 +31406,6 @@ export interface MutationUpdateDocumentDataArgs {
   documentDataFileMetadata?: InputMaybe<FileMetadataInput>
   id: Scalars['ID']['input']
   input: UpdateDocumentDataInput
-}
-
-export interface MutationUpdateEmailBrandingArgs {
-  id: Scalars['ID']['input']
-  input: UpdateEmailBrandingInput
 }
 
 export interface MutationUpdateEmailTemplateArgs {
@@ -33646,7 +33146,7 @@ export interface NotificationTemplate extends Node {
   /** body template for the notification */
   bodyTemplate?: Maybe<Scalars['String']['output']>
   /** channel this template is intended for */
-  channel: NotificationTemplateChannel
+  channel?: Maybe<NotificationTemplateChannel>
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
   /** static variable values merged as base layer at render time; call-site data takes precedence */
@@ -33856,8 +33356,10 @@ export interface NotificationTemplateWhereInput {
   /** channel field predicates */
   channel?: InputMaybe<NotificationTemplateChannel>
   channelIn?: InputMaybe<Array<NotificationTemplateChannel>>
+  channelIsNil?: InputMaybe<Scalars['Boolean']['input']>
   channelNEQ?: InputMaybe<NotificationTemplateChannel>
   channelNotIn?: InputMaybe<Array<NotificationTemplateChannel>>
+  channelNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** created_at field predicates */
   createdAt?: InputMaybe<Scalars['Time']['input']>
   createdAtGT?: InputMaybe<Scalars['Time']['input']>
@@ -34779,7 +34281,6 @@ export interface Organization extends Node {
   displayName: Scalars['String']['output']
   dnsVerifications: DnsVerificationConnection
   documents: DocumentDataConnection
-  emailBrandings: EmailBrandingConnection
   emailTemplates: EmailTemplateConnection
   entities: EntityConnection
   entityTypes: EntityTypeConnection
@@ -35101,15 +34602,6 @@ export interface OrganizationDocumentsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<DocumentDataOrder>>
   where?: InputMaybe<DocumentDataWhereInput>
-}
-
-export interface OrganizationEmailBrandingsArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  orderBy?: InputMaybe<Array<EmailBrandingOrder>>
-  where?: InputMaybe<EmailBrandingWhereInput>
 }
 
 export interface OrganizationEmailTemplatesArgs {
@@ -35875,7 +35367,7 @@ export interface OrganizationSetting extends Node {
   organizationID?: Maybe<Scalars['ID']['output']>
   /** whether or not a payment method has been added to the account */
   paymentMethodAdded: Scalars['Boolean']['output']
-  /** when will this organization be deleted? usually this is after org has not added a payment method afte n period */
+  /** when will this organization be deleted? usually this is after org has not added a payment method after n period */
   pendingDeletionAt?: Maybe<Scalars['DateTime']['output']>
   /** the x509 certificate used to validate SAML responses */
   samlCert?: Maybe<Scalars['String']['output']>
@@ -36546,9 +36038,6 @@ export interface OrganizationWhereInput {
   /** documents edge predicates */
   hasDocuments?: InputMaybe<Scalars['Boolean']['input']>
   hasDocumentsWith?: InputMaybe<Array<DocumentDataWhereInput>>
-  /** email_brandings edge predicates */
-  hasEmailBrandings?: InputMaybe<Scalars['Boolean']['input']>
-  hasEmailBrandingsWith?: InputMaybe<Array<EmailBrandingWhereInput>>
   /** email_templates edge predicates */
   hasEmailTemplates?: InputMaybe<Scalars['Boolean']['input']>
   hasEmailTemplatesWith?: InputMaybe<Array<EmailTemplateWhereInput>>
@@ -40315,13 +39804,15 @@ export interface Query {
   /** Look up documentData by ID */
   documentData: DocumentData
   documentDataSlice: DocumentDataConnection
-  /** Look up emailBranding by ID */
-  emailBranding: EmailBranding
-  /** Search across EmailBranding objects */
-  emailBrandingSearch?: Maybe<EmailBrandingConnection>
-  emailBrandings: EmailBrandingConnection
   /** Look up emailTemplate by ID */
   emailTemplate: EmailTemplate
+  /**
+   * Returns all customer-selectable email template types from the operation catalog.
+   * Each entry describes a template layout the customer can choose when creating an
+   * email template, including the JSON schema for its configurable fields and a
+   * rendered HTML preview of the template with default values.
+   */
+  emailTemplateCatalog: EmailTemplateCatalog
   /** Search across EmailTemplate objects */
   emailTemplateSearch?: Maybe<EmailTemplateConnection>
   emailTemplates: EmailTemplateConnection
@@ -40541,6 +40032,11 @@ export interface Query {
   tasks: TaskConnection
   /** Look up template by ID */
   template: Template
+  /**
+   * Returns all registered template data contexts with their JSON schemas.
+   * Used by UI tooling to populate the variable picker when composing email templates.
+   */
+  templateContexts: Array<TemplateContextEntry>
   /** Search across Template objects */
   templateSearch?: Maybe<TemplateConnection>
   templates: TemplateConnection
@@ -40999,27 +40495,6 @@ export interface QueryDocumentDataSliceArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<DocumentDataOrder>>
   where?: InputMaybe<DocumentDataWhereInput>
-}
-
-export interface QueryEmailBrandingArgs {
-  id: Scalars['ID']['input']
-}
-
-export interface QueryEmailBrandingSearchArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  query: Scalars['String']['input']
-}
-
-export interface QueryEmailBrandingsArgs {
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-  first?: InputMaybe<Scalars['Int']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  orderBy?: InputMaybe<Array<EmailBrandingOrder>>
-  where?: InputMaybe<EmailBrandingWhereInput>
 }
 
 export interface QueryEmailTemplateArgs {
@@ -46608,7 +46083,6 @@ export interface SearchResults {
   controlObjectives?: Maybe<ControlObjectiveConnection>
   controls?: Maybe<ControlConnection>
   customTypeEnums?: Maybe<CustomTypeEnumConnection>
-  emailBrandings?: Maybe<EmailBrandingConnection>
   emailTemplates?: Maybe<EmailTemplateConnection>
   entities?: Maybe<EntityConnection>
   evidences?: Maybe<EvidenceConnection>
@@ -50466,6 +49940,38 @@ export interface TemplateConnection {
   totalCount: Scalars['Int']['output']
 }
 
+/**
+ * TemplateContextEntry describes a registered template data context, including its
+ * human-readable label, description, and reflected JSON Schema for UI tooling.
+ */
+export interface TemplateContextEntry {
+  __typename?: 'TemplateContextEntry'
+  /** The template context enum value identifying this context. */
+  context: EmailTemplateTemplateContext
+  /** Describes when this context is used. */
+  description: Scalars['String']['output']
+  /** Human-readable name for this context. */
+  label: Scalars['String']['output']
+  /**
+   * Top-level template variable names injected by the system at render time.
+   * These are available in templates but are not user-supplied inputs. The UI
+   * should display them as read-only reference, not as input controls.
+   */
+  reservedFields: Array<Scalars['String']['output']>
+  /**
+   * JSON Schema describing the template data shape for this context.
+   * For UI tooling only — not used for runtime validation.
+   */
+  schema: Scalars['Map']['output']
+  /**
+   * System-provided template variables available in this context, with
+   * human-readable descriptions for the UI variable picker. Each entry
+   * includes the variable name (as used in {{ .name }} syntax) and a
+   * description of what the variable contains.
+   */
+  variables: Array<TemplateVariable>
+}
+
 /** Return response for createTemplate mutation */
 export interface TemplateCreatePayload {
   __typename?: 'TemplateCreatePayload'
@@ -50523,6 +50029,18 @@ export interface TemplateUpdatePayload {
   __typename?: 'TemplateUpdatePayload'
   /** Updated template */
   template: Template
+}
+
+/**
+ * TemplateVariable describes a single system-provided template variable
+ * available for use in email templates.
+ */
+export interface TemplateVariable {
+  __typename?: 'TemplateVariable'
+  /** Human-readable description of what the variable contains. */
+  description: Scalars['String']['output']
+  /** The variable key as used in templates (e.g. "companyName" for {{ .companyName }}). */
+  name: Scalars['String']['output']
 }
 
 /**
@@ -54541,11 +54059,12 @@ export interface UpdateCampaignInput {
   clearDescription?: InputMaybe<Scalars['Boolean']['input']>
   clearDueDate?: InputMaybe<Scalars['Boolean']['input']>
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
-  clearEmailBranding?: InputMaybe<Scalars['Boolean']['input']>
+  clearEmailBrandingID?: InputMaybe<Scalars['Boolean']['input']>
   clearEmailTemplate?: InputMaybe<Scalars['Boolean']['input']>
   clearEntity?: InputMaybe<Scalars['Boolean']['input']>
   clearGroups?: InputMaybe<Scalars['Boolean']['input']>
   clearIdentityHolders?: InputMaybe<Scalars['Boolean']['input']>
+  clearIntegration?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalOwner?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalOwnerGroup?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalOwnerUser?: InputMaybe<Scalars['Boolean']['input']>
@@ -54574,9 +54093,11 @@ export interface UpdateCampaignInput {
   description?: InputMaybe<Scalars['String']['input']>
   /** when responses are due for the campaign */
   dueDate?: InputMaybe<Scalars['DateTime']['input']>
-  emailBrandingID?: InputMaybe<Scalars['ID']['input']>
+  /** the email branding associated with the campaign */
+  emailBrandingID?: InputMaybe<Scalars['String']['input']>
   emailTemplateID?: InputMaybe<Scalars['ID']['input']>
   entityID?: InputMaybe<Scalars['ID']['input']>
+  integrationID?: InputMaybe<Scalars['ID']['input']>
   /** the internal owner for the campaign when no user or group is linked */
   internalOwner?: InputMaybe<Scalars['String']['input']>
   internalOwnerGroupID?: InputMaybe<Scalars['ID']['input']>
@@ -55283,7 +54804,6 @@ export interface UpdateDirectoryAccountInput {
   clearLastSeenIP?: InputMaybe<Scalars['Boolean']['input']>
   clearMetadata?: InputMaybe<Scalars['Boolean']['input']>
   clearOrganizationUnit?: InputMaybe<Scalars['Boolean']['input']>
-  clearOwner?: InputMaybe<Scalars['Boolean']['input']>
   clearPhoneNumber?: InputMaybe<Scalars['Boolean']['input']>
   clearProfile?: InputMaybe<Scalars['Boolean']['input']>
   clearRemovedAt?: InputMaybe<Scalars['Boolean']['input']>
@@ -55327,7 +54847,6 @@ export interface UpdateDirectoryAccountInput {
   mfaState?: InputMaybe<DirectoryAccountDirectoryAccountMfaState>
   /** organizational unit or OU path the account lives under */
   organizationUnit?: InputMaybe<Scalars['String']['input']>
-  ownerID?: InputMaybe<Scalars['ID']['input']>
   /** phone number for the identity holder */
   phoneNumber?: InputMaybe<Scalars['String']['input']>
   /** indicates this directory account originates from the installation designated as the primary directory source for its owner organization */
@@ -55600,67 +55119,6 @@ export interface UpdateDocumentDataInput {
 }
 
 /**
- * UpdateEmailBrandingInput is used for update EmailBranding object.
- * Input was generated by ent.
- */
-export interface UpdateEmailBrandingInput {
-  addBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  addCampaignIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  addEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  addEmailTemplateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  addViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  appendTags?: InputMaybe<Array<Scalars['String']['input']>>
-  /** background color for emails */
-  backgroundColor?: InputMaybe<Scalars['String']['input']>
-  /** brand name displayed in templates */
-  brandName?: InputMaybe<Scalars['String']['input']>
-  /** button background color for emails */
-  buttonColor?: InputMaybe<Scalars['String']['input']>
-  /** button text color for emails */
-  buttonTextColor?: InputMaybe<Scalars['String']['input']>
-  clearBackgroundColor?: InputMaybe<Scalars['Boolean']['input']>
-  clearBlockedGroups?: InputMaybe<Scalars['Boolean']['input']>
-  clearBrandName?: InputMaybe<Scalars['Boolean']['input']>
-  clearButtonColor?: InputMaybe<Scalars['Boolean']['input']>
-  clearButtonTextColor?: InputMaybe<Scalars['Boolean']['input']>
-  clearCampaigns?: InputMaybe<Scalars['Boolean']['input']>
-  clearEditors?: InputMaybe<Scalars['Boolean']['input']>
-  clearEmailTemplates?: InputMaybe<Scalars['Boolean']['input']>
-  clearFontFamily?: InputMaybe<Scalars['Boolean']['input']>
-  clearIsDefault?: InputMaybe<Scalars['Boolean']['input']>
-  clearLinkColor?: InputMaybe<Scalars['Boolean']['input']>
-  clearLogoRemoteURL?: InputMaybe<Scalars['Boolean']['input']>
-  clearPrimaryColor?: InputMaybe<Scalars['Boolean']['input']>
-  clearSecondaryColor?: InputMaybe<Scalars['Boolean']['input']>
-  clearTags?: InputMaybe<Scalars['Boolean']['input']>
-  clearTextColor?: InputMaybe<Scalars['Boolean']['input']>
-  clearViewers?: InputMaybe<Scalars['Boolean']['input']>
-  /** font family for emails */
-  fontFamily?: InputMaybe<EmailBrandingFont>
-  /** whether this is the default email branding for the organization */
-  isDefault?: InputMaybe<Scalars['Boolean']['input']>
-  /** link color for emails */
-  linkColor?: InputMaybe<Scalars['String']['input']>
-  /** URL of the brand logo for emails */
-  logoRemoteURL?: InputMaybe<Scalars['String']['input']>
-  /** friendly name for this email branding configuration */
-  name?: InputMaybe<Scalars['String']['input']>
-  /** primary brand color for emails */
-  primaryColor?: InputMaybe<Scalars['String']['input']>
-  removeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  removeCampaignIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  removeEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  removeEmailTemplateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  removeViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  /** secondary brand color for emails */
-  secondaryColor?: InputMaybe<Scalars['String']['input']>
-  /** tags associated with the object */
-  tags?: InputMaybe<Array<Scalars['String']['input']>>
-  /** text color for emails */
-  textColor?: InputMaybe<Scalars['String']['input']>
-}
-
-/**
  * UpdateEmailTemplateInput is used for update EmailTemplate object.
  * Input was generated by ent.
  */
@@ -55670,7 +55128,6 @@ export interface UpdateEmailTemplateInput {
   addBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addCampaignIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  addEmailBrandingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addNotificationTemplateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -55682,8 +55139,8 @@ export interface UpdateEmailTemplateInput {
   clearDefaults?: InputMaybe<Scalars['Boolean']['input']>
   clearDescription?: InputMaybe<Scalars['Boolean']['input']>
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
-  clearEmailBranding?: InputMaybe<Scalars['Boolean']['input']>
   clearFiles?: InputMaybe<Scalars['Boolean']['input']>
+  clearFormat?: InputMaybe<Scalars['Boolean']['input']>
   clearIntegration?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalNotes?: InputMaybe<Scalars['Boolean']['input']>
   clearJsonconfig?: InputMaybe<Scalars['Boolean']['input']>
@@ -55693,6 +55150,7 @@ export interface UpdateEmailTemplateInput {
   clearRevision?: InputMaybe<Scalars['Boolean']['input']>
   clearSubjectTemplate?: InputMaybe<Scalars['Boolean']['input']>
   clearSystemInternalID?: InputMaybe<Scalars['Boolean']['input']>
+  clearTemplateContext?: InputMaybe<Scalars['Boolean']['input']>
   clearTextTemplate?: InputMaybe<Scalars['Boolean']['input']>
   clearUischema?: InputMaybe<Scalars['Boolean']['input']>
   clearViewers?: InputMaybe<Scalars['Boolean']['input']>
@@ -55722,7 +55180,6 @@ export interface UpdateEmailTemplateInput {
   removeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeCampaignIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  removeEmailBrandingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeNotificationTemplateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -57507,6 +56964,7 @@ export interface UpdateNotificationTemplateInput {
   channel?: InputMaybe<NotificationTemplateChannel>
   clearBlocks?: InputMaybe<Scalars['Boolean']['input']>
   clearBodyTemplate?: InputMaybe<Scalars['Boolean']['input']>
+  clearChannel?: InputMaybe<Scalars['Boolean']['input']>
   clearDefaults?: InputMaybe<Scalars['Boolean']['input']>
   clearDescription?: InputMaybe<Scalars['Boolean']['input']>
   clearDestinations?: InputMaybe<Scalars['Boolean']['input']>
@@ -57605,7 +57063,6 @@ export interface UpdateOrganizationInput {
   addDirectorySyncRunIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addDiscussionIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addDocumentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  addEmailBrandingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEmailTemplateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEntityTypeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -57714,7 +57171,6 @@ export interface UpdateOrganizationInput {
   clearDirectorySyncRuns?: InputMaybe<Scalars['Boolean']['input']>
   clearDiscussions?: InputMaybe<Scalars['Boolean']['input']>
   clearDocuments?: InputMaybe<Scalars['Boolean']['input']>
-  clearEmailBrandings?: InputMaybe<Scalars['Boolean']['input']>
   clearEmailTemplates?: InputMaybe<Scalars['Boolean']['input']>
   clearEntities?: InputMaybe<Scalars['Boolean']['input']>
   clearEntityTypes?: InputMaybe<Scalars['Boolean']['input']>
@@ -57820,7 +57276,6 @@ export interface UpdateOrganizationInput {
   removeDirectorySyncRunIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeDiscussionIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeDocumentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  removeEmailBrandingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEmailTemplateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEntityTypeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -57971,7 +57426,7 @@ export interface UpdateOrganizationSettingInput {
   /** OIDC discovery URL for the SSO provider */
   oidcDiscoveryEndpoint?: InputMaybe<Scalars['String']['input']>
   organizationID?: InputMaybe<Scalars['ID']['input']>
-  /** when will this organization be deleted? usually this is after org has not added a payment method afte n period */
+  /** when will this organization be deleted? usually this is after org has not added a payment method after n period */
   pendingDeletionAt?: InputMaybe<Scalars['DateTime']['input']>
   removeFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the x509 certificate used to validate SAML responses */
@@ -66808,7 +66263,6 @@ export type CampaignsWithFilterQuery = {
         description?: string | null
         displayID: string
         dueDate?: string | null
-        emailBrandingID?: string | null
         emailTemplateID?: string | null
         entityID?: string | null
         hasPendingWorkflow: boolean
@@ -66860,7 +66314,6 @@ export type CampaignQuery = {
     description?: string | null
     displayID: string
     dueDate?: string | null
-    emailBrandingID?: string | null
     emailTemplateID?: string | null
     entityID?: string | null
     hasPendingWorkflow: boolean
@@ -68967,119 +68420,6 @@ export type GetDocumentationRisksQuery = {
   }
 }
 
-export type EmailBrandingsWithFilterQueryVariables = Exact<{
-  where?: InputMaybe<EmailBrandingWhereInput>
-  orderBy?: InputMaybe<Array<EmailBrandingOrder> | EmailBrandingOrder>
-  first?: InputMaybe<Scalars['Int']['input']>
-  after?: InputMaybe<Scalars['Cursor']['input']>
-  last?: InputMaybe<Scalars['Int']['input']>
-  before?: InputMaybe<Scalars['Cursor']['input']>
-}>
-
-export type EmailBrandingsWithFilterQuery = {
-  __typename?: 'Query'
-  emailBrandings: {
-    __typename?: 'EmailBrandingConnection'
-    totalCount: number
-    edges?: Array<{
-      __typename?: 'EmailBrandingEdge'
-      node?: {
-        __typename?: 'EmailBranding'
-        backgroundColor?: string | null
-        brandName?: string | null
-        buttonColor?: string | null
-        buttonTextColor?: string | null
-        createdAt?: any | null
-        createdBy?: string | null
-        fontFamily?: EmailBrandingFont | null
-        id: string
-        isDefault?: boolean | null
-        linkColor?: string | null
-        logoRemoteURL?: string | null
-        name: string
-        primaryColor?: string | null
-        secondaryColor?: string | null
-        textColor?: string | null
-        updatedAt?: any | null
-        updatedBy?: string | null
-      } | null
-    } | null> | null
-    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
-  }
-}
-
-export type EmailBrandingQueryVariables = Exact<{
-  emailBrandingId: Scalars['ID']['input']
-}>
-
-export type EmailBrandingQuery = {
-  __typename?: 'Query'
-  emailBranding: {
-    __typename?: 'EmailBranding'
-    backgroundColor?: string | null
-    brandName?: string | null
-    buttonColor?: string | null
-    buttonTextColor?: string | null
-    createdAt?: any | null
-    createdBy?: string | null
-    fontFamily?: EmailBrandingFont | null
-    id: string
-    isDefault?: boolean | null
-    linkColor?: string | null
-    logoRemoteURL?: string | null
-    name: string
-    primaryColor?: string | null
-    secondaryColor?: string | null
-    textColor?: string | null
-    updatedAt?: any | null
-    updatedBy?: string | null
-  }
-}
-
-export type CreateEmailBrandingMutationVariables = Exact<{
-  input: CreateEmailBrandingInput
-}>
-
-export type CreateEmailBrandingMutation = { __typename?: 'Mutation'; createEmailBranding: { __typename?: 'EmailBrandingCreatePayload'; emailBranding: { __typename?: 'EmailBranding'; id: string } } }
-
-export type UpdateEmailBrandingMutationVariables = Exact<{
-  updateEmailBrandingId: Scalars['ID']['input']
-  input: UpdateEmailBrandingInput
-}>
-
-export type UpdateEmailBrandingMutation = { __typename?: 'Mutation'; updateEmailBranding: { __typename?: 'EmailBrandingUpdatePayload'; emailBranding: { __typename?: 'EmailBranding'; id: string } } }
-
-export type DeleteEmailBrandingMutationVariables = Exact<{
-  deleteEmailBrandingId: Scalars['ID']['input']
-}>
-
-export type DeleteEmailBrandingMutation = { __typename?: 'Mutation'; deleteEmailBranding: { __typename?: 'EmailBrandingDeletePayload'; deletedID: string } }
-
-export type CreateBulkCsvEmailBrandingMutationVariables = Exact<{
-  input: Scalars['Upload']['input']
-}>
-
-export type CreateBulkCsvEmailBrandingMutation = {
-  __typename?: 'Mutation'
-  createBulkCSVEmailBranding: { __typename?: 'EmailBrandingBulkCreatePayload'; emailBrandings?: Array<{ __typename?: 'EmailBranding'; id: string }> | null }
-}
-
-export type DeleteBulkEmailBrandingMutationVariables = Exact<{
-  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
-}>
-
-export type DeleteBulkEmailBrandingMutation = {
-  __typename?: 'Mutation'
-  deleteBulkEmailBranding: { __typename?: 'EmailBrandingBulkDeletePayload'; deletedIDs: Array<string>; notDeletedIDs: Array<string>; error?: string | null }
-}
-
-export type UpdateBulkEmailBrandingMutationVariables = Exact<{
-  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
-  input: UpdateEmailBrandingInput
-}>
-
-export type UpdateBulkEmailBrandingMutation = { __typename?: 'Mutation'; updateBulkEmailBranding: { __typename?: 'EmailBrandingBulkUpdatePayload'; updatedIDs?: Array<string> | null } }
-
 export type EmailTemplatesWithFilterQueryVariables = Exact<{
   where?: InputMaybe<EmailTemplateWhereInput>
   orderBy?: InputMaybe<Array<EmailTemplateOrder> | EmailTemplateOrder>
@@ -69099,29 +68439,22 @@ export type EmailTemplatesWithFilterQuery = {
       node?: {
         __typename?: 'EmailTemplate'
         active: boolean
-        bodyTemplate?: string | null
         createdAt?: any | null
         createdBy?: string | null
         description?: string | null
-        format: EmailTemplateNotificationTemplateFormat
+        format?: EmailTemplateNotificationTemplateFormat | null
         id: string
         integrationID?: string | null
-        jsonconfig?: any | null
         key: string
         locale: string
         metadata?: any | null
         name: string
-        preheaderTemplate?: string | null
-        subjectTemplate?: string | null
         systemOwned?: boolean | null
-        textTemplate?: string | null
-        uischema?: any | null
         updatedAt?: any | null
         updatedBy?: string | null
         version: number
         workflowDefinitionID?: string | null
         workflowInstanceID?: string | null
-        emailBranding?: Array<{ __typename?: 'EmailBranding'; id: string }> | null
         campaigns: { __typename?: 'CampaignConnection'; totalCount: number }
       } | null
     } | null> | null
@@ -69138,29 +68471,22 @@ export type EmailTemplateQuery = {
   emailTemplate: {
     __typename?: 'EmailTemplate'
     active: boolean
-    bodyTemplate?: string | null
     createdAt?: any | null
     createdBy?: string | null
     description?: string | null
-    format: EmailTemplateNotificationTemplateFormat
+    format?: EmailTemplateNotificationTemplateFormat | null
     id: string
     integrationID?: string | null
-    jsonconfig?: any | null
     key: string
     locale: string
     metadata?: any | null
     name: string
-    preheaderTemplate?: string | null
-    subjectTemplate?: string | null
     systemOwned?: boolean | null
-    textTemplate?: string | null
-    uischema?: any | null
     updatedAt?: any | null
     updatedBy?: string | null
     version: number
     workflowDefinitionID?: string | null
     workflowInstanceID?: string | null
-    emailBranding?: Array<{ __typename?: 'EmailBranding'; id: string }> | null
   }
 }
 
@@ -71368,7 +70694,7 @@ export type UpdateInternalPolicyMutation = {
   __typename?: 'Mutation'
   updateInternalPolicy: {
     __typename?: 'InternalPolicyUpdatePayload'
-    internalPolicy: { __typename?: 'InternalPolicy'; id: string; name: string; internalPolicyKindName?: string | null; details?: string | null }
+    internalPolicy: { __typename?: 'InternalPolicy'; id: string; name: string; internalPolicyKindName?: string | null; details?: string | null; revision?: string | null }
   }
 }
 
@@ -72565,7 +71891,7 @@ export type NotificationTemplatesWithFilterQuery = {
         subjectTemplate?: string | null
         systemOwned?: boolean | null
         titleTemplate?: string | null
-        channel: NotificationTemplateChannel
+        channel?: NotificationTemplateChannel | null
         destinations?: Array<string> | null
         format: NotificationTemplateNotificationTemplateFormat
         topicPattern: string
@@ -72605,7 +71931,7 @@ export type NotificationTemplateQuery = {
     subjectTemplate?: string | null
     systemOwned?: boolean | null
     titleTemplate?: string | null
-    channel: NotificationTemplateChannel
+    channel?: NotificationTemplateChannel | null
     destinations?: Array<string> | null
     format: NotificationTemplateNotificationTemplateFormat
     topicPattern: string

@@ -30,6 +30,28 @@ export const isPlateValueEmpty = (value: Value | string | undefined | null): boo
   return text.replace(/\uFEFF/g, '').trim().length === 0
 }
 
+// Produces a canonical JSON string for Plate content comparison.
+// Strips comment marks and sorts object keys so the result is stable
+// regardless of key ordering or comment additions.
+export const canonicalizeDetails = (nodes: Value): string => {
+  const normalize = (val: unknown): unknown => {
+    if (val === null || typeof val !== 'object') return val
+    if (Array.isArray(val)) return val.map(normalize)
+    const obj = val as Record<string, unknown>
+    return Object.keys(obj)
+      .filter((k) => k !== 'comment' && k !== 'commentTransient' && !k.startsWith('comment_'))
+      .sort()
+      .reduce(
+        (acc: Record<string, unknown>, k) => {
+          acc[k] = normalize(obj[k])
+          return acc
+        },
+        {} as Record<string, unknown>,
+      )
+  }
+  return JSON.stringify(normalize(nodes))
+}
+
 export const stringToPlateValue = (input: string | null | undefined): Value | null => {
   if (!input) return null
   const editor = createSlateEditor({ plugins: BaseEditorKit })
