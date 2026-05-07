@@ -192,8 +192,9 @@ const ViewProcedurePage: React.FC = () => {
       })
 
       setIsEditing(false)
-      queryClient.invalidateQueries({ queryKey: ['procedures'] })
+      await queryClient.invalidateQueries({ queryKey: ['procedures'] })
       queryClient.invalidateQueries({ queryKey: ['procedureDiscussion', procedureId] })
+      setDataInitialized(false)
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
       errorNotification({
@@ -214,7 +215,8 @@ const ViewProcedurePage: React.FC = () => {
         description: 'Procedure has been successfully updated',
       })
 
-      queryClient.invalidateQueries({ queryKey: ['procedures'] })
+      await queryClient.invalidateQueries({ queryKey: ['procedures'] })
+      setDataInitialized(false)
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
       errorNotification({
