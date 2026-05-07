@@ -37,6 +37,7 @@ export const GET_ASSESSMENT = gql`
       tags
       createdAt
       updatedAt
+      systemOwned
     }
   }
 `
@@ -47,6 +48,7 @@ export const GET_ALL_ASSESSMENTS = gql`
       edges {
         node {
           id
+          systemOwned
           name
           assessmentType
           templateID
@@ -123,6 +125,7 @@ export const GET_ASSESSMENT_DETAIL = gql`
       tags
       createdAt
       updatedAt
+      systemOwned
       assessmentResponses(where: $where, orderBy: $orderBy, first: $first, after: $after, last: $last, before: $before) {
         totalCount
         edges {

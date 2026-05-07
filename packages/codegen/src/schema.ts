@@ -70,6 +70,8 @@ export interface Scalars {
    * This scalar is used to track SSO verification times for organizations in the context of token authorization.
    */
   SSOAuthorizationMap: { input: any; output: any }
+  /** TemplateProjectionConfig describes how submitted template document data is projected into typed records. */
+  TemplateProjectionConfig: { input: any; output: any }
   /** The TestingProcedures scalar type that represents steps to take to test a control; they can come directly from the control source or pulled from external sources */
   TestingProcedures: { input: any; output: any }
   /** The builtin Time type */
@@ -1266,6 +1268,8 @@ export interface Assessment extends Node {
   editors: GroupConnection
   id: Scalars['ID']['output']
   identityHolders: IdentityHolderConnection
+  /** internal notes about the object creation, this field is only available to system admins */
+  internalNotes?: Maybe<Scalars['String']['output']>
   /** the jsonschema object of the questionnaire. If not provided it will be inherited from the template. */
   jsonconfig?: Maybe<Scalars['Map']['output']>
   /** the name of the assessment, e.g. cloud providers, marketing team */
@@ -1276,6 +1280,10 @@ export interface Assessment extends Node {
   platforms: PlatformConnection
   /** the duration in seconds that the user has to complete the assessment response, defaults to 7 days */
   responseDueDuration?: Maybe<Scalars['Int']['output']>
+  /** an internal identifier for the mapping, this field is only available to system admins */
+  systemInternalID?: Maybe<Scalars['String']['output']>
+  /** indicates if the record is owned by the the openlane system and not by an organization */
+  systemOwned?: Maybe<Scalars['Boolean']['output']>
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
   template?: Maybe<Template>
@@ -1956,6 +1964,22 @@ export interface AssessmentWhereInput {
   idLTE?: InputMaybe<Scalars['ID']['input']>
   idNEQ?: InputMaybe<Scalars['ID']['input']>
   idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** internal_notes field predicates */
+  internalNotes?: InputMaybe<Scalars['String']['input']>
+  internalNotesContains?: InputMaybe<Scalars['String']['input']>
+  internalNotesContainsFold?: InputMaybe<Scalars['String']['input']>
+  internalNotesEqualFold?: InputMaybe<Scalars['String']['input']>
+  internalNotesGT?: InputMaybe<Scalars['String']['input']>
+  internalNotesGTE?: InputMaybe<Scalars['String']['input']>
+  internalNotesHasPrefix?: InputMaybe<Scalars['String']['input']>
+  internalNotesHasSuffix?: InputMaybe<Scalars['String']['input']>
+  internalNotesIn?: InputMaybe<Array<Scalars['String']['input']>>
+  internalNotesIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalNotesLT?: InputMaybe<Scalars['String']['input']>
+  internalNotesLTE?: InputMaybe<Scalars['String']['input']>
+  internalNotesNEQ?: InputMaybe<Scalars['String']['input']>
+  internalNotesNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  internalNotesNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** name field predicates */
   name?: InputMaybe<Scalars['String']['input']>
   nameContains?: InputMaybe<Scalars['String']['input']>
@@ -1999,6 +2023,27 @@ export interface AssessmentWhereInput {
   responseDueDurationNEQ?: InputMaybe<Scalars['Int']['input']>
   responseDueDurationNotIn?: InputMaybe<Array<Scalars['Int']['input']>>
   responseDueDurationNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** system_internal_id field predicates */
+  systemInternalID?: InputMaybe<Scalars['String']['input']>
+  systemInternalIDContains?: InputMaybe<Scalars['String']['input']>
+  systemInternalIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  systemInternalIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  systemInternalIDGT?: InputMaybe<Scalars['String']['input']>
+  systemInternalIDGTE?: InputMaybe<Scalars['String']['input']>
+  systemInternalIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  systemInternalIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  systemInternalIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  systemInternalIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  systemInternalIDLT?: InputMaybe<Scalars['String']['input']>
+  systemInternalIDLTE?: InputMaybe<Scalars['String']['input']>
+  systemInternalIDNEQ?: InputMaybe<Scalars['String']['input']>
+  systemInternalIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  systemInternalIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** system_owned field predicates */
+  systemOwned?: InputMaybe<Scalars['Boolean']['input']>
+  systemOwnedIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  systemOwnedNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  systemOwnedNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** Filter for tagsHas to contain a specific value */
   tagsHas?: InputMaybe<Scalars['String']['input']>
   /** template_id field predicates */
@@ -7596,6 +7641,8 @@ export interface CreateAssessmentInput {
   campaignIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   identityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** internal notes about the object creation, this field is only available to system admins */
+  internalNotes?: InputMaybe<Scalars['String']['input']>
   /** the jsonschema object of the questionnaire. If not provided it will be inherited from the template. */
   jsonconfig?: InputMaybe<Scalars['Map']['input']>
   /** the name of the assessment, e.g. cloud providers, marketing team */
@@ -7604,6 +7651,8 @@ export interface CreateAssessmentInput {
   platformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the duration in seconds that the user has to complete the assessment response, defaults to 7 days */
   responseDueDuration?: InputMaybe<Scalars['Int']['input']>
+  /** an internal identifier for the mapping, this field is only available to system admins */
+  systemInternalID?: InputMaybe<Scalars['String']['input']>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   templateID?: InputMaybe<Scalars['ID']['input']>
@@ -10814,6 +10863,8 @@ export interface CreateTemplateInput {
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   /** the type of the template, either a provided template or an implementation (document) */
   templateType?: InputMaybe<TemplateDocumentType>
+  /** configuration for converting a submitted assesment into records for the organization */
+  transformConfiguration?: InputMaybe<Scalars['TemplateProjectionConfig']['input']>
   trustCenterID?: InputMaybe<Scalars['ID']['input']>
   /** the uischema for the template to render in the UI */
   uischema?: InputMaybe<Scalars['Map']['input']>
@@ -49848,6 +49899,8 @@ export interface Template extends Node {
   tags?: Maybe<Array<Scalars['String']['output']>>
   /** the type of the template, either a provided template or an implementation (document) */
   templateType: TemplateDocumentType
+  /** configuration for converting a submitted assesment into records for the organization */
+  transformConfiguration?: Maybe<Scalars['TemplateProjectionConfig']['output']>
   trustCenter?: Maybe<TrustCenter>
   /** the id of the trust center this template is associated with */
   trustCenterID?: Maybe<Scalars['ID']['output']>
@@ -50022,6 +50075,7 @@ export enum TemplateOrderField {
 export enum TemplateTemplateKind {
   QUESTIONNAIRE = 'QUESTIONNAIRE',
   TRUSTCENTER_NDA = 'TRUSTCENTER_NDA',
+  VENDOR_INTAKE = 'VENDOR_INTAKE',
 }
 
 /** Return response for updateTemplate mutation */
@@ -53847,14 +53901,18 @@ export interface UpdateAssessmentInput {
   clearCampaigns?: InputMaybe<Scalars['Boolean']['input']>
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearIdentityHolders?: InputMaybe<Scalars['Boolean']['input']>
+  clearInternalNotes?: InputMaybe<Scalars['Boolean']['input']>
   clearJsonconfig?: InputMaybe<Scalars['Boolean']['input']>
   clearOwner?: InputMaybe<Scalars['Boolean']['input']>
   clearPlatforms?: InputMaybe<Scalars['Boolean']['input']>
   clearResponseDueDuration?: InputMaybe<Scalars['Boolean']['input']>
+  clearSystemInternalID?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearTemplate?: InputMaybe<Scalars['Boolean']['input']>
   clearUischema?: InputMaybe<Scalars['Boolean']['input']>
   clearViewers?: InputMaybe<Scalars['Boolean']['input']>
+  /** internal notes about the object creation, this field is only available to system admins */
+  internalNotes?: InputMaybe<Scalars['String']['input']>
   /** the jsonschema object of the questionnaire. If not provided it will be inherited from the template. */
   jsonconfig?: InputMaybe<Scalars['Map']['input']>
   /** the name of the assessment, e.g. cloud providers, marketing team */
@@ -53869,6 +53927,8 @@ export interface UpdateAssessmentInput {
   removeViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the duration in seconds that the user has to complete the assessment response, defaults to 7 days */
   responseDueDuration?: InputMaybe<Scalars['Int']['input']>
+  /** an internal identifier for the mapping, this field is only available to system admins */
+  systemInternalID?: InputMaybe<Scalars['String']['input']>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   templateID?: InputMaybe<Scalars['ID']['input']>
@@ -59090,6 +59150,7 @@ export interface UpdateTemplateInput {
   clearScopeName?: InputMaybe<Scalars['Boolean']['input']>
   clearSystemInternalID?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
+  clearTransformConfiguration?: InputMaybe<Scalars['Boolean']['input']>
   clearTrustCenter?: InputMaybe<Scalars['Boolean']['input']>
   clearUischema?: InputMaybe<Scalars['Boolean']['input']>
   /** the description of the template */
@@ -59119,6 +59180,8 @@ export interface UpdateTemplateInput {
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   /** the type of the template, either a provided template or an implementation (document) */
   templateType?: InputMaybe<TemplateDocumentType>
+  /** configuration for converting a submitted assesment into records for the organization */
+  transformConfiguration?: InputMaybe<Scalars['TemplateProjectionConfig']['input']>
   trustCenterID?: InputMaybe<Scalars['ID']['input']>
   /** the uischema for the template to render in the UI */
   uischema?: InputMaybe<Scalars['Map']['input']>
@@ -65771,6 +65834,7 @@ export type GetAssessmentQuery = {
     tags?: Array<string> | null
     createdAt?: any | null
     updatedAt?: any | null
+    systemOwned?: boolean | null
   }
 }
 
@@ -65793,6 +65857,7 @@ export type FilterAssessmentsQuery = {
       node?: {
         __typename?: 'Assessment'
         id: string
+        systemOwned?: boolean | null
         name: string
         assessmentType: AssessmentAssessmentType
         templateID?: string | null
@@ -65868,6 +65933,7 @@ export type GetAssessmentDetailQuery = {
     tags?: Array<string> | null
     createdAt?: any | null
     updatedAt?: any | null
+    systemOwned?: boolean | null
     assessmentResponses: {
       __typename?: 'AssessmentResponseConnection'
       totalCount: number
