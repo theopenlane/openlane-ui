@@ -3,24 +3,21 @@
 import React from 'react'
 import { InternalPolicyFrequency } from '@repo/codegen/src/schema.ts'
 import { Card } from '@repo/ui/cardpanel'
-import { Binoculars, Calendar, CalendarCheck2, CalendarClock, ClockArrowUp, FileStack, ScanEye, ScrollText } from 'lucide-react'
+import { Binoculars, Calendar, ClockArrowUp, ScanEye, ScrollText } from 'lucide-react'
 import { Controller, type UseFormReturn } from 'react-hook-form'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { FormControl, FormField, FormItem } from '@repo/ui/form'
 import { type CreatePolicyFormData } from '@/components/pages/protected/policies/create/hooks/use-form-schema.ts'
-import { formatTimeSince } from '@/utils/date'
 import { CalendarPopover } from '@repo/ui/calendar-popover'
 import { InternalPolicyStatusOptions } from '@/components/shared/enum-mapper/policy-enum'
-import { type TMetadata } from '@/components/pages/protected/policies/create/form/create-policy-form.tsx'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-enum-select/creatable-custom-type-enum-select'
 
 type TStatusCardProps = {
   form: UseFormReturn<CreatePolicyFormData>
-  metadata?: TMetadata
 }
 
-const StatusCard: React.FC<TStatusCardProps> = ({ form, metadata }) => {
+const StatusCard: React.FC<TStatusCardProps> = ({ form }) => {
   const statusOptions = InternalPolicyStatusOptions
   const {
     enumOptions,
@@ -135,16 +132,6 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form, metadata }) => {
           </div>
         </div>
 
-        {/* Version */}
-        <div className="grid grid-cols-[1fr_auto] items-center gap-2">
-          <div className="flex gap-2 items-center">
-            <FileStack size={16} className="text-brand" />
-            <span>Version</span>
-          </div>
-
-          <div className="w-48">{metadata?.revision}</div>
-        </div>
-
         {/* Policy type */}
         <div className="grid grid-cols-[1fr_auto] items-center gap-2">
           <div className="flex gap-2 items-center">
@@ -176,30 +163,6 @@ const StatusCard: React.FC<TStatusCardProps> = ({ form, metadata }) => {
             />
           </div>
         </div>
-
-        {/* Created At */}
-        {metadata && (
-          <div className="grid grid-cols-[1fr_auto] items-center gap-2">
-            <div className="flex gap-2 items-center">
-              <CalendarCheck2 size={16} className="text-brand" />
-              <span>Created At</span>
-            </div>
-
-            <div className="w-48">{formatTimeSince(metadata.createdAt)}</div>
-          </div>
-        )}
-
-        {/* Updated At */}
-        {metadata && (
-          <div className="grid grid-cols-[1fr_auto] items-center gap-2">
-            <div className="flex gap-2 items-center">
-              <CalendarClock size={16} className="text-brand" />
-              <span>Updated At</span>
-            </div>
-
-            <div className="w-48">{formatTimeSince(metadata.updatedAt)}</div>
-          </div>
-        )}
 
         {/* Due date */}
         <div className="grid grid-cols-[1fr_auto] items-center gap-2">
