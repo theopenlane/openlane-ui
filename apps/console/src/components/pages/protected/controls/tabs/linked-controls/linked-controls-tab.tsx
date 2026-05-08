@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react'
+import { usePathname } from 'next/navigation'
 import SubcontrolsTable from './subcontrols-table'
 import { useGetMappedControls } from '@/lib/graphql-hooks/mapped-control'
 import { useGetControlsByRefCode, type ControlsByRefcodeNode } from '@/lib/graphql-hooks/control'
@@ -7,7 +8,7 @@ import { MappedControlMappingSource } from '@repo/codegen/src/schema'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import MappedControlsTable from './mapped-controls-table'
 import type { MappedControlRow } from './mapped-controls-types'
-import { getMappedControlsBaseColumns, getMappedControlsFrameworkColumns } from './mapped-controls-config'
+import { getMappedControlsActionsColumn, getMappedControlsBaseColumns, getMappedControlsFrameworkColumns } from './mapped-controls-config'
 import type { LinkedControlDetails } from './types'
 import { useGetSubcontrolsPaginated } from '@/lib/graphql-hooks/subcontrol'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
@@ -79,6 +80,8 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcon
         seen.add(key)
         rows.push({
           id: key,
+          mappedControlId: node.id,
+          isSystemOwnedMapping: node.systemOwned ?? false,
           refCode: control.refCode,
           referenceFramework: control.referenceFramework,
           mappingType: node.mappingType,
@@ -96,6 +99,8 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcon
         seen.add(key)
         rows.push({
           id: key,
+          mappedControlId: node.id,
+          isSystemOwnedMapping: node.systemOwned ?? false,
           refCode: subcontrol.refCode,
           referenceFramework: subcontrol.referenceFramework,
           mappingType: node.mappingType,
@@ -222,8 +227,13 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcon
   const customMappedControls = useMemo(() => enrichedMappedControls.filter((row) => !row.referenceFramework || row.referenceFramework === 'CUSTOM'), [enrichedMappedControls])
   const frameworkMappedControls = useMemo(() => enrichedMappedControls.filter((row) => row.referenceFramework && row.referenceFramework !== 'CUSTOM'), [enrichedMappedControls])
 
-  const baseMappedColumns = useMemo(() => getMappedControlsBaseColumns(controlLinkMap, subcontrolLinkMap, convertToReadOnly), [controlLinkMap, subcontrolLinkMap, convertToReadOnly])
-  const frameworkMappedColumns = useMemo(() => getMappedControlsFrameworkColumns(baseMappedColumns), [baseMappedColumns])
+  const pathname = usePathname()
+  const actionsColumn = useMemo(() => getMappedControlsActionsColumn(pathname), [pathname])
+  const baseMappedColumns = useMemo(
+    () => [...getMappedControlsBaseColumns(controlLinkMap, subcontrolLinkMap, convertToReadOnly), actionsColumn],
+    [controlLinkMap, subcontrolLinkMap, convertToReadOnly, actionsColumn],
+  )
+  const frameworkMappedColumns = useMemo(() => [...getMappedControlsFrameworkColumns(baseMappedColumns.slice(0, -1)), actionsColumn], [baseMappedColumns, actionsColumn])
   const hasSubcontrols = (subcontrolsPaginationMeta?.totalCount ?? 0) > 0
   const hasMappedControls = customMappedControls.length > 0 || frameworkMappedControls.length > 0
   const isLoading = isMappedControlsLoading || (!isSubcontrolMode && isSubcontrolsLoading)

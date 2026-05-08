@@ -2,12 +2,14 @@ import React from 'react'
 import Link from 'next/link'
 import type { ColumnDef } from '@tanstack/react-table'
 import StandardChip from '@/components/pages/protected/standards/shared/standard-chip'
-import { FileBadge2, Folder, FolderTree, Layers, Link2, Tag } from 'lucide-react'
+import { FileBadge2, Folder, FolderTree, Layers, Link2, MoreHorizontal, Pencil, Tag } from 'lucide-react'
 import { MappedControlMappingSource, MappedControlMappingType } from '@repo/codegen/src/schema'
 import type { FilterField } from '@/types'
 import type { MappedControlRow } from './mapped-controls-types'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { CustomEnumChipCell } from '@/components/shared/crud-base/columns/custom-enum-chip-cell'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
+import { Button } from '@repo/ui/button'
 
 type LinkMap = Map<string, string>
 
@@ -68,6 +70,35 @@ export const getMappedControlsFrameworkColumns = (baseColumns: ColumnDef<MappedC
     maxSize: 160,
   },
 ]
+
+export const getMappedControlsActionsColumn = (basePath: string): ColumnDef<MappedControlRow> => ({
+  id: 'actions',
+  header: '',
+  size: 50,
+  cell: ({ row }) => {
+    if (row.original.isSystemOwnedMapping) return null
+    const href = `${basePath}/edit-map-control?mappedControlId=${row.original.mappedControlId}`
+    return (
+      <div onClick={(e) => e.stopPropagation()} className="flex justify-end">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="secondary" className="h-8 w-8 p-0">
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="min-w-48">
+            <DropdownMenuItem asChild>
+              <Link href={href}>
+                <Pencil className="h-4 w-4" />
+                Edit Mapping
+              </Link>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    )
+  },
+})
 
 export const getMappedControlsFilterFields = (rows: MappedControlRow[], showFrameworkFilter: boolean): FilterField[] => {
   const typeOptions = Array.from(new Set(rows.map((row) => row.type).filter(Boolean))).sort() as string[]
