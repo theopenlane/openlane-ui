@@ -364,10 +364,22 @@ export const useGetInternalPolicyHistories = (policyId: string | null | undefine
     enabled: !!policyId && enabled,
   })
 
-  const historyNodes = useMemo<HistoryNodeShape[]>(() => {
+  const rawHistoryNodes = useMemo<HistoryNodeShape[]>(() => {
     const pages = queryResult.data?.pages ?? []
     return pages.flatMap((p) => (p.internalPolicyHistories.edges ?? []).map((e) => e?.node).filter((n): n is HistoryNodeShape => n != null))
   }, [queryResult.data])
+
+  const historyNodes = useMemo<HistoryNodeShape[]>(() => {
+    const byRevision = new Map<string, HistoryNodeShape>()
+    for (const node of rawHistoryNodes) {
+      if (!node.revision) continue
+      const existing = byRevision.get(node.revision)
+      if (!existing || (node.historyTime && existing.historyTime && node.historyTime < existing.historyTime)) {
+        byRevision.set(node.revision, node)
+      }
+    }
+    return Array.from(byRevision.values()).sort((a, b) => (b.historyTime ?? '').localeCompare(a.historyTime ?? ''))
+  }, [rawHistoryNodes])
 
   const lastPage = queryResult.data?.pages.at(-1)
   const paginationMeta = {
