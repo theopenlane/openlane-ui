@@ -732,9 +732,11 @@ export interface ActionPlanEdge {
 /** ActionPlanFrequency is enum for the field review_frequency */
 export enum ActionPlanFrequency {
   BIANNUALLY = 'BIANNUALLY',
+  BIENNIALLY = 'BIENNIALLY',
   MONTHLY = 'MONTHLY',
   NONE = 'NONE',
   QUARTERLY = 'QUARTERLY',
+  TRIENNIALLY = 'TRIENNIALLY',
   YEARLY = 'YEARLY',
 }
 
@@ -3423,9 +3425,11 @@ export interface CampaignEdge {
 /** CampaignFrequency is enum for the field recurrence_frequency */
 export enum CampaignFrequency {
   BIANNUALLY = 'BIANNUALLY',
+  BIENNIALLY = 'BIENNIALLY',
   MONTHLY = 'MONTHLY',
   NONE = 'NONE',
   QUARTERLY = 'QUARTERLY',
+  TRIENNIALLY = 'TRIENNIALLY',
   YEARLY = 'YEARLY',
 }
 
@@ -16551,9 +16555,11 @@ export enum EntityEntityStatus {
 /** EntityFrequency is enum for the field review_frequency */
 export enum EntityFrequency {
   BIANNUALLY = 'BIANNUALLY',
+  BIENNIALLY = 'BIENNIALLY',
   MONTHLY = 'MONTHLY',
   NONE = 'NONE',
   QUARTERLY = 'QUARTERLY',
+  TRIENNIALLY = 'TRIENNIALLY',
   YEARLY = 'YEARLY',
 }
 
@@ -18343,9 +18349,11 @@ export enum EvidenceEvidenceStatus {
 /** EvidenceFrequency is enum for the field review_frequency */
 export enum EvidenceFrequency {
   BIANNUALLY = 'BIANNUALLY',
+  BIENNIALLY = 'BIENNIALLY',
   MONTHLY = 'MONTHLY',
   NONE = 'NONE',
   QUARTERLY = 'QUARTERLY',
+  TRIENNIALLY = 'TRIENNIALLY',
   YEARLY = 'YEARLY',
 }
 
@@ -25077,9 +25085,11 @@ export interface InternalPolicyEdge {
 /** InternalPolicyFrequency is enum for the field review_frequency */
 export enum InternalPolicyFrequency {
   BIANNUALLY = 'BIANNUALLY',
+  BIENNIALLY = 'BIENNIALLY',
   MONTHLY = 'MONTHLY',
   NONE = 'NONE',
   QUARTERLY = 'QUARTERLY',
+  TRIENNIALLY = 'TRIENNIALLY',
   YEARLY = 'YEARLY',
 }
 
@@ -38354,9 +38364,11 @@ export interface ProcedureEdge {
 /** ProcedureFrequency is enum for the field review_frequency */
 export enum ProcedureFrequency {
   BIANNUALLY = 'BIANNUALLY',
+  BIENNIALLY = 'BIENNIALLY',
   MONTHLY = 'MONTHLY',
   NONE = 'NONE',
   QUARTERLY = 'QUARTERLY',
+  TRIENNIALLY = 'TRIENNIALLY',
   YEARLY = 'YEARLY',
 }
 
@@ -43859,9 +43871,11 @@ export interface RiskEdge {
 /** RiskFrequency is enum for the field review_frequency */
 export enum RiskFrequency {
   BIANNUALLY = 'BIANNUALLY',
+  BIENNIALLY = 'BIENNIALLY',
   MONTHLY = 'MONTHLY',
   NONE = 'NONE',
   QUARTERLY = 'QUARTERLY',
+  TRIENNIALLY = 'TRIENNIALLY',
   YEARLY = 'YEARLY',
 }
 
