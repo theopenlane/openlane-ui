@@ -76998,10 +76998,13 @@ export type VulnerabilitiesWithFilterQuery = {
         externalID: string
         externalOwnerID?: string | null
         externalURI?: string | null
+        firstPatchedVersion?: string | null
         id: string
         impact?: number | null
         metadata?: any | null
         open?: boolean | null
+        packageEcosystem?: string | null
+        packageName?: string | null
         priority?: string | null
         production?: boolean | null
         public?: boolean | null
@@ -77025,6 +77028,7 @@ export type VulnerabilitiesWithFilterQuery = {
         validated?: boolean | null
         vector?: string | null
         vulnerabilityStatusName?: string | null
+        vulnerableVersionRange?: string | null
         remediations: {
           __typename?: 'RemediationConnection'
           totalCount: number
