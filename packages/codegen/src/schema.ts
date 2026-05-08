@@ -71536,6 +71536,7 @@ export type GetAllMappedControlsQuery = {
         confidence?: number | null
         mappingType: MappedControlMappingType
         source?: MappedControlMappingSource | null
+        systemOwned?: boolean | null
         fromSubcontrols: {
           __typename?: 'SubcontrolConnection'
           edges?: Array<{

@@ -3,6 +3,8 @@ import { type ObjectTypes } from '@repo/codegen/src/type-names'
 
 export type MappedControlRow = {
   id: string
+  mappedControlId: string
+  isSystemOwnedMapping: boolean
   refCode: string
   referenceFramework?: string | null
   mappingType: MappedControlMappingType
