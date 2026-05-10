@@ -285,3 +285,48 @@ test.describe('cross-cutting — global shortcuts', () => {
     await expect(searchInput).toHaveValue('hello')
   })
 })
+
+test.describe('cross-cutting — 404 not-found page', () => {
+  test('logged-in user hitting an unknown route sees the default not-found copy', async ({ page }) => {
+    await seedLoggedInUser(page, 'cc-404')
+
+    await page.goto('/this-route-does-not-exist-' + Date.now().toString(36))
+
+    // ErrorPage (error-page.tsx:29) renders the default title verbatim
+    // when no `title` prop is passed — Next's not-found.tsx passes none.
+    await expect(page.getByText(/^The page could not be found$/)).toBeVisible({ timeout: 15_000 })
+    // "Back to Dashboard" Button is the documented recovery affordance.
+    await expect(page.getByRole('button', { name: /^Back to Dashboard$/i })).toBeVisible()
+  })
+
+  test('"Back to Dashboard" button on the 404 page navigates to /dashboard', async ({ page }) => {
+    await seedLoggedInUser(page, 'cc-404-back')
+
+    await page.goto('/another-unknown-route-' + Date.now().toString(36))
+    await page.getByRole('button', { name: /^Back to Dashboard$/i }).click()
+
+    await expect(page).toHaveURL(/\/dashboard$/, { timeout: 15_000 })
+  })
+})
+
+test.describe('cross-cutting — notifications bell', () => {
+  test('header renders the Notifications bell for an authenticated user', async ({ page }) => {
+    await seedLoggedInUser(page, 'cc-bell')
+
+    await page.goto('/dashboard')
+
+    // BellButton in SystemNotification.tsx renders <button aria-label="Notifications">.
+    await expect(page.getByRole('button', { name: /^notifications$/i })).toBeVisible({ timeout: 15_000 })
+  })
+
+  test('opening the Notifications panel on a fresh org shows the empty-state copy', async ({ page }) => {
+    await seedLoggedInUser(page, 'cc-bell-empty')
+
+    await page.goto('/dashboard')
+
+    await page.getByRole('button', { name: /^notifications$/i }).click()
+
+    // SystemNotification.tsx:84 — "No new notifications at the moment."
+    await expect(page.getByText(/No new notifications at the moment/i)).toBeVisible({ timeout: 10_000 })
+  })
+})

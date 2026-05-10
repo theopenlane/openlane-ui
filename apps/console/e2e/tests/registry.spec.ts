@@ -118,3 +118,15 @@ test.describe('registry — vendor create wizard', () => {
     await expect(dialog.getByText(/^(Name is required|Required)$/).first()).toBeVisible({ timeout: 10_000 })
   })
 })
+
+test.describe('registry — legacy redirects', () => {
+  test('/registry/vulnerabilities redirects to /exposure/vulnerabilities', async ({ page }) => {
+    await seedLoggedInUser(page, 'reg-vuln-redir')
+
+    // page.tsx is a server-side redirect() to /exposure/vulnerabilities.
+    await page.goto('/registry/vulnerabilities')
+
+    await expect(page).toHaveURL(/\/exposure\/vulnerabilities(\?|$)/, { timeout: 15_000 })
+    await expect(page.getByRole('heading', { level: 2, name: /^Vulnerabilities$/ })).toBeVisible({ timeout: 15_000 })
+  })
+})

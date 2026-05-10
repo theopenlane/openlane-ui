@@ -10,6 +10,7 @@ const riskName = (slug: string) => `E2E Risk ${slug} ${RUN_ID} ${Date.now().toSt
 // subroute confirms the route loads and the heading renders, which
 // catches breakage in routing/data fetch without prescribing layout.
 const SUBROUTES: Array<{ path: string; heading: RegExp }> = [
+  { path: '/exposure/overview', heading: /^Exposure Overview$/ },
   { path: '/exposure/risks', heading: /^Risks$/ },
   { path: '/exposure/findings', heading: /^Findings$/ },
   { path: '/exposure/vulnerabilities', heading: /^Vulnerabilities$/ },
@@ -28,6 +29,15 @@ test.describe('exposure — list pages render', () => {
       await expect(page.getByRole('heading', { level: 2, name: heading })).toBeVisible()
     })
   }
+
+  test('/exposure/scans/domain-scan renders the Domain Discovery Results heading', async ({ page }) => {
+    await seedLoggedInUser(page, 'expo-scans-domain')
+
+    await page.goto('/exposure/scans/domain-scan')
+
+    // domain-discovery-import-page.tsx renders <PageHeading eyebrow="Discovery" heading="Domain Discovery Results" />
+    await expect(page.getByRole('heading', { level: 2, name: /^Domain Discovery Results$/ })).toBeVisible({ timeout: 15_000 })
+  })
 })
 
 test.describe('exposure — risk create', () => {

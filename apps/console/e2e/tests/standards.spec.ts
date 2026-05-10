@@ -10,4 +10,12 @@ test.describe('standards — list', () => {
 
     await expect(page.getByRole('heading', { level: 2, name: /^Standards Catalog$/ })).toBeVisible()
   })
+
+  test('/standards renders the search input', async ({ page }) => {
+    await seedLoggedInUser(page, 'std-search')
+
+    await page.goto('/standards')
+
+    await expect(page.getByPlaceholder(/^Search standards\.\.\.$/)).toBeVisible({ timeout: 15_000 })
+  })
 })

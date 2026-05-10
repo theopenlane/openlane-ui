@@ -306,4 +306,23 @@ test.describe('auth — supplemental form pages', () => {
     await expect(page.getByPlaceholder(/your email/i)).toBeVisible()
     await expect(page.getByRole('button', { name: /^unsubscribe$/i })).toBeVisible()
   })
+
+  test('/verify "Click here to resend" button navigates to /resend-verify', async ({ page }) => {
+    // verifier.tsx renders this Button regardless of token state.
+    // Direct visit with no token avoids the verify-token network call.
+    await page.goto('/verify')
+
+    await page.getByRole('button', { name: /click here to resend/i }).click()
+
+    await expect(page).toHaveURL(/\/resend-verify(\?|$)/, { timeout: 10_000 })
+  })
+
+  test('/invite without a session redirects to /login with the token preserved', async ({ page }) => {
+    // InviteAccepter (accept.tsx:22-28) bounces unauthenticated visitors
+    // to /login?token=<token> so they can sign in (or sign up) and then
+    // come back to accept the invite. We exercise that branch directly.
+    await page.goto('/invite?token=garbage-token')
+
+    await expect(page).toHaveURL(/\/login\?token=garbage-token/, { timeout: 15_000 })
+  })
 })
