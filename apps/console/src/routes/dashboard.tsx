@@ -23,6 +23,7 @@ import {
   Settings2,
   SettingsIcon,
   ShieldCheck,
+  FileSpreadsheet,
   Tag,
   UserCog,
   UserRoundPen,
@@ -51,6 +52,7 @@ import {
   NotebookPen,
   LayoutGrid,
   Waypoints,
+  Braces,
 } from 'lucide-react'
 import { type NavHeading, type NavItem, type Separator } from '@/types'
 import { PlanEnum } from '@/lib/subscription-plan/plan-enum.ts'
@@ -313,6 +315,12 @@ export const topNavigationItems = (session: Session | null): (NavItem | Separato
         },
       ],
     },
+    {
+      title: 'Reports',
+      href: '/reports/custom',
+      icon: FileSpreadsheet,
+      hidden: session?.user?.isOnboarding || billingExpired,
+    },
   ]
 }
 
@@ -401,6 +409,11 @@ export const bottomNavigationItems = (session: Session | null, orgPermission?: T
           title: 'Personal Access Tokens',
           href: '/developers/personal-access-tokens',
           icon: KeyRoundIcon,
+        },
+        {
+          title: 'GraphQL Explorer',
+          href: '/developers/graphql-explorer',
+          icon: Braces,
         },
       ],
     },

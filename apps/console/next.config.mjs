@@ -12,6 +12,13 @@ const nextConfig = {
   experimental: {
     webpackMemoryOptimizations: true,
   },
+  turbopack: {
+    // force all graphql imports (including nested copies in graphiql-explorer)
+    // to resolve to the same instance so instanceof checks don't fail
+    resolveAlias: {
+      graphql: '../../node_modules/graphql',
+    },
+  },
   async redirects() {
     return [
       {
@@ -27,6 +34,11 @@ const nextConfig = {
       {
         source: '/risks/:path*',
         destination: '/exposure/risks/:path*',
+        permanent: true,
+      },
+      {
+        source: '/developers/query-builder',
+        destination: '/reports/custom',
         permanent: true,
       },
     ]

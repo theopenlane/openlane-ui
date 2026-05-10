@@ -1,0 +1,110 @@
+/*
+  GraphiQL dark-mode overrides.
+
+  GraphiQL's own dark rule is "body.graphiql-dark .graphiql-container"
+  (specificity 0,0,2,1 — element + 2 classes). To beat it we need the
+  same count, so we use "html.dark" (also element + class) giving
+  "html.dark .graphiql-container" → 0,0,2,1. Because this file is
+  imported after graphiql.css, equal-specificity rules here win via
+  source order.
+
+  next-themes with attribute="class" puts .dark on <html>.
+*/
+
+/* ── Dark theme variables ─────────────────────────────────────── */
+
+html.dark .graphiql-container {
+  --color-base: 209, 46%, 8%;       /* #09151d — site background */
+  --color-neutral: 204, 15%, 80%;   /* readable text on dark base */
+  --color-primary: 168, 64%, 49%;   /* site teal instead of default pink */
+  --color-secondary: 205, 12%, 65%;
+  --alpha-background-light: 0.12;
+  --alpha-background-heavy: 0.22;
+  background-color: #09151d;
+}
+
+/* ── Dark backgrounds ─────────────────────────────────────────── */
+
+/* outer container stays dark */
+html.dark .graphiql-container .graphiql-main,
+html.dark .graphiql-container .graphiql-sessions,
+html.dark .graphiql-container .graphiql-session {
+  background-color: #09151d;
+}
+
+/* editor card — same surface as the sidebar */
+html.dark .graphiql-container .graphiql-editors,
+html.dark .graphiql-container .graphiql-editor {
+  background-color: #233440;
+}
+
+/* results pane stays on the dark base */
+html.dark .graphiql-container .graphiql-response {
+  background-color: #09151d;
+}
+
+/* editor CodeMirror — card color */
+html.dark .graphiql-container .graphiql-editors .CodeMirror,
+html.dark .graphiql-container .graphiql-editors .CodeMirror-scroll,
+html.dark .graphiql-container .graphiql-editors .CodeMirror-gutters {
+  background-color: #233440;
+}
+
+/* response CodeMirror — stays on the dark base */
+html.dark .graphiql-container .graphiql-response .CodeMirror,
+html.dark .graphiql-container .graphiql-response .CodeMirror-scroll,
+html.dark .graphiql-container .graphiql-response .CodeMirror-gutters {
+  background-color: #09151d;
+}
+
+html.dark .graphiql-container .graphiql-editor-tools {
+  background-color: #233440;
+  border-top-color: hsl(208, 21%, 24%);
+}
+
+html.dark .graphiql-container .graphiql-session-tab {
+  background-color: transparent;
+  border-color: hsl(208, 21%, 24%);
+}
+
+html.dark .graphiql-container .graphiql-session-tab[aria-selected='true'] {
+  background-color: #233440;
+}
+
+/* sidebar icon strip — card color to match the site's nav contrast */
+html.dark .graphiql-container .graphiql-sidebar {
+  background-color: #233440;
+  border-right: 1px solid hsl(208, 21%, 18%);
+}
+
+/* plugin / explorer panel */
+html.dark .graphiql-plugin {
+  background-color: #233440;
+  border-right: 1px solid hsl(208, 21%, 18%);
+}
+
+/* ── Execute button → site teal ───────────────────────────────── */
+
+html.dark .graphiql-container .graphiql-execute-button {
+  background: #2dcdad;
+  color: #052e2a;
+}
+
+html.dark .graphiql-container .graphiql-execute-button:hover {
+  background: #60e8c9;
+}
+
+/* ── Light theme tweaks ───────────────────────────────────────── */
+
+html:not(.dark) .graphiql-container {
+  --color-primary: 168, 64%, 38%;
+}
+
+html:not(.dark) .graphiql-container .graphiql-execute-button {
+  background: #2dcdad;
+  color: #052e2a;
+}
+
+html:not(.dark) .graphiql-container .graphiql-execute-button:hover {
+  background: #60e8c9;
+}
