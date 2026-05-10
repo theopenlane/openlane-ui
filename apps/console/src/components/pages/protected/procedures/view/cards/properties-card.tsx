@@ -134,6 +134,7 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, procedure, isEdi
             />
           ) : (
             <div
+              data-testid="procedure-status-trigger"
               className={`flex items-center space-x-2 text-sm ${editAllowed ? 'cursor-pointer' : 'cursor-not-allowed'}`}
               onClick={() => {
                 if (!isEditing && editAllowed) setEditingField('status')
