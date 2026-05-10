@@ -256,8 +256,8 @@ export const topNavigationItems = (session: Session | null): (NavItem | Separato
           icon: ListChecks,
         },
         {
-          title: 'Assessments',
-          href: '/automation/assessments',
+          title: 'Questionnaires',
+          href: '/automation/questionnaires',
           icon: ClipboardPenLine,
           plan: PlanEnum.COMPLIANCE_MODULE,
         },

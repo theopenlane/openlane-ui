@@ -116,7 +116,7 @@ export const TemplatesTable = () => {
 
   const handleEdit = useCallback(
     (template: Template) => {
-      router.push(`/automation/assessments/templates/template-editor?id=${template.id}`)
+      router.push(`/automation/questionnaires/templates/template-editor?id=${template.id}`)
     },
     [router],
   )
@@ -175,9 +175,9 @@ export const TemplatesTable = () => {
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
-      { label: 'Automation', href: '/automation/assessments' },
-      { label: 'Questionnaires', href: '/automation/assessments' },
-      { label: 'Templates', href: '/automation/assessments/templates' },
+      { label: 'Automation', href: '/automation/questionnaires' },
+      { label: 'Questionnaires', href: '/automation/questionnaires' },
+      { label: 'Templates', href: '/automation/questionnaires/templates' },
     ])
   }, [setCrumbs])
 
@@ -216,7 +216,7 @@ export const TemplatesTable = () => {
           pagination={pagination}
           onPaginationChange={setPagination}
           paginationMeta={paginationMeta}
-          rowHref={(row) => `/automation/assessments/templates/template-viewer?id=${row.id}`}
+          rowHref={(row) => `/automation/questionnaires/templates/template-viewer?id=${row.id}`}
           columnVisibility={columnVisibility}
           setColumnVisibility={setColumnVisibility}
           defaultSorting={defaultSorting}
