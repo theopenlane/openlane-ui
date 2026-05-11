@@ -35,19 +35,6 @@ const PricingPlan = () => {
 
   const pageLoading = productsLoading || schedulesLoading || invoiceLoading
 
-  const activePriceIds = useMemo(() => {
-    if (!schedules?.length) return new Set<string>()
-    const sub = schedules[0].subscription
-    const items = sub?.items?.data || []
-    return new Set(items.map((item) => item.price?.id || item.price))
-  }, [schedules])
-
-  const currentInterval = useMemo(() => {
-    if (!schedules?.length) return null
-    const firstItem = schedules[0].subscription?.items?.data?.[0]
-    return firstItem?.price?.recurring?.interval ?? null
-  }, [schedules])
-
   const allPhases = schedules?.[0]?.phases ?? []
   const [now] = useState(() => Math.floor(Date.now() / 1000))
 
@@ -63,8 +50,35 @@ const PricingPlan = () => {
     return (schedule.phases ?? []).findIndex((p) => p.start_date <= now && (p.end_date == null || p.end_date > now))
   }, [schedules, now])
 
+  // For released schedules subscription is null — fall back to the current or last phase
+  const currentOrLastPhase = allPhases[currentPhaseIndex >= 0 ? currentPhaseIndex : allPhases.length - 1] ?? null
+
+  const activePriceIds = useMemo(() => {
+    if (!schedules?.length) return new Set<string>()
+    const sub = schedules[0].subscription
+    if (sub?.items?.data?.length) {
+      return new Set(sub.items.data.map((item) => item.price?.id || item.price))
+    }
+    return new Set((currentOrLastPhase?.items ?? []).map((i) => i.price))
+  }, [schedules, currentOrLastPhase])
+
+  const currentInterval = useMemo(() => {
+    if (!schedules?.length) return null
+    const interval = schedules[0].subscription?.items?.data?.[0]?.price?.recurring?.interval
+    if (interval) return interval
+    // Derive interval from phase price IDs matched against the product catalog
+    const phasePriceIds = new Set((currentOrLastPhase?.items ?? []).map((i) => i.price))
+    const allProducts = [...Object.values(openlaneProducts?.modules ?? {}), ...Object.values(openlaneProducts?.addons ?? {})]
+    for (const product of allProducts) {
+      for (const price of product.billing.prices) {
+        if (phasePriceIds.has(price.price_id)) return price.interval
+      }
+    }
+    return null
+  }, [schedules, currentOrLastPhase, openlaneProducts])
+
   const nextPhase = currentPhaseIndex >= 0 ? (allPhases[currentPhaseIndex + 1] ?? null) : null
-  const nextOrCurrentPhase = nextPhase ?? allPhases[currentPhaseIndex] ?? allPhases[allPhases.length - 1] ?? null
+  const nextOrCurrentPhase = nextPhase ?? currentOrLastPhase
 
   const nextPhaseActivePriceIds = useMemo(() => {
     if (!nextOrCurrentPhase) return new Set<string>()
