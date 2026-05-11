@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { CheckCircle2, MoreHorizontal, Pencil, Trash2 } from 'lucide-react'
+import { CheckCircle2, Link2Off, MoreHorizontal, Pencil, Trash2 } from 'lucide-react'
 import { type ControlImplementationFieldsFragment } from '@repo/codegen/src/schema'
 import { ControlImplementationCard } from './control-implementation-card'
 import { canEdit } from '@/lib/authz/utils'
@@ -15,7 +15,7 @@ type Props = {
   node: ControlImplementationFieldsFragment
   onEdit: (node: ControlImplementationFieldsFragment) => void
   onMarkVerified: (id: string, verified: boolean) => void
-  onDelete: (id: string) => void
+  onDelete: (node: ControlImplementationFieldsFragment) => void
   isUpdating?: boolean
 }
 
@@ -23,6 +23,8 @@ export const ImplementationItem: React.FC<Props> = ({ node, onEdit, onMarkVerifi
   const { data: permission, isLoading: permLoading } = useAccountRoles(ObjectTypes.CONTROL_IMPLEMENTATION, node.id)
   const isEditAllowed = canEdit(permission?.roles)
   const [associationsOpen, setAssociationsOpen] = React.useState(false)
+  const totalLinks = (node.controls?.edges?.length ?? 0) + (node.subcontrols?.edges?.length ?? 0)
+  const willUnlink = totalLinks > 1
 
   return (
     <div className="space-y-4">
@@ -66,13 +68,13 @@ export const ImplementationItem: React.FC<Props> = ({ node, onEdit, onMarkVerifi
                   type="button"
                   className="flex items-center gap-2 text-destructive"
                   onClick={() => {
-                    onDelete(node.id)
+                    onDelete(node)
                     close()
                   }}
                   disabled={isUpdating}
                 >
-                  <Trash2 size={16} />
-                  Delete
+                  {willUnlink ? <Link2Off size={16} /> : <Trash2 size={16} />}
+                  {willUnlink ? 'Unlink' : 'Delete'}
                 </button>
               </>
             )}
