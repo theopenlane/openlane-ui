@@ -2,7 +2,6 @@ import { useNotification } from '@/hooks/useNotification'
 import { Button } from '@repo/ui/button'
 import { SheetHeader } from '@repo/ui/sheet'
 import { LinkIcon, PanelRightClose, Pencil } from 'lucide-react'
-import { useSearchParams } from 'next/navigation'
 import React from 'react'
 import DeleteTaskDialog from '../../dialog/delete-task-dialog'
 import { SaveButton } from '@/components/shared/save-button/save-button'
@@ -15,12 +14,11 @@ interface TasksSheetHeaderProps {
   isPending: boolean
   title?: string | null
   isEditAllowed: boolean
+  id: string | null
 }
 
-const TasksSheetHeader = ({ close, isEditing, setIsEditing, isPending, title, isEditAllowed }: TasksSheetHeaderProps) => {
+const TasksSheetHeader = ({ close, isEditing, setIsEditing, isPending, title, isEditAllowed, id }: TasksSheetHeaderProps) => {
   const { successNotification, errorNotification } = useNotification()
-  const searchParams = useSearchParams()
-  const id = searchParams.get('id')
 
   const handleCopyLink = () => {
     if (!id) {
