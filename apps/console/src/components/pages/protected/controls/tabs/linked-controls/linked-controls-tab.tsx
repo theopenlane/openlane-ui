@@ -149,9 +149,8 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcon
     const map = new Map<string, string>()
     refcodeData?.controls?.edges?.forEach((edge) => {
       const node = edge?.node
-      if (!node?.refCode) return
-      const href = node.systemOwned ? `/standards/${node.standardID}?controlId=${node.id}` : `/controls/${node.id}`
-      map.set(buildLookupKey(node.refCode, node.referenceFramework), href)
+      if (!node?.refCode || node.systemOwned) return
+      map.set(buildLookupKey(node.refCode, node.referenceFramework), `/controls/${node.id}`)
     })
     return map
   }, [refcodeData])
@@ -160,9 +159,8 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcon
     const map = new Map<string, string>()
     subcontrolRefcodeData?.subcontrols?.edges?.forEach((edge) => {
       const node = edge?.node
-      if (!node?.refCode) return
-      const href = node.systemOwned ? `/standards/${node.control?.standardID}?controlId=${node.id}` : `/controls/${node.controlID}/${node.id}`
-      map.set(buildLookupKey(node.refCode, node.referenceFramework), href)
+      if (!node?.refCode || node.systemOwned) return
+      map.set(buildLookupKey(node.refCode, node.referenceFramework), `/controls/${node.controlID}/${node.id}`)
     })
     return map
   }, [subcontrolRefcodeData])
@@ -173,7 +171,7 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcon
     refcodeData?.controls?.edges?.forEach((edge) => {
       const node: ControlsByRefcodeNode | undefined = edge?.node ?? undefined
 
-      if (!node?.refCode) return
+      if (!node?.refCode || node.systemOwned) return
       map.set(buildLookupKey(node.refCode, node.referenceFramework), {
         description: node.description,
         status: node.status,
@@ -193,7 +191,7 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcon
     subcontrolRefcodeData?.subcontrols?.edges?.forEach((edge) => {
       const node: SubcontrolsByRefcodeNode | undefined = edge?.node ?? undefined
 
-      if (!node?.refCode) return
+      if (!node?.refCode || node.systemOwned) return
       map.set(buildLookupKey(node.refCode, node.referenceFramework), {
         description: node.description,
         status: node.status,
