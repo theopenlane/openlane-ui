@@ -11,7 +11,6 @@ import AddComment from '@/components/shared/comments/AddComment'
 import { type TComments } from '@/components/shared/comments/types/TComments'
 import { useUpdateTask, useUpdateTaskComment } from '@/lib/graphql-hooks/task'
 import { type TCommentData } from '@/components/shared/comments/types/TCommentData'
-import { useSearchParams } from 'next/navigation'
 import { type TaskQuery } from '@repo/codegen/src/schema'
 import { toBase64DataUri } from '@/lib/image-utils'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -22,11 +21,10 @@ import Skeleton from '@/components/shared/skeleton/skeleton'
 type ConversationProps = {
   isEditing: boolean
   taskData: TaskQuery['task'] | undefined
+  id: string | null
 }
 
-const Conversation: React.FC<ConversationProps> = ({ isEditing, taskData }) => {
-  const searchParams = useSearchParams()
-  const id = searchParams.get('id')
+const Conversation: React.FC<ConversationProps> = ({ isEditing, taskData, id }) => {
   const [commentSortIsAsc, setCommentSortIsAsc] = useState(false)
 
   const queryClient = useQueryClient()
