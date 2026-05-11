@@ -125,7 +125,7 @@ const ControlsTable: React.FC<TControlsTableProps> = ({ active, setActive }) => 
   }, [filters])
 
   const whereWithSearch: ControlWhereInput = useMemo(() => {
-    const baseWhere = { ...whereFilter, ownerIDNEQ: '' }
+    const baseWhere = { ...whereFilter, ownerIDNEQ: '', isTrustCenterControl: false }
 
     if (!debouncedSearch) return baseWhere
 
