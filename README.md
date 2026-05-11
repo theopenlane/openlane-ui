@@ -84,9 +84,8 @@ task build
    ```
    task dev:console
    ```
-
-> [!INFO]
-> To disable module billing for local development, ensure `NEXT_PUBLIC_ENABLE_PLAN=false` is set in the ui config
+> [!NOTE]
+> To disable module billing for local development, ensure `NEXT_PUBLIC_ENABLE_PLAN=false` is set in the environment variables
 
 ### API Backend
 
