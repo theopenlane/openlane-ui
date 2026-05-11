@@ -68,9 +68,9 @@ export default function CreateTemplate(input: { templateId: string; existingId: 
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
-      { label: 'Automation', href: '/automation/assessments' },
-      { label: 'Questionnaires', href: '/automation/assessments' },
-      { label: 'Templates', href: '/automation/assessments/templates' },
+      { label: 'Automation', href: '/automation/questionnaires' },
+      { label: 'Questionnaires', href: '/automation/questionnaires' },
+      { label: 'Templates', href: '/automation/questionnaires/templates' },
       { label: 'Template Editor', href: '/template-editor' },
     ])
   }, [setCrumbs])
@@ -102,7 +102,7 @@ export default function CreateTemplate(input: { templateId: string; existingId: 
           title: 'Template updated successfully',
         })
 
-        router.push(`/automation/assessments/templates`)
+        router.push(`/automation/questionnaires/templates`)
       } catch (error) {
         const errorMessage = parseErrorMessage(error)
         errorNotification({
@@ -126,7 +126,7 @@ export default function CreateTemplate(input: { templateId: string; existingId: 
         title: 'Template created successfully',
       })
 
-      router.push(`/automation/assessments/templates`)
+      router.push(`/automation/questionnaires/templates`)
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
       errorNotification({
