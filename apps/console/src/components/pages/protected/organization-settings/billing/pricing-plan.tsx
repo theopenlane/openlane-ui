@@ -72,9 +72,13 @@ const PricingPlan = () => {
   }, [schedules])
 
   const nextPhaseStart = useMemo(() => {
-    const startDate = schedules?.[0]?.phases?.[1]?.start_date
-    return startDate ? new Date(startDate * 1000) : null
-  }, [schedules])
+    // Prefer current period end from the subscription — it's always the actual next charge date
+    const periodEnd = subscription?.items?.data?.[0]?.current_period_end
+    if (periodEnd) return new Date(periodEnd * 1000)
+    // Fall back to next phase start for cases where subscription isn't loaded yet
+    const phaseStart = schedules?.[0]?.phases?.[1]?.start_date
+    return phaseStart ? new Date(phaseStart * 1000) : null
+  }, [subscription, schedules])
 
   const isSubscriptionCanceled = schedules[0]?.end_behavior === 'cancel'
 
