@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect, useMemo } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 
 import { useOrganization } from '@/hooks/useOrganization'
 import { useOpenlaneProductsQuery, usePaymentMethodsQuery, useSchedulesQuery, useUpdateScheduleMutation, useUpcomingInvoiceQuery } from '@/lib/query-hooks/stripe'
@@ -48,7 +48,23 @@ const PricingPlan = () => {
     return firstItem?.price?.recurring?.interval ?? null
   }, [schedules])
 
-  const nextOrCurrentPhase = schedules?.[0]?.phases?.[1] || schedules?.[0]?.phases?.[0] || null
+  const allPhases = schedules?.[0]?.phases ?? []
+  const [now] = useState(() => Math.floor(Date.now() / 1000))
+
+  // Find the currently active phase index using Stripe's current_phase when available,
+  // otherwise match by timestamp (needed when status is "released" and current_phase is null)
+  const currentPhaseIndex = useMemo(() => {
+    const schedule = schedules?.[0]
+    if (!schedule) return -1
+    if (schedule.current_phase) {
+      const idx = (schedule.phases ?? []).findIndex((p) => p.start_date === schedule.current_phase?.start_date)
+      return idx >= 0 ? idx : -1
+    }
+    return (schedule.phases ?? []).findIndex((p) => p.start_date <= now && (p.end_date == null || p.end_date > now))
+  }, [schedules, now])
+
+  const nextPhase = currentPhaseIndex >= 0 ? (allPhases[currentPhaseIndex + 1] ?? null) : null
+  const nextOrCurrentPhase = nextPhase ?? allPhases[currentPhaseIndex] ?? allPhases[allPhases.length - 1] ?? null
 
   const nextPhaseActivePriceIds = useMemo(() => {
     if (!nextOrCurrentPhase) return new Set<string>()
@@ -56,19 +72,18 @@ const PricingPlan = () => {
   }, [nextOrCurrentPhase])
 
   const endingPriceIds = useMemo(() => {
-    if (!schedules?.length) return new Set<string>()
-
+    if (!schedules?.length || currentPhaseIndex < 0) return new Set<string>()
     const phases = schedules[0]?.phases || []
-    if (phases.length < 2) return new Set<string>()
+    const nextIdx = currentPhaseIndex + 1
+    if (nextIdx >= phases.length) return new Set<string>()
+    const currentIds = new Set(phases[currentPhaseIndex].items.map((i) => i.price))
+    const nextIds = new Set(phases[nextIdx].items.map((i) => i.price))
+    return new Set(Array.from(currentIds).filter((id) => !nextIds.has(id)))
+  }, [schedules, currentPhaseIndex])
 
-    const currentIds = new Set(phases[0].items.map((i) => i.price))
-    const nextIds = new Set(phases[1].items.map((i) => i.price))
-
-    const ending = Array.from(currentIds).filter((id) => !nextIds.has(id))
-    return new Set(ending)
-  }, [schedules])
-
-  const nextPhaseStart = schedules?.[0]?.phases?.[1]?.start_date ? new Date(schedules[0].phases[1].start_date * 1000) : null
+  const nextPhaseStart = useMemo(() => {
+    return nextPhase?.start_date != null ? new Date(nextPhase.start_date * 1000) : null
+  }, [nextPhase])
   const isSubscriptionCanceled = schedules[0]?.end_behavior === 'cancel'
 
   const modules = Object.values(openlaneProducts?.modules || {})
