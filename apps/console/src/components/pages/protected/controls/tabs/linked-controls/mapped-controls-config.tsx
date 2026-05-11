@@ -22,7 +22,8 @@ export const getMappedControlsBaseColumns = (
     accessorKey: 'refCode',
     header: () => <span className="whitespace-nowrap">Ref Code</span>,
     cell: ({ row }) => {
-      const href = row.original.nodeType === 'Subcontrol' ? subcontrolLinkMap.get(row.original.refCode) : controlLinkMap.get(row.original.refCode)
+      const lookupKey = `${row.original.refCode}|${row.original.referenceFramework || 'CUSTOM'}`
+      const href = row.original.nodeType === 'Subcontrol' ? subcontrolLinkMap.get(lookupKey) : controlLinkMap.get(lookupKey)
       if (!href) return <span className="block truncate">{row.original.refCode}</span>
       return (
         <Link href={href} className="block truncate text-blue-500 hover:underline">
