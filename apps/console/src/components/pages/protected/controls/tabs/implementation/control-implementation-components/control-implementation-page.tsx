@@ -62,10 +62,19 @@ const ControlImplementationPage = () => {
     }
   }
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (node: ControlImplementationFieldsFragment) => {
+    const totalLinks = (node.controls?.edges?.length ?? 0) + (node.subcontrols?.edges?.length ?? 0)
+    const shouldUnlink = totalLinks > 1
+
     try {
-      await deleteImplementation({ deleteControlImplementationId: id })
-      successNotification({ title: 'Control Implementation deleted' })
+      if (shouldUnlink) {
+        const input = subcontrolId ? { removeSubcontrolIDs: [subcontrolId] } : { removeControlIDs: [id] }
+        await updateImplementation({ updateControlImplementationId: node.id, input })
+        successNotification({ title: 'Control Implementation unlinked' })
+      } else {
+        await deleteImplementation({ deleteControlImplementationId: node.id })
+        successNotification({ title: 'Control Implementation deleted' })
+      }
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
       errorNotification({
