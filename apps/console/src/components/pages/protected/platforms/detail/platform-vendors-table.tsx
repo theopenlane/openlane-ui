@@ -60,8 +60,8 @@ const VendorSection: React.FC<{ title: string; vendors: VendorNode[]; outOfScope
     <table className="w-full text-sm table-fixed">
       <colgroup>
         <col />
-        <col className="w-[40%]" />
-        <col className="w-[160px]" />
+        <col className="w-[35%]" />
+        <col className="w-[240px]" />
       </colgroup>
       <thead className="bg-muted/30 border-b">
         <tr>
@@ -94,7 +94,7 @@ const VendorSection: React.FC<{ title: string; vendors: VendorNode[]; outOfScope
                 <div className="flex items-center gap-2 justify-end">
                   {vendor.status && <VendorStatusBadge status={vendor.status} />}
                   {outOfScope && (
-                    <Badge variant="outline" className="text-xs text-muted-foreground">
+                    <Badge variant="outline" className="text-xs text-muted-foreground whitespace-nowrap">
                       Out of scope
                     </Badge>
                   )}

@@ -55,8 +55,8 @@ const AssetSection: React.FC<{ title: string; assets: AssetNode[]; outOfScope?: 
     <table className="w-full text-sm table-fixed">
       <colgroup>
         <col />
-        <col className="w-[40%]" />
-        <col className="w-[140px]" />
+        <col className="w-[35%]" />
+        <col className="w-[220px]" />
       </colgroup>
       <thead className="bg-muted/30 border-b">
         <tr>
@@ -78,12 +78,12 @@ const AssetSection: React.FC<{ title: string; assets: AssetNode[]; outOfScope?: 
             <td className={`${BODY_CELL} text-right`}>
               <div className="flex items-center gap-2 justify-end">
                 {!!asset.assetType && (
-                  <Badge variant="outline" className="text-xs">
+                  <Badge variant="outline" className="text-xs whitespace-nowrap">
                     {String(asset.assetType)}
                   </Badge>
                 )}
                 {outOfScope && (
-                  <Badge variant="outline" className="text-xs text-muted-foreground">
+                  <Badge variant="outline" className="text-xs text-muted-foreground whitespace-nowrap">
                     Out of scope
                   </Badge>
                 )}
