@@ -75035,7 +75035,6 @@ export type GetSubcontrolsByRefCodeQuery = {
         publicRepresentation?: string | null
         category?: string | null
         subcategory?: string | null
-        referenceFramework?: string | null
         systemOwned?: boolean | null
         controlID: string
         control: { __typename?: 'Control'; standardID?: string | null }

@@ -337,7 +337,6 @@ export const GET_SUBCONTROLS_BY_REFCODE = gql`
           publicRepresentation
           category
           subcategory
-          referenceFramework
           systemOwned
           controlID
           control {

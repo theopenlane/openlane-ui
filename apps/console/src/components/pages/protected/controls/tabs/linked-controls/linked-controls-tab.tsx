@@ -143,15 +143,15 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcon
   const { data: refcodeData } = useGetControlsByRefCode({ refCodeIn: controlRefCodes, enabled: controlRefCodes.length > 0 })
   const { data: subcontrolRefcodeData } = useGetSubcontrolsByRefCode({ refCodeIn: subcontrolRefCodes, enabled: subcontrolRefCodes.length > 0 })
 
-  const buildLookupKey = (refCode: string, referenceFramework?: string | null) => `${refCode}|${referenceFramework || 'CUSTOM'}`
-
   const controlLinkMap = useMemo(() => {
     const map = new Map<string, string>()
     refcodeData?.controls?.edges?.forEach((edge) => {
       const node = edge?.node
       if (!node?.refCode) return
       const href = node.systemOwned ? `/standards/${node.standardID}?controlId=${node.id}` : `/controls/${node.id}`
-      map.set(buildLookupKey(node.refCode, node.referenceFramework), href)
+      if (!map.has(node.refCode) || !node.systemOwned) {
+        map.set(node.refCode, href)
+      }
     })
     return map
   }, [refcodeData])
@@ -162,7 +162,9 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcon
       const node = edge?.node
       if (!node?.refCode) return
       const href = node.systemOwned ? `/standards/${node.control?.standardID}?controlId=${node.id}` : `/controls/${node.controlID}/${node.id}`
-      map.set(buildLookupKey(node.refCode, node.referenceFramework), href)
+      if (!map.has(node.refCode) || !node.systemOwned) {
+        map.set(node.refCode, href)
+      }
     })
     return map
   }, [subcontrolRefcodeData])
@@ -174,7 +176,7 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcon
       const node: ControlsByRefcodeNode | undefined = edge?.node ?? undefined
 
       if (!node?.refCode) return
-      map.set(buildLookupKey(node.refCode, node.referenceFramework), {
+      map.set(node.refCode, {
         description: node.description,
         status: node.status,
         type: node.controlKindName,
@@ -194,7 +196,7 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcon
       const node: SubcontrolsByRefcodeNode | undefined = edge?.node ?? undefined
 
       if (!node?.refCode) return
-      map.set(buildLookupKey(node.refCode, node.referenceFramework), {
+      map.set(node.refCode, {
         description: node.description,
         status: node.status,
         type: node.subcontrolKindName,
@@ -209,8 +211,7 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcon
 
   const enrichedMappedControls = useMemo(() => {
     return mappedControls.map((row) => {
-      const lookupKey = buildLookupKey(row.refCode, row.referenceFramework)
-      const details = row.nodeType === 'Subcontrol' ? subcontrolDetailsMap.get(lookupKey) : controlDetailsMap.get(lookupKey)
+      const details = row.nodeType === 'Subcontrol' ? subcontrolDetailsMap.get(row.refCode) : controlDetailsMap.get(row.refCode)
       return {
         ...row,
         description: details?.description ?? row.description,
