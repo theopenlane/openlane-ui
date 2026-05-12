@@ -90,6 +90,7 @@ const VendorDetailPage: React.FC<VendorDetailPageProps> = ({ vendorId }) => {
         description: data.entity.description ?? undefined,
         status: data.entity.status ?? undefined,
         domains: data.entity.domains ?? undefined,
+        providedServices: data.entity.providedServices ?? undefined,
         tags: data.entity.tags ?? undefined,
         environmentName: data.entity.environmentName ?? undefined,
         scopeName: data.entity.scopeName ?? null,
@@ -122,7 +123,7 @@ const VendorDetailPage: React.FC<VendorDetailPageProps> = ({ vendorId }) => {
         reviewedBy: normalized.reviewedBy as ResponsibilitySelection,
       }
       form.reset(newValues)
-      // eslint-disable-next-line @eslint-react/set-state-in-effect
+       
       setInitialValues(newValues)
     }
   }, [data?.entity, form])

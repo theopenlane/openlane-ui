@@ -74,18 +74,22 @@ const CommentList: React.FC<CommentListProps> = ({ comments, onEdit, onRemove })
 
                   {isOwner && !isEditing && (
                     <div className="flex gap-2">
-                      <button onClick={() => handleEditClick(item)} className="hover:text-btn-secondary bg-unset">
-                        <Pencil className="h-4 w-4" />
-                      </button>
-                      <button
-                        onClick={() => {
-                          setCommentToDelete(item)
-                          setDeleteDialogOpen(true)
-                        }}
-                        className="hover:text-destructive bg-unset"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
+                      {onEdit && (
+                        <button onClick={() => handleEditClick(item)} className="hover:text-btn-secondary bg-unset">
+                          <Pencil className="h-4 w-4" />
+                        </button>
+                      )}
+                      {onRemove && (
+                        <button
+                          onClick={() => {
+                            setCommentToDelete(item)
+                            setDeleteDialogOpen(true)
+                          }}
+                          className="hover:text-destructive bg-unset"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      )}
                     </div>
                   )}
 

@@ -64,6 +64,13 @@ export const AdditionalFields: React.FC<AdditionalFieldsProps> = ({
               tooltipContent="The domains associated with the vendor, which can be used for identification and risk assessment purposes"
               {...sharedFieldProps}
             />
+            <MultiStringField
+              name="providedServices"
+              label="Provided Services"
+              placeholder="e.g. log management"
+              tooltipContent="The services this vendor provides to your organization"
+              {...sharedFieldProps}
+            />
             <div className="col-span-2 h-1" />
             <TextField
               name="statusPageURL"

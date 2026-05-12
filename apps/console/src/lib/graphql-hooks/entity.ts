@@ -20,6 +20,8 @@ import {
   type DeleteBulkEntityMutation,
   type DeleteBulkEntityMutationVariables,
   type GetEntityAssociationsQuery,
+  type GetEntityCommentsQuery,
+  type GetEntityCommentsQueryVariables,
   type GetEntityFilesPaginatedQuery,
   type UpdateEntityWithFilesMutationVariables,
   type CreateEntityWithFilesMutationVariables,
@@ -40,6 +42,7 @@ import {
   BULK_EDIT_ENTITY,
   BULK_DELETE_ENTITY,
   GET_ENTITY_ASSOCIATIONS,
+  GET_ENTITY_COMMENTS,
   GET_ENTITY_FILES_PAGINATED,
   UPDATE_ENTITY_WITH_FILES,
   CREATE_ENTITY_WITH_FILES,
@@ -130,6 +133,16 @@ export const useDeleteEntity = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['entities'] })
     },
+  })
+}
+
+export const useGetEntityComments = (entityId?: string | null) => {
+  const { client } = useGraphQLClient()
+
+  return useQuery<GetEntityCommentsQuery, unknown>({
+    queryKey: ['entityComments', entityId],
+    queryFn: async () => client.request<GetEntityCommentsQuery, GetEntityCommentsQueryVariables>(GET_ENTITY_COMMENTS, { entityId: entityId ?? '' }),
+    enabled: !!entityId,
   })
 }
 

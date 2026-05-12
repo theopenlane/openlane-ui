@@ -2,8 +2,9 @@
 
 import React, { useMemo, useRef, useState } from 'react'
 import { useFormContext, Controller } from 'react-hook-form'
+import { Badge } from '@repo/ui/badge'
 import { Card } from '@repo/ui/cardpanel'
-import MultipleSelector, { type Option } from '@repo/ui/multiple-selector'
+import MultipleSelector from '@repo/ui/multiple-selector'
 import { type UpdateEntityInput, type EntityQuery, EntityEntityStatus, EntityFrequency } from '@repo/codegen/src/schema'
 import { ResponsibilityField } from '@/components/shared/crud-base/form-fields/responsibility-field'
 import { SelectField } from '@/components/shared/crud-base/form-fields/select-field'
@@ -18,7 +19,7 @@ import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
 import useEscapeKey from '@/hooks/useEscapeKey'
 import { type EditVendorFormData } from '../hooks/use-form-schema'
-import { UserRound, UserRoundCheck, Binoculars, Maximize2, Radio, CalendarDays, RefreshCw, DollarSign, Tag, Globe } from 'lucide-react'
+import { UserRound, UserRoundCheck, Binoculars, Maximize2, Radio, CalendarDays, RefreshCw, DollarSign, Tag, Globe, Handshake, ListChecks } from 'lucide-react'
 import { VendorStatusIconMapper } from '@/components/shared/enum-mapper/vendor-enum'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 
@@ -37,6 +38,7 @@ const VendorPropertiesSidebar: React.FC<VendorPropertiesSidebarProps> = ({ data,
 
   const { enumOptions: environmentOptions, onCreateOption: createEnvironment } = useCreatableEnumOptions({ field: 'environment' })
   const { enumOptions: scopeOptions, onCreateOption: createScope } = useCreatableEnumOptions({ field: 'scope' })
+  const { enumOptions: relationshipStateOptions, onCreateOption: createRelationshipState } = useCreatableEnumOptions({ objectType: 'entity', field: 'relationshipState' })
   const { tagOptions } = useGetTags()
 
   const tags = watch('tags')
@@ -44,8 +46,15 @@ const VendorPropertiesSidebar: React.FC<VendorPropertiesSidebarProps> = ({ data,
     return (tags ?? []).filter((item: string): item is string => typeof item === 'string').map((item: string) => ({ value: item, label: item }))
   }, [tags])
 
-  const triggerRef = useRef<HTMLDivElement>(null)
-  const popoverRef = useRef<HTMLDivElement>(null)
+  const providedServices = watch('providedServices')
+  const providedServicesValues = useMemo(() => {
+    return (providedServices ?? []).filter((item: string): item is string => typeof item === 'string').map((item: string) => ({ value: item, label: item }))
+  }, [providedServices])
+
+  const tagsTriggerRef = useRef<HTMLDivElement>(null)
+  const tagsPopoverRef = useRef<HTMLDivElement>(null)
+  const providedServicesTriggerRef = useRef<HTMLDivElement>(null)
+  const providedServicesPopoverRef = useRef<HTMLDivElement>(null)
 
   const blurTags = () => {
     const current = data?.tags || []
@@ -58,6 +67,17 @@ const VendorPropertiesSidebar: React.FC<VendorPropertiesSidebarProps> = ({ data,
     }
   }
 
+  const blurProvidedServices = () => {
+    const current = data?.providedServices || []
+    const next = providedServicesValues.map((item: { value: string; label: string }) => item.value)
+    const changed = current.length !== next.length || current.some((val) => !next.includes(val))
+
+    if (changed) {
+      setValue('providedServices', next)
+      handleUpdate({ providedServices: next })
+    }
+  }
+
   useClickOutsideWithPortal(
     () => {
       setInternalEditing(null)
@@ -66,23 +86,36 @@ const VendorPropertiesSidebar: React.FC<VendorPropertiesSidebarProps> = ({ data,
       }
     },
     {
-      refs: { triggerRef, popoverRef },
+      refs: { triggerRef: tagsTriggerRef, popoverRef: tagsPopoverRef },
       enabled: internalEditing === 'tags',
+    },
+  )
+
+  useClickOutsideWithPortal(
+    () => {
+      setInternalEditing(null)
+      if (internalEditing === 'providedServices') {
+        blurProvidedServices()
+      }
+    },
+    {
+      refs: { triggerRef: providedServicesTriggerRef, popoverRef: providedServicesPopoverRef },
+      enabled: internalEditing === 'providedServices',
     },
   )
 
   useEscapeKey(
     () => {
       if (internalEditing === 'tags') {
-        const options: Option[] = (data?.tags ?? []).filter((item: string): item is string => typeof item === 'string').map((item: string) => ({ value: item, label: item }))
-        setValue(
-          'tags',
-          options.map((opt) => opt.value),
-        )
+        setValue('tags', data?.tags ?? [])
+        setInternalEditing(null)
+      }
+      if (internalEditing === 'providedServices') {
+        setValue('providedServices', data?.providedServices ?? [])
         setInternalEditing(null)
       }
     },
-    { enabled: internalEditing === 'tags' },
+    { enabled: internalEditing === 'tags' || internalEditing === 'providedServices' },
   )
 
   const entityStatusOptions = enumToOptions(EntityEntityStatus)
@@ -150,6 +183,15 @@ const VendorPropertiesSidebar: React.FC<VendorPropertiesSidebarProps> = ({ data,
             {...sharedFieldProps}
           />
 
+          <SelectField
+            name="entityRelationshipStateName"
+            label="Relationship State"
+            icon={<Handshake className={iconClass} />}
+            options={relationshipStateOptions}
+            onCreateOption={createRelationshipState}
+            {...sharedFieldProps}
+          />
+
           <SelectField name="environmentName" label="Environment" icon={<Maximize2 className={iconClass} />} options={environmentOptions} onCreateOption={createEnvironment} {...sharedFieldProps} />
 
           <SelectField name="scopeName" label="Scope" icon={<Radio className={iconClass} />} options={scopeOptions} onCreateOption={createScope} {...sharedFieldProps} />
@@ -176,13 +218,60 @@ const VendorPropertiesSidebar: React.FC<VendorPropertiesSidebarProps> = ({ data,
 
           <TextField name="statusPageURL" label="Status Page" icon={<Globe className={iconClass} />} type="link" {...sharedFieldProps} />
 
+          <div className={`flex ${isEditing || internalEditing === 'providedServices' ? 'flex-col gap-2' : 'items-center justify-between gap-4'}`}>
+            <div className="flex items-center gap-2 shrink-0">
+              <ListChecks className={iconClass} />
+              <span className="text-base text-muted-foreground">Provided Services</span>
+            </div>
+
+            <div ref={providedServicesTriggerRef} className="w-full">
+              {isEditing || internalEditing === 'providedServices' ? (
+                <Controller
+                  name="providedServices"
+                  control={control}
+                  render={({ field }) => (
+                    <MultipleSelector
+                      options={[]}
+                      hideClearAllButton
+                      className="w-full"
+                      placeholder="Add service..."
+                      creatable
+                      value={providedServicesValues}
+                      onChange={(selectedOptions) => {
+                        const newServices = selectedOptions.map((opt) => opt.value)
+                        field.onChange(newServices)
+                      }}
+                    />
+                  )}
+                />
+              ) : (
+                <div
+                  className={`text-sm py-2 rounded-md px-1 w-full hover:bg-accent ${canEditVendor ? 'cursor-pointer' : ''}`}
+                  onClick={() => canEditVendor && !isEditing && setInternalEditing('providedServices')}
+                >
+                  {data?.providedServices?.length ? (
+                    <div className="flex gap-2 flex-wrap justify-end">
+                      {data.providedServices.map((service) => (
+                        <Badge key={service} variant="outline" className="flex items-center gap-1 w-fit">
+                          <span>{service}</span>
+                        </Badge>
+                      ))}
+                    </div>
+                  ) : (
+                    <span className="text-muted-foreground text-sm italic">No services</span>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+
           <div className={`flex ${isEditing || internalEditing === 'tags' ? 'flex-col gap-2' : 'items-center justify-between gap-4'}`}>
             <div className="flex items-center gap-2 shrink-0">
               <Tag className={iconClass} />
               <span className="text-base text-muted-foreground">Tags</span>
             </div>
 
-            <div ref={triggerRef} className="w-full">
+            <div ref={tagsTriggerRef} className="w-full">
               {isEditing || internalEditing === 'tags' ? (
                 <Controller
                   name="tags"

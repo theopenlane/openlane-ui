@@ -30,6 +30,7 @@ const formSchema = z.object({
   mfaEnforced: z.boolean().optional(),
   mfaSupported: z.boolean().optional(),
   nextReviewAt: z.string().optional(),
+  providedServices: z.array(z.string()).optional(),
   renewalRisk: z.string().optional(),
   reviewedBy: responsibilityFieldSchema,
   riskRating: z.string().optional(),

@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { Accordion, AccordionContent, AccordionItem } from '@radix-ui/react-accordion'
-import ActivityAccordionTrigger from './activity-accordion-trigger'
+import ActivityAccordionTrigger from '@/components/shared/crud-base/tabs/activity-accordion-trigger'
 import ActivityTasksSection from './activity-tasks-section'
 
 type ActivityTabProps = {
