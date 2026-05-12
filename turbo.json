@@ -25,9 +25,6 @@
         // For bedrock chat integration (unused in production)
         "AWS_REGION",
 
-        // for subscriber page
-        "OPENLANE_API_WRITE_TOKEN",
-
         // for customer support chat
         "DEVREV_AAT",
 

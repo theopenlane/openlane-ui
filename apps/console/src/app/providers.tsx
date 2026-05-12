@@ -19,22 +19,7 @@ interface ProvidersProps {
   children: ReactNode
 }
 
-const publicPages = [
-  '/login',
-  '/login/sso',
-  '/login/sso/enforce',
-  '/verify',
-  '/resend-verify',
-  '/invite',
-  '/subscriber-verify',
-  '/tfa',
-  '/waitlist',
-  '/unsubscribe',
-  '/forgot-password',
-  '/password-reset',
-  '/signup',
-  '/questionnaire',
-]
+const publicPages = ['/login', '/login/sso', '/login/sso/enforce', '/verify', '/resend-verify', '/invite', '/tfa', '/forgot-password', '/password-reset', '/signup', '/questionnaire']
 
 const Providers = ({ children }: ProvidersProps) => {
   const { status } = useSession()
