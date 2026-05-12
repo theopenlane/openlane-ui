@@ -1,6 +1,6 @@
 import React from 'react'
 import Link from 'next/link'
-import type { ColumnDef } from '@tanstack/react-table'
+import type { ColumnDef, Row } from '@tanstack/react-table'
 import StandardChip from '@/components/pages/protected/standards/shared/standard-chip'
 import { FileBadge2, Folder, FolderTree, Layers, Link2, MoreHorizontal, Pencil, Tag } from 'lucide-react'
 import { MappedControlMappingSource, MappedControlMappingType } from '@repo/codegen/src/schema'
@@ -10,23 +10,77 @@ import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { CustomEnumChipCell } from '@/components/shared/crud-base/columns/custom-enum-chip-cell'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { Button } from '@repo/ui/button'
+import { Checkbox } from '@repo/ui/checkbox'
 
-type LinkMap = Map<string, string>
+const getMappedControlSelectionKey = (row: MappedControlRow) => `${row.nodeType}:${row.targetId ?? row.id}`
 
-export const getMappedControlsBaseColumns = (
-  controlLinkMap: LinkMap,
-  subcontrolLinkMap: LinkMap,
-  convertToReadOnly: (value: string, index: number) => React.ReactNode,
-): ColumnDef<MappedControlRow>[] => [
+const getEditableRows = (rows: MappedControlRow[]) => {
+  const seen = new Set<string>()
+
+  return rows.filter((row) => {
+    if (!row.isEditableTarget || !row.targetId) return false
+    const key = getMappedControlSelectionKey(row)
+    if (seen.has(key)) return false
+    seen.add(key)
+    return true
+  })
+}
+
+export const getMappedControlsSelectColumn = (selectedRows: MappedControlRow[], setSelectedRows: React.Dispatch<React.SetStateAction<MappedControlRow[]>>): ColumnDef<MappedControlRow> => ({
+  id: 'select',
+  header: ({ table }) => {
+    const currentPageRows = getEditableRows(table.getRowModel().rows.map((row) => row.original))
+    const allSelected = currentPageRows.length > 0 && currentPageRows.every((row) => selectedRows.some((selected) => getMappedControlSelectionKey(selected) === getMappedControlSelectionKey(row)))
+
+    return (
+      <div onClick={(e) => e.stopPropagation()}>
+        <Checkbox
+          checked={allSelected}
+          onCheckedChange={(checked: boolean) => {
+            const currentPageKeys = new Set(currentPageRows.map(getMappedControlSelectionKey))
+            const newSelections = checked
+              ? [...selectedRows.filter((selected) => !currentPageKeys.has(getMappedControlSelectionKey(selected))), ...currentPageRows]
+              : selectedRows.filter((selected) => !currentPageKeys.has(getMappedControlSelectionKey(selected)))
+
+            setSelectedRows(newSelections)
+          }}
+        />
+      </div>
+    )
+  },
+  cell: ({ row }: { row: Row<MappedControlRow> }) => {
+    const isSelectable = !!row.original.isEditableTarget && !!row.original.targetId
+    const isChecked = selectedRows.some((selected) => getMappedControlSelectionKey(selected) === getMappedControlSelectionKey(row.original))
+
+    return (
+      <div onClick={(e) => e.stopPropagation()}>
+        <Checkbox
+          checked={isChecked}
+          disabled={!isSelectable}
+          onCheckedChange={() => {
+            if (!isSelectable) return
+            setSelectedRows((prev) => {
+              const selectedKey = getMappedControlSelectionKey(row.original)
+              const exists = prev.some((selected) => getMappedControlSelectionKey(selected) === selectedKey)
+              return exists ? prev.filter((selected) => getMappedControlSelectionKey(selected) !== selectedKey) : [...prev, row.original]
+            })
+          }}
+        />
+      </div>
+    )
+  },
+  size: 50,
+  maxSize: 50,
+})
+
+export const getMappedControlsBaseColumns = (convertToReadOnly: (value: string, index: number) => React.ReactNode): ColumnDef<MappedControlRow>[] => [
   {
     accessorKey: 'refCode',
     header: () => <span className="whitespace-nowrap">Ref Code</span>,
     cell: ({ row }) => {
-      const lookupKey = `${row.original.refCode}|${row.original.referenceFramework || 'CUSTOM'}`
-      const href = row.original.nodeType === 'Subcontrol' ? subcontrolLinkMap.get(lookupKey) : controlLinkMap.get(lookupKey)
-      if (!href) return <span className="block truncate">{row.original.refCode}</span>
+      if (!row.original.targetHref) return <span className="block truncate">{row.original.refCode}</span>
       return (
-        <Link href={href} className="block truncate text-blue-500 hover:underline">
+        <Link href={row.original.targetHref} className="block truncate text-blue-500 hover:underline">
           {row.original.refCode}
         </Link>
       )
