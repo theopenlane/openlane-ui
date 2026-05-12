@@ -6,7 +6,9 @@ import { secureFetch } from '@/lib/auth/utils/secure-fetch'
 export async function GET(request: NextRequest) {
   const cookies = request.headers.get('cookie')
   const session = await auth()
-  const accessToken = session?.user?.accessToken
+  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+  const accessToken = session.user?.accessToken
 
   const headers: HeadersInit = {
     Authorization: `Bearer ${accessToken}`,

@@ -1,3 +1,4 @@
+import { verifyRecaptchaToken } from '@/lib/recaptcha'
 import { secureFetch } from '@/lib/auth/utils/secure-fetch'
 import { type NextRequest, NextResponse } from 'next/server'
 
@@ -9,6 +10,15 @@ export async function POST(req: NextRequest) {
 
     if (!body.assessment_id || !body.email) {
       return NextResponse.json({ success: false, message: 'Missing assessment_id or email' }, { status: 400 })
+    }
+
+    if (!body.recaptchaToken) {
+      return NextResponse.json({ success: false, message: 'Missing recaptchaToken' }, { status: 400 })
+    }
+
+    const recaptcha = await verifyRecaptchaToken(body.recaptchaToken)
+    if (!recaptcha.success) {
+      return NextResponse.json({ success: false, message: 'reCAPTCHA verification failed' }, { status: 400 })
     }
 
     const response = await secureFetch(`${process.env.API_REST_URL}/questionnaire/resend`, {
