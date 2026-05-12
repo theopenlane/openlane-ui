@@ -1,4 +1,4 @@
-import { type InvoicesResponse, type OpenlaneProductsResponse, type SubscriptionSchedulesResponse, type UpcomingInvoiceResponse } from '@/types/stripe'
+import { type InvoicesResponse, type OpenlaneProductsResponse, type Subscription, type SubscriptionSchedulesResponse, type UpcomingInvoiceResponse } from '@/types/stripe'
 import { openlaneAPIUrl } from '@repo/dally/auth'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
@@ -151,6 +151,19 @@ export function useOpenlaneProductsQuery(includeBeta: boolean = false) {
 
       return res.json() as Promise<OpenlaneProductsResponse>
     },
+  })
+}
+
+export function useSubscriptionQuery(customerId?: string | null) {
+  return useQuery<Subscription | null>({
+    queryKey: ['stripe-subscription', customerId],
+    queryFn: async () => {
+      if (!customerId) return null
+      const res = await fetch(`/api/stripe/subscription?customer=${customerId}`)
+      if (!res.ok) throw new Error('Failed to fetch subscription')
+      return res.json() as Promise<Subscription | null>
+    },
+    enabled: !!customerId,
   })
 }
 
