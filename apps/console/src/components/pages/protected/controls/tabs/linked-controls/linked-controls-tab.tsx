@@ -59,7 +59,6 @@ const getSelectedLinkedControls = (rows: MappedControlRow[], nodeType: typeof Ob
 const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcontrolId, refCode, sourceFramework }) => {
   const isSubcontrolMode = !!subcontrolId
   const [selectedOrganizationRows, setSelectedOrganizationRows] = useState<MappedControlRow[]>([])
-  const [selectedFrameworkRows, setSelectedFrameworkRows] = useState<MappedControlRow[]>([])
   const { data: controlPermission } = useAccountRoles(ObjectTypes.CONTROL, controlId, Boolean(controlId && !isSubcontrolMode))
   const { data: subcontrolPermission } = useAccountRoles(ObjectTypes.SUBCONTROL, subcontrolId, Boolean(subcontrolId))
   const canBulkEditLinkedControls = canEdit((isSubcontrolMode ? subcontrolPermission : controlPermission)?.roles)
@@ -257,19 +256,13 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcon
   const actionsColumn = useMemo(() => getMappedControlsActionsColumn(pathname), [pathname])
   const baseColumns = useMemo(() => getMappedControlsBaseColumns(convertToReadOnly), [convertToReadOnly])
   const organizationSelectColumn = useMemo(() => getMappedControlsSelectColumn(selectedOrganizationRows, setSelectedOrganizationRows), [selectedOrganizationRows])
-  const frameworkSelectColumn = useMemo(() => getMappedControlsSelectColumn(selectedFrameworkRows, setSelectedFrameworkRows), [selectedFrameworkRows])
   const baseMappedColumns = useMemo(
     () => [...(canBulkEditLinkedControls ? [organizationSelectColumn] : []), ...baseColumns, actionsColumn],
     [actionsColumn, baseColumns, canBulkEditLinkedControls, organizationSelectColumn],
   )
-  const frameworkMappedColumns = useMemo(
-    () => [...(canBulkEditLinkedControls ? [frameworkSelectColumn] : []), ...getMappedControlsFrameworkColumns(baseColumns), actionsColumn],
-    [actionsColumn, baseColumns, canBulkEditLinkedControls, frameworkSelectColumn],
-  )
+  const frameworkMappedColumns = useMemo(() => [...getMappedControlsFrameworkColumns(baseColumns), actionsColumn], [actionsColumn, baseColumns])
   const selectedOrganizationControls = useMemo(() => getSelectedLinkedControls(selectedOrganizationRows, ObjectTypes.CONTROL), [selectedOrganizationRows])
   const selectedOrganizationSubcontrols = useMemo(() => getSelectedLinkedControls(selectedOrganizationRows, ObjectTypes.SUBCONTROL), [selectedOrganizationRows])
-  const selectedFrameworkControls = useMemo(() => getSelectedLinkedControls(selectedFrameworkRows, ObjectTypes.CONTROL), [selectedFrameworkRows])
-  const selectedFrameworkSubcontrols = useMemo(() => getSelectedLinkedControls(selectedFrameworkRows, ObjectTypes.SUBCONTROL), [selectedFrameworkRows])
   const organizationBulkAction = canBulkEditLinkedControls && selectedOrganizationRows.length > 0 && (
     <div className="flex items-center gap-2">
       <BulkEditLinkedControlsDialog
@@ -278,12 +271,6 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcon
         onClearSelectedControls={() => setSelectedOrganizationRows([])}
       />
       <CancelButton onClick={() => setSelectedOrganizationRows([])} />
-    </div>
-  )
-  const frameworkBulkAction = canBulkEditLinkedControls && selectedFrameworkRows.length > 0 && (
-    <div className="flex items-center gap-2">
-      <BulkEditLinkedControlsDialog selectedControls={selectedFrameworkControls} selectedSubcontrols={selectedFrameworkSubcontrols} onClearSelectedControls={() => setSelectedFrameworkRows([])} />
-      <CancelButton onClick={() => setSelectedFrameworkRows([])} />
     </div>
   )
   const hasSubcontrols = (subcontrolsPaginationMeta?.totalCount ?? 0) > 0
@@ -309,14 +296,7 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcon
         showFrameworkFilter={false}
         action={organizationBulkAction}
       />
-      <MappedControlsTable
-        title="Framework Mappings"
-        rows={frameworkMappedControls}
-        columns={frameworkMappedColumns}
-        searchPlaceholder="Search framework mappings"
-        showFrameworkFilter
-        action={frameworkBulkAction}
-      />
+      <MappedControlsTable title="Framework Mappings" rows={frameworkMappedControls} columns={frameworkMappedColumns} searchPlaceholder="Search framework mappings" showFrameworkFilter />
     </div>
   )
 }
