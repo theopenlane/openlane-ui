@@ -20,8 +20,7 @@ export async function GET() {
   })
 
   if (!response.ok) {
-    const text = await response.text()
-    return NextResponse.json({ error: `Failed to fetch organization roles: ${response.status}`, details: text }, { status: response.status })
+    return NextResponse.json({ error: 'Failed to fetch organization roles' }, { status: response.status })
   }
 
   let data: unknown

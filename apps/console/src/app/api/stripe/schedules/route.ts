@@ -25,7 +25,6 @@ export async function GET(req: Request) {
     return NextResponse.json(schedules.data)
   } catch (err: unknown) {
     console.error('❌ Error fetching subscription schedules:', err)
-    const message = err instanceof Error ? err.message : 'Failed to fetch subscription schedules'
-    return NextResponse.json({ error: message }, { status: 500 })
+    return NextResponse.json({ error: 'Failed to fetch subscription schedules' }, { status: 500 })
   }
 }

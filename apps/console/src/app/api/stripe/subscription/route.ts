@@ -25,8 +25,6 @@ export async function GET(req: Request) {
   } catch (err: unknown) {
     console.error('❌ Stripe error:', err)
 
-    const message = err instanceof Error ? err.message : 'An unknown error occurred while fetching subscription'
-
-    return NextResponse.json({ error: message }, { status: 500 })
+    return NextResponse.json({ error: 'Failed to fetch subscription' }, { status: 500 })
   }
 }

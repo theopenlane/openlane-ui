@@ -22,7 +22,9 @@ export async function POST(request: NextRequest) {
     }
 
     const session = await auth()
-    const accessToken = session?.user?.accessToken
+    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+    const accessToken = session.user?.accessToken
 
     const headers: HeadersInit = {
       Authorization: `Bearer ${accessToken}`,

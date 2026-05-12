@@ -34,11 +34,13 @@ export async function POST(request: Request) {
     }
 
     const blob = await fData.blob()
+    const safeFilename = String(bodyData.filename ?? 'export').replace(/[^\w\-. ]/g, '_')
+
     return new NextResponse(blob, {
       status: 200,
       headers: {
         'Content-Type': 'text/csv',
-        'Content-Disposition': `attachment; filename="${bodyData.filename}.csv"`,
+        'Content-Disposition': `attachment; filename="${safeFilename}.csv"`,
       },
     })
   } catch (error) {
