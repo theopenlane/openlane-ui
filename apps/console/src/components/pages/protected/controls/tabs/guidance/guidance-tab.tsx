@@ -8,7 +8,7 @@ import { CopyIcon, PlusCircle } from 'lucide-react'
 import { CreateTaskDialog } from '@/components/pages/protected/tasks/create-task/dialog/create-task-dialog'
 import { ObjectTypeObjects } from '@/components/shared/object-association/object-association-config'
 import { useNotification } from '@/hooks/useNotification'
-import ActivityAccordionTrigger from '../activity/activity-accordion-trigger'
+import ActivityAccordionTrigger from '@/components/shared/crud-base/tabs/activity-accordion-trigger'
 
 interface ImplementationGuidance {
   referenceId: string
