@@ -136,13 +136,12 @@ export const useDeleteEntity = () => {
   })
 }
 
-export const useGetEntityComments = (entityId?: string | null) => {
+export const useGetEntityComments = (entityId: string) => {
   const { client } = useGraphQLClient()
 
   return useQuery<GetEntityCommentsQuery, unknown>({
     queryKey: ['entityComments', entityId],
-    queryFn: async () => client.request<GetEntityCommentsQuery, GetEntityCommentsQueryVariables>(GET_ENTITY_COMMENTS, { entityId: entityId ?? '' }),
-    enabled: !!entityId,
+    queryFn: async () => client.request<GetEntityCommentsQuery, GetEntityCommentsQueryVariables>(GET_ENTITY_COMMENTS, { entityId }),
   })
 }
 

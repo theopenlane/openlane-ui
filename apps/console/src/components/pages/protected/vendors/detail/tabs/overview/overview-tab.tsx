@@ -7,6 +7,7 @@ import DescriptionField from '@/components/pages/protected/vendors/create/form/f
 import DomainsSection from './domains-section'
 import SecuritySection from './security-section'
 import DependenciesSection from './dependencies-section'
+import ProvidedServicesSection from './provided-services-section'
 
 interface OverviewTabProps {
   vendor: EntityQuery['entity']
@@ -24,6 +25,8 @@ const OverviewTab: React.FC<OverviewTabProps> = ({ vendor, associations, isEditi
   return (
     <div className="space-y-6">
       <DescriptionField isEditing={isEditing} isCreate={false} initialValue={typeof vendor.description === 'string' ? vendor.description : null} isFormInitialized />
+
+      <ProvidedServicesSection vendor={vendor} isEditing={isEditing} canEdit={canEdit} handleUpdateField={handleUpdateField} />
 
       <Tabs value={activeSubTab} onValueChange={(v) => setActiveSubTab(v as SubTab)} variant="solid">
         <TabsList className="w-fit">

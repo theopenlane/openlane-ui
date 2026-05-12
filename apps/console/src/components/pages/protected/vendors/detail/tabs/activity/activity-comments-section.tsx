@@ -19,7 +19,7 @@ type ActivityCommentsSectionProps = {
 }
 
 const ActivityCommentsSection: React.FC<ActivityCommentsSectionProps> = ({ vendorId }) => {
-  const { data } = useGetEntityComments(vendorId)
+  const { data, isLoading: isCommentsLoading } = useGetEntityComments(vendorId)
   const [commentSortIsAsc, setCommentSortIsAsc] = useState(false)
 
   const queryClient = useQueryClient()
@@ -90,20 +90,26 @@ const ActivityCommentsSection: React.FC<ActivityCommentsSectionProps> = ({ vendo
   const comments = useMemo(() => {
     if (!commentSource?.notes?.edges?.length) return []
 
-    const mapped = commentSource.notes.edges.map((item) => {
-      const user = item?.node?.createdBy ? userMap[item.node.createdBy] : undefined
-      const avatarUrl = (user?.avatarFile?.base64 ? toBase64DataUri(user.avatarFile.base64) : null) || user?.avatarRemoteURL
-      return {
-        comment: item?.node?.text,
-        avatarUrl,
-        createdAt: item?.node?.createdAt,
-        userName: user?.displayName || 'Deleted user',
-        createdBy: item?.node?.createdBy,
-        id: item?.node?.id || '',
-      } as TCommentData
-    })
+    const mapped = commentSource.notes.edges
+      .map((item) => item?.node)
+      .filter((node): node is NonNullable<typeof node> => !!node && !!node.id)
+      .map((node) => {
+        const user = node.createdBy ? userMap[node.createdBy] : undefined
+        const avatarUrl = (user?.avatarFile?.base64 ? toBase64DataUri(user.avatarFile.base64) : null) || user?.avatarRemoteURL
+        return {
+          comment: node.text,
+          avatarUrl,
+          createdAt: node.createdAt,
+          userName: user?.displayName || 'Deleted user',
+          createdBy: node.createdBy,
+          id: node.id,
+        } as TCommentData
+      })
 
-    return mapped.sort((a, b) => new Date(!commentSortIsAsc ? b.createdAt : a.createdAt).getTime() - new Date(!commentSortIsAsc ? a.createdAt : b.createdAt).getTime())
+    return mapped.sort((a, b) => {
+      const diff = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      return commentSortIsAsc ? diff : -diff
+    })
   }, [commentSortIsAsc, commentSource, userMap])
 
   return (
@@ -115,9 +121,9 @@ const ActivityCommentsSection: React.FC<ActivityCommentsSectionProps> = ({ vendo
         </button>
       </div>
 
-      {isUsersLoading && commentSource?.notes?.edges?.length ? (
+      {isCommentsLoading || (isUsersLoading && commentSource?.notes?.edges?.length) ? (
         <div className="space-y-4">
-          {commentSource.notes.edges.map((_, index) => (
+          {(commentSource?.notes?.edges?.length ? commentSource.notes.edges : [null, null]).map((_, index) => (
             <div key={index} className="w-full p-2 mb-2 rounded-lg">
               <div className="flex items-start space-x-3">
                 <Skeleton className="h-10 w-10 rounded-full shrink-0" />
