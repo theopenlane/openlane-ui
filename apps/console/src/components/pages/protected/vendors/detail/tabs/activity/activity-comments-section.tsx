@@ -12,7 +12,10 @@ import { useGetOrgMemberships } from '@/lib/graphql-hooks/member'
 import Skeleton from '@/components/shared/skeleton/skeleton'
 import type { TComments } from '@/components/shared/comments/types/TComments'
 import type { TCommentData } from '@/components/shared/comments/types/TCommentData'
+import type { OrgMembershipsQuery } from '@repo/codegen/src/schema'
 import { toBase64DataUri } from '@/lib/image-utils'
+
+type OrgMembershipUser = NonNullable<NonNullable<NonNullable<OrgMembershipsQuery['orgMemberships']['edges']>[number]>['node']>['user']
 
 type ActivityCommentsSectionProps = {
   vendorId: string
@@ -41,7 +44,7 @@ const ActivityCommentsSection: React.FC<ActivityCommentsSectionProps> = ({ vendo
   })
 
   const userMap = useMemo(() => {
-    const map: Record<string, { id: string; displayName?: string | null; avatarFile?: { base64?: string | null } | null; avatarRemoteURL?: string | null }> = {}
+    const map: Record<string, OrgMembershipUser> = {}
     userData?.orgMemberships?.edges?.forEach((edge) => {
       const user = edge?.node?.user
       if (user) map[user.id] = user
@@ -93,17 +96,17 @@ const ActivityCommentsSection: React.FC<ActivityCommentsSectionProps> = ({ vendo
     const mapped = commentSource.notes.edges
       .map((item) => item?.node)
       .filter((node): node is NonNullable<typeof node> => !!node && !!node.id)
-      .map((node) => {
+      .map((node): TCommentData => {
         const user = node.createdBy ? userMap[node.createdBy] : undefined
-        const avatarUrl = (user?.avatarFile?.base64 ? toBase64DataUri(user.avatarFile.base64) : null) || user?.avatarRemoteURL
+        const avatarUrl = ((user?.avatarFile?.base64 ? toBase64DataUri(user.avatarFile.base64) : null) || user?.avatarRemoteURL) ?? undefined
         return {
-          comment: node.text,
+          comment: node.text ?? '',
           avatarUrl,
-          createdAt: node.createdAt,
+          createdAt: node.createdAt ?? '',
           userName: user?.displayName || 'Deleted user',
-          createdBy: node.createdBy,
+          createdBy: node.createdBy ?? '',
           id: node.id,
-        } as TCommentData
+        }
       })
 
     return mapped.sort((a, b) => {
@@ -121,7 +124,7 @@ const ActivityCommentsSection: React.FC<ActivityCommentsSectionProps> = ({ vendo
         </button>
       </div>
 
-      {isCommentsLoading || (isUsersLoading && commentSource?.notes?.edges?.length) ? (
+      {isCommentsLoading || (isUsersLoading && Boolean(commentSource?.notes?.edges?.length)) ? (
         <div className="space-y-4">
           {(commentSource?.notes?.edges?.length ? commentSource.notes.edges : [null, null]).map((_, index) => (
             <div key={index} className="w-full p-2 mb-2 rounded-lg">

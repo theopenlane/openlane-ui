@@ -19,7 +19,6 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { normalizeEntityData, buildResponsibilityPayload } from '@/components/shared/crud-base/form-fields/responsibility-field-utils'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { type UpdateEntityInput, type EntityQuery } from '@repo/codegen/src/schema'
-import { type Value } from 'platejs'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import ObjectAssociationSwitch from '@/components/shared/object-association/object-association-switch'
@@ -123,28 +122,26 @@ const VendorDetailPage: React.FC<VendorDetailPageProps> = ({ vendorId }) => {
         reviewedBy: normalized.reviewedBy as ResponsibilitySelection,
       }
       form.reset(newValues)
-       
       setInitialValues(newValues)
     }
   }, [data?.entity, form])
 
   const onSubmit = async (values: VendorFormValues) => {
     try {
-      const changedFields = Object.entries(values).reduce<Record<string, unknown>>((acc, [key, value]) => {
-        const initialValue = initialValues[key as keyof VendorFormValues]
-        if (JSON.stringify(value) !== JSON.stringify(initialValue)) {
-          acc[key] = value
+      const changedFields: Partial<VendorFormValues> = {}
+      for (const key of Object.keys(values) as Array<keyof VendorFormValues>) {
+        if (JSON.stringify(values[key]) !== JSON.stringify(initialValues[key])) {
+          Object.assign(changedFields, { [key]: values[key] })
         }
-        return acc
-      }, {})
+      }
 
       const { internalOwner, reviewedBy, description, ...rest } = changedFields
-      const descriptionHtml = description !== undefined ? (Array.isArray(description) ? await convertToHtml(description as Value) : (description as string)) : undefined
+      const descriptionHtml = description === undefined ? undefined : Array.isArray(description) ? await convertToHtml(description) : description
       const input: UpdateEntityInput = {
         ...rest,
         ...(description !== undefined ? { description: descriptionHtml } : {}),
-        ...(internalOwner ? buildResponsibilityPayload('internalOwner', internalOwner as ResponsibilitySelection, { mode: 'update' }) : {}),
-        ...(reviewedBy ? buildResponsibilityPayload('reviewedBy', reviewedBy as ResponsibilitySelection, { mode: 'update' }) : {}),
+        ...(internalOwner ? buildResponsibilityPayload('internalOwner', internalOwner, { mode: 'update' }) : {}),
+        ...(reviewedBy ? buildResponsibilityPayload('reviewedBy', reviewedBy, { mode: 'update' }) : {}),
       } as UpdateEntityInput
 
       if (Object.keys(input).length === 0) {

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useMemo, useRef, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { useFormContext, Controller } from 'react-hook-form'
 import { Card } from '@repo/ui/cardpanel'
 import MultipleSelector from '@repo/ui/multiple-selector'
@@ -15,8 +15,7 @@ import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import { formatDate } from '@/utils/date'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
-import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
-import useEscapeKey from '@/hooks/useEscapeKey'
+import useStringArrayInlineEdit from '@/hooks/useStringArrayInlineEdit'
 import { type EditVendorFormData } from '../hooks/use-form-schema'
 import { UserRound, UserRoundCheck, Binoculars, Maximize2, Radio, CalendarDays, RefreshCw, DollarSign, Tag, Globe, Handshake } from 'lucide-react'
 import { VendorStatusIconMapper } from '@/components/shared/enum-mapper/vendor-enum'
@@ -45,42 +44,24 @@ const VendorPropertiesSidebar: React.FC<VendorPropertiesSidebarProps> = ({ data,
     return (tags ?? []).filter((item: string): item is string => typeof item === 'string').map((item: string) => ({ value: item, label: item }))
   }, [tags])
 
-  const tagsTriggerRef = useRef<HTMLDivElement>(null)
-  const tagsPopoverRef = useRef<HTMLDivElement>(null)
+  const tagsDraft = useMemo(() => tagValues.map((item) => item.value), [tagValues])
 
-  const blurTags = () => {
-    const current = data?.tags || []
-    const next = tagValues.map((item: { value: string; label: string }) => item.value)
-    const changed = current.length !== next.length || current.some((val) => !next.includes(val))
-
-    if (changed) {
+  const {
+    isEditing: tagsEditing,
+    beginEditing: beginTagsEditing,
+    triggerRef: tagsTriggerRef,
+    popoverRef: tagsPopoverRef,
+  } = useStringArrayInlineEdit({
+    draft: tagsDraft,
+    persisted: data?.tags,
+    onCommit: (next) => {
       setValue('tags', next)
       handleUpdate({ tags: next })
-    }
-  }
-
-  useClickOutsideWithPortal(
-    () => {
-      setInternalEditing(null)
-      if (internalEditing === 'tags') {
-        blurTags()
-      }
     },
-    {
-      refs: { triggerRef: tagsTriggerRef, popoverRef: tagsPopoverRef },
-      enabled: internalEditing === 'tags',
+    onCancel: () => {
+      setValue('tags', data?.tags ?? [])
     },
-  )
-
-  useEscapeKey(
-    () => {
-      if (internalEditing === 'tags') {
-        setValue('tags', data?.tags ?? [])
-        setInternalEditing(null)
-      }
-    },
-    { enabled: internalEditing === 'tags' },
-  )
+  })
 
   const entityStatusOptions = enumToOptions(EntityEntityStatus)
   const reviewFrequencyOptions = enumToOptions(EntityFrequency)
@@ -182,36 +163,40 @@ const VendorPropertiesSidebar: React.FC<VendorPropertiesSidebarProps> = ({ data,
 
           <TextField name="statusPageURL" label="Status Page" icon={<Globe className={iconClass} />} type="link" {...sharedFieldProps} />
 
-          <div className={`flex ${isEditing || internalEditing === 'tags' ? 'flex-col gap-2' : 'items-center justify-between gap-4'}`}>
+          <div className={`flex ${isEditing || tagsEditing ? 'flex-col gap-2' : 'items-center justify-between gap-4'}`}>
             <div className="flex items-center gap-2 shrink-0">
               <Tag className={iconClass} />
               <span className="text-base text-muted-foreground">Tags</span>
             </div>
 
             <div ref={tagsTriggerRef} className="w-full">
-              {isEditing || internalEditing === 'tags' ? (
-                <Controller
-                  name="tags"
-                  control={control}
-                  render={({ field }) => (
-                    <MultipleSelector
-                      options={tagOptions}
-                      hideClearAllButton
-                      className="w-full"
-                      placeholder="Add tag..."
-                      creatable
-                      value={tagValues}
-                      onChange={(selectedOptions) => {
-                        const newTags = selectedOptions.map((opt) => opt.value)
-                        field.onChange(newTags)
-                      }}
-                    />
-                  )}
-                />
+              {isEditing || tagsEditing ? (
+                <div ref={tagsPopoverRef}>
+                  <Controller
+                    name="tags"
+                    control={control}
+                    render={({ field }) => (
+                      <MultipleSelector
+                        options={tagOptions}
+                        hideClearAllButton
+                        className="w-full"
+                        placeholder="Add tag..."
+                        creatable
+                        value={tagValues}
+                        onChange={(selectedOptions) => {
+                          const newTags = selectedOptions.map((opt) => opt.value)
+                          field.onChange(newTags)
+                        }}
+                      />
+                    )}
+                  />
+                </div>
               ) : (
                 <div
                   className={`text-sm py-2 rounded-md px-1 w-full hover:bg-accent ${canEditVendor ? 'cursor-pointer' : ''}`}
-                  onClick={() => canEditVendor && !isEditing && setInternalEditing('tags')}
+                  onClick={() => {
+                    if (canEditVendor && !isEditing) beginTagsEditing()
+                  }}
                 >
                   {data?.tags?.length ? (
                     <div className="flex gap-2 flex-wrap justify-end">

@@ -10,7 +10,7 @@ import { EntityEntityStatus } from '@repo/codegen/src/schema'
 import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-enum-select/creatable-custom-type-enum-select'
-import MultipleSelector from '@repo/ui/multiple-selector'
+import { MultiStringField } from '@/components/shared/crud-base/form-fields/multi-text-field'
 import type { EditVendorFormData } from '../../hooks/use-form-schema'
 
 const StepVendorInfo: React.FC = () => {
@@ -66,30 +66,7 @@ const StepVendorInfo: React.FC = () => {
         )}
       />
 
-      <FormField
-        control={form.control}
-        name="providedServices"
-        render={({ field }) => {
-          const value = (field.value ?? []).map((service: string) => ({ value: service, label: service }))
-          return (
-            <FormItem>
-              <FormLabel>Provided Services</FormLabel>
-              <FormControl>
-                <MultipleSelector
-                  options={[]}
-                  hideClearAllButton
-                  className="w-full"
-                  placeholder="Add service..."
-                  creatable
-                  value={value}
-                  onChange={(selectedOptions) => field.onChange(selectedOptions.map((opt) => opt.value))}
-                />
-              </FormControl>
-              {form.formState.errors.providedServices?.message && <p className="text-sm text-red-500">{String(form.formState.errors.providedServices.message)}</p>}
-            </FormItem>
-          )
-        }}
-      />
+      <MultiStringField name="providedServices" label="Provided Services" placeholder="Add service..." isEditing={false} isEditAllowed isCreate internalEditing={null} setInternalEditing={() => {}} />
 
       <div className="grid grid-cols-3 gap-4">
         <FormField

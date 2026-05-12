@@ -142,6 +142,7 @@ export const useGetEntityComments = (entityId: string) => {
   return useQuery<GetEntityCommentsQuery, unknown>({
     queryKey: ['entityComments', entityId],
     queryFn: async () => client.request<GetEntityCommentsQuery, GetEntityCommentsQueryVariables>(GET_ENTITY_COMMENTS, { entityId }),
+    enabled: !!entityId,
   })
 }
 

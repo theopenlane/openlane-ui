@@ -28,7 +28,7 @@ const CommentList: React.FC<CommentListProps> = ({ comments, onEdit, onRemove })
 
   const handleEditClick = (item: TCommentData) => {
     setIsEditingItemId(item.id)
-    setDraftValue(item.comment as unknown as Value)
+    setDraftValue(null)
   }
 
   const handleCancelEdit = () => {
@@ -37,7 +37,11 @@ const CommentList: React.FC<CommentListProps> = ({ comments, onEdit, onRemove })
   }
 
   const handleSaveEdit = async (item: TCommentData) => {
-    if (!draftValue || !onEdit) return
+    if (!onEdit) return
+    if (!draftValue) {
+      setIsEditingItemId(null)
+      return
+    }
     const html = await plateEditorHelper.convertToHtml(draftValue)
     await onEdit(item.id, html)
     setIsEditingItemId(null)
@@ -72,7 +76,7 @@ const CommentList: React.FC<CommentListProps> = ({ comments, onEdit, onRemove })
                     <p className="text-sm text-muted-foreground">{formatDateTime(item.createdAt)}</p>
                   </div>
 
-                  {isOwner && !isEditing && (
+                  {isOwner && !isEditing && (onEdit || onRemove) && (
                     <div className="flex gap-2">
                       {onEdit && (
                         <button onClick={() => handleEditClick(item)} className="hover:text-btn-secondary bg-unset">
@@ -105,9 +109,7 @@ const CommentList: React.FC<CommentListProps> = ({ comments, onEdit, onRemove })
                   )}
                 </div>
 
-                <div className="mt-1">
-                  {isEditing ? <PlateEditor initialValue={item.comment as string} onChange={(val: Value) => setDraftValue(val)} /> : plateEditorHelper.convertToReadOnly(item.comment)}
-                </div>
+                <div className="mt-1">{isEditing ? <PlateEditor initialValue={item.comment} onChange={(val: Value) => setDraftValue(val)} /> : plateEditorHelper.convertToReadOnly(item.comment)}</div>
               </div>
             </div>
           </div>
