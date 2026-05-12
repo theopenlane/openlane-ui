@@ -14,9 +14,10 @@ type Props = {
   stripeCustomerId: string | null | undefined
   activePriceIds: Set<string | Price>
   nextPhaseStart: Date | null
+  currentInterval: 'month' | 'year' | null
 }
 
-const BillingSummary = ({ stripeCustomerId, activePriceIds, nextPhaseStart }: Props) => {
+const BillingSummary = ({ stripeCustomerId, activePriceIds, nextPhaseStart, currentInterval }: Props) => {
   const { currentOrgId } = useOrganization()
   const { data } = useGetOrganizationBilling(currentOrgId)
   const { data: schedules = [] } = useSchedulesQuery(stripeCustomerId)
@@ -32,21 +33,16 @@ const BillingSummary = ({ stripeCustomerId, activePriceIds, nextPhaseStart }: Pr
   const { mutateAsync: switchInterval, isPending: updating } = useSwitchIntervalMutation()
   const [confirmSwitchOpen, setConfirmSwitchOpen] = useState(false)
   const trialExpirationDate = trialExpiresAt ? parseISO(trialExpiresAt) : null
-  const trialEnded = trialExpirationDate ? isBefore(trialExpirationDate, new Date()) : false
+  const [now] = useState(() => new Date())
+  const trialEnded = trialExpirationDate ? isBefore(trialExpirationDate, now) : false
   const { errorNotification, successNotification } = useNotification()
   const { data: openlaneProducts } = useOpenlaneProductsQuery()
 
   const isSubscriptionCanceled = schedules[0]?.end_behavior === 'cancel'
 
-  const currentInterval = useMemo(() => {
-    if (!schedules?.length) return null
-    const firstItem = schedules[0].subscription?.items?.data?.[0]
-    return firstItem?.price?.recurring?.interval ?? null
-  }, [schedules])
-
-  const modules = Object.values(openlaneProducts?.modules || {})
-  const addons = Object.values(openlaneProducts?.addons || {})
-  const modulesWithoutBase = modules.filter((m) => m.display_name !== 'Base Module')
+  const modules = useMemo(() => Object.values(openlaneProducts?.modules || {}), [openlaneProducts])
+  const addons = useMemo(() => Object.values(openlaneProducts?.addons || {}), [openlaneProducts])
+  const modulesWithoutBase = useMemo(() => modules.filter((m) => m.display_name !== 'Base Module'), [modules])
 
   const activeAddons = useMemo(() => {
     return addons.filter((a) => {
@@ -150,13 +146,13 @@ const BillingSummary = ({ stripeCustomerId, activePriceIds, nextPhaseStart }: Pr
       if (!expiresAt && trialEnded) return 'Expired'
 
       const expirationDate = parseISO(expiresAt)
-      if (isBefore(expirationDate, new Date())) return 'Expired'
+      if (isBefore(expirationDate, now)) return 'Expired'
 
       return `Expires in ${formatDistanceToNowStrict(expirationDate, { addSuffix: false })}`
     } catch {
       return 'N/A'
     }
-  }, [expiresAt, stripeSubscriptionStatus, trialExpiresAt, trialEnded])
+  }, [expiresAt, stripeSubscriptionStatus, trialExpiresAt, trialEnded, now])
 
   const handleSwitchInterval = async () => {
     try {

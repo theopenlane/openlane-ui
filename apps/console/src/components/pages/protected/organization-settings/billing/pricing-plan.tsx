@@ -2,7 +2,8 @@
 import React, { useEffect, useMemo } from 'react'
 
 import { useOrganization } from '@/hooks/useOrganization'
-import { useOpenlaneProductsQuery, usePaymentMethodsQuery, useSchedulesQuery, useUpdateScheduleMutation, useUpcomingInvoiceQuery } from '@/lib/query-hooks/stripe'
+import { useOpenlaneProductsQuery, usePaymentMethodsQuery, useSchedulesQuery, useSubscriptionQuery, useUpdateScheduleMutation, useUpcomingInvoiceQuery } from '@/lib/query-hooks/stripe'
+import { type Price, type SubscriptionItem } from '@/types/stripe'
 import { ProductCard } from './product-card'
 import { useNotification } from '@/hooks/useNotification'
 import { useSearchParams } from 'next/navigation'
@@ -23,8 +24,15 @@ const PricingPlan = () => {
   const { data: schedules = [], isLoading: schedulesLoading } = useSchedulesQuery(stripeCustomerId)
   const { mutateAsync: updateSchedule, isPending: updating } = useUpdateScheduleMutation()
 
+  const scheduleSubscription = schedules[0]?.subscription ?? null
+
+  // For released schedules, subscription is null — fetch it directly by customer ID
+  const { data: directSubscription, isLoading: subscriptionLoading } = useSubscriptionQuery(!schedulesLoading && !scheduleSubscription ? stripeCustomerId : null)
+
+  const subscription = scheduleSubscription ?? directSubscription ?? null
+
   const scheduleId = schedules[0]?.id
-  const subscriptionId = schedules[0]?.subscription?.id
+  const subscriptionId = subscription?.id
   const { isLoading: invoiceLoading } = useUpcomingInvoiceQuery({
     customerId: stripeCustomerId,
     scheduleId,
@@ -33,20 +41,19 @@ const PricingPlan = () => {
 
   const { data: paymentData } = usePaymentMethodsQuery(stripeCustomerId)
 
-  const pageLoading = productsLoading || schedulesLoading || invoiceLoading
+  const pageLoading = productsLoading || schedulesLoading || subscriptionLoading || invoiceLoading
 
   const activePriceIds = useMemo(() => {
-    if (!schedules?.length) return new Set<string>()
-    const sub = schedules[0].subscription
-    const items = sub?.items?.data || []
-    return new Set(items.map((item) => item.price?.id || item.price))
-  }, [schedules])
+    if (!subscription) return new Set<string | Price>()
+    const items: SubscriptionItem[] = subscription.items?.data || []
+    return new Set<string | Price>(items.map((item) => item.price?.id || item.price))
+  }, [subscription])
 
-  const currentInterval = useMemo(() => {
-    if (!schedules?.length) return null
-    const firstItem = schedules[0].subscription?.items?.data?.[0]
-    return firstItem?.price?.recurring?.interval ?? null
-  }, [schedules])
+  const currentInterval = useMemo((): 'month' | 'year' | null => {
+    const interval = subscription?.items?.data?.[0]?.price?.recurring?.interval
+    if (interval === 'month' || interval === 'year') return interval
+    return null
+  }, [subscription])
 
   const nextOrCurrentPhase = schedules?.[0]?.phases?.[1] || schedules?.[0]?.phases?.[0] || null
 
@@ -57,18 +64,22 @@ const PricingPlan = () => {
 
   const endingPriceIds = useMemo(() => {
     if (!schedules?.length) return new Set<string>()
-
     const phases = schedules[0]?.phases || []
     if (phases.length < 2) return new Set<string>()
-
     const currentIds = new Set(phases[0].items.map((i) => i.price))
     const nextIds = new Set(phases[1].items.map((i) => i.price))
-
-    const ending = Array.from(currentIds).filter((id) => !nextIds.has(id))
-    return new Set(ending)
+    return new Set(Array.from(currentIds).filter((id) => !nextIds.has(id)))
   }, [schedules])
 
-  const nextPhaseStart = schedules?.[0]?.phases?.[1]?.start_date ? new Date(schedules[0].phases[1].start_date * 1000) : null
+  const nextPhaseStart = useMemo(() => {
+    // Prefer current period end from the subscription — it's always the actual next charge date
+    const periodEnd = subscription?.items?.data?.[0]?.current_period_end
+    if (periodEnd) return new Date(periodEnd * 1000)
+    // Fall back to next phase start for cases where subscription isn't loaded yet
+    const phaseStart = schedules?.[0]?.phases?.[1]?.start_date
+    return phaseStart ? new Date(phaseStart * 1000) : null
+  }, [subscription, schedules])
+
   const isSubscriptionCanceled = schedules[0]?.end_behavior === 'cancel'
 
   const modules = Object.values(openlaneProducts?.modules || {})
@@ -154,7 +165,7 @@ const PricingPlan = () => {
       <SideNavigation />
 
       <div className="max-w-[1000px] ml-14">
-        <BillingSummary activePriceIds={activePriceIds} stripeCustomerId={stripeCustomerId} nextPhaseStart={nextPhaseStart} />
+        <BillingSummary activePriceIds={activePriceIds} stripeCustomerId={stripeCustomerId} nextPhaseStart={nextPhaseStart} currentInterval={currentInterval} />
         <>
           {!!schedules[0] && (
             <div>

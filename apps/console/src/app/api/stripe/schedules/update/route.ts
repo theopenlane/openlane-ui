@@ -24,7 +24,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'scheduleId, priceId and action are required' }, { status: 400 })
     }
 
-    const schedule = (await stripe.subscriptionSchedules.retrieve(scheduleId)) as Stripe.SubscriptionSchedule
+    let schedule = (await stripe.subscriptionSchedules.retrieve(scheduleId)) as Stripe.SubscriptionSchedule
 
     const newPrice = (await stripe.prices.retrieve(priceId)) as Stripe.Price
 
@@ -35,6 +35,13 @@ export async function POST(req: Request) {
         },
         { status: 400 },
       )
+    }
+
+    // Released schedules have no current_phase — recreate a schedule from the released subscription
+    if (schedule.status === 'released' && schedule.released_subscription) {
+      schedule = (await stripe.subscriptionSchedules.create({
+        from_subscription: schedule.released_subscription as string,
+      })) as Stripe.SubscriptionSchedule
     }
 
     const rawPhases = schedule.phases ?? []
@@ -110,7 +117,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Invalid action. Use "subscribe" or "unsubscribe".' }, { status: 400 })
     }
 
-    const updated = await stripe.subscriptionSchedules.update(scheduleId, {
+    const updated = await stripe.subscriptionSchedules.update(schedule.id, {
       phases,
     })
 
