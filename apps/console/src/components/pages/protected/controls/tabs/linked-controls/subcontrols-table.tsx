@@ -1,6 +1,8 @@
 'use client'
 
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { ChevronDown } from 'lucide-react'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@radix-ui/react-collapsible'
 import { useParams } from 'next/navigation'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
@@ -26,6 +28,7 @@ const SubcontrolsTable: React.FC = () => {
   const { convertToReadOnly } = usePlateEditor()
   const { data: orgPermission } = useOrganizationRoles()
   const { data: permission } = useAccountRoles(ObjectTypes.CONTROL, id)
+  const [isOpen, setIsOpen] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const debouncedSearch = useDebounce(searchQuery, 300)
   const [filters, setFilters] = useState<WhereCondition>({})
@@ -102,34 +105,39 @@ const SubcontrolsTable: React.FC = () => {
   const columns = useMemo(() => getSubcontrolsColumns(id, convertToReadOnly), [convertToReadOnly, id])
 
   return (
-    <div className="mt-8 space-y-4">
+    <Collapsible open={isOpen} onOpenChange={setIsOpen} className="mt-8 space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2.5">
-          <h2 className="text-lg font-semibold">Subcontrols</h2>
+          <CollapsibleTrigger className="flex items-center gap-2 group">
+            <ChevronDown className={`h-4 w-4 transition-transform ${isOpen ? '' : '-rotate-90'}`} />
+            <h2 className="text-lg font-semibold">Subcontrols</h2>
+          </CollapsibleTrigger>
           {(canCreate(orgPermission?.roles, AccessEnum.CanCreateSubcontrol) || canEdit(permission?.roles)) && <CreateButton type="subcontrol" href={`/controls/${id}/create-subcontrol`} />}
         </div>
       </div>
 
-      <SearchFilterBar
-        placeholder="Search subcontrols"
-        isSearching={searchQuery !== debouncedSearch}
-        searchValue={searchQuery}
-        onSearchChange={setSearchQuery}
-        filterFields={filterFields}
-        onFilterChange={handleFilterChange}
-      />
+      <CollapsibleContent forceMount hidden={!isOpen} className="space-y-4">
+        <SearchFilterBar
+          placeholder="Search subcontrols"
+          isSearching={searchQuery !== debouncedSearch}
+          searchValue={searchQuery}
+          onSearchChange={setSearchQuery}
+          filterFields={filterFields}
+          onFilterChange={handleFilterChange}
+        />
 
-      <DataTable
-        columns={columns}
-        data={cleanedSubcontrols}
-        loading={isLoading}
-        pagination={pagination}
-        onPaginationChange={setPagination}
-        paginationMeta={paginationMeta}
-        noResultsText="No subcontrols found."
-        tableKey={undefined}
-      />
-    </div>
+        <DataTable
+          columns={columns}
+          data={cleanedSubcontrols}
+          loading={isLoading}
+          pagination={pagination}
+          onPaginationChange={setPagination}
+          paginationMeta={paginationMeta}
+          noResultsText="No subcontrols found."
+          tableKey={undefined}
+        />
+      </CollapsibleContent>
+    </Collapsible>
   )
 }
 
