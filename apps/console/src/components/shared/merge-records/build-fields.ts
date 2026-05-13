@@ -1,5 +1,7 @@
 import type { MergeFieldDescriptor } from '@repo/codegen/src/merge-fields.generated'
-import type { MergeFieldConfig, MergeFieldOverride, MergeFieldOverrides, MergeFieldType } from './types'
+import { SCHEMA_ENUMS } from '@repo/codegen/src/schema-enums.generated'
+import { enumToOptions } from '@/components/shared/enum-mapper/common-enum'
+import type { MergeEnumOption, MergeFieldConfig, MergeFieldOverride, MergeFieldOverrides, MergeFieldType } from './types'
 
 const humanizeKey = (input: string): string => {
   if (!input) return ''
@@ -38,32 +40,31 @@ export const DEFAULT_MERGE_EXCLUDED_KEYS: ReadonlySet<string> = new Set([
   'systemInternalID',
   'systemOwned',
   'isOpenlaneUser',
-  'externalID',
-  'internalNotes',
-  'observedAt',
 ])
 
 const DATE_KEY_PATTERN = /(?:Date|At)$/
 
-const SCALAR_TYPE_INFERENCE: Readonly<Record<string, MergeFieldType>> = {
-  Boolean: 'boolean',
-  Int: 'number',
-  Float: 'number',
-  Map: 'map',
-  JSON: 'map',
-  DateTime: 'date',
-  Date: 'date',
-  Time: 'date',
+const inferTypeFromDescriptor = (descriptor: MergeFieldDescriptor): MergeFieldType => {
+  switch (descriptor.kind) {
+    case 'boolean':
+      return 'boolean'
+    case 'number':
+      return 'number'
+    case 'date':
+      return 'date'
+    case 'json':
+      return descriptor.list ? 'tags' : 'map'
+    case 'enum':
+      return 'enum'
+    case 'string':
+    case 'id':
+      return descriptor.list ? 'tags' : 'text'
+  }
 }
 
-const inferTypeFromDescriptor = (descriptor: MergeFieldDescriptor): MergeFieldType => {
-  if (descriptor.list) return 'tags'
-  if (descriptor.enumName) return 'enum'
-  if (descriptor.scalarName) {
-    const mapped = SCALAR_TYPE_INFERENCE[descriptor.scalarName]
-    if (mapped) return mapped
-  }
-  return 'text'
+const enumOptionsFromDescriptor = (descriptor: MergeFieldDescriptor): MergeEnumOption[] | undefined => {
+  if (descriptor.kind !== 'enum' || !descriptor.enumName) return undefined
+  return enumToOptions(SCHEMA_ENUMS[descriptor.enumName])
 }
 
 const isPlainObject = (value: unknown): value is Record<string, unknown> => {
@@ -107,7 +108,7 @@ export const buildMergeFields = <T extends object>(
 ): MergeFieldConfig<T>[] => {
   const exclude = new Set<string>([...DEFAULT_MERGE_EXCLUDED_KEYS, ...excludeExtra, ...schemaExcludeExtra])
   const sampleRecord = sample as Record<string, unknown>
-  const overrideMap = overrides as Record<string, MergeFieldOverride<T> | undefined>
+  const overrideMap: Partial<Record<string, MergeFieldOverride<T>>> = overrides
   const overrideKeys = Object.keys(overrides)
   const seen = new Set<string>()
   const fields: MergeFieldConfig<T>[] = []
@@ -115,23 +116,27 @@ export const buildMergeFields = <T extends object>(
   const addField = (key: string, descriptor?: MergeFieldDescriptor) => {
     if (seen.has(key)) return
     seen.add(key)
+    const typedKey = key as Extract<keyof T, string>
+    const descriptorEnumOptions = descriptor ? enumOptionsFromDescriptor(descriptor) : undefined
     const override = overrideMap[key]
     if (override) {
-      fields.push({ key: key as Extract<keyof T, string>, ...override })
+      const needsAutoEnumOptions = override.type === 'enum' && !override.enumOptions && descriptorEnumOptions
+      fields.push(needsAutoEnumOptions ? { key: typedKey, ...override, enumOptions: descriptorEnumOptions } : { key: typedKey, ...override })
       return
     }
     if (descriptor) {
-      fields.push({ key: key as Extract<keyof T, string>, label: humanizeKey(key), type: inferTypeFromDescriptor(descriptor) })
+      const field: MergeFieldConfig<T> = { key: typedKey, label: humanizeKey(key), type: inferTypeFromDescriptor(descriptor) }
+      if (descriptorEnumOptions) field.enumOptions = descriptorEnumOptions
+      fields.push(field)
       return
     }
     const value = sampleRecord[key]
     if (!isMergeableValue(value)) return
-    fields.push({ key: key as Extract<keyof T, string>, label: humanizeKey(key), type: inferTypeFromValue(key, value) })
+    fields.push({ key: typedKey, label: humanizeKey(key), type: inferTypeFromValue(key, value) })
   }
 
-  if (schemaDescriptors) {
+  if (schemaDescriptors?.length) {
     const missingFromRecord: string[] = []
-    const schemaNames = new Set(schemaDescriptors.map((d) => d.name))
     for (const descriptor of schemaDescriptors) {
       if (exclude.has(descriptor.name)) continue
       if (!(descriptor.name in sampleRecord)) {
@@ -140,20 +145,11 @@ export const buildMergeFields = <T extends object>(
       }
       addField(descriptor.name, descriptor)
     }
-    if (typeof process !== 'undefined' && process.env?.NODE_ENV !== 'production') {
-      if (missingFromRecord.length > 0) {
-        console.warn(
-          `[merge-records] GraphQL fetch query is missing schema-declared fields: ${missingFromRecord.join(', ')}. ` +
-            'Add them to the corresponding query in packages/codegen/query/ so they can be reconciled during merge.',
-        )
-      }
-      const orphanSchemaExcludes = schemaExcludeExtra.filter((name) => !schemaNames.has(name))
-      if (orphanSchemaExcludes.length > 0) {
-        console.warn(
-          `[merge-records] schemaExcludeFields contains names not in the GraphQL schema for this type: ${orphanSchemaExcludes.join(', ')}. ` +
-            'Either the schema changed and the exclude is no longer needed, or the entry is a typo.',
-        )
-      }
+    if (process.env.NODE_ENV !== 'production' && missingFromRecord.length > 0) {
+      console.warn(
+        `[merge-records] GraphQL fetch query is missing schema-declared fields: ${missingFromRecord.join(', ')}. ` +
+          'Add them to the corresponding query in packages/codegen/query/ so they can be reconciled during merge.',
+      )
     }
   } else {
     for (const key of Object.keys(sampleRecord) as Array<Extract<keyof T, string>>) {
