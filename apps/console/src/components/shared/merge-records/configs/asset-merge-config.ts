@@ -27,6 +27,19 @@ const fieldOverrides: MergeFieldOverrides<Asset> = {
 
 const excludeFields = ['internalOwner', 'internalOwnerGroup', 'internalOwnerUser'] as const satisfies ReadonlyArray<Extract<keyof Asset, string>>
 
+const schemaExcludeFields = [
+  'accessModelID',
+  'assetDataClassificationID',
+  'assetSubtypeID',
+  'criticalityID',
+  'encryptionStatusID',
+  'securityTierID',
+  'integrationID',
+  'internalOwnerGroupID',
+  'internalOwnerUserID',
+  'sourcePlatformID',
+] as const
+
 const useFetchAsset = (id: string | null) => {
   const { data, isLoading, error } = useAsset(id ?? undefined)
   return { data: (data?.asset ?? null) as Asset | null, isLoading, error }
@@ -82,6 +95,7 @@ export const assetMergeConfig: MergeConfig<Asset, UpdateAssetInput> = {
   labelPlural: 'assets',
   fieldOverrides,
   excludeFields,
+  schemaExcludeFields,
   useFetchRecord: useFetchAsset,
   useUpdate: useUpdateAssetMutation,
   useDelete: useDeleteAssetMutation,

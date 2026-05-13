@@ -15,6 +15,8 @@ const fieldOverrides: MergeFieldOverrides<Contact> = {
   status: { label: 'Status', type: 'enum', enumOptions: statusOptions },
 }
 
+const schemaExcludeFields = ['integrationID'] as const
+
 const useFetchContact = (id: string | null) => {
   const { data, isLoading, error } = useContact(id ?? undefined)
   return { data: (data?.contact ?? null) as Contact | null, isLoading, error }
@@ -69,6 +71,7 @@ export const contactMergeConfig: MergeConfig<Contact, UpdateContactInput> = {
   labelSingular: 'contact',
   labelPlural: 'contacts',
   fieldOverrides,
+  schemaExcludeFields,
   useFetchRecord: useFetchContact,
   useUpdate: useUpdateContactMutation,
   useDelete: useDeleteContactMutation,

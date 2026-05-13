@@ -37,6 +37,8 @@ const excludeFields = [
   'entitySourceTypeID',
 ] as const satisfies ReadonlyArray<Extract<keyof Vendor, string>>
 
+const schemaExcludeFields = ['internalOwnerGroupID', 'internalOwnerUserID', 'reviewedByGroupID', 'reviewedByUserID'] as const
+
 const useFetchVendor = (id: string | null) => {
   const { data, isLoading, error } = useEntity(id ?? undefined)
   return { data: (data?.entity ?? null) as Vendor | null, isLoading, error }
@@ -92,6 +94,7 @@ export const vendorMergeConfig: MergeConfig<Vendor, UpdateEntityInput> = {
   labelPlural: 'vendors',
   fieldOverrides,
   excludeFields,
+  schemaExcludeFields,
   useFetchRecord: useFetchVendor,
   useUpdate: useUpdateVendor,
   useDelete: useDeleteVendor,

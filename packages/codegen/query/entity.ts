@@ -130,6 +130,8 @@ export const ENTITY = gql`
         displayName
       }
       lastReviewedAt
+      linkedAssetIds
+      links
       logoFileID
       logoFile {
         base64
@@ -138,6 +140,7 @@ export const ENTITY = gql`
       mfaSupported
       name
       nextReviewAt
+      providedServices
       renewalRisk
       reviewedBy
       reviewedByGroup {

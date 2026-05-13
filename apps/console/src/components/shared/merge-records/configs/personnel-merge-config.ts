@@ -32,6 +32,8 @@ const excludeFields = [
   'avatarRemoteURL',
 ] as const satisfies ReadonlyArray<Extract<keyof Personnel, string>>
 
+const schemaExcludeFields = ['internalOwnerGroupID', 'internalOwnerUserID'] as const
+
 const useFetchPersonnel = (id: string | null) => {
   const { data, isLoading, error } = useIdentityHolder(id ?? undefined)
   return { data: (data?.identityHolder ?? null) as Personnel | null, isLoading, error }
@@ -163,6 +165,7 @@ export const personnelMergeConfig: MergeConfig<Personnel, UpdateIdentityHolderIn
   labelPlural: 'personnel records',
   fieldOverrides,
   excludeFields,
+  schemaExcludeFields,
   useFetchRecord: useFetchPersonnel,
   useUpdate: useUpdatePersonnel,
   useDelete: useDeletePersonnel,
