@@ -27,7 +27,7 @@ import {
   getAllSelectOptionsForBulkEditLinkedControls,
   getAllSelectOptionsForBulkEditSubcontrols,
 } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-shared-objects'
-import { ControlControlStatus, type Group, SubcontrolControlStatus, type UpdateControlInput, type UpdateSubcontrolInput } from '@repo/codegen/src/schema'
+import { type Group } from '@repo/codegen/src/schema'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
 import { EditableSelectFromQuery } from '../propereties-card/fields/editable-select-from-query'
 import { SaveButton } from '@/components/shared/save-button/save-button'
@@ -56,144 +56,6 @@ type BulkEditRecordsDialogProps = {
   onClearSelectedItems: () => void
   successTitle: string
   errorTitle: string
-}
-
-const isControlStatus = (value: string): value is ControlControlStatus => Object.values(ControlControlStatus).some((status) => status === value)
-
-const isSubcontrolStatus = (value: string): value is SubcontrolControlStatus => Object.values(SubcontrolControlStatus).some((status) => status === value)
-
-const setControlStringValue = (input: UpdateControlInput, key: string, value: string) => {
-  if (key === 'status' && isControlStatus(value)) {
-    input.status = value
-    return
-  }
-
-  if (key === 'controlOwnerID') {
-    input.controlOwnerID = value
-    return
-  }
-
-  if (key === 'controlKindName' || key === 'kindName') {
-    input.controlKindName = value
-    return
-  }
-
-  if (key === 'category') {
-    input.category = value
-    return
-  }
-
-  if (key === 'subcategory') {
-    input.subcategory = value
-    return
-  }
-
-  if (key === 'addProgramIDs') {
-    input.addProgramIDs = [value]
-  }
-}
-
-const setControlArrayValue = (input: UpdateControlInput, key: string, value: string[]) => {
-  if (key === 'appendTags') {
-    input.appendTags = value
-    return
-  }
-
-  if (key === 'addProgramIDs') {
-    input.addProgramIDs = value
-    return
-  }
-
-  if (key === 'addInternalPolicyIDs') {
-    input.addInternalPolicyIDs = value
-    return
-  }
-
-  if (key === 'addProcedureIDs') {
-    input.addProcedureIDs = value
-    return
-  }
-
-  if (key === 'addRiskIDs') {
-    input.addRiskIDs = value
-  }
-}
-
-const setSubcontrolStringValue = (input: UpdateSubcontrolInput, key: string, value: string) => {
-  if (key === 'status' && isSubcontrolStatus(value)) {
-    input.status = value
-    return
-  }
-
-  if (key === 'controlOwnerID') {
-    input.controlOwnerID = value
-    return
-  }
-
-  if (key === 'subcontrolKindName' || key === 'kindName') {
-    input.subcontrolKindName = value
-    return
-  }
-
-  if (key === 'category') {
-    input.category = value
-    return
-  }
-
-  if (key === 'subcategory') {
-    input.subcategory = value
-  }
-}
-
-const setSubcontrolArrayValue = (input: UpdateSubcontrolInput, key: string, value: string[]) => {
-  if (key === 'appendTags') {
-    input.appendTags = value
-    return
-  }
-
-  if (key === 'addInternalPolicyIDs') {
-    input.addInternalPolicyIDs = value
-    return
-  }
-
-  if (key === 'addProcedureIDs') {
-    input.addProcedureIDs = value
-    return
-  }
-
-  if (key === 'addRiskIDs') {
-    input.addRiskIDs = value
-  }
-}
-
-const toControlInput = (input: BulkEditInput): UpdateControlInput => {
-  const updateInput: UpdateControlInput = {}
-
-  Object.entries(input).forEach(([key, value]) => {
-    if (typeof value === 'string') {
-      setControlStringValue(updateInput, key, value)
-      return
-    }
-
-    setControlArrayValue(updateInput, key, value)
-  })
-
-  return updateInput
-}
-
-const toSubcontrolInput = (input: BulkEditInput): UpdateSubcontrolInput => {
-  const updateInput: UpdateSubcontrolInput = {}
-
-  Object.entries(input).forEach(([key, value]) => {
-    if (typeof value === 'string') {
-      setSubcontrolStringValue(updateInput, key, value)
-      return
-    }
-
-    setSubcontrolArrayValue(updateInput, key, value)
-  })
-
-  return updateInput
 }
 
 const useBulkEditOptionData = () => {
@@ -466,7 +328,7 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
       allOptionSelects={allOptionSelects}
       onCreateType={createControlType}
       onBulkEdit={async (ids, input) => {
-        await bulkEditControl({ ids, input: toControlInput(input) })
+        await bulkEditControl({ ids, input })
       }}
       onClearSelectedItems={clearSelectedControls}
       successTitle="Successfully bulk updated selected controls."
@@ -495,7 +357,7 @@ export const BulkEditSubcontrolsDialog: React.FC<BulkEditSubcontrolsDialogProps>
       allOptionSelects={allOptionSelects}
       onCreateType={createControlType}
       onBulkEdit={async (ids, input) => {
-        await bulkEditSubcontrol({ ids, input: toSubcontrolInput(input) })
+        await bulkEditSubcontrol({ ids, input })
       }}
       onClearSelectedItems={clearSelectedSubcontrols}
       successTitle="Successfully bulk updated selected subcontrols."
@@ -525,13 +387,13 @@ export const BulkEditLinkedControlsDialog: React.FC<BulkEditLinkedControlsDialog
       allOptionSelects={allOptionSelects}
       onCreateType={createControlType}
       onBulkEdit={async (_ids, input) => {
-        if (selectedControls.length > 0) {
-          await bulkEditControl({ ids: selectedControls.map((control) => control.id), input: toControlInput(input) })
-        }
-
-        if (selectedSubcontrols.length > 0) {
-          await bulkEditSubcontrol({ ids: selectedSubcontrols.map((subcontrol) => subcontrol.id), input: toSubcontrolInput(input) })
-        }
+        const { kindName, ...rest } = input
+        const controlInput = kindName !== undefined ? { ...rest, controlKindName: kindName } : rest
+        const subcontrolInput = kindName !== undefined ? { ...rest, subcontrolKindName: kindName } : rest
+        await Promise.all([
+          selectedControls.length > 0 ? bulkEditControl({ ids: selectedControls.map((control) => control.id), input: controlInput }) : null,
+          selectedSubcontrols.length > 0 ? bulkEditSubcontrol({ ids: selectedSubcontrols.map((subcontrol) => subcontrol.id), input: subcontrolInput }) : null,
+        ])
       }}
       onClearSelectedItems={onClearSelectedControls}
       successTitle="Successfully bulk updated selected linked controls."

@@ -27,28 +27,11 @@ export type LinkedControlsTabProps = {
   sourceFramework?: string | null
 }
 
-const getLinkedControlKey = (refCode: string, referenceFramework?: string | null) => `${refCode}:${referenceFramework || 'CUSTOM'}`
-
-const getReferenceFrameworkValue = (node: object): string | null | undefined => {
-  if (!('referenceFramework' in node)) return undefined
-
-  const value = node.referenceFramework
-  if (typeof value === 'string' || value === null) return value
-  return undefined
-}
-
-const setPreferredDetails = (map: Map<string, LinkedControlDetails>, key: string, details: LinkedControlDetails) => {
-  const previous = map.get(key)
-  if (!previous || (previous.systemOwned && !details.systemOwned)) {
-    map.set(key, details)
-  }
-}
-
 const getSelectedLinkedControls = (rows: MappedControlRow[], nodeType: typeof ObjectTypes.CONTROL | typeof ObjectTypes.SUBCONTROL) => {
   const seen = new Set<string>()
 
   return rows.flatMap((row) => {
-    if (row.nodeType !== nodeType || !row.targetId) return []
+    if (row.nodeType !== nodeType) return []
     const key = `${row.nodeType}:${row.targetId}`
     if (seen.has(key)) return []
     seen.add(key)
@@ -110,14 +93,15 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcon
       const subcontrols = [...fromSubcontrols, ...toSubcontrols]
 
       controls.forEach((control) => {
-        if (!control?.refCode) return
-        if (!isSubcontrolMode && (control?.id === controlId || control?.refCode === refCode)) return
+        if (!control?.id || !control?.refCode) return
+        if (!isSubcontrolMode && (control.id === controlId || control.refCode === refCode)) return
         const key = `Control-${control.refCode}-${control.referenceFramework ?? 'CUSTOM'}-${node.mappingType}-${mappingSource}-${node.relation ?? ''}`
         if (seen.has(key)) return
         seen.add(key)
         rows.push({
           id: key,
           mappedControlId: node.id,
+          targetId: control.id,
           isSystemOwnedMapping: node.systemOwned ?? false,
           refCode: control.refCode,
           referenceFramework: control.referenceFramework,
@@ -129,14 +113,15 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcon
       })
 
       subcontrols.forEach((subcontrol) => {
-        if (!subcontrol?.refCode) return
-        if (isSubcontrolMode && (subcontrol?.id === subcontrolId || subcontrol?.refCode === refCode)) return
+        if (!subcontrol?.id || !subcontrol?.refCode) return
+        if (isSubcontrolMode && (subcontrol.id === subcontrolId || subcontrol.refCode === refCode)) return
         const key = `Subcontrol-${subcontrol.refCode}-${subcontrol.referenceFramework ?? 'CUSTOM'}-${node.mappingType}-${mappingSource}-${node.relation ?? ''}`
         if (seen.has(key)) return
         seen.add(key)
         rows.push({
           id: key,
           mappedControlId: node.id,
+          targetId: subcontrol.id,
           isSystemOwnedMapping: node.systemOwned ?? false,
           refCode: subcontrol.refCode,
           referenceFramework: subcontrol.referenceFramework,
@@ -185,11 +170,9 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcon
 
     refcodeData?.controls?.edges?.forEach((edge) => {
       const node: ControlsByRefcodeNode | undefined = edge?.node ?? undefined
-
-      if (!node?.refCode) return
-      const key = getLinkedControlKey(node.refCode, getReferenceFrameworkValue(node))
+      if (!node?.id) return
       const href = node.systemOwned ? `/standards/${node.standardID}?controlId=${node.id}` : `/controls/${node.id}`
-      setPreferredDetails(map, key, {
+      map.set(node.id, {
         id: node.id,
         href,
         systemOwned: node.systemOwned ?? false,
@@ -210,11 +193,9 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcon
 
     subcontrolRefcodeData?.subcontrols?.edges?.forEach((edge) => {
       const node: SubcontrolsByRefcodeNode | undefined = edge?.node ?? undefined
-
-      if (!node?.refCode) return
-      const key = getLinkedControlKey(node.refCode, getReferenceFrameworkValue(node))
+      if (!node?.id) return
       const href = node.systemOwned ? `/standards/${node.control?.standardID}?controlId=${node.id}` : `/controls/${node.controlID}/${node.id}`
-      setPreferredDetails(map, key, {
+      map.set(node.id, {
         id: node.id,
         href,
         systemOwned: node.systemOwned ?? false,
@@ -232,13 +213,11 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcon
 
   const enrichedMappedControls = useMemo(() => {
     return mappedControls.map((row) => {
-      const detailsKey = getLinkedControlKey(row.refCode, row.referenceFramework)
-      const details = row.nodeType === ObjectTypes.SUBCONTROL ? subcontrolDetailsMap.get(detailsKey) : controlDetailsMap.get(detailsKey)
+      const details = row.nodeType === ObjectTypes.SUBCONTROL ? subcontrolDetailsMap.get(row.targetId) : controlDetailsMap.get(row.targetId)
       return {
         ...row,
-        targetId: details?.id,
         targetHref: details?.href,
-        isEditableTarget: !!details?.id && !details?.systemOwned,
+        isEditableTarget: !!details && !details.systemOwned,
         description: details?.description ?? row.description,
         status: details?.status ?? row.status,
         type: details?.type ?? row.type,

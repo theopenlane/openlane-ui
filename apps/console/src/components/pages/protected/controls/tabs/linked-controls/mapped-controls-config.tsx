@@ -12,13 +12,13 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Button } from '@repo/ui/button'
 import { Checkbox } from '@repo/ui/checkbox'
 
-const getMappedControlSelectionKey = (row: MappedControlRow) => `${row.nodeType}:${row.targetId ?? row.id}`
+const getMappedControlSelectionKey = (row: MappedControlRow) => `${row.nodeType}:${row.targetId}`
 
 const getEditableRows = (rows: MappedControlRow[]) => {
   const seen = new Set<string>()
 
   return rows.filter((row) => {
-    if (!row.isEditableTarget || !row.targetId) return false
+    if (!row.isEditableTarget) return false
     const key = getMappedControlSelectionKey(row)
     if (seen.has(key)) return false
     seen.add(key)
@@ -49,7 +49,7 @@ export const getMappedControlsSelectColumn = (selectedRows: MappedControlRow[], 
     )
   },
   cell: ({ row }: { row: Row<MappedControlRow> }) => {
-    const isSelectable = !!row.original.isEditableTarget && !!row.original.targetId
+    const isSelectable = !!row.original.isEditableTarget
     const isChecked = selectedRows.some((selected) => getMappedControlSelectionKey(selected) === getMappedControlSelectionKey(row.original))
 
     return (

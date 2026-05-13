@@ -11,7 +11,7 @@ export type MappedControlRow = {
   relation?: string | null
   source: MappedControlMappingSource
   nodeType: typeof ObjectTypes.CONTROL | typeof ObjectTypes.SUBCONTROL
-  targetId?: string
+  targetId: string
   targetHref?: string
   isEditableTarget?: boolean
   description?: string | null
