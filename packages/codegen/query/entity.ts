@@ -130,6 +130,8 @@ export const ENTITY = gql`
         displayName
       }
       lastReviewedAt
+      linkedAssetIds
+      links
       logoFileID
       logoFile {
         base64
