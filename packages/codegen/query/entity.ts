@@ -286,6 +286,24 @@ export const CREATE_ENTITY_WITH_FILES = gql`
   }
 `
 
+export const GET_ENTITY_COMMENTS = gql`
+  query GetEntityComments($entityId: ID!) {
+    entity(id: $entityId) {
+      id
+      notes {
+        edges {
+          node {
+            id
+            createdAt
+            createdBy
+            text
+          }
+        }
+      }
+    }
+  }
+`
+
 export const GET_ENTITY_ASSOCIATIONS = gql`
   query GetEntityAssociations($entityId: ID!) {
     entity(id: $entityId) {

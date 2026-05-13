@@ -68894,6 +68894,22 @@ export type CreateEntityWithFilesMutationVariables = Exact<{
 
 export type CreateEntityWithFilesMutation = { __typename?: 'Mutation'; createEntity: { __typename?: 'EntityCreatePayload'; entity: { __typename?: 'Entity'; id: string } } }
 
+export type GetEntityCommentsQueryVariables = Exact<{
+  entityId: Scalars['ID']['input']
+}>
+
+export type GetEntityCommentsQuery = {
+  __typename?: 'Query'
+  entity: {
+    __typename?: 'Entity'
+    id: string
+    notes: {
+      __typename?: 'NoteConnection'
+      edges?: Array<{ __typename?: 'NoteEdge'; node?: { __typename?: 'Note'; id: string; createdAt?: any | null; createdBy?: string | null; text: string } | null } | null> | null
+    }
+  }
+}
+
 export type GetEntityAssociationsQueryVariables = Exact<{
   entityId: Scalars['ID']['input']
 }>

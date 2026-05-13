@@ -8,13 +8,14 @@ import OverviewTab from './overview/overview-tab'
 import DocumentsTab from './documents/documents-tab'
 import ContactsTab from './contacts/contacts-tab'
 import RiskReviewTab from './risk-review/risk-review-tab'
+import ActivityTab from './activity/activity-tab'
 import type { EntityQuery, GetEntityAssociationsQuery, UpdateEntityInput } from '@repo/codegen/src/schema'
 
-type VendorTabValue = 'overview' | 'documents' | 'contacts' | 'risk-review'
+type VendorTabValue = 'overview' | 'documents' | 'contacts' | 'risk-review' | 'activity'
 
 const DEFAULT_TAB: VendorTabValue = 'overview'
 const TAB_QUERY_PARAM = 'tab'
-const ALL_TABS: VendorTabValue[] = ['overview', 'documents', 'contacts', 'risk-review']
+const ALL_TABS: VendorTabValue[] = ['overview', 'documents', 'contacts', 'risk-review', 'activity']
 
 interface VendorDetailTabsProps {
   vendor: EntityQuery['entity']
@@ -75,6 +76,7 @@ const VendorDetailTabs: React.FC<VendorDetailTabsProps> = ({ vendor, association
             <TabsTrigger value="documents">Documents</TabsTrigger>
             <TabsTrigger value="contacts">Contacts</TabsTrigger>
             <TabsTrigger value="risk-review">Risk Review</TabsTrigger>
+            <TabsTrigger value="activity">Activity</TabsTrigger>
           </TabsList>
         </ScrollableTabsList>
       </div>
@@ -93,6 +95,10 @@ const VendorDetailTabs: React.FC<VendorDetailTabsProps> = ({ vendor, association
 
       <TabsContent value="risk-review" className="space-y-6">
         <RiskReviewTab vendor={vendor} handleUpdateField={handleUpdateField} canEdit={canEditVendor} isEditing={isEditing} />
+      </TabsContent>
+
+      <TabsContent value="activity" className="space-y-6">
+        <ActivityTab vendorId={vendor.id} />
       </TabsContent>
     </Tabs>
   )
