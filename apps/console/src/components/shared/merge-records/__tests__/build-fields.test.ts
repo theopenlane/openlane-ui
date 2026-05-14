@@ -179,6 +179,47 @@ describe('buildMergeFields - per-config exclude', () => {
   })
 })
 
+describe('buildMergeFields - schema descriptors auto-derive enum options', () => {
+  const descriptors = [
+    { name: 'assetType', kind: 'enum', list: false, nonNull: true, listItemNonNull: false, enumName: 'AssetAssetType' },
+    { name: 'name', kind: 'string', list: false, nonNull: true, listItemNonNull: false },
+  ] as const
+
+  it('fills enumOptions from SCHEMA_ENUMS when no override is given', () => {
+    const sample = { assetType: 'DEVICE', name: 'web' }
+    const fields = buildMergeFields(sample, {}, [], descriptors)
+    const assetType = fields.find((f) => f.key === 'assetType')
+    expect(assetType?.type).toBe('enum')
+    expect(assetType?.enumOptions).toEqual(
+      expect.arrayContaining([
+        { value: 'DEVICE', label: 'Device' },
+        { value: 'DOMAIN', label: 'Domain' },
+      ]),
+    )
+  })
+
+  it('merges auto-derived enumOptions into a label-only override', () => {
+    const sample = { assetType: 'DEVICE', name: 'web' }
+    const overrides: MergeFieldOverrides<typeof sample> = {
+      assetType: { label: 'Type', type: 'enum' },
+    }
+    const fields = buildMergeFields(sample, overrides, [], descriptors)
+    const assetType = fields.find((f) => f.key === 'assetType')
+    expect(assetType?.label).toBe('Type')
+    expect(assetType?.enumOptions?.length).toBeGreaterThan(0)
+  })
+
+  it('respects override.enumOptions when explicitly provided', () => {
+    const sample = { assetType: 'DEVICE', name: 'web' }
+    const custom = [{ value: 'DEVICE', label: 'Custom device' }]
+    const overrides: MergeFieldOverrides<typeof sample> = {
+      assetType: { label: 'Type', type: 'enum', enumOptions: custom },
+    }
+    const fields = buildMergeFields(sample, overrides, [], descriptors)
+    expect(fields.find((f) => f.key === 'assetType')?.enumOptions).toEqual(custom)
+  })
+})
+
 describe('buildMergeFields - overrides', () => {
   it('applies type and label overrides', () => {
     const sample = { description: 'text', status: 'ACTIVE' }

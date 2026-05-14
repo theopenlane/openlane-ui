@@ -2,19 +2,13 @@
 
 import { useMemo } from 'react'
 import { useAsset, useUpdateAsset, useDeleteAsset, useAssetsWithFilter } from '@/lib/graphql-hooks/asset'
-import { AssetAssetType, AssetSourceType, type AssetQuery, type UpdateAssetInput } from '@repo/codegen/src/schema'
-import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { type AssetQuery, type UpdateAssetInput } from '@repo/codegen/src/schema'
 import type { MergeConfig, MergeFieldOverrides } from '../types'
 
 type Asset = NonNullable<AssetQuery['asset']>
 
-const assetTypeOptions = Object.values(AssetAssetType).map((v) => ({ value: v, label: getEnumLabel(v) }))
-const assetSourceTypeOptions = Object.values(AssetSourceType).map((v) => ({ value: v, label: getEnumLabel(v) }))
-
 const fieldOverrides: MergeFieldOverrides<Asset> = {
   description: { label: 'Description', type: 'longText' },
-  assetType: { label: 'Asset type', type: 'enum', enumOptions: assetTypeOptions },
-  sourceType: { label: 'Source type', type: 'enum', enumOptions: assetSourceTypeOptions },
   accessModelName: { label: 'Access model', type: 'customEnum', customEnum: { objectType: 'asset', field: 'accessModel' } },
   assetDataClassificationName: { label: 'Data classification', type: 'customEnum', customEnum: { objectType: 'asset', field: 'dataClassification' } },
   assetSubtypeName: { label: 'Subtype', type: 'customEnum', customEnum: { objectType: 'asset', field: 'subtype' } },
@@ -26,6 +20,18 @@ const fieldOverrides: MergeFieldOverrides<Asset> = {
 }
 
 const excludeFields = ['internalOwner', 'internalOwnerGroup', 'internalOwnerUser'] as const satisfies ReadonlyArray<Extract<keyof Asset, string>>
+
+const schemaExcludeFields = [
+  'accessModelID',
+  'assetDataClassificationID',
+  'assetSubtypeID',
+  'criticalityID',
+  'encryptionStatusID',
+  'securityTierID',
+  'internalOwnerGroupID',
+  'internalOwnerUserID',
+  'sourcePlatformID',
+] as const
 
 const useFetchAsset = (id: string | null) => {
   const { data, isLoading, error } = useAsset(id ?? undefined)
@@ -76,12 +82,13 @@ const useSearchAssets = (search: string, excludeId: string) => {
   return { options, isLoading }
 }
 
-export const assetMergeConfig: MergeConfig<Asset, UpdateAssetInput> = {
+export const assetMergeConfig: MergeConfig<Asset, UpdateAssetInput, 'Asset'> = {
   entityType: 'Asset',
   labelSingular: 'asset',
   labelPlural: 'assets',
   fieldOverrides,
   excludeFields,
+  schemaExcludeFields,
   useFetchRecord: useFetchAsset,
   useUpdate: useUpdateAssetMutation,
   useDelete: useDeleteAssetMutation,

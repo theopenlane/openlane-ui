@@ -195,6 +195,7 @@ export const getFieldsToRender = (props: AssetFieldProps, enumOptions: EnumOptio
       <AdditionalFields
         isEditing={props.isEditing}
         isEditAllowed={props.isEditAllowed}
+        isCreate={props.isCreate}
         data={props.data}
         internalEditing={props.internalEditing}
         setInternalEditing={props.setInternalEditing}

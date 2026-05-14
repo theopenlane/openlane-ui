@@ -6,6 +6,8 @@ import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { BooleanCell } from '@/components/shared/crud-base/columns/boolean-cell'
 import { CustomEnumChipCell } from '@/components/shared/crud-base/columns/custom-enum-chip-cell'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import usePlateEditor from '@/components/shared/plate/usePlateEditor'
+import type { Value } from 'platejs'
 import type { MergeFieldConfig } from './types'
 import { isEmptyValue } from './use-merge-resolution'
 
@@ -15,6 +17,8 @@ type Props<TRecord> = {
 }
 
 export const MergeValueDisplay = <TRecord,>({ field, value }: Props<TRecord>) => {
+  const { convertToReadOnly } = usePlateEditor()
+
   if (field.render) return <>{field.render(value)}</>
   if (isEmptyValue(value)) return <span className="text-muted-foreground italic">Empty</span>
 
@@ -41,7 +45,7 @@ export const MergeValueDisplay = <TRecord,>({ field, value }: Props<TRecord>) =>
     case 'number':
       return <span>{String(value)}</span>
     case 'longText':
-      return <span className="whitespace-pre-wrap text-sm">{String(value)}</span>
+      return <div className="text-sm">{convertToReadOnly(value as string | Value)}</div>
     case 'text':
     default:
       return <span>{String(value)}</span>

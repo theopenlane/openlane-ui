@@ -61,3 +61,4 @@ hooks:
     - node ./plugins/generate-type-constants.js
     - node ./plugins/generate-queries.js
     - node ./plugins/generate-hooks.js
+    - node ./plugins/generate-merge-fields.js

@@ -13,6 +13,7 @@ import { MergeFieldRow } from './merge-field-row'
 import { MergeFinalPreview } from './merge-final-preview'
 import { useMergeResolution } from './use-merge-resolution'
 import { buildMergeFields } from './build-fields'
+import { MERGEABLE_FIELDS_BY_TYPE } from '@repo/codegen/src/merge-fields.generated'
 import type { MergeConfig, MergePreSaveExtrasResult } from './types'
 
 type Props<TRecord, TUpdateInput> = {
@@ -35,7 +36,10 @@ export const MergeRecordsSheet = <TRecord extends object, TUpdateInput>({ open, 
   const update = config.useUpdate()
   const del = config.useDelete()
 
-  const fields = useMemo(() => (primary ? buildMergeFields(primary, config.fieldOverrides, config.excludeFields) : []), [primary, config.fieldOverrides, config.excludeFields])
+  const fields = useMemo(
+    () => (primary ? buildMergeFields(primary, config.fieldOverrides, config.excludeFields, MERGEABLE_FIELDS_BY_TYPE[config.entityType], config.schemaExcludeFields) : []),
+    [primary, config.fieldOverrides, config.excludeFields, config.entityType, config.schemaExcludeFields],
+  )
 
   const { visibleFields, resolvedFields, resolvedRecord, setSource, setArrayStrategy, emailAliasFold } = useMergeResolution({ config, fields, primary, secondary })
 

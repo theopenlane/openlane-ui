@@ -1,4 +1,5 @@
 import type React from 'react'
+import type { MergeableFieldNamesFor, MergeableTypeName } from '@repo/codegen/src/merge-fields.generated'
 
 export type MergeSource = 'primary' | 'secondary'
 
@@ -62,12 +63,13 @@ export type MergePreSaveExtrasResult<TUpdateInput> = {
   isLoading: boolean
 }
 
-export type MergeConfig<TRecord, TUpdateInput> = {
-  entityType: string
+export type MergeConfig<TRecord, TUpdateInput, TEntity extends MergeableTypeName = MergeableTypeName> = {
+  entityType: TEntity
   labelSingular: string
   labelPlural: string
   fieldOverrides?: MergeFieldOverrides<TRecord>
   excludeFields?: ReadonlyArray<Extract<keyof TRecord, string>>
+  schemaExcludeFields?: ReadonlyArray<MergeableFieldNamesFor<TEntity>>
   useFetchRecord: (id: string | null) => MergeFetchHookResult<TRecord>
   useUpdate: () => MergeUpdateMutation<TUpdateInput>
   useDelete: () => MergeDeleteMutation

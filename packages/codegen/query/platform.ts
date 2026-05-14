@@ -90,6 +90,16 @@ export const GET_ALL_PLATFORMS = gql`
   }
 `
 
+export const GET_PLATFORM_BY_ID_MINIFIED = gql`
+  query GetPlatformByIdMinified($platformId: ID!) {
+    platform(id: $platformId) {
+      id
+      name
+      displayID
+    }
+  }
+`
+
 export const PLATFORM = gql`
   query Platform($platformId: ID!) {
     platform(id: $platformId) {
@@ -194,6 +204,16 @@ export const PLATFORM = gql`
             id
             name
             assetType
+            internalOwner
+            internalOwnerUser {
+              id
+              displayName
+              email
+            }
+            internalOwnerGroup {
+              id
+              displayName
+            }
           }
         }
       }
@@ -203,6 +223,16 @@ export const PLATFORM = gql`
             id
             name
             assetType
+            internalOwner
+            internalOwnerUser {
+              id
+              displayName
+              email
+            }
+            internalOwnerGroup {
+              id
+              displayName
+            }
           }
         }
       }
@@ -216,6 +246,16 @@ export const PLATFORM = gql`
             logoFile {
               base64
             }
+            internalOwner
+            internalOwnerUser {
+              id
+              displayName
+              email
+            }
+            internalOwnerGroup {
+              id
+              displayName
+            }
           }
         }
       }
@@ -228,6 +268,16 @@ export const PLATFORM = gql`
             status
             logoFile {
               base64
+            }
+            internalOwner
+            internalOwnerUser {
+              id
+              displayName
+              email
+            }
+            internalOwnerGroup {
+              id
+              displayName
             }
           }
         }

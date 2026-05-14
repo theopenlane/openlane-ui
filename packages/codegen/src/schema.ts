@@ -8575,6 +8575,8 @@ export interface CreateEntityInput {
   /** external links associated with the entity */
   links?: InputMaybe<Array<Scalars['String']['input']>>
   logoFileID?: InputMaybe<Scalars['ID']['input']>
+  /** URL of the logo for the entity */
+  logoRemoteURL?: InputMaybe<Scalars['String']['input']>
   /** whether MFA is enforced by the entity */
   mfaEnforced?: InputMaybe<Scalars['Boolean']['input']>
   /** whether MFA is supported by the entity */
@@ -16198,6 +16200,8 @@ export interface Entity extends Node {
   logoFile?: Maybe<File>
   /** The logo file id for the entity */
   logoFileID?: Maybe<Scalars['ID']['output']>
+  /** URL of the logo for the entity */
+  logoRemoteURL?: Maybe<Scalars['String']['output']>
   /** whether MFA is enforced by the entity */
   mfaEnforced?: Maybe<Scalars['Boolean']['output']>
   /** whether MFA is supported by the entity */
@@ -17384,6 +17388,22 @@ export interface EntityWhereInput {
   logoFileIDNEQ?: InputMaybe<Scalars['ID']['input']>
   logoFileIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   logoFileIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** logo_remote_url field predicates */
+  logoRemoteURL?: InputMaybe<Scalars['String']['input']>
+  logoRemoteURLContains?: InputMaybe<Scalars['String']['input']>
+  logoRemoteURLContainsFold?: InputMaybe<Scalars['String']['input']>
+  logoRemoteURLEqualFold?: InputMaybe<Scalars['String']['input']>
+  logoRemoteURLGT?: InputMaybe<Scalars['String']['input']>
+  logoRemoteURLGTE?: InputMaybe<Scalars['String']['input']>
+  logoRemoteURLHasPrefix?: InputMaybe<Scalars['String']['input']>
+  logoRemoteURLHasSuffix?: InputMaybe<Scalars['String']['input']>
+  logoRemoteURLIn?: InputMaybe<Array<Scalars['String']['input']>>
+  logoRemoteURLIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  logoRemoteURLLT?: InputMaybe<Scalars['String']['input']>
+  logoRemoteURLLTE?: InputMaybe<Scalars['String']['input']>
+  logoRemoteURLNEQ?: InputMaybe<Scalars['String']['input']>
+  logoRemoteURLNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  logoRemoteURLNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** mfa_enforced field predicates */
   mfaEnforced?: InputMaybe<Scalars['Boolean']['input']>
   mfaEnforcedIsNil?: InputMaybe<Scalars['Boolean']['input']>
@@ -55299,6 +55319,7 @@ export interface UpdateEntityInput {
   clearLinkedAssetIds?: InputMaybe<Scalars['Boolean']['input']>
   clearLinks?: InputMaybe<Scalars['Boolean']['input']>
   clearLogoFile?: InputMaybe<Scalars['Boolean']['input']>
+  clearLogoRemoteURL?: InputMaybe<Scalars['Boolean']['input']>
   clearMfaEnforced?: InputMaybe<Scalars['Boolean']['input']>
   clearMfaSupported?: InputMaybe<Scalars['Boolean']['input']>
   clearName?: InputMaybe<Scalars['Boolean']['input']>
@@ -55375,6 +55396,8 @@ export interface UpdateEntityInput {
   /** external links associated with the entity */
   links?: InputMaybe<Array<Scalars['String']['input']>>
   logoFileID?: InputMaybe<Scalars['ID']['input']>
+  /** URL of the logo for the entity */
+  logoRemoteURL?: InputMaybe<Scalars['String']['input']>
   /** whether MFA is enforced by the entity */
   mfaEnforced?: InputMaybe<Scalars['Boolean']['input']>
   /** whether MFA is supported by the entity */
@@ -57264,8 +57287,6 @@ export interface UpdateOrganizationInput {
   description?: InputMaybe<Scalars['String']['input']>
   /** The organization's displayed 'friendly' name */
   displayName?: InputMaybe<Scalars['String']['input']>
-  /** the name of the organization */
-  name?: InputMaybe<Scalars['String']['input']>
   removeAPITokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeActionPlanCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeActionPlanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -65767,6 +65788,12 @@ export type CreateAssessmentMutation = {
   }
 }
 
+export type GetAssessmentByIdMinifiedQueryVariables = Exact<{
+  getAssessmentId: Scalars['ID']['input']
+}>
+
+export type GetAssessmentByIdMinifiedQuery = { __typename?: 'Query'; assessment: { __typename?: 'Assessment'; id: string; name: string } }
+
 export type GetAssessmentQueryVariables = Exact<{
   getAssessmentId: Scalars['ID']['input']
 }>
@@ -66311,6 +66338,12 @@ export type CampaignsWithFilterQuery = {
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
   }
 }
+
+export type GetCampaignByIdMinifiedQueryVariables = Exact<{
+  campaignId: Scalars['ID']['input']
+}>
+
+export type GetCampaignByIdMinifiedQuery = { __typename?: 'Query'; campaign: { __typename?: 'Campaign'; id: string; name: string } }
 
 export type CampaignQueryVariables = Exact<{
   campaignId: Scalars['ID']['input']
@@ -68751,6 +68784,8 @@ export type EntityQuery = {
     id: string
     internalOwner?: string | null
     lastReviewedAt?: string | null
+    linkedAssetIds?: Array<string> | null
+    links?: Array<string> | null
     logoFileID?: string | null
     mfaEnforced?: boolean | null
     mfaSupported?: boolean | null
@@ -70345,6 +70380,7 @@ export type IdentityHolderQuery = {
   __typename?: 'Query'
   identityHolder: {
     __typename?: 'IdentityHolder'
+    alternateEmail?: string | null
     avatarRemoteURL?: string | null
     emailAliases?: Array<string> | null
     createdAt?: any | null
@@ -70831,6 +70867,12 @@ export type InternalPolicyByIdFragment = {
     avatarFile?: { __typename?: 'File'; base64?: string | null } | null
   } | null
 }
+
+export type GetInternalPolicyByIdMinifiedQueryVariables = Exact<{
+  internalPolicyId: Scalars['ID']['input']
+}>
+
+export type GetInternalPolicyByIdMinifiedQuery = { __typename?: 'Query'; internalPolicy: { __typename?: 'InternalPolicy'; id: string; name: string } }
 
 export type GetInternalPolicyDetailsByIdQueryVariables = Exact<{
   internalPolicyId: Scalars['ID']['input']
@@ -72393,6 +72435,12 @@ export type PlatformsWithFilterQuery = {
   }
 }
 
+export type GetPlatformByIdMinifiedQueryVariables = Exact<{
+  platformId: Scalars['ID']['input']
+}>
+
+export type GetPlatformByIdMinifiedQuery = { __typename?: 'Query'; platform: { __typename?: 'Platform'; id: string; name: string; displayID: string } }
+
 export type PlatformQueryVariables = Exact<{
   platformId: Scalars['ID']['input']
 }>
@@ -72464,10 +72512,35 @@ export type PlatformQuery = {
     securityOwnerGroup?: { __typename?: 'Group'; id: string; name: string } | null
     technicalOwnerUser?: { __typename?: 'User'; id: string; displayName: string; email: string } | null
     technicalOwnerGroup?: { __typename?: 'Group'; id: string; name: string } | null
-    assets: { __typename?: 'AssetConnection'; edges?: Array<{ __typename?: 'AssetEdge'; node?: { __typename?: 'Asset'; id: string; name: string; assetType: AssetAssetType } | null } | null> | null }
+    assets: {
+      __typename?: 'AssetConnection'
+      edges?: Array<{
+        __typename?: 'AssetEdge'
+        node?: {
+          __typename?: 'Asset'
+          id: string
+          name: string
+          assetType: AssetAssetType
+          internalOwner?: string | null
+          internalOwnerUser?: { __typename?: 'User'; id: string; displayName: string; email: string } | null
+          internalOwnerGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
+        } | null
+      } | null> | null
+    }
     outOfScopeAssets: {
       __typename?: 'AssetConnection'
-      edges?: Array<{ __typename?: 'AssetEdge'; node?: { __typename?: 'Asset'; id: string; name: string; assetType: AssetAssetType } | null } | null> | null
+      edges?: Array<{
+        __typename?: 'AssetEdge'
+        node?: {
+          __typename?: 'Asset'
+          id: string
+          name: string
+          assetType: AssetAssetType
+          internalOwner?: string | null
+          internalOwnerUser?: { __typename?: 'User'; id: string; displayName: string; email: string } | null
+          internalOwnerGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
+        } | null
+      } | null> | null
     }
     entities: {
       __typename?: 'EntityConnection'
@@ -72479,7 +72552,10 @@ export type PlatformQuery = {
           name?: string | null
           displayName?: string | null
           status?: EntityEntityStatus | null
+          internalOwner?: string | null
           logoFile?: { __typename?: 'File'; base64?: string | null } | null
+          internalOwnerUser?: { __typename?: 'User'; id: string; displayName: string; email: string } | null
+          internalOwnerGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
         } | null
       } | null> | null
     }
@@ -72493,7 +72569,10 @@ export type PlatformQuery = {
           name?: string | null
           displayName?: string | null
           status?: EntityEntityStatus | null
+          internalOwner?: string | null
           logoFile?: { __typename?: 'File'; base64?: string | null } | null
+          internalOwnerUser?: { __typename?: 'User'; id: string; displayName: string; email: string } | null
+          internalOwnerGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
         } | null
       } | null> | null
     }
@@ -72743,6 +72822,12 @@ export type GetProcedureAssociationsByIdQuery = {
     }
   }
 }
+
+export type GetProcedureByIdMinifiedQueryVariables = Exact<{
+  procedureId: Scalars['ID']['input']
+}>
+
+export type GetProcedureByIdMinifiedQuery = { __typename?: 'Query'; procedure: { __typename?: 'Procedure'; id: string; name: string } }
 
 export type GetProcedureDetailsByIdQueryVariables = Exact<{
   procedureId: Scalars['ID']['input']
@@ -74670,6 +74755,12 @@ export type GetAllStandardsQuery = {
   }
 }
 
+export type GetStandardByIdMinifiedQueryVariables = Exact<{
+  standardId: Scalars['ID']['input']
+}>
+
+export type GetStandardByIdMinifiedQuery = { __typename?: 'Query'; standard: { __typename?: 'Standard'; id: string; shortName?: string | null; name: string } }
+
 export type GetStandardDetailsQueryVariables = Exact<{
   standardId: Scalars['ID']['input']
 }>
@@ -75052,6 +75143,7 @@ export type GetSubcontrolsByRefCodeQuery = {
         publicRepresentation?: string | null
         category?: string | null
         subcategory?: string | null
+        referenceFramework?: string | null
         systemOwned?: boolean | null
         controlID: string
         control: { __typename?: 'Control'; standardID?: string | null }
