@@ -51,7 +51,7 @@ const DirectoryMembersTable: React.FC<DirectoryMembersTableProps> = ({ members }
               <div className="px-3 py-2 truncate">
                 {personnel ? (
                   <Link href={`/registry/personnel/${personnel.id}`} className="text-blue-500 hover:underline">
-                    {personnel.fullName || personnel.email}
+                    {personnel.fullName || personnel.email || personnel.id}
                   </Link>
                 ) : (
                   <span className="italic">No personnel record</span>

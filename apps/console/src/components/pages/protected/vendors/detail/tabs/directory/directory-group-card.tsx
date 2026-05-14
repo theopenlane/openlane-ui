@@ -13,23 +13,23 @@ type DirectoryGroupCardProps = {
   showIntegrationBadge: boolean
 }
 
-export const computeMembers = (group: VendorDirectoryGroup): VendorDirectoryMember[] => (group.members.edges ?? []).flatMap((edge) => (edge?.node ? [edge.node] : []))
+const computeMembers = (group: VendorDirectoryGroup): VendorDirectoryMember[] => (group.members.edges ?? []).flatMap((edge) => (edge?.node ? [edge.node] : []))
 
-export const matchedCount = (members: VendorDirectoryMember[]): number => members.filter((m) => m.directoryAccount.identityHolderID).length
-
-const getCoverageColor = (total: number, matched: number): string => {
-  if (total === 0) return 'text-muted-foreground'
+const getCoverageColor = (denominator: number, matched: number): string => {
+  if (denominator === 0) return 'text-muted-foreground'
   if (matched === 0) return 'text-destructive'
-  if (matched === total) return 'text-success'
-  return 'text-yellow-500'
+  if (matched === denominator) return 'text-success'
+  return 'text-warning'
 }
 
 const DirectoryGroupCard: React.FC<DirectoryGroupCardProps> = ({ group, showIntegrationBadge }) => {
   const [open, setOpen] = useState(false)
   const members = useMemo(() => computeMembers(group), [group])
   const total = group.members.totalCount
-  const matched = useMemo(() => matchedCount(members), [members])
-  const coverageColor = getCoverageColor(total, matched)
+  const loaded = members.length
+  const matched = useMemo(() => members.filter((m) => m.directoryAccount.identityHolderID).length, [members])
+  const truncated = loaded < total
+  const coverageColor = getCoverageColor(loaded, matched)
 
   return (
     <Collapsible open={open} onOpenChange={setOpen} className="rounded-md border border-border bg-card">
@@ -43,7 +43,7 @@ const DirectoryGroupCard: React.FC<DirectoryGroupCardProps> = ({ group, showInte
         )}
         <div className="ml-auto flex items-center gap-4 text-sm tabular-nums">
           <span className={cn('font-medium', coverageColor)}>
-            {matched} / {total} matched
+            {matched} / {loaded} matched{truncated ? ` (of ${total})` : ''}
           </span>
           <span className="text-muted-foreground">{total} members</span>
         </div>

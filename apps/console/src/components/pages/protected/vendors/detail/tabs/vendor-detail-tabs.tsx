@@ -32,7 +32,8 @@ const VendorDetailTabs: React.FC<VendorDetailTabsProps> = ({ vendor, association
   const searchParams = useSearchParams()
 
   const hasDirectoryGroups = (vendor.integrations?.edges ?? []).some((edge) => (edge?.node?.directoryGroups?.totalCount ?? 0) > 0)
-  const allTabs: VendorTabValue[] = hasDirectoryGroups ? ['overview', 'documents', 'contacts', 'risk-review', 'directory', 'activity'] : BASE_TABS
+  const activityIndex = BASE_TABS.indexOf('activity')
+  const allTabs: VendorTabValue[] = hasDirectoryGroups ? [...BASE_TABS.slice(0, activityIndex), 'directory', ...BASE_TABS.slice(activityIndex)] : BASE_TABS
 
   const tabParamValue = searchParams.get(TAB_QUERY_PARAM)
   const requestedTab = tabParamValue && allTabs.includes(tabParamValue as VendorTabValue) ? (tabParamValue as VendorTabValue) : DEFAULT_TAB

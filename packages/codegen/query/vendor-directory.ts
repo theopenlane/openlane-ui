@@ -13,8 +13,6 @@ export const GET_VENDOR_DIRECTORY = gql`
           id
           displayName
           email
-          memberCount
-          integrationID
           integration {
             id
             name

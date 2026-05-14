@@ -6,7 +6,7 @@ import { type TPagination } from '@repo/ui/pagination-types'
 import type { EntityQuery } from '@repo/codegen/src/schema'
 import { useVendorDirectory } from '@/lib/graphql-hooks/vendor-directory'
 import DirectoryCoverageStats from './directory-coverage-stats'
-import DirectoryGroupCard, { computeMembers, matchedCount } from './directory-group-card'
+import DirectoryGroupCard from './directory-group-card'
 
 type DirectoryTabProps = {
   vendor: EntityQuery['entity']
@@ -25,7 +25,7 @@ const DirectoryTab: React.FC<DirectoryTabProps> = ({ vendor }) => {
 
   const [pagination, setPagination] = useState<TPagination>(INITIAL_PAGINATION)
 
-  const { groups, totalGroups, isLoading, paginationMeta, fetchNextPage } = useVendorDirectory({
+  const { groups, totalGroups, totalMembers, loadedMembers, matchedMembers, isLoading, paginationMeta, fetchNextPage } = useVendorDirectory({
     integrationIDs,
     pagination,
     enabled: integrationIDs.length > 0,
@@ -36,17 +36,6 @@ const DirectoryTab: React.FC<DirectoryTabProps> = ({ vendor }) => {
       fetchNextPage()
     }
   }, [pagination.page, fetchNextPage])
-
-  const stats = useMemo(() => {
-    let totalMemberships = 0
-    let matchedMemberships = 0
-    for (const group of groups) {
-      const members = computeMembers(group)
-      totalMemberships += group.members.totalCount
-      matchedMemberships += matchedCount(members)
-    }
-    return { totalMemberships, matchedMemberships }
-  }, [groups])
 
   const showIntegrationBadge = integrationIDs.length > 1
 
@@ -60,7 +49,7 @@ const DirectoryTab: React.FC<DirectoryTabProps> = ({ vendor }) => {
 
   return (
     <div className="space-y-4">
-      <DirectoryCoverageStats totalGroups={totalGroups} totalMemberships={stats.totalMemberships} matchedMemberships={stats.matchedMemberships} />
+      <DirectoryCoverageStats totalGroups={totalGroups} totalMembers={totalMembers} loadedMembers={loadedMembers} matchedMembers={matchedMembers} />
       <InfiniteScroll pagination={pagination} onPaginationChange={setPagination} paginationMeta={paginationMeta} pageSize={PAGE_SIZE}>
         <div className="space-y-2">
           {groups.map((group) => (

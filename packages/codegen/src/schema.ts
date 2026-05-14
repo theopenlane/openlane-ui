@@ -76829,8 +76829,6 @@ export type GetVendorDirectoryQuery = {
         id: string
         displayName?: string | null
         email?: string | null
-        memberCount?: number | null
-        integrationID: string
         integration: { __typename?: 'Integration'; id: string; name: string }
         members: {
           __typename?: 'DirectoryMembershipConnection'

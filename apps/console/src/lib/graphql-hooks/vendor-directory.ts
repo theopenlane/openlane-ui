@@ -36,6 +36,22 @@ export const useVendorDirectory = ({ integrationIDs, pagination, enabled = true 
   const pages = queryResult.data?.pages
   const groups = useMemo<VendorDirectoryGroup[]>(() => pages?.flatMap((page) => (page.directoryGroups?.edges ?? []).flatMap((edge) => (edge?.node ? [edge.node] : []))) ?? [], [pages])
 
+  const memberAggregates = useMemo(() => {
+    let totalMembers = 0
+    let loadedMembers = 0
+    let matchedMembers = 0
+    for (const group of groups) {
+      totalMembers += group.members.totalCount
+      for (const edge of group.members.edges ?? []) {
+        const node = edge?.node
+        if (!node) continue
+        loadedMembers++
+        if (node.directoryAccount.identityHolderID) matchedMembers++
+      }
+    }
+    return { totalMembers, loadedMembers, matchedMembers }
+  }, [groups])
+
   const lastPage = pages?.at(-1)
   const totalGroups = lastPage?.directoryGroups?.totalCount ?? 0
 
@@ -50,5 +66,6 @@ export const useVendorDirectory = ({ integrationIDs, pagination, enabled = true 
     groups,
     totalGroups,
     paginationMeta,
+    ...memberAggregates,
   }
 }

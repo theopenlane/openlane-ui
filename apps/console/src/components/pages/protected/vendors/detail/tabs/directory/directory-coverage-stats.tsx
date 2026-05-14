@@ -3,8 +3,9 @@ import { Card } from '@repo/ui/cardpanel'
 
 type DirectoryCoverageStatsProps = {
   totalGroups: number
-  totalMemberships: number
-  matchedMemberships: number
+  totalMembers: number
+  loadedMembers: number
+  matchedMembers: number
 }
 
 const StatCard: React.FC<{ label: string; value: React.ReactNode; sublabel?: string }> = ({ label, value, sublabel }) => (
@@ -15,12 +16,14 @@ const StatCard: React.FC<{ label: string; value: React.ReactNode; sublabel?: str
   </Card>
 )
 
-const DirectoryCoverageStats: React.FC<DirectoryCoverageStatsProps> = ({ totalGroups, totalMemberships, matchedMemberships }) => {
+const DirectoryCoverageStats: React.FC<DirectoryCoverageStatsProps> = ({ totalGroups, totalMembers, loadedMembers, matchedMembers }) => {
+  const truncated = loadedMembers < totalMembers
+  const coverageSublabel = truncated ? `members matched (sampled ${loadedMembers} of ${totalMembers})` : 'members matched'
   return (
-    <div className="grid grid-cols-3 gap-4">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
       <StatCard label="Total groups" value={totalGroups} />
-      <StatCard label="Total members" value={totalMemberships} sublabel="across all groups" />
-      <StatCard label="Personnel coverage" value={`${matchedMemberships} / ${totalMemberships}`} sublabel="members matched" />
+      <StatCard label="Total members" value={totalMembers} sublabel="across all groups" />
+      <StatCard label="Personnel coverage" value={`${matchedMembers} / ${loadedMembers}`} sublabel={coverageSublabel} />
     </div>
   )
 }
