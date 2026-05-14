@@ -1,7 +1,7 @@
 'use server'
 
 import { cache } from 'react'
-import { csrfHeader, sessionCookieName } from '@repo/dally/auth'
+import { csrfCookieName, csrfHeader, sessionCookieName } from '@repo/dally/auth'
 import { fetchCSRFToken } from '@/lib/auth/utils/secure-fetch'
 
 const getRequestCSRFToken = cache(fetchCSRFToken)
@@ -20,7 +20,7 @@ export const fetchGraphqlServer = async <T>(query: string, variables: Record<str
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${accessToken}`,
-        Cookie: `${sessionCookieName}=${sessionCookie}`,
+        Cookie: `${sessionCookieName}=${sessionCookie}; ${csrfCookieName}=${csrfToken}`,
         [csrfHeader]: csrfToken,
       },
       body: JSON.stringify({ query, variables }),
