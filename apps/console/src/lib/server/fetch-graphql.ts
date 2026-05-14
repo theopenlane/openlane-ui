@@ -1,50 +1,7 @@
 'use server'
 
-import { cache } from 'react'
-import { csrfCookieName, csrfHeader, openlaneAPIUrl, sessionCookieName } from '@repo/dally/auth'
-
-interface CSRFResponse {
-  csrf: string
-}
-
-const fetchCSRFTokenForSession = cache(async (sessionCookie: string): Promise<string | null> => {
-  const url = `${openlaneAPIUrl}/csrf`
-  const start = Date.now()
-  console.log('[metadata-csrf] fetching', { url, hasSessionCookie: !!sessionCookie })
-
-  try {
-    const res = await fetch(url, {
-      headers: {
-        Cookie: `${sessionCookieName}=${sessionCookie}`,
-      },
-    })
-
-    const elapsedMs = Date.now() - start
-
-    if (!res.ok) {
-      const bodyPreview = await res.text().catch(() => '<unreadable>')
-      console.error('[metadata-csrf] non-2xx response', {
-        url,
-        status: res.status,
-        statusText: res.statusText,
-        elapsedMs,
-        bodyPreview: bodyPreview.slice(0, 300),
-      })
-      return null
-    }
-
-    const data: CSRFResponse = await res.json()
-    console.log('[metadata-csrf] success', { url, elapsedMs, tokenLength: data.csrf?.length ?? 0 })
-    return data.csrf
-  } catch (error) {
-    console.error('[metadata-csrf] network error', {
-      url,
-      elapsedMs: Date.now() - start,
-      error: error instanceof Error ? { name: error.name, message: error.message } : String(error),
-    })
-    return null
-  }
-})
+import { secureFetch } from '@/lib/auth/utils/secure-fetch'
+import { sessionCookieName } from '@repo/dally/auth'
 
 interface GraphQLResponse<T> {
   data?: T
@@ -69,20 +26,12 @@ export const fetchGraphqlServer = async <T>(query: string, variables: Record<str
     variableKeys: Object.keys(variables),
   })
 
-  const csrfToken = await fetchCSRFTokenForSession(sessionCookie)
-  if (!csrfToken) {
-    console.error('[metadata-gql] aborting: no CSRF token available', { queryName })
-    return null
-  }
-
   try {
-    const response = await fetch(url, {
+    const response = await secureFetch(url, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
         Authorization: `Bearer ${accessToken}`,
-        Cookie: `${sessionCookieName}=${sessionCookie}; ${csrfCookieName}=${csrfToken}`,
-        [csrfHeader]: csrfToken,
+        Cookie: `${sessionCookieName}=${sessionCookie}`,
       },
       body: JSON.stringify({ query, variables }),
     })
