@@ -15,7 +15,9 @@ interface RequestBody {
 export async function POST(req: Request) {
   // ensure we have a valid session
   const session = await auth()
-  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!session || !session.user?.accessToken) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
 
   try {
     const { scheduleId, priceId, quantity = 1, action } = (await req.json()) as RequestBody
