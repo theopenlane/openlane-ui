@@ -11,7 +11,7 @@ tasks:
     desc: run generate
     cmds:
       - bun run codegen --verbose
-      - bun run prettier --write src/schema.ts src/historyschema.ts
+      - bun run prettier --write src/schema.ts src/historyschema.ts src/type-names.ts src/merge-fields.generated.ts
 
   clean:
     # See https://github.com/dotansimha/graphql-code-generator-community/issues/501
