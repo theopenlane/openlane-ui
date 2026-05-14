@@ -1,21 +1,22 @@
 'use server'
 
 import { cache } from 'react'
-import { cookies, headers } from 'next/headers'
-import { csrfCookieName, csrfHeader, openlaneAPIUrl } from '@repo/dally/auth'
+import { csrfCookieName, csrfHeader, openlaneAPIUrl, sessionCookieName } from '@repo/dally/auth'
 
 interface CSRFResponse {
   csrf: string
 }
 
-const fetchCSRFForCookies = cache(async (cookieHeader: string): Promise<string | null> => {
+const fetchCSRFTokenForSession = cache(async (sessionCookie: string): Promise<string | null> => {
   const url = `${openlaneAPIUrl}/csrf`
   const start = Date.now()
-  console.log('[metadata-csrf] fetching', { url, hasIncomingCookies: !!cookieHeader })
+  console.log('[metadata-csrf] fetching', { url, hasSessionCookie: !!sessionCookie })
 
   try {
     const res = await fetch(url, {
-      headers: cookieHeader ? { Cookie: cookieHeader } : undefined,
+      headers: {
+        Cookie: `${sessionCookieName}=${sessionCookie}`,
+      },
     })
 
     const elapsedMs = Date.now() - start
@@ -50,7 +51,7 @@ interface GraphQLResponse<T> {
   errors?: Array<{ message: string }>
 }
 
-export const fetchGraphqlServer = async <T>(query: string, variables: Record<string, unknown>, accessToken: string): Promise<T | null> => {
+export const fetchGraphqlServer = async <T>(query: string, variables: Record<string, unknown>, accessToken: string, sessionCookie: string): Promise<T | null> => {
   const url = process.env.NEXT_PUBLIC_API_GQL_URL ?? ''
   const queryName = query.match(/(?:query|mutation)\s+(\w+)/)?.[1] ?? '<anonymous>'
   const start = Date.now()
@@ -60,31 +61,18 @@ export const fetchGraphqlServer = async <T>(query: string, variables: Record<str
     return null
   }
 
-  const [requestHeaders, cookieStore] = await Promise.all([headers(), cookies()])
-  const incomingCookieHeader = requestHeaders.get('cookie') ?? ''
-  const incomingCookieNames = cookieStore.getAll().map((c) => c.name)
-  const existingCsrf = cookieStore.get(csrfCookieName)?.value
-
   console.log('[metadata-gql] starting', {
     queryName,
     url,
     hasAccessToken: !!accessToken,
-    hasIncomingCookies: !!incomingCookieHeader,
-    incomingCookieNames,
-    hasExistingCsrf: !!existingCsrf,
+    hasSessionCookie: !!sessionCookie,
     variableKeys: Object.keys(variables),
   })
 
-  let csrfToken: string | null | undefined = existingCsrf
-  let outgoingCookieHeader = incomingCookieHeader
-
+  const csrfToken = await fetchCSRFTokenForSession(sessionCookie)
   if (!csrfToken) {
-    csrfToken = await fetchCSRFForCookies(incomingCookieHeader)
-    if (!csrfToken) {
-      console.error('[metadata-gql] aborting: no CSRF token available', { queryName })
-      return null
-    }
-    outgoingCookieHeader = incomingCookieHeader ? `${incomingCookieHeader}; ${csrfCookieName}=${csrfToken}` : `${csrfCookieName}=${csrfToken}`
+    console.error('[metadata-gql] aborting: no CSRF token available', { queryName })
+    return null
   }
 
   try {
@@ -93,7 +81,7 @@ export const fetchGraphqlServer = async <T>(query: string, variables: Record<str
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${accessToken}`,
-        Cookie: outgoingCookieHeader,
+        Cookie: `${sessionCookieName}=${sessionCookie}; ${csrfCookieName}=${csrfToken}`,
         [csrfHeader]: csrfToken,
       },
       body: JSON.stringify({ query, variables }),
