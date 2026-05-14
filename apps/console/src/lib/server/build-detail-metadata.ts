@@ -1,9 +1,7 @@
 'use server'
 
 import type { Metadata } from 'next'
-import { cookies } from 'next/headers'
 import { auth } from '@/lib/auth/auth'
-import { sessionCookieName } from '@repo/dally/auth'
 import { fetchGraphqlServer } from './fetch-graphql'
 
 interface BuildDetailMetadataArgs<TVariables extends Record<string, unknown>, TData> {
@@ -21,21 +19,15 @@ export const buildDetailMetadata = async <TVariables extends Record<string, unkn
 }: BuildDetailMetadataArgs<TVariables, TData>): Promise<Metadata> => {
   const fallback: Metadata = { title: prefix }
 
-  const [session, cookieStore] = await Promise.all([auth(), cookies()])
-  const cookieSession = cookieStore.get(sessionCookieName as string)?.value
+  const session = await auth()
   const token = session?.user?.accessToken
 
-  if (!token || !cookieSession) {
-    console.error('[metadata-build] missing credentials, returning fallback', {
-      prefix,
-      hasToken: !!token,
-      hasCookieSession: !!cookieSession,
-      sessionCookieName,
-    })
+  if (!token) {
+    console.error('[metadata-build] missing access token, returning fallback', { prefix })
     return fallback
   }
 
-  const data = await fetchGraphqlServer<TData>(query, variables, token, cookieSession)
+  const data = await fetchGraphqlServer<TData>(query, variables, token)
   if (!data) {
     console.warn('[metadata-build] fetch returned null, returning fallback', { prefix })
     return fallback

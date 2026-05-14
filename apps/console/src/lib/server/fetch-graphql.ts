@@ -1,34 +1,33 @@
 'use server'
 
 import { cache } from 'react'
-import { csrfCookieName, csrfHeader, openlaneAPIUrl, sessionCookieName } from '@repo/dally/auth'
+import { cookies, headers } from 'next/headers'
+import { csrfCookieName, csrfHeader, openlaneAPIUrl } from '@repo/dally/auth'
 
 interface CSRFResponse {
   csrf: string
 }
 
-const fetchCSRFTokenForSession = cache(async (sessionCookie: string): Promise<string | null> => {
+const fetchCSRFForCookies = cache(async (cookieHeader: string): Promise<string | null> => {
   const url = `${openlaneAPIUrl}/csrf`
   const start = Date.now()
-  console.log('[metadata-csrf] fetching', { url, hasSessionCookie: !!sessionCookie })
+  console.log('[metadata-csrf] fetching', { url, hasIncomingCookies: !!cookieHeader })
 
   try {
     const res = await fetch(url, {
-      headers: {
-        Cookie: `${sessionCookieName}=${sessionCookie}`,
-      },
+      headers: cookieHeader ? { Cookie: cookieHeader } : undefined,
     })
 
     const elapsedMs = Date.now() - start
 
     if (!res.ok) {
-      const body = await res.text().catch(() => '<unreadable>')
+      const bodyPreview = await res.text().catch(() => '<unreadable>')
       console.error('[metadata-csrf] non-2xx response', {
         url,
         status: res.status,
         statusText: res.statusText,
         elapsedMs,
-        bodyPreview: body.slice(0, 300),
+        bodyPreview: bodyPreview.slice(0, 300),
       })
       return null
     }
@@ -51,38 +50,50 @@ interface GraphQLResponse<T> {
   errors?: Array<{ message: string }>
 }
 
-export const fetchGraphqlServer = async <T>(query: string, variables: Record<string, unknown>, accessToken: string, sessionCookie: string): Promise<T | null> => {
+export const fetchGraphqlServer = async <T>(query: string, variables: Record<string, unknown>, accessToken: string): Promise<T | null> => {
   const url = process.env.NEXT_PUBLIC_API_GQL_URL ?? ''
   const queryName = query.match(/(?:query|mutation)\s+(\w+)/)?.[1] ?? '<anonymous>'
   const start = Date.now()
-
-  console.log('[metadata-gql] starting', {
-    queryName,
-    url,
-    hasUrl: !!url,
-    hasAccessToken: !!accessToken,
-    hasSessionCookie: !!sessionCookie,
-    variableKeys: Object.keys(variables),
-  })
 
   if (!url) {
     console.error('[metadata-gql] NEXT_PUBLIC_API_GQL_URL is not set', { queryName })
     return null
   }
 
-  try {
-    const csrfToken = await fetchCSRFTokenForSession(sessionCookie)
+  const [requestHeaders, cookieStore] = await Promise.all([headers(), cookies()])
+  const incomingCookieHeader = requestHeaders.get('cookie') ?? ''
+  const incomingCookieNames = cookieStore.getAll().map((c) => c.name)
+  const existingCsrf = cookieStore.get(csrfCookieName)?.value
+
+  console.log('[metadata-gql] starting', {
+    queryName,
+    url,
+    hasAccessToken: !!accessToken,
+    hasIncomingCookies: !!incomingCookieHeader,
+    incomingCookieNames,
+    hasExistingCsrf: !!existingCsrf,
+    variableKeys: Object.keys(variables),
+  })
+
+  let csrfToken: string | null | undefined = existingCsrf
+  let outgoingCookieHeader = incomingCookieHeader
+
+  if (!csrfToken) {
+    csrfToken = await fetchCSRFForCookies(incomingCookieHeader)
     if (!csrfToken) {
-      console.error('[metadata-gql] aborting: no CSRF token', { queryName })
+      console.error('[metadata-gql] aborting: no CSRF token available', { queryName })
       return null
     }
+    outgoingCookieHeader = incomingCookieHeader ? `${incomingCookieHeader}; ${csrfCookieName}=${csrfToken}` : `${csrfCookieName}=${csrfToken}`
+  }
 
+  try {
     const response = await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${accessToken}`,
-        Cookie: `${sessionCookieName}=${sessionCookie}; ${csrfCookieName}=${csrfToken}`,
+        Cookie: outgoingCookieHeader,
         [csrfHeader]: csrfToken,
       },
       body: JSON.stringify({ query, variables }),
@@ -91,13 +102,13 @@ export const fetchGraphqlServer = async <T>(query: string, variables: Record<str
     const elapsedMs = Date.now() - start
 
     if (!response.ok) {
-      const body = await response.text().catch(() => '<unreadable>')
+      const bodyPreview = await response.text().catch(() => '<unreadable>')
       console.error('[metadata-gql] non-2xx response', {
         queryName,
         status: response.status,
         statusText: response.statusText,
         elapsedMs,
-        bodyPreview: body.slice(0, 300),
+        bodyPreview: bodyPreview.slice(0, 300),
       })
       return null
     }
