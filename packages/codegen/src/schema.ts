@@ -72512,10 +72512,35 @@ export type PlatformQuery = {
     securityOwnerGroup?: { __typename?: 'Group'; id: string; name: string } | null
     technicalOwnerUser?: { __typename?: 'User'; id: string; displayName: string; email: string } | null
     technicalOwnerGroup?: { __typename?: 'Group'; id: string; name: string } | null
-    assets: { __typename?: 'AssetConnection'; edges?: Array<{ __typename?: 'AssetEdge'; node?: { __typename?: 'Asset'; id: string; name: string; assetType: AssetAssetType } | null } | null> | null }
+    assets: {
+      __typename?: 'AssetConnection'
+      edges?: Array<{
+        __typename?: 'AssetEdge'
+        node?: {
+          __typename?: 'Asset'
+          id: string
+          name: string
+          assetType: AssetAssetType
+          internalOwner?: string | null
+          internalOwnerUser?: { __typename?: 'User'; id: string; displayName: string; email: string } | null
+          internalOwnerGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
+        } | null
+      } | null> | null
+    }
     outOfScopeAssets: {
       __typename?: 'AssetConnection'
-      edges?: Array<{ __typename?: 'AssetEdge'; node?: { __typename?: 'Asset'; id: string; name: string; assetType: AssetAssetType } | null } | null> | null
+      edges?: Array<{
+        __typename?: 'AssetEdge'
+        node?: {
+          __typename?: 'Asset'
+          id: string
+          name: string
+          assetType: AssetAssetType
+          internalOwner?: string | null
+          internalOwnerUser?: { __typename?: 'User'; id: string; displayName: string; email: string } | null
+          internalOwnerGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
+        } | null
+      } | null> | null
     }
     entities: {
       __typename?: 'EntityConnection'
@@ -72527,7 +72552,10 @@ export type PlatformQuery = {
           name?: string | null
           displayName?: string | null
           status?: EntityEntityStatus | null
+          internalOwner?: string | null
           logoFile?: { __typename?: 'File'; base64?: string | null } | null
+          internalOwnerUser?: { __typename?: 'User'; id: string; displayName: string; email: string } | null
+          internalOwnerGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
         } | null
       } | null> | null
     }
@@ -72541,7 +72569,10 @@ export type PlatformQuery = {
           name?: string | null
           displayName?: string | null
           status?: EntityEntityStatus | null
+          internalOwner?: string | null
           logoFile?: { __typename?: 'File'; base64?: string | null } | null
+          internalOwnerUser?: { __typename?: 'User'; id: string; displayName: string; email: string } | null
+          internalOwnerGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
         } | null
       } | null> | null
     }

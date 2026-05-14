@@ -107,7 +107,6 @@ const MappedControlsTable: React.FC<MappedControlsTableProps> = ({ title, rows, 
     <Collapsible open={isOpen} onOpenChange={setIsOpen} className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <SectionToggle open={isOpen} title={title} />
-        {action}
       </div>
 
       <CollapsibleContent forceMount hidden={!isOpen} className="space-y-4">
@@ -116,8 +115,9 @@ const MappedControlsTable: React.FC<MappedControlsTableProps> = ({ title, rows, 
           isSearching={searchQuery !== debouncedSearch}
           searchValue={searchQuery}
           onSearchChange={setSearchQuery}
-          filterFields={filterFields}
+          filterFields={action ? null : filterFields}
           onFilterChange={setFilters}
+          actionButtons={action}
         />
 
         <DataTable

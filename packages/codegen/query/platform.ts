@@ -204,6 +204,16 @@ export const PLATFORM = gql`
             id
             name
             assetType
+            internalOwner
+            internalOwnerUser {
+              id
+              displayName
+              email
+            }
+            internalOwnerGroup {
+              id
+              displayName
+            }
           }
         }
       }
@@ -213,6 +223,16 @@ export const PLATFORM = gql`
             id
             name
             assetType
+            internalOwner
+            internalOwnerUser {
+              id
+              displayName
+              email
+            }
+            internalOwnerGroup {
+              id
+              displayName
+            }
           }
         }
       }
@@ -226,6 +246,16 @@ export const PLATFORM = gql`
             logoFile {
               base64
             }
+            internalOwner
+            internalOwnerUser {
+              id
+              displayName
+              email
+            }
+            internalOwnerGroup {
+              id
+              displayName
+            }
           }
         }
       }
@@ -238,6 +268,16 @@ export const PLATFORM = gql`
             status
             logoFile {
               base64
+            }
+            internalOwner
+            internalOwnerUser {
+              id
+              displayName
+              email
+            }
+            internalOwnerGroup {
+              id
+              displayName
             }
           }
         }
