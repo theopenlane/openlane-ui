@@ -119,6 +119,14 @@ const SubcontrolsTable: React.FC = () => {
     [canBulkEditSubcontrols, convertToReadOnly, id, selectedSubcontrols],
   )
 
+  const hasBulkSelection = canBulkEditSubcontrols && selectedSubcontrols.length > 0
+  const bulkActionButtons = hasBulkSelection ? (
+    <div className="flex items-center gap-2">
+      <BulkEditSubcontrolsDialog selectedSubcontrols={selectedSubcontrols} setSelectedSubcontrols={setSelectedSubcontrols} />
+      <CancelButton onClick={() => setSelectedSubcontrols([])} />
+    </div>
+  ) : null
+
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen} className="mt-8 space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -129,12 +137,6 @@ const SubcontrolsTable: React.FC = () => {
           </CollapsibleTrigger>
           {(canCreate(orgPermission?.roles, AccessEnum.CanCreateSubcontrol) || canEdit(permission?.roles)) && <CreateButton type="subcontrol" href={`/controls/${id}/create-subcontrol`} />}
         </div>
-        {canBulkEditSubcontrols && selectedSubcontrols.length > 0 && (
-          <div className="flex items-center gap-2">
-            <BulkEditSubcontrolsDialog selectedSubcontrols={selectedSubcontrols} setSelectedSubcontrols={setSelectedSubcontrols} />
-            <CancelButton onClick={() => setSelectedSubcontrols([])} />
-          </div>
-        )}
       </div>
 
       <CollapsibleContent forceMount hidden={!isOpen} className="space-y-4">
@@ -143,8 +145,9 @@ const SubcontrolsTable: React.FC = () => {
           isSearching={searchQuery !== debouncedSearch}
           searchValue={searchQuery}
           onSearchChange={setSearchQuery}
-          filterFields={filterFields}
+          filterFields={hasBulkSelection ? null : filterFields}
           onFilterChange={handleFilterChange}
+          actionButtons={bulkActionButtons}
         />
 
         <DataTable
