@@ -1,6 +1,8 @@
 'use client'
+import { useTheme } from 'next-themes'
 import { BaseEditorKit } from '@repo/ui/components/editor/editor-base-kit.tsx'
 import { EditorStatic } from '@repo/ui/components/ui/editor-static.tsx'
+import { ThemeAwareBaseFontBackgroundColorPlugin, ThemeAwareBaseFontColorPlugin } from '@repo/ui/components/editor/plugins/font-base-kit.tsx'
 import { createSlateEditor, type Value } from 'platejs'
 import { isPlateValueEmpty } from './plate-utils'
 import { PlateStatic, serializeHtml } from 'platejs/static'
@@ -66,9 +68,13 @@ export function detectFormat(input: unknown): Detected {
 }
 
 const usePlateEditor = () => {
+  const { resolvedTheme } = useTheme()
+  const themeForRender = resolvedTheme === 'light' || resolvedTheme === 'dark' ? resolvedTheme : undefined
+
   return {
     convertToHtml: async (data: Value) => {
-      // Converts PlateJs data format into serializable html which we can save in database
+      // Converts PlateJs data format into serializable html which we can save in database.
+      // Theme is intentionally NOT applied so that serialized HTML preserves the author's literal color.
       if (!data || isPlateValueEmpty(data)) {
         return ''
       }
@@ -96,6 +102,10 @@ const usePlateEditor = () => {
       const editor = createSlateEditor({
         plugins: [...BaseEditorKit],
       })
+      if (themeForRender) {
+        editor.setOption(ThemeAwareBaseFontColorPlugin, 'theme', themeForRender)
+        editor.setOption(ThemeAwareBaseFontBackgroundColorPlugin, 'theme', themeForRender)
+      }
       const finalStyle = style ? style : { padding }
 
       const fmt = detectFormat(data)
