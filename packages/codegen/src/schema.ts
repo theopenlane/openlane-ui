@@ -8575,6 +8575,8 @@ export interface CreateEntityInput {
   /** external links associated with the entity */
   links?: InputMaybe<Array<Scalars['String']['input']>>
   logoFileID?: InputMaybe<Scalars['ID']['input']>
+  /** URL of the logo for the entity */
+  logoRemoteURL?: InputMaybe<Scalars['String']['input']>
   /** whether MFA is enforced by the entity */
   mfaEnforced?: InputMaybe<Scalars['Boolean']['input']>
   /** whether MFA is supported by the entity */
@@ -16198,6 +16200,8 @@ export interface Entity extends Node {
   logoFile?: Maybe<File>
   /** The logo file id for the entity */
   logoFileID?: Maybe<Scalars['ID']['output']>
+  /** URL of the logo for the entity */
+  logoRemoteURL?: Maybe<Scalars['String']['output']>
   /** whether MFA is enforced by the entity */
   mfaEnforced?: Maybe<Scalars['Boolean']['output']>
   /** whether MFA is supported by the entity */
@@ -17384,6 +17388,22 @@ export interface EntityWhereInput {
   logoFileIDNEQ?: InputMaybe<Scalars['ID']['input']>
   logoFileIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   logoFileIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** logo_remote_url field predicates */
+  logoRemoteURL?: InputMaybe<Scalars['String']['input']>
+  logoRemoteURLContains?: InputMaybe<Scalars['String']['input']>
+  logoRemoteURLContainsFold?: InputMaybe<Scalars['String']['input']>
+  logoRemoteURLEqualFold?: InputMaybe<Scalars['String']['input']>
+  logoRemoteURLGT?: InputMaybe<Scalars['String']['input']>
+  logoRemoteURLGTE?: InputMaybe<Scalars['String']['input']>
+  logoRemoteURLHasPrefix?: InputMaybe<Scalars['String']['input']>
+  logoRemoteURLHasSuffix?: InputMaybe<Scalars['String']['input']>
+  logoRemoteURLIn?: InputMaybe<Array<Scalars['String']['input']>>
+  logoRemoteURLIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  logoRemoteURLLT?: InputMaybe<Scalars['String']['input']>
+  logoRemoteURLLTE?: InputMaybe<Scalars['String']['input']>
+  logoRemoteURLNEQ?: InputMaybe<Scalars['String']['input']>
+  logoRemoteURLNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  logoRemoteURLNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** mfa_enforced field predicates */
   mfaEnforced?: InputMaybe<Scalars['Boolean']['input']>
   mfaEnforcedIsNil?: InputMaybe<Scalars['Boolean']['input']>
@@ -55299,6 +55319,7 @@ export interface UpdateEntityInput {
   clearLinkedAssetIds?: InputMaybe<Scalars['Boolean']['input']>
   clearLinks?: InputMaybe<Scalars['Boolean']['input']>
   clearLogoFile?: InputMaybe<Scalars['Boolean']['input']>
+  clearLogoRemoteURL?: InputMaybe<Scalars['Boolean']['input']>
   clearMfaEnforced?: InputMaybe<Scalars['Boolean']['input']>
   clearMfaSupported?: InputMaybe<Scalars['Boolean']['input']>
   clearName?: InputMaybe<Scalars['Boolean']['input']>
@@ -55375,6 +55396,8 @@ export interface UpdateEntityInput {
   /** external links associated with the entity */
   links?: InputMaybe<Array<Scalars['String']['input']>>
   logoFileID?: InputMaybe<Scalars['ID']['input']>
+  /** URL of the logo for the entity */
+  logoRemoteURL?: InputMaybe<Scalars['String']['input']>
   /** whether MFA is enforced by the entity */
   mfaEnforced?: InputMaybe<Scalars['Boolean']['input']>
   /** whether MFA is supported by the entity */
@@ -57264,8 +57287,6 @@ export interface UpdateOrganizationInput {
   description?: InputMaybe<Scalars['String']['input']>
   /** The organization's displayed 'friendly' name */
   displayName?: InputMaybe<Scalars['String']['input']>
-  /** the name of the organization */
-  name?: InputMaybe<Scalars['String']['input']>
   removeAPITokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeActionPlanCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeActionPlanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -68780,7 +68801,10 @@ export type EntityQuery = {
     vendorMetadata?: any | null
     integrations: {
       __typename?: 'IntegrationConnection'
-      edges?: Array<{ __typename?: 'IntegrationEdge'; node?: { __typename?: 'Integration'; id: string; definitionID?: string | null; name: string } | null } | null> | null
+      edges?: Array<{
+        __typename?: 'IntegrationEdge'
+        node?: { __typename?: 'Integration'; id: string; definitionID?: string | null; name: string; directoryGroups: { __typename?: 'DirectoryGroupConnection'; totalCount: number } } | null
+      } | null> | null
     }
     internalOwnerGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
     internalOwnerUser?: { __typename?: 'User'; id: string; displayName: string } | null
@@ -76785,6 +76809,57 @@ export type DeleteUserMutationVariables = Exact<{
 }>
 
 export type DeleteUserMutation = { __typename?: 'Mutation'; deleteUser: { __typename?: 'UserDeletePayload'; deletedID: string } }
+
+export type GetVendorDirectoryQueryVariables = Exact<{
+  integrationIDs: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type GetVendorDirectoryQuery = {
+  __typename?: 'Query'
+  directoryGroups: {
+    __typename?: 'DirectoryGroupConnection'
+    totalCount: number
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean }
+    edges?: Array<{
+      __typename?: 'DirectoryGroupEdge'
+      node?: {
+        __typename?: 'DirectoryGroup'
+        id: string
+        displayName?: string | null
+        email?: string | null
+        memberCount?: number | null
+        integrationID: string
+        integration: { __typename?: 'Integration'; id: string; name: string }
+        members: {
+          __typename?: 'DirectoryMembershipConnection'
+          totalCount: number
+          edges?: Array<{
+            __typename?: 'DirectoryMembershipEdge'
+            node?: {
+              __typename?: 'DirectoryMembership'
+              id: string
+              role?: DirectoryMembershipDirectoryMembershipRole | null
+              addedAt?: any | null
+              removedAt?: any | null
+              directoryAccount: {
+                __typename?: 'DirectoryAccount'
+                id: string
+                canonicalEmail?: string | null
+                displayName?: string | null
+                givenName?: string | null
+                familyName?: string | null
+                identityHolderID?: string | null
+                identityHolder?: { __typename?: 'IdentityHolder'; id: string; fullName: string; email: string } | null
+              }
+            } | null
+          } | null> | null
+        }
+      } | null
+    } | null> | null
+  }
+}
 
 export type VendorRiskScoresWithFilterQueryVariables = Exact<{
   where?: InputMaybe<VendorRiskScoreWhereInput>
