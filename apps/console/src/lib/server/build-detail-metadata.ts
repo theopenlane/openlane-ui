@@ -26,11 +26,27 @@ export const buildDetailMetadata = async <TVariables extends Record<string, unkn
   const token = session?.user?.accessToken
 
   if (!token || !cookieSession) {
+    console.error('[metadata-build] missing credentials, returning fallback', {
+      prefix,
+      hasToken: !!token,
+      hasCookieSession: !!cookieSession,
+      sessionCookieName,
+    })
     return fallback
   }
 
   const data = await fetchGraphqlServer<TData>(query, variables, token, cookieSession)
-  const label = data ? selectLabel(data) : null
+  if (!data) {
+    console.warn('[metadata-build] fetch returned null, returning fallback', { prefix })
+    return fallback
+  }
 
-  return label ? { title: `${prefix} - ${label}` } : fallback
+  const label = selectLabel(data)
+  if (!label) {
+    console.warn('[metadata-build] selectLabel returned empty, returning fallback', { prefix })
+    return fallback
+  }
+
+  console.log('[metadata-build] resolved title', { prefix, label })
+  return { title: `${prefix} - ${label}` }
 }
