@@ -81,7 +81,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ scheduleId, swaps, phases, updated })
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : 'Switch failed unexpectedly'
-    return NextResponse.json({ error: message }, { status: 500 })
+    console.error('Failed to switch payment schedule', err)
+    return NextResponse.json({ error: 'Failed to switch payment schedule' }, { status: 500 })
   }
 }

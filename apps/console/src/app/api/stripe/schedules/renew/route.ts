@@ -44,7 +44,6 @@ export async function POST(req: Request) {
     return NextResponse.json(updated)
   } catch (err: unknown) {
     console.error('❌ Extend schedule failed:', err)
-    const message = err instanceof Error ? err.message : 'Extend failed'
-    return NextResponse.json({ error: message }, { status: 500 })
+    return NextResponse.json({ error: 'Failed to extend schedule' }, { status: 500 })
   }
 }

@@ -241,7 +241,6 @@ export async function GET(req: Request) {
     }
 
     console.error('❌ Stripe upcoming invoice error:', err)
-    const message = err instanceof Error ? err.message : 'Unknown error'
-    return NextResponse.json({ error: message }, { status: 500 })
+    return NextResponse.json({ error: 'Failed to fetch upcoming invoice' }, { status: 500 })
   }
 }

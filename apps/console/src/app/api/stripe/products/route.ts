@@ -19,7 +19,7 @@ export async function GET() {
 
     return NextResponse.json(productsWithPrices)
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : 'Failed to fetch products'
-    return NextResponse.json({ error: message }, { status: 500 })
+    console.error('Unable to fetch products', err)
+    return NextResponse.json({ error: 'Failed to fetch products' }, { status: 500 })
   }
 }

@@ -124,7 +124,6 @@ export async function POST(req: Request) {
     return NextResponse.json(updated)
   } catch (err) {
     console.error('❌ Failed to update schedule:', err)
-    const message = err instanceof Error ? err.message : 'Schedule update failed'
-    return NextResponse.json({ error: message }, { status: 500 })
+    return NextResponse.json({ error: 'Schedule update failed' }, { status: 500 })
   }
 }
