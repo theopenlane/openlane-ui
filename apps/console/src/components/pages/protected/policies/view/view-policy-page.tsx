@@ -46,10 +46,13 @@ import LinkedProcedures from './fields/linked-procedures'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import HistoryTab from './tabs/history/history-tab'
 import { VersionBump } from '@/lib/enums/revision-enum'
+import FilePreview from '@/components/shared/file-preview/file-preview'
 
 type TViewPolicyPage = {
   policyId: string
 }
+
+type TabValue = 'policy' | 'procedures' | 'history' | 'file'
 
 const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
   const [isDeleting, setIsDeleting] = useState<boolean>(false)
@@ -76,7 +79,9 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
   const { data: assocData } = useGetInternalPolicyAssociationsById(policyId, !isDeleting)
   const { data: discussionData } = useGetPolicyDiscussionById(policyId)
   const plateEditorHelper = usePlateEditor()
-  const [activeTab, setActiveTab] = useState<'policy' | 'procedures' | 'history'>('policy')
+  const [activeTab, setActiveTab] = useState<TabValue>('policy')
+  const [filePreviewMounted, setFilePreviewMounted] = useState(false)
+  const hasFilePreview = !!policy?.file?.presignedURL
 
   const procedureCount = assocData?.internalPolicy?.procedures?.totalCount ?? 0
   const procedures = assocData?.internalPolicy?.procedures?.edges ?? []
@@ -352,7 +357,15 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
     <div className="p-2">
       <TitleField isEditing={isEditing} form={form} handleUpdate={handleUpdateField} initialData={policy.name} editAllowed={editAllowed} />
 
-      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'policy' | 'procedures' | 'history')} variant="underline">
+      <Tabs
+        value={activeTab}
+        onValueChange={(v) => {
+          const next = v as TabValue
+          setActiveTab(next)
+          if (next === 'file') setFilePreviewMounted(true)
+        }}
+        variant="underline"
+      >
         <TabsList className="relative flex justify-start w-full">
           <div className="absolute -bottom-0.5 left-1 right-0 h-px bg-border" />
           <TabsTrigger className="relative max-w-26 text-start" value="policy">
@@ -365,6 +378,11 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
           <TabsTrigger value="history" className="relative max-w-26 text-start">
             History
           </TabsTrigger>
+          {hasFilePreview && (
+            <TabsTrigger value="file" className="relative max-w-32 text-start">
+              File Preview
+            </TabsTrigger>
+          )}
         </TabsList>
 
         <TabsContent value="policy">
@@ -378,6 +396,8 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
         <TabsContent value="history">
           <HistoryTab policyId={policyId} policy={policy} />
         </TabsContent>
+
+        {hasFilePreview && policy.file && <TabsContent value="file">{filePreviewMounted && <FilePreview file={policy.file} />}</TabsContent>}
       </Tabs>
     </div>
   )

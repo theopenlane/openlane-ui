@@ -142,6 +142,13 @@ export const INTERNAL_POLICY_BY_ID = gql`
     summary
     detailsJSON
     internalPolicyKindName
+    file {
+      id
+      presignedURL
+      providedFileName
+      providedFileExtension
+      detectedMimeType
+    }
     approver {
       id
       displayName

@@ -70814,6 +70814,7 @@ export type InternalPolicyByIdFragment = {
   summary?: string | null
   detailsJSON?: Array<any> | null
   internalPolicyKindName?: string | null
+  file?: { __typename?: 'File'; id: string; presignedURL?: string | null; providedFileName: string; providedFileExtension: string; detectedMimeType?: string | null } | null
   approver?: {
     __typename?: 'Group'
     id: string
@@ -70857,6 +70858,7 @@ export type GetInternalPolicyDetailsByIdQuery = {
     summary?: string | null
     detailsJSON?: Array<any> | null
     internalPolicyKindName?: string | null
+    file?: { __typename?: 'File'; id: string; presignedURL?: string | null; providedFileName: string; providedFileExtension: string; detectedMimeType?: string | null } | null
     approver?: {
       __typename?: 'Group'
       id: string
