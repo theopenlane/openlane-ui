@@ -9,7 +9,7 @@ import { Label } from '@repo/ui/label'
 import { Button } from '@repo/ui/button'
 import { Copy, ExternalLink, InfoIcon, Pencil, Save, Trash2 } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
-import UrlInput from '../shared/url-input'
+import UrlInput, { isBlockedDomain } from '../shared/url-input'
 import { DnsRecords } from './dns-records'
 import { PageHeading } from '@repo/ui/page-heading'
 import { DnsVerificationDnsVerificationStatus } from '@repo/codegen/src/schema'
@@ -218,9 +218,16 @@ const DomainSettingsPage = () => {
     if (!trustCenter?.customDomain) {
       return (
         <div className="flex w-full gap-2">
-          <UrlInput value={inputValue} onChange={setInputValue} className="flex-1 h-8" />
+          <UrlInput value={inputValue} onChange={setInputValue} className="flex-1" />
           {canEditTc && (
-            <Button onClick={handleCreateCustomDomain} variant="secondary" className="flex items-center justify-center gap-2 px-4" icon={<Save size={16} />} iconPosition="left">
+            <Button
+              onClick={handleCreateCustomDomain}
+              variant="secondary"
+              className="flex items-center justify-center gap-2 px-4"
+              icon={<Save size={16} />}
+              iconPosition="left"
+              disabled={isBlockedDomain(inputValue)}
+            >
               Set
             </Button>
           )}
@@ -231,10 +238,17 @@ const DomainSettingsPage = () => {
     if (trustCenter.customDomain?.cnameRecord) {
       return (
         <div className="flex w-full gap-2">
-          <UrlInput value={inputValue} onChange={setInputValue} disabled={!editing} verifiedStatus={dnsVerification?.dnsVerificationStatus || null} className="flex-1 h-8" />
+          <UrlInput value={inputValue} onChange={setInputValue} disabled={!editing} verifiedStatus={dnsVerification?.dnsVerificationStatus || null} className="flex-1" />
           {editing ? (
             <div className="flex gap-2">
-              <Button onClick={handleUpdateCustomDomain} variant="secondary" className=" flex items-center justify-center gap-2 px-4" icon={<Save size={16} />} iconPosition="left">
+              <Button
+                onClick={handleUpdateCustomDomain}
+                variant="secondary"
+                className=" flex items-center justify-center gap-2 px-4"
+                icon={<Save size={16} />}
+                iconPosition="left"
+                disabled={isBlockedDomain(inputValue)}
+              >
                 Save
               </Button>
               <Button onClick={handleCancel} variant="secondary" className=" flex items-center justify-center gap-2 px-4" icon={<Save size={16} />} iconPosition="left">
@@ -321,7 +335,7 @@ const DomainSettingsPage = () => {
                 <p className="text-base font-medium leading-6">Vanity Domain</p>
                 {renderContent()}
                 <p className="text-sm text-inverted-muted-foreground font-medium leading-6">
-                  Once your domain is set, you&apos;ll need to configure DNS records with your domain provider to complete the setup.
+                  Enter a domain you own (e.g. trust.yourcompany.com). Once set, you&apos;ll need to configure DNS records with your domain provider to complete the setup.
                 </p>
               </div>
             </div>
