@@ -416,7 +416,6 @@ const ControlDetailsPage: React.FC = () => {
 
   return (
     <>
-      <title>{`${currentOrganization?.node?.displayName ?? 'Openlane'} | Subcontrols - ${data.subcontrol.refCode}`}</title>
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <SlideBarLayout

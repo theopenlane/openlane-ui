@@ -24,6 +24,15 @@ export const CREATE_ASSESSMENT = gql`
   }
 `
 
+export const GET_ASSESSMENT_BY_ID_MINIFIED = gql`
+  query GetAssessmentByIdMinified($getAssessmentId: ID!) {
+    assessment(id: $getAssessmentId) {
+      id
+      name
+    }
+  }
+`
+
 export const GET_ASSESSMENT = gql`
   query GetAssessment($getAssessmentId: ID!) {
     assessment(id: $getAssessmentId) {
