@@ -19,37 +19,32 @@ interface OrganizationEdge {
 const getDashboardDataForRequest = cache(getDashboardData)
 
 export async function generateMetadata(): Promise<Metadata> {
-  const fallback: Metadata = {
-    title: {
-      template: 'Openlane | %s',
-      default: 'Openlane',
-    },
-  }
+  const session = await auth()
+  const cookieStore = await cookies()
+  const cookieSession = cookieStore.get(sessionCookieName as string)
 
-  const [session, cookieStore] = await Promise.all([auth(), cookies()])
-  const cookieSession = cookieStore.get(sessionCookieName as string)?.value
   const token = session?.user?.accessToken
   const organizationId = session?.user?.activeOrganizationId
 
-  if (!token || !cookieSession || !organizationId) {
-    return fallback
-  }
+  if (cookieSession?.value && token) {
+    const dashboardData = await getDashboardDataForRequest(token, cookieSession.value)
 
-  const dashboardData = await getDashboardDataForRequest(token, cookieSession)
-  if (!dashboardData) {
-    return fallback
-  }
-
-  const organizations: OrganizationEdge[] = dashboardData.organizations.edges
-  const org = organizations.find(({ node }) => node.id === organizationId)
-  if (!org?.node.displayName) {
-    return fallback
+    if (dashboardData) {
+      const organizations: OrganizationEdge[] = dashboardData.organizations.edges
+      const org = organizations.find(({ node }) => node.id === organizationId)
+      return {
+        title: {
+          template: `${capitalizeFirstLetter(org?.node.displayName || '')} | %s`,
+          default: '',
+        },
+      }
+    }
   }
 
   return {
     title: {
-      template: `${capitalizeFirstLetter(org.node.displayName)} | %s`,
-      default: '',
+      template: 'Openlane | %s',
+      default: 'Openlane',
     },
   }
 }

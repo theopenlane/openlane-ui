@@ -21,22 +21,11 @@ export const buildDetailMetadata = async <TVariables extends Record<string, unkn
 }: BuildDetailMetadataArgs<TVariables, TData>): Promise<Metadata> => {
   const fallback: Metadata = { title: prefix }
 
-  if (!sessionCookieName) {
-    console.error('[metadata-build] missing SESSION_COOKIE_NAME, returning fallback', { prefix })
-    return fallback
-  }
-
   const [session, cookieStore] = await Promise.all([auth(), cookies()])
-  const cookieSession = cookieStore.get(sessionCookieName)?.value
+  const cookieSession = cookieStore.get(sessionCookieName as string)?.value
   const token = session?.user?.accessToken
 
   if (!token || !cookieSession) {
-    console.error('[metadata-build] missing credentials, returning fallback', {
-      prefix,
-      hasToken: !!token,
-      hasCookieSession: !!cookieSession,
-      sessionCookieName,
-    })
     return fallback
   }
 

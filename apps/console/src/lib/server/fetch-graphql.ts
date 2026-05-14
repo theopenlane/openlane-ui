@@ -13,11 +13,6 @@ export const fetchGraphqlServer = async <T>(query: string, variables: Record<str
   const queryName = query.match(/(?:query|mutation)\s+(\w+)/)?.[1] ?? '<anonymous>'
   const start = Date.now()
 
-  if (!url) {
-    console.error('[metadata-gql] NEXT_PUBLIC_API_GQL_URL is not set', { queryName })
-    return null
-  }
-
   console.log('[metadata-gql] starting', {
     queryName,
     url,
