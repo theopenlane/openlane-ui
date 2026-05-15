@@ -447,7 +447,7 @@ const QuestionnaireDetailPage = () => {
         <DialogContent className="top-[28%] w-[calc(100vw-2rem)] overflow-x-hidden sm:max-w-[455px]">
           <DialogHeader>
             <DialogTitle className="text-2xl font-semibold">Access URL generated</DialogTitle>
-            <p className="text-sm text-muted-foreground">Share this link with vendors to collect responses and create them as entities.</p>
+            <p className="text-sm text-muted-foreground">Share this link with vendors to collect responses and create them as vendors in your organization.</p>
           </DialogHeader>
           <div className="min-w-0 space-y-4 overflow-x-hidden">
             <div className="flex min-w-0 max-w-full items-center rounded-md border bg-background px-3 py-2 text-sm">
