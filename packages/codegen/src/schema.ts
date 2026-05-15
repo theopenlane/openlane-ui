@@ -66018,6 +66018,7 @@ export type GetAssessmentDetailQuery = {
           __typename?: 'AssessmentResponse'
           id: string
           email?: string | null
+          displayName?: string | null
           dueDate?: any | null
           status: AssessmentResponseAssessmentResponseStatus
           sendAttempts: number
@@ -66028,7 +66029,6 @@ export type GetAssessmentDetailQuery = {
           isTest: boolean
           createdAt?: any | null
           document?: { __typename?: 'DocumentData'; id: string; data: any } | null
-          entity?: { __typename?: 'Entity'; displayName?: string | null } | null
         } | null
       } | null> | null
       pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }

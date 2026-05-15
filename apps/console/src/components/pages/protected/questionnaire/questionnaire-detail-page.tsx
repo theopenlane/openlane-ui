@@ -227,7 +227,7 @@ const QuestionnaireDetailPage = () => {
         .filter((r) => r != null)
         .map((r) => ({
           id: r.id,
-          email: r.email || r.entity?.displayName || '',
+          email: r.email || r.displayName || '',
           completedAt: r.completedAt,
           document: r.document,
         })),
@@ -260,7 +260,7 @@ const QuestionnaireDetailPage = () => {
 
       rows.push(
         ...nodes.map((node) => ({
-          email: node.email || node.entity?.displayName || '',
+          email: node.email || node.displayName || '',
           status: node.status,
           assignedAt: node.assignedAt,
           dueDate: node.dueDate,

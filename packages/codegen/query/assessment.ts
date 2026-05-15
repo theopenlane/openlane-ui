@@ -132,6 +132,7 @@ export const GET_ASSESSMENT_DETAIL = gql`
           node {
             id
             email
+            displayName
             dueDate
             status
             sendAttempts
@@ -144,9 +145,6 @@ export const GET_ASSESSMENT_DETAIL = gql`
             document {
               id
               data
-            }
-            entity {
-              displayName
             }
           }
         }
