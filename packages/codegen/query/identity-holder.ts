@@ -11,7 +11,19 @@ const DIRECTORY_MEMBERSHIP_CONNECTION_FIELDS = gql`
         removedAt
         createdAt
         directoryGroup {
+          id
           displayName
+          integration {
+            id
+            entities {
+              edges {
+                node {
+                  id
+                  name
+                }
+              }
+            }
+          }
         }
       }
     }
@@ -246,7 +258,16 @@ export const GET_IDENTITY_HOLDER_DIRECTORY_ACCOUNTS = gql`
             mfaState
             directoryName
             integration {
+              id
               definitionID
+              entities {
+                edges {
+                  node {
+                    id
+                    name
+                  }
+                }
+              }
             }
             memberships(first: 100, where: $membershipWhere, orderBy: [{ field: created_at, direction: DESC }]) {
               ...DirectoryMembershipConnectionFields
