@@ -734,9 +734,11 @@ export interface ActionPlanEdge {
 /** ActionPlanFrequency is enum for the field review_frequency */
 export enum ActionPlanFrequency {
   BIANNUALLY = 'BIANNUALLY',
+  BIENNIALLY = 'BIENNIALLY',
   MONTHLY = 'MONTHLY',
   NONE = 'NONE',
   QUARTERLY = 'QUARTERLY',
+  TRIENNIALLY = 'TRIENNIALLY',
   YEARLY = 'YEARLY',
 }
 
@@ -1442,6 +1444,8 @@ export interface AssessmentResponse extends Node {
   completedAt?: Maybe<Scalars['Time']['output']>
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
+  /** display name for the submitted assessment response */
+  displayName?: Maybe<Scalars['String']['output']>
   document?: Maybe<DocumentData>
   /** the document containing the user's response data */
   documentDataID?: Maybe<Scalars['ID']['output']>
@@ -1553,6 +1557,7 @@ export enum AssessmentResponseOrderField {
   assigned_at = 'assigned_at',
   completed_at = 'completed_at',
   created_at = 'created_at',
+  display_name = 'display_name',
   due_date = 'due_date',
   email = 'email',
   email_click_count = 'email_click_count',
@@ -1651,6 +1656,22 @@ export interface AssessmentResponseWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** display_name field predicates */
+  displayName?: InputMaybe<Scalars['String']['input']>
+  displayNameContains?: InputMaybe<Scalars['String']['input']>
+  displayNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  displayNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  displayNameGT?: InputMaybe<Scalars['String']['input']>
+  displayNameGTE?: InputMaybe<Scalars['String']['input']>
+  displayNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  displayNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  displayNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  displayNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  displayNameLT?: InputMaybe<Scalars['String']['input']>
+  displayNameLTE?: InputMaybe<Scalars['String']['input']>
+  displayNameNEQ?: InputMaybe<Scalars['String']['input']>
+  displayNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  displayNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** due_date field predicates */
   dueDate?: InputMaybe<Scalars['Time']['input']>
   dueDateGT?: InputMaybe<Scalars['Time']['input']>
@@ -3471,9 +3492,11 @@ export interface CampaignEdge {
 /** CampaignFrequency is enum for the field recurrence_frequency */
 export enum CampaignFrequency {
   BIANNUALLY = 'BIANNUALLY',
+  BIENNIALLY = 'BIENNIALLY',
   MONTHLY = 'MONTHLY',
   NONE = 'NONE',
   QUARTERLY = 'QUARTERLY',
+  TRIENNIALLY = 'TRIENNIALLY',
   YEARLY = 'YEARLY',
 }
 
@@ -7671,6 +7694,8 @@ export interface CreateAssessmentInput {
 export interface CreateAssessmentResponseInput {
   assessmentID: Scalars['ID']['input']
   campaignID?: InputMaybe<Scalars['ID']['input']>
+  /** display name for the submitted assessment response */
+  displayName?: InputMaybe<Scalars['String']['input']>
   documentID?: InputMaybe<Scalars['ID']['input']>
   /** when the assessment response is due */
   dueDate?: InputMaybe<Scalars['Time']['input']>
@@ -8623,6 +8648,8 @@ export interface CreateEntityInput {
   /** external links associated with the entity */
   links?: InputMaybe<Array<Scalars['String']['input']>>
   logoFileID?: InputMaybe<Scalars['ID']['input']>
+  /** URL of the logo for the entity */
+  logoRemoteURL?: InputMaybe<Scalars['String']['input']>
   /** whether MFA is enforced by the entity */
   mfaEnforced?: InputMaybe<Scalars['Boolean']['input']>
   /** whether MFA is supported by the entity */
@@ -16248,6 +16275,8 @@ export interface Entity extends Node {
   logoFile?: Maybe<File>
   /** The logo file id for the entity */
   logoFileID?: Maybe<Scalars['ID']['output']>
+  /** URL of the logo for the entity */
+  logoRemoteURL?: Maybe<Scalars['String']['output']>
   /** whether MFA is enforced by the entity */
   mfaEnforced?: Maybe<Scalars['Boolean']['output']>
   /** whether MFA is supported by the entity */
@@ -16605,9 +16634,11 @@ export enum EntityEntityStatus {
 /** EntityFrequency is enum for the field review_frequency */
 export enum EntityFrequency {
   BIANNUALLY = 'BIANNUALLY',
+  BIENNIALLY = 'BIENNIALLY',
   MONTHLY = 'MONTHLY',
   NONE = 'NONE',
   QUARTERLY = 'QUARTERLY',
+  TRIENNIALLY = 'TRIENNIALLY',
   YEARLY = 'YEARLY',
 }
 
@@ -17038,6 +17069,22 @@ export interface EntityWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** description field predicates */
+  description?: InputMaybe<Scalars['String']['input']>
+  descriptionContains?: InputMaybe<Scalars['String']['input']>
+  descriptionContainsFold?: InputMaybe<Scalars['String']['input']>
+  descriptionEqualFold?: InputMaybe<Scalars['String']['input']>
+  descriptionGT?: InputMaybe<Scalars['String']['input']>
+  descriptionGTE?: InputMaybe<Scalars['String']['input']>
+  descriptionHasPrefix?: InputMaybe<Scalars['String']['input']>
+  descriptionHasSuffix?: InputMaybe<Scalars['String']['input']>
+  descriptionIn?: InputMaybe<Array<Scalars['String']['input']>>
+  descriptionIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  descriptionLT?: InputMaybe<Scalars['String']['input']>
+  descriptionLTE?: InputMaybe<Scalars['String']['input']>
+  descriptionNEQ?: InputMaybe<Scalars['String']['input']>
+  descriptionNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  descriptionNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** display_name field predicates */
   displayName?: InputMaybe<Scalars['String']['input']>
   displayNameContains?: InputMaybe<Scalars['String']['input']>
@@ -17432,6 +17479,22 @@ export interface EntityWhereInput {
   logoFileIDNEQ?: InputMaybe<Scalars['ID']['input']>
   logoFileIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
   logoFileIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** logo_remote_url field predicates */
+  logoRemoteURL?: InputMaybe<Scalars['String']['input']>
+  logoRemoteURLContains?: InputMaybe<Scalars['String']['input']>
+  logoRemoteURLContainsFold?: InputMaybe<Scalars['String']['input']>
+  logoRemoteURLEqualFold?: InputMaybe<Scalars['String']['input']>
+  logoRemoteURLGT?: InputMaybe<Scalars['String']['input']>
+  logoRemoteURLGTE?: InputMaybe<Scalars['String']['input']>
+  logoRemoteURLHasPrefix?: InputMaybe<Scalars['String']['input']>
+  logoRemoteURLHasSuffix?: InputMaybe<Scalars['String']['input']>
+  logoRemoteURLIn?: InputMaybe<Array<Scalars['String']['input']>>
+  logoRemoteURLIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  logoRemoteURLLT?: InputMaybe<Scalars['String']['input']>
+  logoRemoteURLLTE?: InputMaybe<Scalars['String']['input']>
+  logoRemoteURLNEQ?: InputMaybe<Scalars['String']['input']>
+  logoRemoteURLNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  logoRemoteURLNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** mfa_enforced field predicates */
   mfaEnforced?: InputMaybe<Scalars['Boolean']['input']>
   mfaEnforcedIsNil?: InputMaybe<Scalars['Boolean']['input']>
@@ -18397,9 +18460,11 @@ export enum EvidenceEvidenceStatus {
 /** EvidenceFrequency is enum for the field review_frequency */
 export enum EvidenceFrequency {
   BIANNUALLY = 'BIANNUALLY',
+  BIENNIALLY = 'BIENNIALLY',
   MONTHLY = 'MONTHLY',
   NONE = 'NONE',
   QUARTERLY = 'QUARTERLY',
+  TRIENNIALLY = 'TRIENNIALLY',
   YEARLY = 'YEARLY',
 }
 
@@ -25131,9 +25196,11 @@ export interface InternalPolicyEdge {
 /** InternalPolicyFrequency is enum for the field review_frequency */
 export enum InternalPolicyFrequency {
   BIANNUALLY = 'BIANNUALLY',
+  BIENNIALLY = 'BIENNIALLY',
   MONTHLY = 'MONTHLY',
   NONE = 'NONE',
   QUARTERLY = 'QUARTERLY',
+  TRIENNIALLY = 'TRIENNIALLY',
   YEARLY = 'YEARLY',
 }
 
@@ -38408,9 +38475,11 @@ export interface ProcedureEdge {
 /** ProcedureFrequency is enum for the field review_frequency */
 export enum ProcedureFrequency {
   BIANNUALLY = 'BIANNUALLY',
+  BIENNIALLY = 'BIENNIALLY',
   MONTHLY = 'MONTHLY',
   NONE = 'NONE',
   QUARTERLY = 'QUARTERLY',
+  TRIENNIALLY = 'TRIENNIALLY',
   YEARLY = 'YEARLY',
 }
 
@@ -43913,9 +43982,11 @@ export interface RiskEdge {
 /** RiskFrequency is enum for the field review_frequency */
 export enum RiskFrequency {
   BIANNUALLY = 'BIANNUALLY',
+  BIENNIALLY = 'BIENNIALLY',
   MONTHLY = 'MONTHLY',
   NONE = 'NONE',
   QUARTERLY = 'QUARTERLY',
+  TRIENNIALLY = 'TRIENNIALLY',
   YEARLY = 'YEARLY',
 }
 
@@ -50076,9 +50147,9 @@ export enum TemplateOrderField {
 
 /** TemplateTemplateKind is enum for the field kind */
 export enum TemplateTemplateKind {
+  EXTERNAL_INTAKE = 'EXTERNAL_INTAKE',
   QUESTIONNAIRE = 'QUESTIONNAIRE',
   TRUSTCENTER_NDA = 'TRUSTCENTER_NDA',
-  VENDOR_INTAKE = 'VENDOR_INTAKE',
 }
 
 /** Return response for updateTemplate mutation */
@@ -55348,6 +55419,7 @@ export interface UpdateEntityInput {
   clearLinkedAssetIds?: InputMaybe<Scalars['Boolean']['input']>
   clearLinks?: InputMaybe<Scalars['Boolean']['input']>
   clearLogoFile?: InputMaybe<Scalars['Boolean']['input']>
+  clearLogoRemoteURL?: InputMaybe<Scalars['Boolean']['input']>
   clearMfaEnforced?: InputMaybe<Scalars['Boolean']['input']>
   clearMfaSupported?: InputMaybe<Scalars['Boolean']['input']>
   clearName?: InputMaybe<Scalars['Boolean']['input']>
@@ -55424,6 +55496,8 @@ export interface UpdateEntityInput {
   /** external links associated with the entity */
   links?: InputMaybe<Array<Scalars['String']['input']>>
   logoFileID?: InputMaybe<Scalars['ID']['input']>
+  /** URL of the logo for the entity */
+  logoRemoteURL?: InputMaybe<Scalars['String']['input']>
   /** whether MFA is enforced by the entity */
   mfaEnforced?: InputMaybe<Scalars['Boolean']['input']>
   /** whether MFA is supported by the entity */
@@ -57313,8 +57387,6 @@ export interface UpdateOrganizationInput {
   description?: InputMaybe<Scalars['String']['input']>
   /** The organization's displayed 'friendly' name */
   displayName?: InputMaybe<Scalars['String']['input']>
-  /** the name of the organization */
-  name?: InputMaybe<Scalars['String']['input']>
   removeAPITokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeActionPlanCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeActionPlanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -65834,7 +65906,6 @@ export type GetAssessmentQuery = {
     uischema?: any | null
     templateID?: string | null
     responseDueDuration?: number | null
-    accessURL?: string | null
     tags?: Array<string> | null
     createdAt?: any | null
     updatedAt?: any | null
@@ -65934,7 +66005,6 @@ export type GetAssessmentDetailQuery = {
     uischema?: any | null
     templateID?: string | null
     responseDueDuration?: number | null
-    accessURL?: string | null
     tags?: Array<string> | null
     createdAt?: any | null
     updatedAt?: any | null
@@ -65965,6 +66035,12 @@ export type GetAssessmentDetailQuery = {
     }
   }
 }
+
+export type GetAssessmentAccessUrlQueryVariables = Exact<{
+  getAssessmentId: Scalars['ID']['input']
+}>
+
+export type GetAssessmentAccessUrlQuery = { __typename?: 'Query'; assessment: { __typename?: 'Assessment'; id: string; accessURL?: string | null } }
 
 export type GetAssessmentRecipientsTotalCountQueryVariables = Exact<{
   getAssessmentId: Scalars['ID']['input']

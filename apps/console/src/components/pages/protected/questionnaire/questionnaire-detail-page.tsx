@@ -6,9 +6,10 @@ import { PageHeading } from '@repo/ui/page-heading'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { Button } from '@repo/ui/button'
-import { Users, CheckCircle, Calendar, Send, FileText, Download, Eye, Pencil, Trash2, Copy, ExternalLink } from 'lucide-react'
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@repo/ui/dialog'
+import { Users, CheckCircle, Calendar, Send, FileText, Download, Eye, Pencil, Trash2, Copy, ExternalLink, RefreshCw } from 'lucide-react'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
-import { useAssessmentRecipientsTotalCount, useAssessmentResponsesTotalCount, useGetAssessmentDetail } from '@/lib/graphql-hooks/assessment'
+import { useAssessmentRecipientsTotalCount, useAssessmentResponsesTotalCount, useGenerateAssessmentAccessURL, useGetAssessmentDetail } from '@/lib/graphql-hooks/assessment'
 import { formatDate } from '@/utils/date'
 import { exportToCSV } from '@/utils/exportToCSV'
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
@@ -106,7 +107,10 @@ const QuestionnaireDetailPage = () => {
   const [isExportingDelivery, setIsExportingDelivery] = useState(false)
   const [isSendDialogOpen, setIsSendDialogOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [isAccessURLDialogOpen, setIsAccessURLDialogOpen] = useState(false)
+  const [generatedAccessURL, setGeneratedAccessURL] = useState('')
   const { mutateAsync: deleteAssessment } = useDeleteAssessment()
+  const { mutateAsync: generateAssessmentAccessURL, isPending: isGeneratingAccessURL } = useGenerateAssessmentAccessURL()
   const { data: permission } = useOrganizationRoles()
 
   const deliveryWhereFilter = useMemo(
@@ -161,11 +165,33 @@ const QuestionnaireDetailPage = () => {
     }
   }
 
+  const handleGenerateAccessURL = async () => {
+    try {
+      const response = await generateAssessmentAccessURL({ getAssessmentId: id })
+      const accessURL = response.assessment?.accessURL
+
+      if (!accessURL) {
+        errorNotification({
+          title: 'Access URL unavailable',
+          description: 'Could not generate an access URL.',
+        })
+        return
+      }
+
+      setGeneratedAccessURL(accessURL)
+      setIsAccessURLDialogOpen(true)
+    } catch {
+      errorNotification({
+        title: 'Failed to generate access URL',
+      })
+    }
+  }
+
   const handleCopyAccessURL = () => {
-    if (!assessment?.accessURL) return
+    if (!generatedAccessURL) return
 
     navigator.clipboard
-      .writeText(assessment.accessURL)
+      .writeText(generatedAccessURL)
       .then(() => {
         successNotification({
           title: 'Link copied to clipboard',
@@ -329,6 +355,9 @@ const QuestionnaireDetailPage = () => {
         heading={assessment.name}
         actions={
           <div className="flex items-center gap-2">
+            <Button type="button" variant="secondary" icon={<RefreshCw size={14} />} iconPosition="left" onClick={handleGenerateAccessURL} disabled={isGeneratingAccessURL}>
+              {isGeneratingAccessURL ? 'Generating...' : 'Generate URL'}
+            </Button>
             <Button type="button" icon={<Send />} iconPosition="left" onClick={() => setIsSendDialogOpen(true)}>
               Send
             </Button>
@@ -363,23 +392,6 @@ const QuestionnaireDetailPage = () => {
         <StatCard icon={CheckCircle} label="Responses" value={completedResponses} isLoading={isResponsesCountLoading} />
         <StatCard icon={Calendar} label="Due Date" value={dueDate} isLoading={false} chip={isPastDue ? <PastDueBadge show /> : undefined} />
       </div>
-
-      {assessment.accessURL && (
-        <div className="mt-3 flex w-full max-w-[660px] items-center gap-3 rounded-md border bg-card px-3 py-2">
-          <span className="shrink-0 text-sm text-muted-foreground">Access URL</span>
-          <span className="min-w-0 flex-1 truncate rounded-md border bg-background px-3 py-2 text-sm" title={assessment.accessURL}>
-            {assessment.accessURL}
-          </span>
-          <Button type="button" variant="secondary" icon={<Copy size={14} />} iconPosition="left" onClick={handleCopyAccessURL}>
-            Copy
-          </Button>
-          <a href={assessment.accessURL} target="_blank" rel="noopener noreferrer" className="shrink-0">
-            <Button type="button" variant="secondary" icon={<ExternalLink size={14} />} iconPosition="left">
-              Open
-            </Button>
-          </a>
-        </div>
-      )}
 
       <div className="mt-6">
         <AISummaryCard jsonconfig={assessment.jsonconfig} responses={responseRows} />
@@ -428,6 +440,32 @@ const QuestionnaireDetailPage = () => {
       </Tabs>
 
       <SendQuestionnaireDialog open={isSendDialogOpen} onOpenChange={setIsSendDialogOpen} assessmentId={id} assessmentName={assessment?.name} responseDueDuration={assessment?.responseDueDuration} />
+
+      <Dialog open={isAccessURLDialogOpen} onOpenChange={setIsAccessURLDialogOpen}>
+        <DialogContent className="top-[28%] w-[calc(100vw-2rem)] overflow-x-hidden sm:max-w-[455px]">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-semibold">Access URL generated</DialogTitle>
+            <p className="text-sm text-muted-foreground">Share this link with vendors to collect responses and create them as entities.</p>
+          </DialogHeader>
+          <div className="min-w-0 space-y-4 overflow-x-hidden">
+            <div className="flex min-w-0 max-w-full items-center rounded-md border bg-background px-3 py-2 text-sm">
+              <p className="block min-w-0 flex-1 truncate" title={generatedAccessURL}>
+                {generatedAccessURL}
+              </p>
+            </div>
+            <DialogFooter className="gap-2">
+              <Button type="button" variant="secondary" icon={<Copy size={14} />} iconPosition="left" onClick={handleCopyAccessURL}>
+                Copy
+              </Button>
+              <a href={generatedAccessURL} target="_blank" rel="noopener noreferrer">
+                <Button type="button" variant="secondary" icon={<ExternalLink size={14} />} iconPosition="left" disabled={!generatedAccessURL}>
+                  Open
+                </Button>
+              </a>
+            </DialogFooter>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <ConfirmationDialog
         open={isDeleteDialogOpen}

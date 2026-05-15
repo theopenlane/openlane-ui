@@ -34,7 +34,6 @@ export const GET_ASSESSMENT = gql`
       uischema
       templateID
       responseDueDuration
-      accessURL
       tags
       createdAt
       updatedAt
@@ -123,7 +122,6 @@ export const GET_ASSESSMENT_DETAIL = gql`
       uischema
       templateID
       responseDueDuration
-      accessURL
       tags
       createdAt
       updatedAt
@@ -159,6 +157,15 @@ export const GET_ASSESSMENT_DETAIL = gql`
           hasNextPage
         }
       }
+    }
+  }
+`
+
+export const GET_ASSESSMENT_ACCESS_URL = gql`
+  query GetAssessmentAccessURL($getAssessmentId: ID!) {
+    assessment(id: $getAssessmentId) {
+      id
+      accessURL
     }
   }
 `
