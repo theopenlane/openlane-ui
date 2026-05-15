@@ -2,17 +2,13 @@
 
 import { useMemo } from 'react'
 import { useEntity, useUpdateEntity, useDeleteEntity, useVendorsWithFilter } from '@/lib/graphql-hooks/entity'
-import { EntityEntityStatus, type EntityQuery, type UpdateEntityInput } from '@repo/codegen/src/schema'
-import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { type EntityQuery, type UpdateEntityInput } from '@repo/codegen/src/schema'
 import type { MergeConfig, MergeFieldOverrides } from '../types'
 
 type Vendor = NonNullable<EntityQuery['entity']>
 
-const statusOptions = Object.values(EntityEntityStatus).map((v) => ({ value: v, label: getEnumLabel(v) }))
-
 const fieldOverrides: MergeFieldOverrides<Vendor> = {
   description: { label: 'Description', type: 'longText' },
-  status: { label: 'Status', type: 'enum', enumOptions: statusOptions },
   contractStartDate: { label: 'Contract start', type: 'date' },
   contractEndDate: { label: 'Contract end', type: 'date' },
   mfaEnforced: { label: 'MFA enforced', type: 'boolean' },
@@ -36,6 +32,8 @@ const excludeFields = [
   'entitySecurityQuestionnaireStatusID',
   'entitySourceTypeID',
 ] as const satisfies ReadonlyArray<Extract<keyof Vendor, string>>
+
+const schemaExcludeFields = ['internalOwnerGroupID', 'internalOwnerUserID', 'reviewedByGroupID', 'reviewedByUserID'] as const
 
 const useFetchVendor = (id: string | null) => {
   const { data, isLoading, error } = useEntity(id ?? undefined)
@@ -86,12 +84,13 @@ const useSearchVendors = (search: string, excludeId: string) => {
   return { options, isLoading }
 }
 
-export const vendorMergeConfig: MergeConfig<Vendor, UpdateEntityInput> = {
+export const vendorMergeConfig: MergeConfig<Vendor, UpdateEntityInput, 'Entity'> = {
   entityType: 'Entity',
   labelSingular: 'vendor',
   labelPlural: 'vendors',
   fieldOverrides,
   excludeFields,
+  schemaExcludeFields,
   useFetchRecord: useFetchVendor,
   useUpdate: useUpdateVendor,
   useDelete: useDeleteVendor,

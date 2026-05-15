@@ -133,8 +133,8 @@ export default function CreateQuestionnaire(input: { templateId: string; existin
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
-      { label: 'Automation', href: '/automation/assessments' },
-      { label: 'Questionnaires', href: '/automation/assessments' },
+      { label: 'Automation', href: '/automation/questionnaires' },
+      { label: 'Questionnaires', href: '/automation/questionnaires' },
       { label: 'Questionnaire Editor', href: '/questionnaire-editor' },
     ])
   }, [setCrumbs])
@@ -159,7 +159,7 @@ export default function CreateQuestionnaire(input: { templateId: string; existin
     // system owned assessments cannot be edited so no need to allow the user
     // access to this screen
     if (assessmentResult.assessment.systemOwned) {
-      router.push('/automation/assessments')
+      router.push('/automation/questionnaires')
       return
     }
   }, [assessmentResult, router])
@@ -199,7 +199,7 @@ export default function CreateQuestionnaire(input: { templateId: string; existin
             title: 'Assessment updated successfully',
           })
 
-          router.push(`/automation/assessments`)
+          router.push(`/automation/questionnaires`)
         } catch (error) {
           const errorMessage = parseErrorMessage(error)
           errorNotification({
@@ -224,7 +224,7 @@ export default function CreateQuestionnaire(input: { templateId: string; existin
           title: 'Assessment created successfully',
         })
 
-        router.push(`/automation/assessments`)
+        router.push(`/automation/questionnaires`)
       } catch (error) {
         const errorMessage = parseErrorMessage(error)
         errorNotification({

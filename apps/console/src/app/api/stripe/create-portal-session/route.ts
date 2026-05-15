@@ -6,7 +6,9 @@ import { auth } from '@/lib/auth/auth'
 export async function POST(req: Request) {
   // ensure we have a valid session
   const session = await auth()
-  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!session || !session.user?.accessToken) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
 
   try {
     const { customerId, isBillingSettings } = (await req.json()) as {
@@ -52,7 +54,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ url: session.url })
   } catch (err: unknown) {
     console.error('❌ Stripe portal error:', err)
-    const message = err instanceof Error ? err.message : 'Unknown error'
-    return NextResponse.json({ error: message }, { status: 500 })
+    return NextResponse.json({ error: 'Failed to create portal session' }, { status: 500 })
   }
 }

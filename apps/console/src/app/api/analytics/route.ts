@@ -58,7 +58,9 @@ async function getPirschAccessToken() {
 
 export async function GET(request: Request) {
   const session = await auth()
-  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!session || !session.user?.accessToken) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
 
   const { token, error } = await getPirschAccessToken()
   const { searchParams } = new URL(request.url)

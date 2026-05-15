@@ -3,7 +3,9 @@ import { type NextRequest, NextResponse } from 'next/server'
 
 export async function GET(req: NextRequest) {
   const session = await auth()
-  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!session || !session.user?.accessToken) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
 
   const currentOrgId = req.nextUrl.searchParams.get('orgId')
   const orgName = req.nextUrl.searchParams.get('orgName')

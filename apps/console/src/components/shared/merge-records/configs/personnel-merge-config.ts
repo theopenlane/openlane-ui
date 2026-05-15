@@ -2,19 +2,14 @@
 
 import { useMemo } from 'react'
 import { useIdentityHolder, useUpdateIdentityHolder, useDeleteIdentityHolder, useIdentityHoldersWithFilter, useGetIdentityHolderEdgesForMerge } from '@/lib/graphql-hooks/identity-holder'
-import { IdentityHolderIdentityHolderType, IdentityHolderUserStatus, type IdentityHolderQuery, type UpdateIdentityHolderInput } from '@repo/codegen/src/schema'
-import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { type IdentityHolderQuery, type UpdateIdentityHolderInput } from '@repo/codegen/src/schema'
 import { IDENTITY_HOLDER_ASSOCIATION_CONFIG } from '@/components/shared/object-association/association-configs'
 import type { MergeConfig, MergeEdgeTransferCount, MergeFieldOverrides, MergePreSaveExtrasResult } from '../types'
 
 type Personnel = NonNullable<IdentityHolderQuery['identityHolder']>
 
-const statusOptions = Object.values(IdentityHolderUserStatus).map((v) => ({ value: v, label: getEnumLabel(v) }))
-const typeOptions = Object.values(IdentityHolderIdentityHolderType).map((v) => ({ value: v, label: getEnumLabel(v) }))
-
 const fieldOverrides: MergeFieldOverrides<Personnel> = {
-  identityHolderType: { label: 'Type', type: 'enum', enumOptions: typeOptions },
-  status: { label: 'Status', type: 'enum', enumOptions: statusOptions },
+  identityHolderType: { label: 'Type', type: 'enum' },
   isActive: { label: 'Active', type: 'boolean' },
   externalReferenceID: { label: 'External reference ID', type: 'text' },
   externalUserID: { label: 'External user ID', type: 'text' },
@@ -31,6 +26,8 @@ const excludeFields = [
   'workflowEligibleMarker',
   'avatarRemoteURL',
 ] as const satisfies ReadonlyArray<Extract<keyof Personnel, string>>
+
+const schemaExcludeFields = ['internalOwnerGroupID', 'internalOwnerUserID'] as const
 
 const useFetchPersonnel = (id: string | null) => {
   const { data, isLoading, error } = useIdentityHolder(id ?? undefined)
@@ -157,12 +154,13 @@ const usePersonnelPreSaveExtras = ({
   }, [data, isLoading, primary?.userID, secondaryId])
 }
 
-export const personnelMergeConfig: MergeConfig<Personnel, UpdateIdentityHolderInput> = {
+export const personnelMergeConfig: MergeConfig<Personnel, UpdateIdentityHolderInput, 'IdentityHolder'> = {
   entityType: 'IdentityHolder',
   labelSingular: 'personnel record',
   labelPlural: 'personnel records',
   fieldOverrides,
   excludeFields,
+  schemaExcludeFields,
   useFetchRecord: useFetchPersonnel,
   useUpdate: useUpdatePersonnel,
   useDelete: useDeletePersonnel,

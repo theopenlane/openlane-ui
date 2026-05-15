@@ -2,18 +2,16 @@
 
 import { useMemo } from 'react'
 import { useContact, useUpdateContact, useDeleteContact, useContactsWithFilter } from '@/lib/graphql-hooks/contact'
-import { ContactUserStatus, type ContactQuery, type UpdateContactInput } from '@repo/codegen/src/schema'
-import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { type ContactQuery, type UpdateContactInput } from '@repo/codegen/src/schema'
 import type { MergeConfig, MergeFieldOverrides } from '../types'
 
 type Contact = NonNullable<ContactQuery['contact']>
 
-const statusOptions = Object.values(ContactUserStatus).map((v) => ({ value: v, label: getEnumLabel(v) }))
-
 const fieldOverrides: MergeFieldOverrides<Contact> = {
   address: { label: 'Address', type: 'longText' },
-  status: { label: 'Status', type: 'enum', enumOptions: statusOptions },
 }
+
+const schemaExcludeFields = ['integrationID'] as const
 
 const useFetchContact = (id: string | null) => {
   const { data, isLoading, error } = useContact(id ?? undefined)
@@ -64,11 +62,12 @@ const useSearchContacts = (search: string, excludeId: string) => {
   return { options, isLoading }
 }
 
-export const contactMergeConfig: MergeConfig<Contact, UpdateContactInput> = {
+export const contactMergeConfig: MergeConfig<Contact, UpdateContactInput, 'Contact'> = {
   entityType: 'Contact',
   labelSingular: 'contact',
   labelPlural: 'contacts',
   fieldOverrides,
+  schemaExcludeFields,
   useFetchRecord: useFetchContact,
   useUpdate: useUpdateContactMutation,
   useDelete: useDeleteContactMutation,

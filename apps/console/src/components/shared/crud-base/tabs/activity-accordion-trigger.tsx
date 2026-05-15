@@ -2,7 +2,12 @@ import React from 'react'
 import { AccordionTrigger } from '@radix-ui/react-accordion'
 import { ChevronDown } from 'lucide-react'
 
-const ActivityAccordionTrigger = ({ label, count }: { label: string; count?: number }) => (
+type ActivityAccordionTriggerProps = {
+  label: string
+  count?: number
+}
+
+const ActivityAccordionTrigger: React.FC<ActivityAccordionTriggerProps> = ({ label, count }) => (
   <AccordionTrigger asChild className="bg-unset">
     <button className="group flex w-full items-center justify-between text-left">
       <div className="flex items-center gap-2">

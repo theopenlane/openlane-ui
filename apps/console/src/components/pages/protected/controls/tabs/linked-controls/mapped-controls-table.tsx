@@ -1,4 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react'
+import { ChevronDown } from 'lucide-react'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@radix-ui/react-collapsible'
 import { DataTable } from '@repo/ui/data-table'
 import type { ColumnDef } from '@tanstack/react-table'
 import type { TPagination } from '@repo/ui/pagination-types'
@@ -19,10 +21,18 @@ type MappedControlsTableProps = {
   action?: React.ReactNode
 }
 
+const SectionToggle: React.FC<{ open: boolean; title: string }> = ({ open, title }) => (
+  <CollapsibleTrigger className="flex items-center gap-2 group">
+    <ChevronDown className={`h-4 w-4 transition-transform ${open ? '' : '-rotate-90'}`} />
+    <h2 className="text-lg font-semibold">{title}</h2>
+  </CollapsibleTrigger>
+)
+
 type MappingTypeFilter = 'all' | MappedControlRow['mappingType']
 type MappingSourceFilter = 'all' | MappedControlRow['source']
 
 const MappedControlsTable: React.FC<MappedControlsTableProps> = ({ title, rows, columns, searchPlaceholder, showFrameworkFilter = false, action }) => {
+  const [isOpen, setIsOpen] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const debouncedSearch = useDebounce(searchQuery, 300)
   const [filters, setFilters] = useState<WhereCondition>({})
@@ -94,33 +104,33 @@ const MappedControlsTable: React.FC<MappedControlsTableProps> = ({ title, rows, 
   }, [filteredRows, pagination.page, pagination.pageSize])
 
   return (
-    <div className="space-y-4">
+    <Collapsible open={isOpen} onOpenChange={setIsOpen} className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-2.5">
-          <h2 className="text-lg font-semibold">{title}</h2>
-        </div>
-        {action}
+        <SectionToggle open={isOpen} title={title} />
       </div>
 
-      <SearchFilterBar
-        placeholder={searchPlaceholder}
-        isSearching={searchQuery !== debouncedSearch}
-        searchValue={searchQuery}
-        onSearchChange={setSearchQuery}
-        filterFields={filterFields}
-        onFilterChange={setFilters}
-      />
+      <CollapsibleContent forceMount hidden={!isOpen} className="space-y-4">
+        <SearchFilterBar
+          placeholder={searchPlaceholder}
+          isSearching={searchQuery !== debouncedSearch}
+          searchValue={searchQuery}
+          onSearchChange={setSearchQuery}
+          filterFields={action ? null : filterFields}
+          onFilterChange={setFilters}
+          actionButtons={action}
+        />
 
-      <DataTable
-        columns={columns}
-        data={pagedRows}
-        pagination={pagination}
-        onPaginationChange={setPagination}
-        paginationMeta={{ totalCount: filteredRows.length }}
-        noResultsText="No mapped controls found."
-        tableKey={undefined}
-      />
-    </div>
+        <DataTable
+          columns={columns}
+          data={pagedRows}
+          pagination={pagination}
+          onPaginationChange={setPagination}
+          paginationMeta={{ totalCount: filteredRows.length }}
+          noResultsText="No mapped controls found."
+          tableKey={undefined}
+        />
+      </CollapsibleContent>
+    </Collapsible>
   )
 }
 

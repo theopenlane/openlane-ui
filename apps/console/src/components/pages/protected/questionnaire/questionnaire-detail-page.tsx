@@ -207,8 +207,8 @@ const QuestionnaireDetailPage = () => {
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
-      { label: 'Automation', href: '/automation/assessments' },
-      { label: 'Questionnaires', href: '/automation/assessments' },
+      { label: 'Automation', href: '/automation/questionnaires' },
+      { label: 'Questionnaires', href: '/automation/questionnaires' },
       { label: assessment?.name, isLoading },
     ])
   }, [setCrumbs, assessment?.name, isLoading])
@@ -236,7 +236,7 @@ const QuestionnaireDetailPage = () => {
 
   const fetchAllDeliveryRows = useCallback(async () => {
     const rows: Array<{
-      email: string
+      email?: string | null
       status: AssessmentResponseAssessmentResponseStatus
       assignedAt: string
       dueDate?: string | null
@@ -364,12 +364,12 @@ const QuestionnaireDetailPage = () => {
             <Menu
               content={
                 <>
-                  <Button size="sm" variant="transparent" className="flex justify-start space-x-2" onClick={() => router.push(`/automation/assessments/questionnaire-viewer?id=${id}`)}>
+                  <Button size="sm" variant="transparent" className="flex justify-start space-x-2" onClick={() => router.push(`/automation/questionnaires/questionnaire-viewer?id=${id}`)}>
                     <Eye size={16} strokeWidth={2} />
                     <span>Preview</span>
                   </Button>
                   {canEdit(permission?.roles) && !assessment.systemOwned && (
-                    <Button size="sm" variant="transparent" className="flex justify-start space-x-2" onClick={() => router.push(`/automation/assessments/questionnaire-editor?id=${id}`)}>
+                    <Button size="sm" variant="transparent" className="flex justify-start space-x-2" onClick={() => router.push(`/automation/questionnaires/questionnaire-editor?id=${id}`)}>
                       <Pencil size={16} strokeWidth={2} />
                       <span>Edit</span>
                     </Button>
@@ -474,7 +474,7 @@ const QuestionnaireDetailPage = () => {
           try {
             await deleteAssessment({ deleteAssessmentId: id })
             successNotification({ title: 'Questionnaire deleted successfully' })
-            router.push('/automation/assessments')
+            router.push('/automation/questionnaires')
           } catch (error) {
             const errorMessage = parseErrorMessage(error)
             errorNotification({ title: 'Error', description: errorMessage })

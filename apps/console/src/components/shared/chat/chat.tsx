@@ -13,7 +13,7 @@ export default function ChatBot() {
     }),
   })
 
-  if (enableChat === 'false') {
+  if (!enableChat) {
     return null
   }
 

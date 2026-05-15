@@ -21,7 +21,7 @@ import { AssetAssetType, AssetSourceType, FindingSecurityLevel, type CreateAsset
 type Vendor = {
   id: string
   name: string
-  tags: string[]
+  providedServices: string[]
   description?: string
   confidence?: string
 }
@@ -118,13 +118,13 @@ const vendorsFromNotification = (data?: DomainScanNotificationData): Vendor[] =>
       mapByName.set(key, {
         id: canocalizeEntityName(name || vendor.url || 'vendor'),
         name,
-        tags: vendor.categories?.length ? vendor.categories : [],
+        providedServices: vendor.categories?.length ? vendor.categories : [],
         description: vendor.url,
       })
       return
     }
 
-    existingVendor.tags = Array.from(new Set([...existingVendor.tags, ...(vendor.categories || [])]))
+    existingVendor.providedServices = Array.from(new Set([...existingVendor.providedServices, ...(vendor.categories || [])]))
     existingVendor.description = existingVendor.description || vendor.url
   })
 
@@ -309,7 +309,7 @@ const VendorsStep = ({
             onCheckedChange={() => toggleSetValue(setSelected, vendor.id)}
             disabled={existingIds.has(vendor.id)}
             title={vendor.name}
-            badges={vendor.tags}
+            badges={vendor.providedServices}
             description={vendor.description}
             trailing={existingIds.has(vendor.id) ? <Badge variant="secondary">Already added</Badge> : vendor.confidence}
           />
@@ -556,7 +556,7 @@ export default function DomainDiscoveryImportPage() {
       displayName: vendor.name,
       description: vendor.description,
       links: vendor.description ? [vendor.description] : undefined,
-      providedServices: vendor.tags.length > 0 ? vendor.tags : undefined,
+      providedServices: vendor.providedServices.length > 0 ? vendor.providedServices : undefined,
       vendorMetadata: {
         source: 'domain_scan',
         scan_id: notificationData.scan_id,

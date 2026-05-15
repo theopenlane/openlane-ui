@@ -6,7 +6,7 @@ export const CreateTemplateButton = () => {
   const router = useRouter()
 
   const handleCreateNew = () => {
-    router.push('/automation/assessments/templates/template-editor')
+    router.push('/automation/questionnaires/templates/template-editor')
   }
 
   return (

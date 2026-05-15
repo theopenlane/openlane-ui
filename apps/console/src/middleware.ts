@@ -7,22 +7,7 @@ export default auth(async (req) => {
   req.headers.append('next-url', req.nextUrl.toString())
 
   //IF YOU ADD PUBLIC PAGE, ITS REQUIRED TO CHANGE IT IN Providers.tsx
-  const publicPages = [
-    '/login',
-    '/login/sso',
-    '/login/sso/enforce',
-    '/tfa',
-    '/invite',
-    '/subscriber-verify',
-    '/verify',
-    '/resend-verify',
-    '/waitlist',
-    '/unsubscribe',
-    '/forgot-password',
-    '/password-reset',
-    '/signup',
-    '/questionnaire',
-  ]
+  const publicPages = ['/login', '/login/sso', '/login/sso/enforce', '/tfa', '/invite', '/verify', '/resend-verify', '/forgot-password', '/password-reset', '/signup', '/questionnaire']
 
   const personalOrgPages = ['/onboarding', '/organization', '/user-settings/profile']
 
@@ -30,8 +15,6 @@ export default auth(async (req) => {
   const isPublicPage = publicPages.includes(path) || path.startsWith('/questionnaire/')
   const validForPersonalOrg = personalOrgPages.includes(path)
   const isInvite = path === '/invite'
-  const isUnsubscribe = path === '/unsubscribe'
-  const isWaitlist = path === '/waitlist'
   const isQuestionnaire = path === '/questionnaire' || path.startsWith('/questionnaire/')
 
   const session = req.auth
@@ -51,7 +34,7 @@ export default auth(async (req) => {
     return path === '/tfa' || path === '/login' ? NextResponse.next() : NextResponse.redirect(new URL('/tfa', req.url))
   }
 
-  if (isInvite || isUnsubscribe || isWaitlist) {
+  if (isInvite) {
     return NextResponse.next()
   }
 

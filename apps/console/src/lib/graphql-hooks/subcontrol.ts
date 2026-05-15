@@ -2,6 +2,7 @@ import { type InfiniteData, useInfiniteQuery, useMutation, useQuery, useQueryCli
 
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
+  BULK_EDIT_SUBCONTROL,
   CREATE_SUBCONTROL,
   DELETE_SUBCONTROL,
   GET_ALL_SUBCONTROLS,
@@ -38,6 +39,7 @@ import {
   type GetSubcontrolsPaginatedQueryVariables,
   type Subcontrol,
   type SubcontrolWhereInput,
+  type UpdateSubcontrolInput,
   type UpdateSubcontrolMutation,
   type UpdateSubcontrolMutationVariables,
   type InsertSubcontrolPlateCommentMutation,
@@ -56,6 +58,17 @@ import {
 export type SubcontrolByIdNode = GetSubcontrolByIdQuery['subcontrol']
 export type SubcontrolsByRefcodeEdge = NonNullable<NonNullable<NonNullable<GetSubcontrolsByRefCodeQuery['subcontrols']>['edges']>[number]>
 export type SubcontrolsByRefcodeNode = NonNullable<SubcontrolsByRefcodeEdge['node']>
+
+type UpdateBulkSubcontrolMutation = {
+  updateBulkSubcontrol: {
+    updatedIDs: string[]
+  }
+}
+
+type UpdateBulkSubcontrolMutationVariables = {
+  ids: string[]
+  input: UpdateSubcontrolInput
+}
 
 type UseGetAllSubcontrolsArgs = {
   where?: GetAllSubcontrolsQueryVariables['where']
@@ -155,6 +168,19 @@ export const useUpdateSubcontrol = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['subcontrolsDiscussion'] })
       queryClient.invalidateQueries({ queryKey: ['subcontrols'] })
+      queryClient.invalidateQueries({ queryKey: ['mappedControls'] })
+    },
+  })
+}
+
+export const useBulkEditSubcontrol = () => {
+  const { client, queryClient } = useGraphQLClient()
+
+  return useMutation<UpdateBulkSubcontrolMutation, unknown, UpdateBulkSubcontrolMutationVariables>({
+    mutationFn: async (variables) => client.request(BULK_EDIT_SUBCONTROL, variables),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['subcontrols'] })
+      queryClient.invalidateQueries({ queryKey: ['controls'] })
       queryClient.invalidateQueries({ queryKey: ['mappedControls'] })
     },
   })

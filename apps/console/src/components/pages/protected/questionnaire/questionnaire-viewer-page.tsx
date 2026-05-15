@@ -49,14 +49,14 @@ const QuestionnaireViewerPage: React.FC = () => {
   const hasTemplate = !!questionnaire?.templateID
 
   const handleEdit = () => {
-    router.push(`/automation/assessments/questionnaire-editor?id=${existingId}`)
+    router.push(`/automation/questionnaires/questionnaire-editor?id=${existingId}`)
   }
 
   const handleDelete = async () => {
     try {
       await deleteAssessment({ deleteAssessmentId: existingId })
       successNotification({ title: 'Questionnaire deleted successfully' })
-      router.push('/automation/assessments')
+      router.push('/automation/questionnaires')
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
       errorNotification({
@@ -92,7 +92,7 @@ const QuestionnaireViewerPage: React.FC = () => {
           title: 'Template created successfully',
         })
         setIsSaveAsTemplateDialogOpen(false)
-        router.push(`/automation/assessments/templates/template-viewer?id=${templateId}`)
+        router.push(`/automation/questionnaires/templates/template-viewer?id=${templateId}`)
       }
     } catch (error) {
       const errorMessage = parseErrorMessage(error)

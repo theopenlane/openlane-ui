@@ -65891,6 +65891,12 @@ export type CreateAssessmentMutation = {
   }
 }
 
+export type GetAssessmentByIdMinifiedQueryVariables = Exact<{
+  getAssessmentId: Scalars['ID']['input']
+}>
+
+export type GetAssessmentByIdMinifiedQuery = { __typename?: 'Query'; assessment: { __typename?: 'Assessment'; id: string; name: string } }
+
 export type GetAssessmentQueryVariables = Exact<{
   getAssessmentId: Scalars['ID']['input']
 }>
@@ -66445,6 +66451,12 @@ export type CampaignsWithFilterQuery = {
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
   }
 }
+
+export type GetCampaignByIdMinifiedQueryVariables = Exact<{
+  campaignId: Scalars['ID']['input']
+}>
+
+export type GetCampaignByIdMinifiedQuery = { __typename?: 'Query'; campaign: { __typename?: 'Campaign'; id: string; name: string } }
 
 export type CampaignQueryVariables = Exact<{
   campaignId: Scalars['ID']['input']
@@ -68885,11 +68897,14 @@ export type EntityQuery = {
     id: string
     internalOwner?: string | null
     lastReviewedAt?: string | null
+    linkedAssetIds?: Array<string> | null
+    links?: Array<string> | null
     logoFileID?: string | null
     mfaEnforced?: boolean | null
     mfaSupported?: boolean | null
     name?: string | null
     nextReviewAt?: string | null
+    providedServices?: Array<string> | null
     renewalRisk?: string | null
     reviewedBy?: string | null
     reviewFrequency?: EntityFrequency | null
@@ -68911,7 +68926,10 @@ export type EntityQuery = {
     vendorMetadata?: any | null
     integrations: {
       __typename?: 'IntegrationConnection'
-      edges?: Array<{ __typename?: 'IntegrationEdge'; node?: { __typename?: 'Integration'; id: string; definitionID?: string | null; name: string } | null } | null> | null
+      edges?: Array<{
+        __typename?: 'IntegrationEdge'
+        node?: { __typename?: 'Integration'; id: string; definitionID?: string | null; name: string; directoryGroups: { __typename?: 'DirectoryGroupConnection'; totalCount: number } } | null
+      } | null> | null
     }
     internalOwnerGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
     internalOwnerUser?: { __typename?: 'User'; id: string; displayName: string } | null
@@ -69024,6 +69042,22 @@ export type CreateEntityWithFilesMutationVariables = Exact<{
 }>
 
 export type CreateEntityWithFilesMutation = { __typename?: 'Mutation'; createEntity: { __typename?: 'EntityCreatePayload'; entity: { __typename?: 'Entity'; id: string } } }
+
+export type GetEntityCommentsQueryVariables = Exact<{
+  entityId: Scalars['ID']['input']
+}>
+
+export type GetEntityCommentsQuery = {
+  __typename?: 'Query'
+  entity: {
+    __typename?: 'Entity'
+    id: string
+    notes: {
+      __typename?: 'NoteConnection'
+      edges?: Array<{ __typename?: 'NoteEdge'; node?: { __typename?: 'Note'; id: string; createdAt?: any | null; createdBy?: string | null; text: string } | null } | null> | null
+    }
+  }
+}
 
 export type GetEntityAssociationsQueryVariables = Exact<{
   entityId: Scalars['ID']['input']
@@ -70389,7 +70423,16 @@ export type DirectoryMembershipConnectionFieldsFragment = {
       addedAt?: any | null
       removedAt?: any | null
       createdAt?: any | null
-      directoryGroup: { __typename?: 'DirectoryGroup'; displayName?: string | null }
+      directoryGroup: {
+        __typename?: 'DirectoryGroup'
+        id: string
+        displayName?: string | null
+        integration: {
+          __typename?: 'Integration'
+          id: string
+          entities: { __typename?: 'EntityConnection'; edges?: Array<{ __typename?: 'EntityEdge'; node?: { __typename?: 'Entity'; id: string; name?: string | null } | null } | null> | null }
+        }
+      }
     } | null
   } | null> | null
 }
@@ -70462,6 +70505,7 @@ export type IdentityHolderQuery = {
   __typename?: 'Query'
   identityHolder: {
     __typename?: 'IdentityHolder'
+    alternateEmail?: string | null
     avatarRemoteURL?: string | null
     emailAliases?: Array<string> | null
     createdAt?: any | null
@@ -70631,7 +70675,12 @@ export type GetIdentityHolderDirectoryAccountsQuery = {
           primarySource: boolean
           mfaState: DirectoryAccountDirectoryAccountMfaState
           directoryName?: string | null
-          integration?: { __typename?: 'Integration'; definitionID?: string | null } | null
+          integration?: {
+            __typename?: 'Integration'
+            id: string
+            definitionID?: string | null
+            entities: { __typename?: 'EntityConnection'; edges?: Array<{ __typename?: 'EntityEdge'; node?: { __typename?: 'Entity'; id: string; name?: string | null } | null } | null> | null }
+          } | null
           memberships: {
             __typename?: 'DirectoryMembershipConnection'
             totalCount: number
@@ -70644,7 +70693,16 @@ export type GetIdentityHolderDirectoryAccountsQuery = {
                 addedAt?: any | null
                 removedAt?: any | null
                 createdAt?: any | null
-                directoryGroup: { __typename?: 'DirectoryGroup'; displayName?: string | null }
+                directoryGroup: {
+                  __typename?: 'DirectoryGroup'
+                  id: string
+                  displayName?: string | null
+                  integration: {
+                    __typename?: 'Integration'
+                    id: string
+                    entities: { __typename?: 'EntityConnection'; edges?: Array<{ __typename?: 'EntityEdge'; node?: { __typename?: 'Entity'; id: string; name?: string | null } | null } | null> | null }
+                  }
+                }
               } | null
             } | null> | null
           }
@@ -70739,7 +70797,16 @@ export type GetIdentityHolderAssociationsTimelineQuery = {
                 addedAt?: any | null
                 removedAt?: any | null
                 createdAt?: any | null
-                directoryGroup: { __typename?: 'DirectoryGroup'; displayName?: string | null }
+                directoryGroup: {
+                  __typename?: 'DirectoryGroup'
+                  id: string
+                  displayName?: string | null
+                  integration: {
+                    __typename?: 'Integration'
+                    id: string
+                    entities: { __typename?: 'EntityConnection'; edges?: Array<{ __typename?: 'EntityEdge'; node?: { __typename?: 'Entity'; id: string; name?: string | null } | null } | null> | null }
+                  }
+                }
               } | null
             } | null> | null
           }
@@ -70948,6 +71015,12 @@ export type InternalPolicyByIdFragment = {
     avatarFile?: { __typename?: 'File'; base64?: string | null } | null
   } | null
 }
+
+export type GetInternalPolicyByIdMinifiedQueryVariables = Exact<{
+  internalPolicyId: Scalars['ID']['input']
+}>
+
+export type GetInternalPolicyByIdMinifiedQuery = { __typename?: 'Query'; internalPolicy: { __typename?: 'InternalPolicy'; id: string; name: string } }
 
 export type GetInternalPolicyDetailsByIdQueryVariables = Exact<{
   internalPolicyId: Scalars['ID']['input']
@@ -71684,6 +71757,7 @@ export type GetAllMappedControlsQuery = {
         confidence?: number | null
         mappingType: MappedControlMappingType
         source?: MappedControlMappingSource | null
+        systemOwned?: boolean | null
         fromSubcontrols: {
           __typename?: 'SubcontrolConnection'
           edges?: Array<{
@@ -72509,6 +72583,12 @@ export type PlatformsWithFilterQuery = {
   }
 }
 
+export type GetPlatformByIdMinifiedQueryVariables = Exact<{
+  platformId: Scalars['ID']['input']
+}>
+
+export type GetPlatformByIdMinifiedQuery = { __typename?: 'Query'; platform: { __typename?: 'Platform'; id: string; name: string; displayID: string } }
+
 export type PlatformQueryVariables = Exact<{
   platformId: Scalars['ID']['input']
 }>
@@ -72580,10 +72660,35 @@ export type PlatformQuery = {
     securityOwnerGroup?: { __typename?: 'Group'; id: string; name: string } | null
     technicalOwnerUser?: { __typename?: 'User'; id: string; displayName: string; email: string } | null
     technicalOwnerGroup?: { __typename?: 'Group'; id: string; name: string } | null
-    assets: { __typename?: 'AssetConnection'; edges?: Array<{ __typename?: 'AssetEdge'; node?: { __typename?: 'Asset'; id: string; name: string; assetType: AssetAssetType } | null } | null> | null }
+    assets: {
+      __typename?: 'AssetConnection'
+      edges?: Array<{
+        __typename?: 'AssetEdge'
+        node?: {
+          __typename?: 'Asset'
+          id: string
+          name: string
+          assetType: AssetAssetType
+          internalOwner?: string | null
+          internalOwnerUser?: { __typename?: 'User'; id: string; displayName: string; email: string } | null
+          internalOwnerGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
+        } | null
+      } | null> | null
+    }
     outOfScopeAssets: {
       __typename?: 'AssetConnection'
-      edges?: Array<{ __typename?: 'AssetEdge'; node?: { __typename?: 'Asset'; id: string; name: string; assetType: AssetAssetType } | null } | null> | null
+      edges?: Array<{
+        __typename?: 'AssetEdge'
+        node?: {
+          __typename?: 'Asset'
+          id: string
+          name: string
+          assetType: AssetAssetType
+          internalOwner?: string | null
+          internalOwnerUser?: { __typename?: 'User'; id: string; displayName: string; email: string } | null
+          internalOwnerGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
+        } | null
+      } | null> | null
     }
     entities: {
       __typename?: 'EntityConnection'
@@ -72595,7 +72700,10 @@ export type PlatformQuery = {
           name?: string | null
           displayName?: string | null
           status?: EntityEntityStatus | null
+          internalOwner?: string | null
           logoFile?: { __typename?: 'File'; base64?: string | null } | null
+          internalOwnerUser?: { __typename?: 'User'; id: string; displayName: string; email: string } | null
+          internalOwnerGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
         } | null
       } | null> | null
     }
@@ -72609,7 +72717,10 @@ export type PlatformQuery = {
           name?: string | null
           displayName?: string | null
           status?: EntityEntityStatus | null
+          internalOwner?: string | null
           logoFile?: { __typename?: 'File'; base64?: string | null } | null
+          internalOwnerUser?: { __typename?: 'User'; id: string; displayName: string; email: string } | null
+          internalOwnerGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
         } | null
       } | null> | null
     }
@@ -72859,6 +72970,12 @@ export type GetProcedureAssociationsByIdQuery = {
     }
   }
 }
+
+export type GetProcedureByIdMinifiedQueryVariables = Exact<{
+  procedureId: Scalars['ID']['input']
+}>
+
+export type GetProcedureByIdMinifiedQuery = { __typename?: 'Query'; procedure: { __typename?: 'Procedure'; id: string; name: string } }
 
 export type GetProcedureDetailsByIdQueryVariables = Exact<{
   procedureId: Scalars['ID']['input']
@@ -74786,6 +74903,12 @@ export type GetAllStandardsQuery = {
   }
 }
 
+export type GetStandardByIdMinifiedQueryVariables = Exact<{
+  standardId: Scalars['ID']['input']
+}>
+
+export type GetStandardByIdMinifiedQuery = { __typename?: 'Query'; standard: { __typename?: 'Standard'; id: string; shortName?: string | null; name: string } }
+
 export type GetStandardDetailsQueryVariables = Exact<{
   standardId: Scalars['ID']['input']
 }>
@@ -75065,6 +75188,13 @@ export type UpdateSubcontrolMutationVariables = Exact<{
 
 export type UpdateSubcontrolMutation = { __typename?: 'Mutation'; updateSubcontrol: { __typename?: 'SubcontrolUpdatePayload'; subcontrol: { __typename?: 'Subcontrol'; id: string } } }
 
+export type UpdateBulkSubcontrolMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+  input: UpdateSubcontrolInput
+}>
+
+export type UpdateBulkSubcontrolMutation = { __typename?: 'Mutation'; updateBulkSubcontrol: { __typename?: 'SubcontrolBulkUpdatePayload'; updatedIDs?: Array<string> | null } }
+
 export type DeleteSubcontrolMutationVariables = Exact<{
   deleteSubcontrolId: Scalars['ID']['input']
 }>
@@ -75168,6 +75298,7 @@ export type GetSubcontrolsByRefCodeQuery = {
         publicRepresentation?: string | null
         category?: string | null
         subcategory?: string | null
+        referenceFramework?: string | null
         systemOwned?: boolean | null
         controlID: string
         control: { __typename?: 'Control'; standardID?: string | null }
@@ -76898,6 +77029,55 @@ export type DeleteUserMutationVariables = Exact<{
 
 export type DeleteUserMutation = { __typename?: 'Mutation'; deleteUser: { __typename?: 'UserDeletePayload'; deletedID: string } }
 
+export type GetVendorDirectoryQueryVariables = Exact<{
+  integrationIDs: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type GetVendorDirectoryQuery = {
+  __typename?: 'Query'
+  directoryGroups: {
+    __typename?: 'DirectoryGroupConnection'
+    totalCount: number
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean }
+    edges?: Array<{
+      __typename?: 'DirectoryGroupEdge'
+      node?: {
+        __typename?: 'DirectoryGroup'
+        id: string
+        displayName?: string | null
+        email?: string | null
+        integration: { __typename?: 'Integration'; id: string; name: string }
+        members: {
+          __typename?: 'DirectoryMembershipConnection'
+          totalCount: number
+          edges?: Array<{
+            __typename?: 'DirectoryMembershipEdge'
+            node?: {
+              __typename?: 'DirectoryMembership'
+              id: string
+              role?: DirectoryMembershipDirectoryMembershipRole | null
+              addedAt?: any | null
+              removedAt?: any | null
+              directoryAccount: {
+                __typename?: 'DirectoryAccount'
+                id: string
+                canonicalEmail?: string | null
+                displayName?: string | null
+                givenName?: string | null
+                familyName?: string | null
+                identityHolderID?: string | null
+                identityHolder?: { __typename?: 'IdentityHolder'; id: string; fullName: string; email: string } | null
+              }
+            } | null
+          } | null> | null
+        }
+      } | null
+    } | null> | null
+  }
+}
+
 export type VendorRiskScoresWithFilterQueryVariables = Exact<{
   where?: InputMaybe<VendorRiskScoreWhereInput>
   orderBy?: InputMaybe<Array<VendorRiskScoreOrder> | VendorRiskScoreOrder>
@@ -77146,10 +77326,13 @@ export type VulnerabilitiesWithFilterQuery = {
         externalID: string
         externalOwnerID?: string | null
         externalURI?: string | null
+        firstPatchedVersion?: string | null
         id: string
         impact?: number | null
         metadata?: any | null
         open?: boolean | null
+        packageEcosystem?: string | null
+        packageName?: string | null
         priority?: string | null
         production?: boolean | null
         public?: boolean | null
@@ -77173,6 +77356,7 @@ export type VulnerabilitiesWithFilterQuery = {
         validated?: boolean | null
         vector?: string | null
         vulnerabilityStatusName?: string | null
+        vulnerableVersionRange?: string | null
         remediations: {
           __typename?: 'RemediationConnection'
           totalCount: number

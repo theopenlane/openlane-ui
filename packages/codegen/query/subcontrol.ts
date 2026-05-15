@@ -242,6 +242,14 @@ export const UPDATE_SUBCONTROL = gql`
   }
 `
 
+export const BULK_EDIT_SUBCONTROL = gql`
+  mutation UpdateBulkSubcontrol($ids: [ID!]!, $input: UpdateSubcontrolInput!) {
+    updateBulkSubcontrol(ids: $ids, input: $input) {
+      updatedIDs
+    }
+  }
+`
+
 export const DELETE_SUBCONTROL = gql`
   mutation DeleteSubcontrol($deleteSubcontrolId: ID!) {
     deleteSubcontrol(id: $deleteSubcontrolId) {
@@ -337,6 +345,7 @@ export const GET_SUBCONTROLS_BY_REFCODE = gql`
           publicRepresentation
           category
           subcategory
+          referenceFramework
           systemOwned
           controlID
           control {

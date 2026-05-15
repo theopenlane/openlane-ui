@@ -1,29 +1,86 @@
 import React from 'react'
 import Link from 'next/link'
-import type { ColumnDef } from '@tanstack/react-table'
+import type { ColumnDef, Row } from '@tanstack/react-table'
 import StandardChip from '@/components/pages/protected/standards/shared/standard-chip'
-import { FileBadge2, Folder, FolderTree, Layers, Link2, Tag } from 'lucide-react'
+import { FileBadge2, Folder, FolderTree, Layers, Link2, MoreHorizontal, Pencil, Tag } from 'lucide-react'
 import { MappedControlMappingSource, MappedControlMappingType } from '@repo/codegen/src/schema'
 import type { FilterField } from '@/types'
 import type { MappedControlRow } from './mapped-controls-types'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { CustomEnumChipCell } from '@/components/shared/crud-base/columns/custom-enum-chip-cell'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
+import { Button } from '@repo/ui/button'
+import { Checkbox } from '@repo/ui/checkbox'
 
-type LinkMap = Map<string, string>
+const getMappedControlSelectionKey = (row: MappedControlRow) => `${row.nodeType}:${row.targetId}`
 
-export const getMappedControlsBaseColumns = (
-  controlLinkMap: LinkMap,
-  subcontrolLinkMap: LinkMap,
-  convertToReadOnly: (value: string, index: number) => React.ReactNode,
-): ColumnDef<MappedControlRow>[] => [
+const getEditableRows = (rows: MappedControlRow[]) => {
+  const seen = new Set<string>()
+
+  return rows.filter((row) => {
+    if (!row.isEditableTarget) return false
+    const key = getMappedControlSelectionKey(row)
+    if (seen.has(key)) return false
+    seen.add(key)
+    return true
+  })
+}
+
+export const getMappedControlsSelectColumn = (selectedRows: MappedControlRow[], setSelectedRows: React.Dispatch<React.SetStateAction<MappedControlRow[]>>): ColumnDef<MappedControlRow> => ({
+  id: 'select',
+  header: ({ table }) => {
+    const currentPageRows = getEditableRows(table.getRowModel().rows.map((row) => row.original))
+    const allSelected = currentPageRows.length > 0 && currentPageRows.every((row) => selectedRows.some((selected) => getMappedControlSelectionKey(selected) === getMappedControlSelectionKey(row)))
+
+    return (
+      <div onClick={(e) => e.stopPropagation()}>
+        <Checkbox
+          checked={allSelected}
+          onCheckedChange={(checked: boolean) => {
+            const currentPageKeys = new Set(currentPageRows.map(getMappedControlSelectionKey))
+            const newSelections = checked
+              ? [...selectedRows.filter((selected) => !currentPageKeys.has(getMappedControlSelectionKey(selected))), ...currentPageRows]
+              : selectedRows.filter((selected) => !currentPageKeys.has(getMappedControlSelectionKey(selected)))
+
+            setSelectedRows(newSelections)
+          }}
+        />
+      </div>
+    )
+  },
+  cell: ({ row }: { row: Row<MappedControlRow> }) => {
+    const isSelectable = !!row.original.isEditableTarget
+    const isChecked = selectedRows.some((selected) => getMappedControlSelectionKey(selected) === getMappedControlSelectionKey(row.original))
+
+    return (
+      <div onClick={(e) => e.stopPropagation()}>
+        <Checkbox
+          checked={isChecked}
+          disabled={!isSelectable}
+          onCheckedChange={() => {
+            if (!isSelectable) return
+            setSelectedRows((prev) => {
+              const selectedKey = getMappedControlSelectionKey(row.original)
+              const exists = prev.some((selected) => getMappedControlSelectionKey(selected) === selectedKey)
+              return exists ? prev.filter((selected) => getMappedControlSelectionKey(selected) !== selectedKey) : [...prev, row.original]
+            })
+          }}
+        />
+      </div>
+    )
+  },
+  size: 50,
+  maxSize: 50,
+})
+
+export const getMappedControlsBaseColumns = (convertToReadOnly: (value: string, index: number) => React.ReactNode): ColumnDef<MappedControlRow>[] => [
   {
     accessorKey: 'refCode',
     header: () => <span className="whitespace-nowrap">Ref Code</span>,
     cell: ({ row }) => {
-      const href = row.original.nodeType === 'Subcontrol' ? subcontrolLinkMap.get(row.original.refCode) : controlLinkMap.get(row.original.refCode)
-      if (!href) return <span className="block truncate">{row.original.refCode}</span>
+      if (!row.original.targetHref) return <span className="block truncate">{row.original.refCode}</span>
       return (
-        <Link href={href} className="block truncate text-blue-500 hover:underline">
+        <Link href={row.original.targetHref} className="block truncate text-blue-500 hover:underline">
           {row.original.refCode}
         </Link>
       )
@@ -68,6 +125,35 @@ export const getMappedControlsFrameworkColumns = (baseColumns: ColumnDef<MappedC
     maxSize: 160,
   },
 ]
+
+export const getMappedControlsActionsColumn = (basePath: string): ColumnDef<MappedControlRow> => ({
+  id: 'actions',
+  header: '',
+  size: 50,
+  cell: ({ row }) => {
+    if (row.original.isSystemOwnedMapping) return null
+    const href = `${basePath}/edit-map-control?mappedControlId=${row.original.mappedControlId}`
+    return (
+      <div onClick={(e) => e.stopPropagation()} className="flex justify-end">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="secondary" className="h-8 w-8 p-0">
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="min-w-48">
+            <DropdownMenuItem asChild>
+              <Link href={href}>
+                <Pencil className="h-4 w-4" />
+                Edit Mapping
+              </Link>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+    )
+  },
+})
 
 export const getMappedControlsFilterFields = (rows: MappedControlRow[], showFrameworkFilter: boolean): FilterField[] => {
   const typeOptions = Array.from(new Set(rows.map((row) => row.type).filter(Boolean))).sort() as string[]

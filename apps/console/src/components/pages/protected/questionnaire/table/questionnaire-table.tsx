@@ -115,7 +115,7 @@ export const QuestionnairesTable = () => {
 
   const handleViewDetails = useCallback(
     (assessment: Assessment) => {
-      router.push(`/automation/assessments/${assessment.id}`)
+      router.push(`/automation/questionnaires/${assessment.id}`)
     },
     [router],
   )
@@ -126,14 +126,14 @@ export const QuestionnairesTable = () => {
 
   const handleEdit = useCallback(
     (assessment: Assessment) => {
-      router.push(`/automation/assessments/questionnaire-editor?id=${assessment.id}`)
+      router.push(`/automation/questionnaires/questionnaire-editor?id=${assessment.id}`)
     },
     [router],
   )
 
   const handlePreview = useCallback(
     (assessment: Assessment) => {
-      router.push(`/automation/assessments/questionnaire-viewer?id=${assessment.id}`)
+      router.push(`/automation/questionnaires/questionnaire-viewer?id=${assessment.id}`)
     },
     [router],
   )
@@ -226,8 +226,8 @@ export const QuestionnairesTable = () => {
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
-      { label: 'Automation', href: '/automation/assessments' },
-      { label: 'Questionnaires', href: '/automation/assessments' },
+      { label: 'Automation', href: '/automation/questionnaires' },
+      { label: 'Questionnaires', href: '/automation/questionnaires' },
     ])
   }, [setCrumbs])
 
@@ -274,7 +274,7 @@ export const QuestionnairesTable = () => {
           pagination={pagination}
           onPaginationChange={setPagination}
           paginationMeta={paginationMeta}
-          rowHref={(row) => `/automation/assessments/${row.id}`}
+          rowHref={(row) => `/automation/questionnaires/${row.id}`}
           columnVisibility={columnVisibility}
           setColumnVisibility={setColumnVisibility}
           defaultSorting={defaultSorting}

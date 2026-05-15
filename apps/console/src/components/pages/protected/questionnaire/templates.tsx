@@ -63,7 +63,7 @@ export const TemplateList = ({ initialTemplateId, onCreateSuccess }: TemplateLis
             title: 'Questionnaire created successfully',
           })
           onCreateSuccess?.()
-          router.push(`/automation/assessments/questionnaire-viewer?id=${assessmentId}`)
+          router.push(`/automation/questionnaires/questionnaire-viewer?id=${assessmentId}`)
         }
       } catch (error) {
         const errorMessage = parseErrorMessage(error)
@@ -157,13 +157,13 @@ export const TemplateList = ({ initialTemplateId, onCreateSuccess }: TemplateLis
             />
           </Form>
           <div className="mt-2 text-sm text-muted-foreground flex gap-2">
-            <Link href="/automation/assessments/templates" className="text-primary hover:underline">
+            <Link href="/automation/questionnaires/templates" className="text-primary hover:underline">
               View all templates
             </Link>
             {!hasTemplates && (
               <>
                 <span>•</span>
-                <Link href="/automation/assessments/templates/template-editor" className="text-primary hover:underline">
+                <Link href="/automation/questionnaires/templates/template-editor" className="text-primary hover:underline">
                   Create a new template
                 </Link>
               </>

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState, useMemo, useRef } from 'react'
+import React, { useCallback, useEffect, useState, useMemo, useRef } from 'react'
 import { useNotification } from '@/hooks/useNotification'
 import { Survey } from 'survey-react-ui'
 import { type ITheme, Model } from 'survey-core'
@@ -13,6 +13,7 @@ import { lightTheme } from '@/components/pages/protected/questionnaire/theme-lig
 import { darkTheme } from '@/components/pages/protected/questionnaire/theme-dark'
 import { CircleCheckBig, MailCheck } from 'lucide-react'
 import { Button } from '@repo/ui/button'
+import { recaptchaSiteKey } from '@repo/dally/auth'
 
 interface QuestionnairePageProps {
   token?: string
@@ -53,14 +54,29 @@ export const QuestionnairePage: React.FC<QuestionnairePageProps> = ({ token }) =
     return isTokenExpired(token)
   }, [token])
 
-  const isAnonAssessmentResponse = useMemo(() => {
-    if (!token) {
-      return false
+  const decodedToken = useMemo(() => (token ? decodeJWT(token) : null), [token])
+
+  const hasTokenEmail = useMemo(() => Boolean(decodedToken?.email?.trim()), [decodedToken])
+
+  const handleResendLink = useCallback(async () => {
+    if (!decodedToken?.assessment_id || !decodedToken?.email) return
+
+    let recaptchaToken = ''
+    if (recaptchaSiteKey) {
+      recaptchaToken = await grecaptcha.execute(recaptchaSiteKey, { action: 'questionnaire_resend' })
     }
 
-    const decoded = decodeJWT(token)
-    return Boolean(decoded?.email?.trim())
-  }, [token])
+    try {
+      await resendLink.mutateAsync({
+        assessmentId: decodedToken.assessment_id,
+        email: decodedToken.email,
+        recaptchaToken,
+      })
+      setLinkResent(true)
+    } catch (err) {
+      console.error('error resending questionnaire link', err)
+    }
+  }, [decodedToken, resendLink])
 
   const emailMismatch = useMemo(() => {
     if (!token) return false
@@ -109,10 +125,10 @@ export const QuestionnairePage: React.FC<QuestionnairePageProps> = ({ token }) =
     survey.addNavigationItem({
       id: 'save-draft-btn',
       title: 'Save as Draft',
-      enabled: isAnonAssessmentResponse,
+      enabled: hasTokenEmail,
       visibleIndex: 49,
       action: async () => {
-        if (!isAnonAssessmentResponse) return
+        if (!hasTokenEmail) return
 
         try {
           const draftPayload = {
@@ -139,7 +155,7 @@ export const QuestionnairePage: React.FC<QuestionnairePageProps> = ({ token }) =
         console.error('Error submitting questionnaire:', error)
       }
     })
-  }, [survey, token, isAnonAssessmentResponse])
+  }, [survey, token, hasTokenEmail])
 
   useEffect(() => {
     if (!survey) return
@@ -192,22 +208,6 @@ export const QuestionnairePage: React.FC<QuestionnairePageProps> = ({ token }) =
   }
 
   if (tokenExpired && token) {
-    const decoded = decodeJWT(token)
-
-    const handleResendLink = async () => {
-      if (!decoded?.assessment_id || !decoded?.email) return
-
-      try {
-        await resendLink.mutateAsync({
-          assessmentId: decoded.assessment_id,
-          email: decoded.email,
-        })
-        setLinkResent(true)
-      } catch {
-        // error notification already handled by the hook from the mutation
-      }
-    }
-
     return (
       <div className="relative z-20 shadow-2xl bg-white dark:bg-card rounded-lg flex flex-col justify-center mx-auto my-auto py-16 px-12 w-full max-w-lg">
         <div className="flex flex-col items-center space-y-4">

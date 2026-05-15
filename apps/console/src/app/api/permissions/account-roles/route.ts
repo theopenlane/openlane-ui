@@ -22,8 +22,7 @@ export async function POST(req: NextRequest) {
   })
 
   if (!response.ok) {
-    const text = await response.text()
-    return NextResponse.json({ error: `Failed to fetch roles: ${response.status}`, details: text }, { status: response.status })
+    return NextResponse.json({ error: 'Failed to fetch roles' }, { status: response.status })
   }
 
   let data: unknown

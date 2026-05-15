@@ -206,7 +206,7 @@ const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id
         side="right"
         className="flex flex-col"
         minWidth={470}
-        header={<TasksSheetHeader close={handleSheetClose} isEditing={isEditing} isPending={isPending} setIsEditing={setIsEditing} title={taskData?.title} isEditAllowed={isEditAllowed} />}
+        header={<TasksSheetHeader close={handleSheetClose} isEditing={isEditing} isPending={isPending} setIsEditing={setIsEditing} title={taskData?.title} isEditAllowed={isEditAllowed} id={id} />}
       >
         {fetching ? (
           <TasksDetailsSheetSkeleton />
@@ -277,7 +277,7 @@ const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id
             </Form>
           </>
         )}
-        <Conversation isEditing={isEditing} taskData={taskData} />
+        <Conversation isEditing={isEditing} taskData={taskData} id={id} />
         <CancelDialog
           isOpen={isDiscardDialogOpen}
           onConfirm={() => {

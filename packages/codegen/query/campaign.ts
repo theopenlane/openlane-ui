@@ -55,6 +55,15 @@ export const GET_ALL_CAMPAIGNS = gql`
   }
 `
 
+export const GET_CAMPAIGN_BY_ID_MINIFIED = gql`
+  query GetCampaignByIdMinified($campaignId: ID!) {
+    campaign(id: $campaignId) {
+      id
+      name
+    }
+  }
+`
+
 export const CAMPAIGN = gql`
   query Campaign($campaignId: ID!) {
     campaign(id: $campaignId) {
