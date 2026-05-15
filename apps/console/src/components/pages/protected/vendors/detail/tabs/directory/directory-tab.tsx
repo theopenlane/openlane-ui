@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useEffect, useMemo, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 import InfiniteScroll from '@repo/ui/infinite-scroll'
 import { type TPagination } from '@repo/ui/pagination-types'
 import type { EntityQuery } from '@repo/codegen/src/schema'
@@ -13,6 +14,7 @@ type DirectoryTabProps = {
 }
 
 const PAGE_SIZE = 30
+const GROUP_QUERY_PARAM = 'group'
 
 const INITIAL_PAGINATION: TPagination = {
   page: 1,
@@ -23,9 +25,12 @@ const INITIAL_PAGINATION: TPagination = {
 const DirectoryTab: React.FC<DirectoryTabProps> = ({ vendor }) => {
   const integrationIDs = useMemo(() => (vendor.integrations?.edges ?? []).flatMap((edge) => (edge?.node?.id ? [edge.node.id] : [])), [vendor.integrations?.edges])
 
+  const searchParams = useSearchParams()
+  const targetGroupId = searchParams.get(GROUP_QUERY_PARAM)
+
   const [pagination, setPagination] = useState<TPagination>(INITIAL_PAGINATION)
 
-  const { groups, totalGroups, totalMembers, loadedMembers, matchedMembers, isLoading, paginationMeta, fetchNextPage } = useVendorDirectory({
+  const { groups, totalGroups, totalMembers, loadedMembers, matchedMembers, isLoading, isFetchingNextPage, paginationMeta, fetchNextPage } = useVendorDirectory({
     integrationIDs,
     pagination,
     enabled: integrationIDs.length > 0,
@@ -36,6 +41,14 @@ const DirectoryTab: React.FC<DirectoryTabProps> = ({ vendor }) => {
       fetchNextPage()
     }
   }, [pagination.page, fetchNextPage])
+
+  useEffect(() => {
+    if (!targetGroupId) return
+    if (isLoading || isFetchingNextPage) return
+    if (groups.some((g) => g.id === targetGroupId)) return
+    if (!paginationMeta.pageInfo?.hasNextPage) return
+    setPagination((prev) => ({ ...prev, page: prev.page + 1 }))
+  }, [targetGroupId, groups, isLoading, isFetchingNextPage, paginationMeta.pageInfo?.hasNextPage])
 
   const showIntegrationBadge = integrationIDs.length > 1
 
@@ -53,7 +66,7 @@ const DirectoryTab: React.FC<DirectoryTabProps> = ({ vendor }) => {
       <InfiniteScroll pagination={pagination} onPaginationChange={setPagination} paginationMeta={paginationMeta} pageSize={PAGE_SIZE}>
         <div className="space-y-2">
           {groups.map((group) => (
-            <DirectoryGroupCard key={group.id} group={group} showIntegrationBadge={showIntegrationBadge} />
+            <DirectoryGroupCard key={group.id} group={group} showIntegrationBadge={showIntegrationBadge} targetGroupId={targetGroupId} />
           ))}
         </div>
       </InfiniteScroll>

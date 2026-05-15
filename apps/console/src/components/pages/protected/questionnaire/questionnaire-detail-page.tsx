@@ -193,7 +193,7 @@ const QuestionnaireDetailPage = () => {
 
   const fetchAllDeliveryRows = useCallback(async () => {
     const rows: Array<{
-      email: string
+      email?: string | null
       status: AssessmentResponseAssessmentResponseStatus
       assignedAt: string
       dueDate?: string | null
