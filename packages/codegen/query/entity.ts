@@ -117,6 +117,9 @@ export const ENTITY = gql`
             id
             definitionID
             name
+            directoryGroups(first: 1) {
+              totalCount
+            }
           }
         }
       }

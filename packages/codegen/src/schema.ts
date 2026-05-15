@@ -68813,7 +68813,10 @@ export type EntityQuery = {
     vendorMetadata?: any | null
     integrations: {
       __typename?: 'IntegrationConnection'
-      edges?: Array<{ __typename?: 'IntegrationEdge'; node?: { __typename?: 'Integration'; id: string; definitionID?: string | null; name: string } | null } | null> | null
+      edges?: Array<{
+        __typename?: 'IntegrationEdge'
+        node?: { __typename?: 'Integration'; id: string; definitionID?: string | null; name: string; directoryGroups: { __typename?: 'DirectoryGroupConnection'; totalCount: number } } | null
+      } | null> | null
     }
     internalOwnerGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
     internalOwnerUser?: { __typename?: 'User'; id: string; displayName: string } | null
@@ -75040,6 +75043,13 @@ export type UpdateSubcontrolMutationVariables = Exact<{
 
 export type UpdateSubcontrolMutation = { __typename?: 'Mutation'; updateSubcontrol: { __typename?: 'SubcontrolUpdatePayload'; subcontrol: { __typename?: 'Subcontrol'; id: string } } }
 
+export type UpdateBulkSubcontrolMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+  input: UpdateSubcontrolInput
+}>
+
+export type UpdateBulkSubcontrolMutation = { __typename?: 'Mutation'; updateBulkSubcontrol: { __typename?: 'SubcontrolBulkUpdatePayload'; updatedIDs?: Array<string> | null } }
+
 export type DeleteSubcontrolMutationVariables = Exact<{
   deleteSubcontrolId: Scalars['ID']['input']
 }>
@@ -76873,6 +76883,55 @@ export type DeleteUserMutationVariables = Exact<{
 }>
 
 export type DeleteUserMutation = { __typename?: 'Mutation'; deleteUser: { __typename?: 'UserDeletePayload'; deletedID: string } }
+
+export type GetVendorDirectoryQueryVariables = Exact<{
+  integrationIDs: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+  first?: InputMaybe<Scalars['Int']['input']>
+  after?: InputMaybe<Scalars['Cursor']['input']>
+}>
+
+export type GetVendorDirectoryQuery = {
+  __typename?: 'Query'
+  directoryGroups: {
+    __typename?: 'DirectoryGroupConnection'
+    totalCount: number
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean }
+    edges?: Array<{
+      __typename?: 'DirectoryGroupEdge'
+      node?: {
+        __typename?: 'DirectoryGroup'
+        id: string
+        displayName?: string | null
+        email?: string | null
+        integration: { __typename?: 'Integration'; id: string; name: string }
+        members: {
+          __typename?: 'DirectoryMembershipConnection'
+          totalCount: number
+          edges?: Array<{
+            __typename?: 'DirectoryMembershipEdge'
+            node?: {
+              __typename?: 'DirectoryMembership'
+              id: string
+              role?: DirectoryMembershipDirectoryMembershipRole | null
+              addedAt?: any | null
+              removedAt?: any | null
+              directoryAccount: {
+                __typename?: 'DirectoryAccount'
+                id: string
+                canonicalEmail?: string | null
+                displayName?: string | null
+                givenName?: string | null
+                familyName?: string | null
+                identityHolderID?: string | null
+                identityHolder?: { __typename?: 'IdentityHolder'; id: string; fullName: string; email: string } | null
+              }
+            } | null
+          } | null> | null
+        }
+      } | null
+    } | null> | null
+  }
+}
 
 export type VendorRiskScoresWithFilterQueryVariables = Exact<{
   where?: InputMaybe<VendorRiskScoreWhereInput>
