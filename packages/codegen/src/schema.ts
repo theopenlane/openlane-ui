@@ -65788,6 +65788,12 @@ export type CreateAssessmentMutation = {
   }
 }
 
+export type GetAssessmentByIdMinifiedQueryVariables = Exact<{
+  getAssessmentId: Scalars['ID']['input']
+}>
+
+export type GetAssessmentByIdMinifiedQuery = { __typename?: 'Query'; assessment: { __typename?: 'Assessment'; id: string; name: string } }
+
 export type GetAssessmentQueryVariables = Exact<{
   getAssessmentId: Scalars['ID']['input']
 }>
@@ -66332,6 +66338,12 @@ export type CampaignsWithFilterQuery = {
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
   }
 }
+
+export type GetCampaignByIdMinifiedQueryVariables = Exact<{
+  campaignId: Scalars['ID']['input']
+}>
+
+export type GetCampaignByIdMinifiedQuery = { __typename?: 'Query'; campaign: { __typename?: 'Campaign'; id: string; name: string } }
 
 export type CampaignQueryVariables = Exact<{
   campaignId: Scalars['ID']['input']
@@ -70859,6 +70871,12 @@ export type InternalPolicyByIdFragment = {
   } | null
 }
 
+export type GetInternalPolicyByIdMinifiedQueryVariables = Exact<{
+  internalPolicyId: Scalars['ID']['input']
+}>
+
+export type GetInternalPolicyByIdMinifiedQuery = { __typename?: 'Query'; internalPolicy: { __typename?: 'InternalPolicy'; id: string; name: string } }
+
 export type GetInternalPolicyDetailsByIdQueryVariables = Exact<{
   internalPolicyId: Scalars['ID']['input']
 }>
@@ -72420,6 +72438,12 @@ export type PlatformsWithFilterQuery = {
   }
 }
 
+export type GetPlatformByIdMinifiedQueryVariables = Exact<{
+  platformId: Scalars['ID']['input']
+}>
+
+export type GetPlatformByIdMinifiedQuery = { __typename?: 'Query'; platform: { __typename?: 'Platform'; id: string; name: string; displayID: string } }
+
 export type PlatformQueryVariables = Exact<{
   platformId: Scalars['ID']['input']
 }>
@@ -72491,10 +72515,35 @@ export type PlatformQuery = {
     securityOwnerGroup?: { __typename?: 'Group'; id: string; name: string } | null
     technicalOwnerUser?: { __typename?: 'User'; id: string; displayName: string; email: string } | null
     technicalOwnerGroup?: { __typename?: 'Group'; id: string; name: string } | null
-    assets: { __typename?: 'AssetConnection'; edges?: Array<{ __typename?: 'AssetEdge'; node?: { __typename?: 'Asset'; id: string; name: string; assetType: AssetAssetType } | null } | null> | null }
+    assets: {
+      __typename?: 'AssetConnection'
+      edges?: Array<{
+        __typename?: 'AssetEdge'
+        node?: {
+          __typename?: 'Asset'
+          id: string
+          name: string
+          assetType: AssetAssetType
+          internalOwner?: string | null
+          internalOwnerUser?: { __typename?: 'User'; id: string; displayName: string; email: string } | null
+          internalOwnerGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
+        } | null
+      } | null> | null
+    }
     outOfScopeAssets: {
       __typename?: 'AssetConnection'
-      edges?: Array<{ __typename?: 'AssetEdge'; node?: { __typename?: 'Asset'; id: string; name: string; assetType: AssetAssetType } | null } | null> | null
+      edges?: Array<{
+        __typename?: 'AssetEdge'
+        node?: {
+          __typename?: 'Asset'
+          id: string
+          name: string
+          assetType: AssetAssetType
+          internalOwner?: string | null
+          internalOwnerUser?: { __typename?: 'User'; id: string; displayName: string; email: string } | null
+          internalOwnerGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
+        } | null
+      } | null> | null
     }
     entities: {
       __typename?: 'EntityConnection'
@@ -72506,7 +72555,10 @@ export type PlatformQuery = {
           name?: string | null
           displayName?: string | null
           status?: EntityEntityStatus | null
+          internalOwner?: string | null
           logoFile?: { __typename?: 'File'; base64?: string | null } | null
+          internalOwnerUser?: { __typename?: 'User'; id: string; displayName: string; email: string } | null
+          internalOwnerGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
         } | null
       } | null> | null
     }
@@ -72520,7 +72572,10 @@ export type PlatformQuery = {
           name?: string | null
           displayName?: string | null
           status?: EntityEntityStatus | null
+          internalOwner?: string | null
           logoFile?: { __typename?: 'File'; base64?: string | null } | null
+          internalOwnerUser?: { __typename?: 'User'; id: string; displayName: string; email: string } | null
+          internalOwnerGroup?: { __typename?: 'Group'; id: string; displayName: string } | null
         } | null
       } | null> | null
     }
@@ -72770,6 +72825,12 @@ export type GetProcedureAssociationsByIdQuery = {
     }
   }
 }
+
+export type GetProcedureByIdMinifiedQueryVariables = Exact<{
+  procedureId: Scalars['ID']['input']
+}>
+
+export type GetProcedureByIdMinifiedQuery = { __typename?: 'Query'; procedure: { __typename?: 'Procedure'; id: string; name: string } }
 
 export type GetProcedureDetailsByIdQueryVariables = Exact<{
   procedureId: Scalars['ID']['input']
@@ -74697,6 +74758,12 @@ export type GetAllStandardsQuery = {
   }
 }
 
+export type GetStandardByIdMinifiedQueryVariables = Exact<{
+  standardId: Scalars['ID']['input']
+}>
+
+export type GetStandardByIdMinifiedQuery = { __typename?: 'Query'; standard: { __typename?: 'Standard'; id: string; shortName?: string | null; name: string } }
+
 export type GetStandardDetailsQueryVariables = Exact<{
   standardId: Scalars['ID']['input']
 }>
@@ -74975,6 +75042,13 @@ export type UpdateSubcontrolMutationVariables = Exact<{
 }>
 
 export type UpdateSubcontrolMutation = { __typename?: 'Mutation'; updateSubcontrol: { __typename?: 'SubcontrolUpdatePayload'; subcontrol: { __typename?: 'Subcontrol'; id: string } } }
+
+export type UpdateBulkSubcontrolMutationVariables = Exact<{
+  ids: Array<Scalars['ID']['input']> | Scalars['ID']['input']
+  input: UpdateSubcontrolInput
+}>
+
+export type UpdateBulkSubcontrolMutation = { __typename?: 'Mutation'; updateBulkSubcontrol: { __typename?: 'SubcontrolBulkUpdatePayload'; updatedIDs?: Array<string> | null } }
 
 export type DeleteSubcontrolMutationVariables = Exact<{
   deleteSubcontrolId: Scalars['ID']['input']
