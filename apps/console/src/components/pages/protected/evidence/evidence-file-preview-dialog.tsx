@@ -57,7 +57,8 @@ const EvidenceFilePreviewDialog: React.FC<TEvidenceFilePreviewDialogProps> = ({ 
         if (!res.ok) throw new Error('Fetch failed')
         const blob = await res.blob()
         if (cancelled) return
-        createdBlobUrl = URL.createObjectURL(blob)
+        const pdfBlob = blob.type === 'application/pdf' ? blob : new Blob([blob], { type: 'application/pdf' })
+        createdBlobUrl = URL.createObjectURL(pdfBlob)
         setPdfPreviewUrl(createdBlobUrl)
       })
       .catch((error) => {
