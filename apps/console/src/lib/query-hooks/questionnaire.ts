@@ -57,6 +57,7 @@ export const useQuestionnaire = ({ token, enabled = true }: UseQuestionnairePara
 interface ResendQuestionnaireLinkParams {
   assessmentId: string
   email: string
+  recaptchaToken: string
 }
 
 interface ResendQuestionnaireLinkResponse {
@@ -68,13 +69,13 @@ export const useResendQuestionnaireLink = () => {
   const { errorNotification, successNotification } = useNotification()
 
   return useMutation<ResendQuestionnaireLinkResponse, Error, ResendQuestionnaireLinkParams>({
-    mutationFn: async ({ assessmentId, email }) => {
+    mutationFn: async ({ assessmentId, email, recaptchaToken }) => {
       const response = await fetch('/api/questionnaire/resend', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ assessment_id: assessmentId, email }),
+        body: JSON.stringify({ assessment_id: assessmentId, email, recaptchaToken }),
       })
 
       const result = await response.json()

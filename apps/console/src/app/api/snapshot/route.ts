@@ -4,7 +4,6 @@ import { secureFetch } from '@/lib/auth/utils/secure-fetch'
 
 export async function POST(request: Request) {
   try {
-    const bodyData = await request.json()
     const session = await auth()
     const token = session?.user?.accessToken
 
@@ -12,6 +11,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
     }
 
+    const bodyData = await request.json()
     const headers: HeadersInit = {
       Authorization: `Bearer ${token}`,
     }

@@ -6,7 +6,9 @@ import { NextResponse } from 'next/server'
 export async function POST(req: Request) {
   // ensure we have a valid session
   const session = await auth()
-  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!session || !session.user?.accessToken) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
 
   try {
     const { scheduleId } = (await req.json()) as { scheduleId?: string }
@@ -39,7 +41,6 @@ export async function POST(req: Request) {
     return NextResponse.json(updated)
   } catch (err: unknown) {
     console.error('❌ Cancel subscription failed:', err)
-    const message = err instanceof Error ? err.message : 'Cancel failed'
-    return NextResponse.json({ error: message }, { status: 500 })
+    return NextResponse.json({ error: 'Failed to cancel subscription' }, { status: 500 })
   }
 }
