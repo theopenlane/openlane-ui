@@ -355,9 +355,11 @@ const QuestionnaireDetailPage = () => {
         heading={assessment.name}
         actions={
           <div className="flex items-center gap-2">
-            <Button type="button" variant="secondary" icon={<RefreshCw size={14} />} iconPosition="left" onClick={handleGenerateAccessURL} disabled={isGeneratingAccessURL}>
-              {isGeneratingAccessURL ? 'Generating...' : 'Generate URL'}
-            </Button>
+            {assessment.systemOwned && (
+              <Button type="button" variant="secondary" icon={<RefreshCw size={14} />} iconPosition="left" onClick={handleGenerateAccessURL} disabled={isGeneratingAccessURL}>
+                {isGeneratingAccessURL ? 'Generating...' : 'Generate URL'}
+              </Button>
+            )}
             <Button type="button" icon={<Send />} iconPosition="left" onClick={() => setIsSendDialogOpen(true)}>
               Send
             </Button>

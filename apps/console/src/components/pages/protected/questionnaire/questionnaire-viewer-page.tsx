@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useMemo, useState } from 'react'
+import React, { useState } from 'react'
 import { PageHeading } from '@repo/ui/page-heading'
 import dynamic from 'next/dynamic'
 import { useSearchParams, useRouter } from 'next/navigation'
@@ -34,11 +34,9 @@ const QuestionnaireViewerPage: React.FC = () => {
   const { mutateAsync: createTemplate } = useCreateTemplate()
   const { data: assessmentData } = useGetAssessment(existingId)
 
-  const isSystemOwnedAssessment = useMemo(() => {
-    return !assessmentData?.assessment.systemOwned as boolean
-  }, [assessmentData])
+  const isSystemOwned = !!assessmentData?.assessment.systemOwned
 
-  const editAllowed = canEdit(permission?.roles) && isSystemOwnedAssessment
+  const editAllowed = canEdit(permission?.roles) && isSystemOwned
 
   const [isSendDialogOpen, setIsSendDialogOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
