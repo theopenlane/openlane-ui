@@ -22,6 +22,8 @@ import { SubcontrolControlSource, type SubcontrolWhereInput } from '@repo/codege
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { objectToSnakeCase } from '@/utils/strings'
+import { BulkEditSubcontrolsDialog } from '@/components/pages/protected/controls/bulk-edit/bulk-edit-controls'
+import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 
 const SubcontrolsTable: React.FC = () => {
   const { id } = useParams<{ id: string }>()
@@ -34,6 +36,7 @@ const SubcontrolsTable: React.FC = () => {
   const [filters, setFilters] = useState<WhereCondition>({})
   const [pagination, setPagination] = useState<TPagination>(DEFAULT_PAGINATION)
   const [filterFields, setFilterFields] = useState<FilterField[] | null>(null)
+  const [selectedSubcontrols, setSelectedSubcontrols] = useState<{ id: string; refCode: string }[]>([])
   const { enumOptions } = useGetCustomTypeEnums({
     where: {
       objectType: objectToSnakeCase(ObjectTypes.CONTROL),
@@ -102,7 +105,27 @@ const SubcontrolsTable: React.FC = () => {
     }))
   }, [searchQuery, filters])
 
-  const columns = useMemo(() => getSubcontrolsColumns(id, convertToReadOnly), [convertToReadOnly, id])
+  const canBulkEditSubcontrols = canEdit(permission?.roles)
+
+  const columns = useMemo(
+    () =>
+      getSubcontrolsColumns({
+        controlId: id,
+        convertToReadOnly,
+        selectedSubcontrols,
+        setSelectedSubcontrols,
+        canSelect: canBulkEditSubcontrols,
+      }),
+    [canBulkEditSubcontrols, convertToReadOnly, id, selectedSubcontrols],
+  )
+
+  const hasBulkSelection = canBulkEditSubcontrols && selectedSubcontrols.length > 0
+  const bulkActionButtons = hasBulkSelection ? (
+    <div className="flex items-center gap-2">
+      <BulkEditSubcontrolsDialog selectedSubcontrols={selectedSubcontrols} setSelectedSubcontrols={setSelectedSubcontrols} />
+      <CancelButton onClick={() => setSelectedSubcontrols([])} />
+    </div>
+  ) : null
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen} className="mt-8 space-y-4">
@@ -122,8 +145,9 @@ const SubcontrolsTable: React.FC = () => {
           isSearching={searchQuery !== debouncedSearch}
           searchValue={searchQuery}
           onSearchChange={setSearchQuery}
-          filterFields={filterFields}
+          filterFields={hasBulkSelection ? null : filterFields}
           onFilterChange={handleFilterChange}
+          actionButtons={bulkActionButtons}
         />
 
         <DataTable

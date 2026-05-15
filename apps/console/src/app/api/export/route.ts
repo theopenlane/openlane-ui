@@ -4,13 +4,14 @@ import { secureFetch } from '@/lib/auth/utils/secure-fetch'
 
 export async function POST(request: Request) {
   try {
-    const bodyData = await request.json()
     const session = await auth()
     const token = session?.user?.accessToken
 
     if (!token) {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
     }
+
+    const bodyData = await request.json()
 
     const headers: HeadersInit = {
       Authorization: `Bearer ${token}`,
@@ -34,11 +35,13 @@ export async function POST(request: Request) {
     }
 
     const blob = await fData.blob()
+    const safeFilename = String(bodyData.filename ?? 'export').replace(/[^\w\-. ]/g, '_')
+
     return new NextResponse(blob, {
       status: 200,
       headers: {
         'Content-Type': 'text/csv',
-        'Content-Disposition': `attachment; filename="${bodyData.filename}.csv"`,
+        'Content-Disposition': `attachment; filename="${safeFilename}.csv"`,
       },
     })
   } catch (error) {

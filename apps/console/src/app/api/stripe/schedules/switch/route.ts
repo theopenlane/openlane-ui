@@ -16,7 +16,9 @@ interface RequestBody {
 export async function POST(req: Request) {
   // ensure we have a valid session
   const session = await auth()
-  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!session || !session.user?.accessToken) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
 
   try {
     const { scheduleId, swaps } = (await req.json()) as RequestBody
@@ -81,7 +83,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ scheduleId, swaps, phases, updated })
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : 'Switch failed unexpectedly'
-    return NextResponse.json({ error: message }, { status: 500 })
+    console.error('Failed to switch payment schedule', err)
+    return NextResponse.json({ error: 'Failed to switch payment schedule' }, { status: 500 })
   }
 }

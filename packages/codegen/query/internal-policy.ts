@@ -170,6 +170,15 @@ export const INTERNAL_POLICY_BY_ID = gql`
   }
 `
 
+export const GET_INTERNAL_POLICY_BY_ID_MINIFIED = gql`
+  query GetInternalPolicyByIdMinified($internalPolicyId: ID!) {
+    internalPolicy(id: $internalPolicyId) {
+      id
+      name
+    }
+  }
+`
+
 export const GET_INTERNAL_POLICY_DETAILS_BY_ID = gql`
   query GetInternalPolicyDetailsById($internalPolicyId: ID!) {
     internalPolicy(id: $internalPolicyId) {

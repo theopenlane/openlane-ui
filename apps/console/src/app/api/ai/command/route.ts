@@ -23,7 +23,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const { apiKey, ctx, messages: messagesRaw = [], model } = await req.json()
+  if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+    return NextResponse.json({ error: 'AI service is not configured' }, { status: 503 })
+  }
+
+  const { ctx, messages: messagesRaw = [] } = await req.json()
+
+  if (!ctx) {
+    return NextResponse.json({ error: 'Missing ctx' }, { status: 400 })
+  }
 
   const { children, selection, toolName: toolNameParam } = ctx
 
@@ -33,15 +41,7 @@ export async function POST(req: NextRequest) {
     value: children,
   })
 
-  const GOOGLE_GENERATIVE_AI_API_KEY = apiKey || process.env.GOOGLE_GENERATIVE_AI_API_KEY
-
-  if (!GOOGLE_GENERATIVE_AI_API_KEY) {
-    return NextResponse.json({ error: 'Missing GOOGLE_GENERATIVE_AI_API_KEY.' }, { status: 401 })
-  }
-
-  const buildModel = (name: string) => google(name)
-
-  const selectedModel = buildModel(model || DEFAULT_MODEL)
+  const selectedModel = google(DEFAULT_MODEL)
   const isSelecting = editor.api.isExpanded()
 
   try {

@@ -29,6 +29,16 @@ export const GET_ALL_STANDARDS = gql`
     }
   }
 `
+export const GET_STANDARD_BY_ID_MINIFIED = gql`
+  query GetStandardByIdMinified($standardId: ID!) {
+    standard(id: $standardId) {
+      id
+      shortName
+      name
+    }
+  }
+`
+
 export const GET_STANDARD_DETAILS = gql`
   query GetStandardDetails($standardId: ID!) {
     standard(id: $standardId) {

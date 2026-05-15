@@ -8,14 +8,15 @@ import OverviewTab from './overview/overview-tab'
 import DocumentsTab from './documents/documents-tab'
 import ContactsTab from './contacts/contacts-tab'
 import RiskReviewTab from './risk-review/risk-review-tab'
+import DirectoryTab from './directory/directory-tab'
 import ActivityTab from './activity/activity-tab'
 import type { EntityQuery, GetEntityAssociationsQuery, UpdateEntityInput } from '@repo/codegen/src/schema'
 
-type VendorTabValue = 'overview' | 'documents' | 'contacts' | 'risk-review' | 'activity'
+type VendorTabValue = 'overview' | 'documents' | 'contacts' | 'risk-review' | 'directory' | 'activity'
 
 const DEFAULT_TAB: VendorTabValue = 'overview'
 const TAB_QUERY_PARAM = 'tab'
-const ALL_TABS: VendorTabValue[] = ['overview', 'documents', 'contacts', 'risk-review', 'activity']
+const BASE_TABS: VendorTabValue[] = ['overview', 'documents', 'contacts', 'risk-review', 'activity']
 
 interface VendorDetailTabsProps {
   vendor: EntityQuery['entity']
@@ -30,8 +31,12 @@ const VendorDetailTabs: React.FC<VendorDetailTabsProps> = ({ vendor, association
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
+  const hasDirectoryGroups = (vendor.integrations?.edges ?? []).some((edge) => (edge?.node?.directoryGroups?.totalCount ?? 0) > 0)
+  const activityIndex = BASE_TABS.indexOf('activity')
+  const allTabs: VendorTabValue[] = hasDirectoryGroups ? [...BASE_TABS.slice(0, activityIndex), 'directory', ...BASE_TABS.slice(activityIndex)] : BASE_TABS
+
   const tabParamValue = searchParams.get(TAB_QUERY_PARAM)
-  const requestedTab = tabParamValue && ALL_TABS.includes(tabParamValue as VendorTabValue) ? (tabParamValue as VendorTabValue) : DEFAULT_TAB
+  const requestedTab = tabParamValue && allTabs.includes(tabParamValue as VendorTabValue) ? (tabParamValue as VendorTabValue) : DEFAULT_TAB
   const activeTab = requestedTab
 
   const updateTabParam = useCallback(
@@ -58,7 +63,7 @@ const VendorDetailTabs: React.FC<VendorDetailTabsProps> = ({ vendor, association
   }, [activeTab, tabParamValue, updateTabParam])
 
   const handleTabChange = (nextTab: string) => {
-    if (!ALL_TABS.includes(nextTab as VendorTabValue)) {
+    if (!allTabs.includes(nextTab as VendorTabValue)) {
       updateTabParam(DEFAULT_TAB)
       return
     }
@@ -76,6 +81,7 @@ const VendorDetailTabs: React.FC<VendorDetailTabsProps> = ({ vendor, association
             <TabsTrigger value="documents">Documents</TabsTrigger>
             <TabsTrigger value="contacts">Contacts</TabsTrigger>
             <TabsTrigger value="risk-review">Risk Review</TabsTrigger>
+            {hasDirectoryGroups && <TabsTrigger value="directory">Directory</TabsTrigger>}
             <TabsTrigger value="activity">Activity</TabsTrigger>
           </TabsList>
         </ScrollableTabsList>
@@ -96,6 +102,12 @@ const VendorDetailTabs: React.FC<VendorDetailTabsProps> = ({ vendor, association
       <TabsContent value="risk-review" className="space-y-6">
         <RiskReviewTab vendor={vendor} handleUpdateField={handleUpdateField} canEdit={canEditVendor} isEditing={isEditing} />
       </TabsContent>
+
+      {hasDirectoryGroups && (
+        <TabsContent value="directory" className="space-y-6">
+          <DirectoryTab vendor={vendor} />
+        </TabsContent>
+      )}
 
       <TabsContent value="activity" className="space-y-6">
         <ActivityTab vendorId={vendor.id} />

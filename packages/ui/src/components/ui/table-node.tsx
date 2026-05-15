@@ -47,7 +47,7 @@ import { Popover, PopoverAnchor, PopoverContent } from '@repo/ui/popover'
 import { cn } from '@repo/ui/lib/utils'
 
 import { blockSelectionVariants } from './block-selection'
-import { ColorDropdownMenuItems, DEFAULT_COLORS } from './font-color-toolbar-button'
+import { ColorDropdownMenuItems, DEFAULT_BG_COLORS } from './font-color-toolbar-button'
 import { BorderAllIcon, BorderBottomIcon, BorderLeftIcon, BorderNoneIcon, BorderRightIcon, BorderTopIcon } from './table-icons'
 import { Toolbar, ToolbarButton, ToolbarGroup, ToolbarMenuGroup } from './toolbar'
 
@@ -843,7 +843,7 @@ function ColorDropdownMenu({ children, tooltip }: { children: React.ReactNode; t
 
       <DropdownMenuContent align="start">
         <ToolbarMenuGroup label="Colors">
-          <ColorDropdownMenuItems className="px-2" colors={DEFAULT_COLORS} updateColor={onUpdateColor} />
+          <ColorDropdownMenuItems className="px-2" colors={DEFAULT_BG_COLORS} updateColor={onUpdateColor} />
         </ToolbarMenuGroup>
         <DropdownMenuGroup>
           <DropdownMenuItem className="p-2" onClick={onClearColor}>

@@ -534,6 +534,7 @@ export const MERGEABLE_FIELDS_BY_TYPE = {
     { name: 'linkedAssetIds', kind: 'string', list: true, nonNull: false, listItemNonNull: true },
     { name: 'links', kind: 'string', list: true, nonNull: false, listItemNonNull: true },
     { name: 'logoFileID', kind: 'id', list: false, nonNull: false, listItemNonNull: false },
+    { name: 'logoRemoteURL', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
     { name: 'mfaEnforced', kind: 'boolean', list: false, nonNull: false, listItemNonNull: false },
     { name: 'mfaSupported', kind: 'boolean', list: false, nonNull: false, listItemNonNull: false },
     { name: 'name', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
@@ -921,7 +922,6 @@ export const MERGEABLE_FIELDS_BY_TYPE = {
     { name: 'avatarUpdatedAt', kind: 'date', list: false, nonNull: false, listItemNonNull: false },
     { name: 'description', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
     { name: 'displayName', kind: 'string', list: false, nonNull: true, listItemNonNull: false },
-    { name: 'name', kind: 'string', list: false, nonNull: true, listItemNonNull: false },
     { name: 'tags', kind: 'string', list: true, nonNull: false, listItemNonNull: true },
   ],
   OrganizationSetting: [

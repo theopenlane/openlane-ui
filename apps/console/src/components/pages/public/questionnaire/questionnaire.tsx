@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState, useMemo, useRef } from 'react'
+import React, { useCallback, useEffect, useState, useMemo, useRef } from 'react'
 import { useNotification } from '@/hooks/useNotification'
 import { Survey } from 'survey-react-ui'
 import { type ITheme, Model } from 'survey-core'
@@ -13,6 +13,7 @@ import { lightTheme } from '@/components/pages/protected/questionnaire/theme-lig
 import { darkTheme } from '@/components/pages/protected/questionnaire/theme-dark'
 import { CircleCheckBig, MailCheck } from 'lucide-react'
 import { Button } from '@repo/ui/button'
+import { recaptchaSiteKey } from '@repo/dally/auth'
 
 interface QuestionnairePageProps {
   token?: string
@@ -52,6 +53,28 @@ export const QuestionnairePage: React.FC<QuestionnairePageProps> = ({ token }) =
     if (!token) return false
     return isTokenExpired(token)
   }, [token])
+
+  const decodedToken = useMemo(() => (token ? decodeJWT(token) : null), [token])
+
+  const handleResendLink = useCallback(async () => {
+    if (!decodedToken?.assessment_id || !decodedToken?.email) return
+
+    let recaptchaToken = ''
+    if (recaptchaSiteKey) {
+      recaptchaToken = await grecaptcha.execute(recaptchaSiteKey, { action: 'questionnaire_resend' })
+    }
+
+    try {
+      await resendLink.mutateAsync({
+        assessmentId: decodedToken.assessment_id,
+        email: decodedToken.email,
+        recaptchaToken,
+      })
+      setLinkResent(true)
+    } catch (err) {
+      console.error('error resending questionnaire link', err)
+    }
+  }, [decodedToken, resendLink])
 
   const emailMismatch = useMemo(() => {
     if (!token) return false
@@ -180,22 +203,6 @@ export const QuestionnairePage: React.FC<QuestionnairePageProps> = ({ token }) =
   }
 
   if (tokenExpired && token) {
-    const decoded = decodeJWT(token)
-
-    const handleResendLink = async () => {
-      if (!decoded?.assessment_id || !decoded?.email) return
-
-      try {
-        await resendLink.mutateAsync({
-          assessmentId: decoded.assessment_id,
-          email: decoded.email,
-        })
-        setLinkResent(true)
-      } catch {
-        // error notification already handled by the hook from the mutation
-      }
-    }
-
     return (
       <div className="relative z-20 shadow-2xl bg-white dark:bg-card rounded-lg flex flex-col justify-center mx-auto my-auto py-16 px-12 w-full max-w-lg">
         <div className="flex flex-col items-center space-y-4">
