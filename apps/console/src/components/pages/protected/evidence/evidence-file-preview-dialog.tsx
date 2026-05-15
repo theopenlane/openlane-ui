@@ -1,32 +1,12 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@repo/ui/dialog'
 import { Button } from '@repo/ui/button'
-import { Download } from 'lucide-react'
+import { Download, Loader2 } from 'lucide-react'
 import { fileDownload } from '@/components/shared/lib/export.ts'
 import { useNotification } from '@/hooks/useNotification'
 import type { TFile } from '@/components/shared/file-table/columns'
-
-const IMAGE_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.bmp', '.ico']
-const PDF_EXTENSIONS = ['.pdf']
-
-// Resolves the file extension from the backend-provided field, falling back to
-// parsing the filename. Older file records were persisted with an empty
-// providedFileExtension (backend bug), so deriving from providedFileName keeps
-// the preview action working for those historical rows.
-export const resolveFileExtension = (file: Pick<TFile, 'providedFileExtension' | 'providedFileName'>): string => {
-  const fromField = file.providedFileExtension?.trim()
-  if (fromField) return fromField.toLowerCase()
-
-  const name = file.providedFileName ?? ''
-  const dot = name.lastIndexOf('.')
-  if (dot < 0 || dot === name.length - 1) return ''
-  return name.slice(dot).toLowerCase()
-}
-
-export const isPreviewableFile = (file: Pick<TFile, 'providedFileExtension' | 'providedFileName'>): boolean => {
-  const ext = resolveFileExtension(file)
-  return IMAGE_EXTENSIONS.includes(ext) || PDF_EXTENSIONS.includes(ext)
-}
+import { isImageFile, isPdfFile } from '@/components/shared/file-preview/preview-mime'
+import { usePdfBlobPreview, type TPdfPreviewState } from '@/components/shared/file-preview/use-pdf-blob-preview'
 
 type TEvidenceFilePreviewDialogProps = {
   file: TFile | null
@@ -34,45 +14,45 @@ type TEvidenceFilePreviewDialogProps = {
   onOpenChange: (open: boolean) => void
 }
 
+const PdfBody: React.FC<{ state: TPdfPreviewState; title: string }> = ({ state, title }) => {
+  switch (state.status) {
+    case 'loading':
+      return (
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Loader2 className="h-4 w-4 animate-spin" />
+          Loading preview…
+        </div>
+      )
+    case 'error':
+      return <p className="text-sm text-muted-foreground">Failed to load preview. Try downloading the file instead.</p>
+    case 'ready':
+      // No sandbox attribute: Chrome renders PDFs via PDFium, which is already
+      // sandboxed at the process level. An iframe sandbox="" disables the
+      // viewer because PDFium needs scripts + same-origin to run.
+      return <iframe src={`${state.blobUrl}#toolbar=0`} title={title} className="w-full h-full" style={{ border: 'none' }} />
+    case 'idle':
+      return null
+  }
+}
+
 const EvidenceFilePreviewDialog: React.FC<TEvidenceFilePreviewDialogProps> = ({ file, open, onOpenChange }) => {
   const { errorNotification } = useNotification()
-
-  const extension = file ? resolveFileExtension(file) : ''
-  const isImage = IMAGE_EXTENSIONS.includes(extension)
-  const isPdf = PDF_EXTENSIONS.includes(extension)
   const url = file?.presignedURL || ''
-
-  const [pdfPreviewUrl, setPdfPreviewUrl] = useState<string | null>(null)
+  const pdf = usePdfBlobPreview(url, open && !!file && isPdfFile(file))
 
   useEffect(() => {
-    if (!open || !isPdf || !url) {
-      return
-    }
-
-    let cancelled = false
-    let createdBlobUrl: string | null = null
-
-    fetch(url)
-      .then(async (res) => {
-        if (!res.ok) throw new Error('Fetch failed')
-        const blob = await res.blob()
-        if (cancelled) return
-        const pdfBlob = blob.type === 'application/pdf' ? blob : new Blob([blob], { type: 'application/pdf' })
-        createdBlobUrl = URL.createObjectURL(pdfBlob)
-        setPdfPreviewUrl(createdBlobUrl)
+    if (pdf.status === 'error') {
+      errorNotification({
+        title: 'Unable to preview file',
+        description: 'The PDF could not be loaded. Try downloading it instead.',
       })
-      .catch((error) => {
-        console.error('Error previewing file:', error)
-      })
-
-    return () => {
-      cancelled = true
-      if (createdBlobUrl) URL.revokeObjectURL(createdBlobUrl)
-      setPdfPreviewUrl(null)
     }
-  }, [open, isPdf, url])
+  }, [pdf.status, errorNotification])
 
   if (!file) return null
+
+  const showImage = isImageFile(file) && !!url
+  const showPdf = isPdfFile(file)
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -84,11 +64,11 @@ const EvidenceFilePreviewDialog: React.FC<TEvidenceFilePreviewDialogProps> = ({ 
         </DialogHeader>
 
         <div className="flex-1 min-h-0 overflow-hidden rounded border bg-background-secondary flex items-center justify-center">
-          {isImage && url && (
+          {showImage && (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={url} alt={file.providedFileName} className="max-w-full max-h-full object-contain" />
           )}
-          {isPdf && pdfPreviewUrl && <iframe src={`${pdfPreviewUrl}#toolbar=0`} title={file.providedFileName} className="w-full h-full" style={{ border: 'none' }} />}
+          {showPdf && <PdfBody state={pdf} title={file.providedFileName} />}
         </div>
 
         <div className="flex justify-end">
