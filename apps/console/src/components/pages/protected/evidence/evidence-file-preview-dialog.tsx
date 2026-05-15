@@ -34,8 +34,6 @@ type TEvidenceFilePreviewDialogProps = {
   onOpenChange: (open: boolean) => void
 }
 
-type TPdfPreviewState = { status: 'idle' | 'loading' | 'error'; blobUrl: string | null }
-
 const EvidenceFilePreviewDialog: React.FC<TEvidenceFilePreviewDialogProps> = ({ file, open, onOpenChange }) => {
   const { errorNotification } = useNotification()
 
@@ -44,13 +42,8 @@ const EvidenceFilePreviewDialog: React.FC<TEvidenceFilePreviewDialogProps> = ({ 
   const isPdf = PDF_EXTENSIONS.includes(extension)
   const url = file?.presignedURL || ''
 
-  const [pdf, setPdf] = useState<TPdfPreviewState>({ status: 'idle', blobUrl: null })
+  const [pdfPreviewUrl, setPdfPreviewUrl] = useState<string | null>(null)
 
-  // PDFs cannot be rendered via a direct <iframe src={presignedURL}>:
-  //   - The disk-storage dev backend sets X-Frame-Options: SAMEORIGIN, blocking cross-origin embeds.
-  //   - The S3 prod provider signs URLs with Content-Disposition: attachment, which forces download.
-  // Both are bypassed by fetching the bytes (CORS-governed, already permitted) and embedding via
-  // a blob: URL with a PDF MIME type.
   useEffect(() => {
     if (!open || !isPdf || !url) {
       return
@@ -59,27 +52,22 @@ const EvidenceFilePreviewDialog: React.FC<TEvidenceFilePreviewDialogProps> = ({ 
     let cancelled = false
     let createdBlobUrl: string | null = null
 
-    setPdf({ status: 'loading', blobUrl: null })
-
     fetch(url)
       .then(async (res) => {
-        if (!res.ok) throw new Error(`HTTP ${res.status}`)
-        return res.blob()
-      })
-      .then((blob) => {
+        if (!res.ok) throw new Error('Fetch failed')
+        const blob = await res.blob()
         if (cancelled) return
-        const pdfBlob = blob.type === 'application/pdf' ? blob : new Blob([blob], { type: 'application/pdf' })
-        createdBlobUrl = URL.createObjectURL(pdfBlob)
-        setPdf({ status: 'idle', blobUrl: createdBlobUrl })
+        createdBlobUrl = URL.createObjectURL(blob)
+        setPdfPreviewUrl(createdBlobUrl)
       })
-      .catch(() => {
-        if (cancelled) return
-        setPdf({ status: 'error', blobUrl: null })
+      .catch((error) => {
+        console.error('Error previewing file:', error)
       })
 
     return () => {
       cancelled = true
       if (createdBlobUrl) URL.revokeObjectURL(createdBlobUrl)
+      setPdfPreviewUrl(null)
     }
   }, [open, isPdf, url])
 
@@ -99,9 +87,7 @@ const EvidenceFilePreviewDialog: React.FC<TEvidenceFilePreviewDialogProps> = ({ 
             // eslint-disable-next-line @next/next/no-img-element
             <img src={url} alt={file.providedFileName} className="max-w-full max-h-full object-contain" />
           )}
-          {isPdf && pdf.status === 'loading' && <p className="text-sm">Loading preview…</p>}
-          {isPdf && pdf.status === 'error' && <p className="text-sm">Failed to load preview. Try downloading the file instead.</p>}
-          {isPdf && pdf.blobUrl && <iframe src={pdf.blobUrl} title={file.providedFileName} className="w-full h-full border-0" />}
+          {isPdf && pdfPreviewUrl && <iframe src={`${pdfPreviewUrl}#toolbar=0`} title={file.providedFileName} className="w-full h-full" style={{ border: 'none' }} />}
         </div>
 
         <div className="flex justify-end">
