@@ -46,7 +46,7 @@ const EvidenceFilePreviewDialog: React.FC<TEvidenceFilePreviewDialogProps> = ({ 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[90vw] w-[1100px] h-[85vh] flex flex-col gap-3 p-4">
+      <DialogContent className="max-w-[90vw] w-275 h-[85vh] flex flex-col gap-3 p-4">
         <DialogHeader className="pr-10">
           <DialogTitle className="truncate" title={file.providedFileName}>
             {file.providedFileName}
@@ -59,7 +59,6 @@ const EvidenceFilePreviewDialog: React.FC<TEvidenceFilePreviewDialogProps> = ({ 
             <img src={url} alt={file.providedFileName} className="max-w-full max-h-full object-contain" />
           )}
           {isPdf && url && <iframe src={url} title={file.providedFileName} className="w-full h-full border-0" />}
-          {!isImage && !isPdf && <p className="text-sm">Preview is not available for this file type.</p>}
         </div>
 
         <div className="flex justify-end">
