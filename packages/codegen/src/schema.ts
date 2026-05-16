@@ -70,6 +70,8 @@ export interface Scalars {
    * This scalar is used to track SSO verification times for organizations in the context of token authorization.
    */
   SSOAuthorizationMap: { input: any; output: any }
+  /** TemplateProjectionConfig describes how submitted template document data is projected into typed records. */
+  TemplateProjectionConfig: { input: any; output: any }
   /** The TestingProcedures scalar type that represents steps to take to test a control; they can come directly from the control source or pulled from external sources */
   TestingProcedures: { input: any; output: any }
   /** The builtin Time type */
@@ -469,6 +471,8 @@ export interface ActionPlan extends Node {
   integrations: IntegrationConnection
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: Maybe<Scalars['String']['output']>
+  /** how the action_plan is managed: parsed and edited in Openlane (OPENLANE_MANAGED) or kept as an external reference file viewed in Openlane (EXTERNAL_REFERENCE) */
+  managementMode?: Maybe<ActionPlanDocumentManagementMode>
   /** additional structured metadata for the action plan */
   metadata?: Maybe<Scalars['Map']['output']>
   /** the name of the action_plan */
@@ -710,6 +714,12 @@ export interface ActionPlanDeletePayload {
   deletedID: Scalars['ID']['output']
 }
 
+/** ActionPlanDocumentManagementMode is enum for the field management_mode */
+export enum ActionPlanDocumentManagementMode {
+  EXTERNAL_REFERENCE = 'EXTERNAL_REFERENCE',
+  OPENLANE_MANAGED = 'OPENLANE_MANAGED',
+}
+
 /** ActionPlanDocumentStatus is enum for the field status */
 export enum ActionPlanDocumentStatus {
   APPROVED = 'APPROVED',
@@ -750,6 +760,7 @@ export interface ActionPlanOrder {
 
 /** Properties by which ActionPlan connections can be ordered. */
 export enum ActionPlanOrderField {
+  MANAGEMENT_MODE = 'MANAGEMENT_MODE',
   PRIORITY = 'PRIORITY',
   REVIEW_FREQUENCY = 'REVIEW_FREQUENCY',
   STATUS = 'STATUS',
@@ -1063,6 +1074,13 @@ export interface ActionPlanWhereInput {
   internalNotesNEQ?: InputMaybe<Scalars['String']['input']>
   internalNotesNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   internalNotesNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** management_mode field predicates */
+  managementMode?: InputMaybe<ActionPlanDocumentManagementMode>
+  managementModeIn?: InputMaybe<Array<ActionPlanDocumentManagementMode>>
+  managementModeIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  managementModeNEQ?: InputMaybe<ActionPlanDocumentManagementMode>
+  managementModeNotIn?: InputMaybe<Array<ActionPlanDocumentManagementMode>>
+  managementModeNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** name field predicates */
   name?: InputMaybe<Scalars['String']['input']>
   nameContains?: InputMaybe<Scalars['String']['input']>
@@ -1259,6 +1277,7 @@ export interface AddProgramMembershipInput {
 
 export interface Assessment extends Node {
   __typename?: 'Assessment'
+  accessURL?: Maybe<Scalars['String']['output']>
   assessmentResponses: AssessmentResponseConnection
   assessmentType: AssessmentAssessmentType
   blockedGroups: GroupConnection
@@ -1268,6 +1287,8 @@ export interface Assessment extends Node {
   editors: GroupConnection
   id: Scalars['ID']['output']
   identityHolders: IdentityHolderConnection
+  /** internal notes about the object creation, this field is only available to system admins */
+  internalNotes?: Maybe<Scalars['String']['output']>
   /** the jsonschema object of the questionnaire. If not provided it will be inherited from the template. */
   jsonconfig?: Maybe<Scalars['Map']['output']>
   /** the name of the assessment, e.g. cloud providers, marketing team */
@@ -1278,6 +1299,10 @@ export interface Assessment extends Node {
   platforms: PlatformConnection
   /** the duration in seconds that the user has to complete the assessment response, defaults to 7 days */
   responseDueDuration?: Maybe<Scalars['Int']['output']>
+  /** an internal identifier for the mapping, this field is only available to system admins */
+  systemInternalID?: Maybe<Scalars['String']['output']>
+  /** indicates if the record is owned by the the openlane system and not by an organization */
+  systemOwned?: Maybe<Scalars['Boolean']['output']>
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
   template?: Maybe<Template>
@@ -1435,13 +1460,15 @@ export interface AssessmentResponse extends Node {
   completedAt?: Maybe<Scalars['Time']['output']>
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
+  /** display name for the submitted assessment response */
+  displayName?: Maybe<Scalars['String']['output']>
   document?: Maybe<DocumentData>
   /** the document containing the user's response data */
   documentDataID?: Maybe<Scalars['ID']['output']>
   /** when the assessment response is due */
   dueDate?: Maybe<Scalars['Time']['output']>
   /** the email address of the recipient */
-  email: Scalars['String']['output']
+  email?: Maybe<Scalars['String']['output']>
   /** the number of link clicks for the assessment email */
   emailClickCount?: Maybe<Scalars['Int']['output']>
   /** when a link in the assessment email was clicked by the recipient */
@@ -1546,6 +1573,7 @@ export enum AssessmentResponseOrderField {
   assigned_at = 'assigned_at',
   completed_at = 'completed_at',
   created_at = 'created_at',
+  display_name = 'display_name',
   due_date = 'due_date',
   email = 'email',
   email_click_count = 'email_click_count',
@@ -1644,6 +1672,22 @@ export interface AssessmentResponseWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** display_name field predicates */
+  displayName?: InputMaybe<Scalars['String']['input']>
+  displayNameContains?: InputMaybe<Scalars['String']['input']>
+  displayNameContainsFold?: InputMaybe<Scalars['String']['input']>
+  displayNameEqualFold?: InputMaybe<Scalars['String']['input']>
+  displayNameGT?: InputMaybe<Scalars['String']['input']>
+  displayNameGTE?: InputMaybe<Scalars['String']['input']>
+  displayNameHasPrefix?: InputMaybe<Scalars['String']['input']>
+  displayNameHasSuffix?: InputMaybe<Scalars['String']['input']>
+  displayNameIn?: InputMaybe<Array<Scalars['String']['input']>>
+  displayNameIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  displayNameLT?: InputMaybe<Scalars['String']['input']>
+  displayNameLTE?: InputMaybe<Scalars['String']['input']>
+  displayNameNEQ?: InputMaybe<Scalars['String']['input']>
+  displayNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  displayNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** due_date field predicates */
   dueDate?: InputMaybe<Scalars['Time']['input']>
   dueDateGT?: InputMaybe<Scalars['Time']['input']>
@@ -1698,10 +1742,12 @@ export interface AssessmentResponseWhereInput {
   emailHasPrefix?: InputMaybe<Scalars['String']['input']>
   emailHasSuffix?: InputMaybe<Scalars['String']['input']>
   emailIn?: InputMaybe<Array<Scalars['String']['input']>>
+  emailIsNil?: InputMaybe<Scalars['Boolean']['input']>
   emailLT?: InputMaybe<Scalars['String']['input']>
   emailLTE?: InputMaybe<Scalars['String']['input']>
   emailNEQ?: InputMaybe<Scalars['String']['input']>
   emailNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  emailNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** email_open_count field predicates */
   emailOpenCount?: InputMaybe<Scalars['Int']['input']>
   emailOpenCountGT?: InputMaybe<Scalars['Int']['input']>
@@ -1958,6 +2004,22 @@ export interface AssessmentWhereInput {
   idLTE?: InputMaybe<Scalars['ID']['input']>
   idNEQ?: InputMaybe<Scalars['ID']['input']>
   idNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** internal_notes field predicates */
+  internalNotes?: InputMaybe<Scalars['String']['input']>
+  internalNotesContains?: InputMaybe<Scalars['String']['input']>
+  internalNotesContainsFold?: InputMaybe<Scalars['String']['input']>
+  internalNotesEqualFold?: InputMaybe<Scalars['String']['input']>
+  internalNotesGT?: InputMaybe<Scalars['String']['input']>
+  internalNotesGTE?: InputMaybe<Scalars['String']['input']>
+  internalNotesHasPrefix?: InputMaybe<Scalars['String']['input']>
+  internalNotesHasSuffix?: InputMaybe<Scalars['String']['input']>
+  internalNotesIn?: InputMaybe<Array<Scalars['String']['input']>>
+  internalNotesIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  internalNotesLT?: InputMaybe<Scalars['String']['input']>
+  internalNotesLTE?: InputMaybe<Scalars['String']['input']>
+  internalNotesNEQ?: InputMaybe<Scalars['String']['input']>
+  internalNotesNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  internalNotesNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** name field predicates */
   name?: InputMaybe<Scalars['String']['input']>
   nameContains?: InputMaybe<Scalars['String']['input']>
@@ -2001,6 +2063,27 @@ export interface AssessmentWhereInput {
   responseDueDurationNEQ?: InputMaybe<Scalars['Int']['input']>
   responseDueDurationNotIn?: InputMaybe<Array<Scalars['Int']['input']>>
   responseDueDurationNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** system_internal_id field predicates */
+  systemInternalID?: InputMaybe<Scalars['String']['input']>
+  systemInternalIDContains?: InputMaybe<Scalars['String']['input']>
+  systemInternalIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  systemInternalIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  systemInternalIDGT?: InputMaybe<Scalars['String']['input']>
+  systemInternalIDGTE?: InputMaybe<Scalars['String']['input']>
+  systemInternalIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  systemInternalIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  systemInternalIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  systemInternalIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  systemInternalIDLT?: InputMaybe<Scalars['String']['input']>
+  systemInternalIDLTE?: InputMaybe<Scalars['String']['input']>
+  systemInternalIDNEQ?: InputMaybe<Scalars['String']['input']>
+  systemInternalIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  systemInternalIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** system_owned field predicates */
+  systemOwned?: InputMaybe<Scalars['Boolean']['input']>
+  systemOwnedIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  systemOwnedNEQ?: InputMaybe<Scalars['Boolean']['input']>
+  systemOwnedNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** Filter for tagsHas to contain a specific value */
   tagsHas?: InputMaybe<Scalars['String']['input']>
   /** template_id field predicates */
@@ -7545,6 +7628,8 @@ export interface CreateActionPlanInput {
   integrationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: InputMaybe<Scalars['String']['input']>
+  /** how the action_plan is managed: parsed and edited in Openlane (OPENLANE_MANAGED) or kept as an external reference file viewed in Openlane (EXTERNAL_REFERENCE) */
+  managementMode?: InputMaybe<ActionPlanDocumentManagementMode>
   /** additional structured metadata for the action plan */
   metadata?: InputMaybe<Scalars['Map']['input']>
   /** the name of the action_plan */
@@ -7600,6 +7685,8 @@ export interface CreateAssessmentInput {
   campaignIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   identityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** internal notes about the object creation, this field is only available to system admins */
+  internalNotes?: InputMaybe<Scalars['String']['input']>
   /** the jsonschema object of the questionnaire. If not provided it will be inherited from the template. */
   jsonconfig?: InputMaybe<Scalars['Map']['input']>
   /** the name of the assessment, e.g. cloud providers, marketing team */
@@ -7608,6 +7695,8 @@ export interface CreateAssessmentInput {
   platformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the duration in seconds that the user has to complete the assessment response, defaults to 7 days */
   responseDueDuration?: InputMaybe<Scalars['Int']['input']>
+  /** an internal identifier for the mapping, this field is only available to system admins */
+  systemInternalID?: InputMaybe<Scalars['String']['input']>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   templateID?: InputMaybe<Scalars['ID']['input']>
@@ -7623,11 +7712,13 @@ export interface CreateAssessmentInput {
 export interface CreateAssessmentResponseInput {
   assessmentID: Scalars['ID']['input']
   campaignID?: InputMaybe<Scalars['ID']['input']>
+  /** display name for the submitted assessment response */
+  displayName?: InputMaybe<Scalars['String']['input']>
   documentID?: InputMaybe<Scalars['ID']['input']>
   /** when the assessment response is due */
   dueDate?: InputMaybe<Scalars['Time']['input']>
   /** the email address of the recipient */
-  email: Scalars['String']['input']
+  email?: InputMaybe<Scalars['String']['input']>
   /** the number of link clicks for the assessment email */
   emailClickCount?: InputMaybe<Scalars['Int']['input']>
   /** when a link in the assessment email was clicked by the recipient */
@@ -9236,6 +9327,8 @@ export interface CreateInternalPolicyInput {
   internalPolicyKindID?: InputMaybe<Scalars['ID']['input']>
   /** the kind of the internal_policy */
   internalPolicyKindName?: InputMaybe<Scalars['String']['input']>
+  /** how the policy is managed: parsed and edited in Openlane (OPENLANE_MANAGED) or kept as an external reference file viewed in Openlane (EXTERNAL_REFERENCE) */
+  managementMode?: InputMaybe<InternalPolicyDocumentManagementMode>
   /** the name of the policy */
   name: Scalars['String']['input']
   narrativeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -10018,6 +10111,8 @@ export interface CreateProcedureInput {
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: InputMaybe<Scalars['String']['input']>
   internalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** how the procedure is managed: parsed and edited in Openlane (OPENLANE_MANAGED) or kept as an external reference file viewed in Openlane (EXTERNAL_REFERENCE) */
+  managementMode?: InputMaybe<ProcedureDocumentManagementMode>
   /** the name of the procedure */
   name: Scalars['String']['input']
   narrativeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -10820,6 +10915,8 @@ export interface CreateTemplateInput {
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   /** the type of the template, either a provided template or an implementation (document) */
   templateType?: InputMaybe<TemplateDocumentType>
+  /** configuration for converting a submitted assesment into records for the organization */
+  transformConfiguration?: InputMaybe<Scalars['TemplateProjectionConfig']['input']>
   trustCenterID?: InputMaybe<Scalars['ID']['input']>
   /** the uischema for the template to render in the UI */
   uischema?: InputMaybe<Scalars['Map']['input']>
@@ -16994,6 +17091,22 @@ export interface EntityWhereInput {
   createdByNEQ?: InputMaybe<Scalars['String']['input']>
   createdByNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   createdByNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** description field predicates */
+  description?: InputMaybe<Scalars['String']['input']>
+  descriptionContains?: InputMaybe<Scalars['String']['input']>
+  descriptionContainsFold?: InputMaybe<Scalars['String']['input']>
+  descriptionEqualFold?: InputMaybe<Scalars['String']['input']>
+  descriptionGT?: InputMaybe<Scalars['String']['input']>
+  descriptionGTE?: InputMaybe<Scalars['String']['input']>
+  descriptionHasPrefix?: InputMaybe<Scalars['String']['input']>
+  descriptionHasSuffix?: InputMaybe<Scalars['String']['input']>
+  descriptionIn?: InputMaybe<Array<Scalars['String']['input']>>
+  descriptionIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  descriptionLT?: InputMaybe<Scalars['String']['input']>
+  descriptionLTE?: InputMaybe<Scalars['String']['input']>
+  descriptionNEQ?: InputMaybe<Scalars['String']['input']>
+  descriptionNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  descriptionNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** display_name field predicates */
   displayName?: InputMaybe<Scalars['String']['input']>
   displayNameContains?: InputMaybe<Scalars['String']['input']>
@@ -24814,6 +24927,8 @@ export interface InternalPolicy extends Node {
   internalPolicyKindID?: Maybe<Scalars['ID']['output']>
   /** the kind of the internal_policy */
   internalPolicyKindName?: Maybe<Scalars['String']['output']>
+  /** how the policy is managed: parsed and edited in Openlane (OPENLANE_MANAGED) or kept as an external reference file viewed in Openlane (EXTERNAL_REFERENCE) */
+  managementMode?: Maybe<InternalPolicyDocumentManagementMode>
   /** the name of the policy */
   name: Scalars['String']['output']
   narratives: NarrativeConnection
@@ -25083,6 +25198,12 @@ export interface InternalPolicyDeletePayload {
   deletedID: Scalars['ID']['output']
 }
 
+/** InternalPolicyDocumentManagementMode is enum for the field management_mode */
+export enum InternalPolicyDocumentManagementMode {
+  EXTERNAL_REFERENCE = 'EXTERNAL_REFERENCE',
+  OPENLANE_MANAGED = 'OPENLANE_MANAGED',
+}
+
 /** InternalPolicyDocumentStatus is enum for the field status */
 export enum InternalPolicyDocumentStatus {
   APPROVED = 'APPROVED',
@@ -25123,6 +25244,7 @@ export interface InternalPolicyOrder {
 
 /** Properties by which InternalPolicy connections can be ordered. */
 export enum InternalPolicyOrderField {
+  MANAGEMENT_MODE = 'MANAGEMENT_MODE',
   REVIEW_FREQUENCY = 'REVIEW_FREQUENCY',
   STATUS = 'STATUS',
   created_at = 'created_at',
@@ -25447,6 +25569,13 @@ export interface InternalPolicyWhereInput {
   internalPolicyKindNameNEQ?: InputMaybe<Scalars['String']['input']>
   internalPolicyKindNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   internalPolicyKindNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** management_mode field predicates */
+  managementMode?: InputMaybe<InternalPolicyDocumentManagementMode>
+  managementModeIn?: InputMaybe<Array<InternalPolicyDocumentManagementMode>>
+  managementModeIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  managementModeNEQ?: InputMaybe<InternalPolicyDocumentManagementMode>
+  managementModeNotIn?: InputMaybe<Array<InternalPolicyDocumentManagementMode>>
+  managementModeNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** name field predicates */
   name?: InputMaybe<Scalars['String']['input']>
   nameContains?: InputMaybe<Scalars['String']['input']>
@@ -30169,10 +30298,12 @@ export interface MutationCreateTrustCenterWatermarkConfigArgs {
 export interface MutationCreateUploadInternalPolicyArgs {
   internalPolicyFile: Scalars['Upload']['input']
   internalPolicyFileMetadata?: InputMaybe<FileMetadataInput>
+  managementMode?: InputMaybe<InternalPolicyDocumentManagementMode>
   ownerID?: InputMaybe<Scalars['ID']['input']>
 }
 
 export interface MutationCreateUploadProcedureArgs {
+  managementMode?: InputMaybe<ProcedureDocumentManagementMode>
   ownerID?: InputMaybe<Scalars['ID']['input']>
   procedureFile: Scalars['Upload']['input']
   procedureFileMetadata?: InputMaybe<FileMetadataInput>
@@ -38144,6 +38275,8 @@ export interface Procedure extends Node {
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: Maybe<Scalars['String']['output']>
   internalPolicies: InternalPolicyConnection
+  /** how the procedure is managed: parsed and edited in Openlane (OPENLANE_MANAGED) or kept as an external reference file viewed in Openlane (EXTERNAL_REFERENCE) */
+  managementMode?: Maybe<ProcedureDocumentManagementMode>
   /** the name of the procedure */
   name: Scalars['String']['output']
   narratives: NarrativeConnection
@@ -38362,6 +38495,12 @@ export interface ProcedureDeletePayload {
   deletedID: Scalars['ID']['output']
 }
 
+/** ProcedureDocumentManagementMode is enum for the field management_mode */
+export enum ProcedureDocumentManagementMode {
+  EXTERNAL_REFERENCE = 'EXTERNAL_REFERENCE',
+  OPENLANE_MANAGED = 'OPENLANE_MANAGED',
+}
+
 /** ProcedureDocumentStatus is enum for the field status */
 export enum ProcedureDocumentStatus {
   APPROVED = 'APPROVED',
@@ -38402,6 +38541,7 @@ export interface ProcedureOrder {
 
 /** Properties by which Procedure connections can be ordered. */
 export enum ProcedureOrderField {
+  MANAGEMENT_MODE = 'MANAGEMENT_MODE',
   REVIEW_FREQUENCY = 'REVIEW_FREQUENCY',
   STATUS = 'STATUS',
   created_at = 'created_at',
@@ -38660,6 +38800,13 @@ export interface ProcedureWhereInput {
   internalNotesNEQ?: InputMaybe<Scalars['String']['input']>
   internalNotesNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   internalNotesNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** management_mode field predicates */
+  managementMode?: InputMaybe<ProcedureDocumentManagementMode>
+  managementModeIn?: InputMaybe<Array<ProcedureDocumentManagementMode>>
+  managementModeIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  managementModeNEQ?: InputMaybe<ProcedureDocumentManagementMode>
+  managementModeNotIn?: InputMaybe<Array<ProcedureDocumentManagementMode>>
+  managementModeNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** name field predicates */
   name?: InputMaybe<Scalars['String']['input']>
   nameContains?: InputMaybe<Scalars['String']['input']>
@@ -49882,6 +50029,8 @@ export interface Template extends Node {
   tags?: Maybe<Array<Scalars['String']['output']>>
   /** the type of the template, either a provided template or an implementation (document) */
   templateType: TemplateDocumentType
+  /** configuration for converting a submitted assesment into records for the organization */
+  transformConfiguration?: Maybe<Scalars['TemplateProjectionConfig']['output']>
   trustCenter?: Maybe<TrustCenter>
   /** the id of the trust center this template is associated with */
   trustCenterID?: Maybe<Scalars['ID']['output']>
@@ -50054,6 +50203,7 @@ export enum TemplateOrderField {
 
 /** TemplateTemplateKind is enum for the field kind */
 export enum TemplateTemplateKind {
+  EXTERNAL_INTAKE = 'EXTERNAL_INTAKE',
   QUESTIONNAIRE = 'QUESTIONNAIRE',
   TRUSTCENTER_NDA = 'TRUSTCENTER_NDA',
 }
@@ -53769,6 +53919,7 @@ export interface UpdateActionPlanInput {
   clearImprovementSuggestions?: InputMaybe<Scalars['Boolean']['input']>
   clearIntegrations?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalNotes?: InputMaybe<Scalars['Boolean']['input']>
+  clearManagementMode?: InputMaybe<Scalars['Boolean']['input']>
   clearMetadata?: InputMaybe<Scalars['Boolean']['input']>
   clearPriority?: InputMaybe<Scalars['Boolean']['input']>
   clearPrograms?: InputMaybe<Scalars['Boolean']['input']>
@@ -53815,6 +53966,8 @@ export interface UpdateActionPlanInput {
   improvementSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: InputMaybe<Scalars['String']['input']>
+  /** how the action_plan is managed: parsed and edited in Openlane (OPENLANE_MANAGED) or kept as an external reference file viewed in Openlane (EXTERNAL_REFERENCE) */
+  managementMode?: InputMaybe<ActionPlanDocumentManagementMode>
   /** additional structured metadata for the action plan */
   metadata?: InputMaybe<Scalars['Map']['input']>
   /** the name of the action_plan */
@@ -53881,14 +54034,18 @@ export interface UpdateAssessmentInput {
   clearCampaigns?: InputMaybe<Scalars['Boolean']['input']>
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearIdentityHolders?: InputMaybe<Scalars['Boolean']['input']>
+  clearInternalNotes?: InputMaybe<Scalars['Boolean']['input']>
   clearJsonconfig?: InputMaybe<Scalars['Boolean']['input']>
   clearOwner?: InputMaybe<Scalars['Boolean']['input']>
   clearPlatforms?: InputMaybe<Scalars['Boolean']['input']>
   clearResponseDueDuration?: InputMaybe<Scalars['Boolean']['input']>
+  clearSystemInternalID?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
   clearTemplate?: InputMaybe<Scalars['Boolean']['input']>
   clearUischema?: InputMaybe<Scalars['Boolean']['input']>
   clearViewers?: InputMaybe<Scalars['Boolean']['input']>
+  /** internal notes about the object creation, this field is only available to system admins */
+  internalNotes?: InputMaybe<Scalars['String']['input']>
   /** the jsonschema object of the questionnaire. If not provided it will be inherited from the template. */
   jsonconfig?: InputMaybe<Scalars['Map']['input']>
   /** the name of the assessment, e.g. cloud providers, marketing team */
@@ -53903,6 +54060,8 @@ export interface UpdateAssessmentInput {
   removeViewerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** the duration in seconds that the user has to complete the assessment response, defaults to 7 days */
   responseDueDuration?: InputMaybe<Scalars['Int']['input']>
+  /** an internal identifier for the mapping, this field is only available to system admins */
+  systemInternalID?: InputMaybe<Scalars['String']['input']>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   templateID?: InputMaybe<Scalars['ID']['input']>
@@ -56497,6 +56656,7 @@ export interface UpdateInternalPolicyInput {
   clearInternalNotes?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalPolicyKind?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalPolicyKindName?: InputMaybe<Scalars['Boolean']['input']>
+  clearManagementMode?: InputMaybe<Scalars['Boolean']['input']>
   clearNarratives?: InputMaybe<Scalars['Boolean']['input']>
   clearOwner?: InputMaybe<Scalars['Boolean']['input']>
   clearProcedures?: InputMaybe<Scalars['Boolean']['input']>
@@ -56545,6 +56705,8 @@ export interface UpdateInternalPolicyInput {
   internalPolicyKindID?: InputMaybe<Scalars['ID']['input']>
   /** the kind of the internal_policy */
   internalPolicyKindName?: InputMaybe<Scalars['String']['input']>
+  /** how the policy is managed: parsed and edited in Openlane (OPENLANE_MANAGED) or kept as an external reference file viewed in Openlane (EXTERNAL_REFERENCE) */
+  managementMode?: InputMaybe<InternalPolicyDocumentManagementMode>
   /** the name of the policy */
   name?: InputMaybe<Scalars['String']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
@@ -57778,6 +57940,7 @@ export interface UpdateProcedureInput {
   clearImprovementSuggestions?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalNotes?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalPolicies?: InputMaybe<Scalars['Boolean']['input']>
+  clearManagementMode?: InputMaybe<Scalars['Boolean']['input']>
   clearNarratives?: InputMaybe<Scalars['Boolean']['input']>
   clearOwner?: InputMaybe<Scalars['Boolean']['input']>
   clearProcedureKind?: InputMaybe<Scalars['Boolean']['input']>
@@ -57821,6 +57984,8 @@ export interface UpdateProcedureInput {
   improvementSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: InputMaybe<Scalars['String']['input']>
+  /** how the procedure is managed: parsed and edited in Openlane (OPENLANE_MANAGED) or kept as an external reference file viewed in Openlane (EXTERNAL_REFERENCE) */
+  managementMode?: InputMaybe<ProcedureDocumentManagementMode>
   /** the name of the procedure */
   name?: InputMaybe<Scalars['String']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
@@ -59125,6 +59290,7 @@ export interface UpdateTemplateInput {
   clearScopeName?: InputMaybe<Scalars['Boolean']['input']>
   clearSystemInternalID?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
+  clearTransformConfiguration?: InputMaybe<Scalars['Boolean']['input']>
   clearTrustCenter?: InputMaybe<Scalars['Boolean']['input']>
   clearUischema?: InputMaybe<Scalars['Boolean']['input']>
   /** the description of the template */
@@ -59154,6 +59320,8 @@ export interface UpdateTemplateInput {
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   /** the type of the template, either a provided template or an implementation (document) */
   templateType?: InputMaybe<TemplateDocumentType>
+  /** configuration for converting a submitted assesment into records for the organization */
+  transformConfiguration?: InputMaybe<Scalars['TemplateProjectionConfig']['input']>
   trustCenterID?: InputMaybe<Scalars['ID']['input']>
   /** the uischema for the template to render in the UI */
   uischema?: InputMaybe<Scalars['Map']['input']>
@@ -65687,7 +65855,7 @@ export type AssessmentResponsesWithFilterQuery = {
         createdBy?: string | null
         documentDataID?: string | null
         dueDate?: any | null
-        email: string
+        email?: string | null
         emailClickCount?: number | null
         emailClickedAt?: any | null
         emailDeliveredAt?: any | null
@@ -65726,7 +65894,7 @@ export type AssessmentResponseQuery = {
     createdBy?: string | null
     documentDataID?: string | null
     dueDate?: any | null
-    email: string
+    email?: string | null
     emailClickCount?: number | null
     emailClickedAt?: any | null
     emailDeliveredAt?: any | null
@@ -65917,7 +66085,7 @@ export type GetAssessmentDetailQuery = {
         node?: {
           __typename?: 'AssessmentResponse'
           id: string
-          email: string
+          email?: string | null
           dueDate?: any | null
           status: AssessmentResponseAssessmentResponseStatus
           sendAttempts: number
@@ -70758,13 +70926,24 @@ export type CreateInternalPolicyMutation = {
 export type UpdateInternalPolicyMutationVariables = Exact<{
   updateInternalPolicyId: Scalars['ID']['input']
   input: UpdateInternalPolicyInput
+  internalPolicyFile?: InputMaybe<Scalars['Upload']['input']>
+  internalPolicyFileMetadata?: InputMaybe<FileMetadataInput>
 }>
 
 export type UpdateInternalPolicyMutation = {
   __typename?: 'Mutation'
   updateInternalPolicy: {
     __typename?: 'InternalPolicyUpdatePayload'
-    internalPolicy: { __typename?: 'InternalPolicy'; id: string; name: string; internalPolicyKindName?: string | null; details?: string | null; revision?: string | null }
+    internalPolicy: {
+      __typename?: 'InternalPolicy'
+      id: string
+      name: string
+      internalPolicyKindName?: string | null
+      details?: string | null
+      revision?: string | null
+      managementMode?: InternalPolicyDocumentManagementMode | null
+      file?: { __typename?: 'File'; id: string; presignedURL?: string | null; providedFileName: string; providedFileExtension: string; detectedMimeType?: string | null } | null
+    }
   }
 }
 
@@ -70846,6 +71025,7 @@ export type InternalPolicyByIdFragment = {
   tags?: Array<string> | null
   revision?: string | null
   status?: InternalPolicyDocumentStatus | null
+  managementMode?: InternalPolicyDocumentManagementMode | null
   displayID: string
   reviewDue?: any | null
   reviewFrequency?: InternalPolicyFrequency | null
@@ -70896,6 +71076,7 @@ export type GetInternalPolicyDetailsByIdQuery = {
     tags?: Array<string> | null
     revision?: string | null
     status?: InternalPolicyDocumentStatus | null
+    managementMode?: InternalPolicyDocumentManagementMode | null
     displayID: string
     reviewDue?: any | null
     reviewFrequency?: InternalPolicyFrequency | null
@@ -71030,11 +71211,15 @@ export type UpdateBulkInternalPolicyMutation = { __typename?: 'Mutation'; update
 
 export type CreateUploadInternalPolicyMutationVariables = Exact<{
   internalPolicyFile: Scalars['Upload']['input']
+  managementMode?: InputMaybe<InternalPolicyDocumentManagementMode>
 }>
 
 export type CreateUploadInternalPolicyMutation = {
   __typename?: 'Mutation'
-  createUploadInternalPolicy: { __typename?: 'InternalPolicyCreatePayload'; internalPolicy: { __typename?: 'InternalPolicy'; fileID?: string | null; id: string } }
+  createUploadInternalPolicy: {
+    __typename?: 'InternalPolicyCreatePayload'
+    internalPolicy: { __typename?: 'InternalPolicy'; fileID?: string | null; id: string; managementMode?: InternalPolicyDocumentManagementMode | null }
+  }
 }
 
 export type GetInternalPoliciesDashboardQueryVariables = Exact<{

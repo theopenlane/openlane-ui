@@ -169,6 +169,9 @@ export const useUpdateInternalPolicy = () => {
 
   return useMutation<UpdateInternalPolicyMutation, unknown, UpdateInternalPolicyMutationVariables>({
     mutationFn: async (variables) => {
+      if (variables.internalPolicyFile instanceof File) {
+        return fetchGraphQLWithUpload({ query: UPDATE_INTERNAL_POLICY, variables })
+      }
       return client.request(UPDATE_INTERNAL_POLICY, variables)
     },
     onSuccess: () => {

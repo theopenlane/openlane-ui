@@ -1,7 +1,7 @@
 import { Archive, CalendarClock, CircleDot, FileCheck2, FilePen, GitFork, Link, MessageCircle, ScanEye, Settings2, ShieldCheck, Stamp, Tag, UsersRound, Wrench, type LucideIcon } from 'lucide-react'
-import { InternalPolicyDocumentStatus, ProcedureDocumentStatus } from '@repo/codegen/src/schema.ts'
+import { InternalPolicyDocumentManagementMode, InternalPolicyDocumentStatus, ProcedureDocumentStatus } from '@repo/codegen/src/schema.ts'
 import { Badge } from '@repo/ui/badge'
-import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import { enumToOptions, getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 
 export const DocumentIconMapper: Record<InternalPolicyDocumentStatus | ProcedureDocumentStatus, React.ReactNode> = {
   [InternalPolicyDocumentStatus.APPROVED]: <Stamp height={16} width={16} className="text-approved" />,
@@ -95,3 +95,12 @@ export const ProcedureStatusFilterOptions = Object.entries(ProcedureDocumentStat
     .replace(/\b\w/g, (c) => c.toUpperCase()),
   value,
 }))
+
+const MANAGEMENT_MODE_LABELS: Record<InternalPolicyDocumentManagementMode, string> = {
+  [InternalPolicyDocumentManagementMode.OPENLANE_MANAGED]: 'Manage in Openlane',
+  [InternalPolicyDocumentManagementMode.EXTERNAL_REFERENCE]: 'Keep as Word document',
+}
+
+export const ManagementModeOptions = enumToOptions(InternalPolicyDocumentManagementMode, MANAGEMENT_MODE_LABELS)
+
+export const ManagementModeLabel = (mode: InternalPolicyDocumentManagementMode | null | undefined): string => MANAGEMENT_MODE_LABELS[mode ?? InternalPolicyDocumentManagementMode.OPENLANE_MANAGED]

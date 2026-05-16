@@ -9,6 +9,7 @@
 // compile-time guarantee that both files agree on the set of enums.
 
 import {
+  ActionPlanDocumentManagementMode,
   ActionPlanDocumentStatus,
   ActionPlanFrequency,
   ActionPlanOrderField,
@@ -95,6 +96,7 @@ import {
   IdentityHolderUserStatus,
   IntegrationIntegrationStatus,
   IntegrationOrderField,
+  InternalPolicyDocumentManagementMode,
   InternalPolicyDocumentStatus,
   InternalPolicyFrequency,
   InternalPolicyOrderField,
@@ -140,6 +142,7 @@ import {
   PlatformOrderField,
   PlatformPlatformStatus,
   PlatformSourceType,
+  ProcedureDocumentManagementMode,
   ProcedureDocumentStatus,
   ProcedureFrequency,
   ProcedureOrderField,
@@ -230,6 +233,7 @@ import {
 } from './schema'
 
 export const SCHEMA_ENUMS = {
+  ActionPlanDocumentManagementMode,
   ActionPlanDocumentStatus,
   ActionPlanFrequency,
   ActionPlanOrderField,
@@ -316,6 +320,7 @@ export const SCHEMA_ENUMS = {
   IdentityHolderUserStatus,
   IntegrationIntegrationStatus,
   IntegrationOrderField,
+  InternalPolicyDocumentManagementMode,
   InternalPolicyDocumentStatus,
   InternalPolicyFrequency,
   InternalPolicyOrderField,
@@ -361,6 +366,7 @@ export const SCHEMA_ENUMS = {
   PlatformOrderField,
   PlatformPlatformStatus,
   PlatformSourceType,
+  ProcedureDocumentManagementMode,
   ProcedureDocumentStatus,
   ProcedureFrequency,
   ProcedureOrderField,

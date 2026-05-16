@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useMemo, useRef, useState } from 'react'
-import DOMPurify from 'dompurify'
+import DOMPurify, { type Config as DOMPurifyConfig } from 'dompurify'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { Loader2, FileWarning, Download } from 'lucide-react'
@@ -152,7 +152,7 @@ const FetchingPreview: React.FC<{ file: PreviewFile; format: FetchedFormat }> = 
         </div>
       )
     case 'html':
-      return <div className={PROSE_CARD_CLASS} dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(state.text) }} />
+      return <HtmlPreview text={state.text} />
     case 'text':
       return (
         <div className={PROSE_CARD_CLASS}>
@@ -227,6 +227,42 @@ const sanitizeAnchors = (root: HTMLElement) => {
     a.target = '_blank'
     a.rel = 'noreferrer noopener'
   }
+}
+
+// HTML uploaded by users can contain framed/embedded content, JS-action handlers,
+// and trackable images. DOMPurify's default profile already strips <script> and
+// inline event handlers, but it still allows <iframe>/<object>/<embed>/<form> and
+// raw target=_blank without rel — extra surface the preview doesn't need. We
+// forbid those tags up front and run a post-hook that enforces noreferrer noopener
+// on every external link.
+const HTML_SANITIZE_CONFIG: DOMPurifyConfig = {
+  FORBID_TAGS: ['iframe', 'object', 'embed', 'form', 'meta', 'base'],
+  FORBID_ATTR: ['srcdoc', 'formaction', 'onload', 'onerror'],
+}
+
+const HtmlPreview: React.FC<{ text: string }> = ({ text }) => {
+  // Scoped DOMPurify instance — registering the link-rewrite hook on the global singleton
+  // leaks the policy into every other DOMPurify.sanitize call in the app and double-registers
+  // under React StrictMode / HMR.
+  const purifier = useMemo(() => {
+    const dp = DOMPurify(window)
+    dp.addHook('afterSanitizeAttributes', (node) => {
+      if (node.tagName === 'A' && node instanceof HTMLAnchorElement) {
+        const href = node.getAttribute('href')
+        if (!href || !isSafeLinkHref(href, window.location.origin)) {
+          node.removeAttribute('href')
+          return
+        }
+        node.setAttribute('target', '_blank')
+        node.setAttribute('rel', 'noreferrer noopener')
+      }
+    })
+    return dp
+  }, [])
+
+  const html = useMemo(() => purifier.sanitize(text, HTML_SANITIZE_CONFIG), [purifier, text])
+
+  return <div className={PROSE_CARD_CLASS} dangerouslySetInnerHTML={{ __html: html }} />
 }
 
 const UnsupportedPreview: React.FC<{ file: PreviewFile }> = ({ file }) => {
