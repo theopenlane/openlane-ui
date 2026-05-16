@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { cn } from '@repo/ui/lib/utils'
 import { Badge } from '@repo/ui/badge'
 import { formatDate } from '@/utils/date'
@@ -20,6 +21,7 @@ export const MembershipList = ({ memberships }: { memberships: MembershipListDat
         <div>
           {memberships.items.map((item) => {
             const removed = item.removedAt !== null
+            const { vendor, groupId, groupName } = item
             return (
               <div
                 key={item.id}
@@ -29,7 +31,15 @@ export const MembershipList = ({ memberships }: { memberships: MembershipListDat
                   removed && 'text-muted-foreground',
                 )}
               >
-                <div className={cn('px-3 py-1.5 truncate', removed && 'line-through')}>{item.groupName}</div>
+                <div className={cn('px-3 py-1.5 truncate', removed && 'line-through')}>
+                  {vendor && groupId ? (
+                    <Link href={`/registry/vendors/${vendor.id}?tab=directory&group=${groupId}`} className="text-blue-500 hover:underline">
+                      {groupName}
+                    </Link>
+                  ) : (
+                    groupName
+                  )}
+                </div>
                 <div className="px-3 py-1.5">
                   <Badge variant="outline">{getEnumLabel(item.role)}</Badge>
                 </div>

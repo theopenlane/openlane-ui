@@ -1,9 +1,9 @@
 'use client'
 
 import { Sheet, SheetContent } from '@repo/ui/sheet'
-import React, { useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { CreateControlImplementationForm } from './form/create-control-implementation-form'
-import { type ControlImplementationDocumentStatus, type ControlImplementationFieldsFragment } from '@repo/codegen/src/schema'
+import { ControlImplementationDocumentStatus, type ControlImplementationFieldsFragment } from '@repo/codegen/src/schema'
 import useFormSchema from './form/use-form-schema'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
 
@@ -17,15 +17,28 @@ const CreateControlImplementationSheet: React.FC<CreateControlImplementationShee
   const [showCancelDialog, setShowCancelDialog] = useState(false)
   const { form } = useFormSchema()
 
-  const normalizedValues = editData
-    ? {
-        id: editData.id,
-        details: editData.details ?? '',
-        status: editData?.status as ControlImplementationDocumentStatus,
-        implementationDate: new Date(editData?.implementationDate),
-        verified: editData.verified ?? false,
-      }
-    : undefined
+  const normalizedValues = useMemo(() => {
+    return editData
+      ? {
+          id: editData.id,
+          details: editData.details ?? '',
+          status: editData.status ?? ControlImplementationDocumentStatus.DRAFT,
+          implementationDate: editData.implementationDate ? new Date(editData.implementationDate) : undefined,
+        }
+      : undefined
+  }, [editData])
+
+  useEffect(() => {
+    if (!open) return
+    if (normalizedValues) {
+      form.reset(normalizedValues)
+    } else {
+      form.reset({
+        implementationDate: new Date(),
+        status: ControlImplementationDocumentStatus.DRAFT,
+      })
+    }
+  }, [open, form, normalizedValues])
 
   const handleClose = () => {
     if (form.formState.isDirty) {

@@ -70478,7 +70478,16 @@ export type DirectoryMembershipConnectionFieldsFragment = {
       addedAt?: any | null
       removedAt?: any | null
       createdAt?: any | null
-      directoryGroup: { __typename?: 'DirectoryGroup'; displayName?: string | null }
+      directoryGroup: {
+        __typename?: 'DirectoryGroup'
+        id: string
+        displayName?: string | null
+        integration: {
+          __typename?: 'Integration'
+          id: string
+          entities: { __typename?: 'EntityConnection'; edges?: Array<{ __typename?: 'EntityEdge'; node?: { __typename?: 'Entity'; id: string; name?: string | null } | null } | null> | null }
+        }
+      }
     } | null
   } | null> | null
 }
@@ -70721,7 +70730,12 @@ export type GetIdentityHolderDirectoryAccountsQuery = {
           primarySource: boolean
           mfaState: DirectoryAccountDirectoryAccountMfaState
           directoryName?: string | null
-          integration?: { __typename?: 'Integration'; definitionID?: string | null } | null
+          integration?: {
+            __typename?: 'Integration'
+            id: string
+            definitionID?: string | null
+            entities: { __typename?: 'EntityConnection'; edges?: Array<{ __typename?: 'EntityEdge'; node?: { __typename?: 'Entity'; id: string; name?: string | null } | null } | null> | null }
+          } | null
           memberships: {
             __typename?: 'DirectoryMembershipConnection'
             totalCount: number
@@ -70734,7 +70748,16 @@ export type GetIdentityHolderDirectoryAccountsQuery = {
                 addedAt?: any | null
                 removedAt?: any | null
                 createdAt?: any | null
-                directoryGroup: { __typename?: 'DirectoryGroup'; displayName?: string | null }
+                directoryGroup: {
+                  __typename?: 'DirectoryGroup'
+                  id: string
+                  displayName?: string | null
+                  integration: {
+                    __typename?: 'Integration'
+                    id: string
+                    entities: { __typename?: 'EntityConnection'; edges?: Array<{ __typename?: 'EntityEdge'; node?: { __typename?: 'Entity'; id: string; name?: string | null } | null } | null> | null }
+                  }
+                }
               } | null
             } | null> | null
           }
@@ -70829,7 +70852,16 @@ export type GetIdentityHolderAssociationsTimelineQuery = {
                 addedAt?: any | null
                 removedAt?: any | null
                 createdAt?: any | null
-                directoryGroup: { __typename?: 'DirectoryGroup'; displayName?: string | null }
+                directoryGroup: {
+                  __typename?: 'DirectoryGroup'
+                  id: string
+                  displayName?: string | null
+                  integration: {
+                    __typename?: 'Integration'
+                    id: string
+                    entities: { __typename?: 'EntityConnection'; edges?: Array<{ __typename?: 'EntityEdge'; node?: { __typename?: 'Entity'; id: string; name?: string | null } | null } | null> | null }
+                  }
+                }
               } | null
             } | null> | null
           }

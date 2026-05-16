@@ -11,7 +11,7 @@ import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 
 export type DeliveryRow = {
   id: string
-  email: string
+  email?: string | null
   assignedAt: string
   dueDate?: string | null
   status: AssessmentResponseAssessmentResponseStatus
@@ -40,7 +40,7 @@ export const getDeliveryColumns = ({ onResend, onViewResponse }: DeliveryColumnC
     header: 'Recipient',
     size: 250,
     minSize: 150,
-    cell: ({ cell }) => <div className="truncate">{cell.getValue() as string}</div>,
+    cell: ({ cell }) => <div className="truncate">{(cell.getValue() as string | null | undefined) ?? ''}</div>,
   },
   {
     accessorKey: 'status',
