@@ -209,7 +209,7 @@ export const getQuestionnaireColumns = (params?: Params) => {
       header: '',
       cell: ({ row }) => {
         const canSend = !!params?.canSend
-        const canEditQuestionnaire = !!params?.canEdit
+        const canEditQuestionnaire = !!params?.canEdit && !row.original.systemOwned
         const canDeleteQuestionnaire = !!params?.canDelete
         const hasAnyAction = canSend || canEditQuestionnaire || canDeleteQuestionnaire || !!params?.onPreview || !!params?.onViewDetails
 

@@ -65915,6 +65915,7 @@ export type GetAssessmentQuery = {
     tags?: Array<string> | null
     createdAt?: any | null
     updatedAt?: any | null
+    systemOwned?: boolean | null
   }
 }
 
@@ -65937,6 +65938,7 @@ export type FilterAssessmentsQuery = {
       node?: {
         __typename?: 'Assessment'
         id: string
+        systemOwned?: boolean | null
         name: string
         assessmentType: AssessmentAssessmentType
         templateID?: string | null
@@ -66012,6 +66014,7 @@ export type GetAssessmentDetailQuery = {
     tags?: Array<string> | null
     createdAt?: any | null
     updatedAt?: any | null
+    systemOwned?: boolean | null
     assessmentResponses: {
       __typename?: 'AssessmentResponseConnection'
       totalCount: number
@@ -66021,6 +66024,7 @@ export type GetAssessmentDetailQuery = {
           __typename?: 'AssessmentResponse'
           id: string
           email?: string | null
+          displayName?: string | null
           dueDate?: any | null
           status: AssessmentResponseAssessmentResponseStatus
           sendAttempts: number
@@ -66037,6 +66041,12 @@ export type GetAssessmentDetailQuery = {
     }
   }
 }
+
+export type GetAssessmentAccessUrlQueryVariables = Exact<{
+  getAssessmentId: Scalars['ID']['input']
+}>
+
+export type GetAssessmentAccessUrlQuery = { __typename?: 'Query'; assessment: { __typename?: 'Assessment'; id: string; accessURL?: string | null } }
 
 export type GetAssessmentRecipientsTotalCountQueryVariables = Exact<{
   getAssessmentId: Scalars['ID']['input']

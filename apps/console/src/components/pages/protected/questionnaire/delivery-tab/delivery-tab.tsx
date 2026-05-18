@@ -64,7 +64,7 @@ export const DeliveryTab = ({ assessmentId, jsonconfig, where, onTotalCountChang
         .filter((r): r is NonNullable<typeof r> => Boolean(r))
         .map((r) => ({
           id: r.id,
-          email: r.email,
+          email: r.email || r.displayName || '',
           assignedAt: r.assignedAt,
           dueDate: r.dueDate,
           status: r.status,
