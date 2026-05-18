@@ -37,7 +37,7 @@
     "@simplewebauthn/browser": "^13.2.2",
     "@simplewebauthn/server": "^13.2.2",
     "@simplewebauthn/types": "^12.0.0",
-    "@stepperize/react": "^5.0.0",
+    "@stepperize/react": "^6.0.0",
     "@tailwindcss/postcss": "^4.1.13",
     "@tanstack/react-query": "^5.66.9",
     "@types/d3-force": "^3.0.10",
