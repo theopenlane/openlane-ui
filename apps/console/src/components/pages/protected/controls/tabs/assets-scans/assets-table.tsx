@@ -69,7 +69,10 @@ const AssetsTable: React.FC<AssetsTableProps> = ({ controlId }) => {
     enabled: Boolean(controlId),
   })
 
-  const memberIds = useMemo(() => [...new Set(assetsNodes.flatMap((a) => [a.createdBy, a.updatedBy]).filter((id): id is string => typeof id === 'string' && id.length > 0))], [assetsNodes])
+  const memberIds = useMemo(
+    () => [...new Set(assetsNodes.flatMap((a) => [a.createdBy, a.updatedBy, a.internalOwnerUser?.id]).filter((id): id is string => typeof id === 'string' && id.length > 0))],
+    [assetsNodes],
+  )
 
   const userListWhere = useMemo(() => (memberIds.length > 0 ? { hasUserWith: [{ idIn: memberIds }] } : undefined), [memberIds])
   const { users } = useGetOrgUserList({ where: userListWhere })
