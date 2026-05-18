@@ -1,7 +1,7 @@
 import { useNotification } from '@/hooks/useNotification'
 import { Button } from '@repo/ui/button'
 import { SheetHeader } from '@repo/ui/sheet'
-import { LinkIcon, PanelRightClose, Pencil } from 'lucide-react'
+import { Copy, LinkIcon, PanelRightClose, Pencil } from 'lucide-react'
 import React from 'react'
 import DeleteTaskDialog from '../../dialog/delete-task-dialog'
 import { SaveButton } from '@/components/shared/save-button/save-button'
@@ -15,9 +15,11 @@ interface TasksSheetHeaderProps {
   title?: string | null
   isEditAllowed: boolean
   id: string | null
+  onDuplicate: () => void
+  canDuplicate: boolean
 }
 
-const TasksSheetHeader = ({ close, isEditing, setIsEditing, isPending, title, isEditAllowed, id }: TasksSheetHeaderProps) => {
+const TasksSheetHeader = ({ close, isEditing, setIsEditing, isPending, title, isEditAllowed, id, onDuplicate, canDuplicate }: TasksSheetHeaderProps) => {
   const { successNotification, errorNotification } = useNotification()
 
   const handleCopyLink = () => {
@@ -60,6 +62,9 @@ const TasksSheetHeader = ({ close, isEditing, setIsEditing, isPending, title, is
                   Edit
                 </Button>
               )}
+              <Button icon={<Copy />} iconPosition="left" variant="secondary" onClick={onDuplicate} disabled={!canDuplicate}>
+                Duplicate
+              </Button>
             </>
           )}
           {title && id && <DeleteTaskDialog taskName={title} taskId={id} />}
