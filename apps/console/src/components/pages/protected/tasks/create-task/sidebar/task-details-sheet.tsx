@@ -111,6 +111,11 @@ const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id
     [associationsData?.task, taskData],
   )
 
+  const duplicateAssociations = useMemo(() => {
+    const { taskIDs: _taskIDs, ...rest } = initialAssociations
+    return rest
+  }, [initialAssociations])
+
   useEffect(() => {
     if (!membersData) return
     const members = membersData.organization?.members?.edges?.map(
@@ -336,7 +341,7 @@ const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id
           open={duplicateOpen}
           onOpenChange={setDuplicateOpen}
           initialValues={duplicateInitialValues}
-          initialData={initialAssociations}
+          initialData={duplicateAssociations}
           objectAssociationsDisplayIDs={duplicateDisplayIDs}
           onSuccessWithId={(newId) => router.push(`/automation/tasks?id=${newId}`)}
         />
