@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, use, useEffect, useMemo, useReducer, useRef, useState } from 'react'
+import { useCallback, use, useEffect, useReducer, useRef, useState } from 'react'
 import { SurveyCreatorComponent, SurveyCreator } from 'survey-creator-react'
 import { type ITheme, slk } from 'survey-core'
 import { editorLocalization } from 'survey-creator-core'
@@ -123,8 +123,8 @@ export default function CreateQuestionnaire(input: { templateId: string; existin
   const [questionnaireEditorState, dispatchQuestionnaireEditorState] = useReducer(questionnaireEditorReducer, initialQuestionnaireEditorState)
   const { assessmentType, responseDueDuration, isCustomDuration, customDueDate } = questionnaireEditorState
   const [creator] = useState(() => createSurveyCreator())
+  const [calendarDisabledFrom] = useState(() => new Date())
   const creatorRef = useRef<SurveyCreator | null>(null)
-  const today = useMemo(() => new Date(), [])
 
   useEffect(() => {
     creatorRef.current = creator
@@ -150,6 +150,19 @@ export default function CreateQuestionnaire(input: { templateId: string; existin
   }, [theme])
 
   const { data: assessmentResult } = useGetAssessment(input.existingId)
+
+  useEffect(() => {
+    if (!assessmentResult) {
+      return
+    }
+
+    // system owned assessments cannot be edited so no need to allow the user
+    // access to this screen
+    if (assessmentResult.assessment.systemOwned) {
+      router.push('/automation/questionnaires')
+      return
+    }
+  }, [assessmentResult, router])
 
   useEffect(() => {
     const creatorInstance = creatorRef.current
@@ -291,7 +304,7 @@ export default function CreateQuestionnaire(input: { templateId: string; existin
           {isCustomDuration && (
             <CalendarPopover
               defaultValue={customDueDate}
-              disabledFrom={today}
+              disabledFrom={calendarDisabledFrom}
               buttonClassName="w-[200px] flex justify-between items-center"
               onChange={(date) => {
                 if (date) {

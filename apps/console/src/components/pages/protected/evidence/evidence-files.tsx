@@ -17,7 +17,8 @@ import { SystemTooltip } from '@repo/ui/system-tooltip'
 import type { Row } from '@tanstack/react-table'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { TableKeyEnum } from '@repo/ui/table-key'
-import EvidenceFilePreviewDialog, { isPreviewableFile } from '@/components/pages/protected/evidence/evidence-file-preview-dialog'
+import EvidenceFilePreviewDialog from '@/components/pages/protected/evidence/evidence-file-preview-dialog'
+import { isPreviewableFile } from '@/components/shared/file-preview/preview-mime'
 
 type TControlEvidenceFiles = {
   evidenceID: string

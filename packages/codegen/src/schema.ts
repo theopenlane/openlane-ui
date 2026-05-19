@@ -65980,6 +65980,7 @@ export type GetAssessmentQuery = {
     tags?: Array<string> | null
     createdAt?: any | null
     updatedAt?: any | null
+    systemOwned?: boolean | null
   }
 }
 
@@ -66002,6 +66003,7 @@ export type FilterAssessmentsQuery = {
       node?: {
         __typename?: 'Assessment'
         id: string
+        systemOwned?: boolean | null
         name: string
         assessmentType: AssessmentAssessmentType
         templateID?: string | null
@@ -66077,6 +66079,7 @@ export type GetAssessmentDetailQuery = {
     tags?: Array<string> | null
     createdAt?: any | null
     updatedAt?: any | null
+    systemOwned?: boolean | null
     assessmentResponses: {
       __typename?: 'AssessmentResponseConnection'
       totalCount: number
@@ -66086,6 +66089,7 @@ export type GetAssessmentDetailQuery = {
           __typename?: 'AssessmentResponse'
           id: string
           email?: string | null
+          displayName?: string | null
           dueDate?: any | null
           status: AssessmentResponseAssessmentResponseStatus
           sendAttempts: number
@@ -66102,6 +66106,12 @@ export type GetAssessmentDetailQuery = {
     }
   }
 }
+
+export type GetAssessmentAccessUrlQueryVariables = Exact<{
+  getAssessmentId: Scalars['ID']['input']
+}>
+
+export type GetAssessmentAccessUrlQuery = { __typename?: 'Query'; assessment: { __typename?: 'Assessment'; id: string; accessURL?: string | null } }
 
 export type GetAssessmentRecipientsTotalCountQueryVariables = Exact<{
   getAssessmentId: Scalars['ID']['input']
@@ -69209,6 +69219,7 @@ export type GetEvidenceFilesQuery = {
         providedFileSize?: number | null
         presignedURL?: string | null
         providedFileExtension: string
+        detectedMimeType?: string | null
         categoryType?: string | null
         createdAt?: any | null
       } | null
@@ -69442,7 +69453,16 @@ export type GetEvidenceFilesPaginatedQuery = {
       pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean; hasPreviousPage: boolean; startCursor?: any | null }
       edges?: Array<{
         __typename?: 'FileEdge'
-        node?: { __typename?: 'File'; providedFileName: string; providedFileSize?: number | null; providedFileExtension: string; id: string; uri?: string | null; presignedURL?: string | null } | null
+        node?: {
+          __typename?: 'File'
+          providedFileName: string
+          providedFileSize?: number | null
+          providedFileExtension: string
+          detectedMimeType?: string | null
+          id: string
+          uri?: string | null
+          presignedURL?: string | null
+        } | null
       } | null> | null
     }
   }
@@ -69594,7 +69614,16 @@ export type GetEvidenceFilesByIdQuery = {
       __typename?: 'FileConnection'
       edges?: Array<{
         __typename?: 'FileEdge'
-        node?: { __typename?: 'File'; providedFileName: string; providedFileSize?: number | null; providedFileExtension: string; id: string; uri?: string | null; presignedURL?: string | null } | null
+        node?: {
+          __typename?: 'File'
+          providedFileName: string
+          providedFileSize?: number | null
+          providedFileExtension: string
+          detectedMimeType?: string | null
+          id: string
+          uri?: string | null
+          presignedURL?: string | null
+        } | null
       } | null> | null
     }
   }

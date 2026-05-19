@@ -27,6 +27,7 @@ export const GET_EVIDENCE_FILES = gql`
           providedFileSize
           presignedURL
           providedFileExtension
+          detectedMimeType
           categoryType
           createdAt
         }
@@ -250,6 +251,7 @@ export const GET_EVIDENCE_FILES_PAGINATED = gql`
             providedFileName
             providedFileSize
             providedFileExtension
+            detectedMimeType
             id
             uri
             presignedURL
@@ -437,6 +439,7 @@ export const GET_EVIDENCE_FILES_BY_ID = gql`
             providedFileName
             providedFileSize
             providedFileExtension
+            detectedMimeType
             id
             uri
             presignedURL

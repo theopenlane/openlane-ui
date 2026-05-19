@@ -20,7 +20,7 @@ interface QuestionnairePageProps {
 }
 
 interface JWTPayload {
-  email: string
+  email?: string | null
   assessment_id: string
   exp?: number
 }
@@ -55,6 +55,8 @@ export const QuestionnairePage: React.FC<QuestionnairePageProps> = ({ token }) =
   }, [token])
 
   const decodedToken = useMemo(() => (token ? decodeJWT(token) : null), [token])
+
+  const hasTokenEmail = useMemo(() => Boolean(decodedToken?.email?.trim()), [decodedToken])
 
   const handleResendLink = useCallback(async () => {
     if (!decodedToken?.assessment_id || !decodedToken?.email) return
@@ -123,8 +125,11 @@ export const QuestionnairePage: React.FC<QuestionnairePageProps> = ({ token }) =
     survey.addNavigationItem({
       id: 'save-draft-btn',
       title: 'Save as Draft',
+      enabled: hasTokenEmail,
       visibleIndex: 49,
       action: async () => {
+        if (!hasTokenEmail) return
+
         try {
           const draftPayload = {
             token,
@@ -150,7 +155,7 @@ export const QuestionnairePage: React.FC<QuestionnairePageProps> = ({ token }) =
         console.error('Error submitting questionnaire:', error)
       }
     })
-  }, [survey, token])
+  }, [survey, token, hasTokenEmail])
 
   useEffect(() => {
     if (!survey) return

@@ -50,6 +50,7 @@ import {
   Activity,
   NotebookPen,
   LayoutGrid,
+  Waypoints,
 } from 'lucide-react'
 import { type NavHeading, type NavItem, type Separator } from '@/types'
 import { PlanEnum } from '@/lib/subscription-plan/plan-enum.ts'
@@ -363,7 +364,7 @@ export const bottomNavigationItems = (session: Session | null, orgPermission?: T
           title: 'Integrations',
           href: '/organization-settings/integrations',
           hidden: !canEdit,
-          icon: Workflow,
+          icon: Waypoints,
         },
       ],
     },

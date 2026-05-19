@@ -28,12 +28,15 @@ const QuestionnaireViewerPage: React.FC = () => {
   const existingId = searchParams.get('id') as string
 
   const { data: permission, isLoading } = useOrganizationRoles()
-  const editAllowed = canEdit(permission?.roles)
 
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: deleteAssessment } = useDeleteAssessment()
   const { mutateAsync: createTemplate } = useCreateTemplate()
   const { data: assessmentData } = useGetAssessment(existingId)
+
+  const isSystemOwned = !!assessmentData?.assessment.systemOwned
+
+  const editAllowed = canEdit(permission?.roles) && isSystemOwned
 
   const [isSendDialogOpen, setIsSendDialogOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
