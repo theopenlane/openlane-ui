@@ -63,6 +63,7 @@ export const GET_ALL_ASSESSMENTS = gql`
           template {
             id
             name
+            kind
           }
           jsonconfig
           responseDueDuration

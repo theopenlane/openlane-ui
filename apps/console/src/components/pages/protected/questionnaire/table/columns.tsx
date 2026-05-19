@@ -1,5 +1,5 @@
 import { type ColumnDef, type Row } from '@tanstack/react-table'
-import { type Assessment, type User } from '@repo/codegen/src/schema'
+import { type Assessment, type User, TemplateTemplateKind } from '@repo/codegen/src/schema'
 import { formatDate, formatTimeSince } from '@/utils/date'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { Checkbox } from '@repo/ui/checkbox'
@@ -9,6 +9,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { MoreHorizontal, Send, Pencil, Eye, Trash2, FileText, Info } from 'lucide-react'
 import TagChip from '@/components/shared/tag-chip.tsx/tag-chip'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
+import { SystemTooltip } from '@repo/ui/system-tooltip'
 
 type Params = {
   userMap?: Record<string, User>
@@ -88,9 +89,26 @@ export const getQuestionnaireColumns = (params?: Params) => {
         <div className="flex items-center gap-2">
           <span className="font-bold">{cell.getValue() as string}</span>
           {row.original.systemOwned && (
-            <Badge variant="secondary" className="shrink-0">
-              System
-            </Badge>
+            <SystemTooltip
+              className="bg-border"
+              icon={
+                <Badge variant="select" className="shrink-0">
+                  Openlane Managed
+                </Badge>
+              }
+              content={<p>This template is managed by Openlane. To make changes you must duplicate the questionnaire first.</p>}
+            />
+          )}
+          {row.original.template?.kind === TemplateTemplateKind.EXTERNAL_INTAKE && (
+            <SystemTooltip
+              className="bg-success/16"
+              icon={
+                <Badge variant="green" className="shrink-0">
+                  Object Creation
+                </Badge>
+              }
+              content={<p>Submitting this template automatically creates and updates records in your Openlane organization.</p>}
+            />
           )}
         </div>
       ),

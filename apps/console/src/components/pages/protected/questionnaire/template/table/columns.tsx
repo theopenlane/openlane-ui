@@ -5,7 +5,7 @@ import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { Button } from '@repo/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
-import { MoreHorizontal, Pencil, FilePlus, Trash2 } from 'lucide-react'
+import { MoreHorizontal, Pencil, FilePlus, Trash2, Copy } from 'lucide-react'
 import { TruncatedCell } from '@repo/ui/data-table'
 
 type Params = {
@@ -13,9 +13,11 @@ type Params = {
   onEdit?: (template: Template) => void
   onDelete?: (template: Template) => void
   onCreateQuestionnaire?: (template: Template) => void
+  onDuplicate?: (template: Template) => void
   canEdit?: boolean
   canDelete?: boolean
   canCreateQuestionnaire?: boolean
+  canDuplicate?: boolean
 }
 
 export const getTemplateColumns = (params?: Params) => {
@@ -129,7 +131,8 @@ export const getTemplateColumns = (params?: Params) => {
         const canEditTemplate = !!params?.canEdit && !isSystemOwned
         const canDeleteTemplate = !!params?.canDelete && !isSystemOwned
         const canCreateQuestionnaire = !!params?.canCreateQuestionnaire
-        const hasAnyAction = canEditTemplate || canDeleteTemplate || canCreateQuestionnaire
+        const canDuplicateTemplate = !!params?.canDuplicate
+        const hasAnyAction = canEditTemplate || canDeleteTemplate || canCreateQuestionnaire || canDuplicateTemplate
 
         if (!hasAnyAction) {
           return null
@@ -147,6 +150,12 @@ export const getTemplateColumns = (params?: Params) => {
                   <DropdownMenuItem onClick={() => params?.onEdit?.(row.original)}>
                     <Pencil className="h-4 w-4" />
                     Edit
+                  </DropdownMenuItem>
+                )}
+                {canDuplicateTemplate && (
+                  <DropdownMenuItem onClick={() => params?.onDuplicate?.(row.original)}>
+                    <Copy className="h-4 w-4" />
+                    Duplicate
                   </DropdownMenuItem>
                 )}
                 {canCreateQuestionnaire && (

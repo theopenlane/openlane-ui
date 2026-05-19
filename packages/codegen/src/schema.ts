@@ -66013,7 +66013,7 @@ export type FilterAssessmentsQuery = {
         updatedAt?: any | null
         createdBy?: string | null
         updatedBy?: string | null
-        template?: { __typename?: 'Template'; id: string; name: string } | null
+        template?: { __typename?: 'Template'; id: string; name: string; kind?: TemplateTemplateKind | null } | null
         assessmentResponses: { __typename?: 'AssessmentResponseConnection'; totalCount: number }
         completedAssessmentResponses: { __typename?: 'AssessmentResponseConnection'; totalCount: number }
       } | null
