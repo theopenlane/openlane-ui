@@ -55,6 +55,8 @@ export const GET_ALL_TEMPLATES = gql`
           kind
           scopeName
           systemOwned
+          tags
+          transformConfiguration
           owner {
             id
             displayName

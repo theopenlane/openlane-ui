@@ -157,6 +157,8 @@ export const TemplatesTable = () => {
             templateType: template.templateType,
             environmentName: template.environmentName ?? undefined,
             scopeName: template.scopeName ?? undefined,
+            tags: template.tags ?? undefined,
+            transformConfiguration: template.transformConfiguration ?? undefined,
           },
         })
         successNotification({ title: 'Template duplicated successfully' })

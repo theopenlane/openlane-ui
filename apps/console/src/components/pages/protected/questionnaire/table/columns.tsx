@@ -96,7 +96,7 @@ export const getQuestionnaireColumns = (params?: Params) => {
                   Openlane Managed
                 </Badge>
               }
-              content={<p>This template is managed by Openlane. To make changes you must duplicate the questionnaire first.</p>}
+              content={<p>This questionnaire is managed by Openlane. To make changes you must duplicate it first.</p>}
             />
           )}
           {row.original.template?.kind === TemplateTemplateKind.EXTERNAL_INTAKE && (

@@ -76122,6 +76122,8 @@ export type FilterTemplatesQuery = {
         kind?: TemplateTemplateKind | null
         scopeName?: string | null
         systemOwned?: boolean | null
+        tags?: Array<string> | null
+        transformConfiguration?: any | null
         owner?: { __typename?: 'Organization'; id: string; displayName: string } | null
       } | null
     } | null> | null
