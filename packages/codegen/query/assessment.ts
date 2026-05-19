@@ -142,6 +142,7 @@ export const GET_ASSESSMENT_DETAIL = gql`
           node {
             id
             email
+            displayName
             dueDate
             status
             sendAttempts
@@ -164,6 +165,15 @@ export const GET_ASSESSMENT_DETAIL = gql`
           hasNextPage
         }
       }
+    }
+  }
+`
+
+export const GET_ASSESSMENT_ACCESS_URL = gql`
+  query GetAssessmentAccessURL($getAssessmentId: ID!) {
+    assessment(id: $getAssessmentId) {
+      id
+      accessURL
     }
   }
 `

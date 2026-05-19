@@ -107,7 +107,9 @@ const QuestionnaireViewerPage: React.FC = () => {
         <PageHeading eyebrow="Questionnaires" heading="Preview" />
         {!isLoading && (
           <div className="flex gap-2 items-center">
-            {editAllowed && !hasTemplate && <SaveButton type="button" variant="secondary" title="Save as Template" onClick={() => setIsSaveAsTemplateDialogOpen(true)} disabled={isSaving} />}
+            {editAllowed && !hasTemplate && !isSystemOwned && (
+              <SaveButton type="button" variant="secondary" title="Save as Template" onClick={() => setIsSaveAsTemplateDialogOpen(true)} disabled={isSaving} />
+            )}
 
             {editAllowed && !isSystemOwned && (
               <Button type="button" variant="secondary" className="h-8 px-3" icon={<Edit />} iconPosition="left" onClick={handleEdit}>

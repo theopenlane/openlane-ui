@@ -7,6 +7,7 @@ import {
   UPDATE_ASSESSMENT,
   GET_ALL_ASSESSMENTS,
   GET_ASSESSMENT,
+  GET_ASSESSMENT_ACCESS_URL,
   GET_ASSESSMENT_DETAIL,
   GET_ASSESSMENT_RECIPIENTS_TOTAL_COUNT,
   GET_ASSESSMENT_RESPONSES_TOTAL_COUNT,
@@ -24,6 +25,8 @@ import {
   type FilterAssessmentsQueryVariables,
   type GetAssessmentQuery,
   type GetAssessmentQueryVariables,
+  type GetAssessmentAccessUrlQuery,
+  type GetAssessmentAccessUrlQueryVariables,
   type GetAssessmentDetailQuery,
   type GetAssessmentDetailQueryVariables,
   type DeleteAssessmentMutation,
@@ -122,6 +125,14 @@ export const useGetAssessment = (getAssessmentId?: string) => {
     queryKey: ['assessments', getAssessmentId],
     queryFn: () => client.request(GET_ASSESSMENT, { getAssessmentId }),
     enabled: !!getAssessmentId,
+  })
+}
+
+export const useGenerateAssessmentAccessURL = () => {
+  const { client } = useGraphQLClient()
+
+  return useMutation<GetAssessmentAccessUrlQuery, unknown, GetAssessmentAccessUrlQueryVariables>({
+    mutationFn: (variables) => client.request<GetAssessmentAccessUrlQuery, GetAssessmentAccessUrlQueryVariables>(GET_ASSESSMENT_ACCESS_URL, variables),
   })
 }
 
