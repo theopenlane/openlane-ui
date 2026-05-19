@@ -471,6 +471,8 @@ export interface ActionPlan extends Node {
   integrations: IntegrationConnection
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: Maybe<Scalars['String']['output']>
+  /** how the action_plan is managed: parsed and edited in Openlane (OPENLANE_MANAGED) or kept as an external reference file viewed in Openlane (EXTERNAL_REFERENCE) */
+  managementMode?: Maybe<ActionPlanDocumentManagementMode>
   /** additional structured metadata for the action plan */
   metadata?: Maybe<Scalars['Map']['output']>
   /** the name of the action_plan */
@@ -712,6 +714,12 @@ export interface ActionPlanDeletePayload {
   deletedID: Scalars['ID']['output']
 }
 
+/** ActionPlanDocumentManagementMode is enum for the field management_mode */
+export enum ActionPlanDocumentManagementMode {
+  EXTERNAL_REFERENCE = 'EXTERNAL_REFERENCE',
+  OPENLANE_MANAGED = 'OPENLANE_MANAGED',
+}
+
 /** ActionPlanDocumentStatus is enum for the field status */
 export enum ActionPlanDocumentStatus {
   APPROVED = 'APPROVED',
@@ -752,6 +760,7 @@ export interface ActionPlanOrder {
 
 /** Properties by which ActionPlan connections can be ordered. */
 export enum ActionPlanOrderField {
+  MANAGEMENT_MODE = 'MANAGEMENT_MODE',
   PRIORITY = 'PRIORITY',
   REVIEW_FREQUENCY = 'REVIEW_FREQUENCY',
   STATUS = 'STATUS',
@@ -1065,6 +1074,13 @@ export interface ActionPlanWhereInput {
   internalNotesNEQ?: InputMaybe<Scalars['String']['input']>
   internalNotesNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   internalNotesNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** management_mode field predicates */
+  managementMode?: InputMaybe<ActionPlanDocumentManagementMode>
+  managementModeIn?: InputMaybe<Array<ActionPlanDocumentManagementMode>>
+  managementModeIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  managementModeNEQ?: InputMaybe<ActionPlanDocumentManagementMode>
+  managementModeNotIn?: InputMaybe<Array<ActionPlanDocumentManagementMode>>
+  managementModeNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** name field predicates */
   name?: InputMaybe<Scalars['String']['input']>
   nameContains?: InputMaybe<Scalars['String']['input']>
@@ -7612,6 +7628,8 @@ export interface CreateActionPlanInput {
   integrationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: InputMaybe<Scalars['String']['input']>
+  /** how the action_plan is managed: parsed and edited in Openlane (OPENLANE_MANAGED) or kept as an external reference file viewed in Openlane (EXTERNAL_REFERENCE) */
+  managementMode?: InputMaybe<ActionPlanDocumentManagementMode>
   /** additional structured metadata for the action plan */
   metadata?: InputMaybe<Scalars['Map']['input']>
   /** the name of the action_plan */
@@ -9309,6 +9327,8 @@ export interface CreateInternalPolicyInput {
   internalPolicyKindID?: InputMaybe<Scalars['ID']['input']>
   /** the kind of the internal_policy */
   internalPolicyKindName?: InputMaybe<Scalars['String']['input']>
+  /** how the policy is managed: parsed and edited in Openlane (OPENLANE_MANAGED) or kept as an external reference file viewed in Openlane (EXTERNAL_REFERENCE) */
+  managementMode?: InputMaybe<InternalPolicyDocumentManagementMode>
   /** the name of the policy */
   name: Scalars['String']['input']
   narrativeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -10091,6 +10111,8 @@ export interface CreateProcedureInput {
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: InputMaybe<Scalars['String']['input']>
   internalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** how the procedure is managed: parsed and edited in Openlane (OPENLANE_MANAGED) or kept as an external reference file viewed in Openlane (EXTERNAL_REFERENCE) */
+  managementMode?: InputMaybe<ProcedureDocumentManagementMode>
   /** the name of the procedure */
   name: Scalars['String']['input']
   narrativeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -24905,6 +24927,8 @@ export interface InternalPolicy extends Node {
   internalPolicyKindID?: Maybe<Scalars['ID']['output']>
   /** the kind of the internal_policy */
   internalPolicyKindName?: Maybe<Scalars['String']['output']>
+  /** how the policy is managed: parsed and edited in Openlane (OPENLANE_MANAGED) or kept as an external reference file viewed in Openlane (EXTERNAL_REFERENCE) */
+  managementMode?: Maybe<InternalPolicyDocumentManagementMode>
   /** the name of the policy */
   name: Scalars['String']['output']
   narratives: NarrativeConnection
@@ -25174,6 +25198,12 @@ export interface InternalPolicyDeletePayload {
   deletedID: Scalars['ID']['output']
 }
 
+/** InternalPolicyDocumentManagementMode is enum for the field management_mode */
+export enum InternalPolicyDocumentManagementMode {
+  EXTERNAL_REFERENCE = 'EXTERNAL_REFERENCE',
+  OPENLANE_MANAGED = 'OPENLANE_MANAGED',
+}
+
 /** InternalPolicyDocumentStatus is enum for the field status */
 export enum InternalPolicyDocumentStatus {
   APPROVED = 'APPROVED',
@@ -25214,6 +25244,7 @@ export interface InternalPolicyOrder {
 
 /** Properties by which InternalPolicy connections can be ordered. */
 export enum InternalPolicyOrderField {
+  MANAGEMENT_MODE = 'MANAGEMENT_MODE',
   REVIEW_FREQUENCY = 'REVIEW_FREQUENCY',
   STATUS = 'STATUS',
   created_at = 'created_at',
@@ -25538,6 +25569,13 @@ export interface InternalPolicyWhereInput {
   internalPolicyKindNameNEQ?: InputMaybe<Scalars['String']['input']>
   internalPolicyKindNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   internalPolicyKindNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** management_mode field predicates */
+  managementMode?: InputMaybe<InternalPolicyDocumentManagementMode>
+  managementModeIn?: InputMaybe<Array<InternalPolicyDocumentManagementMode>>
+  managementModeIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  managementModeNEQ?: InputMaybe<InternalPolicyDocumentManagementMode>
+  managementModeNotIn?: InputMaybe<Array<InternalPolicyDocumentManagementMode>>
+  managementModeNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** name field predicates */
   name?: InputMaybe<Scalars['String']['input']>
   nameContains?: InputMaybe<Scalars['String']['input']>
@@ -30260,10 +30298,12 @@ export interface MutationCreateTrustCenterWatermarkConfigArgs {
 export interface MutationCreateUploadInternalPolicyArgs {
   internalPolicyFile: Scalars['Upload']['input']
   internalPolicyFileMetadata?: InputMaybe<FileMetadataInput>
+  managementMode?: InputMaybe<InternalPolicyDocumentManagementMode>
   ownerID?: InputMaybe<Scalars['ID']['input']>
 }
 
 export interface MutationCreateUploadProcedureArgs {
+  managementMode?: InputMaybe<ProcedureDocumentManagementMode>
   ownerID?: InputMaybe<Scalars['ID']['input']>
   procedureFile: Scalars['Upload']['input']
   procedureFileMetadata?: InputMaybe<FileMetadataInput>
@@ -38235,6 +38275,8 @@ export interface Procedure extends Node {
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: Maybe<Scalars['String']['output']>
   internalPolicies: InternalPolicyConnection
+  /** how the procedure is managed: parsed and edited in Openlane (OPENLANE_MANAGED) or kept as an external reference file viewed in Openlane (EXTERNAL_REFERENCE) */
+  managementMode?: Maybe<ProcedureDocumentManagementMode>
   /** the name of the procedure */
   name: Scalars['String']['output']
   narratives: NarrativeConnection
@@ -38453,6 +38495,12 @@ export interface ProcedureDeletePayload {
   deletedID: Scalars['ID']['output']
 }
 
+/** ProcedureDocumentManagementMode is enum for the field management_mode */
+export enum ProcedureDocumentManagementMode {
+  EXTERNAL_REFERENCE = 'EXTERNAL_REFERENCE',
+  OPENLANE_MANAGED = 'OPENLANE_MANAGED',
+}
+
 /** ProcedureDocumentStatus is enum for the field status */
 export enum ProcedureDocumentStatus {
   APPROVED = 'APPROVED',
@@ -38493,6 +38541,7 @@ export interface ProcedureOrder {
 
 /** Properties by which Procedure connections can be ordered. */
 export enum ProcedureOrderField {
+  MANAGEMENT_MODE = 'MANAGEMENT_MODE',
   REVIEW_FREQUENCY = 'REVIEW_FREQUENCY',
   STATUS = 'STATUS',
   created_at = 'created_at',
@@ -38751,6 +38800,13 @@ export interface ProcedureWhereInput {
   internalNotesNEQ?: InputMaybe<Scalars['String']['input']>
   internalNotesNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   internalNotesNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** management_mode field predicates */
+  managementMode?: InputMaybe<ProcedureDocumentManagementMode>
+  managementModeIn?: InputMaybe<Array<ProcedureDocumentManagementMode>>
+  managementModeIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  managementModeNEQ?: InputMaybe<ProcedureDocumentManagementMode>
+  managementModeNotIn?: InputMaybe<Array<ProcedureDocumentManagementMode>>
+  managementModeNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** name field predicates */
   name?: InputMaybe<Scalars['String']['input']>
   nameContains?: InputMaybe<Scalars['String']['input']>
@@ -53863,6 +53919,7 @@ export interface UpdateActionPlanInput {
   clearImprovementSuggestions?: InputMaybe<Scalars['Boolean']['input']>
   clearIntegrations?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalNotes?: InputMaybe<Scalars['Boolean']['input']>
+  clearManagementMode?: InputMaybe<Scalars['Boolean']['input']>
   clearMetadata?: InputMaybe<Scalars['Boolean']['input']>
   clearPriority?: InputMaybe<Scalars['Boolean']['input']>
   clearPrograms?: InputMaybe<Scalars['Boolean']['input']>
@@ -53909,6 +53966,8 @@ export interface UpdateActionPlanInput {
   improvementSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: InputMaybe<Scalars['String']['input']>
+  /** how the action_plan is managed: parsed and edited in Openlane (OPENLANE_MANAGED) or kept as an external reference file viewed in Openlane (EXTERNAL_REFERENCE) */
+  managementMode?: InputMaybe<ActionPlanDocumentManagementMode>
   /** additional structured metadata for the action plan */
   metadata?: InputMaybe<Scalars['Map']['input']>
   /** the name of the action_plan */
@@ -56597,6 +56656,7 @@ export interface UpdateInternalPolicyInput {
   clearInternalNotes?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalPolicyKind?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalPolicyKindName?: InputMaybe<Scalars['Boolean']['input']>
+  clearManagementMode?: InputMaybe<Scalars['Boolean']['input']>
   clearNarratives?: InputMaybe<Scalars['Boolean']['input']>
   clearOwner?: InputMaybe<Scalars['Boolean']['input']>
   clearProcedures?: InputMaybe<Scalars['Boolean']['input']>
@@ -56645,6 +56705,8 @@ export interface UpdateInternalPolicyInput {
   internalPolicyKindID?: InputMaybe<Scalars['ID']['input']>
   /** the kind of the internal_policy */
   internalPolicyKindName?: InputMaybe<Scalars['String']['input']>
+  /** how the policy is managed: parsed and edited in Openlane (OPENLANE_MANAGED) or kept as an external reference file viewed in Openlane (EXTERNAL_REFERENCE) */
+  managementMode?: InputMaybe<InternalPolicyDocumentManagementMode>
   /** the name of the policy */
   name?: InputMaybe<Scalars['String']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
@@ -57878,6 +57940,7 @@ export interface UpdateProcedureInput {
   clearImprovementSuggestions?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalNotes?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalPolicies?: InputMaybe<Scalars['Boolean']['input']>
+  clearManagementMode?: InputMaybe<Scalars['Boolean']['input']>
   clearNarratives?: InputMaybe<Scalars['Boolean']['input']>
   clearOwner?: InputMaybe<Scalars['Boolean']['input']>
   clearProcedureKind?: InputMaybe<Scalars['Boolean']['input']>
@@ -57921,6 +57984,8 @@ export interface UpdateProcedureInput {
   improvementSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: InputMaybe<Scalars['String']['input']>
+  /** how the procedure is managed: parsed and edited in Openlane (OPENLANE_MANAGED) or kept as an external reference file viewed in Openlane (EXTERNAL_REFERENCE) */
+  managementMode?: InputMaybe<ProcedureDocumentManagementMode>
   /** the name of the procedure */
   name?: InputMaybe<Scalars['String']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
@@ -65939,6 +66004,7 @@ export type FilterAssessmentsQuery = {
         id: string
         name: string
         assessmentType: AssessmentAssessmentType
+        systemOwned?: boolean | null
         templateID?: string | null
         jsonconfig?: any | null
         responseDueDuration?: number | null

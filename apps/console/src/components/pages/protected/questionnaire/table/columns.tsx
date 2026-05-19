@@ -84,7 +84,16 @@ export const getQuestionnaireColumns = (params?: Params) => {
     {
       accessorKey: 'name',
       header: 'Name',
-      cell: ({ cell }) => <div className="font-bold">{cell.getValue() as string}</div>,
+      cell: ({ row, cell }) => (
+        <div className="flex items-center gap-2">
+          <span className="font-bold">{cell.getValue() as string}</span>
+          {row.original.systemOwned && (
+            <Badge variant="secondary" className="shrink-0">
+              System
+            </Badge>
+          )}
+        </div>
+      ),
       size: 200,
       minSize: 150,
     },

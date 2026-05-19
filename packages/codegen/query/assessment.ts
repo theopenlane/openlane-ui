@@ -58,6 +58,7 @@ export const GET_ALL_ASSESSMENTS = gql`
           id
           name
           assessmentType
+          systemOwned
           templateID
           template {
             id
