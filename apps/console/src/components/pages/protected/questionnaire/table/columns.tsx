@@ -235,8 +235,9 @@ export const getQuestionnaireColumns = (params?: Params) => {
       id: 'actions',
       header: '',
       cell: ({ row }) => {
+        const isSystemOwned = row.original.systemOwned === true
         const canSend = !!params?.canSend
-        const canEditQuestionnaire = !!params?.canEdit
+        const canEditQuestionnaire = !!params?.canEdit && !isSystemOwned
         const canDeleteQuestionnaire = !!params?.canDelete
         const hasAnyAction = canSend || canEditQuestionnaire || canDeleteQuestionnaire || !!params?.onPreview || !!params?.onViewDetails
 

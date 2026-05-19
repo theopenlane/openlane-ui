@@ -1,12 +1,14 @@
 import { type ColumnDef } from '@tanstack/react-table'
-import { type Template, type User } from '@repo/codegen/src/schema'
+import { type Template, type User, TemplateTemplateKind } from '@repo/codegen/src/schema'
 import { formatDate, formatTimeSince } from '@/utils/date'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { Avatar } from '@/components/shared/avatar/avatar'
+import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { MoreHorizontal, Pencil, FilePlus, Trash2, Copy } from 'lucide-react'
 import { TruncatedCell } from '@repo/ui/data-table'
+import { SystemTooltip } from '@repo/ui/system-tooltip'
 
 type Params = {
   userMap?: Record<string, User>
@@ -35,7 +37,33 @@ export const getTemplateColumns = (params?: Params) => {
     {
       accessorKey: 'name',
       header: 'Name',
-      cell: ({ cell }) => <div className="font-bold">{cell.getValue() as string}</div>,
+      cell: ({ row, cell }) => (
+        <div className="flex items-center gap-2">
+          <span className="font-bold">{cell.getValue() as string}</span>
+          {row.original.systemOwned && (
+            <SystemTooltip
+              className="bg-border"
+              icon={
+                <Badge variant="select" className="shrink-0">
+                  Openlane Managed
+                </Badge>
+              }
+              content={<p>This template is managed by Openlane. To make changes you must duplicate it first.</p>}
+            />
+          )}
+          {row.original.kind === TemplateTemplateKind.EXTERNAL_INTAKE && (
+            <SystemTooltip
+              className="bg-success/16"
+              icon={
+                <Badge variant="green" className="shrink-0">
+                  Object Creation
+                </Badge>
+              }
+              content={<p>Submitting this template automatically creates and updates records in your Openlane organization.</p>}
+            />
+          )}
+        </div>
+      ),
       size: 200,
       minSize: 100,
     },
