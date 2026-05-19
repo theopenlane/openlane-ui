@@ -81,6 +81,7 @@ export const GET_TEMPLATE = gql`
       description
       jsonconfig
       uischema
+      systemOwned
     }
   }
 `

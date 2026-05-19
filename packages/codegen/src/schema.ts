@@ -65973,6 +65973,7 @@ export type GetAssessmentQuery = {
     id: string
     name: string
     assessmentType: AssessmentAssessmentType
+    systemOwned?: boolean | null
     jsonconfig?: any | null
     uischema?: any | null
     templateID?: string | null
@@ -66071,6 +66072,7 @@ export type GetAssessmentDetailQuery = {
     id: string
     name: string
     assessmentType: AssessmentAssessmentType
+    systemOwned?: boolean | null
     jsonconfig?: any | null
     uischema?: any | null
     templateID?: string | null
@@ -76126,7 +76128,7 @@ export type GetTemplateQueryVariables = Exact<{
 
 export type GetTemplateQuery = {
   __typename?: 'Query'
-  template: { __typename?: 'Template'; id: string; templateType: TemplateDocumentType; name: string; description?: string | null; jsonconfig: any; uischema?: any | null }
+  template: { __typename?: 'Template'; id: string; templateType: TemplateDocumentType; name: string; description?: string | null; jsonconfig: any; uischema?: any | null; systemOwned?: boolean | null }
 }
 
 export type DeleteTemplateMutationVariables = Exact<{

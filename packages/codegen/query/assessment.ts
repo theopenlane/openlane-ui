@@ -39,6 +39,7 @@ export const GET_ASSESSMENT = gql`
       id
       name
       assessmentType
+      systemOwned
       jsonconfig
       uischema
       templateID
@@ -127,6 +128,7 @@ export const GET_ASSESSMENT_DETAIL = gql`
       id
       name
       assessmentType
+      systemOwned
       jsonconfig
       uischema
       templateID

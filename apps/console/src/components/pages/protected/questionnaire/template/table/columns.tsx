@@ -158,7 +158,7 @@ export const getTemplateColumns = (params?: Params) => {
         const isSystemOwned = row.original.systemOwned === true
         const canEditTemplate = !!params?.canEdit && !isSystemOwned
         const canDeleteTemplate = !!params?.canDelete && !isSystemOwned
-        const canCreateQuestionnaire = !!params?.canCreateQuestionnaire
+        const canCreateQuestionnaire = !!params?.canCreateQuestionnaire && row.original.kind !== TemplateTemplateKind.EXTERNAL_INTAKE
         const canDuplicateTemplate = !!params?.canDuplicate
         const hasAnyAction = canEditTemplate || canDeleteTemplate || canCreateQuestionnaire || canDuplicateTemplate
 
