@@ -1,21 +1,25 @@
 import { type ColumnDef } from '@tanstack/react-table'
-import { type Template, type User } from '@repo/codegen/src/schema'
+import { type Template, type User, TemplateTemplateKind } from '@repo/codegen/src/schema'
 import { formatDate, formatTimeSince } from '@/utils/date'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { Avatar } from '@/components/shared/avatar/avatar'
+import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
-import { MoreHorizontal, Pencil, FilePlus, Trash2 } from 'lucide-react'
+import { MoreHorizontal, Pencil, FilePlus, Trash2, Copy } from 'lucide-react'
 import { TruncatedCell } from '@repo/ui/data-table'
+import { SystemTooltip } from '@repo/ui/system-tooltip'
 
 type Params = {
   userMap?: Record<string, User>
   onEdit?: (template: Template) => void
   onDelete?: (template: Template) => void
   onCreateQuestionnaire?: (template: Template) => void
+  onDuplicate?: (template: Template) => void
   canEdit?: boolean
   canDelete?: boolean
   canCreateQuestionnaire?: boolean
+  canDuplicate?: boolean
 }
 
 export const getTemplateColumns = (params?: Params) => {
@@ -33,7 +37,33 @@ export const getTemplateColumns = (params?: Params) => {
     {
       accessorKey: 'name',
       header: 'Name',
-      cell: ({ cell }) => <div className="font-bold">{cell.getValue() as string}</div>,
+      cell: ({ row, cell }) => (
+        <div className="flex items-center gap-2">
+          <span className="font-bold">{cell.getValue() as string}</span>
+          {row.original.systemOwned && (
+            <SystemTooltip
+              className="bg-border"
+              icon={
+                <Badge variant="select" className="shrink-0">
+                  Openlane Managed
+                </Badge>
+              }
+              content={<p>This template is managed by Openlane. To make changes you must duplicate it first.</p>}
+            />
+          )}
+          {row.original.kind === TemplateTemplateKind.EXTERNAL_INTAKE && (
+            <SystemTooltip
+              className="bg-success/16"
+              icon={
+                <Badge variant="green" className="shrink-0">
+                  Object Creation
+                </Badge>
+              }
+              content={<p>Submitting this template automatically creates and updates records in your Openlane organization.</p>}
+            />
+          )}
+        </div>
+      ),
       size: 200,
       minSize: 100,
     },
@@ -128,8 +158,9 @@ export const getTemplateColumns = (params?: Params) => {
         const isSystemOwned = row.original.systemOwned === true
         const canEditTemplate = !!params?.canEdit && !isSystemOwned
         const canDeleteTemplate = !!params?.canDelete && !isSystemOwned
-        const canCreateQuestionnaire = !!params?.canCreateQuestionnaire
-        const hasAnyAction = canEditTemplate || canDeleteTemplate || canCreateQuestionnaire
+        const canCreateQuestionnaire = !!params?.canCreateQuestionnaire && row.original.kind !== TemplateTemplateKind.EXTERNAL_INTAKE
+        const canDuplicateTemplate = !!params?.canDuplicate
+        const hasAnyAction = canEditTemplate || canDeleteTemplate || canCreateQuestionnaire || canDuplicateTemplate
 
         if (!hasAnyAction) {
           return null
@@ -147,6 +178,12 @@ export const getTemplateColumns = (params?: Params) => {
                   <DropdownMenuItem onClick={() => params?.onEdit?.(row.original)}>
                     <Pencil className="h-4 w-4" />
                     Edit
+                  </DropdownMenuItem>
+                )}
+                {canDuplicateTemplate && (
+                  <DropdownMenuItem onClick={() => params?.onDuplicate?.(row.original)}>
+                    <Copy className="h-4 w-4" />
+                    Duplicate
                   </DropdownMenuItem>
                 )}
                 {canCreateQuestionnaire && (

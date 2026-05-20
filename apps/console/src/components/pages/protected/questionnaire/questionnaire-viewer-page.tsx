@@ -28,15 +28,12 @@ const QuestionnaireViewerPage: React.FC = () => {
   const existingId = searchParams.get('id') as string
 
   const { data: permission, isLoading } = useOrganizationRoles()
+  const editAllowed = canEdit(permission?.roles)
 
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: deleteAssessment } = useDeleteAssessment()
   const { mutateAsync: createTemplate } = useCreateTemplate()
   const { data: assessmentData } = useGetAssessment(existingId)
-
-  const isSystemOwned = !!assessmentData?.assessment.systemOwned
-
-  const editAllowed = canEdit(permission?.roles) && isSystemOwned
 
   const [isSendDialogOpen, setIsSendDialogOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
@@ -45,6 +42,7 @@ const QuestionnaireViewerPage: React.FC = () => {
 
   const questionnaire = assessmentData?.assessment
   const hasTemplate = !!questionnaire?.templateID
+  const isSystemOwned = questionnaire?.systemOwned === true
 
   const handleEdit = () => {
     router.push(`/automation/questionnaires/questionnaire-editor?id=${existingId}`)
@@ -109,17 +107,19 @@ const QuestionnaireViewerPage: React.FC = () => {
         <PageHeading eyebrow="Questionnaires" heading="Preview" />
         {!isLoading && (
           <div className="flex gap-2 items-center">
-            {editAllowed && !hasTemplate && <SaveButton type="button" variant="secondary" title="Save as Template" onClick={() => setIsSaveAsTemplateDialogOpen(true)} disabled={isSaving} />}
+            {editAllowed && !hasTemplate && !isSystemOwned && (
+              <SaveButton type="button" variant="secondary" title="Save as Template" onClick={() => setIsSaveAsTemplateDialogOpen(true)} disabled={isSaving} />
+            )}
 
-            {editAllowed && (
-              <>
-                <Button type="button" variant="secondary" className="h-8 px-3" icon={<Edit />} iconPosition="left" onClick={handleEdit}>
-                  Edit
-                </Button>
-                <Button type="button" variant="secondary" className="h-8 px-3" icon={<Trash2 />} iconPosition="left" onClick={() => setIsDeleteDialogOpen(true)}>
-                  Delete
-                </Button>
-              </>
+            {editAllowed && !isSystemOwned && (
+              <Button type="button" variant="secondary" className="h-8 px-3" icon={<Edit />} iconPosition="left" onClick={handleEdit}>
+                Edit
+              </Button>
+            )}
+            {editAllowed && !isSystemOwned && (
+              <Button type="button" variant="secondary" className="h-8 px-3" icon={<Trash2 />} iconPosition="left" onClick={() => setIsDeleteDialogOpen(true)}>
+                Delete
+              </Button>
             )}
 
             <Button type="button" className="h-8 px-3" icon={<Send />} iconPosition="left" onClick={() => setIsSendDialogOpen(true)}>

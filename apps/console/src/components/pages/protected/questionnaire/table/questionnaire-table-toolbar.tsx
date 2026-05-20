@@ -25,6 +25,7 @@ import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-butto
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import { useTemplateSelect } from '@/lib/graphql-hooks/template'
 import { getBulkActionFailureDescription } from '@/components/shared/crud-base/bulk-action-feedback'
+import { type TQuickFilter } from '@/components/shared/table-filter/table-filter-helper'
 
 type TQuestionnaireTableToolbarProps = {
   creating: boolean
@@ -75,6 +76,19 @@ const QuestionnaireTableToolbar: React.FC<TQuestionnaireTableToolbarProps> = ({
   const { templateOptions } = useTemplateSelect({ where: { kind: TemplateTemplateKind.QUESTIONNAIRE } })
 
   const filterFields = useMemo(() => getQuestionnaireFilterFields(tagOptions, templateOptions), [tagOptions, templateOptions])
+
+  const quickFilters = useMemo<TQuickFilter[]>(
+    () => [
+      {
+        label: 'Hide System Owned',
+        key: 'systemOwned',
+        type: 'custom',
+        isActive: false,
+        getCondition: () => ({ systemOwned: false }),
+      },
+    ],
+    [],
+  )
 
   const createDropdown = () => {
     if (includeQuestionnaireCreation === 'true' && canCreate(permission?.roles, AccessEnum.CanCreateTemplate)) {
@@ -187,7 +201,7 @@ const QuestionnaireTableToolbar: React.FC<TQuestionnaireTableToolbarProps> = ({
               {mappedColumns && columnVisibility && setColumnVisibility && (
                 <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.QUESTIONNAIRE} />
               )}
-              <TableFilter filterFields={filterFields} onFilterChange={setFilters} pageKey={TableKeyEnum.QUESTIONNAIRE} />
+              <TableFilter filterFields={filterFields} onFilterChange={setFilters} pageKey={TableKeyEnum.QUESTIONNAIRE} quickFilters={quickFilters} />
               {createDropdown()}
             </>
           )}

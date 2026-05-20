@@ -376,7 +376,7 @@ const QuestionnaireDetailPage = () => {
                       <span>Edit</span>
                     </Button>
                   )}
-                  {canDelete(permission?.roles) && (
+                  {canDelete(permission?.roles) && !assessment.systemOwned && (
                     <Button size="sm" variant="transparent" className="flex justify-start space-x-2" onClick={() => setIsDeleteDialogOpen(true)}>
                       <Trash2 size={16} strokeWidth={2} />
                       <span>Delete</span>

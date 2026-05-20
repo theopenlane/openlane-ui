@@ -153,7 +153,7 @@ const TableFilterComponent: React.FC<TTableFilterProps> = ({
         saveQuickFilters(pageKey, quickFilter)
       }
       onFilterChange?.(buildQuickFilterWhereCondition(quickFilter))
-      resetRegularFilters()
+      resetRegularFilters(false)
       setOpen(false)
     },
     [buildQuickFilterWhereCondition, onFilterChange, pageKey, resetRegularFilters, storageEnabled],
