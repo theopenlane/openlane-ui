@@ -5,6 +5,7 @@ import { useFormContext } from 'react-hook-form'
 import { FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
 import { Popover, PopoverContent, PopoverTrigger } from '@repo/ui/popover'
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@repo/ui/command'
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { Badge } from '@repo/ui/badge'
 import { Check, Laptop, Building2, X } from 'lucide-react'
 import { cn } from '@repo/ui/lib/utils'
@@ -14,8 +15,12 @@ import { type EditPlatformFormData } from '../../hooks/use-form-schema'
 
 type ItemInfo = { id: string; name: string }
 
+type ScopeFieldName = keyof Pick<EditPlatformFormData, 'assetIDs' | 'outOfScopeAssetIDs' | 'entityIDs' | 'outOfScopeVendorIDs'>
+
 interface MultiSelectProps {
-  fieldName: keyof Pick<EditPlatformFormData, 'assetIDs' | 'outOfScopeAssetIDs' | 'entityIDs' | 'outOfScopeVendorIDs'>
+  fieldName: ScopeFieldName
+  oppositeFieldName?: ScopeFieldName
+  disabledReason?: string
   label: string
   placeholder: string
   items: ItemInfo[]
@@ -23,7 +28,7 @@ interface MultiSelectProps {
   icon: React.ReactNode
 }
 
-const MultiSelectField: React.FC<MultiSelectProps> = ({ fieldName, label, placeholder, items, isLoading, icon }) => {
+const MultiSelectField: React.FC<MultiSelectProps> = ({ fieldName, oppositeFieldName, disabledReason, label, placeholder, items, isLoading, icon }) => {
   const form = useFormContext<EditPlatformFormData>()
   const [open, setOpen] = useState(false)
   const [searchText, setSearchText] = useState('')
@@ -31,6 +36,9 @@ const MultiSelectField: React.FC<MultiSelectProps> = ({ fieldName, label, placeh
 
   const watchedIDs = form.watch(fieldName) as string[] | undefined
   const selectedIds = useMemo(() => watchedIDs ?? [], [watchedIDs])
+
+  const watchedOppositeIDs = form.watch(oppositeFieldName ?? fieldName) as string[] | undefined
+  const oppositeSelectedIds = useMemo(() => new Set(oppositeFieldName ? (watchedOppositeIDs ?? []) : []), [oppositeFieldName, watchedOppositeIDs])
 
   useEffect(() => {
     setCache((prev) => {
@@ -103,14 +111,32 @@ const MultiSelectField: React.FC<MultiSelectProps> = ({ fieldName, label, placeh
                       <CommandGroup>
                         {filteredItems.map((item) => {
                           const isSelected = selectedIds.includes(item.id)
-                          return (
-                            <CommandItem key={item.id} value={item.id} onSelect={() => toggle(item)}>
+                          const isDisabled = oppositeSelectedIds.has(item.id)
+                          const row = (
+                            <CommandItem
+                              value={item.id}
+                              disabled={isDisabled}
+                              onSelect={() => {
+                                if (!isDisabled) toggle(item)
+                              }}
+                            >
                               <div className={cn('mr-2 flex h-4 w-4 items-center justify-center rounded-sm border', isSelected ? 'border-primary bg-primary text-primary-foreground' : 'opacity-50')}>
                                 {isSelected && <Check className="h-3 w-3" />}
                               </div>
                               <span className="mr-2 text-muted-foreground">{icon}</span>
                               <span>{item.name}</span>
                             </CommandItem>
+                          )
+                          if (!isDisabled) return <React.Fragment key={item.id}>{row}</React.Fragment>
+                          return (
+                            <TooltipProvider key={item.id} delayDuration={150}>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <div>{row}</div>
+                                </TooltipTrigger>
+                                <TooltipContent side="right">{disabledReason ?? 'Already selected in the opposite list'}</TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
                           )
                         })}
                       </CommandGroup>
@@ -141,9 +167,20 @@ const StepLinkAssetsVendors: React.FC = () => {
 
       <div className="space-y-3">
         <h4 className="text-sm font-medium">Assets</h4>
-        <MultiSelectField fieldName="assetIDs" label="In-scope Assets" placeholder="Select assets in scope..." items={assets} isLoading={assetsLoading} icon={<Laptop className="h-4 w-4" />} />
+        <MultiSelectField
+          fieldName="assetIDs"
+          oppositeFieldName="outOfScopeAssetIDs"
+          disabledReason="Already selected as out-of-scope"
+          label="In-scope Assets"
+          placeholder="Select assets in scope..."
+          items={assets}
+          isLoading={assetsLoading}
+          icon={<Laptop className="h-4 w-4" />}
+        />
         <MultiSelectField
           fieldName="outOfScopeAssetIDs"
+          oppositeFieldName="assetIDs"
+          disabledReason="Already selected as in-scope"
           label="Out-of-scope Assets"
           placeholder="Select assets out of scope..."
           items={assets}
@@ -154,9 +191,20 @@ const StepLinkAssetsVendors: React.FC = () => {
 
       <div className="space-y-3">
         <h4 className="text-sm font-medium">Vendors</h4>
-        <MultiSelectField fieldName="entityIDs" label="In-scope Vendors" placeholder="Select vendors in scope..." items={vendors} isLoading={vendorsLoading} icon={<Building2 className="h-4 w-4" />} />
+        <MultiSelectField
+          fieldName="entityIDs"
+          oppositeFieldName="outOfScopeVendorIDs"
+          disabledReason="Already selected as out-of-scope"
+          label="In-scope Vendors"
+          placeholder="Select vendors in scope..."
+          items={vendors}
+          isLoading={vendorsLoading}
+          icon={<Building2 className="h-4 w-4" />}
+        />
         <MultiSelectField
           fieldName="outOfScopeVendorIDs"
+          oppositeFieldName="entityIDs"
+          disabledReason="Already selected as in-scope"
           label="Out-of-scope Vendors"
           placeholder="Select vendors out of scope..."
           items={vendors}
