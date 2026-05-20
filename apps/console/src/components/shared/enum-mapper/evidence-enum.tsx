@@ -64,6 +64,18 @@ export const EvidenceBadgeMapper: Record<EvidenceEvidenceStatus, React.ReactNode
   ),
 }
 
+export const EVIDENCE_STATUS_STYLES: Partial<Record<EvidenceEvidenceStatus, { bg: string; color: string; label: string }>> = {
+  [EvidenceEvidenceStatus.REJECTED]: { bg: 'color-mix(in srgb, var(--color-rejected) 15%, transparent)', color: 'var(--color-rejected)', label: 'Rejected' },
+  [EvidenceEvidenceStatus.MISSING_ARTIFACT]: { bg: 'color-mix(in srgb, var(--color-missing-artifact) 15%, transparent)', color: 'var(--color-missing-artifact)', label: 'Missing Artifact' },
+  [EvidenceEvidenceStatus.NEEDS_RENEWAL]: { bg: 'color-mix(in srgb, var(--color-needs-renewal) 15%, transparent)', color: 'var(--color-needs-renewal)', label: 'Needs Renewal' },
+  [EvidenceEvidenceStatus.REQUESTED]: { bg: 'color-mix(in srgb, var(--color-requested) 15%, transparent)', color: 'var(--color-requested)', label: 'Requested' },
+  [EvidenceEvidenceStatus.DRAFT]: { bg: 'color-mix(in srgb, var(--color-draft) 15%, transparent)', color: 'var(--color-draft)', label: 'Draft' },
+  [EvidenceEvidenceStatus.SUBMITTED]: { bg: 'color-mix(in srgb, var(--color-approved) 15%, transparent)', color: 'var(--color-approved)', label: 'Submitted' },
+  [EvidenceEvidenceStatus.IN_REVIEW]: { bg: 'color-mix(in srgb, var(--color-in-review) 15%, transparent)', color: 'var(--color-in-review)', label: 'In Review' },
+  [EvidenceEvidenceStatus.READY_FOR_AUDITOR]: { bg: 'color-mix(in srgb, var(--color-ready) 15%, transparent)', color: 'var(--color-ready)', label: 'Ready for Auditor' },
+  [EvidenceEvidenceStatus.AUDITOR_APPROVED]: { bg: 'color-mix(in srgb, var(--color-approved) 15%, transparent)', color: 'var(--color-approved)', label: 'Approved' },
+}
+
 // Status options for select dropdowns
 export const EvidenceStatusOptions = Object.values(EvidenceEvidenceStatus).map((status) => ({
   label: status

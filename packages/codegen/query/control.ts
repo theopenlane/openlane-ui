@@ -225,6 +225,15 @@ export const CONTROL_DETAILS_FIELDS_FRAGMENT = gql`
           source
           category
           subcategory
+          evidence {
+            edges {
+              node {
+                id
+                name
+                status
+              }
+            }
+          }
         }
       }
     }
@@ -687,8 +696,58 @@ export const GET_CONTROLS_GROUPED_BY_CATEGORY_RESOLVER = gql`
                 __typename
                 id
                 refCode
+                description
                 status
                 referenceFramework
+                subcontrols {
+                  totalCount
+                  edges {
+                    node {
+                      id
+                      evidence {
+                        edges {
+                          node {
+                            id
+                            name
+                            status
+                          }
+                        }
+                      }
+                      internalPolicies {
+                        edges {
+                          node {
+                            id
+                            name
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+                evidence {
+                  edges {
+                    node {
+                      id
+                      name
+                      status
+                    }
+                  }
+                }
+                controlOwner {
+                  displayName
+                  gravatarLogoURL
+                  avatarFile {
+                    base64
+                  }
+                }
+                internalPolicies {
+                  edges {
+                    node {
+                      id
+                      name
+                    }
+                  }
+                }
               }
             }
           }
@@ -702,6 +761,26 @@ export const BULK_EDIT_CONTROL = gql`
   mutation UpdateBulkControl($ids: [ID!]!, $input: UpdateControlInput!) {
     updateBulkControl(ids: $ids, input: $input) {
       updatedIDs
+    }
+  }
+`
+
+export const BULK_EDIT_SUBCONTROL = gql`
+  mutation UpdateBulkSubcontrol($ids: [ID!]!, $input: UpdateSubcontrolInput!) {
+    updateBulkSubcontrol(ids: $ids, input: $input) {
+      updatedIDs
+    }
+  }
+`
+
+export const GET_SUBCONTROL_IDS_BY_CONTROL = gql`
+  query GetSubcontrolIdsByControl($where: SubcontrolWhereInput) {
+    subcontrols(where: $where) {
+      edges {
+        node {
+          id
+        }
+      }
     }
   }
 `
@@ -723,6 +802,23 @@ export const GET_CONTROLS_BY_REFCODE = gql`
           standardID
           ownerID
           systemOwned
+          internalPolicies {
+            edges {
+              node {
+                id
+                name
+              }
+            }
+          }
+          evidence {
+            edges {
+              node {
+                id
+                name
+                status
+              }
+            }
+          }
         }
       }
     }

@@ -7,6 +7,7 @@ import EmptyTabState from '@/components/shared/crud-base/tabs/empty-tab-state'
 import { useGetEvidenceListLight } from '@/lib/graphql-hooks/evidence'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { EvidenceOrderField, OrderDirection, type EvidenceOrder, type EvidenceWhereInput } from '@repo/codegen/src/schema'
+import type { EntityRef } from '@/lib/graphql-hooks/use-mapped-entity-refs'
 
 type EvidenceRequestItem = {
   evidenceRequestID?: string | null
@@ -21,27 +22,28 @@ interface EvidenceTabProps {
   evidenceFormData: TFormEvidenceData
   evidenceRequests?: EvidenceRequestItem[] | string | null
   subcontrolIds?: string[]
+  mappedControlRefs?: EntityRef[]
+  mappedSubcontrolRefs?: EntityRef[]
 }
 
-const buildAssociationFilter = (controlId?: string, subcontrolIds?: string[]) => {
-  if (controlId && subcontrolIds && subcontrolIds.length > 0) {
-    return {
-      or: [{ hasControlsWith: [{ id: controlId }] }, { hasSubcontrolsWith: [{ idIn: subcontrolIds }] }],
-    }
-  }
+const buildAssociationFilter = (controlId?: string, subcontrolIds?: string[], mappedControlRefs: EntityRef[] = [], mappedSubcontrolRefs: EntityRef[] = []) => {
+  const conditions: object[] = []
 
-  if (controlId) {
-    return { hasControlsWith: [{ id: controlId }] }
-  }
+  if (controlId) conditions.push({ hasControlsWith: [{ id: controlId }] })
+  if (subcontrolIds && subcontrolIds.length > 0) conditions.push({ hasSubcontrolsWith: [{ idIn: subcontrolIds }] })
 
-  if (subcontrolIds && subcontrolIds.length > 0) {
-    return { hasSubcontrolsWith: [{ idIn: subcontrolIds }] }
-  }
+  const mappedControlIds = mappedControlRefs.map((r) => r.id)
+  const mappedSubcontrolIds = mappedSubcontrolRefs.map((r) => r.id)
 
-  return {}
+  if (mappedControlIds.length > 0) conditions.push({ hasControlsWith: [{ idIn: mappedControlIds }] })
+  if (mappedSubcontrolIds.length > 0) conditions.push({ hasSubcontrolsWith: [{ idIn: mappedSubcontrolIds }] })
+
+  if (conditions.length === 0) return {}
+  if (conditions.length === 1) return conditions[0]
+  return { or: conditions }
 }
 
-const EvidenceTab: React.FC<EvidenceTabProps> = ({ evidenceFormData, evidenceRequests, subcontrolIds }) => {
+const EvidenceTab: React.FC<EvidenceTabProps> = ({ evidenceFormData, evidenceRequests, subcontrolIds, mappedControlRefs = [], mappedSubcontrolRefs = [] }) => {
   const hasEvidenceRequests = Array.isArray(evidenceRequests) ? evidenceRequests.length > 0 : !!evidenceRequests
 
   const baselineWhere = React.useMemo<EvidenceWhereInput>(() => {
@@ -49,8 +51,8 @@ const EvidenceTab: React.FC<EvidenceTabProps> = ({ evidenceFormData, evidenceReq
       return buildAssociationFilter(undefined, [evidenceFormData.subcontrolID]) as EvidenceWhereInput
     }
 
-    return buildAssociationFilter(evidenceFormData.controlID, subcontrolIds) as EvidenceWhereInput
-  }, [evidenceFormData.controlID, evidenceFormData.subcontrolID, subcontrolIds])
+    return buildAssociationFilter(evidenceFormData.controlID, subcontrolIds, mappedControlRefs, mappedSubcontrolRefs) as EvidenceWhereInput
+  }, [evidenceFormData.controlID, evidenceFormData.subcontrolID, subcontrolIds, mappedControlRefs, mappedSubcontrolRefs])
 
   const baselineOrderBy = React.useMemo<EvidenceOrder[]>(() => [{ field: EvidenceOrderField.updated_at, direction: OrderDirection.DESC }], [])
 
@@ -87,7 +89,7 @@ const EvidenceTab: React.FC<EvidenceTabProps> = ({ evidenceFormData, evidenceReq
   }
 
   if (!hasEvidenceRows && !hasEvidenceRequests) {
-    return <EmptyTabState description="To begin documenting evidence for this control, add supporting files or links. Once added, they’ll appear here." />
+    return <EmptyTabState description="To begin documenting evidence for this control, add supporting files or links. Once added, they'll appear here." />
   }
 
   if (!hasEvidenceRows && hasEvidenceRequests) {
@@ -103,7 +105,7 @@ const EvidenceTab: React.FC<EvidenceTabProps> = ({ evidenceFormData, evidenceReq
 
   return (
     <div className="space-y-6">
-      <ControlEvidenceTable control={evidenceFormData} subcontrolIds={subcontrolIds} />
+      <ControlEvidenceTable control={evidenceFormData} subcontrolIds={subcontrolIds} mappedControlRefs={mappedControlRefs} mappedSubcontrolRefs={mappedSubcontrolRefs} />
       {hasEvidenceRequests && (
         <Card className="p-4">
           <h3 className="text-base font-semibold mb-2">Evidence Items</h3>

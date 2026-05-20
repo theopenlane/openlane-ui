@@ -1,87 +1,51 @@
 import React from 'react'
 import Link from 'next/link'
-import type { ColumnDef, Row } from '@tanstack/react-table'
+import type { ColumnDef } from '@tanstack/react-table'
 import StandardChip from '@/components/pages/protected/standards/shared/standard-chip'
 import { FileBadge2, Folder, FolderTree, Layers, Link2, MoreHorizontal, Pencil, Tag } from 'lucide-react'
-import { MappedControlMappingSource, MappedControlMappingType } from '@repo/codegen/src/schema'
+import InheritedBadge from '@/components/shared/inherited-badge/inherited-badge'
+import LinkedPoliciesCell from '@/components/shared/linked-policies-cell/linked-policies-cell'
+import LinkedEvidenceCell from '@/components/shared/linked-evidence-cell/linked-evidence-cell'
+import { type ControlControlStatus, MappedControlMappingSource, MappedControlMappingType } from '@repo/codegen/src/schema'
+import { ControlIconMapper16 } from '@/components/shared/enum-mapper/control-enum'
 import type { FilterField } from '@/types'
-import type { MappedControlRow } from './mapped-controls-types'
+import type { MappedControlRow, SatisfiesTarget } from './mapped-controls-types'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { CustomEnumChipCell } from '@/components/shared/crud-base/columns/custom-enum-chip-cell'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { Button } from '@repo/ui/button'
-import { Checkbox } from '@repo/ui/checkbox'
 import { TruncatedCell } from '@repo/ui/data-table'
+import ControlChip from '@/components/pages/protected/controls/map-controls/shared/control-chip'
+import { ObjectTypes } from '@repo/codegen/src/type-names'
 
-const getMappedControlSelectionKey = (row: MappedControlRow) => `${row.nodeType}:${row.targetId}`
+const SatisfiesTag: React.FC<{ target: SatisfiesTarget }> = ({ target }) => (
+  <ControlChip
+    control={{
+      __typename: target.level === 'subcontrol' ? ObjectTypes.SUBCONTROL : ObjectTypes.CONTROL,
+      id: target.id,
+      refCode: target.refCode,
+      referenceFramework: target.referenceFramework,
+      controlID: target.controlID,
+    }}
+    hideStandard
+  />
+)
 
-const getEditableRows = (rows: MappedControlRow[]) => {
-  const seen = new Set<string>()
+type LinkMap = Map<string, string>
 
-  return rows.filter((row) => {
-    if (!row.isEditableTarget) return false
-    const key = getMappedControlSelectionKey(row)
-    if (seen.has(key)) return false
-    seen.add(key)
-    return true
-  })
-}
-
-export const getMappedControlsSelectColumn = (selectedRows: MappedControlRow[], setSelectedRows: React.Dispatch<React.SetStateAction<MappedControlRow[]>>): ColumnDef<MappedControlRow> => ({
-  id: 'select',
-  header: ({ table }) => {
-    const currentPageRows = getEditableRows(table.getRowModel().rows.map((row) => row.original))
-    const allSelected = currentPageRows.length > 0 && currentPageRows.every((row) => selectedRows.some((selected) => getMappedControlSelectionKey(selected) === getMappedControlSelectionKey(row)))
-
-    return (
-      <div onClick={(e) => e.stopPropagation()}>
-        <Checkbox
-          checked={allSelected}
-          onCheckedChange={(checked: boolean) => {
-            const currentPageKeys = new Set(currentPageRows.map(getMappedControlSelectionKey))
-            const newSelections = checked
-              ? [...selectedRows.filter((selected) => !currentPageKeys.has(getMappedControlSelectionKey(selected))), ...currentPageRows]
-              : selectedRows.filter((selected) => !currentPageKeys.has(getMappedControlSelectionKey(selected)))
-
-            setSelectedRows(newSelections)
-          }}
-        />
-      </div>
-    )
-  },
-  cell: ({ row }: { row: Row<MappedControlRow> }) => {
-    const isSelectable = !!row.original.isEditableTarget
-    const isChecked = selectedRows.some((selected) => getMappedControlSelectionKey(selected) === getMappedControlSelectionKey(row.original))
-
-    return (
-      <div onClick={(e) => e.stopPropagation()}>
-        <Checkbox
-          checked={isChecked}
-          disabled={!isSelectable}
-          onCheckedChange={() => {
-            if (!isSelectable) return
-            setSelectedRows((prev) => {
-              const selectedKey = getMappedControlSelectionKey(row.original)
-              const exists = prev.some((selected) => getMappedControlSelectionKey(selected) === selectedKey)
-              return exists ? prev.filter((selected) => getMappedControlSelectionKey(selected) !== selectedKey) : [...prev, row.original]
-            })
-          }}
-        />
-      </div>
-    )
-  },
-  size: 50,
-  maxSize: 50,
-})
-
-export const getMappedControlsBaseColumns = (convertToReadOnly: (value: string, index: number) => React.ReactNode): ColumnDef<MappedControlRow>[] => [
+export const getMappedControlsBaseColumns = (
+  controlLinkMap: LinkMap,
+  subcontrolLinkMap: LinkMap,
+  convertToReadOnly: (value: string, index: number) => React.ReactNode,
+): ColumnDef<MappedControlRow>[] => [
   {
     accessorKey: 'refCode',
     header: () => <span className="whitespace-nowrap">Ref Code</span>,
     cell: ({ row }) => {
-      if (!row.original.targetHref) return <span className="block truncate">{row.original.refCode}</span>
+      const href = row.original.nodeType === 'Subcontrol' ? subcontrolLinkMap.get(row.original.refCode) : controlLinkMap.get(row.original.refCode)
+      if (!href) return <span className="block truncate">{row.original.refCode}</span>
       return (
-        <Link href={row.original.targetHref} className="block truncate text-blue-500 hover:underline">
+        <Link href={href} className="block truncate text-blue-500 hover:underline">
           {row.original.refCode}
         </Link>
       )
@@ -98,7 +62,16 @@ export const getMappedControlsBaseColumns = (convertToReadOnly: (value: string, 
   {
     accessorKey: 'status',
     header: () => <span className="whitespace-nowrap">Status</span>,
-    cell: ({ row }) => <span className="block truncate">{row.original.status ? getEnumLabel(row.original.status) : '-'}</span>,
+    cell: ({ row }) => {
+      const status = row.original.status
+      if (!status) return <span>-</span>
+      return (
+        <div className="flex items-center gap-1.5">
+          {ControlIconMapper16[status as ControlControlStatus]}
+          <span>{getEnumLabel(status)}</span>
+        </div>
+      )
+    },
     size: 120,
     minSize: 120,
   },
@@ -108,6 +81,94 @@ export const getMappedControlsBaseColumns = (convertToReadOnly: (value: string, 
     cell: ({ row }) => <CustomEnumChipCell value={row.original.type} objectType="control" field="kind" />,
     size: 120,
     minSize: 120,
+  },
+  {
+    id: 'linkedPolicies',
+    header: () => <span className="whitespace-nowrap">Linked policies</span>,
+    cell: ({ row }) => <LinkedPoliciesCell policies={row.original.linkedPolicies} stopPropagation />,
+    size: 180,
+  },
+  {
+    id: 'evidenceRefs',
+    header: () => <span className="whitespace-nowrap">Evidence</span>,
+    cell: ({ row }) => <LinkedEvidenceCell evidenceRefs={row.original.evidenceRefs} stopPropagation />,
+    size: 180,
+  },
+]
+
+export const getOrgControlsColumns = (controlLinkMap: LinkMap, subcontrolLinkMap: LinkMap, convertToReadOnly: (value: string, index: number) => React.ReactNode): ColumnDef<MappedControlRow>[] => [
+  {
+    accessorKey: 'refCode',
+    header: () => <span className="whitespace-nowrap">Ref</span>,
+    cell: ({ row }) => {
+      const href = controlLinkMap.get(row.original.refCode)
+      const inherited = row.original.inheritedFromSubcontrols
+      return (
+        <div className="flex flex-col gap-1">
+          {href ? (
+            <Link href={href} className="block truncate text-blue-500 hover:underline">
+              {row.original.refCode}
+            </Link>
+          ) : (
+            <span className="block truncate">{row.original.refCode}</span>
+          )}
+          {inherited && inherited.length > 0 && <InheritedBadge sources={inherited.map((s) => ({ refCode: s.refCode, href: subcontrolLinkMap.get(s.refCode) }))} />}
+        </div>
+      )
+    },
+    size: 140,
+    minSize: 120,
+  },
+  {
+    accessorKey: 'description',
+    header: () => <span className="whitespace-nowrap">Description</span>,
+    cell: ({ row }) => <div className="line-clamp-2 text-justify">{row.original.description ? convertToReadOnly(row.original.description, 0) : '-'}</div>,
+    size: 280,
+  },
+  {
+    id: 'satisfies',
+    header: () => <span className="whitespace-nowrap">Satisfies</span>,
+    cell: ({ row }) => {
+      const targets = row.original.satisfiesTargets
+      if (!targets || targets.length === 0) return <span className="text-muted-foreground">-</span>
+      return (
+        <div className="flex flex-col items-start justify-center gap-1 h-full">
+          {targets.map((t) => (
+            <SatisfiesTag key={`${t.level}-${t.refCode}`} target={t} />
+          ))}
+        </div>
+      )
+    },
+    size: 130,
+    minSize: 100,
+  },
+  {
+    accessorKey: 'status',
+    header: () => <span className="whitespace-nowrap">Status</span>,
+    cell: ({ row }) => {
+      const status = row.original.status
+      if (!status) return <span>-</span>
+      return (
+        <div className="flex items-center gap-1.5">
+          {ControlIconMapper16[status as ControlControlStatus]}
+          <span>{getEnumLabel(status)}</span>
+        </div>
+      )
+    },
+    size: 120,
+    minSize: 120,
+  },
+  {
+    id: 'linkedPolicies',
+    header: () => <span className="whitespace-nowrap">Linked policies</span>,
+    cell: ({ row }) => <LinkedPoliciesCell policies={row.original.linkedPolicies} stopPropagation />,
+    size: 180,
+  },
+  {
+    id: 'evidenceRefs',
+    header: () => <span className="whitespace-nowrap">Evidence</span>,
+    cell: ({ row }) => <LinkedEvidenceCell evidenceRefs={row.original.evidenceRefs} stopPropagation />,
+    size: 180,
   },
 ]
 
