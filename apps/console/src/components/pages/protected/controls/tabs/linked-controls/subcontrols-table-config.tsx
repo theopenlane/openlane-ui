@@ -6,6 +6,7 @@ import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { CustomEnumChipCell } from '@/components/shared/crud-base/columns/custom-enum-chip-cell'
 import type { FilterField } from '@/types'
 import { Checkbox } from '@repo/ui/checkbox'
+import { TruncatedCell } from '@repo/ui/data-table'
 
 export type SubcontrolRow = {
   id: string
@@ -87,7 +88,7 @@ export const getSubcontrolsColumns = ({ controlId, convertToReadOnly, selectedSu
     {
       accessorKey: 'description',
       header: () => <span className="whitespace-nowrap">Description</span>,
-      cell: ({ row }) => <div className="line-clamp-2 text-justify">{row.original.description ? convertToReadOnly(row.original.description, 0) : '-'}</div>,
+      cell: ({ row }) => <TruncatedCell className="line-clamp-2 text-justify whitespace-normal">{row.original.description ? convertToReadOnly(row.original.description, 0) : '-'}</TruncatedCell>,
       size: 320,
     },
     {
