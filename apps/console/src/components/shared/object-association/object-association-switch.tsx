@@ -3,7 +3,7 @@ import { ArrowLeft, ChevronsDownUp, ChevronsUpDown, Expand, LayoutList, List, Wa
 import ObjectAssociationGraph from '@/components/shared/object-association/object-association-graph.tsx'
 import { SetControlAssociationDialog } from '@/components/pages/protected/controls/set-control-association-dialog'
 import { Button } from '@repo/ui/button'
-import { ObjectAssociationNodeEnum, type Section, type TCenterNode } from '@/components/shared/object-association/types/object-association-types.ts'
+import { ObjectAssociationNodeEnum, type Section, type TCenterNode, getCenterNodeObjectName } from '@/components/shared/object-association/types/object-association-types.ts'
 import AssociatedObjectsAccordion from '@/components/shared/object-association/associated-objects-accordion.tsx'
 import { SetPolicyAssociationDialog } from '@/components/pages/protected/policies/set-policy-association-dialog'
 import { SetProcedureAssociationDialog } from '@/components/pages/protected/procedures/set-procedure-association-dialog'
@@ -69,39 +69,42 @@ const ObjectAssociationSwitch: React.FC<TObjectAssociationSwitchProps> = ({ sect
             <span>Back</span>
           </button>
         ) : (
-          <>
-            <h2 className="text-lg font-semibold">Associated Objects</h2>
-            <div className="flex gap-2">
-              <TooltipProvider delayDuration={100}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div onClick={() => setIsGraphView((prevState) => !prevState)} className="flex items-center p-1 bg-background border rounded-lg cursor-pointer overflow-hidden">
-                      <Button type="button" variant={!isGraphView ? 'transparent' : 'secondary'} size="sm" className="mr-1 h-6" style={{ boxShadow: 'none', outline: 'none', border: 'none' }}>
-                        <Waypoints size={14} />
-                      </Button>
-                      <Button type="button" variant={isGraphView ? 'transparent' : 'secondary'} size="sm" className="h-6" style={{ boxShadow: 'none', outline: 'none', border: 'none' }}>
-                        <LayoutList size={14} />
-                      </Button>
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent>{isGraphView ? 'List View' : 'Graph View'}</TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-              {!isGraphView && (
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold">Associated Objects</h2>
+              <div className="flex gap-2">
                 <TooltipProvider delayDuration={100}>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Button type="button" className="self-center" variant="secondary" onClick={() => setToggleAll((prevState) => !prevState)}>
-                        <List size={16} />
-                        {!toggleAll ? <ChevronsDownUp size={16} /> : <ChevronsUpDown size={16} />}
-                      </Button>
+                      <div onClick={() => setIsGraphView((prevState) => !prevState)} className="flex items-center p-1 bg-background border rounded-lg cursor-pointer overflow-hidden">
+                        <Button type="button" variant={!isGraphView ? 'transparent' : 'secondary'} size="sm" className="mr-1 h-6" style={{ boxShadow: 'none', outline: 'none', border: 'none' }}>
+                          <Waypoints size={14} />
+                        </Button>
+                        <Button type="button" variant={isGraphView ? 'transparent' : 'secondary'} size="sm" className="h-6" style={{ boxShadow: 'none', outline: 'none', border: 'none' }}>
+                          <LayoutList size={14} />
+                        </Button>
+                      </div>
                     </TooltipTrigger>
-                    <TooltipContent> {toggleAll ? 'Collapse associated objects' : 'Expand associated objects'}</TooltipContent>
+                    <TooltipContent>{isGraphView ? 'List View' : 'Graph View'}</TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
-              )}
+                {!isGraphView && (
+                  <TooltipProvider delayDuration={100}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button type="button" className="self-center" variant="secondary" onClick={() => setToggleAll((prevState) => !prevState)}>
+                          <List size={16} />
+                          {!toggleAll ? <ChevronsDownUp size={16} /> : <ChevronsUpDown size={16} />}
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent> {toggleAll ? 'Collapse associated objects' : 'Expand associated objects'}</TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                )}
+              </div>
             </div>
-          </>
+            <p className="text-sm text-muted pt-2">This shows objects directly associated with {getCenterNodeObjectName(centerNode)}. This does not include objects linked by inheritance</p>
+          </div>
         )}
       </div>
 

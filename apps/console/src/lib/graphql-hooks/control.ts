@@ -16,6 +16,8 @@ import {
   GET_CONTROLS_PAGINATED_WITH_LIST_FIELDS,
   GET_CONTROLS_GROUPED_BY_CATEGORY_RESOLVER,
   BULK_EDIT_CONTROL,
+  BULK_EDIT_SUBCONTROL,
+  GET_SUBCONTROL_IDS_BY_CONTROL,
   CLONE_CSV_BULK_CONTROL,
   GET_CONTROLS_BY_REFCODE,
   GET_CONTROL_COMMENTS,
@@ -60,9 +62,11 @@ import {
   type GetControlsPaginatedWithListFieldsQuery,
   type GetControlsPaginatedWithListFieldsQueryVariables,
   type ControlListStandardFieldsFragment,
-  type GetControlsGroupedByCategoryResolverQuery,
   type UpdateBulkControlMutation,
   type UpdateBulkControlMutationVariables,
+  type UpdateBulkSubcontrolMutation,
+  type UpdateBulkSubcontrolMutationVariables,
+  type SubcontrolWhereInput,
   type CloneBulkCsvControlMutation,
   type CloneBulkCsvControlMutationVariables,
   type GetControlsByRefCodeQuery,
@@ -174,6 +178,29 @@ export const useBulkEditControl = () => {
       queryClient.invalidateQueries({ queryKey: ['mappedControls'] })
     },
   })
+}
+
+export const useBulkEditSubcontrol = () => {
+  const { client, queryClient } = useGraphQLClient()
+
+  return useMutation<UpdateBulkSubcontrolMutation, unknown, UpdateBulkSubcontrolMutationVariables>({
+    mutationFn: async (variables) => client.request(BULK_EDIT_SUBCONTROL, variables),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['controls'] })
+    },
+  })
+}
+
+// Returns an imperative fetcher for subcontrol IDs belonging to a set of parent control IDs
+export const useSubcontrolIdFetcher = () => {
+  const { client } = useGraphQLClient()
+  return async (controlIds: string[]): Promise<string[]> => {
+    if (controlIds.length === 0) return []
+    const data = await client.request<{ subcontrols: { edges: Array<{ node: { id: string } | null } | null> } }>(GET_SUBCONTROL_IDS_BY_CONTROL, {
+      where: { controlIDIn: controlIds } as SubcontrolWhereInput,
+    })
+    return (data.subcontrols.edges ?? []).map((e) => e?.node?.id).filter((id): id is string => !!id)
+  }
 }
 
 export const useGetControlCountsByStatus = (programId?: string | null) => {
@@ -429,6 +456,55 @@ export function useGetControlMinifiedById(controlId?: string, enabled = true) {
   })
 }
 
+export type ControlGroupItem = {
+  id: string
+  refCode: string
+  description?: string | null
+  status?: string | null
+  referenceFramework?: string | null
+  subcontrolCount: number
+  evidenceRefs: Array<{ id: string; name: string; status?: string | null }>
+  controlOwner?: { displayName?: string | null; gravatarLogoURL?: string | null; avatarFile?: { base64?: string | null } | null } | null
+  linkedPolicies: Array<{ id: string; name: string }>
+}
+
+type ControlGroupCategoryResponse = {
+  controlsGroupByCategory: {
+    edges: Array<{
+      node: {
+        category: string
+        controls: {
+          totalCount: number
+          pageInfo: { endCursor: string | null; hasNextPage: boolean }
+          edges: Array<{
+            node: {
+              __typename: string
+              id: string
+              refCode: string
+              description?: string | null
+              status?: string | null
+              referenceFramework?: string | null
+              subcontrols?: {
+                totalCount: number
+                edges?: Array<{
+                  node?: {
+                    id: string
+                    evidence?: { edges: Array<{ node: { id: string; name: string; status?: string | null } | null } | null> | null } | null
+                    internalPolicies?: { edges?: Array<{ node?: { id: string; name: string } | null } | null> | null } | null
+                  } | null
+                } | null> | null
+              } | null
+              evidence?: { edges: Array<{ node: { id: string; name: string; status?: string | null } | null } | null> | null } | null
+              controlOwner?: { displayName?: string | null; gravatarLogoURL?: string | null; avatarFile?: { base64?: string | null } | null } | null
+              internalPolicies?: { edges?: Array<{ node?: { id: string; name: string } | null } | null> | null } | null
+            } | null
+          } | null> | null
+        }
+      }
+    }>
+  }
+}
+
 export const useGetControlsGroupedByCategoryResolver = ({ where, enabled }: { where?: ControlWhereInput; enabled: boolean }) => {
   const { client } = useGraphQLClient()
 
@@ -436,35 +512,55 @@ export const useGetControlsGroupedByCategoryResolver = ({ where, enabled }: { wh
     queryKey: ['controls', 'allGroupedByCategory', where],
     enabled,
     queryFn: async () => {
-      const allControls: Record<
-        string,
-        {
-          id: string
-          refCode: string
-          status?: string | null
-          referenceFramework?: string | null
-        }[]
-      > = {}
-
+      const allControls: Record<string, ControlGroupItem[]> = {}
       const cursors: Record<string, string | null> = {}
       const hasNextMap: Record<string, boolean> = {}
 
-      const initial = await client.request<GetControlsGroupedByCategoryResolverQuery>(GET_CONTROLS_GROUPED_BY_CATEGORY_RESOLVER, { where })
+      const initial = await client.request<ControlGroupCategoryResponse>(GET_CONTROLS_GROUPED_BY_CATEGORY_RESOLVER, { where })
 
       for (const edge of initial.controlsGroupByCategory.edges) {
         const category = edge.node.category
 
-        const controls = edge.node.controls.edges?.map((e) => e?.node).filter((node): node is NonNullable<typeof node> => Boolean(node?.id && node?.refCode))
+        const controls: ControlGroupItem[] = (edge.node.controls.edges ?? [])
+          .map((e) => e?.node)
+          .filter((node): node is NonNullable<typeof node> => Boolean(node?.id && node?.refCode))
+          .map((node) => ({
+            id: node.id,
+            refCode: node.refCode,
+            description: node.description,
+            status: node.status,
+            referenceFramework: node.referenceFramework,
+            subcontrolCount: node.subcontrols?.totalCount ?? 0,
+            evidenceRefs: Array.from(
+              new Map(
+                [
+                  ...(node.evidence?.edges ?? []).map((e) => e?.node).filter((n): n is { id: string; name: string; status?: string | null } => !!n?.id),
+                  ...(node.subcontrols?.edges ?? []).flatMap((se) =>
+                    (se?.node?.evidence?.edges ?? []).map((e) => e?.node).filter((n): n is { id: string; name: string; status?: string | null } => !!n?.id),
+                  ),
+                ].map((e) => [e.id, e]),
+              ).values(),
+            ),
+            controlOwner: node.controlOwner,
+            linkedPolicies: Array.from(
+              new Map(
+                [
+                  ...(node.internalPolicies?.edges ?? []).map((e) => e?.node).filter((n): n is { id: string; name: string } => !!n?.id && !!n?.name),
+                  ...(node.subcontrols?.edges ?? []).flatMap((se) =>
+                    (se?.node?.internalPolicies?.edges ?? []).map((e) => e?.node).filter((n): n is { id: string; name: string } => !!n?.id && !!n?.name),
+                  ),
+                ].map((p) => [p.id, p]),
+              ).values(),
+            ),
+          }))
 
-        if (controls && category) {
-          allControls[category] = controls
-          cursors[category] = edge.node.controls.pageInfo.endCursor
-          hasNextMap[category] = edge.node.controls.pageInfo.hasNextPage
-        }
+        allControls[category] = controls
+        cursors[category] = edge.node.controls.pageInfo.endCursor
+        hasNextMap[category] = edge.node.controls.pageInfo.hasNextPage
       }
 
       const fetchNextForCategory = async (category: string, after: string) => {
-        const response = await client.request<GetControlsGroupedByCategoryResolverQuery>(GET_CONTROLS_GROUPED_BY_CATEGORY_RESOLVER, {
+        const response = await client.request<ControlGroupCategoryResponse>(GET_CONTROLS_GROUPED_BY_CATEGORY_RESOLVER, {
           where,
           category,
           after,
@@ -473,7 +569,38 @@ export const useGetControlsGroupedByCategoryResolver = ({ where, enabled }: { wh
         const node = response.controlsGroupByCategory.edges?.[0]?.node
         if (!node) return
 
-        const newControls = node.controls?.edges?.map((e) => e?.node).filter((node): node is NonNullable<typeof node> => Boolean(node?.id && node?.refCode)) ?? []
+        const newControls: ControlGroupItem[] = (node.controls?.edges ?? [])
+          .map((e) => e?.node)
+          .filter((node): node is NonNullable<typeof node> => Boolean(node?.id && node?.refCode))
+          .map((node) => ({
+            id: node.id,
+            refCode: node.refCode,
+            description: node.description,
+            status: node.status,
+            referenceFramework: node.referenceFramework,
+            subcontrolCount: node.subcontrols?.totalCount ?? 0,
+            evidenceRefs: Array.from(
+              new Map(
+                [
+                  ...(node.evidence?.edges ?? []).map((e) => e?.node).filter((n): n is { id: string; name: string; status?: string | null } => !!n?.id),
+                  ...(node.subcontrols?.edges ?? []).flatMap((se) =>
+                    (se?.node?.evidence?.edges ?? []).map((e) => e?.node).filter((n): n is { id: string; name: string; status?: string | null } => !!n?.id),
+                  ),
+                ].map((e) => [e.id, e]),
+              ).values(),
+            ),
+            controlOwner: node.controlOwner,
+            linkedPolicies: Array.from(
+              new Map(
+                [
+                  ...(node.internalPolicies?.edges ?? []).map((e) => e?.node).filter((n): n is { id: string; name: string } => !!n?.id && !!n?.name),
+                  ...(node.subcontrols?.edges ?? []).flatMap((se) =>
+                    (se?.node?.internalPolicies?.edges ?? []).map((e) => e?.node).filter((n): n is { id: string; name: string } => !!n?.id && !!n?.name),
+                  ),
+                ].map((p) => [p.id, p]),
+              ).values(),
+            ),
+          }))
 
         allControls[category] = [...(allControls[category] || []), ...newControls]
 

@@ -25,6 +25,7 @@ const PROVIDER_ICON_MAP: Record<string, string> = {
   Slack: '/icons/brand/integrations/slack.png',
   Vercel: '/icons/brand/integrations/vercel.png',
   email: '/icons/brand/integrations/email_icon.png',
+  Authentik: '/icons/brand/integrations/authentik.png',
 }
 
 const fallbackIcon = '/icons/brand/integrations/default.png'

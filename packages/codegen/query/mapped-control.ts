@@ -139,6 +139,97 @@ export const GET_MAPPED_CONTROL_BY_ID = gql`
   }
 `
 
+// Fetches mapped-control records enriched with status + systemOwned so coverage
+// can be computed client-side without a second refCode lookup round-trip.
+export const COVERAGE_CONTROL_FIELDS = gql`
+  fragment CoverageControlFields on Control {
+    id
+    refCode
+    referenceFramework
+    systemOwned
+    status
+    evidence {
+      edges {
+        node {
+          id
+          name
+          status
+        }
+      }
+    }
+    internalPolicies {
+      edges {
+        node {
+          id
+          name
+        }
+      }
+    }
+  }
+`
+
+export const COVERAGE_SUBCONTROL_FIELDS = gql`
+  fragment CoverageSubcontrolFields on Subcontrol {
+    id
+    refCode
+    referenceFramework
+    controlID
+    systemOwned
+    status
+    evidence {
+      edges {
+        node {
+          id
+          name
+          status
+        }
+      }
+    }
+  }
+`
+
+export const GET_MAPPED_CONTROLS_FOR_COVERAGE = gql`
+  query GetMappedControlsForCoverage($where: MappedControlWhereInput) {
+    mappedControls(where: $where) {
+      edges {
+        node {
+          fromControls {
+            edges {
+              node {
+                ...CoverageControlFields
+              }
+            }
+          }
+          fromSubcontrols {
+            edges {
+              node {
+                ...CoverageSubcontrolFields
+              }
+            }
+          }
+          toControls {
+            edges {
+              node {
+                ...CoverageControlFields
+              }
+            }
+          }
+          toSubcontrols {
+            edges {
+              node {
+                ...CoverageSubcontrolFields
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  ${COVERAGE_CONTROL_FIELDS}
+  ${COVERAGE_SUBCONTROL_FIELDS}
+`
+
 export const UPDATE_MAPPED_CONTROL = gql`
   mutation updateMappedControl($updateMappedControlId: ID!, $input: UpdateMappedControlInput!) {
     updateMappedControl(id: $updateMappedControlId, input: $input) {

@@ -95,7 +95,7 @@ const ObjectAssociationChip: React.FC<ObjectChipProps> = ({ object, kind, remova
                 <PencilLine size={12} />
                 <span className="font-medium">{display.detailLabel}</span>
               </div>
-              <div className="max-w-xs text-justify line-clamp-4">{display.detailContentIsRichText ? convertToReadOnly(display.detailContent) : display.detailContent}</div>
+              <div className="max-w-xs line-clamp-4">{display.detailContentIsRichText ? convertToReadOnly(display.detailContent) : display.detailContent}</div>
             </div>
           </div>
         </TooltipContent>

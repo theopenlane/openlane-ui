@@ -790,7 +790,7 @@
   .rich-text ul,
   ul.rich-text {
     list-style-type: disc;
-    padding-left: 1.25rem;
+    /* padding-left: 1.25rem; */
     margin: 0.5rem 0;
   }
   .rich-text li {
@@ -800,6 +800,17 @@
   .rich-text ul ul {
     list-style-type: circle;
     @apply pl-6 mt-1;
+  }
+
+  /* Coverage progress bar fill colors */
+  .coverage-bar-complete {
+    background-color: #639922;
+  }
+  .coverage-bar-partial {
+    background-color: #ef9f27;
+  }
+  .coverage-bar-empty {
+    background-color: #888780;
   }
 }
 
