@@ -116,7 +116,7 @@ const QuestionnaireViewerPage: React.FC = () => {
                 Edit
               </Button>
             )}
-            {editAllowed && (
+            {editAllowed && !isSystemOwned && (
               <Button type="button" variant="secondary" className="h-8 px-3" icon={<Trash2 />} iconPosition="left" onClick={() => setIsDeleteDialogOpen(true)}>
                 Delete
               </Button>
