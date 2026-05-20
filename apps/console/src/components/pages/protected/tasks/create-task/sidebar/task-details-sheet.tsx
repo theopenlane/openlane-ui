@@ -5,9 +5,10 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { Sheet, SheetContent } from '@repo/ui/sheet'
 import { TaskTaskStatus, type UpdateTaskInput } from '@repo/codegen/src/schema'
 import { useNotification } from '@/hooks/useNotification'
-import useFormSchema, { type EditTaskFormData } from '@/components/pages/protected/tasks/hooks/use-form-schema'
+import useFormSchema, { type CreateTaskFormData, type EditTaskFormData } from '@/components/pages/protected/tasks/hooks/use-form-schema'
 import { Form } from '@repo/ui/form'
 import { useTask, useTaskAssociations, useUpdateTask } from '@/lib/graphql-hooks/task'
+import { CreateTaskDialog } from '../dialog/create-task-dialog'
 import { useQueryClient } from '@tanstack/react-query'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog.tsx'
@@ -63,8 +64,37 @@ const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id
   const { form } = useFormSchema()
   const [isSheetOpen, setIsSheetOpen] = useState(false)
 
-  const { data: associationsData } = useTaskAssociations(id as string)
+  const { data: associationsData, isLoading: associationsLoading } = useTaskAssociations(id as string)
   const evidenceFormData = useMemo(() => generateEvidenceFormData(taskData, associationsData), [taskData, associationsData])
+  const [duplicateOpen, setDuplicateOpen] = useState(false)
+
+  const duplicateInitialValues = useMemo<Partial<CreateTaskFormData> | undefined>(() => {
+    if (!taskData) return undefined
+    return {
+      title: `Copy of ${taskData.title ?? ''}`,
+      taskKindName: taskData.taskKindName ?? undefined,
+      details: taskData.details ?? undefined,
+      assigneeID: taskData.assignee?.id,
+      tags: taskData.tags ?? [],
+      due: taskData.due ? new Date(taskData.due as string) : undefined,
+    }
+  }, [taskData])
+
+  const duplicateDisplayIDs = useMemo<string[] | undefined>(() => {
+    if (!associationsData?.task) return undefined
+    const t = associationsData.task
+    const ids = [
+      ...(t.controls?.edges?.map((e) => e?.node?.refCode) ?? []),
+      ...(t.subcontrols?.edges?.map((e) => e?.node?.refCode) ?? []),
+      ...(t.programs?.edges?.map((e) => e?.node?.displayID) ?? []),
+      ...(t.procedures?.edges?.map((e) => e?.node?.displayID) ?? []),
+      ...(t.internalPolicies?.edges?.map((e) => e?.node?.displayID) ?? []),
+      ...(t.controlObjectives?.edges?.map((e) => e?.node?.displayID) ?? []),
+      ...(t.risks?.edges?.map((e) => e?.node?.displayID) ?? []),
+      ...(t.groups?.edges?.map((e) => e?.node?.displayID) ?? []),
+    ].filter((v): v is string => !!v)
+    return ids.length > 0 ? ids : undefined
+  }, [associationsData])
 
   const initialAssociations = useMemo(
     () => ({
@@ -80,6 +110,11 @@ const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id
     }),
     [associationsData?.task, taskData],
   )
+
+  const duplicateAssociations = useMemo(() => {
+    const { taskIDs: _taskIDs, ...rest } = initialAssociations
+    return rest
+  }, [initialAssociations])
 
   useEffect(() => {
     if (!membersData) return
@@ -194,100 +229,124 @@ const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id
   }
 
   return (
-    <Sheet open={!!id} onOpenChange={handleSheetClose}>
-      <SheetContent
-        onEscapeKeyDown={(e) => {
-          if (internalEditing) {
-            e.preventDefault()
-          } else {
-            handleSheetClose()
-          }
-        }}
-        side="right"
-        className="flex flex-col"
-        minWidth={470}
-        header={<TasksSheetHeader close={handleSheetClose} isEditing={isEditing} isPending={isPending} setIsEditing={setIsEditing} title={taskData?.title} isEditAllowed={isEditAllowed} id={id} />}
-      >
-        {fetching ? (
-          <TasksDetailsSheetSkeleton />
-        ) : (
-          <>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} id="editTask">
-                <TitleField
-                  isEditing={isEditing}
-                  isEditAllowed={isEditAllowed}
-                  handleUpdate={handleUpdateField}
-                  initialValue={taskData?.title}
-                  internalEditing={internalEditing}
-                  setInternalEditing={setInternalEditing}
-                />
-                <DetailsField isEditing={isEditing} initialValue={taskData?.details} />
-                {isEditAllowed && !isEditing && (
-                  <div className="flex gap-4 pb-4 pt-2">
-                    <>
-                      {isCreateButtonVisible && <CreateButton title={'Create Evidence'} type="evidence" onClick={() => setIsSheetOpen(true)} />}
-                      {taskData && (
-                        <>
-                          <EvidenceCreateSheet
-                            open={isSheetOpen}
-                            onOpenChange={setIsSheetOpen}
-                            formData={evidenceFormData}
-                            controlParam={controlParams}
-                            allowedObjectTypes={[ObjectTypeObjects.CONTROL_IMPLEMENTATION, ObjectTypeObjects.CONTROL_OBJECTIVE, ObjectTypeObjects.SCAN, ObjectTypeObjects.TASK]}
-                            defaultSelectedObject={ObjectTypeObjects.TASK}
-                          />
-                        </>
-                      )}
-                    </>
-                    <MarkAsComplete taskData={taskData} />
-                  </div>
-                )}
-                <Properties
-                  isEditing={isEditing}
-                  taskData={taskData}
-                  internalEditing={internalEditing}
-                  setInternalEditing={setInternalEditing}
-                  handleUpdate={handleUpdateField}
-                  isEditAllowed={isEditAllowed}
-                />
-                {isEditing && (
-                  <Panel className="mt-20">
-                    <PanelHeader heading="Object association" noBorder />
-                    <p>Associating objects will allow users with access to the object to see the created task.</p>
-                    <ObjectAssociation
-                      initialData={initialAssociations}
-                      onIdChange={(updatedMap) => setAssociations(updatedMap)}
-                      allowedObjectTypes={[
-                        ObjectTypeObjects.CONTROL,
-                        ObjectTypeObjects.CONTROL_OBJECTIVE,
-                        ObjectTypeObjects.IDENTITY_HOLDER,
-                        ObjectTypeObjects.INTERNAL_POLICY,
-                        ObjectTypeObjects.PROCEDURE,
-                        ObjectTypeObjects.PROGRAM,
-                        ObjectTypeObjects.RISK,
-                        ObjectTypeObjects.SCAN,
-                        ObjectTypeObjects.SUB_CONTROL,
-                        ObjectTypeObjects.TASK,
-                      ]}
-                    />
-                  </Panel>
-                )}
-              </form>
-            </Form>
-          </>
-        )}
-        <Conversation isEditing={isEditing} taskData={taskData} id={id} />
-        <CancelDialog
-          isOpen={isDiscardDialogOpen}
-          onConfirm={() => {
-            setIsDiscardDialogOpen(false)
-            handleCloseParams()
+    <>
+      <Sheet open={!!id} onOpenChange={handleSheetClose}>
+        <SheetContent
+          onEscapeKeyDown={(e) => {
+            if (internalEditing) {
+              e.preventDefault()
+            } else {
+              handleSheetClose()
+            }
           }}
-          onCancel={() => setIsDiscardDialogOpen(false)}
+          side="right"
+          className="flex flex-col"
+          minWidth={470}
+          header={
+            <TasksSheetHeader
+              close={handleSheetClose}
+              isEditing={isEditing}
+              isPending={isPending}
+              setIsEditing={setIsEditing}
+              title={taskData?.title}
+              isEditAllowed={isEditAllowed}
+              id={id}
+              onDuplicate={() => setDuplicateOpen(true)}
+              canDuplicate={!!taskData && !fetching && !associationsLoading}
+            />
+          }
+        >
+          {fetching ? (
+            <TasksDetailsSheetSkeleton />
+          ) : (
+            <>
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} id="editTask">
+                  <TitleField
+                    isEditing={isEditing}
+                    isEditAllowed={isEditAllowed}
+                    handleUpdate={handleUpdateField}
+                    initialValue={taskData?.title}
+                    internalEditing={internalEditing}
+                    setInternalEditing={setInternalEditing}
+                  />
+                  <DetailsField isEditing={isEditing} initialValue={taskData?.details} />
+                  {isEditAllowed && !isEditing && (
+                    <div className="flex gap-4 pb-4 pt-2">
+                      <>
+                        {isCreateButtonVisible && <CreateButton title={'Create Evidence'} type="evidence" onClick={() => setIsSheetOpen(true)} />}
+                        {taskData && (
+                          <>
+                            <EvidenceCreateSheet
+                              open={isSheetOpen}
+                              onOpenChange={setIsSheetOpen}
+                              formData={evidenceFormData}
+                              controlParam={controlParams}
+                              allowedObjectTypes={[ObjectTypeObjects.CONTROL_IMPLEMENTATION, ObjectTypeObjects.CONTROL_OBJECTIVE, ObjectTypeObjects.SCAN, ObjectTypeObjects.TASK]}
+                              defaultSelectedObject={ObjectTypeObjects.TASK}
+                            />
+                          </>
+                        )}
+                      </>
+                      <MarkAsComplete taskData={taskData} />
+                    </div>
+                  )}
+                  <Properties
+                    isEditing={isEditing}
+                    taskData={taskData}
+                    internalEditing={internalEditing}
+                    setInternalEditing={setInternalEditing}
+                    handleUpdate={handleUpdateField}
+                    isEditAllowed={isEditAllowed}
+                  />
+                  {isEditing && (
+                    <Panel className="mt-20">
+                      <PanelHeader heading="Object association" noBorder />
+                      <p>Associating objects will allow users with access to the object to see the created task.</p>
+                      <ObjectAssociation
+                        initialData={initialAssociations}
+                        onIdChange={(updatedMap) => setAssociations(updatedMap)}
+                        allowedObjectTypes={[
+                          ObjectTypeObjects.CONTROL,
+                          ObjectTypeObjects.CONTROL_OBJECTIVE,
+                          ObjectTypeObjects.IDENTITY_HOLDER,
+                          ObjectTypeObjects.INTERNAL_POLICY,
+                          ObjectTypeObjects.PROCEDURE,
+                          ObjectTypeObjects.PROGRAM,
+                          ObjectTypeObjects.RISK,
+                          ObjectTypeObjects.SCAN,
+                          ObjectTypeObjects.SUB_CONTROL,
+                          ObjectTypeObjects.TASK,
+                        ]}
+                      />
+                    </Panel>
+                  )}
+                </form>
+              </Form>
+            </>
+          )}
+          <Conversation isEditing={isEditing} taskData={taskData} id={id} />
+          <CancelDialog
+            isOpen={isDiscardDialogOpen}
+            onConfirm={() => {
+              setIsDiscardDialogOpen(false)
+              handleCloseParams()
+            }}
+            onCancel={() => setIsDiscardDialogOpen(false)}
+          />
+        </SheetContent>
+      </Sheet>
+      {duplicateOpen && duplicateInitialValues && (
+        <CreateTaskDialog
+          open={duplicateOpen}
+          onOpenChange={setDuplicateOpen}
+          initialValues={duplicateInitialValues}
+          initialData={duplicateAssociations}
+          objectAssociationsDisplayIDs={duplicateDisplayIDs}
+          onSuccessWithId={(newId) => router.push(`/automation/tasks?id=${newId}`)}
         />
-      </SheetContent>
-    </Sheet>
+      )}
+    </>
   )
 }
 
