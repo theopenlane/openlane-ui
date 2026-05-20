@@ -199,7 +199,7 @@ export const getControlColumns = ({ convertToReadOnly, userMap, selectedControls
 
         return (
           <div>
-            <div className="line-clamp-3 text-justify">{description}</div>
+            <div className="line-clamp-3">{description}</div>
             <div className="mt-2 border-t border-dotted pt-2 flex flex-wrap gap-2">
               <StandardChip referenceFramework={referenceFramework ?? ''} />
               {row.original.category && <Badge variant={'outline'}>{row.original.category}</Badge>}

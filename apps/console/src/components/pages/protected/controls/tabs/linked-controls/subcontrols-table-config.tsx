@@ -3,10 +3,10 @@ import Link from 'next/link'
 import type { ColumnDef, Row } from '@tanstack/react-table'
 import { Folder, FolderTree, Layers, Tag } from 'lucide-react'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
-import { CustomEnumChipCell } from '@/components/shared/crud-base/columns/custom-enum-chip-cell'
 import type { FilterField } from '@/types'
 import { Checkbox } from '@repo/ui/checkbox'
 import { TruncatedCell } from '@repo/ui/data-table'
+import { CustomEnumChipCell } from '@/components/shared/crud-base/columns/custom-enum-chip-cell'
 
 export type SubcontrolRow = {
   id: string

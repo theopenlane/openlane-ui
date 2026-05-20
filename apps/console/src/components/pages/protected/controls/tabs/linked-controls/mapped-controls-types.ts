@@ -1,6 +1,14 @@
 import type { MappedControlMappingSource, MappedControlMappingType } from '@repo/codegen/src/schema'
 import { type ObjectTypes } from '@repo/codegen/src/type-names'
 
+export type SatisfiesTarget = {
+  id: string
+  refCode: string
+  level: 'control' | 'subcontrol'
+  referenceFramework?: string | null
+  controlID?: string | null
+}
+
 export type MappedControlRow = {
   id: string
   mappedControlId: string
@@ -20,4 +28,8 @@ export type MappedControlRow = {
   controlSource?: string | null
   category?: string | null
   subcategory?: string | null
+  satisfiesTargets?: SatisfiesTarget[]
+  inheritedFromSubcontrols?: Array<{ id: string; refCode: string }>
+  linkedPolicies?: Array<{ id: string; name: string }>
+  evidenceRefs?: Array<{ id: string; name: string; status?: string | null }>
 }

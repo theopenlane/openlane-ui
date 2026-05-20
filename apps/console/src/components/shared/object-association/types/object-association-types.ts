@@ -31,6 +31,16 @@ export type TCenterNode = {
   node: TBaseAssociatedNode
 }
 
+// getObjectName returns the relevant name of the object with precedence ordering
+export function getObjectName(node: TBaseAssociatedNode | undefined): string {
+  return node?.refCode ?? node?.fullName ?? node?.displayName ?? node?.name ?? node?.title ?? 'this object'
+}
+
+// getCenterNodeObjectName returns the relevant name of the center node with precedence ordering
+export function getCenterNodeObjectName(centerNode: TCenterNode): string {
+  return getObjectName(centerNode?.node)
+}
+
 export enum ObjectAssociationNodeEnum {
   CONTROL = 'controls',
   SUBCONTROL = 'subcontrols',
