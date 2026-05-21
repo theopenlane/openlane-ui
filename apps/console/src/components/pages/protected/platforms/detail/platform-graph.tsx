@@ -1,11 +1,11 @@
 'use client'
 
 import React, { useMemo, useRef, useEffect, useState } from 'react'
-import ForceGraph, { type ForceGraphMethods, type NodeObject } from 'react-force-graph-2d'
+import ForceGraph, { type ForceGraphMethods, type NodeObject, type LinkObject } from 'react-force-graph-2d'
 import { useTheme } from 'next-themes'
 import { Maximize2, Minimize2, ArrowLeft } from 'lucide-react'
 import ReactDOM from 'react-dom'
-import { type Asset, type Entity } from '@repo/codegen/src/schema'
+import type { AssetAssetType, Asset, Entity } from '@repo/codegen/src/schema'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 
 type AssetNode = Pick<Asset, 'id' | 'name' | 'assetType'>
@@ -32,7 +32,7 @@ type GraphNode = {
   type: 'platform' | 'asset' | 'vendor' | 'asset-group' | 'overflow'
   outOfScope: boolean
   count?: number
-  assetType?: string
+  assetType?: AssetAssetType
   fx?: number
   fy?: number
 }
@@ -42,12 +42,23 @@ type GraphLink = {
   target: string
 }
 
-type ViewLevel = { kind: 'root' } | { kind: 'assetGroup'; assetType: string }
+type FGNode = NodeObject<GraphNode>
+type FGLink = LinkObject<GraphNode, GraphLink>
+
+type ViewLevel = { kind: 'root' } | { kind: 'assetGroup'; assetType: AssetAssetType }
 
 const SMALL_VIEW_VENDOR_LIMIT = 6
 const SMALL_VIEW_ASSET_LIMIT = 8
 
 const BG = 'transparent'
+
+const Y = {
+  rootPlatform: -90,
+  rootGroups: 10,
+  rootVendors: 110,
+  drilledGroup: -60,
+  drilledChildren: 40,
+} as const
 
 const COLORS = {
   platform: '#6366f1',
@@ -55,7 +66,20 @@ const COLORS = {
   vendor: { inScope: '#d97706', outOfScope: '#374151' },
   group: { inScope: '#818cf8', outOfScope: '#374151' },
   badge: '#818cf8',
-  overflow: '#9ca3af',
+  overflow: {
+    bgDark: '#1f2937',
+    bgLight: '#f3f4f6',
+    stroke: '#9ca3af',
+    textDark: '#d1d5db',
+    textLight: '#374151',
+    labelDark: '#9ca3af',
+    labelLight: '#6b7280',
+  },
+  label: {
+    dark: { inScope: '#f9fafb', outOfScope: '#6b7280' },
+    light: { inScope: '#111827', outOfScope: '#9ca3af' },
+  },
+  link: { dark: '#374151', light: '#d1d5db' },
 }
 
 const LAPTOP_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 16V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v9m16 0H4m16 0 1.28 2.55a1 1 0 0 1-.9 1.45H3.62a1 1 0 0 1-.9-1.45L4 16"/></svg>`
@@ -122,16 +146,15 @@ const buildGraphData = ({ platform, inScopeAssets, outOfScopeAssets, inScopeVend
     }
 
     if (!isFullscreen && filtered.length > SMALL_VIEW_ASSET_LIMIT) {
-      const overflowId = `overflow-asset`
       const remaining = filtered.length - SMALL_VIEW_ASSET_LIMIT
       nodes.push({
-        id: overflowId,
+        id: 'overflow-asset',
         label: `+${remaining} more`,
         type: 'overflow',
         outOfScope: false,
         count: remaining,
       })
-      links.push({ source: groupId, target: overflowId })
+      links.push({ source: groupId, target: 'overflow-asset' })
     }
 
     return { nodes, links }
@@ -139,12 +162,11 @@ const buildGraphData = ({ platform, inScopeAssets, outOfScopeAssets, inScopeVend
 
   nodes.push({ id: platform.id, label: platform.name, type: 'platform', outOfScope: false })
 
-  const byType = new Map<string, ScopedAsset[]>()
+  const byType = new Map<AssetAssetType, ScopedAsset[]>()
   for (const a of allAssets) {
-    const type = a.assetType ?? 'OTHER'
-    const arr = byType.get(type) ?? []
+    const arr = byType.get(a.assetType) ?? []
     arr.push(a)
-    byType.set(type, arr)
+    byType.set(a.assetType, arr)
   }
 
   for (const [type, items] of byType) {
@@ -172,25 +194,148 @@ const buildGraphData = ({ platform, inScopeAssets, outOfScopeAssets, inScopeVend
   }
 
   if (!showAllVendors) {
-    const overflowId = 'overflow-vendor'
     const remaining = allVendors.length - SMALL_VIEW_VENDOR_LIMIT
     nodes.push({
-      id: overflowId,
+      id: 'overflow-vendor',
       label: `+${remaining} more`,
       type: 'overflow',
       outOfScope: false,
       count: remaining,
     })
-    links.push({ source: platform.id, target: overflowId })
+    links.push({ source: platform.id, target: 'overflow-vendor' })
   }
 
   return { nodes, links }
 }
 
+const drawBadge = (ctx: CanvasRenderingContext2D, x: number, y: number, value: number, scale: number) => {
+  const br = 7
+  ctx.beginPath()
+  ctx.arc(x, y, br, 0, 2 * Math.PI)
+  ctx.fillStyle = COLORS.badge
+  ctx.fill()
+  ctx.font = `bold ${Math.max(6, 8 / scale)}px sans-serif`
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+  ctx.fillStyle = '#ffffff'
+  ctx.fillText(String(value), x, y)
+}
+
+const drawLabel = (ctx: CanvasRenderingContext2D, x: number, y: number, label: string, isCenter: boolean, outOfScope: boolean, scale: number, isDark: boolean) => {
+  const fontSize = Math.max(9, 10 / scale)
+  ctx.font = `${isCenter ? '600 ' : ''}${fontSize}px sans-serif`
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'top'
+  const palette = isDark ? COLORS.label.dark : COLORS.label.light
+  ctx.fillStyle = outOfScope ? palette.outOfScope : palette.inScope
+  const maxLen = 18
+  const truncated = label.length > maxLen ? label.slice(0, maxLen - 1) + '…' : label
+  ctx.fillText(truncated, x, y)
+}
+
+const drawOverflowNode = (ctx: CanvasRenderingContext2D, node: FGNode, scale: number, isDark: boolean) => {
+  const x = node.x ?? 0
+  const y = node.y ?? 0
+  const r = 10
+
+  ctx.save()
+  ctx.beginPath()
+  ctx.arc(x, y, r, 0, 2 * Math.PI)
+  ctx.fillStyle = isDark ? COLORS.overflow.bgDark : COLORS.overflow.bgLight
+  ctx.fill()
+  ctx.lineWidth = 1.5
+  ctx.setLineDash([3, 3])
+  ctx.strokeStyle = COLORS.overflow.stroke
+  ctx.stroke()
+  ctx.setLineDash([])
+  ctx.font = `600 ${Math.max(8, 9 / scale)}px sans-serif`
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+  ctx.fillStyle = isDark ? COLORS.overflow.textDark : COLORS.overflow.textLight
+  ctx.fillText(`+${node.count ?? 0}`, x, y)
+  ctx.restore()
+
+  const fontSize = Math.max(9, 10 / scale)
+  ctx.font = `${fontSize}px sans-serif`
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'top'
+  ctx.fillStyle = isDark ? COLORS.overflow.labelDark : COLORS.overflow.labelLight
+  ctx.fillText('more', x, y + r + 4)
+}
+
+type EntityIcons = {
+  platform: HTMLImageElement | null
+  asset: HTMLImageElement | null
+  vendor: HTMLImageElement | null
+  group: HTMLImageElement | null
+}
+
+const drawEntityNode = (ctx: CanvasRenderingContext2D, node: FGNode, scale: number, isDark: boolean, isCenter: boolean, badgeValue: number, icons: EntityIcons) => {
+  const x = node.x ?? 0
+  const y = node.y ?? 0
+  const r = isCenter ? 14 : 10
+  const alpha = node.outOfScope ? 0.35 : 1
+
+  let fillColor = COLORS.platform
+  if (node.type === 'asset') fillColor = node.outOfScope ? COLORS.asset.outOfScope : COLORS.asset.inScope
+  if (node.type === 'vendor') fillColor = node.outOfScope ? COLORS.vendor.outOfScope : COLORS.vendor.inScope
+  if (node.type === 'asset-group') fillColor = node.outOfScope ? COLORS.group.outOfScope : COLORS.group.inScope
+
+  ctx.save()
+  ctx.globalAlpha = alpha
+
+  ctx.beginPath()
+  ctx.arc(x, y, r + 2.5, 0, 2 * Math.PI)
+  ctx.fillStyle = fillColor + '30'
+  ctx.fill()
+
+  ctx.beginPath()
+  ctx.arc(x, y, r, 0, 2 * Math.PI)
+  ctx.fillStyle = fillColor
+  ctx.fill()
+
+  let icon: HTMLImageElement | null = null
+  if (node.type === 'platform') icon = icons.platform
+  else if (node.type === 'asset') icon = icons.asset
+  else if (node.type === 'vendor') icon = icons.vendor
+  else if (node.type === 'asset-group') icon = icons.group
+  if (icon) {
+    const iconSize = r * 1.3
+    ctx.drawImage(icon, x - iconSize / 2, y - iconSize / 2, iconSize, iconSize)
+  }
+
+  ctx.restore()
+
+  if (badgeValue > 0) {
+    drawBadge(ctx, x + r - 1, y - r + 1, badgeValue, scale)
+  }
+
+  drawLabel(ctx, x, y + r + 4, node.label ?? '', isCenter, node.outOfScope, scale, isDark)
+}
+
+const GraphChromeButton: React.FC<{
+  position: 'top-left' | 'bottom-left'
+  onClick: () => void
+  children: React.ReactNode
+  width?: 'icon' | 'auto'
+}> = ({ position, onClick, children, width = 'icon' }) => {
+  const positionClasses = position === 'top-left' ? 'top-3 left-3' : 'bottom-3 left-3'
+  const sizeClasses = width === 'icon' ? 'h-7 w-7' : 'h-7 px-2 text-xs'
+  return (
+    <button
+      onClick={onClick}
+      className={`absolute ${positionClasses} ${sizeClasses} z-10 flex items-center justify-center gap-1 rounded-md text-[#6b7280] transition-colors hover:bg-white/10 hover:text-white`}
+      style={{ background: 'rgba(255,255,255,0.06)' }}
+    >
+      {children}
+    </button>
+  )
+}
+
 const PlatformGraph: React.FC<PlatformGraphProps> = ({ platform, inScopeAssets, outOfScopeAssets, inScopeVendors, outOfScopeVendors }) => {
   const normalContainerRef = useRef<HTMLDivElement>(null)
   const fullscreenContainerRef = useRef<HTMLDivElement>(null)
-  const fgRef = useRef<ForceGraphMethods | undefined>(undefined)
+  const fgRef = useRef<ForceGraphMethods<FGNode, FGLink> | undefined>(undefined)
   const [dimensions, setDimensions] = useState({ width: 300, height: 300 })
   const [fullscreen, setFullscreen] = useState(false)
   const [viewLevel, setViewLevel] = useState<ViewLevel>({ kind: 'root' })
@@ -263,9 +408,9 @@ const PlatformGraph: React.FC<PlatformGraphProps> = ({ platform, inScopeAssets, 
       const childNodes = graphData.nodes.filter((n) => n.type !== 'asset-group')
       if (groupNode) {
         groupNode.fx = 0
-        groupNode.fy = childNodes.length > 0 ? -60 : 0
+        groupNode.fy = childNodes.length > 0 ? Y.drilledGroup : 0
       }
-      spread(childNodes, 40, dimensions.width)
+      spread(childNodes, Y.drilledChildren, dimensions.width)
     } else {
       const platformNode = graphData.nodes.find((n) => n.type === 'platform')
       const groupNodes = graphData.nodes.filter((n) => n.type === 'asset-group')
@@ -275,16 +420,16 @@ const PlatformGraph: React.FC<PlatformGraphProps> = ({ platform, inScopeAssets, 
 
       if (platformNode) {
         platformNode.fx = 0
-        platformNode.fy = hasRow1 || hasRow2 ? -90 : 0
+        platformNode.fy = hasRow1 || hasRow2 ? Y.rootPlatform : 0
       }
 
       if (hasRow1 && hasRow2) {
-        spread(groupNodes, 10, dimensions.width)
-        spread(vendorRow, 110, dimensions.width)
+        spread(groupNodes, Y.rootGroups, dimensions.width)
+        spread(vendorRow, Y.rootVendors, dimensions.width)
       } else if (hasRow1) {
-        spread(groupNodes, 10, dimensions.width)
+        spread(groupNodes, Y.rootGroups, dimensions.width)
       } else if (hasRow2) {
-        spread(vendorRow, 10, dimensions.width)
+        spread(vendorRow, Y.rootGroups, dimensions.width)
       }
     }
 
@@ -295,118 +440,42 @@ const PlatformGraph: React.FC<PlatformGraphProps> = ({ platform, inScopeAssets, 
     return () => clearTimeout(timer)
   }, [graphData, dimensions, viewLevel])
 
-  const platformBadgeCount = viewLevel.kind === 'root' ? graphData.nodes.filter((n) => n.type !== 'platform').length : 0
+  const platformBadgeCount = viewLevel.kind === 'root' ? graphData.nodes.filter((n) => n.type !== 'platform' && n.type !== 'overflow').length : 0
 
   const renderGraph = (width: number, height: number) => (
-    <ForceGraph
+    <ForceGraph<GraphNode, GraphLink>
       ref={fgRef}
       width={width}
       height={height}
       graphData={graphData}
       backgroundColor={BG}
-      linkColor={() => (isDark ? '#374151' : '#d1d5db')}
+      linkColor={() => (isDark ? COLORS.link.dark : COLORS.link.light)}
       linkWidth={() => 1}
       enableNodeDrag={false}
       autoPauseRedraw={false}
       nodeLabel={() => ''}
       onNodeClick={(node) => {
-        const gn = node as NodeObject<GraphNode>
-        if (gn.type === 'asset-group' && gn.assetType && viewLevel.kind === 'root') {
-          setViewLevel({ kind: 'assetGroup', assetType: gn.assetType })
-        } else if (gn.type === 'overflow') {
+        if (node.type === 'asset-group' && node.assetType && viewLevel.kind === 'root') {
+          setViewLevel({ kind: 'assetGroup', assetType: node.assetType })
+        } else if (node.type === 'overflow') {
           setFullscreen(true)
         }
       }}
       nodeCanvasObject={(node, ctx, globalScale) => {
-        const gn = node as NodeObject<GraphNode>
-        const x = node.x ?? 0
-        const y = node.y ?? 0
-        const isCenter = gn.type === 'platform' || (gn.type === 'asset-group' && viewLevel.kind === 'assetGroup')
-        const r = isCenter ? 14 : 10
-        const alpha = gn.outOfScope ? 0.35 : 1
-
-        if (gn.type === 'overflow') {
-          ctx.save()
-          ctx.beginPath()
-          ctx.arc(x, y, r, 0, 2 * Math.PI)
-          ctx.fillStyle = isDark ? '#1f2937' : '#f3f4f6'
-          ctx.fill()
-          ctx.lineWidth = 1.5
-          ctx.setLineDash([3, 3])
-          ctx.strokeStyle = COLORS.overflow
-          ctx.stroke()
-          ctx.setLineDash([])
-          ctx.font = `600 ${Math.max(8, 9 / globalScale)}px sans-serif`
-          ctx.textAlign = 'center'
-          ctx.textBaseline = 'middle'
-          ctx.fillStyle = isDark ? '#d1d5db' : '#374151'
-          ctx.fillText(`+${gn.count ?? 0}`, x, y)
-          ctx.restore()
-
-          const fontSize = Math.max(9, 10 / globalScale)
-          ctx.font = `${fontSize}px sans-serif`
-          ctx.textAlign = 'center'
-          ctx.textBaseline = 'top'
-          ctx.fillStyle = isDark ? '#9ca3af' : '#6b7280'
-          ctx.fillText('more', x, y + r + 4)
+        if (node.type === 'overflow') {
+          drawOverflowNode(ctx, node, globalScale, isDark)
           return
         }
 
-        let fillColor = COLORS.platform
-        if (gn.type === 'asset') fillColor = gn.outOfScope ? COLORS.asset.outOfScope : COLORS.asset.inScope
-        if (gn.type === 'vendor') fillColor = gn.outOfScope ? COLORS.vendor.outOfScope : COLORS.vendor.inScope
-        if (gn.type === 'asset-group') fillColor = gn.outOfScope ? COLORS.group.outOfScope : COLORS.group.inScope
+        const isCenter = node.type === 'platform' || (node.type === 'asset-group' && viewLevel.kind === 'assetGroup')
+        const badgeValue = node.type === 'platform' ? platformBadgeCount : node.type === 'asset-group' ? (node.count ?? 0) : 0
 
-        ctx.save()
-        ctx.globalAlpha = alpha
-
-        ctx.beginPath()
-        ctx.arc(x, y, r + 2.5, 0, 2 * Math.PI)
-        ctx.fillStyle = fillColor + '30'
-        ctx.fill()
-
-        ctx.beginPath()
-        ctx.arc(x, y, r, 0, 2 * Math.PI)
-        ctx.fillStyle = fillColor
-        ctx.fill()
-
-        let icon: HTMLImageElement | null = null
-        if (gn.type === 'platform') icon = platformIconRef.current
-        else if (gn.type === 'asset') icon = assetIconRef.current
-        else if (gn.type === 'vendor') icon = vendorIconRef.current
-        else if (gn.type === 'asset-group') icon = groupIconRef.current
-        if (icon) {
-          const iconSize = r * 1.3
-          ctx.drawImage(icon, x - iconSize / 2, y - iconSize / 2, iconSize, iconSize)
-        }
-
-        ctx.restore()
-
-        const badgeValue = gn.type === 'platform' ? platformBadgeCount : gn.type === 'asset-group' ? (gn.count ?? 0) : 0
-        if (badgeValue > 0) {
-          const br = 7
-          const bx = x + r - 1
-          const by = y - r + 1
-          ctx.beginPath()
-          ctx.arc(bx, by, br, 0, 2 * Math.PI)
-          ctx.fillStyle = COLORS.badge
-          ctx.fill()
-          ctx.font = `bold ${Math.max(6, 8 / globalScale)}px sans-serif`
-          ctx.textAlign = 'center'
-          ctx.textBaseline = 'middle'
-          ctx.fillStyle = '#ffffff'
-          ctx.fillText(String(badgeValue), bx, by)
-        }
-
-        const fontSize = Math.max(9, 10 / globalScale)
-        ctx.font = `${isCenter ? '600 ' : ''}${fontSize}px sans-serif`
-        ctx.textAlign = 'center'
-        ctx.textBaseline = 'top'
-        ctx.fillStyle = isDark ? (gn.outOfScope ? '#6b7280' : '#f9fafb') : gn.outOfScope ? '#9ca3af' : '#111827'
-        const maxLen = 18
-        const label = gn.label ?? ''
-        const truncated = label.length > maxLen ? label.slice(0, maxLen - 1) + '…' : label
-        ctx.fillText(truncated, x, y + r + 4)
+        drawEntityNode(ctx, node, globalScale, isDark, isCenter, badgeValue, {
+          platform: platformIconRef.current,
+          asset: assetIconRef.current,
+          vendor: vendorIconRef.current,
+          group: groupIconRef.current,
+        })
       }}
       nodePointerAreaPaint={(node, color, ctx) => {
         ctx.beginPath()
@@ -426,25 +495,11 @@ const PlatformGraph: React.FC<PlatformGraphProps> = ({ platform, inScopeAssets, 
     )
   }
 
-  const expandButton = (onClick: () => void, icon: React.ReactNode) => (
-    <button
-      onClick={onClick}
-      className="absolute bottom-3 left-3 z-10 flex h-7 w-7 items-center justify-center rounded-md text-[#6b7280] transition-colors hover:bg-white/10 hover:text-white"
-      style={{ background: 'rgba(255,255,255,0.06)' }}
-    >
-      {icon}
-    </button>
-  )
-
   const backButton = (
-    <button
-      onClick={() => setViewLevel({ kind: 'root' })}
-      className="absolute top-3 left-3 z-10 flex h-7 items-center gap-1 rounded-md px-2 text-xs text-[#6b7280] transition-colors hover:bg-white/10 hover:text-white"
-      style={{ background: 'rgba(255,255,255,0.06)' }}
-    >
+    <GraphChromeButton position="top-left" width="auto" onClick={() => setViewLevel({ kind: 'root' })}>
       <ArrowLeft size={12} />
       Back
-    </button>
+    </GraphChromeButton>
   )
 
   const drilledTitle = viewLevel.kind === 'assetGroup' ? ` › ${getEnumLabel(viewLevel.assetType)}` : ''
@@ -454,7 +509,9 @@ const PlatformGraph: React.FC<PlatformGraphProps> = ({ platform, inScopeAssets, 
       <div ref={normalContainerRef} className="relative overflow-hidden rounded-b-md" style={{ height: 300 }}>
         {renderGraph(dimensions.width, dimensions.height)}
         {viewLevel.kind !== 'root' && backButton}
-        {expandButton(() => setFullscreen(true), <Maximize2 size={13} />)}
+        <GraphChromeButton position="bottom-left" onClick={() => setFullscreen(true)}>
+          <Maximize2 size={13} />
+        </GraphChromeButton>
       </div>
 
       {fullscreen &&
