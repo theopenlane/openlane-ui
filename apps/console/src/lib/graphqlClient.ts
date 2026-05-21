@@ -5,12 +5,14 @@ import { csrfCookieName, csrfHeader } from '@repo/dally/auth'
 import { getCookie } from './auth/utils/getCookie'
 import { fetchNewAccessToken, type Tokens } from './auth/utils/refresh-token'
 import { jwtDecode } from 'jwt-decode'
-import { useSession } from 'next-auth/react'
-import { type Session } from 'next-auth'
+import { getSession, useSession } from 'next-auth/react'
+import { useCallback, useEffect, useRef } from 'react'
 import { fetchCSRFToken } from './auth/utils/secure-fetch'
 import { buildLoginRedirect } from './auth/utils/redirect'
 
 const GRAPHQL_ENDPOINT = process.env.NEXT_PUBLIC_API_GQL_URL ?? ''
+
+const SESSION_REFRESH_LOCK = 'openlane-session-refresh'
 
 let isSessionInvalid = false
 let sessionExpiredModalOpen = false
@@ -20,7 +22,8 @@ let refreshAllowedAfter = Number.POSITIVE_INFINITY
 let csrfPromise: Promise<string> | null = null
 
 export function useFetchWithRetry() {
-  const { update, data: session } = useSession()
+  const { data: session } = useSession()
+  const refreshSession = useSessionRefresh()
 
   const fetchWithRetry = async (input: RequestInfo | URL, init?: RequestInit): Promise<Response> => {
     if (isSessionInvalid) {
@@ -80,9 +83,9 @@ export function useFetchWithRetry() {
     const accessTokenChanged = accessToken !== lastAccessToken
     if (accessTokenChanged) {
       try {
-        updateRefreshSchedule(accessToken, refreshToken)
+        updateRefreshSchedule(accessToken)
       } catch (e) {
-        console.error('❌ Failed to decode refresh token:', e)
+        console.error('❌ Failed to decode access token:', e)
         handleSessionExpired()
         throw new Error('Session expired', { cause: e })
       }
@@ -94,12 +97,7 @@ export function useFetchWithRetry() {
       console.log('⏰ Access token near expiry, refreshing now...')
 
       try {
-        await handleTokenRefresh({
-          refreshToken,
-          session,
-          update,
-          headers,
-        })
+        await refreshSession(refreshToken, headers)
       } catch (e) {
         console.error('❌ Token refresh failed:', e)
         handleSessionExpired()
@@ -118,12 +116,7 @@ export function useFetchWithRetry() {
 
     if (response.status === 401 && refreshToken && !isSessionInvalid) {
       try {
-        await handleTokenRefresh({
-          refreshToken,
-          session,
-          update,
-          headers,
-        })
+        await refreshSession(refreshToken, headers)
         response = await makeRequest()
       } catch (e) {
         refreshPromise = null
@@ -166,61 +159,76 @@ function handleSessionExpired() {
   window.dispatchEvent(new Event('session-expired'))
 }
 
-function updateRefreshSchedule(accessToken: string, refreshToken: string) {
-  const decoded: { nbf?: number } = jwtDecode(refreshToken)
-  const nbf = decoded.nbf ? decoded.nbf * 1000 : 0
-  refreshAllowedAfter = nbf
+function updateRefreshSchedule(accessToken: string) {
+  const decoded: { iat?: number; exp?: number } = jwtDecode(accessToken)
+  if (!decoded.exp) {
+    refreshAllowedAfter = Number.POSITIVE_INFINITY
+    return
+  }
+  const expMs = decoded.exp * 1000
+  const ttlMs = decoded.iat ? (decoded.exp - decoded.iat) * 1000 : 60_000
+  const bufferMs = Math.min(60_000, ttlMs * 0.05)
+  refreshAllowedAfter = expMs - bufferMs
   lastAccessToken = accessToken
 }
 
-async function handleTokenRefresh({
-  refreshToken,
-  session,
-  update,
-  headers,
-}: {
-  refreshToken: string
-  session: Session | null
-  update: ReturnType<typeof useSession>['update']
-  headers?: Headers
-}): Promise<{ accessToken: string; refreshToken: string } | null> {
-  if (!refreshPromise) {
-    refreshPromise = fetchNewAccessToken(refreshToken)
-  }
+export function useSessionRefresh() {
+  const { update } = useSession()
+  const updateRef = useRef(update)
+  useEffect(() => {
+    updateRef.current = update
+  }, [update])
 
-  try {
-    const newTokens = await refreshPromise
-    refreshPromise = null
+  return useCallback(async (refreshToken: string, headers?: Headers): Promise<{ accessToken: string; refreshToken: string } | null> => {
+    const doRefresh = async () => {
+      const latest = await getSession()
+      const cookieRefreshToken = latest?.user?.refreshToken
+      const cookieAccessToken = latest?.user?.accessToken
 
-    if (!newTokens?.accessToken) {
-      throw new Error('Token refresh failed')
+      if (cookieRefreshToken && cookieAccessToken && cookieRefreshToken !== refreshToken) {
+        await updateRef.current(latest)
+        if (headers) headers.set('Authorization', `Bearer ${cookieAccessToken}`)
+        updateRefreshSchedule(cookieAccessToken)
+        return { accessToken: cookieAccessToken, refreshToken: cookieRefreshToken }
+      }
+
+      if (!refreshPromise) {
+        refreshPromise = fetchNewAccessToken(cookieRefreshToken ?? refreshToken)
+      }
+
+      try {
+        const newTokens = await refreshPromise
+        refreshPromise = null
+
+        if (!newTokens?.accessToken) {
+          throw new Error('Token refresh failed')
+        }
+
+        if (headers) headers.set('Authorization', `Bearer ${newTokens.accessToken}`)
+
+        await updateRef.current({
+          ...latest,
+          user: {
+            accessToken: newTokens.accessToken,
+            refreshToken: newTokens.refreshToken,
+          },
+        })
+
+        updateRefreshSchedule(newTokens.accessToken)
+
+        return {
+          accessToken: newTokens.accessToken,
+          refreshToken: newTokens.refreshToken,
+        }
+      } catch (error) {
+        refreshPromise = null
+        throw error
+      }
     }
 
-    if (session) {
-      session.user.accessToken = newTokens.accessToken
-      session.user.refreshToken = newTokens.refreshToken
+    if (typeof navigator !== 'undefined' && 'locks' in navigator) {
+      return navigator.locks.request(SESSION_REFRESH_LOCK, { mode: 'exclusive' }, doRefresh)
     }
-
-    if (headers) {
-      headers.set('Authorization', `Bearer ${newTokens.accessToken}`)
-    }
-
-    await update({
-      ...session,
-      user: {
-        accessToken: newTokens.accessToken,
-        refreshToken: newTokens.refreshToken,
-      },
-    })
-
-    updateRefreshSchedule(newTokens.accessToken, newTokens.refreshToken)
-
-    return {
-      accessToken: newTokens.accessToken,
-      refreshToken: newTokens.refreshToken,
-    }
-  } catch (error) {
-    refreshPromise = null
-    throw error
-  }
+    return doRefresh()
+  }, [])
 }

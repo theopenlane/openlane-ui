@@ -22,7 +22,7 @@ interface ProvidersProps {
 const publicPages = ['/login', '/login/sso', '/login/sso/enforce', '/verify', '/resend-verify', '/invite', '/tfa', '/forgot-password', '/password-reset', '/signup', '/questionnaire']
 
 const Providers = ({ children }: ProvidersProps) => {
-  const { status } = useSession()
+  const { status, data } = useSession()
   const pathname = usePathname()
   const isPublicPage = publicPages.includes(pathname) || pathname.startsWith('/questionnaire/')
 
@@ -48,7 +48,7 @@ const Providers = ({ children }: ProvidersProps) => {
     )
   }
 
-  if (status === 'loading') {
+  if (status === 'loading' && !data) {
     return <Loading />
   }
 
