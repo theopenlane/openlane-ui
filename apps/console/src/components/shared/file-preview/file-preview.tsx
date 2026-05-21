@@ -185,9 +185,7 @@ const PdfPreview: React.FC<{ blob: Blob; title: string }> = ({ blob, title }) =>
   return <iframe src={`${previewUrl}#toolbar=0`} className={PREVIEW_FRAME_CLASS} title={title} />
 }
 
-type DocxPreviewProps = { blob: Blob; file: PreviewFile }
-
-const DocxPreview: React.FC<DocxPreviewProps> = ({ blob, file }) => {
+const DocxPreview: React.FC<{ blob: Blob; file: PreviewFile }> = ({ blob, file }) => {
   const containerRef = useRef<HTMLDivElement | null>(null)
   const [docxError, setDocxError] = useState<string | null>(null)
 
@@ -196,9 +194,8 @@ const DocxPreview: React.FC<DocxPreviewProps> = ({ blob, file }) => {
     let cancelled = false
     const target = containerRef.current
 
-    void (async () => {
-      try {
-        const { renderAsync } = await import('docx-preview')
+    import('docx-preview')
+      .then(async ({ renderAsync }) => {
         if (cancelled) return
         // docx-preview owns the container DOM; we deliberately bypass React
         // reconciliation here and clear via innerHTML for the same reason.
@@ -206,16 +203,10 @@ const DocxPreview: React.FC<DocxPreviewProps> = ({ blob, file }) => {
         await renderAsync(blob, target, undefined, DOCX_OPTIONS)
         if (cancelled) return
         sanitizeAnchors(target)
-      } catch (err: unknown) {
-        if (cancelled) return
-        try {
-          target.innerHTML = ''
-        } catch {
-          /* empty */
-        }
-        setDocxError(err instanceof Error ? err.message : 'Failed to render document')
-      }
-    })()
+      })
+      .catch((err: unknown) => {
+        if (!cancelled) setDocxError(err instanceof Error ? err.message : 'Failed to render document')
+      })
 
     return () => {
       cancelled = true
