@@ -46,7 +46,7 @@ import LinkedProcedures from './fields/linked-procedures'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import HistoryTab from './tabs/history/history-tab'
 import { VersionBump } from '@/lib/enums/revision-enum'
-import FilePreview from '@/components/shared/file-preview/file-preview'
+import FilePreviewBoundary from '@/components/shared/file-preview/file-preview-boundary'
 import ExternalReferenceView from '@/components/pages/protected/policies/view/fields/external-reference-view'
 import { isWordExt } from '@/components/pages/protected/policies/policy-management-utils'
 
@@ -428,7 +428,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
           <HistoryTab policyId={policyId} policy={policy} />
         </TabsContent>
 
-        {showStandaloneFileTab && policy.file && <TabsContent value="file">{activeTab === 'file' && <FilePreview file={policy.file} />}</TabsContent>}
+        {showStandaloneFileTab && policy.file && <TabsContent value="file">{activeTab === 'file' && <FilePreviewBoundary file={policy.file} />}</TabsContent>}
       </Tabs>
     </div>
   )

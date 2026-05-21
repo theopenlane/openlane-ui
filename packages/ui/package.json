@@ -25,6 +25,7 @@
     "./table-key": "./src/data-table/table-key.ts",
     "./dialog": "./src/dialog/dialog.tsx",
     "./dropdown-menu": "./src/dropdown-menu/dropdown-menu.tsx",
+    "./error-boundary": "./src/error-boundary/error-boundary.tsx",
     "./form": "./src/form/form.tsx",
     "./global-search": "./src/global-search.tsx",
     "./grid": "./src/grid/grid.tsx",

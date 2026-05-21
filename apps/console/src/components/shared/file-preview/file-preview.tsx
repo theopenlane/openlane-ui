@@ -60,6 +60,10 @@ const FETCH_TIMEOUT_MS = 30_000
 // generic "the server is broken."
 const EXPIRED_URL_MESSAGE = 'Preview link has expired. Refresh the page to load a new one.'
 
+const NETWORK_ERROR_MESSAGE = "Couldn't load preview. The file may be unavailable from this environment. Try downloading it instead."
+
+const isNetworkError = (err: unknown): boolean => err instanceof TypeError && /failed to fetch/i.test(err.message)
+
 export const detectFormat = (mimeType: string | null | undefined, extension: string | null | undefined): Format => {
   const mime = (mimeType ?? '').toLowerCase()
   const ext = (extension ?? '').toLowerCase().replace(/^\./, '')
@@ -124,6 +128,10 @@ const FetchingPreview: React.FC<{ file: PreviewFile; format: FetchedFormat }> = 
           setState({ status: 'error', message: 'Preview timed out. The file may be too large or the network is slow.' })
           return
         }
+        if (isNetworkError(err)) {
+          setState({ status: 'error', message: NETWORK_ERROR_MESSAGE })
+          return
+        }
         setState({ status: 'error', message: err instanceof Error ? err.message : 'Failed to load file' })
       }
     }
@@ -144,7 +152,7 @@ const FetchingPreview: React.FC<{ file: PreviewFile; format: FetchedFormat }> = 
     case 'pdf':
       return <PdfPreview blob={state.blob} title={file.providedFileName} />
     case 'docx':
-      return <DocxPreview blob={state.blob} />
+      return <DocxPreview blob={state.blob} file={file} />
     case 'markdown':
       return (
         <div className={PROSE_CARD_CLASS}>
@@ -177,7 +185,9 @@ const PdfPreview: React.FC<{ blob: Blob; title: string }> = ({ blob, title }) =>
   return <iframe src={`${previewUrl}#toolbar=0`} className={PREVIEW_FRAME_CLASS} title={title} />
 }
 
-const DocxPreview: React.FC<{ blob: Blob }> = ({ blob }) => {
+type DocxPreviewProps = { blob: Blob; file: PreviewFile }
+
+const DocxPreview: React.FC<DocxPreviewProps> = ({ blob, file }) => {
   const containerRef = useRef<HTMLDivElement | null>(null)
   const [docxError, setDocxError] = useState<string | null>(null)
 
@@ -186,8 +196,9 @@ const DocxPreview: React.FC<{ blob: Blob }> = ({ blob }) => {
     let cancelled = false
     const target = containerRef.current
 
-    import('docx-preview')
-      .then(async ({ renderAsync }) => {
+    void (async () => {
+      try {
+        const { renderAsync } = await import('docx-preview')
         if (cancelled) return
         // docx-preview owns the container DOM; we deliberately bypass React
         // reconciliation here and clear via innerHTML for the same reason.
@@ -195,10 +206,16 @@ const DocxPreview: React.FC<{ blob: Blob }> = ({ blob }) => {
         await renderAsync(blob, target, undefined, DOCX_OPTIONS)
         if (cancelled) return
         sanitizeAnchors(target)
-      })
-      .catch((err: unknown) => {
-        if (!cancelled) setDocxError(err instanceof Error ? err.message : 'Failed to render document')
-      })
+      } catch (err: unknown) {
+        if (cancelled) return
+        try {
+          target.innerHTML = ''
+        } catch {
+          /* empty */
+        }
+        setDocxError(err instanceof Error ? err.message : 'Failed to render document')
+      }
+    })()
 
     return () => {
       cancelled = true
@@ -207,7 +224,7 @@ const DocxPreview: React.FC<{ blob: Blob }> = ({ blob }) => {
   }, [blob])
 
   if (docxError) {
-    return <InfoCard tone="error" message={`Could not render this Word document: ${docxError}`} />
+    return <InfoCard tone="error" message={`Could not render this Word document: ${docxError}`} action={<DownloadButton file={file} />} />
   }
 
   return <div ref={containerRef} className={PREVIEW_SCROLL_CLASS} />
