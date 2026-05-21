@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "NODE_OPTIONS='--max-old-space-size=8192' next dev -p 3001",
+    "dev": "next dev -p 3001 --turbopack",
     "build": "next build",
     "debug": "next build --debug --experimental-debug-memory-usage",
     "start": "next start -p 3001",

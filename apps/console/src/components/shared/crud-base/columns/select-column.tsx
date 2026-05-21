@@ -43,7 +43,11 @@ function buildSelectColumn<T extends { id: string }>(selectedItems: { id: string
       )
     },
     size: 50,
+    minSize: 50,
     maxSize: 50,
+    enableSorting: false,
+    enableHiding: false,
+    enableResizing: false,
   }
 }
 
