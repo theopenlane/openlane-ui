@@ -81,14 +81,25 @@ export const QuestionnairePage: React.FC<QuestionnairePageProps> = ({ token }) =
   const emailMismatch = useMemo(() => {
     if (!token) return false
     const isAuthenticated = !!sessionData?.user
-    if (!isAuthenticated) return false
+    if (!isAuthenticated) {
+      return false
+    }
 
     const decoded = decodeJWT(token)
     const anonEmail = decoded?.email
     const sessionEmail = sessionData?.user?.email
 
-    if (!anonEmail) return true
-    if (anonEmail !== sessionEmail) return true
+    // user authenticated already but this is an anon questionnaire so they should be able
+    // to fill the questionnaire
+    if (!anonEmail) {
+      return false
+    }
+
+    // if it is not an anon questionnaire and they are logged in, enforce the email from the jwt matches
+    // the authenticated user's email
+    if (anonEmail !== sessionEmail) {
+      return true
+    }
 
     return false
   }, [token, sessionData])
