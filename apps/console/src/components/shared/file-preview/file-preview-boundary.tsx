@@ -17,6 +17,17 @@ const FilePreviewBoundary: React.FC<Props> = ({ file }) => (
   </ErrorBoundary>
 )
 
+const triggerDownload = (file: PreviewFile) => {
+  if (!file.presignedURL) return
+  const a = document.createElement('a')
+  a.href = file.presignedURL
+  a.download = file.providedFileName
+  a.rel = 'noreferrer noopener'
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+}
+
 const PreviewFallback: React.FC<Props> = ({ file }) => (
   <div className="flex flex-col items-center gap-3 rounded-md border border-muted bg-muted/40 p-6 text-sm">
     <FileWarning className="h-6 w-6 text-destructive" />
@@ -26,11 +37,8 @@ const PreviewFallback: React.FC<Props> = ({ file }) => (
       <p className="mt-2 text-xs text-muted-foreground">The file may be unavailable from this environment. Try downloading it instead.</p>
     </div>
     {file.presignedURL && (
-      <Button asChild variant="secondary">
-        <a href={file.presignedURL} download={file.providedFileName}>
-          <Download className="h-4 w-4" />
-          Download
-        </a>
+      <Button variant="secondary" icon={<Download className="h-4 w-4" />} iconPosition="left" onClick={() => triggerDownload(file)}>
+        Download
       </Button>
     )}
   </div>

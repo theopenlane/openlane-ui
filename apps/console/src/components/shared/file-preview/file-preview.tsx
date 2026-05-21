@@ -325,14 +325,22 @@ const InfoCard: React.FC<InfoCardProps> = ({ tone, message, action }) => (
   </div>
 )
 
+const triggerDownload = (file: PreviewFile) => {
+  if (!file.presignedURL) return
+  const a = document.createElement('a')
+  a.href = file.presignedURL
+  a.download = file.providedFileName
+  a.rel = 'noreferrer noopener'
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+}
+
 const DownloadButton: React.FC<{ file: PreviewFile }> = ({ file }) => {
   if (!file.presignedURL) return null
   return (
-    <Button asChild variant="secondary">
-      <a href={file.presignedURL} download={file.providedFileName}>
-        <Download className="h-4 w-4" />
-        Download
-      </a>
+    <Button variant="secondary" icon={<Download className="h-4 w-4" />} iconPosition="left" onClick={() => triggerDownload(file)}>
+      Download
     </Button>
   )
 }
