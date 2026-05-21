@@ -70987,13 +70987,24 @@ export type CreateInternalPolicyMutation = {
 export type UpdateInternalPolicyMutationVariables = Exact<{
   updateInternalPolicyId: Scalars['ID']['input']
   input: UpdateInternalPolicyInput
+  internalPolicyFile?: InputMaybe<Scalars['Upload']['input']>
+  internalPolicyFileMetadata?: InputMaybe<FileMetadataInput>
 }>
 
 export type UpdateInternalPolicyMutation = {
   __typename?: 'Mutation'
   updateInternalPolicy: {
     __typename?: 'InternalPolicyUpdatePayload'
-    internalPolicy: { __typename?: 'InternalPolicy'; id: string; name: string; internalPolicyKindName?: string | null; details?: string | null; revision?: string | null }
+    internalPolicy: {
+      __typename?: 'InternalPolicy'
+      id: string
+      name: string
+      internalPolicyKindName?: string | null
+      details?: string | null
+      revision?: string | null
+      managementMode?: InternalPolicyDocumentManagementMode | null
+      file?: { __typename?: 'File'; id: string; presignedURL?: string | null; providedFileName: string; providedFileExtension: string; detectedMimeType?: string | null } | null
+    }
   }
 }
 
@@ -71075,6 +71086,7 @@ export type InternalPolicyByIdFragment = {
   tags?: Array<string> | null
   revision?: string | null
   status?: InternalPolicyDocumentStatus | null
+  managementMode?: InternalPolicyDocumentManagementMode | null
   displayID: string
   reviewDue?: any | null
   reviewFrequency?: InternalPolicyFrequency | null
@@ -71082,6 +71094,7 @@ export type InternalPolicyByIdFragment = {
   summary?: string | null
   detailsJSON?: Array<any> | null
   internalPolicyKindName?: string | null
+  file?: { __typename?: 'File'; id: string; presignedURL?: string | null; providedFileName: string; providedFileExtension: string; detectedMimeType?: string | null } | null
   approver?: {
     __typename?: 'Group'
     id: string
@@ -71124,6 +71137,7 @@ export type GetInternalPolicyDetailsByIdQuery = {
     tags?: Array<string> | null
     revision?: string | null
     status?: InternalPolicyDocumentStatus | null
+    managementMode?: InternalPolicyDocumentManagementMode | null
     displayID: string
     reviewDue?: any | null
     reviewFrequency?: InternalPolicyFrequency | null
@@ -71131,6 +71145,7 @@ export type GetInternalPolicyDetailsByIdQuery = {
     summary?: string | null
     detailsJSON?: Array<any> | null
     internalPolicyKindName?: string | null
+    file?: { __typename?: 'File'; id: string; presignedURL?: string | null; providedFileName: string; providedFileExtension: string; detectedMimeType?: string | null } | null
     approver?: {
       __typename?: 'Group'
       id: string
@@ -71257,11 +71272,15 @@ export type UpdateBulkInternalPolicyMutation = { __typename?: 'Mutation'; update
 
 export type CreateUploadInternalPolicyMutationVariables = Exact<{
   internalPolicyFile: Scalars['Upload']['input']
+  managementMode?: InputMaybe<InternalPolicyDocumentManagementMode>
 }>
 
 export type CreateUploadInternalPolicyMutation = {
   __typename?: 'Mutation'
-  createUploadInternalPolicy: { __typename?: 'InternalPolicyCreatePayload'; internalPolicy: { __typename?: 'InternalPolicy'; fileID?: string | null; id: string } }
+  createUploadInternalPolicy: {
+    __typename?: 'InternalPolicyCreatePayload'
+    internalPolicy: { __typename?: 'InternalPolicy'; fileID?: string | null; id: string; managementMode?: InternalPolicyDocumentManagementMode | null }
+  }
 }
 
 export type GetInternalPoliciesDashboardQueryVariables = Exact<{

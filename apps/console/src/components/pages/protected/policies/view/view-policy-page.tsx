@@ -11,11 +11,11 @@ import { Form } from '@repo/ui/form'
 import DetailsField from '@/components/pages/protected/policies/view/fields/details-field.tsx'
 import TitleField from '@/components/pages/protected/policies/view/fields/title-field.tsx'
 import { Button } from '@repo/ui/button'
-import { LockOpen, PencilIcon, Trash2 } from 'lucide-react'
+import { LockOpen, PencilIcon, Repeat, Trash2 } from 'lucide-react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import AuthorityCard from '@/components/pages/protected/policies/view/cards/authority-card.tsx'
 import PropertiesCard from '@/components/pages/protected/policies/view/cards/properties-card.tsx'
-import { InternalPolicyDocumentStatus, InternalPolicyFrequency, type UpdateInternalPolicyInput } from '@repo/codegen/src/schema.ts'
+import { InternalPolicyDocumentManagementMode, InternalPolicyDocumentStatus, InternalPolicyFrequency, type UpdateInternalPolicyInput } from '@repo/codegen/src/schema.ts'
 import HistoricalCard from '@/components/pages/protected/policies/view/cards/historical-card.tsx'
 import TagsCard from '@/components/pages/protected/policies/view/cards/tags-card.tsx'
 import { useQueryClient } from '@tanstack/react-query'
@@ -46,10 +46,15 @@ import LinkedProcedures from './fields/linked-procedures'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import HistoryTab from './tabs/history/history-tab'
 import { VersionBump } from '@/lib/enums/revision-enum'
+import FilePreview from '@/components/shared/file-preview/file-preview'
+import ExternalReferenceView from '@/components/pages/protected/policies/view/fields/external-reference-view'
+import { isWordExt } from '@/components/pages/protected/policies/policy-management-utils'
 
 type TViewPolicyPage = {
   policyId: string
 }
+
+type TabValue = 'policy' | 'procedures' | 'history' | 'file'
 
 const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
   const [isDeleting, setIsDeleting] = useState<boolean>(false)
@@ -66,6 +71,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
   const editAllowed = canEdit(permission?.roles)
   const { mutateAsync: deletePolicy } = useDeleteInternalPolicy()
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [pendingManagementMode, setPendingManagementMode] = useState<InternalPolicyDocumentManagementMode | null>(null)
   const router = useRouter()
   const { setCrumbs } = React.use(BreadcrumbContext)
   const { currentOrgId, getOrganizationByID } = useOrganization()
@@ -76,7 +82,22 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
   const { data: assocData } = useGetInternalPolicyAssociationsById(policyId, !isDeleting)
   const { data: discussionData } = useGetPolicyDiscussionById(policyId)
   const plateEditorHelper = usePlateEditor()
-  const [activeTab, setActiveTab] = useState<'policy' | 'procedures' | 'history'>('policy')
+  const [activeTab, setActiveTab] = useState<TabValue>('policy')
+  const isExternalReference = policy?.managementMode === InternalPolicyDocumentManagementMode.EXTERNAL_REFERENCE
+  const hasFile = !!policy?.file?.presignedURL
+  const showStandaloneFileTab = hasFile && !isExternalReference
+  const hasWordFile = isWordExt(policy?.file?.providedFileExtension)
+  // The EXTERNAL_REFERENCE → OPENLANE_MANAGED toggle now lives inline in
+  // ExternalReferenceView (next to "Replace document"). The kebab menu only
+  // surfaces the reverse direction — promoting a Word-file policy into
+  // EXTERNAL_REFERENCE — since that view has no inline header bar to host it.
+  const showManagementModeAction = editAllowed && hasWordFile && !isExternalReference
+
+  const handleConfirmManagementModeChange = async () => {
+    if (!pendingManagementMode) return
+    await handleUpdateField({ managementMode: pendingManagementMode })
+    setPendingManagementMode(null)
+  }
 
   const procedureCount = assocData?.internalPolicy?.procedures?.totalCount ?? 0
   const procedures = assocData?.internalPolicy?.procedures?.edges ?? []
@@ -175,7 +196,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
           tags: data?.tags?.filter((tag): tag is string => typeof tag === 'string') ?? [],
         }
 
-        if (detailsJSON !== undefined) {
+        if (detailsJSON !== undefined && !isExternalReference) {
           input.detailsJSON = detailsJSON
           input.details = await plateEditorHelper.convertToHtml(detailsJSON as Value)
         }
@@ -225,7 +246,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
         })
       }
     },
-    [policy, plateEditorHelper, updatePolicy, successNotification, errorNotification, queryClient, policyId, initialDetailsCanonicalRef],
+    [policy, plateEditorHelper, updatePolicy, successNotification, errorNotification, queryClient, policyId, initialDetailsCanonicalRef, isExternalReference],
   )
 
   const handleFormSubmit = useCallback(
@@ -316,6 +337,12 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
                       <span>Edit</span>
                     </Button>
                   )}
+                  {showManagementModeAction && (
+                    <Button size="sm" variant="transparent" className="flex justify-start space-x-2" onClick={() => setPendingManagementMode(InternalPolicyDocumentManagementMode.EXTERNAL_REFERENCE)}>
+                      <Repeat size={16} strokeWidth={2} />
+                      <span>Keep as Word document</span>
+                    </Button>
+                  )}
                   {deleteAllowed && (
                     <>
                       <Button size="sm" variant="transparent" className="flex justify-start space-x-2" onClick={() => setIsDeleteDialogOpen(true)}>
@@ -343,6 +370,19 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
               }
             />
           )}
+          <ConfirmationDialog
+            open={!!pendingManagementMode}
+            onOpenChange={(open) => {
+              if (!open) setPendingManagementMode(null)
+            }}
+            onConfirm={handleConfirmManagementModeChange}
+            title="Change management mode"
+            confirmationText="Keep as Word document"
+            confirmationTextVariant="primary"
+            description={
+              <>The Policy view will switch to a Word document preview and edits inside Openlane will be disabled. The underlying details data stays in place — you can switch back at any time.</>
+            }
+          />
         </div>
       )}
     </div>
@@ -352,7 +392,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
     <div className="p-2">
       <TitleField isEditing={isEditing} form={form} handleUpdate={handleUpdateField} initialData={policy.name} editAllowed={editAllowed} />
 
-      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'policy' | 'procedures' | 'history')} variant="underline">
+      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as TabValue)} variant="underline">
         <TabsList className="relative flex justify-start w-full">
           <div className="absolute -bottom-0.5 left-1 right-0 h-px bg-border" />
           <TabsTrigger className="relative max-w-26 text-start" value="policy">
@@ -365,10 +405,19 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
           <TabsTrigger value="history" className="relative max-w-26 text-start">
             History
           </TabsTrigger>
+          {showStandaloneFileTab && (
+            <TabsTrigger value="file" className="relative max-w-32 text-start">
+              File Preview
+            </TabsTrigger>
+          )}
         </TabsList>
 
         <TabsContent value="policy">
-          <DetailsField isEditing={isEditing} form={form} policy={policy} discussionData={discussionData?.internalPolicy} />
+          {isExternalReference && policy.file ? (
+            <ExternalReferenceView policy={policy} editAllowed={editAllowed} />
+          ) : (
+            <DetailsField isEditing={isEditing} form={form} policy={policy} discussionData={discussionData?.internalPolicy} />
+          )}
         </TabsContent>
 
         <TabsContent value="procedures">
@@ -378,6 +427,8 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
         <TabsContent value="history">
           <HistoryTab policyId={policyId} policy={policy} />
         </TabsContent>
+
+        {showStandaloneFileTab && policy.file && <TabsContent value="file">{activeTab === 'file' && <FilePreview file={policy.file} />}</TabsContent>}
       </Tabs>
     </div>
   )
