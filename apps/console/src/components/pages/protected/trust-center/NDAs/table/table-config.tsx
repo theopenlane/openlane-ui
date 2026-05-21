@@ -1,10 +1,10 @@
 'use client'
 
-import { type ColumnDef, type Row } from '@tanstack/react-table'
+import { type ColumnDef } from '@tanstack/react-table'
 import { formatDate } from '@/utils/date'
 import { Button } from '@repo/ui/button'
 import { Building2, Calendar, CheckCheck, Mail, XIcon } from 'lucide-react'
-import { Checkbox } from '@repo/ui/checkbox'
+import { createSelectColumn } from '@/components/shared/crud-base/columns/select-column'
 import { type FilterField } from '@/types'
 import React from 'react'
 
@@ -44,50 +44,10 @@ export const getNdaRequestColumns = ({
   actionLoadingId,
   actionLoadingType,
 }: NdaRequestColumnOptions = {}): ColumnDef<NdaRequestRow>[] => {
-  const toggleSelection = (row: { id: string }) => {
-    setSelectedRows?.((prev) => {
-      const exists = prev.some((r) => r.id === row.id)
-      return exists ? prev.filter((r) => r.id !== row.id) : [...prev, row]
-    })
-  }
-
   const columns: ColumnDef<NdaRequestRow>[] = []
 
-  if (showSelect) {
-    columns.push({
-      id: 'select',
-      header: ({ table }) => {
-        const currentPageRows = table.getRowModel().rows.map((row) => row.original)
-        const allSelected = currentPageRows.length > 0 && currentPageRows.every((row) => selectedRows.some((sr) => sr.id === row.id))
-
-        return (
-          <div onClick={(e) => e.stopPropagation()}>
-            <Checkbox
-              checked={allSelected}
-              onCheckedChange={(checked: boolean) => {
-                const newSelections = checked
-                  ? [...selectedRows.filter((sr) => !currentPageRows.some((r) => r.id === sr.id)), ...currentPageRows.map((r) => ({ id: r.id }))]
-                  : selectedRows.filter((sr) => !currentPageRows.some((r) => r.id === sr.id))
-                setSelectedRows?.(newSelections)
-              }}
-            />
-          </div>
-        )
-      },
-      cell: ({ row }: { row: Row<NdaRequestRow> }) => {
-        const { id } = row.original
-        const isChecked = selectedRows.some((r) => r.id === id)
-
-        return (
-          <div onClick={(e) => e.stopPropagation()}>
-            <Checkbox checked={isChecked} onCheckedChange={() => toggleSelection({ id })} />
-          </div>
-        )
-      },
-      size: 20,
-      maxSize: 20,
-      minSize: 20,
-    })
+  if (showSelect && setSelectedRows) {
+    columns.push(createSelectColumn<NdaRequestRow>(selectedRows, setSelectedRows))
   }
 
   columns.push(
