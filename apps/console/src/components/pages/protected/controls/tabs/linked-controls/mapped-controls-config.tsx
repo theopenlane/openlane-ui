@@ -11,6 +11,7 @@ import { CustomEnumChipCell } from '@/components/shared/crud-base/columns/custom
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { Button } from '@repo/ui/button'
 import { Checkbox } from '@repo/ui/checkbox'
+import { TruncatedCell } from '@repo/ui/data-table'
 
 const getMappedControlSelectionKey = (row: MappedControlRow) => `${row.nodeType}:${row.targetId}`
 
@@ -91,7 +92,7 @@ export const getMappedControlsBaseColumns = (convertToReadOnly: (value: string, 
   {
     accessorKey: 'description',
     header: () => <span className="whitespace-nowrap">Description</span>,
-    cell: ({ row }) => <div className="line-clamp-2 text-justify">{row.original.description ? convertToReadOnly(row.original.description, 0) : '-'}</div>,
+    cell: ({ row }) => <TruncatedCell className="line-clamp-2 text-justify whitespace-normal">{row.original.description ? convertToReadOnly(row.original.description, 0) : '-'}</TruncatedCell>,
     size: 320,
   },
   {
