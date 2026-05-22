@@ -28,6 +28,7 @@ export const SubprocessorSelectField = ({ isEditing, createdSubprocessor, select
   const [keyword, setKeyword] = useState('')
 
   const debouncedKeyword = useDebounce(keyword, 300)
+  const hasMinSearch = debouncedKeyword.length >= 2
 
   const { subprocessors } = useGetSubprocessors({
     where: {
@@ -36,9 +37,10 @@ export const SubprocessorSelectField = ({ isEditing, createdSubprocessor, select
     },
     pagination: {
       page: 1,
-      pageSize: 20,
-      query: { first: 20 },
+      pageSize: 10,
+      query: { first: 10 },
     },
+    enabled: hasMinSearch,
   })
 
   const subprocessorOptions = useMemo(
@@ -109,7 +111,7 @@ export const SubprocessorSelectField = ({ isEditing, createdSubprocessor, select
                     <CommandInput placeholder="Search subprocessors..." value={keyword} onValueChange={setKeyword} />
 
                     <CommandList>
-                      <CommandEmpty>No subprocessor found.</CommandEmpty>
+                      <CommandEmpty>{hasMinSearch ? 'No subprocessor found.' : 'Type at least 2 characters to search.'}</CommandEmpty>
 
                       <CommandGroup>
                         {subprocessorOptions.map((option) => (
