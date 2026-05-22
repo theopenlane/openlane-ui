@@ -4,7 +4,6 @@ import React, { useState } from 'react'
 import { Repeat, Upload } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
-import FilePreview from '@/components/shared/file-preview/file-preview'
 import { type InternalPolicyByIdFragment, InternalPolicyDocumentManagementMode } from '@repo/codegen/src/schema'
 import { useUpdateInternalPolicy } from '@/lib/graphql-hooks/internal-policy'
 import { useNotification } from '@/hooks/useNotification'
@@ -63,7 +62,6 @@ const ExternalReferenceView: React.FC<Props> = ({ policy, editAllowed }) => {
           </div>
         </div>
       )}
-      <FilePreview file={file} />
       <ReplaceDocumentDialog policy={policy} open={replaceOpen} onOpenChange={setReplaceOpen} />
       <ConfirmationDialog
         open={switchOpen}

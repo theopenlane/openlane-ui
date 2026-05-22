@@ -46,7 +46,6 @@ import LinkedProcedures from './fields/linked-procedures'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import HistoryTab from './tabs/history/history-tab'
 import { VersionBump } from '@/lib/enums/revision-enum'
-import FilePreview from '@/components/shared/file-preview/file-preview'
 import ExternalReferenceView from '@/components/pages/protected/policies/view/fields/external-reference-view'
 import { isWordExt } from '@/components/pages/protected/policies/policy-management-utils'
 
@@ -54,7 +53,7 @@ type TViewPolicyPage = {
   policyId: string
 }
 
-type TabValue = 'policy' | 'procedures' | 'history' | 'file'
+type TabValue = 'policy' | 'procedures' | 'history'
 
 const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
   const [isDeleting, setIsDeleting] = useState<boolean>(false)
@@ -84,8 +83,6 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
   const plateEditorHelper = usePlateEditor()
   const [activeTab, setActiveTab] = useState<TabValue>('policy')
   const isExternalReference = policy?.managementMode === InternalPolicyDocumentManagementMode.EXTERNAL_REFERENCE
-  const hasFile = !!policy?.file?.presignedURL
-  const showStandaloneFileTab = hasFile && !isExternalReference
   const hasWordFile = isWordExt(policy?.file?.providedFileExtension)
   // The EXTERNAL_REFERENCE → OPENLANE_MANAGED toggle now lives inline in
   // ExternalReferenceView (next to "Replace document"). The kebab menu only
@@ -405,11 +402,6 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
           <TabsTrigger value="history" className="relative max-w-26 text-start">
             History
           </TabsTrigger>
-          {showStandaloneFileTab && (
-            <TabsTrigger value="file" className="relative max-w-32 text-start">
-              File Preview
-            </TabsTrigger>
-          )}
         </TabsList>
 
         <TabsContent value="policy">
@@ -427,8 +419,6 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
         <TabsContent value="history">
           <HistoryTab policyId={policyId} policy={policy} />
         </TabsContent>
-
-        {showStandaloneFileTab && policy.file && <TabsContent value="file">{activeTab === 'file' && <FilePreview file={policy.file} />}</TabsContent>}
       </Tabs>
     </div>
   )
