@@ -14,7 +14,6 @@ import { TableKeyEnum } from '@repo/ui/table-key'
 import { getSubprocessorsFilterFields } from './table-config'
 import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { useBulkDeleteTrustCenterSubprocessors } from '@/lib/graphql-hooks/trust-center-subprocessor'
-import { useGetSubprocessors } from '@/lib/graphql-hooks/subprocessor'
 import { CreateSubprocessorSheet } from '../sheet/create-subprocessor-sheet'
 import { AddExistingDialog } from './add-existing-dialog'
 import Menu from '@/components/shared/menu/menu'
@@ -73,10 +72,6 @@ const SubprocessorsTableToolbar: React.FC<TProps> = ({
   }, [filterFields, enumOptions, isTypesSuccess])
 
   const [createdSubprocessor, setCreatedSubprocessor] = useState<null | CreateSubprocessorMutation['createSubprocessor']['subprocessor']>(null)
-  const { subprocessors } = useGetSubprocessors({
-    where: { or: [{ hasTrustCenterSubprocessors: false }] },
-  })
-  const hasAvailableSubprocessors = (subprocessors?.length ?? 0) > 0
 
   const handleBulkDelete = () => {
     if (selectedRows.length === 0) return
@@ -185,7 +180,7 @@ const SubprocessorsTableToolbar: React.FC<TProps> = ({
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                {hasAvailableSubprocessors && <DropdownMenuItem onSelect={() => setAddExistingOpen(true)}>Add subprocessor</DropdownMenuItem>}
+                <DropdownMenuItem onSelect={() => setAddExistingOpen(true)}>Add subprocessor</DropdownMenuItem>
                 <DropdownMenuItem onSelect={() => setCreateSheetOpen(true)}>Custom subprocessor</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
