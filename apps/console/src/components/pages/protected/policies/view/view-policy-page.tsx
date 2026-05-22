@@ -11,7 +11,7 @@ import { Form } from '@repo/ui/form'
 import DetailsField from '@/components/pages/protected/policies/view/fields/details-field.tsx'
 import TitleField from '@/components/pages/protected/policies/view/fields/title-field.tsx'
 import { Button } from '@repo/ui/button'
-import { LockOpen, PencilIcon, Repeat, Trash2 } from 'lucide-react'
+import { ExternalLink, LockOpen, PencilIcon, Trash2 } from 'lucide-react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import AuthorityCard from '@/components/pages/protected/policies/view/cards/authority-card.tsx'
 import PropertiesCard from '@/components/pages/protected/policies/view/cards/properties-card.tsx'
@@ -47,7 +47,6 @@ import { ObjectTypes } from '@repo/codegen/src/type-names'
 import HistoryTab from './tabs/history/history-tab'
 import { VersionBump } from '@/lib/enums/revision-enum'
 import ExternalReferenceView from '@/components/pages/protected/policies/view/fields/external-reference-view'
-import { isWordExt } from '@/components/pages/protected/policies/policy-management-utils'
 
 type TViewPolicyPage = {
   policyId: string
@@ -83,12 +82,8 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
   const plateEditorHelper = usePlateEditor()
   const [activeTab, setActiveTab] = useState<TabValue>('policy')
   const isExternalReference = policy?.managementMode === InternalPolicyDocumentManagementMode.EXTERNAL_REFERENCE
-  const hasWordFile = isWordExt(policy?.file?.providedFileExtension)
-  // The EXTERNAL_REFERENCE → OPENLANE_MANAGED toggle now lives inline in
-  // ExternalReferenceView (next to "Replace document"). The kebab menu only
-  // surfaces the reverse direction — promoting a Word-file policy into
-  // EXTERNAL_REFERENCE — since that view has no inline header bar to host it.
-  const showManagementModeAction = editAllowed && hasWordFile && !isExternalReference
+  const hasFile = !!policy?.file
+  const showManagementModeAction = editAllowed && hasFile && !isExternalReference
 
   const handleConfirmManagementModeChange = async () => {
     if (!pendingManagementMode) return
@@ -334,12 +329,6 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
                       <span>Edit</span>
                     </Button>
                   )}
-                  {showManagementModeAction && (
-                    <Button size="sm" variant="transparent" className="flex justify-start space-x-2" onClick={() => setPendingManagementMode(InternalPolicyDocumentManagementMode.EXTERNAL_REFERENCE)}>
-                      <Repeat size={16} strokeWidth={2} />
-                      <span>Keep as Word document</span>
-                    </Button>
-                  )}
                   {deleteAllowed && (
                     <>
                       <Button size="sm" variant="transparent" className="flex justify-start space-x-2" onClick={() => setIsDeleteDialogOpen(true)}>
@@ -363,6 +352,12 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
                     <LockOpen size={16} strokeWidth={2} />
                     <span>Manage Permissions</span>
                   </Button>
+                  {showManagementModeAction && (
+                    <Button size="sm" variant="transparent" className="flex justify-start space-x-2" onClick={() => setPendingManagementMode(InternalPolicyDocumentManagementMode.EXTERNAL_REFERENCE)}>
+                      <ExternalLink size={16} strokeWidth={2} />
+                      <span>Switch to externally managed</span>
+                    </Button>
+                  )}
                 </>
               }
             />
@@ -374,10 +369,10 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
             }}
             onConfirm={handleConfirmManagementModeChange}
             title="Change management mode"
-            confirmationText="Keep as Word document"
+            confirmationText="Switch to externally managed"
             confirmationTextVariant="primary"
             description={
-              <>The Policy view will switch to a Word document preview and edits inside Openlane will be disabled. The underlying details data stays in place — you can switch back at any time.</>
+              <>The Policy view will switch to displaying the attached file and edits inside Openlane will be disabled. The underlying details data stays in place — you can switch back at any time.</>
             }
           />
         </div>
