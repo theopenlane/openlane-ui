@@ -45,7 +45,7 @@ export const useGetTrustCenterNDAFiles = (enabled = true) => {
     queryKey: ['trustCenterNdaFiles'],
     queryFn: () =>
       client.request<GetTrustCenterNdaFilesQuery>(GET_ALL_TRUST_CENTER_NDA_FILES, {
-        templateWhere,
+        where: templateWhere,
       }),
     enabled,
   })
