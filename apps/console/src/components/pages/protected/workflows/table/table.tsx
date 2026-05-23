@@ -11,7 +11,7 @@ import { getColumns } from './columns'
 import { type TTableProps } from '@/components/shared/crud-base/page'
 import { objectName, tableKey } from './types'
 import { createRowActionsColumn } from '@/components/shared/crud-base/columns/row-actions-column'
-import { Pencil, Trash2 } from 'lucide-react'
+import { Copy, Pencil, Trash2 } from 'lucide-react'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 
 const TableComponent = ({
@@ -98,6 +98,7 @@ const TableComponent = ({
       createRowActionsColumn<WorkflowDefinitionsNodeNonNull>({
         actions: [
           { label: 'Edit', icon: <Pencil size={16} />, onClick: (row) => router.push(`/automation/workflows/editor?id=${row.id}`) },
+          { label: 'Clone', icon: <Copy size={16} />, onClick: (row) => router.push(`/automation/workflows/editor?cloneFrom=${row.id}`) },
           { label: 'Delete', icon: <Trash2 size={16} />, onClick: (row) => setDeleteId(row.id) },
         ],
       }),
