@@ -134,7 +134,7 @@ export const MemberActions = ({ memberId, memberUserId, memberRole, memberName }
       <DropdownMenuContent>
         {memberRole === OrgMembershipRole.OWNER && memberUserId === userData?.user.id ? (
           <DropdownMenuGroup>
-            <DropdownMenuItem>
+            <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
               <TransferOwnershipDialog
                 trigger={
                   <div className="flex gap-2 items-center">
