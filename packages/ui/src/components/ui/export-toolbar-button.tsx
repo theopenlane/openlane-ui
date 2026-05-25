@@ -4,7 +4,7 @@ import * as React from 'react'
 
 import type { DropdownMenuProps } from '@radix-ui/react-dropdown-menu'
 
-import { exportEditorToDocx, exportToDocx } from '@platejs/docx-io'
+import { exportEditorToDocx } from '@platejs/docx-io'
 import { MarkdownPlugin } from '@platejs/markdown'
 import { ArrowDownToLineIcon } from 'lucide-react'
 import { createSlateEditor } from 'platejs'
