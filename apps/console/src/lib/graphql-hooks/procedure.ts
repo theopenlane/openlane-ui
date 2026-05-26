@@ -85,14 +85,14 @@ export const useProcedures = ({ where, orderBy, pagination, enabled = true }: Us
   const paginationMeta = {
     totalCount: queryResult.data?.procedures?.totalCount ?? 0,
     pageInfo: queryResult.data?.procedures?.pageInfo,
-    isLoading: queryResult.isLoading,
+    isLoading: queryResult.isPending,
   }
 
   return {
     ...queryResult,
     procedures,
     paginationMeta,
-    isLoading: queryResult.isLoading,
+    isLoading: queryResult.isPending,
   }
 }
 

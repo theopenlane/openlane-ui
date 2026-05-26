@@ -40,14 +40,14 @@ export const useGetAllSubscribers = ({ where, orderBy, pagination, enabled = tru
   const paginationMeta = {
     totalCount: queryResult.data?.subscribers?.totalCount ?? 0,
     pageInfo: queryResult.data?.subscribers?.pageInfo,
-    isLoading: queryResult.isLoading,
+    isLoading: queryResult.isPending,
   }
 
   return {
     ...queryResult,
     subscribers,
     paginationMeta,
-    isLoading: queryResult.isLoading,
+    isLoading: queryResult.isPending,
   }
 }
 
