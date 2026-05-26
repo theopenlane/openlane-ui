@@ -9788,8 +9788,6 @@ export interface CreateOrganizationInput {
   createOrgSettings?: InputMaybe<CreateOrganizationSettingInput>
   customDomainIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   customTypeEnumIDs?: InputMaybe<Array<Scalars['ID']['input']>>
-  /** Whether the organization has a dedicated database */
-  dedicatedDb?: InputMaybe<Scalars['Boolean']['input']>
   /** An optional description of the organization */
   description?: InputMaybe<Scalars['String']['input']>
   directoryAccountIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -10915,7 +10913,7 @@ export interface CreateTemplateInput {
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   /** the type of the template, either a provided template or an implementation (document) */
   templateType?: InputMaybe<TemplateDocumentType>
-  /** configuration for converting a submitted assesment into records for the organization */
+  /** configuration for converting a submitted assessment into records for the organization */
   transformConfiguration?: InputMaybe<Scalars['TemplateProjectionConfig']['input']>
   trustCenterID?: InputMaybe<Scalars['ID']['input']>
   /** the uischema for the template to render in the UI */
@@ -34429,8 +34427,6 @@ export interface Organization extends Node {
   createdBy?: Maybe<Scalars['String']['output']>
   customDomains: CustomDomainConnection
   customTypeEnums: CustomTypeEnumConnection
-  /** Whether the organization has a dedicated database */
-  dedicatedDb: Scalars['Boolean']['output']
   /** An optional description of the organization */
   description?: Maybe<Scalars['String']['output']>
   directoryAccounts: DirectoryAccountConnection
@@ -50029,7 +50025,7 @@ export interface Template extends Node {
   tags?: Maybe<Array<Scalars['String']['output']>>
   /** the type of the template, either a provided template or an implementation (document) */
   templateType: TemplateDocumentType
-  /** configuration for converting a submitted assesment into records for the organization */
+  /** configuration for converting a submitted assessment into records for the organization */
   transformConfiguration?: Maybe<Scalars['TemplateProjectionConfig']['output']>
   trustCenter?: Maybe<TrustCenter>
   /** the id of the trust center this template is associated with */
@@ -59320,7 +59316,7 @@ export interface UpdateTemplateInput {
   tags?: InputMaybe<Array<Scalars['String']['input']>>
   /** the type of the template, either a provided template or an implementation (document) */
   templateType?: InputMaybe<TemplateDocumentType>
-  /** configuration for converting a submitted assesment into records for the organization */
+  /** configuration for converting a submitted assessment into records for the organization */
   transformConfiguration?: InputMaybe<Scalars['TemplateProjectionConfig']['input']>
   trustCenterID?: InputMaybe<Scalars['ID']['input']>
   /** the uischema for the template to render in the UI */
@@ -65848,6 +65844,7 @@ export type AssessmentResponsesWithFilterQuery = {
       node?: {
         __typename?: 'AssessmentResponse'
         assessmentID: string
+        status: AssessmentResponseAssessmentResponseStatus
         assignedAt: any
         campaignID?: string | null
         completedAt?: any | null
@@ -65872,6 +65869,7 @@ export type AssessmentResponsesWithFilterQuery = {
         startedAt: any
         updatedAt?: any | null
         updatedBy?: string | null
+        assessment: { __typename?: 'Assessment'; id: string; name: string }
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
@@ -65887,6 +65885,7 @@ export type AssessmentResponseQuery = {
   assessmentResponse: {
     __typename?: 'AssessmentResponse'
     assessmentID: string
+    status: AssessmentResponseAssessmentResponseStatus
     assignedAt: any
     campaignID?: string | null
     completedAt?: any | null
@@ -65911,6 +65910,8 @@ export type AssessmentResponseQuery = {
     startedAt: any
     updatedAt?: any | null
     updatedBy?: string | null
+    assessment: { __typename?: 'Assessment'; id: string; name: string; jsonconfig?: any | null; responseDueDuration?: number | null }
+    document?: { __typename?: 'DocumentData'; id: string; data: any } | null
   }
 }
 

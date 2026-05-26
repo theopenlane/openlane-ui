@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useMemo, useState } from 'react'
-import { ChevronDown } from 'lucide-react'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { Button } from '@repo/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
@@ -14,24 +13,7 @@ import FieldsDiff from './fields-diff'
 import { type HistoryNode } from './types'
 import { toPlateValue } from './utils'
 import { stringToPlateValue } from '@/components/shared/plate/plate-utils'
-
-type CollapsibleSectionProps = {
-  label: string
-  children: React.ReactNode
-}
-
-const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({ label, children }) => {
-  const [open, setOpen] = useState(false)
-  return (
-    <div>
-      <button type="button" onClick={() => setOpen((v) => !v)} className="flex items-center gap-1 text-sm font-medium" aria-expanded={open}>
-        <ChevronDown className={`h-4 w-4 transition-transform ${open ? '' : '-rotate-90'}`} />
-        {label}
-      </button>
-      {open ? <div className="mt-2">{children}</div> : null}
-    </div>
-  )
-}
+import CollapsibleSection from '@/components/shared/collapsible-section/collapsible-section'
 
 type VersionSlideoutProps = {
   historyId: string | null

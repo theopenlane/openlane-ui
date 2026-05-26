@@ -9,8 +9,7 @@ import { getDeliveryColumns, type DeliveryRow } from './delivery-columns'
 import type { TPagination } from '@repo/ui/pagination-types'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@repo/ui/dialog'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
-import { extractQuestions } from '../responses-tab/extract-questions'
-import { renderAnswer } from '../utils/render-answer'
+import AssessmentResponseView from '../shared/assessment-response-view'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import type { AssessmentResponseWhereInput } from '@repo/codegen/src/schema'
 import { computeDueDate } from '@/utils/date'
@@ -57,7 +56,6 @@ export const DeliveryTab = ({ assessmentId, jsonconfig, where, onTotalCountChang
     pagination,
   })
 
-  const questions = useMemo(() => extractQuestions(jsonconfig), [jsonconfig])
   const responses = useMemo(
     () =>
       (deliveryResponses ?? [])
@@ -113,15 +111,6 @@ export const DeliveryTab = ({ assessmentId, jsonconfig, where, onTotalCountChang
 
   const columns = useMemo(() => getDeliveryColumns({ onResend: handleResend, onViewResponse: handleViewResponse }), [handleResend, handleViewResponse])
 
-  const responseData = useMemo(() => {
-    if (!selectedResponse?.document?.data || !questions.length) return []
-    const data = selectedResponse.document.data as Record<string, unknown>
-    return questions.map((q) => ({
-      question: q.title,
-      answer: renderAnswer(data[q.name]),
-    }))
-  }, [selectedResponse, questions])
-
   return (
     <>
       <DataTable
@@ -140,17 +129,8 @@ export const DeliveryTab = ({ assessmentId, jsonconfig, where, onTotalCountChang
             <DialogTitle>Response from {selectedResponse?.email}</DialogTitle>
             <DialogDescription>Answers submitted by this recipient.</DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 py-2">
-            {responseData.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No answers found.</p>
-            ) : (
-              responseData.map((item, idx) => (
-                <div key={idx} className="space-y-1">
-                  <p className="text-sm font-medium">{item.question}</p>
-                  <p className="text-sm text-muted-foreground">{item.answer}</p>
-                </div>
-              ))
-            )}
+          <div className="py-2">
+            <AssessmentResponseView jsonconfig={jsonconfig} data={selectedResponse?.document?.data} />
           </div>
           <DialogFooter>
             <DialogClose asChild>
