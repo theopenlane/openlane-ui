@@ -28,6 +28,8 @@ import { formatDate, formatTimeSince } from '@/utils/date'
 import { useNotification } from '@/hooks/useNotification'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import PersonalApiKeyDialog, { type EditTokenData } from '@/components/pages/protected/developers/personal-access-token-crud-slideout'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { canEdit } from '@/lib/authz/utils'
 
 type TokenNode = {
   id: string
@@ -173,6 +175,8 @@ export const PersonalAccessTokenTable = () => {
   const path = usePathname()
   const searchParams = useSearchParams()
   const isApiTokenPage = path.includes('/api-tokens')
+  const { data: permission } = useOrganizationRoles()
+  const canManageApiToken = !isApiTokenPage || canEdit(permission?.roles)
   const tableKey = isApiTokenPage ? TableKeyEnum.API_TOKEN : TableKeyEnum.PERSONAL_ACCESS_TOKEN
   const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(tableKey, DEFAULT_PAGINATION))
   const { successNotification, errorNotification } = useNotification()
@@ -368,22 +372,26 @@ export const PersonalAccessTokenTable = () => {
         return formatTimeSince(value)
       },
     },
-    {
-      id: 'actions',
-      header: '',
-      size: 80,
-      cell: ({ row }) => (
-        <TokenAction
-          tokenId={row.original.id}
-          tokenName={row.original.name}
-          tokenSsoAuthorizations={row.original.ssoAuthorizations}
-          tokenDescription={row.original.description}
-          tokenExpiresAt={row.original.expiresAt}
-          tokenAuthorizedOrganizations={row.original.organizations}
-          tokenScopes={row.original.scopes ?? []}
-        />
-      ),
-    },
+    ...(canManageApiToken
+      ? [
+          {
+            id: 'actions',
+            header: '',
+            size: 80,
+            cell: ({ row }: { row: { original: TokenNode } }) => (
+              <TokenAction
+                tokenId={row.original.id}
+                tokenName={row.original.name}
+                tokenSsoAuthorizations={row.original.ssoAuthorizations}
+                tokenDescription={row.original.description}
+                tokenExpiresAt={row.original.expiresAt}
+                tokenAuthorizedOrganizations={row.original.organizations}
+                tokenScopes={row.original.scopes ?? []}
+              />
+            ),
+          } satisfies ColumnDef<TokenNode>,
+        ]
+      : []),
   ]
 
   return (
