@@ -130,10 +130,10 @@ const DocumentsTableToolbar: React.FC<TProps> = ({ searching, searchTerm, setSea
           </div>
         ) : (
           <div className="flex items-center gap-2 justify-end flex-wrap">
+            <BulkEditTrustCenterDocsDialog selectedDocs={selectedDocs} setSelectedDocs={setSelectedDocs} />
             <Button variant="secondary" icon={<Trash2 size={16} />} iconPosition="left" onClick={handleBulkDelete} disabled={isDeleting}>
               Bulk Delete ({selectedDocs.length})
             </Button>
-            <BulkEditTrustCenterDocsDialog selectedDocs={selectedDocs} setSelectedDocs={setSelectedDocs} />
           </div>
         )}
       </div>
