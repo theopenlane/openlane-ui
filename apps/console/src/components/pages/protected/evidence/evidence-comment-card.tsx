@@ -98,7 +98,7 @@ const EvidenceCommentsCard = () => {
         </div>
 
         <Button type="button" className="h-8 p-2" variant="secondary" icon={<PanelRightOpen />} onClick={handleOpenSheet}>
-          See All
+          View & Add Comments
         </Button>
       </div>
       <p className="text-gray-500 mb-3">Latest Comment</p>
