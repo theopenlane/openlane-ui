@@ -1,6 +1,6 @@
 'use client'
 
-import { MoreVertical, Trash2, UserRoundPen, UsersRound } from 'lucide-react'
+import { MoreHorizontal, Trash2, UserRoundPen, UsersRound } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
 import { pageStyles } from '../page.styles'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
@@ -34,6 +34,7 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { TransferOwnershipDialog } from '@/components/pages/protected/organization-settings/general-settings/transfer-ownership-dialog'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { toHumanLabel } from '@/utils/strings'
 
 type MemberActionsProps = {
   memberId: string
@@ -46,7 +47,7 @@ const ICON_SIZE = 12
 
 export const MemberActions = ({ memberId, memberUserId, memberRole, memberName }: MemberActionsProps) => {
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
-  const { actionIcon, roleRow } = pageStyles()
+  const { roleRow } = pageStyles()
   const { mutateAsync: deleteMember } = useRemoveUserFromOrg()
   const { data: sessionData } = useSession()
   const userId = sessionData?.user.userId
@@ -127,9 +128,9 @@ export const MemberActions = ({ memberId, memberUserId, memberRole, memberName }
   return (
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
-        <div className="flex items-center justify-center border border-solid rounded-md w-8 h-8 text-brand-100 hover:bg-brand-50 cursor-pointer">
-          <MoreVertical className={actionIcon()} />
-        </div>
+        <Button variant="secondary" className="-mr-2">
+          <MoreHorizontal className="h-4 w-4 text-brand" />
+        </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
         {memberRole === OrgMembershipRole.OWNER && memberUserId === userData?.user.id ? (
@@ -203,7 +204,7 @@ export const MemberActions = ({ memberId, memberUserId, memberRole, memberName }
                                       .filter((role) => role !== OrgMembershipRole.OWNER && !role.includes('USER'))
                                       .map((role) => (
                                         <SelectItem key={role} value={role}>
-                                          {role.charAt(0) + role.slice(1).toLowerCase()}
+                                          {toHumanLabel(role)}
                                         </SelectItem>
                                       ))}
                                   </SelectContent>

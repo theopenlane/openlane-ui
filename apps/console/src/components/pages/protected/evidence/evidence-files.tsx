@@ -85,7 +85,7 @@ const EvidenceFiles: React.FC<TControlEvidenceFiles> = ({ evidenceID, editAllowe
     return [
       {
         id: 'actions',
-        header: 'Action',
+        header: '',
         cell: ({ row }: { row: Row<TFile> }) => {
           const canPreview = isPreviewableFile(row.original) && !!row.original.presignedURL
 

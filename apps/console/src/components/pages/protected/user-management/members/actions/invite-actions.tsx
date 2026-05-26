@@ -1,13 +1,14 @@
 'use client'
 
-import { MoreVertical, RotateCw, Trash2 } from 'lucide-react'
-import { pageStyles } from '../page.styles'
+import { MoreHorizontal, RotateCw, Trash2 } from 'lucide-react'
+
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { useCreateBulkInvite, useDeleteOrganizationInvite } from '@/lib/graphql-hooks/organization'
 import { useNotification } from '@/hooks/useNotification'
 import { useQueryClient } from '@tanstack/react-query'
 import { type CreateInviteInput, type InputMaybe, type InviteRole } from '@repo/codegen/src/schema'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { Button } from '@repo/ui/button'
 
 type InviteActionsProps = {
   inviteId: string
@@ -18,7 +19,6 @@ type InviteActionsProps = {
 const ICON_SIZE = 12
 
 export const InviteActions = ({ inviteId, recipient, role }: InviteActionsProps) => {
-  const { actionIcon } = pageStyles()
   const { successNotification, errorNotification } = useNotification()
   const { mutateAsync: deleteInvite } = useDeleteOrganizationInvite()
   const { mutateAsync: inviteMembers } = useCreateBulkInvite()
@@ -66,9 +66,9 @@ export const InviteActions = ({ inviteId, recipient, role }: InviteActionsProps)
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <div className="flex items-center justify-center border border-solid rounded-md w-8 h-8 py-1.5 px-2 text-brand-100">
-          <MoreVertical className={actionIcon()} />
-        </div>
+        <Button variant="secondary" className="-mr-2">
+          <MoreHorizontal className="h-4 w-4 text-brand" />
+        </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-10">
         <DropdownMenuGroup>

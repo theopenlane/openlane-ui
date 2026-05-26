@@ -31,6 +31,7 @@ import MembersTableToolbar from '@/components/pages/protected/user-management/me
 import { MEMBERS_SORT_FIELDS } from './table/table-config'
 import { whereGenerator } from '@/components/shared/table-filter/where-generator'
 import { TableKeyEnum } from '@repo/ui/table-key'
+import { toHumanLabel } from '@/utils/strings'
 
 export type ExtendedOrgMembershipWhereInput = OrgMembershipWhereInput & {
   providersIn?: UserAuthProvider[]
@@ -183,25 +184,23 @@ export const MembersTable = () => {
       header: 'Role',
       cell: ({ cell }) => {
         const role = cell.getValue() as OrgMembershipRole
-        const formattedRole = role.charAt(0).toUpperCase() + role.slice(1).toLowerCase()
         return (
           <div className="flex gap-2 items-center">
             {UserRoleIconMapper[role]}
-            {formattedRole}
+            {toHumanLabel(role)}
           </div>
         )
       },
-      size: 120,
-      maxSize: 150,
+      size: 150,
+      maxSize: 180,
     },
     {
       id: 'actions',
-      header: 'Action',
+      header: '',
       cell: ({ cell }) => {
         return <MemberActions memberName={cell.row.original.user?.displayName} memberId={cell.row.original.id} memberUserId={cell.row.original.user?.id} memberRole={cell.row.original.role} />
       },
-      size: 90,
-      maxSize: 90,
+      size: 80,
     },
   ]
 

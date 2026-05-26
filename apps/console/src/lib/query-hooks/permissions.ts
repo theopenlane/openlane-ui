@@ -1,5 +1,5 @@
 import { useNotification } from '@/hooks/useNotification'
-import { type TAccessRole, type TPermissionData } from '@/types/authz'
+import { type TAccessRole, type TPermissionData, type TScopesResponse } from '@/types/authz'
 import { useQuery } from '@tanstack/react-query'
 import { useEffect } from 'react'
 import { objectToSnakeCase } from '../../utils/strings'
@@ -68,6 +68,35 @@ export const useOrganizationRoles = () => {
       })
     }
   }, [resp.isError, errorNotification])
+  return resp
+}
+
+export const useScopes = () => {
+  const { errorNotification } = useNotification()
+
+  const resp = useQuery<TScopesResponse>({
+    queryKey: ['scopes'],
+    queryFn: async () => {
+      const res = await fetch('/api/permissions/scopes')
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}))
+        throw new Error(err.error ?? 'Failed to fetch scopes')
+      }
+
+      return res.json()
+    },
+  })
+
+  useEffect(() => {
+    if (resp.isError) {
+      errorNotification({
+        title: 'Error occurred while fetching scopes',
+        description: 'Please refresh the page',
+      })
+    }
+  }, [resp.isError, errorNotification])
+
   return resp
 }
 

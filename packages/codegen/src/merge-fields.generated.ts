@@ -165,7 +165,6 @@ export const MERGEABLE_FIELDS_BY_TYPE = {
     { name: 'internalNotes', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
     { name: 'jsonconfig', kind: 'json', list: false, nonNull: false, listItemNonNull: false },
     { name: 'name', kind: 'string', list: false, nonNull: true, listItemNonNull: false },
-    { name: 'ownerID', kind: 'id', list: false, nonNull: false, listItemNonNull: false },
     { name: 'responseDueDuration', kind: 'number', list: false, nonNull: false, listItemNonNull: false },
     { name: 'systemInternalID', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
     { name: 'tags', kind: 'string', list: true, nonNull: false, listItemNonNull: true },

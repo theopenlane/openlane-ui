@@ -84,7 +84,7 @@ export const getNdaRequestColumns = ({
   if (showActions) {
     columns.push({
       accessorKey: 'actions',
-      header: 'Action',
+      header: '',
       cell: ({ row }) => {
         const requestId = row.original.id
         const isApproving = actionLoadingId === requestId && actionLoadingType === 'approve'

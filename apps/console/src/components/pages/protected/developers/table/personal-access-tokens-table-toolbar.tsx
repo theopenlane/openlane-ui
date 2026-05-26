@@ -2,7 +2,7 @@ import { TableFilter } from '@/components/shared/table-filter/table-filter'
 import React from 'react'
 import { TOKEN_FILTER_FIELDS } from '@/components/pages/protected/developers/table/table-config.ts'
 import { type PersonalAccessTokenWhereInput } from '@repo/codegen/src/schema'
-import PersonalApiKeyDialog from '@/components/pages/protected/developers/personal-access-token-create-dialog.tsx'
+import PersonalApiKeyDialog from '@/components/pages/protected/developers/personal-access-token-crud-slideout'
 import { usePathname } from 'next/navigation'
 import { TableKeyEnum } from '@repo/ui/table-key'
 

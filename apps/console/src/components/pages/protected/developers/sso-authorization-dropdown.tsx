@@ -26,6 +26,12 @@ const SsoAuthorizationDropdown: React.FC<SsoAuthorizationDropdownProps> = ({ tok
   const [isAuthorizingSSO, setIsAuthorizingSSO] = useState<boolean>(false)
   const { errorNotification } = useNotification()
 
+  const orgsNeedingSSO = allOrgs.filter(
+    (org) => tokenAuthorizedOrganizations?.some((authOrg) => authOrg.id === org?.node?.id) && org?.node?.setting?.identityProviderLoginEnforced && !tokenSsoAuthorizations?.[org?.node?.id ?? ''],
+  )
+
+  if (orgsNeedingSSO.length === 0) return null
+
   const handleSSOAuthorize = async () => {
     try {
       setIsAuthorizingSSO(true)
