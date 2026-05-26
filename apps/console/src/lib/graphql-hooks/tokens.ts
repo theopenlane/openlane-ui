@@ -43,7 +43,7 @@ type UseGetPersonalAccessTokensArgs = {
 
 export const useGetPersonalAccessTokens = ({ where, orderBy, pagination, enabled = true }: UseGetPersonalAccessTokensArgs) => {
   const { client } = useGraphQLClient()
-  const queryResult = useQuery<GetPersonalAccessTokensQuery>({
+  return useQuery<GetPersonalAccessTokensQuery>({
     queryKey: ['personalAccessTokens', where, orderBy, pagination?.pageSize, pagination?.page],
     queryFn: async () =>
       client.request(GET_PERSONAL_ACCESS_TOKENS, {
@@ -53,11 +53,6 @@ export const useGetPersonalAccessTokens = ({ where, orderBy, pagination, enabled
       }),
     enabled,
   })
-
-  return {
-    ...queryResult,
-    isLoading: queryResult.isPending,
-  }
 }
 
 export const useCreatePersonalAccessToken = () => {
@@ -99,7 +94,7 @@ type UseGetApiTokensArgs = {
 
 export const useGetApiTokens = ({ where, orderBy, pagination, enabled = true }: UseGetApiTokensArgs) => {
   const { client } = useGraphQLClient()
-  const queryResult = useQuery<GetApiTokensQuery>({
+  return useQuery<GetApiTokensQuery>({
     queryKey: ['apiTokens', where, orderBy, pagination?.pageSize, pagination?.page],
     queryFn: async () =>
       client.request(GET_API_TOKENS, {
@@ -109,11 +104,6 @@ export const useGetApiTokens = ({ where, orderBy, pagination, enabled = true }: 
       }),
     enabled,
   })
-
-  return {
-    ...queryResult,
-    isLoading: queryResult.isPending,
-  }
 }
 
 export const useCreateAPIToken = () => {

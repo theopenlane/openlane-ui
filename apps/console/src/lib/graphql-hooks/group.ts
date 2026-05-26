@@ -70,13 +70,12 @@ export const useGetAllGroups = ({ where, orderBy, pagination, enabled = true }: 
   const paginationMeta = {
     totalCount: queryResult.data?.groups?.totalCount ?? 0,
     pageInfo: queryResult.data?.groups?.pageInfo,
-    isLoading: queryResult.isPending,
+    isLoading: queryResult.isLoading,
   }
   return {
     ...queryResult,
     groups,
     paginationMeta,
-    isLoading: queryResult.isPending,
   }
 }
 
@@ -119,14 +118,13 @@ export const useGetAllGroupsInfinite = ({ where, orderBy, pagination, enabled = 
   const paginationMeta = {
     totalCount: lastPage?.groups?.totalCount ?? 0,
     pageInfo: lastPage?.groups?.pageInfo,
-    isLoading: queryResult.isPending,
+    isLoading: queryResult.isLoading,
   }
 
   return {
     ...queryResult,
     groups,
     paginationMeta,
-    isLoading: queryResult.isPending,
   }
 }
 
