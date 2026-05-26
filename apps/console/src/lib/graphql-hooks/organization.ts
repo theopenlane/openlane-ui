@@ -104,16 +104,11 @@ type useGetInvitesProp = {
 export const useGetInvites = ({ where, orderBy, pagination, enabled = true }: useGetInvitesProp) => {
   const { client } = useGraphQLClient()
 
-  const queryResult = useQuery<GetInvitesQuery>({
+  return useQuery<GetInvitesQuery>({
     queryKey: ['invites', where, orderBy, pagination?.pageSize, pagination?.page],
     queryFn: async () => client.request(GET_INVITES, { where, orderBy, ...pagination?.query }),
     enabled,
   })
-
-  return {
-    ...queryResult,
-    isLoading: queryResult.isPending,
-  }
 }
 
 export const useGetOrganizationBilling = (organizationId: string | undefined) => {

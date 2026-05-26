@@ -83,7 +83,7 @@ export const useInternalPoliciesCount = (pagination: TPagination) => {
   return {
     ...queryResult,
     totalCount: queryResult.data?.internalPolicies?.totalCount ?? 0,
-    isLoading: queryResult.isPending,
+    isLoading: queryResult.isLoading,
   }
 }
 
@@ -106,14 +106,14 @@ export const useInternalPolicies = ({ where, orderBy, pagination, enabled }: Use
   const paginationMeta = {
     totalCount: queryResult.data?.internalPolicies?.totalCount ?? 0,
     pageInfo: queryResult.data?.internalPolicies?.pageInfo,
-    isLoading: queryResult.isPending,
+    isLoading: queryResult.isLoading,
   }
 
   return {
     ...queryResult,
     policies,
     paginationMeta,
-    isLoading: queryResult.isPending,
+    isLoading: queryResult.isLoading,
   }
 }
 

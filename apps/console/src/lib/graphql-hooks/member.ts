@@ -54,14 +54,14 @@ export const useGetOrgMemberships = ({ where, pagination, enabled, orderBy }: TU
   const paginationMeta = {
     totalCount: queryResult.data?.orgMemberships?.totalCount ?? 0,
     pageInfo: queryResult.data?.orgMemberships?.pageInfo,
-    isLoading: queryResult.isPending,
+    isLoading: queryResult.isLoading,
   }
 
   return {
     ...queryResult,
     members,
     paginationMeta,
-    isLoading: queryResult.isPending,
+    isLoading: queryResult.isLoading,
   }
 }
 
@@ -84,7 +84,7 @@ export const useGetOrgUserList = ({ where }: TUseGetOrgUserListProps) => {
   return {
     ...queryResult,
     users,
-    isLoading: queryResult.isPending,
+    isLoading: queryResult.isLoading,
   }
 }
 

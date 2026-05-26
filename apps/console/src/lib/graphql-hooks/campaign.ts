@@ -42,7 +42,7 @@ export const useCampaignsWithFilter = ({ where, orderBy, pagination, enabled = t
 
   const CampaignsNodes: CampaignsNodeNonNull[] = edges.filter((edge) => edge != null).map((edge) => edge?.node as CampaignsNodeNonNull)
 
-  return { ...queryResult, CampaignsNodes, isLoading: queryResult.isPending }
+  return { ...queryResult, CampaignsNodes }
 }
 
 export const useCreateCampaign = () => {

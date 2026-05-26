@@ -98,7 +98,6 @@ export const PersonalAccessTokenTable = () => {
     data: orgTokensResponse,
     isError: isApiTokensResponseError,
     isFetching: isFetchingApiTokens,
-    isLoading: isLoadingApiTokens,
   } = useGetApiTokens({
     where: whereFilter,
     orderBy: orderByFilter as GetApiTokensQueryVariables['orderBy'],
@@ -110,7 +109,6 @@ export const PersonalAccessTokenTable = () => {
     data: personalTokensResponse,
     isError: isPersonalTokensResponseError,
     isFetching: isFetchingPersonalAccessTokens,
-    isLoading: isLoadingPersonalAccessTokens,
   } = useGetPersonalAccessTokens({
     where: whereFilter,
     orderBy: orderByFilter as GetPersonalAccessTokensQueryVariables['orderBy'],
@@ -119,9 +117,7 @@ export const PersonalAccessTokenTable = () => {
   })
 
   const data = isApiTokenPage ? orgTokensResponse : personalTokensResponse
-  const isLoadingActive = isApiTokenPage ? isLoadingApiTokens : isLoadingPersonalAccessTokens
-  const isFetchingActive = isApiTokenPage ? isFetchingApiTokens : isFetchingPersonalAccessTokens
-  const isFetching = isLoadingActive || isFetchingActive
+  const isFetching = isFetchingApiTokens || isFetchingPersonalAccessTokens
   const isAnyError = isApiTokensResponseError || isPersonalTokensResponseError
 
   useEffect(() => {

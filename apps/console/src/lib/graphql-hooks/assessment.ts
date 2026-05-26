@@ -80,16 +80,16 @@ export const useAssessments = ({ where, orderBy, pagination, enabled = true }: U
     () => ({
       totalCount: queryResult.data?.assessments?.totalCount ?? 0,
       pageInfo: queryResult.data?.assessments?.pageInfo,
-      isLoading: queryResult.isPending,
+      isLoading: queryResult.isLoading,
     }),
-    [queryResult.data?.assessments?.totalCount, queryResult.data?.assessments?.pageInfo, queryResult.isPending],
+    [queryResult.data?.assessments?.totalCount, queryResult.data?.assessments?.pageInfo, queryResult.isLoading],
   )
 
   return {
     ...queryResult,
     assessments,
     paginationMeta,
-    isLoading: queryResult.isPending,
+    isLoading: queryResult.isLoading,
   }
 }
 
@@ -177,9 +177,9 @@ export const useGetAssessmentDetail = ({ id, where, orderBy, pagination, enabled
     () => ({
       totalCount: assessment?.assessmentResponses?.totalCount ?? 0,
       pageInfo: assessment?.assessmentResponses?.pageInfo,
-      isLoading: queryResult.isPending,
+      isLoading: queryResult.isLoading,
     }),
-    [assessment?.assessmentResponses?.totalCount, assessment?.assessmentResponses?.pageInfo, queryResult.isPending],
+    [assessment?.assessmentResponses?.totalCount, assessment?.assessmentResponses?.pageInfo, queryResult.isLoading],
   )
 
   return {
@@ -190,7 +190,7 @@ export const useGetAssessmentDetail = ({ id, where, orderBy, pagination, enabled
     totalRecipients,
     hasMoreResponses,
     completedResponses,
-    isLoading: queryResult.isPending,
+    isLoading: queryResult.isLoading,
   }
 }
 
