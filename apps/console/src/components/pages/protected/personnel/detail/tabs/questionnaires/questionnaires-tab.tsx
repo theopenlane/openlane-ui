@@ -28,6 +28,8 @@ type AssessmentResponseRow = Pick<AssessmentResponse, 'id' | 'assessmentID' | 'e
   assessment?: Pick<AssessmentResponse['assessment'], 'id' | 'name'> | null
 }
 
+type AssessmentResponseDetail = NonNullable<AssessmentResponseQuery['assessmentResponse']>
+
 const statusVariantMap: Record<AssessmentResponseAssessmentResponseStatus, 'green' | 'blue' | 'default' | 'destructive'> = {
   [AssessmentResponseAssessmentResponseStatus.COMPLETED]: 'green',
   [AssessmentResponseAssessmentResponseStatus.SENT]: 'blue',
@@ -188,8 +190,6 @@ const AssessmentsTab: React.FC<AssessmentsTabProps> = ({ personnelId, personnelE
     </div>
   )
 }
-
-type AssessmentResponseDetail = NonNullable<AssessmentResponseQuery['assessmentResponse']>
 
 const ResponseMetadata: React.FC<{ response: AssessmentResponseDetail }> = ({ response }) => (
   <div className="space-y-2">
