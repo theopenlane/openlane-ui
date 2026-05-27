@@ -66,7 +66,7 @@ export const useTasksWithFilter = ({ where, orderBy, pagination, enabled = true 
     }
   }) ?? []) as Task[]
 
-  return { ...queryResult, tasks }
+  return { ...queryResult, tasks, isLoading: queryResult.isPending }
 }
 
 export const useTasksWithFilterInfinite = ({ where, orderBy, pagination, enabled = true }: GetAllTasksArgs) => {
@@ -95,13 +95,14 @@ export const useTasksWithFilterInfinite = ({ where, orderBy, pagination, enabled
   const paginationMeta = {
     totalCount: lastPage?.tasks?.totalCount ?? 0,
     pageInfo: lastPage?.tasks?.pageInfo,
-    isLoading: queryResult.isLoading,
+    isLoading: queryResult.isPending,
   }
 
   return {
     ...queryResult,
     tasks,
     paginationMeta,
+    isLoading: queryResult.isPending,
   }
 }
 
