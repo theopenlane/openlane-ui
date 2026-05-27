@@ -17,7 +17,6 @@ This monorepo is run on [Bun](https://bun.sh/) and built using
 #### Applications
 
 - `console`: [Openlane Console](https://console.theopenlane.io/)
-- `storybook`: [Storybook Components](https://storybook.theopenlane.io/)
 
 #### Packages
 
