@@ -29,6 +29,7 @@ import {
   type UpdateTrustCenterNdaRequestMutationVariables,
   type DeleteBulkTrustCenterNdaRequestMutation,
   type DeleteBulkTrustCenterNdaRequestMutationVariables,
+  TemplateTemplateKind,
 } from '@repo/codegen/src/schema'
 import { fetchGraphQLWithUpload } from '../fetchGraphql'
 import { type TPagination } from '@repo/ui/pagination-types'
@@ -36,11 +37,15 @@ import { type TPagination } from '@repo/ui/pagination-types'
 export const useGetTrustCenterNDAFiles = (enabled = true) => {
   const { client } = useGraphQLClient()
 
+  const templateWhere = {
+    kind: TemplateTemplateKind.TRUSTCENTER_NDA,
+  }
+
   const queryResult = useQuery<GetTrustCenterNdaFilesQuery>({
     queryKey: ['trustCenterNdaFiles'],
     queryFn: () =>
       client.request<GetTrustCenterNdaFilesQuery>(GET_ALL_TRUST_CENTER_NDA_FILES, {
-        where: {},
+        where: templateWhere,
       }),
     enabled,
   })
@@ -106,16 +111,18 @@ export const useUpdateTrustCenterNdaRequest = () => {
 export const useGetNDAStats = ({ ndaApprovalRequired, enabled = true }: { ndaApprovalRequired: boolean; enabled: boolean }) => {
   const { client } = useGraphQLClient()
 
-  const thirtyDaysAgo = new Date()
-  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
-
-  const variables: GetNdaRequestCountQueryVariables = {
-    where: ndaApprovalRequired ? { status: TrustCenterNdaRequestTrustCenterNdaRequestStatus.NEEDS_APPROVAL } : { createdAtGTE: thirtyDaysAgo.toISOString() },
-  }
-
   const queryResult = useQuery<GetNdaRequestCountQuery>({
     queryKey: ['ndaRequestsCount', ndaApprovalRequired],
-    queryFn: () => client.request<GetNdaRequestCountQuery>(GET_NDA_REQUESTS_COUNT, variables),
+    queryFn: () => {
+      const thirtyDaysAgo = new Date()
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+
+      const variables: GetNdaRequestCountQueryVariables = {
+        where: ndaApprovalRequired ? { status: TrustCenterNdaRequestTrustCenterNdaRequestStatus.NEEDS_APPROVAL } : { createdAtGTE: thirtyDaysAgo.toISOString() },
+      }
+
+      return client.request<GetNdaRequestCountQuery>(GET_NDA_REQUESTS_COUNT, variables)
+    },
     enabled,
   })
 

@@ -333,8 +333,7 @@ const GraphChromeButton: React.FC<{
 }
 
 const PlatformGraph: React.FC<PlatformGraphProps> = ({ platform, inScopeAssets, outOfScopeAssets, inScopeVendors, outOfScopeVendors }) => {
-  const normalContainerRef = useRef<HTMLDivElement>(null)
-  const fullscreenContainerRef = useRef<HTMLDivElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
   const fgRef = useRef<ForceGraphMethods<FGNode, FGLink> | undefined>(undefined)
   const [dimensions, setDimensions] = useState({ width: 300, height: 300 })
   const [fullscreen, setFullscreen] = useState(false)
@@ -384,20 +383,18 @@ const PlatformGraph: React.FC<PlatformGraphProps> = ({ platform, inScopeAssets, 
     if (!stillExists) setViewLevel({ kind: 'root' })
   }, [viewLevel, inScopeAssets, outOfScopeAssets])
 
-  const activeContainerRef = fullscreen ? fullscreenContainerRef : normalContainerRef
-
   useEffect(() => {
-    const container = activeContainerRef.current
-    if (!container) return
+    if (!containerRef.current) return
     const update = () => {
-      const { width, height } = container.getBoundingClientRect()
+      if (!containerRef.current) return
+      const { width, height } = containerRef.current.getBoundingClientRect()
       if (width > 0 && height > 0) setDimensions({ width, height })
     }
     update()
     const ro = new ResizeObserver(update)
-    ro.observe(container)
+    ro.observe(containerRef.current)
     return () => ro.disconnect()
-  }, [fullscreen, activeContainerRef])
+  }, [fullscreen])
 
   useEffect(() => {
     if (!fgRef.current) return
@@ -504,35 +501,32 @@ const PlatformGraph: React.FC<PlatformGraphProps> = ({ platform, inScopeAssets, 
 
   const drilledTitle = viewLevel.kind === 'assetGroup' ? ` › ${getEnumLabel(viewLevel.assetType)}` : ''
 
-  return (
-    <>
-      <div ref={normalContainerRef} className="relative overflow-hidden rounded-b-md" style={{ height: 300 }}>
-        {renderGraph(dimensions.width, dimensions.height)}
-        {viewLevel.kind !== 'root' && backButton}
-        <GraphChromeButton position="bottom-left" onClick={() => setFullscreen(true)}>
-          <Maximize2 size={13} />
-        </GraphChromeButton>
-      </div>
-
-      {fullscreen &&
-        ReactDOM.createPortal(
-          <div className="fixed inset-0 z-10000 flex flex-col bg-background">
-            <div className="flex items-center justify-between px-4 py-3 border-b">
-              <span className="text-sm font-medium">
-                {platform.name} — Graph{drilledTitle}
-              </span>
-              <button onClick={() => setFullscreen(false)} className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-muted transition-colors">
-                <Minimize2 size={14} />
-              </button>
-            </div>
-            <div ref={fullscreenContainerRef} className="flex-1 relative">
-              {renderGraph(dimensions.width, dimensions.height)}
-              {viewLevel.kind !== 'root' && backButton}
-            </div>
-          </div>,
-          document.body,
-        )}
-    </>
+  return fullscreen ? (
+    ReactDOM.createPortal(
+      <div className="fixed inset-0 z-10000 flex flex-col bg-background">
+        <div className="flex items-center justify-between px-4 py-3 border-b">
+          <span className="text-sm font-medium">
+            {platform.name} — Graph{drilledTitle}
+          </span>
+          <button onClick={() => setFullscreen(false)} className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-muted transition-colors">
+            <Minimize2 size={14} />
+          </button>
+        </div>
+        <div ref={containerRef} className="flex-1 relative">
+          {renderGraph(dimensions.width, dimensions.height)}
+          {viewLevel.kind !== 'root' && backButton}
+        </div>
+      </div>,
+      document.body,
+    )
+  ) : (
+    <div ref={containerRef} className="relative overflow-hidden rounded-b-md" style={{ height: 300 }}>
+      {renderGraph(dimensions.width, dimensions.height)}
+      {viewLevel.kind !== 'root' && backButton}
+      <GraphChromeButton position="bottom-left" onClick={() => setFullscreen(true)}>
+        <Maximize2 size={13} />
+      </GraphChromeButton>
+    </div>
   )
 }
 

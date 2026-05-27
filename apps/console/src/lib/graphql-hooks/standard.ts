@@ -38,11 +38,16 @@ import { fetchGraphQLWithUpload } from '../fetchGraphql'
 export const useGetStandards = ({ where, enabled = true }: { where?: GetAllStandardsQueryVariables['where']; enabled?: boolean }) => {
   const { client } = useGraphQLClient()
 
-  return useQuery<GetAllStandardsQuery>({
+  const queryResult = useQuery<GetAllStandardsQuery>({
     queryKey: ['standards', where],
     queryFn: () => client.request(GET_ALL_STANDARDS, { where }),
     enabled,
   })
+
+  return {
+    ...queryResult,
+    isLoading: queryResult.isPending,
+  }
 }
 
 export const useGetStandardDetails = (standardId: string | null) => {
@@ -191,12 +196,13 @@ export const useGetAllStandardsInfinite = ({ where = {}, pagination, enabled = t
   const paginationMeta = {
     totalCount: lastPage?.standards?.totalCount ?? 0,
     pageInfo: lastPage?.standards?.pageInfo,
-    isLoading: queryResult.isLoading,
+    isLoading: queryResult.isPending,
   }
 
   return {
     ...queryResult,
     standards,
     paginationMeta,
+    isLoading: queryResult.isPending,
   }
 }

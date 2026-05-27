@@ -60,12 +60,13 @@ export default function WorkflowEditor() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const workflowId = searchParams.get('id')
+  const cloneFromId = searchParams.get('cloneFrom')
   const templateId = searchParams.get('template')
 
   const template = useMemo(() => (templateId ? getWorkflowTemplateById(templateId) : undefined), [templateId])
 
   const { objectTypes, isLoading: isLoadingMetadata } = useWorkflowMetadata()
-  const { data: definition, isLoading: isLoadingDefinition } = useWorkflowDefinition(workflowId ?? '')
+  const { data: definition, isLoading: isLoadingDefinition } = useWorkflowDefinition(workflowId ?? cloneFromId ?? '')
   const createMutation = useCreateWorkflowDefinition()
   const updateMutation = useUpdateWorkflowDefinition()
   const { successNotification, errorNotification } = useNotification()
@@ -92,24 +93,27 @@ export default function WorkflowEditor() {
 
   useEffect(() => {
     if (!definition || initialized) return
+    if (!workflowId && !cloneFromId) return
 
-    const document = parseDefinitionJSON(definition?.workflowDefinition?.definitionJSON)
+    const wd = definition.workflowDefinition
+    const document = parseDefinitionJSON(wd?.definitionJSON)
+    const isClone = !workflowId && !!cloneFromId
 
-    setName(definition.workflowDefinition?.name ?? document.name ?? '')
-    setDescription(definition.workflowDefinition?.description ?? document.description ?? '')
-    setSchemaType(definition.workflowDefinition?.schemaType ?? document.schemaType ?? '')
-    setWorkflowKind(definition.workflowDefinition?.workflowKind ?? document.workflowKind ?? WorkflowDefinitionWorkflowKind.APPROVAL)
+    setName(isClone ? `Copy of ${wd?.name ?? ''}` : (wd?.name ?? document.name ?? ''))
+    setDescription(wd?.description ?? document.description ?? '')
+    setSchemaType(wd?.schemaType ?? document.schemaType ?? '')
+    setWorkflowKind(wd?.workflowKind ?? document.workflowKind ?? WorkflowDefinitionWorkflowKind.APPROVAL)
     setApprovalTiming(normalizeApprovalTiming(document?.approvalTiming))
-    setActive(definition.workflowDefinition?.active ?? true)
-    setDraft(definition.workflowDefinition?.draft ?? false)
-    setIsDefault(definition.workflowDefinition?.isDefault ?? false)
-    setCooldownSeconds(definition.workflowDefinition?.cooldownSeconds ?? 0)
+    setActive(wd?.active ?? true)
+    setDraft(isClone ? true : (wd?.draft ?? false))
+    setIsDefault(isClone ? false : (wd?.isDefault ?? false))
+    setCooldownSeconds(wd?.cooldownSeconds ?? 0)
     setTriggers(document.triggers ?? [])
     setConditions(document.conditions ?? [])
     setActions(document.actions ?? [])
 
     setInitialized(true)
-  }, [definition, initialized])
+  }, [definition, initialized, workflowId, cloneFromId])
 
   useEffect(() => {
     if (templateId && !workflowId) {
@@ -135,10 +139,10 @@ export default function WorkflowEditor() {
   }, [workflowId, initialized, template])
 
   useEffect(() => {
-    if (!workflowId && !initialized) {
+    if (!workflowId && !cloneFromId && !initialized) {
       setInitialized(true)
     }
-  }, [workflowId, initialized])
+  }, [workflowId, cloneFromId, initialized])
 
   const isSaving = createMutation.isPending || updateMutation.isPending
   const isLoading = isLoadingMetadata || isLoadingDefinition

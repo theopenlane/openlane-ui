@@ -11,11 +11,10 @@ import { useRouter } from 'next/navigation'
 import { PolicyProcedureTabEnum } from '@/components/shared/enum-mapper/policy-procedure-tab-enum'
 import { type CreateInternalPolicyInput, InternalPolicyDocumentManagementMode } from '@repo/codegen/src/schema'
 import { Import, Trash2 } from 'lucide-react'
-import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
+import { Tabs } from '@repo/ui/tabs'
 import { RadioGroup, RadioGroupItem } from '@repo/ui/radio-group'
 import { Label } from '@repo/ui/label'
 import UploadTab from '../../../evidence/upload/upload-tab'
-import DirectLinkCreatePolicyProcedureTab from '@/components/shared/policy-procedure-shared-tabs/direct-link-create-policy-procedure-tab'
 import { COMPLIANCE_MANAGEMENT_DOCS_URL } from '@/constants/docs'
 import { Callout } from '@/components/shared/callout/callout'
 import UploadedFileDetailsCard from '@/components/shared/file-upload/uploaded-file-details-card'
@@ -46,7 +45,7 @@ const CreatePolicyUploadDialog: React.FC<TCreatePolicyUploadDialogProps> = ({ tr
   const [showTemplateBrowser, setShowTemplateBrowser] = useState(false)
 
   const [defaultTab, setDefaultTab] = useState<PolicyProcedureTabEnum>(PolicyProcedureTabEnum.Upload)
-  const [policyMdDocumentLink, setPolicyMdDocumentLink] = useState<string>('')
+  const [_policyMdDocumentLink, setPolicyMdDocumentLink] = useState<string>('')
   const [policyMdDocumentLinks, setPolicyMdDocumentLinks] = useState<string[]>([])
   const [managementMode, setManagementMode] = useState<InternalPolicyDocumentManagementMode>(InternalPolicyDocumentManagementMode.OPENLANE_MANAGED)
   const hasSingleFileOrLink = policyMdDocumentLinks.length + uploadedFiles.length === 1
@@ -182,12 +181,12 @@ const CreatePolicyUploadDialog: React.FC<TCreatePolicyUploadDialogProps> = ({ tr
     }
   }, [isOpen])
 
-  const handleAddLink = (link: string) => {
-    if (link.trim() === '') return
+  // const handleAddLink = (link: string) => {
+  //   if (link.trim() === '') return
 
-    setPolicyMdDocumentLinks((prev) => [...prev, link])
-    setPolicyMdDocumentLink('')
-  }
+  //   setPolicyMdDocumentLinks((prev) => [...prev, link])
+  //   setPolicyMdDocumentLink('')
+  // }
 
   const handleDeleteLink = (index: number) => {
     setPolicyMdDocumentLinks((prev) => prev.filter((_, i) => i !== index))
@@ -223,20 +222,20 @@ const CreatePolicyUploadDialog: React.FC<TCreatePolicyUploadDialogProps> = ({ tr
           .
         </Callout>
         <Tabs defaultValue={defaultTab} onValueChange={(val) => setDefaultTab(val as PolicyProcedureTabEnum)}>
-          <TabsList>
+          {/* <TabsList>
             <TabsTrigger className="bg-unset" value={PolicyProcedureTabEnum.Upload}>
               Upload
             </TabsTrigger>
             <TabsTrigger className="bg-unset" value={PolicyProcedureTabEnum.DirectLink}>
               Direct Link
             </TabsTrigger>
-          </TabsList>
+          </TabsList> */}
           <UploadTab
             acceptedFileTypes={['text/plain; charset=utf-8', 'text/plain', 'text/markdown', 'text/x-markdown', 'text/mdx', '.mdx', '.md', ...wordAcceptedFileTypes]}
             acceptedFileTypesShort={['TXT', 'MD', 'MDX', 'DOC', 'DOCX']}
             uploadedFile={handleUploadedFile}
           />
-          <DirectLinkCreatePolicyProcedureTab setLink={setPolicyMdDocumentLink} link={policyMdDocumentLink} onAddLink={handleAddLink} />
+          {/* <DirectLinkCreatePolicyProcedureTab setLink={setPolicyMdDocumentLink} link={policyMdDocumentLink} onAddLink={handleAddLink} /> */}
         </Tabs>
         {policyMdDocumentLinks.map((link, index) => (
           <div key={index} className="border rounded-sm p-3 mt-4 flex items-center justify-between bg-secondary">

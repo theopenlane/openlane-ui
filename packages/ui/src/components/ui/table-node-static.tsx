@@ -63,6 +63,7 @@ export function TableCellElementStatic({
       style={
         {
           '--cellBackground': element.background,
+          backgroundColor: element.background,
           maxWidth: width || 240,
           minWidth: width || 120,
         } as React.CSSProperties
