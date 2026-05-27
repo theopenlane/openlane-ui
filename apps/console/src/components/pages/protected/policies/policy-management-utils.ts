@@ -1,4 +1,4 @@
-const WORD_EXT = /^docx?$/i
+const WORD_EXT = /^\.?docx?$/i
 
 export const isWordExt = (ext: string | undefined | null): boolean => !!ext && WORD_EXT.test(ext)
 
