@@ -6,7 +6,7 @@ import { Loading } from '@/components/shared/loading/loading'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useCreateBulkTrustCenterCompliance, useDeleteBulkTrustCenterCompliance, useGetTrustCenterCompliances } from '@/lib/graphql-hooks/trust-center-compliance'
 import { Badge } from '@repo/ui/badge'
-import { useDeleteStandard, useGetAllStandardsInfinite, useStandardsSelect } from '@/lib/graphql-hooks/standard'
+import { useDeleteStandard, useGetAllStandardsInfinite, useGetRecommendedStandards, type StandardNode } from '@/lib/graphql-hooks/standard'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { Switch } from '@repo/ui/switch'
 import InfiniteScroll from '@repo/ui/infinite-scroll'
@@ -31,11 +31,13 @@ import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
 import { useOrganization } from '@/hooks/useOrganization'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
+import { useSession } from 'next-auth/react'
 
 export default function FrameworksPage() {
   const { successNotification, errorNotification } = useNotification()
   const { setCrumbs } = use(BreadcrumbContext)
   const { currentOrgId } = useOrganization()
+  const { status: sessionStatus } = useSession()
 
   const [cardPagination, setCardPagination] = useState<TPagination>(CARD_DEFAULT_PAGINATION)
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
@@ -49,43 +51,43 @@ export default function FrameworksPage() {
   const { data: tcPermission } = useAccountRoles(ObjectTypes.TRUST_CENTER, trustCenterID)
   const canEditTc = canEdit(tcPermission?.roles)
 
-  const { compliances, isLoading: compliancesLoading, isError: compliancesError, isFetched } = useGetTrustCenterCompliances()
-  const where: StandardWhereInput = {
+  const { compliances, isError: compliancesError, isFetched: compliancesFetched } = useGetTrustCenterCompliances()
+  const baseWhere: StandardWhereInput = {
     shortNameNEQ: 'OTS',
     ...(isChecked ? { hasTrustCenterCompliancesWith: [{ trustCenterID }] } : {}),
+  }
+
+  const sessionResolved = sessionStatus !== 'loading'
+
+  const { standards: recommendedStandards, isFetched: recommendedFetched } = useGetRecommendedStandards({
+    where: { ...baseWhere, hasControlsWith: [{ hasOwnerWith: [{ id: currentOrgId }] }] },
+    enabled: !!currentOrgId,
+  })
+
+  const recommendedStandardsIDs = useMemo(() => recommendedStandards.map((s) => s.id), [recommendedStandards])
+
+  const where: StandardWhereInput = {
+    ...baseWhere,
+    ...(recommendedStandardsIDs.length ? { idNotIn: recommendedStandardsIDs } : {}),
   }
 
   const {
     standards,
     isError: standardsError,
+    isFetched: standardsFetched,
     paginationMeta,
     fetchNextPage,
   } = useGetAllStandardsInfinite({
     where,
     pagination: cardPagination,
+    enabled: sessionResolved && (!currentOrgId || recommendedFetched),
   })
 
-  const loading = compliancesLoading || paginationMeta.isLoading
+  const initialLoading = !compliancesFetched || !standardsFetched
   const hasError = standardsError || compliancesError
 
   const { mutateAsync: createBulkCompliance, isPending: isCreatingBulk } = useCreateBulkTrustCenterCompliance()
   const { mutateAsync: deleteBulkCompliance, isPending: isDeletingBulk } = useDeleteBulkTrustCenterCompliance()
-
-  const { data: recommendedStandardsData } = useStandardsSelect({
-    where: {
-      hasControlsWith: [
-        {
-          hasOwnerWith: [
-            {
-              id: currentOrgId,
-            },
-          ],
-        },
-      ],
-    },
-  })
-
-  const recommendedStandardsIDs = useMemo(() => recommendedStandardsData?.standards?.edges?.map((e) => e?.node?.id), [recommendedStandardsData])
 
   const isDirty = useMemo(() => !!draftData.length, [draftData])
 
@@ -201,9 +203,87 @@ export default function FrameworksPage() {
     }
   }
 
+  const renderStandardCard = (standard: StandardNode, isRecommended: boolean) => {
+    const complianceID = complianceMap.get(standard.id)
+    const defaultIsAssociated = !!complianceID
+    const isAssociated = draftData.find((data) => data.standardID === standard.id)?.value ?? defaultIsAssociated
+
+    return (
+      <Card key={standard.id} className="transition p-6">
+        <div className="flex flex-row items-center p-0 ">
+          <div className="flex gap-3 items-center">
+            {standard.systemOwned ? (
+              <StandardsIconMapper height={32} width={32} key={standard?.id} shortName={standard?.shortName ?? ''} />
+            ) : standard.logoFile?.base64 ? (
+              <Image src={toBase64DataUri(standard.logoFile.base64)} alt="logo" width={32} height={32} />
+            ) : (
+              <div className="h-8 w-8 rounded-full bg-white/20" />
+            )}
+
+            <p className="text-base">{standard.shortName}</p>
+
+            <div className="flex gap-2 items-center">
+              {isRecommended && <Badge variant="green">Recommended</Badge>}
+
+              {!standard.systemOwned && (
+                <>
+                  <Badge variant="blue">Custom</Badge>
+                  {canEditTc && (
+                    <StandardDialog
+                      resetPagination={resetPagination}
+                      trigger={
+                        <button>
+                          <PencilIcon size={16} className="text-muted-foreground" />
+                        </button>
+                      }
+                      standard={standard}
+                    />
+                  )}
+                  {canEditTc && (
+                    <TooltipProvider>
+                      <Tooltip delayDuration={0}>
+                        <TooltipTrigger asChild>
+                          <button
+                            disabled={defaultIsAssociated}
+                            className="disabled:opacity-50 disabled:cursor-not-allowed"
+                            onClick={() => {
+                              setStandardToDelete(standard.id)
+                              setDeleteDialogOpen(true)
+                            }}
+                          >
+                            <Trash2 size={16} className="text-muted-foreground" />
+                          </button>
+                        </TooltipTrigger>
+                        {defaultIsAssociated && (
+                          <TooltipContent side="top">
+                            <p className="max-w-62.5 text-xs">You must remove this and publish the trust center before you can delete the custom framework.</p>
+                          </TooltipContent>
+                        )}
+                      </Tooltip>
+                    </TooltipProvider>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <CardContent className="flex p-0 gap-6 justify-between h-16">
+          <p className="text-sm text-muted-foreground line-clamp-3">{standard.description || 'No description provided'}</p>
+
+          <div className="flex" onClick={(e) => e.stopPropagation()}>
+            <div className="flex gap-3">
+              <Switch checked={isAssociated} onCheckedChange={(checked) => handleToggle(standard.id, checked)} />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
+
   const navGuard = useNavigationGuard({ enabled: isDirty })
 
-  if (loading && !isFetched) return <Loading />
+  if (initialLoading) return <Loading />
 
   if (hasError) {
     return (
@@ -254,85 +334,8 @@ export default function FrameworksPage() {
 
       <InfiniteScroll pageSize={10} pagination={cardPagination} onPaginationChange={handlePaginationChange} paginationMeta={paginationMeta} key="standards-card">
         <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
-          {standards.map((standard) => {
-            if (!standard) return null
-
-            const complianceID = complianceMap.get(standard.id)
-            const defaultIsAssociated = !!complianceID
-            const isAssociated = draftData.find((data) => data.standardID === standard.id)?.value ?? defaultIsAssociated
-
-            return (
-              <Card key={standard.id} className="transition p-6">
-                <div className="flex flex-row items-center p-0 ">
-                  <div className="flex gap-3 items-center">
-                    {standard.systemOwned ? (
-                      <StandardsIconMapper height={32} width={32} key={standard?.id} shortName={standard?.shortName ?? ''} />
-                    ) : standard.logoFile?.base64 ? (
-                      <Image src={toBase64DataUri(standard.logoFile.base64)} alt="logo" width={32} height={32} />
-                    ) : (
-                      <div className="h-8 w-8 rounded-full bg-white/20" />
-                    )}
-
-                    <p className="text-base">{standard.shortName}</p>
-
-                    <div className="flex gap-2 items-center">
-                      {recommendedStandardsIDs?.includes(standard.id) && <Badge variant="green">Recommended</Badge>}
-
-                      {!standard.systemOwned && (
-                        <>
-                          <Badge variant="blue">Custom</Badge>
-                          {canEditTc && (
-                            <StandardDialog
-                              resetPagination={resetPagination}
-                              trigger={
-                                <button>
-                                  <PencilIcon size={16} className="text-muted-foreground" />
-                                </button>
-                              }
-                              standard={standard}
-                            />
-                          )}
-                          {canEditTc && (
-                            <TooltipProvider>
-                              <Tooltip delayDuration={0}>
-                                <TooltipTrigger asChild>
-                                  <button
-                                    disabled={defaultIsAssociated}
-                                    className="disabled:opacity-50 disabled:cursor-not-allowed"
-                                    onClick={() => {
-                                      setStandardToDelete(standard.id)
-                                      setDeleteDialogOpen(true)
-                                    }}
-                                  >
-                                    <Trash2 size={16} className="text-muted-foreground" />
-                                  </button>
-                                </TooltipTrigger>
-                                {defaultIsAssociated && (
-                                  <TooltipContent side="top">
-                                    <p className="max-w-62.5 text-xs">You must remove this and publish the trust center before you can delete the custom framework.</p>
-                                  </TooltipContent>
-                                )}
-                              </Tooltip>
-                            </TooltipProvider>
-                          )}
-                        </>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                <CardContent className="flex p-0 gap-6 justify-between h-16">
-                  <p className="text-sm text-muted-foreground line-clamp-3">{standard.description || 'No description provided'}</p>
-
-                  <div className="flex" onClick={(e) => e.stopPropagation()}>
-                    <div className="flex gap-3">
-                      <Switch checked={isAssociated} onCheckedChange={(checked) => handleToggle(standard.id, checked)} />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )
-          })}
+          {recommendedStandards.map((standard) => renderStandardCard(standard, true))}
+          {standards.map((standard) => renderStandardCard(standard, false))}
         </div>
       </InfiniteScroll>
 
