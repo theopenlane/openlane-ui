@@ -9,6 +9,18 @@ type AssessmentResponseViewProps = {
   data: unknown
 }
 
+// [IMPORTANT] Review fix IA: shared narrowing helper so consumers count answers without an inline `unknown` cast (centralizes the typeof-guard pattern this file already uses)
+export const countAnswered = (jsonconfig: unknown, data: unknown): { answered: number; total: number } => {
+  const questions = extractQuestions(jsonconfig)
+  if (!data || typeof data !== 'object') return { answered: 0, total: questions.length }
+  const answers = data as Record<string, unknown>
+  const answered = questions.filter((q) => {
+    const value = answers[q.name]
+    return value != null && value !== ''
+  }).length
+  return { answered, total: questions.length }
+}
+
 const AssessmentResponseView: React.FC<AssessmentResponseViewProps> = ({ jsonconfig, data }) => {
   const questions = useMemo(() => extractQuestions(jsonconfig), [jsonconfig])
   const responseData = useMemo(() => {

@@ -15,8 +15,7 @@ import { PanelRightClose } from 'lucide-react'
 import { computeDueDate, formatDate } from '@/utils/date'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import CollapsibleSection from '@/components/shared/collapsible-section/collapsible-section'
-import AssessmentResponseView from '@/components/pages/protected/questionnaire/shared/assessment-response-view'
-import { extractQuestions } from '@/components/pages/protected/questionnaire/responses-tab/extract-questions'
+import AssessmentResponseView, { countAnswered } from '@/components/pages/protected/questionnaire/shared/assessment-response-view'
 import { useNotification } from '@/hooks/useNotification'
 import ResponseStateCard from './response-state-card'
 
@@ -71,29 +70,24 @@ const AssessmentsTab: React.FC<AssessmentsTabProps> = ({ personnelId, personnelE
 
   const response = responseDetail?.assessmentResponse
 
-  const { answered, total } = useMemo(() => {
-    if (!response) return { answered: 0, total: 0 }
-    const questions = extractQuestions(response.assessment?.jsonconfig)
-    const answers = (response.document?.data ?? {}) as Record<string, unknown>
-    const answeredCount = questions.filter((q) => {
-      const value = answers[q.name]
-      return value != null && value !== ''
-    }).length
-    return { answered: answeredCount, total: questions.length }
-  }, [response])
+  // [IMPORTANT] Review fix IA: delegate to shared countAnswered helper — removes the inline `unknown` cast and duplicated narrowing
+  const { answered, total } = useMemo(() => countAnswered(response?.assessment?.jsonconfig, response?.document?.data), [response])
 
   const handleResend = async () => {
     if (!response) return
     try {
       const dueDate = computeDueDate(response.assessment?.responseDueDuration)
+      // [P2] Codex fix: rows surfaced via hasIdentityHolderWith can have a null email — fall back to the personnel's email and always link the identity holder so the reminder has a recipient and stays linked
+      const recipientEmail = response.email ?? personnelEmail
       await createResponse({
         input: {
           assessmentID: response.assessmentID,
-          email: response.email,
+          identityHolderID: personnelId,
+          ...(recipientEmail && { email: recipientEmail }),
           ...(dueDate && { dueDate }),
         },
       })
-      successNotification({ title: 'Reminder sent', description: response.email ? `Resent to ${response.email}` : 'Assessment reminder resent' })
+      successNotification({ title: 'Reminder sent', description: recipientEmail ? `Resent to ${recipientEmail}` : 'Assessment reminder resent' })
     } catch {
       errorNotification({ title: 'Failed to send reminder', description: 'Could not resend the assessment' })
     }
@@ -101,6 +95,9 @@ const AssessmentsTab: React.FC<AssessmentsTabProps> = ({ personnelId, personnelE
 
   const totalCount = data?.assessmentResponses?.totalCount
   const pageInfo = data?.assessmentResponses?.pageInfo
+
+  // [IMPORTANT] Review fix IB: checked assignment replaces the unchecked `as AssessmentResponseRow[]` cast — compiler verifies the row shape instead of the assertion silently masking a mismatch
+  const rows: AssessmentResponseRow[] = AssessmentResponses
 
   const columns: ColumnDef<AssessmentResponseRow>[] = [
     {
@@ -148,7 +145,7 @@ const AssessmentsTab: React.FC<AssessmentsTabProps> = ({ personnelId, personnelE
         sortFields={SORT_FIELDS}
         defaultSorting={defaultSorting}
         onSortChange={setOrderBy}
-        data={AssessmentResponses as AssessmentResponseRow[]}
+        data={rows}
         loading={isLoading}
         pagination={pagination}
         onPaginationChange={setPagination}

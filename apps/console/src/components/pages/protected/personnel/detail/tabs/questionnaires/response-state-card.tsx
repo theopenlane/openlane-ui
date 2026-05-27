@@ -14,11 +14,14 @@ type ResponseStateCardProps = {
   isResending: boolean
 }
 
+// [MINOR] Review fix M1: named constant replaces the raw ms-per-day literal
+const MS_PER_DAY = 1000 * 60 * 60 * 24
+
 const daysPastDue = (dueDate?: string | null): number | null => {
   if (!dueDate) return null
   const diff = Date.now() - new Date(dueDate).getTime()
   if (diff <= 0) return null
-  return Math.floor(diff / 86_400_000)
+  return Math.floor(diff / MS_PER_DAY)
 }
 
 const ResponseStateCard: React.FC<ResponseStateCardProps> = ({ status, answered, total, dueDate, onResend, isResending }) => {
@@ -29,8 +32,9 @@ const ResponseStateCard: React.FC<ResponseStateCardProps> = ({ status, answered,
 
   return (
     <div className="space-y-4">
+      {/* [MINOR] Review fix M2: semantic destructive tokens instead of hardcoded red-* utilities, matching the Badge destructive variant */}
       {isOverdue && pastDue !== null && (
-        <div className="rounded-md border border-red-700/40 bg-red-700/10 px-4 py-3 text-sm text-red-500">
+        <div className="rounded-md border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
           Due date passed {pastDue} {pastDue === 1 ? 'day' : 'days'} ago
         </div>
       )}
