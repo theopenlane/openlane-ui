@@ -206,3 +206,41 @@ export const useGetAllStandardsInfinite = ({ where = {}, pagination, enabled = t
     isLoading: queryResult.isPending,
   }
 }
+
+export const useGetRecommendedStandards = ({ where = {}, enabled = true }: { where?: StandardWhereInput; enabled?: boolean }) => {
+  const { client } = useGraphQLClient()
+
+  const queryResult = useQuery<StandardNode[]>({
+    queryKey: ['standards', 'recommended', where],
+    queryFn: async () => {
+      const nodes: StandardNode[] = []
+      let after: string | undefined = undefined
+
+      do {
+        const page: GetStandardsPaginatedQuery = await client.request<GetStandardsPaginatedQuery, GetStandardsPaginatedQueryVariables>(GET_STANDARDS_PAGINATED, {
+          where,
+          first: 100,
+          after,
+          orderBy: [{ field: StandardOrderField.short_name, direction: OrderDirection.ASC }],
+        })
+
+        nodes.push(...(page.standards?.edges?.map((edge) => edge?.node).filter((node): node is StandardNode => !!node) ?? []))
+
+        const pageInfo = page.standards?.pageInfo
+        after = pageInfo?.hasNextPage ? (pageInfo.endCursor ?? undefined) : undefined
+      } while (after)
+
+      return nodes
+    },
+    enabled,
+    staleTime: Infinity,
+  })
+
+  const standards: StandardNode[] = queryResult.data ?? []
+
+  return {
+    ...queryResult,
+    standards,
+    isLoading: queryResult.isPending,
+  }
+}
