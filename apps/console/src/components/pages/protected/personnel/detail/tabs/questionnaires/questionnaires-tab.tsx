@@ -70,14 +70,12 @@ const AssessmentsTab: React.FC<AssessmentsTabProps> = ({ personnelId, personnelE
 
   const response = responseDetail?.assessmentResponse
 
-  // [IMPORTANT] Review fix IA: delegate to shared countAnswered helper — removes the inline `unknown` cast and duplicated narrowing
   const { answered, total } = useMemo(() => countAnswered(response?.assessment?.jsonconfig, response?.document?.data), [response])
 
   const handleResend = async () => {
     if (!response) return
     try {
       const dueDate = computeDueDate(response.assessment?.responseDueDuration)
-      // [P2] Codex fix: rows surfaced via hasIdentityHolderWith can have a null email — fall back to the personnel's email and always link the identity holder so the reminder has a recipient and stays linked
       const recipientEmail = response.email ?? personnelEmail
       await createResponse({
         input: {
@@ -96,7 +94,6 @@ const AssessmentsTab: React.FC<AssessmentsTabProps> = ({ personnelId, personnelE
   const totalCount = data?.assessmentResponses?.totalCount
   const pageInfo = data?.assessmentResponses?.pageInfo
 
-  // [IMPORTANT] Review fix IB: checked assignment replaces the unchecked `as AssessmentResponseRow[]` cast — compiler verifies the row shape instead of the assertion silently masking a mismatch
   const rows: AssessmentResponseRow[] = AssessmentResponses
 
   const columns: ColumnDef<AssessmentResponseRow>[] = [

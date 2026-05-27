@@ -31,7 +31,6 @@ const ResponseStateCard: React.FC<ResponseStateCardProps> = ({ status, answered,
 
   return (
     <div className="space-y-4">
-      {/* [MINOR] Review fix M2: semantic destructive tokens instead of hardcoded red-* utilities, matching the Badge destructive variant */}
       {isOverdue && pastDue !== null && (
         <div className="rounded-md border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
           Due date passed {pastDue} {pastDue === 1 ? 'day' : 'days'} ago

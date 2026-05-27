@@ -9,7 +9,6 @@ type AssessmentResponseViewProps = {
   data: unknown
 }
 
-// [IMPORTANT] Review fix IA: shared narrowing helper so consumers count answers without an inline `unknown` cast (centralizes the typeof-guard pattern this file already uses)
 export const countAnswered = (jsonconfig: unknown, data: unknown): { answered: number; total: number } => {
   const questions = extractQuestions(jsonconfig)
   if (!data || typeof data !== 'object') return { answered: 0, total: questions.length }
