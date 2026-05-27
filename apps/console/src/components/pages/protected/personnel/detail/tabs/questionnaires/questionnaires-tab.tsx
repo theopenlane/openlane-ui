@@ -1,46 +1,48 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { type ColumnDef, type VisibilityState } from '@tanstack/react-table'
 import { DataTable, getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
 import { type TPagination } from '@repo/ui/pagination-types'
 import { TableKeyEnum } from '@repo/ui/table-key'
-import { type AssessmentResponse, AssessmentResponseOrderField, OrderDirection } from '@repo/codegen/src/schema'
-import { useAssessmentResponsesWithFilter, useAssessmentResponse } from '@/lib/graphql-hooks/assessment-response'
+import { type AssessmentResponse, type AssessmentResponseQuery, AssessmentResponseAssessmentResponseStatus, AssessmentResponseOrderField, OrderDirection } from '@repo/codegen/src/schema'
+import { useAssessmentResponsesWithFilter, useAssessmentResponse, useCreateAssessmentResponse } from '@/lib/graphql-hooks/assessment-response'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { Badge } from '@repo/ui/badge'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { PanelRightClose } from 'lucide-react'
-import { formatDate } from '@/utils/date'
+import { computeDueDate, formatDate } from '@/utils/date'
+import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
+import CollapsibleSection from '@/components/shared/collapsible-section/collapsible-section'
+import AssessmentResponseView, { countAnswered } from '@/components/pages/protected/questionnaire/shared/assessment-response-view'
+import { useNotification } from '@/hooks/useNotification'
+import ResponseStateCard from './response-state-card'
 
 interface AssessmentsTabProps {
   personnelId: string
   personnelEmail: string
 }
 
-type AssessmentResponseRow = Pick<AssessmentResponse, 'id' | 'assessmentID' | 'email' | 'assignedAt' | 'dueDate' | 'completedAt' | 'createdAt' | 'isDraft' | 'startedAt'>
-
-const getStatusBadge = (row: AssessmentResponseRow) => {
-  if (row.completedAt) {
-    return (
-      <Badge variant="green" className="shrink-0">
-        Completed
-      </Badge>
-    )
-  }
-  if (row.isDraft) {
-    return <Badge variant="outline">Draft</Badge>
-  }
-  if (row.startedAt) {
-    return (
-      <Badge variant="blue" className="shrink-0">
-        In Progress
-      </Badge>
-    )
-  }
-  return <Badge variant="outline">Pending</Badge>
+type AssessmentResponseRow = Pick<AssessmentResponse, 'id' | 'assessmentID' | 'email' | 'assignedAt' | 'dueDate' | 'completedAt' | 'status'> & {
+  assessment?: Pick<AssessmentResponse['assessment'], 'id' | 'name'> | null
 }
+
+type AssessmentResponseDetail = NonNullable<AssessmentResponseQuery['assessmentResponse']>
+
+const statusVariantMap: Record<AssessmentResponseAssessmentResponseStatus, 'green' | 'blue' | 'default' | 'destructive'> = {
+  [AssessmentResponseAssessmentResponseStatus.COMPLETED]: 'green',
+  [AssessmentResponseAssessmentResponseStatus.SENT]: 'blue',
+  [AssessmentResponseAssessmentResponseStatus.OVERDUE]: 'destructive',
+  [AssessmentResponseAssessmentResponseStatus.NOT_STARTED]: 'default',
+  [AssessmentResponseAssessmentResponseStatus.DRAFT]: 'default',
+}
+
+const StatusBadge: React.FC<{ status: AssessmentResponseAssessmentResponseStatus }> = ({ status }) => (
+  <Badge variant={statusVariantMap[status] || 'default'} className="shrink-0">
+    {getEnumLabel(status)}
+  </Badge>
+)
 
 const SORT_FIELDS = [{ label: 'Created At', key: AssessmentResponseOrderField.created_at }]
 
@@ -55,6 +57,7 @@ const AssessmentsTab: React.FC<AssessmentsTabProps> = ({ personnelId, personnelE
   const [orderBy, setOrderBy] = useState(defaultSorting)
   const columnVisibility: VisibilityState = {}
   const [selectedResponseId, setSelectedResponseId] = useState<string | null>(null)
+  const { successNotification, errorNotification } = useNotification()
 
   const { data, isLoading, AssessmentResponses } = useAssessmentResponsesWithFilter({
     where: {
@@ -65,16 +68,42 @@ const AssessmentsTab: React.FC<AssessmentsTabProps> = ({ personnelId, personnelE
   })
 
   const { data: responseDetail, isLoading: isDetailLoading } = useAssessmentResponse(selectedResponseId ?? undefined)
+  const { mutateAsync: createResponse, isPending: isResending } = useCreateAssessmentResponse()
+
+  const response = responseDetail?.assessmentResponse
+
+  const { answered, total } = useMemo(() => countAnswered(response?.assessment?.jsonconfig, response?.document?.data), [response])
+
+  const handleResend = async () => {
+    if (!response) return
+    try {
+      const dueDate = computeDueDate(response.assessment?.responseDueDuration)
+      const recipientEmail = response.email ?? personnelEmail
+      await createResponse({
+        input: {
+          assessmentID: response.assessmentID,
+          identityHolderID: personnelId,
+          ...(recipientEmail && { email: recipientEmail }),
+          ...(dueDate && { dueDate }),
+        },
+      })
+      successNotification({ title: 'Reminder sent', description: recipientEmail ? `Resent to ${recipientEmail}` : 'Assessment reminder resent' })
+    } catch {
+      errorNotification({ title: 'Failed to send reminder', description: 'Could not resend the assessment' })
+    }
+  }
 
   const totalCount = data?.assessmentResponses?.totalCount
   const pageInfo = data?.assessmentResponses?.pageInfo
 
+  const rows: AssessmentResponseRow[] = AssessmentResponses
+
   const columns: ColumnDef<AssessmentResponseRow>[] = [
     {
-      accessorKey: 'assessmentID',
-      header: 'Assessment ID',
-      size: 200,
-      cell: ({ row }) => <span className="block truncate font-mono text-xs">{row.original.assessmentID}</span>,
+      id: 'assessment',
+      header: 'Assessment',
+      size: 240,
+      cell: ({ row }) => <span className="block truncate">{row.original.assessment?.name ?? '-'}</span>,
     },
     {
       accessorKey: 'email',
@@ -104,7 +133,7 @@ const AssessmentsTab: React.FC<AssessmentsTabProps> = ({ personnelId, personnelE
       id: 'status',
       header: 'Status',
       size: 120,
-      cell: ({ row }) => getStatusBadge(row.original),
+      cell: ({ row }) => <StatusBadge status={row.original.status} />,
     },
   ]
 
@@ -115,7 +144,7 @@ const AssessmentsTab: React.FC<AssessmentsTabProps> = ({ personnelId, personnelE
         sortFields={SORT_FIELDS}
         defaultSorting={defaultSorting}
         onSortChange={setOrderBy}
-        data={AssessmentResponses as AssessmentResponseRow[]}
+        data={rows}
         loading={isLoading}
         pagination={pagination}
         onPaginationChange={setPagination}
@@ -137,28 +166,21 @@ const AssessmentsTab: React.FC<AssessmentsTabProps> = ({ personnelId, personnelE
 
           {isDetailLoading ? (
             <div className="p-4 text-muted-foreground">Loading...</div>
-          ) : responseDetail?.assessmentResponse ? (
+          ) : response ? (
             <div className="space-y-4 p-4">
-              <DetailRow label="Assessment ID" value={responseDetail.assessmentResponse.assessmentID} />
-              <DetailRow label="Email" value={responseDetail.assessmentResponse.email} />
-              <DetailRow
-                label="Status"
-                value={
-                  responseDetail.assessmentResponse.completedAt
-                    ? 'Completed'
-                    : responseDetail.assessmentResponse.isDraft
-                      ? 'Draft'
-                      : responseDetail.assessmentResponse.startedAt
-                        ? 'In Progress'
-                        : 'Pending'
-                }
-              />
-              <DetailRow label="Assigned At" value={formatDate(responseDetail.assessmentResponse.assignedAt)} />
-              <DetailRow label="Started At" value={formatDate(responseDetail.assessmentResponse.startedAt)} />
-              <DetailRow label="Completed At" value={formatDate(responseDetail.assessmentResponse.completedAt)} />
-              <DetailRow label="Due Date" value={formatDate(responseDetail.assessmentResponse.dueDate)} />
-              <DetailRow label="Created At" value={formatDate(responseDetail.assessmentResponse.createdAt)} />
-              <DetailRow label="Updated At" value={formatDate(responseDetail.assessmentResponse.updatedAt)} />
+              {response.status === AssessmentResponseAssessmentResponseStatus.COMPLETED ? (
+                <>
+                  <AssessmentResponseView jsonconfig={response.assessment?.jsonconfig} data={response.document?.data} />
+                  <CollapsibleSection label="Metadata" defaultOpen={false}>
+                    <ResponseMetadata response={response} />
+                  </CollapsibleSection>
+                </>
+              ) : (
+                <>
+                  <ResponseMetadata response={response} />
+                  <ResponseStateCard status={response.status} answered={answered} total={total} dueDate={response.dueDate} onResend={handleResend} isResending={isResending} />
+                </>
+              )}
             </div>
           ) : (
             <div className="p-4 text-muted-foreground">No data available</div>
@@ -168,6 +190,20 @@ const AssessmentsTab: React.FC<AssessmentsTabProps> = ({ personnelId, personnelE
     </div>
   )
 }
+
+const ResponseMetadata: React.FC<{ response: AssessmentResponseDetail }> = ({ response }) => (
+  <div className="space-y-2">
+    <DetailRow label="Assessment" value={response.assessment?.name} />
+    <DetailRow label="Email" value={response.email} />
+    <DetailRow label="Status" value={getEnumLabel(response.status)} />
+    <DetailRow label="Assigned At" value={formatDate(response.assignedAt)} />
+    <DetailRow label="Started At" value={formatDate(response.startedAt)} />
+    <DetailRow label="Completed At" value={formatDate(response.completedAt)} />
+    <DetailRow label="Due Date" value={formatDate(response.dueDate)} />
+    <DetailRow label="Created At" value={formatDate(response.createdAt)} />
+    <DetailRow label="Updated At" value={formatDate(response.updatedAt)} />
+  </div>
+)
 
 const DetailRow: React.FC<{ label: string; value?: string | null }> = ({ label, value }) => (
   <div className="flex items-center justify-between border-b border-border pb-2">
