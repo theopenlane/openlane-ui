@@ -14,7 +14,6 @@ type ResponseStateCardProps = {
   isResending: boolean
 }
 
-// [MINOR] Review fix M1: named constant replaces the raw ms-per-day literal
 const MS_PER_DAY = 1000 * 60 * 60 * 24
 
 const daysPastDue = (dueDate?: string | null): number | null => {
