@@ -21,3 +21,9 @@ export function whereGenerator<TWhereInput extends object>(filters: TWhereInput 
 
   return conditions
 }
+
+export const whereContainsKey = <T extends { and?: T[] | null; or?: T[] | null }>(where: T | null | undefined, key: keyof T & string): boolean => {
+  if (!where) return false
+  if (key in where) return true
+  return (where.and ?? []).some((c) => whereContainsKey(c, key)) || (where.or ?? []).some((c) => whereContainsKey(c, key))
+}

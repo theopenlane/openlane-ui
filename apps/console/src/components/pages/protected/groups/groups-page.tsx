@@ -1,5 +1,5 @@
 'use client'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { PageHeading } from '@repo/ui/page-heading'
 import GroupsTable from '@/components/pages/protected/groups/components/groups-table'
 import { PlusCircle, SearchIcon } from 'lucide-react'
@@ -22,7 +22,7 @@ import TableCardView from '@/components/shared/table-card-view/table-card-view'
 import { canCreate } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
-import { whereGenerator } from '@/components/shared/table-filter/where-generator'
+import { whereGenerator, whereContainsKey } from '@/components/shared/table-filter/where-generator'
 import { type TQuickFilter } from '@/components/shared/table-filter/table-filter-helper'
 import { type TFilterState } from '@/components/shared/table-filter/filter-storage'
 import { useGroupsFilters } from './table/table-config'
@@ -89,18 +89,6 @@ const GroupsPage = () => {
     ]
   }, [session?.user?.userId])
 
-  const containsIsManaged = useCallback((cond: GroupWhereInput): boolean => {
-    const check = (c: GroupWhereInput): boolean => {
-      if (!c || typeof c !== 'object') return false
-      if ('isManaged' in c) return true
-      if (c.and?.some(check)) return true
-      if (c.or?.some(check)) return true
-      return false
-    }
-
-    return check(cond)
-  }, [])
-
   const whereFilter = useMemo(() => {
     const searchClause: GroupWhereInput[] = debouncedSearchQuery ? [{ or: [{ nameContainsFold: debouncedSearchQuery }, { displayNameContainsFold: debouncedSearchQuery }] }] : []
 
@@ -125,7 +113,7 @@ const GroupsPage = () => {
       .flatMap((x) => x.hasMembersWith ?? [])
       .map((m) => m.userID)
       .find((id) => id !== undefined)
-    const hasIsManagedFilter = containsIsManaged(baseWhere)
+    const hasIsManagedFilter = whereContainsKey(baseWhere, 'isManaged')
     if (includeSystemManaged) {
       if (extractedUserId) {
         return {
@@ -154,7 +142,7 @@ const GroupsPage = () => {
     }
 
     return conditions
-  }, [whereFilters, debouncedSearchQuery, containsIsManaged, session?.user?.userId])
+  }, [whereFilters, debouncedSearchQuery, session?.user?.userId])
 
   const orderByFilter = useMemo(() => {
     return orderBy || undefined

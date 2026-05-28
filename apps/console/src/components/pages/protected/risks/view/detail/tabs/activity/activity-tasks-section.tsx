@@ -8,7 +8,7 @@ import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { useDocumentationTasks } from '@/lib/graphql-hooks/documentation'
 import type { TaskOrder, TaskWhereInput } from '@repo/codegen/src/schema'
 import { OrderDirection, TaskOrderField, TaskTaskStatus } from '@repo/codegen/src/schema'
-import { whereGenerator } from '@/components/shared/table-filter/where-generator'
+import { whereGenerator, whereContainsKey } from '@/components/shared/table-filter/where-generator'
 import { mergeWhere, SearchFilterBar } from '@/components/shared/crud-base/tabs/shared'
 import type { TPagination } from '@repo/ui/pagination-types'
 import type { FilterField, WhereCondition } from '@/types'
@@ -79,7 +79,7 @@ const ActivityTasksSection: React.FC<ActivityTasksSectionProps> = ({ riskId }) =
       return { [key]: value } as TaskWhereInput
     })
 
-    const statusInSet = 'statusIn' in result
+    const statusInSet = whereContainsKey(result, 'statusIn')
 
     const withDefaults = {
       ...base,
