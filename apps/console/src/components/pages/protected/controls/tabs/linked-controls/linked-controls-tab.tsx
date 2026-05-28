@@ -59,8 +59,46 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcon
   })
 
   const mappedControls = useMemo<MappedControlRow[]>(() => {
-    const rows: MappedControlRow[] = []
-    const seen = new Set<string>()
+    const rowsByCode = new Map<string, MappedControlRow>()
+
+    const mergeSatisfiesTargets = (existing: SatisfiesTarget[] | undefined, incoming: SatisfiesTarget[] | undefined): SatisfiesTarget[] | undefined => {
+      if (!existing && !incoming) return undefined
+      const merged = existing ? [...existing] : []
+      const seenKeys = new Set(merged.map((t) => `${t.level}:${t.id}`))
+      ;(incoming ?? []).forEach((t) => {
+        const key = `${t.level}:${t.id}`
+        if (seenKeys.has(key)) return
+        seenKeys.add(key)
+        merged.push(t)
+      })
+      return merged.length > 0 ? merged : undefined
+    }
+
+    const mergeInherited = (existing: Array<{ id: string; refCode: string }> | undefined, incoming: Array<{ id: string; refCode: string }> | undefined) => {
+      if (!existing && !incoming) return undefined
+      const merged = existing ? [...existing] : []
+      const seenIds = new Set(merged.map((s) => s.id))
+      ;(incoming ?? []).forEach((s) => {
+        if (seenIds.has(s.id)) return
+        seenIds.add(s.id)
+        merged.push(s)
+      })
+      return merged.length > 0 ? merged : undefined
+    }
+
+    const upsertRow = (key: string, candidate: MappedControlRow) => {
+      const existing = rowsByCode.get(key)
+      if (!existing) {
+        rowsByCode.set(key, candidate)
+        return
+      }
+      existing.satisfiesTargets = mergeSatisfiesTargets(existing.satisfiesTargets, candidate.satisfiesTargets)
+      existing.inheritedFromSubcontrols = mergeInherited(existing.inheritedFromSubcontrols, candidate.inheritedFromSubcontrols)
+      if (existing.isSystemOwnedMapping && !candidate.isSystemOwnedMapping) {
+        existing.mappedControlId = candidate.mappedControlId
+        existing.isSystemOwnedMapping = false
+      }
+    }
 
     const edges = mappedControlsData?.mappedControls?.edges ?? []
     edges.forEach((edge) => {
@@ -84,9 +122,7 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcon
       controls.forEach((control) => {
         if (!control?.id || !control?.refCode) return
         if (!isSubcontrolMode && (control.id === controlId || control.refCode === refCode)) return
-        const key = `Control-${control.refCode}-${control.referenceFramework ?? 'CUSTOM'}-${node.mappingType}-${mappingSource}-${node.relation ?? ''}`
-        if (seen.has(key)) return
-        seen.add(key)
+        const dedupeKey = `Control-${control.refCode}-${control.referenceFramework ?? 'CUSTOM'}`
 
         const isCustomControl = !control.referenceFramework || control.referenceFramework === 'CUSTOM'
         let satisfiesTargets: SatisfiesTarget[] | undefined
@@ -110,8 +146,8 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcon
           }
         }
 
-        rows.push({
-          id: key,
+        upsertRow(dedupeKey, {
+          id: dedupeKey,
           mappedControlId: node.id,
           targetId: control.id,
           isSystemOwnedMapping: node.systemOwned ?? false,
@@ -129,11 +165,9 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcon
       subcontrols.forEach((subcontrol) => {
         if (!subcontrol?.id || !subcontrol?.refCode) return
         if (isSubcontrolMode && (subcontrol.id === subcontrolId || subcontrol.refCode === refCode)) return
-        const key = `Subcontrol-${subcontrol.refCode}-${subcontrol.referenceFramework ?? 'CUSTOM'}-${node.mappingType}-${mappingSource}-${node.relation ?? ''}`
-        if (seen.has(key)) return
-        seen.add(key)
-        rows.push({
-          id: key,
+        const dedupeKey = `Subcontrol-${subcontrol.refCode}-${subcontrol.referenceFramework ?? 'CUSTOM'}`
+        upsertRow(dedupeKey, {
+          id: dedupeKey,
           mappedControlId: node.id,
           targetId: subcontrol.id,
           isSystemOwnedMapping: node.systemOwned ?? false,
@@ -147,7 +181,7 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcon
       })
     })
 
-    return rows
+    return Array.from(rowsByCode.values())
   }, [mappedControlsData, controlId, subcontrolId, refCode, isSubcontrolMode, parentControlId, sourceFramework])
 
   const { convertToReadOnly } = usePlateEditor()
