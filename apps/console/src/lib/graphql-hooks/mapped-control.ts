@@ -220,7 +220,17 @@ const addOrgControlToCoverage = (map: Map<string, OrgCoverageData & { seenIds: S
   }
 }
 
-const buildCoverageMap = (data: CoverageMappedControlResponse, frameworkControlIdSet: Set<string>): Map<string, OrgCoverageData> => {
+type CoverageRow = { id: string; refCode: string; referenceFramework?: string | null }
+
+const buildCoverageMap = (data: CoverageMappedControlResponse, rows: CoverageRow[]): Map<string, OrgCoverageData> => {
+  const idToRowId = new Map<string, string>()
+  const refKeyToRowId = new Map<string, string>()
+  for (const row of rows) {
+    idToRowId.set(row.id, row.id)
+    if (row.referenceFramework) refKeyToRowId.set(`${row.referenceFramework}|${row.refCode}`, row.id)
+  }
+  const resolveRowId = (fc: CoverageControlNode): string | undefined => idToRowId.get(fc.id) ?? (fc.referenceFramework ? refKeyToRowId.get(`${fc.referenceFramework}|${fc.refCode}`) : undefined)
+
   const raw = new Map<string, OrgCoverageData & { seenIds: Set<string> }>()
 
   for (const edge of data.mappedControls.edges ?? []) {
@@ -233,30 +243,34 @@ const buildCoverageMap = (data: CoverageMappedControlResponse, frameworkControlI
     const toSubcontrols = (node.toSubcontrols.edges ?? []).map((e) => e?.node).filter((n): n is CoverageSubcontrolNode => !!n)
 
     for (const fc of fromControls) {
-      if (!frameworkControlIdSet.has(fc.id)) continue
+      const rowId = resolveRowId(fc)
+      if (!rowId) continue
       for (const oc of [...toControls, ...toSubcontrols]) {
-        if (isOrgControl(oc)) addOrgControlToCoverage(raw, fc.id, oc)
+        if (isOrgControl(oc)) addOrgControlToCoverage(raw, rowId, oc)
       }
     }
 
     for (const fc of toControls) {
-      if (!frameworkControlIdSet.has(fc.id)) continue
+      const rowId = resolveRowId(fc)
+      if (!rowId) continue
       for (const oc of [...fromControls, ...fromSubcontrols]) {
-        if (isOrgControl(oc)) addOrgControlToCoverage(raw, fc.id, oc)
+        if (isOrgControl(oc)) addOrgControlToCoverage(raw, rowId, oc)
       }
     }
 
     for (const fsc of fromSubcontrols) {
-      if (!frameworkControlIdSet.has(fsc.controlID)) continue
+      const rowId = idToRowId.get(fsc.controlID)
+      if (!rowId) continue
       for (const oc of [...toControls, ...toSubcontrols]) {
-        if (isOrgControl(oc)) addOrgControlToCoverage(raw, fsc.controlID, oc)
+        if (isOrgControl(oc)) addOrgControlToCoverage(raw, rowId, oc)
       }
     }
 
     for (const fsc of toSubcontrols) {
-      if (!frameworkControlIdSet.has(fsc.controlID)) continue
+      const rowId = idToRowId.get(fsc.controlID)
+      if (!rowId) continue
       for (const oc of [...fromControls, ...fromSubcontrols]) {
-        if (isOrgControl(oc)) addOrgControlToCoverage(raw, fsc.controlID, oc)
+        if (isOrgControl(oc)) addOrgControlToCoverage(raw, rowId, oc)
       }
     }
   }
@@ -268,36 +282,41 @@ const buildCoverageMap = (data: CoverageMappedControlResponse, frameworkControlI
   return result
 }
 
-export const useOrgCoverageMap = (controlIds: string[]): Map<string, OrgCoverageData> => {
+export const useOrgCoverageMap = (rows: CoverageRow[]): Map<string, OrgCoverageData> => {
   const { client } = useGraphQLClient()
 
+  const controlIds = rows.map((r) => r.id)
   const controlIdsKey = controlIds.join(',')
 
-  const where = useMemo(
-    () =>
-      controlIds.length === 0
-        ? undefined
-        : {
-            or: [
-              { hasFromControlsWith: [{ idIn: controlIds }] },
-              { hasToControlsWith: [{ idIn: controlIds }] },
-              { hasFromSubcontrolsWith: [{ controlIDIn: controlIds }] },
-              { hasToSubcontrolsWith: [{ controlIDIn: controlIds }] },
-            ],
-          },
+  const where = useMemo<MappedControlWhereInput | undefined>(() => {
+    if (rows.length === 0) return undefined
+    const refCodes = rows.map((r) => r.refCode)
+    const framework = rows.find((r) => r.referenceFramework)?.referenceFramework ?? null
+    const or: MappedControlWhereInput[] = [
+      { hasFromControlsWith: [{ idIn: controlIds }] },
+      { hasToControlsWith: [{ idIn: controlIds }] },
+      { hasFromSubcontrolsWith: [{ controlIDIn: controlIds }] },
+      { hasToSubcontrolsWith: [{ controlIDIn: controlIds }] },
+    ]
+    if (framework) {
+      or.push(
+        { and: [{ source: MappedControlMappingSource.SUGGESTED }, { hasFromControlsWith: [{ refCodeIn: refCodes, referenceFramework: framework }] }] },
+        { and: [{ source: MappedControlMappingSource.SUGGESTED }, { hasToControlsWith: [{ refCodeIn: refCodes, referenceFramework: framework }] }] },
+      )
+    }
+    return { or }
     // eslint-disable-next-line react-hooks/exhaustive-deps, @eslint-react/exhaustive-deps
-    [controlIdsKey],
-  )
+  }, [controlIdsKey])
 
   const { data } = useQuery<CoverageMappedControlResponse>({
     queryKey: ['mappedControls', 'coverage', controlIdsKey],
     queryFn: () => client.request<CoverageMappedControlResponse>(GET_MAPPED_CONTROLS_FOR_COVERAGE, { where }),
-    enabled: controlIds.length > 0,
+    enabled: rows.length > 0,
   })
 
   return useMemo(() => {
     if (!data) return new Map()
-    return buildCoverageMap(data, new Set(controlIds))
+    return buildCoverageMap(data, rows)
     // eslint-disable-next-line react-hooks/exhaustive-deps, @eslint-react/exhaustive-deps
   }, [data, controlIdsKey])
 }
