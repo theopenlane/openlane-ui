@@ -12,6 +12,8 @@ import { Search, Loader2, Link2 } from 'lucide-react'
 import { Input } from '@repo/ui/input'
 import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import { toast } from 'sonner'
+import usePlateEditor from '@/components/shared/plate/usePlateEditor'
+import { TruncatedCell } from '@repo/ui/data-table'
 
 type Props = {
   controlId?: string
@@ -34,6 +36,7 @@ export const QuickMapControlDialog: React.FC<Props> = ({ controlId, subcontrolId
   const [search, setSearch] = useState('')
   const debouncedSearch = useDebounce(search, 250)
   const { mutateAsync: createMappedControl, isPending } = useCreateMappedControl()
+  const { convertToReadOnly } = usePlateEditor()
 
   const suggestedWhere = useMemo(
     () => ({
@@ -167,7 +170,9 @@ export const QuickMapControlDialog: React.FC<Props> = ({ controlId, subcontrolId
                   <Checkbox checked={selected.has(ctrl.id)} onCheckedChange={() => toggle(ctrl.id)} className="mt-0.5 shrink-0" />
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-medium leading-tight">{ctrl.refCode}</p>
-                    {ctrl.description && <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{ctrl.description}</p>}
+                    {ctrl.description && (
+                      <TruncatedCell className="text-xs text-muted-foreground mt-0.5 line-clamp-2 text-justify whitespace-normal">{convertToReadOnly(ctrl.description, 0)}</TruncatedCell>
+                    )}
                   </div>
                   {ctrl.status && <span className="shrink-0 text-xs text-muted-foreground">{getEnumLabel(ctrl.status)}</span>}
                 </label>
