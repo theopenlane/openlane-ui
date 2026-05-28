@@ -94,7 +94,6 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcon
       const controls = [...fromControls, ...toControls]
       const subcontrols = [...fromSubcontrols, ...toSubcontrols]
 
-      // Subcontrols belonging to the current control used to derive satisfies targets
       const subcontrolsOfCurrentControl = [...fromSubcontrols, ...toSubcontrols].filter(
         (s): s is NonNullable<typeof s> & { id: string; refCode: string } => s != null && s.controlID === controlId && s.refCode != null,
       )
@@ -246,7 +245,6 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcon
     return map
   }, [refcodeData])
 
-  // Keys of framework controls the org has adopted: "referenceFramework|refCode" for non-system-owned controls
   const orgAdoptedFrameworkKeys = useMemo(() => {
     const set = new Set<string>()
     refcodeData?.controls?.edges?.forEach((edge) => {

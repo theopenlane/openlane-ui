@@ -192,7 +192,6 @@ export const useBulkEditSubcontrol = () => {
   })
 }
 
-// Returns an imperative fetcher for subcontrol IDs belonging to a set of parent control IDs
 export const useSubcontrolIdFetcher = () => {
   const { client } = useGraphQLClient()
   return async (controlIds: string[]): Promise<string[]> => {

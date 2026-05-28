@@ -1,0 +1,1 @@
+export const getGridCols = (isCustomView: boolean, isSelectionMode: boolean) => `${isSelectionMode ? '20px ' : ''}16px 110px minmax(180px, 1fr) 140px ${!isCustomView ? '160px ' : ''}140px 160px 160px`
