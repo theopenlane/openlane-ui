@@ -190,7 +190,7 @@ export const AssociationSection = <TConfig extends AssociationEntityConfig>({
         <PanelHeader heading="Associated Objects" noBorder />
         {isEditAllowed && entityId && <SetAssociationDialog config={config.dialogConfig} associationsData={associationsData} onUpdate={onUpdateEntity} />}
       </div>
-      <p className="text-sm text-muted">This shows objects directly associated with ${entityName}. This does not include objects linked by inheritance</p>
+      <p className="text-sm text-muted">{`This shows objects directly associated with ${entityName}. This does not include objects linked by inheritance`}</p>
       {hasSections && <AssociatedObjectsAccordion sections={sections} toggleAll={false} removable={isEditAllowed} onRemove={handleRemoveAssociation} />}
     </Panel>
   )

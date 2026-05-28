@@ -85,12 +85,14 @@ export const QuickMapControlDialog: React.FC<Props> = ({ controlId, subcontrolId
 
   const handleSubmit = async () => {
     if (selected.size === 0) return
+    const fromInput = subcontrolId ? { fromSubcontrolIDs: [subcontrolId] } : controlId ? { fromControlIDs: [controlId] } : null
+    if (!fromInput) return
     try {
       await Promise.all(
         Array.from(selected).map((toControlId) =>
           createMappedControl({
             input: {
-              ...(subcontrolId ? { fromSubcontrolIDs: [subcontrolId] } : { fromControlIDs: [controlId as string] }),
+              ...fromInput,
               toControlIDs: [toControlId],
               confidence: 100,
               source: MappedControlMappingSource.MANUAL,

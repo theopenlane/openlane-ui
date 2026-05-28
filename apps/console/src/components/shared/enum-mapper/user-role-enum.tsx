@@ -6,6 +6,4 @@ export const UserRoleIconMapper: Record<UserRole | OrgMembershipRole, React.Reac
   [UserRole.ADMIN]: <UserCog height={16} width={16} />,
   [UserRole.MEMBER]: <User height={16} width={16} />,
   [OrgMembershipRole.OWNER]: <UserStar height={16} width={16} />,
-  // [OrgMembershipRole.AUDITOR]: <UserPen height={16} width={16} />,
-  // [OrgMembershipRole.SUPER_ADMIN]: <UserKey height={16} width={16} />,
 }

@@ -119,7 +119,7 @@ const PoliciesTable: React.FC<PoliciesTableProps> = ({ controlId, subcontrolIds,
         if (ref) sources.push(ref)
       }
 
-      map.set(policy.id, sources)
+      if (sources.length > 0) map.set(policy.id, sources)
     }
     return map
   }, [policies, controlId, isSubcontrol, subcontrolIdSet, mappedControlIdToRef, mappedSubcontrolIdToRef])

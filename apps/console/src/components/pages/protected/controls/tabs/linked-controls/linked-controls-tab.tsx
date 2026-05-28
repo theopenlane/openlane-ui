@@ -226,16 +226,10 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcon
       const rawNode: ControlsByRefcodeNode | undefined = edge?.node ?? undefined
       if (!rawNode?.refCode) return
 
-      // Prefer org-owned entries: skip if we already have an org-owned entry for this refCode
       if (map.has(rawNode.refCode) && rawNode.systemOwned) return
 
-      // internalPolicies and evidence are fetched in the query but not yet in the generated type
-      const extendedNode = rawNode as typeof rawNode & {
-        internalPolicies?: { edges?: Array<{ node?: { id: string; name: string } | null } | null> | null }
-        evidence?: { edges?: Array<{ node?: { id: string; name: string; status?: string | null } | null } | null> | null }
-      }
-      const linkedPolicies = extendedNode.internalPolicies?.edges?.map((e) => e?.node).filter((n): n is { id: string; name: string } => !!n?.id && !!n?.name) ?? []
-      const evidenceRefs = extendedNode.evidence?.edges?.map((e) => e?.node).filter((n): n is { id: string; name: string } => !!n?.id) ?? []
+      const linkedPolicies = rawNode.internalPolicies?.edges?.map((e) => e?.node).filter((n): n is { id: string; name: string } => !!n?.id && !!n?.name) ?? []
+      const evidenceRefs = rawNode.evidence?.edges?.map((e) => e?.node).filter((n): n is { id: string; name: string } => !!n?.id) ?? []
 
       map.set(rawNode.refCode, {
         description: rawNode.description,

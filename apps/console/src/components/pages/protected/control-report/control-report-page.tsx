@@ -14,7 +14,7 @@ import {
   EVIDENCE_SEVERITY_ORDER,
 } from '@/lib/graphql-hooks/mapped-control'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
-import { ControlControlStatus, EvidenceEvidenceStatus, type ControlWhereInput, type SubcontrolControlStatus } from '@repo/codegen/src/schema'
+import { ControlControlStatus, EvidenceEvidenceStatus, type ControlWhereInput, SubcontrolControlStatus } from '@repo/codegen/src/schema'
 import { ChevronDown, ChevronRight, ChevronsUpDown, ListChecks, SlidersHorizontal, SquarePlus, Upload, TriangleAlert, UserCog, Tag, X, FileSearch } from 'lucide-react'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import Link from 'next/link'
@@ -493,9 +493,10 @@ const SubcontrolRows: React.FC<{
       </div>
 
       {subcontrols.map((sub) => {
-        // evidence will be present once codegen picks up the updated fragment
-        const subAny = sub as typeof sub & { evidence?: { edges?: Array<{ node?: { id: string; name?: string | null; status?: string | null } | null } | null> | null } }
-        const evidenceRefs = (subAny?.evidence?.edges ?? []).map((e) => e?.node).filter((n) => !!n?.id) as Array<{ id: string; name: string; status?: string | null }>
+        const evidenceRefs = (sub.evidence?.edges ?? [])
+          .map((e) => e?.node)
+          .filter((n): n is NonNullable<typeof n> => !!n?.id)
+          .map((n) => ({ id: n.id, name: n.name ?? '', status: n.status }))
         return (
           <SubcontrolRow
             key={sub.id}
@@ -597,7 +598,8 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
 
   // Collect all framework control IDs from the current view for the batch coverage query
   const allControlIds = useMemo(() => (sortedData ?? []).flatMap((entry) => entry.controls.map((c) => c.id)), [sortedData])
-  const orgCoverageMap = useOrgCoverageMap(allControlIds)
+  // [IMPORTANT] Review fix I7: skip the org-coverage request in custom view (ids are org controls there; data is irrelevant)
+  const orgCoverageMap = useOrgCoverageMap(isCustomView ? [] : allControlIds)
   const frameworkCoverageMap = useFrameworkCoverageMap(isCustomView ? allControlIds : [])
 
   // Client-side filter: only show controls matching any active "Report on" criteria
@@ -727,7 +729,8 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
 
         const subcontrolInput = {
           ...(input.controlOwnerID ? { controlOwnerID: input.controlOwnerID } : {}),
-          ...(input.status ? { status: input.status as unknown as SubcontrolControlStatus } : {}),
+          // [CRITICAL] Review fix C4: index the target enum by shared value instead of `as unknown as` double-cast
+          ...(input.status ? { status: SubcontrolControlStatus[input.status] } : {}),
         }
 
         let mappedControlIds: string[] = []
