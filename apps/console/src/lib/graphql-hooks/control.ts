@@ -189,6 +189,7 @@ export const useBulkEditSubcontrol = () => {
     mutationFn: async (variables) => client.request(BULK_EDIT_SUBCONTROL, variables),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['controls'] })
+      queryClient.invalidateQueries({ queryKey: ['mappedControls'] })
     },
   })
 }

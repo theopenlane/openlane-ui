@@ -29,13 +29,13 @@ const InheritedBadge = ({ sources = [] }: InheritedBadgeProps) => {
         <TooltipContent side="top">
           <div className="text-xs space-y-1">
             <p className="font-semibold mb-1">Inherited from:</p>
-            {sources.map((s) =>
+            {sources.map((s, i) =>
               s.href ? (
-                <Link key={s.refCode} href={s.href} className="block hover:underline">
+                <Link key={`${s.refCode}-${i}`} href={s.href} className="block hover:underline">
                   {s.refCode}
                 </Link>
               ) : (
-                <p key={s.refCode}>{s.refCode}</p>
+                <p key={`${s.refCode}-${i}`}>{s.refCode}</p>
               ),
             )}
           </div>

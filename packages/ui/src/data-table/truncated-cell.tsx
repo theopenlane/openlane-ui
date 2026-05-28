@@ -11,7 +11,7 @@ interface TruncatedCellProps {
   tooltipContent?: ReactNode
 }
 
-export const TruncatedCell = ({ children, className = 'truncate', tooltipClassName, tooltipContent }: TruncatedCellProps) => {
+export const TruncatedCell = ({ children, className, tooltipClassName, tooltipContent }: TruncatedCellProps) => {
   const ref = useRef<HTMLDivElement>(null)
   const [open, setOpen] = useState(false)
 
@@ -30,7 +30,7 @@ export const TruncatedCell = ({ children, className = 'truncate', tooltipClassNa
   return (
     <Tooltip open={open} onOpenChange={setOpen}>
       <TooltipTrigger asChild>
-        <div ref={ref} className={className} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
+        <div ref={ref} className={cn('truncate', className)} onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
           {children}
         </div>
       </TooltipTrigger>

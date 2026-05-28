@@ -121,7 +121,7 @@ const EvidenceTable = ({ control, subcontrolIds, mappedControlRefs = [], mappedS
         if (ref) sources.push(ref)
       }
 
-      map.set(evidence.id, sources)
+      if (sources.length > 0) map.set(evidence.id, sources)
     }
     return map
   }, [evidences, control.controlID, control.subcontrolID, subcontrolIdSet, mappedControlIdToRef, mappedSubcontrolIdToRef])
