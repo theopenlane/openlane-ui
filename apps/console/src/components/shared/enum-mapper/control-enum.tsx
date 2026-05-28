@@ -52,7 +52,6 @@ export const ControlImplementationIconMap: Record<ControlImplementationDocumentS
   [ControlImplementationDocumentStatus.PUBLISHED]: <Archive size={16} />,
 }
 
-// Severity order — highest to lowest; used to find worst status across active org controls
 export const ORG_COVERAGE_SEVERITY_ORDER: ControlControlStatus[] = [
   ControlControlStatus.CHANGES_REQUESTED,
   ControlControlStatus.NEEDS_APPROVAL,

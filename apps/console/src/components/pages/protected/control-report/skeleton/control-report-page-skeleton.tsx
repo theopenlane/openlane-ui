@@ -1,6 +1,5 @@
 import Skeleton from '@/components/shared/skeleton/skeleton'
 
-// Mirrors: 16px 110px 1fr 160px 220px 180px 240px (non-custom, non-selection view)
 const GRID_COLS = '16px 110px 1fr 160px 220px 180px 240px'
 
 const HeaderRow = () => (

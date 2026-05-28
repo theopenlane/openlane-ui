@@ -139,8 +139,6 @@ export const GET_MAPPED_CONTROL_BY_ID = gql`
   }
 `
 
-// Fetches mapped-control records enriched with status + systemOwned so coverage
-// can be computed client-side without a second refCode lookup round-trip.
 export const COVERAGE_CONTROL_FIELDS = gql`
   fragment CoverageControlFields on Control {
     id
