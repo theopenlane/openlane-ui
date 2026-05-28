@@ -678,8 +678,8 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
   const [statusPopoverOpen, setStatusPopoverOpen] = useState(false)
   const [pendingOwnerId, setPendingOwnerId] = useState('')
   const [pendingStatus, setPendingStatus] = useState('')
-  const [ownerCascade, setOwnerCascade] = useState(false)
-  const [statusCascade, setStatusCascade] = useState(false)
+  const [ownerCascade, setOwnerCascade] = useState({ sub: false, mapped: false })
+  const [statusCascade, setStatusCascade] = useState({ sub: false, mapped: false })
 
   const toggleSelection = useCallback((id: string, checked: boolean) => {
     setSelectedControlIds((prev) => {
@@ -716,7 +716,7 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
   }, [])
 
   const handleBulkAction = useCallback(
-    async (input: { controlOwnerID?: string; status?: ControlControlStatus }, cascade: boolean) => {
+    async (input: { controlOwnerID?: string; status?: ControlControlStatus }, options: { subcontrols: boolean; mappedControls: boolean }) => {
       const ids = [...selectedControlIds]
       const subIds = [...selectedSubcontrolIds]
       if (ids.length === 0 && subIds.length === 0) return
@@ -730,16 +730,19 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
           ...(input.status ? { status: input.status as unknown as SubcontrolControlStatus } : {}),
         }
 
-        if (cascade && ids.length > 0) {
-          // Collect linked org control IDs from coverage map
-          const orgIds = [...new Set(ids.flatMap((id) => (orgCoverageMap.get(id)?.orgControlRefs ?? []).map((r) => r.id)))]
-          if (orgIds.length > 0) {
-            await bulkEditControl({ ids: orgIds, input })
+        let mappedControlIds: string[] = []
+        if (options.mappedControls && ids.length > 0) {
+          mappedControlIds = isCustomView
+            ? [...new Set(ids.flatMap((id) => (frameworkCoverageMap.get(id)?.frameworkControlRefs ?? []).map((r) => r.id)))]
+            : [...new Set(ids.flatMap((id) => (orgCoverageMap.get(id)?.orgControlRefs ?? []).map((r) => r.id)))]
+          if (mappedControlIds.length > 0) {
+            await bulkEditControl({ ids: mappedControlIds, input })
           }
+        }
 
-          // Cascade to subcontrols of selected controls + their org controls, merged with explicitly selected subcontrols
-          const allParentIds = [...new Set([...ids, ...orgIds])]
-          const cascadeSubIds = await fetchSubcontrolIds(allParentIds)
+        if (options.subcontrols) {
+          const parentIds = [...new Set([...ids, ...mappedControlIds])]
+          const cascadeSubIds = parentIds.length > 0 ? await fetchSubcontrolIds(parentIds) : []
           const allSubIds = [...new Set([...cascadeSubIds, ...subIds])]
           if (allSubIds.length > 0) {
             await bulkEditSubcontrol({ ids: allSubIds, input: subcontrolInput })
@@ -758,7 +761,7 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
         errorNotification({ title: 'Error', description: 'Failed to apply bulk update' })
       }
     },
-    [selectedControlIds, selectedSubcontrolIds, bulkEditControl, bulkEditSubcontrol, fetchSubcontrolIds, orgCoverageMap, successNotification, errorNotification],
+    [selectedControlIds, selectedSubcontrolIds, bulkEditControl, bulkEditSubcontrol, fetchSubcontrolIds, orgCoverageMap, frameworkCoverageMap, isCustomView, successNotification, errorNotification],
   )
 
   const toggleReportFilter = useCallback((filterId: string) => {
@@ -989,18 +992,24 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
                 </SelectContent>
               </Select>
               <label className="flex items-center gap-2 text-xs cursor-pointer">
-                <Checkbox checked={ownerCascade} onCheckedChange={(v) => setOwnerCascade(!!v)} />
-                Also apply to mapped org controls &amp; subcontrols
+                <Checkbox checked={ownerCascade.sub} onCheckedChange={(v) => setOwnerCascade((prev) => ({ ...prev, sub: !!v }))} />
+                Apply to subcontrols
               </label>
+              {!isCustomView && (
+                <label className="flex items-center gap-2 text-xs cursor-pointer">
+                  <Checkbox checked={ownerCascade.mapped} onCheckedChange={(v) => setOwnerCascade((prev) => ({ ...prev, mapped: !!v }))} />
+                  Apply to mapped org controls
+                </label>
+              )}
               <Button
                 variant="primary"
                 className="w-full h-8"
                 disabled={!pendingOwnerId}
                 onClick={() => {
-                  handleBulkAction({ controlOwnerID: pendingOwnerId }, ownerCascade)
+                  handleBulkAction({ controlOwnerID: pendingOwnerId }, { subcontrols: ownerCascade.sub, mappedControls: ownerCascade.mapped })
                   setOwnerPopoverOpen(false)
                   setPendingOwnerId('')
-                  setOwnerCascade(false)
+                  setOwnerCascade({ sub: false, mapped: false })
                 }}
               >
                 Apply
@@ -1030,18 +1039,24 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
                 </SelectContent>
               </Select>
               <label className="flex items-center gap-2 text-xs cursor-pointer">
-                <Checkbox checked={statusCascade} onCheckedChange={(v) => setStatusCascade(!!v)} />
-                Also apply to mapped org controls &amp; subcontrols
+                <Checkbox checked={statusCascade.sub} onCheckedChange={(v) => setStatusCascade((prev) => ({ ...prev, sub: !!v }))} />
+                Apply to subcontrols
               </label>
+              {!isCustomView && (
+                <label className="flex items-center gap-2 text-xs cursor-pointer">
+                  <Checkbox checked={statusCascade.mapped} onCheckedChange={(v) => setStatusCascade((prev) => ({ ...prev, mapped: !!v }))} />
+                  Apply to mapped org controls
+                </label>
+              )}
               <Button
                 variant="primary"
                 className="w-full h-8"
                 disabled={!pendingStatus}
                 onClick={() => {
-                  handleBulkAction({ status: pendingStatus as ControlControlStatus }, statusCascade)
+                  handleBulkAction({ status: pendingStatus as ControlControlStatus }, { subcontrols: statusCascade.sub, mappedControls: statusCascade.mapped })
                   setStatusPopoverOpen(false)
                   setPendingStatus('')
-                  setStatusCascade(false)
+                  setStatusCascade({ sub: false, mapped: false })
                 }}
               >
                 Apply
