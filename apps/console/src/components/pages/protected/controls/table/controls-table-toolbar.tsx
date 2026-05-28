@@ -32,6 +32,9 @@ import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-butto
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { getBulkActionFailureDescription } from '@/components/shared/crud-base/bulk-action-feedback'
+import { useSession } from 'next-auth/react'
+import { type TQuickFilter } from '@/components/shared/table-filter/table-filter-helper'
+import { type TFilterState } from '@/components/shared/table-filter/filter-storage'
 
 type TProps = {
   onFilterChange: (filters: ControlWhereInput) => void
@@ -70,9 +73,29 @@ const ControlsTableToolbar: React.FC<TProps> = ({
   canEdit,
   permission,
 }: TProps) => {
+  const { data: session } = useSession()
   const { programOptions, isSuccess: isProgramSuccess } = useProgramSelect({})
   const { groupOptions, isSuccess: isGroupSuccess } = useGroupSelect()
   const groups = useMemo(() => groupOptions || [], [groupOptions])
+
+  const quickFilters: TQuickFilter[] = useMemo(() => {
+    return [
+      {
+        label: 'My Controls',
+        key: 'myControls',
+        type: 'custom',
+        getCondition: () => ({ hasControlOwnerWith: [{ hasMembersWith: [{ userID: session?.user?.userId ?? '' }] }] }) as TFilterState,
+        isActive: false,
+      },
+      {
+        label: 'Controls Without Owner',
+        key: 'controlsWithoutOwner',
+        type: 'custom',
+        getCondition: () => ({ controlOwnerIDIsNil: true }),
+        isActive: false,
+      },
+    ]
+  }, [session?.user?.userId])
   const [filterFields, setFilterFields] = useState<FilterField[] | undefined>(undefined)
   const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false)
   const { currentOrgId } = useOrganization()
@@ -251,7 +274,7 @@ const ControlsTableToolbar: React.FC<TProps> = ({
               {mappedColumns && columnVisibility && setColumnVisibility && (
                 <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.CONTROL} />
               )}
-              {filterFields && <TableFilter filterFields={filterFields} onFilterChange={onFilterChange} pageKey={TableKeyEnum.CONTROL} />}
+              {filterFields && <TableFilter filterFields={filterFields} onFilterChange={onFilterChange} pageKey={TableKeyEnum.CONTROL} quickFilters={quickFilters} />}
               {(createControlAllowed || createSubcontrolAllowed) && (
                 <Menu
                   trigger={CreateBtn}
