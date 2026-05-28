@@ -13,7 +13,7 @@ export function Toaster() {
           <ToastClose />
         </Toast>
       ))}
-      <ToastViewport />
+      <ToastViewport data-toast-viewport="" />
     </ToastProvider>
   )
 }

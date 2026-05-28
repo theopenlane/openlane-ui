@@ -184,7 +184,7 @@ export const NotificationToastContainer = () => {
           <BatchNotificationToast key={toast.id} data={toast} onOpenChange={(open) => handleOpenChange(toast.id, open)} onView={handleView} />
         ),
       )}
-      <ToastPrimitives.Viewport className="fixed bottom-0 right-0 z-100 flex max-h-screen w-full flex-col-reverse gap-2 p-4 sm:max-w-105 focus:outline-none" />
+      <ToastPrimitives.Viewport data-toast-viewport="" className="fixed bottom-0 right-0 z-100 flex max-h-screen w-full flex-col-reverse gap-2 p-4 sm:max-w-105 focus:outline-none" />
     </ToastPrimitives.Provider>
   )
 }
