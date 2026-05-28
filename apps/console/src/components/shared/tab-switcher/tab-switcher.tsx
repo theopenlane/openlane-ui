@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react'
 import { Presentation, Table } from 'lucide-react'
-import { Tooltip, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import { type TabSwitcherStorageKeys } from '@/components/shared/tab-switcher/tab-switcher-storage-keys.ts'
 
 type TTab = 'dashboard' | 'table'
@@ -44,33 +43,21 @@ const TabSwitcher: React.FC<TTabSwitcherProps> = ({ storageKey, active: external
 
   return (
     <div className="flex items-center p-[3px] gap-1 border rounded-md cursor-pointer overflow-hidden bg-background">
-      <TooltipProvider delayDuration={100}>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <button
-              className={`flex items-center gap-1.5 cursor-pointer px-1.5 py-1 rounded-md text-sm ${active === 'dashboard' ? 'bg-btn-secondary' : 'text-muted-foreground'}`}
-              onClick={() => setActive('dashboard')}
-            >
-              <Presentation size={16} />
-              <span>{resolvedLabels.dashboard}</span>
-            </button>
-          </TooltipTrigger>
-        </Tooltip>
-      </TooltipProvider>
+      <button
+        className={`flex items-center gap-1.5 cursor-pointer px-1.5 py-1 rounded-md text-sm ${active === 'dashboard' ? 'bg-btn-secondary' : 'text-muted-foreground'}`}
+        onClick={() => setActive('dashboard')}
+      >
+        <Presentation size={16} />
+        <span>{resolvedLabels.dashboard}</span>
+      </button>
 
-      <TooltipProvider delayDuration={100}>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <button
-              className={`flex items-center gap-1.5 cursor-pointer px-1.5 py-1 rounded-md text-sm ${active === 'table' ? 'bg-btn-secondary' : 'text-muted-foreground'}`}
-              onClick={() => setActive('table')}
-            >
-              <Table size={16} />
-              <span>{resolvedLabels.table}</span>
-            </button>
-          </TooltipTrigger>
-        </Tooltip>
-      </TooltipProvider>
+      <button
+        className={`flex items-center gap-1.5 cursor-pointer px-1.5 py-1 rounded-md text-sm ${active === 'table' ? 'bg-btn-secondary' : 'text-muted-foreground'}`}
+        onClick={() => setActive('table')}
+      >
+        <Table size={16} />
+        <span>{resolvedLabels.table}</span>
+      </button>
     </div>
   )
 }

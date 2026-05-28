@@ -43,7 +43,7 @@ type BuildLinkedControlsWhereArgs = {
  *   which the API treats as "no constraint" and would otherwise match system framework controls
  *   with the same refCode
  */
-export function buildLinkedControlsWhere({ controlId, subcontrolId, refCode, sourceFramework }: BuildLinkedControlsWhereArgs): MappedControlWhereInput | undefined {
+export const buildLinkedControlsWhere = ({ controlId, subcontrolId, refCode, sourceFramework }: BuildLinkedControlsWhereArgs): MappedControlWhereInput | undefined => {
   const isSubcontrolMode = !!subcontrolId
   const withFilter = sourceFramework ? { refCode, referenceFramework: sourceFramework } : { refCode, referenceFrameworkIsNil: true as const }
   const suggestedWhere = {
@@ -166,11 +166,9 @@ export const EVIDENCE_SEVERITY_ORDER: EvidenceEvidenceStatus[] = [
   EvidenceEvidenceStatus.AUDITOR_APPROVED,
 ]
 
-function isOrgControl(c: CoverageControlNode): boolean {
-  return !c.referenceFramework || c.referenceFramework === 'CUSTOM'
-}
+const isOrgControl = (c: CoverageControlNode): boolean => !c.referenceFramework || c.referenceFramework === 'CUSTOM'
 
-function addOrgControlToCoverage(map: Map<string, OrgCoverageData & { seenIds: Set<string> }>, frameworkControlId: string, orgControl: CoverageControlNode) {
+const addOrgControlToCoverage = (map: Map<string, OrgCoverageData & { seenIds: Set<string> }>, frameworkControlId: string, orgControl: CoverageControlNode) => {
   if (!orgControl.id || !orgControl.refCode) return
   let entry = map.get(frameworkControlId)
   if (!entry) {
@@ -237,7 +235,7 @@ function addOrgControlToCoverage(map: Map<string, OrgCoverageData & { seenIds: S
   }
 }
 
-function buildCoverageMap(data: CoverageMappedControlResponse, frameworkControlIdSet: Set<string>): Map<string, OrgCoverageData> {
+const buildCoverageMap = (data: CoverageMappedControlResponse, frameworkControlIdSet: Set<string>): Map<string, OrgCoverageData> => {
   const raw = new Map<string, OrgCoverageData & { seenIds: Set<string> }>()
 
   for (const edge of data.mappedControls.edges ?? []) {
@@ -294,7 +292,7 @@ function buildCoverageMap(data: CoverageMappedControlResponse, frameworkControlI
  * Batch-fetches org coverage for a set of framework control IDs.
  * Returns a stable Map<controlId, OrgCoverageData> usable per row.
  */
-export function useOrgCoverageMap(controlIds: string[]): Map<string, OrgCoverageData> {
+export const useOrgCoverageMap = (controlIds: string[]): Map<string, OrgCoverageData> => {
   const { client } = useGraphQLClient()
 
   // Stringify to avoid reference instability from array recreation on each render
@@ -335,11 +333,9 @@ export type FrameworkCoverageData = {
   linkedPolicies: Array<{ id: string; name: string }>
 }
 
-function isFrameworkControl(c: CoverageControlNode): boolean {
-  return !!(c.referenceFramework && c.referenceFramework !== 'CUSTOM')
-}
+const isFrameworkControl = (c: CoverageControlNode): boolean => !!(c.referenceFramework && c.referenceFramework !== 'CUSTOM')
 
-function buildFrameworkCoverageMap(data: CoverageMappedControlResponse, orgControlIdSet: Set<string>): Map<string, FrameworkCoverageData> {
+const buildFrameworkCoverageMap = (data: CoverageMappedControlResponse, orgControlIdSet: Set<string>): Map<string, FrameworkCoverageData> => {
   type Entry = {
     refs: Array<{ id: string; refCode: string; framework: string }>
     evidenceRefs: Array<{ id: string; name: string; status?: string | null; controlId: string }>
@@ -350,7 +346,7 @@ function buildFrameworkCoverageMap(data: CoverageMappedControlResponse, orgContr
   }
   const raw = new Map<string, Entry>()
 
-  function addFrameworkRef(orgControlId: string, fc: CoverageControlNode) {
+  const addFrameworkRef = (orgControlId: string, fc: CoverageControlNode) => {
     if (!fc.id || !fc.refCode || !fc.referenceFramework) return
     let entry = raw.get(orgControlId)
     if (!entry) {
@@ -425,7 +421,7 @@ function buildFrameworkCoverageMap(data: CoverageMappedControlResponse, orgContr
  * Batch-fetches framework control refs for a set of org control IDs.
  * Used in the inverted (custom) view to show which framework controls map to each org control.
  */
-export function useFrameworkCoverageMap(orgControlIds: string[]): Map<string, FrameworkCoverageData> {
+export const useFrameworkCoverageMap = (orgControlIds: string[]): Map<string, FrameworkCoverageData> => {
   const { client } = useGraphQLClient()
 
   // Stringify to avoid reference instability from array recreation on each render
@@ -464,7 +460,7 @@ export function useFrameworkCoverageMap(orgControlIds: string[]): Map<string, Fr
  * Fetches framework subcontrol refs mapped to a single org subcontrol.
  * Used in expanded subcontrol rows in the custom (org control) view.
  */
-export function useFrameworkCoverageForSubcontrol(subcontrolId?: string): FrameworkCoverageData | null {
+export const useFrameworkCoverageForSubcontrol = (subcontrolId?: string): FrameworkCoverageData | null => {
   const { client } = useGraphQLClient()
 
   const where = useMemo(() => (subcontrolId ? { or: [{ hasFromSubcontrolsWith: [{ id: subcontrolId }] }, { hasToSubcontrolsWith: [{ id: subcontrolId }] }] } : undefined), [subcontrolId])
@@ -534,7 +530,7 @@ export function useFrameworkCoverageForSubcontrol(subcontrolId?: string): Framew
  * Fetches org coverage scoped to a single subcontrol.
  * Used in expanded subcontrol rows.
  */
-export function useOrgCoverageForSubcontrol(subcontrolId?: string): OrgCoverageData | null {
+export const useOrgCoverageForSubcontrol = (subcontrolId?: string): OrgCoverageData | null => {
   const { client } = useGraphQLClient()
 
   const where = useMemo(() => (subcontrolId ? { or: [{ hasFromSubcontrolsWith: [{ id: subcontrolId }] }, { hasToSubcontrolsWith: [{ id: subcontrolId }] }] } : undefined), [subcontrolId])

@@ -122,7 +122,7 @@ const ProceduresTable: React.FC<ProceduresTableProps> = ({ controlId, subcontrol
         if (ref) sources.push(ref)
       }
 
-      map.set(procedure.id, sources)
+      if (sources.length > 0) map.set(procedure.id, sources)
     }
     return map
   }, [procedures, controlId, isSubcontrol, subcontrolIdSet, mappedControlIdToRef, mappedSubcontrolIdToRef])
