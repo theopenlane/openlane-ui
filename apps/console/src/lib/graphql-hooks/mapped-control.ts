@@ -34,15 +34,6 @@ type BuildLinkedControlsWhereArgs = {
   sourceFramework?: string | null
 }
 
-/**
- * Builds the MappedControlWhereInput for fetching mapped controls associated with a single
- * control or subcontrol. Handles:
- * - Bidirectional matching (from + to sides)
- * - SUGGESTED mappings scoped to the correct refCode + framework
- * - Custom controls (no framework): uses referenceFrameworkIsNil instead of referenceFramework: null,
- *   which the API treats as "no constraint" and would otherwise match system framework controls
- *   with the same refCode
- */
 export const buildLinkedControlsWhere = ({ controlId, subcontrolId, refCode, sourceFramework }: BuildLinkedControlsWhereArgs): MappedControlWhereInput | undefined => {
   const isSubcontrolMode = !!subcontrolId
   const withFilter = sourceFramework ? { refCode, referenceFramework: sourceFramework } : { refCode, referenceFrameworkIsNil: true as const }
@@ -119,8 +110,6 @@ export const useDeleteMappedControl = () => {
   })
 }
 
-// ─── Coverage helpers ─────────────────────────────────────────────────────────
-
 type CoverageEvidenceNode = {
   id: string
   name?: string | null
@@ -190,7 +179,6 @@ const addOrgControlToCoverage = (map: Map<string, OrgCoverageData & { seenIds: S
   if (entry.seenIds.has(orgControl.id)) return
   entry.seenIds.add(orgControl.id)
 
-  // Aggregate policies from this org control, deduplicating by id
   const existingPolicyIds = new Set(entry.linkedPolicies.map((p) => p.id))
   for (const pEdge of orgControl.internalPolicies?.edges ?? []) {
     const p = pEdge?.node
@@ -200,10 +188,8 @@ const addOrgControlToCoverage = (map: Map<string, OrgCoverageData & { seenIds: S
     }
   }
 
-  // Store status alongside ref so the tooltip can show per-control status breakdowns
   entry.orgControlRefs.push({ id: orgControl.id, refCode: orgControl.refCode, status: orgControl.status })
 
-  // Accumulate evidence from this org control
   for (const evEdge of orgControl.evidence?.edges ?? []) {
     const ev = evEdge?.node
     if (!ev) continue
@@ -227,7 +213,6 @@ const addOrgControlToCoverage = (map: Map<string, OrgCoverageData & { seenIds: S
   entry.activeCount++
   if (status === ControlControlStatus.APPROVED) entry.approvedCount++
 
-  // Update worst status using severity order
   const currentWorstIdx = entry.worstStatus ? ORG_COVERAGE_SEVERITY_ORDER.indexOf(entry.worstStatus) : ORG_COVERAGE_SEVERITY_ORDER.length
   const newIdx = ORG_COVERAGE_SEVERITY_ORDER.indexOf(status as ControlControlStatus)
   if (newIdx !== -1 && newIdx < currentWorstIdx) {
@@ -247,7 +232,6 @@ const buildCoverageMap = (data: CoverageMappedControlResponse, frameworkControlI
     const fromSubcontrols = (node.fromSubcontrols.edges ?? []).map((e) => e?.node).filter((n): n is CoverageSubcontrolNode => !!n)
     const toSubcontrols = (node.toSubcontrols.edges ?? []).map((e) => e?.node).filter((n): n is CoverageSubcontrolNode => !!n)
 
-    // Framework controls that appear in fromControls — org controls are on the to-side
     for (const fc of fromControls) {
       if (!frameworkControlIdSet.has(fc.id)) continue
       for (const oc of [...toControls, ...toSubcontrols]) {
@@ -255,7 +239,6 @@ const buildCoverageMap = (data: CoverageMappedControlResponse, frameworkControlI
       }
     }
 
-    // Framework controls that appear in toControls — org controls are on the from-side
     for (const fc of toControls) {
       if (!frameworkControlIdSet.has(fc.id)) continue
       for (const oc of [...fromControls, ...fromSubcontrols]) {
@@ -263,7 +246,6 @@ const buildCoverageMap = (data: CoverageMappedControlResponse, frameworkControlI
       }
     }
 
-    // Framework controls identified via subcontrol controlID in fromSubcontrols
     for (const fsc of fromSubcontrols) {
       if (!frameworkControlIdSet.has(fsc.controlID)) continue
       for (const oc of [...toControls, ...toSubcontrols]) {
@@ -271,7 +253,6 @@ const buildCoverageMap = (data: CoverageMappedControlResponse, frameworkControlI
       }
     }
 
-    // Framework controls identified via subcontrol controlID in toSubcontrols
     for (const fsc of toSubcontrols) {
       if (!frameworkControlIdSet.has(fsc.controlID)) continue
       for (const oc of [...fromControls, ...fromSubcontrols]) {
@@ -280,7 +261,6 @@ const buildCoverageMap = (data: CoverageMappedControlResponse, frameworkControlI
     }
   }
 
-  // Strip the seenIds helper before returning
   const result = new Map<string, OrgCoverageData>()
   for (const [id, { seenIds: _seenIds, ...rest }] of raw) {
     result.set(id, rest)
@@ -288,14 +268,9 @@ const buildCoverageMap = (data: CoverageMappedControlResponse, frameworkControlI
   return result
 }
 
-/**
- * Batch-fetches org coverage for a set of framework control IDs.
- * Returns a stable Map<controlId, OrgCoverageData> usable per row.
- */
 export const useOrgCoverageMap = (controlIds: string[]): Map<string, OrgCoverageData> => {
   const { client } = useGraphQLClient()
 
-  // Stringify to avoid reference instability from array recreation on each render
   const controlIdsKey = controlIds.join(',')
 
   const where = useMemo(
@@ -357,14 +332,12 @@ const buildFrameworkCoverageMap = (data: CoverageMappedControlResponse, orgContr
       entry.seenIds.add(fc.id)
       entry.refs.push({ id: fc.id, refCode: fc.refCode, framework: fc.referenceFramework })
     }
-    // Collect evidence from this framework control
     for (const evEdge of fc.evidence?.edges ?? []) {
       const ev = evEdge?.node
       if (!ev || entry.seenEvidenceIds.has(ev.id)) continue
       entry.seenEvidenceIds.add(ev.id)
       entry.evidenceRefs.push({ id: ev.id, name: ev.name ?? ev.id, status: ev.status, controlId: fc.id })
     }
-    // Collect policies from this framework control
     for (const pEdge of fc.internalPolicies?.edges ?? []) {
       const p = pEdge?.node
       if (!p || entry.seenPolicyIds.has(p.id)) continue
@@ -381,7 +354,6 @@ const buildFrameworkCoverageMap = (data: CoverageMappedControlResponse, orgContr
     const toControls = (node.toControls.edges ?? []).map((e) => e?.node).filter((n): n is CoverageControlNode => !!n)
     const fromSubcontrols = (node.fromSubcontrols.edges ?? []).map((e) => e?.node).filter((n): n is CoverageSubcontrolNode => !!n)
     const toSubcontrols = (node.toSubcontrols.edges ?? []).map((e) => e?.node).filter((n): n is CoverageSubcontrolNode => !!n)
-    // Org controls on either side — collect all framework refs from the other positions
     for (const oc of fromControls) {
       if (!orgControlIdSet.has(oc.id)) continue
       for (const fc of [...toControls, ...toSubcontrols]) {
@@ -395,7 +367,6 @@ const buildFrameworkCoverageMap = (data: CoverageMappedControlResponse, orgContr
       }
     }
 
-    // Org subcontrols on either side — attribute framework refs to the parent org control
     for (const osc of fromSubcontrols) {
       if (!orgControlIdSet.has(osc.controlID)) continue
       for (const fc of [...toControls, ...toSubcontrols]) {
@@ -417,14 +388,9 @@ const buildFrameworkCoverageMap = (data: CoverageMappedControlResponse, orgContr
   return result
 }
 
-/**
- * Batch-fetches framework control refs for a set of org control IDs.
- * Used in the inverted (custom) view to show which framework controls map to each org control.
- */
 export const useFrameworkCoverageMap = (orgControlIds: string[]): Map<string, FrameworkCoverageData> => {
   const { client } = useGraphQLClient()
 
-  // Stringify to avoid reference instability from array recreation on each render
   const orgControlIdsKey = orgControlIds.join(',')
 
   const where = useMemo(
@@ -456,10 +422,6 @@ export const useFrameworkCoverageMap = (orgControlIds: string[]): Map<string, Fr
   }, [data, orgControlIdsKey])
 }
 
-/**
- * Fetches framework subcontrol refs mapped to a single org subcontrol.
- * Used in expanded subcontrol rows in the custom (org control) view.
- */
 export const useFrameworkCoverageForSubcontrol = (subcontrolId?: string): FrameworkCoverageData | null => {
   const { client } = useGraphQLClient()
 
@@ -493,7 +455,6 @@ export const useFrameworkCoverageForSubcontrol = (subcontrolId?: string): Framew
       const isTargetInFrom = fromSubcontrols.some((s) => s.id === subcontrolId)
       const isTargetInTo = toSubcontrols.some((s) => s.id === subcontrolId)
 
-      // Collect framework controls and subcontrols from the other side of the mapping
       const candidates: CoverageControlNode[] = isTargetInFrom
         ? [...toControls, ...toSubcontrols.filter((s) => s.id !== subcontrolId)]
         : isTargetInTo
@@ -526,10 +487,6 @@ export const useFrameworkCoverageForSubcontrol = (subcontrolId?: string): Framew
   }, [data, subcontrolId])
 }
 
-/**
- * Fetches org coverage scoped to a single subcontrol.
- * Used in expanded subcontrol rows.
- */
 export const useOrgCoverageForSubcontrol = (subcontrolId?: string): OrgCoverageData | null => {
   const { client } = useGraphQLClient()
 

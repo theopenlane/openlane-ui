@@ -335,7 +335,6 @@ export const useEvidenceTrend = (programId?: string | null, status?: EvidenceEvi
   return useQuery({
     queryKey: ['evidence-trend', programId, status],
     queryFn: async () => {
-      // Calculate date ranges for current week and previous week
       const now = new Date()
       const currentWeekStart = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString()
       const previousWeekStart = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000).toISOString()
