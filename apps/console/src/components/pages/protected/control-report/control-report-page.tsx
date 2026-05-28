@@ -99,8 +99,9 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
 
   const hasNoControls = !sortedData || sortedData.length === 0 || sortedData.every((entry) => entry.controls.length === 0)
 
-  const allControlIds = useMemo(() => (sortedData ?? []).flatMap((entry) => entry.controls.map((c) => c.id)), [sortedData])
-  const orgCoverageMap = useOrgCoverageMap(isCustomView ? [] : allControlIds)
+  const allControlRows = useMemo(() => (sortedData ?? []).flatMap((entry) => entry.controls.map((c) => ({ id: c.id, refCode: c.refCode, referenceFramework: c.referenceFramework }))), [sortedData])
+  const allControlIds = useMemo(() => allControlRows.map((r) => r.id), [allControlRows])
+  const orgCoverageMap = useOrgCoverageMap(isCustomView ? [] : allControlRows)
   const frameworkCoverageMap = useFrameworkCoverageMap(isCustomView ? allControlIds : [])
 
   const filteredSortedData = useMemo(() => {
