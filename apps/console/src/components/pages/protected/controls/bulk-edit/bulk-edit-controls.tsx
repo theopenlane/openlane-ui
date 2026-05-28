@@ -15,8 +15,6 @@ import { useBulkEditControl } from '@/lib/graphql-hooks/control'
 import {
   collectAssociationInput,
   type BulkEditControlsDialogProps,
-  type BulkEditLinkedControlsDialogProps,
-  type BulkEditSubcontrolsDialogProps,
   defaultObject,
   SelectOptionBulkEditControls,
   useGetAllSelectOptionsForBulkEditControls,
@@ -24,8 +22,6 @@ import {
   bulkEditFieldsSchema,
   type BulkEditFieldsFormValues,
   type SelectOptionSelectedObject,
-  getAllSelectOptionsForBulkEditLinkedControls,
-  getAllSelectOptionsForBulkEditSubcontrols,
 } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-shared-objects'
 import { type Group } from '@repo/codegen/src/schema'
 import { useCreatableEnumOptions } from '@/lib/graphql-hooks/custom-type-enum'
@@ -41,7 +37,6 @@ import { CreatableCustomTypeEnumSelect } from '@/components/shared/custom-type-e
 import { BulkEditSingleObjectAssociation } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-single-object-association'
 import { BulkEditAssociationCollapsible } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-association-collapsible'
 import { getAssociationSelectedCount } from '@/components/shared/bulk-edit-shared-objects/bulk-edit-shared-objects'
-import { useBulkEditSubcontrol } from '@/lib/graphql-hooks/subcontrol'
 
 type BulkEditControlsFormValues = BulkEditFieldsFormValues
 type BulkEditSelection = { id: string; refCode: string }
@@ -333,71 +328,6 @@ export const BulkEditControlsDialog: React.FC<BulkEditControlsDialogProps> = ({ 
       onClearSelectedItems={clearSelectedControls}
       successTitle="Successfully bulk updated selected controls."
       errorTitle="Failed to bulk edit control. Please try again."
-    />
-  )
-}
-
-export const BulkEditSubcontrolsDialog: React.FC<BulkEditSubcontrolsDialogProps> = ({ selectedSubcontrols, setSelectedSubcontrols, onClearSelectedSubcontrols }) => {
-  const { mutateAsync: bulkEditSubcontrol } = useBulkEditSubcontrol()
-  const { groups, enumOptions, createControlType } = useBulkEditOptionData()
-  const allOptionSelects = useMemo(() => getAllSelectOptionsForBulkEditSubcontrols(groups, enumOptions), [groups, enumOptions])
-
-  const clearSelectedSubcontrols = () => {
-    if (onClearSelectedSubcontrols) {
-      onClearSelectedSubcontrols()
-      return
-    }
-
-    setSelectedSubcontrols?.([])
-  }
-
-  return (
-    <BulkEditRecordsDialog
-      selectedItems={selectedSubcontrols}
-      allOptionSelects={allOptionSelects}
-      onCreateType={createControlType}
-      onBulkEdit={async (ids, input) => {
-        await bulkEditSubcontrol({ ids, input })
-      }}
-      onClearSelectedItems={clearSelectedSubcontrols}
-      successTitle="Successfully bulk updated selected subcontrols."
-      errorTitle="Failed to bulk edit subcontrols. Please try again."
-    />
-  )
-}
-
-export const BulkEditLinkedControlsDialog: React.FC<BulkEditLinkedControlsDialogProps> = ({ selectedControls, selectedSubcontrols, onClearSelectedControls }) => {
-  const { mutateAsync: bulkEditControl } = useBulkEditControl()
-  const { mutateAsync: bulkEditSubcontrol } = useBulkEditSubcontrol()
-  const { groups, enumOptions, createControlType } = useBulkEditOptionData()
-  const controlOptionSelects = useGetAllSelectOptionsForBulkEditControls(groups, enumOptions)
-  const subcontrolOptionSelects = useMemo(() => getAllSelectOptionsForBulkEditSubcontrols(groups, enumOptions), [groups, enumOptions])
-  const linkedOptionSelects = useMemo(() => getAllSelectOptionsForBulkEditLinkedControls(groups, enumOptions), [groups, enumOptions])
-  const selectedItems = useMemo(() => [...selectedControls, ...selectedSubcontrols], [selectedControls, selectedSubcontrols])
-
-  const allOptionSelects = useMemo(() => {
-    if (selectedControls.length > 0 && selectedSubcontrols.length === 0) return controlOptionSelects
-    if (selectedSubcontrols.length > 0 && selectedControls.length === 0) return subcontrolOptionSelects
-    return linkedOptionSelects
-  }, [controlOptionSelects, linkedOptionSelects, selectedControls.length, selectedSubcontrols.length, subcontrolOptionSelects])
-
-  return (
-    <BulkEditRecordsDialog
-      selectedItems={selectedItems}
-      allOptionSelects={allOptionSelects}
-      onCreateType={createControlType}
-      onBulkEdit={async (_ids, input) => {
-        const { kindName, ...rest } = input
-        const controlInput = kindName !== undefined ? { ...rest, controlKindName: kindName } : rest
-        const subcontrolInput = kindName !== undefined ? { ...rest, subcontrolKindName: kindName } : rest
-        await Promise.all([
-          selectedControls.length > 0 ? bulkEditControl({ ids: selectedControls.map((control) => control.id), input: controlInput }) : null,
-          selectedSubcontrols.length > 0 ? bulkEditSubcontrol({ ids: selectedSubcontrols.map((subcontrol) => subcontrol.id), input: subcontrolInput }) : null,
-        ])
-      }}
-      onClearSelectedItems={onClearSelectedControls}
-      successTitle="Successfully bulk updated selected linked controls."
-      errorTitle="Failed to bulk edit linked controls. Please try again."
     />
   )
 }

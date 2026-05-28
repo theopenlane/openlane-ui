@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useMemo } from 'react'
 import { usePathname } from 'next/navigation'
 import SubcontrolsTable from './subcontrols-table'
 import { useGetMappedControls, buildLinkedControlsWhere } from '@/lib/graphql-hooks/mapped-control'
@@ -16,10 +16,6 @@ import EmptyTabState from '@/components/shared/crud-base/tabs/empty-tab-state'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { QuickMapControlDialog } from './quick-map-control-dialog'
 import ParentControlCard from './parent-control-card'
-import { useAccountRoles } from '@/lib/query-hooks/permissions'
-import { canEdit } from '@/lib/authz/utils'
-import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
-import { BulkEditLinkedControlsDialog } from '../../bulk-edit/bulk-edit-controls'
 import { MappedControlMappingSource } from '@repo/codegen/src/schema'
 
 export type LinkedControlsTabProps = {
@@ -30,24 +26,8 @@ export type LinkedControlsTabProps = {
   sourceFramework?: string | null
 }
 
-const getSelectedLinkedControls = (rows: MappedControlRow[], nodeType: typeof ObjectTypes.CONTROL | typeof ObjectTypes.SUBCONTROL) => {
-  const seen = new Set<string>()
-
-  return rows.flatMap((row) => {
-    if (row.nodeType !== nodeType) return []
-    const key = `${row.nodeType}:${row.targetId}`
-    if (seen.has(key)) return []
-    seen.add(key)
-    return [{ id: row.targetId, refCode: row.refCode }]
-  })
-}
-
 const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcontrolId, parentControlId, refCode, sourceFramework }) => {
   const isSubcontrolMode = !!subcontrolId
-  const [selectedOrganizationRows, setSelectedOrganizationRows] = useState<MappedControlRow[]>([])
-  const { data: controlPermission } = useAccountRoles(ObjectTypes.CONTROL, controlId, Boolean(controlId && !isSubcontrolMode))
-  const { data: subcontrolPermission } = useAccountRoles(ObjectTypes.SUBCONTROL, subcontrolId, Boolean(subcontrolId))
-  const canBulkEditLinkedControls = canEdit((isSubcontrolMode ? subcontrolPermission : controlPermission)?.roles)
   const mappedControlWhere = useMemo(() => buildLinkedControlsWhere({ controlId, subcontrolId, refCode, sourceFramework }), [controlId, subcontrolId, refCode, sourceFramework])
 
   const { data: mappedControlsData, isLoading: isMappedControlsLoading } = useGetMappedControls({ where: mappedControlWhere, enabled: Boolean(controlId || subcontrolId) })
@@ -349,18 +329,6 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcon
     [controlLinkMap, subcontrolLinkMap, convertToReadOnly, actionsColumn],
   )
   const frameworkMappedColumns = useMemo(() => [...getMappedControlsFrameworkColumns(baseMappedColumns.slice(0, -1)), actionsColumn], [baseMappedColumns, actionsColumn])
-  const selectedOrganizationControls = useMemo(() => getSelectedLinkedControls(selectedOrganizationRows, ObjectTypes.CONTROL), [selectedOrganizationRows])
-  const selectedOrganizationSubcontrols = useMemo(() => getSelectedLinkedControls(selectedOrganizationRows, ObjectTypes.SUBCONTROL), [selectedOrganizationRows])
-  const _organizationBulkAction = canBulkEditLinkedControls && selectedOrganizationRows.length > 0 && (
-    <div className="flex items-center gap-2">
-      <BulkEditLinkedControlsDialog
-        selectedControls={selectedOrganizationControls}
-        selectedSubcontrols={selectedOrganizationSubcontrols}
-        onClearSelectedControls={() => setSelectedOrganizationRows([])}
-      />
-      <CancelButton onClick={() => setSelectedOrganizationRows([])} />
-    </div>
-  )
   const hasSubcontrols = (subcontrolsPaginationMeta?.totalCount ?? 0) > 0
   const hasMappedControls = customMappedControls.length > 0 || frameworkMappedControls.length > 0
   const isLoading = isMappedControlsLoading || (!isSubcontrolMode && isSubcontrolsLoading)
