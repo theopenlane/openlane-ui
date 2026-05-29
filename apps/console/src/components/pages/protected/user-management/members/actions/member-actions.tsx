@@ -34,6 +34,7 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { TransferOwnershipDialog } from '@/components/pages/protected/organization-settings/general-settings/transfer-ownership-dialog'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { toHumanLabel } from '@/utils/strings'
 
 type MemberActionsProps = {
   memberId: string
@@ -203,7 +204,7 @@ export const MemberActions = ({ memberId, memberUserId, memberRole, memberName }
                                       .filter((role) => role !== OrgMembershipRole.OWNER && !role.includes('USER'))
                                       .map((role) => (
                                         <SelectItem key={role} value={role}>
-                                          {role.charAt(0) + role.slice(1).toLowerCase()}
+                                          {toHumanLabel(role.charAt(0) + role.slice(1))}
                                         </SelectItem>
                                       ))}
                                   </SelectContent>

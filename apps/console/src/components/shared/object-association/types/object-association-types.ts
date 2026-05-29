@@ -31,6 +31,10 @@ export type TCenterNode = {
   node: TBaseAssociatedNode
 }
 
+export const getObjectName = (node: TBaseAssociatedNode | undefined): string => node?.refCode ?? node?.fullName ?? node?.displayName ?? node?.name ?? node?.title ?? 'this object'
+
+export const getCenterNodeObjectName = (centerNode: TCenterNode): string => getObjectName(centerNode?.node)
+
 export enum ObjectAssociationNodeEnum {
   CONTROL = 'controls',
   SUBCONTROL = 'subcontrols',

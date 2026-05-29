@@ -1,70 +1,34 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import { usePathname } from 'next/navigation'
 import SubcontrolsTable from './subcontrols-table'
-import { useGetMappedControls } from '@/lib/graphql-hooks/mapped-control'
+import { useGetMappedControls, buildLinkedControlsWhere } from '@/lib/graphql-hooks/mapped-control'
 import { useGetControlsByRefCode, type ControlsByRefcodeNode } from '@/lib/graphql-hooks/control'
 import { useGetSubcontrolsByRefCode, type SubcontrolsByRefcodeNode } from '@/lib/graphql-hooks/subcontrol'
-import { MappedControlMappingSource } from '@repo/codegen/src/schema'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import MappedControlsTable from './mapped-controls-table'
-import type { MappedControlRow } from './mapped-controls-types'
-import { getMappedControlsActionsColumn, getMappedControlsBaseColumns, getMappedControlsFrameworkColumns, getMappedControlsSelectColumn } from './mapped-controls-config'
+import type { MappedControlRow, SatisfiesTarget } from './mapped-controls-types'
+import { getMappedControlsActionsColumn, getMappedControlsBaseColumns, getMappedControlsFrameworkColumns, getOrgControlsColumns } from './mapped-controls-config'
 import type { LinkedControlDetails } from './types'
 import { useGetSubcontrolsPaginated } from '@/lib/graphql-hooks/subcontrol'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { TableSkeleton } from '@/components/shared/skeleton/table-skeleton'
 import EmptyTabState from '@/components/shared/crud-base/tabs/empty-tab-state'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
-import { useAccountRoles } from '@/lib/query-hooks/permissions'
-import { canEdit } from '@/lib/authz/utils'
-import { BulkEditLinkedControlsDialog } from '@/components/pages/protected/controls/bulk-edit/bulk-edit-controls'
-import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { QuickMapControlDialog } from './quick-map-control-dialog'
+import ParentControlCard from './parent-control-card'
+import { MappedControlMappingSource } from '@repo/codegen/src/schema'
 
 export type LinkedControlsTabProps = {
   controlId?: string
   subcontrolId?: string
+  parentControlId?: string
   refCode: string
   sourceFramework?: string | null
 }
 
-const getSelectedLinkedControls = (rows: MappedControlRow[], nodeType: typeof ObjectTypes.CONTROL | typeof ObjectTypes.SUBCONTROL) => {
-  const seen = new Set<string>()
-
-  return rows.flatMap((row) => {
-    if (row.nodeType !== nodeType) return []
-    const key = `${row.nodeType}:${row.targetId}`
-    if (seen.has(key)) return []
-    seen.add(key)
-    return [{ id: row.targetId, refCode: row.refCode }]
-  })
-}
-
-const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcontrolId, refCode, sourceFramework }) => {
+const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcontrolId, parentControlId, refCode, sourceFramework }) => {
   const isSubcontrolMode = !!subcontrolId
-  const [selectedOrganizationRows, setSelectedOrganizationRows] = useState<MappedControlRow[]>([])
-  const { data: controlPermission } = useAccountRoles(ObjectTypes.CONTROL, controlId, Boolean(controlId && !isSubcontrolMode))
-  const { data: subcontrolPermission } = useAccountRoles(ObjectTypes.SUBCONTROL, subcontrolId, Boolean(subcontrolId))
-  const canBulkEditLinkedControls = canEdit((isSubcontrolMode ? subcontrolPermission : controlPermission)?.roles)
-  const mappedControlWhere = useMemo(() => {
-    const withFilter = { refCode, referenceFramework: sourceFramework }
-    const suggestedWhere = {
-      and: [{ source: MappedControlMappingSource.SUGGESTED }, isSubcontrolMode ? { hasFromSubcontrolsWith: [withFilter] } : { hasFromControlsWith: [withFilter] }],
-    }
-
-    if (isSubcontrolMode && subcontrolId) {
-      return {
-        or: [suggestedWhere, { hasFromSubcontrolsWith: [{ id: subcontrolId }] }],
-      }
-    }
-
-    if (controlId) {
-      return {
-        or: [suggestedWhere, { hasFromControlsWith: [{ id: controlId }] }],
-      }
-    }
-
-    return undefined
-  }, [controlId, subcontrolId, isSubcontrolMode, refCode, sourceFramework])
+  const mappedControlWhere = useMemo(() => buildLinkedControlsWhere({ controlId, subcontrolId, refCode, sourceFramework }), [controlId, subcontrolId, refCode, sourceFramework])
 
   const { data: mappedControlsData, isLoading: isMappedControlsLoading } = useGetMappedControls({ where: mappedControlWhere, enabled: Boolean(controlId || subcontrolId) })
 
@@ -75,8 +39,46 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcon
   })
 
   const mappedControls = useMemo<MappedControlRow[]>(() => {
-    const rows: MappedControlRow[] = []
-    const seen = new Set<string>()
+    const rowsByCode = new Map<string, MappedControlRow>()
+
+    const mergeSatisfiesTargets = (existing: SatisfiesTarget[] | undefined, incoming: SatisfiesTarget[] | undefined): SatisfiesTarget[] | undefined => {
+      if (!existing && !incoming) return undefined
+      const merged = existing ? [...existing] : []
+      const seenKeys = new Set(merged.map((t) => `${t.level}:${t.id}`))
+      ;(incoming ?? []).forEach((t) => {
+        const key = `${t.level}:${t.id}`
+        if (seenKeys.has(key)) return
+        seenKeys.add(key)
+        merged.push(t)
+      })
+      return merged.length > 0 ? merged : undefined
+    }
+
+    const mergeInherited = (existing: Array<{ id: string; refCode: string }> | undefined, incoming: Array<{ id: string; refCode: string }> | undefined) => {
+      if (!existing && !incoming) return undefined
+      const merged = existing ? [...existing] : []
+      const seenIds = new Set(merged.map((s) => s.id))
+      ;(incoming ?? []).forEach((s) => {
+        if (seenIds.has(s.id)) return
+        seenIds.add(s.id)
+        merged.push(s)
+      })
+      return merged.length > 0 ? merged : undefined
+    }
+
+    const upsertRow = (key: string, candidate: MappedControlRow) => {
+      const existing = rowsByCode.get(key)
+      if (!existing) {
+        rowsByCode.set(key, candidate)
+        return
+      }
+      existing.satisfiesTargets = mergeSatisfiesTargets(existing.satisfiesTargets, candidate.satisfiesTargets)
+      existing.inheritedFromSubcontrols = mergeInherited(existing.inheritedFromSubcontrols, candidate.inheritedFromSubcontrols)
+      if (existing.isSystemOwnedMapping && !candidate.isSystemOwnedMapping) {
+        existing.mappedControlId = candidate.mappedControlId
+        existing.isSystemOwnedMapping = false
+      }
+    }
 
     const edges = mappedControlsData?.mappedControls?.edges ?? []
     edges.forEach((edge) => {
@@ -92,14 +94,39 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcon
       const controls = [...fromControls, ...toControls]
       const subcontrols = [...fromSubcontrols, ...toSubcontrols]
 
+      const subcontrolsOfCurrentControl = [...fromSubcontrols, ...toSubcontrols].filter(
+        (s): s is NonNullable<typeof s> & { id: string; refCode: string } => s != null && s.controlID === controlId && s.refCode != null,
+      )
+
       controls.forEach((control) => {
         if (!control?.id || !control?.refCode) return
         if (!isSubcontrolMode && (control.id === controlId || control.refCode === refCode)) return
-        const key = `Control-${control.refCode}-${control.referenceFramework ?? 'CUSTOM'}-${node.mappingType}-${mappingSource}-${node.relation ?? ''}`
-        if (seen.has(key)) return
-        seen.add(key)
-        rows.push({
-          id: key,
+        const dedupeKey = `Control-${control.refCode}-${control.referenceFramework ?? 'CUSTOM'}`
+
+        const isCustomControl = !control.referenceFramework || control.referenceFramework === 'CUSTOM'
+        let satisfiesTargets: SatisfiesTarget[] | undefined
+        let inheritedFromSubcontrols: Array<{ id: string; refCode: string }> | undefined
+        if (isCustomControl) {
+          if (!isSubcontrolMode && controlId) {
+            if (subcontrolsOfCurrentControl.length > 0) {
+              satisfiesTargets = subcontrolsOfCurrentControl.map((s) => ({
+                id: s.id,
+                refCode: s.refCode,
+                level: 'subcontrol' as const,
+                referenceFramework: sourceFramework,
+                controlID: controlId,
+              }))
+              inheritedFromSubcontrols = subcontrolsOfCurrentControl.map((s) => ({ id: s.id, refCode: s.refCode }))
+            } else {
+              satisfiesTargets = [{ id: controlId, refCode, level: 'control' as const, referenceFramework: sourceFramework }]
+            }
+          } else if (isSubcontrolMode && subcontrolId) {
+            satisfiesTargets = [{ id: subcontrolId, refCode, level: 'subcontrol' as const, referenceFramework: sourceFramework, controlID: parentControlId }]
+          }
+        }
+
+        upsertRow(dedupeKey, {
+          id: dedupeKey,
           mappedControlId: node.id,
           targetId: control.id,
           isSystemOwnedMapping: node.systemOwned ?? false,
@@ -109,17 +136,17 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcon
           relation: node.relation,
           source: mappingSource,
           nodeType: ObjectTypes.CONTROL,
+          satisfiesTargets,
+          inheritedFromSubcontrols,
         })
       })
 
       subcontrols.forEach((subcontrol) => {
         if (!subcontrol?.id || !subcontrol?.refCode) return
         if (isSubcontrolMode && (subcontrol.id === subcontrolId || subcontrol.refCode === refCode)) return
-        const key = `Subcontrol-${subcontrol.refCode}-${subcontrol.referenceFramework ?? 'CUSTOM'}-${node.mappingType}-${mappingSource}-${node.relation ?? ''}`
-        if (seen.has(key)) return
-        seen.add(key)
-        rows.push({
-          id: key,
+        const dedupeKey = `Subcontrol-${subcontrol.refCode}-${subcontrol.referenceFramework ?? 'CUSTOM'}`
+        upsertRow(dedupeKey, {
+          id: dedupeKey,
           mappedControlId: node.id,
           targetId: subcontrol.id,
           isSystemOwnedMapping: node.systemOwned ?? false,
@@ -133,8 +160,8 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcon
       })
     })
 
-    return rows
-  }, [mappedControlsData, controlId, subcontrolId, refCode, isSubcontrolMode])
+    return Array.from(rowsByCode.values())
+  }, [mappedControlsData, controlId, subcontrolId, refCode, isSubcontrolMode, parentControlId, sourceFramework])
 
   const { convertToReadOnly } = usePlateEditor()
 
@@ -165,27 +192,68 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcon
   const { data: refcodeData } = useGetControlsByRefCode({ refCodeIn: controlRefCodes, enabled: controlRefCodes.length > 0 })
   const { data: subcontrolRefcodeData } = useGetSubcontrolsByRefCode({ refCodeIn: subcontrolRefCodes, enabled: subcontrolRefCodes.length > 0 })
 
+  const controlLinkMap = useMemo(() => {
+    const map = new Map<string, string>()
+    refcodeData?.controls?.edges?.forEach((edge) => {
+      const node = edge?.node
+      if (!node?.refCode) return
+      const href = node.systemOwned ? `/standards/${node.standardID}?controlId=${node.id}` : `/controls/${node.id}`
+      if (!map.has(node.refCode) || !node.systemOwned) {
+        map.set(node.refCode, href)
+      }
+    })
+    return map
+  }, [refcodeData])
+
+  const subcontrolLinkMap = useMemo(() => {
+    const map = new Map<string, string>()
+    subcontrolRefcodeData?.subcontrols?.edges?.forEach((edge) => {
+      const node = edge?.node
+      if (!node?.refCode) return
+      const href = node.systemOwned ? `/standards/${node.control?.standardID}?controlId=${node.id}` : `/controls/${node.controlID}/${node.id}`
+      if (!map.has(node.refCode) || !node.systemOwned) {
+        map.set(node.refCode, href)
+      }
+    })
+    return map
+  }, [subcontrolRefcodeData])
+
   const controlDetailsMap = useMemo(() => {
     const map = new Map<string, LinkedControlDetails>()
 
     refcodeData?.controls?.edges?.forEach((edge) => {
-      const node: ControlsByRefcodeNode | undefined = edge?.node ?? undefined
-      if (!node?.id) return
-      const href = node.systemOwned ? `/standards/${node.standardID}?controlId=${node.id}` : `/controls/${node.id}`
-      map.set(node.id, {
-        id: node.id,
-        href,
-        systemOwned: node.systemOwned ?? false,
-        description: node.description,
-        status: node.status,
-        type: node.controlKindName,
-        controlSource: node.source,
-        category: node.category,
-        subcategory: node.subcategory,
+      const rawNode: ControlsByRefcodeNode | undefined = edge?.node ?? undefined
+      if (!rawNode?.refCode) return
+
+      if (map.has(rawNode.refCode) && rawNode.systemOwned) return
+
+      const linkedPolicies = rawNode.internalPolicies?.edges?.map((e) => e?.node).filter((n): n is { id: string; name: string } => !!n?.id && !!n?.name) ?? []
+      const evidenceRefs = rawNode.evidence?.edges?.map((e) => e?.node).filter((n): n is { id: string; name: string } => !!n?.id) ?? []
+
+      map.set(rawNode.refCode, {
+        description: rawNode.description,
+        status: rawNode.status,
+        type: rawNode.controlKindName,
+        controlSource: rawNode.source,
+        category: rawNode.category,
+        subcategory: rawNode.subcategory,
+        linkedPolicies,
+        evidenceRefs,
       })
     })
 
     return map
+  }, [refcodeData])
+
+  const orgAdoptedFrameworkKeys = useMemo(() => {
+    const set = new Set<string>()
+    refcodeData?.controls?.edges?.forEach((edge) => {
+      const node = edge?.node
+      if (node?.refCode && node.referenceFramework && !node.systemOwned) {
+        set.add(`${node.referenceFramework}|${node.refCode}`)
+      }
+    })
+    return set
   }, [refcodeData])
 
   const subcontrolDetailsMap = useMemo(() => {
@@ -213,7 +281,7 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcon
 
   const enrichedMappedControls = useMemo(() => {
     return mappedControls.map((row) => {
-      const details = row.nodeType === ObjectTypes.SUBCONTROL ? subcontrolDetailsMap.get(row.targetId) : controlDetailsMap.get(row.targetId)
+      const details = row.nodeType === ObjectTypes.SUBCONTROL ? subcontrolDetailsMap.get(row.targetId) : controlDetailsMap.get(row.refCode)
       return {
         ...row,
         targetHref: details?.href,
@@ -224,34 +292,43 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcon
         controlSource: details?.controlSource ?? row.controlSource,
         category: details?.category ?? row.category,
         subcategory: details?.subcategory ?? row.subcategory,
+        linkedPolicies: row.linkedPolicies ?? details?.linkedPolicies,
+        evidenceRefs: row.evidenceRefs ?? details?.evidenceRefs,
       }
     })
   }, [mappedControls, controlDetailsMap, subcontrolDetailsMap])
 
   const customMappedControls = useMemo(() => enrichedMappedControls.filter((row) => !row.referenceFramework || row.referenceFramework === 'CUSTOM'), [enrichedMappedControls])
-  const frameworkMappedControls = useMemo(() => enrichedMappedControls.filter((row) => row.referenceFramework && row.referenceFramework !== 'CUSTOM'), [enrichedMappedControls])
+  const implementedOrgControlsCount = useMemo(() => customMappedControls.filter((row) => row.status === 'APPROVED').length, [customMappedControls])
+  const frameworkMappedControls = useMemo(
+    () =>
+      enrichedMappedControls.filter((row) => {
+        if (!row.referenceFramework || row.referenceFramework === 'CUSTOM') return false
+        return orgAdoptedFrameworkKeys.has(`${row.referenceFramework}|${row.refCode}`)
+      }),
+    [enrichedMappedControls, orgAdoptedFrameworkKeys],
+  )
+
+  // TEMP debug — remove
+  useEffect(() => {
+    console.log('[LINKED-CONTROLS] controlId', controlId, 'refCode', refCode, 'sourceFramework', sourceFramework)
+    console.log('[LINKED-CONTROLS] where', mappedControlWhere)
+    console.log('[LINKED-CONTROLS] raw edges', mappedControlsData?.mappedControls?.edges)
+    console.log('[LINKED-CONTROLS] customMappedControls', customMappedControls)
+  }, [controlId, refCode, sourceFramework, mappedControlWhere, mappedControlsData, customMappedControls])
 
   const pathname = usePathname()
   const actionsColumn = useMemo(() => getMappedControlsActionsColumn(pathname), [pathname])
-  const baseColumns = useMemo(() => getMappedControlsBaseColumns(convertToReadOnly), [convertToReadOnly])
-  const organizationSelectColumn = useMemo(() => getMappedControlsSelectColumn(selectedOrganizationRows, setSelectedOrganizationRows), [selectedOrganizationRows])
+
+  const orgControlsColumns = useMemo(
+    () => [...getOrgControlsColumns(controlLinkMap, subcontrolLinkMap, convertToReadOnly), actionsColumn],
+    [controlLinkMap, subcontrolLinkMap, convertToReadOnly, actionsColumn],
+  )
   const baseMappedColumns = useMemo(
-    () => [...(canBulkEditLinkedControls ? [organizationSelectColumn] : []), ...baseColumns, actionsColumn],
-    [actionsColumn, baseColumns, canBulkEditLinkedControls, organizationSelectColumn],
+    () => [...getMappedControlsBaseColumns(controlLinkMap, subcontrolLinkMap, convertToReadOnly), actionsColumn],
+    [controlLinkMap, subcontrolLinkMap, convertToReadOnly, actionsColumn],
   )
-  const frameworkMappedColumns = useMemo(() => [...getMappedControlsFrameworkColumns(baseColumns), actionsColumn], [actionsColumn, baseColumns])
-  const selectedOrganizationControls = useMemo(() => getSelectedLinkedControls(selectedOrganizationRows, ObjectTypes.CONTROL), [selectedOrganizationRows])
-  const selectedOrganizationSubcontrols = useMemo(() => getSelectedLinkedControls(selectedOrganizationRows, ObjectTypes.SUBCONTROL), [selectedOrganizationRows])
-  const organizationBulkAction = canBulkEditLinkedControls && selectedOrganizationRows.length > 0 && (
-    <div className="flex items-center gap-2">
-      <BulkEditLinkedControlsDialog
-        selectedControls={selectedOrganizationControls}
-        selectedSubcontrols={selectedOrganizationSubcontrols}
-        onClearSelectedControls={() => setSelectedOrganizationRows([])}
-      />
-      <CancelButton onClick={() => setSelectedOrganizationRows([])} />
-    </div>
-  )
+  const frameworkMappedColumns = useMemo(() => [...getMappedControlsFrameworkColumns(baseMappedColumns.slice(0, -1)), actionsColumn], [baseMappedColumns, actionsColumn])
   const hasSubcontrols = (subcontrolsPaginationMeta?.totalCount ?? 0) > 0
   const hasMappedControls = customMappedControls.length > 0 || frameworkMappedControls.length > 0
   const isLoading = isMappedControlsLoading || (!isSubcontrolMode && isSubcontrolsLoading)
@@ -260,22 +337,32 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcon
     return <TableSkeleton />
   }
 
-  if (!hasMappedControls && (isSubcontrolMode || !hasSubcontrols)) {
+  if (!hasMappedControls && !parentControlId && (isSubcontrolMode || !hasSubcontrols)) {
     return <EmptyTabState description="Link this control to related controls to show relationships or shared coverage. Linked controls will appear here." />
   }
 
   return (
-    <div className="space-y-6">
-      {!isSubcontrolMode && <SubcontrolsTable />}
+    <div className="flex flex-col gap-4">
+      {isSubcontrolMode && parentControlId ? <ParentControlCard controlId={parentControlId} /> : !isSubcontrolMode && hasSubcontrols && <SubcontrolsTable />}
       <MappedControlsTable
-        title="Organization Controls"
+        title="Organization controls"
         rows={customMappedControls}
-        columns={baseMappedColumns}
+        columns={orgControlsColumns}
         searchPlaceholder="Search organization controls"
         showFrameworkFilter={false}
-        action={organizationBulkAction}
+        countLabel={`(${customMappedControls.length} mapped)`}
+        implementedCount={implementedOrgControlsCount}
+        action={
+          controlId && !isSubcontrolMode ? (
+            <QuickMapControlDialog controlId={controlId} refCode={refCode} />
+          ) : isSubcontrolMode && subcontrolId ? (
+            <QuickMapControlDialog subcontrolId={subcontrolId} refCode={refCode} />
+          ) : undefined
+        }
       />
-      <MappedControlsTable title="Framework Mappings" rows={frameworkMappedControls} columns={frameworkMappedColumns} searchPlaceholder="Search framework mappings" showFrameworkFilter />
+      {frameworkMappedControls.length > 0 && (
+        <MappedControlsTable title="Framework Mappings" rows={frameworkMappedControls} columns={frameworkMappedColumns} searchPlaceholder="Search framework mappings" showFrameworkFilter />
+      )}
     </div>
   )
 }

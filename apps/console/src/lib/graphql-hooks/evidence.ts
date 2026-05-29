@@ -283,6 +283,12 @@ export const useGetEvidenceList = ({ orderBy, pagination, where, enabled = true 
   }
 }
 
+type EvidenceLightAssocNode = { id: string; refCode: string }
+export type EvidenceLight = Pick<Evidence, 'id' | 'name' | 'status' | 'source' | 'updatedAt' | 'updatedBy' | 'displayID'> & {
+  controls?: { edges?: Array<{ node?: EvidenceLightAssocNode | null } | null> | null }
+  subcontrols?: { edges?: Array<{ node?: EvidenceLightAssocNode | null } | null> | null }
+}
+
 export const useGetEvidenceListLight = ({ orderBy, pagination, where, enabled = true }: TGetEvidenceListProps) => {
   const { client } = useGraphQLClient()
 
@@ -297,7 +303,7 @@ export const useGetEvidenceListLight = ({ orderBy, pagination, where, enabled = 
     enabled,
   })
 
-  const evidences = (queryResult.data?.evidences?.edges?.map((edge) => edge?.node) ?? []) as Evidence[]
+  const evidences = (queryResult.data?.evidences?.edges?.map((edge) => edge?.node) ?? []) as EvidenceLight[]
 
   const paginationMeta = {
     totalCount: queryResult.data?.evidences?.totalCount ?? 0,
@@ -326,15 +332,14 @@ export const useGetEvidenceCountsByStatus = (programId?: string | null) => {
 export const useEvidenceTrend = (programId?: string | null, status?: EvidenceEvidenceStatus) => {
   const { client } = useGraphQLClient()
 
-  // Calculate date ranges for current week and previous week
-  const now = new Date()
-  const currentWeekStart = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString()
-  const previousWeekStart = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000).toISOString()
-  const previousWeekEnd = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString()
-
   return useQuery({
     queryKey: ['evidence-trend', programId, status],
     queryFn: async () => {
+      const now = new Date()
+      const currentWeekStart = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString()
+      const previousWeekStart = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000).toISOString()
+      const previousWeekEnd = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString()
+
       if (!status) {
         return {
           trend: 0,

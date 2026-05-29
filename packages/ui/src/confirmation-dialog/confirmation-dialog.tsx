@@ -72,6 +72,7 @@ export const ConfirmationDialog = ({ open, onOpenChange, onConfirm, title, descr
           </AlertDialogCancel>
           <AlertDialogAction asChild>
             <Button
+              type="button"
               variant={confirmationTextVariant ?? 'destructive'}
               disabled={isConfirmDisabled}
               onClick={onConfirm}

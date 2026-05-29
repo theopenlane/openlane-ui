@@ -33,18 +33,6 @@ export type BulkEditControlsDialogProps = {
   onClearSelectedControls?: () => void
 }
 
-export type BulkEditSubcontrolsDialogProps = {
-  selectedSubcontrols: { id: string; refCode: string }[]
-  setSelectedSubcontrols?: React.Dispatch<React.SetStateAction<{ id: string; refCode: string }[]>>
-  onClearSelectedSubcontrols?: () => void
-}
-
-export type BulkEditLinkedControlsDialogProps = {
-  selectedControls: { id: string; refCode: string }[]
-  selectedSubcontrols: { id: string; refCode: string }[]
-  onClearSelectedControls: () => void
-}
-
 export type BulkEditTasksDialogProps = {
   selectedTasks: { id: string }[]
   setSelectedTasks: React.Dispatch<React.SetStateAction<{ id: string }[]>>
@@ -255,7 +243,6 @@ export const checkHasFieldsToUpdate = (watchedFields: BulkEditFieldLike[]): bool
 
 const POLICY_ALLOWED_OBJECT_TYPES = [ObjectTypeObjects.CONTROL, ObjectTypeObjects.SUB_CONTROL, ObjectTypeObjects.PROCEDURE, ObjectTypeObjects.RISK] as const
 const CONTROL_ALLOWED_OBJECT_TYPES = [ObjectTypeObjects.INTERNAL_POLICY, ObjectTypeObjects.PROCEDURE, ObjectTypeObjects.RISK] as const
-const SUBCONTROL_ALLOWED_OBJECT_TYPES = [ObjectTypeObjects.INTERNAL_POLICY, ObjectTypeObjects.PROCEDURE, ObjectTypeObjects.RISK] as const
 const RISK_ALLOWED_OBJECT_TYPES = [ObjectTypeObjects.CONTROL, ObjectTypeObjects.SUB_CONTROL, ObjectTypeObjects.PROCEDURE, ObjectTypeObjects.INTERNAL_POLICY] as const
 const EVIDENCE_ALLOWED_OBJECT_TYPES = [ObjectTypeObjects.CONTROL, ObjectTypeObjects.SUB_CONTROL, ObjectTypeObjects.CONTROL_IMPLEMENTATION, ObjectTypeObjects.SCAN] as const
 
@@ -475,96 +462,6 @@ export const useGetAllSelectOptionsForBulkEditControls = (groups: Group[], typeO
       placeholder: 'Add a tag',
     },
     ...generateAssociationSelectOptions(CONTROL_ALLOWED_OBJECT_TYPES),
-  ]
-}
-
-export const getAllSelectOptionsForBulkEditSubcontrols = (groups: Group[], typeOptions: Option[]): SelectOptionSelectedObject[] => {
-  return [
-    {
-      selectOptionEnum: SelectOptionBulkEditSubcontrols.ControlOwner,
-      name: 'controlOwnerID',
-      placeholder: 'Select owner',
-      inputType: InputType.Select,
-      options: groups.map((g) => ({ label: g?.displayName || g?.name || '', value: g?.id || '' })),
-    },
-    {
-      selectOptionEnum: SelectOptionBulkEditSubcontrols.Status,
-      name: 'status',
-      placeholder: 'Select a status',
-      inputType: InputType.Select,
-      options: ControlStatusOptions.map((g) => ({ label: g?.label || '', value: g?.value || '' })),
-    },
-    {
-      selectOptionEnum: SelectOptionBulkEditSubcontrols.SubcontrolType,
-      name: 'subcontrolKindName',
-      placeholder: 'Select a subcontrol type',
-      inputType: InputType.Select,
-      options: typeOptions,
-    },
-    {
-      selectOptionEnum: SelectOptionBulkEditSubcontrols.Category,
-      name: 'category',
-      inputType: InputType.TypeAhead,
-      placeholder: 'Input category',
-    },
-    {
-      selectOptionEnum: SelectOptionBulkEditSubcontrols.SubCategory,
-      name: 'subcategory',
-      inputType: InputType.TypeAhead,
-      placeholder: 'Input subcategory',
-    },
-    {
-      selectOptionEnum: SelectOptionBulkEditSubcontrols.Tags,
-      name: 'appendTags',
-      inputType: InputType.Tag,
-      placeholder: 'Add a tag',
-    },
-    ...generateAssociationSelectOptions(SUBCONTROL_ALLOWED_OBJECT_TYPES),
-  ]
-}
-
-export const getAllSelectOptionsForBulkEditLinkedControls = (groups: Group[], typeOptions: Option[]): SelectOptionSelectedObject[] => {
-  return [
-    {
-      selectOptionEnum: SelectOptionBulkEditLinkedControls.ControlOwner,
-      name: 'controlOwnerID',
-      placeholder: 'Select owner',
-      inputType: InputType.Select,
-      options: groups.map((g) => ({ label: g?.displayName || g?.name || '', value: g?.id || '' })),
-    },
-    {
-      selectOptionEnum: SelectOptionBulkEditLinkedControls.Status,
-      name: 'status',
-      placeholder: 'Select a status',
-      inputType: InputType.Select,
-      options: ControlStatusOptions.map((g) => ({ label: g?.label || '', value: g?.value || '' })),
-    },
-    {
-      selectOptionEnum: SelectOptionBulkEditLinkedControls.Type,
-      name: 'kindName',
-      placeholder: 'Select a type',
-      inputType: InputType.Select,
-      options: typeOptions,
-    },
-    {
-      selectOptionEnum: SelectOptionBulkEditLinkedControls.Category,
-      name: 'category',
-      inputType: InputType.TypeAhead,
-      placeholder: 'Input category',
-    },
-    {
-      selectOptionEnum: SelectOptionBulkEditLinkedControls.SubCategory,
-      name: 'subcategory',
-      inputType: InputType.TypeAhead,
-      placeholder: 'Input subcategory',
-    },
-    {
-      selectOptionEnum: SelectOptionBulkEditLinkedControls.Tags,
-      name: 'appendTags',
-      inputType: InputType.Tag,
-      placeholder: 'Add a tag',
-    },
-    ...generateAssociationSelectOptions(SUBCONTROL_ALLOWED_OBJECT_TYPES),
   ]
 }
 
