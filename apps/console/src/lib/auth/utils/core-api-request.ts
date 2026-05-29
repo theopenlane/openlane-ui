@@ -13,7 +13,7 @@ export const HTTP_METHODS = {
 type HttpMethod = (typeof HTTP_METHODS)[keyof typeof HTTP_METHODS]
 
 // coreAPIRequest is a wrapper to make API requests to the core REST API that returns the payload
-export async function coreAPIRequest(route: string, method: HttpMethod, req?: NextRequest): Promise<NextResponse> {
+export async function coreAPIRequest(route: string, method: HttpMethod, req?: NextRequest, errorMsg?: string): Promise<NextResponse> {
   const session = await auth()
 
   if (!session?.user?.accessToken) {
@@ -25,7 +25,14 @@ export async function coreAPIRequest(route: string, method: HttpMethod, req?: Ne
   }
 
   const accessToken = session.user.accessToken
-  const payload = method !== HTTP_METHODS.GET && req ? await req.json() : undefined
+  let payload: unknown
+  if (method !== HTTP_METHODS.GET && req) {
+    try {
+      payload = await req.json()
+    } catch {
+      return NextResponse.json({ error: 'Invalid request body' }, { status: 400 })
+    }
+  }
 
   if (!route.startsWith('/')) {
     route = '/' + route
@@ -40,7 +47,7 @@ export async function coreAPIRequest(route: string, method: HttpMethod, req?: Ne
   })
 
   if (!response.ok) {
-    return NextResponse.json({ error: 'Failed to fetch' }, { status: response.status })
+    return NextResponse.json({ error: errorMsg ?? 'Failed to fetch' }, { status: response.status })
   }
 
   let data: unknown

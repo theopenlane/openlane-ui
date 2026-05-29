@@ -1,5 +1,5 @@
 import { coreAPIRequest, HTTP_METHODS } from '@/lib/auth/utils/core-api-request'
 
 export async function GET() {
-  return coreAPIRequest('/v1/account/roles/organization', HTTP_METHODS.GET)
+  return coreAPIRequest('/v1/account/roles/organization', HTTP_METHODS.GET, undefined, 'Failed to fetch organization roles')
 }

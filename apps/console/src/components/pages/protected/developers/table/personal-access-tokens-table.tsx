@@ -18,7 +18,7 @@ import { TriangleAlert } from 'lucide-react'
 import { type ColumnDef } from '@tanstack/react-table'
 import { usePathname, useSearchParams } from 'next/navigation'
 import { useGetApiTokens, useGetPersonalAccessTokens } from '@/lib/graphql-hooks/tokens'
-import PersonalAccessTokensTableToolbar from '@/components/pages/protected/developers/table/personal-access-tokens-table-toolbar.tsx'
+import TokensTableToolbar from '@/components/pages/protected/developers/table/personal-access-tokens-table-toolbar.tsx'
 import { useMemo, useState, useEffect } from 'react'
 import { TokenAction } from '@/components/pages/protected/developers/actions/pat-actions.tsx'
 import { TOKEN_SORT_FIELDS } from '@/components/pages/protected/developers/table/table-config.ts'
@@ -396,7 +396,7 @@ export const PersonalAccessTokenTable = () => {
 
   return (
     <>
-      <PersonalAccessTokensTableToolbar onFilterChange={setFilters} />
+      <TokensTableToolbar onFilterChange={setFilters} />
       <DataTable
         defaultSorting={defaultSorting}
         loading={isFetching}

@@ -12,7 +12,7 @@ type TProps = {
   onFilterChange: (filters: PersonalAccessTokenWhereInput) => void
 }
 
-const TaskTableToolbar: React.FC<TProps> = (props: TProps) => {
+const TokensTableToolbar: React.FC<TProps> = (props: TProps) => {
   const path = usePathname()
   const isApiTokenPage = path.includes('/api-tokens')
   const { data: permission } = useOrganizationRoles()
@@ -32,4 +32,4 @@ const TaskTableToolbar: React.FC<TProps> = (props: TProps) => {
   )
 }
 
-export default TaskTableToolbar
+export default TokensTableToolbar

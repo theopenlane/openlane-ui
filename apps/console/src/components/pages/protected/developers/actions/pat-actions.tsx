@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation'
 import { useDeleteApiToken, useDeletePersonalAccessToken } from '@/lib/graphql-hooks/tokens'
 import { useNotification } from '@/hooks/useNotification'
 import { useOrganization } from '@/hooks/useOrganization'
+import { useSSOAuthorize } from '../hooks/sso'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import PersonalApiKeyDialog from '../personal-access-token-crud-slideout'
@@ -31,7 +32,7 @@ export const TokenAction = ({ tokenId, tokenName, tokenDescription, tokenExpires
   const isApiTokens = path.includes('/api-tokens')
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [isEditOpen, setIsEditOpen] = useState(false)
-  const [isAuthorizingSSO, setIsAuthorizingSSO] = useState(false)
+  const { handleSSOAuthorize, isAuthorizingSSO } = useSSOAuthorize({ isApiKeyPage: false, isEditMode: true, editTokenId: tokenId, createdTokenId: '' })
 
   const orgsNeedingSSO = isApiTokens
     ? []
@@ -51,36 +52,6 @@ export const TokenAction = ({ tokenId, tokenName, tokenDescription, tokenExpires
       errorNotification({ title: 'Error', description: parseErrorMessage(error) })
     } finally {
       setIsDeleteDialogOpen(false)
-    }
-  }
-
-  const handleSSOAuthorize = async (orgId: string) => {
-    try {
-      setIsAuthorizingSSO(true)
-
-      localStorage.setItem('api_token', JSON.stringify({ tokenType: 'personal', isApiKeyPage: false }))
-
-      const response = await fetch('/api/auth/sso/authorize', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ organization_id: orgId, token_id: tokenId, token_type: 'personal' }),
-      })
-
-      const data = await response.json()
-
-      if (response.ok && data.success && data.redirect_uri) {
-        window.location.assign(data.redirect_uri)
-      } else {
-        throw new Error(data.error || 'SSO authorization failed')
-      }
-    } catch (error) {
-      errorNotification({
-        title: 'SSO Authorization Failed',
-        description: error instanceof Error ? error.message : 'An error occurred during SSO authorization',
-      })
-    } finally {
-      setIsAuthorizingSSO(false)
     }
   }
 

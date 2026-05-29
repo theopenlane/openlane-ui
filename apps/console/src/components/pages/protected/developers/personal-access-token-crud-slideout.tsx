@@ -12,19 +12,19 @@ import { useNotification } from '@/hooks/useNotification'
 import { useOrganization } from '@/hooks/useOrganization'
 import { Form, FormField, FormItem, FormLabel, FormControl } from '@repo/ui/form'
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
-import { useForm, useWatch } from 'react-hook-form'
-import { z, type infer as zInfer } from 'zod'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { useWatch } from 'react-hook-form'
 import { usePathname } from 'next/navigation'
 import { useCreateAPIToken, useCreatePersonalAccessToken, useUpdateApiToken, useUpdatePersonalAccessToken } from '@/lib/graphql-hooks/tokens'
 import { ScopesSelector } from '@/components/shared/scopes-selector/scopes-selector'
-import { type CreateApiTokenInput, type Organization, type OrganizationSetting } from '@repo/codegen/src/schema'
+import { type Organization, type OrganizationSetting } from '@repo/codegen/src/schema'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useGetOrganizationSetting } from '@/lib/graphql-hooks/organization'
 import { buildOrganizationsInput } from './utils'
 import { SaveButton } from '@/components/shared/save-button/save-button'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import useFormSchema, { type TokenFormData } from './hooks/use-form-schema'
+import { useSSOAuthorize } from './hooks/sso'
 
 export type EditTokenData = {
   id: string
@@ -79,48 +79,9 @@ const PersonalApiKeyDialog = ({ triggerText, editToken, open: controlledOpen, on
   const [confirmationChecked, setConfirmationChecked] = useState<boolean>(false)
   const [createdToken, setCreatedToken] = useState<string>('')
   const [createdTokenId, setCreatedTokenId] = useState<string>('')
-  const [isAuthorizingSSO, setIsAuthorizingSSO] = useState<boolean>(false)
+  const { handleSSOAuthorize, isAuthorizingSSO } = useSSOAuthorize({ isApiKeyPage, isEditMode, editTokenId: editToken?.id, createdTokenId })
 
-  const initialOrgIds = editToken?.authorizedOrganizations?.map((o) => o.id) ?? []
-
-  const formSchema = z
-    .object({
-      name: z.string().min(1, { message: 'Token name is required' }).min(3, { message: 'Token name must be at least 3 characters' }),
-      description: z.string().optional(),
-      organizationIDs: z.array(z.string()).optional(),
-      expiryDate: z.date().optional(),
-      noExpire: z.boolean().optional(),
-      scopes: z.array(z.string()).optional(),
-    })
-    .refine(
-      (data) => {
-        if (!isApiKeyPage && (!data.organizationIDs || data.organizationIDs.length === 0)) {
-          return false
-        }
-        return true
-      },
-      { message: 'At least one organization must be selected', path: ['organizationIDs'] },
-    )
-    .refine((data) => data.expiryDate || data.noExpire, {
-      message: 'Please specify an expiry date or select the Never expires toggle',
-      path: ['expiryDate'],
-    })
-
-  type FormData = zInfer<typeof formSchema>
-
-  const [initialFormValues] = useState<Partial<FormData>>(() => ({
-    name: editToken?.name ?? '',
-    description: editToken?.description ?? '',
-    expiryDate: editToken?.expiresAt ? new Date(editToken.expiresAt) : undefined,
-    organizationIDs: initialOrgIds,
-    noExpire: isEditMode ? !editToken?.expiresAt : false,
-    scopes: editToken?.scopes ?? [],
-  }))
-
-  const form = useForm<FormData>({
-    resolver: zodResolver(formSchema),
-    defaultValues: initialFormValues,
-  })
+  const { form, initialOrgIds } = useFormSchema({ isApiKeyPage, isEditMode, editToken })
 
   const noExpire = useWatch({ control: form.control, name: 'noExpire' })
 
@@ -129,108 +90,71 @@ const PersonalApiKeyDialog = ({ triggerText, editToken, open: controlledOpen, on
     successNotification({ title: 'Token copied!' })
   }
 
-  const handleSubmit = async (values: FormData) => {
+  const descriptionInput = (description?: string) => (description ? { description } : { clearDescription: true })
+
+  const expiryInput = (expiryDate?: Date, noExpire?: boolean) => (expiryDate && !noExpire ? { expiresAt: expiryDate } : { clearExpiresAt: true })
+
+  const handleEdit = async (values: TokenFormData) => {
+    if (!editToken) return
+    if (isApiKeyPage) {
+      await updateApiToken({
+        updateApiTokenId: editToken.id,
+        input: {
+          ...descriptionInput(values.description),
+          ...expiryInput(values.expiryDate, values.noExpire),
+          scopes: values.scopes ?? [],
+        },
+      })
+    } else {
+      await updatePersonalAccessToken({
+        updatePersonalAccessTokenId: editToken.id,
+        input: {
+          ...descriptionInput(values.description),
+          ...expiryInput(values.expiryDate, values.noExpire),
+          ...buildOrganizationsInput(initialOrgIds, values.organizationIDs || [], 'OrganizationIDs'),
+        },
+      })
+    }
+    successNotification({ title: 'Token updated successfully!' })
+    handleOpenChange(false)
+  }
+
+  const handleCreate = async (values: TokenFormData) => {
+    const expiresAt = values.noExpire ? null : values.expiryDate
+
+    let token: string | undefined
+    let tokenId: string | undefined
+
+    if (isApiKeyPage) {
+      const response = await createApiToken({
+        input: { name: values.name, description: values.description, expiresAt, scopes: values.scopes },
+      })
+      token = response?.createAPIToken?.apiToken.token
+      tokenId = response?.createAPIToken?.apiToken.id
+    } else {
+      const response = await createPersonalAccessToken({
+        input: { name: values.name, description: values.description, expiresAt, organizationIDs: values.organizationIDs || [] },
+      })
+      token = response?.createPersonalAccessToken?.personalAccessToken?.token
+      tokenId = response?.createPersonalAccessToken?.personalAccessToken?.id
+    }
+
+    if (!token || !tokenId) throw new Error('Failed to create token')
+
+    setCreatedToken(token)
+    setCreatedTokenId(tokenId)
+    successNotification({ title: 'Token created successfully!', description: 'Copy your token now, as you will not be able to see it again.' })
+    setStep(STEP.CREATED)
+  }
+
+  const handleSubmit = async (values: TokenFormData) => {
     try {
       setIsSubmitting(true)
-
-      if (isEditMode) {
-        if (isApiKeyPage) {
-          await updateApiToken({
-            updateApiTokenId: editToken.id,
-            input: {
-              ...(values.description ? { description: values.description } : { clearDescription: true }),
-              ...(values.expiryDate && !values.noExpire ? { expiresAt: values.expiryDate } : { clearExpiresAt: true }),
-              scopes: values.scopes ?? [],
-            },
-          })
-        } else {
-          const organizationInput = buildOrganizationsInput(initialOrgIds, values.organizationIDs || [], 'OrganizationIDs')
-          await updatePersonalAccessToken({
-            updatePersonalAccessTokenId: editToken.id,
-            input: {
-              ...(values.description ? { description: values.description } : { clearDescription: true }),
-              ...(values.expiryDate && !values.noExpire ? { expiresAt: values.expiryDate } : { clearExpiresAt: true }),
-              ...organizationInput,
-            },
-          })
-        }
-        successNotification({ title: 'Token updated successfully!' })
-        handleOpenChange(false)
-      } else {
-        let token: string | undefined = undefined
-        let tokenId: string | undefined = undefined
-
-        if (isApiKeyPage) {
-          const apiTokenInput: CreateApiTokenInput = {
-            name: values.name,
-            description: values.description,
-            expiresAt: values.noExpire ? null : values.expiryDate,
-            scopes: values.scopes,
-          }
-          const response = await createApiToken({ input: apiTokenInput })
-          token = response?.createAPIToken?.apiToken.token
-          tokenId = response?.createAPIToken?.apiToken.id
-        } else {
-          const response = await createPersonalAccessToken({
-            input: {
-              name: values.name,
-              description: values.description,
-              expiresAt: values.noExpire ? null : values.expiryDate,
-              organizationIDs: values.organizationIDs || [],
-            },
-          })
-          token = response?.createPersonalAccessToken?.personalAccessToken?.token
-          tokenId = response?.createPersonalAccessToken?.personalAccessToken?.id
-        }
-
-        if (token && tokenId) {
-          setCreatedToken(token)
-          setCreatedTokenId(tokenId)
-          successNotification({
-            title: 'Token created successfully!',
-            description: 'Copy your token now, as you will not be able to see it again.',
-          })
-          setStep(STEP.CREATED)
-        } else {
-          throw new Error('Failed to create token')
-        }
-      }
+      await (isEditMode ? handleEdit(values) : handleCreate(values))
     } catch (error) {
       errorNotification({ title: 'Error', description: parseErrorMessage(error) })
     } finally {
       setIsSubmitting(false)
-    }
-  }
-
-  const handleSSOAuthorize = async () => {
-    const tokenIdForSSO = isEditMode && editToken ? editToken.id : createdTokenId
-    try {
-      setIsAuthorizingSSO(true)
-      localStorage.setItem('api_token', JSON.stringify({ tokenType: isApiKeyPage ? 'api' : 'personal', isApiKeyPage }))
-      const response = await fetch('/api/auth/sso/authorize', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({
-          organization_id: currentOrgId,
-          token_id: tokenIdForSSO,
-          token_type: isApiKeyPage ? 'api' : 'personal',
-        }),
-      })
-      const data = await response.json()
-      if (response.ok && data.success && data.redirect_uri) {
-        window.location.assign(data.redirect_uri)
-      } else {
-        throw new Error(data.error || 'SSO authorization failed')
-      }
-    } catch (error) {
-      console.error('SSO authorization error:', error)
-      errorNotification({
-        title: 'SSO Authorization Failed',
-        description: error instanceof Error ? error.message : 'An error occurred during SSO authorization',
-      })
-    } finally {
-      setIsAuthorizingSSO(false)
     }
   }
 
@@ -239,7 +163,6 @@ const PersonalApiKeyDialog = ({ triggerText, editToken, open: controlledOpen, on
     setConfirmationChecked(false)
     setCreatedToken('')
     setCreatedTokenId('')
-    setIsAuthorizingSSO(false)
     form.reset()
   }
 
@@ -429,7 +352,7 @@ const PersonalApiKeyDialog = ({ triggerText, editToken, open: controlledOpen, on
           <SheetFooter>
             <div className="flex gap-3 w-full">
               {showSSOButton && (
-                <Button disabled={!confirmationChecked || isAuthorizingSSO} variant="secondary" onClick={handleSSOAuthorize}>
+                <Button disabled={!confirmationChecked || isAuthorizingSSO} variant="secondary" onClick={() => handleSSOAuthorize()}>
                   {isAuthorizingSSO ? 'Authorizing...' : 'Authorize token for SSO'}
                 </Button>
               )}
@@ -453,7 +376,7 @@ const PersonalApiKeyDialog = ({ triggerText, editToken, open: controlledOpen, on
             {isEditMode ? (
               <div className="flex gap-2 w-full">
                 {showSSOButton && (
-                  <Button disabled={isAuthorizingSSO} variant="secondary" onClick={handleSSOAuthorize}>
+                  <Button disabled={isAuthorizingSSO} variant="secondary" onClick={() => handleSSOAuthorize()}>
                     {isAuthorizingSSO ? 'Authorizing...' : 'Authorize for SSO'}
                   </Button>
                 )}
