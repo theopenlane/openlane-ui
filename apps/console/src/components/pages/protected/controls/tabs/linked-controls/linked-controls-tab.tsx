@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import { usePathname } from 'next/navigation'
 import SubcontrolsTable from './subcontrols-table'
 import { useGetMappedControls, buildLinkedControlsWhere } from '@/lib/graphql-hooks/mapped-control'
@@ -308,6 +308,14 @@ const LinkedControlsTab: React.FC<LinkedControlsTabProps> = ({ controlId, subcon
       }),
     [enrichedMappedControls, orgAdoptedFrameworkKeys],
   )
+
+  // TEMP debug — remove
+  useEffect(() => {
+    console.log('[LINKED-CONTROLS] controlId', controlId, 'refCode', refCode, 'sourceFramework', sourceFramework)
+    console.log('[LINKED-CONTROLS] where', mappedControlWhere)
+    console.log('[LINKED-CONTROLS] raw edges', mappedControlsData?.mappedControls?.edges)
+    console.log('[LINKED-CONTROLS] customMappedControls', customMappedControls)
+  }, [controlId, refCode, sourceFramework, mappedControlWhere, mappedControlsData, customMappedControls])
 
   const pathname = usePathname()
   const actionsColumn = useMemo(() => getMappedControlsActionsColumn(pathname), [pathname])

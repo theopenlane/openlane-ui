@@ -316,7 +316,16 @@ export const useOrgCoverageMap = (rows: CoverageRow[]): Map<string, OrgCoverageD
 
   return useMemo(() => {
     if (!data) return new Map()
-    return buildCoverageMap(data, rows)
+    const map = buildCoverageMap(data, rows)
+    // TEMP debug — remove
+    console.log('[ORG-COVERAGE] where', where)
+    console.log('[ORG-COVERAGE] rows', rows)
+    console.log('[ORG-COVERAGE] raw edges', data.mappedControls?.edges)
+    console.log(
+      '[ORG-COVERAGE] built map',
+      Array.from(map.entries()).map(([id, v]) => ({ id, orgControlRefs: v.orgControlRefs })),
+    )
+    return map
     // eslint-disable-next-line react-hooks/exhaustive-deps, @eslint-react/exhaustive-deps
   }, [data, controlIdsKey])
 }
