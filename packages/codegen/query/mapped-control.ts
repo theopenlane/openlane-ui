@@ -187,8 +187,12 @@ export const COVERAGE_SUBCONTROL_FIELDS = gql`
 `
 
 export const GET_MAPPED_CONTROLS_FOR_COVERAGE = gql`
-  query GetMappedControlsForCoverage($where: MappedControlWhereInput) {
-    mappedControls(where: $where) {
+  query GetMappedControlsForCoverage($where: MappedControlWhereInput, $after: Cursor) {
+    mappedControls(where: $where, after: $after) {
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
       edges {
         node {
           fromControls {

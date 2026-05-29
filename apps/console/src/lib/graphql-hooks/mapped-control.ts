@@ -128,17 +128,33 @@ type CoverageControlNode = {
 
 type CoverageSubcontrolNode = CoverageControlNode & { controlID: string }
 
+type CoverageMappedControlEdge = {
+  node: {
+    fromControls: { edges: Array<{ node: CoverageControlNode | null } | null> | null }
+    toControls: { edges: Array<{ node: CoverageControlNode | null } | null> | null }
+    fromSubcontrols: { edges: Array<{ node: CoverageSubcontrolNode | null } | null> | null }
+    toSubcontrols: { edges: Array<{ node: CoverageSubcontrolNode | null } | null> | null }
+  }
+} | null
+
 type CoverageMappedControlResponse = {
   mappedControls: {
-    edges: Array<{
-      node: {
-        fromControls: { edges: Array<{ node: CoverageControlNode | null } | null> | null }
-        toControls: { edges: Array<{ node: CoverageControlNode | null } | null> | null }
-        fromSubcontrols: { edges: Array<{ node: CoverageSubcontrolNode | null } | null> | null }
-        toSubcontrols: { edges: Array<{ node: CoverageSubcontrolNode | null } | null> | null }
-      }
-    } | null> | null
+    pageInfo?: { endCursor: string | null; hasNextPage: boolean }
+    edges: Array<CoverageMappedControlEdge> | null
   }
+}
+
+const collectCoverageEdges = async (requestPage: (after: string | null) => Promise<CoverageMappedControlResponse>): Promise<CoverageMappedControlResponse> => {
+  const edges: Array<CoverageMappedControlEdge> = []
+  let after: string | null = null
+  for (;;) {
+    const page = await requestPage(after)
+    if (page.mappedControls.edges) edges.push(...page.mappedControls.edges)
+    const pageInfo = page.mappedControls.pageInfo
+    if (!pageInfo?.hasNextPage || !pageInfo.endCursor) break
+    after = pageInfo.endCursor
+  }
+  return { mappedControls: { edges } }
 }
 
 const INACTIVE_STATUSES = new Set<string>([ControlControlStatus.NOT_APPLICABLE, ControlControlStatus.ARCHIVED])
@@ -310,7 +326,7 @@ export const useOrgCoverageMap = (rows: CoverageRow[]): Map<string, OrgCoverageD
 
   const { data } = useQuery<CoverageMappedControlResponse>({
     queryKey: ['mappedControls', 'coverage', controlIdsKey],
-    queryFn: () => client.request<CoverageMappedControlResponse>(GET_MAPPED_CONTROLS_FOR_COVERAGE, { where }),
+    queryFn: () => collectCoverageEdges((after) => client.request<CoverageMappedControlResponse>(GET_MAPPED_CONTROLS_FOR_COVERAGE, { where, after })),
     enabled: rows.length > 0,
   })
 
@@ -439,7 +455,7 @@ export const useFrameworkCoverageMap = (orgControlIds: string[]): Map<string, Fr
 
   const { data } = useQuery<CoverageMappedControlResponse>({
     queryKey: ['mappedControls', 'frameworkCoverage', orgControlIdsKey],
-    queryFn: () => client.request<CoverageMappedControlResponse>(GET_MAPPED_CONTROLS_FOR_COVERAGE, { where }),
+    queryFn: () => collectCoverageEdges((after) => client.request<CoverageMappedControlResponse>(GET_MAPPED_CONTROLS_FOR_COVERAGE, { where, after })),
     enabled: orgControlIds.length > 0,
   })
 
