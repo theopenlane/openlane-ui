@@ -51,14 +51,15 @@ export const useUpdateTrustCenterSetting = () => {
 
   return useMutation<UpdateTrustCenterSettingMutation, Error, UpdateTrustCenterSettingMutationVariables>({
     mutationFn: async (variables) => {
-      const { logoFile, faviconFile, ...rest } = variables
-      if (logoFile || faviconFile) {
+      const { logoFile, faviconFile, heroImageFile, ...rest } = variables
+      if (logoFile || faviconFile || heroImageFile) {
         return fetchGraphQLWithUpload({
           query: UPDATE_TRUST_CENTER_SETTING,
           variables: {
             ...rest,
             logoFile,
             faviconFile,
+            heroImageFile,
           },
         })
       }

@@ -4,7 +4,7 @@ import { useState } from 'react'
 import FileUpload from '@/components/shared/file-upload/file-upload'
 import { Label } from '@repo/ui/label'
 import UrlInput from '../../shared/url-input'
-import { Eye } from 'lucide-react'
+import { Eye, Trash2 } from 'lucide-react'
 import { type TUploadedFile } from '../../../evidence/upload/types/TUploadedFile'
 import { InputTypeEnum } from './branding-assets-section'
 import { Callout } from '@/components/shared/callout/callout'
@@ -32,9 +32,30 @@ interface AssetInputGroupProps {
   fileConfigs: FileConfigs
   isImageValidSize?: boolean | null
   enableCrop?: boolean
+  aspect?: number
+  hideUrlOption?: boolean
+  helperText?: string
+  onRemove?: () => void
 }
 
-export const AssetInputGroup = ({ label, preview, link, setLink, onUpload, inputType, setInputType, isReadOnly, normalizeUrl, fileConfigs, isImageValidSize, enableCrop }: AssetInputGroupProps) => {
+export const AssetInputGroup = ({
+  label,
+  preview,
+  link,
+  setLink,
+  onUpload,
+  inputType,
+  setInputType,
+  isReadOnly,
+  normalizeUrl,
+  fileConfigs,
+  isImageValidSize,
+  enableCrop,
+  aspect,
+  hideUrlOption,
+  helperText,
+  onRemove,
+}: AssetInputGroupProps) => {
   const [cropDialogOpen, setCropDialogOpen] = useState(false)
   const [imageToCrop, setImageToCrop] = useState<string | null>(null)
   const [pendingUpload, setPendingUpload] = useState<TUploadedFile | null>(null)
@@ -76,11 +97,13 @@ export const AssetInputGroup = ({ label, preview, link, setLink, onUpload, input
     setImageToCrop(null)
   }
 
-  const outputFileName = pendingUpload?.file?.type === 'image/png' ? 'logo.png' : 'logo.jpg'
+  const baseName = label.toLowerCase().replace(/\s+/g, '-')
+  const outputFileName = pendingUpload?.file?.type === 'image/png' ? `${baseName}.png` : `${baseName}.jpg`
 
   return (
     <div className="flex flex-col">
-      <p className="mb-2 font-medium">{label}</p>
+      <p className="mb-1 font-medium">{label}</p>
+      {helperText && <p className="mb-2 text-sm text-inverted-muted-foreground">{helperText}</p>}
       <div className="flex gap-7">
         <div>
           <Label className="mb-2 block text-sm">Preview</Label>
@@ -92,6 +115,13 @@ export const AssetInputGroup = ({ label, preview, link, setLink, onUpload, input
               <Eye className="h-6 w-6 text-muted-foreground" />
             )}
           </div>
+
+          {onRemove && preview && !isReadOnly && (
+            <button type="button" onClick={onRemove} className="mt-2 flex items-center gap-1 text-sm text-destructive hover:underline">
+              <Trash2 className="h-3.5 w-3.5" />
+              Remove
+            </button>
+          )}
 
           {isImageValidSize === false && (
             <Callout className="w-[300px] mt-5" variant="warning" title="File size">
@@ -123,17 +153,26 @@ export const AssetInputGroup = ({ label, preview, link, setLink, onUpload, input
               </div>
             )}
 
-            <div className="flex gap-6 mt-5">
-              {options.map((option) => (
-                <label key={option.value} className={`flex items-center gap-1 ${isReadOnly ? 'cursor-not-allowed opacity-70' : 'cursor-pointer'}`}>
-                  <input type="radio" disabled={isReadOnly} name={`${label.toLowerCase()}Type`} checked={inputType === option.value} onChange={() => setInputType(option.value)} className="sr-only" />
-                  <div className={`mr-3 w-5 h-5 rounded-full border-2 flex items-center justify-center ${inputType === option.value ? 'border-primary' : 'border-input'}`}>
-                    {inputType === option.value && <div className="w-2 h-2 rounded-full bg-primary" />}
-                  </div>
-                  <p className="text-sm">{option.label}</p>
-                </label>
-              ))}
-            </div>
+            {!hideUrlOption && (
+              <div className="flex gap-6 mt-5">
+                {options.map((option) => (
+                  <label key={option.value} className={`flex items-center gap-1 ${isReadOnly ? 'cursor-not-allowed opacity-70' : 'cursor-pointer'}`}>
+                    <input
+                      type="radio"
+                      disabled={isReadOnly}
+                      name={`${label.toLowerCase()}Type`}
+                      checked={inputType === option.value}
+                      onChange={() => setInputType(option.value)}
+                      className="sr-only"
+                    />
+                    <div className={`mr-3 w-5 h-5 rounded-full border-2 flex items-center justify-center ${inputType === option.value ? 'border-primary' : 'border-input'}`}>
+                      {inputType === option.value && <div className="w-2 h-2 rounded-full bg-primary" />}
+                    </div>
+                    <p className="text-sm">{option.label}</p>
+                  </label>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -147,6 +186,7 @@ export const AssetInputGroup = ({ label, preview, link, setLink, onUpload, input
           title={`Crop ${label}`}
           description="Adjust the crop area to remove whitespace and click Save"
           outputFileName={outputFileName}
+          aspect={aspect}
         />
       )}
     </div>
