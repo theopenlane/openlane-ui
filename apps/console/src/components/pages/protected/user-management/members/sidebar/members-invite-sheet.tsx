@@ -41,6 +41,7 @@ import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { RoleInfoSlideOut } from '@/components/shared/role-info-slide-out/role-info-slide-out'
 
 const formSchema = z.object({
   emails: z.array(z.string().email({ message: 'Invalid email address' })),
@@ -282,34 +283,33 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
                     <p>
                       Role <span className="text-red-500">*</span>
                     </p>
-                    <SystemTooltip
-                      icon={<InfoIcon size={14} />}
-                      content={<p>Choose a role to assign to the user(s). Admin will give the user full read and write permissions. Member will give the user read-only access.</p>}
-                    />
                   </div>
-                  <FormField
-                    name="role"
-                    control={control}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select role" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {roleOptions.map((value) => (
-                                <SelectItem key={value} value={value}>
-                                  {toHumanLabel(value)}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </FormControl>
-                        {errors.role && <FormMessage>{errors.role.message}</FormMessage>}
-                      </FormItem>
-                    )}
-                  />
+                  <div className="col-span-3 flex flex-col gap-3">
+                    <FormField
+                      name="role"
+                      control={control}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select role" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {roleOptions.map((value) => (
+                                  <SelectItem key={value} value={value}>
+                                    {toHumanLabel(value)}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                          {errors.role && <FormMessage>{errors.role.message}</FormMessage>}
+                        </FormItem>
+                      )}
+                    />
+                    <RoleInfoSlideOut />
+                  </div>
                 </div>
               </div>
             </form>
