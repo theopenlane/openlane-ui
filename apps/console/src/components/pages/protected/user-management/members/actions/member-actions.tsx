@@ -201,7 +201,8 @@ export const MemberActions = ({ memberId, memberUserId, memberRole, memberName }
                                   </SelectTrigger>
                                   <SelectContent>
                                     {Object.values(OrgMembershipRole)
-                                      .filter((role) => role !== OrgMembershipRole.OWNER && !role.includes('USER'))
+                                      // TODO: remove auditor exclusion once role is verified to work with navigation
+                                      .filter((role) => role !== OrgMembershipRole.OWNER && !role.includes('USER') && role !== OrgMembershipRole.AUDITOR)
                                       .map((role) => (
                                         <SelectItem key={role} value={role}>
                                           {toHumanLabel(role)}
