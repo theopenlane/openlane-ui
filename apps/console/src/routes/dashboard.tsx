@@ -364,7 +364,6 @@ export const bottomNavigationItems = (session: Session | null, orgPermission?: T
         {
           title: 'Integrations',
           href: '/organization-settings/integrations',
-          hidden: !canEdit,
           icon: Waypoints,
         },
       ],
