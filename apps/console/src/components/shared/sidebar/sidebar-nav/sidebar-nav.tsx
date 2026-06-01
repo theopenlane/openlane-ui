@@ -128,8 +128,8 @@ export default function SideNav({
     }
 
     if (children.length > 0) {
-      const firstChild = children[0]
-      const hasActiveChild = children.some((child) => pathname === child.href || pathname.startsWith(`${child.href}/`))
+      const firstChild = children.find((child) => !child.hidden)
+      const hasActiveChild = children.some((child) => !child.hidden && (pathname === child.href || pathname.startsWith(`${child.href}/`)))
       if (!hasActiveChild && firstChild?.href) {
         router.push(firstChild.href)
       }

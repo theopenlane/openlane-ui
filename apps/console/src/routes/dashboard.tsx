@@ -334,7 +334,7 @@ export const bottomNavigationItems = (session: Session | null, orgPermission?: T
         {
           title: 'Authentication',
           href: '/organization-settings/authentication',
-          hidden: billingExpired,
+          hidden: billingExpired || !canEdit(orgPermission?.roles),
           icon: GlobeLock,
         },
         {
