@@ -12,6 +12,7 @@ type ResponseStateCardProps = {
   dueDate?: string | null
   onResend: () => void
   isResending: boolean
+  canResend?: boolean
 }
 
 const MS_PER_DAY = 1000 * 60 * 60 * 24
@@ -23,7 +24,7 @@ const daysPastDue = (dueDate?: string | null): number | null => {
   return Math.floor(diff / MS_PER_DAY)
 }
 
-const ResponseStateCard: React.FC<ResponseStateCardProps> = ({ status, answered, total, dueDate, onResend, isResending }) => {
+const ResponseStateCard: React.FC<ResponseStateCardProps> = ({ status, answered, total, dueDate, onResend, isResending, canResend = false }) => {
   const isOverdue = status === AssessmentResponseAssessmentResponseStatus.OVERDUE
   const isInProgress = status === AssessmentResponseAssessmentResponseStatus.DRAFT
   const pastDue = daysPastDue(dueDate)
@@ -70,10 +71,12 @@ const ResponseStateCard: React.FC<ResponseStateCardProps> = ({ status, answered,
         )}
       </div>
 
-      <Button type="button" variant="outline" className="w-full" onClick={onResend} disabled={isResending}>
-        <Send className="mr-2 h-4 w-4" />
-        Send reminder
-      </Button>
+      {canResend && (
+        <Button type="button" variant="outline" className="w-full" onClick={onResend} disabled={isResending}>
+          <Send className="mr-2 h-4 w-4" />
+          Send reminder
+        </Button>
+      )}
     </div>
   )
 }

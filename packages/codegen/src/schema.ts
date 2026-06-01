@@ -457,6 +457,10 @@ export interface ActionPlan extends Node {
   /** due date of the action plan */
   dueDate?: Maybe<Scalars['Time']['output']>
   editors: GroupConnection
+  /** The contents of externally managed files, if available */
+  externalContents?: Maybe<Scalars['String']['output']>
+  /** Documents managed externally may have IDs we need to reference, this holds them */
+  externalFileID?: Maybe<Scalars['String']['output']>
   file?: Maybe<File>
   /** This will contain the most recent file id if this action_plan was created from a file */
   fileID?: Maybe<Scalars['ID']['output']>
@@ -717,6 +721,7 @@ export interface ActionPlanDeletePayload {
 /** ActionPlanDocumentManagementMode is enum for the field management_mode */
 export enum ActionPlanDocumentManagementMode {
   EXTERNAL_REFERENCE = 'EXTERNAL_REFERENCE',
+  INTEGRATION = 'INTEGRATION',
   OPENLANE_MANAGED = 'OPENLANE_MANAGED',
 }
 
@@ -972,6 +977,38 @@ export interface ActionPlanWhereInput {
   dueDateNEQ?: InputMaybe<Scalars['Time']['input']>
   dueDateNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
   dueDateNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** external_contents field predicates */
+  externalContents?: InputMaybe<Scalars['String']['input']>
+  externalContentsContains?: InputMaybe<Scalars['String']['input']>
+  externalContentsContainsFold?: InputMaybe<Scalars['String']['input']>
+  externalContentsEqualFold?: InputMaybe<Scalars['String']['input']>
+  externalContentsGT?: InputMaybe<Scalars['String']['input']>
+  externalContentsGTE?: InputMaybe<Scalars['String']['input']>
+  externalContentsHasPrefix?: InputMaybe<Scalars['String']['input']>
+  externalContentsHasSuffix?: InputMaybe<Scalars['String']['input']>
+  externalContentsIn?: InputMaybe<Array<Scalars['String']['input']>>
+  externalContentsIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  externalContentsLT?: InputMaybe<Scalars['String']['input']>
+  externalContentsLTE?: InputMaybe<Scalars['String']['input']>
+  externalContentsNEQ?: InputMaybe<Scalars['String']['input']>
+  externalContentsNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  externalContentsNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** external_file_id field predicates */
+  externalFileID?: InputMaybe<Scalars['String']['input']>
+  externalFileIDContains?: InputMaybe<Scalars['String']['input']>
+  externalFileIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  externalFileIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  externalFileIDGT?: InputMaybe<Scalars['String']['input']>
+  externalFileIDGTE?: InputMaybe<Scalars['String']['input']>
+  externalFileIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  externalFileIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  externalFileIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  externalFileIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  externalFileIDLT?: InputMaybe<Scalars['String']['input']>
+  externalFileIDLTE?: InputMaybe<Scalars['String']['input']>
+  externalFileIDNEQ?: InputMaybe<Scalars['String']['input']>
+  externalFileIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  externalFileIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** file_id field predicates */
   fileID?: InputMaybe<Scalars['ID']['input']>
   fileIDContains?: InputMaybe<Scalars['ID']['input']>
@@ -1294,7 +1331,7 @@ export interface Assessment extends Node {
   /** the name of the assessment, e.g. cloud providers, marketing team */
   name: Scalars['String']['output']
   owner?: Maybe<Organization>
-  /** the organization id that owns the object */
+  /** the ID of the organization owner of the object */
   ownerID?: Maybe<Scalars['ID']['output']>
   platforms: PlatformConnection
   /** the duration in seconds that the user has to complete the assessment response, defaults to 7 days */
@@ -7621,6 +7658,10 @@ export interface CreateActionPlanInput {
   /** due date of the action plan */
   dueDate?: InputMaybe<Scalars['Time']['input']>
   editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** The contents of externally managed files, if available */
+  externalContents?: InputMaybe<Scalars['String']['input']>
+  /** Documents managed externally may have IDs we need to reference, this holds them */
+  externalFileID?: InputMaybe<Scalars['String']['input']>
   fileID?: InputMaybe<Scalars['ID']['input']>
   findingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** suggested improvements for the action_plan */
@@ -9316,12 +9357,17 @@ export interface CreateInternalPolicyInput {
   environmentID?: InputMaybe<Scalars['ID']['input']>
   /** the environment of the internal_policy */
   environmentName?: InputMaybe<Scalars['String']['input']>
+  /** The contents of externally managed files, if available */
+  externalContents?: InputMaybe<Scalars['String']['input']>
+  /** Documents managed externally may have IDs we need to reference, this holds them */
+  externalFileID?: InputMaybe<Scalars['String']['input']>
   /** stable external UUID for deterministic OSCAL export and round-tripping */
   externalUUID?: InputMaybe<Scalars['String']['input']>
   fileID?: InputMaybe<Scalars['ID']['input']>
   identityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** suggested improvements for the policy */
   improvementSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
+  integrationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: InputMaybe<Scalars['String']['input']>
   internalPolicyKindID?: InputMaybe<Scalars['ID']['input']>
@@ -9766,7 +9812,9 @@ export interface CreateOrgMembershipInput {
 export interface CreateOrganizationInput {
   actionPlanCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   actionPlanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  apiTokenCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   apiTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  assessmentCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   assessmentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   assessmentResponseIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   assetCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -9776,8 +9824,14 @@ export interface CreateOrganizationInput {
   avatarRemoteURL?: InputMaybe<Scalars['String']['input']>
   /** The time the user's (local) avatar was last updated */
   avatarUpdatedAt?: InputMaybe<Scalars['Time']['input']>
+  campaignCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   campaignIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  campaignTargetCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   campaignTargetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  campaignsManagerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  checkResultCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  complianceManagerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  contactCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   contactIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   controlCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   controlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -9786,41 +9840,63 @@ export interface CreateOrganizationInput {
   controlObjectiveCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   controlObjectiveIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   createOrgSettings?: InputMaybe<CreateOrganizationSettingInput>
+  customDomainCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   customDomainIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  customTypeEnumCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   customTypeEnumIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** An optional description of the organization */
   description?: InputMaybe<Scalars['String']['input']>
+  directoryAccountCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   directoryAccountIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  directoryGroupCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   directoryGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  directoryMembershipCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  directorySyncRunCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   directorySyncRunIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  discussionCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   discussionIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** The organization's displayed 'friendly' name */
   displayName?: InputMaybe<Scalars['String']['input']>
   dnsVerificationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  documentDataCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   documentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  emailTemplateCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   emailTemplateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  entityCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   entityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  entityTypeCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   entityTypeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   eventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   evidenceCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   evidenceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   exportIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  fileCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   fileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  findingControlCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   findingCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   findingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   groupCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   groupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  groupManagerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  groupMembershipCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  groupSettingCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  hushCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   identityHolderCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   identityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   impersonationEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   integrationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   internalPolicyCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   internalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  inviteCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   inviteIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   jobResultIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  jobRunnerCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   jobRunnerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  jobRunnerRegistrationTokenCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   jobRunnerRegistrationTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  jobRunnerTokenCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   jobRunnerTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  jobTemplateCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   jobTemplateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   mappedControlCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   mappedControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -9828,57 +9904,86 @@ export interface CreateOrganizationInput {
   name: Scalars['String']['input']
   narrativeCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   narrativeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  noteCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   noteIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   notificationPreferenceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  notificationTemplateCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   notificationTemplateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  orgMembershipCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   orgSubscriptionIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   parentID?: InputMaybe<Scalars['ID']['input']>
   personalAccessTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** orgs directly associated with a user */
   personalOrg?: InputMaybe<Scalars['Boolean']['input']>
+  platformCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   platformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  policiesManagerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   procedureCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   procedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   programCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   programIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  programMembershipCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  registryManagerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  remediationCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   remediationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  reviewCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   reviewIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   riskCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   riskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  riskManagerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  scanCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   scanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   scheduledJobCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   scheduledJobIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  scheduledJobRunCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   scheduledJobRunIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   secretIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   settingID?: InputMaybe<Scalars['ID']['input']>
+  slaDefinitionCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   slaDefinitionIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   standardCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   standardIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  subcontrolCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   subcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   subprocessorCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   subprocessorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  subscriberCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   subscriberIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  systemDetailCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   systemDetailIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  tagDefinitionCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   tagDefinitionIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
+  taskCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   taskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   templateCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   templateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  trustCenterComplianceCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  trustCenterCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   trustCenterDocCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  trustCenterEntityCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  trustCenterFaqCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   trustCenterIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  trustCenterManagerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  trustCenterNdaRequestCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   trustCenterSubprocessorCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  trustCenterWatermarkConfigCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   trustCenterWatermarkConfigIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  vendorRiskScoreCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   vendorRiskScoreIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  vendorScoringConfigCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   vendorScoringConfigIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   vulnerabilityCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   vulnerabilityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   workflowAssignmentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   workflowAssignmentTargetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  workflowDefinitionCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   workflowDefinitionIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   workflowEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   workflowInstanceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   workflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  workflowsManagerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
 }
 
 /**
@@ -10103,6 +10208,10 @@ export interface CreateProcedureInput {
   environmentID?: InputMaybe<Scalars['ID']['input']>
   /** the environment of the procedure */
   environmentName?: InputMaybe<Scalars['String']['input']>
+  /** The contents of externally managed files, if available */
+  externalContents?: InputMaybe<Scalars['String']['input']>
+  /** Documents managed externally may have IDs we need to reference, this holds them */
+  externalFileID?: InputMaybe<Scalars['String']['input']>
   fileID?: InputMaybe<Scalars['ID']['input']>
   /** suggested improvements for the procedure */
   improvementSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
@@ -24191,6 +24300,7 @@ export interface Integration extends Node {
   integrationType?: Maybe<Scalars['String']['output']>
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: Maybe<Scalars['String']['output']>
+  internalPolicies: InternalPolicyConnection
   /** the kind of integration, such as github, slack, s3 etc. */
   kind?: Maybe<Scalars['String']['output']>
   /** additional metadata about the integration */
@@ -24347,6 +24457,15 @@ export interface IntegrationFindingsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<FindingOrder>>
   where?: InputMaybe<FindingWhereInput>
+}
+
+export interface IntegrationInternalPoliciesArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<InternalPolicyOrder>>
+  where?: InputMaybe<InternalPolicyWhereInput>
 }
 
 export interface IntegrationNotificationTemplatesArgs {
@@ -24635,6 +24754,9 @@ export interface IntegrationWhereInput {
   /** findings edge predicates */
   hasFindings?: InputMaybe<Scalars['Boolean']['input']>
   hasFindingsWith?: InputMaybe<Array<FindingWhereInput>>
+  /** internal_policies edge predicates */
+  hasInternalPolicies?: InputMaybe<Scalars['Boolean']['input']>
+  hasInternalPoliciesWith?: InputMaybe<Array<InternalPolicyWhereInput>>
   /** notification_templates edge predicates */
   hasNotificationTemplates?: InputMaybe<Scalars['Boolean']['input']>
   hasNotificationTemplatesWith?: InputMaybe<Array<NotificationTemplateWhereInput>>
@@ -24905,6 +25027,10 @@ export interface InternalPolicy extends Node {
   environmentID?: Maybe<Scalars['ID']['output']>
   /** the environment of the internal_policy */
   environmentName?: Maybe<Scalars['String']['output']>
+  /** The contents of externally managed files, if available */
+  externalContents?: Maybe<Scalars['String']['output']>
+  /** Documents managed externally may have IDs we need to reference, this holds them */
+  externalFileID?: Maybe<Scalars['String']['output']>
   /** stable external UUID for deterministic OSCAL export and round-tripping */
   externalUUID?: Maybe<Scalars['String']['output']>
   file?: Maybe<File>
@@ -24918,6 +25044,7 @@ export interface InternalPolicy extends Node {
   identityHolders: IdentityHolderConnection
   /** suggested improvements for the policy */
   improvementSuggestions?: Maybe<Array<Scalars['String']['output']>>
+  integrations: IntegrationConnection
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: Maybe<Scalars['String']['output']>
   internalPolicyKind?: Maybe<CustomTypeEnum>
@@ -24925,6 +25052,11 @@ export interface InternalPolicy extends Node {
   internalPolicyKindID?: Maybe<Scalars['ID']['output']>
   /** the kind of the internal_policy */
   internalPolicyKindName?: Maybe<Scalars['String']['output']>
+  /**
+   * Live external document contents fetched from the integration provider (e.g. Google Drive HTML export).
+   * Only populated when managementMode is INTEGRATION and an externalFileID is set.
+   */
+  liveExternalContents?: Maybe<Scalars['String']['output']>
   /** how the policy is managed: parsed and edited in Openlane (OPENLANE_MANAGED) or kept as an external reference file viewed in Openlane (EXTERNAL_REFERENCE) */
   managementMode?: Maybe<InternalPolicyDocumentManagementMode>
   /** the name of the policy */
@@ -25060,6 +25192,15 @@ export interface InternalPolicyIdentityHoldersArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<IdentityHolderOrder>>
   where?: InputMaybe<IdentityHolderWhereInput>
+}
+
+export interface InternalPolicyIntegrationsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<IntegrationOrder>>
+  where?: InputMaybe<IntegrationWhereInput>
 }
 
 export interface InternalPolicyNarrativesArgs {
@@ -25199,6 +25340,7 @@ export interface InternalPolicyDeletePayload {
 /** InternalPolicyDocumentManagementMode is enum for the field management_mode */
 export enum InternalPolicyDocumentManagementMode {
   EXTERNAL_REFERENCE = 'EXTERNAL_REFERENCE',
+  INTEGRATION = 'INTEGRATION',
   OPENLANE_MANAGED = 'OPENLANE_MANAGED',
 }
 
@@ -25399,6 +25541,38 @@ export interface InternalPolicyWhereInput {
   environmentNameNEQ?: InputMaybe<Scalars['String']['input']>
   environmentNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   environmentNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** external_contents field predicates */
+  externalContents?: InputMaybe<Scalars['String']['input']>
+  externalContentsContains?: InputMaybe<Scalars['String']['input']>
+  externalContentsContainsFold?: InputMaybe<Scalars['String']['input']>
+  externalContentsEqualFold?: InputMaybe<Scalars['String']['input']>
+  externalContentsGT?: InputMaybe<Scalars['String']['input']>
+  externalContentsGTE?: InputMaybe<Scalars['String']['input']>
+  externalContentsHasPrefix?: InputMaybe<Scalars['String']['input']>
+  externalContentsHasSuffix?: InputMaybe<Scalars['String']['input']>
+  externalContentsIn?: InputMaybe<Array<Scalars['String']['input']>>
+  externalContentsIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  externalContentsLT?: InputMaybe<Scalars['String']['input']>
+  externalContentsLTE?: InputMaybe<Scalars['String']['input']>
+  externalContentsNEQ?: InputMaybe<Scalars['String']['input']>
+  externalContentsNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  externalContentsNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** external_file_id field predicates */
+  externalFileID?: InputMaybe<Scalars['String']['input']>
+  externalFileIDContains?: InputMaybe<Scalars['String']['input']>
+  externalFileIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  externalFileIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  externalFileIDGT?: InputMaybe<Scalars['String']['input']>
+  externalFileIDGTE?: InputMaybe<Scalars['String']['input']>
+  externalFileIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  externalFileIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  externalFileIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  externalFileIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  externalFileIDLT?: InputMaybe<Scalars['String']['input']>
+  externalFileIDLTE?: InputMaybe<Scalars['String']['input']>
+  externalFileIDNEQ?: InputMaybe<Scalars['String']['input']>
+  externalFileIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  externalFileIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** external_uuid field predicates */
   externalUUID?: InputMaybe<Scalars['String']['input']>
   externalUUIDContains?: InputMaybe<Scalars['String']['input']>
@@ -25473,6 +25647,9 @@ export interface InternalPolicyWhereInput {
   /** identity_holders edge predicates */
   hasIdentityHolders?: InputMaybe<Scalars['Boolean']['input']>
   hasIdentityHoldersWith?: InputMaybe<Array<IdentityHolderWhereInput>>
+  /** integrations edge predicates */
+  hasIntegrations?: InputMaybe<Scalars['Boolean']['input']>
+  hasIntegrationsWith?: InputMaybe<Array<IntegrationWhereInput>>
   /** internal_policy_kind edge predicates */
   hasInternalPolicyKind?: InputMaybe<Scalars['Boolean']['input']>
   hasInternalPolicyKindWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
@@ -34055,8 +34232,10 @@ export enum OrgMembershipOrderField {
 /** OrgMembershipRole is enum for the field role */
 export enum OrgMembershipRole {
   ADMIN = 'ADMIN',
+  AUDITOR = 'AUDITOR',
   MEMBER = 'MEMBER',
   OWNER = 'OWNER',
+  SUPER_ADMIN = 'SUPER_ADMIN',
 }
 
 /** Return response for updateOrgMembership mutation */
@@ -34401,7 +34580,9 @@ export interface Organization extends Node {
   __typename?: 'Organization'
   actionPlanCreators: GroupConnection
   actionPlans: ActionPlanConnection
+  apiTokenCreators: GroupConnection
   apiTokens: ApiTokenConnection
+  assessmentCreators: GroupConnection
   assessmentResponses: AssessmentResponseConnection
   assessments: AssessmentConnection
   assetCreators: GroupConnection
@@ -34413,9 +34594,15 @@ export interface Organization extends Node {
   avatarRemoteURL?: Maybe<Scalars['String']['output']>
   /** The time the user's (local) avatar was last updated */
   avatarUpdatedAt?: Maybe<Scalars['Time']['output']>
+  campaignCreators: GroupConnection
+  campaignTargetCreators: GroupConnection
   campaignTargets: CampaignTargetConnection
   campaigns: CampaignConnection
+  campaignsManager: GroupConnection
+  checkResultCreators: GroupConnection
   children: OrganizationConnection
+  complianceManager: GroupConnection
+  contactCreators: GroupConnection
   contacts: ContactConnection
   controlCreators: GroupConnection
   controlImplementationCreators: GroupConnection
@@ -34425,42 +34612,64 @@ export interface Organization extends Node {
   controls: ControlConnection
   createdAt?: Maybe<Scalars['Time']['output']>
   createdBy?: Maybe<Scalars['String']['output']>
+  customDomainCreators: GroupConnection
   customDomains: CustomDomainConnection
+  customTypeEnumCreators: GroupConnection
   customTypeEnums: CustomTypeEnumConnection
   /** An optional description of the organization */
   description?: Maybe<Scalars['String']['output']>
+  directoryAccountCreators: GroupConnection
   directoryAccounts: DirectoryAccountConnection
+  directoryGroupCreators: GroupConnection
   directoryGroups: DirectoryGroupConnection
+  directoryMembershipCreators: GroupConnection
   directoryMemberships: DirectoryMembershipConnection
+  directorySyncRunCreators: GroupConnection
   directorySyncRuns: DirectorySyncRunConnection
+  discussionCreators: GroupConnection
   discussions: DiscussionConnection
   /** The organization's displayed 'friendly' name */
   displayName: Scalars['String']['output']
   dnsVerifications: DnsVerificationConnection
+  documentDataCreators: GroupConnection
   documents: DocumentDataConnection
+  emailTemplateCreators: GroupConnection
   emailTemplates: EmailTemplateConnection
   entities: EntityConnection
+  entityCreators: GroupConnection
+  entityTypeCreators: GroupConnection
   entityTypes: EntityTypeConnection
   events: EventConnection
   evidence: EvidenceConnection
   evidenceCreators: GroupConnection
   exports: ExportConnection
+  fileCreators: GroupConnection
   files: FileConnection
+  findingControlCreators: GroupConnection
   findingCreators: GroupConnection
   findings: FindingConnection
   groupCreators: GroupConnection
+  groupManager: GroupConnection
+  groupMembershipCreators: GroupConnection
+  groupSettingCreators: GroupConnection
   groups: GroupConnection
+  hushCreators: GroupConnection
   id: Scalars['ID']['output']
   identityHolderCreators: GroupConnection
   identityHolders: IdentityHolderConnection
   integrations: IntegrationConnection
   internalPolicies: InternalPolicyConnection
   internalPolicyCreators: GroupConnection
+  inviteCreators: GroupConnection
   invites: InviteConnection
   jobResults: JobResultConnection
+  jobRunnerCreators: GroupConnection
+  jobRunnerRegistrationTokenCreators: GroupConnection
   jobRunnerRegistrationTokens: JobRunnerRegistrationTokenConnection
+  jobRunnerTokenCreators: GroupConnection
   jobRunnerTokens: JobRunnerTokenConnection
   jobRunners: JobRunnerConnection
+  jobTemplateCreators: GroupConnection
   jobTemplates: JobTemplateConnection
   mappedControlCreators: GroupConnection
   mappedControls: MappedControlConnection
@@ -34469,62 +34678,91 @@ export interface Organization extends Node {
   name: Scalars['String']['output']
   narrativeCreators: GroupConnection
   narratives: NarrativeConnection
+  noteCreators: GroupConnection
   notes: NoteConnection
   notificationPreferences: NotificationPreferenceConnection
+  notificationTemplateCreators: GroupConnection
   notificationTemplates: NotificationTemplateConnection
+  orgMembershipCreators: GroupConnection
   orgSubscriptions?: Maybe<Array<OrgSubscription>>
   parent?: Maybe<Organization>
   personalAccessTokens: PersonalAccessTokenConnection
   /** orgs directly associated with a user */
   personalOrg?: Maybe<Scalars['Boolean']['output']>
+  platformCreators: GroupConnection
   platforms: PlatformConnection
+  policiesManager: GroupConnection
   procedureCreators: GroupConnection
   procedures: ProcedureConnection
   programCreators: GroupConnection
+  programMembershipCreators: GroupConnection
   programs: ProgramConnection
+  registryManager: GroupConnection
+  remediationCreators: GroupConnection
   remediations: RemediationConnection
+  reviewCreators: GroupConnection
   reviews: ReviewConnection
   riskCreators: GroupConnection
+  riskManager: GroupConnection
   risks: RiskConnection
+  scanCreators: GroupConnection
   scans: ScanConnection
   scheduledJobCreators: GroupConnection
+  scheduledJobRunCreators: GroupConnection
   scheduledJobRuns: ScheduledJobRunConnection
   scheduledJobs: ScheduledJobConnection
   secrets: HushConnection
   setting?: Maybe<OrganizationSetting>
+  slaDefinitionCreators: GroupConnection
   slaDefinitions: SlaDefinitionConnection
   standardCreators: GroupConnection
   standards: StandardConnection
   /** the stripe customer ID this organization is associated to */
   stripeCustomerID?: Maybe<Scalars['String']['output']>
+  subcontrolCreators: GroupConnection
   subcontrols: SubcontrolConnection
   subprocessorCreators: GroupConnection
   subprocessors: SubprocessorConnection
+  subscriberCreators: GroupConnection
   subscribers: SubscriberConnection
+  systemDetailCreators: GroupConnection
   systemDetails: SystemDetailConnection
+  tagDefinitionCreators: GroupConnection
   tagDefinitions: TagDefinitionConnection
   /** tags associated with the object */
   tags?: Maybe<Array<Scalars['String']['output']>>
+  taskCreators: GroupConnection
   tasks: TaskConnection
   templateCreators: GroupConnection
   templates: TemplateConnection
+  trustCenterComplianceCreators: GroupConnection
+  trustCenterCreators: GroupConnection
   trustCenterDocCreators: GroupConnection
+  trustCenterEntityCreators: GroupConnection
+  trustCenterFaqCreators: GroupConnection
+  trustCenterManager: GroupConnection
+  trustCenterNdaRequestCreators: GroupConnection
   trustCenterSubprocessorCreators: GroupConnection
+  trustCenterWatermarkConfigCreators: GroupConnection
   trustCenterWatermarkConfigs: TrustCenterWatermarkConfigConnection
   trustCenters: TrustCenterConnection
   updatedAt?: Maybe<Scalars['Time']['output']>
   updatedBy?: Maybe<Scalars['String']['output']>
   users: UserConnection
+  vendorRiskScoreCreators: GroupConnection
   vendorRiskScores: VendorRiskScoreConnection
+  vendorScoringConfigCreators: GroupConnection
   vendorScoringConfigs: VendorScoringConfigConnection
   vulnerabilities: VulnerabilityConnection
   vulnerabilityCreators: GroupConnection
   workflowAssignmentTargets: WorkflowAssignmentTargetConnection
   workflowAssignments: WorkflowAssignmentConnection
+  workflowDefinitionCreators: GroupConnection
   workflowDefinitions: WorkflowDefinitionConnection
   workflowEvents: WorkflowEventConnection
   workflowInstances: WorkflowInstanceConnection
   workflowObjectRefs: WorkflowObjectRefConnection
+  workflowsManager: GroupConnection
 }
 
 export interface OrganizationActionPlanCreatorsArgs {
@@ -34545,6 +34783,15 @@ export interface OrganizationActionPlansArgs {
   where?: InputMaybe<ActionPlanWhereInput>
 }
 
+export interface OrganizationApiTokenCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
 export interface OrganizationApiTokensArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -34552,6 +34799,15 @@ export interface OrganizationApiTokensArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<ApiTokenOrder>>
   where?: InputMaybe<ApiTokenWhereInput>
+}
+
+export interface OrganizationAssessmentCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 export interface OrganizationAssessmentResponsesArgs {
@@ -34590,6 +34846,24 @@ export interface OrganizationAssetsArgs {
   where?: InputMaybe<AssetWhereInput>
 }
 
+export interface OrganizationCampaignCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
+export interface OrganizationCampaignTargetCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
 export interface OrganizationCampaignTargetsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -34608,6 +34882,24 @@ export interface OrganizationCampaignsArgs {
   where?: InputMaybe<CampaignWhereInput>
 }
 
+export interface OrganizationCampaignsManagerArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
+export interface OrganizationCheckResultCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
 export interface OrganizationChildrenArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -34615,6 +34907,24 @@ export interface OrganizationChildrenArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<OrganizationOrder>>
   where?: InputMaybe<OrganizationWhereInput>
+}
+
+export interface OrganizationComplianceManagerArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
+export interface OrganizationContactCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 export interface OrganizationContactsArgs {
@@ -34680,6 +34990,15 @@ export interface OrganizationControlsArgs {
   where?: InputMaybe<ControlWhereInput>
 }
 
+export interface OrganizationCustomDomainCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
 export interface OrganizationCustomDomainsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -34687,6 +35006,15 @@ export interface OrganizationCustomDomainsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<CustomDomainOrder>>
   where?: InputMaybe<CustomDomainWhereInput>
+}
+
+export interface OrganizationCustomTypeEnumCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 export interface OrganizationCustomTypeEnumsArgs {
@@ -34698,6 +35026,15 @@ export interface OrganizationCustomTypeEnumsArgs {
   where?: InputMaybe<CustomTypeEnumWhereInput>
 }
 
+export interface OrganizationDirectoryAccountCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
 export interface OrganizationDirectoryAccountsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -34705,6 +35042,15 @@ export interface OrganizationDirectoryAccountsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<DirectoryAccountOrder>>
   where?: InputMaybe<DirectoryAccountWhereInput>
+}
+
+export interface OrganizationDirectoryGroupCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 export interface OrganizationDirectoryGroupsArgs {
@@ -34716,6 +35062,15 @@ export interface OrganizationDirectoryGroupsArgs {
   where?: InputMaybe<DirectoryGroupWhereInput>
 }
 
+export interface OrganizationDirectoryMembershipCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
 export interface OrganizationDirectoryMembershipsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -34725,6 +35080,15 @@ export interface OrganizationDirectoryMembershipsArgs {
   where?: InputMaybe<DirectoryMembershipWhereInput>
 }
 
+export interface OrganizationDirectorySyncRunCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
 export interface OrganizationDirectorySyncRunsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -34732,6 +35096,15 @@ export interface OrganizationDirectorySyncRunsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<DirectorySyncRunOrder>>
   where?: InputMaybe<DirectorySyncRunWhereInput>
+}
+
+export interface OrganizationDiscussionCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 export interface OrganizationDiscussionsArgs {
@@ -34752,6 +35125,15 @@ export interface OrganizationDnsVerificationsArgs {
   where?: InputMaybe<DnsVerificationWhereInput>
 }
 
+export interface OrganizationDocumentDataCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
 export interface OrganizationDocumentsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -34759,6 +35141,15 @@ export interface OrganizationDocumentsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<DocumentDataOrder>>
   where?: InputMaybe<DocumentDataWhereInput>
+}
+
+export interface OrganizationEmailTemplateCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 export interface OrganizationEmailTemplatesArgs {
@@ -34777,6 +35168,24 @@ export interface OrganizationEntitiesArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<EntityOrder>>
   where?: InputMaybe<EntityWhereInput>
+}
+
+export interface OrganizationEntityCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
+export interface OrganizationEntityTypeCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 export interface OrganizationEntityTypesArgs {
@@ -34824,6 +35233,15 @@ export interface OrganizationExportsArgs {
   where?: InputMaybe<ExportWhereInput>
 }
 
+export interface OrganizationFileCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
 export interface OrganizationFilesArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -34831,6 +35249,15 @@ export interface OrganizationFilesArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<FileOrder>>
   where?: InputMaybe<FileWhereInput>
+}
+
+export interface OrganizationFindingControlCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 export interface OrganizationFindingCreatorsArgs {
@@ -34860,7 +35287,43 @@ export interface OrganizationGroupCreatorsArgs {
   where?: InputMaybe<GroupWhereInput>
 }
 
+export interface OrganizationGroupManagerArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
+export interface OrganizationGroupMembershipCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
+export interface OrganizationGroupSettingCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
 export interface OrganizationGroupsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
+export interface OrganizationHushCreatorsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
   first?: InputMaybe<Scalars['Int']['input']>
@@ -34914,6 +35377,15 @@ export interface OrganizationInternalPolicyCreatorsArgs {
   where?: InputMaybe<GroupWhereInput>
 }
 
+export interface OrganizationInviteCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
 export interface OrganizationInvitesArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -34932,6 +35404,24 @@ export interface OrganizationJobResultsArgs {
   where?: InputMaybe<JobResultWhereInput>
 }
 
+export interface OrganizationJobRunnerCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
+export interface OrganizationJobRunnerRegistrationTokenCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
 export interface OrganizationJobRunnerRegistrationTokensArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -34939,6 +35429,15 @@ export interface OrganizationJobRunnerRegistrationTokensArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<JobRunnerRegistrationTokenOrder>>
   where?: InputMaybe<JobRunnerRegistrationTokenWhereInput>
+}
+
+export interface OrganizationJobRunnerTokenCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 export interface OrganizationJobRunnerTokensArgs {
@@ -34957,6 +35456,15 @@ export interface OrganizationJobRunnersArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<JobRunnerOrder>>
   where?: InputMaybe<JobRunnerWhereInput>
+}
+
+export interface OrganizationJobTemplateCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 export interface OrganizationJobTemplatesArgs {
@@ -35013,6 +35521,15 @@ export interface OrganizationNarrativesArgs {
   where?: InputMaybe<NarrativeWhereInput>
 }
 
+export interface OrganizationNoteCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
 export interface OrganizationNotesArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -35031,6 +35548,15 @@ export interface OrganizationNotificationPreferencesArgs {
   where?: InputMaybe<NotificationPreferenceWhereInput>
 }
 
+export interface OrganizationNotificationTemplateCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
 export interface OrganizationNotificationTemplatesArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -35038,6 +35564,15 @@ export interface OrganizationNotificationTemplatesArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<NotificationTemplateOrder>>
   where?: InputMaybe<NotificationTemplateWhereInput>
+}
+
+export interface OrganizationOrgMembershipCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 export interface OrganizationPersonalAccessTokensArgs {
@@ -35049,6 +35584,15 @@ export interface OrganizationPersonalAccessTokensArgs {
   where?: InputMaybe<PersonalAccessTokenWhereInput>
 }
 
+export interface OrganizationPlatformCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
 export interface OrganizationPlatformsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -35056,6 +35600,15 @@ export interface OrganizationPlatformsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<PlatformOrder>>
   where?: InputMaybe<PlatformWhereInput>
+}
+
+export interface OrganizationPoliciesManagerArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 export interface OrganizationProcedureCreatorsArgs {
@@ -35085,6 +35638,15 @@ export interface OrganizationProgramCreatorsArgs {
   where?: InputMaybe<GroupWhereInput>
 }
 
+export interface OrganizationProgramMembershipCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
 export interface OrganizationProgramsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -35094,6 +35656,24 @@ export interface OrganizationProgramsArgs {
   where?: InputMaybe<ProgramWhereInput>
 }
 
+export interface OrganizationRegistryManagerArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
+export interface OrganizationRemediationCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
 export interface OrganizationRemediationsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -35101,6 +35681,15 @@ export interface OrganizationRemediationsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<RemediationOrder>>
   where?: InputMaybe<RemediationWhereInput>
+}
+
+export interface OrganizationReviewCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 export interface OrganizationReviewsArgs {
@@ -35121,6 +35710,15 @@ export interface OrganizationRiskCreatorsArgs {
   where?: InputMaybe<GroupWhereInput>
 }
 
+export interface OrganizationRiskManagerArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
 export interface OrganizationRisksArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -35128,6 +35726,15 @@ export interface OrganizationRisksArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<RiskOrder>>
   where?: InputMaybe<RiskWhereInput>
+}
+
+export interface OrganizationScanCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 export interface OrganizationScansArgs {
@@ -35140,6 +35747,15 @@ export interface OrganizationScansArgs {
 }
 
 export interface OrganizationScheduledJobCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
+export interface OrganizationScheduledJobRunCreatorsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
   first?: InputMaybe<Scalars['Int']['input']>
@@ -35175,6 +35791,15 @@ export interface OrganizationSecretsArgs {
   where?: InputMaybe<HushWhereInput>
 }
 
+export interface OrganizationSlaDefinitionCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
 export interface OrganizationSlaDefinitionsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -35200,6 +35825,15 @@ export interface OrganizationStandardsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<StandardOrder>>
   where?: InputMaybe<StandardWhereInput>
+}
+
+export interface OrganizationSubcontrolCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 export interface OrganizationSubcontrolsArgs {
@@ -35229,6 +35863,15 @@ export interface OrganizationSubprocessorsArgs {
   where?: InputMaybe<SubprocessorWhereInput>
 }
 
+export interface OrganizationSubscriberCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
 export interface OrganizationSubscribersArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -35236,6 +35879,15 @@ export interface OrganizationSubscribersArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<SubscriberOrder>>
   where?: InputMaybe<SubscriberWhereInput>
+}
+
+export interface OrganizationSystemDetailCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 export interface OrganizationSystemDetailsArgs {
@@ -35247,6 +35899,15 @@ export interface OrganizationSystemDetailsArgs {
   where?: InputMaybe<SystemDetailWhereInput>
 }
 
+export interface OrganizationTagDefinitionCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
 export interface OrganizationTagDefinitionsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -35254,6 +35915,15 @@ export interface OrganizationTagDefinitionsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<TagDefinitionOrder>>
   where?: InputMaybe<TagDefinitionWhereInput>
+}
+
+export interface OrganizationTaskCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 export interface OrganizationTasksArgs {
@@ -35283,6 +35953,24 @@ export interface OrganizationTemplatesArgs {
   where?: InputMaybe<TemplateWhereInput>
 }
 
+export interface OrganizationTrustCenterComplianceCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
+export interface OrganizationTrustCenterCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
 export interface OrganizationTrustCenterDocCreatorsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -35292,7 +35980,52 @@ export interface OrganizationTrustCenterDocCreatorsArgs {
   where?: InputMaybe<GroupWhereInput>
 }
 
+export interface OrganizationTrustCenterEntityCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
+export interface OrganizationTrustCenterFaqCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
+export interface OrganizationTrustCenterManagerArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
+export interface OrganizationTrustCenterNdaRequestCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
 export interface OrganizationTrustCenterSubprocessorCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
+export interface OrganizationTrustCenterWatermarkConfigCreatorsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
   first?: InputMaybe<Scalars['Int']['input']>
@@ -35328,6 +36061,15 @@ export interface OrganizationUsersArgs {
   where?: InputMaybe<UserWhereInput>
 }
 
+export interface OrganizationVendorRiskScoreCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
 export interface OrganizationVendorRiskScoresArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -35335,6 +36077,15 @@ export interface OrganizationVendorRiskScoresArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<VendorRiskScoreOrder>>
   where?: InputMaybe<VendorRiskScoreWhereInput>
+}
+
+export interface OrganizationVendorScoringConfigCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 export interface OrganizationVendorScoringConfigsArgs {
@@ -35382,6 +36133,15 @@ export interface OrganizationWorkflowAssignmentsArgs {
   where?: InputMaybe<WorkflowAssignmentWhereInput>
 }
 
+export interface OrganizationWorkflowDefinitionCreatorsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
+}
+
 export interface OrganizationWorkflowDefinitionsArgs {
   after?: InputMaybe<Scalars['Cursor']['input']>
   before?: InputMaybe<Scalars['Cursor']['input']>
@@ -35416,6 +36176,15 @@ export interface OrganizationWorkflowObjectRefsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<WorkflowObjectRefOrder>>
   where?: InputMaybe<WorkflowObjectRefWhereInput>
+}
+
+export interface OrganizationWorkflowsManagerArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<GroupOrder>>
+  where?: InputMaybe<GroupWhereInput>
 }
 
 /** Return response for createBulkOrganization mutation */
@@ -36114,6 +36883,9 @@ export interface OrganizationWhereInput {
   displayNameLTE?: InputMaybe<Scalars['String']['input']>
   displayNameNEQ?: InputMaybe<Scalars['String']['input']>
   displayNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  /** api_token_creators edge predicates */
+  hasAPITokenCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasAPITokenCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
   /** api_tokens edge predicates */
   hasAPITokens?: InputMaybe<Scalars['Boolean']['input']>
   hasAPITokensWith?: InputMaybe<Array<ApiTokenWhereInput>>
@@ -36123,6 +36895,9 @@ export interface OrganizationWhereInput {
   /** action_plans edge predicates */
   hasActionPlans?: InputMaybe<Scalars['Boolean']['input']>
   hasActionPlansWith?: InputMaybe<Array<ActionPlanWhereInput>>
+  /** assessment_creators edge predicates */
+  hasAssessmentCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasAssessmentCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
   /** assessment_responses edge predicates */
   hasAssessmentResponses?: InputMaybe<Scalars['Boolean']['input']>
   hasAssessmentResponsesWith?: InputMaybe<Array<AssessmentResponseWhereInput>>
@@ -36138,15 +36913,33 @@ export interface OrganizationWhereInput {
   /** avatar_file edge predicates */
   hasAvatarFile?: InputMaybe<Scalars['Boolean']['input']>
   hasAvatarFileWith?: InputMaybe<Array<FileWhereInput>>
+  /** campaign_creators edge predicates */
+  hasCampaignCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasCampaignCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** campaign_target_creators edge predicates */
+  hasCampaignTargetCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasCampaignTargetCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
   /** campaign_targets edge predicates */
   hasCampaignTargets?: InputMaybe<Scalars['Boolean']['input']>
   hasCampaignTargetsWith?: InputMaybe<Array<CampaignTargetWhereInput>>
   /** campaigns edge predicates */
   hasCampaigns?: InputMaybe<Scalars['Boolean']['input']>
+  /** campaigns_manager edge predicates */
+  hasCampaignsManager?: InputMaybe<Scalars['Boolean']['input']>
+  hasCampaignsManagerWith?: InputMaybe<Array<GroupWhereInput>>
   hasCampaignsWith?: InputMaybe<Array<CampaignWhereInput>>
+  /** check_result_creators edge predicates */
+  hasCheckResultCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasCheckResultCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
   /** children edge predicates */
   hasChildren?: InputMaybe<Scalars['Boolean']['input']>
   hasChildrenWith?: InputMaybe<Array<OrganizationWhereInput>>
+  /** compliance_manager edge predicates */
+  hasComplianceManager?: InputMaybe<Scalars['Boolean']['input']>
+  hasComplianceManagerWith?: InputMaybe<Array<GroupWhereInput>>
+  /** contact_creators edge predicates */
+  hasContactCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasContactCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
   /** contacts edge predicates */
   hasContacts?: InputMaybe<Scalars['Boolean']['input']>
   hasContactsWith?: InputMaybe<Array<ContactWhereInput>>
@@ -36168,39 +36961,72 @@ export interface OrganizationWhereInput {
   /** controls edge predicates */
   hasControls?: InputMaybe<Scalars['Boolean']['input']>
   hasControlsWith?: InputMaybe<Array<ControlWhereInput>>
+  /** custom_domain_creators edge predicates */
+  hasCustomDomainCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasCustomDomainCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
   /** custom_domains edge predicates */
   hasCustomDomains?: InputMaybe<Scalars['Boolean']['input']>
   hasCustomDomainsWith?: InputMaybe<Array<CustomDomainWhereInput>>
+  /** custom_type_enum_creators edge predicates */
+  hasCustomTypeEnumCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasCustomTypeEnumCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
   /** custom_type_enums edge predicates */
   hasCustomTypeEnums?: InputMaybe<Scalars['Boolean']['input']>
   hasCustomTypeEnumsWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
   /** dns_verifications edge predicates */
   hasDNSVerifications?: InputMaybe<Scalars['Boolean']['input']>
   hasDNSVerificationsWith?: InputMaybe<Array<DnsVerificationWhereInput>>
+  /** directory_account_creators edge predicates */
+  hasDirectoryAccountCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasDirectoryAccountCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
   /** directory_accounts edge predicates */
   hasDirectoryAccounts?: InputMaybe<Scalars['Boolean']['input']>
   hasDirectoryAccountsWith?: InputMaybe<Array<DirectoryAccountWhereInput>>
+  /** directory_group_creators edge predicates */
+  hasDirectoryGroupCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasDirectoryGroupCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
   /** directory_groups edge predicates */
   hasDirectoryGroups?: InputMaybe<Scalars['Boolean']['input']>
   hasDirectoryGroupsWith?: InputMaybe<Array<DirectoryGroupWhereInput>>
+  /** directory_membership_creators edge predicates */
+  hasDirectoryMembershipCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasDirectoryMembershipCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
   /** directory_memberships edge predicates */
   hasDirectoryMemberships?: InputMaybe<Scalars['Boolean']['input']>
   hasDirectoryMembershipsWith?: InputMaybe<Array<DirectoryMembershipWhereInput>>
+  /** directory_sync_run_creators edge predicates */
+  hasDirectorySyncRunCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasDirectorySyncRunCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
   /** directory_sync_runs edge predicates */
   hasDirectorySyncRuns?: InputMaybe<Scalars['Boolean']['input']>
   hasDirectorySyncRunsWith?: InputMaybe<Array<DirectorySyncRunWhereInput>>
+  /** discussion_creators edge predicates */
+  hasDiscussionCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasDiscussionCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
   /** discussions edge predicates */
   hasDiscussions?: InputMaybe<Scalars['Boolean']['input']>
   hasDiscussionsWith?: InputMaybe<Array<DiscussionWhereInput>>
+  /** document_data_creators edge predicates */
+  hasDocumentDataCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasDocumentDataCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
   /** documents edge predicates */
   hasDocuments?: InputMaybe<Scalars['Boolean']['input']>
   hasDocumentsWith?: InputMaybe<Array<DocumentDataWhereInput>>
+  /** email_template_creators edge predicates */
+  hasEmailTemplateCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasEmailTemplateCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
   /** email_templates edge predicates */
   hasEmailTemplates?: InputMaybe<Scalars['Boolean']['input']>
   hasEmailTemplatesWith?: InputMaybe<Array<EmailTemplateWhereInput>>
   /** entities edge predicates */
   hasEntities?: InputMaybe<Scalars['Boolean']['input']>
   hasEntitiesWith?: InputMaybe<Array<EntityWhereInput>>
+  /** entity_creators edge predicates */
+  hasEntityCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasEntityCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** entity_type_creators edge predicates */
+  hasEntityTypeCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasEntityTypeCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
   /** entity_types edge predicates */
   hasEntityTypes?: InputMaybe<Scalars['Boolean']['input']>
   hasEntityTypesWith?: InputMaybe<Array<EntityTypeWhereInput>>
@@ -36216,9 +37042,15 @@ export interface OrganizationWhereInput {
   /** exports edge predicates */
   hasExports?: InputMaybe<Scalars['Boolean']['input']>
   hasExportsWith?: InputMaybe<Array<ExportWhereInput>>
+  /** file_creators edge predicates */
+  hasFileCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasFileCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
   /** files edge predicates */
   hasFiles?: InputMaybe<Scalars['Boolean']['input']>
   hasFilesWith?: InputMaybe<Array<FileWhereInput>>
+  /** finding_control_creators edge predicates */
+  hasFindingControlCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasFindingControlCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
   /** finding_creators edge predicates */
   hasFindingCreators?: InputMaybe<Scalars['Boolean']['input']>
   hasFindingCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
@@ -36228,9 +37060,21 @@ export interface OrganizationWhereInput {
   /** group_creators edge predicates */
   hasGroupCreators?: InputMaybe<Scalars['Boolean']['input']>
   hasGroupCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** group_manager edge predicates */
+  hasGroupManager?: InputMaybe<Scalars['Boolean']['input']>
+  hasGroupManagerWith?: InputMaybe<Array<GroupWhereInput>>
+  /** group_membership_creators edge predicates */
+  hasGroupMembershipCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasGroupMembershipCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** group_setting_creators edge predicates */
+  hasGroupSettingCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasGroupSettingCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
   /** groups edge predicates */
   hasGroups?: InputMaybe<Scalars['Boolean']['input']>
   hasGroupsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** hush_creators edge predicates */
+  hasHushCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasHushCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
   /** identity_holder_creators edge predicates */
   hasIdentityHolderCreators?: InputMaybe<Scalars['Boolean']['input']>
   hasIdentityHolderCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
@@ -36246,21 +37090,36 @@ export interface OrganizationWhereInput {
   /** internal_policy_creators edge predicates */
   hasInternalPolicyCreators?: InputMaybe<Scalars['Boolean']['input']>
   hasInternalPolicyCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** invite_creators edge predicates */
+  hasInviteCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasInviteCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
   /** invites edge predicates */
   hasInvites?: InputMaybe<Scalars['Boolean']['input']>
   hasInvitesWith?: InputMaybe<Array<InviteWhereInput>>
   /** job_results edge predicates */
   hasJobResults?: InputMaybe<Scalars['Boolean']['input']>
   hasJobResultsWith?: InputMaybe<Array<JobResultWhereInput>>
+  /** job_runner_creators edge predicates */
+  hasJobRunnerCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasJobRunnerCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** job_runner_registration_token_creators edge predicates */
+  hasJobRunnerRegistrationTokenCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasJobRunnerRegistrationTokenCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
   /** job_runner_registration_tokens edge predicates */
   hasJobRunnerRegistrationTokens?: InputMaybe<Scalars['Boolean']['input']>
   hasJobRunnerRegistrationTokensWith?: InputMaybe<Array<JobRunnerRegistrationTokenWhereInput>>
+  /** job_runner_token_creators edge predicates */
+  hasJobRunnerTokenCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasJobRunnerTokenCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
   /** job_runner_tokens edge predicates */
   hasJobRunnerTokens?: InputMaybe<Scalars['Boolean']['input']>
   hasJobRunnerTokensWith?: InputMaybe<Array<JobRunnerTokenWhereInput>>
   /** job_runners edge predicates */
   hasJobRunners?: InputMaybe<Scalars['Boolean']['input']>
   hasJobRunnersWith?: InputMaybe<Array<JobRunnerWhereInput>>
+  /** job_template_creators edge predicates */
+  hasJobTemplateCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasJobTemplateCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
   /** job_templates edge predicates */
   hasJobTemplates?: InputMaybe<Scalars['Boolean']['input']>
   hasJobTemplatesWith?: InputMaybe<Array<JobTemplateWhereInput>>
@@ -36279,15 +37138,24 @@ export interface OrganizationWhereInput {
   /** narratives edge predicates */
   hasNarratives?: InputMaybe<Scalars['Boolean']['input']>
   hasNarrativesWith?: InputMaybe<Array<NarrativeWhereInput>>
+  /** note_creators edge predicates */
+  hasNoteCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasNoteCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
   /** notes edge predicates */
   hasNotes?: InputMaybe<Scalars['Boolean']['input']>
   hasNotesWith?: InputMaybe<Array<NoteWhereInput>>
   /** notification_preferences edge predicates */
   hasNotificationPreferences?: InputMaybe<Scalars['Boolean']['input']>
   hasNotificationPreferencesWith?: InputMaybe<Array<NotificationPreferenceWhereInput>>
+  /** notification_template_creators edge predicates */
+  hasNotificationTemplateCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasNotificationTemplateCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
   /** notification_templates edge predicates */
   hasNotificationTemplates?: InputMaybe<Scalars['Boolean']['input']>
   hasNotificationTemplatesWith?: InputMaybe<Array<NotificationTemplateWhereInput>>
+  /** org_membership_creators edge predicates */
+  hasOrgMembershipCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasOrgMembershipCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
   /** org_subscriptions edge predicates */
   hasOrgSubscriptions?: InputMaybe<Scalars['Boolean']['input']>
   hasOrgSubscriptionsWith?: InputMaybe<Array<OrgSubscriptionWhereInput>>
@@ -36297,9 +37165,15 @@ export interface OrganizationWhereInput {
   /** personal_access_tokens edge predicates */
   hasPersonalAccessTokens?: InputMaybe<Scalars['Boolean']['input']>
   hasPersonalAccessTokensWith?: InputMaybe<Array<PersonalAccessTokenWhereInput>>
+  /** platform_creators edge predicates */
+  hasPlatformCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasPlatformCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
   /** platforms edge predicates */
   hasPlatforms?: InputMaybe<Scalars['Boolean']['input']>
   hasPlatformsWith?: InputMaybe<Array<PlatformWhereInput>>
+  /** policies_manager edge predicates */
+  hasPoliciesManager?: InputMaybe<Scalars['Boolean']['input']>
+  hasPoliciesManagerWith?: InputMaybe<Array<GroupWhereInput>>
   /** procedure_creators edge predicates */
   hasProcedureCreators?: InputMaybe<Scalars['Boolean']['input']>
   hasProcedureCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
@@ -36309,30 +37183,54 @@ export interface OrganizationWhereInput {
   /** program_creators edge predicates */
   hasProgramCreators?: InputMaybe<Scalars['Boolean']['input']>
   hasProgramCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** program_membership_creators edge predicates */
+  hasProgramMembershipCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasProgramMembershipCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
   /** programs edge predicates */
   hasPrograms?: InputMaybe<Scalars['Boolean']['input']>
   hasProgramsWith?: InputMaybe<Array<ProgramWhereInput>>
+  /** registry_manager edge predicates */
+  hasRegistryManager?: InputMaybe<Scalars['Boolean']['input']>
+  hasRegistryManagerWith?: InputMaybe<Array<GroupWhereInput>>
+  /** remediation_creators edge predicates */
+  hasRemediationCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasRemediationCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
   /** remediations edge predicates */
   hasRemediations?: InputMaybe<Scalars['Boolean']['input']>
   hasRemediationsWith?: InputMaybe<Array<RemediationWhereInput>>
+  /** review_creators edge predicates */
+  hasReviewCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasReviewCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
   /** reviews edge predicates */
   hasReviews?: InputMaybe<Scalars['Boolean']['input']>
   hasReviewsWith?: InputMaybe<Array<ReviewWhereInput>>
   /** risk_creators edge predicates */
   hasRiskCreators?: InputMaybe<Scalars['Boolean']['input']>
   hasRiskCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** risk_manager edge predicates */
+  hasRiskManager?: InputMaybe<Scalars['Boolean']['input']>
+  hasRiskManagerWith?: InputMaybe<Array<GroupWhereInput>>
   /** risks edge predicates */
   hasRisks?: InputMaybe<Scalars['Boolean']['input']>
   hasRisksWith?: InputMaybe<Array<RiskWhereInput>>
+  /** sla_definition_creators edge predicates */
+  hasSLADefinitionCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasSLADefinitionCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
   /** sla_definitions edge predicates */
   hasSLADefinitions?: InputMaybe<Scalars['Boolean']['input']>
   hasSLADefinitionsWith?: InputMaybe<Array<SlaDefinitionWhereInput>>
+  /** scan_creators edge predicates */
+  hasScanCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasScanCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
   /** scans edge predicates */
   hasScans?: InputMaybe<Scalars['Boolean']['input']>
   hasScansWith?: InputMaybe<Array<ScanWhereInput>>
   /** scheduled_job_creators edge predicates */
   hasScheduledJobCreators?: InputMaybe<Scalars['Boolean']['input']>
   hasScheduledJobCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** scheduled_job_run_creators edge predicates */
+  hasScheduledJobRunCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasScheduledJobRunCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
   /** scheduled_job_runs edge predicates */
   hasScheduledJobRuns?: InputMaybe<Scalars['Boolean']['input']>
   hasScheduledJobRunsWith?: InputMaybe<Array<ScheduledJobRunWhereInput>>
@@ -36351,6 +37249,9 @@ export interface OrganizationWhereInput {
   /** standards edge predicates */
   hasStandards?: InputMaybe<Scalars['Boolean']['input']>
   hasStandardsWith?: InputMaybe<Array<StandardWhereInput>>
+  /** subcontrol_creators edge predicates */
+  hasSubcontrolCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasSubcontrolCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
   /** subcontrols edge predicates */
   hasSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
   hasSubcontrolsWith?: InputMaybe<Array<SubcontrolWhereInput>>
@@ -36360,15 +37261,27 @@ export interface OrganizationWhereInput {
   /** subprocessors edge predicates */
   hasSubprocessors?: InputMaybe<Scalars['Boolean']['input']>
   hasSubprocessorsWith?: InputMaybe<Array<SubprocessorWhereInput>>
+  /** subscriber_creators edge predicates */
+  hasSubscriberCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasSubscriberCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
   /** subscribers edge predicates */
   hasSubscribers?: InputMaybe<Scalars['Boolean']['input']>
   hasSubscribersWith?: InputMaybe<Array<SubscriberWhereInput>>
+  /** system_detail_creators edge predicates */
+  hasSystemDetailCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasSystemDetailCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
   /** system_details edge predicates */
   hasSystemDetails?: InputMaybe<Scalars['Boolean']['input']>
   hasSystemDetailsWith?: InputMaybe<Array<SystemDetailWhereInput>>
+  /** tag_definition_creators edge predicates */
+  hasTagDefinitionCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasTagDefinitionCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
   /** tag_definitions edge predicates */
   hasTagDefinitions?: InputMaybe<Scalars['Boolean']['input']>
   hasTagDefinitionsWith?: InputMaybe<Array<TagDefinitionWhereInput>>
+  /** task_creators edge predicates */
+  hasTaskCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasTaskCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
   /** tasks edge predicates */
   hasTasks?: InputMaybe<Scalars['Boolean']['input']>
   hasTasksWith?: InputMaybe<Array<TaskWhereInput>>
@@ -36378,12 +37291,33 @@ export interface OrganizationWhereInput {
   /** templates edge predicates */
   hasTemplates?: InputMaybe<Scalars['Boolean']['input']>
   hasTemplatesWith?: InputMaybe<Array<TemplateWhereInput>>
+  /** trust_center_compliance_creators edge predicates */
+  hasTrustCenterComplianceCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasTrustCenterComplianceCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** trust_center_creators edge predicates */
+  hasTrustCenterCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasTrustCenterCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
   /** trust_center_doc_creators edge predicates */
   hasTrustCenterDocCreators?: InputMaybe<Scalars['Boolean']['input']>
   hasTrustCenterDocCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** trust_center_entity_creators edge predicates */
+  hasTrustCenterEntityCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasTrustCenterEntityCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** trust_center_faq_creators edge predicates */
+  hasTrustCenterFaqCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasTrustCenterFaqCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** trust_center_manager edge predicates */
+  hasTrustCenterManager?: InputMaybe<Scalars['Boolean']['input']>
+  hasTrustCenterManagerWith?: InputMaybe<Array<GroupWhereInput>>
+  /** trust_center_nda_request_creators edge predicates */
+  hasTrustCenterNdaRequestCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasTrustCenterNdaRequestCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
   /** trust_center_subprocessor_creators edge predicates */
   hasTrustCenterSubprocessorCreators?: InputMaybe<Scalars['Boolean']['input']>
   hasTrustCenterSubprocessorCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
+  /** trust_center_watermark_config_creators edge predicates */
+  hasTrustCenterWatermarkConfigCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasTrustCenterWatermarkConfigCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
   /** trust_center_watermark_configs edge predicates */
   hasTrustCenterWatermarkConfigs?: InputMaybe<Scalars['Boolean']['input']>
   hasTrustCenterWatermarkConfigsWith?: InputMaybe<Array<TrustCenterWatermarkConfigWhereInput>>
@@ -36393,9 +37327,15 @@ export interface OrganizationWhereInput {
   /** users edge predicates */
   hasUsers?: InputMaybe<Scalars['Boolean']['input']>
   hasUsersWith?: InputMaybe<Array<UserWhereInput>>
+  /** vendor_risk_score_creators edge predicates */
+  hasVendorRiskScoreCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasVendorRiskScoreCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
   /** vendor_risk_scores edge predicates */
   hasVendorRiskScores?: InputMaybe<Scalars['Boolean']['input']>
   hasVendorRiskScoresWith?: InputMaybe<Array<VendorRiskScoreWhereInput>>
+  /** vendor_scoring_config_creators edge predicates */
+  hasVendorScoringConfigCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasVendorScoringConfigCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
   /** vendor_scoring_configs edge predicates */
   hasVendorScoringConfigs?: InputMaybe<Scalars['Boolean']['input']>
   hasVendorScoringConfigsWith?: InputMaybe<Array<VendorScoringConfigWhereInput>>
@@ -36411,6 +37351,9 @@ export interface OrganizationWhereInput {
   /** workflow_assignments edge predicates */
   hasWorkflowAssignments?: InputMaybe<Scalars['Boolean']['input']>
   hasWorkflowAssignmentsWith?: InputMaybe<Array<WorkflowAssignmentWhereInput>>
+  /** workflow_definition_creators edge predicates */
+  hasWorkflowDefinitionCreators?: InputMaybe<Scalars['Boolean']['input']>
+  hasWorkflowDefinitionCreatorsWith?: InputMaybe<Array<GroupWhereInput>>
   /** workflow_definitions edge predicates */
   hasWorkflowDefinitions?: InputMaybe<Scalars['Boolean']['input']>
   hasWorkflowDefinitionsWith?: InputMaybe<Array<WorkflowDefinitionWhereInput>>
@@ -36423,6 +37366,9 @@ export interface OrganizationWhereInput {
   /** workflow_object_refs edge predicates */
   hasWorkflowObjectRefs?: InputMaybe<Scalars['Boolean']['input']>
   hasWorkflowObjectRefsWith?: InputMaybe<Array<WorkflowObjectRefWhereInput>>
+  /** workflows_manager edge predicates */
+  hasWorkflowsManager?: InputMaybe<Scalars['Boolean']['input']>
+  hasWorkflowsManagerWith?: InputMaybe<Array<GroupWhereInput>>
   /** id field predicates */
   id?: InputMaybe<Scalars['ID']['input']>
   idContainsFold?: InputMaybe<Scalars['ID']['input']>
@@ -38258,6 +39204,10 @@ export interface Procedure extends Node {
   environmentID?: Maybe<Scalars['ID']['output']>
   /** the environment of the procedure */
   environmentName?: Maybe<Scalars['String']['output']>
+  /** The contents of externally managed files, if available */
+  externalContents?: Maybe<Scalars['String']['output']>
+  /** Documents managed externally may have IDs we need to reference, this holds them */
+  externalFileID?: Maybe<Scalars['String']['output']>
   file?: Maybe<File>
   /** This will contain the most recent file id if this procedure was created from a file */
   fileID?: Maybe<Scalars['ID']['output']>
@@ -38494,6 +39444,7 @@ export interface ProcedureDeletePayload {
 /** ProcedureDocumentManagementMode is enum for the field management_mode */
 export enum ProcedureDocumentManagementMode {
   EXTERNAL_REFERENCE = 'EXTERNAL_REFERENCE',
+  INTEGRATION = 'INTEGRATION',
   OPENLANE_MANAGED = 'OPENLANE_MANAGED',
 }
 
@@ -38694,6 +39645,38 @@ export interface ProcedureWhereInput {
   environmentNameNEQ?: InputMaybe<Scalars['String']['input']>
   environmentNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   environmentNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** external_contents field predicates */
+  externalContents?: InputMaybe<Scalars['String']['input']>
+  externalContentsContains?: InputMaybe<Scalars['String']['input']>
+  externalContentsContainsFold?: InputMaybe<Scalars['String']['input']>
+  externalContentsEqualFold?: InputMaybe<Scalars['String']['input']>
+  externalContentsGT?: InputMaybe<Scalars['String']['input']>
+  externalContentsGTE?: InputMaybe<Scalars['String']['input']>
+  externalContentsHasPrefix?: InputMaybe<Scalars['String']['input']>
+  externalContentsHasSuffix?: InputMaybe<Scalars['String']['input']>
+  externalContentsIn?: InputMaybe<Array<Scalars['String']['input']>>
+  externalContentsIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  externalContentsLT?: InputMaybe<Scalars['String']['input']>
+  externalContentsLTE?: InputMaybe<Scalars['String']['input']>
+  externalContentsNEQ?: InputMaybe<Scalars['String']['input']>
+  externalContentsNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  externalContentsNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** external_file_id field predicates */
+  externalFileID?: InputMaybe<Scalars['String']['input']>
+  externalFileIDContains?: InputMaybe<Scalars['String']['input']>
+  externalFileIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  externalFileIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  externalFileIDGT?: InputMaybe<Scalars['String']['input']>
+  externalFileIDGTE?: InputMaybe<Scalars['String']['input']>
+  externalFileIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  externalFileIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  externalFileIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  externalFileIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  externalFileIDLT?: InputMaybe<Scalars['String']['input']>
+  externalFileIDLTE?: InputMaybe<Scalars['String']['input']>
+  externalFileIDNEQ?: InputMaybe<Scalars['String']['input']>
+  externalFileIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  externalFileIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** file_id field predicates */
   fileID?: InputMaybe<Scalars['ID']['input']>
   fileIDContains?: InputMaybe<Scalars['ID']['input']>
@@ -39390,6 +40373,7 @@ export enum ProgramMembershipOrderField {
 /** ProgramMembershipRole is enum for the field role */
 export enum ProgramMembershipRole {
   ADMIN = 'ADMIN',
+  AUDITOR = 'AUDITOR',
   MEMBER = 'MEMBER',
 }
 
@@ -53910,6 +54894,8 @@ export interface UpdateActionPlanInput {
   clearDismissedTagSuggestions?: InputMaybe<Scalars['Boolean']['input']>
   clearDueDate?: InputMaybe<Scalars['Boolean']['input']>
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
+  clearExternalContents?: InputMaybe<Scalars['Boolean']['input']>
+  clearExternalFileID?: InputMaybe<Scalars['Boolean']['input']>
   clearFile?: InputMaybe<Scalars['Boolean']['input']>
   clearFindings?: InputMaybe<Scalars['Boolean']['input']>
   clearImprovementSuggestions?: InputMaybe<Scalars['Boolean']['input']>
@@ -53957,6 +54943,10 @@ export interface UpdateActionPlanInput {
   dismissedTagSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   /** due date of the action plan */
   dueDate?: InputMaybe<Scalars['Time']['input']>
+  /** The contents of externally managed files, if available */
+  externalContents?: InputMaybe<Scalars['String']['input']>
+  /** Documents managed externally may have IDs we need to reference, this holds them */
+  externalFileID?: InputMaybe<Scalars['String']['input']>
   fileID?: InputMaybe<Scalars['ID']['input']>
   /** suggested improvements for the action_plan */
   improvementSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
@@ -54032,7 +55022,6 @@ export interface UpdateAssessmentInput {
   clearIdentityHolders?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalNotes?: InputMaybe<Scalars['Boolean']['input']>
   clearJsonconfig?: InputMaybe<Scalars['Boolean']['input']>
-  clearOwner?: InputMaybe<Scalars['Boolean']['input']>
   clearPlatforms?: InputMaybe<Scalars['Boolean']['input']>
   clearResponseDueDuration?: InputMaybe<Scalars['Boolean']['input']>
   clearSystemInternalID?: InputMaybe<Scalars['Boolean']['input']>
@@ -54046,7 +55035,6 @@ export interface UpdateAssessmentInput {
   jsonconfig?: InputMaybe<Scalars['Map']['input']>
   /** the name of the assessment, e.g. cloud providers, marketing team */
   name?: InputMaybe<Scalars['String']['input']>
-  ownerID?: InputMaybe<Scalars['ID']['input']>
   removeAssessmentResponseIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeBlockedGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeCampaignIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -56606,6 +57594,7 @@ export interface UpdateInternalPolicyInput {
   addEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addIdentityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addIntegrationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addNarrativeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProcedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -56645,10 +57634,13 @@ export interface UpdateInternalPolicyInput {
   clearEntities?: InputMaybe<Scalars['Boolean']['input']>
   clearEnvironment?: InputMaybe<Scalars['Boolean']['input']>
   clearEnvironmentName?: InputMaybe<Scalars['Boolean']['input']>
+  clearExternalContents?: InputMaybe<Scalars['Boolean']['input']>
+  clearExternalFileID?: InputMaybe<Scalars['Boolean']['input']>
   clearExternalUUID?: InputMaybe<Scalars['Boolean']['input']>
   clearFile?: InputMaybe<Scalars['Boolean']['input']>
   clearIdentityHolders?: InputMaybe<Scalars['Boolean']['input']>
   clearImprovementSuggestions?: InputMaybe<Scalars['Boolean']['input']>
+  clearIntegrations?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalNotes?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalPolicyKind?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalPolicyKindName?: InputMaybe<Scalars['Boolean']['input']>
@@ -56691,6 +57683,10 @@ export interface UpdateInternalPolicyInput {
   environmentID?: InputMaybe<Scalars['ID']['input']>
   /** the environment of the internal_policy */
   environmentName?: InputMaybe<Scalars['String']['input']>
+  /** The contents of externally managed files, if available */
+  externalContents?: InputMaybe<Scalars['String']['input']>
+  /** Documents managed externally may have IDs we need to reference, this holds them */
+  externalFileID?: InputMaybe<Scalars['String']['input']>
   /** stable external UUID for deterministic OSCAL export and round-tripping */
   externalUUID?: InputMaybe<Scalars['String']['input']>
   fileID?: InputMaybe<Scalars['ID']['input']>
@@ -56716,6 +57712,7 @@ export interface UpdateInternalPolicyInput {
   removeEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeIdentityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeIntegrationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeNarrativeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProcedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -57234,15 +58231,23 @@ export interface UpdateOrgMembershipInput {
  * Input was generated by ent.
  */
 export interface UpdateOrganizationInput {
+  addAPITokenCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addAPITokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addActionPlanCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addActionPlanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addAssessmentCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addAssessmentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addAssessmentResponseIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addAssetCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addAssetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addCampaignCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addCampaignIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addCampaignTargetCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addCampaignTargetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addCampaignsManagerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addCheckResultCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addComplianceManagerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addContactCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addContactIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -57250,97 +58255,150 @@ export interface UpdateOrganizationInput {
   addControlImplementationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlObjectiveCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addControlObjectiveIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addCustomDomainCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addCustomDomainIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addCustomTypeEnumCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addCustomTypeEnumIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addDNSVerificationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addDirectoryAccountCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addDirectoryAccountIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addDirectoryGroupCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addDirectoryGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addDirectoryMembershipCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addDirectorySyncRunCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addDirectorySyncRunIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addDiscussionCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addDiscussionIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addDocumentDataCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addDocumentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addEmailTemplateCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEmailTemplateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addEntityCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addEntityTypeCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEntityTypeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEvidenceCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEvidenceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addExportIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addFileCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addFindingControlCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addFindingCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addFindingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addGroupCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addGroupManagerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addGroupMembershipCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addGroupSettingCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addHushCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addIdentityHolderCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addIdentityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addImpersonationEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addIntegrationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addInternalPolicyCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addInternalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addInviteCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addInviteIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addJobResultIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addJobRunnerCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addJobRunnerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addJobRunnerRegistrationTokenCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addJobRunnerRegistrationTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addJobRunnerTokenCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addJobRunnerTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addJobTemplateCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addJobTemplateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addMappedControlCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addMappedControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addNarrativeCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addNarrativeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addNoteCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addNoteIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addNotificationPreferenceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addNotificationTemplateCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addNotificationTemplateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addOrgMembers?: InputMaybe<Array<CreateOrgMembershipInput>>
+  addOrgMembershipCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addOrgSubscriptionIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addPersonalAccessTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addPlatformCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addPlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addPoliciesManagerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProcedureCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProcedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProgramCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addProgramMembershipCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addRegistryManagerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addRemediationCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addRemediationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addReviewCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addReviewIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addRiskCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addRiskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addRiskManagerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addSLADefinitionCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addSLADefinitionIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addScanCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addScanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addScheduledJobCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addScheduledJobIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addScheduledJobRunCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addScheduledJobRunIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addSecretIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addStandardCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addStandardIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addSubcontrolCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addSubprocessorCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addSubprocessorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addSubscriberCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addSubscriberIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addSystemDetailCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addSystemDetailIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addTagDefinitionCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTagDefinitionIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addTaskCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTemplateCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTemplateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addTrustCenterComplianceCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addTrustCenterCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTrustCenterDocCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addTrustCenterEntityCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addTrustCenterFaqCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTrustCenterIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addTrustCenterManagerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addTrustCenterNdaRequestCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTrustCenterSubprocessorCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addTrustCenterWatermarkConfigCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addTrustCenterWatermarkConfigIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addVendorRiskScoreCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addVendorRiskScoreIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addVendorScoringConfigCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addVendorScoringConfigIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addVulnerabilityCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addVulnerabilityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addWorkflowAssignmentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addWorkflowAssignmentTargetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addWorkflowDefinitionCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addWorkflowDefinitionIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addWorkflowEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addWorkflowInstanceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addWorkflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addWorkflowsManagerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   appendTags?: InputMaybe<Array<Scalars['String']['input']>>
   avatarFileID?: InputMaybe<Scalars['ID']['input']>
   /** URL of the user's remote avatar */
   avatarRemoteURL?: InputMaybe<Scalars['String']['input']>
   /** The time the user's (local) avatar was last updated */
   avatarUpdatedAt?: InputMaybe<Scalars['Time']['input']>
+  clearAPITokenCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearAPITokens?: InputMaybe<Scalars['Boolean']['input']>
   clearActionPlanCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearActionPlans?: InputMaybe<Scalars['Boolean']['input']>
+  clearAssessmentCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearAssessmentResponses?: InputMaybe<Scalars['Boolean']['input']>
   clearAssessments?: InputMaybe<Scalars['Boolean']['input']>
   clearAssetCreators?: InputMaybe<Scalars['Boolean']['input']>
@@ -57348,8 +58406,14 @@ export interface UpdateOrganizationInput {
   clearAvatarFile?: InputMaybe<Scalars['Boolean']['input']>
   clearAvatarRemoteURL?: InputMaybe<Scalars['Boolean']['input']>
   clearAvatarUpdatedAt?: InputMaybe<Scalars['Boolean']['input']>
+  clearCampaignCreators?: InputMaybe<Scalars['Boolean']['input']>
+  clearCampaignTargetCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearCampaignTargets?: InputMaybe<Scalars['Boolean']['input']>
   clearCampaigns?: InputMaybe<Scalars['Boolean']['input']>
+  clearCampaignsManager?: InputMaybe<Scalars['Boolean']['input']>
+  clearCheckResultCreators?: InputMaybe<Scalars['Boolean']['input']>
+  clearComplianceManager?: InputMaybe<Scalars['Boolean']['input']>
+  clearContactCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearContacts?: InputMaybe<Scalars['Boolean']['input']>
   clearControlCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearControlImplementationCreators?: InputMaybe<Scalars['Boolean']['input']>
@@ -57357,103 +58421,162 @@ export interface UpdateOrganizationInput {
   clearControlObjectiveCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearControlObjectives?: InputMaybe<Scalars['Boolean']['input']>
   clearControls?: InputMaybe<Scalars['Boolean']['input']>
+  clearCustomDomainCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearCustomDomains?: InputMaybe<Scalars['Boolean']['input']>
+  clearCustomTypeEnumCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearCustomTypeEnums?: InputMaybe<Scalars['Boolean']['input']>
   clearDNSVerifications?: InputMaybe<Scalars['Boolean']['input']>
   clearDescription?: InputMaybe<Scalars['Boolean']['input']>
+  clearDirectoryAccountCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearDirectoryAccounts?: InputMaybe<Scalars['Boolean']['input']>
+  clearDirectoryGroupCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearDirectoryGroups?: InputMaybe<Scalars['Boolean']['input']>
+  clearDirectoryMembershipCreators?: InputMaybe<Scalars['Boolean']['input']>
+  clearDirectorySyncRunCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearDirectorySyncRuns?: InputMaybe<Scalars['Boolean']['input']>
+  clearDiscussionCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearDiscussions?: InputMaybe<Scalars['Boolean']['input']>
+  clearDocumentDataCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearDocuments?: InputMaybe<Scalars['Boolean']['input']>
+  clearEmailTemplateCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearEmailTemplates?: InputMaybe<Scalars['Boolean']['input']>
   clearEntities?: InputMaybe<Scalars['Boolean']['input']>
+  clearEntityCreators?: InputMaybe<Scalars['Boolean']['input']>
+  clearEntityTypeCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearEntityTypes?: InputMaybe<Scalars['Boolean']['input']>
   clearEvents?: InputMaybe<Scalars['Boolean']['input']>
   clearEvidence?: InputMaybe<Scalars['Boolean']['input']>
   clearEvidenceCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearExports?: InputMaybe<Scalars['Boolean']['input']>
+  clearFileCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearFiles?: InputMaybe<Scalars['Boolean']['input']>
+  clearFindingControlCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearFindingCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearFindings?: InputMaybe<Scalars['Boolean']['input']>
   clearGroupCreators?: InputMaybe<Scalars['Boolean']['input']>
+  clearGroupManager?: InputMaybe<Scalars['Boolean']['input']>
+  clearGroupMembershipCreators?: InputMaybe<Scalars['Boolean']['input']>
+  clearGroupSettingCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearGroups?: InputMaybe<Scalars['Boolean']['input']>
+  clearHushCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearIdentityHolderCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearIdentityHolders?: InputMaybe<Scalars['Boolean']['input']>
   clearImpersonationEvents?: InputMaybe<Scalars['Boolean']['input']>
   clearIntegrations?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalPolicies?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalPolicyCreators?: InputMaybe<Scalars['Boolean']['input']>
+  clearInviteCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearInvites?: InputMaybe<Scalars['Boolean']['input']>
   clearJobResults?: InputMaybe<Scalars['Boolean']['input']>
+  clearJobRunnerCreators?: InputMaybe<Scalars['Boolean']['input']>
+  clearJobRunnerRegistrationTokenCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearJobRunnerRegistrationTokens?: InputMaybe<Scalars['Boolean']['input']>
+  clearJobRunnerTokenCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearJobRunnerTokens?: InputMaybe<Scalars['Boolean']['input']>
   clearJobRunners?: InputMaybe<Scalars['Boolean']['input']>
+  clearJobTemplateCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearJobTemplates?: InputMaybe<Scalars['Boolean']['input']>
   clearMappedControlCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearMappedControls?: InputMaybe<Scalars['Boolean']['input']>
   clearNarrativeCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearNarratives?: InputMaybe<Scalars['Boolean']['input']>
+  clearNoteCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearNotes?: InputMaybe<Scalars['Boolean']['input']>
   clearNotificationPreferences?: InputMaybe<Scalars['Boolean']['input']>
+  clearNotificationTemplateCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearNotificationTemplates?: InputMaybe<Scalars['Boolean']['input']>
+  clearOrgMembershipCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearOrgSubscriptions?: InputMaybe<Scalars['Boolean']['input']>
   clearPersonalAccessTokens?: InputMaybe<Scalars['Boolean']['input']>
+  clearPlatformCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearPlatforms?: InputMaybe<Scalars['Boolean']['input']>
+  clearPoliciesManager?: InputMaybe<Scalars['Boolean']['input']>
   clearProcedureCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearProcedures?: InputMaybe<Scalars['Boolean']['input']>
   clearProgramCreators?: InputMaybe<Scalars['Boolean']['input']>
+  clearProgramMembershipCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearPrograms?: InputMaybe<Scalars['Boolean']['input']>
+  clearRegistryManager?: InputMaybe<Scalars['Boolean']['input']>
+  clearRemediationCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearRemediations?: InputMaybe<Scalars['Boolean']['input']>
+  clearReviewCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearReviews?: InputMaybe<Scalars['Boolean']['input']>
   clearRiskCreators?: InputMaybe<Scalars['Boolean']['input']>
+  clearRiskManager?: InputMaybe<Scalars['Boolean']['input']>
   clearRisks?: InputMaybe<Scalars['Boolean']['input']>
+  clearSLADefinitionCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearSLADefinitions?: InputMaybe<Scalars['Boolean']['input']>
+  clearScanCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearScans?: InputMaybe<Scalars['Boolean']['input']>
   clearScheduledJobCreators?: InputMaybe<Scalars['Boolean']['input']>
+  clearScheduledJobRunCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearScheduledJobRuns?: InputMaybe<Scalars['Boolean']['input']>
   clearScheduledJobs?: InputMaybe<Scalars['Boolean']['input']>
   clearSecrets?: InputMaybe<Scalars['Boolean']['input']>
   clearSetting?: InputMaybe<Scalars['Boolean']['input']>
   clearStandardCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearStandards?: InputMaybe<Scalars['Boolean']['input']>
+  clearSubcontrolCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearSubcontrols?: InputMaybe<Scalars['Boolean']['input']>
   clearSubprocessorCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearSubprocessors?: InputMaybe<Scalars['Boolean']['input']>
+  clearSubscriberCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearSubscribers?: InputMaybe<Scalars['Boolean']['input']>
+  clearSystemDetailCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearSystemDetails?: InputMaybe<Scalars['Boolean']['input']>
+  clearTagDefinitionCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearTagDefinitions?: InputMaybe<Scalars['Boolean']['input']>
   clearTags?: InputMaybe<Scalars['Boolean']['input']>
+  clearTaskCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearTasks?: InputMaybe<Scalars['Boolean']['input']>
   clearTemplateCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearTemplates?: InputMaybe<Scalars['Boolean']['input']>
+  clearTrustCenterComplianceCreators?: InputMaybe<Scalars['Boolean']['input']>
+  clearTrustCenterCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearTrustCenterDocCreators?: InputMaybe<Scalars['Boolean']['input']>
+  clearTrustCenterEntityCreators?: InputMaybe<Scalars['Boolean']['input']>
+  clearTrustCenterFaqCreators?: InputMaybe<Scalars['Boolean']['input']>
+  clearTrustCenterManager?: InputMaybe<Scalars['Boolean']['input']>
+  clearTrustCenterNdaRequestCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearTrustCenterSubprocessorCreators?: InputMaybe<Scalars['Boolean']['input']>
+  clearTrustCenterWatermarkConfigCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearTrustCenterWatermarkConfigs?: InputMaybe<Scalars['Boolean']['input']>
   clearTrustCenters?: InputMaybe<Scalars['Boolean']['input']>
+  clearVendorRiskScoreCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearVendorRiskScores?: InputMaybe<Scalars['Boolean']['input']>
+  clearVendorScoringConfigCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearVendorScoringConfigs?: InputMaybe<Scalars['Boolean']['input']>
   clearVulnerabilities?: InputMaybe<Scalars['Boolean']['input']>
   clearVulnerabilityCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearWorkflowAssignmentTargets?: InputMaybe<Scalars['Boolean']['input']>
   clearWorkflowAssignments?: InputMaybe<Scalars['Boolean']['input']>
+  clearWorkflowDefinitionCreators?: InputMaybe<Scalars['Boolean']['input']>
   clearWorkflowDefinitions?: InputMaybe<Scalars['Boolean']['input']>
   clearWorkflowEvents?: InputMaybe<Scalars['Boolean']['input']>
   clearWorkflowInstances?: InputMaybe<Scalars['Boolean']['input']>
   clearWorkflowObjectRefs?: InputMaybe<Scalars['Boolean']['input']>
+  clearWorkflowsManager?: InputMaybe<Scalars['Boolean']['input']>
   /** An optional description of the organization */
   description?: InputMaybe<Scalars['String']['input']>
   /** The organization's displayed 'friendly' name */
   displayName?: InputMaybe<Scalars['String']['input']>
+  removeAPITokenCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeAPITokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeActionPlanCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeActionPlanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeAssessmentCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeAssessmentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeAssessmentResponseIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeAssetCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeAssetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeCampaignCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeCampaignIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeCampaignTargetCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeCampaignTargetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeCampaignsManagerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeCheckResultCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeComplianceManagerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeContactCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeContactIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -57461,88 +58584,139 @@ export interface UpdateOrganizationInput {
   removeControlImplementationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlObjectiveCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeControlObjectiveIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeCustomDomainCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeCustomDomainIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeCustomTypeEnumCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeCustomTypeEnumIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeDNSVerificationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeDirectoryAccountCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeDirectoryAccountIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeDirectoryGroupCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeDirectoryGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeDirectoryMembershipCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeDirectorySyncRunCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeDirectorySyncRunIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeDiscussionCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeDiscussionIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeDocumentDataCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeDocumentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeEmailTemplateCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEmailTemplateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeEntityCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeEntityTypeCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEntityTypeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEvidenceCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEvidenceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeExportIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeFileCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeFileIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeFindingControlCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeFindingCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeFindingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeGroupCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeGroupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeGroupManagerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeGroupMembershipCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeGroupSettingCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeHushCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeIdentityHolderCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeIdentityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeImpersonationEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeIntegrationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeInternalPolicyCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeInternalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeInviteCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeInviteIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeJobResultIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeJobRunnerCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeJobRunnerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeJobRunnerRegistrationTokenCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeJobRunnerRegistrationTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeJobRunnerTokenCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeJobRunnerTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeJobTemplateCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeJobTemplateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeMappedControlCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeMappedControlIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeNarrativeCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeNarrativeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeNoteCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeNoteIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeNotificationPreferenceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeNotificationTemplateCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeNotificationTemplateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeOrgMembers?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeOrgMembershipCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeOrgSubscriptionIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removePersonalAccessTokenIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removePlatformCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removePlatformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removePoliciesManagerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProcedureCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProcedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProgramCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeProgramMembershipCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeRegistryManagerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeRemediationCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeRemediationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeReviewCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeReviewIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeRiskCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeRiskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeRiskManagerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeSLADefinitionCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeSLADefinitionIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeScanCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeScanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeScheduledJobCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeScheduledJobIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeScheduledJobRunCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeScheduledJobRunIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeSecretIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeStandardCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeStandardIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeSubcontrolCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeSubcontrolIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeSubprocessorCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeSubprocessorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeSubscriberCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeSubscriberIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeSystemDetailCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeSystemDetailIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeTagDefinitionCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTagDefinitionIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeTaskCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTaskIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTemplateCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTemplateIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeTrustCenterComplianceCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeTrustCenterCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTrustCenterDocCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeTrustCenterEntityCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeTrustCenterFaqCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTrustCenterIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeTrustCenterManagerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeTrustCenterNdaRequestCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTrustCenterSubprocessorCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeTrustCenterWatermarkConfigCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeTrustCenterWatermarkConfigIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeVendorRiskScoreCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeVendorRiskScoreIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeVendorScoringConfigCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeVendorScoringConfigIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeVulnerabilityCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeVulnerabilityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeWorkflowAssignmentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeWorkflowAssignmentTargetIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeWorkflowDefinitionCreatorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeWorkflowDefinitionIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeWorkflowEventIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeWorkflowInstanceIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeWorkflowObjectRefIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeWorkflowsManagerIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   settingID?: InputMaybe<Scalars['ID']['input']>
   /** tags associated with the object */
   tags?: InputMaybe<Array<Scalars['String']['input']>>
@@ -57932,6 +59106,8 @@ export interface UpdateProcedureInput {
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearEnvironment?: InputMaybe<Scalars['Boolean']['input']>
   clearEnvironmentName?: InputMaybe<Scalars['Boolean']['input']>
+  clearExternalContents?: InputMaybe<Scalars['Boolean']['input']>
+  clearExternalFileID?: InputMaybe<Scalars['Boolean']['input']>
   clearFile?: InputMaybe<Scalars['Boolean']['input']>
   clearImprovementSuggestions?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalNotes?: InputMaybe<Scalars['Boolean']['input']>
@@ -57975,6 +59151,10 @@ export interface UpdateProcedureInput {
   environmentID?: InputMaybe<Scalars['ID']['input']>
   /** the environment of the procedure */
   environmentName?: InputMaybe<Scalars['String']['input']>
+  /** The contents of externally managed files, if available */
+  externalContents?: InputMaybe<Scalars['String']['input']>
+  /** Documents managed externally may have IDs we need to reference, this holds them */
+  externalFileID?: InputMaybe<Scalars['String']['input']>
   fileID?: InputMaybe<Scalars['ID']['input']>
   /** suggested improvements for the procedure */
   improvementSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
@@ -66018,6 +67198,7 @@ export type FilterAssessmentsQuery = {
         template?: { __typename?: 'Template'; id: string; name: string; kind?: TemplateTemplateKind | null } | null
         assessmentResponses: { __typename?: 'AssessmentResponseConnection'; totalCount: number }
         completedAssessmentResponses: { __typename?: 'AssessmentResponseConnection'; totalCount: number }
+        campaigns: { __typename?: 'CampaignConnection'; edges?: Array<{ __typename?: 'CampaignEdge'; node?: { __typename?: 'Campaign'; id: string; entityID?: string | null } | null } | null> | null }
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
@@ -66081,6 +67262,7 @@ export type GetAssessmentDetailQuery = {
     tags?: Array<string> | null
     createdAt?: any | null
     updatedAt?: any | null
+    campaigns: { __typename?: 'CampaignConnection'; edges?: Array<{ __typename?: 'CampaignEdge'; node?: { __typename?: 'Campaign'; id: string; entityID?: string | null } | null } | null> | null }
     assessmentResponses: {
       __typename?: 'AssessmentResponseConnection'
       totalCount: number

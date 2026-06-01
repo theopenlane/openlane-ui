@@ -17,6 +17,7 @@ import { getEnumLabel } from '@/components/shared/enum-mapper/common-enum'
 import CollapsibleSection from '@/components/shared/collapsible-section/collapsible-section'
 import AssessmentResponseView, { countAnswered } from '@/components/pages/protected/questionnaire/shared/assessment-response-view'
 import { useNotification } from '@/hooks/useNotification'
+import { useCanSendQuestionnaire } from '@/lib/authz/use-can-send-questionnaire'
 import ResponseStateCard from './response-state-card'
 
 interface AssessmentsTabProps {
@@ -73,6 +74,8 @@ const AssessmentsTab: React.FC<AssessmentsTabProps> = ({ personnelId, personnelE
   const response = responseDetail?.assessmentResponse
 
   const { answered, total } = useMemo(() => countAnswered(response?.assessment?.jsonconfig, response?.document?.data), [response])
+
+  const canSend = useCanSendQuestionnaire(response?.campaignID ? [response.campaignID] : [], response?.entityID ? [response.entityID] : [])
 
   const handleResend = async () => {
     if (!response) return
@@ -178,7 +181,7 @@ const AssessmentsTab: React.FC<AssessmentsTabProps> = ({ personnelId, personnelE
               ) : (
                 <>
                   <ResponseMetadata response={response} />
-                  <ResponseStateCard status={response.status} answered={answered} total={total} dueDate={response.dueDate} onResend={handleResend} isResending={isResending} />
+                  <ResponseStateCard status={response.status} answered={answered} total={total} dueDate={response.dueDate} onResend={handleResend} isResending={isResending} canResend={canSend} />
                 </>
               )}
             </div>

@@ -24,6 +24,7 @@ export type DeliveryRow = {
 type DeliveryColumnCallbacks = {
   onResend: (row: DeliveryRow) => void
   onViewResponse: (row: DeliveryRow) => void
+  canResend?: boolean
 }
 
 const statusVariantMap: Record<AssessmentResponseAssessmentResponseStatus, 'green' | 'blue' | 'default' | 'destructive'> = {
@@ -34,7 +35,7 @@ const statusVariantMap: Record<AssessmentResponseAssessmentResponseStatus, 'gree
   [AssessmentResponseAssessmentResponseStatus.DRAFT]: 'default',
 }
 
-export const getDeliveryColumns = ({ onResend, onViewResponse }: DeliveryColumnCallbacks): ColumnDef<DeliveryRow>[] => [
+export const getDeliveryColumns = ({ onResend, onViewResponse, canResend = false }: DeliveryColumnCallbacks): ColumnDef<DeliveryRow>[] => [
   {
     accessorKey: 'email',
     header: 'Recipient',
@@ -80,6 +81,9 @@ export const getDeliveryColumns = ({ onResend, onViewResponse }: DeliveryColumnC
     header: '',
     cell: ({ row }) => {
       const isCompleted = row.original.status === AssessmentResponseAssessmentResponseStatus.COMPLETED
+      if (!isCompleted && !canResend) {
+        return null
+      }
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

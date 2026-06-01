@@ -24,6 +24,7 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { SendQuestionnaireDialog } from '@/components/pages/protected/questionnaire/dialog/send-questionnaire-dialog'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { useAssessmentSendPermissionMap } from '@/lib/authz/use-can-send-questionnaire'
 
 export const QuestionnairesTable = () => {
   const router = useRouter()
@@ -154,6 +155,8 @@ export const QuestionnairesTable = () => {
     }
   }
 
+  const canSendMap = useAssessmentSendPermissionMap(assessments ?? [])
+
   const { columns, mappedColumns } = getQuestionnaireColumns({
     userMap,
     selectedQuestionnaires,
@@ -163,7 +166,7 @@ export const QuestionnairesTable = () => {
     onPreview: handlePreview,
     onViewDetails: handleViewDetails,
     onDelete: handleDelete,
-    canSend: canEdit(permission?.roles),
+    canSendMap,
     canEdit: canEdit(permission?.roles),
     canDelete: canDelete(permission?.roles),
   })
