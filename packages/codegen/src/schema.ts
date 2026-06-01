@@ -457,6 +457,10 @@ export interface ActionPlan extends Node {
   /** due date of the action plan */
   dueDate?: Maybe<Scalars['Time']['output']>
   editors: GroupConnection
+  /** The contents of externally managed files, if available */
+  externalContents?: Maybe<Scalars['String']['output']>
+  /** Documents managed externally may have IDs we need to reference, this holds them */
+  externalFileID?: Maybe<Scalars['String']['output']>
   file?: Maybe<File>
   /** This will contain the most recent file id if this action_plan was created from a file */
   fileID?: Maybe<Scalars['ID']['output']>
@@ -717,6 +721,7 @@ export interface ActionPlanDeletePayload {
 /** ActionPlanDocumentManagementMode is enum for the field management_mode */
 export enum ActionPlanDocumentManagementMode {
   EXTERNAL_REFERENCE = 'EXTERNAL_REFERENCE',
+  INTEGRATION = 'INTEGRATION',
   OPENLANE_MANAGED = 'OPENLANE_MANAGED',
 }
 
@@ -972,6 +977,38 @@ export interface ActionPlanWhereInput {
   dueDateNEQ?: InputMaybe<Scalars['Time']['input']>
   dueDateNotIn?: InputMaybe<Array<Scalars['Time']['input']>>
   dueDateNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** external_contents field predicates */
+  externalContents?: InputMaybe<Scalars['String']['input']>
+  externalContentsContains?: InputMaybe<Scalars['String']['input']>
+  externalContentsContainsFold?: InputMaybe<Scalars['String']['input']>
+  externalContentsEqualFold?: InputMaybe<Scalars['String']['input']>
+  externalContentsGT?: InputMaybe<Scalars['String']['input']>
+  externalContentsGTE?: InputMaybe<Scalars['String']['input']>
+  externalContentsHasPrefix?: InputMaybe<Scalars['String']['input']>
+  externalContentsHasSuffix?: InputMaybe<Scalars['String']['input']>
+  externalContentsIn?: InputMaybe<Array<Scalars['String']['input']>>
+  externalContentsIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  externalContentsLT?: InputMaybe<Scalars['String']['input']>
+  externalContentsLTE?: InputMaybe<Scalars['String']['input']>
+  externalContentsNEQ?: InputMaybe<Scalars['String']['input']>
+  externalContentsNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  externalContentsNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** external_file_id field predicates */
+  externalFileID?: InputMaybe<Scalars['String']['input']>
+  externalFileIDContains?: InputMaybe<Scalars['String']['input']>
+  externalFileIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  externalFileIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  externalFileIDGT?: InputMaybe<Scalars['String']['input']>
+  externalFileIDGTE?: InputMaybe<Scalars['String']['input']>
+  externalFileIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  externalFileIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  externalFileIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  externalFileIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  externalFileIDLT?: InputMaybe<Scalars['String']['input']>
+  externalFileIDLTE?: InputMaybe<Scalars['String']['input']>
+  externalFileIDNEQ?: InputMaybe<Scalars['String']['input']>
+  externalFileIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  externalFileIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** file_id field predicates */
   fileID?: InputMaybe<Scalars['ID']['input']>
   fileIDContains?: InputMaybe<Scalars['ID']['input']>
@@ -7621,6 +7658,10 @@ export interface CreateActionPlanInput {
   /** due date of the action plan */
   dueDate?: InputMaybe<Scalars['Time']['input']>
   editorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** The contents of externally managed files, if available */
+  externalContents?: InputMaybe<Scalars['String']['input']>
+  /** Documents managed externally may have IDs we need to reference, this holds them */
+  externalFileID?: InputMaybe<Scalars['String']['input']>
   fileID?: InputMaybe<Scalars['ID']['input']>
   findingIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** suggested improvements for the action_plan */
@@ -9316,12 +9357,17 @@ export interface CreateInternalPolicyInput {
   environmentID?: InputMaybe<Scalars['ID']['input']>
   /** the environment of the internal_policy */
   environmentName?: InputMaybe<Scalars['String']['input']>
+  /** The contents of externally managed files, if available */
+  externalContents?: InputMaybe<Scalars['String']['input']>
+  /** Documents managed externally may have IDs we need to reference, this holds them */
+  externalFileID?: InputMaybe<Scalars['String']['input']>
   /** stable external UUID for deterministic OSCAL export and round-tripping */
   externalUUID?: InputMaybe<Scalars['String']['input']>
   fileID?: InputMaybe<Scalars['ID']['input']>
   identityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** suggested improvements for the policy */
   improvementSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
+  integrationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: InputMaybe<Scalars['String']['input']>
   internalPolicyKindID?: InputMaybe<Scalars['ID']['input']>
@@ -10162,6 +10208,10 @@ export interface CreateProcedureInput {
   environmentID?: InputMaybe<Scalars['ID']['input']>
   /** the environment of the procedure */
   environmentName?: InputMaybe<Scalars['String']['input']>
+  /** The contents of externally managed files, if available */
+  externalContents?: InputMaybe<Scalars['String']['input']>
+  /** Documents managed externally may have IDs we need to reference, this holds them */
+  externalFileID?: InputMaybe<Scalars['String']['input']>
   fileID?: InputMaybe<Scalars['ID']['input']>
   /** suggested improvements for the procedure */
   improvementSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
@@ -24250,6 +24300,7 @@ export interface Integration extends Node {
   integrationType?: Maybe<Scalars['String']['output']>
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: Maybe<Scalars['String']['output']>
+  internalPolicies: InternalPolicyConnection
   /** the kind of integration, such as github, slack, s3 etc. */
   kind?: Maybe<Scalars['String']['output']>
   /** additional metadata about the integration */
@@ -24406,6 +24457,15 @@ export interface IntegrationFindingsArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<FindingOrder>>
   where?: InputMaybe<FindingWhereInput>
+}
+
+export interface IntegrationInternalPoliciesArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<InternalPolicyOrder>>
+  where?: InputMaybe<InternalPolicyWhereInput>
 }
 
 export interface IntegrationNotificationTemplatesArgs {
@@ -24694,6 +24754,9 @@ export interface IntegrationWhereInput {
   /** findings edge predicates */
   hasFindings?: InputMaybe<Scalars['Boolean']['input']>
   hasFindingsWith?: InputMaybe<Array<FindingWhereInput>>
+  /** internal_policies edge predicates */
+  hasInternalPolicies?: InputMaybe<Scalars['Boolean']['input']>
+  hasInternalPoliciesWith?: InputMaybe<Array<InternalPolicyWhereInput>>
   /** notification_templates edge predicates */
   hasNotificationTemplates?: InputMaybe<Scalars['Boolean']['input']>
   hasNotificationTemplatesWith?: InputMaybe<Array<NotificationTemplateWhereInput>>
@@ -24964,6 +25027,10 @@ export interface InternalPolicy extends Node {
   environmentID?: Maybe<Scalars['ID']['output']>
   /** the environment of the internal_policy */
   environmentName?: Maybe<Scalars['String']['output']>
+  /** The contents of externally managed files, if available */
+  externalContents?: Maybe<Scalars['String']['output']>
+  /** Documents managed externally may have IDs we need to reference, this holds them */
+  externalFileID?: Maybe<Scalars['String']['output']>
   /** stable external UUID for deterministic OSCAL export and round-tripping */
   externalUUID?: Maybe<Scalars['String']['output']>
   file?: Maybe<File>
@@ -24977,6 +25044,7 @@ export interface InternalPolicy extends Node {
   identityHolders: IdentityHolderConnection
   /** suggested improvements for the policy */
   improvementSuggestions?: Maybe<Array<Scalars['String']['output']>>
+  integrations: IntegrationConnection
   /** internal notes about the object creation, this field is only available to system admins */
   internalNotes?: Maybe<Scalars['String']['output']>
   internalPolicyKind?: Maybe<CustomTypeEnum>
@@ -24984,6 +25052,11 @@ export interface InternalPolicy extends Node {
   internalPolicyKindID?: Maybe<Scalars['ID']['output']>
   /** the kind of the internal_policy */
   internalPolicyKindName?: Maybe<Scalars['String']['output']>
+  /**
+   * Live external document contents fetched from the integration provider (e.g. Google Drive HTML export).
+   * Only populated when managementMode is INTEGRATION and an externalFileID is set.
+   */
+  liveExternalContents?: Maybe<Scalars['String']['output']>
   /** how the policy is managed: parsed and edited in Openlane (OPENLANE_MANAGED) or kept as an external reference file viewed in Openlane (EXTERNAL_REFERENCE) */
   managementMode?: Maybe<InternalPolicyDocumentManagementMode>
   /** the name of the policy */
@@ -25119,6 +25192,15 @@ export interface InternalPolicyIdentityHoldersArgs {
   last?: InputMaybe<Scalars['Int']['input']>
   orderBy?: InputMaybe<Array<IdentityHolderOrder>>
   where?: InputMaybe<IdentityHolderWhereInput>
+}
+
+export interface InternalPolicyIntegrationsArgs {
+  after?: InputMaybe<Scalars['Cursor']['input']>
+  before?: InputMaybe<Scalars['Cursor']['input']>
+  first?: InputMaybe<Scalars['Int']['input']>
+  last?: InputMaybe<Scalars['Int']['input']>
+  orderBy?: InputMaybe<Array<IntegrationOrder>>
+  where?: InputMaybe<IntegrationWhereInput>
 }
 
 export interface InternalPolicyNarrativesArgs {
@@ -25258,6 +25340,7 @@ export interface InternalPolicyDeletePayload {
 /** InternalPolicyDocumentManagementMode is enum for the field management_mode */
 export enum InternalPolicyDocumentManagementMode {
   EXTERNAL_REFERENCE = 'EXTERNAL_REFERENCE',
+  INTEGRATION = 'INTEGRATION',
   OPENLANE_MANAGED = 'OPENLANE_MANAGED',
 }
 
@@ -25458,6 +25541,38 @@ export interface InternalPolicyWhereInput {
   environmentNameNEQ?: InputMaybe<Scalars['String']['input']>
   environmentNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   environmentNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** external_contents field predicates */
+  externalContents?: InputMaybe<Scalars['String']['input']>
+  externalContentsContains?: InputMaybe<Scalars['String']['input']>
+  externalContentsContainsFold?: InputMaybe<Scalars['String']['input']>
+  externalContentsEqualFold?: InputMaybe<Scalars['String']['input']>
+  externalContentsGT?: InputMaybe<Scalars['String']['input']>
+  externalContentsGTE?: InputMaybe<Scalars['String']['input']>
+  externalContentsHasPrefix?: InputMaybe<Scalars['String']['input']>
+  externalContentsHasSuffix?: InputMaybe<Scalars['String']['input']>
+  externalContentsIn?: InputMaybe<Array<Scalars['String']['input']>>
+  externalContentsIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  externalContentsLT?: InputMaybe<Scalars['String']['input']>
+  externalContentsLTE?: InputMaybe<Scalars['String']['input']>
+  externalContentsNEQ?: InputMaybe<Scalars['String']['input']>
+  externalContentsNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  externalContentsNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** external_file_id field predicates */
+  externalFileID?: InputMaybe<Scalars['String']['input']>
+  externalFileIDContains?: InputMaybe<Scalars['String']['input']>
+  externalFileIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  externalFileIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  externalFileIDGT?: InputMaybe<Scalars['String']['input']>
+  externalFileIDGTE?: InputMaybe<Scalars['String']['input']>
+  externalFileIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  externalFileIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  externalFileIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  externalFileIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  externalFileIDLT?: InputMaybe<Scalars['String']['input']>
+  externalFileIDLTE?: InputMaybe<Scalars['String']['input']>
+  externalFileIDNEQ?: InputMaybe<Scalars['String']['input']>
+  externalFileIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  externalFileIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** external_uuid field predicates */
   externalUUID?: InputMaybe<Scalars['String']['input']>
   externalUUIDContains?: InputMaybe<Scalars['String']['input']>
@@ -25532,6 +25647,9 @@ export interface InternalPolicyWhereInput {
   /** identity_holders edge predicates */
   hasIdentityHolders?: InputMaybe<Scalars['Boolean']['input']>
   hasIdentityHoldersWith?: InputMaybe<Array<IdentityHolderWhereInput>>
+  /** integrations edge predicates */
+  hasIntegrations?: InputMaybe<Scalars['Boolean']['input']>
+  hasIntegrationsWith?: InputMaybe<Array<IntegrationWhereInput>>
   /** internal_policy_kind edge predicates */
   hasInternalPolicyKind?: InputMaybe<Scalars['Boolean']['input']>
   hasInternalPolicyKindWith?: InputMaybe<Array<CustomTypeEnumWhereInput>>
@@ -39086,6 +39204,10 @@ export interface Procedure extends Node {
   environmentID?: Maybe<Scalars['ID']['output']>
   /** the environment of the procedure */
   environmentName?: Maybe<Scalars['String']['output']>
+  /** The contents of externally managed files, if available */
+  externalContents?: Maybe<Scalars['String']['output']>
+  /** Documents managed externally may have IDs we need to reference, this holds them */
+  externalFileID?: Maybe<Scalars['String']['output']>
   file?: Maybe<File>
   /** This will contain the most recent file id if this procedure was created from a file */
   fileID?: Maybe<Scalars['ID']['output']>
@@ -39322,6 +39444,7 @@ export interface ProcedureDeletePayload {
 /** ProcedureDocumentManagementMode is enum for the field management_mode */
 export enum ProcedureDocumentManagementMode {
   EXTERNAL_REFERENCE = 'EXTERNAL_REFERENCE',
+  INTEGRATION = 'INTEGRATION',
   OPENLANE_MANAGED = 'OPENLANE_MANAGED',
 }
 
@@ -39522,6 +39645,38 @@ export interface ProcedureWhereInput {
   environmentNameNEQ?: InputMaybe<Scalars['String']['input']>
   environmentNameNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   environmentNameNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** external_contents field predicates */
+  externalContents?: InputMaybe<Scalars['String']['input']>
+  externalContentsContains?: InputMaybe<Scalars['String']['input']>
+  externalContentsContainsFold?: InputMaybe<Scalars['String']['input']>
+  externalContentsEqualFold?: InputMaybe<Scalars['String']['input']>
+  externalContentsGT?: InputMaybe<Scalars['String']['input']>
+  externalContentsGTE?: InputMaybe<Scalars['String']['input']>
+  externalContentsHasPrefix?: InputMaybe<Scalars['String']['input']>
+  externalContentsHasSuffix?: InputMaybe<Scalars['String']['input']>
+  externalContentsIn?: InputMaybe<Array<Scalars['String']['input']>>
+  externalContentsIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  externalContentsLT?: InputMaybe<Scalars['String']['input']>
+  externalContentsLTE?: InputMaybe<Scalars['String']['input']>
+  externalContentsNEQ?: InputMaybe<Scalars['String']['input']>
+  externalContentsNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  externalContentsNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** external_file_id field predicates */
+  externalFileID?: InputMaybe<Scalars['String']['input']>
+  externalFileIDContains?: InputMaybe<Scalars['String']['input']>
+  externalFileIDContainsFold?: InputMaybe<Scalars['String']['input']>
+  externalFileIDEqualFold?: InputMaybe<Scalars['String']['input']>
+  externalFileIDGT?: InputMaybe<Scalars['String']['input']>
+  externalFileIDGTE?: InputMaybe<Scalars['String']['input']>
+  externalFileIDHasPrefix?: InputMaybe<Scalars['String']['input']>
+  externalFileIDHasSuffix?: InputMaybe<Scalars['String']['input']>
+  externalFileIDIn?: InputMaybe<Array<Scalars['String']['input']>>
+  externalFileIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  externalFileIDLT?: InputMaybe<Scalars['String']['input']>
+  externalFileIDLTE?: InputMaybe<Scalars['String']['input']>
+  externalFileIDNEQ?: InputMaybe<Scalars['String']['input']>
+  externalFileIDNotIn?: InputMaybe<Array<Scalars['String']['input']>>
+  externalFileIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   /** file_id field predicates */
   fileID?: InputMaybe<Scalars['ID']['input']>
   fileIDContains?: InputMaybe<Scalars['ID']['input']>
@@ -54739,6 +54894,8 @@ export interface UpdateActionPlanInput {
   clearDismissedTagSuggestions?: InputMaybe<Scalars['Boolean']['input']>
   clearDueDate?: InputMaybe<Scalars['Boolean']['input']>
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
+  clearExternalContents?: InputMaybe<Scalars['Boolean']['input']>
+  clearExternalFileID?: InputMaybe<Scalars['Boolean']['input']>
   clearFile?: InputMaybe<Scalars['Boolean']['input']>
   clearFindings?: InputMaybe<Scalars['Boolean']['input']>
   clearImprovementSuggestions?: InputMaybe<Scalars['Boolean']['input']>
@@ -54786,6 +54943,10 @@ export interface UpdateActionPlanInput {
   dismissedTagSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
   /** due date of the action plan */
   dueDate?: InputMaybe<Scalars['Time']['input']>
+  /** The contents of externally managed files, if available */
+  externalContents?: InputMaybe<Scalars['String']['input']>
+  /** Documents managed externally may have IDs we need to reference, this holds them */
+  externalFileID?: InputMaybe<Scalars['String']['input']>
   fileID?: InputMaybe<Scalars['ID']['input']>
   /** suggested improvements for the action_plan */
   improvementSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
@@ -57433,6 +57594,7 @@ export interface UpdateInternalPolicyInput {
   addEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addIdentityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  addIntegrationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addNarrativeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProcedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   addProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -57472,10 +57634,13 @@ export interface UpdateInternalPolicyInput {
   clearEntities?: InputMaybe<Scalars['Boolean']['input']>
   clearEnvironment?: InputMaybe<Scalars['Boolean']['input']>
   clearEnvironmentName?: InputMaybe<Scalars['Boolean']['input']>
+  clearExternalContents?: InputMaybe<Scalars['Boolean']['input']>
+  clearExternalFileID?: InputMaybe<Scalars['Boolean']['input']>
   clearExternalUUID?: InputMaybe<Scalars['Boolean']['input']>
   clearFile?: InputMaybe<Scalars['Boolean']['input']>
   clearIdentityHolders?: InputMaybe<Scalars['Boolean']['input']>
   clearImprovementSuggestions?: InputMaybe<Scalars['Boolean']['input']>
+  clearIntegrations?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalNotes?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalPolicyKind?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalPolicyKindName?: InputMaybe<Scalars['Boolean']['input']>
@@ -57518,6 +57683,10 @@ export interface UpdateInternalPolicyInput {
   environmentID?: InputMaybe<Scalars['ID']['input']>
   /** the environment of the internal_policy */
   environmentName?: InputMaybe<Scalars['String']['input']>
+  /** The contents of externally managed files, if available */
+  externalContents?: InputMaybe<Scalars['String']['input']>
+  /** Documents managed externally may have IDs we need to reference, this holds them */
+  externalFileID?: InputMaybe<Scalars['String']['input']>
   /** stable external UUID for deterministic OSCAL export and round-tripping */
   externalUUID?: InputMaybe<Scalars['String']['input']>
   fileID?: InputMaybe<Scalars['ID']['input']>
@@ -57543,6 +57712,7 @@ export interface UpdateInternalPolicyInput {
   removeEditorIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeEntityIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeIdentityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  removeIntegrationIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeNarrativeIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProcedureIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeProgramIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -58936,6 +59106,8 @@ export interface UpdateProcedureInput {
   clearEditors?: InputMaybe<Scalars['Boolean']['input']>
   clearEnvironment?: InputMaybe<Scalars['Boolean']['input']>
   clearEnvironmentName?: InputMaybe<Scalars['Boolean']['input']>
+  clearExternalContents?: InputMaybe<Scalars['Boolean']['input']>
+  clearExternalFileID?: InputMaybe<Scalars['Boolean']['input']>
   clearFile?: InputMaybe<Scalars['Boolean']['input']>
   clearImprovementSuggestions?: InputMaybe<Scalars['Boolean']['input']>
   clearInternalNotes?: InputMaybe<Scalars['Boolean']['input']>
@@ -58979,6 +59151,10 @@ export interface UpdateProcedureInput {
   environmentID?: InputMaybe<Scalars['ID']['input']>
   /** the environment of the procedure */
   environmentName?: InputMaybe<Scalars['String']['input']>
+  /** The contents of externally managed files, if available */
+  externalContents?: InputMaybe<Scalars['String']['input']>
+  /** Documents managed externally may have IDs we need to reference, this holds them */
+  externalFileID?: InputMaybe<Scalars['String']['input']>
   fileID?: InputMaybe<Scalars['ID']['input']>
   /** suggested improvements for the procedure */
   improvementSuggestions?: InputMaybe<Array<Scalars['String']['input']>>
