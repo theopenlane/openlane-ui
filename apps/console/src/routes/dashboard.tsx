@@ -54,10 +54,11 @@ import {
 } from 'lucide-react'
 import { type NavHeading, type NavItem, type Separator } from '@/types'
 import { PlanEnum } from '@/lib/subscription-plan/plan-enum.ts'
-import { canEdit } from '@/lib/authz/utils'
+import { canEdit, isOwnerOrSuperAdmin } from '@/lib/authz/utils'
 import { type TPermissionData } from '@/types/authz'
 import type { Session } from 'next-auth'
 import { hasNoModules } from '@/lib/auth/utils/modules'
+import { type OrgMembershipRole } from '@repo/codegen/src/schema'
 
 export const topNavigationItems = (session: Session | null): (NavItem | Separator | NavHeading)[] => {
   const billingExpired = hasNoModules(session)
@@ -315,7 +316,7 @@ export const topNavigationItems = (session: Session | null): (NavItem | Separato
   ]
 }
 
-export const bottomNavigationItems = (session: Session | null, orgPermission?: TPermissionData): (NavItem | Separator | NavHeading)[] => {
+export const bottomNavigationItems = (session: Session | null, orgPermission?: TPermissionData, currentUserRole?: OrgMembershipRole): (NavItem | Separator | NavHeading)[] => {
   const billingExpired = hasNoModules(session)
   return [
     {
@@ -351,7 +352,7 @@ export const bottomNavigationItems = (session: Session | null, orgPermission?: T
         {
           title: 'Billing',
           href: '/organization-settings/billing',
-          hidden: !canEdit(orgPermission?.roles),
+          hidden: !isOwnerOrSuperAdmin(currentUserRole),
           icon: DollarSign,
         },
         {
