@@ -34,6 +34,8 @@ type TProps = {
   setSelectedRows: React.Dispatch<React.SetStateAction<{ id: string }[]>>
   onExport: () => void
   exportEnabled: boolean
+  canCreateSubprocessor: boolean
+  canEditSubprocessor: boolean
 }
 
 const SubprocessorsTableToolbar: React.FC<TProps> = ({
@@ -48,6 +50,8 @@ const SubprocessorsTableToolbar: React.FC<TProps> = ({
   setSelectedRows,
   exportEnabled,
   onExport,
+  canCreateSubprocessor,
+  canEditSubprocessor,
 }) => {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false)
   const [createSheetOpen, setCreateSheetOpen] = useState(false)
@@ -147,7 +151,7 @@ const SubprocessorsTableToolbar: React.FC<TProps> = ({
           />
         </div>
 
-        {selectedRows.length === 0 ? (
+        {selectedRows.length === 0 || !canEditSubprocessor ? (
           <div className="flex items-center gap-2 flex-wrap justify-end">
             <Menu
               closeOnSelect={true}
@@ -173,19 +177,23 @@ const SubprocessorsTableToolbar: React.FC<TProps> = ({
             )}
 
             {filterFields && <TableFilter filterFields={filterFields} onFilterChange={handleFilterChange} pageKey={TableKeyEnum.TRUST_CENTER_SUBPROCESSORS} />}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="primary" className="h-8" icon={<ChevronDown size={16} />}>
-                  Create
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onSelect={() => setAddExistingOpen(true)}>Add subprocessor</DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => setCreateSheetOpen(true)}>Custom subprocessor</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            <AddExistingDialog createdSubprocessor={createdSubprocessor} onClose={() => setCreatedSubprocessor(null)} open={addExistingOpen} onOpenChange={setAddExistingOpen} />
-            <CreateSubprocessorSheet onCreateSuccess={setCreatedSubprocessor} open={createSheetOpen} onOpenChange={setCreateSheetOpen} />
+            {canCreateSubprocessor && (
+              <>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="primary" className="h-8" icon={<ChevronDown size={16} />}>
+                      Create
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onSelect={() => setAddExistingOpen(true)}>Add subprocessor</DropdownMenuItem>
+                    <DropdownMenuItem onSelect={() => setCreateSheetOpen(true)}>Custom subprocessor</DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                <AddExistingDialog createdSubprocessor={createdSubprocessor} onClose={() => setCreatedSubprocessor(null)} open={addExistingOpen} onOpenChange={setAddExistingOpen} />
+                <CreateSubprocessorSheet onCreateSuccess={setCreatedSubprocessor} open={createSheetOpen} onOpenChange={setCreateSheetOpen} />
+              </>
+            )}
           </div>
         ) : (
           <div className="flex items-center gap-2 justify-end flex-wrap">

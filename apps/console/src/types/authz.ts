@@ -32,6 +32,8 @@ export type TAccessRole =
   | 'can_edit_trust_center_compliance'
   | 'can_edit_trust_center_nda_request'
   | 'can_create_remediation'
+  | 'can_create_trust_center_subprocessor'
+  | 'can_edit_trust_center_subprocessor'
 
 export type TPermissionData = {
   success?: boolean
