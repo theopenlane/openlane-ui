@@ -39,6 +39,7 @@ const ViewReviewSheet: React.FC<Props> = ({ entityId, onClose }) => {
       taskIDs: (review.tasks?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
       assetIDs: (review.assets?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
       programIDs: (review.programs?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+      riskIDs: (review.risks?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
     }
   }, [])
 
@@ -96,11 +97,11 @@ const ViewReviewSheet: React.FC<Props> = ({ entityId, onClose }) => {
     onClose,
     basePath: '/exposure/reviews',
     buildPayload: async (formData) => {
-      const { controlIDs, subcontrolIDs, remediationIDs, entityIDs, taskIDs, assetIDs, programIDs, ...rest } = formData
+      const { controlIDs, subcontrolIDs, remediationIDs, entityIDs, taskIDs, assetIDs, programIDs, riskIDs, ...rest } = formData
       const payload = await buildPayload(rest, plateEditorHelper)
       const associationPayload = buildAssociationPayload(
         REVIEW_ASSOCIATION_CONFIG.associationKeys,
-        { controlIDs, subcontrolIDs, remediationIDs, entityIDs, taskIDs, assetIDs, programIDs },
+        { controlIDs, subcontrolIDs, remediationIDs, entityIDs, taskIDs, assetIDs, programIDs, riskIDs },
         false,
         initialAssociationsRef.current,
       )

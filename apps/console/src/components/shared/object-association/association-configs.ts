@@ -315,6 +315,7 @@ const reviewAllowedObjectTypes = [
   ObjectTypeObjects.TASK,
   ObjectTypeObjects.ASSET,
   ObjectTypeObjects.PROGRAM,
+  ObjectTypeObjects.RISK,
 ]
 const reviewInitialDataKeys = {
   controlIDs: 'controls',
