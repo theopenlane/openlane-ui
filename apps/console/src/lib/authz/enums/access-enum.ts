@@ -23,4 +23,6 @@ export enum AccessEnum {
   CanCreateProgram = 'can_create_program',
   CanDelete = 'can_delete',
   CanCreateTrustCenterDocument = 'can_create_trust_center_doc',
+  CanCreateCustomTypeEnum = 'can_create_custom_type_enum',
+  CanEditCustomTypeEnum = 'can_edit_custom_type_enum',
 }

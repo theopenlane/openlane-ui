@@ -24,6 +24,9 @@ import ColumnVisibilityMenu, { getInitialVisibility } from '@/components/shared/
 import { type VisibilityState } from '@tanstack/react-table'
 import { CustomTypeEnumOrderField, type GetCustomTypeEnumsPaginatedQueryVariables, OrderDirection, type User } from '@repo/codegen/src/schema'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { canCreate } from '@/lib/authz/utils'
+import { AccessEnum } from '@/lib/authz/enums/access-enum'
 
 type SelectedEnum = { id: string; name: string }
 
@@ -39,6 +42,9 @@ const DEFAULT_ENUM_COLUMN_VISIBILITY: VisibilityState = {
 const CustomEnumsTab: FC = () => {
   const { push } = useSmartRouter()
   const { successNotification, errorNotification } = useNotification()
+  const { data: permission } = useOrganizationRoles()
+  const canCreateEnum = canCreate(permission?.roles, AccessEnum.CanCreateCustomTypeEnum)
+  const canEditEnum = canCreate(permission?.roles, AccessEnum.CanEditCustomTypeEnum)
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.CUSTOM_ENUMS, DEFAULT_ENUM_COLUMN_VISIBILITY))
   const defaultSorting = getInitialSortConditions(TableKeyEnum.CUSTOM_ENUMS, CustomTypeEnumOrderField, [
     {
@@ -125,7 +131,10 @@ const CustomEnumsTab: FC = () => {
       if (item) setEnumToDelete({ id: item.id, name: item.name })
     },
     userMap,
+    canEditEnum,
   })
+
+  const FilterIcon = ENUM_GROUP_MAP[filter]?.icon || LayoutGrid
 
   return (
     <>
@@ -136,10 +145,7 @@ const CustomEnumsTab: FC = () => {
               <SelectTrigger className="h-9 w-[300px] bg-card capitalize">
                 <SelectValue>
                   <div className="flex items-center gap-2">
-                    {(() => {
-                      const Icon = ENUM_GROUP_MAP[filter]?.icon || LayoutGrid
-                      return <Icon size={16} className="text-muted-foreground" />
-                    })()}
+                    <FilterIcon size={16} className="text-muted-foreground" />
                     <span>{filter.split('_').join(' ').toLowerCase()}</span>
                   </div>
                 </SelectValue>
@@ -172,9 +178,11 @@ const CustomEnumsTab: FC = () => {
               variant="searchTable"
             />
 
-            <Button className="gap-2" onClick={handleCreateOpen} icon={<SquarePlus />} iconPosition="left">
-              Create Enum
-            </Button>
+            {canCreateEnum && (
+              <Button className="gap-2" onClick={handleCreateOpen} icon={<SquarePlus />} iconPosition="left">
+                Create Enum
+              </Button>
+            )}
           </div>
         </div>
       </div>

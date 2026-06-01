@@ -26,6 +26,7 @@ type ColumnsParams = {
   onEdit?: (id: string) => void
   onDelete?: (id: string) => void
   userMap?: Record<string, User>
+  canEditEnum?: boolean
 }
 
 const normalizeColor = (color?: string | null) => {
@@ -39,7 +40,7 @@ const TypeBadge = ({ systemOwned }: { systemOwned?: boolean | null }) => (
   </Badge>
 )
 
-export const useGetCustomEnumColumns = ({ selectedEnums, setSelectedEnums, onEdit, onDelete, userMap }: ColumnsParams) => {
+export const useGetCustomEnumColumns = ({ selectedEnums, setSelectedEnums, onEdit, onDelete, userMap, canEditEnum = true }: ColumnsParams) => {
   const { mutateAsync: updateEnum } = useUpdateCustomTypeEnum()
 
   const toggleSelection = React.useCallback(
@@ -174,7 +175,7 @@ export const useGetCustomEnumColumns = ({ selectedEnums, setSelectedEnums, onEdi
           <ColorCell
             id={row.original.id}
             initialColor={normalizeColor(row.original.color)}
-            disabled={!!row.original.systemOwned}
+            disabled={!!row.original.systemOwned || !canEditEnum}
             onSave={async (id, color) => {
               await updateEnum({ id, input: { color } })
             }}
@@ -226,9 +227,9 @@ export const useGetCustomEnumColumns = ({ selectedEnums, setSelectedEnums, onEdi
         cell: ({ cell }) => <span className="text-sm">{formatDateSince(cell.getValue() as string)}</span>,
         size: 130,
       },
-      actionsCol,
+      ...(canEditEnum ? [actionsCol] : []),
     ]
-  }, [selectedEnums, setSelectedEnums, onEdit, onDelete, userMap, updateEnum, toggleSelection])
+  }, [selectedEnums, setSelectedEnums, onEdit, onDelete, userMap, updateEnum, toggleSelection, canEditEnum])
 
   const mappedColumns = useMemo(() => {
     return columns
