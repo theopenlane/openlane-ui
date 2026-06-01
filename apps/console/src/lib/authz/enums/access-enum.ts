@@ -25,4 +25,5 @@ export enum AccessEnum {
   CanCreateTrustCenterDocument = 'can_create_trust_center_doc',
   CanCreateCustomTypeEnum = 'can_create_custom_type_enum',
   CanEditCustomTypeEnum = 'can_edit_custom_type_enum',
+  CanCreatePlatform = 'can_create_platform',
 }

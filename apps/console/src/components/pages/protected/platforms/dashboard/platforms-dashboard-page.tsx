@@ -22,6 +22,9 @@ import { type Value } from 'platejs'
 import { objectType } from '../table/types'
 import Skeleton from '@/components/shared/skeleton/skeleton'
 import PlatformDetailPage from '../detail/platform-detail-page'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { canCreate } from '@/lib/authz/utils'
+import { AccessEnum } from '@/lib/authz/enums/access-enum'
 
 const STATUS_VARIANT: Record<PlatformPlatformStatus, 'green' | 'secondary'> = {
   [PlatformPlatformStatus.ACTIVE]: 'green',
@@ -36,6 +39,8 @@ const PlatformsDashboardPage: React.FC = () => {
   const [showCreate, setShowCreate] = useState(false)
 
   const { data: session } = useSession()
+  const { data: orgPermission } = useOrganizationRoles()
+  const canCreatePlatform = canCreate(orgPermission?.roles, AccessEnum.CanCreatePlatform)
   const { platformsNodes, isLoading, isSuccess } = usePlatformsWithFilter({})
   const { mutateAsync: createPlatform, isPending: isCreatePending } = useCreatePlatform()
   const { mutateAsync: updatePlatform, isPending: isUpdatePending } = useUpdatePlatform()
@@ -139,7 +144,7 @@ const PlatformsDashboardPage: React.FC = () => {
     if (!singlePlatform) return null
     return (
       <>
-        <PlatformDetailPage platformId={singlePlatform.id} onCreatePlatform={() => setShowCreate(true)} />
+        <PlatformDetailPage platformId={singlePlatform.id} onCreatePlatform={canCreatePlatform ? () => setShowCreate(true) : undefined} />
 
         {showCreate && (
           <StepDialog<EditPlatformFormData, CreatePlatformInput, unknown>
@@ -164,9 +169,11 @@ const PlatformsDashboardPage: React.FC = () => {
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center gap-4">
         <h2 className="text-2xl font-semibold">Platforms</h2>
-        <Button icon={<SquarePlus />} iconPosition="left" onClick={() => setShowCreate(true)}>
-          Create Platform
-        </Button>
+        {canCreatePlatform && (
+          <Button icon={<SquarePlus />} iconPosition="left" onClick={() => setShowCreate(true)}>
+            Create Platform
+          </Button>
+        )}
       </div>
 
       {hasNoPlatforms ? (

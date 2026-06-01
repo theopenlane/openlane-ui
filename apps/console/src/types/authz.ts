@@ -28,6 +28,7 @@ export type TAccessRole =
   | 'can_create_trust_center_doc'
   | 'can_create_custom_type_enum'
   | 'can_edit_custom_type_enum'
+  | 'can_create_platform'
 
 export type TPermissionData = {
   success?: boolean
