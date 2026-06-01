@@ -5,7 +5,12 @@ import { DataTable } from '@repo/ui/data-table'
 import { type ColumnDef, type VisibilityState } from '@tanstack/react-table'
 import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
-import { useGetTrustCenterSubprocessors, useDeleteTrustCenterSubprocessor, useBulkDeleteTrustCenterSubprocessors } from '@/lib/graphql-hooks/trust-center-subprocessor'
+import {
+  useGetTrustCenterSubprocessors,
+  useDeleteTrustCenterSubprocessor,
+  useBulkDeleteTrustCenterSubprocessors,
+  useFetchAllTrustCenterSubprocessorIds,
+} from '@/lib/graphql-hooks/trust-center-subprocessor'
 import { ExportExportFormat, ExportExportType, type TrustCenterSubprocessorWhereInput, type User } from '@repo/codegen/src/schema'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import SubprocessorsTableToolbar from './table/subprocessors-table-toolbar'
@@ -56,6 +61,7 @@ const SubprocessorsPage = () => {
   const [selectedRows, setSelectedRows] = useState<{ id: string }[]>([])
   const [deleteId, setDeleteId] = useState<string | null>(null)
   const [switchConfirmOpen, setSwitchConfirmOpen] = useState(false)
+  const [isSwitching, setIsSwitching] = useState(false)
   const { handleExport } = useFileExport()
 
   const { setCrumbs } = use(BreadcrumbContext)
@@ -75,7 +81,8 @@ const SubprocessorsPage = () => {
 
   const { mutateAsync: updateTrustCenter, isPending: isSavingURL } = useUpdateTrustCenter()
   const { mutateAsync: deleteSubprocessor } = useDeleteTrustCenterSubprocessor()
-  const { mutate: bulkDeleteSubprocessors, isPending: isSwitching } = useBulkDeleteTrustCenterSubprocessors()
+  const { mutateAsync: bulkDeleteSubprocessors } = useBulkDeleteTrustCenterSubprocessors()
+  const fetchAllSubprocessorIds = useFetchAllTrustCenterSubprocessorIds()
 
   useEffect(() => {
     setSubprocessorURL(savedSubprocessorURL)
@@ -118,12 +125,6 @@ const SubprocessorsPage = () => {
     pagination: { page: 1, pageSize: 1, query: { first: 1 } },
   })
   const managedCount = managedMeta.totalCount
-
-  const { trustCenterSubprocessors: allManagedSubprocessors, isFetching: isFetchingAllIds } = useGetTrustCenterSubprocessors({
-    where: {},
-    pagination: { page: 1, pageSize: managedCount || 1, query: { first: managedCount || 1 } },
-    enabled: switchConfirmOpen && managedCount > 0,
-  })
 
   const userIds = useMemo(() => {
     if (!trustCenterSubprocessors) return []
@@ -233,36 +234,34 @@ const SubprocessorsPage = () => {
     }
   }
 
-  const confirmSwitchToLink = () => {
-    const ids = allManagedSubprocessors.map((item) => item?.id).filter((id): id is string => !!id)
-    if (ids.length === 0) return
-
-    bulkDeleteSubprocessors(
-      { ids },
-      {
-        onSuccess: (result) => {
-          const payload = result.deleteBulkTrustCenterSubprocessor
-          if (payload.notDeletedIDs.length > 0 || payload.error) {
-            errorNotification({
-              title: 'Switch failed',
-              description: getBulkActionFailureDescription({
-                failedCount: payload.notDeletedIDs.length,
-                singular: 'subprocessor',
-                fallback: payload.error ?? 'Some subprocessors were not deleted.',
-              }),
-            })
-            return
-          }
-          setSelectedRows([])
-          setMode('link')
-          setSwitchConfirmOpen(false)
-          successNotification({ title: 'Switched to external page', description: 'All managed subprocessors were deleted.' })
-        },
-        onError: (error) => {
-          errorNotification({ title: 'Switch failed', description: parseErrorMessage(error) })
-        },
-      },
-    )
+  const confirmSwitchToLink = async () => {
+    setIsSwitching(true)
+    try {
+      const ids = await fetchAllSubprocessorIds({})
+      if (ids.length > 0) {
+        const result = await bulkDeleteSubprocessors({ ids })
+        const payload = result.deleteBulkTrustCenterSubprocessor
+        if (payload.notDeletedIDs.length > 0 || payload.error) {
+          errorNotification({
+            title: 'Switch failed',
+            description: getBulkActionFailureDescription({
+              failedCount: payload.notDeletedIDs.length,
+              singular: 'subprocessor',
+              fallback: payload.error ?? 'Some subprocessors were not deleted.',
+            }),
+          })
+          return
+        }
+      }
+      setSelectedRows([])
+      setMode('link')
+      setSwitchConfirmOpen(false)
+      successNotification({ title: 'Switched to external page', description: 'All managed subprocessors were deleted.' })
+    } catch (error) {
+      errorNotification({ title: 'Switch failed', description: parseErrorMessage(error) })
+    } finally {
+      setIsSwitching(false)
+    }
   }
 
   useEffect(() => {
@@ -353,7 +352,7 @@ const SubprocessorsPage = () => {
         open={switchConfirmOpen}
         onOpenChange={setSwitchConfirmOpen}
         onConfirm={confirmSwitchToLink}
-        loading={isFetchingAllIds || isSwitching}
+        loading={isSwitching}
         title="Switch to an external page?"
         description={
           <>
