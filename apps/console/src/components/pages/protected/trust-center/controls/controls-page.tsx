@@ -34,6 +34,7 @@ export default function ControlsPage() {
   const { successNotification, errorNotification } = useNotification()
   const { setCrumbs } = use(BreadcrumbContext)
   const [activeTab, setActiveTab] = useState<FilterTab>('all')
+  const [tabDefaulted, setTabDefaulted] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const debouncedSearch = useDebounce(searchQuery, 300)
   const [drafts, setDrafts] = useState<Map<string, DraftAction>>(() => new Map())
@@ -44,6 +45,13 @@ export default function ControlsPage() {
   const trustCenterID = trustCenterData?.trustCenters?.edges?.[0]?.node?.id ?? ''
   const { data: tcPermission } = useAccountRoles(ObjectTypes.TRUST_CENTER, trustCenterID)
   const canEditTc = canEdit(tcPermission?.roles)
+
+  useEffect(() => {
+    if (tabDefaulted) return
+    if (!tcPermission) return
+    if (!canEditTc) setActiveTab('added')
+    setTabDefaulted(true)
+  }, [tcPermission, canEditTc, tabDefaulted])
 
   const { mutateAsync: bulkEditControl, isPending: isBulkEditing } = useBulkEditControl()
   const { queryClient } = useGraphQLClient()
