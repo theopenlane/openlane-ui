@@ -18,7 +18,7 @@ const PROVIDER_NAME = 'Google Drive'
 const IntegrationDocumentView: React.FC<Props> = ({ policy }) => {
   const purifier = useHtmlPurifier()
   const contents = policy.liveExternalContents
-  const sourceUrl = policy.url
+  const sourceUrl = policy.url ?? (policy.externalFileID ? `https://docs.google.com/document/d/${policy.externalFileID}/edit` : null)
   const sanitizedDocument = useMemo(() => (contents ? purifier.sanitize(contents, { ...HTML_SANITIZE_CONFIG, WHOLE_DOCUMENT: true }) : ''), [purifier, contents])
 
   return (
