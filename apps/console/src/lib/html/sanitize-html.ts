@@ -20,6 +20,12 @@ export const HTML_SANITIZE_CONFIG: DOMPurifyConfig = {
   FORBID_ATTR: ['srcdoc', 'formaction', 'onload', 'onerror'],
 }
 
+export const HTML_DOCUMENT_SANITIZE_CONFIG = {
+  WHOLE_DOCUMENT: true,
+  FORBID_TAGS: ['iframe', 'object', 'embed', 'form', 'base'],
+  FORBID_ATTR: ['srcdoc', 'formaction', 'onload', 'onerror'],
+} satisfies DOMPurifyConfig
+
 export const useHtmlPurifier = () => {
   return useMemo(() => {
     const dp = DOMPurify(window)

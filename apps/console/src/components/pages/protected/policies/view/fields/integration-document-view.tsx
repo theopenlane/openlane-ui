@@ -6,7 +6,7 @@ import { ExternalLink } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { Badge } from '@repo/ui/badge'
 import { type InternalPolicyByIdFragment } from '@repo/codegen/src/schema'
-import { HTML_SANITIZE_CONFIG, useHtmlPurifier } from '@/lib/html/sanitize-html'
+import { HTML_DOCUMENT_SANITIZE_CONFIG, isSafeLinkHref, useHtmlPurifier } from '@/lib/html/sanitize-html'
 import { getProviderIcon } from '@/lib/integrations/utils'
 
 type Props = {
@@ -18,8 +18,11 @@ const PROVIDER_NAME = 'Google Drive'
 const IntegrationDocumentView: React.FC<Props> = ({ policy }) => {
   const purifier = useHtmlPurifier()
   const contents = policy.liveExternalContents
-  const sourceUrl = policy.url ?? (policy.externalFileID ? `https://docs.google.com/document/d/${policy.externalFileID}/edit` : null)
-  const sanitizedDocument = useMemo(() => (contents ? purifier.sanitize(contents, { ...HTML_SANITIZE_CONFIG, WHOLE_DOCUMENT: true }) : ''), [purifier, contents])
+  const sourceUrl = useMemo(() => {
+    const candidate = policy.url ?? (policy.externalFileID ? `https://docs.google.com/document/d/${policy.externalFileID}/edit` : null)
+    return candidate && isSafeLinkHref(candidate, 'https://docs.google.com') ? candidate : null
+  }, [policy.url, policy.externalFileID])
+  const sanitizedDocument = useMemo(() => (contents ? purifier.sanitize(contents, HTML_DOCUMENT_SANITIZE_CONFIG) : ''), [purifier, contents])
 
   return (
     <div className="flex flex-col gap-3">

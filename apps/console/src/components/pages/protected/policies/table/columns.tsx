@@ -166,7 +166,7 @@ export const getPoliciesColumns = ({ users, tokens, selectedPolicies, setSelecte
       cell: ({ row }) => {
         const userId = row.original.createdBy
         if (!userId || !isUlid(userId)) {
-          return '-'
+          return '—'
         }
         const token = tokens?.find((item) => item.id === userId)
         const user = users?.find((item) => item.id === userId)
