@@ -47,6 +47,7 @@ import { ObjectTypes } from '@repo/codegen/src/type-names'
 import HistoryTab from './tabs/history/history-tab'
 import { VersionBump } from '@/lib/enums/revision-enum'
 import ExternalReferenceView from '@/components/pages/protected/policies/view/fields/external-reference-view'
+import IntegrationDocumentView from '@/components/pages/protected/policies/view/fields/integration-document-view'
 
 type TViewPolicyPage = {
   policyId: string
@@ -403,7 +404,9 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
         </TabsList>
 
         <TabsContent value="policy">
-          {isExternalReference && policy.file ? (
+          {policy.managementMode === InternalPolicyDocumentManagementMode.INTEGRATION ? (
+            <IntegrationDocumentView policy={policy} />
+          ) : isExternalReference && policy.file ? (
             <ExternalReferenceView policy={policy} editAllowed={editAllowed} />
           ) : (
             <DetailsField isEditing={isEditing} form={form} policy={policy} discussionData={discussionData?.internalPolicy} />

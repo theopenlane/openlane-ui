@@ -72277,6 +72277,7 @@ export type InternalPolicyByIdFragment = {
   summary?: string | null
   detailsJSON?: Array<any> | null
   internalPolicyKindName?: string | null
+  liveExternalContents?: string | null
   file?: { __typename?: 'File'; id: string; presignedURL?: string | null; providedFileName: string; providedFileExtension: string; detectedMimeType?: string | null } | null
   approver?: {
     __typename?: 'Group'
