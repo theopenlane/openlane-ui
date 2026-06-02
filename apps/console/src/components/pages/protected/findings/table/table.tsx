@@ -20,6 +20,9 @@ import { useSheetNavigation } from '@/providers/sheet-navigation-provider'
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types'
 import CreateRemediationSheet from '@/components/pages/protected/remediations/create-remediation-sheet'
 import { useQueryClient } from '@tanstack/react-query'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { canCreate } from '@/lib/authz/utils'
+import { AccessEnum } from '@/lib/authz/enums/access-enum'
 
 const TableComponent = ({
   onSortChange,
@@ -45,6 +48,8 @@ const TableComponent = ({
   const { convertToReadOnly } = usePlateEditor()
   const [createTaskRow, setCreateTaskRow] = useState<FindingsNodeNonNull | null>(null)
   const [trackRemediationRow, setTrackRemediationRow] = useState<FindingsNodeNonNull | null>(null)
+  const { data: orgPermission } = useOrganizationRoles()
+  const canCreateRemediation = canCreate(orgPermission?.roles, AccessEnum.CanCreateRemediation)
 
   const orderBy = useMemo(() => {
     if (!orderByFilter) return undefined
@@ -137,8 +142,16 @@ const TableComponent = ({
 
   const columns = useMemo(
     () =>
-      getColumns({ userMap, convertToReadOnly, selectedItems, setSelectedItems, onTrackRemediation: handleTrackRemediation, onOpenRemediation: handleOpenRemediation, onCreateTask: handleCreateTask }),
-    [userMap, convertToReadOnly, selectedItems, setSelectedItems, handleOpenRemediation],
+      getColumns({
+        userMap,
+        convertToReadOnly,
+        selectedItems,
+        setSelectedItems,
+        onTrackRemediation: canCreateRemediation ? handleTrackRemediation : undefined,
+        onOpenRemediation: handleOpenRemediation,
+        onCreateTask: handleCreateTask,
+      }),
+    [userMap, convertToReadOnly, selectedItems, setSelectedItems, handleOpenRemediation, canCreateRemediation],
   )
 
   const createTaskInitialValues = useMemo(() => {
