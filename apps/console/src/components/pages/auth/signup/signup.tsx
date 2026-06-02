@@ -31,16 +31,18 @@ export const SignupPage = () => {
 
   const showError = !isLoading && !!registrationErrorMessage
 
+  const oauthRedirect = token ? `/invite?token=${token}` : '/'
+
   const github = async () => {
     recordLastLoginMethod(UserAuthProvider.GITHUB)
-    await signIn('github', { redirectTo: '/' })
+    await signIn('github', { redirectTo: oauthRedirect })
   }
 
   const google = async () => {
     recordLastLoginMethod(UserAuthProvider.GOOGLE)
     await signIn('google', {
       redirect: true,
-      redirectTo: '/signup',
+      redirectTo: oauthRedirect,
     })
   }
 
@@ -115,7 +117,17 @@ export const SignupPage = () => {
               }
 
               if (res?.ok && token) {
-                router.push(`/login`)
+                const signInRes = await signIn('credentials', {
+                  redirect: false,
+                  username: payload.email,
+                  password: payload.password,
+                })
+
+                if (signInRes?.ok && !signInRes.error) {
+                  router.push('/')
+                } else {
+                  router.push('/login')
+                }
               } else if (res?.ok) {
                 router.push('/verify')
               } else if (token && res?.message && /already exists/i.test(res.message)) {
