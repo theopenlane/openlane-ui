@@ -27,4 +27,5 @@ export enum AccessEnum {
   CanEditCustomTypeEnum = 'can_edit_custom_type_enum',
   CanCreatePlatform = 'can_create_platform',
   CanEditTrustCenterCompliance = 'can_edit_trust_center_compliance',
+  CanEditTrustCenterNdaRequest = 'can_edit_trust_center_nda_request',
 }
