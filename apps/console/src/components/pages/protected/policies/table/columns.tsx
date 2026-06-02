@@ -17,6 +17,7 @@ import { BooleanCell } from '@/components/shared/crud-base/columns/boolean-cell'
 import { DateCell } from '@/components/shared/crud-base/columns/date-cell'
 import { createSelectColumn } from '@/components/shared/crud-base/columns/select-column'
 import { formatDate } from '@/utils/date'
+import { isUlid } from '@/lib/validators'
 
 type TPoliciesColumnsProps = {
   users?: User[]
@@ -164,6 +165,9 @@ export const getPoliciesColumns = ({ users, tokens, selectedPolicies, setSelecte
       size: 200,
       cell: ({ row }) => {
         const userId = row.original.createdBy
+        if (!userId || !isUlid(userId)) {
+          return '-'
+        }
         const token = tokens?.find((item) => item.id === userId)
         const user = users?.find((item) => item.id === userId)
 
@@ -191,6 +195,9 @@ export const getPoliciesColumns = ({ users, tokens, selectedPolicies, setSelecte
       size: 200,
       cell: ({ row }) => {
         const userId = row.original.updatedBy
+        if (!userId || !isUlid(userId)) {
+          return '-'
+        }
         const token = tokens?.find((item) => item.id === userId)
         const user = users?.find((item) => item.id === userId)
 

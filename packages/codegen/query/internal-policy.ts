@@ -152,6 +152,7 @@ export const INTERNAL_POLICY_BY_ID = gql`
     detailsJSON
     internalPolicyKindName
     liveExternalContents
+    url
     file {
       id
       presignedURL

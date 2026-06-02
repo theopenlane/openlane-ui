@@ -9,6 +9,7 @@ import { type InternalPolicyByIdFragment, InternalPolicyDocumentManagementMode }
 import { useUpdateInternalPolicy } from '@/lib/graphql-hooks/internal-policy'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { DownloadButton } from '@/components/shared/file-preview/file-preview'
 import ReplaceDocumentDialog from './replace-document-dialog'
 
 type Props = {
@@ -54,6 +55,7 @@ const ExternalReferenceView: React.FC<Props> = ({ policy, editAllowed }) => {
             <p className="text-xs text-muted-foreground">Word document managed outside Openlane.</p>
           </div>
           <div className="flex items-center gap-2">
+            <DownloadButton file={file} variant="outline" />
             <Button type="button" variant="outline" icon={<Upload size={14} />} iconPosition="left" onClick={() => setReplaceOpen(true)} disabled={isSwitching}>
               Replace document
             </Button>
