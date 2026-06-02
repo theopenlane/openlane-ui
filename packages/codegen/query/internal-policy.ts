@@ -153,6 +153,41 @@ export const INTERNAL_POLICY_BY_ID = gql`
     internalPolicyKindName
     liveExternalContents
     url
+    externalFileID
+    integrations {
+      edges {
+        node {
+          id
+          name
+          kind
+          integrationType
+          description
+          definitionID
+          definitionSlug
+          definitionVersion
+          family
+          environmentID
+          environmentName
+          scopeID
+          scopeName
+          platformID
+          status
+          primaryDirectory
+          campaignEmail
+          systemOwned
+          tags
+          config
+          metadata
+          providerMetadataSnapshot
+          webhookURLs
+          ownerID
+          createdAt
+          createdBy
+          updatedAt
+          updatedBy
+        }
+      }
+    }
     file {
       id
       presignedURL

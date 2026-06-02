@@ -10962,6 +10962,8 @@ export interface CreateTaskInput {
   groupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   identityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   internalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** indicates if the task is intended to be used as a template */
+  isTemplate?: InputMaybe<Scalars['Boolean']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
   parentID?: InputMaybe<Scalars['ID']['input']>
   platformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -50251,6 +50253,8 @@ export interface Task extends Node {
   idempotencyKey?: Maybe<Scalars['String']['output']>
   identityHolders: IdentityHolderConnection
   internalPolicies: InternalPolicyConnection
+  /** indicates if the task is intended to be used as a template */
+  isTemplate: Scalars['Boolean']['output']
   owner?: Maybe<Organization>
   /** the ID of the organization owner of the object */
   ownerID?: Maybe<Scalars['ID']['output']>
@@ -50525,6 +50529,7 @@ export enum TaskOrderField {
   completed = 'completed',
   created_at = 'created_at',
   due = 'due',
+  is_template = 'is_template',
   title = 'title',
   updated_at = 'updated_at',
 }
@@ -50817,6 +50822,9 @@ export interface TaskWhereInput {
   idempotencyKeyNEQ?: InputMaybe<Scalars['String']['input']>
   idempotencyKeyNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   idempotencyKeyNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** is_template field predicates */
+  isTemplate?: InputMaybe<Scalars['Boolean']['input']>
+  isTemplateNEQ?: InputMaybe<Scalars['Boolean']['input']>
   not?: InputMaybe<TaskWhereInput>
   or?: InputMaybe<Array<TaskWhereInput>>
   /** owner_id field predicates */
@@ -60405,6 +60413,8 @@ export interface UpdateTaskInput {
   externalReferenceURL?: InputMaybe<Array<Scalars['String']['input']>>
   /** stable external UUID for deterministic OSCAL export and round-tripping */
   externalUUID?: InputMaybe<Scalars['String']['input']>
+  /** indicates if the task is intended to be used as a template */
+  isTemplate?: InputMaybe<Scalars['Boolean']['input']>
   parentID?: InputMaybe<Scalars['ID']['input']>
   removeActionPlanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeCommentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -72279,6 +72289,44 @@ export type InternalPolicyByIdFragment = {
   internalPolicyKindName?: string | null
   liveExternalContents?: string | null
   url?: string | null
+  externalFileID?: string | null
+  integrations: {
+    __typename?: 'IntegrationConnection'
+    edges?: Array<{
+      __typename?: 'IntegrationEdge'
+      node?: {
+        __typename?: 'Integration'
+        id: string
+        name: string
+        kind?: string | null
+        integrationType?: string | null
+        description?: string | null
+        definitionID?: string | null
+        definitionSlug?: string | null
+        definitionVersion?: string | null
+        family?: string | null
+        environmentID?: string | null
+        environmentName?: string | null
+        scopeID?: string | null
+        scopeName?: string | null
+        platformID?: string | null
+        status: IntegrationIntegrationStatus
+        primaryDirectory: boolean
+        campaignEmail: boolean
+        systemOwned?: boolean | null
+        tags?: Array<string> | null
+        config?: any | null
+        metadata?: any | null
+        providerMetadataSnapshot?: any | null
+        webhookURLs?: any | null
+        ownerID?: string | null
+        createdAt?: any | null
+        createdBy?: string | null
+        updatedAt?: any | null
+        updatedBy?: string | null
+      } | null
+    } | null> | null
+  }
   file?: { __typename?: 'File'; id: string; presignedURL?: string | null; providedFileName: string; providedFileExtension: string; detectedMimeType?: string | null } | null
   approver?: {
     __typename?: 'Group'
@@ -72330,6 +72378,46 @@ export type GetInternalPolicyDetailsByIdQuery = {
     summary?: string | null
     detailsJSON?: Array<any> | null
     internalPolicyKindName?: string | null
+    liveExternalContents?: string | null
+    url?: string | null
+    externalFileID?: string | null
+    integrations: {
+      __typename?: 'IntegrationConnection'
+      edges?: Array<{
+        __typename?: 'IntegrationEdge'
+        node?: {
+          __typename?: 'Integration'
+          id: string
+          name: string
+          kind?: string | null
+          integrationType?: string | null
+          description?: string | null
+          definitionID?: string | null
+          definitionSlug?: string | null
+          definitionVersion?: string | null
+          family?: string | null
+          environmentID?: string | null
+          environmentName?: string | null
+          scopeID?: string | null
+          scopeName?: string | null
+          platformID?: string | null
+          status: IntegrationIntegrationStatus
+          primaryDirectory: boolean
+          campaignEmail: boolean
+          systemOwned?: boolean | null
+          tags?: Array<string> | null
+          config?: any | null
+          metadata?: any | null
+          providerMetadataSnapshot?: any | null
+          webhookURLs?: any | null
+          ownerID?: string | null
+          createdAt?: any | null
+          createdBy?: string | null
+          updatedAt?: any | null
+          updatedBy?: string | null
+        } | null
+      } | null> | null
+    }
     file?: { __typename?: 'File'; id: string; presignedURL?: string | null; providedFileName: string; providedFileExtension: string; detectedMimeType?: string | null } | null
     approver?: {
       __typename?: 'Group'

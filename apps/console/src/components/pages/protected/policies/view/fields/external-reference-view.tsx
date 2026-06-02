@@ -4,12 +4,11 @@ import React, { useState } from 'react'
 import { Repeat, Upload } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
-import FilePreview from '@/components/shared/file-preview/file-preview'
+import FilePreview, { DownloadButton } from '@/components/shared/file-preview/file-preview'
 import { type InternalPolicyByIdFragment, InternalPolicyDocumentManagementMode } from '@repo/codegen/src/schema'
 import { useUpdateInternalPolicy } from '@/lib/graphql-hooks/internal-policy'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { DownloadButton } from '@/components/shared/file-preview/file-preview'
 import ReplaceDocumentDialog from './replace-document-dialog'
 
 type Props = {

@@ -1320,6 +1320,7 @@ export const MERGEABLE_FIELDS_BY_TYPE = {
     { name: 'environmentName', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
     { name: 'externalReferenceURL', kind: 'string', list: true, nonNull: false, listItemNonNull: true },
     { name: 'externalUUID', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
+    { name: 'isTemplate', kind: 'boolean', list: false, nonNull: true, listItemNonNull: false },
     { name: 'scopeID', kind: 'id', list: false, nonNull: false, listItemNonNull: false },
     { name: 'scopeName', kind: 'string', list: false, nonNull: false, listItemNonNull: false },
     { name: 'status', kind: 'enum', list: false, nonNull: true, listItemNonNull: false, enumName: 'TaskTaskStatus' },
