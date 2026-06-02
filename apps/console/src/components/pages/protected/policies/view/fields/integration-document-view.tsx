@@ -19,9 +19,9 @@ const IntegrationDocumentView: React.FC<Props> = ({ policy }) => {
   const purifier = useHtmlPurifier()
   const contents = policy.liveExternalContents
   const sourceUrl = useMemo(() => {
-    const candidate = policy.url ?? (policy.externalFileID ? `https://docs.google.com/document/d/${policy.externalFileID}/edit` : null)
+    const candidate = policy.externalFileID ? `https://docs.google.com/document/d/${policy.externalFileID}/edit` : null
     return candidate && isSafeLinkHref(candidate, 'https://docs.google.com') ? candidate : null
-  }, [policy.url, policy.externalFileID])
+  }, [policy.externalFileID])
   const sanitizedDocument = useMemo(() => (contents ? purifier.sanitize(contents, HTML_DOCUMENT_SANITIZE_CONFIG) : ''), [purifier, contents])
 
   return (
