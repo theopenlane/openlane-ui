@@ -9,7 +9,7 @@ import Menu from '@/components/shared/menu/menu.tsx'
 import BulkCSVCreateRiskDialog from '@/components/pages/protected/risks/bulk-csv-create-risk-dialog.tsx'
 import { type VisibilityState } from '@tanstack/react-table'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
-import { canCreate } from '@/lib/authz/utils.ts'
+import { hasPermission } from '@/lib/authz/utils.ts'
 import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
 import { type TAccessRole, type TPermissionData } from '@/types/authz'
 import { type RiskWhereInput } from '@repo/codegen/src/schema'
@@ -179,7 +179,7 @@ const RisksTableToolbar: React.FC<TProps> = ({
               closeOnSelect={true}
               content={(close) => (
                 <>
-                  {canCreate(permission?.roles, AccessEnum.CanCreateRisk) && (
+                  {hasPermission(permission?.roles, AccessEnum.CanCreateRisk) && (
                     <BulkCSVCreateRiskDialog
                       trigger={
                         <div className="flex items-center space-x-2 px-1">
@@ -206,7 +206,7 @@ const RisksTableToolbar: React.FC<TProps> = ({
               <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.RISK} />
             )}
             {filterFields && <TableFilter filterFields={filterFields} onFilterChange={onFilterChange} pageKey={TableKeyEnum.RISK} />}
-            {canCreate(permission?.roles, AccessEnum.CanCreateRisk) && (
+            {hasPermission(permission?.roles, AccessEnum.CanCreateRisk) && (
               <Button variant="primary" onClick={handleCreateNew} className="h-8 px-2! pl-3!" icon={<SquarePlus />} iconPosition="left">
                 Create
               </Button>

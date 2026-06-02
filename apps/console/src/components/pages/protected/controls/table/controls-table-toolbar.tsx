@@ -16,7 +16,7 @@ import { type ControlWhereInput } from '@repo/codegen/src/schema'
 import { useStandardsSelect } from '@/lib/graphql-hooks/standard'
 import { Button } from '@repo/ui/button'
 import { BulkEditControlsDialog } from '../bulk-edit/bulk-edit-controls'
-import { canCreate } from '@/lib/authz/utils'
+import { hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { BulkCSVCloneControlDialog } from '../bulk-csv-clone-control-dialog'
 import { type TAccessRole, type TPermissionData } from '@/types/authz'
@@ -116,8 +116,8 @@ const ControlsTableToolbar: React.FC<TProps> = ({
   })
 
   const { successNotification, errorNotification } = useNotification()
-  const createControlAllowed = canCreate(permission?.roles, AccessEnum.CanCreateControl)
-  const createSubcontrolAllowed = canCreate(permission?.roles, AccessEnum.CanCreateSubcontrol)
+  const createControlAllowed = hasPermission(permission?.roles, AccessEnum.CanCreateControl)
+  const createSubcontrolAllowed = hasPermission(permission?.roles, AccessEnum.CanCreateSubcontrol)
   const { mutateAsync: bulkDeleteControls } = useBulkDeleteControls()
   const { enumOptions, isSuccess: isTypesSuccess } = useGetCustomTypeEnums({
     where: {

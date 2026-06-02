@@ -23,7 +23,7 @@ import { objectType } from '../table/types'
 import Skeleton from '@/components/shared/skeleton/skeleton'
 import PlatformDetailPage from '../detail/platform-detail-page'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
-import { canCreate } from '@/lib/authz/utils'
+import { hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 
 const STATUS_VARIANT: Record<PlatformPlatformStatus, 'green' | 'secondary'> = {
@@ -40,7 +40,7 @@ const PlatformsDashboardPage: React.FC = () => {
 
   const { data: session } = useSession()
   const { data: orgPermission } = useOrganizationRoles()
-  const canCreatePlatform = canCreate(orgPermission?.roles, AccessEnum.CanCreatePlatform)
+  const canCreatePlatform = hasPermission(orgPermission?.roles, AccessEnum.CanCreatePlatform)
   const { platformsNodes, isLoading, isSuccess } = usePlatformsWithFilter({})
   const { mutateAsync: createPlatform, isPending: isCreatePending } = useCreatePlatform()
   const { mutateAsync: updatePlatform, isPending: isUpdatePending } = useUpdatePlatform()

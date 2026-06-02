@@ -25,7 +25,7 @@ import { type VisibilityState } from '@tanstack/react-table'
 import { CustomTypeEnumOrderField, type GetCustomTypeEnumsPaginatedQueryVariables, OrderDirection, type User } from '@repo/codegen/src/schema'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
-import { canCreate } from '@/lib/authz/utils'
+import { hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 
 type SelectedEnum = { id: string; name: string }
@@ -43,8 +43,8 @@ const CustomEnumsTab: FC = () => {
   const { push } = useSmartRouter()
   const { successNotification, errorNotification } = useNotification()
   const { data: permission } = useOrganizationRoles()
-  const canCreateEnum = canCreate(permission?.roles, AccessEnum.CanCreateCustomTypeEnum)
-  const canEditEnum = canCreate(permission?.roles, AccessEnum.CanEditCustomTypeEnum)
+  const canCreateEnum = hasPermission(permission?.roles, AccessEnum.CanCreateCustomTypeEnum)
+  const canEditEnum = hasPermission(permission?.roles, AccessEnum.CanEditCustomTypeEnum)
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => getInitialVisibility(TableKeyEnum.CUSTOM_ENUMS, DEFAULT_ENUM_COLUMN_VISIBILITY))
   const defaultSorting = getInitialSortConditions(TableKeyEnum.CUSTOM_ENUMS, CustomTypeEnumOrderField, [
     {

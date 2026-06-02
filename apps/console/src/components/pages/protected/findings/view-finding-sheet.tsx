@@ -11,7 +11,7 @@ import { useSheetNavigation } from '@/providers/sheet-navigation-provider'
 import { ObjectAssociationNodeEnum } from '@/components/shared/object-association/types/object-association-types'
 import { useRouter } from 'next/navigation'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
-import { canCreate } from '@/lib/authz/utils'
+import { hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 
 type Props = {
@@ -28,7 +28,7 @@ const FindingRemediationButton: React.FC<RemediationButtonProps> = ({ entityId, 
   const sheetNav = useSheetNavigation()
   const router = useRouter()
   const { data: orgPermission } = useOrganizationRoles()
-  const canCreateRemediation = canCreate(orgPermission?.roles, AccessEnum.CanCreateRemediation)
+  const canCreateRemediation = hasPermission(orgPermission?.roles, AccessEnum.CanCreateRemediation)
   const { data } = useGetFindingAssociations(entityId)
   const firstRemediationId = data?.finding?.remediations?.edges?.[0]?.node?.id
 

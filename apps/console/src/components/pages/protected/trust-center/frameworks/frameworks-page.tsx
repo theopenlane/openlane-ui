@@ -24,7 +24,7 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { Label } from '@repo/ui/label'
 import { useGetTrustCenter } from '@/lib/graphql-hooks/trust-center'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
-import { canEdit, canCreate } from '@/lib/authz/utils'
+import { canEdit, hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { type StandardWhereInput } from '@repo/codegen/src/schema'
 import { useNavigationGuard } from 'next-navigation-guard'
@@ -51,7 +51,7 @@ export default function FrameworksPage() {
   const trustCenterID = trustCenterData?.trustCenters?.edges?.[0]?.node?.id ?? ''
   const { data: tcPermission } = useAccountRoles(ObjectTypes.TRUST_CENTER, trustCenterID)
   const canEditTc = canEdit(tcPermission?.roles)
-  const canEditCompliance = canCreate(tcPermission?.roles, AccessEnum.CanEditTrustCenterCompliance)
+  const canEditCompliance = hasPermission(tcPermission?.roles, AccessEnum.CanEditTrustCenterCompliance)
 
   const { compliances, isError: compliancesError, isFetched: compliancesFetched } = useGetTrustCenterCompliances()
   const baseWhere: StandardWhereInput = {

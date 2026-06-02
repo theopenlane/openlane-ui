@@ -6,14 +6,14 @@ import { Card, CardContent, CardTitle } from '@repo/ui/cardpanel'
 import { Bug, FileSearch, Wrench, ClipboardCheck } from 'lucide-react'
 import CreateRemediationSheet from '@/components/pages/protected/remediations/create-remediation-sheet'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
-import { canCreate } from '@/lib/authz/utils'
+import { hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 
 const ExposureQuickActions = () => {
   const router = useRouter()
   const [createRemediationOpen, setCreateRemediationOpen] = useState(false)
   const { data: orgPermission } = useOrganizationRoles()
-  const canCreateRemediation = canCreate(orgPermission?.roles, AccessEnum.CanCreateRemediation)
+  const canCreateRemediation = hasPermission(orgPermission?.roles, AccessEnum.CanCreateRemediation)
 
   const actions = [
     {
@@ -30,21 +30,12 @@ const ExposureQuickActions = () => {
       color: 'text-warning',
       bg: 'bg-warning/12',
     },
-    canCreateRemediation
-      ? {
-          label: 'Track Remediation',
-          onClick: () => setCreateRemediationOpen(true),
-          icon: Wrench,
-          color: 'text-info',
-          bg: 'bg-info/12',
-        }
-      : {
-          label: 'View Remediations',
-          onClick: () => router.push('/exposure/remediations'),
-          icon: Wrench,
-          color: 'text-info',
-          bg: 'bg-info/12',
-        },
+    {
+      ...(canCreateRemediation ? { label: 'Track Remediation', onClick: () => setCreateRemediationOpen(true) } : { label: 'View Remediations', onClick: () => router.push('/exposure/remediations') }),
+      icon: Wrench,
+      color: 'text-info',
+      bg: 'bg-info/12',
+    },
     {
       label: 'Audit Reviews',
       onClick: () => router.push('/exposure/reviews'),

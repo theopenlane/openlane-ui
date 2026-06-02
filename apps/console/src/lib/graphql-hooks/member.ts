@@ -13,7 +13,6 @@ import {
   type OrgMembershipsQueryVariables,
   type OrgMembershipWhereInput,
   type OrgMembership,
-  type OrgMembershipRole,
   type User,
   type OrgMembershipsByIdsQuery,
 } from '@repo/codegen/src/schema'
@@ -77,7 +76,7 @@ export const useCurrentUserRole = () => {
   })
 
   return {
-    role: members[0]?.role as OrgMembershipRole | undefined,
+    role: members[0]?.role,
     isLoading,
   }
 }

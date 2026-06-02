@@ -16,7 +16,7 @@ import Link from 'next/link'
 import { Button } from '@repo/ui/button'
 import { PercentageDonut } from '@/components/shared/percentage-donut.tsx/percentage-donut'
 
-import { canCreate } from '@/lib/authz/utils'
+import { hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { ControlReportPageSkeleton } from './skeleton/control-report-page-skeleton'
 import { isStringArray, loadFilters, saveFilters, type TFilterState } from '@/components/shared/table-filter/filter-storage.ts'
@@ -47,7 +47,7 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
   const [expandedItems, setExpandedItems] = useState<string[]>([])
 
   const { data: permission } = useOrganizationRoles()
-  const createAllowed = canCreate(permission?.roles, AccessEnum.CanCreateControl)
+  const createAllowed = hasPermission(permission?.roles, AccessEnum.CanCreateControl)
 
   const { standardOptions, isSuccess: isSuccessStandards } = useStandardsSelect({
     where: {

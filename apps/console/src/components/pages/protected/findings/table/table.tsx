@@ -21,7 +21,7 @@ import { ObjectAssociationNodeEnum } from '@/components/shared/object-associatio
 import CreateRemediationSheet from '@/components/pages/protected/remediations/create-remediation-sheet'
 import { useQueryClient } from '@tanstack/react-query'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
-import { canCreate } from '@/lib/authz/utils'
+import { hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 
 const TableComponent = ({
@@ -49,7 +49,7 @@ const TableComponent = ({
   const [createTaskRow, setCreateTaskRow] = useState<FindingsNodeNonNull | null>(null)
   const [trackRemediationRow, setTrackRemediationRow] = useState<FindingsNodeNonNull | null>(null)
   const { data: orgPermission } = useOrganizationRoles()
-  const canCreateRemediation = canCreate(orgPermission?.roles, AccessEnum.CanCreateRemediation)
+  const canCreateRemediation = hasPermission(orgPermission?.roles, AccessEnum.CanCreateRemediation)
 
   const orderBy = useMemo(() => {
     if (!orderByFilter) return undefined

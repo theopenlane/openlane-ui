@@ -15,7 +15,7 @@ import { Label } from '@repo/ui/label'
 import { useGetTrustCenter } from '@/lib/graphql-hooks/trust-center'
 import { useHandleUpdateSetting } from '../branding/helpers/useHandleUpdateSetting'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
-import { canEdit, canCreate } from '@/lib/authz/utils'
+import { canEdit, hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import NdaRequestsTable from './table/nda-requests-table.tsx'
 import { ObjectTypes } from '@repo/codegen/src/type-names.ts'
@@ -31,7 +31,7 @@ const NDAsPage = () => {
   const trustCenter = trustCenterData?.trustCenters?.edges?.[0]?.node
   const { data: tcPermission } = useAccountRoles(ObjectTypes.TRUST_CENTER, trustCenter?.id)
   const canEditTc = canEdit(tcPermission?.roles)
-  const canEditNdaRequest = canCreate(tcPermission?.roles, AccessEnum.CanEditTrustCenterNdaRequest)
+  const canEditNdaRequest = hasPermission(tcPermission?.roles, AccessEnum.CanEditTrustCenterNdaRequest)
   const trustCenterSetting = trustCenter?.setting
   const ndaApprovalRequired = !!trustCenterSetting?.ndaApprovalRequired
 
