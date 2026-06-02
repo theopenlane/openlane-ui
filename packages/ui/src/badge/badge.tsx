@@ -8,6 +8,7 @@ const badgeVariants = cva('inline-flex items-center rounded-full border px-2.5 p
       default: 'border-transparent btn-secondary',
       secondary: 'border-transparent bg-secondary hover:bg-secondary/80 transition-colors duration-500',
       outline: 'text-foreground',
+      primary: 'bg-primary/10 text-primary',
       gold: 'border-transparent bg-gold-trial text-white',
       destructive: 'border-transparent error text-white bg-red-700',
       select: 'border-transparent bg-border text-paragraph',

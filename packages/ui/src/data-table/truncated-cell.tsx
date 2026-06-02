@@ -7,9 +7,11 @@ import { cn } from '../../lib/utils'
 interface TruncatedCellProps {
   children: ReactNode
   className?: string
+  tooltipClassName?: string
+  tooltipContent?: ReactNode
 }
 
-export const TruncatedCell = ({ children, className }: TruncatedCellProps) => {
+export const TruncatedCell = ({ children, className, tooltipClassName, tooltipContent }: TruncatedCellProps) => {
   const ref = useRef<HTMLDivElement>(null)
   const [open, setOpen] = useState(false)
 
@@ -33,8 +35,8 @@ export const TruncatedCell = ({ children, className }: TruncatedCellProps) => {
         </div>
       </TooltipTrigger>
       {open && (
-        <TooltipContent side="top" className="max-w-sm whitespace-normal wrap-break-word">
-          {ref.current?.textContent}
+        <TooltipContent side="top" className={cn('max-w-sm whitespace-normal wrap-break-word', tooltipClassName)}>
+          {tooltipContent ?? ref.current?.textContent}
         </TooltipContent>
       )}
     </Tooltip>

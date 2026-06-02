@@ -32,6 +32,7 @@
     "./logo": "./src/logo/logo.tsx",
     "./input": "./src/input/input.tsx",
     "./info": "./src/info/info.tsx",
+    "./info-slide-out": "./src/info-slide-out/info-slide-out.tsx",
     "./label": "./src/label/label.tsx",
     "./line-chart": "./src/chart/chart.tsx",
     "./line-chart-example": "./src/chart/chart-example.tsx",

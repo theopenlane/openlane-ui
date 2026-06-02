@@ -15,6 +15,12 @@ export const toUpperSnakeCase = (input: string): string => {
     .toUpperCase()
 }
 
+/**
+ * Words that should always be fully uppercased regardless of how they appear
+ * in the raw input (e.g. api_token → API Token, ssoAuthorization → SSO Authorization)
+ */
+const ACRONYMS = new Set(['api', 'sso', 'oauth', 'id', 'ids', 'url', 'uri', 'ui', 'ux', 'sdk', 'pat', 'nda', 'ip', 'mfa', 'totp'])
+
 export function toHumanLabel(input: string): string {
   if (!input) return ''
 
@@ -29,7 +35,8 @@ export function toHumanLabel(input: string): string {
     .replace(/\s+/g, ' ')
     .trim()
 
-  return label.replace(/\b\w/g, (char) => char.toUpperCase())
+  // Title-case each word, then fully uppercase known acronyms
+  return label.replace(/\b\w+\b/g, (word) => (ACRONYMS.has(word.toLowerCase()) ? word.toUpperCase() : word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()))
 }
 
 export function formatPhoneNumber(value?: string | null): string {

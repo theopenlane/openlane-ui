@@ -108,7 +108,7 @@ export const InvitesColumns = () => {
     },
     {
       id: 'actions',
-      header: 'Action',
+      header: '',
       cell: ({ row }) => {
         const invite = row.original
         return <InviteActions inviteId={invite.id} recipient={invite.recipient} role={invite.role} />
