@@ -24,7 +24,8 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { Label } from '@repo/ui/label'
 import { useGetTrustCenter } from '@/lib/graphql-hooks/trust-center'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
-import { canEdit } from '@/lib/authz/utils'
+import { canEdit, canCreate } from '@/lib/authz/utils'
+import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { type StandardWhereInput } from '@repo/codegen/src/schema'
 import { useNavigationGuard } from 'next-navigation-guard'
 import CancelDialog from '@/components/shared/cancel-dialog/cancel-dialog'
@@ -50,6 +51,7 @@ export default function FrameworksPage() {
   const trustCenterID = trustCenterData?.trustCenters?.edges?.[0]?.node?.id ?? ''
   const { data: tcPermission } = useAccountRoles(ObjectTypes.TRUST_CENTER, trustCenterID)
   const canEditTc = canEdit(tcPermission?.roles)
+  const canEditCompliance = canCreate(tcPermission?.roles, AccessEnum.CanEditTrustCenterCompliance)
 
   const { compliances, isError: compliancesError, isFetched: compliancesFetched } = useGetTrustCenterCompliances()
   const baseWhere: StandardWhereInput = {
@@ -273,7 +275,7 @@ export default function FrameworksPage() {
 
           <div className="flex" onClick={(e) => e.stopPropagation()}>
             <div className="flex gap-3">
-              <Switch checked={isAssociated} onCheckedChange={(checked) => handleToggle(standard.id, checked)} />
+              <Switch disabled={!canEditCompliance} checked={isAssociated} onCheckedChange={(checked) => handleToggle(standard.id, checked)} />
             </div>
           </div>
         </CardContent>
