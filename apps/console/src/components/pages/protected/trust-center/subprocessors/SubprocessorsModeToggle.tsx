@@ -15,7 +15,8 @@ type TProps = {
 type TOption = {
   mode: SubprocessorMode
   icon: React.ReactNode
-  title: string
+  selectedTitle: string
+  unselectedTitle: string
   description: string
   note: string
 }
@@ -24,14 +25,16 @@ const options: TOption[] = [
   {
     mode: 'manage',
     icon: <LayoutGrid size={18} />,
-    title: 'Manage in Openlane',
+    selectedTitle: 'Managed in Openlane',
+    unselectedTitle: 'Switch to manage in Openlane',
     description: 'Add and update subprocessors here. Embed the list on your site using a snippet.',
     note: 'Embed snippet available to paste into your website',
   },
   {
     mode: 'link',
     icon: <ExternalLink size={18} />,
-    title: 'Link to an external page',
+    selectedTitle: 'Managed on external page',
+    unselectedTitle: 'Switch to external page',
     description: 'You already maintain a subprocessors page elsewhere. Customers will be sent there instead.',
     note: 'Customers are redirected — no list shown here',
   },
@@ -63,7 +66,7 @@ const SubprocessorsModeToggle: React.FC<TProps> = ({ value, onChange }) => {
             >
               <div className="flex items-center gap-2">
                 <span className="text-brand">{option.icon}</span>
-                <span className="font-medium">{option.title}</span>
+                <span className="font-medium">{selected ? option.selectedTitle : option.unselectedTitle}</span>
               </div>
               <p className="text-sm text-muted-foreground">{option.description}</p>
               <div className="flex items-center gap-2 text-xs text-muted-foreground mt-1">

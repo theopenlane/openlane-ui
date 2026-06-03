@@ -95,15 +95,24 @@ const SubprocessorsPage = () => {
     setColumnVisibility((prev) => ({ ...prev, select: canEditSubprocessor }))
   }, [canEditSubprocessor])
 
+  const persistSubprocessorURL = async (trimmed: string) => {
+    await updateTrustCenter({
+      updateTrustCenterId: trustCenterID,
+      input: trimmed ? { subprocessorURL: trimmed } : { clearSubprocessorURL: true },
+    })
+  }
+
   const handleSaveSubprocessorURL = async () => {
     const trimmed = subprocessorURL.trim()
     if (trimmed === savedSubprocessorURL) return
 
+    if (trimmed && managedCount > 0) {
+      setSwitchConfirmOpen(true)
+      return
+    }
+
     try {
-      await updateTrustCenter({
-        updateTrustCenterId: trustCenterID,
-        input: trimmed ? { subprocessorURL: trimmed } : { clearSubprocessorURL: true },
-      })
+      await persistSubprocessorURL(trimmed)
       successNotification({ title: 'Saved', description: 'Subprocessor URL updated successfully.' })
     } catch (error) {
       errorNotification({ title: 'Error', description: parseErrorMessage(error) })
@@ -217,11 +226,7 @@ const SubprocessorsPage = () => {
     if (next === mode) return
 
     if (next === 'link') {
-      if (managedCount > 0) {
-        setSwitchConfirmOpen(true)
-      } else {
-        setMode('link')
-      }
+      setMode('link')
       return
     }
 
@@ -235,8 +240,11 @@ const SubprocessorsPage = () => {
   }
 
   const confirmSwitchToLink = async () => {
+    const trimmed = subprocessorURL.trim()
     setIsSwitching(true)
     try {
+      await persistSubprocessorURL(trimmed)
+
       const ids = await fetchAllSubprocessorIds({})
       if (ids.length > 0) {
         const result = await bulkDeleteSubprocessors({ ids })
@@ -254,9 +262,8 @@ const SubprocessorsPage = () => {
         }
       }
       setSelectedRows([])
-      setMode('link')
       setSwitchConfirmOpen(false)
-      successNotification({ title: 'Switched to external page', description: 'All managed subprocessors were deleted.' })
+      successNotification({ title: 'Switched to external page', description: 'External page set and managed subprocessors removed.' })
     } catch (error) {
       errorNotification({ title: 'Switch failed', description: parseErrorMessage(error) })
     } finally {
@@ -356,14 +363,14 @@ const SubprocessorsPage = () => {
         title="Switch to an external page?"
         description={
           <>
-            You currently have <b>{managedCount}</b> subprocessor{managedCount === 1 ? '' : 's'} managed in Openlane. Switching to an external link will permanently delete all of them. This cannot be
+            You currently have <b>{managedCount}</b> subprocessor{managedCount === 1 ? '' : 's'} managed in Openlane. Saving this external page URL will permanently delete all of them. This cannot be
             undone.
             <br />
             <br />
             Customers will be redirected to the URL you provide instead of seeing a list in your Trust Center.
           </>
         }
-        confirmationText={isSwitching ? 'Deleting...' : 'Delete subprocessors and switch'}
+        confirmationText={isSwitching ? 'Saving...' : 'Save URL and delete subprocessors'}
         confirmationTextVariant="destructive"
       />
     </>
