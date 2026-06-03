@@ -42,7 +42,7 @@ const SubprocessorsModeToggle: React.FC<TProps> = ({ value, onChange }) => {
     <div className="flex flex-col gap-3 mb-6">
       <div>
         <p className="text-sm font-medium">Where do you manage your subprocessors list?</p>
-        <p className="text-sm text-muted-foreground">Choose how customers see your subprocessors.</p>
+        <p className="text-sm text-muted-foreground">Choose how customers see your subprocessors</p>
       </div>
       <div className="grid gap-4 sm:grid-cols-2 max-w-3xl">
         {options.map((option) => {
