@@ -38,7 +38,6 @@ const CustomTagsTab: FC = () => {
 
   const [searchValue, setSearchValue] = useState('')
   const debouncedSearch = useDebounce(searchValue, 300)
-  const [selected, setSelected] = useState<Record<string, boolean>>({})
   const [tagToDelete, setTagToDelete] = useState<{ id: string; name: string } | null>(null)
 
   const [pagination, setPagination] = useState<TPagination>(() =>
@@ -89,7 +88,6 @@ const CustomTagsTab: FC = () => {
   }, [])
 
   useEffect(() => {
-    setSelected({})
     resetPagination()
   }, [debouncedSearch, resetPagination])
 
@@ -112,9 +110,6 @@ const CustomTagsTab: FC = () => {
   const canDeleteTags = canDelete(permission?.roles)
 
   const { columns, mappedColumns } = useGetCustomTagColumns({
-    tags: tags,
-    selected,
-    setSelected,
     onEdit: handleEditOpen,
     onDelete: (id) => {
       const tag = tags.find((t) => t?.id === id)
