@@ -1,36 +1,6 @@
-import { type NextRequest, NextResponse } from 'next/server'
-import { auth } from '@/lib/auth/auth'
-import { secureFetch } from '@/lib/auth/utils/secure-fetch'
-import { openlaneAPIUrl } from '@repo/dally/auth'
+import { type NextRequest } from 'next/server'
+import { coreAPIRequest, HTTP_METHODS } from '@/lib/auth/utils/core-api-request'
 
 export async function POST(req: NextRequest) {
-  const session = await auth()
-
-  if (!session?.user?.accessToken) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
-
-  const payload = await req.json()
-  const accessToken = session.user.accessToken
-
-  const response = await secureFetch(`${openlaneAPIUrl}/v1/account/roles`, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-    },
-    body: JSON.stringify(payload),
-  })
-
-  if (!response.ok) {
-    return NextResponse.json({ error: 'Failed to fetch roles' }, { status: response.status })
-  }
-
-  let data: unknown
-  try {
-    data = await response.json()
-  } catch {
-    return NextResponse.json({ error: 'Invalid JSON response' }, { status: 500 })
-  }
-
-  return NextResponse.json(data, { status: response.status })
+  return coreAPIRequest('/v1/account/roles', HTTP_METHODS.POST, req, 'Failed to fetch account roles')
 }

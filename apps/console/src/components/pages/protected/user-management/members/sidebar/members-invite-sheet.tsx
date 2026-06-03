@@ -36,10 +36,12 @@ import { canCreate, canEdit } from '@/lib/authz/utils.ts'
 import { DataTable, getInitialPagination } from '@repo/ui/data-table'
 import { Input } from '@repo/ui/input'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { toHumanLabel } from '@/utils/strings'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { RoleInfoSlideOut } from '@/components/shared/role-info-slide-out/role-info-slide-out'
 
 const formSchema = z.object({
   emails: z.array(z.string().email({ message: 'Invalid email address' })),
@@ -76,6 +78,7 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
   }, [isLoadingPermission, permission])
 
   const canInviteAdmins = canCreate(permission?.roles, AccessEnum.CanInviteAdmins)
+  const canInviteMembers = canCreate(permission?.roles, AccessEnum.CanInviteMembers)
 
   const [orderBy, setOrderBy] = useState<GetAllGroupsPaginatedQueryVariables['orderBy']>([
     {
@@ -185,9 +188,14 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
   }
 
   const roleOptions = useMemo(() => {
-    const options = Object.entries(InviteRole).filter(([, o]) => o !== InviteRole.OWNER) as [keyof typeof InviteRole, InviteRole][]
-    return canInviteAdmins ? options : options.filter(([, o]) => o !== InviteRole.ADMIN)
-  }, [canInviteAdmins])
+    // OWNER can never be assigned via invite
+    // TODO: add InviteRole.SUPER_ADMIN here (gated on CanInviteSuperAdmins) and InviteRole.AUDITOR (gated on canInviteAdmins) once the enum is updated
+    const candidates: { role: InviteRole; allowed: boolean }[] = [
+      { role: InviteRole.ADMIN, allowed: canInviteAdmins },
+      { role: InviteRole.MEMBER, allowed: canInviteMembers },
+    ]
+    return candidates.filter(({ allowed }) => allowed).map(({ role }) => role)
+  }, [canInviteAdmins, canInviteMembers])
 
   const errorMessage = errors.emails && Array.isArray(errors.emails) && errors.emails.length > 0 ? errors.emails[0]?.message : null
   return (
@@ -208,7 +216,7 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
             </div>
             <div className="flex items-center justify-start">
               <SheetTitle>
-                <h3 className="font-medium text-2xl text-text-header">Invite new member</h3>
+                <h3 className="font-medium text-2xl text-text-header pb-2">Invite New Member</h3>
               </SheetTitle>
             </div>
           </SheetHeader>
@@ -275,34 +283,33 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
                     <p>
                       Role <span className="text-red-500">*</span>
                     </p>
-                    <SystemTooltip
-                      icon={<InfoIcon size={14} />}
-                      content={<p>Choose a role to assign to the user(s). Admin will give the user full read and write permissions. Member will give the user read-only access.</p>}
-                    />
                   </div>
-                  <FormField
-                    name="role"
-                    control={control}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select role" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {roleOptions.map(([key, value]) => (
-                                <SelectItem key={value} value={value}>
-                                  {key[0].toUpperCase() + key.slice(1).toLowerCase()}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </FormControl>
-                        {errors.role && <FormMessage>{errors.role.message}</FormMessage>}
-                      </FormItem>
-                    )}
-                  />
+                  <div className="col-span-3 flex flex-col gap-3">
+                    <FormField
+                      name="role"
+                      control={control}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select role" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {roleOptions.map((value) => (
+                                  <SelectItem key={value} value={value}>
+                                    {toHumanLabel(value)}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                          {errors.role && <FormMessage>{errors.role.message}</FormMessage>}
+                        </FormItem>
+                      )}
+                    />
+                    <RoleInfoSlideOut />
+                  </div>
                 </div>
               </div>
             </form>

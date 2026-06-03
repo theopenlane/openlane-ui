@@ -32,3 +32,9 @@ export type TPermissionData = {
   organization_id?: string
   roles: TAccessRole[]
 }
+
+export type TScopesResponse = {
+  success: boolean
+  /** Keys are object types (e.g. "control"), values are available permission levels (e.g. ["read", "write", "delete"]) */
+  scopes: Record<string, string[]>
+}

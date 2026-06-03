@@ -156,7 +156,7 @@ export const ProgramSettingsUsers = () => {
       ? [
           {
             id: 'actions',
-            header: 'Action',
+            header: '',
             cell: ({ row }: { row: Row<MemberRow> }) => {
               const user = row.original.user
               if (user.id === currentUserId) {

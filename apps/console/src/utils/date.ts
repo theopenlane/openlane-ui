@@ -1,14 +1,23 @@
 import { format } from 'date-fns'
 
+// dateFallback is a helper for all date formats to determine the correct fallback value
+const dateFallback = (empty?: string): string => {
+  if (empty) {
+    return empty
+  }
+
+  return '-'
+}
+
 /*
  * Formats a date to a human-readable string in "MMMM d, yyyy" format.
  * If the date is null, it returns a dash ("-").
  * @param {Date} date - The date to format.
  * @returns {string} - The formatted date string.
  */
-const formatDate = (date: string | null | undefined): string => {
+const formatDate = (date: string | null | undefined, empty?: string): string => {
   if (!date || date === '') {
-    return '-'
+    return dateFallback(empty)
   }
 
   return format(new Date(date), 'MMMM d, yyyy')
@@ -21,9 +30,9 @@ export { formatDate }
  * @param {Date} date - The date to format.
  * @returns {string} - The formatted date string.
  */
-const formatDateTime = (date: string | null | undefined): string => {
+const formatDateTime = (date: string | null | undefined, empty?: string): string => {
   if (!date || date === '') {
-    return '-'
+    return dateFallback(empty)
   }
 
   return format(new Date(date), 'MMMM d, yyyy h:mm aa')
@@ -39,9 +48,9 @@ export { formatDateTime }
  * @param {Date} date - The date to format.
  * @returns {string} - The formatted date string.
  */
-const formatTimeSince = (date: string | null | undefined): string => {
+const formatTimeSince = (date: string | null | undefined, empty?: string): string => {
   if (!date || date === '') {
-    return '-'
+    return dateFallback(empty)
   }
 
   const now = new Date()
@@ -73,9 +82,9 @@ export { formatTimeSince }
  * @param {Date} date - The date to format.
  * @returns {string} - The formatted date or time since.
  */
-const formatDateSince = (date: string | null | undefined): string => {
+const formatDateSince = (date: string | null | undefined, empty?: string): string => {
   if (!date || date === '') {
-    return '-'
+    return dateFallback(empty)
   }
 
   const now = new Date()

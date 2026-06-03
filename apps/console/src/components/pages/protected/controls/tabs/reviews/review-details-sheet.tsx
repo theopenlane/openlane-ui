@@ -39,6 +39,7 @@ const ReviewDetailsSheet: React.FC<ReviewDetailsSheetProps> = ({ queryParamKey }
       taskIDs: (review.tasks?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
       assetIDs: (review.assets?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
       programIDs: (review.programs?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
+      riskIDs: (review.risks?.edges?.map((e) => e?.node?.id).filter(Boolean) as string[]) ?? [],
     }
   }, [])
   const initialAssociationsRef = useInitialAssociations(associationsData, extractAssociations, entityId)
@@ -104,11 +105,14 @@ const ReviewDetailsSheet: React.FC<ReviewDetailsSheetProps> = ({ queryParamKey }
     createMutation,
     deleteMutation,
     buildPayload: async (formData) => {
-      const { controlIDs, subcontrolIDs, remediationIDs, entityIDs, taskIDs, assetIDs, programIDs, ...rest } = formData
-      const payload = await buildPayload(rest as ReviewFormData, plateEditorHelper)
+      const { controlIDs, subcontrolIDs, remediationIDs, entityIDs, taskIDs, assetIDs, programIDs, riskIDs, ...rest } = formData
+      const payload = await buildPayload(rest as ReviewFormData, plateEditorHelper, {
+        dirtyFields: form.formState.dirtyFields,
+        useClearFlags: true,
+      })
       const associationPayload = buildAssociationPayload(
         REVIEW_ASSOCIATION_CONFIG.associationKeys,
-        { controlIDs, subcontrolIDs, remediationIDs, entityIDs, taskIDs, assetIDs, programIDs },
+        { controlIDs, subcontrolIDs, remediationIDs, entityIDs, taskIDs, assetIDs, programIDs, riskIDs },
         false,
         initialAssociationsRef.current,
       )
