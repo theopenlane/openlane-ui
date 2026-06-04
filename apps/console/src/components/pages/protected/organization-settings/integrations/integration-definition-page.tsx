@@ -9,6 +9,8 @@ import { PageHeading } from '@repo/ui/page-heading'
 import { useGetIntegrations } from '@/lib/graphql-hooks/integration'
 import { useUpdateEntity } from '@/lib/graphql-hooks/entity'
 import { useIntegrationProviders } from '@/lib/query-hooks/integrations'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { canEdit } from '@/lib/authz/utils'
 import { useNotification } from '@/hooks/useNotification'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { Loading } from '@/components/shared/loading/loading'
@@ -39,6 +41,8 @@ const IntegrationDefinitionPage = ({ definitionId }: IntegrationDefinitionPagePr
   const { setCrumbs } = use(BreadcrumbContext)
   const { mutateAsync: updateEntity } = useUpdateEntity()
   const { successNotification, errorNotification } = useNotification()
+  const { data: orgPermission } = useOrganizationRoles()
+  const canManage = canEdit(orgPermission?.roles)
 
   const { startPolling } = useInstallationPolling()
 
@@ -211,7 +215,7 @@ const IntegrationDefinitionPage = ({ definitionId }: IntegrationDefinitionPagePr
           </div>
           <div className="grid gap-4 lg:grid-cols-2">
             {installedInstances.map((inst) => (
-              <InstalledIntegrationCard key={inst.id} integration={inst} providers={providers} />
+              <InstalledIntegrationCard key={inst.id} integration={inst} providers={providers} canManage={canManage} />
             ))}
           </div>
         </section>
@@ -221,19 +225,21 @@ const IntegrationDefinitionPage = ({ definitionId }: IntegrationDefinitionPagePr
 
       {webhookDetails ? <WebhookDetailsSection details={webhookDetails} onDismiss={dismissWebhookDetails} /> : null}
 
-      <CredentialConnectionSection
-        provider={provider}
-        installedCount={installedInstances.length}
-        isConnecting={isConnecting}
-        onAuthConnect={handleAuthConnect}
-        onSubmit={handleSubmit}
-        formMethods={formMethods}
-        credentialSections={credentialSections}
-        userInputSections={userInputSections}
-        isSubmitting={isSubmitting}
-        selectedCredentialIndex={selectedCredentialIndex}
-        onSelectCredential={handleSelectCredential}
-      />
+      {canManage ? (
+        <CredentialConnectionSection
+          provider={provider}
+          installedCount={installedInstances.length}
+          isConnecting={isConnecting}
+          onAuthConnect={handleAuthConnect}
+          onSubmit={handleSubmit}
+          formMethods={formMethods}
+          credentialSections={credentialSections}
+          userInputSections={userInputSections}
+          isSubmitting={isSubmitting}
+          selectedCredentialIndex={selectedCredentialIndex}
+          onSelectCredential={handleSelectCredential}
+        />
+      ) : null}
     </div>
   )
 }

@@ -6,7 +6,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@radix-ui/r
 import { useParams } from 'next/navigation'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
-import { canCreate, canEdit } from '@/lib/authz/utils'
+import { hasPermission, canEdit } from '@/lib/authz/utils'
 import { CreateButton } from '@/components/shared/create-button/create-button'
 import { useAccountRoles, useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { DataTable } from '@repo/ui/data-table'
@@ -135,7 +135,7 @@ const SubcontrolsTable: React.FC = () => {
             <ChevronDown className={`h-4 w-4 transition-transform ${isOpen ? '' : '-rotate-90'}`} />
             <h2 className="text-lg font-semibold">Subcontrols</h2>
           </CollapsibleTrigger>
-          {(canCreate(orgPermission?.roles, AccessEnum.CanCreateSubcontrol) || canEdit(permission?.roles)) && <CreateButton type="subcontrol" href={`/controls/${id}/create-subcontrol`} />}
+          {(hasPermission(orgPermission?.roles, AccessEnum.CanCreateSubcontrol) || canEdit(permission?.roles)) && <CreateButton type="subcontrol" href={`/controls/${id}/create-subcontrol`} />}
         </div>
       </div>
 

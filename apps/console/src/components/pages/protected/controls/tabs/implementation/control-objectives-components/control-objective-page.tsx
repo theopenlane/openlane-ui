@@ -14,7 +14,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { useGetControlById } from '@/lib/graphql-hooks/control'
 import { useGetSubcontrolById } from '@/lib/graphql-hooks/subcontrol'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
-import { canCreate } from '@/lib/authz/utils'
+import { hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { ObjectiveItem } from './objective-item'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -41,7 +41,7 @@ const ControlObjectivePage = () => {
 
   const { data: orgPermission } = useOrganizationRoles()
 
-  const createAllowed = canCreate(orgPermission?.roles, AccessEnum.CanCreateControlObjective)
+  const createAllowed = hasPermission(orgPermission?.roles, AccessEnum.CanCreateControlObjective)
 
   const { data, isLoading } = useGetAllControlObjectives({
     ...(subcontrolId ? { hasSubcontrolsWith: [{ id: subcontrolId }] } : { hasControlsWith: [{ id }] }),

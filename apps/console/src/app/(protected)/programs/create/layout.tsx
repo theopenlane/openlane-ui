@@ -1,6 +1,6 @@
 'use client'
 import React from 'react'
-import { canCreate } from '@/lib/authz/utils'
+import { hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import ProtectedArea from '@/components/shared/protected-area/protected-area'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
@@ -12,7 +12,7 @@ const CreateProgramLayout = ({ children }: { children: React.ReactNode }) => {
   if (isLoading) {
     return <Loading />
   }
-  if (isSuccess && orgPermission && !canCreate(orgPermission.roles, AccessEnum.CanCreateProgram)) {
+  if (isSuccess && orgPermission && !hasPermission(orgPermission.roles, AccessEnum.CanCreateProgram)) {
     return <ProtectedArea />
   }
   return <div>{children}</div>

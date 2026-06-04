@@ -22,7 +22,7 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { Dialog } from '@repo/ui/dialog'
 import { TemplateList } from '@/components/pages/protected/questionnaire/templates'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { canCreate, canDelete, canEdit } from '@/lib/authz/utils'
+import { hasPermission, canDelete, canEdit } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { includeQuestionnaireCreation } from '@repo/dally/auth'
@@ -41,7 +41,7 @@ export const TemplatesTable = () => {
   const { mutateAsync: deleteTemplate } = useDeleteTemplate()
   const { mutateAsync: createTemplate } = useCreateTemplate()
   const { data: permission } = useOrganizationRoles()
-  const canCreateTemplate = canCreate(permission?.roles, AccessEnum.CanCreateTemplate)
+  const canCreateTemplate = hasPermission(permission?.roles, AccessEnum.CanCreateTemplate)
   const canCreateQuestionnaires = includeQuestionnaireCreation === 'true' && canCreateTemplate
 
   const defaultSorting = getInitialSortConditions(TableKeyEnum.TEMPLATE, TemplateOrderField, [

@@ -19,7 +19,7 @@ import { getGroupTableColumns } from './table/columns'
 import ColumnVisibilityMenu, { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import TableCardView from '@/components/shared/table-card-view/table-card-view'
-import { canCreate } from '@/lib/authz/utils'
+import { hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { whereGenerator, whereContainsKey } from '@/components/shared/table-filter/where-generator'
@@ -198,7 +198,7 @@ const GroupsPage = () => {
             <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.GROUP} />
           )}
           {filterFields && filterFields.length > 0 && <TableFilter filterFields={filterFields} onFilterChange={setWhereFilters} pageKey={TableKeyEnum.GROUP} quickFilters={quickFilters} />}
-          {canCreate(permissions?.roles, AccessEnum.CanCreateGroup) && (
+          {hasPermission(permissions?.roles, AccessEnum.CanCreateGroup) && (
             <CreateGroupDialog
               trigger={
                 <Button className="h-8 !px-2" icon={<PlusCircle />} iconPosition="left">

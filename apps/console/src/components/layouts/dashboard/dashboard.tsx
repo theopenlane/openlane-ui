@@ -15,6 +15,7 @@ import { usePathname } from 'next/navigation'
 import { useOrganization } from '@/hooks/useOrganization'
 import { type PanelKey, PRIMARY_EXPANDED_WIDTH, PRIMARY_WIDTH, SECONDARY_COLLAPSED_WIDTH, SECONDARY_EXPANDED_WIDTH } from '@/components/shared/sidebar/sidebar-nav/sidebar-nav'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { useCurrentUserRole } from '@/lib/graphql-hooks/member'
 import { SheetNavigationProvider } from '@/providers/sheet-navigation-provider'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
@@ -29,6 +30,7 @@ export function DashboardLayout({ children, error }: DashboardLayoutProps) {
   const { showSessionExpiredModal } = useSessionExpiry()
   const { data: sessionData } = useSession()
   const { data: orgPermission } = useOrganizationRoles()
+  const { role: currentUserRole } = useCurrentUserRole()
   const pathname = usePathname()
   const { currentOrgId, allOrgs } = useOrganization()
 
@@ -36,7 +38,7 @@ export function DashboardLayout({ children, error }: DashboardLayoutProps) {
   const isOrganizationSelected = !activeOrg?.personalOrg
 
   const navItems = !isOrganizationSelected ? [] : topNavigationItems(sessionData)
-  const footerNavItems = !isOrganizationSelected ? personalNavigationItems() : bottomNavigationItems(sessionData, orgPermission)
+  const footerNavItems = !isOrganizationSelected ? personalNavigationItems() : bottomNavigationItems(sessionData, orgPermission, currentUserRole)
 
   const [openPanel, setOpenPanel] = useState<PanelKey>(null)
   const [primaryExpanded, setPrimaryExpanded] = useState(() => {

@@ -117,6 +117,10 @@ const TaskDetailsSheet: React.FC<TaskDetailsSheetProps> = ({ queryParamKey = 'id
   }, [initialAssociations])
 
   useEffect(() => {
+    setAssociations(initialAssociations)
+  }, [initialAssociations])
+
+  useEffect(() => {
     if (!membersData) return
     const members = membersData.organization?.members?.edges?.map(
       (member) =>

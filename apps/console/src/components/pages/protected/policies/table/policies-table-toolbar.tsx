@@ -5,7 +5,7 @@ import { usePoliciesFilters } from '@/components/pages/protected/policies/table/
 import { Input } from '@repo/ui/input'
 import { useDebounce } from '@uidotdev/usehooks'
 import BulkCSVCreatePolicyDialog from '@/components/pages/protected/policies/create/form/bulk-csv-create-policy-dialog.tsx'
-import { canCreate } from '@/lib/authz/utils.ts'
+import { hasPermission } from '@/lib/authz/utils.ts'
 import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
 import Menu from '@/components/shared/menu/menu.tsx'
 import { type VisibilityState } from '@tanstack/react-table'
@@ -153,7 +153,7 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
                 closeOnSelect={true}
                 content={(close) => (
                   <>
-                    {canCreate(permission?.roles, AccessEnum.CanCreateInternalPolicy) && (
+                    {hasPermission(permission?.roles, AccessEnum.CanCreateInternalPolicy) && (
                       <CreatePolicyUploadDialog
                         trigger={
                           <div className="flex items-center bg-transparent space-x-2 px-1 cursor-pointer">
@@ -163,7 +163,7 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
                         }
                       />
                     )}
-                    {canCreate(permission?.roles, AccessEnum.CanCreateInternalPolicy) && (
+                    {hasPermission(permission?.roles, AccessEnum.CanCreateInternalPolicy) && (
                       <BulkCSVCreatePolicyDialog
                         trigger={
                           <div className="flex items-center bg-transparent space-x-2 px-1">
@@ -191,7 +191,7 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
                 <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.INTERNAL_POLICY} />
               )}
               {filterFields && <TableFilter filterFields={filterFields} onFilterChange={setFilters} pageKey={TableKeyEnum.INTERNAL_POLICY} />}
-              {canCreate(permission?.roles, AccessEnum.CanCreateInternalPolicy) && (
+              {hasPermission(permission?.roles, AccessEnum.CanCreateInternalPolicy) && (
                 <Link href="/policies/create">
                   <Button variant="primary" className="h-8 px-2! pl-3!" icon={<SquarePlus />} iconPosition="left">
                     Create
