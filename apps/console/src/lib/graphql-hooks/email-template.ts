@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import type { JsonSchema } from '@jsonforms/core'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import {
   type EmailTemplatesWithFilterQuery,
@@ -11,6 +12,7 @@ import {
   type DeleteEmailTemplateMutationVariables,
   type EmailTemplateQuery,
   type EmailTemplateQueryVariables,
+  type EmailTemplateCatalogQuery,
   type CreateBulkCsvEmailTemplateMutation,
   type CreateBulkCsvEmailTemplateMutationVariables,
   type UpdateBulkEmailTemplateMutation,
@@ -30,6 +32,7 @@ import {
   BULK_EDIT_EMAIL_TEMPLATE,
   BULK_DELETE_EMAIL_TEMPLATE,
 } from '@repo/codegen/query/email-template'
+import { GET_EMAIL_TEMPLATE_CATALOG } from '@repo/codegen/query/email-template-catalog'
 
 type GetAllEmailTemplatesArgs = {
   where?: EmailTemplatesWithFilterQueryVariables['where']
@@ -103,6 +106,25 @@ export const useEmailTemplate = (emailTemplateId?: EmailTemplateQueryVariables['
     },
     enabled: !!emailTemplateId,
   })
+}
+
+export type EmailTemplateCatalogEntryNode = Omit<EmailTemplateCatalogQuery['emailTemplateCatalog']['entries'][number], 'configSchema'> & {
+  configSchema: JsonSchema
+}
+
+export const useEmailTemplateCatalog = () => {
+  const { client } = useGraphQLClient()
+  const queryResult = useQuery<EmailTemplateCatalogQuery, unknown>({
+    queryKey: ['emailTemplateCatalog'],
+    queryFn: async (): Promise<EmailTemplateCatalogQuery> => {
+      const result = await client.request<EmailTemplateCatalogQuery>(GET_EMAIL_TEMPLATE_CATALOG)
+      return result
+    },
+  })
+
+  const entries: EmailTemplateCatalogEntryNode[] = queryResult.data?.emailTemplateCatalog?.entries ?? []
+
+  return { ...queryResult, entries }
 }
 
 export const useCreateBulkCSVEmailTemplate = () => {

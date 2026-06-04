@@ -96,11 +96,14 @@ export const ProcedureStatusFilterOptions = Object.entries(ProcedureDocumentStat
   value,
 }))
 
-const MANAGEMENT_MODE_LABELS: Record<InternalPolicyDocumentManagementMode, string> = {
+const MANAGEMENT_MODE_LABELS: Partial<Record<InternalPolicyDocumentManagementMode, string>> = {
   [InternalPolicyDocumentManagementMode.OPENLANE_MANAGED]: 'Manage in Openlane',
   [InternalPolicyDocumentManagementMode.EXTERNAL_REFERENCE]: 'Keep as Word document',
 }
 
 export const ManagementModeOptions = enumToOptions(InternalPolicyDocumentManagementMode, MANAGEMENT_MODE_LABELS)
 
-export const ManagementModeLabel = (mode: InternalPolicyDocumentManagementMode | null | undefined): string => MANAGEMENT_MODE_LABELS[mode ?? InternalPolicyDocumentManagementMode.OPENLANE_MANAGED]
+export const ManagementModeLabel = (mode: InternalPolicyDocumentManagementMode | null | undefined): string => {
+  const resolved = mode ?? InternalPolicyDocumentManagementMode.OPENLANE_MANAGED
+  return MANAGEMENT_MODE_LABELS[resolved] ?? getEnumLabel(resolved)
+}
