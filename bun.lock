@@ -1,5 +1,6 @@
 {
   "lockfileVersion": 1,
+  "configVersion": 0,
   "workspaces": {
     "": {
       "name": "openlane-ui",
@@ -85,7 +86,7 @@
         "graphql-ws": "^6.0.6",
         "jest": "^29.7.0",
         "jwt-decode": "^4.0.0",
-        "lucide-react": "^0.577.0",
+        "lucide-react": "^1.0.0",
         "next": "16.2.6",
         "next-auth": "beta",
         "next-navigation-guard": "^0.2.0",
@@ -136,7 +137,7 @@
         "@storybook/addon-themes": "10.2.19",
         "@tailwindcss/vite": "^4.1.13",
         "@tanstack/react-query": "^5.90.11",
-        "lucide-react": "^0.577.0",
+        "lucide-react": "^1.0.0",
         "postcss": "^8.4.24",
         "react": "19.2.6",
       },
@@ -322,7 +323,7 @@
         "input-otp": "^1.4.2",
         "lodash": "^4.18.1",
         "lowlight": "^3.3.0",
-        "lucide-react": "^0.577.0",
+        "lucide-react": "^1.0.0",
         "next": "16.2.6",
         "pdf-lib": "^1.17.1",
         "platejs": "^52.3.10",
@@ -3200,7 +3201,7 @@
 
     "lru-cache": ["lru-cache@6.0.0", "", { "dependencies": { "yallist": "^4.0.0" } }, "sha512-Jo6dJ04CmSjuznwJSS3pUeWmd/H0ffTlkXXgwZi+eq1UCmqQwCh+eLsYOYCwY991i2Fah4h1BEMCx4qThGbsiA=="],
 
-    "lucide-react": ["lucide-react@0.577.0", "", { "peerDependencies": { "react": "^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0" } }, "sha512-4LjoFv2eEPwYDPg/CUdBJQSDfPyzXCRrVW1X7jrx/trgxnxkHFjnVZINbzvzxjN70dxychOfg+FTYwBiS3pQ5A=="],
+    "lucide-react": ["lucide-react@1.17.0", "", { "peerDependencies": { "react": "^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0" } }, "sha512-9FA9evdox/JQL5PT57fdA1x/yg8T7knJ98+zjTL3UfKza6pflQUUh3XtaQIHKvnsJw1lmsEyHVlt5jchYxOQ5w=="],
 
     "lz-string": ["lz-string@1.5.0", "", { "bin": { "lz-string": "bin/bin.js" } }, "sha512-h5bgJWpxJNswbU7qCrV0tIKQCaS3blPDrqKWx+QxzuzL1zGUzij9XCWLrSLsJPu5t+eWA/ycetzYAO5IOMcWAQ=="],
 
