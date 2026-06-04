@@ -2,7 +2,6 @@
 
 import { type LoginUser } from '@repo/dally/user'
 import { Button } from '@repo/ui/button'
-import { Badge } from '@repo/ui/badge'
 import { UserAuthProvider } from '@repo/codegen/src/schema'
 import SimpleForm from '@repo/ui/simple-form'
 import { ArrowRightCircle, Github, KeyRoundIcon } from 'lucide-react'
@@ -25,6 +24,7 @@ import { OPENLANE_WEBSITE_URL } from '@/constants'
 import { cn } from '@repo/ui/lib/utils'
 import { sanitizeLoginRedirect } from '@/lib/auth/utils/redirect'
 import { recordLastLoginMethod, getLastLoginMethod } from '@/lib/auth/utils/last-login-method'
+import { LastUsedBadge } from './last-used-badge'
 
 export const LoginPage = () => {
   const { separator, buttons, form, input } = loginStyles()
@@ -98,13 +98,6 @@ export const LoginPage = () => {
 
   // the method the user most recently signed in with, remembered per-device
   const [lastUsedProvider, setLastUsedProvider] = useState<UserAuthProvider | null>(null)
-
-  const lastUsedBadge = (provider: UserAuthProvider) =>
-    lastUsedProvider === provider ? (
-      <Badge variant="primary" className="absolute -top-3.5 left-1/2 -translate-x-1/2 z-10 w-fit whitespace-nowrap bg-primary/80 text-white">
-        Last used
-      </Badge>
-    ) : null
 
   const shouldShowToggleOption = useCallback((): boolean => {
     return Boolean(webfingerResponse?.enforced && webfingerResponse?.is_org_owner && webfingerResponse?.provider !== 'NONE' && webfingerResponse?.organization_id)
@@ -376,21 +369,21 @@ export const LoginPage = () => {
 
         <div className={cn(buttons(), 'flex justify-center items-center mt-[32px]')}>
           <div className="relative">
-            {lastUsedBadge(UserAuthProvider.GOOGLE)}
+            <LastUsedBadge provider={UserAuthProvider.GOOGLE} lastUsedProvider={lastUsedProvider} floating />
             <Button variant="secondary" className="!py-1.5 !px-5 " size="md" icon={<GoogleIcon />} iconPosition="left" onClick={() => google()} disabled={signInLoading}>
               <p className="text-sm font-normal">Google</p>
             </Button>
           </div>
 
           <div className="relative">
-            {lastUsedBadge(UserAuthProvider.GITHUB)}
+            <LastUsedBadge provider={UserAuthProvider.GITHUB} lastUsedProvider={lastUsedProvider} floating />
             <Button variant="secondary" className="!py-1.5 !px-5 " size="md" icon={<Github className="text-input-text" />} iconPosition="left" onClick={() => github()} disabled={signInLoading}>
               <p className="text-sm font-normal">GitHub</p>
             </Button>
           </div>
 
           <div className="relative">
-            {lastUsedBadge(UserAuthProvider.WEBAUTHN)}
+            <LastUsedBadge provider={UserAuthProvider.WEBAUTHN} lastUsedProvider={lastUsedProvider} floating />
             <Button variant="secondary" className="!py-1.5 !px-5 " icon={<KeyRoundIcon className="text-input-text" />} iconPosition="left" onClick={() => passKeySignIn()} disabled={signInLoading}>
               <p className="text-sm font-normal">Passkey</p>
             </Button>
@@ -398,11 +391,7 @@ export const LoginPage = () => {
         </div>
 
         <Separator label="or" login className={cn(separator(), 'text-muted-foreground')} />
-        {lastUsedProvider === UserAuthProvider.CREDENTIALS && (
-          <Badge variant="primary" className="self-center mb-2 bg-primary/80 text-white">
-            Last used
-          </Badge>
-        )}
+
         <SimpleForm
           classNames={form()}
           onSubmit={(e: LoginUser) => {
@@ -424,8 +413,9 @@ export const LoginPage = () => {
           }}
         >
           <div className={input()}>
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between items-centeer">
               <p className="text-sm">Email</p>
+              <LastUsedBadge provider={UserAuthProvider.CREDENTIALS} lastUsedProvider={lastUsedProvider} />
               {shouldShowSSOButton() && shouldShowToggleOption() && (
                 <button
                   type="button"
@@ -450,7 +440,7 @@ export const LoginPage = () => {
 
           {shouldShowSSOButton() && (
             <div className="relative flex flex-col mt-[16px]">
-              {lastUsedBadge(UserAuthProvider.OIDC)}
+              <LastUsedBadge provider={UserAuthProvider.OIDC} lastUsedProvider={lastUsedProvider} floating />
               <Button
                 variant="primary"
                 className="p-4 flex justify-center items-center text-center rounded-md text-sm h-[36px] font-bold"
