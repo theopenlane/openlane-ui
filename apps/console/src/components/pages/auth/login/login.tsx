@@ -99,10 +99,9 @@ export const LoginPage = () => {
   // the method the user most recently signed in with, remembered per-device
   const [lastUsedProvider, setLastUsedProvider] = useState<UserAuthProvider | null>(null)
 
-  // renders a "Last used" pill over the method the user last signed in with
   const lastUsedBadge = (provider: UserAuthProvider) =>
     lastUsedProvider === provider ? (
-      <Badge variant="primary" className="w-fit">
+      <Badge variant="primary" className="absolute -top-3.5 left-1/2 -translate-x-1/2 z-10 w-fit whitespace-nowrap bg-primary/80 text-white">
         Last used
       </Badge>
     ) : null
@@ -375,22 +374,22 @@ export const LoginPage = () => {
           </div>
         )}
 
-        <div className={cn(buttons(), 'flex justify-center mt-[32px]')}>
-          <div className="relative flex flex-col items-center gap-2 self-end">
+        <div className={cn(buttons(), 'flex justify-center items-center mt-[32px]')}>
+          <div className="relative">
             {lastUsedBadge(UserAuthProvider.GOOGLE)}
             <Button variant="secondary" className="!py-1.5 !px-5 " size="md" icon={<GoogleIcon />} iconPosition="left" onClick={() => google()} disabled={signInLoading}>
               <p className="text-sm font-normal">Google</p>
             </Button>
           </div>
 
-          <div className="relative flex flex-col items-center gap-2 self-end">
+          <div className="relative">
             {lastUsedBadge(UserAuthProvider.GITHUB)}
             <Button variant="secondary" className="!py-1.5 !px-5 " size="md" icon={<Github className="text-input-text" />} iconPosition="left" onClick={() => github()} disabled={signInLoading}>
               <p className="text-sm font-normal">GitHub</p>
             </Button>
           </div>
 
-          <div className="relative flex flex-col items-center gap-2 self-end">
+          <div className="relative">
             {lastUsedBadge(UserAuthProvider.WEBAUTHN)}
             <Button variant="secondary" className="!py-1.5 !px-5 " icon={<KeyRoundIcon className="text-input-text" />} iconPosition="left" onClick={() => passKeySignIn()} disabled={signInLoading}>
               <p className="text-sm font-normal">Passkey</p>
@@ -400,7 +399,7 @@ export const LoginPage = () => {
 
         <Separator label="or" login className={cn(separator(), 'text-muted-foreground')} />
         {lastUsedProvider === UserAuthProvider.CREDENTIALS && (
-          <Badge variant="primary" className="self-center mb-2">
+          <Badge variant="primary" className="self-center mb-2 bg-primary/80 text-white">
             Last used
           </Badge>
         )}
@@ -450,11 +449,11 @@ export const LoginPage = () => {
           </div>
 
           {shouldShowSSOButton() && (
-            <div className="relative flex flex-col">
+            <div className="relative flex flex-col mt-[16px]">
               {lastUsedBadge(UserAuthProvider.OIDC)}
               <Button
                 variant="primary"
-                className="mt-[16px] p-4 flex justify-center items-center text-center rounded-md text-sm h-[36px] font-bold"
+                className="p-4 flex justify-center items-center text-center rounded-md text-sm h-[36px] font-bold"
                 type="button"
                 onClick={handleSSOLogin}
                 disabled={signInLoading || webfingerLoading}
