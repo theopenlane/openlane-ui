@@ -18,6 +18,7 @@ type IntegrationsGridProps = {
   providers: IntegrationProvider[]
   searchQuery: string
   selectedTags: string[]
+  canManage: boolean
 }
 
 const EmptyState = ({ message }: { message: string }) => (
@@ -28,7 +29,7 @@ const EmptyState = ({ message }: { message: string }) => (
   </div>
 )
 
-export function IntegrationsGrid({ installedIntegrations, availableIntegrations, activeTab, providers, searchQuery, selectedTags }: IntegrationsGridProps) {
+export function IntegrationsGrid({ installedIntegrations, availableIntegrations, activeTab, providers, searchQuery, selectedTags, canManage }: IntegrationsGridProps) {
   const normalizedQuery = searchQuery.trim().toLowerCase()
 
   const filteredAvailableIntegrations = availableIntegrations.filter((integration) => {
@@ -108,7 +109,7 @@ export function IntegrationsGrid({ installedIntegrations, availableIntegrations,
     return (
       <div className="grid gap-4 lg:grid-cols-2 mt-5">
         {filteredInstalledIntegrations.map((integration) => (
-          <InstalledIntegrationCard key={integration.id} integration={integration} providers={providers} />
+          <InstalledIntegrationCard key={integration.id} integration={integration} providers={providers} canManage={canManage} />
         ))}
       </div>
     )
@@ -118,7 +119,7 @@ export function IntegrationsGrid({ installedIntegrations, availableIntegrations,
     <div className="mt-5">
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {filteredAvailableIntegrations.map((integration) => (
-          <AvailableIntegrationCard key={integration.id} integration={integration} />
+          <AvailableIntegrationCard key={integration.id} integration={integration} canManage={canManage} />
         ))}
       </div>
       {activeTab === 'All' && (

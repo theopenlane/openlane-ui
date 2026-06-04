@@ -148,7 +148,7 @@ export const ProgramSettingsDangerZone = () => {
           </>
         }
         confirmationText="Unarchive"
-        confirmationTextVariant="filled"
+        confirmationTextVariant="primary"
       />
       {(editAllowed || deleteAllowed) && (
         <section className="flex gap-14 border-t pt-6">

@@ -3,7 +3,7 @@
 import React from 'react'
 import { Button } from '@repo/ui/button'
 import { CopyPlus, PencilIcon, MoreHorizontal, Trash2, Sparkles } from 'lucide-react'
-import { canCreate, canDelete, canEdit } from '@/lib/authz/utils.ts'
+import { hasPermission, canDelete, canEdit } from '@/lib/authz/utils.ts'
 import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
 import Menu from '@/components/shared/menu/menu.tsx'
 import Link from 'next/link'
@@ -26,7 +26,7 @@ interface ControlHeaderActionsProps {
 const ControlHeaderActions: React.FC<ControlHeaderActionsProps> = ({ controlId, isEditing, onEdit, onCancel, onDeleteClick, onAskAI, permissionRoles, orgPermissionRoles, showClone = true }) => {
   const canEditControl = canEdit(permissionRoles)
   const canDeleteControl = canDelete(permissionRoles)
-  const canCloneControl = showClone && canCreate(orgPermissionRoles, AccessEnum.CanCreateControl)
+  const canCloneControl = showClone && hasPermission(orgPermissionRoles, AccessEnum.CanCreateControl)
 
   if (isEditing) {
     return (

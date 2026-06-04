@@ -1,5 +1,6 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
+import { useSession } from 'next-auth/react'
 
 import { UPDATE_USER_ROLE_IN_ORG, REMOVE_USER_FROM_ORG, GET_ORG_MEMBERSHIPS, GET_ORG_USER_LIST } from '@repo/codegen/query/member'
 
@@ -62,6 +63,21 @@ export const useGetOrgMemberships = ({ where, pagination, enabled, orderBy }: TU
     members,
     paginationMeta,
     isLoading: queryResult.isPending,
+  }
+}
+
+export const useCurrentUserRole = () => {
+  const { data: sessionData } = useSession()
+  const userId = sessionData?.user?.userId
+
+  const { members, isLoading } = useGetOrgMemberships({
+    where: { hasUserWith: [{ id: userId }] },
+    enabled: !!userId,
+  })
+
+  return {
+    role: members[0]?.role,
+    isLoading,
   }
 }
 

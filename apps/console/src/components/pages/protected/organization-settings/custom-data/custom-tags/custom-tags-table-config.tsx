@@ -39,6 +39,35 @@ export const useGetCustomTagColumns = ({ tags, selected, setSelected, onEdit, on
     const allVisibleSelected = tags.length > 0 && tags.every((t) => selected[t.id])
     const someVisibleSelected = tags.some((t) => selected[t.id]) && !allVisibleSelected
 
+    const actionsCol: ColumnDef<TagDefinition> = {
+      id: 'actions',
+      header: 'Actions',
+      cell: ({ row }) => (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button className="-mr-2" variant="secondary">
+              <MoreHorizontal className="h-4 w-4 text-brand" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="min-w-40">
+            {canEditTags && (
+              <DropdownMenuItem onClick={() => onEdit?.(row.original.id)}>
+                <Pencil className="h-4 w-4 mr-2" />
+                Edit Tag
+              </DropdownMenuItem>
+            )}
+            {canDeleteTags && (
+              <DropdownMenuItem className="text-destructive focus:text-destructive focus:bg-destructive/10" onClick={() => onDelete?.(row.original.id)}>
+                <Trash2 className="h-4 w-4 mr-2" />
+                Delete Tag
+              </DropdownMenuItem>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ),
+      size: 40,
+    }
+
     return [
       {
         id: 'select',
@@ -148,34 +177,7 @@ export const useGetCustomTagColumns = ({ tags, selected, setSelected, onEdit, on
         cell: ({ cell }) => <span className="text-sm">{formatDateSince(cell.getValue() as string)}</span>,
         size: 130,
       },
-      {
-        id: 'actions',
-        header: 'Actions',
-        cell: ({ row }: { row: { original: TagDefinition } }) => (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button className="-mr-2" variant="secondary">
-                <MoreHorizontal className="h-4 w-4 text-brand" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="min-w-40">
-              {canEditTags && (
-                <DropdownMenuItem onClick={() => onEdit?.(row.original.id)}>
-                  <Pencil className="h-4 w-4 mr-2" />
-                  Edit Tag
-                </DropdownMenuItem>
-              )}
-              {canDeleteTags && (
-                <DropdownMenuItem className="text-destructive focus:text-destructive focus:bg-destructive/10" onClick={() => onDelete?.(row.original.id)}>
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Delete Tag
-                </DropdownMenuItem>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        ),
-        size: 40,
-      },
+      ...(canEditTags || canDeleteTags ? [actionsCol] : []),
     ]
   }, [tags, selected, setSelected, onEdit, onDelete, userMap, updateTag, canEditTags, canDeleteTags])
 

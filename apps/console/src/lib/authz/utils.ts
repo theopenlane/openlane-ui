@@ -1,7 +1,8 @@
 import { type TAccessRole } from '@/types/authz'
 import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
+import { OrgMembershipRole } from '@repo/codegen/src/schema'
 
-export const canCreate = (accessRole: TAccessRole[] | undefined, accessEnum: AccessEnum) => {
+export const hasPermission = (accessRole: TAccessRole[] | undefined, accessEnum: AccessEnum) => {
   return accessRole ? accessRole.includes(accessEnum) : false
 }
 
@@ -15,4 +16,8 @@ export const canView = (accessRole: TAccessRole[] | undefined) => {
 
 export const canEdit = (accessRole: TAccessRole[] | undefined) => {
   return accessRole ? accessRole.includes(AccessEnum.CanEdit) : false
+}
+
+export const isOwnerOrSuperAdmin = (role?: OrgMembershipRole | null) => {
+  return role === OrgMembershipRole.OWNER || role === OrgMembershipRole.SUPER_ADMIN
 }
