@@ -20,9 +20,10 @@ import IntegrationConfigurationDialog from './integration-configuration-dialog'
 type InstalledIntegrationCardProps = {
   integration: IntegrationNode
   providers: IntegrationProvider[]
+  canManage: boolean
 }
 
-const InstalledIntegrationCard = ({ integration, providers }: InstalledIntegrationCardProps) => {
+const InstalledIntegrationCard = ({ integration, providers, canManage }: InstalledIntegrationCardProps) => {
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [configOpen, setConfigOpen] = useState(false)
 
@@ -122,7 +123,7 @@ const InstalledIntegrationCard = ({ integration, providers }: InstalledIntegrati
           <Button variant="secondary" icon={<Activity className="size-4" />} iconPosition="left" onClick={() => healthQuery.refetch()} disabled={healthQuery.isFetching}>
             {healthQuery.isFetching ? 'Checking...' : 'Health Check'}
           </Button>
-          {hasUserInput ? (
+          {canManage && hasUserInput ? (
             <Button variant="secondary" icon={<Settings className="size-4" />} iconPosition="left" onClick={() => setConfigOpen(true)}>
               Configure
             </Button>
@@ -132,9 +133,11 @@ const InstalledIntegrationCard = ({ integration, providers }: InstalledIntegrati
               Manage Installation
             </Button>
           ) : null}
-          <Button variant="secondary" onClick={() => setConfirmOpen(true)} disabled={disconnectMutation.isPending}>
-            {disconnectMutation.isPending ? 'Disconnecting...' : 'Disconnect'}
-          </Button>
+          {canManage ? (
+            <Button variant="secondary" onClick={() => setConfirmOpen(true)} disabled={disconnectMutation.isPending}>
+              {disconnectMutation.isPending ? 'Disconnecting...' : 'Disconnect'}
+            </Button>
+          ) : null}
         </div>
       </Card>
 

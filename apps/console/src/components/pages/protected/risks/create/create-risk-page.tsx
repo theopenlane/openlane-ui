@@ -2,7 +2,7 @@
 import React, { useEffect } from 'react'
 import { PageHeading } from '@repo/ui/page-heading'
 import ProtectedArea from '@/components/shared/protected-area/protected-area.tsx'
-import { canCreate } from '@/lib/authz/utils.ts'
+import { hasPermission } from '@/lib/authz/utils.ts'
 import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
 import CreateRiskForm from '@/components/pages/protected/risks/create/form/create-risk-form.tsx'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
@@ -22,8 +22,8 @@ const CreateRiskPage: React.FC = () => {
 
   return (
     <>
-      {!isLoading && !canCreate(permission?.roles, AccessEnum.CanCreateRisk) && <ProtectedArea />}
-      {!isLoading && canCreate(permission?.roles, AccessEnum.CanCreateRisk) && (
+      {!isLoading && !hasPermission(permission?.roles, AccessEnum.CanCreateRisk) && <ProtectedArea />}
+      {!isLoading && hasPermission(permission?.roles, AccessEnum.CanCreateRisk) && (
         <>
           <PageHeading heading="Create a new risk" />
           <CreateRiskForm />

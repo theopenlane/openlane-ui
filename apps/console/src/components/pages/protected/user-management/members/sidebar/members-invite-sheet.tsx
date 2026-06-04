@@ -32,7 +32,7 @@ import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { groupTableForInvitesColumns } from '../table/columns'
 import { type VisibilityState } from '@tanstack/react-table'
-import { canCreate, canEdit } from '@/lib/authz/utils.ts'
+import { hasPermission, canEdit } from '@/lib/authz/utils.ts'
 import { DataTable, getInitialPagination } from '@repo/ui/data-table'
 import { Input } from '@repo/ui/input'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -77,8 +77,8 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
     return { check: canEdit(permission?.roles) }
   }, [isLoadingPermission, permission])
 
-  const canInviteAdmins = canCreate(permission?.roles, AccessEnum.CanInviteAdmins)
-  const canInviteMembers = canCreate(permission?.roles, AccessEnum.CanInviteMembers)
+  const canInviteAdmins = hasPermission(permission?.roles, AccessEnum.CanInviteAdmins)
+  const canInviteMembers = hasPermission(permission?.roles, AccessEnum.CanInviteMembers)
 
   const [orderBy, setOrderBy] = useState<GetAllGroupsPaginatedQueryVariables['orderBy']>([
     {

@@ -17,9 +17,10 @@ import { getBulkActionFailureDescription } from '@/components/shared/crud-base/b
 
 type NdaRequestsTableProps = {
   requireApproval: boolean
+  canRevoke: boolean
 }
 
-const NdaRequestsTable = ({ requireApproval }: NdaRequestsTableProps) => {
+const NdaRequestsTable = ({ requireApproval, canRevoke }: NdaRequestsTableProps) => {
   const [activeTab, setActiveTab] = useState<'requested' | 'approved' | 'signed'>('requested')
   const [searchTerm, setSearchTerm] = useState('')
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null)
@@ -91,7 +92,7 @@ const NdaRequestsTable = ({ requireApproval }: NdaRequestsTableProps) => {
         showActions: requireApproval && activeTab === 'requested',
         showApprovedOn: requireApproval && activeTab === 'approved',
         showSignedOn: activeTab === 'signed',
-        showSelect: activeTab === 'signed',
+        showSelect: activeTab === 'signed' && canRevoke,
         selectedRows,
         setSelectedRows,
         onApprove: async (id) => {
@@ -141,7 +142,7 @@ const NdaRequestsTable = ({ requireApproval }: NdaRequestsTableProps) => {
         actionLoadingId,
         actionLoadingType,
       }),
-    [activeTab, actionLoadingId, actionLoadingType, errorNotification, requireApproval, selectedRows, successNotification, updateNdaRequest],
+    [activeTab, actionLoadingId, actionLoadingType, canRevoke, errorNotification, requireApproval, selectedRows, successNotification, updateNdaRequest],
   )
 
   const handleSearchTermChange = (value: string) => {

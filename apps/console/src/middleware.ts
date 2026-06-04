@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { auth } from './lib/auth/auth'
 import { hasNoModules } from '@/lib/auth/utils/modules'
+import { buildLoginRedirect } from '@/lib/auth/utils/redirect'
 
 export default auth(async (req) => {
   // Attach `next-url` header for client-side route metadata
@@ -27,7 +28,11 @@ export default auth(async (req) => {
   const noModulesAllowedPages = ['/organization-settings/billing', '/organization-settings/general-settings', '/user-settings/profile']
 
   if (!isLoggedIn) {
-    return isPublicPage ? NextResponse.next() : NextResponse.redirect(new URL('/login', req.url))
+    if (isPublicPage) {
+      return NextResponse.next()
+    }
+    const loginRedirect = buildLoginRedirect(`${req.nextUrl.pathname}${req.nextUrl.search}`)
+    return NextResponse.redirect(new URL(loginRedirect, req.url))
   }
 
   if (isTfaEnabled) {

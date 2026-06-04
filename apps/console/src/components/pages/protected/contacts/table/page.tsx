@@ -15,6 +15,7 @@ import { ContactUserStatus, type CreateContactInput, type UpdateContactInput } f
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import { MergeHeaderButton } from '@/components/shared/merge-records/merge-menu-item'
 import { contactMergeConfig } from '@/components/shared/merge-records/configs/contact-merge-config'
+import { useCanEditObject } from '@/components/shared/crud-base/use-object-permission'
 
 const ContactPage: React.FC = () => {
   const { form } = useFormSchema()
@@ -22,6 +23,7 @@ const ContactPage: React.FC = () => {
   const searchParams = useSearchParams()
   const id = searchParams.get('id')
   const { data, isLoading } = useContact(id || undefined)
+  const canEditContact = useCanEditObject(objectType, id)
 
   const getName = (data: ContactsNodeNonNull) => {
     return data?.fullName
@@ -89,7 +91,7 @@ const ContactPage: React.FC = () => {
     },
     getName,
     renderFields: (props: ContactFieldProps) => getFieldsToRender(props, enumOpts),
-    extraHeaderActions: id ? <MergeHeaderButton primaryId={id} config={contactMergeConfig} /> : undefined,
+    extraHeaderActions: id && canEditContact ? <MergeHeaderButton primaryId={id} config={contactMergeConfig} /> : undefined,
   }
 
   const tableConfig: ContactTablePageConfig = {
