@@ -12,11 +12,11 @@ type ReadOnlyToolbarButtonsProps = {
 
 export function ReadOnlyToolbarButtons({ title = 'Document', className }: ReadOnlyToolbarButtonsProps) {
   return (
-    <div className={cn('flex justify-end w-full bg-none mt-[-7rem] border-none', className)}>
-      <ToolbarGroup>
+    <div className={cn('flex justify-end w-full bg-none mt-[-7rem] border-none pointer-events-none', className)}>
+      <ToolbarGroup className="pointer-events-auto">
         <ExportToolbarButton title={title} />
       </ToolbarGroup>
-      <ToolbarGroup>
+      <ToolbarGroup className="pointer-events-auto">
         <CommentToolbarButton />
       </ToolbarGroup>
     </div>
