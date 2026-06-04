@@ -30,12 +30,16 @@ export const InviteAccepter = () => {
     }
 
     const email = searchParams?.get('email')
-    const emailQuery = email ? `&email=${encodeURIComponent(email)}` : ''
 
     // route on the invite link's account hint: new users to signup, existing users to login
     const destination = searchParams?.get('new') === 'true' ? 'signup' : 'login'
 
-    push(`/${destination}?token=${token}${emailQuery}`)
+    const params = new URLSearchParams()
+    if (token) params.set('token', token)
+    if (email) params.set('email', email)
+    const query = params.toString()
+
+    push(`/${destination}${query ? `?${query}` : ''}`)
   }, [status, token, push, searchParams])
 
   useEffect(() => {

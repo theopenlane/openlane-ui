@@ -1,13 +1,22 @@
-import { type UserAuthProvider } from '@repo/codegen/src/schema'
+import { UserAuthProvider } from '@repo/codegen/src/schema'
 
 const LAST_LOGIN_METHOD_KEY = 'last_login_method'
 
-// records the method used at sign-in or registration so the login screen can show a per-device "last used" hint
 export const recordLastLoginMethod = (provider: UserAuthProvider) => {
-  localStorage.setItem(LAST_LOGIN_METHOD_KEY, provider)
+  if (typeof window === 'undefined') return
+  try {
+    window.localStorage.setItem(LAST_LOGIN_METHOD_KEY, provider)
+  } catch {
+    // storage unavailable
+  }
 }
 
-// returns the method most recently used to sign in on this device
 export const getLastLoginMethod = (): UserAuthProvider | null => {
-  return localStorage.getItem(LAST_LOGIN_METHOD_KEY) as UserAuthProvider | null
+  if (typeof window === 'undefined') return null
+  try {
+    const raw = window.localStorage.getItem(LAST_LOGIN_METHOD_KEY)
+    return raw && Object.values(UserAuthProvider).includes(raw as UserAuthProvider) ? (raw as UserAuthProvider) : null
+  } catch {
+    return null
+  }
 }

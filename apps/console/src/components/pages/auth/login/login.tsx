@@ -102,7 +102,7 @@ export const LoginPage = () => {
   // renders a "Last used" pill over the method the user last signed in with
   const lastUsedBadge = (provider: UserAuthProvider) =>
     lastUsedProvider === provider ? (
-      <Badge variant="primary" className="absolute -top-2 left-1/2 -translate-x-1/2 z-10">
+      <Badge variant="primary" className="w-fit">
         Last used
       </Badge>
     ) : null
@@ -376,30 +376,34 @@ export const LoginPage = () => {
         )}
 
         <div className={cn(buttons(), 'flex justify-center mt-[32px]')}>
-          <div className="relative">
+          <div className="relative flex flex-col items-center gap-2 self-end">
             {lastUsedBadge(UserAuthProvider.GOOGLE)}
-            <Button variant="secondary" className="!py-1.5 !px-5" size="md" icon={<GoogleIcon />} iconPosition="left" onClick={() => google()} disabled={signInLoading}>
+            <Button variant="secondary" className="!py-1.5 !px-5 " size="md" icon={<GoogleIcon />} iconPosition="left" onClick={() => google()} disabled={signInLoading}>
               <p className="text-sm font-normal">Google</p>
             </Button>
           </div>
 
-          <div className="relative">
+          <div className="relative flex flex-col items-center gap-2 self-end">
             {lastUsedBadge(UserAuthProvider.GITHUB)}
-            <Button variant="secondary" className="!py-1.5 !px-5" size="md" icon={<Github className="text-input-text" />} iconPosition="left" onClick={() => github()} disabled={signInLoading}>
+            <Button variant="secondary" className="!py-1.5 !px-5 " size="md" icon={<Github className="text-input-text" />} iconPosition="left" onClick={() => github()} disabled={signInLoading}>
               <p className="text-sm font-normal">GitHub</p>
             </Button>
           </div>
 
-          <div className="relative">
+          <div className="relative flex flex-col items-center gap-2 self-end">
             {lastUsedBadge(UserAuthProvider.WEBAUTHN)}
-            <Button variant="secondary" className="!py-1.5 !px-5" icon={<KeyRoundIcon className="text-input-text" />} iconPosition="left" onClick={() => passKeySignIn()} disabled={signInLoading}>
+            <Button variant="secondary" className="!py-1.5 !px-5 " icon={<KeyRoundIcon className="text-input-text" />} iconPosition="left" onClick={() => passKeySignIn()} disabled={signInLoading}>
               <p className="text-sm font-normal">Passkey</p>
             </Button>
           </div>
         </div>
 
         <Separator label="or" login className={cn(separator(), 'text-muted-foreground')} />
-
+        {lastUsedProvider === UserAuthProvider.CREDENTIALS && (
+          <Badge variant="primary" className="self-center mb-2">
+            Last used
+          </Badge>
+        )}
         <SimpleForm
           classNames={form()}
           onSubmit={(e: LoginUser) => {
@@ -475,9 +479,9 @@ export const LoginPage = () => {
                       </div>
                       <PasswordInput variant="light" name="password" placeholder="Enter your password" autoComplete="current-password" className="bg-transparent !text-text" />
                     </div>
-                    <div className="relative flex flex-col">
-                      {lastUsedBadge(UserAuthProvider.CREDENTIALS)}
+                    <div className="flex flex-col">
                       <Button variant="primary" className="mt-[16px] p-4 flex justify-center items-center text-center rounded-md text-sm h-[36px] font-bold" type="submit" disabled={signInLoading}>
+                        {' '}
                         <span>Login</span>
                       </Button>
                     </div>
