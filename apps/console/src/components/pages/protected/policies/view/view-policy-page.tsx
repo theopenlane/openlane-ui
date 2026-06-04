@@ -372,7 +372,10 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
             confirmationText="Switch to externally managed"
             confirmationTextVariant="primary"
             description={
-              <>The Policy view will switch to displaying the attached file and edits inside Openlane will be disabled.  Any changes since the file was originally uploaded will not be reflected in the attached file. The underlying details data stays in place — you can switch back at any time.</>
+              <>
+                The Policy view will switch to displaying the attached file and edits inside Openlane will be disabled. Any changes since the file was originally uploaded will not be reflected in the
+                attached file. The underlying details data stays in place — you can switch back at any time.
+              </>
             }
           />
         </div>

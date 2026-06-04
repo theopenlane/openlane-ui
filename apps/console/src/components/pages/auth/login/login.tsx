@@ -2,6 +2,7 @@
 
 import { type LoginUser } from '@repo/dally/user'
 import { Button } from '@repo/ui/button'
+import { UserAuthProvider } from '@repo/codegen/src/schema'
 import SimpleForm from '@repo/ui/simple-form'
 import { ArrowRightCircle, Github, KeyRoundIcon } from 'lucide-react'
 import { signIn, type SignInResponse } from 'next-auth/react'
@@ -22,6 +23,8 @@ import { isValidEmail } from '@/lib/validators'
 import { OPENLANE_WEBSITE_URL } from '@/constants'
 import { cn } from '@repo/ui/lib/utils'
 import { sanitizeLoginRedirect } from '@/lib/auth/utils/redirect'
+import { recordLastLoginMethod, getLastLoginMethod } from '@/lib/auth/utils/last-login-method'
+import { LastUsedBadge } from './last-used-badge'
 
 export const LoginPage = () => {
   const { separator, buttons, form, input } = loginStyles()
@@ -45,6 +48,7 @@ export const LoginPage = () => {
   const searchParams = useSearchParams()
   const token = searchParams?.get('token')
   const redirect = searchParams?.get('redirect')
+  const emailParam = searchParams?.get('email')
   const urlErrorMessage = searchParams.get('error')
   const showLoginError = !signInLoading && signInError
 
@@ -75,22 +79,25 @@ export const LoginPage = () => {
   }, [webfingerResponse, usePasswordInsteadOfSSO])
 
   const shouldShowSSOButton = useCallback((): boolean => {
-    if (!webfingerResponse) {
+    if (!webfingerResponse || !webfingerResponse.success) {
       return false
     }
 
-    // only show SSO button when it is enforced
-    if (webfingerResponse.enforced && webfingerResponse.provider !== 'NONE' && webfingerResponse.organization_id) {
+    // show the SSO button whenever the org has an identity provider configured
+    if (webfingerResponse.provider && webfingerResponse.provider !== 'NONE' && webfingerResponse.organization_id) {
       // but if the user is the org admin and chooses to use password, don't show SSO button
       if (webfingerResponse.is_org_owner && usePasswordInsteadOfSSO) {
         return false
       }
-      return webfingerResponse.success
+      return true
     }
 
-    // don't show SSO button when SSO is not enforced
+    // don't show SSO button when no identity provider is configured
     return false
   }, [webfingerResponse, usePasswordInsteadOfSSO])
+
+  // the method the user most recently signed in with, remembered per-device
+  const [lastUsedProvider, setLastUsedProvider] = useState<UserAuthProvider | null>(null)
 
   const shouldShowToggleOption = useCallback((): boolean => {
     return Boolean(webfingerResponse?.enforced && webfingerResponse?.is_org_owner && webfingerResponse?.provider !== 'NONE' && webfingerResponse?.organization_id)
@@ -115,6 +122,7 @@ export const LoginPage = () => {
       const data = await response.json()
 
       if (response.ok && data.success && data.redirect_uri) {
+        recordLastLoginMethod(UserAuthProvider.OIDC)
         window.location.href = data.redirect_uri
         return true
       }
@@ -176,6 +184,10 @@ export const LoginPage = () => {
     }
   }, [])
 
+  useEffect(() => {
+    setLastUsedProvider(getLastLoginMethod())
+  }, [])
+
   const redirectUrl = useMemo(() => {
     if (token) {
       return `/invite?token=${token}`
@@ -188,7 +200,8 @@ export const LoginPage = () => {
     setSignInError(false)
 
     try {
-      if (shouldShowSSOButton()) {
+      // only block credential submit when SSO is the only available method
+      if (shouldShowSSOButton() && !shouldShowPasswordField()) {
         return
       }
 
@@ -217,6 +230,7 @@ export const LoginPage = () => {
       })
 
       if (res.ok && !res.error) {
+        recordLastLoginMethod(UserAuthProvider.CREDENTIALS)
         router.push(redirectUrl)
       } else {
         let errMsg = 'There was an error. Please try again.'
@@ -251,6 +265,7 @@ export const LoginPage = () => {
 
   const github = async () => {
     setDirectOAuthCookie()
+    recordLastLoginMethod(UserAuthProvider.GITHUB)
 
     await signIn('github', {
       redirectTo: redirectUrl,
@@ -259,6 +274,7 @@ export const LoginPage = () => {
 
   const google = async () => {
     setDirectOAuthCookie()
+    recordLastLoginMethod(UserAuthProvider.GOOGLE)
 
     await signIn('google', {
       redirectTo: redirectUrl,
@@ -292,6 +308,7 @@ export const LoginPage = () => {
 
       if (verificationResult.success) {
         setDirectOAuthCookie()
+        recordLastLoginMethod(UserAuthProvider.WEBAUTHN)
         await signIn('passkey', {
           callbackUrl: redirectUrl,
           email: email || '',
@@ -329,6 +346,14 @@ export const LoginPage = () => {
     }
   }, [urlErrorMessage, router])
 
+  // prefill the email from an invite link and resolve sign-in methods on load
+  useEffect(() => {
+    if (emailParam && isValidEmail(emailParam)) {
+      setEmail(emailParam)
+      checkLoginMethods(emailParam)
+    }
+  }, [emailParam, checkLoginMethods])
+
   return (
     <>
       <div className="flex flex-col self-center text-center">
@@ -342,18 +367,27 @@ export const LoginPage = () => {
           </div>
         )}
 
-        <div className={cn(buttons(), 'flex justify-center mt-[32px]')}>
-          <Button variant="secondary" className="!py-1.5 !px-5" size="md" icon={<GoogleIcon />} iconPosition="left" onClick={() => google()} disabled={signInLoading}>
-            <p className="text-sm font-normal">Google</p>
-          </Button>
+        <div className={cn(buttons(), 'flex justify-center items-center mt-[32px]')}>
+          <div className="relative">
+            <LastUsedBadge provider={UserAuthProvider.GOOGLE} lastUsedProvider={lastUsedProvider} floating />
+            <Button variant="secondary" className="!py-1.5 !px-5 " size="md" icon={<GoogleIcon />} iconPosition="left" onClick={() => google()} disabled={signInLoading}>
+              <p className="text-sm font-normal">Google</p>
+            </Button>
+          </div>
 
-          <Button variant="secondary" className="!py-1.5 !px-5" size="md" icon={<Github className="text-input-text" />} iconPosition="left" onClick={() => github()} disabled={signInLoading}>
-            <p className="text-sm font-normal">GitHub</p>
-          </Button>
+          <div className="relative">
+            <LastUsedBadge provider={UserAuthProvider.GITHUB} lastUsedProvider={lastUsedProvider} floating />
+            <Button variant="secondary" className="!py-1.5 !px-5 " size="md" icon={<Github className="text-input-text" />} iconPosition="left" onClick={() => github()} disabled={signInLoading}>
+              <p className="text-sm font-normal">GitHub</p>
+            </Button>
+          </div>
 
-          <Button variant="secondary" className="!py-1.5 !px-5" icon={<KeyRoundIcon className="text-input-text" />} iconPosition="left" onClick={() => passKeySignIn()} disabled={signInLoading}>
-            <p className="text-sm font-normal">Passkey</p>
-          </Button>
+          <div className="relative">
+            <LastUsedBadge provider={UserAuthProvider.WEBAUTHN} lastUsedProvider={lastUsedProvider} floating />
+            <Button variant="secondary" className="!py-1.5 !px-5 " icon={<KeyRoundIcon className="text-input-text" />} iconPosition="left" onClick={() => passKeySignIn()} disabled={signInLoading}>
+              <p className="text-sm font-normal">Passkey</p>
+            </Button>
+          </div>
         </div>
 
         <Separator label="or" login className={cn(separator(), 'text-muted-foreground')} />
@@ -379,8 +413,9 @@ export const LoginPage = () => {
           }}
         >
           <div className={input()}>
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between items-centeer">
               <p className="text-sm">Email</p>
+              <LastUsedBadge provider={UserAuthProvider.CREDENTIALS} lastUsedProvider={lastUsedProvider} />
               {shouldShowSSOButton() && shouldShowToggleOption() && (
                 <button
                   type="button"
@@ -392,15 +427,23 @@ export const LoginPage = () => {
               )}
             </div>
 
-            <Input type="email" variant="light" name="username" placeholder="Enter your email" className={`bg-transparent ${showLoginError ? 'border border-toast-error-icon' : ''}`} />
+            <Input
+              type="email"
+              variant="light"
+              name="username"
+              placeholder="Enter your email"
+              defaultValue={emailParam ?? undefined}
+              className={`bg-transparent ${showLoginError ? 'border border-toast-error-icon' : ''}`}
+            />
             {showLoginError && <span className="text-xs text-toast-error-icon text-left">{signInErrorMessage}</span>}
           </div>
 
           {shouldShowSSOButton() && (
-            <div className="flex flex-col">
+            <div className="relative flex flex-col mt-[16px]">
+              <LastUsedBadge provider={UserAuthProvider.OIDC} lastUsedProvider={lastUsedProvider} floating />
               <Button
                 variant="primary"
-                className="mt-[16px] p-4 flex justify-center items-center text-center rounded-md text-sm h-[36px] font-bold"
+                className="p-4 flex justify-center items-center text-center rounded-md text-sm h-[36px] font-bold"
                 type="button"
                 onClick={handleSSOLogin}
                 disabled={signInLoading || webfingerLoading}
@@ -425,9 +468,12 @@ export const LoginPage = () => {
                       </div>
                       <PasswordInput variant="light" name="password" placeholder="Enter your password" autoComplete="current-password" className="bg-transparent !text-text" />
                     </div>
-                    <Button variant="primary" className="mt-[16px] p-4 flex justify-center items-center text-center rounded-md text-sm h-[36px] font-bold" type="submit" disabled={signInLoading}>
-                      <span>Login</span>
-                    </Button>
+                    <div className="flex flex-col">
+                      <Button variant="primary" className="mt-[16px] p-4 flex justify-center items-center text-center rounded-md text-sm h-[36px] font-bold" type="submit" disabled={signInLoading}>
+                        {' '}
+                        <span>Login</span>
+                      </Button>
+                    </div>
                   </>
                 }
 
