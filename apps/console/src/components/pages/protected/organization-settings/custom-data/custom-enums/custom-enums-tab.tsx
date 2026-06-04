@@ -28,8 +28,6 @@ import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 
-type SelectedEnum = { id: string; name: string }
-
 const DEFAULT_ENUM_COLUMN_VISIBILITY: VisibilityState = {
   objectType: false,
   field: false,
@@ -58,7 +56,6 @@ const CustomEnumsTab: FC = () => {
   const [searchValue, setSearchValue] = useState('')
   const debouncedSearch = useDebounce(searchValue, 300)
 
-  const [selectedEnums, setSelectedEnums] = useState<SelectedEnum[]>([])
   const [enumToDelete, setEnumToDelete] = useState<{ id: string; name: string } | null>(null)
 
   const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(TableKeyEnum.CUSTOM_ENUMS, DEFAULT_PAGINATION))
@@ -123,8 +120,6 @@ const CustomEnumsTab: FC = () => {
   }, [users])
 
   const { columns, mappedColumns } = useGetCustomEnumColumns({
-    selectedEnums,
-    setSelectedEnums,
     onEdit: handleEditOpen,
     onDelete: (id) => {
       const item = enums.find((e) => e.id === id)
