@@ -37,6 +37,7 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { canDelete, canEdit } from '@/lib/authz/utils'
+import { useCanSendQuestionnaire } from '@/lib/authz/use-can-send-questionnaire'
 import Menu from '@/components/shared/menu/menu'
 
 type DetailTabValue = 'delivery' | 'responses'
@@ -112,6 +113,15 @@ const QuestionnaireDetailPage = () => {
   const { mutateAsync: deleteAssessment } = useDeleteAssessment()
   const { mutateAsync: generateAssessmentAccessURL, isPending: isGeneratingAccessURL } = useGenerateAssessmentAccessURL()
   const { data: permission } = useOrganizationRoles()
+
+  const { campaignIds, entityIds } = useMemo(() => {
+    const edges = assessment?.campaigns?.edges ?? []
+    return {
+      campaignIds: edges.map((edge) => edge?.node?.id).filter((value): value is string => Boolean(value)),
+      entityIds: edges.map((edge) => edge?.node?.entityID).filter((value): value is string => Boolean(value)),
+    }
+  }, [assessment?.campaigns])
+  const canSend = useCanSendQuestionnaire(campaignIds, entityIds)
 
   const deliveryWhereFilter = useMemo(
     () =>
@@ -360,9 +370,11 @@ const QuestionnaireDetailPage = () => {
                 {isGeneratingAccessURL ? 'Generating...' : 'Generate URL'}
               </Button>
             )}
-            <Button type="button" icon={<Send />} iconPosition="left" onClick={() => setIsSendDialogOpen(true)}>
-              Send
-            </Button>
+            {canSend && (
+              <Button type="button" icon={<Send />} iconPosition="left" onClick={() => setIsSendDialogOpen(true)}>
+                Send
+              </Button>
+            )}
             <Menu
               content={
                 <>
@@ -434,6 +446,7 @@ const QuestionnaireDetailPage = () => {
             where={deliveryWhereFilter}
             onTotalCountChange={handleDeliveryTotalCountChange}
             responseDueDuration={assessment?.responseDueDuration}
+            canSend={canSend}
           />
         </TabsContent>
         <TabsContent value="responses" className="mt-6">

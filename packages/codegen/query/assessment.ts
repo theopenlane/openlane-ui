@@ -79,6 +79,14 @@ export const GET_ALL_ASSESSMENTS = gql`
           completedAssessmentResponses: assessmentResponses(where: { status: COMPLETED }, first: 1) {
             totalCount
           }
+          campaigns {
+            edges {
+              node {
+                id
+                entityID
+              }
+            }
+          }
         }
       }
       pageInfo {
@@ -136,6 +144,14 @@ export const GET_ASSESSMENT_DETAIL = gql`
       tags
       createdAt
       updatedAt
+      campaigns {
+        edges {
+          node {
+            id
+            entityID
+          }
+        }
+      }
       assessmentResponses(where: $where, orderBy: $orderBy, first: $first, after: $after, last: $last, before: $before) {
         totalCount
         edges {

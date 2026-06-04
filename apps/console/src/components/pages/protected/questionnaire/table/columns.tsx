@@ -20,7 +20,7 @@ type Params = {
   onPreview?: (assessment: Assessment) => void
   onViewDetails?: (assessment: Assessment) => void
   onDelete?: (assessment: Assessment) => void
-  canSend?: boolean
+  canSendMap?: Record<string, boolean>
   canEdit?: boolean
   canDelete?: boolean
 }
@@ -236,7 +236,7 @@ export const getQuestionnaireColumns = (params?: Params) => {
       header: '',
       cell: ({ row }) => {
         const isSystemOwned = row.original.systemOwned === true
-        const canSend = !!params?.canSend
+        const canSend = !!params?.canSendMap?.[row.original.id]
         const canEditQuestionnaire = !!params?.canEdit && !isSystemOwned
         const canDeleteQuestionnaire = !!params?.canDelete && !isSystemOwned
         const hasAnyAction = canSend || canEditQuestionnaire || canDeleteQuestionnaire || !!params?.onPreview || !!params?.onViewDetails

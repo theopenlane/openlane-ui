@@ -20,6 +20,7 @@ type DeliveryTabProps = {
   where?: AssessmentResponseWhereInput
   onTotalCountChange?: (count: number) => void
   responseDueDuration?: number | null
+  canSend?: boolean
 }
 
 type PaginationAction = { type: 'set'; value: TPagination } | { type: 'reset-for-filter-change' }
@@ -41,7 +42,7 @@ const paginationReducer = (state: TPagination, action: PaginationAction): TPagin
   }
 }
 
-export const DeliveryTab = ({ assessmentId, jsonconfig, where, onTotalCountChange, responseDueDuration }: DeliveryTabProps) => {
+export const DeliveryTab = ({ assessmentId, jsonconfig, where, onTotalCountChange, responseDueDuration, canSend = false }: DeliveryTabProps) => {
   const [pagination, dispatchPagination] = useReducer(paginationReducer, DEFAULT_PAGINATION)
   const { mutateAsync: createResponse } = useCreateAssessmentResponse()
   const { successNotification, errorNotification } = useNotification()
@@ -109,7 +110,7 @@ export const DeliveryTab = ({ assessmentId, jsonconfig, where, onTotalCountChang
     dispatchPagination({ type: 'set', value: nextPagination })
   }, [])
 
-  const columns = useMemo(() => getDeliveryColumns({ onResend: handleResend, onViewResponse: handleViewResponse }), [handleResend, handleViewResponse])
+  const columns = useMemo(() => getDeliveryColumns({ onResend: handleResend, onViewResponse: handleViewResponse, canResend: canSend }), [handleResend, handleViewResponse, canSend])
 
   return (
     <>

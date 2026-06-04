@@ -67198,6 +67198,7 @@ export type FilterAssessmentsQuery = {
         template?: { __typename?: 'Template'; id: string; name: string; kind?: TemplateTemplateKind | null } | null
         assessmentResponses: { __typename?: 'AssessmentResponseConnection'; totalCount: number }
         completedAssessmentResponses: { __typename?: 'AssessmentResponseConnection'; totalCount: number }
+        campaigns: { __typename?: 'CampaignConnection'; edges?: Array<{ __typename?: 'CampaignEdge'; node?: { __typename?: 'Campaign'; id: string; entityID?: string | null } | null } | null> | null }
       } | null
     } | null> | null
     pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; startCursor?: any | null; hasPreviousPage: boolean; hasNextPage: boolean }
@@ -67261,6 +67262,7 @@ export type GetAssessmentDetailQuery = {
     tags?: Array<string> | null
     createdAt?: any | null
     updatedAt?: any | null
+    campaigns: { __typename?: 'CampaignConnection'; edges?: Array<{ __typename?: 'CampaignEdge'; node?: { __typename?: 'Campaign'; id: string; entityID?: string | null } | null } | null> | null }
     assessmentResponses: {
       __typename?: 'AssessmentResponseConnection'
       totalCount: number
