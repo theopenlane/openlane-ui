@@ -5,13 +5,13 @@ import PricingPlan from '@/components/pages/protected/organization-settings/bill
 import { useOrganization } from '@/hooks/useOrganization'
 import BillingPageSkeleton from '@/components/pages/protected/organization-settings/billing/skeleton/billing-page-skeleton'
 import { useGetOrganizationBilling } from '@/lib/graphql-hooks/organization'
-import { canEdit } from '@/lib/authz/utils.ts'
+import { isOwnerOrSuperAdmin } from '@/lib/authz/utils.ts'
 import ProtectedArea from '@/components/shared/protected-area/protected-area.tsx'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
-import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { useCurrentUserRole } from '@/lib/graphql-hooks/member'
 
 const BillingPage: React.FC = () => {
-  const { data: permission, isLoading } = useOrganizationRoles()
+  const { role, isLoading } = useCurrentUserRole()
   const { setCrumbs } = use(BreadcrumbContext)
 
   useEffect(() => {
@@ -23,8 +23,8 @@ const BillingPage: React.FC = () => {
   }, [setCrumbs])
   return (
     <>
-      {!isLoading && !canEdit(permission?.roles) && <ProtectedArea />}
-      {!isLoading && canEdit(permission?.roles) && (
+      {!isLoading && !isOwnerOrSuperAdmin(role) && <ProtectedArea />}
+      {!isLoading && isOwnerOrSuperAdmin(role) && (
         <>
           <PageHeading heading="Billing" eyebrow="Organization Settings" />
           <Suspense>

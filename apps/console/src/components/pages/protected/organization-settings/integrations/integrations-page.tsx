@@ -12,7 +12,6 @@ import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useNotification } from '@/hooks/useNotification'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { canEdit } from '@/lib/authz/utils'
-import ProtectedArea from '@/components/shared/protected-area/protected-area'
 import { Loading } from '@/components/shared/loading/loading'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
@@ -30,7 +29,7 @@ const IntegrationsPage = () => {
   const { setCrumbs } = use(BreadcrumbContext)
 
   const { data: orgPermission, isLoading } = useOrganizationRoles()
-  const editAllowed = canEdit(orgPermission?.roles)
+  const canManage = canEdit(orgPermission?.roles)
 
   const { successNotification, errorNotification } = useNotification()
   const router = useRouter()
@@ -175,32 +174,27 @@ const IntegrationsPage = () => {
   return (
     <div>
       <PageHeading heading="Integrations" />
-      {!editAllowed ? (
-        <ProtectedArea />
-      ) : (
-        <>
-          <IntegrationsToolbar
-            activeTab={activeTab}
-            setActiveTab={setActiveTab}
-            allCount={allCount}
-            comingSoonCount={comingSoonCount}
-            installedCount={installedCount}
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            allTags={allTags}
-            selectedTags={selectedTags}
-            setSelectedTags={setSelectedTags}
-          />
-          <IntegrationsGrid
-            installedIntegrations={installedIntegrations}
-            availableIntegrations={availableIntegrations}
-            activeTab={activeTab}
-            providers={providers}
-            searchQuery={searchQuery}
-            selectedTags={selectedTags}
-          />
-        </>
-      )}
+      <IntegrationsToolbar
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        allCount={allCount}
+        comingSoonCount={comingSoonCount}
+        installedCount={installedCount}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        allTags={allTags}
+        selectedTags={selectedTags}
+        setSelectedTags={setSelectedTags}
+      />
+      <IntegrationsGrid
+        installedIntegrations={installedIntegrations}
+        availableIntegrations={availableIntegrations}
+        activeTab={activeTab}
+        providers={providers}
+        searchQuery={searchQuery}
+        selectedTags={selectedTags}
+        canManage={canManage}
+      />
     </div>
   )
 }

@@ -10,7 +10,7 @@ import { useOrganization } from '@/hooks/useOrganization.ts'
 import { PageHeading } from '@repo/ui/page-heading'
 import { Button } from '@repo/ui/button'
 import EvidenceDetailsSheet from '@/components/pages/protected/evidence/evidence-details-sheet'
-import { canCreate } from '@/lib/authz/utils'
+import { hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import EvidenceSuggestedActions from './table/evidence-suggested-actions'
 import Loading from '@/app/(protected)/evidence/loading'
@@ -40,7 +40,7 @@ const EvidenceDetailsPage = () => {
   const currentOrganization = getOrganizationByID(currentOrgId ?? '')
   const { data: permission } = useOrganizationRoles()
 
-  const createAllowed = canCreate(permission?.roles, AccessEnum.CanCreateEvidence)
+  const createAllowed = hasPermission(permission?.roles, AccessEnum.CanCreateEvidence)
 
   useEffect(() => {
     const crumbs: Crumb[] = [

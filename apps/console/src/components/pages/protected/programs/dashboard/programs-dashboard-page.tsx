@@ -10,7 +10,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@r
 import { formatDate } from '@/utils/date'
 import { useAccountRolesMany, useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
-import { canCreate, canEdit } from '@/lib/authz/utils'
+import { hasPermission, canEdit } from '@/lib/authz/utils'
 import Link from 'next/link'
 import { ProgramProgramStatus, type ProgramWhereInput, TaskTaskStatus } from '@repo/codegen/src/schema'
 import { Switch } from '@repo/ui/switch'
@@ -117,7 +117,7 @@ const ProgramsDashboardPage = () => {
               See docs to learn more.
             </a>
           </Callout>
-          {canCreate(orgPermission?.roles, AccessEnum.CanCreateProgram) ? (
+          {hasPermission(orgPermission?.roles, AccessEnum.CanCreateProgram) ? (
             <ProgramsCreate disableHeader={true} noPrograms={true} />
           ) : (
             <Callout variant="warning" className="max-w-6xl mx-33 mt-10" title="You do not have permission to create a program">
@@ -156,7 +156,7 @@ const ProgramsDashboardPage = () => {
               <TabsTrigger value="ARCHIVED">Archived</TabsTrigger>
             </TabsList>
           </Tabs>
-          {canCreate(orgPermission?.roles, AccessEnum.CanCreateProgram) && (
+          {hasPermission(orgPermission?.roles, AccessEnum.CanCreateProgram) && (
             <Link href="/programs/create">
               <Button icon={<SquarePlus />} iconPosition="left">
                 Create

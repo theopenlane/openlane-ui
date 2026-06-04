@@ -26,6 +26,12 @@ export type TAccessRole =
   | 'can_create_scheduled_job'
   | 'can_create_mapped_control'
   | 'can_create_trust_center_doc'
+  | 'can_create_custom_type_enum'
+  | 'can_edit_custom_type_enum'
+  | 'can_create_platform'
+  | 'can_edit_trust_center_compliance'
+  | 'can_edit_trust_center_nda_request'
+  | 'can_create_remediation'
 
 export type TPermissionData = {
   success?: boolean

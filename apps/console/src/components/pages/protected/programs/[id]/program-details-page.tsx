@@ -10,7 +10,7 @@ import ProgramAuditor from '@/components/pages/protected/programs/[id]/program-a
 import ProgramTaskTable from '@/components/pages/protected/programs/[id]/program-tasks-table/program-tasks-table'
 import { ControlsSummaryCard } from '@/components/pages/protected/programs/[id]/controls-summary-card'
 import { SquarePlus } from 'lucide-react'
-import { canCreate } from '@/lib/authz/utils.ts'
+import { hasPermission } from '@/lib/authz/utils.ts'
 import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
 import Menu from '@/components/shared/menu/menu.tsx'
 import TimelineReadiness from '@/components/pages/protected/programs/[id]/timeline-readiness'
@@ -57,7 +57,7 @@ const ProgramDetailsPage: React.FC = () => {
               <h1>Overview</h1>
             </div>
             <div className="flex gap-2.5 items-center">
-              {canCreate(permission?.roles, AccessEnum.CanCreateProgram) && (
+              {hasPermission(permission?.roles, AccessEnum.CanCreateProgram) && (
                 <Link href="/programs/create" className="text-sm text-blue-500 flex items-center gap-1">
                   <Button variant="primary" className="h-8 !px-2 !pl-3" icon={<SquarePlus />} iconPosition="left">
                     Create Program

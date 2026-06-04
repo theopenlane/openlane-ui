@@ -5,7 +5,7 @@ import { Input } from '@repo/ui/input'
 import { useDebounce } from '@uidotdev/usehooks'
 import BulkCSVCreateProcedureDialog from '@/components/pages/protected/procedures/create/form/bulk-csv-create-procedure-dialog'
 import { type TAccessRole, type TPermissionData } from '@/types/authz'
-import { canCreate } from '@/lib/authz/utils.ts'
+import { hasPermission } from '@/lib/authz/utils.ts'
 import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
 import Menu from '@/components/shared/menu/menu.tsx'
 import { type VisibilityState } from '@tanstack/react-table'
@@ -157,7 +157,7 @@ const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({
                 closeOnSelect={true}
                 content={(close) => (
                   <>
-                    {canCreate(permission?.roles, AccessEnum.CanCreateInternalPolicy) && (
+                    {hasPermission(permission?.roles, AccessEnum.CanCreateInternalPolicy) && (
                       <CreateProcedureUploadDialog
                         trigger={
                           <div className="flex items-center bg-transparent space-x-2 px-1">
@@ -167,7 +167,7 @@ const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({
                         }
                       />
                     )}
-                    {canCreate(permission?.roles, AccessEnum.CanCreateInternalPolicy) && (
+                    {hasPermission(permission?.roles, AccessEnum.CanCreateInternalPolicy) && (
                       <BulkCSVCreateProcedureDialog
                         trigger={
                           <div className="flex items-center bg-transparent space-x-2 px-1">
@@ -194,7 +194,7 @@ const ProceduresTableToolbar: React.FC<TProceduresTableToolbarProps> = ({
                 <ColumnVisibilityMenu mappedColumns={mappedColumns} columnVisibility={columnVisibility} setColumnVisibility={setColumnVisibility} storageKey={TableKeyEnum.PROCEDURE} />
               )}
               {filters && <TableFilter filterFields={filters} onFilterChange={setFilters} pageKey={TableKeyEnum.PROCEDURE} />}
-              {canCreate(permission?.roles, AccessEnum.CanCreateProcedure) && (
+              {hasPermission(permission?.roles, AccessEnum.CanCreateProcedure) && (
                 <Button variant="primary" onClick={handleCreateNew} className="h-8 px-2! pl-3!" icon={<SquarePlus />} iconPosition="left">
                   Create
                 </Button>
