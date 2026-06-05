@@ -14,6 +14,7 @@ import { canEdit } from '@/lib/authz/utils'
 import { useNotification } from '@/hooks/useNotification'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
 import { Loading } from '@/components/shared/loading/loading'
+import { Callout } from '@/components/shared/callout/callout'
 import { Button } from '@repo/ui/button'
 import { filterFinalizedIntegrationsForProvider, HEALTH_CHECK_OPERATION_NAME, resolveSchemaRoot } from '@/lib/integrations/utils'
 import { writePendingVendorIntegrationLink, clearPendingVendorIntegrationLink } from '@/lib/integrations/pending-vendor-link'
@@ -239,7 +240,11 @@ const IntegrationDefinitionPage = ({ definitionId }: IntegrationDefinitionPagePr
           selectedCredentialIndex={selectedCredentialIndex}
           onSelectCredential={handleSelectCredential}
         />
-      ) : null}
+      ) : (
+        <Callout variant="info" title="You do not have permission to install this integration">
+          Reach out to an organization admin to install this integration on your behalf, or request access to manage integrations.
+        </Callout>
+      )}
     </div>
   )
 }
