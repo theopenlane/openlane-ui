@@ -122,7 +122,7 @@ export const MemberActions = ({ memberId, memberUserId, memberRole, memberName }
     <>
       <DropdownMenu modal={false}>
         <DropdownMenuTrigger asChild>
-          <Button variant="secondary" className="-mr-2">
+          <Button variant="secondary" className="-mr-2" data-testid="member-actions-trigger">
             <MoreHorizontal className="h-4 w-4 text-brand" />
           </Button>
         </DropdownMenuTrigger>

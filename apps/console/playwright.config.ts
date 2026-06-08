@@ -6,6 +6,11 @@ const BASE_URL = process.env.E2E_BASE_URL ?? `http://localhost:${PORT}`
 export default defineConfig({
   testDir: './e2e/tests',
   outputDir: './e2e/.test-results',
+  // Seeds the Owner + role users into one shared org and saves storage state to
+  // e2e/.auth/ (+ manifest.json). Idempotent: reuses a recent .auth set instead
+  // of re-seeding every run, so the ~40s cost is paid once per ~30 min window.
+  // Force a fresh seed with E2E_RESEED=1.
+  globalSetup: './e2e/global-setup.ts',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   // 1 retry locally absorbs the dev backend's register/login race when
@@ -23,10 +28,12 @@ export default defineConfig({
   reporter: process.env.CI ? [['github'], ['html', { outputFolder: './e2e/playwright-report', open: 'never' }]] : [['list'], ['html', { outputFolder: './e2e/playwright-report', open: 'never' }]],
 
   // Default per-test timeout. Most specs use seedLoggedInUser, which
-  // burns 10–15s on register + verify + login + onboarding. Pages with
-  // heavy data (e.g. /standards rendering a full catalog) can push the
-  // total well past 30s. 60s gives headroom without masking real hangs.
-  timeout: 60_000,
+  // burns 10–15s on register + verify + login + onboarding. The dev server also
+  // compiles each route on its FIRST hit, and heavy detail/registry routes can
+  // take 30–45s to compile — so a single goto can be slow. 90s leaves room for
+  // a cold-compile navigation plus the assertions after it. (A built app / CI
+  // has no compile step, so real test time is a few seconds.)
+  timeout: 90_000,
 
   use: {
     baseURL: BASE_URL,
@@ -34,7 +41,8 @@ export default defineConfig({
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
     actionTimeout: 10_000,
-    navigationTimeout: 30_000,
+    // 60s absorbs first-hit dev-server route compilation of heavy routes.
+    navigationTimeout: 60_000,
   },
 
   projects: [

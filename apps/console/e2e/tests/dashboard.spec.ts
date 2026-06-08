@@ -1,26 +1,19 @@
-import { expect, test } from '@playwright/test'
+import { test, expect } from '../fixtures/auth'
 
-import { seedLoggedInUser } from '../utils/seedUser'
-
+// Logged in as the storage-state Owner (global-setup). Pure render checks.
 test.describe('dashboard — render', () => {
   test('/dashboard renders the "Welcome, ..." headline for an onboarded user', async ({ page }) => {
-    await seedLoggedInUser(page, 'dash-welcome')
-
     await page.goto('/dashboard')
 
-    // dashboard-page.tsx renders <p>Welcome, {displayName}!</p>. The
-    // displayName comes from the seeded user; just match the prefix.
+    // dashboard-page.tsx renders <p>Welcome, {displayName}!</p>. Match the prefix.
     await expect(page.getByText(/^Welcome,/)).toBeVisible({ timeout: 15_000 })
   })
 
   test('/dashboard renders the authenticated shell (user menu trigger)', async ({ page }) => {
-    await seedLoggedInUser(page, 'dash-shell')
-
     await page.goto('/dashboard')
 
-    // user-menu-trigger is the avatar/menu button rendered by the
-    // authenticated app shell; if this isn't present we're not in
-    // the protected layout at all.
-    await expect(page.getByTestId('user-menu-trigger')).toBeVisible({ timeout: 15_000 })
+    // user-menu-trigger is the avatar/menu button in the authenticated shell.
+    // Assert attached (not visible) — it's a zero-size div until hydration.
+    await expect(page.getByTestId('user-menu-trigger')).toBeAttached({ timeout: 15_000 })
   })
 })
