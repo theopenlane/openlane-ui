@@ -323,6 +323,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
             <></>
           ) : (
             <Menu
+              triggerTestId="policy-actions-menu"
               content={
                 <>
                   {editAllowed && (
@@ -333,7 +334,7 @@ const ViewPolicyPage: React.FC<TViewPolicyPage> = ({ policyId }) => {
                   )}
                   {deleteAllowed && (
                     <>
-                      <Button size="sm" variant="transparent" className="flex justify-start space-x-2" onClick={() => setIsDeleteDialogOpen(true)}>
+                      <Button size="sm" variant="transparent" className="flex justify-start space-x-2" data-testid="policy-delete-button" onClick={() => setIsDeleteDialogOpen(true)}>
                         <Trash2 size={16} strokeWidth={2} />
                         <span>Delete</span>
                       </Button>

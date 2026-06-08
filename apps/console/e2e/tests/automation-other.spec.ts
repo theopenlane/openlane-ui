@@ -1,7 +1,6 @@
-import { expect, test } from '@playwright/test'
+import { test, expect } from '../fixtures/auth'
 
-import { seedLoggedInUser } from '../utils/seedUser'
-
+// Logged in as the storage-state Owner (global-setup).
 // Automation subroutes other than /tasks (covered in tasks.spec.ts).
 // /automation/exposure renders a "Coming soon" placeholder under the
 // Exposure heading; we still exercise the route to catch routing breaks.
@@ -22,8 +21,6 @@ const SUBROUTES: Array<{ path: string; heading: RegExp }> = [
 test.describe('automation — other subroutes render', () => {
   for (const { path, heading } of SUBROUTES) {
     test(`${path} renders the heading for an owner`, async ({ page }) => {
-      await seedLoggedInUser(page, `auto-${path.split('/').pop()}`)
-
       await page.goto(path)
 
       await expect(page.getByRole('heading', { level: 2, name: heading })).toBeVisible()
@@ -43,8 +40,6 @@ const NESTED_H1_ROUTES: Array<{ path: string; text: RegExp }> = [
 test.describe('automation — workflows subroutes (nested-h1 variant)', () => {
   for (const { path, text } of NESTED_H1_ROUTES) {
     test(`${path} renders the page heading text`, async ({ page }) => {
-      await seedLoggedInUser(page, `auto-${path.split('/').pop()}`)
-
       await page.goto(path)
 
       // workflow-inbox-page.tsx (and siblings) pass JSX with an inner
@@ -67,8 +62,6 @@ const EYEBROW_HEADING_ROUTES: Array<{ path: string; eyebrow: RegExp; heading: Re
 test.describe('automation — assessments editor / viewer routes', () => {
   for (const { path, eyebrow, heading } of EYEBROW_HEADING_ROUTES) {
     test(`${path} renders the ${heading.source} heading with the right eyebrow`, async ({ page }) => {
-      await seedLoggedInUser(page, `auto-${path.split('/').pop()}`)
-
       await page.goto(path)
 
       // PageHeading renders eyebrow as a <span> directly above the <h2>.
