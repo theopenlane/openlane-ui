@@ -6,9 +6,10 @@ import { PageHeading } from '@repo/ui/page-heading'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import { Card, CardContent } from '@repo/ui/cardpanel'
 import { Button } from '@repo/ui/button'
-import { Users, CheckCircle, Calendar, Send, FileText, Download, Eye, Pencil, Trash2 } from 'lucide-react'
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@repo/ui/dialog'
+import { Users, CheckCircle, Calendar, Send, FileText, Download, Eye, Pencil, Trash2, Copy, ExternalLink, RefreshCw } from 'lucide-react'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
-import { useAssessmentRecipientsTotalCount, useAssessmentResponsesTotalCount, useGetAssessmentDetail } from '@/lib/graphql-hooks/assessment'
+import { useAssessmentRecipientsTotalCount, useAssessmentResponsesTotalCount, useGenerateAssessmentAccessURL, useGetAssessmentDetail } from '@/lib/graphql-hooks/assessment'
 import { formatDate } from '@/utils/date'
 import { exportToCSV } from '@/utils/exportToCSV'
 import { TableFilter } from '@/components/shared/table-filter/table-filter'
@@ -36,6 +37,7 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { canDelete, canEdit } from '@/lib/authz/utils'
+import { useCanSendQuestionnaire } from '@/lib/authz/use-can-send-questionnaire'
 import Menu from '@/components/shared/menu/menu'
 
 type DetailTabValue = 'delivery' | 'responses'
@@ -106,8 +108,20 @@ const QuestionnaireDetailPage = () => {
   const [isExportingDelivery, setIsExportingDelivery] = useState(false)
   const [isSendDialogOpen, setIsSendDialogOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [isAccessURLDialogOpen, setIsAccessURLDialogOpen] = useState(false)
+  const [generatedAccessURL, setGeneratedAccessURL] = useState('')
   const { mutateAsync: deleteAssessment } = useDeleteAssessment()
+  const { mutateAsync: generateAssessmentAccessURL, isPending: isGeneratingAccessURL } = useGenerateAssessmentAccessURL()
   const { data: permission } = useOrganizationRoles()
+
+  const { campaignIds, entityIds } = useMemo(() => {
+    const edges = assessment?.campaigns?.edges ?? []
+    return {
+      campaignIds: edges.map((edge) => edge?.node?.id).filter((value): value is string => Boolean(value)),
+      entityIds: edges.map((edge) => edge?.node?.entityID).filter((value): value is string => Boolean(value)),
+    }
+  }, [assessment?.campaigns])
+  const canSend = useCanSendQuestionnaire(campaignIds, entityIds)
 
   const deliveryWhereFilter = useMemo(
     () =>
@@ -161,11 +175,50 @@ const QuestionnaireDetailPage = () => {
     }
   }
 
+  const handleGenerateAccessURL = async () => {
+    try {
+      const response = await generateAssessmentAccessURL({ getAssessmentId: id })
+      const accessURL = response.assessment?.accessURL
+
+      if (!accessURL) {
+        errorNotification({
+          title: 'Access URL unavailable',
+          description: 'Could not generate an access URL.',
+        })
+        return
+      }
+
+      setGeneratedAccessURL(accessURL)
+      setIsAccessURLDialogOpen(true)
+    } catch {
+      errorNotification({
+        title: 'Failed to generate access URL',
+      })
+    }
+  }
+
+  const handleCopyAccessURL = () => {
+    if (!generatedAccessURL) return
+
+    navigator.clipboard
+      .writeText(generatedAccessURL)
+      .then(() => {
+        successNotification({
+          title: 'Link copied to clipboard',
+        })
+      })
+      .catch(() => {
+        errorNotification({
+          title: 'Failed to copy link',
+        })
+      })
+  }
+
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
-      { label: 'Automation', href: '/automation/assessments' },
-      { label: 'Questionnaires', href: '/automation/assessments' },
+      { label: 'Automation', href: '/automation/questionnaires' },
+      { label: 'Questionnaires', href: '/automation/questionnaires' },
       { label: assessment?.name, isLoading },
     ])
   }, [setCrumbs, assessment?.name, isLoading])
@@ -184,7 +237,7 @@ const QuestionnaireDetailPage = () => {
         .filter((r) => r != null)
         .map((r) => ({
           id: r.id,
-          email: r.email,
+          email: r.email || r.displayName || '',
           completedAt: r.completedAt,
           document: r.document,
         })),
@@ -193,7 +246,7 @@ const QuestionnaireDetailPage = () => {
 
   const fetchAllDeliveryRows = useCallback(async () => {
     const rows: Array<{
-      email: string
+      email?: string | null
       status: AssessmentResponseAssessmentResponseStatus
       assignedAt: string
       dueDate?: string | null
@@ -213,11 +266,11 @@ const QuestionnaireDetailPage = () => {
       })
 
       const connection = response.assessment?.assessmentResponses
-      const nodes = (connection?.edges ?? []).map((edge) => edge?.node).filter((n) => n != null)
+      const nodes = (connection?.edges ?? []).map((edge) => edge?.node).filter((node): node is NonNullable<typeof node> => node != null)
 
       rows.push(
         ...nodes.map((node) => ({
-          email: node.email,
+          email: node.email || node.displayName || '',
           status: node.status,
           assignedAt: node.assignedAt,
           dueDate: node.dueDate,
@@ -312,23 +365,30 @@ const QuestionnaireDetailPage = () => {
         heading={assessment.name}
         actions={
           <div className="flex items-center gap-2">
-            <Button type="button" icon={<Send />} iconPosition="left" onClick={() => setIsSendDialogOpen(true)}>
-              Send
-            </Button>
+            {assessment.systemOwned && (
+              <Button type="button" variant="secondary" icon={<RefreshCw size={14} />} iconPosition="left" onClick={handleGenerateAccessURL} disabled={isGeneratingAccessURL}>
+                {isGeneratingAccessURL ? 'Generating...' : 'Generate URL'}
+              </Button>
+            )}
+            {canSend && (
+              <Button type="button" icon={<Send />} iconPosition="left" onClick={() => setIsSendDialogOpen(true)}>
+                Send
+              </Button>
+            )}
             <Menu
               content={
                 <>
-                  <Button size="sm" variant="transparent" className="flex justify-start space-x-2" onClick={() => router.push(`/automation/assessments/questionnaire-viewer?id=${id}`)}>
+                  <Button size="sm" variant="transparent" className="flex justify-start space-x-2" onClick={() => router.push(`/automation/questionnaires/questionnaire-viewer?id=${id}`)}>
                     <Eye size={16} strokeWidth={2} />
                     <span>Preview</span>
                   </Button>
-                  {canEdit(permission?.roles) && (
-                    <Button size="sm" variant="transparent" className="flex justify-start space-x-2" onClick={() => router.push(`/automation/assessments/questionnaire-editor?id=${id}`)}>
+                  {canEdit(permission?.roles) && !assessment.systemOwned && (
+                    <Button size="sm" variant="transparent" className="flex justify-start space-x-2" onClick={() => router.push(`/automation/questionnaires/questionnaire-editor?id=${id}`)}>
                       <Pencil size={16} strokeWidth={2} />
                       <span>Edit</span>
                     </Button>
                   )}
-                  {canDelete(permission?.roles) && (
+                  {canDelete(permission?.roles) && !assessment.systemOwned && (
                     <Button size="sm" variant="transparent" className="flex justify-start space-x-2" onClick={() => setIsDeleteDialogOpen(true)}>
                       <Trash2 size={16} strokeWidth={2} />
                       <span>Delete</span>
@@ -386,6 +446,7 @@ const QuestionnaireDetailPage = () => {
             where={deliveryWhereFilter}
             onTotalCountChange={handleDeliveryTotalCountChange}
             responseDueDuration={assessment?.responseDueDuration}
+            canSend={canSend}
           />
         </TabsContent>
         <TabsContent value="responses" className="mt-6">
@@ -395,6 +456,32 @@ const QuestionnaireDetailPage = () => {
 
       <SendQuestionnaireDialog open={isSendDialogOpen} onOpenChange={setIsSendDialogOpen} assessmentId={id} assessmentName={assessment?.name} responseDueDuration={assessment?.responseDueDuration} />
 
+      <Dialog open={isAccessURLDialogOpen} onOpenChange={setIsAccessURLDialogOpen}>
+        <DialogContent className="top-[28%] w-[calc(100vw-2rem)] overflow-x-hidden sm:max-w-[455px]">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-semibold">Access URL generated</DialogTitle>
+            <p className="text-sm text-muted-foreground">Share this link with vendors to collect responses and create them as vendors in your organization.</p>
+          </DialogHeader>
+          <div className="min-w-0 space-y-4 overflow-x-hidden">
+            <div className="flex min-w-0 max-w-full items-center rounded-md border bg-background px-3 py-2 text-sm">
+              <p className="block min-w-0 flex-1 truncate" title={generatedAccessURL}>
+                {generatedAccessURL}
+              </p>
+            </div>
+            <DialogFooter className="gap-2">
+              <Button type="button" variant="secondary" icon={<Copy size={14} />} iconPosition="left" onClick={handleCopyAccessURL}>
+                Copy
+              </Button>
+              <a href={generatedAccessURL} target="_blank" rel="noopener noreferrer">
+                <Button type="button" variant="secondary" icon={<ExternalLink size={14} />} iconPosition="left" disabled={!generatedAccessURL}>
+                  Open
+                </Button>
+              </a>
+            </DialogFooter>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <ConfirmationDialog
         open={isDeleteDialogOpen}
         onOpenChange={setIsDeleteDialogOpen}
@@ -402,7 +489,7 @@ const QuestionnaireDetailPage = () => {
           try {
             await deleteAssessment({ deleteAssessmentId: id })
             successNotification({ title: 'Questionnaire deleted successfully' })
-            router.push('/automation/assessments')
+            router.push('/automation/questionnaires')
           } catch (error) {
             const errorMessage = parseErrorMessage(error)
             errorNotification({ title: 'Error', description: errorMessage })

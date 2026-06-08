@@ -26,9 +26,23 @@ export type TAccessRole =
   | 'can_create_scheduled_job'
   | 'can_create_mapped_control'
   | 'can_create_trust_center_doc'
+  | 'can_create_custom_type_enum'
+  | 'can_edit_custom_type_enum'
+  | 'can_create_platform'
+  | 'can_edit_trust_center_compliance'
+  | 'can_edit_trust_center_nda_request'
+  | 'can_create_remediation'
+  | 'can_create_trust_center_subprocessor'
+  | 'can_edit_trust_center_subprocessor'
 
 export type TPermissionData = {
   success?: boolean
   organization_id?: string
   roles: TAccessRole[]
+}
+
+export type TScopesResponse = {
+  success: boolean
+  /** Keys are object types (e.g. "control"), values are available permission levels (e.g. ["read", "write", "delete"]) */
+  scopes: Record<string, string[]>
 }

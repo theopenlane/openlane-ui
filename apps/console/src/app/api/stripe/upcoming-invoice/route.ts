@@ -180,7 +180,9 @@ const buildEstimatedUpcomingFromSchedule = async ({ customerId, scheduleId, subs
 export async function GET(req: Request) {
   // ensure we have a valid session
   const session = await auth()
-  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!session || !session.user?.accessToken) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
 
   const { searchParams } = new URL(req.url)
   const customerId = searchParams.get('customerId')
@@ -241,7 +243,6 @@ export async function GET(req: Request) {
     }
 
     console.error('❌ Stripe upcoming invoice error:', err)
-    const message = err instanceof Error ? err.message : 'Unknown error'
-    return NextResponse.json({ error: message }, { status: 500 })
+    return NextResponse.json({ error: 'Failed to fetch upcoming invoice' }, { status: 500 })
   }
 }

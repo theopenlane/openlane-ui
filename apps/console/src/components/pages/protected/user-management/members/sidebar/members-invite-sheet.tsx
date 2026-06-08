@@ -2,10 +2,7 @@
 import { Button } from '@repo/ui/button'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { InfoIcon, PanelRightClose, SearchIcon } from 'lucide-react'
-import { type Control, type SubmitHandler, useForm } from 'react-hook-form'
-import type { Resolver } from 'react-hook-form'
-import { type infer as zInfer, z } from 'zod'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { Controller, type SubmitHandler } from 'react-hook-form'
 import {
   type AllGroupsPaginatedFieldsFragment,
   type CreateInviteInput,
@@ -18,11 +15,8 @@ import {
 } from '@repo/codegen/src/schema'
 import { useCreateBulkInvite } from '@/lib/graphql-hooks/organization'
 import { useNotification } from '@/hooks/useNotification'
-import { isValidEmail } from '@/lib/validators'
 import { useQueryClient } from '@tanstack/react-query'
-import { type Tag } from 'emblor'
 import { useMemo, useState } from 'react'
-import { TagInput } from '@repo/ui/tag-input'
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@repo/ui/form'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
@@ -32,25 +26,18 @@ import { type TPagination } from '@repo/ui/pagination-types'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { groupTableForInvitesColumns } from '../table/columns'
 import { type VisibilityState } from '@tanstack/react-table'
-import { canCreate, canEdit } from '@/lib/authz/utils.ts'
+import { hasPermission, canEdit } from '@/lib/authz/utils.ts'
 import { DataTable, getInitialPagination } from '@repo/ui/data-table'
 import { Input } from '@repo/ui/input'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
+import { toHumanLabel } from '@/utils/strings'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { TableKeyEnum } from '@repo/ui/table-key'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
-
-const formSchema = z.object({
-  emails: z.array(z.string().email({ message: 'Invalid email address' })),
-  role: z
-    .nativeEnum(InviteRole, {
-      errorMap: () => ({ message: 'Invalid role' }),
-    })
-    .default(InviteRole.MEMBER),
-})
-
-type FormData = zInfer<typeof formSchema>
+import { RoleInfoSlideOut } from '@/components/shared/role-info-slide-out/role-info-slide-out'
+import useMembersInviteFormSchema, { type MembersInviteFormData } from './use-members-invite-form-schema'
+import { MultiEmailInput } from './multi-email-input'
 
 type TMembersInviteSheet = {
   isMemberSheetOpen: boolean
@@ -61,10 +48,6 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
   const { mutateAsync: inviteMembers } = useCreateBulkInvite()
   const { successNotification, errorNotification } = useNotification()
   const queryClient = useQueryClient()
-  const [emails, setEmails] = useState<Tag[]>([])
-  const [activeTagIndex, setActiveTagIndex] = useState<number | null>(null)
-  const [currentValue, setCurrentValue] = useState('')
-  const [invalidEmail, setInvalidEmail] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const debouncedSearchQuery = useDebounce(searchQuery, 300)
   const [pagination, setPagination] = useState<TPagination>(() => getInitialPagination(TableKeyEnum.MEMBERS_INVITE_SHEET, DEFAULT_PAGINATION))
@@ -75,7 +58,8 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
     return { check: canEdit(permission?.roles) }
   }, [isLoadingPermission, permission])
 
-  const canInviteAdmins = canCreate(permission?.roles, AccessEnum.CanInviteAdmins)
+  const canInviteAdmins = hasPermission(permission?.roles, AccessEnum.CanInviteAdmins)
+  const canInviteMembers = hasPermission(permission?.roles, AccessEnum.CanInviteMembers)
 
   const [orderBy, setOrderBy] = useState<GetAllGroupsPaginatedQueryVariables['orderBy']>([
     {
@@ -104,12 +88,7 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
     return allGroups.slice(start, start + pagination.pageSize)
   }, [allGroups, pagination.page, pagination.pageSize])
 
-  const form = useForm<FormData>({
-    resolver: zodResolver(formSchema) as Resolver<FormData>,
-    defaultValues: {
-      role: InviteRole.MEMBER,
-    },
-  })
+  const { form } = useMembersInviteFormSchema()
 
   const columns = useMemo(() => {
     return groupTableForInvitesColumns({ allGroups, selectedGroups, setSelectedGroups })
@@ -118,11 +97,23 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
   const {
     control,
     handleSubmit,
-    setValue,
+    watch,
     formState: { errors },
   } = form
 
-  const onSubmit: SubmitHandler<FormData> = async (data) => {
+  const emails = watch('emails')
+
+  const handleOpenChange = (open: boolean) => {
+    if (!open) {
+      form.reset()
+      setSearchQuery('')
+      setSelectedGroups([])
+      setPagination(getInitialPagination(TableKeyEnum.MEMBERS_INVITE_SHEET, DEFAULT_PAGINATION))
+    }
+    setIsMemberSheetOpen(open)
+  }
+
+  const onSubmit: SubmitHandler<MembersInviteFormData> = async (data) => {
     const inviteInput: InputMaybe<Array<CreateInviteInput> | CreateInviteInput> = data.emails.map((email) => {
       const baseInvite = {
         recipient: email,
@@ -146,9 +137,9 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
 
       queryClient.invalidateQueries({ queryKey: ['invites'] })
       successNotification({
-        title: `Invite${emails.length > 1 ? 's' : ''} sent successfully`,
+        title: `Invite${data.emails.length > 1 ? 's' : ''} sent successfully`,
       })
-      handleClose()
+      handleOpenChange(false)
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
       errorNotification({
@@ -158,57 +149,35 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
     }
   }
 
-  const handleBlur = () => {
-    if (isValidEmail(currentValue)) {
-      const trimmed = currentValue.trim()
-      const existing = emails.find((tag) => tag.text.toLowerCase() === trimmed.toLowerCase())
-
-      if (!existing) {
-        const newTag = { id: trimmed, text: trimmed }
-        const updatedTags = [...emails, newTag]
-        setEmails(updatedTags)
-        setValue(
-          'emails',
-          updatedTags.map((tag) => tag.text),
-        )
-      }
-
-      setCurrentValue('')
-    }
-  }
-
-  const handleClose = () => {
-    setEmails([])
-    setSearchQuery('')
-    setSelectedGroups([])
-    setIsMemberSheetOpen(false)
-  }
-
   const roleOptions = useMemo(() => {
-    const options = Object.entries(InviteRole).filter(([, o]) => o !== InviteRole.OWNER) as [keyof typeof InviteRole, InviteRole][]
-    return canInviteAdmins ? options : options.filter(([, o]) => o !== InviteRole.ADMIN)
-  }, [canInviteAdmins])
+    // OWNER can never be assigned via invite
+    // TODO: add InviteRole.SUPER_ADMIN here (gated on CanInviteSuperAdmins) and InviteRole.AUDITOR (gated on canInviteAdmins) once the enum is updated
+    const candidates: { role: InviteRole; allowed: boolean }[] = [
+      { role: InviteRole.ADMIN, allowed: canInviteAdmins },
+      { role: InviteRole.MEMBER, allowed: canInviteMembers },
+    ]
+    return candidates.filter(({ allowed }) => allowed).map(({ role }) => role)
+  }, [canInviteAdmins, canInviteMembers])
 
-  const errorMessage = errors.emails && Array.isArray(errors.emails) && errors.emails.length > 0 ? errors.emails[0]?.message : null
   return (
-    <Sheet open={isMemberSheetOpen} onOpenChange={setIsMemberSheetOpen}>
+    <Sheet open={isMemberSheetOpen} onOpenChange={handleOpenChange}>
       <SheetContent
         initialWidth={846}
         className="flex flex-col"
         header={
           <SheetHeader>
             <div className="flex items-center justify-between">
-              <PanelRightClose aria-label="Close detail sheet" size={16} className="cursor-pointer" onClick={handleClose} />
+              <PanelRightClose aria-label="Close detail sheet" size={16} className="cursor-pointer" onClick={() => handleOpenChange(false)} />
               <div className="flex justify-end gap-2">
-                <CancelButton onClick={handleClose}></CancelButton>
-                <Button iconPosition="left" type="button" form="inviteForm" onClick={handleSubmit(onSubmit)} disabled={emails.length === 0}>
+                <CancelButton onClick={() => handleOpenChange(false)}></CancelButton>
+                <Button iconPosition="left" type="button" form="inviteForm" onClick={handleSubmit(onSubmit)} disabled={!emails?.length}>
                   Invite
                 </Button>
               </div>
             </div>
             <div className="flex items-center justify-start">
               <SheetTitle>
-                <h3 className="font-medium text-2xl text-text-header">Invite new member</h3>
+                <h3 className="font-medium text-2xl text-text-header pb-2">Invite New Member</h3>
               </SheetTitle>
             </div>
           </SheetHeader>
@@ -226,83 +195,43 @@ const MembersInviteSheet = ({ isMemberSheetOpen, setIsMemberSheetOpen }: TMember
                     <SystemTooltip icon={<InfoIcon size={14} />} content={<p>Enter or paste emails of the users to be invited to your organization</p>} />
                   </div>
                   <div className="col-span-3">
-                    <FormField
+                    <Controller
                       name="emails"
-                      control={control as unknown as Control<FormData>}
-                      render={({ field }) => (
-                        <FormItem className="w-full">
-                          <FormControl>
-                            <TagInput
-                              {...field}
-                              tags={emails}
-                              validateTag={(tag: string) => {
-                                const isValid = isValidEmail(tag)
-                                const isDuplicate = emails.some((email) => email.text === tag)
-
-                                if (!isValid) {
-                                  setInvalidEmail('Your email is invalid.')
-                                  return false
-                                }
-
-                                if (isDuplicate) {
-                                  setInvalidEmail('This email is already added.')
-                                  return false
-                                }
-
-                                setInvalidEmail(null)
-                                return true
-                              }}
-                              setTags={(newTags) => {
-                                if (typeof newTags === 'function') return
-                                const emailTags = newTags.map((tag) => tag.text)
-                                setEmails(newTags)
-                                setValue('emails', emailTags)
-                                setCurrentValue('')
-                              }}
-                              activeTagIndex={activeTagIndex}
-                              setActiveTagIndex={setActiveTagIndex}
-                              inputProps={{ value: currentValue }}
-                              onInputChange={setCurrentValue}
-                              onBlur={handleBlur}
-                            />
-                          </FormControl>
-                          {(errorMessage || invalidEmail) && <FormMessage>{errorMessage ?? invalidEmail}</FormMessage>}
-                        </FormItem>
-                      )}
+                      control={control}
+                      render={({ field, fieldState }) => <MultiEmailInput value={field.value ?? []} onChange={field.onChange} error={fieldState.error?.message} />}
                     />
                   </div>
                   <div className="flex items-center gap-1">
                     <p>
                       Role <span className="text-red-500">*</span>
                     </p>
-                    <SystemTooltip
-                      icon={<InfoIcon size={14} />}
-                      content={<p>Choose a role to assign to the user(s). Admin will give the user full read and write permissions. Member will give the user read-only access.</p>}
-                    />
                   </div>
-                  <FormField
-                    name="role"
-                    control={control}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select role" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {roleOptions.map(([key, value]) => (
-                                <SelectItem key={value} value={value}>
-                                  {key[0].toUpperCase() + key.slice(1).toLowerCase()}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </FormControl>
-                        {errors.role && <FormMessage>{errors.role.message}</FormMessage>}
-                      </FormItem>
-                    )}
-                  />
+                  <div className="col-span-3 flex flex-col gap-3">
+                    <FormField
+                      name="role"
+                      control={control}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select role" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {roleOptions.map((value) => (
+                                  <SelectItem key={value} value={value}>
+                                    {toHumanLabel(value)}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                          {errors.role && <FormMessage>{errors.role.message}</FormMessage>}
+                        </FormItem>
+                      )}
+                    />
+                    <RoleInfoSlideOut />
+                  </div>
                 </div>
               </div>
             </form>

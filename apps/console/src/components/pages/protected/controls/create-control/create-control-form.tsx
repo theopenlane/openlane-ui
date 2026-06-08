@@ -38,7 +38,7 @@ import { BreadcrumbContext, type Crumb } from '@/providers/BreadcrumbContext.tsx
 import { useCreateControlImplementation } from '@/lib/graphql-hooks/control-implementation'
 import { useCreateControlObjective } from '@/lib/graphql-hooks/control-objective'
 import { useCreateMappedControl } from '@/lib/graphql-hooks/mapped-control'
-import { canCreate } from '@/lib/authz/utils'
+import { hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import ProtectedArea from '@/components/shared/protected-area/protected-area'
 import { Loading } from '@/components/shared/loading/loading'
@@ -75,7 +75,7 @@ export default function CreateControlForm() {
   const [createImplementation, setCreateImplementation] = useState(false)
   const [mappedControls, setMappedControls] = useState<{ controls: Control[]; subcontrols: Subcontrol[] }>({ controls: [], subcontrols: [] })
   const { data: permission, isLoading: permissionsLoading } = useOrganizationRoles()
-  const createAllowed = canCreate(permission?.roles, isCreateSubcontrol ? AccessEnum.CanCreateSubcontrol : AccessEnum.CanCreateControl)
+  const createAllowed = hasPermission(permission?.roles, isCreateSubcontrol ? AccessEnum.CanCreateSubcontrol : AccessEnum.CanCreateControl)
 
   const { mutateAsync: createControlImplementation } = useCreateControlImplementation()
   const { mutateAsync: createControlObjective } = useCreateControlObjective()

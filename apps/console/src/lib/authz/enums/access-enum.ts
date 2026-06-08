@@ -23,4 +23,12 @@ export enum AccessEnum {
   CanCreateProgram = 'can_create_program',
   CanDelete = 'can_delete',
   CanCreateTrustCenterDocument = 'can_create_trust_center_doc',
+  CanCreateCustomTypeEnum = 'can_create_custom_type_enum',
+  CanEditCustomTypeEnum = 'can_edit_custom_type_enum',
+  CanCreatePlatform = 'can_create_platform',
+  CanEditTrustCenterCompliance = 'can_edit_trust_center_compliance',
+  CanEditTrustCenterNdaRequest = 'can_edit_trust_center_nda_request',
+  CanCreateRemediation = 'can_create_remediation',
+  CanCreateTrustCenterSubprocessor = 'can_create_trust_center_subprocessor',
+  CanEditTrustCenterSubprocessor = 'can_edit_trust_center_subprocessor',
 }

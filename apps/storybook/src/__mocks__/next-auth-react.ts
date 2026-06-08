@@ -8,6 +8,10 @@ export function useSession() {
   }
 }
 
+export async function getSession() {
+  return null
+}
+
 export function SessionProvider({ children }: { children: React.ReactNode }): React.ReactNode {
   return children
 }

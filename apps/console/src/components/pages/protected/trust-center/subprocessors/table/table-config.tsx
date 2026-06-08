@@ -9,10 +9,8 @@ import { formatDate, formatTimeSince } from '@/utils/date'
 import { Avatar } from '@/components/shared/avatar/avatar'
 import { type User } from '@repo/codegen/src/schema'
 import { TruncatedCell } from '@repo/ui/data-table'
-import { DeleteTrustCenterSubprocessorCell } from './delete-trust-center-subcontrol-cell'
-import { Button } from '@repo/ui/button'
-import { Pencil } from 'lucide-react'
-import Link from 'next/link'
+import { createRowActionsColumn } from '@/components/shared/crud-base/columns/row-actions-column'
+import { Pencil, Trash2 } from 'lucide-react'
 
 export type SubprocessorTableItem = {
   id: string
@@ -31,6 +29,9 @@ type Params = {
   selectedRows: { id: string }[]
   setSelectedRows: React.Dispatch<React.SetStateAction<{ id: string }[]>>
   userMap: Record<string, User>
+  canEditSubprocessor: boolean
+  onEdit: (id: string) => void
+  onDelete: (id: string) => void
 }
 
 type ColumnConfig = {
@@ -38,7 +39,7 @@ type ColumnConfig = {
   mappedColumns: { accessorKey: string; header: string }[]
 }
 
-export const getSubprocessorsColumns = ({ selectedRows, setSelectedRows, userMap }: Params): ColumnConfig => {
+export const getSubprocessorsColumns = ({ selectedRows, setSelectedRows, userMap, canEditSubprocessor, onEdit, onDelete }: Params): ColumnConfig => {
   const toggleSelection = (row: { id: string }) => {
     setSelectedRows((prev) => {
       const exists = prev.some((r) => r.id === row.id)
@@ -196,23 +197,18 @@ export const getSubprocessorsColumns = ({ selectedRows, setSelectedRows, userMap
         )
       },
     },
-    {
-      id: 'actions',
-      header: '',
-      cell: ({ row }) => (
-        <div className="flex gap-1 justify-end">
-          <Link href={`/trust-center/subprocessors?id=${row.original.id}`}>
-            <Button variant="secondary">
-              <Pencil />
-            </Button>
-          </Link>
-          <DeleteTrustCenterSubprocessorCell subprocessorId={row.original.id} subprocessorName={row.original.name} />
-        </div>
-      ),
-      size: 100,
-      maxSize: 100,
-    },
   ]
+
+  if (canEditSubprocessor) {
+    columns.push(
+      createRowActionsColumn<SubprocessorTableItem>({
+        actions: [
+          { label: 'Edit', icon: <Pencil size={16} />, onClick: (row) => onEdit(row.id) },
+          { label: 'Delete', icon: <Trash2 size={16} />, onClick: (row) => onDelete(row.id) },
+        ],
+      }),
+    )
+  }
 
   const mappedColumns = columns
     .filter((column): column is { accessorKey: string; header: string } => 'accessorKey' in column && typeof column.accessorKey === 'string' && typeof column.header === 'string')

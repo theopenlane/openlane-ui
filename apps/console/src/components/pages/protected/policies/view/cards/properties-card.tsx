@@ -1,15 +1,16 @@
 'use client'
 
 import React, { useRef, useState } from 'react'
-import { type InternalPolicyByIdFragment, type InternalPolicyDocumentStatus, type UpdateInternalPolicyInput } from '@repo/codegen/src/schema'
-import { Binoculars, Calendar, FileStack, ScrollText, HelpCircle } from 'lucide-react'
+import { type InternalPolicyByIdFragment, type InternalPolicyDocumentStatus, InternalPolicyDocumentManagementMode, type UpdateInternalPolicyInput } from '@repo/codegen/src/schema'
+import { Binoculars, Calendar, FileStack, FileText, ScrollText, HelpCircle } from 'lucide-react'
 import { Controller, type UseFormReturn } from 'react-hook-form'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@repo/ui/select'
 import { Input } from '@repo/ui/input'
 import { FormControl, FormField, FormItem } from '@repo/ui/form'
 import { type EditPolicyMetadataFormData } from '@/components/pages/protected/policies/view/hooks/use-form-schema.ts'
 import { formatDate } from '@/utils/date'
-import { DocumentIconMapper, InternalPolicyStatusOptions } from '@/components/shared/enum-mapper/policy-enum'
+import { DocumentIconMapper, InternalPolicyStatusOptions, ManagementModeLabel } from '@/components/shared/enum-mapper/policy-enum'
+import { isWordExt } from '@/components/pages/protected/policies/policy-management-utils'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@repo/ui/tooltip'
 import useEscapeKey from '@/hooks/useEscapeKey'
 import useClickOutsideWithPortal from '@/hooks/useClickOutsideWithPortal'
@@ -33,6 +34,9 @@ type TPropertiesCardProps = {
 
 const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditing, editAllowed, handleUpdate, activeField, setActiveField }) => {
   const [internalEditingField, setInternalEditingField] = useState<null | 'status' | 'internalPolicyKindName' | 'reviewDue' | 'revision'>(null)
+  const currentMode = policy.managementMode ?? InternalPolicyDocumentManagementMode.OPENLANE_MANAGED
+  const showManagementMode = isWordExt(policy.file?.providedFileExtension) || currentMode === InternalPolicyDocumentManagementMode.EXTERNAL_REFERENCE
+
   const isControlled = activeField !== undefined && setActiveField !== undefined
   const editingField = isControlled ? activeField : internalEditingField
   const setEditingField = isControlled ? setActiveField : setInternalEditingField
@@ -166,6 +170,32 @@ const PropertiesCard: React.FC<TPropertiesCardProps> = ({ form, policy, isEditin
           )}
         </div>
       </div>
+
+      {/* Management Mode (only when a Word file is attached or already in external reference) */}
+      {showManagementMode && (
+        <div className="flex items-center gap-1 border-b border-border pb-3">
+          <div className="flex gap-2 min-w-40 items-center">
+            <FileText size={16} className="text-brand" />
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="flex items-center gap-1">
+                    <span className="cursor-help text-sm">Managed in</span>
+                    <HelpCircle size={12} className="text-muted-foreground" />
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Whether this policy is parsed and edited inside Openlane, or kept as a Word document with Openlane acting as a viewer.</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+
+          <div className="min-w-40 w-full text-sm">
+            <span className="block min-h-6">{ManagementModeLabel(currentMode)}</span>
+          </div>
+        </div>
+      )}
 
       {/* Version */}
       <div className="flex items-center gap-1 border-b border-border pb-3">

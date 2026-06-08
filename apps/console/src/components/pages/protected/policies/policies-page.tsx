@@ -5,7 +5,7 @@ import PoliciesDashboard from './policies-dashboard/policies-dashboard'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { SlidersHorizontal, SquarePlus } from 'lucide-react'
 import { Button } from '@repo/ui/button'
-import { canCreate } from '@/lib/authz/utils'
+import { hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import Link from 'next/link'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
@@ -113,7 +113,7 @@ const PoliciesPage: React.FC<TPoliciesPageProps> = ({ active, setActive }) => {
               </DropdownMenu>
             )}
 
-            {canCreate(permission?.roles, AccessEnum.CanCreateInternalPolicy) && totalCount > 0 && (
+            {hasPermission(permission?.roles, AccessEnum.CanCreateInternalPolicy) && totalCount > 0 && (
               <Link href="/policies/create">
                 <Button className="h-8 !px-2 !pl-3" icon={<SquarePlus />} iconPosition="left">
                   Create

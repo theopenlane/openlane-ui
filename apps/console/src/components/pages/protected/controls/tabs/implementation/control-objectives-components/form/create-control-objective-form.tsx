@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { Controller, type UseFormReturn } from 'react-hook-form'
 import { Input } from '@repo/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
@@ -8,7 +8,7 @@ import { Button } from '@repo/ui/button'
 import { Label } from '@repo/ui/label'
 import PlateEditor from '@/components/shared/plate/plate-editor'
 import { SheetHeader, SheetTitle } from '@repo/ui/sheet'
-import { ControlObjectiveControlSource, ControlObjectiveObjectiveStatus } from '@repo/codegen/src/schema'
+import { ControlObjectiveControlSource } from '@repo/codegen/src/schema'
 import { useCreateControlObjective, useDeleteControlObjective, useUpdateControlObjective } from '@/lib/graphql-hooks/control-objective'
 import { useParams } from 'next/navigation'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
@@ -17,8 +17,6 @@ import { Info, Trash2 } from 'lucide-react'
 import { useNotification } from '@/hooks/useNotification'
 import { type TFormData } from './use-form-schema'
 import { VersionBump } from '@/lib/enums/revision-enum'
-import { useGetControlById } from '@/lib/graphql-hooks/control'
-import { useGetSubcontrolById } from '@/lib/graphql-hooks/subcontrol'
 import { Alert, AlertDescription, AlertTitle } from '@repo/ui/alert'
 import { ControlObjectiveStatusOptions } from '@/components/shared/enum-mapper/control-objective-enum'
 import { SaveButton } from '@/components/shared/save-button/save-button'
@@ -44,16 +42,10 @@ export const CreateControlObjectiveForm = ({
   const { id, subcontrolId } = useParams()
   const { successNotification, errorNotification } = useNotification()
   const isEditing = !!defaultValues
-  const isSubcontrol = !!subcontrolId
-  const { data: controlData, isLoading: isLoadingControl } = useGetControlById(isSubcontrol ? null : (id as string))
-  const { data: subcontrolData, isLoading } = useGetSubcontrolById((subcontrolId as string) || null)
-  const loading = isLoadingControl || isLoading
-  const [defaultValuesSet, setDefaultValuesSet] = useState(false)
   const { convertToHtml } = usePlateEditor()
   const {
     handleSubmit,
     control,
-    reset,
     formState: { errors },
   } = form
 
@@ -121,27 +113,6 @@ export const CreateControlObjectiveForm = ({
       })
     }
   }
-
-  useEffect(() => {
-    if (defaultValuesSet) return
-
-    if (isEditing) {
-      reset(defaultValues)
-      setDefaultValuesSet(true)
-      return
-    }
-
-    if (loading) return
-
-    const createDefValues: Partial<TFormData> = {
-      status: ControlObjectiveObjectiveStatus.DRAFT,
-      source: ControlObjectiveControlSource.USER_DEFINED,
-      category: subcontrolData?.subcontrol?.category || controlData?.control?.category || '',
-      subcategory: subcontrolData?.subcontrol?.subcategory || controlData?.control?.subcategory || '',
-    }
-    reset(createDefValues)
-    setDefaultValuesSet(true)
-  }, [defaultValues, reset, isEditing, controlData, subcontrolData, loading, defaultValuesSet])
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">

@@ -187,7 +187,7 @@ export const ProgramSettingsGroups = () => {
       ? [
           {
             id: 'actions',
-            header: 'Action',
+            header: '',
             cell: ({ row }: { row: Row<GroupRow> }) => (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>

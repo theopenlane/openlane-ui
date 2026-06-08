@@ -1,28 +1,14 @@
 import { NextResponse } from 'next/server'
 import { auth } from './lib/auth/auth'
 import { hasNoModules } from '@/lib/auth/utils/modules'
+import { buildLoginRedirect } from '@/lib/auth/utils/redirect'
 
 export default auth(async (req) => {
   // Attach `next-url` header for client-side route metadata
   req.headers.append('next-url', req.nextUrl.toString())
 
   //IF YOU ADD PUBLIC PAGE, ITS REQUIRED TO CHANGE IT IN Providers.tsx
-  const publicPages = [
-    '/login',
-    '/login/sso',
-    '/login/sso/enforce',
-    '/tfa',
-    '/invite',
-    '/subscriber-verify',
-    '/verify',
-    '/resend-verify',
-    '/waitlist',
-    '/unsubscribe',
-    '/forgot-password',
-    '/password-reset',
-    '/signup',
-    '/questionnaire',
-  ]
+  const publicPages = ['/login', '/login/sso', '/login/sso/enforce', '/tfa', '/invite', '/verify', '/resend-verify', '/forgot-password', '/password-reset', '/signup', '/questionnaire']
 
   const personalOrgPages = ['/onboarding', '/organization', '/user-settings/profile']
 
@@ -30,8 +16,6 @@ export default auth(async (req) => {
   const isPublicPage = publicPages.includes(path) || path.startsWith('/questionnaire/')
   const validForPersonalOrg = personalOrgPages.includes(path)
   const isInvite = path === '/invite'
-  const isUnsubscribe = path === '/unsubscribe'
-  const isWaitlist = path === '/waitlist'
   const isQuestionnaire = path === '/questionnaire' || path.startsWith('/questionnaire/')
 
   const session = req.auth
@@ -44,14 +28,18 @@ export default auth(async (req) => {
   const noModulesAllowedPages = ['/organization-settings/billing', '/organization-settings/general-settings', '/user-settings/profile']
 
   if (!isLoggedIn) {
-    return isPublicPage ? NextResponse.next() : NextResponse.redirect(new URL('/login', req.url))
+    if (isPublicPage) {
+      return NextResponse.next()
+    }
+    const loginRedirect = buildLoginRedirect(`${req.nextUrl.pathname}${req.nextUrl.search}`)
+    return NextResponse.redirect(new URL(loginRedirect, req.url))
   }
 
   if (isTfaEnabled) {
     return path === '/tfa' || path === '/login' ? NextResponse.next() : NextResponse.redirect(new URL('/tfa', req.url))
   }
 
-  if (isInvite || isUnsubscribe || isWaitlist) {
+  if (isInvite) {
     return NextResponse.next()
   }
 

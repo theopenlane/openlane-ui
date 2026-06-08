@@ -117,6 +117,9 @@ export const ENTITY = gql`
             id
             definitionID
             name
+            directoryGroups(first: 1) {
+              totalCount
+            }
           }
         }
       }
@@ -130,6 +133,8 @@ export const ENTITY = gql`
         displayName
       }
       lastReviewedAt
+      linkedAssetIds
+      links
       logoFileID
       logoFile {
         base64
@@ -138,6 +143,7 @@ export const ENTITY = gql`
       mfaSupported
       name
       nextReviewAt
+      providedServices
       renewalRisk
       reviewedBy
       reviewedByGroup {
@@ -278,6 +284,24 @@ export const CREATE_ENTITY_WITH_FILES = gql`
     createEntity(input: $input, entityTypeName: $entityTypeName, entityFiles: $entityFiles, logoFile: $logoFile) {
       entity {
         id
+      }
+    }
+  }
+`
+
+export const GET_ENTITY_COMMENTS = gql`
+  query GetEntityComments($entityId: ID!) {
+    entity(id: $entityId) {
+      id
+      notes {
+        edges {
+          node {
+            id
+            createdAt
+            createdBy
+            text
+          }
+        }
       }
     }
   }

@@ -1,4 +1,7 @@
 export type LinkedControlDetails = {
+  id?: string
+  href?: string
+  systemOwned?: boolean
   description?: string | null
   status?: string | null
   type?: string | null

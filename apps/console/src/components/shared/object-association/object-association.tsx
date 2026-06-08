@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import ControlObjectiveDetailsSheet from '@/components/pages/protected/controls/tabs/implementation/control-objectives-components/control-objective-details-sheet'
 import ControlImplementationDetailsSheet from '@/components/pages/protected/controls/tabs/implementation/control-implementation-components/control-implementation-details-sheet'
 import { Label } from '@repo/ui/label'
@@ -18,10 +18,12 @@ import {
 import { useQuery } from '@tanstack/react-query'
 import ObjectAssociationTable from '@/components/shared/object-association/object-association-table'
 import ObjectAssociationPlaceholder from '@/components/shared/object-association/object-association-placeholder'
+import { useVirtualPagination } from '@/components/shared/object-association/use-virtual-pagination'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { type TObjectAssociationMap } from './types/TObjectAssociationMap'
 import { useDebounce } from '@uidotdev/usehooks'
 import { type TPagination } from '@repo/ui/pagination-types'
+import Pagination from '@repo/ui/pagination'
 import { DEFAULT_PAGINATION } from '@/constants/pagination'
 import { useSession } from 'next-auth/react'
 
@@ -51,23 +53,51 @@ const ObjectAssociation = ({ onIdChange, allowedObjectTypes, initialData, refCod
   const { data: sessionData } = useSession()
   const currentOrg = sessionData?.user.activeOrganizationId
 
-  const whereFilter = generateWhere(selectedObject, debouncedSearchValue, currentOrg)
+  const pinnedIds = useMemo<string[]>(() => (inputName && initialData ? (initialData[inputName] ?? []) : []), [inputName, initialData])
+  const pinnedActive = pinnedIds.length > 0 && debouncedSearchValue === ''
+  const pinnedIdsKey = useMemo(() => [...pinnedIds].sort().join(','), [pinnedIds])
+
+  const baseWhere = generateWhere(selectedObject, debouncedSearchValue, currentOrg)
+  const mainWhere = pinnedActive ? { ...baseWhere, idNotIn: pinnedIds } : baseWhere
+  const pinnedWhere = pinnedActive ? { ...generateWhere(selectedObject, '', currentOrg), idIn: pinnedIds } : null
 
   const { data, isLoading, isFetching } = useQuery<QueryResponse>({
-    queryKey: [objectKey, 'objectAssociation', whereFilter, selectedConfig?.defaultOrderBy, pagination.page, pagination.pageSize],
-    queryFn: async () => client.request(selectedQuery, { where: whereFilter, orderBy: selectedConfig?.defaultOrderBy, ...pagination?.query }),
+    queryKey: [objectKey, 'objectAssociation', 'main', mainWhere, selectedConfig?.defaultOrderBy, pagination.page, pagination.pageSize, pinnedIdsKey],
+    queryFn: async () => client.request(selectedQuery, { where: mainWhere, orderBy: selectedConfig?.defaultOrderBy, ...pagination?.query }),
     enabled: !!selectedQuery,
   })
 
-  const pageInfo = objectKey && !isLoading && !isFetching ? getPagination(objectKey, data).pageInfo : undefined
-  const totalCount = objectKey && !isLoading && !isFetching ? getPagination(objectKey, data).totalCount : undefined
+  const { data: pinnedData, isLoading: isPinnedLoading } = useQuery<QueryResponse>({
+    queryKey: [objectKey, 'objectAssociation', 'pinned', selectedConfig?.defaultOrderBy, pinnedIdsKey, currentOrg],
+    queryFn: async () => client.request(selectedQuery, { where: pinnedWhere, orderBy: selectedConfig?.defaultOrderBy, first: pinnedIds.length }),
+    enabled: !!selectedQuery && pinnedActive,
+  })
 
-  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value
-    setSearchValue(value)
-  }
+  useEffect(() => {
+    setPagination(initialPagination)
+  }, [debouncedSearchValue, selectedObject])
+
+  const mainMeta = objectKey && !isLoading && !isFetching ? getPagination(objectKey, data) : undefined
 
   const tableData = useMemo<TableRow[]>(() => extractTableRows(objectKey, data, inputName), [data, objectKey, inputName])
+  const pinnedRows = useMemo<TableRow[]>(() => (pinnedActive ? extractTableRows(objectKey, pinnedData, inputName) : []), [pinnedActive, pinnedData, objectKey, inputName])
+
+  const { pageData, totalPages, handlePageChange, handlePageSizeChange } = useVirtualPagination({
+    pinnedActive,
+    pinnedRows,
+    tableData,
+    pageInfo: mainMeta?.pageInfo,
+    totalCount: mainMeta?.totalCount,
+    pagination,
+    setPagination,
+  })
+
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchValue(event.target.value)
+  }
+
+  const opensDetailsSheet = selectedObject === ObjectTypeObjects.CONTROL_OBJECTIVE || selectedObject === ObjectTypeObjects.CONTROL_IMPLEMENTATION
+  const handleRowClick = opensDetailsSheet && selectedObject ? (id: string) => setActiveSheet({ id, type: selectedObject }) : undefined
 
   return (
     <div className="space-y-4">
@@ -99,19 +129,17 @@ const ObjectAssociation = ({ onIdChange, allowedObjectTypes, initialData, refCod
         </div>
       </div>
       {selectedObject ? (
-        <ObjectAssociationTable
-          isLoading={isLoading}
-          onPaginationChange={setPagination}
-          pagination={pagination}
-          paginationMeta={{ totalCount, pageInfo, isLoading }}
-          data={tableData}
-          onIDsChange={onIdChange}
-          initialData={initialData}
-          refCodeInitialData={refCodeInitialData}
-          onRowClick={
-            selectedObject === ObjectTypeObjects.CONTROL_OBJECTIVE || selectedObject === ObjectTypeObjects.CONTROL_IMPLEMENTATION ? (id) => setActiveSheet({ id, type: selectedObject }) : undefined
-          }
-        />
+        <>
+          <ObjectAssociationTable
+            isLoading={isLoading || isPinnedLoading}
+            data={pageData}
+            onIDsChange={onIdChange}
+            initialData={initialData}
+            refCodeInitialData={refCodeInitialData}
+            onRowClick={handleRowClick}
+          />
+          <Pagination currentPage={pagination.page} totalPages={totalPages} pageSize={pagination.pageSize} onPageChange={handlePageChange} onPageSizeChange={handlePageSizeChange} />
+        </>
       ) : (
         <div className="flex items-center justify-center w-full">
           <ObjectAssociationPlaceholder />

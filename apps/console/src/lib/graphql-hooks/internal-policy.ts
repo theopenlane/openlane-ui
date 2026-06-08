@@ -83,7 +83,7 @@ export const useInternalPoliciesCount = (pagination: TPagination) => {
   return {
     ...queryResult,
     totalCount: queryResult.data?.internalPolicies?.totalCount ?? 0,
-    isLoading: queryResult.isLoading,
+    isLoading: queryResult.isPending,
   }
 }
 
@@ -106,14 +106,14 @@ export const useInternalPolicies = ({ where, orderBy, pagination, enabled }: Use
   const paginationMeta = {
     totalCount: queryResult.data?.internalPolicies?.totalCount ?? 0,
     pageInfo: queryResult.data?.internalPolicies?.pageInfo,
-    isLoading: queryResult.isLoading,
+    isLoading: queryResult.isPending,
   }
 
   return {
     ...queryResult,
     policies,
     paginationMeta,
-    isLoading: queryResult.isLoading,
+    isLoading: queryResult.isPending,
   }
 }
 
@@ -169,6 +169,9 @@ export const useUpdateInternalPolicy = () => {
 
   return useMutation<UpdateInternalPolicyMutation, unknown, UpdateInternalPolicyMutationVariables>({
     mutationFn: async (variables) => {
+      if (variables.internalPolicyFile instanceof File) {
+        return fetchGraphQLWithUpload({ query: UPDATE_INTERNAL_POLICY, variables })
+      }
       return client.request(UPDATE_INTERNAL_POLICY, variables)
     },
     onSuccess: () => {

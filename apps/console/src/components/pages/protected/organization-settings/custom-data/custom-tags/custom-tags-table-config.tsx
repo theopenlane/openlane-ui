@@ -7,7 +7,6 @@ import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react'
 
 import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
-import { Checkbox } from '@repo/ui/checkbox'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import ColorCell from '../shared/color-cell'
 import { useUpdateTag } from '@/lib/graphql-hooks/tag-definition'
@@ -17,9 +16,6 @@ import { type TagDefinition, type User } from '@repo/codegen/src/schema'
 import { TruncatedCell } from '@repo/ui/data-table'
 
 type ColumnsParams = {
-  tags: TagDefinition[]
-  selected: Record<string, boolean>
-  setSelected: React.Dispatch<React.SetStateAction<Record<string, boolean>>>
   onEdit?: (id: string) => void
   onDelete?: (id: string) => void
   userMap?: Record<string, User>
@@ -32,33 +28,40 @@ export const normalizeColor = (color?: string | null) => {
   return color.startsWith('#') ? color : `#${color}`
 }
 
-export const useGetCustomTagColumns = ({ tags, selected, setSelected, onEdit, onDelete, userMap, canEditTags = true, canDeleteTags = true }: ColumnsParams) => {
+export const useGetCustomTagColumns = ({ onEdit, onDelete, userMap, canEditTags = true, canDeleteTags = true }: ColumnsParams) => {
   const { mutateAsync: updateTag } = useUpdateTag()
 
   const columns = useMemo<ColumnDef<TagDefinition>[]>(() => {
-    const allVisibleSelected = tags.length > 0 && tags.every((t) => selected[t.id])
-    const someVisibleSelected = tags.some((t) => selected[t.id]) && !allVisibleSelected
+    const actionsCol: ColumnDef<TagDefinition> = {
+      id: 'actions',
+      header: 'Actions',
+      cell: ({ row }) => (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button className="-mr-2" variant="secondary">
+              <MoreHorizontal className="h-4 w-4 text-brand" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="min-w-40">
+            {canEditTags && (
+              <DropdownMenuItem onClick={() => onEdit?.(row.original.id)}>
+                <Pencil className="h-4 w-4 mr-2" />
+                Edit Tag
+              </DropdownMenuItem>
+            )}
+            {canDeleteTags && (
+              <DropdownMenuItem className="text-destructive focus:text-destructive focus:bg-destructive/10" onClick={() => onDelete?.(row.original.id)}>
+                <Trash2 className="h-4 w-4 mr-2" />
+                Delete Tag
+              </DropdownMenuItem>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ),
+      size: 40,
+    }
 
     return [
-      {
-        id: 'select',
-        header: () => (
-          <Checkbox
-            checked={allVisibleSelected ? true : someVisibleSelected ? 'indeterminate' : false}
-            onCheckedChange={(checked) => {
-              const next = Boolean(checked)
-              setSelected((prev) => {
-                const copy = { ...prev }
-                tags.forEach((r) => (copy[r.id] = next))
-                return copy
-              })
-            }}
-          />
-        ),
-        cell: ({ row }) => <Checkbox checked={Boolean(selected[row.original.id])} onCheckedChange={(checked) => setSelected((prev) => ({ ...prev, [row.original.id]: Boolean(checked) }))} />,
-        size: 50,
-        maxSize: 50,
-      },
       {
         accessorKey: 'name',
         header: 'Tag',
@@ -148,36 +151,9 @@ export const useGetCustomTagColumns = ({ tags, selected, setSelected, onEdit, on
         cell: ({ cell }) => <span className="text-sm">{formatDateSince(cell.getValue() as string)}</span>,
         size: 130,
       },
-      {
-        id: 'actions',
-        header: 'Actions',
-        cell: ({ row }: { row: { original: TagDefinition } }) => (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button className="-mr-2" variant="secondary">
-                <MoreHorizontal className="h-4 w-4 text-brand" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="min-w-40">
-              {canEditTags && (
-                <DropdownMenuItem onClick={() => onEdit?.(row.original.id)}>
-                  <Pencil className="h-4 w-4 mr-2" />
-                  Edit Tag
-                </DropdownMenuItem>
-              )}
-              {canDeleteTags && (
-                <DropdownMenuItem className="text-destructive focus:text-destructive focus:bg-destructive/10" onClick={() => onDelete?.(row.original.id)}>
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Delete Tag
-                </DropdownMenuItem>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
-        ),
-        size: 40,
-      },
+      ...(canEditTags || canDeleteTags ? [actionsCol] : []),
     ]
-  }, [tags, selected, setSelected, onEdit, onDelete, userMap, updateTag, canEditTags, canDeleteTags])
+  }, [onEdit, onDelete, userMap, updateTag, canEditTags, canDeleteTags])
 
   const mappedColumns = useMemo(() => {
     return columns

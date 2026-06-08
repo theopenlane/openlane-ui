@@ -14,7 +14,7 @@ import { useNotification } from '@/hooks/useNotification'
 import { useGetControlById } from '@/lib/graphql-hooks/control'
 import { useGetSubcontrolById } from '@/lib/graphql-hooks/subcontrol'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
-import { canCreate } from '@/lib/authz/utils'
+import { hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { ObjectiveItem } from './objective-item'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
@@ -41,7 +41,7 @@ const ControlObjectivePage = () => {
 
   const { data: orgPermission } = useOrganizationRoles()
 
-  const createAllowed = canCreate(orgPermission?.roles, AccessEnum.CanCreateControlObjective)
+  const createAllowed = hasPermission(orgPermission?.roles, AccessEnum.CanCreateControlObjective)
 
   const { data, isLoading } = useGetAllControlObjectives({
     ...(subcontrolId ? { hasSubcontrolsWith: [{ id: subcontrolId }] } : { hasControlsWith: [{ id }] }),
@@ -111,10 +111,19 @@ const ControlObjectivePage = () => {
     }
   }
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (node: ControlObjectiveFieldsFragment) => {
+    const totalLinks = (node.controls?.edges?.length ?? 0) + (node.subcontrols?.edges?.length ?? 0)
+    const shouldUnlink = totalLinks > 1
+
     try {
-      await deleteObjective({ deleteControlObjectiveId: id })
-      successNotification({ title: 'Control Objective deleted' })
+      if (shouldUnlink) {
+        const input = subcontrolId ? { removeSubcontrolIDs: [subcontrolId] } : { removeControlIDs: [id] }
+        await updateObjective({ updateControlObjectiveId: node.id, input })
+        successNotification({ title: 'Control Objective unlinked' })
+      } else {
+        await deleteObjective({ deleteControlObjectiveId: node.id })
+        successNotification({ title: 'Control Objective deleted' })
+      }
     } catch (error) {
       const errorMessage = parseErrorMessage(error)
       errorNotification({

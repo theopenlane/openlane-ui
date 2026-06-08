@@ -6,10 +6,15 @@ import { getCSRFCookie } from '@/lib/auth/utils/set-csrf-cookie'
 import { parseAndSetResponseCookies } from '@/lib/auth/utils/parse-response-cookies'
 
 export async function POST(request: Request) {
-  const bodyData = await request.json()
-  const cookies = request.headers.get('cookie')
   const session = await auth()
   const token = session?.user?.accessToken
+
+  if (!token) {
+    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 })
+  }
+
+  const bodyData = await request.json()
+  const cookies = request.headers.get('cookie')
 
   const headers: HeadersInit = {
     'content-type': 'application/json',

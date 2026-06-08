@@ -123,6 +123,7 @@ export default function CreateQuestionnaire(input: { templateId: string; existin
   const [questionnaireEditorState, dispatchQuestionnaireEditorState] = useReducer(questionnaireEditorReducer, initialQuestionnaireEditorState)
   const { assessmentType, responseDueDuration, isCustomDuration, customDueDate } = questionnaireEditorState
   const [creator] = useState(() => createSurveyCreator())
+  const [calendarDisabledFrom] = useState(() => new Date())
   const creatorRef = useRef<SurveyCreator | null>(null)
 
   useEffect(() => {
@@ -132,8 +133,8 @@ export default function CreateQuestionnaire(input: { templateId: string; existin
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
-      { label: 'Automation', href: '/automation/assessments' },
-      { label: 'Questionnaires', href: '/automation/assessments' },
+      { label: 'Automation', href: '/automation/questionnaires' },
+      { label: 'Questionnaires', href: '/automation/questionnaires' },
       { label: 'Questionnaire Editor', href: '/questionnaire-editor' },
     ])
   }, [setCrumbs])
@@ -149,6 +150,19 @@ export default function CreateQuestionnaire(input: { templateId: string; existin
   }, [theme])
 
   const { data: assessmentResult } = useGetAssessment(input.existingId)
+
+  useEffect(() => {
+    if (!assessmentResult) {
+      return
+    }
+
+    // system owned assessments cannot be edited so no need to allow the user
+    // access to this screen
+    if (assessmentResult.assessment.systemOwned) {
+      router.push('/automation/questionnaires')
+      return
+    }
+  }, [assessmentResult, router])
 
   useEffect(() => {
     const creatorInstance = creatorRef.current
@@ -185,7 +199,7 @@ export default function CreateQuestionnaire(input: { templateId: string; existin
             title: 'Assessment updated successfully',
           })
 
-          router.push(`/automation/assessments`)
+          router.push(`/automation/questionnaires`)
         } catch (error) {
           const errorMessage = parseErrorMessage(error)
           errorNotification({
@@ -210,7 +224,7 @@ export default function CreateQuestionnaire(input: { templateId: string; existin
           title: 'Assessment created successfully',
         })
 
-        router.push(`/automation/assessments`)
+        router.push(`/automation/questionnaires`)
       } catch (error) {
         const errorMessage = parseErrorMessage(error)
         errorNotification({
@@ -290,7 +304,7 @@ export default function CreateQuestionnaire(input: { templateId: string; existin
           {isCustomDuration && (
             <CalendarPopover
               defaultValue={customDueDate}
-              disabledFrom={new Date()}
+              disabledFrom={calendarDisabledFrom}
               buttonClassName="w-[200px] flex justify-between items-center"
               onChange={(date) => {
                 if (date) {

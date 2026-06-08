@@ -14,11 +14,15 @@ export async function POST(req: Request) {
   }
 
   const session = await auth()
-  if (!session) {
+  if (!session || !session.user?.accessToken) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   const { messages } = await req.json()
+
+  if (!Array.isArray(messages) || messages.length === 0) {
+    return NextResponse.json({ error: 'messages must be a non-empty array' }, { status: 400 })
+  }
 
   const result = streamText({
     model: bedrock(modelID),

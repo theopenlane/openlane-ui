@@ -24,6 +24,7 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { SendQuestionnaireDialog } from '@/components/pages/protected/questionnaire/dialog/send-questionnaire-dialog'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { useAssessmentSendPermissionMap } from '@/lib/authz/use-can-send-questionnaire'
 
 export const QuestionnairesTable = () => {
   const router = useRouter()
@@ -115,7 +116,7 @@ export const QuestionnairesTable = () => {
 
   const handleViewDetails = useCallback(
     (assessment: Assessment) => {
-      router.push(`/automation/assessments/${assessment.id}`)
+      router.push(`/automation/questionnaires/${assessment.id}`)
     },
     [router],
   )
@@ -126,14 +127,14 @@ export const QuestionnairesTable = () => {
 
   const handleEdit = useCallback(
     (assessment: Assessment) => {
-      router.push(`/automation/assessments/questionnaire-editor?id=${assessment.id}`)
+      router.push(`/automation/questionnaires/questionnaire-editor?id=${assessment.id}`)
     },
     [router],
   )
 
   const handlePreview = useCallback(
     (assessment: Assessment) => {
-      router.push(`/automation/assessments/questionnaire-viewer?id=${assessment.id}`)
+      router.push(`/automation/questionnaires/questionnaire-viewer?id=${assessment.id}`)
     },
     [router],
   )
@@ -154,6 +155,8 @@ export const QuestionnairesTable = () => {
     }
   }
 
+  const canSendMap = useAssessmentSendPermissionMap(assessments ?? [])
+
   const { columns, mappedColumns } = getQuestionnaireColumns({
     userMap,
     selectedQuestionnaires,
@@ -163,7 +166,7 @@ export const QuestionnairesTable = () => {
     onPreview: handlePreview,
     onViewDetails: handleViewDetails,
     onDelete: handleDelete,
-    canSend: canEdit(permission?.roles),
+    canSendMap,
     canEdit: canEdit(permission?.roles),
     canDelete: canDelete(permission?.roles),
   })
@@ -226,8 +229,8 @@ export const QuestionnairesTable = () => {
   useEffect(() => {
     setCrumbs([
       { label: 'Home', href: '/dashboard' },
-      { label: 'Automation', href: '/automation/assessments' },
-      { label: 'Questionnaires', href: '/automation/assessments' },
+      { label: 'Automation', href: '/automation/questionnaires' },
+      { label: 'Questionnaires', href: '/automation/questionnaires' },
     ])
   }, [setCrumbs])
 
@@ -274,7 +277,7 @@ export const QuestionnairesTable = () => {
           pagination={pagination}
           onPaginationChange={setPagination}
           paginationMeta={paginationMeta}
-          rowHref={(row) => `/automation/assessments/${row.id}`}
+          rowHref={(row) => `/automation/questionnaires/${row.id}`}
           columnVisibility={columnVisibility}
           setColumnVisibility={setColumnVisibility}
           defaultSorting={defaultSorting}

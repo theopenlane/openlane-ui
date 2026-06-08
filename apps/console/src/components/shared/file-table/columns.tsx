@@ -6,6 +6,7 @@ export type TFile = {
   providedFileName: string
   providedFileSize?: number | null
   providedFileExtension: string
+  detectedMimeType?: string | null
   id: string
   uri?: string | null
   presignedURL?: string | null

@@ -1,6 +1,6 @@
 import React from 'react'
 import { CirclePlus } from 'lucide-react'
-import { canCreate } from '@/lib/authz/utils.ts'
+import { hasPermission } from '@/lib/authz/utils.ts'
 import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
 import Menu from '@/components/shared/menu/menu.tsx'
 import { CreateBtn } from '@/components/shared/enum-mapper/common-enum'
@@ -23,13 +23,13 @@ const CreateItemsFromPolicyToolbar: React.FC<TCreateItemsFromPolityProps> = ({ h
         trigger={CreateBtn}
         content={
           <>
-            {canCreate(permission?.roles, AccessEnum.CanCreateInternalPolicy) && (
+            {hasPermission(permission?.roles, AccessEnum.CanCreateInternalPolicy) && (
               <button className="flex items-center space-x-2 px-1 cursor-pointer bg-transparent" onClick={handleCreateNewPolicy}>
                 <CirclePlus size={16} strokeWidth={2} />
                 <span>Policy</span>
               </button>
             )}
-            {canCreate(permission?.roles, AccessEnum.CanCreateProcedure) && (
+            {hasPermission(permission?.roles, AccessEnum.CanCreateProcedure) && (
               <button className="flex items-center space-x-2 px-1 cursor-pointer bg-transparent" onClick={handleCreateNewProcedure}>
                 <CirclePlus size={16} strokeWidth={2} />
                 <span>Procedure</span>

@@ -18,7 +18,7 @@ import { canEdit } from '@/lib/authz/utils.ts'
 import useFileExport from '@/components/shared/export/use-file-export.ts'
 import { Loading } from '@/components/shared/loading/loading'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
-import { whereGenerator } from '@/components/shared/table-filter/where-generator'
+import { whereGenerator, whereContainsKey } from '@/components/shared/table-filter/where-generator'
 import { getInitialVisibility } from '@/components/shared/column-visibility-menu/column-visibility-menu.tsx'
 import { getInitialSortConditions, getInitialPagination } from '@repo/ui/data-table'
 import { TableKeyEnum } from '@repo/ui/table-key'
@@ -84,7 +84,7 @@ const TasksPage: React.FC = () => {
       return { [key]: value } as TaskWhereInput
     })
 
-    const statusInSet = 'statusIn' in result
+    const statusInSet = whereContainsKey(result, 'statusIn')
 
     const merged: TaskWhereInput = {
       ...result,

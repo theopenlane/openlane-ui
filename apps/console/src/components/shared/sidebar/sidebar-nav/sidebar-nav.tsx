@@ -22,7 +22,7 @@ import { type NavHeading, type NavItem, type Separator } from '@/types'
 import { Button } from '@repo/ui/button'
 import { DOCS_URL } from '@/constants/docs'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
-import { canCreate } from '@/lib/authz/utils'
+import { hasPermission } from '@/lib/authz/utils'
 import { AccessEnum } from '@/lib/authz/enums/access-enum'
 import { hasNoModules } from '@/lib/auth/utils/modules'
 
@@ -105,7 +105,7 @@ export default function SideNav({
 
   const sidebarItems = [...navItems, ...footerNavItems]
   const { data: orgPermission } = useOrganizationRoles()
-  const isCreateProgramAllowed = canCreate(orgPermission?.roles, AccessEnum.CanCreateProgram)
+  const isCreateProgramAllowed = hasPermission(orgPermission?.roles, AccessEnum.CanCreateProgram)
   const billingExpired = hasNoModules(session)
 
   useEffect(() => {
@@ -128,8 +128,8 @@ export default function SideNav({
     }
 
     if (children.length > 0) {
-      const firstChild = children[0]
-      const hasActiveChild = children.some((child) => pathname === child.href || pathname.startsWith(`${child.href}/`))
+      const firstChild = children.find((child) => !child.hidden)
+      const hasActiveChild = children.some((child) => !child.hidden && (pathname === child.href || pathname.startsWith(`${child.href}/`)))
       if (!hasActiveChild && firstChild?.href) {
         router.push(firstChild.href)
       }
@@ -146,7 +146,7 @@ export default function SideNav({
         return item
       }
 
-      if (item.children?.some((child) => pathname === child.href || pathname.startsWith(`${child.href}/`))) {
+      if (item.children?.some((child) => !child.hidden && (pathname === child.href || pathname.startsWith(`${child.href}/`)))) {
         return item
       }
     }

@@ -1,5 +1,6 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
+import { useSession } from 'next-auth/react'
 
 import { UPDATE_USER_ROLE_IN_ORG, REMOVE_USER_FROM_ORG, GET_ORG_MEMBERSHIPS, GET_ORG_USER_LIST } from '@repo/codegen/query/member'
 
@@ -54,14 +55,29 @@ export const useGetOrgMemberships = ({ where, pagination, enabled, orderBy }: TU
   const paginationMeta = {
     totalCount: queryResult.data?.orgMemberships?.totalCount ?? 0,
     pageInfo: queryResult.data?.orgMemberships?.pageInfo,
-    isLoading: queryResult.isLoading,
+    isLoading: queryResult.isPending,
   }
 
   return {
     ...queryResult,
     members,
     paginationMeta,
-    isLoading: queryResult.isLoading,
+    isLoading: queryResult.isPending,
+  }
+}
+
+export const useCurrentUserRole = () => {
+  const { data: sessionData } = useSession()
+  const userId = sessionData?.user?.userId
+
+  const { members, isLoading } = useGetOrgMemberships({
+    where: { hasUserWith: [{ id: userId }] },
+    enabled: !!userId,
+  })
+
+  return {
+    role: members[0]?.role,
+    isLoading,
   }
 }
 
@@ -84,7 +100,7 @@ export const useGetOrgUserList = ({ where }: TUseGetOrgUserListProps) => {
   return {
     ...queryResult,
     users,
-    isLoading: queryResult.isLoading,
+    isLoading: queryResult.isPending,
   }
 }
 

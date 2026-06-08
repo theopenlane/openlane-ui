@@ -7,7 +7,7 @@ import { DEFAULT_PAGINATION } from '@/constants/pagination.ts'
 import { fileColumns, type TFile } from '@/components/pages/protected/controls/control-evidence-files/table/columns.tsx'
 import { EVIDENCE_FILES_SORT_FIELDS } from '@/components/pages/protected/controls/control-evidence-files/table/table-config.ts'
 import { ControlEvidenceUploadDialog } from '@/components/pages/protected/evidence/evidence-upload-dialog'
-import { Download, Trash2 } from 'lucide-react'
+import { Download, Eye, Trash2 } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { fileDownload } from '@/components/shared/lib/export.ts'
 import { useNotification } from '@/hooks/useNotification'
@@ -17,6 +17,8 @@ import { SystemTooltip } from '@repo/ui/system-tooltip'
 import type { Row } from '@tanstack/react-table'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { TableKeyEnum } from '@repo/ui/table-key'
+import EvidenceFilePreviewDialog from '@/components/pages/protected/evidence/evidence-file-preview-dialog'
+import { isPreviewableFile } from '@/components/shared/file-preview/preview-mime'
 
 type TControlEvidenceFiles = {
   evidenceID: string
@@ -31,6 +33,8 @@ const EvidenceFiles: React.FC<TControlEvidenceFiles> = ({ evidenceID, editAllowe
     id: string | null
     name: string | null
   }>({ id: null, name: null })
+  const [previewFile, setPreviewFile] = useState<TFile | null>(null)
+  const [previewIsOpen, setPreviewIsOpen] = useState(false)
   const { successNotification, errorNotification } = useNotification()
   const defaultSorting = getInitialSortConditions(TableKeyEnum.EVIDENCE_FILES, FileOrderField, [
     {
@@ -81,10 +85,29 @@ const EvidenceFiles: React.FC<TControlEvidenceFiles> = ({ evidenceID, editAllowe
     return [
       {
         id: 'actions',
-        header: 'Action',
+        header: '',
         cell: ({ row }: { row: Row<TFile> }) => {
+          const canPreview = isPreviewableFile(row.original) && !!row.original.presignedURL
+
           return (
             <div onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()} className="flex gap-4">
+              {canPreview && (
+                <SystemTooltip
+                  icon={
+                    <p
+                      className="flex items-center gap-1 cursor-pointer"
+                      onClick={() => {
+                        setPreviewFile(row.original)
+                        setPreviewIsOpen(true)
+                      }}
+                    >
+                      <Eye size={16} />
+                    </p>
+                  }
+                  content={<p>Preview</p>}
+                />
+              )}
+
               <SystemTooltip
                 icon={
                   <p className="flex items-center gap-1 cursor-pointer" onClick={() => fileDownload(row?.original?.presignedURL || '', row.original.providedFileName, errorNotification)}>
@@ -158,6 +181,8 @@ const EvidenceFiles: React.FC<TControlEvidenceFiles> = ({ evidenceID, editAllowe
           </>
         }
       />
+
+      <EvidenceFilePreviewDialog file={previewFile} open={previewIsOpen} onOpenChange={setPreviewIsOpen} />
     </div>
   )
 }

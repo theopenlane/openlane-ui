@@ -22,10 +22,25 @@ export const InviteAccepter = () => {
   useEffect(() => {
     if (status === 'authenticated' && token) {
       setEnabled(true)
-    } else if (status === 'unauthenticated') {
-      push(`/login?token=${token}`)
+      return
     }
-  }, [status, token, push])
+
+    if (status !== 'unauthenticated') {
+      return
+    }
+
+    const email = searchParams?.get('email')
+
+    // route on the invite link's account hint: new users to signup, existing users to login
+    const destination = searchParams?.get('new') === 'true' ? 'signup' : 'login'
+
+    const params = new URLSearchParams()
+    if (token) params.set('token', token)
+    if (email) params.set('email', email)
+    const query = params.toString()
+
+    push(`/${destination}${query ? `?${query}` : ''}`)
+  }, [status, token, push, searchParams])
 
   useEffect(() => {
     if (hasUpdatedRef.current || !verified?.success || !session) return

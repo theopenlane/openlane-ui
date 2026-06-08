@@ -7,6 +7,11 @@ export const GET_ALL_ASSESSMENT_RESPONSES = gql`
       edges {
         node {
           assessmentID
+          assessment {
+            id
+            name
+          }
+          status
           assignedAt
           campaignID
           completedAt
@@ -47,6 +52,17 @@ export const ASSESSMENT_RESPONSE = gql`
   query AssessmentResponse($assessmentResponseId: ID!) {
     assessmentResponse(id: $assessmentResponseId) {
       assessmentID
+      assessment {
+        id
+        name
+        jsonconfig
+        responseDueDuration
+      }
+      status
+      document {
+        id
+        data
+      }
       assignedAt
       campaignID
       completedAt

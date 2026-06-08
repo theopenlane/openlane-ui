@@ -50,7 +50,6 @@ export const EditorKit = [
   ...AIKit,
   ...BasicBlocksKit,
   ...CodeBlockKit,
-  ...TableKit,
   ...ToggleKit,
   ...TocKit,
   ...MediaKit,
@@ -65,6 +64,8 @@ export const EditorKit = [
   ...FontKit,
   // Block Style
   ...ListKit,
+  //if you move tablekit before lastkit we will have tabing issue iside table cels
+  ...TableKit,
   ...AlignKit,
   ...LineHeightKit,
   // Collaboration

@@ -1,6 +1,8 @@
 'use client'
 
 import React, { useEffect, useImperativeHandle, useCallback, type Ref, useRef } from 'react'
+import { useTheme } from 'next-themes'
+import { ThemeAwareFontBackgroundColorPlugin, ThemeAwareFontColorPlugin } from '@repo/ui/components/editor/plugins/font-kit.tsx'
 import { type Value, type TElement, KEYS } from 'platejs'
 import { EditorKitVariant, type TPlateEditorVariants } from '@repo/ui/components/editor/use-create-editor.ts'
 import { Editor, EditorContainer, type TPlateEditorStyleVariant } from '@repo/ui/components/ui/editor.tsx'
@@ -59,6 +61,13 @@ const PlateEditor = ({ onChange, initialValue, variant = 'basic', styleVariant, 
     plugins: getPlugins(),
     value: Array.isArray(initialValue) ? initialValue : undefined,
   })
+
+  const { resolvedTheme } = useTheme()
+  useEffect(() => {
+    if (resolvedTheme !== 'light' && resolvedTheme !== 'dark') return
+    editor.setOption(ThemeAwareFontColorPlugin, 'theme', resolvedTheme)
+    editor.setOption(ThemeAwareFontBackgroundColorPlugin, 'theme', resolvedTheme)
+  }, [editor, resolvedTheme])
 
   const plateEditor = React.useMemo(
     () =>

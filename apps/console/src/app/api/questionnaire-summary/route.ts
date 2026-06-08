@@ -187,7 +187,9 @@ Respond ONLY with valid JSON in this exact format:
 
 export async function POST(req: NextRequest) {
   const session = await auth()
-  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  if (!session || !session.user?.accessToken) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
 
   const genAI = getGenAI()
   if (!aiEnabled || !genAI) {

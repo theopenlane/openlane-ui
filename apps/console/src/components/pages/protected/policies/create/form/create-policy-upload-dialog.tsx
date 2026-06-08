@@ -1,7 +1,7 @@
 'use client'
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@repo/ui/dialog'
-import React, { cloneElement, useEffect, useState } from 'react'
+import React, { cloneElement, useEffect, useMemo, useState } from 'react'
 import { Button } from '@repo/ui/button'
 import { useNotification } from '@/hooks/useNotification'
 import { useCreateInternalPolicy, useCreateUploadInternalPolicy } from '@/lib/graphql-hooks/internal-policy'
@@ -9,16 +9,20 @@ import { type TUploadedFile } from '../../../evidence/upload/types/TUploadedFile
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useRouter } from 'next/navigation'
 import { PolicyProcedureTabEnum } from '@/components/shared/enum-mapper/policy-procedure-tab-enum'
-import { type CreateInternalPolicyInput } from '@repo/codegen/src/schema'
+import { type CreateInternalPolicyInput, InternalPolicyDocumentManagementMode } from '@repo/codegen/src/schema'
 import { Import, Trash2 } from 'lucide-react'
-import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
+import { Tabs } from '@repo/ui/tabs'
+import { RadioGroup, RadioGroupItem } from '@repo/ui/radio-group'
+import { Label } from '@repo/ui/label'
 import UploadTab from '../../../evidence/upload/upload-tab'
-import DirectLinkCreatePolicyProcedureTab from '@/components/shared/policy-procedure-shared-tabs/direct-link-create-policy-procedure-tab'
 import { COMPLIANCE_MANAGEMENT_DOCS_URL } from '@/constants/docs'
 import { Callout } from '@/components/shared/callout/callout'
 import UploadedFileDetailsCard from '@/components/shared/file-upload/uploaded-file-details-card'
+import { wordAcceptedFileTypes } from '@/components/shared/file-upload/file-upload-config'
 import { PolicyTemplateBrowser } from '@/components/shared/github-selector/policy-selector'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
+import { isWordFilename } from '@/components/pages/protected/policies/policy-management-utils'
+import { ManagementModeOptions } from '@/components/shared/enum-mapper/policy-enum'
 
 type TCreatePolicyUploadDialogProps = {
   trigger?: React.ReactElement<
@@ -41,10 +45,18 @@ const CreatePolicyUploadDialog: React.FC<TCreatePolicyUploadDialogProps> = ({ tr
   const [showTemplateBrowser, setShowTemplateBrowser] = useState(false)
 
   const [defaultTab, setDefaultTab] = useState<PolicyProcedureTabEnum>(PolicyProcedureTabEnum.Upload)
-  const [policyMdDocumentLink, setPolicyMdDocumentLink] = useState<string>('')
+  const [_policyMdDocumentLink, setPolicyMdDocumentLink] = useState<string>('')
   const [policyMdDocumentLinks, setPolicyMdDocumentLinks] = useState<string[]>([])
+  const [managementMode, setManagementMode] = useState<InternalPolicyDocumentManagementMode>(InternalPolicyDocumentManagementMode.OPENLANE_MANAGED)
   const hasSingleFileOrLink = policyMdDocumentLinks.length + uploadedFiles.length === 1
   const hasFileOrLink = policyMdDocumentLinks.length + uploadedFiles.length > 0
+  const canKeepAsWord = useMemo(() => uploadedFiles.length > 0 && uploadedFiles.every((f) => isWordFilename(f.name)), [uploadedFiles])
+
+  useEffect(() => {
+    if (!canKeepAsWord && managementMode === InternalPolicyDocumentManagementMode.EXTERNAL_REFERENCE) {
+      setManagementMode(InternalPolicyDocumentManagementMode.OPENLANE_MANAGED)
+    }
+  }, [canKeepAsWord, managementMode])
 
   const handleUpload = async () => {
     if (uploadedFiles.length > 0) {
@@ -103,10 +115,18 @@ const CreatePolicyUploadDialog: React.FC<TCreatePolicyUploadDialogProps> = ({ tr
     }
   }
 
+  const modeFor = (file: TUploadedFile | undefined): InternalPolicyDocumentManagementMode =>
+    managementMode === InternalPolicyDocumentManagementMode.EXTERNAL_REFERENCE && isWordFilename(file?.name)
+      ? InternalPolicyDocumentManagementMode.EXTERNAL_REFERENCE
+      : InternalPolicyDocumentManagementMode.OPENLANE_MANAGED
+
   const handleFileUpload = async () => {
     if (hasSingleFileOrLink) {
       try {
-        const policy = await createUploadPolicy({ internalPolicyFile: uploadedFiles[0].file })
+        const policy = await createUploadPolicy({
+          internalPolicyFile: uploadedFiles[0].file,
+          managementMode: modeFor(uploadedFiles[0]),
+        })
         successNotification({
           title: 'Policy Created',
           description: 'Policy has been successfully created',
@@ -122,7 +142,10 @@ const CreatePolicyUploadDialog: React.FC<TCreatePolicyUploadDialogProps> = ({ tr
     } else {
       try {
         for (const uploadedFile of uploadedFiles) {
-          await createUploadPolicy({ internalPolicyFile: uploadedFile.file ?? new File([], '') })
+          await createUploadPolicy({
+            internalPolicyFile: uploadedFile.file ?? new File([], ''),
+            managementMode: modeFor(uploadedFile),
+          })
         }
         successNotification({
           title: 'Policy Created',
@@ -149,6 +172,7 @@ const CreatePolicyUploadDialog: React.FC<TCreatePolicyUploadDialogProps> = ({ tr
   const clearState = () => {
     setPolicyMdDocumentLink('')
     setPolicyMdDocumentLinks([])
+    setManagementMode(InternalPolicyDocumentManagementMode.OPENLANE_MANAGED)
   }
 
   useEffect(() => {
@@ -157,12 +181,12 @@ const CreatePolicyUploadDialog: React.FC<TCreatePolicyUploadDialogProps> = ({ tr
     }
   }, [isOpen])
 
-  const handleAddLink = (link: string) => {
-    if (link.trim() === '') return
+  // const handleAddLink = (link: string) => {
+  //   if (link.trim() === '') return
 
-    setPolicyMdDocumentLinks((prev) => [...prev, link])
-    setPolicyMdDocumentLink('')
-  }
+  //   setPolicyMdDocumentLinks((prev) => [...prev, link])
+  //   setPolicyMdDocumentLink('')
+  // }
 
   const handleDeleteLink = (index: number) => {
     setPolicyMdDocumentLinks((prev) => prev.filter((_, i) => i !== index))
@@ -198,32 +222,20 @@ const CreatePolicyUploadDialog: React.FC<TCreatePolicyUploadDialogProps> = ({ tr
           .
         </Callout>
         <Tabs defaultValue={defaultTab} onValueChange={(val) => setDefaultTab(val as PolicyProcedureTabEnum)}>
-          <TabsList>
+          {/* <TabsList>
             <TabsTrigger className="bg-unset" value={PolicyProcedureTabEnum.Upload}>
               Upload
             </TabsTrigger>
             <TabsTrigger className="bg-unset" value={PolicyProcedureTabEnum.DirectLink}>
               Direct Link
             </TabsTrigger>
-          </TabsList>
+          </TabsList> */}
           <UploadTab
-            acceptedFileTypes={[
-              'text/plain; charset=utf-8',
-              'text/plain',
-              'text/markdown',
-              'text/x-markdown',
-              'text/mdx',
-              '.mdx',
-              '.md',
-              '.doc',
-              '.docx',
-              'application/msword',
-              'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            ]}
+            acceptedFileTypes={['text/plain; charset=utf-8', 'text/plain', 'text/markdown', 'text/x-markdown', 'text/mdx', '.mdx', '.md', ...wordAcceptedFileTypes]}
             acceptedFileTypesShort={['TXT', 'MD', 'MDX', 'DOC', 'DOCX']}
             uploadedFile={handleUploadedFile}
           />
-          <DirectLinkCreatePolicyProcedureTab setLink={setPolicyMdDocumentLink} link={policyMdDocumentLink} onAddLink={handleAddLink} />
+          {/* <DirectLinkCreatePolicyProcedureTab setLink={setPolicyMdDocumentLink} link={policyMdDocumentLink} onAddLink={handleAddLink} /> */}
         </Tabs>
         {policyMdDocumentLinks.map((link, index) => (
           <div key={index} className="border rounded-sm p-3 mt-4 flex items-center justify-between bg-secondary">
@@ -241,6 +253,33 @@ const CreatePolicyUploadDialog: React.FC<TCreatePolicyUploadDialogProps> = ({ tr
             <UploadedFileDetailsCard key={index} fileName={file.name} fileSize={file.size} index={index} handleDeleteFile={handleDeleteFile} />
           ))}
         </div>
+        {uploadedFiles.length > 0 && (
+          <div className="flex flex-col gap-2 border rounded-md p-3 bg-secondary">
+            <span className="text-sm font-medium">Management mode</span>
+            <RadioGroup value={managementMode} onValueChange={(v) => setManagementMode(v as InternalPolicyDocumentManagementMode)} className="gap-3">
+              {ManagementModeOptions.map((option) => {
+                const isExternal = option.value === InternalPolicyDocumentManagementMode.EXTERNAL_REFERENCE
+                const disabled = isExternal && !canKeepAsWord
+                const id = `mgmt-${option.value}`
+                const description = isExternal
+                  ? canKeepAsWord
+                    ? 'View this document in Openlane while continuing to manage it in Microsoft Word.'
+                    : 'Available only when every uploaded file is a .doc or .docx.'
+                  : 'Parse this document and edit it directly in Openlane.'
+
+                return (
+                  <div key={option.value} className="flex items-start gap-2">
+                    <RadioGroupItem id={id} value={option.value} disabled={disabled} className="mt-0.5" />
+                    <Label htmlFor={id} className={`font-normal ${disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'}`}>
+                      <span className="text-sm font-medium">{option.label}</span>
+                      <span className="block text-xs text-muted-foreground">{description}</span>
+                    </Label>
+                  </div>
+                )
+              })}
+            </RadioGroup>
+          </div>
+        )}
         <div className="flex flex-col gap-2">
           <Button variant="primary" onClick={handleUpload} loading={isSubmitting} disabled={isSubmitting || !hasFileOrLink}>
             {isSubmitting || isCreating ? 'Uploading...' : 'Upload Files'}

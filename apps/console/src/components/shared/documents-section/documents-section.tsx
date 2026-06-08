@@ -75,7 +75,7 @@ const DocumentsSection: React.FC<DocumentsSectionProps> = ({
     return [
       {
         id: 'actions',
-        header: 'Action',
+        header: '',
         cell: ({ row }: { row: Row<TFile> }) => {
           return (
             <div onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()} className="flex gap-4">

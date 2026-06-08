@@ -1,11 +1,10 @@
 'use client'
 
 import React, { useMemo, useState } from 'react'
-import { ChevronDown } from 'lucide-react'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { Button } from '@repo/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@repo/ui/tabs'
-import { type InternalPolicyByIdFragment } from '@repo/codegen/src/schema'
+import { type InternalPolicyByIdFragment, InternalPolicyDocumentManagementMode } from '@repo/codegen/src/schema'
 import { formatTimeSince } from '@/utils/date'
 import VersionReadonly from './version-readonly'
 import VersionDiff from './version-diff'
@@ -14,24 +13,7 @@ import FieldsDiff from './fields-diff'
 import { type HistoryNode } from './types'
 import { toPlateValue } from './utils'
 import { stringToPlateValue } from '@/components/shared/plate/plate-utils'
-
-type CollapsibleSectionProps = {
-  label: string
-  children: React.ReactNode
-}
-
-const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({ label, children }) => {
-  const [open, setOpen] = useState(false)
-  return (
-    <div>
-      <button type="button" onClick={() => setOpen((v) => !v)} className="flex items-center gap-1 text-sm font-medium" aria-expanded={open}>
-        <ChevronDown className={`h-4 w-4 transition-transform ${open ? '' : '-rotate-90'}`} />
-        {label}
-      </button>
-      {open ? <div className="mt-2">{children}</div> : null}
-    </div>
-  )
-}
+import CollapsibleSection from '@/components/shared/collapsible-section/collapsible-section'
 
 type VersionSlideoutProps = {
   historyId: string | null
@@ -42,7 +24,11 @@ type VersionSlideoutProps = {
 }
 
 const VersionSlideout: React.FC<VersionSlideoutProps> = ({ historyId, histories, currentPolicy, onClose, onRestore }) => {
-  const [activePane, setActivePane] = useState<'version' | 'diff'>('version')
+  const isExternalReference = currentPolicy.managementMode === InternalPolicyDocumentManagementMode.EXTERNAL_REFERENCE
+  // External-reference docs don't have a diff view — the file itself is the source of
+  // truth — so force the "version" pane regardless of what the user previously selected.
+  const [selectedPane, setSelectedPane] = useState<'version' | 'diff'>('version')
+  const activePane = isExternalReference ? 'version' : selectedPane
   const record = useMemo(() => (historyId ? (histories.find((h) => h?.id === historyId) ?? null) : null), [historyId, histories])
   const open = !!record
   const previousValue = useMemo(() => toPlateValue(record?.detailsJSON) ?? stringToPlateValue(record?.details), [record?.detailsJSON, record?.details])
@@ -64,33 +50,37 @@ const VersionSlideout: React.FC<VersionSlideoutProps> = ({ historyId, histories,
             </SheetHeader>
 
             <div className="flex-1 overflow-y-auto px-4 py-3">
-              <Tabs value={activePane} onValueChange={(v) => setActivePane(v as 'version' | 'diff')}>
+              <Tabs value={activePane} onValueChange={(v) => setSelectedPane(v as 'version' | 'diff')}>
                 <TabsList>
                   <TabsTrigger value="version">Version</TabsTrigger>
-                  <TabsTrigger value="diff">Diff</TabsTrigger>
+                  {!isExternalReference && <TabsTrigger value="diff">Diff</TabsTrigger>}
                 </TabsList>
                 <TabsContent value="version">
                   <div className="flex flex-col gap-4">
                     <CollapsibleSection label="Metadata">
                       <FieldsSummary history={record} />
                     </CollapsibleSection>
-                    <div>
-                      <h4 className="mb-2 text-sm font-medium">Details</h4>
-                      <VersionReadonly value={previousValue} detailsHtml={record.details ?? null} cacheKey={record.id} />
-                    </div>
+                    {!isExternalReference && (
+                      <div>
+                        <h4 className="mb-2 text-sm font-medium">Details</h4>
+                        <VersionReadonly value={previousValue} detailsHtml={record.details ?? null} cacheKey={record.id} />
+                      </div>
+                    )}
                   </div>
                 </TabsContent>
-                <TabsContent value="diff">
-                  <div className="flex flex-col gap-4">
-                    <CollapsibleSection label="Field changes">
-                      <FieldsDiff history={record} current={currentPolicy} />
-                    </CollapsibleSection>
-                    <div>
-                      <h4 className="mb-2 text-sm font-medium">Details diff</h4>
-                      <VersionDiff previous={previousValue} current={currentValue} />
+                {!isExternalReference && (
+                  <TabsContent value="diff">
+                    <div className="flex flex-col gap-4">
+                      <CollapsibleSection label="Field changes">
+                        <FieldsDiff history={record} current={currentPolicy} />
+                      </CollapsibleSection>
+                      <div>
+                        <h4 className="mb-2 text-sm font-medium">Details diff</h4>
+                        <VersionDiff previous={previousValue} current={currentValue} />
+                      </div>
                     </div>
-                  </div>
-                </TabsContent>
+                  </TabsContent>
+                )}
               </Tabs>
             </div>
 

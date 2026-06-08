@@ -7,8 +7,7 @@ import { CommandMenu } from '@/components/shared/search/command'
 import { useEffect, useState } from 'react'
 import SessionExpiredModal from '@/components/shared/session-expired-modal/session-expired-modal'
 import { useSession } from 'next-auth/react'
-import { jwtDecode } from 'jwt-decode'
-import { fromUnixTime, differenceInMilliseconds, isAfter } from 'date-fns'
+import { useSessionExpiry } from '@/hooks/useSessionExpiry'
 import { bottomNavigationItems, personalNavigationItems, topNavigationItems } from '@/routes/dashboard'
 import Sidebar from '@/components/shared/sidebar/sidebar'
 import { type NavHeading, type NavItem, type Separator } from '@/types'
@@ -16,6 +15,7 @@ import { usePathname } from 'next/navigation'
 import { useOrganization } from '@/hooks/useOrganization'
 import { type PanelKey, PRIMARY_EXPANDED_WIDTH, PRIMARY_WIDTH, SECONDARY_COLLAPSED_WIDTH, SECONDARY_EXPANDED_WIDTH } from '@/components/shared/sidebar/sidebar-nav/sidebar-nav'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { useCurrentUserRole } from '@/lib/graphql-hooks/member'
 import { SheetNavigationProvider } from '@/providers/sheet-navigation-provider'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
@@ -27,9 +27,10 @@ export interface DashboardLayoutProps {
 
 export function DashboardLayout({ children, error }: DashboardLayoutProps) {
   const { base, main } = dashboardStyles()
-  const [showSessionExpiredModal, setShowSessionExpiredModal] = useState(false)
+  const { showSessionExpiredModal } = useSessionExpiry()
   const { data: sessionData } = useSession()
   const { data: orgPermission } = useOrganizationRoles()
+  const { role: currentUserRole } = useCurrentUserRole()
   const pathname = usePathname()
   const { currentOrgId, allOrgs } = useOrganization()
 
@@ -37,7 +38,7 @@ export function DashboardLayout({ children, error }: DashboardLayoutProps) {
   const isOrganizationSelected = !activeOrg?.personalOrg
 
   const navItems = !isOrganizationSelected ? [] : topNavigationItems(sessionData)
-  const footerNavItems = !isOrganizationSelected ? personalNavigationItems() : bottomNavigationItems(sessionData, orgPermission)
+  const footerNavItems = !isOrganizationSelected ? personalNavigationItems() : bottomNavigationItems(sessionData, orgPermission, currentUserRole)
 
   const [openPanel, setOpenPanel] = useState<PanelKey>(null)
   const [primaryExpanded, setPrimaryExpanded] = useState(() => {
@@ -73,54 +74,6 @@ export function DashboardLayout({ children, error }: DashboardLayoutProps) {
       setOpenPanel(currentActivePanel)
     }
   }, [currentActivePanel])
-
-  useEffect(() => {
-    const handler = () => setShowSessionExpiredModal(true)
-    window.addEventListener('session-expired', handler)
-    return () => window.removeEventListener('session-expired', handler)
-  }, [])
-
-  const isRefreshTokenExpired = (refreshToken: string): boolean => {
-    try {
-      const decoded: { exp?: number } = jwtDecode(refreshToken)
-      if (!decoded.exp) return false
-      return isAfter(new Date(), fromUnixTime(decoded.exp))
-    } catch {
-      return true
-    }
-  }
-
-  useEffect(() => {
-    const refreshToken = sessionData?.user?.refreshToken
-    if (!refreshToken) return
-
-    if (isRefreshTokenExpired(refreshToken)) {
-      setShowSessionExpiredModal(true)
-      return
-    }
-
-    const decoded: { exp?: number } = jwtDecode(refreshToken)
-    if (!decoded.exp) return
-    const delay = differenceInMilliseconds(fromUnixTime(decoded.exp), new Date())
-    const id = setTimeout(() => setShowSessionExpiredModal(true), delay)
-    return () => clearTimeout(id)
-  }, [sessionData])
-
-  useEffect(() => {
-    const handleVisibilityChange = () => {
-      if (document.visibilityState !== 'visible') return
-
-      const refreshToken = sessionData?.user?.refreshToken
-      if (!refreshToken) return
-
-      if (isRefreshTokenExpired(refreshToken)) {
-        setShowSessionExpiredModal(true)
-      }
-    }
-
-    document.addEventListener('visibilitychange', handleVisibilityChange)
-    return () => document.removeEventListener('visibilitychange', handleVisibilityChange)
-  }, [sessionData])
 
   const handleOpenPanel = (panel: PanelKey) => {
     setOpenPanel(panel)

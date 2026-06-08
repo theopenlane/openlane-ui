@@ -2,12 +2,11 @@
 
 import * as React from 'react'
 import { useMemo } from 'react'
-import { type ColumnDef, type Row } from '@tanstack/react-table'
+import { type ColumnDef } from '@tanstack/react-table'
 import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react'
 
 import { Badge } from '@repo/ui/badge'
 import { Button } from '@repo/ui/button'
-import { Checkbox } from '@repo/ui/checkbox'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 
 import ColorCell from '../shared/color-cell'
@@ -18,14 +17,11 @@ import { type CustomTypeEnumNodeNonNull, useUpdateCustomTypeEnum } from '@/lib/g
 import { SystemTooltip } from '@repo/ui/system-tooltip'
 import { TruncatedCell } from '@repo/ui/data-table'
 
-type SelectedEnum = { id: string; name: string }
-
 type ColumnsParams = {
-  selectedEnums: SelectedEnum[]
-  setSelectedEnums: React.Dispatch<React.SetStateAction<SelectedEnum[]>>
   onEdit?: (id: string) => void
   onDelete?: (id: string) => void
   userMap?: Record<string, User>
+  canEditEnum?: boolean
 }
 
 const normalizeColor = (color?: string | null) => {
@@ -39,58 +35,10 @@ const TypeBadge = ({ systemOwned }: { systemOwned?: boolean | null }) => (
   </Badge>
 )
 
-export const useGetCustomEnumColumns = ({ selectedEnums, setSelectedEnums, onEdit, onDelete, userMap }: ColumnsParams) => {
+export const useGetCustomEnumColumns = ({ onEdit, onDelete, userMap, canEditEnum = true }: ColumnsParams) => {
   const { mutateAsync: updateEnum } = useUpdateCustomTypeEnum()
 
-  const toggleSelection = React.useCallback(
-    (item: SelectedEnum) => {
-      setSelectedEnums((prev) => {
-        const exists = prev.some((c) => c.id === item.id)
-        return exists ? prev.filter((c) => c.id !== item.id) : [...prev, item]
-      })
-    },
-    [setSelectedEnums],
-  )
-
   const columns = useMemo<ColumnDef<CustomTypeEnumNodeNonNull>[]>(() => {
-    const selectCol: ColumnDef<CustomTypeEnumNodeNonNull> = {
-      id: 'select',
-      header: ({ table }) => {
-        const currentPage = table.getRowModel().rows.map((r) => r.original)
-        const allSelected = currentPage.length > 0 && currentPage.every((r) => selectedEnums.some((s) => s.id === r.id))
-
-        return (
-          <div onClick={(e) => e.stopPropagation()}>
-            <Checkbox
-              checked={allSelected}
-              onCheckedChange={(checked) => {
-                const isChecked = Boolean(checked)
-                setSelectedEnums((prev) => {
-                  const filtered = prev.filter((p) => !currentPage.some((r) => r.id === p.id))
-                  if (isChecked) {
-                    return [...filtered, ...currentPage.map((r) => ({ id: r.id, name: r.name }))]
-                  }
-                  return filtered
-                })
-              }}
-            />
-          </div>
-        )
-      },
-      cell: ({ row }: { row: Row<CustomTypeEnumNodeNonNull> }) => {
-        const { id, name } = row.original
-        const isChecked = selectedEnums.some((s) => s.id === id)
-
-        return (
-          <div onClick={(e) => e.stopPropagation()}>
-            <Checkbox checked={isChecked} onCheckedChange={() => toggleSelection({ id, name })} />
-          </div>
-        )
-      },
-      size: 50,
-      maxSize: 50,
-    }
-
     const actionsCol: ColumnDef<CustomTypeEnumNodeNonNull> = {
       id: 'actions',
       header: 'Actions',
@@ -133,7 +81,6 @@ export const useGetCustomEnumColumns = ({ selectedEnums, setSelectedEnums, onEdi
     }
 
     return [
-      selectCol,
       {
         accessorKey: 'name',
         header: 'Name',
@@ -174,7 +121,7 @@ export const useGetCustomEnumColumns = ({ selectedEnums, setSelectedEnums, onEdi
           <ColorCell
             id={row.original.id}
             initialColor={normalizeColor(row.original.color)}
-            disabled={!!row.original.systemOwned}
+            disabled={!!row.original.systemOwned || !canEditEnum}
             onSave={async (id, color) => {
               await updateEnum({ id, input: { color } })
             }}
@@ -226,9 +173,9 @@ export const useGetCustomEnumColumns = ({ selectedEnums, setSelectedEnums, onEdi
         cell: ({ cell }) => <span className="text-sm">{formatDateSince(cell.getValue() as string)}</span>,
         size: 130,
       },
-      actionsCol,
+      ...(canEditEnum ? [actionsCol] : []),
     ]
-  }, [selectedEnums, setSelectedEnums, onEdit, onDelete, userMap, updateEnum, toggleSelection])
+  }, [onEdit, onDelete, userMap, updateEnum, canEditEnum])
 
   const mappedColumns = useMemo(() => {
     return columns

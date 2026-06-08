@@ -4,6 +4,7 @@ import * as React from 'react'
 import * as DropdownMenuPrimitive from '@radix-ui/react-dropdown-menu'
 import { CheckIcon, ChevronRightIcon, DotFilledIcon } from '@radix-ui/react-icons'
 import { cn } from '../../lib/utils'
+import { guardToastInteractOutside } from '../../lib/dismissable-outside'
 import { dropdownMenuStyles, type DropdownMenuVariants } from './dropdown-menu.styles'
 
 const DropdownMenu = DropdownMenuPrimitive.Root
@@ -43,10 +44,11 @@ const DropdownMenuContent = ({
   className,
   sideOffset = 4,
   ref,
+  onInteractOutside,
   ...props
 }: React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Content> & { ref?: React.Ref<React.ElementRef<typeof DropdownMenuPrimitive.Content>> }) => (
   <DropdownMenuPrimitive.Portal>
-    <DropdownMenuPrimitive.Content ref={ref} sideOffset={sideOffset} className={cn(menuContent(), className)} {...props} />
+    <DropdownMenuPrimitive.Content ref={ref} sideOffset={sideOffset} className={cn(menuContent(), className)} onInteractOutside={guardToastInteractOutside(onInteractOutside)} {...props} />
   </DropdownMenuPrimitive.Portal>
 )
 
