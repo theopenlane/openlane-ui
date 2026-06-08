@@ -1,7 +1,6 @@
-import { expect, test } from '@playwright/test'
+import { test, expect } from '../fixtures/auth'
 
-import { seedLoggedInUser } from '../utils/seedUser'
-
+// Logged in as the storage-state Owner (global-setup). Owner-only settings pages.
 const SUBROUTES: Array<{ path: string; heading: RegExp }> = [
   { path: '/organization-settings', heading: /^Organization settings$/ },
   { path: '/organization-settings/general-settings', heading: /^General$/ },
@@ -16,12 +15,11 @@ const SUBROUTES: Array<{ path: string; heading: RegExp }> = [
 test.describe('organization-settings — pages render', () => {
   for (const { path, heading } of SUBROUTES) {
     test(`${path} renders the heading for an owner`, async ({ page }) => {
-      await seedLoggedInUser(page, `os-${path.split('/').pop()}`)
+      await page.goto(path, { waitUntil: 'domcontentloaded' })
 
-      await page.goto(path)
-
-      // PageHeading from @repo/ui renders the heading as an <h2>.
-      await expect(page.getByRole('heading', { level: 2, name: heading })).toBeVisible()
+      // PageHeading from @repo/ui renders the heading as an <h2>. Generous
+      // timeout absorbs first-hit route compilation in the dev server.
+      await expect(page.getByRole('heading', { level: 2, name: heading })).toBeVisible({ timeout: 20_000 })
     })
   }
 })

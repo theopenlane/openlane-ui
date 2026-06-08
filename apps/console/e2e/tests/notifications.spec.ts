@@ -1,11 +1,8 @@
-import { expect, test } from '@playwright/test'
+import { test, expect } from '../fixtures/auth'
 
-import { seedLoggedInUser } from '../utils/seedUser'
-
+// Logged in as the storage-state Owner (global-setup).
 test.describe('notifications — page render', () => {
   test('/notifications renders the "Notifications" heading for an onboarded user', async ({ page }) => {
-    await seedLoggedInUser(page, 'notif-page')
-
     await page.goto('/notifications')
 
     // notifications-page.tsx:99 renders <h1>Notifications</h1>.
@@ -13,8 +10,6 @@ test.describe('notifications — page render', () => {
   })
 
   test('/notifications renders the All / Unread filter toggle', async ({ page }) => {
-    await seedLoggedInUser(page, 'notif-toggle')
-
     await page.goto('/notifications')
 
     // Two unbadged segmented-control buttons in the header — "All" and

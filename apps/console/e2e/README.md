@@ -2,7 +2,64 @@
 
 End-to-end tests for the Openlane console app, using **Playwright**.
 
-> **Status:** planning phase. The flow inventory in `plans/` is complete; actual tests will be authored incrementally.
+> **Status:** active. Storage-state auth + multi-role seeding are implemented
+> (see [`plan.md`](plan.md) Phase 0). The flow inventory in `plans/` and the gap
+> list in [`plan.md`](plan.md) drive what's authored next.
+
+## Storage-state auth (implemented)
+
+`e2e/global-setup.ts` runs automatically and seeds four users into **one shared
+org**, saving each session to `e2e/.auth/<role>.json` plus a `manifest.json`
+(emails + shared org id). It's idempotent — a recent `.auth` set is reused
+instead of re-seeding every run (~40s once per ~30 min). Force a fresh seed with
+`E2E_RESEED=1` (e.g. after wiping the backend DB):
+
+| Role     | Backend role | Storage state         |
+| -------- | ------------ | --------------------- |
+| Owner    | OWNER        | `.auth/owner.json`    |
+| Admin    | ADMIN        | `.auth/admin.json`    |
+| Member   | MEMBER       | `.auth/member.json`   |
+| ReadOnly | AUDITOR      | `.auth/readonly.json` |
+
+```ts
+import { test, expect } from '../fixtures/auth' // logged in as Owner by default
+
+test.describe('as readonly', () => {
+  test.use({ storageState: authFile('readonly') }) // switch role
+  test('...', async ({ page }) => { ... })
+})
+```
+
+Seeding is programmatic (no email service): the owner onboards via UI, then
+`e2e/utils/api.ts` creates the shared org and adds each role with
+`createOrgMembership` + sets their `defaultOrgID` so login lands in that org.
+
+### Storage state vs. fresh users — which to use
+
+- **Storage state** (`import { test } from '../fixtures/auth'`) — for **read-only
+  / render** specs and **permission** specs. Fast (~4–9s, no per-test login).
+  The Owner org is **long-lived and shared**, so do NOT assert empty-state or
+  rely on a pristine org here. Examples: dashboard, user-settings,
+  organization-settings, notifications, standards, automation-other.
+- **Fresh per-test user** (`seedLoggedInUser(page, slug)`, ~12–15s) — for specs
+  that **mutate** and assert the result, or assert an **empty/fresh-org** state,
+  or exercise the **login/onboarding** flow. Examples: policies, controls,
+  procedures, evidence, tasks, exposure, registry, programs, user-management,
+  auth, cross-cutting, public.
+
+**Gotchas worth knowing:**
+
+- **reCAPTCHA:** the dev `.env` ships a real `NEXT_PUBLIC_RECAPTCHA_SITE_KEY`, so
+  `login.tsx` gates submit on it. `loginViaForm` installs the reCAPTCHA shim
+  (stubs grecaptcha, mocks `/api/recaptchaVerify`, blocks the Google bundle) — a
+  no-op when the key is unset.
+- **GraphQL `/query` auth:** needs `Authorization: Bearer` **and** the
+  `temporary-cookie` session **and** CSRF. CSRF is double-submit (header must
+  equal cookie, value arbitrary) so `api.ts` mints its own token instead of
+  calling the flaky `/csrf` endpoint.
+- **FGA lag:** `createOrgMembership` returns a "not found" payload error even on
+  success (authorization propagation lag); membership is verified out-of-band by
+  polling the member's own session.
 
 ## Layout
 
