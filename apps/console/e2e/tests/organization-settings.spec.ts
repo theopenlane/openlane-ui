@@ -23,3 +23,86 @@ test.describe('organization-settings — pages render', () => {
     })
   }
 })
+
+/**
+ * Custom Data deep flow: the Custom Tags / Custom Enums tab toggle and the
+ * Create Tag sheet. Opening the sheet (and asserting its form) is the stable
+ * coverage; an actual tag create persists in the shared org but is harmless —
+ * left out here to keep the run idempotent.
+ *
+ * ⏳ Written without running; selectors grounded in custom-data-page.tsx +
+ * custom-tags-tab.tsx + create-tag-sheet.tsx. Verify on first run.
+ */
+test.describe('organization-settings — custom data (owner)', () => {
+  test('Custom Tags / Custom Enums tab toggle switches the active tab', async ({ page }) => {
+    await page.goto('/organization-settings/custom-data', { waitUntil: 'domcontentloaded' })
+    await expect(page.getByRole('heading', { level: 2, name: /^Custom Data$/ })).toBeVisible({ timeout: 20_000 })
+
+    const tags = page.getByRole('tab', { name: 'Custom Tags' })
+    const enums = page.getByRole('tab', { name: 'Custom Enums' })
+    await expect(tags).toBeVisible()
+    await expect(enums).toBeVisible()
+
+    await enums.click()
+    await expect(enums).toHaveAttribute('aria-selected', 'true', { timeout: 10_000 })
+    await expect(tags).toHaveAttribute('aria-selected', 'false')
+  })
+
+  test('Create Tag opens the create-tag sheet with a name field', async ({ page }) => {
+    await page.goto('/organization-settings/custom-data', { waitUntil: 'domcontentloaded' })
+    await expect(page.getByRole('heading', { level: 2, name: /^Custom Data$/ })).toBeVisible({ timeout: 20_000 })
+
+    await page.getByRole('button', { name: /^Create Tag$/ }).click()
+
+    // create-tag-sheet.tsx: SheetTitle "Create Custom Tag" + a "Name" field.
+    await expect(page.getByText('Create Custom Tag')).toBeVisible({ timeout: 10_000 })
+    await expect(page.getByText('Name', { exact: true })).toBeVisible()
+  })
+
+  test('Custom Enums tab → Create Enum opens the create-enum sheet', async ({ page }) => {
+    await page.goto('/organization-settings/custom-data', { waitUntil: 'domcontentloaded' })
+    await expect(page.getByRole('heading', { level: 2, name: /^Custom Data$/ })).toBeVisible({ timeout: 20_000 })
+
+    await page.getByRole('tab', { name: 'Custom Enums' }).click()
+    await page.getByRole('button', { name: /^Create Enum$/ }).click()
+
+    // create-enum-sheet.tsx opens (isCreate) with a "Name" field in the sheet.
+    const sheet = page.getByRole('dialog')
+    await expect(sheet).toBeVisible({ timeout: 10_000 })
+    await expect(sheet.getByText('Name', { exact: true })).toBeVisible()
+  })
+})
+
+test.describe('organization-settings — integrations marketplace (owner)', () => {
+  test('the marketplace shows the All / Installed filter tabs', async ({ page }) => {
+    await page.goto('/organization-settings/integrations', { waitUntil: 'domcontentloaded' })
+    await expect(page.getByRole('heading', { level: 2, name: /^Integrations$/ })).toBeVisible({ timeout: 20_000 })
+
+    // integrations-toolbar.tsx renders Radix tabs labelled "All (N)" / "Installed (N)".
+    await expect(page.getByRole('tab', { name: /^All \(\d+\)$/ })).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByRole('tab', { name: /^Installed \(\d+\)$/ })).toBeVisible()
+  })
+})
+
+test.describe('organization-settings — general settings (owner)', () => {
+  test('shows the Organization name, Transfer ownership + Delete organization sections', async ({ page }) => {
+    await page.goto('/organization-settings/general-settings', { waitUntil: 'domcontentloaded' })
+    await expect(page.getByRole('heading', { level: 2, name: /^General$/ })).toBeVisible({ timeout: 20_000 })
+
+    // PanelHeaders from organization-name-form / transfer-ownership / organization-delete.
+    await expect(page.getByText('Organization name').first()).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByText('Transfer ownership').first()).toBeVisible()
+    await expect(page.getByText('Delete organization').first()).toBeVisible()
+  })
+})
+
+test.describe('organization-settings — authentication (owner)', () => {
+  test('shows the Allowed Domains + SSO Configuration sections', async ({ page }) => {
+    await page.goto('/organization-settings/authentication', { waitUntil: 'domcontentloaded' })
+    await expect(page.getByRole('heading', { level: 2, name: /^Authentication$/ })).toBeVisible({ timeout: 20_000 })
+
+    // allowed-domains.tsx PanelHeader + sso.tsx <h3>SSO Configuration</h3>.
+    await expect(page.getByText('Allowed domains')).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByText('SSO Configuration').first()).toBeVisible()
+  })
+})

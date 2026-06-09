@@ -160,35 +160,48 @@ reality:
 
 ### auth → `tests/auth.spec.ts`
 
-- [ ] Webfinger redirects SSO-enforced org to `/login/sso/enforce`
-- [ ] SSO-enforced org: owner password bypass path
-- [ ] Google / GitHub buttons initiate provider redirect (assert redirect only)
-- [ ] Verify-token round-trip: `GET /v1/verify?token=…` → success → onboarding
-- [ ] Weak-password inline validation before submit; domain field optional
-- [ ] Invite token: valid (existing user → switch; new user → create) accept flow
-- [ ] Invite token: expired → re-request; already-accepted → "already a member"
-- [ ] `/unsubscribe?token=…` confirmation screen
+- [ ] Webfinger redirects SSO-enforced org to `/login/sso/enforce` — needs an
+      SSO-enforced org seed (out of current infra)
+- [ ] SSO-enforced org: owner password bypass path — same SSO seed dependency
+- [ ] Google / GitHub buttons initiate provider redirect — **deferred**: dev backend
+      may not have Google/GitHub OAuth configured → clicking either hangs/errors on
+      an external authorize URL we can't follow. Buttons-render already asserted.
+- [ ] Verify-token round-trip — exercised by `registerAndVerify` in setup; a UI
+      round-trip consumes the one-time token, so not re-tested in-UI
+- [x] Weak-password inline validation — **N/A**: signup.tsx has NO client-side
+      strength/min-length check (only password-mismatch, already tested); weak
+      passwords are rejected backend-side (surfaces like the duplicate-email case)
+- [ ] Invite token accept flow — out of scope (needs email/invite-token delivery)
+- [ ] Invite token expired / already-accepted — same email-token dependency
+- [ ] `/unsubscribe?token=…` confirmation screen — render already covered; the
+      token-confirm branch needs a real unsubscribe token
 
 ### onboarding → `tests/onboarding.spec.ts`
 
-- [ ] Loading state ("We are now preparing your account") appears on submit
-- [ ] Sidebar org-switcher reflects new org name after completion
-- [ ] User invited into existing org **skips** onboarding
-- [ ] Step 2 "Exit onboarding and use general template" link
-- [ ] Step 1 sector "Other (Please Specify)" branch
+- [ ] Loading state ("We are now preparing your account") appears on submit —
+      transient (fires on submit then redirects); racy to catch reliably
+- [ ] Sidebar org-switcher reflects new org name after completion — org name is
+      avatar-only in the collapsed sidebar (noted in happy-path test)
+- [ ] User invited into existing org **skips** onboarding — needs invite-accept seed
+- [x] Step 2 "Exit onboarding and use general template" link ✅ ⏳verify
+- [x] Step 1 sector "Other (Please Specify)" branch ✅ ⏳verify
 
 ### cross-cutting → `tests/cross-cutting.spec.ts`
 
 - [ ] Session-expiry warning modal before refresh-token expiry
 - [ ] Auto-logout after expiry → redirect to `/login`
-- [ ] Org switcher: change org via dropdown → routes/badge update; persists
+- [x] Org switcher popover opens + lists orgs + search + "View all organizations"
+      (added `data-testid="org-selector-trigger"`). ⏳ actual switch→badge-update
+      not automated (needs personal-org name + reload timing); verify open-flow on run
 - [ ] User with no org membership sees "create or join" CTA
 - [ ] Global search: results grouped by entity, click → detail, arrow-key nav
 - [ ] URL filter state survives hard refresh
 - [ ] Toast on success/error with auto-dismiss; click-outside closes dialog
 - [ ] Typed-name confirmation gate for irreversible actions
 - [ ] Permission UI: action buttons hidden without permission; read-only views
-- [ ] Mark-all-read updates unread badge
+- [ ] Mark-all-read updates unread badge — **deferred**: "Mark all as read" only
+      renders when there are unread notifications, which require seeded Novu/system
+      events (out of scope per priorities). Not reliably testable without a seed.
 
 ---
 
@@ -206,43 +219,58 @@ reality:
 
 - [ ] Cards grouped by status; card metadata (owner/status/reviewed/due)
 - [ ] Filters: approver group, control ref, program, type, review-due
-- [ ] Table columns + per-column sort; bulk select/export/archive/delete
+- [x] Bulk select reveals Bulk Delete action ✅ ⏳verify. ⏳ per-column sort + export/archive TODO
 - [ ] Plate editor rich text (bold/headings/lists) round-trips to view page
 - [ ] Version history: list prior versions, open old version (diff/read-only)
 - [ ] **Approval flow:** submit draft → In-Review → approver approves → Approved;
       reject-with-comments → Draft; author cannot self-approve
+- [x] **Inline status change → save → reload → persists** (policy-status-trigger, dblclick) ✅ verified live
 - [ ] Edit locked when Approved/In-Review, unlocked when Draft
 - [ ] Archive → restore → delete-from-archive
-- [ ] ReadOnly cannot create/edit/submit/approve; non-approver can't approve
+- [x] ReadOnly/member **cannot edit/delete a policy** (no actions menu on detail) ✅ verified live. ⏳ submit/approve N/A (no approval UI)
 
 ### controls → `tests/controls.spec.ts` + `tests/controls-crud.spec.ts`
 
 > ✅ **Written & passing** (`controls-crud.spec.ts`): owner edit-mode toggle
 > (Edit control → Cancel/Save appear), delete-via-actions-menu (uses the new
-> `control-actions-menu`/`control-delete-button` testids). Mapping/subcontrols/
-> linking still to write (need the detail-tab selectors confirmed by a run).
+> `control-actions-menu`/`control-delete-button` testids), **detail-tab switching
+> (role=tab, URL-controlled `?tab=…`), map-control page (From/To cards),
+> create-subcontrol page (refCode + Parent Control fields)**. Heavy routes
+> (map-control/create-subcontrol) cold-compile slowly in dev → `test.slow()` +
+> 180s goto. Mapping SAVE + linking-with-data still to write.
 
 - [ ] Report/Request tabs load distinct data; columns + sort; filters
-- [ ] Detail tabs: Overview metadata, Implementation edit persists, Objectives
-- [ ] Map control to standards → save → mappings shown; edit/remove mapping
+- [x] Detail tabs render + switch (implementation/evidence/linked/guidance/etc.);
+      ~~Implementation edit persists, Objectives~~ edit-persist still to write
+- [x] Map-control page renders (From/To). ⏳ map → save → mappings shown still to write
+- [x] **Inline status change → save → reload → persists** (control-status-trigger, dblclick) ✅ verified live
 - [ ] Clone control → subcontrols copied; delete/archive removes from list
-- [ ] Subcontrol: create from parent, detail mirrors parent, independent mapping,
-      deleting subcontrol keeps parent
-- [ ] Link/unlink policy, procedure, evidence (both sides persist)
+- [x] Subcontrol: create-from-parent **form** reachable + fields render.
+      ⏳ submit → detail mirrors parent, independent mapping, delete-keeps-parent TODO
+- [x] **Policy linked to control shows in Documentation tab + Add-Policy dialog opens**
+      (API `linkControlPolicy` seeder unlocks the populated state) ✅ verified live.
+      **+ procedure + evidence linked → show**, **+ unlink policy (chip X) removes association** ✅
+      all verified live (linkControl\* seeders; assoc-view-toggle + objects-chip-remove testids)
 - [ ] ReadOnly view-only across tabs; bulk CSV create + malformed-row errors
 
 ### programs → `tests/programs.spec.ts` + `tests/programs-crud.spec.ts`
 
 > ✅ **Written & passing** (`programs-crud.spec.ts`): seeded-program detail
-> renders. Member/group assignment, framework-wizard control auto-population, and
-> archive/delete still to write (need detail-tab + wizard-step selectors).
+> (Overview <h1> + name), **framework-wizard scaffold (Step 1 of 4 + Continue/Back),
+> settings page (members/import-controls/danger-zone + Archive/Delete affordances),
+> typed-DELETE confirm delete flow**. Heavy routes (framework-based wizard,
+> settings) cold-compile slowly → `test.slow()` + 180s goto. ⏳ The wizard-counter
+> assertion fix is unverified (servers off mid-run); verify on next run.
+> Framework control auto-population + member-assignment dialog still to write.
 
 - [ ] Search/filter (status/framework/team) with URL state; expand/collapse all
 - [ ] Framework-based wizard: pick SOC2 → controls auto-populate → submit links them
-- [ ] Wizard skip paths (framework / control import / team) → Continue/Submit
-- [ ] Detail overview shows linked counts; tabs navigate without full reload
-- [ ] Assign/remove member dialog; assign group; bulk import controls (standard + CSV)
-- [ ] Archive → ARCHIVED; delete → typed-name confirm
+- [x] Wizard scaffold renders + **framework picker opens with searchable options** ✅ verified live.
+      ⏳ full step1→2 progression (name-field location unclear) TODO
+- [x] Detail overview renders (Overview heading + name). ⏳ linked-counts/tabs TODO
+- [x] **Assign-user dialog opens** (settings page "Assign" → "Assign User") ✅ verified live.
+      ⏳ remove member + assign group + bulk import controls TODO
+- [x] **Archive → ARCHIVED → Unarchive round-trip** ✅ verified live; delete → typed-name confirm ✅
 - [ ] Member without CanCreate/CanEditProgram: no create button / read-only view
 
 ### evidence → `tests/evidence.spec.ts` + `tests/evidence-crud.spec.ts`
@@ -253,7 +281,7 @@ reality:
 > Note: file is **optional** (status defaults MISSING_ARTIFACT without one);
 > max 100MB. Renew/version-history + link-to-control still to write.
 
-- [ ] Table columns; filter by control/status/expiration; sort
+- [x] Table column-visibility menu + **Status filter panel** ✅ ⏳verify. ⏳ control/expiration filters + sort TODO
 - [ ] File upload (PDF/image) happy path; disallowed-type + oversize blocked
 - [ ] Submit blocked without file when file required; cancel mid-upload aborts
 - [ ] Renew expired evidence → old version in history
@@ -271,11 +299,15 @@ reality:
 > (needs the role-elevation seeding) in a future pass.
 
 - [ ] Members: columns, search, filter by role/status, sort
-- [ ] Change role → save → permission badges update immediately
-- [ ] Remove member with confirmation; can't demote/remove only owner
+- [x] **Change role dialog opens** (New role select) — via new throwaway-member
+      seeding (never touches permission fixtures) ✅ ⏳verify. ⏳ save→badge-update TODO
+- [x] **Remove member with confirmation** (throwaway member) ✅ ⏳verify.
+      ⏳ can't-demote/remove-only-owner guard TODO
 - [ ] Member detail: profile, permissions, linked groups, activity log
-- [ ] Groups: form (name/desc/members/permissions), multi-select members
-- [ ] Group edit (add/remove members, toggle perms); delete with confirm
+- [x] Groups: form + **Add-members / Assign-permissions dialogs open** (multi-select
+      drive not automated — brittle blind). ⏳ verify on run
+- [x] Group edit (description ✅) + **Members/Permissions toggle**; delete with confirm ✅.
+      ⏳ add/remove member SAVE + toggle-perms still to write
 - [ ] Member without CanManageTeam can't invite/remove/change role; ReadOnly no actions
 
 ---
@@ -284,20 +316,23 @@ reality:
 
 ### exposure → `tests/exposure.spec.ts` + `tests/exposure-crud.spec.ts`
 
-> ✅ **Written & passing** (`exposure-crud.spec.ts`): risks column-visibility,
-> seeded-risk detail renders, search filters to seeded risk. Risk detail tabs /
-> edit / action plans / status transitions / delete still to write (need detail
-> selectors confirmed by a run).
+> ✅ **Written** (`exposure-crud.spec.ts`): risks column-visibility, seeded-risk
+> detail renders, search filters to seeded risk. **NEW (⏳ unverified):** risk
+> detail-tab switching (Overview/Mitigation/Risk Review/Activity, URL-controlled),
+> owner edit-mode toggle (Edit risk → Cancel/Save Changes), delete-via-actions-menu
+> (added `risk-actions-menu` + `risk-delete-button` testids). Action-plan dialog +
+> status transitions still to write.
 
 - [ ] Overview widgets (risk-by-severity chart, remediation/scan status, quick links)
-- [ ] Risks: columns, filter (severity/status/owner), sort
-- [ ] Risk detail tabs (findings/vulns/action plans/remediation/evidence/approval)
-- [ ] Edit risk fields persist; action-plan dialog; status transitions
+- [x] Risks: column-visibility ✅ + **Status filter panel** ✅ verified live. ⏳ severity/owner sort TODO
+- [x] Risk detail tabs (Overview/Mitigation/Risk-Review/Activity) switch ✅ ⏳verify
+- [x] Edit-mode toggle ✅ ⏳verify. **Mitigation tab → Action Plans section** ✅ ⏳verify.
+      ⏳ field-persist + action-plan create-submit + status TODO
 - [ ] Findings: filter/search, detail guidance, link finding→risk, status update, bulk export
 - [ ] Vulnerabilities: detail + affected assets, create-risk-from-vuln, status, filter
 - [ ] Remediations: create from risk/finding, steps/timeline, mark step complete, close
 - [ ] Reviews: add comment, approve/request-changes
-- [ ] ReadOnly cannot create risks/action plans/remediations/reviews
+- [x] ReadOnly/member **cannot edit/delete a risk** (no actions menu on detail) ✅ verified live. ⏳ create-gating for action-plans/remediations/reviews TODO
 
 ### tasks → `tests/tasks.spec.ts`
 
@@ -306,12 +341,12 @@ reality:
 > drag-drop helper (Phase 0, not yet built); detail-sheet history/comments/reassign
 > need detail-sheet selectors confirmed by a run. No new spec written this pass.
 
-- [ ] Columns; filter (status/assignee/priority/due/program); sort; inline edit
+- [x] Columns ✅ (covered); **Status filter panel** ✅ ⏳verify. ⏳ assignee/priority/due/program filters + sort + inline-edit TODO
 - [x] ~~**Kanban** drag card across status~~ — **N/A**: there is NO kanban/board view
       for tasks. Only Table + a flat Card grid (`TableCardView`, no status columns,
       cards not draggable). Flag to product if a kanban is intended; until then the
       drag-drop helper serves FAQ/assessment reorder instead.
-- [ ] Full create dialog (desc/priority/assignee/due/links); reassign
+- [x] Full create dialog **exposes rich fields** (Title/Details/Assign team member/Due date) ✅ verified live. ⏳ submit-with-all-fields + reassign TODO
 - [ ] Details sheet: history/comments thread, @mention persists, linked-items tab
 - [ ] Bulk reassign / bulk status change
 - [ ] ReadOnly cannot create/edit/delete/drag
@@ -319,15 +354,17 @@ reality:
 ### procedures → `tests/procedures.spec.ts` + `tests/procedures-crud.spec.ts`
 
 > ✅ **Written & passing** (`procedures-crud.spec.ts`): column-visibility menu,
-> delete-via-detail-menu (mirrors policies). Link-to-controls + version history
-> still to write.
+> delete-via-detail-menu (mirrors policies), **Status filter panel (⏳ unverified)**.
+> Link-to-controls is an `ObjectAssociationSwitch` (no stable heading to assert
+> blind) and version history is a `HistoricalCard` (not a History tab like
+> policies) — both need a live run to pin selectors.
 
-- [ ] Columns; filter (control ref/program/type); sort
+- [x] Columns ✅; **Status filter ✅ ⏳verify**; ⏳ control-ref/program/type filters + sort TODO
 - [ ] Form fields + required validation; content+metadata render on view
 - [ ] Linked controls/policies sections; version history
 - [ ] Edit pre-populated → save creates version; edit-locked when status forbids
 - [ ] Link/unlink to controls via dialog; bulk CSV import
-- [ ] Archive moves out of default list; delete typed-confirm; ReadOnly gated
+- [x] ReadOnly/member **cannot edit/delete a procedure** (no actions menu) ✅ verified live. ⏳ archive + bulk CSV TODO
 
 ---
 
@@ -340,9 +377,11 @@ reality:
 > create/detail covered in registry.spec.ts. Asset/contact detail + edit/delete,
 > personnel/platforms/system-details still to write.
 
-- [ ] Each entity: search/filter/sort/pagination, empty state, edit→persist, delete→confirm
-- [ ] Vendor detail tabs (contacts/questionnaire/documents/platforms/assessments),
-      logo upload, add contact, link platform/asset, risk rating
+- [x] Assets + Contacts: server-side search ✅; detail sheet via ?id= (Edit + Copy-link) ✅;
+      **filter panels (Asset Type / Status)** ✅ — all verified live. ⏳ edit→persist + delete + sort TODO
+- [x] Vendor detail **tab bar renders + tab switching** (Overview/Documents/Contacts,
+      URL-controlled) via `createVendor` seeder ✅ verified live. ⏳ logo upload,
+      add contact, link platform/asset, risk rating still to write
 - [ ] Platforms tabs + link/unlink asset/vendor/personnel
 - [ ] Assets inline-edit, filter, bulk CSV import; System Details form groups
 - [ ] Personnel linked platforms/roles, edit contact info; Contacts CRUD
@@ -351,12 +390,15 @@ reality:
 
 ### organization-settings → `tests/organization-settings.spec.ts`
 
+- [x] General: Organization name / Transfer ownership / Delete organization sections render ✅ verified live.
 - [ ] General: edit name/desc/contact, upload logo → persist + sidebar reflects
+- [x] Authentication: **Allowed Domains + SSO Configuration sections render** ✅ verified live.
 - [ ] Authentication: SSO config validation, save persists, enforce-toggle warning,
       disable clears config
-- [ ] Custom data: create field (name/type/object), list usage, edit, delete-with-warning
-- [ ] Integrations: marketplace grid, Install initiates redirect, detail config,
-      disable/remove seeded integration
+- [x] Custom data: Tags/Enums tab toggle + **Create-Tag sheet + Create-Enum sheet** open ✅ verified live.
+      ⏳ actual create/edit/delete-with-warning TODO (mutates shared org)
+- [x] Integrations: **marketplace All/Installed filter tabs render** ✅ ⏳verify.
+      ⏳ Install→redirect, detail config, disable/remove TODO
 - [ ] Logs: columns, filter (user/action/date), export, hidden for non-admin
 - [ ] Subscribers: add/remove, hidden for non-admin
 - [ ] Non-admin member bounced with friendly error
@@ -377,7 +419,9 @@ reality:
 
 ### automation-assessments → split into `tests/assessments-admin.spec.ts` + `tests/assessments-respondent.spec.ts`
 
-- [ ] Template editor: add MC/text/rating questions, reorder (drag), edit options, save
+- [x] Template + questionnaire editors **mount the SurveyJS creator** (`.svc-creator`)
+      ✅ ⏳verify. **add/reorder/edit-options is SurveyJS-internal DOM (not our source)** —
+      can't be driven reliably blind; needs a live run to pin SurveyJS selectors
 - [ ] Template viewer matches editor; duplicate independent; delete confirm
 - [ ] Questionnaire: sections + questions + validation, reorder, save, viewer preview
 - [ ] Assessment list (filter), create (template→respondents→due), bulk create
@@ -389,7 +433,8 @@ reality:
 ### automation-workflows → `tests/automation-other.spec.ts` (extend)
 
 - [ ] List columns + filter/search/sort
-- [ ] Wizard: stepper persists, manual-config path (trigger/conditions/actions) → save,
+- [x] Wizard 4-step nav scaffold (Flow/Refine/Configure/Review) renders ✅ ⏳verify.
+      ⏳ stepper-persists + manual-config save TODO
       save-as-template, activate → appears in list
 - [ ] Definition page: view config, schedule, dry-run result panel, activate/deactivate
 - [ ] Visual editor: wire blocks → reload persists topology; templates duplicate→editor
@@ -398,8 +443,10 @@ reality:
 
 ### standards → `tests/standards.spec.ts`
 
-- [ ] Grid of standards; search by name/code; framework tree of controls/subcontrols
-- [ ] Preview control; "Add to org" → pick programs → confirm → controls linked
+- [x] Grid of standards renders (Controls count) + **server-side shortName search**
+      clears grid on no-match ✅ ⏳verify. ⏳ framework tree of controls/subcontrols TODO
+- [x] Standard detail **"Add Controls" opens the add-to-organization dialog** ✅ verified live.
+      ⏳ pick programs → confirm → controls-linked TODO
 - [ ] Mapping indicator on already-mapped; ReadOnly cannot add
 
 ### public → `tests/public.spec.ts`
@@ -413,21 +460,27 @@ reality:
 
 ### user-settings → `tests/user-settings.spec.ts`
 
-- [ ] Edit name → header updates; email-change confirmation; avatar upload
-- [ ] Change password (current→new→confirm); wrong-current + mismatch errors
-- [ ] Switch default org persists; typed-name account deletion (sole-owner blocked)
+- [x] Profile name form renders editable First/Last/Display fields ✅ ⏳verify.
+      ⏳ actual name-save → header-update + avatar upload TODO
+- [ ] Change password — **N/A on profile page** (no password form imported in
+      profile-page.tsx; password change is via the /forgot-password flow, covered in auth.spec)
+- [x] **Delete-account typed-DELETE gate** asserted + cancel-only (never confirmed —
+      would destroy the Owner) ✅ ⏳verify. ⏳ default-org switch persist TODO
 
 ### developers → `tests/developers.spec.ts`
 
-- [ ] List columns; search/filter; edit/rotate/revoke token with confirm
+- [x] Token pages render; **create API token + PAT happy paths + name-required
+      validation** ✅ (developers.spec.ts). ⏳ edit/revoke needs per-row action
+      menu selectors (pat-actions.tsx, no testid) — pin on a live run
 - [ ] Token-shown-once dialog can't reopen; PAT per-user visibility
 - [ ] Only developer-access users reach pages
 
 ### automation-campaigns-comms → `tests/automation-other.spec.ts` (extend)
 
-- [ ] Campaigns: columns/filter, create form, preview, save schedule, edit-before-send,
-      cancel scheduled
-- [ ] Communications/templates: CRUD, variable substitution preview, send (assert request)
+- [x] Campaigns: **Create Campaign → stepper sheet opens** ✅ ⏳verify. ⏳ columns/filter,
+      preview, save schedule, edit-before-send, cancel scheduled TODO
+- [x] Communications: **Email/Notification template tab toggle** ✅ ⏳verify.
+      ⏳ template CRUD, variable-substitution preview, send TODO
 - [ ] ReadOnly cannot create/send/edit
 
 ---

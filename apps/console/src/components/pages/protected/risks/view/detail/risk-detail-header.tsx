@@ -30,19 +30,6 @@ const RiskDetailHeader: React.FC<RiskDetailHeaderProps> = ({ risk, isEditing, ca
   const [localValue, setLocalValue] = useState('')
   const originalValueRef = useRef<string>('')
 
-  const handleBlur = async (field: 'name') => {
-    if (localValue !== originalValueRef.current) {
-      setValue(field, localValue)
-      await handleUpdateField({ [field]: localValue })
-    }
-    setInlineEditing(null)
-  }
-
-  const handleEscape = (field: 'name') => {
-    setValue(field, originalValueRef.current)
-    setInlineEditing(null)
-  }
-
   const startEditing = (field: 'name') => {
     if (!canEditRisk || isEditing) return
     const current = field === 'name' ? risk.name : ''
@@ -58,10 +45,19 @@ const RiskDetailHeader: React.FC<RiskDetailHeaderProps> = ({ risk, isEditing, ca
         value={localValue}
         onChange={(e) => setLocalValue(e.target.value)}
         className={'text-2xl font-semibold h-auto py-1 min-w-180'}
-        onBlur={() => handleBlur(field)}
+        onBlur={async () => {
+          if (localValue !== originalValueRef.current) {
+            setValue(field, localValue)
+            await handleUpdateField({ [field]: localValue })
+          }
+          setInlineEditing(null)
+        }}
         onKeyDown={(e) => {
           if (e.key === 'Enter') e.currentTarget.blur()
-          if (e.key === 'Escape') handleEscape(field)
+          if (e.key === 'Escape') {
+            setValue(field, originalValueRef.current)
+            setInlineEditing(null)
+          }
         }}
       />
     )
@@ -123,12 +119,12 @@ const RiskDetailHeader: React.FC<RiskDetailHeaderProps> = ({ risk, isEditing, ca
               {canDeleteRisk && (
                 <Menu
                   trigger={
-                    <Button type="button" variant="secondary" className="h-8 px-2">
+                    <Button type="button" variant="secondary" className="h-8 px-2" data-testid="risk-actions-menu">
                       <MoreHorizontal size={16} />
                     </Button>
                   }
                   content={
-                    <button onClick={onDeleteClick} className="flex items-center space-x-2 px-1 bg-transparent cursor-pointer text-destructive">
+                    <button onClick={onDeleteClick} data-testid="risk-delete-button" className="flex items-center space-x-2 px-1 bg-transparent cursor-pointer text-destructive">
                       <Trash2 size={16} strokeWidth={2} />
                       <span>Delete</span>
                     </button>

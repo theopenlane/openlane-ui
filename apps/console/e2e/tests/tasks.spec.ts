@@ -139,6 +139,39 @@ test.describe('tasks — list + create', () => {
     await expect(page.getByText(/^Title$/).last()).toBeVisible()
   })
 
+  test('filter panel exposes a Status filter', async ({ page }) => {
+    await seedLoggedInUser(page, 'tasks-filter')
+
+    await page.goto('/automation/tasks')
+
+    // task-table-toolbar.tsx renders the shared TableFilter once its async
+    // filterFields (org members / programs / kinds) resolve; getTasksFilterFields
+    // includes a "Status" field.
+    const filterButton = page.getByRole('button', { name: /^Filter$/ })
+    await expect(filterButton).toBeVisible({ timeout: 20_000 })
+    await filterButton.click()
+    await expect(page.getByText(/^Status$/).first()).toBeVisible({ timeout: 10_000 })
+  })
+
+  test('the full create-task dialog exposes the rich fields', async ({ page }) => {
+    await seedLoggedInUser(page, 'tasks-create-fields')
+
+    await page.goto('/automation/tasks')
+    await page
+      .getByRole('main')
+      .getByRole('button', { name: /^create$/i })
+      .click()
+
+    // create-task-form.tsx FormLabels (beyond the required Title): Details,
+    // Assign team member, Due date.
+    const dialog = page.getByRole('dialog')
+    await expect(dialog.getByText('Create a new Task')).toBeVisible({ timeout: 10_000 })
+    await expect(dialog.getByText('Title', { exact: true })).toBeVisible()
+    await expect(dialog.getByText('Details', { exact: true })).toBeVisible()
+    await expect(dialog.getByText('Assign team member')).toBeVisible()
+    await expect(dialog.getByText('Due date')).toBeVisible()
+  })
+
   test('bulk delete — selecting a task row, clicking Bulk Delete, confirming removes the row', async ({ page }) => {
     await seedLoggedInUser(page, 'tasks-bulk-delete')
 

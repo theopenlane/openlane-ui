@@ -13,9 +13,9 @@ test.describe('notifications — page render', () => {
     await page.goto('/notifications')
 
     // Two unbadged segmented-control buttons in the header — "All" and
-    // "Unread". A fresh org has no notifications, so the Unread button
-    // shows no count badge.
-    await expect(page.getByRole('button', { name: /^All$/ })).toBeVisible({ timeout: 15_000 })
+    // "Unread". (A topic filter also exposes an "All" button, so scope to the
+    // first — the header segmented-control toggle.)
+    await expect(page.getByRole('button', { name: /^All$/ }).first()).toBeVisible({ timeout: 15_000 })
     await expect(page.getByRole('button', { name: /^Unread$/ })).toBeVisible()
   })
 })
