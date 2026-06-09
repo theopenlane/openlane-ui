@@ -44,6 +44,22 @@ test.describe('policies — table tooling', () => {
     await page.getByRole('button', { name: /^Filter$/ }).click()
     await expect(page.getByText(/^Status$/).first()).toBeVisible({ timeout: 10_000 })
   })
+
+  test('selecting rows reveals the Bulk Delete action', async ({ page }) => {
+    const name = uniquePolicyName()
+    await createInternalPolicy(ownerApi, name)
+    await openTableView(page)
+
+    // The shared org has many policies + pagination, so search to surface the
+    // seeded row, then check its row checkbox (the header select-all is disabled
+    // until rows settle). Selecting a row flips the toolbar into the bulk state.
+    await page.getByPlaceholder(/^Search$/).fill(name)
+    const row = page.getByRole('row').filter({ hasText: name })
+    await expect(row).toBeVisible({ timeout: 15_000 })
+    await row.getByRole('checkbox').first().check()
+
+    await expect(page.getByRole('button', { name: /^Bulk Delete/ })).toBeVisible({ timeout: 10_000 })
+  })
 })
 
 test.describe('policies — detail (seeded)', () => {
@@ -57,6 +73,28 @@ test.describe('policies — detail (seeded)', () => {
     await page.getByRole('tab', { name: /^History$/ }).click()
     // history-tab.tsx marks the current revision with a "Current" badge.
     await expect(page.getByText(/^Current$/).first()).toBeVisible({ timeout: 15_000 })
+  })
+
+  test('inline status change on a policy persists across reload', async ({ page }) => {
+    const name = uniquePolicyName()
+    const id = await createInternalPolicy(ownerApi, name)
+
+    await page.goto(`/policies/${id}/view`, { waitUntil: 'domcontentloaded' })
+    await expect(page.getByRole('heading', { level: 1, name })).toBeVisible({ timeout: 20_000 })
+
+    // properties-card.tsx: double-clicking the status (policy-status-trigger)
+    // swaps it for a Select; pick a new status, then reload to prove persistence.
+    const statusTrigger = page.getByTestId('policy-status-trigger')
+    await statusTrigger.dblclick()
+    const statusSelect = page.getByRole('combobox')
+    await expect(statusSelect).toBeVisible({ timeout: 5_000 })
+    await statusSelect.click()
+    await page.getByRole('option', { name: /^Published$/i }).click()
+
+    await expect(statusTrigger).toContainText(/Published/i, { timeout: 10_000 })
+
+    await page.reload()
+    await expect(page.getByTestId('policy-status-trigger')).toContainText(/Published/i, { timeout: 15_000 })
   })
 
   test('delete a policy from the detail actions menu redirects to the list', async ({ page }) => {

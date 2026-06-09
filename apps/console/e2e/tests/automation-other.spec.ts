@@ -5,8 +5,8 @@ import { test, expect } from '../fixtures/auth'
 // /automation/exposure renders a "Coming soon" placeholder under the
 // Exposure heading; we still exercise the route to catch routing breaks.
 const SUBROUTES: Array<{ path: string; heading: RegExp }> = [
-  { path: '/automation/assessments', heading: /^Questionnaires$/ },
-  { path: '/automation/assessments/templates', heading: /^Templates$/ },
+  { path: '/automation/questionnaires', heading: /^Questionnaires$/ },
+  { path: '/automation/questionnaires/templates', heading: /^Templates$/ },
   { path: '/automation/campaigns', heading: /^Campaigns$/ },
   { path: '/automation/communications', heading: /^Communications$/ },
   // Empty workflows shows "Create your first workflow" instead of a
@@ -53,10 +53,10 @@ test.describe('automation — workflows subroutes (nested-h1 variant)', () => {
 // Editor / viewer routes that all happen to use the heading "Editor" or
 // "Preview" — disambiguate via the eyebrow text alongside.
 const EYEBROW_HEADING_ROUTES: Array<{ path: string; eyebrow: RegExp; heading: RegExp }> = [
-  { path: '/automation/assessments/questionnaire-editor', eyebrow: /^Questionnaires$/, heading: /^Editor$/ },
-  { path: '/automation/assessments/questionnaire-viewer', eyebrow: /^Questionnaires$/, heading: /^Preview$/ },
-  { path: '/automation/assessments/templates/template-editor', eyebrow: /^Templates$/, heading: /^Editor$/ },
-  { path: '/automation/assessments/templates/template-viewer', eyebrow: /^Templates$/, heading: /^Preview$/ },
+  { path: '/automation/questionnaires/questionnaire-editor', eyebrow: /^Questionnaires$/, heading: /^Editor$/ },
+  { path: '/automation/questionnaires/questionnaire-viewer', eyebrow: /^Questionnaires$/, heading: /^Preview$/ },
+  { path: '/automation/questionnaires/templates/template-editor', eyebrow: /^Templates$/, heading: /^Editor$/ },
+  { path: '/automation/questionnaires/templates/template-viewer', eyebrow: /^Templates$/, heading: /^Preview$/ },
 ]
 
 test.describe('automation — assessments editor / viewer routes', () => {
@@ -69,6 +69,66 @@ test.describe('automation — assessments editor / viewer routes', () => {
       // wrappers, so the PageHeading branch is the one we hit.
       await expect(page.getByRole('heading', { level: 2, name: heading })).toBeVisible({ timeout: 15_000 })
       await expect(page.getByText(eyebrow).first()).toBeVisible()
+    })
+  }
+})
+
+test.describe('automation — workflow wizard scaffold', () => {
+  test('the wizard renders its 4-step nav (Flow / Refine / Configure / Review)', async ({ page }) => {
+    await page.goto('/automation/workflows/wizard', { waitUntil: 'domcontentloaded' })
+    await expect(page.getByRole('heading', { level: 2, name: /^New Workflow$/ })).toBeVisible({ timeout: 20_000 })
+
+    // workflow-wizard-page.tsx defines steps via @stepperize; wizard/nav.tsx
+    // renders each step's label as a <span>.
+    for (const label of ['Flow', 'Refine', 'Configure', 'Review']) {
+      await expect(page.getByText(label, { exact: true }).first()).toBeVisible({ timeout: 15_000 })
+    }
+  })
+})
+
+test.describe('automation — campaigns create', () => {
+  test('Create Campaign opens the campaign creation stepper sheet', async ({ page }) => {
+    await page.goto('/automation/campaigns', { waitUntil: 'domcontentloaded' })
+    await expect(page.getByRole('heading', { level: 2, name: /^Campaigns$/ })).toBeVisible({ timeout: 20_000 })
+
+    // campaigns-table-toolbar.tsx renders a "Create Campaign" primary button that
+    // opens a StepperSheet titled "Create Campaign".
+    await page.getByRole('button', { name: /^Create Campaign$/ }).click()
+    await expect(page.getByRole('dialog').getByText('Create Campaign').first()).toBeVisible({ timeout: 10_000 })
+  })
+})
+
+test.describe('automation — communications tabs', () => {
+  test('communications page toggles between Email and Notification template tabs', async ({ page }) => {
+    await page.goto('/automation/communications', { waitUntil: 'domcontentloaded' })
+    await expect(page.getByRole('heading', { level: 2, name: /^Communications$/ })).toBeVisible({ timeout: 20_000 })
+
+    // communications-page.tsx Radix tabs: "Email Templates" / "Notification Templates".
+    const email = page.getByRole('tab', { name: /Email Templates/ })
+    const notification = page.getByRole('tab', { name: /Notification Templates/ })
+    await expect(email).toBeVisible()
+    await expect(notification).toBeVisible()
+
+    await notification.click()
+    await expect(notification).toHaveAttribute('aria-selected', 'true', { timeout: 10_000 })
+    await expect(email).toHaveAttribute('aria-selected', 'false')
+  })
+})
+
+test.describe('automation — survey editors mount', () => {
+  // template-editor.tsx / questionnaire-editor.tsx embed survey-creator-react,
+  // which renders its root as `.svc-creator`. The question-authoring DOM lives
+  // inside SurveyJS (not our source), so we assert the creator surface mounts
+  // rather than driving its internal toolbox/drag-reorder.
+  for (const { path, label } of [
+    { path: '/automation/questionnaires/templates/template-editor', label: 'template' },
+    { path: '/automation/questionnaires/questionnaire-editor', label: 'questionnaire' },
+  ]) {
+    test(`the ${label} editor mounts the SurveyJS creator surface`, async ({ page }) => {
+      test.slow()
+      await page.goto(path, { waitUntil: 'domcontentloaded' })
+      await expect(page.getByRole('heading', { level: 2, name: /^Editor$/ })).toBeVisible({ timeout: 20_000 })
+      await expect(page.locator('.svc-creator')).toBeVisible({ timeout: 30_000 })
     })
   }
 })

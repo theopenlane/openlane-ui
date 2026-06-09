@@ -195,4 +195,35 @@ test.describe('onboarding', () => {
 
     await expect(page.locator('#companyName')).toHaveValue('')
   })
+
+  test('step 1 sector "Other (Please Specify)" reveals the custom sector input', async ({ page }) => {
+    const email = await freshUser('sector-other')
+    await loginViaForm(page, email, PASSWORD)
+    await ensureOnboardingRoute(page)
+
+    // step-1.tsx has several Selects (company size, sector, …). The Company
+    // Sector trigger shows the placeholder "Choose"; target it specifically.
+    // Choosing "Other (Please Specify)" reveals a "Please Specify" label + the
+    // #otherSector input.
+    await page.getByRole('combobox').filter({ hasText: 'Choose' }).click()
+    await page.getByRole('option', { name: 'Other (Please Specify)' }).click()
+
+    await expect(page.getByText('Please Specify', { exact: true })).toBeVisible({ timeout: 10_000 })
+    await expect(page.locator('#otherSector')).toBeVisible()
+  })
+
+  test('step 2 (User Info) shows the "exit and use general template" shortcut', async ({ page }) => {
+    const email = await freshUser('exit-link')
+    await loginViaForm(page, email, PASSWORD)
+    await ensureOnboardingRoute(page)
+
+    // Advance Step 1 → Step 2: the next button is labelled with the next step's
+    // name ("User Info"), per onboarding-page.tsx.
+    await page.locator('#companyName').fill(`E2E Co ${Date.now().toString(36)}`)
+    await page.getByRole('button', { name: /^User Info$/ }).click()
+
+    // onboarding-page.tsx renders the exit shortcut only on the 2nd step.
+    await expect(page.getByText(/Exit the onboarding process/)).toBeVisible({ timeout: 10_000 })
+    await expect(page.getByText(/use general template for my account/)).toBeVisible()
+  })
 })

@@ -28,6 +28,15 @@ test.describe('procedures — table tooling', () => {
     await page.getByRole('button', { name: /^Columns$/ }).click()
     await expect(page.getByRole('menu').getByText(/^Status$/)).toBeVisible({ timeout: 10_000 })
   })
+
+  test('filter panel exposes a Status filter', async ({ page }) => {
+    await page.goto('/procedures', { waitUntil: 'domcontentloaded' })
+    await expect(page.getByRole('heading', { level: 2, name: /^Procedures$/ })).toBeVisible({ timeout: 20_000 })
+
+    // Shared TableFilter (useProceduresFilters) — mirrors policies-crud.
+    await page.getByRole('button', { name: /^Filter$/ }).click()
+    await expect(page.getByText(/^Status$/).first()).toBeVisible({ timeout: 10_000 })
+  })
 })
 
 test.describe('procedures — detail (seeded)', () => {

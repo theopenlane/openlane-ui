@@ -299,12 +299,13 @@ test.describe('auth — supplemental form pages', () => {
     await expect(page.getByText(/^Passwords do not match\.$/)).toBeVisible({ timeout: 10_000 })
   })
 
-  test('/unsubscribe renders the email input + Unsubscribe button', async ({ page }) => {
-    await page.goto('/unsubscribe')
-
-    await expect(page.getByRole('heading', { level: 2, name: /^Unsubscribe$/ })).toBeVisible()
-    await expect(page.getByPlaceholder(/your email/i)).toBeVisible()
-    await expect(page.getByRole('button', { name: /^unsubscribe$/i })).toBeVisible()
+  test('/unsubscribe without a session redirects to /login (not a public page)', async ({ page }) => {
+    // /unsubscribe is intentionally NOT in middleware publicPages, so an
+    // unauthenticated visit is redirected to /login. (Product decision — do not
+    // add it to publicPages.) The redirect cancels the original navigation,
+    // which surfaces as "navigation interrupted"; swallow it and poll the URL.
+    await page.goto('/unsubscribe').catch(() => {})
+    await expect(page).toHaveURL(/\/login(\?|$)/, { timeout: 15_000 })
   })
 
   test('/verify "Click here to resend" button navigates to /resend-verify', async ({ page }) => {

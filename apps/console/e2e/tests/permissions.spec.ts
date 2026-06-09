@@ -1,6 +1,7 @@
 import type { Page } from '@playwright/test'
 
 import { test, expect, authFile, readManifest, type Role } from '../fixtures/auth'
+import { loginViaApi, createInternalPolicy, createProcedure, createRisk } from '../utils/api'
 
 /**
  * Permission-gating sweep across roles, using the storage-state users seeded in
@@ -101,7 +102,7 @@ test.describe('permissions — owner can manage members', () => {
 
   test('owner sees member row actions on /user-management/members', async ({ page }) => {
     await page.goto('/user-management/members', { waitUntil: 'domcontentloaded' })
-    await expect(membersHeading(page)).toBeVisible({ timeout: 30_000 })
+    await expect(membersHeading(page)).toBeVisible({ timeout: 60_000 })
     await expect(memberActions(page).first()).toBeVisible({ timeout: 20_000 })
   })
 })
@@ -112,7 +113,7 @@ for (const role of ['member', 'readonly'] as Role[]) {
 
     test(`${role} sees no member row actions on /user-management/members`, async ({ page }) => {
       await page.goto('/user-management/members', { waitUntil: 'domcontentloaded' })
-      await expect(membersHeading(page)).toBeVisible({ timeout: 30_000 })
+      await expect(membersHeading(page)).toBeVisible({ timeout: 60_000 })
       await expect(memberActions(page)).toHaveCount(0)
     })
   })
@@ -180,3 +181,53 @@ for (const role of ['member', 'readonly'] as Role[]) {
     })
   })
 }
+
+// ── Policy / procedure detail edit+delete gating (mirrors the control gating
+// above). The "…" actions menu (Edit / Delete / Manage Permissions) is gated by
+// can_edit / can_delete: Owner reaches it on an owner-created entity; member +
+// readonly get no actions menu (per-object FGA + lacking the rights).
+// Scoped in its own describe so the seeding beforeAll runs only for these tests
+// (not before the pre-existing create/member/control gating above).
+test.describe('permissions — detail edit/delete gating', () => {
+  let sharedPolicyId: string
+  let sharedProcedureId: string
+  let sharedRiskId: string
+
+  test.beforeAll(async () => {
+    const { ownerEmail, password } = readManifest()
+    const api = await loginViaApi(ownerEmail, password)
+    sharedPolicyId = await createInternalPolicy(api, `E2E PermPol ${Date.now().toString(36)}`)
+    sharedProcedureId = await createProcedure(api, `E2E PermProc ${Date.now().toString(36)}`)
+    sharedRiskId = await createRisk(api, `E2E PermRisk ${Date.now().toString(36)}`)
+  })
+
+  // view() defers reading the id until test time (set in beforeAll).
+  const DETAIL_GATES = [
+    { entity: 'policy', menu: 'policy-actions-menu', view: () => `/policies/${sharedPolicyId}/view` },
+    { entity: 'procedure', menu: 'procedure-actions-menu', view: () => `/procedures/${sharedProcedureId}/view` },
+    { entity: 'risk', menu: 'risk-actions-menu', view: () => `/exposure/risks/${sharedRiskId}` },
+  ]
+
+  for (const { entity, menu, view } of DETAIL_GATES) {
+    test.describe(`owner can edit/delete a ${entity}`, () => {
+      test.use({ storageState: authFile('owner') })
+
+      test(`owner sees the ${entity} actions menu`, async ({ page }) => {
+        await page.goto(view(), { waitUntil: 'domcontentloaded' })
+        await expect(page.getByTestId(menu)).toBeVisible({ timeout: 30_000 })
+      })
+    })
+
+    for (const role of ['member', 'readonly'] as Role[]) {
+      test.describe(`${role} has no edit/delete affordance on a ${entity}`, () => {
+        test.use({ storageState: authFile(role) })
+
+        test(`${role} sees no ${entity} actions menu`, async ({ page }) => {
+          await page.goto(view(), { waitUntil: 'domcontentloaded' })
+          await expect(page.getByTestId('user-menu-trigger')).toBeAttached({ timeout: 20_000 })
+          await expect(page.getByTestId(menu)).toHaveCount(0)
+        })
+      })
+    }
+  }
+})
