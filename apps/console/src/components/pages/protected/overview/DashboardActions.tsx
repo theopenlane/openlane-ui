@@ -1,10 +1,15 @@
 import { Card, CardContent, CardTitle } from '@repo/ui/cardpanel'
 import React from 'react'
-import { BookOpenCheck, ListChecks, SlidersHorizontal, SquarePlus } from 'lucide-react'
+import { BookOpenCheck, ListChecks, ShieldAlert, SlidersHorizontal, SquarePlus } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
+import { hasPermission } from '@/lib/authz/utils'
+import { AccessEnum } from '@/lib/authz/enums/access-enum'
 
 const DashboardActions = () => {
   const router = useRouter()
+  const { data: orgPermission } = useOrganizationRoles()
+  const canCreateRisk = hasPermission(orgPermission?.roles, AccessEnum.CanCreateRisk)
 
   const handleViewControls = () => {
     router.push('/controls')
@@ -14,8 +19,8 @@ const DashboardActions = () => {
     router.push('/automation/tasks?showMyTasks=true')
   }
 
-  const handleCreateRisk = () => {
-    router.push('/exposure/risks/create')
+  const handleRiskAction = () => {
+    router.push(canCreateRisk ? '/exposure/risks/create' : '/exposure')
   }
 
   const handleViewPolicies = () => {
@@ -35,14 +40,14 @@ const DashboardActions = () => {
         </CardContent>
       </Card>
 
-      <Card onClick={handleCreateRisk} className="bg-homepage-card border-homepage-card-border transition-all duration-300 hover:scale-[1.03] hover:shadow-xl hover:-translate-y-1 cursor-pointer">
+      <Card onClick={handleRiskAction} className="bg-homepage-card border-homepage-card-border transition-all duration-300 hover:scale-[1.03] hover:shadow-xl hover:-translate-y-1 cursor-pointer">
         <CardTitle className="p-[24px] pb-0">
           <div className="p-2 rounded-md bg-danger/12 inline-flex items-center justify-center">
-            <SquarePlus size={20} className="text-danger" />
+            {canCreateRisk ? <SquarePlus size={20} className="text-danger" /> : <ShieldAlert size={20} className="text-danger" />}
           </div>
         </CardTitle>
         <CardContent className="pt-[12px]">
-          <p className="leading-6 text-base font-medium">Create New Risk</p>
+          <p className="leading-6 text-base font-medium">{canCreateRisk ? 'Create New Risk' : 'View Exposure'}</p>
         </CardContent>
       </Card>
 
