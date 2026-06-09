@@ -188,6 +188,15 @@ export const linkControlProcedure = (sess: ApiSession, controlId: string, proced
 /** Link an evidence record to a control (control side: addEvidenceIDs). */
 export const linkControlEvidence = (sess: ApiSession, controlId: string, evidenceId: string): Promise<void> => updateControlAssoc(sess, controlId, { addEvidenceIDs: [evidenceId] })
 
+/** Link a control to a procedure (procedure side: addControlIDs). */
+export const linkProcedureControl = async (sess: ApiSession, procedureId: string, controlId: string): Promise<void> => {
+  const res = await gql<{ updateProcedure: { procedure: { id: string } } }>(sess, `mutation($id: ID!, $input: UpdateProcedureInput!){ updateProcedure(id: $id, input: $input){ procedure { id } } }`, {
+    id: procedureId,
+    input: { addControlIDs: [controlId] },
+  })
+  if (!res.data?.updateProcedure?.procedure?.id) throw new Error(`linkProcedureControl failed: ${JSON.stringify(res.errors)}`)
+}
+
 /** Create a fresh non-personal organization owned by the caller. */
 export const createSharedOrg = async (sess: ApiSession, name: string): Promise<string> => {
   const res = await gql<{ createOrganization: { organization: { id: string } } }>(sess, `mutation($input: CreateOrganizationInput!){ createOrganization(input: $input){ organization { id } } }`, {

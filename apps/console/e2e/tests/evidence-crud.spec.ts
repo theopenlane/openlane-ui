@@ -2,7 +2,7 @@ import type { Page } from '@playwright/test'
 
 import { test, expect, readManifest } from '../fixtures/auth'
 import { RUN_ID } from '../utils/constants'
-import { loginViaApi, createEvidence, type ApiSession } from '../utils/api'
+import { loginViaApi, createEvidence, createControl, linkControlEvidence, type ApiSession } from '../utils/api'
 import { uploadFiles, SAMPLE_PDF, SAMPLE_DISALLOWED } from '../utils/files'
 
 /**
@@ -87,6 +87,23 @@ test.describe('evidence — delete', () => {
 
     // After delete the sheet closes (the ?id= param is cleared).
     await expect(page.getByRole('button', { name: 'Delete evidence' })).toHaveCount(0, { timeout: 15_000 })
+  })
+})
+
+test.describe('evidence — linking (seeded)', () => {
+  test('evidence linked to a control shows the control in its detail sheet', async ({ page }) => {
+    const evidenceId = await createEvidence(ownerApi, uniqueEvidenceName())
+    const refCode = `E2E-EVLNK-${RUN_ID}-${Date.now().toString(36)}`
+    const controlId = await createControl(ownerApi, refCode)
+    // Linking is bidirectional (control.evidence ↔ evidence.controls).
+    await linkControlEvidence(ownerApi, controlId, evidenceId)
+
+    await page.goto(`/evidence?id=${evidenceId}`, { waitUntil: 'domcontentloaded' })
+    await expect(page.getByRole('button', { name: 'Delete evidence' })).toBeVisible({ timeout: 20_000 })
+
+    // evidence-details-sheet.tsx renders linked controls via
+    // ObjectAssociationControlsChips (chip labelled by the control refCode).
+    await expect(page.getByText(refCode).first()).toBeVisible({ timeout: 15_000 })
   })
 })
 

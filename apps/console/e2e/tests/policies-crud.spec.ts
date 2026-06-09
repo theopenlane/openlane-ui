@@ -45,7 +45,7 @@ test.describe('policies — table tooling', () => {
     await expect(page.getByText(/^Status$/).first()).toBeVisible({ timeout: 10_000 })
   })
 
-  test('selecting rows reveals the Bulk Delete action', async ({ page }) => {
+  test('selecting rows reveals the Bulk Delete + Bulk Edit actions', async ({ page }) => {
     const name = uniquePolicyName()
     await createInternalPolicy(ownerApi, name)
     await openTableView(page)
@@ -59,6 +59,10 @@ test.describe('policies — table tooling', () => {
     await row.getByRole('checkbox').first().check()
 
     await expect(page.getByRole('button', { name: /^Bulk Delete/ })).toBeVisible({ timeout: 10_000 })
+
+    // The bulk state also exposes "Bulk Edit" → bulk-edit-policies.tsx dialog.
+    await page.getByRole('button', { name: /^Bulk Edit/ }).click()
+    await expect(page.getByRole('dialog').getByText('Bulk edit')).toBeVisible({ timeout: 10_000 })
   })
 })
 

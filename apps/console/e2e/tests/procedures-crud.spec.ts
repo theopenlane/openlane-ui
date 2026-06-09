@@ -1,6 +1,6 @@
 import { test, expect, readManifest } from '../fixtures/auth'
 import { RUN_ID } from '../utils/constants'
-import { loginViaApi, createProcedure, type ApiSession } from '../utils/api'
+import { loginViaApi, createProcedure, createControl, linkProcedureControl, type ApiSession } from '../utils/api'
 
 /**
  * Deep procedures flows beyond procedures.spec.ts (create/search/inline edit/
@@ -55,5 +55,25 @@ test.describe('procedures — detail (seeded)', () => {
       .click()
 
     await page.waitForURL(/\/procedures(\?|$)/, { timeout: 20_000 })
+  })
+
+  test('a control linked to a procedure shows in its Associated Objects', async ({ page }) => {
+    test.slow()
+    const name = uniqueProcedureName()
+    const procedureId = await createProcedure(ownerApi, name)
+    const controlId = await createControl(ownerApi, `E2E PLnkCtl ${RUN_ID}-${Date.now().toString(36)}`)
+    await linkProcedureControl(ownerApi, procedureId, controlId)
+
+    await page.goto(`/procedures/${procedureId}/view`, { waitUntil: 'domcontentloaded' })
+    await expect(page.getByRole('heading', { level: 1, name })).toBeVisible({ timeout: 20_000 })
+
+    // Same association UI as controls: toggle to list (assoc-view-toggle), expand
+    // the "Controls" section, and assert the linked control mounts as a chip.
+    await page.getByTestId('assoc-view-toggle').click()
+    const removeX = page.getByTestId('objects-chip-remove')
+    if ((await removeX.count()) === 0) {
+      await page.getByText('Controls', { exact: true }).click()
+    }
+    await expect(removeX.first()).toBeVisible({ timeout: 15_000 })
   })
 })

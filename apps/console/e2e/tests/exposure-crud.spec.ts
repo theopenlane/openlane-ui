@@ -137,3 +137,24 @@ test.describe('exposure — risk detail (seeded)', () => {
     await page.waitForURL(/\/exposure\/risks(\?|$)/, { timeout: 20_000 })
   })
 })
+
+// Filter panels across the exposure sub-pages (shared TableFilter; each
+// getXFilterFields exposes a distinct first field).
+// findings + vulnerabilities render an empty-state without the Filter toolbar
+// (scanner-fed, no seedable data), so only the pages that expose it are covered.
+const EXPOSURE_FILTER_PAGES = [
+  { path: '/exposure/remediations', heading: /^Remediations$/, field: 'Title' },
+  { path: '/exposure/reviews', heading: /^Reviews$/, field: 'State' },
+]
+
+test.describe('exposure — sub-page filters', () => {
+  for (const { path, heading, field } of EXPOSURE_FILTER_PAGES) {
+    test(`${path} filter panel exposes a "${field}" field`, async ({ page }) => {
+      await page.goto(path, { waitUntil: 'domcontentloaded' })
+      await expect(page.getByRole('heading', { level: 2, name: heading })).toBeVisible({ timeout: 20_000 })
+
+      await page.getByRole('button', { name: /^Filter$/ }).click()
+      await expect(page.getByText(field, { exact: true }).first()).toBeVisible({ timeout: 10_000 })
+    })
+  }
+})

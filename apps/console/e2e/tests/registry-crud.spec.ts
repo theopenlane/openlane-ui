@@ -117,4 +117,50 @@ test.describe('registry — vendor detail (seeded)', () => {
     await expect(contacts).toHaveAttribute('aria-selected', 'true', { timeout: 15_000 })
     await expect(documents).toHaveAttribute('aria-selected', 'false')
   })
+
+  test('vendor Contacts tab → Add Contact opens the dialog', async ({ page }) => {
+    test.slow()
+    const id = await createVendor(ownerApi, uniqueName('E2E Vendor'))
+
+    await page.goto(`/registry/vendors/${id}?tab=contacts`, { waitUntil: 'domcontentloaded' })
+    await expect(page.getByRole('tab', { name: 'Contacts' })).toHaveAttribute('aria-selected', 'true', { timeout: 30_000 })
+
+    // contacts-tab.tsx "Add Contact" button → add-contact-dialog.tsx (DialogTitle).
+    await page.getByRole('button', { name: /^Add Contact$/ }).click()
+    await expect(page.getByRole('dialog').getByText('Add Contact')).toBeVisible({ timeout: 10_000 })
+  })
+
+  test('vendor Documents tab → Upload opens the document upload dialog', async ({ page }) => {
+    test.slow()
+    const id = await createVendor(ownerApi, uniqueName('E2E Vendor'))
+
+    await page.goto(`/registry/vendors/${id}?tab=documents`, { waitUntil: 'domcontentloaded' })
+    await expect(page.getByRole('tab', { name: 'Documents' })).toHaveAttribute('aria-selected', 'true', { timeout: 30_000 })
+
+    // documents-tab.tsx "Upload" → documents-upload-dialog.tsx with title="Upload Documents".
+    await page
+      .getByRole('button', { name: /^Upload$/ })
+      .first()
+      .click()
+    await expect(page.getByRole('dialog').getByText('Upload Documents')).toBeVisible({ timeout: 10_000 })
+  })
+})
+
+// Filter panels on the user-managed registry sub-pages (shared TableFilter).
+const REGISTRY_FILTER_PAGES = [
+  { path: '/registry/personnel', heading: /^Personnel$/, field: 'Status' },
+  { path: '/registry/system-details', heading: /^System Details$/, field: 'Sensitivity Level' },
+]
+
+test.describe('registry — sub-page filters', () => {
+  for (const { path, heading, field } of REGISTRY_FILTER_PAGES) {
+    test(`${path} filter panel exposes a "${field}" field`, async ({ page }) => {
+      test.slow() // heavy registry route → cold dev compile
+      await page.goto(path, { waitUntil: 'domcontentloaded', timeout: 180_000 })
+      await expect(page.getByRole('heading', { level: 2, name: heading })).toBeVisible({ timeout: 20_000 })
+
+      await page.getByRole('button', { name: /^Filter$/ }).click()
+      await expect(page.getByText(field, { exact: true }).first()).toBeVisible({ timeout: 10_000 })
+    })
+  }
 })
