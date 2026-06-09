@@ -10962,6 +10962,8 @@ export interface CreateTaskInput {
   groupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   identityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   internalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** indicates if the task is intended to be used as a template */
+  isTemplate?: InputMaybe<Scalars['Boolean']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
   parentID?: InputMaybe<Scalars['ID']['input']>
   platformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -50251,6 +50253,8 @@ export interface Task extends Node {
   idempotencyKey?: Maybe<Scalars['String']['output']>
   identityHolders: IdentityHolderConnection
   internalPolicies: InternalPolicyConnection
+  /** indicates if the task is intended to be used as a template */
+  isTemplate: Scalars['Boolean']['output']
   owner?: Maybe<Organization>
   /** the ID of the organization owner of the object */
   ownerID?: Maybe<Scalars['ID']['output']>
@@ -50525,6 +50529,7 @@ export enum TaskOrderField {
   completed = 'completed',
   created_at = 'created_at',
   due = 'due',
+  is_template = 'is_template',
   title = 'title',
   updated_at = 'updated_at',
 }
@@ -50817,6 +50822,9 @@ export interface TaskWhereInput {
   idempotencyKeyNEQ?: InputMaybe<Scalars['String']['input']>
   idempotencyKeyNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   idempotencyKeyNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** is_template field predicates */
+  isTemplate?: InputMaybe<Scalars['Boolean']['input']>
+  isTemplateNEQ?: InputMaybe<Scalars['Boolean']['input']>
   not?: InputMaybe<TaskWhereInput>
   or?: InputMaybe<Array<TaskWhereInput>>
   /** owner_id field predicates */
@@ -60405,6 +60413,8 @@ export interface UpdateTaskInput {
   externalReferenceURL?: InputMaybe<Array<Scalars['String']['input']>>
   /** stable external UUID for deterministic OSCAL export and round-tripping */
   externalUUID?: InputMaybe<Scalars['String']['input']>
+  /** indicates if the task is intended to be used as a template */
+  isTemplate?: InputMaybe<Scalars['Boolean']['input']>
   parentID?: InputMaybe<Scalars['ID']['input']>
   removeActionPlanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeCommentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -69828,6 +69838,13 @@ export type GetDocumentationRisksQuery = {
   }
 }
 
+export type EmailTemplateCatalogQueryVariables = Exact<{ [key: string]: never }>
+
+export type EmailTemplateCatalogQuery = {
+  __typename?: 'Query'
+  emailTemplateCatalog: { __typename?: 'EmailTemplateCatalog'; entries: Array<{ __typename?: 'EmailTemplateCatalogEntry'; key: string; description: string; configSchema: any; htmlPreview: string }> }
+}
+
 export type EmailTemplatesWithFilterQueryVariables = Exact<{
   where?: InputMaybe<EmailTemplateWhereInput>
   orderBy?: InputMaybe<Array<EmailTemplateOrder> | EmailTemplateOrder>
@@ -69849,6 +69866,7 @@ export type EmailTemplatesWithFilterQuery = {
         active: boolean
         createdAt?: any | null
         createdBy?: string | null
+        defaults?: any | null
         description?: string | null
         format?: EmailTemplateNotificationTemplateFormat | null
         id: string
@@ -69881,6 +69899,7 @@ export type EmailTemplateQuery = {
     active: boolean
     createdAt?: any | null
     createdBy?: string | null
+    defaults?: any | null
     description?: string | null
     format?: EmailTemplateNotificationTemplateFormat | null
     id: string

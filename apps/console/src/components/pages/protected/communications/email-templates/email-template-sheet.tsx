@@ -1,20 +1,19 @@
 'use client'
 
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
+import DOMPurify from 'dompurify'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@repo/ui/sheet'
 import { Button } from '@repo/ui/button'
 import { Input } from '@repo/ui/input'
-import { Textarea } from '@repo/ui/textarea'
 import { Switch } from '@repo/ui/switch'
-import { Badge } from '@repo/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@repo/ui/select'
-import { Tabs, TabsList, TabsTrigger } from '@repo/ui/tabs'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@radix-ui/react-accordion'
-import { ChevronDown, Plus, SaveIcon, X } from 'lucide-react'
-import { useCreateEmailTemplate, useUpdateEmailTemplate, useEmailTemplate } from '@/lib/graphql-hooks/email-template'
+import { ChevronDown, SaveIcon, TriangleAlert, X } from 'lucide-react'
+import { useCreateEmailTemplate, useUpdateEmailTemplate, useEmailTemplate, useEmailTemplateCatalog } from '@/lib/graphql-hooks/email-template'
 import { useNotification } from '@/hooks/useNotification'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { EmailTemplateNotificationTemplateFormat, EmailTemplateTemplateContext } from '@repo/codegen/src/schema'
+import { EmailTemplateConfigForm } from './email-template-config-form'
 
 interface EmailTemplateSheetProps {
   open: boolean
@@ -23,23 +22,18 @@ interface EmailTemplateSheetProps {
   readOnly?: boolean
 }
 
-const DEFAULT_VARIABLES = ['{due_date}', '{company_name}', '{sender_name}', '{unsubscribe_link}', '{support_email}']
-
 export const EmailTemplateSheet: React.FC<EmailTemplateSheetProps> = ({ open, templateId, onClose, readOnly = false }) => {
   const isEditMode = !!templateId
 
   const [active, setActive] = useState(true)
   const [name, setName] = useState('')
-  const [key, setKey] = useState('')
-  const [description, setDescription] = useState('')
+  const [selectedKey, setSelectedKey] = useState('')
   const [locale, setLocale] = useState('en')
   const [format, setFormat] = useState<EmailTemplateNotificationTemplateFormat>(EmailTemplateNotificationTemplateFormat.HTML)
-  const [customVariable, setCustomVariable] = useState('')
-  const [variables, setVariables] = useState<string[]>([...DEFAULT_VARIABLES])
+  const [configData, setConfigData] = useState<Record<string, unknown>>({})
   const [initialized, setInitialized] = useState(false)
 
-  const bodyRef = useRef<HTMLTextAreaElement>(null)
-
+  const { entries, isLoading: isCatalogLoading } = useEmailTemplateCatalog()
   const { data: templateData, isLoading: isLoadingTemplate } = useEmailTemplate(isEditMode ? templateId : undefined)
   const { mutateAsync: createEmailTemplate, isPending: isCreating } = useCreateEmailTemplate()
   const { mutateAsync: updateEmailTemplate, isPending: isUpdating } = useUpdateEmailTemplate()
@@ -47,15 +41,20 @@ export const EmailTemplateSheet: React.FC<EmailTemplateSheetProps> = ({ open, te
 
   const isPending = isCreating || isUpdating
 
+  const selectedEntry = useMemo(() => entries.find((e) => e.key === selectedKey), [entries, selectedKey])
+
+  const sanitizedPreview = useMemo(() => {
+    if (!selectedEntry?.htmlPreview) return ''
+    return DOMPurify.sanitize(selectedEntry.htmlPreview, { WHOLE_DOCUMENT: true })
+  }, [selectedEntry])
+
   const resetForm = () => {
     setActive(true)
     setName('')
-    setKey('')
-    setDescription('')
+    setSelectedKey('')
     setLocale('en')
     setFormat(EmailTemplateNotificationTemplateFormat.HTML)
-    setCustomVariable('')
-    setVariables([...DEFAULT_VARIABLES])
+    setConfigData({})
   }
 
   useEffect(() => {
@@ -74,11 +73,10 @@ export const EmailTemplateSheet: React.FC<EmailTemplateSheetProps> = ({ open, te
     if (t && !initialized) {
       setActive(t.active)
       setName(t.name)
-      setKey(t.key)
-      setDescription(t.description ?? '')
+      setSelectedKey(t.key)
       setLocale(t.locale ?? 'en')
       setFormat(t.format ?? EmailTemplateNotificationTemplateFormat.HTML)
-      setVariables(DEFAULT_VARIABLES)
+      setConfigData((t.defaults as Record<string, unknown>) ?? {})
 
       setInitialized(true)
     }
@@ -90,37 +88,13 @@ export const EmailTemplateSheet: React.FC<EmailTemplateSheetProps> = ({ open, te
     onClose()
   }
 
-  const handleNameChange = (value: string) => {
-    setName(value)
-    if (!isEditMode) {
-      setKey(value.trim().toLowerCase().replace(/\s+/g, '-'))
-    }
-  }
-
-  const insertVariable = (variable: string) => {
-    const textarea = bodyRef.current
-    if (textarea) {
-      const start = textarea.selectionStart
-      setTimeout(() => {
-        textarea.focus()
-        const cursorPos = start + variable.length
-        textarea.setSelectionRange(cursorPos, cursorPos)
-      }, 0)
-    }
-  }
-
-  const addCustomVariable = () => {
-    if (!customVariable.trim()) return
-    const formatted = customVariable.trim().startsWith('{') ? customVariable.trim() : `{${customVariable.trim()}}`
-    if (!variables.includes(formatted)) {
-      setVariables((prev) => [...prev, formatted])
-    }
-    insertVariable(formatted)
-    setCustomVariable('')
+  const handleKeyChange = (key: string) => {
+    setSelectedKey(key)
+    if (!isEditMode) setConfigData({})
   }
 
   const handleSave = async () => {
-    if (!name.trim() || !key.trim()) return
+    if (!name.trim() || !selectedKey) return
 
     try {
       if (isEditMode) {
@@ -128,10 +102,8 @@ export const EmailTemplateSheet: React.FC<EmailTemplateSheetProps> = ({ open, te
           updateEmailTemplateId: templateId as string,
           input: {
             name: name.trim(),
-            key: key.trim(),
-            description: description.trim() || undefined,
+            defaults: configData,
             locale: locale.trim() || 'en',
-            format,
             active,
           },
         })
@@ -139,9 +111,9 @@ export const EmailTemplateSheet: React.FC<EmailTemplateSheetProps> = ({ open, te
       } else {
         await createEmailTemplate({
           input: {
+            key: selectedKey,
             name: name.trim(),
-            key: key.trim(),
-            description: description.trim() || undefined,
+            defaults: configData,
             locale: locale.trim() || 'en',
             format,
             active,
@@ -156,6 +128,10 @@ export const EmailTemplateSheet: React.FC<EmailTemplateSheetProps> = ({ open, te
     }
   }
 
+  const title = readOnly ? 'Preview Email Template' : isEditMode ? 'Edit Email Template' : 'Create Email Template'
+
+  const isCatalogDrift = isEditMode && !!selectedKey && entries.length > 0 && !selectedEntry
+
   return (
     <Sheet open={open} onOpenChange={(isOpen) => !isOpen && handleClose()}>
       <SheetContent
@@ -165,10 +141,10 @@ export const EmailTemplateSheet: React.FC<EmailTemplateSheetProps> = ({ open, te
         initialWidth="50vw"
         header={
           <SheetHeader>
-            <SheetTitle className="sr-only">{readOnly ? 'Preview Email Template' : isEditMode ? 'Edit Email Template' : 'Create Email Template'}</SheetTitle>
+            <SheetTitle className="sr-only">{title}</SheetTitle>
             <div className="flex flex-col gap-4">
               <div className="text-sm text-muted-foreground">
-                Communications / <span className="font-semibold text-foreground">{readOnly ? 'Preview Email Template' : isEditMode ? 'Edit Email Template' : 'Create Email Template'}</span>
+                Communications / <span className="font-semibold text-foreground">{title}</span>
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -176,7 +152,7 @@ export const EmailTemplateSheet: React.FC<EmailTemplateSheetProps> = ({ open, te
                     {readOnly ? 'Close' : 'Cancel'}
                   </Button>
                   {!readOnly && (
-                    <Button variant="primary" onClick={handleSave} disabled={isPending || !name.trim() || !key.trim()} icon={<SaveIcon size={16} />} iconPosition="left">
+                    <Button variant="primary" onClick={handleSave} disabled={isPending || !name.trim() || !selectedKey} icon={<SaveIcon size={16} />} iconPosition="left">
                       {isPending ? 'Saving...' : isEditMode ? 'Save Changes' : 'Save Draft'}
                     </Button>
                   )}
@@ -198,7 +174,7 @@ export const EmailTemplateSheet: React.FC<EmailTemplateSheetProps> = ({ open, te
               <Switch checked={active} onCheckedChange={setActive} disabled={readOnly} />
             </div>
 
-            <Accordion type="multiple" defaultValue={['basic', 'email-content']} className="flex flex-col gap-6">
+            <Accordion type="multiple" defaultValue={['basic', 'configuration', 'preview']} className="flex flex-col gap-6">
               <AccordionItem value="basic" className="rounded-lg border border-border bg-card overflow-hidden">
                 <AccordionTrigger asChild>
                   <div className="flex items-center justify-between w-full px-4 py-3 cursor-pointer group">
@@ -213,19 +189,26 @@ export const EmailTemplateSheet: React.FC<EmailTemplateSheetProps> = ({ open, te
                         <label className="text-sm font-medium">
                           Name<span className="text-destructive">*</span>
                         </label>
-                        <Input value={name} onChange={(e) => handleNameChange(e.target.value)} placeholder="e.g. Welcome Email" disabled={readOnly} />
+                        <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Welcome Email" disabled={readOnly} />
                       </div>
                       <div className="flex flex-col gap-1.5">
                         <label className="text-sm font-medium">
-                          Key<span className="text-destructive">*</span>
+                          Template<span className="text-destructive">*</span>
                         </label>
-                        <Input value={key} onChange={(e) => setKey(e.target.value)} placeholder="e.g. welcome-email" disabled={readOnly} />
+                        <Select value={selectedKey} onValueChange={handleKeyChange} disabled={readOnly || isEditMode}>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Select a template" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {entries.map((entry) => (
+                              <SelectItem key={entry.key} value={entry.key}>
+                                {entry.key}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        {selectedEntry?.description && <p className="text-xs text-muted-foreground">{selectedEntry.description}</p>}
                       </div>
-                    </div>
-
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-sm font-medium">Description</label>
-                      <Textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Describe the purpose of this template..." rows={3} disabled={readOnly} />
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
@@ -237,7 +220,7 @@ export const EmailTemplateSheet: React.FC<EmailTemplateSheetProps> = ({ open, te
                       </div>
                       <div className="flex flex-col gap-1.5">
                         <label className="text-sm font-medium">Format</label>
-                        <Select value={format} onValueChange={(val) => setFormat(val as EmailTemplateNotificationTemplateFormat)} disabled={readOnly}>
+                        <Select value={format} onValueChange={(val) => setFormat(val as EmailTemplateNotificationTemplateFormat)} disabled={readOnly || isEditMode}>
                           <SelectTrigger className="w-full">
                             <SelectValue placeholder="Select format" />
                           </SelectTrigger>
@@ -251,55 +234,57 @@ export const EmailTemplateSheet: React.FC<EmailTemplateSheetProps> = ({ open, te
                         </Select>
                       </div>
                     </div>
-
-                    <div className="text-sm text-muted-foreground">
-                      Version: <span className="font-medium text-foreground">1.0.0</span>
-                    </div>
                   </div>
                 </AccordionContent>
               </AccordionItem>
 
-              <AccordionItem value="email-content" className="rounded-lg border border-border bg-card overflow-hidden">
+              <AccordionItem value="configuration" className="rounded-lg border border-border bg-card overflow-hidden">
                 <AccordionTrigger asChild>
                   <div className="flex items-center justify-between w-full px-4 py-3 cursor-pointer group">
-                    <span className="text-sm font-semibold">Email Content</span>
+                    <span className="text-sm font-semibold">Configuration</span>
                     <ChevronDown size={18} className="text-muted-foreground transform transition-transform group-data-[state=open]:rotate-180" />
                   </div>
                 </AccordionTrigger>
                 <AccordionContent>
                   <div className="border-t border-border px-4 py-4">
-                    <Tabs defaultValue="customize" variant="underline">
-                      <TabsList className="mb-4">
-                        <TabsTrigger value="customize">Customize</TabsTrigger>
-                        <TabsTrigger value="preview">Preview</TabsTrigger>
-                      </TabsList>
+                    {isCatalogLoading ? (
+                      <p className="text-sm text-muted-foreground">Loading configuration...</p>
+                    ) : isCatalogDrift ? (
+                      <div className="flex flex-col gap-3">
+                        <div className="flex items-start gap-2 rounded-md border border-border bg-muted/40 p-3 text-xs text-muted-foreground">
+                          <TriangleAlert size={16} className="shrink-0 text-yellow-500" />
+                          <span>
+                            This template uses the catalog key <span className="font-mono">{selectedKey}</span>, which is no longer available. Showing its saved configuration as read-only JSON.
+                          </span>
+                        </div>
+                        <pre className="overflow-auto rounded-md border border-border bg-card p-3 text-xs">{JSON.stringify(configData, null, 2)}</pre>
+                      </div>
+                    ) : selectedEntry ? (
+                      <EmailTemplateConfigForm schema={selectedEntry.configSchema} data={configData} onChange={setConfigData} readOnly={readOnly} />
+                    ) : (
+                      <p className="text-sm text-muted-foreground">Select a template to configure its fields.</p>
+                    )}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
 
-                      {!readOnly && (
-                        <>
-                          <div className="flex items-center gap-2">
-                            <Input
-                              value={customVariable}
-                              onChange={(e) => setCustomVariable(e.target.value)}
-                              placeholder="Enter a variable to insert"
-                              className="flex-1"
-                              onKeyDown={(e) => e.key === 'Enter' && addCustomVariable()}
-                            />
-                            <Button variant="secondary" onClick={addCustomVariable} icon={<Plus size={16} />} iconPosition="left">
-                              Add Variable
-                            </Button>
-                          </div>
-
-                          <div className="flex flex-wrap gap-2">
-                            {variables.map((v) => (
-                              <Badge key={v} variant="outline" className="cursor-pointer font-mono text-xs hover:bg-accent" onClick={() => insertVariable(v)}>
-                                {v}
-                              </Badge>
-                            ))}
-                          </div>
-                          <p className="text-xs text-muted-foreground">Click a variable to insert it into the body template</p>
-                        </>
-                      )}
-                    </Tabs>
+              <AccordionItem value="preview" className="rounded-lg border border-border bg-card overflow-hidden">
+                <AccordionTrigger asChild>
+                  <div className="flex items-center justify-between w-full px-4 py-3 cursor-pointer group">
+                    <span className="text-sm font-semibold">Preview</span>
+                    <ChevronDown size={18} className="text-muted-foreground transform transition-transform group-data-[state=open]:rotate-180" />
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent>
+                  <div className="border-t border-border px-4 py-4">
+                    {sanitizedPreview ? (
+                      <>
+                        <iframe srcDoc={sanitizedPreview} title="Email template preview" sandbox="" className="w-full h-150 rounded-md border border-border bg-white" />
+                        <p className="mt-2 text-xs text-muted-foreground">Preview shows the template rendered with example values.</p>
+                      </>
+                    ) : (
+                      <p className="text-sm text-muted-foreground">Select a template to preview it.</p>
+                    )}
                   </div>
                 </AccordionContent>
               </AccordionItem>
