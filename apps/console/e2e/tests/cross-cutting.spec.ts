@@ -309,6 +309,22 @@ test.describe('cross-cutting — 404 not-found page', () => {
   })
 })
 
+test.describe('cross-cutting — org switcher', () => {
+  test('org selector popover lists organizations with a search field', async ({ page }) => {
+    await seedLoggedInUser(page, 'org-switch')
+
+    // organization-selector.tsx PopoverTrigger (data-testid="org-selector-trigger")
+    // sits in an off-screen sidebar region that can't be scrolled into the
+    // viewport, so a normal/forced click reports "outside of viewport". Dispatch
+    // the click directly — Radix's PopoverTrigger opens on the synthetic event.
+    await page.getByTestId('org-selector-trigger').dispatchEvent('click')
+
+    await expect(page.getByPlaceholder('Search for an organization')).toBeVisible({ timeout: 10_000 })
+    // The popover footer always offers a "View all organizations" link-button.
+    await expect(page.getByRole('button', { name: /View all organizations/i })).toBeVisible()
+  })
+})
+
 test.describe('cross-cutting — notifications bell', () => {
   test('header renders the Notifications bell for an authenticated user', async ({ page }) => {
     await seedLoggedInUser(page, 'cc-bell')

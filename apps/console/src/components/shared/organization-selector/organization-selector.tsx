@@ -105,7 +105,7 @@ export const OrganizationSelector = ({ expanded }: { expanded: boolean }) => {
     <div>
       <div>
         <Popover onOpenChange={setIsPopoverOpened} open={isPopoverOpened}>
-          <PopoverTrigger className="bg-unset w-full">
+          <PopoverTrigger className="bg-unset w-full" data-testid="org-selector-trigger">
             {expanded ? (
               <div className="flex items-center justify-between w-full  py-1 rounded-md hover:bg-card transition-colors">
                 <div className="flex items-center gap-2">

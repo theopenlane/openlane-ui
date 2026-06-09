@@ -154,6 +154,40 @@ export const createAsset = (sess: ApiSession, name: string): Promise<string> => 
 /** Create a registry contact (identified by `fullName`). */
 export const createContact = (sess: ApiSession, fullName: string): Promise<string> => seedEntity(sess, 'createContact', 'CreateContactInput', 'contact', { fullName })
 
+/**
+ * Create a vendor — an Entity created with `entityTypeName: "vendor"` (matches
+ * the console's vendor create flow). Uses the extra entityTypeName arg, so it
+ * can't go through the generic seedEntity helper.
+ */
+export const createVendor = async (sess: ApiSession, name: string): Promise<string> => {
+  const res = await gql<{ createEntity: { entity: { id: string } } }>(
+    sess,
+    `mutation($input: CreateEntityInput!, $entityTypeName: String){ createEntity(input: $input, entityTypeName: $entityTypeName){ entity { id } } }`,
+    { input: { name }, entityTypeName: 'vendor' },
+  )
+  const id = res.data?.createEntity?.entity?.id
+  if (!id) throw new Error(`createVendor failed: ${JSON.stringify(res.errors)}`)
+  return id
+}
+
+// Associate objects with a control via updateControl's add*IDs fields.
+const updateControlAssoc = async (sess: ApiSession, controlId: string, input: Record<string, unknown>): Promise<void> => {
+  const res = await gql<{ updateControl: { control: { id: string } } }>(sess, `mutation($id: ID!, $input: UpdateControlInput!){ updateControl(id: $id, input: $input){ control { id } } }`, {
+    id: controlId,
+    input,
+  })
+  if (!res.data?.updateControl?.control?.id) throw new Error(`updateControlAssoc failed: ${JSON.stringify(res.errors)}`)
+}
+
+/** Link an internal policy to a control (control side: addInternalPolicyIDs). */
+export const linkControlPolicy = (sess: ApiSession, controlId: string, policyId: string): Promise<void> => updateControlAssoc(sess, controlId, { addInternalPolicyIDs: [policyId] })
+
+/** Link a procedure to a control (control side: addProcedureIDs). */
+export const linkControlProcedure = (sess: ApiSession, controlId: string, procedureId: string): Promise<void> => updateControlAssoc(sess, controlId, { addProcedureIDs: [procedureId] })
+
+/** Link an evidence record to a control (control side: addEvidenceIDs). */
+export const linkControlEvidence = (sess: ApiSession, controlId: string, evidenceId: string): Promise<void> => updateControlAssoc(sess, controlId, { addEvidenceIDs: [evidenceId] })
+
 /** Create a fresh non-personal organization owned by the caller. */
 export const createSharedOrg = async (sess: ApiSession, name: string): Promise<string> => {
   const res = await gql<{ createOrganization: { organization: { id: string } } }>(sess, `mutation($input: CreateOrganizationInput!){ createOrganization(input: $input){ organization { id } } }`, {

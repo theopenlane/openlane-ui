@@ -89,3 +89,23 @@ test.describe('evidence — delete', () => {
     await expect(page.getByRole('button', { name: 'Delete evidence' })).toHaveCount(0, { timeout: 15_000 })
   })
 })
+
+test.describe('evidence — table tooling', () => {
+  test('column visibility menu opens from the evidence list toolbar', async ({ page }) => {
+    await page.goto('/evidence', { waitUntil: 'domcontentloaded' })
+    await expect(page.getByRole('heading', { name: 'Evidence Center', exact: true })).toBeVisible({ timeout: 20_000 })
+
+    // evidence-table-toolbar.tsx uses the shared ColumnVisibilityMenu ("Columns").
+    await page.getByRole('button', { name: /^Columns$/ }).click()
+    await expect(page.getByRole('menu')).toBeVisible({ timeout: 10_000 })
+  })
+
+  test('filter panel exposes a Status filter', async ({ page }) => {
+    await page.goto('/evidence', { waitUntil: 'domcontentloaded' })
+    await expect(page.getByRole('heading', { name: 'Evidence Center', exact: true })).toBeVisible({ timeout: 20_000 })
+
+    // Shared TableFilter; getEvidenceFilterableFields includes a "Status" field.
+    await page.getByRole('button', { name: /^Filter$/ }).click()
+    await expect(page.getByText(/^Status$/).first()).toBeVisible({ timeout: 10_000 })
+  })
+})
