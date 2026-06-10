@@ -154,6 +154,27 @@ export const createAsset = (sess: ApiSession, name: string): Promise<string> => 
 /** Create a registry contact (identified by `fullName`). */
 export const createContact = (sess: ApiSession, fullName: string): Promise<string> => seedEntity(sess, 'createContact', 'CreateContactInput', 'contact', { fullName })
 
+/** Create a campaign (only `name` required). Unblocks campaign detail/bulk specs. */
+export const createCampaign = (sess: ApiSession, name: string): Promise<string> => seedEntity(sess, 'createCampaign', 'CreateCampaignInput', 'campaign', { name })
+
+/** Create a registry platform (only `name` required). */
+export const createPlatform = (sess: ApiSession, name: string): Promise<string> => seedEntity(sess, 'createPlatform', 'CreatePlatformInput', 'platform', { name })
+
+/** Minimal SurveyJS definition for a seeded questionnaire template. */
+const MINIMAL_SURVEY = { pages: [{ name: 'page1', elements: [{ type: 'text', name: 'q1', title: 'Question 1' }] }] }
+
+/** Create a questionnaire template (name + jsonconfig). Returns the template id. */
+export const createTemplate = (sess: ApiSession, name: string): Promise<string> => seedEntity(sess, 'createTemplate', 'CreateTemplateInput', 'template', { name, jsonconfig: MINIMAL_SURVEY })
+
+/**
+ * Create a questionnaire (Assessment) from a fresh template and return its id.
+ * Unblocks the questionnaire list/send/row-action specs.
+ */
+export const createQuestionnaire = async (sess: ApiSession, name: string): Promise<string> => {
+  const templateId = await createTemplate(sess, `${name} (template)`)
+  return seedEntity(sess, 'createAssessment', 'CreateAssessmentInput', 'assessment', { name, templateID: templateId })
+}
+
 /**
  * Create a vendor — an Entity created with `entityTypeName: "vendor"` (matches
  * the console's vendor create flow). Uses the extra entityTypeName arg, so it

@@ -146,6 +146,11 @@ test.describe('registry — vendor detail (seeded)', () => {
   })
 })
 
+// NOTE: registry platforms — the `createPlatform` seeder works, but the
+// platforms dashboard doesn't surface a freshly-seeded platform reliably
+// (pagination/sort) and the heavy /registry/platforms/[id] detail route didn't
+// render a bare-seeded platform within budget. Seeder kept as infra. ⏳
+
 // Filter panels on the user-managed registry sub-pages (shared TableFilter).
 const REGISTRY_FILTER_PAGES = [
   { path: '/registry/personnel', heading: /^Personnel$/, field: 'Status' },

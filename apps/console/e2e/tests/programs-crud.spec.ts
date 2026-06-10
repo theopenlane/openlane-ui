@@ -18,6 +18,33 @@ test.beforeAll(async () => {
   ownerApi = await loginViaApi(ownerEmail, password)
 })
 
+test.describe('programs — list', () => {
+  test('the programs dashboard exposes search and Active/Archived tabs', async ({ page }) => {
+    test.slow()
+    await createProgram(ownerApi, uniqueProgramName()) // ensure the list view (not the empty state) renders
+    await page.goto('/programs', { waitUntil: 'domcontentloaded', timeout: 180_000 })
+
+    // programs-dashboard-page.tsx: a "Search" box + Active / Archived tabs.
+    await expect(page.getByPlaceholder('Search').first()).toBeVisible({ timeout: 20_000 })
+    await expect(page.getByRole('tab', { name: /Active/ })).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByRole('tab', { name: /Archived/ })).toBeVisible()
+  })
+
+  test('switching to the Archived tab updates the active selection', async ({ page }) => {
+    test.slow()
+    await createProgram(ownerApi, uniqueProgramName())
+    await page.goto('/programs', { waitUntil: 'domcontentloaded', timeout: 180_000 })
+
+    const active = page.getByRole('tab', { name: /Active/ })
+    const archived = page.getByRole('tab', { name: /Archived/ })
+    await expect(archived).toBeVisible({ timeout: 20_000 })
+
+    await archived.click()
+    await expect(archived).toHaveAttribute('aria-selected', 'true', { timeout: 10_000 })
+    await expect(active).toHaveAttribute('aria-selected', 'false')
+  })
+})
+
 test.describe('programs — detail (seeded)', () => {
   test('a seeded program detail page renders the program name', async ({ page }) => {
     const name = uniqueProgramName()
@@ -28,6 +55,35 @@ test.describe('programs — detail (seeded)', () => {
     // page-heading also contains "Overview", so pin the exact <h1>.)
     await expect(page.getByRole('heading', { name: 'Overview', exact: true })).toBeVisible({ timeout: 20_000 })
     await expect(page.getByText(name).first()).toBeVisible({ timeout: 15_000 })
+  })
+
+  test('the detail page renders the Basic information / Auditor / Timeline cards', async ({ page }) => {
+    test.slow()
+    const id = await createProgram(ownerApi, uniqueProgramName())
+
+    await page.goto(`/programs/${id}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
+    // basic-info.tsx / program-auditor.tsx / timeline-readiness.tsx section headings.
+    await expect(page.getByRole('heading', { name: 'Basic information' })).toBeVisible({ timeout: 30_000 })
+    await expect(page.getByRole('heading', { name: 'Auditor of this program' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Timeline & Readiness' })).toBeVisible()
+  })
+
+  test('editing Basic information reveals Save + Cancel', async ({ page }) => {
+    test.slow()
+    const id = await createProgram(ownerApi, uniqueProgramName())
+
+    await page.goto(`/programs/${id}`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
+    const basicInfo = page.getByRole('heading', { name: 'Basic information' })
+    await expect(basicInfo).toBeVisible({ timeout: 30_000 })
+
+    // Each card has its own "Edit" (Pencil) → SaveButton + CancelButton. Basic
+    // information renders first, so target the first Edit affordance.
+    await page
+      .getByRole('button', { name: /^Edit$/ })
+      .first()
+      .click()
+    await expect(page.getByRole('button', { name: /^Save Changes$/ }).first()).toBeVisible({ timeout: 10_000 })
+    await expect(page.getByRole('button', { name: /^Cancel$/ }).first()).toBeVisible()
   })
 })
 
@@ -132,5 +188,32 @@ test.describe('programs — settings + delete (seeded)', () => {
       .first()
       .click()
     await expect(page.getByRole('heading', { name: 'Assign User' })).toBeVisible({ timeout: 10_000 })
+  })
+
+  test('the second Assign opens the Assign Group dialog on the settings page', async ({ page }) => {
+    test.slow()
+    const id = await createProgram(ownerApi, uniqueProgramName())
+
+    await page.goto(`/programs/${id}/settings`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
+
+    // The settings page has two "Assign" buttons (users + groups); the groups
+    // one (program-settings-assign-groups-dialog.tsx) opens an "Assign Group" heading.
+    await page
+      .getByRole('button', { name: /^Assign$/ })
+      .last()
+      .click()
+    await expect(page.getByRole('heading', { name: 'Assign Group' })).toBeVisible({ timeout: 10_000 })
+  })
+
+  test('Import opens the Import Controls dialog on the settings page', async ({ page }) => {
+    test.slow()
+    const id = await createProgram(ownerApi, uniqueProgramName())
+
+    await page.goto(`/programs/${id}/settings`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
+
+    // program-settings-import-controls-dialog.tsx trigger "Import" → dialog with
+    // an "Import controls from" framework/program selector.
+    await page.getByRole('button', { name: /^Import$/ }).click()
+    await expect(page.getByRole('dialog').getByText('Import controls from')).toBeVisible({ timeout: 10_000 })
   })
 })

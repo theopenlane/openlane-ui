@@ -8,39 +8,39 @@
 
 ### automation
 
-- [ ] `/automation/campaigns` · search functionality
-- [ ] `/automation/campaigns` · filter by status/type/due-date
-- [ ] `/automation/campaigns` · select single/multiple campaigns
-- [ ] `/automation/campaigns` · bulk delete campaigns with confirmation
+- [x] `/automation/campaigns` · search functionality ✅
+- [x] `/automation/campaigns` · filter by status/type/due-date ✅
+- [x] `/automation/campaigns` · select single/multiple campaigns ✅
+- [x] `/automation/campaigns` · bulk delete campaigns with confirmation ✅
 - [ ] `/automation/campaigns` · create campaign step 1: enter name and select questionnaire template
 - [ ] `/automation/campaigns` · create campaign step 2: add targets via CSV upload
 - [ ] `/automation/campaigns` · save campaign as draft from stepper
 - [ ] `/automation/campaigns` · launch campaign from stepper
 - [ ] `/automation/campaigns` · navigate to campaign detail by clicking row
-- [ ] `/automation/campaigns` · detail page: start draft campaign button
-- [ ] `/automation/campaigns` · detail page: delete campaign from menu
-- [ ] `/automation/campaigns/[id]` · load and display campaign detail page
+- [x] `/automation/campaigns` · detail page: start draft campaign button ✅
+- [x] `/automation/campaigns` · detail page: delete campaign from menu ✅
+- [x] `/automation/campaigns/[id]` · load and display campaign detail page ✅
 - [ ] `/automation/campaigns/[id]` · edit campaign name with inline persist
 - [ ] `/automation/campaigns/[id]` · edit campaign status dropdown
 - [ ] `/automation/campaigns/[id]` · edit campaign type dropdown
 - [ ] `/automation/campaigns/[id]` · edit campaign due date
-- [ ] `/automation/campaigns/[id]` · start campaign from draft state
+- [x] `/automation/campaigns/[id]` · start campaign from draft state ✅
 - [ ] `/automation/campaigns/[id]` · complete campaign from active state
-- [ ] `/automation/campaigns/[id]` · delete campaign and redirect to list
-- [ ] `/automation/communications` · search email templates
-- [ ] `/automation/communications` · filter email templates by status (All/Active/Inactive)
-- [ ] `/automation/communications` · create email template
+- [x] `/automation/campaigns/[id]` · delete campaign and redirect to list ✅
+- [x] `/automation/communications` · search email templates ✅
+- [x] `/automation/communications` · filter email templates by status (All/Active/Inactive) ✅
+- [x] `/automation/communications` · create email template ✅
 - [ ] `/automation/communications` · edit email template
 - [ ] `/automation/communications` · delete email template with confirmation
 - [ ] `/automation/communications` · search notification templates
 - [ ] `/automation/communications` · filter notification templates by status (All/Active/Inactive)
-- [ ] `/automation/communications` · create notification template
+- [x] `/automation/communications` · create notification template ✅
 - [ ] `/automation/communications` · edit notification template
 - [ ] `/automation/communications` · delete notification template with confirmation
-- [ ] `/automation/questionnaires` · summary cards functionality and counts
-- [ ] `/automation/questionnaires` · tab switching questionnaires to templates
+- [x] `/automation/questionnaires` · summary cards functionality and counts ✅
+- [x] `/automation/questionnaires` · tab switching questionnaires to templates ✅
 - [ ] `/automation/questionnaires` · search and filter questionnaires
-- [ ] `/automation/questionnaires` · row actions view details send edit preview delete
+- [x] `/automation/questionnaires` · row actions view details send edit preview delete ✅
 - [ ] `/automation/questionnaires` · send questionnaire dialog email input contact suggestions validation sending
 - [ ] `/automation/questionnaires` · bulk delete with checkbox selection
 - [ ] `/automation/questionnaires` · pagination navigation
@@ -119,7 +119,7 @@
 - [ ] `/controls/[id]/[subcontrolId]/map-control` · form validation—reject submit without From control
 - [ ] `/controls/[id]/[subcontrolId]/map-control` · form validation—reject submit without To control
 - [ ] `/controls/[id]/[subcontrolId]/map-control` · successful form submission creates MappedControl
-- [ ] `/controls/[id]/clone-control` · prefill-cloned-ref-code — _Clone-control page should auto-populate ref code with CC- prefix from source control; no test validates this behavior_
+- [x] `/controls/[id]/clone-control` · prefill-cloned-ref-code — _Clone-control page should auto-populate ref code with CC- prefix from source control; no test validates this behavior_ ✅
 - [ ] `/controls/[id]/clone-control` · prefill-control-metadata — _Clone-control page should auto-populate description, category, subcategory, owner, delegate, controlKindName from source control; no test validates form pre-population_
 - [ ] `/controls/[id]/clone-control` · submit-and-redirect — _Happy path: submit clone form and redirect to cloned control detail page; no test validates clone creation end-to-end_
 - [ ] `/controls/[id]/clone-control` · permission-gating — _CanCreateControl permission gates access; the Clone button itself is gated in control-header-actions.tsx but no test validates permission checks on the clone-control route_
@@ -216,7 +216,7 @@
 
 ### organization-settings
 
-- [ ] `/organization-settings/authentication` · add-email-domain-with-validation
+- [x] `/organization-settings/authentication` · add-email-domain-with-validation ✅
 - [ ] `/organization-settings/authentication` · display-domain-chips
 - [ ] `/organization-settings/authentication` · remove-domain
 - [ ] `/organization-settings/authentication` · configure-sso-switch-to-edit-mode
@@ -226,13 +226,13 @@
 - [ ] `/organization-settings/authentication` · remove-sso-with-confirmation
 - [ ] `/organization-settings/custom-data` · edit-tag
 - [ ] `/organization-settings/custom-data` · delete-tag
-- [ ] `/organization-settings/custom-data` · search-tags
+- [x] `/organization-settings/custom-data` · search-tags ✅
 - [ ] `/organization-settings/custom-data` · edit-enum
 - [ ] `/organization-settings/custom-data` · delete-enum
-- [ ] `/organization-settings/custom-data` · search-enums
+- [x] `/organization-settings/custom-data` · search-enums ✅
 - [ ] `/organization-settings/custom-data` · filter-enums-by-group
 - [ ] `/organization-settings/custom-data` · sort-enums
-- [ ] `/organization-settings/custom-data` · column-visibility-tags
+- [x] `/organization-settings/custom-data` · column-visibility-tags ✅
 - [ ] `/organization-settings/custom-data` · column-visibility-enums
 - [ ] `/organization-settings/custom-data` · paginate-tags
 - [ ] `/organization-settings/custom-data` · paginate-enums
@@ -275,9 +275,9 @@
 
 ### programs
 
-- [ ] `/programs` · search programs by name/framework/description
-- [ ] `/programs` · filter active vs archived programs (Tabs)
-- [ ] `/programs/[id]` · edit program basic info (name, description, tags, framework, program owner) — _inline edit form with save/cancel, permission-gated by canEdit role_
+- [x] `/programs` · search programs by name/framework/description ✅
+- [x] `/programs` · filter active vs archived programs (Tabs) ✅
+- [x] `/programs/[id]` · edit program basic info (name, description, tags, framework, program owner) — _inline edit form with save/cancel, permission-gated by canEdit role_ ✅
 - [ ] `/programs/[id]` · view and edit auditor details (firm, name, email) — _auditor section with edit mode, set-auditor-dialog for initial assignment_
 - [ ] `/programs/[id]` · set program as ready for auditor — _set-ready-for-auditor-dialog triggered from auditor card_
 - [ ] `/programs/[id]` · view timeline and readiness (status, start date, end date) — _includes status dropdown, calendar date pickers with validation_
@@ -285,10 +285,10 @@
 - [ ] `/programs/[id]/settings` · assign user - select, set roles, and submit — _Dialog opens but assignment flow not tested_
 - [ ] `/programs/[id]/settings` · edit user role (Editor/Viewer) — _Dropdown + dialog present but not tested_
 - [ ] `/programs/[id]/settings` · remove user from program with confirmation — _Action menu present but not tested_
-- [ ] `/programs/[id]/settings` · assign group to program — _Dialog present but not tested_
+- [x] `/programs/[id]/settings` · assign group to program — _Dialog present but not tested_ ✅
 - [ ] `/programs/[id]/settings` · edit group role — _Dropdown + dialog present but not tested_
 - [ ] `/programs/[id]/settings` · remove group from program — _Action menu present but not tested_
-- [ ] `/programs/[id]/settings` · import controls from framework (select framework, select controls, import) — _Multi-step dialog present but not tested_
+- [x] `/programs/[id]/settings` · import controls from framework (select framework, select controls, import) — _Multi-step dialog present but not tested_ ✅
 - [ ] `/programs/[id]/settings` · import controls from another program — _Multi-step dialog present but not tested_
 - [ ] `/programs/[id]/settings` · verify non-editor cannot see action menus — _Permission gating logic (editAllowed) present but not tested_
 - [ ] `/programs/create/advanced-setup` · Step 1: Select Program Type card selection logic
