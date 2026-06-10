@@ -125,4 +125,20 @@ test.describe('evidence — table tooling', () => {
     await page.getByRole('button', { name: /^Filter$/ }).click()
     await expect(page.getByText(/^Status$/).first()).toBeVisible({ timeout: 10_000 })
   })
+
+  test('selecting an evidence row reveals the Bulk Delete action', async ({ page }) => {
+    const name = uniqueEvidenceName()
+    await createEvidence(ownerApi, name)
+
+    await page.goto('/evidence', { waitUntil: 'domcontentloaded' })
+    await expect(page.getByRole('heading', { name: 'Evidence Center', exact: true })).toBeVisible({ timeout: 20_000 })
+
+    await page.getByPlaceholder('Search').fill(name)
+    const row = page.getByRole('row').filter({ hasText: name })
+    await expect(row).toBeVisible({ timeout: 15_000 })
+    await row.getByRole('checkbox').first().check()
+
+    // evidence-table-toolbar.tsx shows "Bulk Delete (n)" once a row is selected.
+    await expect(page.getByRole('button', { name: /^Bulk Delete/ })).toBeVisible({ timeout: 10_000 })
+  })
 })

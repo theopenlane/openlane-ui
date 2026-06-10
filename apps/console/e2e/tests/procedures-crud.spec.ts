@@ -57,6 +57,20 @@ test.describe('procedures — detail (seeded)', () => {
     await page.waitForURL(/\/procedures(\?|$)/, { timeout: 20_000 })
   })
 
+  test('selecting a procedure row reveals the Bulk Delete action', async ({ page }) => {
+    const name = uniqueProcedureName()
+    await createProcedure(ownerApi, name)
+
+    await page.goto('/procedures', { waitUntil: 'domcontentloaded' })
+    await page.getByPlaceholder('Search').fill(name)
+    const row = page.getByRole('row').filter({ hasText: name })
+    await expect(row).toBeVisible({ timeout: 15_000 })
+    await row.getByRole('checkbox').first().check()
+
+    // procedures-table-toolbar.tsx shows "Bulk Delete (n)" once a row is selected.
+    await expect(page.getByRole('button', { name: /^Bulk Delete/ })).toBeVisible({ timeout: 10_000 })
+  })
+
   test('a control linked to a procedure shows in its Associated Objects', async ({ page }) => {
     test.slow()
     const name = uniqueProcedureName()

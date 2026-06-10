@@ -21,6 +21,23 @@ test.beforeAll(async () => {
   ownerApi = await loginViaApi(ownerEmail, password)
 })
 
+test.describe('exposure — create risk validation', () => {
+  test('submitting an empty title keeps the form on the create page', async ({ page }) => {
+    test.slow()
+    await page.goto('/exposure/risks/create', { waitUntil: 'domcontentloaded', timeout: 180_000 })
+
+    // create-risk-form.tsx submit is "Create risk"; an empty (required) title
+    // fails validation, so the form stays mounted instead of redirecting to a
+    // /exposure/risks/{id} detail.
+    const submit = page.getByRole('button', { name: /^Create risk$/ })
+    await expect(submit).toBeVisible({ timeout: 30_000 })
+    await submit.click()
+
+    await expect(submit).toBeVisible({ timeout: 5_000 })
+    await expect(page).toHaveURL(/\/exposure\/risks\/create/)
+  })
+})
+
 test.describe('exposure — risks', () => {
   test('column visibility menu lists toggleable columns', async ({ page }) => {
     await page.goto('/exposure/risks', { waitUntil: 'domcontentloaded' })
@@ -59,6 +76,20 @@ test.describe('exposure — risks', () => {
 
     await expect(page.getByRole('cell').filter({ hasText: a }).first()).toBeVisible({ timeout: 15_000 })
     await expect(page.getByRole('cell').filter({ hasText: b })).toHaveCount(0, { timeout: 15_000 })
+  })
+
+  test('selecting a risk row reveals the Bulk Delete action', async ({ page }) => {
+    const name = uniqueRiskName()
+    await createRisk(ownerApi, name)
+
+    await page.goto('/exposure/risks', { waitUntil: 'domcontentloaded' })
+    await page.getByPlaceholder(/^Search$/).fill(name)
+    const row = page.getByRole('row').filter({ hasText: name })
+    await expect(row).toBeVisible({ timeout: 15_000 })
+    await row.getByRole('checkbox').first().check()
+
+    // risks-table-toolbar.tsx shows "Bulk Delete (n)" once a row is selected.
+    await expect(page.getByRole('button', { name: /^Bulk Delete/ })).toBeVisible({ timeout: 10_000 })
   })
 })
 

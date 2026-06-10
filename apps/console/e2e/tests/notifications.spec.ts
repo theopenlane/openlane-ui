@@ -18,4 +18,14 @@ test.describe('notifications — page render', () => {
     await expect(page.getByRole('button', { name: /^All$/ }).first()).toBeVisible({ timeout: 15_000 })
     await expect(page.getByRole('button', { name: /^Unread$/ })).toBeVisible()
   })
+
+  test('/notifications renders the Filters panel with topic options', async ({ page }) => {
+    await page.goto('/notifications')
+
+    // notifications-page.tsx left "Filters" panel exposes topic filter buttons
+    // (Mention / Approval / …). ("Mark all as read" only renders when unread
+    // notifications exist, so it is not asserted here.)
+    await expect(page.getByText('Filters', { exact: true })).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByRole('button', { name: /^Mention$/ })).toBeVisible()
+  })
 })

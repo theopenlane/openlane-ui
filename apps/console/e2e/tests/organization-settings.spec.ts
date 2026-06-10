@@ -71,6 +71,25 @@ test.describe('organization-settings — custom data (owner)', () => {
     await expect(sheet).toBeVisible({ timeout: 10_000 })
     await expect(sheet.getByText('Name', { exact: true })).toBeVisible()
   })
+
+  test('the Custom Tags tab exposes search + a column-visibility menu', async ({ page }) => {
+    await page.goto('/organization-settings/custom-data', { waitUntil: 'domcontentloaded' })
+    await expect(page.getByRole('heading', { level: 2, name: /^Custom Data$/ })).toBeVisible({ timeout: 20_000 })
+
+    // custom-tags-tab.tsx: search "Search tags..." + shared ColumnVisibilityMenu.
+    await expect(page.getByPlaceholder('Search tags...')).toBeVisible({ timeout: 15_000 })
+    await page.getByRole('button', { name: /^Columns$/ }).click()
+    await expect(page.getByRole('menu')).toBeVisible({ timeout: 10_000 })
+  })
+
+  test('the Custom Enums tab exposes its own search box', async ({ page }) => {
+    await page.goto('/organization-settings/custom-data', { waitUntil: 'domcontentloaded' })
+    await expect(page.getByRole('heading', { level: 2, name: /^Custom Data$/ })).toBeVisible({ timeout: 20_000 })
+
+    await page.getByRole('tab', { name: 'Custom Enums' }).click()
+    // custom-enums-tab.tsx: search "Search enums...".
+    await expect(page.getByPlaceholder('Search enums...')).toBeVisible({ timeout: 15_000 })
+  })
 })
 
 test.describe('organization-settings — integrations marketplace (owner)', () => {
@@ -81,6 +100,18 @@ test.describe('organization-settings — integrations marketplace (owner)', () =
     // integrations-toolbar.tsx renders Radix tabs labelled "All (N)" / "Installed (N)".
     await expect(page.getByRole('tab', { name: /^All \(\d+\)$/ })).toBeVisible({ timeout: 15_000 })
     await expect(page.getByRole('tab', { name: /^Installed \(\d+\)$/ })).toBeVisible()
+  })
+})
+
+test.describe('organization-settings — billing (owner)', () => {
+  test('billing page renders the Billing Settings section with Address + Email', async ({ page }) => {
+    await page.goto('/organization-settings/billing', { waitUntil: 'domcontentloaded' })
+    await expect(page.getByRole('heading', { level: 2, name: /^Billing$/ })).toBeVisible({ timeout: 20_000 })
+
+    // billing-settings.tsx: "Billing Settings" h2 + "Address" / "Email" h3.
+    await expect(page.getByRole('heading', { name: 'Billing Settings' }).first()).toBeVisible({ timeout: 15_000 })
+    await expect(page.getByRole('heading', { name: 'Address' }).first()).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Email' }).first()).toBeVisible()
   })
 })
 
@@ -104,5 +135,16 @@ test.describe('organization-settings — authentication (owner)', () => {
     // allowed-domains.tsx PanelHeader + sso.tsx <h3>SSO Configuration</h3>.
     await expect(page.getByText('Allowed domains')).toBeVisible({ timeout: 15_000 })
     await expect(page.getByText('SSO Configuration').first()).toBeVisible()
+  })
+
+  test('an invalid allowed-domain shows a validation error (no mutation)', async ({ page }) => {
+    await page.goto('/organization-settings/authentication', { waitUntil: 'domcontentloaded' })
+    await expect(page.getByText('Allowed domains')).toBeVisible({ timeout: 20_000 })
+
+    // allowed-domains.tsx validates with isValidDomain BEFORE mutating, so an
+    // invalid value surfaces the inline error and never touches the org setting.
+    await page.getByPlaceholder('example.com').fill('not a valid domain!!')
+    await page.getByRole('button', { name: /^Add Domain$/ }).click()
+    await expect(page.getByText(/is not a valid domain/i)).toBeVisible({ timeout: 10_000 })
   })
 })
