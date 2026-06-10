@@ -60,7 +60,7 @@ import {
 import { type NavHeading, type NavItem, type Separator } from '@/types'
 import { PlanEnum } from '@/lib/subscription-plan/plan-enum.ts'
 import { canEdit, isOwnerOrSuperAdmin } from '@/lib/authz/utils'
-import { type TPermissionData } from '@/types/authz'
+import { type TPermissionData } from '@/lib/authz/types'
 import type { Session } from 'next-auth'
 import { OrgMembershipRole } from '@repo/codegen/src/schema'
 import { featureUtil } from '@/lib/subscription-plan/plans'

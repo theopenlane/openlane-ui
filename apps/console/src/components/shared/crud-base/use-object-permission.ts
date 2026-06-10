@@ -1,7 +1,7 @@
 import { useSession } from 'next-auth/react'
 import { useAccountRoles, useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { canDelete, canEdit, canView, hasPermission } from '@/lib/authz/utils'
-import { type TAccessRole } from '@/types/authz'
+import { type TAccessRole } from '@/lib/authz/types'
 import { type AccessEnum } from '@repo/codegen/src/permissions.generated'
 import { type ObjectTypes } from '@repo/codegen/src/type-names'
 import { deriveOrgMember } from '@/lib/authz/permission-map'
@@ -17,15 +17,6 @@ export type ObjectPermission = {
   isLoading: boolean
 }
 
-// useObjectPermission resolves the current user's gating booleans for a single object.
-//
-// view/edit/delete are checked against the GENERIC can_view/can_edit/can_delete tokens scoped to
-// the object (returned by /account/roles), while create is checked against the org-qualified
-// member (e.g. can_create_control from /account/roles/organization) — these are two distinct
-// vocabularies from two endpoints and must not be conflated.
-//
-// The session is read here rather than passed in by each caller: it only carries the
-// impersonation bypass, and threading it through every call site made it easy to drop.
 export const useObjectPermission = (objectType: ObjectTypes, id?: string | null): ObjectPermission => {
   const { data: session } = useSession()
   const useObjectPermissions = getPermissionStrategy(objectType) === 'object'
@@ -46,8 +37,6 @@ export const useObjectPermission = (objectType: ObjectTypes, id?: string | null)
   }
 }
 
-// useOrgPermission gates org-level actions that have no object id yet (create buttons, aggregate
-// manage permissions). Pass an AccessEnum directly via hasPermission(), or an ObjectTypes to canCreate().
 export const useOrgPermission = () => {
   const { data: session } = useSession()
   const org = useOrganizationRoles()
@@ -61,7 +50,6 @@ export const useOrgPermission = () => {
   }
 }
 
-// Backwards-compatible shims for existing callers — identical behavior to before.
 export const useObjectPermissionRoles = (objectType: ObjectTypes, id?: string | null): TAccessRole[] | undefined => useObjectPermission(objectType, id).roles
 
 export const useCanEditObject = (objectType: ObjectTypes, id?: string | null): boolean => useObjectPermission(objectType, id).canEdit

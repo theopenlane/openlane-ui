@@ -4,10 +4,6 @@ import { deriveOrgMember, IRREGULAR_PERMISSIONS } from './permission-map'
 
 const ACCESS_VALUES = new Set<string>(Object.values(AccessEnum))
 
-// Object types the console exposes a create action for. Each must resolve to a real
-// can_create_<object> relation; if the backend FGA model drops one, deriveOrgMember returns
-// undefined here and this test fails — surfacing the coverage regression instead of a silently
-// dead gate.
 const CREATE_SURFACES: ObjectTypes[] = [
   ObjectTypes.GROUP,
   ObjectTypes.CONTROL,
