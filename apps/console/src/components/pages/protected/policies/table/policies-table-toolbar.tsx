@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { TableFilter } from '@/components/shared/table-filter/table-filter.tsx'
-import { DownloadIcon, Import, LoaderCircle, SearchIcon, SquarePlus } from 'lucide-react'
+import { DownloadIcon, FileText, Import, LoaderCircle, SearchIcon, SquarePlus } from 'lucide-react'
+import { ExportExportFormat } from '@repo/codegen/src/schema'
 import { usePoliciesFilters } from '@/components/pages/protected/policies/table/table-config.ts'
 import { Input } from '@repo/ui/input'
 import { useDebounce } from '@uidotdev/usehooks'
@@ -29,7 +30,7 @@ type TPoliciesTableToolbarProps = {
   searchTerm: string
   setSearchTerm: (searchTerm: string) => void
   setFilters: (filters: Record<string, unknown>) => void
-  handleExport: () => void
+  handleExport: (format?: ExportExportFormat) => void
   columnVisibility?: VisibilityState
   setColumnVisibility?: React.Dispatch<React.SetStateAction<VisibilityState>>
   mappedColumns: {
@@ -176,12 +177,22 @@ const PoliciesTableToolbar: React.FC<TPoliciesTableToolbarProps> = ({
                     <button
                       className={`px-1 bg-transparent flex items-center space-x-2 cursor-pointer ${!exportEnabled ? 'opacity-50' : ''}`}
                       onClick={() => {
-                        handleExport()
+                        handleExport(ExportExportFormat.CSV)
                         close()
                       }}
                     >
                       <DownloadIcon size={16} strokeWidth={2} />
-                      <span>Export</span>
+                      <span>Export to CSV</span>
+                    </button>
+                    <button
+                      className={`px-1 bg-transparent flex items-center space-x-2 cursor-pointer ${!exportEnabled ? 'opacity-50' : ''}`}
+                      onClick={() => {
+                        handleExport(ExportExportFormat.PDF)
+                        close()
+                      }}
+                    >
+                      <FileText size={16} strokeWidth={2} />
+                      <span>Export to PDF</span>
                     </button>
                   </>
                 )}
