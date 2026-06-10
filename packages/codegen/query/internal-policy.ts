@@ -56,6 +56,7 @@ export const GET_INTERNAL_POLICIES_LIST = gql`
           createdAt
           createdBy
           summary
+          managementMode
           approvalRequired
           approver {
             displayName

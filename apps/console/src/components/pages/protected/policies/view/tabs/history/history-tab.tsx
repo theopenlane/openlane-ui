@@ -18,6 +18,7 @@ import HistoryRow from './history-row'
 import VersionSlideout from './version-slideout'
 import RestoreDialog from './restore-dialog'
 import { stringToPlateValue } from '@/components/shared/plate/plate-utils'
+import { isUlid } from '@/lib/validators'
 
 const hasStr = (s: string | null | undefined): s is string => typeof s === 'string' && s.length > 0
 const hasArr = (a: ReadonlyArray<unknown> | null | undefined): a is ReadonlyArray<unknown> => Array.isArray(a) && a.length > 0
@@ -55,11 +56,11 @@ const HistoryTab: React.FC<HistoryTabProps> = ({ policyId, policy }) => {
 
   const userIds = useMemo(() => {
     const ids = new Set<string>()
-    if (policy.updatedBy) ids.add(policy.updatedBy)
-    if (policy.createdBy) ids.add(policy.createdBy)
+    if (policy.updatedBy && isUlid(policy.updatedBy)) ids.add(policy.updatedBy)
+    if (policy.createdBy && isUlid(policy.createdBy)) ids.add(policy.createdBy)
     historyNodes.forEach((n) => {
-      if (n.createdBy) ids.add(n.createdBy)
-      if (n.updatedBy) ids.add(n.updatedBy)
+      if (n.createdBy && isUlid(n.createdBy)) ids.add(n.createdBy)
+      if (n.updatedBy && isUlid(n.updatedBy)) ids.add(n.updatedBy)
     })
     return Array.from(ids)
   }, [policy.updatedBy, policy.createdBy, historyNodes])
@@ -82,12 +83,13 @@ const HistoryTab: React.FC<HistoryTabProps> = ({ policyId, policy }) => {
     return m
   }, [tokens])
 
-  const lookupAuthor = (id: string | null | undefined): { user?: User; token?: ApiToken } => {
+  const lookupAuthor = (id: string | null | undefined): { user?: User; token?: ApiToken; label?: string } => {
     if (!id) return {}
     const token = tokenMap.get(id)
     if (token) return { token }
     const user = userMap.get(id)
-    return user ? { user } : {}
+    if (user) return { user }
+    return isUlid(id) ? {} : { label: id }
   }
 
   const restoreTarget = useMemo(() => historyNodes.find((n) => n.id === restoreTargetId) ?? null, [historyNodes, restoreTargetId])
@@ -127,14 +129,15 @@ const HistoryTab: React.FC<HistoryTabProps> = ({ policyId, policy }) => {
 
   const currentAuthor = lookupAuthor(policy.updatedBy)
   const isExternalReference = policy.managementMode === InternalPolicyDocumentManagementMode.EXTERNAL_REFERENCE
+  const isIntegration = policy.managementMode === InternalPolicyDocumentManagementMode.INTEGRATION
   const handleView = isExternalReference ? undefined : (id: string) => setSelectedHistoryId(id)
-  const handleRestoreClick = isExternalReference ? undefined : (id: string) => setRestoreTargetId(id)
+  const handleRestoreClick = isExternalReference || isIntegration ? undefined : (id: string) => setRestoreTargetId(id)
 
   return (
     <div className="mt-5 flex flex-col gap-3">
       <p className="text-sm text-muted-foreground">Showing major and minor versions only · patch versions (e.g. v1.2.1) excluded</p>
 
-      <HistoryRow id={policyId} revision={policy.revision} occurredAt={policy.updatedAt} user={currentAuthor.user} token={currentAuthor.token} isCurrent />
+      <HistoryRow id={policyId} revision={policy.revision} occurredAt={policy.updatedAt} user={currentAuthor.user} token={currentAuthor.token} label={currentAuthor.label} isCurrent />
 
       {isLoading && historyNodes.length === 0 ? (
         <p className="text-sm text-muted-foreground">Loading history…</p>
@@ -152,6 +155,7 @@ const HistoryTab: React.FC<HistoryTabProps> = ({ policyId, policy }) => {
                 occurredAt={node.historyTime}
                 user={author.user}
                 token={author.token}
+                label={author.label}
                 onView={handleView}
                 onRestore={handleRestoreClick}
               />
@@ -164,19 +168,26 @@ const HistoryTab: React.FC<HistoryTabProps> = ({ policyId, policy }) => {
       )}
 
       {!isExternalReference && (
-        <>
-          <VersionSlideout historyId={selectedHistoryId} histories={historyNodes} currentPolicy={policy} onClose={() => setSelectedHistoryId(null)} onRestore={(id) => setRestoreTargetId(id)} />
+        <VersionSlideout
+          historyId={selectedHistoryId}
+          histories={historyNodes}
+          currentPolicy={policy}
+          canRestore={!isIntegration}
+          onClose={() => setSelectedHistoryId(null)}
+          onRestore={(id) => setRestoreTargetId(id)}
+        />
+      )}
 
-          <RestoreDialog
-            open={!!restoreTarget}
-            onOpenChange={(open) => {
-              if (!open) setRestoreTargetId(null)
-            }}
-            revision={restoreTarget?.revision ?? ''}
-            onConfirm={() => restoreTarget && handleRestore(restoreTarget.id)}
-            isPending={isRestoring}
-          />
-        </>
+      {!isExternalReference && !isIntegration && (
+        <RestoreDialog
+          open={!!restoreTarget}
+          onOpenChange={(open) => {
+            if (!open) setRestoreTargetId(null)
+          }}
+          revision={restoreTarget?.revision ?? ''}
+          onConfirm={() => restoreTarget && handleRestore(restoreTarget.id)}
+          isPending={isRestoring}
+        />
       )}
     </div>
   )

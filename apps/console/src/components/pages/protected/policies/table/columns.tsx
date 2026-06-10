@@ -1,5 +1,5 @@
 import { type ColumnDef } from '@tanstack/react-table'
-import { type ApiToken, type Group, type InternalPolicy, type User } from '@repo/codegen/src/schema.ts'
+import { type ApiToken, type Group, type InternalPolicy, InternalPolicyDocumentManagementMode, type User } from '@repo/codegen/src/schema.ts'
 import { Avatar } from '@/components/shared/avatar/avatar.tsx'
 import { KeyRound } from 'lucide-react'
 import React from 'react'
@@ -71,7 +71,8 @@ export const getPoliciesColumns = ({ users, tokens, selectedPolicies, setSelecte
       size: 500,
       cell: ({ cell }) => {
         const summary = cell.getValue() as string
-        return <TruncatedCell className="line-clamp-4 text-justify whitespace-normal">{summary === '' ? 'N/A' : summary}</TruncatedCell>
+        const fallback = cell.row.original.managementMode === InternalPolicyDocumentManagementMode.INTEGRATION ? 'Summary not available when managed with integration' : 'N/A'
+        return <TruncatedCell className="line-clamp-4 text-justify whitespace-normal">{summary === '' ? fallback : summary}</TruncatedCell>
       },
     },
     {

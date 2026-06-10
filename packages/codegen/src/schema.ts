@@ -11251,6 +11251,7 @@ export interface CreateTrustCenterSettingInput {
   logoRemoteURL?: InputMaybe<Scalars['String']['input']>
   /** whether NDA requests require approval before being processed */
   ndaApprovalRequired?: InputMaybe<Scalars['Boolean']['input']>
+  ndaApproverGroupID?: InputMaybe<Scalars['ID']['input']>
   /** overview of the trust center */
   overview?: InputMaybe<Scalars['String']['input']>
   /** primary color for the trust center */
@@ -26067,8 +26068,10 @@ export enum InviteOrderField {
 /** InviteRole is enum for the field role */
 export enum InviteRole {
   ADMIN = 'ADMIN',
+  AUDITOR = 'AUDITOR',
   MEMBER = 'MEMBER',
   OWNER = 'OWNER',
+  SUPER_ADMIN = 'SUPER_ADMIN',
 }
 
 /** Return response for updateInvite mutation */
@@ -53357,6 +53360,9 @@ export interface TrustCenterSetting extends Node {
   logoRemoteURL?: Maybe<Scalars['String']['output']>
   /** whether NDA requests require approval before being processed */
   ndaApprovalRequired?: Maybe<Scalars['Boolean']['output']>
+  ndaApproverGroup?: Maybe<Group>
+  /** group whose members approve trust center NDA requests */
+  ndaApproverGroupID?: Maybe<Scalars['ID']['output']>
   /** overview of the trust center */
   overview?: Maybe<Scalars['String']['output']>
   /** primary color for the trust center */
@@ -53672,6 +53678,9 @@ export interface TrustCenterSettingWhereInput {
   /** logo_file edge predicates */
   hasLogoFile?: InputMaybe<Scalars['Boolean']['input']>
   hasLogoFileWith?: InputMaybe<Array<FileWhereInput>>
+  /** nda_approver_group edge predicates */
+  hasNdaApproverGroup?: InputMaybe<Scalars['Boolean']['input']>
+  hasNdaApproverGroupWith?: InputMaybe<Array<GroupWhereInput>>
   /** hero_image_local_file_id field predicates */
   heroImageLocalFileID?: InputMaybe<Scalars['ID']['input']>
   heroImageLocalFileIDContains?: InputMaybe<Scalars['ID']['input']>
@@ -53736,6 +53745,22 @@ export interface TrustCenterSettingWhereInput {
   ndaApprovalRequiredIsNil?: InputMaybe<Scalars['Boolean']['input']>
   ndaApprovalRequiredNEQ?: InputMaybe<Scalars['Boolean']['input']>
   ndaApprovalRequiredNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** nda_approver_group_id field predicates */
+  ndaApproverGroupID?: InputMaybe<Scalars['ID']['input']>
+  ndaApproverGroupIDContains?: InputMaybe<Scalars['ID']['input']>
+  ndaApproverGroupIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  ndaApproverGroupIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  ndaApproverGroupIDGT?: InputMaybe<Scalars['ID']['input']>
+  ndaApproverGroupIDGTE?: InputMaybe<Scalars['ID']['input']>
+  ndaApproverGroupIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  ndaApproverGroupIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  ndaApproverGroupIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  ndaApproverGroupIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  ndaApproverGroupIDLT?: InputMaybe<Scalars['ID']['input']>
+  ndaApproverGroupIDLTE?: InputMaybe<Scalars['ID']['input']>
+  ndaApproverGroupIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  ndaApproverGroupIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  ndaApproverGroupIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   not?: InputMaybe<TrustCenterSettingWhereInput>
   or?: InputMaybe<Array<TrustCenterSettingWhereInput>>
   /** overview field predicates */
@@ -60764,6 +60789,7 @@ export interface UpdateTrustCenterSettingInput {
   clearLogoFile?: InputMaybe<Scalars['Boolean']['input']>
   clearLogoRemoteURL?: InputMaybe<Scalars['Boolean']['input']>
   clearNdaApprovalRequired?: InputMaybe<Scalars['Boolean']['input']>
+  clearNdaApproverGroup?: InputMaybe<Scalars['Boolean']['input']>
   clearOverview?: InputMaybe<Scalars['Boolean']['input']>
   clearPrimaryColor?: InputMaybe<Scalars['Boolean']['input']>
   clearSecondaryBackgroundColor?: InputMaybe<Scalars['Boolean']['input']>
@@ -60792,6 +60818,7 @@ export interface UpdateTrustCenterSettingInput {
   logoRemoteURL?: InputMaybe<Scalars['String']['input']>
   /** whether NDA requests require approval before being processed */
   ndaApprovalRequired?: InputMaybe<Scalars['Boolean']['input']>
+  ndaApproverGroupID?: InputMaybe<Scalars['ID']['input']>
   /** overview of the trust center */
   overview?: InputMaybe<Scalars['String']['input']>
   /** primary color for the trust center */
@@ -72232,6 +72259,7 @@ export type GetInternalPoliciesListQuery = {
         createdAt?: any | null
         createdBy?: string | null
         summary?: string | null
+        managementMode?: InternalPolicyDocumentManagementMode | null
         approvalRequired?: boolean | null
         internalPolicyKindName?: string | null
         reviewDue?: any | null
