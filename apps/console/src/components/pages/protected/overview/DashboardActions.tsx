@@ -3,7 +3,7 @@ import { BookOpenCheck, Fingerprint, ListChecks, ShieldAlert, SquarePlus } from 
 import { useRouter } from 'next/navigation'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { hasPermission } from '@/lib/authz/utils'
-import { AccessEnum } from '@/lib/authz/enums/access-enum'
+import { AccessEnum } from '@repo/codegen/src/permissions.generated'
 import { useSession } from 'next-auth/react'
 import { useModuleAccess } from '@/lib/subscription-plan/hooks/use-module-access'
 import { ObjectTypes } from '@repo/codegen/src/type-names'

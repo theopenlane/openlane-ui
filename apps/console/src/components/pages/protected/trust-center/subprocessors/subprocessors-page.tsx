@@ -38,7 +38,7 @@ import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useAccountRoles, useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { canEdit, hasPermission } from '@/lib/authz/utils'
-import { AccessEnum } from '@/lib/authz/enums/access-enum'
+import { AccessEnum } from '@repo/codegen/src/permissions.generated'
 import SubprocessorsModeToggle, { type SubprocessorMode } from './SubprocessorsModeToggle'
 import { useSession } from 'next-auth/react'
 

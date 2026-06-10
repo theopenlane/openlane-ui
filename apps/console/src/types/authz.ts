@@ -1,6 +1,8 @@
-import { type AccessEnum } from '@/lib/authz/enums/access-enum'
+// TAccessRole is generated from theopenlane/core's FGA model. Do not hand-edit the list of
+// roles — add/remove relations in the backend model and re-run `task codegen:codegen`.
+import type { TAccessRole } from '@repo/codegen/src/permissions.generated'
 
-export type TAccessRole = `${AccessEnum}` | 'member' | 'owner' | 'access'
+export type { TAccessRole }
 
 export type TPermissionData = {
   success?: boolean

@@ -24,7 +24,7 @@ import Skeleton from '@/components/shared/skeleton/skeleton'
 import PlatformDetailPage from '../detail/platform-detail-page'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { hasPermission } from '@/lib/authz/utils'
-import { AccessEnum } from '@/lib/authz/enums/access-enum'
+import { AccessEnum } from '@repo/codegen/src/permissions.generated'
 
 const STATUS_VARIANT: Record<PlatformPlatformStatus, 'green' | 'secondary'> = {
   [PlatformPlatformStatus.ACTIVE]: 'green',

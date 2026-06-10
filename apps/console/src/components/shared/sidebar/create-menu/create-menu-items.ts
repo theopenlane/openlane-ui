@@ -1,6 +1,6 @@
 import { ClipboardCheckIcon, FileTextIcon, FingerprintIcon, GalleryVerticalEndIcon, GaugeIcon, MessageCirclePlusIcon, ShieldCheckIcon, WorkflowIcon } from '@/components/shared/icons/animated'
 import { ObjectTypes } from '@repo/codegen/src/type-names'
-import { AccessEnum } from '@/lib/authz/enums/access-enum'
+import { AccessEnum } from '@repo/codegen/src/permissions.generated'
 import { type NavIcon } from '@/types'
 
 export type CreateMenuDialogKey = 'task' | 'evidence' | 'contact'
