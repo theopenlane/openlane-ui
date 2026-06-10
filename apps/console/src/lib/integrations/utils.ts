@@ -139,6 +139,15 @@ export function schemaHasProperties(schema?: IntegrationSchemaNode): boolean {
   return Object.keys(resolveSchemaRoot(schema)?.properties ?? {}).length > 0
 }
 
+type IntegrationClientConfig = {
+  clientConfig?: Record<string, unknown>
+}
+
+export function readIntegrationUserInput(integration: Pick<IntegrationNode, 'config'>): Record<string, unknown> {
+  const config = integration.config as IntegrationClientConfig | null
+  return config?.clientConfig ?? {}
+}
+
 export function integrationDefinitionID(integration: IntegrationProviderMatchFields, providers: IntegrationProvider[]): string | undefined {
   const definitionID = integration.definitionID?.trim()
   if (definitionID) {
