@@ -71,7 +71,7 @@ const NotificationsPage = () => {
     return []
   })
 
-  const { data: exportData } = useGetAllExports({ where: { idIn: exportIDs } })
+  const { data: exportData } = useGetAllExports({ where: { idIn: exportIDs }, enabled: exportIDs.length > 0 })
 
   const filteredNotifications = useMemo(() => {
     const sorted = [...notifications].sort((a, b) => new Date(b.createdAt ?? 0).getTime() - new Date(a.createdAt ?? 0).getTime())

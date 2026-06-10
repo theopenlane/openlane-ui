@@ -42,7 +42,7 @@ export default function SystemNotificationTracker({ open, onOpenChange }: System
     return []
   })
 
-  const { data: exportData } = useGetAllExports({ where: { idIn: exportIDs } })
+  const { data: exportData } = useGetAllExports({ where: { idIn: exportIDs }, enabled: exportIDs.length > 0 })
 
   const sortedNotifications = useMemo(() => {
     return [...notifications].sort((a, b) => {
