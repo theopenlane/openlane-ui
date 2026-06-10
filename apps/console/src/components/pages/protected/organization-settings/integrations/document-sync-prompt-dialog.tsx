@@ -27,7 +27,7 @@ const DocumentSyncPromptDialog = ({ open, onOpenChange, provider, integration }:
   const existingUserInput = readIntegrationUserInput(integration)
   const existingFolder = typeof existingUserInput[DOCUMENT_FOLDER_FIELD] === 'string' ? (existingUserInput[DOCUMENT_FOLDER_FIELD] as string) : ''
 
-  const [makePrimary, setMakePrimary] = useState<boolean>(true)
+  const [makePrimary, setMakePrimary] = useState<boolean>(existingUserInput[PRIMARY_DOCUMENT_FIELD] === true)
   const [folder, setFolder] = useState<string>(existingFolder)
   const [isSubmitting, setIsSubmitting] = useState(false)
 

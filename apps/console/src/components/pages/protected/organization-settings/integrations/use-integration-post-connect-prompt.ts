@@ -23,10 +23,9 @@ const isPromptNeeded = (kind: IntegrationPromptKind, integration: IntegrationNod
 
   const userInput = readIntegrationUserInput(integration)
   const isPrimary = userInput[PRIMARY_DOCUMENT_FIELD] === true
-  const folder = userInput[DOCUMENT_FOLDER_FIELD]
-  const hasFolder = typeof folder === 'string' && folder.trim().length > 0
+  const isFolderConfigured = DOCUMENT_FOLDER_FIELD in userInput
 
-  return !isPrimary || !hasFolder
+  return !isPrimary || !isFolderConfigured
 }
 
 export function useIntegrationPostConnectPrompt({ provider, canManage, supportsPrimaryDirectory, supportsDocumentSync, installedInstances }: UseIntegrationPostConnectPromptOptions) {
