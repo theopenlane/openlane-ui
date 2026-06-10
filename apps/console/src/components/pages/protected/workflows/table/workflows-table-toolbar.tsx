@@ -13,7 +13,7 @@ import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-butto
 import { useNotification } from '@/hooks/useNotification'
 import { useDeleteWorkflowDefinition } from '@/lib/graphql-hooks/workflow-definition'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
-import { type TAccessRole, type TPermissionData } from '@/types/authz'
+import { type TAccessRole, type TPermissionData } from '@/lib/authz/types'
 import { type TQuickFilter } from '@/components/shared/table-filter/table-filter-helper'
 import { getFilterFields } from './table-config'
 import { tableKey } from './types'

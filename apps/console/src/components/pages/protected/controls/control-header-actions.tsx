@@ -9,7 +9,7 @@ import Menu from '@/components/shared/menu/menu.tsx'
 import Link from 'next/link'
 import { SaveButton } from '@/components/shared/save-button/save-button.tsx'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button.tsx'
-import type { TAccessRole } from '@/types/authz'
+import type { TAccessRole } from '@/lib/authz/types'
 
 interface ControlHeaderActionsProps {
   controlId: string

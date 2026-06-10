@@ -13,7 +13,7 @@ import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/col
 import { BulkEditPoliciesDialog } from '../bulk-edit/bulk-edit-policies'
 import { Button } from '@repo/ui/button'
 import CreatePolicyUploadDialog from '../create/form/create-policy-upload-dialog'
-import { type TAccessRole, type TPermissionData } from '@/types/authz'
+import { type TAccessRole, type TPermissionData } from '@/lib/authz/types'
 import Link from 'next/link'
 import { useNotification } from '@/hooks/useNotification'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'

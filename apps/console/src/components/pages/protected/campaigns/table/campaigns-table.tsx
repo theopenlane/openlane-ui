@@ -10,7 +10,7 @@ import { useCampaignsWithFilter } from '@/lib/graphql-hooks/campaign'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
 import { type VisibilityState } from '@tanstack/react-table'
 
-import { type TAccessRole, type TPermissionData } from '@/types/authz'
+import { type TAccessRole, type TPermissionData } from '@/lib/authz/types'
 import { useNotification } from '@/hooks/useNotification'
 import { TableKeyEnum } from '@repo/ui/table-key'
 

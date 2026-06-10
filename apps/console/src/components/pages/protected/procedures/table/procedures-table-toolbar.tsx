@@ -4,7 +4,7 @@ import { DownloadIcon, Import, LoaderCircle, SearchIcon, SquarePlus } from 'luci
 import { Input } from '@repo/ui/input'
 import { useDebounce } from '@uidotdev/usehooks'
 import BulkCSVCreateProcedureDialog from '@/components/pages/protected/procedures/create/form/bulk-csv-create-procedure-dialog'
-import { type TAccessRole, type TPermissionData } from '@/types/authz'
+import { type TAccessRole, type TPermissionData } from '@/lib/authz/types'
 import { hasPermission } from '@/lib/authz/utils.ts'
 import { AccessEnum } from '@repo/codegen/src/permissions.generated'
 import Menu from '@/components/shared/menu/menu.tsx'

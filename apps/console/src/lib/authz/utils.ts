@@ -1,4 +1,4 @@
-import { type TAccessRole } from '@/types/authz'
+import { type TAccessRole } from '@/lib/authz/types'
 import { AccessEnum } from '@repo/codegen/src/permissions.generated'
 import { OrgMembershipRole } from '@repo/codegen/src/schema'
 
