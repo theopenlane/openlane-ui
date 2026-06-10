@@ -35,7 +35,7 @@ import { useGetTrustCenterNDAFiles } from '@/lib/graphql-hooks/trust-center-nda-
 import { ObjectTypes } from '@repo/codegen/src/type-names'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { hasPermission } from '@/lib/authz/utils'
-import { AccessEnum } from '@/lib/authz/enums/access-enum'
+import { AccessEnum } from '@repo/codegen/src/permissions.generated'
 
 const schema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -62,7 +62,7 @@ export const CreateDocumentSheet: React.FC = () => {
   const { data: orgPermission } = useOrganizationRoles()
 
   const isEditAllowed = canEdit(permission?.roles)
-  const canCreateDoc = hasPermission(orgPermission?.roles, AccessEnum.CanCreateTrustCenterDocument)
+  const canCreateDoc = hasPermission(orgPermission?.roles, AccessEnum.CanCreateTrustCenterDoc)
   const isDeleteAllowed = canDelete(permission?.roles)
 
   const [isEditing, setIsEditing] = useState(false)

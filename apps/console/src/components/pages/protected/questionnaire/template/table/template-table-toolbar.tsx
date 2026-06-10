@@ -12,7 +12,7 @@ import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/col
 import { type TemplateWhereInput, TemplateTemplateKind } from '@repo/codegen/src/schema'
 import { BulkCSVCreateTemplateDialog } from '@/components/pages/protected/questionnaire/dialog/bulk-csv-create-template-dialog'
 import { hasPermission } from '@/lib/authz/utils'
-import { AccessEnum } from '@/lib/authz/enums/access-enum'
+import { AccessEnum } from '@repo/codegen/src/permissions.generated'
 import { useOrganizationRoles } from '@/lib/query-hooks/permissions'
 import { Button } from '@repo/ui/button'
 import { TableKeyEnum } from '@repo/ui/table-key'

@@ -1,5 +1,5 @@
 import { type TAccessRole } from '@/types/authz'
-import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
+import { AccessEnum } from '@repo/codegen/src/permissions.generated'
 import { OrgMembershipRole } from '@repo/codegen/src/schema'
 
 export const hasPermission = (accessRole: TAccessRole[] | undefined, accessEnum: AccessEnum) => {

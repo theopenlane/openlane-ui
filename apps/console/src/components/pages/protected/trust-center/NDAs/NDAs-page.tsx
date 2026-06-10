@@ -16,7 +16,7 @@ import { useGetTrustCenter } from '@/lib/graphql-hooks/trust-center'
 import { useHandleUpdateSetting } from '../branding/helpers/useHandleUpdateSetting'
 import { useAccountRoles } from '@/lib/query-hooks/permissions'
 import { canEdit, hasPermission } from '@/lib/authz/utils'
-import { AccessEnum } from '@/lib/authz/enums/access-enum'
+import { AccessEnum } from '@repo/codegen/src/permissions.generated'
 import NdaRequestsTable from './table/nda-requests-table.tsx'
 import { ObjectTypes } from '@repo/codegen/src/type-names.ts'
 

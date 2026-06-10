@@ -10,7 +10,7 @@ import BulkCSVCreateRiskDialog from '@/components/pages/protected/risks/bulk-csv
 import { type VisibilityState } from '@tanstack/react-table'
 import ColumnVisibilityMenu from '@/components/shared/column-visibility-menu/column-visibility-menu'
 import { hasPermission } from '@/lib/authz/utils.ts'
-import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
+import { AccessEnum } from '@repo/codegen/src/permissions.generated'
 import { type TAccessRole, type TPermissionData } from '@/types/authz'
 import { type RiskWhereInput } from '@repo/codegen/src/schema'
 import { BulkEditRisksDialog } from '../bulk-edit/bulk-edit-risks'
