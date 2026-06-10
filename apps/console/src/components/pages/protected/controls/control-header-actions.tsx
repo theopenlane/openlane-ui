@@ -53,7 +53,7 @@ const ControlHeaderActions: React.FC<ControlHeaderActionsProps> = ({ controlId, 
       {(canCloneControl || canDeleteControl) && (
         <Menu
           trigger={
-            <Button type="button" variant="secondary" className="h-8 px-2">
+            <Button type="button" variant="secondary" className="h-8 px-2" data-testid="control-actions-menu">
               <MoreHorizontal size={16} />
             </Button>
           }
@@ -68,7 +68,7 @@ const ControlHeaderActions: React.FC<ControlHeaderActionsProps> = ({ controlId, 
                 </Link>
               )}
               {canDeleteControl && (
-                <button onClick={onDeleteClick} className="flex items-center space-x-2 px-1 bg-transparent cursor-pointer text-destructive">
+                <button onClick={onDeleteClick} data-testid="control-delete-button" className="flex items-center space-x-2 px-1 bg-transparent cursor-pointer text-destructive">
                   <Trash2 size={16} strokeWidth={2} />
                   <span>Delete</span>
                 </button>

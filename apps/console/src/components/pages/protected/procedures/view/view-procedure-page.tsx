@@ -263,6 +263,7 @@ const ViewProcedurePage: React.FC = () => {
             <></>
           ) : (
             <Menu
+              triggerTestId="procedure-actions-menu"
               content={
                 <>
                   {editAllowed && (
@@ -273,7 +274,7 @@ const ViewProcedurePage: React.FC = () => {
                   )}
                   {deleteAllowed && (
                     <>
-                      <Button size="sm" variant="transparent" className="flex justify-start space-x-2 " onClick={() => setIsDeleteDialogOpen(true)}>
+                      <Button size="sm" variant="transparent" className="flex justify-start space-x-2 " data-testid="procedure-delete-button" onClick={() => setIsDeleteDialogOpen(true)}>
                         <Trash2 size={16} strokeWidth={2} />
                         <span>Delete</span>
                       </Button>

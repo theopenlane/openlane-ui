@@ -18,15 +18,17 @@ const ObjectsChip = ({ name, objectType, removable, onRemove, onClick }: TObject
     >
       {name}
       {removable && onRemove && (
-        <XIcon
-          size={12}
-          className="cursor-pointer ml-1"
+        <span
+          data-testid="objects-chip-remove"
+          className="inline-flex"
           onClick={(e) => {
             e.stopPropagation()
             e.preventDefault()
             onRemove(objectType)
           }}
-        />
+        >
+          <XIcon size={12} className="cursor-pointer ml-1" />
+        </span>
       )}
     </div>
   )
