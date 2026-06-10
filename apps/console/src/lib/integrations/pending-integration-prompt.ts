@@ -1,7 +1,7 @@
-const STORAGE_KEY = 'pendingPrimaryDirectoryPrompt'
+const STORAGE_KEY = 'pendingIntegrationPostConnectPrompt'
 const TTL_MS = 10 * 60 * 1000
 
-export type PendingPrimaryDirectoryPrompt = {
+export type PendingIntegrationPrompt = {
   providerId: string
   integrationId?: string
   baselineCount?: number
@@ -9,17 +9,17 @@ export type PendingPrimaryDirectoryPrompt = {
   expiresAt: number
 }
 
-type WritePendingPrimaryDirectoryPromptOptions = {
+type WritePendingIntegrationPromptOptions = {
   integrationId?: string
   baselineCount?: number
 }
 
 const isBrowser = (): boolean => typeof window !== 'undefined' && typeof window.sessionStorage !== 'undefined'
 
-export const writePendingPrimaryDirectoryPrompt = (providerId: string, options?: WritePendingPrimaryDirectoryPromptOptions): void => {
+export const writePendingIntegrationPrompt = (providerId: string, options?: WritePendingIntegrationPromptOptions): void => {
   if (!isBrowser()) return
   const now = Date.now()
-  const payload: PendingPrimaryDirectoryPrompt = {
+  const payload: PendingIntegrationPrompt = {
     providerId,
     integrationId: options?.integrationId,
     baselineCount: options?.baselineCount,
@@ -33,12 +33,12 @@ export const writePendingPrimaryDirectoryPrompt = (providerId: string, options?:
   }
 }
 
-export const readPendingPrimaryDirectoryPrompt = (): PendingPrimaryDirectoryPrompt | null => {
+export const readPendingIntegrationPrompt = (): PendingIntegrationPrompt | null => {
   if (!isBrowser()) return null
   try {
     const raw = window.sessionStorage.getItem(STORAGE_KEY)
     if (!raw) return null
-    const parsed = JSON.parse(raw) as Partial<PendingPrimaryDirectoryPrompt>
+    const parsed = JSON.parse(raw) as Partial<PendingIntegrationPrompt>
     if (typeof parsed.providerId !== 'string' || typeof parsed.expiresAt !== 'number' || typeof parsed.startedAt !== 'number') {
       return null
     }
@@ -46,13 +46,13 @@ export const readPendingPrimaryDirectoryPrompt = (): PendingPrimaryDirectoryProm
       window.sessionStorage.removeItem(STORAGE_KEY)
       return null
     }
-    return parsed as PendingPrimaryDirectoryPrompt
+    return parsed as PendingIntegrationPrompt
   } catch {
     return null
   }
 }
 
-export const clearPendingPrimaryDirectoryPrompt = (): void => {
+export const clearPendingIntegrationPrompt = (): void => {
   if (!isBrowser()) return
   try {
     window.sessionStorage.removeItem(STORAGE_KEY)
