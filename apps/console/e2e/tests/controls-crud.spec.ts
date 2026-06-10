@@ -25,6 +25,23 @@ test.beforeAll(async () => {
 const editControlButton = (page: Page) => page.getByRole('button', { name: 'Edit control' })
 
 test.describe('controls — owner edit + delete (seeded)', () => {
+  test('selecting a control row reveals the Bulk Delete action', async ({ page }) => {
+    const refCode = uniqueRefCode()
+    await createControl(ownerApi, refCode)
+
+    await page.goto('/controls', { waitUntil: 'domcontentloaded' })
+    // /controls defaults to the dashboard tab; switch to the table view.
+    await page.locator('.lucide-table').first().click()
+    await page.getByPlaceholder(/^Search$/).fill(refCode)
+
+    const row = page.getByRole('row').filter({ hasText: refCode })
+    await expect(row).toBeVisible({ timeout: 15_000 })
+    await row.getByRole('checkbox').first().check()
+
+    // controls-table-toolbar.tsx shows "Bulk Delete (n)" once a row is selected.
+    await expect(page.getByRole('button', { name: /^Bulk Delete/ })).toBeVisible({ timeout: 10_000 })
+  })
+
   test('clicking Edit control enters edit mode (Cancel + Save appear)', async ({ page }) => {
     const id = await createControl(ownerApi, uniqueRefCode())
 
@@ -205,5 +222,26 @@ test.describe('controls — map + subcontrol (seeded)', () => {
     await expect(page.getByText('Create Subcontrol', { exact: true }).first()).toBeVisible({ timeout: 20_000 })
     await expect(page.locator('input[name="refCode"]')).toBeVisible({ timeout: 10_000 })
     await expect(page.getByPlaceholder('Search Control')).toBeVisible()
+  })
+})
+
+test.describe('controls — detail sub-routes (seeded)', () => {
+  test('clone-control prefills the ref code with a CC- prefix from the source', async ({ page }) => {
+    test.slow()
+    const refCode = uniqueRefCode()
+    const id = await createControl(ownerApi, refCode)
+
+    // create-control-form.tsx detects /clone-control and seeds refCode = `CC-${source}`.
+    await page.goto(`/controls/${id}/clone-control`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
+    await expect(page.locator('input[name="refCode"]')).toHaveValue(`CC-${refCode}`, { timeout: 45_000 })
+  })
+
+  test('map-control exposes the Relation type selector', async ({ page }) => {
+    test.slow()
+    const id = await createControl(ownerApi, uniqueRefCode())
+
+    // map-controls-relations.tsx renders a "Relation type" control (Equal/Subset/Superset).
+    await page.goto(`/controls/${id}/map-control`, { waitUntil: 'domcontentloaded', timeout: 180_000 })
+    await expect(page.getByText('Relation type', { exact: true }).first()).toBeVisible({ timeout: 45_000 })
   })
 })
