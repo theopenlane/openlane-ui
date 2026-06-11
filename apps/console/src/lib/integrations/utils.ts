@@ -12,6 +12,7 @@ import {
 const FINALIZED_INTEGRATION_STATUSES = new Set(['CONNECTED', 'DISABLED', 'ERRORED'])
 
 const PROVIDER_ICON_MAP: Record<string, string> = {
+  Authentik: '/icons/brand/integrations/authentik.jpg',
   'Amazon Web Services': '/icons/brand/integrations/aws.jpg',
   Azure: '/icons/brand/integrations/microsoft_azure.png',
   Buildkite: '/icons/brand/integrations/buildkite.png',
@@ -26,6 +27,9 @@ const PROVIDER_ICON_MAP: Record<string, string> = {
   Slack: '/icons/brand/integrations/slack.png',
   Vercel: '/icons/brand/integrations/vercel.png',
   email: '/icons/brand/integrations/email_icon.png',
+  Tailscale: '/icons/brand/integrations/tailscale.png',
+  Keycloak: '/icons/brand/integrations/keycloak.png',
+  Zitadel: '/icons/brand/integrations/zitadel.png',
 }
 
 const fallbackIcon = '/icons/brand/integrations/default.png'
