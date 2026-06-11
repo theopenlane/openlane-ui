@@ -257,7 +257,7 @@ const CreatePolicyUploadDialog: React.FC<TCreatePolicyUploadDialogProps> = ({ tr
           <div className="flex flex-col gap-2 border rounded-md p-3 bg-secondary">
             <span className="text-sm font-medium">Management mode</span>
             <RadioGroup value={managementMode} onValueChange={(v) => setManagementMode(v as InternalPolicyDocumentManagementMode)} className="gap-3">
-              {ManagementModeOptions.map((option) => {
+              {ManagementModeOptions.filter((option) => option.value !== InternalPolicyDocumentManagementMode.INTEGRATION).map((option) => {
                 const isExternal = option.value === InternalPolicyDocumentManagementMode.EXTERNAL_REFERENCE
                 const disabled = isExternal && !canKeepAsWord
                 const id = `mgmt-${option.value}`

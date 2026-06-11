@@ -14,12 +14,13 @@ type HistoryRowProps = {
   occurredAt: string | null | undefined
   user?: User
   token?: ApiToken
+  label?: string
   isCurrent?: boolean
   onView?: (id: string) => void
   onRestore?: (id: string) => void
 }
 
-const HistoryRow: React.FC<HistoryRowProps> = ({ id, revision, occurredAt, user, token, isCurrent, onView, onRestore }) => {
+const HistoryRow: React.FC<HistoryRowProps> = ({ id, revision, occurredAt, user, token, label, isCurrent, onView, onRestore }) => {
   const kind = getRevisionKind(revision)
 
   return (
@@ -33,7 +34,7 @@ const HistoryRow: React.FC<HistoryRowProps> = ({ id, revision, occurredAt, user,
           <span className="text-xs text-muted-foreground flex items-center gap-2">
             {occurredAt ? formatTimeSince(occurredAt) : null}
             {occurredAt ? <span aria-hidden="true">·</span> : null}
-            <AuthorBadge user={user} token={token} />
+            <AuthorBadge user={user} token={token} fallback={label} />
           </span>
         </div>
       </div>
