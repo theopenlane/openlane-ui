@@ -26,6 +26,9 @@ const PROVIDER_ICON_MAP: Record<string, string> = {
   Slack: '/icons/brand/integrations/slack.png',
   Vercel: '/icons/brand/integrations/vercel.png',
   email: '/icons/brand/integrations/email_icon.png',
+  Tailscale: '/icons/brand/integrations/tailscale.png',
+  Keycloak: '/icons/brand/integrations/keycloak.png',
+  Zitadel: '/icons/brand/integrations/zitadel.png',
 }
 
 const fallbackIcon = '/icons/brand/integrations/default.png'
