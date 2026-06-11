@@ -9,6 +9,7 @@ import { Editor, EditorContainer, type TPlateEditorStyleVariant } from '@repo/ui
 import { createPlateEditor, Plate, type PlatePlugin, usePlateEditor } from 'platejs/react'
 import { detectFormat } from './usePlateEditor'
 import { type CommentEntityType, discussionPlugin, type TDiscussion } from '@repo/ui/components/editor/plugins/discussion-kit.tsx'
+import { pdfExportPlugin } from '@repo/ui/components/editor/plugins/pdf-export-kit.tsx'
 import { parseCommentTextToChildren } from '@repo/ui/components/editor/plugins/mention-serialize.ts'
 import {
   type ControlDiscussionFieldsFragment,
@@ -33,6 +34,7 @@ export type TPlateEditorProps = {
   readonly?: boolean
   isCreate?: boolean
   toolbarClassName?: string
+  onExportPdf?: () => void
   ref?: Ref<PlateEditorRef>
 }
 
@@ -41,7 +43,22 @@ export interface PlateEditorRef {
   editor: ReturnType<typeof createPlateEditor>
 }
 
-const PlateEditor = ({ onChange, initialValue, variant = 'basic', styleVariant, clearData, onClear, placeholder, entity, userData, readonly, isCreate, toolbarClassName, ref }: TPlateEditorProps) => {
+const PlateEditor = ({
+  onChange,
+  initialValue,
+  variant = 'basic',
+  styleVariant,
+  clearData,
+  onClear,
+  placeholder,
+  entity,
+  userData,
+  readonly,
+  isCreate,
+  toolbarClassName,
+  onExportPdf,
+  ref,
+}: TPlateEditorProps) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const getFirstDefinedProperty = (obj: any, keys: string[], fallback: string): string => {
     for (const key of keys) {
@@ -68,6 +85,10 @@ const PlateEditor = ({ onChange, initialValue, variant = 'basic', styleVariant, 
     editor.setOption(ThemeAwareFontColorPlugin, 'theme', resolvedTheme)
     editor.setOption(ThemeAwareFontBackgroundColorPlugin, 'theme', resolvedTheme)
   }, [editor, resolvedTheme])
+
+  useEffect(() => {
+    editor.setOption(pdfExportPlugin, 'onExportPdf', onExportPdf ?? null)
+  }, [editor, onExportPdf])
 
   const plateEditor = React.useMemo(
     () =>
