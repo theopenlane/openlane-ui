@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 import { Repeat, Upload } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import { ConfirmationDialog } from '@repo/ui/confirmation-dialog'
-import FilePreview from '@/components/shared/file-preview/file-preview'
+import FilePreview, { DownloadButton } from '@/components/shared/file-preview/file-preview'
 import { type InternalPolicyByIdFragment, InternalPolicyDocumentManagementMode } from '@repo/codegen/src/schema'
 import { useUpdateInternalPolicy } from '@/lib/graphql-hooks/internal-policy'
 import { useNotification } from '@/hooks/useNotification'
@@ -54,6 +54,7 @@ const ExternalReferenceView: React.FC<Props> = ({ policy, editAllowed }) => {
             <p className="text-xs text-muted-foreground">Word document managed outside Openlane.</p>
           </div>
           <div className="flex items-center gap-2">
+            <DownloadButton file={file} variant="outline" />
             <Button type="button" variant="outline" icon={<Upload size={14} />} iconPosition="left" onClick={() => setReplaceOpen(true)} disabled={isSwitching}>
               Replace document
             </Button>

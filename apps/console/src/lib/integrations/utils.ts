@@ -18,6 +18,7 @@ const PROVIDER_ICON_MAP: Record<string, string> = {
   Cloudflare: '/icons/brand/integrations/cloudflare.png',
   'Google Cloud': '/icons/brand/integrations/googlecloud.png',
   GitHub: '/icons/brand/integrations/gh.png',
+  'Google Drive': '/icons/brand/integrations/google_drive.png',
   'Google Workspace': '/icons/brand/integrations/google_workspace.png',
   Microsoft: '/icons/brand/integrations/microsoft_teams.png',
   Okta: '/icons/brand/integrations/okta.png',

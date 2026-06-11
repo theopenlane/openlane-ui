@@ -1,12 +1,14 @@
 'use client'
 
 import React, { useEffect, useMemo, useRef, useState } from 'react'
-import DOMPurify, { type Config as DOMPurifyConfig } from 'dompurify'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { Loader2, FileWarning, Download } from 'lucide-react'
 import { Button } from '@repo/ui/button'
 import type { File as GqlFile } from '@repo/codegen/src/schema'
+import { HTML_SANITIZE_CONFIG, isSafeLinkHref, useHtmlPurifier } from '@/lib/html/sanitize-html'
+
+export { isSafeLinkHref, SAFE_LINK_PROTOCOLS } from '@/lib/html/sanitize-html'
 
 type PreviewFile = Pick<GqlFile, 'presignedURL' | 'providedFileName' | 'providedFileExtension' | 'detectedMimeType'>
 
@@ -26,10 +28,6 @@ const PREVIEW_FRAME_CLASS = 'h-[80vh] w-full overflow-hidden rounded-md border b
 const PREVIEW_SCROLL_CLASS = 'docx-preview-container overflow-auto rounded-md border bg-card p-4 [&_.docx-wrapper]:bg-transparent!'
 const PROSE_CARD_CLASS = 'prose prose-sm dark:prose-invert max-w-none rounded-md border bg-card p-6'
 
-// docx-preview's per-version defaults include renderAltChunks: true (executes embedded
-// HTML — XSS surface) and useBase64URL: false (creates internal object URLs for images/
-// fonts that we cannot revoke when the container is torn down). Opt into a known-safe
-// option set so a library upgrade can't silently regress the threat model.
 const DOCX_OPTIONS = {
   renderAltChunks: false,
   renderChanges: false,
@@ -38,26 +36,8 @@ const DOCX_OPTIONS = {
   useBase64URL: true,
 }
 
-export const SAFE_LINK_PROTOCOLS = new Set(['http:', 'https:', 'mailto:'])
-
-// Pure half of sanitizeAnchors — split out so the security-critical predicate
-// can be unit-tested without a DOM environment. Returns true only when the
-// href resolves to a protocol on the allowlist; malformed URLs return false.
-export const isSafeLinkHref = (href: string, baseOrigin: string): boolean => {
-  let protocol: string
-  try {
-    protocol = new URL(href, baseOrigin).protocol
-  } catch {
-    return false
-  }
-  return SAFE_LINK_PROTOCOLS.has(protocol)
-}
-
 const FETCH_TIMEOUT_MS = 30_000
 
-// Presigned URLs have a TTL. Once expired the storage backend returns 401/403;
-// surface that distinctly so the user knows the fix is a page refresh, not a
-// generic "the server is broken."
 const EXPIRED_URL_MESSAGE = 'Preview link has expired. Refresh the page to load a new one.'
 
 const NETWORK_ERROR_MESSAGE = "Couldn't load preview. The file may be unavailable from this environment. Try downloading it instead."
@@ -197,8 +177,7 @@ const DocxPreview: React.FC<{ blob: Blob; file: PreviewFile }> = ({ blob, file }
     import('docx-preview')
       .then(async ({ renderAsync }) => {
         if (cancelled) return
-        // docx-preview owns the container DOM; we deliberately bypass React
-        // reconciliation here and clear via innerHTML for the same reason.
+
         target.innerHTML = ''
         await renderAsync(blob, target, undefined, DOCX_OPTIONS)
         if (cancelled) return
@@ -221,9 +200,6 @@ const DocxPreview: React.FC<{ blob: Blob; file: PreviewFile }> = ({ blob, file }
   return <div ref={containerRef} className={PREVIEW_SCROLL_CLASS} />
 }
 
-// docx-preview emits anchors verbatim from the document. A malicious .docx can carry
-// javascript: hrefs or other unsafe schemes; force every link through isSafeLinkHref
-// and neutralize tabnabbing on the survivors.
 const sanitizeAnchors = (root: HTMLElement) => {
   for (const a of root.querySelectorAll('a')) {
     const href = a.getAttribute('href')
@@ -237,36 +213,8 @@ const sanitizeAnchors = (root: HTMLElement) => {
   }
 }
 
-// HTML uploaded by users can contain framed/embedded content, JS-action handlers,
-// and trackable images. DOMPurify's default profile already strips <script> and
-// inline event handlers, but it still allows <iframe>/<object>/<embed>/<form> and
-// raw target=_blank without rel — extra surface the preview doesn't need. We
-// forbid those tags up front and run a post-hook that enforces noreferrer noopener
-// on every external link.
-const HTML_SANITIZE_CONFIG: DOMPurifyConfig = {
-  FORBID_TAGS: ['iframe', 'object', 'embed', 'form', 'meta', 'base'],
-  FORBID_ATTR: ['srcdoc', 'formaction', 'onload', 'onerror'],
-}
-
 const HtmlPreview: React.FC<{ text: string }> = ({ text }) => {
-  // Scoped DOMPurify instance — registering the link-rewrite hook on the global singleton
-  // leaks the policy into every other DOMPurify.sanitize call in the app and double-registers
-  // under React StrictMode / HMR.
-  const purifier = useMemo(() => {
-    const dp = DOMPurify(window)
-    dp.addHook('afterSanitizeAttributes', (node) => {
-      if (node.tagName === 'A' && node instanceof HTMLAnchorElement) {
-        const href = node.getAttribute('href')
-        if (!href || !isSafeLinkHref(href, window.location.origin)) {
-          node.removeAttribute('href')
-          return
-        }
-        node.setAttribute('target', '_blank')
-        node.setAttribute('rel', 'noreferrer noopener')
-      }
-    })
-    return dp
-  }, [])
+  const purifier = useHtmlPurifier()
 
   const html = useMemo(() => purifier.sanitize(text, HTML_SANITIZE_CONFIG), [purifier, text])
 
@@ -327,10 +275,10 @@ const triggerDownload = (file: PreviewFile) => {
   document.body.removeChild(a)
 }
 
-const DownloadButton: React.FC<{ file: PreviewFile }> = ({ file }) => {
+export const DownloadButton: React.FC<{ file: PreviewFile; variant?: 'secondary' | 'outline' }> = ({ file, variant = 'secondary' }) => {
   if (!file.presignedURL) return null
   return (
-    <Button variant="secondary" icon={<Download className="h-4 w-4" />} iconPosition="left" onClick={() => triggerDownload(file)}>
+    <Button variant={variant} icon={<Download className="h-4 w-4" />} iconPosition="left" onClick={() => triggerDownload(file)}>
       Download
     </Button>
   )

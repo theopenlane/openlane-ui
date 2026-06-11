@@ -19,6 +19,7 @@ import { useDebounce } from '@uidotdev/usehooks'
 import { useInternalPolicies } from '@/lib/graphql-hooks/internal-policy'
 import { useGetOrgUserList } from '@/lib/graphql-hooks/member'
 import { getPoliciesColumns } from '@/components/pages/protected/policies/table/columns.tsx'
+import { isUlid } from '@/lib/validators'
 import { useGetApiTokensByIds } from '@/lib/graphql-hooks/tokens.ts'
 import { type ColumnDef, type VisibilityState } from '@tanstack/react-table'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
@@ -105,7 +106,7 @@ export const PoliciesTable = () => {
       return []
     }
 
-    return [...new Set(policies.map((item) => item.updatedBy).filter(Boolean))]
+    return [...new Set(policies.map((item) => item.updatedBy).filter((id): id is string => !!id && isUlid(id)))]
   }, [policies])
 
   const userListWhere = useMemo(() => {

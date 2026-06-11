@@ -10962,6 +10962,8 @@ export interface CreateTaskInput {
   groupIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   identityHolderIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   internalPolicyIDs?: InputMaybe<Array<Scalars['ID']['input']>>
+  /** indicates if the task is intended to be used as a template */
+  isTemplate?: InputMaybe<Scalars['Boolean']['input']>
   ownerID?: InputMaybe<Scalars['ID']['input']>
   parentID?: InputMaybe<Scalars['ID']['input']>
   platformIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -11249,6 +11251,7 @@ export interface CreateTrustCenterSettingInput {
   logoRemoteURL?: InputMaybe<Scalars['String']['input']>
   /** whether NDA requests require approval before being processed */
   ndaApprovalRequired?: InputMaybe<Scalars['Boolean']['input']>
+  ndaApproverGroupID?: InputMaybe<Scalars['ID']['input']>
   /** overview of the trust center */
   overview?: InputMaybe<Scalars['String']['input']>
   /** primary color for the trust center */
@@ -26065,8 +26068,10 @@ export enum InviteOrderField {
 /** InviteRole is enum for the field role */
 export enum InviteRole {
   ADMIN = 'ADMIN',
+  AUDITOR = 'AUDITOR',
   MEMBER = 'MEMBER',
   OWNER = 'OWNER',
+  SUPER_ADMIN = 'SUPER_ADMIN',
 }
 
 /** Return response for updateInvite mutation */
@@ -50251,6 +50256,8 @@ export interface Task extends Node {
   idempotencyKey?: Maybe<Scalars['String']['output']>
   identityHolders: IdentityHolderConnection
   internalPolicies: InternalPolicyConnection
+  /** indicates if the task is intended to be used as a template */
+  isTemplate: Scalars['Boolean']['output']
   owner?: Maybe<Organization>
   /** the ID of the organization owner of the object */
   ownerID?: Maybe<Scalars['ID']['output']>
@@ -50525,6 +50532,7 @@ export enum TaskOrderField {
   completed = 'completed',
   created_at = 'created_at',
   due = 'due',
+  is_template = 'is_template',
   title = 'title',
   updated_at = 'updated_at',
 }
@@ -50817,6 +50825,9 @@ export interface TaskWhereInput {
   idempotencyKeyNEQ?: InputMaybe<Scalars['String']['input']>
   idempotencyKeyNotIn?: InputMaybe<Array<Scalars['String']['input']>>
   idempotencyKeyNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** is_template field predicates */
+  isTemplate?: InputMaybe<Scalars['Boolean']['input']>
+  isTemplateNEQ?: InputMaybe<Scalars['Boolean']['input']>
   not?: InputMaybe<TaskWhereInput>
   or?: InputMaybe<Array<TaskWhereInput>>
   /** owner_id field predicates */
@@ -53349,6 +53360,9 @@ export interface TrustCenterSetting extends Node {
   logoRemoteURL?: Maybe<Scalars['String']['output']>
   /** whether NDA requests require approval before being processed */
   ndaApprovalRequired?: Maybe<Scalars['Boolean']['output']>
+  ndaApproverGroup?: Maybe<Group>
+  /** group whose members approve trust center NDA requests */
+  ndaApproverGroupID?: Maybe<Scalars['ID']['output']>
   /** overview of the trust center */
   overview?: Maybe<Scalars['String']['output']>
   /** primary color for the trust center */
@@ -53664,6 +53678,9 @@ export interface TrustCenterSettingWhereInput {
   /** logo_file edge predicates */
   hasLogoFile?: InputMaybe<Scalars['Boolean']['input']>
   hasLogoFileWith?: InputMaybe<Array<FileWhereInput>>
+  /** nda_approver_group edge predicates */
+  hasNdaApproverGroup?: InputMaybe<Scalars['Boolean']['input']>
+  hasNdaApproverGroupWith?: InputMaybe<Array<GroupWhereInput>>
   /** hero_image_local_file_id field predicates */
   heroImageLocalFileID?: InputMaybe<Scalars['ID']['input']>
   heroImageLocalFileIDContains?: InputMaybe<Scalars['ID']['input']>
@@ -53728,6 +53745,22 @@ export interface TrustCenterSettingWhereInput {
   ndaApprovalRequiredIsNil?: InputMaybe<Scalars['Boolean']['input']>
   ndaApprovalRequiredNEQ?: InputMaybe<Scalars['Boolean']['input']>
   ndaApprovalRequiredNotNil?: InputMaybe<Scalars['Boolean']['input']>
+  /** nda_approver_group_id field predicates */
+  ndaApproverGroupID?: InputMaybe<Scalars['ID']['input']>
+  ndaApproverGroupIDContains?: InputMaybe<Scalars['ID']['input']>
+  ndaApproverGroupIDContainsFold?: InputMaybe<Scalars['ID']['input']>
+  ndaApproverGroupIDEqualFold?: InputMaybe<Scalars['ID']['input']>
+  ndaApproverGroupIDGT?: InputMaybe<Scalars['ID']['input']>
+  ndaApproverGroupIDGTE?: InputMaybe<Scalars['ID']['input']>
+  ndaApproverGroupIDHasPrefix?: InputMaybe<Scalars['ID']['input']>
+  ndaApproverGroupIDHasSuffix?: InputMaybe<Scalars['ID']['input']>
+  ndaApproverGroupIDIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  ndaApproverGroupIDIsNil?: InputMaybe<Scalars['Boolean']['input']>
+  ndaApproverGroupIDLT?: InputMaybe<Scalars['ID']['input']>
+  ndaApproverGroupIDLTE?: InputMaybe<Scalars['ID']['input']>
+  ndaApproverGroupIDNEQ?: InputMaybe<Scalars['ID']['input']>
+  ndaApproverGroupIDNotIn?: InputMaybe<Array<Scalars['ID']['input']>>
+  ndaApproverGroupIDNotNil?: InputMaybe<Scalars['Boolean']['input']>
   not?: InputMaybe<TrustCenterSettingWhereInput>
   or?: InputMaybe<Array<TrustCenterSettingWhereInput>>
   /** overview field predicates */
@@ -60405,6 +60438,8 @@ export interface UpdateTaskInput {
   externalReferenceURL?: InputMaybe<Array<Scalars['String']['input']>>
   /** stable external UUID for deterministic OSCAL export and round-tripping */
   externalUUID?: InputMaybe<Scalars['String']['input']>
+  /** indicates if the task is intended to be used as a template */
+  isTemplate?: InputMaybe<Scalars['Boolean']['input']>
   parentID?: InputMaybe<Scalars['ID']['input']>
   removeActionPlanIDs?: InputMaybe<Array<Scalars['ID']['input']>>
   removeCommentIDs?: InputMaybe<Array<Scalars['ID']['input']>>
@@ -60754,6 +60789,7 @@ export interface UpdateTrustCenterSettingInput {
   clearLogoFile?: InputMaybe<Scalars['Boolean']['input']>
   clearLogoRemoteURL?: InputMaybe<Scalars['Boolean']['input']>
   clearNdaApprovalRequired?: InputMaybe<Scalars['Boolean']['input']>
+  clearNdaApproverGroup?: InputMaybe<Scalars['Boolean']['input']>
   clearOverview?: InputMaybe<Scalars['Boolean']['input']>
   clearPrimaryColor?: InputMaybe<Scalars['Boolean']['input']>
   clearSecondaryBackgroundColor?: InputMaybe<Scalars['Boolean']['input']>
@@ -60782,6 +60818,7 @@ export interface UpdateTrustCenterSettingInput {
   logoRemoteURL?: InputMaybe<Scalars['String']['input']>
   /** whether NDA requests require approval before being processed */
   ndaApprovalRequired?: InputMaybe<Scalars['Boolean']['input']>
+  ndaApproverGroupID?: InputMaybe<Scalars['ID']['input']>
   /** overview of the trust center */
   overview?: InputMaybe<Scalars['String']['input']>
   /** primary color for the trust center */
@@ -72222,6 +72259,7 @@ export type GetInternalPoliciesListQuery = {
         createdAt?: any | null
         createdBy?: string | null
         summary?: string | null
+        managementMode?: InternalPolicyDocumentManagementMode | null
         approvalRequired?: boolean | null
         internalPolicyKindName?: string | null
         reviewDue?: any | null
@@ -72277,6 +72315,46 @@ export type InternalPolicyByIdFragment = {
   summary?: string | null
   detailsJSON?: Array<any> | null
   internalPolicyKindName?: string | null
+  liveExternalContents?: string | null
+  url?: string | null
+  externalFileID?: string | null
+  integrations: {
+    __typename?: 'IntegrationConnection'
+    edges?: Array<{
+      __typename?: 'IntegrationEdge'
+      node?: {
+        __typename?: 'Integration'
+        id: string
+        name: string
+        kind?: string | null
+        integrationType?: string | null
+        description?: string | null
+        definitionID?: string | null
+        definitionSlug?: string | null
+        definitionVersion?: string | null
+        family?: string | null
+        environmentID?: string | null
+        environmentName?: string | null
+        scopeID?: string | null
+        scopeName?: string | null
+        platformID?: string | null
+        status: IntegrationIntegrationStatus
+        primaryDirectory: boolean
+        campaignEmail: boolean
+        systemOwned?: boolean | null
+        tags?: Array<string> | null
+        config?: any | null
+        metadata?: any | null
+        providerMetadataSnapshot?: any | null
+        webhookURLs?: any | null
+        ownerID?: string | null
+        createdAt?: any | null
+        createdBy?: string | null
+        updatedAt?: any | null
+        updatedBy?: string | null
+      } | null
+    } | null> | null
+  }
   file?: { __typename?: 'File'; id: string; presignedURL?: string | null; providedFileName: string; providedFileExtension: string; detectedMimeType?: string | null } | null
   approver?: {
     __typename?: 'Group'
@@ -72328,6 +72406,46 @@ export type GetInternalPolicyDetailsByIdQuery = {
     summary?: string | null
     detailsJSON?: Array<any> | null
     internalPolicyKindName?: string | null
+    liveExternalContents?: string | null
+    url?: string | null
+    externalFileID?: string | null
+    integrations: {
+      __typename?: 'IntegrationConnection'
+      edges?: Array<{
+        __typename?: 'IntegrationEdge'
+        node?: {
+          __typename?: 'Integration'
+          id: string
+          name: string
+          kind?: string | null
+          integrationType?: string | null
+          description?: string | null
+          definitionID?: string | null
+          definitionSlug?: string | null
+          definitionVersion?: string | null
+          family?: string | null
+          environmentID?: string | null
+          environmentName?: string | null
+          scopeID?: string | null
+          scopeName?: string | null
+          platformID?: string | null
+          status: IntegrationIntegrationStatus
+          primaryDirectory: boolean
+          campaignEmail: boolean
+          systemOwned?: boolean | null
+          tags?: Array<string> | null
+          config?: any | null
+          metadata?: any | null
+          providerMetadataSnapshot?: any | null
+          webhookURLs?: any | null
+          ownerID?: string | null
+          createdAt?: any | null
+          createdBy?: string | null
+          updatedAt?: any | null
+          updatedBy?: string | null
+        } | null
+      } | null> | null
+    }
     file?: { __typename?: 'File'; id: string; presignedURL?: string | null; providedFileName: string; providedFileExtension: string; detectedMimeType?: string | null } | null
     approver?: {
       __typename?: 'Group'
