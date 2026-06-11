@@ -12,6 +12,7 @@ import {
 const FINALIZED_INTEGRATION_STATUSES = new Set(['CONNECTED', 'DISABLED', 'ERRORED'])
 
 const PROVIDER_ICON_MAP: Record<string, string> = {
+  Authentik: '/icons/brand/integrations/authentik.jpg',
   'Amazon Web Services': '/icons/brand/integrations/aws.jpg',
   Azure: '/icons/brand/integrations/microsoft_azure.png',
   Buildkite: '/icons/brand/integrations/buildkite.png',
