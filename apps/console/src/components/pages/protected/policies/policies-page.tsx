@@ -2,6 +2,7 @@
 import React, { use, useEffect, useState } from 'react'
 import { PoliciesTable } from './table/policies-table'
 import PoliciesDashboard from './policies-dashboard/policies-dashboard'
+import PoliciesEmptyState from './policies-empty/policies-empty-state'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@repo/ui/dropdown-menu'
 import { SlidersHorizontal, SquarePlus } from 'lucide-react'
 import { Button } from '@repo/ui/button'
@@ -124,7 +125,7 @@ const PoliciesPage: React.FC<TPoliciesPageProps> = ({ active, setActive }) => {
         )}
       </div>
 
-      {active === 'dashboard' ? <PoliciesDashboard setActive={setActive} fetching={fetching} totalCount={totalCount} /> : <PoliciesTable />}
+      {!fetching && totalCount === 0 ? <PoliciesEmptyState /> : active === 'dashboard' ? <PoliciesDashboard setActive={setActive} fetching={fetching} /> : <PoliciesTable />}
     </div>
   )
 }
