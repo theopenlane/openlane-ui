@@ -16,7 +16,8 @@ const useFileExport = () => {
 
   const handleExport = async ({ exportType, filters, fields, format }: TUseFileExportProps) => {
     successNotification({
-      title: `Your export has started. You'll get a notification when your file is ready to download.`,
+      title: `Export Started`,
+      description: `You'll get a notification when your file is ready to download.`,
     })
 
     try {
