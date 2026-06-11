@@ -4,12 +4,12 @@ import React from 'react'
 import { Button } from '@repo/ui/button'
 import { CopyPlus, PencilIcon, MoreHorizontal, Trash2, Sparkles } from 'lucide-react'
 import { hasPermission, canDelete, canEdit } from '@/lib/authz/utils.ts'
-import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
+import { AccessEnum } from '@repo/codegen/src/permissions.generated'
 import Menu from '@/components/shared/menu/menu.tsx'
 import Link from 'next/link'
 import { SaveButton } from '@/components/shared/save-button/save-button.tsx'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button.tsx'
-import type { TAccessRole } from '@/types/authz'
+import type { TAccessRole } from '@/lib/authz/types'
 
 interface ControlHeaderActionsProps {
   controlId: string

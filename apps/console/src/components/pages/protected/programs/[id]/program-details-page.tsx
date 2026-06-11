@@ -11,7 +11,7 @@ import ProgramTaskTable from '@/components/pages/protected/programs/[id]/program
 import { ControlsSummaryCard } from '@/components/pages/protected/programs/[id]/controls-summary-card'
 import { SquarePlus } from 'lucide-react'
 import { hasPermission } from '@/lib/authz/utils.ts'
-import { AccessEnum } from '@/lib/authz/enums/access-enum.ts'
+import { AccessEnum } from '@repo/codegen/src/permissions.generated'
 import Menu from '@/components/shared/menu/menu.tsx'
 import TimelineReadiness from '@/components/pages/protected/programs/[id]/timeline-readiness'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext.tsx'
