@@ -2,6 +2,8 @@ import { UserAuthProvider } from '@repo/codegen/src/schema'
 
 const LAST_LOGIN_METHOD_KEY = 'last_login_method'
 
+// remember which method was last used on this device. For SSO this is just a flag — on the next
+// visit the SSO button is shown and the org is resolved fresh from the typed email
 export const recordLastLoginMethod = (provider: UserAuthProvider) => {
   if (typeof window === 'undefined') return
   try {
