@@ -60,8 +60,8 @@
     "next-navigation-guard": "^0.2.0",
     "next-themes": "^0.4.0",
     "qrcode.react": "^4.2.0",
-    "react": "19.2.6",
-    "react-dom": "19.2.6",
+    "react": "19.2.7",
+    "react-dom": "19.2.7",
     "react-dropzone": "^14.2.3",
     "react-easy-crop": "^5.0.7",
     "react-force-graph-2d": "^1.28.0",
@@ -85,7 +85,7 @@
     "@types/dompurify": "^3.2.0",
     "@types/eslint": "latest",
     "@types/node": "^25.0.0",
-    "@types/react": "19.2.14",
+    "@types/react": "19.2.17",
     "@types/react-dom": "19.2.3",
     "autoprefixer": "^10.4.14",
     "clsx": "latest",
@@ -96,7 +96,7 @@
     "typescript": "^5"
   },
   "overrides": {
-    "@types/react": "19.2.14",
+    "@types/react": "19.2.17",
     "@types/react-dom": "19.2.3"
   }
 }
