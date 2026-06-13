@@ -30,6 +30,7 @@ const PROVIDER_ICON_MAP: Record<string, string> = {
   Tailscale: '/icons/brand/integrations/tailscale.png',
   Keycloak: '/icons/brand/integrations/keycloak.png',
   Zitadel: '/icons/brand/integrations/zitadel.png',
+  'Microsoft OneDrive': '/icons/brand/integrations/onedrive.png',
 }
 
 const fallbackIcon = '/icons/brand/integrations/default.png'
