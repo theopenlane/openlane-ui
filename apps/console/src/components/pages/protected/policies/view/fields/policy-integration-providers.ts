@@ -5,7 +5,7 @@ import { IntegrationFamily } from '@/lib/enums/integration'
 export type PolicyIntegrationNode = NonNullable<NonNullable<NonNullable<InternalPolicyByIdFragment['integrations']['edges']>[number]>['node']>
 
 type PolicyIntegrationProvider = {
-  family: string
+  family: IntegrationFamily
   buildSourceUrl: (policy: InternalPolicyByIdFragment) => string | null
 }
 
