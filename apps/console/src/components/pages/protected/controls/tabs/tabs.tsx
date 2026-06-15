@@ -61,7 +61,7 @@ const ControlDetailsTabs: React.FC<TabsProps> = (props) => {
     return (control?.subcontrols?.edges ?? []).map((edge) => edge?.node?.id).filter((id): id is string => Boolean(id))
   }, [isSubcontrol, control?.subcontrols?.edges, subcontrol])
 
-  const { mappedControlRefs, mappedSubcontrolRefs } = useMappedEntityRefs(isSubcontrol ? undefined : control?.id, subcontrolIds)
+  const { mappedControlRefs, mappedSubcontrolRefs } = useMappedEntityRefs(isSubcontrol ? undefined : control)
 
   const evidenceRequests = isSubcontrol ? (subcontrol as { evidenceRequests?: unknown } | undefined)?.evidenceRequests : (control as { evidenceRequests?: unknown } | undefined)?.evidenceRequests
   const refCode = (isSubcontrol ? subcontrol?.refCode : control?.refCode) ?? ''

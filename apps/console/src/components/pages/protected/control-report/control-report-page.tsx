@@ -4,7 +4,8 @@ import React, { use, useCallback, useEffect, useMemo, useState } from 'react'
 import { useOrganization } from '@/hooks/useOrganization'
 import { useStandardsSelect } from '@/lib/graphql-hooks/standard'
 import { type ControlGroupItem, useGetControlsGroupedByCategoryResolver } from '@/lib/graphql-hooks/control'
-import { useOrgCoverageMap, useFrameworkCoverageMap } from '@/lib/graphql-hooks/mapped-control'
+import { buildOrgCoverageMap, buildFrameworkCoverageMap, type FrameworkCoverageData } from '@/lib/graphql-hooks/mapped-control'
+import { type OrgCoverageData } from './org-coverage-cell'
 import { Accordion } from '@radix-ui/react-accordion'
 import { ControlControlStatus, EvidenceEvidenceStatus, type ControlWhereInput } from '@repo/codegen/src/schema'
 import { BreadcrumbContext } from '@/providers/BreadcrumbContext'
@@ -99,10 +100,9 @@ const ControlReportPage: React.FC<TControlReportPageProps> = ({ active, setActiv
 
   const hasNoControls = !sortedData || sortedData.length === 0 || sortedData.every((entry) => entry.controls.length === 0)
 
-  const allControlRows = useMemo(() => (sortedData ?? []).flatMap((entry) => entry.controls.map((c) => ({ id: c.id, refCode: c.refCode, referenceFramework: c.referenceFramework }))), [sortedData])
-  const allControlIds = useMemo(() => allControlRows.map((r) => r.id), [allControlRows])
-  const orgCoverageMap = useOrgCoverageMap(isCustomView ? [] : allControlRows)
-  const frameworkCoverageMap = useFrameworkCoverageMap(isCustomView ? allControlIds : [])
+  const allControlItems = useMemo(() => (sortedData ?? []).flatMap((entry) => entry.controls), [sortedData])
+  const orgCoverageMap = useMemo(() => (isCustomView ? new Map<string, OrgCoverageData>() : buildOrgCoverageMap(allControlItems)), [isCustomView, allControlItems])
+  const frameworkCoverageMap = useMemo(() => (isCustomView ? buildFrameworkCoverageMap(allControlItems) : new Map<string, FrameworkCoverageData>()), [isCustomView, allControlItems])
 
   const filteredSortedData = useMemo(() => {
     if (!sortedData || reportFilters.size === 0) return sortedData

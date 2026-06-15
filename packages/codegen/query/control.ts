@@ -302,6 +302,25 @@ export const GET_CONTROL_BY_ID = gql`
   query GetControlById($controlId: ID!) {
     control(id: $controlId) {
       ...ControlDetailsFields
+      relatedControls {
+        totalCount
+        edges {
+          node {
+            id
+            refCode
+          }
+        }
+      }
+      relatedSubcontrols {
+        totalCount
+        edges {
+          node {
+            id
+            refCode
+            controlID
+          }
+        }
+      }
     }
   }
 `
@@ -719,6 +738,60 @@ export const GET_CONTROLS_GROUPED_BY_CATEGORY_RESOLVER = gql`
                     node {
                       id
                       name
+                    }
+                  }
+                }
+                relatedControls {
+                  edges {
+                    node {
+                      id
+                      refCode
+                      referenceFramework
+                      status
+                      evidence {
+                        edges {
+                          node {
+                            id
+                            name
+                            status
+                          }
+                        }
+                      }
+                      internalPolicies {
+                        edges {
+                          node {
+                            id
+                            name
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+                relatedSubcontrols {
+                  edges {
+                    node {
+                      id
+                      refCode
+                      referenceFramework
+                      status
+                      evidence {
+                        edges {
+                          node {
+                            id
+                            name
+                            status
+                          }
+                        }
+                      }
+                      internalPolicies {
+                        edges {
+                          node {
+                            id
+                            name
+                          }
+                        }
+                      }
                     }
                   }
                 }

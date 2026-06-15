@@ -1534,6 +1534,7 @@ export interface AssessmentResponse extends Node {
   owner?: Maybe<Organization>
   /** the ID of the organization owner of the object */
   ownerID?: Maybe<Scalars['ID']['output']>
+  questionnaireTransformError?: Maybe<Scalars['String']['output']>
   /** the number of attempts made to perform email send to the recipient about this assessment, maximum of 5 */
   sendAttempts: Scalars['Int']['output']
   /** when the user started the assessment */
@@ -5435,6 +5436,10 @@ export interface Control extends Node {
   referenceID?: Maybe<Scalars['String']['output']>
   /** references for the control */
   references?: Maybe<Array<Scalars['Reference']['output']>>
+  /** relatedControls show the controls and frameworks mapped to this control */
+  relatedControls: RelatedControlConnection
+  /** relatedSubcontrols show the subcontrols and frameworks mapped to this control */
+  relatedSubcontrols: RelatedSubcontrolConnection
   remediations: RemediationConnection
   /** the entity who is responsible for the control implementation when it is a third party */
   responsibleParty?: Maybe<Entity>
@@ -15865,6 +15870,12 @@ export interface EmailTemplateCatalogEntry {
   configSchema: Scalars['Map']['output']
   /** Human-readable description of the template type. */
   description: Scalars['String']['output']
+  /**
+   * Example/default field values used to render the preview, keyed by the same
+   * field names as configSchema. The UI pre-fills the editor form with these so
+   * the author starts from — and can see — what the default preview renders.
+   */
+  exampleValues?: Maybe<Scalars['Map']['output']>
   /** Rendered HTML preview of the template with default/example values. */
   htmlPreview: Scalars['String']['output']
   /**
@@ -15872,6 +15883,18 @@ export interface EmailTemplateCatalogEntry {
    * rendering pipeline at send time.
    */
   key: Scalars['String']['output']
+  /**
+   * RJSF-style UI schema describing how the configurable fields should be
+   * rendered as a form: authoring order, color widgets for hex fields,
+   * repeatable lists for body paragraphs, and hidden per-send fields.
+   */
+  uiSchema: Scalars['Map']['output']
+  /**
+   * System-provided template variables available for interpolation in this
+   * template's string fields (e.g. {{ .firstName }}), with descriptions for
+   * the UI variable picker.
+   */
+  variables: Array<TemplateVariable>
 }
 
 /** A connection to a list of items. */
@@ -41113,6 +41136,13 @@ export interface Query {
   /** Search across Platform objects */
   platformSearch?: Maybe<PlatformConnection>
   platforms: PlatformConnection
+  /**
+   * Renders a customer-selectable email template to HTML for live preview. The
+   * catalog example is the base layer and the supplied draft values override it,
+   * so fields the author has not yet filled in still render with representative
+   * demo content.
+   */
+  previewEmailTemplate: Scalars['String']['output']
   /** Look up procedure by ID */
   procedure: Procedure
   /** Search across Procedure objects */
@@ -42240,6 +42270,11 @@ export interface QueryPlatformsArgs {
   where?: InputMaybe<PlatformWhereInput>
 }
 
+export interface QueryPreviewEmailTemplateArgs {
+  defaults: Scalars['Map']['input']
+  key: Scalars['String']['input']
+}
+
 export interface QueryProcedureArgs {
   id: Scalars['ID']['input']
 }
@@ -42923,6 +42958,38 @@ export interface ReassignWorkflowAssignmentInput {
   id: Scalars['ID']['input']
   /** New targets for the assignment */
   targets: Array<WorkflowAssignmentTargetInput>
+}
+
+/** A connection to a list of items. */
+export interface RelatedControlConnection {
+  __typename?: 'RelatedControlConnection'
+  /** A list of edges. */
+  edges?: Maybe<Array<Maybe<RelatedControlEdge>>>
+  /** Identifies the total count of items in the connection. */
+  totalCount: Scalars['Int']['output']
+}
+
+/** An edge in a connection. */
+export interface RelatedControlEdge {
+  __typename?: 'RelatedControlEdge'
+  /** The item at the end of the edge. */
+  node: Control
+}
+
+/** A connection to a list of items. */
+export interface RelatedSubcontrolConnection {
+  __typename?: 'RelatedSubcontrolConnection'
+  /** A list of edges. */
+  edges?: Maybe<Array<Maybe<RelatedSubcontrolEdge>>>
+  /** Identifies the total count of items in the connection. */
+  totalCount: Scalars['Int']['output']
+}
+
+/** An edge in a connection. */
+export interface RelatedSubcontrolEdge {
+  __typename?: 'RelatedSubcontrolEdge'
+  /** The item at the end of the edge. */
+  node: Subcontrol
 }
 
 export interface Remediation extends Node {
@@ -47897,6 +47964,10 @@ export interface Subcontrol extends Node {
   referenceID?: Maybe<Scalars['String']['output']>
   /** references for the control */
   references?: Maybe<Array<Scalars['Reference']['output']>>
+  /** relatedControls show the controls and frameworks mapped to this control */
+  relatedControls: RelatedControlConnection
+  /** relatedSubcontrols show the subcontrols and frameworks mapped to this control */
+  relatedSubcontrols: RelatedSubcontrolConnection
   remediations: RemediationConnection
   /** the entity who is responsible for the control implementation when it is a third party */
   responsibleParty?: Maybe<Entity>
@@ -68580,6 +68651,16 @@ export type GetControlByIdQuery = {
     title?: string | null
     externalUUID?: string | null
     aliases?: Array<string> | null
+    relatedControls: {
+      __typename?: 'RelatedControlConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'RelatedControlEdge'; node: { __typename?: 'Control'; id: string; refCode: string } } | null> | null
+    }
+    relatedSubcontrols: {
+      __typename?: 'RelatedSubcontrolConnection'
+      totalCount: number
+      edges?: Array<{ __typename?: 'RelatedSubcontrolEdge'; node: { __typename?: 'Subcontrol'; id: string; refCode: string; controlID: string } } | null> | null
+    }
     controlObjectives: {
       __typename?: 'ControlObjectiveConnection'
       edges?: Array<{
@@ -68972,6 +69053,48 @@ export type GetControlsGroupedByCategoryResolverQuery = {
               internalPolicies: {
                 __typename?: 'InternalPolicyConnection'
                 edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string } | null } | null> | null
+              }
+              relatedControls: {
+                __typename?: 'RelatedControlConnection'
+                edges?: Array<{
+                  __typename?: 'RelatedControlEdge'
+                  node: {
+                    __typename?: 'Control'
+                    id: string
+                    refCode: string
+                    referenceFramework?: string | null
+                    status?: ControlControlStatus | null
+                    evidence: {
+                      __typename?: 'EvidenceConnection'
+                      edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; id: string; name: string; status?: EvidenceEvidenceStatus | null } | null } | null> | null
+                    }
+                    internalPolicies: {
+                      __typename?: 'InternalPolicyConnection'
+                      edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string } | null } | null> | null
+                    }
+                  }
+                } | null> | null
+              }
+              relatedSubcontrols: {
+                __typename?: 'RelatedSubcontrolConnection'
+                edges?: Array<{
+                  __typename?: 'RelatedSubcontrolEdge'
+                  node: {
+                    __typename?: 'Subcontrol'
+                    id: string
+                    refCode: string
+                    referenceFramework?: string | null
+                    status?: SubcontrolControlStatus | null
+                    evidence: {
+                      __typename?: 'EvidenceConnection'
+                      edges?: Array<{ __typename?: 'EvidenceEdge'; node?: { __typename?: 'Evidence'; id: string; name: string; status?: EvidenceEvidenceStatus | null } | null } | null> | null
+                    }
+                    internalPolicies: {
+                      __typename?: 'InternalPolicyConnection'
+                      edges?: Array<{ __typename?: 'InternalPolicyEdge'; node?: { __typename?: 'InternalPolicy'; id: string; name: string } | null } | null> | null
+                    }
+                  }
+                } | null> | null
               }
             } | null
           } | null> | null
@@ -73339,12 +73462,14 @@ export type CoverageSubcontrolFieldsFragment = {
 
 export type GetMappedControlsForCoverageQueryVariables = Exact<{
   where?: InputMaybe<MappedControlWhereInput>
+  after?: InputMaybe<Scalars['Cursor']['input']>
 }>
 
 export type GetMappedControlsForCoverageQuery = {
   __typename?: 'Query'
   mappedControls: {
     __typename?: 'MappedControlConnection'
+    pageInfo: { __typename?: 'PageInfo'; endCursor?: any | null; hasNextPage: boolean }
     edges?: Array<{
       __typename?: 'MappedControlEdge'
       node?: {

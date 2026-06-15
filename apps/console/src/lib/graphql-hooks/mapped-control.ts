@@ -26,6 +26,7 @@ import {
 import { useMemo } from 'react'
 import { type OrgCoverageData } from '@/components/pages/protected/control-report/org-coverage-cell'
 import { ORG_COVERAGE_SEVERITY_ORDER } from '@/components/shared/enum-mapper/control-enum'
+import { type ControlGroupItem } from './control'
 
 type BuildLinkedControlsWhereArgs = {
   controlId?: string
@@ -144,19 +145,6 @@ type CoverageMappedControlResponse = {
   }
 }
 
-const collectCoverageEdges = async (requestPage: (after: string | null) => Promise<CoverageMappedControlResponse>): Promise<CoverageMappedControlResponse> => {
-  const edges: Array<CoverageMappedControlEdge> = []
-  let after: string | null = null
-  for (;;) {
-    const page = await requestPage(after)
-    if (page.mappedControls.edges) edges.push(...page.mappedControls.edges)
-    const pageInfo = page.mappedControls.pageInfo
-    if (!pageInfo?.hasNextPage || !pageInfo.endCursor) break
-    after = pageInfo.endCursor
-  }
-  return { mappedControls: { edges } }
-}
-
 const INACTIVE_STATUSES = new Set<string>([ControlControlStatus.NOT_APPLICABLE, ControlControlStatus.ARCHIVED])
 
 export const EVIDENCE_SEVERITY_ORDER: EvidenceEvidenceStatus[] = [
@@ -171,9 +159,18 @@ export const EVIDENCE_SEVERITY_ORDER: EvidenceEvidenceStatus[] = [
   EvidenceEvidenceStatus.AUDITOR_APPROVED,
 ]
 
-const isOrgControl = (c: CoverageControlNode): boolean => !c.referenceFramework || c.referenceFramework === 'CUSTOM'
+type CoverageControlLike = {
+  id: string
+  refCode: string
+  referenceFramework?: string | null
+  status?: string | null
+  evidence?: { edges?: Array<{ node?: { id: string; name?: string | null; status?: string | null } | null } | null> | null } | null
+  internalPolicies?: { edges?: Array<{ node?: { id: string; name: string } | null } | null> | null } | null
+}
 
-const addOrgControlToCoverage = (map: Map<string, OrgCoverageData & { seenIds: Set<string> }>, frameworkControlId: string, orgControl: CoverageControlNode) => {
+const isOrgControl = (c: CoverageControlLike): boolean => !c.referenceFramework || c.referenceFramework === 'CUSTOM'
+
+const addOrgControlToCoverage = (map: Map<string, OrgCoverageData & { seenIds: Set<string> }>, frameworkControlId: string, orgControl: CoverageControlLike) => {
   if (!orgControl.id || !orgControl.refCode) return
   let entry = map.get(frameworkControlId)
   if (!entry) {
@@ -236,58 +233,12 @@ const addOrgControlToCoverage = (map: Map<string, OrgCoverageData & { seenIds: S
   }
 }
 
-type CoverageRow = { id: string; refCode: string; referenceFramework?: string | null }
-
-const buildCoverageMap = (data: CoverageMappedControlResponse, rows: CoverageRow[]): Map<string, OrgCoverageData> => {
-  const idToRowId = new Map<string, string>()
-  const refKeyToRowId = new Map<string, string>()
-  for (const row of rows) {
-    idToRowId.set(row.id, row.id)
-    if (row.referenceFramework) refKeyToRowId.set(`${row.referenceFramework}|${row.refCode}`, row.id)
-  }
-  const resolveRowId = (fc: CoverageControlNode): string | undefined => idToRowId.get(fc.id) ?? (fc.referenceFramework ? refKeyToRowId.get(`${fc.referenceFramework}|${fc.refCode}`) : undefined)
-
+export const buildOrgCoverageMap = (controls: ControlGroupItem[]): Map<string, OrgCoverageData> => {
   const raw = new Map<string, OrgCoverageData & { seenIds: Set<string> }>()
 
-  for (const edge of data.mappedControls.edges ?? []) {
-    const node = edge?.node
-    if (!node) continue
-
-    const fromControls = (node.fromControls.edges ?? []).map((e) => e?.node).filter((n): n is CoverageControlNode => !!n)
-    const toControls = (node.toControls.edges ?? []).map((e) => e?.node).filter((n): n is CoverageControlNode => !!n)
-    const fromSubcontrols = (node.fromSubcontrols.edges ?? []).map((e) => e?.node).filter((n): n is CoverageSubcontrolNode => !!n)
-    const toSubcontrols = (node.toSubcontrols.edges ?? []).map((e) => e?.node).filter((n): n is CoverageSubcontrolNode => !!n)
-
-    for (const fc of fromControls) {
-      const rowId = resolveRowId(fc)
-      if (!rowId) continue
-      for (const oc of [...toControls, ...toSubcontrols]) {
-        if (isOrgControl(oc)) addOrgControlToCoverage(raw, rowId, oc)
-      }
-    }
-
-    for (const fc of toControls) {
-      const rowId = resolveRowId(fc)
-      if (!rowId) continue
-      for (const oc of [...fromControls, ...fromSubcontrols]) {
-        if (isOrgControl(oc)) addOrgControlToCoverage(raw, rowId, oc)
-      }
-    }
-
-    for (const fsc of fromSubcontrols) {
-      const rowId = idToRowId.get(fsc.controlID)
-      if (!rowId) continue
-      for (const oc of [...toControls, ...toSubcontrols]) {
-        if (isOrgControl(oc)) addOrgControlToCoverage(raw, rowId, oc)
-      }
-    }
-
-    for (const fsc of toSubcontrols) {
-      const rowId = idToRowId.get(fsc.controlID)
-      if (!rowId) continue
-      for (const oc of [...fromControls, ...fromSubcontrols]) {
-        if (isOrgControl(oc)) addOrgControlToCoverage(raw, rowId, oc)
-      }
+  for (const control of controls) {
+    for (const node of [...control.relatedControls, ...control.relatedSubcontrols]) {
+      if (isOrgControl(node)) addOrgControlToCoverage(raw, control.id, node)
     }
   }
 
@@ -298,63 +249,15 @@ const buildCoverageMap = (data: CoverageMappedControlResponse, rows: CoverageRow
   return result
 }
 
-export const useOrgCoverageMap = (rows: CoverageRow[]): Map<string, OrgCoverageData> => {
-  const { client } = useGraphQLClient()
-
-  const controlIds = rows.map((r) => r.id)
-  const controlIdsKey = controlIds.join(',')
-
-  const where = useMemo<MappedControlWhereInput | undefined>(() => {
-    if (rows.length === 0) return undefined
-    const refCodes = rows.map((r) => r.refCode)
-    const framework = rows.find((r) => r.referenceFramework)?.referenceFramework ?? null
-    const or: MappedControlWhereInput[] = [
-      { hasFromControlsWith: [{ idIn: controlIds }] },
-      { hasToControlsWith: [{ idIn: controlIds }] },
-      { hasFromSubcontrolsWith: [{ controlIDIn: controlIds }] },
-      { hasToSubcontrolsWith: [{ controlIDIn: controlIds }] },
-    ]
-    if (framework) {
-      or.push(
-        { and: [{ source: MappedControlMappingSource.SUGGESTED }, { hasFromControlsWith: [{ refCodeIn: refCodes, referenceFramework: framework }] }] },
-        { and: [{ source: MappedControlMappingSource.SUGGESTED }, { hasToControlsWith: [{ refCodeIn: refCodes, referenceFramework: framework }] }] },
-      )
-    }
-    return { or }
-    // eslint-disable-next-line react-hooks/exhaustive-deps, @eslint-react/exhaustive-deps
-  }, [controlIdsKey])
-
-  const { data } = useQuery<CoverageMappedControlResponse>({
-    queryKey: ['mappedControls', 'coverage', controlIdsKey],
-    queryFn: () => collectCoverageEdges((after) => client.request<CoverageMappedControlResponse>(GET_MAPPED_CONTROLS_FOR_COVERAGE, { where, after })),
-    enabled: rows.length > 0,
-  })
-
-  return useMemo(() => {
-    if (!data) return new Map()
-    const map = buildCoverageMap(data, rows)
-    // TEMP debug — remove
-    console.log('[ORG-COVERAGE] where', where)
-    console.log('[ORG-COVERAGE] rows', rows)
-    console.log('[ORG-COVERAGE] raw edges', data.mappedControls?.edges)
-    console.log(
-      '[ORG-COVERAGE] built map',
-      Array.from(map.entries()).map(([id, v]) => ({ id, orgControlRefs: v.orgControlRefs })),
-    )
-    return map
-    // eslint-disable-next-line react-hooks/exhaustive-deps, @eslint-react/exhaustive-deps
-  }, [data, controlIdsKey])
-}
-
 export type FrameworkCoverageData = {
   frameworkControlRefs: Array<{ id: string; refCode: string; framework: string }>
   evidenceRefs: Array<{ id: string; name: string; status?: string | null; controlId: string }>
   linkedPolicies: Array<{ id: string; name: string }>
 }
 
-const isFrameworkControl = (c: CoverageControlNode): boolean => !!(c.referenceFramework && c.referenceFramework !== 'CUSTOM')
+const isFrameworkControl = (c: CoverageControlLike): boolean => !!(c.referenceFramework && c.referenceFramework !== 'CUSTOM')
 
-const buildFrameworkCoverageMap = (data: CoverageMappedControlResponse, orgControlIdSet: Set<string>): Map<string, FrameworkCoverageData> => {
+export const buildFrameworkCoverageMap = (controls: ControlGroupItem[]): Map<string, FrameworkCoverageData> => {
   type Entry = {
     refs: Array<{ id: string; refCode: string; framework: string }>
     evidenceRefs: Array<{ id: string; name: string; status?: string | null; controlId: string }>
@@ -365,7 +268,7 @@ const buildFrameworkCoverageMap = (data: CoverageMappedControlResponse, orgContr
   }
   const raw = new Map<string, Entry>()
 
-  const addFrameworkRef = (orgControlId: string, fc: CoverageControlNode) => {
+  const addFrameworkRef = (orgControlId: string, fc: CoverageControlLike) => {
     if (!fc.id || !fc.refCode || !fc.referenceFramework) return
     let entry = raw.get(orgControlId)
     if (!entry) {
@@ -390,38 +293,9 @@ const buildFrameworkCoverageMap = (data: CoverageMappedControlResponse, orgContr
     }
   }
 
-  for (const edge of data.mappedControls.edges ?? []) {
-    const node = edge?.node
-    if (!node) continue
-
-    const fromControls = (node.fromControls.edges ?? []).map((e) => e?.node).filter((n): n is CoverageControlNode => !!n)
-    const toControls = (node.toControls.edges ?? []).map((e) => e?.node).filter((n): n is CoverageControlNode => !!n)
-    const fromSubcontrols = (node.fromSubcontrols.edges ?? []).map((e) => e?.node).filter((n): n is CoverageSubcontrolNode => !!n)
-    const toSubcontrols = (node.toSubcontrols.edges ?? []).map((e) => e?.node).filter((n): n is CoverageSubcontrolNode => !!n)
-    for (const oc of fromControls) {
-      if (!orgControlIdSet.has(oc.id)) continue
-      for (const fc of [...toControls, ...toSubcontrols]) {
-        if (isFrameworkControl(fc)) addFrameworkRef(oc.id, fc)
-      }
-    }
-    for (const oc of toControls) {
-      if (!orgControlIdSet.has(oc.id)) continue
-      for (const fc of [...fromControls, ...fromSubcontrols]) {
-        if (isFrameworkControl(fc)) addFrameworkRef(oc.id, fc)
-      }
-    }
-
-    for (const osc of fromSubcontrols) {
-      if (!orgControlIdSet.has(osc.controlID)) continue
-      for (const fc of [...toControls, ...toSubcontrols]) {
-        if (isFrameworkControl(fc)) addFrameworkRef(osc.controlID, fc)
-      }
-    }
-    for (const osc of toSubcontrols) {
-      if (!orgControlIdSet.has(osc.controlID)) continue
-      for (const fc of [...fromControls, ...fromSubcontrols]) {
-        if (isFrameworkControl(fc)) addFrameworkRef(osc.controlID, fc)
-      }
+  for (const control of controls) {
+    for (const node of [...control.relatedControls, ...control.relatedSubcontrols]) {
+      if (isFrameworkControl(node)) addFrameworkRef(control.id, node)
     }
   }
 
@@ -430,40 +304,6 @@ const buildFrameworkCoverageMap = (data: CoverageMappedControlResponse, orgContr
     result.set(id, { frameworkControlRefs: refs, evidenceRefs, linkedPolicies })
   }
   return result
-}
-
-export const useFrameworkCoverageMap = (orgControlIds: string[]): Map<string, FrameworkCoverageData> => {
-  const { client } = useGraphQLClient()
-
-  const orgControlIdsKey = orgControlIds.join(',')
-
-  const where = useMemo(
-    () =>
-      orgControlIds.length === 0
-        ? undefined
-        : {
-            or: [
-              { hasFromControlsWith: [{ idIn: orgControlIds }] },
-              { hasToControlsWith: [{ idIn: orgControlIds }] },
-              { hasFromSubcontrolsWith: [{ controlIDIn: orgControlIds }] },
-              { hasToSubcontrolsWith: [{ controlIDIn: orgControlIds }] },
-            ],
-          },
-    // eslint-disable-next-line react-hooks/exhaustive-deps, @eslint-react/exhaustive-deps
-    [orgControlIdsKey],
-  )
-
-  const { data } = useQuery<CoverageMappedControlResponse>({
-    queryKey: ['mappedControls', 'frameworkCoverage', orgControlIdsKey],
-    queryFn: () => collectCoverageEdges((after) => client.request<CoverageMappedControlResponse>(GET_MAPPED_CONTROLS_FOR_COVERAGE, { where, after })),
-    enabled: orgControlIds.length > 0,
-  })
-
-  return useMemo(() => {
-    if (!data) return new Map()
-    return buildFrameworkCoverageMap(data, new Set(orgControlIds))
-    // eslint-disable-next-line react-hooks/exhaustive-deps, @eslint-react/exhaustive-deps
-  }, [data, orgControlIdsKey])
 }
 
 export const useFrameworkCoverageForSubcontrol = (subcontrolId?: string): FrameworkCoverageData | null => {

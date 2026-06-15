@@ -456,6 +456,15 @@ export function useGetControlMinifiedById(controlId?: string, enabled = true) {
   })
 }
 
+export type RelatedCoverageControl = {
+  id: string
+  refCode: string
+  referenceFramework?: string | null
+  status?: string | null
+  evidence?: { edges: Array<{ node: { id: string; name: string; status?: string | null } | null } | null> | null } | null
+  internalPolicies?: { edges?: Array<{ node?: { id: string; name: string } | null } | null> | null } | null
+}
+
 export type ControlGroupItem = {
   id: string
   refCode: string
@@ -466,6 +475,8 @@ export type ControlGroupItem = {
   evidenceRefs: Array<{ id: string; name: string; status?: string | null }>
   controlOwner?: { displayName?: string | null; gravatarLogoURL?: string | null; avatarFile?: { base64?: string | null } | null } | null
   linkedPolicies: Array<{ id: string; name: string }>
+  relatedControls: RelatedCoverageControl[]
+  relatedSubcontrols: RelatedCoverageControl[]
 }
 
 type ControlGroupCategoryResponse = {
@@ -497,6 +508,8 @@ type ControlGroupCategoryResponse = {
               evidence?: { edges: Array<{ node: { id: string; name: string; status?: string | null } | null } | null> | null } | null
               controlOwner?: { displayName?: string | null; gravatarLogoURL?: string | null; avatarFile?: { base64?: string | null } | null } | null
               internalPolicies?: { edges?: Array<{ node?: { id: string; name: string } | null } | null> | null } | null
+              relatedControls?: { edges?: Array<{ node?: RelatedCoverageControl | null } | null> | null } | null
+              relatedSubcontrols?: { edges?: Array<{ node?: RelatedCoverageControl | null } | null> | null } | null
             } | null
           } | null> | null
         }
@@ -504,6 +517,14 @@ type ControlGroupCategoryResponse = {
     }>
   }
 }
+
+type GroupedControlNode = NonNullable<NonNullable<ControlGroupCategoryResponse['controlsGroupByCategory']['edges'][number]['node']['controls']['edges']>[number]>['node']
+
+const extractRelatedControls = (node: NonNullable<GroupedControlNode>): RelatedCoverageControl[] =>
+  (node.relatedControls?.edges ?? []).map((e) => e?.node).filter((n): n is RelatedCoverageControl => !!n?.id && !!n?.refCode)
+
+const extractRelatedSubcontrols = (node: NonNullable<GroupedControlNode>): RelatedCoverageControl[] =>
+  (node.relatedSubcontrols?.edges ?? []).map((e) => e?.node).filter((n): n is RelatedCoverageControl => !!n?.id && !!n?.refCode)
 
 export const useGetControlsGroupedByCategoryResolver = ({ where, enabled }: { where?: ControlWhereInput; enabled: boolean }) => {
   const { client } = useGraphQLClient()
@@ -552,6 +573,8 @@ export const useGetControlsGroupedByCategoryResolver = ({ where, enabled }: { wh
                 ].map((p) => [p.id, p]),
               ).values(),
             ),
+            relatedControls: extractRelatedControls(node),
+            relatedSubcontrols: extractRelatedSubcontrols(node),
           }))
 
         allControls[category] = controls
@@ -600,6 +623,8 @@ export const useGetControlsGroupedByCategoryResolver = ({ where, enabled }: { wh
                 ].map((p) => [p.id, p]),
               ).values(),
             ),
+            relatedControls: extractRelatedControls(node),
+            relatedSubcontrols: extractRelatedSubcontrols(node),
           }))
 
         allControls[category] = [...(allControls[category] || []), ...newControls]
