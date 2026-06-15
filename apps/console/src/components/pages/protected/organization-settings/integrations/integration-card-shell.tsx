@@ -7,7 +7,6 @@ import IntegrationCardIcons from './integration-card-icons'
 import IntegrationTagList from './integration-tag-list'
 
 type IntegrationCardShellProps = {
-  providerSlug: string
   logoUrl?: string
   docsUrl?: string
   displayName: string
@@ -20,7 +19,7 @@ type IntegrationCardShellProps = {
   footer: React.ReactNode
 }
 
-const IntegrationCardShell = ({ providerSlug, logoUrl, docsUrl, displayName, tags, description, headerBadge, titleExtra, statusBadge, metadata, footer }: IntegrationCardShellProps) => {
+const IntegrationCardShell = ({ logoUrl, docsUrl, displayName, tags, description, headerBadge, titleExtra, statusBadge, metadata, footer }: IntegrationCardShellProps) => {
   return (
     <Card className="relative flex h-full min-h-[300px] flex-col overflow-visible transition-all duration-200 hover:-translate-y-1 hover:border-primary">
       <CardHeader className="relative flex-row items-start gap-3 space-y-0 pb-3">
@@ -29,7 +28,7 @@ const IntegrationCardShell = ({ providerSlug, logoUrl, docsUrl, displayName, tag
 
         <div className="w-full">
           <div className="flex gap-4">
-            <IntegrationCardIcons providerName={providerSlug} logoUrl={logoUrl} />
+            <IntegrationCardIcons providerName={displayName} logoUrl={logoUrl} />
 
             <div className="flex min-w-0 flex-1 flex-col justify-center self-center">
               <div className="flex min-w-0 items-center gap-2">
