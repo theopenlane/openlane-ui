@@ -13,24 +13,26 @@ const FINALIZED_INTEGRATION_STATUSES = new Set(['CONNECTED', 'DISABLED', 'ERRORE
 
 const PROVIDER_ICON_MAP: Record<string, string> = {
   Authentik: '/icons/brand/integrations/authentik.jpg',
-  'Amazon Web Services': '/icons/brand/integrations/aws.jpg',
-  Azure: '/icons/brand/integrations/microsoft_azure.png',
+  AWS: '/icons/brand/integrations/aws.jpg',
+  'Azure EntraID': '/icons/brand/integrations/microsoft_azure.png',
+  'Microsoft Defender for Cloud': '/icons/brand/integrations/microsoft_azure.png',
   Buildkite: '/icons/brand/integrations/buildkite.png',
   Cloudflare: '/icons/brand/integrations/cloudflare.png',
   'Google Cloud': '/icons/brand/integrations/googlecloud.png',
-  GitHub: '/icons/brand/integrations/gh.png',
+  'GCP Security Command Center': '/icons/brand/integrations/googlecloud.png',
+  'GitHub App': '/icons/brand/integrations/gh.png',
   'Google Drive': '/icons/brand/integrations/google_drive.png',
   'Google Workspace': '/icons/brand/integrations/google_workspace.png',
-  Microsoft: '/icons/brand/integrations/microsoft_teams.png',
+  'Microsoft OneDrive': '/icons/brand/integrations/onedrive.png',
+  'Microsoft Teams': '/icons/brand/integrations/microsoft_teams.png',
   Okta: '/icons/brand/integrations/okta.png',
   scim: '/icons/brand/integrations/scim.png',
   Slack: '/icons/brand/integrations/slack.png',
   Vercel: '/icons/brand/integrations/vercel.png',
-  email: '/icons/brand/integrations/email_icon.png',
+  Email: '/icons/brand/integrations/email_icon.png',
   Tailscale: '/icons/brand/integrations/tailscale.png',
   Keycloak: '/icons/brand/integrations/keycloak.png',
   Zitadel: '/icons/brand/integrations/zitadel.png',
-  'Microsoft OneDrive': '/icons/brand/integrations/onedrive.png',
 }
 
 const fallbackIcon = '/icons/brand/integrations/default.png'

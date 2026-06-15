@@ -64,7 +64,7 @@ const InstalledIntegrationCard = ({ integration, providers, canManage }: Install
         {/* Header row: icon + name + health badge */}
         <div className="flex justify-between items-center">
           <div className="font-medium flex items-center gap-3">
-            <IntegrationCardIcons providerName={provider?.slug ?? integration.definitionSlug ?? integration.kind ?? integration.name} logoUrl={provider?.logoUrl} />
+            <IntegrationCardIcons providerName={displayName} logoUrl={provider?.logoUrl} />
             {displayName}
           </div>
           <div className="flex items-center gap-2">

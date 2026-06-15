@@ -203,7 +203,7 @@ const IntegrationDefinitionPage = ({ definitionId }: IntegrationDefinitionPagePr
           <div>
             {provider.category ? <p className="text-xs uppercase tracking-widest text-muted-foreground mb-3">{provider.category}</p> : null}
             <div className="flex items-center gap-3">
-              <IntegrationCardIcons providerName={provider.slug} logoUrl={provider.logoUrl} />
+              <IntegrationCardIcons providerName={provider.displayName} logoUrl={provider.logoUrl} />
               <PageHeading heading={provider.displayName} />
             </div>
             {provider.description ? <p className="mt-2 text-sm text-muted-foreground">{provider.description}</p> : null}

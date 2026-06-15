@@ -27,7 +27,6 @@ const AvailableIntegrationCard = ({ integration, canManage }: AvailableIntegrati
 
   return (
     <IntegrationCardShell
-      providerSlug={provider.slug}
       logoUrl={provider.logoUrl}
       docsUrl={integration.docsUrl}
       displayName={integration.name}
