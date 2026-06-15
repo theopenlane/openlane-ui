@@ -25,11 +25,8 @@ type VersionSlideoutProps = {
 }
 
 const VersionSlideout: React.FC<VersionSlideoutProps> = ({ historyId, histories, currentPolicy, canRestore = true, onClose, onRestore }) => {
-  const isExternalReference = currentPolicy.managementMode === InternalPolicyDocumentManagementMode.EXTERNAL_REFERENCE
-  const isIntegration = currentPolicy.managementMode === InternalPolicyDocumentManagementMode.INTEGRATION
-  const metadataOnly = isExternalReference || isIntegration
+  const metadataOnly = currentPolicy.managementMode === InternalPolicyDocumentManagementMode.INTEGRATION
   const [selectedPane, setSelectedPane] = useState<'version' | 'diff'>('version')
-  const activePane = metadataOnly ? 'version' : selectedPane
   const record = useMemo(() => (historyId ? (histories.find((h) => h?.id === historyId) ?? null) : null), [historyId, histories])
   const open = !!record
   const previousValue = useMemo(() => toPlateValue(record?.detailsJSON) ?? stringToPlateValue(record?.details), [record?.detailsJSON, record?.details])
@@ -51,10 +48,10 @@ const VersionSlideout: React.FC<VersionSlideoutProps> = ({ historyId, histories,
             </SheetHeader>
 
             <div className="flex-1 overflow-y-auto px-4 py-3">
-              <Tabs value={activePane} onValueChange={(v) => setSelectedPane(v as 'version' | 'diff')}>
+              <Tabs value={selectedPane} onValueChange={(v) => setSelectedPane(v as 'version' | 'diff')}>
                 <TabsList>
                   <TabsTrigger value="version">Version</TabsTrigger>
-                  {!metadataOnly && <TabsTrigger value="diff">Diff</TabsTrigger>}
+                  <TabsTrigger value="diff">Diff</TabsTrigger>
                 </TabsList>
                 <TabsContent value="version">
                   <div className="flex flex-col gap-4">
@@ -69,19 +66,19 @@ const VersionSlideout: React.FC<VersionSlideoutProps> = ({ historyId, histories,
                     )}
                   </div>
                 </TabsContent>
-                {!metadataOnly && (
-                  <TabsContent value="diff">
-                    <div className="flex flex-col gap-4">
-                      <CollapsibleSection label="Field changes">
-                        <FieldsDiff history={record} current={currentPolicy} />
-                      </CollapsibleSection>
+                <TabsContent value="diff">
+                  <div className="flex flex-col gap-4">
+                    <CollapsibleSection label="Field changes" defaultOpen>
+                      <FieldsDiff history={record} current={currentPolicy} />
+                    </CollapsibleSection>
+                    {!metadataOnly && (
                       <div>
                         <h4 className="mb-2 text-sm font-medium">Details diff</h4>
                         <VersionDiff previous={previousValue} current={currentValue} />
                       </div>
-                    </div>
-                  </TabsContent>
-                )}
+                    )}
+                  </div>
+                </TabsContent>
               </Tabs>
             </div>
 
