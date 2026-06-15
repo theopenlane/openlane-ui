@@ -12,7 +12,7 @@ import {
 const FINALIZED_INTEGRATION_STATUSES = new Set(['CONNECTED', 'DISABLED', 'ERRORED'])
 
 const PROVIDER_ICON_MAP: Record<string, string> = {
-  Authentik: '/icons/brand/integrations/authentik.jpg',
+  Authentik: '/icons/brand/integrations/authentik.png',
   AWS: '/icons/brand/integrations/aws.jpg',
   'Azure EntraID': '/icons/brand/integrations/microsoft_azure.png',
   'Microsoft Defender for Cloud': '/icons/brand/integrations/microsoft_azure.png',
