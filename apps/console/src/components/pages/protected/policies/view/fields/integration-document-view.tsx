@@ -37,7 +37,7 @@ const IntegrationDocumentView: React.FC<Props> = ({ policy }) => {
           </div>
         </div>
         {sourceUrl && (
-          <Button variant="outline" icon={<ExternalLink size={14} />} iconPosition="left" onClick={() => window.open(sourceUrl, '_blank', 'noopener,noreferrer')}>
+          <Button type="button" variant="outline" icon={<ExternalLink size={14} />} iconPosition="left" onClick={() => window.open(sourceUrl, '_blank', 'noopener,noreferrer')}>
             Open in {providerName}
           </Button>
         )}
