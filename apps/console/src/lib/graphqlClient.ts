@@ -159,6 +159,10 @@ function handleSessionExpired() {
   window.dispatchEvent(new Event('session-expired'))
 }
 
+export function getIsSessionInvalid() {
+  return isSessionInvalid
+}
+
 function updateRefreshSchedule(accessToken: string) {
   const decoded: { iat?: number; exp?: number } = jwtDecode(accessToken)
   if (!decoded.exp) {
