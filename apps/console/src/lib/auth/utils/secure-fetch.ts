@@ -54,23 +54,19 @@ let cachedCSRFToken: string | null = null
 let cachedCSRFTokenExpiresAt = 0
 let inFlightCSRFRequest: Promise<string> | null = null
 
-// clearCSRFToken drops the cached token so the next request fetches a fresh one
-export const clearCSRFToken = () => {
-  cachedCSRFToken = null
-  cachedCSRFTokenExpiresAt = 0
-}
-
 export const fetchCSRFToken = async (): Promise<string> => {
-  if (cachedCSRFToken && Date.now() < cachedCSRFTokenExpiresAt) {
+  const canCache = typeof window !== 'undefined'
+
+  if (canCache && cachedCSRFToken && Date.now() < cachedCSRFTokenExpiresAt) {
     return cachedCSRFToken
   }
 
   // Dedupe concurrent callers onto a single in-flight request
-  if (inFlightCSRFRequest) {
+  if (canCache && inFlightCSRFRequest) {
     return inFlightCSRFRequest
   }
 
-  inFlightCSRFRequest = (async () => {
+  const request = (async () => {
     try {
       const res = await fetch(`${openlaneAPIUrl}/csrf`, { credentials: 'include' })
       const contentType = res.headers.get('content-type')
@@ -88,19 +84,27 @@ export const fetchCSRFToken = async (): Promise<string> => {
         throw new Error(`Failed to fetch CSRF token: ${res.status} ${res.statusText}`)
       }
 
-      cachedCSRFToken = data.csrf
-      cachedCSRFTokenExpiresAt = Date.now() + CSRF_TTL_MS
+      if (canCache) {
+        cachedCSRFToken = data.csrf
+        cachedCSRFTokenExpiresAt = Date.now() + CSRF_TTL_MS
+      }
 
       return data.csrf
     } catch (err) {
       console.error('[fetchCSRFToken] ⚠️ Error fetching CSRF token:', err)
       throw err
     } finally {
-      inFlightCSRFRequest = null
+      if (canCache) {
+        inFlightCSRFRequest = null
+      }
     }
   })()
 
-  return inFlightCSRFRequest
+  if (canCache) {
+    inFlightCSRFRequest = request
+  }
+
+  return request
 }
 
 export function appendCookie(headers: Record<string, string>, name: string, value: string): Record<string, string> {
