@@ -11,6 +11,7 @@ import { useGetCustomTypeEnums } from '@/lib/graphql-hooks/custom-type-enum'
 import { useGetTags } from '@/lib/graphql-hooks/tag-definition'
 import usePlateEditor from '@/components/shared/plate/usePlateEditor'
 import { buildPayload } from '@/components/pages/protected/reviews/create/utils'
+import { useCanModifyReviews } from '@/components/pages/protected/reviews/hooks/use-can-modify-reviews'
 
 interface ReviewDetailSheetProps {
   reviewId: string
@@ -19,6 +20,7 @@ interface ReviewDetailSheetProps {
 
 const ReviewDetailSheet: React.FC<ReviewDetailSheetProps> = ({ reviewId, onClose }) => {
   const { form } = useFormSchema()
+  const canModifyReviews = useCanModifyReviews()
   const plateEditorHelper = usePlateEditor()
   const stagedFilesRef = useRef<File[]>([])
   const existingFileIdsRef = useRef<string[]>([])
@@ -101,6 +103,7 @@ const ReviewDetailSheet: React.FC<ReviewDetailSheetProps> = ({ reviewId, onClose
           existingFileIdsRef.current = fileIds
         },
       ),
+    canEditOverride: canModifyReviews,
   }
 
   return <GenericDetailsSheet onClose={onClose} {...sheetConfig} />

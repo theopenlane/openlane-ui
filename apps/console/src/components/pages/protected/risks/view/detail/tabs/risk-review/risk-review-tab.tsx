@@ -23,6 +23,7 @@ import ReviewDetailSheet from '@/components/pages/protected/reviews/common/revie
 import { SelectField } from '@/components/shared/crud-base/form-fields/select-field'
 import { RiskLikelihoodOptions } from '@/components/shared/enum-mapper/risk-enum'
 import { riskLikelihoodStyle } from '../../../../risk-label'
+import { useCanModifyReviews } from '@/components/pages/protected/reviews/hooks/use-can-modify-reviews'
 
 const iconClass = 'h-4 w-4 text-muted-foreground'
 
@@ -34,6 +35,8 @@ interface RiskReviewTabProps {
 }
 
 const RiskReviewTab: React.FC<RiskReviewTabProps> = ({ risk, handleUpdateField, canEdit, isEditing }) => {
+  const canModifyReviews = useCanModifyReviews()
+  const [now] = useState(() => Date.now())
   const [isCreateReviewOpen, setIsCreateReviewOpen] = useState(false)
   const [selectedReviewId, setSelectedReviewId] = useState<string | null>(null)
   const [internalEditing, setInternalEditing] = useState<string | null>(null)
@@ -48,8 +51,9 @@ const RiskReviewTab: React.FC<RiskReviewTabProps> = ({ risk, handleUpdateField, 
     where: { hasRisksWith: [{ id: risk.id }], ...filterWhere, ...searchFields },
   })
 
-  const isOverdue = risk.nextReviewDueAt && new Date(risk.nextReviewDueAt) < new Date()
+  const isOverdue = risk.nextReviewDueAt && Date.parse(risk.nextReviewDueAt) < now
   const isHighRisk = isHighRiskTier(risk.impact)
+  const canCreateReview = canEdit || canModifyReviews(undefined)
 
   const sharedFieldProps = {
     isEditing,
@@ -108,7 +112,7 @@ const RiskReviewTab: React.FC<RiskReviewTabProps> = ({ risk, handleUpdateField, 
                 </DropdownMenuRadioGroup>
               </DropdownMenuContent>
             </DropdownMenu>
-            <Button icon={<ClipboardCheck size={16} />} iconPosition="left" disabled={!canEdit} onClick={() => setIsCreateReviewOpen(true)}>
+            <Button icon={<ClipboardCheck size={16} />} iconPosition="left" disabled={!canCreateReview} onClick={() => setIsCreateReviewOpen(true)}>
               Review
             </Button>
           </div>

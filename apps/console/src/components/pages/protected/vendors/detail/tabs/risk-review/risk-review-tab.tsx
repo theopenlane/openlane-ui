@@ -21,6 +21,7 @@ import type { WhereCondition } from '@/types'
 import { reviewHistoryColumns, isHighRiskTier, mappedReviewColumns, DEFAULT_VISIBILITY, REVIEW_FILTER_FIELDS } from '@/components/pages/protected/reviews/common/risk-review-config'
 import CreateReviewSheet from '@/components/pages/protected/reviews/common/create-review-sheet'
 import ReviewDetailSheet from '@/components/pages/protected/reviews/common/review-detail-sheet'
+import { useCanModifyReviews } from '@/components/pages/protected/reviews/hooks/use-can-modify-reviews'
 
 interface RiskReviewTabProps {
   vendor: EntityQuery['entity']
@@ -30,6 +31,8 @@ interface RiskReviewTabProps {
 }
 
 const RiskReviewTab: React.FC<RiskReviewTabProps> = ({ vendor, handleUpdateField, canEdit, isEditing }) => {
+  const canModifyReviews = useCanModifyReviews()
+  const [now] = useState(() => Date.now())
   const [isCreateReviewOpen, setIsCreateReviewOpen] = useState(false)
   const [selectedReviewId, setSelectedReviewId] = useState<string | null>(null)
   const [internalEditing, setInternalEditing] = useState<string | null>(null)
@@ -45,8 +48,9 @@ const RiskReviewTab: React.FC<RiskReviewTabProps> = ({ vendor, handleUpdateField
     where: { hasEntitiesWith: [{ id: vendor.id }], ...filterWhere, ...searchFields },
   })
 
-  const isOverdue = vendor.nextReviewAt && new Date(vendor.nextReviewAt) < new Date()
+  const isOverdue = vendor.nextReviewAt && Date.parse(vendor.nextReviewAt) < now
   const isHighRisk = isHighRiskTier(vendor.tier)
+  const canCreateReview = canEdit || canModifyReviews(undefined)
 
   const sharedFieldProps = {
     isEditing,
@@ -105,7 +109,7 @@ const RiskReviewTab: React.FC<RiskReviewTabProps> = ({ vendor, handleUpdateField
                 </DropdownMenuRadioGroup>
               </DropdownMenuContent>
             </DropdownMenu>
-            <Button icon={<ClipboardCheck size={16} />} iconPosition="left" disabled={!canEdit} onClick={() => setIsCreateReviewOpen(true)}>
+            <Button icon={<ClipboardCheck size={16} />} iconPosition="left" disabled={!canCreateReview} onClick={() => setIsCreateReviewOpen(true)}>
               Review
             </Button>
           </div>

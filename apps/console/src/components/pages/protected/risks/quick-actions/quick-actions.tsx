@@ -14,6 +14,7 @@ import { useFormContext } from 'react-hook-form'
 import { type EditRisksFormData } from '../view/hooks/use-form-schema'
 import { RiskDecisionDialog } from './decision-dialog'
 import { useSmartRouter } from '@/hooks/useSmartRouter'
+import { useCanModifyReviews } from '../../reviews/hooks/use-can-modify-reviews'
 
 const EDIT_RESTRICTED_IDS = new Set(['mark-as-remediated', 'add-review', 'set-risk-decision', 'add-action-plan'])
 
@@ -24,6 +25,7 @@ type RiskQuickActionsProps = {
 }
 
 const RiskQuickActions: React.FC<RiskQuickActionsProps> = (props) => {
+  const canModifyReviews = useCanModifyReviews()
   const [isCreateReviewOpen, setIsCreateReviewOpen] = useState(false)
   const [isDecisionDialogOpen, setIsDecisionDialogOpen] = useState(false)
   const { replace } = useSmartRouter()
@@ -76,8 +78,14 @@ const RiskQuickActions: React.FC<RiskQuickActionsProps> = (props) => {
 
   const filteredActions = useMemo(() => {
     if (props.canEdit) return actions
-    return actions.filter((action) => !EDIT_RESTRICTED_IDS.has(action.id))
-  }, [actions, props.canEdit])
+    return actions.filter((action) => {
+      if (action.id === 'add-review') {
+        return canModifyReviews(undefined)
+      }
+
+      return !EDIT_RESTRICTED_IDS.has(action.id)
+    })
+  }, [actions, canModifyReviews, props.canEdit])
 
   const renderActionButton = (action: QuickActionItem, { inMenu }: { inMenu: boolean }) => {
     if (action.id === 'create-task' && !inMenu) {
