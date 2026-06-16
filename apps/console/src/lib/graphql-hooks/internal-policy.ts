@@ -151,7 +151,7 @@ export const useGetInternalPolicyAssociationsById = (internalPolicyId: string | 
   })
 }
 
-export const useCreateInternalPolicy = () => {
+export const useCreateInternalPolicy = ({ autoInvalidate = true }: { autoInvalidate?: boolean } = {}) => {
   const { client, queryClient } = useGraphQLClient()
 
   return useMutation<CreateInternalPolicyMutation, unknown, CreateInternalPolicyMutationVariables>({
@@ -159,7 +159,9 @@ export const useCreateInternalPolicy = () => {
       return client.request(CREATE_INTERNAL_POLICY, payload)
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['internalPolicies'] })
+      if (autoInvalidate) {
+        queryClient.invalidateQueries({ queryKey: ['internalPolicies'] })
+      }
     },
   })
 }
@@ -215,13 +217,15 @@ export const useCreateBulkCSVInternalPolicy = () => {
   })
 }
 
-export const useCreateUploadInternalPolicy = () => {
+export const useCreateUploadInternalPolicy = ({ autoInvalidate = true }: { autoInvalidate?: boolean } = {}) => {
   const { queryClient } = useGraphQLClient()
 
   return useMutation<CreateUploadInternalPolicyMutation, unknown, CreateUploadInternalPolicyMutationVariables>({
     mutationFn: async (variables) => fetchGraphQLWithUpload({ query: CREATE_UPLOAD_POLICY, variables }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['internalPolicies'] })
+      if (autoInvalidate) {
+        queryClient.invalidateQueries({ queryKey: ['internalPolicies'] })
+      }
     },
   })
 }
