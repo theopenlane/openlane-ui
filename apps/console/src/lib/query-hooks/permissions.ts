@@ -5,7 +5,7 @@ import { useEffect } from 'react'
 import { objectToSnakeCase } from '../../utils/strings'
 import { useFetchWithRetry, getIsSessionInvalid } from '@/lib/graphqlClient'
 
-const readPermissionResponse = async <T>(res: Response, fallbackError: string): Promise<T> => {
+export const readPermissionResponse = async <T>(res: Response, fallbackError: string): Promise<T> => {
   if (!res.ok) {
     const err = await res.json().catch(() => ({}))
     throw new Error(err.error ?? fallbackError)
@@ -13,7 +13,7 @@ const readPermissionResponse = async <T>(res: Response, fallbackError: string): 
   return res.json() as Promise<T>
 }
 
-const shouldRetryPermission = (failureCount: number): boolean => !getIsSessionInvalid() && failureCount < 5
+export const shouldRetryPermission = (failureCount: number): boolean => !getIsSessionInvalid() && failureCount < 5
 
 export const useAccountRoles = (objectType: string, id?: string | number | null, enabled: boolean = true) => {
   const { errorNotification } = useNotification()
