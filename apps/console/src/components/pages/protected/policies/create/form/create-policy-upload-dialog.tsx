@@ -5,6 +5,7 @@ import React, { cloneElement, useEffect, useMemo, useState } from 'react'
 import { Button } from '@repo/ui/button'
 import { useNotification } from '@/hooks/useNotification'
 import { useCreateInternalPolicy, useCreateUploadInternalPolicy } from '@/lib/graphql-hooks/internal-policy'
+import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { type TUploadedFile } from '../../../evidence/upload/types/TUploadedFile'
 import { parseErrorMessage } from '@/utils/graphQlErrorMatcher'
 import { useRouter } from 'next/navigation'
@@ -41,8 +42,9 @@ const CreatePolicyUploadDialog: React.FC<TCreatePolicyUploadDialogProps> = ({ tr
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const [uploadedFiles, setUploadedFiles] = useState<TUploadedFile[]>([])
   const { successNotification, errorNotification } = useNotification()
-  const { mutateAsync: createUploadPolicy, isPending: isSubmitting } = useCreateUploadInternalPolicy()
-  const { mutateAsync: createPolicy, isPending: isCreating } = useCreateInternalPolicy()
+  const { queryClient } = useGraphQLClient()
+  const { mutateAsync: createUploadPolicy, isPending: isSubmitting } = useCreateUploadInternalPolicy({ autoInvalidate: false })
+  const { mutateAsync: createPolicy, isPending: isCreating } = useCreateInternalPolicy({ autoInvalidate: false })
 
   const [showTemplateBrowser, setShowTemplateBrowser] = useState(false)
 
@@ -69,6 +71,7 @@ const CreatePolicyUploadDialog: React.FC<TCreatePolicyUploadDialogProps> = ({ tr
       await handleLinkUpload()
     }
 
+    queryClient.invalidateQueries({ queryKey: ['internalPolicies'] })
     setIsOpen(false)
   }
 
