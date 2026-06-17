@@ -11,7 +11,6 @@ import { useDebounce } from '@uidotdev/usehooks'
 import { useNotification } from '@/hooks/useNotification'
 import { CancelButton } from '@/components/shared/cancel-button.tsx/cancel-button'
 import { useAssignOrganizationRoles, useOrganizationResponsibilityRoles, useRemoveOrganizationRoles } from '@/lib/query-hooks/organization-roles'
-import { RoleUnavailablePlaceholder } from '@/components/shared/organization-roles/role-unavailable-placeholder'
 import { type OrganizationRoleSubjectType } from '@/types/organization-roles'
 
 type ManageAdditionalRolesDialogProps = {
@@ -126,11 +125,11 @@ export const ManageAdditionalRolesDialog = ({ open, onOpenChange, subjectType, s
           {subjectCountLabel ? <DialogDescription>{subjectCountLabel}</DialogDescription> : null}
         </DialogHeader>
 
-        <div className="grid grid-cols-3 gap-6">
-          <div className="col-span-1 flex flex-col gap-2">
-            <span className="text-sm font-medium">Current Additional Roles ({(currentRoleNames ?? []).length})</span>
-            {isManage ? (
-              currentRoleNames && currentRoleNames.length > 0 ? (
+        <div className={isManage ? 'grid grid-cols-3 gap-6' : ''}>
+          {isManage && (
+            <div className="col-span-1 flex flex-col gap-2">
+              <span className="text-sm font-medium">Current Additional Roles ({(currentRoleNames ?? []).length})</span>
+              {currentRoleNames && currentRoleNames.length > 0 ? (
                 <div className="flex flex-wrap items-center gap-1">
                   {currentRoleNames.map((name) => (
                     <Badge key={name} variant="select">
@@ -140,13 +139,11 @@ export const ManageAdditionalRolesDialog = ({ open, onOpenChange, subjectType, s
                 </div>
               ) : (
                 <span className="text-sm text-muted-foreground">No additional roles assigned.</span>
-              )
-            ) : (
-              <RoleUnavailablePlaceholder />
-            )}
-          </div>
+              )}
+            </div>
+          )}
 
-          <div className="col-span-2 flex flex-col gap-3">
+          <div className={isManage ? 'col-span-2 flex flex-col gap-3' : 'flex flex-col gap-3'}>
             <span className="text-sm font-medium">{addListLabel}</span>
             <Input icon={<Search size={16} />} value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search roles" variant="searchTable" />
             <div className="flex max-h-72 flex-col gap-3 overflow-y-auto">
@@ -156,12 +153,14 @@ export const ManageAdditionalRolesDialog = ({ open, onOpenChange, subjectType, s
                 <span className="text-sm text-muted-foreground">No roles found.</span>
               ) : (
                 roles.map((role) => (
-                  <label key={role.id} className="flex cursor-pointer items-start gap-2.5">
-                    <Checkbox checked={selected.has(role.id)} onCheckedChange={(checked) => toggleRole(role.id, !!checked)} className="mt-0.5" />
-                    <span className="flex flex-col">
-                      <span className="text-sm font-medium">{role.name}</span>
+                  <label key={role.id} className="flex cursor-pointer items-start gap-2 text-sm">
+                    <div className="mt-0.5">
+                      <Checkbox checked={selected.has(role.id)} onCheckedChange={(checked) => toggleRole(role.id, !!checked)} />
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="font-medium">{role.name}</span>
                       <span className="text-xs text-muted-foreground">{role.description}</span>
-                    </span>
+                    </div>
                   </label>
                 ))
               )}

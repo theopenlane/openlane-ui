@@ -1,5 +1,5 @@
 import { type GqlError } from '@/types'
-import { useToast } from '@repo/ui/use-toast'
+import { toast } from '@repo/ui/use-toast'
 import type React from 'react'
 import { useCallback } from 'react'
 
@@ -21,8 +21,6 @@ export type TErrorProps = {
 }
 
 export function useNotification() {
-  const { toast } = useToast()
-
   const handleShowNotification = useCallback(
     (title?: string, description?: string | React.ReactNode, variant: 'default' | 'info' | 'info2' | 'warning' | 'error' | 'success' = 'default', duration?: number) => {
       toast({
@@ -32,7 +30,7 @@ export function useNotification() {
         ...(description ? { description } : {}),
       })
     },
-    [toast],
+    [],
   )
 
   const handleSuccess = useCallback(

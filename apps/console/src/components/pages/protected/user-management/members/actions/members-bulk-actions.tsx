@@ -91,20 +91,18 @@ export const MembersBulkActions = ({ selectedMembers, onClear }: MembersBulkActi
         </DropdownMenuContent>
       </DropdownMenu>
 
-      {rolesMode && (
-        <ManageAdditionalRolesDialog
-          open
-          onOpenChange={(open) => {
-            if (!open) {
-              setRolesMode(null)
-              onClear()
-            }
-          }}
-          subjectType="user"
-          subjectIds={userIds}
-          mode={rolesMode}
-        />
-      )}
+      <ManageAdditionalRolesDialog
+        open={rolesMode !== null}
+        onOpenChange={(open) => {
+          if (!open) {
+            setRolesMode(null)
+            onClear()
+          }
+        }}
+        subjectType="user"
+        subjectIds={userIds}
+        mode={rolesMode ?? 'add'}
+      />
 
       <AlertDialog open={showChangeRole} onOpenChange={setShowChangeRole}>
         <AlertDialogContent>

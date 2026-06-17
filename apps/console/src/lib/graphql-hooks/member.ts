@@ -1,4 +1,5 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMemo } from 'react'
 import { useGraphQLClient } from '@/hooks/useGraphQLClient'
 import { useSession } from 'next-auth/react'
 
@@ -50,7 +51,7 @@ export const useGetOrgMemberships = ({ where, pagination, enabled, orderBy }: TU
     enabled,
   })
 
-  const members = (queryResult.data?.orgMemberships?.edges ?? []).map((edge) => edge?.node) as OrgMembership[]
+  const members = useMemo(() => (queryResult.data?.orgMemberships?.edges ?? []).map((edge) => edge?.node) as OrgMembership[], [queryResult.data])
 
   const paginationMeta = {
     totalCount: queryResult.data?.orgMemberships?.totalCount ?? 0,
